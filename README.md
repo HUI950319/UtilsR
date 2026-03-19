@@ -1,156 +1,139 @@
-# UtilsR <img src="man/figures/logo.png" align="right" height="139" />
+# UtilsR
 
 <!-- badges: start -->
 [![R-CMD-check](https://img.shields.io/badge/R--CMD--check-passing-brightgreen)](https://github.com/HUI950319/UtilsR)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 <!-- badges: end -->
 
-**UtilsR** 是一个 R 工具包，提供交互式数据探索、变量检查、缺失值分析、系统诊断和美化输出等实用函数。
+**UtilsR** — R utility toolkit for data exploration, factor manipulation, colour palettes, and console styling.
 
-## 安装
+## Installation
 
 ```r
-# 从 GitHub 安装
 pak::pak("HUI950319/UtilsR")
 
-# 或使用 devtools
+# or
 devtools::install_github("HUI950319/UtilsR")
 ```
 
-## 核心功能
+## Functions Overview
 
-### `lv()` — 变量快速检查
+| Category | Function | Description |
+|----------|----------|-------------|
+| **Inspect** | `lv()` | Variable summary for data.frame / Seurat |
+| | `na()` | Missing value & data quality analysis |
+| | `check_system()` | OS, R version, memory, CPU info |
+| | `check_size()` | Object memory profiling |
+| **Factor** | `fct_cat()` | Recode, reorder, reverse, binary, group, combine |
+| | `fct_num()` | Numeric → factor (cut points or binning) |
+| **Colour** | `pal_lancet`, `pal_ditto`, ... | 11 built-in colour palettes |
+| | `show_color()` | Display colour swatches in console |
+| | `list_palettes()` | Browse all palettes |
+| **Display** | `.cat_line()` | Styled separator line |
+| | `.cat_box()` | Styled message box |
+| | `.cat_message()` | Timestamped log message |
+| | `.cat_tb()` | Enhanced gt table with highlighting |
+| **Theme** | `my_theme()` | Clean ggplot2 theme |
+| | `km_theme()` | Kaplan-Meier survival curve theme |
+| | `rcs_theme()` | Restricted cubic spline theme |
+| **Operators** | `%ni%` | Not in (`!%in%`) |
+| | `%\|\|%` | Default value (`NULL %\|\|% 0` → `0`) |
+| | `%>%`, `%<>%` | Pipe operators |
 
-支持 `data.frame` 和 `Seurat` 对象，显示频率、唯一值、缺失值等信息。
+## Quick Start
+
+### Variable Inspection
 
 ```r
 library(UtilsR)
 
-# 查看所有变量
-lv(iris)
-
-# 选择特定变量
-lv(iris, Species, Sepal.Length)
-
-# 正则匹配变量名
-lv(iris, pattern = "Sepal")
-
-# 分组统计
-lv(iris, Sepal.Length, group = "Species")
-
-# 交叉表
-lv(iris, Species, count = Sepal.Length)
+lv(iris)                              # all variables
+lv(iris, Species, Sepal.Length)       # specific variables
+lv(iris, pattern = "Sepal")          # regex match
+lv(iris, Sepal.Length, group = "Species")  # grouped summary
 ```
 
-### `na()` — 数据质量分析
+### Factor Manipulation — `fct_cat()`
 
-检测缺失值和特殊值（如 `"unknown"`, `"N/A"`, 空字符串等），输出 gt 表格。
+All factor operations in one function, works inside `mutate()`:
 
 ```r
-na(my_data)
+x <- factor(c("I", "II", "III", "IV"))
 
-# 显示所有变量（包括无问题的）
-na(my_data, show_all = TRUE)
+# Recode (named args)
+fct_cat(x, early = c("I","II"), late = c("III","IV"))
+fct_cat(x, g1 = 1:2, g2 = 3:4)      # by index
+
+# Reorder (unnamed args)
+fct_cat(x, "III", "I")               # III first, then I, rest follow
+
+# Reverse / Binary / Group / Relabel
+fct_cat(x, reverse = TRUE)
+fct_cat(x, binary_ref = 1)           # I vs Oth
+fct_cat(x, groups = list(early = 1:2, late = 3:4))
+fct_cat(x, new_labels = c("One","Two","Three","Four"))
+
+# Combine columns in mutate()
+df %>% mutate(grp = fct_cat(sex, combine = "age"))
+df %>% mutate(grp = fct_cat(combine = c("sex", "age", "stage")))
 ```
 
-### `check_system()` — 系统诊断
-
-显示操作系统、R 版本、内存用量、CPU 信息。
+### Numeric to Factor — `fct_num()`
 
 ```r
-check_system()
+# Fixed cut points
+df %>% mutate(age_grp = fct_num(age, breaks = 65))
+df %>% mutate(age_grp = fct_num(age, breaks = c(40, 60)))
+
+# Quantile binning
+df %>% mutate(age_q4 = fct_num(age, nbins = 4))
+df %>% mutate(age_q3 = fct_num(age, nbins = 3, type = "equal"))
+
+# Custom labels
+df %>% mutate(risk = fct_num(score, breaks = c(30, 70),
+                             labels = c("Low", "Mid", "High")))
 ```
 
-### `check_size()` — 对象内存分析
+### Colour Palettes
 
-查看全局环境中对象的内存占用，以 gt 表格展示（含柱状图和颜色映射）。
-
-```r
-check_size()
-
-# 查看特定对象
-check_size("my_data", "model")
-
-# 正则匹配
-check_size(pattern = "^df")
-```
-
-## 美化输出
-
-### 控制台样式
+11 built-in palettes (16–48 colours), auto-display swatches in RStudio:
 
 ```r
-# 分隔线（info / success / warning / error）
-.cat_line("处理开始", type = "info")
-.cat_line("操作完成", type = "success")
+pal_lancet                    # 15 colours, Lancet journal style
+pal_ditto                     # 40 colours, dittoSeq (scRNA-seq)
+pal_igv                       # 48 colours, IGV genome browser
+pal_polychrome                # 36 colours, max perceptual distinctness
+pal_glasbey                   # 32 colours, Glasbey algorithm
+pal_d3                        # 20 colours, D3.js Category20
 
-# 信息框
-.cat_box("重要提示", type = "warning")
+# Browse all
+list_palettes()
 
-# 带时间戳的日志
-.cat_message("数据加载中...", type = "info")
-.cat_message("发现问题", type = "error")
-```
-
-### `.cat_tb()` — 增强表格显示
-
-基于 `gt`，支持多表合并、模式高亮、数值颜色映射。
-
-```r
-.cat_tb(
-  df1, df2,
-  titles = c("模型 1", "模型 2"),
-  highlight_pattern = "\\*+",
-  highlight_color = "lightcoral",
-  numeric_columns = c("estimate", "p_value"),
-  theme = "excel"
-)
-```
-
-## 调色板
-
-```r
-# Lancet 配色方案（15色），控制台直接显示色块
-lancet_palette
-
-# 子集保持颜色显示
-lancet_palette[1:5]
-
-# 自定义调色板
+# Custom palette
 my_pal <- as_palette(c("#FF6B6B", "#4ECDC4", "#45B7D1"))
-my_pal
 
-# 反转顺序显示
-show_color(lancet_palette, rev = TRUE)
+# Use in ggplot
+ggplot(data, aes(x, y, color = group)) +
+  geom_point() +
+  scale_color_manual(values = pal_lancet[1:3])
 ```
 
-## ggplot2 主题
+### Console Styling
 
 ```r
-library(ggplot2)
-
-ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) +
-  geom_point() +
-  my_theme()
-
-# 预设主题
-# km_theme  — Kaplan-Meier 生存曲线
-# rcs_theme — 限制性立方样条图
+.cat_line("Processing started", type = "info")
+.cat_line("Done", type = "success")
+.cat_box("Important notice", type = "warning")
+.cat_message("Loading data...", type = "info")
 ```
 
-## 操作符
+### Data Quality
 
-| 操作符 | 用途 | 示例 |
-|--------|------|------|
-| `%>%` | 管道 | `x %>% mean()` |
-| `%<>%` | 管道赋值 | `x %<>% sort()` |
-| `%\|\|%` | 默认值 | `NULL %\|\|% 0` → `0` |
-| `%ni%` | 不在其中 | `3 %ni% c(1,2)` → `TRUE` |
-
-## 依赖
-
-- **核心**: cli, dplyr, ggplot2, gt, gtExtras, rlang
-- **可选**: Seurat, SeuratObject（用于 `lv.Seurat`）
+```r
+na(my_data)                   # missing value report
+check_system()                # system diagnostics
+check_size()                  # object memory usage
+```
 
 ## License
 
