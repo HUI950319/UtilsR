@@ -2,21 +2,30 @@
 % Please edit documentation in R/fmt_p.R
 \name{fmt_p}
 \alias{fmt_p}
-\title{Format P-values or Numbers}
+\alias{fmt_stars}
+\title{Format P-values, Numbers, or Add Stars to Any Value}
 \usage{
 fmt_p(
   x,
+  p = NULL,
   digits = NULL,
   mode = c("stars", "pvalue", "plain"),
   map_signif = c(`***` = 0.001, `**` = 0.01, `*` = 0.05, . = 0.1)
 )
+
+fmt_stars(effect, p, map_signif)
 }
 \arguments{
-\item{x}{Numeric or character vector.}
+\item{x}{Numeric/character vector of p-values (when \code{p} is NULL),
+or any value to annotate with stars (when \code{p} is provided).}
 
-\item{digits}{Integer, decimal places (default: 3 for stars/pvalue, 2 for plain).}
+\item{p}{Numeric vector of p-values for star annotation. When provided,
+stars are appended to \code{x} based on \code{p} (replaces \code{fmt_stars}).}
 
-\item{mode}{Formatting mode:
+\item{digits}{Integer, decimal places (default: 3 for stars/pvalue, 2 for plain).
+Ignored when \code{p} is provided.}
+
+\item{mode}{Formatting mode (ignored when \code{p} is provided):
 \describe{
   \item{\code{"stars"}}{(default) P-value with significance stars.}
   \item{\code{"pvalue"}}{P-value with \code{"<0.001"} for small values.}
@@ -24,38 +33,32 @@ fmt_p(
 }}
 
 \item{map_signif}{Named numeric vector of significance thresholds.
-Only used when \code{mode = "stars"}.
 Default: \code{c("***" = 0.001, "**" = 0.01, "*" = 0.05, "." = 0.1)}.}
 }
 \value{
 Character vector of formatted values.
 }
 \description{
-Unified formatting for p-values and plain numbers. Automatically handles
-character inputs containing comparison operators (e.g. \code{"<0.001"}).
+Unified formatting for p-values and plain numbers. When \code{x} is provided
+alone, formats p-values. When both \code{x} and \code{p} are provided,
+appends significance stars to \code{x} based on \code{p}.
 }
 \examples{
-# Stars mode (default)
+# --- Format p-values (x only) ---
 fmt_p(c(0.0003, 0.005, 0.03, 0.08, 0.5))
 # "<0.001***" "0.005**"   "0.030*"    "0.080."    "0.500"
 
-# P-value mode (no stars)
 fmt_p(c(0.0003, 0.05), mode = "pvalue")
 # "<0.001" "0.050"
 
-# Plain number
 fmt_p(1.2345, digits = 2, mode = "plain")
 # "1.23"
 
-# Character input
-fmt_p(c("<0.001", "0.05"))
-# "<0.001***" "0.050*"
+# --- Add stars to any value (x + p) ---
+fmt_p(c(1.85, 0.72, 1.25), c(0.001, 0.05, 0.5))
+# "1.85***" "0.72*"   "1.25"
 
-# Custom significance levels
-fmt_p(0.08, map_signif = c("*" = 0.1))
-# "0.080*"
-
-# In mutate()
-# df \%>\% mutate(p_fmt = fmt_p(pvalue))
+# With fmt_ci output
+# df \%>\% mutate(hr_ci = fmt_p(fmt_ci(hr, lo, hi), pvalue))
 
 }

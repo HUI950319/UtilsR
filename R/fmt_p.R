@@ -1,63 +1,81 @@
 # ============================================================================
-# fmt_p.R -- Format p-values and numbers
+# fmt_p.R -- Format p-values, numbers, and add significance stars
 # ============================================================================
 
-#' Format P-values or Numbers
+#' Format P-values, Numbers, or Add Stars to Any Value
 #'
-#' Unified formatting for p-values and plain numbers. Automatically handles
-#' character inputs containing comparison operators (e.g. \code{"<0.001"}).
+#' Unified formatting for p-values and plain numbers. When \code{x} is provided
+#' alone, formats p-values. When both \code{x} and \code{p} are provided,
+#' appends significance stars to \code{x} based on \code{p}.
 #'
-#' @param x Numeric or character vector.
+#' @param x Numeric/character vector of p-values (when \code{p} is NULL),
+#'   or any value to annotate with stars (when \code{p} is provided).
+#' @param p Numeric vector of p-values for star annotation. When provided,
+#'   stars are appended to \code{x} based on \code{p} (replaces \code{fmt_stars}).
 #' @param digits Integer, decimal places (default: 3 for stars/pvalue, 2 for plain).
-#' @param mode Formatting mode:
+#'   Ignored when \code{p} is provided.
+#' @param mode Formatting mode (ignored when \code{p} is provided):
 #'   \describe{
 #'     \item{\code{"stars"}}{(default) P-value with significance stars.}
 #'     \item{\code{"pvalue"}}{P-value with \code{"<0.001"} for small values.}
 #'     \item{\code{"plain"}}{Plain number formatting.}
 #'   }
 #' @param map_signif Named numeric vector of significance thresholds.
-#'   Only used when \code{mode = "stars"}.
 #'   Default: \code{c("***" = 0.001, "**" = 0.01, "*" = 0.05, "." = 0.1)}.
 #'
 #' @return Character vector of formatted values.
 #'
 #' @examples
-#' # Stars mode (default)
+#' # --- Format p-values (x only) ---
 #' fmt_p(c(0.0003, 0.005, 0.03, 0.08, 0.5))
 #' # "<0.001***" "0.005**"   "0.030*"    "0.080."    "0.500"
 #'
-#' # P-value mode (no stars)
 #' fmt_p(c(0.0003, 0.05), mode = "pvalue")
 #' # "<0.001" "0.050"
 #'
-#' # Plain number
 #' fmt_p(1.2345, digits = 2, mode = "plain")
 #' # "1.23"
 #'
-#' # Character input
-#' fmt_p(c("<0.001", "0.05"))
-#' # "<0.001***" "0.050*"
+#' # --- Add stars to any value (x + p) ---
+#' fmt_p(c(1.85, 0.72, 1.25), c(0.001, 0.05, 0.5))
+#' # "1.85***" "0.72*"   "1.25"
 #'
-#' # Custom significance levels
-#' fmt_p(0.08, map_signif = c("*" = 0.1))
-#' # "0.080*"
-#'
-#' # In mutate()
-#' # df %>% mutate(p_fmt = fmt_p(pvalue))
+#' # With fmt_ci output
+#' # df %>% mutate(hr_ci = fmt_p(fmt_ci(hr, lo, hi), pvalue))
 #'
 #' @export
 fmt_p <- function(x,
+                  p = NULL,
                   digits = NULL,
                   mode = c("stars", "pvalue", "plain"),
                   map_signif = c("***" = 0.001, "**" = 0.01, "*" = 0.05, "." = 0.1)) {
-  mode <- match.arg(mode)
 
-  # Default digits by mode
+  # --- Stars helper (shared) ---
+  .add_stars <- function(pvals, map) {
+    map <- sort(map)
+    vapply(pvals, function(pv) {
+      if (is.na(pv)) return("")
+      hit <- map[map >= pv]
+      if (length(hit) > 0L) names(which.min(hit)) else ""
+    }, character(1))
+  }
+
+  # --- Mode 2: Add stars to x based on external p ---
+  if (!is.null(p)) {
+    if (!is.numeric(p)) cli::cli_abort("{.arg p} must be numeric.")
+    x <- as.character(x)
+    if (length(p) != length(x)) {
+      cli::cli_abort("{.arg x} and {.arg p} must have the same length.")
+    }
+    return(paste0(x, .add_stars(p, map_signif)))
+  }
+
+  # --- Mode 1: Format p-values ---
+  mode <- match.arg(mode)
   d <- digits %||% if (mode == "plain") 2L else 3L
   d <- as.integer(d)
   if (d < 0L) cli::cli_abort("{.arg digits} must be non-negative.")
 
-  # Parse character input
   x_num <- if (is.character(x)) {
     as.numeric(gsub("[<>]", "", x))
   } else if (is.numeric(x)) {
@@ -66,70 +84,32 @@ fmt_p <- function(x,
     cli::cli_abort("{.arg x} must be numeric or character.")
   }
 
-  # --- plain mode ---
+  # plain mode
   if (mode == "plain") {
     fmt <- sprintf("%%.%df", d)
-    out <- ifelse(is.na(x_num), NA_character_, sprintf(fmt, x_num))
-    return(out)
+    return(ifelse(is.na(x_num), NA_character_, sprintf(fmt, x_num)))
   }
 
-  # --- pvalue / stars mode ---
+  # pvalue / stars mode
   fmt <- sprintf("%%.%df", d)
   out <- ifelse(is.na(x_num), NA_character_, sprintf(fmt, x_num))
-
-  # Replace rounded-to-zero with threshold string
   threshold <- paste0("<0.", strrep("0", d - 1L), "1")
   out <- ifelse(!is.na(out) & grepl("^0\\.0*$", out), threshold, out)
 
-  # --- stars mode ---
   if (mode == "stars") {
     if (!is.numeric(map_signif) || is.null(names(map_signif))) {
       cli::cli_abort("{.arg map_signif} must be a named numeric vector.")
     }
-    map_signif <- sort(map_signif)
-    stars <- vapply(x_num, function(p) {
-      if (is.na(p)) return("")
-      hit <- map_signif[map_signif >= p]
-      if (length(hit) > 0L) names(which.min(hit)) else ""
-    }, character(1))
-    out <- paste0(out, stars)
+    out <- paste0(out, .add_stars(x_num, map_signif))
   }
 
   out
 }
 
-#' Add Significance Stars to Values Based on P-values
-#'
-#' Appends significance stars to an effect column (e.g. HR, OR, coefficient)
-#' based on a corresponding p-value column. Works inside \code{mutate()}.
-#'
-#' @param effect Character or numeric vector to annotate with stars.
-#' @param p Numeric vector of p-values.
-#' @param map_signif Named numeric vector of significance thresholds.
-#'   Default: \code{c("***" = 0.001, "**" = 0.01, "*" = 0.05)}.
-#'
-#' @return Character vector with stars appended.
-#'
-#' @examples
-#' fmt_stars(c(1.85, 0.72, 1.25, 1.01), c(0.0005, 0.008, 0.03, 0.5))
-#' # "1.85***" "0.72**"  "1.25*"   "1.01"
-#'
-#' # With fmt_ci CI output
-#' # df %>% mutate(hr_ci = fmt_stars(fmt_ci(hr, ci_low, ci_high), pvalue))
-#'
+#' @rdname fmt_p
+#' @usage fmt_stars(effect, p, map_signif)
 #' @export
 fmt_stars <- function(effect, p,
                       map_signif = c("***" = 0.001, "**" = 0.01, "*" = 0.05)) {
-  if (!is.numeric(p)) cli::cli_abort("{.arg p} must be numeric.")
-  effect <- as.character(effect)
-  if (length(p) != length(effect)) {
-    cli::cli_abort("{.arg p} and {.arg effect} must have the same length.")
-  }
-  map_signif <- sort(map_signif)
-  stars <- vapply(p, function(pv) {
-    if (is.na(pv)) return("")
-    hit <- map_signif[map_signif >= pv]
-    if (length(hit) > 0L) names(which.min(hit)) else ""
-  }, character(1))
-  paste0(effect, stars)
+  fmt_p(effect, p = p, map_signif = map_signif)
 }
