@@ -25,6 +25,7 @@ Collate:
     'color.R'
     'fct_cat.R'
     'fct_num.R'
+    'fmt_stat.R'
 Imports:
     cli,
     dplyr,
