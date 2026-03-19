@@ -16,7 +16,10 @@
 #'
 #' @export
 as_palette <- function(x) {
-  structure(as.character(x), class = c("palette", "character"))
+  if (!is.character(x)) {
+    cli::cli_abort("{.arg x} must be a character vector of colours, got {.cls {class(x)}}.")
+  }
+  structure(x, class = c("palette", "character"))
 }
 
 #' @export
@@ -44,11 +47,11 @@ c.palette <- function(...) {
 #'   Printing in the console displays coloured swatches automatically.
 #'
 #' @examples
-#' lancet_palette
-#' lancet_palette[1:5]
+#' pal_lancet
+#' pal_lancet[1:5]
 #'
 #' @export
-lancet_palette <- as_palette(c(
+pal_lancet <- as_palette(c(
   "#00468BFF", "#ED0000FF", "#42B540FF", "#0099B4FF", "#925E9FFF",
   "#FDAF91FF", "#AD002AFF", "#ADB6B6FF", "#1B1919FF", "#79AF97FF",
   "#DF8F44FF", "#6A6599FF", "#FCCDE5FF", "#80B1D3FF", "#0000FFFF"
@@ -62,15 +65,14 @@ lancet_palette <- as_palette(c(
 #' @format A \code{palette} object (character vector of 48 hex colour codes).
 #' @source \url{https://github.com/nanxstats/ggsci}
 #' @examples
-#' igv_palette
+#' pal_igv
 #' @export
-igv_palette <- as_palette(c(
+pal_igv <- as_palette(c(
   "#5050FF", "#CE3D32", "#749B58", "#F0E685", "#466983", "#BA6338",
   "#5DB1DD", "#802268", "#6BD76B", "#D595A7", "#924822", "#837B8D",
   "#C75127", "#D58F5C", "#7A65A5", "#E4AF69", "#3B1B53", "#CDDEB7",
   "#612A79", "#AE1F63", "#E7C76F", "#5A655E", "#CC9900", "#99CC00",
-
-"#33CC00", "#00CC33", "#00CC99", "#0099CC", "#0A47FF", "#4775FF",
+  "#33CC00", "#00CC33", "#00CC99", "#0099CC", "#0A47FF", "#4775FF",
   "#FFC20A", "#FFD147", "#990033", "#991A00", "#996600", "#809900",
   "#339900", "#00991A", "#009966", "#008099", "#003399", "#1A0099",
   "#660099", "#990080", "#D60047", "#FF1463", "#00D68F", "#14FFB1"
@@ -84,9 +86,9 @@ igv_palette <- as_palette(c(
 #' @format A \code{palette} object (character vector of 40 hex colour codes).
 #' @source \url{https://github.com/dtm2451/dittoSeq}
 #' @examples
-#' ditto_palette
+#' pal_ditto
 #' @export
-ditto_palette <- as_palette(c(
+pal_ditto <- as_palette(c(
   "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00",
   "#CC79A7", "#666666", "#AD7700", "#1C91D4", "#007756", "#D5C711",
   "#005685", "#A04700", "#B14380", "#4D4D4D", "#FFBE2D", "#80C7EF",
@@ -105,9 +107,9 @@ ditto_palette <- as_palette(c(
 #' @format A \code{palette} object (character vector of 36 hex colour codes).
 #' @source \url{https://CRAN.R-project.org/package=pals}
 #' @examples
-#' polychrome_palette
+#' pal_polychrome
 #' @export
-polychrome_palette <- as_palette(c(
+pal_polychrome <- as_palette(c(
   "#5A5156", "#E4E1E3", "#F6222E", "#FE00FA", "#16FF32", "#3283FE",
   "#FEAF16", "#B00068", "#1CFFCE", "#90AD1C", "#2ED9FF", "#DEA0FD",
   "#AA0DFE", "#F8A19F", "#325A9B", "#C4451C", "#1C8356", "#85660D",
@@ -124,9 +126,9 @@ polychrome_palette <- as_palette(c(
 #' @format A \code{palette} object (character vector of 32 hex colour codes).
 #' @source \url{https://CRAN.R-project.org/package=pals}
 #' @examples
-#' glasbey_palette
+#' pal_glasbey
 #' @export
-glasbey_palette <- as_palette(c(
+pal_glasbey <- as_palette(c(
   "#0000FF", "#FF0000", "#00FF00", "#000033", "#FF00B6", "#005300",
   "#FFD300", "#009FFF", "#9A4D42", "#00FFBE", "#783FC1", "#1F9698",
   "#FFACFD", "#B1CC71", "#F1085C", "#FE8F42", "#DD00FF", "#201A01",
@@ -143,9 +145,9 @@ glasbey_palette <- as_palette(c(
 #' @format A \code{palette} object (character vector of 26 hex colour codes).
 #' @source \url{https://CRAN.R-project.org/package=pals}
 #' @examples
-#' alphabet_palette
+#' pal_alphabet
 #' @export
-alphabet_palette <- as_palette(c(
+pal_alphabet <- as_palette(c(
   "#F0A0FF", "#0075DC", "#993F00", "#4C005C", "#191919", "#005C31",
   "#2BCE48", "#FFCC99", "#808080", "#94FFB5", "#8F7C00", "#9DCC00",
   "#C20088", "#003380", "#FFA405", "#FFA8BB", "#426600", "#FF0010",
@@ -160,9 +162,9 @@ alphabet_palette <- as_palette(c(
 #' @format A \code{palette} object (character vector of 26 hex colour codes).
 #' @source \url{https://github.com/nanxstats/ggsci}
 #' @examples
-#' ucsc_palette
+#' pal_ucsc
 #' @export
-ucsc_palette <- as_palette(c(
+pal_ucsc <- as_palette(c(
   "#FF0000", "#FF9900", "#FFCC00", "#00FF00", "#6699FF", "#CC33FF",
   "#99991E", "#999999", "#FF00CC", "#CC0000", "#FFCCCC", "#FFFF00",
   "#CCFF00", "#358000", "#0000CC", "#99CCFF", "#00FFFF", "#CCFFFF",
@@ -177,9 +179,9 @@ ucsc_palette <- as_palette(c(
 #' @format A \code{palette} object (character vector of 22 hex colour codes).
 #' @source Kelly, K.L. (1965) Twenty-two colors of maximum contrast.
 #' @examples
-#' kelly_palette
+#' pal_kelly
 #' @export
-kelly_palette <- as_palette(c(
+pal_kelly <- as_palette(c(
   "#F2F3F4", "#222222", "#F3C300", "#875092", "#F38400", "#A1CAF1",
   "#BE0032", "#C2B280", "#848482", "#008856", "#E68FAC", "#0067A5",
   "#F99379", "#604E97", "#F6A600", "#B3286E", "#DCD300", "#882D17",
@@ -193,9 +195,9 @@ kelly_palette <- as_palette(c(
 #' @format A \code{palette} object (character vector of 20 hex colour codes).
 #' @source \url{https://github.com/d3/d3-scale-chromatic}
 #' @examples
-#' d3_palette
+#' pal_d3
 #' @export
-d3_palette <- as_palette(c(
+pal_d3 <- as_palette(c(
   "#1F77B4", "#FF7F0E", "#2CA02C", "#D62728", "#9467BD", "#8C564B",
   "#E377C2", "#7F7F7F", "#BCBD22", "#17BECF", "#AEC7E8", "#FFBB78",
   "#98DF8A", "#FF9896", "#C5B0D5", "#C49C94", "#F7B6D2", "#C7C7C7",
@@ -209,9 +211,9 @@ d3_palette <- as_palette(c(
 #' @format A \code{palette} object (character vector of 16 hex colour codes).
 #' @source \url{https://github.com/nanxstats/ggsci}
 #' @examples
-#' simpsons_palette
+#' pal_simpsons
 #' @export
-simpsons_palette <- as_palette(c(
+pal_simpsons <- as_palette(c(
   "#FED439", "#709AE1", "#8A9197", "#D2AF81", "#FD7446", "#D5E4A2",
   "#197EC0", "#F05C3B", "#46732E", "#71D0F5", "#370335", "#075149",
   "#C80813", "#91331F", "#1A9993", "#FD8CC1"
@@ -224,9 +226,9 @@ simpsons_palette <- as_palette(c(
 #'
 #' @format A \code{palette} object (character vector of 20 hex colour codes).
 #' @examples
-#' trubetskoy_palette
+#' pal_trubetskoy
 #' @export
-trubetskoy_palette <- as_palette(c(
+pal_trubetskoy <- as_palette(c(
   "#E6194B", "#3CB44B", "#FFE119", "#4363D8", "#F58231", "#911EB4",
   "#42D4F4", "#F032E6", "#BFEF45", "#FABED4", "#469990", "#DCBEFF",
   "#9A6324", "#FFFAC8", "#800000", "#AAFFC3", "#808000", "#FFD8B1",
@@ -245,19 +247,9 @@ trubetskoy_palette <- as_palette(c(
 #'
 #' @export
 list_palettes <- function(show = TRUE) {
-  pals <- list(
-    lancet_palette     = lancet_palette,
-    igv_palette        = igv_palette,
-    ditto_palette      = ditto_palette,
-    polychrome_palette = polychrome_palette,
-    glasbey_palette    = glasbey_palette,
-    alphabet_palette   = alphabet_palette,
-    ucsc_palette       = ucsc_palette,
-    kelly_palette      = kelly_palette,
-    d3_palette         = d3_palette,
-    simpsons_palette   = simpsons_palette,
-    trubetskoy_palette = trubetskoy_palette
-  )
+  ns <- asNamespace("UtilsR")
+  all_names <- sort(ls(ns, pattern = "^pal_"))
+  pals <- mget(all_names, envir = ns)
   for (nm in names(pals)) {
     cat(sprintf("\n=== %s (%d colours) ===\n", nm, length(pals[[nm]])))
     if (show) show_color(pals[[nm]])

@@ -23,6 +23,8 @@ Collate:
     'check_size.R'
     'count_packages.R'
     'color.R'
+    'fct_cat.R'
+    'fct_num.R'
 Imports:
     cli,
     dplyr,
