@@ -114,8 +114,8 @@ fmt_p <- function(x,
 #' fmt_effect(c(1.85, 0.72, 1.25, 1.01), c(0.0005, 0.008, 0.03, 0.5))
 #' # "1.85***" "0.72**"  "1.25*"   "1.01"
 #'
-#' # With fmt_stat CI output
-#' # df %>% mutate(hr_ci = fmt_effect(fmt_stat(hr, ci_low, ci_high), pvalue))
+#' # With fmt_ci CI output
+#' # df %>% mutate(hr_ci = fmt_effect(fmt_ci(hr, ci_low, ci_high), pvalue))
 #'
 #' @export
 fmt_effect <- function(effect, p,

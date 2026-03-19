@@ -1,5 +1,5 @@
 # ============================================================================
-# fmt_stat.R -- Format statistics (CI and mean±SD)
+# fmt_ci.R -- Format statistics (CI and mean±SD)
 # ============================================================================
 
 #' Format Confidence Intervals or Mean (SD)
@@ -20,28 +20,28 @@
 #'
 #' @examples
 #' # --- CI mode (3 arguments) ---
-#' fmt_stat(1.23, 0.95, 1.51)
+#' fmt_ci(1.23, 0.95, 1.51)
 #' # "1.23 (0.95\u20131.51)"
 #'
-#' fmt_stat(c(1.23, 2.45), c(0.95, 2.10), c(1.51, 2.80))
+#' fmt_ci(c(1.23, 2.45), c(0.95, 2.10), c(1.51, 2.80))
 #' # "1.23 (0.95\u20131.51)" "2.45 (2.10\u20132.80)"
 #'
-#' fmt_stat(1.23, 0.95, 1.51, bracket = "[", sep = " to ")
+#' fmt_ci(1.23, 0.95, 1.51, bracket = "[", sep = " to ")
 #' # "1.23 [0.95 to 1.51]"
 #'
 #' # --- SD mode (2 arguments) ---
-#' fmt_stat(1.23, 0.15)
+#' fmt_ci(1.23, 0.15)
 #' # "1.2(0.2)"
 #'
-#' fmt_stat(c(1.23, 2.45), c(0.15, 0.25), digits = 2)
+#' fmt_ci(c(1.23, 2.45), c(0.15, 0.25), digits = 2)
 #' # "1.23(0.15)" "2.45(0.25)"
 #'
 #' # --- In mutate() ---
-#' # df %>% mutate(ci = fmt_stat(est, ci_low, ci_high))
-#' # df %>% mutate(ms = fmt_stat(mean_val, sd_val))
+#' # df %>% mutate(ci = fmt_ci(est, ci_low, ci_high))
+#' # df %>% mutate(ms = fmt_ci(mean_val, sd_val))
 #'
 #' @export
-fmt_stat <- function(x, y, z = NULL,
+fmt_ci <- function(x, y, z = NULL,
                      digits = NULL,
                      bracket = c("(", "["),
                      sep = c("\u2013", ", ", " to ")) {
