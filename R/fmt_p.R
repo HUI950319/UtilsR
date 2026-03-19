@@ -97,3 +97,39 @@ fmt_p <- function(x,
 
   out
 }
+
+#' Add Significance Stars to Values Based on P-values
+#'
+#' Appends significance stars to an effect column (e.g. HR, OR, coefficient)
+#' based on a corresponding p-value column. Works inside \code{mutate()}.
+#'
+#' @param p Numeric vector of p-values.
+#' @param effect Character or numeric vector to annotate with stars.
+#' @param map_signif Named numeric vector of significance thresholds.
+#'   Default: \code{c("***" = 0.001, "**" = 0.01, "*" = 0.05)}.
+#'
+#' @return Character vector with stars appended.
+#'
+#' @examples
+#' add_stars(c(0.0005, 0.008, 0.03, 0.5), c(1.85, 0.72, 1.25, 1.01))
+#' # "1.85***" "0.72**"  "1.25*"   "1.01"
+#'
+#' # With fmt_stat CI output
+#' # df %>% mutate(hr_ci = add_stars(pvalue, fmt_stat(hr, ci_low, ci_high)))
+#'
+#' @export
+add_stars <- function(p, effect,
+                      map_signif = c("***" = 0.001, "**" = 0.01, "*" = 0.05)) {
+  if (!is.numeric(p)) cli::cli_abort("{.arg p} must be numeric.")
+  effect <- as.character(effect)
+  if (length(p) != length(effect)) {
+    cli::cli_abort("{.arg p} and {.arg effect} must have the same length.")
+  }
+  map_signif <- sort(map_signif)
+  stars <- vapply(p, function(pv) {
+    if (is.na(pv)) return("")
+    hit <- map_signif[map_signif >= pv]
+    if (length(hit) > 0L) names(which.min(hit)) else ""
+  }, character(1))
+  paste0(effect, stars)
+}
