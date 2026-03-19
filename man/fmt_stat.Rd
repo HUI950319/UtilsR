@@ -4,7 +4,14 @@
 \alias{fmt_stat}
 \title{Format Confidence Intervals or Mean (SD)}
 \usage{
-fmt_stat(x, y, z = NULL, digits = NULL, bracket = c("(", "["), sep = "–")
+fmt_stat(
+  x,
+  y,
+  z = NULL,
+  digits = NULL,
+  bracket = c("(", "["),
+  sep = c("–", ", ", " to ")
+)
 }
 \arguments{
 \item{x}{Numeric vector: point estimate (CI mode) or mean (SD mode).}

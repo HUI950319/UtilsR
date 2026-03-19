@@ -44,8 +44,9 @@
 fmt_stat <- function(x, y, z = NULL,
                      digits = NULL,
                      bracket = c("(", "["),
-                     sep = "\u2013") {
+                     sep = c("\u2013", ", ", " to ")) {
   bracket <- match.arg(bracket)
+  sep <- match.arg(sep)
   bp <- if (bracket == "(") c("(", ")") else c("[", "]")
 
 
