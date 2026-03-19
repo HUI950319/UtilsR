@@ -111,14 +111,14 @@ fmt_p <- function(x,
 #' @return Character vector with stars appended.
 #'
 #' @examples
-#' fmt_effect(c(1.85, 0.72, 1.25, 1.01), c(0.0005, 0.008, 0.03, 0.5))
+#' fmt_stars(c(1.85, 0.72, 1.25, 1.01), c(0.0005, 0.008, 0.03, 0.5))
 #' # "1.85***" "0.72**"  "1.25*"   "1.01"
 #'
 #' # With fmt_ci CI output
-#' # df %>% mutate(hr_ci = fmt_effect(fmt_ci(hr, ci_low, ci_high), pvalue))
+#' # df %>% mutate(hr_ci = fmt_stars(fmt_ci(hr, ci_low, ci_high), pvalue))
 #'
 #' @export
-fmt_effect <- function(effect, p,
+fmt_stars <- function(effect, p,
                       map_signif = c("***" = 0.001, "**" = 0.01, "*" = 0.05)) {
   if (!is.numeric(p)) cli::cli_abort("{.arg p} must be numeric.")
   effect <- as.character(effect)

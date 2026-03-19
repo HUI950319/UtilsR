@@ -6,7 +6,7 @@
 \usage{
 fmt_ci(
   x,
-  y,
+  y = NULL,
   z = NULL,
   digits = NULL,
   bracket = c("(", "["),
@@ -14,14 +14,16 @@ fmt_ci(
 )
 }
 \arguments{
-\item{x}{Numeric vector: point estimate (CI mode) or mean (SD mode).}
+\item{x}{Numeric vector (estimate/mean) or character vector (CI strings to reformat).}
 
-\item{y}{Numeric vector: lower CI bound (CI mode) or SD (SD mode).}
+\item{y}{Numeric vector: lower CI bound (CI mode) or SD (SD mode).
+Ignored when \code{x} is character.}
 
 \item{z}{Numeric vector (optional): upper CI bound. If provided, CI mode
-is used; otherwise SD mode.}
+is used; otherwise SD mode. Ignored when \code{x} is character.}
 
-\item{digits}{Integer, number of decimal places (default: 2 for CI, 1 for SD).}
+\item{digits}{Integer, number of decimal places (default: 2 for CI, 1 for SD).
+For character input, default is auto-detected from the string.}
 
 \item{bracket}{Character, bracket type: \code{"("} (default) or \code{"["}.}
 
@@ -32,29 +34,31 @@ Only used in CI mode. Common choices: \code{"\u2013"}, \code{", "}, \code{" to "
 Character vector of formatted strings.
 }
 \description{
-Combines numeric vectors into formatted strings. Automatically detects
-CI mode (3 vectors) or SD mode (2 vectors).
+Build CI strings from numeric vectors, or reformat existing CI strings
+with different brackets and separators. Automatically detects
+CI mode (3 vectors) or SD mode (2 vectors) for numeric input.
 }
 \examples{
-# --- CI mode (3 arguments) ---
+# --- Numeric: CI mode (3 arguments) ---
 fmt_ci(1.23, 0.95, 1.51)
 # "1.23 (0.95\u20131.51)"
-
-fmt_ci(c(1.23, 2.45), c(0.95, 2.10), c(1.51, 2.80))
-# "1.23 (0.95\u20131.51)" "2.45 (2.10\u20132.80)"
 
 fmt_ci(1.23, 0.95, 1.51, bracket = "[", sep = " to ")
 # "1.23 [0.95 to 1.51]"
 
-# --- SD mode (2 arguments) ---
+# --- Numeric: SD mode (2 arguments) ---
 fmt_ci(1.23, 0.15)
 # "1.2(0.2)"
 
-fmt_ci(c(1.23, 2.45), c(0.15, 0.25), digits = 2)
-# "1.23(0.15)" "2.45(0.25)"
+# --- Character: reformat CI strings ---
+fmt_ci("1.23 (0.95, 1.59)", bracket = "[", sep = "\u2013")
+# "1.23 [0.95\u20131.59]"
+
+fmt_ci("1.23 [0.95\u20131.59]", sep = " to ", bracket = "(")
+# "1.23 (0.95 to 1.59)"
 
 # --- In mutate() ---
 # df \%>\% mutate(ci = fmt_ci(est, ci_low, ci_high))
-# df \%>\% mutate(ms = fmt_ci(mean_val, sd_val))
+# df \%>\% mutate(ci_new = fmt_ci(ci_old, bracket = "["))
 
 }
