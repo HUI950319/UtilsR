@@ -4,12 +4,12 @@
 \alias{fmt_effect}
 \title{Add Significance Stars to Values Based on P-values}
 \usage{
-fmt_effect(p, effect, map_signif = c(`***` = 0.001, `**` = 0.01, `*` = 0.05))
+fmt_effect(effect, p, map_signif = c(`***` = 0.001, `**` = 0.01, `*` = 0.05))
 }
 \arguments{
-\item{p}{Numeric vector of p-values.}
-
 \item{effect}{Character or numeric vector to annotate with stars.}
+
+\item{p}{Numeric vector of p-values.}
 
 \item{map_signif}{Named numeric vector of significance thresholds.
 Default: \code{c("***" = 0.001, "**" = 0.01, "*" = 0.05)}.}
@@ -22,10 +22,10 @@ Appends significance stars to an effect column (e.g. HR, OR, coefficient)
 based on a corresponding p-value column. Works inside \code{mutate()}.
 }
 \examples{
-fmt_effect(c(0.0005, 0.008, 0.03, 0.5), c(1.85, 0.72, 1.25, 1.01))
+fmt_effect(c(1.85, 0.72, 1.25, 1.01), c(0.0005, 0.008, 0.03, 0.5))
 # "1.85***" "0.72**"  "1.25*"   "1.01"
 
 # With fmt_stat CI output
-# df \%>\% mutate(hr_ci = fmt_effect(pvalue, fmt_stat(hr, ci_low, ci_high)))
+# df \%>\% mutate(hr_ci = fmt_effect(fmt_stat(hr, ci_low, ci_high), pvalue))
 
 }
