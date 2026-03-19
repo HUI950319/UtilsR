@@ -2,18 +2,9 @@
 % Please edit documentation in R/fmt_stat.R
 \name{fmt_stat}
 \alias{fmt_stat}
-\alias{.combine_ci}
-\alias{.combine_sd}
-\alias{.fmt_ci}
 \title{Format Confidence Intervals or Mean (SD)}
 \usage{
 fmt_stat(x, y, z = NULL, digits = NULL, bracket = c("(", "["), sep = "–")
-
-.combine_ci(estimate, ci_lower, ci_upper, digits = 2, bracket = "(", sep = "–")
-
-.combine_sd(mean, sd, digits = 1, bracket = "(")
-
-.fmt_ci(sep = "–", digits = 2, bracket = "(")
 }
 \arguments{
 \item{x}{Numeric vector: point estimate (CI mode) or mean (SD mode).}

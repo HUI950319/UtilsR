@@ -74,26 +74,3 @@ fmt_stat <- function(x, y, z = NULL,
   fmt <- sprintf("%%.%df%s%%.%df%s", d, bp[1], d, bp[2])
   sprintf(fmt, x, y)
 }
-
-# Back-compatible aliases
-#' @rdname fmt_stat
-#' @export
-.combine_ci <- function(estimate, ci_lower, ci_upper,
-                        digits = 2, bracket = "(", sep = "\u2013") {
-  fmt_stat(estimate, ci_lower, ci_upper,
-           digits = digits, bracket = bracket, sep = sep)
-}
-
-#' @rdname fmt_stat
-#' @export
-.combine_sd <- function(mean, sd, digits = 1, bracket = "(") {
-  fmt_stat(mean, sd, digits = digits, bracket = bracket)
-}
-
-#' @rdname fmt_stat
-#' @export
-.fmt_ci <- function(sep = "\u2013", digits = 2, bracket = "(") {
-  bracket <- match.arg(bracket, c("(", "["))
-  bp <- if (bracket == "(") c("(", ")") else c("[", "]")
-  sprintf("%%.%df %s%%.%df%s%%.%df%s", digits, bp[1], digits, sep, digits, bp[2])
-}
