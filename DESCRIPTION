@@ -1,0 +1,47 @@
+Package: UtilsR
+Type: Package
+Title: Utility Functions for Data Exploration and System Diagnostics
+Version: 0.1.0
+Authors@R: person("Yuhao", "Ouyang", email = "ouyangyuhao@outlook.com",
+                  role = c("aut", "cre"))
+Description: A collection of utility functions for interactive data exploration,
+    variable inspection, missing value analysis, system resource monitoring,
+    and object size profiling. Provides S3 generic 'lv()' for summarizing
+    variables in data.frames and Seurat objects, 'na()' for data quality
+    analysis, and system diagnostics tools.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.3.2
+Collate:
+    'zzz.R'
+    'utils_display.R'
+    'theme.R'
+    'lv.R'
+    'na.R'
+    'check_system.R'
+    'check_size.R'
+    'count_packages.R'
+    'color.R'
+Imports:
+    cli,
+    dplyr,
+    ggplot2,
+    tibble,
+    gt,
+    gtExtras,
+    gtsummary,
+    glue,
+    tidyr,
+    purrr,
+    rlang,
+    labelled,
+    pbapply,
+    methods,
+    grid,
+    scales
+Suggests:
+    SeuratObject,
+    Seurat,
+    pryr,
+    ggprism
