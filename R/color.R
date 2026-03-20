@@ -243,10 +243,10 @@ pal_trubetskoy <- as_palette(c(
 #' @return Invisibly returns a named list of all palettes.
 #'
 #' @examples
-#' list_palettes(show = FALSE)
+#' pal_list(show = FALSE)
 #'
 #' @export
-list_palettes <- function(show = TRUE) {
+pal_list <- function(show = TRUE) {
   ns <- asNamespace("UtilsR")
   all_names <- sort(ls(ns, pattern = "^pal_"))
   pals <- mget(all_names, envir = ns)

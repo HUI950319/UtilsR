@@ -28,7 +28,7 @@ devtools::install_github("HUI950319/UtilsR")
 | | `fct_num()` | Numeric → factor (cut points or binning) |
 | **Colour** | `pal_lancet`, `pal_ditto`, ... | 11 built-in colour palettes |
 | | `show_color()` | Display colour swatches in console |
-| | `list_palettes()` | Browse all palettes |
+| | `pal_list()` | Browse all palettes |
 | **Display** | `.cat_line()` | Styled separator line |
 | | `.cat_box()` | Styled message box |
 | | `.cat_message()` | Timestamped log message |
@@ -107,7 +107,7 @@ pal_glasbey                   # 32 colours, Glasbey algorithm
 pal_d3                        # 20 colours, D3.js Category20
 
 # Browse all
-list_palettes()
+pal_list()
 
 # Custom palette
 my_pal <- as_palette(c("#FF6B6B", "#4ECDC4", "#45B7D1"))

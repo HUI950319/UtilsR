@@ -52,7 +52,7 @@ colour palettes, ggplot2 formatting, and console styling.
   \item{\code{\link{pal_simpsons}}}{Simpsons ggsci (16 colours)}
   \item{\code{\link{show_color}}}{Display colour swatches in console}
   \item{\code{\link{as_palette}}}{Create custom palette object}
-  \item{\code{\link{list_palettes}}}{Browse all built-in palettes}
+  \item{\code{\link{pal_list}}}{Browse all built-in palettes}
 }
 }
 
