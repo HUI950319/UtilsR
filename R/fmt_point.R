@@ -25,6 +25,12 @@
 #' @param beeswarm.args Named list of beeswarm arguments. Only used when
 #'   \code{type = "beeswarm"}.
 #'   Defaults: \code{list(cex = 3, corral = "wrap", corral.width = 0.5)}.
+#' @param sample_n Integer or \code{NULL}. When set, randomly subsample data
+#'   before plotting to reduce overplotting. If the plot has a group aesthetic
+#'   (color/fill), sampling is stratified: \code{sample_n} points are taken
+#'   \strong{per group}. Groups with fewer points are kept in full.
+#'   Default \code{NULL} (no sampling).
+#' @param seed Random seed for reproducible sampling. Default 42.
 #' @param rasterize Logical. If \code{TRUE}, rasterizes the point layer
 #'   via \code{ggrastr::rasterise} for large datasets. Default \code{FALSE}.
 #' @param rasterize.dpi Integer, DPI for rasterization. Default 300.
@@ -58,6 +64,12 @@
 #'   geom_boxplot()
 #' fmt_point(p2, type = "jitter", alpha = 0.5)
 #'
+#' # Subsample when too many points
+#' fmt_point(p, type = "jitter", sample_n = 20, alpha = 0.5)
+#'
+#' # Stratified sampling (per group)
+#' fmt_point(p2, type = "jitter", sample_n = 10, alpha = 0.5)
+#'
 #' @export
 #' @family plot formatting
 fmt_point <- function(plot,
@@ -69,6 +81,8 @@ fmt_point <- function(plot,
                       dodge.width = 0.8,
                       jitter.args = list(width = 0.2, height = 0),
                       beeswarm.args = list(cex = 3, corral = "wrap", corral.width = 0.5),
+                      sample_n = NULL,
+                      seed = 42,
                       rasterize = FALSE,
                       rasterize.dpi = 300,
                       ...) {
@@ -84,6 +98,33 @@ fmt_point <- function(plot,
   bee[names(beeswarm.args)] <- beeswarm.args
 
   fmt_point_one <- function(p) {
+    # --- Subsample data ---
+    if (!is.null(sample_n)) {
+      set.seed(seed)
+      d <- data %||% p$data
+      if (!is.null(d) && nrow(d) > sample_n) {
+        # Detect group variable from aesthetics
+        group_var <- NULL
+        for (aes_name in c("colour", "fill", "group")) {
+          if (aes_name %in% names(p$mapping)) {
+            group_var <- rlang::as_name(p$mapping[[aes_name]])
+            break
+          }
+        }
+        if (!is.null(group_var) && group_var %in% names(d)) {
+          # Stratified: sample_n per group (keep all if group < sample_n)
+          d <- do.call(rbind, lapply(split(d, d[[group_var]]), function(grp) {
+            if (nrow(grp) <= sample_n) grp else grp[sample.int(nrow(grp), sample_n), ]
+          }))
+          rownames(d) <- NULL
+        } else {
+          # Global: sample_n total
+          d <- dplyr::slice_sample(d, n = min(sample_n, nrow(d)))
+        }
+        data <- d
+      }
+    }
+
     # --- Compute position ---
     has_group <- any(c("fill", "colour", "linetype", "shape", "size", "alpha") %in% names(p$mapping))
 

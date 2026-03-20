@@ -14,6 +14,8 @@ fmt_point(
   dodge.width = 0.8,
   jitter.args = list(width = 0.2, height = 0),
   beeswarm.args = list(cex = 3, corral = "wrap", corral.width = 0.5),
+  sample_n = NULL,
+  seed = 42,
   rasterize = FALSE,
   rasterize.dpi = 300,
   ...
@@ -45,6 +47,14 @@ Set to 0 to disable dodging.}
 \item{beeswarm.args}{Named list of beeswarm arguments. Only used when
 \code{type = "beeswarm"}.
 Defaults: \code{list(cex = 3, corral = "wrap", corral.width = 0.5)}.}
+
+\item{sample_n}{Integer or \code{NULL}. When set, randomly subsample data
+before plotting to reduce overplotting. If the plot has a group aesthetic
+(color/fill), sampling is stratified: \code{sample_n} points are taken
+\strong{per group}. Groups with fewer points are kept in full.
+Default \code{NULL} (no sampling).}
+
+\item{seed}{Random seed for reproducible sampling. Default 42.}
 
 \item{rasterize}{Logical. If \code{TRUE}, rasterizes the point layer
 via \code{ggrastr::rasterise} for large datasets. Default \code{FALSE}.}
@@ -86,6 +96,12 @@ fmt_point(p, type = "jitter", fill = "purple",
 p2 <- ggplot(iris, aes(Species, Sepal.Length, color = Species)) +
   geom_boxplot()
 fmt_point(p2, type = "jitter", alpha = 0.5)
+
+# Subsample when too many points
+fmt_point(p, type = "jitter", sample_n = 20, alpha = 0.5)
+
+# Stratified sampling (per group)
+fmt_point(p2, type = "jitter", sample_n = 10, alpha = 0.5)
 
 }
 \seealso{
