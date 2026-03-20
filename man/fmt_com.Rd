@@ -7,7 +7,7 @@
 fmt_com(
   plot,
   com_method = "con",
-  label.y = 0.8,
+  label.y = NULL,
   label = c("p.signif", "{p.format}{p.signif}", "p.format"),
   ...
 )
@@ -18,7 +18,8 @@ fmt_com(
 \item{com_method}{Comparison method: \code{"con"} (consecutive), \code{"all"}
 (all pairs), or a list of length-2 character vectors.}
 
-\item{label.y}{Numeric y-position for the first bracket (proportion of axis).}
+\item{label.y}{Numeric y-position for the first bracket (absolute y-axis value,
+not proportion). Default \code{NULL} lets ggpubr auto-calculate.}
 
 \item{label}{Label type: \code{"p.signif"}, \code{"\{p.format\}\{p.signif\}"},
 or \code{"p.format"}.}
@@ -34,7 +35,23 @@ Uses \code{ggpubr::geom_pwc} to overlay significance brackets.
 \examples{
 library(ggplot2)
 p <- ggplot(iris, aes(Species, Sepal.Length)) + geom_boxplot()
+
+# Consecutive comparisons (default)
 fmt_com(p)
+
+# All pairwise comparisons
+fmt_com(p, com_method = "all")
+
+# Custom comparisons
+fmt_com(p, com_method = list(c("setosa", "virginica"), c("setosa", "versicolor")))
+
+# Show p-value instead of stars
 fmt_com(p, label = "p.format")
+
+# Show both p-value and stars
+fmt_com(p, label = "{p.format}{p.signif}")
+
+# Adjust bracket y-position (absolute y-axis value, not proportion)
+fmt_com(p, label.y = 8)
 
 }
