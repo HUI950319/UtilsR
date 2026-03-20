@@ -386,3 +386,97 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 
   as.character(out)
 }
+
+#' Visualise Palettes as a ggplot
+#'
+#' Display one or more palettes as horizontal colour bar strips using ggplot2.
+#' Useful for comparing palettes side by side in RStudio Plots pane.
+#'
+#' @param palette Character vector of palette names, or \code{NULL} to show
+#'   all palettes matching \code{pattern}/\code{type}.
+#' @param pattern Regex pattern to filter palette names (e.g. \code{"^nord"}).
+#' @param type Filter by type: \code{"all"}, \code{"discrete"}, or
+#'   \code{"continuous"}.
+#' @param max_colors Maximum colours to display per palette. Default 20.
+#' @param index Integer vector of palette indices to show (after filtering).
+#' @param ncol Number of columns for facet layout. Default 1.
+#'
+#' @return A ggplot object (also prints).
+#'
+#' @examples
+#' # Show specific palettes
+#' pal_show(c("lancet", "Paired", "viridis"))
+#'
+#' # Filter by pattern
+#' pal_show(pattern = "^nord")
+#'
+#' # Show first 10 discrete palettes
+#' pal_show(type = "discrete", index = 1:10)
+#'
+#' @export
+#' @family colour palettes
+pal_show <- function(palette = NULL, pattern = NULL,
+                     type = c("all", "discrete", "continuous"),
+                     max_colors = 20, index = NULL, ncol = 1) {
+  type <- match.arg(type)
+  pals <- palette_list
+
+  # Select palettes
+  if (!is.null(palette)) {
+    valid <- palette[palette %in% names(pals)]
+    if (length(valid) == 0) cli::cli_abort("No matching palettes found.")
+    pals <- pals[valid]
+  } else {
+    if (type != "all") {
+      pals <- pals[vapply(pals, function(x) identical(attr(x, "type"), type), logical(1))]
+    }
+    if (!is.null(pattern)) {
+      pals <- pals[grep(pattern, names(pals), ignore.case = TRUE)]
+    }
+  }
+
+  if (length(pals) == 0) {
+    cli::cli_abort("No palettes matched the filters.")
+  }
+
+  # Apply index
+  if (!is.null(index)) {
+    index <- index[index <= length(pals) & index >= 1]
+    pals <- pals[index]
+  }
+
+  # Build plot data
+  plot_data <- do.call(rbind, lapply(seq_along(pals), function(i) {
+    nm <- names(pals)[i]
+    cols <- pals[[nm]]
+    n <- min(length(cols), max_colors)
+    cols <- cols[seq_len(n)]
+    data.frame(
+      palette = nm,
+      color = cols,
+      x = seq_len(n),
+      pal_order = i,
+      stringsAsFactors = FALSE
+    )
+  }))
+
+  # Order factor for display
+  plot_data$palette <- factor(plot_data$palette,
+                              levels = rev(names(pals)))
+
+  p <- ggplot2::ggplot(plot_data, ggplot2::aes(
+    x = .data[["x"]], y = .data[["palette"]], fill = I(.data[["color"]]))) +
+    ggplot2::geom_tile(width = 1, height = 0.8) +
+    ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult = 0)) +
+    ggplot2::labs(x = NULL, y = NULL, title = sprintf("%d palettes", length(pals))) +
+    ggplot2::theme_minimal(base_size = 10) +
+    ggplot2::theme(
+      axis.text.x = ggplot2::element_blank(),
+      axis.ticks = ggplot2::element_blank(),
+      panel.grid = ggplot2::element_blank(),
+      plot.title = ggplot2::element_text(hjust = 0.5, size = 12)
+    )
+
+  print(p)
+  invisible(p)
+}

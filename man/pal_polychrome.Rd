@@ -33,6 +33,7 @@ Other colour palettes:
 \code{\link{pal_kelly}},
 \code{\link{pal_lancet}},
 \code{\link{pal_list}()},
+\code{\link{pal_show}()},
 \code{\link{pal_simpsons}},
 \code{\link{pal_trubetskoy}},
 \code{\link{pal_ucsc}}
