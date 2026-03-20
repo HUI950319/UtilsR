@@ -30,6 +30,7 @@ Collate:
     'ci_parse.R'
     'fmt_plot_utils.R'
     'fmt_plot.R'
+    'UtilsR-package.R'
 Imports:
     cli,
     dplyr,
