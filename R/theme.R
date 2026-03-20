@@ -310,3 +310,30 @@ theme_rcs <- NULL
   assign("theme_km", km, envir = asNamespace("UtilsR"))
   assign("theme_rcs", rcs, envir = asNamespace("UtilsR"))
 }
+
+
+#' Compact Legend Theme
+#'
+#' A minimal legend style with white background, small text, and reduced spacing.
+#' Useful for plots where the legend should not dominate the layout.
+#'
+#' @return A ggplot2 theme object.
+#'
+#' @examples
+#' library(ggplot2)
+#' ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) +
+#'   geom_point() +
+#'   theme_legend1()
+#'
+#' @export
+#' @family ggplot2 themes
+theme_legend1 <- function() {
+  ggplot2::theme(
+    legend.background = ggplot2::element_rect(fill = "white", colour = "grey", linewidth = 0.8),
+    legend.key = ggplot2::element_rect(fill = "white", colour = "grey", linewidth = 0.8),
+    legend.key.size = grid::unit(1, "lines"),
+    legend.text = ggplot2::element_text(size = 8),
+    legend.title = ggplot2::element_blank(),
+    legend.box.spacing = grid::unit(0.2, "cm")
+  )
+}

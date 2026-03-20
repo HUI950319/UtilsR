@@ -23,6 +23,7 @@ p + theme_km
 }
 \seealso{
 Other ggplot2 themes: 
+\code{\link{theme_legend1}()},
 \code{\link{theme_my}()},
 \code{\link{theme_rcs}}
 }
