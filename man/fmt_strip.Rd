@@ -44,6 +44,7 @@ Other plot formatting:
 \code{\link{fmt_point}()},
 \code{\link{fmt_ref}()},
 \code{\link{fmt_scale}()},
-\code{\link{fmt_tag}()}
+\code{\link{fmt_tag}()},
+\code{\link{plt_dist}()}
 }
 \concept{plot formatting}

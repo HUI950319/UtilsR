@@ -31,6 +31,7 @@ Collate:
     'fmt_plot_utils.R'
     'fmt_plot.R'
     'fmt_point.R'
+    'plt_dist.R'
     'UtilsR-package.R'
 Imports:
     cli,
