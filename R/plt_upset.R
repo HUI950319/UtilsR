@@ -116,12 +116,17 @@ plt_upset <- function(data,
   p_upset <- NULL
   upset_data <- NULL
   if (!is.null(p_upset_all)) {
-    # Extract intersection data (handle list vs patchwork return)
-    if (is.list(p_upset_all) && "results" %in% names(p_upset_all)) {
-      upset_data <- p_upset_all$results
-    } else if (is.list(p_upset_all) && length(p_upset_all) >= 2) {
-      upset_data <- tryCatch(p_upset_all[[2]]$data, error = function(e) NULL)
-    }
+    # Extract intersection data from aplot/upset_plot object
+    # ggVennDiagram returns upset_plot/aplot with $plotlist[[2]]$data
+    upset_data <- tryCatch({
+      if (!is.null(p_upset_all$plotlist)) {
+        p_upset_all$plotlist[[2]]$data
+      } else if (is.list(p_upset_all) && "results" %in% names(p_upset_all)) {
+        p_upset_all$results
+      } else {
+        NULL
+      }
+    }, error = function(e) NULL)
 
     if (!is.null(upset_data) && "size" %in% names(upset_data)) {
       n_nonzero <- sum(upset_data$size > 0)
@@ -131,18 +136,18 @@ plt_upset <- function(data,
     }
   }
 
-  # --- Combined ---
+  # --- Combined (print upset directly, it's already an aplot) ---
   p_combined <- NULL
   if (output %in% c("both", "all")) {
-    if (!is.null(p_upset) && requireNamespace("aplot", quietly = TRUE)) {
-      p_combined <- tryCatch(
-        aplot::plot_list(p_venn, p_upset, ncol = 2, tag_levels = "A",
-                         widths = c(0.4, 1)),
-        error = function(e) {
-          cli::cli_warn("aplot::plot_list failed: {e$message}. Returning Venn only.")
-          p_venn
-        }
-      )
+    # p_upset is already an aplot object from ggVennDiagram, just return it
+    # Venn + UpSet side by side requires patchwork
+    if (!is.null(p_upset)) {
+      p_combined <- tryCatch({
+        patchwork::wrap_plots(p_venn, p_upset, ncol = 2, widths = c(0.4, 1))
+      }, error = function(e) {
+        cli::cli_warn("Combined layout failed: {e$message}. Returning plots separately.")
+        p_upset
+      })
     } else {
       p_combined <- p_venn
     }
