@@ -113,50 +113,48 @@ plt_rad <- function(res,
         Variable = factor(.data[["Variable"]], levels = unique(.data[["Variable"]]))
       )
 
-    p <- ggplot2::ggplot(plotdata, ggplot2::aes(
-      x = .data[["Variable"]], y = .data[["value"]],
-      color = .data[["Group"]], fill = .data[["Group"]],
-      group = .data[["Group"]]
-    )) +
-      ggplot2::geom_polygon(alpha = 0.15, linewidth = 0.8) +
-      ggplot2::geom_point(size = 2) +
-      coord_radar() +
-      ggplot2::scale_color_manual(values = cols) +
-      ggplot2::scale_fill_manual(values = cols) +
-      ggplot2::labs(x = NULL, y = NULL) +
-      theme_my() +
+    radar_theme <- theme_my() +
       ggplot2::theme(
-        legend.position = "none",
         axis.text.y = ggplot2::element_text(size = 7),
         axis.text.x = ggplot2::element_text(size = 9),
         panel.grid.major = ggplot2::element_line(color = "grey85", linewidth = 0.3)
       )
 
-    # Facet by group - use patchwork to combine individual plots
-    # (avoids facet_wrap + coord_polar compatibility issues in ggplot2 4.0+)
-    plot_list <- lapply(seq_along(group_cols), function(i) {
-      grp <- group_cols[i]
-      sub <- plotdata[plotdata$Group == grp, ]
-      ggplot2::ggplot(sub, ggplot2::aes(
-        x = .data[["Variable"]], y = .data[["value"]], group = 1
+    if (facet) {
+      # Faceted: one panel per group via patchwork
+      # (avoids facet_wrap + coord_polar bug in ggplot2 4.0+)
+      plot_list <- lapply(seq_along(group_cols), function(i) {
+        grp <- group_cols[i]
+        sub <- plotdata[plotdata$Group == grp, ]
+        ggplot2::ggplot(sub, ggplot2::aes(
+          x = .data[["Variable"]], y = .data[["value"]], group = 1
+        )) +
+          ggplot2::geom_polygon(fill = cols[i], color = cols[i],
+                                alpha = 0.15, linewidth = 0.8) +
+          ggplot2::geom_point(color = cols[i], size = 2) +
+          coord_radar() +
+          ggplot2::labs(x = NULL, y = NULL, title = grp) +
+          radar_theme +
+          ggplot2::theme(plot.title = ggplot2::element_text(
+            hjust = 0.5, size = 12, face = "bold", color = cols[i]
+          ))
+      })
+      p <- patchwork::wrap_plots(plot_list, nrow = 1)
+    } else {
+      # Overlaid: all groups on one radar
+      p <- ggplot2::ggplot(plotdata, ggplot2::aes(
+        x = .data[["Variable"]], y = .data[["value"]],
+        color = .data[["Group"]], fill = .data[["Group"]],
+        group = .data[["Group"]]
       )) +
-        ggplot2::geom_polygon(fill = cols[i], color = cols[i],
-                              alpha = 0.15, linewidth = 0.8) +
-        ggplot2::geom_point(color = cols[i], size = 2) +
+        ggplot2::geom_polygon(alpha = 0.15, linewidth = 0.8) +
+        ggplot2::geom_point(size = 2) +
         coord_radar() +
-        ggplot2::labs(x = NULL, y = NULL, title = grp) +
-        theme_my() +
-        ggplot2::theme(
-          axis.text.y = ggplot2::element_text(size = 7),
-          axis.text.x = ggplot2::element_text(size = 9),
-          plot.title = ggplot2::element_text(
-            hjust = 0.5, size = 12, face = "bold",
-            color = cols[i]
-          ),
-          panel.grid.major = ggplot2::element_line(color = "grey85", linewidth = 0.3)
-        )
-    })
-    p <- patchwork::wrap_plots(plot_list, nrow = 1)
+        ggplot2::scale_color_manual(values = cols) +
+        ggplot2::scale_fill_manual(values = cols) +
+        ggplot2::labs(x = NULL, y = NULL) +
+        radar_theme
+    }
 
     return(p)
   }
