@@ -105,11 +105,3 @@ fmt_p <- function(x,
 
   out
 }
-
-#' @rdname fmt_p
-#' @usage fmt_stars(effect, add_star_p, map_signif)
-#' @export
-fmt_stars <- function(effect, add_star_p,
-                      map_signif = c("***" = 0.001, "**" = 0.01, "*" = 0.05)) {
-  fmt_p(effect, add_star_p = add_star_p, map_signif = map_signif)
-}

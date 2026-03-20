@@ -2,7 +2,6 @@
 % Please edit documentation in R/fmt_p.R
 \name{fmt_p}
 \alias{fmt_p}
-\alias{fmt_stars}
 \title{Format P-values, Numbers, or Add Stars to Any Value}
 \usage{
 fmt_p(
@@ -12,8 +11,6 @@ fmt_p(
   mode = c("stars", "pvalue", "plain"),
   map_signif = c(`***` = 0.001, `**` = 0.01, `*` = 0.05, . = 0.1)
 )
-
-fmt_stars(effect, add_star_p, map_signif)
 }
 \arguments{
 \item{x}{Numeric/character vector of p-values (when \code{add_star_p} is NULL),
