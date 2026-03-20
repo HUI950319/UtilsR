@@ -87,28 +87,29 @@ p |> fmt_axis(x = FALSE)
 
 ## `fmt_strip()` — Facet Strip Colours
 
-```{r fmt-strip, fig.width=8}
+```{r fmt-strip, fig.width=8, eval=FALSE}
 p_facet <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) +
   geom_point() +
   facet_wrap(~Species)
 
-p_facet |> fmt_strip(colors = c("#E41A1C", "#377EB8", "#4DAF4A"))
+p_facet |> fmt_strip(label_fill = c("#E41A1C", "#377EB8", "#4DAF4A"))
 ```
 
 ---
 
 ## `fmt_bg()` — Background Stripes
 
-```{r fmt-bg}
-p |> fmt_bg(colors = c("grey95", "white"), n = 3, direction = "x")
+```{r fmt-bg, eval=FALSE}
+p |> fmt_bg(palette = "Paired", alpha = 0.1)
 ```
 
 ---
 
 ## `fmt_scale()` — Axis Scales
 
-```{r fmt-scale}
-p |> fmt_scale(x_limits = c(4, 8), y_limits = c(2, 4.5))
+```{r fmt-scale, eval=FALSE}
+p |> fmt_scale(scale_x_list = list(limits = c(4, 8)),
+               scale_y_list = list(limits = c(2, 4.5)))
 ```
 
 ---

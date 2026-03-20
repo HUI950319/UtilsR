@@ -47,9 +47,9 @@ fct_cat(x, reverse = TRUE)
 ### Binary
 
 ```{r binary}
-# Binary: reference level vs "Oth"
-fct_cat(x, binary_ref = 1)
-fct_cat(x, binary_ref = "III")
+# Binary: reference level vs "Oth" (by position index)
+fct_cat(x, binary_ref = 1)   # I vs Oth
+fct_cat(x, binary_ref = 3)   # III vs Oth
 ```
 
 ### Group
