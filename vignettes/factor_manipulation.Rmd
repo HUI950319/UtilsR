@@ -1,0 +1,109 @@
+---
+title: "Factor Manipulation: fct_cat, fct_num"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Factor Manipulation: fct_cat, fct_num}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+```{r}
+library(UtilsR)
+```
+
+## `fct_cat()` — Unified Factor Operations
+
+All factor operations in one function. Works inside `dplyr::mutate()`.
+
+### Recode (named arguments)
+
+```{r recode}
+x <- factor(c("I", "II", "III", "IV"))
+
+# Recode by name
+fct_cat(x, early = c("I", "II"), late = c("III", "IV"))
+
+# Recode by position
+fct_cat(x, g1 = 1:2, g2 = 3:4)
+```
+
+### Reorder (unnamed arguments)
+
+```{r reorder}
+# Move specific levels to front
+fct_cat(x, "III", "I")
+```
+
+### Reverse
+
+```{r reverse}
+fct_cat(x, reverse = TRUE)
+```
+
+### Binary
+
+```{r binary}
+# Binary: reference level vs "Oth"
+fct_cat(x, binary_ref = 1)
+fct_cat(x, binary_ref = "III")
+```
+
+### Group
+
+```{r group}
+fct_cat(x, groups = list(early = 1:2, late = 3:4))
+```
+
+### Relabel
+
+```{r relabel}
+fct_cat(x, new_labels = c("One", "Two", "Three", "Four"))
+```
+
+### Combine columns
+
+```{r combine, eval=FALSE}
+# Inside mutate()
+df %>% mutate(grp = fct_cat(sex, combine = "age"))
+df %>% mutate(grp = fct_cat(combine = c("sex", "age", "stage")))
+```
+
+---
+
+## `fct_num()` — Numeric to Factor
+
+### Fixed cut points
+
+```{r cut}
+ages <- c(25, 35, 45, 55, 65, 75)
+
+# Single break
+fct_num(ages, breaks = 50)
+
+# Multiple breaks
+fct_num(ages, breaks = c(40, 60))
+```
+
+### Quantile binning
+
+```{r quantile}
+set.seed(1)
+scores <- rnorm(100, 50, 15)
+
+# Quartiles
+fct_num(scores, nbins = 4)
+
+# Equal-width bins
+fct_num(scores, nbins = 3, type = "equal")
+```
+
+### Custom labels
+
+```{r labels}
+fct_num(ages, breaks = c(40, 60),
+        labels = c("Young", "Middle", "Senior"))
+```

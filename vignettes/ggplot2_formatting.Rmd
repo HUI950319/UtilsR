@@ -1,0 +1,150 @@
+---
+title: "ggplot2 Formatting: fmt_* and Themes"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{ggplot2 Formatting: fmt_* and Themes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>",
+  fig.width = 7, fig.height = 4.5, dpi = 120,
+  message = FALSE, warning = FALSE
+)
+```
+
+```{r}
+library(UtilsR)
+library(ggplot2)
+```
+
+## Base Plot
+
+All examples build on this base plot:
+
+```{r base}
+p <- ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) +
+  geom_point(size = 2)
+p
+```
+
+---
+
+## `fmt_plot()` — Master Chaining
+
+Chain multiple formatting operations in one call:
+
+```{r fmt-plot}
+p |> fmt_plot(
+  legend.position = "bottom",
+  tag = "A",
+  base_size = 14
+)
+```
+
+---
+
+## `fmt_tag()` — Panel Labels
+
+```{r fmt-tag}
+p |> fmt_tag("A")
+p |> fmt_tag("B", x = 0.95, y = 0.95, size = 16)
+```
+
+---
+
+## `fmt_legend()` — Legend Formatting
+
+```{r fmt-legend}
+p |> fmt_legend(position = "bottom", direction = "horizontal")
+```
+
+---
+
+## `fmt_ref()` — Reference Lines
+
+```{r fmt-ref}
+p |> fmt_ref(xintercept = 5.8, yintercept = 3.0)
+```
+
+```{r fmt-ref-multi}
+# Multiple lines with colours
+p |> fmt_ref(xintercept = c(5, 6, 7), color = c("red", "blue", "green"))
+```
+
+---
+
+## `fmt_axis()` — Axis Control
+
+```{r fmt-axis}
+# Hide x-axis (useful for multi-panel layouts)
+p |> fmt_axis(x = FALSE)
+```
+
+---
+
+## `fmt_strip()` — Facet Strip Colours
+
+```{r fmt-strip, fig.width=8}
+p_facet <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) +
+  geom_point() +
+  facet_wrap(~Species)
+
+p_facet |> fmt_strip(colors = c("#E41A1C", "#377EB8", "#4DAF4A"))
+```
+
+---
+
+## `fmt_bg()` — Background Stripes
+
+```{r fmt-bg}
+p |> fmt_bg(colors = c("grey95", "white"), n = 3, direction = "x")
+```
+
+---
+
+## `fmt_scale()` — Axis Scales
+
+```{r fmt-scale}
+p |> fmt_scale(x_limits = c(4, 8), y_limits = c(2, 4.5))
+```
+
+---
+
+## `fmt_boxplot()` — Overlay Boxplot
+
+```{r fmt-boxplot}
+p_violin <- ggplot(iris, aes(Species, Sepal.Length, fill = Species)) +
+  geom_violin()
+p_violin |> fmt_boxplot()
+```
+
+---
+
+## Themes
+
+### `theme_my()` — Clean General Purpose
+
+```{r theme-my}
+p + theme_my()
+```
+
+### `theme_my()` with custom base size
+
+```{r theme-my-large}
+p + theme_my(base_size = 16)
+```
+
+---
+
+## `flatten_patchwork()` — Flatten Nested Patchwork
+
+```{r flatten, eval=FALSE}
+library(patchwork)
+nested <- (p1 | p2) / (p3 | p4)
+flat <- flatten_patchwork(nested)
+```
+
+Recursively flattens nested patchwork objects into a single-level list.

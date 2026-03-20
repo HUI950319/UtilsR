@@ -1,0 +1,84 @@
+---
+title: "Colour Palettes"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Colour Palettes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>",
+  fig.width = 7, fig.height = 3, dpi = 120
+)
+```
+
+```{r}
+library(UtilsR)
+library(ggplot2)
+```
+
+## Built-in Palettes
+
+UtilsR provides 11 colour palettes (16--48 colours each):
+
+| Palette | N | Source |
+|---------|---|--------|
+| `pal_lancet` | 15 | Lancet journal |
+| `pal_ditto` | 40 | dittoSeq (scRNA-seq) |
+| `pal_igv` | 48 | IGV genome browser |
+| `pal_polychrome` | 36 | Max perceptual distinctness |
+| `pal_glasbey` | 32 | Glasbey algorithm |
+| `pal_alphabet` | 26 | Green-Armytage A--Z |
+| `pal_ucsc` | 26 | UCSC genome browser |
+| `pal_kelly` | 22 | Kelly max contrast |
+| `pal_d3` | 20 | D3.js Category20 |
+| `pal_trubetskoy` | 20 | Trubetskoy distinct |
+| `pal_simpsons` | 16 | Simpsons ggsci |
+
+## Usage
+
+### Direct access
+
+```{r direct}
+pal_lancet[1:5]
+```
+
+### In ggplot2
+
+```{r ggplot}
+ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) +
+  geom_point(size = 2) +
+  scale_color_manual(values = pal_lancet[1:3]) +
+  theme_my()
+```
+
+### Browse all palettes
+
+```{r pal-list, eval=FALSE}
+pal_list()
+```
+
+### Get specific palette by name
+
+```{r pal-get, eval=FALSE}
+pal_get("Paired", n = 6)
+pal_get("Set1", n = 3)
+```
+
+### Create custom palette
+
+```{r as-palette}
+my_pal <- as_palette(c("#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4"))
+my_pal
+```
+
+### Use in plt_cat
+
+```{r plt-cat-palette, fig.height=4}
+set.seed(1)
+df <- data.frame(Type = factor(sample(LETTERS[1:4], 200, TRUE)))
+plt_cat(df, "Type", type = "pie", label = TRUE,
+        palette = c("#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4"))
+```

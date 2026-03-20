@@ -102,7 +102,15 @@ reference:
       - UtilsR
 
 articles:
-  - title: Getting Started
+  - title: Plot Functions
     navbar: ~
     contents:
       - plt_cat_guide
+  - title: Data & Factor
+    contents:
+      - data_inspection
+      - factor_manipulation
+  - title: ggplot2 & Colour
+    contents:
+      - ggplot2_formatting
+      - colour_palettes

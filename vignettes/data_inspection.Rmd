@@ -1,0 +1,70 @@
+---
+title: "Data Inspection: lv, na, check_system"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Data Inspection: lv, na, check_system}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+## `lv()` — Variable Summary
+
+`lv()` provides a quick overview of variables in a data frame (or Seurat object).
+
+```{r lv-basic}
+library(UtilsR)
+
+# All variables
+lv(iris)
+```
+
+```{r lv-select}
+# Select specific variables
+lv(iris, Species, Sepal.Length)
+```
+
+```{r lv-pattern}
+# Regex pattern matching
+lv(iris, pattern = "Sepal")
+```
+
+```{r lv-group}
+# Grouped summary
+lv(iris, Sepal.Length, group = "Species")
+```
+
+---
+
+## `na()` — Missing Value Analysis
+
+```{r na}
+# Create data with NAs
+df <- data.frame(
+  x = c(1, NA, 3, NA, 5),
+  y = c("a", "b", NA, "d", "e"),
+  z = 1:5
+)
+na(df)
+```
+
+---
+
+## `check_system()` — System Diagnostics
+
+```{r check-system, eval=FALSE}
+check_system()
+```
+
+Reports OS, R version, memory, CPU info, and loaded packages.
+
+## `check_size()` — Object Memory Profiling
+
+```{r check-size, eval=FALSE}
+check_size()
+```
+
+Shows memory usage of all objects in the current environment.
