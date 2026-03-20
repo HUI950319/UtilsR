@@ -12,8 +12,7 @@ fmt_point(
   size = 1,
   white_border = FALSE,
   dodge.width = 0.8,
-  jitter.width = 0.2,
-  jitter.height = 0,
+  jitter.args = list(width = 0.2, height = 0),
   beeswarm.args = list(cex = 3, corral = "wrap", corral.width = 0.5),
   rasterize = FALSE,
   rasterize.dpi = 300,
@@ -40,13 +39,11 @@ versions (21-24) with white stroke. Default \code{FALSE}.}
 \item{dodge.width}{Dodge width for grouped data. Default 0.8.
 Set to 0 to disable dodging.}
 
-\item{jitter.width}{Horizontal jitter. Only used when \code{type = "jitter"}.
-Default 0.2.}
+\item{jitter.args}{Named list of jitter arguments. Only used when
+\code{type = "jitter"}. Defaults: \code{list(width = 0.2, height = 0)}.}
 
-\item{jitter.height}{Vertical jitter. Default 0.}
-
-\item{beeswarm.args}{Named list of arguments for beeswarm layout.
-Only used when \code{type = "beeswarm"}.
+\item{beeswarm.args}{Named list of beeswarm arguments. Only used when
+\code{type = "beeswarm"}.
 Defaults: \code{list(cex = 3, corral = "wrap", corral.width = 0.5)}.}
 
 \item{rasterize}{Logical. If \code{TRUE}, rasterizes the point layer
@@ -74,6 +71,9 @@ fmt_point(p, color = "steelblue", alpha = 0.5)
 
 # Jittered points
 fmt_point(p, type = "jitter", color = "red", alpha = 0.5)
+
+# Custom jitter width
+fmt_point(p, type = "jitter", jitter.args = list(width = 0.4), alpha = 0.5)
 
 # Beeswarm
 fmt_point(p, type = "beeswarm", color = "darkgreen", size = 1.2)

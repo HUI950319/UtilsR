@@ -102,7 +102,7 @@ fmt_point <- function(plot,
         position <- ggplot2::position_dodge(width = dodge.width, preserve = "total")
       } else {
         position <- ggplot2::position_jitterdodge(
-          jit$width = jit$width, jit$height = jit$height,
+          jitter.width = jit$width, jitter.height = jit$height,
           dodge.width = dodge.width, seed = 42
         )
       }
