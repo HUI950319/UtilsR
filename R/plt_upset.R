@@ -63,7 +63,7 @@
 #' names(res)
 #'
 #' @export
-#' @family plot formatting
+#' @family plot
 plt_upset <- function(data,
                       vars,
                       levels = c("Yes", "yes"),

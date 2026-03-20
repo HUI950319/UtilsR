@@ -67,7 +67,7 @@
 #' plt_radar(res2, output = "gg", palette = "Paired")
 #'
 #' @export
-#' @family plot formatting
+#' @family plot
 plt_radar <- function(res,
                     ref_group = NULL,
                     palette = NULL,

@@ -55,7 +55,7 @@
 #' plt_cohen(res2, facet = TRUE, palette = "Set2")
 #'
 #' @export
-#' @family plot formatting
+#' @family plot
 plt_cohen <- function(res,
                       ref_group = NULL,
                       palette = NULL,

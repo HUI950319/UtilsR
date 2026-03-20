@@ -52,7 +52,7 @@
 #'            width = 0.3, label_size = 4, alpha = 0.4)
 #'
 #' @export
-#' @family plot formatting
+#' @family plot
 plt_sankey <- function(data,
                        vars,
                        palette = NULL,

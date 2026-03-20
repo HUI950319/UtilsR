@@ -58,7 +58,7 @@
 #' plt_dist(df, vars = c("stage", "sex"), alpha = 0.5, base_size = 12)
 #'
 #' @export
-#' @family plot formatting
+#' @family plot
 plt_dist <- function(data,
                      vars,
                      facet = NULL,

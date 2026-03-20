@@ -79,23 +79,10 @@ plt_sankey(df, vars = c("sex", "stage"),
 
 }
 \seealso{
-Other plot formatting: 
-\code{\link{fmt_axis}()},
-\code{\link{fmt_bg}()},
-\code{\link{fmt_boxplot}()},
-\code{\link{fmt_com}()},
-\code{\link{fmt_expand}()},
-\code{\link{fmt_his}()},
-\code{\link{fmt_legend}()},
-\code{\link{fmt_plot}()},
-\code{\link{fmt_point}()},
-\code{\link{fmt_ref}()},
-\code{\link{fmt_scale}()},
-\code{\link{fmt_strip}()},
-\code{\link{fmt_tag}()},
+Other plot: 
 \code{\link{plt_cohen}()},
 \code{\link{plt_dist}()},
 \code{\link{plt_radar}()},
 \code{\link{plt_upset}()}
 }
-\concept{plot formatting}
+\concept{plot}
