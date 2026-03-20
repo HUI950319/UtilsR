@@ -50,3 +50,15 @@ Convenience wrapper that chains [fmt_axis()], [fmt_tag()], [fmt_legend()],
 and [fmt_ref()] in sequence. Each sub-formatter is applied only when its
 corresponding `*_list` argument is non-NULL.
 }
+\examples{
+library(ggplot2)
+p1 <- ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) + geom_point()
+p2 <- ggplot(iris, aes(Petal.Length, Petal.Width, color = Species)) + geom_point()
+
+# Single plot with reference line and legend
+fmt_plot(p1, ref_x = 5.5, legend.position = "bottom")
+
+# Multi-plot with tags and merged legend
+fmt_plot(list(p1, p2), tag = TRUE, merge_legends = TRUE)
+
+}

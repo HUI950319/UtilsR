@@ -39,3 +39,11 @@ Same type as input.
 Adjust legend position, direction, layout, and optionally merge legends
 across a multi-plot patchwork.
 }
+\examples{
+library(ggplot2)
+p <- ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) + geom_point()
+
+fmt_legend(p, legend.position = "bottom", legend.direction = "horizontal")
+fmt_legend(p, legend.position = "none")
+
+}

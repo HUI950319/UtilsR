@@ -29,3 +29,15 @@ Same type as input (ggplot, patchwork, or list).
 Selectively hide axis text, ticks, and titles for plots in a multi-plot
 layout. Useful for removing redundant axes when plots share the same scale.
 }
+\examples{
+library(ggplot2)
+p1 <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) + geom_point()
+p2 <- ggplot(iris, aes(Petal.Length, Petal.Width)) + geom_point()
+
+# Hide x-axis on first plot
+fmt_axis(list(p1, p2), x.axis = 1)
+
+# Auto-detect 2x1 grid layout
+fmt_axis(list(p1, p2), plot_dims = c(2, 1))
+
+}

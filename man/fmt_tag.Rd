@@ -38,3 +38,15 @@ Same type as input.
 Add text labels (e.g. A, B, C) to the corner of each plot panel using
 [ggpp::annotate()] with NPC coordinates.
 }
+\examples{
+library(ggplot2)
+p1 <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) + geom_point()
+p2 <- ggplot(iris, aes(Petal.Length, Petal.Width)) + geom_point()
+
+# Auto-label A, B
+fmt_tag(list(p1, p2))
+
+# Custom labels
+fmt_tag(list(p1, p2), labels = c("i", "ii"))
+
+}

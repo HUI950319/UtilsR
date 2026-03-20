@@ -42,3 +42,10 @@ Add vertical and/or horizontal reference lines to one or more plots. When
 multiple intercept values are provided with matching per-line colors, each
 line is added individually so that colors are applied correctly.
 }
+\examples{
+library(ggplot2)
+p <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) + geom_point()
+fmt_ref(p, x = 5.5, y = 3.0)
+fmt_ref(p, x = c(5, 6), color = c("red", "blue"))
+
+}
