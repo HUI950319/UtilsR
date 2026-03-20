@@ -99,16 +99,25 @@ check_size <- function(..., pattern = NULL) {
       }
     }
 
+  # Format size with auto unit (KB / MB / GB)
   object_info <- object_info %>%
-    dplyr::mutate(Size_bar = Size, .after = Size)
+    dplyr::mutate(
+      Size_bar = Size,
+      Size_fmt = dplyr::case_when(
+        Size >= 1024   ~ sprintf("%.2f GB", Size / 1024),
+        Size >= 1      ~ sprintf("%.2f MB", Size),
+        Size >= 1/1024 ~ sprintf("%.2f KB", Size * 1024),
+        TRUE           ~ sprintf("%.4f MB", Size)
+      ),
+      .after = Size
+    )
+
+  # Total size string
+  total_mb <- sum(object_info$Size[object_info$Object != "**TOTAL**"], na.rm = TRUE)
+  total_str <- if (total_mb >= 1024) sprintf("%.2f GB", total_mb / 1024) else sprintf("%.2f MB", total_mb)
 
   gt_table <- object_info %>%
     gt::gt() %>%
-    gt::fmt_number(
-      columns = "Size",
-      decimals = 2,
-      suffix = " MB"
-    ) %>%
     gtExtras::gt_plt_bar(
       column = Size_bar,
       keep_column = FALSE,
@@ -122,12 +131,13 @@ check_size <- function(..., pattern = NULL) {
       palette = c("#FFFFFF", "#FF0000"),
       na_color = "transparent"
     ) %>%
+    gt::cols_hide("Size") %>%
     gt::tab_header(
       title = gt::md("**Object Size Analysis**"),
       subtitle = gt::md(sprintf(
-        "Total objects: %d | Total size: %.2f MB",
+        "Total objects: %d | Total size: %s",
         nrow(object_info) - 1,
-        sum(object_info$Size[object_info$Object != "**TOTAL**"], na.rm = TRUE)
+        total_str
       ))
     ) %>%
     gt::tab_style(
@@ -150,7 +160,7 @@ check_size <- function(..., pattern = NULL) {
     gt::cols_label(
       Object = "Object",
       Class = "Class",
-      Size = "Size (MB)",
+      Size_fmt = "Size",
       Size_bar = "Size Chart"
     )
 
