@@ -5,13 +5,13 @@
 #' Format P-values, Numbers, or Add Stars to Any Value
 #'
 #' Unified formatting for p-values and plain numbers. When \code{x} is provided
-#' alone, formats p-values. When both \code{x} and \code{p} are provided,
-#' appends significance stars to \code{x} based on \code{p}.
+#' alone, formats p-values. When \code{add_star_p} is also provided,
+#' appends significance stars to \code{x} based on \code{add_star_p}.
 #'
-#' @param x Numeric/character vector of p-values (when \code{p} is NULL),
-#'   or any value to annotate with stars (when \code{p} is provided).
-#' @param p Numeric vector of p-values for star annotation. When provided,
-#'   stars are appended to \code{x} based on \code{p} (replaces \code{fmt_stars}).
+#' @param x Numeric/character vector of p-values (when \code{add_star_p} is NULL),
+#'   or any value to annotate with stars (when \code{add_star_p} is provided).
+#' @param add_star_p Numeric vector of p-values for star annotation. When provided,
+#'   stars are appended to \code{x} based on these p-values.
 #' @param digits Integer, decimal places (default: 3 for stars/pvalue, 2 for plain).
 #'   Ignored when \code{p} is provided.
 #' @param mode Formatting mode (ignored when \code{p} is provided):
@@ -36,16 +36,16 @@
 #' fmt_p(1.2345, digits = 2, mode = "plain")
 #' # "1.23"
 #'
-#' # --- Add stars to any value (x + p) ---
-#' fmt_p(c(1.85, 0.72, 1.25), c(0.001, 0.05, 0.5))
+#' # --- Add stars to any value (x + add_star_p) ---
+#' fmt_p(c(1.85, 0.72, 1.25), add_star_p = c(0.001, 0.05, 0.5))
 #' # "1.85***" "0.72*"   "1.25"
 #'
 #' # With fmt_ci output
-#' # df %>% mutate(hr_ci = fmt_p(fmt_ci(hr, lo, hi), pvalue))
+#' # df %>% mutate(hr_ci = fmt_p(fmt_ci(hr, lo, hi), add_star_p = pvalue))
 #'
 #' @export
 fmt_p <- function(x,
-                  p = NULL,
+                  add_star_p = NULL,
                   digits = NULL,
                   mode = c("stars", "pvalue", "plain"),
                   map_signif = c("***" = 0.001, "**" = 0.01, "*" = 0.05, "." = 0.1)) {
@@ -61,13 +61,13 @@ fmt_p <- function(x,
   }
 
   # --- Mode 2: Add stars to x based on external p ---
-  if (!is.null(p)) {
-    if (!is.numeric(p)) cli::cli_abort("{.arg p} must be numeric.")
+  if (!is.null(add_star_p)) {
+    if (!is.numeric(add_star_p)) cli::cli_abort("{.arg add_star_p} must be numeric.")
     x <- as.character(x)
-    if (length(p) != length(x)) {
-      cli::cli_abort("{.arg x} and {.arg p} must have the same length.")
+    if (length(add_star_p) != length(x)) {
+      cli::cli_abort("{.arg x} and {.arg add_star_p} must have the same length.")
     }
-    return(paste0(x, .add_stars(p, map_signif)))
+    return(paste0(x, .add_stars(add_star_p, map_signif)))
   }
 
   # --- Mode 1: Format p-values ---
@@ -107,9 +107,9 @@ fmt_p <- function(x,
 }
 
 #' @rdname fmt_p
-#' @usage fmt_stars(effect, p, map_signif)
+#' @usage fmt_stars(effect, add_star_p, map_signif)
 #' @export
-fmt_stars <- function(effect, p,
+fmt_stars <- function(effect, add_star_p,
                       map_signif = c("***" = 0.001, "**" = 0.01, "*" = 0.05)) {
-  fmt_p(effect, p = p, map_signif = map_signif)
+  fmt_p(effect, add_star_p = add_star_p, map_signif = map_signif)
 }

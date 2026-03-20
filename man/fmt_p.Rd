@@ -7,20 +7,20 @@
 \usage{
 fmt_p(
   x,
-  p = NULL,
+  add_star_p = NULL,
   digits = NULL,
   mode = c("stars", "pvalue", "plain"),
   map_signif = c(`***` = 0.001, `**` = 0.01, `*` = 0.05, . = 0.1)
 )
 
-fmt_stars(effect, p, map_signif)
+fmt_stars(effect, add_star_p, map_signif)
 }
 \arguments{
-\item{x}{Numeric/character vector of p-values (when \code{p} is NULL),
-or any value to annotate with stars (when \code{p} is provided).}
+\item{x}{Numeric/character vector of p-values (when \code{add_star_p} is NULL),
+or any value to annotate with stars (when \code{add_star_p} is provided).}
 
-\item{p}{Numeric vector of p-values for star annotation. When provided,
-stars are appended to \code{x} based on \code{p} (replaces \code{fmt_stars}).}
+\item{add_star_p}{Numeric vector of p-values for star annotation. When provided,
+stars are appended to \code{x} based on these p-values.}
 
 \item{digits}{Integer, decimal places (default: 3 for stars/pvalue, 2 for plain).
 Ignored when \code{p} is provided.}
@@ -40,8 +40,8 @@ Character vector of formatted values.
 }
 \description{
 Unified formatting for p-values and plain numbers. When \code{x} is provided
-alone, formats p-values. When both \code{x} and \code{p} are provided,
-appends significance stars to \code{x} based on \code{p}.
+alone, formats p-values. When \code{add_star_p} is also provided,
+appends significance stars to \code{x} based on \code{add_star_p}.
 }
 \examples{
 # --- Format p-values (x only) ---
@@ -54,11 +54,11 @@ fmt_p(c(0.0003, 0.05), mode = "pvalue")
 fmt_p(1.2345, digits = 2, mode = "plain")
 # "1.23"
 
-# --- Add stars to any value (x + p) ---
-fmt_p(c(1.85, 0.72, 1.25), c(0.001, 0.05, 0.5))
+# --- Add stars to any value (x + add_star_p) ---
+fmt_p(c(1.85, 0.72, 1.25), add_star_p = c(0.001, 0.05, 0.5))
 # "1.85***" "0.72*"   "1.25"
 
 # With fmt_ci output
-# df \%>\% mutate(hr_ci = fmt_p(fmt_ci(hr, lo, hi), pvalue))
+# df \%>\% mutate(hr_ci = fmt_p(fmt_ci(hr, lo, hi), add_star_p = pvalue))
 
 }
