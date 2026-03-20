@@ -28,10 +28,15 @@ Collate:
     'fmt_ci.R'
     'fmt_p.R'
     'ci_parse.R'
+    'fmt_plot_utils.R'
+    'fmt_plot.R'
+    'fmt_plot2.R'
 Imports:
     cli,
     dplyr,
     ggplot2,
+    ggpp,
+    patchwork,
     tibble,
     gt,
     gtExtras,
