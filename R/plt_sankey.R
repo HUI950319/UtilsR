@@ -112,6 +112,11 @@ plt_sankey <- function(data,
     data$.pct <- NULL
   }
 
+  # Strip palette class from label columns before make_long (tidyr compatibility)
+  for (lv in label_vars) {
+    class(data[[lv]]) <- "factor"
+  }
+
   # Build sankey data
   plot_data <- ggsankey::make_long(data, dplyr::all_of(label_vars))
 
@@ -119,23 +124,21 @@ plt_sankey <- function(data,
   all_levels <- unlist(lapply(label_vars, function(lv) levels(data[[lv]])))
   plot_data$node <- factor(plot_data$node, levels = all_levels)
 
-  # Generate colours
+  # Generate colours (always as plain character, not palette class)
   if (is.null(palette)) {
-    # One colour ramp per variable
     hcl_pals <- c("Blues", "Oranges", "Greens", "Purples", "Reds", "Grays")
     col_list <- lapply(seq_along(vars), function(i) {
       pal_name <- hcl_pals[((i - 1) %% length(hcl_pals)) + 1]
       n_lvs <- nlevels(data[[vars[i]]])
       grDevices::colorRampPalette(
-        pal_get(paste0("hcl_", pal_name), n = 5)[2:4]
+        as.character(pal_get(paste0("hcl_", pal_name), n = 5))[2:4]
       )(n_lvs)
     })
     mycol <- unlist(col_list)
   } else if (length(palette) == 1 && palette %in% names(palette_list)) {
-    n_nodes <- length(all_levels)
-    mycol <- pal_get(palette, n = n_nodes)
+    mycol <- as.character(pal_get(palette, n = length(all_levels)))
   } else {
-    mycol <- rep_len(palette, length(all_levels))
+    mycol <- rep_len(as.character(palette), length(all_levels))
   }
 
   # Plot
