@@ -77,20 +77,28 @@ ci_parse <- function(x,
     .is_exp(est[i], lo[i], hi[i])
   }, logical(1))
 
-  # --- Compute SE and p-value ---
-  z95 <- qnorm(0.975)
-  se <- ifelse(valid,
-    ifelse(is_exp,
-      (log(hi) - log(lo)) / (2 * z95),
-      (hi - lo) / (2 * z95)
-    ), NA_real_)
+  # Warn about unparseable elements
+  n_fail <- sum(!valid)
+  if (n_fail > 0L) {
+    cli::cli_warn("{n_fail} element{?s} could not be parsed as CI string{?s} and {?was/were} returned as-is.")
+  }
 
-  null_val <- ifelse(is_exp, 1, 0)
-  z_stat <- ifelse(valid,
-    ifelse(is_exp,
-      (log(est) - log(null_val)) / se,
-      (est - null_val) / se
-    ), NA_real_)
+  # --- Compute SE and p-value (avoid log(0) warning) ---
+  z95 <- qnorm(0.975)
+  se <- rep(NA_real_, length(x))
+  z_stat <- rep(NA_real_, length(x))
+
+  idx_exp <- valid & is_exp
+  idx_lin <- valid & !is_exp
+
+  if (any(idx_exp)) {
+    se[idx_exp] <- (log(hi[idx_exp]) - log(lo[idx_exp])) / (2 * z95)
+    z_stat[idx_exp] <- log(est[idx_exp]) / se[idx_exp]  # log(null=1) = 0
+  }
+  if (any(idx_lin)) {
+    se[idx_lin] <- (hi[idx_lin] - lo[idx_lin]) / (2 * z95)
+    z_stat[idx_lin] <- est[idx_lin] / se[idx_lin]  # null = 0
+  }
   pval <- ifelse(valid, 2 * (1 - pnorm(abs(z_stat))), NA_real_)
 
   # --- Adjust CI level and recompute p-value from adjusted CI ---
@@ -104,16 +112,16 @@ ci_parse <- function(x,
       ifelse(is_exp, exp(log(est) + z_new * se), est + z_new * se),
       hi)
     # Recompute SE and p-value treating the adjusted CI as 95% CI
-    se_adj <- ifelse(valid,
-      ifelse(is_exp,
-        (log(hi) - log(lo)) / (2 * z95),
-        (hi - lo) / (2 * z95)
-      ), NA_real_)
-    z_stat_adj <- ifelse(valid,
-      ifelse(is_exp,
-        (log(est) - log(null_val)) / se_adj,
-        (est - null_val) / se_adj
-      ), NA_real_)
+    se_adj <- rep(NA_real_, length(x))
+    z_stat_adj <- rep(NA_real_, length(x))
+    if (any(idx_exp)) {
+      se_adj[idx_exp] <- (log(hi[idx_exp]) - log(lo[idx_exp])) / (2 * z95)
+      z_stat_adj[idx_exp] <- log(est[idx_exp]) / se_adj[idx_exp]
+    }
+    if (any(idx_lin)) {
+      se_adj[idx_lin] <- (hi[idx_lin] - lo[idx_lin]) / (2 * z95)
+      z_stat_adj[idx_lin] <- est[idx_lin] / se_adj[idx_lin]
+    }
     pval <- ifelse(valid, 2 * (1 - pnorm(abs(z_stat_adj))), NA_real_)
   }
 
@@ -124,16 +132,6 @@ ci_parse <- function(x,
     }, est, lo, hi, d, fmt_template, USE.NAMES = FALSE),
     x)
 
-  # --- Stars helper ---
-  .get_stars <- function(p, map) {
-    map <- sort(map)
-    vapply(p, function(pv) {
-      if (is.na(pv)) return("")
-      hit <- map[map >= pv]
-      if (length(hit) > 0L) names(which.min(hit)) else ""
-    }, character(1))
-  }
-
   # --- Return based on output ---
   switch(output,
     ci = ci_str,
@@ -142,10 +140,10 @@ ci_parse <- function(x,
       paste0(ci_str, ", p=", fmt_p(pval, mode = "pvalue")),
       x),
     ci_star = ifelse(valid,
-      paste0(ci_str, .get_stars(pval, map_signif)),
+      fmt_p(ci_str, add_star_p = pval, map_signif = map_signif),
       x),
     p_star = ifelse(valid,
-      fmt_p(pval),
+      fmt_p(pval, map_signif = map_signif),
       NA_character_)
   )
 }
@@ -183,7 +181,8 @@ ci_parse <- function(x,
 
   for (i in seq_len(n)) {
     xi <- trimws(x[i])
-    xi <- gsub("[*. ]+$", "", xi)  # strip trailing stars/dots/spaces
+    xi <- gsub("[* ]+$", "", xi)       # strip trailing stars/spaces
+    xi <- gsub("\\.$", "", xi)          # strip single trailing dot
     if (is.na(xi) || nchar(xi) == 0) next
 
     for (pat in patterns) {
