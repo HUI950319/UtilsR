@@ -102,13 +102,13 @@ check_size <- function(..., pattern = NULL) {
   # Format size with auto unit (KB / MB / GB)
   object_info <- object_info %>%
     dplyr::mutate(
-      Size_bar = Size,
       Size_fmt = dplyr::case_when(
         Size >= 1024   ~ sprintf("%.2f GB", Size / 1024),
         Size >= 1      ~ sprintf("%.2f MB", Size),
         Size >= 1/1024 ~ sprintf("%.2f KB", Size * 1024),
         TRUE           ~ sprintf("%.4f MB", Size)
       ),
+      Size_bar = Size,
       .after = Size
     )
 
