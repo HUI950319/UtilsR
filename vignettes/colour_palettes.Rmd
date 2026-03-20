@@ -43,8 +43,8 @@ RColorBrewer, ggsci, viridis, rcartocolor, nord, and more.
 The built-in default palette used by `plt_cat()` and other plot functions:
 
 ```{r lancet}
-pal_lancet
-pal_lancet[1:5]
+as.character(pal_lancet)
+as.character(pal_lancet[1:5])
 ```
 
 ```{r lancet-plot}
@@ -88,7 +88,7 @@ Use in ggplot2:
 ```{r pal-get-plot}
 ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) +
   geom_point(size = 2) +
-  scale_color_manual(values = pal_get("Set2", n = 3)) +
+  scale_color_manual(values = as.character(pal_get("Set2", n = 3))) +
   theme_my()
 ```
 
@@ -128,7 +128,7 @@ Create your own palette object with auto-display:
 
 ```{r as-palette}
 my_pal <- as_palette(c("#264653", "#2A9D8F", "#E9C46A", "#F4A261", "#E76F51"))
-my_pal
+as.character(my_pal)  # display as plain hex vector
 ```
 
 ---
