@@ -384,7 +384,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     out <- ggplot2::alpha(out, alpha)
   }
 
-  as.character(out)
+  as_palette(as.character(out))
 }
 
 #' Visualise Palettes
