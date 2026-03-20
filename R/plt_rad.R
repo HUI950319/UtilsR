@@ -40,17 +40,20 @@
 #' # Base radar, faceted per group
 #' plt_rad(res, facet = TRUE)
 #'
-#' # ggplot radar chart (auto-faceted)
+#' # ggplot radar: overlay (default, all groups on one chart)
 #' plt_rad(res, output = "gg")
 #'
-#' # Custom axis range
+#' # ggplot radar: faceted (one panel per group)
+#' plt_rad(res, output = "gg", facet = TRUE)
+#'
+#' # ggplot radar with custom palette
+#' plt_rad(res, output = "gg", palette = "Set2")
+#'
+#' # Custom axis range (base mode)
 #' plt_rad(res, min_max = c(-1, 1))
 #'
 #' # Sort by specific group
 #' plt_rad(res, ref_group = "versicolor")
-#'
-#' # Custom palette
-#' plt_rad(res, palette = "Set2")
 #'
 #' # Simulated data
 #' df <- data.frame(
@@ -59,6 +62,8 @@
 #'   v4 = rnorm(120), v5 = rnorm(120)
 #' )
 #' res2 <- stat_cohen(df, "group", paste0("v", 1:5))
+#' plt_rad(res2, output = "gg")                         # overlay
+#' plt_rad(res2, output = "gg", facet = TRUE)            # faceted
 #' plt_rad(res2, output = "gg", palette = "Paired")
 #'
 #' @export
