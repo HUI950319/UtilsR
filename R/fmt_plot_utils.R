@@ -61,10 +61,9 @@
   }
 
   tryCatch({
-    built <- ggplot2::ggplot_build(plot)
     var_quo <- plot$mapping[[axis]]
-    if (!is.null(var_quo)) {
-      d <- built$data[[1]][[rlang::as_name(var_quo)]]
+    if (!is.null(var_quo) && !is.null(plot$data)) {
+      d <- plot$data[[rlang::as_name(var_quo)]]
       if (is.factor(d) || is.character(d)) {
         return(paste0("scale_", axis, "_discrete"))
       } else if (inherits(d, c("Date", "POSIXct", "POSIXt"))) {

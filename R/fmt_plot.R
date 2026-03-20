@@ -171,10 +171,10 @@ fmt_tag <- function(plot,
         npcx = npcx[i],
         npcy = npcy[i],
         label = labels[i],
-        size = size[i] / ggplot2::.pt,
+        size = size[i],
         fontface = fontface,
         color = color[i],
-        size.unit = "mm",
+        size.unit = "pt",
         ...
       )
   }
@@ -543,8 +543,10 @@ fmt_strip <- function(plot, label = NULL, label_color = "white", label_fill = NU
           lf = if (!is.null(label_fill))  label_fill[i]  else NULL
         )
       )
-    # Inject the strip_label column into the layer data
-    plots[[i]]$data$strip_label <- cur_label
+    # Inject the strip_label column into the plot data (guard NULL)
+    if (!is.null(plots[[i]]$data) && is.data.frame(plots[[i]]$data)) {
+      plots[[i]]$data$strip_label <- cur_label
+    }
   }
 
   .from_plot_list(plots, info$is_patchwork, info$is_single)
@@ -900,7 +902,6 @@ fmt_his <- function(plot,
 fmt_scale <- function(plot, scale_x_list = NULL, scale_y_list = NULL) {
   apply_scale <- function(p, args, axis) {
     if (is.null(args) || length(args) == 0L) return(p)
-    if (is.null(args$expand)) args$expand <- ggplot2::expansion(mult = c(0.02, 0.02))
     fn_name <- .detect_scale_type(p, axis)
     fn <- utils::getFromNamespace(fn_name, "ggplot2")
     tryCatch(
