@@ -1,5 +1,5 @@
 # ============================================================================
-# plt_rad.R -- Radar chart (base R or ggplot)
+# plt_radar.R -- Radar chart (base R or ggplot)
 # ============================================================================
 
 #' Radar Chart
@@ -35,25 +35,25 @@
 #'                   c("Sepal.Length","Sepal.Width","Petal.Length","Petal.Width"))
 #'
 #' # Base radar chart
-#' plt_rad(res)
+#' plt_radar(res)
 #'
 #' # Base radar, faceted per group
-#' plt_rad(res, facet = TRUE)
+#' plt_radar(res, facet = TRUE)
 #'
 #' # ggplot radar: overlay (default, all groups on one chart)
-#' plt_rad(res, output = "gg")
+#' plt_radar(res, output = "gg")
 #'
 #' # ggplot radar: faceted (one panel per group)
-#' plt_rad(res, output = "gg", facet = TRUE)
+#' plt_radar(res, output = "gg", facet = TRUE)
 #'
 #' # ggplot radar with custom palette
-#' plt_rad(res, output = "gg", palette = "Set2")
+#' plt_radar(res, output = "gg", palette = "Set2")
 #'
 #' # Custom axis range (base mode)
-#' plt_rad(res, min_max = c(-1, 1))
+#' plt_radar(res, min_max = c(-1, 1))
 #'
 #' # Sort by specific group
-#' plt_rad(res, ref_group = "versicolor")
+#' plt_radar(res, ref_group = "versicolor")
 #'
 #' # Simulated data
 #' df <- data.frame(
@@ -62,13 +62,13 @@
 #'   v4 = rnorm(120), v5 = rnorm(120)
 #' )
 #' res2 <- stat_cohen(df, "group", paste0("v", 1:5))
-#' plt_rad(res2, output = "gg")                         # overlay
-#' plt_rad(res2, output = "gg", facet = TRUE)            # faceted
-#' plt_rad(res2, output = "gg", palette = "Paired")
+#' plt_radar(res2, output = "gg")                         # overlay
+#' plt_radar(res2, output = "gg", facet = TRUE)            # faceted
+#' plt_radar(res2, output = "gg", palette = "Paired")
 #'
 #' @export
 #' @family plot formatting
-plt_rad <- function(res,
+plt_radar <- function(res,
                     ref_group = NULL,
                     palette = NULL,
                     output = c("base", "gg"),

@@ -96,7 +96,7 @@ Other plot formatting:
 \code{\link{fmt_tag}()},
 \code{\link{plt_cohen}()},
 \code{\link{plt_dist}()},
-\code{\link{plt_rad}()},
+\code{\link{plt_radar}()},
 \code{\link{plt_sankey}()}
 }
 \concept{plot formatting}

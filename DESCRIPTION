@@ -36,7 +36,7 @@ Collate:
     'plt_upset.R'
     'stat_cohen.R'
     'plt_cohen.R'
-    'plt_rad.R'
+    'plt_radar.R'
     'UtilsR-package.R'
 Imports:
     cli,
