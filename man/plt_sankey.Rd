@@ -80,6 +80,7 @@ plt_sankey(df, vars = c("sex", "stage"),
 }
 \seealso{
 Other plot: 
+\code{\link{plt_cat}()},
 \code{\link{plt_cohen}()},
 \code{\link{plt_dist}()},
 \code{\link{plt_radar}()},

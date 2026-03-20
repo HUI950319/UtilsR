@@ -37,6 +37,8 @@ Collate:
     'stat_cohen.R'
     'plt_cohen.R'
     'plt_radar.R'
+    'plt_cat_types.R'
+    'plt_cat.R'
     'UtilsR-package.R'
 Imports:
     cli,
