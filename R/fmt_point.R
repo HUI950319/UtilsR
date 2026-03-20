@@ -67,7 +67,7 @@ fmt_point <- function(plot,
                       dodge.width = 0.8,
                       jitter.width = 0.2,
                       jitter.height = 0,
-                      beeswarm.args = list(),
+                      beeswarm.args = list(cex = 3, corral = "wrap", corral.width = 0.5),
                       rasterize = FALSE,
                       rasterize.dpi = 300,
                       ...) {
