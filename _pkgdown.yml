@@ -1,0 +1,108 @@
+url: https://hui950319.github.io/UtilsR/
+
+template:
+  bootstrap: 5
+  bootswatch: cosmo
+
+navbar:
+  structure:
+    left: [intro, reference, articles]
+    right: [search, github]
+  components:
+    github:
+      icon: fa-github
+      href: https://github.com/HUI950319/UtilsR
+      aria-label: GitHub
+
+reference:
+  - title: Plot Functions
+    desc: High-level plotting functions for categorical data visualization.
+    contents:
+      - plt_cat
+      - plt_dist
+      - plt_cohen
+      - plt_radar
+      - plt_sankey
+      - plt_upset
+
+  - title: Data Inspection
+    desc: Explore variables, missing values, and system resources.
+    contents:
+      - lv
+      - na
+      - check_system
+      - check_size
+      - count_packages_in_libpaths
+
+  - title: Factor Manipulation
+    desc: Recode, reorder, and transform factor variables.
+    contents:
+      - fct_cat
+      - fct_num
+
+  - title: Statistical Formatting
+    desc: Format confidence intervals, p-values, and effect sizes.
+    contents:
+      - stat_ci
+      - stat_pval
+      - stat_ci_parse
+      - stat_cohen
+
+  - title: Colour Palettes
+    desc: Built-in colour palettes and palette utilities.
+    contents:
+      - pal_lancet
+      - pal_other
+      - pal_get
+      - pal_list
+      - pal_show
+      - show_color
+      - as_palette
+      - palette_list
+
+  - title: ggplot2 Formatting
+    desc: Chain-able ggplot2 formatting helpers.
+    contents:
+      - fmt_plot
+      - fmt_axis
+      - fmt_tag
+      - fmt_legend
+      - fmt_ref
+      - fmt_strip
+      - fmt_com
+      - fmt_bg
+      - fmt_his
+      - fmt_scale
+      - fmt_expand
+      - fmt_boxplot
+      - fmt_point
+      - flatten_patchwork
+
+  - title: Themes
+    desc: ggplot2 themes.
+    contents:
+      - theme_my
+      - theme_km
+      - theme_rcs
+      - theme_legend1
+
+  - title: Console Display
+    desc: Styled console output helpers.
+    contents:
+      - starts_with(".cat_")
+      - console_width
+
+  - title: Operators
+    desc: Convenience operators.
+    contents:
+      - starts_with("%")
+
+  - title: internal
+    contents:
+      - UtilsR
+
+articles:
+  - title: Getting Started
+    navbar: ~
+    contents:
+      - plt_cat_guide
