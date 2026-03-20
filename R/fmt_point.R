@@ -20,11 +20,10 @@
 #'   versions (21-24) with white stroke. Default \code{FALSE}.
 #' @param dodge.width Dodge width for grouped data. Default 0.8.
 #'   Set to 0 to disable dodging.
-#' @param jitter.width Horizontal jitter. Only used when \code{type = "jitter"}.
-#'   Default 0.2.
-#' @param jitter.height Vertical jitter. Default 0.
-#' @param beeswarm.args Named list of arguments for beeswarm layout.
-#'   Only used when \code{type = "beeswarm"}.
+#' @param jitter.args Named list of jitter arguments. Only used when
+#'   \code{type = "jitter"}. Defaults: \code{list(width = 0.2, height = 0)}.
+#' @param beeswarm.args Named list of beeswarm arguments. Only used when
+#'   \code{type = "beeswarm"}.
 #'   Defaults: \code{list(cex = 3, corral = "wrap", corral.width = 0.5)}.
 #' @param rasterize Logical. If \code{TRUE}, rasterizes the point layer
 #'   via \code{ggrastr::rasterise} for large datasets. Default \code{FALSE}.
@@ -43,6 +42,9 @@
 #'
 #' # Jittered points
 #' fmt_point(p, type = "jitter", color = "red", alpha = 0.5)
+#'
+#' # Custom jitter width
+#' fmt_point(p, type = "jitter", jitter.args = list(width = 0.4), alpha = 0.5)
 #'
 #' # Beeswarm
 #' fmt_point(p, type = "beeswarm", color = "darkgreen", size = 1.2)
@@ -65,19 +67,17 @@ fmt_point <- function(plot,
                       size = 1,
                       white_border = FALSE,
                       dodge.width = 0.8,
-                      jitter.width = 0.2,
-                      jitter.height = 0,
+                      jitter.args = list(width = 0.2, height = 0),
                       beeswarm.args = list(cex = 3, corral = "wrap", corral.width = 0.5),
                       rasterize = FALSE,
                       rasterize.dpi = 300,
                       ...) {
   type <- match.arg(type)
 
-  # Set jitter defaults by type
-  if (type == "point") {
-    jitter.width <- 0
-    jitter.height <- 0
-  }
+  # Jitter defaults
+  jit <- list(width = 0.2, height = 0)
+  jit[names(jitter.args)] <- jitter.args
+  if (type == "point") { jit$width <- 0; jit$height <- 0 }
 
   # Beeswarm defaults
   bee <- list(cex = 3, corral = "wrap", corral.width = 0.5)
@@ -90,19 +90,19 @@ fmt_point <- function(plot,
     if (type == "beeswarm") {
       position <- NULL
     } else if (dodge.width == 0 || !has_group) {
-      if (jitter.width == 0 && jitter.height == 0) {
+      if (jit$width == 0 && jit$height == 0) {
         position <- ggplot2::position_identity()
       } else {
         position <- ggplot2::position_jitter(
-          width = jitter.width, height = jitter.height, seed = 42
+          width = jit$width, height = jit$height, seed = 42
         )
       }
     } else {
-      if (jitter.width == 0 && jitter.height == 0) {
+      if (jit$width == 0 && jit$height == 0) {
         position <- ggplot2::position_dodge(width = dodge.width, preserve = "total")
       } else {
         position <- ggplot2::position_jitterdodge(
-          jitter.width = jitter.width, jitter.height = jitter.height,
+          jit$width = jit$width, jit$height = jit$height,
           dodge.width = dodge.width, seed = 42
         )
       }
