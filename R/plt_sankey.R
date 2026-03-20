@@ -36,20 +36,20 @@
 #' )
 #'
 #' # Basic sankey
-#' # plt_sankey(df, vars = c("sex", "stage", "grade"))
+#' plt_sankey(df, vars = c("sex", "stage", "grade"))
 #'
 #' # Two variables
-#' # plt_sankey(df, vars = c("sex", "stage"))
+#' plt_sankey(df, vars = c("sex", "stage"))
 #'
 #' # Custom palette
-#' # plt_sankey(df, vars = c("sex", "stage"), palette = "Paired")
+#' plt_sankey(df, vars = c("sex", "stage"), palette = "Paired")
 #'
 #' # Without counts in labels
-#' # plt_sankey(df, vars = c("sex", "stage", "grade"), show_n = FALSE)
+#' plt_sankey(df, vars = c("sex", "stage", "grade"), show_n = FALSE)
 #'
 #' # Adjust appearance
-#' # plt_sankey(df, vars = c("sex", "stage"),
-#' #            width = 0.3, label_size = 4, alpha = 0.4)
+#' plt_sankey(df, vars = c("sex", "stage"),
+#'            width = 0.3, label_size = 4, alpha = 0.4)
 #'
 #' @export
 #' @family plot formatting

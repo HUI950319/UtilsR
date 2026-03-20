@@ -54,17 +54,17 @@ df <- data.frame(
 )
 
 # Venn diagram
-# plt_upset(df, vars = c("A","B","C"), output = "venn")
+plt_upset(df, vars = c("A","B","C"), output = "venn")
 
 # UpSet plot
-# plt_upset(df, vars = c("A","B","C","D"), output = "upset")
+plt_upset(df, vars = c("A","B","C","D"), output = "upset")
 
 # Combined (default)
-# plt_upset(df, vars = c("A","B","C"))
+plt_upset(df, vars = c("A","B","C"))
 
 # Get data with intersection groups
-# result <- plt_upset(df, vars = c("A","B","C"), output = "data")
-# table(result$intersect_group)
+result <- plt_upset(df, vars = c("A","B","C"), output = "data")
+table(result$intersect_group)
 
 # Custom membership levels
 df2 <- data.frame(
@@ -72,11 +72,11 @@ df2 <- data.frame(
   y = sample(0:1, 100, TRUE),
   z = sample(0:1, 100, TRUE)
 )
-# plt_upset(df2, vars = c("x","y","z"), levels = c("1"))
+plt_upset(df2, vars = c("x","y","z"), levels = c("1"))
 
 # All outputs
-# res <- plt_upset(df, vars = c("A","B","C","D"), output = "all")
-# names(res)
+res <- plt_upset(df, vars = c("A","B","C","D"), output = "all")
+names(res)
 
 }
 \seealso{
