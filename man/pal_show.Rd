@@ -66,18 +66,9 @@ pal_show(pattern = "^pals")
 \seealso{
 Other colour palettes: 
 \code{\link{as_palette}()},
-\code{\link{pal_alphabet}},
-\code{\link{pal_d3}},
-\code{\link{pal_ditto}},
 \code{\link{pal_get}()},
-\code{\link{pal_glasbey}},
-\code{\link{pal_igv}},
-\code{\link{pal_kelly}},
 \code{\link{pal_lancet}},
 \code{\link{pal_list}()},
-\code{\link{pal_polychrome}},
-\code{\link{pal_simpsons}},
-\code{\link{pal_trubetskoy}},
-\code{\link{pal_ucsc}}
+\code{\link{pal_other}}
 }
 \concept{colour palettes}

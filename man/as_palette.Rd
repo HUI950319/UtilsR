@@ -23,19 +23,10 @@ p
 }
 \seealso{
 Other colour palettes: 
-\code{\link{pal_alphabet}},
-\code{\link{pal_d3}},
-\code{\link{pal_ditto}},
 \code{\link{pal_get}()},
-\code{\link{pal_glasbey}},
-\code{\link{pal_igv}},
-\code{\link{pal_kelly}},
 \code{\link{pal_lancet}},
 \code{\link{pal_list}()},
-\code{\link{pal_polychrome}},
-\code{\link{pal_show}()},
-\code{\link{pal_simpsons}},
-\code{\link{pal_trubetskoy}},
-\code{\link{pal_ucsc}}
+\code{\link{pal_other}},
+\code{\link{pal_show}()}
 }
 \concept{colour palettes}
