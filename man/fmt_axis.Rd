@@ -41,3 +41,18 @@ fmt_axis(list(p1, p2), x.axis = 1)
 fmt_axis(list(p1, p2), plot_dims = c(2, 1))
 
 }
+\seealso{
+Other plot formatting: 
+\code{\link{fmt_bg}()},
+\code{\link{fmt_boxplot}()},
+\code{\link{fmt_com}()},
+\code{\link{fmt_expand}()},
+\code{\link{fmt_his}()},
+\code{\link{fmt_legend}()},
+\code{\link{fmt_plot}()},
+\code{\link{fmt_ref}()},
+\code{\link{fmt_scale}()},
+\code{\link{fmt_strip}()},
+\code{\link{fmt_tag}()}
+}
+\concept{plot formatting}

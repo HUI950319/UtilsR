@@ -39,6 +39,7 @@
 #' }
 #'
 #' @export
+#' @family factor tools
 fct_num <- function(x, breaks = NULL, labels = NULL,
                     nbins = NULL, type = c("quantile", "equal")) {
 

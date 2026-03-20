@@ -16,6 +16,7 @@
 #' }
 #'
 #' @export
+#' @family inspect
 count_packages_in_libpaths <- function() {
 
   lib_paths <- .libPaths()

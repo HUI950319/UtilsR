@@ -1,5 +1,5 @@
 # ============================================================================
-# ci_parse.R -- Parse CI strings, compute p-values, adjust confidence levels
+# stat_ci_parse.R -- Parse CI strings, compute p-values, adjust confidence levels
 # ============================================================================
 
 #' Parse Confidence Interval Strings
@@ -28,26 +28,27 @@
 #'
 #' @examples
 #' # Basic: return CI as-is
-#' ci_parse("1.23 (0.95, 1.59)")
+#' stat_ci_parse("1.23 (0.95, 1.59)")
 #'
 #' # Extract p-value
-#' ci_parse("2.45 (1.20, 4.80)", output = "p")
+#' stat_ci_parse("2.45 (1.20, 4.80)", output = "p")
 #'
 #' # CI with stars
-#' ci_parse(c("2.45 (1.20, 4.80)", "1.23 (0.95, 1.59)"), output = "ci_star")
+#' stat_ci_parse(c("2.45 (1.20, 4.80)", "1.23 (0.95, 1.59)"), output = "ci_star")
 #'
 #' # CI with p-value
-#' ci_parse("2.45 (1.20, 4.80)", output = "ci_p")
+#' stat_ci_parse("2.45 (1.20, 4.80)", output = "ci_p")
 #'
 #' # Adjust confidence level
-#' ci_parse("1.23 (0.95, 1.59)", level = 0.90)
+#' stat_ci_parse("1.23 (0.95, 1.59)", level = 0.90)
 #'
 #' # In mutate()
-#' # df %>% mutate(p = ci_parse(hr_ci, output = "p"))
-#' # df %>% mutate(hr_star = ci_parse(hr_ci, output = "ci_star"))
+#' # df %>% mutate(p = stat_ci_parse(hr_ci, output = "p"))
+#' # df %>% mutate(hr_star = stat_ci_parse(hr_ci, output = "ci_star"))
 #'
 #' @export
-ci_parse <- function(x,
+#' @family stat formatting
+stat_ci_parse <- function(x,
                      output = c("ci", "p", "ci_p", "ci_star", "p_star"),
                      level = NULL,
                      exp = "auto",
@@ -147,13 +148,13 @@ ci_parse <- function(x,
     ci = ci_str,
     p = pval,
     ci_p = ifelse(valid,
-      paste0(ci_str, ", p=", fmt_p(pval, mode = "pvalue")),
+      paste0(ci_str, ", p=", stat_pval(pval, mode = "pvalue")),
       x),
     ci_star = ifelse(valid,
-      fmt_p(ci_str, add_star_p = pval, map_signif = map_signif),
+      stat_pval(ci_str, add_star_p = pval, map_signif = map_signif),
       x),
     p_star = ifelse(valid,
-      fmt_p(pval, map_signif = map_signif),
+      stat_pval(pval, map_signif = map_signif),
       NA_character_)
   )
 }

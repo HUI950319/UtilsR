@@ -1,5 +1,5 @@
 # ============================================================================
-# fmt_ci.R -- Format confidence intervals and mean(SD)
+# stat_ci.R -- Format confidence intervals and mean(SD)
 # ============================================================================
 
 #' Format Confidence Intervals or Mean (SD)
@@ -23,29 +23,30 @@
 #'
 #' @examples
 #' # --- Numeric: CI mode (3 arguments) ---
-#' fmt_ci(1.23, 0.95, 1.51)
+#' stat_ci(1.23, 0.95, 1.51)
 #' # "1.23 (0.95\u20131.51)"
 #'
-#' fmt_ci(1.23, 0.95, 1.51, bracket = "[", sep = " to ")
+#' stat_ci(1.23, 0.95, 1.51, bracket = "[", sep = " to ")
 #' # "1.23 [0.95 to 1.51]"
 #'
 #' # --- Numeric: SD mode (2 arguments) ---
-#' fmt_ci(1.23, 0.15)
+#' stat_ci(1.23, 0.15)
 #' # "1.2(0.2)"
 #'
 #' # --- Character: reformat CI strings ---
-#' fmt_ci("1.23 (0.95, 1.59)", bracket = "[", sep = "\u2013")
+#' stat_ci("1.23 (0.95, 1.59)", bracket = "[", sep = "\u2013")
 #' # "1.23 [0.95\u20131.59]"
 #'
-#' fmt_ci("1.23 [0.95\u20131.59]", sep = " to ", bracket = "(")
+#' stat_ci("1.23 [0.95\u20131.59]", sep = " to ", bracket = "(")
 #' # "1.23 (0.95 to 1.59)"
 #'
 #' # --- In mutate() ---
-#' # df %>% mutate(ci = fmt_ci(est, ci_low, ci_high))
-#' # df %>% mutate(ci_new = fmt_ci(ci_old, bracket = "["))
+#' # df %>% mutate(ci = stat_ci(est, ci_low, ci_high))
+#' # df %>% mutate(ci_new = stat_ci(ci_old, bracket = "["))
 #'
 #' @export
-fmt_ci <- function(x, y = NULL, z = NULL,
+#' @family stat formatting
+stat_ci <- function(x, y = NULL, z = NULL,
                    digits = NULL,
                    bracket = c("(", "["),
                    sep = c("\u2013", ", ", " to ")) {

@@ -33,3 +33,11 @@ data \%>\% na(c(Age, Sex))
 }
 
 }
+\seealso{
+Other inspect: 
+\code{\link{check_size}()},
+\code{\link{check_system}()},
+\code{\link{count_packages_in_libpaths}()},
+\code{\link{lv}()}
+}
+\concept{inspect}

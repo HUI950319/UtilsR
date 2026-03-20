@@ -22,6 +22,7 @@
 #' }
 #'
 #' @export
+#' @family inspect
 check_system <- function(return_result = FALSE, show_warnings = FALSE) {
 
   # Get R memory usage

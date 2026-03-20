@@ -46,12 +46,14 @@
 #' }
 #'
 #' @export
+#' @family inspect
 lv <- function(data, ...) {
   UseMethod("lv")
 }
 
 #' @rdname lv
 #' @export
+#' @family inspect
 lv.default <- function(data, ..., pattern = NULL, group = NULL, count = NULL) {
   # Process group argument
   group_var <- NULL
@@ -108,6 +110,7 @@ lv.default <- function(data, ..., pattern = NULL, group = NULL, count = NULL) {
 
 #' @rdname lv
 #' @export
+#' @family inspect
 lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL) {
 
   # Process group argument: support NSE and character string
@@ -619,6 +622,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL)
 #' @param add_cell_stats Logical. Whether to show cell statistics. Default
 #'   \code{TRUE}.
 #' @export
+#' @family inspect
 lv.Seurat <- function(data, ...,
                       pattern = NULL,
                       group = NULL,

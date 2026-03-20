@@ -22,6 +22,7 @@
 #' }
 #'
 #' @export
+#' @family inspect
 check_size <- function(..., pattern = NULL) {
 
   all_objects <- ls(envir = .GlobalEnv, all.names = TRUE)

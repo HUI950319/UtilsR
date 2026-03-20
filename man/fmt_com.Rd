@@ -55,3 +55,18 @@ fmt_com(p, label = "{p.format}{p.signif}")
 fmt_com(p, label.y = 8)
 
 }
+\seealso{
+Other plot formatting: 
+\code{\link{fmt_axis}()},
+\code{\link{fmt_bg}()},
+\code{\link{fmt_boxplot}()},
+\code{\link{fmt_expand}()},
+\code{\link{fmt_his}()},
+\code{\link{fmt_legend}()},
+\code{\link{fmt_plot}()},
+\code{\link{fmt_ref}()},
+\code{\link{fmt_scale}()},
+\code{\link{fmt_strip}()},
+\code{\link{fmt_tag}()}
+}
+\concept{plot formatting}

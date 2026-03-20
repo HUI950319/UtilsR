@@ -34,6 +34,7 @@
 #' fmt_axis(list(p1, p2), plot_dims = c(2, 1))
 #'
 #' @export
+#' @family plot formatting
 fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
   info <- .to_plot_list(plot)
   plots <- info$plots
@@ -135,6 +136,7 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
 #' fmt_tag(list(p1, p2), labels = c("i", "ii"))
 #'
 #' @export
+#' @family plot formatting
 fmt_tag <- function(plot,
                     labels = NULL,
                     label_position = c(0.02, 0.98),
@@ -208,6 +210,7 @@ fmt_tag <- function(plot,
 #' fmt_legend(p, legend.position = "none")
 #'
 #' @export
+#' @family plot formatting
 fmt_legend <- function(plot,
                        legend.position = NULL,
                        legend.direction = NULL,
@@ -314,6 +317,7 @@ fmt_legend <- function(plot,
 #' fmt_ref(p, x = c(5, 6), color = c("red", "blue"))
 #'
 #' @export
+#' @family plot formatting
 fmt_ref <- function(plot,
                     x = NULL,
                     y = NULL,
@@ -399,6 +403,7 @@ fmt_ref <- function(plot,
 #' fmt_plot(list(p1, p2), tag = TRUE, merge_legends = TRUE)
 #'
 #' @export
+#' @family plot formatting
 fmt_plot <- function(plot,
                      fmt_axis_list = NULL,
                      fmt_tag_list = NULL,
@@ -499,6 +504,7 @@ fmt_plot <- function(plot,
 #' fmt_strip(p, label_fill = "steelblue")
 #'
 #' @export
+#' @family plot formatting
 fmt_strip <- function(plot, label = NULL, label_color = "white", label_fill = NULL) {
   info <- .to_plot_list(plot)
   plots <- info$plots
@@ -584,6 +590,7 @@ fmt_strip <- function(plot, label = NULL, label_color = "white", label_fill = NU
 #' fmt_com(p, label.y = 8)
 #'
 #' @export
+#' @family plot formatting
 fmt_com <- function(plot,
                     com_method = "con",
                     label.y = NULL,
@@ -662,6 +669,7 @@ fmt_com <- function(plot,
 #' fmt_bg(p, alpha = 0.2)
 #'
 #' @export
+#' @family plot formatting
 fmt_bg <- function(plot,
                    palette = NULL,
                    palcolor = NULL,
@@ -794,6 +802,7 @@ fmt_bg <- function(plot,
 #' }
 #'
 #' @export
+#' @family plot formatting
 fmt_his <- function(plot,
                     type = c("histogram", "density", "h", "d"),
                     height_ratio = 0.3,
@@ -887,6 +896,7 @@ fmt_his <- function(plot,
 #' fmt_scale(p, scale_x_list = list(limits = c(4, 8), breaks = seq(4, 8, 1)))
 #'
 #' @export
+#' @family plot formatting
 fmt_scale <- function(plot, scale_x_list = NULL, scale_y_list = NULL) {
   apply_scale <- function(p, args, axis) {
     if (is.null(args) || length(args) == 0L) return(p)
@@ -934,6 +944,7 @@ fmt_scale <- function(plot, scale_x_list = NULL, scale_y_list = NULL) {
 #' fmt_expand(p, add = c(0.5, 0), axis = "x")
 #'
 #' @export
+#' @family plot formatting
 fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
   if (!is.null(axis) && !axis %in% c("x", "y"))
     cli::cli_abort("`axis` must be 'x', 'y', or NULL.")
@@ -987,6 +998,7 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 #' fmt_boxplot(p, boxplot.args = list(width = 0.2, alpha = 0.5))
 #'
 #' @export
+#' @family plot formatting
 fmt_boxplot <- function(plot,
                         boxplot.args = list(),
                         inherit.aes = TRUE) {

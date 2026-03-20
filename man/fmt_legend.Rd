@@ -47,3 +47,18 @@ fmt_legend(p, legend.position = "bottom", legend.direction = "horizontal")
 fmt_legend(p, legend.position = "none")
 
 }
+\seealso{
+Other plot formatting: 
+\code{\link{fmt_axis}()},
+\code{\link{fmt_bg}()},
+\code{\link{fmt_boxplot}()},
+\code{\link{fmt_com}()},
+\code{\link{fmt_expand}()},
+\code{\link{fmt_his}()},
+\code{\link{fmt_plot}()},
+\code{\link{fmt_ref}()},
+\code{\link{fmt_scale}()},
+\code{\link{fmt_strip}()},
+\code{\link{fmt_tag}()}
+}
+\concept{plot formatting}

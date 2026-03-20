@@ -19,3 +19,19 @@ Print all built-in palette names and their colour counts.
 pal_list(show = FALSE)
 
 }
+\seealso{
+Other colour palettes: 
+\code{\link{as_palette}()},
+\code{\link{pal_alphabet}},
+\code{\link{pal_d3}},
+\code{\link{pal_ditto}},
+\code{\link{pal_glasbey}},
+\code{\link{pal_igv}},
+\code{\link{pal_kelly}},
+\code{\link{pal_lancet}},
+\code{\link{pal_polychrome}},
+\code{\link{pal_simpsons}},
+\code{\link{pal_trubetskoy}},
+\code{\link{pal_ucsc}}
+}
+\concept{colour palettes}

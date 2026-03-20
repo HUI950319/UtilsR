@@ -15,6 +15,7 @@
 #' p
 #'
 #' @export
+#' @family colour palettes
 as_palette <- function(x) {
   if (!is.character(x)) {
     cli::cli_abort("{.arg x} must be a character vector of colours, got {.cls {class(x)}}.")
@@ -23,17 +24,20 @@ as_palette <- function(x) {
 }
 
 #' @export
+#' @family colour palettes
 print.palette <- function(x, ...) {
   show_color(x)
   invisible(x)
 }
 
 #' @export
+#' @family colour palettes
 `[.palette` <- function(x, i, ...) {
   as_palette(NextMethod())
 }
 
 #' @export
+#' @family colour palettes
 c.palette <- function(...) {
   as_palette(NextMethod())
 }
@@ -51,6 +55,7 @@ c.palette <- function(...) {
 #' pal_lancet[1:5]
 #'
 #' @export
+#' @family colour palettes
 pal_lancet <- as_palette(c(
   "#00468BFF", "#ED0000FF", "#42B540FF", "#0099B4FF", "#925E9FFF",
   "#FDAF91FF", "#AD002AFF", "#ADB6B6FF", "#1B1919FF", "#79AF97FF",
@@ -67,6 +72,7 @@ pal_lancet <- as_palette(c(
 #' @examples
 #' pal_igv
 #' @export
+#' @family colour palettes
 pal_igv <- as_palette(c(
   "#5050FF", "#CE3D32", "#749B58", "#F0E685", "#466983", "#BA6338",
   "#5DB1DD", "#802268", "#6BD76B", "#D595A7", "#924822", "#837B8D",
@@ -88,6 +94,7 @@ pal_igv <- as_palette(c(
 #' @examples
 #' pal_ditto
 #' @export
+#' @family colour palettes
 pal_ditto <- as_palette(c(
   "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00",
   "#CC79A7", "#666666", "#AD7700", "#1C91D4", "#007756", "#D5C711",
@@ -109,6 +116,7 @@ pal_ditto <- as_palette(c(
 #' @examples
 #' pal_polychrome
 #' @export
+#' @family colour palettes
 pal_polychrome <- as_palette(c(
   "#5A5156", "#E4E1E3", "#F6222E", "#FE00FA", "#16FF32", "#3283FE",
   "#FEAF16", "#B00068", "#1CFFCE", "#90AD1C", "#2ED9FF", "#DEA0FD",
@@ -128,6 +136,7 @@ pal_polychrome <- as_palette(c(
 #' @examples
 #' pal_glasbey
 #' @export
+#' @family colour palettes
 pal_glasbey <- as_palette(c(
   "#0000FF", "#FF0000", "#00FF00", "#000033", "#FF00B6", "#005300",
   "#FFD300", "#009FFF", "#9A4D42", "#00FFBE", "#783FC1", "#1F9698",
@@ -147,6 +156,7 @@ pal_glasbey <- as_palette(c(
 #' @examples
 #' pal_alphabet
 #' @export
+#' @family colour palettes
 pal_alphabet <- as_palette(c(
   "#F0A0FF", "#0075DC", "#993F00", "#4C005C", "#191919", "#005C31",
   "#2BCE48", "#FFCC99", "#808080", "#94FFB5", "#8F7C00", "#9DCC00",
@@ -164,6 +174,7 @@ pal_alphabet <- as_palette(c(
 #' @examples
 #' pal_ucsc
 #' @export
+#' @family colour palettes
 pal_ucsc <- as_palette(c(
   "#FF0000", "#FF9900", "#FFCC00", "#00FF00", "#6699FF", "#CC33FF",
   "#99991E", "#999999", "#FF00CC", "#CC0000", "#FFCCCC", "#FFFF00",
@@ -181,6 +192,7 @@ pal_ucsc <- as_palette(c(
 #' @examples
 #' pal_kelly
 #' @export
+#' @family colour palettes
 pal_kelly <- as_palette(c(
   "#F2F3F4", "#222222", "#F3C300", "#875092", "#F38400", "#A1CAF1",
   "#BE0032", "#C2B280", "#848482", "#008856", "#E68FAC", "#0067A5",
@@ -197,6 +209,7 @@ pal_kelly <- as_palette(c(
 #' @examples
 #' pal_d3
 #' @export
+#' @family colour palettes
 pal_d3 <- as_palette(c(
   "#1F77B4", "#FF7F0E", "#2CA02C", "#D62728", "#9467BD", "#8C564B",
   "#E377C2", "#7F7F7F", "#BCBD22", "#17BECF", "#AEC7E8", "#FFBB78",
@@ -213,6 +226,7 @@ pal_d3 <- as_palette(c(
 #' @examples
 #' pal_simpsons
 #' @export
+#' @family colour palettes
 pal_simpsons <- as_palette(c(
   "#FED439", "#709AE1", "#8A9197", "#D2AF81", "#FD7446", "#D5E4A2",
   "#197EC0", "#F05C3B", "#46732E", "#71D0F5", "#370335", "#075149",
@@ -228,6 +242,7 @@ pal_simpsons <- as_palette(c(
 #' @examples
 #' pal_trubetskoy
 #' @export
+#' @family colour palettes
 pal_trubetskoy <- as_palette(c(
   "#E6194B", "#3CB44B", "#FFE119", "#4363D8", "#F58231", "#911EB4",
   "#42D4F4", "#F032E6", "#BFEF45", "#FABED4", "#469990", "#DCBEFF",
@@ -246,6 +261,7 @@ pal_trubetskoy <- as_palette(c(
 #' pal_list(show = FALSE)
 #'
 #' @export
+#' @family colour palettes
 pal_list <- function(show = TRUE) {
   ns <- asNamespace("UtilsR")
   all_names <- sort(ls(ns, pattern = "^pal_"))

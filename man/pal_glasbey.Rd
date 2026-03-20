@@ -20,4 +20,20 @@ distinct colours. Useful for datasets with many categorical groups.
 \examples{
 pal_glasbey
 }
+\seealso{
+Other colour palettes: 
+\code{\link{as_palette}()},
+\code{\link{pal_alphabet}},
+\code{\link{pal_d3}},
+\code{\link{pal_ditto}},
+\code{\link{pal_igv}},
+\code{\link{pal_kelly}},
+\code{\link{pal_lancet}},
+\code{\link{pal_list}()},
+\code{\link{pal_polychrome}},
+\code{\link{pal_simpsons}},
+\code{\link{pal_trubetskoy}},
+\code{\link{pal_ucsc}}
+}
+\concept{colour palettes}
 \keyword{datasets}

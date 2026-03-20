@@ -47,6 +47,7 @@ NULL
 #' }
 #'
 #' @export
+#' @family ggplot2 themes
 theme_my <- function(palette = "black_and_white", base_size = 14,
                      base_family = "sans", base_fontface = "bold",
                      base_line_size = base_size / 14,
@@ -273,6 +274,7 @@ theme_my <- function(palette = "black_and_white", base_size = 14,
 #' }
 #'
 #' @export
+#' @family ggplot2 themes
 theme_km <- NULL
 
 #' RCS (Restricted Cubic Spline) Plot Theme
@@ -286,6 +288,7 @@ theme_km <- NULL
 #' }
 #'
 #' @export
+#' @family ggplot2 themes
 theme_rcs <- NULL
 
 # Build the preset theme objects on package load

@@ -20,4 +20,10 @@ p + theme_rcs
 }
 
 }
+\seealso{
+Other ggplot2 themes: 
+\code{\link{theme_km}},
+\code{\link{theme_my}()}
+}
+\concept{ggplot2 themes}
 \keyword{datasets}

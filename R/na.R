@@ -25,6 +25,7 @@
 #' }
 #'
 #' @export
+#' @family inspect
 na <- function(data, ..., pattern = NULL, show_all = FALSE) {
 
   if (missing(data)) data <- get("data", envir = parent.frame())

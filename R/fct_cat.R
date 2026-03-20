@@ -54,6 +54,7 @@
 #' }
 #'
 #' @export
+#' @family factor tools
 fct_cat <- function(x, ...,
                     reverse = FALSE,
                     binary_ref = NULL,

@@ -24,9 +24,9 @@
 #'
 #' @section Format:
 #' \describe{
-#'   \item{\code{\link{fmt_ci}}}{Build or reformat CI strings and mean(SD)}
-#'   \item{\code{\link{fmt_p}}}{Format p-values or add significance stars}
-#'   \item{\code{\link{ci_parse}}}{Parse CI strings, compute p-values, adjust confidence levels}
+#'   \item{\code{\link{stat_ci}}}{Build or reformat CI strings and mean(SD)}
+#'   \item{\code{\link{stat_pval}}}{Format p-values or add significance stars}
+#'   \item{\code{\link{stat_ci_parse}}}{Parse CI strings, compute p-values, adjust confidence levels}
 #' }
 #'
 #' @section Colour Palettes:

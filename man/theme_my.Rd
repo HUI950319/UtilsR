@@ -75,3 +75,9 @@ ggplot(iris, aes(Petal.Length, Petal.Width)) +
 }
 
 }
+\seealso{
+Other ggplot2 themes: 
+\code{\link{theme_km}},
+\code{\link{theme_rcs}}
+}
+\concept{ggplot2 themes}

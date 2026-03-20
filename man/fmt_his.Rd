@@ -45,3 +45,18 @@ fmt_his(p, type = "density", height_ratio = 0.2)
 }
 
 }
+\seealso{
+Other plot formatting: 
+\code{\link{fmt_axis}()},
+\code{\link{fmt_bg}()},
+\code{\link{fmt_boxplot}()},
+\code{\link{fmt_com}()},
+\code{\link{fmt_expand}()},
+\code{\link{fmt_legend}()},
+\code{\link{fmt_plot}()},
+\code{\link{fmt_ref}()},
+\code{\link{fmt_scale}()},
+\code{\link{fmt_strip}()},
+\code{\link{fmt_tag}()}
+}
+\concept{plot formatting}

@@ -31,3 +31,18 @@ p <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) +
 fmt_strip(p, label_fill = "steelblue")
 
 }
+\seealso{
+Other plot formatting: 
+\code{\link{fmt_axis}()},
+\code{\link{fmt_bg}()},
+\code{\link{fmt_boxplot}()},
+\code{\link{fmt_com}()},
+\code{\link{fmt_expand}()},
+\code{\link{fmt_his}()},
+\code{\link{fmt_legend}()},
+\code{\link{fmt_plot}()},
+\code{\link{fmt_ref}()},
+\code{\link{fmt_scale}()},
+\code{\link{fmt_tag}()}
+}
+\concept{plot formatting}

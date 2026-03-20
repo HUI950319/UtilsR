@@ -75,3 +75,8 @@ df \%>\% mutate(grp = fct_cat(combine = c("sex", "age")))
 }
 
 }
+\seealso{
+Other factor tools: 
+\code{\link{fct_num}()}
+}
+\concept{factor tools}

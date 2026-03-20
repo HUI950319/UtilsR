@@ -62,3 +62,18 @@ fmt_plot(p1, ref_x = 5.5, legend.position = "bottom")
 fmt_plot(list(p1, p2), tag = TRUE, merge_legends = TRUE)
 
 }
+\seealso{
+Other plot formatting: 
+\code{\link{fmt_axis}()},
+\code{\link{fmt_bg}()},
+\code{\link{fmt_boxplot}()},
+\code{\link{fmt_com}()},
+\code{\link{fmt_expand}()},
+\code{\link{fmt_his}()},
+\code{\link{fmt_legend}()},
+\code{\link{fmt_ref}()},
+\code{\link{fmt_scale}()},
+\code{\link{fmt_strip}()},
+\code{\link{fmt_tag}()}
+}
+\concept{plot formatting}

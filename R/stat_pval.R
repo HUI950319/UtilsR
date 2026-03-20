@@ -1,5 +1,5 @@
 # ============================================================================
-# fmt_p.R -- Format p-values, numbers, and add significance stars
+# stat_pval.R -- Format p-values, numbers, and add significance stars
 # ============================================================================
 
 #' Format P-values, Numbers, or Add Stars to Any Value
@@ -27,24 +27,25 @@
 #'
 #' @examples
 #' # --- Format p-values (x only) ---
-#' fmt_p(c(0.0003, 0.005, 0.03, 0.08, 0.5))
+#' stat_pval(c(0.0003, 0.005, 0.03, 0.08, 0.5))
 #' # "<0.001***" "0.005**"   "0.030*"    "0.080."    "0.500"
 #'
-#' fmt_p(c(0.0003, 0.05), mode = "pvalue")
+#' stat_pval(c(0.0003, 0.05), mode = "pvalue")
 #' # "<0.001" "0.050"
 #'
-#' fmt_p(1.2345, digits = 2, mode = "plain")
+#' stat_pval(1.2345, digits = 2, mode = "plain")
 #' # "1.23"
 #'
 #' # --- Add stars to any value (x + add_star_p) ---
-#' fmt_p(c(1.85, 0.72, 1.25), add_star_p = c(0.001, 0.05, 0.5))
+#' stat_pval(c(1.85, 0.72, 1.25), add_star_p = c(0.001, 0.05, 0.5))
 #' # "1.85***" "0.72*"   "1.25"
 #'
-#' # With fmt_ci output
-#' # df %>% mutate(hr_ci = fmt_p(fmt_ci(hr, lo, hi), add_star_p = pvalue))
+#' # With stat_ci output
+#' # df %>% mutate(hr_ci = stat_pval(stat_ci(hr, lo, hi), add_star_p = pvalue))
 #'
 #' @export
-fmt_p <- function(x,
+#' @family stat formatting
+stat_pval <- function(x,
                   add_star_p = NULL,
                   digits = NULL,
                   mode = c("stars", "pvalue", "plain"),
