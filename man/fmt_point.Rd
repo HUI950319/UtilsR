@@ -11,14 +11,12 @@ fmt_point(
   shape = 19,
   size = 1,
   white_border = FALSE,
-  dodge_width = 0.8,
-  jitter_width = 0.2,
-  jitter_height = 0,
-  cex = 3,
-  corral = "wrap",
-  corral.width = 0.5,
+  dodge.width = 0.8,
+  jitter.width = 0.2,
+  jitter.height = 0,
+  beeswarm.args = list(),
   rasterize = FALSE,
-  rasterize_dpi = 300,
+  rasterize.dpi = 300,
   ...
 )
 }
@@ -39,25 +37,22 @@ Can be a data.frame or a function/formula applied to the plot data
 \item{white_border}{Logical. If \code{TRUE}, converts shapes to fillable
 versions (21-24) with white stroke. Default \code{FALSE}.}
 
-\item{dodge_width}{Dodge width for grouped data. Default 0.8.
+\item{dodge.width}{Dodge width for grouped data. Default 0.8.
 Set to 0 to disable dodging.}
 
-\item{jitter_width}{Horizontal jitter. Only used when \code{type = "jitter"}.
+\item{jitter.width}{Horizontal jitter. Only used when \code{type = "jitter"}.
 Default 0.2.}
 
-\item{jitter_height}{Vertical jitter. Default 0.}
+\item{jitter.height}{Vertical jitter. Default 0.}
 
-\item{cex}{Beeswarm spacing factor. Only used when \code{type = "beeswarm"}.
-Default 3.}
-
-\item{corral}{Beeswarm boundary handling. Default \code{"wrap"}.}
-
-\item{corral.width}{Beeswarm boundary width. Default 0.5.}
+\item{beeswarm.args}{Named list of arguments for beeswarm layout.
+Only used when \code{type = "beeswarm"}.
+Defaults: \code{list(cex = 3, corral = "wrap", corral.width = 0.5)}.}
 
 \item{rasterize}{Logical. If \code{TRUE}, rasterizes the point layer
 via \code{ggrastr::rasterise} for large datasets. Default \code{FALSE}.}
 
-\item{rasterize_dpi}{DPI for rasterization. Default 300.}
+\item{rasterize.dpi}{Integer, DPI for rasterization. Default 300.}
 
 \item{...}{Additional arguments passed to \code{geom_point} or
 \code{geom_beeswarm}.}

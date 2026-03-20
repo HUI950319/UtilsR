@@ -18,18 +18,17 @@
 #' @param size Point size. Default 1.
 #' @param white_border Logical. If \code{TRUE}, converts shapes to fillable
 #'   versions (21-24) with white stroke. Default \code{FALSE}.
-#' @param dodge_width Dodge width for grouped data. Default 0.8.
+#' @param dodge.width Dodge width for grouped data. Default 0.8.
 #'   Set to 0 to disable dodging.
-#' @param jitter_width Horizontal jitter. Only used when \code{type = "jitter"}.
+#' @param jitter.width Horizontal jitter. Only used when \code{type = "jitter"}.
 #'   Default 0.2.
-#' @param jitter_height Vertical jitter. Default 0.
-#' @param cex Beeswarm spacing factor. Only used when \code{type = "beeswarm"}.
-#'   Default 3.
-#' @param corral Beeswarm boundary handling. Default \code{"wrap"}.
-#' @param corral.width Beeswarm boundary width. Default 0.5.
+#' @param jitter.height Vertical jitter. Default 0.
+#' @param beeswarm.args Named list of arguments for beeswarm layout.
+#'   Only used when \code{type = "beeswarm"}.
+#'   Defaults: \code{list(cex = 3, corral = "wrap", corral.width = 0.5)}.
 #' @param rasterize Logical. If \code{TRUE}, rasterizes the point layer
 #'   via \code{ggrastr::rasterise} for large datasets. Default \code{FALSE}.
-#' @param rasterize_dpi DPI for rasterization. Default 300.
+#' @param rasterize.dpi Integer, DPI for rasterization. Default 300.
 #' @param ... Additional arguments passed to \code{geom_point} or
 #'   \code{geom_beeswarm}.
 #'
@@ -65,22 +64,24 @@ fmt_point <- function(plot,
                       shape = 19,
                       size = 1,
                       white_border = FALSE,
-                      dodge_width = 0.8,
-                      jitter_width = 0.2,
-                      jitter_height = 0,
-                      cex = 3,
-                      corral = "wrap",
-                      corral.width = 0.5,
+                      dodge.width = 0.8,
+                      jitter.width = 0.2,
+                      jitter.height = 0,
+                      beeswarm.args = list(),
                       rasterize = FALSE,
-                      rasterize_dpi = 300,
+                      rasterize.dpi = 300,
                       ...) {
   type <- match.arg(type)
 
   # Set jitter defaults by type
   if (type == "point") {
-    jitter_width <- 0
-    jitter_height <- 0
+    jitter.width <- 0
+    jitter.height <- 0
   }
+
+  # Beeswarm defaults
+  bee <- list(cex = 3, corral = "wrap", corral.width = 0.5)
+  bee[names(beeswarm.args)] <- beeswarm.args
 
   fmt_point_one <- function(p) {
     # --- Compute position ---
@@ -88,21 +89,21 @@ fmt_point <- function(plot,
 
     if (type == "beeswarm") {
       position <- NULL
-    } else if (dodge_width == 0 || !has_group) {
-      if (jitter_width == 0 && jitter_height == 0) {
+    } else if (dodge.width == 0 || !has_group) {
+      if (jitter.width == 0 && jitter.height == 0) {
         position <- ggplot2::position_identity()
       } else {
         position <- ggplot2::position_jitter(
-          width = jitter_width, height = jitter_height, seed = 42
+          width = jitter.width, height = jitter.height, seed = 42
         )
       }
     } else {
-      if (jitter_width == 0 && jitter_height == 0) {
-        position <- ggplot2::position_dodge(width = dodge_width, preserve = "total")
+      if (jitter.width == 0 && jitter.height == 0) {
+        position <- ggplot2::position_dodge(width = dodge.width, preserve = "total")
       } else {
         position <- ggplot2::position_jitterdodge(
-          jitter.width = jitter_width, jitter.height = jitter_height,
-          dodge.width = dodge_width, seed = 42
+          jitter.width = jitter.width, jitter.height = jitter.height,
+          dodge.width = dodge.width, seed = 42
         )
       }
     }
@@ -132,10 +133,10 @@ fmt_point <- function(plot,
       if (!requireNamespace("ggbeeswarm", quietly = TRUE)) {
         cli::cli_abort("Package {.pkg ggbeeswarm} is required for type='beeswarm'.")
       }
-      params$dodge.width <- dodge_width
-      params$cex <- cex
-      params$corral <- corral
-      params$corral.width <- corral.width
+      params$dodge.width <- dodge.width
+      params$cex <- bee$cex
+      params$corral <- bee$corral
+      params$corral.width <- bee$corral.width
       geom <- do.call(ggbeeswarm::geom_beeswarm, params)
     } else {
       params$position <- position
@@ -147,7 +148,7 @@ fmt_point <- function(plot,
       if (!requireNamespace("ggrastr", quietly = TRUE)) {
         cli::cli_abort("Package {.pkg ggrastr} is required for rasterize=TRUE.")
       }
-      p + ggrastr::rasterise(geom, dpi = rasterize_dpi, dev = "ragg")
+      p + ggrastr::rasterise(geom, dpi = rasterize.dpi, dev = "ragg")
     } else {
       p + geom
     }
