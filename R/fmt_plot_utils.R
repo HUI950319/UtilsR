@@ -89,6 +89,25 @@
 #' @param nrow_inds_order Single integer to reorder plots by interleaving rows.
 #'
 #' @return A patchwork object with all sub-plots at one level.
+#'
+#' @examples
+#' library(ggplot2)
+#' library(patchwork)
+#' p1 <- ggplot(mtcars, aes(mpg, disp)) + geom_point()
+#' p2 <- ggplot(mtcars, aes(gear, disp, group = gear)) + geom_boxplot()
+#' p3 <- ggplot(mtcars, aes(factor(gear))) + geom_bar()
+#' p4 <- ggplot(mtcars, aes(factor(cyl), mpg)) + geom_violin()
+#'
+#' # Flatten nested patchwork
+#' nested <- (p1 | p2) / (p3 | p4)
+#' flatten_patchwork(nested, nrow = 1)
+#'
+#' # Select specific sub-plots
+#' flatten_patchwork(nested, select_inds = c(1, 3))
+#'
+#' # Reorder by rows (column-first → row-first)
+#' flatten_patchwork(nested, nrow_inds_order = 2, ncol = 2)
+#'
 #' @export
 flatten_patchwork <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) {
   flatten_recursive <- function(plot_obj) {
