@@ -103,14 +103,16 @@ reference:
 
 articles:
   - title: Plot Functions
-    navbar: ~
+    navbar: Plot Functions
     contents:
       - plt_cat_guide
   - title: Data & Factor
+    navbar: Data & Factor
     contents:
       - data_inspection
       - factor_manipulation
   - title: ggplot2 & Colour
+    navbar: ggplot2 & Colour
     contents:
       - ggplot2_formatting
       - colour_palettes
