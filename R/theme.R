@@ -38,16 +38,16 @@ NULL
 #' library(ggplot2)
 #' ggplot(iris, aes(Petal.Length, Petal.Width)) +
 #'   geom_point() +
-#'   my_theme()
+#'   theme_clean()
 #'
 #' ggplot(iris, aes(Petal.Length, Petal.Width)) +
 #'   geom_point() +
 #'   facet_wrap(~Species) +
-#'   my_theme(panel.spacing = unit(0, "pt"))
+#'   theme_clean(panel.spacing = unit(0, "pt"))
 #' }
 #'
 #' @export
-my_theme <- function(palette = "black_and_white", base_size = 14,
+theme_clean <- function(palette = "black_and_white", base_size = 14,
                      base_family = "sans", base_fontface = "bold",
                      base_line_size = base_size / 14,
                      base_rect_size = base_size / 14,
@@ -269,11 +269,11 @@ my_theme <- function(palette = "black_and_white", base_size = 14,
 #' @examples
 #' \dontrun{
 #' library(ggplot2)
-#' p + km_theme
+#' p + theme_km
 #' }
 #'
 #' @export
-km_theme <- NULL
+theme_km <- NULL
 
 #' RCS (Restricted Cubic Spline) Plot Theme
 #'
@@ -282,28 +282,28 @@ km_theme <- NULL
 #' @examples
 #' \dontrun{
 #' library(ggplot2)
-#' p + rcs_theme
+#' p + theme_rcs
 #' }
 #'
 #' @export
-rcs_theme <- NULL
+theme_rcs <- NULL
 
 # Build the preset theme objects on package load
 .onLoad_theme <- function() {
-  km <- my_theme(base_rect_size = 1.5, base_size = 20) %+replace%
+  km <- theme_clean(base_rect_size = 1.5, base_size = 20) %+replace%
     theme(
       panel.grid.minor = element_blank(),
       legend.title = element_text(hjust = 0),
       legend.text = element_text(hjust = 0, face = "bold")
     )
 
-  rcs <- my_theme(base_rect_size = 1.5, base_size = 15) %+replace%
+  rcs <- theme_clean(base_rect_size = 1.5, base_size = 15) %+replace%
     theme(
       panel.grid.minor = element_blank(),
       legend.title = element_text(hjust = 0),
       legend.text = element_text(hjust = 0, face = "bold")
     )
 
-  assign("km_theme", km, envir = asNamespace("UtilsR"))
-  assign("rcs_theme", rcs, envir = asNamespace("UtilsR"))
+  assign("theme_km", km, envir = asNamespace("UtilsR"))
+  assign("theme_rcs", rcs, envir = asNamespace("UtilsR"))
 }
