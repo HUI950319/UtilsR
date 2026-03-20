@@ -4,19 +4,33 @@
 \alias{pal_list}
 \title{List All Available Palettes}
 \usage{
-pal_list(show = TRUE)
+pal_list(
+  pattern = NULL,
+  type = c("all", "discrete", "continuous"),
+  show = TRUE
+)
 }
 \arguments{
-\item{show}{Logical, if \code{TRUE} (default) also display colour swatches.}
+\item{pattern}{Regex pattern to filter palette names. Default \code{NULL}
+shows all.}
+
+\item{type}{Filter by type: \code{"all"} (default), \code{"discrete"},
+or \code{"continuous"}.}
+
+\item{show}{Logical, if \code{TRUE} (default) display colour swatches.}
 }
 \value{
-Invisibly returns a named list of all palettes.
+Invisibly returns a named list of matching palettes.
 }
 \description{
-Print all built-in palette names and their colour counts.
+Browse palettes from the built-in collection (256 palettes from
+RColorBrewer, ggsci, viridis, rcartocolor, nord, dichromat, pals,
+colorspace, and UtilsR built-in). Use \code{pattern} to filter.
 }
 \examples{
 pal_list(show = FALSE)
+pal_list(pattern = "^Blues")
+pal_list(type = "discrete", pattern = "nord")
 
 }
 \seealso{
@@ -25,6 +39,7 @@ Other colour palettes:
 \code{\link{pal_alphabet}},
 \code{\link{pal_d3}},
 \code{\link{pal_ditto}},
+\code{\link{pal_get}()},
 \code{\link{pal_glasbey}},
 \code{\link{pal_igv}},
 \code{\link{pal_kelly}},

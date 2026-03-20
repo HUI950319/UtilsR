@@ -252,23 +252,137 @@ pal_trubetskoy <- as_palette(c(
 
 #' List All Available Palettes
 #'
-#' Print all built-in palette names and their colour counts.
+#' Browse palettes from the built-in collection (256 palettes from
+#' RColorBrewer, ggsci, viridis, rcartocolor, nord, dichromat, pals,
+#' colorspace, and UtilsR built-in). Use \code{pattern} to filter.
 #'
-#' @param show Logical, if \code{TRUE} (default) also display colour swatches.
-#' @return Invisibly returns a named list of all palettes.
+#' @param pattern Regex pattern to filter palette names. Default \code{NULL}
+#'   shows all.
+#' @param type Filter by type: \code{"all"} (default), \code{"discrete"},
+#'   or \code{"continuous"}.
+#' @param show Logical, if \code{TRUE} (default) display colour swatches.
+#' @return Invisibly returns a named list of matching palettes.
 #'
 #' @examples
 #' pal_list(show = FALSE)
+#' pal_list(pattern = "^Blues")
+#' pal_list(type = "discrete", pattern = "nord")
 #'
 #' @export
 #' @family colour palettes
-pal_list <- function(show = TRUE) {
-  ns <- asNamespace("UtilsR")
-  all_names <- sort(ls(ns, pattern = "^pal_"))
-  pals <- mget(all_names, envir = ns)
+pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
+                     show = TRUE) {
+  type <- match.arg(type)
+  pals <- palette_list
+  # Filter by type
+  if (type != "all") {
+    pals <- pals[vapply(pals, function(x) identical(attr(x, "type"), type), logical(1))]
+  }
+  # Filter by pattern
+  if (!is.null(pattern)) {
+    pals <- pals[grep(pattern, names(pals), ignore.case = TRUE)]
+  }
+  if (length(pals) == 0) {
+    cli::cli_inform("No palettes matched.")
+    return(invisible(list()))
+  }
   for (nm in names(pals)) {
-    cat(sprintf("\n=== %s (%d colours) ===\n", nm, length(pals[[nm]])))
+    tp <- attr(pals[[nm]], "type") %||% "?"
+    cat(sprintf("\n=== %s (%d colours, %s) ===\n", nm, length(pals[[nm]]), tp))
     if (show) show_color(pals[[nm]])
   }
   invisible(pals)
+}
+
+#' Get Colours from a Named Palette
+#'
+#' Retrieve colours from the built-in palette collection (256 palettes).
+#' Supports discrete mapping (factor/character input) and continuous
+#' interpolation (numeric input or \code{n} parameter).
+#'
+#' @param palette Palette name (e.g. \code{"Paired"}, \code{"viridis"},
+#'   \code{"lancet"}). Use \code{pal_list()} to see all available names.
+#' @param n Number of colours to return. For discrete palettes, colours are
+#'   recycled or interpolated as needed. Default \code{NULL} returns all
+#'   colours in the palette.
+#' @param x Optional vector to map colours to. If character/factor, returns
+#'   a named colour vector. If numeric, interpolates along the palette.
+#' @param reverse Logical, reverse colour order. Default \code{FALSE}.
+#' @param alpha Numeric 0-1, colour transparency. Default 1 (opaque).
+#'
+#' @return A character vector of hex colours (named if \code{x} is provided).
+#'
+#' @examples
+#' # Get 5 colours from Paired palette
+#' pal_get("Paired", n = 5)
+#'
+#' # Map factor levels to colours
+#' pal_get("lancet", x = c("A", "B", "C"))
+#'
+#' # Continuous interpolation
+#' pal_get("viridis", n = 20)
+#'
+#' # Reverse and transparent
+#' pal_get("Blues", n = 5, reverse = TRUE, alpha = 0.6)
+#'
+#' # Use in ggplot
+#' # ggplot(df, aes(x, y, color = group)) +
+#' #   scale_color_manual(values = pal_get("lancet", x = levels(df$group)))
+#'
+#' @export
+#' @family colour palettes
+pal_get <- function(palette = "Paired", n = NULL, x = NULL,
+                    reverse = FALSE, alpha = 1) {
+  pals <- palette_list
+  if (!palette %in% names(pals)) {
+    # Fuzzy match
+    matches <- grep(palette, names(pals), ignore.case = TRUE, value = TRUE)
+    if (length(matches) > 0) {
+      cli::cli_inform("Palette {.val {palette}} not found. Did you mean: {.val {matches[1:min(5, length(matches))]}}")
+    }
+    cli::cli_abort("Palette {.val {palette}} not found. Use {.fn pal_list} to see available palettes.")
+  }
+  cols <- pals[[palette]]
+
+  # --- Map to x (discrete) ---
+  if (!is.null(x)) {
+    if (is.numeric(x)) {
+      # Continuous: interpolate
+      ramp <- grDevices::colorRampPalette(cols)
+      out <- ramp(length(x))
+    } else {
+      # Discrete: map levels
+      lvs <- if (is.factor(x)) levels(x) else unique(x)
+      n_lvs <- length(lvs)
+      if (n_lvs <= length(cols)) {
+        out <- stats::setNames(cols[seq_len(n_lvs)], lvs)
+      } else {
+        out <- stats::setNames(grDevices::colorRampPalette(cols)(n_lvs), lvs)
+      }
+    }
+  } else if (!is.null(n)) {
+    # --- Return n colours ---
+    if (n <= length(cols)) {
+      out <- cols[seq_len(n)]
+    } else {
+      out <- grDevices::colorRampPalette(cols)(n)
+    }
+  } else {
+    out <- cols
+  }
+
+  # Reverse
+  if (reverse) {
+    if (!is.null(names(out))) {
+      out <- stats::setNames(rev(out), names(out))
+    } else {
+      out <- rev(out)
+    }
+  }
+  # Alpha
+  if (alpha < 1) {
+    out <- ggplot2::alpha(out, alpha)
+  }
+
+  as.character(out)
 }

@@ -25,6 +25,7 @@ Other colour palettes:
 \code{\link{as_palette}()},
 \code{\link{pal_d3}},
 \code{\link{pal_ditto}},
+\code{\link{pal_get}()},
 \code{\link{pal_glasbey}},
 \code{\link{pal_igv}},
 \code{\link{pal_kelly}},
