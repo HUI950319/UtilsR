@@ -10,7 +10,7 @@ pal_show(
   type = c("all", "discrete", "continuous"),
   max_colors = 20,
   index = NULL,
-  output = c("gg", "gt")
+  output = c("gt", "gg")
 )
 }
 \arguments{

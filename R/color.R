@@ -420,7 +420,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 pal_show <- function(palette = NULL, pattern = NULL,
                      type = c("all", "discrete", "continuous"),
                      max_colors = 20, index = NULL,
-                     output = c("gg", "gt")) {
+                     output = c("gt", "gg")) {
   type <- match.arg(type)
   output <- match.arg(output)
   pals <- palette_list
