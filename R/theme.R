@@ -38,16 +38,16 @@ NULL
 #' library(ggplot2)
 #' ggplot(iris, aes(Petal.Length, Petal.Width)) +
 #'   geom_point() +
-#'   theme_clean()
+#'   theme_my()
 #'
 #' ggplot(iris, aes(Petal.Length, Petal.Width)) +
 #'   geom_point() +
 #'   facet_wrap(~Species) +
-#'   theme_clean(panel.spacing = unit(0, "pt"))
+#'   theme_my(panel.spacing = unit(0, "pt"))
 #' }
 #'
 #' @export
-theme_clean <- function(palette = "black_and_white", base_size = 14,
+theme_my <- function(palette = "black_and_white", base_size = 14,
                      base_family = "sans", base_fontface = "bold",
                      base_line_size = base_size / 14,
                      base_rect_size = base_size / 14,
@@ -290,14 +290,14 @@ theme_rcs <- NULL
 
 # Build the preset theme objects on package load
 .onLoad_theme <- function() {
-  km <- theme_clean(base_rect_size = 1.5, base_size = 20) %+replace%
+  km <- theme_my(base_rect_size = 1.5, base_size = 20) %+replace%
     theme(
       panel.grid.minor = element_blank(),
       legend.title = element_text(hjust = 0),
       legend.text = element_text(hjust = 0, face = "bold")
     )
 
-  rcs <- theme_clean(base_rect_size = 1.5, base_size = 15) %+replace%
+  rcs <- theme_my(base_rect_size = 1.5, base_size = 15) %+replace%
     theme(
       panel.grid.minor = element_blank(),
       legend.title = element_text(hjust = 0),

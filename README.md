@@ -33,7 +33,7 @@ devtools::install_github("HUI950319/UtilsR")
 | | `.cat_box()` | Styled message box |
 | | `.cat_message()` | Timestamped log message |
 | | `.cat_tb()` | Enhanced gt table with highlighting |
-| **Theme** | `theme_clean()` | Clean ggplot2 theme |
+| **Theme** | `theme_my()` | Clean ggplot2 theme |
 | | `theme_km()` | Kaplan-Meier survival curve theme |
 | | `theme_rcs()` | Restricted cubic spline theme |
 | **Operators** | `%ni%` | Not in (`!%in%`) |
