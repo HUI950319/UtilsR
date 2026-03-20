@@ -19,66 +19,141 @@ library(UtilsR)
 library(ggplot2)
 ```
 
-## Built-in Palettes
+## Overview
 
-UtilsR provides 11 colour palettes (16--48 colours each):
+UtilsR provides a palette system with 256+ colour schemes from
+RColorBrewer, ggsci, viridis, rcartocolor, nord, and more.
 
-| Palette | N | Source |
-|---------|---|--------|
-| `pal_lancet` | 15 | Lancet journal |
-| `pal_ditto` | 40 | dittoSeq (scRNA-seq) |
-| `pal_igv` | 48 | IGV genome browser |
-| `pal_polychrome` | 36 | Max perceptual distinctness |
-| `pal_glasbey` | 32 | Glasbey algorithm |
-| `pal_alphabet` | 26 | Green-Armytage A--Z |
-| `pal_ucsc` | 26 | UCSC genome browser |
-| `pal_kelly` | 22 | Kelly max contrast |
-| `pal_d3` | 20 | D3.js Category20 |
-| `pal_trubetskoy` | 20 | Trubetskoy distinct |
-| `pal_simpsons` | 16 | Simpsons ggsci |
+**Core components:**
 
-## Usage
+| Function | Purpose |
+|----------|---------|
+| `pal_lancet` | Default palette object (15 Lancet journal colours) |
+| `palette_list` | Named list of 256 palettes |
+| `pal_get()` | Extract colours from any palette by name |
+| `pal_show()` | Visualise a palette as colour swatches |
+| `pal_list()` | Browse all available palette names |
+| `show_color()` | Display any colour vector in console |
+| `as_palette()` | Create custom palette objects |
 
-### Direct access
+---
 
-```{r direct}
+## `pal_lancet` — Default Palette
+
+The built-in default palette used by `plt_cat()` and other plot functions:
+
+```{r lancet}
+pal_lancet
 pal_lancet[1:5]
 ```
 
-### In ggplot2
-
-```{r ggplot}
+```{r lancet-plot}
 ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) +
   geom_point(size = 2) +
   scale_color_manual(values = pal_lancet[1:3]) +
   theme_my()
 ```
 
-### Browse all palettes
+---
+
+## `palette_list` — 256 Palettes
+
+All palettes are stored in `palette_list`:
+
+```{r palette-list}
+length(palette_list)
+names(palette_list)[1:20]
+```
+
+---
+
+## `pal_get()` — Extract Palette Colours
+
+Retrieve colours from any palette by name:
+
+```{r pal-get}
+# Get 5 colours from "Paired"
+pal_get("Paired", n = 5)
+
+# Get 3 colours from "Set1"
+pal_get("Set1", n = 3)
+
+# Get 8 colours from "Dark2"
+pal_get("Dark2", n = 8)
+```
+
+Use in ggplot2:
+
+```{r pal-get-plot}
+ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) +
+  geom_point(size = 2) +
+  scale_color_manual(values = pal_get("Set2", n = 3)) +
+  theme_my()
+```
+
+---
+
+## `pal_show()` — Visualise Palettes
+
+Display colour swatches for any palette:
+
+```{r pal-show, fig.height=1.5}
+pal_show("Paired")
+```
+
+```{r pal-show2, fig.height=1.5}
+pal_show("Set1")
+```
+
+---
+
+## `pal_list()` — Browse All Palettes
 
 ```{r pal-list, eval=FALSE}
+# Interactive palette browser (opens viewer)
 pal_list()
 ```
 
-### Get specific palette by name
+---
 
-```{r pal-get, eval=FALSE}
-pal_get("Paired", n = 6)
-pal_get("Set1", n = 3)
+## `show_color()` — Display Any Colours
+
+```{r show-color, fig.height=1.5}
+show_color(c("#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEAA7"))
 ```
 
-### Create custom palette
+---
+
+## `as_palette()` — Custom Palettes
+
+Create your own palette object with auto-display:
 
 ```{r as-palette}
-my_pal <- as_palette(c("#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4"))
+my_pal <- as_palette(c("#264653", "#2A9D8F", "#E9C46A", "#F4A261", "#E76F51"))
 my_pal
 ```
 
-### Use in plt_cat
+---
 
-```{r plt-cat-palette, fig.height=4}
+## Use with `plt_cat()`
+
+Palettes integrate seamlessly with plot functions:
+
+```{r plt-cat-named, fig.height=4}
 set.seed(1)
-df <- data.frame(Type = factor(sample(LETTERS[1:4], 200, TRUE)))
-plt_cat(df, "Type", type = "pie", label = TRUE,
-        palette = c("#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4"))
+df <- data.frame(Type = factor(sample(LETTERS[1:5], 200, TRUE)))
+
+# Use named palette
+plt_cat(df, "Type", type = "pie", label = TRUE, palette = "Set2")
+```
+
+```{r plt-cat-custom, fig.height=4}
+# Use custom colours
+plt_cat(df, "Type", type = "bar", stat = "count",
+        palette = c("#264653", "#2A9D8F", "#E9C46A", "#F4A261", "#E76F51"))
+```
+
+```{r plt-cat-lancet, fig.height=4}
+# Default (pal_lancet) — no palette argument needed
+plt_cat(df, "Type", type = "pie", label = TRUE)
 ```

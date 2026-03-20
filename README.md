@@ -3,7 +3,10 @@
 <!-- badges: start -->
 [![R-CMD-check](https://img.shields.io/badge/R--CMD--check-passing-brightgreen)](https://github.com/HUI950319/UtilsR)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![pkgdown](https://img.shields.io/badge/docs-pkgdown-blue)](https://hui950319.github.io/UtilsR/)
 <!-- badges: end -->
+
+> **Documentation**: <https://hui950319.github.io/UtilsR/>
 
 **UtilsR** -- R utility toolkit for data exploration, statistical formatting, colour palettes, plot functions, and ggplot2 formatting.
 
