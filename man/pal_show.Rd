@@ -2,7 +2,7 @@
 % Please edit documentation in R/color.R
 \name{pal_show}
 \alias{pal_show}
-\title{Visualise Palettes as a ggplot}
+\title{Visualise Palettes}
 \usage{
 pal_show(
   palette = NULL,
@@ -10,7 +10,7 @@ pal_show(
   type = c("all", "discrete", "continuous"),
   max_colors = 20,
   index = NULL,
-  ncol = 1
+  output = c("gg", "gt")
 )
 }
 \arguments{
@@ -26,21 +26,23 @@ all palettes matching \code{pattern}/\code{type}.}
 
 \item{index}{Integer vector of palette indices to show (after filtering).}
 
-\item{ncol}{Number of columns for facet layout. Default 1.}
+\item{output}{Output format: \code{"gg"} (default) for ggplot or
+\code{"gt"} for gt table.}
 }
 \value{
-A ggplot object (also prints).
+A ggplot or gt object (also prints).
 }
 \description{
-Display one or more palettes as horizontal colour bar strips using ggplot2.
-Useful for comparing palettes side by side in RStudio Plots pane.
+Display palettes as horizontal colour bars (ggplot) or an interactive
+gt table with colour swatches. Use \code{output = "gg"} for the Plots
+pane or \code{output = "gt"} for the Viewer pane.
 }
 \examples{
-# Show specific palettes
+# ggplot output (default)
 pal_show(c("lancet", "Paired", "viridis"))
 
-# Filter by pattern
-pal_show(pattern = "^nord")
+# gt table output
+pal_show(pattern = "^nord", output = "gt")
 
 # Show first 10 discrete palettes
 pal_show(type = "discrete", index = 1:10)
