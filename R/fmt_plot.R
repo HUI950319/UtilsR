@@ -21,6 +21,18 @@
 #'   except the first.
 #'
 #' @return Same type as input (ggplot, patchwork, or list).
+#'
+#' @examples
+#' library(ggplot2)
+#' p1 <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) + geom_point()
+#' p2 <- ggplot(iris, aes(Petal.Length, Petal.Width)) + geom_point()
+#'
+#' # Hide x-axis on first plot
+#' fmt_axis(list(p1, p2), x.axis = 1)
+#'
+#' # Auto-detect 2x1 grid layout
+#' fmt_axis(list(p1, p2), plot_dims = c(2, 1))
+#'
 #' @export
 fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
   info <- .to_plot_list(plot)
@@ -110,6 +122,18 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
 #' @param ... Additional arguments passed to [ggpp::annotate()].
 #'
 #' @return Same type as input.
+#'
+#' @examples
+#' library(ggplot2)
+#' p1 <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) + geom_point()
+#' p2 <- ggplot(iris, aes(Petal.Length, Petal.Width)) + geom_point()
+#'
+#' # Auto-label A, B
+#' fmt_tag(list(p1, p2))
+#'
+#' # Custom labels
+#' fmt_tag(list(p1, p2), labels = c("i", "ii"))
+#'
 #' @export
 fmt_tag <- function(plot,
                     labels = NULL,
@@ -175,6 +199,14 @@ fmt_tag <- function(plot,
 #' @param ... Additional arguments passed to [ggplot2::theme()].
 #'
 #' @return Same type as input.
+#'
+#' @examples
+#' library(ggplot2)
+#' p <- ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) + geom_point()
+#'
+#' fmt_legend(p, legend.position = "bottom", legend.direction = "horizontal")
+#' fmt_legend(p, legend.position = "none")
+#'
 #' @export
 fmt_legend <- function(plot,
                        legend.position = NULL,
@@ -274,6 +306,13 @@ fmt_legend <- function(plot,
 #'   [ggplot2::geom_hline()].
 #'
 #' @return Same type as input.
+#'
+#' @examples
+#' library(ggplot2)
+#' p <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) + geom_point()
+#' fmt_ref(p, x = 5.5, y = 3.0)
+#' fmt_ref(p, x = c(5, 6), color = c("red", "blue"))
+#'
 #' @export
 fmt_ref <- function(plot,
                     x = NULL,
@@ -347,6 +386,18 @@ fmt_ref <- function(plot,
 #' @param ... Currently unused.
 #'
 #' @return Same type as input.
+#'
+#' @examples
+#' library(ggplot2)
+#' p1 <- ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) + geom_point()
+#' p2 <- ggplot(iris, aes(Petal.Length, Petal.Width, color = Species)) + geom_point()
+#'
+#' # Single plot with reference line and legend
+#' fmt_plot(p1, ref_x = 5.5, legend.position = "bottom")
+#'
+#' # Multi-plot with tags and merged legend
+#' fmt_plot(list(p1, p2), tag = TRUE, merge_legends = TRUE)
+#'
 #' @export
 fmt_plot <- function(plot,
                      fmt_axis_list = NULL,
@@ -439,6 +490,14 @@ fmt_plot <- function(plot,
 #'   strips use a transparent background.
 #'
 #' @return Same type as input.
+#'
+#' @examples
+#' library(ggplot2)
+#' p <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) +
+#'   geom_point() +
+#'   facet_wrap(~Species)
+#' fmt_strip(p, label_fill = "steelblue")
+#'
 #' @export
 fmt_strip <- function(plot, label = NULL, label_color = "white", label_fill = NULL) {
   info <- .to_plot_list(plot)
@@ -500,6 +559,13 @@ fmt_strip <- function(plot, label = NULL, label_color = "white", label_fill = NU
 #' @param ... Additional arguments passed to \code{ggpubr::geom_pwc}.
 #'
 #' @return Same type as input.
+#'
+#' @examples
+#' library(ggplot2)
+#' p <- ggplot(iris, aes(Species, Sepal.Length)) + geom_boxplot()
+#' fmt_com(p)
+#' fmt_com(p, label = "p.format")
+#'
 #' @export
 fmt_com <- function(plot,
                     com_method = "con",
@@ -572,6 +638,12 @@ fmt_com <- function(plot,
 #'   \code{"y"}.
 #'
 #' @return Same type as input.
+#'
+#' @examples
+#' library(ggplot2)
+#' p <- ggplot(iris, aes(Species, Sepal.Length)) + geom_boxplot()
+#' fmt_bg(p, alpha = 0.2)
+#'
 #' @export
 fmt_bg <- function(plot,
                    palette = NULL,
@@ -695,6 +767,15 @@ fmt_bg <- function(plot,
 #'   \code{his_color}, \code{his_alpha}, \code{y_rescale}, \code{ylim}.
 #'
 #' @return Same type as input.
+#'
+#' @examples
+#' \dontrun{
+#' library(ggplot2)
+#' p <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) + geom_point()
+#' fmt_his(p, type = "histogram", height_ratio = 0.3)
+#' fmt_his(p, type = "density", height_ratio = 0.2)
+#' }
+#'
 #' @export
 fmt_his <- function(plot,
                     type = c("histogram", "density", "h", "d"),
@@ -782,6 +863,12 @@ fmt_his <- function(plot,
 #' @param scale_y_list Named list of arguments for the y-axis scale function.
 #'
 #' @return Same type as input.
+#'
+#' @examples
+#' library(ggplot2)
+#' p <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) + geom_point()
+#' fmt_scale(p, scale_x_list = list(limits = c(4, 8), breaks = seq(4, 8, 1)))
+#'
 #' @export
 fmt_scale <- function(plot, scale_x_list = NULL, scale_y_list = NULL) {
   apply_scale <- function(p, args, axis) {
@@ -822,6 +909,13 @@ fmt_scale <- function(plot, scale_x_list = NULL, scale_y_list = NULL) {
 #' @param axis \code{"x"}, \code{"y"}, or \code{NULL} (both).
 #'
 #' @return Same type as input.
+#'
+#' @examples
+#' library(ggplot2)
+#' p <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) + geom_point()
+#' fmt_expand(p, mult = 0.05)
+#' fmt_expand(p, add = c(0.5, 0), axis = "x")
+#'
 #' @export
 fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
   if (!is.null(axis) && !axis %in% c("x", "y"))
@@ -868,6 +962,13 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 #' @param inherit.aes Whether to inherit aesthetics from the parent plot.
 #'
 #' @return Same type as input.
+#'
+#' @examples
+#' library(ggplot2)
+#' p <- ggplot(iris, aes(Species, Sepal.Length)) + geom_violin()
+#' fmt_boxplot(p)
+#' fmt_boxplot(p, boxplot.args = list(width = 0.2, alpha = 0.5))
+#'
 #' @export
 fmt_boxplot <- function(plot,
                         boxplot.args = list(),
