@@ -2,6 +2,20 @@
 # color.R -- Colour palettes with console swatch display
 # ============================================================================
 
+#' Built-in Palette Collection
+#'
+#' A named list of 256 colour palettes from RColorBrewer, ggsci, viridis,
+#' rcartocolor, nord, dichromat, pals, colorspace, and UtilsR built-in.
+#' Each element is a character vector of hex colours with a \code{"type"}
+#' attribute (\code{"discrete"} or \code{"continuous"}).
+#'
+#' @format A named list of 256 character vectors.
+#' @examples
+#' length(palette_list)
+#' names(palette_list)[1:10]
+#' @name palette_list
+NULL
+
 #' Create a colour palette object
 #'
 #' Wraps a character vector of colours into a \code{palette} class so that
