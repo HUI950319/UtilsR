@@ -20,9 +20,9 @@ or any value to annotate with stars (when \code{add_star_p} is provided).}
 stars are appended to \code{x} based on these p-values.}
 
 \item{digits}{Integer, decimal places (default: 3 for stars/pvalue, 2 for plain).
-Ignored when \code{p} is provided.}
+Ignored when \code{add_star_p} is provided.}
 
-\item{mode}{Formatting mode (ignored when \code{p} is provided):
+\item{mode}{Formatting mode (ignored when \code{add_star_p} is provided):
 \describe{
   \item{\code{"stars"}}{(default) P-value with significance stars.}
   \item{\code{"pvalue"}}{P-value with \code{"<0.001"} for small values.}

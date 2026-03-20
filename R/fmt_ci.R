@@ -62,6 +62,12 @@ fmt_ci <- function(x, y = NULL, z = NULL,
     d   <- if (!is.null(digits)) rep(as.integer(digits), length(x)) else parsed$digits
     valid <- parsed$valid
 
+    # Warn about unparseable elements
+    n_fail <- sum(!valid)
+    if (n_fail > 0L) {
+      cli::cli_warn("{n_fail} element{?s} could not be parsed as CI string{?s} and {?was/were} returned as-is.")
+    }
+
     # Build new format template
     out <- ifelse(valid,
       mapply(function(e, l, h, dd) {

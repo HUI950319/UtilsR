@@ -13,8 +13,8 @@
 #' @param add_star_p Numeric vector of p-values for star annotation. When provided,
 #'   stars are appended to \code{x} based on these p-values.
 #' @param digits Integer, decimal places (default: 3 for stars/pvalue, 2 for plain).
-#'   Ignored when \code{p} is provided.
-#' @param mode Formatting mode (ignored when \code{p} is provided):
+#'   Ignored when \code{add_star_p} is provided.
+#' @param mode Formatting mode (ignored when \code{add_star_p} is provided):
 #'   \describe{
 #'     \item{\code{"stars"}}{(default) P-value with significance stars.}
 #'     \item{\code{"pvalue"}}{P-value with \code{"<0.001"} for small values.}
