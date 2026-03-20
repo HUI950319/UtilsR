@@ -92,44 +92,72 @@ plt_upset <- function(data,
   p_venn <- ggVennDiagram::ggVennDiagram(set_list) +
     ggplot2::scale_fill_gradient(low = "grey90", high = "red")
 
-  # --- UpSet (non-zero) ---
-  p_upset_all <- ggVennDiagram::ggVennDiagram(
-    set_list, force_upset = TRUE, nintersects = NULL,
-    relative_height = 2, relative_width = 0.3,
-    sets.bar.show.numbers = TRUE,
-    sets.bar.color = colors[1],
-    top.bar.color = colors[2],
-    intersection.matrix.color = colors[3]
-  )
-  # Filter to non-zero intersections
-  n_nonzero <- sum(p_upset_all[[2]]$data$size > 0)
-  p_upset <- ggVennDiagram::ggVennDiagram(
-    set_list, force_upset = TRUE, nintersects = n_nonzero,
-    relative_height = 2, relative_width = 0.3,
-    sets.bar.show.numbers = TRUE,
-    sets.bar.color = colors[1],
-    top.bar.color = colors[2],
-    intersection.matrix.color = colors[3]
-  )
+  # --- UpSet helper: safely call ggVennDiagram with force_upset ---
+  .safe_upset <- function(set_list, nintersects, colors) {
+    tryCatch(
+      ggVennDiagram::ggVennDiagram(
+        set_list, force_upset = TRUE, nintersects = nintersects,
+        relative_height = 2, relative_width = 0.3,
+        sets.bar.show.numbers = TRUE,
+        sets.bar.color = colors[1],
+        top.bar.color = colors[2],
+        intersection.matrix.color = colors[3]
+      ),
+      error = function(e) {
+        cli::cli_warn("ggVennDiagram force_upset failed: {e$message}. Returning Venn only.")
+        NULL
+      }
+    )
+  }
+
+  # --- UpSet (all intersections first, then filter non-zero) ---
+  p_upset_all <- .safe_upset(set_list, NULL, colors)
+
+  p_upset <- NULL
+  upset_data <- NULL
+  if (!is.null(p_upset_all)) {
+    # Extract intersection data (handle list vs patchwork return)
+    if (is.list(p_upset_all) && "results" %in% names(p_upset_all)) {
+      upset_data <- p_upset_all$results
+    } else if (is.list(p_upset_all) && length(p_upset_all) >= 2) {
+      upset_data <- tryCatch(p_upset_all[[2]]$data, error = function(e) NULL)
+    }
+
+    if (!is.null(upset_data) && "size" %in% names(upset_data)) {
+      n_nonzero <- sum(upset_data$size > 0)
+      p_upset <- .safe_upset(set_list, n_nonzero, colors)
+    } else {
+      p_upset <- p_upset_all
+    }
+  }
 
   # --- Combined ---
   p_combined <- NULL
   if (output %in% c("both", "all")) {
-    if (requireNamespace("aplot", quietly = TRUE)) {
-      p_combined <- aplot::plot_list(p_venn, p_upset,
-                                     ncol = 2, tag_levels = "A",
-                                     widths = c(0.4, 1))
+    if (!is.null(p_upset) && requireNamespace("aplot", quietly = TRUE)) {
+      p_combined <- tryCatch(
+        aplot::plot_list(p_venn, p_upset, ncol = 2, tag_levels = "A",
+                         widths = c(0.4, 1)),
+        error = function(e) {
+          cli::cli_warn("aplot::plot_list failed: {e$message}. Returning Venn only.")
+          p_venn
+        }
+      )
     } else {
-      cli::cli_warn("{.pkg aplot} not installed; returning upset only for combined.")
-      p_combined <- p_upset
+      p_combined <- p_venn
     }
   }
 
   # --- Data with intersection groups ---
   grp_data <- NULL
   if (output %in% c("data", "all")) {
-    grp_info <- p_upset[[2]]$data %>% dplyr::arrange(dplyr::desc(.data[["size"]]))
-    grp_rows <- stats::setNames(grp_info$item, grp_info$name)
+    if (is.null(upset_data) || !"item" %in% names(upset_data)) {
+      cli::cli_warn("Cannot extract intersection groups. Returning data without groups.")
+      grp_data <- data
+      grp_data$intersect_group <- NA_character_
+    } else {
+      grp_info <- upset_data %>% dplyr::arrange(dplyr::desc(.data[["size"]]))
+      grp_rows <- stats::setNames(grp_info$item, grp_info$name)
 
     grp_data <- data
     grp_data$.row_id <- seq_len(nrow(data))
@@ -140,6 +168,7 @@ plt_upset <- function(data,
     grp_data$.row_id <- NULL
     all_levels <- c(grp_info$name, "None")
     grp_data$intersect_group <- factor(grp_data$intersect_group, levels = all_levels)
+    }
   }
 
   # --- Return ---
