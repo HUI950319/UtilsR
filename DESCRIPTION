@@ -65,14 +65,14 @@ Imports:
 Suggests:
     SeuratObject,
     Seurat,
-    pryr,
     ggprism,
     ggrepel,
-    ggsankey,
     ggupset,
     ggVennDiagram,
     circlize,
     geomtextpath,
     knitr,
     rmarkdown
+Remotes:
+    davidsjoberg/ggsankey
 VignetteBuilder: knitr
