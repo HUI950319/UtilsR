@@ -91,42 +91,36 @@ plt_rad <- function(res,
     cols <- rep_len(as.character(palette), n_groups)
   }
 
-  # --- ggplot mode (pure ggplot2 + coord_polar) ---
+  # --- ggplot mode (coord_radar approach, adapted from ggiraphExtra) ---
   if (output == "gg") {
-    var_names <- res$Variable
-    n_vars <- length(var_names)
+    # coord_radar: like coord_polar but with is_linear=TRUE so geom_polygon
+    # draws straight lines and auto-closes the shape
+    coord_radar <- function(theta = "x", start = 0, direction = 1) {
+      theta <- match.arg(theta, c("x", "y"))
+      r <- if (theta == "x") "y" else "x"
+      ggplot2::ggproto("CoordRadar", ggplot2::CoordPolar,
+                       theta = theta, r = r, start = start,
+                       direction = sign(direction),
+                       is_linear = function(coord) TRUE)
+    }
 
-    # Long format
+    # Long format: group mean per variable
     plotdata <- res %>%
       dplyr::arrange(dplyr::desc(.data[[ref_group]])) %>%
       tidyr::pivot_longer(cols = -1, names_to = "Group", values_to = "value") %>%
-      dplyr::mutate(Group = factor(.data[["Group"]], levels = group_cols))
-
-    # Use numeric angle for x-axis, close polygon by appending first point
-    var_order <- unique(plotdata$Variable)
-    plotdata$angle_id <- match(plotdata$Variable, var_order)
-
-    # Close polygon: duplicate angle_id=1 as angle_id=n+1
-    close_rows <- plotdata[plotdata$angle_id == 1, ]
-    close_rows$angle_id <- n_vars + 1L
-    plotdata <- rbind(plotdata, close_rows)
-
-    # Angle labels at positions 1..n
-    angle_breaks <- seq_len(n_vars)
-    angle_labels <- var_order
+      dplyr::mutate(
+        Group = factor(.data[["Group"]], levels = group_cols),
+        Variable = factor(.data[["Variable"]], levels = unique(.data[["Variable"]]))
+      )
 
     p <- ggplot2::ggplot(plotdata, ggplot2::aes(
-      x = .data[["angle_id"]], y = .data[["value"]],
+      x = .data[["Variable"]], y = .data[["value"]],
       color = .data[["Group"]], fill = .data[["Group"]],
       group = .data[["Group"]]
     )) +
       ggplot2::geom_polygon(alpha = 0.15, linewidth = 0.8) +
-      ggplot2::geom_point(data = plotdata[plotdata$angle_id <= n_vars, ], size = 2) +
-      ggplot2::coord_polar(start = 0) +
-      ggplot2::scale_x_continuous(
-        breaks = angle_breaks, labels = angle_labels,
-        limits = c(1, n_vars + 1)
-      ) +
+      ggplot2::geom_point(size = 2) +
+      coord_radar() +
       ggplot2::scale_color_manual(values = cols) +
       ggplot2::scale_fill_manual(values = cols) +
       ggplot2::facet_wrap(~ .data[["Group"]], nrow = 1) +
