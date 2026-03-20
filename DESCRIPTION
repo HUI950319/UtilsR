@@ -67,6 +67,7 @@ Suggests:
     Seurat,
     ggprism,
     ggrepel,
+    ggsankey,
     ggupset,
     ggVennDiagram,
     circlize,
