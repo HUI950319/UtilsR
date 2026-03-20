@@ -25,7 +25,14 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::pkgdown
+          extra-packages: |
+            any::pkgdown
+            any::ggrepel
+            any::ggupset
+            any::ggVennDiagram
+            any::circlize
+            any::geomtextpath
+            github::davidsjoberg/ggsankey
           needs: website
 
       - name: Build site
