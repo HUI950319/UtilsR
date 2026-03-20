@@ -123,18 +123,40 @@ plt_rad <- function(res,
       coord_radar() +
       ggplot2::scale_color_manual(values = cols) +
       ggplot2::scale_fill_manual(values = cols) +
-      ggplot2::facet_wrap(~ .data[["Group"]], nrow = 1) +
       ggplot2::labs(x = NULL, y = NULL) +
       theme_my() +
       ggplot2::theme(
         legend.position = "none",
         axis.text.y = ggplot2::element_text(size = 7),
         axis.text.x = ggplot2::element_text(size = 9),
-        strip.background = ggplot2::element_rect(
-          fill = ggplot2::alpha(cols[1], 0.3), color = NA
-        ),
         panel.grid.major = ggplot2::element_line(color = "grey85", linewidth = 0.3)
       )
+
+    # Facet by group - use patchwork to combine individual plots
+    # (avoids facet_wrap + coord_polar compatibility issues in ggplot2 4.0+)
+    plot_list <- lapply(seq_along(group_cols), function(i) {
+      grp <- group_cols[i]
+      sub <- plotdata[plotdata$Group == grp, ]
+      ggplot2::ggplot(sub, ggplot2::aes(
+        x = .data[["Variable"]], y = .data[["value"]], group = 1
+      )) +
+        ggplot2::geom_polygon(fill = cols[i], color = cols[i],
+                              alpha = 0.15, linewidth = 0.8) +
+        ggplot2::geom_point(color = cols[i], size = 2) +
+        coord_radar() +
+        ggplot2::labs(x = NULL, y = NULL, title = grp) +
+        theme_my() +
+        ggplot2::theme(
+          axis.text.y = ggplot2::element_text(size = 7),
+          axis.text.x = ggplot2::element_text(size = 9),
+          plot.title = ggplot2::element_text(
+            hjust = 0.5, size = 12, face = "bold",
+            color = cols[i]
+          ),
+          panel.grid.major = ggplot2::element_line(color = "grey85", linewidth = 0.3)
+        )
+    })
+    p <- patchwork::wrap_plots(plot_list, nrow = 1)
 
     return(p)
   }
