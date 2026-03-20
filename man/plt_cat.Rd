@@ -17,10 +17,29 @@ plt_cat(
   alpha = 0.8,
   label = FALSE,
   label.size = 3.5,
+  label.fg = "black",
+  label.bg = "white",
+  label.bg.r = 0.1,
+  bg.by = NULL,
+  bg_palette = NULL,
+  bg_alpha = 0.15,
   flip = FALSE,
-  na.rm = TRUE,
+  NA_color = "grey80",
+  NA_stat = FALSE,
+  keep_empty = FALSE,
+  stat_level = NULL,
+  title = NULL,
+  subtitle = NULL,
+  xlab = NULL,
+  ylab = NULL,
+  legend.position = "right",
+  legend.direction = "vertical",
+  aspect.ratio = NULL,
   facet_nrow = NULL,
+  facet_ncol = NULL,
+  facet_byrow = TRUE,
   base_size = 14,
+  force = FALSE,
   ...
 )
 }
@@ -45,8 +64,7 @@ one plot per level, and combines with \pkg{patchwork}.}
 \item{stat}{Statistic to compute: \code{"percent"} (default) or
 \code{"count"}.}
 
-\item{position}{Bar position: \code{"stack"} (default) or \code{"dodge"}.
-Only used for bar and trend types.}
+\item{position}{Bar position: \code{"stack"} (default) or \code{"dodge"}.}
 
 \item{palette}{Colour palette. One of:
 \itemize{
@@ -62,15 +80,69 @@ Only used for bar and trend types.}
 
 \item{label.size}{Numeric. Label text size. Default 3.5.}
 
+\item{label.fg}{Character. Label foreground colour. Default \code{"black"}.}
+
+\item{label.bg}{Character. Label background colour. Default \code{"white"}.}
+
+\item{label.bg.r}{Numeric. Label background corner radius. Default 0.1.}
+
+\item{bg.by}{Character. Column name for background grouping in dodge mode.
+Must be a superset of \code{group.by} (each group.by level belongs to
+exactly one bg.by level). Adds alternating background colour bands.
+Default \code{NULL} (no background).}
+
+\item{bg_palette}{Character vector of background band colours.
+Default \code{NULL} uses alternating \code{c("grey85", "transparent")}.}
+
+\item{bg_alpha}{Numeric 0--1. Background band transparency. Default 0.15.}
+
 \item{flip}{Logical. Flip coordinates for bar type? Default \code{FALSE}.}
 
-\item{na.rm}{Logical. Remove NA values before computing? Default \code{TRUE}.}
+\item{NA_color}{Character. Colour for NA values. Default \code{"grey80"}.}
+
+\item{NA_stat}{Logical. Include NA in the frequency table? Default
+\code{FALSE} (NAs are dropped). If \code{TRUE}, NAs are kept and shown
+with \code{NA_color}.}
+
+\item{keep_empty}{Logical. Keep empty factor levels in plots?
+Default \code{FALSE}.}
+
+\item{stat_level}{Character or list. For venn/upset types, the value(s) in
+each \code{stat.by} column that count as "positive". Default \code{NULL}
+auto-detects \code{TRUE}, \code{"Yes"}, \code{"yes"}, \code{1},
+\code{"TRUE"}, \code{"1"}, or uses the first factor level.}
+
+\item{title}{Character. Plot title. Default \code{NULL}.}
+
+\item{subtitle}{Character. Plot subtitle. Default \code{NULL}.}
+
+\item{xlab}{Character. X-axis label. Default \code{NULL}.}
+
+\item{ylab}{Character. Y-axis label. Default \code{NULL} (auto-set based on
+\code{stat}).}
+
+\item{legend.position}{Legend position: \code{"right"} (default),
+\code{"left"}, \code{"bottom"}, \code{"top"}, or \code{"none"}.}
+
+\item{legend.direction}{Legend direction: \code{"vertical"} (default) or
+\code{"horizontal"}.}
+
+\item{aspect.ratio}{Numeric. Panel aspect ratio. Default \code{NULL} (auto).
+Automatically set to 1 for rose, ring, and pie types.}
 
 \item{facet_nrow}{Integer. Number of rows when combining split panels.
 Default \code{NULL} (auto).}
 
+\item{facet_ncol}{Integer. Number of columns when combining split panels.
+Default \code{NULL} (auto).}
+
+\item{facet_byrow}{Logical. Fill split panels by row? Default \code{TRUE}.}
+
 \item{base_size}{Numeric. Base font size for \code{theme_my()}.
 Default 14.}
+
+\item{force}{Logical. Force plotting when variables have > 100 levels?
+Default \code{FALSE}.}
 
 \item{...}{Additional arguments passed to the type-specific plot function.}
 }
@@ -86,64 +158,104 @@ Set types require additional packages:
   \itemize{
     \item \code{sankey}: \pkg{ggsankey}
     \item \code{chord}: \pkg{circlize}
-    \item \code{venn}, \code{upset}: \pkg{ggVennDiagram}
+    \item \code{venn}: \pkg{ggVennDiagram}
+    \item \code{upset}: \pkg{ggupset}
   }
 }
 \examples{
 set.seed(1)
 df <- data.frame(
-  Type = factor(sample(c("A","B","C"), 200, TRUE)),
+  Type  = factor(sample(c("A","B","C"), 200, TRUE)),
   Group = factor(sample(c("X","Y","Z"), 200, TRUE)),
   Batch = factor(sample(c("B1","B2"), 200, TRUE))
 )
+df$Region <- factor(ifelse(df$Group \%in\% c("X","Y"), "R1", "R2"))
 
-# Bar chart (stacked percent)
-plt_cat(df, "Type", "Group", type = "bar")
-
-# Bar chart (dodged count)
+# ===== 1. Bar =====
+plt_cat(df, "Type", "Group", type = "bar")                      # stacked \%
 plt_cat(df, "Type", "Group", type = "bar", stat = "count",
+        position = "dodge")                                      # dodged count
+plt_cat(df, "Type", "Group", type = "bar", flip = TRUE,
+        label = TRUE)                                            # flipped + labels
+plt_cat(df, "Type", "Group", type = "bar", position = "dodge",
+        bg.by = "Region")                                        # background bands
+plt_cat(df, "Type", "Group", type = "bar", position = "dodge",
+        bg.by = "Region",
+        bg_palette = c("lightblue", "lightyellow"))              # custom bg colors
+plt_cat(df, "Type", type = "bar", stat = "count",
+        label = TRUE, legend.position = "none")                  # no group
+
+# ===== 2. Rose =====
+plt_cat(df, "Type", "Group", type = "rose")
+plt_cat(df, "Type", "Group", type = "rose", stat = "count",
         position = "dodge")
 
-# Pie chart
-plt_cat(df, "Type", type = "pie")
-
-# Ring (donut) chart
+# ===== 3. Ring (donut) =====
 plt_cat(df, "Type", type = "ring")
+plt_cat(df, "Type", type = "ring", label = TRUE,
+        palette = "Paired")
+plt_cat(df, "Type", "Group", type = "ring", stat = "count",
+        position = "dodge")
 
-# Rose chart
-plt_cat(df, "Type", "Group", type = "rose")
+# ===== 4. Pie =====
+plt_cat(df, "Type", type = "pie", label = TRUE)
+plt_cat(df, "Type", type = "pie", palette = "Paired",
+        title = "Type Distribution", subtitle = "n = 200")
+plt_cat(df, "Type", type = "pie", legend.position = "bottom",
+        legend.direction = "horizontal")
 
-# Dot plot
-plt_cat(df, "Type", "Group", type = "dot")
-
-# Trend line
+# ===== 5. Trend =====
 plt_cat(df, "Type", "Group", type = "trend", stat = "count")
+plt_cat(df, "Type", "Group", type = "trend", stat = "count",
+        label = TRUE)
 
-# Area chart
-plt_cat(df, "Type", "Group", type = "area")
+# ===== 6. Area =====
+plt_cat(df, "Type", "Group", type = "area", stat = "count")
+plt_cat(df, "Type", "Group", type = "area", stat = "count",
+        position = "dodge")
 
-# Flipped bar with labels
-plt_cat(df, "Type", "Group", type = "bar", flip = TRUE, label = TRUE)
+# ===== 7. Dot =====
+plt_cat(df, "Type", "Group", type = "dot")
+plt_cat(df, "Type", "Group", type = "dot", label = TRUE,
+        stat = "count")
 
-# Split by batch
+# ===== split.by / NA / keep_empty / aspect =====
 plt_cat(df, "Type", "Group", split.by = "Batch", type = "bar")
+plt_cat(df, "Type", split.by = "Batch", type = "pie",
+        facet_ncol = 2)
 
-# Custom palette
-plt_cat(df, "Type", type = "pie", palette = "Paired")
+# NA handling
+df_na <- df; df_na$Type[1:20] <- NA
+plt_cat(df_na, "Type", "Group", type = "bar",
+        NA_stat = TRUE, NA_color = "red")
 
-# Sankey (set type, >= 2 stat.by)
+# keep_empty: preserve dropped levels
+df2 <- df[df$Type != "C", ]
+plt_cat(df2, "Type", "Group", type = "bar", keep_empty = TRUE)
+
+# aspect.ratio
+plt_cat(df, "Type", "Group", type = "bar", aspect.ratio = 0.5)
+
+# ===== 8. Sankey =====
 plt_cat(df, c("Type", "Group"), type = "sankey")
+plt_cat(df, c("Type", "Group", "Batch"), type = "sankey")
 
-# Venn diagram
+# ===== 9. Chord =====
+plt_cat(df, c("Type", "Group"), type = "chord")
+
+# ===== 10. Venn =====
+set.seed(42)
 df_bin <- data.frame(
   A = sample(c("Yes","No"), 100, TRUE),
   B = sample(c("Yes","No"), 100, TRUE),
   C = sample(c("Yes","No"), 100, TRUE)
 )
 plt_cat(df_bin, c("A","B","C"), type = "venn")
+plt_cat(df, c("Type","Group"), type = "venn", stat_level = c("A","X"))
 
-# UpSet plot
+# ===== 11. UpSet =====
 plt_cat(df_bin, c("A","B","C"), type = "upset")
+plt_cat(df, c("Type","Group"), type = "upset", stat_level = c("A","X"))
 
 }
 \seealso{

@@ -47,6 +47,18 @@
 #'   \item{\code{\link{pal_list}}}{Browse all built-in palettes}
 #' }
 #'
+#' @section Plot Functions:
+#' \describe{
+#'   \item{\code{\link{plt_cat}}}{Unified categorical plot (bar, rose, ring,
+#'     pie, trend, area, dot, sankey, chord, venn, upset)}
+#'   \item{\code{\link{plt_dist}}}{Cross-distribution (stacked bar / tile
+#'     heatmap, auto-selects by variable count)}
+#'   \item{\code{\link{plt_cohen}}}{Cohen's d effect size Cleveland dot plot}
+#'   \item{\code{\link{plt_radar}}}{Radar (spider) chart}
+#'   \item{\code{\link{plt_sankey}}}{Sankey diagram for categorical flow}
+#'   \item{\code{\link{plt_upset}}}{UpSet / Venn diagram for set intersections}
+#' }
+#'
 #' @section ggplot2 Formatting:
 #' \describe{
 #'   \item{\code{\link{fmt_plot}}}{Master chaining function}
@@ -87,6 +99,5 @@
 #'   \item{\code{\link{\%<>\%}}}{Compound assignment pipe}
 #' }
 #'
-#' @docType package
 #' @name UtilsR
 NULL
