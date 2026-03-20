@@ -56,6 +56,7 @@ Other plot formatting:
 \code{\link{fmt_expand}()},
 \code{\link{fmt_his}()},
 \code{\link{fmt_plot}()},
+\code{\link{fmt_point}()},
 \code{\link{fmt_ref}()},
 \code{\link{fmt_scale}()},
 \code{\link{fmt_strip}()},
