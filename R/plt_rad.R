@@ -91,37 +91,48 @@ plt_rad <- function(res,
     cols <- rep_len(as.character(palette), n_groups)
   }
 
-  # --- ggplot mode ---
+  # --- ggplot mode (pure ggplot2 + coord_polar, no ggiraphExtra) ---
   if (output == "gg") {
-    if (!requireNamespace("ggiraphExtra", quietly = TRUE)) {
-      cli::cli_abort("Package {.pkg ggiraphExtra} is required. Install with: {.code install.packages('ggiraphExtra')}")
-    }
-    if (!requireNamespace("ggh4x", quietly = TRUE)) {
-      cli::cli_abort("Package {.pkg ggh4x} is required. Install with: {.code install.packages('ggh4x')}")
-    }
-
+    # Long format for radar
     plotdata <- res %>%
       dplyr::arrange(dplyr::desc(.data[[ref_group]])) %>%
       tidyr::pivot_longer(cols = -1, names_to = "Group", values_to = "value") %>%
-      tidyr::pivot_wider(names_from = "Variable", values_from = "value") %>%
-      dplyr::mutate(Group = factor(.data[["Group"]], levels = group_cols)) %>%
-      as.data.frame()
+      dplyr::mutate(
+        Group = factor(.data[["Group"]], levels = group_cols),
+        Variable = factor(.data[["Variable"]], levels = unique(.data[["Variable"]]))
+      )
 
-    p <- ggiraphExtra::ggRadar(plotdata, ggplot2::aes_string(group = "Group"),
-                               rescale = FALSE, alpha = 0.2, size = 2) +
+    # Close the polygon: duplicate first variable at the end
+    first_var <- levels(plotdata$Variable)[1]
+    close_rows <- plotdata[plotdata$Variable == first_var, ]
+    close_rows$Variable <- factor(paste0(first_var, "."), levels = c(levels(plotdata$Variable), paste0(first_var, ".")))
+    plotdata$Variable <- factor(as.character(plotdata$Variable),
+                                levels = c(levels(plotdata$Variable), paste0(first_var, ".")))
+    plotdata <- rbind(plotdata, close_rows)
+
+    p <- ggplot2::ggplot(plotdata, ggplot2::aes(
+      x = .data[["Variable"]], y = .data[["value"]],
+      color = .data[["Group"]], fill = .data[["Group"]],
+      group = .data[["Group"]]
+    )) +
+      ggplot2::geom_polygon(alpha = 0.15, linewidth = 0.8) +
+      ggplot2::geom_point(size = 2) +
+      ggplot2::coord_polar() +
       ggplot2::scale_color_manual(values = cols) +
       ggplot2::scale_fill_manual(values = cols) +
+      ggplot2::scale_x_discrete(labels = function(x) gsub("\\.$", "", x)) +
+      ggplot2::facet_wrap(~ .data[["Group"]], nrow = 1) +
+      ggplot2::labs(x = NULL, y = NULL) +
       theme_my() +
-      ggplot2::theme(legend.position = "none") +
-      ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult = c(0.1, 0.05))) +
-      ggh4x::facet_wrap2(
-        ~ Group, nrow = 1,
-        strip = ggh4x::strip_nested(
-          background_x = ggh4x::elem_list_rect(
-            fill = ggplot2::alpha(cols, 0.6)
-          )
-        )
+      ggplot2::theme(
+        legend.position = "none",
+        axis.text.y = ggplot2::element_text(size = 7),
+        strip.background = ggplot2::element_rect(
+          fill = ggplot2::alpha(cols[1], 0.3), color = NA
+        ),
+        panel.grid.major = ggplot2::element_line(color = "grey85", linewidth = 0.3)
       )
+
     return(p)
   }
 
