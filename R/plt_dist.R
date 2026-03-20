@@ -25,14 +25,37 @@
 #' @return A ggplot object.
 #'
 #' @examples
-#' # Stacked bar chart (2 variables)
-#' plt_dist(iris, vars = c("Species", "Sepal.Length"))
+#' # --- Stacked bar chart (2 variables) ---
+#' df <- data.frame(
+#'   stage = factor(sample(c("I","II","III","IV"), 200, TRUE)),
+#'   sex = factor(sample(c("M","F"), 200, TRUE)),
+#'   race = factor(sample(c("White","Black","Asian"), 200, TRUE)),
+#'   grade = factor(sample(c("Low","Mid","High"), 200, TRUE))
+#' )
+#'
+#' # Basic bar chart
+#' plt_dist(df, vars = c("stage", "sex"))
 #'
 #' # With facet
-#' # plt_dist(data, vars = c("stage", "sex"), facet = "race")
+#' plt_dist(df, vars = c("stage", "sex"), facet = "race")
 #'
-#' # Heatmap (3 variables)
-#' # plt_dist(data, vars = c("stage", "grade", "M"))
+#' # Without labels
+#' plt_dist(df, vars = c("stage", "sex"), label = FALSE)
+#'
+#' # Custom palette (name from palette_list)
+#' plt_dist(df, vars = c("stage", "sex"), palette = "Paired")
+#'
+#' # Custom palette (colour vector)
+#' plt_dist(df, vars = c("stage", "sex"), palette = c("steelblue", "tomato"))
+#'
+#' # --- Heatmap (3 variables, auto-detected) ---
+#' plt_dist(df, vars = c("stage", "grade", "sex"))
+#'
+#' # Heatmap without labels
+#' plt_dist(df, vars = c("stage", "grade", "sex"), label = FALSE)
+#'
+#' # Adjust transparency and font size
+#' plt_dist(df, vars = c("stage", "sex"), alpha = 0.5, base_size = 12)
 #'
 #' @export
 #' @family plot formatting
