@@ -104,9 +104,10 @@ plt_rad <- function(res,
       dplyr::arrange(dplyr::desc(.data[[ref_group]])) %>%
       tidyr::pivot_longer(cols = -1, names_to = "Group", values_to = "value") %>%
       tidyr::pivot_wider(names_from = "Variable", values_from = "value") %>%
-      dplyr::mutate(Group = factor(.data[["Group"]], levels = group_cols))
+      dplyr::mutate(Group = factor(.data[["Group"]], levels = group_cols)) %>%
+      as.data.frame()
 
-    p <- ggiraphExtra::ggRadar(plotdata, ggplot2::aes(group = Group),
+    p <- ggiraphExtra::ggRadar(plotdata, ggplot2::aes_string(group = "Group"),
                                rescale = FALSE, alpha = 0.2, size = 2) +
       ggplot2::scale_color_manual(values = cols) +
       ggplot2::scale_fill_manual(values = cols) +
