@@ -34,6 +34,9 @@ Collate:
     'plt_dist.R'
     'plt_sankey.R'
     'plt_upset.R'
+    'stat_cohen.R'
+    'plt_cohen.R'
+    'plt_rad.R'
     'UtilsR-package.R'
 Imports:
     cli,

@@ -40,7 +40,9 @@ Other plot formatting:
 \code{\link{fmt_ref}()},
 \code{\link{fmt_strip}()},
 \code{\link{fmt_tag}()},
+\code{\link{plt_cohen}()},
 \code{\link{plt_dist}()},
+\code{\link{plt_rad}()},
 \code{\link{plt_sankey}()},
 \code{\link{plt_upset}()}
 }
