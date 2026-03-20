@@ -125,7 +125,17 @@ ci_parse <- function(x,
     pval <- ifelse(valid, 2 * (1 - pnorm(abs(z_stat_adj))), NA_real_)
   }
 
-  # --- Format CI string ---
+  # --- Rebuild format template when digits is overridden ---
+  if (!is.null(digits)) {
+    # Re-extract original bracket/sep style, then rebuild with new digits
+    parsed2 <- .ci_extract(x)
+    for (i in which(valid)) {
+      # The original template from .ci_extract uses %1$d positional arg for digits
+      # We need to find the raw template pattern and re-apply with new digits
+      # Simplest: replace all %.Xf patterns with the new digit count
+      fmt_template[i] <- gsub("%\\.[0-9]+f", sprintf("%%.%df", digits), fmt_template[i])
+    }
+  }
   ci_str <- ifelse(valid,
     mapply(function(e, l, h, dd, tmpl) {
       sprintf(tmpl, round(e, dd), round(l, dd), round(h, dd))
