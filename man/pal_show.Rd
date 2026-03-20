@@ -38,14 +38,29 @@ gt table with colour swatches. Use \code{output = "gg"} for the Plots
 pane or \code{output = "gt"} for the Viewer pane.
 }
 \examples{
-# ggplot output (default)
+# Show specific palettes (gt table, default)
 pal_show(c("lancet", "Paired", "viridis"))
 
-# gt table output
-pal_show(pattern = "^nord", output = "gt")
+# Filter by pattern
+pal_show(pattern = "^nord")
+pal_show(pattern = "ggsci")
+pal_show(pattern = "hcl")
 
-# Show first 10 discrete palettes
+# Filter by type
 pal_show(type = "discrete", index = 1:10)
+pal_show(type = "continuous", index = 1:10)
+
+# Combine filters
+pal_show(pattern = "Blues", type = "continuous")
+pal_show(pattern = "^carto", type = "discrete")
+
+# ggplot output (colour bars in Plots pane)
+pal_show(c("lancet", "ditto", "polychrome", "igv"), output = "gg")
+pal_show(pattern = "^viridis|^magma|^plasma", output = "gg")
+
+# Browse all palettes from a source
+pal_show(pattern = "^dichromat")
+pal_show(pattern = "^pals")
 
 }
 \seealso{
