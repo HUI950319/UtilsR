@@ -80,7 +80,6 @@ Suggests:
     circlize,
     geomtextpath,
     plotthis,
-    pryr,
     knitr,
     rmarkdown
 Remotes:
