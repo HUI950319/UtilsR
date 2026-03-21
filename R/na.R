@@ -268,7 +268,3 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
 
   invisible(data)
 }
-
-#' @rdname check_na
-#' @export
-na_check <- check_na

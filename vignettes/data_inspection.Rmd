@@ -48,7 +48,7 @@ df <- data.frame(
   y = c("a", "b", NA, "d", "e"),
   z = 1:5
 )
-na(df)
+check_na(df)
 ```
 
 ---

@@ -2,12 +2,9 @@
 % Please edit documentation in R/na.R
 \name{check_na}
 \alias{check_na}
-\alias{na_check}
 \title{Comprehensive Data Quality Analysis}
 \usage{
 check_na(data, ..., pattern = NULL, show_all = FALSE)
-
-na_check(data, ..., pattern = NULL, show_all = FALSE)
 }
 \arguments{
 \item{data}{A data.frame.}
