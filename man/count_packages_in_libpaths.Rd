@@ -25,6 +25,6 @@ Other inspect:
 \code{\link{check_size}()},
 \code{\link{check_system}()},
 \code{\link{lv}()},
-\code{\link{na}()}
+\code{\link{na_check}()}
 }
 \concept{inspect}

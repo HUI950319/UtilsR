@@ -82,24 +82,24 @@ Other inspect:
 \code{\link{check_size}()},
 \code{\link{check_system}()},
 \code{\link{count_packages_in_libpaths}()},
-\code{\link{na}()}
+\code{\link{na_check}()}
 
 Other inspect: 
 \code{\link{check_size}()},
 \code{\link{check_system}()},
 \code{\link{count_packages_in_libpaths}()},
-\code{\link{na}()}
+\code{\link{na_check}()}
 
 Other inspect: 
 \code{\link{check_size}()},
 \code{\link{check_system}()},
 \code{\link{count_packages_in_libpaths}()},
-\code{\link{na}()}
+\code{\link{na_check}()}
 
 Other inspect: 
 \code{\link{check_size}()},
 \code{\link{check_system}()},
 \code{\link{count_packages_in_libpaths}()},
-\code{\link{na}()}
+\code{\link{na_check}()}
 }
 \concept{inspect}

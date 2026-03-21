@@ -33,6 +33,6 @@ Other inspect:
 \code{\link{check_system}()},
 \code{\link{count_packages_in_libpaths}()},
 \code{\link{lv}()},
-\code{\link{na}()}
+\code{\link{na_check}()}
 }
 \concept{inspect}

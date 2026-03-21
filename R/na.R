@@ -268,3 +268,7 @@ na_check <- function(data, ..., pattern = NULL, show_all = FALSE) {
 
   invisible(data)
 }
+
+#' @rdname na_check
+#' @export
+na <- na_check
