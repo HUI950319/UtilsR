@@ -7,7 +7,7 @@
 [![pkgdown](https://img.shields.io/badge/docs-pkgdown-blue)](https://hui950319.github.io/UtilsR/)
 <!-- badges: end -->
 
-**UtilsR** is an R utility toolkit for everyday data work: variable inspection, statistical formatting, 256 colour palettes, 11-type categorical plotting, and a chainable ggplot2 formatting system.
+**UtilsR** is an R utility toolkit for everyday data work: variable inspection, statistical formatting, 256 colour palettes, 11-type categorical plotting, unified continuous variable plotting, and a chainable ggplot2 formatting system.
 
 **Documentation**: <https://hui950319.github.io/UtilsR/>
 
@@ -36,6 +36,7 @@ install.packages(c("circlize", "ggVennDiagram", "ggupset"))
 ## Feature Highlights
 
 - **`plt_cat()`** -- One function, 11 chart types (bar, pie, ring, rose, dot, trend, area, sankey, chord, venn, upset), 27+ parameters
+- **`plt_con()`** -- One function, 4 chart types (violin, box, bar, dot) with statistical comparisons, overlays, split/stack layout
 - **`lv()`** -- Instant variable summary for data.frame and Seurat objects with grouping and cross-tabulation
 - **`fmt_*()`** -- Chainable ggplot2 formatting: axes, tags, legends, reference lines, strips, comparisons, backgrounds, scales, and more
 - **256 built-in palettes** via `pal_get()` / `pal_list()`, plus 11 hand-picked palettes (`pal_lancet`, `pal_ditto`, `pal_igv`, ...)
@@ -48,7 +49,7 @@ install.packages(c("circlize", "ggVennDiagram", "ggupset"))
 | **Inspect** | `lv()`, `na()`, `check_system()`, `check_size()` | Variable summary, missing values, system & memory info |
 | **Factor** | `fct_cat()`, `fct_num()` | Recode / reorder / binarise; numeric binning |
 | **Format** | `stat_ci()`, `stat_pval()`, `stat_ci_parse()`, `stat_cohen()` | CI strings, p-values, effect sizes |
-| **Plot** | `plt_cat()`, `plt_dist()`, `plt_cohen()`, `plt_radar()`, `plt_sankey()`, `plt_upset()` | Categorical (11 types), distribution, effect size, radar, sankey, upset |
+| **Plot** | `plt_cat()`, `plt_con()`, `plt_dist()`, `plt_cohen()`, `plt_radar()`, `plt_sankey()`, `plt_upset()` | Categorical (11 types), continuous (4 types), distribution, effect size, radar, sankey, upset |
 | **Colour** | `pal_get()`, `pal_list()`, `pal_show()`, `as_palette()`, `show_color()` | 256 palettes, custom palette creation, console swatches |
 | **ggplot2** | `fmt_plot()`, `fmt_axis()`, `fmt_tag()`, `fmt_legend()`, `fmt_ref()`, `fmt_strip()`, `fmt_com()`, `fmt_bg()`, `fmt_his()`, `fmt_scale()`, `fmt_expand()`, `fmt_boxplot()`, `fmt_point()` | Chainable ggplot2 formatting |
 | **Theme** | `theme_my()`, `theme_km()`, `theme_rcs()`, `theme_legend1()` | Publication-ready themes |
@@ -103,6 +104,53 @@ plt_cat(df, "Type", "Group", split.by = "Batch", type = "bar")
 | Layout | `title`, `subtitle`, `xlab`, `ylab`, `legend.position`, `legend.direction`, `aspect.ratio` |
 | Split | `facet_nrow`, `facet_ncol`, `facet_byrow` |
 | Set types | `stat_level` (venn/upset positive level) |
+
+</details>
+
+### `plt_con()` -- Unified Continuous Variable Plot
+
+```r
+set.seed(1)
+df2 <- data.frame(
+  value = rnorm(200),
+  score = rnorm(200, mean = 2),
+  group = factor(sample(c("A", "B", "C"), 200, TRUE)),
+  batch = factor(sample(c("B1", "B2"), 200, TRUE))
+)
+
+# Basic types
+plt_con(df2, "value", "group")                          # violin (default)
+plt_con(df2, "value", "group", type = "box")            # boxplot
+plt_con(df2, "value", "group", type = "bar")            # mean +/- SD
+plt_con(df2, "value", "group", type = "dot")            # bubble dot plot
+
+# Overlays
+plt_con(df2, "value", "group", add_box = TRUE, add_point = TRUE)
+
+# Statistical comparisons
+plt_con(df2, "value", "group",
+        comparisons = list(c("A", "B"), c("A", "C")))
+
+# Multiple features + stack
+plt_con(df2, c("value", "score"), "group", stack = TRUE)
+
+# Split by batch
+plt_con(df2, "value", "group", split.by = "batch")
+```
+
+<details>
+<summary><code>plt_con()</code> parameter reference</summary>
+
+| Group | Parameters |
+|-------|-----------|
+| Data | `stat.by`, `group.by`, `split.by`, `bg.by` |
+| Chart | `type` (violin/box/bar/dot), `fill.by` (group/feature) |
+| Colour | `palette`, `alpha` |
+| Overlays | `add_box`, `add_point`, `add_trend` + styling params |
+| Statistics | `comparisons`, `ref_group`, `pairwise_method`, `multiplegroup_comparisons`, `multiple_method`, `sig_label` |
+| Y-axis | `y.min`, `y.max` (numeric or "qN" quantile), `y.nbreaks`, `same.y.lims` |
+| Layout | `sort`, `stack`, `flip`, `title`, `subtitle`, `xlab`, `ylab`, `legend.*`, `aspect.ratio` |
+| Split | `facet_nrow`, `facet_ncol`, `combine` |
 
 </details>
 
