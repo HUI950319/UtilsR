@@ -19,18 +19,18 @@
 #' @examples
 #' \donttest{
 #' # Analyze all variables
-#' na_check(airquality)
+#' check_na(airquality)
 #'
 #' # Select specific columns
-#' na_check(airquality, Ozone, Solar.R)
+#' check_na(airquality, Ozone, Solar.R)
 #'
 #' # Show all variables including those without issues
-#' na_check(airquality, show_all = TRUE)
+#' check_na(airquality, show_all = TRUE)
 #' }
 #'
 #' @export
 #' @family inspect
-na_check <- function(data, ..., pattern = NULL, show_all = FALSE) {
+check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
 
   if (!is.data.frame(data)) {
     cli::cli_abort("{.arg data} must be a data.frame, not {.cls {class(data)}}.")
@@ -269,6 +269,6 @@ na_check <- function(data, ..., pattern = NULL, show_all = FALSE) {
   invisible(data)
 }
 
-#' @rdname na_check
+#' @rdname check_na
 #' @export
-na <- na_check
+na_check <- check_na

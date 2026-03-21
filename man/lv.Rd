@@ -79,27 +79,27 @@ lv(seurat_obj, count = c(seurat_clusters, Phase))
 }
 \seealso{
 Other inspect: 
+\code{\link{check_na}()},
 \code{\link{check_size}()},
 \code{\link{check_system}()},
-\code{\link{count_packages_in_libpaths}()},
-\code{\link{na_check}()}
+\code{\link{count_packages_in_libpaths}()}
 
 Other inspect: 
+\code{\link{check_na}()},
 \code{\link{check_size}()},
 \code{\link{check_system}()},
-\code{\link{count_packages_in_libpaths}()},
-\code{\link{na_check}()}
+\code{\link{count_packages_in_libpaths}()}
 
 Other inspect: 
+\code{\link{check_na}()},
 \code{\link{check_size}()},
 \code{\link{check_system}()},
-\code{\link{count_packages_in_libpaths}()},
-\code{\link{na_check}()}
+\code{\link{count_packages_in_libpaths}()}
 
 Other inspect: 
+\code{\link{check_na}()},
 \code{\link{check_size}()},
 \code{\link{check_system}()},
-\code{\link{count_packages_in_libpaths}()},
-\code{\link{na_check}()}
+\code{\link{count_packages_in_libpaths}()}
 }
 \concept{inspect}

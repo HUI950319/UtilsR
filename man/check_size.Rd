@@ -30,9 +30,9 @@ check_size(pattern = "data")
 }
 \seealso{
 Other inspect: 
+\code{\link{check_na}()},
 \code{\link{check_system}()},
 \code{\link{count_packages_in_libpaths}()},
-\code{\link{lv}()},
-\code{\link{na_check}()}
+\code{\link{lv}()}
 }
 \concept{inspect}

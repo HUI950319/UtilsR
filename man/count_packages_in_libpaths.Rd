@@ -22,9 +22,9 @@ count_packages_in_libpaths()
 }
 \seealso{
 Other inspect: 
+\code{\link{check_na}()},
 \code{\link{check_size}()},
 \code{\link{check_system}()},
-\code{\link{lv}()},
-\code{\link{na_check}()}
+\code{\link{lv}()}
 }
 \concept{inspect}
