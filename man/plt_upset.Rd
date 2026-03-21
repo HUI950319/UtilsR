@@ -83,6 +83,7 @@ names(res)
 Other plot: 
 \code{\link{plt_cat}()},
 \code{\link{plt_cohen}()},
+\code{\link{plt_con}()},
 \code{\link{plt_dist}()},
 \code{\link{plt_radar}()},
 \code{\link{plt_sankey}()}

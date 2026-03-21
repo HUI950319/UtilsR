@@ -261,6 +261,7 @@ plt_cat(df, c("Type","Group"), type = "upset", stat_level = c("A","X"))
 \seealso{
 Other plot: 
 \code{\link{plt_cohen}()},
+\code{\link{plt_con}()},
 \code{\link{plt_dist}()},
 \code{\link{plt_radar}()},
 \code{\link{plt_sankey}()},

@@ -42,6 +42,7 @@ Collate:
     'plt_radar.R'
     'plt_cat_types.R'
     'plt_cat.R'
+    'plt_con.R'
     'UtilsR-package.R'
 Imports:
     cli,

@@ -77,6 +77,7 @@ plt_cohen(res2, facet = TRUE, palette = "Set2")
 \seealso{
 Other plot: 
 \code{\link{plt_cat}()},
+\code{\link{plt_con}()},
 \code{\link{plt_dist}()},
 \code{\link{plt_radar}()},
 \code{\link{plt_sankey}()},

@@ -91,6 +91,7 @@ plt_radar(res2, output = "gg", palette = "Paired")
 Other plot: 
 \code{\link{plt_cat}()},
 \code{\link{plt_cohen}()},
+\code{\link{plt_con}()},
 \code{\link{plt_dist}()},
 \code{\link{plt_sankey}()},
 \code{\link{plt_upset}()}
