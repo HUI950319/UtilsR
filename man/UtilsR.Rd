@@ -39,16 +39,7 @@ colour palettes, ggplot2 formatting, and console styling.
 
 \describe{
   \item{\code{\link{pal_lancet}}}{Lancet journal (15 colours)}
-  \item{\code{\link{pal_ditto}}}{dittoSeq for scRNA-seq (40 colours)}
-  \item{\code{\link{pal_igv}}}{IGV genome browser (48 colours)}
-  \item{\code{\link{pal_polychrome}}}{Max perceptual distinctness (36 colours)}
-  \item{\code{\link{pal_glasbey}}}{Glasbey algorithm (32 colours)}
-  \item{\code{\link{pal_alphabet}}}{Green-Armytage A-Z (26 colours)}
-  \item{\code{\link{pal_ucsc}}}{UCSC genome browser (26 colours)}
-  \item{\code{\link{pal_kelly}}}{Kelly max contrast (22 colours)}
-  \item{\code{\link{pal_d3}}}{D3.js Category20 (20 colours)}
-  \item{\code{\link{pal_trubetskoy}}}{Trubetskoy distinct (20 colours)}
-  \item{\code{\link{pal_simpsons}}}{Simpsons ggsci (16 colours)}
+  \item{\code{\link{pal_other}}}{10 discrete palettes (igv, ditto, polychrome, etc.)}
   \item{\code{\link{show_color}}}{Display colour swatches in console}
   \item{\code{\link{as_palette}}}{Create custom palette object}
   \item{\code{\link{pal_list}}}{Browse all built-in palettes}

@@ -17,18 +17,24 @@
 #' @return Invisibly returns the input data.
 #'
 #' @examples
-#' \dontrun{
-#' data %>% na()
-#' data %>% na(1:5)
-#' data %>% na(pattern = "M")
-#' data %>% na(c(Age, Sex))
+#' \donttest{
+#' # Analyze all variables
+#' na_check(airquality)
+#'
+#' # Select specific columns
+#' na_check(airquality, Ozone, Solar.R)
+#'
+#' # Show all variables including those without issues
+#' na_check(airquality, show_all = TRUE)
 #' }
 #'
 #' @export
 #' @family inspect
-na <- function(data, ..., pattern = NULL, show_all = FALSE) {
+na_check <- function(data, ..., pattern = NULL, show_all = FALSE) {
 
-  if (missing(data)) data <- get("data", envir = parent.frame())
+  if (!is.data.frame(data)) {
+    cli::cli_abort("{.arg data} must be a data.frame, not {.cls {class(data)}}.")
+  }
 
   # Variable selection
   if (!is.null(pattern)) {
@@ -38,16 +44,13 @@ na <- function(data, ..., pattern = NULL, show_all = FALSE) {
   }
   if (length(vars) == 0) {
     if (!is.null(pattern)) {
-      message("\u672a\u627e\u5230\u5339\u914d\u6a21\u5f0f '", pattern,
-              "' \u7684\u53d8\u91cf\uff0c\u5c06\u5206\u6790\u6240\u6709\u53d8\u91cf")
+      cli::cli_alert_warning(
+        "\u672a\u627e\u5230\u5339\u914d\u6a21\u5f0f '{pattern}' \u7684\u53d8\u91cf\uff0c\u5c06\u5206\u6790\u6240\u6709\u53d8\u91cf"
+      )
     }
     vars <- names(data)
   }
-  data <- data[, vars]
-
-  if (!is.data.frame(data)) {
-    stop("'data' must be a data.frame")
-  }
+  data <- data[, vars, drop = FALSE]
 
   n_total <- nrow(data)
 

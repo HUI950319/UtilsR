@@ -498,10 +498,8 @@ fmt_plot <- function(plot,
 #'
 #' @examples
 #' library(ggplot2)
-#' p <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) +
-#'   geom_point() +
-#'   facet_wrap(~Species)
-#' fmt_strip(p, label_fill = "steelblue")
+#' p <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) + geom_point()
+#' fmt_strip(p, label = "Iris Data", label_fill = "steelblue")
 #'
 #' @export
 #' @family plot formatting
@@ -532,21 +530,19 @@ fmt_strip <- function(plot, label = NULL, label_color = "white", label_fill = NU
 
   for (i in seq_len(n)) {
     cur_label <- label[i]
-    strip_df <- data.frame(strip_label = cur_label)
-    # Add strip column via a merge-safe approach (cbind constant column)
+    # Inject the strip_label column into the plot data BEFORE setting facet
+    if (!is.null(plots[[i]]$data) && is.data.frame(plots[[i]]$data)) {
+      plots[[i]]$data$.strip_label. <- cur_label
+    }
+    facet_formula <- ggplot2::vars(.data[[".strip_label."]])
     plots[[i]] <- plots[[i]] +
-      ggplot2::aes() +
       ggh4x::facet_wrap2(
-        ~ strip_label,
+        facet_formula,
         strip = create_strip(
           lc = if (!is.null(label_color)) label_color[i] else NULL,
           lf = if (!is.null(label_fill))  label_fill[i]  else NULL
         )
       )
-    # Inject the strip_label column into the plot data (guard NULL)
-    if (!is.null(plots[[i]]$data) && is.data.frame(plots[[i]]$data)) {
-      plots[[i]]$data$strip_label <- cur_label
-    }
   }
 
   .from_plot_list(plots, info$is_patchwork, info$is_single)

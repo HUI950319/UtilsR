@@ -97,24 +97,31 @@
 #' p3 <- ggplot(mtcars, aes(factor(gear))) + geom_bar()
 #' p4 <- ggplot(mtcars, aes(factor(cyl), mpg)) + geom_violin()
 #'
+#' \donttest{
 #' # Flatten nested patchwork
 #' nested <- (p1 | p2) / (p3 | p4)
 #' flatten_patchwork(nested, nrow = 1)
 #'
 #' # Select specific sub-plots
 #' flatten_patchwork(nested, select_inds = c(1, 3))
+#' }
 #'
-#' # Reorder by rows (column-first → row-first)
-#' flatten_patchwork(nested, nrow_inds_order = 2, ncol = 2)
+#' @examplesIf packageVersion("patchwork") < "2.0.0"
+#' # Reorder by rows (column-first -> row-first)
+#' nested2 <- (p1 | p2) / (p3 | p4)
+#' flatten_patchwork(nested2, nrow_inds_order = 2, ncol = 2)
 #'
 #' @export
 flatten_patchwork <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) {
   flatten_recursive <- function(plot_obj) {
-    if (inherits(plot_obj[[1]], "patchwork") && !inherits(plot_obj, "patchwork")) {
-      plot_obj <- patchwork::wrap_plots(plot_obj)
-    }
     if (!inherits(plot_obj, "patchwork")) return(list(plot_obj))
-    unlist(lapply(plot_obj, flatten_recursive), recursive = FALSE)
+    n <- length(plot_obj)
+    children <- vector("list", n)
+    for (i in seq_len(n)) {
+      children[[i]] <- tryCatch(plot_obj[[i]], error = function(e) NULL)
+    }
+    children <- Filter(Negate(is.null), children)
+    unlist(lapply(children, flatten_recursive), recursive = FALSE)
   }
 
   all_subplots <- flatten_recursive(plots)

@@ -25,10 +25,8 @@ coloured strip label appears above the panel.
 }
 \examples{
 library(ggplot2)
-p <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) +
-  geom_point() +
-  facet_wrap(~Species)
-fmt_strip(p, label_fill = "steelblue")
+p <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) + geom_point()
+fmt_strip(p, label = "Iris Data", label_fill = "steelblue")
 
 }
 \seealso{

@@ -29,14 +29,18 @@ p2 <- ggplot(mtcars, aes(gear, disp, group = gear)) + geom_boxplot()
 p3 <- ggplot(mtcars, aes(factor(gear))) + geom_bar()
 p4 <- ggplot(mtcars, aes(factor(cyl), mpg)) + geom_violin()
 
+\donttest{
 # Flatten nested patchwork
 nested <- (p1 | p2) / (p3 | p4)
 flatten_patchwork(nested, nrow = 1)
 
 # Select specific sub-plots
 flatten_patchwork(nested, select_inds = c(1, 3))
+}
 
-# Reorder by rows (column-first → row-first)
-flatten_patchwork(nested, nrow_inds_order = 2, ncol = 2)
-
+\dontshow{if (packageVersion("patchwork") < "2.0.0") (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+# Reorder by rows (column-first -> row-first)
+nested2 <- (p1 | p2) / (p3 | p4)
+flatten_patchwork(nested2, nrow_inds_order = 2, ncol = 2)
+\dontshow{\}) # examplesIf}
 }

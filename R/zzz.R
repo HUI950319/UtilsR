@@ -2,6 +2,18 @@
 # zzz.R -- Package initialization & re-exported operators
 # ============================================================================
 
+# Suppress R CMD check NOTEs for non-standard evaluation variables
+utils::globalVariables(c(
+  ".", "Size", "Size_bar", "count", "density", "n",
+  "missing_percentage", "special_percentage", "total_issues",
+  "variable", "missing_combined", "special_combined", "data_type",
+  "where"
+))
+
+#' @importFrom stats density pnorm qnorm setNames
+#' @importFrom utils head
+NULL
+
 #' Pipe operator
 #'
 #' See \code{dplyr::\link[dplyr:reexports]{\%>\%}} for details.
