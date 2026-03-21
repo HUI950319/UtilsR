@@ -49,11 +49,11 @@ install.packages(c("circlize", "ggVennDiagram", "ggupset"))
 | | `plt_radar()` | Radar (spider) chart |
 | | `plt_sankey()` | Sankey diagram for categorical flow |
 | | `plt_upset()` | UpSet / Venn diagram for set intersections |
-| **Colour** | `pal_lancet`, `pal_ditto`, ... | 11 built-in colour palettes (16--48 colours) |
+| **Colour** | `pal_other` | 11 built-in palettes: lancet, ditto, igv, polychrome, glasbey, alphabet, ucsc, kelly, d3, simpsons, trubetskoy |
 | | `as_palette()` | Create custom palette object |
-| | `pal_get()` | Get colours from a named palette |
+| | `pal_get()` | Get colours from a named palette (256 built-in) |
 | | `pal_show()` | Display a single palette visually |
-| | `pal_list()` | Browse all palettes |
+| | `pal_list()` | Browse all 256 palettes |
 | | `show_color()` | Display colour swatches in console |
 | **ggplot2** | `fmt_plot()` | Master chaining function for ggplot formatting |
 | | `fmt_axis()`, `fmt_tag()`, `fmt_legend()` | Axis, tag, legend formatting |
