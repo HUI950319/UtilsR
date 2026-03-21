@@ -7,6 +7,15 @@
 \description{
 A collection of utility functions for interactive data exploration, variable inspection, missing value analysis, system resource monitoring, and object size profiling. Provides S3 generic 'lv()' for summarizing variables in data.frames and Seurat objects, 'na()' for data quality analysis, and system diagnostics tools.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://hui950319.github.io/UtilsR/}
+  \item \url{https://github.com/HUI950319/UtilsR}
+  \item Report bugs at \url{https://github.com/HUI950319/UtilsR/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Yuhao Ouyang \email{ouyangyuhao@outlook.com}
 

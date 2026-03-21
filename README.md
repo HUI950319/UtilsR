@@ -1,7 +1,6 @@
 # UtilsR
 
 <!-- badges: start -->
-[![R-CMD-check](https://img.shields.io/badge/R--CMD--check-passing-brightgreen)](https://github.com/HUI950319/UtilsR)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![pkgdown](https://img.shields.io/badge/docs-pkgdown-blue)](https://hui950319.github.io/UtilsR/)
 <!-- badges: end -->
@@ -19,6 +18,16 @@ pak::pak("HUI950319/UtilsR")
 devtools::install_github("HUI950319/UtilsR")
 ```
 
+Some chart types require additional packages:
+
+```r
+# Sankey
+pak::pak("davidsjoberg/ggsankey")
+
+# Chord, Venn, UpSet
+install.packages(c("circlize", "ggVennDiagram", "ggupset"))
+```
+
 ## Functions Overview
 
 | Category | Function | Description |
@@ -27,10 +36,12 @@ devtools::install_github("HUI950319/UtilsR")
 | | `na()` | Missing value & data quality analysis |
 | | `check_system()` | OS, R version, memory, CPU info |
 | | `check_size()` | Object memory profiling |
+| | `count_packages_in_libpaths()` | Count installed packages per library path |
 | **Factor** | `fct_cat()` | Recode, reorder, reverse, binary, group, combine |
 | | `fct_num()` | Numeric to factor (cut points or binning) |
 | **Format** | `stat_ci()` | Build or reformat CI strings and mean(SD) |
 | | `stat_pval()` | Format p-values or add significance stars |
+| | `stat_ci_parse()` | Parse CI strings, compute p-values, adjust confidence levels |
 | | `stat_cohen()` | Cohen's d effect sizes with CI |
 | **Plot** | `plt_cat()` | **11-type categorical plot** (bar, pie, ring, rose, dot, trend, area, sankey, chord, venn, upset) |
 | | `plt_dist()` | Cross-distribution (stacked bar / tile heatmap) |
@@ -38,16 +49,22 @@ devtools::install_github("HUI950319/UtilsR")
 | | `plt_radar()` | Radar (spider) chart |
 | | `plt_sankey()` | Sankey diagram for categorical flow |
 | | `plt_upset()` | UpSet / Venn diagram for set intersections |
-| **Colour** | `pal_lancet`, `pal_ditto`, ... | 11 built-in colour palettes (16-48 colours) |
-| | `show_color()` | Display colour swatches in console |
+| **Colour** | `pal_lancet`, `pal_ditto`, ... | 11 built-in colour palettes (16--48 colours) |
+| | `as_palette()` | Create custom palette object |
+| | `pal_get()` | Get colours from a named palette |
+| | `pal_show()` | Display a single palette visually |
 | | `pal_list()` | Browse all palettes |
+| | `show_color()` | Display colour swatches in console |
 | **ggplot2** | `fmt_plot()` | Master chaining function for ggplot formatting |
 | | `fmt_axis()`, `fmt_tag()`, `fmt_legend()` | Axis, tag, legend formatting |
 | | `fmt_ref()`, `fmt_strip()`, `fmt_com()` | Reference lines, strips, comparisons |
 | | `fmt_bg()`, `fmt_his()`, `fmt_scale()` | Background, histogram, scales |
+| | `fmt_expand()`, `fmt_boxplot()`, `fmt_point()` | Expansion, boxplot overlay, point layer |
+| | `flatten_patchwork()` | Recursively flatten nested patchwork objects |
 | **Theme** | `theme_my()` | Clean general-purpose theme |
 | | `theme_km()` | Kaplan-Meier survival curve theme |
 | | `theme_rcs()` | Restricted cubic spline theme |
+| | `theme_legend1()` | Single-row legend theme |
 | **Display** | `.cat_line()`, `.cat_box()`, `.cat_message()` | Styled console output |
 | | `.cat_tb()` | Enhanced gt table with highlighting |
 | **Operators** | `%ni%`, `%\|\|%`, `%>%`, `%<>%` | Not-in, default value, pipe |
@@ -152,6 +169,7 @@ lv(iris)                              # all variables
 lv(iris, Species, Sepal.Length)       # specific variables
 lv(iris, pattern = "Sepal")          # regex match
 lv(iris, Sepal.Length, group = "Species")  # grouped summary
+lv(iris, count = c(Species))         # cross-tabulation
 ```
 
 ### Factor Manipulation
@@ -165,7 +183,7 @@ fct_cat(x, reverse = TRUE)           # reverse
 fct_cat(x, binary_ref = 1)           # binary (I vs Oth)
 
 # Combine columns
-df %>% mutate(grp = fct_cat(sex, combine = "age"))
+df |> mutate(grp = fct_cat(sex, combine = "age"))
 ```
 
 ### Colour Palettes
@@ -175,6 +193,7 @@ pal_lancet                    # 15 colours, Lancet journal style
 pal_ditto                     # 40 colours, dittoSeq (scRNA-seq)
 pal_igv                       # 48 colours, IGV genome browser
 pal_list()                    # browse all
+pal_get("lancet", n = 5)     # get 5 colours from a palette
 
 # Use in ggplot
 ggplot(data, aes(x, y, color = group)) +
@@ -191,7 +210,8 @@ p <- ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) +
 p |>
   fmt_plot(legend.position = "bottom") |>
   fmt_tag("A") |>
-  fmt_ref(xintercept = 5.8)
+  fmt_ref(xintercept = 5.8) |>
+  fmt_point(shape = 21)
 ```
 
 ## License
