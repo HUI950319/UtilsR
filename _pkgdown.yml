@@ -19,6 +19,7 @@ reference:
     desc: High-level plotting functions for categorical data visualization.
     contents:
       - plt_cat
+      - plt_con
       - plt_dist
       - plt_cohen
       - plt_radar
@@ -29,7 +30,7 @@ reference:
     desc: Explore variables, missing values, and system resources.
     contents:
       - lv
-      - na
+      - check_na
       - check_system
       - check_size
       - count_packages_in_libpaths
