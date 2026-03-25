@@ -18,15 +18,16 @@ NULL
 
 #' Create a colour palette object
 #'
-#' Wraps a character vector of colours into a \code{palette} class so that
-#' printing in the console automatically shows coloured swatches.
+#' Returns a plain character vector of colours (no S3 class).
+#' Use \code{show_color()} to display coloured swatches in the console.
 #'
 #' @param x Character vector of colours (hex codes or named R colours).
-#' @return A character vector with class \code{"palette"}.
+#' @return A character vector of colours.
 #'
 #' @examples
 #' p <- as_palette(c("#FF0000", "#00FF00", "#0000FF"))
 #' p
+#' show_color(p)
 #'
 #' @export
 #' @family colour palettes
@@ -34,27 +35,13 @@ as_palette <- function(x) {
   if (!is.character(x)) {
     cli::cli_abort("{.arg x} must be a character vector of colours, got {.cls {class(x)}}.")
   }
-  structure(x, class = c("palette", "character"))
+  as.character(x)
 }
 
-#' @export
-#' @family colour palettes
-print.palette <- function(x, ...) {
-  show_color(x)
-  invisible(x)
-}
+# -- vctrs compatibility (ggplot2 uses vctrs internally) ----------------------
+# Allow seamless conversion between palette and character so that
+# scale_*_manual(values = pal_lancet) works without error.
 
-#' @export
-#' @family colour palettes
-`[.palette` <- function(x, i, ...) {
-  as_palette(NextMethod())
-}
-
-#' @export
-#' @family colour palettes
-c.palette <- function(...) {
-  as_palette(NextMethod())
-}
 
 #' Lancet Colour Palette
 #'

@@ -83,5 +83,6 @@ NULL
   if (requireNamespace("ggprism", quietly = TRUE)) {
     tryCatch(.onLoad_theme(), error = function(e) NULL)
   }
+
   invisible()
 }
