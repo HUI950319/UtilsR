@@ -167,15 +167,16 @@ accessed via <code><a href="../reference/pal_get.html">pal_get()</a></code>):</p
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Get 5 colours from "Paired"</span></span>
 <span><span class="fu"><a href="../reference/pal_get.html">pal_get</a></span><span class="op">(</span><span class="st">"Paired"</span>, n <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #080808; background-color: #AFD7FF;"> #A6CEE3 </span> <span style="color: #EEEEEE; background-color: #0087D7;"> #1F78B4 </span> <span style="color: #080808; background-color: #D7FFAF;"> #B2DF8A </span> <span style="color: #080808; background-color: #5FAF5F;"> #33A02C </span> <span style="color: #080808; background-color: #FFAFAF;"> #FB9A99 </span></span></span>
+<span><span class="co">#&gt; [1] "#A6CEE3" "#1F78B4" "#B2DF8A" "#33A02C" "#FB9A99"</span></span>
 <span></span>
 <span><span class="co"># Get 3 colours from "Set1"</span></span>
 <span><span class="fu"><a href="../reference/pal_get.html">pal_get</a></span><span class="op">(</span><span class="st">"Set1"</span>, n <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #EEEEEE; background-color: #FF0000;"> #E41A1C </span> <span style="color: #080808; background-color: #5F87D7;"> #377EB8 </span> <span style="color: #080808; background-color: #5FD75F;"> #4DAF4A </span></span></span>
+<span><span class="co">#&gt; [1] "#E41A1C" "#377EB8" "#4DAF4A"</span></span>
 <span></span>
 <span><span class="co"># Get 8 colours from "Dark2"</span></span>
 <span><span class="fu"><a href="../reference/pal_get.html">pal_get</a></span><span class="op">(</span><span class="st">"Dark2"</span>, n <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #080808; background-color: #00AF87;"> #1B9E77 </span> <span style="color: #080808; background-color: #FF8700;"> #D95F02 </span> <span style="color: #080808; background-color: #8787D7;"> #7570B3 </span> <span style="color: #080808; background-color: #FF00AF;"> #E7298A </span> <span style="color: #080808; background-color: #87AF00;"> #66A61E </span> <span style="color: #080808; background-color: #FFD700;"> #E6AB02 </span> <span style="color: #080808; background-color: #AF8700;"> #A6761D </span> <span style="color: #EEEEEE; background-color: #626262;"> #666666 </span></span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "#1B9E77" "#D95F02" "#7570B3" "#E7298A" "#66A61E" "#E6AB02" "#A6761D"</span></span>
+<span><span class="co">#&gt; [8] "#666666"</span></span></code></pre></div>
 <p>Use in ggplot2:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">iris</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">Sepal.Length</span>, <span class="va">Sepal.Width</span>, color <span class="op">=</span> <span class="va">Species</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>

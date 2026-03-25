@@ -33,5 +33,5 @@ Other colour palettes:
 ``` r
 p <- as_palette(c("#FF0000", "#00FF00", "#0000FF"))
 p
-#>  #FF0000   #00FF00   #0000FF  
+#> [1] "#FF0000" "#00FF00" "#0000FF"
 ```

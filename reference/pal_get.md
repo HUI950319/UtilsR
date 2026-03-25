@@ -55,19 +55,22 @@ Other colour palettes:
 ``` r
 # Get 5 colours from Paired palette
 pal_get("Paired", n = 5)
-#>  #A6CEE3   #1F78B4   #B2DF8A   #33A02C   #FB9A99  
+#> [1] "#A6CEE3" "#1F78B4" "#B2DF8A" "#33A02C" "#FB9A99"
 
 # Map factor levels to colours
 pal_get("lancet", x = c("A", "B", "C"))
-#>  #00468B   #ED0000   #42B540  
+#> [1] "#00468BFF" "#ED0000FF" "#42B540FF"
 
 # Continuous interpolation
 pal_get("viridis", n = 20)
-#>  #440154   #440256   #450457   #450559   #46075A   #46085C   #460A5D   #460B5E   #470D60   #470E61   #471063   #471164   #471365   #481467   #481668   #481769   #48186A   #481A6C   #481B6D   #481C6E  
+#>  [1] "#440154FF" "#440256FF" "#450457FF" "#450559FF" "#46075AFF" "#46085CFF"
+#>  [7] "#460A5DFF" "#460B5EFF" "#470D60FF" "#470E61FF" "#471063FF" "#471164FF"
+#> [13] "#471365FF" "#481467FF" "#481668FF" "#481769FF" "#48186AFF" "#481A6CFF"
+#> [19] "#481B6DFF" "#481C6EFF"
 
 # Reverse and transparent
 pal_get("Blues", n = 5, reverse = TRUE, alpha = 0.6)
-#>  #6BAED6   #9ECAE1   #C6DBEF   #DEEBF7   #F7FBFF  
+#> [1] "#6BAED699" "#9ECAE199" "#C6DBEF99" "#DEEBF799" "#F7FBFF99"
 
 # Use in ggplot
 # ggplot(df, aes(x, y, color = group)) +

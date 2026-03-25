@@ -75,15 +75,16 @@ Retrieve colours from any palette by name:
 ``` r
 # Get 5 colours from "Paired"
 pal_get("Paired", n = 5)
-#>  #A6CEE3   #1F78B4   #B2DF8A   #33A02C   #FB9A99 
+#> [1] "#A6CEE3" "#1F78B4" "#B2DF8A" "#33A02C" "#FB9A99"
 
 # Get 3 colours from "Set1"
 pal_get("Set1", n = 3)
-#>  #E41A1C   #377EB8   #4DAF4A 
+#> [1] "#E41A1C" "#377EB8" "#4DAF4A"
 
 # Get 8 colours from "Dark2"
 pal_get("Dark2", n = 8)
-#>  #1B9E77   #D95F02   #7570B3   #E7298A   #66A61E   #E6AB02   #A6761D   #666666 
+#> [1] "#1B9E77" "#D95F02" "#7570B3" "#E7298A" "#66A61E" "#E6AB02" "#A6761D"
+#> [8] "#666666"
 ```
 
 Use in ggplot2:
