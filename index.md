@@ -1,4 +1,4 @@
-# UtilsR [![](reference/figures/logo.png)](https://hui950319.github.io/UtilsR/)
+# UtilsR
 
 **UtilsR** is an R utility toolkit for everyday data work: variable
 inspection, statistical formatting, 256 colour palettes, 11-type
