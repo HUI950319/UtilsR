@@ -280,6 +280,9 @@ PlotCircleLollipop <- function(
 
     circlize::circos.initialize(factors = df$group, xlim = c(0, 1))
 
+    # When values are scaled to [0,1], extend ylim slightly so top dots are
+    # not clipped at the track boundary
+    ylim_max  <- if (value_scale != "none") 1.02 else 1
     grp_levels <- levels(df$group)
 
     # ---- Track builder: sector label ring ----
@@ -306,7 +309,7 @@ PlotCircleLollipop <- function(
     .draw_lollipop_track <- function() {
       circlize::circos.trackPlotRegion(
         factors      = df$group,
-        ylim         = c(0, 1),
+        ylim         = c(0, ylim_max),
         track.height = track_height,
         panel.fun = function(x, y) {
           sector_data <- df[df$group == circlize::CELL_META$sector.index, ]
