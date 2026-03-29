@@ -50,6 +50,7 @@ Collate:
     'PlotScatter3.R'
     'PlotDumbbell.R'
     'PlotHeatmapJaccard.R'
+    'PlotRank.R'
     'PlotCircleLollipop.R'
     'UtilsR-package.R'
 Imports:

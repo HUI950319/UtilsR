@@ -23,6 +23,7 @@ reference:
       - PlotScatter3
       - PlotDumbbell
       - PlotHeatmapJaccard
+      - PlotRank
       - PlotCircleLollipop
 
   - title: Plot Functions
