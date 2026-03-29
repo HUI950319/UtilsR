@@ -58,12 +58,12 @@ ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) +
 
 ## `palette_list` — 256 Palettes
 
-All palettes are stored in `palette_list` (internal data, accessed via `pal_get()`):
+All palettes are stored in `palette_list` (accessible via `UtilsR::palette_list` or `pal_get()`):
 
 ```{r palette-list}
 # Browse available palette names
-head(names(UtilsR:::palette_list), 20)
-length(UtilsR:::palette_list)
+head(names(UtilsR::palette_list), 20)
+length(UtilsR::palette_list)
 ```
 
 ---
