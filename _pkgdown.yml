@@ -15,6 +15,16 @@ navbar:
       aria-label: GitHub
 
 reference:
+  - title: Advanced Plot Functions
+    desc: Publication-ready scatter, heatmap and circular plots.
+    contents:
+      - PlotScatter1
+      - PlotScatter2
+      - PlotScatter3
+      - PlotDumbbell
+      - PlotHeatmapJaccard
+      - PlotCircleLollipop
+
   - title: Plot Functions
     desc: High-level plotting functions for categorical data visualization.
     contents:
