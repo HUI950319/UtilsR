@@ -10,6 +10,7 @@ PlotCircleLollipop(
   name_col = "name",
   value_col = "value",
   top_n = NULL,
+  value_scale = c("none", "group", "top_n"),
   group_levels = NULL,
   common_color = "#4682B4",
   unique_color = "#FF7F50",
@@ -51,6 +52,23 @@ and numeric value.}
 \item{top_n}{Integer. If not \code{NULL}, keep only the top \code{top_n}
 features per group ranked by \code{value_col} (descending). Applied before
 any plotting. \code{NULL} = use all rows as-is.}
+
+\item{value_scale}{Per-group value scaling applied after \code{top_n}
+selection. Three options:
+\describe{
+  \item{\code{"none"} (default)}{No scaling; values are used as-is and
+    normalised to \code{[0, 1]} globally only if they fall outside that
+    range.}
+  \item{\code{"group"}}{Scale each group independently to \code{[0, 1]}
+    using the group's full value range from the \strong{original} data
+    (before \code{top_n} filtering). Max value in group = 1, min = 0.
+    Preserves relative differences within each group across the whole
+    feature set.}
+  \item{\code{"top_n"}}{Scale each group independently to \code{[0, 1]}
+    using only the displayed (post-\code{top_n}) values. Top displayed
+    feature = 1, bottom displayed feature = 0. Maximises visual spread
+    within each sector.}
+}}
 
 \item{group_levels}{Character vector controlling the display order of groups.
 \code{NULL} = data appearance order (or factor levels if already a factor).}

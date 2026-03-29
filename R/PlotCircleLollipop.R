@@ -14,6 +14,22 @@
 #' @param top_n Integer. If not \code{NULL}, keep only the top \code{top_n}
 #'   features per group ranked by \code{value_col} (descending). Applied before
 #'   any plotting. \code{NULL} = use all rows as-is.
+#' @param value_scale Per-group value scaling applied after \code{top_n}
+#'   selection. Three options:
+#'   \describe{
+#'     \item{\code{"none"} (default)}{No scaling; values are used as-is and
+#'       normalised to \code{[0, 1]} globally only if they fall outside that
+#'       range.}
+#'     \item{\code{"group"}}{Scale each group independently to \code{[0, 1]}
+#'       using the group's full value range from the \strong{original} data
+#'       (before \code{top_n} filtering). Max value in group = 1, min = 0.
+#'       Preserves relative differences within each group across the whole
+#'       feature set.}
+#'     \item{\code{"top_n"}}{Scale each group independently to \code{[0, 1]}
+#'       using only the displayed (post-\code{top_n}) values. Top displayed
+#'       feature = 1, bottom displayed feature = 0. Maximises visual spread
+#'       within each sector.}
+#'   }
 #' @param group_levels Character vector controlling the display order of groups.
 #'   \code{NULL} = data appearance order (or factor levels if already a factor).
 #' @param common_color Colour for features shared across \eqn{\geq 2} groups.
@@ -101,6 +117,7 @@ PlotCircleLollipop <- function(
     name_col     = "name",           # feature name column
     value_col    = "value",          # numeric score column
     top_n        = NULL,             # keep top-N features per group (NULL = all)
+    value_scale  = c("none", "group", "top_n"), # per-group value scaling strategy
     group_levels = NULL,             # display order of groups
     common_color = "#4682B4",        # colour for cross-group shared features
     unique_color = "#FF7F50",        # colour for group-unique features
@@ -128,7 +145,8 @@ PlotCircleLollipop <- function(
     height       = 10,
     dpi          = 300
 ) {
-  label_side <- match.arg(label_side)
+  label_side  <- match.arg(label_side)
+  value_scale <- match.arg(value_scale)
 
   # ---- Check dependencies ----
   for (pkg in c("circlize", "dplyr")) {
@@ -141,6 +159,9 @@ PlotCircleLollipop <- function(
     if (!col %in% colnames(data))
       stop(sprintf("Column '%s' not found in data.", col), call. = FALSE)
   }
+
+  # ---- Keep original data for group-level scaling (before top_n) ----
+  data_orig <- data
 
   # ---- top_n: keep top-N rows per group by value (descending) ----
   if (!is.null(top_n)) {
@@ -180,7 +201,33 @@ PlotCircleLollipop <- function(
     ) |>
     dplyr::ungroup()
 
-  # ---- Normalise values to [0, 1] if outside range ----
+  # ---- Per-group value scaling (value_scale) ----
+  if (value_scale == "group") {
+    # Scale using the FULL group range from original data (before top_n)
+    orig_grp <- as.character(data_orig[[group_col]])
+    orig_val <- as.numeric(data_orig[[value_col]])
+    grp_min  <- tapply(orig_val, orig_grp, min, na.rm = TRUE)
+    grp_max  <- tapply(orig_val, orig_grp, max, na.rm = TRUE)
+    df$value <- mapply(function(v, g) {
+      mn <- grp_min[[as.character(g)]]
+      mx <- grp_max[[as.character(g)]]
+      if (mx == mn) 0 else (v - mn) / (mx - mn)
+    }, df$value, as.character(df$group))
+
+  } else if (value_scale == "top_n") {
+    # Scale using only the displayed (post-top_n) values within each group
+    df <- df |>
+      dplyr::group_by(group) |>
+      dplyr::mutate(value = {
+        mn <- min(value, na.rm = TRUE)
+        mx <- max(value, na.rm = TRUE)
+        if (mx == mn) rep(0, dplyr::n()) else (value - mn) / (mx - mn)
+      }) |>
+      dplyr::ungroup() |>
+      as.data.frame()
+  }
+
+  # ---- Normalise values to [0, 1] if still outside range ----
   val_range <- range(df$value, na.rm = TRUE)
   if (val_range[1] < 0 || val_range[2] > 1) {
     df$y_pos <- (df$value - val_range[1]) / (val_range[2] - val_range[1])
