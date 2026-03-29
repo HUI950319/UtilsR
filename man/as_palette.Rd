@@ -10,15 +10,16 @@ as_palette(x)
 \item{x}{Character vector of colours (hex codes or named R colours).}
 }
 \value{
-A character vector with class \code{"palette"}.
+A character vector of colours.
 }
 \description{
-Wraps a character vector of colours into a \code{palette} class so that
-printing in the console automatically shows coloured swatches.
+Returns a plain character vector of colours (no S3 class).
+Use \code{show_color()} to display coloured swatches in the console.
 }
 \examples{
 p <- as_palette(c("#FF0000", "#00FF00", "#0000FF"))
 p
+show_color(p)
 
 }
 \seealso{
@@ -27,6 +28,7 @@ Other colour palettes:
 \code{\link{pal_lancet}},
 \code{\link{pal_list}()},
 \code{\link{pal_other}},
+\code{\link{pal_paraSC}},
 \code{\link{pal_show}()}
 }
 \concept{colour palettes}

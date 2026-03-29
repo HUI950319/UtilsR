@@ -8,6 +8,7 @@ fmt_legend(
   plot,
   legend.position = NULL,
   legend.direction = NULL,
+  legend_theme = NULL,
   merge_legends = FALSE,
   ncol = NULL,
   nrow = NULL,
@@ -17,20 +18,33 @@ fmt_legend(
 \arguments{
 \item{plot}{A ggplot, patchwork, or list of ggplot objects.}
 
-\item{legend.position}{Legend position. Either a character string
-(`"top"`, `"bottom"`, `"left"`, `"right"`, `"none"`) or a numeric vector
-of length 2 for coordinates inside the plot. Default `NULL` (no change).}
+\item{legend.position}{Legend position. Accepts:
+\itemize{
+  \item Character: `"top"`, `"bottom"`, `"left"`, `"right"`, `"none"`.
+  \item Shorthand corner codes: `"br"`, `"bl"`, `"tr"`, `"tl"` (inside
+    plot corners).
+  \item Numeric vector of length 2: `c(x, y)` coordinates (0-1) for
+    inside-plot positioning.
+}
+Default `NULL` (no change).}
 
 \item{legend.direction}{`"horizontal"` or `"vertical"`. Default `NULL`.}
+
+\item{legend_theme}{A ggplot2 theme object for legend styling, e.g.,
+[theme_legend1()]. Applied after position/direction settings so it can
+override them. Default `NULL` (no extra styling).}
 
 \item{merge_legends}{Logical. If `TRUE` and input has multiple plots,
 collect legends into a single shared legend via patchwork. Default `FALSE`.}
 
-\item{ncol}{Number of columns in the legend layout.}
+\item{ncol}{Number of columns in the legend layout (passed to
+[ggplot2::guide_legend()]).}
 
-\item{nrow}{Number of rows in the legend layout.}
+\item{nrow}{Number of rows in the legend layout (passed to
+[ggplot2::guide_legend()]).}
 
-\item{...}{Additional arguments passed to [ggplot2::theme()].}
+\item{...}{Additional arguments passed to [ggplot2::theme()], e.g.,
+`legend.text`, `legend.key.size`, `legend.background`.}
 }
 \value{
 Same type as input.
@@ -45,6 +59,9 @@ p <- ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) + geom_point(
 
 fmt_legend(p, legend.position = "bottom", legend.direction = "horizontal")
 fmt_legend(p, legend.position = "none")
+fmt_legend(p, legend.position = "br")
+fmt_legend(p, legend.position = c(0.9, 0.2))
+fmt_legend(p, legend.position = "br", legend_theme = theme_legend1())
 
 }
 \seealso{

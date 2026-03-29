@@ -22,9 +22,11 @@ p + theme_rcs
 }
 \seealso{
 Other ggplot2 themes: 
+\code{\link{theme_blank}()},
 \code{\link{theme_km}},
 \code{\link{theme_legend1}()},
-\code{\link{theme_my}()}
+\code{\link{theme_my}()},
+\code{\link{theme_sc}()}
 }
 \concept{ggplot2 themes}
 \keyword{datasets}

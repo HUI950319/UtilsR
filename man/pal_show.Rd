@@ -2,7 +2,7 @@
 % Please edit documentation in R/color.R
 \name{pal_show}
 \alias{pal_show}
-\title{Visualise Palettes}
+\title{Visualise Palettes or Colour Vectors}
 \usage{
 pal_show(
   palette = NULL,
@@ -10,12 +10,17 @@ pal_show(
   type = c("all", "discrete", "continuous"),
   max_colors = 20,
   index = NULL,
-  output = c("gt", "gg")
+  output = c("gt", "gg"),
+  label = TRUE,
+  label_size = 3,
+  ncol = NULL
 )
 }
 \arguments{
-\item{palette}{Character vector of palette names, or \code{NULL} to show
-all palettes matching \code{pattern}/\code{type}.}
+\item{palette}{Character vector of palette names (e.g. \code{"lancet"}),
+a colour vector (hex codes or named colours), or \code{NULL} to show
+all palettes matching \code{pattern}/\code{type}. Named colour vectors
+(e.g. \code{pal_paraSC}) will use the names as labels.}
 
 \item{pattern}{Regex pattern to filter palette names (e.g. \code{"^nord"}).}
 
@@ -28,6 +33,16 @@ all palettes matching \code{pattern}/\code{type}.}
 
 \item{output}{Output format: \code{"gg"} (default) for ggplot or
 \code{"gt"} for gt table.}
+
+\item{label}{Logical. In colour vector mode, whether to show hex/name
+labels on tiles. Default \code{TRUE}.}
+
+\item{label_size}{Numeric. Text size for labels in colour vector mode.
+Default 3.}
+
+\item{ncol}{Integer. Number of columns for colour vector mode when
+displaying many colours. Default \code{NULL} (auto: single row if
+\eqn{\le 20}{<= 20} colours, otherwise wrap).}
 }
 \value{
 A ggplot or gt object (also prints).
@@ -36,6 +51,14 @@ A ggplot or gt object (also prints).
 Display palettes as horizontal colour bars (ggplot) or an interactive
 gt table with colour swatches. Use \code{output = "gg"} for the Plots
 pane or \code{output = "gt"} for the Viewer pane.
+}
+\details{
+When \code{palette} is a character vector of valid colour specifications
+(hex codes like \code{"#FF0000"} or named R colours like \code{"red"})
+rather than palette names, the function automatically switches to
+\strong{colour vector mode}: it displays the colours directly as a
+single-row colour bar (ggplot) with hex labels, similar to
+\code{show_color()} but as a publication-ready plot.
 }
 \examples{
 # Show specific palettes (gt table, default)
@@ -58,6 +81,17 @@ pal_show(pattern = "^carto", type = "discrete")
 pal_show(c("lancet", "ditto", "polychrome", "igv"), output = "gg")
 pal_show(pattern = "^viridis|^magma|^plasma", output = "gg")
 
+# --- Colour vector mode ---
+# Show a named colour vector (e.g. pal_paraSC)
+pal_show(pal_paraSC)
+
+# Show any colour vector
+pal_show(c("#FF0000", "#00FF00", "#0000FF"))
+pal_show(rainbow(12))
+
+# Without labels
+pal_show(pal_lancet, label = FALSE)
+
 # Browse all palettes from a source
 pal_show(pattern = "^dichromat")
 pal_show(pattern = "^pals")
@@ -69,6 +103,7 @@ Other colour palettes:
 \code{\link{pal_get}()},
 \code{\link{pal_lancet}},
 \code{\link{pal_list}()},
-\code{\link{pal_other}}
+\code{\link{pal_other}},
+\code{\link{pal_paraSC}}
 }
 \concept{colour palettes}

@@ -5,6 +5,8 @@
 \alias{UtilsR-package}
 \title{UtilsR: Utility Functions for Data Exploration and System Diagnostics}
 \description{
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+
 A collection of utility functions for interactive data exploration, variable inspection, missing value analysis, system resource monitoring, and object size profiling. Provides S3 generic 'lv()' for summarizing variables in data.frames and Seurat objects, 'na_check()' for data quality analysis, and system diagnostics tools.
 }
 \seealso{

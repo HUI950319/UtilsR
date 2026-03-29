@@ -64,6 +64,7 @@ reference:
     contents:
       - pal_lancet
       - pal_other
+      - pal_paraSC
       - pal_get
       - pal_list
       - pal_show
@@ -96,6 +97,16 @@ reference:
       - theme_km
       - theme_rcs
       - theme_legend1
+      - theme_blank
+      - theme_sc
+
+  - title: Grob Utilities
+    desc: Helpers for manipulating ggplot2 grobs.
+    contents:
+      - grob_add
+      - grob_as
+      - grob_insert
+      - grob_to_gg
 
   - title: Console Display
     desc: Styled console output helpers.

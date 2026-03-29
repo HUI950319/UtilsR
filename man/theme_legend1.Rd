@@ -22,8 +22,10 @@ ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) +
 }
 \seealso{
 Other ggplot2 themes: 
+\code{\link{theme_blank}()},
 \code{\link{theme_km}},
 \code{\link{theme_my}()},
-\code{\link{theme_rcs}}
+\code{\link{theme_rcs}},
+\code{\link{theme_sc}()}
 }
 \concept{ggplot2 themes}
