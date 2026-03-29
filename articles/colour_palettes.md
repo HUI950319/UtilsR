@@ -52,18 +52,20 @@ ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) +
 
 ## `palette_list` — 256 Palettes
 
-All palettes are stored in `palette_list` (internal data, accessed via
+All palettes are stored in `palette_list` (accessible via
+[`UtilsR::palette_list`](https://hui950319.github.io/UtilsR/reference/palette_list.md)
+or
 [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md)):
 
 ``` r
 # Browse available palette names
-head(names(UtilsR:::palette_list), 20)
+head(names(UtilsR::palette_list), 20)
 #>  [1] "BrBG"     "PiYG"     "PRGn"     "PuOr"     "RdBu"     "RdGy"    
 #>  [7] "RdYlBu"   "RdYlGn"   "Spectral" "Accent"   "Dark2"    "Paired"  
 #> [13] "Pastel1"  "Pastel2"  "Set1"     "Set2"     "Set3"     "Blues"   
 #> [19] "BuGn"     "BuPu"
-length(UtilsR:::palette_list)
-#> [1] 256
+length(UtilsR::palette_list)
+#> [1] 259
 ```
 
 ------------------------------------------------------------------------

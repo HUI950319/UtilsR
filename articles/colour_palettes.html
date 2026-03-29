@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">UtilsR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -146,17 +146,17 @@ plot functions:</p>
 <h2 id="palette_list-256-palettes">
 <code>palette_list</code> — 256 Palettes<a class="anchor" aria-label="anchor" href="#palette_list-256-palettes"></a>
 </h2>
-<p>All palettes are stored in <code>palette_list</code> (internal data,
-accessed via <code><a href="../reference/pal_get.html">pal_get()</a></code>):</p>
+<p>All palettes are stored in <code>palette_list</code> (accessible via
+<code><a href="../reference/palette_list.html">UtilsR::palette_list</a></code> or <code><a href="../reference/pal_get.html">pal_get()</a></code>):</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Browse available palette names</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu">UtilsR</span><span class="fu">:::</span><span class="va"><a href="../reference/palette_list.html">palette_list</a></span><span class="op">)</span>, <span class="fl">20</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu">UtilsR</span><span class="fu">::</span><span class="va"><a href="../reference/palette_list.html">palette_list</a></span><span class="op">)</span>, <span class="fl">20</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  [1] "BrBG"     "PiYG"     "PRGn"     "PuOr"     "RdBu"     "RdGy"    </span></span>
 <span><span class="co">#&gt;  [7] "RdYlBu"   "RdYlGn"   "Spectral" "Accent"   "Dark2"    "Paired"  </span></span>
 <span><span class="co">#&gt; [13] "Pastel1"  "Pastel2"  "Set1"     "Set2"     "Set3"     "Blues"   </span></span>
 <span><span class="co">#&gt; [19] "BuGn"     "BuPu"</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu">UtilsR</span><span class="fu">:::</span><span class="va"><a href="../reference/palette_list.html">palette_list</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 256</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu">UtilsR</span><span class="fu">::</span><span class="va"><a href="../reference/palette_list.html">palette_list</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 259</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">

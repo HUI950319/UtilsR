@@ -48,6 +48,7 @@ Other colour palettes:
 [`pal_lancet`](https://hui950319.github.io/UtilsR/reference/pal_lancet.md),
 [`pal_list()`](https://hui950319.github.io/UtilsR/reference/pal_list.md),
 [`pal_other`](https://hui950319.github.io/UtilsR/reference/pal_other.md),
+[`pal_paraSC`](https://hui950319.github.io/UtilsR/reference/pal_paraSC.md),
 [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
 
 ## Examples

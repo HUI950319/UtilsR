@@ -39,6 +39,7 @@ Other colour palettes:
 [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md),
 [`pal_lancet`](https://hui950319.github.io/UtilsR/reference/pal_lancet.md),
 [`pal_other`](https://hui950319.github.io/UtilsR/reference/pal_other.md),
+[`pal_paraSC`](https://hui950319.github.io/UtilsR/reference/pal_paraSC.md),
 [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
 
 ## Examples
@@ -141,6 +142,10 @@ pal_list(show = FALSE)
 #> === ggsci_d3_category20c (20 colours, discrete) ===
 #> 
 #> === ggsci_observable_observable10 (10 colours, discrete) ===
+#> 
+#> === ggsci_primer_mark17 (17 colours, discrete) ===
+#> 
+#> === ggsci_atlassian_categorical8 (8 colours, discrete) ===
 #> 
 #> === ggsci_igv_default (51 colours, discrete) ===
 #> 
@@ -557,6 +562,8 @@ pal_list(show = FALSE)
 #> === glasbey (32 colours, discrete) ===
 #> 
 #> === d3 (20 colours, discrete) ===
+#> 
+#> === paraSC (16 colours, discrete) ===
 pal_list(pattern = "^Blues")
 #> 
 #> === Blues (9 colours, continuous) ===

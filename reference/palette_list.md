@@ -13,7 +13,8 @@ A named list of 256 character vectors.
 
 ``` r
 length(palette_list)
-#> Error: object 'palette_list' not found
+#> [1] 259
 names(palette_list)[1:10]
-#> Error: object 'palette_list' not found
+#>  [1] "BrBG"     "PiYG"     "PRGn"     "PuOr"     "RdBu"     "RdGy"    
+#>  [7] "RdYlBu"   "RdYlGn"   "Spectral" "Accent"  
 ```

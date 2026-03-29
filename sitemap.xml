@@ -10,6 +10,13 @@
 <url><loc>https://hui950319.github.io/UtilsR/authors.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/index.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/news/index.html</loc></url>
+<url><loc>https://hui950319.github.io/UtilsR/reference/PlotCircleLollipop.html</loc></url>
+<url><loc>https://hui950319.github.io/UtilsR/reference/PlotDumbbell.html</loc></url>
+<url><loc>https://hui950319.github.io/UtilsR/reference/PlotHeatmapJaccard.html</loc></url>
+<url><loc>https://hui950319.github.io/UtilsR/reference/PlotRank.html</loc></url>
+<url><loc>https://hui950319.github.io/UtilsR/reference/PlotScatter1.html</loc></url>
+<url><loc>https://hui950319.github.io/UtilsR/reference/PlotScatter2.html</loc></url>
+<url><loc>https://hui950319.github.io/UtilsR/reference/PlotScatter3.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/UtilsR-package.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/UtilsR.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/as_palette.html</loc></url>
@@ -23,6 +30,10 @@
 <url><loc>https://hui950319.github.io/UtilsR/reference/dot-cat_line.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/dot-cat_message.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/dot-cat_tb.html</loc></url>
+<url><loc>https://hui950319.github.io/UtilsR/reference/dot-make_scatter2_legend.html</loc></url>
+<url><loc>https://hui950319.github.io/UtilsR/reference/dot-pr_facet.html</loc></url>
+<url><loc>https://hui950319.github.io/UtilsR/reference/dot-pr_parse.html</loc></url>
+<url><loc>https://hui950319.github.io/UtilsR/reference/dot-pr_single.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/fct_cat.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/fct_num.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/flatten_patchwork.html</loc></url>
@@ -41,6 +52,10 @@
 <url><loc>https://hui950319.github.io/UtilsR/reference/fmt_tag.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/grapes-less-than-greater-than-grapes.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/grapes-ni-grapes.html</loc></url>
+<url><loc>https://hui950319.github.io/UtilsR/reference/grob_add.html</loc></url>
+<url><loc>https://hui950319.github.io/UtilsR/reference/grob_as.html</loc></url>
+<url><loc>https://hui950319.github.io/UtilsR/reference/grob_insert.html</loc></url>
+<url><loc>https://hui950319.github.io/UtilsR/reference/grob_to_gg.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/index.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/lv.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/operators.html</loc></url>
@@ -48,6 +63,7 @@
 <url><loc>https://hui950319.github.io/UtilsR/reference/pal_lancet.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/pal_list.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/pal_other.html</loc></url>
+<url><loc>https://hui950319.github.io/UtilsR/reference/pal_paraSC.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/pal_show.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/palette_list.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/plt_cat.html</loc></url>
@@ -62,9 +78,11 @@
 <url><loc>https://hui950319.github.io/UtilsR/reference/stat_ci_parse.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/stat_cohen.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/stat_pval.html</loc></url>
+<url><loc>https://hui950319.github.io/UtilsR/reference/theme_blank.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/theme_km.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/theme_legend1.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/theme_my.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/theme_rcs.html</loc></url>
+<url><loc>https://hui950319.github.io/UtilsR/reference/theme_sc.html</loc></url>
 </urlset>
 

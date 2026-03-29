@@ -17,9 +17,11 @@ A ggplot2 theme object.
 ## See also
 
 Other ggplot2 themes:
+[`theme_blank()`](https://hui950319.github.io/UtilsR/reference/theme_blank.md),
 [`theme_km`](https://hui950319.github.io/UtilsR/reference/theme_km.md),
 [`theme_my()`](https://hui950319.github.io/UtilsR/reference/theme_my.md),
-[`theme_rcs`](https://hui950319.github.io/UtilsR/reference/theme_rcs.md)
+[`theme_rcs`](https://hui950319.github.io/UtilsR/reference/theme_rcs.md),
+[`theme_sc()`](https://hui950319.github.io/UtilsR/reference/theme_sc.md)
 
 ## Examples
 

@@ -1,5 +1,24 @@
 # Package index
 
+## Advanced Plot Functions
+
+Publication-ready scatter, heatmap and circular plots.
+
+- [`PlotScatter1()`](https://hui950319.github.io/UtilsR/reference/PlotScatter1.md)
+  : Grouped Scatter Plot with Marginal Boxplots
+- [`PlotScatter2()`](https://hui950319.github.io/UtilsR/reference/PlotScatter2.md)
+  : Dual-Group Scatter Plot with Multi-Variable Marginal Boxplots
+- [`PlotScatter3()`](https://hui950319.github.io/UtilsR/reference/PlotScatter3.md)
+  : Paired Scatter Plot with Rotated Histogram Inset
+- [`PlotDumbbell()`](https://hui950319.github.io/UtilsR/reference/PlotDumbbell.md)
+  : Dumbbell Chart for Paired Comparisons
+- [`PlotHeatmapJaccard()`](https://hui950319.github.io/UtilsR/reference/PlotHeatmapJaccard.md)
+  : Jaccard Similarity Heatmap
+- [`PlotRank()`](https://hui950319.github.io/UtilsR/reference/PlotRank.md)
+  : Rank Scatter Plot
+- [`PlotCircleLollipop()`](https://hui950319.github.io/UtilsR/reference/PlotCircleLollipop.md)
+  : Circular Lollipop Chart
+
 ## Plot Functions
 
 High-level plotting functions for categorical data visualization.
@@ -64,12 +83,14 @@ Built-in colour palettes and palette utilities.
   : Lancet Colour Palette
 - [`pal_other`](https://hui950319.github.io/UtilsR/reference/pal_other.md)
   : Additional Built-in Colour Palettes
+- [`pal_paraSC`](https://hui950319.github.io/UtilsR/reference/pal_paraSC.md)
+  : Parathyroid Single-Cell Colour Palette
 - [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md)
   : Get Colours from a Named Palette
 - [`pal_list()`](https://hui950319.github.io/UtilsR/reference/pal_list.md)
   : List All Available Palettes
 - [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
-  : Visualise Palettes
+  : Visualise Palettes or Colour Vectors
 - [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
   : Display Colour Swatches in Console
 - [`as_palette()`](https://hui950319.github.io/UtilsR/reference/as_palette.md)
@@ -122,6 +143,23 @@ ggplot2 themes.
   : RCS (Restricted Cubic Spline) Plot Theme
 - [`theme_legend1()`](https://hui950319.github.io/UtilsR/reference/theme_legend1.md)
   : Compact Legend Theme
+- [`theme_blank()`](https://hui950319.github.io/UtilsR/reference/theme_blank.md)
+  : Blank Theme with Coordinate Arrows
+- [`theme_sc()`](https://hui950319.github.io/UtilsR/reference/theme_sc.md)
+  : Single-Cell Style Theme
+
+## Grob Utilities
+
+Helpers for manipulating ggplot2 grobs.
+
+- [`grob_add()`](https://hui950319.github.io/UtilsR/reference/grob_add.md)
+  : Add a Grob to a Gtable at a Specified Position
+- [`grob_as()`](https://hui950319.github.io/UtilsR/reference/grob_as.md)
+  : Convert a Plot Object to a Grob
+- [`grob_insert()`](https://hui950319.github.io/UtilsR/reference/grob_insert.md)
+  : Insert an Inset Plot Inside Another Plot
+- [`grob_to_gg()`](https://hui950319.github.io/UtilsR/reference/grob_to_gg.md)
+  : Convert a Grob or Gtable Back to a ggplot Object
 
 ## Console Display
 

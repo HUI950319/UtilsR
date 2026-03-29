@@ -17,9 +17,11 @@ An object of class `theme` (inherits from
 ## See also
 
 Other ggplot2 themes:
+[`theme_blank()`](https://hui950319.github.io/UtilsR/reference/theme_blank.md),
 [`theme_km`](https://hui950319.github.io/UtilsR/reference/theme_km.md),
 [`theme_legend1()`](https://hui950319.github.io/UtilsR/reference/theme_legend1.md),
-[`theme_my()`](https://hui950319.github.io/UtilsR/reference/theme_my.md)
+[`theme_my()`](https://hui950319.github.io/UtilsR/reference/theme_my.md),
+[`theme_sc()`](https://hui950319.github.io/UtilsR/reference/theme_sc.md)
 
 ## Examples
 

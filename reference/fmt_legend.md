@@ -10,6 +10,7 @@ fmt_legend(
   plot,
   legend.position = NULL,
   legend.direction = NULL,
+  legend_theme = NULL,
   merge_legends = FALSE,
   ncol = NULL,
   nrow = NULL,
@@ -25,13 +26,28 @@ fmt_legend(
 
 - legend.position:
 
-  Legend position. Either a character string (\`"top"\`, \`"bottom"\`,
-  \`"left"\`, \`"right"\`, \`"none"\`) or a numeric vector of length 2
-  for coordinates inside the plot. Default \`NULL\` (no change).
+  Legend position. Accepts:
+
+  - Character: \`"top"\`, \`"bottom"\`, \`"left"\`, \`"right"\`,
+    \`"none"\`.
+
+  - Shorthand corner codes: \`"br"\`, \`"bl"\`, \`"tr"\`, \`"tl"\`
+    (inside plot corners).
+
+  - Numeric vector of length 2: \`c(x, y)\` coordinates (0-1) for
+    inside-plot positioning.
+
+  Default \`NULL\` (no change).
 
 - legend.direction:
 
   \`"horizontal"\` or \`"vertical"\`. Default \`NULL\`.
+
+- legend_theme:
+
+  A ggplot2 theme object for legend styling, e.g., \[theme_legend1()\].
+  Applied after position/direction settings so it can override them.
+  Default \`NULL\` (no extra styling).
 
 - merge_legends:
 
@@ -40,15 +56,18 @@ fmt_legend(
 
 - ncol:
 
-  Number of columns in the legend layout.
+  Number of columns in the legend layout (passed to
+  \[ggplot2::guide_legend()\]).
 
 - nrow:
 
-  Number of rows in the legend layout.
+  Number of rows in the legend layout (passed to
+  \[ggplot2::guide_legend()\]).
 
 - ...:
 
-  Additional arguments passed to \[ggplot2::theme()\].
+  Additional arguments passed to \[ggplot2::theme()\], e.g.,
+  \`legend.text\`, \`legend.key.size\`, \`legend.background\`.
 
 ## Value
 
@@ -79,5 +98,11 @@ p <- ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) + geom_point(
 fmt_legend(p, legend.position = "bottom", legend.direction = "horizontal")
 
 fmt_legend(p, legend.position = "none")
+
+fmt_legend(p, legend.position = "br")
+
+fmt_legend(p, legend.position = c(0.9, 0.2))
+
+fmt_legend(p, legend.position = "br", legend_theme = theme_legend1())
 
 ```

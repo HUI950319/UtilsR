@@ -9,7 +9,7 @@ across a multi-plot patchwork."><meta property="og:image" content="https://hui95
 
     <a class="navbar-brand me-2" href="../index.html">UtilsR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,6 +59,7 @@ across a multi-plot patchwork.</p>
 <span>  <span class="va">plot</span>,</span>
 <span>  legend.position <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  legend.direction <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  legend_theme <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  merge_legends <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  ncol <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  nrow <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -75,13 +76,22 @@ across a multi-plot patchwork.</p>
 
 
 <dt id="arg-legend-position">legend.position<a class="anchor" aria-label="anchor" href="#arg-legend-position"></a></dt>
-<dd><p>Legend position. Either a character string
-(`"top"`, `"bottom"`, `"left"`, `"right"`, `"none"`) or a numeric vector
-of length 2 for coordinates inside the plot. Default `NULL` (no change).</p></dd>
+<dd><p>Legend position. Accepts:</p><ul><li><p>Character: `"top"`, `"bottom"`, `"left"`, `"right"`, `"none"`.</p></li>
+<li><p>Shorthand corner codes: `"br"`, `"bl"`, `"tr"`, `"tl"` (inside
+    plot corners).</p></li>
+<li><p>Numeric vector of length 2: `c(x, y)` coordinates (0-1) for
+    inside-plot positioning.</p></li>
+</ul><p>Default `NULL` (no change).</p></dd>
 
 
 <dt id="arg-legend-direction">legend.direction<a class="anchor" aria-label="anchor" href="#arg-legend-direction"></a></dt>
 <dd><p>`"horizontal"` or `"vertical"`. Default `NULL`.</p></dd>
+
+
+<dt id="arg-legend-theme">legend_theme<a class="anchor" aria-label="anchor" href="#arg-legend-theme"></a></dt>
+<dd><p>A ggplot2 theme object for legend styling, e.g.,
+[theme_legend1()]. Applied after position/direction settings so it can
+override them. Default `NULL` (no extra styling).</p></dd>
 
 
 <dt id="arg-merge-legends">merge_legends<a class="anchor" aria-label="anchor" href="#arg-merge-legends"></a></dt>
@@ -90,15 +100,18 @@ collect legends into a single shared legend via patchwork. Default `FALSE`.</p><
 
 
 <dt id="arg-ncol">ncol<a class="anchor" aria-label="anchor" href="#arg-ncol"></a></dt>
-<dd><p>Number of columns in the legend layout.</p></dd>
+<dd><p>Number of columns in the legend layout (passed to
+[ggplot2::guide_legend()]).</p></dd>
 
 
 <dt id="arg-nrow">nrow<a class="anchor" aria-label="anchor" href="#arg-nrow"></a></dt>
-<dd><p>Number of rows in the legend layout.</p></dd>
+<dd><p>Number of rows in the legend layout (passed to
+[ggplot2::guide_legend()]).</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments passed to [ggplot2::theme()].</p></dd>
+<dd><p>Additional arguments passed to [ggplot2::theme()], e.g.,
+`legend.text`, `legend.key.size`, `legend.background`.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -131,6 +144,12 @@ collect legends into a single shared legend via patchwork. Default `FALSE`.</p><
 <span class="r-plt img"><img src="fmt_legend-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">fmt_legend</span><span class="op">(</span><span class="va">p</span>, legend.position <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="fmt_legend-2.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">fmt_legend</span><span class="op">(</span><span class="va">p</span>, legend.position <span class="op">=</span> <span class="st">"br"</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="fmt_legend-3.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">fmt_legend</span><span class="op">(</span><span class="va">p</span>, legend.position <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.9</span>, <span class="fl">0.2</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="fmt_legend-4.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">fmt_legend</span><span class="op">(</span><span class="va">p</span>, legend.position <span class="op">=</span> <span class="st">"br"</span>, legend_theme <span class="op">=</span> <span class="fu"><a href="theme_legend1.html">theme_legend1</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="fmt_legend-5.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
