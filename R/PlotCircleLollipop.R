@@ -27,12 +27,20 @@
 #' @param link_lwd Line width of the arcs. Default \code{0.5}.
 #' @param link_h Bezier height of the arcs (0–1). Default \code{0.7}.
 #' @param show_labels Logical. Draw feature name labels. Default \code{TRUE}.
-#' @param label_side Where to place feature labels. \code{"inside"} (default)
-#'   places labels between the sector ring and lollipop track (suitable for
-#'   small datasets). \code{"outside"} places labels beyond the outer edge of
-#'   the circle (recommended when many features are shown, e.g. > 10 per group).
-#'   When \code{"outside"}, the lollipop track becomes the outermost ring and
-#'   the sector label ring moves inward.
+#' @param label_side Where to place feature labels relative to the sector ring.
+#'   Three options:
+#'   \describe{
+#'     \item{\code{"inside"} (default)}{Labels in the narrow band between the
+#'       sector ring inner edge and the lollipop outer edge. Best for small
+#'       datasets (few groups / few features per group).}
+#'     \item{\code{"outside"}}{Labels inside the grey sector boxes, above the
+#'       lollipop stems. Matches the style of Fig. 4 in \emph{The Lancet
+#'       Digital Health}. Recommended for 5–10 features per group.}
+#'     \item{\code{"outer"}}{Labels placed beyond the outer boundary of the
+#'       grey sector boxes, extending outward from the circle. Sector boxes
+#'       move one ring inward. Recommended for large datasets
+#'       (> 10 features per group).}
+#'   }
 #' @param label_cex Text size of the labels. Default \code{0.7}.
 #' @param label_height Height of the label connector lines in mm. Default \code{4}.
 #' @param point_cex Size of the lollipop dots. Default \code{0.8}.
@@ -66,16 +74,22 @@
 #'   transmute(group = cell_type, name = gene, value = importance) |>
 #'   as.data.frame()
 #'
-#' # Labels between sector ring and lollipop (default, works well with few features)
+#' # Default: labels in the narrow band between sector ring and lollipop
 #' PlotCircleLollipop(polar_df, yaxis_label = "Gene Importance (IG)")
 #'
-#' # Labels outside the entire circle (recommended for many features/groups)
-#' PlotCircleLollipop(polar_df, label_side = "outside",
+#' # Lancet-style: labels inside the grey sector boxes (5-10 genes/group)
+#' PlotCircleLollipop(polar_df, top_n = 5,
+#'                    label_side = "outside",
+#'                    yaxis_label = "Gene Importance (IG)")
+#'
+#' # Labels beyond the grey sector boxes (recommended for many genes/groups)
+#' PlotCircleLollipop(polar_df, top_n = 10,
+#'                    label_side = "outer",
 #'                    yaxis_label = "Gene Importance (IG)")
 #'
 #' # Save to PDF
 #' PlotCircleLollipop(polar_df,
-#'                    label_side = "outside",
+#'                    label_side = "outer",
 #'                    filename   = "circle_lollipop.pdf",
 #'                    width = 12, height = 12)
 #' }
@@ -96,7 +110,7 @@ PlotCircleLollipop <- function(
     link_lwd     = 0.5,              # arc line width
     link_h       = 0.7,              # arc Bezier height (0-1)
     show_labels  = TRUE,             # draw feature labels
-    label_side   = c("inside", "outside"), # label position: inside ring or outside circle
+    label_side   = c("inside", "outside", "outer"), # label position relative to sector ring
     label_cex    = 0.7,              # label text size
     label_height = 4,                # label connector height (mm)
     point_cex    = 0.8,              # lollipop dot size
@@ -284,19 +298,19 @@ PlotCircleLollipop <- function(
 
     # ---- Draw tracks + labels in the right interleaved order ----
     #
-    # circos.genomicLabels(side = "outside") places labels outside whichever
-    # track was drawn most recently.  By calling it at different points in the
-    # draw sequence we can put labels in two places:
+    # circos.genomicLabels(side = "outside") inserts a label track just outside
+    # whichever track was drawn most recently.  Three modes:
     #
-    #   "inside"  – called AFTER both tracks → labels between sector ring and
-    #               lollipop track (default, works well with few features)
-    #   "outside" – called AFTER sector track but BEFORE lollipop track →
-    #               labels appear outside the sector ring (beyond the circle
-    #               boundary), sector grey boxes remain the outermost ring
+    #   "inside"  – sector → lollipop → genomicLabels
+    #               labels in the narrow band between two tracks
     #
-    .draw_sector_track()
-
-    if (show_labels && label_side == "outside") {
+    #   "outside" – sector → genomicLabels → lollipop
+    #               labels fill the grey sector-box area (Lancet Fig.4 style)
+    #
+    #   "outer"   – genomicLabels → sector → lollipop
+    #               labels beyond the outer boundary of the grey sector boxes
+    #
+    .label_call <- function() {
       circlize::circos.genomicLabels(
         label_data,
         labels.column     = 4,
@@ -309,19 +323,21 @@ PlotCircleLollipop <- function(
       )
     }
 
-    .draw_lollipop_track()
-
-    if (show_labels && label_side == "inside") {
-      circlize::circos.genomicLabels(
-        label_data,
-        labels.column     = 4,
-        facing            = "reverse.clockwise",
-        side              = "outside",
-        cex               = label_cex,
-        col               = label_data$color,
-        connection_height = circlize::convert_height(label_height, "mm"),
-        line_lwd          = 0.5
-      )
+    if (label_side == "outer") {
+      # genomicLabels BEFORE all tracks → label track is outermost
+      if (show_labels) .label_call()
+      .draw_sector_track()
+      .draw_lollipop_track()
+    } else if (label_side == "outside") {
+      # genomicLabels BETWEEN sector and lollipop → labels in grey-box area
+      .draw_sector_track()
+      if (show_labels) .label_call()
+      .draw_lollipop_track()
+    } else {
+      # "inside": genomicLabels AFTER both tracks → labels in narrow inner band
+      .draw_sector_track()
+      .draw_lollipop_track()
+      if (show_labels) .label_call()
     }
 
     # ---- Inner arcs for shared features ----

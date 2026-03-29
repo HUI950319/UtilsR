@@ -19,7 +19,7 @@ PlotCircleLollipop(
   link_lwd = 0.5,
   link_h = 0.7,
   show_labels = TRUE,
-  label_side = c("inside", "outside"),
+  label_side = c("inside", "outside", "outer"),
   label_cex = 0.7,
   label_height = 4,
   point_cex = 0.8,
@@ -74,12 +74,20 @@ groups. Default \code{TRUE}.}
 
 \item{show_labels}{Logical. Draw feature name labels. Default \code{TRUE}.}
 
-\item{label_side}{Where to place feature labels. \code{"inside"} (default)
-places labels between the sector ring and lollipop track (suitable for
-small datasets). \code{"outside"} places labels beyond the outer edge of
-the circle (recommended when many features are shown, e.g. > 10 per group).
-When \code{"outside"}, the lollipop track becomes the outermost ring and
-the sector label ring moves inward.}
+\item{label_side}{Where to place feature labels relative to the sector ring.
+Three options:
+\describe{
+  \item{\code{"inside"} (default)}{Labels in the narrow band between the
+    sector ring inner edge and the lollipop outer edge. Best for small
+    datasets (few groups / few features per group).}
+  \item{\code{"outside"}}{Labels inside the grey sector boxes, above the
+    lollipop stems. Matches the style of Fig. 4 in \emph{The Lancet
+    Digital Health}. Recommended for 5–10 features per group.}
+  \item{\code{"outer"}}{Labels placed beyond the outer boundary of the
+    grey sector boxes, extending outward from the circle. Sector boxes
+    move one ring inward. Recommended for large datasets
+    (> 10 features per group).}
+}}
 
 \item{label_cex}{Text size of the labels. Default \code{0.7}.}
 
@@ -137,16 +145,22 @@ polar_df <- gene_pc |>
   transmute(group = cell_type, name = gene, value = importance) |>
   as.data.frame()
 
-# Labels between sector ring and lollipop (default, works well with few features)
+# Default: labels in the narrow band between sector ring and lollipop
 PlotCircleLollipop(polar_df, yaxis_label = "Gene Importance (IG)")
 
-# Labels outside the entire circle (recommended for many features/groups)
-PlotCircleLollipop(polar_df, label_side = "outside",
+# Lancet-style: labels inside the grey sector boxes (5-10 genes/group)
+PlotCircleLollipop(polar_df, top_n = 5,
+                   label_side = "outside",
+                   yaxis_label = "Gene Importance (IG)")
+
+# Labels beyond the grey sector boxes (recommended for many genes/groups)
+PlotCircleLollipop(polar_df, top_n = 10,
+                   label_side = "outer",
                    yaxis_label = "Gene Importance (IG)")
 
 # Save to PDF
 PlotCircleLollipop(polar_df,
-                   label_side = "outside",
+                   label_side = "outer",
                    filename   = "circle_lollipop.pdf",
                    width = 12, height = 12)
 }
