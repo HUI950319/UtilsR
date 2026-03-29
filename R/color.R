@@ -35,7 +35,10 @@ as_palette <- function(x) {
   if (!is.character(x)) {
     cli::cli_abort("{.arg x} must be a character vector of colours, got {.cls {class(x)}}.")
   }
-  as.character(x)
+  nms <- names(x)
+  out <- as.character(x)
+  if (!is.null(nms)) names(out) <- nms
+  out
 }
 
 # -- vctrs compatibility (ggplot2 uses vctrs internally) ----------------------
@@ -61,6 +64,38 @@ pal_lancet <- as_palette(c(
   "#00468BFF", "#ED0000FF", "#42B540FF", "#0099B4FF", "#925E9FFF",
   "#FDAF91FF", "#AD002AFF", "#ADB6B6FF", "#1B1919FF", "#79AF97FF",
   "#DF8F44FF", "#6A6599FF", "#FCCDE5FF", "#80B1D3FF", "#0000FFFF"
+))
+
+#' Parathyroid Single-Cell Colour Palette
+#'
+#' A 16-colour named palette for parathyroid single-cell atlas cell types,
+#' including immune, stromal, and endothelial lineages.
+#'
+#' @format A named character vector of 16 hex colour codes.
+#'
+#' @examples
+#' pal_paraSC
+#' show_color(pal_paraSC)
+#'
+#' @export
+#' @family colour palettes
+pal_paraSC <- as_palette(c(
+  "Parathyroid cells"      = "#8B1A1A",
+  "T cells"                = "#56B4E9FF",
+  "Cycling T cells"        = "#8B5E3C",
+  "NK cells"               = "#2E8B45",
+  "B cells"                = "#1A7B7B",
+  "Monocytes"              = "#7B68AA",
+  "M1-like Macrophages"    = "#D4919A",
+  "M2/M3-like Macrophages" = "#F0C8A0",
+  "Neutrophils"            = "#C0C0C0",
+  "cDC2s"                  = "#282828",
+  "Mast cells"             = "#F0E442FF",
+  "iTAFs"                  = "#9AB83C",
+  "mTAFs"                  = "#E07B1A",
+  "Pericytes"              = "#6B3FA0",
+  "Capillary ECs"          = "#D4C8E8",
+  "Venous ECs"             = "#8AAAC8"
 ))
 
 #' Additional Built-in Colour Palettes
@@ -303,14 +338,23 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   as_palette(as.character(out))
 }
 
-#' Visualise Palettes
+#' Visualise Palettes or Colour Vectors
 #'
 #' Display palettes as horizontal colour bars (ggplot) or an interactive
 #' gt table with colour swatches. Use \code{output = "gg"} for the Plots
 #' pane or \code{output = "gt"} for the Viewer pane.
 #'
-#' @param palette Character vector of palette names, or \code{NULL} to show
-#'   all palettes matching \code{pattern}/\code{type}.
+#' When \code{palette} is a character vector of valid colour specifications
+#' (hex codes like \code{"#FF0000"} or named R colours like \code{"red"})
+#' rather than palette names, the function automatically switches to
+#' \strong{colour vector mode}: it displays the colours directly as a
+#' single-row colour bar (ggplot) with hex labels, similar to
+#' \code{show_color()} but as a publication-ready plot.
+#'
+#' @param palette Character vector of palette names (e.g. \code{"lancet"}),
+#'   a colour vector (hex codes or named colours), or \code{NULL} to show
+#'   all palettes matching \code{pattern}/\code{type}. Named colour vectors
+#'   (e.g. \code{pal_paraSC}) will use the names as labels.
 #' @param pattern Regex pattern to filter palette names (e.g. \code{"^nord"}).
 #' @param type Filter by type: \code{"all"}, \code{"discrete"}, or
 #'   \code{"continuous"}.
@@ -318,6 +362,13 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #' @param index Integer vector of palette indices to show (after filtering).
 #' @param output Output format: \code{"gg"} (default) for ggplot or
 #'   \code{"gt"} for gt table.
+#' @param label Logical. In colour vector mode, whether to show hex/name
+#'   labels on tiles. Default \code{TRUE}.
+#' @param label_size Numeric. Text size for labels in colour vector mode.
+#'   Default 3.
+#' @param ncol Integer. Number of columns for colour vector mode when
+#'   displaying many colours. Default \code{NULL} (auto: single row if
+#'   \eqn{\le 20}{<= 20} colours, otherwise wrap).
 #'
 #' @return A ggplot or gt object (also prints).
 #'
@@ -342,6 +393,17 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #' pal_show(c("lancet", "ditto", "polychrome", "igv"), output = "gg")
 #' pal_show(pattern = "^viridis|^magma|^plasma", output = "gg")
 #'
+#' # --- Colour vector mode ---
+#' # Show a named colour vector (e.g. pal_paraSC)
+#' pal_show(pal_paraSC)
+#'
+#' # Show any colour vector
+#' pal_show(c("#FF0000", "#00FF00", "#0000FF"))
+#' pal_show(rainbow(12))
+#'
+#' # Without labels
+#' pal_show(pal_lancet, label = FALSE)
+#'
 #' # Browse all palettes from a source
 #' pal_show(pattern = "^dichromat")
 #' pal_show(pattern = "^pals")
@@ -351,9 +413,24 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 pal_show <- function(palette = NULL, pattern = NULL,
                      type = c("all", "discrete", "continuous"),
                      max_colors = 20, index = NULL,
-                     output = c("gt", "gg")) {
+                     output = c("gt", "gg"),
+                     label = TRUE, label_size = 3, ncol = NULL) {
   type <- match.arg(type)
   output <- match.arg(output)
+
+  # --- Detect colour vector mode ---
+  # If palette is a character vector and looks like colours (not palette names),
+
+  # switch to colour vector display mode.
+  if (!is.null(palette) && is.character(palette) && length(palette) > 0) {
+    is_color_vec <- .is_color_vector(palette)
+    if (is_color_vec) {
+      return(.pal_show_colors(palette, label = label,
+                              label_size = label_size, ncol = ncol,
+                              output = output, max_colors = max_colors))
+    }
+  }
+
   pals <- palette_list
 
   # --- Filter palettes ---
@@ -450,6 +527,169 @@ pal_show <- function(palette = NULL, pattern = NULL,
       type ~ gt::px(80),
       n_colors ~ gt::px(40),
       preview ~ gt::px(400)
+    )
+
+  print(tbl)
+  invisible(tbl)
+}
+
+# ------------- Internal helpers for pal_show colour vector mode ---------------
+
+#' Check if a character vector looks like colours (not palette names)
+#' @keywords internal
+#' @noRd
+.is_color_vector <- function(x) {
+  if (length(x) == 0) return(FALSE)
+  # Check: are these valid R colours? (hex codes or named colours)
+  # First check if ANY of them are palette names
+  n_palette_match <- sum(x %in% names(palette_list))
+  # If most entries match palette names, treat as palette name mode
+  if (n_palette_match > length(x) / 2) return(FALSE)
+  # Try to parse as colours
+  valid <- vapply(x, function(cc) {
+    tryCatch({
+      grDevices::col2rgb(cc)
+      TRUE
+    }, error = function(e) FALSE)
+  }, logical(1), USE.NAMES = FALSE)
+  # If all are valid colours and none are palette names, it's a colour vector
+  all(valid) && n_palette_match == 0
+}
+
+#' Display a colour vector as ggplot or gt (internal)
+#' @keywords internal
+#' @noRd
+.pal_show_colors <- function(colors, label = TRUE, label_size = 3,
+                             ncol = NULL, output = "gg",
+                             max_colors = 50) {
+  n <- length(colors)
+  # Truncate if too many
+  if (n > max_colors) {
+    cli::cli_inform("Showing first {max_colors} of {n} colours.")
+    colors <- colors[seq_len(max_colors)]
+    n <- max_colors
+  }
+
+  # Get labels: use names if available, otherwise hex codes
+  color_names <- names(colors)
+  hex <- vapply(colors, function(cc) {
+    rgb_mat <- grDevices::col2rgb(cc)
+    grDevices::rgb(rgb_mat[1], rgb_mat[2], rgb_mat[3], maxColorValue = 255)
+  }, character(1), USE.NAMES = FALSE)
+
+  if (!is.null(color_names) && all(nzchar(color_names))) {
+    labels <- color_names
+  } else {
+    labels <- hex
+  }
+
+  # Compute luminance for text contrast
+  .luminance <- function(hex_col) {
+    r <- strtoi(substr(hex_col, 2, 3), 16L) / 255
+    g <- strtoi(substr(hex_col, 4, 5), 16L) / 255
+    b <- strtoi(substr(hex_col, 6, 7), 16L) / 255
+    lin <- function(v) ifelse(v <= 0.03928, v / 12.92, ((v + 0.055) / 1.055)^2.4)
+    0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b)
+  }
+  fg_colors <- ifelse(vapply(hex, .luminance, numeric(1)) > 0.179,
+                       "#000000", "#FFFFFF")
+
+  # --- ggplot output ---
+  if (output == "gg") {
+    # Determine grid layout
+    if (is.null(ncol)) {
+      ncol <- if (n <= 20) n else ceiling(sqrt(n * 2))
+    }
+    nrow <- ceiling(n / ncol)
+
+    plot_data <- data.frame(
+      color = as.character(colors),
+      hex = hex,
+      label = labels,
+      fg = fg_colors,
+      col_idx = ((seq_len(n) - 1) %% ncol) + 1,
+      row_idx = -((seq_len(n) - 1) %/% ncol),
+      stringsAsFactors = FALSE
+    )
+
+    p <- ggplot2::ggplot(plot_data, ggplot2::aes(
+      x = .data[["col_idx"]], y = .data[["row_idx"]])) +
+      ggplot2::geom_tile(ggplot2::aes(fill = I(.data[["hex"]])),
+                         width = 0.95, height = 0.85,
+                         color = "grey80", linewidth = 0.3) +
+      ggplot2::scale_x_continuous(
+        expand = ggplot2::expansion(mult = 0.02)) +
+      ggplot2::scale_y_continuous(
+        expand = ggplot2::expansion(mult = 0.05)) +
+      ggplot2::labs(x = NULL, y = NULL,
+                    title = sprintf("%d colours", n)) +
+      ggplot2::theme_void(base_size = 10) +
+      ggplot2::theme(
+        plot.title = ggplot2::element_text(hjust = 0.5, size = 12,
+                                           margin = ggplot2::margin(b = 8)),
+        plot.margin = ggplot2::margin(10, 10, 10, 10)
+      )
+
+    if (label) {
+      # Show name/hex on top, hex on bottom (if named)
+      if (!is.null(color_names) && all(nzchar(color_names))) {
+        p <- p +
+          ggplot2::geom_text(ggplot2::aes(label = .data[["label"]]),
+                             color = fg_colors, size = label_size,
+                             fontface = "bold", vjust = -0.3) +
+          ggplot2::geom_text(ggplot2::aes(label = .data[["hex"]]),
+                             color = fg_colors, size = label_size * 0.75,
+                             vjust = 1.2)
+      } else {
+        p <- p +
+          ggplot2::geom_text(ggplot2::aes(label = .data[["label"]]),
+                             color = fg_colors, size = label_size,
+                             fontface = "bold")
+      }
+    }
+
+    print(p)
+    return(invisible(p))
+  }
+
+  # --- gt table output ---
+  tbl_data <- data.frame(
+    index = seq_len(n),
+    name = labels,
+    hex = hex,
+    preview = vapply(hex, function(h) {
+      fg <- if (.luminance(h) > 0.179) "#000000" else "#FFFFFF"
+      sprintf('<span style="background:%s;color:%s;padding:2px 10px;border-radius:3px;font-weight:bold;">%s</span>',
+              h, fg, h)
+    }, character(1), USE.NAMES = FALSE),
+    stringsAsFactors = FALSE
+  )
+
+  # If no names, drop the name column
+  if (is.null(color_names) || !all(nzchar(color_names))) {
+    tbl_data$name <- NULL
+    tbl <- gt::gt(tbl_data) %>%
+      gt::cols_label(index = "#", hex = "Hex", preview = "Preview")
+  } else {
+    tbl <- gt::gt(tbl_data) %>%
+      gt::cols_label(index = "#", name = "Name", hex = "Hex", preview = "Preview")
+  }
+
+  tbl <- tbl %>%
+    gt::fmt_markdown(columns = "preview") %>%
+    gt::tab_header(title = gt::md(sprintf("**%d Colours**", n))) %>%
+    gt::tab_style(
+      style = gt::cell_text(weight = "bold"),
+      locations = gt::cells_column_labels()
+    ) %>%
+    gt::tab_style(
+      style = gt::cell_fill(color = "#E8F4FD"),
+      locations = gt::cells_column_labels()
+    ) %>%
+    gt::tab_options(
+      table.font.size = gt::px(13),
+      data_row.padding = gt::px(3),
+      column_labels.padding = gt::px(6)
     )
 
   print(tbl)

@@ -190,15 +190,27 @@ fmt_tag <- function(plot,
 #' across a multi-plot patchwork.
 #'
 #' @param plot A ggplot, patchwork, or list of ggplot objects.
-#' @param legend.position Legend position. Either a character string
-#'   (`"top"`, `"bottom"`, `"left"`, `"right"`, `"none"`) or a numeric vector
-#'   of length 2 for coordinates inside the plot. Default `NULL` (no change).
+#' @param legend.position Legend position. Accepts:
+#'   \itemize{
+#'     \item Character: `"top"`, `"bottom"`, `"left"`, `"right"`, `"none"`.
+#'     \item Shorthand corner codes: `"br"`, `"bl"`, `"tr"`, `"tl"` (inside
+#'       plot corners).
+#'     \item Numeric vector of length 2: `c(x, y)` coordinates (0-1) for
+#'       inside-plot positioning.
+#'   }
+#'   Default `NULL` (no change).
 #' @param legend.direction `"horizontal"` or `"vertical"`. Default `NULL`.
 #' @param merge_legends Logical. If `TRUE` and input has multiple plots,
 #'   collect legends into a single shared legend via patchwork. Default `FALSE`.
-#' @param ncol Number of columns in the legend layout.
-#' @param nrow Number of rows in the legend layout.
-#' @param ... Additional arguments passed to [ggplot2::theme()].
+#' @param legend_theme A ggplot2 theme object for legend styling, e.g.,
+#'   [theme_legend1()]. Applied after position/direction settings so it can
+#'   override them. Default `NULL` (no extra styling).
+#' @param ncol Number of columns in the legend layout (passed to
+#'   [ggplot2::guide_legend()]).
+#' @param nrow Number of rows in the legend layout (passed to
+#'   [ggplot2::guide_legend()]).
+#' @param ... Additional arguments passed to [ggplot2::theme()], e.g.,
+#'   `legend.text`, `legend.key.size`, `legend.background`.
 #'
 #' @return Same type as input.
 #'
@@ -208,12 +220,16 @@ fmt_tag <- function(plot,
 #'
 #' fmt_legend(p, legend.position = "bottom", legend.direction = "horizontal")
 #' fmt_legend(p, legend.position = "none")
+#' fmt_legend(p, legend.position = "br")
+#' fmt_legend(p, legend.position = c(0.9, 0.2))
+#' fmt_legend(p, legend.position = "br", legend_theme = theme_legend1())
 #'
 #' @export
 #' @family plot formatting
 fmt_legend <- function(plot,
                        legend.position = NULL,
                        legend.direction = NULL,
+                       legend_theme = NULL,
                        merge_legends = FALSE,
                        ncol = NULL,
                        nrow = NULL,
@@ -228,61 +244,76 @@ fmt_legend <- function(plot,
     legend.direction <- NULL
   }
 
-  # Build justification from character position
+  # ---- Resolve corner shorthand to numeric coordinates ----
+  corner_map <- list(
+    br = c(0.95, 0.05), bl = c(0.05, 0.05),
+    tr = c(0.95, 0.95), tl = c(0.05, 0.95)
+  )
+  if (is.character(legend.position) && legend.position %in% names(corner_map)) {
+    legend.position <- corner_map[[legend.position]]
+  }
 
-  legend.justification <- "center"
-  if (is.character(legend.position)) {
+  # ---- Build justification ----
+  legend.justification <- NULL
+  if (is.numeric(legend.position) && length(legend.position) == 2) {
+    # Inside-plot: anchor the nearest corner
+    just_x <- ifelse(legend.position[1] > 0.5, 1, 0)
+    just_y <- ifelse(legend.position[2] > 0.5, 1, 0)
+    legend.justification <- c(just_x, just_y)
+  } else if (is.character(legend.position)) {
     legend.justification <- switch(legend.position,
       "top"    = c(0.5, 0),
       "bottom" = c(0.5, 1),
       "left"   = c(1, 0.5),
       "right"  = c(0, 0.5),
-      "none"   = c(0, 0),
-      "center"
+      NULL     # "none" or unknown: don't set justification
     )
   }
 
-  # Build theme
+  # ---- Build theme ----
   theme_args <- list(...)
   if (!is.null(legend.position))
     theme_args$legend.position <- legend.position
   if (!is.null(legend.direction))
     theme_args$legend.direction <- legend.direction
-  theme_args$legend.justification <- legend.justification
+  if (!is.null(legend.justification))
+    theme_args$legend.justification <- legend.justification
 
-  legend_theme <- do.call(ggplot2::theme, theme_args)
+  leg_theme <- do.call(ggplot2::theme, theme_args)
 
-  # Guide layout
+  # Append legend_theme (e.g., theme_legend1()) — overrides conflicting keys
+  if (!is.null(legend_theme) && inherits(legend_theme, "theme")) {
+    leg_theme <- leg_theme + legend_theme
+  }
+
+  # ---- Guide layout (ncol/nrow) ----
   guide_args <- list()
   if (!is.null(ncol) && is.numeric(ncol)) guide_args$ncol <- ncol
   if (!is.null(nrow) && is.numeric(nrow)) guide_args$nrow <- nrow
 
+  legend_guides <- NULL
   if (length(guide_args) > 0) {
     guide_obj <- do.call(ggplot2::guide_legend, guide_args)
+    # Apply to all common legend aesthetics
     legend_guides <- ggplot2::guides(
-      fill = guide_obj, color = guide_obj, shape = guide_obj
+      fill = guide_obj, colour = guide_obj,
+      shape = guide_obj, size = guide_obj, alpha = guide_obj,
+      linetype = guide_obj
     )
-  } else {
-    legend_guides <- NULL
   }
 
-  # Merge legends mode for patchwork
-
+  # ---- Merge legends mode for patchwork ----
   if (merge_legends && n > 1L && info$is_patchwork) {
-    for (i in seq_len(n)) {
-      plots[[i]] <- plots[[i]] + ggplot2::theme(legend.position = "none")
-    }
-    combined <- patchwork::wrap_plots(plots) +
-      patchwork::plot_layout(guides = "collect")
-    combined <- combined & legend_theme
+    # Preserve original patchwork layout
+    combined <- plot + patchwork::plot_layout(guides = "collect")
+    combined <- combined & leg_theme
     if (!is.null(legend_guides)) combined <- combined & legend_guides
     return(combined)
   }
 
-  # Normal mode: apply to each plot
-
+  # ---- Normal mode: apply to each plot ----
   for (i in seq_len(n)) {
-    plots[[i]] <- plots[[i]] + legend_theme
+    plots[[i]] <- plots[[i]] + leg_theme
     if (!is.null(legend_guides)) plots[[i]] <- plots[[i]] + legend_guides
   }
 
