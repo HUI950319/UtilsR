@@ -29,8 +29,8 @@ jobs:
           needs: website
 
       - name: Install package
-        run: devtools::install(build_vignettes = FALSE, upgrade = "never")
-        shell: Rscript {0}
+        run: R CMD INSTALL --no-build-vignettes .
+        shell: bash
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
