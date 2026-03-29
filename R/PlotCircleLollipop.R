@@ -282,19 +282,36 @@ PlotCircleLollipop <- function(
       )
     }
 
-    # ---- Draw tracks: order determines where labels end up ----
-    if (label_side == "outside") {
-      # Lollipop outermost → circos.genomicLabels(side="outside") goes beyond circle
-      .draw_lollipop_track()
-      .draw_sector_track()
-    } else {
-      # Sector outermost (default) → labels appear between sector ring and lollipop
-      .draw_sector_track()
-      .draw_lollipop_track()
+    # ---- Draw tracks + labels in the right interleaved order ----
+    #
+    # circos.genomicLabels(side = "outside") places labels outside whichever
+    # track was drawn most recently.  By calling it at different points in the
+    # draw sequence we can put labels in two places:
+    #
+    #   "inside"  – called AFTER both tracks → labels between sector ring and
+    #               lollipop track (default, works well with few features)
+    #   "outside" – called AFTER sector track but BEFORE lollipop track →
+    #               labels appear outside the sector ring (beyond the circle
+    #               boundary), sector grey boxes remain the outermost ring
+    #
+    .draw_sector_track()
+
+    if (show_labels && label_side == "outside") {
+      circlize::circos.genomicLabels(
+        label_data,
+        labels.column     = 4,
+        facing            = "reverse.clockwise",
+        side              = "outside",
+        cex               = label_cex,
+        col               = label_data$color,
+        connection_height = circlize::convert_height(label_height, "mm"),
+        line_lwd          = 0.5
+      )
     }
 
-    # ---- Feature labels ----
-    if (show_labels) {
+    .draw_lollipop_track()
+
+    if (show_labels && label_side == "inside") {
       circlize::circos.genomicLabels(
         label_data,
         labels.column     = 4,
