@@ -13,6 +13,7 @@ PlotRank(
   group_levels = NULL,
   top_n = 5L,
   max_show = 200L,
+  value_scale = c("none", "group", "top_n"),
   highlight_color = "#007D9B",
   base_color = "#BECEE3",
   label_size = 4,
@@ -61,6 +62,18 @@ per group. Default \code{5}.}
 
 \item{max_show}{Integer. Maximum features to display per panel.
 Default \code{200}.}
+
+\item{value_scale}{Per-group score scaling strategy. Three options:
+\describe{
+  \item{\code{"none"} (default)}{No scaling; raw scores are plotted as-is.}
+  \item{\code{"group"}}{Scale each group independently to \code{[0, 1]}
+    using the group's full value range from the \strong{original} data
+    (before \code{max_show} truncation). Useful when absolute score
+    magnitudes differ greatly across groups.}
+  \item{\code{"top_n"}}{Scale each group to \code{[0, 1]} using only the
+    displayed (post-\code{max_show}) values. Stretches the visible range
+    within each panel to maximise visual separation.}
+}}
 
 \item{highlight_color}{Colour for top-ranked points.
 Default \code{"#007D9B"}.}
@@ -111,26 +124,24 @@ importance scores) but works with any named score data.
 }
 \examples{
 \dontrun{
-# 1) DNN per-class gene importance (data.frame, faceted)
-PlotRank(pred$imp_per_class, top_n = 10, ncol = 4)
+library(ToyData)
+data(Toy_gene_importance)
 
-# 2) Single group from per-class data
-PlotRank(pred$imp_per_class, groups = "Parathyroid cells", top_n = 15)
+# Faceted rank scatter (all cell types)
+PlotRank(Toy_gene_importance, top_n = 10, ncol = 4, ylab = "Gene Importance (IG)")
 
-# 3) Global gene importance (data.frame, single panel)
-PlotRank(pred$imp_global, name_col = "gene", value_col = "importance",
-         top_n = 20, ylab = "Global IG Importance")
+# Single cell type
+PlotRank(Toy_gene_importance, groups = "Parathyroid cells", top_n = 15)
 
-# 4) Pathway scores matrix
+# With value scaling
+PlotRank(Toy_gene_importance, top_n = 10, value_scale = "group")
+
+# Pathway scores matrix
 PlotRank(pred$pathway_scores, top_n = 10, ylab = "Pathway Score")
 
-# 5) Named numeric vector
+# Named numeric vector
 scores <- setNames(runif(100), paste0("Gene", 1:100))
 PlotRank(scores, top_n = 10)
-
-# 6) Save to file
-PlotRank(pred$imp_per_class, top_n = 10,
-         filename = "rank_scatter.pdf", width = 16, height = 12)
 }
 
 }

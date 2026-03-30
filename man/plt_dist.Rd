@@ -79,6 +79,9 @@ plt_dist(df, vars = c("stage", "sex"), alpha = 0.5, base_size = 12)
 }
 \seealso{
 Other plot: 
+\code{\link{PlotButterfly}()},
+\code{\link{PlotButterfly2}()},
+\code{\link{PlotRankCor}()},
 \code{\link{plt_cat}()},
 \code{\link{plt_cohen}()},
 \code{\link{plt_con}()},

@@ -76,6 +76,9 @@ plt_cohen(res2, facet = TRUE, palette = "Set2")
 }
 \seealso{
 Other plot: 
+\code{\link{PlotButterfly}()},
+\code{\link{PlotButterfly2}()},
+\code{\link{PlotRankCor}()},
 \code{\link{plt_cat}()},
 \code{\link{plt_con}()},
 \code{\link{plt_dist}()},

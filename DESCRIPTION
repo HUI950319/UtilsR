@@ -1,7 +1,7 @@
 Package: UtilsR
 Type: Package
 Title: Utility Functions for Data Exploration and System Diagnostics
-Version: 0.4.0
+Version: 0.5.0
 Authors@R: person("Hui", "Ouyang", email = "ouyangyuhao@outlook.com",
                   role = c("aut", "cre"))
 Description: A collection of utility functions for interactive data exploration,
@@ -52,6 +52,9 @@ Collate:
     'PlotHeatmapJaccard.R'
     'PlotRank.R'
     'PlotCircleLollipop.R'
+    'PlotButterfly.R'
+    'PlotButterfly2.R'
+    'PlotRankCor.R'
     'UtilsR-package.R'
 Imports:
     cli,

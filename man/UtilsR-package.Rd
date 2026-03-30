@@ -19,7 +19,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Yuhao Ouyang \email{ouyangyuhao@outlook.com}
+\strong{Maintainer}: Hui Ouyang \email{ouyangyuhao@outlook.com}
 
 }
 \keyword{internal}

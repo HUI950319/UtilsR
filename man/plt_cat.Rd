@@ -260,6 +260,9 @@ plt_cat(df, c("Type","Group"), type = "upset", stat_level = c("A","X"))
 }
 \seealso{
 Other plot: 
+\code{\link{PlotButterfly}()},
+\code{\link{PlotButterfly2}()},
+\code{\link{PlotRankCor}()},
 \code{\link{plt_cohen}()},
 \code{\link{plt_con}()},
 \code{\link{plt_dist}()},

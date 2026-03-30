@@ -25,6 +25,9 @@ reference:
       - PlotHeatmapJaccard
       - PlotRank
       - PlotCircleLollipop
+      - PlotButterfly
+      - PlotButterfly2
+      - PlotRankCor
 
   - title: Plot Functions
     desc: High-level plotting functions for categorical data visualization.

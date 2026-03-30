@@ -205,7 +205,11 @@ builtin <- list(
   d3 = c("#1F77B4","#FF7F0E","#2CA02C","#D62728","#9467BD","#8C564B",
          "#E377C2","#7F7F7F","#BCBD22","#17BECF","#AEC7E8","#FFBB78",
          "#98DF8A","#FF9896","#C5B0D5","#C49C94","#F7B6D2","#C7C7C7",
-         "#DBDB8D","#9EDAE5")
+         "#DBDB8D","#9EDAE5"),
+  paraSC = c("#8B1A1A","#56B4E9FF","#8B5E3C","#2E8B45","#1A7B7B",
+             "#7B68AA","#D4919A","#F0C8A0","#C0C0C0","#282828",
+             "#F0E442FF","#9AB83C","#E07B1A","#6B3FA0","#D4C8E8",
+             "#8AAAC8")
 )
 for (nm in names(builtin)) {
   attr(builtin[[nm]], "type") <- "discrete"
