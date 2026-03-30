@@ -133,23 +133,20 @@ Depends on `return_type`:
 ## Examples
 
 ``` r
-set.seed(42)
-df <- data.frame(
-  cell_type = rep(c("TypeA", "TypeB", "TypeC"), each = 20),
-  gene = c(
-    sample(paste0("g", 1:30), 20),
-    sample(paste0("g", 10:40), 20),
-    sample(paste0("g", 20:50), 20)
-  )
-)
-# Basic heatmap
-res <- PlotHeatmapJaccard(df, group_col = "cell_type", name_col = "gene")
-res$plot
-#> NULL
+if (FALSE) { # \dontrun{
+library(ToyData)
+data(Toy_gene_importance)
+
+# Basic Jaccard heatmap
+PlotHeatmapJaccard(Toy_gene_importance, name_col = "gene")
 
 # With coloured axis strips
-res2 <- PlotHeatmapJaccard(df, group_col = "cell_type", name_col = "gene",
-                            show_strip = TRUE)
-res2$plot
-#> NULL
+PlotHeatmapJaccard(Toy_gene_importance, name_col = "gene", show_strip = TRUE)
+
+# Custom title and return matrix
+res <- PlotHeatmapJaccard(Toy_gene_importance, name_col = "gene",
+                           title = "Gene Importance Jaccard",
+                           return_type = "both")
+res$matrix
+} # }
 ```

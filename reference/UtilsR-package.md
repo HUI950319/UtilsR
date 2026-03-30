@@ -18,4 +18,4 @@ Useful links:
 
 ## Author
 
-**Maintainer**: Yuhao Ouyang <ouyangyuhao@outlook.com>
+**Maintainer**: Hui Ouyang <ouyangyuhao@outlook.com>

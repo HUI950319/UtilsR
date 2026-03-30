@@ -1,8 +1,7 @@
 # Unified Factor Manipulation
 
 One function for all factor operations. Works on vectors (usable in
-[`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html)) and
-auto-detects the action from arguments.
+`mutate()`) and auto-detects the action from arguments.
 
 ## Usage
 
@@ -50,9 +49,8 @@ fct_cat(
 
 - combine:
 
-  Character vector of column names to combine. Works inside
-  [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html). If
-  `x` is provided, it is combined with the listed columns. If `x` is
+  Character vector of column names to combine. Works inside `mutate()`.
+  If `x` is provided, it is combined with the listed columns. If `x` is
   missing, all listed columns are combined.
 
 - sep:

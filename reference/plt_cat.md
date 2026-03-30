@@ -235,6 +235,9 @@ Set types require additional packages:
 ## See also
 
 Other plot:
+[`PlotButterfly()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly.md),
+[`PlotButterfly2()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly2.md),
+[`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md),
 [`plt_cohen()`](https://hui950319.github.io/UtilsR/reference/plt_cohen.md),
 [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md),
 [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md),

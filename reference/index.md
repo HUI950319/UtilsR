@@ -18,6 +18,12 @@ Publication-ready scatter, heatmap and circular plots.
   : Rank Scatter Plot
 - [`PlotCircleLollipop()`](https://hui950319.github.io/UtilsR/reference/PlotCircleLollipop.md)
   : Circular Lollipop Chart
+- [`PlotButterfly()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly.md)
+  : Butterfly Chart (Back-to-Back Symmetric Plot)
+- [`PlotButterfly2()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly2.md)
+  : Butterfly Plot from Long-Format Data
+- [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+  : Rank Correlation Scatter Plot
 
 ## Plot Functions
 

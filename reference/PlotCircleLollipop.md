@@ -230,32 +230,21 @@ PlotCircleLollipop(
 ``` r
 if (FALSE) { # \dontrun{
 library(ToyData)
-library(dplyr)
+data(Toy_gene_importance)
 
-# Prepare top-10 genes per cell type
-polar_df <- gene_pc |>
-  group_by(cell_type) |>
-  slice_max(importance, n = 10) |>
-  transmute(group = cell_type, name = gene, value = importance) |>
-  as.data.frame()
+# Basic circular lollipop (top 5 genes per cell type)
+PlotCircleLollipop(Toy_gene_importance,
+  group_col = "cell_type", name_col = "gene", value_col = "importance",
+  top_n = 5, yaxis_label = "Gene Importance (IG)")
 
-# Default: labels in the narrow band between sector ring and lollipop
-PlotCircleLollipop(polar_df, yaxis_label = "Gene Importance (IG)")
-
-# Lancet-style: labels inside the grey sector boxes (5-10 genes/group)
-PlotCircleLollipop(polar_df, top_n = 5,
-                   label_side = "outside",
-                   yaxis_label = "Gene Importance (IG)")
-
-# Labels beyond the grey sector boxes (recommended for many genes/groups)
-PlotCircleLollipop(polar_df, top_n = 10,
-                   label_side = "outer",
-                   yaxis_label = "Gene Importance (IG)")
+# Adjust inner circle and label size
+PlotCircleLollipop(Toy_gene_importance,
+  group_col = "cell_type", name_col = "gene", value_col = "importance",
+  top_n = 5, track_height = 0.25, label_cex = 0.45, label_height = 7)
 
 # Save to PDF
-PlotCircleLollipop(polar_df,
-                   label_side = "outer",
-                   filename   = "circle_lollipop.pdf",
-                   width = 12, height = 12)
+PlotCircleLollipop(Toy_gene_importance,
+  group_col = "cell_type", name_col = "gene", value_col = "importance",
+  top_n = 10, filename = "circle_lollipop.pdf", width = 14, height = 14)
 } # }
 ```

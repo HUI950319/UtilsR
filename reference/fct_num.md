@@ -1,8 +1,7 @@
 # Convert Numeric to Factor
 
 Cut a numeric vector into factor groups. Works on vectors (usable in
-[`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html)).
-Supports fixed cut points or automatic binning.
+`mutate()`). Supports fixed cut points or automatic binning.
 
 ## Usage
 
