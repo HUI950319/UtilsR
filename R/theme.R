@@ -333,7 +333,7 @@ theme_legend1 <- function() {
     legend.key = ggplot2::element_rect(fill = "white", colour = "grey", linewidth = 0.8),
     legend.key.size = grid::unit(1, "lines"),
     legend.text = ggplot2::element_text(size = 8),
-    legend.title = ggplot2::element_blank(),
+    legend.title = ggplot2::element_text(size = 9, face = "bold"),
     legend.box.spacing = grid::unit(0.2, "cm")
   )
 }

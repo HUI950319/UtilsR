@@ -53,12 +53,15 @@ fmt_tag(list(p1, p2), labels = c("i", "ii"))
 \seealso{
 Other plot formatting: 
 \code{\link{fmt_axis}()},
+\code{\link{fmt_axisText}()},
+\code{\link{fmt_axisTile}()},
 \code{\link{fmt_bg}()},
 \code{\link{fmt_boxplot}()},
 \code{\link{fmt_com}()},
 \code{\link{fmt_expand}()},
 \code{\link{fmt_his}()},
 \code{\link{fmt_legend}()},
+\code{\link{fmt_panel}()},
 \code{\link{fmt_plot}()},
 \code{\link{fmt_point}()},
 \code{\link{fmt_ref}()},

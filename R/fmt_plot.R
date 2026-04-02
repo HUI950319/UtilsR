@@ -1,5 +1,5 @@
 # Plot formatting functions
-# fmt_axis, fmt_tag, fmt_legend, fmt_ref, fmt_plot
+# fmt_axis, fmt_tag, fmt_legend, fmt_ref, fmt_plot, fmt_panel
 
 # ---- fmt_axis ----
 
@@ -577,6 +577,492 @@ fmt_strip <- function(plot, label = NULL, label_color = "white", label_fill = NU
   }
 
   .from_plot_list(plots, info$is_patchwork, info$is_single)
+}
+
+# ---- fmt_panel ----
+
+#' Format panel appearance
+#'
+#' Control panel grid lines, border, and background in one call.
+#' Inspired by Seurat's \code{NoGrid()} but with fine-grained control
+#' over each panel element.
+#'
+#' @param plot A ggplot, patchwork, or list of ggplot objects.
+#' @param grid Which grid lines to display.
+#'   \itemize{
+#'     \item \code{"none"} — remove all grid lines (default).
+#'     \item \code{"major"} — show only major grid lines.
+#'     \item \code{"minor"} — show only minor grid lines.
+#'     \item \code{"both"} — show both major and minor grid lines.
+#'     \item \code{"x"} — show only vertical (x-axis) major grid lines.
+#'     \item \code{"y"} — show only horizontal (y-axis) major grid lines.
+#'   }
+#' @param grid_color Color of retained grid lines. Default \code{NULL}
+#'   (inherit from current theme).
+#' @param grid_linewidth Numeric. Line width of retained grid lines.
+#'   Default \code{NULL} (inherit from current theme).
+#' @param grid_linetype Linetype of retained grid lines (e.g.
+#'   \code{"solid"}, \code{"dashed"}, \code{"dotted"}).
+#'   Default \code{NULL} (inherit from current theme).
+#' @param border Logical or character.
+#'   \itemize{
+#'     \item \code{TRUE} — draw a black rectangle border around the panel.
+#'     \item \code{FALSE} — remove the panel border.
+#'     \item A color string (e.g. \code{"grey50"}) — draw border in that color.
+#'     \item \code{NULL} (default) — no change.
+#'   }
+#' @param border_linewidth Numeric. Border line width. Default 0.5.
+#' @param bg Panel background color. \code{NULL} (default) = no change,
+#'   \code{"white"}, \code{"transparent"}, or any valid color string.
+#' @param ... Additional arguments passed to [ggplot2::theme()].
+#'
+#' @return Same type as input.
+#'
+#' @examples
+#' library(ggplot2)
+#' p <- ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) +
+#'   geom_point()
+#'
+#' # Remove all grid lines (most common usage, like Seurat::NoGrid())
+#' fmt_panel(p)
+#'
+#' # Keep only major grid lines
+#' fmt_panel(p, grid = "major")
+#'
+#' # Keep only horizontal (y-axis) grid lines
+#' fmt_panel(p, grid = "y")
+#'
+#' # Add border + white background + no grid
+#' fmt_panel(p, grid = "none", border = TRUE, bg = "white")
+#'
+#' # Custom border color
+#' fmt_panel(p, border = "grey40", border_linewidth = 1)
+#'
+#' # Dashed grey grid lines
+#' fmt_panel(p, grid = "major", grid_color = "grey80",
+#'           grid_linewidth = 0.3, grid_linetype = "dashed")
+#'
+#' # Dotted y-axis grid only
+#' fmt_panel(p, grid = "y", grid_linetype = "dotted", grid_color = "grey70")
+#'
+#' @export
+#' @family plot formatting
+fmt_panel <- function(plot,
+                      grid = c("none", "major", "minor", "both", "x", "y"),
+                      grid_color = NULL,
+                      grid_linewidth = NULL,
+                      grid_linetype = NULL,
+                      border = NULL,
+                      border_linewidth = 0.5,
+                      bg = NULL,
+                      ...) {
+  grid <- match.arg(grid)
+  blank <- ggplot2::element_blank()
+
+  # ---- Helper: build element_line for retained grid lines ----
+  grid_line <- function() {
+    args <- list()
+    if (!is.null(grid_color))     args$colour   <- grid_color
+    if (!is.null(grid_linewidth)) args$linewidth <- grid_linewidth
+    if (!is.null(grid_linetype))  args$linetype  <- grid_linetype
+    if (length(args) == 0L) return(NULL)
+    do.call(ggplot2::element_line, args)
+  }
+  gl <- grid_line()
+
+  # ---- Build grid theme ----
+  grid_theme <- switch(grid,
+    "none" = ggplot2::theme(
+      panel.grid.major = blank,
+      panel.grid.minor = blank
+    ),
+    "major" = {
+      th <- ggplot2::theme(panel.grid.minor = blank)
+      if (!is.null(gl)) th <- th + ggplot2::theme(panel.grid.major = gl)
+      th
+    },
+    "minor" = {
+      th <- ggplot2::theme(panel.grid.major = blank)
+      if (!is.null(gl)) th <- th + ggplot2::theme(panel.grid.minor = gl)
+      th
+    },
+    "both" = {
+      if (!is.null(gl)) ggplot2::theme(panel.grid.major = gl, panel.grid.minor = gl)
+      else ggplot2::theme()
+    },
+    "x" = {
+      th <- ggplot2::theme(panel.grid.major.y = blank, panel.grid.minor = blank)
+      if (!is.null(gl)) th <- th + ggplot2::theme(panel.grid.major.x = gl)
+      th
+    },
+    "y" = {
+      th <- ggplot2::theme(panel.grid.major.x = blank, panel.grid.minor = blank)
+      if (!is.null(gl)) th <- th + ggplot2::theme(panel.grid.major.y = gl)
+      th
+    }
+  )
+
+  # ---- Build border theme ----
+  border_theme <- ggplot2::theme()
+  if (!is.null(border)) {
+    if (isTRUE(border)) {
+      border_theme <- ggplot2::theme(
+        panel.border = ggplot2::element_rect(
+          colour = "black", fill = NA, linewidth = border_linewidth
+        )
+      )
+    } else if (isFALSE(border)) {
+      border_theme <- ggplot2::theme(panel.border = blank)
+    } else if (is.character(border)) {
+      border_theme <- ggplot2::theme(
+        panel.border = ggplot2::element_rect(
+          colour = border, fill = NA, linewidth = border_linewidth
+        )
+      )
+    }
+  }
+
+  # ---- Build background theme ----
+  bg_theme <- ggplot2::theme()
+  if (!is.null(bg)) {
+    bg_theme <- ggplot2::theme(
+      panel.background = ggplot2::element_rect(fill = bg, colour = NA)
+    )
+  }
+
+  # ---- Combine all + extra ... ----
+  extra_theme <- if (length(list(...)) > 0) do.call(ggplot2::theme, list(...)) else ggplot2::theme()
+  panel_theme <- grid_theme + border_theme + bg_theme + extra_theme
+
+  # ---- Apply to plots ----
+  info <- .to_plot_list(plot)
+  info$plots <- lapply(info$plots, function(p) p + panel_theme)
+  .from_plot_list(info$plots, info$is_patchwork, info$is_single)
+}
+
+# ---- fmt_axisText ----
+
+#' Format axis text rotation and style
+#'
+#' Rotate and style axis tick labels for X and/or Y axes. Inspired by
+#' Seurat's \code{RotatedAxis()} but with independent control over both
+#' axes, rotation angle, and text appearance.
+#'
+#' @param plot A ggplot, patchwork, or list of ggplot objects.
+#' @param x Numeric. Rotation angle (degrees) for X-axis text.
+#'   Common values: \code{45} (diagonal), \code{90} (vertical).
+#'   Default \code{NULL} (no change).
+#' @param y Numeric. Rotation angle (degrees) for Y-axis text.
+#'   Default \code{NULL} (no change).
+#' @param x_hjust Numeric. Horizontal justification for X-axis text.
+#'   Default \code{NULL} (auto: 1 when \code{x > 0}, 0 when \code{x < 0},
+#'   0.5 when \code{x = 0}).
+#' @param x_vjust Numeric. Vertical justification for X-axis text.
+#'   Default \code{NULL} (auto: 0.5 when \code{abs(x) >= 90}, 1 otherwise).
+#' @param y_hjust Numeric. Horizontal justification for Y-axis text.
+#'   Default \code{NULL} (auto).
+#' @param y_vjust Numeric. Vertical justification for Y-axis text.
+#'   Default \code{NULL} (auto).
+#' @param size Numeric. Text size for both axes. Default \code{NULL}
+#'   (no change).
+#' @param color Character. Text color for both axes. Default \code{NULL}
+#'   (no change).
+#' @param face Character. Font face (\code{"plain"}, \code{"bold"},
+#'   \code{"italic"}, \code{"bold.italic"}). Default \code{NULL}
+#'   (no change).
+#' @param ... Additional arguments passed to [ggplot2::theme()].
+#'
+#' @return Same type as input.
+#'
+#' @examples
+#' library(ggplot2)
+#' p <- ggplot(iris, aes(Species, Sepal.Length)) + geom_boxplot()
+#'
+#' # Rotate X-axis 45 degrees (like Seurat::RotatedAxis())
+#' fmt_axisText(p, x = 45)
+#'
+#' # Rotate X-axis 90 degrees (vertical)
+#' fmt_axisText(p, x = 90)
+#'
+#' # Rotate both axes
+#' fmt_axisText(p, x = 45, y = -30)
+#'
+#' # With custom size and bold
+#' fmt_axisText(p, x = 45, size = 10, face = "bold")
+#'
+#' @export
+#' @family plot formatting
+fmt_axisText <- function(plot,
+                     x = NULL,
+                     y = NULL,
+                     x_hjust = NULL,
+                     x_vjust = NULL,
+                     y_hjust = NULL,
+                     y_vjust = NULL,
+                     size = NULL,
+                     color = NULL,
+                     face = NULL,
+                     ...) {
+
+  # ---- Auto-compute hjust/vjust for rotated text ----
+  auto_just <- function(angle, hjust, vjust, axis = "x") {
+    if (is.null(angle)) return(list(hjust = hjust, vjust = vjust))
+    if (is.null(hjust)) {
+      hjust <- if (axis == "x") {
+        if (angle > 0) 1 else if (angle < 0) 0 else 0.5
+      } else {
+        if (angle > 0) 0 else if (angle < 0) 1 else 0.5
+      }
+    }
+    if (is.null(vjust)) {
+      vjust <- if (abs(angle) >= 90) 0.5 else if (axis == "x") 1 else 0.5
+    }
+    list(hjust = hjust, vjust = vjust)
+  }
+
+  # ---- Build X-axis text theme ----
+  x_theme <- ggplot2::theme()
+  if (!is.null(x) || !is.null(size) || !is.null(color) || !is.null(face)) {
+    x_just <- auto_just(x, x_hjust, x_vjust, "x")
+    x_args <- list()
+    if (!is.null(x))     x_args$angle <- x
+    if (!is.null(x))     x_args$hjust <- x_just$hjust
+    if (!is.null(x))     x_args$vjust <- x_just$vjust
+    if (!is.null(size))  x_args$size  <- size
+    if (!is.null(color)) x_args$colour <- color
+    if (!is.null(face))  x_args$face  <- face
+    if (length(x_args) > 0L) {
+      x_theme <- ggplot2::theme(
+        axis.text.x = do.call(ggplot2::element_text, x_args)
+      )
+    }
+  }
+
+  # ---- Build Y-axis text theme ----
+  y_theme <- ggplot2::theme()
+  if (!is.null(y) || !is.null(size) || !is.null(color) || !is.null(face)) {
+    y_just <- auto_just(y, y_hjust, y_vjust, "y")
+    y_args <- list()
+    if (!is.null(y))     y_args$angle <- y
+    if (!is.null(y))     y_args$hjust <- y_just$hjust
+    if (!is.null(y))     y_args$vjust <- y_just$vjust
+    if (!is.null(size))  y_args$size  <- size
+    if (!is.null(color)) y_args$colour <- color
+    if (!is.null(face))  y_args$face  <- face
+    if (length(y_args) > 0L) {
+      y_theme <- ggplot2::theme(
+        axis.text.y = do.call(ggplot2::element_text, y_args)
+      )
+    }
+  }
+
+  # ---- Combine + extra ... ----
+  extra <- if (length(list(...)) > 0) do.call(ggplot2::theme, list(...)) else ggplot2::theme()
+  text_theme <- x_theme + y_theme + extra
+
+  # ---- Apply to plots ----
+  info <- .to_plot_list(plot)
+  info$plots <- lapply(info$plots, function(p) p + text_theme)
+  .from_plot_list(info$plots, info$is_patchwork, info$is_single)
+}
+
+# ---- fmt_axisTile ----
+
+#' Add colored tiles between axis and labels
+#'
+#' Insert a strip of colored tiles between the plot area and the axis text
+#' labels. Two modes are available:
+#' \itemize{
+#'   \item \code{"tile"} (default) — insert a \code{geom_tile} color strip
+#'     between the axis line and text labels via patchwork. Labels appear
+#'     below (x-axis) or beside (y-axis) the tiles.
+#'   \item \code{"text"} — color the axis label text directly (no background
+#'     tile), lightweight but uses unofficial vectorized \code{element_text}.
+#' }
+#'
+#' @param plot A ggplot, patchwork, or list of ggplot objects.
+#' @param colors Named character vector of colors, where names match the
+#'   discrete axis levels (e.g. \code{c(setosa = "red", virginica = "blue")}).
+#'   Required.
+#' @param mode \code{"tile"} (default) or \code{"text"}.
+#' @param axis Which axis to apply to: \code{"x"} (default) or \code{"y"}.
+#' @param tile_height Numeric. Relative height of the tile strip when
+#'   \code{axis = "x"}. Default 0.06.
+#' @param tile_width Numeric. Relative width of the tile strip when
+#'   \code{axis = "y"}. Default 0.06.
+#' @param tile_border Color of tile borders. Default \code{"white"}.
+#' @param tile_border_width Line width of tile borders. Default 0.2.
+#' @param text_size Size of axis text labels below/beside tiles. Default 9.
+#' @param text_face Font face of axis text labels. Default \code{"plain"}.
+#' @param text_angle Rotation angle for axis text labels. Default \code{45}
+#'   for x-axis, \code{0} for y-axis.
+#' @param text_color Color of axis text labels. Default \code{"black"}.
+#' @param show_text Logical. Show text labels below/beside tiles?
+#'   Default \code{TRUE}. Set \code{FALSE} for color-only tiles.
+#'
+#' @return A patchwork object (when \code{mode = "tile"}) or same type as
+#'   input (when \code{mode = "text"}).
+#'
+#' @examples
+#' library(ggplot2)
+#' cols <- c(setosa = "#E64B35", versicolor = "#4DBBD5", virginica = "#00A087")
+#' p <- ggplot(iris, aes(Species, Sepal.Length)) + geom_boxplot()
+#'
+#' # Tile mode: color strip between axis and rotated labels
+#' fmt_axisTile(p, colors = cols)
+#'
+#' # Tile mode: no text labels, color-only strip
+#' fmt_axisTile(p, colors = cols, show_text = FALSE)
+#'
+#' # Text mode: colored axis labels (no tiles)
+#' fmt_axisTile(p, colors = cols, mode = "text")
+#'
+#' # Y-axis tiles
+#' p2 <- ggplot(iris, aes(Sepal.Length, Species)) + geom_boxplot()
+#' fmt_axisTile(p2, colors = cols, axis = "y")
+#'
+#' @export
+#' @family plot formatting
+fmt_axisTile <- function(plot,
+                         colors,
+                         mode = c("tile", "text"),
+                         axis = c("x", "y"),
+                         tile_height = 0.06,
+                         tile_width = 0.06,
+                         tile_border = "white",
+                         tile_border_width = 0.2,
+                         text_size = 9,
+                         text_face = "plain",
+                         text_angle = NULL,
+                         text_color = "black",
+                         show_text = TRUE) {
+
+  if (!requireNamespace("patchwork", quietly = TRUE))
+    cli::cli_abort("Package {.pkg patchwork} is required for fmt_axisTile().")
+
+  mode <- match.arg(mode)
+  axis <- match.arg(axis)
+
+  # Default text_angle: 45 for x-axis, 0 for y-axis
+  if (is.null(text_angle)) text_angle <- if (axis == "x") 45 else 0
+
+  info <- .to_plot_list(plot)
+  plots <- info$plots
+
+  # ---- Text mode: color axis labels directly ----
+  if (mode == "text") {
+    text_theme_fn <- function(p) {
+      lvs <- .extract_discrete_levels(p, axis)
+      if (is.null(lvs)) return(p)
+      col_vec <- colors[lvs]
+      col_vec[is.na(col_vec)] <- "black"
+      if (axis == "x") {
+        hjust <- if (text_angle > 0) 1 else if (text_angle < 0) 0 else 0.5
+        p + ggplot2::theme(axis.text.x = ggplot2::element_text(
+          colour = col_vec, face = text_face, size = text_size,
+          angle = text_angle, hjust = hjust))
+      } else {
+        p + ggplot2::theme(axis.text.y = ggplot2::element_text(
+          colour = col_vec, face = text_face, size = text_size,
+          angle = text_angle))
+      }
+    }
+    info$plots <- lapply(plots, text_theme_fn)
+    return(.from_plot_list(info$plots, info$is_patchwork, info$is_single))
+  }
+
+  # ---- Tile mode: color strip + labels below/beside ----
+
+  build_tile_bar <- function(lvs, orientation = "x") {
+    df_bar <- data.frame(
+      lbl = factor(lvs, levels = lvs),
+      pos = 1
+    )
+    col_use <- colors[lvs]
+    col_use[is.na(col_use)] <- "grey70"
+
+    if (orientation == "x") {
+      p_bar <- ggplot2::ggplot(df_bar, ggplot2::aes(
+        x = .data[["lbl"]], y = .data[["pos"]], fill = .data[["lbl"]])) +
+        ggplot2::geom_tile(color = tile_border, linewidth = tile_border_width) +
+        ggplot2::scale_fill_manual(values = col_use, guide = "none") +
+        ggplot2::scale_x_discrete(drop = FALSE) +
+        ggplot2::theme_void() +
+        ggplot2::theme(plot.margin = ggplot2::margin(0, 0, 0, 0))
+
+      # Text labels below the tiles as axis text
+      if (show_text) {
+        hjust <- if (text_angle > 0) 1 else if (text_angle < 0) 0 else 0.5
+        vjust <- if (abs(text_angle) >= 90) 0.5 else 1
+        p_bar <- p_bar + ggplot2::theme(
+          axis.text.x = ggplot2::element_text(
+            size = text_size, face = text_face, color = text_color,
+            angle = text_angle, hjust = hjust, vjust = vjust))
+      }
+    } else {
+      p_bar <- ggplot2::ggplot(df_bar, ggplot2::aes(
+        x = .data[["pos"]], y = .data[["lbl"]], fill = .data[["lbl"]])) +
+        ggplot2::geom_tile(color = tile_border, linewidth = tile_border_width) +
+        ggplot2::scale_fill_manual(values = col_use, guide = "none") +
+        ggplot2::scale_y_discrete(drop = FALSE) +
+        ggplot2::theme_void() +
+        ggplot2::theme(plot.margin = ggplot2::margin(0, 0, 0, 0))
+
+      if (show_text) {
+        p_bar <- p_bar + ggplot2::theme(
+          axis.text.y = ggplot2::element_text(
+            size = text_size, face = text_face, color = text_color,
+            angle = text_angle, hjust = 1))
+      }
+    }
+    p_bar
+  }
+
+  blank <- ggplot2::element_blank()
+
+  combine_one <- function(p) {
+    lvs <- .extract_discrete_levels(p, axis)
+    if (is.null(lvs)) return(p)
+    p_bar <- build_tile_bar(lvs, axis)
+
+    if (axis == "x") {
+      # Hide original x-axis text, keep axis title on the main plot
+      p <- p + ggplot2::theme(
+        axis.text.x = blank, axis.ticks.x = blank,
+        axis.title.x = blank)
+      # Move x-axis title below tiles if present
+      patchwork::wrap_plots(p, p_bar, ncol = 1,
+                            heights = c(1, tile_height))
+    } else {
+      p <- p + ggplot2::theme(
+        axis.text.y = blank, axis.ticks.y = blank,
+        axis.title.y = blank)
+      patchwork::wrap_plots(p_bar, p, ncol = 2,
+                            widths = c(tile_width, 1))
+    }
+  }
+
+  if (info$is_single) {
+    return(combine_one(plots[[1]]))
+  }
+
+  combined <- lapply(plots, combine_one)
+  if (info$is_patchwork) {
+    patchwork::wrap_plots(combined)
+  } else {
+    combined
+  }
+}
+
+#' Extract discrete axis levels from a ggplot
+#' @noRd
+.extract_discrete_levels <- function(p, axis = "x") {
+  mapping_var <- p$mapping[[axis]]
+  if (is.null(mapping_var)) return(NULL)
+  var_name <- rlang::as_name(mapping_var)
+  if (is.null(p$data) || !var_name %in% colnames(p$data)) return(NULL)
+  col <- p$data[[var_name]]
+  if (is.factor(col)) levels(col) else sort(unique(col))
 }
 
 # ---- fmt_com ----

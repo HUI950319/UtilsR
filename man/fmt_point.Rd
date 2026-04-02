@@ -107,12 +107,15 @@ fmt_point(p2, type = "jitter", sample_n = 10, alpha = 0.5)
 \seealso{
 Other plot formatting: 
 \code{\link{fmt_axis}()},
+\code{\link{fmt_axisText}()},
+\code{\link{fmt_axisTile}()},
 \code{\link{fmt_bg}()},
 \code{\link{fmt_boxplot}()},
 \code{\link{fmt_com}()},
 \code{\link{fmt_expand}()},
 \code{\link{fmt_his}()},
 \code{\link{fmt_legend}()},
+\code{\link{fmt_panel}()},
 \code{\link{fmt_plot}()},
 \code{\link{fmt_ref}()},
 \code{\link{fmt_scale}()},
