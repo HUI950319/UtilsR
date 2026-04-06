@@ -16,8 +16,18 @@
 #'   using sequential HCL palettes.
 #' @param reverse_levels Logical, reverse factor levels for display.
 #'   Default \code{TRUE}.
-#' @param show_n Logical, show count in node labels. Default \code{TRUE}.
+#' @param show_text Character. Controls node label content:
+#'   \itemize{
+#'     \item \code{"all"} (default) — name + count + percentage, e.g.
+#'       \code{"A (10, 30.3\%)"}.
+#'     \item \code{"n"} — name + count, e.g. \code{"A (10)"}.
+#'     \item \code{"pct"} — name + percentage, e.g. \code{"A (30.3\%)"}.
+#'     \item \code{"name"} — name only, e.g. \code{"A"}.
+#'   }
 #' @param width Sankey node width. Default 0.4.
+#' @param space Numeric. Gap between nodes within each column. Default
+#'   \code{NULL} (ggsankey auto-calculates). Set \code{0} for no gaps
+#'   (consistent total height across columns).
 #' @param label_size Label text size. Default 3.
 #' @param label_hjust Label horizontal justification. Default 0.5.
 #' @param alpha Flow transparency. Default 0.6.
@@ -57,12 +67,15 @@ plt_sankey <- function(data,
                        vars,
                        palette = NULL,
                        reverse_levels = TRUE,
-                       show_n = TRUE,
+                       show_text = c("all", "n", "pct", "name"),
                        width = 0.4,
+                       space = NULL,
                        label_size = 3,
                        label_hjust = 0.5,
                        alpha = 0.6,
                        base_size = 14) {
+
+  show_text <- match.arg(show_text)
 
   if (!requireNamespace("ggsankey", quietly = TRUE)) {
     cli::cli_abort("Package {.pkg ggsankey} is required. Install with: {.code pak::pak('davidsjoberg/ggsankey')}")
@@ -97,11 +110,12 @@ plt_sankey <- function(data,
         .pct = scales::percent(.data[[".n"]] / total, accuracy = 0.1)
       ) %>%
       dplyr::ungroup()
-    if (show_n) {
-      data[[lv]] <- sprintf("%s (%s, %s)", data[[v]], data$.n, data$.pct)
-    } else {
-      data[[lv]] <- sprintf("%s (%s)", data[[v]], data$.pct)
-    }
+    data[[lv]] <- switch(show_text,
+      "all"  = sprintf("%s (%s, %s)", data[[v]], data$.n, data$.pct),
+      "n"    = sprintf("%s (%s)", data[[v]], data$.n),
+      "pct"  = sprintf("%s (%s)", data[[v]], data$.pct),
+      "name" = as.character(data[[v]])
+    )
     # Preserve factor order
     lvl_df <- dplyr::distinct(data[, c(v, lv)])
     lvl_df <- lvl_df[order(lvl_df[[v]]), ]
@@ -144,18 +158,16 @@ plt_sankey <- function(data,
     x = .data[["x"]], next_x = .data[["next_x"]],
     node = .data[["node"]], next_node = .data[["next_node"]],
     fill = factor(.data[["node"]]),
-    color = factor(.data[["node"]]),
     label = .data[["node"]]
   )) +
     ggsankey::geom_sankey(
       flow.alpha = alpha, flow.fill = "grey", flow.color = "grey80",
-      width = width
+      width = width, space = space
     ) +
     ggsankey::geom_sankey_label(
       size = label_size, fill = "white", alpha = 1, hjust = label_hjust
     ) +
     ggplot2::scale_fill_manual(values = mycol) +
-    ggplot2::scale_color_manual(values = mycol) +
     ggsankey::theme_sankey(base_size = base_size) +
     ggplot2::labs(x = NULL) +
     ggplot2::theme(legend.position = "none")

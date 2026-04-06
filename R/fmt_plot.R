@@ -186,8 +186,8 @@ fmt_tag <- function(plot,
 
 #' Format legend position and style
 #'
-#' Adjust legend position, direction, layout, and optionally merge legends
-#' across a multi-plot patchwork.
+#' Adjust legend position, direction, layout, scaling, and optionally
+#' collect legends across a multi-plot patchwork.
 #'
 #' @param plot A ggplot, patchwork, or list of ggplot objects.
 #' @param legend.position Legend position. Accepts:
@@ -200,11 +200,19 @@ fmt_tag <- function(plot,
 #'   }
 #'   Default `NULL` (no change).
 #' @param legend.direction `"horizontal"` or `"vertical"`. Default `NULL`.
-#' @param merge_legends Logical. If `TRUE` and input has multiple plots,
-#'   collect legends into a single shared legend via patchwork. Default `FALSE`.
 #' @param legend_theme A ggplot2 theme object for legend styling, e.g.,
 #'   [theme_legend1()]. Applied after position/direction settings so it can
 #'   override them. Default `NULL` (no extra styling).
+#' @param collect Logical. If `TRUE` and input has multiple plots,
+#'   collect legends into a single shared legend via patchwork. Default `FALSE`.
+#' @param scale Numeric. Proportionally scale the entire legend.
+#'   \code{0.8} = shrink to 80\%, \code{1.2} = enlarge to 120\%.
+#'   Adjusts key size, text size, title size, point size, and spacing
+#'   together. Default \code{NULL} (no scaling).
+#' @param scale_width Numeric. Scale legend key width independently.
+#'   Default \code{NULL} (no change).
+#' @param scale_height Numeric. Scale legend key height independently.
+#'   Default \code{NULL} (no change).
 #' @param ncol Number of columns in the legend layout (passed to
 #'   [ggplot2::guide_legend()]).
 #' @param nrow Number of rows in the legend layout (passed to
@@ -224,13 +232,22 @@ fmt_tag <- function(plot,
 #' fmt_legend(p, legend.position = c(0.9, 0.2))
 #' fmt_legend(p, legend.position = "br", legend_theme = theme_legend1())
 #'
+#' # Scale legend to 80% of current size
+#' fmt_legend(p, scale = 0.8)
+#'
+#' # Scale width and height independently
+#' fmt_legend(p, scale_width = 1.5, scale_height = 0.5)
+#'
 #' @export
 #' @family plot formatting
 fmt_legend <- function(plot,
                        legend.position = NULL,
                        legend.direction = NULL,
                        legend_theme = NULL,
-                       merge_legends = FALSE,
+                       collect = FALSE,
+                       scale = NULL,
+                       scale_width = NULL,
+                       scale_height = NULL,
                        ncol = NULL,
                        nrow = NULL,
                        ...) {
@@ -256,7 +273,6 @@ fmt_legend <- function(plot,
   # ---- Build justification ----
   legend.justification <- NULL
   if (is.numeric(legend.position) && length(legend.position) == 2) {
-    # Inside-plot: anchor the nearest corner
     just_x <- ifelse(legend.position[1] > 0.5, 1, 0)
     just_y <- ifelse(legend.position[2] > 0.5, 1, 0)
     legend.justification <- c(just_x, just_y)
@@ -266,7 +282,7 @@ fmt_legend <- function(plot,
       "bottom" = c(0.5, 1),
       "left"   = c(1, 0.5),
       "right"  = c(0, 0.5),
-      NULL     # "none" or unknown: don't set justification
+      NULL
     )
   }
 
@@ -281,9 +297,102 @@ fmt_legend <- function(plot,
 
   leg_theme <- do.call(ggplot2::theme, theme_args)
 
-  # Append legend_theme (e.g., theme_legend1()) — overrides conflicting keys
+  # Append legend_theme — if it sets title to element_blank, also suppress at guide level
+  no_title_guides <- NULL
   if (!is.null(legend_theme) && inherits(legend_theme, "theme")) {
     leg_theme <- leg_theme + legend_theme
+    title_el <- legend_theme$legend.title
+    if (inherits(title_el, "element_blank")) {
+      no_title <- ggplot2::guide_legend(title = "")
+      no_title_guides <- ggplot2::guides(
+        colour = no_title, fill = no_title,
+        shape = no_title, size = no_title,
+        alpha = no_title, linetype = no_title
+      )
+    }
+  }
+
+  # ---- Scale legend proportionally ----
+  scale_theme <- NULL
+  scale_guides <- NULL
+  if (!is.null(scale) && is.numeric(scale) && scale > 0) {
+    .get_size <- function(p, element) {
+      th <- ggplot2::theme_get() + p$theme
+      el <- ggplot2::calc_element(element, th)
+      if (inherits(el, "element_text") && !is.null(el$size)) el$size
+      else NULL
+    }
+    .get_key_size <- function(p) {
+      th <- ggplot2::theme_get() + p$theme
+      el <- ggplot2::calc_element("legend.key.size", th)
+      if (inherits(el, "simpleUnit") || inherits(el, "unit")) {
+        as.numeric(el)
+      } else {
+        1.2
+      }
+    }
+    .get_point_size <- function(p) {
+      for (layer in p$layers) {
+        if (inherits(layer$geom, "GeomPoint")) {
+          sz <- tryCatch({
+            s <- layer$aes_params$size
+            if (is.null(s)) s <- layer$geom$default_aes$size
+            if (is.numeric(s)) s else as.numeric(s)
+          }, error = function(e) NULL)
+          if (!is.null(sz) && is.numeric(sz)) return(sz)
+        }
+      }
+      1.5
+    }
+
+    ref_p <- plots[[1]]
+    text_sz  <- .get_size(ref_p, "legend.text") %||% 8.8
+    title_sz <- .get_size(ref_p, "legend.title") %||% 11
+    key_sz   <- .get_key_size(ref_p)
+    pt_sz    <- .get_point_size(ref_p)
+
+    scale_theme <- ggplot2::theme(
+      legend.text     = ggplot2::element_text(size = text_sz * scale),
+      legend.title    = ggplot2::element_text(size = title_sz * scale),
+      legend.key.size = grid::unit(key_sz * scale, "lines"),
+      legend.spacing  = grid::unit(0.2 * scale, "cm"),
+      legend.box.spacing = grid::unit(0.2 * scale, "cm")
+    )
+
+    guide_obj_scale <- ggplot2::guide_legend(
+      override.aes = list(size = pt_sz * scale)
+    )
+    scale_guides <- ggplot2::guides(
+      colour = guide_obj_scale,
+      fill = guide_obj_scale, shape = guide_obj_scale
+    )
+  }
+
+  # ---- Scale width / height independently ----
+  dim_theme <- NULL
+  if (!is.null(scale_width) || !is.null(scale_height)) {
+    .get_key_dim <- function(p, element) {
+      th <- ggplot2::theme_get() + p$theme
+      el <- ggplot2::calc_element(element, th)
+      if (inherits(el, "simpleUnit") || inherits(el, "unit")) {
+        as.numeric(el)
+      } else {
+        NULL
+      }
+    }
+    ref_p <- plots[[1]]
+    dim_args <- list()
+    if (!is.null(scale_width)) {
+      kw <- .get_key_dim(ref_p, "legend.key.width") %||%
+            .get_key_dim(ref_p, "legend.key.size") %||% 1.2
+      dim_args$legend.key.width <- grid::unit(kw * scale_width, "lines")
+    }
+    if (!is.null(scale_height)) {
+      kh <- .get_key_dim(ref_p, "legend.key.height") %||%
+            .get_key_dim(ref_p, "legend.key.size") %||% 1.2
+      dim_args$legend.key.height <- grid::unit(kh * scale_height, "lines")
+    }
+    dim_theme <- do.call(ggplot2::theme, dim_args)
   }
 
   # ---- Guide layout (ncol/nrow) ----
@@ -294,7 +403,6 @@ fmt_legend <- function(plot,
   legend_guides <- NULL
   if (length(guide_args) > 0) {
     guide_obj <- do.call(ggplot2::guide_legend, guide_args)
-    # Apply to all common legend aesthetics
     legend_guides <- ggplot2::guides(
       fill = guide_obj, colour = guide_obj,
       shape = guide_obj, size = guide_obj, alpha = guide_obj,
@@ -302,19 +410,26 @@ fmt_legend <- function(plot,
     )
   }
 
-  # ---- Merge legends mode for patchwork ----
-  if (merge_legends && n > 1L && info$is_patchwork) {
-    # Preserve original patchwork layout
+  # ---- Collect legends mode for patchwork ----
+  if (collect && n > 1L && info$is_patchwork) {
     combined <- plot + patchwork::plot_layout(guides = "collect")
     combined <- combined & leg_theme
-    if (!is.null(legend_guides)) combined <- combined & legend_guides
+    if (!is.null(no_title_guides)) combined <- combined & no_title_guides
+    if (!is.null(scale_theme))     combined <- combined & scale_theme
+    if (!is.null(scale_guides))    combined <- combined & scale_guides
+    if (!is.null(dim_theme))       combined <- combined & dim_theme
+    if (!is.null(legend_guides))   combined <- combined & legend_guides
     return(combined)
   }
 
   # ---- Normal mode: apply to each plot ----
   for (i in seq_len(n)) {
     plots[[i]] <- plots[[i]] + leg_theme
-    if (!is.null(legend_guides)) plots[[i]] <- plots[[i]] + legend_guides
+    if (!is.null(no_title_guides)) plots[[i]] <- plots[[i]] + no_title_guides
+    if (!is.null(scale_theme))     plots[[i]] <- plots[[i]] + scale_theme
+    if (!is.null(scale_guides))    plots[[i]] <- plots[[i]] + scale_guides
+    if (!is.null(dim_theme))       plots[[i]] <- plots[[i]] + dim_theme
+    if (!is.null(legend_guides))   plots[[i]] <- plots[[i]] + legend_guides
   }
 
   .from_plot_list(plots, info$is_patchwork, info$is_single)
@@ -431,7 +546,7 @@ fmt_ref <- function(plot,
 #' fmt_plot(p1, ref_x = 5.5, legend.position = "bottom")
 #'
 #' # Multi-plot with tags and merged legend
-#' fmt_plot(list(p1, p2), tag = TRUE, merge_legends = TRUE)
+#' fmt_plot(list(p1, p2), tag = TRUE, collect = TRUE)
 #'
 #' @export
 #' @family plot formatting
@@ -737,6 +852,170 @@ fmt_panel <- function(plot,
   # ---- Apply to plots ----
   info <- .to_plot_list(plot)
   info$plots <- lapply(info$plots, function(p) p + panel_theme)
+  .from_plot_list(info$plots, info$is_patchwork, info$is_single)
+}
+
+# ---- fmt_text ----
+
+#' Format plot labels and their text style
+#'
+#' Set and style plot text elements (title, subtitle, caption, axis titles,
+#' legend title) in one call. Supports per-plot labels when input is a
+#' patchwork or list (pass a vector to \code{xlab}, \code{ylab}, etc.).
+#'
+#' @param plot A ggplot, patchwork, or list of ggplot objects.
+#' @param xlab X-axis title. \code{NULL} = no change, \code{""} = remove.
+#'   A vector sets different labels per plot.
+#' @param ylab Y-axis title. \code{NULL} = no change, \code{""} = remove.
+#'   A vector sets different labels per plot.
+#' @param title Plot title. \code{NULL} = no change, \code{""} = remove.
+#'   A vector sets different titles per plot.
+#' @param subtitle Plot subtitle. \code{NULL} = no change.
+#'   A vector sets different subtitles per plot.
+#' @param caption Plot caption. \code{NULL} = no change.
+#'   A vector sets different captions per plot.
+#' @param legend_title Legend title. \code{NULL} = no change, \code{""} = remove.
+#' @param title_size Numeric. Title font size. Default \code{NULL}.
+#' @param title_face Character. Title font face. Default \code{NULL}.
+#' @param title_color Character. Title color. Default \code{NULL}.
+#' @param title_hjust Numeric. Title horizontal justification. Default \code{NULL}.
+#' @param subtitle_size Numeric. Subtitle font size. Default \code{NULL}.
+#' @param subtitle_face Character. Subtitle font face. Default \code{NULL}.
+#' @param subtitle_color Character. Subtitle color. Default \code{NULL}.
+#' @param caption_size Numeric. Caption font size. Default \code{NULL}.
+#' @param caption_face Character. Caption font face. Default \code{NULL}.
+#' @param caption_color Character. Caption color. Default \code{NULL}.
+#' @param axis_title_size Numeric. Font size for both axis titles. Default \code{NULL}.
+#' @param axis_title_face Character. Font face for both axis titles. Default \code{NULL}.
+#' @param axis_title_color Character. Color for both axis titles. Default \code{NULL}.
+#' @param ... Additional arguments passed to [ggplot2::labs()].
+#'
+#' @return Same type as input.
+#'
+#' @examples
+#' library(ggplot2)
+#' p <- ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) + geom_point()
+#'
+#' # Set labels
+#' fmt_text(p, title = "Iris", xlab = "Length", ylab = "Width")
+#'
+#' # Per-plot labels (patchwork)
+#' fmt_text(p + p, ylab = c("Width 1", "Width 2"))
+#'
+#' @export
+#' @family plot formatting
+fmt_text <- function(plot,
+                     xlab = NULL,
+                     ylab = NULL,
+                     title = NULL,
+                     subtitle = NULL,
+                     caption = NULL,
+                     legend_title = NULL,
+                     title_size = NULL,
+                     title_face = NULL,
+                     title_color = NULL,
+                     title_hjust = NULL,
+                     subtitle_size = NULL,
+                     subtitle_face = NULL,
+                     subtitle_color = NULL,
+                     caption_size = NULL,
+                     caption_face = NULL,
+                     caption_color = NULL,
+                     axis_title_size = NULL,
+                     axis_title_face = NULL,
+                     axis_title_color = NULL,
+                     ...) {
+
+  info <- .to_plot_list(plot)
+  n <- length(info$plots)
+
+  # ---- Vectorize label params (recycle to n plots) ----
+  vec_or_null <- function(x) {
+    if (is.null(x)) return(rep(list(NULL), n))
+    as.list(rep_len(x, n))
+  }
+  xlab_vec     <- vec_or_null(xlab)
+  ylab_vec     <- vec_or_null(ylab)
+  title_vec    <- vec_or_null(title)
+  subtitle_vec <- vec_or_null(subtitle)
+  caption_vec  <- vec_or_null(caption)
+
+  # ---- Build text style theme ----
+  .build_element <- function(size, face, color, hjust = NULL) {
+    args <- list()
+    if (!is.null(size))  args$size   <- size
+    if (!is.null(face))  args$face   <- face
+    if (!is.null(color)) args$colour <- color
+    if (!is.null(hjust)) args$hjust  <- hjust
+    if (length(args) == 0L) return(NULL)
+    do.call(ggplot2::element_text, args)
+  }
+
+  theme_args <- list()
+  el <- .build_element(title_size, title_face, title_color, title_hjust)
+  if (!is.null(el)) theme_args$plot.title <- el
+  el <- .build_element(subtitle_size, subtitle_face, subtitle_color)
+  if (!is.null(el)) theme_args$plot.subtitle <- el
+  el <- .build_element(caption_size, caption_face, caption_color)
+  if (!is.null(el)) theme_args$plot.caption <- el
+  el <- .build_element(axis_title_size, axis_title_face, axis_title_color)
+  if (!is.null(el)) theme_args$axis.title <- el
+
+  style_theme <- if (length(theme_args) > 0L) {
+    do.call(ggplot2::theme, theme_args)
+  } else {
+    NULL
+  }
+
+  # ---- Handle legend title (guides + labs for full override) ----
+  legend_layer <- NULL
+  if (!is.null(legend_title)) {
+    if (legend_title == "") {
+      legend_layer <- ggplot2::theme(legend.title = ggplot2::element_blank())
+    } else {
+      guide_obj <- ggplot2::guide_legend(title = legend_title)
+      legend_layer <- list(
+        ggplot2::labs(fill = legend_title, colour = legend_title,
+                      shape = legend_title, size = legend_title,
+                      alpha = legend_title, linetype = legend_title),
+        ggplot2::guides(fill = guide_obj, colour = guide_obj,
+                        shape = guide_obj, size = guide_obj,
+                        alpha = guide_obj, linetype = guide_obj,
+                        color = guide_obj)
+      )
+    }
+  }
+
+  # ---- Extra labs via ... ----
+  extra_labs <- list(...)
+  extra_layer <- if (length(extra_labs) > 0L) {
+    do.call(ggplot2::labs, extra_labs)
+  } else {
+    NULL
+  }
+
+  # ---- Apply per plot ----
+  for (i in seq_len(n)) {
+    p <- info$plots[[i]]
+    labs_i <- list()
+    if (!is.null(xlab_vec[[i]]))     labs_i$x        <- xlab_vec[[i]]
+    if (!is.null(ylab_vec[[i]]))     labs_i$y        <- ylab_vec[[i]]
+    if (!is.null(title_vec[[i]]))    labs_i$title    <- title_vec[[i]]
+    if (!is.null(subtitle_vec[[i]])) labs_i$subtitle <- subtitle_vec[[i]]
+    if (!is.null(caption_vec[[i]]))  labs_i$caption  <- caption_vec[[i]]
+    if (length(labs_i) > 0L) p <- p + do.call(ggplot2::labs, labs_i)
+    if (!is.null(extra_layer))  p <- p + extra_layer
+    if (!is.null(style_theme))  p <- p + style_theme
+    if (!is.null(legend_layer)) {
+      if (is.list(legend_layer) && !inherits(legend_layer, "theme")) {
+        for (ll in legend_layer) p <- p + ll
+      } else {
+        p <- p + legend_layer
+      }
+    }
+    info$plots[[i]] <- p
+  }
+
   .from_plot_list(info$plots, info$is_patchwork, info$is_single)
 }
 
@@ -1400,19 +1679,21 @@ fmt_his <- function(plot,
 #' user-supplied arguments via \code{do.call}.
 #'
 #' @param plot A ggplot, patchwork, or list of ggplots.
-#' @param scale_x_list Named list of arguments for the x-axis scale function.
-#' @param scale_y_list Named list of arguments for the y-axis scale function.
+#' @param x Named list of arguments for the x-axis scale function.
+#'   E.g. \code{list(limits = c(4, 8), breaks = seq(4, 8, 1))}.
+#' @param y Named list of arguments for the y-axis scale function.
 #'
 #' @return Same type as input.
 #'
 #' @examples
 #' library(ggplot2)
 #' p <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) + geom_point()
-#' fmt_scale(p, scale_x_list = list(limits = c(4, 8), breaks = seq(4, 8, 1)))
+#' fmt_scale(p, x = list(limits = c(4, 8), breaks = seq(4, 8, 1)))
+#' fmt_scale(p, y = list(labels = scales::label_percent()))
 #'
 #' @export
 #' @family plot formatting
-fmt_scale <- function(plot, scale_x_list = NULL, scale_y_list = NULL) {
+fmt_scale <- function(plot, x = NULL, y = NULL) {
   apply_scale <- function(p, args, axis) {
     if (is.null(args) || length(args) == 0L) return(p)
     fn_name <- .detect_scale_type(p, axis)
@@ -1427,8 +1708,8 @@ fmt_scale <- function(plot, scale_x_list = NULL, scale_y_list = NULL) {
   }
 
   fmt_scale_one <- function(p) {
-    p <- apply_scale(p, scale_x_list, "x")
-    p <- apply_scale(p, scale_y_list, "y")
+    p <- apply_scale(p, x, "x")
+    p <- apply_scale(p, y, "y")
     p
   }
 

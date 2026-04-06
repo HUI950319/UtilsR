@@ -41,7 +41,6 @@ colour palettes, ggplot2 formatting, and console styling.
   \item{\code{\link{pal_lancet}}}{Lancet journal (15 colours)}
   \item{\code{\link{pal_other}}}{10 discrete palettes (igv, ditto, polychrome, etc.)}
   \item{\code{\link{show_color}}}{Display colour swatches in console}
-  \item{\code{\link{as_palette}}}{Create custom palette object}
   \item{\code{\link{pal_list}}}{Browse all built-in palettes}
 }
 }

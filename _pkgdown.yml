@@ -73,7 +73,6 @@ reference:
       - pal_list
       - pal_show
       - show_color
-      - as_palette
       - palette_list
 
   - title: ggplot2 Formatting

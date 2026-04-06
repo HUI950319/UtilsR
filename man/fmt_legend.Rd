@@ -9,7 +9,10 @@ fmt_legend(
   legend.position = NULL,
   legend.direction = NULL,
   legend_theme = NULL,
-  merge_legends = FALSE,
+  collect = FALSE,
+  scale = NULL,
+  scale_width = NULL,
+  scale_height = NULL,
   ncol = NULL,
   nrow = NULL,
   ...
@@ -34,8 +37,19 @@ Default `NULL` (no change).}
 [theme_legend1()]. Applied after position/direction settings so it can
 override them. Default `NULL` (no extra styling).}
 
-\item{merge_legends}{Logical. If `TRUE` and input has multiple plots,
+\item{collect}{Logical. If `TRUE` and input has multiple plots,
 collect legends into a single shared legend via patchwork. Default `FALSE`.}
+
+\item{scale}{Numeric. Proportionally scale the entire legend.
+\code{0.8} = shrink to 80\%, \code{1.2} = enlarge to 120\%.
+Adjusts key size, text size, title size, point size, and spacing
+together. Default \code{NULL} (no scaling).}
+
+\item{scale_width}{Numeric. Scale legend key width independently.
+Default \code{NULL} (no change).}
+
+\item{scale_height}{Numeric. Scale legend key height independently.
+Default \code{NULL} (no change).}
 
 \item{ncol}{Number of columns in the legend layout (passed to
 [ggplot2::guide_legend()]).}
@@ -50,8 +64,8 @@ collect legends into a single shared legend via patchwork. Default `FALSE`.}
 Same type as input.
 }
 \description{
-Adjust legend position, direction, layout, and optionally merge legends
-across a multi-plot patchwork.
+Adjust legend position, direction, layout, scaling, and optionally
+collect legends across a multi-plot patchwork.
 }
 \examples{
 library(ggplot2)
@@ -62,6 +76,12 @@ fmt_legend(p, legend.position = "none")
 fmt_legend(p, legend.position = "br")
 fmt_legend(p, legend.position = c(0.9, 0.2))
 fmt_legend(p, legend.position = "br", legend_theme = theme_legend1())
+
+# Scale legend to 80\% of current size
+fmt_legend(p, scale = 0.8)
+
+# Scale width and height independently
+fmt_legend(p, scale_width = 1.5, scale_height = 0.5)
 
 }
 \seealso{
@@ -80,6 +100,7 @@ Other plot formatting:
 \code{\link{fmt_ref}()},
 \code{\link{fmt_scale}()},
 \code{\link{fmt_strip}()},
-\code{\link{fmt_tag}()}
+\code{\link{fmt_tag}()},
+\code{\link{fmt_text}()}
 }
 \concept{plot formatting}

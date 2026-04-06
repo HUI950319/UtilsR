@@ -339,6 +339,178 @@ theme_legend1 <- function() {
 }
 
 
+#' Customizable Legend Theme
+#'
+#' A flexible legend theme with sensible defaults. All parameters can be
+#' overridden. [theme_legend1()] is a convenience wrapper with fixed compact
+#' styling; use \code{theme_legend()} when you need fine-grained control.
+#'
+#' @param bg_fill Background fill color. Default \code{"white"}.
+#' @param bg_color Background border color. Default \code{"grey"}.
+#' @param bg_linewidth Background border width. Default \code{0.8}.
+#' @param key_fill Key background fill. Default \code{"white"}.
+#' @param key_color Key border color. Default \code{NA} (no border).
+#' @param key_linewidth Key border width. Default \code{0.5}.
+#' @param key_size Key size in lines. Default \code{1}.
+#' @param text_size Legend text size. Default \code{9}.
+#' @param text_color Legend text color. Default \code{"black"}.
+#' @param text_face Legend text font face. Default \code{"plain"}.
+#' @param title_size Legend title size. Default \code{10}.
+#' @param title_color Legend title color. Default \code{"black"}.
+#' @param title_face Legend title font face. Default \code{"bold"}.
+#' @param show_title Logical. Show legend title? Default \code{TRUE}.
+#'   If \code{FALSE}, title is set to \code{element_blank()}.
+#' @param spacing Spacing between legend and plot in cm. Default \code{0.2}.
+#' @param margin Margin around legend content (top, right, bottom, left) in pt.
+#'   Default \code{c(4, 4, 4, 4)}.
+#'
+#' @return A ggplot2 theme object.
+#'
+#' @examples
+#' library(ggplot2)
+#' p <- ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) +
+#'   geom_point()
+#'
+#' # Default
+#' p + theme_legend()
+#'
+#' # No border, larger text
+#' p + theme_legend(bg_color = NA, text_size = 11, title_size = 13)
+#'
+#' # No title, no background border
+#' p + theme_legend(show_title = FALSE, bg_color = NA)
+#'
+#' # Transparent background
+#' p + theme_legend(bg_fill = "transparent", bg_color = NA)
+#'
+#' @export
+#' @family ggplot2 themes
+theme_legend <- function(bg_fill = "white",
+                         bg_color = "grey",
+                         bg_linewidth = 0.8,
+                         key_fill = "white",
+                         key_color = NA,
+                         key_linewidth = 0.5,
+                         key_size = 1,
+                         text_size = 9,
+                         text_color = "black",
+                         text_face = "plain",
+                         title_size = 10,
+                         title_color = "black",
+                         title_face = "bold",
+                         show_title = TRUE,
+                         spacing = 0.2,
+                         margin = c(4, 4, 4, 4)) {
+
+  title_el <- if (show_title) {
+    ggplot2::element_text(size = title_size, colour = title_color, face = title_face)
+  } else {
+    ggplot2::element_blank()
+  }
+
+  ggplot2::theme(
+    legend.background = ggplot2::element_rect(
+      fill = bg_fill, colour = bg_color, linewidth = bg_linewidth),
+    legend.key = ggplot2::element_rect(
+      fill = key_fill, colour = key_color, linewidth = key_linewidth),
+    legend.key.size = grid::unit(key_size, "lines"),
+    legend.text = ggplot2::element_text(
+      size = text_size, colour = text_color, face = text_face),
+    legend.title = title_el,
+    legend.box.spacing = grid::unit(spacing, "cm"),
+    legend.margin = ggplot2::margin(margin[1], margin[2], margin[3], margin[4])
+  )
+}
+
+
+#' Quick Legend Theme (with title)
+#'
+#' Shorthand for [theme_legend1()]. Compact legend with white background,
+#' grey border, small text, and bold title.
+#'
+#' @return A ggplot2 theme object.
+#'
+#' @examples
+#' library(ggplot2)
+#' ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) +
+#'   geom_point() + leg1()
+#'
+#' @export
+#' @family ggplot2 themes
+leg1 <- function() theme_legend1()
+
+
+#' Quick Legend Theme (no title)
+#'
+#' Identical to [leg1()] / [theme_legend1()] but with legend title removed.
+#' White background, grey border, small text, no title.
+#'
+#' @return A ggplot2 theme object.
+#'
+#' @examples
+#' library(ggplot2)
+#' ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) +
+#'   geom_point() + leg2()
+#'
+#' @export
+#' @family ggplot2 themes
+leg2 <- function() {
+  ggplot2::theme(
+    legend.background = ggplot2::element_rect(fill = "white", colour = "grey", linewidth = 0.8),
+    legend.key = ggplot2::element_rect(fill = "white", colour = "grey", linewidth = 0.8),
+    legend.key.size = grid::unit(1, "lines"),
+    legend.text = ggplot2::element_text(size = 8),
+    legend.title = ggplot2::element_blank(),
+    legend.box.spacing = grid::unit(0.2, "cm")
+  )
+}
+
+
+#' Alluvial / Sankey Plot Theme
+#'
+#' A clean theme for alluvial and sankey plots. Based on
+#' \code{thisplot::theme_alluvial()}, removes panel border, grid lines,
+#' axis lines, and x-axis ticks for a minimal look.
+#'
+#' @param base_size Numeric. Base font size. Default 14.
+#' @param base_family Character. Base font family. Default \code{""}.
+#'
+#' @return A ggplot2 theme object.
+#'
+#' @examples
+#' library(ggplot2)
+#' p <- ggplot(iris, aes(Species, Sepal.Length)) + geom_boxplot()
+#' p + theme_alluvia()
+#'
+#' @export
+#' @family ggplot2 themes
+theme_alluvia <- function(base_size = 14, base_family = "") {
+  ggplot2::theme_bw(
+    base_size = base_size, base_family = base_family,
+    base_line_size = base_size / 22,
+    base_rect_size = base_size / 22
+  ) %+replace%
+    ggplot2::theme(
+      panel.border     = ggplot2::element_blank(),
+      panel.grid.major = ggplot2::element_blank(),
+      panel.grid.minor = ggplot2::element_blank(),
+      axis.line        = ggplot2::element_blank(),
+      axis.line.x      = ggplot2::element_blank(),
+      axis.ticks.x     = ggplot2::element_blank(),
+      axis.text.x      = ggplot2::element_text(
+        size = base_size, face = "bold", color = "black"),
+      axis.title.x     = ggplot2::element_blank(),
+      axis.title.y     = ggplot2::element_blank(),
+      legend.key       = ggplot2::element_blank(),
+      legend.title     = ggplot2::element_blank(),
+      strip.background = ggplot2::element_rect(
+        fill = "white", colour = "transparent",
+        linewidth = ggplot2::rel(2)),
+      complete = TRUE
+    )
+}
+
+
 # ============================================================================
 # theme_sc / theme_blank -- Ported from thisplot (scop ecosystem)
 # ============================================================================

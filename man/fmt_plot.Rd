@@ -59,7 +59,7 @@ p2 <- ggplot(iris, aes(Petal.Length, Petal.Width, color = Species)) + geom_point
 fmt_plot(p1, ref_x = 5.5, legend.position = "bottom")
 
 # Multi-plot with tags and merged legend
-fmt_plot(list(p1, p2), tag = TRUE, merge_legends = TRUE)
+fmt_plot(list(p1, p2), tag = TRUE, collect = TRUE)
 
 }
 \seealso{
@@ -78,6 +78,7 @@ Other plot formatting:
 \code{\link{fmt_ref}()},
 \code{\link{fmt_scale}()},
 \code{\link{fmt_strip}()},
-\code{\link{fmt_tag}()}
+\code{\link{fmt_tag}()},
+\code{\link{fmt_text}()}
 }
 \concept{plot formatting}

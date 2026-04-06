@@ -36,7 +36,6 @@ show_color(pal_other$polychrome)
 }
 \seealso{
 Other colour palettes: 
-\code{\link{as_palette}()},
 \code{\link{pal_get}()},
 \code{\link{pal_lancet}},
 \code{\link{pal_list}()},

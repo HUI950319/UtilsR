@@ -65,6 +65,7 @@ Other plot formatting:
 \code{\link{fmt_point}()},
 \code{\link{fmt_scale}()},
 \code{\link{fmt_strip}()},
-\code{\link{fmt_tag}()}
+\code{\link{fmt_tag}()},
+\code{\link{fmt_text}()}
 }
 \concept{plot formatting}

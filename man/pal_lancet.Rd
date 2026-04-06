@@ -22,7 +22,6 @@ pal_lancet[1:5]
 }
 \seealso{
 Other colour palettes: 
-\code{\link{as_palette}()},
 \code{\link{pal_get}()},
 \code{\link{pal_list}()},
 \code{\link{pal_other}},

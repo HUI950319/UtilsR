@@ -4,14 +4,15 @@
 \alias{fmt_scale}
 \title{Set axis scales}
 \usage{
-fmt_scale(plot, scale_x_list = NULL, scale_y_list = NULL)
+fmt_scale(plot, x = NULL, y = NULL)
 }
 \arguments{
 \item{plot}{A ggplot, patchwork, or list of ggplots.}
 
-\item{scale_x_list}{Named list of arguments for the x-axis scale function.}
+\item{x}{Named list of arguments for the x-axis scale function.
+E.g. \code{list(limits = c(4, 8), breaks = seq(4, 8, 1))}.}
 
-\item{scale_y_list}{Named list of arguments for the y-axis scale function.}
+\item{y}{Named list of arguments for the y-axis scale function.}
 }
 \value{
 Same type as input.
@@ -23,7 +24,8 @@ user-supplied arguments via \code{do.call}.
 \examples{
 library(ggplot2)
 p <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) + geom_point()
-fmt_scale(p, scale_x_list = list(limits = c(4, 8), breaks = seq(4, 8, 1)))
+fmt_scale(p, x = list(limits = c(4, 8), breaks = seq(4, 8, 1)))
+fmt_scale(p, y = list(labels = scales::label_percent()))
 
 }
 \seealso{
@@ -42,6 +44,7 @@ Other plot formatting:
 \code{\link{fmt_point}()},
 \code{\link{fmt_ref}()},
 \code{\link{fmt_strip}()},
-\code{\link{fmt_tag}()}
+\code{\link{fmt_tag}()},
+\code{\link{fmt_text}()}
 }
 \concept{plot formatting}

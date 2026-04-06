@@ -9,8 +9,9 @@ plt_sankey(
   vars,
   palette = NULL,
   reverse_levels = TRUE,
-  show_n = TRUE,
+  show_text = c("all", "n", "pct", "name"),
   width = 0.4,
+  space = NULL,
   label_size = 3,
   label_hjust = 0.5,
   alpha = 0.6,
@@ -30,9 +31,20 @@ using sequential HCL palettes.}
 \item{reverse_levels}{Logical, reverse factor levels for display.
 Default \code{TRUE}.}
 
-\item{show_n}{Logical, show count in node labels. Default \code{TRUE}.}
+\item{show_text}{Character. Controls node label content:
+\itemize{
+  \item \code{"all"} (default) — name + count + percentage, e.g.
+    \code{"A (10, 30.3\%)"}.
+  \item \code{"n"} — name + count, e.g. \code{"A (10)"}.
+  \item \code{"pct"} — name + percentage, e.g. \code{"A (30.3\%)"}.
+  \item \code{"name"} — name only, e.g. \code{"A"}.
+}}
 
 \item{width}{Sankey node width. Default 0.4.}
+
+\item{space}{Numeric. Gap between nodes within each column. Default
+\code{NULL} (ggsankey auto-calculates). Set \code{0} for no gaps
+(consistent total height across columns).}
 
 \item{label_size}{Label text size. Default 3.}
 

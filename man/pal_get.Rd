@@ -49,7 +49,6 @@ pal_get("Blues", n = 5, reverse = TRUE, alpha = 0.6)
 }
 \seealso{
 Other colour palettes: 
-\code{\link{as_palette}()},
 \code{\link{pal_lancet}},
 \code{\link{pal_list}()},
 \code{\link{pal_other}},
