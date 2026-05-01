@@ -279,17 +279,41 @@ theme_km <- NULL
 
 #' RCS (Restricted Cubic Spline) Plot Theme
 #'
-#' A preset theme for RCS plots with base size 15 and bold legend text.
+#' Preset theme for Restricted Cubic Spline plots (Cox HR / Logistic OR /
+#' Poisson rate vs. a continuous exposure). Built from [theme_my()] with
+#' thinner rectangle / line linewidths matching the FeatureAnalysis source
+#' convention (`base_rect_size = 0.6, base_line_size = 0.8`), minor grid
+#' lines removed, and bold left-aligned legend text.
+#'
+#' Used as `+ theme_rcs` (no parentheses) -- it is a pre-built ggplot2 theme
+#' object, populated lazily on package load.
 #'
 #' @examples
 #' \dontrun{
-#' library(ggplot2)
-#' p + theme_rcs
+#'   library(ggplot2)
+#'   ggplot(mtcars, aes(mpg, disp)) + geom_point() + theme_rcs
 #' }
 #'
 #' @export
 #' @family ggplot2 themes
 theme_rcs <- NULL
+
+#' Scatter / Feature Plot Theme
+#'
+#' A clean theme aligned with scMMR's PlotScatter, PlotDynamicFeatures, and
+#' FeaturePlot3. Based on \code{theme_bw()} with: title 14pt bold centered,
+#' axis title 12pt, axis text 10pt black, strip text 10pt, legend title 11pt
+#' bold, no minor grid lines.
+#'
+#' @examples
+#' \dontrun{
+#' library(ggplot2)
+#' p + theme_scatter
+#' }
+#'
+#' @export
+#' @family ggplot2 themes
+theme_scatter <- NULL
 
 # Build the preset theme objects on package load
 .onLoad_theme <- function() {
@@ -300,15 +324,32 @@ theme_rcs <- NULL
       legend.text = element_text(hjust = 0, face = "bold")
     )
 
-  rcs <- theme_my(base_rect_size = 1.5, base_size = 15) %+replace%
+  # Thinner border + slightly thinner axis lines, matching the
+  # FeatureAnalysis source RCS convention (base_rect_size = 0.6,
+  # base_line_size = 0.8). Larger values made the panel look chunky.
+  rcs <- theme_my(base_size      = 15,
+                  base_rect_size = 0.6,
+                  base_line_size = 0.8) %+replace%
     theme(
       panel.grid.minor = element_blank(),
-      legend.title = element_text(hjust = 0),
-      legend.text = element_text(hjust = 0, face = "bold")
+      legend.title     = element_text(hjust = 0),
+      legend.text      = element_text(hjust = 0, face = "bold")
+    )
+
+  scatter <- ggplot2::theme_bw() %+replace%
+    ggplot2::theme(
+      plot.title       = ggplot2::element_text(hjust = 0.5, size = 14, face = "bold"),
+      axis.title       = ggplot2::element_text(size = 12),
+      axis.text        = ggplot2::element_text(size = 10, color = "black"),
+      strip.text       = ggplot2::element_text(size = 10),
+      panel.grid.minor = ggplot2::element_blank(),
+      legend.title     = ggplot2::element_text(face = "bold", size = 11),
+      legend.text      = ggplot2::element_text(size = 10)
     )
 
   assign("theme_km", km, envir = asNamespace("UtilsR"))
   assign("theme_rcs", rcs, envir = asNamespace("UtilsR"))
+  assign("theme_scatter", scatter, envir = asNamespace("UtilsR"))
 }
 
 
@@ -736,4 +777,88 @@ theme_blank <- function(
       list(theme_sc() + out)
     ))
   }
+}
+
+
+#' ROC / Calibration Plot Theme
+#'
+#' A clean ggplot2 theme designed for ROC curves, calibration plots, and similar
+#' diagnostic plots. Based on \code{theme_classic} with bold axis text, centred
+#' titles, and a compact legend positioned inside the panel.
+#'
+#' @param base_size Numeric. Base font size (default 11).
+#' @param axis_text_size Numeric. Axis tick-label size (default 13).
+#' @param axis_title_size Numeric. Axis title size (default 14).
+#' @param title_size Numeric. Plot title size (default 16).
+#' @param subtitle_size Numeric. Subtitle size (default 9).
+#' @param strip_size Numeric. Facet strip text size (default 12).
+#' @param legend_text_size Numeric. Legend text size (default 9).
+#' @param legend_title_size Numeric. Legend title size (default 8).
+#' @param legend.position Legend position. Default \code{c(0.8, 0.3)} (inside
+#'   panel). Use \code{"right"}, \code{"bottom"}, etc. for outside placement.
+#' @param axis_linewidth Numeric. Axis line and tick width (default 0.8).
+#' @param plot_margin Margin around the plot in pt. Default
+#'   \code{margin(10, 10, 10, 10)}.
+#'
+#' @return A ggplot2 theme object.
+#'
+#' @examples
+#' library(ggplot2)
+#'
+#' # Basic ROC-style plot
+#' set.seed(1)
+#' df <- data.frame(FPR = seq(0, 1, length.out = 100),
+#'                  TPR = sort(runif(100))^0.5)
+#' ggplot(df, aes(FPR, TPR)) +
+#'   geom_line(color = "steelblue", linewidth = 1) +
+#'   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
+#'   coord_equal() +
+#'   theme_ROC()
+#'
+#' # Customise legend position
+#' ggplot(df, aes(FPR, TPR)) +
+#'   geom_line() +
+#'   theme_ROC(legend.position = "right")
+#'
+#' @export
+#' @family ggplot2 themes
+theme_ROC <- function(
+    base_size         = 11,
+    axis_text_size    = 13,
+    axis_title_size   = 14,
+    title_size        = 16,
+    subtitle_size     = 9,
+    strip_size        = 12,
+    legend_text_size  = 9,
+    legend_title_size = 8,
+    legend.position   = c(0.8, 0.3),
+    axis_linewidth    = 0.8,
+    plot_margin       = ggplot2::margin(10, 10, 10, 10)
+) {
+  ggplot2::theme_classic(base_size = base_size) +
+    ggplot2::theme(
+      # Axis
+      axis.text   = ggplot2::element_text(
+        color = "black", size = axis_text_size, face = "bold"),
+      axis.title  = ggplot2::element_text(
+        color = "black", size = axis_title_size, face = "bold"),
+      axis.line   = ggplot2::element_line(
+        linewidth = axis_linewidth, color = "black"),
+      axis.ticks  = ggplot2::element_line(
+        linewidth = axis_linewidth, color = "black"),
+      # Title / subtitle
+      plot.title    = ggplot2::element_text(
+        hjust = 0.5, size = title_size, face = "bold"),
+      plot.subtitle = ggplot2::element_text(
+        hjust = 0.5, size = subtitle_size, color = "grey40"),
+      # Legend
+      legend.text  = ggplot2::element_text(size = legend_text_size),
+      legend.title = ggplot2::element_text(size = legend_title_size),
+      legend.position = legend.position,
+      # Strip (facet labels)
+      strip.text = ggplot2::element_text(
+        size = strip_size, face = "bold"),
+      # Margin
+      plot.margin = plot_margin
+    )
 }

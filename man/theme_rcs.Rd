@@ -11,12 +11,20 @@ An object of class \code{theme} (inherits from \code{ggplot2::theme}, \code{gg},
 theme_rcs
 }
 \description{
-A preset theme for RCS plots with base size 15 and bold legend text.
+Preset theme for Restricted Cubic Spline plots (Cox HR / Logistic OR /
+Poisson rate vs. a continuous exposure). Built from [theme_my()] with
+thinner rectangle / line linewidths matching the FeatureAnalysis source
+convention (`base_rect_size = 0.6, base_line_size = 0.8`), minor grid
+lines removed, and bold left-aligned legend text.
+}
+\details{
+Used as `+ theme_rcs` (no parentheses) -- it is a pre-built ggplot2 theme
+object, populated lazily on package load.
 }
 \examples{
 \dontrun{
-library(ggplot2)
-p + theme_rcs
+  library(ggplot2)
+  ggplot(mtcars, aes(mpg, disp)) + geom_point() + theme_rcs
 }
 
 }
@@ -24,13 +32,15 @@ p + theme_rcs
 Other ggplot2 themes: 
 \code{\link{leg1}()},
 \code{\link{leg2}()},
+\code{\link{theme_ROC}()},
 \code{\link{theme_alluvia}()},
 \code{\link{theme_blank}()},
 \code{\link{theme_km}},
 \code{\link{theme_legend}()},
 \code{\link{theme_legend1}()},
 \code{\link{theme_my}()},
-\code{\link{theme_sc}()}
+\code{\link{theme_sc}()},
+\code{\link{theme_scatter}}
 }
 \concept{ggplot2 themes}
 \keyword{datasets}
