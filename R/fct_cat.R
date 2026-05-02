@@ -17,10 +17,17 @@
 #' @param groups Named list of integer index vectors for custom grouping,
 #'   e.g. \code{list(early = 1:2, late = 3:4)}.
 #' @param new_labels Character vector to rename levels (same length as levels).
-#' @param combine Character vector of column names to combine. Works inside
-#'   \code{mutate()}. If \code{x} is provided, it is combined with the
-#'   listed columns. If \code{x} is missing, all listed columns are combined.
+#' @param combine Character vector of column names to combine. If \code{x}
+#'   is provided, it is combined with the listed columns. If \code{x} is
+#'   missing, all listed columns are combined. Use \code{data} to pass
+#'   the source data.frame explicitly when calling outside
+#'   \code{dplyr::mutate()}.
 #' @param sep Separator for combine. Default \code{" & "}.
+#' @param data Optional data.frame for \code{combine} mode. When supplied,
+#'   columns are taken from \code{data} directly (works in any context --
+#'   pipes, helpers, standalone calls). When \code{NULL} (default),
+#'   \code{combine} mode falls back to \code{dplyr::pick()} and only
+#'   works inside \code{dplyr::mutate()}.
 #'
 #' @return A factor.
 #'
@@ -53,6 +60,15 @@
 #' df %>% mutate(grp = fct_cat(combine = c("sex", "age")))
 #' }
 #'
+#' # Combine outside mutate() with explicit data arg:
+#' df_demo <- data.frame(
+#'   sex = factor(rep(c("F", "M"), each = 3)),
+#'   age = factor(rep(c("young", "mid", "old"), 2),
+#'                levels = c("young", "mid", "old"))
+#' )
+#' fct_cat(combine = c("sex", "age"), data = df_demo)
+#' fct_cat(df_demo$sex, combine = "age", data = df_demo)
+#'
 #' @export
 #' @family factor tools
 fct_cat <- function(x, ...,
@@ -61,7 +77,8 @@ fct_cat <- function(x, ...,
                     groups = NULL,
                     new_labels = NULL,
                     combine = NULL,
-                    sep = " & ") {
+                    sep = " & ",
+                    data = NULL) {
 
   # --- Mutual exclusivity check ---
   n_modes <- sum(!is.null(binary_ref), !is.null(groups),
@@ -76,9 +93,11 @@ fct_cat <- function(x, ...,
       cli::cli_abort("{.arg combine} must be a character vector of column names.")
     }
     if (missing(x)) {
-      return(.do_combine(x_vals = NULL, combine = combine, sep = sep))
+      return(.do_combine(x_vals = NULL, combine = combine,
+                         sep = sep, data = data))
     } else {
-      return(.do_combine(x_vals = x, combine = combine, sep = sep))
+      return(.do_combine(x_vals = x, combine = combine,
+                         sep = sep, data = data))
     }
   }
 
@@ -189,14 +208,26 @@ fct_cat <- function(x, ...,
 
 
 # ---- Internal: combine ----
-.do_combine <- function(x_vals = NULL, combine, sep) {
-  # Get data context — only works inside mutate()
-  data <- tryCatch(
-    dplyr::pick(dplyr::everything()),
-    error = function(e) {
-      cli::cli_abort("{.arg combine} only works inside {.fn dplyr::mutate}.")
+.do_combine <- function(x_vals = NULL, combine, sep, data = NULL) {
+  # Resolve data context:
+  #   1. explicit `data` arg supplied -> use it directly (any caller context)
+  #   2. else try dplyr::pick() (works only inside dplyr verbs' data mask)
+  if (is.null(data)) {
+    data <- tryCatch(
+      dplyr::pick(dplyr::everything()),
+      error = function(e) NULL
+    )
+    if (is.null(data) || nrow(data) == 0L) {
+      cli::cli_abort(c(
+        "x" = "{.arg combine} requires a data context.",
+        "i" = "Either call {.fn fct_cat} inside {.fn dplyr::mutate}, or pass {.arg data} explicitly."
+      ))
     }
-  )
+  } else {
+    if (!is.data.frame(data)) {
+      cli::cli_abort("{.arg data} must be a data.frame.")
+    }
+  }
 
   # Validate columns
   bad_cols <- setdiff(combine, names(data))
@@ -204,29 +235,34 @@ fct_cat <- function(x, ...,
     cli::cli_abort("Column{?s} not found: {.val {bad_cols}}.")
   }
 
-  # Build list of value vectors to paste
+  # Build list of factor vectors (preserves level order for sorting).
+  # Non-factor inputs are coerced via factor() (alphabetic by default).
+  ensure_factor <- function(v) if (is.factor(v)) v else factor(v)
   if (is.null(x_vals)) {
     col_names <- combine
-    val_list <- lapply(combine, function(col) as.character(data[[col]]))
+    fct_list  <- lapply(combine, function(col) ensure_factor(data[[col]]))
   } else {
     col_names <- c("x", combine)
-    val_list <- c(
-      list(as.character(x_vals)),
-      lapply(combine, function(col) as.character(data[[col]]))
-    )
+    fct_list  <- c(list(ensure_factor(x_vals)),
+                   lapply(combine, function(col) ensure_factor(data[[col]])))
   }
 
-  # Paste
+  # Paste cell-wise (use as.character to expand to labels)
+  val_list <- lapply(fct_list, as.character)
   all_vals <- do.call(paste, c(val_list, list(sep = sep)))
 
-  # Build ordered levels from unique combos
+  # Build ordered levels by arranging on the FACTOR columns -- this preserves
+  # each variable's level order (not alphabetic), matching source .com_factor.
   combo_df <- stats::setNames(
-    as.data.frame(val_list, stringsAsFactors = FALSE),
+    as.data.frame(fct_list, stringsAsFactors = FALSE),
     col_names
   )
   combos <- dplyr::distinct(combo_df)
   combos <- dplyr::arrange(combos, dplyr::across(dplyr::everything()))
-  lvls <- apply(combos, 1, paste, collapse = sep)
+  lvls <- vapply(seq_len(nrow(combos)),
+                 function(i) paste(vapply(combos[i, ], as.character, character(1)),
+                                   collapse = sep),
+                 character(1))
 
   factor(all_vals, levels = lvls)
 }

@@ -12,7 +12,8 @@ fct_cat(
   groups = NULL,
   new_labels = NULL,
   combine = NULL,
-  sep = " & "
+  sep = " & ",
+  data = NULL
 )
 }
 \arguments{
@@ -32,11 +33,19 @@ e.g. \code{list(early = 1:2, late = 3:4)}.}
 
 \item{new_labels}{Character vector to rename levels (same length as levels).}
 
-\item{combine}{Character vector of column names to combine. Works inside
-\code{mutate()}. If \code{x} is provided, it is combined with the
-listed columns. If \code{x} is missing, all listed columns are combined.}
+\item{combine}{Character vector of column names to combine. If \code{x}
+is provided, it is combined with the listed columns. If \code{x} is
+missing, all listed columns are combined. Use \code{data} to pass
+the source data.frame explicitly when calling outside
+\code{dplyr::mutate()}.}
 
 \item{sep}{Separator for combine. Default \code{" & "}.}
+
+\item{data}{Optional data.frame for \code{combine} mode. When supplied,
+columns are taken from \code{data} directly (works in any context --
+pipes, helpers, standalone calls). When \code{NULL} (default),
+\code{combine} mode falls back to \code{dplyr::pick()} and only
+works inside \code{dplyr::mutate()}.}
 }
 \value{
 A factor.
@@ -73,6 +82,15 @@ df \%>\% mutate(grp = fct_cat(sex, combine = "age"))
 df \%>\% mutate(grp = fct_cat(sex, combine = c("age", "race")))
 df \%>\% mutate(grp = fct_cat(combine = c("sex", "age")))
 }
+
+# Combine outside mutate() with explicit data arg:
+df_demo <- data.frame(
+  sex = factor(rep(c("F", "M"), each = 3)),
+  age = factor(rep(c("young", "mid", "old"), 2),
+               levels = c("young", "mid", "old"))
+)
+fct_cat(combine = c("sex", "age"), data = df_demo)
+fct_cat(df_demo$sex, combine = "age", data = df_demo)
 
 }
 \seealso{
