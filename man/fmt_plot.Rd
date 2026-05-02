@@ -75,6 +75,7 @@ Other plot formatting:
 \code{\link{fmt_legend}()},
 \code{\link{fmt_panel}()},
 \code{\link{fmt_point}()},
+\code{\link{fmt_raster}()},
 \code{\link{fmt_ref}()},
 \code{\link{fmt_scale}()},
 \code{\link{fmt_strip}()},

@@ -10,15 +10,11 @@ fct_cat(
   reverse = FALSE,
   binary_ref = NULL,
   groups = NULL,
-  new_labels = NULL,
-  combine = NULL,
-  sep = " & ",
-  data = NULL
+  new_labels = NULL
 )
 }
 \arguments{
-\item{x}{A factor or character vector. For \code{combine} mode this is
-optional -- if missing, all columns listed in \code{combine} are used.}
+\item{x}{A factor or character vector.}
 
 \item{...}{For recode: named args (new = old). For reorder: level names
 in desired order (unnamed strings). Must be ALL named or ALL unnamed.}
@@ -32,27 +28,14 @@ collapse to \code{"Oth"}.}
 e.g. \code{list(early = 1:2, late = 3:4)}.}
 
 \item{new_labels}{Character vector to rename levels (same length as levels).}
-
-\item{combine}{Character vector of column names to combine. If \code{x}
-is provided, it is combined with the listed columns. If \code{x} is
-missing, all listed columns are combined. Use \code{data} to pass
-the source data.frame explicitly when calling outside
-\code{dplyr::mutate()}.}
-
-\item{sep}{Separator for combine. Default \code{" & "}.}
-
-\item{data}{Optional data.frame for \code{combine} mode. When supplied,
-columns are taken from \code{data} directly (works in any context --
-pipes, helpers, standalone calls). When \code{NULL} (default),
-\code{combine} mode falls back to \code{dplyr::pick()} and only
-works inside \code{dplyr::mutate()}.}
 }
 \value{
 A factor.
 }
 \description{
-One function for all factor operations. Works on vectors (usable in
-\code{mutate()}) and auto-detects the action from arguments.
+One function for all single-vector factor operations. Auto-detects the
+action from arguments. For combining multiple columns into one factor,
+see [fct_to_combine()].
 }
 \examples{
 x <- factor(letters[1:6])
@@ -76,25 +59,16 @@ fct_cat(factor(c("I","II","III","IV")), groups = list(early = 1:2, late = 3:4))
 # Relabel
 fct_cat(factor(c("I","II","III","IV")), new_labels = c("One","Two","Three","Four"))
 
-# Combine in mutate():
+# For combining multiple columns into one factor, use [fct_to_combine()]:
 \dontrun{
-df \%>\% mutate(grp = fct_cat(sex, combine = "age"))
-df \%>\% mutate(grp = fct_cat(sex, combine = c("age", "race")))
-df \%>\% mutate(grp = fct_cat(combine = c("sex", "age")))
+df \%>\% mutate(grp = fct_to_combine(pick(sex, age)))
+fct_to_combine(df, sex, age)
 }
-
-# Combine outside mutate() with explicit data arg:
-df_demo <- data.frame(
-  sex = factor(rep(c("F", "M"), each = 3)),
-  age = factor(rep(c("young", "mid", "old"), 2),
-               levels = c("young", "mid", "old"))
-)
-fct_cat(combine = c("sex", "age"), data = df_demo)
-fct_cat(df_demo$sex, combine = "age", data = df_demo)
 
 }
 \seealso{
 Other factor tools: 
-\code{\link{fct_num}()}
+\code{\link{fct_num}()},
+\code{\link{fct_to_combine}()}
 }
 \concept{factor tools}

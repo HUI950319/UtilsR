@@ -8,7 +8,11 @@ fmt_com(
   plot,
   com_method = "con",
   label.y = NULL,
+  label.y.prop = NULL,
   label = c("p.signif", "{p.format}{p.signif}", "p.format"),
+  tip.length = 0.025,
+  step.increase = 0.05,
+  size = 0.8,
   ...
 )
 }
@@ -18,11 +22,21 @@ fmt_com(
 \item{com_method}{Comparison method: \code{"con"} (consecutive), \code{"all"}
 (all pairs), or a list of length-2 character vectors.}
 
-\item{label.y}{Numeric y-position for the first bracket (absolute y-axis value,
-not proportion). Default \code{NULL} lets ggpubr auto-calculate.}
+\item{label.y}{Numeric y-position for the first bracket (absolute y-axis
+value). Default \code{NULL} lets ggpubr auto-calculate.}
+
+\item{label.y.prop}{Numeric proportion (0-1) of the y-axis data range for
+the first bracket position. E.g., \code{0.9} = 90\% of data range.
+Ignored when \code{label.y} is provided. Default \code{NULL}.}
 
 \item{label}{Label type: \code{"p.signif"}, \code{"\{p.format\}\{p.signif\}"},
 or \code{"p.format"}.}
+
+\item{tip.length}{Length of the bracket tips. Default \code{0.025}.}
+
+\item{step.increase}{Vertical step increase between brackets. Default \code{0.05}.}
+
+\item{size}{Line width of the brackets. Default \code{0.8}.}
 
 \item{...}{Additional arguments passed to \code{ggpubr::geom_pwc}.}
 }
@@ -68,6 +82,7 @@ Other plot formatting:
 \code{\link{fmt_panel}()},
 \code{\link{fmt_plot}()},
 \code{\link{fmt_point}()},
+\code{\link{fmt_raster}()},
 \code{\link{fmt_ref}()},
 \code{\link{fmt_scale}()},
 \code{\link{fmt_strip}()},

@@ -16,7 +16,7 @@ BugReports: https://github.com/HUI950319/UtilsR/issues
 Depends: R (>= 3.5.0)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Collate:
     'zzz.R'
     'utils_display.R'
@@ -29,6 +29,7 @@ Collate:
     'count_packages.R'
     'color.R'
     'fct_cat.R'
+    'fct_to_combine.R'
     'fct_num.R'
     'stat_ci.R'
     'stat_pval.R'
@@ -36,6 +37,7 @@ Collate:
     'fmt_plot_utils.R'
     'fmt_plot.R'
     'fmt_point.R'
+    'fmt_raster.R'
     'plt_dist.R'
     'plt_sankey.R'
     'plt_upset.R'
@@ -87,6 +89,9 @@ Suggests:
     fmsb,
     ggbeeswarm,
     ggrastr,
+    gtable,
+    png,
+    ragg,
     ggprism,
     ggsankey,
     ggupset,

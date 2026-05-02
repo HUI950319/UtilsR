@@ -10,6 +10,7 @@ fmt_legend(
   legend.direction = NULL,
   legend_theme = NULL,
   collect = FALSE,
+  title = NULL,
   scale = NULL,
   scale_width = NULL,
   scale_height = NULL,
@@ -39,6 +40,11 @@ override them. Default `NULL` (no extra styling).}
 
 \item{collect}{Logical. If `TRUE` and input has multiple plots,
 collect legends into a single shared legend via patchwork. Default `FALSE`.}
+
+\item{title}{Character vector of legend titles, one per subplot. Recycled
+to match the number of subplots. Automatically detects which aesthetics
+(colour, fill, shape, etc.) are mapped and renames their legend titles.
+Default `NULL` (no change).}
 
 \item{scale}{Numeric. Proportionally scale the entire legend.
 \code{0.8} = shrink to 80\%, \code{1.2} = enlarge to 120\%.
@@ -97,6 +103,7 @@ Other plot formatting:
 \code{\link{fmt_panel}()},
 \code{\link{fmt_plot}()},
 \code{\link{fmt_point}()},
+\code{\link{fmt_raster}()},
 \code{\link{fmt_ref}()},
 \code{\link{fmt_scale}()},
 \code{\link{fmt_strip}()},

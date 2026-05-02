@@ -102,7 +102,7 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
   for (i in idx_x) plots[[i]] <- plots[[i]] + hide_x_theme
   for (i in idx_y) plots[[i]] <- plots[[i]] + hide_y_theme
 
-  .from_plot_list(plots, info$is_patchwork, info$is_single)
+  .from_plot_list(plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
 }
 
 # ---- fmt_tag ----
@@ -179,7 +179,7 @@ fmt_tag <- function(plot,
       )
   }
 
-  .from_plot_list(plots, info$is_patchwork, info$is_single)
+  .from_plot_list(plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
 }
 
 # ---- fmt_legend ----
@@ -205,6 +205,10 @@ fmt_tag <- function(plot,
 #'   override them. Default `NULL` (no extra styling).
 #' @param collect Logical. If `TRUE` and input has multiple plots,
 #'   collect legends into a single shared legend via patchwork. Default `FALSE`.
+#' @param title Character vector of legend titles, one per subplot. Recycled
+#'   to match the number of subplots. Automatically detects which aesthetics
+#'   (colour, fill, shape, etc.) are mapped and renames their legend titles.
+#'   Default `NULL` (no change).
 #' @param scale Numeric. Proportionally scale the entire legend.
 #'   \code{0.8} = shrink to 80\%, \code{1.2} = enlarge to 120\%.
 #'   Adjusts key size, text size, title size, point size, and spacing
@@ -245,6 +249,7 @@ fmt_legend <- function(plot,
                        legend.direction = NULL,
                        legend_theme = NULL,
                        collect = FALSE,
+                       title = NULL,
                        scale = NULL,
                        scale_width = NULL,
                        scale_height = NULL,
@@ -254,6 +259,25 @@ fmt_legend <- function(plot,
   info <- .to_plot_list(plot)
   plots <- info$plots
   n <- length(plots)
+
+  # ---- Rename legend titles per subplot ----
+  if (!is.null(title)) {
+    title <- rep_len(title, n)
+    legend_aes <- c("colour", "color", "fill", "shape", "size",
+                    "alpha", "linetype")
+    for (i in seq_len(n)) {
+      # Only rename scales that produce legends, skip positional (x/y) scales
+      for (sc in plots[[i]]$scales$scales) {
+        if (any(sc$aesthetics %in% legend_aes)) {
+          sc$name <- title[i]
+        }
+      }
+    }
+    # Rebuild patchwork so collect mode sees updated titles
+    if (info$is_patchwork) {
+      plot <- .from_plot_list(plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
+    }
+  }
 
   if (!is.null(legend.direction) &&
       !legend.direction %in% c("horizontal", "vertical")) {
@@ -370,6 +394,7 @@ fmt_legend <- function(plot,
 
   # ---- Scale width / height independently ----
   dim_theme <- NULL
+  dim_guides <- NULL
   if (!is.null(scale_width) || !is.null(scale_height)) {
     .get_key_dim <- function(p, element) {
       th <- ggplot2::theme_get() + p$theme
@@ -382,17 +407,27 @@ fmt_legend <- function(plot,
     }
     ref_p <- plots[[1]]
     dim_args <- list()
+    # guide_colorbar args for continuous scales
+    bar_args <- list()
     if (!is.null(scale_width)) {
       kw <- .get_key_dim(ref_p, "legend.key.width") %||%
             .get_key_dim(ref_p, "legend.key.size") %||% 1.2
       dim_args$legend.key.width <- grid::unit(kw * scale_width, "lines")
+      bar_args$barwidth <- grid::unit(kw * scale_width, "lines")
     }
     if (!is.null(scale_height)) {
       kh <- .get_key_dim(ref_p, "legend.key.height") %||%
             .get_key_dim(ref_p, "legend.key.size") %||% 1.2
       dim_args$legend.key.height <- grid::unit(kh * scale_height, "lines")
+      bar_args$barheight <- grid::unit(kh * scale_height, "lines")
     }
     dim_theme <- do.call(ggplot2::theme, dim_args)
+    # Apply to both legend and colorbar guides
+    if (length(bar_args) > 0) {
+      guide_cb <- do.call(ggplot2::guide_colorbar, bar_args)
+      guide_lg <- do.call(ggplot2::guide_legend, list())
+      dim_guides <- ggplot2::guides(colour = guide_cb, fill = guide_cb)
+    }
   }
 
   # ---- Guide layout (ncol/nrow) ----
@@ -418,6 +453,7 @@ fmt_legend <- function(plot,
     if (!is.null(scale_theme))     combined <- combined & scale_theme
     if (!is.null(scale_guides))    combined <- combined & scale_guides
     if (!is.null(dim_theme))       combined <- combined & dim_theme
+    if (!is.null(dim_guides))      combined <- combined & dim_guides
     if (!is.null(legend_guides))   combined <- combined & legend_guides
     return(combined)
   }
@@ -429,10 +465,11 @@ fmt_legend <- function(plot,
     if (!is.null(scale_theme))     plots[[i]] <- plots[[i]] + scale_theme
     if (!is.null(scale_guides))    plots[[i]] <- plots[[i]] + scale_guides
     if (!is.null(dim_theme))       plots[[i]] <- plots[[i]] + dim_theme
+    if (!is.null(dim_guides))      plots[[i]] <- plots[[i]] + dim_guides
     if (!is.null(legend_guides))   plots[[i]] <- plots[[i]] + legend_guides
   }
 
-  .from_plot_list(plots, info$is_patchwork, info$is_single)
+  .from_plot_list(plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
 }
 
 # ---- fmt_ref ----
@@ -507,7 +544,7 @@ fmt_ref <- function(plot,
     plots[[i]] <- .add_ref_one(plots[[i]])
   }
 
-  .from_plot_list(plots, info$is_patchwork, info$is_single)
+  .from_plot_list(plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
 }
 
 # ---- fmt_plot ----
@@ -674,24 +711,123 @@ fmt_strip <- function(plot, label = NULL, label_color = "white", label_fill = NU
     }
   }
 
-  for (i in seq_len(n)) {
-    cur_label <- label[i]
-    # Inject the strip_label column into the plot data BEFORE setting facet
-    if (!is.null(plots[[i]]$data) && is.data.frame(plots[[i]]$data)) {
-      plots[[i]]$data$.strip_label. <- cur_label
-    }
-    facet_formula <- ggplot2::vars(.data[[".strip_label."]])
-    plots[[i]] <- plots[[i]] +
-      ggh4x::facet_wrap2(
-        facet_formula,
-        strip = create_strip(
-          lc = if (!is.null(label_color)) label_color[i] else NULL,
-          lf = if (!is.null(label_fill))  label_fill[i]  else NULL
-        )
-      )
+  # Helper: check if a plot already has a non-trivial facet
+  .has_facet <- function(p) {
+    fc <- p$facet
+    !is.null(fc) && !inherits(fc, "FacetNull")
   }
 
-  .from_plot_list(plots, info$is_patchwork, info$is_single)
+  for (i in seq_len(n)) {
+    cur_strip <- create_strip(
+      lc = if (!is.null(label_color)) label_color[i] else NULL,
+      lf = if (!is.null(label_fill))  label_fill[i]  else NULL
+    )
+
+    if (.has_facet(plots[[i]])) {
+      # ── Plot already has facets (facet_wrap or facet_grid) ──
+      # Detect facet variable(s) from all possible param locations
+      old_facet <- plots[[i]]$facet
+      is_grid <- inherits(old_facet, "FacetGrid")
+
+      # Extract facet variable names
+      facet_vars <- character(0)
+      for (slot in c("facets", "cols", "rows")) {
+        fq <- old_facet$params[[slot]]
+        if (!is.null(fq) && length(fq) > 0) {
+          facet_vars <- unique(c(facet_vars, vapply(fq, rlang::as_name, character(1))))
+        }
+      }
+
+      if (length(facet_vars) > 0) {
+        fvar <- facet_vars[1]
+        # Collect all unique facet levels (from plot data + layer data)
+        all_vals <- character(0)
+        if (!is.null(plots[[i]]$data) && is.data.frame(plots[[i]]$data) &&
+            fvar %in% colnames(plots[[i]]$data)) {
+          fv <- plots[[i]]$data[[fvar]]
+          all_vals <- if (is.factor(fv)) levels(fv) else unique(as.character(fv))
+        }
+        for (layer in plots[[i]]$layers) {
+          ld <- layer$data
+          if (!is.null(ld) && is.data.frame(ld) && fvar %in% colnames(ld)) {
+            fv <- ld[[fvar]]
+            lv <- if (is.factor(fv)) levels(fv) else unique(as.character(fv))
+            all_vals <- unique(c(all_vals, lv))
+          }
+        }
+
+        if (length(all_vals) > 0) {
+          # Build mapping: facet levels → labels
+          if (n == 1 && length(label) >= length(all_vals)) {
+            new_labels <- label[seq_along(all_vals)]
+          } else {
+            new_labels <- rep(label[i], length(all_vals))
+          }
+          mapping <- stats::setNames(new_labels, all_vals)
+          lbl <- ggplot2::as_labeller(mapping)
+
+          # Preserve original facet type (grid vs wrap)
+          if (is_grid) {
+            # Detect if fvar was in cols or rows
+            col_vars <- vapply(old_facet$params$cols %||% list(),
+                               rlang::as_name, character(1))
+            row_vars <- vapply(old_facet$params$rows %||% list(),
+                               rlang::as_name, character(1))
+            fvar_quos <- ggplot2::vars(.data[[fvar]])
+
+            if (fvar %in% col_vars) {
+              plots[[i]] <- plots[[i]] +
+                ggplot2::facet_grid(cols = fvar_quos, labeller = lbl)
+            } else {
+              plots[[i]] <- plots[[i]] +
+                ggplot2::facet_grid(rows = fvar_quos, labeller = lbl)
+            }
+          } else {
+            orig_scales <- old_facet$params$free %||% list(x = FALSE, y = FALSE)
+            scales_str <- if (isTRUE(orig_scales$x) && isTRUE(orig_scales$y)) "free"
+                          else if (isTRUE(orig_scales$x)) "free_x"
+                          else if (isTRUE(orig_scales$y)) "free_y"
+                          else "fixed"
+            plots[[i]] <- plots[[i]] +
+              ggplot2::facet_wrap(
+                ggplot2::vars(.data[[fvar]]),
+                labeller = lbl, scales = scales_str,
+                ncol = old_facet$params$ncol,
+                nrow = old_facet$params$nrow
+              )
+          }
+        }
+      }
+
+      # Apply strip style via theme
+      strip_theme <- list()
+      if (!is.null(label_fill)) {
+        # For single plot with multiple facets, use first fill for all
+        fill_val <- if (n == 1) label_fill[1] else label_fill[i]
+        strip_theme$strip.background <- ggplot2::element_rect(
+          fill = fill_val, colour = "black"
+        )
+      }
+      lc_val <- if (n == 1) label_color[1] else label_color[i]
+      strip_theme$strip.text <- ggplot2::element_text(
+        colour = if (!is.null(lc_val)) lc_val else "black",
+        face = "bold"
+      )
+      plots[[i]] <- plots[[i]] + do.call(ggplot2::theme, strip_theme)
+
+    } else {
+      # ── No existing facet: inject .strip_label. column ──
+      cur_label <- label[i]
+      if (!is.null(plots[[i]]$data) && is.data.frame(plots[[i]]$data)) {
+        plots[[i]]$data$.strip_label. <- cur_label
+      }
+      facet_formula <- ggplot2::vars(.data[[".strip_label."]])
+      plots[[i]] <- plots[[i]] +
+        ggh4x::facet_wrap2(facet_formula, strip = cur_strip)
+    }
+  }
+
+  .from_plot_list(plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
 }
 
 # ---- fmt_panel ----
@@ -852,7 +988,7 @@ fmt_panel <- function(plot,
   # ---- Apply to plots ----
   info <- .to_plot_list(plot)
   info$plots <- lapply(info$plots, function(p) p + panel_theme)
-  .from_plot_list(info$plots, info$is_patchwork, info$is_single)
+  .from_plot_list(info$plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
 }
 
 # ---- fmt_text ----
@@ -1016,7 +1152,7 @@ fmt_text <- function(plot,
     info$plots[[i]] <- p
   }
 
-  .from_plot_list(info$plots, info$is_patchwork, info$is_single)
+  .from_plot_list(info$plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
 }
 
 # ---- fmt_axisText ----
@@ -1142,7 +1278,7 @@ fmt_axisText <- function(plot,
   # ---- Apply to plots ----
   info <- .to_plot_list(plot)
   info$plots <- lapply(info$plots, function(p) p + text_theme)
-  .from_plot_list(info$plots, info$is_patchwork, info$is_single)
+  .from_plot_list(info$plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
 }
 
 # ---- fmt_axisTile ----
@@ -1247,7 +1383,7 @@ fmt_axisTile <- function(plot,
       }
     }
     info$plots <- lapply(plots, text_theme_fn)
-    return(.from_plot_list(info$plots, info$is_patchwork, info$is_single))
+    return(.from_plot_list(info$plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig))
   }
 
   # ---- Tile mode: color strip + labels below/beside ----
@@ -1353,10 +1489,16 @@ fmt_axisTile <- function(plot,
 #' @param plot A ggplot, patchwork, or list of ggplots.
 #' @param com_method Comparison method: \code{"con"} (consecutive), \code{"all"}
 #'   (all pairs), or a list of length-2 character vectors.
-#' @param label.y Numeric y-position for the first bracket (absolute y-axis value,
-#'   not proportion). Default \code{NULL} lets ggpubr auto-calculate.
+#' @param label.y Numeric y-position for the first bracket (absolute y-axis
+#'   value). Default \code{NULL} lets ggpubr auto-calculate.
+#' @param label.y.prop Numeric proportion (0-1) of the y-axis data range for
+#'   the first bracket position. E.g., \code{0.9} = 90\% of data range.
+#'   Ignored when \code{label.y} is provided. Default \code{NULL}.
 #' @param label Label type: \code{"p.signif"}, \code{"\{p.format\}\{p.signif\}"},
 #'   or \code{"p.format"}.
+#' @param tip.length Length of the bracket tips. Default \code{0.025}.
+#' @param step.increase Vertical step increase between brackets. Default \code{0.05}.
+#' @param size Line width of the brackets. Default \code{0.8}.
 #' @param ... Additional arguments passed to \code{ggpubr::geom_pwc}.
 #'
 #' @return Same type as input.
@@ -1388,14 +1530,27 @@ fmt_axisTile <- function(plot,
 fmt_com <- function(plot,
                     com_method = "con",
                     label.y = NULL,
+                    label.y.prop = NULL,
                     label = c("p.signif", "{p.format}{p.signif}", "p.format"),
+                    tip.length = 0.025,
+                    step.increase = 0.05,
+                    size = 0.8,
                     ...) {
   label <- match.arg(label)
 
   get_comparisons <- function(p, cm) {
-    x_var <- rlang::as_name(p$mapping$x)
-    if (is.null(x_var)) cli::cli_abort("No x variable found in ggplot mapping.")
-    x_data <- p$data[[x_var]]
+    x_quo <- p$mapping$x
+    if (is.null(x_quo)) cli::cli_abort("No x variable found in ggplot mapping.")
+    # Evaluate the x aesthetic to get actual data values
+    x_data <- tryCatch(
+      rlang::eval_tidy(x_quo, data = p$data),
+      error = function(e) {
+        # Fallback: try as_name for simple symbols
+        x_var <- rlang::as_name(x_quo)
+        p$data[[x_var]]
+      }
+    )
+    if (is.null(x_data)) cli::cli_abort("Cannot resolve x variable from plot mapping.")
     lvs <- if (is.factor(x_data)) levels(x_data) else sort(unique(x_data))
 
     if (is.list(cm)) {
@@ -1419,6 +1574,20 @@ fmt_com <- function(plot,
   }
 
   fmt_com_one <- function(p) {
+    # Determine y position: label.y (absolute) takes priority over label.y.prop
+    y_pos <- label.y
+    if (is.null(y_pos) && !is.null(label.y.prop)) {
+      y_quo <- p$mapping$y
+      y_data <- tryCatch(
+        rlang::eval_tidy(y_quo, data = p$data),
+        error = function(e) NULL
+      )
+      if (!is.null(y_data) && is.numeric(y_data)) {
+        y_range <- range(y_data, na.rm = TRUE)
+        y_pos <- y_range[1] + label.y.prop * (y_range[2] - y_range[1])
+      }
+    }
+
     p +
       ggpubr::geom_pwc(
         method.args = list(comparisons = get_comparisons(p, com_method)),
@@ -1427,10 +1596,10 @@ fmt_com <- function(plot,
           symbols = c("***", "**", "*", "ns")
         ),
         label = label,
-        size = 0.8,
-        step.increase = 0.05,
-        tip.length = 0.025,
-        y.position = label.y,
+        size = size,
+        step.increase = step.increase,
+        tip.length = tip.length,
+        y.position = y_pos,
         fontface = "bold",
         ...
       )
@@ -1438,7 +1607,7 @@ fmt_com <- function(plot,
 
   info <- .to_plot_list(plot)
   info$plots <- lapply(info$plots, fmt_com_one)
-  .from_plot_list(info$plots, info$is_patchwork, info$is_single)
+  .from_plot_list(info$plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
 }
 
 # ---- fmt_bg ----
@@ -1565,7 +1734,7 @@ fmt_bg <- function(plot,
 
   info <- .to_plot_list(plot)
   info$plots <- lapply(info$plots, fmt_bg_one)
-  .from_plot_list(info$plots, info$is_patchwork, info$is_single)
+  .from_plot_list(info$plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
 }
 
 # ---- fmt_his ----
@@ -1668,7 +1837,7 @@ fmt_his <- function(plot,
 
   info <- .to_plot_list(plot)
   info$plots <- lapply(info$plots, fmt_his_one)
-  .from_plot_list(info$plots, info$is_patchwork, info$is_single)
+  .from_plot_list(info$plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
 }
 
 # ---- fmt_scale ----
@@ -1715,7 +1884,7 @@ fmt_scale <- function(plot, x = NULL, y = NULL) {
 
   info <- .to_plot_list(plot)
   info$plots <- lapply(info$plots, fmt_scale_one)
-  .from_plot_list(info$plots, info$is_patchwork, info$is_single)
+  .from_plot_list(info$plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
 }
 
 # ---- fmt_expand ----
@@ -1768,7 +1937,7 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 
   info <- .to_plot_list(plot)
   info$plots <- lapply(info$plots, fmt_expand_one)
-  .from_plot_list(info$plots, info$is_patchwork, info$is_single)
+  .from_plot_list(info$plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
 }
 
 # ---- fmt_boxplot ----
@@ -1823,5 +1992,5 @@ fmt_boxplot <- function(plot,
 
   info <- .to_plot_list(plot)
   info$plots <- lapply(info$plots, fmt_boxplot_one)
-  .from_plot_list(info$plots, info$is_patchwork, info$is_single)
+  .from_plot_list(info$plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
 }

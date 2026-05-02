@@ -24,12 +24,14 @@ ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) +
 Other ggplot2 themes: 
 \code{\link{leg1}()},
 \code{\link{leg2}()},
+\code{\link{theme_ROC}()},
 \code{\link{theme_alluvia}()},
 \code{\link{theme_blank}()},
 \code{\link{theme_km}},
 \code{\link{theme_legend}()},
 \code{\link{theme_my}()},
 \code{\link{theme_rcs}},
-\code{\link{theme_sc}()}
+\code{\link{theme_sc}()},
+\code{\link{theme_scatter}}
 }
 \concept{ggplot2 themes}

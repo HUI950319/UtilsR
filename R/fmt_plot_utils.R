@@ -10,27 +10,50 @@
   is_single <- inherits(plot, "gg") && !is_patchwork
 
   if (is_single) {
-    return(list(plots = list(plot), is_patchwork = FALSE, is_single = TRUE))
+    return(list(plots = list(plot), is_patchwork = FALSE, is_single = TRUE,
+                pw_orig = NULL))
   }
 
   if (is_patchwork) {
-    plots <- lapply(seq_along(plot), function(i) plot[[i]])
-    return(list(plots = plots, is_patchwork = TRUE, is_single = FALSE))
+    raw <- lapply(seq_along(plot), function(i) plot[[i]])
+    # Keep only actual ggplot objects (skip layout/spacer elements)
+    plots <- Filter(function(x) inherits(x, "gg"), raw)
+    if (length(plots) == 0) {
+      cli::cli_abort("Patchwork contains no ggplot objects.")
+    }
+    return(list(plots = plots, is_patchwork = TRUE, is_single = FALSE,
+                pw_orig = plot))
   }
 
   if (is.list(plot)) {
     ok <- vapply(plot, inherits, logical(1), "gg")
     if (!all(ok)) cli::cli_abort("All elements in the list must be ggplot objects.")
-    return(list(plots = plot, is_patchwork = FALSE, is_single = FALSE))
+    return(list(plots = plot, is_patchwork = FALSE, is_single = FALSE,
+                pw_orig = NULL))
   }
 
   cli::cli_abort("Input must be a ggplot, patchwork, or list of ggplots.")
 }
 
 #' @noRd
-.from_plot_list <- function(plot_list, was_patchwork, was_single, ...) {
+.from_plot_list <- function(plot_list, was_patchwork, was_single, pw_orig = NULL, ...) {
   if (was_single) return(plot_list[[1]])
-  if (was_patchwork) return(patchwork::wrap_plots(plot_list, ...))
+  if (was_patchwork) {
+    # In-place assignment preserves original layout (/, |, design, etc.)
+    if (!is.null(pw_orig)) {
+      # Map modified gg plots back to the correct positions in the patchwork
+      gg_idx <- which(vapply(
+        seq_along(pw_orig), function(i) inherits(pw_orig[[i]], "gg"), logical(1)
+      ))
+      for (j in seq_along(plot_list)) {
+        if (j <= length(gg_idx)) {
+          pw_orig[[gg_idx[j]]] <- plot_list[[j]]
+        }
+      }
+      return(pw_orig)
+    }
+    return(patchwork::wrap_plots(plot_list, ...))
+  }
   plot_list
 }
 

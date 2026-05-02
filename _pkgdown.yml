@@ -91,6 +91,7 @@ reference:
       - fmt_expand
       - fmt_boxplot
       - fmt_point
+      - fmt_raster
       - flatten_patchwork
 
   - title: Themes
@@ -102,6 +103,7 @@ reference:
       - theme_legend1
       - theme_blank
       - theme_sc
+      - theme_ROC
 
   - title: Grob Utilities
     desc: Helpers for manipulating ggplot2 grobs.

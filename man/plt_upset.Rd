@@ -6,77 +6,129 @@
 \usage{
 plt_upset(
   data,
-  vars,
+  vars = NULL,
   levels = c("Yes", "yes"),
   colors = NULL,
-  output = c("both", "venn", "upset", "data", "all")
+  output = c("both", "venn", "upset", "data", "all"),
+  label = c("both", "count", "percent", "none"),
+  label_geom = c("label", "text"),
+  label_color = "black",
+  label_size = 3.5,
+  label_alpha = 0.6,
+  venn.fill = c("gradient", "gradient_rev", "category", "none"),
+  venn.alpha = 0.5,
+  edge.color = "grey30",
+  edge.size = 1,
+  set.name.size = 4,
+  set.labels = NULL
 )
 }
 \arguments{
-\item{data}{A data frame.}
+\item{data}{Input data in one of two formats:
+\describe{
+  \item{\strong{Named list}}{Each element is a character/numeric vector
+    of set members (e.g. gene names). Names become set labels.
+    Example: \code{list(TraceGene = c("A","B"), DE = c("B","C"))}.
+    When a list is provided, \code{vars} and \code{levels} are ignored.}
+  \item{\strong{Data frame}}{A data.frame with binary indicator columns
+    specified by \code{vars}. Membership is determined by \code{levels}.}
+}}
 
-\item{vars}{Character vector of binary variable names to intersect.}
+\item{vars}{Character vector of column names to intersect.
+Required when \code{data} is a data.frame; ignored when \code{data}
+is a list.}
 
 \item{levels}{Character vector of values indicating membership
-(e.g. \code{c("Yes", "yes", "1")}). Default \code{c("Yes", "yes")}.}
+(e.g. \code{c("Yes", "yes", "1")}). Default \code{c("Yes", "yes")}.
+Ignored when \code{data} is a list.}
 
-\item{colors}{Character vector of 3 colours for
-\code{c(sets_bar, top_bar, matrix_dots)}. Default uses \code{pal_lancet}.}
+\item{colors}{Character vector. For UpSet: 3 colours for
+\code{c(sets_bar, top_bar, matrix_dots)}.
+For Venn: colour(s) used in the fill gradient or as category colours
+(see \code{venn.fill}). Default uses \code{pal_lancet}.}
 
 \item{output}{What to return:
 \describe{
   \item{\code{"venn"}}{Venn diagram only (ggplot).}
   \item{\code{"upset"}}{UpSet plot only (non-zero intersections).}
   \item{\code{"both"}}{(default) Combined Venn + UpSet side by side.}
-  \item{\code{"data"}}{Data frame with \code{intersect_group} column added.}
+  \item{\code{"data"}}{Data frame with \code{intersect_group} column.}
   \item{\code{"all"}}{Named list with all plots and data.}
 }}
+
+\item{label}{What to show inside each region of the Venn diagram:
+\code{"both"} (count + percent, default), \code{"count"},
+\code{"percent"}, or \code{"none"}.}
+
+\item{label_geom}{Geom for labels: \code{"label"} (with background box,
+default) or \code{"text"} (plain text).}
+
+\item{label_color}{Color of the label text. Default \code{"black"}.}
+
+\item{label_size}{Font size of the labels. Default \code{3.5}.}
+
+\item{label_alpha}{Alpha of the label background (only for
+\code{label_geom = "label"}). Default \code{0.6}.}
+
+\item{venn.fill}{How to fill the Venn regions. One of:
+\describe{
+  \item{\code{"gradient"}}{(default) Continuous fill by count,
+    gradient from grey90 to \code{colors[1]}.}
+  \item{\code{"gradient_rev"}}{Reversed continuous fill by count,
+    gradient from \code{colors[1]} to grey90 (large overlaps appear lighter).}
+  \item{\code{"category"}}{Each set gets a distinct fill colour from
+    \code{colors}; region alpha encodes overlap.}
+  \item{\code{"none"}}{No fill (transparent).}
+}}
+
+\item{venn.alpha}{Alpha for the set regions when
+\code{venn.fill = "category"}. Default \code{0.5}.}
+
+\item{edge.color}{Color of the set boundary lines. Default \code{"grey30"}.}
+
+\item{edge.size}{Line width of the set boundaries. Default \code{1}.}
+
+\item{set.name.size}{Font size for set names around the Venn.
+Default \code{4}.}
+
+\item{set.labels}{Named character vector to rename sets in the plot.
+Names = original set names, values = display labels.
+e.g. \code{c(TraceGene = "Trajectory", PropCor = "Proportion Cor")}.
+Unmatched names keep the original. Default \code{NULL} (no renaming).}
 }
 \value{
 Depends on \code{output}: a ggplot, a combined plot, a data frame,
   or a named list.
 }
 \description{
-Visualise intersections of binary categorical variables using Venn diagrams
-and UpSet plots. Returns both plots and a data frame with intersection
-group assignments.
+Visualise intersections using Venn diagrams and UpSet plots.
+Accepts either a \strong{named list} of element vectors (e.g. gene names)
+or a \strong{data.frame} with binary indicator columns.
 }
 \note{
 Requires \pkg{ggVennDiagram} and optionally \pkg{aplot} (for combined
   layout). Install with \code{pak::pak(c("ggVennDiagram", "aplot"))}.
 }
 \examples{
+# ---- List input (most convenient) ----
+gene_sets <- list(
+  TraceGene = c("TP53","MDM2","EGFR","BRCA1","MYC"),
+  DE        = c("EGFR","BRCA1","KRAS","PIK3CA"),
+  PropCor   = c("BRCA1","MYC","APC","PTEN")
+)
+plt_upset(gene_sets, output = "venn")
+plt_upset(gene_sets, output = "venn",
+          set.labels = c(TraceGene = "Trajectory", PropCor = "Prop. Cor"),
+          label = "count", colors = "#E64B35")
+
+# ---- Data frame input ----
 df <- data.frame(
   A = sample(c("Yes","No"), 100, TRUE, c(0.3, 0.7)),
   B = sample(c("Yes","No"), 100, TRUE, c(0.4, 0.6)),
-  C = sample(c("Yes","No"), 100, TRUE, c(0.5, 0.5)),
-  D = sample(c("Yes","No"), 100, TRUE, c(0.2, 0.8))
+  C = sample(c("Yes","No"), 100, TRUE, c(0.5, 0.5))
 )
-
-# Venn diagram
-plt_upset(df, vars = c("A","B","C"), output = "venn")
-
-# UpSet plot
-plt_upset(df, vars = c("A","B","C","D"), output = "upset")
-
-# Combined (default)
-plt_upset(df, vars = c("A","B","C"))
-
-# Get data with intersection groups
-result <- plt_upset(df, vars = c("A","B","C"), output = "data")
-table(result$intersect_group)
-
-# Custom membership levels
-df2 <- data.frame(
-  x = sample(0:1, 100, TRUE),
-  y = sample(0:1, 100, TRUE),
-  z = sample(0:1, 100, TRUE)
-)
-plt_upset(df2, vars = c("x","y","z"), levels = c("1"))
-
-# All outputs
-res <- plt_upset(df, vars = c("A","B","C","D"), output = "all")
-names(res)
+plt_upset(df, vars = c("A","B","C"), output = "venn",
+          label = "count", label_geom = "text")
 
 }
 \seealso{
