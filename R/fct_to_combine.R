@@ -1,24 +1,26 @@
 # ============================================================================
-# fct_to_combine.R -- Combine multiple factor/character columns into one factor
+# fct_to_combine.R -- Combine multiple factor/character vectors into one factor
 # ============================================================================
 
-#' Combine Multiple Columns into a Single Factor
+#' Combine Multiple Vectors into a Single Factor
 #'
-#' Pastes the columns named in \code{...} cell-wise into a single factor.
-#' Levels are taken from unique combinations sorted by each input column's
+#' Pastes the vectors in \code{...} cell-wise into a single factor.
+#' Levels are taken from unique combinations sorted by each input vector's
 #' factor level order (preserving meaningful orderings such as TNM stages
-#' or graded categories), not alphabetic. This is a drop-in replacement
-#' for the legacy \code{.com_factor()} pattern (FeatureAnalysis).
+#' or graded categories), not alphabetic.
 #'
-#' @param data A data.frame (required).
-#' @param ... Columns to combine. Accepts unquoted bare names, character
-#'   vectors, or multiple character args -- e.g. all of these are
-#'   equivalent: \code{fct_to_combine(d, Sex, Race)},
-#'   \code{fct_to_combine(d, "Sex", "Race")},
-#'   \code{fct_to_combine(d, c("Sex", "Race"))}.
+#' Conceptually similar to \code{forcats::fct_cross()} and
+#' \code{base::interaction()}, but with a default separator (\code{" & "})
+#' tuned for clinical / epidemiological group labels. For regrouping levels
+#' of a single factor (the dual operation), see [fct_to_group()].
+#'
+#' @param ... Two or more factor / character / vector inputs of equal length.
+#'   Inside \code{dplyr::mutate()} pass bare column names (e.g.
+#'   \code{mutate(g = fct_to_combine(sex, age))}). For programmatic use,
+#'   splice a data subset with \code{!!!} or \code{do.call()}.
 #' @param sep Separator between cell values. Default \code{" & "}.
 #'
-#' @return A factor of length \code{nrow(data)} with levels equal to the
+#' @return A factor of length \code{length(..1)} with levels equal to the
 #'   sorted unique combinations.
 #'
 #' @examples
@@ -28,76 +30,51 @@
 #'                levels = c("young", "mid", "old"))
 #' )
 #'
-#' # Bare names
-#' fct_to_combine(df, sex, age)
+#' # Direct vectors
+#' fct_to_combine(df$sex, df$age)
 #'
-#' # Character args
-#' fct_to_combine(df, "sex", "age")
+#' # Inside mutate (most natural usage)
+#' \dontrun{
+#' library(dplyr)
+#' df %>% mutate(grp = fct_to_combine(sex, age))
+#' }
 #'
-#' # Single character vector (typical for programmatic callers)
-#' fct_to_combine(df, c("sex", "age"))
+#' # Programmatic (character vector of column names)
+#' vars <- c("sex", "age")
+#' do.call(fct_to_combine, df[vars])
+#' rlang::exec(fct_to_combine, !!!df[vars])
 #'
 #' # Custom separator
-#' fct_to_combine(df, sex, age, sep = "_")
+#' fct_to_combine(df$sex, df$age, sep = "_")
 #'
 #' @export
 #' @family factor tools
-fct_to_combine <- function(data, ..., sep = " & ") {
+fct_to_combine <- function(..., sep = " & ") {
 
-  if (!is.data.frame(data)) {
-    cli::cli_abort("{.arg data} must be a data.frame.")
+  args <- list(...)
+  if (length(args) < 1L) {
+    cli::cli_abort("Must supply at least one vector in {.arg ...}.")
   }
 
-  # Collect column names from ... (accepts bare names + character).
-  # Resolution rule per arg:
-  #   1. Literal character expression -> use directly
-  #   2. Bare symbol matching a column in data -> use as column name
-  #   3. Otherwise try eval_tidy in caller env -> must yield character vec
-  dots <- rlang::enquos(...)
-  if (length(dots) == 0L) {
-    cli::cli_abort("Must supply at least one column name in {.arg ...}.")
-  }
-  vars <- unlist(lapply(dots, function(q) {
-    expr <- rlang::quo_get_expr(q)
-    if (is.character(expr)) return(expr)
-    if (is.symbol(expr)) {
-      nm <- rlang::as_name(q)
-      if (nm %in% names(data)) return(nm)
-    }
-    val <- tryCatch(rlang::eval_tidy(q), error = function(e) NULL)
-    if (is.character(val)) return(val)
+  lens <- vapply(args, length, integer(1L))
+  if (length(unique(lens)) != 1L) {
     cli::cli_abort(c(
-      "x" = "Cannot resolve {.code {rlang::expr_text(expr)}} as a column name or character vector."
+      "All inputs must have the same length.",
+      "i" = "Got lengths: {paste(lens, collapse = ', ')}."
     ))
-  }), use.names = FALSE)
-
-  if (!is.character(vars)) {
-    cli::cli_abort("Column names must be character.")
-  }
-  bad <- setdiff(vars, names(data))
-  if (length(bad) > 0L) {
-    cli::cli_abort("Column{?s} not found: {.val {bad}}.")
   }
 
-  # Coerce to factor (preserve existing level order; alphabetic for new)
   ensure_factor <- function(v) if (is.factor(v)) v else factor(v)
-  fct_list <- lapply(vars, function(col) ensure_factor(data[[col]]))
+  fct_list <- lapply(args, ensure_factor)
 
-  # Cell-wise paste
   val_list <- lapply(fct_list, as.character)
   all_vals <- do.call(paste, c(val_list, list(sep = sep)))
 
-  # Build ordered levels: arrange on FACTOR columns preserves level order
-  combo_df <- stats::setNames(
-    as.data.frame(fct_list, stringsAsFactors = FALSE),
-    vars
-  )
-  combos <- dplyr::distinct(combo_df)
-  combos <- dplyr::arrange(combos, dplyr::across(dplyr::everything()))
-  lvls <- vapply(seq_len(nrow(combos)),
-                 function(i) paste(vapply(combos[i, ], as.character, character(1)),
-                                   collapse = sep),
-                 character(1))
+  # Build ordered levels: do.call(order, fct_list) sorts rows by each
+  # factor's internal level order (stable, no alphabetic coercion).
+  ord <- do.call(order, fct_list)
+  ordered_keys <- all_vals[ord]
+  lvls <- ordered_keys[!duplicated(ordered_keys)]
 
   factor(all_vals, levels = lvls)
 }

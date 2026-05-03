@@ -6,7 +6,8 @@
 #'
 #' One function for all single-vector factor operations. Auto-detects the
 #' action from arguments. For combining multiple columns into one factor,
-#' see [fct_to_combine()].
+#' see [fct_to_combine()]. For grouping levels by integer indices with
+#' auto-named groups (e.g. `g1/3`), see [fct_to_group()].
 #'
 #' @param x A factor or character vector.
 #' @param ... For recode: named args (new = old). For reorder: level names
@@ -44,8 +45,8 @@
 #'
 #' # For combining multiple columns into one factor, use [fct_to_combine()]:
 #' \dontrun{
-#' df %>% mutate(grp = fct_to_combine(pick(sex, age)))
-#' fct_to_combine(df, sex, age)
+#' df %>% mutate(grp = fct_to_combine(sex, age))
+#' fct_to_combine(df$sex, df$age)
 #' }
 #'
 #' @export

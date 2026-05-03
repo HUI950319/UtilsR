@@ -35,7 +35,8 @@ A factor.
 \description{
 One function for all single-vector factor operations. Auto-detects the
 action from arguments. For combining multiple columns into one factor,
-see [fct_to_combine()].
+see [fct_to_combine()]. For grouping levels by integer indices with
+auto-named groups (e.g. `g1/3`), see [fct_to_group()].
 }
 \examples{
 x <- factor(letters[1:6])
@@ -61,14 +62,15 @@ fct_cat(factor(c("I","II","III","IV")), new_labels = c("One","Two","Three","Four
 
 # For combining multiple columns into one factor, use [fct_to_combine()]:
 \dontrun{
-df \%>\% mutate(grp = fct_to_combine(pick(sex, age)))
-fct_to_combine(df, sex, age)
+df \%>\% mutate(grp = fct_to_combine(sex, age))
+fct_to_combine(df$sex, df$age)
 }
 
 }
 \seealso{
 Other factor tools: 
 \code{\link{fct_num}()},
-\code{\link{fct_to_combine}()}
+\code{\link{fct_to_combine}()},
+\code{\link{fct_to_group}()}
 }
 \concept{factor tools}

@@ -2,31 +2,33 @@
 % Please edit documentation in R/fct_to_combine.R
 \name{fct_to_combine}
 \alias{fct_to_combine}
-\title{Combine Multiple Columns into a Single Factor}
+\title{Combine Multiple Vectors into a Single Factor}
 \usage{
-fct_to_combine(data, ..., sep = " & ")
+fct_to_combine(..., sep = " & ")
 }
 \arguments{
-\item{data}{A data.frame (required).}
-
-\item{...}{Columns to combine. Accepts unquoted bare names, character
-vectors, or multiple character args -- e.g. all of these are
-equivalent: \code{fct_to_combine(d, Sex, Race)},
-\code{fct_to_combine(d, "Sex", "Race")},
-\code{fct_to_combine(d, c("Sex", "Race"))}.}
+\item{...}{Two or more factor / character / vector inputs of equal length.
+Inside \code{dplyr::mutate()} pass bare column names (e.g.
+\code{mutate(g = fct_to_combine(sex, age))}). For programmatic use,
+splice a data subset with \code{!!!} or \code{do.call()}.}
 
 \item{sep}{Separator between cell values. Default \code{" & "}.}
 }
 \value{
-A factor of length \code{nrow(data)} with levels equal to the
+A factor of length \code{length(..1)} with levels equal to the
   sorted unique combinations.
 }
 \description{
-Pastes the columns named in \code{...} cell-wise into a single factor.
-Levels are taken from unique combinations sorted by each input column's
+Pastes the vectors in \code{...} cell-wise into a single factor.
+Levels are taken from unique combinations sorted by each input vector's
 factor level order (preserving meaningful orderings such as TNM stages
-or graded categories), not alphabetic. This is a drop-in replacement
-for the legacy \code{.com_factor()} pattern (FeatureAnalysis).
+or graded categories), not alphabetic.
+}
+\details{
+Conceptually similar to \code{forcats::fct_cross()} and
+\code{base::interaction()}, but with a default separator (\code{" & "})
+tuned for clinical / epidemiological group labels. For regrouping levels
+of a single factor (the dual operation), see [fct_to_group()].
 }
 \examples{
 df <- data.frame(
@@ -35,22 +37,28 @@ df <- data.frame(
                levels = c("young", "mid", "old"))
 )
 
-# Bare names
-fct_to_combine(df, sex, age)
+# Direct vectors
+fct_to_combine(df$sex, df$age)
 
-# Character args
-fct_to_combine(df, "sex", "age")
+# Inside mutate (most natural usage)
+\dontrun{
+library(dplyr)
+df \%>\% mutate(grp = fct_to_combine(sex, age))
+}
 
-# Single character vector (typical for programmatic callers)
-fct_to_combine(df, c("sex", "age"))
+# Programmatic (character vector of column names)
+vars <- c("sex", "age")
+do.call(fct_to_combine, df[vars])
+rlang::exec(fct_to_combine, !!!df[vars])
 
 # Custom separator
-fct_to_combine(df, sex, age, sep = "_")
+fct_to_combine(df$sex, df$age, sep = "_")
 
 }
 \seealso{
 Other factor tools: 
 \code{\link{fct_cat}()},
-\code{\link{fct_num}()}
+\code{\link{fct_num}()},
+\code{\link{fct_to_group}()}
 }
 \concept{factor tools}

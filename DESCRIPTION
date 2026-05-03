@@ -1,7 +1,7 @@
 Package: UtilsR
 Type: Package
 Title: Utility Functions for Data Exploration and System Diagnostics
-Version: 0.5.0
+Version: 0.6.0
 Authors@R: person("Hui", "Ouyang", email = "ouyangyuhao@outlook.com",
                   role = c("aut", "cre"))
 Description: A collection of utility functions for interactive data exploration,
@@ -30,6 +30,7 @@ Collate:
     'color.R'
     'fct_cat.R'
     'fct_to_combine.R'
+    'fct_to_group.R'
     'fct_num.R'
     'stat_ci.R'
     'stat_pval.R'

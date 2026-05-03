@@ -1,3 +1,35 @@
+# UtilsR 0.6.0
+
+## New: `fct_to_group()`
+
+* Companion to `fct_to_combine()`. Collapses factor levels into new groups
+  specified by integer indices, with auto-naming convention `g<i1>/<i2>/...`
+  (common in clinical TNM / RPA staging).
+* Vector API (no `data` parameter), parameter named `g_lis`:
+  ```r
+  x <- factor(c("I","II","III","IV","V"))
+  fct_to_group(x, list(c(1,3), c(2,4), 5))             # -> g1/3, g2/4, g5
+  fct_to_group(x, list(early = 1:2, late = 3:5))       # user names win
+  ```
+
+## Breaking Change: `fct_to_combine()` signature
+
+* **Removed** the `data` parameter. The function now takes vectors directly via
+  `...`, aligning with `forcats::fct_cross()` and `base::interaction()`.
+* Migration:
+  ```r
+  # Before (0.5.x and earlier)
+  fct_to_combine(df, sex, age)
+  fct_to_combine(df, c("sex", "age"))
+
+  # After (0.6.0+)
+  fct_to_combine(df$sex, df$age)
+  df %>% mutate(g = fct_to_combine(sex, age))           # natural in mutate
+  do.call(fct_to_combine, df[c("sex", "age")])           # programmatic
+  rlang::exec(fct_to_combine, !!!df[c("sex", "age")])    # programmatic (rlang)
+  ```
+* Default separator (` & `) and factor-level-ordered output unchanged.
+
 # UtilsR 0.3.0
 
 ## `plt_cat()` — Unified Categorical Plot
