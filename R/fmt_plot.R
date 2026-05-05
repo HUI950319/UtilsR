@@ -729,12 +729,31 @@ fmt_strip <- function(plot, label = NULL, label_color = "white", label_fill = NU
       old_facet <- plots[[i]]$facet
       is_grid <- inherits(old_facet, "FacetGrid")
 
-      # Extract facet variable names
+      # Extract facet variable names. Some quosures wrap calls like
+      # `.data[["col"]]` (the form fmt_strip itself injects in the else
+      # branch below) instead of bare symbols. `rlang::as_name` rejects
+      # calls, so we use a tolerant extractor: try as_name first, fall
+      # back to parsing `.data[["col"]]` calls, otherwise drop the entry.
+      .extract_var_name <- function(q) {
+        nm <- tryCatch(rlang::as_name(q), error = function(e) NA_character_)
+        if (!is.na(nm)) return(nm)
+        expr <- rlang::quo_get_expr(q)
+        # Pattern: .data[["colname"]]  ->  "colname"
+        if (is.call(expr) && length(expr) >= 3L &&
+            identical(expr[[1]], as.name("[[")) &&
+            identical(expr[[2]], as.name(".data")) &&
+            is.character(expr[[3]])) {
+          return(as.character(expr[[3]]))
+        }
+        NA_character_
+      }
       facet_vars <- character(0)
       for (slot in c("facets", "cols", "rows")) {
         fq <- old_facet$params[[slot]]
         if (!is.null(fq) && length(fq) > 0) {
-          facet_vars <- unique(c(facet_vars, vapply(fq, rlang::as_name, character(1))))
+          new_vars <- vapply(fq, .extract_var_name, character(1))
+          new_vars <- new_vars[!is.na(new_vars)]
+          facet_vars <- unique(c(facet_vars, new_vars))
         }
       }
 
@@ -821,7 +840,12 @@ fmt_strip <- function(plot, label = NULL, label_color = "white", label_fill = NU
       if (!is.null(plots[[i]]$data) && is.data.frame(plots[[i]]$data)) {
         plots[[i]]$data$.strip_label. <- cur_label
       }
-      facet_formula <- ggplot2::vars(.data[[".strip_label."]])
+      # Use a bare symbol (`.strip_label.`) rather than `.data[[".strip_label."]]`
+      # so a subsequent fmt_strip() pass can resolve the facet variable name
+      # via `rlang::as_name()` without hitting "Can't convert a call to a
+      # string." See the .extract_var_name helper above for the dual-mode
+      # name extractor that also handles the legacy `.data[[col]]` form.
+      facet_formula <- ggplot2::vars(!!rlang::sym(".strip_label."))
       plots[[i]] <- plots[[i]] +
         ggh4x::facet_wrap2(facet_formula, strip = cur_strip)
     }
