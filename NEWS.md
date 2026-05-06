@@ -1,3 +1,34 @@
+# UtilsR 0.6.1
+
+Patch release fixing `fmt_strip()` re-application failure.
+
+## Bug fixes
+
+* `fmt_strip()` previously crashed with
+  `Error: Can't convert a call to a string.` when applied to a plot whose
+  first `fmt_strip()` pass had injected a synthetic `.strip_label.` facet.
+  This happened because the no-facet branch wrote the facet quosure as
+  `vars(.data[["..."]])` (a CALL), and the has-facet branch used
+  `rlang::as_name()` which only accepts symbols.
+
+  Two-layer fix:
+  1. **Source side** (no-facet branch): use `rlang::sym(".strip_label.")`
+     to produce a bare symbol, so subsequent `rlang::as_name()` calls
+     resolve cleanly.
+  2. **Recovery side** (has-facet branch): add a tolerant
+     `.extract_var_name()` helper that tries `as_name()` first, falls
+     back to parsing `.data[[...]]` calls (for backward compatibility
+     with externally-built ggh4x facets), and drops unparseable entries.
+
+  Reproducer: any patchwork composition where each sub-plot was passed
+  through `fmt_strip()` once before being wrapped, then `fmt_strip()` is
+  applied to the wrapped patchwork (e.g. MLR's `.plt_vd.cat.group_sur` and
+  `.plt_vd.cat.group` helpers).
+
+  No public API change; behavior preserved for single-pass `fmt_strip()`
+  usage. Fix verified end-to-end in MLR (`plt_vpd_log` cat-cat 2var
+  path which previously crashed now passes).
+
 # UtilsR 0.6.0
 
 ## New: `fct_to_group()`

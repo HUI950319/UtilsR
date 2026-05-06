@@ -1,7 +1,7 @@
 Package: UtilsR
 Type: Package
 Title: Utility Functions for Data Exploration and System Diagnostics
-Version: 0.6.0
+Version: 0.6.1
 Authors@R: person("Hui", "Ouyang", email = "ouyangyuhao@outlook.com",
                   role = c("aut", "cre"))
 Description: A collection of utility functions for interactive data exploration,
