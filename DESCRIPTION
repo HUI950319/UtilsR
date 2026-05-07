@@ -42,9 +42,6 @@ Collate:
     'plt_dist.R'
     'plt_sankey.R'
     'plt_upset.R'
-    'stat_cohen.R'
-    'plt_cohen.R'
-    'plt_radar.R'
     'plt_cat_types.R'
     'plt_cat.R'
     'plt_con.R'
@@ -85,9 +82,6 @@ Suggests:
     cowplot,
     SeuratObject,
     Seurat,
-    effsize,
-    fastDummies,
-    fmsb,
     ggbeeswarm,
     ggrastr,
     gtable,

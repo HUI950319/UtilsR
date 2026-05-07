@@ -221,10 +221,8 @@ Other plot:
 \code{\link{PlotButterfly2}()},
 \code{\link{PlotRankCor}()},
 \code{\link{plt_cat}()},
-\code{\link{plt_cohen}()},
 \code{\link{plt_con}()},
 \code{\link{plt_dist}()},
-\code{\link{plt_radar}()},
 \code{\link{plt_sankey}()},
 \code{\link{plt_upset}()}
 }

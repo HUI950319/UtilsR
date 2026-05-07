@@ -35,8 +35,6 @@ reference:
       - plt_cat
       - plt_con
       - plt_dist
-      - plt_cohen
-      - plt_radar
       - plt_sankey
       - plt_upset
 
@@ -56,12 +54,11 @@ reference:
       - fct_num
 
   - title: Statistical Formatting
-    desc: Format confidence intervals, p-values, and effect sizes.
+    desc: Format confidence intervals and p-values.
     contents:
       - stat_ci
       - stat_pval
       - stat_ci_parse
-      - stat_cohen
 
   - title: Colour Palettes
     desc: Built-in colour palettes and palette utilities.

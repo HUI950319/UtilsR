@@ -48,8 +48,8 @@ install.packages(c("circlize", "ggVennDiagram", "ggupset"))
 |----------|-----------|---------|
 | **Inspect** | `lv()`, `na()`, `check_system()`, `check_size()` | Variable summary, missing values, system & memory info |
 | **Factor** | `fct_cat()`, `fct_num()` | Recode / reorder / binarise; numeric binning |
-| **Format** | `stat_ci()`, `stat_pval()`, `stat_ci_parse()`, `stat_cohen()` | CI strings, p-values, effect sizes |
-| **Plot** | `plt_cat()`, `plt_con()`, `plt_dist()`, `plt_cohen()`, `plt_radar()`, `plt_sankey()`, `plt_upset()` | Categorical (11 types), continuous (4 types), distribution, effect size, radar, sankey, upset |
+| **Format** | `stat_ci()`, `stat_pval()`, `stat_ci_parse()` | CI strings, p-values |
+| **Plot** | `plt_cat()`, `plt_con()`, `plt_dist()`, `plt_sankey()`, `plt_upset()` | Categorical (11 types), continuous (4 types), distribution, sankey, upset |
 | **Colour** | `pal_get()`, `pal_list()`, `pal_show()`, `as_palette()`, `show_color()` | 256 palettes, custom palette creation, console swatches |
 | **ggplot2** | `fmt_plot()`, `fmt_axis()`, `fmt_tag()`, `fmt_legend()`, `fmt_ref()`, `fmt_strip()`, `fmt_com()`, `fmt_bg()`, `fmt_his()`, `fmt_scale()`, `fmt_expand()`, `fmt_boxplot()`, `fmt_point()` | Chainable ggplot2 formatting |
 | **Theme** | `theme_my()`, `theme_km()`, `theme_rcs()`, `theme_legend1()` | Publication-ready themes |
