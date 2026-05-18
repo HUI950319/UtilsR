@@ -4,14 +4,14 @@
 \alias{fmt_strip}
 \title{Add facet strip labels to a plot}
 \usage{
-fmt_strip(plot, label = NULL, label_color = "white", label_fill = NULL)
+fmt_strip(plot, label = NULL, label_color = "black", label_fill = NULL)
 }
 \arguments{
 \item{plot}{A ggplot, patchwork, or list of ggplots.}
 
 \item{label}{Character vector of strip labels (recycled as needed).}
 
-\item{label_color}{Text colour(s) for the strip label. Default \code{"white"}.}
+\item{label_color}{Text colour(s) for the strip label. Default \code{"black"}.}
 
 \item{label_fill}{Background fill colour(s) for the strip. If \code{NULL},
 strips use a transparent background.}

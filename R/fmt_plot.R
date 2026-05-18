@@ -673,7 +673,7 @@ fmt_plot <- function(plot,
 #'
 #' @param plot A ggplot, patchwork, or list of ggplots.
 #' @param label Character vector of strip labels (recycled as needed).
-#' @param label_color Text colour(s) for the strip label. Default \code{"white"}.
+#' @param label_color Text colour(s) for the strip label. Default \code{"black"}.
 #' @param label_fill Background fill colour(s) for the strip. If \code{NULL},
 #'   strips use a transparent background.
 #'
@@ -686,7 +686,7 @@ fmt_plot <- function(plot,
 #'
 #' @export
 #' @family plot formatting
-fmt_strip <- function(plot, label = NULL, label_color = "white", label_fill = NULL) {
+fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NULL) {
   info <- .to_plot_list(plot)
   plots <- info$plots
   n <- length(plots)
