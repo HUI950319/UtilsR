@@ -7,10 +7,11 @@
 fct_to_combine(..., sep = " & ")
 }
 \arguments{
-\item{...}{Two or more factor / character / vector inputs of equal length.
-Inside \code{dplyr::mutate()} pass bare column names (e.g.
-\code{mutate(g = fct_to_combine(sex, age))}). For programmatic use,
-splice a data subset with \code{!!!} or \code{do.call()}.}
+\item{...}{Two or more factor / character / vector inputs of equal length,
+OR a single character vector of column names (length >= 2) when called
+inside a dplyr data-masking verb. In the latter case the columns are
+resolved through \code{dplyr::pick(all_of(.))}, enabling
+\code{mutate(g = fct_to_combine(c("sex", "age")))}.}
 
 \item{sep}{Separator between cell values. Default \code{" & "}.}
 }
@@ -50,6 +51,13 @@ df \%>\% mutate(grp = fct_to_combine(sex, age))
 vars <- c("sex", "age")
 do.call(fct_to_combine, df[vars])
 rlang::exec(fct_to_combine, !!!df[vars])
+
+# Character vector of column names inside mutate (auto-resolved via pick)
+\dontrun{
+df \%>\% mutate(grp = fct_to_combine(c("sex", "age")))
+exposure_names <- c("sex", "age")
+df \%>\% mutate(grp = fct_to_combine(exposure_names))
+}
 
 # Custom separator
 fct_to_combine(df$sex, df$age, sep = "_")

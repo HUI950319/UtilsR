@@ -1614,6 +1614,14 @@ fmt_com <- function(plot,
 
     p +
       ggpubr::geom_pwc(
+        # Override inherited `group` aesthetic. Paired / repeated-measures
+        # plots (e.g. ggwithinstats partial-dependence panels) set
+        # `aes(group = subject_id)` at the plot level to draw trajectory
+        # lines; without this override, geom_pwc inherits that grouping
+        # and computes within-subject pairwise tests -- each subject has
+        # one observation per x level, so all tests degenerate to "ns"
+        # at scattered positions.
+        mapping = ggplot2::aes(group = NULL),
         method.args = list(comparisons = get_comparisons(p, com_method)),
         symnum.args = list(
           cutpoints = c(0, 0.001, 0.01, 0.05, Inf),

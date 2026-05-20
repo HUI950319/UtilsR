@@ -14,10 +14,11 @@
 #' tuned for clinical / epidemiological group labels. For regrouping levels
 #' of a single factor (the dual operation), see [fct_to_group()].
 #'
-#' @param ... Two or more factor / character / vector inputs of equal length.
-#'   Inside \code{dplyr::mutate()} pass bare column names (e.g.
-#'   \code{mutate(g = fct_to_combine(sex, age))}). For programmatic use,
-#'   splice a data subset with \code{!!!} or \code{do.call()}.
+#' @param ... Two or more factor / character / vector inputs of equal length,
+#'   OR a single character vector of column names (length >= 2) when called
+#'   inside a dplyr data-masking verb. In the latter case the columns are
+#'   resolved through \code{dplyr::pick(all_of(.))}, enabling
+#'   \code{mutate(g = fct_to_combine(c("sex", "age")))}.
 #' @param sep Separator between cell values. Default \code{" & "}.
 #'
 #' @return A factor of length \code{length(..1)} with levels equal to the
@@ -44,6 +45,13 @@
 #' do.call(fct_to_combine, df[vars])
 #' rlang::exec(fct_to_combine, !!!df[vars])
 #'
+#' # Character vector of column names inside mutate (auto-resolved via pick)
+#' \dontrun{
+#' df %>% mutate(grp = fct_to_combine(c("sex", "age")))
+#' exposure_names <- c("sex", "age")
+#' df %>% mutate(grp = fct_to_combine(exposure_names))
+#' }
+#'
 #' # Custom separator
 #' fct_to_combine(df$sex, df$age, sep = "_")
 #'
@@ -54,6 +62,26 @@ fct_to_combine <- function(..., sep = " & ") {
   args <- list(...)
   if (length(args) < 1L) {
     cli::cli_abort("Must supply at least one vector in {.arg ...}.")
+  }
+
+  # Single character vector of length >= 2 -> treat as column names and
+  # resolve through dplyr::pick(all_of(.)) from the enclosing data mask
+  # (mutate / summarise / filter). This enables:
+  #   mutate(g = fct_to_combine(c("sex", "age")))
+  #   exposure_names <- c("sex","age"); mutate(g = fct_to_combine(exposure_names))
+  if (length(args) == 1L && is.character(args[[1L]]) &&
+      length(args[[1L]]) >= 2L) {
+    cols <- args[[1L]]
+    args <- tryCatch(
+      as.list(dplyr::pick(dplyr::all_of(cols))),
+      error = function(e) {
+        cli::cli_abort(c(
+          "Cannot resolve column names {.val {cols}}.",
+          "i" = "Call inside {.fn dplyr::mutate} / {.fn dplyr::summarise}, or pass column vectors directly via {.code !!!df[cols]}.",
+          "x" = conditionMessage(e)
+        ), call = NULL)
+      }
+    )
   }
 
   lens <- vapply(args, length, integer(1L))
