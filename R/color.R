@@ -199,7 +199,8 @@ pal_other <- list(
 pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
                      show = TRUE) {
   type <- match.arg(type)
-  pals <- palette_list
+  # Explicit namespace lookup (LazyData not auto-loaded under `::`).
+  pals <- getExportedValue("UtilsR", "palette_list")
   # Filter by type
   if (type != "all") {
     pals <- pals[vapply(pals, function(x) identical(attr(x, "type"), type), logical(1))]
@@ -259,7 +260,11 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
 #' @family colour palettes
 pal_get <- function(palette = "Paired", n = NULL, x = NULL,
                     reverse = FALSE, alpha = 1) {
-  pals <- palette_list
+  # Explicit namespace lookup so the function works when called as
+  # `UtilsR::pal_get(...)` from another package without `library(UtilsR)`.
+  # `LazyData` promises are not auto-evaluated by `::`, so a bare
+  # `palette_list` reference errors with "object not found" in that path.
+  pals <- getExportedValue("UtilsR", "palette_list")
   if (!palette %in% names(pals)) {
     # Fuzzy match
     matches <- grep(palette, names(pals), ignore.case = TRUE, value = TRUE)
@@ -406,7 +411,8 @@ pal_show <- function(palette = NULL, pattern = NULL,
     }
   }
 
-  pals <- palette_list
+  # Explicit namespace lookup (LazyData not auto-loaded under `::`).
+  pals <- getExportedValue("UtilsR", "palette_list")
 
   # --- Filter palettes ---
   if (!is.null(palette)) {
@@ -516,8 +522,10 @@ pal_show <- function(palette = NULL, pattern = NULL,
 .is_color_vector <- function(x) {
   if (length(x) == 0) return(FALSE)
   # Check: are these valid R colours? (hex codes or named colours)
-  # First check if ANY of them are palette names
-  n_palette_match <- sum(x %in% names(palette_list))
+  # First check if ANY of them are palette names. Explicit namespace lookup
+  # (LazyData not auto-loaded under `::`).
+  pl <- getExportedValue("UtilsR", "palette_list")
+  n_palette_match <- sum(x %in% names(pl))
   # If most entries match palette names, treat as palette name mode
   if (n_palette_match > length(x) / 2) return(FALSE)
   # Try to parse as colours
