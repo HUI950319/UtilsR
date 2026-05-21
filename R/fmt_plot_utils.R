@@ -86,8 +86,13 @@
   tryCatch({
     var_quo <- plot$mapping[[axis]]
     if (!is.null(var_quo) && !is.null(plot$data)) {
-      d <- plot$data[[rlang::as_name(var_quo)]]
-      if (is.factor(d) || is.character(d)) {
+      # Try simple name first (aes(x = Age)); fall back to eval_tidy for
+      # .data[[var]] / !!sym(var) / other quosure expressions.
+      d <- tryCatch(
+        plot$data[[rlang::as_name(var_quo)]],
+        error = function(e) rlang::eval_tidy(var_quo, data = plot$data)
+      )
+      if (is.factor(d) || is.character(d) || is.logical(d)) {
         return(paste0("scale_", axis, "_discrete"))
       } else if (inherits(d, c("Date", "POSIXct", "POSIXt"))) {
         return(paste0("scale_", axis, "_date"))
