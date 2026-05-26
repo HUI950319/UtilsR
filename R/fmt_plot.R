@@ -105,6 +105,45 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
   .from_plot_list(plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
 }
 
+# ---- fmt_tag helpers ----
+
+# Resolve label_position to a list(x, y, outside).
+# Accepts numeric length-2 NPC pair OR keyword strings:
+#   "tl"/"tr"/"bl"/"br"            -> inside corners
+#   "tl-out"/"tr-out"/...          -> outside corners (underscore aliases ok)
+.resolve_tag_position <- function(label_position) {
+  map <- list(
+    "tl"     = list(x = 0.02, y = 0.98, outside = FALSE),
+    "tr"     = list(x = 0.98, y = 0.98, outside = FALSE),
+    "bl"     = list(x = 0.02, y = 0.02, outside = FALSE),
+    "br"     = list(x = 0.98, y = 0.02, outside = FALSE),
+    "tl-out" = list(x = 0,    y = 1,    outside = TRUE),
+    "tr-out" = list(x = 1,    y = 1,    outside = TRUE),
+    "bl-out" = list(x = 0,    y = 0,    outside = TRUE),
+    "br-out" = list(x = 1,    y = 0,    outside = TRUE)
+  )
+
+  if (is.character(label_position) && length(label_position) == 1L) {
+    key <- gsub("_", "-", tolower(label_position))
+    if (key %in% names(map)) return(map[[key]])
+    cli::cli_warn(c(
+      "Unknown {.arg label_position} keyword {.val {label_position}}.",
+      i = "Valid keywords: {.val {names(map)}}. Falling back to default top-left inside."
+    ))
+    return(map[["tl"]])
+  }
+
+  if (is.numeric(label_position) && length(label_position) == 2L) {
+    return(list(x = label_position[1], y = label_position[2], outside = FALSE))
+  }
+
+  cli::cli_warn(c(
+    "{.arg label_position} must be a numeric length-2 NPC pair or a keyword string.",
+    i = "Valid keywords: {.val {names(map)}}. Falling back to default top-left inside."
+  ))
+  list(x = 0.02, y = 0.98, outside = FALSE)
+}
+
 # ---- fmt_tag ----
 
 #' Add panel labels to plots
@@ -115,12 +154,31 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
 #' @param plot A ggplot, patchwork, or list of ggplot objects.
 #' @param labels Character vector of labels. If `NULL` (default), uses
 #'   `LETTERS[1:n]`.
-#' @param label_position Numeric vector of length 2 giving NPC coordinates
-#'   `c(x, y)` for label placement. Default `c(0.02, 0.98)` is top-left.
-#' @param size Numeric label size in points. Default 16.
+#' @param label_position Placement of the label. Accepts either:
+#'   \itemize{
+#'     \item Numeric length-2 vector `c(x, y)` in NPC — drawn inside the
+#'       panel (default `c(0.02, 0.98)` = top-left inside).
+#'     \item Keyword for inside corners: `"tl"`, `"tr"`, `"bl"`, `"br"`.
+#'     \item Keyword for outside corners (rendered in the plot's margin
+#'       region outside the panel via the ggplot2 tag mechanism):
+#'       `"tl-out"`, `"tr-out"`, `"bl-out"`, `"br-out"`. Underscore
+#'       variants (`"tl_out"` etc.) are also accepted.
+#'   }
+#'   When an `-out` keyword is used, `label.size` / `label.padding` /
+#'   `label.r` are ignored (the outside label is plain text without a
+#'   box).
+#' @param size Numeric label size in points. Default 18.
 #' @param color Label text color. Default `"black"`.
 #' @param fontface Font face for labels. Default `"bold"`.
-#' @param ... Additional arguments passed to [ggpp::annotate()].
+#' @param label.size Border line width of the label box in mm. Default 1.
+#'   Only used for inside placements.
+#' @param label.padding Padding around the label text, a [grid::unit()]
+#'   vector. Default `unit(c(0.2, 0.3, 0.2, 0.3), "lines")` (top, right,
+#'   bottom, left). Only used for inside placements.
+#' @param label.r Corner radius of the label box, a [grid::unit()] value.
+#'   Default `unit(0.2, "lines")`. Only used for inside placements.
+#' @param ... Additional arguments passed to [ggpp::annotate()] for
+#'   inside placements (ignored when an `-out` keyword is used).
 #'
 #' @return Same type as input.
 #'
@@ -129,20 +187,29 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
 #' p1 <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) + geom_point()
 #' p2 <- ggplot(iris, aes(Petal.Length, Petal.Width)) + geom_point()
 #'
-#' # Auto-label A, B
+#' # Auto-label A, B (inside panel, top-left)
 #' fmt_tag(list(p1, p2))
 #'
 #' # Custom labels
 #' fmt_tag(list(p1, p2), labels = c("i", "ii"))
+#'
+#' # Inside, top-right corner via keyword
+#' fmt_tag(list(p1, p2), label_position = "tr")
+#'
+#' # Outside the panel, top-left corner of the entire plot
+#' fmt_tag(list(p1, p2), label_position = "tl-out")
 #'
 #' @export
 #' @family plot formatting
 fmt_tag <- function(plot,
                     labels = NULL,
                     label_position = c(0.02, 0.98),
-                    size = 16,
+                    size = 18,
                     color = "black",
                     fontface = "bold",
+                    label.size = 1,
+                    label.padding = grid::unit(c(0.2, 0.3, 0.2, 0.3), "lines"),
+                    label.r = grid::unit(0.2, "lines"),
                     ...) {
   info <- .to_plot_list(plot)
   plots <- info$plots
@@ -154,29 +221,47 @@ fmt_tag <- function(plot,
     cli::cli_warn("Labels recycled to match number of plots.")
   }
 
-  if (!is.numeric(label_position) || length(label_position) != 2L) {
-    cli::cli_warn("{.arg label_position} must be numeric length 2, using default.")
-    label_position <- c(0.02, 0.98)
-  }
-
-  npcx <- rep_len(label_position[1], n)
-  npcy <- rep_len(label_position[2], n)
+  pos <- .resolve_tag_position(label_position)
+  outside <- pos$outside
+  npcx <- rep_len(pos$x, n)
+  npcy <- rep_len(pos$y, n)
   size <- rep_len(size, n)
   color <- rep_len(color, n)
 
   for (i in seq_len(n)) {
-    plots[[i]] <- plots[[i]] +
-      ggpp::annotate(
-        "label_npc",
-        npcx = npcx[i],
-        npcy = npcy[i],
-        label = labels[i],
-        size = size[i],
-        fontface = fontface,
-        color = color[i],
-        size.unit = "pt",
-        ...
-      )
+    if (outside) {
+      # Render via ggplot2 tag system — drawn OUTSIDE the panel, in the
+      # plot's margin/title region. plot.tag.position uses NPC relative
+      # to the whole plot, not the panel.
+      plots[[i]] <- plots[[i]] +
+        ggplot2::labs(tag = labels[i]) +
+        ggplot2::theme(
+          plot.tag.position = c(npcx[i], npcy[i]),
+          plot.tag = ggplot2::element_text(
+            size   = size[i],
+            face   = fontface,
+            colour = color[i],
+            hjust  = if (npcx[i] < 0.5) 0 else 1,
+            vjust  = if (npcy[i] > 0.5) 1 else 0
+          )
+        )
+    } else {
+      plots[[i]] <- plots[[i]] +
+        ggpp::annotate(
+          "label_npc",
+          npcx = npcx[i],
+          npcy = npcy[i],
+          label = labels[i],
+          size = size[i],
+          fontface = fontface,
+          color = color[i],
+          size.unit = "pt",
+          label.size = label.size,
+          label.padding = label.padding,
+          label.r = label.r,
+          ...
+        )
+    }
   }
 
   .from_plot_list(plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
@@ -660,6 +745,63 @@ fmt_plot <- function(plot,
 
   plot
 }
+
+# ---- fmt_plot_base ----
+
+#' Broadcast theme / labs / scales onto a patchwork via `&`
+#'
+#' Apply a theme, axis labels, and continuous y/x scales to **every** panel of
+#' a patchwork in one call, using patchwork's \code{&} operator. This is the
+#' packaged form of the legacy FeatureAnalysis helper \code{.fmt_plot.base()}:
+#' a list-driven wrapper that is handy when assembling multi-panel figures.
+#'
+#' Each argument is applied only when non-\code{NULL}, so a bare
+#' \code{fmt_plot_base(p)} returns \code{p} unchanged.
+#'
+#' @param plot A patchwork (or ggplot) object.
+#' @param ggtheme Theme to broadcast. Polymorphic (resolved internally): a
+#'   \code{ggplot2::theme} object, a theme **function** (e.g. \code{theme_my}),
+#'   or a function-name **string** (e.g. \code{"theme_km"}). \code{NULL}
+#'   (default) leaves the theme untouched.
+#' @param labs_list Named list passed to \code{ggplot2::labs()}, e.g.
+#'   \code{list(x = "ETE", y = "SHAP value")}. \code{NULL} = no change.
+#' @param scale_y_list Named list passed to
+#'   \code{ggplot2::scale_y_continuous()}, e.g.
+#'   \code{list(limits = c(0, 1), breaks = seq(0, 1, 0.2))}. \code{NULL} = no change.
+#' @param scale_x_list Named list passed to
+#'   \code{ggplot2::scale_x_continuous()}. \code{NULL} = no change.
+#'
+#' @return The input plot with the requested layers broadcast via \code{&}.
+#'
+#' @examples
+#' library(ggplot2); library(patchwork)
+#' p <- (ggplot(mtcars, aes(wt, mpg)) + geom_point()) +
+#'      (ggplot(mtcars, aes(hp, mpg)) + geom_point())
+#'
+#' # theme object / labs / y-scale broadcast to both panels
+#' fmt_plot_base(p,
+#'               ggtheme      = theme_my(base_size = 12),
+#'               labs_list    = list(y = "Miles per gallon"),
+#'               scale_y_list = list(limits = c(10, 35)))
+#'
+#' # ggtheme also accepts a function or a string
+#' \dontrun{
+#' fmt_plot_base(p, ggtheme = theme_km)     # function
+#' fmt_plot_base(p, ggtheme = "theme_km")   # string
+#' }
+#'
+#' @export
+#' @family plot formatting
+#' @seealso [fmt_plot()]
+fmt_plot_base <- function(plot, ggtheme = NULL, labs_list = NULL,
+                          scale_y_list = NULL, scale_x_list = NULL) {
+  if (!is.null(ggtheme))      plot <- plot & .resolve_theme(ggtheme)
+  if (!is.null(labs_list))    plot <- plot & do.call(ggplot2::labs, labs_list)
+  if (!is.null(scale_y_list)) plot <- plot & do.call(ggplot2::scale_y_continuous, scale_y_list)
+  if (!is.null(scale_x_list)) plot <- plot & do.call(ggplot2::scale_x_continuous, scale_x_list)
+  plot
+}
+
 # fmt_plot2.R
 # Additional plot formatting functions: strip, comparison, background,
 # histogram, scale, expand, boxplot overlay.
@@ -849,6 +991,145 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
       plots[[i]] <- plots[[i]] +
         ggh4x::facet_wrap2(facet_formula, strip = cur_strip)
     }
+  }
+
+  .from_plot_list(plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
+}
+
+# ---- fmt_strip2 ----
+
+#' Add facet-grid-style strips to a patchwork grid (top headers + side labels)
+#'
+#' For an assembled patchwork laid out as an `nrow x ncol` grid (filled
+#' **by row**), add \pkg{facet_grid}-style strips: column-header strips only on
+#' the **top row** and row-label strips only on the **right-most column**
+#' (rotated). This avoids [fmt_strip()]'s behaviour of putting a top strip on
+#' *every* panel -- which looks cluttered when the grid encodes two crossed
+#' dimensions (e.g. plot-type across columns, a stratifier down rows).
+#'
+#' Typical use: a `get_vpd(EXP.obj, c(stratifier, exposure))` result flattened
+#' via [flatten_patchwork()] into a `4 x 2` grid (rows = stratifier levels,
+#' columns = Variable / Partial dependence plot) -- `fmt_strip2()` then labels
+#' the two columns on top and the four rows on the right.
+#'
+#' @param plot A patchwork (or list) of ggplot panels filling an
+#'   `nrow x ncol` grid **by row**.
+#' @param top_label Character vector of column-header labels (length `ncol`,
+#'   recycled). Placed on the top-row panels only. `NULL` = no top strips.
+#' @param right_label Character vector of row labels (length `nrow`, recycled).
+#'   Placed on the right-most-column panels only (rotated 90 degrees).
+#'   `NULL` = no right strips.
+#' @param ncol Number of columns in the grid. If `NULL`, inferred from the
+#'   patchwork layout (`$patches$layout$ncol`/`nrow`), falling back to
+#'   `ceiling(sqrt(n))`.
+#' @param top_fill,right_fill Background fill colour(s) for the top / right
+#'   strips (recycled to `ncol` / `nrow`). `NULL` = light grey.
+#' @param label_color Strip text colour. Default `"black"`.
+#'
+#' @return Same type as input (patchwork in, patchwork out).
+#'
+#' @examples
+#' \dontrun{
+#' library(ggplot2); library(patchwork)
+#' panels <- lapply(1:8, function(i)
+#'   ggplot(mtcars, aes(factor(am), mpg)) + geom_boxplot())
+#' g <- wrap_plots(panels, ncol = 2)
+#' fmt_strip2(g,
+#'            top_label   = c("Variable dependece plot", "Partial dependece plot"),
+#'            right_label = paste0("Tumor size:", c("(0,10]","(10,20]","(20,40]","(40,90]")),
+#'            ncol        = 2,
+#'            top_fill    = c("grey90", "grey70"),
+#'            right_fill  = scales::seq_gradient_pal("#E8F5E9", "#1B5E20")(seq(0, 1, len = 4)))
+#' }
+#'
+#' @export
+#' @family plot formatting
+#' @seealso [fmt_strip()] for per-panel top strips.
+fmt_strip2 <- function(plot,
+                       top_label   = NULL,
+                       right_label = NULL,
+                       ncol        = NULL,
+                       top_fill    = NULL,
+                       right_fill  = NULL,
+                       label_color = "black") {
+
+  info  <- .to_plot_list(plot)
+  plots <- info$plots
+  n     <- length(plots)
+
+  # ---- infer ncol / nrow ----
+  if (is.null(ncol)) {
+    lay <- tryCatch(info$pw_orig$patches$layout, error = function(e) NULL)
+    if (!is.null(lay) && !is.null(lay$ncol)) {
+      ncol <- lay$ncol
+    } else if (!is.null(lay) && !is.null(lay$nrow)) {
+      ncol <- ceiling(n / lay$nrow)
+    } else {
+      ncol <- ceiling(sqrt(n))
+    }
+  }
+  nrow <- ceiling(n / ncol)
+
+  # ---- recycle labels / fills ----
+  if (!is.null(top_label))   top_label   <- rep_len(top_label,   ncol)
+  if (!is.null(right_label)) right_label <- rep_len(right_label, nrow)
+  if (!is.null(top_fill))    top_fill    <- rep_len(top_fill,    ncol)
+  if (!is.null(right_fill))  right_fill  <- rep_len(right_fill,  nrow)
+
+  txt <- ggplot2::element_text(colour = label_color, face = "bold")
+
+  for (i in seq_len(n)) {
+    grid_row <- ((i - 1L) %/% ncol) + 1L
+    grid_col <- ((i - 1L) %%  ncol) + 1L
+    need_top   <- isTRUE(grid_row == 1L)    && !is.null(top_label)
+    need_right <- isTRUE(grid_col == ncol)  && !is.null(right_label)
+    # Panels that get no new strip must still drop any pre-existing facet
+    # strip (e.g. the per-level strip a faceted source panel carries), so the
+    # inner grid stays clean -- only the explicitly-added top/right strips show.
+    if (!need_top && !need_right) {
+      plots[[i]] <- plots[[i]] + ggplot2::facet_null()
+      next
+    }
+
+    p <- plots[[i]]
+    if (!is.null(p$data) && is.data.frame(p$data)) {
+      if (need_top)   p$data$.top.   <- top_label[grid_col]
+      if (need_right) p$data$.right. <- right_label[grid_row]
+    }
+
+    top_bg   <- if (!is.null(top_fill))   top_fill[grid_col]  else "grey85"
+    right_bg <- if (!is.null(right_fill)) right_fill[grid_row] else "grey85"
+
+    if (need_top && need_right) {
+      # facet_grid2: cols -> top strip, rows -> right strip
+      p <- p + ggh4x::facet_grid2(
+        rows = ggplot2::vars(.data[[".right."]]),
+        cols = ggplot2::vars(.data[[".top."]]),
+        strip = ggh4x::strip_themed(
+          background_x = ggh4x::elem_list_rect(fill = top_bg),
+          background_y = ggh4x::elem_list_rect(fill = right_bg),
+          text_x = ggh4x::elem_list_text(colour = label_color, face = "bold"),
+          text_y = ggh4x::elem_list_text(colour = label_color, face = "bold")
+        )
+      )
+    } else if (need_top) {
+      p <- p + ggh4x::facet_wrap2(
+        ggplot2::vars(.data[[".top."]]), strip.position = "top",
+        strip = ggh4x::strip_themed(
+          background_x = ggh4x::elem_list_rect(fill = top_bg),
+          text_x = ggh4x::elem_list_text(colour = label_color, face = "bold")
+        )
+      )
+    } else { # need_right only
+      p <- p + ggh4x::facet_wrap2(
+        ggplot2::vars(.data[[".right."]]), strip.position = "right",
+        strip = ggh4x::strip_themed(
+          background_y = ggh4x::elem_list_rect(fill = right_bg),
+          text_y = ggh4x::elem_list_text(colour = label_color, face = "bold")
+        )
+      )
+    }
+    plots[[i]] <- p
   }
 
   .from_plot_list(plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)

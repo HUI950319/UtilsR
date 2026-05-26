@@ -20,6 +20,17 @@
 #'   variable name (NSE or string), multiple variable names via
 #'   \code{c(var1, var2)} (NSE) or character vector
 #'   \code{c("var1", "var2")}. Independent of \code{group}.
+#' @param cat_args Optional named list of extra arguments forwarded to
+#'   \code{\link[RegR:get_gt_cat]{RegR::get_gt_cat()}} for an additional
+#'   publication-ready categorical-summary table (with survival-outcome
+#'   columns DSS/OS/status etc. auto-included). When non-empty, the
+#'   internal call is essentially
+#'   \code{do.call(RegR::get_gt_cat, c(list(data = data), cat_args))}.
+#'   Typical contents: \code{list(cat_var = "Sex", com_var = c("Age","TNM"))}.
+#'   The \code{data} argument is always taken from the \code{lv()}
+#'   first argument; any \code{data} entry inside \code{cat_args} is
+#'   overridden with a warning. Default \code{list()} = no extra call.
+#'   Requires \pkg{RegR} (declared in Suggests).
 #'
 #' @return Invisibly returns the input data.
 #'
@@ -39,6 +50,33 @@
 #' lv(mtcars, count = c(cyl, gear))
 #' lv(mtcars, count = c("cyl", "gear"))
 #'
+#' # cat_args: append a publication-ready table via RegR::get_gt_cat
+#' # (requires RegR package; survival outcome cols DSS/OS/status auto-included)
+#' library(dplyr)
+#' df <- mtcars |>
+#'   mutate(cyl_f = factor(cyl), am_f = factor(am, labels = c("auto","manual")))
+#'
+#' # 1) Default (empty list) -- no extra get_gt_cat call (backward-compatible)
+#' lv(df, mpg, hp, cyl_f, am_f, cat_args = list())
+#'
+#' # 2) Minimal: cat_var only -- groups by 'am_f', auto-adds outcome cols if any
+#' lv(df, mpg, hp, cyl_f, am_f,
+#'    cat_args = list(cat_var = "am_f"))
+#'
+#' # 3) With explicit com_var (rows of the gt table)
+#' lv(df, mpg, hp, cyl_f, am_f,
+#'    cat_args = list(cat_var = "am_f", com_var = c("mpg", "hp", "cyl_f")))
+#'
+#' # 4) Stratified summary (separate table per strata level)
+#' lv(df, mpg, hp,
+#'    cat_args = list(strata_var = "cyl_f", cat_var = "am_f",
+#'                    com_var = c("mpg", "hp")))
+#'
+#' # 5) Combine with group mode -- lv prints grouped summary,
+#' #    then get_gt_cat prints the publication table
+#' lv(df, mpg, hp, group = cyl_f,
+#'    cat_args = list(cat_var = "am_f", com_var = c("mpg", "hp")))
+#'
 #' # Seurat object
 #' lv(seurat_obj)
 #' lv(seurat_obj, group = TRUE)
@@ -53,8 +91,8 @@ lv <- function(data, ...) {
 
 #' @rdname lv
 #' @export
-#' @family inspect
-lv.default <- function(data, ..., pattern = NULL, group = NULL, count = NULL) {
+lv.default <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
+                       cat_args = list()) {
   # Process group argument
   group_var <- NULL
   group_sub <- substitute(group)
@@ -105,13 +143,14 @@ lv.default <- function(data, ..., pattern = NULL, group = NULL, count = NULL) {
   }
 
   lv.data.frame(as.data.frame(data), ..., pattern = pattern,
-                group = group_var, count = count_vars)
+                group = group_var, count = count_vars,
+                cat_args = cat_args)
 }
 
 #' @rdname lv
 #' @export
-#' @family inspect
-lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL) {
+lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
+                          cat_args = list()) {
 
   # Process group argument: support NSE and character string
   group_var <- NULL
@@ -381,6 +420,34 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL)
     gt_tbl
   }
 
+  # Optional RegR::get_gt_cat hook (called once at end of each mode)
+  .run_cat_args <- function() {
+    if (length(cat_args) == 0L) return(invisible(NULL))
+    if (!requireNamespace("RegR", quietly = TRUE)) {
+      cli::cli_warn(c(
+        "{.arg cat_args} provided but {.pkg RegR} is not installed.",
+        "i" = "Install RegR to enable the categorical summary table:",
+        "*" = "{.code remotes::install_github(\"HUI950319/RegR\")}"
+      ))
+      return(invisible(NULL))
+    }
+    if ("data" %in% names(cat_args)) {
+      cli::cli_warn("{.arg data} inside {.arg cat_args} is ignored; using {.code lv()}'s data argument.")
+      cat_args$data <- NULL
+    }
+    cli::cli_h1(cli::col_cyan("Categorical summary (RegR::get_gt_cat)"))
+    tryCatch(
+      do.call(RegR::get_gt_cat, c(list(data = data), cat_args)),
+      error = function(e) {
+        cli::cli_warn(c(
+          "{.fn RegR::get_gt_cat} failed: {conditionMessage(e)}",
+          "i" = "Continuing with {.code lv()} output."
+        ))
+      }
+    )
+    invisible(NULL)
+  }
+
   # ==========================================================================
   # Main logic
   # ==========================================================================
@@ -481,6 +548,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL)
     }
 
     cli::cli_rule()
+    .run_cat_args()
     return(invisible(data))
   }
 
@@ -525,6 +593,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL)
 
     gtsummary::reset_gtsummary_theme()
 
+    .run_cat_args()
     return(invisible(data))
   }
 
@@ -612,6 +681,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL)
 
   gtsummary::reset_gtsummary_theme()
 
+  .run_cat_args()
   return(invisible(data))
 }
 
@@ -622,11 +692,11 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL)
 #' @param add_cell_stats Logical. Whether to show cell statistics. Default
 #'   \code{TRUE}.
 #' @export
-#' @family inspect
 lv.Seurat <- function(data, ...,
                       pattern = NULL,
                       group = NULL,
                       count = NULL,
+                      cat_args = list(),
                       add_reductions = FALSE,
                       add_cell_stats = TRUE) {
 
@@ -733,7 +803,8 @@ lv.Seurat <- function(data, ...,
   cli::cli_rule()
 
   lv.data.frame(meta_data, ..., pattern = pattern,
-                group = group_var, count = count_vars)
+                group = group_var, count = count_vars,
+                cat_args = cat_args)
 
   return(invisible(data))
 }

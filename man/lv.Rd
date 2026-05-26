@@ -9,9 +9,9 @@
 \usage{
 lv(data, ...)
 
-\method{lv}{default}(data, ..., pattern = NULL, group = NULL, count = NULL)
+\method{lv}{default}(data, ..., pattern = NULL, group = NULL, count = NULL, cat_args = list())
 
-\method{lv}{data.frame}(data, ..., pattern = NULL, group = NULL, count = NULL)
+\method{lv}{data.frame}(data, ..., pattern = NULL, group = NULL, count = NULL, cat_args = list())
 
 \method{lv}{Seurat}(
   data,
@@ -19,6 +19,7 @@ lv(data, ...)
   pattern = NULL,
   group = NULL,
   count = NULL,
+  cat_args = list(),
   add_reductions = FALSE,
   add_cell_stats = TRUE
 )
@@ -38,6 +39,18 @@ Ident.}
 variable name (NSE or string), multiple variable names via
 \code{c(var1, var2)} (NSE) or character vector
 \code{c("var1", "var2")}. Independent of \code{group}.}
+
+\item{cat_args}{Optional named list of extra arguments forwarded to
+\code{\link[RegR:get_gt_cat]{RegR::get_gt_cat()}} for an additional
+publication-ready categorical-summary table (with survival-outcome
+columns DSS/OS/status etc. auto-included). When non-empty, the
+internal call is essentially
+\code{do.call(RegR::get_gt_cat, c(list(data = data), cat_args))}.
+Typical contents: \code{list(cat_var = "Sex", com_var = c("Age","TNM"))}.
+The \code{data} argument is always taken from the \code{lv()}
+first argument; any \code{data} entry inside \code{cat_args} is
+overridden with a warning. Default \code{list()} = no extra call.
+Requires \pkg{RegR} (declared in Suggests).}
 
 \item{add_reductions}{Logical. Whether to add reduction coordinates. Default
 \code{FALSE}.}
@@ -70,6 +83,33 @@ lv(mtcars, count = cyl)
 lv(mtcars, count = c(cyl, gear))
 lv(mtcars, count = c("cyl", "gear"))
 
+# cat_args: append a publication-ready table via RegR::get_gt_cat
+# (requires RegR package; survival outcome cols DSS/OS/status auto-included)
+library(dplyr)
+df <- mtcars |>
+  mutate(cyl_f = factor(cyl), am_f = factor(am, labels = c("auto","manual")))
+
+# 1) Default (empty list) -- no extra get_gt_cat call (backward-compatible)
+lv(df, mpg, hp, cyl_f, am_f, cat_args = list())
+
+# 2) Minimal: cat_var only -- groups by 'am_f', auto-adds outcome cols if any
+lv(df, mpg, hp, cyl_f, am_f,
+   cat_args = list(cat_var = "am_f"))
+
+# 3) With explicit com_var (rows of the gt table)
+lv(df, mpg, hp, cyl_f, am_f,
+   cat_args = list(cat_var = "am_f", com_var = c("mpg", "hp", "cyl_f")))
+
+# 4) Stratified summary (separate table per strata level)
+lv(df, mpg, hp,
+   cat_args = list(strata_var = "cyl_f", cat_var = "am_f",
+                   com_var = c("mpg", "hp")))
+
+# 5) Combine with group mode -- lv prints grouped summary,
+#    then get_gt_cat prints the publication table
+lv(df, mpg, hp, group = cyl_f,
+   cat_args = list(cat_var = "am_f", com_var = c("mpg", "hp")))
+
 # Seurat object
 lv(seurat_obj)
 lv(seurat_obj, group = TRUE)
@@ -78,24 +118,6 @@ lv(seurat_obj, count = c(seurat_clusters, Phase))
 
 }
 \seealso{
-Other inspect: 
-\code{\link{check_na}()},
-\code{\link{check_size}()},
-\code{\link{check_system}()},
-\code{\link{count_packages_in_libpaths}()}
-
-Other inspect: 
-\code{\link{check_na}()},
-\code{\link{check_size}()},
-\code{\link{check_system}()},
-\code{\link{count_packages_in_libpaths}()}
-
-Other inspect: 
-\code{\link{check_na}()},
-\code{\link{check_size}()},
-\code{\link{check_system}()},
-\code{\link{count_packages_in_libpaths}()}
-
 Other inspect: 
 \code{\link{check_na}()},
 \code{\link{check_size}()},

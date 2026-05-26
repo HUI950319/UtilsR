@@ -2,34 +2,56 @@
 % Please edit documentation in R/fct_to_combine.R
 \name{fct_to_combine}
 \alias{fct_to_combine}
-\title{Combine Multiple Vectors into a Single Factor}
+\alias{fct_to_combine.data.frame}
+\alias{fct_to_combine.default}
+\title{Combine Multiple Vectors / Columns into a Single Factor (generic)}
 \usage{
-fct_to_combine(..., sep = " & ")
+fct_to_combine(...)
+
+\method{fct_to_combine}{data.frame}(x, vars, var_name = NULL, sep = " & ", ...)
+
+\method{fct_to_combine}{default}(..., sep = " & ")
 }
 \arguments{
-\item{...}{Two or more factor / character / vector inputs of equal length,
-OR a single character vector of column names (length >= 2) when called
-inside a dplyr data-masking verb. In the latter case the columns are
-resolved through \code{dplyr::pick(all_of(.))}, enabling
-\code{mutate(g = fct_to_combine(c("sex", "age")))}.}
+\item{...}{(vector method) Further vectors of equal length to combine. A
+single character vector of column names (length >= 2) is resolved through
+\code{dplyr::pick(all_of(.))} when called inside a data-masking verb,
+enabling \code{mutate(g = fct_to_combine(c("sex", "age")))}.}
+
+\item{x}{First input. A factor / character / vector (vector method), OR a
+data.frame (data.frame method).}
+
+\item{vars}{(data.frame method) Character vector of >= 2 column names to
+combine.}
+
+\item{var_name}{(data.frame method) Name of the new column. Default
+\code{NULL} = \code{paste(vars, collapse = "_")}.}
 
 \item{sep}{Separator between cell values. Default \code{" & "}.}
 }
 \value{
-A factor of length \code{length(..1)} with levels equal to the
-  sorted unique combinations.
+A factor (vector method) of length \code{length(..1)}; or the input
+  data frame with the combined column appended (data.frame method).
 }
 \description{
-Pastes the vectors in \code{...} cell-wise into a single factor.
-Levels are taken from unique combinations sorted by each input vector's
-factor level order (preserving meaningful orderings such as TNM stages
-or graded categories), not alphabetic.
+S3 generic that pastes several vectors cell-wise into one factor. Levels are
+the unique combinations sorted by each input's factor-level order (preserving
+meaningful orderings such as TNM stages or graded categories), not
+alphabetic. Dispatches on the first argument:
+\itemize{
+  \item \strong{vectors} -- \code{fct_to_combine(v1, v2, ...)} returns the
+    combined factor directly (also resolves a single character vector of
+    column names inside a \pkg{dplyr} data mask).
+  \item \strong{data.frame} -- \code{fct_to_combine(data, vars, var_name)}
+    combines the named columns, appends the result as a new column, and
+    returns the whole data frame (pipe-friendly).
+}
 }
 \details{
 Conceptually similar to \code{forcats::fct_cross()} and
-\code{base::interaction()}, but with a default separator (\code{" & "})
-tuned for clinical / epidemiological group labels. For regrouping levels
-of a single factor (the dual operation), see [fct_to_group()].
+\code{base::interaction()}, but with a default separator (\code{" & "}) tuned
+for clinical / epidemiological group labels. For regrouping levels of a
+single factor (the dual operation), see [fct_to_group()].
 }
 \examples{
 df <- data.frame(
@@ -38,34 +60,30 @@ df <- data.frame(
                levels = c("young", "mid", "old"))
 )
 
-# Direct vectors
+# ---- vector method ----
 fct_to_combine(df$sex, df$age)
+fct_to_combine(df$sex, df$age, sep = "_")
 
-# Inside mutate (most natural usage)
+# ---- data.frame method (appends a column, pipe-friendly) ----
+fct_to_combine(df, c("sex", "age"))                       # new col "sex_age"
+fct_to_combine(df, c("sex", "age"), var_name = "group")   # new col "group"
+
+# Inside mutate (vector method, most natural usage)
 \dontrun{
 library(dplyr)
 df \%>\% mutate(grp = fct_to_combine(sex, age))
-}
-
-# Programmatic (character vector of column names)
-vars <- c("sex", "age")
-do.call(fct_to_combine, df[vars])
-rlang::exec(fct_to_combine, !!!df[vars])
-
-# Character vector of column names inside mutate (auto-resolved via pick)
-\dontrun{
 df \%>\% mutate(grp = fct_to_combine(c("sex", "age")))
-exposure_names <- c("sex", "age")
-df \%>\% mutate(grp = fct_to_combine(exposure_names))
+# pipe with the data.frame method
+df |> fct_to_combine(c("sex", "age"), var_name = "group")
 }
-
-# Custom separator
-fct_to_combine(df$sex, df$age, sep = "_")
 
 }
 \seealso{
+[fct_to_group()], [fct_cat()], [fct_label()]
+
 Other factor tools: 
 \code{\link{fct_cat}()},
+\code{\link{fct_label}()},
 \code{\link{fct_num}()},
 \code{\link{fct_to_group}()}
 }

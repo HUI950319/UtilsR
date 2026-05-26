@@ -166,3 +166,34 @@ flatten_patchwork <- function(plots, ..., select_inds = NULL, nrow_inds_order = 
 
   patchwork::wrap_plots(all_subplots, ...)
 }
+
+# ---- Internal: polymorphic theme resolver ----
+# Accepts a theme object / theme function / function-name string and returns a
+# concrete `ggplot2::theme` object. `NULL` -> UtilsR's default `theme_km`
+# (falls back to `theme_bw`). Mirrors RegR's internal `.resolve_theme()` but
+# lives here in UtilsR (the theme home) so UtilsR helpers can use it without a
+# circular dependency on RegR.
+.resolve_theme <- function(theme_use) {
+  if (is.null(theme_use)) {
+    thm <- tryCatch(theme_km, error = function(e) NULL)
+    if (!is.null(thm)) {
+      if (inherits(thm, "theme")) return(thm)
+      if (is.function(thm))       return(thm())
+    }
+    return(ggplot2::theme_bw())
+  }
+  if (is.character(theme_use)) {
+    fn <- tryCatch(match.fun(theme_use), error = function(e) NULL)
+    if (is.null(fn))
+      fn <- tryCatch(getExportedValue("UtilsR", theme_use),
+                     error = function(e) NULL)
+    if (is.null(fn))
+      stop(sprintf("Theme '%s' not found", theme_use), call. = FALSE)
+    if (inherits(fn, "theme")) return(fn)
+    return(fn())
+  }
+  if (inherits(theme_use, "theme")) return(theme_use)
+  if (is.function(theme_use))       return(theme_use())
+  stop("'theme_use' must be NULL, character, function, or theme object",
+       call. = FALSE)
+}

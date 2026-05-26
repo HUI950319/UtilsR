@@ -1,7 +1,7 @@
 Package: UtilsR
 Type: Package
 Title: Utility Functions for Data Exploration and System Diagnostics
-Version: 0.6.1
+Version: 0.6.2
 Authors@R: person("Hui", "Ouyang", email = "ouyangyuhao@outlook.com",
                   role = c("aut", "cre"))
 Description: A collection of utility functions for interactive data exploration,
@@ -29,6 +29,7 @@ Collate:
     'count_packages.R'
     'color.R'
     'fct_cat.R'
+    'fct_label.R'
     'fct_to_combine.R'
     'fct_to_group.R'
     'fct_num.R'
@@ -82,6 +83,7 @@ Suggests:
     cowplot,
     SeuratObject,
     Seurat,
+    RegR (>= 0.1.1),
     ggbeeswarm,
     ggrastr,
     gtable,
