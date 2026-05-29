@@ -8,9 +8,12 @@ fmt_tag(
   plot,
   labels = NULL,
   label_position = c(0.02, 0.98),
-  size = 16,
+  size = 18,
   color = "black",
   fontface = "bold",
+  label.size = 1,
+  label.padding = grid::unit(c(0.2, 0.3, 0.2, 0.3), "lines"),
+  label.r = grid::unit(0.2, "lines"),
   ...
 )
 }
@@ -20,16 +23,38 @@ fmt_tag(
 \item{labels}{Character vector of labels. If `NULL` (default), uses
 `LETTERS[1:n]`.}
 
-\item{label_position}{Numeric vector of length 2 giving NPC coordinates
-`c(x, y)` for label placement. Default `c(0.02, 0.98)` is top-left.}
+\item{label_position}{Placement of the label. Accepts either:
+\itemize{
+  \item Numeric length-2 vector `c(x, y)` in NPC — drawn inside the
+    panel (default `c(0.02, 0.98)` = top-left inside).
+  \item Keyword for inside corners: `"tl"`, `"tr"`, `"bl"`, `"br"`.
+  \item Keyword for outside corners (rendered in the plot's margin
+    region outside the panel via the ggplot2 tag mechanism):
+    `"tl-out"`, `"tr-out"`, `"bl-out"`, `"br-out"`. Underscore
+    variants (`"tl_out"` etc.) are also accepted.
+}
+When an `-out` keyword is used, `label.size` / `label.padding` /
+`label.r` are ignored (the outside label is plain text without a
+box).}
 
-\item{size}{Numeric label size in points. Default 16.}
+\item{size}{Numeric label size in points. Default 18.}
 
 \item{color}{Label text color. Default `"black"`.}
 
 \item{fontface}{Font face for labels. Default `"bold"`.}
 
-\item{...}{Additional arguments passed to [ggpp::annotate()].}
+\item{label.size}{Border line width of the label box in mm. Default 1.
+Only used for inside placements.}
+
+\item{label.padding}{Padding around the label text, a [grid::unit()]
+vector. Default `unit(c(0.2, 0.3, 0.2, 0.3), "lines")` (top, right,
+bottom, left). Only used for inside placements.}
+
+\item{label.r}{Corner radius of the label box, a [grid::unit()] value.
+Default `unit(0.2, "lines")`. Only used for inside placements.}
+
+\item{...}{Additional arguments passed to [ggpp::annotate()] for
+inside placements (ignored when an `-out` keyword is used).}
 }
 \value{
 Same type as input.
@@ -43,11 +68,17 @@ library(ggplot2)
 p1 <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) + geom_point()
 p2 <- ggplot(iris, aes(Petal.Length, Petal.Width)) + geom_point()
 
-# Auto-label A, B
+# Auto-label A, B (inside panel, top-left)
 fmt_tag(list(p1, p2))
 
 # Custom labels
 fmt_tag(list(p1, p2), labels = c("i", "ii"))
+
+# Inside, top-right corner via keyword
+fmt_tag(list(p1, p2), label_position = "tr")
+
+# Outside the panel, top-left corner of the entire plot
+fmt_tag(list(p1, p2), label_position = "tl-out")
 
 }
 \seealso{
@@ -63,11 +94,13 @@ Other plot formatting:
 \code{\link{fmt_legend}()},
 \code{\link{fmt_panel}()},
 \code{\link{fmt_plot}()},
+\code{\link{fmt_plot_base}()},
 \code{\link{fmt_point}()},
 \code{\link{fmt_raster}()},
 \code{\link{fmt_ref}()},
 \code{\link{fmt_scale}()},
 \code{\link{fmt_strip}()},
+\code{\link{fmt_strip2}()},
 \code{\link{fmt_text}()}
 }
 \concept{plot formatting}

@@ -11,7 +11,8 @@
 #'
 #' @param x A factor or character vector.
 #' @param ... For recode: named args (new = old). For reorder: level names
-#'   in desired order (unnamed strings). Must be ALL named or ALL unnamed.
+#'   or integer indices in desired order (unnamed). Must be ALL named or ALL
+#'   unnamed.
 #' @param reverse Logical. Reverse all levels? Default \code{FALSE}.
 #' @param binary_ref Integer index(es) of reference level(s). Others
 #'   collapse to \code{"Oth"}.
@@ -28,8 +29,9 @@
 #' fct_cat(x, AB = c("a","b"), CD = c("c","d"))
 #' fct_cat(x, g1 = 1:3, g2 = 4:6)
 #'
-#' # Reorder (unnamed ...)
+#' # Reorder (unnamed ...): by level name or by integer index
 #' fct_cat(factor(letters[1:4]), "c", "b")
+#' fct_cat(factor(letters[1:4]), 3, 2)
 #'
 #' # Reverse
 #' fct_cat(factor(letters[1:4]), reverse = TRUE)
@@ -103,7 +105,9 @@ fct_cat <- function(x, ...,
   if (length(dots) == 0) return(x)
 
   nms <- names(dots)
-  has_names <- !is.null(nms) & nzchar(nms)
+  # NB: for all-unnamed dots, names() is NULL -> use a length-matched FALSE
+  # vector so all(has_names) is FALSE (reorder), not all(logical(0)) == TRUE.
+  has_names <- if (is.null(nms)) logical(length(dots)) else nzchar(nms)
   if (any(has_names) && !all(has_names)) {
     cli::cli_abort("{.arg ...} must be ALL named (recode) or ALL unnamed (reorder). Mixed named/unnamed args are not allowed.")
   }
@@ -113,6 +117,15 @@ fct_cat <- function(x, ...,
   } else {
     new_order <- c(...)
     cur <- levels(x)
+    # Allow integer indices (1-based) in addition to level names.
+    if (is.numeric(new_order)) {
+      .check_integer_index(new_order, "reorder index")
+      oob <- new_order < 1 | new_order > length(cur)
+      if (any(oob)) {
+        cli::cli_abort("Indices must be between 1 and {length(cur)}, got: {.val {new_order[oob]}}.")
+      }
+      new_order <- cur[new_order]
+    }
     bad <- setdiff(new_order, cur)
     if (length(bad) > 0) {
       cli::cli_abort("Level{?s} not found: {.val {bad}}.")

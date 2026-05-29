@@ -90,11 +90,13 @@ Other plot formatting:
 \code{\link{fmt_legend}()},
 \code{\link{fmt_panel}()},
 \code{\link{fmt_plot}()},
+\code{\link{fmt_plot_base}()},
 \code{\link{fmt_point}()},
 \code{\link{fmt_raster}()},
 \code{\link{fmt_ref}()},
 \code{\link{fmt_scale}()},
 \code{\link{fmt_strip}()},
+\code{\link{fmt_strip2}()},
 \code{\link{fmt_tag}()},
 \code{\link{fmt_text}()}
 }

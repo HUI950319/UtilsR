@@ -262,6 +262,51 @@ theme_my <- function(palette = "black_and_white", base_size = 14,
 }
 
 
+#' Heatmap / Tile Plot Theme
+#'
+#' A preset theme for categorical tile heatmaps -- the look used by the
+#' 3-variable branch of [plt_dist()]. Built on [theme_my()] with the legend,
+#' grid lines, axis ticks, and axis lines removed, leaving clean bordered
+#' tiles. Extra arguments are forwarded to [theme_my()], so palette, border,
+#' and \code{axis_text_angle} (handy for rotating crowded category labels)
+#' remain adjustable.
+#'
+#' @param base_size Numeric. Base font size (default 14).
+#' @param ... Additional arguments passed on to [theme_my()] (e.g.
+#'   \code{palette}, \code{border}, \code{axis_text_angle}). The legend, grid,
+#'   ticks, and axis lines are always removed regardless of \code{...}.
+#'
+#' @return A ggplot2 theme object.
+#'
+#' @examples
+#' library(ggplot2)
+#' set.seed(1)
+#' df <- data.frame(
+#'   x = factor(rep(c("A", "B", "C"), each = 3)),
+#'   y = factor(rep(c("P", "Q", "R"), times = 3)),
+#'   z = factor(sample(c("Low", "High"), 9, TRUE))
+#' )
+#' ggplot(df, aes(x, y, fill = z)) +
+#'   geom_tile(color = "black", linewidth = 0.5) +
+#'   geom_label(aes(label = z), show.legend = FALSE) +
+#'   scale_x_discrete(position = "top") +
+#'   scale_y_discrete(limits = rev) +
+#'   labs(x = NULL, y = NULL) +
+#'   theme_heat()
+#'
+#' @export
+#' @family ggplot2 themes
+theme_heat <- function(base_size = 14, ...) {
+  theme_my(base_size = base_size, ...) +
+    ggplot2::theme(
+      legend.position = "none",
+      panel.grid      = ggplot2::element_blank(),
+      axis.ticks      = ggplot2::element_blank(),
+      axis.line       = ggplot2::element_blank()
+    )
+}
+
+
 #' Kaplan-Meier Plot Theme
 #'
 #' A preset theme for Kaplan-Meier survival plots with larger base size (20)

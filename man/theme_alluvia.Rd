@@ -31,6 +31,7 @@ Other ggplot2 themes:
 \code{\link{leg2}()},
 \code{\link{theme_ROC}()},
 \code{\link{theme_blank}()},
+\code{\link{theme_heat}()},
 \code{\link{theme_km}},
 \code{\link{theme_legend}()},
 \code{\link{theme_legend1}()},

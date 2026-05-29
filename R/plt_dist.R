@@ -161,13 +161,7 @@ plt_dist <- function(data,
     ggplot2::scale_x_discrete(position = "top") +
     ggplot2::scale_y_discrete(limits = rev) +
     ggplot2::labs(x = NULL, y = NULL) +
-    theme_my(base_size = base_size) +
-    ggplot2::theme(
-      legend.position = "none",
-      panel.grid = ggplot2::element_blank(),
-      axis.ticks = ggplot2::element_blank(),
-      axis.line = ggplot2::element_blank()
-    )
+    theme_heat(base_size = base_size)
 
   if (label) {
     p <- p + ggplot2::geom_label(

@@ -17,7 +17,8 @@ fct_cat(
 \item{x}{A factor or character vector.}
 
 \item{...}{For recode: named args (new = old). For reorder: level names
-in desired order (unnamed strings). Must be ALL named or ALL unnamed.}
+or integer indices in desired order (unnamed). Must be ALL named or ALL
+unnamed.}
 
 \item{reverse}{Logical. Reverse all levels? Default \code{FALSE}.}
 
@@ -45,8 +46,9 @@ x <- factor(letters[1:6])
 fct_cat(x, AB = c("a","b"), CD = c("c","d"))
 fct_cat(x, g1 = 1:3, g2 = 4:6)
 
-# Reorder (unnamed ...)
+# Reorder (unnamed ...): by level name or by integer index
 fct_cat(factor(letters[1:4]), "c", "b")
+fct_cat(factor(letters[1:4]), 3, 2)
 
 # Reverse
 fct_cat(factor(letters[1:4]), reverse = TRUE)
@@ -69,6 +71,7 @@ fct_to_combine(df$sex, df$age)
 }
 \seealso{
 Other factor tools: 
+\code{\link{fct_label}()},
 \code{\link{fct_num}()},
 \code{\link{fct_to_combine}()},
 \code{\link{fct_to_group}()}

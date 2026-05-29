@@ -91,6 +91,7 @@ Other ggplot2 themes:
 \code{\link{theme_ROC}()},
 \code{\link{theme_alluvia}()},
 \code{\link{theme_blank}()},
+\code{\link{theme_heat}()},
 \code{\link{theme_km}},
 \code{\link{theme_legend1}()},
 \code{\link{theme_my}()},

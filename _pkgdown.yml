@@ -100,6 +100,7 @@ reference:
     desc: ggplot2 themes.
     contents:
       - theme_my
+      - theme_heat
       - theme_km
       - theme_rcs
       - theme_legend1
