@@ -81,6 +81,10 @@ reference:
       - fmt_plot
       - fmt_plot_base
       - fmt_axis
+      - fmt_axisText
+      - fmt_axisTile
+      - fmt_panel
+      - fmt_text
       - fmt_tag
       - fmt_legend
       - fmt_ref
@@ -107,6 +111,11 @@ reference:
       - theme_blank
       - theme_sc
       - theme_ROC
+      - theme_legend
+      - theme_alluvia
+      - theme_scatter
+      - leg1
+      - leg2
 
   - title: Grob Utilities
     desc: Helpers for manipulating ggplot2 grobs.
