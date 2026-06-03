@@ -262,7 +262,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     }
 
     .get_flt_formula <- noquote(
-      sprintf('.get.flt(%s %%in%% c("%s"))',
+      sprintf('get_flt(%s %%in%% c("%s"))',
               var,
               paste(display_values, collapse = '","'))
     )
