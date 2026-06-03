@@ -36,6 +36,7 @@ Collate:
     'stat_ci.R'
     'stat_pval.R'
     'stat_ci_parse.R'
+    'utils-resolve.R'
     'fmt_plot_utils.R'
     'fmt_plot.R'
     'fmt_point.R'
@@ -84,6 +85,7 @@ Suggests:
     SeuratObject,
     Seurat,
     RegR (>= 0.1.1),
+    scMMR,
     ggbeeswarm,
     ggrastr,
     gtable,

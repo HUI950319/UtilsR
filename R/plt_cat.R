@@ -326,13 +326,13 @@ plt_cat <- function(data,
   # --- Resolve colours (NO alpha baked in -- alpha applied only in geoms) -----
   if (type %in% std_types) {
     stat_levels <- levels(factor(data[[stat.by[1]]]))
-    colors <- .resolve_colors(stat_levels, palette)
+    colors <- stats::setNames(.resolve_color(palette, n = length(stat_levels)), stat_levels)
     if (NA_stat && "NA" %in% stat_levels) {
       colors["NA"] <- NA_color
     }
   } else {
     all_levels <- unique(unlist(lapply(stat.by, function(s) levels(factor(data[[s]])))))
-    colors <- .resolve_colors(all_levels, palette)
+    colors <- stats::setNames(.resolve_color(palette, n = length(all_levels)), all_levels)
   }
 
   # --- Auto aspect.ratio for polar types --------------------------------------
@@ -521,27 +521,9 @@ plt_cat <- function(data,
 }
 
 
-#' Resolve colour palette (returns named vector, NO alpha applied)
-#' @noRd
-.resolve_colors <- function(stat_levels, palette) {
-  n <- length(stat_levels)
-
-  if (is.null(palette)) {
-    if (n <= length(pal_lancet)) {
-      cols <- as.character(pal_lancet[seq_len(n)])
-    } else {
-      cols <- as.character(
-        grDevices::colorRampPalette(as.character(pal_lancet))(n)
-      )
-    }
-  } else if (length(palette) == 1 && palette %in% names(palette_list)) {
-    cols <- as.character(pal_get(palette, n = n))
-  } else {
-    cols <- rep_len(as.character(palette), n)
-  }
-
-  stats::setNames(as.character(cols), stat_levels)
-}
+# NOTE: colour resolution moved to utils-resolve.R as `.resolve_color()`
+# (RegR-aligned signature `(palette, n, default)`, unnamed return). Callers
+# wrap it in `setNames(.resolve_color(palette, n = length(levels)), levels)`.
 
 
 #' Resolve stat_level for venn/upset

@@ -6,75 +6,125 @@
 \usage{
 plt_dist(
   data,
-  vars,
+  dis_vars,
+  type = c("alluvial", "bar"),
   facet = NULL,
-  palette = NULL,
+  color = NULL,
   alpha = 0.7,
-  label = TRUE,
-  base_size = 14
+  label = c("count_percent", "count", "percent", "none"),
+  gap = 0.01,
+  curve_type = "linear",
+  theme_use = theme_heat(14)
 )
 }
 \arguments{
 \item{data}{A data frame.}
 
-\item{vars}{Character vector of variable names.
+\item{dis_vars}{Character vector of variable names.
 \itemize{
-  \item 2 variables: \code{c(x, fill)} \eqn{\rightarrow} stacked bar chart.
-  \item 3 variables: \code{c(x, y, fill)} \eqn{\rightarrow} tile heatmap.
+  \item 2 variables: \code{c(x, fill)} \eqn{\rightarrow} alluvial flow
+    (\code{type = "alluvial"}, default) or stacked bar (\code{type = "bar"}).
+  \item 3 variables: \code{c(x, y, fill)} \eqn{\rightarrow} tile heatmap
+    (\code{type} ignored).
 }}
 
-\item{facet}{Optional faceting variable name (string). Only used with
-2-variable bar charts.}
+\item{type}{Plot type for the 2-variable case: \code{"alluvial"} (default,
+Sankey flow via \code{scMMR::PlotAlluvia2()}) or \code{"bar"} (stacked
+proportion bar). Ignored when \code{dis_vars} has 3 variables.}
 
-\item{palette}{Colour palette. A character vector of colours, or a palette
-name from \code{pal_get()}. Default uses \code{pal_lancet}.}
+\item{facet}{Optional faceting variable name (string). Only used with the
+2-variable bar chart (\code{type = "bar"}); ignored for alluvial and heatmap.}
 
-\item{alpha}{Colour transparency. Default 0.7.}
+\item{color}{Colour specification, resolved by the internal colour resolver:
+\code{NULL} (default \code{pal_lancet}), a registered palette name (e.g.
+\code{"Paired"}), a single literal colour, or a vector of colours. In
+alluvial mode these are passed to \code{PlotAlluvia2()} as \code{palcolor}.}
 
-\item{label}{Logical, show count and percentage labels. Default \code{TRUE}.}
+\item{alpha}{Colour transparency. Default 0.7. In alluvial mode this is the
+flow ribbon transparency (\code{flow.alpha}).}
 
-\item{base_size}{Base font size for the theme. Default 14.}
+\item{label}{Label content, one of \code{"count_percent"} (default),
+\code{"count"}, \code{"percent"}, \code{"none"}. For the **bar chart** this
+selects the count / percentage text on each segment. For the **heatmap**
+any value other than \code{"none"} prints the third variable's category in
+each tile; \code{"none"} hides the labels. For the **alluvial** plot it
+maps to \code{PlotAlluvia2()}'s \code{label.style}: \code{"count_percent"}
+\eqn{\rightarrow} name + count + percent, \code{"count"} \eqn{\rightarrow}
+name + count, \code{"percent"} \eqn{\rightarrow} name + percent,
+\code{"none"} \eqn{\rightarrow} no labels.}
+
+\item{gap}{Alluvial only. Gap between strata as a fraction of total height,
+forwarded to \code{PlotAlluvia2()}. Default 0.01; set 0 for no gaps.}
+
+\item{curve_type}{Alluvial only. Flow ribbon curve type forwarded to
+\code{PlotAlluvia2()} as \code{curve.type}. Default \code{"linear"}; other
+options include \code{"sigmoid"}, \code{"cubic"}, \code{"xspline"}.}
+
+\item{theme_use}{Theme specification, resolved by [.resolve_theme()].
+Default [theme_heat]\code{(14)} (clean look). Also accepts a
+\code{ggplot2::theme} object, a theme function, a function-name string
+(e.g. \code{"theme_my"}), or \code{NULL} (\eqn{\rightarrow} [theme_km]).
+In-plot label sizes scale with the theme's base size, so control sizing
+through the theme itself, e.g. \code{theme_use = theme_my(base_size = 16)}.
+Note on the legend: the **bar chart** always shows the fill legend (it is
+re-enabled when the theme -- such as the default \code{theme_heat()} --
+would otherwise hide it, but a custom theme's legend placement is kept);
+the **heatmap** never shows one, since each tile is labelled directly.
+In **alluvial** mode only the base font size is taken from \code{theme_use}
+(passed as \code{base.size}); the rest of the theme does not apply, since
+\code{PlotAlluvia2()} draws with its own \code{theme_classic()}.}
 }
 \value{
 A ggplot object.
 }
 \description{
-Visualise the cross-distribution of categorical variables as a stacked
-proportion bar chart (2 variables) or a tile heatmap (3 variables).
-The plot type is automatically determined by the number of variables.
+Visualise the cross-distribution of categorical variables. With 2 variables
+the plot is an **alluvial / Sankey flow** (default) or a **stacked
+proportion bar**, selected via \code{type}; with 3 variables it is a **tile
+heatmap**. The alluvial mode delegates to \code{scMMR::PlotAlluvia2()}
+(flows connect the same category across adjacent groups) and therefore
+requires the \pkg{scMMR} package.
 }
 \examples{
-# --- Stacked bar chart (2 variables) ---
+set.seed(1)
 df <- data.frame(
   stage = factor(sample(c("I","II","III","IV"), 200, TRUE)),
-  sex = factor(sample(c("M","F"), 200, TRUE)),
-  race = factor(sample(c("White","Black","Asian"), 200, TRUE)),
+  sex   = factor(sample(c("M","F"), 200, TRUE)),
+  race  = factor(sample(c("White","Black","Asian"), 200, TRUE)),
   grade = factor(sample(c("Low","Mid","High"), 200, TRUE))
 )
 
-# Basic bar chart
-plt_dist(df, vars = c("stage", "sex"))
+# --- Stacked bar (type = "bar") -------------------------------------------
+# Count + percent labels
+plt_dist(df, dis_vars = c("stage", "sex"), type = "bar")
 
-# With facet
-plt_dist(df, vars = c("stage", "sex"), facet = "race")
+# Percent-only labels, with facet
+plt_dist(df, dis_vars = c("stage", "sex"), type = "bar",
+         facet = "race", label = "percent")
 
-# Without labels
-plt_dist(df, vars = c("stage", "sex"), label = FALSE)
+# No labels
+plt_dist(df, dis_vars = c("stage", "sex"), type = "bar", label = "none")
 
-# Custom palette (name from palette_list)
-plt_dist(df, vars = c("stage", "sex"), palette = "Paired")
+# Registered palette name / literal colour vector
+plt_dist(df, dis_vars = c("stage", "sex"), type = "bar", color = "Paired")
+plt_dist(df, dis_vars = c("stage", "sex"), type = "bar",
+         color = c("steelblue", "tomato"))
 
-# Custom palette (colour vector)
-plt_dist(df, vars = c("stage", "sex"), palette = c("steelblue", "tomato"))
+# Theme + size carried by theme_use
+plt_dist(df, dis_vars = c("stage", "sex"), type = "bar",
+         theme_use = theme_my(base_size = 16))
 
-# --- Heatmap (3 variables, auto-detected) ---
-plt_dist(df, vars = c("stage", "grade", "sex"))
+# --- Tile heatmap (3 variables; type ignored) -----------------------------
+plt_dist(df, dis_vars = c("stage", "grade", "sex"))
+plt_dist(df, dis_vars = c("stage", "grade", "sex"), label = "none")
 
-# Heatmap without labels
-plt_dist(df, vars = c("stage", "grade", "sex"), label = FALSE)
-
-# Adjust transparency and font size
-plt_dist(df, vars = c("stage", "sex"), alpha = 0.5, base_size = 12)
+# --- Alluvial / Sankey flow (default; needs scMMR) ------------------------
+\dontrun{
+plt_dist(df, dis_vars = c("stage", "sex"))                     # default alluvial
+plt_dist(df, dis_vars = c("stage", "sex"), gap = 0.02)         # wider gaps
+plt_dist(df, dis_vars = c("stage", "sex"), curve_type = "sigmoid")
+plt_dist(df, dis_vars = c("stage", "sex"), label = "percent")  # name + percent
+}
 
 }
 \seealso{

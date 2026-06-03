@@ -360,7 +360,7 @@ plt_con <- function(data,
   } else {
     color_levels <- stat.by
   }
-  colors <- .resolve_colors(color_levels, palette)
+  colors <- stats::setNames(.resolve_color(palette, n = length(color_levels)), color_levels)
 
   # --- Global y limits (same.y.lims) -----------------------------------------
   global_y_min <- NULL
