@@ -10,7 +10,9 @@
 #' "blank", "n/a"). Supports grouped summaries and multi-variable
 #' cross-tabulation.
 #'
-#' @param data A data object: data.frame or Seurat object.
+#' @param data A data object: data.frame or Seurat object. If omitted,
+#'   \code{lv()} falls back to a global object named \code{data}, otherwise
+#'   \code{data_all} (the first that is a data.frame / Seurat object).
 #' @param ... Variable selection using \code{dplyr::select} syntax.
 #' @param pattern Optional regex pattern for matching variable names.
 #' @param group Optional grouping variable. Supports NSE (bare name) or
@@ -86,7 +88,43 @@
 #' @export
 #' @family inspect
 lv <- function(data, ...) {
-  UseMethod("lv")
+  # (a) No first argument at all -> default global data, inspect all variables.
+  #     Re-call with `data` supplied (reassigning a missing arg before
+  #     UseMethod does NOT propagate the new value to the method).
+  if (missing(data)) return(lv(.lv_default_data(), ...))
+
+  # (b) First argument evaluates to a dataset -> normal S3 dispatch.
+  is_dataset <- tryCatch(is.data.frame(data) || inherits(data, "Seurat"),
+                         error = function(e) FALSE)
+  if (isTRUE(is_dataset)) return(UseMethod("lv"))
+
+  # (c) First argument is NOT a dataset -- it is a variable selection meant for
+  #     the default global data (e.g. `lv(Sex)` = inspect column Sex of the
+  #     global `data`). Re-invoke on the default data with that expression (and
+  #     any further ... args) forwarded UNEVALUATED as the tidyselect selection.
+  first_expr <- substitute(data)
+  dots_expr  <- as.list(substitute(list(...)))[-1L]
+  env <- new.env(parent = parent.frame())
+  env[[".__lv_data__"]] <- .lv_default_data()
+  eval(as.call(c(list(quote(lv), as.name(".__lv_data__"), first_expr), dots_expr)),
+       envir = env)
+}
+
+# Fallback data source for `lv()` called without `data`: a global `data`, else
+# a global `data_all` -- whichever exists first and is a data.frame / Seurat.
+#' @keywords internal
+#' @noRd
+.lv_default_data <- function() {
+  ge <- globalenv()
+  is_dataset <- function(x) is.data.frame(x) || inherits(x, "Seurat")
+  for (nm in c("data", "data_all")) {
+    if (exists(nm, envir = ge, inherits = FALSE)) {
+      obj <- get(nm, envir = ge, inherits = FALSE)
+      if (is_dataset(obj)) return(obj)
+    }
+  }
+  stop("lv(): `data` not supplied and no global `data` or `data_all` ",
+       "(data.frame / Seurat) found in the global environment.", call. = FALSE)
 }
 
 #' @rdname lv

@@ -25,7 +25,9 @@ lv(data, ...)
 )
 }
 \arguments{
-\item{data}{A data object: data.frame or Seurat object.}
+\item{data}{A data object: data.frame or Seurat object. If omitted,
+\code{lv()} falls back to a global object named \code{data}, otherwise
+\code{data_all} (the first that is a data.frame / Seurat object).}
 
 \item{...}{Variable selection using \code{dplyr::select} syntax.}
 

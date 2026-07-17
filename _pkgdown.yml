@@ -47,6 +47,11 @@ reference:
       - check_size
       - count_packages_in_libpaths
 
+  - title: File System
+    desc: Working-directory and path helpers.
+    contents:
+      - set_wd
+
   - title: Factor Manipulation
     desc: Recode, reorder, and transform factor variables.
     contents:

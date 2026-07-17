@@ -27,6 +27,7 @@ Collate:
     'check_system.R'
     'check_size.R'
     'count_packages.R'
+    'set_wd.R'
     'color.R'
     'fct_cat.R'
     'fct_label.R'
