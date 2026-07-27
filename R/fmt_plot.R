@@ -2116,7 +2116,24 @@ fmt_his <- function(plot,
     hist_height <- (y_max - y_min) * height_ratio
 
     yr <- y_rescale %||% c(y_min, y_min + hist_height)
-    yl <- ylim %||% c(y_min, y_max)
+
+    # Adding a fresh coord_cartesian() REPLACES the plot's coordinate system,
+    # and its default expand = TRUE would silently override a caller's
+    # expand = FALSE (turning a tight, edge-to-edge y-axis back into 5% padding).
+    # Freeze the ORIGINAL built panel ranges with expand = FALSE: x.range /
+    # y.range already bake in whatever expansion the plot had, so re-applying
+    # them with expand = FALSE reproduces the original axes exactly and the
+    # overlay can no longer shift or re-pad them. `clip` is inherited.
+    x_range   <- built$layout$panel_params[[1]]$x.range
+    old_coord <- p$coordinates
+    keep_clip <- if (inherits(old_coord, "CoordCartesian") &&
+                     !is.null(old_coord$clip)) old_coord$clip else "on"
+
+    yl <- ylim %||% y_range
+
+    new_coord <- ggplot2::coord_cartesian(
+      xlim = x_range, ylim = yl, expand = FALSE, clip = keep_clip
+    )
 
     if (type == "histogram") {
       p <- p +
@@ -2130,7 +2147,7 @@ fmt_his <- function(plot,
           binwidth = binwidth, alpha = his_alpha,
           position = "stack"
         ) +
-        ggplot2::coord_cartesian(ylim = yl)
+        new_coord
     } else {
       p <- p +
         ggplot2::geom_density(
@@ -2143,7 +2160,7 @@ fmt_his <- function(plot,
           color = ggplot2::alpha(his_color, his_alpha),
           alpha = his_alpha, adjust = adjust
         ) +
-        ggplot2::coord_cartesian(ylim = yl)
+        new_coord
     }
     p
   }
