@@ -146,6 +146,17 @@ p_missing <- plt_upset(
   output = "upset"
 )
 p_missing
+
+# Use an existing clinical data frame named oc0
+\dontrun{
+plt_upset(
+  oc0,
+  vars = c("BMI_1", "BMI_2", "BMI_3"),
+  levels = NA,
+  output = "upset"
+)
+}
+
 \dontrun{
 ggplot2::ggsave("bmi-missing-upset.pdf", p_missing,
                 width = 6.5, height = 4.5)
