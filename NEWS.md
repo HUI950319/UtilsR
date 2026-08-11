@@ -3,6 +3,9 @@
 * `impute_na_knn()` adds weighted K-nearest-neighbour imputation for mixed
   data frames while preserving numeric and character value labels.
 
+* `plt_upset()` now documents `levels = NA` for plotting missing-value
+  intersections without modifying the input data.
+
 # UtilsR 0.6.1
 
 Patch release fixing `fmt_strip()` re-application failure.

@@ -38,8 +38,9 @@ plt_upset(
 Required when \code{data} is a data.frame; ignored when \code{data}
 is a list.}
 
-\item{levels}{Character vector of values indicating membership
-(e.g. \code{c("Yes", "yes", "1")}). Default \code{c("Yes", "yes")}.
+\item{levels}{Vector of values indicating membership
+(e.g. \code{c("Yes", "yes", "1")}). Use \code{NA} to treat missing
+values as set members. Default \code{c("Yes", "yes")}.
 Ignored when \code{data} is a list.}
 
 \item{colors}{Character vector. For UpSet: 3 colours for
@@ -104,6 +105,8 @@ Depends on \code{output}: a ggplot, a combined plot, a data frame,
 Visualise intersections using Venn diagrams and UpSet plots.
 Accepts either a \strong{named list} of element vectors (e.g. gene names)
 or a \strong{data.frame} with binary indicator columns.
+For data frames, set \code{levels = NA} to visualise missing-value patterns
+without modifying the input data.
 }
 \note{
 Requires \pkg{ggVennDiagram} and optionally \pkg{aplot} (for combined
@@ -129,6 +132,24 @@ df <- data.frame(
 )
 plt_upset(df, vars = c("A","B","C"), output = "venn",
           label = "count", label_geom = "text")
+
+# ---- Missing-value UpSet plot ----
+bmi <- data.frame(
+  BMI_1 = c(22.1, NA, 24.3, 25.4, NA, 27.6),
+  BMI_2 = c(NA, 23.2, NA, 25.4, NA, 27.6),
+  BMI_3 = c(22.1, 23.2, NA, NA, NA, 27.6)
+)
+p_missing <- plt_upset(
+  bmi,
+  vars = c("BMI_1", "BMI_2", "BMI_3"),
+  levels = NA,
+  output = "upset"
+)
+p_missing
+\dontrun{
+ggplot2::ggsave("bmi-missing-upset.pdf", p_missing,
+                width = 6.5, height = 4.5)
+}
 
 }
 \seealso{
