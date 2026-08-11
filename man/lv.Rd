@@ -124,6 +124,7 @@ Other inspect:
 \code{\link{check_na}()},
 \code{\link{check_size}()},
 \code{\link{check_system}()},
-\code{\link{count_packages_in_libpaths}()}
+\code{\link{count_packages_in_libpaths}()},
+\code{\link{impute_na_knn}()}
 }
 \concept{inspect}

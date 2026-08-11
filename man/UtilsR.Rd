@@ -12,11 +12,14 @@ colour palettes, ggplot2 formatting, and console styling.
 \describe{
   \item{\code{\link{lv}}}{Variable summary for data.frame / Seurat}
   \item{\code{\link{check_na}}}{Missing value and data quality analysis}
+  \item{\code{\link{impute_na_knn}}}{Weighted KNN missing-value
+    imputation with labelled-variable support}
   \item{\code{\link{check_system}}}{OS, R version, memory, CPU info}
   \item{\code{\link{check_size}}}{Object memory profiling}
   \item{\code{\link{count_packages_in_libpaths}}}{Count installed packages}
 }
 }
+
 
 \section{Factor}{
 
@@ -106,4 +109,3 @@ colour palettes, ggplot2 formatting, and console styling.
   \item{\code{\link{\%<>\%}}}{Compound assignment pipe}
 }
 }
-

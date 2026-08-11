@@ -42,6 +42,7 @@ Other inspect:
 \code{\link{check_size}()},
 \code{\link{check_system}()},
 \code{\link{count_packages_in_libpaths}()},
+\code{\link{impute_na_knn}()},
 \code{\link{lv}()}
 }
 \concept{inspect}

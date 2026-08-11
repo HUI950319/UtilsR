@@ -1,3 +1,8 @@
+# UtilsR 0.6.2
+
+* `impute_na_knn()` adds weighted K-nearest-neighbour imputation for mixed
+  data frames while preserving numeric and character value labels.
+
 # UtilsR 0.6.1
 
 Patch release fixing `fmt_strip()` re-application failure.

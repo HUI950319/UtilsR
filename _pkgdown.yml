@@ -43,6 +43,7 @@ reference:
     contents:
       - lv
       - check_na
+      - impute_na_knn
       - check_system
       - check_size
       - count_packages_in_libpaths

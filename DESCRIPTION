@@ -24,6 +24,7 @@ Collate:
     'grob.R'
     'lv.R'
     'na.R'
+    'impute_na_knn.R'
     'check_system.R'
     'check_size.R'
     'count_packages.R'
@@ -100,8 +101,11 @@ Suggests:
     gridExtra,
     geomtextpath,
     plotthis,
+    testthat,
+    VIM (>= 4.5.0),
     knitr,
     rmarkdown
 Remotes:
     davidsjoberg/ggsankey
+Config/testthat/edition: 3
 VignetteBuilder: knitr
