@@ -147,14 +147,16 @@ p_missing <- plt_upset(
 )
 p_missing
 
-# Use an existing clinical data frame named oc0
-\dontrun{
-plt_upset(
-  oc0,
-  vars = c("BMI_1", "BMI_2", "BMI_3"),
-  levels = NA,
-  output = "upset"
-)
+# ---- ToyData clinical cohort ----
+if (requireNamespace("ToyData", quietly = TRUE) &&
+    requireNamespace("ggVennDiagram", quietly = TRUE)) {
+  oc0 <- ToyData::oc0
+  plt_upset(
+    oc0,
+    vars = c("BMI_1", "BMI_2", "BMI_3"),
+    levels = NA,
+    output = "upset"
+  )
 }
 
 \dontrun{
