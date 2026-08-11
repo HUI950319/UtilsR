@@ -26,6 +26,12 @@
 #'   impute_na_knn(dat, k = 1, verbose = FALSE)
 #' }
 #'
+#' if (requireNamespace("VIM", quietly = TRUE) &&
+#'     requireNamespace("ToyData", quietly = TRUE)) {
+#'   oc_imputed <- impute_na_knn(ToyData::oc, k = 5, verbose = FALSE)
+#'   utils::head(oc_imputed[, c("age", "BMI", "CA125")])
+#' }
+#'
 #' @family inspect
 #' @seealso \code{\link{check_na}()}
 #' @export
