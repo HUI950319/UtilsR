@@ -2,6 +2,8 @@
 #'
 #' Create a missing-value matrix, a missing-percentage bar chart, or one of
 #' two combined layouts for a data frame or an `mlr3::Task`.
+#' Use [plt_upset()] with `levels = NA` to visualise joint missing-value
+#' patterns across selected variables.
 #'
 #' @param data A data frame, tibble, or object inheriting from `Task`.
 #' @param name.map Optional named character vector used to replace variable
@@ -28,9 +30,19 @@
 #'   plt_na(ToyData::oc, output = "matrix")
 #'   plt_na(ToyData::oc, output = "percentage", sort = "asc")
 #' }
+#'
+#' if (requireNamespace("ToyData", quietly = TRUE) &&
+#'     requireNamespace("ggVennDiagram", quietly = TRUE)) {
+#'   plt_upset(
+#'     ToyData::oc0,
+#'     vars = c("BMI_1", "BMI_2", "BMI_3"),
+#'     levels = NA,
+#'     output = "upset"
+#'   )
+#' }
 #' }
 #'
-#' @seealso [fmt_strip()]
+#' @seealso [fmt_strip()], [plt_upset()]
 #' @export
 #' @family inspect
 plt_na <- function(
