@@ -3,6 +3,10 @@
 * `impute_na_knn()` adds weighted K-nearest-neighbour imputation for mixed
   data frames while preserving numeric and character value labels.
 
+* `plt_na()` adds missing-value matrix and percentage plots; `output` selects
+  either combined layout or either standalone panel, and `sort` controls
+  variable ordering by missing rate.
+
 * `plt_upset()` now documents `levels = NA` for plotting missing-value
   intersections without modifying the input data.
 

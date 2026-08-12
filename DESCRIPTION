@@ -25,6 +25,7 @@ Collate:
     'lv.R'
     'na.R'
     'impute_na_knn.R'
+    'plt_na.R'
     'check_system.R'
     'check_size.R'
     'count_packages.R'

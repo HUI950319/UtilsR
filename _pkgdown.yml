@@ -44,6 +44,7 @@ reference:
       - lv
       - check_na
       - impute_na_knn
+      - plt_na
       - check_system
       - check_size
       - count_packages_in_libpaths
