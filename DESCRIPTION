@@ -92,6 +92,7 @@ Suggests:
     RegR (>= 0.1.1),
     scMMR,
     ggbeeswarm,
+    ggsci,
     ggrastr,
     gtable,
     png,

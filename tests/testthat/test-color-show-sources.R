@@ -44,6 +44,44 @@ test_that("pal_show_hcl displays all HCL palettes by default", {
   )
 })
 
+test_that("pal_show_viridis displays selected viridis palettes", {
+  p <- pal_show_viridis(
+    palette = c("viridis", "plasma"),
+    n = 5,
+    output = "gg"
+  )
+
+  expect_s3_class(p, "ggplot")
+  expect_identical(
+    as.character(p$data$palette),
+    c(rep("viridis", 5), rep("plasma", 5))
+  )
+  expect_identical(
+    p$data$color[seq_len(5)],
+    scales::viridis_pal(option = "viridis")(5)
+  )
+})
+
+test_that("pal_show_ggsci displays selected ggsci palettes", {
+  skip_if_not_installed("ggsci")
+
+  p <- pal_show_ggsci(
+    palette = c("ggsci_npg_nrc", "ggsci_aaas_default"),
+    n = 5,
+    output = "gg"
+  )
+
+  expect_s3_class(p, "ggplot")
+  expect_identical(
+    as.character(p$data$palette),
+    c(rep("ggsci_npg_nrc", 5), rep("ggsci_aaas_default", 5))
+  )
+  expect_identical(
+    p$data$color[seq_len(5)],
+    substr(ggsci::pal_npg("nrc")(5), 1, 7)
+  )
+})
+
 test_that("pal_show gives Colours a wider fixed column", {
   skip_if_not_installed("gt")
 

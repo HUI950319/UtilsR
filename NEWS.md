@@ -6,6 +6,9 @@
 * `pal_show_hcl()` now handles HCL palettes outside the three named type
   groups when displaying the complete palette collection.
 
+* Added `pal_show_ggsci()` and `pal_show_viridis()` for displaying dynamic
+  ggsci and viridis palette collections through `pal_show()`.
+
 * `pal_show()`, `pal_show_brewer()`, and `pal_show_hcl()` now support
   `output = "console"` through `show_color()`.
 

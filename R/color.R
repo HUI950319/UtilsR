@@ -701,6 +701,190 @@ pal_show_hcl <- function(palette = NULL, n = 8,
   pal_show(pals, max_colors = max_colors, output = output)
 }
 
+#' Visualise ggsci Palettes
+#'
+#' Display the palettes provided by \code{ggsci} using the same ggplot or gt
+#' layout as \code{\link{pal_show}()}.
+#'
+#' @param palette Character vector of palette names. Names use the form
+#'   \code{"ggsci_npg_nrc"}; the \code{ggsci_} prefix may be omitted.
+#'   \code{NULL} shows all palettes.
+#' @param n Number of colours to retain from each palette. \code{NULL} uses
+#'   each palette's native number of colours.
+#' @param alpha Opacity of the colours, a number between 0 and 1.
+#' @param reverse Logical; if \code{TRUE}, reverse the colour order.
+#' @param pattern Regex pattern used to filter palette names.
+#' @param index Integer vector of palette indices to display after filtering.
+#' @param max_colors Maximum colours to display per palette. Default 20.
+#' @param output Output format: \code{"gt"} (default) or \code{"gg"}.
+#'
+#' @return A ggplot or gt object (also prints).
+#'
+#' @examples
+#' if (requireNamespace("ggsci", quietly = TRUE)) {
+#'   pal_show_ggsci(c("ggsci_npg_nrc", "ggsci_aaas_default"),
+#'                  n = 5, output = "gg")
+#' }
+#'
+#' @export
+#' @family colour palettes
+pal_show_ggsci <- function(palette = NULL, n = NULL, alpha = 1,
+                           reverse = FALSE, pattern = NULL, index = NULL,
+                           max_colors = 20, output = c("gt", "gg")) {
+  if (!requireNamespace("ggsci", quietly = TRUE)) {
+    cli::cli_abort("Package {.pkg ggsci} is required for {.fn pal_show_ggsci}.")
+  }
+
+  output <- match.arg(output)
+  if (!is.null(n) &&
+      (!is.numeric(n) || length(n) != 1L || !is.finite(n) ||
+       n < 1 || n != as.integer(n))) {
+    cli::cli_abort("Argument {.arg n} must be a positive integer or {.val NULL}.")
+  }
+  if (!is.numeric(alpha) || length(alpha) != 1L || !is.finite(alpha) ||
+      alpha < 0 || alpha > 1) {
+    cli::cli_abort("Argument {.arg alpha} must be a number between 0 and 1.")
+  }
+  if (!is.logical(reverse) || length(reverse) != 1L || is.na(reverse)) {
+    cli::cli_abort("Argument {.arg reverse} must be a single TRUE or FALSE.")
+  }
+
+  ggsci_db <- tryCatch(
+    utils::getFromNamespace("ggsci_db", "ggsci"),
+    error = function(e) NULL
+  )
+  if (is.null(ggsci_db) || !is.list(ggsci_db)) {
+    cli::cli_abort("Could not read the palette database from {.pkg ggsci}.")
+  }
+
+  pals <- list()
+  for (pkg_name in names(ggsci_db)) {
+    sub_pals <- ggsci_db[[pkg_name]]
+    for (sub_name in names(sub_pals)) {
+      full_name <- paste0("ggsci_", pkg_name, "_", sub_name)
+      cols <- unname(sub_pals[[sub_name]])
+      if (isTRUE(reverse)) cols <- rev(cols)
+      if (!is.null(n)) cols <- cols[seq_len(min(n, length(cols)))]
+      if (alpha < 1) cols <- scales::alpha(cols, alpha)
+      attr(cols, "type") <- "discrete"
+      pals[[full_name]] <- cols
+    }
+  }
+
+  if (!is.null(palette)) {
+    requested <- ifelse(
+      palette %in% names(pals), palette, paste0("ggsci_", palette)
+    )
+    valid <- requested[requested %in% names(pals)]
+    if (length(valid) == 0L) {
+      cli::cli_abort("No matching ggsci palettes found.")
+    }
+    pals <- pals[valid]
+  } else if (!is.null(pattern)) {
+    pals <- pals[grep(pattern, names(pals), ignore.case = TRUE)]
+  }
+  if (!is.null(index)) {
+    index <- index[index <= length(pals) & index >= 1]
+    pals <- pals[index]
+  }
+  if (length(pals) == 0L) {
+    cli::cli_abort("No ggsci palettes matched the filters.")
+  }
+
+  pal_show(pals, max_colors = max_colors, output = output)
+}
+
+#' Visualise Viridis Palettes
+#'
+#' Display the eight viridis colour maps using the same ggplot or gt layout as
+#' \code{\link{pal_show}()}.
+#'
+#' @param palette Character vector of palette names: \code{"magma"},
+#'   \code{"inferno"}, \code{"plasma"}, \code{"viridis"},
+#'   \code{"cividis"}, \code{"rocket"}, \code{"mako"}, or \code{"turbo"}.
+#'   \code{NULL} shows all palettes.
+#' @param n Number of colours to generate for each palette. Default 8.
+#' @param begin,end Numeric values between 0 and 1 defining the portion of
+#'   each colour map to use.
+#' @param direction Direction of the colour map, either 1 or -1.
+#' @param alpha Opacity of the colours, a number between 0 and 1.
+#' @param pattern Regex pattern used to filter palette names.
+#' @param index Integer vector of palette indices to display after filtering.
+#' @param max_colors Maximum colours to display per palette. Default 20.
+#' @param output Output format: \code{"gt"} (default) or \code{"gg"}.
+#'
+#' @return A ggplot or gt object (also prints).
+#'
+#' @examples
+#' pal_show_viridis(c("viridis", "plasma"), n = 8, output = "gg")
+#' pal_show_viridis(direction = -1, output = "gg")
+#'
+#' @export
+#' @family colour palettes
+pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
+                             direction = 1, alpha = 1, pattern = NULL,
+                             index = NULL, max_colors = 20,
+                             output = c("gt", "gg")) {
+  output <- match.arg(output)
+  if (!is.numeric(n) || length(n) != 1L || !is.finite(n) ||
+      n < 1 || n != as.integer(n)) {
+    cli::cli_abort("Argument {.arg n} must be a positive integer.")
+  }
+  if (!is.numeric(begin) || length(begin) != 1L || !is.finite(begin) ||
+      begin < 0 || begin > 1) {
+    cli::cli_abort("Argument {.arg begin} must be a number between 0 and 1.")
+  }
+  if (!is.numeric(end) || length(end) != 1L || !is.finite(end) ||
+      end < 0 || end > 1) {
+    cli::cli_abort("Argument {.arg end} must be a number between 0 and 1.")
+  }
+  if (!is.numeric(direction) || length(direction) != 1L ||
+      !is.finite(direction) || !direction %in% c(-1, 1)) {
+    cli::cli_abort("Argument {.arg direction} must be either 1 or -1.")
+  }
+  if (!is.numeric(alpha) || length(alpha) != 1L || !is.finite(alpha) ||
+      alpha < 0 || alpha > 1) {
+    cli::cli_abort("Argument {.arg alpha} must be a number between 0 and 1.")
+  }
+
+  viridis_names <- c(
+    "magma", "inferno", "plasma", "viridis",
+    "cividis", "rocket", "mako", "turbo"
+  )
+  pal_names <- viridis_names
+  if (!is.null(palette)) {
+    valid <- palette[palette %in% pal_names]
+    if (length(valid) == 0L) {
+      cli::cli_abort("No matching viridis palettes found.")
+    }
+    pal_names <- valid
+  } else if (!is.null(pattern)) {
+    pal_names <- pal_names[grep(pattern, pal_names, ignore.case = TRUE)]
+  }
+  if (!is.null(index)) {
+    index <- index[index <= length(pal_names) & index >= 1]
+    pal_names <- pal_names[index]
+  }
+  if (length(pal_names) == 0L) {
+    cli::cli_abort("No viridis palettes matched the filters.")
+  }
+
+  pals <- lapply(pal_names, function(nm) {
+    cols <- scales::viridis_pal(
+      alpha = alpha,
+      begin = begin,
+      end = end,
+      direction = direction,
+      option = nm
+    )(n)
+    attr(cols, "type") <- "continuous"
+    cols
+  })
+  names(pals) <- pal_names
+
+  pal_show(pals, max_colors = max_colors, output = output)
+}
+
 # ------------- Internal helpers for pal_show colour vector mode ---------------
 
 #' Check if a character vector looks like colours (not palette names)

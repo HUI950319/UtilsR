@@ -80,7 +80,9 @@ reference:
       - pal_list
       - pal_show
       - pal_show_brewer
+      - pal_show_ggsci
       - pal_show_hcl
+      - pal_show_viridis
       - show_color
       - palette_list
 
