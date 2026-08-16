@@ -53,6 +53,8 @@ Other colour palettes:
 \code{\link{pal_list}()},
 \code{\link{pal_other}},
 \code{\link{pal_paraSC}},
-\code{\link{pal_show}()}
+\code{\link{pal_show}()},
+\code{\link{pal_show_brewer}()},
+\code{\link{pal_show_hcl}()}
 }
 \concept{colour palettes}

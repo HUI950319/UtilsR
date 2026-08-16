@@ -79,6 +79,8 @@ reference:
       - pal_get
       - pal_list
       - pal_show
+      - pal_show_brewer
+      - pal_show_hcl
       - show_color
       - palette_list
 

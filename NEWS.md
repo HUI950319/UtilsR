@@ -1,5 +1,8 @@
 # UtilsR 0.6.2
 
+* `pal_show_brewer()` and `pal_show_hcl()` now display RColorBrewer and base R
+  HCL palette collections through `pal_show()`.
+
 * `fmt_strip2()` now accepts `top_right_fill` to generate get_facet-style
   sequential colour fills for top and right strips.
 

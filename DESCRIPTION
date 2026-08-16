@@ -85,6 +85,7 @@ Imports:
     grid,
     scales
 Suggests:
+    RColorBrewer,
     cowplot,
     SeuratObject,
     Seurat,
