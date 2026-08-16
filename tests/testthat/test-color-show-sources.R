@@ -33,3 +33,13 @@ test_that("pal_show_hcl displays selected HCL palettes", {
     grDevices::hcl.colors(5, "Dark 3")
   )
 })
+
+test_that("pal_show_hcl displays all HCL palettes by default", {
+  p <- pal_show_hcl(output = "gg")
+
+  expect_s3_class(p, "ggplot")
+  expect_setequal(
+    unique(as.character(p$data$palette)),
+    grDevices::hcl.pals()
+  )
+})

@@ -645,6 +645,10 @@ pal_show_hcl <- function(palette = NULL, n = 8,
     rep(names(type_names), lengths(type_names)),
     unlist(type_names, use.names = FALSE)
   )
+  other_names <- setdiff(all_names, names(type_lookup))
+  if (length(other_names) > 0L) {
+    type_lookup[other_names] <- "other"
+  }
 
   pal_names <- all_names
   if (!is.null(palette)) {
