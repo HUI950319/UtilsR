@@ -6,6 +6,9 @@
 * `pal_show_hcl()` now handles HCL palettes outside the three named type
   groups when displaying the complete palette collection.
 
+* `pal_show()` now gives the `Colours` column a fixed width of `700px` in
+  `gt` output.
+
 * `fmt_strip2()` now accepts `top_right_fill` to generate get_facet-style
   sequential colour fills for top and right strips.
 

@@ -43,3 +43,12 @@ test_that("pal_show_hcl displays all HCL palettes by default", {
     grDevices::hcl.pals()
   )
 })
+
+test_that("pal_show gives Colours a wider fixed column", {
+  skip_if_not_installed("gt")
+
+  invisible(capture.output(tbl <- pal_show("Set1", output = "gt")))
+  html <- gt::as_raw_html(tbl)
+
+  expect_match(html, "width:700px")
+})
