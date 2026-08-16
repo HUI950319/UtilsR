@@ -61,18 +61,21 @@ columns = Variable / Partial dependence plot) -- `fmt_strip2()` then labels
 the two columns on top and the four rows on the right.
 }
 \examples{
-\dontrun{
-library(ggplot2); library(patchwork)
-panels <- lapply(1:8, function(i)
-  ggplot(mtcars, aes(factor(am), mpg)) + geom_boxplot())
+library(ggplot2)
+library(patchwork)
+panels <- lapply(seq_len(8), function(i) {
+  ggplot(mtcars, aes(factor(am), mpg)) + geom_boxplot()
+})
 g <- wrap_plots(panels, ncol = 2)
-fmt_strip2(g,
-           top_label   = c("Variable dependece plot", "Partial dependece plot"),
-           right_label = paste0("Tumor size:", c("(0,10]","(10,20]","(20,40]","(40,90]")),
-           ncol        = 2,
-           top_fill    = c("grey90", "grey70"),
-           right_fill  = scales::seq_gradient_pal("#E8F5E9", "#1B5E20")(seq(0, 1, len = 4)))
-}
+fmt_strip2(
+  g,
+  top_label = c("Variable dependence plot", "Partial dependence plot"),
+  right_label = paste0(
+    "Tumor size: ", c("(0,10]", "(10,20]", "(20,40]", "(40,90]")
+  ),
+  ncol = 2,
+  top_right_fill = c("Grays", "Greens")
+)
 
 }
 \seealso{
