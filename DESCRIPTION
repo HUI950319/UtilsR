@@ -63,6 +63,7 @@ Collate:
     'UtilsR-package.R'
 Imports:
     cli,
+    colorspace,
     dplyr,
     ggplot2,
     ggpp,
@@ -88,7 +89,6 @@ Suggests:
     SeuratObject,
     Seurat,
     RegR (>= 0.1.1),
-    colorspace,
     scMMR,
     ggbeeswarm,
     ggrastr,

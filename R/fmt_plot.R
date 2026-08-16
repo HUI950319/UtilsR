@@ -1023,14 +1023,15 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
 #'   patchwork layout (`$patches$layout$ncol`/`nrow`), falling back to
 #'   `ceiling(sqrt(n))`.
 #' @param top_fill,right_fill Background fill colour(s) for the top / right
-#'   strips (recycled to `ncol` / `nrow`). `NULL` = light grey.
+#'   strips (recycled to `ncol` / `nrow`). `NULL` = light grey when
+#'   `top_right_fill = NULL`.
 #' @param label_color Strip text colour. Default `"black"`.
 #' @param top_right_fill Character vector of one or two `colorspace` sequential
 #'   HCL palette names used to generate the top and right fills. The first
 #'   palette is used for top strips and the second for right strips; a single
-#'   palette is reused for both directions. Explicit `top_fill` and
-#'   `right_fill` values take precedence. Requires the optional `colorspace`
-#'   package.
+#'   palette is reused for both directions. Defaults to
+#'   `c("Grays", "Greens")`. Explicit `top_fill` and `right_fill` values take
+#'   precedence.
 #'
 #' @return Same type as input (patchwork in, patchwork out).
 #'
@@ -1058,7 +1059,7 @@ fmt_strip2 <- function(plot,
                        top_fill    = NULL,
                        right_fill  = NULL,
                        label_color = "black",
-                       top_right_fill = NULL) {
+                       top_right_fill = c("Grays", "Greens")) {
 
   info  <- .to_plot_list(plot)
   plots <- info$plots
@@ -1084,12 +1085,6 @@ fmt_strip2 <- function(plot,
         "`top_right_fill` must be a non-empty character vector of palette names."
       )
     }
-    if (!requireNamespace("colorspace", quietly = TRUE)) {
-      cli::cli_abort(
-        "The `top_right_fill` option requires the optional `colorspace` package."
-      )
-    }
-
     top_right_fill <- rep_len(top_right_fill, 2L)
     make_hcl_fill <- function(palette, n) {
       ramp <- colorspace::sequential_hcl(n = 100L, palette = palette)
