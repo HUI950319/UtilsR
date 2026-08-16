@@ -481,7 +481,7 @@ pal_show <- function(palette = NULL, pattern = NULL,
       n <- min(length(cols), max_colors)
       cols <- cols[seq_len(n)]
       spans <- vapply(cols, function(c) {
-        sprintf('<span style="background:%s;color:%s;padding:0 3px;">&nbsp;</span>', c, c)
+        sprintf('<span style="background:%s;color:%s;padding:0 6px;">&nbsp;&nbsp;</span>', c, c)
       }, character(1))
       paste(spans, collapse = "")
     }, character(1)),

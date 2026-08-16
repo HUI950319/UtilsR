@@ -9,6 +9,8 @@
 * `pal_show()` now gives the `Colours` column a fixed width of `700px` in
   `gt` output.
 
+* `pal_show()` now doubles the width of each colour swatch in `gt` output.
+
 * `fmt_strip2()` now accepts `top_right_fill` to generate get_facet-style
   sequential colour fills for top and right strips.
 
