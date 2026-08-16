@@ -6,6 +6,9 @@
 * `pal_show_hcl()` now handles HCL palettes outside the three named type
   groups when displaying the complete palette collection.
 
+* `pal_show()`, `pal_show_brewer()`, and `pal_show_hcl()` now support
+  `output = "console"` through `show_color()`.
+
 * `pal_show()` now gives the `Colours` column a fixed width of `420px` in
   `gt` output.
 

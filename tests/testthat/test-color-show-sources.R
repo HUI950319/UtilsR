@@ -61,3 +61,32 @@ test_that("pal_show doubles the Colours swatch width", {
 
   expect_match(html, "padding:0 6px;")
 })
+
+test_that("pal_show displays palettes in the console", {
+  output <- capture.output(
+    pal_show("Set1", max_colors = 3, output = "console")
+  )
+
+  expect_match(paste(output, collapse = "\n"),
+               "=== Set1 \\(3 colours, discrete\\) ===")
+})
+
+test_that("pal_show displays colour vectors in the console", {
+  output <- capture.output(
+    pal_show(c("#FF0000", "#00FF00"), output = "console")
+  )
+
+  expect_match(paste(output, collapse = "\n"), "#FF0000")
+})
+
+test_that("palette source wrappers support console output", {
+  brewer_output <- capture.output(
+    pal_show_brewer("Set1", n = 3, output = "console")
+  )
+  hcl_output <- capture.output(
+    pal_show_hcl("Dark 3", n = 3, output = "console")
+  )
+
+  expect_match(paste(brewer_output, collapse = "\n"), "=== Set1")
+  expect_match(paste(hcl_output, collapse = "\n"), "=== Dark 3")
+})

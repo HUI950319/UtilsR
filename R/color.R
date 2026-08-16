@@ -340,8 +340,8 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #'   \code{"continuous"}.
 #' @param max_colors Maximum colours to display per palette. Default 20.
 #' @param index Integer vector of palette indices to show (after filtering).
-#' @param output Output format: \code{"gg"} (default) for ggplot or
-#'   \code{"gt"} for gt table.
+#' @param output Output format: \code{"gt"} (default) for a gt table,
+#'   \code{"gg"} for a ggplot, or \code{"console"} for terminal output.
 #' @param label Logical. In colour vector mode, whether to show hex/name
 #'   labels on tiles. Default \code{TRUE}.
 #' @param label_size Numeric. Text size for labels in colour vector mode.
@@ -350,7 +350,8 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #'   displaying many colours. Default \code{NULL} (auto: single row if
 #'   \eqn{\le 20}{<= 20} colours, otherwise wrap).
 #'
-#' @return A ggplot or gt object (also prints).
+#' @return A ggplot or gt object, or invisibly the displayed data for console
+#'   output (all outputs also print).
 #'
 #' @examples
 #' # Show specific palettes (gt table, default)
@@ -393,7 +394,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 pal_show <- function(palette = NULL, pattern = NULL,
                      type = c("all", "discrete", "continuous"),
                      max_colors = 20, index = NULL,
-                     output = c("gt", "gg"),
+                     output = c("gt", "gg", "console"),
                      label = TRUE, label_size = 3, ncol = NULL) {
   type <- match.arg(type)
   output <- match.arg(output)
@@ -442,6 +443,19 @@ pal_show <- function(palette = NULL, pattern = NULL,
   if (!is.null(index)) {
     index <- index[index <= length(pals) & index >= 1]
     pals <- pals[index]
+  }
+
+  # --- Console output ---
+  if (output == "console") {
+    for (nm in names(pals)) {
+      cols <- pals[[nm]]
+      n <- min(length(cols), max_colors)
+      cols <- cols[seq_len(n)]
+      tp <- attr(pals[[nm]], "type") %||% "?"
+      cat(sprintf("\n=== %s (%d colours, %s) ===\n", nm, n, tp))
+      show_color(cols)
+    }
+    return(invisible(pals))
   }
 
   # --- ggplot output ---
@@ -538,9 +552,11 @@ pal_show <- function(palette = NULL, pattern = NULL,
 #' @param pattern Regex pattern used to filter palette names.
 #' @param index Integer vector of palette indices to display after filtering.
 #' @param max_colors Maximum colours to display per palette. Default 20.
-#' @param output Output format: \code{"gt"} (default) or \code{"gg"}.
+#' @param output Output format: \code{"gt"} (default) for a gt table,
+#'   \code{"gg"} for a ggplot, or \code{"console"} for terminal output.
 #'
-#' @return A ggplot or gt object (also prints).
+#' @return A ggplot or gt object, or invisibly the displayed palette list for
+#'   console output (all outputs also print).
 #'
 #' @examples
 #' pal_show_brewer(c("Set1", "Blues"), n = 8, output = "gg")
@@ -551,7 +567,7 @@ pal_show <- function(palette = NULL, pattern = NULL,
 pal_show_brewer <- function(palette = NULL, n = NULL,
                             type = c("all", "qual", "seq", "div"),
                             pattern = NULL, index = NULL, max_colors = 20,
-                            output = c("gt", "gg")) {
+                            output = c("gt", "gg", "console")) {
   if (!requireNamespace("RColorBrewer", quietly = TRUE)) {
     cli::cli_abort("Package {.pkg RColorBrewer} is required for {.fn pal_show_brewer}.")
   }
@@ -614,9 +630,11 @@ pal_show_brewer <- function(palette = NULL, n = NULL,
 #' @param pattern Regex pattern used to filter palette names.
 #' @param index Integer vector of palette indices to display after filtering.
 #' @param max_colors Maximum colours to display per palette. Default 20.
-#' @param output Output format: \code{"gt"} (default) or \code{"gg"}.
+#' @param output Output format: \code{"gt"} (default) for a gt table,
+#'   \code{"gg"} for a ggplot, or \code{"console"} for terminal output.
 #'
-#' @return A ggplot or gt object (also prints).
+#' @return A ggplot or gt object, or invisibly the displayed palette list for
+#'   console output (all outputs also print).
 #'
 #' @examples
 #' pal_show_hcl(c("Dark 3", "Viridis"), n = 8, output = "gg")
@@ -627,7 +645,7 @@ pal_show_brewer <- function(palette = NULL, n = NULL,
 pal_show_hcl <- function(palette = NULL, n = 8,
                          type = c("all", "qualitative", "sequential", "diverging"),
                          pattern = NULL, index = NULL, max_colors = 20,
-                         output = c("gt", "gg")) {
+                         output = c("gt", "gg", "console")) {
   type <- match.arg(type)
   output <- match.arg(output)
   if (!is.numeric(n) || length(n) != 1L || !is.finite(n) ||
@@ -802,6 +820,13 @@ pal_show_hcl <- function(palette = NULL, n = 8,
 
     print(p)
     return(invisible(p))
+  }
+
+  # --- Console output ---
+  if (output == "console") {
+    cat(sprintf("\n=== %d colours ===\n", n))
+    show_color(colors)
+    return(invisible(colors))
   }
 
   # --- gt table output ---

@@ -10,7 +10,7 @@ pal_show(
   type = c("all", "discrete", "continuous"),
   max_colors = 20,
   index = NULL,
-  output = c("gt", "gg"),
+  output = c("gt", "gg", "console"),
   label = TRUE,
   label_size = 3,
   ncol = NULL
@@ -31,8 +31,8 @@ all palettes matching \code{pattern}/\code{type}. Named colour vectors
 
 \item{index}{Integer vector of palette indices to show (after filtering).}
 
-\item{output}{Output format: \code{"gg"} (default) for ggplot or
-\code{"gt"} for gt table.}
+\item{output}{Output format: \code{"gt"} (default) for a gt table,
+\code{"gg"} for a ggplot, or \code{"console"} for terminal output.}
 
 \item{label}{Logical. In colour vector mode, whether to show hex/name
 labels on tiles. Default \code{TRUE}.}
@@ -45,7 +45,8 @@ displaying many colours. Default \code{NULL} (auto: single row if
 \eqn{\le 20}{<= 20} colours, otherwise wrap).}
 }
 \value{
-A ggplot or gt object (also prints).
+A ggplot or gt object, or invisibly the displayed data for console
+  output (all outputs also print).
 }
 \description{
 Display palettes as horizontal colour bars (ggplot) or an interactive
