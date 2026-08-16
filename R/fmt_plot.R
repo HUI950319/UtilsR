@@ -1081,6 +1081,7 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
 #'   cat_names = "Female vs. Male",
 #'   color_pal = "lancet"
 #' )
+#' print(p)
 #' p %>% fmt_strip2(
 #'   top_label = c("Unadjusted", "Adjusted"),
 #'   right_label = c("Survival curves", "Difference curves"),
