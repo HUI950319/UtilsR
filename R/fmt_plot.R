@@ -1025,6 +1025,12 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
 #' @param top_fill,right_fill Background fill colour(s) for the top / right
 #'   strips (recycled to `ncol` / `nrow`). `NULL` = light grey.
 #' @param label_color Strip text colour. Default `"black"`.
+#' @param top_right_fill Character vector of one or two `colorspace` sequential
+#'   HCL palette names used to generate the top and right fills. The first
+#'   palette is used for top strips and the second for right strips; a single
+#'   palette is reused for both directions. Explicit `top_fill` and
+#'   `right_fill` values take precedence. Requires the optional `colorspace`
+#'   package.
 #'
 #' @return Same type as input (patchwork in, patchwork out).
 #'
@@ -1051,7 +1057,8 @@ fmt_strip2 <- function(plot,
                        ncol        = NULL,
                        top_fill    = NULL,
                        right_fill  = NULL,
-                       label_color = "black") {
+                       label_color = "black",
+                       top_right_fill = NULL) {
 
   info  <- .to_plot_list(plot)
   plots <- info$plots
@@ -1070,13 +1077,38 @@ fmt_strip2 <- function(plot,
   }
   nrow <- ceiling(n / ncol)
 
+  if (!is.null(top_right_fill)) {
+    if (!is.character(top_right_fill) || length(top_right_fill) == 0L ||
+        anyNA(top_right_fill) || any(!nzchar(top_right_fill))) {
+      cli::cli_abort(
+        "`top_right_fill` must be a non-empty character vector of palette names."
+      )
+    }
+    if (!requireNamespace("colorspace", quietly = TRUE)) {
+      cli::cli_abort(
+        "The `top_right_fill` option requires the optional `colorspace` package."
+      )
+    }
+
+    top_right_fill <- rep_len(top_right_fill, 2L)
+    make_hcl_fill <- function(palette, n) {
+      ramp <- colorspace::sequential_hcl(n = 100L, palette = palette)
+      rev(grDevices::colorRampPalette(ramp[30:80])(n))
+    }
+
+    if (is.null(top_fill)) {
+      top_fill <- make_hcl_fill(top_right_fill[1], ncol)
+    }
+    if (is.null(right_fill)) {
+      right_fill <- make_hcl_fill(top_right_fill[2], nrow)
+    }
+  }
+
   # ---- recycle labels / fills ----
   if (!is.null(top_label))   top_label   <- rep_len(top_label,   ncol)
   if (!is.null(right_label)) right_label <- rep_len(right_label, nrow)
   if (!is.null(top_fill))    top_fill    <- rep_len(top_fill,    ncol)
   if (!is.null(right_fill))  right_fill  <- rep_len(right_fill,  nrow)
-
-  txt <- ggplot2::element_text(colour = label_color, face = "bold")
 
   for (i in seq_len(n)) {
     grid_row <- ((i - 1L) %/% ncol) + 1L

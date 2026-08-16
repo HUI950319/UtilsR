@@ -1,5 +1,8 @@
 # UtilsR 0.6.2
 
+* `fmt_strip2()` now accepts `top_right_fill` to generate get_facet-style
+  sequential colour fills for top and right strips.
+
 * `impute_na_knn()` adds weighted K-nearest-neighbour imputation for mixed
   data frames while preserving numeric and character value labels.
 

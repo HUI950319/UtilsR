@@ -11,7 +11,8 @@ fmt_strip2(
   ncol = NULL,
   top_fill = NULL,
   right_fill = NULL,
-  label_color = "black"
+  label_color = "black",
+  top_right_fill = NULL
 )
 }
 \arguments{
@@ -33,6 +34,13 @@ patchwork layout (`$patches$layout$ncol`/`nrow`), falling back to
 strips (recycled to `ncol` / `nrow`). `NULL` = light grey.}
 
 \item{label_color}{Strip text colour. Default `"black"`.}
+
+\item{top_right_fill}{Character vector of one or two `colorspace` sequential
+HCL palette names used to generate the top and right fills. The first
+palette is used for top strips and the second for right strips; a single
+palette is reused for both directions. Explicit `top_fill` and
+`right_fill` values take precedence. Requires the optional `colorspace`
+package.}
 }
 \value{
 Same type as input (patchwork in, patchwork out).
