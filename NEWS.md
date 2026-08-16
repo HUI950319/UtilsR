@@ -6,7 +6,7 @@
 * `pal_show_hcl()` now handles HCL palettes outside the three named type
   groups when displaying the complete palette collection.
 
-* `pal_show()` now gives the `Colours` column a fixed width of `700px` in
+* `pal_show()` now gives the `Colours` column a fixed width of `420px` in
   `gt` output.
 
 * `pal_show()` now doubles the width of each colour swatch in `gt` output.

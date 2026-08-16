@@ -50,7 +50,7 @@ test_that("pal_show gives Colours a wider fixed column", {
   invisible(capture.output(tbl <- pal_show("Set1", output = "gt")))
   html <- gt::as_raw_html(tbl)
 
-  expect_match(html, "width:700px")
+  expect_match(html, "width:420px")
 })
 
 test_that("pal_show doubles the Colours swatch width", {

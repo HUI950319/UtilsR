@@ -516,7 +516,7 @@ pal_show <- function(palette = NULL, pattern = NULL,
       palette ~ gt::px(180),
       type ~ gt::px(80),
       n_colors ~ gt::px(40),
-      preview ~ gt::px(700)
+      preview ~ gt::px(420)
     )
 
   print(tbl)
