@@ -61,19 +61,54 @@ columns = Variable / Partial dependence plot) -- `fmt_strip2()` then labels
 the two columns on top and the four rows on the right.
 }
 \examples{
-library(ggplot2)
-library(patchwork)
-panels <- lapply(seq_len(8), function(i) {
-  ggplot(mtcars, aes(factor(am), mpg)) + geom_boxplot()
-})
-g <- wrap_plots(panels, ncol = 2)
-fmt_strip2(
-  g,
-  top_label = c("Variable dependence plot", "Partial dependence plot"),
-  right_label = paste0(
-    "Tumor size: ", c("(0,10]", "(10,20]", "(20,40]", "(40,90]")
-  ),
-  ncol = 2,
+library(dplyr)
+data(seer_thyroid_mtc_2026, package = "RegR")
+d <- as.data.frame(seer_thyroid_mtc_2026)
+d <- d[seq_len(min(600L, nrow(d))), , drop = FALSE]
+d <- d[
+  !is.na(d[["DSS"]]) & !is.na(d[["time"]]) & d[["time"]] > 0,
+  ,
+  drop = FALSE
+]
+d[["DSS"]] <- as.numeric(d[["DSS"]])
+
+cat_sur <- NULL
+invisible(capture.output(
+  cat_sur <- suppressWarnings(suppressMessages(
+    RegR::get_cat(
+      d,
+      cat_var = "Sex",
+      adj_var = "Age",
+      surv = TRUE,
+      conf_level = 0.85,
+      timepoint = 120,
+      time_dif = c(60, 120, 180),
+      methods = c("unadj", "direct")
+    )
+  ))
+))
+
+p <- RegR::plt_cat2(
+  cat_sur,
+  max_t = 193,
+  xbreaks = seq(0, 193, 24),
+  unadj_steps = TRUE,
+  ylim = c(0, 1),
+  ybre = seq(0, 1, 0.2),
+  ylim.2 = c(0, 0.35),
+  ybre.2 = seq(-0.1, 1, 0.1),
+  xlim = c(1, 2),
+  ticks_at = c(1, 1.5, 2),
+  ticks_digits = 1,
+  xlim.2 = c(0, 0.28),
+  ticks_at2 = c(0, 0.1, 0.2),
+  ticks_digits2 = 1,
+  cat_names = "Female vs. Male",
+  color_pal = "lancet"
+)
+p \%>\% fmt_strip2(
+  top_label = c("Unadjusted", "Adjusted"),
+  right_label = c("Survival curves", "Difference curves"),
   top_right_fill = c("Grays", "Greens")
 )
 
