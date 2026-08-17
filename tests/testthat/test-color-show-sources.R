@@ -124,7 +124,16 @@ test_that("palette source wrappers support console output", {
   hcl_output <- capture.output(
     pal_show_hcl("Dark 3", n = 3, output = "console")
   )
+  skip_if_not_installed("ggsci")
+  ggsci_output <- capture.output(
+    pal_show_ggsci("ggsci_npg_nrc", n = 3, output = "console")
+  )
+  viridis_output <- capture.output(
+    pal_show_viridis("viridis", n = 3, output = "console")
+  )
 
   expect_match(paste(brewer_output, collapse = "\n"), "=== Set1")
   expect_match(paste(hcl_output, collapse = "\n"), "=== Dark 3")
+  expect_match(paste(ggsci_output, collapse = "\n"), "=== ggsci_npg_nrc")
+  expect_match(paste(viridis_output, collapse = "\n"), "=== viridis")
 })

@@ -14,7 +14,7 @@ pal_show_viridis(
   pattern = NULL,
   index = NULL,
   max_colors = 20,
-  output = c("gt", "gg")
+  output = c("gt", "gg", "console")
 )
 }
 \arguments{
@@ -38,7 +38,8 @@ each colour map to use.}
 
 \item{max_colors}{Maximum colours to display per palette. Default 20.}
 
-\item{output}{Output format: \code{"gt"} (default) or \code{"gg"}.}
+\item{output}{Output format: \code{"gt"} (default) for a gt table,
+\code{"gg"} for a ggplot, or \code{"console"} for terminal output.}
 }
 \value{
 A ggplot or gt object (also prints).

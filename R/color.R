@@ -716,7 +716,8 @@ pal_show_hcl <- function(palette = NULL, n = 8,
 #' @param pattern Regex pattern used to filter palette names.
 #' @param index Integer vector of palette indices to display after filtering.
 #' @param max_colors Maximum colours to display per palette. Default 20.
-#' @param output Output format: \code{"gt"} (default) or \code{"gg"}.
+#' @param output Output format: \code{"gt"} (default) for a gt table,
+#'   \code{"gg"} for a ggplot, or \code{"console"} for terminal output.
 #'
 #' @return A ggplot or gt object (also prints).
 #'
@@ -730,7 +731,8 @@ pal_show_hcl <- function(palette = NULL, n = 8,
 #' @family colour palettes
 pal_show_ggsci <- function(palette = NULL, n = NULL, alpha = 1,
                            reverse = FALSE, pattern = NULL, index = NULL,
-                           max_colors = 20, output = c("gt", "gg")) {
+                           max_colors = 20,
+                           output = c("gt", "gg", "console")) {
   if (!requireNamespace("ggsci", quietly = TRUE)) {
     cli::cli_abort("Package {.pkg ggsci} is required for {.fn pal_show_ggsci}.")
   }
@@ -811,7 +813,8 @@ pal_show_ggsci <- function(palette = NULL, n = NULL, alpha = 1,
 #' @param pattern Regex pattern used to filter palette names.
 #' @param index Integer vector of palette indices to display after filtering.
 #' @param max_colors Maximum colours to display per palette. Default 20.
-#' @param output Output format: \code{"gt"} (default) or \code{"gg"}.
+#' @param output Output format: \code{"gt"} (default) for a gt table,
+#'   \code{"gg"} for a ggplot, or \code{"console"} for terminal output.
 #'
 #' @return A ggplot or gt object (also prints).
 #'
@@ -824,7 +827,7 @@ pal_show_ggsci <- function(palette = NULL, n = NULL, alpha = 1,
 pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
                              direction = 1, alpha = 1, pattern = NULL,
                              index = NULL, max_colors = 20,
-                             output = c("gt", "gg")) {
+                             output = c("gt", "gg", "console")) {
   output <- match.arg(output)
   if (!is.numeric(n) || length(n) != 1L || !is.finite(n) ||
       n < 1 || n != as.integer(n)) {

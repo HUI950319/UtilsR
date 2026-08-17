@@ -9,6 +9,9 @@
 * Added `pal_show_ggsci()` and `pal_show_viridis()` for displaying dynamic
   ggsci and viridis palette collections through `pal_show()`.
 
+* `pal_show_ggsci()` and `pal_show_viridis()` now support
+  `output = "console"` consistently with `pal_show()`.
+
 * `pal_show()`, `pal_show_brewer()`, and `pal_show_hcl()` now support
   `output = "console"` through `show_color()`.
 
