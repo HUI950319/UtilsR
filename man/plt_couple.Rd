@@ -113,13 +113,69 @@ variables with correlation, Mantel, or model-based importance links.
 \examples{
 \dontshow{if (requireNamespace("linkET", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 set.seed(1)
-example_data <- data.frame(
-  group = factor(rep(c("A", "B", "C"), each = 20)),
-  marker_1 = rnorm(60),
-  marker_2 = rnorm(60),
-  marker_3 = rnorm(60)
+n_per_group <- 18L
+example_group <- factor(
+  rep(c("Control", "Treatment_1", "Treatment_2", "Treatment_3"),
+    each = n_per_group
+  )
 )
-plt_couple(example_data, group = "group", vars = c("marker_1", "marker_2"))
+group_signal <- rep(c(-1.2, -0.4, 0.4, 1.2), each = n_per_group)
+n <- length(example_group)
+latent_signal <- rnorm(n, mean = group_signal, sd = 0.75)
+example_data <- data.frame(
+  group = example_group,
+  metabolite_1 = latent_signal + rnorm(n, sd = 0.35),
+  metabolite_2 = 0.75 * latent_signal + rnorm(n, sd = 0.55),
+  metabolite_3 = -0.60 * latent_signal + rnorm(n, sd = 0.65),
+  cytokine_1 = latent_signal + rnorm(n, sd = 0.45),
+  cytokine_2 = 0.50 * latent_signal + rnorm(n, sd = 0.80),
+  cell_score_1 = -0.40 * latent_signal + rnorm(n, sd = 0.70),
+  cell_score_2 = 0.80 * latent_signal + rnorm(n, sd = 0.50),
+  phenotype_1 = 0.60 * latent_signal + rnorm(n, sd = 0.60),
+  phenotype_2 = rnorm(n, mean = 0.30 * group_signal, sd = 0.90),
+  outcome_score = 0.90 * latent_signal + rnorm(n, sd = 0.40)
+)
+plt_couple(
+  example_data,
+  group = "group",
+  title = "Simulated multi-domain associations"
+)
+
+# A clinical-style example adapted from `figure1b_reproduction.R`.
+set.seed(2024)
+n_total <- 2612L
+n_A <- round(n_total * 0.141)
+n_B <- round(n_total * 0.176)
+n_C <- round(n_total * 0.270)
+group_sizes <- c(
+  A = n_A,
+  B = n_B,
+  C = n_C,
+  D = n_total - n_A - n_B - n_C
+)
+phenotype <- factor(rep(names(group_sizes), group_sizes))
+generate_phenotype_data <- function(means, sd_val) {
+  unlist(
+    Map(
+      function(n, mean) rnorm(n, mean = mean, sd = sd_val),
+      n = unname(group_sizes),
+      mean = means
+    ),
+    use.names = FALSE
+  )
+}
+clinical_data <- data.frame(
+  phenotype = phenotype,
+  HR = generate_phenotype_data(c(115, 95, 100, 85), sd_val = 15),
+  RR = generate_phenotype_data(c(24, 20, 21, 18), sd_val = 4),
+  SBP = generate_phenotype_data(c(125, 145, 105, 120), sd_val = 18),
+  DBP = generate_phenotype_data(c(75, 90, 65, 72), sd_val = 12)
+)
+plt_couple(
+  clinical_data,
+  group = "phenotype",
+  title = "Clinical variables across simulated subphenotypes"
+)
 \dontshow{\}) # examplesIf}
 }
 \seealso{
