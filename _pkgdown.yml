@@ -35,6 +35,7 @@ reference:
       - plt_cat
       - plt_con
       - plt_dist
+      - plt_couple
       - plt_sankey
       - plt_upset
 
