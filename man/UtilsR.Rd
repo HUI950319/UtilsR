@@ -21,7 +21,6 @@ colour palettes, ggplot2 formatting, and console styling.
 }
 }
 
-
 \section{Factor}{
 
 \describe{
@@ -97,6 +96,7 @@ colour palettes, ggplot2 formatting, and console styling.
   \item{\code{\link{.cat_line}}}{Styled separator line}
   \item{\code{\link{.cat_box}}}{Styled message box}
   \item{\code{\link{.cat_message}}}{Timestamped log message}
+  \item{\code{\link{.cat_formula}}}{Styled model formula}
   \item{\code{\link{.cat_tb}}}{Enhanced gt table with highlighting}
 }
 }
@@ -110,3 +110,4 @@ colour palettes, ggplot2 formatting, and console styling.
   \item{\code{\link{\%<>\%}}}{Compound assignment pipe}
 }
 }
+

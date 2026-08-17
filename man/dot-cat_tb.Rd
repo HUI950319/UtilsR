@@ -47,4 +47,19 @@ A \code{gt} table or \code{gt_group} object (invisible when
 Render one or more data objects (data.frame, gt, gtsummary) as styled
 \code{gt} tables.
 }
-\keyword{internal}
+\examples{
+table_data <- data.frame(
+  group = c("A", "B"),
+  value = c(1.25, 2.50)
+)
+.cat_tb(table_data, theme = "none")
+
+}
+\seealso{
+Other console display: 
+\code{\link{.cat_box}()},
+\code{\link{.cat_formula}()},
+\code{\link{.cat_line}()},
+\code{\link{.cat_message}()}
+}
+\concept{console display}

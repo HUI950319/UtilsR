@@ -52,7 +52,11 @@ console_width <- function() {
 #' @param line_char Character used for the rule (default \code{"="}).
 #' @param width Total width (default: console width).
 #'
-#' @keywords internal
+#' @examples
+#' .cat_line("Data summary", width = 40)
+#'
+#' @export
+#' @family console display
 .cat_line <- function(text,
                       type = c("info", "success", "warning", "error"),
                       line_char = "=",
@@ -90,7 +94,11 @@ console_width <- function() {
 #' @param type One of \code{"info"}, \code{"success"}, \code{"warning"},
 #'   \code{"error"}.
 #'
-#' @keywords internal
+#' @examples
+#' .cat_box("Completed", type = "success")
+#'
+#' @export
+#' @family console display
 .cat_box <- function(cat_text,
                      type = c("info", "success", "warning", "error")) {
   cfg <- ._type_cfg(match.arg(type))
@@ -135,7 +143,11 @@ console_width <- function() {
 #'   \code{"[\%Y-\%m-\%d \%H:\%M:\%S]"}).
 #' @param verbose Logical. If \code{FALSE}, suppress output.
 #'
-#' @keywords internal
+#' @examples
+#' .cat_message("Loading simulated data", verbose = FALSE)
+#'
+#' @export
+#' @family console display
 .cat_message <- function(message,
                          type = c("info", "success", "warning", "error"),
                          timestamp_format = "[%Y-%m-%d %H:%M:%S]",
@@ -188,7 +200,18 @@ console_width <- function() {
 #' @param type One of \code{"info"}, \code{"success"}, \code{"warning"},
 #'   \code{"error"}.
 #'
-#' @keywords internal
+#' @return Invisibly returns \code{NULL} after printing the formula.
+#'
+#' @examples
+#' formula_data <- data.frame(
+#'   DSS = c(0, 1, 1, 0),
+#'   time = c(5, 8, 12, 15),
+#'   age = c(45, 52, 61, 39)
+#' )
+#' .cat_formula(formula_data, co_var = "age")
+#'
+#' @export
+#' @family console display
 .cat_formula <- function(data, co_var, time = "time", outcome = "DSS",
                          type = c("info", "success", "warning", "error")) {
   type <- match.arg(type)
@@ -235,7 +258,16 @@ console_width <- function() {
 #'
 #' @return A \code{gt} table or \code{gt_group} object (invisible when
 #'   printed by RStudio viewer).
-#' @keywords internal
+#'
+#' @examples
+#' table_data <- data.frame(
+#'   group = c("A", "B"),
+#'   value = c(1.25, 2.50)
+#' )
+#' .cat_tb(table_data, theme = "none")
+#'
+#' @export
+#' @family console display
 .cat_tb <- function(...,
                     highlight_pattern = NULL,
                     highlight_color = "lightcoral",

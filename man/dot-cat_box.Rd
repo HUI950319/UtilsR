@@ -15,4 +15,15 @@
 \description{
 Print a rounded box with type-coloured border and background.
 }
-\keyword{internal}
+\examples{
+.cat_box("Completed", type = "success")
+
+}
+\seealso{
+Other console display: 
+\code{\link{.cat_formula}()},
+\code{\link{.cat_line}()},
+\code{\link{.cat_message}()},
+\code{\link{.cat_tb}()}
+}
+\concept{console display}

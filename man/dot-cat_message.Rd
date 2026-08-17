@@ -26,4 +26,15 @@
 Print a timestamped, type-coloured message. Supports multi-line messages
 (split on \code{"\\n"}).
 }
-\keyword{internal}
+\examples{
+.cat_message("Loading simulated data", verbose = FALSE)
+
+}
+\seealso{
+Other console display: 
+\code{\link{.cat_box}()},
+\code{\link{.cat_formula}()},
+\code{\link{.cat_line}()},
+\code{\link{.cat_tb}()}
+}
+\concept{console display}

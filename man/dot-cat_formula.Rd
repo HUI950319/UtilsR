@@ -26,9 +26,28 @@
 \item{type}{One of \code{"info"}, \code{"success"}, \code{"warning"},
 \code{"error"}.}
 }
+\value{
+Invisibly returns \code{NULL} after printing the formula.
+}
 \description{
 Displays a model formula (Cox, CRR, or logistic) with a styled box and
 separator. Automatically detects model type from the number of distinct
 outcome levels and presence of a time variable.
 }
-\keyword{internal}
+\examples{
+formula_data <- data.frame(
+  DSS = c(0, 1, 1, 0),
+  time = c(5, 8, 12, 15),
+  age = c(45, 52, 61, 39)
+)
+.cat_formula(formula_data, co_var = "age")
+
+}
+\seealso{
+Other console display: 
+\code{\link{.cat_box}()},
+\code{\link{.cat_line}()},
+\code{\link{.cat_message}()},
+\code{\link{.cat_tb}()}
+}
+\concept{console display}

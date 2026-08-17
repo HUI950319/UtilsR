@@ -24,4 +24,15 @@
 \description{
 Print a coloured rule with centred text and type-specific symbol.
 }
-\keyword{internal}
+\examples{
+.cat_line("Data summary", width = 40)
+
+}
+\seealso{
+Other console display: 
+\code{\link{.cat_box}()},
+\code{\link{.cat_formula}()},
+\code{\link{.cat_message}()},
+\code{\link{.cat_tb}()}
+}
+\concept{console display}

@@ -81,6 +81,7 @@
 #'   \item{\code{\link{.cat_line}}}{Styled separator line}
 #'   \item{\code{\link{.cat_box}}}{Styled message box}
 #'   \item{\code{\link{.cat_message}}}{Timestamped log message}
+#'   \item{\code{\link{.cat_formula}}}{Styled model formula}
 #'   \item{\code{\link{.cat_tb}}}{Enhanced gt table with highlighting}
 #' }
 #'
