@@ -1,8 +1,5 @@
 # UtilsR 0.6.2
 
-* `plt_couple()` adds correlation, Mantel, and model-based variable-importance
-  links to an upper-triangle correlation heatmap, with optional PDF saving.
-
 * `pal_show_brewer()` and `pal_show_hcl()` now display RColorBrewer and base R
   HCL palette collections through `pal_show()`.
 

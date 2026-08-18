@@ -50,7 +50,6 @@ Collate:
     'plt_cat_types.R'
     'plt_cat.R'
     'plt_con.R'
-    'plt_couple.R'
     'PlotScatter1.R'
     'PlotScatter2.R'
     'PlotScatter3.R'
@@ -106,18 +105,12 @@ Suggests:
     gridExtra,
     geomtextpath,
     plotthis,
-    linkET,
-    randomForest,
-    vegan,
-    withr,
-    xgboost,
     testthat,
     ToyData,
     VIM (>= 4.5.0),
     knitr,
     rmarkdown
 Remotes:
-    davidsjoberg/ggsankey,
-    Hy4m/linkET
+    davidsjoberg/ggsankey
 Config/testthat/edition: 3
 VignetteBuilder: knitr
