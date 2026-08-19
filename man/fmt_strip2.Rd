@@ -59,6 +59,9 @@ Typical use: a `get_vpd(EXP.obj, c(stratifier, exposure))` result flattened
 via [flatten_patchwork()] into a `4 x 2` grid (rows = stratifier levels,
 columns = Variable / Partial dependence plot) -- `fmt_strip2()` then labels
 the two columns on top and the four rows on the right.
+
+In RegR, \code{\link[RegR:get_rcs_all]{RegR::get_rcs_all()}} uses this
+helper for its shared-strip 2 x 2 composites when `strip_style = "grid"`.
 }
 \examples{
 library(dplyr)
@@ -115,7 +118,9 @@ p \%>\% fmt_strip2(
 
 }
 \seealso{
-[fmt_strip()] for per-panel top strips.
+[fmt_strip()] for per-panel top strips;
+  \code{\link[RegR:get_rcs_all]{RegR::get_rcs_all()}} for the higher-level
+  RCS composite that uses this helper with `strip_style = "grid"`.
 
 Other plot formatting: 
 \code{\link{fmt_axis}()},

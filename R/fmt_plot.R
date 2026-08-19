@@ -1012,6 +1012,9 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
 #' columns = Variable / Partial dependence plot) -- `fmt_strip2()` then labels
 #' the two columns on top and the four rows on the right.
 #'
+#' In RegR, \code{\link[RegR:get_rcs_all]{RegR::get_rcs_all()}} uses this
+#' helper for its shared-strip 2 x 2 composites when `strip_style = "grid"`.
+#'
 #' @param plot A patchwork (or list) of ggplot panels filling an
 #'   `nrow x ncol` grid **by row**.
 #' @param top_label Character vector of column-header labels (length `ncol`,
@@ -1090,7 +1093,9 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
 #'
 #' @export
 #' @family plot formatting
-#' @seealso [fmt_strip()] for per-panel top strips.
+#' @seealso [fmt_strip()] for per-panel top strips;
+#'   \code{\link[RegR:get_rcs_all]{RegR::get_rcs_all()}} for the higher-level
+#'   RCS composite that uses this helper with `strip_style = "grid"`.
 fmt_strip2 <- function(plot,
                        top_label   = NULL,
                        right_label = NULL,
