@@ -20,6 +20,9 @@
 
 * `pal_show()` now doubles the width of each colour swatch in `gt` output.
 
+* `show_color()` now prints a `dput()` representation of the displayed colour
+  vector for reuse in R.
+
 * `.cat_line()`, `.cat_box()`, `.cat_message()`, `.cat_formula()`, and
   `.cat_tb()` are now exported for use by other R packages.
 

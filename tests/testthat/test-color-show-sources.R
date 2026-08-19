@@ -117,6 +117,17 @@ test_that("pal_show displays colour vectors in the console", {
   expect_match(paste(output, collapse = "\n"), "#FF0000")
 })
 
+test_that("show_color prints an R expression for the displayed colours", {
+  output <- capture.output(
+    show_color(c("#FF0000", "#00FF00"))
+  )
+
+  expect_match(
+    paste(output, collapse = "\n"),
+    'c\\("#FF0000", "#00FF00"\\)'
+  )
+})
+
 test_that("palette source wrappers support console output", {
   brewer_output <- capture.output(
     pal_show_brewer("Set1", n = 3, output = "console")
