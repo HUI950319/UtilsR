@@ -811,7 +811,8 @@ fmt_plot_base <- function(plot, ggtheme = NULL, labs_list = NULL,
 #' Add facet strip labels to a plot
 #'
 #' Wraps each plot in a single-panel \code{ggh4x::facet_wrap2} so that a
-#' coloured strip label appears above the panel.
+#' coloured strip label appears above the panel. Strip text is horizontally
+#' and vertically centered.
 #'
 #' @param plot A ggplot, patchwork, or list of ggplots.
 #' @param label Character vector of strip labels (recycled as needed).
@@ -838,18 +839,30 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
   if (!is.null(label_color)) label_color <- rep_len(label_color, n)
   if (!is.null(label_fill))  label_fill  <- rep_len(label_fill, n)
 
+  centered_strip_text <- function(colour, face = "bold") {
+    ggplot2::element_text(
+      colour = colour,
+      face = face,
+      hjust = 0.5,
+      vjust = 0.5,
+      margin = ggplot2::margin(t = 3, b = 3, unit = "pt")
+    )
+  }
+
   create_strip <- function(lc, lf) {
     if (!is.null(lf)) {
       ggh4x::strip_themed(
         background_x = ggh4x::elem_list_rect(fill = lf),
-        text_x = list(ggplot2::element_text(colour = lc, face = "bold"))
+        text_x = list(centered_strip_text(lc))
       )
     } else if (!is.null(lc)) {
       ggh4x::strip_themed(
-        text_x = ggh4x::elem_list_text(colour = lc, face = "bold")
+        text_x = list(centered_strip_text(lc))
       )
     } else {
-      ggh4x::strip_themed()
+      ggh4x::strip_themed(
+        text_x = list(centered_strip_text(NULL, face = NULL))
+      )
     }
   }
 
@@ -972,7 +985,10 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
       lc_val <- if (n == 1) label_color[1] else label_color[i]
       strip_theme$strip.text <- ggplot2::element_text(
         colour = if (!is.null(lc_val)) lc_val else "black",
-        face = "bold"
+        face = "bold",
+        hjust = 0.5,
+        vjust = 0.5,
+        margin = ggplot2::margin(t = 3, b = 3, unit = "pt")
       )
       plots[[i]] <- plots[[i]] + do.call(ggplot2::theme, strip_theme)
 

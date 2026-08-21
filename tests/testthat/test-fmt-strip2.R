@@ -1,3 +1,27 @@
+test_that("fmt_strip centers strip text", {
+  testthat::skip_if_not_installed("ggh4x")
+
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) +
+    ggplot2::geom_point()
+  out <- fmt_strip(p, label = "Centered", label_fill = "grey90")
+  strip_text <- out$facet$strip$given_elements$text_x[[1]]
+
+  expect_equal(strip_text@hjust, 0.5)
+  expect_equal(strip_text@vjust, 0.5)
+  expect_equal(as.numeric(strip_text@margin)[c(1, 3)], c(3, 3))
+
+  p_facet <- p + ggplot2::facet_wrap(ggplot2::vars(cyl))
+  out_facet <- fmt_strip(p_facet, label = "Centered")
+
+  expect_equal(out_facet$theme$strip.text@hjust, 0.5)
+  expect_equal(out_facet$theme$strip.text@vjust, 0.5)
+  expect_equal(
+    as.numeric(out_facet$theme$strip.text@margin)[c(1, 3)],
+    c(3, 3)
+  )
+})
+
+
 test_that("fmt_strip2 supports top_right_fill strip palettes", {
   testthat::skip_if_not_installed("ggh4x")
 

@@ -26,6 +26,8 @@
 * `.cat_line()`, `.cat_box()`, `.cat_message()`, `.cat_formula()`, and
   `.cat_tb()` are now exported for use by other R packages.
 
+* `fmt_strip()` now centers strip text horizontally and vertically.
+
 * `fmt_strip2()` now accepts `top_right_fill` to generate get_facet-style
   sequential colour fills for top and right strips.
 

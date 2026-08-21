@@ -21,7 +21,8 @@ Same type as input.
 }
 \description{
 Wraps each plot in a single-panel \code{ggh4x::facet_wrap2} so that a
-coloured strip label appears above the panel.
+coloured strip label appears above the panel. Strip text is horizontally
+and vertically centered.
 }
 \examples{
 library(ggplot2)
