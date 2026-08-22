@@ -21,6 +21,20 @@ test_that("fmt_strip centers strip text", {
   )
 })
 
+test_that("theme_my centers facet strips with symmetric margins", {
+  theme <- theme_my(base_size = 12)
+  strip_x <- ggplot2::calc_element("strip.text.x.top", theme)
+  strip_y <- ggplot2::calc_element("strip.text.y.right", theme)
+
+  expect_equal(strip_x$hjust, 0.5)
+  expect_equal(strip_x$vjust, 0.5)
+  expect_equal(as.numeric(strip_x$margin)[c(1, 3)], c(4, 4))
+
+  expect_equal(strip_y$hjust, 0.5)
+  expect_equal(strip_y$vjust, 0.5)
+  expect_equal(as.numeric(strip_y$margin)[c(2, 4)], c(4, 4))
+})
+
 
 test_that("fmt_strip2 supports top_right_fill strip palettes", {
   testthat::skip_if_not_installed("ggh4x")

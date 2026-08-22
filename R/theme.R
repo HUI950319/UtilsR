@@ -220,13 +220,16 @@ theme_my <- function(palette = "black_and_white", base_size = 14,
       colour = colours["axisTitleColor"], size = rel(1),
       margin = ggplot2::margin(t = base_size / 1.5, r = base_size / 2.5,
                                 b = base_size / 1.5, l = base_size / 2.5),
-      hjust = 0.5, vjust = 0
+      hjust = 0.5, vjust = 0.5
     ),
     strip.text.x =       element_text(
-      margin = ggplot2::margin(b = base_size / 3)
+      margin = ggplot2::margin(t = base_size / 3, b = base_size / 3),
+      hjust = 0.5, vjust = 0.5
     ),
     strip.text.y =       element_text(
-      angle = -90, margin = ggplot2::margin(l = base_size / 3)
+      angle = -90,
+      margin = ggplot2::margin(r = base_size / 3, l = base_size / 3),
+      hjust = 0.5, vjust = 0.5
     ),
     strip.text.y.left =  element_text(angle = 90),
     strip.placement =    "inside",
