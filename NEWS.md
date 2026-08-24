@@ -1,5 +1,9 @@
 # UtilsR 0.6.2
 
+* Added `plt_alluvial()` for percentage or count alluvial distributions with
+  native faceting and grouped flow, stratum, label, facet, and legend options;
+  `plt_dist(type = "alluvial")` now uses it and supports `facet` without scMMR.
+
 * `pal_show_brewer()` and `pal_show_hcl()` now display RColorBrewer and base R
   HCL palette collections through `pal_show()`.
 

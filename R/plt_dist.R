@@ -7,9 +7,8 @@
 #' Visualise the cross-distribution of categorical variables. With 2 variables
 #' the plot is an **alluvial / Sankey flow** (default) or a **stacked
 #' proportion bar**, selected via \code{type}; with 3 variables it is a **tile
-#' heatmap**. The alluvial mode delegates to \code{scMMR::PlotAlluvia2()}
-#' (flows connect the same category across adjacent groups) and therefore
-#' requires the \pkg{scMMR} package.
+#' heatmap**. The alluvial mode uses [plt_alluvial()], so it supports native
+#' faceting and only requires the suggested \pkg{ggalluvial} package.
 #'
 #' @param data A data frame.
 #' @param dis_vars Character vector of variable names.
@@ -19,15 +18,15 @@
 #'     \item 3 variables: \code{c(x, y, fill)} \eqn{\rightarrow} tile heatmap
 #'       (\code{type} ignored).
 #'   }
-#' @param type Plot type for the 2-variable case: \code{"alluvial"} (default,
-#'   Sankey flow via \code{scMMR::PlotAlluvia2()}) or \code{"bar"} (stacked
-#'   proportion bar). Ignored when \code{dis_vars} has 3 variables.
-#' @param facet Optional faceting variable name (string). Only used with the
-#'   2-variable bar chart (\code{type = "bar"}); ignored for alluvial and heatmap.
+#' @param type Plot type for the 2-variable case: \code{"alluvial"} (default)
+#'   or \code{"bar"} (stacked proportion bar). Ignored when \code{dis_vars} has
+#'   3 variables.
+#' @param facet Optional faceting variable name (string). Used by both
+#'   2-variable plot types; ignored for the 3-variable heatmap.
 #' @param color Colour specification, resolved by the internal colour resolver:
 #'   \code{NULL} (default \code{pal_lancet}), a registered palette name (e.g.
 #'   \code{"Paired"}), a single literal colour, or a vector of colours. In
-#'   alluvial mode these are passed to \code{PlotAlluvia2()} as \code{palcolor}.
+#'   alluvial mode these are passed to [plt_alluvial()].
 #' @param alpha Colour transparency. Default 0.7. In alluvial mode this is the
 #'   flow ribbon transparency (\code{flow.alpha}).
 #' @param label Label content, one of \code{"count_percent"} (default),
@@ -35,14 +34,14 @@
 #'   selects the count / percentage text on each segment. For the **heatmap**
 #'   any value other than \code{"none"} prints the third variable's category in
 #'   each tile; \code{"none"} hides the labels. For the **alluvial** plot it
-#'   maps to \code{PlotAlluvia2()}'s \code{label.style}: \code{"count_percent"}
+#'   maps to `label_args$style` in [plt_alluvial()]: \code{"count_percent"}
 #'   \eqn{\rightarrow} name + count + percent, \code{"count"} \eqn{\rightarrow}
 #'   name + count, \code{"percent"} \eqn{\rightarrow} name + percent,
 #'   \code{"none"} \eqn{\rightarrow} no labels.
 #' @param gap Alluvial only. Gap between strata as a fraction of total height,
-#'   forwarded to \code{PlotAlluvia2()}. Default 0.01; set 0 for no gaps.
+#'   forwarded to [plt_alluvial()]. Default 0.01; set 0 for no gaps.
 #' @param curve_type Alluvial only. Flow ribbon curve type forwarded to
-#'   \code{PlotAlluvia2()} as \code{curve.type}. Default \code{"linear"}; other
+#'   [plt_alluvial()]. Default \code{"linear"}; other
 #'   options include \code{"sigmoid"}, \code{"cubic"}, \code{"xspline"}.
 #' @param theme_use Theme specification, resolved by [.resolve_theme()].
 #'   Default [theme_heat]\code{(14)} (clean look). Also accepts a
@@ -54,9 +53,8 @@
 #'   re-enabled when the theme -- such as the default \code{theme_heat()} --
 #'   would otherwise hide it, but a custom theme's legend placement is kept);
 #'   the **heatmap** never shows one, since each tile is labelled directly.
-#'   In **alluvial** mode only the base font size is taken from \code{theme_use}
-#'   (passed as \code{base.size}); the rest of the theme does not apply, since
-#'   \code{PlotAlluvia2()} draws with its own \code{theme_classic()}.
+#'   In **alluvial** mode only the base font size is taken from \code{theme_use};
+#'   [theme_alluvia()] supplies the plot's remaining theme settings.
 #'
 #' @return A ggplot object.
 #'
@@ -93,12 +91,13 @@
 #' plt_dist(df, dis_vars = c("stage", "grade", "sex"))
 #' plt_dist(df, dis_vars = c("stage", "grade", "sex"), label = "none")
 #'
-#' # --- Alluvial / Sankey flow (default; needs scMMR) ------------------------
-#' \dontrun{
-#' plt_dist(df, dis_vars = c("stage", "sex"))                     # default alluvial
-#' plt_dist(df, dis_vars = c("stage", "sex"), gap = 0.02)         # wider gaps
-#' plt_dist(df, dis_vars = c("stage", "sex"), curve_type = "sigmoid")
-#' plt_dist(df, dis_vars = c("stage", "sex"), label = "percent")  # name + percent
+#' # --- Alluvial flow (default; needs ggalluvial) ----------------------------
+#' if (requireNamespace("ggalluvial", quietly = TRUE)) {
+#'   plt_dist(df, dis_vars = c("stage", "sex"))
+#'   plt_dist(df, dis_vars = c("stage", "sex"), facet = "race")
+#'   plt_dist(df, dis_vars = c("stage", "sex"), gap = 0.02)
+#'   plt_dist(df, dis_vars = c("stage", "sex"), curve_type = "sigmoid")
+#'   plt_dist(df, dis_vars = c("stage", "sex"), label = "percent")
 #' }
 #'
 #' @export
@@ -127,11 +126,6 @@ plt_dist <- function(data,
     cli::cli_abort("Variable{?s} not found in data: {.val {missing_vars}}")
   }
 
-  # Ensure factors
-  for (v in dis_vars) {
-    if (!is.factor(data[[v]])) data[[v]] <- factor(data[[v]])
-  }
-
   # --- Resolve theme + fill colours ---
   # .resolve_theme(): NULL -> theme_km, else theme/function/name -> theme.
   # Label text size scales with the theme's base font size (so it is carried
@@ -140,45 +134,24 @@ plt_dist <- function(data,
   base_size <- tryCatch(thm$text$size, error = function(e) NULL)
   if (is.null(base_size) || !is.numeric(base_size)) base_size <- 14
 
-  # --- Alluvial mode (2 variables only): delegate to scMMR::PlotAlluvia2 ----
-  # plt_dist acts as a thin adapter, mapping its arguments onto PlotAlluvia2's
-  # (data -> cellmeta, dis_vars -> by/fill, color -> palcolor, alpha ->
-  # flow.alpha, label -> label.style, theme base size -> base.size) and
-  # forwarding gap / curve_type. `type` only affects the 2-variable case;
-  # 3 variables always draw the heatmap below.
+  # --- Alluvial mode (2 variables only) -------------------------------------
   if (length(dis_vars) == 2L && type == "alluvial") {
-    if (!requireNamespace("scMMR", quietly = TRUE)) {
-      cli::cli_abort(c(
-        'Package {.pkg scMMR} is required for {.code type = "alluvial"}.',
-        i = 'Install scMMR, or use {.code type = "bar"} for a stacked bar.'
-      ))
-    }
-    if (!is.null(facet)) {
-      cli::cli_warn(
-        '{.arg facet} is not supported for {.code type = "alluvial"} and is ignored.')
-    }
-    # plt_dist `label` enum -> PlotAlluvia2 `label.style`
-    label_style <- switch(label,
-                          count_percent = "all",
-                          count         = "n",
-                          percent       = "pct",
-                          none          = "default")
-    # Resolve fill colours with UtilsR (same colour model as bar / heatmap),
-    # then hand them to PlotAlluvia2 as `palcolor`.
-    n_fill <- nlevels(factor(data[[dis_vars[2L]]]))
-    return(scMMR::PlotAlluvia2(
-      cellmeta    = data,
-      by          = dis_vars[1L],
-      fill        = dis_vars[2L],
-      palcolor    = .resolve_color(color, n = n_fill),
-      flow.alpha  = alpha,
-      gap         = gap,
-      curve.type  = curve_type,
-      label.style = label_style,
-      show.label  = FALSE,
-      show.pct    = FALSE,
-      base.size   = base_size
+    return(plt_alluvial(
+      data = data,
+      cat_var = dis_vars[1L],
+      group = dis_vars[2L],
+      facet = facet,
+      color = color,
+      flow_args = list(alpha = alpha, curve_type = curve_type),
+      stratum_args = list(gap = gap),
+      label_args = list(style = label),
+      theme_use = theme_alluvia(base_size)
     ))
+  }
+
+  # Ensure factors for the stacked-bar and heatmap branches.
+  for (v in dis_vars) {
+    if (!is.factor(data[[v]])) data[[v]] <- factor(data[[v]])
   }
 
   # .resolve_color(): NULL -> pal_lancet, registered name -> pal_get, literal

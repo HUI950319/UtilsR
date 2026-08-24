@@ -44,6 +44,7 @@ Collate:
     'fmt_plot.R'
     'fmt_point.R'
     'fmt_raster.R'
+    'plt_alluvial.R'
     'plt_dist.R'
     'plt_sankey.R'
     'plt_upset.R'
@@ -90,8 +91,8 @@ Suggests:
     SeuratObject,
     Seurat,
     RegR (>= 0.1.1),
-    scMMR,
     ggbeeswarm,
+    ggalluvial,
     ggsci,
     ggrastr,
     gtable,

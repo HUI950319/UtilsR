@@ -28,17 +28,17 @@ plt_dist(
     (\code{type} ignored).
 }}
 
-\item{type}{Plot type for the 2-variable case: \code{"alluvial"} (default,
-Sankey flow via \code{scMMR::PlotAlluvia2()}) or \code{"bar"} (stacked
-proportion bar). Ignored when \code{dis_vars} has 3 variables.}
+\item{type}{Plot type for the 2-variable case: \code{"alluvial"} (default)
+or \code{"bar"} (stacked proportion bar). Ignored when \code{dis_vars} has
+3 variables.}
 
-\item{facet}{Optional faceting variable name (string). Only used with the
-2-variable bar chart (\code{type = "bar"}); ignored for alluvial and heatmap.}
+\item{facet}{Optional faceting variable name (string). Used by both
+2-variable plot types; ignored for the 3-variable heatmap.}
 
 \item{color}{Colour specification, resolved by the internal colour resolver:
 \code{NULL} (default \code{pal_lancet}), a registered palette name (e.g.
 \code{"Paired"}), a single literal colour, or a vector of colours. In
-alluvial mode these are passed to \code{PlotAlluvia2()} as \code{palcolor}.}
+alluvial mode these are passed to [plt_alluvial()].}
 
 \item{alpha}{Colour transparency. Default 0.7. In alluvial mode this is the
 flow ribbon transparency (\code{flow.alpha}).}
@@ -48,16 +48,16 @@ flow ribbon transparency (\code{flow.alpha}).}
 selects the count / percentage text on each segment. For the **heatmap**
 any value other than \code{"none"} prints the third variable's category in
 each tile; \code{"none"} hides the labels. For the **alluvial** plot it
-maps to \code{PlotAlluvia2()}'s \code{label.style}: \code{"count_percent"}
+maps to `label_args$style` in [plt_alluvial()]: \code{"count_percent"}
 \eqn{\rightarrow} name + count + percent, \code{"count"} \eqn{\rightarrow}
 name + count, \code{"percent"} \eqn{\rightarrow} name + percent,
 \code{"none"} \eqn{\rightarrow} no labels.}
 
 \item{gap}{Alluvial only. Gap between strata as a fraction of total height,
-forwarded to \code{PlotAlluvia2()}. Default 0.01; set 0 for no gaps.}
+forwarded to [plt_alluvial()]. Default 0.01; set 0 for no gaps.}
 
 \item{curve_type}{Alluvial only. Flow ribbon curve type forwarded to
-\code{PlotAlluvia2()} as \code{curve.type}. Default \code{"linear"}; other
+[plt_alluvial()]. Default \code{"linear"}; other
 options include \code{"sigmoid"}, \code{"cubic"}, \code{"xspline"}.}
 
 \item{theme_use}{Theme specification, resolved by [.resolve_theme()].
@@ -70,9 +70,8 @@ Note on the legend: the **bar chart** always shows the fill legend (it is
 re-enabled when the theme -- such as the default \code{theme_heat()} --
 would otherwise hide it, but a custom theme's legend placement is kept);
 the **heatmap** never shows one, since each tile is labelled directly.
-In **alluvial** mode only the base font size is taken from \code{theme_use}
-(passed as \code{base.size}); the rest of the theme does not apply, since
-\code{PlotAlluvia2()} draws with its own \code{theme_classic()}.}
+In **alluvial** mode only the base font size is taken from \code{theme_use};
+[theme_alluvia()] supplies the plot's remaining theme settings.}
 }
 \value{
 A ggplot object.
@@ -81,9 +80,8 @@ A ggplot object.
 Visualise the cross-distribution of categorical variables. With 2 variables
 the plot is an **alluvial / Sankey flow** (default) or a **stacked
 proportion bar**, selected via \code{type}; with 3 variables it is a **tile
-heatmap**. The alluvial mode delegates to \code{scMMR::PlotAlluvia2()}
-(flows connect the same category across adjacent groups) and therefore
-requires the \pkg{scMMR} package.
+heatmap**. The alluvial mode uses [plt_alluvial()], so it supports native
+faceting and only requires the suggested \pkg{ggalluvial} package.
 }
 \examples{
 set.seed(1)
@@ -118,12 +116,13 @@ plt_dist(df, dis_vars = c("stage", "sex"), type = "bar",
 plt_dist(df, dis_vars = c("stage", "grade", "sex"))
 plt_dist(df, dis_vars = c("stage", "grade", "sex"), label = "none")
 
-# --- Alluvial / Sankey flow (default; needs scMMR) ------------------------
-\dontrun{
-plt_dist(df, dis_vars = c("stage", "sex"))                     # default alluvial
-plt_dist(df, dis_vars = c("stage", "sex"), gap = 0.02)         # wider gaps
-plt_dist(df, dis_vars = c("stage", "sex"), curve_type = "sigmoid")
-plt_dist(df, dis_vars = c("stage", "sex"), label = "percent")  # name + percent
+# --- Alluvial flow (default; needs ggalluvial) ----------------------------
+if (requireNamespace("ggalluvial", quietly = TRUE)) {
+  plt_dist(df, dis_vars = c("stage", "sex"))
+  plt_dist(df, dis_vars = c("stage", "sex"), facet = "race")
+  plt_dist(df, dis_vars = c("stage", "sex"), gap = 0.02)
+  plt_dist(df, dis_vars = c("stage", "sex"), curve_type = "sigmoid")
+  plt_dist(df, dis_vars = c("stage", "sex"), label = "percent")
 }
 
 }
