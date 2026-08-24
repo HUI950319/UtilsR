@@ -11,11 +11,12 @@ plt_alluvial(
   facet = NULL,
   y_type = c("percent", "count"),
   color = pal_lancet,
-  flow_args = list(),
-  stratum_args = list(),
-  label_args = list(),
-  facet_args = list(),
-  legend_args = list(),
+  flow_args = list(alpha = 0.4, curve_type = "linear"),
+  stratum_args = list(width = 0.5, color = "gray50", linewidth = 0.3, gap = 0.01),
+  label_args = list(style = "count_percent", min_pct = 0, size = 3, color = "black", box
+    = TRUE, fill = "white", alpha = 1),
+  facet_args = list(nrow = NULL, ncol = NULL, scales = "fixed"),
+  legend_args = list(ncol = 1, position = "right"),
   theme_use = theme_alluvia(15),
   save = list()
 )
@@ -28,51 +29,97 @@ plt_alluvial(
 \item{group}{A single column name defining strata, flows, and fill colours.}
 
 \item{facet}{An optional single column name used with
-[ggplot2::facet_wrap()].}
+\code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}.}
 
 \item{y_type}{Display within-category percentages or raw counts.}
 
 \item{color}{A registered UtilsR palette name, a single colour, or a colour
-vector. See [.resolve_color()].}
+vector. See the internal \code{.resolve_color()} resolver.}
 
-\item{flow_args}{A named list controlling the flows. Allowed fields are
-`alpha` (default `0.4`) and `curve_type` (default `"linear"`).}
+\item{flow_args}{A named list controlling the alluvial flows:
+\describe{
+\item{\code{alpha}}{Numeric scalar in \eqn{[0, 1]}. Opacity of the flow
+ribbons; \code{0} is fully transparent and \code{1} is fully opaque. Default
+\code{0.4}.}
+\item{\code{curve_type}}{Character scalar selecting the ribbon curve.
+Supported values are \code{"linear"}, \code{"cubic"}, \code{"quintic"}, \code{"sine"},
+\code{"arctangent"}, \code{"sigmoid"}, and \code{"xspline"}. Default \code{"linear"}.}
+}}
 
-\item{stratum_args}{A named list controlling the strata. Allowed fields are
-`width` (default `0.5`), `color` (default `"gray50"`), `linewidth`
-(default `0.3`), and `gap` (default `0.01`). `gap` is a fraction of the
-total height.}
+\item{stratum_args}{A named list controlling stratum bars and gaps:
+\describe{
+\item{\code{width}}{Numeric scalar in \eqn{(0, 1]}. Horizontal width of
+stratum bars and their flow endpoints relative to adjacent x-axis
+positions. Default \code{0.5}.}
+\item{\code{color}}{Character scalar giving the stratum border colour.
+Default \code{"gray50"}.}
+\item{\code{linewidth}}{Non-negative numeric scalar giving the stratum
+border line width. Default \code{0.3}.}
+\item{\code{gap}}{Non-negative numeric scalar controlling the transparent
+space inserted between adjacent groups. In percent mode it is the
+fraction of total panel height used by each gap; the total gap must be
+less than \code{1}. In count mode it is multiplied by the largest category
+total in each facet. Default \code{0.01}.}
+}}
 
-\item{label_args}{A named list controlling labels. Allowed fields are
-`style` (`"count_percent"`, `"count"`, `"percent"`, `"name"`, or
-`"none"`), `min_pct`, `size`, `color`, `box`, `fill`, and `alpha`.
-Defaults are `"count_percent"`, `0`, `3`, `"black"`, `TRUE`, `"white"`,
-and `1`, respectively.}
+\item{label_args}{A named list controlling labels:
+\describe{
+\item{\code{style}}{Character scalar selecting label content:
+\code{"count_percent"} gives \code{name (count, percent)}, \code{"count"} gives
+\code{name (count)}, \code{"percent"} gives \verb{name percent}, \code{"name"} gives the
+group name, and \code{"none"} hides labels. Default \code{"count_percent"}.}
+\item{\code{min_pct}}{Numeric scalar in \eqn{[0, 1]}. Labels are shown
+only for groups at or above this within-\code{facet} by \code{cat_var}
+proportion. Default \code{0}.}
+\item{\code{size}}{Positive numeric scalar giving the ggplot2 text size.
+Default \code{3}.}
+\item{\code{color}}{Character scalar giving the label text colour.
+Default \code{"black"}.}
+\item{\code{box}}{Logical scalar. \code{TRUE} uses boxed labels and \code{FALSE}
+uses plain text. Default \code{TRUE}.}
+\item{\code{fill}}{Character scalar giving the boxed-label background
+colour; used only when \code{box = TRUE}. Default \code{"white"}.}
+\item{\code{alpha}}{Numeric scalar in \eqn{[0, 1]} controlling label
+opacity. Default \code{1}.}
+}}
 
-\item{facet_args}{A named list passed to the facet layout. Allowed fields are
-`nrow`, `ncol`, and `scales`, with defaults `NULL`, `NULL`, and `"fixed"`.}
+\item{facet_args}{A named list controlling \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}:
+\describe{
+\item{\code{nrow}}{\code{NULL} or a positive integer giving the number of
+facet rows. Default \code{NULL}.}
+\item{\code{ncol}}{\code{NULL} or a positive integer giving the number of
+facet columns. Default \code{NULL}.}
+\item{\code{scales}}{Character scalar controlling scale sharing:
+\code{"fixed"}, \code{"free"}, \code{"free_x"}, or \code{"free_y"}. Default \code{"fixed"}.}
+}}
 
-\item{legend_args}{A named list controlling the fill legend. Allowed fields
-are `ncol` (default `1`) and `position` (default `"right"`).}
+\item{legend_args}{A named list controlling the fill legend:
+\describe{
+\item{\code{ncol}}{Positive integer giving the number of legend columns.
+Default \code{1}.}
+\item{\code{position}}{Character scalar giving the legend position:
+\code{"right"}, \code{"left"}, \code{"top"}, \code{"bottom"}, or \code{"none"}. Default
+\code{"right"}.}
+}}
 
-\item{theme_use}{A ggplot2 theme specification resolved by
-[.resolve_theme()].}
+\item{theme_use}{A ggplot2 theme specification resolved internally by
+\code{.resolve_theme()}.}
 
-\item{save}{`NULL`, an empty list, or a named list forwarded to
-`RegR::save_plt()`. Allowed fields are `filename`, `width`, and `height`.}
+\item{save}{\code{NULL}, an empty list, or a named list forwarded to
+\code{RegR::save_plt()}. Allowed fields are \code{filename}, \code{width}, and \code{height}.}
 }
 \value{
-A ggplot object. A non-empty `save` also writes the same plot to PDF.
+A ggplot object. A non-empty \code{save} also writes the same plot to PDF.
 }
 \description{
-Draw an alluvial plot for the distribution of `group` across the categories
-of `cat_var`. Transparent strata create visible gaps between groups, and an
+Draw an alluvial plot for the distribution of \code{group} across the categories
+of \code{cat_var}. Transparent strata create visible gaps between groups, and an
 optional facet is normalized independently.
 }
 \details{
-With `y_type = "percent"`, real strata are normalized within each
-`facet` by `cat_var` combination before the requested gap space is inserted.
-With `y_type = "count"`, gaps are scaled by the largest category total in
+With \code{y_type = "percent"}, real strata are normalized within each
+\code{facet} by \code{cat_var} combination before the requested gap space is inserted.
+With \code{y_type = "count"}, gaps are scaled by the largest category total in
 each facet. Rows with missing values in required columns are removed with an
 informational message.
 }

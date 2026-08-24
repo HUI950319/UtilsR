@@ -3,6 +3,8 @@
 * Added `plt_alluvial()` for percentage or count alluvial distributions with
   native faceting and grouped flow, stratum, label, facet, and legend options;
   `plt_dist(type = "alluvial")` now uses it and supports `facet` without scMMR.
+  Its five semantic list arguments now expose complete defaults in the public
+  signature, with every supported child field documented individually.
 
 * `pal_show_brewer()` and `pal_show_hcl()` now display RColorBrewer and base R
   HCL palette collections through `pal_show()`.

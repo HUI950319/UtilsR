@@ -11,24 +11,70 @@
 #'   [ggplot2::facet_wrap()].
 #' @param y_type Display within-category percentages or raw counts.
 #' @param color A registered UtilsR palette name, a single colour, or a colour
-#'   vector. See [.resolve_color()].
-#' @param flow_args A named list controlling the flows. Allowed fields are
-#'   `alpha` (default `0.4`) and `curve_type` (default `"linear"`).
-#' @param stratum_args A named list controlling the strata. Allowed fields are
-#'   `width` (default `0.5`), `color` (default `"gray50"`), `linewidth`
-#'   (default `0.3`), and `gap` (default `0.01`). `gap` is a fraction of the
-#'   total height.
-#' @param label_args A named list controlling labels. Allowed fields are
-#'   `style` (`"count_percent"`, `"count"`, `"percent"`, `"name"`, or
-#'   `"none"`), `min_pct`, `size`, `color`, `box`, `fill`, and `alpha`.
-#'   Defaults are `"count_percent"`, `0`, `3`, `"black"`, `TRUE`, `"white"`,
-#'   and `1`, respectively.
-#' @param facet_args A named list passed to the facet layout. Allowed fields are
-#'   `nrow`, `ncol`, and `scales`, with defaults `NULL`, `NULL`, and `"fixed"`.
-#' @param legend_args A named list controlling the fill legend. Allowed fields
-#'   are `ncol` (default `1`) and `position` (default `"right"`).
-#' @param theme_use A ggplot2 theme specification resolved by
-#'   [.resolve_theme()].
+#'   vector. See the internal `.resolve_color()` resolver.
+#' @param flow_args A named list controlling the alluvial flows:
+#'   \describe{
+#'     \item{\code{alpha}}{Numeric scalar in \eqn{[0, 1]}. Opacity of the flow
+#'       ribbons; `0` is fully transparent and `1` is fully opaque. Default
+#'       `0.4`.}
+#'     \item{\code{curve_type}}{Character scalar selecting the ribbon curve.
+#'       Supported values are `"linear"`, `"cubic"`, `"quintic"`, `"sine"`,
+#'       `"arctangent"`, `"sigmoid"`, and `"xspline"`. Default `"linear"`.}
+#'   }
+#' @param stratum_args A named list controlling stratum bars and gaps:
+#'   \describe{
+#'     \item{\code{width}}{Numeric scalar in \eqn{(0, 1]}. Horizontal width of
+#'       stratum bars and their flow endpoints relative to adjacent x-axis
+#'       positions. Default `0.5`.}
+#'     \item{\code{color}}{Character scalar giving the stratum border colour.
+#'       Default `"gray50"`.}
+#'     \item{\code{linewidth}}{Non-negative numeric scalar giving the stratum
+#'       border line width. Default `0.3`.}
+#'     \item{\code{gap}}{Non-negative numeric scalar controlling the transparent
+#'       space inserted between adjacent groups. In percent mode it is the
+#'       fraction of total panel height used by each gap; the total gap must be
+#'       less than `1`. In count mode it is multiplied by the largest category
+#'       total in each facet. Default `0.01`.}
+#'   }
+#' @param label_args A named list controlling labels:
+#'   \describe{
+#'     \item{\code{style}}{Character scalar selecting label content:
+#'       `"count_percent"` gives `name (count, percent)`, `"count"` gives
+#'       `name (count)`, `"percent"` gives `name percent`, `"name"` gives the
+#'       group name, and `"none"` hides labels. Default `"count_percent"`.}
+#'     \item{\code{min_pct}}{Numeric scalar in \eqn{[0, 1]}. Labels are shown
+#'       only for groups at or above this within-`facet` by `cat_var`
+#'       proportion. Default `0`.}
+#'     \item{\code{size}}{Positive numeric scalar giving the ggplot2 text size.
+#'       Default `3`.}
+#'     \item{\code{color}}{Character scalar giving the label text colour.
+#'       Default `"black"`.}
+#'     \item{\code{box}}{Logical scalar. `TRUE` uses boxed labels and `FALSE`
+#'       uses plain text. Default `TRUE`.}
+#'     \item{\code{fill}}{Character scalar giving the boxed-label background
+#'       colour; used only when `box = TRUE`. Default `"white"`.}
+#'     \item{\code{alpha}}{Numeric scalar in \eqn{[0, 1]} controlling label
+#'       opacity. Default `1`.}
+#'   }
+#' @param facet_args A named list controlling [ggplot2::facet_wrap()]:
+#'   \describe{
+#'     \item{\code{nrow}}{`NULL` or a positive integer giving the number of
+#'       facet rows. Default `NULL`.}
+#'     \item{\code{ncol}}{`NULL` or a positive integer giving the number of
+#'       facet columns. Default `NULL`.}
+#'     \item{\code{scales}}{Character scalar controlling scale sharing:
+#'       `"fixed"`, `"free"`, `"free_x"`, or `"free_y"`. Default `"fixed"`.}
+#'   }
+#' @param legend_args A named list controlling the fill legend:
+#'   \describe{
+#'     \item{\code{ncol}}{Positive integer giving the number of legend columns.
+#'       Default `1`.}
+#'     \item{\code{position}}{Character scalar giving the legend position:
+#'       `"right"`, `"left"`, `"top"`, `"bottom"`, or `"none"`. Default
+#'       `"right"`.}
+#'   }
+#' @param theme_use A ggplot2 theme specification resolved internally by
+#'   `.resolve_theme()`.
 #' @param save `NULL`, an empty list, or a named list forwarded to
 #'   `RegR::save_plt()`. Allowed fields are `filename`, `width`, and `height`.
 #'
@@ -59,6 +105,7 @@
 #'   )
 #' }
 #'
+#' @md
 #' @export
 plt_alluvial <- function(
   data,
@@ -67,11 +114,24 @@ plt_alluvial <- function(
   facet = NULL,
   y_type = c("percent", "count"),
   color = pal_lancet,
-  flow_args = list(),
-  stratum_args = list(),
-  label_args = list(),
-  facet_args = list(),
-  legend_args = list(),
+  flow_args = list(alpha = 0.4, curve_type = "linear"),
+  stratum_args = list(
+    width = 0.5,
+    color = "gray50",
+    linewidth = 0.3,
+    gap = 0.01
+  ),
+  label_args = list(
+    style = "count_percent",
+    min_pct = 0,
+    size = 3,
+    color = "black",
+    box = TRUE,
+    fill = "white",
+    alpha = 1
+  ),
+  facet_args = list(nrow = NULL, ncol = NULL, scales = "fixed"),
+  legend_args = list(ncol = 1, position = "right"),
   theme_use = theme_alluvia(15),
   save = list()
 ) {

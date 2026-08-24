@@ -27,6 +27,38 @@ test_that("plt_alluvial keeps the documented public argument order", {
   )
 })
 
+test_that("plt_alluvial advertises semantic list defaults", {
+  defaults <- lapply(
+    c(
+      "flow_args",
+      "stratum_args",
+      "label_args",
+      "facet_args",
+      "legend_args"
+    ),
+    \(argument) eval(formals(plt_alluvial)[[argument]])
+  )
+
+  expect_identical(
+    defaults,
+    list(
+      list(alpha = 0.4, curve_type = "linear"),
+      list(width = 0.5, color = "gray50", linewidth = 0.3, gap = 0.01),
+      list(
+        style = "count_percent",
+        min_pct = 0,
+        size = 3,
+        color = "black",
+        box = TRUE,
+        fill = "white",
+        alpha = 1
+      ),
+      list(nrow = NULL, ncol = NULL, scales = "fixed"),
+      list(ncol = 1, position = "right")
+    )
+  )
+})
+
 test_that("plt_alluvial returns a facet-aware ggplot", {
   skip_if_not_installed("ggalluvial")
 
