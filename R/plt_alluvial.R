@@ -103,6 +103,18 @@
 #'     facet = "cohort",
 #'     label_args = list(style = "percent", min_pct = 0.05)
 #'   )
+#'
+#'   p4 <- plt_alluvial(
+#'     alluvial_example,
+#'     "stage",
+#'     "response",
+#'     facet = "cohort",
+#'     color = c("#2E86AB", "#F6AE2D", "#D1495B"),
+#'     flow_args = list(alpha = 0.55, curve_type = "sigmoid"),
+#'     stratum_args = list(width = 0.42, gap = 0.015),
+#'     legend_args = list(position = "bottom", ncol = 3)
+#'   )
+#'   print(p4)
 #' }
 #'
 #' @md
