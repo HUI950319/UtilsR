@@ -41,6 +41,24 @@ pal_lancet <- c(
   "#DF8F44FF", "#6A6599FF", "#FCCDE5FF", "#80B1D3FF", "#0000FFFF"
 )
 
+#' Bar Colour Palette
+#'
+#' A 10-colour palette for categorical bar and radial outer-layer
+#' visualisations.
+#'
+#' @format A character vector of 10 hex colour codes.
+#'
+#' @examples
+#' pal_bar
+#' show_color(pal_bar)
+#'
+#' @export
+#' @family colour palettes
+pal_bar <- c(
+  "#f76502", "#f41237", "#026026", "#2f0d06", "#0372e9",
+  "#f00a0b", "#2e3426", "#dea34a", "#aa1f19", "#5728a0"
+)
+
 #' Parathyroid Single-Cell Colour Palette
 #'
 #' A 16-colour named palette for parathyroid single-cell atlas cell types,

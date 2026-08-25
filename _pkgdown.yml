@@ -75,6 +75,7 @@ reference:
     desc: Built-in colour palettes and palette utilities.
     contents:
       - pal_lancet
+      - pal_bar
       - pal_other
       - pal_paraSC
       - pal_get
