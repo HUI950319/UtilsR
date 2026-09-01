@@ -1087,16 +1087,20 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
 #'   max_t = 193,
 #'   xbreaks = seq(0, 193, 24),
 #'   unadj_steps = TRUE,
-#'   ylim = c(0, 1),
-#'   ybre = seq(0, 1, 0.2),
-#'   ylim.2 = c(0, 0.35),
-#'   ybre.2 = seq(-0.1, 1, 0.1),
-#'   xlim = c(1, 2),
-#'   ticks_at = c(1, 1.5, 2),
-#'   ticks_digits = 1,
-#'   xlim.2 = c(0, 0.28),
-#'   ticks_at2 = c(0, 0.1, 0.2),
-#'   ticks_digits2 = 1,
+#'   sur_arg = list(
+#'     ylim = c(0, 1),
+#'     ybre = seq(0, 1, 0.2),
+#'     xlim = c(1, 2),
+#'     ticks_at = c(1, 1.5, 2),
+#'     ticks_digits = 1
+#'   ),
+#'   dif_arg = list(
+#'     ylim = c(0, 0.35),
+#'     ybre = seq(-0.1, 1, 0.1),
+#'     xlim = c(0, 0.28),
+#'     ticks_at = c(0, 0.1, 0.2),
+#'     ticks_digits = 1
+#'   ),
 #'   cat_names = "Female vs. Male",
 #'   color_pal = "lancet"
 #' )
