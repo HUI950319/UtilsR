@@ -42,6 +42,9 @@
 
 * `fmt_strip2()` now defaults `top_right_fill` to `c("Grays", "Greens")`.
 
+* `fmt_strip2()` now uses a lighter second strip colour when a palette is
+  mapped to exactly two levels.
+
 * `impute_na_knn()` adds weighted K-nearest-neighbour imputation for mixed
   data frames while preserving numeric and character value labels.
 

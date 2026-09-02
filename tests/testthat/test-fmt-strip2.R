@@ -128,4 +128,12 @@ test_that("fmt_strip2 uses top_right_fill palettes by default", {
       "grey85"
     )
   )
+  expect_identical(
+    out[[2]]$facet$strip$given_elements$background_x[[1]]@fill,
+    "#7C7C7C"
+  )
+  expect_identical(
+    out[[4]]$facet$strip$given_elements$background_y[[1]]@fill,
+    "#58AC56"
+  )
 })

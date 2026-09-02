@@ -1152,7 +1152,8 @@ fmt_strip2 <- function(plot,
     top_right_fill <- rep_len(top_right_fill, 2L)
     make_hcl_fill <- function(palette, n) {
       ramp <- colorspace::sequential_hcl(n = 100L, palette = palette)
-      rev(grDevices::colorRampPalette(ramp[30:80])(n))
+      start_idx <- if (n == 2L) 40L else 30L
+      rev(grDevices::colorRampPalette(ramp[start_idx:80])(n))
     }
 
     if (is.null(top_fill)) {
