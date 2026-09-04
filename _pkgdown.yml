@@ -77,6 +77,7 @@ reference:
       - pal_lancet
       - pal_bar
       - pal_other
+      - pal_heat
       - pal_paraSC
       - pal_get
       - pal_list

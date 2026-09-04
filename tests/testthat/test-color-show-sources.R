@@ -148,3 +148,16 @@ test_that("palette source wrappers support console output", {
   expect_match(paste(ggsci_output, collapse = "\n"), "=== ggsci_npg_nrc")
   expect_match(paste(viridis_output, collapse = "\n"), "=== viridis")
 })
+
+test_that("pal_heat holds eleven five-colour diverging gradients", {
+  expect_length(pal_heat, 11L)
+  expect_true(all(vapply(pal_heat, length, integer(1)) == 5L))
+  expect_true(all(grepl("^#[0-9a-fA-F]{6}$", unlist(pal_heat))))
+  # every gradient turns over at white
+  expect_true(all(vapply(pal_heat, function(p) p[3], character(1)) == "#ffffff"))
+
+  # blue_red is RdBu at 7 classes, reversed, with white for its grey midpoint
+  rdbu <- tolower(RColorBrewer::brewer.pal(7, "RdBu"))
+  expect_identical(pal_heat$blue_red,
+                   c(rdbu[7], rdbu[6], "#ffffff", rdbu[2], rdbu[1]))
+})

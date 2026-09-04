@@ -51,8 +51,10 @@ if (requireNamespace("ggsci", quietly = TRUE)) {
 
 }
 \seealso{
-Other colour palettes:
+Other colour palettes: 
+\code{\link{pal_bar}},
 \code{\link{pal_get}()},
+\code{\link{pal_heat}},
 \code{\link{pal_lancet}},
 \code{\link{pal_list}()},
 \code{\link{pal_other}},

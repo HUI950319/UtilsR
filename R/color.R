@@ -194,6 +194,61 @@ pal_other <- list(
   )
 )
 
+#' Diverging Heatmap Fill Palettes
+#'
+#' Eleven five-colour diverging gradients for correlation-style heatmaps,
+#' each running from the most negative value through white to the most
+#' positive. They are the fill combinations of a published correlation
+#' heatmap figure; \code{blue_red} is ColorBrewer \code{RdBu} (7 classes,
+#' reversed) with a pure white midpoint in place of its grey one, and the
+#' others come from the Material Design, Tailwind and Flat UI colour systems.
+#'
+#' Unlike the categorical palettes here, these are meant to be interpolated:
+#' pass one to \code{ggplot2::scale_fill_gradientn()} or
+#' \code{grDevices::colorRampPalette()} rather than mapping the five colours
+#' to five levels.
+#'
+#' @format A named list of 11 character vectors, 5 hex colours each, named by
+#'   the two hues each gradient runs between:
+#'   \describe{
+#'     \item{blue_red}{blue to red (ColorBrewer RdBu)}
+#'     \item{teal_pink}{deep teal to magenta}
+#'     \item{slate_red}{midnight slate to dark red (Flat UI)}
+#'     \item{purple_gold}{deep purple to bronze}
+#'     \item{steel_rose}{steel blue to wine}
+#'     \item{navy_scarlet}{navy to scarlet}
+#'     \item{green_orange}{forest green to burnt orange}
+#'     \item{purple_teal}{purple to teal (Material Design)}
+#'     \item{olive_violet}{olive to indigo}
+#'     \item{slate_crimson}{slate to crimson (Tailwind)}
+#'     \item{indigo_gold}{indigo to gold}
+#'   }
+#'
+#' @examples
+#' names(pal_heat)
+#' pal_heat$blue_red
+#' show_color(pal_heat$purple_teal)
+#'
+#' # interpolated over a continuous fill scale
+#' ggplot2::scale_fill_gradientn(colours = pal_heat$slate_crimson,
+#'                               limits = c(-1, 1))
+#'
+#' @export
+#' @family colour palettes
+pal_heat <- list(
+  blue_red      = c("#2166ac", "#67a9cf", "#ffffff", "#ef8a62", "#b2182b"),
+  teal_pink     = c("#0c4b61", "#48b79d", "#ffffff", "#e888a4", "#9d2454"),
+  slate_red     = c("#2c3d50", "#808c8d", "#ffffff", "#e74d3d", "#762820"),
+  purple_gold   = c("#381a4e", "#744c8c", "#ffffff", "#deab5a", "#9c661a"),
+  steel_rose    = c("#204053", "#3e6b7a", "#ffffff", "#df6376", "#8c104e"),
+  navy_scarlet  = c("#1c3044", "#4189c5", "#ffffff", "#d00102", "#66010e"),
+  green_orange  = c("#174e33", "#4bba79", "#ffffff", "#ed8a37", "#7f3621"),
+  purple_teal   = c("#4a148c", "#8e25aa", "#ffffff", "#27a69a", "#004c3f"),
+  olive_violet  = c("#566b31", "#90bc90", "#ffffff", "#ba56d3", "#4a0082"),
+  slate_crimson = c("#1e293b", "#65758b", "#ffffff", "#f4405f", "#881337"),
+  indigo_gold   = c("#1a1464", "#4a4590", "#ffffff", "#fbc532", "#e0b02c")
+)
+
 #' List All Available Palettes
 #'
 #' Browse palettes from the built-in collection (256 palettes from

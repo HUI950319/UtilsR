@@ -49,12 +49,16 @@ pal_get("Blues", n = 5, reverse = TRUE, alpha = 0.6)
 }
 \seealso{
 Other colour palettes: 
+\code{\link{pal_bar}},
+\code{\link{pal_heat}},
 \code{\link{pal_lancet}},
 \code{\link{pal_list}()},
 \code{\link{pal_other}},
 \code{\link{pal_paraSC}},
 \code{\link{pal_show}()},
 \code{\link{pal_show_brewer}()},
-\code{\link{pal_show_hcl}()}
+\code{\link{pal_show_ggsci}()},
+\code{\link{pal_show_hcl}()},
+\code{\link{pal_show_viridis}()}
 }
 \concept{colour palettes}
