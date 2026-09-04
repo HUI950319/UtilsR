@@ -161,3 +161,39 @@ test_that("pal_heat holds eleven five-colour diverging gradients", {
   expect_identical(pal_heat$blue_red,
                    c(rdbu[7], rdbu[6], "#ffffff", rdbu[2], rdbu[1]))
 })
+
+test_that("pal_get takes a colour vector as well as a registered name", {
+  cols <- c("#2166ac", "#ffffff", "#b2182b")
+
+  expect_identical(pal_get(cols), cols)
+  expect_length(pal_get(cols, n = 7), 7L)
+  # interpolation keeps the two ends (colorRampPalette upper-cases its hex)
+  expect_identical(tolower(pal_get(cols, n = 7)[c(1, 7)]), cols[c(1, 3)])
+  expect_identical(pal_get(cols, reverse = TRUE), rev(cols))
+  # `x` maps level by level (the names are dropped on the way out, as they
+  # already are for a registered palette)
+  expect_identical(pal_get(cols, x = c("a", "b", "c")), cols)
+
+  # a single literal colour is taken as such, a typo still is not
+  expect_identical(pal_get("red"), "red")
+  expect_identical(pal_get("#FF0000"), "#FF0000")
+  expect_error(pal_get("Blus"), "not found")
+  # names that are not colours are rejected rather than passed to the ramp
+  expect_error(pal_get(c("Paired", "Blues")), "colour")
+
+  # the registry path is untouched
+  expect_length(pal_get("Paired", n = 5), 5L)
+})
+
+test_that("pal_get maps over a list of palettes", {
+  out <- pal_get(pal_heat, n = 3)
+
+  expect_type(out, "list")
+  expect_named(out, names(pal_heat))
+  expect_true(all(vapply(out, length, integer(1)) == 3L))
+  expect_identical(out$blue_red, pal_get(pal_heat$blue_red, n = 3))
+  expect_identical(pal_get(pal_heat)$purple_teal, pal_heat$purple_teal)
+
+  expect_error(pal_get(list(c("#000000", "#ffffff"))), "named")
+  expect_error(pal_get(list(a = 1:3)), "character")
+})

@@ -300,8 +300,16 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
 #' Supports discrete mapping (factor/character input) and continuous
 #' interpolation (numeric input or \code{n} parameter).
 #'
-#' @param palette Palette name (e.g. \code{"Paired"}, \code{"viridis"},
-#'   \code{"lancet"}). Use \code{pal_list()} to see all available names.
+#' @param palette One of three things:
+#'   \itemize{
+#'     \item a palette name (e.g. \code{"Paired"}, \code{"viridis"},
+#'       \code{"lancet"}); use \code{pal_list()} to see all available names;
+#'     \item a colour vector, or a single literal colour, used as the palette
+#'       itself -- a registered name always wins over a same-named colour, and
+#'       a string that is neither still raises the usual "not found" error;
+#'     \item a fully named list of colour vectors, such as \code{pal_heat},
+#'       which is mapped over one palette at a time.
+#'   }
 #' @param n Number of colours to return. For discrete palettes, colours are
 #'   recycled or interpolated as needed. Default \code{NULL} returns all
 #'   colours in the palette.
@@ -310,7 +318,8 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
 #' @param reverse Logical, reverse colour order. Default \code{FALSE}.
 #' @param alpha Numeric 0-1, colour transparency. Default 1 (opaque).
 #'
-#' @return A character vector of hex colours (named if \code{x} is provided).
+#' @return A character vector of hex colours, or -- when \code{palette} is a
+#'   list of palettes -- a list of such vectors under the same names.
 #'
 #' @examples
 #' # Get 5 colours from Paired palette
@@ -325,6 +334,11 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
 #' # Reverse and transparent
 #' pal_get("Blues", n = 5, reverse = TRUE, alpha = 0.6)
 #'
+#' # Colours of your own, and a whole list of palettes at once
+#' pal_get(c("#2166ac", "#ffffff", "#b2182b"), n = 7)
+#' pal_get(pal_heat$purple_teal, n = 7)
+#' str(pal_get(pal_heat, n = 3))
+#'
 #' # Use in ggplot
 #' # ggplot(df, aes(x, y, color = group)) +
 #' #   scale_color_manual(values = pal_get("lancet", x = levels(df$group)))
@@ -333,12 +347,48 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
 #' @family colour palettes
 pal_get <- function(palette = "Paired", n = NULL, x = NULL,
                     reverse = FALSE, alpha = 1) {
+  # A list of palettes is mapped over, so `pal_heat` and friends get the same
+  # n / x / reverse / alpha handling one palette at a time.
+  if (is.list(palette)) {
+    nms <- names(palette)
+    if (length(palette) == 0L || is.null(nms) || any(!nzchar(nms)))
+      cli::cli_abort("A list of palettes must be non-empty and fully named.")
+    if (!all(vapply(palette,
+                    function(p) is.character(p) && length(p) > 0L,
+                    logical(1))))
+      cli::cli_abort(paste("Every element of a palette list must be a",
+                           "non-empty character vector of colours."))
+    return(lapply(palette, .pal_apply,
+                  n = n, x = x, reverse = reverse, alpha = alpha))
+  }
+  if (!is.character(palette) || length(palette) == 0L)
+    cli::cli_abort(paste("{.arg palette} must be a palette name, a colour",
+                         "vector, or a named list of colour vectors."))
+
+  is_colour <- function(v) {
+    grepl("^#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?$", v) |
+      tolower(v) %in% tolower(grDevices::colors())
+  }
+
   # Explicit namespace lookup so the function works when called as
   # `UtilsR::pal_get(...)` from another package without `library(UtilsR)`.
   # `LazyData` promises are not auto-evaluated by `::`, so a bare
   # `palette_list` reference errors with "object not found" in that path.
   pals <- getExportedValue("UtilsR", "palette_list")
-  if (!palette %in% names(pals)) {
+
+  if (length(palette) == 1L && palette %in% names(pals)) {
+    cols <- pals[[palette]]
+  } else if (all(is_colour(palette))) {
+    # Literal colours. The registry is checked first, so a palette name is
+    # never shadowed by an R colour name that happens to match.
+    cols <- palette
+  } else if (length(palette) > 1L) {
+    bad <- palette[!is_colour(palette)]
+    cli::cli_abort(c(
+      "{.arg palette} is neither a palette name nor a vector of colours.",
+      "x" = "Not a colour: {.val {bad}}."
+    ))
+  } else {
     # Fuzzy match
     matches <- grep(palette, names(pals), ignore.case = TRUE, value = TRUE)
     if (length(matches) > 0) {
@@ -346,7 +396,15 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     }
     cli::cli_abort("Palette {.val {palette}} not found. Use {.fn pal_list} to see available palettes.")
   }
-  cols <- pals[[palette]]
+
+  .pal_apply(cols, n = n, x = x, reverse = reverse, alpha = alpha)
+}
+
+# The n / x / reverse / alpha handling of `pal_get()`, split out so a list of
+# palettes can be mapped over one element at a time.
+#' @keywords internal
+#' @noRd
+.pal_apply <- function(cols, n = NULL, x = NULL, reverse = FALSE, alpha = 1) {
 
   # --- Map to x (discrete) ---
   if (!is.null(x)) {

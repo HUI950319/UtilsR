@@ -7,8 +7,16 @@
 pal_get(palette = "Paired", n = NULL, x = NULL, reverse = FALSE, alpha = 1)
 }
 \arguments{
-\item{palette}{Palette name (e.g. \code{"Paired"}, \code{"viridis"},
-\code{"lancet"}). Use \code{pal_list()} to see all available names.}
+\item{palette}{One of three things:
+\itemize{
+  \item a palette name (e.g. \code{"Paired"}, \code{"viridis"},
+    \code{"lancet"}); use \code{pal_list()} to see all available names;
+  \item a colour vector, or a single literal colour, used as the palette
+    itself -- a registered name always wins over a same-named colour, and
+    a string that is neither still raises the usual "not found" error;
+  \item a fully named list of colour vectors, such as \code{pal_heat},
+    which is mapped over one palette at a time.
+}}
 
 \item{n}{Number of colours to return. For discrete palettes, colours are
 recycled or interpolated as needed. Default \code{NULL} returns all
@@ -22,7 +30,8 @@ a named colour vector. If numeric, interpolates along the palette.}
 \item{alpha}{Numeric 0-1, colour transparency. Default 1 (opaque).}
 }
 \value{
-A character vector of hex colours (named if \code{x} is provided).
+A character vector of hex colours, or -- when \code{palette} is a
+  list of palettes -- a list of such vectors under the same names.
 }
 \description{
 Retrieve colours from the built-in palette collection (256 palettes).
@@ -41,6 +50,11 @@ pal_get("viridis", n = 20)
 
 # Reverse and transparent
 pal_get("Blues", n = 5, reverse = TRUE, alpha = 0.6)
+
+# Colours of your own, and a whole list of palettes at once
+pal_get(c("#2166ac", "#ffffff", "#b2182b"), n = 7)
+pal_get(pal_heat$purple_teal, n = 7)
+str(pal_get(pal_heat, n = 3))
 
 # Use in ggplot
 # ggplot(df, aes(x, y, color = group)) +
