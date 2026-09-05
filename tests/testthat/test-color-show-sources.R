@@ -130,9 +130,9 @@ test_that("pal_show keeps max_colors as a display cap on top of n", {
     tbl <- pal_show("Set1", n = 30, max_colors = 6, output = "gt")))
   html <- gt::as_raw_html(tbl)
 
-  # six swatches drawn, but N still reports the resampled palette
+  # six swatches drawn out of the thirty the resampling produced
   expect_match(html, "width:130px")
-  expect_match(html, ">30</td>")
+  expect_match(html, ">6 / 30</td>")
   # resampling must not lose the registry's palette type
   expect_match(html, ">discrete</td>")
 })
@@ -152,7 +152,42 @@ test_that("pal_show displays palettes in the console", {
   )
 
   expect_match(paste(output, collapse = "\n"),
-               "=== Set1 \\(3 colours, discrete\\) ===")
+               "=== Set1 \\(3 / 9 colours, discrete\\) ===")
+})
+
+test_that("pal_show reports drawn and available colours when it truncates", {
+  skip_if_not_installed("gt")
+
+  # pals_polychrome36 holds 36 colours, max_colors draws 20 of them
+  invisible(capture.output(cut <- pal_show(pattern = "polychrome", output = "gt")))
+  invisible(capture.output(whole <- pal_show("Set1", output = "gt")))
+
+  expect_match(gt::as_raw_html(cut), ">20 / 36</td>")
+  # an untruncated palette keeps the plain count
+  expect_match(gt::as_raw_html(whole), ">9</td>")
+})
+
+test_that("pal_show rejects an index that selects nothing", {
+  expect_error(pal_show(pattern = "^Set", index = 50), "index")
+  expect_error(pal_show(pattern = "^Set", index = 50, output = "gg"), "index")
+  expect_error(pal_show(pattern = "^Set", index = 50, output = "console"), "index")
+})
+
+test_that("pal_show warns about palette names it does not know", {
+  invisible(capture.output(
+    expect_warning(pal_show(c("Set1", "Blus"), output = "gt"), "Blus")))
+  # nothing usable left is still an error
+  expect_error(pal_show("Blus"), "No matching palettes")
+})
+
+test_that("pal_show lays colour vectors out on one row unless told otherwise", {
+  invisible(capture.output(
+    auto <- pal_show(grDevices::rainbow(30), output = "gg")))
+  invisible(capture.output(
+    wrapped <- pal_show(grDevices::rainbow(30), ncol = 5, output = "gg")))
+
+  expect_length(unique(auto$data$row_idx), 1L)
+  expect_length(unique(wrapped$data$row_idx), 4L)
 })
 
 test_that("pal_show displays colour vectors in the console", {

@@ -47,9 +47,8 @@ labels on tiles. Default \code{TRUE}.}
 \item{label_size}{Numeric. Text size for labels in colour vector mode.
 Default 3.}
 
-\item{ncol}{Integer. Number of columns for colour vector mode when
-displaying many colours. Default \code{NULL} (auto: single row if
-\eqn{\le 20}{<= 20} colours, otherwise wrap).}
+\item{ncol}{Integer. Number of columns for colour vector mode. Default
+\code{NULL} puts every displayed colour on a single row.}
 }
 \value{
 A ggplot or gt object, or invisibly the displayed data for console

@@ -494,9 +494,8 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #'   labels on tiles. Default \code{TRUE}.
 #' @param label_size Numeric. Text size for labels in colour vector mode.
 #'   Default 3.
-#' @param ncol Integer. Number of columns for colour vector mode when
-#'   displaying many colours. Default \code{NULL} (auto: single row if
-#'   \eqn{\le 20}{<= 20} colours, otherwise wrap).
+#' @param ncol Integer. Number of columns for colour vector mode. Default
+#'   \code{NULL} puts every displayed colour on a single row.
 #'
 #' @return A ggplot or gt object, or invisibly the displayed data for console
 #'   output (all outputs also print).
@@ -553,9 +552,8 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
   output <- match.arg(output)
 
   # --- Detect colour vector mode ---
-  # If palette is a character vector and looks like colours (not palette names),
-
-  # switch to colour vector display mode.
+  # If palette is a character vector and looks like colours (not palette
+  # names), switch to colour vector display mode.
   if (!is.null(palette) && is.character(palette) && length(palette) > 0) {
     is_color_vec <- .is_color_vector(palette)
     if (is_color_vec) {
@@ -582,6 +580,10 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
   if (!is.null(palette)) {
     valid <- palette[palette %in% names(pals)]
     if (length(valid) == 0) cli::cli_abort("No matching palettes found.")
+    unknown <- setdiff(palette, names(pals))
+    if (length(unknown) > 0) {
+      cli::cli_warn("Skipping palette{?s} not in the registry: {.val {unknown}}.")
+    }
     pals <- pals[valid]
   } else {
     if (type != "all") {
@@ -595,22 +597,33 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
 
   # Apply index
   if (!is.null(index)) {
-    index <- index[index <= length(pals) & index >= 1]
-    pals <- pals[index]
+    keep <- index[index >= 1 & index <= length(pals)]
+    if (length(keep) == 0) {
+      cli::cli_abort(c(
+        "{.arg index} selected no palettes.",
+        "i" = "Only {length(pals)} palette{?s} matched the filters."
+      ))
+    }
+    pals <- pals[keep]
   }
 
-  # Resample first; `max_colors` then caps how many of the n are drawn.
+  # Resample first, then cap at `max_colors`, once for every output. A
+  # truncated palette reports both numbers so the count always matches the
+  # swatches on screen without hiding the palette's real size.
   if (!is.null(n)) pals <- lapply(pals, .pal_resize, n = n)
+  n_total <- lengths(pals)
+  pals <- Map(.pal_resize, pals, pmin(n_total, max_colors))
+  n_shown <- lengths(pals)
+  n_label <- ifelse(n_shown < n_total,
+                    sprintf("%d / %d", n_shown, n_total),
+                    as.character(n_total))
 
   # --- Console output ---
   if (output == "console") {
     for (nm in names(pals)) {
-      cols <- pals[[nm]]
-      n <- min(length(cols), max_colors)
-      cols <- cols[seq_len(n)]
       tp <- attr(pals[[nm]], "type") %||% "?"
-      cat(sprintf("\n=== %s (%d colours, %s) ===\n", nm, n, tp))
-      show_color(cols)
+      cat(sprintf("\n=== %s (%s colours, %s) ===\n", nm, n_label[[nm]], tp))
+      show_color(pals[[nm]])
     }
     return(invisible(pals))
   }
@@ -618,12 +631,9 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
   # --- ggplot output ---
   if (output == "gg") {
     plot_data <- do.call(rbind, lapply(seq_along(pals), function(i) {
-      nm <- names(pals)[i]
-      cols <- pals[[nm]]
-      n <- min(length(cols), max_colors)
-      cols <- cols[seq_len(n)]
-      data.frame(palette = nm, color = cols, x = seq_len(n),
-                 stringsAsFactors = FALSE)
+      cols <- as.character(pals[[i]])
+      data.frame(palette = names(pals)[i], color = cols,
+                 x = seq_along(cols), stringsAsFactors = FALSE)
     }))
     plot_data$palette <- factor(plot_data$palette, levels = rev(names(pals)))
 
@@ -648,7 +658,7 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
   # wide as the longest palette actually drawn (plus the 2 x 5px gt cell
   # padding), floored so the column label still fits.
   swatch_px <- 20
-  preview_px <- max(swatch_px * max(pmin(lengths(pals), max_colors)) + 10, 90)
+  preview_px <- max(swatch_px * max(n_shown) + 10, 90)
   # gt::cols_width() evaluates a formula RHS in its own frame, so the computed
   # width has to be inlined into the formula rather than referenced by name.
   preview_width <- stats::as.formula(bquote(preview ~ .(gt::px(preview_px))))
@@ -656,10 +666,8 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
   tbl_data <- data.frame(
     palette = names(pals),
     type = vapply(pals, function(x) attr(x, "type") %||% "?", character(1)),
-    n_colors = vapply(pals, length, integer(1)),
+    n_colors = n_label,
     preview = vapply(pals, function(cols) {
-      n <- min(length(cols), max_colors)
-      cols <- cols[seq_len(n)]
       spans <- vapply(cols, function(c) {
         sprintf(paste0('<span style="display:inline-block;width:%dpx;',
                        'background:%s;color:%s;">&nbsp;</span>'),
@@ -697,7 +705,7 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
     gt::cols_width(
       palette ~ gt::px(180),
       type ~ gt::px(80),
-      n_colors ~ gt::px(40),
+      n_colors ~ gt::px(70),
       preview_width
     )
 
@@ -1086,7 +1094,7 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
 #' @noRd
 .pal_show_colors <- function(colors, label = TRUE, label_size = 3,
                              ncol = NULL, output = "gg",
-                             max_colors = 50) {
+                             max_colors) {
   n <- length(colors)
   # Truncate if too many
   if (n > max_colors) {
@@ -1122,9 +1130,7 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
   # --- ggplot output ---
   if (output == "gg") {
     # Determine grid layout
-    if (is.null(ncol)) {
-      ncol <- if (n <= 20) n else ceiling(sqrt(n * 2))
-    }
+    if (is.null(ncol)) ncol <- n
     nrow <- ceiling(n / ncol)
 
     plot_data <- data.frame(
