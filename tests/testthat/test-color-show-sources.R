@@ -111,6 +111,41 @@ test_that("pal_show keeps a fixed Colours swatch width", {
   expect_match(html, "display:inline-block;width:20px;")
 })
 
+test_that("pal_show resamples each palette to n colours", {
+  # truncation and interpolation both follow pal_get()'s rules
+  p3 <- pal_show(c("Set1", "lancet"), n = 3, output = "gg")
+  expect_identical(nrow(p3$data), 6L)
+  expect_identical(p3$data$color[seq_len(3)], pal_get("Set1", n = 3))
+
+  # Set1 only has 9 colours, so 12 is interpolated
+  p12 <- pal_show("Set1", n = 12, output = "gg")
+  expect_identical(nrow(p12$data), 12L)
+  expect_identical(p12$data$color, pal_get("Set1", n = 12))
+})
+
+test_that("pal_show keeps max_colors as a display cap on top of n", {
+  skip_if_not_installed("gt")
+
+  invisible(capture.output(
+    tbl <- pal_show("Set1", n = 30, max_colors = 6, output = "gt")))
+  html <- gt::as_raw_html(tbl)
+
+  # six swatches drawn, but N still reports the resampled palette
+  expect_match(html, "width:130px")
+  expect_match(html, ">30</td>")
+  # resampling must not lose the registry's palette type
+  expect_match(html, ">discrete</td>")
+})
+
+test_that("pal_show applies n in colour vector mode too", {
+  p <- pal_show(pal_paraSC, n = 4, output = "gg")
+
+  expect_identical(nrow(p$data), 4L)
+  expect_identical(p$data$color, unname(pal_paraSC[seq_len(4)]))
+  # truncation keeps the names that pal_get() drops, so labels stay meaningful
+  expect_identical(p$data$label, names(pal_paraSC)[seq_len(4)])
+})
+
 test_that("pal_show displays palettes in the console", {
   output <- capture.output(
     pal_show("Set1", max_colors = 3, output = "console")

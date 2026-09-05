@@ -449,6 +449,18 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   as.character(out)
 }
 
+# `.pal_apply()` drops names and attributes on the way out, both of which a
+# display function still needs: the names label a vector such as `pal_paraSC`,
+# and the "type" attribute fills the Type column.
+#' @keywords internal
+#' @noRd
+.pal_resize <- function(cols, n) {
+  out <- .pal_apply(cols, n = n)
+  if (n <= length(cols)) names(out) <- names(cols)[seq_len(n)]
+  attr(out, "type") <- attr(cols, "type")
+  out
+}
+
 #' Visualise Palettes or Colour Vectors
 #'
 #' Display palettes as horizontal colour bars (ggplot) or an interactive
@@ -466,6 +478,11 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #'   a colour vector (hex codes or named colours), or \code{NULL} to show
 #'   all palettes matching \code{pattern}/\code{type}. Named colour vectors
 #'   (e.g. \code{pal_paraSC}) will use the names as labels.
+#' @param n Number of colours to take from each palette, following the rules
+#'   of \code{\link{pal_get}()}: colours are taken from the front when
+#'   \code{n} is at most the palette length and interpolated when it is
+#'   longer. \code{max_colors} still caps how many of them are drawn.
+#'   Default \code{NULL} shows each palette as it is.
 #' @param pattern Regex pattern to filter palette names (e.g. \code{"^nord"}).
 #' @param type Filter by type: \code{"all"}, \code{"discrete"}, or
 #'   \code{"continuous"}.
@@ -501,6 +518,10 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #' pal_show(pattern = "Blues", type = "continuous")
 #' pal_show(pattern = "^carto", type = "discrete")
 #'
+#' # Take a fixed number of colours from each palette
+#' pal_show(c("Set1", "lancet"), n = 3)
+#' pal_show("Set1", n = 12)  # only 9 colours, so interpolated
+#'
 #' # ggplot output (colour bars in Plots pane)
 #' pal_show(c("lancet", "ditto", "polychrome", "igv"), output = "gg")
 #' pal_show(pattern = "^viridis|^magma|^plasma", output = "gg")
@@ -508,6 +529,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #' # --- Colour vector mode ---
 #' # Show a named colour vector (e.g. pal_paraSC)
 #' pal_show(pal_paraSC)
+#' pal_show(pal_paraSC, n = 6)
 #'
 #' # Show any colour vector
 #' pal_show(c("#FF0000", "#00FF00", "#0000FF"))
@@ -522,7 +544,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #'
 #' @export
 #' @family colour palettes
-pal_show <- function(palette = NULL, pattern = NULL,
+pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
                      type = c("all", "discrete", "continuous"),
                      max_colors = 20, index = NULL,
                      output = c("gt", "gg", "console"),
@@ -537,6 +559,7 @@ pal_show <- function(palette = NULL, pattern = NULL,
   if (!is.null(palette) && is.character(palette) && length(palette) > 0) {
     is_color_vec <- .is_color_vector(palette)
     if (is_color_vec) {
+      if (!is.null(n)) palette <- .pal_resize(palette, n)
       return(.pal_show_colors(palette, label = label,
                               label_size = label_size, ncol = ncol,
                               output = output, max_colors = max_colors))
@@ -575,6 +598,9 @@ pal_show <- function(palette = NULL, pattern = NULL,
     index <- index[index <= length(pals) & index >= 1]
     pals <- pals[index]
   }
+
+  # Resample first; `max_colors` then caps how many of the n are drawn.
+  if (!is.null(n)) pals <- lapply(pals, .pal_resize, n = n)
 
   # --- Console output ---
   if (output == "console") {

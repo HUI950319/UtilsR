@@ -6,6 +6,7 @@
 \usage{
 pal_show(
   palette = NULL,
+  n = NULL,
   pattern = NULL,
   type = c("all", "discrete", "continuous"),
   max_colors = 20,
@@ -21,6 +22,12 @@ pal_show(
 a colour vector (hex codes or named colours), or \code{NULL} to show
 all palettes matching \code{pattern}/\code{type}. Named colour vectors
 (e.g. \code{pal_paraSC}) will use the names as labels.}
+
+\item{n}{Number of colours to take from each palette, following the rules
+of \code{\link{pal_get}()}: colours are taken from the front when
+\code{n} is at most the palette length and interpolated when it is
+longer. \code{max_colors} still caps how many of them are drawn.
+Default \code{NULL} shows each palette as it is.}
 
 \item{pattern}{Regex pattern to filter palette names (e.g. \code{"^nord"}).}
 
@@ -78,6 +85,10 @@ pal_show(type = "continuous", index = 1:10)
 pal_show(pattern = "Blues", type = "continuous")
 pal_show(pattern = "^carto", type = "discrete")
 
+# Take a fixed number of colours from each palette
+pal_show(c("Set1", "lancet"), n = 3)
+pal_show("Set1", n = 12)  # only 9 colours, so interpolated
+
 # ggplot output (colour bars in Plots pane)
 pal_show(c("lancet", "ditto", "polychrome", "igv"), output = "gg")
 pal_show(pattern = "^viridis|^magma|^plasma", output = "gg")
@@ -85,6 +96,7 @@ pal_show(pattern = "^viridis|^magma|^plasma", output = "gg")
 # --- Colour vector mode ---
 # Show a named colour vector (e.g. pal_paraSC)
 pal_show(pal_paraSC)
+pal_show(pal_paraSC, n = 6)
 
 # Show any colour vector
 pal_show(c("#FF0000", "#00FF00", "#0000FF"))
