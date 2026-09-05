@@ -103,6 +103,20 @@ pal_show("Paired")
 pal_show("Set1")
 ```
 
+`n` fixes how many colours each palette contributes, following the same rules
+as `pal_get()`. `max_colors` still caps how many of them are drawn:
+
+```{r pal-show-n, eval=FALSE}
+# Take 3 colours from each palette
+pal_show(c("Set1", "lancet", "Dark2"), n = 3)
+
+# More colours than the palette holds are interpolated (Set1 only has 9)
+pal_show("Set1", n = 12)
+
+# Colour vectors take `n` too, and keep their names as labels
+pal_show(pal_paraSC, n = 6)
+```
+
 ---
 
 ## `pal_list()` — Browse All Palettes
