@@ -414,6 +414,12 @@ console_width <- function() {
 #' (24-bit) escape sequences. The displayed colour vector is also printed with
 #' \code{dput()} so it can be copied back into R for assignment.
 #'
+#' Swatches follow whatever colour depth the terminal reports through
+#' \code{cli::num_ansi_colors()}. A terminal limited to 256 colours draws the
+#' nearest palette entry instead of the exact hex, so a swatch can differ from
+#' the code printed beside it. \code{options(cli.num_colors = 16777216)} forces
+#' 24-bit output in a terminal that renders it without advertising it.
+#'
 #' @param x Character vector of colours (hex codes or named R colours).
 #' @param rev Logical. Reverse the order before display (default \code{FALSE}).
 #' @return Invisibly returns \code{x}.
@@ -442,11 +448,14 @@ show_color <- function(x, rev = FALSE) {
     0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b)
   }
 
-  # Use cli::make_ansi_style for cross-terminal compatibility (256/truecolor)
+  # Let cli pick the depth the terminal actually reports. Pinning `colors` to
+  # 256 quantised every swatch onto the xterm palette, so the preview and the
+  # hex codes underneath it disagreed: a diverging palette's pale midpoint
+  # collapsed to grey and #B2182B was drawn as magenta.
   styled <- vapply(hex, function(h) {
     fg_col <- if (.luminance(h) > 0.179) "#000000" else "#FFFFFF"
-    fg_style <- cli::make_ansi_style(fg_col, bg = FALSE, colors = 256)
-    bg_style <- cli::make_ansi_style(h, bg = TRUE, colors = 256, grey = FALSE)
+    fg_style <- cli::make_ansi_style(fg_col, bg = FALSE)
+    bg_style <- cli::make_ansi_style(h, bg = TRUE, grey = FALSE)
     cli::combine_ansi_styles(fg_style, bg_style)(paste0(" ", h, " "))
   }, character(1), USE.NAMES = FALSE)
 

@@ -198,6 +198,20 @@ test_that("pal_show displays colour vectors in the console", {
   expect_match(paste(output, collapse = "\n"), "#FF0000")
 })
 
+test_that("show_color follows the terminal's colour depth", {
+  op <- options(cli.num_colors = 16777216)
+  on.exit(options(op), add = TRUE)
+  true_col <- capture.output(show_color("#2166AC"))
+
+  options(cli.num_colors = 256)
+  paletted <- capture.output(show_color("#2166AC"))
+
+  # 24-bit terminals get the exact RGB triple, not a palette index
+  expect_match(paste(true_col, collapse = ""), "48;2;33;102;172", fixed = TRUE)
+  # 256-colour terminals keep the indexed escape they always had
+  expect_match(paste(paletted, collapse = ""), "48;5;", fixed = TRUE)
+})
+
 test_that("show_color prints an R expression for the displayed colours", {
   output <- capture.output(
     show_color(c("#FF0000", "#00FF00"))
