@@ -82,22 +82,33 @@ test_that("pal_show_ggsci displays selected ggsci palettes", {
   )
 })
 
-test_that("pal_show gives Colours a wider fixed column", {
+test_that("pal_show sizes the Colours column from the longest palette", {
   skip_if_not_installed("gt")
 
-  invisible(capture.output(tbl <- pal_show("Set1", output = "gt")))
-  html <- gt::as_raw_html(tbl)
+  # Set1 has 9 colours, Paired has 12; 20px per swatch plus the gt cell padding.
+  invisible(capture.output(one <- pal_show("Set1", output = "gt")))
+  invisible(capture.output(two <- pal_show(c("Set1", "Paired"), output = "gt")))
 
-  expect_match(html, "width:420px")
+  expect_match(gt::as_raw_html(one), "width:190px")
+  expect_match(gt::as_raw_html(two), "width:250px")
 })
 
-test_that("pal_show doubles the Colours swatch width", {
+test_that("pal_show sizes the Colours column from the drawn swatches", {
+  skip_if_not_installed("gt")
+
+  invisible(capture.output(
+    tbl <- pal_show("Paired", max_colors = 6, output = "gt")))
+
+  expect_match(gt::as_raw_html(tbl), "width:130px")
+})
+
+test_that("pal_show keeps a fixed Colours swatch width", {
   skip_if_not_installed("gt")
 
   invisible(capture.output(tbl <- pal_show("Set1", output = "gt")))
   html <- gt::as_raw_html(tbl)
 
-  expect_match(html, "padding:0 6px;")
+  expect_match(html, "display:inline-block;width:20px;")
 })
 
 test_that("pal_show displays palettes in the console", {

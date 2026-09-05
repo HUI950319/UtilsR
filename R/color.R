@@ -618,6 +618,15 @@ pal_show <- function(palette = NULL, pattern = NULL,
   }
 
   # --- gt table output ---
+  # Each swatch is a fixed 20px block, so the Colours column only has to be as
+  # wide as the longest palette actually drawn (plus the 2 x 5px gt cell
+  # padding), floored so the column label still fits.
+  swatch_px <- 20
+  preview_px <- max(swatch_px * max(pmin(lengths(pals), max_colors)) + 10, 90)
+  # gt::cols_width() evaluates a formula RHS in its own frame, so the computed
+  # width has to be inlined into the formula rather than referenced by name.
+  preview_width <- stats::as.formula(bquote(preview ~ .(gt::px(preview_px))))
+
   tbl_data <- data.frame(
     palette = names(pals),
     type = vapply(pals, function(x) attr(x, "type") %||% "?", character(1)),
@@ -626,7 +635,9 @@ pal_show <- function(palette = NULL, pattern = NULL,
       n <- min(length(cols), max_colors)
       cols <- cols[seq_len(n)]
       spans <- vapply(cols, function(c) {
-        sprintf('<span style="background:%s;color:%s;padding:0 6px;">&nbsp;&nbsp;</span>', c, c)
+        sprintf(paste0('<span style="display:inline-block;width:%dpx;',
+                       'background:%s;color:%s;">&nbsp;</span>'),
+                swatch_px, c, c)
       }, character(1))
       paste(spans, collapse = "")
     }, character(1)),
@@ -661,7 +672,7 @@ pal_show <- function(palette = NULL, pattern = NULL,
       palette ~ gt::px(180),
       type ~ gt::px(80),
       n_colors ~ gt::px(40),
-      preview ~ gt::px(420)
+      preview_width
     )
 
   print(tbl)
