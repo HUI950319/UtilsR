@@ -1,17 +1,20 @@
 # =============================================================================
-# utils-resolve.R -- shared input-resolution helpers
+# utils-resolve.R -- Shared input-resolution helpers
 # =============================================================================
 #
-# Internal helpers mirroring RegR's `.resolve_*` family, kept here in UtilsR
-# (the theme / palette home) so UtilsR's own plot helpers can use them without
-# a circular dependency on RegR. Where RegR's versions reference `UtilsR::...`
-# (because RegR is external to UtilsR), these use UtilsR's own internal objects
+# Internal mirrors of RegR's `.resolve_*` family, kept here in UtilsR (the
+# theme / palette home) so UtilsR's own plot helpers can use them without a
+# circular dependency on RegR. Where RegR's versions reference `UtilsR::...`
+# (RegR being external to UtilsR), these use UtilsR's own internal objects
 # directly (`theme_km`, `pal_lancet`, `pal_get`, `palette_list`).
 #
-#   .resolve_theme(theme_use)        NULL / name / function / theme -> theme
-#   .resolve_color(palette, n, ...)  NULL / name / colour(s)        -> hex vector
+# Architecture (1 layer, no public API):
+#
+#   L2  .resolve_theme(theme_use)        NULL | name | function | theme
+#                                        -> ggplot2 theme
+#       .resolve_color(palette, n, ...)  NULL | name | colour(s)
+#                                        -> hex colour vector
 # =============================================================================
-
 
 # ---- .resolve_theme --------------------------------------------------------
 

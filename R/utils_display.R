@@ -1,6 +1,24 @@
-# ============================================================================
+# =============================================================================
 # utils_display.R -- Console display helpers
-# ============================================================================
+# =============================================================================
+#
+# Architecture (2 layers):
+#
+#   L1  styled console output                       -- public API
+#         .cat_line(text, type, ...)       separator rule with a label
+#         .cat_box(cat_text, type, ...)    boxed notice
+#         .cat_message(message, type)      timestamped log line
+#         .cat_formula(data, co_var, ...)  model formula with a header
+#               +-- .cat_line() + .cat_box()
+#         .cat_tb(...)                     table with pattern highlighting
+#         show_color(x, rev)               colour swatches in the console
+#
+#   L2  shared internals
+#         ._type_cfg()     type -> symbol / colour / ANSI background
+#         ._cli_bg()       type -> cli background style
+#         ._ansi_styled()  wrap text in an ANSI background
+#         console_width()  terminal width, with a fallback
+# =============================================================================
 
 # ------------- Shared internals ---------------------------------------------
 

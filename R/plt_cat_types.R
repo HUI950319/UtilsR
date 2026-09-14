@@ -1,7 +1,21 @@
-# Internal plot-type functions for CatPlot
-# Each function renders one plot_type and returns a ggplot (or recordPlot for chord).
-# Standard plotdata columns: "stat_var", "group_var", "value"
-# When group.by is NULL, group_var == "all" (character, not factor).
+# =============================================================================
+# plt_cat_types.R -- Per-type renderers behind plt_cat()
+# =============================================================================
+#
+# Architecture (1 layer). Each renderer returns a ggplot, except
+# .plt_cat_chord which returns a recorded base plot.
+#
+#   L3  standard types -- take the plotdata frame built by
+#       .prepare_cat_data(), with the columns stat_var / group_var / value
+#         .plt_cat_bar    .plt_cat_rose   .plt_cat_ring   .plt_cat_pie
+#         .plt_cat_trend  .plt_cat_area   .plt_cat_dot
+#               +-- .cat_x_var()   choose the x aesthetic from group_var's
+#                                  type (character "all" = no group.by,
+#                                  factor = real grouping)
+#
+#   L3  set types -- take the set list built by .build_set_list()
+#         .plt_cat_sankey  .plt_cat_chord  .plt_cat_venn  .plt_cat_upset
+# =============================================================================
 
 #' Determine x-axis variable based on grouping
 #'

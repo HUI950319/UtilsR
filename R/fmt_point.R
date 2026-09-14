@@ -1,6 +1,12 @@
-# ============================================================================
-# fmt_point.R -- Add data points to ggplot (point, jitter, beeswarm)
-# ============================================================================
+# =============================================================================
+# fmt_point.R -- Add data points to a plot (point / jitter / beeswarm)
+# =============================================================================
+#
+# Architecture (2 layers):
+#
+#   L1  fmt_point(plot, type, data, shape, size, ...)   -- public API
+#         +-- L2  .shape_convert()   shape name or code -> ggplot2 shape
+# =============================================================================
 
 #' Add Data Points to a Plot
 #'

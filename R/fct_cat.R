@@ -1,6 +1,17 @@
-# ============================================================================
+# =============================================================================
 # fct_cat.R -- Unified factor utility: fct_cat()
-# ============================================================================
+# =============================================================================
+#
+# Architecture (2 layers):
+#
+#   L1  fct_cat(x, ..., reverse, binary_ref, groups, new_labels)
+#         |                                         -- public API
+#         +-- L2  .as_factor()          coerce any vector -> factor
+#         +-- L2  .recode_factor()      rename / reorder / group levels
+#         |     +-- L3  .check_integer_index()   validate integer indices
+#         +-- L2  .do_binary()          collapse to a two-level factor
+#               +-- .recode_factor()
+# =============================================================================
 
 #' Unified Factor Manipulation
 #'

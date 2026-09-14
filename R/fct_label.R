@@ -1,6 +1,13 @@
-# ============================================================================
+# =============================================================================
 # fct_label.R -- Pipe-friendly factor relabelling generic: fct_label()
-# ============================================================================
+# =============================================================================
+#
+# Architecture (S3 generic, 2 layers):
+#
+#   L1  fct_label(x, ...)                           -- public generic
+#         +-- L2  fct_label.data.frame()   relabel one or more columns
+#         +-- L2  fct_label.default()      relabel a single vector
+# =============================================================================
 
 #' Relabel factor levels (generic: vector or data-frame column)
 #'

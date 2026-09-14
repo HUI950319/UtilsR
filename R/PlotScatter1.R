@@ -1,3 +1,7 @@
+# =============================================================================
+# PlotScatter1.R -- Grouped scatter plot with marginal boxplots
+# =============================================================================
+
 #' Grouped Scatter Plot with Marginal Boxplots
 #'
 #' Single-group scatter plot with top and right marginal boxplots (with jitter)

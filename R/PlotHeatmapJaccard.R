@@ -1,3 +1,7 @@
+# =============================================================================
+# PlotHeatmapJaccard.R -- Jaccard similarity heatmap for set overlaps
+# =============================================================================
+
 #' Jaccard Similarity Heatmap
 #'
 #' Computes pairwise Jaccard similarity between groups based on a set of named

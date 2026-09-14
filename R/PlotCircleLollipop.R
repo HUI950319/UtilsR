@@ -1,3 +1,7 @@
+# =============================================================================
+# PlotCircleLollipop.R -- Circular lollipop chart
+# =============================================================================
+
 #' Circular Lollipop Chart
 #'
 #' Draws a polar (circular) lollipop chart using \pkg{circlize}, showing

@@ -1,6 +1,17 @@
-# ============================================================================
+# =============================================================================
 # plt_con.R -- Unified continuous variable plot
-# ============================================================================
+# =============================================================================
+#
+# Architecture (2 layers):
+#
+#   L1  plt_con(data, stat.by, group.by, split.by, bg.by, ...)
+#         |                                         -- public API
+#         +-- L2  .plt_con_single()    one feature, one panel
+#         +-- L2  .plt_con_stacked()   several features faceted vertically
+#         |                            (stack = TRUE, length(stat.by) > 1)
+#         +-- L2  .resolve_y_limit()   numeric or quantile string -> limits
+#                                      (also called by both builders)
+# =============================================================================
 
 #' Unified Continuous Variable Plot
 #'

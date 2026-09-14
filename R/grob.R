@@ -1,6 +1,18 @@
-# ============================================================================
+# =============================================================================
 # grob.R -- Grob conversion, layout, and inset utilities
-# ============================================================================
+# =============================================================================
+#
+# Architecture (2 layers):
+#
+#   L1  grob_as(plot, ...)                          -- public API
+#             ggplot | patchwork | gtable | gList -> gtable / grob
+#   L1  grob_add(gtable, grob, ...)      place a grob at a gtable cell
+#   L1  grob_insert(plot, inset, ...)    inset one plot inside another
+#   L1  grob_to_gg(grob, ...)            grob / gtable -> ggplot object
+#
+#   L2  grob_add / grob_insert / grob_to_gg normalise their input through
+#       grob_as() first, so all four entry points accept the same types.
+# =============================================================================
 
 #' @import ggplot2
 #' @importFrom grid unit grobTree gList linesGrob textGrob gpar grobHeight grobWidth is.grob

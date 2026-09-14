@@ -1,6 +1,13 @@
-# ============================================================================
-# zzz.R -- Package initialization & re-exported operators
-# ============================================================================
+# =============================================================================
+# zzz.R -- Package hooks and R CMD check globals
+# =============================================================================
+#
+# Architecture (1 layer):
+#
+#   L1  utils::globalVariables()   silence NSE column-name NOTEs
+#       .onLoad()                  build the load-time theme objects and
+#                                  re-export the pipe / bang-bang operators
+# =============================================================================
 
 # Suppress R CMD check NOTEs for non-standard evaluation variables
 utils::globalVariables(c(

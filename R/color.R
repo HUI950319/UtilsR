@@ -1,6 +1,27 @@
-# ============================================================================
-# color.R -- Colour palettes with console swatch display
-# ============================================================================
+# =============================================================================
+# color.R -- Colour palettes with console / ggplot swatch display
+# =============================================================================
+#
+# Architecture (3 layers):
+#
+#   L0  palette data (plain objects, not functions)
+#         palette_list  -- 256 named palettes, each with a "type" attribute
+#         pal_lancet / pal_bar / pal_paraSC / pal_other / pal_heat
+#
+#   L1  lookup + extraction                         -- public API
+#         pal_list(pattern, type)   browse palette_list
+#         pal_get(palette, n, x, reverse, alpha)    name | colours -> hex
+#               +-- L2  .pal_apply()    recycle / interpolate / alpha
+#                     +-- L3  .pal_resize()   grow or shrink a discrete set
+#
+#   L1  visual catalogues                           -- public API
+#         pal_show(palette, n, pattern)   dispatches to the source-specific
+#               |                         viewers when given a source name
+#               +-- pal_show_brewer / pal_show_hcl / pal_show_ggsci /
+#               |   pal_show_viridis
+#               +-- L2  .is_color_vector()   colours vs palette names
+#               +-- L2  .pal_show_colors()   render swatches (ggplot | gt)
+# =============================================================================
 
 #' Built-in Palette Collection
 #'

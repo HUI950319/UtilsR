@@ -1,6 +1,28 @@
-# ============================================================================
+# =============================================================================
 # theme.R -- Custom ggplot2 themes based on ggprism
-# ============================================================================
+# =============================================================================
+#
+# Architecture (1 layer of public themes plus load-time theme objects):
+#
+#   L1  theme_my(palette, base_size, ...)           -- base theme
+#         +-- theme_heat()      tile / heatmap variant of theme_my()
+#
+#   L1  standalone themes
+#         theme_alluvia()   alluvial and Sankey panels
+#         theme_sc()        single-cell style axes
+#               +-- theme_blank()   blank panel with coordinate arrows
+#         theme_ROC()       ROC and calibration panels
+#
+#   L1  legend helpers
+#         theme_legend(bg_fill, ...)   fully configurable legend block
+#         theme_legend1()              compact legend with a title
+#               +-- leg1()             shorthand for theme_legend1()
+#         leg2()                       compact legend without a title
+#
+#   L2  .onLoad_theme()   builds theme_km / theme_rcs / theme_scatter at
+#       load time. They are declared NULL here because they are theme
+#       objects rather than functions, and ggplot2 must be attached first.
+# =============================================================================
 
 #' @import ggplot2
 #' @importFrom grid unit

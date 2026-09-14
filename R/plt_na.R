@@ -1,3 +1,7 @@
+# =============================================================================
+# plt_na.R -- Missing-value pattern plot
+# =============================================================================
+
 #' Plot Missing Values
 #'
 #' Create a missing-value matrix, a missing-percentage bar chart, or one of

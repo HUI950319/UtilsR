@@ -1,6 +1,17 @@
-# ============================================================================
-# fmt_raster.R -- Rasterize plot panels to reduce PDF file size
-# ============================================================================
+# =============================================================================
+# fmt_raster.R -- Rasterize plot panels to shrink PDF output
+# =============================================================================
+#
+# Architecture (4 layers):
+#
+#   L1  fmt_raster(plot, method, dpi, width, height, ...)   -- public API
+#         |   method = "ggrastr" (default) | "ragg"
+#         +-- L2  .fmt_raster_ggrastr()   re-wrap layers through ggrastr
+#         +-- L2  .fmt_raster_ragg()      render panel grobs through ragg
+#               +-- L3  .resolve_panel_size()     panel size in inches
+#               +-- L3  .rasterize_panel_grob()   grob -> raster grob
+#                     +-- L4  .is_text_grob()     keep text grobs vector
+# =============================================================================
 
 #' Rasterize Plot Panels
 #'

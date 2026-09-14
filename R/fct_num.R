@@ -1,6 +1,13 @@
-# ============================================================================
+# =============================================================================
 # fct_num.R -- Numeric to factor conversion: fct_num()
-# ============================================================================
+# =============================================================================
+#
+# Architecture (2 layers):
+#
+#   L1  fct_num(x, breaks, labels, nbins, type)     -- public API
+#         +-- L2  .make_break_labels()        labels from explicit breaks
+#         +-- L2  .make_default_bin_labels()  labels for quantile/equal bins
+# =============================================================================
 
 #' Convert Numeric to Factor
 #'

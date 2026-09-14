@@ -1,6 +1,19 @@
-# ============================================================================
+# =============================================================================
 # lv.R -- Variable inspection S3 generic and methods
-# ============================================================================
+# =============================================================================
+#
+# Architecture (S3 generic, 2 layers):
+#
+#   L1  lv(data, ...)                               -- public generic
+#         |   a missing `data` re-calls lv() on the default global data
+#         +-- L2  lv.data.frame()   frequency / unique / NA / special-value
+#         |                         summaries, grouped and cross-tabulated
+#         +-- L2  lv.default()      single vector -> one-column data.frame,
+#         |                         then lv.data.frame()
+#         +-- L2  lv.Seurat()       @meta.data -> lv.data.frame()
+#
+#   L3  .lv_default_data()   locate the default data.frame in the caller
+# =============================================================================
 
 #' @title Variable Inspection Generic Function
 #'

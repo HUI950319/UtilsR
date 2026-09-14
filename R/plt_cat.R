@@ -1,6 +1,32 @@
-# ============================================================================
-# plt_cat.R -- Unified categorical variable plot
-# ============================================================================
+# =============================================================================
+# plt_cat.R -- Unified categorical variable plot (11 chart types)
+# =============================================================================
+#
+# Architecture (3 layers):
+#
+#   L1  plt_cat(data, stat.by, group.by, split.by, type, ...)
+#         |                                         -- public API
+#         |   split.by splits the data and recombines the panels with
+#         |   patchwork; everything below runs once per panel.
+#         |
+#         +-- L2  set types (stat.by is a vector of >= 2 columns)
+#         |     .resolve_stat_level()   pick the level defining membership
+#         |     .build_set_list()       data + stat_level -> list of sets
+#         |           +-- L3  .plt_cat_sankey / .plt_cat_chord /
+#         |                   .plt_cat_venn   / .plt_cat_upset
+#         |
+#         +-- L2  standard types (stat.by is a single column)
+#               .prepare_cat_data()     frequency table with the columns
+#               |                       stat_var / group_var / value
+#               +-- L3  .plt_cat_bar   / .plt_cat_rose  / .plt_cat_ring /
+#               |       .plt_cat_pie   / .plt_cat_trend / .plt_cat_area /
+#               |       .plt_cat_dot
+#               +-- L3  .build_bg_layer()   alternating bands for dodge mode
+#               +-- L3  .add_cat_labels()   ggrepel value labels
+#
+# The L3 renderers live in plt_cat_types.R; this file owns data preparation,
+# palette / theme resolution, and the two switch() dispatch tables.
+# =============================================================================
 
 #' Unified Categorical Variable Plot
 #'

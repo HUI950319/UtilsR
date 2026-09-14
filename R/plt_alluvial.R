@@ -1,3 +1,7 @@
+# =============================================================================
+# plt_alluvial.R -- Faceted alluvial distribution plot
+# =============================================================================
+
 #' Plot a Faceted Alluvial Distribution
 #'
 #' Draw an alluvial plot for the distribution of `group` across the categories

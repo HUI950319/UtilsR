@@ -1,3 +1,13 @@
+# =============================================================================
+# PlotScatter2.R -- Dual-group scatter with multi-variable marginal boxplots
+# =============================================================================
+#
+# Architecture (2 layers):
+#
+#   L1  PlotScatter2(data, x, y, group, ...)        -- public API
+#         +-- L2  .make_scatter2_legend()   bottom-right legend panel
+# =============================================================================
+
 #' Dual-Group Scatter Plot with Multi-Variable Marginal Boxplots
 #'
 #' Scatter plot supporting two grouping variables (colour + shape) with

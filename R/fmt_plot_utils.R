@@ -1,6 +1,16 @@
-# Plot format utility helpers
-# Internal helpers (.to_plot_list, .from_plot_list, .detect_scale_type)
-# Exported: flatten_patchwork
+# =============================================================================
+# fmt_plot_utils.R -- Shared plot-container helpers for the fmt_* family
+# =============================================================================
+#
+# Architecture (1 layer; consumed by every formatter in fmt_plot.R):
+#
+#   L1  flatten_patchwork(plot)                     -- public API
+#             flatten nested patchwork objects into a single grid
+#
+#   L2  .to_plot_list()        ggplot | patchwork | list -> list of ggplots
+#       .from_plot_list()      list of ggplots -> original container type
+#       .detect_scale_type()   classify a plot's colour / fill scale
+# =============================================================================
 
 # ---- Internal helpers ----
 

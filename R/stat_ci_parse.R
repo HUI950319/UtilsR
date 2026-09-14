@@ -1,6 +1,15 @@
-# ============================================================================
-# stat_ci_parse.R -- Parse CI strings, compute p-values, adjust confidence levels
-# ============================================================================
+# =============================================================================
+# stat_ci_parse.R -- Parse CI strings, derive p-values, re-level intervals
+# =============================================================================
+#
+# Architecture (2 layers):
+#
+#   L1  stat_ci_parse(x, output, level, exp, digits, ...)   -- public API
+#         |   output = ci | p | ci_p | ci_star | p_star
+#         +-- L2  .ci_extract()   "est (lo, hi)" -> estimate + bounds
+#         +-- L2  .is_exp()       detect a ratio scale, so the interval is
+#                                 logged before the normal approximation
+# =============================================================================
 
 #' Parse Confidence Interval Strings
 #'

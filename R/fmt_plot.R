@@ -1,5 +1,34 @@
-# Plot formatting functions
-# fmt_axis, fmt_tag, fmt_legend, fmt_ref, fmt_plot, fmt_panel
+# =============================================================================
+# fmt_plot.R -- ggplot / patchwork post-formatting family
+# =============================================================================
+#
+# Architecture (2 layers). Every formatter takes a plot and returns the same
+# container type, so they compose freely in a pipe.
+#
+#   L1  fmt_plot(plot, fmt_axis_list, fmt_tag_list, fmt_legend_list,
+#         |       fmt_ref_list, plot.margin, tag_levels, axis_titles, ...)
+#         |                                         -- master orchestrator
+#         +-- rlang::exec(fmt_axis,   !!!fmt_axis_list)
+#         +-- rlang::exec(fmt_tag,    !!!fmt_tag_list)
+#         +-- rlang::exec(fmt_legend, !!!fmt_legend_list)
+#         +-- rlang::exec(fmt_ref,    !!!fmt_ref_list)
+#
+#   L1  standalone formatters (public, usable without fmt_plot)
+#         axes     fmt_axis / fmt_axisText / fmt_axisTile / fmt_scale /
+#                  fmt_expand
+#         labels   fmt_tag / fmt_text / fmt_strip / fmt_strip2
+#         panel    fmt_panel / fmt_bg / fmt_plot_base
+#         legend   fmt_legend
+#         layers   fmt_ref / fmt_com / fmt_his / fmt_boxplot
+#
+#   L2  internals
+#         .resolve_tag_position()      tag keyword -> panel coordinates
+#         .extract_discrete_levels()   read discrete axis levels off a plot
+#
+# The container helpers (.to_plot_list / .from_plot_list /
+# flatten_patchwork) live in fmt_plot_utils.R, which is why every formatter
+# accepts a ggplot, a patchwork or a plain list of plots.
+# =============================================================================
 
 # ---- fmt_axis ----
 

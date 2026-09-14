@@ -1,6 +1,6 @@
-# ============================================================================
-# set_wd.R -- Ensure a directory exists and switch the working directory to it
-# ============================================================================
+# =============================================================================
+# set_wd.R -- Create a directory if needed and make it the working directory
+# =============================================================================
 
 #' Create a Directory (if Needed) and Set It as the Working Directory
 #'

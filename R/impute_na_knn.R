@@ -1,3 +1,7 @@
+# =============================================================================
+# impute_na_knn.R -- Impute missing values with weighted k-nearest neighbours
+# =============================================================================
+
 #' Impute Missing Values with Weighted K-Nearest Neighbours
 #'
 #' Impute missing values in mixed-type data with

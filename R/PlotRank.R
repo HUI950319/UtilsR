@@ -1,3 +1,15 @@
+# =============================================================================
+# PlotRank.R -- Rank scatter plot for per-group ranked measurements
+# =============================================================================
+#
+# Architecture (2 layers):
+#
+#   L1  PlotRank(data, group_col, name_col, value_col, ...)  -- public API
+#         +-- L2  .pr_parse()    normalise input -> named numeric vectors
+#         +-- L2  .pr_single()   single-panel rank scatter
+#         +-- L2  .pr_facet()    faceted multi-panel rank scatter
+# =============================================================================
+
 #' Rank Scatter Plot
 #'
 #' Ranks features (genes, pathways, regulons, etc.) by their scores and

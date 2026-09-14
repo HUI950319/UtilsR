@@ -1,6 +1,15 @@
-# ============================================================================
-# fct_to_combine.R -- Combine multiple factor/character vectors into one factor
-# ============================================================================
+# =============================================================================
+# fct_to_combine.R -- Combine several vectors / columns into one factor
+# =============================================================================
+#
+# Architecture (S3 generic, 2 layers):
+#
+#   L1  fct_to_combine(...)                         -- public generic
+#         |   pure-dots generic dispatching on the first element's class,
+#         |   so do.call() / rlang::exec() over a named list still works
+#         +-- L2  fct_to_combine.data.frame()   combine selected columns
+#         +-- L2  fct_to_combine.default()      combine bare vectors
+# =============================================================================
 
 #' Combine Multiple Vectors / Columns into a Single Factor (generic)
 #'

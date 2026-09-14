@@ -1,6 +1,13 @@
-# ============================================================================
+# =============================================================================
 # PlotDumbbell.R -- Dumbbell (lollipop comparison) chart
-# ============================================================================
+# =============================================================================
+#
+# Architecture (2 layers):
+#
+#   L1  PlotDumbbell(data, x_col, xend_col, y_col, ...)   -- public API
+#         +-- L2  .parse_theme()             theme_use -> ggplot2 theme
+#         +-- L2  .build_dumbbell_inset()    paired box / violin inset panel
+# =============================================================================
 
 #' Dumbbell Chart for Paired Comparisons
 #'
