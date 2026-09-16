@@ -203,10 +203,11 @@ p |>
   fmt_point(shape = 21)
 ```
 
-## Vignettes
+## Articles
 
-| Vignette | Topic |
+| Article | Topic |
 |----------|-------|
+| [Package Map](https://hui950319.github.io/UtilsR/articles/package-map.html) | Three mind maps: 12 modules, all 92 exports, processing chain |
 | [Categorical Plots](https://hui950319.github.io/UtilsR/articles/plt_cat_guide.html) | Complete `plt_cat()` guide with all 11 chart types |
 | [Data Inspection](https://hui950319.github.io/UtilsR/articles/data_inspection.html) | `lv()`, `na()`, `check_system()`, `check_size()` |
 | [Factor Manipulation](https://hui950319.github.io/UtilsR/articles/factor_manipulation.html) | `fct_cat()` and `fct_num()` |

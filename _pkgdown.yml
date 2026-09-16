@@ -155,6 +155,11 @@ reference:
       - UtilsR
 
 articles:
+  - title: Package Map
+    navbar: Package Map
+    contents:
+      - "articles/package-map"
+
   - title: Plot Functions
     navbar: Plot Functions
     contents:

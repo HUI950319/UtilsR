@@ -1,2 +1,6 @@
 docs/
 .claude/
+
+# Copied out of tools/mindmap/ by vignettes/articles/package-map.Rmd
+# while the site builds
+vignettes/articles/*-package-mindmap-p*.png

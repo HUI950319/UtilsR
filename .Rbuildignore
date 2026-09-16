@@ -7,3 +7,4 @@
 ^Rplots\.pdf$
 ^LICENSE\.md$
 ^tools$
+^vignettes/articles$
