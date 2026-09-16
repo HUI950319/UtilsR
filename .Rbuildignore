@@ -10,4 +10,5 @@
 ^vignettes/articles$
 ^\.claude$
 ^AGENTS\.md$
-^test_bf2_output\.png$
+^man/figures/hex_
+^man/figures/logo_small\.png$
