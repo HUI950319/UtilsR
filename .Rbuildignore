@@ -8,3 +8,6 @@
 ^LICENSE\.md$
 ^tools$
 ^vignettes/articles$
+^\.claude$
+^AGENTS\.md$
+^test_bf2_output\.png$
