@@ -1,6 +1,15 @@
+# Disabled. `needs: website` makes pak resolve Suggests, and two of them --
+# RegR and ToyData -- are private repositories that the default GITHUB_TOKEN
+# cannot read. Every run since 2026-03 died in setup-r-dependencies with
+# "Can't find package called RegR, ToyData", and the site this job was meant to
+# publish sat six months behind the code with nobody watching the red runs.
+#
+# The site is built and pushed from a workstation instead: tools/build-site.R.
+#
+# To bring this back, add a PAT that can read those two repositories as a
+# repository secret and use it for GITHUB_PAT below, then restore the push
+# trigger. Dispatching this as it stands will fail at the same step.
 on:
-  push:
-    branches: [master]
   workflow_dispatch:
 
 name: pkgdown

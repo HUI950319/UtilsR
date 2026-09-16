@@ -74,8 +74,17 @@ wsl -d Ubuntu-22.04 -- bash -c \
 
 Empty output means full coverage.
 
-CI installs dependencies but not UtilsR itself. The workflow therefore runs
-`R CMD INSTALL --no-build-vignettes .` with `install=FALSE`.
+The site is not built by CI. `.github/workflows/pkgdown.yaml` is disabled
+because pak cannot resolve the private `RegR` and `ToyData` Suggests with the
+default token. Rebuild and publish from a workstation instead:
+
+```bash
+wsl -d Ubuntu-22.04 -- bash -c \
+  'cd /mnt/e/Rpackage/UtilsR && Rscript tools/build-site.R --deploy'
+```
+
+Without `--deploy` it only refreshes `docs/`. It needs pkgdown >= 2.2.0 and
+stops with install instructions when that is missing.
 
 ## Git
 

@@ -12,3 +12,4 @@
 ^AGENTS\.md$
 ^man/figures/hex_
 ^man/figures/logo_small\.png$
+^pkgdown$
