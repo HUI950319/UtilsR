@@ -11,18 +11,17 @@ theme_sc(aspect.ratio = NULL, base_size = 12, ...)
 
 ## Arguments
 
-- aspect.ratio:
+  - aspect.ratio:
+    
+    Aspect ratio of the panel. Default is `NULL`.
 
-  Aspect ratio of the panel. Default is `NULL`.
+  - base\_size:
+    
+    Numeric. Base font size (default 12).
 
-- base_size:
-
-  Numeric. Base font size (default 12).
-
-- ...:
-
-  Arguments passed to
-  [`theme`](https://ggplot2.tidyverse.org/reference/theme.html).
+  - ...:
+    
+    Arguments passed to `theme`.
 
 ## Value
 
@@ -30,12 +29,10 @@ A ggplot2 theme object.
 
 ## See also
 
-Other ggplot2 themes:
-[`theme_blank()`](https://hui950319.github.io/UtilsR/reference/theme_blank.md),
-[`theme_km`](https://hui950319.github.io/UtilsR/reference/theme_km.md),
-[`theme_legend1()`](https://hui950319.github.io/UtilsR/reference/theme_legend1.md),
-[`theme_my()`](https://hui950319.github.io/UtilsR/reference/theme_my.md),
-[`theme_rcs`](https://hui950319.github.io/UtilsR/reference/theme_rcs.md)
+Other ggplot2 themes: `leg1()`, `leg2()`, `theme_ROC()`,
+`theme_alluvia()`, `theme_blank()`, `theme_heat()`, `theme_km`,
+`theme_legend()`, `theme_legend1()`, `theme_my()`, `theme_rcs`,
+`theme_scatter`
 
 ## Examples
 

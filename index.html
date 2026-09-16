@@ -6,6 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Utility Functions for Data Exploration and System Diagnostics • UtilsR</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" sizes="any" href="favicon.ico">
+<link rel="manifest" href="site.webmanifest">
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -23,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="index.html">UtilsR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,6 +42,9 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Package Map</h6></li>
+    <li><a class="dropdown-item" href="articles/package-map.html">Package Map</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Plot Functions</h6></li>
     <li><a class="dropdown-item" href="articles/plt_cat_guide.html">plt_cat: Unified Categorical Plot Guide</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -70,7 +78,6 @@
 </h1>
 </div>
 <!-- badges: start -->
-
 <p><strong>UtilsR</strong> is an R utility toolkit for everyday data work: variable inspection, statistical formatting, 256 colour palettes, 11-type categorical plotting, unified continuous variable plotting, and a chainable ggplot2 formatting system.</p>
 <p><strong>Documentation</strong>: <a href="https://hui950319.github.io/UtilsR/" class="uri">https://hui950319.github.io/UtilsR/</a></p>
 <div class="section level2">
@@ -80,16 +87,14 @@
 <code class="sourceCode R"><span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"HUI950319/UtilsR"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># or</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"HUI950319/UtilsR"</span><span class="op">)</span></span></code></pre></div>
-<details><summary>
-Optional dependencies for special chart types
-</summary><div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"HUI950319/UtilsR"</span><span class="op">)</span></span></code></pre></div>
+<details><p><summary>Optional dependencies for special chart types</summary></p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Sankey</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"davidsjoberg/ggsankey"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Chord, Venn, UpSet</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"circlize"</span>, <span class="st">"ggVennDiagram"</span>, <span class="st">"ggupset"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-</details>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"circlize"</span>, <span class="st">"ggVennDiagram"</span>, <span class="st">"ggupset"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div></details>
 </div>
 <div class="section level2">
 <h2 id="feature-highlights">Feature Highlights<a class="anchor" aria-label="anchor" href="#feature-highlights"></a>
@@ -141,21 +146,21 @@ Optional dependencies for special chart types
 <tr class="odd">
 <td><strong>Format</strong></td>
 <td>
-<code><a href="reference/stat_ci.html">stat_ci()</a></code>, <code><a href="reference/stat_pval.html">stat_pval()</a></code>, <code><a href="reference/stat_ci_parse.html">stat_ci_parse()</a></code>, <code><a href="reference/stat_cohen.html">stat_cohen()</a></code>
+<code><a href="reference/stat_ci.html">stat_ci()</a></code>, <code><a href="reference/stat_pval.html">stat_pval()</a></code>, <code><a href="reference/stat_ci_parse.html">stat_ci_parse()</a></code>
 </td>
-<td>CI strings, p-values, effect sizes</td>
+<td>CI strings, p-values</td>
 </tr>
 <tr class="even">
 <td><strong>Plot</strong></td>
 <td>
-<code><a href="reference/plt_cat.html">plt_cat()</a></code>, <code><a href="reference/plt_con.html">plt_con()</a></code>, <code><a href="reference/plt_dist.html">plt_dist()</a></code>, <code><a href="reference/plt_cohen.html">plt_cohen()</a></code>, <code><a href="reference/plt_radar.html">plt_radar()</a></code>, <code><a href="reference/plt_sankey.html">plt_sankey()</a></code>, <code><a href="reference/plt_upset.html">plt_upset()</a></code>
+<code><a href="reference/plt_cat.html">plt_cat()</a></code>, <code><a href="reference/plt_con.html">plt_con()</a></code>, <code><a href="reference/plt_dist.html">plt_dist()</a></code>, <code><a href="reference/plt_sankey.html">plt_sankey()</a></code>, <code><a href="reference/plt_upset.html">plt_upset()</a></code>
 </td>
-<td>Categorical (11 types), continuous (4 types), distribution, effect size, radar, sankey, upset</td>
+<td>Categorical (11 types), continuous (4 types), distribution, sankey, upset</td>
 </tr>
 <tr class="odd">
 <td><strong>Colour</strong></td>
 <td>
-<code><a href="reference/pal_get.html">pal_get()</a></code>, <code><a href="reference/pal_list.html">pal_list()</a></code>, <code><a href="reference/pal_show.html">pal_show()</a></code>, <code><a href="reference/as_palette.html">as_palette()</a></code>, <code><a href="reference/show_color.html">show_color()</a></code>
+<code><a href="reference/pal_get.html">pal_get()</a></code>, <code><a href="reference/pal_list.html">pal_list()</a></code>, <code><a href="reference/pal_show.html">pal_show()</a></code>, <code>as_palette()</code>, <code><a href="reference/show_color.html">show_color()</a></code>
 </td>
 <td>256 palettes, custom palette creation, console swatches</td>
 </tr>
@@ -219,8 +224,8 @@ Optional dependencies for special chart types
 <span></span>
 <span><span class="co"># Split by facet + background bands</span></span>
 <span><span class="fu"><a href="reference/plt_cat.html">plt_cat</a></span><span class="op">(</span><span class="va">df</span>, <span class="st">"Type"</span>, <span class="st">"Group"</span>, split.by <span class="op">=</span> <span class="st">"Batch"</span>, type <span class="op">=</span> <span class="st">"bar"</span><span class="op">)</span></span></code></pre></div>
-<details><summary><code>plt_cat()</code> parameter reference
-</summary><table class="table">
+<details><p><summary><code>plt_cat()</code> parameter reference</summary></p>
+<table class="table">
 <colgroup>
 <col width="38%">
 <col width="61%">
@@ -317,8 +322,8 @@ Optional dependencies for special chart types
 <span></span>
 <span><span class="co"># Split by batch</span></span>
 <span><span class="fu"><a href="reference/plt_con.html">plt_con</a></span><span class="op">(</span><span class="va">df2</span>, <span class="st">"value"</span>, <span class="st">"group"</span>, split.by <span class="op">=</span> <span class="st">"batch"</span><span class="op">)</span></span></code></pre></div>
-<details><summary><code>plt_con()</code> parameter reference
-</summary><table class="table">
+<details><p><summary><code>plt_con()</code> parameter reference</summary></p>
+<table class="table">
 <colgroup>
 <col width="38%">
 <col width="61%">
@@ -428,40 +433,40 @@ Optional dependencies for special chart types
 </div>
 </div>
 <div class="section level2">
-<h2 id="vignettes">Vignettes<a class="anchor" aria-label="anchor" href="#vignettes"></a>
+<h2 id="articles">Articles<a class="anchor" aria-label="anchor" href="#articles"></a>
 </h2>
 <table class="table">
-<colgroup>
-<col width="58%">
-<col width="41%">
-</colgroup>
 <thead><tr class="header">
-<th>Vignette</th>
+<th>Article</th>
 <th>Topic</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
+<td><a href="https://hui950319.github.io/UtilsR/articles/package-map.html">Package Map</a></td>
+<td>Three mind maps: 12 modules, all 92 exports, processing chain</td>
+</tr>
+<tr class="even">
 <td><a href="https://hui950319.github.io/UtilsR/articles/plt_cat_guide.html">Categorical Plots</a></td>
 <td>Complete <code><a href="reference/plt_cat.html">plt_cat()</a></code> guide with all 11 chart types</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a href="https://hui950319.github.io/UtilsR/articles/data_inspection.html">Data Inspection</a></td>
 <td>
 <code><a href="reference/lv.html">lv()</a></code>, <code>na()</code>, <code><a href="reference/check_system.html">check_system()</a></code>, <code><a href="reference/check_size.html">check_size()</a></code>
 </td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a href="https://hui950319.github.io/UtilsR/articles/factor_manipulation.html">Factor Manipulation</a></td>
 <td>
 <code><a href="reference/fct_cat.html">fct_cat()</a></code> and <code><a href="reference/fct_num.html">fct_num()</a></code>
 </td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a href="https://hui950319.github.io/UtilsR/articles/ggplot2_formatting.html">ggplot2 Formatting</a></td>
 <td>
 <code>fmt_*()</code> formatting system</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a href="https://hui950319.github.io/UtilsR/articles/colour_palettes.html">Colour Palettes</a></td>
 <td>256 palettes, custom palettes</td>
 </tr>
@@ -524,7 +529,7 @@ Optional dependencies for special chart types
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

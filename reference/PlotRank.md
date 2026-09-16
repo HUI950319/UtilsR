@@ -37,153 +37,147 @@ PlotRank(
 
 ## Arguments
 
-- data:
+  - data:
+    
+    Input data in one of the following formats:
+    
+      - data.frame  
+        Must contain columns specified by `name_col` and `value_col`. If
+        `group_col` exists, a faceted multi-panel plot is produced.
+    
+      - Named numeric vector  
+        Values are scores; names are feature labels. Produces a
+        single-panel plot.
+    
+      - Matrix  
+        Rows = features, columns = groups (e.g. cell types). Use
+        `groups` to select specific columns.
 
-  Input data in one of the following formats:
+  - group\_col:
+    
+    Column name for the grouping variable (e.g. cell type). Default
+    `"cell_type"`. Ignored for vector / matrix input.
 
-  data.frame
+  - name\_col:
+    
+    Column name for the feature names. Default `"gene"`. Ignored for
+    vector / matrix input.
 
-  :   Must contain columns specified by `name_col` and `value_col`. If
-      `group_col` exists, a faceted multi-panel plot is produced.
+  - value\_col:
+    
+    Column name for the numeric scores. Default `"importance"`. Ignored
+    for vector / matrix input.
 
-  Named numeric vector
+  - groups:
+    
+    Character vector of groups to plot (for matrix or data.frame input).
+    `NULL` (default) = all groups.
 
-  :   Values are scores; names are feature labels. Produces a
-      single-panel plot.
+  - group\_levels:
+    
+    Character vector specifying display order. `NULL` = data appearance
+    order or factor levels.
 
-  Matrix
+  - top\_n:
+    
+    Integer. Number of top-ranked features to highlight per group.
+    Default `5`.
 
-  :   Rows = features, columns = groups (e.g. cell types). Use `groups`
-      to select specific columns.
+  - max\_show:
+    
+    Integer. Maximum features to display per panel. Default `200`.
 
-- group_col:
+  - value\_scale:
+    
+    Per-group score scaling strategy. Three options:
+    
+      - `"none"` (default)  
+        No scaling; raw scores are plotted as-is.
+    
+      - `"group"`  
+        Scale each group independently to `[0, 1]` using the group's
+        full value range from the **original** data (before `max_show`
+        truncation). Useful when absolute score magnitudes differ
+        greatly across groups.
+    
+      - `"top_n"`  
+        Scale each group to `[0, 1]` using only the displayed
+        (post-`max_show`) values. Stretches the visible range within
+        each panel to maximise visual separation.
 
-  Column name for the grouping variable (e.g. cell type). Default
-  `"cell_type"`. Ignored for vector / matrix input.
+  - highlight\_color:
+    
+    Colour for top-ranked points. Default `"#007D9B"`.
 
-- name_col:
+  - base\_color:
+    
+    Colour for remaining points. Default `"#BECEE3"`.
 
-  Column name for the feature names. Default `"gene"`. Ignored for
-  vector / matrix input.
+  - label\_size:
+    
+    Numeric. Text label size. Default `4`.
 
-- value_col:
+  - point\_size:
+    
+    Numeric. Point size. Default `3`.
 
-  Column name for the numeric scores. Default `"importance"`. Ignored
-  for vector / matrix input.
+  - title:
+    
+    Character. Plot title. `NULL` = auto.
 
-- groups:
+  - ylab:
+    
+    Character. Y-axis label. Default `"Importance"`.
 
-  Character vector of groups to plot (for matrix or data.frame input).
-  `NULL` (default) = all groups.
+  - base\_size:
+    
+    Numeric. Base font size. Default `12`.
 
-- group_levels:
+  - ncol:
+    
+    Integer. Number of columns in faceted layout. Default `4`.
 
-  Character vector specifying display order. `NULL` = data appearance
-  order or factor levels.
+  - clean\_names:
+    
+    Logical. Strip common prefixes (`HALLMARK_`, `KEGG_`, etc.) and
+    replace underscores with spaces. Default `TRUE`.
 
-- top_n:
+  - return\_type:
+    
+    What to return: `"plot"` (default), `"data"` (the ranked
+    data.frame), or `"both"`.
 
-  Integer. Number of top-ranked features to highlight per group. Default
-  `5`.
+  - filename:
+    
+    Output file path. `NULL` = no save.
 
-- max_show:
+  - width:
+    
+    Output width in inches. Default `12`.
 
-  Integer. Maximum features to display per panel. Default `200`.
+  - height:
+    
+    Output height in inches. Default `10`.
 
-- value_scale:
-
-  Per-group score scaling strategy. Three options:
-
-  `"none"` (default)
-
-  :   No scaling; raw scores are plotted as-is.
-
-  `"group"`
-
-  :   Scale each group independently to `[0, 1]` using the group's full
-      value range from the **original** data (before `max_show`
-      truncation). Useful when absolute score magnitudes differ greatly
-      across groups.
-
-  `"top_n"`
-
-  :   Scale each group to `[0, 1]` using only the displayed
-      (post-`max_show`) values. Stretches the visible range within each
-      panel to maximise visual separation.
-
-- highlight_color:
-
-  Colour for top-ranked points. Default `"#007D9B"`.
-
-- base_color:
-
-  Colour for remaining points. Default `"#BECEE3"`.
-
-- label_size:
-
-  Numeric. Text label size. Default `4`.
-
-- point_size:
-
-  Numeric. Point size. Default `3`.
-
-- title:
-
-  Character. Plot title. `NULL` = auto.
-
-- ylab:
-
-  Character. Y-axis label. Default `"Importance"`.
-
-- base_size:
-
-  Numeric. Base font size. Default `12`.
-
-- ncol:
-
-  Integer. Number of columns in faceted layout. Default `4`.
-
-- clean_names:
-
-  Logical. Strip common prefixes (`HALLMARK_`, `KEGG_`, etc.) and
-  replace underscores with spaces. Default `TRUE`.
-
-- return_type:
-
-  What to return: `"plot"` (default), `"data"` (the ranked data.frame),
-  or `"both"`.
-
-- filename:
-
-  Output file path. `NULL` = no save.
-
-- width:
-
-  Output width in inches. Default `12`.
-
-- height:
-
-  Output height in inches. Default `10`.
-
-- dpi:
-
-  Output resolution. Default `300`.
+  - dpi:
+    
+    Output resolution. Default `300`.
 
 ## Value
 
 Depends on `return_type`:
 
-- "plot":
+  - "plot":
+    
+    A `ggplot` object (default).
 
-  A `ggplot` object (default).
+  - "data":
+    
+    A data.frame with columns: Group, Rank, Score, Label, IsTop.
 
-- "data":
-
-  A data.frame with columns: Group, Rank, Score, Label, IsTop.
-
-- "both":
-
-  A list with elements `plot` and `data`.
+  - "both":
+    
+    A list with elements `plot` and `data`.
 
 ## Examples
 

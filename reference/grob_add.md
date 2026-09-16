@@ -18,27 +18,28 @@ grob_add(
 
 ## Arguments
 
-- plot:
+  - plot:
+    
+    A `ggplot`, `patchwork`, or `gtable` object to serve as the main
+    plot.
 
-  A `ggplot`, `patchwork`, or `gtable` object to serve as the main plot.
+  - grob:
+    
+    A grob, gtable, or ggplot object to add.
 
-- grob:
+  - position:
+    
+    Where to place the grob. One of `"top"`, `"bottom"`, `"left"`,
+    `"right"`, or `"none"`.
 
-  A grob, gtable, or ggplot object to add.
+  - space:
+    
+    Space to allocate for the added grob. If `NULL` (default),
+    calculated automatically from the grob dimensions.
 
-- position:
-
-  Where to place the grob. One of `"top"`, `"bottom"`, `"left"`,
-  `"right"`, or `"none"`.
-
-- space:
-
-  Space to allocate for the added grob. If `NULL` (default), calculated
-  automatically from the grob dimensions.
-
-- clip:
-
-  Clipping mode. Default is `"on"`.
+  - clip:
+    
+    Clipping mode. Default is `"on"`.
 
 ## Value
 
@@ -46,10 +47,7 @@ A gtable object with the grob added at the specified position.
 
 ## See also
 
-Other grob utilities:
-[`grob_as()`](https://hui950319.github.io/UtilsR/reference/grob_as.md),
-[`grob_insert()`](https://hui950319.github.io/UtilsR/reference/grob_insert.md),
-[`grob_to_gg()`](https://hui950319.github.io/UtilsR/reference/grob_to_gg.md)
+Other grob utilities: `grob_as()`, `grob_insert()`, `grob_to_gg()`
 
 ## Examples
 

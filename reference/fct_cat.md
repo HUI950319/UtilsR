@@ -1,7 +1,9 @@
 # Unified Factor Manipulation
 
-One function for all factor operations. Works on vectors (usable in
-`mutate()`) and auto-detects the action from arguments.
+One function for all single-vector factor operations. Auto-detects the
+action from arguments. For combining multiple columns into one factor,
+see \[fct\_to\_combine()\]. For grouping levels by integer indices with
+auto-named groups (e.g. \`g1/3\`), see \[fct\_to\_group()\].
 
 ## Usage
 
@@ -12,50 +14,38 @@ fct_cat(
   reverse = FALSE,
   binary_ref = NULL,
   groups = NULL,
-  new_labels = NULL,
-  combine = NULL,
-  sep = " & "
+  new_labels = NULL
 )
 ```
 
 ## Arguments
 
-- x:
+  - x:
+    
+    A factor or character vector.
 
-  A factor or character vector. For `combine` mode this is optional – if
-  missing, all columns listed in `combine` are used.
+  - ...:
+    
+    For recode: named args (new = old). For reorder: level names or
+    integer indices in desired order (unnamed). Must be ALL named or ALL
+    unnamed.
 
-- ...:
+  - reverse:
+    
+    Logical. Reverse all levels? Default `FALSE`.
 
-  For recode: named args (new = old). For reorder: level names in
-  desired order (unnamed strings). Must be ALL named or ALL unnamed.
+  - binary\_ref:
+    
+    Integer index(es) of reference level(s). Others collapse to `"Oth"`.
 
-- reverse:
+  - groups:
+    
+    Named list of integer index vectors for custom grouping, e.g.
+    `list(early = 1:2, late = 3:4)`.
 
-  Logical. Reverse all levels? Default `FALSE`.
-
-- binary_ref:
-
-  Integer index(es) of reference level(s). Others collapse to `"Oth"`.
-
-- groups:
-
-  Named list of integer index vectors for custom grouping, e.g.
-  `list(early = 1:2, late = 3:4)`.
-
-- new_labels:
-
-  Character vector to rename levels (same length as levels).
-
-- combine:
-
-  Character vector of column names to combine. Works inside `mutate()`.
-  If `x` is provided, it is combined with the listed columns. If `x` is
-  missing, all listed columns are combined.
-
-- sep:
-
-  Separator for combine. Default `" & "`.
+  - new\_labels:
+    
+    Character vector to rename levels (same length as levels).
 
 ## Value
 
@@ -63,8 +53,8 @@ A factor.
 
 ## See also
 
-Other factor tools:
-[`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md)
+Other factor tools: `fct_label()`, `fct_num()`, `fct_to_combine()`,
+`fct_to_group()`
 
 ## Examples
 
@@ -79,10 +69,13 @@ fct_cat(x, g1 = 1:3, g2 = 4:6)
 #> [1] g1 g1 g1 g2 g2 g2
 #> Levels: g1 g2
 
-# Reorder (unnamed ...)
+# Reorder (unnamed ...): by level name or by integer index
 fct_cat(factor(letters[1:4]), "c", "b")
-#> [1] a     d
-#> Levels:  a d
+#> [1] a b c d
+#> Levels: c b a d
+fct_cat(factor(letters[1:4]), 3, 2)
+#> [1] a b c d
+#> Levels: c b a d
 
 # Reverse
 fct_cat(factor(letters[1:4]), reverse = TRUE)
@@ -104,10 +97,9 @@ fct_cat(factor(c("I","II","III","IV")), new_labels = c("One","Two","Three","Four
 #> [1] One   Two   Three Four 
 #> Levels: One Two Three Four
 
-# Combine in mutate():
+# For combining multiple columns into one factor, use [fct_to_combine()]:
 if (FALSE) { # \dontrun{
-df %>% mutate(grp = fct_cat(sex, combine = "age"))
-df %>% mutate(grp = fct_cat(sex, combine = c("age", "race")))
-df %>% mutate(grp = fct_cat(combine = c("sex", "age")))
+df %>% mutate(grp = fct_to_combine(sex, age))
+fct_to_combine(df$sex, df$age)
 } # }
 ```

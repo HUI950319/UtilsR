@@ -18,23 +18,52 @@ outcome levels and presence of a time variable.
 
 ## Arguments
 
-- data:
+  - data:
+    
+    A data.frame containing the outcome column.
 
-  A data.frame containing the outcome column.
+  - co\_var:
+    
+    Character vector of covariate names.
 
-- co_var:
+  - time:
+    
+    Character or `NULL`. Name of the time variable (`NULL` for logistic
+    models).
 
-  Character vector of covariate names.
+  - outcome:
+    
+    Character. Name of the outcome variable (default `"DSS"`).
 
-- time:
+  - type:
+    
+    One of `"info"`, `"success"`, `"warning"`, `"error"`.
 
-  Character or `NULL`. Name of the time variable (`NULL` for logistic
-  models).
+## Value
 
-- outcome:
+Invisibly returns `NULL` after printing the formula.
 
-  Character. Name of the outcome variable (default `"DSS"`).
+## See also
 
-- type:
+Other console display: `.cat_box()`, `.cat_line()`, `.cat_message()`,
+`.cat_tb()`
 
-  One of `"info"`, `"success"`, `"warning"`, `"error"`.
+## Examples
+
+``` r
+formula_data <- data.frame(
+  DSS = c(0, 1, 1, 0),
+  time = c(5, 8, 12, 15),
+  age = c(45, 52, 61, 39)
+)
+.cat_formula(formula_data, co_var = "age")
+#> 
+#>                            ╭─────────────────────────╮
+#>                            │                         │
+#>                            │   ℹ unadj cox model ℹ   │
+#>                            │                         │
+#>                            ╰─────────────────────────╯
+#> =========================   ℹ Surv(time, DSS) ~ age ℹ   ========================
+#> 
+#> 
+```

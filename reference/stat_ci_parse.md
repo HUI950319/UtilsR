@@ -18,61 +18,56 @@ stat_ci_parse(
 
 ## Arguments
 
-- x:
+  - x:
+    
+    Character vector of CI strings (e.g. `"1.23 (0.95, 1.59)"`).
 
-  Character vector of CI strings (e.g. `"1.23 (0.95, 1.59)"`).
+  - output:
+    
+    What to return:
+    
+      - `"ci"`  
+        (default) CI string (adjusted if `level` is set).
+    
+      - `"p"`  
+        Numeric p-value vector.
+    
+      - `"ci_p"`  
+        CI string with p-value appended.
+    
+      - `"ci_star"`  
+        CI string with significance stars.
+    
+      - `"p_star"`  
+        Formatted p-value with stars.
 
-- output:
+  - level:
+    
+    Target confidence level for CI adjustment (e.g. `0.90`). Default
+    `NULL` keeps original 95% CI.
 
-  What to return:
+  - exp:
+    
+    Exp-transformation detection: `"auto"` (default), `TRUE`, or
+    `FALSE`.
 
-  `"ci"`
+  - digits:
+    
+    Integer, decimal places for output. Default: auto-detect from input.
 
-  :   (default) CI string (adjusted if `level` is set).
-
-  `"p"`
-
-  :   Numeric p-value vector.
-
-  `"ci_p"`
-
-  :   CI string with p-value appended.
-
-  `"ci_star"`
-
-  :   CI string with significance stars.
-
-  `"p_star"`
-
-  :   Formatted p-value with stars.
-
-- level:
-
-  Target confidence level for CI adjustment (e.g. `0.90`). Default
-  `NULL` keeps original 95% CI.
-
-- exp:
-
-  Exp-transformation detection: `"auto"` (default), `TRUE`, or `FALSE`.
-
-- digits:
-
-  Integer, decimal places for output. Default: auto-detect from input.
-
-- map_signif:
-
-  Named numeric vector for star thresholds. Only used when `output` is
-  `"ci_star"` or `"p_star"`.
+  - map\_signif:
+    
+    Named numeric vector for star thresholds. Only used when `output` is
+    `"ci_star"` or `"p_star"`.
 
 ## Value
 
-Character vector (for ci/ci_p/ci_star/p_star) or numeric vector (for p).
+Character vector (for ci/ci\_p/ci\_star/p\_star) or numeric vector (for
+p).
 
 ## See also
 
-Other stat formatting:
-[`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md),
-[`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
+Other stat formatting: `stat_ci()`, `stat_pval()`
 
 ## Examples
 

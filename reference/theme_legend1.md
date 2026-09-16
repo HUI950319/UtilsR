@@ -16,12 +16,10 @@ A ggplot2 theme object.
 
 ## See also
 
-Other ggplot2 themes:
-[`theme_blank()`](https://hui950319.github.io/UtilsR/reference/theme_blank.md),
-[`theme_km`](https://hui950319.github.io/UtilsR/reference/theme_km.md),
-[`theme_my()`](https://hui950319.github.io/UtilsR/reference/theme_my.md),
-[`theme_rcs`](https://hui950319.github.io/UtilsR/reference/theme_rcs.md),
-[`theme_sc()`](https://hui950319.github.io/UtilsR/reference/theme_sc.md)
+Other ggplot2 themes: `leg1()`, `leg2()`, `theme_ROC()`,
+`theme_alluvia()`, `theme_blank()`, `theme_heat()`, `theme_km`,
+`theme_legend()`, `theme_my()`, `theme_rcs`, `theme_sc()`,
+`theme_scatter`
 
 ## Examples
 

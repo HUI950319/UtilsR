@@ -27,65 +27,60 @@ theme_my(
 
 ## Arguments
 
-- palette:
+  - palette:
+    
+    Character. A valid ggprism palette name (e.g. `"black_and_white"`,
+    `"office"`). See `names(ggprism::ggprism_data$themes)`.
 
-  Character. A valid ggprism palette name (e.g. `"black_and_white"`,
-  `"office"`). See `names(ggprism::ggprism_data$themes)`.
+  - base\_size:
+    
+    Numeric. Base font size (default 14).
 
-- base_size:
+  - base\_family:
+    
+    Character. Base font family (default `"sans"`).
 
-  Numeric. Base font size (default 14).
+  - base\_fontface:
+    
+    Character. Base font face (default `"bold"`).
 
-- base_family:
+  - base\_line\_size:
+    
+    Numeric. Base line size.
 
-  Character. Base font family (default `"sans"`).
+  - base\_rect\_size:
+    
+    Numeric. Base rect size.
 
-- base_fontface:
+  - axis\_text\_angle:
+    
+    Numeric. Axis text rotation angle. Must be one of 0, 45, 90, 270.
 
-  Character. Base font face (default `"bold"`).
+  - border:
+    
+    Logical. Whether to draw panel border (default `TRUE`).
 
-- base_line_size:
+  - legend.position:
+    
+    Legend position (default `"right"`).
 
-  Numeric. Base line size.
+  - panel.grid:
+    
+    A `ggplot2::element_line` for major grid lines.
 
-- base_rect_size:
+  - panel.grid.minor:
+    
+    A `ggplot2::element_line` for minor grid lines.
 
-  Numeric. Base rect size.
+  - panel.spacing:
+    
+    Panel spacing. Accepts numeric (converted to pt), `grid::unit`
+    object, or `NULL` (default: 0 pt).
 
-- axis_text_angle:
-
-  Numeric. Axis text rotation angle. Must be one of 0, 45, 90, 270.
-
-- border:
-
-  Logical. Whether to draw panel border (default `TRUE`).
-
-- legend.position:
-
-  Legend position (default `"right"`).
-
-- panel.grid:
-
-  A
-  [`ggplot2::element_line`](https://ggplot2.tidyverse.org/reference/element.html)
-  for major grid lines.
-
-- panel.grid.minor:
-
-  A
-  [`ggplot2::element_line`](https://ggplot2.tidyverse.org/reference/element.html)
-  for minor grid lines.
-
-- panel.spacing:
-
-  Panel spacing. Accepts numeric (converted to pt),
-  [`grid::unit`](https://rdrr.io/r/grid/unit.html) object, or `NULL`
-  (default: 0 pt).
-
-- plot.margin:
-
-  Plot margin. Accepts `NULL` (auto), a single numeric, or a length-4
-  numeric vector (top, right, bottom, left).
+  - plot.margin:
+    
+    Plot margin. Accepts `NULL` (auto), a single numeric, or a length-4
+    numeric vector (top, right, bottom, left).
 
 ## Value
 
@@ -93,12 +88,10 @@ A ggplot2 theme object.
 
 ## See also
 
-Other ggplot2 themes:
-[`theme_blank()`](https://hui950319.github.io/UtilsR/reference/theme_blank.md),
-[`theme_km`](https://hui950319.github.io/UtilsR/reference/theme_km.md),
-[`theme_legend1()`](https://hui950319.github.io/UtilsR/reference/theme_legend1.md),
-[`theme_rcs`](https://hui950319.github.io/UtilsR/reference/theme_rcs.md),
-[`theme_sc()`](https://hui950319.github.io/UtilsR/reference/theme_sc.md)
+Other ggplot2 themes: `leg1()`, `leg2()`, `theme_ROC()`,
+`theme_alluvia()`, `theme_blank()`, `theme_heat()`, `theme_km`,
+`theme_legend()`, `theme_legend1()`, `theme_rcs`, `theme_sc()`,
+`theme_scatter`
 
 ## Examples
 

@@ -1,9 +1,8 @@
-# plt_cat: Unified Categorical Plot Guide
+# plt\_cat: Unified Categorical Plot Guide
 
-[`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
-is a single entry point for **11 categorical chart types** with 27+
-parameters. It handles grouping, splitting, dodge/stack, labels,
-background bands, NA handling, and more.
+`plt_cat()` is a single entry point for **11 categorical chart types**
+with 27+ parameters. It handles grouping, splitting, dodge/stack,
+labels, background bands, NA handling, and more.
 
 ## Sample Data
 
@@ -28,9 +27,9 @@ head(df)
 #> 6    C     Z    B1     R2
 ```
 
-------------------------------------------------------------------------
+-----
 
-## 1. Bar Chart
+## 1\. Bar Chart
 
 The most common type. Supports `stat = "percent"` (default) or
 `"count"`, and `position = "stack"` (default) or `"dodge"`.
@@ -88,9 +87,9 @@ plt_cat(df, "Type", "Group", type = "bar",
 
 ![](plt_cat_guide_files/figure-html/bar-bg-custom-1.png)
 
-------------------------------------------------------------------------
+-----
 
-## 2. Rose Chart
+## 2\. Rose Chart
 
 A bar chart in polar coordinates (`theta = "x"`). Good for cyclical
 data.
@@ -108,9 +107,9 @@ plt_cat(df, "Type", "Group", type = "rose",
 
 ![](plt_cat_guide_files/figure-html/rose-dodge-1.png)
 
-------------------------------------------------------------------------
+-----
 
-## 3. Ring (Donut) Chart
+## 3\. Ring (Donut) Chart
 
 A pie chart with a hole in the center. Supports dodge for grouped spiral
 display.
@@ -128,9 +127,9 @@ plt_cat(df, "Type", "Group", type = "ring",
 
 ![](plt_cat_guide_files/figure-html/ring-dodge-1.png)
 
-------------------------------------------------------------------------
+-----
 
-## 4. Pie Chart
+## 4\. Pie Chart
 
 ``` r
 plt_cat(df, "Type", type = "pie", label = TRUE)
@@ -149,9 +148,9 @@ plt_cat(df, "Type", type = "pie",
 
 ![](plt_cat_guide_files/figure-html/pie-styled-1.png)
 
-------------------------------------------------------------------------
+-----
 
-## 5. Trend Chart
+## 5\. Trend Chart
 
 Combines stepped area background with bar overlay. Best for showing
 trends across ordered groups.
@@ -169,9 +168,9 @@ plt_cat(df, "Type", "Group", type = "trend",
 
 ![](plt_cat_guide_files/figure-html/trend-label-1.png)
 
-------------------------------------------------------------------------
+-----
 
-## 6. Area Chart
+## 6\. Area Chart
 
 Stacked area chart. Uses continuous x-axis internally.
 
@@ -188,9 +187,9 @@ plt_cat(df, "Type", "Group", type = "area",
 
 ![](plt_cat_guide_files/figure-html/area-dodge-1.png)
 
-------------------------------------------------------------------------
+-----
 
-## 7. Dot Plot
+## 7\. Dot Plot
 
 Bubble-style dot plot where size encodes value.
 
@@ -207,9 +206,9 @@ plt_cat(df, "Type", "Group", type = "dot",
 
 ![](plt_cat_guide_files/figure-html/dot-label-1.png)
 
-------------------------------------------------------------------------
+-----
 
-## 8. Sankey Diagram
+## 8\. Sankey Diagram
 
 Requires `stat.by` with \>= 2 column names. Shows flow between
 categories.
@@ -226,9 +225,9 @@ plt_cat(df, c("Type", "Group", "Batch"), type = "sankey")
 
 ![](plt_cat_guide_files/figure-html/sankey-3-1.png)
 
-------------------------------------------------------------------------
+-----
 
-## 9. Chord Diagram
+## 9\. Chord Diagram
 
 Shows pairwise connections between two categorical variables. Returns
 base R graphics (not ggplot).
@@ -239,9 +238,9 @@ plt_cat(df, c("Type", "Group"), type = "chord")
 
 ![](plt_cat_guide_files/figure-html/chord-1.png)![](plt_cat_guide_files/figure-html/chord-2.png)
 
-------------------------------------------------------------------------
+-----
 
-## 10. Venn Diagram
+## 10\. Venn Diagram
 
 Shows set intersections. Use `stat_level` to specify which level counts
 as “positive”.
@@ -265,9 +264,9 @@ plt_cat(df, c("Type", "Group"), type = "venn",
 
 ![](plt_cat_guide_files/figure-html/venn-stat-level-1.png)
 
-------------------------------------------------------------------------
+-----
 
-## 11. UpSet Plot
+## 11\. UpSet Plot
 
 A scalable alternative to Venn diagrams for showing set intersections.
 
@@ -284,7 +283,7 @@ plt_cat(df, c("Type", "Group"), type = "upset",
 
 ![](plt_cat_guide_files/figure-html/upset-stat-level-1.png)
 
-------------------------------------------------------------------------
+-----
 
 ## Cross-cutting Features
 
@@ -318,7 +317,7 @@ plt_cat(df_na, "Type", "Group", type = "bar",
 
 ![](plt_cat_guide_files/figure-html/na-stat-1.png)
 
-### keep_empty
+### keep\_empty
 
 Preserve dropped factor levels as empty bars:
 
@@ -362,12 +361,12 @@ plt_cat(df, "Type", type = "pie",
 
 ![](plt_cat_guide_files/figure-html/palette-1.png)
 
-------------------------------------------------------------------------
+-----
 
 ## Parameter Reference
 
 | Group          | Parameters                                                  |
-|----------------|-------------------------------------------------------------|
+| -------------- | ----------------------------------------------------------- |
 | **Data**       | `stat.by`, `group.by`, `split.by`                           |
 | **Chart**      | `type` (11 types), `stat`, `position`                       |
 | **Colour**     | `palette`, `alpha`, `NA_color`                              |

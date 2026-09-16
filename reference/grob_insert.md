@@ -1,8 +1,7 @@
 # Insert an Inset Plot Inside Another Plot
 
 Place a smaller plot (inset) at a specified position within the panel
-area of a main plot, similar to
-[`patchwork::inset_element()`](https://patchwork.data-imaginist.com/reference/inset_element.html).
+area of a main plot, similar to `patchwork::inset_element()`.
 Coordinates use normalized panel coordinates (0-1) by default.
 
 ## Usage
@@ -23,46 +22,46 @@ grob_insert(
 
 ## Arguments
 
-- plot:
+  - plot:
+    
+    A `ggplot` or `patchwork` object serving as the main plot.
 
-  A `ggplot` or `patchwork` object serving as the main plot.
+  - inset:
+    
+    A `ggplot`, `grob`, or other plot object to insert.
 
-- inset:
+  - left:
+    
+    Left boundary of the inset (0 = panel left edge, 1 = right edge).
+    Default is `0.6`.
 
-  A `ggplot`, `grob`, or other plot object to insert.
+  - bottom:
+    
+    Bottom boundary of the inset (0 = panel bottom, 1 = top). Default is
+    `0.6`.
 
-- left:
+  - right:
+    
+    Right boundary of the inset. Default is `1`.
 
-  Left boundary of the inset (0 = panel left edge, 1 = right edge).
-  Default is `0.6`.
+  - top:
+    
+    Top boundary of the inset. Default is `1`.
 
-- bottom:
+  - align\_to:
+    
+    Reference area for positioning. One of `"panel"` (default),
+    `"plot"`, or `"full"`.
 
-  Bottom boundary of the inset (0 = panel bottom, 1 = top). Default is
-  `0.6`.
+  - on\_top:
+    
+    Logical. Whether the inset is drawn on top of the main plot. Default
+    is `TRUE`.
 
-- right:
-
-  Right boundary of the inset. Default is `1`.
-
-- top:
-
-  Top boundary of the inset. Default is `1`.
-
-- align_to:
-
-  Reference area for positioning. One of `"panel"` (default), `"plot"`,
-  or `"full"`.
-
-- on_top:
-
-  Logical. Whether the inset is drawn on top of the main plot. Default
-  is `TRUE`.
-
-- clip:
-
-  Logical. Whether to clip the inset to the specified boundaries.
-  Default is `TRUE`.
+  - clip:
+    
+    Logical. Whether to clip the inset to the specified boundaries.
+    Default is `TRUE`.
 
 ## Value
 
@@ -70,19 +69,14 @@ A gtable object with the inset placed inside the main plot.
 
 ## Details
 
-Unlike
-[`patchwork::inset_element()`](https://patchwork.data-imaginist.com/reference/inset_element.html),
-this function returns a ready-to-draw `gtable` object (use
-[`grid::grid.draw()`](https://rdrr.io/r/grid/grid.draw.html) to render).
-It does not require patchwork and works with any grob-convertible plot
+Unlike `patchwork::inset_element()`, this function returns a
+ready-to-draw `gtable` object (use `grid::grid.draw()` to render). It
+does not require patchwork and works with any grob-convertible plot
 object.
 
 ## See also
 
-Other grob utilities:
-[`grob_add()`](https://hui950319.github.io/UtilsR/reference/grob_add.md),
-[`grob_as()`](https://hui950319.github.io/UtilsR/reference/grob_as.md),
-[`grob_to_gg()`](https://hui950319.github.io/UtilsR/reference/grob_to_gg.md)
+Other grob utilities: `grob_add()`, `grob_as()`, `grob_to_gg()`
 
 ## Examples
 

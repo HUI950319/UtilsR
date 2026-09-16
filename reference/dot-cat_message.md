@@ -16,18 +16,29 @@ Print a timestamped, type-coloured message. Supports multi-line messages
 
 ## Arguments
 
-- message:
+  - message:
+    
+    Character. The message text.
 
-  Character. The message text.
+  - type:
+    
+    One of `"info"`, `"success"`, `"warning"`, `"error"`.
 
-- type:
+  - timestamp\_format:
+    
+    `strftime` format string (default `"[%Y-%m-%d %H:%M:%S]"`).
 
-  One of `"info"`, `"success"`, `"warning"`, `"error"`.
+  - verbose:
+    
+    Logical. If `FALSE`, suppress output.
 
-- timestamp_format:
+## See also
 
-  `strftime` format string (default `"[%Y-%m-%d %H:%M:%S]"`).
+Other console display: `.cat_box()`, `.cat_formula()`, `.cat_line()`,
+`.cat_tb()`
 
-- verbose:
+## Examples
 
-  Logical. If `FALSE`, suppress output.
+``` r
+.cat_message("Loading simulated data", verbose = FALSE)
+```

@@ -12,8 +12,9 @@ plt_sankey(
   vars,
   palette = NULL,
   reverse_levels = TRUE,
-  show_n = TRUE,
+  show_text = c("all", "n", "pct", "name"),
   width = 0.4,
+  space = NULL,
   label_size = 3,
   label_hjust = 0.5,
   alpha = 0.6,
@@ -23,49 +24,63 @@ plt_sankey(
 
 ## Arguments
 
-- data:
+  - data:
+    
+    A data frame.
 
-  A data frame.
+  - vars:
+    
+    Character vector of categorical variable names (\>= 2). Variables
+    are displayed left-to-right in the given order.
 
-- vars:
+  - palette:
+    
+    Colour palette name from `pal_get()`, or a character vector of
+    colours. Default `NULL` auto-generates colours per variable using
+    sequential HCL palettes.
 
-  Character vector of categorical variable names (\>= 2). Variables are
-  displayed left-to-right in the given order.
+  - reverse\_levels:
+    
+    Logical, reverse factor levels for display. Default `TRUE`.
 
-- palette:
+  - show\_text:
+    
+    Character. Controls node label content:
+    
+      - `"all"` (default) — name + count + percentage, e.g. `"A
+        (10, 30.3%)"`.
+    
+      - `"n"` — name + count, e.g. `"A (10)"`.
+    
+      - `"pct"` — name + percentage, e.g. `"A (30.3%)"`.
+    
+      - `"name"` — name only, e.g. `"A"`.
 
-  Colour palette name from
-  [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md),
-  or a character vector of colours. Default `NULL` auto-generates
-  colours per variable using sequential HCL palettes.
+  - width:
+    
+    Sankey node width. Default 0.4.
 
-- reverse_levels:
+  - space:
+    
+    Numeric. Gap between nodes within each column. Default `NULL`
+    (ggsankey auto-calculates). Set `0` for no gaps (consistent total
+    height across columns).
 
-  Logical, reverse factor levels for display. Default `TRUE`.
+  - label\_size:
+    
+    Label text size. Default 3.
 
-- show_n:
+  - label\_hjust:
+    
+    Label horizontal justification. Default 0.5.
 
-  Logical, show count in node labels. Default `TRUE`.
+  - alpha:
+    
+    Flow transparency. Default 0.6.
 
-- width:
-
-  Sankey node width. Default 0.4.
-
-- label_size:
-
-  Label text size. Default 3.
-
-- label_hjust:
-
-  Label horizontal justification. Default 0.5.
-
-- alpha:
-
-  Flow transparency. Default 0.6.
-
-- base_size:
-
-  Base font size. Default 14.
+  - base\_size:
+    
+    Base font size. Default 14.
 
 ## Value
 
@@ -77,16 +92,8 @@ Requires the ggsankey package (`pak::pak("davidsjoberg/ggsankey")`).
 
 ## See also
 
-Other plot:
-[`PlotButterfly()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly.md),
-[`PlotButterfly2()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly2.md),
-[`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md),
-[`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md),
-[`plt_cohen()`](https://hui950319.github.io/UtilsR/reference/plt_cohen.md),
-[`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md),
-[`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md),
-[`plt_radar()`](https://hui950319.github.io/UtilsR/reference/plt_radar.md),
-[`plt_upset()`](https://hui950319.github.io/UtilsR/reference/plt_upset.md)
+Other plot: `PlotButterfly()`, `PlotButterfly2()`, `PlotRankCor()`,
+`plt_cat()`, `plt_con()`, `plt_dist()`, `plt_upset()`
 
 ## Examples
 
@@ -118,8 +125,7 @@ plt_sankey(df, vars = c("sex", "stage"), palette = "Paired")
 
 # Without counts in labels
 plt_sankey(df, vars = c("sex", "stage", "grade"), show_n = FALSE)
-#> Warning: attributes are not identical across measure variables; they will be dropped
-
+#> Error in plt_sankey(df, vars = c("sex", "stage", "grade"), show_n = FALSE): unused argument (show_n = FALSE)
 
 # Adjust appearance
 plt_sankey(df, vars = c("sex", "stage"),

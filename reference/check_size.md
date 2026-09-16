@@ -11,14 +11,14 @@ check_size(..., pattern = NULL)
 
 ## Arguments
 
-- ...:
+  - ...:
+    
+    Object names (character strings) or numeric indices. If empty, all
+    objects are analyzed.
 
-  Object names (character strings) or numeric indices. If empty, all
-  objects are analyzed.
-
-- pattern:
-
-  Optional regex pattern for matching object names.
+  - pattern:
+    
+    Optional regex pattern for matching object names.
 
 ## Value
 
@@ -26,11 +26,8 @@ A `gt` table object.
 
 ## See also
 
-Other inspect:
-[`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md),
-[`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md),
-[`count_packages_in_libpaths()`](https://hui950319.github.io/UtilsR/reference/count_packages_in_libpaths.md),
-[`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
+Other inspect: `check_na()`, `check_system()`,
+`count_packages_in_libpaths()`, `impute_na_knn()`, `lv()`, `plt_na()`
 
 ## Examples
 

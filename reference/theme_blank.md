@@ -20,34 +20,33 @@ theme_blank(
 
 ## Arguments
 
-- add_coord:
+  - add\_coord:
+    
+    Logical. Whether to add coordinate arrows. Default is `TRUE`.
 
-  Logical. Whether to add coordinate arrows. Default is `TRUE`.
+  - xlen\_npc:
+    
+    Numeric. Length of the x-axis arrow in "npc" units.
 
-- xlen_npc:
+  - ylen\_npc:
+    
+    Numeric. Length of the y-axis arrow in "npc" units.
 
-  Numeric. Length of the x-axis arrow in "npc" units.
+  - xlab:
+    
+    Character. Label for the x-axis arrow.
 
-- ylen_npc:
+  - ylab:
+    
+    Character. Label for the y-axis arrow.
 
-  Numeric. Length of the y-axis arrow in "npc" units.
+  - lab\_size:
+    
+    Numeric. Font size of the axis labels.
 
-- xlab:
-
-  Character. Label for the x-axis arrow.
-
-- ylab:
-
-  Character. Label for the y-axis arrow.
-
-- lab_size:
-
-  Numeric. Font size of the axis labels.
-
-- ...:
-
-  Arguments passed to
-  [`theme`](https://ggplot2.tidyverse.org/reference/theme.html).
+  - ...:
+    
+    Arguments passed to `theme`.
 
 ## Value
 
@@ -56,12 +55,10 @@ ggplot with `+`.
 
 ## See also
 
-Other ggplot2 themes:
-[`theme_km`](https://hui950319.github.io/UtilsR/reference/theme_km.md),
-[`theme_legend1()`](https://hui950319.github.io/UtilsR/reference/theme_legend1.md),
-[`theme_my()`](https://hui950319.github.io/UtilsR/reference/theme_my.md),
-[`theme_rcs`](https://hui950319.github.io/UtilsR/reference/theme_rcs.md),
-[`theme_sc()`](https://hui950319.github.io/UtilsR/reference/theme_sc.md)
+Other ggplot2 themes: `leg1()`, `leg2()`, `theme_ROC()`,
+`theme_alluvia()`, `theme_heat()`, `theme_km`, `theme_legend()`,
+`theme_legend1()`, `theme_my()`, `theme_rcs`, `theme_sc()`,
+`theme_scatter`
 
 ## Examples
 

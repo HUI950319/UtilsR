@@ -19,34 +19,34 @@ stat_ci(
 
 ## Arguments
 
-- x:
+  - x:
+    
+    Numeric vector (estimate/mean) or character vector (CI strings to
+    reformat).
 
-  Numeric vector (estimate/mean) or character vector (CI strings to
-  reformat).
+  - y:
+    
+    Numeric vector: lower CI bound (CI mode) or SD (SD mode). Ignored
+    when `x` is character.
 
-- y:
+  - z:
+    
+    Numeric vector (optional): upper CI bound. If provided, CI mode is
+    used; otherwise SD mode. Ignored when `x` is character.
 
-  Numeric vector: lower CI bound (CI mode) or SD (SD mode). Ignored when
-  `x` is character.
+  - digits:
+    
+    Integer, number of decimal places (default: 2 for CI, 1 for SD). For
+    character input, default is auto-detected from the string.
 
-- z:
+  - bracket:
+    
+    Character, bracket type: `"("` (default) or `"["`.
 
-  Numeric vector (optional): upper CI bound. If provided, CI mode is
-  used; otherwise SD mode. Ignored when `x` is character.
-
-- digits:
-
-  Integer, number of decimal places (default: 2 for CI, 1 for SD). For
-  character input, default is auto-detected from the string.
-
-- bracket:
-
-  Character, bracket type: `"("` (default) or `"["`.
-
-- sep:
-
-  Character, separator between CI bounds (default: en dash). Only used
-  in CI mode. Common choices: `"\u2013"`, `", "`, `" to "`.
+  - sep:
+    
+    Character, separator between CI bounds (default: en dash). Only used
+    in CI mode. Common choices: `"\u2013"`, `", "`, `" to "`.
 
 ## Value
 
@@ -54,9 +54,7 @@ Character vector of formatted strings.
 
 ## See also
 
-Other stat formatting:
-[`stat_ci_parse()`](https://hui950319.github.io/UtilsR/reference/stat_ci_parse.md),
-[`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
+Other stat formatting: `stat_ci_parse()`, `stat_pval()`
 
 ## Examples
 

@@ -1,64 +1,151 @@
 # UpSet and Venn Diagram for Set Intersections
 
-Visualise intersections of binary categorical variables using Venn
-diagrams and UpSet plots. Returns both plots and a data frame with
-intersection group assignments.
+Visualise intersections using Venn diagrams and UpSet plots. Accepts
+either a **named list** of element vectors (e.g. gene names) or a
+**data.frame** with binary indicator columns. For data frames, set
+`levels = NA` to visualise missing-value patterns without modifying the
+input data.
 
 ## Usage
 
 ``` r
 plt_upset(
   data,
-  vars,
+  vars = NULL,
   levels = c("Yes", "yes"),
   colors = NULL,
-  output = c("both", "venn", "upset", "data", "all")
+  output = c("both", "venn", "upset", "data", "all"),
+  label = c("both", "count", "percent", "none"),
+  label_geom = c("label", "text"),
+  label_color = "black",
+  label_size = 3.5,
+  label_alpha = 0.6,
+  venn.fill = c("gradient", "gradient_rev", "category", "none"),
+  venn.alpha = 0.5,
+  edge.color = "grey30",
+  edge.size = 1,
+  set.name.size = 4,
+  set.labels = NULL
 )
 ```
 
 ## Arguments
 
-- data:
+  - data:
+    
+    Input data in one of two formats:
+    
+      - **Named list**  
+        Each element is a character/numeric vector of set members (e.g.
+        gene names). Names become set labels. Example: `list(TraceGene =
+        c("A","B"), DE = c("B","C"))`. When a list is provided, `vars`
+        and `levels` are ignored.
+    
+      - **Data frame**  
+        A data.frame with binary indicator columns specified by `vars`.
+        Membership is determined by `levels`.
 
-  A data frame.
+  - vars:
+    
+    Character vector of column names to intersect. Required when `data`
+    is a data.frame; ignored when `data` is a list.
 
-- vars:
+  - levels:
+    
+    Vector of values indicating membership (e.g. `c("Yes", "yes",
+    "1")`). Use `NA` to treat missing values as set members. Default
+    `c("Yes", "yes")`. Ignored when `data` is a list.
 
-  Character vector of binary variable names to intersect.
+  - colors:
+    
+    Character vector. For UpSet: 3 colours for `c(sets_bar, top_bar,
+    matrix_dots)`. For Venn: colour(s) used in the fill gradient or as
+    category colours (see `venn.fill`). Default uses `pal_lancet`.
 
-- levels:
+  - output:
+    
+    What to return:
+    
+      - `"venn"`  
+        Venn diagram only (ggplot).
+    
+      - `"upset"`  
+        UpSet plot only (non-zero intersections).
+    
+      - `"both"`  
+        (default) Combined Venn + UpSet side by side.
+    
+      - `"data"`  
+        Data frame with `intersect_group` column.
+    
+      - `"all"`  
+        Named list with all plots and data.
 
-  Character vector of values indicating membership (e.g.
-  `c("Yes", "yes", "1")`). Default `c("Yes", "yes")`.
+  - label:
+    
+    What to show inside each region of the Venn diagram: `"both"` (count
+    + percent, default), `"count"`, `"percent"`, or `"none"`.
 
-- colors:
+  - label\_geom:
+    
+    Geom for labels: `"label"` (with background box, default) or
+    `"text"` (plain text).
 
-  Character vector of 3 colours for `c(sets_bar, top_bar, matrix_dots)`.
-  Default uses `pal_lancet`.
+  - label\_color:
+    
+    Color of the label text. Default `"black"`.
 
-- output:
+  - label\_size:
+    
+    Font size of the labels. Default `3.5`.
 
-  What to return:
+  - label\_alpha:
+    
+    Alpha of the label background (only for `label_geom = "label"`).
+    Default `0.6`.
 
-  `"venn"`
+  - venn.fill:
+    
+    How to fill the Venn regions. One of:
+    
+      - `"gradient"`  
+        (default) Continuous fill by count, gradient from grey90 to
+        `colors[1]`.
+    
+      - `"gradient_rev"`  
+        Reversed continuous fill by count, gradient from `colors[1]` to
+        grey90 (large overlaps appear lighter).
+    
+      - `"category"`  
+        Each set gets a distinct fill colour from `colors`; region alpha
+        encodes overlap.
+    
+      - `"none"`  
+        No fill (transparent).
 
-  :   Venn diagram only (ggplot).
+  - venn.alpha:
+    
+    Alpha for the set regions when `venn.fill = "category"`. Default
+    `0.5`.
 
-  `"upset"`
+  - edge.color:
+    
+    Color of the set boundary lines. Default `"grey30"`.
 
-  :   UpSet plot only (non-zero intersections).
+  - edge.size:
+    
+    Line width of the set boundaries. Default `1`.
 
-  `"both"`
+  - set.name.size:
+    
+    Font size for set names around the Venn. Default `4`.
 
-  :   (default) Combined Venn + UpSet side by side.
-
-  `"data"`
-
-  :   Data frame with `intersect_group` column added.
-
-  `"all"`
-
-  :   Named list with all plots and data.
+  - set.labels:
+    
+    Named character vector to rename sets in the plot. Names = original
+    set names, values = display labels. e.g. `c(TraceGene =
+    "Trajectory", PropCor = "Proportion Cor")`. Unmatched names keep the
+    original. Default `NULL` (no renaming).
 
 ## Value
 
@@ -72,63 +159,65 @@ Install with `pak::pak(c("ggVennDiagram", "aplot"))`.
 
 ## See also
 
-Other plot:
-[`PlotButterfly()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly.md),
-[`PlotButterfly2()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly2.md),
-[`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md),
-[`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md),
-[`plt_cohen()`](https://hui950319.github.io/UtilsR/reference/plt_cohen.md),
-[`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md),
-[`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md),
-[`plt_radar()`](https://hui950319.github.io/UtilsR/reference/plt_radar.md),
-[`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md)
+Other plot: `PlotButterfly()`, `PlotButterfly2()`, `PlotRankCor()`,
+`plt_cat()`, `plt_con()`, `plt_dist()`, `plt_sankey()`
 
 ## Examples
 
 ``` r
+# ---- List input (most convenient) ----
+gene_sets <- list(
+  TraceGene = c("TP53","MDM2","EGFR","BRCA1","MYC"),
+  DE        = c("EGFR","BRCA1","KRAS","PIK3CA"),
+  PropCor   = c("BRCA1","MYC","APC","PTEN")
+)
+plt_upset(gene_sets, output = "venn")
+
+plt_upset(gene_sets, output = "venn",
+          set.labels = c(TraceGene = "Trajectory", PropCor = "Prop. Cor"),
+          label = "count", colors = "#E64B35")
+
+
+# ---- Data frame input ----
 df <- data.frame(
   A = sample(c("Yes","No"), 100, TRUE, c(0.3, 0.7)),
   B = sample(c("Yes","No"), 100, TRUE, c(0.4, 0.6)),
-  C = sample(c("Yes","No"), 100, TRUE, c(0.5, 0.5)),
-  D = sample(c("Yes","No"), 100, TRUE, c(0.2, 0.8))
+  C = sample(c("Yes","No"), 100, TRUE, c(0.5, 0.5))
 )
-
-# Venn diagram
-plt_upset(df, vars = c("A","B","C"), output = "venn")
-
-
-# UpSet plot
-plt_upset(df, vars = c("A","B","C","D"), output = "upset")
+plt_upset(df, vars = c("A","B","C"), output = "venn",
+          label = "count", label_geom = "text")
 
 
-# Combined (default)
-plt_upset(df, vars = c("A","B","C"))
-#> Warning: Combined layout failed: Only know how to add <ggplot> and/or <grob> objects.
-#> Returning plots separately.
-
-
-# Get data with intersection groups
-result <- plt_upset(df, vars = c("A","B","C"), output = "data")
-table(result$intersect_group)
-#> 
-#>     B     C   B/C     A A/B/C   A/C   A/B  None 
-#>    17    15    10     9     9     8     6    26 
-
-# Custom membership levels
-df2 <- data.frame(
-  x = sample(0:1, 100, TRUE),
-  y = sample(0:1, 100, TRUE),
-  z = sample(0:1, 100, TRUE)
+# ---- Missing-value UpSet plot ----
+bmi <- data.frame(
+  BMI_1 = c(22.1, NA, 24.3, 25.4, NA, 27.6),
+  BMI_2 = c(NA, 23.2, NA, 25.4, NA, 27.6),
+  BMI_3 = c(22.1, 23.2, NA, NA, NA, 27.6)
 )
-plt_upset(df2, vars = c("x","y","z"), levels = c("1"))
-#> Warning: Combined layout failed: Only know how to add <ggplot> and/or <grob> objects.
-#> Returning plots separately.
+p_missing <- plt_upset(
+  bmi,
+  vars = c("BMI_1", "BMI_2", "BMI_3"),
+  levels = NA,
+  output = "upset"
+)
+p_missing
 
 
-# All outputs
-res <- plt_upset(df, vars = c("A","B","C","D"), output = "all")
-#> Warning: Combined layout failed: Only know how to add <ggplot> and/or <grob> objects.
-#> Returning plots separately.
-names(res)
-#> [1] "venn"     "upset"    "combined" "data"    
+# ---- ToyData clinical cohort ----
+if (requireNamespace("ToyData", quietly = TRUE) &&
+    requireNamespace("ggVennDiagram", quietly = TRUE)) {
+  oc0 <- ToyData::oc0
+  plt_upset(
+    oc0,
+    vars = c("BMI_1", "BMI_2", "BMI_3"),
+    levels = NA,
+    output = "upset"
+  )
+}
+
+
+if (FALSE) { # \dontrun{
+ggplot2::ggsave("bmi-missing-upset.pdf", p_missing,
+                width = 6.5, height = 4.5)
+} # }
 ```

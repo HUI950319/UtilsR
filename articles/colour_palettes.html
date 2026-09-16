@@ -6,6 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Colour Palettes • UtilsR</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -20,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">UtilsR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,6 +39,9 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Package Map</h6></li>
+    <li><a class="dropdown-item" href="../articles/package-map.html">Package Map</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Plot Functions</h6></li>
     <li><a class="dropdown-item" href="../articles/plt_cat_guide.html">plt_cat: Unified Categorical Plot Guide</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -62,13 +70,12 @@
 
 
 
-
-<div class="row">
+<script src="colour_palettes_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Colour Palettes</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/HUI950319/UtilsR/blob/master/vignettes/colour_palettes.Rmd" class="external-link"><code>vignettes/colour_palettes.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/HUI950319/UtilsR/blob/HEAD/vignettes/colour_palettes.Rmd" class="external-link"><code>vignettes/colour_palettes.Rmd</code></a></small>
       <div class="d-none name"><code>colour_palettes.Rmd</code></div>
     </div>
 
@@ -80,8 +87,7 @@
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p>UtilsR provides a palette system with 256+ colour schemes from
-RColorBrewer, ggsci, viridis, rcartocolor, nord, and more.</p>
+<p>UtilsR provides a palette system with 256+ colour schemes from RColorBrewer, ggsci, viridis, rcartocolor, nord, and more.</p>
 <p><strong>Core components:</strong></p>
 <table class="table">
 <thead><tr class="header">
@@ -113,10 +119,6 @@ RColorBrewer, ggsci, viridis, rcartocolor, nord, and more.</p>
 <td><code><a href="../reference/show_color.html">show_color()</a></code></td>
 <td>Display any colour vector in console</td>
 </tr>
-<tr class="odd">
-<td><code><a href="../reference/as_palette.html">as_palette()</a></code></td>
-<td>Create custom palette objects</td>
-</tr>
 </tbody>
 </table>
 <hr>
@@ -125,8 +127,7 @@ RColorBrewer, ggsci, viridis, rcartocolor, nord, and more.</p>
 <h2 id="pal_lancet-default-palette">
 <code>pal_lancet</code> — Default Palette<a class="anchor" aria-label="anchor" href="#pal_lancet-default-palette"></a>
 </h2>
-<p>The built-in default palette used by <code><a href="../reference/plt_cat.html">plt_cat()</a></code> and other
-plot functions:</p>
+<p>The built-in default palette used by <code><a href="../reference/plt_cat.html">plt_cat()</a></code> and other plot functions:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">pal_lancet</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  [1] "#00468BFF" "#ED0000FF" "#42B540FF" "#0099B4FF" "#925E9FFF" "#FDAF91FF"</span></span>
@@ -146,8 +147,7 @@ plot functions:</p>
 <h2 id="palette_list-256-palettes">
 <code>palette_list</code> — 256 Palettes<a class="anchor" aria-label="anchor" href="#palette_list-256-palettes"></a>
 </h2>
-<p>All palettes are stored in <code>palette_list</code> (accessible via
-<code><a href="../reference/palette_list.html">UtilsR::palette_list</a></code> or <code><a href="../reference/pal_get.html">pal_get()</a></code>):</p>
+<p>All palettes are stored in <code>palette_list</code> (accessible via <code><a href="../reference/palette_list.html">UtilsR::palette_list</a></code> or <code><a href="../reference/pal_get.html">pal_get()</a></code>):</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Browse available palette names</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu">UtilsR</span><span class="fu">::</span><span class="va"><a href="../reference/palette_list.html">palette_list</a></span><span class="op">)</span>, <span class="fl">20</span><span class="op">)</span></span>
@@ -156,7 +156,7 @@ plot functions:</p>
 <span><span class="co">#&gt; [13] "Pastel1"  "Pastel2"  "Set1"     "Set2"     "Set3"     "Blues"   </span></span>
 <span><span class="co">#&gt; [19] "BuGn"     "BuPu"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu">UtilsR</span><span class="fu">::</span><span class="va"><a href="../reference/palette_list.html">palette_list</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 259</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 260</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
@@ -194,13 +194,23 @@ plot functions:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/pal_show.html">pal_show</a></span><span class="op">(</span><span class="st">"Paired"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/pal_show.html">pal_show</a></span><span class="op">(</span><span class="st">"Set1"</span><span class="op">)</span></span></code></pre></div>
+<p><code>n</code> fixes how many colours each palette contributes, following the same rules as <code><a href="../reference/pal_get.html">pal_get()</a></code>. <code>max_colors</code> still caps how many of them are drawn:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Take 3 colours from each palette</span></span>
+<span><span class="fu"><a href="../reference/pal_show.html">pal_show</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Set1"</span>, <span class="st">"lancet"</span>, <span class="st">"Dark2"</span><span class="op">)</span>, n <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># More colours than the palette holds are interpolated (Set1 only has 9)</span></span>
+<span><span class="fu"><a href="../reference/pal_show.html">pal_show</a></span><span class="op">(</span><span class="st">"Set1"</span>, n <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Colour vectors take `n` too, and keep their names as labels</span></span>
+<span><span class="fu"><a href="../reference/pal_show.html">pal_show</a></span><span class="op">(</span><span class="va">pal_paraSC</span>, n <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
 <h2 id="pal_list-browse-all-palettes">
 <code>pal_list()</code> — Browse All Palettes<a class="anchor" aria-label="anchor" href="#pal_list-browse-all-palettes"></a>
 </h2>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Interactive palette browser (opens viewer)</span></span>
 <span><span class="fu"><a href="../reference/pal_list.html">pal_list</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <hr>
@@ -209,19 +219,8 @@ plot functions:</p>
 <h2 id="show_color-display-any-colours">
 <code>show_color()</code> — Display Any Colours<a class="anchor" aria-label="anchor" href="#show_color-display-any-colours"></a>
 </h2>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/show_color.html">show_color</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#FF6B6B"</span>, <span class="st">"#4ECDC4"</span>, <span class="st">"#45B7D1"</span>, <span class="st">"#96CEB4"</span>, <span class="st">"#FFEAA7"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<hr>
-</div>
-<div class="section level2">
-<h2 id="as_palette-custom-palettes">
-<code>as_palette()</code> — Custom Palettes<a class="anchor" aria-label="anchor" href="#as_palette-custom-palettes"></a>
-</h2>
-<p>Create your own palette object with auto-display:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">my_pal</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/as_palette.html">as_palette</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#264653"</span>, <span class="st">"#2A9D8F"</span>, <span class="st">"#E9C46A"</span>, <span class="st">"#F4A261"</span>, <span class="st">"#E76F51"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">my_pal</span><span class="op">)</span>  <span class="co"># display as plain hex vector</span></span>
-<span><span class="co">#&gt; [1] "#264653" "#2A9D8F" "#E9C46A" "#F4A261" "#E76F51"</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/show_color.html">show_color</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#FF6B6B"</span>, <span class="st">"#4ECDC4"</span>, <span class="st">"#45B7D1"</span>, <span class="st">"#96CEB4"</span>, <span class="st">"#FFEAA7"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
@@ -256,7 +255,7 @@ plot functions:</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

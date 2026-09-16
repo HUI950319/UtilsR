@@ -15,18 +15,30 @@ Print a coloured rule with centred text and type-specific symbol.
 
 ## Arguments
 
-- text:
+  - text:
+    
+    Character. Text to display.
 
-  Character. Text to display.
+  - type:
+    
+    One of `"info"`, `"success"`, `"warning"`, `"error"`.
 
-- type:
+  - line\_char:
+    
+    Character used for the rule (default `"="`).
 
-  One of `"info"`, `"success"`, `"warning"`, `"error"`.
+  - width:
+    
+    Total width (default: console width).
 
-- line_char:
+## See also
 
-  Character used for the rule (default `"="`).
+Other console display: `.cat_box()`, `.cat_formula()`, `.cat_message()`,
+`.cat_tb()`
 
-- width:
+## Examples
 
-  Total width (default: console width).
+``` r
+.cat_line("Data summary", width = 40)
+#> =========   ℹ Data summary ℹ   =========
+```

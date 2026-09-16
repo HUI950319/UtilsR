@@ -1,8 +1,6 @@
 # Add pairwise statistical comparisons
 
-Uses
-[`ggpubr::geom_pwc`](https://rpkgs.datanovia.com/ggpubr/reference/geom_pwc.html)
-to overlay significance brackets.
+Uses `ggpubr::geom_pwc` to overlay significance brackets.
 
 ## Usage
 
@@ -11,36 +9,57 @@ fmt_com(
   plot,
   com_method = "con",
   label.y = NULL,
+  label.y.prop = NULL,
   label = c("p.signif", "{p.format}{p.signif}", "p.format"),
+  tip.length = 0.025,
+  step.increase = 0.05,
+  size = 0.8,
   ...
 )
 ```
 
 ## Arguments
 
-- plot:
+  - plot:
+    
+    A ggplot, patchwork, or list of ggplots.
 
-  A ggplot, patchwork, or list of ggplots.
+  - com\_method:
+    
+    Comparison method: `"con"` (consecutive), `"all"` (all pairs), or a
+    list of length-2 character vectors.
 
-- com_method:
+  - label.y:
+    
+    Numeric y-position for the first bracket (absolute y-axis value).
+    Default `NULL` lets ggpubr auto-calculate.
 
-  Comparison method: `"con"` (consecutive), `"all"` (all pairs), or a
-  list of length-2 character vectors.
+  - label.y.prop:
+    
+    Numeric proportion (0-1) of the y-axis data range for the first
+    bracket position. E.g., `0.9` = 90% of data range. Ignored when
+    `label.y` is provided. Default `NULL`.
 
-- label.y:
+  - label:
+    
+    Label type: `"p.signif"`, `"\{p.format\}\{p.signif\}"`, or
+    `"p.format"`.
 
-  Numeric y-position for the first bracket (absolute y-axis value, not
-  proportion). Default `NULL` lets ggpubr auto-calculate.
+  - tip.length:
+    
+    Length of the bracket tips. Default `0.025`.
 
-- label:
+  - step.increase:
+    
+    Vertical step increase between brackets. Default `0.05`.
 
-  Label type: `"p.signif"`, `"\{p.format\}\{p.signif\}"`, or
-  `"p.format"`.
+  - size:
+    
+    Line width of the brackets. Default `0.8`.
 
-- ...:
-
-  Additional arguments passed to
-  [`ggpubr::geom_pwc`](https://rpkgs.datanovia.com/ggpubr/reference/geom_pwc.html).
+  - ...:
+    
+    Additional arguments passed to `ggpubr::geom_pwc`.
 
 ## Value
 
@@ -48,19 +67,11 @@ Same type as input.
 
 ## See also
 
-Other plot formatting:
-[`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md),
-[`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md),
-[`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md),
-[`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md),
-[`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md),
-[`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md),
-[`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md),
-[`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md),
-[`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md),
-[`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md),
-[`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md),
-[`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
+Other plot formatting: `fmt_axis()`, `fmt_axisText()`, `fmt_axisTile()`,
+`fmt_bg()`, `fmt_boxplot()`, `fmt_expand()`, `fmt_his()`,
+`fmt_legend()`, `fmt_panel()`, `fmt_plot()`, `fmt_plot_base()`,
+`fmt_point()`, `fmt_raster()`, `fmt_ref()`, `fmt_scale()`,
+`fmt_strip()`, `fmt_strip2()`, `fmt_tag()`, `fmt_text()`
 
 ## Examples
 

@@ -1,9 +1,9 @@
-# Data Inspection: lv, na, check_system
+# Data Inspection: lv, na, check\_system
 
 ## `lv()` — Variable Summary
 
-[`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) provides a
-quick overview of variables in a data frame (or Seurat object).
+`lv()` provides a quick overview of variables in a data frame (or Seurat
+object).
 
 ``` r
 library(UtilsR)
@@ -28,7 +28,7 @@ lv(iris)
 #> 10          5.2     4
 #> # ℹ 25 more rows
 #> ----2. Sepal.Length (numeric) unique----------
-#> [1] .get.flt(Sepal.Length %in% c("5.1","4.9","4.7","4.6","5","5.4","4.4","4.8","..."))
+#> [1] get_flt(Sepal.Length %in% c("5.1","4.9","4.7","4.6","5","5.4","4.4","4.8","..."))
 #> 
 #> ── ** summary for Sepal.Width (numeric) ** ─────────────────────────────────────
 #> ----1. Sepal.Width (numeric) count----------
@@ -47,7 +47,7 @@ lv(iris)
 #> 10         3      26
 #> # ℹ 13 more rows
 #> ----2. Sepal.Width (numeric) unique----------
-#> [1] .get.flt(Sepal.Width %in% c("3.5","3","3.2","3.1","3.6","3.9","3.4","2.9","..."))
+#> [1] get_flt(Sepal.Width %in% c("3.5","3","3.2","3.1","3.6","3.9","3.4","2.9","..."))
 #> 
 #> ── ** summary for Petal.Length (numeric) ** ────────────────────────────────────
 #> ----1. Petal.Length (numeric) count----------
@@ -66,7 +66,7 @@ lv(iris)
 #> 10          3       1
 #> # ℹ 33 more rows
 #> ----2. Petal.Length (numeric) unique----------
-#> [1] .get.flt(Petal.Length %in% c("1.4","1.3","1.5","1.7","1.6","1.1","1.2","1","..."))
+#> [1] get_flt(Petal.Length %in% c("1.4","1.3","1.5","1.7","1.6","1.1","1.2","1","..."))
 #> 
 #> ── ** summary for Petal.Width (numeric) ** ─────────────────────────────────────
 #> ----1. Petal.Width (numeric) count----------
@@ -85,7 +85,7 @@ lv(iris)
 #> 10         1.3    13
 #> # ℹ 12 more rows
 #> ----2. Petal.Width (numeric) unique----------
-#> [1] .get.flt(Petal.Width %in% c("0.2","0.4","0.3","0.1","0.5","0.6","1.4","1.5","..."))
+#> [1] get_flt(Petal.Width %in% c("0.2","0.4","0.3","0.1","0.5","0.6","1.4","1.5","..."))
 #> 
 #> ── ** summary for Species (factor) ** ──────────────────────────────────────────
 #> ----1. Species (factor) count----------
@@ -96,7 +96,7 @@ lv(iris)
 #> 2 versicolor    50
 #> 3 virginica     50
 #> ----2. Species (factor) Levels----------
-#> [1] .get.flt(Species %in% c("setosa","versicolor","virginica"))
+#> [1] get_flt(Species %in% c("setosa","versicolor","virginica"))
 #> Setting theme "Compact"
 #> ==================   ℹ ** Variable Counts (5 variables) ** ℹ   =================
 #> # A tibble: 20 × 2
@@ -631,11 +631,11 @@ lv(iris)
 #> # A tibble: 5 × 6
 #>   vars         class   n_unique  n_na n_special unique                          
 #>   <chr>        <chr>      <int> <int>     <dbl> <noquote>                       
-#> 1 Sepal.Length numeric       35     0         0 .get.flt(Sepal.Length %in% c("5…
-#> 2 Sepal.Width  numeric       23     0         0 .get.flt(Sepal.Width %in% c("3.…
-#> 3 Petal.Length numeric       43     0         0 .get.flt(Petal.Length %in% c("1…
-#> 4 Petal.Width  numeric       22     0         0 .get.flt(Petal.Width %in% c("0.…
-#> 5 Species      factor         3     0         0 .get.flt(Species %in% c("setosa…
+#> 1 Sepal.Length numeric       35     0         0 get_flt(Sepal.Length %in% c("5.…
+#> 2 Sepal.Width  numeric       23     0         0 get_flt(Sepal.Width %in% c("3.5…
+#> 3 Petal.Length numeric       43     0         0 get_flt(Petal.Length %in% c("1.…
+#> 4 Petal.Width  numeric       22     0         0 get_flt(Petal.Width %in% c("0.2…
+#> 5 Species      factor         3     0         0 get_flt(Species %in% c("setosa"…
 #> <div id="yorehalspk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 #>   <style>#yorehalspk table {
 #>   font-family: Calibri, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
@@ -1108,31 +1108,31 @@ lv(iris)
 #> <td headers="n_unique" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">35</td>
 #> <td headers="n_na" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">0</td>
 #> <td headers="n_special" class="gt_row gt_right" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">0</td>
-#> <td headers="unique" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">.get.flt(Sepal.Length %in% c("5.1","4.9","4.7","4.6","5","5.4","4.4","4.8","..."))</td></tr>
+#> <td headers="unique" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">get_flt(Sepal.Length %in% c("5.1","4.9","4.7","4.6","5","5.4","4.4","4.8","..."))</td></tr>
 #>     <tr><td headers="vars" class="gt_row gt_left gt_striped" style="border-left-width: 2px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">Sepal.Width</td>
 #> <td headers="class" class="gt_row gt_left gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">numeric</td>
 #> <td headers="n_unique" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">23</td>
 #> <td headers="n_na" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">0</td>
 #> <td headers="n_special" class="gt_row gt_right gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">0</td>
-#> <td headers="unique" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">.get.flt(Sepal.Width %in% c("3.5","3","3.2","3.1","3.6","3.9","3.4","2.9","..."))</td></tr>
+#> <td headers="unique" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">get_flt(Sepal.Width %in% c("3.5","3","3.2","3.1","3.6","3.9","3.4","2.9","..."))</td></tr>
 #>     <tr><td headers="vars" class="gt_row gt_left" style="border-left-width: 2px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">Petal.Length</td>
 #> <td headers="class" class="gt_row gt_left" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">numeric</td>
 #> <td headers="n_unique" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">43</td>
 #> <td headers="n_na" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">0</td>
 #> <td headers="n_special" class="gt_row gt_right" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">0</td>
-#> <td headers="unique" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">.get.flt(Petal.Length %in% c("1.4","1.3","1.5","1.7","1.6","1.1","1.2","1","..."))</td></tr>
+#> <td headers="unique" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">get_flt(Petal.Length %in% c("1.4","1.3","1.5","1.7","1.6","1.1","1.2","1","..."))</td></tr>
 #>     <tr><td headers="vars" class="gt_row gt_left gt_striped" style="border-left-width: 2px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">Petal.Width</td>
 #> <td headers="class" class="gt_row gt_left gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">numeric</td>
 #> <td headers="n_unique" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">22</td>
 #> <td headers="n_na" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">0</td>
 #> <td headers="n_special" class="gt_row gt_right gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">0</td>
-#> <td headers="unique" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">.get.flt(Petal.Width %in% c("0.2","0.4","0.3","0.1","0.5","0.6","1.4","1.5","..."))</td></tr>
+#> <td headers="unique" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">get_flt(Petal.Width %in% c("0.2","0.4","0.3","0.1","0.5","0.6","1.4","1.5","..."))</td></tr>
 #>     <tr><td headers="vars" class="gt_row gt_left" style="border-left-width: 2px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">Species</td>
 #> <td headers="class" class="gt_row gt_left" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">factor</td>
 #> <td headers="n_unique" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">3</td>
 #> <td headers="n_na" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">0</td>
 #> <td headers="n_special" class="gt_row gt_right" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">0</td>
-#> <td headers="unique" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">.get.flt(Species %in% c("setosa","versicolor","virginica"))</td></tr>
+#> <td headers="unique" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">get_flt(Species %in% c("setosa","versicolor","virginica"))</td></tr>
 #>   </tbody>
 #>   
 #> </table>
@@ -1609,31 +1609,31 @@ lv(iris)
 #> <td headers="n_unique" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">35</td>
 #> <td headers="n_na" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">0</td>
 #> <td headers="n_special" class="gt_row gt_right" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">0</td>
-#> <td headers="unique" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">.get.flt(Sepal.Length %in% c("5.1","4.9","4.7","4.6","5","5.4","4.4","4.8","..."))</td></tr>
+#> <td headers="unique" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">get_flt(Sepal.Length %in% c("5.1","4.9","4.7","4.6","5","5.4","4.4","4.8","..."))</td></tr>
 #>     <tr><td headers="vars" class="gt_row gt_left gt_striped" style="border-left-width: 2px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">Sepal.Width</td>
 #> <td headers="class" class="gt_row gt_left gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">numeric</td>
 #> <td headers="n_unique" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">23</td>
 #> <td headers="n_na" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">0</td>
 #> <td headers="n_special" class="gt_row gt_right gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">0</td>
-#> <td headers="unique" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">.get.flt(Sepal.Width %in% c("3.5","3","3.2","3.1","3.6","3.9","3.4","2.9","..."))</td></tr>
+#> <td headers="unique" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">get_flt(Sepal.Width %in% c("3.5","3","3.2","3.1","3.6","3.9","3.4","2.9","..."))</td></tr>
 #>     <tr><td headers="vars" class="gt_row gt_left" style="border-left-width: 2px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">Petal.Length</td>
 #> <td headers="class" class="gt_row gt_left" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">numeric</td>
 #> <td headers="n_unique" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">43</td>
 #> <td headers="n_na" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">0</td>
 #> <td headers="n_special" class="gt_row gt_right" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">0</td>
-#> <td headers="unique" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">.get.flt(Petal.Length %in% c("1.4","1.3","1.5","1.7","1.6","1.1","1.2","1","..."))</td></tr>
+#> <td headers="unique" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">get_flt(Petal.Length %in% c("1.4","1.3","1.5","1.7","1.6","1.1","1.2","1","..."))</td></tr>
 #>     <tr><td headers="vars" class="gt_row gt_left gt_striped" style="border-left-width: 2px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">Petal.Width</td>
 #> <td headers="class" class="gt_row gt_left gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">numeric</td>
 #> <td headers="n_unique" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">22</td>
 #> <td headers="n_na" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">0</td>
 #> <td headers="n_special" class="gt_row gt_right gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">0</td>
-#> <td headers="unique" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">.get.flt(Petal.Width %in% c("0.2","0.4","0.3","0.1","0.5","0.6","1.4","1.5","..."))</td></tr>
+#> <td headers="unique" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">get_flt(Petal.Width %in% c("0.2","0.4","0.3","0.1","0.5","0.6","1.4","1.5","..."))</td></tr>
 #>     <tr><td headers="vars" class="gt_row gt_left" style="border-left-width: 2px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">Species</td>
 #> <td headers="class" class="gt_row gt_left" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">factor</td>
 #> <td headers="n_unique" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">3</td>
 #> <td headers="n_na" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">0</td>
 #> <td headers="n_special" class="gt_row gt_right" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">0</td>
-#> <td headers="unique" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">.get.flt(Species %in% c("setosa","versicolor","virginica"))</td></tr>
+#> <td headers="unique" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">get_flt(Species %in% c("setosa","versicolor","virginica"))</td></tr>
 #>   </tbody>
 #>   
 #> </table>
@@ -2158,7 +2158,7 @@ lv(iris, Species, Sepal.Length)
 #> 2 versicolor    50
 #> 3 virginica     50
 #> ----2. Species (factor) Levels----------
-#> [1] .get.flt(Species %in% c("setosa","versicolor","virginica"))
+#> [1] get_flt(Species %in% c("setosa","versicolor","virginica"))
 #> 
 #> ── ** summary for Sepal.Length (numeric) ** ────────────────────────────────────
 #> ----1. Sepal.Length (numeric) count----------
@@ -2177,7 +2177,7 @@ lv(iris, Species, Sepal.Length)
 #> 10          5.2     4
 #> # ℹ 25 more rows
 #> ----2. Sepal.Length (numeric) unique----------
-#> [1] .get.flt(Sepal.Length %in% c("5.1","4.9","4.7","4.6","5","5.4","4.4","4.8","..."))
+#> [1] get_flt(Sepal.Length %in% c("5.1","4.9","4.7","4.6","5","5.4","4.4","4.8","..."))
 #> Setting theme "Compact"
 #> ==================   ℹ ** Variable Counts (2 variables) ** ℹ   =================
 #> # A tibble: 8 × 2
@@ -2676,8 +2676,8 @@ lv(iris, Species, Sepal.Length)
 #> # A tibble: 2 × 6
 #>   vars         class   n_unique  n_na n_special unique                          
 #>   <chr>        <chr>      <int> <int>     <dbl> <noquote>                       
-#> 1 Species      factor         3     0         0 .get.flt(Species %in% c("setosa…
-#> 2 Sepal.Length numeric       35     0         0 .get.flt(Sepal.Length %in% c("5…
+#> 1 Species      factor         3     0         0 get_flt(Species %in% c("setosa"…
+#> 2 Sepal.Length numeric       35     0         0 get_flt(Sepal.Length %in% c("5.…
 #> <div id="aipjjkurjx" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 #>   <style>#aipjjkurjx table {
 #>   font-family: Calibri, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
@@ -3150,13 +3150,13 @@ lv(iris, Species, Sepal.Length)
 #> <td headers="n_unique" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">3</td>
 #> <td headers="n_na" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">0</td>
 #> <td headers="n_special" class="gt_row gt_right" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">0</td>
-#> <td headers="unique" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">.get.flt(Species %in% c("setosa","versicolor","virginica"))</td></tr>
+#> <td headers="unique" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">get_flt(Species %in% c("setosa","versicolor","virginica"))</td></tr>
 #>     <tr><td headers="vars" class="gt_row gt_left gt_striped" style="border-left-width: 2px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">Sepal.Length</td>
 #> <td headers="class" class="gt_row gt_left gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">numeric</td>
 #> <td headers="n_unique" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">35</td>
 #> <td headers="n_na" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">0</td>
 #> <td headers="n_special" class="gt_row gt_right gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">0</td>
-#> <td headers="unique" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">.get.flt(Sepal.Length %in% c("5.1","4.9","4.7","4.6","5","5.4","4.4","4.8","..."))</td></tr>
+#> <td headers="unique" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">get_flt(Sepal.Length %in% c("5.1","4.9","4.7","4.6","5","5.4","4.4","4.8","..."))</td></tr>
 #>   </tbody>
 #>   
 #> </table>
@@ -3633,13 +3633,13 @@ lv(iris, Species, Sepal.Length)
 #> <td headers="n_unique" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">3</td>
 #> <td headers="n_na" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">0</td>
 #> <td headers="n_special" class="gt_row gt_right" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">0</td>
-#> <td headers="unique" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">.get.flt(Species %in% c("setosa","versicolor","virginica"))</td></tr>
+#> <td headers="unique" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">get_flt(Species %in% c("setosa","versicolor","virginica"))</td></tr>
 #>     <tr><td headers="vars" class="gt_row gt_left gt_striped" style="border-left-width: 2px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">Sepal.Length</td>
 #> <td headers="class" class="gt_row gt_left gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">numeric</td>
 #> <td headers="n_unique" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">35</td>
 #> <td headers="n_na" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">0</td>
 #> <td headers="n_special" class="gt_row gt_right gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">0</td>
-#> <td headers="unique" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">.get.flt(Sepal.Length %in% c("5.1","4.9","4.7","4.6","5","5.4","4.4","4.8","..."))</td></tr>
+#> <td headers="unique" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">get_flt(Sepal.Length %in% c("5.1","4.9","4.7","4.6","5","5.4","4.4","4.8","..."))</td></tr>
 #>   </tbody>
 #>   
 #> </table>
@@ -4148,7 +4148,7 @@ lv(iris, pattern = "Sepal")
 #> 10          5.2     4
 #> # ℹ 25 more rows
 #> ----2. Sepal.Length (numeric) unique----------
-#> [1] .get.flt(Sepal.Length %in% c("5.1","4.9","4.7","4.6","5","5.4","4.4","4.8","..."))
+#> [1] get_flt(Sepal.Length %in% c("5.1","4.9","4.7","4.6","5","5.4","4.4","4.8","..."))
 #> 
 #> ── ** summary for Sepal.Width (numeric) ** ─────────────────────────────────────
 #> ----1. Sepal.Width (numeric) count----------
@@ -4167,7 +4167,7 @@ lv(iris, pattern = "Sepal")
 #> 10         3      26
 #> # ℹ 13 more rows
 #> ----2. Sepal.Width (numeric) unique----------
-#> [1] .get.flt(Sepal.Width %in% c("3.5","3","3.2","3.1","3.6","3.9","3.4","2.9","..."))
+#> [1] get_flt(Sepal.Width %in% c("3.5","3","3.2","3.1","3.6","3.9","3.4","2.9","..."))
 #> Setting theme "Compact"
 #> ==================   ℹ ** Variable Counts (2 variables) ** ℹ   =================
 #> # A tibble: 8 × 2
@@ -4662,8 +4662,8 @@ lv(iris, pattern = "Sepal")
 #> # A tibble: 2 × 6
 #>   vars         class   n_unique  n_na n_special unique                          
 #>   <chr>        <chr>      <int> <int>     <int> <noquote>                       
-#> 1 Sepal.Length numeric       35     0         0 .get.flt(Sepal.Length %in% c("5…
-#> 2 Sepal.Width  numeric       23     0         0 .get.flt(Sepal.Width %in% c("3.…
+#> 1 Sepal.Length numeric       35     0         0 get_flt(Sepal.Length %in% c("5.…
+#> 2 Sepal.Width  numeric       23     0         0 get_flt(Sepal.Width %in% c("3.5…
 #> <div id="zbmhjzpqdi" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 #>   <style>#zbmhjzpqdi table {
 #>   font-family: Calibri, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
@@ -5136,13 +5136,13 @@ lv(iris, pattern = "Sepal")
 #> <td headers="n_unique" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">35</td>
 #> <td headers="n_na" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">0</td>
 #> <td headers="n_special" class="gt_row gt_right" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">0</td>
-#> <td headers="unique" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">.get.flt(Sepal.Length %in% c("5.1","4.9","4.7","4.6","5","5.4","4.4","4.8","..."))</td></tr>
+#> <td headers="unique" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">get_flt(Sepal.Length %in% c("5.1","4.9","4.7","4.6","5","5.4","4.4","4.8","..."))</td></tr>
 #>     <tr><td headers="vars" class="gt_row gt_left gt_striped" style="border-left-width: 2px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">Sepal.Width</td>
 #> <td headers="class" class="gt_row gt_left gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">numeric</td>
 #> <td headers="n_unique" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">23</td>
 #> <td headers="n_na" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">0</td>
 #> <td headers="n_special" class="gt_row gt_right gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">0</td>
-#> <td headers="unique" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">.get.flt(Sepal.Width %in% c("3.5","3","3.2","3.1","3.6","3.9","3.4","2.9","..."))</td></tr>
+#> <td headers="unique" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">get_flt(Sepal.Width %in% c("3.5","3","3.2","3.1","3.6","3.9","3.4","2.9","..."))</td></tr>
 #>   </tbody>
 #>   
 #> </table>
@@ -5619,13 +5619,13 @@ lv(iris, pattern = "Sepal")
 #> <td headers="n_unique" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">35</td>
 #> <td headers="n_na" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">0</td>
 #> <td headers="n_special" class="gt_row gt_right" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">0</td>
-#> <td headers="unique" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">.get.flt(Sepal.Length %in% c("5.1","4.9","4.7","4.6","5","5.4","4.4","4.8","..."))</td></tr>
+#> <td headers="unique" class="gt_row gt_center" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: black;">get_flt(Sepal.Length %in% c("5.1","4.9","4.7","4.6","5","5.4","4.4","4.8","..."))</td></tr>
 #>     <tr><td headers="vars" class="gt_row gt_left gt_striped" style="border-left-width: 2px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">Sepal.Width</td>
 #> <td headers="class" class="gt_row gt_left gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">numeric</td>
 #> <td headers="n_unique" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">23</td>
 #> <td headers="n_na" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">0</td>
 #> <td headers="n_special" class="gt_row gt_right gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 1px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">0</td>
-#> <td headers="unique" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">.get.flt(Sepal.Width %in% c("3.5","3","3.2","3.1","3.6","3.9","3.4","2.9","..."))</td></tr>
+#> <td headers="unique" class="gt_row gt_center gt_striped" style="border-left-width: 1px; border-left-style: solid; border-left-color: black; border-right-width: 2px; border-right-style: solid; border-right-color: black; border-top-width: 1px; border-top-style: solid; border-top-color: black; border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: black;">get_flt(Sepal.Width %in% c("3.5","3","3.2","3.1","3.6","3.9","3.4","2.9","..."))</td></tr>
 #>   </tbody>
 #>   
 #> </table>
@@ -6596,7 +6596,7 @@ lv(iris, Sepal.Length, group = "Species")
 #> </div>
 ```
 
-------------------------------------------------------------------------
+-----
 
 ## `na()` — Missing Value Analysis
 
@@ -7092,7 +7092,7 @@ check_na(df)
 #> </div>
 ```
 
-------------------------------------------------------------------------
+-----
 
 ## `check_system()` — System Diagnostics
 

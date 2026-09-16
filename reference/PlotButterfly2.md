@@ -47,136 +47,141 @@ PlotButterfly2(
 
 ## Arguments
 
-- data:
+  - data:
+    
+    Data frame in long format. Each row is one observation.
 
-  Data frame in long format. Each row is one observation.
+  - stat.by:
+    
+    Character. Column for the y-axis categories.
 
-- stat.by:
+  - value.by:
+    
+    Character. Column for the continuous x-axis value.
 
-  Character. Column for the y-axis categories.
+  - group.by:
+    
+    Character. Column defining the left/right panels (must have exactly
+    2 unique levels).
 
-- value.by:
+  - fill.by:
+    
+    Character or `NULL`. Column for dodge grouping. Default `NULL`.
 
-  Character. Column for the continuous x-axis value.
+  - type:
+    
+    Chart type: `"violin_box"` (default), `"violin"`, `"box"`,
+    `"beeswarm"`, or `"beeswarm_quasirandom"`.
 
-- group.by:
+  - levels:
+    
+    Display order for y-axis categories. One of: `NULL` (default),
+    `"up"` (ascending by mean), `"down"` (descending), or a character
+    vector.
 
-  Character. Column defining the left/right panels (must have exactly 2
-  unique levels).
+  - palette:
+    
+    Colour palette for `fill.by` levels. Default `NULL` uses
+    `pal_lancet`.
 
-- fill.by:
+  - alpha:
+    
+    Numeric 0–1. Fill/point transparency. Default 0.85.
 
-  Character or `NULL`. Column for dodge grouping. Default `NULL`.
+  - box.width:
+    
+    Numeric. Boxplot width. Default 0.15.
 
-- type:
+  - add\_point:
+    
+    Logical. Overlay jittered points (violin/box modes)? Default
+    `FALSE`.
 
-  Chart type: `"violin_box"` (default), `"violin"`, `"box"`,
-  `"beeswarm"`, or `"beeswarm_quasirandom"`.
+  - pt.size:
+    
+    Numeric. Point size. Default 0.8.
 
-- levels:
+  - pt.alpha:
+    
+    Numeric. Point alpha. Default 0.5.
 
-  Display order for y-axis categories. One of: `NULL` (default), `"up"`
-  (ascending by mean), `"down"` (descending), or a character vector.
+  - violin.scale:
+    
+    Character. How violin widths are scaled: `"width"` (default),
+    `"area"`, or `"count"`.
 
-- palette:
+  - dodge.width:
+    
+    Numeric. Dodge width. Default 0.8.
 
-  Colour palette for `fill.by` levels. Default `NULL` uses `pal_lancet`.
+  - color\_by:
+    
+    Character. Beeswarm colouring mode when `fill.by = NULL`: `"fixed"`
+    (default, single colour) or `"logFC"` (gradient by `value.by`).
 
-- alpha:
+  - fixed\_color:
+    
+    Character. Point colour for `color_by = "fixed"`. Default
+    `"#f33131"`.
 
-  Numeric 0–1. Fill/point transparency. Default 0.85.
+  - gradient\_colors:
+    
+    Character vector of length 3 (low, mid, high) for `color_by =
+    "logFC"`. Default `c("#2166AC", "white", "#B2182B")`.
 
-- box.width:
+  - cex:
+    
+    Numeric. Beeswarm point spacing (passed to `geom_beeswarm`). Default
+    0.3.
 
-  Numeric. Boxplot width. Default 0.15.
+  - ref.line:
+    
+    Numeric or `NULL`. Reference line. Default `NULL`.
 
-- add_point:
+  - ref.color:
+    
+    Character. Reference line colour. Default `"#bf1a2c"`.
 
-  Logical. Overlay jittered points (violin/box modes)? Default `FALSE`.
+  - text.colors:
+    
+    Character vector. Per-variable y-axis colours. Default `NULL`.
 
-- pt.size:
+  - left.title, right.title:
+    
+    Character. Panel titles. Default `NULL` (auto from `group.by`
+    levels).
 
-  Numeric. Point size. Default 0.8.
+  - left.title.color, right.title.color:
+    
+    Character. Title colours. Default `"#f04625"` / `"#00a8ee"`.
 
-- pt.alpha:
+  - title:
+    
+    Character. Overall title. Default `NULL`.
 
-  Numeric. Point alpha. Default 0.5.
+  - xlab:
+    
+    Character. X-axis label. Default `NULL`.
 
-- violin.scale:
+  - base\_size:
+    
+    Numeric. Base font size. Default 14.
 
-  Character. How violin widths are scaled: `"width"` (default),
-  `"area"`, or `"count"`.
+  - legend.position:
+    
+    Legend position. Default `"bottom"`.
 
-- dodge.width:
+  - legend\_theme:
+    
+    A ggplot2 theme object. Default `NULL`.
 
-  Numeric. Dodge width. Default 0.8.
+  - width, height:
+    
+    Numeric. Output size in inches. Default 12 / 8.
 
-- color_by:
-
-  Character. Beeswarm colouring mode when `fill.by = NULL`: `"fixed"`
-  (default, single colour) or `"logFC"` (gradient by `value.by`).
-
-- fixed_color:
-
-  Character. Point colour for `color_by = "fixed"`. Default `"#f33131"`.
-
-- gradient_colors:
-
-  Character vector of length 3 (low, mid, high) for
-  `color_by = "logFC"`. Default `c("#2166AC", "white", "#B2182B")`.
-
-- cex:
-
-  Numeric. Beeswarm point spacing (passed to `geom_beeswarm`). Default
-  0.3.
-
-- ref.line:
-
-  Numeric or `NULL`. Reference line. Default `NULL`.
-
-- ref.color:
-
-  Character. Reference line colour. Default `"#bf1a2c"`.
-
-- text.colors:
-
-  Character vector. Per-variable y-axis colours. Default `NULL`.
-
-- left.title, right.title:
-
-  Character. Panel titles. Default `NULL` (auto from `group.by` levels).
-
-- left.title.color, right.title.color:
-
-  Character. Title colours. Default `"#f04625"` / `"#00a8ee"`.
-
-- title:
-
-  Character. Overall title. Default `NULL`.
-
-- xlab:
-
-  Character. X-axis label. Default `NULL`.
-
-- base_size:
-
-  Numeric. Base font size. Default 14.
-
-- legend.position:
-
-  Legend position. Default `"bottom"`.
-
-- legend_theme:
-
-  A ggplot2 theme object. Default `NULL`.
-
-- width, height:
-
-  Numeric. Output size in inches. Default 12 / 8.
-
-- filename:
-
-  Character or `NULL`. Save path. Default `NULL`.
+  - filename:
+    
+    Character or `NULL`. Save path. Default `NULL`.
 
 ## Value
 
@@ -186,32 +191,23 @@ A `patchwork` object.
 
 Five plot types are available:
 
-- `"violin_box"`: violin + boxplot overlay (default).
+  - `"violin_box"`: violin + boxplot overlay (default).
 
-- `"violin"`: violin only.
+  - `"violin"`: violin only.
 
-- `"box"`: boxplot only.
+  - `"box"`: boxplot only.
 
-- `"beeswarm"`: deterministic beeswarm points
-  ([`geom_beeswarm`](https://rdrr.io/pkg/ggbeeswarm/man/geom_beeswarm.html)).
+  - `"beeswarm"`: deterministic beeswarm points (`geom_beeswarm`).
 
-- `"beeswarm_quasirandom"`: quasi-random beeswarm points
-  ([`geom_quasirandom`](https://rdrr.io/pkg/ggbeeswarm/man/geom_quasirandom.html)).
+  - `"beeswarm_quasirandom"`: quasi-random beeswarm points
+    (`geom_quasirandom`).
 
 ## See also
 
-[`PlotButterfly`](https://hui950319.github.io/UtilsR/reference/PlotButterfly.md)
+`PlotButterfly`
 
-Other plot:
-[`PlotButterfly()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly.md),
-[`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md),
-[`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md),
-[`plt_cohen()`](https://hui950319.github.io/UtilsR/reference/plt_cohen.md),
-[`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md),
-[`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md),
-[`plt_radar()`](https://hui950319.github.io/UtilsR/reference/plt_radar.md),
-[`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md),
-[`plt_upset()`](https://hui950319.github.io/UtilsR/reference/plt_upset.md)
+Other plot: `PlotButterfly()`, `PlotRankCor()`, `plt_cat()`,
+`plt_con()`, `plt_dist()`, `plt_sankey()`, `plt_upset()`
 
 ## Examples
 

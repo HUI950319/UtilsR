@@ -18,41 +18,38 @@ stat_pval(
 
 ## Arguments
 
-- x:
+  - x:
+    
+    Numeric/character vector of p-values (when `add_star_p` is NULL), or
+    any value to annotate with stars (when `add_star_p` is provided).
 
-  Numeric/character vector of p-values (when `add_star_p` is NULL), or
-  any value to annotate with stars (when `add_star_p` is provided).
+  - add\_star\_p:
+    
+    Numeric vector of p-values for star annotation. When provided, stars
+    are appended to `x` based on these p-values.
 
-- add_star_p:
+  - digits:
+    
+    Integer, decimal places (default: 3 for stars/pvalue, 2 for plain).
+    Ignored when `add_star_p` is provided.
 
-  Numeric vector of p-values for star annotation. When provided, stars
-  are appended to `x` based on these p-values.
+  - mode:
+    
+    Formatting mode (ignored when `add_star_p` is provided):
+    
+      - `"stars"`  
+        (default) P-value with significance stars.
+    
+      - `"pvalue"`  
+        P-value with `"<0.001"` for small values.
+    
+      - `"plain"`  
+        Plain number formatting.
 
-- digits:
-
-  Integer, decimal places (default: 3 for stars/pvalue, 2 for plain).
-  Ignored when `add_star_p` is provided.
-
-- mode:
-
-  Formatting mode (ignored when `add_star_p` is provided):
-
-  `"stars"`
-
-  :   (default) P-value with significance stars.
-
-  `"pvalue"`
-
-  :   P-value with `"<0.001"` for small values.
-
-  `"plain"`
-
-  :   Plain number formatting.
-
-- map_signif:
-
-  Named numeric vector of significance thresholds. Default:
-  `c("***" = 0.001, "**" = 0.01, "*" = 0.05, "." = 0.1)`.
+  - map\_signif:
+    
+    Named numeric vector of significance thresholds. Default: `c("***"
+    = 0.001, "**" = 0.01, "*" = 0.05, "." = 0.1)`.
 
 ## Value
 
@@ -60,9 +57,7 @@ Character vector of formatted values.
 
 ## See also
 
-Other stat formatting:
-[`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md),
-[`stat_ci_parse()`](https://hui950319.github.io/UtilsR/reference/stat_ci_parse.md)
+Other stat formatting: `stat_ci()`, `stat_ci_parse()`
 
 ## Examples
 

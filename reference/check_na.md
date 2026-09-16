@@ -12,23 +12,21 @@ check_na(data, ..., pattern = NULL, show_all = FALSE)
 
 ## Arguments
 
-- data:
+  - data:
+    
+    A data.frame.
 
-  A data.frame.
+  - ...:
+    
+    Variable selection using `dplyr::select` syntax.
 
-- ...:
+  - pattern:
+    
+    Optional regex pattern for matching variable names.
 
-  Variable selection using
-  [`dplyr::select`](https://dplyr.tidyverse.org/reference/select.html)
-  syntax.
-
-- pattern:
-
-  Optional regex pattern for matching variable names.
-
-- show_all:
-
-  Logical. If `FALSE` (default), only variables with issues are shown.
+  - show\_all:
+    
+    Logical. If `FALSE` (default), only variables with issues are shown.
 
 ## Value
 
@@ -36,11 +34,8 @@ Invisibly returns the input data.
 
 ## See also
 
-Other inspect:
-[`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md),
-[`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md),
-[`count_packages_in_libpaths()`](https://hui950319.github.io/UtilsR/reference/count_packages_in_libpaths.md),
-[`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
+Other inspect: `check_size()`, `check_system()`,
+`count_packages_in_libpaths()`, `impute_na_knn()`, `lv()`, `plt_na()`
 
 ## Examples
 

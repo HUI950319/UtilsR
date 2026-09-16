@@ -14,55 +14,51 @@ pal_other
 
 A named list of `palette` objects:
 
-- igv:
+  - igv:
+    
+    48 colours, IGV genome browser
 
-  48 colours, IGV genome browser
+  - ditto:
+    
+    40 colours, dittoSeq (scRNA-seq)
 
-- ditto:
+  - polychrome:
+    
+    36 colours, max perceptual distinctness
 
-  40 colours, dittoSeq (scRNA-seq)
+  - glasbey:
+    
+    32 colours, Glasbey algorithm
 
-- polychrome:
+  - alphabet:
+    
+    26 colours, Green-Armytage A-Z
 
-  36 colours, max perceptual distinctness
+  - ucsc:
+    
+    26 colours, UCSC genome browser
 
-- glasbey:
+  - kelly:
+    
+    22 colours, Kelly max contrast
 
-  32 colours, Glasbey algorithm
+  - d3:
+    
+    20 colours, D3.js Category20
 
-- alphabet:
+  - simpsons:
+    
+    16 colours, ggsci Simpsons
 
-  26 colours, Green-Armytage A-Z
-
-- ucsc:
-
-  26 colours, UCSC genome browser
-
-- kelly:
-
-  22 colours, Kelly max contrast
-
-- d3:
-
-  20 colours, D3.js Category20
-
-- simpsons:
-
-  16 colours, ggsci Simpsons
-
-- trubetskoy:
-
-  20 colours, Trubetskoy distinct
+  - trubetskoy:
+    
+    20 colours, Trubetskoy distinct
 
 ## See also
 
-Other colour palettes:
-[`as_palette()`](https://hui950319.github.io/UtilsR/reference/as_palette.md),
-[`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md),
-[`pal_lancet`](https://hui950319.github.io/UtilsR/reference/pal_lancet.md),
-[`pal_list()`](https://hui950319.github.io/UtilsR/reference/pal_list.md),
-[`pal_paraSC`](https://hui950319.github.io/UtilsR/reference/pal_paraSC.md),
-[`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
+Other colour palettes: `pal_bar`, `pal_get()`, `pal_heat`, `pal_lancet`,
+`pal_list()`, `pal_paraSC`, `pal_show()`, `pal_show_brewer()`,
+`pal_show_ggsci()`, `pal_show_hcl()`, `pal_show_viridis()`
 
 ## Examples
 
@@ -82,4 +78,11 @@ pal_other$igv[1:10]
 #>  [8] "#802268" "#6BD76B" "#D595A7"
 show_color(pal_other$polychrome)
 #>  #5A5156   #E4E1E3   #F6222E   #FE00FA   #16FF32   #3283FE   #FEAF16   #B00068   #1CFFCE   #90AD1C   #2ED9FF   #DEA0FD   #AA0DFE   #F8A19F   #325A9B   #C4451C   #1C8356   #85660D   #B10DA1   #FBE426   #1CBE4F   #FA0087   #FC1CBF   #F7E1A0   #C075A6   #782AB6   #AAF400   #BDCDFF   #822E1C   #B5EFB5   #7ED7D1   #1C7F93   #D85FF7   #683B79   #66B0FF   #3B00FB  
+#> c("#5A5156", "#E4E1E3", "#F6222E", "#FE00FA", "#16FF32", "#3283FE", 
+#> "#FEAF16", "#B00068", "#1CFFCE", "#90AD1C", "#2ED9FF", "#DEA0FD", 
+#> "#AA0DFE", "#F8A19F", "#325A9B", "#C4451C", "#1C8356", "#85660D", 
+#> "#B10DA1", "#FBE426", "#1CBE4F", "#FA0087", "#FC1CBF", "#F7E1A0", 
+#> "#C075A6", "#782AB6", "#AAF400", "#BDCDFF", "#822E1C", "#B5EFB5", 
+#> "#7ED7D1", "#1C7F93", "#D85FF7", "#683B79", "#66B0FF", "#3B00FB"
+#> )
 ```

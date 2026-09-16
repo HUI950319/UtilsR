@@ -1,7 +1,7 @@
 # Format legend position and style
 
-Adjust legend position, direction, layout, and optionally merge legends
-across a multi-plot patchwork.
+Adjust legend position, direction, layout, scaling, and optionally
+collect legends across a multi-plot patchwork.
 
 ## Usage
 
@@ -11,7 +11,11 @@ fmt_legend(
   legend.position = NULL,
   legend.direction = NULL,
   legend_theme = NULL,
-  merge_legends = FALSE,
+  collect = FALSE,
+  title = NULL,
+  scale = NULL,
+  scale_width = NULL,
+  scale_height = NULL,
   ncol = NULL,
   nrow = NULL,
   ...
@@ -20,54 +24,77 @@ fmt_legend(
 
 ## Arguments
 
-- plot:
+  - plot:
+    
+    A ggplot, patchwork, or list of ggplot objects.
 
-  A ggplot, patchwork, or list of ggplot objects.
+  - legend.position:
+    
+    Legend position. Accepts:
+    
+      - Character: \`"top"\`, \`"bottom"\`, \`"left"\`, \`"right"\`,
+        \`"none"\`.
+    
+      - Shorthand corner codes: \`"br"\`, \`"bl"\`, \`"tr"\`, \`"tl"\`
+        (inside plot corners).
+    
+      - Numeric vector of length 2: \`c(x, y)\` coordinates (0-1) for
+        inside-plot positioning.
+    
+    Default \`NULL\` (no change).
 
-- legend.position:
+  - legend.direction:
+    
+    \`"horizontal"\` or \`"vertical"\`. Default \`NULL\`.
 
-  Legend position. Accepts:
+  - legend\_theme:
+    
+    A ggplot2 theme object for legend styling, e.g.,
+    \[theme\_legend1()\]. Applied after position/direction settings so
+    it can override them. Default \`NULL\` (no extra styling).
 
-  - Character: \`"top"\`, \`"bottom"\`, \`"left"\`, \`"right"\`,
-    \`"none"\`.
+  - collect:
+    
+    Logical. If \`TRUE\` and input has multiple plots, collect legends
+    into a single shared legend via patchwork. Default \`FALSE\`.
 
-  - Shorthand corner codes: \`"br"\`, \`"bl"\`, \`"tr"\`, \`"tl"\`
-    (inside plot corners).
+  - title:
+    
+    Character vector of legend titles, one per subplot. Recycled to
+    match the number of subplots. Automatically detects which aesthetics
+    (colour, fill, shape, etc.) are mapped and renames their legend
+    titles. Default \`NULL\` (no change).
 
-  - Numeric vector of length 2: \`c(x, y)\` coordinates (0-1) for
-    inside-plot positioning.
+  - scale:
+    
+    Numeric. Proportionally scale the entire legend. `0.8` = shrink to
+    80%, `1.2` = enlarge to 120%. Adjusts key size, text size, title
+    size, point size, and spacing together. Default `NULL` (no scaling).
 
-  Default \`NULL\` (no change).
+  - scale\_width:
+    
+    Numeric. Scale legend key width independently. Default `NULL` (no
+    change).
 
-- legend.direction:
+  - scale\_height:
+    
+    Numeric. Scale legend key height independently. Default `NULL` (no
+    change).
 
-  \`"horizontal"\` or \`"vertical"\`. Default \`NULL\`.
+  - ncol:
+    
+    Number of columns in the legend layout (passed to
+    \[ggplot2::guide\_legend()\]).
 
-- legend_theme:
+  - nrow:
+    
+    Number of rows in the legend layout (passed to
+    \[ggplot2::guide\_legend()\]).
 
-  A ggplot2 theme object for legend styling, e.g., \[theme_legend1()\].
-  Applied after position/direction settings so it can override them.
-  Default \`NULL\` (no extra styling).
-
-- merge_legends:
-
-  Logical. If \`TRUE\` and input has multiple plots, collect legends
-  into a single shared legend via patchwork. Default \`FALSE\`.
-
-- ncol:
-
-  Number of columns in the legend layout (passed to
-  \[ggplot2::guide_legend()\]).
-
-- nrow:
-
-  Number of rows in the legend layout (passed to
-  \[ggplot2::guide_legend()\]).
-
-- ...:
-
-  Additional arguments passed to \[ggplot2::theme()\], e.g.,
-  \`legend.text\`, \`legend.key.size\`, \`legend.background\`.
+  - ...:
+    
+    Additional arguments passed to \[ggplot2::theme()\], e.g.,
+    \`legend.text\`, \`legend.key.size\`, \`legend.background\`.
 
 ## Value
 
@@ -75,19 +102,11 @@ Same type as input.
 
 ## See also
 
-Other plot formatting:
-[`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md),
-[`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md),
-[`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md),
-[`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md),
-[`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md),
-[`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md),
-[`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md),
-[`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md),
-[`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md),
-[`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md),
-[`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md),
-[`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
+Other plot formatting: `fmt_axis()`, `fmt_axisText()`, `fmt_axisTile()`,
+`fmt_bg()`, `fmt_boxplot()`, `fmt_com()`, `fmt_expand()`, `fmt_his()`,
+`fmt_panel()`, `fmt_plot()`, `fmt_plot_base()`, `fmt_point()`,
+`fmt_raster()`, `fmt_ref()`, `fmt_scale()`, `fmt_strip()`,
+`fmt_strip2()`, `fmt_tag()`, `fmt_text()`
 
 ## Examples
 
@@ -104,5 +123,14 @@ fmt_legend(p, legend.position = "br")
 fmt_legend(p, legend.position = c(0.9, 0.2))
 
 fmt_legend(p, legend.position = "br", legend_theme = theme_legend1())
+
+
+# Scale legend to 80% of current size
+fmt_legend(p, scale = 0.8)
+
+
+# Scale width and height independently
+fmt_legend(p, scale_width = 1.5, scale_height = 0.5)
+#> Warning: `guide_colourbar()` needs continuous scales.
 
 ```

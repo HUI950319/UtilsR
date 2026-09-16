@@ -3,8 +3,7 @@
 A single entry point for continuous/numeric variable plotting with
 violin, box, bar (mean +/- SD), and dot plot types. Supports statistical
 comparisons via ggpubr, overlay layers (boxplot, jitter points, trend
-lines), and the same split/group/bg patterns as
-[`plt_cat`](https://hui950319.github.io/UtilsR/reference/plt_cat.md).
+lines), and the same split/group/bg patterns as `plt_cat`.
 
 ## Usage
 
@@ -66,227 +65,227 @@ plt_con(
 
 ## Arguments
 
-- data:
-
-  A data frame.
-
-- stat.by:
-
-  Character vector. Column name(s) of numeric variables to plot.
-
-- group.by:
-
-  Character. Column name for the x-axis grouping variable. Default
-  `NULL` (all data in one group).
-
-- split.by:
-
-  Character. Optional splitting variable. Splits data, creates one plot
-  per level, and combines with patchwork.
-
-- bg.by:
-
-  Character. Column name for background colour bands. Must be a superset
-  of `group.by`. Default `NULL`.
-
-- type:
-
-  Plot type: `"violin"` (default), `"box"`, `"bar"`, or `"dot"`.
-
-- fill.by:
-
-  What variable to map to fill colour: `"group"` (default) colours by
-  group.by levels; `"feature"` colours by stat.by name.
-
-- palette:
-
-  Colour palette. One of:
-
-  - `NULL` (default): uses `pal_lancet`.
-
-  - A single string matching a name in `palette_list`: uses
-    [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md).
-
-  - A character vector of colours: used directly.
-
-- alpha:
-
-  Numeric 0–1. Fill transparency. Default 0.8.
-
-- add_box:
-
-  Logical. Overlay boxplot on violin? Default `FALSE`.
-
-- box_color:
-
-  Character. Box overlay colour. Default `"black"`.
-
-- box_width:
-
-  Numeric. Box overlay width. Default 0.1.
-
-- add_point:
-
-  Logical. Overlay jittered points? Default `FALSE`.
-
-- pt.color:
-
-  Character. Point colour. Default `"grey30"`.
-
-- pt.size:
-
-  Numeric. Point size. Default `NULL` (auto).
-
-- pt.alpha:
-
-  Numeric. Point transparency. Default 1.
-
-- jitter.width:
-
-  Numeric. Jitter width. Default 0.4.
-
-- jitter.height:
-
-  Numeric. Jitter height. Default 0.1.
-
-- add_trend:
-
-  Logical. Overlay trend line connecting medians/means? Default `FALSE`.
-
-- trend_color:
-
-  Character. Trend line colour. Default `"black"`.
-
-- trend_linewidth:
-
-  Numeric. Trend line width. Default 1.
-
-- trend_ptsize:
-
-  Numeric. Trend point size. Default 2.
-
-- comparisons:
-
-  A list of length-2 character vectors for pairwise tests. Default
-  `NULL`.
-
-- ref_group:
-
-  Character. Reference group for comparisons. Default `NULL`.
-
-- pairwise_method:
-
-  Character. Pairwise test method. Default `"wilcox.test"`.
-
-- multiplegroup_comparisons:
-
-  Logical. Add global comparison? Default `FALSE`.
-
-- multiple_method:
-
-  Character. Global test method. Default `"kruskal.test"`.
-
-- sig_label:
-
-  Label type: `"p.signif"` or `"p.format"`.
-
-- sig_labelsize:
-
-  Numeric. Label text size. Default 3.5.
-
-- same.y.lims:
-
-  Logical. Use same y limits across features? Default `FALSE`.
-
-- y.min:
-
-  Numeric or character. Minimum y-axis limit. Character `"qN"` uses the
-  Nth percentile. Default `NULL`.
-
-- y.max:
-
-  Numeric or character. Maximum y-axis limit. Character `"qN"` uses the
-  Nth percentile. Default `NULL`.
-
-- y.nbreaks:
-
-  Integer. Number of y-axis breaks. Default 5.
-
-- sort:
-
-  Logical or character. Sort groups by median? `TRUE` or `"decreasing"`
-  for descending, `"increasing"` for ascending. Default `FALSE`.
-
-- stack:
-
-  Logical. Stack features vertically using facet? Default `FALSE`.
-
-- flip:
-
-  Logical. Flip coordinates? Default `FALSE`.
-
-- title:
-
-  Character. Plot title. Default `NULL`.
-
-- subtitle:
-
-  Character. Plot subtitle. Default `NULL`.
-
-- xlab:
-
-  Character. X-axis label. Default `NULL`.
-
-- ylab:
-
-  Character. Y-axis label. Default `NULL`.
-
-- legend.position:
-
-  Legend position. Default `"right"`.
-
-- legend.direction:
-
-  Legend direction. Default `"vertical"`.
-
-- aspect.ratio:
-
-  Numeric. Panel aspect ratio. Default `NULL`.
-
-- base_size:
-
-  Numeric. Base font size for
-  [`theme_my()`](https://hui950319.github.io/UtilsR/reference/theme_my.md).
-  Default 14.
-
-- bg_palette:
-
-  Character vector. Background band colours. Default `NULL`.
-
-- bg_alpha:
-
-  Numeric. Background band transparency. Default 0.15.
-
-- facet_nrow:
-
-  Integer. Rows when combining panels. Default `NULL`.
-
-- facet_ncol:
-
-  Integer. Columns when combining panels. Default `NULL`.
-
-- combine:
-
-  Logical. `TRUE` returns single patchwork, `FALSE` returns list.
-  Default `TRUE`.
-
-- force:
-
-  Logical. Override \>100 level safety? Default `FALSE`.
-
-- seed:
-
-  Integer. Random seed for jitter. Default 11.
+  - data:
+    
+    A data frame.
+
+  - stat.by:
+    
+    Character vector. Column name(s) of numeric variables to plot.
+
+  - group.by:
+    
+    Character. Column name for the x-axis grouping variable. Default
+    `NULL` (all data in one group).
+
+  - split.by:
+    
+    Character. Optional splitting variable. Splits data, creates one
+    plot per level, and combines with patchwork.
+
+  - bg.by:
+    
+    Character. Column name for background colour bands. Must be a
+    superset of `group.by`. Default `NULL`.
+
+  - type:
+    
+    Plot type: `"violin"` (default), `"box"`, `"bar"`, or `"dot"`.
+
+  - fill.by:
+    
+    What variable to map to fill colour: `"group"` (default) colours by
+    group.by levels; `"feature"` colours by stat.by name.
+
+  - palette:
+    
+    Colour palette. One of:
+    
+      - `NULL` (default): uses `pal_lancet`.
+    
+      - A single string matching a name in `palette_list`: uses
+        `pal_get()`.
+    
+      - A character vector of colours: used directly.
+
+  - alpha:
+    
+    Numeric 0–1. Fill transparency. Default 0.8.
+
+  - add\_box:
+    
+    Logical. Overlay boxplot on violin? Default `FALSE`.
+
+  - box\_color:
+    
+    Character. Box overlay colour. Default `"black"`.
+
+  - box\_width:
+    
+    Numeric. Box overlay width. Default 0.1.
+
+  - add\_point:
+    
+    Logical. Overlay jittered points? Default `FALSE`.
+
+  - pt.color:
+    
+    Character. Point colour. Default `"grey30"`.
+
+  - pt.size:
+    
+    Numeric. Point size. Default `NULL` (auto).
+
+  - pt.alpha:
+    
+    Numeric. Point transparency. Default 1.
+
+  - jitter.width:
+    
+    Numeric. Jitter width. Default 0.4.
+
+  - jitter.height:
+    
+    Numeric. Jitter height. Default 0.1.
+
+  - add\_trend:
+    
+    Logical. Overlay trend line connecting medians/means? Default
+    `FALSE`.
+
+  - trend\_color:
+    
+    Character. Trend line colour. Default `"black"`.
+
+  - trend\_linewidth:
+    
+    Numeric. Trend line width. Default 1.
+
+  - trend\_ptsize:
+    
+    Numeric. Trend point size. Default 2.
+
+  - comparisons:
+    
+    A list of length-2 character vectors for pairwise tests. Default
+    `NULL`.
+
+  - ref\_group:
+    
+    Character. Reference group for comparisons. Default `NULL`.
+
+  - pairwise\_method:
+    
+    Character. Pairwise test method. Default `"wilcox.test"`.
+
+  - multiplegroup\_comparisons:
+    
+    Logical. Add global comparison? Default `FALSE`.
+
+  - multiple\_method:
+    
+    Character. Global test method. Default `"kruskal.test"`.
+
+  - sig\_label:
+    
+    Label type: `"p.signif"` or `"p.format"`.
+
+  - sig\_labelsize:
+    
+    Numeric. Label text size. Default 3.5.
+
+  - same.y.lims:
+    
+    Logical. Use same y limits across features? Default `FALSE`.
+
+  - y.min:
+    
+    Numeric or character. Minimum y-axis limit. Character `"qN"` uses
+    the Nth percentile. Default `NULL`.
+
+  - y.max:
+    
+    Numeric or character. Maximum y-axis limit. Character `"qN"` uses
+    the Nth percentile. Default `NULL`.
+
+  - y.nbreaks:
+    
+    Integer. Number of y-axis breaks. Default 5.
+
+  - sort:
+    
+    Logical or character. Sort groups by median? `TRUE` or
+    `"decreasing"` for descending, `"increasing"` for ascending. Default
+    `FALSE`.
+
+  - stack:
+    
+    Logical. Stack features vertically using facet? Default `FALSE`.
+
+  - flip:
+    
+    Logical. Flip coordinates? Default `FALSE`.
+
+  - title:
+    
+    Character. Plot title. Default `NULL`.
+
+  - subtitle:
+    
+    Character. Plot subtitle. Default `NULL`.
+
+  - xlab:
+    
+    Character. X-axis label. Default `NULL`.
+
+  - ylab:
+    
+    Character. Y-axis label. Default `NULL`.
+
+  - legend.position:
+    
+    Legend position. Default `"right"`.
+
+  - legend.direction:
+    
+    Legend direction. Default `"vertical"`.
+
+  - aspect.ratio:
+    
+    Numeric. Panel aspect ratio. Default `NULL`.
+
+  - base\_size:
+    
+    Numeric. Base font size for `theme_my()`. Default 14.
+
+  - bg\_palette:
+    
+    Character vector. Background band colours. Default `NULL`.
+
+  - bg\_alpha:
+    
+    Numeric. Background band transparency. Default 0.15.
+
+  - facet\_nrow:
+    
+    Integer. Rows when combining panels. Default `NULL`.
+
+  - facet\_ncol:
+    
+    Integer. Columns when combining panels. Default `NULL`.
+
+  - combine:
+    
+    Logical. `TRUE` returns single patchwork, `FALSE` returns list.
+    Default `TRUE`.
+
+  - force:
+    
+    Logical. Override \>100 level safety? Default `FALSE`.
+
+  - seed:
+    
+    Integer. Random seed for jitter. Default 11.
 
 ## Value
 
@@ -295,16 +294,8 @@ ggplots.
 
 ## See also
 
-Other plot:
-[`PlotButterfly()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly.md),
-[`PlotButterfly2()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly2.md),
-[`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md),
-[`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md),
-[`plt_cohen()`](https://hui950319.github.io/UtilsR/reference/plt_cohen.md),
-[`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md),
-[`plt_radar()`](https://hui950319.github.io/UtilsR/reference/plt_radar.md),
-[`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md),
-[`plt_upset()`](https://hui950319.github.io/UtilsR/reference/plt_upset.md)
+Other plot: `PlotButterfly()`, `PlotButterfly2()`, `PlotRankCor()`,
+`plt_cat()`, `plt_dist()`, `plt_sankey()`, `plt_upset()`
 
 ## Examples
 
@@ -328,9 +319,6 @@ plt_con(df, "value1", "group")
 plt_con(df, "value1", "group", type = "box")
 
 plt_con(df, "value1", "group", type = "bar")
-#> Warning: Computation failed in `stat_summary()`.
-#> Caused by error in `fun.data()`:
-#> ! The package "Hmisc" is required.
 
 plt_con(df, "value1", "group", type = "dot")
 
@@ -341,9 +329,6 @@ plt_con(df, "value1", "group", add_box = TRUE)
 plt_con(df, "value1", "group", type = "box", add_point = TRUE)
 
 plt_con(df, "value1", "group", type = "bar", add_trend = TRUE)
-#> Warning: Computation failed in `stat_summary()`.
-#> Caused by error in `fun.data()`:
-#> ! The package "Hmisc" is required.
 
 plt_con(df, "value1", "group", add_point = TRUE, add_box = TRUE)
 

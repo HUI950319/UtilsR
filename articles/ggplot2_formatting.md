@@ -17,7 +17,7 @@ p
 
 ![](ggplot2_formatting_files/figure-html/base-1.png)
 
-------------------------------------------------------------------------
+-----
 
 ## `fmt_plot()` — Master Chaining
 
@@ -33,7 +33,7 @@ p |> fmt_plot(
 
 ![](ggplot2_formatting_files/figure-html/fmt-plot-1.png)
 
-------------------------------------------------------------------------
+-----
 
 ## `fmt_tag()` — Panel Labels
 
@@ -49,7 +49,7 @@ p |> fmt_tag("B", x = 0.95, y = 0.95, size = 16)
 
 ![](ggplot2_formatting_files/figure-html/fmt-tag-2.png)
 
-------------------------------------------------------------------------
+-----
 
 ## `fmt_legend()` — Legend Formatting
 
@@ -59,7 +59,7 @@ p |> fmt_legend(position = "bottom", direction = "horizontal")
 
 ![](ggplot2_formatting_files/figure-html/fmt-legend-1.png)
 
-------------------------------------------------------------------------
+-----
 
 ## `fmt_ref()` — Reference Lines
 
@@ -76,7 +76,7 @@ p |> fmt_ref(xintercept = c(5, 6, 7), color = c("red", "blue", "green"))
 
 ![](ggplot2_formatting_files/figure-html/fmt-ref-multi-1.png)
 
-------------------------------------------------------------------------
+-----
 
 ## `fmt_axis()` — Axis Control
 
@@ -87,7 +87,7 @@ p |> fmt_axis(x = FALSE)
 
 ![](ggplot2_formatting_files/figure-html/fmt-axis-1.png)
 
-------------------------------------------------------------------------
+-----
 
 ## `fmt_strip()` — Facet Strip Colours
 
@@ -99,7 +99,7 @@ p_facet <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) +
 p_facet |> fmt_strip(label_fill = c("#E41A1C", "#377EB8", "#4DAF4A"))
 ```
 
-------------------------------------------------------------------------
+-----
 
 ## `fmt_bg()` — Background Stripes
 
@@ -107,7 +107,7 @@ p_facet |> fmt_strip(label_fill = c("#E41A1C", "#377EB8", "#4DAF4A"))
 p |> fmt_bg(palette = "Paired", alpha = 0.1)
 ```
 
-------------------------------------------------------------------------
+-----
 
 ## `fmt_scale()` — Axis Scales
 
@@ -116,7 +116,7 @@ p |> fmt_scale(scale_x_list = list(limits = c(4, 8)),
                scale_y_list = list(limits = c(2, 4.5)))
 ```
 
-------------------------------------------------------------------------
+-----
 
 ## `fmt_boxplot()` — Overlay Boxplot
 
@@ -128,7 +128,7 @@ p_violin |> fmt_boxplot()
 
 ![](ggplot2_formatting_files/figure-html/fmt-boxplot-1.png)
 
-------------------------------------------------------------------------
+-----
 
 ## Themes
 
@@ -148,7 +148,7 @@ p + theme_my(base_size = 16)
 
 ![](ggplot2_formatting_files/figure-html/theme-my-large-1.png)
 
-------------------------------------------------------------------------
+-----
 
 ## `flatten_patchwork()` — Flatten Nested Patchwork
 

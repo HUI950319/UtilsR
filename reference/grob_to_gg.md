@@ -2,8 +2,7 @@
 
 Wrap a grob, gtable, or grid object into a `ggplot` object so that it
 can be further manipulated with ggplot2 operators (`+`), saved with
-[`ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html), or
-combined in `patchwork` layouts.
+`ggsave()`, or combined in `patchwork` layouts.
 
 ## Usage
 
@@ -13,14 +12,13 @@ grob_to_gg(grob, ...)
 
 ## Arguments
 
-- grob:
+  - grob:
+    
+    A grob, gtable, gList, or any object accepted by `grob_as`.
 
-  A grob, gtable, gList, or any object accepted by
-  [`grob_as`](https://hui950319.github.io/UtilsR/reference/grob_as.md).
-
-- ...:
-
-  Currently unused; reserved for future extensions.
+  - ...:
+    
+    Currently unused; reserved for future extensions.
 
 ## Value
 
@@ -28,20 +26,12 @@ A `ggplot` object that draws the grob when printed or saved.
 
 ## Details
 
-This is the reverse operation of
-[`grob_as`](https://hui950319.github.io/UtilsR/reference/grob_as.md) and
-is especially useful after
-[`grob_add`](https://hui950319.github.io/UtilsR/reference/grob_add.md)
-or
-[`grob_insert`](https://hui950319.github.io/UtilsR/reference/grob_insert.md),
-which return gtable objects.
+This is the reverse operation of `grob_as` and is especially useful
+after `grob_add` or `grob_insert`, which return gtable objects.
 
 ## See also
 
-Other grob utilities:
-[`grob_add()`](https://hui950319.github.io/UtilsR/reference/grob_add.md),
-[`grob_as()`](https://hui950319.github.io/UtilsR/reference/grob_as.md),
-[`grob_insert()`](https://hui950319.github.io/UtilsR/reference/grob_insert.md)
+Other grob utilities: `grob_add()`, `grob_as()`, `grob_insert()`
 
 ## Examples
 

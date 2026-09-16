@@ -10,10 +10,26 @@ Print a rounded box with type-coloured border and background.
 
 ## Arguments
 
-- cat_text:
+  - cat\_text:
+    
+    Character. Text to display.
 
-  Character. Text to display.
+  - type:
+    
+    One of `"info"`, `"success"`, `"warning"`, `"error"`.
 
-- type:
+## See also
 
-  One of `"info"`, `"success"`, `"warning"`, `"error"`.
+Other console display: `.cat_formula()`, `.cat_line()`,
+`.cat_message()`, `.cat_tb()`
+
+## Examples
+
+``` r
+.cat_box("Completed", type = "success")
+#>                               ╭───────────────────╮
+#>                               │                   │
+#>                               │   ✓ Completed ✓   │
+#>                               │                   │
+#>                               ╰───────────────────╯
+```

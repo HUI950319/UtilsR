@@ -11,19 +11,18 @@ fmt_boxplot(plot, boxplot.args = list(), inherit.aes = TRUE)
 
 ## Arguments
 
-- plot:
+  - plot:
+    
+    A ggplot, patchwork, or list of ggplots.
 
-  A ggplot, patchwork, or list of ggplots.
+  - boxplot.args:
+    
+    Named list of arguments passed to `ggplot2::geom_boxplot`. Defaults
+    include `width = 0.3`, `alpha = 0.2`, `na.rm = TRUE`.
 
-- boxplot.args:
-
-  Named list of arguments passed to
-  [`ggplot2::geom_boxplot`](https://ggplot2.tidyverse.org/reference/geom_boxplot.html).
-  Defaults include `width = 0.3`, `alpha = 0.2`, `na.rm = TRUE`.
-
-- inherit.aes:
-
-  Whether to inherit aesthetics from the parent plot.
+  - inherit.aes:
+    
+    Whether to inherit aesthetics from the parent plot.
 
 ## Value
 
@@ -31,19 +30,11 @@ Same type as input.
 
 ## See also
 
-Other plot formatting:
-[`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md),
-[`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md),
-[`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md),
-[`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md),
-[`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md),
-[`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md),
-[`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md),
-[`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md),
-[`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md),
-[`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md),
-[`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md),
-[`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
+Other plot formatting: `fmt_axis()`, `fmt_axisText()`, `fmt_axisTile()`,
+`fmt_bg()`, `fmt_com()`, `fmt_expand()`, `fmt_his()`, `fmt_legend()`,
+`fmt_panel()`, `fmt_plot()`, `fmt_plot_base()`, `fmt_point()`,
+`fmt_raster()`, `fmt_ref()`, `fmt_scale()`, `fmt_strip()`,
+`fmt_strip2()`, `fmt_tag()`, `fmt_text()`
 
 ## Examples
 

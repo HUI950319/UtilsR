@@ -41,142 +41,141 @@ PlotRankCor(
 
 ## Arguments
 
-- data:
+  - data:
+    
+    Data frame in long format. Must contain columns specified by
+    `stat.by`, `value.by`, `group.by`, and `method.by`.
 
-  Data frame in long format. Must contain columns specified by
-  `stat.by`, `value.by`, `group.by`, and `method.by`.
+  - stat.by:
+    
+    Character. Column name for the category labels (e.g. cell type).
+    Labels are shown via `geom_text_repel`.
 
-- stat.by:
+  - value.by:
+    
+    Character. Column name for the numeric score used to compute ranks.
+    Ranks are computed as `rank(-score)` (descending) within each
+    `group.by` x `method.by` combination.
 
-  Character. Column name for the category labels (e.g. cell type).
-  Labels are shown via `geom_text_repel`.
+  - group.by:
+    
+    Character. Column name for the grouping / faceting variable (e.g.
+    comparison). Each level gets its own facet panel. If `NULL`, all
+    data is treated as a single group (no faceting).
 
-- value.by:
+  - method.by:
+    
+    Character. Column name identifying the two methods. Must have
+    exactly 2 unique levels; the first level maps to the x-axis and the
+    second to the y-axis.
 
-  Character. Column name for the numeric score used to compute ranks.
-  Ranks are computed as `rank(-score)` (descending) within each
-  `group.by` x `method.by` combination.
+  - use\_rank:
+    
+    Logical. If `TRUE` (default), plot ranks and compute Spearman
+    correlation. If `FALSE`, plot raw values and compute Pearson
+    correlation.
 
-- group.by:
+  - scale\_x:
+    
+    Character. Scaling method for x-axis values (only when `use_rank =
+    FALSE`). One of `"none"` (default), `"minmax"`, `"zscore"`,
+    `"log1p"`, or `"rank"`. Applied per group.
 
-  Character. Column name for the grouping / faceting variable (e.g.
-  comparison). Each level gets its own facet panel. If `NULL`, all data
-  is treated as a single group (no faceting).
+  - scale\_y:
+    
+    Character. Scaling method for y-axis values (only when `use_rank =
+    FALSE`). Same options as `scale_x`.
 
-- method.by:
+  - size\_by:
+    
+    Character or `NULL`. Column name for a numeric variable to map to
+    point size. The column values are aggregated (mean) across the two
+    methods per stat x group combination. A continuous size scale is
+    added to the plot. Default `NULL` (all points use fixed `pt.size`).
 
-  Character. Column name identifying the two methods. Must have exactly
-  2 unique levels; the first level maps to the x-axis and the second to
-  the y-axis.
+  - size\_range:
+    
+    Numeric vector of length 2. Range of point sizes when `size_by` is
+    specified. Default `c(1, 6)`.
 
-- use_rank:
+  - alpha\_by:
+    
+    Character or `NULL`. Column name for a numeric variable to map to
+    point transparency (alpha), producing a colour-depth effect – darker
+    points indicate higher values. Values are aggregated (mean) across
+    the two methods per stat x group combination. Overrides the fixed
+    `alpha`. Similar to `alpha.by` in `PlotButterfly`. Default `NULL`
+    (uniform alpha).
 
-  Logical. If `TRUE` (default), plot ranks and compute Spearman
-  correlation. If `FALSE`, plot raw values and compute Pearson
-  correlation.
+  - alpha\_range:
+    
+    Numeric vector of length 2. Output alpha range for `alpha_by`
+    mapping. Default `c(0.3, 1)`.
 
-- scale_x:
+  - palette:
+    
+    Named or unnamed character vector of colours for `group.by` levels.
+    Default `NULL` uses `c("#B2182B", "#2166AC", ...)` from
+    `pal_lancet`.
 
-  Character. Scaling method for x-axis values (only when
-  `use_rank = FALSE`). One of `"none"` (default), `"minmax"`,
-  `"zscore"`, `"log1p"`, or `"rank"`. Applied per group.
+  - pt.size:
+    
+    Numeric. Point size (used when `size_by = NULL`). Default 3.
 
-- scale_y:
+  - alpha:
+    
+    Numeric 0–1. Point transparency (used when `alpha_by = NULL`).
+    Default 0.8.
 
-  Character. Scaling method for y-axis values (only when
-  `use_rank = FALSE`). Same options as `scale_x`.
+  - label.size:
+    
+    Numeric. Label text size. Default 3.
 
-- size_by:
+  - max.overlaps:
+    
+    Integer. Maximum overlapping labels passed to `geom_text_repel`.
+    Default 20.
 
-  Character or `NULL`. Column name for a numeric variable to map to
-  point size. The column values are aggregated (mean) across the two
-  methods per stat x group combination. A continuous size scale is added
-  to the plot. Default `NULL` (all points use fixed `pt.size`).
+  - show.label:
+    
+    Logical. Whether to display text labels. Default `TRUE`.
 
-- size_range:
+  - show.diag:
+    
+    Logical. Whether to show the diagonal reference line (y = x).
+    Default `TRUE`.
 
-  Numeric vector of length 2. Range of point sizes when `size_by` is
-  specified. Default `c(1, 6)`.
+  - title:
+    
+    Character. Plot title. Default `NULL` (auto-generated).
 
-- alpha_by:
+  - xlab:
+    
+    Character. X-axis label. Default `NULL` (auto).
 
-  Character or `NULL`. Column name for a numeric variable to map to
-  point transparency (alpha), producing a colour-depth effect – darker
-  points indicate higher values. Values are aggregated (mean) across the
-  two methods per stat x group combination. Overrides the fixed `alpha`.
-  Similar to `alpha.by` in
-  [`PlotButterfly`](https://hui950319.github.io/UtilsR/reference/PlotButterfly.md).
-  Default `NULL` (uniform alpha).
+  - ylab:
+    
+    Character. Y-axis label. Default `NULL` (auto).
 
-- alpha_range:
+  - base\_size:
+    
+    Numeric. Base font size. Default 13.
 
-  Numeric vector of length 2. Output alpha range for `alpha_by` mapping.
-  Default `c(0.3, 1)`.
+  - legend.position:
+    
+    Legend position. Default `"none"`.
 
-- palette:
+  - width:
+    
+    Numeric. Output width in inches. Default 12.
 
-  Named or unnamed character vector of colours for `group.by` levels.
-  Default `NULL` uses `c("#B2182B", "#2166AC", ...)` from `pal_lancet`.
+  - height:
+    
+    Numeric. Output height in inches. Default 6.
 
-- pt.size:
-
-  Numeric. Point size (used when `size_by = NULL`). Default 3.
-
-- alpha:
-
-  Numeric 0–1. Point transparency (used when `alpha_by = NULL`). Default
-  0.8.
-
-- label.size:
-
-  Numeric. Label text size. Default 3.
-
-- max.overlaps:
-
-  Integer. Maximum overlapping labels passed to
-  [`geom_text_repel`](https://ggrepel.slowkow.com/reference/geom_text_repel.html).
-  Default 20.
-
-- show.label:
-
-  Logical. Whether to display text labels. Default `TRUE`.
-
-- show.diag:
-
-  Logical. Whether to show the diagonal reference line (y = x). Default
-  `TRUE`.
-
-- title:
-
-  Character. Plot title. Default `NULL` (auto-generated).
-
-- xlab:
-
-  Character. X-axis label. Default `NULL` (auto).
-
-- ylab:
-
-  Character. Y-axis label. Default `NULL` (auto).
-
-- base_size:
-
-  Numeric. Base font size. Default 13.
-
-- legend.position:
-
-  Legend position. Default `"none"`.
-
-- width:
-
-  Numeric. Output width in inches. Default 12.
-
-- height:
-
-  Numeric. Output height in inches. Default 6.
-
-- filename:
-
-  Character. File path to save the plot. Default `NULL` (no saving).
+  - filename:
+    
+    Character. File path to save the plot. Default `NULL` (no saving).
 
 ## Value
 
@@ -186,16 +185,8 @@ attribute `"cor_results"` (a data frame with columns: `group`, `rho`,
 
 ## See also
 
-Other plot:
-[`PlotButterfly()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly.md),
-[`PlotButterfly2()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly2.md),
-[`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md),
-[`plt_cohen()`](https://hui950319.github.io/UtilsR/reference/plt_cohen.md),
-[`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md),
-[`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md),
-[`plt_radar()`](https://hui950319.github.io/UtilsR/reference/plt_radar.md),
-[`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md),
-[`plt_upset()`](https://hui950319.github.io/UtilsR/reference/plt_upset.md)
+Other plot: `PlotButterfly()`, `PlotButterfly2()`, `plt_cat()`,
+`plt_con()`, `plt_dist()`, `plt_sankey()`, `plt_upset()`
 
 ## Examples
 

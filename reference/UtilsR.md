@@ -5,200 +5,208 @@ formatting, colour palettes, ggplot2 formatting, and console styling.
 
 ## Inspect
 
-- [`lv`](https://hui950319.github.io/UtilsR/reference/lv.md):
+  - `lv`:
+    
+    Variable summary for data.frame / Seurat
 
-  Variable summary for data.frame / Seurat
+  - `check_na`:
+    
+    Missing value and data quality analysis
 
-- [`check_na`](https://hui950319.github.io/UtilsR/reference/check_na.md):
+  - `impute_na_knn`:
+    
+    Weighted KNN missing-value imputation with labelled-variable support
 
-  Missing value and data quality analysis
+  - `plt_na`:
+    
+    Missing-value matrix and percentage plots
 
-- [`check_system`](https://hui950319.github.io/UtilsR/reference/check_system.md):
+  - `check_system`:
+    
+    OS, R version, memory, CPU info
 
-  OS, R version, memory, CPU info
+  - `check_size`:
+    
+    Object memory profiling
 
-- [`check_size`](https://hui950319.github.io/UtilsR/reference/check_size.md):
-
-  Object memory profiling
-
-- [`count_packages_in_libpaths`](https://hui950319.github.io/UtilsR/reference/count_packages_in_libpaths.md):
-
-  Count installed packages
+  - `count_packages_in_libpaths`:
+    
+    Count installed packages
 
 ## Factor
 
-- [`fct_cat`](https://hui950319.github.io/UtilsR/reference/fct_cat.md):
+  - `fct_cat`:
+    
+    Recode, reorder, reverse, binary, group, combine factors
 
-  Recode, reorder, reverse, binary, group, combine factors
-
-- [`fct_num`](https://hui950319.github.io/UtilsR/reference/fct_num.md):
-
-  Numeric to factor (cut points or quantile binning)
+  - `fct_num`:
+    
+    Numeric to factor (cut points or quantile binning)
 
 ## Format
 
-- [`stat_ci`](https://hui950319.github.io/UtilsR/reference/stat_ci.md):
+  - `stat_ci`:
+    
+    Build or reformat CI strings and mean(SD)
 
-  Build or reformat CI strings and mean(SD)
+  - `stat_pval`:
+    
+    Format p-values or add significance stars
 
-- [`stat_pval`](https://hui950319.github.io/UtilsR/reference/stat_pval.md):
-
-  Format p-values or add significance stars
-
-- [`stat_ci_parse`](https://hui950319.github.io/UtilsR/reference/stat_ci_parse.md):
-
-  Parse CI strings, compute p-values, adjust confidence levels
+  - `stat_ci_parse`:
+    
+    Parse CI strings, compute p-values, adjust confidence levels
 
 ## Colour Palettes
 
-- [`pal_lancet`](https://hui950319.github.io/UtilsR/reference/pal_lancet.md):
+  - `pal_lancet`:
+    
+    Lancet journal (15 colours)
 
-  Lancet journal (15 colours)
+  - `pal_other`:
+    
+    10 discrete palettes (igv, ditto, polychrome, etc.)
 
-- [`pal_other`](https://hui950319.github.io/UtilsR/reference/pal_other.md):
+  - `show_color`:
+    
+    Display colour swatches in console
 
-  10 discrete palettes (igv, ditto, polychrome, etc.)
-
-- [`show_color`](https://hui950319.github.io/UtilsR/reference/show_color.md):
-
-  Display colour swatches in console
-
-- [`as_palette`](https://hui950319.github.io/UtilsR/reference/as_palette.md):
-
-  Create custom palette object
-
-- [`pal_list`](https://hui950319.github.io/UtilsR/reference/pal_list.md):
-
-  Browse all built-in palettes
+  - `pal_list`:
+    
+    Browse all built-in palettes
 
 ## Plot Functions
 
-- [`plt_cat`](https://hui950319.github.io/UtilsR/reference/plt_cat.md):
+  - `plt_cat`:
+    
+    Unified categorical plot (bar, rose, ring, pie, trend, area, dot,
+    sankey, chord, venn, upset)
 
-  Unified categorical plot (bar, rose, ring, pie, trend, area, dot,
-  sankey, chord, venn, upset)
+  - `plt_dist`:
+    
+    Cross-distribution (stacked bar / tile heatmap, auto-selects by
+    variable count)
 
-- [`plt_dist`](https://hui950319.github.io/UtilsR/reference/plt_dist.md):
+  - `plt_cohen`:
+    
+    Cohen's d effect size Cleveland dot plot
 
-  Cross-distribution (stacked bar / tile heatmap, auto-selects by
-  variable count)
+  - `plt_radar`:
+    
+    Radar (spider) chart
 
-- [`plt_cohen`](https://hui950319.github.io/UtilsR/reference/plt_cohen.md):
+  - `plt_sankey`:
+    
+    Sankey diagram for categorical flow
 
-  Cohen's d effect size Cleveland dot plot
-
-- [`plt_radar`](https://hui950319.github.io/UtilsR/reference/plt_radar.md):
-
-  Radar (spider) chart
-
-- [`plt_sankey`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md):
-
-  Sankey diagram for categorical flow
-
-- [`plt_upset`](https://hui950319.github.io/UtilsR/reference/plt_upset.md):
-
-  UpSet / Venn diagram for set intersections
+  - `plt_upset`:
+    
+    UpSet / Venn diagram for set intersections
 
 ## ggplot2 Formatting
 
-- [`fmt_plot`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md):
+  - `fmt_plot`:
+    
+    Master chaining function
 
-  Master chaining function
+  - `fmt_axis`:
+    
+    Hide/show axis elements
 
-- [`fmt_axis`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md):
+  - `fmt_tag`:
+    
+    Add panel labels (A, B, C...)
 
-  Hide/show axis elements
+  - `fmt_legend`:
+    
+    Format legend position and style
 
-- [`fmt_tag`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md):
+  - `fmt_ref`:
+    
+    Add reference lines
 
-  Add panel labels (A, B, C...)
+  - `fmt_strip`:
+    
+    Format facet strip labels
 
-- [`fmt_legend`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md):
+  - `fmt_com`:
+    
+    Add pairwise statistical comparisons
 
-  Format legend position and style
+  - `fmt_bg`:
+    
+    Add coloured background stripes
 
-- [`fmt_ref`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md):
+  - `fmt_his`:
+    
+    Add marginal histogram/density
 
-  Add reference lines
+  - `fmt_scale`:
+    
+    Set axis scales
 
-- [`fmt_strip`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md):
+  - `fmt_expand`:
+    
+    Set axis expansion
 
-  Format facet strip labels
+  - `fmt_boxplot`:
+    
+    Overlay boxplot layer
 
-- [`fmt_com`](https://hui950319.github.io/UtilsR/reference/fmt_com.md):
-
-  Add pairwise statistical comparisons
-
-- [`fmt_bg`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md):
-
-  Add coloured background stripes
-
-- [`fmt_his`](https://hui950319.github.io/UtilsR/reference/fmt_his.md):
-
-  Add marginal histogram/density
-
-- [`fmt_scale`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md):
-
-  Set axis scales
-
-- [`fmt_expand`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md):
-
-  Set axis expansion
-
-- [`fmt_boxplot`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md):
-
-  Overlay boxplot layer
-
-- [`flatten_patchwork`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md):
-
-  Flatten nested patchwork objects
+  - `flatten_patchwork`:
+    
+    Flatten nested patchwork objects
 
 ## ggplot2 Themes
 
-- [`theme_my`](https://hui950319.github.io/UtilsR/reference/theme_my.md):
+  - `theme_my`:
+    
+    Clean general-purpose theme
 
-  Clean general-purpose theme
+  - `theme_km`:
+    
+    Kaplan-Meier survival curve theme
 
-- [`theme_km`](https://hui950319.github.io/UtilsR/reference/theme_km.md):
-
-  Kaplan-Meier survival curve theme
-
-- [`theme_rcs`](https://hui950319.github.io/UtilsR/reference/theme_rcs.md):
-
-  Restricted cubic spline theme
+  - `theme_rcs`:
+    
+    Restricted cubic spline theme
 
 ## Console Display
 
-- [`.cat_line`](https://hui950319.github.io/UtilsR/reference/dot-cat_line.md):
+  - `.cat_line`:
+    
+    Styled separator line
 
-  Styled separator line
+  - `.cat_box`:
+    
+    Styled message box
 
-- [`.cat_box`](https://hui950319.github.io/UtilsR/reference/dot-cat_box.md):
+  - `.cat_message`:
+    
+    Timestamped log message
 
-  Styled message box
+  - `.cat_formula`:
+    
+    Styled model formula
 
-- [`.cat_message`](https://hui950319.github.io/UtilsR/reference/dot-cat_message.md):
-
-  Timestamped log message
-
-- [`.cat_tb`](https://hui950319.github.io/UtilsR/reference/dot-cat_tb.md):
-
-  Enhanced gt table with highlighting
+  - `.cat_tb`:
+    
+    Enhanced gt table with highlighting
 
 ## Operators
 
-- [`%ni%`](https://hui950319.github.io/UtilsR/reference/grapes-ni-grapes.md):
+  - `%ni%`:
+    
+    Not-in operator
 
-  Not-in operator
+  - `%||%`:
+    
+    Default value operator
 
-- [`%||%`](https://hui950319.github.io/UtilsR/reference/operators.md):
+  - `%>%`:
+    
+    Pipe operator
 
-  Default value operator
-
-- `%>%`:
-
-  Pipe operator
-
-- `%<>%`:
-
-  Compound assignment pipe
+  - `%<>%`:
+    
+    Compound assignment pipe

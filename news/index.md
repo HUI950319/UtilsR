@@ -1,147 +1,242 @@
 # Changelog
 
+## UtilsR 0.6.2
+
+  - Added `plt_alluvial()` for percentage or count alluvial
+    distributions with native faceting and grouped flow, stratum, label,
+    facet, and legend options; `plt_dist(type = "alluvial")` now uses it
+    and supports `facet` without scMMR. Its five semantic list arguments
+    now expose complete defaults in the public signature, with every
+    supported child field documented individually.
+
+  - `pal_show_brewer()` and `pal_show_hcl()` now display RColorBrewer
+    and base R HCL palette collections through `pal_show()`.
+
+  - `pal_show_hcl()` now handles HCL palettes outside the three named
+    type groups when displaying the complete palette collection.
+
+  - Added `pal_show_ggsci()` and `pal_show_viridis()` for displaying
+    dynamic ggsci and viridis palette collections through `pal_show()`.
+
+  - `pal_show_ggsci()` and `pal_show_viridis()` now support `output =
+    "console"` consistently with `pal_show()`.
+
+  - `pal_show()`, `pal_show_brewer()`, and `pal_show_hcl()` now support
+    `output = "console"` through `show_color()`.
+
+  - `pal_show()` now gives the `Colours` column a fixed width of `420px`
+    in `gt` output.
+
+  - `pal_show()` now doubles the width of each colour swatch in `gt`
+    output.
+
+  - `show_color()` now prints a `dput()` representation of the displayed
+    colour vector for reuse in R.
+
+  - `.cat_line()`, `.cat_box()`, `.cat_message()`, `.cat_formula()`, and
+    `.cat_tb()` are now exported for use by other R packages.
+
+  - `fmt_strip()` now centers strip text horizontally and vertically.
+
+  - `theme_my()` now centers horizontal and vertical facet-strip text
+    with symmetric margins.
+
+  - `fmt_strip2()` now accepts `top_right_fill` to generate
+    get\_facet-style sequential colour fills for top and right strips.
+
+  - `fmt_strip2()` now defaults `top_right_fill` to `c("Grays",
+    "Greens")`.
+
+  - `fmt_strip2()` now uses a lighter second strip colour when a palette
+    is mapped to exactly two levels.
+
+  - `impute_na_knn()` adds weighted K-nearest-neighbour imputation for
+    mixed data frames while preserving numeric and character value
+    labels.
+
+  - `plt_na()` adds missing-value matrix and percentage plots; `output`
+    selects either combined layout or either standalone panel, and
+    `sort` controls variable ordering by missing rate.
+
+  - `plt_upset()` now documents `levels = NA` for plotting missing-value
+    intersections without modifying the input data.
+
+## UtilsR 0.6.1
+
+Patch release fixing `fmt_strip()` re-application failure.
+
+### Bug fixes
+
+  - `fmt_strip()` previously crashed with `Error: Can't convert a call
+    to a string.` when applied to a plot whose first `fmt_strip()` pass
+    had injected a synthetic `.strip_label.` facet. This happened
+    because the no-facet branch wrote the facet quosure as
+    `vars(.data[["..."]])` (a CALL), and the has-facet branch used
+    `rlang::as_name()` which only accepts symbols.
+    
+    Two-layer fix:
+    
+    1.  **Source side** (no-facet branch): use
+        `rlang::sym(".strip_label.")` to produce a bare symbol, so
+        subsequent `rlang::as_name()` calls resolve cleanly.
+    2.  **Recovery side** (has-facet branch): add a tolerant
+        `.extract_var_name()` helper that tries `as_name()` first, falls
+        back to parsing `.data[[...]]` calls (for backward compatibility
+        with externally-built ggh4x facets), and drops unparseable
+        entries.
+    
+    Reproducer: any patchwork composition where each sub-plot was passed
+    through `fmt_strip()` once before being wrapped, then `fmt_strip()`
+    is applied to the wrapped patchwork (e.g. MLR’s
+    `.plt_vd.cat.group_sur` and `.plt_vd.cat.group` helpers).
+    
+    No public API change; behavior preserved for single-pass
+    `fmt_strip()` usage. Fix verified end-to-end in MLR (`plt_vpd_log`
+    cat-cat 2var path which previously crashed now passes).
+
+## UtilsR 0.6.0
+
+### New: `fct_to_group()`
+
+  - Companion to `fct_to_combine()`. Collapses factor levels into new
+    groups specified by integer indices, with auto-naming convention
+    `g<i1>/<i2>/...` (common in clinical TNM / RPA staging).
+
+  - Vector API (no `data` parameter), parameter named `g_lis`:
+    
+    ``` r
+    x <- factor(c("I","II","III","IV","V"))
+    fct_to_group(x, list(c(1,3), c(2,4), 5))             # -> g1/3, g2/4, g5
+    fct_to_group(x, list(early = 1:2, late = 3:5))       # user names win
+    ```
+
+### Breaking Change: `fct_to_combine()` signature
+
+  - **Removed** the `data` parameter. The function now takes vectors
+    directly via `...`, aligning with `forcats::fct_cross()` and
+    `base::interaction()`.
+
+  - Migration:
+    
+    ``` r
+    # Before (0.5.x and earlier)
+    fct_to_combine(df, sex, age)
+    fct_to_combine(df, c("sex", "age"))
+    
+    # After (0.6.0+)
+    fct_to_combine(df$sex, df$age)
+    df %>% mutate(g = fct_to_combine(sex, age))           # natural in mutate
+    do.call(fct_to_combine, df[c("sex", "age")])           # programmatic
+    rlang::exec(fct_to_combine, !!!df[c("sex", "age")])    # programmatic (rlang)
+    ```
+
+  - Default separator (`&`) and factor-level-ordered output unchanged.
+
 ## UtilsR 0.3.0
 
 ### `plt_cat()` — Unified Categorical Plot
 
-- Single entry point for **11 chart types**: bar, rose, ring, pie,
-  trend, area, dot, sankey, chord, venn, and upset.
-- 27+ parameters: grouping, splitting, dodge/stack, labels, background
-  bands, NA handling, and more.
-- UpSet: switched from `ggVennDiagram(force_upset)` to
-  [`ggupset::scale_x_upset()`](https://rdrr.io/pkg/ggupset/man/scale_x_upset.html).
-- Labels: switched from `geom_text` to
-  [`ggrepel::geom_text_repel()`](https://ggrepel.slowkow.com/reference/geom_text_repel.html).
-- Ring/Rose: support `position = "dodge"`.
+  - Single entry point for **11 chart types**: bar, rose, ring, pie,
+    trend, area, dot, sankey, chord, venn, and upset.
+  - 27+ parameters: grouping, splitting, dodge/stack, labels, background
+    bands, NA handling, and more.
+  - UpSet: switched from `ggVennDiagram(force_upset)` to
+    `ggupset::scale_x_upset()`.
+  - Labels: switched from `geom_text` to `ggrepel::geom_text_repel()`.
+  - Ring/Rose: support `position = "dodge"`.
 
 ### New Parameters
 
-- `subtitle`, `legend.direction`, `aspect.ratio` — layout control.
-- `NA_color`, `NA_stat` — explicit NA handling with configurable colour.
-- `keep_empty` — preserve empty factor levels.
-- `bg.by`, `bg_palette`, `bg_alpha` — background colour bands in dodge
-  mode.
-- `stat_level` — specify positive level for venn/upset.
-- `facet_ncol`, `facet_byrow` — split panel layout.
-- `force` — safety check for \> 100 levels.
+  - `subtitle`, `legend.direction`, `aspect.ratio` — layout control.
+  - `NA_color`, `NA_stat` — explicit NA handling with configurable
+    colour.
+  - `keep_empty` — preserve empty factor levels.
+  - `bg.by`, `bg_palette`, `bg_alpha` — background colour bands in dodge
+    mode.
+  - `stat_level` — specify positive level for venn/upset.
+  - `facet_ncol`, `facet_byrow` — split panel layout.
+  - `force` — safety check for \> 100 levels.
 
 ### Bug Fixes
 
-- alpha not passed to bar/rose/trend/pie
-  [`geom_col()`](https://ggplot2.tidyverse.org/reference/geom_bar.html).
-- No-group bar stacking at “all” instead of individual bars.
-- Dodge labels using stack position.
-- `keep_empty` filter logic inverted.
-- Division by zero in percent mode with empty groups.
-- Ring padding row polluting legend.
-- Venn ignoring user palette.
-- Trend mixed discrete/continuous x-axis conflict.
-- Area type not rendering in dodge mode.
+  - alpha not passed to bar/rose/trend/pie `geom_col()`.
+  - No-group bar stacking at “all” instead of individual bars.
+  - Dodge labels using stack position.
+  - `keep_empty` filter logic inverted.
+  - Division by zero in percent mode with empty groups.
+  - Ring padding row polluting legend.
+  - Venn ignoring user palette.
+  - Trend mixed discrete/continuous x-axis conflict.
+  - Area type not rendering in dodge mode.
 
 ### Documentation
 
-- pkgdown site: <https://hui950319.github.io/UtilsR/>
-- Vignette: `plt_cat_guide` with all 11 types.
-- Package docs: added Plot Functions section.
+  - pkgdown site: <https://hui950319.github.io/UtilsR/>
+  - Vignette: `plt_cat_guide` with all 11 types.
+  - Package docs: added Plot Functions section.
 
-------------------------------------------------------------------------
+-----
 
 ## UtilsR 0.2.0
 
 ### New Functions
 
-- [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
-  — Build or reformat CI strings and mean(SD). Accepts both numeric and
-  character input.
-- [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
-  — Format p-values with stars, threshold display, or add stars to any
-  value.
-- [`stat_ci_parse()`](https://hui950319.github.io/UtilsR/reference/stat_ci_parse.md)
-  — Parse CI strings, auto-detect exp transformation, compute p-values,
-  adjust confidence levels.
-- [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md)
-  — Unified factor manipulation: recode, reorder, reverse, binary,
-  group, combine.
-- [`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md)
-  — Numeric to factor via cut points or quantile/equal binning.
-- [`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md)
-  — Master ggplot formatting function chaining axis, tag, legend, ref.
-- [`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md)
-  — Hide/show axis elements for multi-plot layouts.
-- [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
-  — Add panel labels (A, B, C…) to plots.
-- [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
-  — Format legend position, direction, merge across patchwork.
-- [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md)
-  — Add reference lines with per-line colors.
-- [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
-  — Add coloured facet strip labels.
-- [`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md)
-  — Add pairwise statistical comparisons via ggpubr.
-- [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md) —
-  Add coloured background stripes.
-- [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
-  — Add marginal histogram/density overlay.
-- [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md)
-  — Set axis scales with auto-detection.
-- [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
-  — Set axis expansion.
-- [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
-  — Overlay boxplot layer on violin/jitter plots.
-- [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
-  — Unified point/jitter/beeswarm layer with auto-dodge and white
-  border.
-- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
-  — Recursively flatten nested patchwork objects.
-- [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
-  — Display colour swatches in RStudio console.
-- [`as_palette()`](https://hui950319.github.io/UtilsR/reference/as_palette.md)
-  /
-  [`pal_list()`](https://hui950319.github.io/UtilsR/reference/pal_list.md)
-  — Create and browse colour palettes.
-- [`theme_my()`](https://hui950319.github.io/UtilsR/reference/theme_my.md)
-  /
-  [`theme_km()`](https://hui950319.github.io/UtilsR/reference/theme_km.md)
-  /
-  [`theme_rcs()`](https://hui950319.github.io/UtilsR/reference/theme_rcs.md)
-  /
-  [`theme_legend1()`](https://hui950319.github.io/UtilsR/reference/theme_legend1.md)
-  — ggplot2 themes.
+  - `stat_ci()` — Build or reformat CI strings and mean(SD). Accepts
+    both numeric and character input.
+  - `stat_pval()` — Format p-values with stars, threshold display, or
+    add stars to any value.
+  - `stat_ci_parse()` — Parse CI strings, auto-detect exp
+    transformation, compute p-values, adjust confidence levels.
+  - `fct_cat()` — Unified factor manipulation: recode, reorder, reverse,
+    binary, group, combine.
+  - `fct_num()` — Numeric to factor via cut points or quantile/equal
+    binning.
+  - `fmt_plot()` — Master ggplot formatting function chaining axis, tag,
+    legend, ref.
+  - `fmt_axis()` — Hide/show axis elements for multi-plot layouts.
+  - `fmt_tag()` — Add panel labels (A, B, C…) to plots.
+  - `fmt_legend()` — Format legend position, direction, merge across
+    patchwork.
+  - `fmt_ref()` — Add reference lines with per-line colors.
+  - `fmt_strip()` — Add coloured facet strip labels.
+  - `fmt_com()` — Add pairwise statistical comparisons via ggpubr.
+  - `fmt_bg()` — Add coloured background stripes.
+  - `fmt_his()` — Add marginal histogram/density overlay.
+  - `fmt_scale()` — Set axis scales with auto-detection.
+  - `fmt_expand()` — Set axis expansion.
+  - `fmt_boxplot()` — Overlay boxplot layer on violin/jitter plots.
+  - `fmt_point()` — Unified point/jitter/beeswarm layer with auto-dodge
+    and white border.
+  - `flatten_patchwork()` — Recursively flatten nested patchwork
+    objects.
+  - `show_color()` — Display colour swatches in RStudio console.
+  - `as_palette()` / `pal_list()` — Create and browse colour palettes.
+  - `theme_my()` / `theme_km()` / `theme_rcs()` / `theme_legend1()` —
+    ggplot2 themes.
 
 ### Colour Palettes
 
-- 11 built-in palettes: `pal_lancet`, `pal_ditto`, `pal_igv`,
-  `pal_polychrome`, `pal_glasbey`, `pal_alphabet`, `pal_ucsc`,
-  `pal_kelly`, `pal_d3`, `pal_simpsons`, `pal_trubetskoy`.
-- Auto-display swatches when printing in console via `palette` S3 class.
+  - 11 built-in palettes: `pal_lancet`, `pal_ditto`, `pal_igv`,
+    `pal_polychrome`, `pal_glasbey`, `pal_alphabet`, `pal_ucsc`,
+    `pal_kelly`, `pal_d3`, `pal_simpsons`, `pal_trubetskoy`.
+  - Auto-display swatches when printing in console via `palette` S3
+    class.
 
 ### Bug Fixes
 
-- Fixed `.detect_scale_type()` accessing
-  [`ggplot_build()`](https://ggplot2.tidyverse.org/reference/ggplot_build.html)
-  data incorrectly — now reads from `plot$data` directly.
-- Fixed
-  [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
-  crash when `plot$data` is NULL.
-- Removed fragile
-  [`ggplot2::.pt`](https://ggplot2.tidyverse.org/reference/graphical-units.html)
-  usage in
-  [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
-  — now uses `size.unit = "pt"`.
-- Fixed
-  [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
-  checking `"color"` in mapping names (ggplot2 uses `"colour"`).
-- Removed silent `expand` injection in
-  [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md)
-  that overrode user intent.
-- Fixed
-  [`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md)
-  `label.y` default changed to `NULL` (auto-calculate, not 0.8).
+  - Fixed `.detect_scale_type()` accessing `ggplot_build()` data
+    incorrectly — now reads from `plot$data` directly.
+  - Fixed `fmt_strip()` crash when `plot$data` is NULL.
+  - Removed fragile `ggplot2::.pt` usage in `fmt_tag()` — now uses
+    `size.unit = "pt"`.
+  - Fixed `fmt_point()` checking `"color"` in mapping names (ggplot2
+    uses `"colour"`).
+  - Removed silent `expand` injection in `fmt_scale()` that overrode
+    user intent.
+  - Fixed `fmt_com()` `label.y` default changed to `NULL`
+    (auto-calculate, not 0.8).
 
 ## UtilsR 0.1.0
 
-- Initial release with
-  [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md), `na()`,
-  [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md),
-  [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md),
-  operators, and console display utilities.
+  - Initial release with `lv()`, `na()`, `check_system()`,
+    `check_size()`, operators, and console display utilities.

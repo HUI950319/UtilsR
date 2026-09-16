@@ -11,18 +11,15 @@ theme_km
 
 ## Format
 
-An object of class `theme` (inherits from
-[`ggplot2::theme`](https://ggplot2.tidyverse.org/reference/theme.html),
-`gg`, `S7_object`) of length 68.
+An object of class `theme` (inherits from `ggplot2::theme`, `gg`,
+`S7_object`) of length 68.
 
 ## See also
 
-Other ggplot2 themes:
-[`theme_blank()`](https://hui950319.github.io/UtilsR/reference/theme_blank.md),
-[`theme_legend1()`](https://hui950319.github.io/UtilsR/reference/theme_legend1.md),
-[`theme_my()`](https://hui950319.github.io/UtilsR/reference/theme_my.md),
-[`theme_rcs`](https://hui950319.github.io/UtilsR/reference/theme_rcs.md),
-[`theme_sc()`](https://hui950319.github.io/UtilsR/reference/theme_sc.md)
+Other ggplot2 themes: `leg1()`, `leg2()`, `theme_ROC()`,
+`theme_alluvia()`, `theme_blank()`, `theme_heat()`, `theme_legend()`,
+`theme_legend1()`, `theme_my()`, `theme_rcs`, `theme_sc()`,
+`theme_scatter`
 
 ## Examples
 

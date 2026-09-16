@@ -18,31 +18,31 @@ fmt_his(
 
 ## Arguments
 
-- plot:
+  - plot:
+    
+    A ggplot, patchwork, or list of ggplots.
 
-  A ggplot, patchwork, or list of ggplots.
+  - type:
+    
+    `"histogram"` (or `"h"`) or `"density"` (or `"d"`).
 
-- type:
+  - height\_ratio:
+    
+    Fraction of the y-axis range used for the overlay height.
 
-  `"histogram"` (or `"h"`) or `"density"` (or `"d"`).
+  - data:
+    
+    Optional data frame. If `NULL`, uses the plot data.
 
-- height_ratio:
+  - con\_var:
+    
+    Variable name for the x-axis. If `NULL`, extracted from the plot
+    mapping.
 
-  Fraction of the y-axis range used for the overlay height.
-
-- data:
-
-  Optional data frame. If `NULL`, uses the plot data.
-
-- con_var:
-
-  Variable name for the x-axis. If `NULL`, extracted from the plot
-  mapping.
-
-- ...:
-
-  Additional arguments: `binwidth`, `adjust`, `his_color`, `his_alpha`,
-  `y_rescale`, `ylim`.
+  - ...:
+    
+    Additional arguments: `binwidth`, `adjust`, `his_color`,
+    `his_alpha`, `y_rescale`, `ylim`.
 
 ## Value
 
@@ -50,19 +50,11 @@ Same type as input.
 
 ## See also
 
-Other plot formatting:
-[`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md),
-[`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md),
-[`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md),
-[`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md),
-[`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md),
-[`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md),
-[`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md),
-[`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md),
-[`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md),
-[`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md),
-[`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md),
-[`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
+Other plot formatting: `fmt_axis()`, `fmt_axisText()`, `fmt_axisTile()`,
+`fmt_bg()`, `fmt_boxplot()`, `fmt_com()`, `fmt_expand()`,
+`fmt_legend()`, `fmt_panel()`, `fmt_plot()`, `fmt_plot_base()`,
+`fmt_point()`, `fmt_raster()`, `fmt_ref()`, `fmt_scale()`,
+`fmt_strip()`, `fmt_strip2()`, `fmt_tag()`, `fmt_text()`
 
 ## Examples
 

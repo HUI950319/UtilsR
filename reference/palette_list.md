@@ -13,7 +13,7 @@ A named list of 256 character vectors.
 
 ``` r
 length(palette_list)
-#> [1] 259
+#> [1] 260
 names(palette_list)[1:10]
 #>  [1] "BrBG"     "PiYG"     "PRGn"     "PuOr"     "RdBu"     "RdGy"    
 #>  [7] "RdYlBu"   "RdYlGn"   "Spectral" "Accent"  

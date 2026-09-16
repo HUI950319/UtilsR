@@ -16,13 +16,9 @@ in the console displays coloured swatches automatically.
 
 ## See also
 
-Other colour palettes:
-[`as_palette()`](https://hui950319.github.io/UtilsR/reference/as_palette.md),
-[`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md),
-[`pal_list()`](https://hui950319.github.io/UtilsR/reference/pal_list.md),
-[`pal_other`](https://hui950319.github.io/UtilsR/reference/pal_other.md),
-[`pal_paraSC`](https://hui950319.github.io/UtilsR/reference/pal_paraSC.md),
-[`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
+Other colour palettes: `pal_bar`, `pal_get()`, `pal_heat`, `pal_list()`,
+`pal_other`, `pal_paraSC`, `pal_show()`, `pal_show_brewer()`,
+`pal_show_ggsci()`, `pal_show_hcl()`, `pal_show_viridis()`
 
 ## Examples
 

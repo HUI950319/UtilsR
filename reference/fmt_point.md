@@ -27,73 +27,73 @@ fmt_point(
 
 ## Arguments
 
-- plot:
+  - plot:
+    
+    A ggplot, patchwork, or list of ggplot objects.
 
-  A ggplot, patchwork, or list of ggplot objects.
+  - type:
+    
+    Point layout type: `"point"` (default), `"jitter"`, or `"beeswarm"`.
 
-- type:
+  - data:
+    
+    Data for the point layer. Default `NULL` inherits from plot. Can be
+    a data.frame or a function/formula applied to the plot data (e.g. `~
+    subset(.x, value > 10)`).
 
-  Point layout type: `"point"` (default), `"jitter"`, or `"beeswarm"`.
+  - shape:
+    
+    Point shape. Default 19 (solid circle).
 
-- data:
+  - size:
+    
+    Point size. Default 1.
 
-  Data for the point layer. Default `NULL` inherits from plot. Can be a
-  data.frame or a function/formula applied to the plot data (e.g.
-  `~ subset(.x, value > 10)`).
+  - white\_border:
+    
+    Logical. If `TRUE`, converts shapes to fillable versions (21-24)
+    with white stroke. Default `FALSE`.
 
-- shape:
+  - dodge.width:
+    
+    Dodge width for grouped data. Default 0.8. Set to 0 to disable
+    dodging.
 
-  Point shape. Default 19 (solid circle).
+  - jitter.args:
+    
+    Named list of jitter arguments. Only used when `type = "jitter"`.
+    Defaults: `list(width = 0.2, height = 0)`.
 
-- size:
+  - beeswarm.args:
+    
+    Named list of beeswarm arguments. Only used when `type =
+    "beeswarm"`. Defaults: `list(cex = 3, corral = "wrap", corral.width
+    = 0.5)`.
 
-  Point size. Default 1.
+  - sample\_n:
+    
+    Integer or `NULL`. When set, randomly subsample data before plotting
+    to reduce overplotting. If the plot has a group aesthetic
+    (color/fill), sampling is stratified: `sample_n` points are taken
+    **per group**. Groups with fewer points are kept in full. Default
+    `NULL` (no sampling).
 
-- white_border:
+  - seed:
+    
+    Random seed for reproducible sampling. Default 42.
 
-  Logical. If `TRUE`, converts shapes to fillable versions (21-24) with
-  white stroke. Default `FALSE`.
+  - rasterize:
+    
+    Logical. If `TRUE`, rasterizes the point layer via
+    `ggrastr::rasterise` for large datasets. Default `FALSE`.
 
-- dodge.width:
+  - rasterize.dpi:
+    
+    Integer, DPI for rasterization. Default 300.
 
-  Dodge width for grouped data. Default 0.8. Set to 0 to disable
-  dodging.
-
-- jitter.args:
-
-  Named list of jitter arguments. Only used when `type = "jitter"`.
-  Defaults: `list(width = 0.2, height = 0)`.
-
-- beeswarm.args:
-
-  Named list of beeswarm arguments. Only used when `type = "beeswarm"`.
-  Defaults: `list(cex = 3, corral = "wrap", corral.width = 0.5)`.
-
-- sample_n:
-
-  Integer or `NULL`. When set, randomly subsample data before plotting
-  to reduce overplotting. If the plot has a group aesthetic
-  (color/fill), sampling is stratified: `sample_n` points are taken
-  **per group**. Groups with fewer points are kept in full. Default
-  `NULL` (no sampling).
-
-- seed:
-
-  Random seed for reproducible sampling. Default 42.
-
-- rasterize:
-
-  Logical. If `TRUE`, rasterizes the point layer via
-  [`ggrastr::rasterise`](https://rdrr.io/pkg/ggrastr/man/rasterise.html)
-  for large datasets. Default `FALSE`.
-
-- rasterize.dpi:
-
-  Integer, DPI for rasterization. Default 300.
-
-- ...:
-
-  Additional arguments passed to `geom_point` or `geom_beeswarm`.
+  - ...:
+    
+    Additional arguments passed to `geom_point` or `geom_beeswarm`.
 
 ## Value
 
@@ -101,19 +101,11 @@ Same type as input (ggplot, patchwork, or list).
 
 ## See also
 
-Other plot formatting:
-[`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md),
-[`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md),
-[`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md),
-[`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md),
-[`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md),
-[`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md),
-[`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md),
-[`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md),
-[`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md),
-[`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md),
-[`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md),
-[`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
+Other plot formatting: `fmt_axis()`, `fmt_axisText()`, `fmt_axisTile()`,
+`fmt_bg()`, `fmt_boxplot()`, `fmt_com()`, `fmt_expand()`, `fmt_his()`,
+`fmt_legend()`, `fmt_panel()`, `fmt_plot()`, `fmt_plot_base()`,
+`fmt_raster()`, `fmt_ref()`, `fmt_scale()`, `fmt_strip()`,
+`fmt_strip2()`, `fmt_tag()`, `fmt_text()`
 
 ## Examples
 

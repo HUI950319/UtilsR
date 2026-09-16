@@ -1,4 +1,4 @@
-# Factor Manipulation: fct_cat, fct_num
+# Factor Manipulation: fct\_cat, fct\_num
 
 ``` r
 library(UtilsR)
@@ -6,8 +6,7 @@ library(UtilsR)
 
 ## `fct_cat()` — Unified Factor Operations
 
-All factor operations in one function. Works inside
-[`dplyr::mutate()`](https://dplyr.tidyverse.org/reference/mutate.html).
+All factor operations in one function. Works inside `dplyr::mutate()`.
 
 ### Recode (named arguments)
 
@@ -30,8 +29,8 @@ fct_cat(x, g1 = 1:2, g2 = 3:4)
 ``` r
 # Move specific levels to front
 fct_cat(x, "III", "I")
-#> [1]    II    IV
-#> Levels:  II IV
+#> [1] I   II  III IV 
+#> Levels: III I II IV
 ```
 
 ### Reverse
@@ -78,7 +77,7 @@ df %>% mutate(grp = fct_cat(sex, combine = "age"))
 df %>% mutate(grp = fct_cat(combine = c("sex", "age", "stage")))
 ```
 
-------------------------------------------------------------------------
+-----
 
 ## `fct_num()` — Numeric to Factor
 

@@ -1,7 +1,7 @@
 # Master plot formatting function
 
-Convenience wrapper that chains \[fmt_axis()\], \[fmt_tag()\],
-\[fmt_legend()\], and \[fmt_ref()\] in sequence. Each sub-formatter is
+Convenience wrapper that chains \[fmt\_axis()\], \[fmt\_tag()\],
+\[fmt\_legend()\], and \[fmt\_ref()\] in sequence. Each sub-formatter is
 applied only when its corresponding \`\*\_list\` argument is non-NULL.
 
 ## Usage
@@ -22,45 +22,46 @@ fmt_plot(
 
 ## Arguments
 
-- plot:
+  - plot:
+    
+    A ggplot, patchwork, or list of ggplot objects.
 
-  A ggplot, patchwork, or list of ggplot objects.
+  - fmt\_axis\_list:
+    
+    Named list of arguments for \[fmt\_axis()\]. Set to \`NULL\`
+    (default) to skip.
 
-- fmt_axis_list:
+  - fmt\_tag\_list:
+    
+    Named list of arguments for \[fmt\_tag()\]. Set to \`NULL\` to skip.
 
-  Named list of arguments for \[fmt_axis()\]. Set to \`NULL\` (default)
-  to skip.
+  - fmt\_legend\_list:
+    
+    Named list of arguments for \[fmt\_legend()\]. Set to \`NULL\` to
+    skip.
 
-- fmt_tag_list:
+  - fmt\_ref\_list:
+    
+    Named list of arguments for \[fmt\_ref()\]. Set to \`NULL\` to skip.
 
-  Named list of arguments for \[fmt_tag()\]. Set to \`NULL\` to skip.
+  - plot.margin:
+    
+    Numeric vector of length 1 or 4, or a \[ggplot2::margin()\] object.
+    Applied to all plots via \`&\`.
 
-- fmt_legend_list:
+  - tag\_levels:
+    
+    Character string for patchwork tag levels (e.g. \`"A"\`, \`"a"\`,
+    \`"1"\`). Only used when input is a patchwork object.
 
-  Named list of arguments for \[fmt_legend()\]. Set to \`NULL\` to skip.
+  - axis\_titles:
+    
+    Passed to \[patchwork::plot\_layout()\] \`axis\_titles\` argument.
+    Only used when input is a patchwork object.
 
-- fmt_ref_list:
-
-  Named list of arguments for \[fmt_ref()\]. Set to \`NULL\` to skip.
-
-- plot.margin:
-
-  Numeric vector of length 1 or 4, or a \[ggplot2::margin()\] object.
-  Applied to all plots via \`&\`.
-
-- tag_levels:
-
-  Character string for patchwork tag levels (e.g. \`"A"\`, \`"a"\`,
-  \`"1"\`). Only used when input is a patchwork object.
-
-- axis_titles:
-
-  Passed to \[patchwork::plot_layout()\] \`axis_titles\` argument. Only
-  used when input is a patchwork object.
-
-- ...:
-
-  Currently unused.
+  - ...:
+    
+    Currently unused.
 
 ## Value
 
@@ -68,19 +69,11 @@ Same type as input.
 
 ## See also
 
-Other plot formatting:
-[`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md),
-[`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md),
-[`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md),
-[`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md),
-[`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md),
-[`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md),
-[`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md),
-[`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md),
-[`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md),
-[`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md),
-[`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md),
-[`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
+Other plot formatting: `fmt_axis()`, `fmt_axisText()`, `fmt_axisTile()`,
+`fmt_bg()`, `fmt_boxplot()`, `fmt_com()`, `fmt_expand()`, `fmt_his()`,
+`fmt_legend()`, `fmt_panel()`, `fmt_plot_base()`, `fmt_point()`,
+`fmt_raster()`, `fmt_ref()`, `fmt_scale()`, `fmt_strip()`,
+`fmt_strip2()`, `fmt_tag()`, `fmt_text()`
 
 ## Examples
 
@@ -94,7 +87,7 @@ fmt_plot(p1, ref_x = 5.5, legend.position = "bottom")
 
 
 # Multi-plot with tags and merged legend
-fmt_plot(list(p1, p2), tag = TRUE, merge_legends = TRUE)
+fmt_plot(list(p1, p2), tag = TRUE, collect = TRUE)
 #> [[1]]
 
 #> 

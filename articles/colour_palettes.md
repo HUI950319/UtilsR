@@ -12,23 +12,21 @@ RColorBrewer, ggsci, viridis, rcartocolor, nord, and more.
 
 **Core components:**
 
-| Function                                                                     | Purpose                                            |
-|------------------------------------------------------------------------------|----------------------------------------------------|
-| `pal_lancet`                                                                 | Default palette object (15 Lancet journal colours) |
-| `palette_list`                                                               | Named list of 256 palettes                         |
-| [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md)       | Extract colours from any palette by name           |
-| [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)     | Visualise a palette as colour swatches             |
-| [`pal_list()`](https://hui950319.github.io/UtilsR/reference/pal_list.md)     | Browse all available palette names                 |
-| [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md) | Display any colour vector in console               |
-| [`as_palette()`](https://hui950319.github.io/UtilsR/reference/as_palette.md) | Create custom palette objects                      |
+| Function       | Purpose                                            |
+| -------------- | -------------------------------------------------- |
+| `pal_lancet`   | Default palette object (15 Lancet journal colours) |
+| `palette_list` | Named list of 256 palettes                         |
+| `pal_get()`    | Extract colours from any palette by name           |
+| `pal_show()`   | Visualise a palette as colour swatches             |
+| `pal_list()`   | Browse all available palette names                 |
+| `show_color()` | Display any colour vector in console               |
 
-------------------------------------------------------------------------
+-----
 
 ## `pal_lancet` — Default Palette
 
-The built-in default palette used by
-[`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
-and other plot functions:
+The built-in default palette used by `plt_cat()` and other plot
+functions:
 
 ``` r
 as.character(pal_lancet)
@@ -48,14 +46,12 @@ ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) +
 
 ![](colour_palettes_files/figure-html/lancet-plot-1.png)
 
-------------------------------------------------------------------------
+-----
 
 ## `palette_list` — 256 Palettes
 
 All palettes are stored in `palette_list` (accessible via
-[`UtilsR::palette_list`](https://hui950319.github.io/UtilsR/reference/palette_list.md)
-or
-[`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md)):
+`UtilsR::palette_list` or `pal_get()`):
 
 ``` r
 # Browse available palette names
@@ -65,10 +61,10 @@ head(names(UtilsR::palette_list), 20)
 #> [13] "Pastel1"  "Pastel2"  "Set1"     "Set2"     "Set3"     "Blues"   
 #> [19] "BuGn"     "BuPu"
 length(UtilsR::palette_list)
-#> [1] 259
+#> [1] 260
 ```
 
-------------------------------------------------------------------------
+-----
 
 ## `pal_get()` — Extract Palette Colours
 
@@ -100,7 +96,7 @@ ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) +
 
 ![](colour_palettes_files/figure-html/pal-get-plot-1.png)
 
-------------------------------------------------------------------------
+-----
 
 ## `pal_show()` — Visualise Palettes
 
@@ -111,7 +107,22 @@ pal_show("Paired")
 pal_show("Set1")
 ```
 
-------------------------------------------------------------------------
+`n` fixes how many colours each palette contributes, following the same
+rules as `pal_get()`. `max_colors` still caps how many of them are
+drawn:
+
+``` r
+# Take 3 colours from each palette
+pal_show(c("Set1", "lancet", "Dark2"), n = 3)
+
+# More colours than the palette holds are interpolated (Set1 only has 9)
+pal_show("Set1", n = 12)
+
+# Colour vectors take `n` too, and keep their names as labels
+pal_show(pal_paraSC, n = 6)
+```
+
+-----
 
 ## `pal_list()` — Browse All Palettes
 
@@ -120,7 +131,7 @@ pal_show("Set1")
 pal_list()
 ```
 
-------------------------------------------------------------------------
+-----
 
 ## `show_color()` — Display Any Colours
 
@@ -128,19 +139,7 @@ pal_list()
 show_color(c("#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEAA7"))
 ```
 
-------------------------------------------------------------------------
-
-## `as_palette()` — Custom Palettes
-
-Create your own palette object with auto-display:
-
-``` r
-my_pal <- as_palette(c("#264653", "#2A9D8F", "#E9C46A", "#F4A261", "#E76F51"))
-as.character(my_pal)  # display as plain hex vector
-#> [1] "#264653" "#2A9D8F" "#E9C46A" "#F4A261" "#E76F51"
-```
-
-------------------------------------------------------------------------
+-----
 
 ## Use with `plt_cat()`
 

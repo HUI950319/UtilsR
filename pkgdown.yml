@@ -1,13 +1,14 @@
-pandoc: 3.1.11
-pkgdown: 2.2.0
+pandoc: 2.9.2.1
+pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   colour_palettes: colour_palettes.html
   data_inspection: data_inspection.html
   factor_manipulation: factor_manipulation.html
   ggplot2_formatting: ggplot2_formatting.html
+  articles/package-map: package-map.html
   plt_cat_guide: plt_cat_guide.html
-last_built: 2026-03-30T15:36Z
+last_built: 2026-09-16T03:02Z
 urls:
   reference: https://hui950319.github.io/UtilsR/reference
   article: https://hui950319.github.io/UtilsR/articles

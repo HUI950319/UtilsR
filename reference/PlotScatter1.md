@@ -50,161 +50,160 @@ PlotScatter1(
 
 ## Arguments
 
-- data:
-
-  A data.frame.
-
-- x:
-
-  Column name for the X axis.
-
-- y:
-
-  Column name for the Y axis.
-
-- group:
-
-  Column name for the grouping variable.
-
-- group_levels:
-
-  Group order. NULL = data order.
-
-- colors:
-
-  Colour vector for groups. NULL = auto palette.
-
-- shapes:
-
-  Shape vector for groups. NULL = auto.
-
-- point_size:
-
-  Point size. Default 4.
-
-- point_alpha:
-
-  Point transparency. Default 0.8.
-
-- show_ellipse:
-
-  Whether to draw group ellipses. Default TRUE.
-
-- ellipse_level:
-
-  Ellipse confidence level. Default 0.95.
-
-- show_refline:
-
-  Whether to show x=0, y=0 reference lines. Default TRUE.
-
-- show_regression:
-
-  Whether to show a regression line. Default FALSE.
-
-- reg_method:
-
-  Regression method: "lm" or "loess". Default "lm".
-
-- show_cor:
-
-  Whether to display correlation coefficient. Default FALSE.
-
-- cor_method:
-
-  Correlation method: "pearson" or "spearman". Default "pearson".
-
-- annot_text:
-
-  Custom annotation text (e.g. PERMANOVA result). NULL = none.
-
-- annot_size:
-
-  Annotation text size. Default 4.
-
-- xlim:
-
-  Custom X axis limits, e.g. `c(0, 1)`. NULL = auto (with default 5%
-  expansion). When set, expansion is suppressed (`expand = FALSE`).
-
-- ylim:
-
-  Custom Y axis limits, e.g. `c(0, 1)`. NULL = auto.
-
-- xlab:
-
-  X axis label. NULL = column name.
-
-- ylab:
-
-  Y axis label. NULL = column name.
-
-- title:
-
-  Plot title. Default NULL.
-
-- marginal_type:
-
-  Marginal plot type: "boxplot", "violin", or "violin_box".
-
-- violin_scale:
-
-  Scale method for violin geom: `"width"` (default, normalises max-width
-  so both marginals look visually consistent), `"area"`, or `"count"`.
-
-- box_jitter:
-
-  Whether to add jitter points in marginal plots. Default TRUE.
-
-- layout_ratio:
-
-  Size ratio c(marginal, main). Default c(1, 4).
-
-- legend_pos:
-
-  Legend position. Default c(0.85, 0.15).
-
-- legend_theme:
-
-  Legend theme object (e.g.
-  [`theme_legend1()`](https://hui950319.github.io/UtilsR/reference/theme_legend1.md)).
-  Default NULL.
-
-- theme_use:
-
-  Theme for the main scatter panel. Default NULL (built-in theme).
-
-- raster:
-
-  Logical. Rasterise scatter points to reduce file size. `FALSE` =
-  vector (default). `TRUE` = raster.
-
-- raster_method:
-
-  Character. Rasterisation backend when `raster = TRUE`: `"scattermore"`
-  (default, fast, requires scattermore) or `"ggrastr"` (faithful
-  colours, requires ggrastr).
-
-- raster.dpi:
-
-  Integer. Raster resolution in pixels (for scattermore) or DPI (for
-  ggrastr). Default `512`.
-
-- filename:
-
-  Output file path. NULL = no save.
-
-- width:
-
-  Output width in inches. Default 10.
-
-- height:
-
-  Output height in inches. Default 8.
-
-- dpi:
-
-  Output resolution. Default 300.
+  - data:
+    
+    A data.frame.
+
+  - x:
+    
+    Column name for the X axis.
+
+  - y:
+    
+    Column name for the Y axis.
+
+  - group:
+    
+    Column name for the grouping variable.
+
+  - group\_levels:
+    
+    Group order. NULL = data order.
+
+  - colors:
+    
+    Colour vector for groups. NULL = auto palette.
+
+  - shapes:
+    
+    Shape vector for groups. NULL = auto.
+
+  - point\_size:
+    
+    Point size. Default 4.
+
+  - point\_alpha:
+    
+    Point transparency. Default 0.8.
+
+  - show\_ellipse:
+    
+    Whether to draw group ellipses. Default TRUE.
+
+  - ellipse\_level:
+    
+    Ellipse confidence level. Default 0.95.
+
+  - show\_refline:
+    
+    Whether to show x=0, y=0 reference lines. Default TRUE.
+
+  - show\_regression:
+    
+    Whether to show a regression line. Default FALSE.
+
+  - reg\_method:
+    
+    Regression method: "lm" or "loess". Default "lm".
+
+  - show\_cor:
+    
+    Whether to display correlation coefficient. Default FALSE.
+
+  - cor\_method:
+    
+    Correlation method: "pearson" or "spearman". Default "pearson".
+
+  - annot\_text:
+    
+    Custom annotation text (e.g. PERMANOVA result). NULL = none.
+
+  - annot\_size:
+    
+    Annotation text size. Default 4.
+
+  - xlim:
+    
+    Custom X axis limits, e.g. `c(0, 1)`. NULL = auto (with default 5%
+    expansion). When set, expansion is suppressed (`expand = FALSE`).
+
+  - ylim:
+    
+    Custom Y axis limits, e.g. `c(0, 1)`. NULL = auto.
+
+  - xlab:
+    
+    X axis label. NULL = column name.
+
+  - ylab:
+    
+    Y axis label. NULL = column name.
+
+  - title:
+    
+    Plot title. Default NULL.
+
+  - marginal\_type:
+    
+    Marginal plot type: "boxplot", "violin", or "violin\_box".
+
+  - violin\_scale:
+    
+    Scale method for violin geom: `"width"` (default, normalises
+    max-width so both marginals look visually consistent), `"area"`, or
+    `"count"`.
+
+  - box\_jitter:
+    
+    Whether to add jitter points in marginal plots. Default TRUE.
+
+  - layout\_ratio:
+    
+    Size ratio c(marginal, main). Default c(1, 4).
+
+  - legend\_pos:
+    
+    Legend position. Default c(0.85, 0.15).
+
+  - legend\_theme:
+    
+    Legend theme object (e.g. `theme_legend1()`). Default NULL.
+
+  - theme\_use:
+    
+    Theme for the main scatter panel. Default NULL (built-in theme).
+
+  - raster:
+    
+    Logical. Rasterise scatter points to reduce file size. `FALSE` =
+    vector (default). `TRUE` = raster.
+
+  - raster\_method:
+    
+    Character. Rasterisation backend when `raster = TRUE`:
+    `"scattermore"` (default, fast, requires scattermore) or `"ggrastr"`
+    (faithful colours, requires ggrastr).
+
+  - raster.dpi:
+    
+    Integer. Raster resolution in pixels (for scattermore) or DPI (for
+    ggrastr). Default `512`.
+
+  - filename:
+    
+    Output file path. NULL = no save.
+
+  - width:
+    
+    Output width in inches. Default 10.
+
+  - height:
+    
+    Output height in inches. Default 8.
+
+  - dpi:
+    
+    Output resolution. Default 300.
 
 ## Value
 
@@ -218,9 +217,7 @@ For dual-group scatter with separate marginal panels, see
 
 ## See also
 
-Other scatter plots:
-[`PlotScatter2()`](https://hui950319.github.io/UtilsR/reference/PlotScatter2.md),
-[`PlotScatter3()`](https://hui950319.github.io/UtilsR/reference/PlotScatter3.md)
+Other scatter plots: `PlotScatter2()`, `PlotScatter3()`
 
 ## Examples
 
