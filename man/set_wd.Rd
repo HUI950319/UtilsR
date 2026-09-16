@@ -14,8 +14,10 @@ created when \code{create = TRUE}.}
 exist. Default \code{TRUE}. When \code{FALSE}, a missing directory raises
 an error instead of being created.}
 
-\item{verbose}{Logical. Print a short confirmation of the (new) working
-directory. Default \code{TRUE}.}
+\item{verbose}{Logical. Print the one-line notice described above. Default
+\code{TRUE}. The recursive scan behind the file count and total size runs
+only when this is \code{TRUE} \emph{and} the directory already existed, so
+\code{verbose = FALSE} also skips walking a very large tree.}
 }
 \value{
 The previous working directory, returned invisibly (same convention
@@ -27,10 +29,32 @@ output folder if it is not there yet, then \code{setwd()} into it". Unlike a
 bare \code{dir.create()}, the directory is created recursively, so missing
 intermediate parents are handled automatically.
 }
+\details{
+With \code{verbose = TRUE} the destination is announced as a single
+\code{\link{.cat_message}} line, in the same
+\code{... [<contents>, <status>]} shape the \pkg{RegR} savers use for files:
+
+\itemize{
+  \item a directory this call just created reports \code{empty} and a green
+    \code{new directory} marker;
+  \item a directory that was already there reports its recursive file count
+    and total size, and a red \code{existing directory} marker -- the red
+    flags that whatever the script writes next lands beside, or on top of,
+    earlier output.
+}
+
+The contents are measured before \code{setwd()} moves in, because a relative
+\code{path} stops resolving once the working directory has changed.
+}
 \examples{
 \dontrun{
 # Make the folder if needed and move into it
 set_wd("results/NAT/1.NAT_Ext_DSS_T3_PDAC")
+#> [2026-09-16 14:32:10] i working directory set to: ... [empty, new directory]
+
+# Running the same script again finds the outputs from last time
+set_wd("results/NAT/1.NAT_Ext_DSS_T3_PDAC")
+#> [2026-09-16 15:04:22] i working directory set to: ... [42 files, 12.63 MB, existing directory]
 
 # Capture the old location and restore it afterwards
 old <- set_wd(tempfile("run_"))
@@ -39,6 +63,7 @@ setwd(old)
 
 }
 \seealso{
-\code{\link[base]{setwd}}, \code{\link[base]{dir.create}}
+\code{\link[base]{setwd}}, \code{\link[base]{dir.create}},
+  \code{\link{.cat_message}}
 }
 \concept{file system}
