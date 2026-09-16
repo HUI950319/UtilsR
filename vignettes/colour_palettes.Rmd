@@ -34,7 +34,6 @@ RColorBrewer, ggsci, viridis, rcartocolor, nord, and more.
 | `pal_show()` | Visualise a palette as colour swatches |
 | `pal_list()` | Browse all available palette names |
 | `show_color()` | Display any colour vector in console |
-| `as_palette()` | Create custom palette objects |
 
 ---
 
@@ -132,17 +131,6 @@ pal_list()
 
 ```{r show-color, eval=FALSE}
 show_color(c("#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEAA7"))
-```
-
----
-
-## `as_palette()` — Custom Palettes
-
-Create your own palette object with auto-display:
-
-```{r as-palette}
-my_pal <- as_palette(c("#264653", "#2A9D8F", "#E9C46A", "#F4A261", "#E76F51"))
-as.character(my_pal)  # display as plain hex vector
 ```
 
 ---
