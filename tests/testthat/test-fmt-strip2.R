@@ -21,6 +21,58 @@ test_that("fmt_strip centers strip text", {
   )
 })
 
+test_that("fmt_strip(strip = FALSE) removes every strip", {
+  testthat::skip_if_not_installed("ggh4x")
+
+  drawn_strips <- function(plot) {
+    grDevices::pdf(NULL)
+    on.exit(grDevices::dev.off(), add = TRUE)
+    g <- ggplot2::ggplotGrob(plot)
+    strips <- g$grobs[grepl("^strip", g$layout$name)]
+    sum(!vapply(strips, inherits, logical(1), "zeroGrob"))
+  }
+  n_panels <- function(plot) nrow(ggplot2::ggplot_build(plot)$layout$layout)
+
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) +
+    ggplot2::geom_point()
+  expect_identical(fmt_strip(p, strip = FALSE), p)
+
+  # A single-panel strip goes with its facet, so a later theme cannot revive it
+  labelled <- fmt_strip(p, label = "A", label_fill = "grey90")
+  out <- fmt_strip(labelled, strip = FALSE)
+  expect_s3_class(out$facet, "FacetNull")
+  expect_equal(drawn_strips(out + ggplot2::theme_bw()), 0)
+
+  # Multi-panel facets keep their panels, both for ggh4x strips that carry
+  # their own fills and for strip text set on a leaf theme element
+  nested <- p + ggh4x::facet_nested(
+    ~ cyl + am,
+    strip = ggh4x::strip_nested(
+      background_x = ggh4x::elem_list_rect(fill = c("pink", "cyan"))
+    )
+  )
+  gridded <- p + ggplot2::facet_grid(ggplot2::vars(am), ggplot2::vars(cyl)) +
+    ggplot2::theme(strip.text.x = ggplot2::element_text(face = "bold"))
+  wrapped <- p + ggplot2::facet_wrap(ggplot2::vars(cyl))
+  for (faceted in list(nested, gridded, wrapped)) {
+    out <- fmt_strip(faceted, strip = FALSE)
+    expect_equal(n_panels(out), n_panels(faceted))
+    expect_no_warning(n_drawn <- drawn_strips(out))
+    expect_equal(n_drawn, 0)
+  }
+  expect_gt(drawn_strips(nested), 0)
+
+  # Nested patchworks are cleared all the way down
+  out <- fmt_strip((labelled | nested) / gridded, strip = FALSE)
+  expect_equal(
+    c(drawn_strips(out[[1]][[1]]), drawn_strips(out[[1]][[2]]),
+      drawn_strips(out[[2]])),
+    c(0, 0, 0)
+  )
+
+  expect_error(fmt_strip(p, strip = NA), "strip")
+})
+
 test_that("theme_my centers facet strips with symmetric margins", {
   theme <- theme_my(base_size = 12)
   strip_x <- ggplot2::calc_element("strip.text.x.top", theme)

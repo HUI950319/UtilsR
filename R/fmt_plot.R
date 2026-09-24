@@ -841,13 +841,22 @@ fmt_plot_base <- function(plot, ggtheme = NULL, labs_list = NULL,
 #'
 #' Wraps each plot in a single-panel \code{ggh4x::facet_wrap2} so that a
 #' coloured strip label appears above the panel. Strip text is horizontally
-#' and vertically centered.
+#' and vertically centered. Set \code{strip = FALSE} to remove every strip
+#' instead.
 #'
 #' @param plot A ggplot, patchwork, or list of ggplots.
 #' @param label Character vector of strip labels (recycled as needed).
 #' @param label_color Text colour(s) for the strip label. Default \code{"black"}.
 #' @param label_fill Background fill colour(s) for the strip. If \code{NULL},
 #'   strips use a transparent background.
+#' @param strip Logical. \code{TRUE} (default) adds the strip labels.
+#'   \code{FALSE} shows no strip at all and ignores \code{label},
+#'   \code{label_color} and \code{label_fill}: strips already on the plot,
+#'   from an earlier \code{fmt_strip()} / \code{\link{fmt_strip2}()} call or
+#'   from its own facets, are removed. Single-panel facets are dropped;
+#'   multi-panel facets keep their panels with the strips hidden through the
+#'   theme, so add complete themes such as \code{theme_bw()} before this call.
+#'   Nested patchworks are handled recursively.
 #'
 #' @return Same type as input.
 #'
@@ -856,12 +865,61 @@ fmt_plot_base <- function(plot, ggtheme = NULL, labs_list = NULL,
 #' p <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) + geom_point()
 #' fmt_strip(p, label = "Iris Data", label_fill = "steelblue")
 #'
+#' # strip = FALSE removes every strip but keeps the facet panels
+#' p_facet <- p + facet_wrap(vars(Species))
+#' fmt_strip(p_facet, strip = FALSE)
+#'
 #' @export
 #' @family plot formatting
-fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NULL) {
+fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NULL,
+                      strip = TRUE) {
+  if (!is.logical(strip) || length(strip) != 1L || is.na(strip)) {
+    cli::cli_abort("{.arg strip} must be a single TRUE or FALSE.")
+  }
   info <- .to_plot_list(plot)
   plots <- info$plots
   n <- length(plots)
+
+  if (!strip) {
+    # Single-panel facets (e.g. an earlier fmt_strip()) are dropped. Multi-panel
+    # facets keep their panels and blank the leaf strip elements, since a
+    # user-set `strip.text.x` ignores a blank parent. ggh4x themed / nested
+    # strips carry text and fill elements that beat the theme, so those are
+    # cleared on ggproto children, leaving the input plot as is. ggproto()
+    # re-reads a parent by name, so never reassign `facet` or `old_strip`.
+    plots <- lapply(plots, function(p) {
+      if (inherits(p, "patchwork")) return(fmt_strip(p, strip = FALSE))
+      if (inherits(p$facet, "FacetNull")) return(p)
+      built <- suppressWarnings(suppressMessages(ggplot2::ggplot_build(p)))
+      if (nrow(built$layout$layout) == 1L) return(p + ggplot2::facet_null())
+
+      facet <- p$facet
+      old_strip <- facet$strip
+      if (!is.null(old_strip$given_elements)) {
+        given <- old_strip$given_elements
+        given[c("text_x", "text_y", "background_x", "background_y")] <- list(NULL)
+        new_strip <- ggplot2::ggproto(
+          NULL, old_strip,
+          given_elements = given,
+          # strip_nested() warns on the NULL sizes of blank multi-layer strips
+          assemble_strip = function(self, ...) {
+            suppressWarnings(
+              ggplot2::ggproto_parent(old_strip, self)$assemble_strip(...)
+            )
+          }
+        )
+        p <- p + ggplot2::ggproto(NULL, facet, strip = new_strip)
+      }
+      blank <- ggplot2::element_blank()
+      p + ggplot2::theme(
+        strip.text.x.top = blank, strip.text.x.bottom = blank,
+        strip.text.y.left = blank, strip.text.y.right = blank,
+        strip.background.x = blank, strip.background.y = blank
+      )
+    })
+    return(.from_plot_list(plots, info$is_patchwork, info$is_single,
+                           pw_orig = info$pw_orig))
+  }
 
   if (is.null(label)) label <- paste0("Figure", seq_len(n))
   label <- rep_len(label, n)

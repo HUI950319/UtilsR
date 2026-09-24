@@ -34,6 +34,9 @@
 
 * `fmt_strip()` now centers strip text horizontally and vertically.
 
+* `fmt_strip()` gains `strip`. `strip = FALSE` removes every strip, including
+  strips already on the plot; multi-panel facets keep their panels.
+
 * `theme_my()` now centers horizontal and vertical facet-strip text with
   symmetric margins.
 

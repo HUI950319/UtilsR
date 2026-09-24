@@ -4,7 +4,13 @@
 \alias{fmt_strip}
 \title{Add facet strip labels to a plot}
 \usage{
-fmt_strip(plot, label = NULL, label_color = "black", label_fill = NULL)
+fmt_strip(
+  plot,
+  label = NULL,
+  label_color = "black",
+  label_fill = NULL,
+  strip = TRUE
+)
 }
 \arguments{
 \item{plot}{A ggplot, patchwork, or list of ggplots.}
@@ -15,6 +21,15 @@ fmt_strip(plot, label = NULL, label_color = "black", label_fill = NULL)
 
 \item{label_fill}{Background fill colour(s) for the strip. If \code{NULL},
 strips use a transparent background.}
+
+\item{strip}{Logical. \code{TRUE} (default) adds the strip labels.
+\code{FALSE} shows no strip at all and ignores \code{label},
+\code{label_color} and \code{label_fill}: strips already on the plot,
+from an earlier \code{fmt_strip()} / \code{\link{fmt_strip2}()} call or
+from its own facets, are removed. Single-panel facets are dropped;
+multi-panel facets keep their panels with the strips hidden through the
+theme, so add complete themes such as \code{theme_bw()} before this call.
+Nested patchworks are handled recursively.}
 }
 \value{
 Same type as input.
@@ -22,12 +37,17 @@ Same type as input.
 \description{
 Wraps each plot in a single-panel \code{ggh4x::facet_wrap2} so that a
 coloured strip label appears above the panel. Strip text is horizontally
-and vertically centered.
+and vertically centered. Set \code{strip = FALSE} to remove every strip
+instead.
 }
 \examples{
 library(ggplot2)
 p <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) + geom_point()
 fmt_strip(p, label = "Iris Data", label_fill = "steelblue")
+
+# strip = FALSE removes every strip but keeps the facet panels
+p_facet <- p + facet_wrap(vars(Species))
+fmt_strip(p_facet, strip = FALSE)
 
 }
 \seealso{
