@@ -1,5 +1,9 @@
 # UtilsR 0.6.2
 
+* ggprism moved from Suggests to Imports: `theme_my()` reads its palette
+  from ggprism, so `theme_my()`, `theme_km`, `theme_rcs` and `theme_scatter`
+  no longer fail or stay `NULL` when ggprism is not installed.
+
 * Added `plt_alluvial()` for percentage or count alluvial distributions with
   native faceting and grouped flow, stratum, label, facet, and legend options;
   `plt_dist(type = "alluvial")` now uses it and supports `facet` without scMMR.

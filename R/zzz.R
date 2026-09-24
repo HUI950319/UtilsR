@@ -87,9 +87,7 @@ NULL
 
 .onLoad <- function(libname, pkgname) {
   # Initialize preset theme objects (km_theme, rcs_theme)
-  if (requireNamespace("ggprism", quietly = TRUE)) {
-    tryCatch(.onLoad_theme(), error = function(e) NULL)
-  }
+  tryCatch(.onLoad_theme(), error = function(e) NULL)
 
   invisible()
 }

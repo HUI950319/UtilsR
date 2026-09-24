@@ -84,6 +84,7 @@ Imports:
     labelled,
     pbapply,
     grid,
+    ggprism,
     scales
 Suggests:
     RColorBrewer,
@@ -98,7 +99,6 @@ Suggests:
     gtable,
     png,
     ragg,
-    ggprism,
     ggsankey,
     ggupset,
     ggVennDiagram,
