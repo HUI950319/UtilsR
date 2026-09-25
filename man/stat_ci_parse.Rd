@@ -14,7 +14,12 @@ stat_ci_parse(
 )
 }
 \arguments{
-\item{x}{Character vector of CI strings (e.g. \code{"1.23 (0.95, 1.59)"}).}
+\item{x}{Character vector of CI strings (e.g. \code{"1.23 (0.95, 1.59)"}).
+Brackets \code{()} or \code{[]}; separators \code{,} \code{;}
+\code{-} \code{~} en/em dash or \code{to}; numbers may carry a sign or
+an exponent. Full-width punctuation and the Unicode minus are accepted.
+Trailing stars are ignored, other trailing text is dropped with a
+warning, and \code{NA} / \code{""} pass through silently.}
 
 \item{output}{What to return:
 \describe{

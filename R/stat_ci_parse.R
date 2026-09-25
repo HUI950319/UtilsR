@@ -19,6 +19,11 @@
 #' compute p-values, adjust confidence levels, and optionally add stars.
 #'
 #' @param x Character vector of CI strings (e.g. \code{"1.23 (0.95, 1.59)"}).
+#'   Brackets \code{()} or \code{[]}; separators \code{,} \code{;}
+#'   \code{-} \code{~} en/em dash or \code{to}; numbers may carry a sign or
+#'   an exponent. Full-width punctuation and the Unicode minus are accepted.
+#'   Trailing stars are ignored, other trailing text is dropped with a
+#'   warning, and \code{NA} / \code{""} pass through silently.
 #' @param output What to return:
 #'   \describe{
 #'     \item{\code{"ci"}}{(default) CI string (adjusted if \code{level} is set).}
@@ -114,10 +119,14 @@ stat_ci_parse <- function(x,
   # Override digits
   if (!is.null(digits)) d[] <- as.integer(digits)
 
-  # Warn about unparseable elements
-  n_fail <- sum(!valid)
+  # Warn about unparseable elements (NA and "" pass through silently)
+  n_fail <- sum(!valid & !is.na(x) & nzchar(trimws(x)))
   if (n_fail > 0L) {
     cli::cli_warn("{n_fail} element{?s} could not be parsed as CI string{?s} and {?was/were} returned as-is.")
+  }
+  n_tail <- sum(parsed$trailing)
+  if (n_tail > 0L) {
+    cli::cli_warn("{n_tail} element{?s} had trailing text after the closing bracket, which was dropped.")
   }
 
   # --- Scale of each interval (ratio -> log scale, null = 0 there) ---
@@ -197,36 +206,43 @@ stat_ci_parse <- function(x,
   open <- close <- sep <- rep(NA_character_, n)
   unit <- matrix(NA_real_, n, 3L)   # rounding unit of est, lower, upper
 
-  xs <- trimws(x)
+  # Full-width punctuation and the Unicode minus sign (pasted from Word/PDF)
+  xs <- chartr("\u2212\uff08\uff09\uff0c\uff1b\uff5e", "-(),;~", trimws(x))
   xs <- gsub("[* ]+$", "", xs)       # strip trailing stars/spaces
   xs <- gsub("\\.$", "", xs)          # strip single trailing dot
 
   # est (lower sep upper) -- one pattern for every bracket and separator;
-  # groups: 1 est, 2 open, 3 lower, 4 sep, 5 upper, 6 close
-  num <- "([0-9.-]+)"
+  # groups: 1 est, 2 open, 3 lower, 4 sep, 5 upper, 6 close, 7 trailing text
+  num <- "([-+]?(?:\\d+\\.?\\d*|\\.\\d+)(?:[eE][-+]?\\d+)?)"
   re <- paste0("^", num, "\\s*([[(])", num,
-               "(\\s*,\\s*|\\s*\u2013\\s*|\\s*-\\s*|\\s+to\\s+)", num, "([])])")
-  hit <- which(grepl(re, xs))
-  grab <- function(k) sub(paste0(re, ".*$"), paste0("\\", k), xs[hit])
-  g <- lapply(1:6, grab)
-  num_of <- function(s) suppressWarnings(as.numeric(s))
-  e <- num_of(g[[1]]); l <- num_of(g[[3]]); h <- num_of(g[[5]])
-  ok <- !is.na(e) & !is.na(l) & !is.na(h) &
-    paste0(g[[2]], g[[6]]) %in% c("()", "[]")
+               "(\\s*[,;~\u2013\u2014-]\\s*|\\s+to\\s+)", num, "([])])")
+  hit <- which(grepl(re, xs, perl = TRUE))
+  grab <- function(k) {
+    sub(paste0("(?s)", re, "(.*)$"), paste0("\\", k), xs[hit], perl = TRUE)
+  }
+  g <- lapply(1:7, grab)
+  ok <- paste0(g[[2]], g[[6]]) %in% c("()", "[]")
   hit <- hit[ok]
   g <- lapply(g, `[`, ok)
 
-  est[hit] <- e[ok]; lo[hit] <- l[ok]; hi[hit] <- h[ok]
+  est[hit] <- as.numeric(g[[1]]); lo[hit] <- as.numeric(g[[3]])
+  hi[hit] <- as.numeric(g[[5]])
   open[hit] <- g[[2]]; close[hit] <- g[[6]]
-  sep[hit] <- c("," = ", ", "\u2013" = "\u2013", "-" = "-",
-                "to" = " to ")[trimws(g[[4]])]
-  dec <- lapply(g[c(1, 3, 5)], function(s) nchar(sub("^-?[0-9]*\\.?", "", s)))
+  sep[hit] <- c("," = ", ", ";" = "; ", "~" = "~", "\u2013" = "\u2013",
+                "\u2014" = "\u2014", "-" = "-", "to" = " to ")[trimws(g[[4]])]
+  # decimals shown = mantissa decimals - exponent ("1.2e-3" -> 4)
+  dec <- lapply(g[c(1, 3, 5)], function(s) {
+    ex <- ifelse(grepl("[eE]", s), sub("^.*[eE]", "", s), "0")
+    nchar(sub("^[-+]?\\d*\\.?", "", sub("[eE].*$", "", s), perl = TRUE)) -
+      as.integer(ex)
+  })
   d[hit] <- pmax(dec[[1]], 1L)      # output digits follow the estimate
   unit[hit, ] <- 10^-do.call(cbind, dec)
 
   list(estimate = est, lower = lo, upper = hi, digits = d,
        open = open, sep = sep, close = close, valid = !is.na(open),
-       unit = unit)
+       unit = unit, trailing = !is.na(open) & nzchar(trimws(
+         replace(rep("", n), hit, g[[7]]))))
 }
 
 #' @noRd

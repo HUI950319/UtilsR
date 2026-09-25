@@ -11,6 +11,13 @@
   `exp = TRUE` now gives `NA` with a warning instead of a spurious p-value.
   Symmetric intervals with an explicit `exp` give the same results as before.
 
+* `stat_ci_parse()` parses the whole vector at once (about 10x faster) and
+  reads more spellings: `;`, `~` and em dash separators, a negative upper
+  bound after a hyphen (`"-0.50 (-0.80--0.20)"`), leading `+`, exponents,
+  full-width punctuation and the Unicode minus. `NA` and `""` no longer
+  warn. Text after the closing bracket is dropped with a warning instead of
+  silently. `stat_ci()` shares the parser.
+
 * ggprism moved from Suggests to Imports: `theme_my()` reads its palette
   from ggprism, so `theme_my()`, `theme_km`, `theme_rcs` and `theme_scatter`
   no longer fail or stay `NULL` when ggprism is not installed.
