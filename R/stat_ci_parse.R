@@ -6,9 +6,11 @@
 #
 #   L1  stat_ci_parse(x, output, level, exp, digits, ...)   -- public API
 #         |   output = ci | p | ci_p | ci_star | p_star
-#         +-- L2  .ci_extract()   "est (lo, hi)" -> estimate + bounds
-#         +-- L2  .is_exp()       detect a ratio scale, so the interval is
-#                                 logged before the normal approximation
+#         +-- L2  .ci_extract()   "est (lo, hi)" -> estimate + bounds +
+#                                 rounding unit of each printed number
+#         +-- L2  .ci_scale()     ratio (log) or difference scale per element;
+#                                 flags invalid, undecidable and asymmetric
+#                                 intervals
 # =============================================================================
 
 #' Parse Confidence Interval Strings
@@ -27,11 +29,42 @@
 #'   }
 #' @param level Target confidence level for CI adjustment (e.g. \code{0.90}).
 #'   Default \code{NULL} keeps original 95\% CI.
-#' @param exp Exp-transformation detection:
-#'   \code{"auto"} (default), \code{TRUE}, or \code{FALSE}.
+#' @param exp Scale of the interval: \code{TRUE} for ratios (HR, OR, RR;
+#'   null = 1, normal approximation on the log scale), \code{FALSE} for
+#'   differences (null = 0), or \code{"auto"} (default) to infer it. Set it
+#'   explicitly whenever the effect measure is known. See Details.
 #' @param digits Integer, decimal places for output. Default: auto-detect from input.
 #' @param map_signif Named numeric vector for star thresholds.
 #'   Only used when \code{output} is \code{"ci_star"} or \code{"p_star"}.
+#'
+#' @details
+#' The input is read as a 95\% CI and the p-value is backed out with the
+#' normal approximation of Altman & Bland (BMJ 2011;343:d2304):
+#' \eqn{SE = (hi - lo) / (2 \times 1.96)} on the working scale.
+#'
+#' \strong{\code{exp = "auto"}.} An interval symmetric on the log scale is a
+#' ratio, and one symmetric on the raw scale is a difference; bounds
+#' \eqn{\le 0} rule out a ratio. The comparison allows for the rounding of
+#' the printed digits, so a narrow interval such as \code{"0.98 (0.95, 1.01)"}
+#' fits both scales. Such an interval takes the scale of the intervals in
+#' \code{x} that can be decided, provided they all agree. Otherwise it is
+#' treated as a ratio, with a warning.
+#'
+#' \strong{Asymmetric intervals.} An interval that stays clearly asymmetric
+#' on its scale gets a warning (exact, profile-likelihood or bootstrap
+#' intervals, or a typo). The threshold is \eqn{|hi + lo - 2 est| / (hi - lo)
+#' > 0.2} after allowing for rounding. Its SE comes from the half of the
+#' interval facing the null, so \code{p < 0.05} exactly when the interval
+#' excludes the null. \code{level} rescales each half separately, so
+#' \code{level = 0.95} returns the interval unchanged.
+#'
+#' \strong{Invalid intervals.} If the estimate lies outside its bounds, the
+#' width is zero, or a bound is \eqn{\le 0} under \code{exp = TRUE}, the
+#' string is returned as-is and its p-value is \code{NA}, with a warning.
+#'
+#' With \code{level}, the p-value is read off the re-levelled interval as if
+#' it were a 95\% CI. Its stars therefore agree with the interval shown and
+#' are not the p-value of the original test.
 #'
 #' @return Character vector (for ci/ci_p/ci_star/p_star) or numeric vector (for p).
 #'
@@ -66,6 +99,9 @@ stat_ci_parse <- function(x,
 
   output <- match.arg(output)
   if (!is.character(x)) cli::cli_abort("{.arg x} must be a character vector.")
+  if (!(identical(exp, "auto") || isTRUE(exp) || isFALSE(exp))) {
+    cli::cli_abort("{.arg exp} must be {.val auto}, {.code TRUE} or {.code FALSE}.")
+  }
 
   # --- Parse CI strings ---
   parsed <- .ci_extract(x)
@@ -79,61 +115,54 @@ stat_ci_parse <- function(x,
   # Override digits
   if (!is.null(digits)) d[] <- as.integer(digits)
 
-  # --- Detect exp transformation per element ---
-  is_exp <- vapply(seq_along(x), function(i) {
-    if (!valid[i]) return(FALSE)
-    if (isTRUE(exp)) return(TRUE)
-    if (isFALSE(exp)) return(FALSE)
-    .is_exp(est[i], lo[i], hi[i])
-  }, logical(1))
-
   # Warn about unparseable elements
   n_fail <- sum(!valid)
   if (n_fail > 0L) {
     cli::cli_warn("{n_fail} element{?s} could not be parsed as CI string{?s} and {?was/were} returned as-is.")
   }
 
-  # --- Compute SE and p-value (avoid log(0) warning) ---
+  # --- Scale of each interval (ratio -> log scale, null = 0 there) ---
+  scale <- .ci_scale(est, lo, hi, parsed$unit, exp, valid)
+  is_exp <- scale$is_exp
+  asym <- scale$asymmetric
+  valid <- valid & !scale$invalid
+  n_bad <- sum(scale$invalid)
+  if (n_bad > 0L) {
+    cli::cli_warn("{n_bad} interval{?s} {?is/are} invalid (estimate outside the bounds, zero width, or a bound <= 0 under {.code exp = TRUE}) and {?was/were} returned as-is.")
+  }
+  n_amb <- sum(scale$ambiguous)
+  if (n_amb > 0L) {
+    cli::cli_warn("{n_amb} interval{?s} did not reveal {?its/their} scale from the printed digits and {?was/were} treated as ratio{?s} ({.code exp = TRUE}); set {.arg exp} explicitly.")
+  }
+  n_asym <- sum(asym)
+  if (n_asym > 0L) {
+    cli::cli_warn("{n_asym} interval{?s} {?is/are} not symmetric on {?its/their} scale; p uses the half facing the null and {.arg level} rescales each half.")
+  }
+
+  # --- Compute SE and p-value on the working scale ---
   z95 <- qnorm(0.975)
-  se <- rep(NA_real_, length(x))
-  z_stat <- rep(NA_real_, length(x))
-
-  idx_exp <- valid & is_exp
-  idx_lin <- valid & !is_exp
-
-  if (any(idx_exp)) {
-    se[idx_exp] <- (log(hi[idx_exp]) - log(lo[idx_exp])) / (2 * z95)
-    z_stat[idx_exp] <- log(est[idx_exp]) / se[idx_exp]  # log(null=1) = 0
+  e_s <- est; l_s <- lo; h_s <- hi
+  e_s[is_exp] <- log(est[is_exp])
+  l_s[is_exp] <- log(lo[is_exp])
+  h_s[is_exp] <- log(hi[is_exp])
+  # Full width for symmetric intervals; for asymmetric ones the half facing
+  # the null, so that p < 0.05 exactly when the interval excludes the null
+  se_of <- function(l, h) {
+    ifelse(asym, ifelse(e_s > 0, e_s - l, h - e_s) / z95, (h - l) / (2 * z95))
   }
-  if (any(idx_lin)) {
-    se[idx_lin] <- (hi[idx_lin] - lo[idx_lin]) / (2 * z95)
-    z_stat[idx_lin] <- est[idx_lin] / se[idx_lin]  # null = 0
-  }
-  pval <- ifelse(valid, 2 * (1 - pnorm(abs(z_stat))), NA_real_)
+  se <- se_of(l_s, h_s)
 
-  # --- Adjust CI level and recompute p-value from adjusted CI ---
+  # --- Adjust CI level; p is then read off the adjusted CI as a 95% CI ---
   if (!is.null(level)) {
     if (level <= 0 || level >= 1) cli::cli_abort("{.arg level} must be between 0 and 1.")
     z_new <- qnorm(1 - (1 - level) / 2)
-    lo <- ifelse(valid,
-      ifelse(is_exp, exp(log(est) - z_new * se), est - z_new * se),
-      lo)
-    hi <- ifelse(valid,
-      ifelse(is_exp, exp(log(est) + z_new * se), est + z_new * se),
-      hi)
-    # Recompute SE and p-value treating the adjusted CI as 95% CI
-    se_adj <- rep(NA_real_, length(x))
-    z_stat_adj <- rep(NA_real_, length(x))
-    if (any(idx_exp)) {
-      se_adj[idx_exp] <- (log(hi[idx_exp]) - log(lo[idx_exp])) / (2 * z95)
-      z_stat_adj[idx_exp] <- log(est[idx_exp]) / se_adj[idx_exp]
-    }
-    if (any(idx_lin)) {
-      se_adj[idx_lin] <- (hi[idx_lin] - lo[idx_lin]) / (2 * z95)
-      z_stat_adj[idx_lin] <- est[idx_lin] / se_adj[idx_lin]
-    }
-    pval <- ifelse(valid, 2 * (1 - pnorm(abs(z_stat_adj))), NA_real_)
+    l_s <- ifelse(asym, e_s - (e_s - l_s) * z_new / z95, e_s - z_new * se)
+    h_s <- ifelse(asym, e_s + (h_s - e_s) * z_new / z95, e_s + z_new * se)
+    lo <- ifelse(valid, ifelse(is_exp, exp(l_s), l_s), lo)
+    hi <- ifelse(valid, ifelse(is_exp, exp(h_s), h_s), hi)
+    se <- se_of(l_s, h_s)
   }
+  pval <- ifelse(valid, 2 * (1 - pnorm(abs(e_s / se))), NA_real_)
 
   # --- Rebuild format template when digits is overridden ---
   if (!is.null(digits)) {
@@ -178,6 +207,7 @@ stat_ci_parse <- function(x,
   d <- rep(2L, n)
   fmt <- rep("%%.%1$df (%%.%1$df, %%.%1$df)", n)
   valid <- rep(FALSE, n)
+  unit <- matrix(NA_real_, n, 3L)   # rounding unit of est, lower, upper
 
   # Regex patterns: est (bracket_open) lower sep upper (bracket_close)
   patterns <- list(
@@ -217,6 +247,7 @@ stat_ci_parse <- function(x,
           # Detect digits from estimate string
           dec <- sub("^-?[0-9]*\\.?", "", m[2])
           d[i] <- max(nchar(dec), 1L)
+          unit[i, ] <- 10^-nchar(sub("^-?[0-9]*\\.?", "", m[2:4]))
           # Build sprintf template with detected digits
           fmt[i] <- sprintf(pat$tmpl, d[i])
           break
@@ -226,16 +257,49 @@ stat_ci_parse <- function(x,
   }
 
   list(estimate = est, lower = lo, upper = hi,
-       digits = d, format = fmt, valid = valid)
+       digits = d, format = fmt, valid = valid, unit = unit)
 }
 
 #' @noRd
-.is_exp <- function(est, lower, upper) {
-  # Negative values → definitely not exp-transformed
+.ci_scale <- function(est, lo, hi, unit, exp, valid) {
+  ue <- unit[, 1]; ul <- unit[, 2]; uh <- unit[, 3]
+  # Rounding moves each printed number by up to half its unit, no further
+  invalid <- valid & (lo >= hi | est < lo - (ue + ul) / 2 |
+                        est > hi + (ue + uh) / 2)
+  ok <- valid & !invalid
+  pos <- ok & lo > 0 & est > 0
+  if (isTRUE(exp)) {
+    invalid <- invalid | (ok & !pos)
+    ok <- pos
+  }
 
-  if (any(c(lower, upper) <= 0, na.rm = TRUE)) return(FALSE)
-  # Geometric mean ≈ estimate → exp; Arithmetic mean ≈ estimate → non-exp
-  geo  <- sqrt(lower * upper)
-  arith <- (lower + upper) / 2
-  abs(est - geo) < abs(est - arith)
+  # Asymmetry a = |hi + lo - 2 est| / (hi - lo) on each scale, and r = the
+  # part of it that rounding alone can produce
+  a_lin <- abs(hi + lo - 2 * est) / (hi - lo)
+  r_lin <- ((ul + uh) / 2 + ue) / (hi - lo)
+  a_log <- rep(Inf, length(est)); r_log <- rep(0, length(est))
+  w <- log(hi[pos] / lo[pos])
+  a_log[pos] <- abs(log(hi[pos] * lo[pos] / est[pos]^2)) / w
+  r_log[pos] <- (ul[pos] / (2 * lo[pos]) + uh[pos] / (2 * hi[pos]) +
+                   ue[pos] / est[pos]) / w
+
+  if (identical(exp, "auto")) {
+    # A scale is decided only when its asymmetry beats the other's by more
+    # than rounding; bounds <= 0 decide "difference" outright
+    log_wins <- pos & (a_lin - r_lin) > (a_log + r_log)
+    lin_wins <- ok & (!pos | (a_log - r_log) > (a_lin + r_lin))
+    undecided <- ok & !log_wins & !lin_wins
+    # A vector usually holds one kind of effect: undecided intervals follow
+    # the decided ones when those agree, and are read as ratios otherwise
+    agree <- any(log_wins) != any(lin_wins)
+    is_exp <- log_wins | (undecided & (!agree | any(log_wins)))
+    ambiguous <- undecided & !agree
+  } else {
+    is_exp <- ok & exp
+    ambiguous <- rep(FALSE, length(est))
+  }
+
+  excess <- ifelse(is_exp, a_log - r_log, a_lin - r_lin)
+  list(is_exp = is_exp, invalid = invalid, ambiguous = ambiguous,
+       asymmetric = ok & excess > 0.2)
 }

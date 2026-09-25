@@ -28,8 +28,10 @@ stat_ci_parse(
 \item{level}{Target confidence level for CI adjustment (e.g. \code{0.90}).
 Default \code{NULL} keeps original 95\% CI.}
 
-\item{exp}{Exp-transformation detection:
-\code{"auto"} (default), \code{TRUE}, or \code{FALSE}.}
+\item{exp}{Scale of the interval: \code{TRUE} for ratios (HR, OR, RR;
+null = 1, normal approximation on the log scale), \code{FALSE} for
+differences (null = 0), or \code{"auto"} (default) to infer it. Set it
+explicitly whenever the effect measure is known. See Details.}
 
 \item{digits}{Integer, decimal places for output. Default: auto-detect from input.}
 
@@ -42,6 +44,35 @@ Character vector (for ci/ci_p/ci_star/p_star) or numeric vector (for p).
 \description{
 Extract components from CI strings like \code{"1.23 (0.95, 1.59)"},
 compute p-values, adjust confidence levels, and optionally add stars.
+}
+\details{
+The input is read as a 95\% CI and the p-value is backed out with the
+normal approximation of Altman & Bland (BMJ 2011;343:d2304):
+\eqn{SE = (hi - lo) / (2 \times 1.96)} on the working scale.
+
+\strong{\code{exp = "auto"}.} An interval symmetric on the log scale is a
+ratio, and one symmetric on the raw scale is a difference; bounds
+\eqn{\le 0} rule out a ratio. The comparison allows for the rounding of
+the printed digits, so a narrow interval such as \code{"0.98 (0.95, 1.01)"}
+fits both scales. Such an interval takes the scale of the intervals in
+\code{x} that can be decided, provided they all agree. Otherwise it is
+treated as a ratio, with a warning.
+
+\strong{Asymmetric intervals.} An interval that stays clearly asymmetric
+on its scale gets a warning (exact, profile-likelihood or bootstrap
+intervals, or a typo). The threshold is \eqn{|hi + lo - 2 est| / (hi - lo)
+> 0.2} after allowing for rounding. Its SE comes from the half of the
+interval facing the null, so \code{p < 0.05} exactly when the interval
+excludes the null. \code{level} rescales each half separately, so
+\code{level = 0.95} returns the interval unchanged.
+
+\strong{Invalid intervals.} If the estimate lies outside its bounds, the
+width is zero, or a bound is \eqn{\le 0} under \code{exp = TRUE}, the
+string is returned as-is and its p-value is \code{NA}, with a warning.
+
+With \code{level}, the p-value is read off the re-levelled interval as if
+it were a 95\% CI. Its stars therefore agree with the interval shown and
+are not the p-value of the original test.
 }
 \examples{
 # Basic: return CI as-is

@@ -1,5 +1,16 @@
 # UtilsR 0.6.2
 
+* `stat_ci_parse(exp = "auto")` no longer reads a narrow ratio near 1 as a
+  difference. `"0.98 (0.95, 1.01)"` gave p = 0 because rounding hid the log
+  shape. Scale detection now allows for the printed digits. An interval that
+  cannot be decided follows the decided intervals in `x`, and is read as a
+  ratio with a warning otherwise. Intervals that are asymmetric on their
+  scale get a warning; their p-value comes from the half facing the null,
+  and `level` rescales each half (`level = 0.95` is now an identity). An
+  estimate outside its bounds, zero width, or a bound <= 0 under
+  `exp = TRUE` now gives `NA` with a warning instead of a spurious p-value.
+  Symmetric intervals with an explicit `exp` give the same results as before.
+
 * ggprism moved from Suggests to Imports: `theme_my()` reads its palette
   from ggprism, so `theme_my()`, `theme_km`, `theme_rcs` and `theme_scatter`
   no longer fail or stay `NULL` when ggprism is not installed.
