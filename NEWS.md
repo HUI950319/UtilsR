@@ -33,6 +33,12 @@
   `-log10(p)` stays finite. The two-sided tail is `2 * pnorm(-|z|)`; other
   p-values move by at most 1e-16 and no formatted output changes.
 
+* `stat_ci_parse()` and `stat_ci()` read an en or em dash written as a minus
+  sign, as Word and PDF tables often print it: `"–0.25 (–0.40, –0.10)"`
+  failed to parse and now equals `"-0.25 (-0.40, -0.10)"`. A dash counts as
+  a minus only before a number that opens the string or follows the bracket
+  or a separator, so `"0.25 (0.10–0.40)"` keeps it as the separator.
+
 * ggprism moved from Suggests to Imports: `theme_my()` reads its palette
   from ggprism, so `theme_my()`, `theme_km`, `theme_rcs` and `theme_scatter`
   no longer fail or stay `NULL` when ggprism is not installed.

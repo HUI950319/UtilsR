@@ -71,10 +71,15 @@ test_that("common manuscript spellings parse to the same interval", {
   for (x in c("−0.25 (−0.40, −0.10)", "-0.25 (-0.40--0.10)",
               "-0.25（-0.40，-0.10）", "-0.25 (-0.40~-0.10)",
               "-0.25 (-0.40; -0.10)", "-0.25 (-0.40—-0.10)",
-              "-0.25 (-0.40～-0.10)", "-2.5e-1 (-4.0e-1, -1.0e-1)")) {
+              "-0.25 (-0.40～-0.10)", "-2.5e-1 (-4.0e-1, -1.0e-1)",
+              "–0.25 (–0.40, –0.10)", "–0.25 (–0.40––0.10)",
+              "—0.25 (—0.40 to —0.10)", "–.25 (–.40, –.10)")) {
     expect_no_warning(p <- stat_ci_parse(x, output = "p"))
     expect_equal(p, ref)
   }
+  # a dash before a number is a minus sign; between two numbers, the separator
+  expect_identical(stat_ci_parse("–0.15 (–0.40–0.10)"), "-0.15 (-0.40–0.10)")
+  expect_identical(stat_ci_parse("0.25 (0.10–0.40)"), "0.25 (0.10–0.40)")
   expect_identical(stat_ci_parse("+0.25 (+0.10, +0.40)"), "0.25 (0.10, 0.40)")
   expect_identical(stat_ci_parse("1.23 (0.95~1.59)"), "1.23 (0.95~1.59)")
   expect_identical(stat_ci_parse("1.23 (0.95；1.59)"), "1.23 (0.95; 1.59)")

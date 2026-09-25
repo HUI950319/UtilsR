@@ -21,7 +21,8 @@
 #' @param x Character vector of CI strings (e.g. \code{"1.23 (0.95, 1.59)"}).
 #'   Brackets \code{()} or \code{[]}; separators \code{,} \code{;}
 #'   \code{-} \code{~} en/em dash or \code{to}; numbers may carry a sign or
-#'   an exponent. Full-width punctuation and the Unicode minus are accepted.
+#'   an exponent. Full-width punctuation, the Unicode minus and an en or em
+#'   dash written as a minus sign before a number are accepted.
 #'   Trailing stars are ignored, other trailing text is dropped with a
 #'   warning, and \code{NA} / \code{""} pass through silently.
 #' @param output What to return:
@@ -239,6 +240,11 @@ stat_ci_parse <- function(x,
 
   # Full-width punctuation and the Unicode minus sign (pasted from Word/PDF)
   xs <- chartr("\u2212\uff08\uff09\uff0c\uff1b\uff5e", "-(),;~", trimws(x))
+  # An en or em dash right before a number is a minus sign, as Word and PDF
+  # tables print negatives, when it opens the string or follows the bracket
+  # or a separator; between two numbers it stays the separator
+  xs <- gsub("(^|[[(,;~\u2013\u2014-]\\s*|\\sto\\s+)[\u2013\u2014](?=\\.?\\d)",
+             "\\1-", xs, perl = TRUE)
   xs <- gsub("[* ]+$", "", xs)       # strip trailing stars/spaces
   xs <- gsub("\\.$", "", xs)          # strip single trailing dot
 
