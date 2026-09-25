@@ -109,7 +109,6 @@ stat_ci_parse <- function(x,
   lo  <- parsed$lower
   hi  <- parsed$upper
   d   <- parsed$digits
-  fmt_template <- parsed$format
   valid <- parsed$valid
 
   # Override digits
@@ -164,21 +163,11 @@ stat_ci_parse <- function(x,
   }
   pval <- ifelse(valid, 2 * (1 - pnorm(abs(e_s / se))), NA_real_)
 
-  # --- Rebuild format template when digits is overridden ---
-  if (!is.null(digits)) {
-    # Re-extract original bracket/sep style, then rebuild with new digits
-    parsed2 <- .ci_extract(x)
-    for (i in which(valid)) {
-      # The original template from .ci_extract uses %1$d positional arg for digits
-      # We need to find the raw template pattern and re-apply with new digits
-      # Simplest: replace all %.Xf patterns with the new digit count
-      fmt_template[i] <- gsub("%\\.[0-9]+f", sprintf("%%.%df", digits), fmt_template[i])
-    }
-  }
+  # --- Rebuild the CI string in its original bracket/separator style ---
+  fmt <- function(v) sprintf("%.*f", d, round(v, d))
   ci_str <- ifelse(valid,
-    mapply(function(e, l, h, dd, tmpl) {
-      sprintf(tmpl, round(e, dd), round(l, dd), round(h, dd))
-    }, est, lo, hi, d, fmt_template, USE.NAMES = FALSE),
+    paste0(fmt(est), " ", parsed$open, fmt(lo), parsed$sep, fmt(hi),
+           parsed$close),
     x)
 
   # --- Return based on output ---
@@ -205,59 +194,39 @@ stat_ci_parse <- function(x,
   n <- length(x)
   est <- lo <- hi <- rep(NA_real_, n)
   d <- rep(2L, n)
-  fmt <- rep("%%.%1$df (%%.%1$df, %%.%1$df)", n)
-  valid <- rep(FALSE, n)
+  open <- close <- sep <- rep(NA_character_, n)
   unit <- matrix(NA_real_, n, 3L)   # rounding unit of est, lower, upper
 
-  # Regex patterns: est (bracket_open) lower sep upper (bracket_close)
-  patterns <- list(
-    list(re = "^([0-9.-]+)\\s*\\(([0-9.-]+)\\s*[,]\\s*([0-9.-]+)\\)",
-         tmpl = "%%.%1$df (%%.%1$df, %%.%1$df)"),
-    list(re = "^([0-9.-]+)\\s*\\(([0-9.-]+)\\s*\u2013\\s*([0-9.-]+)\\)",
-         tmpl = "%%.%1$df (%%.%1$df\u2013%%.%1$df)"),
-    list(re = "^([0-9.-]+)\\s*\\(([0-9.-]+)\\s*-\\s*([0-9.-]+)\\)",
-         tmpl = "%%.%1$df (%%.%1$df-%%.%1$df)"),
-    list(re = "^([0-9.-]+)\\s*\\[([0-9.-]+)\\s*[,]\\s*([0-9.-]+)\\]",
-         tmpl = "%%.%1$df [%%.%1$df, %%.%1$df]"),
-    list(re = "^([0-9.-]+)\\s*\\[([0-9.-]+)\\s*\u2013\\s*([0-9.-]+)\\]",
-         tmpl = "%%.%1$df [%%.%1$df\u2013%%.%1$df]"),
-    list(re = "^([0-9.-]+)\\s*\\[([0-9.-]+)\\s*-\\s*([0-9.-]+)\\]",
-         tmpl = "%%.%1$df [%%.%1$df-%%.%1$df]"),
-    list(re = "^([0-9.-]+)\\s*\\(([0-9.-]+)\\s+to\\s+([0-9.-]+)\\)",
-         tmpl = "%%.%1$df (%%.%1$df to %%.%1$df)"),
-    list(re = "^([0-9.-]+)\\s*\\[([0-9.-]+)\\s+to\\s+([0-9.-]+)\\]",
-         tmpl = "%%.%1$df [%%.%1$df to %%.%1$df]")
-  )
+  xs <- trimws(x)
+  xs <- gsub("[* ]+$", "", xs)       # strip trailing stars/spaces
+  xs <- gsub("\\.$", "", xs)          # strip single trailing dot
 
-  for (i in seq_len(n)) {
-    xi <- trimws(x[i])
-    xi <- gsub("[* ]+$", "", xi)       # strip trailing stars/spaces
-    xi <- gsub("\\.$", "", xi)          # strip single trailing dot
-    if (is.na(xi) || nchar(xi) == 0) next
+  # est (lower sep upper) -- one pattern for every bracket and separator;
+  # groups: 1 est, 2 open, 3 lower, 4 sep, 5 upper, 6 close
+  num <- "([0-9.-]+)"
+  re <- paste0("^", num, "\\s*([[(])", num,
+               "(\\s*,\\s*|\\s*\u2013\\s*|\\s*-\\s*|\\s+to\\s+)", num, "([])])")
+  hit <- which(grepl(re, xs))
+  grab <- function(k) sub(paste0(re, ".*$"), paste0("\\", k), xs[hit])
+  g <- lapply(1:6, grab)
+  num_of <- function(s) suppressWarnings(as.numeric(s))
+  e <- num_of(g[[1]]); l <- num_of(g[[3]]); h <- num_of(g[[5]])
+  ok <- !is.na(e) & !is.na(l) & !is.na(h) &
+    paste0(g[[2]], g[[6]]) %in% c("()", "[]")
+  hit <- hit[ok]
+  g <- lapply(g, `[`, ok)
 
-    for (pat in patterns) {
-      m <- regmatches(xi, regexec(pat$re, xi))[[1]]
-      if (length(m) == 4) {
-        e <- suppressWarnings(as.numeric(m[2]))
-        l <- suppressWarnings(as.numeric(m[3]))
-        h <- suppressWarnings(as.numeric(m[4]))
-        if (!is.na(e) && !is.na(l) && !is.na(h)) {
-          est[i] <- e; lo[i] <- l; hi[i] <- h
-          valid[i] <- TRUE
-          # Detect digits from estimate string
-          dec <- sub("^-?[0-9]*\\.?", "", m[2])
-          d[i] <- max(nchar(dec), 1L)
-          unit[i, ] <- 10^-nchar(sub("^-?[0-9]*\\.?", "", m[2:4]))
-          # Build sprintf template with detected digits
-          fmt[i] <- sprintf(pat$tmpl, d[i])
-          break
-        }
-      }
-    }
-  }
+  est[hit] <- e[ok]; lo[hit] <- l[ok]; hi[hit] <- h[ok]
+  open[hit] <- g[[2]]; close[hit] <- g[[6]]
+  sep[hit] <- c("," = ", ", "\u2013" = "\u2013", "-" = "-",
+                "to" = " to ")[trimws(g[[4]])]
+  dec <- lapply(g[c(1, 3, 5)], function(s) nchar(sub("^-?[0-9]*\\.?", "", s)))
+  d[hit] <- pmax(dec[[1]], 1L)      # output digits follow the estimate
+  unit[hit, ] <- 10^-do.call(cbind, dec)
 
-  list(estimate = est, lower = lo, upper = hi,
-       digits = d, format = fmt, valid = valid, unit = unit)
+  list(estimate = est, lower = lo, upper = hi, digits = d,
+       open = open, sep = sep, close = close, valid = !is.na(open),
+       unit = unit)
 }
 
 #' @noRd
