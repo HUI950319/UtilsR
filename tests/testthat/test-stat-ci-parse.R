@@ -123,6 +123,13 @@ test_that("an estimate on a printed bound still gets a finite p-value", {
     "1.0 (0.6, 1.0), p=1.000")
 })
 
+test_that("very small p-values do not underflow to 0", {
+  se <- (log(6.25) - log(4)) / (2 * z95)
+  p <- stat_ci_parse("5.00 (4.00, 6.25)", output = "p")
+  expect_gt(p, 0)
+  expect_equal(p, 2 * pnorm(-log(5) / se))
+})
+
 test_that("ci_p writes p<0.001, not p=<0.001", {
   expect_identical(stat_ci_parse("2.00 (1.50, 2.67)", output = "ci_p"),
                    "2.00 (1.50, 2.67), p<0.001")

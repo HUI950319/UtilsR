@@ -28,6 +28,11 @@
   p = 1 instead of `NaN`. `level`, `digits` and `map_signif` are checked up
   front with a clear error. `stat_ci()` shares the decimal rule.
 
+* `stat_ci_parse(output = "p")` no longer returns exactly 0 for a very
+  strong effect: `"5.00 (4.00, 6.25)"` gave 0 and now gives 2.3e-45, so
+  `-log10(p)` stays finite. The two-sided tail is `2 * pnorm(-|z|)`; other
+  p-values move by at most 1e-16 and no formatted output changes.
+
 * ggprism moved from Suggests to Imports: `theme_my()` reads its palette
   from ggprism, so `theme_my()`, `theme_km`, `theme_rcs` and `theme_scatter`
   no longer fail or stay `NULL` when ggprism is not installed.

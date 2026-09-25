@@ -194,7 +194,7 @@ stat_ci_parse <- function(x,
   # An estimate on the null has z = 0 even when its null-side half has
   # rounded to zero width (0 / 0)
   z <- ifelse(e_s == 0, 0, e_s / se)
-  pval <- ifelse(valid, 2 * (1 - pnorm(abs(z))), NA_real_)
+  pval <- ifelse(valid, 2 * pnorm(-abs(z)), NA_real_)   # no underflow to 0
 
   # --- Rebuild the CI string in its original bracket/separator style ---
   fmt <- function(v) {
