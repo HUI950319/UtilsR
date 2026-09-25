@@ -94,6 +94,51 @@ test_that("trailing text is dropped with a warning", {
   expect_no_warning(stat_ci_parse(c("1.23 (0.95, 1.59)** ", "1.23 (0.95, 1.59).")))
 })
 
-test_that("exp must be auto, TRUE or FALSE", {
-  expect_error(stat_ci_parse("1.20 (0.90, 1.60)", exp = "yes"), "exp")
+test_that("output keeps the printed precision, sign of zero and names", {
+  expect_identical(stat_ci_parse("1.2 (0.95, 1.59)", exp = TRUE),
+                   "1.20 (0.95, 1.59)")
+  expect_identical(stat_ci_parse("12 (10, 15)", exp = FALSE), "12 (10, 15)")
+  expect_identical(stat_ci_parse("0.20 (-0.04, 0.44)", level = 0.9),
+                   "0.20 (0.00, 0.40)")
+  expect_identical(stat_ci_parse(c(a = "1.23 (0.95, 1.59)")),
+                   c(a = "1.23 (0.95, 1.59)"))
+  expect_named(stat_ci_parse(c(a = "1.23 (0.95, 1.59)"), output = "p"), "a")
+  expect_identical(stat_ci_parse(character(0)), character(0))
+  expect_identical(stat_ci_parse(character(0), output = "p"), numeric(0))
+})
+
+test_that("level keeps at least one decimal for integer input", {
+  expect_identical(stat_ci_parse("2 (1, 3)", level = 0.9, exp = FALSE),
+                   "2.0 (1.2, 2.8)")
+})
+
+test_that("an estimate on a printed bound still gets a finite p-value", {
+  expect_identical(suppressWarnings(
+    stat_ci_parse("1.0 (0.6, 1.0)", output = "p", exp = TRUE)), 1)
+  p <- suppressWarnings(stat_ci_parse("1.50 (1.50, 2.00)", output = "p",
+                                      exp = TRUE))
+  expect_true(is.finite(p) && p < 0.05)
+  expect_identical(suppressWarnings(
+    stat_ci_parse("1.0 (0.6, 1.0)", output = "ci_p", exp = TRUE)),
+    "1.0 (0.6, 1.0), p=1.000")
+})
+
+test_that("ci_p writes p<0.001, not p=<0.001", {
+  expect_identical(stat_ci_parse("2.00 (1.50, 2.67)", output = "ci_p"),
+                   "2.00 (1.50, 2.67), p<0.001")
+  expect_identical(stat_ci_parse("1.23 (0.95, 1.59)", output = "ci_p"),
+                   "1.23 (0.95, 1.59), p=0.115")
+})
+
+test_that("arguments are validated up front", {
+  x <- "1.23 (0.95, 1.59)"
+  expect_error(stat_ci_parse(x, exp = "yes"), "exp")
+  for (dg in list(-1, NA, 1.5, c(1, 2))) {
+    expect_error(stat_ci_parse(x, digits = dg), "digits")
+  }
+  for (lv in list(c(0.9, 0.95), NA, "0.9", 90)) {
+    expect_error(stat_ci_parse(x, level = lv), "level")
+  }
+  expect_error(stat_ci_parse(x, output = "ci_star", map_signif = 0.05),
+               "map_signif")
 })

@@ -38,14 +38,19 @@
 #'   null = 1, normal approximation on the log scale), \code{FALSE} for
 #'   differences (null = 0), or \code{"auto"} (default) to infer it. Set it
 #'   explicitly whenever the effect measure is known. See Details.
-#' @param digits Integer, decimal places for output. Default: auto-detect from input.
+#' @param digits Integer, decimal places for output. Default: the most
+#'   decimals among the estimate and its bounds, so \code{output = "ci"}
+#'   without \code{level} does not round the input; at least one with
+#'   \code{level}.
 #' @param map_signif Named numeric vector for star thresholds.
 #'   Only used when \code{output} is \code{"ci_star"} or \code{"p_star"}.
 #'
 #' @details
 #' The input is read as a 95\% CI and the p-value is backed out with the
 #' normal approximation of Altman & Bland (BMJ 2011;343:d2304):
-#' \eqn{SE = (hi - lo) / (2 \times 1.96)} on the working scale.
+#' \eqn{SE = (hi - lo) / (2 \times 1.96)} on the working scale. An interval
+#' at another level (e.g. a 90\% CI) is still read as 95\% and gives a wrong
+#' p-value; convert it first.
 #'
 #' \strong{\code{exp = "auto"}.} An interval symmetric on the log scale is a
 #' ratio, and one symmetric on the raw scale is a difference; bounds
@@ -71,7 +76,8 @@
 #' it were a 95\% CI. Its stars therefore agree with the interval shown and
 #' are not the p-value of the original test.
 #'
-#' @return Character vector (for ci/ci_p/ci_star/p_star) or numeric vector (for p).
+#' @return Character vector (for ci/ci_p/ci_star/p_star) or numeric vector
+#'   (for p), with the names of \code{x}.
 #'
 #' @examples
 #' # Basic: return CI as-is
@@ -107,6 +113,21 @@ stat_ci_parse <- function(x,
   if (!(identical(exp, "auto") || isTRUE(exp) || isFALSE(exp))) {
     cli::cli_abort("{.arg exp} must be {.val auto}, {.code TRUE} or {.code FALSE}.")
   }
+  if (!is.null(level) && !(is.numeric(level) && length(level) == 1L &&
+                           !is.na(level) && level > 0 && level < 1)) {
+    cli::cli_abort("{.arg level} must be a single number between 0 and 1.")
+  }
+  if (!is.null(digits) && !(is.numeric(digits) && length(digits) == 1L &&
+                            !is.na(digits) && digits >= 0 &&
+                            digits == round(digits))) {
+    cli::cli_abort("{.arg digits} must be a single non-negative whole number.")
+  }
+  if (output %in% c("ci_star", "p_star") &&
+      !(is.numeric(map_signif) && !anyNA(map_signif) &&
+        !is.null(names(map_signif)) && all(nzchar(names(map_signif))))) {
+    cli::cli_abort("{.arg map_signif} must be a named numeric vector.")
+  }
+  if (!length(x)) return(if (output == "p") numeric(0) else character(0))
 
   # --- Parse CI strings ---
   parsed <- .ci_extract(x)
@@ -162,7 +183,7 @@ stat_ci_parse <- function(x,
 
   # --- Adjust CI level; p is then read off the adjusted CI as a 95% CI ---
   if (!is.null(level)) {
-    if (level <= 0 || level >= 1) cli::cli_abort("{.arg level} must be between 0 and 1.")
+    if (is.null(digits)) d <- pmax(d, 1L)   # "2 (1, 3)" -> "2.0 (1.2, 2.8)"
     z_new <- qnorm(1 - (1 - level) / 2)
     l_s <- ifelse(asym, e_s - (e_s - l_s) * z_new / z95, e_s - z_new * se)
     h_s <- ifelse(asym, e_s + (h_s - e_s) * z_new / z95, e_s + z_new * se)
@@ -170,21 +191,29 @@ stat_ci_parse <- function(x,
     hi <- ifelse(valid, ifelse(is_exp, exp(h_s), h_s), hi)
     se <- se_of(l_s, h_s)
   }
-  pval <- ifelse(valid, 2 * (1 - pnorm(abs(e_s / se))), NA_real_)
+  # An estimate on the null has z = 0 even when its null-side half has
+  # rounded to zero width (0 / 0)
+  z <- ifelse(e_s == 0, 0, e_s / se)
+  pval <- ifelse(valid, 2 * (1 - pnorm(abs(z))), NA_real_)
 
   # --- Rebuild the CI string in its original bracket/separator style ---
-  fmt <- function(v) sprintf("%.*f", d, round(v, d))
+  fmt <- function(v) {
+    v <- round(v, d)
+    v[which(v == 0)] <- 0             # -0 would print as "-0.00"
+    sprintf("%.*f", d, v)
+  }
   ci_str <- ifelse(valid,
     paste0(fmt(est), " ", parsed$open, fmt(lo), parsed$sep, fmt(hi),
            parsed$close),
     x)
 
   # --- Return based on output ---
-  switch(output,
+  out <- switch(output,
     ci = ci_str,
     p = pval,
     ci_p = ifelse(valid,
-      paste0(ci_str, ", p=", stat_pval(pval, mode = "pvalue")),
+      sub("=<", "<", paste0(ci_str, ", p=", stat_pval(pval, mode = "pvalue")),
+          fixed = TRUE),
       x),
     ci_star = ifelse(valid,
       stat_pval(ci_str, add_star_p = pval, map_signif = map_signif),
@@ -193,6 +222,8 @@ stat_ci_parse <- function(x,
       stat_pval(pval, map_signif = map_signif),
       NA_character_)
   )
+  names(out) <- names(x)
+  out
 }
 
 
@@ -236,7 +267,7 @@ stat_ci_parse <- function(x,
     nchar(sub("^[-+]?\\d*\\.?", "", sub("[eE].*$", "", s), perl = TRUE)) -
       as.integer(ex)
   })
-  d[hit] <- pmax(dec[[1]], 1L)      # output digits follow the estimate
+  d[hit] <- pmax(dec[[1]], dec[[2]], dec[[3]], 0L)   # most precise number
   unit[hit, ] <- 10^-do.call(cbind, dec)
 
   list(estimate = est, lower = lo, upper = hi, digits = d,

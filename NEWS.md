@@ -18,6 +18,16 @@
   warn. Text after the closing bracket is dropped with a warning instead of
   silently. `stat_ci()` shares the parser.
 
+* `stat_ci_parse()` output fixes: `output = "ci_p"` writes `p<0.001`
+  instead of `p=<0.001`; a bound that rounds to zero prints `0.00`, not
+  `-0.00`; decimals follow the most precise of the three numbers, so
+  `"1.2 (0.95, 1.59)"` is no longer rounded to `"1.2 (0.9, 1.6)"` and
+  integers stay integers (at least one decimal with `level`, as before);
+  names of `x` are kept; `character(0)` returns an empty character or
+  numeric vector. An estimate equal to the null on a printed bound gets
+  p = 1 instead of `NaN`. `level`, `digits` and `map_signif` are checked up
+  front with a clear error. `stat_ci()` shares the decimal rule.
+
 * ggprism moved from Suggests to Imports: `theme_my()` reads its palette
   from ggprism, so `theme_my()`, `theme_km`, `theme_rcs` and `theme_scatter`
   no longer fail or stay `NULL` when ggprism is not installed.
