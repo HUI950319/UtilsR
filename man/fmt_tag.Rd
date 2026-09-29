@@ -28,14 +28,14 @@ fmt_tag(
   \item Numeric length-2 vector `c(x, y)` in NPC — drawn inside the
     panel (default `c(0.02, 0.98)` = top-left inside).
   \item Keyword for inside corners: `"tl"`, `"tr"`, `"bl"`, `"br"`.
-  \item Keyword for outside corners (rendered in the plot's margin
-    region outside the panel via the ggplot2 tag mechanism):
+  \item Keyword for outside corners (a boxed label at the corner of the
+    whole plot, in the margin region outside the panel, drawn as a
+    full-plot [patchwork::inset_element()]):
     `"tl-out"`, `"tr-out"`, `"bl-out"`, `"br-out"`. Underscore
     variants (`"tl_out"` etc.) are also accepted.
 }
-When an `-out` keyword is used, `label.size` / `label.padding` /
-`label.r` are ignored (the outside label is plain text without a
-box).}
+Both placements draw the same box, styled by `label.size`,
+`label.padding` and `label.r`; `...` only applies to inside placements.}
 
 \item{size}{Numeric label size in points. Default 18.}
 
@@ -43,21 +43,22 @@ box).}
 
 \item{fontface}{Font face for labels. Default `"bold"`.}
 
-\item{label.size}{Border line width of the label box in mm. Default 1.
-Only used for inside placements.}
+\item{label.size}{Border line width of the label box in mm. Default 1.}
 
 \item{label.padding}{Padding around the label text, a [grid::unit()]
 vector. Default `unit(c(0.2, 0.3, 0.2, 0.3), "lines")` (top, right,
-bottom, left). Only used for inside placements.}
+bottom, left).}
 
 \item{label.r}{Corner radius of the label box, a [grid::unit()] value.
-Default `unit(0.2, "lines")`. Only used for inside placements.}
+Default `unit(0.2, "lines")`.}
 
 \item{...}{Additional arguments passed to [ggpp::annotate()] for
 inside placements (ignored when an `-out` keyword is used).}
 }
 \value{
-Same type as input.
+Same type as input. With an `-out` keyword each ggplot carries
+  the label as a patchwork inset, so a single ggplot comes back as a
+  (single-plot) patchwork.
 }
 \description{
 Add text labels (e.g. A, B, C) to the corner of each plot panel using

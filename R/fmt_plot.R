@@ -188,28 +188,29 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
 #'     \item Numeric length-2 vector `c(x, y)` in NPC — drawn inside the
 #'       panel (default `c(0.02, 0.98)` = top-left inside).
 #'     \item Keyword for inside corners: `"tl"`, `"tr"`, `"bl"`, `"br"`.
-#'     \item Keyword for outside corners (rendered in the plot's margin
-#'       region outside the panel via the ggplot2 tag mechanism):
+#'     \item Keyword for outside corners (a boxed label at the corner of the
+#'       whole plot, in the margin region outside the panel, drawn as a
+#'       full-plot [patchwork::inset_element()]):
 #'       `"tl-out"`, `"tr-out"`, `"bl-out"`, `"br-out"`. Underscore
 #'       variants (`"tl_out"` etc.) are also accepted.
 #'   }
-#'   When an `-out` keyword is used, `label.size` / `label.padding` /
-#'   `label.r` are ignored (the outside label is plain text without a
-#'   box).
+#'   Both placements draw the same box, styled by `label.size`,
+#'   `label.padding` and `label.r`; `...` only applies to inside placements.
 #' @param size Numeric label size in points. Default 18.
 #' @param color Label text color. Default `"black"`.
 #' @param fontface Font face for labels. Default `"bold"`.
 #' @param label.size Border line width of the label box in mm. Default 1.
-#'   Only used for inside placements.
 #' @param label.padding Padding around the label text, a [grid::unit()]
 #'   vector. Default `unit(c(0.2, 0.3, 0.2, 0.3), "lines")` (top, right,
-#'   bottom, left). Only used for inside placements.
+#'   bottom, left).
 #' @param label.r Corner radius of the label box, a [grid::unit()] value.
-#'   Default `unit(0.2, "lines")`. Only used for inside placements.
+#'   Default `unit(0.2, "lines")`.
 #' @param ... Additional arguments passed to [ggpp::annotate()] for
 #'   inside placements (ignored when an `-out` keyword is used).
 #'
-#' @return Same type as input.
+#' @return Same type as input. With an `-out` keyword each ggplot carries
+#'   the label as a patchwork inset, so a single ggplot comes back as a
+#'   (single-plot) patchwork.
 #'
 #' @examples
 #' library(ggplot2)
@@ -259,21 +260,34 @@ fmt_tag <- function(plot,
 
   for (i in seq_len(n)) {
     if (outside) {
-      # Render via ggplot2 tag system — drawn OUTSIDE the panel, in the
-      # plot's margin/title region. plot.tag.position uses NPC relative
-      # to the whole plot, not the panel.
-      plots[[i]] <- plots[[i]] +
-        ggplot2::labs(tag = labels[i]) +
-        ggplot2::theme(
-          plot.tag.position = c(npcx[i], npcy[i]),
-          plot.tag = ggplot2::element_text(
-            size   = size[i],
-            face   = fontface,
-            colour = color[i],
-            hjust  = if (npcx[i] < 0.5) 0 else 1,
-            vjust  = if (npcy[i] > 0.5) 1 else 0
-          )
+      # Boxed label drawn OUTSIDE the panel, in the plot's margin region:
+      # a full-plot patchwork inset (align_to = "full", NPC relative to the
+      # whole plot) holding a label box anchored at the corner. The inset's
+      # plot.background is blanked so it does not paint over the plot.
+      txt <- grid::textGrob(
+        labels[i],
+        gp = grid::gpar(fontsize = size[i], fontface = fontface, col = color[i])
+      )
+      box <- grid::grobTree(
+        grid::roundrectGrob(
+          r = label.r,
+          gp = grid::gpar(col = color[i], fill = "white",
+                          lwd = label.size * ggplot2::.pt)
+        ),
+        txt,
+        vp = grid::viewport(
+          x = npcx[i], y = npcy[i],
+          width = grid::grobWidth(txt) + label.padding[2] + label.padding[4],
+          height = grid::grobHeight(txt) + label.padding[1] + label.padding[3],
+          just = c(if (npcx[i] < 0.5) 0 else 1, if (npcy[i] > 0.5) 1 else 0)
         )
+      )
+      plots[[i]] <- plots[[i]] + patchwork::inset_element(
+        patchwork::wrap_elements(full = box) +
+          ggplot2::theme(plot.background = ggplot2::element_blank()),
+        left = 0, bottom = 0, right = 1, top = 1,
+        align_to = "full", clip = FALSE, on_top = TRUE
+      )
     } else {
       plots[[i]] <- plots[[i]] +
         ggpp::annotate(

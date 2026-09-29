@@ -1,5 +1,11 @@
 # UtilsR 0.6.2
 
+* `fmt_tag()` outside placements (`"tl-out"`, `"tr-out"`, `"bl-out"`,
+  `"br-out"`) now draw the label in the same box as inside placements,
+  styled by `label.size`, `label.padding` and `label.r`. The label is a
+  full-plot patchwork inset instead of a ggplot2 tag, so a single ggplot
+  comes back as a single-plot patchwork.
+
 * `stat_ci_parse(exp = "auto")` no longer reads a narrow ratio near 1 as a
   difference. `"0.98 (0.95, 1.01)"` gave p = 0 because rounding hid the log
   shape. Scale detection now allows for the printed digits. An interval that
