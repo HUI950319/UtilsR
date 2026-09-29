@@ -1,7 +1,7 @@
 find_grobs <- function(g, cls) {
-  if (inherits(g, cls)) return(list(g))
   kids <- if (inherits(g, "gtable")) g$grobs else if (inherits(g, "gTree")) g$children
-  unlist(lapply(kids, find_grobs, cls = cls), recursive = FALSE)
+  c(if (inherits(g, cls)) list(g),
+    unlist(lapply(kids, find_grobs, cls = cls), recursive = FALSE))
 }
 
 test_that("outside tags are drawn in a box honouring label.size / label.r", {
@@ -15,6 +15,24 @@ test_that("outside tags are drawn in a box honouring label.size / label.r", {
   expect_equal(boxes[[1]]$gp$lwd, 2 * ggplot2::.pt)
   expect_equal(boxes[[1]]$r, grid::unit(0.5, "lines"))
   expect_null(res$labels$tag)
+})
+
+test_that("outside boxes are inset by half the border so it is not clipped", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, disp)) + ggplot2::geom_point()
+  res <- fmt_tag(p, label_position = "tl-out", label.size = 2)
+
+  trees <- Filter(
+    function(g) any(vapply(g$children, inherits, logical(1), "roundrect")),
+    find_grobs(patchwork::patchworkGrob(res), "gTree")
+  )
+  expect_length(trees, 1L)
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  vp <- trees[[1]]$vp
+  expect_equal(grid::convertX(vp$x, "mm", valueOnly = TRUE), 1)
+  expect_equal(
+    grid::convertY(grid::unit(1, "npc") - vp$y, "mm", valueOnly = TRUE), 1
+  )
 })
 
 test_that("outside tags keep the patchwork layout", {

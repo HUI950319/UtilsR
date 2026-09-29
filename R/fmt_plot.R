@@ -264,6 +264,11 @@ fmt_tag <- function(plot,
       # a full-plot patchwork inset (align_to = "full", NPC relative to the
       # whole plot) holding a label box anchored at the corner. The inset's
       # plot.background is blanked so it does not paint over the plot.
+      # The box is pulled in by half its border width, otherwise the outer
+      # half of the stroke falls outside the plot and is clipped.
+      left <- npcx[i] < 0.5
+      top <- npcy[i] > 0.5
+      half <- grid::unit(label.size / 2, "mm")
       txt <- grid::textGrob(
         labels[i],
         gp = grid::gpar(fontsize = size[i], fontface = fontface, col = color[i])
@@ -276,10 +281,11 @@ fmt_tag <- function(plot,
         ),
         txt,
         vp = grid::viewport(
-          x = npcx[i], y = npcy[i],
+          x = grid::unit(npcx[i], "npc") + if (left) half else -half,
+          y = grid::unit(npcy[i], "npc") + if (top) -half else half,
           width = grid::grobWidth(txt) + label.padding[2] + label.padding[4],
           height = grid::grobHeight(txt) + label.padding[1] + label.padding[3],
-          just = c(if (npcx[i] < 0.5) 0 else 1, if (npcy[i] > 0.5) 1 else 0)
+          just = c(if (left) 0 else 1, if (top) 1 else 0)
         )
       )
       plots[[i]] <- plots[[i]] + patchwork::inset_element(
