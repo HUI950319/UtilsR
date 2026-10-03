@@ -2,7 +2,7 @@
 
 Create a missing-value matrix, a missing-percentage bar chart, or one of
 two combined layouts for a data frame or an \`mlr3::Task\`. Use
-\[plt\_upset()\] with \`levels = NA\` to visualise joint missing-value
+\[plt_upset()\] with \`levels = NA\` to visualise joint missing-value
 patterns across selected variables.
 
 ## Usage
@@ -19,32 +19,31 @@ plt_na(
 
 ## Arguments
 
-  - data:
-    
-    A data frame, tibble, or object inheriting from \`Task\`.
+- data:
 
-  - name.map:
-    
-    Optional named character vector used to replace variable names in
-    the plot. Names must be the original variable names.
+  A data frame, tibble, or object inheriting from \`Task\`.
 
-  - miss\_palette:
-    
-    Character vector of at least three colours. The first colour
-    represents present values, the second represents missing values, and
-    the third colours the 30 colours of \[pal\_lancet()\].
+- name.map:
 
-  - output:
-    
-    Plot layout to return. One of \`"both"\` (missingness matrix on the
-    left and percentages on the right), \`"both\_reverse"\` (percentages
-    on the left and matrix on the right), \`"matrix"\`, or
-    \`"percentage"\`.
+  Optional named character vector used to replace variable names in the
+  plot. Names must be the original variable names.
 
-  - sort:
-    
-    Variable order by missing rate: \`"desc"\` (default, largest to
-    smallest) or \`"asc"\` (smallest to largest).
+- miss_palette:
+
+  Character vector of at least three colours. The first colour
+  represents present values, the second represents missing values, and
+  the third colours the 30 colours of \[pal_lancet()\].
+
+- output:
+
+  Plot layout to return. One of \`"both"\` (missingness matrix on the
+  left and percentages on the right), \`"both_reverse"\` (percentages on
+  the left and matrix on the right), \`"matrix"\`, or \`"percentage"\`.
+
+- sort:
+
+  Variable order by missing rate: \`"desc"\` (default, largest to
+  smallest) or \`"asc"\` (smallest to largest).
 
 ## Value
 
@@ -54,10 +53,15 @@ no missing values are found.
 
 ## See also
 
-\[fmt\_strip()\], \[plt\_upset()\]
+\[fmt_strip()\], \[plt_upset()\]
 
-Other inspect: `check_na()`, `check_size()`, `check_system()`,
-`count_packages_in_libpaths()`, `impute_na_knn()`, `lv()`
+Other inspect:
+[`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md),
+[`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md),
+[`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md),
+[`count_packages_in_libpaths()`](https://hui950319.github.io/UtilsR/reference/count_packages_in_libpaths.md),
+[`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md),
+[`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
 
 ## Examples
 
@@ -70,7 +74,6 @@ if (requireNamespace("ToyData", quietly = TRUE)) {
   plt_na(ToyData::oc, output = "percentage", sort = "asc")
 }
 
-
 if (requireNamespace("ToyData", quietly = TRUE) &&
     requireNamespace("ggVennDiagram", quietly = TRUE)) {
   plt_upset(
@@ -80,6 +83,5 @@ if (requireNamespace("ToyData", quietly = TRUE) &&
     output = "upset"
   )
 }
-
 # }
 ```

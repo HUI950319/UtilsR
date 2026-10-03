@@ -23,55 +23,55 @@ pal_show(
 
 ## Arguments
 
-  - palette:
-    
-    Character vector of palette names (e.g. `"lancet"`), a colour vector
-    (hex codes or named colours), or `NULL` to show all palettes
-    matching `pattern`/`type`. Named colour vectors (e.g. `pal_paraSC`)
-    will use the names as labels.
+- palette:
 
-  - n:
-    
-    Number of colours to take from each palette, following the rules of
-    `pal_get()`: colours are taken from the front when `n` is at most
-    the palette length and interpolated when it is longer. `max_colors`
-    still caps how many of them are drawn. Default `NULL` shows each
-    palette as it is.
+  Character vector of palette names (e.g. `"lancet"`), a colour vector
+  (hex codes or named colours), or `NULL` to show all palettes matching
+  `pattern`/`type`. Named colour vectors (e.g. `pal_paraSC`) will use
+  the names as labels.
 
-  - pattern:
-    
-    Regex pattern to filter palette names (e.g. `"^nord"`).
+- n:
 
-  - type:
-    
-    Filter by type: `"all"`, `"discrete"`, or `"continuous"`.
+  Number of colours to take from each palette, following the rules of
+  [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md):
+  colours are taken from the front when `n` is at most the palette
+  length and interpolated when it is longer. `max_colors` still caps how
+  many of them are drawn. Default `NULL` shows each palette as it is.
 
-  - max\_colors:
-    
-    Maximum colours to display per palette. Default 20.
+- pattern:
 
-  - index:
-    
-    Integer vector of palette indices to show (after filtering).
+  Regex pattern to filter palette names (e.g. `"^nord"`).
 
-  - output:
-    
-    Output format: `"gt"` (default) for a gt table, `"gg"` for a ggplot,
-    or `"console"` for terminal output.
+- type:
 
-  - label:
-    
-    Logical. In colour vector mode, whether to show hex/name labels on
-    tiles. Default `TRUE`.
+  Filter by type: `"all"`, `"discrete"`, or `"continuous"`.
 
-  - label\_size:
-    
-    Numeric. Text size for labels in colour vector mode. Default 3.
+- max_colors:
 
-  - ncol:
-    
-    Integer. Number of columns for colour vector mode. Default `NULL`
-    puts every displayed colour on a single row.
+  Maximum colours to display per palette. Default 20.
+
+- index:
+
+  Integer vector of palette indices to show (after filtering).
+
+- output:
+
+  Output format: `"gt"` (default) for a gt table, `"gg"` for a ggplot,
+  or `"console"` for terminal output.
+
+- label:
+
+  Logical. In colour vector mode, whether to show hex/name labels on
+  tiles. Default `TRUE`.
+
+- label_size:
+
+  Numeric. Text size for labels in colour vector mode. Default 3.
+
+- ncol:
+
+  Integer. Number of columns for colour vector mode. Default `NULL` puts
+  every displayed colour on a single row.
 
 ## Value
 
@@ -84,14 +84,24 @@ When `palette` is a character vector of valid colour specifications (hex
 codes like `"#FF0000"` or named R colours like `"red"`) rather than
 palette names, the function automatically switches to **colour vector
 mode**: it displays the colours directly as a single-row colour bar
-(ggplot) with hex labels, similar to `show_color()` but as a
-publication-ready plot.
+(ggplot) with hex labels, similar to
+[`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
+but as a publication-ready plot.
 
 ## See also
 
-Other colour palettes: `pal_bar`, `pal_get()`, `pal_heat`, `pal_lancet`,
-`pal_list()`, `pal_other`, `pal_paraSC`, `pal_show_brewer()`,
-`pal_show_ggsci()`, `pal_show_hcl()`, `pal_show_viridis()`
+Other colour palettes:
+[`pal_bar`](https://hui950319.github.io/UtilsR/reference/pal_bar.md),
+[`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md),
+[`pal_heat`](https://hui950319.github.io/UtilsR/reference/pal_heat.md),
+[`pal_lancet`](https://hui950319.github.io/UtilsR/reference/pal_lancet.md),
+[`pal_list()`](https://hui950319.github.io/UtilsR/reference/pal_list.md),
+[`pal_other`](https://hui950319.github.io/UtilsR/reference/pal_other.md),
+[`pal_paraSC`](https://hui950319.github.io/UtilsR/reference/pal_paraSC.md),
+[`pal_show_brewer()`](https://hui950319.github.io/UtilsR/reference/pal_show_brewer.md),
+[`pal_show_ggsci()`](https://hui950319.github.io/UtilsR/reference/pal_show_ggsci.md),
+[`pal_show_hcl()`](https://hui950319.github.io/UtilsR/reference/pal_show_hcl.md),
+[`pal_show_viridis()`](https://hui950319.github.io/UtilsR/reference/pal_show_viridis.md)
 
 ## Examples
 

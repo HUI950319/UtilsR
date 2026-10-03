@@ -10,6 +10,7 @@ chainable ggplot2 formatting system.
 ## Installation
 
 ``` r
+
 pak::pak("HUI950319/UtilsR")
 
 # or
@@ -19,6 +20,7 @@ devtools::install_github("HUI950319/UtilsR")
 Optional dependencies for special chart types
 
 ``` r
+
 # Sankey
 pak::pak("davidsjoberg/ggsankey")
 
@@ -28,37 +30,45 @@ install.packages(c("circlize", "ggVennDiagram", "ggupset"))
 
 ## Feature Highlights
 
-  - **`plt_cat()`** – One function, 11 chart types (bar, pie, ring,
-    rose, dot, trend, area, sankey, chord, venn, upset), 27+ parameters
-  - **`plt_con()`** – One function, 4 chart types (violin, box, bar,
-    dot) with statistical comparisons, overlays, split/stack layout
-  - **`lv()`** – Instant variable summary for data.frame and Seurat
-    objects with grouping and cross-tabulation
-  - **`fmt_*()`** – Chainable ggplot2 formatting: axes, tags, legends,
-    reference lines, strips, comparisons, backgrounds, scales, and more
-  - **256 built-in palettes** via `pal_get()` / `pal_list()`, plus 11
-    hand-picked palettes (`pal_lancet`, `pal_ditto`, `pal_igv`, …)
-  - **`fct_cat()`** – Recode, reorder, reverse, binarise, group, and
-    combine factors in one call
+- **[`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)**
+  – One function, 11 chart types (bar, pie, ring, rose, dot, trend,
+  area, sankey, chord, venn, upset), 27+ parameters
+- **[`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)**
+  – One function, 4 chart types (violin, box, bar, dot) with statistical
+  comparisons, overlays, split/stack layout
+- **[`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)** –
+  Instant variable summary for data.frame and Seurat objects with
+  grouping and cross-tabulation
+- **`fmt_*()`** – Chainable ggplot2 formatting: axes, tags, legends,
+  reference lines, strips, comparisons, backgrounds, scales, and more
+- **256 built-in palettes** via
+  [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md)
+  /
+  [`pal_list()`](https://hui950319.github.io/UtilsR/reference/pal_list.md),
+  plus 11 hand-picked palettes (`pal_lancet`, `pal_ditto`, `pal_igv`, …)
+- **[`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md)**
+  – Recode, reorder, reverse, binarise, group, and combine factors in
+  one call
 
 ## Functions at a Glance
 
-| Category      | Functions                                                                                                                                                                                | Purpose                                                                   |
-| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| **Inspect**   | `lv()`, `na()`, `check_system()`, `check_size()`                                                                                                                                         | Variable summary, missing values, system & memory info                    |
-| **Factor**    | `fct_cat()`, `fct_num()`                                                                                                                                                                 | Recode / reorder / binarise; numeric binning                              |
-| **Format**    | `stat_ci()`, `stat_pval()`, `stat_ci_parse()`                                                                                                                                            | CI strings, p-values                                                      |
-| **Plot**      | `plt_cat()`, `plt_con()`, `plt_dist()`, `plt_sankey()`, `plt_upset()`                                                                                                                    | Categorical (11 types), continuous (4 types), distribution, sankey, upset |
-| **Colour**    | `pal_get()`, `pal_list()`, `pal_show()`, `as_palette()`, `show_color()`                                                                                                                  | 256 palettes, custom palette creation, console swatches                   |
-| **ggplot2**   | `fmt_plot()`, `fmt_axis()`, `fmt_tag()`, `fmt_legend()`, `fmt_ref()`, `fmt_strip()`, `fmt_com()`, `fmt_bg()`, `fmt_his()`, `fmt_scale()`, `fmt_expand()`, `fmt_boxplot()`, `fmt_point()` | Chainable ggplot2 formatting                                              |
-| **Theme**     | `theme_my()`, `theme_km()`, `theme_rcs()`, `theme_legend1()`                                                                                                                             | Publication-ready themes                                                  |
-| **Operators** | `%ni%`, `%\\|\\|%`, `%>%`, `%<>%`                                                                                                                                                        | Not-in, null default, pipes                                               |
+| Category | Functions | Purpose |
+|----|----|----|
+| **Inspect** | [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md), `na()`, [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md), [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md) | Variable summary, missing values, system & memory info |
+| **Factor** | [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md), [`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md) | Recode / reorder / binarise; numeric binning |
+| **Format** | [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md), [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md), [`stat_ci_parse()`](https://hui950319.github.io/UtilsR/reference/stat_ci_parse.md) | CI strings, p-values |
+| **Plot** | [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md), [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md), [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md), [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md), [`plt_upset()`](https://hui950319.github.io/UtilsR/reference/plt_upset.md) | Categorical (11 types), continuous (4 types), distribution, sankey, upset |
+| **Colour** | [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md), [`pal_list()`](https://hui950319.github.io/UtilsR/reference/pal_list.md), [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md), `as_palette()`, [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md) | 256 palettes, custom palette creation, console swatches |
+| **ggplot2** | [`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md), [`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md), [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md), [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md), [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md), [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md), [`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md), [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md), [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md), [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md), [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md), [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md), [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md) | Chainable ggplot2 formatting |
+| **Theme** | [`theme_my()`](https://hui950319.github.io/UtilsR/reference/theme_my.md), [`theme_km()`](https://hui950319.github.io/UtilsR/reference/theme_km.md), [`theme_rcs()`](https://hui950319.github.io/UtilsR/reference/theme_rcs.md), [`theme_legend1()`](https://hui950319.github.io/UtilsR/reference/theme_legend1.md) | Publication-ready themes |
+| **Operators** | `%ni%`, `%\|\|%`, `%>%`, `%<>%` | Not-in, null default, pipes |
 
 ## Quick Examples
 
 ### `plt_cat()` – 11-Type Categorical Plot
 
 ``` r
+
 library(UtilsR)
 
 set.seed(1)
@@ -91,21 +101,22 @@ plt_cat(df, "Type", "Group", split.by = "Batch", type = "bar")
 
 `plt_cat()` parameter reference
 
-| Group      | Parameters                                                                                 |
-| ---------- | ------------------------------------------------------------------------------------------ |
-| Data       | `stat.by`, `group.by`, `split.by`                                                          |
-| Chart      | `type` (11 types), `stat`, `position`                                                      |
-| Colour     | `palette`, `alpha`, `NA_color`                                                             |
-| Labels     | `label`, `label.size`, `label.fg`, `label.bg`                                              |
-| Background | `bg.by`, `bg_palette`, `bg_alpha`                                                          |
-| NA/Empty   | `NA_stat`, `keep_empty`                                                                    |
-| Layout     | `title`, `subtitle`, `xlab`, `ylab`, `legend.position`, `legend.direction`, `aspect.ratio` |
-| Split      | `facet_nrow`, `facet_ncol`, `facet_byrow`                                                  |
-| Set types  | `stat_level` (venn/upset positive level)                                                   |
+| Group | Parameters |
+|----|----|
+| Data | `stat.by`, `group.by`, `split.by` |
+| Chart | `type` (11 types), `stat`, `position` |
+| Colour | `palette`, `alpha`, `NA_color` |
+| Labels | `label`, `label.size`, `label.fg`, `label.bg` |
+| Background | `bg.by`, `bg_palette`, `bg_alpha` |
+| NA/Empty | `NA_stat`, `keep_empty` |
+| Layout | `title`, `subtitle`, `xlab`, `ylab`, `legend.position`, `legend.direction`, `aspect.ratio` |
+| Split | `facet_nrow`, `facet_ncol`, `facet_byrow` |
+| Set types | `stat_level` (venn/upset positive level) |
 
 ### `plt_con()` – Unified Continuous Variable Plot
 
 ``` r
+
 set.seed(1)
 df2 <- data.frame(
   value = rnorm(200),
@@ -136,20 +147,21 @@ plt_con(df2, "value", "group", split.by = "batch")
 
 `plt_con()` parameter reference
 
-| Group      | Parameters                                                                                                 |
-| ---------- | ---------------------------------------------------------------------------------------------------------- |
-| Data       | `stat.by`, `group.by`, `split.by`, `bg.by`                                                                 |
-| Chart      | `type` (violin/box/bar/dot), `fill.by` (group/feature)                                                     |
-| Colour     | `palette`, `alpha`                                                                                         |
-| Overlays   | `add_box`, `add_point`, `add_trend` + styling params                                                       |
+| Group | Parameters |
+|----|----|
+| Data | `stat.by`, `group.by`, `split.by`, `bg.by` |
+| Chart | `type` (violin/box/bar/dot), `fill.by` (group/feature) |
+| Colour | `palette`, `alpha` |
+| Overlays | `add_box`, `add_point`, `add_trend` + styling params |
 | Statistics | `comparisons`, `ref_group`, `pairwise_method`, `multiplegroup_comparisons`, `multiple_method`, `sig_label` |
-| Y-axis     | `y.min`, `y.max` (numeric or “qN” quantile), `y.nbreaks`, `same.y.lims`                                    |
-| Layout     | `sort`, `stack`, `flip`, `title`, `subtitle`, `xlab`, `ylab`, `legend.*`, `aspect.ratio`                   |
-| Split      | `facet_nrow`, `facet_ncol`, `combine`                                                                      |
+| Y-axis | `y.min`, `y.max` (numeric or “qN” quantile), `y.nbreaks`, `same.y.lims` |
+| Layout | `sort`, `stack`, `flip`, `title`, `subtitle`, `xlab`, `ylab`, `legend.*`, `aspect.ratio` |
+| Split | `facet_nrow`, `facet_ncol`, `combine` |
 
 ### Variable Inspection
 
 ``` r
+
 lv(iris)                                        # all variables
 lv(iris, Species, Sepal.Length)                  # specific columns
 lv(iris, pattern = "Sepal")                     # regex match
@@ -160,6 +172,7 @@ lv(iris, count = c(Species))                    # cross-tabulation
 ### Factor Manipulation
 
 ``` r
+
 x <- factor(c("I", "II", "III", "IV"))
 
 fct_cat(x, early = c("I","II"), late = c("III","IV"))   # recode
@@ -173,6 +186,7 @@ df |> mutate(grp = fct_cat(sex, combine = "age"))        # combine columns
 ### Colour Palettes
 
 ``` r
+
 pal_lancet                        # 15 colours, Lancet journal style
 pal_ditto                         # 40 colours, dittoSeq (scRNA-seq)
 pal_igv                           # 48 colours, IGV genome browser
@@ -186,6 +200,7 @@ ggplot(data, aes(x, y, color = group)) +
 ### Chainable ggplot2 Formatting
 
 ``` r
+
 p <- ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) +
   geom_point()
 
@@ -198,14 +213,14 @@ p |>
 
 ## Articles
 
-| Article                                                                                     | Topic                                                         |
-| ------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| [Package Map](https://hui950319.github.io/UtilsR/articles/package-map.html)                 | Three mind maps: 12 modules, all 92 exports, processing chain |
-| [Categorical Plots](https://hui950319.github.io/UtilsR/articles/plt_cat_guide.html)         | Complete `plt_cat()` guide with all 11 chart types            |
-| [Data Inspection](https://hui950319.github.io/UtilsR/articles/data_inspection.html)         | `lv()`, `na()`, `check_system()`, `check_size()`              |
-| [Factor Manipulation](https://hui950319.github.io/UtilsR/articles/factor_manipulation.html) | `fct_cat()` and `fct_num()`                                   |
-| [ggplot2 Formatting](https://hui950319.github.io/UtilsR/articles/ggplot2_formatting.html)   | `fmt_*()` formatting system                                   |
-| [Colour Palettes](https://hui950319.github.io/UtilsR/articles/colour_palettes.html)         | 256 palettes, custom palettes                                 |
+| Article | Topic |
+|----|----|
+| [Package Map](https://hui950319.github.io/UtilsR/articles/package-map.html) | Three mind maps: 12 modules, all 92 exports, processing chain |
+| [Categorical Plots](https://hui950319.github.io/UtilsR/articles/plt_cat_guide.html) | Complete [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md) guide with all 11 chart types |
+| [Data Inspection](https://hui950319.github.io/UtilsR/articles/data_inspection.html) | [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md), `na()`, [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md), [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md) |
+| [Factor Manipulation](https://hui950319.github.io/UtilsR/articles/factor_manipulation.html) | [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md) and [`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md) |
+| [ggplot2 Formatting](https://hui950319.github.io/UtilsR/articles/ggplot2_formatting.html) | `fmt_*()` formatting system |
+| [Colour Palettes](https://hui950319.github.io/UtilsR/articles/colour_palettes.html) | 256 palettes, custom palettes |
 
 ## License
 

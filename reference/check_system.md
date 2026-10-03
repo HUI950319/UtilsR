@@ -11,23 +11,28 @@ check_system(return_result = FALSE, show_warnings = FALSE)
 
 ## Arguments
 
-  - return\_result:
-    
-    Logical. If `TRUE`, return the result list visibly. Default `FALSE`.
+- return_result:
 
-  - show\_warnings:
-    
-    Logical. If `TRUE`, display memory warnings. Default `FALSE`.
+  Logical. If `TRUE`, return the result list visibly. Default `FALSE`.
+
+- show_warnings:
+
+  Logical. If `TRUE`, display memory warnings. Default `FALSE`.
 
 ## Value
 
-A list (invisible by default) containing system\_info, r\_environment,
-r\_memory, system\_memory, cpu, warnings, and timestamp.
+A list (invisible by default) containing system_info, r_environment,
+r_memory, system_memory, cpu, warnings, and timestamp.
 
 ## See also
 
-Other inspect: `check_na()`, `check_size()`,
-`count_packages_in_libpaths()`, `impute_na_knn()`, `lv()`, `plt_na()`
+Other inspect:
+[`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md),
+[`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md),
+[`count_packages_in_libpaths()`](https://hui950319.github.io/UtilsR/reference/count_packages_in_libpaths.md),
+[`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md),
+[`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md),
+[`plt_na()`](https://hui950319.github.io/UtilsR/reference/plt_na.md)
 
 ## Examples
 

@@ -31,52 +31,53 @@ lv(
 
 ## Arguments
 
-  - data:
-    
-    A data object: data.frame or Seurat object. If omitted, `lv()` falls
-    back to a global object named `data`, otherwise `data_all` (the
-    first that is a data.frame / Seurat object).
+- data:
 
-  - ...:
-    
-    Variable selection using `dplyr::select` syntax.
+  A data object: data.frame or Seurat object. If omitted, `lv()` falls
+  back to a global object named `data`, otherwise `data_all` (the first
+  that is a data.frame / Seurat object).
 
-  - pattern:
-    
-    Optional regex pattern for matching variable names.
+- ...:
 
-  - group:
-    
-    Optional grouping variable. Supports NSE (bare name) or character
-    string. For Seurat objects, set to `TRUE` to use current Ident.
+  Variable selection using
+  [`dplyr::select`](https://dplyr.tidyverse.org/reference/select.html)
+  syntax.
 
-  - count:
-    
-    Optional variable(s) for cross-tabulation. Accepts a single variable
-    name (NSE or string), multiple variable names via `c(var1, var2)`
-    (NSE) or character vector `c("var1", "var2")`. Independent of
-    `group`.
+- pattern:
 
-  - cat\_args:
-    
-    Optional named list of extra arguments forwarded to
-    `RegR::get_gt_cat()` for an additional publication-ready
-    categorical-summary table (with survival-outcome columns
-    DSS/OS/status etc. auto-included). When non-empty, the internal call
-    is essentially `do.call(RegR::get_gt_cat, c(list(data = data),
-    cat_args))`. Typical contents: `list(cat_var = "Sex", com_var =
-    c("Age","TNM"))`. The `data` argument is always taken from the
-    `lv()` first argument; any `data` entry inside `cat_args` is
-    overridden with a warning. Default `list()` = no extra call.
-    Requires RegR (declared in Suggests).
+  Optional regex pattern for matching variable names.
 
-  - add\_reductions:
-    
-    Logical. Whether to add reduction coordinates. Default `FALSE`.
+- group:
 
-  - add\_cell\_stats:
-    
-    Logical. Whether to show cell statistics. Default `TRUE`.
+  Optional grouping variable. Supports NSE (bare name) or character
+  string. For Seurat objects, set to `TRUE` to use current Ident.
+
+- count:
+
+  Optional variable(s) for cross-tabulation. Accepts a single variable
+  name (NSE or string), multiple variable names via `c(var1, var2)`
+  (NSE) or character vector `c("var1", "var2")`. Independent of `group`.
+
+- cat_args:
+
+  Optional named list of extra arguments forwarded to
+  `RegR::get_gt_cat()` for an additional publication-ready
+  categorical-summary table (with survival-outcome columns DSS/OS/status
+  etc. auto-included). When non-empty, the internal call is essentially
+  `do.call(RegR::get_gt_cat, c(list(data = data), cat_args))`. Typical
+  contents: `list(cat_var = "Sex", com_var = c("Age","TNM"))`. The
+  `data` argument is always taken from the `lv()` first argument; any
+  `data` entry inside `cat_args` is overridden with a warning. Default
+  [`list()`](https://rdrr.io/r/base/list.html) = no extra call. Requires
+  RegR (declared in Suggests).
+
+- add_reductions:
+
+  Logical. Whether to add reduction coordinates. Default `FALSE`.
+
+- add_cell_stats:
+
+  Logical. Whether to show cell statistics. Default `TRUE`.
 
 ## Value
 
@@ -84,8 +85,13 @@ Invisibly returns the input data.
 
 ## See also
 
-Other inspect: `check_na()`, `check_size()`, `check_system()`,
-`count_packages_in_libpaths()`, `impute_na_knn()`, `plt_na()`
+Other inspect:
+[`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md),
+[`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md),
+[`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md),
+[`count_packages_in_libpaths()`](https://hui950319.github.io/UtilsR/reference/count_packages_in_libpaths.md),
+[`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md),
+[`plt_na()`](https://hui950319.github.io/UtilsR/reference/plt_na.md)
 
 ## Examples
 

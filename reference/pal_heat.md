@@ -18,63 +18,73 @@ pal_heat
 A named list of 11 character vectors, 5 hex colours each, named by the
 two hues each gradient runs between:
 
-  - blue\_red:
-    
-    blue to red (ColorBrewer RdBu)
+- blue_red:
 
-  - teal\_pink:
-    
-    deep teal to magenta
+  blue to red (ColorBrewer RdBu)
 
-  - slate\_red:
-    
-    midnight slate to dark red (Flat UI)
+- teal_pink:
 
-  - purple\_gold:
-    
-    deep purple to bronze
+  deep teal to magenta
 
-  - steel\_rose:
-    
-    steel blue to wine
+- slate_red:
 
-  - navy\_scarlet:
-    
-    navy to scarlet
+  midnight slate to dark red (Flat UI)
 
-  - green\_orange:
-    
-    forest green to burnt orange
+- purple_gold:
 
-  - purple\_teal:
-    
-    purple to teal (Material Design)
+  deep purple to bronze
 
-  - olive\_violet:
-    
-    olive to indigo
+- steel_rose:
 
-  - slate\_crimson:
-    
-    slate to crimson (Tailwind)
+  steel blue to wine
 
-  - indigo\_gold:
-    
-    indigo to gold
+- navy_scarlet:
+
+  navy to scarlet
+
+- green_orange:
+
+  forest green to burnt orange
+
+- purple_teal:
+
+  purple to teal (Material Design)
+
+- olive_violet:
+
+  olive to indigo
+
+- slate_crimson:
+
+  slate to crimson (Tailwind)
+
+- indigo_gold:
+
+  indigo to gold
 
 ## Details
 
 Unlike the categorical palettes here, these are meant to be
-interpolated: pass one to `ggplot2::scale_fill_gradientn()` or
-`grDevices::colorRampPalette()` rather than mapping the five colours to
-five levels.
+interpolated: pass one to
+[`ggplot2::scale_fill_gradientn()`](https://ggplot2.tidyverse.org/reference/scale_gradient.html)
+or
+[`grDevices::colorRampPalette()`](https://rdrr.io/r/grDevices/colorRamp.html)
+rather than mapping the five colours to five levels.
 
 ## See also
 
-Other colour palettes: `pal_bar`, `pal_get()`, `pal_lancet`,
-`pal_list()`, `pal_other`, `pal_paraSC`, `pal_show()`,
-`pal_show_brewer()`, `pal_show_ggsci()`, `pal_show_hcl()`,
-`pal_show_viridis()`
+Other colour palettes:
+[`pal_bar`](https://hui950319.github.io/UtilsR/reference/pal_bar.md),
+[`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md),
+[`pal_lancet`](https://hui950319.github.io/UtilsR/reference/pal_lancet.md),
+[`pal_list()`](https://hui950319.github.io/UtilsR/reference/pal_list.md),
+[`pal_other`](https://hui950319.github.io/UtilsR/reference/pal_other.md),
+[`pal_paraSC`](https://hui950319.github.io/UtilsR/reference/pal_paraSC.md),
+[`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md),
+[`pal_show_brewer()`](https://hui950319.github.io/UtilsR/reference/pal_show_brewer.md),
+[`pal_show_ggsci()`](https://hui950319.github.io/UtilsR/reference/pal_show_ggsci.md),
+[`pal_show_hcl()`](https://hui950319.github.io/UtilsR/reference/pal_show_hcl.md),
+[`pal_show_viridis()`](https://hui950319.github.io/UtilsR/reference/pal_show_viridis.md)
 
 ## Examples
 

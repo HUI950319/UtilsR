@@ -1,9 +1,9 @@
 # Heatmap / Tile Plot Theme
 
 A preset theme for categorical tile heatmaps – the look used by the
-3-variable branch of \[plt\_dist()\]. Built on \[theme\_my()\] with the
+3-variable branch of \[plt_dist()\]. Built on \[theme_my()\] with the
 legend, grid lines, axis ticks, and axis lines removed, leaving clean
-bordered tiles. Extra arguments are forwarded to \[theme\_my()\], so
+bordered tiles. Extra arguments are forwarded to \[theme_my()\], so
 palette, border, and `axis_text_angle` (handy for rotating crowded
 category labels) remain adjustable.
 
@@ -15,15 +15,15 @@ theme_heat(base_size = 14, ...)
 
 ## Arguments
 
-  - base\_size:
-    
-    Numeric. Base font size (default 14).
+- base_size:
 
-  - ...:
-    
-    Additional arguments passed on to \[theme\_my()\] (e.g. `palette`,
-    `border`, `axis_text_angle`). The legend, grid, ticks, and axis
-    lines are always removed regardless of `...`.
+  Numeric. Base font size (default 14).
+
+- ...:
+
+  Additional arguments passed on to \[theme_my()\] (e.g. `palette`,
+  `border`, `axis_text_angle`). The legend, grid, ticks, and axis lines
+  are always removed regardless of `...`.
 
 ## Value
 
@@ -31,10 +31,19 @@ A ggplot2 theme object.
 
 ## See also
 
-Other ggplot2 themes: `leg1()`, `leg2()`, `theme_ROC()`,
-`theme_alluvia()`, `theme_blank()`, `theme_km`, `theme_legend()`,
-`theme_legend1()`, `theme_my()`, `theme_rcs`, `theme_sc()`,
-`theme_scatter`
+Other ggplot2 themes:
+[`leg1()`](https://hui950319.github.io/UtilsR/reference/leg1.md),
+[`leg2()`](https://hui950319.github.io/UtilsR/reference/leg2.md),
+[`theme_ROC()`](https://hui950319.github.io/UtilsR/reference/theme_ROC.md),
+[`theme_alluvia()`](https://hui950319.github.io/UtilsR/reference/theme_alluvia.md),
+[`theme_blank()`](https://hui950319.github.io/UtilsR/reference/theme_blank.md),
+[`theme_km`](https://hui950319.github.io/UtilsR/reference/theme_km.md),
+[`theme_legend()`](https://hui950319.github.io/UtilsR/reference/theme_legend.md),
+[`theme_legend1()`](https://hui950319.github.io/UtilsR/reference/theme_legend1.md),
+[`theme_my()`](https://hui950319.github.io/UtilsR/reference/theme_my.md),
+[`theme_rcs`](https://hui950319.github.io/UtilsR/reference/theme_rcs.md),
+[`theme_sc()`](https://hui950319.github.io/UtilsR/reference/theme_sc.md),
+[`theme_scatter`](https://hui950319.github.io/UtilsR/reference/theme_scatter.md)
 
 ## Examples
 

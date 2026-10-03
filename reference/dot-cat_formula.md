@@ -18,26 +18,26 @@ outcome levels and presence of a time variable.
 
 ## Arguments
 
-  - data:
-    
-    A data.frame containing the outcome column.
+- data:
 
-  - co\_var:
-    
-    Character vector of covariate names.
+  A data.frame containing the outcome column.
 
-  - time:
-    
-    Character or `NULL`. Name of the time variable (`NULL` for logistic
-    models).
+- co_var:
 
-  - outcome:
-    
-    Character. Name of the outcome variable (default `"DSS"`).
+  Character vector of covariate names.
 
-  - type:
-    
-    One of `"info"`, `"success"`, `"warning"`, `"error"`.
+- time:
+
+  Character or `NULL`. Name of the time variable (`NULL` for logistic
+  models).
+
+- outcome:
+
+  Character. Name of the outcome variable (default `"DSS"`).
+
+- type:
+
+  One of `"info"`, `"success"`, `"warning"`, `"error"`.
 
 ## Value
 
@@ -45,8 +45,11 @@ Invisibly returns `NULL` after printing the formula.
 
 ## See also
 
-Other console display: `.cat_box()`, `.cat_line()`, `.cat_message()`,
-`.cat_tb()`
+Other console display:
+[`.cat_box()`](https://hui950319.github.io/UtilsR/reference/dot-cat_box.md),
+[`.cat_line()`](https://hui950319.github.io/UtilsR/reference/dot-cat_line.md),
+[`.cat_message()`](https://hui950319.github.io/UtilsR/reference/dot-cat_message.md),
+[`.cat_tb()`](https://hui950319.github.io/UtilsR/reference/dot-cat_tb.md)
 
 ## Examples
 

@@ -57,168 +57,166 @@ PlotScatter3(
 
 ## Arguments
 
-  - data:
-    
-    A data.frame containing x (control), y (treatment), and group
-    columns.
+- data:
 
-  - x:
-    
-    Column name for control values (X axis). Default `"Control"`.
+  A data.frame containing x (control), y (treatment), and group columns.
 
-  - y:
-    
-    Column name for treatment values (Y axis). Default `"Treat"`.
+- x:
 
-  - group:
-    
-    Column name for significance grouping (must have 2 levels). Default
-    `"group"`.
+  Column name for control values (X axis). Default `"Control"`.
 
-  - group\_levels:
-    
-    Character vector of length 2: `c(insignificant, significant)`.
-    `NULL` auto-detects from data.
+- y:
 
-  - highlight\_color:
-    
-    Colour for the significant group. Default `"#f71d53"`.
+  Column name for treatment values (Y axis). Default `"Treat"`.
 
-  - insig\_border:
-    
-    Border colour for insignificant points. Default `NULL` (same as
-    `highlight_color`).
+- group:
 
-  - point\_shape:
-    
-    Point shape code. Default 21 (filled circle).
+  Column name for significance grouping (must have 2 levels). Default
+  `"group"`.
 
-  - point\_size:
-    
-    Point size. Default 3.
+- group_levels:
 
-  - point\_stroke:
-    
-    Point border width. Default 0.8.
+  Character vector of length 2: `c(insignificant, significant)`. `NULL`
+  auto-detects from data.
 
-  - xlab:
-    
-    X axis label. Default `"Control"`.
+- highlight_color:
 
-  - ylab:
-    
-    Y axis label. Default `"Treat"`.
+  Colour for the significant group. Default `"#f71d53"`.
 
-  - axis\_limits:
-    
-    Numeric vector of length 2 for axis range. Default `NULL` (auto:
-    symmetric range from data).
+- insig_border:
 
-  - axis\_breaks:
-    
-    Numeric vector for axis tick positions. Default `NULL` (auto via
-    `pretty()`).
+  Border colour for insignificant points. Default `NULL` (same as
+  `highlight_color`).
 
-  - show\_refline:
-    
-    Whether to show reference lines (x=0, y=0, y=x). Default `TRUE`.
+- point_shape:
 
-  - test\_method:
-    
-    Paired test method: `"wilcox"`, `"t.test"`, or `"none"`. Default
-    `"wilcox"`.
+  Point shape code. Default 21 (filled circle).
 
-  - p\_digits:
-    
-    Number of digits for p-value. Default 2.
+- point_size:
 
-  - p\_size:
-    
-    Text size for p-value label. Default 4.
+  Point size. Default 3.
 
-  - p\_x, p\_y:
-    
-    Coordinates for p-value label. Default `NULL` (auto).
+- point_stroke:
 
-  - cor\_method:
-    
-    Correlation method: `"pearson"`, `"spearman"`, or `"none"`. Default
-    `"pearson"`.
+  Point border width. Default 0.8.
 
-  - cor\_size:
-    
-    Text size for correlation label. Default 4.
+- xlab:
 
-  - cor\_x, cor\_y:
-    
-    Coordinates for correlation label. Default `NULL` (auto).
+  X axis label. Default `"Control"`.
 
-  - hist\_bins:
-    
-    Number of histogram bins. Default 30.
+- ylab:
 
-  - hist\_x\_limits:
-    
-    Histogram X axis range. Default `NULL` (auto).
+  Y axis label. Default `"Treat"`.
 
-  - hist\_x\_breaks:
-    
-    Histogram X axis ticks. Default `NULL` (auto).
+- axis_limits:
 
-  - hist\_border:
-    
-    Histogram bar border colour. Default `NULL` (auto).
+  Numeric vector of length 2 for axis range. Default `NULL` (auto:
+  symmetric range from data).
 
-  - median\_label\_size:
-    
-    Text size for median label. Default 5.
+- axis_breaks:
 
-  - median\_line\_yend:
-    
-    Height of median vertical line. Default `NULL` (auto).
+  Numeric vector for axis tick positions. Default `NULL` (auto via
+  [`pretty()`](https://rdrr.io/r/base/pretty.html)).
 
-  - inset\_left, inset\_bottom, inset\_right, inset\_top:
-    
-    Inset boundaries (patchwork coordinates). Default 0.6, 0.6, 1.1,
-    1.1.
+- show_refline:
 
-  - inset\_angle:
-    
-    Rotation angle for inset. Default -45.
+  Whether to show reference lines (x=0, y=0, y=x). Default `TRUE`.
 
-  - inset\_vp\_width, inset\_vp\_height:
-    
-    Viewport size for inset. Default 0.85, 0.75.
+- test_method:
 
-  - theme\_use:
-    
-    Theme function, string, or theme object. Default `theme_my(border =
-    FALSE, panel.grid = element_blank())`.
+  Paired test method: `"wilcox"`, `"t.test"`, or `"none"`. Default
+  `"wilcox"`.
 
-  - plot\_margin:
-    
-    Numeric vector of length 4 (top, right, bottom, left) for main plot
-    margin. Default `c(80, 60, 5, 5)`.
+- p_digits:
 
-  - filename:
-    
-    Output file path. Default `NULL` (no save).
+  Number of digits for p-value. Default 2.
 
-  - width:
-    
-    Output width in inches. Default 6.
+- p_size:
 
-  - height:
-    
-    Output height in inches. Default 6.5.
+  Text size for p-value label. Default 4.
 
-  - dpi:
-    
-    Output resolution. Default 300.
+- p_x, p_y:
 
-  - bg:
-    
-    Output background colour. Default `"white"`.
+  Coordinates for p-value label. Default `NULL` (auto).
+
+- cor_method:
+
+  Correlation method: `"pearson"`, `"spearman"`, or `"none"`. Default
+  `"pearson"`.
+
+- cor_size:
+
+  Text size for correlation label. Default 4.
+
+- cor_x, cor_y:
+
+  Coordinates for correlation label. Default `NULL` (auto).
+
+- hist_bins:
+
+  Number of histogram bins. Default 30.
+
+- hist_x_limits:
+
+  Histogram X axis range. Default `NULL` (auto).
+
+- hist_x_breaks:
+
+  Histogram X axis ticks. Default `NULL` (auto).
+
+- hist_border:
+
+  Histogram bar border colour. Default `NULL` (auto).
+
+- median_label_size:
+
+  Text size for median label. Default 5.
+
+- median_line_yend:
+
+  Height of median vertical line. Default `NULL` (auto).
+
+- inset_left, inset_bottom, inset_right, inset_top:
+
+  Inset boundaries (patchwork coordinates). Default 0.6, 0.6, 1.1, 1.1.
+
+- inset_angle:
+
+  Rotation angle for inset. Default -45.
+
+- inset_vp_width, inset_vp_height:
+
+  Viewport size for inset. Default 0.85, 0.75.
+
+- theme_use:
+
+  Theme function, string, or theme object. Default
+  `theme_my(border = FALSE, panel.grid = element_blank())`.
+
+- plot_margin:
+
+  Numeric vector of length 4 (top, right, bottom, left) for main plot
+  margin. Default `c(80, 60, 5, 5)`.
+
+- filename:
+
+  Output file path. Default `NULL` (no save).
+
+- width:
+
+  Output width in inches. Default 6.
+
+- height:
+
+  Output height in inches. Default 6.5.
+
+- dpi:
+
+  Output resolution. Default 300.
+
+- bg:
+
+  Output background colour. Default `"white"`.
 
 ## Value
 
@@ -231,7 +229,9 @@ For dual-group scatter with marginal boxplots, see \[PlotScatter2()\].
 
 ## See also
 
-Other scatter plots: `PlotScatter1()`, `PlotScatter2()`
+Other scatter plots:
+[`PlotScatter1()`](https://hui950319.github.io/UtilsR/reference/PlotScatter1.md),
+[`PlotScatter2()`](https://hui950319.github.io/UtilsR/reference/PlotScatter2.md)
 
 ## Examples
 

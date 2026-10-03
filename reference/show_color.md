@@ -3,7 +3,8 @@
 Print colour hex codes as ANSI-coloured swatches with auto-contrasting
 foreground text. Works in any terminal that supports ANSI true-colour
 (24-bit) escape sequences. The displayed colour vector is also printed
-with `dput()` so it can be copied back into R for assignment.
+with [`dput()`](https://rdrr.io/r/base/dput.html) so it can be copied
+back into R for assignment.
 
 ## Usage
 
@@ -13,13 +14,13 @@ show_color(x, rev = FALSE)
 
 ## Arguments
 
-  - x:
-    
-    Character vector of colours (hex codes or named R colours).
+- x:
 
-  - rev:
-    
-    Logical. Reverse the order before display (default `FALSE`).
+  Character vector of colours (hex codes or named R colours).
+
+- rev:
+
+  Logical. Reverse the order before display (default `FALSE`).
 
 ## Value
 
@@ -28,11 +29,11 @@ Invisibly returns `x`.
 ## Details
 
 Swatches follow whatever colour depth the terminal reports through
-`cli::num_ansi_colors()`. A terminal limited to 256 colours draws the
-nearest palette entry instead of the exact hex, so a swatch can differ
-from the code printed beside it. `options(cli.num_colors = 16777216)`
-forces 24-bit output in a terminal that renders it without advertising
-it.
+[`cli::num_ansi_colors()`](https://cli.r-lib.org/reference/num_ansi_colors.html).
+A terminal limited to 256 colours draws the nearest palette entry
+instead of the exact hex, so a swatch can differ from the code printed
+beside it. `options(cli.num_colors = 16777216)` forces 24-bit output in
+a terminal that renders it without advertising it.
 
 ## Examples
 

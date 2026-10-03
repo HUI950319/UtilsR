@@ -22,65 +22,65 @@ fmt_panel(
 
 ## Arguments
 
-  - plot:
-    
-    A ggplot, patchwork, or list of ggplot objects.
+- plot:
 
-  - grid:
-    
-    Which grid lines to display.
-    
-      - `"none"` — remove all grid lines (default).
-    
-      - `"major"` — show only major grid lines.
-    
-      - `"minor"` — show only minor grid lines.
-    
-      - `"both"` — show both major and minor grid lines.
-    
-      - `"x"` — show only vertical (x-axis) major grid lines.
-    
-      - `"y"` — show only horizontal (y-axis) major grid lines.
+  A ggplot, patchwork, or list of ggplot objects.
 
-  - grid\_color:
-    
-    Color of retained grid lines. Default `NULL` (inherit from current
-    theme).
+- grid:
 
-  - grid\_linewidth:
-    
-    Numeric. Line width of retained grid lines. Default `NULL` (inherit
-    from current theme).
+  Which grid lines to display.
 
-  - grid\_linetype:
-    
-    Linetype of retained grid lines (e.g. `"solid"`, `"dashed"`,
-    `"dotted"`). Default `NULL` (inherit from current theme).
+  - `"none"` — remove all grid lines (default).
 
-  - border:
-    
-    Logical or character.
-    
-      - `TRUE` — draw a black rectangle border around the panel.
-    
-      - `FALSE` — remove the panel border.
-    
-      - A color string (e.g. `"grey50"`) — draw border in that color.
-    
-      - `NULL` (default) — no change.
+  - `"major"` — show only major grid lines.
 
-  - border\_linewidth:
-    
-    Numeric. Border line width. Default 0.5.
+  - `"minor"` — show only minor grid lines.
 
-  - bg:
-    
-    Panel background color. `NULL` (default) = no change, `"white"`,
-    `"transparent"`, or any valid color string.
+  - `"both"` — show both major and minor grid lines.
 
-  - ...:
-    
-    Additional arguments passed to \[ggplot2::theme()\].
+  - `"x"` — show only vertical (x-axis) major grid lines.
+
+  - `"y"` — show only horizontal (y-axis) major grid lines.
+
+- grid_color:
+
+  Color of retained grid lines. Default `NULL` (inherit from current
+  theme).
+
+- grid_linewidth:
+
+  Numeric. Line width of retained grid lines. Default `NULL` (inherit
+  from current theme).
+
+- grid_linetype:
+
+  Linetype of retained grid lines (e.g. `"solid"`, `"dashed"`,
+  `"dotted"`). Default `NULL` (inherit from current theme).
+
+- border:
+
+  Logical or character.
+
+  - `TRUE` — draw a black rectangle border around the panel.
+
+  - `FALSE` — remove the panel border.
+
+  - A color string (e.g. `"grey50"`) — draw border in that color.
+
+  - `NULL` (default) — no change.
+
+- border_linewidth:
+
+  Numeric. Border line width. Default 0.5.
+
+- bg:
+
+  Panel background color. `NULL` (default) = no change, `"white"`,
+  `"transparent"`, or any valid color string.
+
+- ...:
+
+  Additional arguments passed to \[ggplot2::theme()\].
 
 ## Value
 
@@ -88,11 +88,26 @@ Same type as input.
 
 ## See also
 
-Other plot formatting: `fmt_axis()`, `fmt_axisText()`, `fmt_axisTile()`,
-`fmt_bg()`, `fmt_boxplot()`, `fmt_com()`, `fmt_expand()`, `fmt_his()`,
-`fmt_legend()`, `fmt_plot()`, `fmt_plot_base()`, `fmt_point()`,
-`fmt_raster()`, `fmt_ref()`, `fmt_scale()`, `fmt_strip()`,
-`fmt_strip2()`, `fmt_tag()`, `fmt_text()`
+Other plot formatting:
+[`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md),
+[`fmt_axisText()`](https://hui950319.github.io/UtilsR/reference/fmt_axisText.md),
+[`fmt_axisTile()`](https://hui950319.github.io/UtilsR/reference/fmt_axisTile.md),
+[`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md),
+[`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md),
+[`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md),
+[`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md),
+[`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md),
+[`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md),
+[`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md),
+[`fmt_plot_base()`](https://hui950319.github.io/UtilsR/reference/fmt_plot_base.md),
+[`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md),
+[`fmt_raster()`](https://hui950319.github.io/UtilsR/reference/fmt_raster.md),
+[`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md),
+[`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md),
+[`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md),
+[`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md),
+[`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md),
+[`fmt_text()`](https://hui950319.github.io/UtilsR/reference/fmt_text.md)
 
 ## Examples
 

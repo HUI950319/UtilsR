@@ -3,13 +3,13 @@
 S3 generic that renames the levels of a factor. Dispatches on the first
 argument:
 
-  - **vector / factor** – `fct_label(x, labels)` relabels the vector
-    directly (thin wrapper around \[fct\_cat()\] with `new_labels`).
+- **vector / factor** – `fct_label(x, labels)` relabels the vector
+  directly (thin wrapper around \[fct_cat()\] with `new_labels`).
 
-  - **data.frame** – `fct_label(data, var, labels)` relabels a single
-    column **in place** and returns the whole data frame, so it chains
-    in a `%>%` / `|>` pipeline. The column may be a bare name (NSE) or a
-    character string.
+- **data.frame** – `fct_label(data, var, labels)` relabels a single
+  column **in place** and returns the whole data frame, so it chains in
+  a `%>%` / `|>` pipeline. The column may be a bare name (NSE) or a
+  character string.
 
 ## Usage
 
@@ -25,23 +25,23 @@ fct_label(x, labels, ...)
 
 ## Arguments
 
-  - x:
-    
-    A factor / character vector, or a data.frame.
+- x:
 
-  - ...:
-    
-    Passed to methods (currently unused).
+  A factor / character vector, or a data.frame.
 
-  - var:
-    
-    (data.frame method only) Column to relabel. Bare column name (NSE,
-    e.g. `Sex`) or character string (e.g. `"Sex"`).
+- ...:
 
-  - labels:
-    
-    Character vector of new level labels, in current level order and the
-    same length as the existing levels.
+  Passed to methods (currently unused).
+
+- var:
+
+  (data.frame method only) Column to relabel. Bare column name (NSE,
+  e.g. `Sex`) or character string (e.g. `"Sex"`).
+
+- labels:
+
+  Character vector of new level labels, in current level order and the
+  same length as the existing levels.
 
 ## Value
 
@@ -52,15 +52,18 @@ frame (with `var` relabelled) for the data.frame method.
 
 This is the packaged form of the legacy FeatureAnalysis helper
 `.fct_label()`. For other single-vector factor operations (reorder,
-binary, group), see \[fct\_cat()\]; for numeric binning see
-\[fct\_num()\].
+binary, group), see \[fct_cat()\]; for numeric binning see
+\[fct_num()\].
 
 ## See also
 
-\[fct\_cat()\], \[fct\_num()\], \[fct\_to\_combine()\]
+\[fct_cat()\], \[fct_num()\], \[fct_to_combine()\]
 
-Other factor tools: `fct_cat()`, `fct_num()`, `fct_to_combine()`,
-`fct_to_group()`
+Other factor tools:
+[`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md),
+[`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md),
+[`fct_to_combine()`](https://hui950319.github.io/UtilsR/reference/fct_to_combine.md),
+[`fct_to_group()`](https://hui950319.github.io/UtilsR/reference/fct_to_group.md)
 
 ## Examples
 

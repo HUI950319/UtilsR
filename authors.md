@@ -2,23 +2,21 @@
 
 ## Authors
 
-  - **Hui Ouyang**. Author, maintainer.
+- **Hui Ouyang**. Author, maintainer.
 
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/HUI950319/UtilsR/blob/HEAD/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/HUI950319/UtilsR/blob/master/DESCRIPTION)
 
 Ouyang H (2026). *UtilsR: Utility Functions for Data Exploration and
 System Diagnostics*. R package version 0.6.8,
-https://github.com/HUI950319/UtilsR,
 <https://hui950319.github.io/UtilsR/>.
 
     @Manual{,
       title = {UtilsR: Utility Functions for Data Exploration and System Diagnostics},
       author = {Hui Ouyang},
       year = {2026},
-      note = {R package version 0.6.8,
-        https://github.com/HUI950319/UtilsR},
+      note = {R package version 0.6.8},
       url = {https://hui950319.github.io/UtilsR/},
     }

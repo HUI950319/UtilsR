@@ -34,94 +34,94 @@ fmt_text(
 
 ## Arguments
 
-  - plot:
-    
-    A ggplot, patchwork, or list of ggplot objects.
+- plot:
 
-  - xlab:
-    
-    X-axis title. `NULL` = no change, `""` = remove. A vector sets
-    different labels per plot.
+  A ggplot, patchwork, or list of ggplot objects.
 
-  - ylab:
-    
-    Y-axis title. `NULL` = no change, `""` = remove. A vector sets
-    different labels per plot.
+- xlab:
 
-  - title:
-    
-    Plot title. `NULL` = no change, `""` = remove. A vector sets
-    different titles per plot.
+  X-axis title. `NULL` = no change, `""` = remove. A vector sets
+  different labels per plot.
 
-  - subtitle:
-    
-    Plot subtitle. `NULL` = no change. A vector sets different subtitles
-    per plot.
+- ylab:
 
-  - caption:
-    
-    Plot caption. `NULL` = no change. A vector sets different captions
-    per plot.
+  Y-axis title. `NULL` = no change, `""` = remove. A vector sets
+  different labels per plot.
 
-  - legend\_title:
-    
-    Legend title. `NULL` = no change, `""` = remove.
+- title:
 
-  - title\_size:
-    
-    Numeric. Title font size. Default `NULL`.
+  Plot title. `NULL` = no change, `""` = remove. A vector sets different
+  titles per plot.
 
-  - title\_face:
-    
-    Character. Title font face. Default `NULL`.
+- subtitle:
 
-  - title\_color:
-    
-    Character. Title color. Default `NULL`.
+  Plot subtitle. `NULL` = no change. A vector sets different subtitles
+  per plot.
 
-  - title\_hjust:
-    
-    Numeric. Title horizontal justification. Default `NULL`.
+- caption:
 
-  - subtitle\_size:
-    
-    Numeric. Subtitle font size. Default `NULL`.
+  Plot caption. `NULL` = no change. A vector sets different captions per
+  plot.
 
-  - subtitle\_face:
-    
-    Character. Subtitle font face. Default `NULL`.
+- legend_title:
 
-  - subtitle\_color:
-    
-    Character. Subtitle color. Default `NULL`.
+  Legend title. `NULL` = no change, `""` = remove.
 
-  - caption\_size:
-    
-    Numeric. Caption font size. Default `NULL`.
+- title_size:
 
-  - caption\_face:
-    
-    Character. Caption font face. Default `NULL`.
+  Numeric. Title font size. Default `NULL`.
 
-  - caption\_color:
-    
-    Character. Caption color. Default `NULL`.
+- title_face:
 
-  - axis\_title\_size:
-    
-    Numeric. Font size for both axis titles. Default `NULL`.
+  Character. Title font face. Default `NULL`.
 
-  - axis\_title\_face:
-    
-    Character. Font face for both axis titles. Default `NULL`.
+- title_color:
 
-  - axis\_title\_color:
-    
-    Character. Color for both axis titles. Default `NULL`.
+  Character. Title color. Default `NULL`.
 
-  - ...:
-    
-    Additional arguments passed to \[ggplot2::labs()\].
+- title_hjust:
+
+  Numeric. Title horizontal justification. Default `NULL`.
+
+- subtitle_size:
+
+  Numeric. Subtitle font size. Default `NULL`.
+
+- subtitle_face:
+
+  Character. Subtitle font face. Default `NULL`.
+
+- subtitle_color:
+
+  Character. Subtitle color. Default `NULL`.
+
+- caption_size:
+
+  Numeric. Caption font size. Default `NULL`.
+
+- caption_face:
+
+  Character. Caption font face. Default `NULL`.
+
+- caption_color:
+
+  Character. Caption color. Default `NULL`.
+
+- axis_title_size:
+
+  Numeric. Font size for both axis titles. Default `NULL`.
+
+- axis_title_face:
+
+  Character. Font face for both axis titles. Default `NULL`.
+
+- axis_title_color:
+
+  Character. Color for both axis titles. Default `NULL`.
+
+- ...:
+
+  Additional arguments passed to \[ggplot2::labs()\].
 
 ## Value
 
@@ -129,11 +129,26 @@ Same type as input.
 
 ## See also
 
-Other plot formatting: `fmt_axis()`, `fmt_axisText()`, `fmt_axisTile()`,
-`fmt_bg()`, `fmt_boxplot()`, `fmt_com()`, `fmt_expand()`, `fmt_his()`,
-`fmt_legend()`, `fmt_panel()`, `fmt_plot()`, `fmt_plot_base()`,
-`fmt_point()`, `fmt_raster()`, `fmt_ref()`, `fmt_scale()`,
-`fmt_strip()`, `fmt_strip2()`, `fmt_tag()`
+Other plot formatting:
+[`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md),
+[`fmt_axisText()`](https://hui950319.github.io/UtilsR/reference/fmt_axisText.md),
+[`fmt_axisTile()`](https://hui950319.github.io/UtilsR/reference/fmt_axisTile.md),
+[`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md),
+[`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md),
+[`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md),
+[`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md),
+[`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md),
+[`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md),
+[`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md),
+[`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md),
+[`fmt_plot_base()`](https://hui950319.github.io/UtilsR/reference/fmt_plot_base.md),
+[`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md),
+[`fmt_raster()`](https://hui950319.github.io/UtilsR/reference/fmt_raster.md),
+[`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md),
+[`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md),
+[`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md),
+[`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md),
+[`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
 
 ## Examples
 

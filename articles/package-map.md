@@ -47,20 +47,23 @@ and follow-up
 functions](utilsr-package-mindmap-p3.png)](https://hui950319.github.io/UtilsR/articles/utilsr-package-mindmap-p3.png)
 
 Modules 07 (palettes) and 09 (themes) do not appear as steps in that
-chain because they are the styling layer underneath it: `theme_my()` and
-`pal_lancet()` are called internally by the plotting functions in 01 /
-02 and by `fmt_plot()`, so the house style applies without you passing
-anything.
+chain because they are the styling layer underneath it:
+[`theme_my()`](https://hui950319.github.io/UtilsR/reference/theme_my.md)
+and
+[`pal_lancet()`](https://hui950319.github.io/UtilsR/reference/pal_lancet.md)
+are called internally by the plotting functions in 01 / 02 and by
+[`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md),
+so the house style applies without you passing anything.
 
 ## How this maps onto the reference
 
 The [reference
 index](https://hui950319.github.io/UtilsR/reference/index.md) is ordered
 to match the 12 modules one for one; only the headings differ, since
-they are in English (`01 专用图形 Plot*` is Advanced Plot Functions, `08
-ggplot2 格式化` is ggplot2 Formatting, and so on). Locate a module on the
-map first, then look up that module’s section in the reference for
-arguments and examples.
+they are in English (`01 专用图形 Plot*` is Advanced Plot Functions,
+`08 ggplot2 格式化` is ggplot2 Formatting, and so on). Locate a module
+on the map first, then look up that module’s section in the reference
+for arguments and examples.
 
 The two counts differ slightly: the maps count `export()` entries in
 `NAMESPACE`, while the reference index additionally lists `palette_list`

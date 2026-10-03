@@ -12,8 +12,8 @@
 <link rel="icon" sizes="any" href="favicon.ico">
 <link rel="manifest" href="site.webmanifest">
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Utility Functions for Data Exploration and System Diagnostics">
 <meta name="description" content="A collection of utility functions for interactive data exploration, variable inspection, missing value analysis, system resource monitoring, and object size profiling. Provides S3 generic lv() for summarizing variables in data.frames and Seurat objects, na_check() for data quality analysis, and system diagnostics tools.">
@@ -78,6 +78,7 @@
 </h1>
 </div>
 <!-- badges: start -->
+
 <p><strong>UtilsR</strong> is an R utility toolkit for everyday data work: variable inspection, statistical formatting, 256 colour palettes, 11-type categorical plotting, unified continuous variable plotting, and a chainable ggplot2 formatting system.</p>
 <p><strong>Documentation</strong>: <a href="https://hui950319.github.io/UtilsR/" class="uri">https://hui950319.github.io/UtilsR/</a></p>
 <div class="section level2">
@@ -87,14 +88,16 @@
 <code class="sourceCode R"><span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"HUI950319/UtilsR"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># or</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"HUI950319/UtilsR"</span><span class="op">)</span></span></code></pre></div>
-<details><p><summary>Optional dependencies for special chart types</summary></p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"HUI950319/UtilsR"</span><span class="op">)</span></span></code></pre></div>
+<details><summary>
+Optional dependencies for special chart types
+</summary><div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Sankey</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"davidsjoberg/ggsankey"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Chord, Venn, UpSet</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"circlize"</span>, <span class="st">"ggVennDiagram"</span>, <span class="st">"ggupset"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div></details>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"circlize"</span>, <span class="st">"ggVennDiagram"</span>, <span class="st">"ggupset"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</details>
 </div>
 <div class="section level2">
 <h2 id="feature-highlights">Feature Highlights<a class="anchor" aria-label="anchor" href="#feature-highlights"></a>
@@ -123,62 +126,62 @@
 <col width="36%">
 <col width="30%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th>Category</th>
 <th>Functions</th>
 <th>Purpose</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td><strong>Inspect</strong></td>
 <td>
 <code><a href="reference/lv.html">lv()</a></code>, <code>na()</code>, <code><a href="reference/check_system.html">check_system()</a></code>, <code><a href="reference/check_size.html">check_size()</a></code>
 </td>
 <td>Variable summary, missing values, system &amp; memory info</td>
 </tr>
-<tr class="even">
+<tr>
 <td><strong>Factor</strong></td>
 <td>
 <code><a href="reference/fct_cat.html">fct_cat()</a></code>, <code><a href="reference/fct_num.html">fct_num()</a></code>
 </td>
 <td>Recode / reorder / binarise; numeric binning</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><strong>Format</strong></td>
 <td>
 <code><a href="reference/stat_ci.html">stat_ci()</a></code>, <code><a href="reference/stat_pval.html">stat_pval()</a></code>, <code><a href="reference/stat_ci_parse.html">stat_ci_parse()</a></code>
 </td>
 <td>CI strings, p-values</td>
 </tr>
-<tr class="even">
+<tr>
 <td><strong>Plot</strong></td>
 <td>
 <code><a href="reference/plt_cat.html">plt_cat()</a></code>, <code><a href="reference/plt_con.html">plt_con()</a></code>, <code><a href="reference/plt_dist.html">plt_dist()</a></code>, <code><a href="reference/plt_sankey.html">plt_sankey()</a></code>, <code><a href="reference/plt_upset.html">plt_upset()</a></code>
 </td>
 <td>Categorical (11 types), continuous (4 types), distribution, sankey, upset</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><strong>Colour</strong></td>
 <td>
 <code><a href="reference/pal_get.html">pal_get()</a></code>, <code><a href="reference/pal_list.html">pal_list()</a></code>, <code><a href="reference/pal_show.html">pal_show()</a></code>, <code>as_palette()</code>, <code><a href="reference/show_color.html">show_color()</a></code>
 </td>
 <td>256 palettes, custom palette creation, console swatches</td>
 </tr>
-<tr class="even">
+<tr>
 <td><strong>ggplot2</strong></td>
 <td>
 <code><a href="reference/fmt_plot.html">fmt_plot()</a></code>, <code><a href="reference/fmt_axis.html">fmt_axis()</a></code>, <code><a href="reference/fmt_tag.html">fmt_tag()</a></code>, <code><a href="reference/fmt_legend.html">fmt_legend()</a></code>, <code><a href="reference/fmt_ref.html">fmt_ref()</a></code>, <code><a href="reference/fmt_strip.html">fmt_strip()</a></code>, <code><a href="reference/fmt_com.html">fmt_com()</a></code>, <code><a href="reference/fmt_bg.html">fmt_bg()</a></code>, <code><a href="reference/fmt_his.html">fmt_his()</a></code>, <code><a href="reference/fmt_scale.html">fmt_scale()</a></code>, <code><a href="reference/fmt_expand.html">fmt_expand()</a></code>, <code><a href="reference/fmt_boxplot.html">fmt_boxplot()</a></code>, <code><a href="reference/fmt_point.html">fmt_point()</a></code>
 </td>
 <td>Chainable ggplot2 formatting</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><strong>Theme</strong></td>
 <td>
 <code><a href="reference/theme_my.html">theme_my()</a></code>, <code><a href="reference/theme_km.html">theme_km()</a></code>, <code><a href="reference/theme_rcs.html">theme_rcs()</a></code>, <code><a href="reference/theme_legend1.html">theme_legend1()</a></code>
 </td>
 <td>Publication-ready themes</td>
 </tr>
-<tr class="even">
+<tr>
 <td><strong>Operators</strong></td>
 <td>
 <code>%ni%</code>, <code>%\|\|%</code>, <code>%&gt;%</code>, <code>%&lt;&gt;%</code>
@@ -224,66 +227,66 @@
 <span></span>
 <span><span class="co"># Split by facet + background bands</span></span>
 <span><span class="fu"><a href="reference/plt_cat.html">plt_cat</a></span><span class="op">(</span><span class="va">df</span>, <span class="st">"Type"</span>, <span class="st">"Group"</span>, split.by <span class="op">=</span> <span class="st">"Batch"</span>, type <span class="op">=</span> <span class="st">"bar"</span><span class="op">)</span></span></code></pre></div>
-<details><p><summary><code>plt_cat()</code> parameter reference</summary></p>
-<table class="table">
+<details><summary><code>plt_cat()</code> parameter reference
+</summary><table class="table">
 <colgroup>
 <col width="38%">
 <col width="61%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th>Group</th>
 <th>Parameters</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>Data</td>
 <td>
 <code>stat.by</code>, <code>group.by</code>, <code>split.by</code>
 </td>
 </tr>
-<tr class="even">
+<tr>
 <td>Chart</td>
 <td>
 <code>type</code> (11 types), <code>stat</code>, <code>position</code>
 </td>
 </tr>
-<tr class="odd">
+<tr>
 <td>Colour</td>
 <td>
 <code>palette</code>, <code>alpha</code>, <code>NA_color</code>
 </td>
 </tr>
-<tr class="even">
+<tr>
 <td>Labels</td>
 <td>
 <code>label</code>, <code>label.size</code>, <code>label.fg</code>, <code>label.bg</code>
 </td>
 </tr>
-<tr class="odd">
+<tr>
 <td>Background</td>
 <td>
 <code>bg.by</code>, <code>bg_palette</code>, <code>bg_alpha</code>
 </td>
 </tr>
-<tr class="even">
+<tr>
 <td>NA/Empty</td>
 <td>
 <code>NA_stat</code>, <code>keep_empty</code>
 </td>
 </tr>
-<tr class="odd">
+<tr>
 <td>Layout</td>
 <td>
 <code>title</code>, <code>subtitle</code>, <code>xlab</code>, <code>ylab</code>, <code>legend.position</code>, <code>legend.direction</code>, <code>aspect.ratio</code>
 </td>
 </tr>
-<tr class="even">
+<tr>
 <td>Split</td>
 <td>
 <code>facet_nrow</code>, <code>facet_ncol</code>, <code>facet_byrow</code>
 </td>
 </tr>
-<tr class="odd">
+<tr>
 <td>Set types</td>
 <td>
 <code>stat_level</code> (venn/upset positive level)</td>
@@ -322,58 +325,58 @@
 <span></span>
 <span><span class="co"># Split by batch</span></span>
 <span><span class="fu"><a href="reference/plt_con.html">plt_con</a></span><span class="op">(</span><span class="va">df2</span>, <span class="st">"value"</span>, <span class="st">"group"</span>, split.by <span class="op">=</span> <span class="st">"batch"</span><span class="op">)</span></span></code></pre></div>
-<details><p><summary><code>plt_con()</code> parameter reference</summary></p>
-<table class="table">
+<details><summary><code>plt_con()</code> parameter reference
+</summary><table class="table">
 <colgroup>
 <col width="38%">
 <col width="61%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th>Group</th>
 <th>Parameters</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>Data</td>
 <td>
 <code>stat.by</code>, <code>group.by</code>, <code>split.by</code>, <code>bg.by</code>
 </td>
 </tr>
-<tr class="even">
+<tr>
 <td>Chart</td>
 <td>
 <code>type</code> (violin/box/bar/dot), <code>fill.by</code> (group/feature)</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>Colour</td>
 <td>
 <code>palette</code>, <code>alpha</code>
 </td>
 </tr>
-<tr class="even">
+<tr>
 <td>Overlays</td>
 <td>
 <code>add_box</code>, <code>add_point</code>, <code>add_trend</code> + styling params</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>Statistics</td>
 <td>
 <code>comparisons</code>, <code>ref_group</code>, <code>pairwise_method</code>, <code>multiplegroup_comparisons</code>, <code>multiple_method</code>, <code>sig_label</code>
 </td>
 </tr>
-<tr class="even">
+<tr>
 <td>Y-axis</td>
 <td>
 <code>y.min</code>, <code>y.max</code> (numeric or “qN” quantile), <code>y.nbreaks</code>, <code>same.y.lims</code>
 </td>
 </tr>
-<tr class="odd">
+<tr>
 <td>Layout</td>
 <td>
 <code>sort</code>, <code>stack</code>, <code>flip</code>, <code>title</code>, <code>subtitle</code>, <code>xlab</code>, <code>ylab</code>, <code>legend.*</code>, <code>aspect.ratio</code>
 </td>
 </tr>
-<tr class="even">
+<tr>
 <td>Split</td>
 <td>
 <code>facet_nrow</code>, <code>facet_ncol</code>, <code>combine</code>
@@ -436,37 +439,41 @@
 <h2 id="articles">Articles<a class="anchor" aria-label="anchor" href="#articles"></a>
 </h2>
 <table class="table">
-<thead><tr class="header">
+<colgroup>
+<col width="58%">
+<col width="41%">
+</colgroup>
+<thead><tr>
 <th>Article</th>
 <th>Topic</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td><a href="https://hui950319.github.io/UtilsR/articles/package-map.html">Package Map</a></td>
 <td>Three mind maps: 12 modules, all 92 exports, processing chain</td>
 </tr>
-<tr class="even">
+<tr>
 <td><a href="https://hui950319.github.io/UtilsR/articles/plt_cat_guide.html">Categorical Plots</a></td>
 <td>Complete <code><a href="reference/plt_cat.html">plt_cat()</a></code> guide with all 11 chart types</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><a href="https://hui950319.github.io/UtilsR/articles/data_inspection.html">Data Inspection</a></td>
 <td>
 <code><a href="reference/lv.html">lv()</a></code>, <code>na()</code>, <code><a href="reference/check_system.html">check_system()</a></code>, <code><a href="reference/check_size.html">check_size()</a></code>
 </td>
 </tr>
-<tr class="even">
+<tr>
 <td><a href="https://hui950319.github.io/UtilsR/articles/factor_manipulation.html">Factor Manipulation</a></td>
 <td>
 <code><a href="reference/fct_cat.html">fct_cat()</a></code> and <code><a href="reference/fct_num.html">fct_num()</a></code>
 </td>
 </tr>
-<tr class="odd">
+<tr>
 <td><a href="https://hui950319.github.io/UtilsR/articles/ggplot2_formatting.html">ggplot2 Formatting</a></td>
 <td>
 <code>fmt_*()</code> formatting system</td>
 </tr>
-<tr class="even">
+<tr>
 <td><a href="https://hui950319.github.io/UtilsR/articles/colour_palettes.html">Colour Palettes</a></td>
 <td>256 palettes, custom palettes</td>
 </tr>

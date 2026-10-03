@@ -48,171 +48,173 @@ plt_cat(
 
 ## Arguments
 
-  - data:
-    
-    A data frame (or Seurat object metadata).
+- data:
 
-  - stat.by:
-    
-    Character. Column name(s) for the categorical variable to summarise.
-    For standard types (bar, rose, ring, pie, trend, area, dot) a single
-    column name. For set types (sankey, chord, venn, upset) a character
-    vector of \>= 2 column names.
+  A data frame (or Seurat object metadata).
 
-  - group.by:
-    
-    Character. Optional grouping variable for standard types. Ignored
-    for set types.
+- stat.by:
 
-  - split.by:
-    
-    Character. Optional splitting variable. Splits data, creates one
-    plot per level, and combines with patchwork.
+  Character. Column name(s) for the categorical variable to summarise.
+  For standard types (bar, rose, ring, pie, trend, area, dot) a single
+  column name. For set types (sankey, chord, venn, upset) a character
+  vector of \>= 2 column names.
 
-  - type:
-    
-    Chart type. One of `"bar"`, `"rose"`, `"ring"`, `"pie"`, `"trend"`,
-    `"area"`, `"dot"`, `"sankey"`, `"chord"`, `"venn"`, `"upset"`.
+- group.by:
 
-  - stat:
-    
-    Statistic to compute: `"percent"` (default) or `"count"`.
+  Character. Optional grouping variable for standard types. Ignored for
+  set types.
 
-  - position:
-    
-    Bar position: `"stack"` (default) or `"dodge"`.
+- split.by:
 
-  - palette:
-    
-    Colour palette. One of:
-    
-      - `NULL` (default): uses `pal_lancet`.
-    
-      - A single string matching a name in `palette_list`: uses
-        `pal_get()`.
-    
-      - A character vector of colours: used directly.
+  Character. Optional splitting variable. Splits data, creates one plot
+  per level, and combines with patchwork.
 
-  - alpha:
-    
-    Numeric 0–1. Colour transparency. Default 0.8.
+- type:
 
-  - label:
-    
-    Logical. Show value labels? Default `FALSE`.
+  Chart type. One of `"bar"`, `"rose"`, `"ring"`, `"pie"`, `"trend"`,
+  `"area"`, `"dot"`, `"sankey"`, `"chord"`, `"venn"`, `"upset"`.
 
-  - label.size:
-    
-    Numeric. Label text size. Default 3.5.
+- stat:
 
-  - label.fg:
-    
-    Character. Label foreground colour. Default `"black"`.
+  Statistic to compute: `"percent"` (default) or `"count"`.
 
-  - label.bg:
-    
-    Character. Label background colour. Default `"white"`.
+- position:
 
-  - label.bg.r:
-    
-    Numeric. Label background corner radius. Default 0.1.
+  Bar position: `"stack"` (default) or `"dodge"`.
 
-  - bg.by:
-    
-    Character. Column name for background grouping in dodge mode. Must
-    be a superset of `group.by` (each group.by level belongs to exactly
-    one bg.by level). Adds alternating background colour bands. Default
-    `NULL` (no background).
+- palette:
 
-  - bg\_palette:
-    
-    Character vector of background band colours. Default `NULL` uses
-    alternating `c("grey85", "transparent")`.
+  Colour palette. One of:
 
-  - bg\_alpha:
-    
-    Numeric 0–1. Background band transparency. Default 0.15.
+  - `NULL` (default): uses `pal_lancet`.
 
-  - flip:
-    
-    Logical. Flip coordinates for bar type? Default `FALSE`.
+  - A single string matching a name in `palette_list`: uses
+    [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md).
 
-  - NA\_color:
-    
-    Character. Colour for NA values. Default `"grey80"`.
+  - A character vector of colours: used directly.
 
-  - NA\_stat:
-    
-    Logical. Include NA in the frequency table? Default `FALSE` (NAs are
-    dropped). If `TRUE`, NAs are kept and shown with `NA_color`.
+- alpha:
 
-  - keep\_empty:
-    
-    Logical. Keep empty factor levels in plots? Default `FALSE`.
+  Numeric 0–1. Colour transparency. Default 0.8.
 
-  - stat\_level:
-    
-    Character or list. For venn/upset types, the value(s) in each
-    `stat.by` column that count as "positive". Default `NULL`
-    auto-detects `TRUE`, `"Yes"`, `"yes"`, `1`, `"TRUE"`, `"1"`, or uses
-    the first factor level.
+- label:
 
-  - title:
-    
-    Character. Plot title. Default `NULL`.
+  Logical. Show value labels? Default `FALSE`.
 
-  - subtitle:
-    
-    Character. Plot subtitle. Default `NULL`.
+- label.size:
 
-  - xlab:
-    
-    Character. X-axis label. Default `NULL`.
+  Numeric. Label text size. Default 3.5.
 
-  - ylab:
-    
-    Character. Y-axis label. Default `NULL` (auto-set based on `stat`).
+- label.fg:
 
-  - legend.position:
-    
-    Legend position: `"right"` (default), `"left"`, `"bottom"`, `"top"`,
-    or `"none"`.
+  Character. Label foreground colour. Default `"black"`.
 
-  - legend.direction:
-    
-    Legend direction: `"vertical"` (default) or `"horizontal"`.
+- label.bg:
 
-  - aspect.ratio:
-    
-    Numeric. Panel aspect ratio. Default `NULL` (auto). Automatically
-    set to 1 for rose, ring, and pie types.
+  Character. Label background colour. Default `"white"`.
 
-  - facet\_nrow:
-    
-    Integer. Number of rows when combining split panels. Default `NULL`
-    (auto).
+- label.bg.r:
 
-  - facet\_ncol:
-    
-    Integer. Number of columns when combining split panels. Default
-    `NULL` (auto).
+  Numeric. Label background corner radius. Default 0.1.
 
-  - facet\_byrow:
-    
-    Logical. Fill split panels by row? Default `TRUE`.
+- bg.by:
 
-  - base\_size:
-    
-    Numeric. Base font size for `theme_my()`. Default 14.
+  Character. Column name for background grouping in dodge mode. Must be
+  a superset of `group.by` (each group.by level belongs to exactly one
+  bg.by level). Adds alternating background colour bands. Default `NULL`
+  (no background).
 
-  - force:
-    
-    Logical. Force plotting when variables have \> 100 levels? Default
-    `FALSE`.
+- bg_palette:
 
-  - ...:
-    
-    Additional arguments passed to the type-specific plot function.
+  Character vector of background band colours. Default `NULL` uses
+  alternating `c("grey85", "transparent")`.
+
+- bg_alpha:
+
+  Numeric 0–1. Background band transparency. Default 0.15.
+
+- flip:
+
+  Logical. Flip coordinates for bar type? Default `FALSE`.
+
+- NA_color:
+
+  Character. Colour for NA values. Default `"grey80"`.
+
+- NA_stat:
+
+  Logical. Include NA in the frequency table? Default `FALSE` (NAs are
+  dropped). If `TRUE`, NAs are kept and shown with `NA_color`.
+
+- keep_empty:
+
+  Logical. Keep empty factor levels in plots? Default `FALSE`.
+
+- stat_level:
+
+  Character or list. For venn/upset types, the value(s) in each
+  `stat.by` column that count as "positive". Default `NULL` auto-detects
+  `TRUE`, `"Yes"`, `"yes"`, `1`, `"TRUE"`, `"1"`, or uses the first
+  factor level.
+
+- title:
+
+  Character. Plot title. Default `NULL`.
+
+- subtitle:
+
+  Character. Plot subtitle. Default `NULL`.
+
+- xlab:
+
+  Character. X-axis label. Default `NULL`.
+
+- ylab:
+
+  Character. Y-axis label. Default `NULL` (auto-set based on `stat`).
+
+- legend.position:
+
+  Legend position: `"right"` (default), `"left"`, `"bottom"`, `"top"`,
+  or `"none"`.
+
+- legend.direction:
+
+  Legend direction: `"vertical"` (default) or `"horizontal"`.
+
+- aspect.ratio:
+
+  Numeric. Panel aspect ratio. Default `NULL` (auto). Automatically set
+  to 1 for rose, ring, and pie types.
+
+- facet_nrow:
+
+  Integer. Number of rows when combining split panels. Default `NULL`
+  (auto).
+
+- facet_ncol:
+
+  Integer. Number of columns when combining split panels. Default `NULL`
+  (auto).
+
+- facet_byrow:
+
+  Logical. Fill split panels by row? Default `TRUE`.
+
+- base_size:
+
+  Numeric. Base font size for
+  [`theme_my()`](https://hui950319.github.io/UtilsR/reference/theme_my.md).
+  Default 14.
+
+- force:
+
+  Logical. Force plotting when variables have \> 100 levels? Default
+  `FALSE`.
+
+- ...:
+
+  Additional arguments passed to the type-specific plot function.
 
 ## Value
 
@@ -222,18 +224,24 @@ A ggplot object (or patchwork for split/set types).
 
 Set types require additional packages:
 
-  - `sankey`: ggsankey
+- `sankey`: ggsankey
 
-  - `chord`: circlize
+- `chord`: circlize
 
-  - `venn`: ggVennDiagram
+- `venn`: ggVennDiagram
 
-  - `upset`: ggupset
+- `upset`: ggupset
 
 ## See also
 
-Other plot: `PlotButterfly()`, `PlotButterfly2()`, `PlotRankCor()`,
-`plt_con()`, `plt_dist()`, `plt_sankey()`, `plt_upset()`
+Other plot:
+[`PlotButterfly()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly.md),
+[`PlotButterfly2()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly2.md),
+[`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md),
+[`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md),
+[`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md),
+[`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md),
+[`plt_upset()`](https://hui950319.github.io/UtilsR/reference/plt_upset.md)
 
 ## Examples
 

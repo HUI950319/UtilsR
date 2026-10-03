@@ -32,103 +32,103 @@ PlotHeatmapJaccard(
 
 ## Arguments
 
-  - data:
-    
-    A data.frame containing at least a group column and a name column.
+- data:
 
-  - group\_col:
-    
-    Column name for the grouping variable (e.g. cell type). Default
-    `"cell_type"`.
+  A data.frame containing at least a group column and a name column.
 
-  - name\_col:
-    
-    Column name for the feature/gene names used to compute Jaccard
-    similarity. Default `"gene"`.
+- group_col:
 
-  - title:
-    
-    Plot title. Default `"Jaccard Similarity"`.
+  Column name for the grouping variable (e.g. cell type). Default
+  `"cell_type"`.
 
-  - group\_levels:
-    
-    Character vector specifying the display order of groups on both
-    axes. `NULL` = factor levels (if factor) or data appearance order.
+- name_col:
 
-  - midpoint:
-    
-    Midpoint of the colour gradient. Default `0.1`.
+  Column name for the feature/gene names used to compute Jaccard
+  similarity. Default `"gene"`.
 
-  - text\_size:
-    
-    Size of the numeric labels inside each cell. Default `2.5`. Set to
-    `0` to hide labels.
+- title:
 
-  - show\_diag:
-    
-    Logical. Whether to show diagonal values. Default `FALSE` (diagonal
-    is set to `NA` and shown in grey).
+  Plot title. Default `"Jaccard Similarity"`.
 
-  - low\_color:
-    
-    Low end of the fill gradient. Default `"white"`.
+- group_levels:
 
-  - high\_color:
-    
-    High end of the fill gradient. Default `"#B2182B"`.
+  Character vector specifying the display order of groups on both axes.
+  `NULL` = factor levels (if factor) or data appearance order.
 
-  - show\_strip:
-    
-    Logical. Whether to draw coloured annotation strips along the top (X
-    axis) and left (Y axis) of the heatmap. Default `FALSE`.
+- midpoint:
 
-  - strip\_colors:
-    
-    Character vector of colours for each group strip. `NULL` = auto
-    palette (same order as `group_levels` / `ct_names`).
+  Midpoint of the colour gradient. Default `0.1`.
 
-  - strip\_size:
-    
-    Numeric. Width/height of the colour strip in data units. Default
-    `0.45`.
+- text_size:
 
-  - return\_type:
-    
-    What to return: `"plot"` (default, the ggplot object), `"data"` (the
-    Jaccard similarity matrix), or `"both"` (a list with elements `plot`
-    and `matrix`).
+  Size of the numeric labels inside each cell. Default `2.5`. Set to `0`
+  to hide labels.
 
-  - filename:
-    
-    Output file path. `NULL` = no save.
+- show_diag:
 
-  - width:
-    
-    Output width in inches. Default `10`.
+  Logical. Whether to show diagonal values. Default `FALSE` (diagonal is
+  set to `NA` and shown in grey).
 
-  - height:
-    
-    Output height in inches. Default `9`.
+- low_color:
 
-  - dpi:
-    
-    Output resolution. Default `300`.
+  Low end of the fill gradient. Default `"white"`.
+
+- high_color:
+
+  High end of the fill gradient. Default `"#B2182B"`.
+
+- show_strip:
+
+  Logical. Whether to draw coloured annotation strips along the top (X
+  axis) and left (Y axis) of the heatmap. Default `FALSE`.
+
+- strip_colors:
+
+  Character vector of colours for each group strip. `NULL` = auto
+  palette (same order as `group_levels` / `ct_names`).
+
+- strip_size:
+
+  Numeric. Width/height of the colour strip in data units. Default
+  `0.45`.
+
+- return_type:
+
+  What to return: `"plot"` (default, the ggplot object), `"data"` (the
+  Jaccard similarity matrix), or `"both"` (a list with elements `plot`
+  and `matrix`).
+
+- filename:
+
+  Output file path. `NULL` = no save.
+
+- width:
+
+  Output width in inches. Default `10`.
+
+- height:
+
+  Output height in inches. Default `9`.
+
+- dpi:
+
+  Output resolution. Default `300`.
 
 ## Value
 
 Depends on `return_type`:
 
-  - "plot":
-    
-    A `ggplot` object (default).
+- "plot":
 
-  - "data":
-    
-    A numeric matrix of pairwise Jaccard similarities.
+  A `ggplot` object (default).
 
-  - "both":
-    
-    A list with elements `plot` and `matrix`.
+- "data":
+
+  A numeric matrix of pairwise Jaccard similarities.
+
+- "both":
+
+  A list with elements `plot` and `matrix`.
 
 ## Examples
 

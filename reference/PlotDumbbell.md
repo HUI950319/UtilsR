@@ -62,214 +62,213 @@ PlotDumbbell(
 
 ## Arguments
 
-  - data:
-    
-    A data.frame containing category, start, and end columns.
+- data:
 
-  - x\_col:
-    
-    Column name for the start (left) values. Default `"start"`.
+  A data.frame containing category, start, and end columns.
 
-  - xend\_col:
-    
-    Column name for the end (right) values. Default `"end"`.
+- x_col:
 
-  - y\_col:
-    
-    Column name for the category labels (Y axis). Default `"category"`.
+  Column name for the start (left) values. Default `"start"`.
 
-  - sort\_by:
-    
-    How to sort categories: `"end"` (by xend\_col), `"start"` (by
-    x\_col), `"delta"` (by difference), `"none"` (original order).
-    Default `"end"`.
+- xend_col:
 
-  - sort\_descending:
-    
-    Logical. Sort in descending order? Default `FALSE` (ascending,
-    smallest at bottom).
+  Column name for the end (right) values. Default `"end"`.
 
-  - top\_n:
-    
-    Integer. Show only top N categories after sorting. Default `NULL`
-    (show all).
+- y_col:
 
-  - color\_x:
-    
-    Colour for start (x) points. Default `"#00468BFF"`.
+  Column name for the category labels (Y axis). Default `"category"`.
 
-  - color\_xend:
-    
-    Colour for end (xend) points. Default `"#ED0000FF"`.
+- sort_by:
 
-  - label\_x:
-    
-    Label for start points (used in legend and auto inset). Default
-    `NULL` (column name).
+  How to sort categories: `"end"` (by xend_col), `"start"` (by x_col),
+  `"delta"` (by difference), `"none"` (original order). Default `"end"`.
 
-  - label\_xend:
-    
-    Label for end points (used in legend and auto inset). Default `NULL`
-    (column name).
+- sort_descending:
 
-  - seg\_color:
-    
-    Segment line colour. Default `"grey60"`.
+  Logical. Sort in descending order? Default `FALSE` (ascending,
+  smallest at bottom).
 
-  - seg\_size:
-    
-    Segment line width. Default 0.8.
+- top_n:
 
-  - point\_size:
-    
-    Point size. Default 3.
+  Integer. Show only top N categories after sorting. Default `NULL`
+  (show all).
 
-  - point\_shape:
-    
-    Point shape. Default 19 (filled circle).
+- color_x:
 
-  - show\_delta:
-    
-    Logical. Show delta (difference) labels at the end of each segment?
-    Default `FALSE`.
+  Colour for start (x) points. Default `"#00468BFF"`.
 
-  - delta\_size:
-    
-    Text size for delta labels. Default 3.
+- color_xend:
 
-  - delta\_digits:
-    
-    Number of decimal places for delta labels. Default 2.
+  Colour for end (xend) points. Default `"#ED0000FF"`.
 
-  - delta\_color:
-    
-    Colour for delta labels. Default `"grey30"`.
+- label_x:
 
-  - show\_zero\_line:
-    
-    Logical. Show a vertical line at x = 0? Default `TRUE`.
+  Label for start points (used in legend and auto inset). Default `NULL`
+  (column name).
 
-  - zero\_line\_color:
-    
-    Colour for zero line. Default `"grey30"`.
+- label_xend:
 
-  - zero\_line\_width:
-    
-    Width for zero line. Default 0.3.
+  Label for end points (used in legend and auto inset). Default `NULL`
+  (column name).
 
-  - show\_mean\_lines:
-    
-    Logical. Show vertical dashed lines at the mean of x and xend
-    values? Default `FALSE`.
+- seg_color:
 
-  - mean\_line\_width:
-    
-    Width for mean lines. Default 0.3.
+  Segment line colour. Default `"grey60"`.
 
-  - dot\_guide:
-    
-    Logical. Show faint horizontal guide lines from each point to the Y
-    axis? Default `FALSE`.
+- seg_size:
 
-  - dot\_guide\_color:
-    
-    Colour for dot guide lines. Default `"grey80"`.
+  Segment line width. Default 0.8.
 
-  - dot\_guide\_size:
-    
-    Width for dot guide lines. Default 0.15.
+- point_size:
 
-  - x\_label:
-    
-    X axis label. Default `NULL` (no label).
+  Point size. Default 3.
 
-  - y\_label:
-    
-    Y axis label. Default `NULL` (no label).
+- point_shape:
 
-  - title:
-    
-    Plot title. Default `NULL`.
+  Point shape. Default 19 (filled circle).
 
-  - legend\_pos:
-    
-    Legend position. Accepts:
-    
-      - `"none"` — hide legend.
-    
-      - `"auto"` — inside bottom-right (default).
-    
-      - `"br"`, `"bl"`, `"tr"`, `"tl"` — inside corners.
-    
-      - `"bottom"`, `"top"`, `"left"`, `"right"` — outside (standard
-        ggplot2 positions).
+- show_delta:
 
-  - legend\_theme:
-    
-    A ggplot2 theme object for legend styling, e.g., `theme_legend1()`.
-    Default `NULL` (no extra legend styling).
+  Logical. Show delta (difference) labels at the end of each segment?
+  Default `FALSE`.
 
-  - theme\_use:
-    
-    Theme function, string, or theme object. Default `theme_my`.
-    Controls axis text/title/line styling.
+- delta_size:
 
-  - inset\_plot:
-    
-    Inset plot specification. One of:
-    
-      - `NULL` — no inset (default).
-    
-      - `"auto"` — auto-generate a paired boxplot from the dumbbell
-        data, with paired lines, jitter points, and a significance
-        bracket.
-    
-      - A `ggplot` object — embed a custom inset plot.
+  Text size for delta labels. Default 3.
 
-  - inset\_type:
-    
-    Type of auto-generated inset: `"boxplot"` (default) or `"violin"`.
-    Only used when `inset_plot = "auto"`.
+- delta_digits:
 
-  - inset\_test:
-    
-    Paired test for auto inset significance bracket: `"t.test"`,
-    `"wilcox"`, or `"none"`. Default `"t.test"`. Only used when
-    `inset_plot = "auto"`.
+  Number of decimal places for delta labels. Default 2.
 
-  - inset\_paired\_line:
-    
-    Logical. Show paired connecting lines in auto inset? Default `TRUE`.
+- delta_color:
 
-  - inset\_jitter:
-    
-    Logical. Show jitter points in auto inset? Default `TRUE`.
+  Colour for delta labels. Default `"grey30"`.
 
-  - inset\_theme\_use:
-    
-    Theme for auto inset. Default `NULL` (uses the same `theme_use` as
-    the main plot with compact styling).
+- show_zero_line:
 
-  - inset\_left, inset\_bottom, inset\_right, inset\_top:
-    
-    Inset boundaries (patchwork panel coordinates). Default 0.04, 0.68,
-    0.35, 0.94.
+  Logical. Show a vertical line at x = 0? Default `TRUE`.
 
-  - filename:
-    
-    Output file path. Default `NULL` (no save, print only).
+- zero_line_color:
 
-  - width, height:
-    
-    Output dimensions in inches. Default 8 / 6.
+  Colour for zero line. Default `"grey30"`.
 
-  - dpi:
-    
-    Output resolution. Default 300.
+- zero_line_width:
 
-  - bg:
-    
-    Output background colour. Default `"white"`.
+  Width for zero line. Default 0.3.
+
+- show_mean_lines:
+
+  Logical. Show vertical dashed lines at the mean of x and xend values?
+  Default `FALSE`.
+
+- mean_line_width:
+
+  Width for mean lines. Default 0.3.
+
+- dot_guide:
+
+  Logical. Show faint horizontal guide lines from each point to the Y
+  axis? Default `FALSE`.
+
+- dot_guide_color:
+
+  Colour for dot guide lines. Default `"grey80"`.
+
+- dot_guide_size:
+
+  Width for dot guide lines. Default 0.15.
+
+- x_label:
+
+  X axis label. Default `NULL` (no label).
+
+- y_label:
+
+  Y axis label. Default `NULL` (no label).
+
+- title:
+
+  Plot title. Default `NULL`.
+
+- legend_pos:
+
+  Legend position. Accepts:
+
+  - `"none"` — hide legend.
+
+  - `"auto"` — inside bottom-right (default).
+
+  - `"br"`, `"bl"`, `"tr"`, `"tl"` — inside corners.
+
+  - `"bottom"`, `"top"`, `"left"`, `"right"` — outside (standard ggplot2
+    positions).
+
+- legend_theme:
+
+  A ggplot2 theme object for legend styling, e.g.,
+  [`theme_legend1()`](https://hui950319.github.io/UtilsR/reference/theme_legend1.md).
+  Default `NULL` (no extra legend styling).
+
+- theme_use:
+
+  Theme function, string, or theme object. Default `theme_my`. Controls
+  axis text/title/line styling.
+
+- inset_plot:
+
+  Inset plot specification. One of:
+
+  - `NULL` — no inset (default).
+
+  - `"auto"` — auto-generate a paired boxplot from the dumbbell data,
+    with paired lines, jitter points, and a significance bracket.
+
+  - A `ggplot` object — embed a custom inset plot.
+
+- inset_type:
+
+  Type of auto-generated inset: `"boxplot"` (default) or `"violin"`.
+  Only used when `inset_plot = "auto"`.
+
+- inset_test:
+
+  Paired test for auto inset significance bracket: `"t.test"`,
+  `"wilcox"`, or `"none"`. Default `"t.test"`. Only used when
+  `inset_plot = "auto"`.
+
+- inset_paired_line:
+
+  Logical. Show paired connecting lines in auto inset? Default `TRUE`.
+
+- inset_jitter:
+
+  Logical. Show jitter points in auto inset? Default `TRUE`.
+
+- inset_theme_use:
+
+  Theme for auto inset. Default `NULL` (uses the same `theme_use` as the
+  main plot with compact styling).
+
+- inset_left, inset_bottom, inset_right, inset_top:
+
+  Inset boundaries (patchwork panel coordinates). Default 0.04, 0.68,
+  0.35, 0.94.
+
+- filename:
+
+  Output file path. Default `NULL` (no save, print only).
+
+- width, height:
+
+  Output dimensions in inches. Default 8 / 6.
+
+- dpi:
+
+  Output resolution. Default 300.
+
+- bg:
+
+  Output background colour. Default `"white"`.
 
 ## Value
 

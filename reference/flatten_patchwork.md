@@ -11,22 +11,22 @@ flatten_patchwork(plots, ..., select_inds = NULL, nrow_inds_order = NULL)
 
 ## Arguments
 
-  - plots:
-    
-    A patchwork object (possibly nested) or a list of ggplot objects.
+- plots:
 
-  - ...:
-    
-    Arguments passed to \[patchwork::wrap\_plots()\], e.g. \`nrow\`,
-    \`ncol\`.
+  A patchwork object (possibly nested) or a list of ggplot objects.
 
-  - select\_inds:
-    
-    Integer vector of indices to keep after flattening.
+- ...:
 
-  - nrow\_inds\_order:
-    
-    Single integer to reorder plots by interleaving rows.
+  Arguments passed to \[patchwork::wrap_plots()\], e.g. \`nrow\`,
+  \`ncol\`.
+
+- select_inds:
+
+  Integer vector of indices to keep after flattening.
+
+- nrow_inds_order:
+
+  Single integer to reorder plots by interleaving rows.
 
 ## Value
 

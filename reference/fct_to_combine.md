@@ -5,13 +5,13 @@ are the unique combinations sorted by each input's factor-level order
 (preserving meaningful orderings such as TNM stages or graded
 categories), not alphabetic. Dispatches on the first argument:
 
-  - **vectors** – `fct_to_combine(v1, v2, ...)` returns the combined
-    factor directly (also resolves a single character vector of column
-    names inside a dplyr data mask).
+- **vectors** – `fct_to_combine(v1, v2, ...)` returns the combined
+  factor directly (also resolves a single character vector of column
+  names inside a dplyr data mask).
 
-  - **data.frame** – `fct_to_combine(data, vars, var_name)` combines the
-    named columns, appends the result as a new column, and returns the
-    whole data frame (pipe-friendly).
+- **data.frame** – `fct_to_combine(data, vars, var_name)` combines the
+  named columns, appends the result as a new column, and returns the
+  whole data frame (pipe-friendly).
 
 ## Usage
 
@@ -27,31 +27,30 @@ fct_to_combine(..., sep = " & ")
 
 ## Arguments
 
-  - ...:
-    
-    (vector method) Further vectors of equal length to combine. A single
-    character vector of column names (length \>= 2) is resolved through
-    `dplyr::pick(all_of(.))` when called inside a data-masking verb,
-    enabling `mutate(g = fct_to_combine(c("sex", "age")))`.
+- ...:
 
-  - x:
-    
-    First input. A factor / character / vector (vector method), OR a
-    data.frame (data.frame method).
+  (vector method) Further vectors of equal length to combine. A single
+  character vector of column names (length \>= 2) is resolved through
+  `dplyr::pick(all_of(.))` when called inside a data-masking verb,
+  enabling `mutate(g = fct_to_combine(c("sex", "age")))`.
 
-  - vars:
-    
-    (data.frame method) Character vector of \>= 2 column names to
-    combine.
+- x:
 
-  - var\_name:
-    
-    (data.frame method) Name of the new column. Default `NULL` =
-    `paste(vars, collapse = "_")`.
+  First input. A factor / character / vector (vector method), OR a
+  data.frame (data.frame method).
 
-  - sep:
-    
-    Separator between cell values. Default `" & "`.
+- vars:
+
+  (data.frame method) Character vector of \>= 2 column names to combine.
+
+- var_name:
+
+  (data.frame method) Name of the new column. Default `NULL` =
+  `paste(vars, collapse = "_")`.
+
+- sep:
+
+  Separator between cell values. Default `" & "`.
 
 ## Value
 
@@ -60,17 +59,22 @@ frame with the combined column appended (data.frame method).
 
 ## Details
 
-Conceptually similar to `forcats::fct_cross()` and
-`base::interaction()`, but with a default separator (`" & "`) tuned for
-clinical / epidemiological group labels. For regrouping levels of a
-single factor (the dual operation), see \[fct\_to\_group()\].
+Conceptually similar to
+[`forcats::fct_cross()`](https://forcats.tidyverse.org/reference/fct_cross.html)
+and [`base::interaction()`](https://rdrr.io/r/base/interaction.html),
+but with a default separator (`" & "`) tuned for clinical /
+epidemiological group labels. For regrouping levels of a single factor
+(the dual operation), see \[fct_to_group()\].
 
 ## See also
 
-\[fct\_to\_group()\], \[fct\_cat()\], \[fct\_label()\]
+\[fct_to_group()\], \[fct_cat()\], \[fct_label()\]
 
-Other factor tools: `fct_cat()`, `fct_label()`, `fct_num()`,
-`fct_to_group()`
+Other factor tools:
+[`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md),
+[`fct_label()`](https://hui950319.github.io/UtilsR/reference/fct_label.md),
+[`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md),
+[`fct_to_group()`](https://hui950319.github.io/UtilsR/reference/fct_to_group.md)
 
 ## Examples
 

@@ -12,8 +12,8 @@
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="plt_cat: Unified Categorical Plot Guide">
 </head>
@@ -70,18 +70,22 @@
 
 
 
-<script src="plt_cat_guide_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+
+<div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>plt_cat: Unified Categorical Plot Guide</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/HUI950319/UtilsR/blob/HEAD/vignettes/plt_cat_guide.Rmd" class="external-link"><code>vignettes/plt_cat_guide.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/HUI950319/UtilsR/blob/master/vignettes/plt_cat_guide.Rmd" class="external-link"><code>vignettes/plt_cat_guide.Rmd</code></a></small>
       <div class="d-none name"><code>plt_cat_guide.Rmd</code></div>
     </div>
 
     
     
-<p><code><a href="../reference/plt_cat.html">plt_cat()</a></code> is a single entry point for <strong>11 categorical chart types</strong> with 27+ parameters. It handles grouping, splitting, dodge/stack, labels, background bands, NA handling, and more.</p>
+<p><code><a href="../reference/plt_cat.html">plt_cat()</a></code> is a single entry point for <strong>11
+categorical chart types</strong> with 27+ parameters. It handles
+grouping, splitting, dodge/stack, labels, background bands, NA handling,
+and more.</p>
 <div class="section level2">
 <h2 id="sample-data">Sample Data<a class="anchor" aria-label="anchor" href="#sample-data"></a>
 </h2>
@@ -109,7 +113,9 @@
 <div class="section level2">
 <h2 id="bar-chart">1. Bar Chart<a class="anchor" aria-label="anchor" href="#bar-chart"></a>
 </h2>
-<p>The most common type. Supports <code>stat = "percent"</code> (default) or <code>"count"</code>, and <code>position = "stack"</code> (default) or <code>"dodge"</code>.</p>
+<p>The most common type. Supports <code>stat = "percent"</code>
+(default) or <code>"count"</code>, and <code>position = "stack"</code>
+(default) or <code>"dodge"</code>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plt_cat.html">plt_cat</a></span><span class="op">(</span><span class="va">df</span>, <span class="st">"Type"</span>, <span class="st">"Group"</span>, type <span class="op">=</span> <span class="st">"bar"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="plt_cat_guide_files/figure-html/bar-stack-1.png" class="r-plt" alt="" width="960"></p>
@@ -124,7 +130,8 @@
 <div class="section level3">
 <h3 id="no-group-single-variable">No group (single variable)<a class="anchor" aria-label="anchor" href="#no-group-single-variable"></a>
 </h3>
-<p>When <code>group.by</code> is omitted, each stat.by level becomes its own bar:</p>
+<p>When <code>group.by</code> is omitted, each stat.by level becomes its
+own bar:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plt_cat.html">plt_cat</a></span><span class="op">(</span><span class="va">df</span>, <span class="st">"Type"</span>, type <span class="op">=</span> <span class="st">"bar"</span>, stat <span class="op">=</span> <span class="st">"count"</span>,</span>
 <span>        label <span class="op">=</span> <span class="cn">TRUE</span>, legend.position <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></code></pre></div>
@@ -133,7 +140,9 @@
 <div class="section level3">
 <h3 id="background-bands">Background bands<a class="anchor" aria-label="anchor" href="#background-bands"></a>
 </h3>
-<p>Use <code>bg.by</code> in dodge mode to add alternating background colour bands. <code>bg.by</code> must be a superset of <code>group.by</code> (each group belongs to exactly one bg level).</p>
+<p>Use <code>bg.by</code> in dodge mode to add alternating background
+colour bands. <code>bg.by</code> must be a superset of
+<code>group.by</code> (each group belongs to exactly one bg level).</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plt_cat.html">plt_cat</a></span><span class="op">(</span><span class="va">df</span>, <span class="st">"Type"</span>, <span class="st">"Group"</span>, type <span class="op">=</span> <span class="st">"bar"</span>,</span>
 <span>        position <span class="op">=</span> <span class="st">"dodge"</span>, bg.by <span class="op">=</span> <span class="st">"Region"</span><span class="op">)</span></span></code></pre></div>
@@ -150,7 +159,8 @@
 <div class="section level2">
 <h2 id="rose-chart">2. Rose Chart<a class="anchor" aria-label="anchor" href="#rose-chart"></a>
 </h2>
-<p>A bar chart in polar coordinates (<code>theta = "x"</code>). Good for cyclical data.</p>
+<p>A bar chart in polar coordinates (<code>theta = "x"</code>). Good for
+cyclical data.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plt_cat.html">plt_cat</a></span><span class="op">(</span><span class="va">df</span>, <span class="st">"Type"</span>, <span class="st">"Group"</span>, type <span class="op">=</span> <span class="st">"rose"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="plt_cat_guide_files/figure-html/rose-1.png" class="r-plt" alt="" width="960"></p>
@@ -163,7 +173,8 @@
 <div class="section level2">
 <h2 id="ring-donut-chart">3. Ring (Donut) Chart<a class="anchor" aria-label="anchor" href="#ring-donut-chart"></a>
 </h2>
-<p>A pie chart with a hole in the center. Supports dodge for grouped spiral display.</p>
+<p>A pie chart with a hole in the center. Supports dodge for grouped
+spiral display.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plt_cat.html">plt_cat</a></span><span class="op">(</span><span class="va">df</span>, <span class="st">"Type"</span>, type <span class="op">=</span> <span class="st">"ring"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="plt_cat_guide_files/figure-html/ring-1.png" class="r-plt" alt="" width="960"></p>
@@ -192,7 +203,8 @@
 <div class="section level2">
 <h2 id="trend-chart">5. Trend Chart<a class="anchor" aria-label="anchor" href="#trend-chart"></a>
 </h2>
-<p>Combines stepped area background with bar overlay. Best for showing trends across ordered groups.</p>
+<p>Combines stepped area background with bar overlay. Best for showing
+trends across ordered groups.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plt_cat.html">plt_cat</a></span><span class="op">(</span><span class="va">df</span>, <span class="st">"Type"</span>, <span class="st">"Group"</span>, type <span class="op">=</span> <span class="st">"trend"</span>, stat <span class="op">=</span> <span class="st">"count"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="plt_cat_guide_files/figure-html/trend-1.png" class="r-plt" alt="" width="960"></p>
@@ -231,7 +243,8 @@
 <div class="section level2">
 <h2 id="sankey-diagram">8. Sankey Diagram<a class="anchor" aria-label="anchor" href="#sankey-diagram"></a>
 </h2>
-<p>Requires <code>stat.by</code> with &gt;= 2 column names. Shows flow between categories.</p>
+<p>Requires <code>stat.by</code> with &gt;= 2 column names. Shows flow
+between categories.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plt_cat.html">plt_cat</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Type"</span>, <span class="st">"Group"</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"sankey"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="plt_cat_guide_files/figure-html/sankey-1.png" class="r-plt" alt="" width="960"></p>
@@ -243,7 +256,8 @@
 <div class="section level2">
 <h2 id="chord-diagram">9. Chord Diagram<a class="anchor" aria-label="anchor" href="#chord-diagram"></a>
 </h2>
-<p>Shows pairwise connections between two categorical variables. Returns base R graphics (not ggplot).</p>
+<p>Shows pairwise connections between two categorical variables. Returns
+base R graphics (not ggplot).</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plt_cat.html">plt_cat</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Type"</span>, <span class="st">"Group"</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"chord"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="plt_cat_guide_files/figure-html/chord-1.png" class="r-plt" alt="" width="960"><img src="plt_cat_guide_files/figure-html/chord-2.png" class="r-plt" alt="" width="960"></p>
@@ -252,7 +266,8 @@
 <div class="section level2">
 <h2 id="venn-diagram">10. Venn Diagram<a class="anchor" aria-label="anchor" href="#venn-diagram"></a>
 </h2>
-<p>Shows set intersections. Use <code>stat_level</code> to specify which level counts as “positive”.</p>
+<p>Shows set intersections. Use <code>stat_level</code> to specify which
+level counts as “positive”.</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
 <span><span class="va">df_bin</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
@@ -271,7 +286,8 @@
 <div class="section level2">
 <h2 id="upset-plot">11. UpSet Plot<a class="anchor" aria-label="anchor" href="#upset-plot"></a>
 </h2>
-<p>A scalable alternative to Venn diagrams for showing set intersections.</p>
+<p>A scalable alternative to Venn diagrams for showing set
+intersections.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plt_cat.html">plt_cat</a></span><span class="op">(</span><span class="va">df_bin</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"C"</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"upset"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="plt_cat_guide_files/figure-html/upset-binary-1.png" class="r-plt" alt="" width="960"></p>
@@ -319,7 +335,8 @@
 <div class="section level3">
 <h3 id="label-styling">Label Styling<a class="anchor" aria-label="anchor" href="#label-styling"></a>
 </h3>
-<p>Customise label appearance with <code>label.fg</code>, <code>label.bg</code>, and <code>label.bg.r</code>:</p>
+<p>Customise label appearance with <code>label.fg</code>,
+<code>label.bg</code>, and <code>label.bg.r</code>:</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plt_cat.html">plt_cat</a></span><span class="op">(</span><span class="va">df</span>, <span class="st">"Type"</span>, <span class="st">"Group"</span>, type <span class="op">=</span> <span class="st">"bar"</span>,</span>
 <span>        stat <span class="op">=</span> <span class="st">"count"</span>, position <span class="op">=</span> <span class="st">"dodge"</span>,</span>
@@ -349,6 +366,10 @@
 <h2 id="parameter-reference">Parameter Reference<a class="anchor" aria-label="anchor" href="#parameter-reference"></a>
 </h2>
 <table class="table">
+<colgroup>
+<col width="38%">
+<col width="61%">
+</colgroup>
 <thead><tr class="header">
 <th>Group</th>
 <th>Parameters</th>
@@ -357,13 +378,15 @@
 <tr class="odd">
 <td><strong>Data</strong></td>
 <td>
-<code>stat.by</code>, <code>group.by</code>, <code>split.by</code>
+<code>stat.by</code>, <code>group.by</code>,
+<code>split.by</code>
 </td>
 </tr>
 <tr class="even">
 <td><strong>Chart</strong></td>
 <td>
-<code>type</code> (11 types), <code>stat</code>, <code>position</code>
+<code>type</code> (11 types), <code>stat</code>,
+<code>position</code>
 </td>
 </tr>
 <tr class="odd">
@@ -375,13 +398,15 @@
 <tr class="even">
 <td><strong>Labels</strong></td>
 <td>
-<code>label</code>, <code>label.size</code>, <code>label.fg</code>, <code>label.bg</code>, <code>label.bg.r</code>
+<code>label</code>, <code>label.size</code>, <code>label.fg</code>,
+<code>label.bg</code>, <code>label.bg.r</code>
 </td>
 </tr>
 <tr class="odd">
 <td><strong>Background</strong></td>
 <td>
-<code>bg.by</code>, <code>bg_palette</code>, <code>bg_alpha</code>
+<code>bg.by</code>, <code>bg_palette</code>,
+<code>bg_alpha</code>
 </td>
 </tr>
 <tr class="even">
@@ -393,7 +418,8 @@
 <tr class="odd">
 <td><strong>Layout</strong></td>
 <td>
-<code>title</code>, <code>subtitle</code>, <code>xlab</code>, <code>ylab</code>
+<code>title</code>, <code>subtitle</code>, <code>xlab</code>,
+<code>ylab</code>
 </td>
 </tr>
 <tr class="even">
@@ -409,7 +435,8 @@
 <tr class="even">
 <td><strong>Split</strong></td>
 <td>
-<code>facet_nrow</code>, <code>facet_ncol</code>, <code>facet_byrow</code>
+<code>facet_nrow</code>, <code>facet_ncol</code>,
+<code>facet_byrow</code>
 </td>
 </tr>
 <tr class="odd">

@@ -12,14 +12,14 @@ grob_as(plot, ...)
 
 ## Arguments
 
-  - plot:
-    
-    A plot object. Supported types: `gtable`, `grob`, `gList`,
-    `patchwork`, or `ggplot`.
+- plot:
 
-  - ...:
-    
-    Additional arguments passed to conversion functions.
+  A plot object. Supported types: `gtable`, `grob`, `gList`,
+  `patchwork`, or `ggplot`.
+
+- ...:
+
+  Additional arguments passed to conversion functions.
 
 ## Value
 
@@ -28,7 +28,10 @@ supported.
 
 ## See also
 
-Other grob utilities: `grob_add()`, `grob_insert()`, `grob_to_gg()`
+Other grob utilities:
+[`grob_add()`](https://hui950319.github.io/UtilsR/reference/grob_add.md),
+[`grob_insert()`](https://hui950319.github.io/UtilsR/reference/grob_insert.md),
+[`grob_to_gg()`](https://hui950319.github.io/UtilsR/reference/grob_to_gg.md)
 
 ## Examples
 

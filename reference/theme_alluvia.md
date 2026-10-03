@@ -12,13 +12,13 @@ theme_alluvia(base_size = 14, base_family = "")
 
 ## Arguments
 
-  - base\_size:
-    
-    Numeric. Base font size. Default 14.
+- base_size:
 
-  - base\_family:
-    
-    Character. Base font family. Default `""`.
+  Numeric. Base font size. Default 14.
+
+- base_family:
+
+  Character. Base font family. Default `""`.
 
 ## Value
 
@@ -26,10 +26,19 @@ A ggplot2 theme object.
 
 ## See also
 
-Other ggplot2 themes: `leg1()`, `leg2()`, `theme_ROC()`,
-`theme_blank()`, `theme_heat()`, `theme_km`, `theme_legend()`,
-`theme_legend1()`, `theme_my()`, `theme_rcs`, `theme_sc()`,
-`theme_scatter`
+Other ggplot2 themes:
+[`leg1()`](https://hui950319.github.io/UtilsR/reference/leg1.md),
+[`leg2()`](https://hui950319.github.io/UtilsR/reference/leg2.md),
+[`theme_ROC()`](https://hui950319.github.io/UtilsR/reference/theme_ROC.md),
+[`theme_blank()`](https://hui950319.github.io/UtilsR/reference/theme_blank.md),
+[`theme_heat()`](https://hui950319.github.io/UtilsR/reference/theme_heat.md),
+[`theme_km`](https://hui950319.github.io/UtilsR/reference/theme_km.md),
+[`theme_legend()`](https://hui950319.github.io/UtilsR/reference/theme_legend.md),
+[`theme_legend1()`](https://hui950319.github.io/UtilsR/reference/theme_legend1.md),
+[`theme_my()`](https://hui950319.github.io/UtilsR/reference/theme_my.md),
+[`theme_rcs`](https://hui950319.github.io/UtilsR/reference/theme_rcs.md),
+[`theme_sc()`](https://hui950319.github.io/UtilsR/reference/theme_sc.md),
+[`theme_scatter`](https://hui950319.github.io/UtilsR/reference/theme_scatter.md)
 
 ## Examples
 

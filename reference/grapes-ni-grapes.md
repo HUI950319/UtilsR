@@ -11,13 +11,13 @@ x %ni% table
 
 ## Arguments
 
-  - x:
-    
-    Vector of values to check.
+- x:
 
-  - table:
-    
-    Vector of values to match against.
+  Vector of values to check.
+
+- table:
+
+  Vector of values to match against.
 
 ## Value
 

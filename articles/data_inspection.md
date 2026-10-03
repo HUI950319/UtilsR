@@ -1,11 +1,12 @@
-# Data Inspection: lv, na, check\_system
+# Data Inspection: lv, na, check_system
 
 ## `lv()` — Variable Summary
 
-`lv()` provides a quick overview of variables in a data frame (or Seurat
-object).
+[`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) provides a
+quick overview of variables in a data frame (or Seurat object).
 
 ``` r
+
 library(UtilsR)
 
 # All variables
@@ -2146,6 +2147,7 @@ lv(iris)
 ```
 
 ``` r
+
 # Select specific variables
 lv(iris, Species, Sepal.Length)
 #> 
@@ -4128,6 +4130,7 @@ lv(iris, Species, Sepal.Length)
 ```
 
 ``` r
+
 # Regex pattern matching
 lv(iris, pattern = "Sepal")
 #> 
@@ -6110,6 +6113,7 @@ lv(iris, pattern = "Sepal")
 ```
 
 ``` r
+
 # Grouped summary
 lv(iris, Sepal.Length, group = "Species")
 #> 
@@ -6596,11 +6600,12 @@ lv(iris, Sepal.Length, group = "Species")
 #> </div>
 ```
 
------
+------------------------------------------------------------------------
 
 ## `na()` — Missing Value Analysis
 
 ``` r
+
 # Create data with NAs
 df <- data.frame(
   x = c(1, NA, 3, NA, 5),
@@ -7092,11 +7097,12 @@ check_na(df)
 #> </div>
 ```
 
------
+------------------------------------------------------------------------
 
 ## `check_system()` — System Diagnostics
 
 ``` r
+
 check_system()
 ```
 
@@ -7105,6 +7111,7 @@ Reports OS, R version, memory, CPU info, and loaded packages.
 ## `check_size()` — Object Memory Profiling
 
 ``` r
+
 check_size()
 ```
 

@@ -1,16 +1,19 @@
-# Factor Manipulation: fct\_cat, fct\_num
+# Factor Manipulation: fct_cat, fct_num
 
 ``` r
+
 library(UtilsR)
 ```
 
 ## `fct_cat()` — Unified Factor Operations
 
-All factor operations in one function. Works inside `dplyr::mutate()`.
+All factor operations in one function. Works inside
+[`dplyr::mutate()`](https://dplyr.tidyverse.org/reference/mutate.html).
 
 ### Recode (named arguments)
 
 ``` r
+
 x <- factor(c("I", "II", "III", "IV"))
 
 # Recode by name
@@ -27,6 +30,7 @@ fct_cat(x, g1 = 1:2, g2 = 3:4)
 ### Reorder (unnamed arguments)
 
 ``` r
+
 # Move specific levels to front
 fct_cat(x, "III", "I")
 #> [1] I   II  III IV 
@@ -36,6 +40,7 @@ fct_cat(x, "III", "I")
 ### Reverse
 
 ``` r
+
 fct_cat(x, reverse = TRUE)
 #> [1] I   II  III IV 
 #> Levels: IV III II I
@@ -44,6 +49,7 @@ fct_cat(x, reverse = TRUE)
 ### Binary
 
 ``` r
+
 # Binary: reference level vs "Oth" (by position index)
 fct_cat(x, binary_ref = 1)   # I vs Oth
 #> [1] I   Oth Oth Oth
@@ -56,6 +62,7 @@ fct_cat(x, binary_ref = 3)   # III vs Oth
 ### Group
 
 ``` r
+
 fct_cat(x, groups = list(early = 1:2, late = 3:4))
 #> [1] early early late  late 
 #> Levels: early late
@@ -64,6 +71,7 @@ fct_cat(x, groups = list(early = 1:2, late = 3:4))
 ### Relabel
 
 ``` r
+
 fct_cat(x, new_labels = c("One", "Two", "Three", "Four"))
 #> [1] One   Two   Three Four 
 #> Levels: One Two Three Four
@@ -72,18 +80,20 @@ fct_cat(x, new_labels = c("One", "Two", "Three", "Four"))
 ### Combine columns
 
 ``` r
+
 # Inside mutate()
 df %>% mutate(grp = fct_cat(sex, combine = "age"))
 df %>% mutate(grp = fct_cat(combine = c("sex", "age", "stage")))
 ```
 
------
+------------------------------------------------------------------------
 
 ## `fct_num()` — Numeric to Factor
 
 ### Fixed cut points
 
 ``` r
+
 ages <- c(25, 35, 45, 55, 65, 75)
 
 # Single break
@@ -100,6 +110,7 @@ fct_num(ages, breaks = c(40, 60))
 ### Quantile binning
 
 ``` r
+
 set.seed(1)
 scores <- rnorm(100, 50, 15)
 
@@ -140,6 +151,7 @@ fct_num(scores, nbins = 3, type = "equal")
 ### Custom labels
 
 ``` r
+
 fct_num(ages, breaks = c(40, 60),
         labels = c("Young", "Middle", "Senior"))
 #> [1] Young  Young  Middle Middle Senior Senior

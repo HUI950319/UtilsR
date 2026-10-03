@@ -1,7 +1,7 @@
 # Count Installed Packages in Each Library Path
 
-Enumerate all `.libPaths()` and count the number of installed packages
-in each directory.
+Enumerate all [`.libPaths()`](https://rdrr.io/r/base/libPaths.html) and
+count the number of installed packages in each directory.
 
 ## Usage
 
@@ -16,8 +16,13 @@ a total row.
 
 ## See also
 
-Other inspect: `check_na()`, `check_size()`, `check_system()`,
-`impute_na_knn()`, `lv()`, `plt_na()`
+Other inspect:
+[`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md),
+[`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md),
+[`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md),
+[`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md),
+[`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md),
+[`plt_na()`](https://hui950319.github.io/UtilsR/reference/plt_na.md)
 
 ## Examples
 

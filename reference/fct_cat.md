@@ -2,8 +2,8 @@
 
 One function for all single-vector factor operations. Auto-detects the
 action from arguments. For combining multiple columns into one factor,
-see \[fct\_to\_combine()\]. For grouping levels by integer indices with
-auto-named groups (e.g. \`g1/3\`), see \[fct\_to\_group()\].
+see \[fct_to_combine()\]. For grouping levels by integer indices with
+auto-named groups (e.g. \`g1/3\`), see \[fct_to_group()\].
 
 ## Usage
 
@@ -20,32 +20,32 @@ fct_cat(
 
 ## Arguments
 
-  - x:
-    
-    A factor or character vector.
+- x:
 
-  - ...:
-    
-    For recode: named args (new = old). For reorder: level names or
-    integer indices in desired order (unnamed). Must be ALL named or ALL
-    unnamed.
+  A factor or character vector.
 
-  - reverse:
-    
-    Logical. Reverse all levels? Default `FALSE`.
+- ...:
 
-  - binary\_ref:
-    
-    Integer index(es) of reference level(s). Others collapse to `"Oth"`.
+  For recode: named args (new = old). For reorder: level names or
+  integer indices in desired order (unnamed). Must be ALL named or ALL
+  unnamed.
 
-  - groups:
-    
-    Named list of integer index vectors for custom grouping, e.g.
-    `list(early = 1:2, late = 3:4)`.
+- reverse:
 
-  - new\_labels:
-    
-    Character vector to rename levels (same length as levels).
+  Logical. Reverse all levels? Default `FALSE`.
+
+- binary_ref:
+
+  Integer index(es) of reference level(s). Others collapse to `"Oth"`.
+
+- groups:
+
+  Named list of integer index vectors for custom grouping, e.g.
+  `list(early = 1:2, late = 3:4)`.
+
+- new_labels:
+
+  Character vector to rename levels (same length as levels).
 
 ## Value
 
@@ -53,8 +53,11 @@ A factor.
 
 ## See also
 
-Other factor tools: `fct_label()`, `fct_num()`, `fct_to_combine()`,
-`fct_to_group()`
+Other factor tools:
+[`fct_label()`](https://hui950319.github.io/UtilsR/reference/fct_label.md),
+[`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md),
+[`fct_to_combine()`](https://hui950319.github.io/UtilsR/reference/fct_to_combine.md),
+[`fct_to_group()`](https://hui950319.github.io/UtilsR/reference/fct_to_group.md)
 
 ## Examples
 

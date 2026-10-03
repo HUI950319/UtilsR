@@ -21,38 +21,40 @@ fmt_raster(
 
 ## Arguments
 
-  - plot:
-    
-    A ggplot, patchwork, or list of ggplot objects.
+- plot:
 
-  - method:
-    
-    Rasterization backend: `"ggrastr"` (default, simple layer-level) or
-    `"ragg"` (panel-level, also fixes panel size).
+  A ggplot, patchwork, or list of ggplot objects.
 
-  - dpi:
-    
-    Integer. Rasterization resolution. Default 300.
+- method:
 
-  - width, height:
-    
-    Panel width and height for `method = "ragg"`. Ignored when `method =
-    "ggrastr"`. If `NULL` (default), the current device size is used.
+  Rasterization backend: `"ggrastr"` (default, simple layer-level) or
+  `"ragg"` (panel-level, also fixes panel size).
 
-  - units:
-    
-    Units for `width`/`height`: `"in"` (default), `"cm"`, or `"mm"`.
+- dpi:
 
-  - dev:
-    
-    Character. Graphics device for `ggrastr::rasterise()`. Default
-    `"ragg"` (high-quality anti-aliasing). Only used when `method =
-    "ggrastr"`.
+  Integer. Rasterization resolution. Default 300.
 
-  - bg:
-    
-    Character. Background colour for panel rendering. Default
-    `"transparent"`.
+- width, height:
+
+  Panel width and height for `method = "ragg"`. Ignored when
+  `method = "ggrastr"`. If `NULL` (default), the current device size is
+  used.
+
+- units:
+
+  Units for `width`/`height`: `"in"` (default), `"cm"`, or `"mm"`.
+
+- dev:
+
+  Character. Graphics device for
+  [`ggrastr::rasterise()`](https://rdrr.io/pkg/ggrastr/man/rasterise.html).
+  Default `"ragg"` (high-quality anti-aliasing). Only used when
+  `method = "ggrastr"`.
+
+- bg:
+
+  Character. Background colour for panel rendering. Default
+  `"transparent"`.
 
 ## Value
 
@@ -64,19 +66,21 @@ attribute (list of width, height, units).
 
 Two backends are available:
 
-  - `"ggrastr"`:
-    
-    Wraps the plot with `ggrastr::rasterise()`, which marks all geom
-    layers for rasterization at render time. Simple and fast. Text and
-    theme elements are always preserved as vectors.
+- `"ggrastr"`:
 
-  - `"ragg"`:
-    
-    Renders each panel to a temporary PNG via `ragg::agg_png()`, then
-    reads it back as a `rasterGrob`. Text/label grobs inside the panel
-    are automatically detected and kept as vectors. Requires `width` and
-    `height` to be specified (the panel rendering size). This method
-    also fixes the panel size.
+  Wraps the plot with
+  [`ggrastr::rasterise()`](https://rdrr.io/pkg/ggrastr/man/rasterise.html),
+  which marks all geom layers for rasterization at render time. Simple
+  and fast. Text and theme elements are always preserved as vectors.
+
+- `"ragg"`:
+
+  Renders each panel to a temporary PNG via
+  [`ragg::agg_png()`](https://ragg.r-lib.org/reference/agg_png.html),
+  then reads it back as a `rasterGrob`. Text/label grobs inside the
+  panel are automatically detected and kept as vectors. Requires `width`
+  and `height` to be specified (the panel rendering size). This method
+  also fixes the panel size.
 
 ### How `"ragg"` preserves text
 
@@ -89,11 +93,26 @@ text on top of a rasterized geometric layer.
 
 ## See also
 
-Other plot formatting: `fmt_axis()`, `fmt_axisText()`, `fmt_axisTile()`,
-`fmt_bg()`, `fmt_boxplot()`, `fmt_com()`, `fmt_expand()`, `fmt_his()`,
-`fmt_legend()`, `fmt_panel()`, `fmt_plot()`, `fmt_plot_base()`,
-`fmt_point()`, `fmt_ref()`, `fmt_scale()`, `fmt_strip()`,
-`fmt_strip2()`, `fmt_tag()`, `fmt_text()`
+Other plot formatting:
+[`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md),
+[`fmt_axisText()`](https://hui950319.github.io/UtilsR/reference/fmt_axisText.md),
+[`fmt_axisTile()`](https://hui950319.github.io/UtilsR/reference/fmt_axisTile.md),
+[`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md),
+[`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md),
+[`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md),
+[`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md),
+[`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md),
+[`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md),
+[`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md),
+[`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md),
+[`fmt_plot_base()`](https://hui950319.github.io/UtilsR/reference/fmt_plot_base.md),
+[`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md),
+[`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md),
+[`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md),
+[`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md),
+[`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md),
+[`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md),
+[`fmt_text()`](https://hui950319.github.io/UtilsR/reference/fmt_text.md)
 
 ## Examples
 

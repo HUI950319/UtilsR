@@ -1,9 +1,11 @@
 # Create a Directory (if Needed) and Set It as the Working Directory
 
 Convenience wrapper for the common analysis-script preamble of "make an
-output folder if it is not there yet, then `setwd()` into it". Unlike a
-bare `dir.create()`, the directory is created recursively, so missing
-intermediate parents are handled automatically.
+output folder if it is not there yet, then
+[`setwd()`](https://rdrr.io/r/base/getwd.html) into it". Unlike a bare
+[`dir.create()`](https://rdrr.io/r/base/files2.html), the directory is
+created recursively, so missing intermediate parents are handled
+automatically.
 
 ## Usage
 
@@ -13,49 +15,54 @@ set_wd(path, create = TRUE, verbose = TRUE)
 
 ## Arguments
 
-  - path:
-    
-    Character scalar. Target directory. Intermediate directories are
-    created when `create = TRUE`.
+- path:
 
-  - create:
-    
-    Logical. Create `path` (recursively) when it does not exist. Default
-    `TRUE`. When `FALSE`, a missing directory raises an error instead of
-    being created.
+  Character scalar. Target directory. Intermediate directories are
+  created when `create = TRUE`.
 
-  - verbose:
-    
-    Logical. Print the one-line notice described above. Default `TRUE`.
-    The recursive scan behind the file count and total size runs only
-    when this is `TRUE` *and* the directory already existed, so `verbose
-    = FALSE` also skips walking a very large tree.
+- create:
+
+  Logical. Create `path` (recursively) when it does not exist. Default
+  `TRUE`. When `FALSE`, a missing directory raises an error instead of
+  being created.
+
+- verbose:
+
+  Logical. Print the one-line notice described above. Default `TRUE`.
+  The recursive scan behind the file count and total size runs only when
+  this is `TRUE` *and* the directory already existed, so
+  `verbose = FALSE` also skips walking a very large tree.
 
 ## Value
 
 The previous working directory, returned invisibly (same convention as
-`setwd`), so the original location can be restored.
+[`setwd`](https://rdrr.io/r/base/getwd.html)), so the original location
+can be restored.
 
 ## Details
 
 With `verbose = TRUE` the destination is announced as a single
-`.cat_message` line, in the same `... [<contents>, <status>]` shape the
-RegR savers use for files:
+[`.cat_message`](https://hui950319.github.io/UtilsR/reference/dot-cat_message.md)
+line, in the same `... [<contents>, <status>]` shape the RegR savers use
+for files:
 
-  - a directory this call just created reports `empty` and a green `new
-    directory` marker;
+- a directory this call just created reports `empty` and a green
+  `new directory` marker;
 
-  - a directory that was already there reports its recursive file count
-    and total size, and a red `existing directory` marker – the red
-    flags that whatever the script writes next lands beside, or on top
-    of, earlier output.
+- a directory that was already there reports its recursive file count
+  and total size, and a red `existing directory` marker – the red flags
+  that whatever the script writes next lands beside, or on top of,
+  earlier output.
 
-The contents are measured before `setwd()` moves in, because a relative
-`path` stops resolving once the working directory has changed.
+The contents are measured before
+[`setwd()`](https://rdrr.io/r/base/getwd.html) moves in, because a
+relative `path` stops resolving once the working directory has changed.
 
 ## See also
 
-`setwd`, `dir.create`, `.cat_message`
+[`setwd`](https://rdrr.io/r/base/getwd.html),
+[`dir.create`](https://rdrr.io/r/base/files2.html),
+[`.cat_message`](https://hui950319.github.io/UtilsR/reference/dot-cat_message.md)
 
 ## Examples
 

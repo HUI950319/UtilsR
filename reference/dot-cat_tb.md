@@ -22,36 +22,36 @@ Render one or more data objects (data.frame, gt, gtsummary) as styled
 
 ## Arguments
 
-  - ...:
-    
-    Data objects to render (data.frame, gt, or gtsummary). A single
-    unnamed list is also accepted.
+- ...:
 
-  - highlight\_pattern:
-    
-    Regex pattern. Matching cells get `highlight_color` fill.
+  Data objects to render (data.frame, gt, or gtsummary). A single
+  unnamed list is also accepted.
 
-  - highlight\_color:
-    
-    Fill colour for highlighted cells (default `"lightcoral"`).
+- highlight_pattern:
 
-  - numeric\_columns:
-    
-    Character vector of column names to apply colour mapping. If `NULL`,
-    numeric columns are formatted (2 decimals) but *not* colour-mapped.
+  Regex pattern. Matching cells get `highlight_color` fill.
 
-  - numeric\_color:
-    
-    Length-2 colour palette for colour mapping (low, high). Default
-    `c("white", "blue")`.
+- highlight_color:
 
-  - theme:
-    
-    One of `"excel"`, `"gt"`, `"none"`.
+  Fill colour for highlighted cells (default `"lightcoral"`).
 
-  - titles, subtitles, captions, footnotes:
-    
-    Character vectors aligned with the data objects.
+- numeric_columns:
+
+  Character vector of column names to apply colour mapping. If `NULL`,
+  numeric columns are formatted (2 decimals) but *not* colour-mapped.
+
+- numeric_color:
+
+  Length-2 colour palette for colour mapping (low, high). Default
+  `c("white", "blue")`.
+
+- theme:
+
+  One of `"excel"`, `"gt"`, `"none"`.
+
+- titles, subtitles, captions, footnotes:
+
+  Character vectors aligned with the data objects.
 
 ## Value
 
@@ -60,8 +60,11 @@ viewer).
 
 ## See also
 
-Other console display: `.cat_box()`, `.cat_formula()`, `.cat_line()`,
-`.cat_message()`
+Other console display:
+[`.cat_box()`](https://hui950319.github.io/UtilsR/reference/dot-cat_box.md),
+[`.cat_formula()`](https://hui950319.github.io/UtilsR/reference/dot-cat_formula.md),
+[`.cat_line()`](https://hui950319.github.io/UtilsR/reference/dot-cat_line.md),
+[`.cat_message()`](https://hui950319.github.io/UtilsR/reference/dot-cat_message.md)
 
 ## Examples
 
@@ -77,13 +80,3 @@ table_data <- data.frame(
 
 group
 ```
-
-value
-
-A
-
-1.25
-
-B
-
-2.50

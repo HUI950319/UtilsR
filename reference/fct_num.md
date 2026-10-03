@@ -17,29 +17,29 @@ fct_num(
 
 ## Arguments
 
-  - x:
-    
-    A numeric vector.
+- x:
 
-  - breaks:
-    
-    Numeric vector of cut points. E.g. `50` for binary, `c(20, 50)` for
-    3 groups. Mutually exclusive with `nbins`.
+  A numeric vector.
 
-  - labels:
-    
-    Character vector of group labels. If `NULL`, labels are
-    auto-generated (e.g. `"below_50"`, `"50-80"`, `"above_80"`).
+- breaks:
 
-  - nbins:
-    
-    Integer number of bins for automatic binning. Mutually exclusive
-    with `breaks`.
+  Numeric vector of cut points. E.g. `50` for binary, `c(20, 50)` for 3
+  groups. Mutually exclusive with `nbins`.
 
-  - type:
-    
-    Binning method when using `nbins`: `"quantile"` (default) or
-    `"equal"` width.
+- labels:
+
+  Character vector of group labels. If `NULL`, labels are auto-generated
+  (e.g. `"below_50"`, `"50-80"`, `"above_80"`).
+
+- nbins:
+
+  Integer number of bins for automatic binning. Mutually exclusive with
+  `breaks`.
+
+- type:
+
+  Binning method when using `nbins`: `"quantile"` (default) or `"equal"`
+  width.
 
 ## Value
 
@@ -47,8 +47,11 @@ A factor.
 
 ## See also
 
-Other factor tools: `fct_cat()`, `fct_label()`, `fct_to_combine()`,
-`fct_to_group()`
+Other factor tools:
+[`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md),
+[`fct_label()`](https://hui950319.github.io/UtilsR/reference/fct_label.md),
+[`fct_to_combine()`](https://hui950319.github.io/UtilsR/reference/fct_to_combine.md),
+[`fct_to_group()`](https://hui950319.github.io/UtilsR/reference/fct_to_group.md)
 
 ## Examples
 

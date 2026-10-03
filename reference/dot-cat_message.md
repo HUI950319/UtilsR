@@ -16,26 +16,29 @@ Print a timestamped, type-coloured message. Supports multi-line messages
 
 ## Arguments
 
-  - message:
-    
-    Character. The message text.
+- message:
 
-  - type:
-    
-    One of `"info"`, `"success"`, `"warning"`, `"error"`.
+  Character. The message text.
 
-  - timestamp\_format:
-    
-    `strftime` format string (default `"[%Y-%m-%d %H:%M:%S]"`).
+- type:
 
-  - verbose:
-    
-    Logical. If `FALSE`, suppress output.
+  One of `"info"`, `"success"`, `"warning"`, `"error"`.
+
+- timestamp_format:
+
+  `strftime` format string (default `"[%Y-%m-%d %H:%M:%S]"`).
+
+- verbose:
+
+  Logical. If `FALSE`, suppress output.
 
 ## See also
 
-Other console display: `.cat_box()`, `.cat_formula()`, `.cat_line()`,
-`.cat_tb()`
+Other console display:
+[`.cat_box()`](https://hui950319.github.io/UtilsR/reference/dot-cat_box.md),
+[`.cat_formula()`](https://hui950319.github.io/UtilsR/reference/dot-cat_formula.md),
+[`.cat_line()`](https://hui950319.github.io/UtilsR/reference/dot-cat_line.md),
+[`.cat_tb()`](https://hui950319.github.io/UtilsR/reference/dot-cat_tb.md)
 
 ## Examples
 

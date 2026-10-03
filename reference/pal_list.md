@@ -16,17 +16,17 @@ pal_list(
 
 ## Arguments
 
-  - pattern:
-    
-    Regex pattern to filter palette names. Default `NULL` shows all.
+- pattern:
 
-  - type:
-    
-    Filter by type: `"all"` (default), `"discrete"`, or `"continuous"`.
+  Regex pattern to filter palette names. Default `NULL` shows all.
 
-  - show:
-    
-    Logical, if `TRUE` (default) display colour swatches.
+- type:
+
+  Filter by type: `"all"` (default), `"discrete"`, or `"continuous"`.
+
+- show:
+
+  Logical, if `TRUE` (default) display colour swatches.
 
 ## Value
 
@@ -34,9 +34,18 @@ Invisibly returns a named list of matching palettes.
 
 ## See also
 
-Other colour palettes: `pal_bar`, `pal_get()`, `pal_heat`, `pal_lancet`,
-`pal_other`, `pal_paraSC`, `pal_show()`, `pal_show_brewer()`,
-`pal_show_ggsci()`, `pal_show_hcl()`, `pal_show_viridis()`
+Other colour palettes:
+[`pal_bar`](https://hui950319.github.io/UtilsR/reference/pal_bar.md),
+[`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md),
+[`pal_heat`](https://hui950319.github.io/UtilsR/reference/pal_heat.md),
+[`pal_lancet`](https://hui950319.github.io/UtilsR/reference/pal_lancet.md),
+[`pal_other`](https://hui950319.github.io/UtilsR/reference/pal_other.md),
+[`pal_paraSC`](https://hui950319.github.io/UtilsR/reference/pal_paraSC.md),
+[`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md),
+[`pal_show_brewer()`](https://hui950319.github.io/UtilsR/reference/pal_show_brewer.md),
+[`pal_show_ggsci()`](https://hui950319.github.io/UtilsR/reference/pal_show_ggsci.md),
+[`pal_show_hcl()`](https://hui950319.github.io/UtilsR/reference/pal_show_hcl.md),
+[`pal_show_viridis()`](https://hui950319.github.io/UtilsR/reference/pal_show_viridis.md)
 
 ## Examples
 

@@ -11,13 +11,13 @@ lhs %<>% rhs
 
 ## Arguments
 
-  - lhs:
-    
-    A variable name (will be updated in the calling environment).
+- lhs:
 
-  - rhs:
-    
-    A function or expression to pipe into.
+  A variable name (will be updated in the calling environment).
+
+- rhs:
+
+  A function or expression to pipe into.
 
 ## Value
 

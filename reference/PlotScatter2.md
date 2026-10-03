@@ -47,135 +47,134 @@ PlotScatter2(
 
 ## Arguments
 
-  - data:
-    
-    A data.frame.
+- data:
 
-  - x:
-    
-    Column name for the X axis.
+  A data.frame.
 
-  - y:
-    
-    Column name for the Y axis.
+- x:
 
-  - group:
-    
-    Column name for colour grouping (e.g. Study).
+  Column name for the X axis.
 
-  - group2:
-    
-    Column name for shape grouping (e.g. Group). NULL = no shape
-    grouping.
+- y:
 
-  - colors:
-    
-    Named colour vector for `group` levels. NULL = auto palette.
+  Column name for the Y axis.
 
-  - shapes:
-    
-    Named shape vector for `group2` levels. NULL = auto.
+- group:
 
-  - fill\_colors\_shape:
-    
-    Fill colours for `group2` in marginal boxplots. NULL = auto.
+  Column name for colour grouping (e.g. Study).
 
-  - point\_size:
-    
-    Point size. Default 2.
+- group2:
 
-  - point\_alpha:
-    
-    Point transparency. Default 0.8.
+  Column name for shape grouping (e.g. Group). NULL = no shape grouping.
 
-  - show\_ellipse:
-    
-    Whether to draw group ellipses (based on `group`). Default FALSE.
+- colors:
 
-  - show\_cor:
-    
-    Whether to auto-compute and display correlation. Default FALSE.
+  Named colour vector for `group` levels. NULL = auto palette.
 
-  - cor\_method:
-    
-    Correlation method: "pearson" or "spearman". Default "pearson".
+- shapes:
 
-  - show\_regression:
-    
-    Whether to show a regression line. Default FALSE.
+  Named shape vector for `group2` levels. NULL = auto.
 
-  - reg\_method:
-    
-    Regression method: "lm" or "loess". Default "lm".
+- fill_colors_shape:
 
-  - annot\_text:
-    
-    Annotation text in main plot (e.g. PERMANOVA). NULL = none. Manual
-    input overrides `show_cor` auto text.
+  Fill colours for `group2` in marginal boxplots. NULL = auto.
 
-  - annot\_pos:
-    
-    Annotation position c(x, y). NULL = auto top-left.
+- point_size:
 
-  - annot\_size:
-    
-    Annotation text size. Default 5.
+  Point size. Default 2.
 
-  - xlab:
-    
-    X axis label. NULL = column name.
+- point_alpha:
 
-  - ylab:
-    
-    Y axis label. NULL = column name.
+  Point transparency. Default 0.8.
 
-  - x\_top:
-    
-    Whether to place X axis on top. Default TRUE.
+- show_ellipse:
 
-  - marginal\_type:
-    
-    Marginal plot type: "boxplot", "violin", or "violin\_box".
+  Whether to draw group ellipses (based on `group`). Default FALSE.
 
-  - box\_width:
-    
-    Box/violin width in marginal plots. Default 0.7.
+- show_cor:
 
-  - base\_size:
-    
-    Base font size. Default 16.
+  Whether to auto-compute and display correlation. Default FALSE.
 
-  - legend\_color\_pos:
-    
-    Colour legend position. Default "none" (shown via marginal boxes).
+- cor_method:
 
-  - legend\_shape\_pos:
-    
-    Shape legend position. Default c(0.15, 0.15).
+  Correlation method: "pearson" or "spearman". Default "pearson".
 
-  - layout\_main:
-    
-    Main plot grid size (rows/cols). Default 10.
+- show_regression:
 
-  - layout\_margin:
-    
-    Marginal plot grid size (rows/cols). Default 3.
+  Whether to show a regression line. Default FALSE.
 
-  - filename:
-    
-    Output file path. NULL = no save.
+- reg_method:
 
-  - width:
-    
-    Output width in inches. Default 14.
+  Regression method: "lm" or "loess". Default "lm".
 
-  - height:
-    
-    Output height in inches. Default 12.
+- annot_text:
 
-  - dpi:
-    
-    Output resolution. Default 300.
+  Annotation text in main plot (e.g. PERMANOVA). NULL = none. Manual
+  input overrides `show_cor` auto text.
+
+- annot_pos:
+
+  Annotation position c(x, y). NULL = auto top-left.
+
+- annot_size:
+
+  Annotation text size. Default 5.
+
+- xlab:
+
+  X axis label. NULL = column name.
+
+- ylab:
+
+  Y axis label. NULL = column name.
+
+- x_top:
+
+  Whether to place X axis on top. Default TRUE.
+
+- marginal_type:
+
+  Marginal plot type: "boxplot", "violin", or "violin_box".
+
+- box_width:
+
+  Box/violin width in marginal plots. Default 0.7.
+
+- base_size:
+
+  Base font size. Default 16.
+
+- legend_color_pos:
+
+  Colour legend position. Default "none" (shown via marginal boxes).
+
+- legend_shape_pos:
+
+  Shape legend position. Default c(0.15, 0.15).
+
+- layout_main:
+
+  Main plot grid size (rows/cols). Default 10.
+
+- layout_margin:
+
+  Marginal plot grid size (rows/cols). Default 3.
+
+- filename:
+
+  Output file path. NULL = no save.
+
+- width:
+
+  Output width in inches. Default 14.
+
+- height:
+
+  Output height in inches. Default 12.
+
+- dpi:
+
+  Output resolution. Default 300.
 
 ## Value
 
@@ -188,7 +187,9 @@ For paired scatter with rotated histogram inset, see \[PlotScatter3()\].
 
 ## See also
 
-Other scatter plots: `PlotScatter1()`, `PlotScatter3()`
+Other scatter plots:
+[`PlotScatter1()`](https://hui950319.github.io/UtilsR/reference/PlotScatter1.md),
+[`PlotScatter3()`](https://hui950319.github.io/UtilsR/reference/PlotScatter3.md)
 
 ## Examples
 

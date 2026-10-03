@@ -1,11 +1,11 @@
 # Add facet-grid-style strips to a patchwork grid (top headers + side labels)
 
 For an assembled patchwork laid out as an \`nrow x ncol\` grid (filled
-\*\*by row\*\*), add facet\_grid-style strips: column-header strips only
+\*\*by row\*\*), add facet_grid-style strips: column-header strips only
 on the \*\*top row\*\* and row-label strips only on the \*\*right-most
-column\*\* (rotated). This avoids \[fmt\_strip()\]'s behaviour of
-putting a top strip on \*every\* panel – which looks cluttered when the
-grid encodes two crossed dimensions (e.g. plot-type across columns, a
+column\*\* (rotated). This avoids \[fmt_strip()\]'s behaviour of putting
+a top strip on \*every\* panel – which looks cluttered when the grid
+encodes two crossed dimensions (e.g. plot-type across columns, a
 stratifier down rows).
 
 ## Usage
@@ -25,47 +25,45 @@ fmt_strip2(
 
 ## Arguments
 
-  - plot:
-    
-    A patchwork (or list) of ggplot panels filling an \`nrow x ncol\`
-    grid \*\*by row\*\*.
+- plot:
 
-  - top\_label:
-    
-    Character vector of column-header labels (length \`ncol\`,
-    recycled). Placed on the top-row panels only. \`NULL\` = no top
-    strips.
+  A patchwork (or list) of ggplot panels filling an \`nrow x ncol\` grid
+  \*\*by row\*\*.
 
-  - right\_label:
-    
-    Character vector of row labels (length \`nrow\`, recycled). Placed
-    on the right-most-column panels only (rotated 90 degrees). \`NULL\`
-    = no right strips.
+- top_label:
 
-  - ncol:
-    
-    Number of columns in the grid. If \`NULL\`, inferred from the
-    patchwork layout (\`$patches$layout$ncol\`/\`nrow\`), falling back
-    to \`ceiling(sqrt(n))\`.
+  Character vector of column-header labels (length \`ncol\`, recycled).
+  Placed on the top-row panels only. \`NULL\` = no top strips.
 
-  - top\_fill, right\_fill:
-    
-    Background fill colour(s) for the top / right strips (recycled to
-    \`ncol\` / \`nrow\`). \`NULL\` = light grey when \`top\_right\_fill
-    = NULL\`.
+- right_label:
 
-  - label\_color:
-    
-    Strip text colour. Default \`"black"\`.
+  Character vector of row labels (length \`nrow\`, recycled). Placed on
+  the right-most-column panels only (rotated 90 degrees). \`NULL\` = no
+  right strips.
 
-  - top\_right\_fill:
-    
-    Character vector of one or two \`colorspace\` sequential HCL palette
-    names used to generate the top and right fills. The first palette is
-    used for top strips and the second for right strips; a single
-    palette is reused for both directions. Defaults to \`c("Grays",
-    "Greens")\`. Explicit \`top\_fill\` and \`right\_fill\` values take
-    precedence.
+- ncol:
+
+  Number of columns in the grid. If \`NULL\`, inferred from the
+  patchwork layout (\`\$patches\$layout\$ncol\`/\`nrow\`), falling back
+  to \`ceiling(sqrt(n))\`.
+
+- top_fill, right_fill:
+
+  Background fill colour(s) for the top / right strips (recycled to
+  \`ncol\` / \`nrow\`). \`NULL\` = light grey when \`top_right_fill =
+  NULL\`.
+
+- label_color:
+
+  Strip text colour. Default \`"black"\`.
+
+- top_right_fill:
+
+  Character vector of one or two \`colorspace\` sequential HCL palette
+  names used to generate the top and right fills. The first palette is
+  used for top strips and the second for right strips; a single palette
+  is reused for both directions. Defaults to \`c("Grays", "Greens")\`.
+  Explicit \`top_fill\` and \`right_fill\` values take precedence.
 
 ## Value
 
@@ -73,39 +71,47 @@ Same type as input (patchwork in, patchwork out).
 
 ## Details
 
-Typical use: a \`get\_vpd(EXP.obj, c(stratifier, exposure))\` result
-flattened via \[flatten\_patchwork()\] into a \`4 x 2\` grid (rows =
+Typical use: a \`get_vpd(EXP.obj, c(stratifier, exposure))\` result
+flattened via \[flatten_patchwork()\] into a \`4 x 2\` grid (rows =
 stratifier levels, columns = Variable / Partial dependence plot) –
-\`fmt\_strip2()\` then labels the two columns on top and the four rows
-on the right.
+\`fmt_strip2()\` then labels the two columns on top and the four rows on
+the right.
 
 In RegR, `RegR::get_rcs_all()` uses this helper for its shared-strip 2 x
-2 composites when \`strip\_style = "grid"\`.
+2 composites when \`strip_style = "grid"\`.
 
 ## See also
 
-\[fmt\_strip()\] for per-panel top strips; `RegR::get_rcs_all()` for the
-higher-level RCS composite that uses this helper with \`strip\_style =
+\[fmt_strip()\] for per-panel top strips; `RegR::get_rcs_all()` for the
+higher-level RCS composite that uses this helper with \`strip_style =
 "grid"\`.
 
-Other plot formatting: `fmt_axis()`, `fmt_axisText()`, `fmt_axisTile()`,
-`fmt_bg()`, `fmt_boxplot()`, `fmt_com()`, `fmt_expand()`, `fmt_his()`,
-`fmt_legend()`, `fmt_panel()`, `fmt_plot()`, `fmt_plot_base()`,
-`fmt_point()`, `fmt_raster()`, `fmt_ref()`, `fmt_scale()`,
-`fmt_strip()`, `fmt_tag()`, `fmt_text()`
+Other plot formatting:
+[`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md),
+[`fmt_axisText()`](https://hui950319.github.io/UtilsR/reference/fmt_axisText.md),
+[`fmt_axisTile()`](https://hui950319.github.io/UtilsR/reference/fmt_axisTile.md),
+[`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md),
+[`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md),
+[`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md),
+[`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md),
+[`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md),
+[`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md),
+[`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md),
+[`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md),
+[`fmt_plot_base()`](https://hui950319.github.io/UtilsR/reference/fmt_plot_base.md),
+[`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md),
+[`fmt_raster()`](https://hui950319.github.io/UtilsR/reference/fmt_raster.md),
+[`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md),
+[`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md),
+[`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md),
+[`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md),
+[`fmt_text()`](https://hui950319.github.io/UtilsR/reference/fmt_text.md)
 
 ## Examples
 
 ``` r
+if (FALSE) { # requireNamespace("RegR", quietly = TRUE)
 library(dplyr)
-#> 
-#> Attaching package: ‘dplyr’
-#> The following objects are masked from ‘package:stats’:
-#> 
-#>     filter, lag
-#> The following objects are masked from ‘package:base’:
-#> 
-#>     intersect, setdiff, setequal, union
 data(seer_thyroid_mtc_2026, package = "RegR")
 d <- as.data.frame(seer_thyroid_mtc_2026)
 d <- d[seq_len(min(600L, nrow(d))), , drop = FALSE]
@@ -132,8 +138,6 @@ invisible(capture.output(
   ))
 ))
 
-
-
 p <- RegR::plt_cat2(
   cat_sur,
   max_t = 193,
@@ -156,30 +160,11 @@ p <- RegR::plt_cat2(
   cat_names = "Female vs. Male",
   color_pal = "lancet"
 )
-#> Loading required namespace: pammtools
-#> refline_col will be deprecated, use refline_gp instead.
-#> footnote_cex, footnote_fontface, footnote_col will be deprecated, use footnote_gp instead.
-#> Warning: `aes_()` was deprecated in ggplot2 3.0.0.
-#> ℹ Please use tidy evaluation idioms with `aes()`
-#> ℹ The deprecated feature was likely used in the ggplotify package.
-#>   Please report the issue at
-#>   <https://github.com/GuangchuangYu/ggplotify/issues>.
-#> refline_col will be deprecated, use refline_gp instead.
-#> footnote_cex, footnote_fontface, footnote_col will be deprecated, use footnote_gp instead.
-#> refline_col will be deprecated, use refline_gp instead.
-#> footnote_cex, footnote_fontface, footnote_col will be deprecated, use footnote_gp instead.
-#> refline_col will be deprecated, use refline_gp instead.
-#> footnote_cex, footnote_fontface, footnote_col will be deprecated, use footnote_gp instead.
-#> Registered S3 methods overwritten by 'ggpp':
-#>   method                  from   
-#>   heightDetails.titleGrob ggplot2
-#>   widthDetails.titleGrob  ggplot2
 print(p)
-
 p %>% fmt_strip2(
   top_label = c("Unadjusted", "Adjusted"),
   right_label = c("Survival curves", "Difference curves"),
   top_right_fill = c("Grays", "Greens")
 )
-
+}
 ```

@@ -12,39 +12,39 @@ pal_get(palette = "Paired", n = NULL, x = NULL, reverse = FALSE, alpha = 1)
 
 ## Arguments
 
-  - palette:
-    
-    One of three things:
-    
-      - a palette name (e.g. `"Paired"`, `"viridis"`, `"lancet"`); use
-        `pal_list()` to see all available names;
-    
-      - a colour vector, or a single literal colour, used as the palette
-        itself – a registered name always wins over a same-named colour,
-        and a string that is neither still raises the usual "not found"
-        error;
-    
-      - a fully named list of colour vectors, such as `pal_heat`, which
-        is mapped over one palette at a time.
+- palette:
 
-  - n:
-    
-    Number of colours to return. For discrete palettes, colours are
-    recycled or interpolated as needed. Default `NULL` returns all
-    colours in the palette.
+  One of three things:
 
-  - x:
-    
-    Optional vector to map colours to. If character/factor, returns a
-    named colour vector. If numeric, interpolates along the palette.
+  - a palette name (e.g. `"Paired"`, `"viridis"`, `"lancet"`); use
+    [`pal_list()`](https://hui950319.github.io/UtilsR/reference/pal_list.md)
+    to see all available names;
 
-  - reverse:
-    
-    Logical, reverse colour order. Default `FALSE`.
+  - a colour vector, or a single literal colour, used as the palette
+    itself – a registered name always wins over a same-named colour, and
+    a string that is neither still raises the usual "not found" error;
 
-  - alpha:
-    
-    Numeric 0-1, colour transparency. Default 1 (opaque).
+  - a fully named list of colour vectors, such as `pal_heat`, which is
+    mapped over one palette at a time.
+
+- n:
+
+  Number of colours to return. For discrete palettes, colours are
+  recycled or interpolated as needed. Default `NULL` returns all colours
+  in the palette.
+
+- x:
+
+  Optional vector to map colours to. If character/factor, returns a
+  named colour vector. If numeric, interpolates along the palette.
+
+- reverse:
+
+  Logical, reverse colour order. Default `FALSE`.
+
+- alpha:
+
+  Numeric 0-1, colour transparency. Default 1 (opaque).
 
 ## Value
 
@@ -53,10 +53,18 @@ palettes – a list of such vectors under the same names.
 
 ## See also
 
-Other colour palettes: `pal_bar`, `pal_heat`, `pal_lancet`,
-`pal_list()`, `pal_other`, `pal_paraSC`, `pal_show()`,
-`pal_show_brewer()`, `pal_show_ggsci()`, `pal_show_hcl()`,
-`pal_show_viridis()`
+Other colour palettes:
+[`pal_bar`](https://hui950319.github.io/UtilsR/reference/pal_bar.md),
+[`pal_heat`](https://hui950319.github.io/UtilsR/reference/pal_heat.md),
+[`pal_lancet`](https://hui950319.github.io/UtilsR/reference/pal_lancet.md),
+[`pal_list()`](https://hui950319.github.io/UtilsR/reference/pal_list.md),
+[`pal_other`](https://hui950319.github.io/UtilsR/reference/pal_other.md),
+[`pal_paraSC`](https://hui950319.github.io/UtilsR/reference/pal_paraSC.md),
+[`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md),
+[`pal_show_brewer()`](https://hui950319.github.io/UtilsR/reference/pal_show_brewer.md),
+[`pal_show_ggsci()`](https://hui950319.github.io/UtilsR/reference/pal_show_ggsci.md),
+[`pal_show_hcl()`](https://hui950319.github.io/UtilsR/reference/pal_show_hcl.md),
+[`pal_show_viridis()`](https://hui950319.github.io/UtilsR/reference/pal_show_viridis.md)
 
 ## Examples
 

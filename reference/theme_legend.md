@@ -1,7 +1,7 @@
 # Customizable Legend Theme
 
 A flexible legend theme with sensible defaults. All parameters can be
-overridden. \[theme\_legend1()\] is a convenience wrapper with fixed
+overridden. \[theme_legend1()\] is a convenience wrapper with fixed
 compact styling; use `theme_legend()` when you need fine-grained
 control.
 
@@ -30,71 +30,72 @@ theme_legend(
 
 ## Arguments
 
-  - bg\_fill:
-    
-    Background fill color. Default `"white"`.
+- bg_fill:
 
-  - bg\_color:
-    
-    Background border color. Default `"grey"`.
+  Background fill color. Default `"white"`.
 
-  - bg\_linewidth:
-    
-    Background border width. Default `0.8`.
+- bg_color:
 
-  - key\_fill:
-    
-    Key background fill. Default `"white"`.
+  Background border color. Default `"grey"`.
 
-  - key\_color:
-    
-    Key border color. Default `NA` (no border).
+- bg_linewidth:
 
-  - key\_linewidth:
-    
-    Key border width. Default `0.5`.
+  Background border width. Default `0.8`.
 
-  - key\_size:
-    
-    Key size in lines. Default `1`.
+- key_fill:
 
-  - text\_size:
-    
-    Legend text size. Default `9`.
+  Key background fill. Default `"white"`.
 
-  - text\_color:
-    
-    Legend text color. Default `"black"`.
+- key_color:
 
-  - text\_face:
-    
-    Legend text font face. Default `"plain"`.
+  Key border color. Default `NA` (no border).
 
-  - title\_size:
-    
-    Legend title size. Default `10`.
+- key_linewidth:
 
-  - title\_color:
-    
-    Legend title color. Default `"black"`.
+  Key border width. Default `0.5`.
 
-  - title\_face:
-    
-    Legend title font face. Default `"bold"`.
+- key_size:
 
-  - show\_title:
-    
-    Logical. Show legend title? Default `TRUE`. If `FALSE`, title is set
-    to `element_blank()`.
+  Key size in lines. Default `1`.
 
-  - spacing:
-    
-    Spacing between legend and plot in cm. Default `0.2`.
+- text_size:
 
-  - margin:
-    
-    Margin around legend content (top, right, bottom, left) in pt.
-    Default `c(4, 4, 4, 4)`.
+  Legend text size. Default `9`.
+
+- text_color:
+
+  Legend text color. Default `"black"`.
+
+- text_face:
+
+  Legend text font face. Default `"plain"`.
+
+- title_size:
+
+  Legend title size. Default `10`.
+
+- title_color:
+
+  Legend title color. Default `"black"`.
+
+- title_face:
+
+  Legend title font face. Default `"bold"`.
+
+- show_title:
+
+  Logical. Show legend title? Default `TRUE`. If `FALSE`, title is set
+  to
+  [`element_blank()`](https://ggplot2.tidyverse.org/reference/element.html).
+
+- spacing:
+
+  Spacing between legend and plot in cm. Default `0.2`.
+
+- margin:
+
+  Margin around legend content (top, right, bottom, left) in pt. Default
+  `c(4, 4, 4, 4)`.
 
 ## Value
 
@@ -102,10 +103,19 @@ A ggplot2 theme object.
 
 ## See also
 
-Other ggplot2 themes: `leg1()`, `leg2()`, `theme_ROC()`,
-`theme_alluvia()`, `theme_blank()`, `theme_heat()`, `theme_km`,
-`theme_legend1()`, `theme_my()`, `theme_rcs`, `theme_sc()`,
-`theme_scatter`
+Other ggplot2 themes:
+[`leg1()`](https://hui950319.github.io/UtilsR/reference/leg1.md),
+[`leg2()`](https://hui950319.github.io/UtilsR/reference/leg2.md),
+[`theme_ROC()`](https://hui950319.github.io/UtilsR/reference/theme_ROC.md),
+[`theme_alluvia()`](https://hui950319.github.io/UtilsR/reference/theme_alluvia.md),
+[`theme_blank()`](https://hui950319.github.io/UtilsR/reference/theme_blank.md),
+[`theme_heat()`](https://hui950319.github.io/UtilsR/reference/theme_heat.md),
+[`theme_km`](https://hui950319.github.io/UtilsR/reference/theme_km.md),
+[`theme_legend1()`](https://hui950319.github.io/UtilsR/reference/theme_legend1.md),
+[`theme_my()`](https://hui950319.github.io/UtilsR/reference/theme_my.md),
+[`theme_rcs`](https://hui950319.github.io/UtilsR/reference/theme_rcs.md),
+[`theme_sc()`](https://hui950319.github.io/UtilsR/reference/theme_sc.md),
+[`theme_scatter`](https://hui950319.github.io/UtilsR/reference/theme_scatter.md)
 
 ## Examples
 

@@ -12,21 +12,23 @@ check_na(data, ..., pattern = NULL, show_all = FALSE)
 
 ## Arguments
 
-  - data:
-    
-    A data.frame.
+- data:
 
-  - ...:
-    
-    Variable selection using `dplyr::select` syntax.
+  A data.frame.
 
-  - pattern:
-    
-    Optional regex pattern for matching variable names.
+- ...:
 
-  - show\_all:
-    
-    Logical. If `FALSE` (default), only variables with issues are shown.
+  Variable selection using
+  [`dplyr::select`](https://dplyr.tidyverse.org/reference/select.html)
+  syntax.
+
+- pattern:
+
+  Optional regex pattern for matching variable names.
+
+- show_all:
+
+  Logical. If `FALSE` (default), only variables with issues are shown.
 
 ## Value
 
@@ -34,8 +36,13 @@ Invisibly returns the input data.
 
 ## See also
 
-Other inspect: `check_size()`, `check_system()`,
-`count_packages_in_libpaths()`, `impute_na_knn()`, `lv()`, `plt_na()`
+Other inspect:
+[`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md),
+[`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md),
+[`count_packages_in_libpaths()`](https://hui950319.github.io/UtilsR/reference/count_packages_in_libpaths.md),
+[`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md),
+[`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md),
+[`plt_na()`](https://hui950319.github.io/UtilsR/reference/plt_na.md)
 
 ## Examples
 

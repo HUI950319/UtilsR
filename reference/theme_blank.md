@@ -20,33 +20,34 @@ theme_blank(
 
 ## Arguments
 
-  - add\_coord:
-    
-    Logical. Whether to add coordinate arrows. Default is `TRUE`.
+- add_coord:
 
-  - xlen\_npc:
-    
-    Numeric. Length of the x-axis arrow in "npc" units.
+  Logical. Whether to add coordinate arrows. Default is `TRUE`.
 
-  - ylen\_npc:
-    
-    Numeric. Length of the y-axis arrow in "npc" units.
+- xlen_npc:
 
-  - xlab:
-    
-    Character. Label for the x-axis arrow.
+  Numeric. Length of the x-axis arrow in "npc" units.
 
-  - ylab:
-    
-    Character. Label for the y-axis arrow.
+- ylen_npc:
 
-  - lab\_size:
-    
-    Numeric. Font size of the axis labels.
+  Numeric. Length of the y-axis arrow in "npc" units.
 
-  - ...:
-    
-    Arguments passed to `theme`.
+- xlab:
+
+  Character. Label for the x-axis arrow.
+
+- ylab:
+
+  Character. Label for the y-axis arrow.
+
+- lab_size:
+
+  Numeric. Font size of the axis labels.
+
+- ...:
+
+  Arguments passed to
+  [`theme`](https://ggplot2.tidyverse.org/reference/theme.html).
 
 ## Value
 
@@ -55,10 +56,19 @@ ggplot with `+`.
 
 ## See also
 
-Other ggplot2 themes: `leg1()`, `leg2()`, `theme_ROC()`,
-`theme_alluvia()`, `theme_heat()`, `theme_km`, `theme_legend()`,
-`theme_legend1()`, `theme_my()`, `theme_rcs`, `theme_sc()`,
-`theme_scatter`
+Other ggplot2 themes:
+[`leg1()`](https://hui950319.github.io/UtilsR/reference/leg1.md),
+[`leg2()`](https://hui950319.github.io/UtilsR/reference/leg2.md),
+[`theme_ROC()`](https://hui950319.github.io/UtilsR/reference/theme_ROC.md),
+[`theme_alluvia()`](https://hui950319.github.io/UtilsR/reference/theme_alluvia.md),
+[`theme_heat()`](https://hui950319.github.io/UtilsR/reference/theme_heat.md),
+[`theme_km`](https://hui950319.github.io/UtilsR/reference/theme_km.md),
+[`theme_legend()`](https://hui950319.github.io/UtilsR/reference/theme_legend.md),
+[`theme_legend1()`](https://hui950319.github.io/UtilsR/reference/theme_legend1.md),
+[`theme_my()`](https://hui950319.github.io/UtilsR/reference/theme_my.md),
+[`theme_rcs`](https://hui950319.github.io/UtilsR/reference/theme_rcs.md),
+[`theme_sc()`](https://hui950319.github.io/UtilsR/reference/theme_sc.md),
+[`theme_scatter`](https://hui950319.github.io/UtilsR/reference/theme_scatter.md)
 
 ## Examples
 

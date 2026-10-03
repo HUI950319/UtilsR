@@ -12,8 +12,8 @@
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Package Map">
 <meta name="description" content="Three mind maps covering the whole package: what it does, every exported function, and how the tools chain together.">
@@ -73,12 +73,13 @@
 
 
 
-<script src="package-map_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+
+<div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Package Map</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/HUI950319/UtilsR/blob/HEAD/vignettes/articles/package-map.Rmd" class="external-link"><code>vignettes/articles/package-map.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/HUI950319/UtilsR/blob/master/vignettes/articles/package-map.Rmd" class="external-link"><code>vignettes/articles/package-map.Rmd</code></a></small>
       <div class="d-none name"><code>package-map.Rmd</code></div>
     </div>
 
@@ -103,40 +104,86 @@
   border-radius: 6px;
 }
 </style>
-<p>UtilsR exports 92 functions, grouped into <strong>12 modules</strong>. The three maps below answer three different questions: what the package can do, which function covers a given job, and what each tool hands to the next one.</p>
-<p>The maps are labelled in Chinese, matching the source <code>.drawio</code> file. They are full-resolution images – <strong>click any of them to open it in a new tab</strong>.</p>
+<p>UtilsR exports 92 functions, grouped into <strong>12
+modules</strong>. The three maps below answer three different questions:
+what the package can do, which function covers a given job, and what
+each tool hands to the next one.</p>
+<p>The maps are labelled in Chinese, matching the source
+<code>.drawio</code> file. They are full-resolution images –
+<strong>click any of them to open it in a new tab</strong>.</p>
 <div class="section level2">
 <h2 id="overview">01 Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p>The 12 modules and a representative function from each. Numbering runs down the left column first (01–06), then down the right column (07–12). The overview lists only representative functions; the complete set is in the next map.</p>
+<p>The 12 modules and a representative function from each. Numbering
+runs down the left column first (01–06), then down the right column
+(07–12). The overview lists only representative functions; the complete
+set is in the next map.</p>
 <div class="mindmap">
-<p><a href="utilsr-package-mindmap-p1.png" target="_blank" rel="noopener"> <img src="utilsr-package-mindmap-p1.png" alt="UtilsR overview: 12 modules and their representative functions"></a></p>
+<p><a href="utilsr-package-mindmap-p1.png" target="_blank" rel="noopener">
+<img src="utilsr-package-mindmap-p1.png" alt="UtilsR overview: 12 modules and their representative functions"></a></p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="complete-function-index">02 Complete function index<a class="anchor" aria-label="anchor" href="#complete-function-index"></a>
 </h2>
-<p>All 92 exports grouped by module, each with a one-line description of what it does. The prefixes are consistent: <code>lv</code> / <code>check_*</code> / <code>fct_*</code> / <code>stat_*</code> inspect and reshape data; <code>Plot*</code> / <code>plt_*</code> / <code>fmt_*</code> / <code>theme_*</code> / <code>pal_*</code> / <code>grob_*</code> produce and style graphics; <code>.cat_*</code> writes to the console; and four <code>%...%</code> operators round out the set.</p>
+<p>All 92 exports grouped by module, each with a one-line description of
+what it does. The prefixes are consistent: <code>lv</code> /
+<code>check_*</code> / <code>fct_*</code> / <code>stat_*</code> inspect
+and reshape data; <code>Plot*</code> / <code>plt_*</code> /
+<code>fmt_*</code> / <code>theme_*</code> / <code>pal_*</code> /
+<code>grob_*</code> produce and style graphics; <code>.cat_*</code>
+writes to the console; and four <code>%...%</code> operators round out
+the set.</p>
 <div class="mindmap">
-<p><a href="utilsr-package-mindmap-p2.png" target="_blank" rel="noopener"> <img src="utilsr-package-mindmap-p2.png" alt="UtilsR function index: all 92 exports grouped by module"></a></p>
+<p><a href="utilsr-package-mindmap-p2.png" target="_blank" rel="noopener">
+<img src="utilsr-package-mindmap-p2.png" alt="UtilsR function index: all 92 exports grouped by module"></a></p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="processing-chain">03 Processing chain<a class="anchor" aria-label="anchor" href="#processing-chain"></a>
 </h2>
-<p>UtilsR is a toolbox rather than an analysis pipeline, so the third map does not show “which analysis step comes first”. It shows <strong>each tool, what it returns, and what you can do with that next</strong>. Data goes through module 03 for inspection and 05 for tidying, then out through 01 / 02 as a plot, into the <code>fmt_*</code> chain in module 08, and – when the layout needs it – down to the grob level in module 10.</p>
-<p>The dashed boxes mark interchangeable outputs: modules 01 and 02 both return ggplot / patchwork objects, so every <code>fmt_*</code> and <code>theme_*</code> call downstream treats them identically.</p>
+<p>UtilsR is a toolbox rather than an analysis pipeline, so the third
+map does not show “which analysis step comes first”. It shows
+<strong>each tool, what it returns, and what you can do with that
+next</strong>. Data goes through module 03 for inspection and 05 for
+tidying, then out through 01 / 02 as a plot, into the <code>fmt_*</code>
+chain in module 08, and – when the layout needs it – down to the grob
+level in module 10.</p>
+<p>The dashed boxes mark interchangeable outputs: modules 01 and 02 both
+return ggplot / patchwork objects, so every <code>fmt_*</code> and
+<code>theme_*</code> call downstream treats them identically.</p>
 <div class="mindmap">
-<p><a href="utilsr-package-mindmap-p3.png" target="_blank" rel="noopener"> <img src="utilsr-package-mindmap-p3.png" alt="UtilsR processing chain: each module's entry points, return objects and follow-up functions"></a></p>
+<p><a href="utilsr-package-mindmap-p3.png" target="_blank" rel="noopener">
+<img src="utilsr-package-mindmap-p3.png" alt="UtilsR processing chain: each module's entry points, return objects and follow-up functions"></a></p>
 </div>
-<p>Modules 07 (palettes) and 09 (themes) do not appear as steps in that chain because they are the styling layer underneath it: <code><a href="../reference/theme_my.html">theme_my()</a></code> and <code><a href="../reference/pal_lancet.html">pal_lancet()</a></code> are called internally by the plotting functions in 01 / 02 and by <code><a href="../reference/fmt_plot.html">fmt_plot()</a></code>, so the house style applies without you passing anything.</p>
+<p>Modules 07 (palettes) and 09 (themes) do not appear as steps in that
+chain because they are the styling layer underneath it:
+<code><a href="../reference/theme_my.html">theme_my()</a></code> and <code><a href="../reference/pal_lancet.html">pal_lancet()</a></code> are called
+internally by the plotting functions in 01 / 02 and by
+<code><a href="../reference/fmt_plot.html">fmt_plot()</a></code>, so the house style applies without you passing
+anything.</p>
 </div>
 <div class="section level2">
 <h2 id="how-this-maps-onto-the-reference">How this maps onto the reference<a class="anchor" aria-label="anchor" href="#how-this-maps-onto-the-reference"></a>
 </h2>
-<p>The <a href="../reference/index.html">reference index</a> is ordered to match the 12 modules one for one; only the headings differ, since they are in English (<code>01 专用图形 Plot*</code> is Advanced Plot Functions, <code>08 ggplot2 格式化</code> is ggplot2 Formatting, and so on). Locate a module on the map first, then look up that module’s section in the reference for arguments and examples.</p>
-<p>The two counts differ slightly: the maps count <code>export()</code> entries in <code>NAMESPACE</code>, while the reference index additionally lists <code>palette_list</code> and <code>console_width</code>, which have help pages but are not exported.</p>
-<p>The source is a draw.io file (<code>tools/mindmap/utilsr-package-mindmap.drawio</code>, whose three pages are the three images above; <code>tools/mindmap/check-mindmap-sync.R</code> checks it against <code>NAMESPACE</code>). The function list comes from <code>NAMESPACE</code>, the descriptions from the R sources and the man pages.</p>
+<p>The <a href="../reference/index.html">reference index</a> is ordered
+to match the 12 modules one for one; only the headings differ, since
+they are in English (<code>01 专用图形 Plot*</code> is Advanced Plot
+Functions, <code>08 ggplot2 格式化</code> is ggplot2 Formatting, and so
+on). Locate a module on the map first, then look up that module’s
+section in the reference for arguments and examples.</p>
+<p>The two counts differ slightly: the maps count <code>export()</code>
+entries in <code>NAMESPACE</code>, while the reference index
+additionally lists <code>palette_list</code> and
+<code>console_width</code>, which have help pages but are not
+exported.</p>
+<p>The source is a draw.io file
+(<code>tools/mindmap/utilsr-package-mindmap.drawio</code>, whose three
+pages are the three images above;
+<code>tools/mindmap/check-mindmap-sync.R</code> checks it against
+<code>NAMESPACE</code>). The function list comes from
+<code>NAMESPACE</code>, the descriptions from the R sources and the man
+pages.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

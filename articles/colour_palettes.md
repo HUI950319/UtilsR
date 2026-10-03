@@ -1,6 +1,7 @@
 # Colour Palettes
 
 ``` r
+
 library(UtilsR)
 library(ggplot2)
 ```
@@ -12,23 +13,25 @@ RColorBrewer, ggsci, viridis, rcartocolor, nord, and more.
 
 **Core components:**
 
-| Function       | Purpose                                            |
-| -------------- | -------------------------------------------------- |
-| `pal_lancet`   | Default palette object (15 Lancet journal colours) |
-| `palette_list` | Named list of 256 palettes                         |
-| `pal_get()`    | Extract colours from any palette by name           |
-| `pal_show()`   | Visualise a palette as colour swatches             |
-| `pal_list()`   | Browse all available palette names                 |
-| `show_color()` | Display any colour vector in console               |
+| Function | Purpose |
+|----|----|
+| `pal_lancet` | Default palette object (15 Lancet journal colours) |
+| `palette_list` | Named list of 256 palettes |
+| [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md) | Extract colours from any palette by name |
+| [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md) | Visualise a palette as colour swatches |
+| [`pal_list()`](https://hui950319.github.io/UtilsR/reference/pal_list.md) | Browse all available palette names |
+| [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md) | Display any colour vector in console |
 
------
+------------------------------------------------------------------------
 
 ## `pal_lancet` — Default Palette
 
-The built-in default palette used by `plt_cat()` and other plot
-functions:
+The built-in default palette used by
+[`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
+and other plot functions:
 
 ``` r
+
 as.character(pal_lancet)
 #>  [1] "#00468BFF" "#ED0000FF" "#42B540FF" "#0099B4FF" "#925E9FFF" "#FDAF91FF"
 #>  [7] "#AD002AFF" "#ADB6B6FF" "#1B1919FF" "#79AF97FF" "#DF8F44FF" "#6A6599FF"
@@ -38,6 +41,7 @@ as.character(pal_lancet[1:5])
 ```
 
 ``` r
+
 ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) +
   geom_point(size = 2) +
   scale_color_manual(values = as.character(pal_lancet[1:3])) +
@@ -46,14 +50,17 @@ ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) +
 
 ![](colour_palettes_files/figure-html/lancet-plot-1.png)
 
------
+------------------------------------------------------------------------
 
 ## `palette_list` — 256 Palettes
 
 All palettes are stored in `palette_list` (accessible via
-`UtilsR::palette_list` or `pal_get()`):
+[`UtilsR::palette_list`](https://hui950319.github.io/UtilsR/reference/palette_list.md)
+or
+[`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md)):
 
 ``` r
+
 # Browse available palette names
 head(names(UtilsR::palette_list), 20)
 #>  [1] "BrBG"     "PiYG"     "PRGn"     "PuOr"     "RdBu"     "RdGy"    
@@ -64,13 +71,14 @@ length(UtilsR::palette_list)
 #> [1] 260
 ```
 
------
+------------------------------------------------------------------------
 
 ## `pal_get()` — Extract Palette Colours
 
 Retrieve colours from any palette by name:
 
 ``` r
+
 # Get 5 colours from "Paired"
 pal_get("Paired", n = 5)
 #> [1] "#A6CEE3" "#1F78B4" "#B2DF8A" "#33A02C" "#FB9A99"
@@ -88,6 +96,7 @@ pal_get("Dark2", n = 8)
 Use in ggplot2:
 
 ``` r
+
 ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) +
   geom_point(size = 2) +
   scale_color_manual(values = as.character(pal_get("Set2", n = 3))) +
@@ -96,22 +105,25 @@ ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) +
 
 ![](colour_palettes_files/figure-html/pal-get-plot-1.png)
 
------
+------------------------------------------------------------------------
 
 ## `pal_show()` — Visualise Palettes
 
 Display colour swatches for any palette:
 
 ``` r
+
 pal_show("Paired")
 pal_show("Set1")
 ```
 
 `n` fixes how many colours each palette contributes, following the same
-rules as `pal_get()`. `max_colors` still caps how many of them are
-drawn:
+rules as
+[`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md).
+`max_colors` still caps how many of them are drawn:
 
 ``` r
+
 # Take 3 colours from each palette
 pal_show(c("Set1", "lancet", "Dark2"), n = 3)
 
@@ -122,30 +134,33 @@ pal_show("Set1", n = 12)
 pal_show(pal_paraSC, n = 6)
 ```
 
------
+------------------------------------------------------------------------
 
 ## `pal_list()` — Browse All Palettes
 
 ``` r
+
 # Interactive palette browser (opens viewer)
 pal_list()
 ```
 
------
+------------------------------------------------------------------------
 
 ## `show_color()` — Display Any Colours
 
 ``` r
+
 show_color(c("#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEAA7"))
 ```
 
------
+------------------------------------------------------------------------
 
 ## Use with `plt_cat()`
 
 Palettes integrate seamlessly with plot functions:
 
 ``` r
+
 set.seed(1)
 df <- data.frame(Type = factor(sample(LETTERS[1:5], 200, TRUE)))
 
@@ -156,6 +171,7 @@ plt_cat(df, "Type", type = "pie", label = TRUE, palette = "Set2")
 ![](colour_palettes_files/figure-html/plt-cat-named-1.png)
 
 ``` r
+
 # Use custom colours
 plt_cat(df, "Type", type = "bar", stat = "count",
         palette = c("#264653", "#2A9D8F", "#E9C46A", "#F4A261", "#E76F51"))
@@ -164,6 +180,7 @@ plt_cat(df, "Type", type = "bar", stat = "count",
 ![](colour_palettes_files/figure-html/plt-cat-custom-1.png)
 
 ``` r
+
 # Default (pal_lancet) — no palette argument needed
 plt_cat(df, "Type", type = "pie", label = TRUE)
 ```

@@ -24,56 +24,56 @@ fmt_axisText(
 
 ## Arguments
 
-  - plot:
-    
-    A ggplot, patchwork, or list of ggplot objects.
+- plot:
 
-  - x:
-    
-    Numeric. Rotation angle (degrees) for X-axis text. Common values:
-    `45` (diagonal), `90` (vertical). Default `NULL` (no change).
+  A ggplot, patchwork, or list of ggplot objects.
 
-  - y:
-    
-    Numeric. Rotation angle (degrees) for Y-axis text. Default `NULL`
-    (no change).
+- x:
 
-  - x\_hjust:
-    
-    Numeric. Horizontal justification for X-axis text. Default `NULL`
-    (auto: 1 when `x > 0`, 0 when `x < 0`, 0.5 when `x = 0`).
+  Numeric. Rotation angle (degrees) for X-axis text. Common values: `45`
+  (diagonal), `90` (vertical). Default `NULL` (no change).
 
-  - x\_vjust:
-    
-    Numeric. Vertical justification for X-axis text. Default `NULL`
-    (auto: 0.5 when `abs(x) >= 90`, 1 otherwise).
+- y:
 
-  - y\_hjust:
-    
-    Numeric. Horizontal justification for Y-axis text. Default `NULL`
-    (auto).
+  Numeric. Rotation angle (degrees) for Y-axis text. Default `NULL` (no
+  change).
 
-  - y\_vjust:
-    
-    Numeric. Vertical justification for Y-axis text. Default `NULL`
-    (auto).
+- x_hjust:
 
-  - size:
-    
-    Numeric. Text size for both axes. Default `NULL` (no change).
+  Numeric. Horizontal justification for X-axis text. Default `NULL`
+  (auto: 1 when `x > 0`, 0 when `x < 0`, 0.5 when `x = 0`).
 
-  - color:
-    
-    Character. Text color for both axes. Default `NULL` (no change).
+- x_vjust:
 
-  - face:
-    
-    Character. Font face (`"plain"`, `"bold"`, `"italic"`,
-    `"bold.italic"`). Default `NULL` (no change).
+  Numeric. Vertical justification for X-axis text. Default `NULL` (auto:
+  0.5 when `abs(x) >= 90`, 1 otherwise).
 
-  - ...:
-    
-    Additional arguments passed to \[ggplot2::theme()\].
+- y_hjust:
+
+  Numeric. Horizontal justification for Y-axis text. Default `NULL`
+  (auto).
+
+- y_vjust:
+
+  Numeric. Vertical justification for Y-axis text. Default `NULL`
+  (auto).
+
+- size:
+
+  Numeric. Text size for both axes. Default `NULL` (no change).
+
+- color:
+
+  Character. Text color for both axes. Default `NULL` (no change).
+
+- face:
+
+  Character. Font face (`"plain"`, `"bold"`, `"italic"`,
+  `"bold.italic"`). Default `NULL` (no change).
+
+- ...:
+
+  Additional arguments passed to \[ggplot2::theme()\].
 
 ## Value
 
@@ -81,11 +81,26 @@ Same type as input.
 
 ## See also
 
-Other plot formatting: `fmt_axis()`, `fmt_axisTile()`, `fmt_bg()`,
-`fmt_boxplot()`, `fmt_com()`, `fmt_expand()`, `fmt_his()`,
-`fmt_legend()`, `fmt_panel()`, `fmt_plot()`, `fmt_plot_base()`,
-`fmt_point()`, `fmt_raster()`, `fmt_ref()`, `fmt_scale()`,
-`fmt_strip()`, `fmt_strip2()`, `fmt_tag()`, `fmt_text()`
+Other plot formatting:
+[`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md),
+[`fmt_axisTile()`](https://hui950319.github.io/UtilsR/reference/fmt_axisTile.md),
+[`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md),
+[`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md),
+[`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md),
+[`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md),
+[`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md),
+[`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md),
+[`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md),
+[`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md),
+[`fmt_plot_base()`](https://hui950319.github.io/UtilsR/reference/fmt_plot_base.md),
+[`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md),
+[`fmt_raster()`](https://hui950319.github.io/UtilsR/reference/fmt_raster.md),
+[`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md),
+[`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md),
+[`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md),
+[`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md),
+[`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md),
+[`fmt_text()`](https://hui950319.github.io/UtilsR/reference/fmt_text.md)
 
 ## Examples
 

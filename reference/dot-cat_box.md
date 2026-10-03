@@ -10,18 +10,21 @@ Print a rounded box with type-coloured border and background.
 
 ## Arguments
 
-  - cat\_text:
-    
-    Character. Text to display.
+- cat_text:
 
-  - type:
-    
-    One of `"info"`, `"success"`, `"warning"`, `"error"`.
+  Character. Text to display.
+
+- type:
+
+  One of `"info"`, `"success"`, `"warning"`, `"error"`.
 
 ## See also
 
-Other console display: `.cat_formula()`, `.cat_line()`,
-`.cat_message()`, `.cat_tb()`
+Other console display:
+[`.cat_formula()`](https://hui950319.github.io/UtilsR/reference/dot-cat_formula.md),
+[`.cat_line()`](https://hui950319.github.io/UtilsR/reference/dot-cat_line.md),
+[`.cat_message()`](https://hui950319.github.io/UtilsR/reference/dot-cat_message.md),
+[`.cat_tb()`](https://hui950319.github.io/UtilsR/reference/dot-cat_tb.md)
 
 ## Examples
 

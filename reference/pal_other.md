@@ -14,51 +14,60 @@ pal_other
 
 A named list of `palette` objects:
 
-  - igv:
-    
-    48 colours, IGV genome browser
+- igv:
 
-  - ditto:
-    
-    40 colours, dittoSeq (scRNA-seq)
+  48 colours, IGV genome browser
 
-  - polychrome:
-    
-    36 colours, max perceptual distinctness
+- ditto:
 
-  - glasbey:
-    
-    32 colours, Glasbey algorithm
+  40 colours, dittoSeq (scRNA-seq)
 
-  - alphabet:
-    
-    26 colours, Green-Armytage A-Z
+- polychrome:
 
-  - ucsc:
-    
-    26 colours, UCSC genome browser
+  36 colours, max perceptual distinctness
 
-  - kelly:
-    
-    22 colours, Kelly max contrast
+- glasbey:
 
-  - d3:
-    
-    20 colours, D3.js Category20
+  32 colours, Glasbey algorithm
 
-  - simpsons:
-    
-    16 colours, ggsci Simpsons
+- alphabet:
 
-  - trubetskoy:
-    
-    20 colours, Trubetskoy distinct
+  26 colours, Green-Armytage A-Z
+
+- ucsc:
+
+  26 colours, UCSC genome browser
+
+- kelly:
+
+  22 colours, Kelly max contrast
+
+- d3:
+
+  20 colours, D3.js Category20
+
+- simpsons:
+
+  16 colours, ggsci Simpsons
+
+- trubetskoy:
+
+  20 colours, Trubetskoy distinct
 
 ## See also
 
-Other colour palettes: `pal_bar`, `pal_get()`, `pal_heat`, `pal_lancet`,
-`pal_list()`, `pal_paraSC`, `pal_show()`, `pal_show_brewer()`,
-`pal_show_ggsci()`, `pal_show_hcl()`, `pal_show_viridis()`
+Other colour palettes:
+[`pal_bar`](https://hui950319.github.io/UtilsR/reference/pal_bar.md),
+[`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md),
+[`pal_heat`](https://hui950319.github.io/UtilsR/reference/pal_heat.md),
+[`pal_lancet`](https://hui950319.github.io/UtilsR/reference/pal_lancet.md),
+[`pal_list()`](https://hui950319.github.io/UtilsR/reference/pal_list.md),
+[`pal_paraSC`](https://hui950319.github.io/UtilsR/reference/pal_paraSC.md),
+[`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md),
+[`pal_show_brewer()`](https://hui950319.github.io/UtilsR/reference/pal_show_brewer.md),
+[`pal_show_ggsci()`](https://hui950319.github.io/UtilsR/reference/pal_show_ggsci.md),
+[`pal_show_hcl()`](https://hui950319.github.io/UtilsR/reference/pal_show_hcl.md),
+[`pal_show_viridis()`](https://hui950319.github.io/UtilsR/reference/pal_show_viridis.md)
 
 ## Examples
 

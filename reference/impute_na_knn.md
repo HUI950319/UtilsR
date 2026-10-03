@@ -1,9 +1,10 @@
 # Impute Missing Values with Weighted K-Nearest Neighbours
 
-Impute missing values in mixed-type data with `kNN`. Labelled variables
-are temporarily converted to factors for distance calculation, then
-restored with their original storage type, variable label, value labels,
-and other attributes.
+Impute missing values in mixed-type data with
+[`kNN`](https://rdrr.io/pkg/VIM/man/kNN.html). Labelled variables are
+temporarily converted to factors for distance calculation, then restored
+with their original storage type, variable label, value labels, and
+other attributes.
 
 ## Usage
 
@@ -13,20 +14,20 @@ impute_na_knn(data, k = 5, verbose = TRUE)
 
 ## Arguments
 
-  - data:
-    
-    A data frame or tibble. Other data-frame subclasses are processed as
-    plain data frames.
+- data:
 
-  - k:
-    
-    A positive integer giving the number of nearest neighbours. Defaults
-    to `5`. It must not exceed the number of observed donors in any
-    variable being imputed.
+  A data frame or tibble. Other data-frame subclasses are processed as
+  plain data frames.
 
-  - verbose:
-    
-    Logical. If `TRUE`, report the variables being imputed.
+- k:
+
+  A positive integer giving the number of nearest neighbours. Defaults
+  to `5`. It must not exceed the number of observed donors in any
+  variable being imputed.
+
+- verbose:
+
+  Logical. If `TRUE`, report the variables being imputed.
 
 ## Value
 
@@ -35,10 +36,15 @@ returned when `data` is a tibble.
 
 ## See also
 
-`check_na()`
+[`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
 
-Other inspect: `check_na()`, `check_size()`, `check_system()`,
-`count_packages_in_libpaths()`, `lv()`, `plt_na()`
+Other inspect:
+[`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md),
+[`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md),
+[`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md),
+[`count_packages_in_libpaths()`](https://hui950319.github.io/UtilsR/reference/count_packages_in_libpaths.md),
+[`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md),
+[`plt_na()`](https://hui950319.github.io/UtilsR/reference/plt_na.md)
 
 ## Examples
 
@@ -63,13 +69,4 @@ if (requireNamespace("VIM", quietly = TRUE) &&
   oc_imputed <- impute_na_knn(ToyData::oc, k = 5, verbose = FALSE)
   utils::head(oc_imputed[, c("age", "BMI", "CA125")])
 }
-#> # A tibble: 6 × 3
-#>     age   BMI CA125
-#>   <dbl> <dbl> <dbl>
-#> 1    55  23.8  498.
-#> 2    70  21.5  179.
-#> 3    50  23.8  168.
-#> 4    69  19.8 1510.
-#> 5    54  23.1  653 
-#> 6    66  24.5 2706 
 ```

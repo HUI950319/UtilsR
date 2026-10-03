@@ -1,8 +1,8 @@
 # Group Factor Levels by Integer Indices
 
 Collapses factor levels into new groups specified by integer indices.
-Companion to \[fct\_to\_combine()\]: where \`fct\_to\_combine()\` merges
-multiple columns row-wise, \`fct\_to\_group()\` regroups levels of a
+Companion to \[fct_to_combine()\]: where \`fct_to_combine()\` merges
+multiple columns row-wise, \`fct_to_group()\` regroups levels of a
 single factor.
 
 ## Usage
@@ -13,42 +13,44 @@ fct_to_group(x, g_lis, name_prefix = "g", name_sep = "/")
 
 ## Arguments
 
-  - x:
-    
-    A factor or character vector. Character is auto-coerced via
-    \`factor(x)\`.
+- x:
 
-  - g\_lis:
-    
-    A list of integer index vectors. Each element specifies the level
-    positions to merge into one new group. Either fully named (user
-    names used as new level names) or unnamed (auto-named via
-    \`name\_prefix\` + \`name\_sep\`). Indices must be between 1 and
-    \`nlevels(x)\`.
+  A factor or character vector. Character is auto-coerced via
+  \`factor(x)\`.
 
-  - name\_prefix:
-    
-    Prefix for auto-generated group names. Default \`"g"\`.
+- g_lis:
 
-  - name\_sep:
-    
-    Separator for auto-generated group names. Default \`"/"\`.
+  A list of integer index vectors. Each element specifies the level
+  positions to merge into one new group. Either fully named (user names
+  used as new level names) or unnamed (auto-named via \`name_prefix\` +
+  \`name_sep\`). Indices must be between 1 and \`nlevels(x)\`.
+
+- name_prefix:
+
+  Prefix for auto-generated group names. Default \`"g"\`.
+
+- name_sep:
+
+  Separator for auto-generated group names. Default \`"/"\`.
 
 ## Value
 
 A factor with regrouped levels. Levels not covered by any group in
-\`g\_lis\` are kept as-is (matching \[fct\_cat()\]'s behavior).
+\`g_lis\` are kept as-is (matching \[fct_cat()\]'s behavior).
 
 ## Details
 
-Auto-names unnamed groups as \`paste0(name\_prefix, paste(idx, collapse
-= name\_sep))\`, e.g. \`g1/3\`, \`g2/4\`, \`g5\`. User-supplied list
-names take precedence.
+Auto-names unnamed groups as \`paste0(name_prefix, paste(idx, collapse =
+name_sep))\`, e.g. \`g1/3\`, \`g2/4\`, \`g5\`. User-supplied list names
+take precedence.
 
 ## See also
 
-Other factor tools: `fct_cat()`, `fct_label()`, `fct_num()`,
-`fct_to_combine()`
+Other factor tools:
+[`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md),
+[`fct_label()`](https://hui950319.github.io/UtilsR/reference/fct_label.md),
+[`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md),
+[`fct_to_combine()`](https://hui950319.github.io/UtilsR/reference/fct_to_combine.md)
 
 ## Examples
 
