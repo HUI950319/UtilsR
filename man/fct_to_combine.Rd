@@ -81,10 +81,10 @@ df |> fct_to_combine(c("sex", "age"), var_name = "group")
 \seealso{
 [fct_to_group()], [fct_cat()], [fct_label()]
 
-Other factor tools: 
-\code{\link{fct_cat}()},
-\code{\link{fct_label}()},
-\code{\link{fct_num}()},
-\code{\link{fct_to_group}()}
+Other factor tools:
+\code{\link[=fct_cat]{fct_cat()}},
+\code{\link[=fct_label]{fct_label()}},
+\code{\link[=fct_num]{fct_num()}},
+\code{\link[=fct_to_group]{fct_to_group()}}
 }
 \concept{factor tools}

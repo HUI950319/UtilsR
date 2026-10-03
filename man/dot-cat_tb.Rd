@@ -56,10 +56,10 @@ table_data <- data.frame(
 
 }
 \seealso{
-Other console display: 
-\code{\link{.cat_box}()},
-\code{\link{.cat_formula}()},
-\code{\link{.cat_line}()},
-\code{\link{.cat_message}()}
+Other console display:
+\code{\link[=.cat_box]{.cat_box()}},
+\code{\link[=.cat_formula]{.cat_formula()}},
+\code{\link[=.cat_line]{.cat_line()}},
+\code{\link[=.cat_message]{.cat_message()}}
 }
 \concept{console display}

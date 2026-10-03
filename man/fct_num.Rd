@@ -55,10 +55,10 @@ df \%>\% mutate(age_q4 = fct_num(age, nbins = 4))
 
 }
 \seealso{
-Other factor tools: 
-\code{\link{fct_cat}()},
-\code{\link{fct_label}()},
-\code{\link{fct_to_combine}()},
-\code{\link{fct_to_group}()}
+Other factor tools:
+\code{\link[=fct_cat]{fct_cat()}},
+\code{\link[=fct_label]{fct_label()}},
+\code{\link[=fct_to_combine]{fct_to_combine()}},
+\code{\link[=fct_to_group]{fct_to_group()}}
 }
 \concept{factor tools}

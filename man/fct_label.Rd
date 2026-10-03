@@ -68,10 +68,10 @@ df |>
 \seealso{
 [fct_cat()], [fct_num()], [fct_to_combine()]
 
-Other factor tools: 
-\code{\link{fct_cat}()},
-\code{\link{fct_num}()},
-\code{\link{fct_to_combine}()},
-\code{\link{fct_to_group}()}
+Other factor tools:
+\code{\link[=fct_cat]{fct_cat()}},
+\code{\link[=fct_num]{fct_num()}},
+\code{\link[=fct_to_combine]{fct_to_combine()}},
+\code{\link[=fct_to_group]{fct_to_group()}}
 }
 \concept{factor tools}

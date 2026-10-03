@@ -50,9 +50,9 @@ grob_to_gg(inset_gt)
 
 }
 \seealso{
-Other grob utilities: 
-\code{\link{grob_add}()},
-\code{\link{grob_as}()},
-\code{\link{grob_insert}()}
+Other grob utilities:
+\code{\link[=grob_add]{grob_add()}},
+\code{\link[=grob_as]{grob_as()}},
+\code{\link[=grob_insert]{grob_insert()}}
 }
 \concept{grob utilities}

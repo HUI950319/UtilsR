@@ -181,8 +181,8 @@ PlotScatter3(df, cor_method = "spearman", show_refline = FALSE)
 
 }
 \seealso{
-Other scatter plots: 
-\code{\link{PlotScatter1}()},
-\code{\link{PlotScatter2}()}
+Other scatter plots:
+\code{\link[=PlotScatter1]{PlotScatter1()}},
+\code{\link[=PlotScatter2]{PlotScatter2()}}
 }
 \concept{scatter plots}

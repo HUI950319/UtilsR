@@ -60,8 +60,8 @@ stat_pval(c(1.85, 0.72, 1.25), add_star_p = c(0.001, 0.05, 0.5))
 
 }
 \seealso{
-Other stat formatting: 
-\code{\link{stat_ci}()},
-\code{\link{stat_ci_parse}()}
+Other stat formatting:
+\code{\link[=stat_ci]{stat_ci()}},
+\code{\link[=stat_ci_parse]{stat_ci_parse()}}
 }
 \concept{stat formatting}

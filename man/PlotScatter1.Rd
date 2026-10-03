@@ -162,8 +162,8 @@ PlotScatter1(df, x = "PC1", y = "PC2", group = "Group",
 
 }
 \seealso{
-Other scatter plots: 
-\code{\link{PlotScatter2}()},
-\code{\link{PlotScatter3}()}
+Other scatter plots:
+\code{\link[=PlotScatter2]{PlotScatter2()}},
+\code{\link[=PlotScatter3]{PlotScatter3()}}
 }
 \concept{scatter plots}

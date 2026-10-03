@@ -47,17 +47,17 @@ pal_show_hcl(type = "qualitative", output = "gg")
 
 }
 \seealso{
-Other colour palettes: 
+Other colour palettes:
 \code{\link{pal_bar}},
-\code{\link{pal_get}()},
+\code{\link[=pal_get]{pal_get()}},
 \code{\link{pal_heat}},
 \code{\link{pal_lancet}},
-\code{\link{pal_list}()},
+\code{\link[=pal_list]{pal_list()}},
 \code{\link{pal_other}},
 \code{\link{pal_paraSC}},
-\code{\link{pal_show}()},
-\code{\link{pal_show_brewer}()},
-\code{\link{pal_show_ggsci}()},
-\code{\link{pal_show_viridis}()}
+\code{\link[=pal_show]{pal_show()}},
+\code{\link[=pal_show_brewer]{pal_show_brewer()}},
+\code{\link[=pal_show_ggsci]{pal_show_ggsci()}},
+\code{\link[=pal_show_viridis]{pal_show_viridis()}}
 }
 \concept{colour palettes}

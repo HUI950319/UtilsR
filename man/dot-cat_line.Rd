@@ -29,10 +29,10 @@ Print a coloured rule with centred text and type-specific symbol.
 
 }
 \seealso{
-Other console display: 
-\code{\link{.cat_box}()},
-\code{\link{.cat_formula}()},
-\code{\link{.cat_message}()},
-\code{\link{.cat_tb}()}
+Other console display:
+\code{\link[=.cat_box]{.cat_box()}},
+\code{\link[=.cat_formula]{.cat_formula()}},
+\code{\link[=.cat_message]{.cat_message()}},
+\code{\link[=.cat_tb]{.cat_tb()}}
 }
 \concept{console display}

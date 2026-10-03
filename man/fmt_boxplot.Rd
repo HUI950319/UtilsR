@@ -30,25 +30,25 @@ fmt_boxplot(p, boxplot.args = list(width = 0.2, alpha = 0.5))
 
 }
 \seealso{
-Other plot formatting: 
-\code{\link{fmt_axis}()},
-\code{\link{fmt_axisText}()},
-\code{\link{fmt_axisTile}()},
-\code{\link{fmt_bg}()},
-\code{\link{fmt_com}()},
-\code{\link{fmt_expand}()},
-\code{\link{fmt_his}()},
-\code{\link{fmt_legend}()},
-\code{\link{fmt_panel}()},
-\code{\link{fmt_plot}()},
-\code{\link{fmt_plot_base}()},
-\code{\link{fmt_point}()},
-\code{\link{fmt_raster}()},
-\code{\link{fmt_ref}()},
-\code{\link{fmt_scale}()},
-\code{\link{fmt_strip}()},
-\code{\link{fmt_strip2}()},
-\code{\link{fmt_tag}()},
-\code{\link{fmt_text}()}
+Other plot formatting:
+\code{\link[=fmt_axis]{fmt_axis()}},
+\code{\link[=fmt_axisText]{fmt_axisText()}},
+\code{\link[=fmt_axisTile]{fmt_axisTile()}},
+\code{\link[=fmt_bg]{fmt_bg()}},
+\code{\link[=fmt_com]{fmt_com()}},
+\code{\link[=fmt_expand]{fmt_expand()}},
+\code{\link[=fmt_his]{fmt_his()}},
+\code{\link[=fmt_legend]{fmt_legend()}},
+\code{\link[=fmt_panel]{fmt_panel()}},
+\code{\link[=fmt_plot]{fmt_plot()}},
+\code{\link[=fmt_plot_base]{fmt_plot_base()}},
+\code{\link[=fmt_point]{fmt_point()}},
+\code{\link[=fmt_raster]{fmt_raster()}},
+\code{\link[=fmt_ref]{fmt_ref()}},
+\code{\link[=fmt_scale]{fmt_scale()}},
+\code{\link[=fmt_strip]{fmt_strip()}},
+\code{\link[=fmt_strip2]{fmt_strip2()}},
+\code{\link[=fmt_tag]{fmt_tag()}},
+\code{\link[=fmt_text]{fmt_text()}}
 }
 \concept{plot formatting}

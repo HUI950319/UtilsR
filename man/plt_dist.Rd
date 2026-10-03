@@ -127,13 +127,13 @@ if (requireNamespace("ggalluvial", quietly = TRUE)) {
 
 }
 \seealso{
-Other plot: 
-\code{\link{PlotButterfly}()},
-\code{\link{PlotButterfly2}()},
-\code{\link{PlotRankCor}()},
-\code{\link{plt_cat}()},
-\code{\link{plt_con}()},
-\code{\link{plt_sankey}()},
-\code{\link{plt_upset}()}
+Other plot:
+\code{\link[=PlotButterfly]{PlotButterfly()}},
+\code{\link[=PlotButterfly2]{PlotButterfly2()}},
+\code{\link[=PlotRankCor]{PlotRankCor()}},
+\code{\link[=plt_cat]{plt_cat()}},
+\code{\link[=plt_con]{plt_con()}},
+\code{\link[=plt_sankey]{plt_sankey()}},
+\code{\link[=plt_upset]{plt_upset()}}
 }
 \concept{plot}

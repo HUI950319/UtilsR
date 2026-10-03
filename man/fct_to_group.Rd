@@ -56,10 +56,10 @@ df \%>\% mutate(group1 = fct_to_group(group, list(c(1,3), c(2,4), 5)))
 
 }
 \seealso{
-Other factor tools: 
-\code{\link{fct_cat}()},
-\code{\link{fct_label}()},
-\code{\link{fct_num}()},
-\code{\link{fct_to_combine}()}
+Other factor tools:
+\code{\link[=fct_cat]{fct_cat()}},
+\code{\link[=fct_label]{fct_label()}},
+\code{\link[=fct_num]{fct_num()}},
+\code{\link[=fct_to_combine]{fct_to_combine()}}
 }
 \concept{factor tools}

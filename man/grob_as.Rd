@@ -29,9 +29,9 @@ class(g)
 
 }
 \seealso{
-Other grob utilities: 
-\code{\link{grob_add}()},
-\code{\link{grob_insert}()},
-\code{\link{grob_to_gg}()}
+Other grob utilities:
+\code{\link[=grob_add]{grob_add()}},
+\code{\link[=grob_insert]{grob_insert()}},
+\code{\link[=grob_to_gg]{grob_to_gg()}}
 }
 \concept{grob utilities}

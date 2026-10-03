@@ -108,8 +108,8 @@ stat_ci_parse("1.23 (0.95, 1.59)", level = 0.90)
 
 }
 \seealso{
-Other stat formatting: 
-\code{\link{stat_ci}()},
-\code{\link{stat_pval}()}
+Other stat formatting:
+\code{\link[=stat_ci]{stat_ci()}},
+\code{\link[=stat_pval]{stat_pval()}}
 }
 \concept{stat formatting}

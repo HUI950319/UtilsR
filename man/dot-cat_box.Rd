@@ -20,10 +20,10 @@ Print a rounded box with type-coloured border and background.
 
 }
 \seealso{
-Other console display: 
-\code{\link{.cat_formula}()},
-\code{\link{.cat_line}()},
-\code{\link{.cat_message}()},
-\code{\link{.cat_tb}()}
+Other console display:
+\code{\link[=.cat_formula]{.cat_formula()}},
+\code{\link[=.cat_line]{.cat_line()}},
+\code{\link[=.cat_message]{.cat_message()}},
+\code{\link[=.cat_tb]{.cat_tb()}}
 }
 \concept{console display}

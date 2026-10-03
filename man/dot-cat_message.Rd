@@ -31,10 +31,10 @@ Print a timestamped, type-coloured message. Supports multi-line messages
 
 }
 \seealso{
-Other console display: 
-\code{\link{.cat_box}()},
-\code{\link{.cat_formula}()},
-\code{\link{.cat_line}()},
-\code{\link{.cat_tb}()}
+Other console display:
+\code{\link[=.cat_box]{.cat_box()}},
+\code{\link[=.cat_formula]{.cat_formula()}},
+\code{\link[=.cat_line]{.cat_line()}},
+\code{\link[=.cat_tb]{.cat_tb()}}
 }
 \concept{console display}

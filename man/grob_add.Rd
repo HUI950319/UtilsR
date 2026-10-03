@@ -45,9 +45,9 @@ grid::grid.draw(gt)
 
 }
 \seealso{
-Other grob utilities: 
-\code{\link{grob_as}()},
-\code{\link{grob_insert}()},
-\code{\link{grob_to_gg}()}
+Other grob utilities:
+\code{\link[=grob_as]{grob_as()}},
+\code{\link[=grob_insert]{grob_insert()}},
+\code{\link[=grob_to_gg]{grob_to_gg()}}
 }
 \concept{grob utilities}

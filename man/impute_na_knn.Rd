@@ -48,11 +48,11 @@ if (requireNamespace("VIM", quietly = TRUE) &&
 \code{\link{check_na}()}
 
 Other inspect:
-\code{\link{check_na}()},
-\code{\link{check_size}()},
-\code{\link{check_system}()},
-\code{\link{count_packages_in_libpaths}()},
-\code{\link{lv}()},
-\code{\link{plt_na}()}
+\code{\link[=check_na]{check_na()}},
+\code{\link[=check_size]{check_size()}},
+\code{\link[=check_system]{check_system()}},
+\code{\link[=count_packages_in_libpaths]{count_packages_in_libpaths()}},
+\code{\link[=lv]{lv()}},
+\code{\link[=plt_na]{plt_na()}}
 }
 \concept{inspect}

@@ -63,8 +63,8 @@ stat_ci("1.23 [0.95\u20131.59]", sep = " to ", bracket = "(")
 
 }
 \seealso{
-Other stat formatting: 
-\code{\link{stat_ci_parse}()},
-\code{\link{stat_pval}()}
+Other stat formatting:
+\code{\link[=stat_ci_parse]{stat_ci_parse()}},
+\code{\link[=stat_pval]{stat_pval()}}
 }
 \concept{stat formatting}

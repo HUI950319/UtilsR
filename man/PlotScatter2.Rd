@@ -145,8 +145,8 @@ PlotScatter2(df, x = "PC1", y = "PC2",
 
 }
 \seealso{
-Other scatter plots: 
-\code{\link{PlotScatter1}()},
-\code{\link{PlotScatter3}()}
+Other scatter plots:
+\code{\link[=PlotScatter1]{PlotScatter1()}},
+\code{\link[=PlotScatter3]{PlotScatter3()}}
 }
 \concept{scatter plots}

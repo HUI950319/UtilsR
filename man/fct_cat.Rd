@@ -70,10 +70,10 @@ fct_to_combine(df$sex, df$age)
 
 }
 \seealso{
-Other factor tools: 
-\code{\link{fct_label}()},
-\code{\link{fct_num}()},
-\code{\link{fct_to_combine}()},
-\code{\link{fct_to_group}()}
+Other factor tools:
+\code{\link[=fct_label]{fct_label()}},
+\code{\link[=fct_num]{fct_num()}},
+\code{\link[=fct_to_combine]{fct_to_combine()}},
+\code{\link[=fct_to_group]{fct_to_group()}}
 }
 \concept{factor tools}

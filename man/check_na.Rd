@@ -38,12 +38,12 @@ check_na(airquality, show_all = TRUE)
 
 }
 \seealso{
-Other inspect: 
-\code{\link{check_size}()},
-\code{\link{check_system}()},
-\code{\link{count_packages_in_libpaths}()},
-\code{\link{impute_na_knn}()},
-\code{\link{lv}()},
-\code{\link{plt_na}()}
+Other inspect:
+\code{\link[=check_size]{check_size()}},
+\code{\link[=check_system]{check_system()}},
+\code{\link[=count_packages_in_libpaths]{count_packages_in_libpaths()}},
+\code{\link[=impute_na_knn]{impute_na_knn()}},
+\code{\link[=lv]{lv()}},
+\code{\link[=plt_na]{plt_na()}}
 }
 \concept{inspect}
