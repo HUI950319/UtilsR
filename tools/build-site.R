@@ -4,12 +4,9 @@
 #   Rscript tools/build-site.R            # rebuild docs/
 #   Rscript tools/build-site.R --deploy   # rebuild docs/, then push it live
 #
-# The site used to be built by .github/workflows/pkgdown.yaml. That workflow is
-# switched off: `needs: website` makes pak resolve Suggests, and two of them --
-# RegR and ToyData -- are private repositories that the default GITHUB_TOKEN
-# cannot read, so every run since 2026-03 died in setup-r-dependencies with
-# "Can't find package called RegR, ToyData" and the published site sat six
-# months behind the code. Building here instead.
+# .github/workflows/pkgdown.yaml builds on pushes using hard dependencies and
+# public example packages. This workstation build can also render the optional
+# RegR and ToyData examples when those private packages are installed locally.
 #
 # Exit status 0 = built (and pushed, with --deploy).
 
@@ -52,6 +49,7 @@ pkgdown::clean_site(root)
 pkgdown::build_site(root, preview = FALSE)
 
 site <- file.path(root, "docs")
+invisible(file.create(file.path(site, ".nojekyll")))
 
 # AGENTS.md is instructions for coding agents, not documentation, but pkgdown
 # renders every .md in the package root and does not consult .Rbuildignore when

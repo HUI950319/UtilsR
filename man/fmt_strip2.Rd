@@ -64,6 +64,7 @@ In RegR, \code{\link[RegR:get_rcs_all]{RegR::get_rcs_all()}} uses this
 helper for its shared-strip 2 x 2 composites when `strip_style = "grid"`.
 }
 \examples{
+\dontshow{if (requireNamespace("RegR", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 library(dplyr)
 data(seer_thyroid_mtc_2026, package = "RegR")
 d <- as.data.frame(seer_thyroid_mtc_2026)
@@ -119,7 +120,7 @@ p \%>\% fmt_strip2(
   right_label = c("Survival curves", "Difference curves"),
   top_right_fill = c("Grays", "Greens")
 )
-
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 [fmt_strip()] for per-panel top strips;

@@ -1161,7 +1161,7 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
 #'
 #' @return Same type as input (patchwork in, patchwork out).
 #'
-#' @examples
+#' @examplesIf requireNamespace("RegR", quietly = TRUE)
 #' library(dplyr)
 #' data(seer_thyroid_mtc_2026, package = "RegR")
 #' d <- as.data.frame(seer_thyroid_mtc_2026)

@@ -74,9 +74,11 @@ wsl -d Ubuntu-22.04 -- bash -c \
 
 Empty output means full coverage.
 
-The site is not built by CI. `.github/workflows/pkgdown.yaml` is disabled
-because pak cannot resolve the private `RegR` and `ToyData` Suggests with the
-default token. Rebuild and publish from a workstation instead:
+The site is built by `.github/workflows/pkgdown.yaml` on pushes to master.
+Dependency resolution uses `dependencies: '"hard"'` and an explicit list of
+public example packages, so private `RegR` and `ToyData` Suggests are not
+required. Examples using them must check package availability. A workstation
+build remains available:
 
 ```bash
 wsl -d Ubuntu-22.04 -- bash -c \
