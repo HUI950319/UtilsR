@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_raster(method = "ragg")` sets child names when rebuilding panels so
+  captured geometry and retained text are actually drawn in the returned plot.
+
 * `fmt_raster(method = "ragg")` detects text from grob classes and descendants,
   including custom names and mixed trees. Viewport geometry no longer bypasses
   rasterization merely because it has its own viewport.

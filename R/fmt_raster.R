@@ -427,8 +427,7 @@ fmt_raster <- function(
     }
   }
   if (length(pending)) output <- c(output, list(capture_run(pending)))
-  g$children <- do.call(grid::gList, output)
-  g$childrenOrder <- names(g$children)
+  g <- grid::setChildren(g, do.call(grid::gList, output))
   g
 }
 

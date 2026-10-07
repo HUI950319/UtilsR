@@ -286,6 +286,12 @@ test_that("ragg keeps the draw order between text and geometry", {
   }
   expect_equal(black_pixels(files[1]), 0)
   expect_equal(black_pixels(files[2]), 0)
+  red_pixels <- function(file) {
+    image <- png::readPNG(file)
+    sum(image[, , 1] > 0.7 & image[, , 2] < 0.4 & image[, , 3] < 0.4)
+  }
+  expect_gt(red_pixels(files[1]), 18000)
+  expect_gt(red_pixels(files[2]), red_pixels(files[1]) * 0.9)
   gt <- attr(result, "grobs")$full
   expect_length(raster_find_grobs(gt, "text"), 1L)
 })
