@@ -25,6 +25,30 @@ test_that("ragg preserves every panel and the labels of nested patchworks", {
   }
 })
 
+test_that("automatic ragg panel sizes use the device and respect units", {
+  skip_if_not_installed("ragg")
+  skip_if_not_installed("png")
+  grDevices::pdf(NULL, width = 10, height = 6)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3), ggplot2::aes(x, y)) +
+    ggplot2::geom_point() + ggplot2::theme_void()
+  factors <- c("in" = 1, "cm" = 2.54, "mm" = 25.4)
+  for (unit in names(factors)) {
+    result <- fmt_raster(p, method = "ragg", dpi = 72, units = unit)
+    expect_equal(attr(result, "size")$width / factors[[unit]], 10)
+    expect_equal(attr(result, "size")$height / factors[[unit]], 6)
+  }
+  data <- data.frame(x = c(1, 2, 1, 10), y = 1, group = c("a", "a", "b", "b"))
+  facets <- ggplot2::ggplot(data, ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    ggplot2::facet_grid(~group, scales = "free_x", space = "free_x")
+  gt <- ggplot2::ggplotGrob(facets)
+  indices <- grep("^panel", gt$layout$name)
+  widths <- UtilsR:::.resolve_panel_size(gt, indices, "width", NULL, "in")
+  expect_equal(widths[2] / widths[1], 9)
+  fixed <- fmt_raster(p + ggplot2::coord_fixed(ratio = 2), method = "ragg", dpi = 72)
+  expect_equal(attr(fixed, "size")$height / attr(fixed, "size")$width, 2)
+})
+
 test_that("ragg preserves named plot lists and checks all elements first", {
   skip_if_not_installed("ragg")
   skip_if_not_installed("png")

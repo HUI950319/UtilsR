@@ -60,8 +60,8 @@ Two backends are available:
   \item{\code{"ragg"}}{Renders each panel to a temporary PNG via
     \code{ragg::agg_png()}, then reads it back as a \code{rasterGrob}.
     Text/label grobs inside the panel are automatically detected and kept
-    as vectors. Requires \code{width} and \code{height} to be specified
-    (the panel rendering size). This method also fixes the panel size.}
+    as vectors. Uses the specified panel dimensions or the current device's
+    grid layout when dimensions are \code{NULL}, then fixes the panel size.}
 }
 
 

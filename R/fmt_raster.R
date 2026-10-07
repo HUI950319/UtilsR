@@ -26,8 +26,8 @@
 #'   \item{\code{"ragg"}}{Renders each panel to a temporary PNG via
 #'     \code{ragg::agg_png()}, then reads it back as a \code{rasterGrob}.
 #'     Text/label grobs inside the panel are automatically detected and kept
-#'     as vectors. Requires \code{width} and \code{height} to be specified
-#'     (the panel rendering size). This method also fixes the panel size.}
+#'     as vectors. Uses the specified panel dimensions or the current device's
+#'     grid layout when dimensions are \code{NULL}, then fixes the panel size.}
 #' }
 #'
 #' @param plot A ggplot, patchwork, or list of ggplot objects.
@@ -180,17 +180,24 @@ fmt_raster <- function(
   }
 
   original_device <- grDevices::dev.cur()
-  measurement_device <- NULL
-  if (original_device == 1L) {
-    grDevices::pdf(NULL)
-    measurement_device <- grDevices::dev.cur()
+  device_size <- if (original_device == 1L) {
+    unlist(grDevices::pdf.options()[c("width", "height")], use.names = FALSE)
+  } else {
+    grDevices::dev.size("in")
   }
+  # Measure on a private device to preserve the caller's viewport and fonts.
+  ragg::agg_capture(width = ceiling(device_size[1] * 72),
+                     height = ceiling(device_size[2] * 72), units = "px",
+                     res = 72, background = "transparent")
+  measurement_device <- grDevices::dev.cur()
   on.exit({
-    if (!is.null(measurement_device) && measurement_device %in% grDevices::dev.list()) {
+    if (measurement_device %in% grDevices::dev.list()) {
       grDevices::dev.off(measurement_device)
     }
     if (original_device %in% grDevices::dev.list()) grDevices::dev.set(original_device)
   }, add = TRUE)
+  grid::pushViewport(grid::viewport(width = grid::unit(device_size[1], "in"),
+                                    height = grid::unit(device_size[2], "in")))
 
   # Convert to gtable
   gtable <- if (inherits(plot, "patchwork")) {
@@ -207,7 +214,19 @@ fmt_raster <- function(
   raster_table <- function(gtable) {
     # Nested patchworks contain complete gtables; keep their axes and labels.
     nested <- which(vapply(gtable$grobs, inherits, logical(1), "gtable"))
-    for (idx in nested) gtable$grobs[[idx]] <- raster_table(gtable$grobs[[idx]])
+    if (length(nested)) {
+      grid::pushViewport(grid::viewport(layout = grid::grid.layout(
+        nrow = length(gtable$heights), ncol = length(gtable$widths),
+        widths = gtable$widths, heights = gtable$heights, respect = gtable$respect
+      )))
+      on.exit(grid::popViewport(), add = TRUE)
+      for (idx in nested) {
+        grid::pushViewport(grid::viewport(layout.pos.row = gtable$layout$t[idx]:gtable$layout$b[idx],
+                                          layout.pos.col = gtable$layout$l[idx]:gtable$layout$r[idx]))
+        gtable$grobs[[idx]] <- raster_table(gtable$grobs[[idx]])
+        grid::popViewport()
+      }
+    }
 
     panel_index <- which(grepl("^panel(-[0-9]+)*$", gtable$layout$name) &
                            !vapply(gtable$grobs, inherits, logical(1), "zeroGrob"))
@@ -273,18 +292,21 @@ fmt_raster <- function(
     )
   }
 
-  # Infer from current gtable
+  # Resolve null units through the complete grid layout, including respect.
+  grid::pushViewport(grid::viewport(layout = grid::grid.layout(
+    nrow = length(gtable$heights), ncol = length(gtable$widths),
+    widths = gtable$widths, heights = gtable$heights, respect = gtable$respect
+  )))
+  on.exit(grid::popViewport(), add = TRUE)
   convert_fn <- if (dim == "width") grid::convertWidth else grid::convertHeight
   vapply(panel_index, function(idx) {
-    if (dim == "width") {
-      cols <- gtable[["layout"]][["l"]][idx]:gtable[["layout"]][["r"]][idx]
-      val <- convert_fn(sum(gtable[["widths"]][cols]), units, valueOnly = TRUE)
-    } else {
-      rows <- gtable[["layout"]][["t"]][idx]:gtable[["layout"]][["b"]][idx]
-      val <- convert_fn(sum(gtable[["heights"]][rows]), units, valueOnly = TRUE)
+    grid::pushViewport(grid::viewport(layout.pos.row = gtable$layout$t[idx]:gtable$layout$b[idx],
+                                      layout.pos.col = gtable$layout$l[idx]:gtable$layout$r[idx]))
+    val <- convert_fn(grid::unit(1, "npc"), units, valueOnly = TRUE)
+    grid::popViewport()
+    if (!is.finite(val) || val <= 0) {
+      cli::cli_abort("Cannot resolve a positive panel {.arg {dim}}; supply it explicitly.")
     }
-    # Fallback if zero/null units
-    if (is.na(val) || val < 0.01) val <- 4
     val
   }, numeric(1))
 }
