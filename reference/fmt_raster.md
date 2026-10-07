@@ -84,12 +84,12 @@ Two backends are available:
 
 - `"ragg"`:
 
-  Renders each panel to a temporary PNG via
-  [`ragg::agg_png()`](https://ragg.r-lib.org/reference/agg_png.html),
-  then reads it back as a `rasterGrob`. Text/label grobs inside the
-  panel are automatically detected and kept as vectors. Uses the
-  specified panel dimensions or the current device's grid layout when
-  dimensions are `NULL`, then fixes the panel size.
+  Captures panel geometry in memory via
+  [`ragg::agg_capture()`](https://ragg.r-lib.org/reference/agg_capture.html)
+  and inserts it as a `rasterGrob`. Text/label grobs inside the panel
+  are automatically detected and kept as vectors. Uses the specified
+  panel dimensions or the current device's grid layout when dimensions
+  are `NULL`, then fixes the panel size.
 
 ### How `"ragg"` preserves text
 
