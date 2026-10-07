@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_raster(method = "ragg")` rejects conflicting dimensions in shared
+  facet rows/columns and incompatible nested dimensions instead of overwriting
+  earlier panel sizes. Automatic nested outputs retain their complete size.
+
 * `fmt_raster(method = "ragg")` resolves automatic panel dimensions from the
   current device's grid layout, retaining physical units, free-facet spacing
   and fixed aspect ratios instead of falling back to a literal size of 4.

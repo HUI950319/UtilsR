@@ -25,8 +25,11 @@ layer-level) or \code{"ragg"} (panel-level, also fixes panel size).}
 per inch. Default 300.}
 
 \item{width, height}{Panel width and height for \code{method = "ragg"}.
-Ignored when \code{method = "ggrastr"}. If \code{NULL} (default), the
-current device size is used.}
+Positive finite numeric scalar, or one value per panel in depth-first
+gtable order (column-major for grid facets). Panels sharing layout cells
+must have consistent dimensions, and nested plots must fit their layout.
+Ignored when \code{method = "ggrastr"}. If \code{NULL} (default), panel
+dimensions are resolved from the current device's grid layout.}
 
 \item{units}{Units for \code{width}/\code{height}: \code{"in"} (default),
 \code{"cm"}, or \code{"mm"}.}

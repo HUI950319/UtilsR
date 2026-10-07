@@ -36,8 +36,11 @@
 #' @param dpi Positive finite numeric scalar. Rasterization resolution in dots
 #'   per inch. Default 300.
 #' @param width,height Panel width and height for \code{method = "ragg"}.
-#'   Ignored when \code{method = "ggrastr"}. If \code{NULL} (default), the
-#'   current device size is used.
+#'   Positive finite numeric scalar, or one value per panel in depth-first
+#'   gtable order (column-major for grid facets). Panels sharing layout cells
+#'   must have consistent dimensions, and nested plots must fit their layout.
+#'   Ignored when \code{method = "ggrastr"}. If \code{NULL} (default), panel
+#'   dimensions are resolved from the current device's grid layout.
 #' @param units Units for \code{width}/\code{height}: \code{"in"} (default),
 #'   \code{"cm"}, or \code{"mm"}.
 #' @param dev Character. Graphics device for \code{ggrastr::rasterise()}.
@@ -211,39 +214,97 @@ fmt_raster <- function(
 
   panels_found <- 0L
   unclipped_panels <- FALSE
+  panel_indices <- function(gt) {
+    which(grepl("^panel(-[0-9]+)*$", gt$layout$name) &
+            !vapply(gt$grobs, inherits, logical(1), "zeroGrob"))
+  }
+  count_panels <- function(gt) {
+    nested <- Filter(function(g) inherits(g, "gtable"), gt$grobs)
+    length(panel_indices(gt)) + sum(vapply(nested, count_panels, integer(1)))
+  }
+  panel_total <- count_panels(gtable)
+  for (arg in c("width", "height")) {
+    value <- if (arg == "width") width else height
+    if (!is.null(value) && !length(value) %in% c(1L, panel_total)) {
+      cli::cli_abort("Length of {.arg {arg}} must be 1 or {panel_total} (number of panels).")
+    }
+  }
+  panel_cursor <- 0L
   raster_table <- function(gtable) {
-    # Nested patchworks contain complete gtables; keep their axes and labels.
-    nested <- which(vapply(gtable$grobs, inherits, logical(1), "gtable"))
-    if (length(nested)) {
-      grid::pushViewport(grid::viewport(layout = grid::grid.layout(
-        nrow = length(gtable$heights), ncol = length(gtable$widths),
-        widths = gtable$widths, heights = gtable$heights, respect = gtable$respect
-      )))
-      on.exit(grid::popViewport(), add = TRUE)
-      for (idx in nested) {
-        grid::pushViewport(grid::viewport(layout.pos.row = gtable$layout$t[idx]:gtable$layout$b[idx],
-                                          layout.pos.col = gtable$layout$l[idx]:gtable$layout$r[idx]))
-        gtable$grobs[[idx]] <- raster_table(gtable$grobs[[idx]])
+    grid::pushViewport(grid::viewport(layout = grid::grid.layout(
+      nrow = length(gtable$heights), ncol = length(gtable$widths),
+      widths = gtable$widths, heights = gtable$heights, respect = gtable$respect
+    )))
+    on.exit(grid::popViewport(), add = TRUE)
+    # Freeze every cell so nested tables contribute to the complete plot size.
+    for (dim in c("width", "height")) {
+      cells <- if (dim == "width") seq_along(gtable$widths) else seq_along(gtable$heights)
+      convert_fn <- if (dim == "width") grid::convertWidth else grid::convertHeight
+      sizes <- vapply(cells, function(cell) {
+        vp <- if (dim == "width") grid::viewport(layout.pos.col = cell) else
+          grid::viewport(layout.pos.row = cell)
+        grid::pushViewport(vp)
+        value <- convert_fn(grid::unit(1, "npc"), units, valueOnly = TRUE)
         grid::popViewport()
+        value
+      }, numeric(1))
+      gtable[[paste0(dim, "s")]] <- grid::unit(sizes, units)
+    }
+    nested <- which(vapply(gtable$grobs, function(g) {
+      inherits(g, "gtable") && count_panels(g) > 0L
+    }, logical(1)))
+    for (idx in nested) {
+      grid::pushViewport(grid::viewport(layout.pos.row = gtable$layout$t[idx]:gtable$layout$b[idx],
+                                        layout.pos.col = gtable$layout$l[idx]:gtable$layout$r[idx]))
+      gtable$grobs[[idx]] <- raster_table(gtable$grobs[[idx]])
+      grid::popViewport()
+    }
+
+    indices <- panel_indices(gtable)
+    if (length(indices)) {
+      positions <- panel_cursor + seq_along(indices)
+      panel_cursor <<- panel_cursor + length(indices)
+      panels_found <<- panels_found + length(indices)
+      widths <- if (length(width) > 1L) width[positions] else width
+      heights <- if (length(height) > 1L) height[positions] else height
+      panel_w <- .resolve_panel_size(gtable, indices, "width", widths, units)
+      panel_h <- .resolve_panel_size(gtable, indices, "height", heights, units)
+
+      # Shared columns/rows must have one consistent physical dimension.
+      for (dim in c("width", "height")) {
+        requested <- if (dim == "width") widths else heights
+        if (is.null(requested)) next
+        values <- if (dim == "width") panel_w else panel_h
+        assigned <- rep(NA_real_, length(gtable[[paste0(dim, "s")]]))
+        for (i in seq_along(indices)) {
+          idx <- indices[i]
+          cells <- if (dim == "width") gtable$layout$l[idx]:gtable$layout$r[idx] else
+            gtable$layout$t[idx]:gtable$layout$b[idx]
+          value <- values[i] / length(cells)
+          previous <- assigned[cells]
+          if (any(!is.na(previous) & abs(previous - value) > 1e-8)) {
+            cli::cli_abort("{.arg {dim}} values for panels sharing layout cells must agree.")
+          }
+          assigned[cells] <- value
+        }
+        cells <- which(!is.na(assigned))
+        gtable[[paste0(dim, "s")]][cells] <- grid::unit(assigned[cells], units)
       }
     }
 
-    panel_index <- which(grepl("^panel(-[0-9]+)*$", gtable$layout$name) &
-                           !vapply(gtable$grobs, inherits, logical(1), "zeroGrob"))
-    if (length(panel_index) == 0) return(gtable)
-    panels_found <<- panels_found + length(panel_index)
-
-    panel_w <- .resolve_panel_size(gtable, panel_index, "width", width, units)
-    panel_h <- .resolve_panel_size(gtable, panel_index, "height", height, units)
-
-    for (i in seq_along(panel_index)) {
-      idx <- panel_index[i]
-      col_range <- gtable$layout$l[idx]:gtable$layout$r[idx]
-      row_range <- gtable$layout$t[idx]:gtable$layout$b[idx]
-      gtable$widths[col_range] <- grid::unit(rep(panel_w[i] / length(col_range),
-                                               length(col_range)), units)
-      gtable$heights[row_range] <- grid::unit(rep(panel_h[i] / length(row_range),
-                                                length(row_range)), units)
+    for (idx in nested) {
+      child <- gtable$grobs[[idx]]
+      available_w <- sum(gtable$widths[gtable$layout$l[idx]:gtable$layout$r[idx]])
+      available_h <- sum(gtable$heights[gtable$layout$t[idx]:gtable$layout$b[idx]])
+      if (grid::convertWidth(sum(child$widths), units, TRUE) >
+          grid::convertWidth(available_w, units, TRUE) + 1e-8 ||
+          grid::convertHeight(sum(child$heights), units, TRUE) >
+          grid::convertHeight(available_h, units, TRUE) + 1e-8) {
+        cli::cli_abort("Panel dimensions are incompatible with the nested layout; use NULL or consistent per-panel dimensions.")
+      }
+    }
+    for (i in seq_along(indices)) {
+      idx <- indices[i]
       panel <- gtable$grobs[[idx]]
       clip_on <- if (inherits(panel$vp, "viewport")) {
         isTRUE(panel$vp$clip)

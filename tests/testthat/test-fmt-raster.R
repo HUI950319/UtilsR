@@ -15,14 +15,55 @@ test_that("ragg preserves every panel and the labels of nested patchworks", {
                 (p | (p + ggplot2::labs(title = "Second"))) /
                   (p + ggplot2::labs(title = "Third")))
   for (i in seq_along(plots)) {
-    result <- fmt_raster(plots[[i]], method = "ragg", dpi = 72,
-                         width = 1, height = 1)
+    result <- fmt_raster(plots[[i]], method = "ragg", dpi = 72)
     gt <- patchwork::patchworkGrob(result)
     expect_length(raster_find_grobs(gt, "rastergrob"), i + 1L)
     labels <- unlist(lapply(raster_find_grobs(gt, "text"), function(g) g$label))
     expect_true("Second" %in% labels)
     if (i == 2) expect_true("Third" %in% labels)
   }
+})
+
+test_that("ragg rejects conflicting dimensions in shared facet columns", {
+  skip_if_not_installed("ragg")
+  skip_if_not_installed("png")
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg)) +
+    ggplot2::geom_point() + ggplot2::facet_grid(vs ~ am)
+  expect_error(fmt_raster(p, method = "ragg", dpi = 72,
+                          width = c(1, 2, 3, 4), height = 1), "width.*sharing")
+  expect_error(fmt_raster(p, method = "ragg", dpi = 72,
+                          width = 1, height = c(1, 2, 3, 4)), "height.*sharing")
+  expect_error(fmt_raster(p, method = "ragg", dpi = 72,
+                          width = c(1, 2)), "width.*must be 1 or 4")
+  result <- fmt_raster(p, method = "ragg", dpi = 72,
+                       width = c(1, 1, 2, 2), height = 1)
+  gt <- attr(result, "grobs")$full
+  indices <- grep("^panel-", gt$layout$name)
+  expected <- c(1, 1, 2, 2)
+  for (i in seq_along(indices)) {
+    panel <- gt$grobs[[indices[i]]]
+    raster <- raster_find_grobs(panel, "rastergrob")[[1]]$raster
+    expect_equal(ncol(raster) / 72, expected[i])
+    columns <- gt$layout$l[indices[i]]:gt$layout$r[indices[i]]
+    expect_equal(grid::convertWidth(sum(gt$widths[columns]), "in", TRUE), expected[i])
+  }
+})
+
+test_that("automatic nested ragg outputs retain a complete physical size", {
+  skip_if_not_installed("ragg")
+  skip_if_not_installed("png")
+  grDevices::pdf(NULL, width = 8, height = 6)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3), ggplot2::aes(x, y)) +
+    ggplot2::geom_point()
+  nested <- (p | p) / (p | p)
+  result <- fmt_raster(nested, method = "ragg", dpi = 72)
+  expect_equal(attr(result, "size")$width, 8)
+  expect_equal(attr(result, "size")$height, 6)
+  expect_error(fmt_raster((p | p) / p, method = "ragg", dpi = 72,
+                          width = 1, height = 1), "incompatible.*nested")
 })
 
 test_that("automatic ragg panel sizes use the device and respect units", {
