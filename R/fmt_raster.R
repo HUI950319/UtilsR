@@ -153,6 +153,19 @@ fmt_raster <- function(
     cli::cli_abort("Package {.pkg png} is required for {.code method = \"ragg\"}.")
   }
 
+  original_device <- grDevices::dev.cur()
+  measurement_device <- NULL
+  if (original_device == 1L) {
+    grDevices::pdf(NULL)
+    measurement_device <- grDevices::dev.cur()
+  }
+  on.exit({
+    if (!is.null(measurement_device) && measurement_device %in% grDevices::dev.list()) {
+      grDevices::dev.off(measurement_device)
+    }
+    if (original_device %in% grDevices::dev.list()) grDevices::dev.set(original_device)
+  }, add = TRUE)
+
   # Convert to gtable
   gtable <- if (inherits(plot, "patchwork")) {
     patchwork::patchworkGrob(plot)
@@ -261,10 +274,16 @@ fmt_raster <- function(
     if (is.null(g_geom$vp)) g_geom$vp <- grid::viewport()
     temp <- tempfile(fileext = ".png")
     temp_files <<- c(temp_files, temp)
+    previous_device <- grDevices::dev.cur()
     ragg::agg_png(temp, width = w, height = h, bg = "transparent",
                   res = dpi, units = units)
+    raster_device <- grDevices::dev.cur()
+    on.exit({
+      if (raster_device %in% grDevices::dev.list()) grDevices::dev.off(raster_device)
+      if (previous_device %in% grDevices::dev.list()) grDevices::dev.set(previous_device)
+    }, add = TRUE)
     grid::grid.draw(g_geom)
-    grDevices::dev.off()
+    grDevices::dev.off(raster_device)
     grid::rasterGrob(png::readPNG(temp, native = TRUE))
   }
 

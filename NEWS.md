@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_raster(method = "ragg")` restores the active graphics device and
+  closes its own devices after both successful rendering and draw errors.
+  Headless conversion uses a temporary in-memory PDF device for measurement.
+
 * `fmt_raster()` rejects non-positive, non-finite and non-scalar resolutions
   before opening a raster device. The ragg backend also checks positive finite
   panel dimensions and rejects dimensions smaller than one output pixel.

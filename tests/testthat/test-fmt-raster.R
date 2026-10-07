@@ -25,6 +25,38 @@ test_that("ragg preserves every panel and the labels of nested patchworks", {
   }
 })
 
+test_that("ragg restores graphics devices after success and draw errors", {
+  skip_if_not_installed("ragg")
+  skip_if_not_installed("png")
+  initial <- grDevices::dev.list()
+  on.exit({
+    for (id in setdiff(grDevices::dev.list(), initial)) grDevices::dev.off(id)
+  }, add = TRUE)
+  grDevices::pdf(NULL)
+  grDevices::pdf(NULL)
+  current <- grDevices::dev.cur()
+  devices <- grDevices::dev.list()
+  p <- ggplot2::ggplot(data.frame(x = 1, y = 1), ggplot2::aes(x, y)) +
+    ggplot2::geom_point()
+  fmt_raster(p, method = "ragg", dpi = 72, width = 1, height = 1)
+  expect_identical(grDevices::dev.cur(), current)
+  expect_identical(grDevices::dev.list(), devices)
+
+  grDevices::dev.set(current)
+  bad_geom <- ggplot2::ggproto("GeomBadColour", ggplot2::Geom,
+    required_aes = c("x", "y"),
+    draw_panel = function(data, panel_params, coord) {
+      grid::rectGrob(name = "bad_geometry", gp = grid::gpar(fill = "invalid-colour"))
+    }
+  )
+  bad <- ggplot2::ggplot(data.frame(x = 1, y = 1), ggplot2::aes(x, y)) +
+    ggplot2::layer(geom = bad_geom, stat = "identity", position = "identity")
+  expect_error(fmt_raster(bad, method = "ragg", dpi = 72, width = 1, height = 1),
+               "invalid color")
+  expect_identical(grDevices::dev.cur(), current)
+  expect_identical(grDevices::dev.list(), devices)
+})
+
 test_that("invalid resolutions and panel dimensions fail before the backend", {
   local_mocked_bindings(
     .fmt_raster_ragg = function(...) stop("backend was called"),
