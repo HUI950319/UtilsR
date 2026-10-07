@@ -75,7 +75,7 @@ reduce PDF/SVG file size, while keeping text, axes, and legends as vectors.</p>
 
 
 <dl><dt id="arg-plot">plot<a class="anchor" aria-label="anchor" href="#arg-plot"></a></dt>
-<dd><p>A ggplot, patchwork, or list of ggplot objects.</p></dd>
+<dd><p>A ggplot, patchwork, or list containing either type.</p></dd>
 
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
@@ -94,7 +94,9 @@ Positive finite numeric scalar, or one value per panel in depth-first
 gtable order (column-major for grid facets). Panels sharing layout cells
 must have consistent dimensions, and nested plots must fit their layout.
 Ignored when <code>method = "ggrastr"</code>. If <code>NULL</code> (default), panel
-dimensions are resolved from the current device's grid layout.</p></dd>
+dimensions are resolved from the current device's grid layout. With no
+open device, the width and height from <code><a href="https://rdrr.io/r/grDevices/pdf.options.html" class="external-link">grDevices::pdf.options()</a></code>
+are used as the available plot size.</p></dd>
 
 
 <dt id="arg-units">units<a class="anchor" aria-label="anchor" href="#arg-units"></a></dt>
@@ -110,41 +112,48 @@ Default <code>"ragg"</code> (high-quality anti-aliasing). Only used when
 
 <dt id="arg-bg">bg<a class="anchor" aria-label="anchor" href="#arg-bg"></a></dt>
 <dd><p>Character. Background colour for panel rendering.
-Default <code>"transparent"</code>.</p></dd>
+Default <code>"transparent"</code>. Only used when <code>method = "ragg"</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Same type as input: a ggplot, patchwork, or list of ggplot objects.
-  When <code>method = "ragg"</code>, returns a patchwork-wrapped gtable with
-  a <code>size</code> attribute (list of width, height, units).</p>
+    <p>The <code>"ggrastr"</code> backend preserves the input type. The
+<code>"ragg"</code> backend returns a patchwork-wrapped gtable with a
+<code>size</code> attribute: a list with <code>width</code>, <code>height</code>, and
+<code>units</code> describing the complete fixed plot dimensions. For list
+inputs, returns a corresponding list and preserves its names.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Panels with clipping disabled are kept as vectors, with a warning, to
+    <p>Two backends are available:</p><dl><dt><code>"ggrastr"</code></dt>
+<dd><p>Wraps the plot with <code><a href="https://rdrr.io/pkg/ggrastr/man/rasterise.html" class="external-link">ggrastr::rasterise()</a></code>,
+which marks non-text geom layers for rasterization at render time.
+Text/label layers, custom annotations, and theme elements remain vectors.</p></dd>
+
+<dt><code>"ragg"</code></dt>
+<dd><p>Captures panel geometry in memory via
+<code><a href="https://ragg.r-lib.org/reference/agg_capture.html" class="external-link">ragg::agg_capture()</a></code> and inserts it as a <code>rasterGrob</code>.
+Text/label grobs inside the panel are automatically detected and kept
+as vectors. Uses the specified panel dimensions or the current device's
+grid layout when dimensions are <code>NULL</code>, then fixes the panel size.</p></dd>
+
+
+</dl><p>The <code>"ragg"</code> backend renders geometry immediately. Apply data,
+scale, theme, and layer changes before calling this function. For export,
+use the dimensions in the returned <code>size</code> attribute to retain the
+fixed layout. The <code>"ggrastr"</code> backend rasterizes when the plot is
+drawn and continues to use the output device's layout.</p>
+<p>Panels with clipping disabled are kept as vectors, with a warning, to
 preserve geometry drawn outside the panel. They do not receive the file-size
 benefit of rasterization.</p>
-<p>Two backends are available:</p><dl><dt><code>"ggrastr"</code></dt>
-<dd><p>Wraps the plot with <code><a href="https://rdrr.io/pkg/ggrastr/man/rasterise.html" class="external-link">ggrastr::rasterise()</a></code>,
-    which marks non-text geom layers for rasterization at render time.
-    Text/label layers, custom annotations, and theme elements remain vectors.</p></dd>
-
-  <dt><code>"ragg"</code></dt>
-<dd><p>Captures panel geometry in memory via
-    <code><a href="https://ragg.r-lib.org/reference/agg_capture.html" class="external-link">ragg::agg_capture()</a></code> and inserts it as a <code>rasterGrob</code>.
-    Text/label grobs inside the panel are automatically detected and kept
-    as vectors. Uses the specified panel dimensions or the current device's
-    grid layout when dimensions are <code>NULL</code>, then fixes the panel size.</p></dd>
-
-
-</dl><div class="section">
+<div class="section">
 <h3 id="how-ragg-preserves-text">How <code>"ragg"</code> preserves text<a class="anchor" aria-label="anchor" href="#how-ragg-preserves-text"></a></h3>
 <p>The function inspects each grob child inside a panel. Children whose own
 name or class identifies text/labels, or whose descendants contain text,
 are kept as vectors. Mixed text/geometry trees are retained together to
 preserve their internal layout. A viewport alone does not prevent
 rasterization. Other children (points, lines, polygons, raster, etc.) are
-rendered in contiguous runs and read back as
+captured in contiguous runs and inserted as
 <code>rasterGrob</code> objects. Vector text and rasterized geometry retain their
 original draw order, including text covered by a later geometric layer.</p>
 </div>
@@ -152,7 +161,8 @@ original draw order, including text covered by a later geometric layer.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p>Other plot formatting:
+    <div class="dont-index"><p><code><a href="grob_as.html">grob_as()</a></code>, <code><a href="https://rdrr.io/pkg/ggrastr/man/rasterise.html" class="external-link">ggrastr::rasterise()</a></code></p>
+<p>Other plot formatting:
 <code><a href="fmt_axis.html">fmt_axis()</a></code>,
 <code><a href="fmt_axisText.html">fmt_axisText()</a></code>,
 <code><a href="fmt_axisTile.html">fmt_axisTile()</a></code>,
@@ -183,24 +193,23 @@ original draw order, including text covered by a later geometric layer.</p>
 <span class="r-in"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Demo"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># ggrastr backend (simple)</span></span></span>
-<span class="r-in"><span><span class="fu">fmt_raster</span><span class="op">(</span><span class="va">p</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">p_ggrastr</span> <span class="op">&lt;-</span> <span class="fu">fmt_raster</span><span class="op">(</span><span class="va">p</span>, dpi <span class="op">=</span> <span class="fl">150</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">p_ggrastr</span></span></span>
 <span class="r-plt img"><img src="fmt_raster-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">fmt_raster</span><span class="op">(</span><span class="va">p</span>, dpi <span class="op">=</span> <span class="fl">150</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="fmt_raster-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># ragg backend (panel-level, also fixes panel size)</span></span></span>
-<span class="r-in"><span><span class="fu">fmt_raster</span><span class="op">(</span><span class="va">p</span>, method <span class="op">=</span> <span class="st">"ragg"</span>, width <span class="op">=</span> <span class="fl">4</span>, height <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="fmt_raster-3.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="va">p_ragg</span> <span class="op">&lt;-</span> <span class="fu">fmt_raster</span><span class="op">(</span><span class="va">p</span>, method <span class="op">=</span> <span class="st">"ragg"</span>, width <span class="op">=</span> <span class="fl">4</span>, height <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">p_ragg</span></span></span>
+<span class="r-plt img"><img src="fmt_raster-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="co"># Works with patchwork</span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">fmt_raster</span><span class="op">(</span><span class="va">p</span> <span class="op">|</span> <span class="va">p2</span>, method <span class="op">=</span> <span class="st">"ggrastr"</span>, dpi <span class="op">=</span> <span class="fl">300</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> `stat_bin()` using `bins = 30`. Pick better value `binwidth`.</span>
-<span class="r-plt img"><img src="fmt_raster-4.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span>bins <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">p_nested</span> <span class="op">&lt;-</span> <span class="fu">fmt_raster</span><span class="op">(</span><span class="op">(</span><span class="va">p</span> <span class="op">|</span> <span class="va">p2</span><span class="op">)</span> <span class="op">/</span> <span class="va">p</span>, method <span class="op">=</span> <span class="st">"ragg"</span>, dpi <span class="op">=</span> <span class="fl">150</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">p_nested</span></span></span>
+<span class="r-plt img"><img src="fmt_raster-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
-<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

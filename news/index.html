@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code>fmt_raster(method = "ragg")</code> sets child names when rebuilding panels so captured geometry and retained text are actually drawn in the returned plot.</p></li>
+<ul><li><p><code><a href="../reference/fmt_raster.html">fmt_raster()</a></code> help now distinguishes deferred layer rasterization from immediate fixed-layout capture, documents complete output sizes and list returns, and guards examples with their optional dependencies.</p></li>
+<li><p><code>fmt_raster(method = "ragg")</code> sets child names when rebuilding panels so captured geometry and retained text are actually drawn in the returned plot.</p></li>
 <li><p><code>fmt_raster(method = "ragg")</code> captures native raster buffers in memory, avoiding temporary PNG encoding, disk I/O and decoding. This backend no longer requires the png package.</p></li>
 <li><p><code>fmt_raster(method = "ragg")</code> detects text from grob classes and descendants, including custom names and mixed trees. Viewport geometry no longer bypasses rasterization merely because it has its own viewport.</p></li>
 <li><p><code>fmt_raster(method = "ragg")</code> rejects conflicting dimensions in shared facet rows/columns and incompatible nested dimensions instead of overwriting earlier panel sizes. Automatic nested outputs retain their complete size.</p></li>

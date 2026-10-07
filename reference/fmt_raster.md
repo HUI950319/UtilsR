@@ -23,7 +23,7 @@ fmt_raster(
 
 - plot:
 
-  A ggplot, patchwork, or list of ggplot objects.
+  A ggplot, patchwork, or list containing either type.
 
 - method:
 
@@ -42,7 +42,10 @@ fmt_raster(
   (column-major for grid facets). Panels sharing layout cells must have
   consistent dimensions, and nested plots must fit their layout. Ignored
   when `method = "ggrastr"`. If `NULL` (default), panel dimensions are
-  resolved from the current device's grid layout.
+  resolved from the current device's grid layout. With no open device,
+  the width and height from
+  [`grDevices::pdf.options()`](https://rdrr.io/r/grDevices/pdf.options.html)
+  are used as the available plot size.
 
 - units:
 
@@ -58,19 +61,17 @@ fmt_raster(
 - bg:
 
   Character. Background colour for panel rendering. Default
-  `"transparent"`.
+  `"transparent"`. Only used when `method = "ragg"`.
 
 ## Value
 
-Same type as input: a ggplot, patchwork, or list of ggplot objects. When
-`method = "ragg"`, returns a patchwork-wrapped gtable with a `size`
-attribute (list of width, height, units).
+The `"ggrastr"` backend preserves the input type. The `"ragg"` backend
+returns a patchwork-wrapped gtable with a `size` attribute: a list with
+`width`, `height`, and `units` describing the complete fixed plot
+dimensions. For list inputs, returns a corresponding list and preserves
+its names.
 
 ## Details
-
-Panels with clipping disabled are kept as vectors, with a warning, to
-preserve geometry drawn outside the panel. They do not receive the
-file-size benefit of rasterization.
 
 Two backends are available:
 
@@ -91,6 +92,16 @@ Two backends are available:
   panel dimensions or the current device's grid layout when dimensions
   are `NULL`, then fixes the panel size.
 
+The `"ragg"` backend renders geometry immediately. Apply data, scale,
+theme, and layer changes before calling this function. For export, use
+the dimensions in the returned `size` attribute to retain the fixed
+layout. The `"ggrastr"` backend rasterizes when the plot is drawn and
+continues to use the output device's layout.
+
+Panels with clipping disabled are kept as vectors, with a warning, to
+preserve geometry drawn outside the panel. They do not receive the
+file-size benefit of rasterization.
+
 ### How `"ragg"` preserves text
 
 The function inspects each grob child inside a panel. Children whose own
@@ -98,11 +109,14 @@ name or class identifies text/labels, or whose descendants contain text,
 are kept as vectors. Mixed text/geometry trees are retained together to
 preserve their internal layout. A viewport alone does not prevent
 rasterization. Other children (points, lines, polygons, raster, etc.)
-are rendered in contiguous runs and read back as `rasterGrob` objects.
+are captured in contiguous runs and inserted as `rasterGrob` objects.
 Vector text and rasterized geometry retain their original draw order,
 including text covered by a later geometric layer.
 
 ## See also
+
+[`grob_as()`](https://hui950319.github.io/UtilsR/reference/grob_as.md),
+[`ggrastr::rasterise()`](https://rdrr.io/pkg/ggrastr/man/rasterise.html)
 
 Other plot formatting:
 [`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md),
@@ -135,21 +149,21 @@ df <- data.frame(x = rnorm(5000), y = rnorm(5000))
 p <- ggplot(df, aes(x, y)) + geom_point(alpha = 0.3) + ggtitle("Demo")
 
 # ggrastr backend (simple)
-fmt_raster(p)
-
-fmt_raster(p, dpi = 150)
+p_ggrastr <- fmt_raster(p, dpi = 150)
+p_ggrastr
 
 
 # ragg backend (panel-level, also fixes panel size)
-fmt_raster(p, method = "ragg", width = 4, height = 4)
+p_ragg <- fmt_raster(p, method = "ragg", width = 4, height = 3)
+p_ragg
 
 
 # \donttest{
 # Works with patchwork
 library(patchwork)
-p2 <- ggplot(df, aes(x)) + geom_histogram()
-fmt_raster(p | p2, method = "ggrastr", dpi = 300)
-#> `stat_bin()` using `bins = 30`. Pick better value `binwidth`.
+p2 <- ggplot(df, aes(x)) + geom_histogram(bins = 30)
+p_nested <- fmt_raster((p | p2) / p, method = "ragg", dpi = 150)
+p_nested
 
 # }
 ```
