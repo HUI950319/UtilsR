@@ -25,6 +25,19 @@ test_that("ragg preserves every panel and the labels of nested patchworks", {
   }
 })
 
+test_that("ggrastr visits all leaves without changing nested layouts", {
+  skip_if_not_installed("ggrastr")
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3), ggplot2::aes(x, y)) +
+    ggplot2::geom_point()
+  original <- ((p | p) / p) | p
+  result <- fmt_raster(original, dpi = 72)
+  expect_length(raster_find_grobs(patchwork::patchworkGrob(result), "rasteriser"), 4L)
+  expect_equal(result$patches$layout, original$patches$layout)
+  expect_equal(result[[1]]$patches$layout, original[[1]]$patches$layout)
+})
+
 test_that("unclipped panels retain geometry outside the panel", {
   skip_if_not_installed("ragg")
   skip_if_not_installed("ggrastr")

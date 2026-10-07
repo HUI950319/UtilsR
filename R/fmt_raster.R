@@ -134,6 +134,10 @@ fmt_raster <- function(
   }
 
   raster_one <- function(p) {
+    if (inherits(p, "patchwork")) {
+      for (i in seq_along(p)) p[[i]] <- raster_one(p[[i]])
+      return(p)
+    }
     if (identical(p$coordinates$clip, "off")) {
       cli::cli_warn("Plots with clipping disabled are kept as vectors to preserve geometry outside the panel.")
       return(p)
