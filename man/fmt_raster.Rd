@@ -64,9 +64,9 @@ Two backends are available:
 The function inspects each grob child inside a panel. Children whose name
 or class matches \code{text}, \code{label}, \code{segments}, or
 \code{legend} are kept as vector grobs. All other children (points, lines,
-polygons, raster, etc.) are rendered into a single PNG and read back as a
-\code{rasterGrob}. The two sets are then recombined, so the final output
-has crisp vector text on top of a rasterized geometric layer.
+polygons, raster, etc.) are rendered in contiguous runs and read back as
+\code{rasterGrob} objects. Vector text and rasterized geometry retain their
+original draw order, including text covered by a later geometric layer.
 }
 }
 \examples{

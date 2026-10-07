@@ -54,9 +54,9 @@
 #' The function inspects each grob child inside a panel. Children whose name
 #' or class matches \code{text}, \code{label}, \code{segments}, or
 #' \code{legend} are kept as vector grobs. All other children (points, lines,
-#' polygons, raster, etc.) are rendered into a single PNG and read back as a
-#' \code{rasterGrob}. The two sets are then recombined, so the final output
-#' has crisp vector text on top of a rasterized geometric layer.
+#' polygons, raster, etc.) are rendered in contiguous runs and read back as
+#' \code{rasterGrob} objects. Vector text and rasterized geometry retain their
+#' original draw order, including text covered by a later geometric layer.
 #' }
 #'
 #' @examples
@@ -226,49 +226,48 @@ fmt_raster <- function(
 # --- Core: rasterize a single panel grob, preserving text ---
 #' @noRd
 .rasterize_panel_grob <- function(g, w, h, dpi, units, bg) {
-  vp <- g$vp
-  children_order <- g$childrenOrder
+  ordered <- match(g$childrenOrder, names(g$children))
+  ordered <- ordered[!vapply(g$children[ordered], inherits, logical(1), "zeroGrob")]
+  output <- list()
+  temp_files <- character()
+  on.exit(unlink(temp_files), add = TRUE)
 
-  # Separate text (vector) vs geometry (raster) children
-  g_geom <- g          # copy for rendering to PNG (text removed)
-  g_text <- g          # copy for vector output (geometry removed)
-
-  if (is.null(g_geom$vp)) g_geom$vp <- grid::viewport()
-
-  for (j in seq_along(g[["children"]])) {
-    child    <- g[["children"]][[j]]
-    child_nm <- names(g[["children"]])[j]
-
-    is_text <- .is_text_grob(child, child_nm)
-
-    if (is_text) {
-      # Keep in g_text, remove from g_geom
-      zero <- ggplot2::zeroGrob()
-      zero$name <- child$name
-      g_geom[["children"]][[j]] <- zero
-    } else {
-      # Keep in g_geom, remove from g_text
-      g_text[["children"]][[j]] <- ggplot2::zeroGrob()
-    }
+  # A panel background belongs below every run, including vector text.
+  if (!is.na(bg) && bg != "transparent") {
+    output <- list(grid::rectGrob(gp = grid::gpar(fill = bg, col = NA)))
+  }
+  capture_run <- function(indices) {
+    g_geom <- g
+    g_geom$children <- do.call(grid::gList, g$children[indices])
+    g_geom$childrenOrder <- names(g_geom$children)
+    if (is.null(g_geom$vp)) g_geom$vp <- grid::viewport()
+    temp <- tempfile(fileext = ".png")
+    temp_files <<- c(temp_files, temp)
+    ragg::agg_png(temp, width = w, height = h, bg = "transparent",
+                  res = dpi, units = units)
+    grid::grid.draw(g_geom)
+    grDevices::dev.off()
+    grid::rasterGrob(png::readPNG(temp, native = TRUE))
   }
 
-  # Render geometry to temporary PNG
-  temp <- tempfile(fileext = ".png")
-  on.exit(unlink(temp), add = TRUE)
-
-  ragg::agg_png(temp, width = w, height = h, bg = bg,
-                res = dpi, units = units)
-  grid::grid.draw(g_geom)
-  grDevices::dev.off()
-
-  # Read back as rasterGrob
-  g_ras <- grid::rasterGrob(png::readPNG(temp, native = TRUE))
-
-  # Combine: raster at bottom, vector text on top
-  g_out <- grid::addGrob(g_text, g_ras)
-  g_out$vp <- vp
-  g_out$childrenOrder <- c(g_ras$name, children_order)
-  g_out
+  # Capture contiguous geometry runs without moving them across vector text.
+  pending <- integer()
+  for (j in ordered) {
+    child <- g$children[[j]]
+    if (.is_text_grob(child, names(g$children)[j])) {
+      if (length(pending)) {
+        output <- c(output, list(capture_run(pending)))
+        pending <- integer()
+      }
+      output <- c(output, list(child))
+    } else {
+      pending <- c(pending, j)
+    }
+  }
+  if (length(pending)) output <- c(output, list(capture_run(pending)))
+  g$children <- do.call(grid::gList, output)
+  g$childrenOrder <- names(g$children)
+  g
 }
 
 

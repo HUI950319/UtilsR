@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_raster(method = "ragg")` retains the original draw order between
+  vector text and contiguous rasterized geometry runs.
+
 * `fmt_raster(method = "ragg")` now preserves all panels, axes and labels in
   flat and nested patchworks instead of converting only the last plot.
 
