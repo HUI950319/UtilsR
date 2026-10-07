@@ -130,8 +130,8 @@ benefit of rasterization.</p>
 <dd><p>Renders each panel to a temporary PNG via
     <code><a href="https://ragg.r-lib.org/reference/agg_png.html" class="external-link">ragg::agg_png()</a></code>, then reads it back as a <code>rasterGrob</code>.
     Text/label grobs inside the panel are automatically detected and kept
-    as vectors. Requires <code>width</code> and <code>height</code> to be specified
-    (the panel rendering size). This method also fixes the panel size.</p></dd>
+    as vectors. Uses the specified panel dimensions or the current device's
+    grid layout when dimensions are <code>NULL</code>, then fixes the panel size.</p></dd>
 
 
 </dl><div class="section">

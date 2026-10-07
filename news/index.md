@@ -2,6 +2,11 @@
 
 ## UtilsR 0.6.8
 
+- `fmt_raster(method = "ragg")` resolves automatic panel dimensions from
+  the current device’s grid layout, retaining physical units, free-facet
+  spacing and fixed aspect ratios instead of falling back to a literal
+  size of 4.
+
 - `fmt_raster(method = "ragg")` accepts named lists of plots, returns a
   corresponding list of wrapped gtables, and checks all elements before
   drawing.
@@ -19,8 +24,7 @@
 
 - `fmt_raster(method = "ragg")` restores the active graphics device and
   closes its own devices after both successful rendering and draw
-  errors. Headless conversion uses a temporary in-memory PDF device for
-  measurement.
+  errors. Conversion uses a private in-memory device for measurement.
 
 - [`fmt_raster()`](https://hui950319.github.io/UtilsR/reference/fmt_raster.md)
   rejects non-positive, non-finite and non-scalar resolutions before
