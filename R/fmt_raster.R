@@ -171,6 +171,14 @@ fmt_raster <- function(
     cli::cli_abort("Package {.pkg png} is required for {.code method = \"ragg\"}.")
   }
 
+  if (is.list(plot) && !inherits(plot, c("gg", "gtable"))) {
+    plots <- .to_plot_list(plot)$plots
+    return(lapply(plots, function(p) {
+      .fmt_raster_ragg(p, dpi = dpi, width = width, height = height,
+                       units = units, bg = bg)
+    }))
+  }
+
   original_device <- grDevices::dev.cur()
   measurement_device <- NULL
   if (original_device == 1L) {

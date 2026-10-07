@@ -25,6 +25,24 @@ test_that("ragg preserves every panel and the labels of nested patchworks", {
   }
 })
 
+test_that("ragg preserves named plot lists and checks all elements first", {
+  skip_if_not_installed("ragg")
+  skip_if_not_installed("png")
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3), ggplot2::aes(x, y)) +
+    ggplot2::geom_point()
+  result <- fmt_raster(list(first = p, second = p | p), method = "ragg",
+                       dpi = 72, width = 1, height = 1)
+  expect_named(result, c("first", "second"))
+  expect_true(all(vapply(result, inherits, logical(1), "patchwork")))
+  expect_length(raster_find_grobs(patchwork::patchworkGrob(result[[2]]), "rastergrob"), 2L)
+  expect_equal(fmt_raster(list(), method = "ragg"), list())
+  devices <- grDevices::dev.list()
+  expect_error(fmt_raster(list(p, NULL), method = "ragg"), "All elements")
+  expect_identical(grDevices::dev.list(), devices)
+})
+
 test_that("ggrastr rasterizes geometric layers and retains text layers", {
   skip_if_not_installed("ggrastr")
   grDevices::pdf(NULL)

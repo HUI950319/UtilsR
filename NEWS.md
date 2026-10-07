@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_raster(method = "ragg")` accepts named lists of plots, returns a
+  corresponding list of wrapped gtables, and checks all elements before drawing.
+
 * `fmt_raster(method = "ggrastr")` now rasterizes non-text line, polygon,
   column and other geom layers as well as points and tiles. Text, label and
   custom annotation layers remain vectors.
