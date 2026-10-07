@@ -65,6 +65,10 @@ attribute (list of width, height, units).
 
 ## Details
 
+Panels with clipping disabled are kept as vectors, with a warning, to
+preserve geometry drawn outside the panel. They do not receive the
+file-size benefit of rasterization.
+
 Two backends are available:
 
 - `"ggrastr"`:

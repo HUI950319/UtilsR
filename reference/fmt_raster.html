@@ -118,7 +118,10 @@ Default <code>"transparent"</code>.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Two backends are available:</p><dl><dt><code>"ggrastr"</code></dt>
+    <p>Panels with clipping disabled are kept as vectors, with a warning, to
+preserve geometry drawn outside the panel. They do not receive the file-size
+benefit of rasterization.</p>
+<p>Two backends are available:</p><dl><dt><code>"ggrastr"</code></dt>
 <dd><p>Wraps the plot with <code><a href="https://rdrr.io/pkg/ggrastr/man/rasterise.html" class="external-link">ggrastr::rasterise()</a></code>,
     which marks all geom layers for rasterization at render time. Simple and
     fast. Text and theme elements are always preserved as vectors.</p></dd>
