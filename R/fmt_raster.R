@@ -59,10 +59,12 @@
 #' benefit of rasterization.
 #'
 #' \subsection{How \code{"ragg"} preserves text}{
-#' The function inspects each grob child inside a panel. Children whose name
-#' or class matches \code{text}, \code{label}, \code{segments}, or
-#' \code{legend} are kept as vector grobs. All other children (points, lines,
-#' polygons, raster, etc.) are rendered in contiguous runs and read back as
+#' The function inspects each grob child inside a panel. Children whose own
+#' name or class identifies text/labels, or whose descendants contain text,
+#' are kept as vectors. Mixed text/geometry trees are retained together to
+#' preserve their internal layout. A viewport alone does not prevent
+#' rasterization. Other children (points, lines, polygons, raster, etc.) are
+#' rendered in contiguous runs and read back as
 #' \code{rasterGrob} objects. Vector text and rasterized geometry retain their
 #' original draw order, including text covered by a later geometric layer.
 #' }
@@ -434,18 +436,10 @@ fmt_raster <- function(
 # --- Detect whether a panel child is a text/label grob ---
 #' @noRd
 .is_text_grob <- function(child, child_nm) {
-  # Check child name
-  if (any(grepl("(text)|(label)", child_nm, ignore.case = TRUE))) {
+  if (any(grepl("text|label", c(child_nm, class(child)), ignore.case = TRUE))) {
     return(TRUE)
   }
-  # Check viewport (text grobs often have their own vp)
-  if (!is.null(child$vp)) return(TRUE)
-  # Check class of first list element
-  if (!is.null(child$list) && length(child$list) > 0) {
-    cls <- class(child$list[[1]])
-    if (any(grepl("(text)|(segments)|(legend)", cls, ignore.case = TRUE))) {
-      return(TRUE)
-    }
-  }
-  FALSE
+  children <- if (inherits(child, "gtable")) child$grobs else
+    if (inherits(child, "gTree")) child$children
+  any(vapply(children, function(g) .is_text_grob(g, g$name), logical(1)))
 }

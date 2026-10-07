@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_raster(method = "ragg")` detects text from grob classes and descendants,
+  including custom names and mixed trees. Viewport geometry no longer bypasses
+  rasterization merely because it has its own viewport.
+
 * `fmt_raster(method = "ragg")` rejects conflicting dimensions in shared
   facet rows/columns and incompatible nested dimensions instead of overwriting
   earlier panel sizes. Automatic nested outputs retain their complete size.

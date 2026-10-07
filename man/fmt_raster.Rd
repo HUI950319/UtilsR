@@ -69,10 +69,12 @@ Two backends are available:
 
 
 \subsection{How \code{"ragg"} preserves text}{
-The function inspects each grob child inside a panel. Children whose name
-or class matches \code{text}, \code{label}, \code{segments}, or
-\code{legend} are kept as vector grobs. All other children (points, lines,
-polygons, raster, etc.) are rendered in contiguous runs and read back as
+The function inspects each grob child inside a panel. Children whose own
+name or class identifies text/labels, or whose descendants contain text,
+are kept as vectors. Mixed text/geometry trees are retained together to
+preserve their internal layout. A viewport alone does not prevent
+rasterization. Other children (points, lines, polygons, raster, etc.) are
+rendered in contiguous runs and read back as
 \code{rasterGrob} objects. Vector text and rasterized geometry retain their
 original draw order, including text covered by a later geometric layer.
 }

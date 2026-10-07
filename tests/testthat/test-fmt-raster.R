@@ -24,6 +24,47 @@ test_that("ragg preserves every panel and the labels of nested patchworks", {
   }
 })
 
+test_that("ragg detects custom text and rasterizes viewport geometry", {
+  skip_if_not_installed("ragg")
+  skip_if_not_installed("png")
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  base <- ggplot2::ggplot(data.frame(x = 0.5, y = 0.5), ggplot2::aes(x, y)) +
+    ggplot2::theme_void()
+  custom_text <- ggplot2::ggproto("GeomCustomText", ggplot2::Geom,
+    required_aes = c("x", "y"),
+    draw_panel = function(data, panel_params, coord) {
+      grid::textGrob("custom text", name = "custom_content")
+    }
+  )
+  text_plot <- base + ggplot2::layer(geom = custom_text, stat = "identity",
+                                     position = "identity")
+  text_result <- fmt_raster(text_plot, method = "ragg", dpi = 72,
+                            width = 1, height = 1)
+  expect_length(raster_find_grobs(attr(text_result, "grobs")$full, "text"), 1L)
+
+  geometry <- base + ggplot2::annotation_custom(
+    grid::rectGrob(name = "custom_geometry", gp = grid::gpar(fill = "red")))
+  geom_result <- fmt_raster(geometry, method = "ragg", dpi = 72,
+                            width = 1, height = 1)
+  gt <- attr(geom_result, "grobs")$full
+  panel <- gt$grobs[[which(gt$layout$name == "panel")]]
+  expect_length(raster_find_grobs(panel, "rastergrob"), 1L)
+  expect_length(raster_find_grobs(panel, "rect"), 0L)
+
+  mixed <- ggplot2::ggproto("GeomMixedContent", custom_text,
+    draw_panel = function(data, panel_params, coord) {
+      grid::gTree(name = "custom_mixed", children = grid::gList(
+        grid::rectGrob(), grid::textGrob("mixed content", name = "custom_content")))
+    }
+  )
+  mixed_plot <- base + ggplot2::layer(geom = mixed, stat = "identity",
+                                      position = "identity")
+  mixed_result <- fmt_raster(mixed_plot, method = "ragg", dpi = 72,
+                             width = 1, height = 1)
+  expect_length(raster_find_grobs(attr(mixed_result, "grobs")$full, "text"), 1L)
+})
+
 test_that("ragg rejects conflicting dimensions in shared facet columns", {
   skip_if_not_installed("ragg")
   skip_if_not_installed("png")
