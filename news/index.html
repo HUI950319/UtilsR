@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/fmt_raster.html">fmt_raster()</a></code> preserves unclipped geometry outside panels by retaining these panels as vectors and reporting the rasterization fallback.</p></li>
+<ul><li><p><code>fmt_raster(method = "ggrastr")</code> recursively rasterizes every leaf plot in nested patchworks while retaining their original layout.</p></li>
+<li><p><code><a href="../reference/fmt_raster.html">fmt_raster()</a></code> preserves unclipped geometry outside panels by retaining these panels as vectors and reporting the rasterization fallback.</p></li>
 <li><p><code>fmt_raster(method = "ragg")</code> restores the active graphics device and closes its own devices after both successful rendering and draw errors. Headless conversion uses a temporary in-memory PDF device for measurement.</p></li>
 <li><p><code><a href="../reference/fmt_raster.html">fmt_raster()</a></code> rejects non-positive, non-finite and non-scalar resolutions before opening a raster device. The ragg backend also checks positive finite panel dimensions and rejects dimensions smaller than one output pixel.</p></li>
 <li><p><code>fmt_raster(method = "ragg")</code> retains the original draw order between vector text and contiguous rasterized geometry runs.</p></li>
