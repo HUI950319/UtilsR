@@ -65,14 +65,19 @@ attribute (list of width, height, units).
 
 ## Details
 
+Panels with clipping disabled are kept as vectors, with a warning, to
+preserve geometry drawn outside the panel. They do not receive the
+file-size benefit of rasterization.
+
 Two backends are available:
 
 - `"ggrastr"`:
 
   Wraps the plot with
   [`ggrastr::rasterise()`](https://rdrr.io/pkg/ggrastr/man/rasterise.html),
-  which marks all geom layers for rasterization at render time. Simple
-  and fast. Text and theme elements are always preserved as vectors.
+  which marks non-text geom layers for rasterization at render time.
+  Text/label layers, custom annotations, and theme elements remain
+  vectors.
 
 - `"ragg"`:
 
