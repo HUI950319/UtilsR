@@ -1,3 +1,8 @@
+# UtilsR 0.6.8
+
+* `fmt_raster(method = "ragg")` now preserves all panels, axes and labels in
+  flat and nested patchworks instead of converting only the last plot.
+
 # UtilsR 0.6.2
 
 * `fmt_tag()` outside placements (`"tl-out"`, `"tr-out"`, `"bl-out"`,

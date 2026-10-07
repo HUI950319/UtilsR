@@ -140,49 +140,48 @@ fmt_raster <- function(
   }
 
   # Convert to gtable
-  gtable <- grob_as(plot)
+  gtable <- if (inherits(plot, "patchwork")) {
+    patchwork::patchworkGrob(plot)
+  } else {
+    grob_as(plot)
+  }
   if (!inherits(gtable, "gtable")) {
     cli::cli_abort("Cannot convert input to a gtable.")
   }
 
-  # Find panel indices (non-zero panels)
-  non_zero <- grep(
-    "zeroGrob",
-    vapply(gtable$grobs, as.character, character(1)),
-    invert = TRUE
-  )
-  panel_index <- grep("panel", gtable[["layout"]][["name"]])
-  panel_index <- intersect(panel_index, non_zero)
-  if (length(panel_index) == 0) {
+  panels_found <- 0L
+  raster_table <- function(gtable) {
+    # Nested patchworks contain complete gtables; keep their axes and labels.
+    nested <- which(vapply(gtable$grobs, inherits, logical(1), "gtable"))
+    for (idx in nested) gtable$grobs[[idx]] <- raster_table(gtable$grobs[[idx]])
+
+    panel_index <- which(grepl("^panel(-[0-9]+)*$", gtable$layout$name) &
+                           !vapply(gtable$grobs, inherits, logical(1), "zeroGrob"))
+    if (length(panel_index) == 0) return(gtable)
+    panels_found <<- panels_found + length(panel_index)
+
+    panel_w <- .resolve_panel_size(gtable, panel_index, "width", width, units)
+    panel_h <- .resolve_panel_size(gtable, panel_index, "height", height, units)
+
+    for (i in seq_along(panel_index)) {
+      idx <- panel_index[i]
+      col_range <- gtable$layout$l[idx]:gtable$layout$r[idx]
+      row_range <- gtable$layout$t[idx]:gtable$layout$b[idx]
+      gtable$widths[col_range] <- grid::unit(rep(panel_w[i] / length(col_range),
+                                               length(col_range)), units)
+      gtable$heights[row_range] <- grid::unit(rep(panel_h[i] / length(row_range),
+                                                length(row_range)), units)
+      gtable$grobs[[idx]] <- .rasterize_panel_grob(
+        gtable$grobs[[idx]], w = panel_w[i], h = panel_h[i], dpi = dpi,
+        units = units, bg = bg
+      )
+    }
+    gtable
+  }
+  gtable <- raster_table(gtable)
+  if (panels_found == 0) {
     cli::cli_warn("No panels detected. Returning plot as-is.")
     return(plot)
-  }
-
-  # Resolve panel sizes
-  panel_w <- .resolve_panel_size(gtable, panel_index, "width", width, units)
-  panel_h <- .resolve_panel_size(gtable, panel_index, "height", height, units)
-
-  # Fix panel dimensions in the gtable
-  for (i in seq_along(panel_index)) {
-    idx <- panel_index[i]
-    col_range <- gtable[["layout"]][["l"]][idx]:gtable[["layout"]][["r"]][idx]
-    row_range <- gtable[["layout"]][["t"]][idx]:gtable[["layout"]][["b"]][idx]
-
-    w_each <- panel_w[i] / length(col_range)
-    h_each <- panel_h[i] / length(row_range)
-    gtable[["widths"]][col_range]  <- grid::unit(rep(w_each, length(col_range)), units)
-    gtable[["heights"]][row_range] <- grid::unit(rep(h_each, length(row_range)), units)
-  }
-
-  # Rasterize each panel
-  for (i in seq_along(panel_index)) {
-    idx <- panel_index[i]
-    g <- gtable$grobs[[idx]]
-    if (is.null(g) || inherits(g, "zeroGrob")) next
-
-    gtable$grobs[[idx]] <- .rasterize_panel_grob(
-      g, w = panel_w[i], h = panel_h[i], dpi = dpi, units = units, bg = bg
-    )
   }
 
   # Wrap and return
