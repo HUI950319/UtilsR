@@ -32,7 +32,8 @@ fmt_raster(
 
 - dpi:
 
-  Integer. Rasterization resolution. Default 300.
+  Positive finite numeric scalar. Rasterization resolution in dots per
+  inch. Default 300.
 
 - width, height:
 
