@@ -3,6 +3,10 @@
 * `fmt_raster(method = "ragg")` sets child names when rebuilding panels so
   captured geometry and retained text are actually drawn in the returned plot.
 
+* `fmt_raster(method = "ragg")` captures native raster buffers in memory,
+  avoiding temporary PNG encoding, disk I/O and decoding. This backend no
+  longer requires the png package.
+
 * `fmt_raster(method = "ragg")` detects text from grob classes and descendants,
   including custom names and mixed trees. Viewport geometry no longer bypasses
   rasterization merely because it has its own viewport.

@@ -24,6 +24,28 @@ test_that("ragg preserves every panel and the labels of nested patchworks", {
   }
 })
 
+test_that("ragg native capture retains transparent and translucent pixels", {
+  skip_if_not_installed("ragg")
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  p <- ggplot2::ggplot() +
+    ggplot2::annotate("rect", xmin = 0.25, xmax = 0.75, ymin = 0.25, ymax = 0.75,
+                       fill = "red", colour = NA, alpha = 0.5) +
+    ggplot2::scale_x_continuous(limits = c(0, 1), expand = c(0, 0)) +
+    ggplot2::scale_y_continuous(limits = c(0, 1), expand = c(0, 0)) +
+    ggplot2::theme_void()
+  result <- fmt_raster(p, method = "ragg", dpi = 72, width = 1, height = 1)
+  raster <- raster_find_grobs(attr(result, "grobs")$full, "rastergrob")[[1]]$raster
+  expect_s3_class(raster, "nativeRaster")
+  expect_equal(dim(raster), c(72L, 72L))
+  pixels <- raster[cbind(c(1, 36), c(1, 36))]
+  colours <- vapply(c(0, 8, 16, 24), function(shift) {
+    bitwAnd(bitwShiftR(pixels, shift), 255L)
+  }, integer(2))
+  expect_equal(unname(colours[1, 4]), 0)
+  expect_equal(unname(colours[2, ]), c(255, 0, 0, 128))
+})
+
 test_that("ragg detects custom text and rasterizes viewport geometry", {
   skip_if_not_installed("ragg")
   skip_if_not_installed("png")

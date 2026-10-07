@@ -60,8 +60,8 @@ Two backends are available:
   \item{\code{"ggrastr"}}{Wraps the plot with \code{ggrastr::rasterise()},
     which marks non-text geom layers for rasterization at render time.
     Text/label layers, custom annotations, and theme elements remain vectors.}
-  \item{\code{"ragg"}}{Renders each panel to a temporary PNG via
-    \code{ragg::agg_png()}, then reads it back as a \code{rasterGrob}.
+  \item{\code{"ragg"}}{Captures panel geometry in memory via
+    \code{ragg::agg_capture()} and inserts it as a \code{rasterGrob}.
     Text/label grobs inside the panel are automatically detected and kept
     as vectors. Uses the specified panel dimensions or the current device's
     grid layout when dimensions are \code{NULL}, then fixes the panel size.}

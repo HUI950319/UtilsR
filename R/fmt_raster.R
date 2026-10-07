@@ -23,8 +23,8 @@
 #'   \item{\code{"ggrastr"}}{Wraps the plot with \code{ggrastr::rasterise()},
 #'     which marks non-text geom layers for rasterization at render time.
 #'     Text/label layers, custom annotations, and theme elements remain vectors.}
-#'   \item{\code{"ragg"}}{Renders each panel to a temporary PNG via
-#'     \code{ragg::agg_png()}, then reads it back as a \code{rasterGrob}.
+#'   \item{\code{"ragg"}}{Captures panel geometry in memory via
+#'     \code{ragg::agg_capture()} and inserts it as a \code{rasterGrob}.
 #'     Text/label grobs inside the panel are automatically detected and kept
 #'     as vectors. Uses the specified panel dimensions or the current device's
 #'     grid layout when dimensions are \code{NULL}, then fixes the panel size.}
@@ -172,10 +172,6 @@ fmt_raster <- function(
   if (!requireNamespace("ragg", quietly = TRUE)) {
     cli::cli_abort("Package {.pkg ragg} is required for {.code method = \"ragg\"}.")
   }
-  if (!requireNamespace("png", quietly = TRUE)) {
-    cli::cli_abort("Package {.pkg png} is required for {.code method = \"ragg\"}.")
-  }
-
   if (is.list(plot) && !inherits(plot, c("gg", "gtable"))) {
     plots <- .to_plot_list(plot)$plots
     return(lapply(plots, function(p) {
@@ -381,9 +377,6 @@ fmt_raster <- function(
   ordered <- match(g$childrenOrder, names(g$children))
   ordered <- ordered[!vapply(g$children[ordered], inherits, logical(1), "zeroGrob")]
   output <- list()
-  temp_files <- character()
-  on.exit(unlink(temp_files), add = TRUE)
-
   # A panel background belongs below every run, including vector text.
   if (!is.na(bg) && bg != "transparent") {
     output <- list(grid::rectGrob(gp = grid::gpar(fill = bg, col = NA)))
@@ -397,19 +390,18 @@ fmt_raster <- function(
     g_geom$children <- do.call(grid::gList, g$children[indices])
     g_geom$childrenOrder <- names(g_geom$children)
     if (is.null(g_geom$vp)) g_geom$vp <- grid::viewport()
-    temp <- tempfile(fileext = ".png")
-    temp_files <<- c(temp_files, temp)
     previous_device <- grDevices::dev.cur()
-    ragg::agg_png(temp, width = w, height = h, bg = "transparent",
-                  res = dpi, units = units)
+    capture <- ragg::agg_capture(width = w, height = h, background = "transparent",
+                                  res = dpi, units = units)
     raster_device <- grDevices::dev.cur()
     on.exit({
       if (raster_device %in% grDevices::dev.list()) grDevices::dev.off(raster_device)
       if (previous_device %in% grDevices::dev.list()) grDevices::dev.set(previous_device)
     }, add = TRUE)
     grid::grid.draw(g_geom)
+    pixels <- capture(native = TRUE)
     grDevices::dev.off(raster_device)
-    grid::rasterGrob(png::readPNG(temp, native = TRUE))
+    grid::rasterGrob(pixels)
   }
 
   # Capture contiguous geometry runs without moving them across vector text.
