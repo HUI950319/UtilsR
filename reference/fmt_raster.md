@@ -37,9 +37,12 @@ fmt_raster(
 
 - width, height:
 
-  Panel width and height for `method = "ragg"`. Ignored when
-  `method = "ggrastr"`. If `NULL` (default), the current device size is
-  used.
+  Panel width and height for `method = "ragg"`. Positive finite numeric
+  scalar, or one value per panel in depth-first gtable order
+  (column-major for grid facets). Panels sharing layout cells must have
+  consistent dimensions, and nested plots must fit their layout. Ignored
+  when `method = "ggrastr"`. If `NULL` (default), panel dimensions are
+  resolved from the current device's grid layout.
 
 - units:
 

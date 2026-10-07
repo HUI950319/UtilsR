@@ -90,8 +90,11 @@ per inch. Default 300.</p></dd>
 
 <dt id="arg-width-height">width, height<a class="anchor" aria-label="anchor" href="#arg-width-height"></a></dt>
 <dd><p>Panel width and height for <code>method = "ragg"</code>.
-Ignored when <code>method = "ggrastr"</code>. If <code>NULL</code> (default), the
-current device size is used.</p></dd>
+Positive finite numeric scalar, or one value per panel in depth-first
+gtable order (column-major for grid facets). Panels sharing layout cells
+must have consistent dimensions, and nested plots must fit their layout.
+Ignored when <code>method = "ggrastr"</code>. If <code>NULL</code> (default), panel
+dimensions are resolved from the current device's grid layout.</p></dd>
 
 
 <dt id="arg-units">units<a class="anchor" aria-label="anchor" href="#arg-units"></a></dt>
