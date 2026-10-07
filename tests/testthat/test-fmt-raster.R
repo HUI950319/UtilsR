@@ -25,6 +25,21 @@ test_that("ragg preserves every panel and the labels of nested patchworks", {
   }
 })
 
+test_that("ggrastr rasterizes geometric layers and retains text layers", {
+  skip_if_not_installed("ggrastr")
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  data <- data.frame(x = c(0, 1, 1, 0), y = c(0, 0, 1, 1))
+  geoms <- list(ggplot2::geom_point(), ggplot2::geom_tile(), ggplot2::geom_col(),
+                ggplot2::geom_polygon(), ggplot2::geom_line())
+  for (geom in geoms) {
+    p <- ggplot2::ggplot(data, ggplot2::aes(x, y)) + geom +
+      ggplot2::geom_text(label = "text") + ggplot2::geom_label(label = "label")
+    result <- fmt_raster(p, dpi = 72)
+    expect_length(raster_find_grobs(ggplot2::ggplotGrob(result), "rasteriser"), 1L)
+  }
+})
+
 test_that("ggrastr visits all leaves without changing nested layouts", {
   skip_if_not_installed("ggrastr")
   grDevices::pdf(NULL)

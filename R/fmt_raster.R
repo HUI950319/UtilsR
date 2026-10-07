@@ -21,8 +21,8 @@
 #' Two backends are available:
 #' \describe{
 #'   \item{\code{"ggrastr"}}{Wraps the plot with \code{ggrastr::rasterise()},
-#'     which marks all geom layers for rasterization at render time. Simple and
-#'     fast. Text and theme elements are always preserved as vectors.}
+#'     which marks non-text geom layers for rasterization at render time.
+#'     Text/label layers, custom annotations, and theme elements remain vectors.}
 #'   \item{\code{"ragg"}}{Renders each panel to a temporary PNG via
 #'     \code{ragg::agg_png()}, then reads it back as a \code{rasterGrob}.
 #'     Text/label grobs inside the panel are automatically detected and kept
@@ -142,7 +142,13 @@ fmt_raster <- function(
       cli::cli_warn("Plots with clipping disabled are kept as vectors to preserve geometry outside the panel.")
       return(p)
     }
-    ggrastr::rasterise(p, dpi = dpi, dev = dev)
+    p$layers <- lapply(p$layers, function(layer) {
+      vector_layer <- any(grepl("text|label", class(layer$geom), ignore.case = TRUE)) ||
+        inherits(layer$geom, "GeomCustomAnn")
+      if (vector_layer) return(layer)
+      ggrastr::rasterise(layer, dpi = dpi, dev = dev)
+    })
+    p
   }
 
   info <- .to_plot_list(plot)
