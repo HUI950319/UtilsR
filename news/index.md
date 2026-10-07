@@ -1,5 +1,11 @@
 # Changelog
 
+## UtilsR 0.6.8
+
+- `fmt_raster(method = "ragg")` now preserves all panels, axes and
+  labels in flat and nested patchworks instead of converting only the
+  last plot.
+
 ## UtilsR 0.6.2
 
 - [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)

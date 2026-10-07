@@ -49,6 +49,11 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
+<ul><li>
+<code>fmt_raster(method = "ragg")</code> now preserves all panels, axes and labels in flat and nested patchworks instead of converting only the last plot.</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.2" id="utilsr-062">UtilsR 0.6.2<a class="anchor" aria-label="anchor" href="#utilsr-062"></a></h2>
 <ul><li><p><code><a href="../reference/fmt_tag.html">fmt_tag()</a></code> outside placements (<code>"tl-out"</code>, <code>"tr-out"</code>, <code>"bl-out"</code>, <code>"br-out"</code>) now draw the label in the same box as inside placements, styled by <code>label.size</code>, <code>label.padding</code> and <code>label.r</code>. The label is a full-plot patchwork inset instead of a ggplot2 tag, so a single ggplot comes back as a single-plot patchwork.</p></li>
 <li><p><code>stat_ci_parse(exp = "auto")</code> no longer reads a narrow ratio near 1 as a difference. <code>"0.98 (0.95, 1.01)"</code> gave p = 0 because rounding hid the log shape. Scale detection now allows for the printed digits. An interval that cannot be decided follows the decided intervals in <code>x</code>, and is read as a ratio with a warning otherwise. Intervals that are asymmetric on their scale get a warning; their p-value comes from the half facing the null, and <code>level</code> rescales each half (<code>level = 0.95</code> is now an identity). An estimate outside its bounds, zero width, or a bound &lt;= 0 under <code>exp = TRUE</code> now gives <code>NA</code> with a warning instead of a spurious p-value. Symmetric intervals with an explicit <code>exp</code> give the same results as before.</p></li>
