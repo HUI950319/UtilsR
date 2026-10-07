@@ -33,7 +33,8 @@
 #' @param plot A ggplot, patchwork, or list of ggplot objects.
 #' @param method Rasterization backend: \code{"ggrastr"} (default, simple
 #'   layer-level) or \code{"ragg"} (panel-level, also fixes panel size).
-#' @param dpi Integer. Rasterization resolution. Default 300.
+#' @param dpi Positive finite numeric scalar. Rasterization resolution in dots
+#'   per inch. Default 300.
 #' @param width,height Panel width and height for \code{method = "ragg"}.
 #'   Ignored when \code{method = "ggrastr"}. If \code{NULL} (default), the
 #'   current device size is used.
@@ -94,6 +95,19 @@ fmt_raster <- function(
 ) {
   method <- match.arg(method)
   units  <- match.arg(units)
+  if (!is.numeric(dpi) || length(dpi) != 1L || !is.finite(dpi) || dpi <= 0) {
+    cli::cli_abort("{.arg dpi} must be a positive finite numeric scalar.")
+  }
+
+  if (method == "ragg") {
+    for (arg in c("width", "height")) {
+      value <- if (arg == "width") width else height
+      if (!is.null(value) && (!is.numeric(value) || length(value) == 0L ||
+                              any(!is.finite(value)) || any(value <= 0))) {
+        cli::cli_abort("{.arg {arg}} must contain positive finite numeric values.")
+      }
+    }
+  }
 
   if (method == "ggrastr") {
     return(.fmt_raster_ggrastr(plot, dpi = dpi, dev = dev))
@@ -237,6 +251,10 @@ fmt_raster <- function(
     output <- list(grid::rectGrob(gp = grid::gpar(fill = bg, col = NA)))
   }
   capture_run <- function(indices) {
+    inches <- switch(units, "in" = 1, "cm" = 1 / 2.54, "mm" = 1 / 25.4)
+    if (w * inches * dpi < 1 || h * inches * dpi < 1) {
+      cli::cli_abort("Panel dimensions and {.arg dpi} must produce at least one pixel per dimension.")
+    }
     g_geom <- g
     g_geom$children <- do.call(grid::gList, g$children[indices])
     g_geom$childrenOrder <- names(g_geom$children)

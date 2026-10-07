@@ -25,6 +25,25 @@ test_that("ragg preserves every panel and the labels of nested patchworks", {
   }
 })
 
+test_that("invalid resolutions and panel dimensions fail before the backend", {
+  local_mocked_bindings(
+    .fmt_raster_ragg = function(...) stop("backend was called"),
+    .fmt_raster_ggrastr = function(...) stop("backend was called"),
+    .package = "UtilsR"
+  )
+  for (method in c("ragg", "ggrastr")) {
+    for (value in list(0, -1, NA_real_, Inf, numeric(), c(72, 100), "300")) {
+      expect_error(fmt_raster(NULL, method = method, dpi = value), "dpi.*positive")
+    }
+  }
+  for (argument in c("width", "height")) {
+    for (value in list(0, -1, NA_real_, Inf, numeric(), "2")) {
+      args <- c(list(plot = NULL, method = "ragg"), setNames(list(value), argument))
+      expect_error(do.call(fmt_raster, args), paste0(argument, ".*positive"))
+    }
+  }
+})
+
 test_that("ragg keeps the draw order between text and geometry", {
   skip_if_not_installed("ragg")
   skip_if_not_installed("png")
@@ -53,4 +72,15 @@ test_that("ragg keeps the draw order between text and geometry", {
   expect_equal(black_pixels(files[2]), 0)
   gt <- attr(result, "grobs")$full
   expect_length(raster_find_grobs(gt, "text"), 1L)
+})
+
+test_that("ragg rejects positive panel dimensions smaller than one pixel", {
+  skip_if_not_installed("ragg")
+  skip_if_not_installed("png")
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  p <- ggplot2::ggplot(data.frame(x = 1, y = 1), ggplot2::aes(x, y)) +
+    ggplot2::geom_point()
+  expect_error(fmt_raster(p, method = "ragg", dpi = 72, width = 0.1,
+                          height = 10, units = "mm"), "at least one pixel")
 })

@@ -21,7 +21,8 @@ fmt_raster(
 \item{method}{Rasterization backend: \code{"ggrastr"} (default, simple
 layer-level) or \code{"ragg"} (panel-level, also fixes panel size).}
 
-\item{dpi}{Integer. Rasterization resolution. Default 300.}
+\item{dpi}{Positive finite numeric scalar. Rasterization resolution in dots
+per inch. Default 300.}
 
 \item{width, height}{Panel width and height for \code{method = "ragg"}.
 Ignored when \code{method = "ggrastr"}. If \code{NULL} (default), the
