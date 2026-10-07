@@ -2,6 +2,10 @@
 
 ## UtilsR 0.6.8
 
+- `fmt_raster(method = "ggrastr")` now rasterizes non-text line,
+  polygon, column and other geom layers as well as points and tiles.
+  Text, label and custom annotation layers remain vectors.
+
 - `fmt_raster(method = "ggrastr")` recursively rasterizes every leaf
   plot in nested patchworks while retaining their original layout.
 

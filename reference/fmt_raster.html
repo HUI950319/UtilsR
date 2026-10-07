@@ -123,8 +123,8 @@ preserve geometry drawn outside the panel. They do not receive the file-size
 benefit of rasterization.</p>
 <p>Two backends are available:</p><dl><dt><code>"ggrastr"</code></dt>
 <dd><p>Wraps the plot with <code><a href="https://rdrr.io/pkg/ggrastr/man/rasterise.html" class="external-link">ggrastr::rasterise()</a></code>,
-    which marks all geom layers for rasterization at render time. Simple and
-    fast. Text and theme elements are always preserved as vectors.</p></dd>
+    which marks non-text geom layers for rasterization at render time.
+    Text/label layers, custom annotations, and theme elements remain vectors.</p></dd>
 
   <dt><code>"ragg"</code></dt>
 <dd><p>Renders each panel to a temporary PNG via
