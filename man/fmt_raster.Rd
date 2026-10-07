@@ -48,6 +48,10 @@ Rasterize geometric layers (points, lines, polygons) in ggplot panels to
 reduce PDF/SVG file size, while keeping text, axes, and legends as vectors.
 }
 \details{
+Panels with clipping disabled are kept as vectors, with a warning, to
+preserve geometry drawn outside the panel. They do not receive the file-size
+benefit of rasterization.
+
 Two backends are available:
 \describe{
   \item{\code{"ggrastr"}}{Wraps the plot with \code{ggrastr::rasterise()},

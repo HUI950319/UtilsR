@@ -25,6 +25,38 @@ test_that("ragg preserves every panel and the labels of nested patchworks", {
   }
 })
 
+test_that("unclipped panels retain geometry outside the panel", {
+  skip_if_not_installed("ragg")
+  skip_if_not_installed("ggrastr")
+  skip_if_not_installed("png")
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  files <- replicate(3, tempfile(fileext = ".png"))
+  on.exit(unlink(files), add = TRUE)
+  p <- ggplot2::ggplot(data.frame(x = 1.08, y = 0.5), ggplot2::aes(x, y)) +
+    ggplot2::geom_point(size = 14, colour = "red") +
+    ggplot2::coord_cartesian(xlim = c(0, 1), ylim = c(0, 1),
+                             expand = FALSE, clip = "off") +
+    ggplot2::theme_void() +
+    ggplot2::theme(plot.margin = ggplot2::margin(0, 50, 0, 50))
+  expect_warning(a <- fmt_raster(p, method = "ggrastr", dpi = 100), "clipping.*vectors")
+  expect_warning(b <- fmt_raster(p, method = "ragg", dpi = 100,
+                                 width = 2, height = 2), "clipping.*vectors")
+  plots <- list(p, a, b)
+  for (i in seq_along(plots)) {
+    ragg::agg_png(files[i], width = 4, height = 3, units = "in", res = 100)
+    print(plots[[i]])
+    grDevices::dev.off()
+  }
+  red_pixels <- vapply(files, function(file) {
+    image <- png::readPNG(file)
+    sum(image[, , 1] > 0.7 & image[, , 2] < 0.4 & image[, , 3] < 0.4)
+  }, numeric(1), USE.NAMES = FALSE)
+  expect_gt(red_pixels[1], 1000)
+  expect_equal(red_pixels[2], red_pixels[1])
+  expect_gt(red_pixels[3], red_pixels[1] * 0.9)
+})
+
 test_that("ragg restores graphics devices after success and draw errors", {
   skip_if_not_installed("ragg")
   skip_if_not_installed("png")

@@ -51,6 +51,10 @@
 #'   a \code{size} attribute (list of width, height, units).
 #'
 #' @details
+#' Panels with clipping disabled are kept as vectors, with a warning, to
+#' preserve geometry drawn outside the panel. They do not receive the file-size
+#' benefit of rasterization.
+#'
 #' \subsection{How \code{"ragg"} preserves text}{
 #' The function inspects each grob child inside a panel. Children whose name
 #' or class matches \code{text}, \code{label}, \code{segments}, or
@@ -130,6 +134,10 @@ fmt_raster <- function(
   }
 
   raster_one <- function(p) {
+    if (identical(p$coordinates$clip, "off")) {
+      cli::cli_warn("Plots with clipping disabled are kept as vectors to preserve geometry outside the panel.")
+      return(p)
+    }
     ggrastr::rasterise(p, dpi = dpi, dev = dev)
   }
 
@@ -177,6 +185,7 @@ fmt_raster <- function(
   }
 
   panels_found <- 0L
+  unclipped_panels <- FALSE
   raster_table <- function(gtable) {
     # Nested patchworks contain complete gtables; keep their axes and labels.
     nested <- which(vapply(gtable$grobs, inherits, logical(1), "gtable"))
@@ -198,14 +207,27 @@ fmt_raster <- function(
                                                length(col_range)), units)
       gtable$heights[row_range] <- grid::unit(rep(panel_h[i] / length(row_range),
                                                 length(row_range)), units)
-      gtable$grobs[[idx]] <- .rasterize_panel_grob(
-        gtable$grobs[[idx]], w = panel_w[i], h = panel_h[i], dpi = dpi,
-        units = units, bg = bg
-      )
+      panel <- gtable$grobs[[idx]]
+      clip_on <- if (inherits(panel$vp, "viewport")) {
+        isTRUE(panel$vp$clip)
+      } else {
+        identical(gtable$layout$clip[idx], "on")
+      }
+      if (clip_on) {
+        gtable$grobs[[idx]] <- .rasterize_panel_grob(
+          panel, w = panel_w[i], h = panel_h[i], dpi = dpi,
+          units = units, bg = bg
+        )
+      } else {
+        unclipped_panels <<- TRUE
+      }
     }
     gtable
   }
   gtable <- raster_table(gtable)
+  if (unclipped_panels) {
+    cli::cli_warn("Panels with clipping disabled are kept as vectors to preserve geometry outside the panel.")
+  }
   if (panels_found == 0) {
     cli::cli_warn("No panels detected. Returning plot as-is.")
     return(plot)

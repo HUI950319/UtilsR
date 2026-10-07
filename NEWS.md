@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_raster()` preserves unclipped geometry outside panels by retaining
+  these panels as vectors and reporting the rasterization fallback.
+
 * `fmt_raster(method = "ragg")` restores the active graphics device and
   closes its own devices after both successful rendering and draw errors.
   Headless conversion uses a temporary in-memory PDF device for measurement.
