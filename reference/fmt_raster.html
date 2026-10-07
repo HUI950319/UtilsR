@@ -139,10 +139,12 @@ benefit of rasterization.</p>
 
 </dl><div class="section">
 <h3 id="how-ragg-preserves-text">How <code>"ragg"</code> preserves text<a class="anchor" aria-label="anchor" href="#how-ragg-preserves-text"></a></h3>
-<p>The function inspects each grob child inside a panel. Children whose name
-or class matches <code>text</code>, <code>label</code>, <code>segments</code>, or
-<code>legend</code> are kept as vector grobs. All other children (points, lines,
-polygons, raster, etc.) are rendered in contiguous runs and read back as
+<p>The function inspects each grob child inside a panel. Children whose own
+name or class identifies text/labels, or whose descendants contain text,
+are kept as vectors. Mixed text/geometry trees are retained together to
+preserve their internal layout. A viewport alone does not prevent
+rasterization. Other children (points, lines, polygons, raster, etc.) are
+rendered in contiguous runs and read back as
 <code>rasterGrob</code> objects. Vector text and rasterized geometry retain their
 original draw order, including text covered by a later geometric layer.</p>
 </div>
