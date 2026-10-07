@@ -8,7 +8,7 @@
 #         |   method = "ggrastr" (default) | "ragg"
 #         +-- L2  .fmt_raster_ggrastr()   re-wrap layers through ggrastr
 #         +-- L2  .fmt_raster_ragg()      render panel grobs through ragg
-#               +-- L3  .resolve_panel_size()     panel size in inches
+#               +-- L3  .resolve_panel_size()     physical panel dimensions
 #               +-- L3  .rasterize_panel_grob()   grob -> raster grob
 #                     +-- L4  .is_text_grob()     keep text grobs vector
 # =============================================================================
@@ -30,7 +30,7 @@
 #'     grid layout when dimensions are \code{NULL}, then fixes the panel size.}
 #' }
 #'
-#' @param plot A ggplot, patchwork, or list of ggplot objects.
+#' @param plot A ggplot, patchwork, or list containing either type.
 #' @param method Rasterization backend: \code{"ggrastr"} (default, simple
 #'   layer-level) or \code{"ragg"} (panel-level, also fixes panel size).
 #' @param dpi Positive finite numeric scalar. Rasterization resolution in dots
@@ -40,20 +40,30 @@
 #'   gtable order (column-major for grid facets). Panels sharing layout cells
 #'   must have consistent dimensions, and nested plots must fit their layout.
 #'   Ignored when \code{method = "ggrastr"}. If \code{NULL} (default), panel
-#'   dimensions are resolved from the current device's grid layout.
+#'   dimensions are resolved from the current device's grid layout. With no
+#'   open device, the width and height from \code{grDevices::pdf.options()}
+#'   are used as the available plot size.
 #' @param units Units for \code{width}/\code{height}: \code{"in"} (default),
 #'   \code{"cm"}, or \code{"mm"}.
 #' @param dev Character. Graphics device for \code{ggrastr::rasterise()}.
 #'   Default \code{"ragg"} (high-quality anti-aliasing). Only used when
 #'   \code{method = "ggrastr"}.
 #' @param bg Character. Background colour for panel rendering.
-#'   Default \code{"transparent"}.
+#'   Default \code{"transparent"}. Only used when \code{method = "ragg"}.
 #'
-#' @return Same type as input: a ggplot, patchwork, or list of ggplot objects.
-#'   When \code{method = "ragg"}, returns a patchwork-wrapped gtable with
-#'   a \code{size} attribute (list of width, height, units).
+#' @return The \code{"ggrastr"} backend preserves the input type. The
+#'   \code{"ragg"} backend returns a patchwork-wrapped gtable with a
+#'   \code{size} attribute: a list with \code{width}, \code{height}, and
+#'   \code{units} describing the complete fixed plot dimensions. For list
+#'   inputs, returns a corresponding list and preserves its names.
 #'
 #' @details
+#' The \code{"ragg"} backend renders geometry immediately. Apply data,
+#' scale, theme, and layer changes before calling this function. For export,
+#' use the dimensions in the returned \code{size} attribute to retain the
+#' fixed layout. The \code{"ggrastr"} backend rasterizes when the plot is
+#' drawn and continues to use the output device's layout.
+#'
 #' Panels with clipping disabled are kept as vectors, with a warning, to
 #' preserve geometry drawn outside the panel. They do not receive the file-size
 #' benefit of rasterization.
@@ -64,12 +74,15 @@
 #' are kept as vectors. Mixed text/geometry trees are retained together to
 #' preserve their internal layout. A viewport alone does not prevent
 #' rasterization. Other children (points, lines, polygons, raster, etc.) are
-#' rendered in contiguous runs and read back as
+#' captured in contiguous runs and inserted as
 #' \code{rasterGrob} objects. Vector text and rasterized geometry retain their
 #' original draw order, including text covered by a later geometric layer.
 #' }
 #'
-#' @examples
+#' @seealso [grob_as()], [ggrastr::rasterise()]
+#'
+#' @md
+#' @examplesIf requireNamespace("ggrastr", quietly = TRUE) && requireNamespace("ragg", quietly = TRUE)
 #' library(ggplot2)
 #'
 #' set.seed(42)
@@ -77,17 +90,19 @@
 #' p <- ggplot(df, aes(x, y)) + geom_point(alpha = 0.3) + ggtitle("Demo")
 #'
 #' # ggrastr backend (simple)
-#' fmt_raster(p)
-#' fmt_raster(p, dpi = 150)
+#' p_ggrastr <- fmt_raster(p, dpi = 150)
+#' p_ggrastr
 #'
 #' # ragg backend (panel-level, also fixes panel size)
-#' fmt_raster(p, method = "ragg", width = 4, height = 4)
+#' p_ragg <- fmt_raster(p, method = "ragg", width = 4, height = 3)
+#' p_ragg
 #'
 #' \donttest{
 #' # Works with patchwork
 #' library(patchwork)
-#' p2 <- ggplot(df, aes(x)) + geom_histogram()
-#' fmt_raster(p | p2, method = "ggrastr", dpi = 300)
+#' p2 <- ggplot(df, aes(x)) + geom_histogram(bins = 30)
+#' p_nested <- fmt_raster((p | p2) / p, method = "ragg", dpi = 150)
+#' p_nested
 #' }
 #'
 #' @export
@@ -186,7 +201,7 @@ fmt_raster <- function(
   } else {
     grDevices::dev.size("in")
   }
-  # Measure on a private device to preserve the caller's viewport and fonts.
+  # Measure on a private device to preserve the caller's viewport.
   ragg::agg_capture(width = ceiling(device_size[1] * 72),
                      height = ceiling(device_size[2] * 72), units = "px",
                      res = 72, background = "transparent")

@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_raster()` help now distinguishes deferred layer rasterization from
+  immediate fixed-layout capture, documents complete output sizes and list
+  returns, and guards examples with their optional dependencies.
+
 * `fmt_raster(method = "ragg")` sets child names when rebuilding panels so
   captured geometry and retained text are actually drawn in the returned plot.
 

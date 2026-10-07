@@ -16,7 +16,7 @@ fmt_raster(
 )
 }
 \arguments{
-\item{plot}{A ggplot, patchwork, or list of ggplot objects.}
+\item{plot}{A ggplot, patchwork, or list containing either type.}
 
 \item{method}{Rasterization backend: \code{"ggrastr"} (default, simple
 layer-level) or \code{"ragg"} (panel-level, also fixes panel size).}
@@ -29,7 +29,9 @@ Positive finite numeric scalar, or one value per panel in depth-first
 gtable order (column-major for grid facets). Panels sharing layout cells
 must have consistent dimensions, and nested plots must fit their layout.
 Ignored when \code{method = "ggrastr"}. If \code{NULL} (default), panel
-dimensions are resolved from the current device's grid layout.}
+dimensions are resolved from the current device's grid layout. With no
+open device, the width and height from \code{grDevices::pdf.options()}
+are used as the available plot size.}
 
 \item{units}{Units for \code{width}/\code{height}: \code{"in"} (default),
 \code{"cm"}, or \code{"mm"}.}
@@ -39,34 +41,41 @@ Default \code{"ragg"} (high-quality anti-aliasing). Only used when
 \code{method = "ggrastr"}.}
 
 \item{bg}{Character. Background colour for panel rendering.
-Default \code{"transparent"}.}
+Default \code{"transparent"}. Only used when \code{method = "ragg"}.}
 }
 \value{
-Same type as input: a ggplot, patchwork, or list of ggplot objects.
-  When \code{method = "ragg"}, returns a patchwork-wrapped gtable with
-  a \code{size} attribute (list of width, height, units).
+The \code{"ggrastr"} backend preserves the input type. The
+\code{"ragg"} backend returns a patchwork-wrapped gtable with a
+\code{size} attribute: a list with \code{width}, \code{height}, and
+\code{units} describing the complete fixed plot dimensions. For list
+inputs, returns a corresponding list and preserves its names.
 }
 \description{
 Rasterize geometric layers (points, lines, polygons) in ggplot panels to
 reduce PDF/SVG file size, while keeping text, axes, and legends as vectors.
 }
 \details{
+Two backends are available:
+\describe{
+\item{\code{"ggrastr"}}{Wraps the plot with \code{ggrastr::rasterise()},
+which marks non-text geom layers for rasterization at render time.
+Text/label layers, custom annotations, and theme elements remain vectors.}
+\item{\code{"ragg"}}{Captures panel geometry in memory via
+\code{ragg::agg_capture()} and inserts it as a \code{rasterGrob}.
+Text/label grobs inside the panel are automatically detected and kept
+as vectors. Uses the specified panel dimensions or the current device's
+grid layout when dimensions are \code{NULL}, then fixes the panel size.}
+}
+
+The \code{"ragg"} backend renders geometry immediately. Apply data,
+scale, theme, and layer changes before calling this function. For export,
+use the dimensions in the returned \code{size} attribute to retain the
+fixed layout. The \code{"ggrastr"} backend rasterizes when the plot is
+drawn and continues to use the output device's layout.
+
 Panels with clipping disabled are kept as vectors, with a warning, to
 preserve geometry drawn outside the panel. They do not receive the file-size
 benefit of rasterization.
-
-Two backends are available:
-\describe{
-  \item{\code{"ggrastr"}}{Wraps the plot with \code{ggrastr::rasterise()},
-    which marks non-text geom layers for rasterization at render time.
-    Text/label layers, custom annotations, and theme elements remain vectors.}
-  \item{\code{"ragg"}}{Captures panel geometry in memory via
-    \code{ragg::agg_capture()} and inserts it as a \code{rasterGrob}.
-    Text/label grobs inside the panel are automatically detected and kept
-    as vectors. Uses the specified panel dimensions or the current device's
-    grid layout when dimensions are \code{NULL}, then fixes the panel size.}
-}
-
 
 \subsection{How \code{"ragg"} preserves text}{
 The function inspects each grob child inside a panel. Children whose own
@@ -74,12 +83,13 @@ name or class identifies text/labels, or whose descendants contain text,
 are kept as vectors. Mixed text/geometry trees are retained together to
 preserve their internal layout. A viewport alone does not prevent
 rasterization. Other children (points, lines, polygons, raster, etc.) are
-rendered in contiguous runs and read back as
+captured in contiguous runs and inserted as
 \code{rasterGrob} objects. Vector text and rasterized geometry retain their
 original draw order, including text covered by a later geometric layer.
 }
 }
 \examples{
+\dontshow{if (requireNamespace("ggrastr", quietly = TRUE) && requireNamespace("ragg", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 library(ggplot2)
 
 set.seed(42)
@@ -87,21 +97,25 @@ df <- data.frame(x = rnorm(5000), y = rnorm(5000))
 p <- ggplot(df, aes(x, y)) + geom_point(alpha = 0.3) + ggtitle("Demo")
 
 # ggrastr backend (simple)
-fmt_raster(p)
-fmt_raster(p, dpi = 150)
+p_ggrastr <- fmt_raster(p, dpi = 150)
+p_ggrastr
 
 # ragg backend (panel-level, also fixes panel size)
-fmt_raster(p, method = "ragg", width = 4, height = 4)
+p_ragg <- fmt_raster(p, method = "ragg", width = 4, height = 3)
+p_ragg
 
 \donttest{
 # Works with patchwork
 library(patchwork)
-p2 <- ggplot(df, aes(x)) + geom_histogram()
-fmt_raster(p | p2, method = "ggrastr", dpi = 300)
+p2 <- ggplot(df, aes(x)) + geom_histogram(bins = 30)
+p_nested <- fmt_raster((p | p2) / p, method = "ragg", dpi = 150)
+p_nested
 }
-
+\dontshow{\}) # examplesIf}
 }
 \seealso{
+\code{\link[=grob_as]{grob_as()}}, \code{\link[ggrastr:rasterise]{ggrastr::rasterise()}}
+
 Other plot formatting:
 \code{\link[=fmt_axis]{fmt_axis()}},
 \code{\link[=fmt_axisText]{fmt_axisText()}},
