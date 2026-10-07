@@ -87,9 +87,9 @@ Two backends are available:
 The function inspects each grob child inside a panel. Children whose
 name or class matches `text`, `label`, `segments`, or `legend` are kept
 as vector grobs. All other children (points, lines, polygons, raster,
-etc.) are rendered into a single PNG and read back as a `rasterGrob`.
-The two sets are then recombined, so the final output has crisp vector
-text on top of a rasterized geometric layer.
+etc.) are rendered in contiguous runs and read back as `rasterGrob`
+objects. Vector text and rasterized geometry retain their original draw
+order, including text covered by a later geometric layer.
 
 ## See also
 
