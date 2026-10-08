@@ -923,6 +923,9 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
     .from_plot_list(restored, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
   }
   n <- length(plots)
+  hidden_elements <- c("strip.text.x.top", "strip.text.x.bottom",
+                       "strip.text.y.left", "strip.text.y.right",
+                       "strip.background.x", "strip.background.y")
 
   if (!strip) {
     # Single-panel facets (e.g. an earlier fmt_strip()) are dropped. Multi-panel
@@ -933,11 +936,18 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
     # re-reads a parent by name, so never reassign `facet` or `old_strip`.
     plots <- lapply(plots, function(p) {
       if (inherits(p$facet, "FacetNull")) return(p)
+      if (!is.null(p$facet$.fmt_strip_hidden)) return(p)
       built <- suppressWarnings(suppressMessages(ggplot2::ggplot_build(p)))
       if (nrow(built$layout$layout) == 1L) return(p + ggplot2::facet_null())
 
       facet <- p$facet
       old_strip <- facet$strip
+      hidden <- list(
+        theme = stats::setNames(lapply(hidden_elements, function(nm) p$theme[[nm]]),
+                                hidden_elements),
+        strip = old_strip
+      )
+      new_strip <- old_strip
       if (!is.null(old_strip$given_elements)) {
         given <- old_strip$given_elements
         given[c("text_x", "text_y", "background_x", "background_y")] <- list(NULL)
@@ -951,8 +961,9 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
             )
           }
         )
-        p <- p + ggplot2::ggproto(NULL, facet, strip = new_strip)
       }
+      p <- p + ggplot2::ggproto(NULL, facet, strip = new_strip,
+                                .fmt_strip_hidden = hidden)
       blank <- ggplot2::element_blank()
       p + ggplot2::theme(
         strip.text.x.top = blank, strip.text.x.bottom = blank,
@@ -1002,6 +1013,18 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
   }
 
   for (i in seq_len(n)) {
+    hidden <- plots[[i]]$facet$.fmt_strip_hidden
+    if (!is.null(hidden)) {
+      for (nm in names(hidden$theme)) {
+        if (inherits(plots[[i]]$theme[[nm]], "element_blank")) {
+          plots[[i]]$theme[[nm]] <- hidden$theme[[nm]]
+        }
+      }
+      plots[[i]] <- plots[[i]] + local({
+        facet <- plots[[i]]$facet
+        ggplot2::ggproto(NULL, facet, strip = hidden$strip, .fmt_strip_hidden = NULL)
+      })
+    }
     cur_strip <- create_strip(
       lc = if (!is.null(label_color)) label_color[i] else NULL,
       lf = if (!is.null(label_fill))  label_fill[i]  else NULL
@@ -1041,22 +1064,45 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
 
       # Apply strip style via theme
       strip_theme <- list()
-      if (!is.null(label_fill)) {
-        # For single plot with multiple facets, use first fill for all
-        fill_val <- if (n == 1) label_fill[1] else label_fill[i]
-        strip_theme$strip.background <- ggplot2::element_rect(
-          fill = fill_val, colour = "black"
-        )
+      lc_val <- if (is.null(label_color)) NULL else label_color[i]
+      text_element <- centered_strip_text(lc_val, face = if (is.null(lc_val)) NULL else "bold")
+      for (nm in c("strip.text", "strip.text.x", "strip.text.y", hidden_elements[1:4])) {
+        strip_theme[[nm]] <- text_element
       }
-      lc_val <- if (n == 1) label_color[1] else label_color[i]
-      strip_theme$strip.text <- ggplot2::element_text(
-        colour = if (!is.null(lc_val)) lc_val else "black",
-        face = "bold",
-        hjust = 0.5,
-        vjust = 0.5,
-        margin = ggplot2::margin(t = 3, b = 3, unit = "pt")
-      )
+      if (!is.null(label_fill)) {
+        background_element <- ggplot2::element_rect(fill = label_fill[i], colour = "black")
+        for (nm in c("strip.background", "strip.background.x", "strip.background.y")) {
+          strip_theme[[nm]] <- background_element
+        }
+      }
       plots[[i]] <- plots[[i]] + do.call(ggplot2::theme, strip_theme)
+
+      # ggh4x elements override the theme; merge only the requested properties.
+      if (!is.null(plots[[i]]$facet$strip$given_elements)) {
+        plots[[i]] <- plots[[i]] + local({
+          facet <- plots[[i]]$facet
+          old_strip <- facet$strip
+          given <- old_strip$given_elements
+          for (nm in c("text_x", "text_y")) {
+            if (!is.null(given[[nm]])) {
+              given[[nm]] <- lapply(given[[nm]], function(el) {
+                ggplot2::merge_element(text_element, el)
+              })
+            }
+          }
+          if (!is.null(label_fill)) {
+            for (nm in c("background_x", "background_y")) {
+              if (!is.null(given[[nm]])) {
+                given[[nm]] <- lapply(given[[nm]], function(el) {
+                  ggplot2::merge_element(background_element, el)
+                })
+              }
+            }
+          }
+          ggplot2::ggproto(NULL, facet,
+                           strip = ggplot2::ggproto(NULL, old_strip, given_elements = given))
+        })
+      }
 
     } else {
       # A constant facet expression leaves plot/layer data and mappings intact.

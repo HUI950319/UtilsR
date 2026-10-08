@@ -1,9 +1,9 @@
-.fmt_strip_text <- function(plot) {
+.fmt_strip_text <- function(plot, type = "text") {
   grDevices::pdf(NULL)
   on.exit(grDevices::dev.off(), add = TRUE)
   gt <- ggplot2::ggplotGrob(plot)
   text_nodes <- function(g) {
-    if (inherits(g, "text")) return(list(g))
+    if (inherits(g, type)) return(list(g))
     children <- if (inherits(g, "gtable")) g$grobs else as.list(g$children)
     unlist(lapply(children, text_nodes), recursive = FALSE)
   }
@@ -125,6 +125,47 @@ test_that("fmt_strip labels nested patchworks without counting placeholders", {
   expect_identical(names(out), c("group", "last"))
   expect_identical(c(labels(out$group[[1]][[1]]), labels(out$group[[1]][[2]]),
                      labels(out$group[[2]]), labels(out$last)), paste0("Figure", 1:4))
+})
+
+test_that("fmt_strip restores hidden strips and respects explicit style controls", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) + ggplot2::geom_point() +
+    ggplot2::theme(strip.text = ggplot2::element_text(colour = "red", face = "italic"))
+  colour <- function(p) vapply(.fmt_strip_text(p), function(x) x$gp$col, character(1))
+  wrapped <- p + ggplot2::facet_wrap(ggplot2::vars(cyl))
+  expect_identical(colour(fmt_strip(p, "X", label_color = NULL)), "red")
+  expect_identical(colour(fmt_strip(wrapped, "X", label_color = NULL)), rep("red", 3))
+
+  specific <- wrapped + ggplot2::theme(
+    strip.text.x.top = ggplot2::element_text(colour = "red", size = 17, angle = 15)
+  )
+  texts <- .fmt_strip_text(fmt_strip(specific, "X", label_color = "blue"))
+  expect_identical(vapply(texts, function(x) x$gp$col, character(1)), rep("blue", 3))
+  expect_equal(vapply(texts, function(x) x$gp$fontsize, numeric(1)), rep(17, 3))
+  expect_equal(vapply(texts, function(x) x$rot, numeric(1)), rep(15, 3))
+
+  themed <- p + ggh4x::facet_wrap2(
+    ggplot2::vars(cyl),
+    strip = ggh4x::strip_themed(
+      text_x = ggh4x::elem_list_text(colour = "purple", size = 17),
+      background_x = ggh4x::elem_list_rect(fill = "pink")
+    )
+  )
+  expect_identical(colour(fmt_strip(themed, "X", label_color = "blue")), rep("blue", 3))
+  filled <- fmt_strip(themed, "X", label_fill = "cyan")
+  expect_identical(vapply(.fmt_strip_text(filled, "rect"), function(x) x$gp$fill,
+                          character(1)), rep("cyan", 3))
+  for (faceted in list(specific, themed)) {
+    hidden <- fmt_strip(faceted, strip = FALSE)
+    expect_length(.fmt_strip_text(hidden), 0L)
+    expect_true(identical(fmt_strip(hidden, strip = FALSE), hidden))
+    shown <- fmt_strip(hidden + ggplot2::labs(title = "Keep"), "Back", label_color = NULL)
+    expect_identical(colour(shown), colour(faceted))
+    expect_identical(vapply(.fmt_strip_text(shown), `[[`, character(1), "label"), rep("Back", 3))
+    expect_identical(shown$labels$title, "Keep")
+    expect_equal(ggplot2::ggplot_build(shown)$layout$layout,
+                 ggplot2::ggplot_build(faceted)$layout$layout)
+    expect_length(.fmt_strip_text(faceted), 3L)
+  }
 })
 
 test_that("fmt_strip preserves facet structure and computed statistics", {
