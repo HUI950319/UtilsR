@@ -77,6 +77,8 @@ Same type as input. With an `-out` keyword each ggplot carries
 Add boxed labels to data plots using [ggpp::geom_label_npc()] inside panels
 or [patchwork::inset_element()] at the corners of whole plots. Nested plots
 are labelled in leaf order; spacers, guide areas and insets are skipped.
+Fixed graphics created by [patchwork::wrap_elements()] are skipped with a
+warning, without consuming labels.
 }
 \details{
 Repeated calls replace only labels created by `fmt_tag()`, preserving

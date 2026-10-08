@@ -31,7 +31,7 @@
     attr(plot, "patchwork_free_settings") <- NULL
     class(plot) <- setdiff(class(plot), "free_plot")
   }
-  if (inherits(plot, c("spacer", "guide_area", "inset_patch"))) return(plot)
+  if (inherits(plot, c("spacer", "guide_area", "inset_patch", "wrapped_patch"))) return(plot)
   if (is.list(plot) && !inherits(plot, "gg")) {
     return(lapply(plot, .map_plot_leaves, fun = fun))
   }

@@ -341,3 +341,19 @@ test_that("retagging preserves freed patchwork alignment and rendered panel widt
     expect_equal(sum(texts %in% c("A", "B")), 2L)
   }
 })
+
+test_that("fixed wrapped graphics are skipped with a warning and continuous numbering", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, disp)) + ggplot2::geom_point()
+  fixed <- patchwork::wrap_elements(full = p)
+  input <- fixed | p
+  for (pos in c("tl", "tl-out")) {
+    expect_warning(res <- fmt_tag(input, label_position = pos), "Wrapped plots are skipped")
+    texts <- unlist(lapply(find_grobs(patchwork::patchworkGrob(res), "text"),
+                           function(g) as.character(g$label)))
+    expect_equal(sum(texts == "A"), 1L)
+    expect_equal(sum(texts == "B"), 0L)
+    expect_true(identical(res[[1]], input[[1]]))
+    expect_warning(empty <- fmt_tag(fixed, label_position = pos), "Wrapped plots are skipped")
+    expect_identical(empty, fixed)
+  }
+})

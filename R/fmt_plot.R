@@ -181,6 +181,8 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
 #' Add boxed labels to data plots using [ggpp::geom_label_npc()] inside panels
 #' or [patchwork::inset_element()] at the corners of whole plots. Nested plots
 #' are labelled in leaf order; spacers, guide areas and insets are skipped.
+#' Fixed graphics created by [patchwork::wrap_elements()] are skipped with a
+#' warning, without consuming labels.
 #'
 #' @param plot A ggplot, patchwork, or list of these objects.
 #' @param labels Non-empty character vector without missing or blank labels.
@@ -274,6 +276,7 @@ fmt_tag <- function(plot,
                     label.padding = grid::unit(c(0.2, 0.3, 0.2, 0.3), "lines"),
                     label.r = grid::unit(0.2, "lines"),
                     ...) {
+  wrapped <- FALSE
   clear_tags <- function(p) {
     if (inherits(p, "patchwork")) {
       free_settings <- attr(p, "patchwork_free_settings")
@@ -305,6 +308,7 @@ fmt_tag <- function(plot,
     }
     if (inherits(p, "gg")) {
       if (inherits(p, c("spacer", "guide_area", "inset_patch"))) return(p)
+      if (inherits(p, "wrapped_patch")) wrapped <<- TRUE
       p$layers <- Filter(function(layer) !isTRUE(attr(layer, ".fmt_tag_generated")),
                           p$layers)
       return(p)
@@ -313,6 +317,7 @@ fmt_tag <- function(plot,
     p
   }
   plot <- clear_tags(plot)
+  if (wrapped) cli::cli_warn("Wrapped plots are skipped; only editable data plots receive tags.")
   info <- .to_plot_list(plot)
   map_leaves <- .map_plot_leaves
   plots <- list()
