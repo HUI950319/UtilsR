@@ -70,6 +70,12 @@
   backgrounds.
 
 - [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
+  excludes insets from grid dimensions and header positions, preserving
+  user insets and outside
+  [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
+  labels in nested containers.
+
+- [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
   retains native single-panel facets’ shrink setting, preserving
   raw-data scale ranges when their headers are replaced.
 

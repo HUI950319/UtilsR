@@ -28,8 +28,9 @@ fmt_strip2(
   A ggplot, patchwork, or list of ggplot panels filling an `nrow x ncol`
   grid. Row-wise and column-wise filling are supported; aligned nested
   rectangular grids retain their layout and annotations. Spacers and
-  guide areas are skipped while retaining their positions. Custom
-  `design` and non-aligned nested layouts are rejected.
+  guide areas are skipped while retaining their positions. Insets retain
+  their placement without consuming grid cells. Custom `design` and
+  non-aligned nested layouts are rejected.
 
 - top_label:
 
