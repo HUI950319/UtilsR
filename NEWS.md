@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_strip2()` treats `NA` strip colours as transparent, generates palettes
+  only for displayed header directions, and reuses identical palettes within
+  a call. Calls without labels skip layout and palette work when hiding strips.
+
 * `fmt_strip2()` validates positive integer grid dimensions, non-empty character
   labels, R colour specifications and one/two palette names before rendering,
   reporting the responsible argument instead of low-level graphics errors.

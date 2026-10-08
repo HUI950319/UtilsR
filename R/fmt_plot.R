@@ -1211,7 +1211,7 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
 #' @param top_fill,right_fill Background fill colour(s) for the top / right
 #'   strips (recycled to `ncol` / `nrow`). `NULL` = light grey when
 #'   `top_right_fill = NULL`. Accepts R colour names, hexadecimal colours,
-#'   numeric palette indices and `NA`.
+#'   numeric palette indices and `NA`; `NA` gives a transparent fill.
 #' @param label_color Strip text colour. Default `"black"`. Accepts the same
 #'   R colour specifications as `top_fill`; `NULL` inherits the text colour.
 #' @param top_right_fill Character vector of one or two `colorspace` sequential
@@ -1219,7 +1219,7 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
 #'   palette is used for top strips and the second for right strips; a single
 #'   palette is reused for both directions. Defaults to
 #'   `c("Grays", "Greens")`. Explicit `top_fill` and `right_fill` values take
-#'   precedence.
+#'   precedence. Palette lookup is skipped for unused header directions.
 #'
 #' @return Same type as input (patchwork in, patchwork out).
 #'
@@ -1309,6 +1309,7 @@ fmt_strip2 <- function(plot,
       cli::cli_abort("{.arg {arg}} must be NULL or a non-empty character vector without missing values.")
     }
   }
+  if (is.null(top_label) && is.null(right_label)) return(fmt_strip(plot, strip = FALSE))
   colours <- list(
     top_fill = if (!is.null(top_label)) top_fill,
     right_fill = if (!is.null(right_label)) right_fill,
@@ -1322,10 +1323,23 @@ fmt_strip2 <- function(plot,
         (is.numeric(value) && any(!is.finite(value) & !is.na(value)))) {
       cli::cli_abort("{.arg {arg}} must be NULL or a non-empty vector of valid R colours.")
     }
-    tryCatch(grDevices::col2rgb(value, alpha = TRUE), error = function(e) {
+    rgba <- tryCatch(grDevices::col2rgb(value, alpha = TRUE), error = function(e) {
       cli::cli_abort("{.arg {arg}} must contain valid R colours.", parent = e)
     })
+    if (anyNA(value)) {
+      missing <- is.na(value)
+      value <- if (is.numeric(value)) {
+        grDevices::rgb(rgba[1, ], rgba[2, ], rgba[3, ], rgba[4, ], maxColorValue = 255)
+      } else {
+        as.character(value)
+      }
+      value[missing] <- "transparent"
+      colours[[arg]] <- value
+    }
   }
+  if (!is.null(top_label)) top_fill <- colours$top_fill
+  if (!is.null(right_label)) right_fill <- colours$right_fill
+  label_color <- colours$label_color
   info  <- .to_plot_list(plot)
 
   protect_facet <- function(original, replacement) {
@@ -1446,11 +1460,17 @@ fmt_strip2 <- function(plot,
       rev(grDevices::colorRampPalette(ramp[start_idx:80])(n))
     }
 
-    if (is.null(top_fill)) {
+    generate_top <- !is.null(top_label) && any(grid_rows == 1L) && is.null(top_fill)
+    generate_right <- !is.null(right_label) && is.null(right_fill)
+    if (generate_top) {
       top_fill <- make_hcl_fill(top_right_fill[1], ncol)
     }
-    if (is.null(right_fill)) {
-      right_fill <- make_hcl_fill(top_right_fill[2], nrow)
+    if (generate_right) {
+      right_fill <- if (generate_top && top_right_fill[1] == top_right_fill[2] && ncol == nrow) {
+        top_fill
+      } else {
+        make_hcl_fill(top_right_fill[2], nrow)
+      }
     }
   }
 

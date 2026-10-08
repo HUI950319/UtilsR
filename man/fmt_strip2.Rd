@@ -39,7 +39,7 @@ dimensions. An explicit value must agree with an existing patchwork layout.}
 \item{top_fill, right_fill}{Background fill colour(s) for the top / right
 strips (recycled to `ncol` / `nrow`). `NULL` = light grey when
 `top_right_fill = NULL`. Accepts R colour names, hexadecimal colours,
-numeric palette indices and `NA`.}
+numeric palette indices and `NA`; `NA` gives a transparent fill.}
 
 \item{label_color}{Strip text colour. Default `"black"`. Accepts the same
 R colour specifications as `top_fill`; `NULL` inherits the text colour.}
@@ -49,7 +49,7 @@ HCL palette names used to generate the top and right fills. The first
 palette is used for top strips and the second for right strips; a single
 palette is reused for both directions. Defaults to
 `c("Grays", "Greens")`. Explicit `top_fill` and `right_fill` values take
-precedence.}
+precedence. Palette lookup is skipped for unused header directions.}
 }
 \value{
 Same type as input (patchwork in, patchwork out).

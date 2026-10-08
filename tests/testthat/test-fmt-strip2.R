@@ -510,6 +510,44 @@ test_that("fmt_strip2 validates dimensions labels colours and palettes", {
   expect_s3_class(ggplot2::ggplotGrob(fmt_strip2(p, "", "", label_color = 1)), "gtable")
 })
 
+test_that("fmt_strip2 generates only used palettes and supports transparent fills", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) + ggplot2::geom_point() +
+    ggplot2::theme(strip.background = ggplot2::element_rect(fill = "pink"))
+  transparent <- fmt_strip2(p, "Top", "Right", ncol = 1,
+                            top_fill = NA, right_fill = NA, top_right_fill = NULL)
+  fills <- vapply(.fmt_strip_text(transparent, "rect"), function(x) x$gp$fill, character(1))
+  expect_true(all(grDevices::col2rgb(fills, alpha = TRUE)[4, ] == 0))
+  expect_identical(vapply(.fmt_strip_text(fmt_strip2(p, "Top", ncol = 1,
+                                                   top_right_fill = NULL), "rect"),
+                          function(x) x$gp$fill, character(1)), "grey85")
+
+  calls <- 0L
+  original <- colorspace::sequential_hcl
+  testthat::local_mocked_bindings(
+    sequential_hcl = function(...) { calls <<- calls + 1L; original(...) },
+    .package = "colorspace"
+  )
+  out <- fmt_strip2(p, "Top", ncol = 1, top_right_fill = c("Grays", "unused-palette"))
+  expect_identical(calls, 1L)
+  expect_s3_class(ggplot2::ggplotGrob(out), "gtable")
+  calls <- 0L
+  invisible(fmt_strip2(p, right_label = "Right", ncol = 1,
+                       top_right_fill = c("unused-palette", "Greens")))
+  expect_identical(calls, 1L)
+  calls <- 0L
+  panels <- patchwork::wrap_plots(rep(list(p), 4), ncol = 2)
+  out <- fmt_strip2(panels, c("T1", "T2"), c("R1", "R2"), top_right_fill = "Grays")
+  expect_identical(calls, 1L)
+  expect_identical(out[[2]]$facet$strip$given_elements$background_x[[1]]@fill,
+                   out[[4]]$facet$strip$given_elements$background_y[[1]]@fill)
+  calls <- 0L
+  invisible(fmt_strip2(panels, "Top", "Right", top_fill = "pink", right_fill = "cyan"))
+  expect_identical(calls, 0L)
+  ignored <- fmt_strip2(p, top_right_fill = "unused-palette", top_fill = "not-a-colour")
+  expect_identical(calls, 0L)
+  expect_identical(ignored, p)
+})
+
 test_that("fmt_strip2 supports top_right_fill strip palettes", {
   testthat::skip_if_not_installed("ggh4x")
 
