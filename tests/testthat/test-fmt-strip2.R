@@ -51,6 +51,33 @@ test_that("fmt_strip maps label vectors within a single faceted plot", {
   expect_identical(unname(vapply(out, labels, character(1))), c("A", "B", "A"))
 })
 
+test_that("fmt_strip handles facet expressions and repeated relabelling", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) +
+    ggplot2::geom_point()
+  labels <- function(p) vapply(.fmt_strip_text(p), `[[`, character(1), "label")
+  facets <- list(
+    ggplot2::facet_wrap(ggplot2::vars(factor(cyl))),
+    ggplot2::facet_wrap(ggplot2::vars(Cylinders = factor(cyl))),
+    ggplot2::facet_grid(cols = ggplot2::vars(.data[["cyl"]]))
+  )
+  for (facet in facets) {
+    out <- fmt_strip(p + facet, c("A", "B", "C"))
+    expect_identical(labels(out), c("A", "B", "C"))
+    out <- fmt_strip(out, c("D", "E", "F"))
+    expect_identical(labels(out), c("D", "E", "F"))
+  }
+
+  layered <- ggplot2::ggplot() +
+    ggplot2::geom_point(data = function(data) mtcars, ggplot2::aes(mpg, wt)) +
+    ggplot2::facet_wrap(ggplot2::vars(cyl))
+  expect_identical(labels(fmt_strip(layered, c("A", "B", "C"))), c("A", "B", "C"))
+
+  gridded <- p + ggplot2::facet_grid(am ~ cyl, labeller = ggplot2::label_both)
+  out <- fmt_strip(gridded, c("A", "B", "C"))
+  expect_setequal(labels(out), c("A", "B", "C", "am: 0", "am: 1"))
+  expect_identical(gridded$facet$params$labeller, ggplot2::label_both)
+})
+
 test_that("fmt_strip preserves facet structure and computed statistics", {
   p <- ggplot2::ggplot(mtcars, ggplot2::aes(1, mpg)) +
     ggplot2::stat_summary(fun = mean, geom = "point")
