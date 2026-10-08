@@ -1186,6 +1186,9 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
 #'
 #' In RegR, \code{\link[RegR:get_rcs_all]{RegR::get_rcs_all()}} uses this
 #' helper for its shared-strip 2 x 2 composites when `strip_style = "grid"`.
+#' Existing facets retain their panels when no new header is assigned. A plot
+#' receiving a header must have one panel; native facets with multiple panels
+#' are rejected during plot building, before statistics are computed.
 #'
 #' @param plot A patchwork (or list) of ggplot panels filling an
 #'   `nrow x ncol` grid **by row**.
@@ -1285,6 +1288,31 @@ fmt_strip2 <- function(plot,
   plots <- info$plots
   n     <- length(plots)
 
+  protect_facet <- function(original, replacement) {
+    if (!is.null(original$.fmt_strip2_original_facet)) {
+      original <- original$.fmt_strip2_original_facet
+    }
+    if (inherits(original, "FacetNull") || isTRUE(original$.fmt_strip_generated)) {
+      return(replacement)
+    }
+    guarded <- ggplot2::ggproto(NULL, replacement,
+      compute_layout = function(self, data, params) {
+        native_params <- original$params
+        native_params$plot_env <- params$plot_env
+        native_params <- original$setup_params(data, native_params)
+        native_data <- original$setup_data(data, native_params)
+        if (nrow(original$compute_layout(native_data, native_params)) != 1L) {
+          cli::cli_abort(
+            "`fmt_strip2()` cannot replace a native facet with multiple panels."
+          )
+        }
+        ggplot2::ggproto_parent(replacement, self)$compute_layout(data, params)
+      }
+    )
+    guarded$.fmt_strip2_original_facet <- original
+    guarded
+  }
+
   # ---- infer ncol / nrow ----
   if (is.null(ncol)) {
     lay <- tryCatch(info$pw_orig$patches$layout, error = function(e) NULL)
@@ -1331,15 +1359,14 @@ fmt_strip2 <- function(plot,
     grid_col <- ((i - 1L) %%  ncol) + 1L
     need_top   <- isTRUE(grid_row == 1L)    && !is.null(top_label)
     need_right <- isTRUE(grid_col == ncol)  && !is.null(right_label)
-    # Panels that get no new strip must still drop any pre-existing facet
-    # strip (e.g. the per-level strip a faceted source panel carries), so the
-    # inner grid stays clean -- only the explicitly-added top/right strips show.
+    # Hide native strips without changing their panel membership or statistics.
     if (!need_top && !need_right) {
-      plots[[i]] <- plots[[i]] + ggplot2::facet_null()
+      plots[[i]] <- fmt_strip(plots[[i]], strip = FALSE)
       next
     }
 
     p <- plots[[i]]
+    original_facet <- p$facet
     if (!is.null(p$data) && is.data.frame(p$data)) {
       if (need_top)   p$data$.top.   <- top_label[grid_col]
       if (need_right) p$data$.right. <- right_label[grid_row]
@@ -1377,6 +1404,8 @@ fmt_strip2 <- function(plot,
         )
       )
     }
+    p$facet <- protect_facet(original_facet, p$facet)
+    p$facet$.fmt_strip_generated <- is.null(p$facet$.fmt_strip2_original_facet)
     plots[[i]] <- p
   }
 

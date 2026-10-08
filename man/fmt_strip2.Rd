@@ -62,6 +62,9 @@ the two columns on top and the four rows on the right.
 
 In RegR, \code{\link[RegR:get_rcs_all]{RegR::get_rcs_all()}} uses this
 helper for its shared-strip 2 x 2 composites when `strip_style = "grid"`.
+Existing facets retain their panels when no new header is assigned. A plot
+receiving a header must have one panel; native facets with multiple panels
+are rejected during plot building, before statistics are computed.
 }
 \examples{
 \dontshow{if (requireNamespace("RegR", quietly = TRUE)) withAutoprint(\{ # examplesIf}

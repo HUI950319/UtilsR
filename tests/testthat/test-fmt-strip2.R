@@ -326,6 +326,42 @@ test_that("theme_my centers facet strips with symmetric margins", {
 })
 
 
+test_that("fmt_strip2 protects native facet panels and statistics", {
+  d <- data.frame(x = 1, y = c(0, 2, 100, 102), g = rep(c("A", "B"), each = 2))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) +
+    ggplot2::stat_summary(fun = mean, geom = "point") +
+    ggplot2::facet_wrap(ggplot2::vars(g))
+  before <- ggplot2::ggplot_build(p)
+  hidden <- fmt_strip2(p)
+  after <- ggplot2::ggplot_build(hidden)
+  expect_equal(after$layout$layout, before$layout$layout)
+  expect_equal(after$data, before$data)
+  expect_length(.fmt_strip_text(hidden), 0L)
+  expect_error(ggplot2::ggplot_build(fmt_strip2(p, "Top", "Right", ncol = 1)),
+               "multiple panels")
+
+  calls <- 0L
+  stat <- ggplot2::ggproto("StatStrip2Test", ggplot2::Stat,
+    required_aes = c("x", "y"),
+    compute_group = function(data, scales) { calls <<- calls + 1L; data }
+  )
+  p$layers <- list(ggplot2::layer(stat = stat, geom = "point", position = "identity"))
+  out <- fmt_strip2(p, "Top", ncol = 1)
+  expect_identical(calls, 0L)
+  expect_error(ggplot2::ggplot_build(out), "multiple panels")
+  expect_identical(calls, 0L)
+
+  single <- p
+  single$data <- d[d$g == "A", ]
+  expect_s3_class(ggplot2::ggplotGrob(fmt_strip2(single, "Top", ncol = 1)), "gtable")
+  repeated <- fmt_strip2(fmt_strip2(single, "First", ncol = 1), "Again", ncol = 1)
+  repeated$data <- d
+  expect_error(ggplot2::ggplot_build(repeated), "multiple panels")
+  labelled <- fmt_strip(single + ggplot2::facet_null(), "Old")
+  expect_identical(vapply(.fmt_strip_text(fmt_strip2(labelled, "New", ncol = 1)),
+                          `[[`, character(1), "label"), "New")
+})
+
 test_that("fmt_strip2 supports top_right_fill strip palettes", {
   testthat::skip_if_not_installed("ggh4x")
 

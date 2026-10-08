@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_strip2()` keeps native facet panels and statistics when hiding their
+  strips, and rejects replacing multi-panel native facets before statistics
+  are computed instead of silently combining data panels.
+
 * `fmt_strip()` validates non-empty character labels and R colour specifications
   before rendering, while retaining transparent fills, numeric palette colours
   and ignored styling arguments when hiding strips. Help now explains facet
