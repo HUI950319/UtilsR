@@ -65,9 +65,10 @@
 #' @export
 #' @family plot formatting
 fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
-  info <- .to_plot_list(plot)
+  info <- .to_plot_list(plot, recurse = TRUE)
   plots <- info$plots
   n <- length(plots)
+  if (n == 0L) return(plot)
 
   # When plot_dims is provided, compute which axes to hide
 
@@ -131,7 +132,8 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
   for (i in idx_x) plots[[i]] <- plots[[i]] + hide_x_theme
   for (i in idx_y) plots[[i]] <- plots[[i]] + hide_y_theme
 
-  .from_plot_list(plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
+  .from_plot_list(plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig,
+                  recurse = TRUE)
 }
 
 # ---- fmt_tag helpers ----
@@ -222,6 +224,8 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
 #'   user annotations and insets. Inside labels repeat the same plot label in
 #'   each native facet; outside labels appear once per data plot. Containers
 #'   without data plots are returned unchanged without validating styling.
+#'   Axis, legend, reference-line and strip formatters operate on the data plots
+#'   without counting outside-label insets.
 #'
 #' @return Same type as input. With an `-out` keyword each ggplot carries
 #'   the label as a patchwork inset, so a single ggplot comes back as a
@@ -298,14 +302,7 @@ fmt_tag <- function(plot,
   }
   plot <- clear_tags(plot)
   info <- .to_plot_list(plot)
-  map_leaves <- function(p, fun) {
-    if (inherits(p, "patchwork")) {
-      for (j in seq_along(p)) p[[j]] <- map_leaves(p[[j]], fun)
-      return(p)
-    }
-    if (inherits(p, c("spacer", "guide_area", "inset_patch"))) return(p)
-    fun(p)
-  }
+  map_leaves <- .map_plot_leaves
   plots <- list()
   for (p in info$plots) {
     invisible(map_leaves(p, function(leaf) {
@@ -516,9 +513,10 @@ fmt_legend <- function(plot,
                        ncol = NULL,
                        nrow = NULL,
                        ...) {
-  info <- .to_plot_list(plot)
+  info <- .to_plot_list(plot, recurse = TRUE)
   plots <- info$plots
   n <- length(plots)
+  if (n == 0L) return(plot)
 
   # ---- Rename legend titles per subplot ----
   if (!is.null(title)) {
@@ -535,7 +533,8 @@ fmt_legend <- function(plot,
     }
     # Rebuild patchwork so collect mode sees updated titles
     if (info$is_patchwork) {
-      plot <- .from_plot_list(plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
+      plot <- .from_plot_list(plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig,
+                              recurse = TRUE)
     }
   }
 
@@ -729,7 +728,8 @@ fmt_legend <- function(plot,
     if (!is.null(legend_guides))   plots[[i]] <- plots[[i]] + legend_guides
   }
 
-  .from_plot_list(plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
+  .from_plot_list(plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig,
+                  recurse = TRUE)
 }
 
 # ---- fmt_ref ----
@@ -769,7 +769,7 @@ fmt_ref <- function(plot,
                     color = "gray50",
                     alpha = 0.8,
                     ...) {
-  info <- .to_plot_list(plot)
+  info <- .to_plot_list(plot, recurse = TRUE)
   plots <- info$plots
 
   .add_ref_one <- function(p) {
@@ -804,7 +804,8 @@ fmt_ref <- function(plot,
     plots[[i]] <- .add_ref_one(plots[[i]])
   }
 
-  .from_plot_list(plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
+  .from_plot_list(plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig,
+                  recurse = TRUE)
 }
 
 # ---- fmt_plot ----
@@ -1063,14 +1064,7 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
     cli::cli_abort("{.arg strip} must be a single TRUE or FALSE.")
   }
   info <- .to_plot_list(plot)
-  map_leaves <- function(p, fun) {
-    if (inherits(p, "patchwork")) {
-      for (j in seq_along(p)) p[[j]] <- map_leaves(p[[j]], fun)
-      return(p)
-    }
-    if (inherits(p, c("spacer", "guide_area"))) return(p)
-    fun(p)
-  }
+  map_leaves <- .map_plot_leaves
   plots <- list()
   for (p in info$plots) {
     invisible(map_leaves(p, function(leaf) {

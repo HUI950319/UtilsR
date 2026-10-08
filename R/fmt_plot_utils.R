@@ -15,7 +15,31 @@
 # ---- Internal helpers ----
 
 #' @noRd
-.to_plot_list <- function(plot) {
+.map_plot_leaves <- function(plot, fun) {
+  if (inherits(plot, "patchwork")) {
+    for (i in seq_along(plot)) plot[[i]] <- .map_plot_leaves(plot[[i]], fun)
+    return(plot)
+  }
+  if (inherits(plot, c("spacer", "guide_area", "inset_patch"))) return(plot)
+  if (is.list(plot) && !inherits(plot, "gg")) {
+    return(lapply(plot, .map_plot_leaves, fun = fun))
+  }
+  fun(plot)
+}
+
+#' @noRd
+.to_plot_list <- function(plot, recurse = FALSE) {
+  if (recurse) {
+    info <- .to_plot_list(plot)
+    plots <- list()
+    invisible(.map_plot_leaves(plot, function(p) {
+      plots[[length(plots) + 1L]] <<- p
+      p
+    }))
+    info$plots <- plots
+    info$pw_orig <- plot
+    return(info)
+  }
   is_patchwork <- inherits(plot, "patchwork")
   is_single <- inherits(plot, "gg") && !is_patchwork
 
@@ -46,7 +70,15 @@
 }
 
 #' @noRd
-.from_plot_list <- function(plot_list, was_patchwork, was_single, pw_orig = NULL, ...) {
+.from_plot_list <- function(plot_list, was_patchwork, was_single, pw_orig = NULL,
+                            recurse = FALSE, ...) {
+  if (recurse) {
+    i <- 0L
+    return(.map_plot_leaves(pw_orig, function(p) {
+      i <<- i + 1L
+      plot_list[[i]]
+    }))
+  }
   if (was_single) return(plot_list[[1]])
   if (was_patchwork) {
     # In-place assignment preserves original layout (/, |, design, etc.)

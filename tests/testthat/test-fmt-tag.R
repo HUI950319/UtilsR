@@ -264,3 +264,37 @@ test_that("tag construction preserves RNG and defers data evaluation", {
   invisible(patchwork::patchworkGrob(outside))
   expect_equal(calls, 2L)
 })
+
+test_that("outside tags compose with reference, legend, axis and strip formatting", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, disp, colour = factor(cyl))) +
+    ggplot2::geom_point()
+  input <- (p | p) + patchwork::plot_annotation(title = "Keep")
+  res <- fmt_plot(input, fmt_tag_list = list(label_position = "tl-out"),
+                  fmt_ref_list = list(x = 20),
+                  fmt_legend_list = list(legend.position = "none"))
+  grob <- patchwork::patchworkGrob(res)
+  refs <- Filter(function(g) identical(g$gp$lty, "dashed"), find_grobs(grob, "segments"))
+  texts <- unlist(lapply(find_grobs(grob, "text"), function(g) as.character(g$label)))
+  expect_length(refs, 2L)
+  expect_equal(sum(texts == "factor(cyl)"), 0L)
+  expect_equal(sum(texts == "Keep"), 1L)
+  expect_identical(res$patches$layout, input$patches$layout)
+
+  hidden <- fmt_axis(res, x.axis = c(1, 2), y.axis = c(1, 2))
+  texts <- unlist(lapply(find_grobs(patchwork::patchworkGrob(hidden), "text"),
+                         function(g) as.character(g$label)))
+  expect_equal(sum(texts %in% c("mpg", "disp")), 0L)
+  stripped <- fmt_strip(res, label = c("First", "Second"))
+  texts <- unlist(lapply(find_grobs(patchwork::patchworkGrob(stripped), "text"),
+                         function(g) as.character(g$label)))
+  expect_equal(sum(texts == "First"), 1L)
+  expect_equal(sum(texts == "Second"), 1L)
+  expect_equal(sum(texts %in% c("A", "B")), 2L)
+
+  nested <- fmt_tag((p | patchwork::plot_spacer()) / (p | p), label_position = "tl-out")
+  nested <- fmt_ref(nested, y = 300)
+  refs <- Filter(function(g) identical(g$gp$lty, "dashed"),
+                  find_grobs(patchwork::patchworkGrob(nested), "segments"))
+  expect_length(refs, 3L)
+  expect_length(p$layers, 1L)
+})

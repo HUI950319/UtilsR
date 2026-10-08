@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* Outside `fmt_tag()` labels compose with axis, legend, reference-line and strip
+  formatting. Formatters visit data-plot leaves and skip label insets while
+  retaining nested layouts and annotations.
+
 * `fmt_tag()` and `fmt_plot()` help and formatting tutorials now document the
   supported arguments, replacement and facet behaviour with runnable examples.
   Regression tests cover rendered labels, nested containers, padding, validation,
