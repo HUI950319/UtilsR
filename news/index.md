@@ -69,6 +69,11 @@
   avoiding duplicated text and repeated alpha blending of label
   backgrounds.
 
+- [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
+  inherits ggh4x themed strips’ text sizes, angles and colours,
+  including hidden strips and repeated calls. Explicit colours retain
+  precedence.
+
 - Reapplying `fmt_strip(strip = FALSE)` or label-free
   [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
   hides native strips after theme changes, retaining the saved

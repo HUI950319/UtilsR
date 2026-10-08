@@ -63,7 +63,8 @@ fmt_strip2(
 - label_color:
 
   Strip text colour. Default `"black"`. Accepts the same R colour
-  specifications as `top_fill`; `NULL` inherits the text colour.
+  specifications as `top_fill`; `NULL` inherits the text colour from the
+  theme or existing ggh4x strip.
 
 - top_right_fill:
 
@@ -97,7 +98,8 @@ retain their `shrink` setting and corresponding scale ranges. New
 headers restore strip settings hidden by
 [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
 and override blank strip elements while retaining existing text sizes
-and angles.
+and angles. Text settings supplied by ggh4x themed strips are inherited
+as well.
 
 When both label arguments are `NULL`, existing strips are hidden through
 [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
