@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p>Retagging plots retains patchwork’s freed alignment settings, including switches between inside and outside labels.</p></li>
+<ul><li><p><code><a href="../reference/fmt_tag.html">fmt_tag()</a></code> skips fixed wrapped graphics with a warning, so invisible labels do not consume the numbering of editable data plots.</p></li>
+<li><p>Retagging plots retains patchwork’s freed alignment settings, including switches between inside and outside labels.</p></li>
 <li><p>Inside <code><a href="../reference/fmt_tag.html">fmt_tag()</a></code> positions remain fixed in displayed panel coordinates under flipped and non-linear coordinates, including free-scale facets.</p></li>
 <li><p>Outside <code><a href="../reference/fmt_tag.html">fmt_tag()</a></code> labels compose with axis, legend, reference-line and strip formatting. Formatters visit data-plot leaves and skip label insets while retaining nested layouts and annotations.</p></li>
 <li><p><code><a href="../reference/fmt_tag.html">fmt_tag()</a></code> and <code><a href="../reference/fmt_plot.html">fmt_plot()</a></code> help and formatting tutorials now document the supported arguments, replacement and facet behaviour with runnable examples. Regression tests cover rendered labels, nested containers, padding, validation, RNG preservation and deferred data evaluation.</p></li>

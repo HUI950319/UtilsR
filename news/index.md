@@ -2,6 +2,10 @@
 
 ## UtilsR 0.6.8
 
+- [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
+  skips fixed wrapped graphics with a warning, so invisible labels do
+  not consume the numbering of editable data plots.
+
 - Retagging plots retains patchwork’s freed alignment settings,
   including switches between inside and outside labels.
 
