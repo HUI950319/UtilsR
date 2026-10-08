@@ -58,7 +58,7 @@ fmt_strip2(
   Background fill colour(s) for the top / right strips (recycled to
   \`ncol\` / \`nrow\`). \`NULL\` = light grey when \`top_right_fill =
   NULL\`. Accepts R colour names, hexadecimal colours, numeric palette
-  indices and \`NA\`.
+  indices and \`NA\`; \`NA\` gives a transparent fill.
 
 - label_color:
 
@@ -72,6 +72,7 @@ fmt_strip2(
   used for top strips and the second for right strips; a single palette
   is reused for both directions. Defaults to \`c("Grays", "Greens")\`.
   Explicit \`top_fill\` and \`right_fill\` values take precedence.
+  Palette lookup is skipped for unused header directions.
 
 ## Value
 

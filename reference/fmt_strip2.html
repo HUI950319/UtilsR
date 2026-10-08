@@ -118,7 +118,7 @@ dimensions. An explicit value must agree with an existing patchwork layout.</p><
 <dd><p>Background fill colour(s) for the top / right
 strips (recycled to `ncol` / `nrow`). `NULL` = light grey when
 `top_right_fill = NULL`. Accepts R colour names, hexadecimal colours,
-numeric palette indices and `NA`.</p></dd>
+numeric palette indices and `NA`; `NA` gives a transparent fill.</p></dd>
 
 
 <dt id="arg-label-color">label_color<a class="anchor" aria-label="anchor" href="#arg-label-color"></a></dt>
@@ -132,7 +132,7 @@ HCL palette names used to generate the top and right fills. The first
 palette is used for top strips and the second for right strips; a single
 palette is reused for both directions. Defaults to
 `c("Grays", "Greens")`. Explicit `top_fill` and `right_fill` values take
-precedence.</p></dd>
+precedence. Palette lookup is skipped for unused header directions.</p></dd>
 
 </dl></div>
     <div class="section level2">
