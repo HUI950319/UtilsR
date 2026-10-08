@@ -3,6 +3,12 @@
 ## UtilsR 0.6.8
 
 - [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
+  labels all leaf plots in nested containers in order, preserving
+  layouts, annotations and list names. Spacers, guide areas and insets
+  do not consume labels; containers without data plots are returned
+  unchanged.
+
+- [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
   draws a single inside label per panel with four-sided padding,
   avoiding duplicated text and repeated alpha blending of label
   backgrounds.
