@@ -101,8 +101,8 @@ strips use a transparent background.</p></dd>
 <code>FALSE</code> shows no strip at all and ignores <code>label</code>,
 <code>label_color</code> and <code>label_fill</code>: strips already on the plot,
 from an earlier <code>fmt_strip()</code> / <code><a href="fmt_strip2.html">fmt_strip2()</a></code> call or
-from its own facets, are removed. Single-panel facets are dropped;
-multi-panel facets keep their panels with the strips hidden through the
+from its own facets, are removed. Synthetic facets created by this function
+are dropped; native facets keep their panels with strips hidden through the
 theme, so add complete themes such as <code><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw()</a></code> before this call.
 Nested patchworks are handled recursively.</p></dd>
 

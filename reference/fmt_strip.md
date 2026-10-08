@@ -46,9 +46,9 @@ fmt_strip(
   strip at all and ignores `label`, `label_color` and `label_fill`:
   strips already on the plot, from an earlier `fmt_strip()` /
   [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
-  call or from its own facets, are removed. Single-panel facets are
-  dropped; multi-panel facets keep their panels with the strips hidden
-  through the theme, so add complete themes such as
+  call or from its own facets, are removed. Synthetic facets created by
+  this function are dropped; native facets keep their panels with strips
+  hidden through the theme, so add complete themes such as
   [`theme_bw()`](https://ggplot2.tidyverse.org/reference/ggtheme.html)
   before this call. Nested patchworks are handled recursively.
 

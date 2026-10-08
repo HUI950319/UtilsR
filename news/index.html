@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code>fmt_strip(strip = TRUE)</code> restores strips hidden by an earlier call. Explicit colours override leaf theme and ggh4x strip elements without resetting text size or angle; <code>label_color = NULL</code> consistently inherits existing colours.</p></li>
+<ul><li><p><code>fmt_strip(strip = FALSE)</code> no longer builds plots or executes layer data functions and statistics. Only synthetic facets created by <code><a href="../reference/fmt_strip.html">fmt_strip()</a></code> are dropped; native facets, including currently single-panel facets, retain their structure and support later data changes with strips hidden.</p></li>
+<li><p><code>fmt_strip(strip = TRUE)</code> restores strips hidden by an earlier call. Explicit colours override leaf theme and ggh4x strip elements without resetting text size or angle; <code>label_color = NULL</code> consistently inherits existing colours.</p></li>
 <li><p><code><a href="../reference/fmt_strip.html">fmt_strip()</a></code> labels all leaf plots in nested patchworks in order, skipping spacers and guide areas without consuming their labels. Nested layouts, annotations and named list containers are preserved.</p></li>
 <li><p><code><a href="../reference/fmt_strip.html">fmt_strip()</a></code> adds synthetic strips with a constant facet expression instead of overwriting a data column. Empty data, layer-only data and annotations are supported, and existing <code>.strip_label.</code> mappings remain unchanged.</p></li>
 <li><p><code><a href="../reference/fmt_strip.html">fmt_strip()</a></code> relabels named and computed facet expressions, supports function-valued layer data, and can be reapplied without parsing facet calls as variable names. Other facet variables retain their original labeller.</p></li>
