@@ -1172,9 +1172,9 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
 
 #' Add facet-grid-style strips to a patchwork grid (top headers + side labels)
 #'
-#' For an assembled patchwork laid out as an `nrow x ncol` grid (filled
-#' **by row**), add \pkg{facet_grid}-style strips: column-header strips only on
-#' the **top row** and row-label strips only on the **right-most column**
+#' For an assembled patchwork laid out as an `nrow x ncol` grid, add
+#' \pkg{facet_grid}-style strips: column-header strips only on the **top row**
+#' and row-label strips on the **right-most occupied panel** of each row
 #' (rotated). This avoids [fmt_strip()]'s behaviour of putting a top strip on
 #' *every* panel -- which looks cluttered when the grid encodes two crossed
 #' dimensions (e.g. plot-type across columns, a stratifier down rows).
@@ -1191,15 +1191,16 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
 #' are rejected during plot building, before statistics are computed.
 #'
 #' @param plot A patchwork (or list) of ggplot panels filling an
-#'   `nrow x ncol` grid **by row**.
+#'   `nrow x ncol` grid. Row-wise and column-wise filling are supported;
+#'   custom `design` layouts are rejected.
 #' @param top_label Character vector of column-header labels (length `ncol`,
 #'   recycled). Placed on the top-row panels only. `NULL` = no top strips.
 #' @param right_label Character vector of row labels (length `nrow`, recycled).
-#'   Placed on the right-most-column panels only (rotated 90 degrees).
+#'   Placed on the right-most occupied panel of each row (rotated 90 degrees).
 #'   `NULL` = no right strips.
 #' @param ncol Number of columns in the grid. If `NULL`, inferred from the
-#'   patchwork layout (`$patches$layout$ncol`/`nrow`), falling back to
-#'   `ceiling(sqrt(n))`.
+#'   patchwork layout (`$patches$layout$ncol`/`nrow`) and its default grid
+#'   dimensions. An explicit value must agree with an existing patchwork layout.
 #' @param top_fill,right_fill Background fill colour(s) for the top / right
 #'   strips (recycled to `ncol` / `nrow`). `NULL` = light grey when
 #'   `top_right_fill = NULL`.
@@ -1313,18 +1314,36 @@ fmt_strip2 <- function(plot,
     guarded
   }
 
-  # ---- infer ncol / nrow ----
-  if (is.null(ncol)) {
-    lay <- tryCatch(info$pw_orig$patches$layout, error = function(e) NULL)
-    if (!is.null(lay) && !is.null(lay$ncol)) {
-      ncol <- lay$ncol
-    } else if (!is.null(lay) && !is.null(lay$nrow)) {
-      ncol <- ceiling(n / lay$nrow)
-    } else {
-      ncol <- ceiling(sqrt(n))
-    }
+  # ---- infer the same dimensions used by patchwork ----
+  lay <- tryCatch(info$pw_orig$patches$layout, error = function(e) NULL)
+  if (!is.null(lay$design)) {
+    cli::cli_abort("`fmt_strip2()` requires a regular grid without a custom `design`.")
   }
-  nrow <- ceiling(n / ncol)
+  layout_ncol <- lay$ncol
+  layout_nrow <- lay$nrow
+  if (is.null(layout_ncol) && length(lay$widths) > 1L) layout_ncol <- length(lay$widths)
+  if (is.null(layout_nrow) && length(lay$heights) > 1L) layout_nrow <- length(lay$heights)
+  if (is.null(layout_ncol) && is.null(layout_nrow)) {
+    dims <- grDevices::n2mfrow(n)
+    layout_nrow <- dims[2]
+    layout_ncol <- dims[1]
+  } else if (is.null(layout_ncol)) {
+    layout_ncol <- ceiling(n / layout_nrow)
+  } else if (is.null(layout_nrow)) {
+    layout_nrow <- ceiling(n / layout_ncol)
+  }
+  if (info$is_patchwork && !is.null(ncol) && ncol != layout_ncol) {
+    cli::cli_abort("`ncol` must agree with the patchwork's existing layout ({layout_ncol}).")
+  }
+  if (is.null(ncol)) ncol <- layout_ncol
+  nrow <- if (info$is_patchwork) layout_nrow else ceiling(n / ncol)
+  byrow <- is.null(lay$byrow) || isTRUE(lay$byrow)
+  indices <- seq_len(n) - 1L
+  grid_rows <- if (byrow) indices %/% ncol + 1L else indices %% nrow + 1L
+  grid_cols <- if (byrow) indices %% ncol + 1L else indices %/% nrow + 1L
+  rightmost <- vapply(seq_len(n), function(i) {
+    !any(grid_rows == grid_rows[i] & grid_cols > grid_cols[i])
+  }, logical(1))
 
   if (!is.null(top_right_fill)) {
     if (!is.character(top_right_fill) || length(top_right_fill) == 0L ||
@@ -1355,10 +1374,10 @@ fmt_strip2 <- function(plot,
   if (!is.null(right_fill))  right_fill  <- rep_len(right_fill,  nrow)
 
   for (i in seq_len(n)) {
-    grid_row <- ((i - 1L) %/% ncol) + 1L
-    grid_col <- ((i - 1L) %%  ncol) + 1L
+    grid_row <- grid_rows[i]
+    grid_col <- grid_cols[i]
     need_top   <- isTRUE(grid_row == 1L)    && !is.null(top_label)
-    need_right <- isTRUE(grid_col == ncol)  && !is.null(right_label)
+    need_right <- rightmost[i] && !is.null(right_label)
     # Hide native strips without changing their panel membership or statistics.
     if (!need_top && !need_right) {
       plots[[i]] <- fmt_strip(plots[[i]], strip = FALSE)

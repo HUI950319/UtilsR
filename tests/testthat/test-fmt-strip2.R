@@ -392,6 +392,37 @@ test_that("fmt_strip2 adds headers without changing plot or layer data", {
   expect_identical(calls, 1L)
 })
 
+test_that("fmt_strip2 follows actual grid dimensions and filling order", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) + ggplot2::geom_point()
+  labels <- function(p) vapply(.fmt_strip_text(p), `[[`, character(1), "label")
+  three <- patchwork::wrap_plots(rep(list(p), 3))
+  out <- fmt_strip2(three, c("T1", "T2", "T3"), "R1")
+  expect_identical(lapply(seq_along(out), function(i) labels(out[[i]])),
+                   list("T1", "T2", c("T3", "R1")))
+  expect_equal(out$patches$layout, three$patches$layout)
+  expect_s3_class(patchwork::patchworkGrob(out), "gtable")
+
+  by_col <- patchwork::wrap_plots(rep(list(p), 4), ncol = 2, byrow = FALSE)
+  out <- fmt_strip2(by_col, c("T1", "T2"), c("R1", "R2"))
+  expect_identical(lapply(seq_along(out), function(i) labels(out[[i]])),
+                   list("T1", character(), c("T2", "R1"), "R2"))
+  expect_equal(out$patches$layout, by_col$patches$layout)
+
+  sized <- three + patchwork::plot_layout(widths = c(1, 2))
+  out <- fmt_strip2(sized, c("T1", "T2"), c("R1", "R2"))
+  expect_identical(lapply(seq_along(out), function(i) labels(out[[i]])),
+                   list("T1", c("T2", "R1"), "R2"))
+
+  incomplete <- patchwork::wrap_plots(rep(list(p), 5), ncol = 2)
+  out <- fmt_strip2(incomplete, c("T1", "T2"), c("R1", "R2", "R3"))
+  expect_identical(labels(out[[5]]), "R3")
+  expect_s3_class(patchwork::patchworkGrob(out), "gtable")
+  one_col <- patchwork::wrap_plots(rep(list(p), 4), ncol = 1)
+  expect_error(fmt_strip2(one_col, "Top", "Right", ncol = 2), "existing layout")
+  designed <- patchwork::wrap_plots(rep(list(p), 4), design = "AB\nCD")
+  expect_error(fmt_strip2(designed, "Top", "Right"), "design")
+})
+
 test_that("fmt_strip2 supports top_right_fill strip palettes", {
   testthat::skip_if_not_installed("ggh4x")
 

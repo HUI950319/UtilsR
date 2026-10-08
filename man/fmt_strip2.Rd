@@ -17,18 +17,19 @@ fmt_strip2(
 }
 \arguments{
 \item{plot}{A patchwork (or list) of ggplot panels filling an
-`nrow x ncol` grid **by row**.}
+`nrow x ncol` grid. Row-wise and column-wise filling are supported;
+custom `design` layouts are rejected.}
 
 \item{top_label}{Character vector of column-header labels (length `ncol`,
 recycled). Placed on the top-row panels only. `NULL` = no top strips.}
 
 \item{right_label}{Character vector of row labels (length `nrow`, recycled).
-Placed on the right-most-column panels only (rotated 90 degrees).
+Placed on the right-most occupied panel of each row (rotated 90 degrees).
 `NULL` = no right strips.}
 
 \item{ncol}{Number of columns in the grid. If `NULL`, inferred from the
-patchwork layout (`$patches$layout$ncol`/`nrow`), falling back to
-`ceiling(sqrt(n))`.}
+patchwork layout (`$patches$layout$ncol`/`nrow`) and its default grid
+dimensions. An explicit value must agree with an existing patchwork layout.}
 
 \item{top_fill, right_fill}{Background fill colour(s) for the top / right
 strips (recycled to `ncol` / `nrow`). `NULL` = light grey when
@@ -47,9 +48,9 @@ precedence.}
 Same type as input (patchwork in, patchwork out).
 }
 \description{
-For an assembled patchwork laid out as an `nrow x ncol` grid (filled
-**by row**), add \pkg{facet_grid}-style strips: column-header strips only on
-the **top row** and row-label strips only on the **right-most column**
+For an assembled patchwork laid out as an `nrow x ncol` grid, add
+\pkg{facet_grid}-style strips: column-header strips only on the **top row**
+and row-label strips on the **right-most occupied panel** of each row
 (rotated). This avoids [fmt_strip()]'s behaviour of putting a top strip on
 *every* panel -- which looks cluttered when the grid encodes two crossed
 dimensions (e.g. plot-type across columns, a stratifier down rows).
