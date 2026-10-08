@@ -1192,7 +1192,9 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
 #'
 #' @param plot A patchwork (or list) of ggplot panels filling an
 #'   `nrow x ncol` grid. Row-wise and column-wise filling are supported;
-#'   custom `design` layouts are rejected.
+#'   aligned nested rectangular grids retain their layout and annotations.
+#'   Spacers and guide areas are skipped while retaining their positions.
+#'   Custom `design` and non-aligned nested layouts are rejected.
 #' @param top_label Character vector of column-header labels (length `ncol`,
 #'   recycled). Placed on the top-row panels only. `NULL` = no top strips.
 #' @param right_label Character vector of row labels (length `nrow`, recycled).
@@ -1286,8 +1288,6 @@ fmt_strip2 <- function(plot,
                        top_right_fill = c("Grays", "Greens")) {
 
   info  <- .to_plot_list(plot)
-  plots <- info$plots
-  n     <- length(plots)
 
   protect_facet <- function(original, replacement) {
     if (!is.null(original$.fmt_strip2_original_facet)) {
@@ -1314,36 +1314,77 @@ fmt_strip2 <- function(plot,
     guarded
   }
 
-  # ---- infer the same dimensions used by patchwork ----
-  lay <- tryCatch(info$pw_orig$patches$layout, error = function(e) NULL)
-  if (!is.null(lay$design)) {
-    cli::cli_abort("`fmt_strip2()` requires a regular grid without a custom `design`.")
+  # Each nested grid contributes its dimensions without rebuilding the container.
+  collect_grid <- function(children, lay = NULL, path = integer()) {
+    n <- length(children)
+    if (!n) return(list(nrow = 0L, ncol = 0L, entries = list()))
+    if (!is.null(lay$design)) {
+      cli::cli_abort("`fmt_strip2()` requires a regular grid without a custom `design`.")
+    }
+    nr <- lay$nrow
+    nc <- lay$ncol
+    if (is.null(nc) && length(lay$widths) > 1L) nc <- length(lay$widths)
+    if (is.null(nr) && length(lay$heights) > 1L) nr <- length(lay$heights)
+    if (is.null(nr) && is.null(nc)) {
+      dims <- grDevices::n2mfrow(n)
+      nr <- dims[2]
+      nc <- dims[1]
+    } else if (is.null(nc)) {
+      nc <- ceiling(n / nr)
+    } else if (is.null(nr)) {
+      nr <- ceiling(n / nc)
+    }
+    indices <- seq_len(n) - 1L
+    byrow <- is.null(lay$byrow) || isTRUE(lay$byrow)
+    rows <- if (byrow) indices %/% nc + 1L else indices %% nr + 1L
+    cols <- if (byrow) indices %% nc + 1L else indices %/% nr + 1L
+    grids <- lapply(seq_len(n), function(i) {
+      p <- children[[i]]
+      child_path <- c(path, i)
+      if (inherits(p, "patchwork")) {
+        return(collect_grid(lapply(seq_along(p), function(j) p[[j]]),
+                            p$patches$layout, child_path))
+      }
+      entries <- if (inherits(p, c("spacer", "guide_area"))) list() else
+        list(list(plot = p, path = child_path, row = 1L, col = 1L))
+      list(nrow = 1L, ncol = 1L, entries = entries)
+    })
+    row_sizes <- rep(1L, nr)
+    col_sizes <- rep(1L, nc)
+    for (i in seq_len(n)) {
+      row_sizes[rows[i]] <- max(row_sizes[rows[i]], grids[[i]]$nrow)
+      col_sizes[cols[i]] <- max(col_sizes[cols[i]], grids[[i]]$ncol)
+    }
+    entries <- list()
+    for (i in seq_len(n)) {
+      child <- grids[[i]]
+      if (!length(child$entries)) next
+      if (child$nrow != row_sizes[rows[i]] || child$ncol != col_sizes[cols[i]]) {
+        cli::cli_abort("Nested patchworks must form aligned rectangular grids.")
+      }
+      row_offset <- sum(row_sizes[seq_len(rows[i] - 1L)])
+      col_offset <- sum(col_sizes[seq_len(cols[i] - 1L)])
+      for (entry in child$entries) {
+        entry$row <- entry$row + row_offset
+        entry$col <- entry$col + col_offset
+        entries[[length(entries) + 1L]] <- entry
+      }
+    }
+    list(nrow = sum(row_sizes), ncol = sum(col_sizes), entries = entries)
   }
-  layout_ncol <- lay$ncol
-  layout_nrow <- lay$nrow
-  if (is.null(layout_ncol) && length(lay$widths) > 1L) layout_ncol <- length(lay$widths)
-  if (is.null(layout_nrow) && length(lay$heights) > 1L) layout_nrow <- length(lay$heights)
-  if (is.null(layout_ncol) && is.null(layout_nrow)) {
-    dims <- grDevices::n2mfrow(n)
-    layout_nrow <- dims[2]
-    layout_ncol <- dims[1]
-  } else if (is.null(layout_ncol)) {
-    layout_ncol <- ceiling(n / layout_nrow)
-  } else if (is.null(layout_nrow)) {
-    layout_nrow <- ceiling(n / layout_ncol)
+  lay <- if (info$is_patchwork) info$pw_orig$patches$layout else list(ncol = ncol)
+  grid <- collect_grid(info$plots, lay)
+  if (info$is_patchwork && !is.null(ncol) && ncol != grid$ncol) {
+    cli::cli_abort("`ncol` must agree with the patchwork's existing layout ({grid$ncol}).")
   }
-  if (info$is_patchwork && !is.null(ncol) && ncol != layout_ncol) {
-    cli::cli_abort("`ncol` must agree with the patchwork's existing layout ({layout_ncol}).")
-  }
-  if (is.null(ncol)) ncol <- layout_ncol
-  nrow <- if (info$is_patchwork) layout_nrow else ceiling(n / ncol)
-  byrow <- is.null(lay$byrow) || isTRUE(lay$byrow)
-  indices <- seq_len(n) - 1L
-  grid_rows <- if (byrow) indices %/% ncol + 1L else indices %% nrow + 1L
-  grid_cols <- if (byrow) indices %% ncol + 1L else indices %/% nrow + 1L
-  rightmost <- vapply(seq_len(n), function(i) {
-    !any(grid_rows == grid_rows[i] & grid_cols > grid_cols[i])
-  }, logical(1))
+  if (!length(grid$entries)) return(plot)
+  ncol <- grid$ncol
+  nrow <- grid$nrow
+  plots <- lapply(grid$entries, function(entry) entry$plot)
+  n <- length(plots)
+  grid_rows <- vapply(grid$entries, function(entry) entry$row, integer(1))
+  grid_cols <- vapply(grid$entries, function(entry) entry$col, integer(1))
+  rightmost <- grid_cols == stats::ave(grid_cols, grid_rows, FUN = max)
 
   if (!is.null(top_right_fill)) {
     if (!is.character(top_right_fill) || length(top_right_fill) == 0L ||
@@ -1424,7 +1465,14 @@ fmt_strip2 <- function(plot,
     plots[[i]] <- p
   }
 
-  .from_plot_list(plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
+  replace_leaf <- function(p, path, value) {
+    if (!length(path)) return(value)
+    p[[path[1]]] <- replace_leaf(p[[path[1]]], path[-1], value)
+    p
+  }
+  restored <- info$plots
+  for (i in seq_len(n)) restored <- replace_leaf(restored, grid$entries[[i]]$path, plots[[i]])
+  .from_plot_list(restored, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
 }
 
 # ---- fmt_panel ----

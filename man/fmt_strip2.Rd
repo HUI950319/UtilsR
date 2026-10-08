@@ -18,7 +18,9 @@ fmt_strip2(
 \arguments{
 \item{plot}{A patchwork (or list) of ggplot panels filling an
 `nrow x ncol` grid. Row-wise and column-wise filling are supported;
-custom `design` layouts are rejected.}
+aligned nested rectangular grids retain their layout and annotations.
+Spacers and guide areas are skipped while retaining their positions.
+Custom `design` and non-aligned nested layouts are rejected.}
 
 \item{top_label}{Character vector of column-header labels (length `ncol`,
 recycled). Placed on the top-row panels only. `NULL` = no top strips.}

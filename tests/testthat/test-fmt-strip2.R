@@ -423,6 +423,34 @@ test_that("fmt_strip2 follows actual grid dimensions and filling order", {
   expect_error(fmt_strip2(designed, "Top", "Right"), "design")
 })
 
+test_that("fmt_strip2 labels aligned nested grids and keeps placeholders", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) + ggplot2::geom_point()
+  labels <- function(p) vapply(.fmt_strip_text(p), `[[`, character(1), "label")
+  nested <- ((p | p) / (p | p)) + patchwork::plot_annotation(title = "Overall")
+  out <- fmt_strip2(nested, c("T1", "T2"), c("R1", "R2"), ncol = 2)
+  expect_identical(list(labels(out[[1]][[1]]), labels(out[[1]][[2]]),
+                        labels(out[[2]][[1]]), labels(out[[2]][[2]])),
+                   list("T1", c("T2", "R1"), character(), "R2"))
+  expect_equal(out$patches$layout, nested$patches$layout)
+  expect_equal(out$patches$annotation, nested$patches$annotation)
+  expect_equal(out[[1]]$patches$layout, nested[[1]]$patches$layout)
+  expect_s3_class(patchwork::patchworkGrob(out), "gtable")
+
+  spaced <- patchwork::wrap_plots(p, patchwork::plot_spacer(),
+                                  patchwork::guide_area(), p, ncol = 2)
+  out <- fmt_strip2(spaced, c("T1", "T2"), c("R1", "R2"))
+  expect_identical(out[[2]], spaced[[2]])
+  expect_identical(out[[3]], spaced[[3]])
+  expect_identical(labels(out[[1]]), c("T1", "R1"))
+  expect_identical(labels(out[[4]]), "R2")
+  expect_s3_class(patchwork::patchworkGrob(out), "gtable")
+  empty <- patchwork::wrap_plots(patchwork::plot_spacer(), patchwork::guide_area())
+  expect_identical(fmt_strip2(empty, "Top", "Right"), empty)
+  named <- list(first = p, empty = patchwork::plot_spacer(), last = p)
+  expect_identical(names(fmt_strip2(named, "Top", "Right", ncol = 2)), names(named))
+  expect_error(fmt_strip2(p | (p / p), "Top", "Right"), "aligned")
+})
+
 test_that("fmt_strip2 supports top_right_fill strip palettes", {
   testthat::skip_if_not_installed("ggh4x")
 
