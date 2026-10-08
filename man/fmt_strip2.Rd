@@ -16,129 +16,98 @@ fmt_strip2(
 )
 }
 \arguments{
-\item{plot}{A patchwork (or list) of ggplot panels filling an
-`nrow x ncol` grid. Row-wise and column-wise filling are supported;
+\item{plot}{A ggplot, patchwork, or list of ggplot panels filling an
+\verb{nrow x ncol} grid. Row-wise and column-wise filling are supported;
 aligned nested rectangular grids retain their layout and annotations.
 Spacers and guide areas are skipped while retaining their positions.
-Custom `design` and non-aligned nested layouts are rejected.}
+Custom \code{design} and non-aligned nested layouts are rejected.}
 
 \item{top_label}{Non-empty character vector of column-header labels without
-missing values (length `ncol`,
-recycled). Placed on the top-row panels only. `NULL` = no top strips.}
+missing values, recycled to \code{ncol}. Placed on the top-row panels only.
+\code{NULL} gives no top strips; \code{""} gives a blank label.}
 
 \item{right_label}{Non-empty character vector of row labels without missing
-values (length `nrow`, recycled).
+values, recycled to \code{nrow}.
 Placed on the right-most occupied panel of each row (rotated 90 degrees).
-`NULL` = no right strips.}
+\code{NULL} gives no right strips; \code{""} gives a blank label.}
 
 \item{ncol}{Single positive integer giving the number of columns in the grid.
-If `NULL`, inferred from the
-patchwork layout (`$patches$layout$ncol`/`nrow`) and its default grid
-dimensions. An explicit value must agree with an existing patchwork layout.}
+If \code{NULL}, inferred from the patchwork layout, including dimensions implied
+by its widths/heights and aligned nested grids. Lists use patchwork's default
+grid dimensions. An explicit value must agree with a labelled patchwork's
+existing grid.}
 
 \item{top_fill, right_fill}{Background fill colour(s) for the top / right
-strips (recycled to `ncol` / `nrow`). `NULL` = light grey when
-`top_right_fill = NULL`. Accepts R colour names, hexadecimal colours,
-numeric palette indices and `NA`; `NA` gives a transparent fill.}
+strips (recycled to \code{ncol} / \code{nrow}). \code{NULL} = light grey when
+\code{top_right_fill = NULL}. Accepts R colour names, hexadecimal colours,
+numeric palette indices and \code{NA}; \code{NA} gives a transparent fill.}
 
-\item{label_color}{Strip text colour. Default `"black"`. Accepts the same
-R colour specifications as `top_fill`; `NULL` inherits the text colour.}
+\item{label_color}{Strip text colour. Default \code{"black"}. Accepts the same
+R colour specifications as \code{top_fill}; \code{NULL} inherits the text colour.}
 
-\item{top_right_fill}{Character vector of one or two `colorspace` sequential
+\item{top_right_fill}{Character vector of one or two \code{colorspace} sequential
 HCL palette names used to generate the top and right fills. The first
 palette is used for top strips and the second for right strips; a single
 palette is reused for both directions. Defaults to
-`c("Grays", "Greens")`. Explicit `top_fill` and `right_fill` values take
+\code{c("Grays", "Greens")}. Explicit \code{top_fill} and \code{right_fill} values take
 precedence. Palette lookup is skipped for unused header directions.}
 }
 \value{
-Same type as input (patchwork in, patchwork out).
+Same type as input: ggplot, patchwork, or list. Input plot and layer
+data, mappings and nested container metadata are preserved.
 }
 \description{
-For an assembled patchwork laid out as an `nrow x ncol` grid, add
-\pkg{facet_grid}-style strips: column-header strips only on the **top row**
-and row-label strips on the **right-most occupied panel** of each row
-(rotated). This avoids [fmt_strip()]'s behaviour of putting a top strip on
-*every* panel -- which looks cluttered when the grid encodes two crossed
-dimensions (e.g. plot-type across columns, a stratifier down rows).
+For an assembled patchwork laid out as an \verb{nrow x ncol} grid, add
+shared strips: column-header strips only on the \strong{top row}
+and row-label strips on the \strong{right-most occupied panel} of each row
+(rotated). The headers describe crossed dimensions, such as plot type across
+columns and a stratifier down rows.
 }
 \details{
-Typical use: a `get_vpd(EXP.obj, c(stratifier, exposure))` result flattened
-via [flatten_patchwork()] into a `4 x 2` grid (rows = stratifier levels,
-columns = Variable / Partial dependence plot) -- `fmt_strip2()` then labels
+Typical use: a \code{get_vpd(EXP.obj, c(stratifier, exposure))} result flattened
+via \code{\link[=flatten_patchwork]{flatten_patchwork()}} into a \verb{4 x 2} grid (rows = stratifier levels,
+columns = Variable / Partial dependence plot) -- \code{fmt_strip2()} then labels
 the two columns on top and the four rows on the right.
 
 In RegR, \code{\link[RegR:get_rcs_all]{RegR::get_rcs_all()}} uses this
-helper for its shared-strip 2 x 2 composites when `strip_style = "grid"`.
+helper for its shared-strip 2 x 2 composites when \code{strip_style = "grid"}.
 Existing facets retain their panels when no new header is assigned. A plot
 receiving a header must have one panel; native facets with multiple panels
 are rejected during plot building, before statistics are computed.
-New headers restore strip settings hidden by \code{\link{fmt_strip}()} and override
+New headers restore strip settings hidden by \code{\link[=fmt_strip]{fmt_strip()}} and override
 blank strip elements while retaining existing text sizes and angles.
+
+When both label arguments are \code{NULL}, existing strips are hidden through
+\code{\link[=fmt_strip]{fmt_strip()}} without evaluating layer data or statistics. Styling and palette
+arguments are ignored in that case.
 }
 \examples{
-\dontshow{if (requireNamespace("RegR", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-library(dplyr)
-data(seer_thyroid_mtc_2026, package = "RegR")
-d <- as.data.frame(seer_thyroid_mtc_2026)
-d <- d[seq_len(min(600L, nrow(d))), , drop = FALSE]
-d <- d[
-  !is.na(d[["DSS"]]) & !is.na(d[["time"]]) & d[["time"]] > 0,
-  ,
-  drop = FALSE
-]
-d[["DSS"]] <- as.numeric(d[["DSS"]])
-
-cat_sur <- NULL
-invisible(capture.output(
-  cat_sur <- suppressWarnings(suppressMessages(
-    RegR::get_cat(
-      d,
-      cat_var = "Sex",
-      adj_var = "Age",
-      surv = TRUE,
-      conf_level = 0.85,
-      timepoint = 120,
-      time_dif = c(60, 120, 180),
-      methods = c("unadj", "direct")
-    )
-  ))
-))
-
-p <- RegR::plt_cat2(
-  cat_sur,
-  max_t = 193,
-  xbreaks = seq(0, 193, 24),
-  unadj_steps = TRUE,
-  sur_arg = list(
-    ylim = c(0, 1),
-    ybre = seq(0, 1, 0.2),
-    xlim = c(1, 2),
-    ticks_at = c(1, 1.5, 2),
-    ticks_digits = 1
-  ),
-  dif_arg = list(
-    ylim = c(0, 0.35),
-    ybre = seq(-0.1, 1, 0.1),
-    xlim = c(0, 0.28),
-    ticks_at = c(0, 0.1, 0.2),
-    ticks_digits = 1
-  ),
-  cat_names = "Female vs. Male",
-  color_pal = "lancet"
+library(ggplot2)
+library(patchwork)
+d <- data.frame(x = seq_len(6), y = c(2, 4, 3, 6, 5, 8))
+points <- ggplot(d, aes(x, y)) + geom_point()
+trend <- ggplot(d, aes(x, y)) + geom_line()
+grid <- wrap_plots(points, trend, points, trend, ncol = 2)
+labelled <- fmt_strip2(
+  grid, top_label = c("Points", "Trend"), right_label = c("Row 1", "Row 2")
 )
-print(p)
-p \%>\% fmt_strip2(
-  top_label = c("Unadjusted", "Adjusted"),
-  right_label = c("Survival curves", "Difference curves"),
-  top_right_fill = c("Grays", "Greens")
+labelled
+\dontshow{print(labelled)}
+
+# Aligned nested grids retain their layout; NA gives transparent headers
+nested <- (points | trend) / (points | trend)
+transparent <- fmt_strip2(
+  nested, top_label = c("Points", "Trend"), right_label = c("Row 1", "Row 2"),
+  ncol = 2, top_fill = NA, right_fill = NA
 )
-\dontshow{\}) # examplesIf}
+transparent
+\dontshow{print(transparent)}
+
 }
 \seealso{
-[fmt_strip()] for per-panel top strips;
-  \code{\link[RegR:get_rcs_all]{RegR::get_rcs_all()}} for the higher-level
-  RCS composite that uses this helper with `strip_style = "grid"`.
+\code{\link[=fmt_strip]{fmt_strip()}} for per-plot strip labels;
+\code{\link[RegR:get_rcs_all]{RegR::get_rcs_all()}} for the higher-level
+RCS composite that uses this helper with \code{strip_style = "grid"}.
 
 Other plot formatting:
 \code{\link[=fmt_axis]{fmt_axis()}},

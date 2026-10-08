@@ -1173,11 +1173,10 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
 #' Add facet-grid-style strips to a patchwork grid (top headers + side labels)
 #'
 #' For an assembled patchwork laid out as an `nrow x ncol` grid, add
-#' \pkg{facet_grid}-style strips: column-header strips only on the **top row**
+#' shared strips: column-header strips only on the **top row**
 #' and row-label strips on the **right-most occupied panel** of each row
-#' (rotated). This avoids [fmt_strip()]'s behaviour of putting a top strip on
-#' *every* panel -- which looks cluttered when the grid encodes two crossed
-#' dimensions (e.g. plot-type across columns, a stratifier down rows).
+#' (rotated). The headers describe crossed dimensions, such as plot type across
+#' columns and a stratifier down rows.
 #'
 #' Typical use: a `get_vpd(EXP.obj, c(stratifier, exposure))` result flattened
 #' via [flatten_patchwork()] into a `4 x 2` grid (rows = stratifier levels,
@@ -1192,22 +1191,23 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
 #' New headers restore strip settings hidden by [fmt_strip()] and override
 #' blank strip elements while retaining existing text sizes and angles.
 #'
-#' @param plot A patchwork (or list) of ggplot panels filling an
+#' @param plot A ggplot, patchwork, or list of ggplot panels filling an
 #'   `nrow x ncol` grid. Row-wise and column-wise filling are supported;
 #'   aligned nested rectangular grids retain their layout and annotations.
 #'   Spacers and guide areas are skipped while retaining their positions.
 #'   Custom `design` and non-aligned nested layouts are rejected.
 #' @param top_label Non-empty character vector of column-header labels without
-#'   missing values (length `ncol`,
-#'   recycled). Placed on the top-row panels only. `NULL` = no top strips.
+#'   missing values, recycled to `ncol`. Placed on the top-row panels only.
+#'   `NULL` gives no top strips; `""` gives a blank label.
 #' @param right_label Non-empty character vector of row labels without missing
-#'   values (length `nrow`, recycled).
+#'   values, recycled to `nrow`.
 #'   Placed on the right-most occupied panel of each row (rotated 90 degrees).
-#'   `NULL` = no right strips.
+#'   `NULL` gives no right strips; `""` gives a blank label.
 #' @param ncol Single positive integer giving the number of columns in the grid.
-#'   If `NULL`, inferred from the
-#'   patchwork layout (`$patches$layout$ncol`/`nrow`) and its default grid
-#'   dimensions. An explicit value must agree with an existing patchwork layout.
+#'   If `NULL`, inferred from the patchwork layout, including dimensions implied
+#'   by its widths/heights and aligned nested grids. Lists use patchwork's default
+#'   grid dimensions. An explicit value must agree with a labelled patchwork's
+#'   existing grid.
 #' @param top_fill,right_fill Background fill colour(s) for the top / right
 #'   strips (recycled to `ncol` / `nrow`). `NULL` = light grey when
 #'   `top_right_fill = NULL`. Accepts R colour names, hexadecimal colours,
@@ -1221,68 +1221,40 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
 #'   `c("Grays", "Greens")`. Explicit `top_fill` and `right_fill` values take
 #'   precedence. Palette lookup is skipped for unused header directions.
 #'
-#' @return Same type as input (patchwork in, patchwork out).
+#' @details
+#' When both label arguments are `NULL`, existing strips are hidden through
+#' [fmt_strip()] without evaluating layer data or statistics. Styling and palette
+#' arguments are ignored in that case.
 #'
-#' @examplesIf requireNamespace("RegR", quietly = TRUE)
-#' library(dplyr)
-#' data(seer_thyroid_mtc_2026, package = "RegR")
-#' d <- as.data.frame(seer_thyroid_mtc_2026)
-#' d <- d[seq_len(min(600L, nrow(d))), , drop = FALSE]
-#' d <- d[
-#'   !is.na(d[["DSS"]]) & !is.na(d[["time"]]) & d[["time"]] > 0,
-#'   ,
-#'   drop = FALSE
-#' ]
-#' d[["DSS"]] <- as.numeric(d[["DSS"]])
+#' @return Same type as input: ggplot, patchwork, or list. Input plot and layer
+#'   data, mappings and nested container metadata are preserved.
 #'
-#' cat_sur <- NULL
-#' invisible(capture.output(
-#'   cat_sur <- suppressWarnings(suppressMessages(
-#'     RegR::get_cat(
-#'       d,
-#'       cat_var = "Sex",
-#'       adj_var = "Age",
-#'       surv = TRUE,
-#'       conf_level = 0.85,
-#'       timepoint = 120,
-#'       time_dif = c(60, 120, 180),
-#'       methods = c("unadj", "direct")
-#'     )
-#'   ))
-#' ))
-#'
-#' p <- RegR::plt_cat2(
-#'   cat_sur,
-#'   max_t = 193,
-#'   xbreaks = seq(0, 193, 24),
-#'   unadj_steps = TRUE,
-#'   sur_arg = list(
-#'     ylim = c(0, 1),
-#'     ybre = seq(0, 1, 0.2),
-#'     xlim = c(1, 2),
-#'     ticks_at = c(1, 1.5, 2),
-#'     ticks_digits = 1
-#'   ),
-#'   dif_arg = list(
-#'     ylim = c(0, 0.35),
-#'     ybre = seq(-0.1, 1, 0.1),
-#'     xlim = c(0, 0.28),
-#'     ticks_at = c(0, 0.1, 0.2),
-#'     ticks_digits = 1
-#'   ),
-#'   cat_names = "Female vs. Male",
-#'   color_pal = "lancet"
+#' @examples
+#' library(ggplot2)
+#' library(patchwork)
+#' d <- data.frame(x = seq_len(6), y = c(2, 4, 3, 6, 5, 8))
+#' points <- ggplot(d, aes(x, y)) + geom_point()
+#' trend <- ggplot(d, aes(x, y)) + geom_line()
+#' grid <- wrap_plots(points, trend, points, trend, ncol = 2)
+#' labelled <- fmt_strip2(
+#'   grid, top_label = c("Points", "Trend"), right_label = c("Row 1", "Row 2")
 #' )
-#' print(p)
-#' p %>% fmt_strip2(
-#'   top_label = c("Unadjusted", "Adjusted"),
-#'   right_label = c("Survival curves", "Difference curves"),
-#'   top_right_fill = c("Grays", "Greens")
-#' )
+#' labelled
+#' \dontshow{print(labelled)}
 #'
+#' # Aligned nested grids retain their layout; NA gives transparent headers
+#' nested <- (points | trend) / (points | trend)
+#' transparent <- fmt_strip2(
+#'   nested, top_label = c("Points", "Trend"), right_label = c("Row 1", "Row 2"),
+#'   ncol = 2, top_fill = NA, right_fill = NA
+#' )
+#' transparent
+#' \dontshow{print(transparent)}
+#'
+#' @md
 #' @export
 #' @family plot formatting
-#' @seealso [fmt_strip()] for per-panel top strips;
+#' @seealso [fmt_strip()] for per-plot strip labels;
 #'   \code{\link[RegR:get_rcs_all]{RegR::get_rcs_all()}} for the higher-level
 #'   RCS composite that uses this helper with `strip_style = "grid"`.
 fmt_strip2 <- function(plot,

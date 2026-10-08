@@ -481,6 +481,11 @@ test_that("fmt_strip2 restores hidden strip themes while retaining text styles",
   again <- fmt_strip2(out, "Again", "Row", ncol = 1)
   expect_identical(vapply(.fmt_strip_text(again), `[[`, character(1), "label"),
                    c("Again", "Row"))
+  old_theme <- ggplot2::theme_set(ggplot2::theme_gray() +
+                                  ggplot2::theme(strip.text = ggplot2::element_blank()))
+  withr::defer(ggplot2::theme_set(old_theme))
+  expect_identical(vapply(.fmt_strip_text(fmt_strip2(p, "Top", "Right", ncol = 1)),
+                          `[[`, character(1), "label"), c("Top", "Right"))
 })
 
 test_that("fmt_strip2 validates dimensions labels colours and palettes", {
@@ -546,6 +551,40 @@ test_that("fmt_strip2 generates only used palettes and supports transparent fill
   ignored <- fmt_strip2(p, top_right_fill = "unused-palette", top_fill = "not-a-colour")
   expect_identical(calls, 0L)
   expect_identical(ignored, p)
+})
+
+test_that("fmt_strip2 preserves RNG state and statistic execution counts", {
+  calls <- 0L
+  data_calls <- 0L
+  stat <- ggplot2::ggproto("StatStrip2Random", ggplot2::Stat,
+    required_aes = c("x", "y"),
+    compute_group = function(data, scales) {
+      calls <<- calls + 1L
+      data$y <- data$y + stats::runif(1)
+      data
+    }
+  )
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) + ggplot2::layer(
+    stat = stat, geom = "point", position = "identity",
+    data = function(data) { data_calls <<- data_calls + 1L; data }
+  )
+  grid <- patchwork::wrap_plots(rep(list(p), 4), ncol = 2)
+  set.seed(19)
+  seed <- .Random.seed
+  out <- fmt_strip2(grid, c("T1", "T2"), c("R1", "R2"))
+  expect_identical(.Random.seed, seed)
+  expect_identical(calls, 0L)
+  expect_identical(data_calls, 0L)
+  before <- lapply(seq_along(grid), function(i) ggplot2::ggplot_build(grid[[i]])$data)
+  final_seed <- .Random.seed
+  calls <- data_calls <- 0L
+  assign(".Random.seed", seed, envir = .GlobalEnv)
+  after <- lapply(seq_along(out), function(i) ggplot2::ggplot_build(out[[i]])$data)
+  expect_identical(calls, 4L)
+  expect_identical(data_calls, 4L)
+  expect_identical(.Random.seed, final_seed)
+  expect_equal(after, before)
+  expect_null(p$facet$.fmt_strip_generated)
 })
 
 test_that("fmt_strip2 supports top_right_fill strip palettes", {
