@@ -28,10 +28,9 @@ Chain multiple formatting operations in one call:
 ``` r
 
 p |> fmt_plot(
-  legend.position = "bottom",
-  tag = "A",
-  base_size = 14
-)
+  fmt_legend_list = list(legend.position = "bottom"),
+  fmt_tag_list = list(labels = "A")
+) + theme(text = element_text(size = 14))
 ```
 
 ![](ggplot2_formatting_files/figure-html/fmt-plot-1.png)
@@ -49,10 +48,37 @@ p |> fmt_tag("A")
 
 ``` r
 
-p |> fmt_tag("B", x = 0.95, y = 0.95, size = 16)
+p |> fmt_tag("B", label_position = c(0.95, 0.95), size = 16)
 ```
 
 ![](ggplot2_formatting_files/figure-html/fmt-tag-2.png)
+
+Labels follow data plots through nested patchworks, skipping spacers,
+guide areas and insets. Automatic labels continue after Z as AA, AB, and
+so on. Calling
+[`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
+again replaces its earlier tags while keeping user annotations. Inside a
+faceted plot the same label appears in each facet; an outside tag
+appears once for the whole plot. Inside-only styling such as `fill` and
+`alpha` is passed to
+[`ggpp::geom_label_npc()`](https://docs.r4photobiology.info/ggpp/reference/geom_text_npc.html)
+through `...`.
+
+``` r
+
+outside <- fmt_tag(p, "A", label_position = "tl-out",
+                   label.padding = grid::unit(0.3, "lines"))
+outside
+```
+
+![](ggplot2_formatting_files/figure-html/fmt-tag-outside-1.png)
+
+``` r
+
+fmt_tag(outside, "B", label_position = "br")
+```
+
+![](ggplot2_formatting_files/figure-html/fmt-tag-outside-2.png)
 
 ------------------------------------------------------------------------
 

@@ -1,7 +1,9 @@
 # Add panel labels to plots
 
-Add text labels (e.g. A, B, C) to the corner of each plot panel using
-\[ggpp::annotate()\] with NPC coordinates.
+Add boxed labels to data plots using \[ggpp::geom_label_npc()\] inside
+panels or \[patchwork::inset_element()\] at the corners of whole plots.
+Nested plots are labelled in leaf order; spacers, guide areas and insets
+are skipped.
 
 ## Usage
 
@@ -24,68 +26,86 @@ fmt_tag(
 
 - plot:
 
-  A ggplot, patchwork, or list of ggplot objects.
+  A ggplot, patchwork, or list of these objects.
 
 - labels:
 
-  Character vector of labels. If \`NULL\` (default), uses
-  \`LETTERS\[1:n\]\`.
+  Non-empty character vector without missing or blank labels. If
+  \`NULL\` (default), uses A through Z, then AA, AB and so on. Short
+  vectors are recycled with a warning; excess labels are ignored.
 
 - label_position:
 
   Placement of the label. Accepts either:
 
-  - Numeric length-2 vector \`c(x, y)\` in NPC — drawn inside the panel
-    (default \`c(0.02, 0.98)\` = top-left inside).
+  - Finite numeric length-2 vector \`c(x, y)\` in NPC, both values in
+    \`\[0, 1\]\` — drawn inside the panel (default \`c(0.02, 0.98)\`).
 
   - Keyword for inside corners: \`"tl"\`, \`"tr"\`, \`"bl"\`, \`"br"\`.
 
   - Keyword for outside corners (a boxed label at the corner of the
-    whole plot, in the margin region outside the panel, drawn as a
-    full-plot \[patchwork::inset_element()\]): \`"tl-out"\`,
-    \`"tr-out"\`, \`"bl-out"\`, \`"br-out"\`. Underscore variants
-    (\`"tl_out"\` etc.) are also accepted.
+    whole plot, drawn as a full-plot \[patchwork::inset_element()\]):
+    \`"tl-out"\`, \`"tr-out"\`, \`"bl-out"\`, \`"br-out"\`. Underscore
+    variants (\`"tl_out"\` etc.) are also accepted.
 
-  Both placements draw the same box, styled by \`label.size\`,
-  \`label.padding\` and \`label.r\`; \`...\` only applies to inside
-  placements.
+  Both placements use a box styled by \`label.size\`, \`label.padding\`
+  and \`label.r\`; \`...\` only applies to inside placements. Invalid
+  positions raise an error.
 
 - size:
 
-  Numeric label size in points. Default 18.
+  Positive finite numeric label sizes in points, recycled over data
+  plots. Default 18.
 
 - color:
 
-  Label text color. Default \`"black"\`.
+  R colour specifications for text and borders, recycled over data
+  plots. Numeric palette colours and \`NA\` are accepted. Default
+  \`"black"\`.
 
 - fontface:
 
-  Font face for labels. Default \`"bold"\`.
+  One font face: \`"plain"\`, \`"bold"\`, \`"italic"\`,
+  \`"bold.italic"\`, \`"symbol"\`, or the corresponding number from 1
+  to 5. Default \`"bold"\`.
 
 - label.size:
 
-  Border line width of the label box in mm. Default 1.
+  One finite non-negative border width in mm. Zero removes the border.
+  Default 1.
 
 - label.padding:
 
-  Padding around the label text, a \[grid::unit()\] vector. Default
-  \`unit(c(0.2, 0.3, 0.2, 0.3), "lines")\` (top, right, bottom, left).
+  Padding around the label text, a \[grid::unit()\] vector with finite
+  non-negative values and length 1, 2 or 4. Values are recycled to top,
+  right, bottom, left; two values set top/bottom and right/left
+  respectively. Asymmetric padding is honoured in both modes. Default
+  \`unit(c(0.2, 0.3, 0.2, 0.3), "lines")\`.
 
 - label.r:
 
-  Corner radius of the label box, a \[grid::unit()\] value. Default
+  One finite non-negative \[grid::unit()\] corner radius. Default
   \`unit(0.2, "lines")\`.
 
 - ...:
 
-  Additional arguments passed to \[ggpp::annotate()\] for inside
-  placements (ignored when an \`-out\` keyword is used).
+  Additional inside-label arguments passed to
+  \[ggpp::geom_label_npc()\], such as \`fill\`, \`alpha\`, \`family\` or
+  \`parse\`. Ignored when an \`-out\` keyword is used.
 
 ## Value
 
 Same type as input. With an \`-out\` keyword each ggplot carries the
 label as a patchwork inset, so a single ggplot comes back as a
-(single-plot) patchwork.
+(single-plot) patchwork. Replacing an outside tag with an inside tag
+removes a container created solely for the old tag.
+
+## Details
+
+Repeated calls replace only labels created by \`fmt_tag()\`, preserving
+user annotations and insets. Inside labels repeat the same plot label in
+each native facet; outside labels appear once per data plot. Containers
+without data plots are returned unchanged without validating styling.
 
 ## See also
 
@@ -102,8 +122,8 @@ Other plot formatting:
 [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md),
 [`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md),
 [`fmt_plot_base()`](https://hui950319.github.io/UtilsR/reference/fmt_plot_base.md),
-[`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md),
-[`fmt_raster()`](https://hui950319.github.io/UtilsR/reference/fmt_raster.md),
+[`fmt_point`](https://hui950319.github.io/UtilsR/reference/fmt_point.md),
+[`fmt_raster`](https://hui950319.github.io/UtilsR/reference/fmt_raster.md),
 [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md),
 [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md),
 [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md),
@@ -114,15 +134,13 @@ Other plot formatting:
 
 ``` r
 library(ggplot2)
-p1 <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) + geom_point()
-p2 <- ggplot(iris, aes(Petal.Length, Petal.Width)) + geom_point()
+library(patchwork)
+d <- data.frame(x = 1:5, y = c(2, 4, 3, 5, 6), z = c(5, 3, 4, 2, 1))
+p1 <- ggplot(d, aes(x, y)) + geom_point()
+p2 <- ggplot(d, aes(x, z)) + geom_point()
 
 # Auto-label A, B (inside panel, top-left)
 fmt_tag(list(p1, p2))
-#> Registered S3 methods overwritten by 'ggpp':
-#>   method                  from   
-#>   heightDetails.titleGrob ggplot2
-#>   widthDetails.titleGrob  ggplot2
 #> [[1]]
 
 #> 
@@ -156,4 +174,15 @@ fmt_tag(list(p1, p2), label_position = "tl-out")
 #> [[2]]
 
 #> 
+
+# Label nested data plots while skipping the spacer
+nested <- (p1 | plot_spacer()) / (p2 | p1)
+fmt_tag(nested)
+
+
+# Replace an outside tag with an inside tag
+outside <- fmt_tag(p1, "A", label_position = "tl-out",
+                   label.padding = grid::unit(0.3, "lines"))
+fmt_tag(outside, "B", label_position = "br")
+
 ```

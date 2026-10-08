@@ -51,7 +51,8 @@ fmt_plot(
 - tag_levels:
 
   Character string for patchwork tag levels (e.g. \`"A"\`, \`"a"\`,
-  \`"1"\`). Only used when input is a patchwork object.
+  \`"1"\`). Only used when input is a patchwork object. Ignored with a
+  warning when \`fmt_tag_list\` supplies explicit labels.
 
 - axis_titles:
 
@@ -80,8 +81,8 @@ Other plot formatting:
 [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md),
 [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md),
 [`fmt_plot_base()`](https://hui950319.github.io/UtilsR/reference/fmt_plot_base.md),
-[`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md),
-[`fmt_raster()`](https://hui950319.github.io/UtilsR/reference/fmt_raster.md),
+[`fmt_point`](https://hui950319.github.io/UtilsR/reference/fmt_point.md),
+[`fmt_raster`](https://hui950319.github.io/UtilsR/reference/fmt_raster.md),
 [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md),
 [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md),
 [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md),
@@ -93,19 +94,25 @@ Other plot formatting:
 
 ``` r
 library(ggplot2)
-p1 <- ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) + geom_point()
-p2 <- ggplot(iris, aes(Petal.Length, Petal.Width, color = Species)) + geom_point()
+library(patchwork)
+d <- data.frame(x = 1:6, y = c(2, 4, 3, 5, 6, 4),
+                group = rep(c("a", "b"), each = 3))
+p1 <- ggplot(d, aes(x, y, colour = group)) + geom_point()
+p2 <- ggplot(d, aes(y, x, colour = group)) + geom_point()
 
 # Single plot with reference line and legend
-fmt_plot(p1, ref_x = 5.5, legend.position = "bottom")
+single <- fmt_plot(p1, fmt_ref_list = list(x = 3),
+                   fmt_legend_list = list(legend.position = "bottom"))
+single
 
 
 # Multi-plot with tags and merged legend
-fmt_plot(list(p1, p2), tag = TRUE, collect = TRUE)
-#> [[1]]
+combined <- fmt_plot(p1 | p2, fmt_tag_list = list(),
+                     fmt_legend_list = list(collect = TRUE))
+#> Registered S3 methods overwritten by 'ggpp':
+#>   method                  from   
+#>   heightDetails.titleGrob ggplot2
+#>   widthDetails.titleGrob  ggplot2
+combined
 
-#> 
-#> [[2]]
-
-#> 
 ```

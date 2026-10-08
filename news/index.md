@@ -3,6 +3,14 @@
 ## UtilsR 0.6.8
 
 - [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
+  and
+  [`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md)
+  help and formatting tutorials now document the supported arguments,
+  replacement and facet behaviour with runnable examples. Regression
+  tests cover rendered labels, nested containers, padding, validation,
+  RNG preservation and deferred data evaluation.
+
+- [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
   continues automatic lettering after Z as AA, AB and so on, and rejects
   blank labels, invalid NPC positions, colours, font faces, sizes and
   padding units before drawing. Custom label recycling remains

@@ -103,10 +103,9 @@
 <p>Chain multiple formatting operations in one call:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/fmt_plot.html">fmt_plot</a></span><span class="op">(</span></span>
-<span>  legend.position <span class="op">=</span> <span class="st">"bottom"</span>,</span>
-<span>  tag <span class="op">=</span> <span class="st">"A"</span>,</span>
-<span>  base_size <span class="op">=</span> <span class="fl">14</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span>  fmt_legend_list <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span>,</span>
+<span>  fmt_tag_list <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>labels <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span></span>
+<span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>text <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">14</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ggplot2_formatting_files/figure-html/fmt-plot-1.png" class="r-plt" alt="" width="840"></p>
 <hr>
 </div>
@@ -118,15 +117,31 @@
 <code class="sourceCode R"><span><span class="va">p</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/fmt_tag.html">fmt_tag</a></span><span class="op">(</span><span class="st">"A"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ggplot2_formatting_files/figure-html/fmt-tag-1.png" class="r-plt" alt="" width="840"></p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">p</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/fmt_tag.html">fmt_tag</a></span><span class="op">(</span><span class="st">"B"</span>, x <span class="op">=</span> <span class="fl">0.95</span>, y <span class="op">=</span> <span class="fl">0.95</span>, size <span class="op">=</span> <span class="fl">16</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">p</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/fmt_tag.html">fmt_tag</a></span><span class="op">(</span><span class="st">"B"</span>, label_position <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.95</span>, <span class="fl">0.95</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">16</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ggplot2_formatting_files/figure-html/fmt-tag-2.png" class="r-plt" alt="" width="840"></p>
+<p>Labels follow data plots through nested patchworks, skipping spacers,
+guide areas and insets. Automatic labels continue after Z as AA, AB, and
+so on. Calling <code><a href="../reference/fmt_tag.html">fmt_tag()</a></code> again replaces its earlier tags
+while keeping user annotations. Inside a faceted plot the same label
+appears in each facet; an outside tag appears once for the whole plot.
+Inside-only styling such as <code>fill</code> and <code>alpha</code> is
+passed to <code><a href="https://docs.r4photobiology.info/ggpp/reference/geom_text_npc.html" class="external-link">ggpp::geom_label_npc()</a></code> through
+<code>...</code>.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">outside</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fmt_tag.html">fmt_tag</a></span><span class="op">(</span><span class="va">p</span>, <span class="st">"A"</span>, label_position <span class="op">=</span> <span class="st">"tl-out"</span>,</span>
+<span>                   label.padding <span class="op">=</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="st">"lines"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">outside</span></span></code></pre></div>
+<p><img src="ggplot2_formatting_files/figure-html/fmt-tag-outside-1.png" class="r-plt" alt="" width="840"></p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/fmt_tag.html">fmt_tag</a></span><span class="op">(</span><span class="va">outside</span>, <span class="st">"B"</span>, label_position <span class="op">=</span> <span class="st">"br"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="ggplot2_formatting_files/figure-html/fmt-tag-outside-2.png" class="r-plt" alt="" width="840"></p>
 <hr>
 </div>
 <div class="section level2">
 <h2 id="fmt_legend-legend-formatting">
 <code>fmt_legend()</code> — Legend Formatting<a class="anchor" aria-label="anchor" href="#fmt_legend-legend-formatting"></a>
 </h2>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/fmt_legend.html">fmt_legend</a></span><span class="op">(</span>position <span class="op">=</span> <span class="st">"bottom"</span>, direction <span class="op">=</span> <span class="st">"horizontal"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ggplot2_formatting_files/figure-html/fmt-legend-1.png" class="r-plt" alt="" width="840"></p>
 <hr>
@@ -135,10 +150,10 @@
 <h2 id="fmt_ref-reference-lines">
 <code>fmt_ref()</code> — Reference Lines<a class="anchor" aria-label="anchor" href="#fmt_ref-reference-lines"></a>
 </h2>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/fmt_ref.html">fmt_ref</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fl">5.8</span>, yintercept <span class="op">=</span> <span class="fl">3.0</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ggplot2_formatting_files/figure-html/fmt-ref-1.png" class="r-plt" alt="" width="840"></p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Multiple lines with colours</span></span>
 <span><span class="va">p</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/fmt_ref.html">fmt_ref</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">7</span><span class="op">)</span>, color <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"blue"</span>, <span class="st">"green"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ggplot2_formatting_files/figure-html/fmt-ref-multi-1.png" class="r-plt" alt="" width="840"></p>
@@ -148,7 +163,7 @@
 <h2 id="fmt_axis-axis-control">
 <code>fmt_axis()</code> — Axis Control<a class="anchor" aria-label="anchor" href="#fmt_axis-axis-control"></a>
 </h2>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Hide x-axis (useful for multi-panel layouts)</span></span>
 <span><span class="va">p</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/fmt_axis.html">fmt_axis</a></span><span class="op">(</span>x <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ggplot2_formatting_files/figure-html/fmt-axis-1.png" class="r-plt" alt="" width="840"></p>
@@ -158,7 +173,7 @@
 <h2 id="fmt_strip-facet-strip-colours">
 <code>fmt_strip()</code> — Facet Strip Colours<a class="anchor" aria-label="anchor" href="#fmt_strip-facet-strip-colours"></a>
 </h2>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p_facet</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">iris</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">Sepal.Length</span>, <span class="va">Sepal.Width</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">Species</span><span class="op">)</span></span>
@@ -170,7 +185,7 @@
 <h2 id="fmt_bg-background-stripes">
 <code>fmt_bg()</code> — Background Stripes<a class="anchor" aria-label="anchor" href="#fmt_bg-background-stripes"></a>
 </h2>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/fmt_bg.html">fmt_bg</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"Paired"</span>, alpha <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
@@ -178,7 +193,7 @@
 <h2 id="fmt_scale-axis-scales">
 <code>fmt_scale()</code> — Axis Scales<a class="anchor" aria-label="anchor" href="#fmt_scale-axis-scales"></a>
 </h2>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/fmt_scale.html">fmt_scale</a></span><span class="op">(</span>scale_x_list <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">8</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>               scale_y_list <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">4.5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <hr>
@@ -187,7 +202,7 @@
 <h2 id="fmt_boxplot-overlay-boxplot">
 <code>fmt_boxplot()</code> — Overlay Boxplot<a class="anchor" aria-label="anchor" href="#fmt_boxplot-overlay-boxplot"></a>
 </h2>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p_violin</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">iris</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">Species</span>, <span class="va">Sepal.Length</span>, fill <span class="op">=</span> <span class="va">Species</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_violin.html" class="external-link">geom_violin</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">p_violin</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/fmt_boxplot.html">fmt_boxplot</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
@@ -201,7 +216,7 @@
 <h3 id="theme_my-clean-general-purpose">
 <code>theme_my()</code> — Clean General Purpose<a class="anchor" aria-label="anchor" href="#theme_my-clean-general-purpose"></a>
 </h3>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p</span> <span class="op">+</span> <span class="fu"><a href="../reference/theme_my.html">theme_my</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ggplot2_formatting_files/figure-html/theme-my-1.png" class="r-plt" alt="" width="840"></p>
 </div>
@@ -209,7 +224,7 @@
 <h3 id="theme_my-with-custom-base-size">
 <code>theme_my()</code> with custom base size<a class="anchor" aria-label="anchor" href="#theme_my-with-custom-base-size"></a>
 </h3>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p</span> <span class="op">+</span> <span class="fu"><a href="../reference/theme_my.html">theme_my</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">16</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ggplot2_formatting_files/figure-html/theme-my-large-1.png" class="r-plt" alt="" width="840"></p>
 <hr>
@@ -219,7 +234,7 @@
 <h2 id="flatten_patchwork-flatten-nested-patchwork">
 <code>flatten_patchwork()</code> — Flatten Nested Patchwork<a class="anchor" aria-label="anchor" href="#flatten_patchwork-flatten-nested-patchwork"></a>
 </h2>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
 <span><span class="va">nested</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">p1</span> <span class="op">|</span> <span class="va">p2</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="va">p3</span> <span class="op">|</span> <span class="va">p4</span><span class="op">)</span></span>
 <span><span class="va">flat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flatten_patchwork.html">flatten_patchwork</a></span><span class="op">(</span><span class="va">nested</span><span class="op">)</span></span></code></pre></div>
