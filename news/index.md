@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
+  labels all leaf plots in nested patchworks in order, skipping spacers
+  and guide areas without consuming their labels. Nested layouts,
+  annotations and named list containers are preserved.
+
+- [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
   adds synthetic strips with a constant facet expression instead of
   overwriting a data column. Empty data, layer-only data and annotations
   are supported, and existing `.strip_label.` mappings remain unchanged.
