@@ -226,3 +226,41 @@ test_that("tag arguments fail early with the responsible argument", {
   expect_equal(vapply(res, function(x) x$layers[[2]]$aes_params$colour, character(1)),
                c("red", "blue"))
 })
+
+test_that("facet tags retain panel data and the documented label count", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, disp)) + ggplot2::geom_point() +
+    ggplot2::facet_wrap(ggplot2::vars(cyl), scales = "free")
+  before <- ggplot2::ggplot_build(p)
+  inside <- fmt_tag(p)
+  after <- ggplot2::ggplot_build(inside)
+  expect_identical(after$data[[1]], before$data[[1]])
+  expect_identical(after$layout$layout, before$layout$layout)
+  expect_equal(nrow(after$data[[2]]), 3L)
+  tags <- Filter(function(g) identical(g$label, "A"),
+                 find_grobs(ggplot2::ggplotGrob(inside), "text"))
+  expect_length(tags, 3L)
+  outside <- fmt_tag(p, label_position = "tl-out")
+  tags <- Filter(function(g) identical(g$label, "A"),
+                 find_grobs(patchwork::patchworkGrob(outside), "text"))
+  expect_length(tags, 1L)
+})
+
+test_that("tag construction preserves RNG and defers data evaluation", {
+  calls <- 0L
+  p <- ggplot2::ggplot() + ggplot2::geom_point(
+    data = function(data) { calls <<- calls + 1L; mtcars },
+    mapping = ggplot2::aes(mpg, disp))
+  set.seed(514)
+  rng <- .Random.seed
+  original_layer <- p$layers[[1]]
+  inside <- fmt_tag(p)
+  outside <- fmt_tag(p, label_position = "tl-out")
+  expect_identical(.Random.seed, rng)
+  expect_length(p$layers, 1L)
+  expect_identical(p$layers[[1]], original_layer)
+  expect_equal(calls, 0L)
+  invisible(ggplot2::ggplot_build(inside))
+  expect_equal(calls, 1L)
+  invisible(patchwork::patchworkGrob(outside))
+  expect_equal(calls, 2L)
+})

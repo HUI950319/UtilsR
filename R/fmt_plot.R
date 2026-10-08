@@ -176,45 +176,64 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
 
 #' Add panel labels to plots
 #'
-#' Add text labels (e.g. A, B, C) to the corner of each plot panel using
-#' [ggpp::annotate()] with NPC coordinates.
+#' Add boxed labels to data plots using [ggpp::geom_label_npc()] inside panels
+#' or [patchwork::inset_element()] at the corners of whole plots. Nested plots
+#' are labelled in leaf order; spacers, guide areas and insets are skipped.
 #'
-#' @param plot A ggplot, patchwork, or list of ggplot objects.
-#' @param labels Character vector of labels. If `NULL` (default), uses
-#'   `LETTERS[1:n]`.
+#' @param plot A ggplot, patchwork, or list of these objects.
+#' @param labels Non-empty character vector without missing or blank labels.
+#'   If `NULL` (default), uses A through Z, then AA, AB and so on. Short vectors
+#'   are recycled with a warning; excess labels are ignored.
 #' @param label_position Placement of the label. Accepts either:
 #'   \itemize{
-#'     \item Numeric length-2 vector `c(x, y)` in NPC — drawn inside the
-#'       panel (default `c(0.02, 0.98)` = top-left inside).
+#'     \item Finite numeric length-2 vector `c(x, y)` in NPC, both values in
+#'       `[0, 1]` — drawn inside the panel (default `c(0.02, 0.98)`).
 #'     \item Keyword for inside corners: `"tl"`, `"tr"`, `"bl"`, `"br"`.
 #'     \item Keyword for outside corners (a boxed label at the corner of the
-#'       whole plot, in the margin region outside the panel, drawn as a
+#'       whole plot, drawn as a
 #'       full-plot [patchwork::inset_element()]):
 #'       `"tl-out"`, `"tr-out"`, `"bl-out"`, `"br-out"`. Underscore
 #'       variants (`"tl_out"` etc.) are also accepted.
 #'   }
-#'   Both placements draw the same box, styled by `label.size`,
+#'   Both placements use a box styled by `label.size`,
 #'   `label.padding` and `label.r`; `...` only applies to inside placements.
-#' @param size Numeric label size in points. Default 18.
-#' @param color Label text color. Default `"black"`.
-#' @param fontface Font face for labels. Default `"bold"`.
-#' @param label.size Border line width of the label box in mm. Default 1.
+#'   Invalid positions raise an error.
+#' @param size Positive finite numeric label sizes in points, recycled over
+#'   data plots. Default 18.
+#' @param color R colour specifications for text and borders, recycled over
+#'   data plots. Numeric palette colours and `NA` are accepted. Default `"black"`.
+#' @param fontface One font face: `"plain"`, `"bold"`, `"italic"`,
+#'   `"bold.italic"`, `"symbol"`, or the corresponding number from 1 to 5.
+#'   Default `"bold"`.
+#' @param label.size One finite non-negative border width in mm. Zero removes
+#'   the border. Default 1.
 #' @param label.padding Padding around the label text, a [grid::unit()]
-#'   vector. Default `unit(c(0.2, 0.3, 0.2, 0.3), "lines")` (top, right,
-#'   bottom, left).
-#' @param label.r Corner radius of the label box, a [grid::unit()] value.
+#'   vector with finite non-negative values and length 1, 2 or 4. Values are
+#'   recycled to top, right, bottom, left; two values set top/bottom and
+#'   right/left respectively. Asymmetric padding is honoured in both modes.
+#'   Default `unit(c(0.2, 0.3, 0.2, 0.3), "lines")`.
+#' @param label.r One finite non-negative [grid::unit()] corner radius.
 #'   Default `unit(0.2, "lines")`.
-#' @param ... Additional arguments passed to [ggpp::annotate()] for
-#'   inside placements (ignored when an `-out` keyword is used).
+#' @param ... Additional inside-label arguments passed to
+#'   [ggpp::geom_label_npc()], such as `fill`, `alpha`, `family` or `parse`.
+#'   Ignored when an `-out` keyword is used.
+#'
+#' @details Repeated calls replace only labels created by `fmt_tag()`, preserving
+#'   user annotations and insets. Inside labels repeat the same plot label in
+#'   each native facet; outside labels appear once per data plot. Containers
+#'   without data plots are returned unchanged without validating styling.
 #'
 #' @return Same type as input. With an `-out` keyword each ggplot carries
 #'   the label as a patchwork inset, so a single ggplot comes back as a
-#'   (single-plot) patchwork.
+#'   (single-plot) patchwork. Replacing an outside tag with an inside tag removes
+#'   a container created solely for the old tag.
 #'
 #' @examples
 #' library(ggplot2)
-#' p1 <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) + geom_point()
-#' p2 <- ggplot(iris, aes(Petal.Length, Petal.Width)) + geom_point()
+#' library(patchwork)
+#' d <- data.frame(x = 1:5, y = c(2, 4, 3, 5, 6), z = c(5, 3, 4, 2, 1))
+#' p1 <- ggplot(d, aes(x, y)) + geom_point()
+#' p2 <- ggplot(d, aes(x, z)) + geom_point()
 #'
 #' # Auto-label A, B (inside panel, top-left)
 #' fmt_tag(list(p1, p2))
@@ -227,6 +246,15 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
 #'
 #' # Outside the panel, top-left corner of the entire plot
 #' fmt_tag(list(p1, p2), label_position = "tl-out")
+#'
+#' # Label nested data plots while skipping the spacer
+#' nested <- (p1 | plot_spacer()) / (p2 | p1)
+#' fmt_tag(nested)
+#'
+#' # Replace an outside tag with an inside tag
+#' outside <- fmt_tag(p1, "A", label_position = "tl-out",
+#'                    label.padding = grid::unit(0.3, "lines"))
+#' fmt_tag(outside, "B", label_position = "br")
 #'
 #' @export
 #' @family plot formatting
@@ -799,7 +827,8 @@ fmt_ref <- function(plot,
 #' @param plot.margin Numeric vector of length 1 or 4, or a [ggplot2::margin()]
 #'   object. Applied to all plots via `&`.
 #' @param tag_levels Character string for patchwork tag levels (e.g. `"A"`,
-#'   `"a"`, `"1"`). Only used when input is a patchwork object.
+#'   `"a"`, `"1"`). Only used when input is a patchwork object. Ignored with a
+#'   warning when `fmt_tag_list` supplies explicit labels.
 #' @param axis_titles Passed to [patchwork::plot_layout()] `axis_titles`
 #'   argument. Only used when input is a patchwork object.
 #' @param ... Currently unused.
@@ -808,14 +837,21 @@ fmt_ref <- function(plot,
 #'
 #' @examples
 #' library(ggplot2)
-#' p1 <- ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) + geom_point()
-#' p2 <- ggplot(iris, aes(Petal.Length, Petal.Width, color = Species)) + geom_point()
+#' library(patchwork)
+#' d <- data.frame(x = 1:6, y = c(2, 4, 3, 5, 6, 4),
+#'                 group = rep(c("a", "b"), each = 3))
+#' p1 <- ggplot(d, aes(x, y, colour = group)) + geom_point()
+#' p2 <- ggplot(d, aes(y, x, colour = group)) + geom_point()
 #'
 #' # Single plot with reference line and legend
-#' fmt_plot(p1, ref_x = 5.5, legend.position = "bottom")
+#' single <- fmt_plot(p1, fmt_ref_list = list(x = 3),
+#'                    fmt_legend_list = list(legend.position = "bottom"))
+#' single
 #'
 #' # Multi-plot with tags and merged legend
-#' fmt_plot(list(p1, p2), tag = TRUE, collect = TRUE)
+#' combined <- fmt_plot(p1 | p2, fmt_tag_list = list(),
+#'                      fmt_legend_list = list(collect = TRUE))
+#' combined
 #'
 #' @export
 #' @family plot formatting

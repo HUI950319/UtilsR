@@ -35,7 +35,8 @@ to skip.}
 object. Applied to all plots via `&`.}
 
 \item{tag_levels}{Character string for patchwork tag levels (e.g. `"A"`,
-`"a"`, `"1"`). Only used when input is a patchwork object.}
+`"a"`, `"1"`). Only used when input is a patchwork object. Ignored with a
+warning when `fmt_tag_list` supplies explicit labels.}
 
 \item{axis_titles}{Passed to [patchwork::plot_layout()] `axis_titles`
 argument. Only used when input is a patchwork object.}
@@ -52,14 +53,21 @@ corresponding `*_list` argument is non-NULL.
 }
 \examples{
 library(ggplot2)
-p1 <- ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) + geom_point()
-p2 <- ggplot(iris, aes(Petal.Length, Petal.Width, color = Species)) + geom_point()
+library(patchwork)
+d <- data.frame(x = 1:6, y = c(2, 4, 3, 5, 6, 4),
+                group = rep(c("a", "b"), each = 3))
+p1 <- ggplot(d, aes(x, y, colour = group)) + geom_point()
+p2 <- ggplot(d, aes(y, x, colour = group)) + geom_point()
 
 # Single plot with reference line and legend
-fmt_plot(p1, ref_x = 5.5, legend.position = "bottom")
+single <- fmt_plot(p1, fmt_ref_list = list(x = 3),
+                   fmt_legend_list = list(legend.position = "bottom"))
+single
 
 # Multi-plot with tags and merged legend
-fmt_plot(list(p1, p2), tag = TRUE, collect = TRUE)
+combined <- fmt_plot(p1 | p2, fmt_tag_list = list(),
+                     fmt_legend_list = list(collect = TRUE))
+combined
 
 }
 \seealso{
@@ -75,8 +83,8 @@ Other plot formatting:
 \code{\link[=fmt_legend]{fmt_legend()}},
 \code{\link[=fmt_panel]{fmt_panel()}},
 \code{\link[=fmt_plot_base]{fmt_plot_base()}},
-\code{\link[=fmt_point]{fmt_point()}},
-\code{\link[=fmt_raster]{fmt_raster()}},
+\code{\link{fmt_point}},
+\code{\link{fmt_raster}},
 \code{\link[=fmt_ref]{fmt_ref()}},
 \code{\link[=fmt_scale]{fmt_scale()}},
 \code{\link[=fmt_strip]{fmt_strip()}},

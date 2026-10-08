@@ -1,5 +1,10 @@
 # UtilsR 0.6.8
 
+* `fmt_tag()` and `fmt_plot()` help and formatting tutorials now document the
+  supported arguments, replacement and facet behaviour with runnable examples.
+  Regression tests cover rendered labels, nested containers, padding, validation,
+  RNG preservation and deferred data evaluation.
+
 * `fmt_tag()` continues automatic lettering after Z as AA, AB and so on, and
   rejects blank labels, invalid NPC positions, colours, font faces, sizes and
   padding units before drawing. Custom label recycling remains supported.
