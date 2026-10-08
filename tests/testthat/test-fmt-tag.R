@@ -4,6 +4,25 @@ find_grobs <- function(g, cls) {
     unlist(lapply(kids, find_grobs, cls = cls), recursive = FALSE))
 }
 
+test_that("inside tags draw one label with four-sided padding", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, disp)) + ggplot2::geom_point()
+  original <- ggplot2::ggplot_build(p)
+  res <- fmt_tag(p, labels = "A", fill = "red", alpha = 0.25)
+  built <- ggplot2::ggplot_build(res)
+
+  expect_equal(nrow(built$data[[2]]), 1L)
+  expect_equal(built$data[[2]]$label, "A")
+  expect_equal(built$data[[2]]$alpha, 0.25)
+  expect_identical(built$data[[1]], original$data[[1]])
+  expect_identical(built$layout$panel_params[[1]]$x.range,
+                   original$layout$panel_params[[1]]$x.range)
+  expect_identical(built$layout$panel_params[[1]]$y.range,
+                   original$layout$panel_params[[1]]$y.range)
+  tags <- Filter(function(g) identical(g$label, "A"),
+                 find_grobs(ggplot2::ggplotGrob(res), "text"))
+  expect_length(tags, 1L)
+})
+
 test_that("outside tags are drawn in a box honouring label.size / label.r", {
   p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, disp)) + ggplot2::geom_point()
   res <- fmt_tag(p, labels = "A", label_position = "tl-out",

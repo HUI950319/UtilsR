@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_tag()` draws a single inside label per panel with four-sided padding,
+  avoiding duplicated text and repeated alpha blending of label backgrounds.
+
 * `fmt_strip2()` help now uses lightweight self-contained examples and documents
   supported grids, unchanged data, transparent colours and facet restrictions.
   Regression coverage includes real rendered headers, RNG state and data/statistic

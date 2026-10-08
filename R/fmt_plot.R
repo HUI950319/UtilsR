@@ -296,11 +296,12 @@ fmt_tag <- function(plot,
       )
     } else {
       plots[[i]] <- plots[[i]] +
-        ggpp::annotate(
-          "label_npc",
-          npcx = npcx[i],
-          npcy = npcy[i],
-          label = labels[i],
+        ggpp::geom_label_npc(
+          data = data.frame(npcx = npcx[i], npcy = npcy[i], label = labels[i]),
+          mapping = ggplot2::aes(npcx = .data[["npcx"]], npcy = .data[["npcy"]],
+                                 label = .data[["label"]]),
+          inherit.aes = FALSE,
+          show.legend = FALSE,
           size = size[i],
           fontface = fontface,
           color = color[i],
