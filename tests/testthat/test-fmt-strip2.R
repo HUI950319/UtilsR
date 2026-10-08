@@ -203,6 +203,29 @@ test_that("fmt_strip hides strips without executing data functions or statistics
   expect_length(.fmt_strip_text(hidden), 0L)
 })
 
+test_that("fmt_strip validates labels and colours before rendering", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) + ggplot2::geom_point()
+  for (bad in list(character(), NA_character_, 1, list("A"))) {
+    expect_error(fmt_strip(p, label = bad), "label")
+  }
+  for (arg in c("label_color", "label_fill")) {
+    for (bad in list(character(), list("red"), "not-a-colour", Inf)) {
+      expect_error(do.call(fmt_strip, c(list(plot = p), stats::setNames(list(bad), arg))), arg)
+    }
+  }
+  expect_true(identical(fmt_strip(p, strip = FALSE, label = character(),
+                                 label_fill = "not-a-colour"), p))
+  expect_identical(fmt_strip(list()), list())
+  expect_s3_class(ggplot2::ggplotGrob(fmt_strip(p, "", label_color = 1)), "gtable")
+  transparent <- fmt_strip(p, "A", label_fill = NA)
+  expect_true(all(vapply(.fmt_strip_text(transparent, "rect"),
+                         function(x) grDevices::col2rgb(x$gp$fill, alpha = TRUE)[4, ] == 0,
+                         logical(1))))
+  inherited <- fmt_strip(p + ggplot2::theme(strip.background = ggplot2::element_rect(fill = "pink")))
+  expect_identical(vapply(.fmt_strip_text(inherited, "rect"), function(x) x$gp$fill,
+                          character(1)), "pink")
+})
+
 test_that("fmt_strip preserves facet structure and computed statistics", {
   p <- ggplot2::ggplot(mtcars, ggplot2::aes(1, mpg)) +
     ggplot2::stat_summary(fun = mean, geom = "point")

@@ -859,18 +859,28 @@ fmt_plot_base <- function(plot, ggtheme = NULL, labs_list = NULL,
 
 #' Add facet strip labels to a plot
 #'
-#' Wraps each plot in a single-panel \code{ggh4x::facet_wrap2} so that a
-#' coloured strip label appears above the panel. Strip text is horizontally
-#' and vertically centered. Set \code{strip = FALSE} to remove every strip
-#' instead.
+#' Add a top strip to an unfaceted plot or update the labels and style of an
+#' existing facet. Facet variables, layout, scales, statistics and plot/layer
+#' data are preserved. Strip text is horizontally and vertically centered.
+#' Set \code{strip = FALSE} to hide strips without building the plot.
 #'
-#' @param plot A ggplot, patchwork, or list of ggplots.
-#' @param label Character vector of strip labels. For one faceted plot, labels
-#'   are recycled across levels of its first facet variable. For multiple plots,
-#'   labels are recycled across plots. `NULL` generates `Figure1`, `Figure2`, etc.
-#' @param label_color Text colour(s) for the strip label. Default \code{"black"}.
-#' @param label_fill Background fill colour(s) for the strip. If \code{NULL},
-#'   strips use a transparent background.
+#' @param plot A ggplot, patchwork, or list of these. Nested patchworks retain
+#'   their layout; spacers and guide areas are skipped.
+#' @param label A non-empty character vector without missing values, or `NULL`.
+#'   For one faceted plot, labels are recycled across the displayed levels of
+#'   its first facet variable: the first wrap variable, or the first grid column
+#'   variable (row variable when there are no columns). Other variables retain
+#'   their labeller. For multiple plots, labels are recycled across leaf plots
+#'   in their existing order. `NULL` generates `Figure1`, `Figure2`, etc.; `""`
+#'   gives a blank label.
+#' @param label_color Text colour(s). Default \code{"black"} uses bold text.
+#'   `NULL` inherits the existing text colour and face. Valid R colour names,
+#'   hexadecimal colours, numeric palette indices and `NA` are accepted.
+#'   Colours are recycled across leaf plots; one faceted plot uses the first.
+#' @param label_fill Background fill colour(s), recycled across leaf plots.
+#'   One faceted plot uses the first fill. `NULL` inherits the current theme or
+#'   ggh4x strip background; use `NA` or `"transparent"` for a transparent fill.
+#'   Accepts the same colour specifications as `label_color`.
 #' @param strip Logical. \code{TRUE} (default) adds the strip labels.
 #'   \code{FALSE} shows no strip at all and ignores \code{label},
 #'   \code{label_color} and \code{label_fill}: strips already on the plot,
@@ -878,19 +888,34 @@ fmt_plot_base <- function(plot, ggtheme = NULL, labs_list = NULL,
 #'   from its own facets, are removed. Synthetic facets created by this function
 #'   are dropped; native facets keep their panels with strips hidden through the
 #'   theme, so add complete themes such as \code{theme_bw()} before this call.
-#'   Nested patchworks are handled recursively.
+#'   A later `strip = TRUE` call restores the hidden strip settings and applies
+#'   its new labels and colours. Layer data functions and statistics are not
+#'   evaluated by this formatter.
 #'
 #' @return Same type as input.
 #'
 #' @examples
 #' library(ggplot2)
-#' p <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) + geom_point()
-#' fmt_strip(p, label = "Iris Data", label_fill = "steelblue")
+#' d <- data.frame(
+#'   x = rep(seq_len(5), 3), y = sin(seq_len(15) / 3),
+#'   group = rep(c("A", "B", "C"), each = 5)
+#' )
+#' p <- ggplot(d, aes(x, y)) + geom_point()
+#' fmt_strip(p, label = "Example", label_color = "white", label_fill = "steelblue")
 #'
-#' # strip = FALSE removes every strip but keeps the facet panels
-#' p_facet <- p + facet_wrap(vars(Species))
-#' fmt_strip(p_facet, strip = FALSE)
+#' # Rename facet levels without changing panel membership
+#' p_facet <- p + facet_wrap(vars(group))
+#' fmt_strip(p_facet, label = c("First", "Second", "Third"), label_fill = NA)
 #'
+#' # Hide strips and restore them later
+#' hidden <- fmt_strip(p_facet, strip = FALSE)
+#' fmt_strip(hidden, label = c("First", "Second", "Third"))
+#'
+#' # Nested layouts skip spacers when assigning labels
+#' library(patchwork)
+#' fmt_strip((p | plot_spacer() | p) / p, label = c("A", "B", "C"))
+#'
+#' @md
 #' @export
 #' @family plot formatting
 fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NULL,
@@ -972,6 +997,35 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
     })
     return(restore(plots))
   }
+
+  if (!is.null(label) && (!is.character(label) || length(label) == 0L || anyNA(label))) {
+    cli::cli_abort("{.arg label} must be NULL or a non-empty character vector without missing values.")
+  }
+  colours <- list(label_color = label_color, label_fill = label_fill)
+  for (arg in names(colours)) {
+    value <- colours[[arg]]
+    if (is.null(value)) next
+    if (length(value) == 0L ||
+        !(is.character(value) || is.numeric(value) || (is.logical(value) && all(is.na(value)))) ||
+        (is.numeric(value) && any(!is.finite(value) & !is.na(value)))) {
+      cli::cli_abort("{.arg {arg}} must be NULL or a non-empty vector of valid R colours.")
+    }
+    rgba <- tryCatch(grDevices::col2rgb(value, alpha = TRUE), error = function(e) {
+      cli::cli_abort("{.arg {arg}} must contain valid R colours.", parent = e)
+    })
+    if (anyNA(value)) {
+      missing <- is.na(value)
+      value <- if (is.numeric(value)) {
+        grDevices::rgb(rgba[1, ], rgba[2, ], rgba[3, ], rgba[4, ], maxColorValue = 255)
+      } else {
+        as.character(value)
+      }
+      value[missing] <- "transparent"
+      colours[[arg]] <- value
+    }
+  }
+  label_color <- colours$label_color
+  label_fill <- colours$label_fill
 
   if (is.null(label)) label <- paste0("Figure", seq_len(n))
   if (n > 1L) label <- rep_len(label, n)

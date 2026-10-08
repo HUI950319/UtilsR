@@ -13,16 +13,26 @@ fmt_strip(
 )
 }
 \arguments{
-\item{plot}{A ggplot, patchwork, or list of ggplots.}
+\item{plot}{A ggplot, patchwork, or list of these. Nested patchworks retain
+their layout; spacers and guide areas are skipped.}
 
-\item{label}{Character vector of strip labels. For one faceted plot, labels
-are recycled across levels of its first facet variable. For multiple plots,
-labels are recycled across plots. \code{NULL} generates \code{Figure1}, \code{Figure2}, etc.}
+\item{label}{A non-empty character vector without missing values, or \code{NULL}.
+For one faceted plot, labels are recycled across the displayed levels of
+its first facet variable: the first wrap variable, or the first grid column
+variable (row variable when there are no columns). Other variables retain
+their labeller. For multiple plots, labels are recycled across leaf plots
+in their existing order. \code{NULL} generates \code{Figure1}, \code{Figure2}, etc.; \code{""}
+gives a blank label.}
 
-\item{label_color}{Text colour(s) for the strip label. Default \code{"black"}.}
+\item{label_color}{Text colour(s). Default \code{"black"} uses bold text.
+\code{NULL} inherits the existing text colour and face. Valid R colour names,
+hexadecimal colours, numeric palette indices and \code{NA} are accepted.
+Colours are recycled across leaf plots; one faceted plot uses the first.}
 
-\item{label_fill}{Background fill colour(s) for the strip. If \code{NULL},
-strips use a transparent background.}
+\item{label_fill}{Background fill colour(s), recycled across leaf plots.
+One faceted plot uses the first fill. \code{NULL} inherits the current theme or
+ggh4x strip background; use \code{NA} or \code{"transparent"} for a transparent fill.
+Accepts the same colour specifications as \code{label_color}.}
 
 \item{strip}{Logical. \code{TRUE} (default) adds the strip labels.
 \code{FALSE} shows no strip at all and ignores \code{label},
@@ -31,25 +41,39 @@ from an earlier \code{fmt_strip()} / \code{\link{fmt_strip2}()} call or
 from its own facets, are removed. Synthetic facets created by this function
 are dropped; native facets keep their panels with strips hidden through the
 theme, so add complete themes such as \code{theme_bw()} before this call.
-Nested patchworks are handled recursively.}
+A later \code{strip = TRUE} call restores the hidden strip settings and applies
+its new labels and colours. Layer data functions and statistics are not
+evaluated by this formatter.}
 }
 \value{
 Same type as input.
 }
 \description{
-Wraps each plot in a single-panel \code{ggh4x::facet_wrap2} so that a
-coloured strip label appears above the panel. Strip text is horizontally
-and vertically centered. Set \code{strip = FALSE} to remove every strip
-instead.
+Add a top strip to an unfaceted plot or update the labels and style of an
+existing facet. Facet variables, layout, scales, statistics and plot/layer
+data are preserved. Strip text is horizontally and vertically centered.
+Set \code{strip = FALSE} to hide strips without building the plot.
 }
 \examples{
 library(ggplot2)
-p <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) + geom_point()
-fmt_strip(p, label = "Iris Data", label_fill = "steelblue")
+d <- data.frame(
+  x = rep(seq_len(5), 3), y = sin(seq_len(15) / 3),
+  group = rep(c("A", "B", "C"), each = 5)
+)
+p <- ggplot(d, aes(x, y)) + geom_point()
+fmt_strip(p, label = "Example", label_color = "white", label_fill = "steelblue")
 
-# strip = FALSE removes every strip but keeps the facet panels
-p_facet <- p + facet_wrap(vars(Species))
-fmt_strip(p_facet, strip = FALSE)
+# Rename facet levels without changing panel membership
+p_facet <- p + facet_wrap(vars(group))
+fmt_strip(p_facet, label = c("First", "Second", "Third"), label_fill = NA)
+
+# Hide strips and restore them later
+hidden <- fmt_strip(p_facet, strip = FALSE)
+fmt_strip(hidden, label = c("First", "Second", "Third"))
+
+# Nested layouts skip spacers when assigning labels
+library(patchwork)
+fmt_strip((p | plot_spacer() | p) / p, label = c("A", "B", "C"))
 
 }
 \seealso{
