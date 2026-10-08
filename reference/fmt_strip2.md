@@ -28,7 +28,10 @@ fmt_strip2(
   A ggplot, patchwork, or list of ggplot panels filling an `nrow x ncol`
   grid. Row-wise and column-wise filling are supported; aligned nested
   rectangular grids retain their layout and annotations. Spacers and
-  guide areas are skipped while retaining their positions. Custom
+  guide areas are skipped while retaining their positions. Insets retain
+  their placement without consuming grid cells. Panels made with
+  [`patchwork::wrap_elements()`](https://patchwork.data-imaginist.com/reference/wrap_elements.html)
+  are rejected; format the original ggplot before wrapping it. Custom
   `design` and non-aligned nested layouts are rejected.
 
 - top_label:
@@ -62,7 +65,8 @@ fmt_strip2(
 - label_color:
 
   Strip text colour. Default `"black"`. Accepts the same R colour
-  specifications as `top_fill`; `NULL` inherits the text colour.
+  specifications as `top_fill`; `NULL` inherits the text colour from the
+  theme or existing ggh4x strip.
 
 - top_right_fill:
 
@@ -96,7 +100,8 @@ retain their `shrink` setting and corresponding scale ranges. New
 headers restore strip settings hidden by
 [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
 and override blank strip elements while retaining existing text sizes
-and angles.
+and angles. Text settings supplied by ggh4x themed strips are inherited
+as well.
 
 When both label arguments are `NULL`, existing strips are hidden through
 [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
