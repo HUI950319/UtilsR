@@ -1071,6 +1071,8 @@ fmt_plot_base <- function(plot, ggtheme = NULL, labs_list = NULL,
 #'
 #' @param plot A ggplot, patchwork, or list of these. Nested patchworks retain
 #'   their layout; spacers and guide areas are skipped.
+#'   Panels made with [patchwork::wrap_elements()] are rejected; format the
+#'   original ggplot before wrapping it.
 #' @param label A non-empty character vector without missing values, or `NULL`.
 #'   For one faceted plot, labels are recycled across the displayed levels of
 #'   its first facet variable: the first wrap variable, or the first grid column
@@ -1132,8 +1134,19 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
   }
   info <- .to_plot_list(plot)
   map_leaves <- .map_plot_leaves
+  check_wrapped <- function(p) {
+    if (inherits(p, "inset_patch") && (!inherits(p, "patchwork") ||
+        match("inset_patch", class(p)) < match("patchwork", class(p)))) return(invisible(NULL))
+    if (inherits(p, "patchwork")) {
+      for (j in seq_along(p)) check_wrapped(p[[j]])
+    } else if (inherits(p, "wrapped_patch")) {
+      cli::cli_abort("Strip formatting cannot modify panels created by {.fn patchwork::wrap_elements}. Format the original ggplot before wrapping it.")
+    }
+    invisible(NULL)
+  }
   plots <- list()
   for (p in info$plots) {
+    check_wrapped(p)
     invisible(map_leaves(p, function(leaf) {
       plots[[length(plots) + 1L]] <<- leaf
       leaf
@@ -1425,6 +1438,8 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
 #'   aligned nested rectangular grids retain their layout and annotations.
 #'   Spacers and guide areas are skipped while retaining their positions.
 #'   Insets retain their placement without consuming grid cells.
+#'   Panels made with [patchwork::wrap_elements()] are rejected; format the
+#'   original ggplot before wrapping it.
 #'   Custom `design` and non-aligned nested layouts are rejected.
 #' @param top_label Non-empty character vector of column-header labels without
 #'   missing values, recycled to `ncol`. Placed on the top-row panels only.
@@ -1611,6 +1626,9 @@ fmt_strip2 <- function(plot,
       if (inherits(p, "patchwork")) {
         return(collect_grid(lapply(seq_along(p), function(j) p[[j]]),
                             p$patches$layout, child_path))
+      }
+      if (inherits(p, "wrapped_patch")) {
+        cli::cli_abort("Strip formatting cannot modify panels created by {.fn patchwork::wrap_elements}. Format the original ggplot before wrapping it.")
       }
       entries <- if (inherits(p, c("spacer", "guide_area"))) list() else
         list(list(plot = p, path = child_path, row = 1L, col = 1L))

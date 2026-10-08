@@ -14,7 +14,9 @@ fmt_strip(
 }
 \arguments{
 \item{plot}{A ggplot, patchwork, or list of these. Nested patchworks retain
-their layout; spacers and guide areas are skipped.}
+their layout; spacers and guide areas are skipped.
+Panels made with \code{\link[patchwork:wrap_elements]{patchwork::wrap_elements()}} are rejected; format the
+original ggplot before wrapping it.}
 
 \item{label}{A non-empty character vector without missing values, or \code{NULL}.
 For one faceted plot, labels are recycled across the displayed levels of

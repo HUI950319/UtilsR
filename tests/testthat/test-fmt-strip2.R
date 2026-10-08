@@ -269,6 +269,31 @@ test_that("fmt_strip hides strips without executing data functions or statistics
   expect_length(.fmt_strip_text(hidden), 0L)
 })
 
+test_that("strip formatters reject frozen wrapped panels explicitly", {
+  calls <- 0L
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) + ggplot2::geom_point(
+    data = function(data) { calls <<- calls + 1L; data })
+  wrapped <- patchwork::wrap_elements(full = grid::textGrob("Wrapped"))
+  inputs <- list(wrapped, p | wrapped, list(first = p, last = wrapped),
+                 (p | p) / (p | wrapped))
+  for (input in inputs) {
+    expect_error(fmt_strip(input, "Heading"), "wrap_elements")
+    expect_error(fmt_strip(input, strip = FALSE), "wrap_elements")
+    expect_error(fmt_strip2(input, "Top", "Right"), "wrap_elements")
+    expect_error(fmt_strip2(input), "wrap_elements")
+  }
+  expect_identical(calls, 0L)
+  inset <- p + patchwork::inset_element(wrapped, .5, .5, 1, 1)
+  out <- fmt_strip(inset, "Heading")
+  expect_identical(out[[2]], inset[[2]])
+  expect_identical(.fmt_strip_text(out[[1]])[[1]]$label, "Heading")
+  before_wrapping <- fmt_strip(p, "Before wrapping")
+  expect_identical(.fmt_strip_text(before_wrapping)[[1]]$label, "Before wrapping")
+  expect_s3_class(patchwork::patchworkGrob(patchwork::wrap_plots(
+                    patchwork::wrap_elements(full = before_wrapping))),
+                  "gtable")
+})
+
 test_that("fmt_strip validates labels and colours before rendering", {
   p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) + ggplot2::geom_point()
   for (bad in list(character(), NA_character_, 1, list("A"))) {

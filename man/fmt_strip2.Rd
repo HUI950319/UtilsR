@@ -21,6 +21,8 @@ fmt_strip2(
 aligned nested rectangular grids retain their layout and annotations.
 Spacers and guide areas are skipped while retaining their positions.
 Insets retain their placement without consuming grid cells.
+Panels made with \code{\link[patchwork:wrap_elements]{patchwork::wrap_elements()}} are rejected; format the
+original ggplot before wrapping it.
 Custom \code{design} and non-aligned nested layouts are rejected.}
 
 \item{top_label}{Non-empty character vector of column-header labels without

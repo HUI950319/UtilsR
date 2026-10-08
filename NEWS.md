@@ -46,6 +46,10 @@
 * `fmt_tag()` draws a single inside label per panel with four-sided padding,
   avoiding duplicated text and repeated alpha blending of label backgrounds.
 
+* Strip formatters reject frozen `wrap_elements()` panels explicitly instead of
+  silently losing or retaining strips. Format the original ggplot before wrapping;
+  inset overlays remain outside the formatting grid.
+
 * `fmt_strip2()` inherits ggh4x themed strips' text sizes, angles and colours,
   including hidden strips and repeated calls. Explicit colours retain precedence.
 
