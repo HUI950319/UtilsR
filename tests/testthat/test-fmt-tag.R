@@ -402,3 +402,26 @@ test_that("missing tag colours are transparent and infinite palette indices fail
     expect_equal(colours, c(255, 0))
   }
 })
+
+test_that("existing automatic tag levels are preserved with a conflict warning", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, disp)) + ggplot2::geom_point()
+  input <- (p | p) + patchwork::plot_annotation(tag_levels = "A", title = "Keep")
+  for (pos in c("tl", "tl-out")) {
+    expect_warning(res <- fmt_tag(input, labels = c("X", "Y"), label_position = pos),
+                     "Existing patchwork tag levels are preserved")
+    expect_identical(res$patches$annotation, input$patches$annotation)
+    texts <- unlist(lapply(find_grobs(patchwork::patchworkGrob(res), "text"),
+                           function(g) as.character(g$label)))
+    expect_equal(table(factor(texts, levels = c("A", "B", "X", "Y"))),
+                   table(factor(c("A", "B", "X", "Y"), levels = c("A", "B", "X", "Y"))))
+    expect_warning(repeated <- fmt_plot(res, fmt_tag_list = list(labels = c("U", "V"),
+                      label_position = pos)), "Existing patchwork tag levels are preserved")
+    texts <- unlist(lapply(find_grobs(patchwork::patchworkGrob(repeated), "text"),
+                           function(g) as.character(g$label)))
+    expect_equal(sum(texts %in% c("X", "Y")), 0L)
+    expect_equal(sum(texts %in% c("A", "B", "U", "V")), 4L)
+  }
+  manual <- p + ggplot2::labs(tag = "Manual")
+  expect_no_warning(res <- fmt_tag(manual))
+  expect_identical(res$labels$tag, "Manual")
+})

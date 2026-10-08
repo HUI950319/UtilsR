@@ -36,7 +36,9 @@ object. Applied to all plots via `&`.}
 
 \item{tag_levels}{Character string for patchwork tag levels (e.g. `"A"`,
 `"a"`, `"1"`). Only used when input is a patchwork object. Ignored with a
-warning when `fmt_tag_list` supplies explicit labels.}
+warning when `fmt_tag_list` supplies explicit labels.
+Automatic tag levels already present in `plot` are preserved, with a
+conflict warning from [fmt_tag()].}
 
 \item{axis_titles}{Passed to [patchwork::plot_layout()] `axis_titles`
 argument. Only used when input is a patchwork object.}

@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_tag()` warns when the input already has automatic patchwork tag levels.
+  User-owned automatic and manual tags are retained, while repeated calls
+  still replace only `fmt_tag()` labels.
+
 * Missing `fmt_tag()` colours are consistently transparent in both placement
   modes, including untyped `NA` and mixed numeric palette vectors. Infinite
   palette indices fail during argument validation.

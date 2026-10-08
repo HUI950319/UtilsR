@@ -234,6 +234,8 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
 #'   Compound padding and radius units are checked in both dimensions at the
 #'   label font sizes on a 7 by 7 inch reference viewport. Simple units retain
 #'   their usual relative semantics without opening a device.
+#'   Existing patchwork automatic tag levels are preserved with a conflict
+#'   warning, since these labels belong to the input rather than `fmt_tag()`.
 #'
 #' @return Same type as input. With an `-out` keyword each ggplot carries
 #'   the label as a patchwork inset, so a single ggplot comes back as a
@@ -281,8 +283,10 @@ fmt_tag <- function(plot,
                     label.r = grid::unit(0.2, "lines"),
                     ...) {
   wrapped <- FALSE
+  automatic <- FALSE
   clear_tags <- function(p) {
     if (inherits(p, "patchwork")) {
+      if (length(p$patches$annotation$tag_levels)) automatic <<- TRUE
       free_settings <- attr(p, "patchwork_free_settings")
       children <- lapply(seq_along(p), function(j) p[[j]])
       keep <- !vapply(children, function(child) {
@@ -333,6 +337,9 @@ fmt_tag <- function(plot,
   }
   n <- length(plots)
   if (n == 0L) return(plot)
+  if (automatic) {
+    cli::cli_warn("Existing patchwork tag levels are preserved; automatic labels may overlap the new fmt_tag() labels.")
+  }
 
   if (is.null(labels)) {
     labels <- vapply(seq_len(n), function(i) {
@@ -459,7 +466,13 @@ fmt_tag <- function(plot,
         align_to = "full", clip = FALSE, on_top = TRUE, ignore_tag = TRUE
       )
       attr(inset, ".fmt_tag_generated") <- TRUE
-      plots[[i]] <- plots[[i]] + inset
+      tagged <- plots[[i]] + inset
+      # Keep the inset as a child: an inset-class container suppresses automatic
+      # tags on its data plot when ignore_tag is TRUE.
+      holder <- patchwork::wrap_plots(list()) + patchwork::plot_layout()
+      holder$patches <- tagged$patches
+      holder$patches$plots <- lapply(seq_along(tagged), function(j) tagged[[j]])
+      plots[[i]] <- holder
     } else {
       layer <- ggpp::geom_label_npc(
         data = data.frame(npcx = npcx[i], npcy = npcy[i], label = labels[i]),
@@ -895,6 +908,8 @@ fmt_ref <- function(plot,
 #' @param tag_levels Character string for patchwork tag levels (e.g. `"A"`,
 #'   `"a"`, `"1"`). Only used when input is a patchwork object. Ignored with a
 #'   warning when `fmt_tag_list` supplies explicit labels.
+#'   Automatic tag levels already present in `plot` are preserved, with a
+#'   conflict warning from [fmt_tag()].
 #' @param axis_titles Passed to [patchwork::plot_layout()] `axis_titles`
 #'   argument. Only used when input is a patchwork object.
 #' @param ... Currently unused.

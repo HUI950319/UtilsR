@@ -91,6 +91,8 @@ Repeated calls replace only labels created by `fmt_tag()`, preserving
   Compound padding and radius units are checked in both dimensions at the
   label font sizes on a 7 by 7 inch reference viewport. Simple units retain
   their usual relative semantics without opening a device.
+  Existing patchwork automatic tag levels are preserved with a conflict
+  warning, since these labels belong to the input rather than `fmt_tag()`.
 }
 \examples{
 library(ggplot2)
