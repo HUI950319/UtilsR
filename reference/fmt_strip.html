@@ -79,7 +79,9 @@ Set <code>strip = FALSE</code> to hide strips without building the plot.</p>
 
 <dl><dt id="arg-plot">plot<a class="anchor" aria-label="anchor" href="#arg-plot"></a></dt>
 <dd><p>A ggplot, patchwork, or list of these. Nested patchworks retain
-their layout; spacers and guide areas are skipped.</p></dd>
+their layout; spacers and guide areas are skipped.
+Panels made with <code><a href="https://patchwork.data-imaginist.com/reference/wrap_elements.html" class="external-link">patchwork::wrap_elements()</a></code> are rejected; format the
+original ggplot before wrapping it.</p></dd>
 
 
 <dt id="arg-label">label<a class="anchor" aria-label="anchor" href="#arg-label"></a></dt>

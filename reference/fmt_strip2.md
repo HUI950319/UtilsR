@@ -29,8 +29,10 @@ fmt_strip2(
   grid. Row-wise and column-wise filling are supported; aligned nested
   rectangular grids retain their layout and annotations. Spacers and
   guide areas are skipped while retaining their positions. Insets retain
-  their placement without consuming grid cells. Custom `design` and
-  non-aligned nested layouts are rejected.
+  their placement without consuming grid cells. Panels made with
+  [`patchwork::wrap_elements()`](https://patchwork.data-imaginist.com/reference/wrap_elements.html)
+  are rejected; format the original ggplot before wrapping it. Custom
+  `design` and non-aligned nested layouts are rejected.
 
 - top_label:
 

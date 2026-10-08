@@ -22,7 +22,9 @@ fmt_strip(
 - plot:
 
   A ggplot, patchwork, or list of these. Nested patchworks retain their
-  layout; spacers and guide areas are skipped.
+  layout; spacers and guide areas are skipped. Panels made with
+  [`patchwork::wrap_elements()`](https://patchwork.data-imaginist.com/reference/wrap_elements.html)
+  are rejected; format the original ggplot before wrapping it.
 
 - label:
 

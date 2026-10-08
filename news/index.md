@@ -69,6 +69,16 @@
   avoiding duplicated text and repeated alpha blending of label
   backgrounds.
 
+- [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
+  retains the inherited text face with `label_color = NULL` even when an
+  explicit or transparent strip fill is supplied.
+
+- Strip formatters reject frozen
+  [`wrap_elements()`](https://patchwork.data-imaginist.com/reference/wrap_elements.html)
+  panels explicitly instead of silently losing or retaining strips.
+  Format the original ggplot before wrapping; inset overlays remain
+  outside the formatting grid.
+
 - [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
   inherits ggh4x themed strips’ text sizes, angles and colours,
   including hidden strips and repeated calls. Explicit colours retain
