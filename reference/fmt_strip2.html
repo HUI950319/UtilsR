@@ -95,18 +95,21 @@ Custom `design` and non-aligned nested layouts are rejected.</p></dd>
 
 
 <dt id="arg-top-label">top_label<a class="anchor" aria-label="anchor" href="#arg-top-label"></a></dt>
-<dd><p>Character vector of column-header labels (length `ncol`,
+<dd><p>Non-empty character vector of column-header labels without
+missing values (length `ncol`,
 recycled). Placed on the top-row panels only. `NULL` = no top strips.</p></dd>
 
 
 <dt id="arg-right-label">right_label<a class="anchor" aria-label="anchor" href="#arg-right-label"></a></dt>
-<dd><p>Character vector of row labels (length `nrow`, recycled).
+<dd><p>Non-empty character vector of row labels without missing
+values (length `nrow`, recycled).
 Placed on the right-most occupied panel of each row (rotated 90 degrees).
 `NULL` = no right strips.</p></dd>
 
 
 <dt id="arg-ncol">ncol<a class="anchor" aria-label="anchor" href="#arg-ncol"></a></dt>
-<dd><p>Number of columns in the grid. If `NULL`, inferred from the
+<dd><p>Single positive integer giving the number of columns in the grid.
+If `NULL`, inferred from the
 patchwork layout (`$patches$layout$ncol`/`nrow`) and its default grid
 dimensions. An explicit value must agree with an existing patchwork layout.</p></dd>
 
@@ -114,11 +117,13 @@ dimensions. An explicit value must agree with an existing patchwork layout.</p><
 <dt id="arg-top-fill-right-fill">top_fill, right_fill<a class="anchor" aria-label="anchor" href="#arg-top-fill-right-fill"></a></dt>
 <dd><p>Background fill colour(s) for the top / right
 strips (recycled to `ncol` / `nrow`). `NULL` = light grey when
-`top_right_fill = NULL`.</p></dd>
+`top_right_fill = NULL`. Accepts R colour names, hexadecimal colours,
+numeric palette indices and `NA`.</p></dd>
 
 
 <dt id="arg-label-color">label_color<a class="anchor" aria-label="anchor" href="#arg-label-color"></a></dt>
-<dd><p>Strip text colour. Default `"black"`.</p></dd>
+<dd><p>Strip text colour. Default `"black"`. Accepts the same
+R colour specifications as `top_fill`; `NULL` inherits the text colour.</p></dd>
 
 
 <dt id="arg-top-right-fill">top_right_fill<a class="anchor" aria-label="anchor" href="#arg-top-right-fill"></a></dt>
