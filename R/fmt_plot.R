@@ -1367,10 +1367,6 @@ fmt_strip2 <- function(plot,
 
     p <- plots[[i]]
     original_facet <- p$facet
-    if (!is.null(p$data) && is.data.frame(p$data)) {
-      if (need_top)   p$data$.top.   <- top_label[grid_col]
-      if (need_right) p$data$.right. <- right_label[grid_row]
-    }
 
     top_bg   <- if (!is.null(top_fill))   top_fill[grid_col]  else "grey85"
     right_bg <- if (!is.null(right_fill)) right_fill[grid_row] else "grey85"
@@ -1378,8 +1374,8 @@ fmt_strip2 <- function(plot,
     if (need_top && need_right) {
       # facet_grid2: cols -> top strip, rows -> right strip
       p <- p + ggh4x::facet_grid2(
-        rows = ggplot2::vars(.data[[".right."]]),
-        cols = ggplot2::vars(.data[[".top."]]),
+        rows = ggplot2::vars(.right. = !!right_label[grid_row]),
+        cols = ggplot2::vars(.top. = !!top_label[grid_col]),
         strip = ggh4x::strip_themed(
           background_x = ggh4x::elem_list_rect(fill = top_bg),
           background_y = ggh4x::elem_list_rect(fill = right_bg),
@@ -1389,7 +1385,7 @@ fmt_strip2 <- function(plot,
       )
     } else if (need_top) {
       p <- p + ggh4x::facet_wrap2(
-        ggplot2::vars(.data[[".top."]]), strip.position = "top",
+        ggplot2::vars(.top. = !!top_label[grid_col]), strip.position = "top",
         strip = ggh4x::strip_themed(
           background_x = ggh4x::elem_list_rect(fill = top_bg),
           text_x = ggh4x::elem_list_text(colour = label_color, face = "bold")
@@ -1397,7 +1393,7 @@ fmt_strip2 <- function(plot,
       )
     } else { # need_right only
       p <- p + ggh4x::facet_wrap2(
-        ggplot2::vars(.data[[".right."]]), strip.position = "right",
+        ggplot2::vars(.right. = !!right_label[grid_row]), strip.position = "right",
         strip = ggh4x::strip_themed(
           background_y = ggh4x::elem_list_rect(fill = right_bg),
           text_y = ggh4x::elem_list_text(colour = label_color, face = "bold")

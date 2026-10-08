@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_strip2()` uses constant header expressions without writing `.top.` or
+  `.right.` columns, supporting empty plots, layer-only and function-valued
+  data while preserving existing mappings and computed layer values.
+
 * `fmt_strip2()` keeps native facet panels and statistics when hiding their
   strips, and rejects replacing multi-panel native facets before statistics
   are computed instead of silently combining data panels.

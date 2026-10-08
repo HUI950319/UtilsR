@@ -362,6 +362,36 @@ test_that("fmt_strip2 protects native facet panels and statistics", {
                           `[[`, character(1), "label"), "New")
 })
 
+test_that("fmt_strip2 adds headers without changing plot or layer data", {
+  d <- data.frame(x = 1:3, y = 3:1, .top. = 11:13, .right. = c("A", "B", "C"))
+  plots <- list(
+    ggplot2::ggplot(d, ggplot2::aes(x, .top., colour = .right.)) + ggplot2::geom_point(),
+    ggplot2::ggplot() + ggplot2::geom_point(data = d, ggplot2::aes(x, y)),
+    ggplot2::ggplot(d[FALSE, ], ggplot2::aes(x, y)) + ggplot2::geom_point(),
+    ggplot2::ggplot(d[FALSE, ], ggplot2::aes(x, y)) + ggplot2::geom_point(data = d),
+    ggplot2::ggplot() + ggplot2::annotate("text", x = 1, y = 1, label = "Note"),
+    ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point(data = d)
+  )
+  for (p in plots) {
+    out <- fmt_strip2(p, "Top", "Right", ncol = 1)
+    expect_identical(out$data, p$data)
+    expect_identical(lapply(out$layers, function(x) x$data),
+                     lapply(p$layers, function(x) x$data))
+    expect_equal(ggplot2::ggplot_build(out)$data, ggplot2::ggplot_build(p)$data)
+    expect_identical(vapply(.fmt_strip_text(out), `[[`, character(1), "label"),
+                     c("Top", "Right"))
+  }
+  calls <- 0L
+  p <- ggplot2::ggplot() + ggplot2::geom_point(
+    data = function(data) { calls <<- calls + 1L; d }, ggplot2::aes(x, y)
+  )
+  out <- fmt_strip2(p, "Top", "Right", ncol = 1)
+  expect_identical(calls, 0L)
+  expect_identical(vapply(.fmt_strip_text(out), `[[`, character(1), "label"),
+                   c("Top", "Right"))
+  expect_identical(calls, 1L)
+})
+
 test_that("fmt_strip2 supports top_right_fill strip palettes", {
   testthat::skip_if_not_installed("ggh4x")
 
