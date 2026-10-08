@@ -57,11 +57,12 @@ fmt_strip(
   [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
   call or from its own facets, are removed. Synthetic facets created by
   this function are dropped; native facets keep their panels with strips
-  hidden through the theme, so add complete themes such as
+  hidden through the theme. Complete themes such as
   [`theme_bw()`](https://ggplot2.tidyverse.org/reference/ggtheme.html)
-  before this call. A later `strip = TRUE` call restores the hidden
-  strip settings and applies its new labels and colours. Layer data
-  functions and statistics are not evaluated by this formatter.
+  can reveal native strips; reapply this formatter to hide them again. A
+  later `strip = TRUE` call restores the hidden strip settings and
+  applies its new labels and colours. Layer data functions and
+  statistics are not evaluated by this formatter.
 
 ## Value
 

@@ -69,6 +69,11 @@
   avoiding duplicated text and repeated alpha blending of label
   backgrounds.
 
+- Reapplying `fmt_strip(strip = FALSE)` or label-free
+  [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
+  hides native strips after theme changes, retaining the saved
+  restoration settings.
+
 - [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
   excludes insets from grid dimensions and header positions, preserving
   user insets and outside

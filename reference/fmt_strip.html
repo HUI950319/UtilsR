@@ -114,7 +114,8 @@ Accepts the same colour specifications as <code>label_color</code>.</p></dd>
 from an earlier <code>fmt_strip()</code> / <code><a href="fmt_strip2.html">fmt_strip2()</a></code> call or
 from its own facets, are removed. Synthetic facets created by this function
 are dropped; native facets keep their panels with strips hidden through the
-theme, so add complete themes such as <code><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw()</a></code> before this call.
+theme. Complete themes such as <code><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw()</a></code> can reveal native strips;
+reapply this formatter to hide them again.
 A later <code>strip = TRUE</code> call restores the hidden strip settings and applies
 its new labels and colours. Layer data functions and statistics are not
 evaluated by this formatter.</p></dd>
