@@ -2,6 +2,9 @@
 
 ## UtilsR 0.6.8
 
+- Retagging plots retains patchwork’s freed alignment settings,
+  including switches between inside and outside labels.
+
 - Inside
   [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
   positions remain fixed in displayed panel coordinates under flipped
