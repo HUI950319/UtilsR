@@ -2,6 +2,12 @@
 
 ## UtilsR 0.6.8
 
+- Outside
+  [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
+  labels compose with axis, legend, reference-line and strip formatting.
+  Formatters visit data-plot leaves and skip label insets while
+  retaining nested layouts and annotations.
+
 - [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
   and
   [`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md)

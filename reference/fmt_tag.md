@@ -106,6 +106,8 @@ Repeated calls replace only labels created by \`fmt_tag()\`, preserving
 user annotations and insets. Inside labels repeat the same plot label in
 each native facet; outside labels appear once per data plot. Containers
 without data plots are returned unchanged without validating styling.
+Axis, legend, reference-line and strip formatters operate on the data
+plots without counting outside-label insets.
 
 ## See also
 

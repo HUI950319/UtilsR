@@ -155,7 +155,9 @@ Ignored when an `-out` keyword is used.</p></dd>
     <p>Repeated calls replace only labels created by `fmt_tag()`, preserving
   user annotations and insets. Inside labels repeat the same plot label in
   each native facet; outside labels appear once per data plot. Containers
-  without data plots are returned unchanged without validating styling.</p>
+  without data plots are returned unchanged without validating styling.
+  Axis, legend, reference-line and strip formatters operate on the data plots
+  without counting outside-label insets.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
