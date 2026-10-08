@@ -78,6 +78,28 @@ test_that("fmt_strip handles facet expressions and repeated relabelling", {
   expect_identical(gridded$facet$params$labeller, ggplot2::label_both)
 })
 
+test_that("fmt_strip adds labels without changing plot or layer data", {
+  d <- data.frame(x = 1:3, y = 3:1, .strip_label. = c("red", "green", "blue"))
+  plots <- list(
+    ggplot2::ggplot(d, ggplot2::aes(x, y, colour = .strip_label.)) +
+      ggplot2::geom_point(),
+    ggplot2::ggplot() + ggplot2::geom_point(data = d, ggplot2::aes(x, y)),
+    ggplot2::ggplot(d[FALSE, ], ggplot2::aes(x, y)) + ggplot2::geom_point(),
+    ggplot2::ggplot() + ggplot2::annotate("text", x = 1, y = 1, label = "Note")
+  )
+  for (p in plots) {
+    out <- fmt_strip(p, "Heading")
+    expect_identical(out$data, p$data)
+    expect_identical(lapply(out$layers, function(x) x$data),
+                     lapply(p$layers, function(x) x$data))
+    expect_equal(ggplot2::ggplot_build(out)$data, ggplot2::ggplot_build(p)$data)
+    expect_identical(vapply(.fmt_strip_text(out), `[[`, character(1), "label"),
+                     "Heading")
+    expect_identical(vapply(.fmt_strip_text(fmt_strip(out, "Again")),
+                            `[[`, character(1), "label"), "Again")
+  }
+})
+
 test_that("fmt_strip preserves facet structure and computed statistics", {
   p <- ggplot2::ggplot(mtcars, ggplot2::aes(1, mpg)) +
     ggplot2::stat_summary(fun = mean, geom = "point")

@@ -1039,13 +1039,8 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
       plots[[i]] <- plots[[i]] + do.call(ggplot2::theme, strip_theme)
 
     } else {
-      # ── No existing facet: inject .strip_label. column ──
-      cur_label <- label[i]
-      if (!is.null(plots[[i]]$data) && is.data.frame(plots[[i]]$data)) {
-        plots[[i]]$data$.strip_label. <- cur_label
-      }
-      # Give the synthetic facet a stable labeller column name.
-      facet_formula <- ggplot2::vars(!!rlang::sym(".strip_label."))
+      # A constant facet expression leaves plot/layer data and mappings intact.
+      facet_formula <- ggplot2::vars(.strip_label. = !!label[i])
       plots[[i]] <- plots[[i]] +
         ggh4x::facet_wrap2(facet_formula, strip = cur_strip)
     }
