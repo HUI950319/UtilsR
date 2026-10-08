@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_tag()` continues automatic lettering after Z as AA, AB and so on, and
+  rejects blank labels, invalid NPC positions, colours, font faces, sizes and
+  padding units before drawing. Custom label recycling remains supported.
+
 * Repeated `fmt_tag()` calls replace only their own labels, including switches
   between inside and outside placement, while retaining user annotations and
   insets. Label insets do not receive patchwork's automatic tags. `fmt_plot()`

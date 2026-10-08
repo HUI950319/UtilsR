@@ -155,22 +155,21 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
   if (is.character(label_position) && length(label_position) == 1L) {
     key <- gsub("_", "-", tolower(label_position))
     if (key %in% names(map)) return(map[[key]])
-    cli::cli_warn(c(
+    cli::cli_abort(c(
       "Unknown {.arg label_position} keyword {.val {label_position}}.",
-      i = "Valid keywords: {.val {names(map)}}. Falling back to default top-left inside."
+      i = "Valid keywords: {.val {names(map)}}."
     ))
-    return(map[["tl"]])
   }
 
-  if (is.numeric(label_position) && length(label_position) == 2L) {
+  if (is.numeric(label_position) && length(label_position) == 2L &&
+      all(is.finite(label_position)) && all(label_position >= 0 & label_position <= 1)) {
     return(list(x = label_position[1], y = label_position[2], outside = FALSE))
   }
 
-  cli::cli_warn(c(
-    "{.arg label_position} must be a numeric length-2 NPC pair or a keyword string.",
-    i = "Valid keywords: {.val {names(map)}}. Falling back to default top-left inside."
+  cli::cli_abort(c(
+    "{.arg label_position} must be a finite numeric length-2 NPC pair in [0, 1] or a keyword string.",
+    i = "Valid keywords: {.val {names(map)}}."
   ))
-  list(x = 0.02, y = 0.98, outside = FALSE)
 }
 
 # ---- fmt_tag ----
@@ -289,12 +288,50 @@ fmt_tag <- function(plot,
   n <- length(plots)
   if (n == 0L) return(plot)
 
-  if (!grid::is.unit(label.padding) || !length(label.padding) %in% c(1L, 2L, 4L)) {
-    cli::cli_abort("{.arg label.padding} must be a grid unit of length 1, 2 or 4.")
+  if (is.null(labels)) {
+    labels <- vapply(seq_len(n), function(i) {
+      label <- ""
+      while (i > 0L) {
+        i <- i - 1L
+        label <- paste0(LETTERS[i %% 26L + 1L], label)
+        i <- i %/% 26L
+      }
+      label
+    }, character(1))
+  }
+  if (!is.character(labels) || length(labels) == 0L ||
+      anyNA(labels) || any(!nzchar(trimws(labels)))) {
+    cli::cli_abort("{.arg labels} must be a non-empty character vector without missing or blank labels.")
+  }
+  for (nm in c("size", "label.size")) {
+    value <- get(nm)
+    if (!is.numeric(value) || length(value) == 0L || any(!is.finite(value)) ||
+        (nm == "size" && any(value <= 0)) ||
+        (nm == "label.size" && (length(value) != 1L || any(value < 0)))) {
+      requirement <- if (nm == "size") "a non-empty vector of finite positive numbers"
+                     else "one finite non-negative number"
+      cli::cli_abort("{.arg {nm}} must be {requirement}.")
+    }
+  }
+  if (!(is.character(color) || is.numeric(color)) || length(color) == 0L ||
+      !tryCatch({ grDevices::col2rgb(color); TRUE }, error = function(e) FALSE)) {
+    cli::cli_abort("{.arg color} must contain valid R colour specifications.")
+  }
+  if (!(length(fontface) == 1L &&
+        ((is.character(fontface) && fontface %in% c("plain", "bold", "italic", "bold.italic", "symbol")) ||
+         (is.numeric(fontface) && fontface %in% 1:5)))) {
+    cli::cli_abort("{.arg fontface} must be one valid font face name or number from 1 to 5.")
+  }
+  for (nm in c("label.padding", "label.r")) {
+    value <- get(nm)
+    allowed_lengths <- if (nm == "label.padding") c(1L, 2L, 4L) else 1L
+    if (!grid::is.unit(value) || !length(value) %in% allowed_lengths ||
+        any(!is.finite(as.numeric(value))) || any(as.numeric(value) < 0)) {
+      cli::cli_abort("{.arg {nm}} must be a finite non-negative grid unit of length {.or {allowed_lengths}}.")
+    }
   }
   label.padding <- rep(label.padding, length.out = 4L)
 
-  if (is.null(labels)) labels <- LETTERS[seq_len(n)]
   if (length(labels) < n) {
     labels <- rep_len(labels, n)
     cli::cli_warn("Labels recycled to match number of plots.")

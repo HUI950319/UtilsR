@@ -183,3 +183,46 @@ test_that("fmt_plot explicit tags take precedence over automatic tagging", {
     expect_equal(sum(texts == "B"), 1L)
   }
 })
+
+test_that("automatic tags continue beyond Z and custom labels still recycle", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, disp)) + ggplot2::geom_point()
+  res <- fmt_tag(rep(list(p), 53L))
+  tags <- vapply(res[c(1, 26, 27, 52, 53)], function(x) {
+    x$layers[[2]]$data$label
+  }, character(1))
+  expect_equal(tags, c("A", "Z", "AA", "AZ", "BA"))
+  expect_warning(custom <- fmt_tag(rep(list(p), 3L), labels = c("X", "Y")),
+                   "recycled")
+  expect_equal(vapply(custom, function(x) x$layers[[2]]$data$label, character(1)),
+               c("X", "Y", "X"))
+})
+
+test_that("tag arguments fail early with the responsible argument", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, disp)) + ggplot2::geom_point()
+  invalid <- list(
+    labels = list(character(), "", "  ", NA_character_, 1),
+    label_position = list(c(NA_real_, 0.5), c(Inf, 0.5), c(-0.1, 1), c(0, 1.1),
+                            0.5, "unknown", character()),
+    size = list(numeric(), 0, -1, Inf, NA_real_, "large"),
+    color = list(character(), "not-a-colour", list("black")),
+    fontface = list("unknown", NA_character_, 0),
+    label.size = list(numeric(), -1, Inf, NA_real_, c(1, 2)),
+    label.padding = list(1, grid::unit(rep(1, 3), "mm"), grid::unit(-1, "mm"),
+                           grid::unit(NA_real_, "mm")),
+    label.r = list(1, grid::unit(-1, "mm"), grid::unit(c(1, 2), "mm"),
+                     grid::unit(Inf, "mm"))
+  )
+  for (nm in names(invalid)) {
+    for (value in invalid[[nm]]) {
+      args <- c(list(plot = p), setNames(list(value), nm))
+      expect_error(do.call(fmt_tag, args), nm)
+    }
+  }
+  res <- fmt_tag(list(p, p), size = c(12, 20), color = c("red", "blue"),
+                 label_position = c(0, 1), label.size = 0,
+                 label.padding = grid::unit(0, "mm"), label.r = grid::unit(0, "mm"))
+  expect_equal(vapply(res, function(x) x$layers[[2]]$aes_params$size, numeric(1)),
+               c(12, 20))
+  expect_equal(vapply(res, function(x) x$layers[[2]]$aes_params$colour, character(1)),
+               c("red", "blue"))
+})
