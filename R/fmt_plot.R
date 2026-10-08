@@ -1266,7 +1266,7 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
     if (!is.null(lf)) {
       ggh4x::strip_themed(
         background_x = ggh4x::elem_list_rect(fill = lf),
-        text_x = list(centered_strip_text(lc))
+        text_x = list(centered_strip_text(lc, face = if (is.null(lc)) NULL else "bold"))
       )
     } else if (!is.null(lc)) {
       ggh4x::strip_themed(

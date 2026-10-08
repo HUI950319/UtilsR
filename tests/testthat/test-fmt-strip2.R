@@ -209,6 +209,30 @@ test_that("fmt_strip restores hidden strips and respects explicit style controls
   }
 })
 
+test_that("fmt_strip inherits font face when an explicit fill is supplied", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) + ggplot2::geom_point() +
+    ggplot2::theme(strip.text = ggplot2::element_text(face = "italic", colour = "red"),
+                   strip.text.x.top = ggplot2::element_text(size = 14, angle = 15))
+  for (input in list(p, p + ggplot2::facet_wrap(ggplot2::vars(g = "One")))) {
+    for (fill in list("pink", NA)) {
+      text <- .fmt_strip_text(fmt_strip(input, "Heading", label_color = NULL,
+                                        label_fill = fill))[[1]]
+      expect_identical(unname(text$gp$font), 3L)
+      expect_identical(text$gp$col, "red")
+      expect_equal(text$gp$fontsize, 14)
+      expect_equal(text$rot, 15)
+    }
+  }
+  out <- fmt_strip(p | p, c("A", "B"), label_color = NULL, label_fill = "pink")
+  expect_identical(vapply(seq_along(out), function(i) {
+    unname(.fmt_strip_text(out[[i]])[[1]]$gp$font)
+  }, integer(1)), c(3L, 3L))
+  explicit <- .fmt_strip_text(fmt_strip(p, "Heading", label_color = "blue",
+                                        label_fill = "pink"))[[1]]
+  expect_identical(unname(explicit$gp$font), 2L)
+  expect_identical(explicit$gp$col, "blue")
+})
+
 test_that("fmt_strip reapplies hiding after intervening theme changes", {
   p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) + ggplot2::geom_point()
   facets <- list(ggplot2::facet_wrap(ggplot2::vars(cyl)),
