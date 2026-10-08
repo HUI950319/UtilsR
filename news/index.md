@@ -58,6 +58,12 @@
   avoiding duplicated text and repeated alpha blending of label
   backgrounds.
 
+- [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
+  preserves custom row/column labellers, other variables’ mappings and
+  combined single-line labels when replacing the first facet variable.
+  Repeated relabelling reuses the original labeller rather than stacking
+  wrappers.
+
 - [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
   help now uses lightweight self-contained examples and documents
   supported grids, unchanged data, transparent colours and facet
