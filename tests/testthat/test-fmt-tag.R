@@ -92,3 +92,39 @@ test_that("tags follow nested leaf plots and skip layout placeholders", {
   expect_identical(res[[2]], named[[2]])
   expect_equal(res[[3]]$layers[[2]]$data$label, "B")
 })
+
+test_that("inside and outside tags accept one, two or four padding units", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, disp)) + ggplot2::geom_point()
+  for (n in c(1L, 2L, 4L)) {
+    for (pos in c("tl", "tl-out")) {
+      res <- fmt_tag(p, label_position = pos,
+                     label.padding = grid::unit(rep(0.3, n), "lines"))
+      gt <- if (inherits(res, "patchwork")) patchwork::patchworkGrob(res)
+            else ggplot2::ggplotGrob(res)
+      tags <- Filter(function(g) identical(g$label, "A"), find_grobs(gt, "text"))
+      expect_length(tags, 1L)
+    }
+  }
+})
+
+test_that("outside padding preserves each physical side and zero borders", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, disp)) + ggplot2::geom_point()
+  res <- fmt_tag(p, label_position = "tl-out", label.size = 0,
+                 label.padding = grid::unit(c(1, 2, 3, 10), "mm"))
+  gt <- patchwork::patchworkGrob(res)
+  trees <- Filter(function(g) any(vapply(g$children, inherits, logical(1), "roundrect")),
+                   find_grobs(gt, "gTree"))
+  tree <- trees[[1]]
+  text <- find_grobs(tree, "text")[[1]]
+  grid::pushViewport(tree$vp)
+  width <- grid::convertWidth(grid::unit(1, "npc"), "mm", valueOnly = TRUE)
+  height <- grid::convertHeight(grid::unit(1, "npc"), "mm", valueOnly = TRUE)
+  tw <- grid::convertWidth(grid::grobWidth(text), "mm", valueOnly = TRUE)
+  th <- grid::convertHeight(grid::grobHeight(text), "mm", valueOnly = TRUE)
+  x <- grid::convertX(text$x, "mm", valueOnly = TRUE)
+  y <- grid::convertY(text$y, "mm", valueOnly = TRUE)
+  grid::popViewport()
+  expect_equal(c(height - y - th / 2, width - x - tw / 2, y - th / 2, x - tw / 2),
+               c(1, 2, 3, 10))
+  expect_true(is.na(find_grobs(tree, "roundrect")[[1]]$gp$col))
+})

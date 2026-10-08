@@ -260,6 +260,11 @@ fmt_tag <- function(plot,
   n <- length(plots)
   if (n == 0L) return(plot)
 
+  if (!grid::is.unit(label.padding) || !length(label.padding) %in% c(1L, 2L, 4L)) {
+    cli::cli_abort("{.arg label.padding} must be a grid unit of length 1, 2 or 4.")
+  }
+  label.padding <- rep(label.padding, length.out = 4L)
+
   if (is.null(labels)) labels <- LETTERS[seq_len(n)]
   if (length(labels) < n) {
     labels <- rep_len(labels, n)
@@ -288,10 +293,12 @@ fmt_tag <- function(plot,
         labels[i],
         gp = grid::gpar(fontsize = size[i], fontface = fontface, col = color[i])
       )
+      txt$x <- grid::unit(0.5, "npc") + (label.padding[4] - label.padding[2]) / 2
+      txt$y <- grid::unit(0.5, "npc") + (label.padding[3] - label.padding[1]) / 2
       box <- grid::grobTree(
         grid::roundrectGrob(
           r = label.r,
-          gp = grid::gpar(col = color[i], fill = "white",
+          gp = grid::gpar(col = if (label.size == 0) NA else color[i], fill = "white",
                           lwd = label.size * ggplot2::.pt)
         ),
         txt,
@@ -300,7 +307,8 @@ fmt_tag <- function(plot,
           y = grid::unit(npcy[i], "npc") + if (top) -half else half,
           width = grid::grobWidth(txt) + label.padding[2] + label.padding[4],
           height = grid::grobHeight(txt) + label.padding[1] + label.padding[3],
-          just = c(if (left) 0 else 1, if (top) 1 else 0)
+          just = c(if (left) 0 else 1, if (top) 1 else 0),
+          gp = grid::gpar(fontsize = size[i])
         )
       )
       plots[[i]] <- plots[[i]] + patchwork::inset_element(
