@@ -2,6 +2,12 @@
 
 ## UtilsR 0.6.8
 
+- Missing
+  [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
+  colours are consistently transparent in both placement modes,
+  including untyped `NA` and mixed numeric palette vectors. Infinite
+  palette indices fail during argument validation.
+
 - [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
   checks evaluated compound padding and radius units, rejecting negative
   or non-finite lengths before drawing while retaining valid unit
@@ -62,6 +68,10 @@
   draws a single inside label per panel with four-sided padding,
   avoiding duplicated text and repeated alpha blending of label
   backgrounds.
+
+- [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
+  retains native single-panel facets’ shrink setting, preserving
+  raw-data scale ranges when their headers are replaced.
 
 - [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
   preserves custom row/column labellers, other variables’ mappings and

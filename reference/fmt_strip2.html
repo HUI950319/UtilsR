@@ -149,6 +149,7 @@ helper for its shared-strip 2 x 2 composites when <code>strip_style = "grid"</co
 Existing facets retain their panels when no new header is assigned. A plot
 receiving a header must have one panel; native facets with multiple panels
 are rejected during plot building, before statistics are computed.
+Single-panel facets retain their <code>shrink</code> setting and corresponding scale ranges.
 New headers restore strip settings hidden by <code><a href="fmt_strip.html">fmt_strip()</a></code> and override
 blank strip elements while retaining existing text sizes and angles.</p>
 <p>When both label arguments are <code>NULL</code>, existing strips are hidden through
