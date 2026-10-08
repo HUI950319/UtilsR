@@ -88,9 +88,6 @@ columns and a stratifier down rows.</p>
 <code>nrow x ncol</code> grid. Row-wise and column-wise filling are supported;
 aligned nested rectangular grids retain their layout and annotations.
 Spacers and guide areas are skipped while retaining their positions.
-Insets retain their placement without consuming grid cells.
-Panels made with <code><a href="https://patchwork.data-imaginist.com/reference/wrap_elements.html" class="external-link">patchwork::wrap_elements()</a></code> are rejected; format the
-original ggplot before wrapping it.
 Custom <code>design</code> and non-aligned nested layouts are rejected.</p></dd>
 
 
@@ -124,8 +121,7 @@ numeric palette indices and <code>NA</code>; <code>NA</code> gives a transparent
 
 <dt id="arg-label-color">label_color<a class="anchor" aria-label="anchor" href="#arg-label-color"></a></dt>
 <dd><p>Strip text colour. Default <code>"black"</code>. Accepts the same
-R colour specifications as <code>top_fill</code>; <code>NULL</code> inherits the text colour
-from the theme or existing ggh4x strip.</p></dd>
+R colour specifications as <code>top_fill</code>; <code>NULL</code> inherits the text colour.</p></dd>
 
 
 <dt id="arg-top-right-fill">top_right_fill<a class="anchor" aria-label="anchor" href="#arg-top-right-fill"></a></dt>
@@ -155,8 +151,7 @@ receiving a header must have one panel; native facets with multiple panels
 are rejected during plot building, before statistics are computed.
 Single-panel facets retain their <code>shrink</code> setting and corresponding scale ranges.
 New headers restore strip settings hidden by <code><a href="fmt_strip.html">fmt_strip()</a></code> and override
-blank strip elements while retaining existing text sizes and angles.
-Text settings supplied by ggh4x themed strips are inherited as well.</p>
+blank strip elements while retaining existing text sizes and angles.</p>
 <p>When both label arguments are <code>NULL</code>, existing strips are hidden through
 <code><a href="fmt_strip.html">fmt_strip()</a></code> without evaluating layer data or statistics. Styling and palette
 arguments are ignored in that case.</p>

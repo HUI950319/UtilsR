@@ -2,12 +2,6 @@
 
 ## UtilsR 0.6.8
 
-- Missing
-  [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
-  colours are consistently transparent in both placement modes,
-  including untyped `NA` and mixed numeric palette vectors. Infinite
-  palette indices fail during argument validation.
-
 - [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
   checks evaluated compound padding and radius units, rejecting negative
   or non-finite lengths before drawing while retaining valid unit
@@ -68,32 +62,6 @@
   draws a single inside label per panel with four-sided padding,
   avoiding duplicated text and repeated alpha blending of label
   backgrounds.
-
-- [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
-  retains the inherited text face with `label_color = NULL` even when an
-  explicit or transparent strip fill is supplied.
-
-- Strip formatters reject frozen
-  [`wrap_elements()`](https://patchwork.data-imaginist.com/reference/wrap_elements.html)
-  panels explicitly instead of silently losing or retaining strips.
-  Format the original ggplot before wrapping; inset overlays remain
-  outside the formatting grid.
-
-- [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
-  inherits ggh4x themed strips’ text sizes, angles and colours,
-  including hidden strips and repeated calls. Explicit colours retain
-  precedence.
-
-- Reapplying `fmt_strip(strip = FALSE)` or label-free
-  [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
-  hides native strips after theme changes, retaining the saved
-  restoration settings.
-
-- [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
-  excludes insets from grid dimensions and header positions, preserving
-  user insets and outside
-  [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
-  labels in nested containers.
 
 - [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
   retains native single-panel facets’ shrink setting, preserving

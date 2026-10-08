@@ -62,8 +62,8 @@ fmt_tag(
 - color:
 
   R colour specifications for text and borders, recycled over data
-  plots. Numeric palette colours are supported; \`NA\` is transparent.
-  Default \`"black"\`.
+  plots. Numeric palette colours and \`NA\` are accepted. Default
+  \`"black"\`.
 
 - fontface:
 
