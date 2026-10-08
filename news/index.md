@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
+  checks evaluated compound padding and radius units, rejecting negative
+  or non-finite lengths before drawing while retaining valid unit
+  arithmetic and restoring the caller’s graphics devices.
+
+- [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
   skips fixed wrapped graphics with a warning, so invisible labels do
   not consume the numbering of editable data plots.
 
