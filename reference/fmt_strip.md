@@ -26,7 +26,10 @@ fmt_strip(
 
 - label:
 
-  Character vector of strip labels (recycled as needed).
+  Character vector of strip labels. For one faceted plot, labels are
+  recycled across levels of its first facet variable. For multiple
+  plots, labels are recycled across plots. `NULL` generates `Figure1`,
+  `Figure2`, etc.
 
 - label_color:
 

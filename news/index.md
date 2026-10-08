@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
+  keeps the complete label vector for a single faceted plot and recycles
+  it across facet levels instead of repeating only its first label.
+
+- [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
   preserves all facet variables, layout settings and extension classes
   when relabelling existing facets, keeping panel membership and
   computed statistics unchanged.

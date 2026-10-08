@@ -82,7 +82,9 @@ instead.</p>
 
 
 <dt id="arg-label">label<a class="anchor" aria-label="anchor" href="#arg-label"></a></dt>
-<dd><p>Character vector of strip labels (recycled as needed).</p></dd>
+<dd><p>Character vector of strip labels. For one faceted plot, labels
+are recycled across levels of its first facet variable. For multiple plots,
+labels are recycled across plots. <code>NULL</code> generates <code>Figure1</code>, <code>Figure2</code>, etc.</p></dd>
 
 
 <dt id="arg-label-color">label_color<a class="anchor" aria-label="anchor" href="#arg-label-color"></a></dt>
