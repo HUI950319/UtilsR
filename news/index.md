@@ -2,6 +2,12 @@
 
 ## UtilsR 0.6.8
 
+- [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
+  continues automatic lettering after Z as AA, AB and so on, and rejects
+  blank labels, invalid NPC positions, colours, font faces, sizes and
+  padding units before drawing. Custom label recycling remains
+  supported.
+
 - Repeated
   [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
   calls replace only their own labels, including switches between inside
