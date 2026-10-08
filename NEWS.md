@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_strip2()` restores strip settings hidden by `fmt_strip()` and draws new
+  headers through blank strip themes without losing existing text sizes or
+  angles. Explicit header colours still take precedence.
+
 * `fmt_strip2()` handles aligned nested rectangular grids and preserves their
   layouts and annotations. Spacers and guide areas retain their grid positions
   without receiving facets; non-aligned nested grids are rejected explicitly.

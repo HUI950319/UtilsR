@@ -451,6 +451,38 @@ test_that("fmt_strip2 labels aligned nested grids and keeps placeholders", {
   expect_error(fmt_strip2(p | (p / p), "Top", "Right"), "aligned")
 })
 
+test_that("fmt_strip2 restores hidden strip themes while retaining text styles", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) + ggplot2::geom_point()
+  for (theme in list(
+    ggplot2::theme(strip.text = ggplot2::element_blank()),
+    ggplot2::theme(strip.text.x.top = ggplot2::element_blank(),
+                   strip.text.y.right = ggplot2::element_blank()),
+    ggplot2::theme(strip.background = ggplot2::element_blank())
+  )) {
+    for (args in list(list(top_label = "Top", right_label = "Right"),
+                       list(top_label = "Top"), list(right_label = "Right"))) {
+      out <- do.call(fmt_strip2, c(list(plot = p + theme, ncol = 1), args))
+      expect_identical(vapply(.fmt_strip_text(out), `[[`, character(1), "label"),
+                       unname(unlist(args)))
+    }
+  }
+  native <- p + ggplot2::facet_wrap(ggplot2::vars(One = "A")) + ggplot2::theme(
+    strip.text.x.top = ggplot2::element_text(size = 17, angle = 15),
+    strip.text.y.right = ggplot2::element_text(size = 18, angle = 25)
+  )
+  hidden <- fmt_strip(native, strip = FALSE)
+  out <- fmt_strip2(hidden, "Top", "Right", ncol = 1, label_color = "blue")
+  texts <- .fmt_strip_text(out)
+  expect_identical(vapply(texts, `[[`, character(1), "label"), c("Top", "Right"))
+  expect_equal(vapply(texts, function(x) x$gp$fontsize, numeric(1)), c(17, 18))
+  expect_equal(vapply(texts, function(x) x$rot, numeric(1)), c(15, 25))
+  expect_identical(vapply(texts, function(x) x$gp$col, character(1)), c("blue", "blue"))
+  expect_length(.fmt_strip_text(hidden), 0L)
+  again <- fmt_strip2(out, "Again", "Row", ncol = 1)
+  expect_identical(vapply(.fmt_strip_text(again), `[[`, character(1), "label"),
+                   c("Again", "Row"))
+})
+
 test_that("fmt_strip2 supports top_right_fill strip palettes", {
   testthat::skip_if_not_installed("ggh4x")
 

@@ -1189,6 +1189,8 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
 #' Existing facets retain their panels when no new header is assigned. A plot
 #' receiving a header must have one panel; native facets with multiple panels
 #' are rejected during plot building, before statistics are computed.
+#' New headers restore strip settings hidden by [fmt_strip()] and override
+#' blank strip elements while retaining existing text sizes and angles.
 #'
 #' @param plot A patchwork (or list) of ggplot panels filling an
 #'   `nrow x ncol` grid. Row-wise and column-wise filling are supported;
@@ -1414,6 +1416,8 @@ fmt_strip2 <- function(plot,
   if (!is.null(top_fill))    top_fill    <- rep_len(top_fill,    ncol)
   if (!is.null(right_fill))  right_fill  <- rep_len(right_fill,  nrow)
 
+  base_theme <- ggplot2::theme_get()
+  base_strip_theme <- base_theme[grepl("^strip\\.", names(base_theme))]
   for (i in seq_len(n)) {
     grid_row <- grid_rows[i]
     grid_col <- grid_cols[i]
@@ -1427,6 +1431,30 @@ fmt_strip2 <- function(plot,
 
     p <- plots[[i]]
     original_facet <- p$facet
+    hidden <- original_facet$.fmt_strip_hidden
+    if (!is.null(hidden)) {
+      for (nm in names(hidden$theme)) {
+        if (inherits(p$theme[[nm]], "element_blank")) p$theme[[nm]] <- hidden$theme[[nm]]
+      }
+    }
+    visible_elements <- c(
+      if (need_top) c("strip.text.x.top", "strip.text.x.bottom", "strip.background.x"),
+      if (need_right) c("strip.text.y.left", "strip.text.y.right", "strip.background.y")
+    )
+    strip_theme <- c(base_strip_theme, p$theme[grepl("^strip\\.", names(p$theme))])
+    if (any(vapply(strip_theme, inherits, logical(1), "element_blank"))) {
+      plot_theme <- base_theme + p$theme
+      for (nm in visible_elements) {
+        if (inherits(ggplot2::calc_element(nm, plot_theme), "element_blank")) {
+          element <- ggplot2::calc_element(nm, base_theme)
+          if (inherits(element, "element_blank")) {
+            element <- ggplot2::calc_element(nm, ggplot2::theme_gray())
+          }
+          element@inherit.blank <- FALSE
+          p$theme[[nm]] <- element
+        }
+      }
+    }
 
     top_bg   <- if (!is.null(top_fill))   top_fill[grid_col]  else "grey85"
     right_bg <- if (!is.null(right_fill)) right_fill[grid_row] else "grey85"
