@@ -2,6 +2,14 @@
 
 ## UtilsR 0.6.8
 
+- Repeated
+  [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
+  calls replace only their own labels, including switches between inside
+  and outside placement, while retaining user annotations and insets.
+  Label insets do not receive patchwork’s automatic tags.
+  [`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md)
+  gives `fmt_tag_list` precedence over `tag_levels` with a warning.
+
 - [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
   accepts one, two or four padding units in both placement modes.
   Outside boxes honour asymmetric padding and font-relative units, and a
