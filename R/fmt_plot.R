@@ -989,7 +989,6 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
       # ── Plot already has facets (facet_wrap or facet_grid) ──
       # Detect facet variable(s) from all possible param locations
       old_facet <- plots[[i]]$facet
-      is_grid <- inherits(old_facet, "FacetGrid")
 
       # Extract facet variable names. Some quosures wrap calls like
       # `.data[["col"]]` (the form fmt_strip itself injects in the else
@@ -1047,36 +1046,17 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
           mapping <- stats::setNames(new_labels, all_vals)
           lbl <- ggplot2::as_labeller(mapping)
 
-          # Preserve original facet type (grid vs wrap)
-          if (is_grid) {
-            # Detect if fvar was in cols or rows
-            col_vars <- vapply(old_facet$params$cols %||% list(),
-                               rlang::as_name, character(1))
-            row_vars <- vapply(old_facet$params$rows %||% list(),
-                               rlang::as_name, character(1))
-            fvar_quos <- ggplot2::vars(.data[[fvar]])
-
-            if (fvar %in% col_vars) {
-              plots[[i]] <- plots[[i]] +
-                ggplot2::facet_grid(cols = fvar_quos, labeller = lbl)
-            } else {
-              plots[[i]] <- plots[[i]] +
-                ggplot2::facet_grid(rows = fvar_quos, labeller = lbl)
-            }
-          } else {
-            orig_scales <- old_facet$params$free %||% list(x = FALSE, y = FALSE)
-            scales_str <- if (isTRUE(orig_scales$x) && isTRUE(orig_scales$y)) "free"
-                          else if (isTRUE(orig_scales$x)) "free_x"
-                          else if (isTRUE(orig_scales$y)) "free_y"
-                          else "fixed"
-            plots[[i]] <- plots[[i]] +
-              ggplot2::facet_wrap(
-                ggplot2::vars(.data[[fvar]]),
-                labeller = lbl, scales = scales_str,
-                ncol = old_facet$params$ncol,
-                nrow = old_facet$params$nrow
-              )
-          }
+          # Keep every facet variable and setting. Bind the ggproto parent in
+          # its own environment so later loop iterations cannot replace it.
+          plots[[i]] <- plots[[i]] + local({
+            facet <- old_facet
+            params <- facet$params
+            params$labeller <- do.call(
+              ggplot2::labeller,
+              c(stats::setNames(list(lbl), fvar), list(.default = params$labeller))
+            )
+            ggplot2::ggproto(NULL, facet, params = params)
+          })
         }
       }
 

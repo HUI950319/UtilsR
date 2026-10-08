@@ -21,6 +21,39 @@ test_that("fmt_strip centers strip text", {
   )
 })
 
+test_that("fmt_strip preserves facet structure and computed statistics", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(1, mpg)) +
+    ggplot2::stat_summary(fun = mean, geom = "point")
+  facets <- list(
+    ggplot2::facet_grid(am ~ cyl, scales = "free", space = "free",
+                        switch = "both", margins = TRUE, shrink = FALSE),
+    ggplot2::facet_wrap(ggplot2::vars(am, cyl), scales = "free_y",
+                        strip.position = "bottom", dir = "v", shrink = FALSE),
+    ggh4x::facet_nested(~ am + cyl)
+  )
+  inputs <- lapply(facets, function(facet) p + facet)
+  outputs <- fmt_strip(inputs, label = "Changed")
+  for (i in seq_along(inputs)) {
+    before <- ggplot2::ggplot_build(inputs[[i]])
+    after <- ggplot2::ggplot_build(outputs[[i]])
+    expect_equal(after$layout$layout, before$layout$layout)
+    expect_equal(after$data, before$data)
+    expect_identical(class(outputs[[i]]$facet), class(inputs[[i]]$facet))
+    params <- setdiff(names(inputs[[i]]$facet$params), "labeller")
+    expect_equal(outputs[[i]]$facet$params[params], inputs[[i]]$facet$params[params])
+    expect_identical(outputs[[i]]$facet$shrink, inputs[[i]]$facet$shrink)
+    expect_s3_class(ggplot2::ggplotGrob(outputs[[i]]), "gtable")
+  }
+
+  d <- transform(mtcars, cyl = factor(cyl, levels = c(4, 6, 8, 10)))
+  original <- ggplot2::ggplot(d, ggplot2::aes(mpg, wt)) +
+    ggplot2::geom_point() + ggplot2::facet_wrap(ggplot2::vars(cyl), drop = FALSE)
+  changed <- fmt_strip(original, "Changed")
+  expect_equal(ggplot2::ggplot_build(changed)$layout$layout,
+               ggplot2::ggplot_build(original)$layout$layout)
+  expect_identical(original$facet$params$labeller, ggplot2::label_value)
+})
+
 test_that("fmt_strip(strip = FALSE) removes every strip", {
   testthat::skip_if_not_installed("ggh4x")
 

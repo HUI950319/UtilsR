@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_strip()` preserves all facet variables, layout settings and extension
+  classes when relabelling existing facets, keeping panel membership and
+  computed statistics unchanged.
+
 * `fmt_raster()` help now distinguishes deferred layer rasterization from
   immediate fixed-layout capture, documents complete output sizes and list
   returns, and guards examples with their optional dependencies.
