@@ -2,6 +2,11 @@
 
 ## UtilsR 0.6.8
 
+- [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
+  draws a single inside label per panel with four-sided padding,
+  avoiding duplicated text and repeated alpha blending of label
+  backgrounds.
+
 - [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
   help now uses lightweight self-contained examples and documents
   supported grids, unchanged data, transparent colours and facet
