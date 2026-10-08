@@ -45,7 +45,8 @@ Invalid positions raise an error.}
 data plots. Default 18.}
 
 \item{color}{R colour specifications for text and borders, recycled over
-data plots. Numeric palette colours and `NA` are accepted. Default `"black"`.}
+data plots. Numeric palette colours are supported; `NA` is transparent.
+Default `"black"`.}
 
 \item{fontface}{One font face: `"plain"`, `"bold"`, `"italic"`,
 `"bold.italic"`, `"symbol"`, or the corresponding number from 1 to 5.

@@ -207,7 +207,8 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
 #' @param size Positive finite numeric label sizes in points, recycled over
 #'   data plots. Default 18.
 #' @param color R colour specifications for text and borders, recycled over
-#'   data plots. Numeric palette colours and `NA` are accepted. Default `"black"`.
+#'   data plots. Numeric palette colours are supported; `NA` is transparent.
+#'   Default `"black"`.
 #' @param fontface One font face: `"plain"`, `"bold"`, `"italic"`,
 #'   `"bold.italic"`, `"symbol"`, or the corresponding number from 1 to 5.
 #'   Default `"bold"`.
@@ -358,9 +359,20 @@ fmt_tag <- function(plot,
       cli::cli_abort("{.arg {nm}} must be {requirement}.")
     }
   }
-  if (!(is.character(color) || is.numeric(color)) || length(color) == 0L ||
-      !tryCatch({ grDevices::col2rgb(color); TRUE }, error = function(e) FALSE)) {
+  if (!(is.character(color) || is.numeric(color) || (is.logical(color) && all(is.na(color)))) ||
+      length(color) == 0L ||
+      (is.numeric(color) && any(!is.finite(color) & !is.na(color)))) {
     cli::cli_abort("{.arg color} must contain valid R colour specifications.")
+  }
+  rgba <- tryCatch(grDevices::col2rgb(color, alpha = TRUE), error = function(e) {
+    cli::cli_abort("{.arg color} must contain valid R colour specifications.", parent = e)
+  })
+  if (anyNA(color)) {
+    missing <- is.na(color)
+    color <- if (is.numeric(color)) {
+      grDevices::rgb(rgba[1, ], rgba[2, ], rgba[3, ], rgba[4, ], maxColorValue = 255)
+    } else as.character(color)
+    color[missing] <- "transparent"
   }
   if (!(length(fontface) == 1L &&
         ((is.character(fontface) && fontface %in% c("plain", "bold", "italic", "bold.italic", "symbol")) ||

@@ -382,3 +382,23 @@ test_that("compound tag units are checked as lengths and preserve graphics devic
   expect_identical(grDevices::dev.list(), devices)
   expect_identical(grDevices::dev.cur(), device)
 })
+
+test_that("missing tag colours are transparent and infinite palette indices fail early", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, disp)) + ggplot2::geom_point()
+  for (col in list(Inf, -Inf, TRUE, FALSE)) expect_error(fmt_tag(p, color = col), "color")
+  for (pos in c("tl", "tl-out")) {
+    for (col in list(NA, NA_character_, NA_real_)) {
+      expect_no_warning(res <- fmt_tag(p, label_position = pos, color = col))
+      g <- if (inherits(res, "patchwork")) patchwork::patchworkGrob(res) else ggplot2::ggplotGrob(res)
+      boxes <- find_grobs(g, "roundrect")
+      expect_length(boxes, 1L)
+      expect_equal(unname(grDevices::col2rgb(boxes[[1]]$gp$col, alpha = TRUE)[4, 1]), 0)
+    }
+    res <- fmt_tag(list(p, p), label_position = pos, color = c(2, NA_real_))
+    colours <- vapply(res, function(q) {
+      g <- if (inherits(q, "patchwork")) patchwork::patchworkGrob(q) else ggplot2::ggplotGrob(q)
+      grDevices::col2rgb(find_grobs(g, "roundrect")[[1]]$gp$col, alpha = TRUE)[4, 1]
+    }, numeric(1))
+    expect_equal(colours, c(255, 0))
+  }
+})

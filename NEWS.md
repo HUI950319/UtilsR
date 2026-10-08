@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* Missing `fmt_tag()` colours are consistently transparent in both placement
+  modes, including untyped `NA` and mixed numeric palette vectors. Infinite
+  palette indices fail during argument validation.
+
 * `fmt_tag()` checks evaluated compound padding and radius units, rejecting
   negative or non-finite lengths before drawing while retaining valid unit
   arithmetic and restoring the caller's graphics devices.
