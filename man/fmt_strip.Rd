@@ -15,7 +15,9 @@ fmt_strip(
 \arguments{
 \item{plot}{A ggplot, patchwork, or list of ggplots.}
 
-\item{label}{Character vector of strip labels (recycled as needed).}
+\item{label}{Character vector of strip labels. For one faceted plot, labels
+are recycled across levels of its first facet variable. For multiple plots,
+labels are recycled across plots. \code{NULL} generates \code{Figure1}, \code{Figure2}, etc.}
 
 \item{label_color}{Text colour(s) for the strip label. Default \code{"black"}.}
 

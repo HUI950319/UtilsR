@@ -865,7 +865,9 @@ fmt_plot_base <- function(plot, ggtheme = NULL, labs_list = NULL,
 #' instead.
 #'
 #' @param plot A ggplot, patchwork, or list of ggplots.
-#' @param label Character vector of strip labels (recycled as needed).
+#' @param label Character vector of strip labels. For one faceted plot, labels
+#'   are recycled across levels of its first facet variable. For multiple plots,
+#'   labels are recycled across plots. `NULL` generates `Figure1`, `Figure2`, etc.
 #' @param label_color Text colour(s) for the strip label. Default \code{"black"}.
 #' @param label_fill Background fill colour(s) for the strip. If \code{NULL},
 #'   strips use a transparent background.
@@ -942,7 +944,7 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
   }
 
   if (is.null(label)) label <- paste0("Figure", seq_len(n))
-  label <- rep_len(label, n)
+  if (n > 1L) label <- rep_len(label, n)
   if (!is.null(label_color)) label_color <- rep_len(label_color, n)
   if (!is.null(label_fill))  label_fill  <- rep_len(label_fill, n)
 
@@ -1037,14 +1039,15 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
         }
 
         if (length(all_vals) > 0) {
-          # Build mapping: facet levels → labels
-          if (n == 1 && length(label) >= length(all_vals)) {
-            new_labels <- label[seq_along(all_vals)]
-          } else {
-            new_labels <- rep(label[i], length(all_vals))
-          }
-          mapping <- stats::setNames(new_labels, all_vals)
-          lbl <- ggplot2::as_labeller(mapping)
+          # The labeller receives levels in facet order, which can differ
+          # from their first appearance in the raw data.
+          lbl <- ggplot2::as_labeller(local({
+            labels <- if (n == 1L) label else label[i]
+            function(values) {
+              levels <- unique(values)
+              rep_len(labels, length(levels))[match(values, levels)]
+            }
+          }))
 
           # Keep every facet variable and setting. Bind the ggproto parent in
           # its own environment so later loop iterations cannot replace it.

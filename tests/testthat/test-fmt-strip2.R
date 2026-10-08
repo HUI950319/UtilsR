@@ -1,3 +1,16 @@
+.fmt_strip_text <- function(plot) {
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  gt <- ggplot2::ggplotGrob(plot)
+  text_nodes <- function(g) {
+    if (inherits(g, "text")) return(list(g))
+    children <- if (inherits(g, "gtable")) g$grobs else as.list(g$children)
+    unlist(lapply(children, text_nodes), recursive = FALSE)
+  }
+  strips <- gt$grobs[grepl("^strip", gt$layout$name)]
+  unname(unlist(lapply(strips, text_nodes), recursive = FALSE))
+}
+
 test_that("fmt_strip centers strip text", {
   testthat::skip_if_not_installed("ggh4x")
 
@@ -19,6 +32,23 @@ test_that("fmt_strip centers strip text", {
     as.numeric(out_facet$theme$strip.text@margin)[c(1, 3)],
     c(3, 3)
   )
+})
+
+test_that("fmt_strip maps label vectors within a single faceted plot", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) +
+    ggplot2::geom_point()
+  labels <- function(p) vapply(.fmt_strip_text(p), `[[`, character(1), "label")
+  wrapped <- p + ggplot2::facet_wrap(ggplot2::vars(cyl))
+  expect_identical(labels(fmt_strip(wrapped, c("Four", "Six", "Eight"))),
+                   c("Four", "Six", "Eight"))
+  expect_identical(labels(fmt_strip(wrapped, c("A", "B"))), c("A", "B", "A"))
+  expect_identical(labels(fmt_strip(wrapped, "All")), rep("All", 3))
+  expect_identical(labels(fmt_strip(wrapped)), rep("Figure1", 3))
+
+  plots <- list(left = p, right = p, last = p)
+  out <- fmt_strip(plots, c("A", "B"))
+  expect_identical(names(out), names(plots))
+  expect_identical(unname(vapply(out, labels, character(1))), c("A", "B", "A"))
 })
 
 test_that("fmt_strip preserves facet structure and computed statistics", {
