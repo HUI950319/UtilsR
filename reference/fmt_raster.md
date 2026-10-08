@@ -2,14 +2,15 @@
 
 Rasterize geometric layers (points, lines, polygons) in ggplot panels to
 reduce PDF/SVG file size, while keeping text, axes, and legends as
-vectors.
+vectors. The `"image"` method instead renders the whole plot, text
+included, into one image for fast on-screen redrawing.
 
 ## Usage
 
 ``` r
 fmt_raster(
   plot,
-  method = c("ggrastr", "ragg"),
+  method = c("ggrastr", "ragg", "image"),
   dpi = 300,
   width = NULL,
   height = NULL,
@@ -27,8 +28,9 @@ fmt_raster(
 
 - method:
 
-  Rasterization backend: `"ggrastr"` (default, simple layer-level) or
-  `"ragg"` (panel-level, also fixes panel size).
+  Rasterization backend: `"ggrastr"` (default, simple layer-level),
+  `"ragg"` (panel-level, also fixes panel size), or `"image"` (the whole
+  plot as one raster).
 
 - dpi:
 
@@ -45,7 +47,10 @@ fmt_raster(
   resolved from the current device's grid layout. With no open device,
   the width and height from
   [`grDevices::pdf.options()`](https://rdrr.io/r/grDevices/pdf.options.html)
-  are used as the available plot size.
+  are used as the available plot size. For `method = "image"`, a single
+  positive value each giving the size of the whole image; a `NULL`
+  dimension takes the open device's size (or
+  [`pdf.options()`](https://rdrr.io/r/grDevices/pdf.options.html)).
 
 - units:
 
@@ -61,19 +66,20 @@ fmt_raster(
 - bg:
 
   Character. Background colour for panel rendering. Default
-  `"transparent"`. Only used when `method = "ragg"`.
+  `"transparent"`. Used when `method` is `"ragg"` or `"image"`.
 
 ## Value
 
 The `"ggrastr"` backend preserves the input type. The `"ragg"` backend
 returns a patchwork-wrapped gtable with a `size` attribute: a list with
 `width`, `height`, and `units` describing the complete fixed plot
-dimensions. For list inputs, returns a corresponding list and preserves
-its names.
+dimensions. The `"image"` backend returns a patchwork-wrapped
+`rasterGrob` with the same `size` attribute for the rendered image. For
+list inputs, returns a corresponding list and preserves its names.
 
 ## Details
 
-Two backends are available:
+Three backends are available:
 
 - `"ggrastr"`:
 
@@ -91,6 +97,16 @@ Two backends are available:
   are automatically detected and kept as vectors. Uses the specified
   panel dimensions or the current device's grid layout when dimensions
   are `NULL`, then fixes the panel size.
+
+- `"image"`:
+
+  Draws the whole plot once via
+  [`ragg::agg_capture()`](https://ragg.r-lib.org/reference/agg_capture.html)
+  and returns it as a single `rasterGrob`. Text is rasterized too, so
+  the result redraws quickly (for example on every resize of the RStudio
+  Plots pane) even when the plot is dominated by text, such as a
+  forest-plot table, which the other backends keep as vectors. Use it
+  for on-screen previews, not for publication export.
 
 The `"ragg"` backend renders geometry immediately. Apply data, scale,
 theme, and layer changes before calling this function. For export, use
@@ -156,6 +172,11 @@ p_ggrastr
 # ragg backend (panel-level, also fixes panel size)
 p_ragg <- fmt_raster(p, method = "ragg", width = 4, height = 3)
 p_ragg
+
+
+# image backend (whole plot, text included, for fast on-screen redraws)
+p_image <- fmt_raster(p, method = "image", dpi = 72, width = 4, height = 3)
+p_image
 
 
 # \donttest{

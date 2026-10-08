@@ -2,6 +2,14 @@
 
 ## UtilsR 0.6.8
 
+- `fmt_raster(method = "image")` renders the whole plot, text included,
+  into one raster image of the given `width`/`height` (or the open
+  device’s size). The other backends keep text as vectors, so a
+  text-heavy figure such as a forest-plot table gained nothing from
+  them; as an image it redraws in the RStudio Plots pane about 8x
+  faster. It is meant for on-screen previews, not for publication
+  export.
+
 - `fmt_strip(strip = FALSE)` no longer builds plots or executes layer
   data functions and statistics. Only synthetic facets created by
   [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
