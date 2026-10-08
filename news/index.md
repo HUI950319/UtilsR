@@ -2,6 +2,11 @@
 
 ## UtilsR 0.6.8
 
+- [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
+  preserves all facet variables, layout settings and extension classes
+  when relabelling existing facets, keeping panel membership and
+  computed statistics unchanged.
+
 - [`fmt_raster()`](https://hui950319.github.io/UtilsR/reference/fmt_raster.md)
   help now distinguishes deferred layer rasterization from immediate
   fixed-layout capture, documents complete output sizes and list
