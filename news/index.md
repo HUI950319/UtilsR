@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
+  adds synthetic strips with a constant facet expression instead of
+  overwriting a data column. Empty data, layer-only data and annotations
+  are supported, and existing `.strip_label.` mappings remain unchanged.
+
+- [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
   relabels named and computed facet expressions, supports
   function-valued layer data, and can be reapplied without parsing facet
   calls as variable names. Other facet variables retain their original
