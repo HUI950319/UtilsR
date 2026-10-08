@@ -605,6 +605,41 @@ test_that("fmt_strip2 restores hidden strip themes while retaining text styles",
                           `[[`, character(1), "label"), c("Top", "Right"))
 })
 
+test_that("fmt_strip2 inherits themed strip text settings", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) + ggplot2::geom_point()
+  styled <- p + ggh4x::facet_wrap2(ggplot2::vars(g = "One"),
+    strip = ggh4x::strip_themed(
+      text_x = ggh4x::elem_list_text(colour = "purple", size = 19, angle = 15),
+      text_y = ggh4x::elem_list_text(colour = "green", size = 21, angle = 25)))
+  for (input in list(styled, fmt_strip(styled, strip = FALSE))) {
+    for (args in list(list(top_label = "Top"), list(right_label = "Right"),
+                      list(top_label = "Top", right_label = "Right"))) {
+      out <- do.call(fmt_strip2, c(list(plot = input, label_color = NULL), args))
+      texts <- .fmt_strip_text(out)
+      both <- length(args) == 2L
+      expected <- if (both) c(19, 21) else if (!is.null(args$top_label)) 19 else 21
+      expect_equal(vapply(texts, function(x) x$gp$fontsize, numeric(1)), expected)
+      expect_equal(vapply(texts, function(x) x$rot, numeric(1)),
+                   if (both) c(15, 25) else if (!is.null(args$top_label)) 15 else 25)
+      expect_identical(vapply(texts, function(x) x$gp$col, character(1)),
+                       if (both) c("purple", "green") else if (!is.null(args$top_label)) "purple" else "green")
+    }
+  }
+  overridden <- fmt_strip2(styled, "Top", "Right", label_color = "blue")
+  texts <- .fmt_strip_text(overridden)
+  expect_identical(vapply(texts, function(x) x$gp$col, character(1)), c("blue", "blue"))
+  expect_equal(vapply(texts, function(x) x$gp$fontsize, numeric(1)), c(19, 21))
+  again <- fmt_strip2(fmt_strip2(styled, "Old", label_color = NULL), "New", label_color = NULL)
+  expect_identical(.fmt_strip_text(again)[[1]]$gp$col, "purple")
+  synthetic <- fmt_strip(p, "Old", label_color = "purple")
+  expect_identical(.fmt_strip_text(fmt_strip2(synthetic, "New", label_color = NULL))[[1]]$gp$col,
+                   "purple")
+  blank <- p + ggh4x::facet_wrap2(ggplot2::vars(g = "One"),
+    strip = ggh4x::strip_themed(text_x = list(ggplot2::element_blank())))
+  expect_identical(.fmt_strip_text(fmt_strip2(blank, "Top"))[[1]]$label, "Top")
+  expect_equal(.fmt_strip_text(styled)[[1]]$gp$fontsize, 19)
+})
+
 test_that("fmt_strip2 validates dimensions labels colours and palettes", {
   p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) + ggplot2::geom_point()
   for (bad in list(0, -1, 1.5, NA_real_, Inf, c(1, 2), "2", TRUE)) {

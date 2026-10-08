@@ -46,6 +46,9 @@
 * `fmt_tag()` draws a single inside label per panel with four-sided padding,
   avoiding duplicated text and repeated alpha blending of label backgrounds.
 
+* `fmt_strip2()` inherits ggh4x themed strips' text sizes, angles and colours,
+  including hidden strips and repeated calls. Explicit colours retain precedence.
+
 * Reapplying `fmt_strip(strip = FALSE)` or label-free `fmt_strip2()` hides native
   strips after theme changes, retaining the saved restoration settings.
 

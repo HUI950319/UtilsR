@@ -44,7 +44,8 @@ strips (recycled to \code{ncol} / \code{nrow}). \code{NULL} = light grey when
 numeric palette indices and \code{NA}; \code{NA} gives a transparent fill.}
 
 \item{label_color}{Strip text colour. Default \code{"black"}. Accepts the same
-R colour specifications as \code{top_fill}; \code{NULL} inherits the text colour.}
+R colour specifications as \code{top_fill}; \code{NULL} inherits the text colour
+from the theme or existing ggh4x strip.}
 
 \item{top_right_fill}{Character vector of one or two \code{colorspace} sequential
 HCL palette names used to generate the top and right fills. The first
@@ -78,6 +79,7 @@ are rejected during plot building, before statistics are computed.
 Single-panel facets retain their \code{shrink} setting and corresponding scale ranges.
 New headers restore strip settings hidden by \code{\link[=fmt_strip]{fmt_strip()}} and override
 blank strip elements while retaining existing text sizes and angles.
+Text settings supplied by ggh4x themed strips are inherited as well.
 
 When both label arguments are \code{NULL}, existing strips are hidden through
 \code{\link[=fmt_strip]{fmt_strip()}} without evaluating layer data or statistics. Styling and palette

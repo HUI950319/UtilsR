@@ -1418,6 +1418,7 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
 #' Single-panel facets retain their `shrink` setting and corresponding scale ranges.
 #' New headers restore strip settings hidden by [fmt_strip()] and override
 #' blank strip elements while retaining existing text sizes and angles.
+#' Text settings supplied by ggh4x themed strips are inherited as well.
 #'
 #' @param plot A ggplot, patchwork, or list of ggplot panels filling an
 #'   `nrow x ncol` grid. Row-wise and column-wise filling are supported;
@@ -1442,7 +1443,8 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
 #'   `top_right_fill = NULL`. Accepts R colour names, hexadecimal colours,
 #'   numeric palette indices and `NA`; `NA` gives a transparent fill.
 #' @param label_color Strip text colour. Default `"black"`. Accepts the same
-#'   R colour specifications as `top_fill`; `NULL` inherits the text colour.
+#'   R colour specifications as `top_fill`; `NULL` inherits the text colour
+#'   from the theme or existing ggh4x strip.
 #' @param top_right_fill Character vector of one or two `colorspace` sequential
 #'   HCL palette names used to generate the top and right fills. The first
 #'   palette is used for top strips and the second for right strips; a single
@@ -1729,6 +1731,18 @@ fmt_strip2 <- function(plot,
       }
     }
 
+    given_text <- if (!is.null(hidden)) hidden$strip$given_elements else
+      original_facet$strip$given_elements
+    header_text <- function(axis) {
+      elements <- ggh4x::elem_list_text(colour = label_color, face = "bold")
+      inherited <- given_text[[axis]]
+      if (length(inherited) && !inherits(inherited[[1L]], "element_blank")) {
+        elements <- lapply(elements, function(element) {
+          ggplot2::merge_element(element, inherited[[1L]])
+        })
+      }
+      elements
+    }
     top_bg   <- if (!is.null(top_fill))   top_fill[grid_col]  else "grey85"
     right_bg <- if (!is.null(right_fill)) right_fill[grid_row] else "grey85"
 
@@ -1740,8 +1754,8 @@ fmt_strip2 <- function(plot,
         strip = ggh4x::strip_themed(
           background_x = ggh4x::elem_list_rect(fill = top_bg),
           background_y = ggh4x::elem_list_rect(fill = right_bg),
-          text_x = ggh4x::elem_list_text(colour = label_color, face = "bold"),
-          text_y = ggh4x::elem_list_text(colour = label_color, face = "bold")
+          text_x = header_text("text_x"),
+          text_y = header_text("text_y")
         )
       )
     } else if (need_top) {
@@ -1749,7 +1763,7 @@ fmt_strip2 <- function(plot,
         ggplot2::vars(.top. = !!top_label[grid_col]), strip.position = "top",
         strip = ggh4x::strip_themed(
           background_x = ggh4x::elem_list_rect(fill = top_bg),
-          text_x = ggh4x::elem_list_text(colour = label_color, face = "bold")
+          text_x = header_text("text_x")
         )
       )
     } else { # need_right only
@@ -1757,7 +1771,7 @@ fmt_strip2 <- function(plot,
         ggplot2::vars(.right. = !!right_label[grid_row]), strip.position = "right",
         strip = ggh4x::strip_themed(
           background_y = ggh4x::elem_list_rect(fill = right_bg),
-          text_y = ggh4x::elem_list_text(colour = label_color, face = "bold")
+          text_y = header_text("text_y")
         )
       )
     }
