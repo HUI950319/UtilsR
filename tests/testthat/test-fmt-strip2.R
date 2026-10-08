@@ -78,6 +78,47 @@ test_that("fmt_strip handles facet expressions and repeated relabelling", {
   expect_identical(gridded$facet$params$labeller, ggplot2::label_both)
 })
 
+test_that("fmt_strip preserves custom labellers and single-line formatting", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) + ggplot2::geom_point()
+  labels <- function(p) vapply(.fmt_strip_text(p), `[[`, character(1), "label")
+  margins <- p + ggplot2::facet_grid(am ~ cyl,
+    labeller = ggplot2::labeller(.rows = ggplot2::label_both,
+                               .cols = ggplot2::label_value))
+  expect_identical(labels(fmt_strip(margins, c("A", "B", "C"))),
+                   c("A", "B", "C", "am: 0", "am: 1"))
+  mapped <- p + ggplot2::facet_grid(am ~ cyl,
+    labeller = ggplot2::labeller(am = c(`0` = "Auto", `1` = "Manual")))
+  expect_identical(labels(fmt_strip(mapped, c("A", "B", "C"))),
+                   c("A", "B", "C", "Auto", "Manual"))
+
+  d <- expand.grid(a = c("a", "b"), b = c("x", "y"))
+  d$x <- seq_len(nrow(d))
+  single <- ggplot2::ggplot(d, ggplot2::aes(x, x)) + ggplot2::geom_point() +
+    ggplot2::facet_wrap(ggplot2::vars(a, b), nrow = 1,
+      labeller = ggplot2::labeller(.default = ggplot2::label_both, .multi_line = FALSE))
+  changed <- fmt_strip(single, c("A", "B"))
+  expect_identical(labels(changed), c("A, b: x", "A, b: y", "B, b: x", "B, b: y"))
+  expect_identical(labels(fmt_strip(changed, c("C", "D"))),
+                   c("C, b: x", "C, b: y", "D, b: x", "D, b: y"))
+  expect_identical(labels(single), c("a: a, b: x", "a: a, b: y", "a: b, b: x", "a: b, b: y"))
+
+  parsed <- single + ggplot2::facet_wrap(ggplot2::vars(a, b), nrow = 1,
+                                        labeller = ggplot2::label_parsed)
+  before <- .fmt_strip_text(parsed)
+  after <- .fmt_strip_text(fmt_strip(parsed, c("A", "B")))
+  expect_identical(lapply(after[c(2, 4, 6, 8)], `[[`, "label"),
+                   lapply(before[c(2, 4, 6, 8)], `[[`, "label"))
+  combined_labeller <- structure(function(labels) {
+    ggplot2::label_parsed(labels, multi_line = FALSE)
+  }, class = "labeller")
+  combined <- single + ggplot2::facet_wrap(ggplot2::vars(a, b), nrow = 1,
+                                          labeller = combined_labeller)
+  texts <- .fmt_strip_text(fmt_strip(combined, c("A", "B")))
+  expect_length(texts, 4L)
+  expect_true(all(vapply(texts, function(x) is.language(x$label), logical(1))))
+  expect_equal(ggplot2::ggplot_build(changed)$data, ggplot2::ggplot_build(single)$data)
+})
+
 test_that("fmt_strip adds labels without changing plot or layer data", {
   d <- data.frame(x = 1:3, y = 3:1, .strip_label. = c("red", "green", "blue"))
   plots <- list(

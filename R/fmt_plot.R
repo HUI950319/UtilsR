@@ -1042,7 +1042,8 @@ fmt_plot_base <- function(plot, ggtheme = NULL, labs_list = NULL,
 #'   For one faceted plot, labels are recycled across the displayed levels of
 #'   its first facet variable: the first wrap variable, or the first grid column
 #'   variable (row variable when there are no columns). Other variables retain
-#'   their labeller. For multiple plots, labels are recycled across leaf plots
+#'   their labeller, including row/column labellers and single-line formatting.
+#'   For multiple plots, labels are recycled across leaf plots
 #'   in their existing order. `NULL` generates `Figure1`, `Figure2`, etc.; `""`
 #'   gives a blank label.
 #' @param label_color Text colour(s). Default \code{"black"} uses bold text.
@@ -1254,23 +1255,43 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
         fvar <- facet_vars[1]
         # The labeller receives levels in facet order, which can differ
         # from their first appearance in the raw data.
-        lbl <- ggplot2::as_labeller(local({
-          labels <- if (n == 1L) label else label[i]
-          function(values) {
-            levels <- unique(values)
-            rep_len(labels, length(levels))[match(values, levels)]
-          }
-        }))
-
         # Keep every facet variable and setting. Bind the ggproto parent in
         # its own environment so later loop iterations cannot replace it.
         plots[[i]] <- plots[[i]] + local({
           facet <- old_facet
           params <- facet$params
-          params$labeller <- do.call(
-            ggplot2::labeller,
-            c(stats::setNames(list(lbl), fvar), list(.default = params$labeller))
-          )
+          original <- attr(params$labeller, ".fmt_strip_original_labeller")
+          if (is.null(original)) original <- params$labeller
+          variable <- fvar
+          replacement <- if (n == 1L) label else label[i]
+          params$labeller <- function(values) {
+            if (!variable %in% names(values)) return(original(values))
+            levels <- unique(values[[variable]])
+            mapped <- rep_len(replacement, length(levels))[match(values[[variable]], levels)]
+            if (length(values) == 1L) return(stats::setNames(list(mapped), variable))
+            out <- original(values)
+            if (length(out) > 1L) {
+              out[[match(variable, names(values))]] <- mapped
+              return(out)
+            }
+            # Combined labels stay on one line. Keep the facet context when
+            # asking the original labeller to format the remaining variables.
+            others <- values[setdiff(names(values), variable)]
+            for (nm in c("type", "facet")) attr(others, nm) <- attr(values, nm)
+            remaining <- original(others)[[1L]]
+            out[[1L]] <- if (is.expression(remaining) || is.list(remaining)) {
+              Map(function(text, value) {
+                if (is.expression(value) && length(value) == 1L) value <- value[[1L]]
+                as.expression(list(substitute(paste(text, ", ", value),
+                                              list(text = text, value = value))))
+              }, mapped, as.list(remaining))
+            } else {
+              paste(mapped, remaining, sep = ", ")
+            }
+            out
+          }
+          class(params$labeller) <- c("function", "labeller")
+          attr(params$labeller, ".fmt_strip_original_labeller") <- original
           ggplot2::ggproto(NULL, facet, params = params)
         })
       }

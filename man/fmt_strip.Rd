@@ -20,7 +20,8 @@ their layout; spacers and guide areas are skipped.}
 For one faceted plot, labels are recycled across the displayed levels of
 its first facet variable: the first wrap variable, or the first grid column
 variable (row variable when there are no columns). Other variables retain
-their labeller. For multiple plots, labels are recycled across leaf plots
+their labeller, including row/column labellers and single-line formatting.
+For multiple plots, labels are recycled across leaf plots
 in their existing order. \code{NULL} generates \code{Figure1}, \code{Figure2}, etc.; \code{""}
 gives a blank label.}
 
