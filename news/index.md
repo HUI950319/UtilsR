@@ -2,6 +2,11 @@
 
 ## UtilsR 0.6.8
 
+- Inside
+  [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
+  positions remain fixed in displayed panel coordinates under flipped
+  and non-linear coordinates, including free-scale facets.
+
 - Outside
   [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
   labels compose with axis, legend, reference-line and strip formatting.

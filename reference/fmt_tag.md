@@ -49,8 +49,9 @@ fmt_tag(
     variants (\`"tl_out"\` etc.) are also accepted.
 
   Both placements use a box styled by \`label.size\`, \`label.padding\`
-  and \`label.r\`; \`...\` only applies to inside placements. Invalid
-  positions raise an error.
+  and \`label.r\`; \`...\` only applies to inside placements. Inside
+  positions refer to the displayed panel, including flipped and
+  non-linear coordinates. Invalid positions raise an error.
 
 - size:
 
