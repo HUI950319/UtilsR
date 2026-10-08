@@ -3,6 +3,13 @@
 ## UtilsR 0.6.8
 
 - [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
+  restores strip settings hidden by
+  [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
+  and draws new headers through blank strip themes without losing
+  existing text sizes or angles. Explicit header colours still take
+  precedence.
+
+- [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
   handles aligned nested rectangular grids and preserves their layouts
   and annotations. Spacers and guide areas retain their grid positions
   without receiving facets; non-aligned nested grids are rejected
