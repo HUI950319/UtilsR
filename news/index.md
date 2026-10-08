@@ -3,6 +3,12 @@
 ## UtilsR 0.6.8
 
 - [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
+  help now uses lightweight self-contained examples and documents
+  supported grids, unchanged data, transparent colours and facet
+  restrictions. Regression coverage includes real rendered headers, RNG
+  state and data/statistic call counts in addition to palette checks.
+
+- [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
   treats `NA` strip colours as transparent, generates palettes only for
   displayed header directions, and reuses identical palettes within a
   call. Calls without labels skip layout and palette work when hiding
