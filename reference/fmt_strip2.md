@@ -78,7 +78,10 @@ stratifier levels, columns = Variable / Partial dependence plot) –
 the right.
 
 In RegR, `RegR::get_rcs_all()` uses this helper for its shared-strip 2 x
-2 composites when \`strip_style = "grid"\`.
+2 composites when \`strip_style = "grid"\`. Existing facets retain their
+panels when no new header is assigned. A plot receiving a header must
+have one panel; native facets with multiple panels are rejected during
+plot building, before statistics are computed.
 
 ## See also
 

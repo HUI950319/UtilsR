@@ -2,6 +2,11 @@
 
 ## UtilsR 0.6.8
 
+- [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
+  keeps native facet panels and statistics when hiding their strips, and
+  rejects replacing multi-panel native facets before statistics are
+  computed instead of silently combining data panels.
+
 - [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
   validates non-empty character labels and R colour specifications
   before rendering, while retaining transparent fills, numeric palette

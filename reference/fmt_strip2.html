@@ -138,7 +138,10 @@ via [flatten_patchwork()] into a `4 x 2` grid (rows = stratifier levels,
 columns = Variable / Partial dependence plot) – `fmt_strip2()` then labels
 the two columns on top and the four rows on the right.</p>
 <p>In RegR, <code>RegR::get_rcs_all()</code> uses this
-helper for its shared-strip 2 x 2 composites when `strip_style = "grid"`.</p>
+helper for its shared-strip 2 x 2 composites when `strip_style = "grid"`.
+Existing facets retain their panels when no new header is assigned. A plot
+receiving a header must have one panel; native facets with multiple panels
+are rejected during plot building, before statistics are computed.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
