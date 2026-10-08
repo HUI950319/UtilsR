@@ -483,6 +483,33 @@ test_that("fmt_strip2 restores hidden strip themes while retaining text styles",
                    c("Again", "Row"))
 })
 
+test_that("fmt_strip2 validates dimensions labels colours and palettes", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) + ggplot2::geom_point()
+  for (bad in list(0, -1, 1.5, NA_real_, Inf, c(1, 2), "2", TRUE)) {
+    expect_error(fmt_strip2(p, "Top", "Right", ncol = bad), "ncol")
+  }
+  for (arg in c("top_label", "right_label")) {
+    for (bad in list(character(), NA_character_, 1, list("A"))) {
+      expect_error(do.call(fmt_strip2, c(list(plot = p), stats::setNames(list(bad), arg))), arg)
+    }
+  }
+  for (arg in c("top_fill", "right_fill", "label_color")) {
+    for (bad in list(character(), list("red"), "not-a-colour", Inf)) {
+      expect_error(do.call(fmt_strip2, c(list(plot = p, top_label = "Top",
+                                             right_label = "Right"),
+                                        stats::setNames(list(bad), arg))), arg)
+    }
+  }
+  for (bad in list(character(), NA_character_, "", 1, c("Grays", "Greens", "Reds"),
+                   "not-a-palette")) {
+    expect_error(fmt_strip2(p, "Top", "Right", top_right_fill = bad), "top_right_fill")
+  }
+  invalid <- patchwork::wrap_plots(rep(list(p), 4), nrow = 1, ncol = 1)
+  expect_error(fmt_strip2(invalid, "Top", "Right"), "layout")
+  expect_identical(fmt_strip2(list()), list())
+  expect_s3_class(ggplot2::ggplotGrob(fmt_strip2(p, "", "", label_color = 1)), "gtable")
+})
+
 test_that("fmt_strip2 supports top_right_fill strip palettes", {
   testthat::skip_if_not_installed("ggh4x")
 

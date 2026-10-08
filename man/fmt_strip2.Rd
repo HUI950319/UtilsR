@@ -22,22 +22,27 @@ aligned nested rectangular grids retain their layout and annotations.
 Spacers and guide areas are skipped while retaining their positions.
 Custom `design` and non-aligned nested layouts are rejected.}
 
-\item{top_label}{Character vector of column-header labels (length `ncol`,
+\item{top_label}{Non-empty character vector of column-header labels without
+missing values (length `ncol`,
 recycled). Placed on the top-row panels only. `NULL` = no top strips.}
 
-\item{right_label}{Character vector of row labels (length `nrow`, recycled).
+\item{right_label}{Non-empty character vector of row labels without missing
+values (length `nrow`, recycled).
 Placed on the right-most occupied panel of each row (rotated 90 degrees).
 `NULL` = no right strips.}
 
-\item{ncol}{Number of columns in the grid. If `NULL`, inferred from the
+\item{ncol}{Single positive integer giving the number of columns in the grid.
+If `NULL`, inferred from the
 patchwork layout (`$patches$layout$ncol`/`nrow`) and its default grid
 dimensions. An explicit value must agree with an existing patchwork layout.}
 
 \item{top_fill, right_fill}{Background fill colour(s) for the top / right
 strips (recycled to `ncol` / `nrow`). `NULL` = light grey when
-`top_right_fill = NULL`.}
+`top_right_fill = NULL`. Accepts R colour names, hexadecimal colours,
+numeric palette indices and `NA`.}
 
-\item{label_color}{Strip text colour. Default `"black"`.}
+\item{label_color}{Strip text colour. Default `"black"`. Accepts the same
+R colour specifications as `top_fill`; `NULL` inherits the text colour.}
 
 \item{top_right_fill}{Character vector of one or two `colorspace` sequential
 HCL palette names used to generate the top and right fills. The first

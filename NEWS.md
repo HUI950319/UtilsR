@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_strip2()` validates positive integer grid dimensions, non-empty character
+  labels, R colour specifications and one/two palette names before rendering,
+  reporting the responsible argument instead of low-level graphics errors.
+
 * `fmt_strip2()` restores strip settings hidden by `fmt_strip()` and draws new
   headers through blank strip themes without losing existing text sizes or
   angles. Explicit header colours still take precedence.

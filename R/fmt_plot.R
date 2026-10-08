@@ -1197,18 +1197,23 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
 #'   aligned nested rectangular grids retain their layout and annotations.
 #'   Spacers and guide areas are skipped while retaining their positions.
 #'   Custom `design` and non-aligned nested layouts are rejected.
-#' @param top_label Character vector of column-header labels (length `ncol`,
+#' @param top_label Non-empty character vector of column-header labels without
+#'   missing values (length `ncol`,
 #'   recycled). Placed on the top-row panels only. `NULL` = no top strips.
-#' @param right_label Character vector of row labels (length `nrow`, recycled).
+#' @param right_label Non-empty character vector of row labels without missing
+#'   values (length `nrow`, recycled).
 #'   Placed on the right-most occupied panel of each row (rotated 90 degrees).
 #'   `NULL` = no right strips.
-#' @param ncol Number of columns in the grid. If `NULL`, inferred from the
+#' @param ncol Single positive integer giving the number of columns in the grid.
+#'   If `NULL`, inferred from the
 #'   patchwork layout (`$patches$layout$ncol`/`nrow`) and its default grid
 #'   dimensions. An explicit value must agree with an existing patchwork layout.
 #' @param top_fill,right_fill Background fill colour(s) for the top / right
 #'   strips (recycled to `ncol` / `nrow`). `NULL` = light grey when
-#'   `top_right_fill = NULL`.
-#' @param label_color Strip text colour. Default `"black"`.
+#'   `top_right_fill = NULL`. Accepts R colour names, hexadecimal colours,
+#'   numeric palette indices and `NA`.
+#' @param label_color Strip text colour. Default `"black"`. Accepts the same
+#'   R colour specifications as `top_fill`; `NULL` inherits the text colour.
 #' @param top_right_fill Character vector of one or two `colorspace` sequential
 #'   HCL palette names used to generate the top and right fills. The first
 #'   palette is used for top strips and the second for right strips; a single
@@ -1289,6 +1294,38 @@ fmt_strip2 <- function(plot,
                        label_color = "black",
                        top_right_fill = c("Grays", "Greens")) {
 
+  check_dimension <- function(value, arg) {
+    if (!is.null(value) && (length(value) != 1L || !is.numeric(value) ||
+        is.na(value) || !is.finite(value) || value <= 0 ||
+        value > .Machine$integer.max || value != floor(value))) {
+      cli::cli_abort("{.arg {arg}} must be a single positive integer or NULL.")
+    }
+  }
+  check_dimension(ncol, "ncol")
+  labels <- list(top_label = top_label, right_label = right_label)
+  for (arg in names(labels)) {
+    value <- labels[[arg]]
+    if (!is.null(value) && (!is.character(value) || !length(value) || anyNA(value))) {
+      cli::cli_abort("{.arg {arg}} must be NULL or a non-empty character vector without missing values.")
+    }
+  }
+  colours <- list(
+    top_fill = if (!is.null(top_label)) top_fill,
+    right_fill = if (!is.null(right_label)) right_fill,
+    label_color = if (!is.null(top_label) || !is.null(right_label)) label_color
+  )
+  for (arg in names(colours)) {
+    value <- colours[[arg]]
+    if (is.null(value)) next
+    if (!length(value) ||
+        !(is.character(value) || is.numeric(value) || (is.logical(value) && all(is.na(value)))) ||
+        (is.numeric(value) && any(!is.finite(value) & !is.na(value)))) {
+      cli::cli_abort("{.arg {arg}} must be NULL or a non-empty vector of valid R colours.")
+    }
+    tryCatch(grDevices::col2rgb(value, alpha = TRUE), error = function(e) {
+      cli::cli_abort("{.arg {arg}} must contain valid R colours.", parent = e)
+    })
+  }
   info  <- .to_plot_list(plot)
 
   protect_facet <- function(original, replacement) {
@@ -1325,6 +1362,8 @@ fmt_strip2 <- function(plot,
     }
     nr <- lay$nrow
     nc <- lay$ncol
+    check_dimension(nr, "layout nrow")
+    check_dimension(nc, "layout ncol")
     if (is.null(nc) && length(lay$widths) > 1L) nc <- length(lay$widths)
     if (is.null(nr) && length(lay$heights) > 1L) nr <- length(lay$heights)
     if (is.null(nr) && is.null(nc)) {
@@ -1336,6 +1375,7 @@ fmt_strip2 <- function(plot,
     } else if (is.null(nr)) {
       nr <- ceiling(n / nc)
     }
+    if (nr * nc < n) cli::cli_abort("The patchwork layout has too few cells for its plots.")
     indices <- seq_len(n) - 1L
     byrow <- is.null(lay$byrow) || isTRUE(lay$byrow)
     rows <- if (byrow) indices %/% nc + 1L else indices %% nr + 1L
@@ -1389,15 +1429,19 @@ fmt_strip2 <- function(plot,
   rightmost <- grid_cols == stats::ave(grid_cols, grid_rows, FUN = max)
 
   if (!is.null(top_right_fill)) {
-    if (!is.character(top_right_fill) || length(top_right_fill) == 0L ||
+    if (!is.character(top_right_fill) || !length(top_right_fill) || length(top_right_fill) > 2L ||
         anyNA(top_right_fill) || any(!nzchar(top_right_fill))) {
       cli::cli_abort(
-        "`top_right_fill` must be a non-empty character vector of palette names."
+        "`top_right_fill` must contain one or two non-empty palette names."
       )
     }
     top_right_fill <- rep_len(top_right_fill, 2L)
     make_hcl_fill <- function(palette, n) {
-      ramp <- colorspace::sequential_hcl(n = 100L, palette = palette)
+      ramp <- tryCatch(colorspace::sequential_hcl(n = 100L, palette = palette),
+        error = function(e) {
+          cli::cli_abort("Invalid palette {.val {palette}} in {.arg top_right_fill}.", parent = e)
+        }
+      )
       start_idx <- if (n == 2L) 40L else 30L
       rev(grDevices::colorRampPalette(ramp[start_idx:80])(n))
     }
