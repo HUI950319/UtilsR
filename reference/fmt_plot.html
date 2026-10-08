@@ -110,7 +110,9 @@ object. Applied to all plots via `&amp;`.</p></dd>
 <dt id="arg-tag-levels">tag_levels<a class="anchor" aria-label="anchor" href="#arg-tag-levels"></a></dt>
 <dd><p>Character string for patchwork tag levels (e.g. `"A"`,
 `"a"`, `"1"`). Only used when input is a patchwork object. Ignored with a
-warning when `fmt_tag_list` supplies explicit labels.</p></dd>
+warning when `fmt_tag_list` supplies explicit labels.
+Automatic tag levels already present in `plot` are preserved, with a
+conflict warning from [fmt_tag()].</p></dd>
 
 
 <dt id="arg-axis-titles">axis_titles<a class="anchor" aria-label="anchor" href="#arg-axis-titles"></a></dt>

@@ -2,6 +2,13 @@
 
 ## UtilsR 0.6.8
 
+- [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
+  warns when the input already has automatic patchwork tag levels.
+  User-owned automatic and manual tags are retained, while repeated
+  calls still replace only
+  [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
+  labels.
+
 - Missing
   [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
   colours are consistently transparent in both placement modes,
