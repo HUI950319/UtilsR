@@ -63,3 +63,32 @@ test_that("outside tags keep the patchwork layout", {
   expect_s3_class(res, "patchwork")
   expect_length(find_grobs(patchwork::patchworkGrob(res), "roundrect"), 2L)
 })
+
+test_that("tags follow nested leaf plots and skip layout placeholders", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, disp)) + ggplot2::geom_point()
+  nested <- ((p | p) / (p | p)) + patchwork::plot_annotation(title = "Overall")
+  spaced <- patchwork::wrap_plots(p, patchwork::plot_spacer(),
+                                  patchwork::guide_area(), p, ncol = 2)
+  inset <- p + patchwork::inset_element(p, left = 0.6, bottom = 0.6,
+                                        right = 1, top = 1)
+  inputs <- list(nested = nested, spaced = spaced, inset = inset | p)
+  for (pos in c("tl", "tl-out")) {
+    for (nm in names(inputs)) {
+      input <- inputs[[nm]]
+      res <- fmt_tag(input, label_position = pos)
+      tags <- unlist(lapply(find_grobs(patchwork::patchworkGrob(res), "text"),
+                            function(g) g$label[g$label %in% LETTERS]))
+      expect_equal(unname(tags), if (nm == "nested") LETTERS[1:4] else LETTERS[1:2])
+      expect_identical(res$patches$layout, input$patches$layout)
+      expect_identical(res$patches$annotation, input$patches$annotation)
+    }
+  }
+  empty <- patchwork::wrap_plots(patchwork::plot_spacer(), patchwork::guide_area())
+  expect_identical(fmt_tag(empty), empty)
+  expect_identical(fmt_tag(list()), list())
+  named <- list(first = p, empty = patchwork::plot_spacer(), last = p)
+  res <- fmt_tag(named)
+  expect_identical(names(res), names(named))
+  expect_identical(res[[2]], named[[2]])
+  expect_equal(res[[3]]$layers[[2]]$data$label, "B")
+})

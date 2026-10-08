@@ -242,8 +242,23 @@ fmt_tag <- function(plot,
                     label.r = grid::unit(0.2, "lines"),
                     ...) {
   info <- .to_plot_list(plot)
-  plots <- info$plots
+  map_leaves <- function(p, fun) {
+    if (inherits(p, "patchwork")) {
+      for (j in seq_along(p)) p[[j]] <- map_leaves(p[[j]], fun)
+      return(p)
+    }
+    if (inherits(p, c("spacer", "guide_area", "inset_patch"))) return(p)
+    fun(p)
+  }
+  plots <- list()
+  for (p in info$plots) {
+    invisible(map_leaves(p, function(leaf) {
+      plots[[length(plots) + 1L]] <<- leaf
+      leaf
+    }))
+  }
   n <- length(plots)
+  if (n == 0L) return(plot)
 
   if (is.null(labels)) labels <- LETTERS[seq_len(n)]
   if (length(labels) < n) {
@@ -314,7 +329,12 @@ fmt_tag <- function(plot,
     }
   }
 
-  .from_plot_list(plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
+  i <- 0L
+  restored <- lapply(info$plots, map_leaves, fun = function(p) {
+    i <<- i + 1L
+    plots[[i]]
+  })
+  .from_plot_list(restored, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
 }
 
 # ---- fmt_legend ----
