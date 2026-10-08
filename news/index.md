@@ -2,6 +2,13 @@
 
 ## UtilsR 0.6.8
 
+- [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
+  validates non-empty character labels and R colour specifications
+  before rendering, while retaining transparent fills, numeric palette
+  colours and ignored styling arguments when hiding strips. Help now
+  explains facet label order, inherited fills, nested containers and
+  hide/show behaviour.
+
 - `fmt_raster(method = "image")` renders the whole plot, text included,
   into one raster image of the given `width`/`height` (or the open
   device’s size). The other backends keep text as vectors, so a

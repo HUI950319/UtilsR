@@ -1,10 +1,9 @@
 # Add facet strip labels to a plot
 
-Wraps each plot in a single-panel
-[`ggh4x::facet_wrap2`](https://teunbrand.github.io/ggh4x/reference/facet_wrap2.html)
-so that a coloured strip label appears above the panel. Strip text is
-horizontally and vertically centered. Set `strip = FALSE` to remove
-every strip instead.
+Add a top strip to an unfaceted plot or update the labels and style of
+an existing facet. Facet variables, layout, scales, statistics and
+plot/layer data are preserved. Strip text is horizontally and vertically
+centered. Set `strip = FALSE` to hide strips without building the plot.
 
 ## Usage
 
@@ -22,23 +21,32 @@ fmt_strip(
 
 - plot:
 
-  A ggplot, patchwork, or list of ggplots.
+  A ggplot, patchwork, or list of these. Nested patchworks retain their
+  layout; spacers and guide areas are skipped.
 
 - label:
 
-  Character vector of strip labels. For one faceted plot, labels are
-  recycled across levels of its first facet variable. For multiple
-  plots, labels are recycled across plots. `NULL` generates `Figure1`,
-  `Figure2`, etc.
+  A non-empty character vector without missing values, or `NULL`. For
+  one faceted plot, labels are recycled across the displayed levels of
+  its first facet variable: the first wrap variable, or the first grid
+  column variable (row variable when there are no columns). Other
+  variables retain their labeller. For multiple plots, labels are
+  recycled across leaf plots in their existing order. `NULL` generates
+  `Figure1`, `Figure2`, etc.; `""` gives a blank label.
 
 - label_color:
 
-  Text colour(s) for the strip label. Default `"black"`.
+  Text colour(s). Default `"black"` uses bold text. `NULL` inherits the
+  existing text colour and face. Valid R colour names, hexadecimal
+  colours, numeric palette indices and `NA` are accepted. Colours are
+  recycled across leaf plots; one faceted plot uses the first.
 
 - label_fill:
 
-  Background fill colour(s) for the strip. If `NULL`, strips use a
-  transparent background.
+  Background fill colour(s), recycled across leaf plots. One faceted
+  plot uses the first fill. `NULL` inherits the current theme or ggh4x
+  strip background; use `NA` or `"transparent"` for a transparent fill.
+  Accepts the same colour specifications as `label_color`.
 
 - strip:
 
@@ -50,7 +58,9 @@ fmt_strip(
   this function are dropped; native facets keep their panels with strips
   hidden through the theme, so add complete themes such as
   [`theme_bw()`](https://ggplot2.tidyverse.org/reference/ggtheme.html)
-  before this call. Nested patchworks are handled recursively.
+  before this call. A later `strip = TRUE` call restores the hidden
+  strip settings and applies its new labels and colours. Layer data
+  functions and statistics are not evaluated by this formatter.
 
 ## Value
 
@@ -83,12 +93,26 @@ Other plot formatting:
 
 ``` r
 library(ggplot2)
-p <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) + geom_point()
-fmt_strip(p, label = "Iris Data", label_fill = "steelblue")
+d <- data.frame(
+  x = rep(seq_len(5), 3), y = sin(seq_len(15) / 3),
+  group = rep(c("A", "B", "C"), each = 5)
+)
+p <- ggplot(d, aes(x, y)) + geom_point()
+fmt_strip(p, label = "Example", label_color = "white", label_fill = "steelblue")
 
 
-# strip = FALSE removes every strip but keeps the facet panels
-p_facet <- p + facet_wrap(vars(Species))
-fmt_strip(p_facet, strip = FALSE)
+# Rename facet levels without changing panel membership
+p_facet <- p + facet_wrap(vars(group))
+fmt_strip(p_facet, label = c("First", "Second", "Third"), label_fill = NA)
+
+
+# Hide strips and restore them later
+hidden <- fmt_strip(p_facet, strip = FALSE)
+fmt_strip(hidden, label = c("First", "Second", "Third"))
+
+
+# Nested layouts skip spacers when assigning labels
+library(patchwork)
+fmt_strip((p | plot_spacer() | p) / p, label = c("A", "B", "C"))
 
 ```
