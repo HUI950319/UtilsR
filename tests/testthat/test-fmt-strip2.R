@@ -403,6 +403,31 @@ test_that("fmt_strip2 protects native facet panels and statistics", {
                           `[[`, character(1), "label"), "New")
 })
 
+test_that("fmt_strip2 preserves shrink and single-panel scale ranges", {
+  d <- data.frame(x = 1, y = c(0, 100), g = "One")
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) +
+    ggplot2::stat_summary(fun = mean, geom = "point")
+  facets <- list(
+    ggplot2::facet_wrap(ggplot2::vars(g), shrink = FALSE),
+    ggplot2::facet_grid(cols = ggplot2::vars(g), shrink = FALSE),
+    ggh4x::facet_wrap2(ggplot2::vars(g), shrink = FALSE)
+  )
+  for (facet in facets) {
+    native <- p + facet
+    before <- ggplot2::ggplot_build(native)
+    for (args in list(list(top_label = "Top"), list(right_label = "Right"),
+                      list(top_label = "Top", right_label = "Right"))) {
+      out <- do.call(fmt_strip2, c(list(plot = native), args))
+      after <- ggplot2::ggplot_build(out)
+      expect_identical(out$facet$shrink, FALSE)
+      expect_equal(after$layout$panel_params[[1]]$y.range,
+                   before$layout$panel_params[[1]]$y.range)
+      expect_equal(after$data, before$data)
+      expect_identical(fmt_strip2(out, "Again")$facet$shrink, FALSE)
+    }
+  }
+})
+
 test_that("fmt_strip2 adds headers without changing plot or layer data", {
   d <- data.frame(x = 1:3, y = 3:1, .top. = 11:13, .right. = c("A", "B", "C"))
   plots <- list(

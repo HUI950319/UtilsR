@@ -42,6 +42,9 @@
 * `fmt_tag()` draws a single inside label per panel with four-sided padding,
   avoiding duplicated text and repeated alpha blending of label backgrounds.
 
+* `fmt_strip2()` retains native single-panel facets' shrink setting, preserving
+  raw-data scale ranges when their headers are replaced.
+
 * `fmt_strip()` preserves custom row/column labellers, other variables' mappings
   and combined single-line labels when replacing the first facet variable.
   Repeated relabelling reuses the original labeller rather than stacking wrappers.

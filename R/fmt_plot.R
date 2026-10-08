@@ -1395,6 +1395,7 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
 #' Existing facets retain their panels when no new header is assigned. A plot
 #' receiving a header must have one panel; native facets with multiple panels
 #' are rejected during plot building, before statistics are computed.
+#' Single-panel facets retain their `shrink` setting and corresponding scale ranges.
 #' New headers restore strip settings hidden by [fmt_strip()] and override
 #' blank strip elements while retaining existing text sizes and angles.
 #'
@@ -1525,6 +1526,7 @@ fmt_strip2 <- function(plot,
     if (!is.null(original$.fmt_strip2_original_facet)) {
       original <- original$.fmt_strip2_original_facet
     }
+    replacement$shrink <- original$shrink
     if (inherits(original, "FacetNull") || isTRUE(original$.fmt_strip_generated)) {
       return(replacement)
     }
