@@ -1093,7 +1093,8 @@ fmt_plot_base <- function(plot, ggtheme = NULL, labs_list = NULL,
 #'   from an earlier \code{fmt_strip()} / \code{\link{fmt_strip2}()} call or
 #'   from its own facets, are removed. Synthetic facets created by this function
 #'   are dropped; native facets keep their panels with strips hidden through the
-#'   theme, so add complete themes such as \code{theme_bw()} before this call.
+#'   theme. Complete themes such as \code{theme_bw()} can reveal native strips;
+#'   reapply this formatter to hide them again.
 #'   A later `strip = TRUE` call restores the hidden strip settings and applies
 #'   its new labels and colours. Layer data functions and statistics are not
 #'   evaluated by this formatter.
@@ -1160,7 +1161,14 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
     # re-reads a parent by name, so never reassign `facet` or `old_strip`.
     plots <- lapply(plots, function(p) {
       if (inherits(p$facet, "FacetNull")) return(p)
-      if (!is.null(p$facet$.fmt_strip_hidden)) return(p)
+      if (!is.null(p$facet$.fmt_strip_hidden)) {
+        if (all(vapply(hidden_elements, function(nm) {
+          inherits(p$theme[[nm]], "element_blank")
+        }, logical(1)))) return(p)
+        blank <- ggplot2::element_blank()
+        return(p + do.call(ggplot2::theme,
+          stats::setNames(rep(list(blank), length(hidden_elements)), hidden_elements)))
+      }
       if (isTRUE(p$facet$.fmt_strip_generated)) return(p + ggplot2::facet_null())
 
       facet <- p$facet

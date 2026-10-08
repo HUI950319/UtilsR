@@ -41,7 +41,8 @@ Accepts the same colour specifications as \code{label_color}.}
 from an earlier \code{fmt_strip()} / \code{\link{fmt_strip2}()} call or
 from its own facets, are removed. Synthetic facets created by this function
 are dropped; native facets keep their panels with strips hidden through the
-theme, so add complete themes such as \code{theme_bw()} before this call.
+theme. Complete themes such as \code{theme_bw()} can reveal native strips;
+reapply this formatter to hide them again.
 A later \code{strip = TRUE} call restores the hidden strip settings and applies
 its new labels and colours. Layer data functions and statistics are not
 evaluated by this formatter.}

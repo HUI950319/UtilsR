@@ -209,6 +209,31 @@ test_that("fmt_strip restores hidden strips and respects explicit style controls
   }
 })
 
+test_that("fmt_strip reapplies hiding after intervening theme changes", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) + ggplot2::geom_point()
+  facets <- list(ggplot2::facet_wrap(ggplot2::vars(cyl)),
+    ggh4x::facet_wrap2(ggplot2::vars(cyl), strip = ggh4x::strip_themed(
+      text_x = ggh4x::elem_list_text(colour = "purple", size = 17),
+      background_x = ggh4x::elem_list_rect(fill = "pink"))))
+  for (facet in facets) {
+    native <- p + facet
+    hidden <- fmt_strip(native, strip = FALSE)
+    for (theme in list(ggplot2::theme_bw(),
+                      ggplot2::theme(strip.text.x.top = ggplot2::element_text(size = 22)))) {
+      changed <- hidden + theme
+      again <- fmt_strip(changed, strip = FALSE)
+      expect_length(.fmt_strip_text(again), 0L)
+      expect_identical(again$facet$.fmt_strip_hidden, hidden$facet$.fmt_strip_hidden)
+      expect_identical(fmt_strip(again, strip = FALSE), again)
+      expect_length(.fmt_strip_text(fmt_strip2(changed)), 0L)
+      shown <- fmt_strip(again, "Back", label_color = NULL)
+      expect_identical(vapply(.fmt_strip_text(shown), `[[`, character(1), "label"),
+                       rep("Back", 3))
+      expect_equal(ggplot2::ggplot_build(again)$data, ggplot2::ggplot_build(native)$data)
+    }
+  }
+})
+
 test_that("fmt_strip hides strips without executing data functions or statistics", {
   calls <- 0L
   data_calls <- 0L
