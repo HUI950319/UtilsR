@@ -46,6 +46,9 @@
 * `fmt_tag()` draws a single inside label per panel with four-sided padding,
   avoiding duplicated text and repeated alpha blending of label backgrounds.
 
+* `fmt_strip2()` excludes insets from grid dimensions and header positions,
+  preserving user insets and outside `fmt_tag()` labels in nested containers.
+
 * `fmt_strip2()` retains native single-panel facets' shrink setting, preserving
   raw-data scale ranges when their headers are replaced.
 

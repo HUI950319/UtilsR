@@ -1415,6 +1415,7 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
 #'   `nrow x ncol` grid. Row-wise and column-wise filling are supported;
 #'   aligned nested rectangular grids retain their layout and annotations.
 #'   Spacers and guide areas are skipped while retaining their positions.
+#'   Insets retain their placement without consuming grid cells.
 #'   Custom `design` and non-aligned nested layouts are rejected.
 #' @param top_label Non-empty character vector of column-header labels without
 #'   missing values, recycled to `ncol`. Placed on the top-row panels only.
@@ -1562,7 +1563,13 @@ fmt_strip2 <- function(plot,
 
   # Each nested grid contributes its dimensions without rebuilding the container.
   collect_grid <- function(children, lay = NULL, path = integer()) {
-    n <- length(children)
+    cell_indices <- which(vapply(children, function(p) {
+      # Containers ending in an inset inherit its classes, but dispatch as
+      # patchworks. An inset wrapped around a patchwork dispatches as an inset.
+      !inherits(p, "inset_patch") || (inherits(p, "patchwork") &&
+        match("patchwork", class(p)) < match("inset_patch", class(p)))
+    }, logical(1)))
+    n <- length(cell_indices)
     if (!n) return(list(nrow = 0L, ncol = 0L, entries = list()))
     if (!is.null(lay$design)) {
       cli::cli_abort("`fmt_strip2()` requires a regular grid without a custom `design`.")
@@ -1588,8 +1595,9 @@ fmt_strip2 <- function(plot,
     rows <- if (byrow) indices %/% nc + 1L else indices %% nr + 1L
     cols <- if (byrow) indices %% nc + 1L else indices %/% nr + 1L
     grids <- lapply(seq_len(n), function(i) {
-      p <- children[[i]]
-      child_path <- c(path, i)
+      child_index <- cell_indices[i]
+      p <- children[[child_index]]
+      child_path <- c(path, child_index)
       if (inherits(p, "patchwork")) {
         return(collect_grid(lapply(seq_along(p), function(j) p[[j]]),
                             p$patches$layout, child_path))

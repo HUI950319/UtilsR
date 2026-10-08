@@ -20,6 +20,7 @@ fmt_strip2(
 \verb{nrow x ncol} grid. Row-wise and column-wise filling are supported;
 aligned nested rectangular grids retain their layout and annotations.
 Spacers and guide areas are skipped while retaining their positions.
+Insets retain their placement without consuming grid cells.
 Custom \code{design} and non-aligned nested layouts are rejected.}
 
 \item{top_label}{Non-empty character vector of column-header labels without

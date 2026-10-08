@@ -517,6 +517,32 @@ test_that("fmt_strip2 labels aligned nested grids and keeps placeholders", {
   expect_error(fmt_strip2(p | (p / p), "Top", "Right"), "aligned")
 })
 
+test_that("fmt_strip2 keeps inset plots outside the grid cell count", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) + ggplot2::geom_point()
+  labels <- function(p) vapply(.fmt_strip_text(p), `[[`, character(1), "label")
+  for (content in list(p, p | p)) {
+    inset <- p + patchwork::inset_element(content, .5, .5, 1, 1)
+    out <- fmt_strip2(inset, "Top", "Right", ncol = 1)
+    expect_identical(labels(out[[1]]), c("Top", "Right"))
+    expect_identical(out[[2]], inset[[2]])
+    expect_equal(out$patches$layout, inset$patches$layout)
+    expect_s3_class(patchwork::patchworkGrob(out), "gtable")
+  }
+  nested <- patchwork::wrap_plots(inset, inset, ncol = 2)
+  out <- fmt_strip2(nested, c("T1", "T2"), "Row", ncol = 2)
+  expect_identical(labels(out[[1]][[1]]), "T1")
+  expect_identical(labels(out[[2]][[1]]), c("T2", "Row"))
+  expect_identical(out[[1]][[2]], nested[[1]][[2]])
+  expect_identical(out[[2]][[2]], nested[[2]][[2]])
+  expect_s3_class(patchwork::patchworkGrob(out), "gtable")
+
+  tagged <- fmt_tag(p | p, label_position = "tl-out")
+  out <- fmt_strip2(tagged, c("T1", "T2"), "Row", ncol = 2)
+  expect_identical(out[[1]][[2]], tagged[[1]][[2]])
+  expect_identical(out[[2]][[2]], tagged[[2]][[2]])
+  expect_s3_class(patchwork::patchworkGrob(out), "gtable")
+})
+
 test_that("fmt_strip2 restores hidden strip themes while retaining text styles", {
   p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) + ggplot2::geom_point()
   for (theme in list(
