@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
+  follows patchwork’s default grid dimensions and column-wise filling,
+  labels the last occupied panel in incomplete rows, and rejects
+  conflicting column counts or unsupported custom designs.
+
+- [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
   uses constant header expressions without writing `.top.` or `.right.`
   columns, supporting empty plots, layer-only and function-valued data
   while preserving existing mappings and computed layer values.
