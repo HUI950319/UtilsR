@@ -298,3 +298,25 @@ test_that("outside tags compose with reference, legend, axis and strip formattin
   expect_length(refs, 3L)
   expect_length(p$layers, 1L)
 })
+
+test_that("inside tags stay in panel NPC under coordinate transformations", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, disp)) + ggplot2::geom_point()
+  plots <- list(p, p + ggplot2::coord_flip(), p + ggplot2::coord_polar(),
+                p + ggplot2::scale_x_reverse(), p + ggplot2::scale_x_log10(),
+                p + ggplot2::coord_flip() + ggplot2::facet_wrap(ggplot2::vars(cyl), scales = "free"))
+  positions <- list(tl = c(0.02, 0.98), br = c(0.98, 0.02))
+  for (q in plots) {
+    before <- ggplot2::ggplot_build(q)
+    for (pos in names(positions)) {
+      res <- fmt_tag(q, label_position = pos)
+      expect_identical(ggplot2::ggplot_build(res)$data[[1]], before$data[[1]])
+      trees <- Filter(function(g) any(vapply(g$children, inherits, logical(1), "roundrect")),
+                       find_grobs(ggplot2::ggplotGrob(res), "gTree"))
+      expect_length(trees, nrow(before$layout$layout))
+      for (g in trees) {
+        expect_equal(as.numeric(g$vp$x), positions[[pos]][1])
+        expect_equal(as.numeric(g$vp$y), positions[[pos]][2])
+      }
+    }
+  }
+})

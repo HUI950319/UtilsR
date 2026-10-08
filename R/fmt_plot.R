@@ -199,6 +199,8 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
 #'   }
 #'   Both placements use a box styled by `label.size`,
 #'   `label.padding` and `label.r`; `...` only applies to inside placements.
+#'   Inside positions refer to the displayed panel, including flipped and
+#'   non-linear coordinates.
 #'   Invalid positions raise an error.
 #' @param size Positive finite numeric label sizes in points, recycled over
 #'   data plots. Default 18.
@@ -425,6 +427,21 @@ fmt_tag <- function(plot,
         label.padding = label.padding,
         label.r = label.r,
         ...
+      )
+      # NPC belongs to the displayed panel, not the data coordinate system.
+      layer$geom <- ggplot2::ggproto(NULL, ggpp::GeomLabelNpc,
+        draw_panel = function(data, panel_params, coord, parse = FALSE, na.rm = FALSE,
+                              label.padding = grid::unit(0.25, "lines"),
+                              label.r = grid::unit(0.15, "lines"), label.size = 0.25,
+                              size.unit = "mm") {
+          panel_coord <- ggplot2::ggproto(NULL, coord,
+            backtransform_range = function(panel_params) list(x = c(0, 1), y = c(0, 1)),
+            transform = function(data, panel_params) data
+          )
+          ggpp::GeomLabelNpc$draw_panel(data, panel_params, panel_coord,
+            parse = parse, na.rm = na.rm, label.padding = label.padding,
+            label.r = label.r, label.size = label.size, size.unit = size.unit)
+        }
       )
       attr(layer, ".fmt_tag_generated") <- TRUE
       plots[[i]] <- plots[[i]] + layer

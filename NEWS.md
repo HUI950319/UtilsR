@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* Inside `fmt_tag()` positions remain fixed in displayed panel coordinates
+  under flipped and non-linear coordinates, including free-scale facets.
+
 * Outside `fmt_tag()` labels compose with axis, legend, reference-line and strip
   formatting. Formatters visit data-plot leaves and skip label insets while
   retaining nested layouts and annotations.

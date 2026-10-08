@@ -37,6 +37,8 @@ are recycled with a warning; excess labels are ignored.}
 }
 Both placements use a box styled by `label.size`,
 `label.padding` and `label.r`; `...` only applies to inside placements.
+Inside positions refer to the displayed panel, including flipped and
+non-linear coordinates.
 Invalid positions raise an error.}
 
 \item{size}{Positive finite numeric label sizes in points, recycled over
