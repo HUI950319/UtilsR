@@ -128,3 +128,58 @@ test_that("outside padding preserves each physical side and zero borders", {
                c(1, 2, 3, 10))
   expect_true(is.na(find_grobs(tree, "roundrect")[[1]]$gp$col))
 })
+
+test_that("repeated tags replace their own labels across placement modes", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, disp)) + ggplot2::geom_point() +
+    ggplot2::annotate("text", x = 20, y = 200, label = "USER")
+  for (from in c("tl", "tl-out")) {
+    for (to in c("br", "br-out")) {
+      res <- fmt_tag(fmt_tag(p, labels = "A", label_position = from),
+                     labels = "B", label_position = to)
+      gt <- if (inherits(res, "patchwork")) patchwork::patchworkGrob(res)
+            else ggplot2::ggplotGrob(res)
+      texts <- unlist(lapply(find_grobs(gt, "text"), function(g) g$label))
+      expect_equal(sum(texts == "A"), 0L)
+      expect_equal(sum(texts == "B"), 1L)
+      expect_equal(sum(texts == "USER"), 1L)
+    }
+  }
+  res <- p
+  for (i in 1:4) res <- fmt_tag(res, labels = "B", label_position = "tl-out")
+  expect_length(find_grobs(patchwork::patchworkGrob(res), "roundrect"), 1L)
+  expect_length(res, 2L)
+})
+
+test_that("tag replacement preserves annotations, styles and user insets", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, disp)) + ggplot2::geom_point()
+  user <- ggplot2::ggplot() + ggplot2::annotate("text", x = 0, y = 0, label = "USER")
+  input <- p + patchwork::inset_element(user, 0.6, 0.6, 1, 1)
+  input <- (input | p) + patchwork::plot_annotation(title = "Overall")
+  res <- fmt_tag(input, label_position = "tl-out") &
+    ggplot2::theme(panel.background = ggplot2::element_rect(fill = "pink"))
+  res <- fmt_tag(res, labels = c("C", "D"), label_position = "br-out")
+  gt <- patchwork::patchworkGrob(res)
+  texts <- unlist(lapply(find_grobs(gt, "text"), function(g) g$label))
+  expect_equal(sum(texts == "USER"), 1L)
+  expect_equal(sum(texts == "C"), 1L)
+  expect_equal(sum(texts == "D"), 1L)
+  expect_equal(sum(texts %in% c("A", "B")), 0L)
+  expect_identical(res$patches$layout, input$patches$layout)
+  expect_identical(res$patches$annotation$title, "Overall")
+  fills <- vapply(find_grobs(gt, "rect"), function(g) {
+    if (is.null(g$gp$fill)) "" else as.character(g$gp$fill)[1]
+  }, character(1))
+  expect_true("pink" %in% fills)
+})
+
+test_that("fmt_plot explicit tags take precedence over automatic tagging", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, disp)) + ggplot2::geom_point()
+  for (pos in c("tl", "tl-out")) {
+    expect_warning(res <- fmt_plot(p | p, fmt_tag_list = list(label_position = pos),
+                                   tag_levels = "A"), "tag_levels")
+    texts <- unlist(lapply(find_grobs(patchwork::patchworkGrob(res), "text"),
+                            function(g) g$label))
+    expect_equal(sum(texts == "A"), 1L)
+    expect_equal(sum(texts == "B"), 1L)
+  }
+})

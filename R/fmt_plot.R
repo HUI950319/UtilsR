@@ -241,6 +241,35 @@ fmt_tag <- function(plot,
                     label.padding = grid::unit(c(0.2, 0.3, 0.2, 0.3), "lines"),
                     label.r = grid::unit(0.2, "lines"),
                     ...) {
+  clear_tags <- function(p) {
+    if (inherits(p, "patchwork")) {
+      children <- lapply(seq_along(p), function(j) p[[j]])
+      keep <- !vapply(children, function(child) {
+        !inherits(child, "patchwork") && inherits(child, "inset_patch") &&
+          isTRUE(attr(child, ".fmt_tag_generated"))
+      }, logical(1))
+      if (all(keep)) {
+        for (j in seq_along(p)) p[[j]] <- clear_tags(children[[j]])
+        return(p)
+      }
+      children <- lapply(children[keep], clear_tags)
+      if (length(children) == 1L && all(lengths(p$patches$layout) == 0L) &&
+          all(lengths(p$patches$annotation) == 0L)) return(children[[1]])
+      restored <- patchwork::wrap_plots(children)
+      restored$patches$layout <- p$patches$layout
+      restored$patches$annotation <- p$patches$annotation
+      return(restored)
+    }
+    if (inherits(p, "gg")) {
+      if (inherits(p, c("spacer", "guide_area", "inset_patch"))) return(p)
+      p$layers <- Filter(function(layer) !isTRUE(attr(layer, ".fmt_tag_generated")),
+                          p$layers)
+      return(p)
+    }
+    if (is.list(p)) return(lapply(p, clear_tags))
+    p
+  }
+  plot <- clear_tags(plot)
   info <- .to_plot_list(plot)
   map_leaves <- function(p, fun) {
     if (inherits(p, "patchwork")) {
@@ -311,29 +340,32 @@ fmt_tag <- function(plot,
           gp = grid::gpar(fontsize = size[i])
         )
       )
-      plots[[i]] <- plots[[i]] + patchwork::inset_element(
+      inset <- patchwork::inset_element(
         patchwork::wrap_elements(full = box) +
           ggplot2::theme(plot.background = ggplot2::element_blank()),
         left = 0, bottom = 0, right = 1, top = 1,
-        align_to = "full", clip = FALSE, on_top = TRUE
+        align_to = "full", clip = FALSE, on_top = TRUE, ignore_tag = TRUE
       )
+      attr(inset, ".fmt_tag_generated") <- TRUE
+      plots[[i]] <- plots[[i]] + inset
     } else {
-      plots[[i]] <- plots[[i]] +
-        ggpp::geom_label_npc(
-          data = data.frame(npcx = npcx[i], npcy = npcy[i], label = labels[i]),
-          mapping = ggplot2::aes(npcx = .data[["npcx"]], npcy = .data[["npcy"]],
-                                 label = .data[["label"]]),
-          inherit.aes = FALSE,
-          show.legend = FALSE,
-          size = size[i],
-          fontface = fontface,
-          color = color[i],
-          size.unit = "pt",
-          label.size = label.size,
-          label.padding = label.padding,
-          label.r = label.r,
-          ...
-        )
+      layer <- ggpp::geom_label_npc(
+        data = data.frame(npcx = npcx[i], npcy = npcy[i], label = labels[i]),
+        mapping = ggplot2::aes(npcx = .data[["npcx"]], npcy = .data[["npcy"]],
+                               label = .data[["label"]]),
+        inherit.aes = FALSE,
+        show.legend = FALSE,
+        size = size[i],
+        fontface = fontface,
+        color = color[i],
+        size.unit = "pt",
+        label.size = label.size,
+        label.padding = label.padding,
+        label.r = label.r,
+        ...
+      )
+      attr(layer, ".fmt_tag_generated") <- TRUE
+      plots[[i]] <- plots[[i]] + layer
     }
   }
 
@@ -759,6 +791,11 @@ fmt_plot <- function(plot,
                      tag_levels = NULL,
                      axis_titles = NULL,
                      ...) {
+
+  if (!is.null(fmt_tag_list) && !is.null(tag_levels)) {
+    cli::cli_warn("{.arg tag_levels} is ignored when {.arg fmt_tag_list} supplies explicit tags.")
+    tag_levels <- NULL
+  }
 
   # Apply axis formatting
 
