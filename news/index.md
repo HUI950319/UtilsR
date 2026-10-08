@@ -3,6 +3,12 @@
 ## UtilsR 0.6.8
 
 - [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
+  handles aligned nested rectangular grids and preserves their layouts
+  and annotations. Spacers and guide areas retain their grid positions
+  without receiving facets; non-aligned nested grids are rejected
+  explicitly.
+
+- [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
   follows patchwork’s default grid dimensions and column-wise filling,
   labels the last occupied panel in incomplete rows, and rejects
   conflicting column counts or unsupported custom designs.

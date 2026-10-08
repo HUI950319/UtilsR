@@ -89,7 +89,9 @@ dimensions (e.g. plot-type across columns, a stratifier down rows).</p>
 <dl><dt id="arg-plot">plot<a class="anchor" aria-label="anchor" href="#arg-plot"></a></dt>
 <dd><p>A patchwork (or list) of ggplot panels filling an
 `nrow x ncol` grid. Row-wise and column-wise filling are supported;
-custom `design` layouts are rejected.</p></dd>
+aligned nested rectangular grids retain their layout and annotations.
+Spacers and guide areas are skipped while retaining their positions.
+Custom `design` and non-aligned nested layouts are rejected.</p></dd>
 
 
 <dt id="arg-top-label">top_label<a class="anchor" aria-label="anchor" href="#arg-top-label"></a></dt>
