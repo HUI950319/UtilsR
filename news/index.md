@@ -2,6 +2,11 @@
 
 ## UtilsR 0.6.8
 
+- `fmt_strip(strip = TRUE)` restores strips hidden by an earlier call.
+  Explicit colours override leaf theme and ggh4x strip elements without
+  resetting text size or angle; `label_color = NULL` consistently
+  inherits existing colours.
+
 - [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
   labels all leaf plots in nested patchworks in order, skipping spacers
   and guide areas without consuming their labels. Nested layouts,
