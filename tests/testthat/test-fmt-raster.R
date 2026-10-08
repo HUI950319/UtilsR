@@ -4,6 +4,37 @@ raster_find_grobs <- function(g, cls) {
     unlist(lapply(kids, raster_find_grobs, cls = cls), recursive = FALSE))
 }
 
+test_that("image renders the whole plot, text included, into one raster", {
+  skip_if_not_installed("ragg")
+  grDevices::pdf(NULL, width = 10, height = 6)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  device <- grDevices::dev.cur()
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3), ggplot2::aes(x, y)) +
+    ggplot2::geom_point() + ggplot2::labs(title = "Title")
+
+  result <- fmt_raster(p, method = "image", dpi = 50, width = 2, height = 1.5)
+  expect_true(inherits(result, "patchwork"))
+  expect_identical(attr(result, "size"),
+                   list(width = 2, height = 1.5, units = "in"))
+  full <- attr(result, "grobs")$full
+  rasters <- raster_find_grobs(full, "rastergrob")
+  expect_length(rasters, 1L)
+  expect_equal(dim(rasters[[1]]$raster), c(75L, 100L))
+  expect_length(raster_find_grobs(full, "text"), 0L)
+  expect_identical(grDevices::dev.cur(), device)
+
+  # Without a size the open device's size is used, in `units`.
+  auto <- fmt_raster(p, method = "image", dpi = 10, units = "cm")
+  expect_equal(attr(auto, "size"),
+               list(width = 25.4, height = 15.24, units = "cm"))
+
+  named <- fmt_raster(list(a = p, b = p), method = "image", dpi = 10,
+                      width = 1, height = 1)
+  expect_named(named, c("a", "b"))
+  expect_error(fmt_raster(p, method = "image", width = c(1, 2), height = 1),
+               "width")
+})
+
 test_that("ragg preserves every panel and the labels of nested patchworks", {
   skip_if_not_installed("ragg")
   skip_if_not_installed("png")

@@ -5,20 +5,23 @@
 # Architecture (4 layers):
 #
 #   L1  fmt_raster(plot, method, dpi, width, height, ...)   -- public API
-#         |   method = "ggrastr" (default) | "ragg"
+#         |   method = "ggrastr" (default) | "ragg" | "image"
 #         +-- L2  .fmt_raster_ggrastr()   re-wrap layers through ggrastr
 #         +-- L2  .fmt_raster_ragg()      render panel grobs through ragg
-#               +-- L3  .resolve_panel_size()     physical panel dimensions
-#               +-- L3  .rasterize_panel_grob()   grob -> raster grob
-#                     +-- L4  .is_text_grob()     keep text grobs vector
+#         |     +-- L3  .resolve_panel_size()     physical panel dimensions
+#         |     +-- L3  .rasterize_panel_grob()   grob -> raster grob
+#         |           +-- L4  .is_text_grob()     keep text grobs vector
+#         +-- L2  .fmt_raster_image()     whole plot, text included -> raster
 # =============================================================================
 
 #' Rasterize Plot Panels
 #'
 #' Rasterize geometric layers (points, lines, polygons) in ggplot panels to
 #' reduce PDF/SVG file size, while keeping text, axes, and legends as vectors.
+#' The `"image"` method instead renders the whole plot, text included, into
+#' one image for fast on-screen redrawing.
 #'
-#' Two backends are available:
+#' Three backends are available:
 #' \describe{
 #'   \item{\code{"ggrastr"}}{Wraps the plot with \code{ggrastr::rasterise()},
 #'     which marks non-text geom layers for rasterization at render time.
@@ -28,11 +31,19 @@
 #'     Text/label grobs inside the panel are automatically detected and kept
 #'     as vectors. Uses the specified panel dimensions or the current device's
 #'     grid layout when dimensions are \code{NULL}, then fixes the panel size.}
+#'   \item{\code{"image"}}{Draws the whole plot once via
+#'     \code{ragg::agg_capture()} and returns it as a single
+#'     \code{rasterGrob}. Text is rasterized too, so the result redraws quickly
+#'     (for example on every resize of the RStudio Plots pane) even when the
+#'     plot is dominated by text, such as a forest-plot table, which the other
+#'     backends keep as vectors. Use it for on-screen previews, not for
+#'     publication export.}
 #' }
 #'
 #' @param plot A ggplot, patchwork, or list containing either type.
 #' @param method Rasterization backend: \code{"ggrastr"} (default, simple
-#'   layer-level) or \code{"ragg"} (panel-level, also fixes panel size).
+#'   layer-level), \code{"ragg"} (panel-level, also fixes panel size), or
+#'   \code{"image"} (the whole plot as one raster).
 #' @param dpi Positive finite numeric scalar. Rasterization resolution in dots
 #'   per inch. Default 300.
 #' @param width,height Panel width and height for \code{method = "ragg"}.
@@ -42,19 +53,25 @@
 #'   Ignored when \code{method = "ggrastr"}. If \code{NULL} (default), panel
 #'   dimensions are resolved from the current device's grid layout. With no
 #'   open device, the width and height from \code{grDevices::pdf.options()}
-#'   are used as the available plot size.
+#'   are used as the available plot size. For \code{method = "image"}, a
+#'   single positive value each giving the size of the whole image; a
+#'   \code{NULL} dimension takes the open device's size (or
+#'   \code{pdf.options()}).
 #' @param units Units for \code{width}/\code{height}: \code{"in"} (default),
 #'   \code{"cm"}, or \code{"mm"}.
 #' @param dev Character. Graphics device for \code{ggrastr::rasterise()}.
 #'   Default \code{"ragg"} (high-quality anti-aliasing). Only used when
 #'   \code{method = "ggrastr"}.
 #' @param bg Character. Background colour for panel rendering.
-#'   Default \code{"transparent"}. Only used when \code{method = "ragg"}.
+#'   Default \code{"transparent"}. Used when \code{method} is \code{"ragg"}
+#'   or \code{"image"}.
 #'
 #' @return The \code{"ggrastr"} backend preserves the input type. The
 #'   \code{"ragg"} backend returns a patchwork-wrapped gtable with a
 #'   \code{size} attribute: a list with \code{width}, \code{height}, and
-#'   \code{units} describing the complete fixed plot dimensions. For list
+#'   \code{units} describing the complete fixed plot dimensions. The
+#'   \code{"image"} backend returns a patchwork-wrapped \code{rasterGrob} with
+#'   the same \code{size} attribute for the rendered image. For list
 #'   inputs, returns a corresponding list and preserves its names.
 #'
 #' @details
@@ -97,6 +114,10 @@
 #' p_ragg <- fmt_raster(p, method = "ragg", width = 4, height = 3)
 #' p_ragg
 #'
+#' # image backend (whole plot, text included, for fast on-screen redraws)
+#' p_image <- fmt_raster(p, method = "image", dpi = 72, width = 4, height = 3)
+#' p_image
+#'
 #' \donttest{
 #' # Works with patchwork
 #' library(patchwork)
@@ -109,7 +130,7 @@
 #' @family plot formatting
 fmt_raster <- function(
     plot,
-    method  = c("ggrastr", "ragg"),
+    method  = c("ggrastr", "ragg", "image"),
     dpi     = 300,
     width   = NULL,
     height  = NULL,
@@ -123,18 +144,25 @@ fmt_raster <- function(
     cli::cli_abort("{.arg dpi} must be a positive finite numeric scalar.")
   }
 
-  if (method == "ragg") {
+  if (method %in% c("ragg", "image")) {
     for (arg in c("width", "height")) {
       value <- if (arg == "width") width else height
       if (!is.null(value) && (!is.numeric(value) || length(value) == 0L ||
                               any(!is.finite(value)) || any(value <= 0))) {
         cli::cli_abort("{.arg {arg}} must contain positive finite numeric values.")
       }
+      if (method == "image" && length(value) > 1L) {
+        cli::cli_abort("{.arg {arg}} must be a single value for {.code method = \"image\"}.")
+      }
     }
   }
 
   if (method == "ggrastr") {
     return(.fmt_raster_ggrastr(plot, dpi = dpi, dev = dev))
+  }
+  if (method == "image") {
+    return(.fmt_raster_image(plot, dpi = dpi, width = width, height = height,
+                             units = units, bg = bg))
   }
 
   # method == "ragg"
@@ -349,6 +377,57 @@ fmt_raster <- function(
   plot_w <- grid::convertWidth(sum(gtable[["widths"]]), units, valueOnly = TRUE)
   plot_h <- grid::convertHeight(sum(gtable[["heights"]]), units, valueOnly = TRUE)
   attr(p, "size") <- list(width = plot_w, height = plot_h, units = units)
+  p
+}
+
+
+# ============================================================================
+# Backend 3: image -- the whole plot, text included, as one raster
+# ============================================================================
+
+#' @noRd
+.fmt_raster_image <- function(plot, dpi, width, height, units, bg) {
+  if (!requireNamespace("ragg", quietly = TRUE)) {
+    cli::cli_abort("Package {.pkg ragg} is required for {.code method = \"image\"}.")
+  }
+  if (is.list(plot) && !inherits(plot, c("gg", "gtable"))) {
+    plots <- .to_plot_list(plot)$plots
+    return(lapply(plots, function(p) {
+      .fmt_raster_image(p, dpi = dpi, width = width, height = height,
+                        units = units, bg = bg)
+    }))
+  }
+
+  # A missing dimension takes the open device's size (pdf.options() without
+  # one), converted from inches to `units`.
+  original_device <- grDevices::dev.cur()
+  if (is.null(width) || is.null(height)) {
+    device_size <- if (original_device == 1L) {
+      unlist(grDevices::pdf.options()[c("width", "height")], use.names = FALSE)
+    } else {
+      grDevices::dev.size("in")
+    }
+    per_inch <- c("in" = 1, "cm" = 2.54, "mm" = 25.4)[[units]]
+    if (is.null(width))  width  <- device_size[1] * per_inch
+    if (is.null(height)) height <- device_size[2] * per_inch
+  }
+
+  capture <- ragg::agg_capture(width = width, height = height, units = units,
+                               res = dpi, background = bg)
+  capture_device <- grDevices::dev.cur()
+  on.exit({
+    if (capture_device %in% grDevices::dev.list()) {
+      grDevices::dev.off(capture_device)
+    }
+    if (original_device %in% grDevices::dev.list()) {
+      grDevices::dev.set(original_device)
+    }
+  }, add = TRUE)
+  if (inherits(plot, "grob")) grid::grid.draw(plot) else print(plot)
+  image <- capture(native = TRUE)
+
+  p <- patchwork::wrap_plots(grid::rasterGrob(image, interpolate = TRUE))
+  attr(p, "size") <- list(width = width, height = height, units = units)
   p
 }
 

@@ -6,7 +6,7 @@
 \usage{
 fmt_raster(
   plot,
-  method = c("ggrastr", "ragg"),
+  method = c("ggrastr", "ragg", "image"),
   dpi = 300,
   width = NULL,
   height = NULL,
@@ -19,7 +19,8 @@ fmt_raster(
 \item{plot}{A ggplot, patchwork, or list containing either type.}
 
 \item{method}{Rasterization backend: \code{"ggrastr"} (default, simple
-layer-level) or \code{"ragg"} (panel-level, also fixes panel size).}
+layer-level), \code{"ragg"} (panel-level, also fixes panel size), or
+\code{"image"} (the whole plot as one raster).}
 
 \item{dpi}{Positive finite numeric scalar. Rasterization resolution in dots
 per inch. Default 300.}
@@ -31,7 +32,10 @@ must have consistent dimensions, and nested plots must fit their layout.
 Ignored when \code{method = "ggrastr"}. If \code{NULL} (default), panel
 dimensions are resolved from the current device's grid layout. With no
 open device, the width and height from \code{grDevices::pdf.options()}
-are used as the available plot size.}
+are used as the available plot size. For \code{method = "image"}, a
+single positive value each giving the size of the whole image; a
+\code{NULL} dimension takes the open device's size (or
+\code{pdf.options()}).}
 
 \item{units}{Units for \code{width}/\code{height}: \code{"in"} (default),
 \code{"cm"}, or \code{"mm"}.}
@@ -41,21 +45,26 @@ Default \code{"ragg"} (high-quality anti-aliasing). Only used when
 \code{method = "ggrastr"}.}
 
 \item{bg}{Character. Background colour for panel rendering.
-Default \code{"transparent"}. Only used when \code{method = "ragg"}.}
+Default \code{"transparent"}. Used when \code{method} is \code{"ragg"}
+or \code{"image"}.}
 }
 \value{
 The \code{"ggrastr"} backend preserves the input type. The
 \code{"ragg"} backend returns a patchwork-wrapped gtable with a
 \code{size} attribute: a list with \code{width}, \code{height}, and
-\code{units} describing the complete fixed plot dimensions. For list
+\code{units} describing the complete fixed plot dimensions. The
+\code{"image"} backend returns a patchwork-wrapped \code{rasterGrob} with
+the same \code{size} attribute for the rendered image. For list
 inputs, returns a corresponding list and preserves its names.
 }
 \description{
 Rasterize geometric layers (points, lines, polygons) in ggplot panels to
 reduce PDF/SVG file size, while keeping text, axes, and legends as vectors.
+The \code{"image"} method instead renders the whole plot, text included, into
+one image for fast on-screen redrawing.
 }
 \details{
-Two backends are available:
+Three backends are available:
 \describe{
 \item{\code{"ggrastr"}}{Wraps the plot with \code{ggrastr::rasterise()},
 which marks non-text geom layers for rasterization at render time.
@@ -65,6 +74,13 @@ Text/label layers, custom annotations, and theme elements remain vectors.}
 Text/label grobs inside the panel are automatically detected and kept
 as vectors. Uses the specified panel dimensions or the current device's
 grid layout when dimensions are \code{NULL}, then fixes the panel size.}
+\item{\code{"image"}}{Draws the whole plot once via
+\code{ragg::agg_capture()} and returns it as a single
+\code{rasterGrob}. Text is rasterized too, so the result redraws quickly
+(for example on every resize of the RStudio Plots pane) even when the
+plot is dominated by text, such as a forest-plot table, which the other
+backends keep as vectors. Use it for on-screen previews, not for
+publication export.}
 }
 
 The \code{"ragg"} backend renders geometry immediately. Apply data,
@@ -103,6 +119,10 @@ p_ggrastr
 # ragg backend (panel-level, also fixes panel size)
 p_ragg <- fmt_raster(p, method = "ragg", width = 4, height = 3)
 p_ragg
+
+# image backend (whole plot, text included, for fast on-screen redraws)
+p_image <- fmt_raster(p, method = "image", dpi = 72, width = 4, height = 3)
+p_image
 
 \donttest{
 # Works with patchwork
