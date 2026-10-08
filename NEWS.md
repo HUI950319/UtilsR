@@ -1,5 +1,10 @@
 # UtilsR 0.6.8
 
+* `fmt_strip(strip = FALSE)` no longer builds plots or executes layer data
+  functions and statistics. Only synthetic facets created by `fmt_strip()`
+  are dropped; native facets, including currently single-panel facets, retain
+  their structure and support later data changes with strips hidden.
+
 * `fmt_strip(strip = TRUE)` restores strips hidden by an earlier call. Explicit
   colours override leaf theme and ggh4x strip elements without resetting text
   size or angle; `label_color = NULL` consistently inherits existing colours.

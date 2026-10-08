@@ -28,8 +28,8 @@ strips use a transparent background.}
 \code{FALSE} shows no strip at all and ignores \code{label},
 \code{label_color} and \code{label_fill}: strips already on the plot,
 from an earlier \code{fmt_strip()} / \code{\link{fmt_strip2}()} call or
-from its own facets, are removed. Single-panel facets are dropped;
-multi-panel facets keep their panels with the strips hidden through the
+from its own facets, are removed. Synthetic facets created by this function
+are dropped; native facets keep their panels with strips hidden through the
 theme, so add complete themes such as \code{theme_bw()} before this call.
 Nested patchworks are handled recursively.}
 }

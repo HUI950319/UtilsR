@@ -168,6 +168,41 @@ test_that("fmt_strip restores hidden strips and respects explicit style controls
   }
 })
 
+test_that("fmt_strip hides strips without executing data functions or statistics", {
+  calls <- 0L
+  data_calls <- 0L
+  stat <- ggplot2::ggproto("StatStripTest", ggplot2::Stat,
+    required_aes = c("x", "y"),
+    compute_group = function(data, scales) {
+      calls <<- calls + 1L
+      data$y <- data$y + stats::runif(1)
+      data
+    }
+  )
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) +
+    ggplot2::layer(stat = stat, geom = "point", position = "identity",
+                   data = function(data) { data_calls <<- data_calls + 1L; data }) +
+    ggplot2::facet_wrap(ggplot2::vars(cyl))
+  set.seed(19)
+  seed <- .Random.seed
+  out <- fmt_strip(p, strip = FALSE)
+  expect_identical(calls, 0L)
+  expect_identical(data_calls, 0L)
+  expect_identical(.Random.seed, seed)
+  invisible(ggplot2::ggplotGrob(out))
+  expect_identical(calls, 3L)
+  expect_identical(data_calls, 1L)
+
+  native <- ggplot2::ggplot(subset(mtcars, cyl == 4), ggplot2::aes(mpg, wt)) +
+    ggplot2::geom_point() + ggplot2::facet_wrap(ggplot2::vars(cyl))
+  hidden <- fmt_strip(native, strip = FALSE)
+  expect_s3_class(hidden$facet, "FacetWrap")
+  expect_length(.fmt_strip_text(hidden), 0L)
+  hidden$data <- mtcars
+  expect_equal(nrow(ggplot2::ggplot_build(hidden)$layout$layout), 3L)
+  expect_length(.fmt_strip_text(hidden), 0L)
+})
+
 test_that("fmt_strip preserves facet structure and computed statistics", {
   p <- ggplot2::ggplot(mtcars, ggplot2::aes(1, mpg)) +
     ggplot2::stat_summary(fun = mean, geom = "point")

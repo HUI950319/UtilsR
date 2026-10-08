@@ -875,8 +875,8 @@ fmt_plot_base <- function(plot, ggtheme = NULL, labs_list = NULL,
 #'   \code{FALSE} shows no strip at all and ignores \code{label},
 #'   \code{label_color} and \code{label_fill}: strips already on the plot,
 #'   from an earlier \code{fmt_strip()} / \code{\link{fmt_strip2}()} call or
-#'   from its own facets, are removed. Single-panel facets are dropped;
-#'   multi-panel facets keep their panels with the strips hidden through the
+#'   from its own facets, are removed. Synthetic facets created by this function
+#'   are dropped; native facets keep their panels with strips hidden through the
 #'   theme, so add complete themes such as \code{theme_bw()} before this call.
 #'   Nested patchworks are handled recursively.
 #'
@@ -928,17 +928,16 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
                        "strip.background.x", "strip.background.y")
 
   if (!strip) {
-    # Single-panel facets (e.g. an earlier fmt_strip()) are dropped. Multi-panel
-    # facets keep their panels and blank the leaf strip elements, since a
-    # user-set `strip.text.x` ignores a blank parent. ggh4x themed / nested
+    # Only remove synthetic facets owned by this function. Native facets keep
+    # their structure without evaluating data or statistics. Blank leaf elements,
+    # since a user-set `strip.text.x` ignores a blank parent. ggh4x themed / nested
     # strips carry text and fill elements that beat the theme, so those are
     # cleared on ggproto children, leaving the input plot as is. ggproto()
     # re-reads a parent by name, so never reassign `facet` or `old_strip`.
     plots <- lapply(plots, function(p) {
       if (inherits(p$facet, "FacetNull")) return(p)
       if (!is.null(p$facet$.fmt_strip_hidden)) return(p)
-      built <- suppressWarnings(suppressMessages(ggplot2::ggplot_build(p)))
-      if (nrow(built$layout$layout) == 1L) return(p + ggplot2::facet_null())
+      if (isTRUE(p$facet$.fmt_strip_generated)) return(p + ggplot2::facet_null())
 
       facet <- p$facet
       old_strip <- facet$strip
@@ -1025,11 +1024,6 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
         ggplot2::ggproto(NULL, facet, strip = hidden$strip, .fmt_strip_hidden = NULL)
       })
     }
-    cur_strip <- create_strip(
-      lc = if (!is.null(label_color)) label_color[i] else NULL,
-      lf = if (!is.null(label_fill))  label_fill[i]  else NULL
-    )
-
     if (.has_facet(plots[[i]])) {
       # Facet quosure names are the columns passed to the labeller, including
       # named expressions and .data pronouns. Leave the expressions untouched.
@@ -1106,9 +1100,14 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
 
     } else {
       # A constant facet expression leaves plot/layer data and mappings intact.
+      cur_strip <- create_strip(
+        lc = if (!is.null(label_color)) label_color[i] else NULL,
+        lf = if (!is.null(label_fill))  label_fill[i]  else NULL
+      )
       facet_formula <- ggplot2::vars(.strip_label. = !!label[i])
-      plots[[i]] <- plots[[i]] +
-        ggh4x::facet_wrap2(facet_formula, strip = cur_strip)
+      facet <- ggh4x::facet_wrap2(facet_formula, strip = cur_strip)
+      facet$.fmt_strip_generated <- TRUE
+      plots[[i]] <- plots[[i]] + facet
     }
   }
 
