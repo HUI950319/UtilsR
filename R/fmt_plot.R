@@ -899,7 +899,29 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
     cli::cli_abort("{.arg strip} must be a single TRUE or FALSE.")
   }
   info <- .to_plot_list(plot)
-  plots <- info$plots
+  map_leaves <- function(p, fun) {
+    if (inherits(p, "patchwork")) {
+      for (j in seq_along(p)) p[[j]] <- map_leaves(p[[j]], fun)
+      return(p)
+    }
+    if (inherits(p, c("spacer", "guide_area"))) return(p)
+    fun(p)
+  }
+  plots <- list()
+  for (p in info$plots) {
+    invisible(map_leaves(p, function(leaf) {
+      plots[[length(plots) + 1L]] <<- leaf
+      leaf
+    }))
+  }
+  restore <- function(plots) {
+    i <- 0L
+    restored <- lapply(info$plots, map_leaves, fun = function(p) {
+      i <<- i + 1L
+      plots[[i]]
+    })
+    .from_plot_list(restored, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
+  }
   n <- length(plots)
 
   if (!strip) {
@@ -910,7 +932,6 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
     # cleared on ggproto children, leaving the input plot as is. ggproto()
     # re-reads a parent by name, so never reassign `facet` or `old_strip`.
     plots <- lapply(plots, function(p) {
-      if (inherits(p, "patchwork")) return(fmt_strip(p, strip = FALSE))
       if (inherits(p$facet, "FacetNull")) return(p)
       built <- suppressWarnings(suppressMessages(ggplot2::ggplot_build(p)))
       if (nrow(built$layout$layout) == 1L) return(p + ggplot2::facet_null())
@@ -939,8 +960,7 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
         strip.background.x = blank, strip.background.y = blank
       )
     })
-    return(.from_plot_list(plots, info$is_patchwork, info$is_single,
-                           pw_orig = info$pw_orig))
+    return(restore(plots))
   }
 
   if (is.null(label)) label <- paste0("Figure", seq_len(n))
@@ -1046,7 +1066,7 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
     }
   }
 
-  .from_plot_list(plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
+  restore(plots)
 }
 
 # ---- fmt_strip2 ----

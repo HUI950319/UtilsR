@@ -100,6 +100,33 @@ test_that("fmt_strip adds labels without changing plot or layer data", {
   }
 })
 
+test_that("fmt_strip labels nested patchworks without counting placeholders", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) + ggplot2::geom_point()
+  labels <- function(p) vapply(.fmt_strip_text(p), `[[`, character(1), "label")
+  nested <- ((p | p) / p) + patchwork::plot_annotation(title = "Overall")
+  out <- fmt_strip(nested, c("A", "B", "C"))
+  expect_identical(c(labels(out[[1]][[1]]), labels(out[[1]][[2]]), labels(out[[2]])),
+                   c("A", "B", "C"))
+  expect_equal(out$patches$layout, nested$patches$layout)
+  expect_equal(out$patches$annotation, nested$patches$annotation)
+  expect_equal(out[[1]]$patches$layout, nested[[1]]$patches$layout)
+  expect_length(.fmt_strip_text(nested[[1]][[1]]), 0L)
+  expect_s3_class(patchwork::patchworkGrob(out), "gtable")
+
+  spaced <- patchwork::wrap_plots(p, patchwork::plot_spacer(),
+                                  patchwork::guide_area(), p, ncol = 2)
+  out <- fmt_strip(spaced, c("A", "B"))
+  expect_identical(c(labels(out[[1]]), labels(out[[4]])), c("A", "B"))
+  expect_identical(out[[2]], spaced[[2]])
+  expect_identical(out[[3]], spaced[[3]])
+  expect_s3_class(patchwork::patchworkGrob(out), "gtable")
+
+  out <- fmt_strip(list(group = nested, last = p))
+  expect_identical(names(out), c("group", "last"))
+  expect_identical(c(labels(out$group[[1]][[1]]), labels(out$group[[1]][[2]]),
+                     labels(out$group[[2]]), labels(out$last)), paste0("Figure", 1:4))
+})
+
 test_that("fmt_strip preserves facet structure and computed statistics", {
   p <- ggplot2::ggplot(mtcars, ggplot2::aes(1, mpg)) +
     ggplot2::stat_summary(fun = mean, geom = "point")
