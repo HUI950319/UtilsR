@@ -276,6 +276,7 @@ fmt_tag <- function(plot,
                     ...) {
   clear_tags <- function(p) {
     if (inherits(p, "patchwork")) {
+      free_settings <- attr(p, "patchwork_free_settings")
       children <- lapply(seq_along(p), function(j) p[[j]])
       keep <- !vapply(children, function(child) {
         !inherits(child, "patchwork") && inherits(child, "inset_patch") &&
@@ -283,14 +284,23 @@ fmt_tag <- function(plot,
       }, logical(1))
       if (all(keep)) {
         for (j in seq_along(p)) p[[j]] <- clear_tags(children[[j]])
+        if (!is.null(free_settings)) {
+          attr(p, "patchwork_free_settings") <- free_settings
+          class(p) <- unique(c("free_plot", class(p)))
+        }
         return(p)
       }
       children <- lapply(children[keep], clear_tags)
       if (length(children) == 1L && all(lengths(p$patches$layout) == 0L) &&
-          all(lengths(p$patches$annotation) == 0L)) return(children[[1]])
+          all(lengths(p$patches$annotation) == 0L) &&
+          is.null(free_settings)) return(children[[1]])
       restored <- patchwork::wrap_plots(children)
       restored$patches$layout <- p$patches$layout
       restored$patches$annotation <- p$patches$annotation
+      if (!is.null(free_settings)) {
+        attr(restored, "patchwork_free_settings") <- free_settings
+        class(restored) <- unique(c("free_plot", class(restored)))
+      }
       return(restored)
     }
     if (inherits(p, "gg")) {

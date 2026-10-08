@@ -320,3 +320,24 @@ test_that("inside tags stay in panel NPC under coordinate transformations", {
     }
   }
 })
+
+test_that("retagging preserves freed patchwork alignment and rendered panel widths", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, disp)) + ggplot2::geom_point()
+  tagged <- patchwork::free(fmt_tag(p, label_position = "tl-out"), side = "l")
+  long <- p + ggplot2::scale_y_continuous(labels = function(x) paste("Long axis label", x))
+  input <- long / tagged
+  settings <- function(p) {
+    own <- if (inherits(p, "patchwork")) attr(p, "patchwork_free_settings") else NULL
+    kids <- if (inherits(p, "patchwork")) lapply(seq_along(p), function(i) settings(p[[i]])) else list()
+    c(if (!is.null(own)) list(own), unlist(kids, recursive = FALSE))
+  }
+  for (pos in c("tl", "tl-out")) {
+    res <- fmt_tag(input, label_position = pos)
+    expect_equal(settings(res), settings(input))
+    before <- patchwork::patchworkGrob(input)
+    after <- patchwork::patchworkGrob(res)
+    expect_equal(before$widths, after$widths)
+    texts <- unlist(lapply(find_grobs(after, "text"), function(g) as.character(g$label)))
+    expect_equal(sum(texts %in% c("A", "B")), 2L)
+  }
+})

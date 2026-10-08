@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* Retagging plots retains patchwork's freed alignment settings, including
+  switches between inside and outside labels.
+
 * Inside `fmt_tag()` positions remain fixed in displayed panel coordinates
   under flipped and non-linear coordinates, including free-scale facets.
 

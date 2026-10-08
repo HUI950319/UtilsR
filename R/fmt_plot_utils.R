@@ -17,8 +17,19 @@
 #' @noRd
 .map_plot_leaves <- function(plot, fun) {
   if (inherits(plot, "patchwork")) {
+    free_settings <- attr(plot, "patchwork_free_settings")
     for (i in seq_along(plot)) plot[[i]] <- .map_plot_leaves(plot[[i]], fun)
+    if (!is.null(free_settings)) {
+      attr(plot, "patchwork_free_settings") <- free_settings
+      class(plot) <- unique(c("free_plot", class(plot)))
+    }
     return(plot)
+  }
+  # Indexing a patchwork's last plot also copies its container-only free class.
+  if (inherits(plot, "free_plot") && is.null(attr(plot, "free_settings")) &&
+      !is.null(attr(plot, "patchwork_free_settings"))) {
+    attr(plot, "patchwork_free_settings") <- NULL
+    class(plot) <- setdiff(class(plot), "free_plot")
   }
   if (inherits(plot, c("spacer", "guide_area", "inset_patch"))) return(plot)
   if (is.list(plot) && !inherits(plot, "gg")) {
@@ -83,6 +94,7 @@
   if (was_patchwork) {
     # In-place assignment preserves original layout (/, |, design, etc.)
     if (!is.null(pw_orig)) {
+      free_settings <- attr(pw_orig, "patchwork_free_settings")
       # Map modified gg plots back to the correct positions in the patchwork
       gg_idx <- which(vapply(
         seq_along(pw_orig), function(i) inherits(pw_orig[[i]], "gg"), logical(1)
@@ -91,6 +103,10 @@
         if (j <= length(gg_idx)) {
           pw_orig[[gg_idx[j]]] <- plot_list[[j]]
         }
+      }
+      if (!is.null(free_settings)) {
+        attr(pw_orig, "patchwork_free_settings") <- free_settings
+        class(pw_orig) <- unique(c("free_plot", class(pw_orig)))
       }
       return(pw_orig)
     }
