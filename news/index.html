@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/fmt_tag.html">fmt_tag()</a></code> labels all leaf plots in nested containers in order, preserving layouts, annotations and list names. Spacers, guide areas and insets do not consume labels; containers without data plots are returned unchanged.</p></li>
+<ul><li><p><code><a href="../reference/fmt_tag.html">fmt_tag()</a></code> accepts one, two or four padding units in both placement modes. Outside boxes honour asymmetric padding and font-relative units, and a zero border width removes the border consistently.</p></li>
+<li><p><code><a href="../reference/fmt_tag.html">fmt_tag()</a></code> labels all leaf plots in nested containers in order, preserving layouts, annotations and list names. Spacers, guide areas and insets do not consume labels; containers without data plots are returned unchanged.</p></li>
 <li><p><code><a href="../reference/fmt_tag.html">fmt_tag()</a></code> draws a single inside label per panel with four-sided padding, avoiding duplicated text and repeated alpha blending of label backgrounds.</p></li>
 <li><p><code><a href="../reference/fmt_strip2.html">fmt_strip2()</a></code> help now uses lightweight self-contained examples and documents supported grids, unchanged data, transparent colours and facet restrictions. Regression coverage includes real rendered headers, RNG state and data/statistic call counts in addition to palette checks.</p></li>
 <li><p><code><a href="../reference/fmt_strip2.html">fmt_strip2()</a></code> treats <code>NA</code> strip colours as transparent, generates palettes only for displayed header directions, and reuses identical palettes within a call. Calls without labels skip layout and palette work when hiding strips.</p></li>

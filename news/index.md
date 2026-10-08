@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
+  accepts one, two or four padding units in both placement modes.
+  Outside boxes honour asymmetric padding and font-relative units, and a
+  zero border width removes the border consistently.
+
+- [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
   labels all leaf plots in nested containers in order, preserving
   layouts, annotations and list names. Spacers, guide areas and insets
   do not consume labels; containers without data plots are returned
