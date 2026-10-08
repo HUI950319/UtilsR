@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/fmt_strip.html">fmt_strip()</a></code> keeps the complete label vector for a single faceted plot and recycles it across facet levels instead of repeating only its first label.</p></li>
+<ul><li><p><code><a href="../reference/fmt_strip.html">fmt_strip()</a></code> relabels named and computed facet expressions, supports function-valued layer data, and can be reapplied without parsing facet calls as variable names. Other facet variables retain their original labeller.</p></li>
+<li><p><code><a href="../reference/fmt_strip.html">fmt_strip()</a></code> keeps the complete label vector for a single faceted plot and recycles it across facet levels instead of repeating only its first label.</p></li>
 <li><p><code><a href="../reference/fmt_strip.html">fmt_strip()</a></code> preserves all facet variables, layout settings and extension classes when relabelling existing facets, keeping panel membership and computed statistics unchanged.</p></li>
 <li><p><code><a href="../reference/fmt_raster.html">fmt_raster()</a></code> help now distinguishes deferred layer rasterization from immediate fixed-layout capture, documents complete output sizes and list returns, and guards examples with their optional dependencies.</p></li>
 <li><p><code>fmt_raster(method = "ragg")</code> sets child names when rebuilding panels so captured geometry and retained text are actually drawn in the returned plot.</p></li>

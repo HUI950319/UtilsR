@@ -3,6 +3,12 @@
 ## UtilsR 0.6.8
 
 - [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
+  relabels named and computed facet expressions, supports
+  function-valued layer data, and can be reapplied without parsing facet
+  calls as variable names. Other facet variables retain their original
+  labeller.
+
+- [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
   keeps the complete label vector for a single faceted plot and recycles
   it across facet levels instead of repeating only its first label.
 
