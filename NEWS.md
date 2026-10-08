@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_tag()` checks evaluated compound padding and radius units, rejecting
+  negative or non-finite lengths before drawing while retaining valid unit
+  arithmetic and restoring the caller's graphics devices.
+
 * `fmt_tag()` skips fixed wrapped graphics with a warning, so invisible labels
   do not consume the numbering of editable data plots.
 

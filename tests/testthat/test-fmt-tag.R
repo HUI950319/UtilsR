@@ -357,3 +357,28 @@ test_that("fixed wrapped graphics are skipped with a warning and continuous numb
     expect_identical(empty, fixed)
   }
 })
+
+test_that("compound tag units are checked as lengths and preserve graphics devices", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, disp)) + ggplot2::geom_point()
+  invalid <- list(grid::unit(1, "mm") - grid::unit(1, "cm"),
+                   grid::unit(Inf, "mm") + grid::unit(1, "cm"),
+                   grid::unit(NA_real_, "mm") + grid::unit(1, "cm"))
+  devices <- grDevices::dev.list()
+  device <- grDevices::dev.cur()
+  for (arg in c("label.padding", "label.r")) {
+    for (u in invalid) {
+      expect_error(do.call(fmt_tag, c(list(plot = p), stats::setNames(list(u), arg))), arg)
+      expect_identical(grDevices::dev.list(), devices)
+      expect_identical(grDevices::dev.cur(), device)
+    }
+  }
+  valid <- grid::unit(1, "cm") - grid::unit(1, "mm")
+  for (pos in c("tl", "tl-out")) {
+    res <- fmt_tag(p, label_position = pos, label.padding = valid, label.r = valid / 10)
+    g <- if (inherits(res, "patchwork")) patchwork::patchworkGrob(res) else ggplot2::ggplotGrob(res)
+    expect_no_error(grid::grid.draw(g))
+    expect_length(find_grobs(g, "roundrect"), 1L)
+  }
+  expect_identical(grDevices::dev.list(), devices)
+  expect_identical(grDevices::dev.cur(), device)
+})
