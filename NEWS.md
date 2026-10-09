@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_axis()` help and formatting examples explain single-plot hiding, recursive
+  indices, layout precedence, secondary axes, fixed graphics and scale-sharing
+  limits. The vignette now uses `x.axis = TRUE` to hide a single x-axis.
+
 * Recursive formatters exclude inset overlays containing patchworks from the
   editable plot count. Axis indices and automatic layout selection address
   only the main grid, and inset axes remain intact.
