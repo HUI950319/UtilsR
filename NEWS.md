@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* Recursive formatters exclude inset overlays containing patchworks from the
+  editable plot count. Axis indices and automatic layout selection address
+  only the main grid, and inset axes remain intact.
+
 * `fmt_axis()` constructs only requested axis themes and merges x/y hiding
   before modifying each selected plot once. Combined and separate axis calls
   retain the same rendered pixels.

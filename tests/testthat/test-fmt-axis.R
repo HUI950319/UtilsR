@@ -236,3 +236,26 @@ test_that("combined axis hiding renders identically to separate axis calls", {
                    capture_plot(patchwork::wrap_plots(separate)))
   expect_identical(names(combined), names(named))
 })
+
+test_that("patchwork inset overlays do not consume editable axis indices", {
+  p <- ggplot2::ggplot(data.frame(x = 1:4, y = c(1, 3, 2, 4)),
+                       ggplot2::aes(x, y)) + ggplot2::geom_point()
+  overlay <- (p | p) & ggplot2::labs(x = "Inset X", y = "Inset Y")
+  pw <- (p | p) + patchwork::inset_element(overlay, 0.6, 0.6, 1, 1)
+  expect_length(.to_plot_list(pw, recurse = TRUE)$plots, 2L)
+  hidden <- fmt_axis(pw, plot_dims = c(1, 2))
+  expect_identical(axis_hidden_indices(hidden), list(x = integer(), y = 2L))
+  hidden <- fmt_axis(pw, x.axis = 1:2, y.axis = 1:2)
+  labels <- axis_grob_labels(patchwork::patchworkGrob(hidden))
+  expect_true(all(c("Inset X", "Inset Y") %in% labels))
+  expect_false(any(c("x", "y") %in% labels))
+  # Reference and legend formatters use the same leaf traversal.
+  ref <- fmt_ref(pw, x = 2)
+  expect_length(.to_plot_list(ref, recurse = TRUE)$plots, 2L)
+  expect_no_error(patchwork::patchworkGrob(fmt_legend(ref, legend.position = "none")))
+  freed <- patchwork::free(pw, side = "l")
+  result <- fmt_axis(freed, plot_dims = c(1, 2))
+  expect_identical(attr(result, "patchwork_free_settings"),
+                   attr(freed, "patchwork_free_settings"))
+  expect_no_error(patchwork::patchworkGrob(result))
+})

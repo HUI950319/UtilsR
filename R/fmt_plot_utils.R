@@ -16,6 +16,10 @@
 
 #' @noRd
 .map_plot_leaves <- function(plot, fun) {
+  # An inset wrapping a patchwork is an overlay; a container ending in an
+  # inset inherits its class but still owns ordinary grid cells.
+  if (inherits(plot, "inset_patch") && (!inherits(plot, "patchwork") ||
+      match("inset_patch", class(plot)) < match("patchwork", class(plot)))) return(plot)
   if (inherits(plot, "patchwork")) {
     free_settings <- attr(plot, "patchwork_free_settings")
     for (i in seq_along(plot)) plot[[i]] <- .map_plot_leaves(plot[[i]], fun)
