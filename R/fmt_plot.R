@@ -72,6 +72,9 @@
 #' @details Hiding applies to axis text, major/minor ticks and titles on both
 #'   sides, including secondary axes and guide-local themes. Guide settings
 #'   unrelated to hiding are retained, and input guide objects are not modified.
+#'   For \code{\link[ggplot2:coord_radial]{ggplot2::coord_radial()}}, `x.axis`
+#'   controls the angular (theta) axis and `y.axis` the radius (r) axis, following
+#'   ggplot2 theme inheritance regardless of the variable mapped to theta.
 #'   Axis lines, data, scales, coordinates and
 #'   facet structure are retained. The function does not verify or synchronize
 #'   scales between plots; use automatic selection only for axes that can be
@@ -242,13 +245,16 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
 
   hide_theme <- function(axis) {
     sides <- if (axis == "x") c("bottom", "top") else c("left", "right")
+    radial_axis <- if (axis == "x") "theta" else "r"
     elements <- paste0("axis.", c("text", "ticks", "title"), ".", axis)
     blank_names <- c(elements, as.vector(outer(
       c(elements, paste0("axis.minor.ticks.", axis)), sides, paste, sep = "."
-    )))
+    )), paste0("axis.", c("text", "ticks", "minor.ticks"), ".", radial_axis))
     length_names <- c(paste0("axis.ticks.length.", axis),
                       paste0("axis.ticks.length.", axis, ".", sides),
-                      paste0("axis.minor.ticks.length.", axis, ".", sides))
+                      paste0("axis.minor.ticks.length.", axis, ".", sides),
+                      paste0("axis.", c("ticks.length", "minor.ticks.length"),
+                             ".", radial_axis))
     args <- c(
       stats::setNames(rep(list(ggplot2::element_blank()), length(blank_names)),
                       blank_names),
@@ -275,7 +281,14 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
       if (hide_x[i]) hide_x_theme else hide_y_theme
     p <- plots[[i]] + axis_theme
     axes <- c(if (hide_x[i]) "x", if (hide_y[i]) "y")
-    guide_names <- c(axes, paste0(axes, ".sec"))
+    radial <- inherits(p$coordinates, "CoordRadial")
+    guide_axes <- if (radial) {
+      c(if (hide_x[i]) "theta", if (hide_y[i]) "r")
+    } else axes
+    scale_axes <- if (radial) {
+      c(if (hide_x[i]) p$coordinates$theta, if (hide_y[i]) p$coordinates$r)
+    } else axes
+    guide_names <- c(guide_axes, paste0(guide_axes, ".sec"))
     if (inherits(p$guides, "Guides")) {
       guides <- p$guides$guides
       selected <- intersect(names(guides), guide_names)
@@ -286,7 +299,7 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
       }
     }
     scales <- lapply(p$scales$scales, function(scale) {
-      if (!any(axes %in% scale$aesthetics)) return(scale)
+      if (!any(scale_axes %in% scale$aesthetics)) return(scale)
       guide <- hide_guide_theme(scale$guide, axis_theme)
       secondary <- scale$secondary.axis
       secondary_guide <- if (!is.null(secondary)) {

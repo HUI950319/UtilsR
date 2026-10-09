@@ -349,3 +349,67 @@ test_that("axis hiding overrides guide-local themes without changing input guide
   expect_false(any(paste0("Y", 1:4) %in% axis_grob_labels(
     ggplot2::ggplotGrob(indexed[[2]]))))
 })
+
+test_that("radial axes hide explicit themes and local guides in both theta mappings", {
+  skip_if_not_installed("ggplot2", "3.5.0")
+  p <- ggplot2::ggplot(data.frame(x = 1:4, y = c(1, 3, 2, 4)),
+                       ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    ggplot2::theme_classic()
+  radial_theme <- ggplot2::theme(
+    axis.text.theta = ggplot2::element_text(),
+    axis.text.r = ggplot2::element_text(),
+    axis.ticks.theta = ggplot2::element_line(colour = "red"),
+    axis.ticks.r = ggplot2::element_line(colour = "blue"),
+    axis.line.theta = ggplot2::element_line(colour = "green"),
+    axis.line.r = ggplot2::element_line(colour = "green"),
+    axis.ticks.length.theta = grid::unit(3, "mm"),
+    axis.ticks.length.r = grid::unit(3, "mm"))
+  theta_guide <- ggplot2::guide_axis_theta(theme = radial_theme)
+  radius_guide <- ggplot2::guide_axis(theme = radial_theme)
+  for (theta in c("x", "y")) {
+    x_guide <- if (theta == "x") theta_guide else radius_guide
+    y_guide <- if (theta == "x") radius_guide else theta_guide
+    base <- p + ggplot2::coord_radial(theta = theta, inner.radius = 0.2) +
+      ggplot2::scale_x_continuous(breaks = 1:4, labels = paste0("X", 1:4),
+        sec.axis = ggplot2::dup_axis(guide = if (theta == "x") "axis_theta" else "axis")) +
+      ggplot2::scale_y_continuous(breaks = 1:4, labels = paste0("Y", 1:4),
+        sec.axis = ggplot2::dup_axis(guide = if (theta == "y") "axis_theta" else "axis"))
+    scale_guides <- p + ggplot2::coord_radial(theta = theta, inner.radius = 0.2) +
+      ggplot2::scale_x_continuous(breaks = 1:4, labels = paste0("X", 1:4),
+        guide = x_guide, sec.axis = ggplot2::dup_axis(guide = x_guide)) +
+      ggplot2::scale_y_continuous(breaks = 1:4, labels = paste0("Y", 1:4),
+        guide = y_guide, sec.axis = ggplot2::dup_axis(guide = y_guide))
+    angular <- paste0(toupper(theta), 1:4)
+    radial <- paste0(if (theta == "x") "Y" else "X", 1:4)
+    for (q in list(base, base + radial_theme, scale_guides,
+        base + ggplot2::guides(theta = theta_guide, theta.sec = theta_guide,
+                              r = radius_guide, r.sec = radius_guide))) {
+      before <- axis_grob_labels(ggplot2::ggplotGrob(q))
+      both <- fmt_axis(q, TRUE, TRUE)
+      labels <- axis_grob_labels(ggplot2::ggplotGrob(both))
+      expect_true(all(c(angular, radial) %in% before))
+      expect_false(any(c(angular, radial, "x", "y") %in% labels))
+      x_only <- axis_grob_labels(ggplot2::ggplotGrob(fmt_axis(q, x.axis = TRUE)))
+      y_only <- axis_grob_labels(ggplot2::ggplotGrob(fmt_axis(q, y.axis = TRUE)))
+      expect_false(any(angular %in% x_only))
+      expect_true(all(radial %in% x_only))
+      expect_false(any(radial %in% y_only))
+      expect_true(all(angular %in% y_only))
+      expect_identical(ggplot2::ggplot_build(both)$data,
+                       ggplot2::ggplot_build(q)$data)
+      expect_identical(both$coordinates, q$coordinates)
+    }
+  }
+  colours <- function(g) {
+    children <- if (inherits(g, "gtable")) g$grobs else g$children
+    c(g$gp$col, unlist(lapply(children, colours), use.names = FALSE))
+  }
+  q <- base + radial_theme
+  expect_true(all(c("red", "blue", "green") %in% colours(ggplot2::ggplotGrob(q))))
+  result_colours <- colours(ggplot2::ggplotGrob(fmt_axis(q, TRUE, TRUE)))
+  expect_false(any(c("red", "blue") %in% result_colours))
+  expect_true("green" %in% result_colours)
+  params <- list(theta_guide$params, radius_guide$params)
+  invisible(fmt_axis(scale_guides, TRUE, TRUE))
+  expect_identical(list(theta_guide$params, radius_guide$params), params)
+})

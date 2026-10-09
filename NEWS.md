@@ -1,5 +1,10 @@
 # UtilsR 0.6.8
 
+* `fmt_axis()` hides explicitly styled radial text, major/minor ticks and tick
+  lengths, including local guides and secondary axes. In radial plots, `x.axis`
+  selects theta and `y.axis` selects r, following ggplot2 theme inheritance for
+  either theta-variable mapping while retaining axis lines and plotted data.
+
 * `fmt_axis()` also hides elements styled by guide-local themes in `guides()`,
   position scales and secondary axes. Other guide settings, unselected axes,
   legends and the caller's original guide objects are retained.
