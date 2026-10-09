@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md)
+  constructs only requested axis themes and merges x/y hiding before
+  modifying each selected plot once. Combined and separate axis calls
+  retain the same rendered pixels.
+
+- [`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md)
   returns unchanged inputs after validation when no axes are selected,
   avoiding recursive extraction, reconstruction and unused themes.
   Container types, names, deferred data evaluation and RNG state are
