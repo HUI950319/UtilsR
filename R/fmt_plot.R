@@ -116,18 +116,27 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
   idx_x <- resolve_idx(x.axis, if (n > 1L) seq_len(n - 1L) else 1L)
   idx_y <- resolve_idx(y.axis, if (n > 1L) 2L:n else 1L)
 
-  hide_x_theme <- ggplot2::theme(
-    axis.text.x = ggplot2::element_blank(),
-    axis.ticks.x = ggplot2::element_blank(),
-    axis.title.x = ggplot2::element_blank(),
-    axis.ticks.length.x = ggplot2::unit(0, "pt")
-  )
-  hide_y_theme <- ggplot2::theme(
-    axis.text.y = ggplot2::element_blank(),
-    axis.ticks.y = ggplot2::element_blank(),
-    axis.title.y = ggplot2::element_blank(),
-    axis.ticks.length.y = ggplot2::unit(0, "pt")
-  )
+  hide_theme <- function(axis) {
+    sides <- if (axis == "x") c("bottom", "top") else c("left", "right")
+    elements <- paste0("axis.", c("text", "ticks", "title"), ".", axis)
+    blank_names <- c(elements, as.vector(outer(
+      c(elements, paste0("axis.minor.ticks.", axis)), sides, paste, sep = "."
+    )))
+    length_names <- c(paste0("axis.ticks.length.", axis),
+                      paste0("axis.ticks.length.", axis, ".", sides),
+                      paste0("axis.minor.ticks.length.", axis, ".", sides))
+    args <- c(
+      stats::setNames(rep(list(ggplot2::element_blank()), length(blank_names)),
+                      blank_names),
+      stats::setNames(rep(list(grid::unit(0, "pt")), length(length_names)),
+                      length_names)
+    )
+    # Keep compatibility with ggplot2 versions without minor-tick elements.
+    args <- args[names(args) %in% names(ggplot2::get_element_tree())]
+    do.call(ggplot2::theme, args)
+  }
+  hide_x_theme <- hide_theme("x")
+  hide_y_theme <- hide_theme("y")
 
   for (i in idx_x) plots[[i]] <- plots[[i]] + hide_x_theme
   for (i in idx_y) plots[[i]] <- plots[[i]] + hide_y_theme

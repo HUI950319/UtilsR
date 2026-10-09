@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_axis()` hides explicitly styled axis sides and secondary axes, including
+  minor ticks where supported by ggplot2, without changing the plotted data.
+
 * `fmt_tag()` warns when the input already has automatic patchwork tag levels.
   User-owned automatic and manual tags are retained, while repeated calls
   still replace only `fmt_tag()` labels.
