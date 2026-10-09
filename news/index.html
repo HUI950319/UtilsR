@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p>Automatic <code><a href="../reference/fmt_axis.html">fmt_axis()</a></code> selection on lists retains spacer, guide-area and fixed-graphic cells, as well as nested container layouts. Inferred dimensions and capacity checks use the list’s top-level grid entries.</p></li>
+<ul><li><p><code><a href="../reference/fmt_axis.html">fmt_axis()</a></code> also hides elements styled by guide-local themes in <code><a href="https://ggplot2.tidyverse.org/reference/guides.html" class="external-link">guides()</a></code>, position scales and secondary axes. Other guide settings, unselected axes, legends and the caller’s original guide objects are retained.</p></li>
+<li><p>Automatic <code><a href="../reference/fmt_axis.html">fmt_axis()</a></code> selection on lists retains spacer, guide-area and fixed-graphic cells, as well as nested container layouts. Inferred dimensions and capacity checks use the list’s top-level grid entries.</p></li>
 <li><p><code><a href="../reference/fmt_axis.html">fmt_axis()</a></code> help and formatting examples explain single-plot hiding, recursive indices, layout precedence, secondary axes, fixed graphics and scale-sharing limits. The vignette now uses <code>x.axis = TRUE</code> to hide a single x-axis.</p></li>
 <li><p>Recursive formatters exclude inset overlays containing patchworks from the editable plot count. Axis indices and automatic layout selection address only the main grid, and inset axes remain intact.</p></li>
 <li><p><code><a href="../reference/fmt_axis.html">fmt_axis()</a></code> constructs only requested axis themes and merges x/y hiding before modifying each selected plot once. Combined and separate axis calls retain the same rendered pixels.</p></li>

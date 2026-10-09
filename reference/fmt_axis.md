@@ -67,11 +67,12 @@ input.
 ## Details
 
 Hiding applies to axis text, major/minor ticks and titles on both sides,
-including secondary axes. Axis lines, data, scales, coordinates and
-facet structure are retained. The function does not verify or
-synchronize scales between plots; use automatic selection only for axes
-that can be meaningfully shared. Selections operate on whole plots,
-including all facets.
+including secondary axes and guide-local themes. Guide settings
+unrelated to hiding are retained, and input guide objects are not
+modified. Axis lines, data, scales, coordinates and facet structure are
+retained. The function does not verify or synchronize scales between
+plots; use automatic selection only for axes that can be meaningfully
+shared. Selections operate on whole plots, including all facets.
 
 ## See also
 

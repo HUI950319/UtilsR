@@ -2,6 +2,12 @@
 
 ## UtilsR 0.6.8
 
+- [`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md)
+  also hides elements styled by guide-local themes in
+  [`guides()`](https://ggplot2.tidyverse.org/reference/guides.html),
+  position scales and secondary axes. Other guide settings, unselected
+  axes, legends and the caller’s original guide objects are retained.
+
 - Automatic
   [`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md)
   selection on lists retains spacer, guide-area and fixed-graphic cells,
