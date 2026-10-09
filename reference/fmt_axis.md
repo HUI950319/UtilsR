@@ -1,4 +1,4 @@
-# Hide or show axis elements for specific plots
+# Hide axis elements for specific plots
 
 Selectively hide axis text, ticks, and titles for plots in a multi-plot
 layout. Useful for removing redundant axes when plots share the same
@@ -14,23 +14,31 @@ fmt_axis(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL)
 
 - plot:
 
-  A ggplot, patchwork, or list of ggplot objects.
+  A ggplot, patchwork, or list of ggplot objects. Editable plots are
+  numbered recursively in their input order. Spacers, guide areas, inset
+  overlays and fixed wrapped graphics do not consume indices. Format the
+  original ggplot before using
+  [`patchwork::wrap_elements()`](https://patchwork.data-imaginist.com/reference/wrap_elements.html)
+  to hide its axes.
 
 - x.axis:
 
-  Logical scalar or integer vector. \`FALSE\` (default) keeps all
-  x-axes. \`TRUE\` hides x-axis for all but the last plot. An integer
-  vector specifies which plot indices should have their x-axis hidden.
-  Indices must be finite positive integers within the editable plot
-  count; duplicates are applied once. \`NULL\` and an empty integer
-  vector keep the current axes.
+  Logical scalar or integer vector. \`FALSE\` (default) keeps the
+  current x-axes; it does not restore previously hidden elements.
+  \`TRUE\` hides the x-axis of a single plot, or all but the last
+  editable plot in a container. An integer vector specifies which plot
+  indices should have their x-axis hidden. Indices must be finite
+  positive integers within the editable plot count; duplicates are
+  applied once. \`NULL\` and an empty integer vector keep the current
+  axes.
 
 - y.axis:
 
-  Logical scalar or integer vector. \`FALSE\` (default) keeps all
-  y-axes. \`TRUE\` hides y-axis for all but the first plot. An integer
-  vector specifies which plot indices should have their y-axis hidden.
-  Index validation and empty selections follow \`x.axis\`.
+  Logical scalar or integer vector. \`FALSE\` (default) keeps the
+  current y-axes. \`TRUE\` hides the y-axis of a single plot, or all but
+  the first editable plot in a container. An integer vector specifies
+  which plot indices should have their y-axis hidden. Index validation
+  and empty selections follow \`x.axis\`.
 
 - plot_dims:
 
@@ -49,7 +57,18 @@ fmt_axis(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL)
 
 ## Value
 
-Same type as input (ggplot, patchwork, or list).
+Same type as input (ggplot, patchwork, or list), with list names,
+patchwork layout and annotations retained. Empty selections return the
+input.
+
+## Details
+
+Hiding applies to axis text, major/minor ticks and titles on both sides,
+including secondary axes. Axis lines, data, scales, coordinates and
+facet structure are retained. The function does not verify or
+synchronize scales between plots; use automatic selection only for axes
+that can be meaningfully shared. Selections operate on whole plots,
+including all facets.
 
 ## See also
 
@@ -65,8 +84,8 @@ Other plot formatting:
 [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md),
 [`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md),
 [`fmt_plot_base()`](https://hui950319.github.io/UtilsR/reference/fmt_plot_base.md),
-[`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md),
-[`fmt_raster()`](https://hui950319.github.io/UtilsR/reference/fmt_raster.md),
+[`fmt_point`](https://hui950319.github.io/UtilsR/reference/fmt_point.md),
+[`fmt_raster`](https://hui950319.github.io/UtilsR/reference/fmt_raster.md),
 [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md),
 [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md),
 [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md),
@@ -78,8 +97,14 @@ Other plot formatting:
 
 ``` r
 library(ggplot2)
-p1 <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) + geom_point()
-p2 <- ggplot(iris, aes(Petal.Length, Petal.Width)) + geom_point()
+data <- data.frame(x = rep(1:5, 2), y = c(1, 3, 2, 4, 3, 2, 4, 3, 5, 4),
+                   group = rep(c("A", "B"), each = 5))
+p1 <- ggplot(data, aes(x, y, colour = group)) + geom_point()
+p2 <- ggplot(data, aes(x, y, colour = group)) + geom_line()
+
+# Hide the x-axis of a single plot
+fmt_axis(p1, x.axis = TRUE)
+
 
 # Hide x-axis on first plot
 fmt_axis(list(p1, p2), x.axis = 1)
@@ -90,7 +115,7 @@ fmt_axis(list(p1, p2), x.axis = 1)
 
 #> 
 
-# Auto-detect 2x1 grid layout
+# Keep only the bottom row's x-axis in a two-row layout
 fmt_axis(list(p1, p2), plot_dims = c(2, 1))
 #> [[1]]
 
@@ -98,4 +123,9 @@ fmt_axis(list(p1, p2), plot_dims = c(2, 1))
 #> [[2]]
 
 #> 
+
+# Follow the actual column-major patchwork layout
+combined <- patchwork::wrap_plots(p1, p2, p1, p2, nrow = 2, byrow = FALSE)
+fmt_axis(combined, plot_dims = c(2, 2))
+
 ```

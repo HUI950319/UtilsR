@@ -117,10 +117,32 @@ p |> fmt_ref(xintercept = c(5, 6, 7), color = c("red", "blue", "green"))
 ``` r
 
 # Hide x-axis (useful for multi-panel layouts)
-p |> fmt_axis(x = FALSE)
+p |> fmt_axis(x.axis = TRUE)
 ```
 
 ![](ggplot2_formatting_files/figure-html/fmt-axis-1.png)
+
+`FALSE` retains the current axes and does not restore elements hidden
+earlier. For a single plot, `TRUE` hides its selected axis. In a
+container, explicit indices count editable plots recursively, excluding
+spacers, guide areas, insets and fixed wrapped graphics.
+
+``` r
+
+p_grid <- patchwork::wrap_plots(p, p, p, p, nrow = 2, byrow = FALSE)
+fmt_axis(p_grid, plot_dims = c(2, 2))
+```
+
+![](ggplot2_formatting_files/figure-html/fmt-axis-layout-1.png)
+
+`plot_dims` takes precedence over both manual selectors. Lists use the
+supplied grid dimensions; patchworks follow their existing positions,
+including empty cells, nesting and spanning design areas. This hides
+decoration only: it does not make different scales identical. For flat
+patchworks with matching axes,
+`patchwork::plot_layout(axes = "collect", axis_titles = "collect")` is
+also available. Format a ggplot before wrapping it with
+[`wrap_elements()`](https://patchwork.data-imaginist.com/reference/wrap_elements.html).
 
 ------------------------------------------------------------------------
 

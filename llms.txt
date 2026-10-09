@@ -364,7 +364,7 @@ Chain-able ggplot2 formatting helpers.
 - [`fmt_plot_base()`](https://hui950319.github.io/UtilsR/reference/fmt_plot_base.md)
   : Broadcast theme / labs / scales onto a patchwork via \`&\`
 - [`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md)
-  : Hide or show axis elements for specific plots
+  : Hide axis elements for specific plots
 - [`fmt_axisText()`](https://hui950319.github.io/UtilsR/reference/fmt_axisText.md)
   : Format axis text rotation and style
 - [`fmt_axisTile()`](https://hui950319.github.io/UtilsR/reference/fmt_axisTile.md)
