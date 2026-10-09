@@ -18,15 +18,19 @@ fmt_axis(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL)
 
 - x.axis:
 
-  Logical or integer vector. \`FALSE\` (default) keeps all x-axes.
-  \`TRUE\` hides x-axis for all but the last plot. An integer vector
-  specifies which plot indices should have their x-axis hidden.
+  Logical scalar or integer vector. \`FALSE\` (default) keeps all
+  x-axes. \`TRUE\` hides x-axis for all but the last plot. An integer
+  vector specifies which plot indices should have their x-axis hidden.
+  Indices must be finite positive integers within the editable plot
+  count; duplicates are applied once. \`NULL\` and an empty integer
+  vector keep the current axes.
 
 - y.axis:
 
-  Logical or integer vector. \`FALSE\` (default) keeps all y-axes.
-  \`TRUE\` hides y-axis for all but the first plot. An integer vector
-  specifies which plot indices should have their y-axis hidden.
+  Logical scalar or integer vector. \`FALSE\` (default) keeps all
+  y-axes. \`TRUE\` hides y-axis for all but the first plot. An integer
+  vector specifies which plot indices should have their y-axis hidden.
+  Index validation and empty selections follow \`x.axis\`.
 
 - plot_dims:
 

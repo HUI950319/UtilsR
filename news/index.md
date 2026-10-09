@@ -3,6 +3,12 @@
 ## UtilsR 0.6.8
 
 - [`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md)
+  validates logical selectors and integer plot indices, rejects missing,
+  fractional and out-of-range indices, and applies duplicate indices
+  only once. Empty numeric selections and `NULL` retain the current
+  axes.
+
+- [`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md)
   rejects invalid or undersized layout dimensions with explicit errors.
   Empty trailing rows retain the last occupied row’s x-axes.
 
