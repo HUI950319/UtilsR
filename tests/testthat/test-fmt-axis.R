@@ -259,3 +259,35 @@ test_that("patchwork inset overlays do not consume editable axis indices", {
                    attr(freed, "patchwork_free_settings"))
   expect_no_error(patchwork::patchworkGrob(result))
 })
+
+test_that("list layouts retain occupied spacer cells and nested containers", {
+  p <- ggplot2::ggplot(data.frame(x = 1:4, y = c(1, 3, 2, 4)),
+                       ggplot2::aes(x, y)) + ggplot2::geom_point()
+  for (space in list(patchwork::plot_spacer(), patchwork::guide_area(),
+                    patchwork::wrap_elements(full = grid::rectGrob()))) {
+    plots <- list(A = p, space = space, B = p, C = p)
+    result <- fmt_axis(plots, plot_dims = c(2, 2))
+    expect_identical(axis_hidden_indices(result), list(x = 1L, y = 3L))
+    expect_identical(names(result), names(plots))
+    expect_identical(result$space, space)
+    expect_identical(axis_hidden_indices(result), axis_hidden_indices(
+      fmt_axis(patchwork::wrap_plots(plots, nrow = 2, ncol = 2),
+               plot_dims = c(2, 2))))
+    expect_error(fmt_axis(plots, plot_dims = c(1, 3)), "too few cells")
+    expect_identical(axis_hidden_indices(fmt_axis(plots, plot_dims = 2)),
+                     list(x = 1L, y = 3L))
+  }
+  nested <- list(A = p | p, B = p | p)
+  expect_identical(axis_hidden_indices(fmt_axis(nested, plot_dims = c(1, 2))),
+                   list(x = integer(), y = 2:4))
+  expect_identical(axis_hidden_indices(fmt_axis(nested, plot_dims = 1)),
+                   list(x = integer(), y = 2:4))
+  plots <- list(p + ggplot2::labs(x = "X1", y = "Y1"), patchwork::plot_spacer(),
+                p + ggplot2::labs(x = "X2", y = "Y2"),
+                p + ggplot2::labs(x = "X3", y = "Y3"))
+  rendered <- patchwork::patchworkGrob(patchwork::wrap_plots(
+    fmt_axis(plots, plot_dims = c(2, 2)), nrow = 2, ncol = 2))
+  labels <- axis_grob_labels(rendered)
+  expect_true(all(c("Y1", "X2", "Y2", "X3") %in% labels))
+  expect_false(any(c("X1", "Y3") %in% labels))
+})

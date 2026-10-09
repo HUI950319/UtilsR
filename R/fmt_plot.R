@@ -60,7 +60,10 @@
 #'   except the first. Patchwork positions follow the existing layout, including
 #'   column-major filling, empty cells, nested grids and spanning design areas;
 #'   `plot_dims` does not rearrange the plots. Insets do not occupy grid cells.
-#'   Dimensions must be finite positive integers with enough cells for the plots.
+#'   Lists retain cells occupied by spacers, guide areas and fixed graphics,
+#'   and nested containers retain their own layout. Dimensions must be finite
+#'   positive integers with enough cells for the editable plots in a patchwork,
+#'   or for the top-level grid entries in a list.
 #'   A single value specifies the number of rows; columns are inferred. Empty
 #'   trailing rows do not remove the x-axes of the last occupied row.
 #'   When provided, layout-based selection overrides both `x.axis` and `y.axis`,
@@ -106,6 +109,13 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
   info <- .to_plot_list(plot, recurse = !no_axes)
   plots <- info$plots
   n <- length(plots)
+  cell_count <- n
+  if (!is.null(plot_dims) && !info$is_patchwork && !info$is_single) {
+    cell_count <- sum(vapply(plot, function(p) {
+      !(inherits(p, "inset_patch") && (!inherits(p, "patchwork") ||
+          match("inset_patch", class(p)) < match("patchwork", class(p))))
+    }, logical(1)))
+  }
   valid_dims <- function(x, lengths) {
     typeof(x) %in% c("integer", "double") && !is.object(x) &&
       length(x) %in% lengths && !anyNA(x) && all(is.finite(x)) &&
@@ -114,7 +124,7 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
   if (!is.null(plot_dims) && !valid_dims(plot_dims, 1:2)) {
     cli::cli_abort("{.arg plot_dims} must contain one or two finite positive integers.")
   }
-  if (!is.null(plot_dims) && length(plot_dims) == 2L && prod(plot_dims) < n) {
+  if (!is.null(plot_dims) && length(plot_dims) == 2L && prod(plot_dims) < cell_count) {
     cli::cli_abort("{.arg plot_dims} has too few cells for the plots.")
   }
   check_axis <- function(x, arg) {
@@ -136,7 +146,7 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
   if (!is.null(plot_dims)) {
     if (length(plot_dims) == 1L) {
       nr <- plot_dims[1]
-      nc <- ceiling(n / nr)
+      nc <- ceiling(cell_count / nr)
     } else {
       nr <- plot_dims[1]
       nc <- plot_dims[2]
@@ -205,7 +215,8 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
       collect_positions(lapply(seq_along(plot), function(i) plot[[i]]),
                         plot$patches$layout)
     } else {
-      collect_positions(plots, list(nrow = nr, ncol = nc))
+      collect_positions(if (info$is_single) list(plot) else plot,
+                        list(nrow = nr, ncol = nc))
     }
     if (length(positions) != n) {
       cli::cli_abort("Automatic axis placement cannot map this container's inset plots.")

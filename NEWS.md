@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* Automatic `fmt_axis()` selection on lists retains spacer, guide-area and
+  fixed-graphic cells, as well as nested container layouts. Inferred dimensions
+  and capacity checks use the list's top-level grid entries.
+
 * `fmt_axis()` help and formatting examples explain single-plot hiding, recursive
   indices, layout precedence, secondary axes, fixed graphics and scale-sharing
   limits. The vignette now uses `x.axis = TRUE` to hide a single x-axis.
