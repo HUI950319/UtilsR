@@ -2,6 +2,10 @@
 
 ## UtilsR 0.6.8
 
+- [`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md)
+  hides explicitly styled axis sides and secondary axes, including minor
+  ticks where supported by ggplot2, without changing the plotted data.
+
 - [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
   warns when the input already has automatic patchwork tag levels.
   User-owned automatic and manual tags are retained, while repeated
