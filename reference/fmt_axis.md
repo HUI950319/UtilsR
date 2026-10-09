@@ -43,7 +43,9 @@ fmt_axis(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL)
   not occupy grid cells. Dimensions must be finite positive integers
   with enough cells for the plots. A single value specifies the number
   of rows; columns are inferred. Empty trailing rows do not remove the
-  x-axes of the last occupied row.
+  x-axes of the last occupied row. When provided, layout-based selection
+  overrides both \`x.axis\` and \`y.axis\`, including one-row and
+  one-column layouts. Manual selectors are still validated.
 
 ## Value
 

@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/fmt_axis.html">fmt_axis()</a></code> validates logical selectors and integer plot indices, rejects missing, fractional and out-of-range indices, and applies duplicate indices only once. Empty numeric selections and <code>NULL</code> retain the current axes.</p></li>
+<ul><li><p><code>plot_dims</code> consistently gives layout-based axis selection precedence over both manual selectors, including one-row, one-column and single-plot layouts.</p></li>
+<li><p><code><a href="../reference/fmt_axis.html">fmt_axis()</a></code> validates logical selectors and integer plot indices, rejects missing, fractional and out-of-range indices, and applies duplicate indices only once. Empty numeric selections and <code>NULL</code> retain the current axes.</p></li>
 <li><p><code><a href="../reference/fmt_axis.html">fmt_axis()</a></code> rejects invalid or undersized layout dimensions with explicit errors. Empty trailing rows retain the last occupied row’s x-axes.</p></li>
 <li><p>Automatic <code><a href="../reference/fmt_axis.html">fmt_axis()</a></code> selection follows patchwork cell positions, including column-major grids, spacers, guide areas, nested layouts and spanning designs. Existing layouts and annotations are retained and insets do not occupy cells.</p></li>
 <li><p><code><a href="../reference/fmt_axis.html">fmt_axis()</a></code> hides explicitly styled axis sides and secondary axes, including minor ticks where supported by ggplot2, without changing the plotted data.</p></li>
