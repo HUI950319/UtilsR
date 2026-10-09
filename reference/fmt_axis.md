@@ -36,7 +36,10 @@ fmt_axis(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL)
   except the first. Patchwork positions follow the existing layout,
   including column-major filling, empty cells, nested grids and spanning
   design areas; \`plot_dims\` does not rearrange the plots. Insets do
-  not occupy grid cells.
+  not occupy grid cells. Dimensions must be finite positive integers
+  with enough cells for the plots. A single value specifies the number
+  of rows; columns are inferred. Empty trailing rows do not remove the
+  x-axes of the last occupied row.
 
 ## Value
 

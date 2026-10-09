@@ -2,6 +2,10 @@
 
 ## UtilsR 0.6.8
 
+- [`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md)
+  rejects invalid or undersized layout dimensions with explicit errors.
+  Empty trailing rows retain the last occupied row’s x-axes.
+
 - Automatic
   [`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md)
   selection follows patchwork cell positions, including column-major
