@@ -148,3 +148,23 @@ test_that("layout dimensions must be finite positive integers with enough cells"
                                                  plot_dims = c(1, .Machine$integer.max))),
                    list(x = integer(), y = 2:3))
 })
+
+test_that("axis selectors reject malformed and out-of-range indices", {
+  p <- ggplot2::ggplot(data.frame(x = 1:4, y = c(1, 3, 2, 4)),
+                       ggplot2::aes(x, y)) + ggplot2::geom_point()
+  plots <- list(A = p, B = p)
+  invalid <- list("all", c(TRUE, FALSE), NA, NA_integer_, Inf, 1.5,
+                   c(1, NA), 0, -1, 3, 1 + 1i, factor(1), as.Date("2026-01-01"))
+  for (index in invalid) {
+    expect_error(fmt_axis(plots, x.axis = index), "x.axis")
+    expect_error(fmt_axis(plots, y.axis = index), "y.axis")
+  }
+  expect_error(fmt_axis(list(), x.axis = 1), "x.axis")
+  expect_error(fmt_axis(plots, x.axis = NA, plot_dims = c(1, 2)), "x.axis")
+  expect_identical(names(fmt_axis(plots, x.axis = c(1, 1))), c("A", "B"))
+  expect_identical(axis_hidden_indices(fmt_axis(plots, x.axis = c(1, 1))),
+                   list(x = 1L, y = integer()))
+  expect_identical(axis_hidden_indices(fmt_axis(plots, x.axis = integer(),
+                                                 y.axis = NULL)),
+                   list(x = integer(), y = integer()))
+})

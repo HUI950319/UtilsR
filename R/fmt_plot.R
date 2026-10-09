@@ -38,12 +38,15 @@
 #' layout. Useful for removing redundant axes when plots share the same scale.
 #'
 #' @param plot A ggplot, patchwork, or list of ggplot objects.
-#' @param x.axis Logical or integer vector. `FALSE` (default) keeps all x-axes.
+#' @param x.axis Logical scalar or integer vector. `FALSE` (default) keeps all x-axes.
 #'   `TRUE` hides x-axis for all but the last plot. An integer vector specifies
-#'   which plot indices should have their x-axis hidden.
-#' @param y.axis Logical or integer vector. `FALSE` (default) keeps all y-axes.
+#'   which plot indices should have their x-axis hidden. Indices must be finite
+#'   positive integers within the editable plot count; duplicates are applied once.
+#'   `NULL` and an empty integer vector keep the current axes.
+#' @param y.axis Logical scalar or integer vector. `FALSE` (default) keeps all y-axes.
 #'   `TRUE` hides y-axis for all but the first plot. An integer vector specifies
-#'   which plot indices should have their y-axis hidden.
+#'   which plot indices should have their y-axis hidden. Index validation and
+#'   empty selections follow `x.axis`.
 #' @param plot_dims Integer vector of length 1 or 2 giving `c(nrow, ncol)` of
 #'   the layout. When provided, automatically determines which axes to hide:
 #'   x-axes are hidden for all rows except the last, y-axes for all columns
@@ -84,6 +87,18 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
   if (!is.null(plot_dims) && length(plot_dims) == 2L && prod(plot_dims) < n) {
     cli::cli_abort("{.arg plot_dims} has too few cells for the plots.")
   }
+  check_axis <- function(x, arg) {
+    if (is.null(x) || isTRUE(x) || isFALSE(x)) return(invisible(NULL))
+    if (!(typeof(x) %in% c("integer", "double")) || is.object(x) ||
+        anyNA(x) || any(!is.finite(x)) || any(x < 1 | x != floor(x))) {
+      cli::cli_abort("{.arg {arg}} must be TRUE, FALSE, NULL or finite positive integer plot indices.")
+    }
+    if (any(x > n)) {
+      cli::cli_abort("{.arg {arg}} indices exceed the number of editable plots ({n}).")
+    }
+  }
+  check_axis(x.axis, "x.axis")
+  check_axis(y.axis, "y.axis")
   if (n == 0L) return(plot)
 
   # When plot_dims is provided, compute which axes to hide
@@ -175,8 +190,7 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
   resolve_idx <- function(axis_arg, default_true) {
     if (isFALSE(axis_arg) || is.null(axis_arg)) return(integer(0))
     if (isTRUE(axis_arg)) return(default_true)
-    if (is.numeric(axis_arg)) return(axis_arg[axis_arg >= 1L & axis_arg <= n])
-    integer(0)
+    unique(as.integer(axis_arg))
   }
 
   idx_x <- resolve_idx(x.axis, if (n > 1L) seq_len(n - 1L) else 1L)

@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_axis()` validates logical selectors and integer plot indices, rejects
+  missing, fractional and out-of-range indices, and applies duplicate indices
+  only once. Empty numeric selections and `NULL` retain the current axes.
+
 * `fmt_axis()` rejects invalid or undersized layout dimensions with explicit
   errors. Empty trailing rows retain the last occupied row's x-axes.
 

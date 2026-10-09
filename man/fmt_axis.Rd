@@ -9,13 +9,16 @@ fmt_axis(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL)
 \arguments{
 \item{plot}{A ggplot, patchwork, or list of ggplot objects.}
 
-\item{x.axis}{Logical or integer vector. `FALSE` (default) keeps all x-axes.
+\item{x.axis}{Logical scalar or integer vector. `FALSE` (default) keeps all x-axes.
 `TRUE` hides x-axis for all but the last plot. An integer vector specifies
-which plot indices should have their x-axis hidden.}
+which plot indices should have their x-axis hidden. Indices must be finite
+positive integers within the editable plot count; duplicates are applied once.
+`NULL` and an empty integer vector keep the current axes.}
 
-\item{y.axis}{Logical or integer vector. `FALSE` (default) keeps all y-axes.
+\item{y.axis}{Logical scalar or integer vector. `FALSE` (default) keeps all y-axes.
 `TRUE` hides y-axis for all but the first plot. An integer vector specifies
-which plot indices should have their y-axis hidden.}
+which plot indices should have their y-axis hidden. Index validation and
+empty selections follow `x.axis`.}
 
 \item{plot_dims}{Integer vector of length 1 or 2 giving `c(nrow, ncol)` of
 the layout. When provided, automatically determines which axes to hide:
