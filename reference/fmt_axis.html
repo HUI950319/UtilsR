@@ -118,6 +118,9 @@ including one-row and one-column layouts. Manual selectors are still validated.<
     <p>Hiding applies to axis text, major/minor ticks and titles on both
   sides, including secondary axes and guide-local themes. Guide settings
   unrelated to hiding are retained, and input guide objects are not modified.
+  For <code><a href="https://ggplot2.tidyverse.org/reference/coord_radial.html" class="external-link">ggplot2::coord_radial()</a></code>, `x.axis`
+  controls the angular (theta) axis and `y.axis` the radius (r) axis, following
+  ggplot2 theme inheritance regardless of the variable mapped to theta.
   Axis lines, data, scales, coordinates and
   facet structure are retained. The function does not verify or synchronize
   scales between plots; use automatic selection only for axes that can be
