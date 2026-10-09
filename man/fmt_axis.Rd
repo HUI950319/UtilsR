@@ -20,7 +20,9 @@ which plot indices should have their y-axis hidden.}
 \item{plot_dims}{Integer vector of length 1 or 2 giving `c(nrow, ncol)` of
 the layout. When provided, automatically determines which axes to hide:
 x-axes are hidden for all rows except the last, y-axes for all columns
-except the first.}
+except the first. Patchwork positions follow the existing layout, including
+column-major filling, empty cells, nested grids and spanning design areas;
+`plot_dims` does not rearrange the plots. Insets do not occupy grid cells.}
 }
 \value{
 Same type as input (ggplot, patchwork, or list).

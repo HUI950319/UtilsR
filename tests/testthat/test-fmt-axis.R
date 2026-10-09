@@ -4,6 +4,15 @@ axis_grob_labels <- function(g) {
   c(labels, unlist(lapply(children, axis_grob_labels), use.names = FALSE))
 }
 
+axis_hidden_indices <- function(plot) {
+  plots <- .to_plot_list(plot, recurse = TRUE)$plots
+  list(x = which(vapply(plots, function(p) {
+    inherits(p$theme$axis.text.x, "element_blank")
+  }, logical(1))), y = which(vapply(plots, function(p) {
+    inherits(p$theme$axis.text.y, "element_blank")
+  }, logical(1))))
+}
+
 test_that("axis hiding covers explicitly styled sides and secondary axes", {
   p <- ggplot2::ggplot(data.frame(x = 1:4, y = c(1, 3, 2, 4)),
                        ggplot2::aes(x, y)) + ggplot2::geom_point() +
@@ -61,4 +70,58 @@ test_that("axis hiding removes styled major and minor ticks but keeps axis lines
   }
   expect_gt(axis_lines(p), 1L)
   expect_equal(axis_lines(fmt_axis(p, x.axis = TRUE)), 1L)
+})
+
+test_that("automatic axes follow column-major layouts and retain layout metadata", {
+  plots <- lapply(1:4, function(i) {
+    ggplot2::ggplot(data.frame(x = 1:4, y = c(1, 3, 2, 4)),
+                     ggplot2::aes(x, y)) + ggplot2::geom_point() +
+      ggplot2::labs(x = paste0("X", i), y = paste0("Y", i))
+  })
+  pw <- patchwork::wrap_plots(plots, nrow = 2, ncol = 2, byrow = FALSE) +
+    patchwork::plot_annotation(title = "Keep", tag_levels = "A")
+  hidden <- fmt_axis(pw, plot_dims = c(2, 2))
+  expect_identical(axis_hidden_indices(hidden), list(x = c(1L, 3L), y = 3:4))
+  expect_identical(hidden$patches$layout, pw$patches$layout)
+  expect_identical(hidden$patches$annotation, pw$patches$annotation)
+  labels <- axis_grob_labels(patchwork::patchworkGrob(hidden))
+  expect_true(all(c("X2", "X4", "Y1", "Y2", "Keep") %in% labels))
+  expect_false(any(c("X1", "X3", "Y3", "Y4") %in% labels))
+})
+
+test_that("spacers and guide areas occupy cells without consuming plot indices", {
+  p <- ggplot2::ggplot(data.frame(x = 1:4, y = c(1, 3, 2, 4)),
+                       ggplot2::aes(x, y)) + ggplot2::geom_point()
+  for (space in list(patchwork::plot_spacer(), patchwork::guide_area())) {
+    pw <- (p | space) / (p | p)
+    hidden <- fmt_axis(pw, plot_dims = c(2, 2))
+    expect_identical(axis_hidden_indices(hidden), list(x = 1L, y = 3L))
+    expect_identical(hidden$patches$layout, pw$patches$layout)
+  }
+  # A flat grid and its nested equivalent select the same leaves.
+  expect_identical(axis_hidden_indices(fmt_axis((p | p) / (p | p),
+                                                 plot_dims = c(2, 2))),
+                   list(x = 1:2, y = c(2L, 4L)))
+})
+
+test_that("automatic axes account for spanning plots in custom designs", {
+  p <- ggplot2::ggplot(data.frame(x = 1:4, y = c(1, 3, 2, 4)),
+                       ggplot2::aes(x, y)) + ggplot2::geom_point()
+  pw <- patchwork::wrap_plots(A = p, B = p, C = p, design = "AB\nAC")
+  hidden <- fmt_axis(pw, plot_dims = c(2, 2))
+  expect_identical(axis_hidden_indices(hidden), list(x = 2L, y = 2:3))
+  expect_identical(hidden$patches$layout, pw$patches$layout)
+  expect_no_error(patchwork::patchworkGrob(hidden))
+})
+
+test_that("automatic axes ignore inset overlays and preserve freed alignment", {
+  p <- ggplot2::ggplot(data.frame(x = 1:4, y = c(1, 3, 2, 4)),
+                       ggplot2::aes(x, y)) + ggplot2::geom_point()
+  inset <- p + patchwork::inset_element(p, 0.6, 0.6, 1, 1)
+  pw <- patchwork::free(inset / p, side = "l")
+  hidden <- fmt_axis(pw, plot_dims = c(2, 1))
+  expect_identical(axis_hidden_indices(hidden), list(x = 1L, y = integer()))
+  expect_identical(attr(hidden, "patchwork_free_settings"),
+                   attr(pw, "patchwork_free_settings"))
+  expect_no_error(patchwork::patchworkGrob(hidden))
 })

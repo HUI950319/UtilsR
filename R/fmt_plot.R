@@ -47,7 +47,9 @@
 #' @param plot_dims Integer vector of length 1 or 2 giving `c(nrow, ncol)` of
 #'   the layout. When provided, automatically determines which axes to hide:
 #'   x-axes are hidden for all rows except the last, y-axes for all columns
-#'   except the first.
+#'   except the first. Patchwork positions follow the existing layout, including
+#'   column-major filling, empty cells, nested grids and spanning design areas;
+#'   `plot_dims` does not rearrange the plots. Insets do not occupy grid cells.
 #'
 #' @return Same type as input (ggplot, patchwork, or list).
 #'
@@ -86,22 +88,73 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
     }
 
     if (!is.na(nr) && !is.na(nc) && nr > 0 && nc > 0) {
-      # Hide x-axis for all rows except last
-      if (nr > 1L) {
-        last_row_start <- (nr - 1L) * nc + 1L
-        x.axis <- seq_len(last_row_start - 1L)
-        x.axis <- x.axis[x.axis <= n]
-      }
-      # Hide y-axis for all columns except first
-      if (nc > 1L) {
-        y.axis <- integer(0)
-        for (row in seq_len(nr)) {
-          for (col in 2L:nc) {
-            idx <- (row - 1L) * nc + col
-            if (idx <= n) y.axis <- c(y.axis, idx)
+      # Read cell positions without drawing the plots. Insets do not occupy cells.
+      positions <- list()
+      collect_positions <- function(children, lay, bounds = c(0, 0, 1, 1)) {
+        insets <- vapply(children, function(p) {
+          inherits(p, "inset_patch") && (!inherits(p, "patchwork") ||
+            match("inset_patch", class(p)) < match("patchwork", class(p)))
+        }, logical(1))
+        children <- children[!insets]
+        count <- length(children)
+        if (!count) return(invisible(NULL))
+        areas <- lay$design
+        if (is.null(areas)) {
+          rows <- lay$nrow
+          cols <- lay$ncol
+          if (is.null(cols) && length(lay$widths) > 1L) cols <- length(lay$widths)
+          if (is.null(rows) && length(lay$heights) > 1L) rows <- length(lay$heights)
+          if (is.null(rows) && is.null(cols)) {
+            dims <- grDevices::n2mfrow(count)
+            rows <- dims[2L]
+            cols <- dims[1L]
+          } else if (is.null(rows)) {
+            rows <- ceiling(count / cols)
+          } else if (is.null(cols)) {
+            cols <- ceiling(count / rows)
+          }
+          if (rows * cols < count) {
+            cli::cli_abort("The patchwork layout has too few cells for its plots.")
+          }
+          index <- seq_len(count) - 1L
+          byrow <- is.null(lay$byrow) || isTRUE(lay$byrow)
+          row <- if (byrow) index %/% cols + 1L else index %% rows + 1L
+          col <- if (byrow) index %% cols + 1L else index %/% rows + 1L
+          areas <- data.frame(t = row, l = col, b = row, r = col)
+        } else {
+          areas <- data.frame(t = areas$t, l = areas$l, b = areas$b, r = areas$r)
+          if (nrow(areas) < count) {
+            cli::cli_abort("The patchwork design has too few areas for its plots.")
+          }
+          rows <- max(areas$b)
+          cols <- max(areas$r)
+        }
+        for (i in seq_len(count)) {
+          area <- unlist(areas[i, c("t", "l", "b", "r")], use.names = FALSE)
+          cell <- (area - c(1, 1, 0, 0)) / c(rows, cols, rows, cols)
+          cell <- bounds[c(1, 2, 1, 2)] + cell *
+            (bounds[c(3, 4, 3, 4)] - bounds[c(1, 2, 1, 2)])
+          p <- children[[i]]
+          if (inherits(p, "patchwork")) {
+            collect_positions(lapply(seq_along(p), function(j) p[[j]]),
+                              p$patches$layout, cell)
+          } else if (!inherits(p, c("spacer", "guide_area", "wrapped_patch"))) {
+            positions[[length(positions) + 1L]] <<- cell
           }
         }
       }
+      if (info$is_patchwork) {
+        collect_positions(lapply(seq_along(plot), function(i) plot[[i]]),
+                          plot$patches$layout)
+      } else {
+        collect_positions(plots, list(nrow = nr, ncol = nc))
+      }
+      if (length(positions) != n) {
+        cli::cli_abort("Automatic axis placement cannot map this container's inset plots.")
+      }
+      positions <- do.call(rbind, positions)
+      if (nr > 1L) x.axis <- which(positions[, 3L] < max(positions[, 3L]) - 1e-8)
+      if (nc > 1L) y.axis <- which(positions[, 2L] > min(positions[, 2L]) + 1e-8)
     }
   }
 

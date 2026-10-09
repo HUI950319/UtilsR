@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* Automatic `fmt_axis()` selection follows patchwork cell positions, including
+  column-major grids, spacers, guide areas, nested layouts and spanning designs.
+  Existing layouts and annotations are retained and insets do not occupy cells.
+
 * `fmt_axis()` hides explicitly styled axis sides and secondary axes, including
   minor ticks where supported by ggplot2, without changing the plotted data.
 
