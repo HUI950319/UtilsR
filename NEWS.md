@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_axis()` rejects invalid or undersized layout dimensions with explicit
+  errors. Empty trailing rows retain the last occupied row's x-axes.
+
 * Automatic `fmt_axis()` selection follows patchwork cell positions, including
   column-major grids, spacers, guide areas, nested layouts and spanning designs.
   Existing layouts and annotations are retained and insets do not occupy cells.

@@ -125,3 +125,26 @@ test_that("automatic axes ignore inset overlays and preserve freed alignment", {
                    attr(pw, "patchwork_free_settings"))
   expect_no_error(patchwork::patchworkGrob(hidden))
 })
+
+test_that("layout dimensions must be finite positive integers with enough cells", {
+  p <- ggplot2::ggplot(data.frame(x = 1:4, y = c(1, 3, 2, 4)),
+                       ggplot2::aes(x, y)) + ggplot2::geom_point()
+  invalid <- list(numeric(), 0, -1, 1.5, NA_real_, Inf, "2", TRUE,
+                   c(2, 2, 1), c(2, NA), c(2, Inf), 1 + 1i,
+                   .Machine$integer.max + 1)
+  for (dims in invalid) {
+    expect_error(fmt_axis(p, plot_dims = dims), "plot_dims")
+  }
+  expect_error(fmt_axis(rep(list(p), 4), plot_dims = c(1, 2)), "too few cells")
+  expect_error(fmt_axis(list(), plot_dims = 0), "plot_dims")
+  # Empty final rows must not hide the last occupied row's x-axis.
+  expect_identical(axis_hidden_indices(fmt_axis(rep(list(p), 3),
+                                                 plot_dims = c(3, 2))),
+                   list(x = 1:2, y = 2L))
+  expect_identical(axis_hidden_indices(fmt_axis(rep(list(p), 4), plot_dims = 2)),
+                   list(x = 1:2, y = c(2L, 4L)))
+  expect_identical(fmt_axis(list(), plot_dims = c(1, 1)), list())
+  expect_identical(axis_hidden_indices(fmt_axis(rep(list(p), 3),
+                                                 plot_dims = c(1, .Machine$integer.max))),
+                   list(x = integer(), y = 2:3))
+})
