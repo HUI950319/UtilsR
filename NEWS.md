@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_axis()` returns unchanged inputs after validation when no axes are
+  selected, avoiding recursive extraction, reconstruction and unused themes.
+  Container types, names, deferred data evaluation and RNG state are retained.
+
 * `plot_dims` consistently gives layout-based axis selection precedence over
   both manual selectors, including one-row, one-column and single-plot layouts.
 

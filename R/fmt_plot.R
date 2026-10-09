@@ -75,7 +75,12 @@
 #' @export
 #' @family plot formatting
 fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
-  info <- .to_plot_list(plot, recurse = TRUE)
+  empty_axis <- function(x) {
+    is.null(x) || isFALSE(x) ||
+      (typeof(x) %in% c("integer", "double") && !is.object(x) && !length(x))
+  }
+  no_axes <- is.null(plot_dims) && empty_axis(x.axis) && empty_axis(y.axis)
+  info <- .to_plot_list(plot, recurse = !no_axes)
   plots <- info$plots
   n <- length(plots)
   valid_dims <- function(x, lengths) {
@@ -101,7 +106,7 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
   }
   check_axis(x.axis, "x.axis")
   check_axis(y.axis, "y.axis")
-  if (n == 0L) return(plot)
+  if (n == 0L || no_axes) return(plot)
 
   # When plot_dims is provided, compute which axes to hide
 
@@ -197,6 +202,7 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
 
   idx_x <- resolve_idx(x.axis, if (n > 1L) seq_len(n - 1L) else 1L)
   idx_y <- resolve_idx(y.axis, if (n > 1L) 2L:n else 1L)
+  if (!length(idx_x) && !length(idx_y)) return(plot)
 
   hide_theme <- function(axis) {
     sides <- if (axis == "x") c("bottom", "top") else c("left", "right")

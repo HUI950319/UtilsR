@@ -189,3 +189,29 @@ test_that("layout-based selection consistently takes precedence over manual sele
   expect_identical(axis_hidden_indices(fmt_axis(pw, plot_dims = c(1, 4))),
                    list(x = 1:2, y = c(2L, 4L)))
 })
+
+test_that("empty selections retain input containers without evaluating data", {
+  calls <- 0L
+  p <- ggplot2::ggplot() + ggplot2::geom_point(
+    data = function(data) {
+      calls <<- calls + 1L
+      data.frame(x = 1:4, y = c(1, 3, 2, 4))
+    }, mapping = ggplot2::aes(x, y)
+  )
+  withr::local_seed(624)
+  seed <- .Random.seed
+  nested <- (p | patchwork::plot_spacer()) / (p | p)
+  inputs <- list(p, list(A = p, B = p), nested,
+                   patchwork::free(nested, side = "l"), list())
+  for (input in inputs) {
+    expect_identical(fmt_axis(input), input)
+    expect_identical(fmt_axis(input, x.axis = integer(), y.axis = NULL), input)
+  }
+  expect_equal(calls, 0L)
+  expect_identical(.Random.seed, seed)
+  expect_error(fmt_axis(list(p, "invalid")), "ggplot")
+  expect_error(fmt_axis(1), "ggplot")
+  hidden <- fmt_axis(p, x.axis = TRUE)
+  expect_identical(fmt_axis(hidden), hidden)
+  expect_identical(fmt_axis(p, plot_dims = c(1, 1)), p)
+})
