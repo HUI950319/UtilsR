@@ -2,6 +2,12 @@
 
 ## UtilsR 0.6.8
 
+- Automatic
+  [`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md)
+  selection on lists retains spacer, guide-area and fixed-graphic cells,
+  as well as nested container layouts. Inferred dimensions and capacity
+  checks use the list’s top-level grid entries.
+
 - [`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md)
   help and formatting examples explain single-plot hiding, recursive
   indices, layout precedence, secondary axes, fixed graphics and
