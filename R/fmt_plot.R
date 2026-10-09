@@ -70,7 +70,9 @@
 #'   including one-row and one-column layouts. Manual selectors are still validated.
 #'
 #' @details Hiding applies to axis text, major/minor ticks and titles on both
-#'   sides, including secondary axes. Axis lines, data, scales, coordinates and
+#'   sides, including secondary axes and guide-local themes. Guide settings
+#'   unrelated to hiding are retained, and input guide objects are not modified.
+#'   Axis lines, data, scales, coordinates and
 #'   facet structure are retained. The function does not verify or synchronize
 #'   scales between plots; use automatic selection only for axes that can be
 #'   meaningfully shared. Selections operate on whole plots, including all facets.
@@ -262,10 +264,48 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
   hide_x <- seq_len(n) %in% idx_x
   hide_y <- seq_len(n) %in% idx_y
   hide_both_theme <- if (any(hide_x & hide_y)) hide_x_theme + hide_y_theme else NULL
+  hide_guide_theme <- function(guide, axis_theme) {
+    if (!inherits(guide, "Guide") || is.null(guide$params$theme)) return(guide)
+    params <- guide$params
+    params$theme <- params$theme + axis_theme
+    ggplot2::ggproto(NULL, guide, params = params)
+  }
   for (i in which(hide_x | hide_y)) {
     axis_theme <- if (hide_x[i] && hide_y[i]) hide_both_theme else
       if (hide_x[i]) hide_x_theme else hide_y_theme
-    plots[[i]] <- plots[[i]] + axis_theme
+    p <- plots[[i]] + axis_theme
+    axes <- c(if (hide_x[i]) "x", if (hide_y[i]) "y")
+    guide_names <- c(axes, paste0(axes, ".sec"))
+    if (inherits(p$guides, "Guides")) {
+      guides <- p$guides$guides
+      selected <- intersect(names(guides), guide_names)
+      guides[selected] <- lapply(guides[selected], hide_guide_theme, axis_theme = axis_theme)
+      if (!identical(guides, p$guides$guides)) {
+        # Supply the prototype by value before replacing the plot's container.
+        p$guides <- do.call(ggplot2::ggproto, list(NULL, p$guides, guides = guides))
+      }
+    }
+    scales <- lapply(p$scales$scales, function(scale) {
+      if (!any(axes %in% scale$aesthetics)) return(scale)
+      guide <- hide_guide_theme(scale$guide, axis_theme)
+      secondary <- scale$secondary.axis
+      secondary_guide <- if (!is.null(secondary)) {
+        hide_guide_theme(secondary$guide, axis_theme)
+      } else NULL
+      if (identical(guide, scale$guide) &&
+          identical(secondary_guide, if (!is.null(secondary)) secondary$guide else NULL)) {
+        return(scale)
+      }
+      if (!is.null(secondary) && !identical(secondary_guide, secondary$guide)) {
+        secondary <- do.call(ggplot2::ggproto,
+                             list(NULL, secondary, guide = secondary_guide))
+      }
+      ggplot2::ggproto(NULL, scale, guide = guide, secondary.axis = secondary)
+    })
+    if (!identical(scales, p$scales$scales)) {
+      p$scales <- do.call(ggplot2::ggproto, list(NULL, p$scales, scales = scales))
+    }
+    plots[[i]] <- p
   }
 
   .from_plot_list(plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig,

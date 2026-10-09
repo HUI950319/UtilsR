@@ -291,3 +291,61 @@ test_that("list layouts retain occupied spacer cells and nested containers", {
   expect_true(all(c("Y1", "X2", "Y2", "X3") %in% labels))
   expect_false(any(c("X1", "Y3") %in% labels))
 })
+
+test_that("axis hiding overrides guide-local themes without changing input guides", {
+  skip_if_not_installed("ggplot2", "3.5.0")
+  guide <- ggplot2::guide_axis(n.dodge = 2, minor.ticks = TRUE, cap = "both",
+    theme = ggplot2::theme(
+      axis.text.x.bottom = ggplot2::element_text(colour = "red"),
+      axis.text.x.top = ggplot2::element_text(colour = "red"),
+      axis.text.y.left = ggplot2::element_text(colour = "blue"),
+      axis.text.y.right = ggplot2::element_text(colour = "blue"),
+      axis.ticks.x.bottom = ggplot2::element_line(),
+      axis.ticks.y.left = ggplot2::element_line(),
+      axis.ticks.length = grid::unit(3, "mm")))
+  skip_if_not(inherits(guide, "Guide"))
+  p <- ggplot2::ggplot(data.frame(x = 1:4, y = c(1, 3, 2, 4),
+                                  group = c("A", "A", "B", "B")),
+                       ggplot2::aes(x, y, colour = group)) + ggplot2::geom_point() +
+    ggplot2::theme_classic()
+  scales <- list(
+    ggplot2::scale_x_continuous(breaks = 1:4, labels = paste0("X", 1:4), guide = guide,
+      sec.axis = ggplot2::dup_axis(name = "Secondary X", guide = guide)),
+    ggplot2::scale_y_continuous(breaks = 1:4, labels = paste0("Y", 1:4), guide = guide,
+      sec.axis = ggplot2::dup_axis(name = "Secondary Y", guide = guide)))
+  for (q in list(p + scales, p + scales + ggplot2::guides(
+      x = guide, y = guide, x.sec = guide, y.sec = guide,
+      colour = ggplot2::guide_legend(theme = ggplot2::theme(
+        legend.text = ggplot2::element_text(colour = "green")))))) {
+    before <- axis_grob_labels(ggplot2::ggplotGrob(q))
+    params <- guide$params
+    hidden <- fmt_axis(q, x.axis = TRUE, y.axis = TRUE)
+    labels <- axis_grob_labels(ggplot2::ggplotGrob(hidden))
+    expect_true(all(c(paste0("X", 1:4), paste0("Y", 1:4)) %in% before))
+    expect_false(any(c("x", "y", "Secondary X", "Secondary Y",
+                       paste0("X", 1:4), paste0("Y", 1:4)) %in% labels))
+    expect_true(all(c("A", "B", "group") %in% labels))
+    expect_identical(guide$params, params)
+    expect_identical(q$scales$scales[[1]]$guide, guide)
+    expect_identical(q$scales$scales[[1]]$secondary.axis$guide, guide)
+    expect_identical(hidden$guides$guides$colour, q$guides$guides$colour)
+    expect_identical(hidden$scales$scales[[1]]$guide$params$n.dodge, 2)
+    expect_identical(hidden$scales$scales[[1]]$guide$params$cap, "both")
+    expect_identical(ggplot2::ggplot_build(hidden)$data,
+                     ggplot2::ggplot_build(q)$data)
+    x_only <- axis_grob_labels(ggplot2::ggplotGrob(fmt_axis(q, x.axis = TRUE)))
+    expect_false(any(paste0("X", 1:4) %in% x_only))
+    expect_true(all(c(paste0("Y", 1:4), "Secondary Y") %in% x_only))
+  }
+  axes <- ggplot2::ggplotGrob(fmt_axis(p + scales, TRUE, TRUE))
+  count_lines <- function(g) {
+    children <- if (inherits(g, "gtable")) g$grobs else g$children
+    as.integer(inherits(g, "polyline")) + sum(vapply(children, count_lines, integer(1)))
+  }
+  expect_equal(count_lines(axes$grobs[[which(axes$layout$name == "axis-b")]]), 1L)
+  indexed <- fmt_axis(list(p + scales, p + scales), x.axis = 1, y.axis = 2)
+  expect_false(any(paste0("X", 1:4) %in% axis_grob_labels(
+    ggplot2::ggplotGrob(indexed[[1]]))))
+  expect_false(any(paste0("Y", 1:4) %in% axis_grob_labels(
+    ggplot2::ggplotGrob(indexed[[2]]))))
+})

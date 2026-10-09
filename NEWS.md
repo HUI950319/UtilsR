@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_axis()` also hides elements styled by guide-local themes in `guides()`,
+  position scales and secondary axes. Other guide settings, unselected axes,
+  legends and the caller's original guide objects are retained.
+
 * Automatic `fmt_axis()` selection on lists retains spacer, guide-area and
   fixed-graphic cells, as well as nested container layouts. Inferred dimensions
   and capacity checks use the list's top-level grid entries.
