@@ -56,6 +56,8 @@
 #'   Dimensions must be finite positive integers with enough cells for the plots.
 #'   A single value specifies the number of rows; columns are inferred. Empty
 #'   trailing rows do not remove the x-axes of the last occupied row.
+#'   When provided, layout-based selection overrides both `x.axis` and `y.axis`,
+#'   including one-row and one-column layouts. Manual selectors are still validated.
 #'
 #' @return Same type as input (ggplot, patchwork, or list).
 #'
@@ -182,8 +184,8 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
     }
     positions <- do.call(rbind, positions)
     tolerance <- 16 * .Machine$double.eps
-    if (nr > 1L) x.axis <- which(positions[, 3L] < max(positions[, 3L]) - tolerance)
-    if (nc > 1L) y.axis <- which(positions[, 2L] > min(positions[, 2L]) + tolerance)
+    x.axis <- which(positions[, 3L] < max(positions[, 3L]) - tolerance)
+    y.axis <- which(positions[, 2L] > min(positions[, 2L]) + tolerance)
   }
 
   # Resolve indices to hide

@@ -28,7 +28,9 @@ column-major filling, empty cells, nested grids and spanning design areas;
 `plot_dims` does not rearrange the plots. Insets do not occupy grid cells.
 Dimensions must be finite positive integers with enough cells for the plots.
 A single value specifies the number of rows; columns are inferred. Empty
-trailing rows do not remove the x-axes of the last occupied row.}
+trailing rows do not remove the x-axes of the last occupied row.
+When provided, layout-based selection overrides both `x.axis` and `y.axis`,
+including one-row and one-column layouts. Manual selectors are still validated.}
 }
 \value{
 Same type as input (ggplot, patchwork, or list).

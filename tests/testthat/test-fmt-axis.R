@@ -168,3 +168,24 @@ test_that("axis selectors reject malformed and out-of-range indices", {
                                                  y.axis = NULL)),
                    list(x = integer(), y = integer()))
 })
+
+test_that("layout-based selection consistently takes precedence over manual selectors", {
+  p <- ggplot2::ggplot(data.frame(x = 1:4, y = c(1, 3, 2, 4)),
+                       ggplot2::aes(x, y)) + ggplot2::geom_point()
+  plots <- rep(list(p), 4)
+  expect_identical(axis_hidden_indices(fmt_axis(plots, x.axis = TRUE,
+                                                 y.axis = TRUE, plot_dims = c(1, 4))),
+                   list(x = integer(), y = 2:4))
+  expect_identical(axis_hidden_indices(fmt_axis(plots, x.axis = TRUE,
+                                                 y.axis = TRUE, plot_dims = c(4, 1))),
+                   list(x = 1:3, y = integer()))
+  expect_identical(axis_hidden_indices(fmt_axis(plots, x.axis = FALSE,
+                                                 y.axis = FALSE, plot_dims = c(2, 2))),
+                   list(x = 1:2, y = c(2L, 4L)))
+  expect_identical(axis_hidden_indices(fmt_axis(p, TRUE, TRUE, plot_dims = c(1, 1))),
+                   list(x = integer(), y = integer()))
+  # Existing patchwork positions are authoritative; dimensions do not rearrange it.
+  pw <- patchwork::wrap_plots(plots, nrow = 2, ncol = 2)
+  expect_identical(axis_hidden_indices(fmt_axis(pw, plot_dims = c(1, 4))),
+                   list(x = 1:2, y = c(2L, 4L)))
+})

@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `plot_dims` consistently gives layout-based axis selection precedence over
+  both manual selectors, including one-row, one-column and single-plot layouts.
+
 * `fmt_axis()` validates logical selectors and integer plot indices, rejects
   missing, fractional and out-of-range indices, and applies duplicate indices
   only once. Empty numeric selections and `NULL` retain the current axes.
