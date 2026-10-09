@@ -223,11 +223,16 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
     args <- args[names(args) %in% names(ggplot2::get_element_tree())]
     do.call(ggplot2::theme, args)
   }
-  hide_x_theme <- hide_theme("x")
-  hide_y_theme <- hide_theme("y")
-
-  for (i in idx_x) plots[[i]] <- plots[[i]] + hide_x_theme
-  for (i in idx_y) plots[[i]] <- plots[[i]] + hide_y_theme
+  hide_x_theme <- if (length(idx_x)) hide_theme("x") else NULL
+  hide_y_theme <- if (length(idx_y)) hide_theme("y") else NULL
+  hide_x <- seq_len(n) %in% idx_x
+  hide_y <- seq_len(n) %in% idx_y
+  hide_both_theme <- if (any(hide_x & hide_y)) hide_x_theme + hide_y_theme else NULL
+  for (i in which(hide_x | hide_y)) {
+    axis_theme <- if (hide_x[i] && hide_y[i]) hide_both_theme else
+      if (hide_x[i]) hide_x_theme else hide_y_theme
+    plots[[i]] <- plots[[i]] + axis_theme
+  }
 
   .from_plot_list(plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig,
                   recurse = TRUE)

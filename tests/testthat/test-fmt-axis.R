@@ -215,3 +215,24 @@ test_that("empty selections retain input containers without evaluating data", {
   expect_identical(fmt_axis(hidden), hidden)
   expect_identical(fmt_axis(p, plot_dims = c(1, 1)), p)
 })
+
+test_that("combined axis hiding renders identically to separate axis calls", {
+  skip_if_not_installed("ragg")
+  p <- ggplot2::ggplot(data.frame(x = 1:4, y = c(1, 3, 2, 4)),
+                       ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    ggplot2::theme_classic()
+  capture_plot <- function(q) {
+    capture <- ragg::agg_capture(width = 600, height = 420, res = 100)
+    on.exit(grDevices::dev.off(), add = TRUE)
+    print(q)
+    capture(native = TRUE)
+  }
+  expect_identical(capture_plot(fmt_axis(p, TRUE, TRUE)),
+                   capture_plot(fmt_axis(fmt_axis(p, x.axis = TRUE), y.axis = TRUE)))
+  named <- list(A = p, B = p, C = p)
+  combined <- fmt_axis(named, x.axis = c(1, 2), y.axis = c(2, 3))
+  separate <- fmt_axis(fmt_axis(named, x.axis = c(1, 2)), y.axis = c(2, 3))
+  expect_identical(capture_plot(patchwork::wrap_plots(combined)),
+                   capture_plot(patchwork::wrap_plots(separate)))
+  expect_identical(names(combined), names(named))
+})

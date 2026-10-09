@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_axis()` constructs only requested axis themes and merges x/y hiding
+  before modifying each selected plot once. Combined and separate axis calls
+  retain the same rendered pixels.
+
 * `fmt_axis()` returns unchanged inputs after validation when no axes are
   selected, avoiding recursive extraction, reconstruction and unused themes.
   Container types, names, deferred data evaluation and RNG state are retained.
