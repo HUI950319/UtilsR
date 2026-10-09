@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/fmt_axis.html">fmt_axis()</a></code> hides explicitly styled axis sides and secondary axes, including minor ticks where supported by ggplot2, without changing the plotted data.</p></li>
+<ul><li><p>Automatic <code><a href="../reference/fmt_axis.html">fmt_axis()</a></code> selection follows patchwork cell positions, including column-major grids, spacers, guide areas, nested layouts and spanning designs. Existing layouts and annotations are retained and insets do not occupy cells.</p></li>
+<li><p><code><a href="../reference/fmt_axis.html">fmt_axis()</a></code> hides explicitly styled axis sides and secondary axes, including minor ticks where supported by ggplot2, without changing the plotted data.</p></li>
 <li><p><code><a href="../reference/fmt_tag.html">fmt_tag()</a></code> warns when the input already has automatic patchwork tag levels. User-owned automatic and manual tags are retained, while repeated calls still replace only <code><a href="../reference/fmt_tag.html">fmt_tag()</a></code> labels.</p></li>
 <li><p>Missing <code><a href="../reference/fmt_tag.html">fmt_tag()</a></code> colours are consistently transparent in both placement modes, including untyped <code>NA</code> and mixed numeric palette vectors. Infinite palette indices fail during argument validation.</p></li>
 <li><p><code><a href="../reference/fmt_tag.html">fmt_tag()</a></code> checks evaluated compound padding and radius units, rejecting negative or non-finite lengths before drawing while retaining valid unit arithmetic and restoring the caller’s graphics devices.</p></li>
