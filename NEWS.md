@@ -1,5 +1,12 @@
 # UtilsR 0.6.8
 
+* `fmt_axisTile()` help uses self-contained simulated examples and explains
+  scale labels, physical axis selection, facets, nested containers and repeated
+  calls. Other guide kinds retain their original plots instead of being replaced
+  with a standard axis guide. Native guides avoid constructing a separate tile
+  plot for every leaf; text colors use direct position matching, and later
+  relative text sizes are resolved once.
+
 * `fmt_axisTile()` respects physical axis sides, retains scale-guide controls
   after coordinate flipping, leaves disabled guides and continuous labels intact,
   uses non-empty layer data even with an empty global data frame, and reports

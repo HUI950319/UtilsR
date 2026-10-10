@@ -12,7 +12,8 @@ axis_tile_text <- function(g) {
                colour = rep_len(if (is.null(g$gp$col)) NA_character_ else g$gp$col, length(g$label)),
                hjust = rep_len(if (is.null(g$hjust)) NA_real_ else g$hjust, length(g$label)),
                vjust = rep_len(if (is.null(g$vjust)) NA_real_ else g$vjust, length(g$label)),
-               angle = rep_len(if (is.null(g$rot)) NA_real_ else g$rot, length(g$label)))
+               angle = rep_len(if (is.null(g$rot)) NA_real_ else g$rot, length(g$label)),
+               size = rep_len(if (is.null(g$gp$fontsize)) NA_real_ else g$gp$fontsize, length(g$label)))
   } else NULL
   children <- if (inherits(g, "gtable")) g$grobs else g$children
   result <- do.call(rbind, c(list(result), lapply(children, axis_tile_text)))
@@ -289,5 +290,33 @@ test_that("later axis formatters can hide and restyle colored guides", {
     index <- match(c("A", "B", "C"), labels$label)
     expect_equal(labels$angle[index], rep(90, 3))
     expect_equal(labels$colour[index], rep("black", 3))
+  }
+})
+
+test_that("other guide kinds retain their original plots", {
+  p <- ggplot2::ggplot(data.frame(x = 10^(0:3), y = 1:4), ggplot2::aes(x, y)) +
+    ggplot2::geom_point() + ggplot2::scale_x_log10(guide = "axis_logticks")
+  for (mode in c("tile", "text")) {
+    expect_true(identical(fmt_axisTile(p, axis_tile_colors, mode = mode), p))
+  }
+})
+
+test_that("many text labels retain their category colors", {
+  values <- paste0("L", seq_len(120))
+  colors <- stats::setNames(rep(axis_tile_colors, length.out = 120), values)
+  p <- ggplot2::ggplot(data.frame(category = factor(values, levels = values), value = seq_len(120)),
+    ggplot2::aes(category, value)) + ggplot2::geom_point()
+  labels <- axis_tile_text(ggplot2::ggplotGrob(fmt_axisTile(p, colors, mode = "text")))
+  expect_equal(labels$colour[match(values, labels$label)], unname(colors))
+})
+
+test_that("later relative text sizes are resolved once", {
+  p <- axis_tile_plot()
+  expected <- axis_tile_text(ggplot2::ggplotGrob(fmt_axisText(p, size = ggplot2::rel(1.2))))
+  expected <- expected$size[match(c("A", "B", "C"), expected$label)]
+  for (mode in c("tile", "text")) {
+    q <- fmt_axisText(fmt_axisTile(p, axis_tile_colors, mode = mode), size = ggplot2::rel(1.2))
+    labels <- axis_tile_text(if (inherits(q, "patchwork")) patchwork::patchworkGrob(q) else ggplot2::ggplotGrob(q))
+    expect_equal(labels$size[match(c("A", "B", "C"), labels$label)], expected)
   }
 })

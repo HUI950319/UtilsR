@@ -97,7 +97,6 @@ Suggests:
     ggalluvial,
     ggsci,
     ggrastr,
-    gtable,
     png,
     ragg,
     ggsankey,

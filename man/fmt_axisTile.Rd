@@ -2,7 +2,7 @@
 % Please edit documentation in R/fmt_plot.R
 \name{fmt_axisTile}
 \alias{fmt_axisTile}
-\title{Add colored tiles between axis and labels}
+\title{Color discrete axis tiles or text labels}
 \usage{
 fmt_axisTile(
   plot,
@@ -57,9 +57,10 @@ text-mode labels. Default \code{"black"}.}
 Default \code{TRUE}. Set \code{FALSE} to hide labels in either mode.}
 }
 \value{
-In tile mode, a single non-empty ggplot is wrapped in a patchwork;
+In tile mode, a formatted standalone ggplot is wrapped in a patchwork;
   patchworks retain their container and lists return lists of formatted plots.
-  Text mode retains the input container type. Empty data plots are unchanged.
+  Text mode retains the input container type. Empty-data and disabled-guide
+  plots are unchanged.
 }
 \description{
 Insert colored tiles at the discrete axis or color its text labels.
@@ -74,10 +75,27 @@ Two modes are available:
     theme elements or a background tile.
 }
 }
+\details{
+Only Cartesian coordinates, including \code{coord_flip()}, are supported.
+Continuous axes and disabled axis guides retain their displayed appearance.
+Other guide kinds are left unchanged; coloring adapts \code{GuideAxis} objects
+and the default \code{"axis"} guide.
+Tile positions follow each panel's trained scale and expansion, including
+free facets. Existing guide settings, axis titles and scale labels are retained.
+Editable leaves in nested patchworks and named lists are formatted while
+layouts, annotations, fixed graphics and inset overlays are preserved.
+Repeated calls update the formatting and can switch between modes.
+Subsequent calls to \code{\link[=fmt_axis]{fmt_axis()}} or
+\code{\link[=fmt_axisText]{fmt_axisText()}} can hide or restyle the guides.
+}
 \examples{
 library(ggplot2)
-cols <- c(setosa = "#E64B35", versicolor = "#4DBBD5", virginica = "#00A087")
-p <- ggplot(iris, aes(Species, Sepal.Length)) + geom_boxplot()
+dat <- data.frame(
+  category = factor(rep(c("A", "B", "C"), each = 4)),
+  value = c(2, 3, 4, 5, 4, 5, 7, 8, 1, 2, 3, 4)
+)
+cols <- c(A = "#E64B35", B = "#4DBBD5", C = "#00A087")
+p <- ggplot(dat, aes(category, value)) + geom_boxplot()
 
 # Tile mode: color strip between axis and rotated labels
 fmt_axisTile(p, colors = cols)
@@ -89,8 +107,16 @@ fmt_axisTile(p, colors = cols, show_text = FALSE)
 fmt_axisTile(p, colors = cols, mode = "text")
 
 # Y-axis tiles
-p2 <- ggplot(iris, aes(Sepal.Length, Species)) + geom_boxplot()
+p2 <- ggplot(dat, aes(value, category)) + geom_boxplot()
 fmt_axisTile(p2, colors = cols, axis = "y")
+
+# Match colors to scale values rather than their display labels
+p3 <- p + scale_x_discrete(limits = c("C", "B", "A"),
+                         labels = c(C = "Gamma", B = "Beta", A = "Alpha"))
+fmt_axisTile(p3, colors = cols)
+
+# Select the physical vertical axis after flipping
+fmt_axisTile(p + coord_flip(), colors = cols, axis = "y")
 
 }
 \seealso{
