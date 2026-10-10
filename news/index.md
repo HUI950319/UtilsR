@@ -2,6 +2,17 @@
 
 ## UtilsR 0.6.8
 
+- [`fmt_axisText()`](https://hui950319.github.io/UtilsR/reference/fmt_axisText.md)
+  retains rich text inherited from the global theme, including
+  side-specific elements, guide formatting and repeated rotations.
+  Complete plot themes retain precedence, and the global theme is not
+  modified.
+
+- [`fmt_axisText()`](https://hui950319.github.io/UtilsR/reference/fmt_axisText.md)
+  retains plot-level rich text when updating guide rotations or local
+  guide themes, including guides configured on scales. Inherited text
+  properties, relative sizes and caller-owned guides are preserved.
+
 - [`fmt_axisTile()`](https://hui950319.github.io/UtilsR/reference/fmt_axisTile.md)
   preserves rich-text axis element classes and layout settings, avoiding
   incompatible element merges. Text-mode colors follow each rich label’s
