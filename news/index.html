@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/plt_sankey.html">plt_sankey()</a></code> adds <code>label_args$lineheight</code> to control multiline label spacing for boxed and plain text. The default 1.2 preserves the existing appearance.</p></li>
+<ul><li><p><code><a href="../reference/fmt_bg.html">fmt_bg()</a></code> uses trained layout scales when drawing polar sectors and radial bands, fixing rendering failures with <code><a href="https://ggplot2.tidyverse.org/reference/coord_radial.html" class="external-link">coord_polar()</a></code> and <code><a href="https://ggplot2.tidyverse.org/reference/coord_radial.html" class="external-link">coord_radial()</a></code>.</p></li>
+<li><p><code><a href="../reference/plt_sankey.html">plt_sankey()</a></code> adds <code>label_args$lineheight</code> to control multiline label spacing for boxed and plain text. The default 1.2 preserves the existing appearance.</p></li>
 <li><p><code><a href="../reference/fmt_bg.html">fmt_bg()</a></code> validates opacity, returns empty or entirely missing categories unchanged, and skips background construction when <code>alpha = 0</code>.</p></li>
 <li><p><code><a href="../reference/fmt_bg.html">fmt_bg()</a></code> replaces its own background layer on repeated calls, retaining other layers and avoiding accumulated transparency. New colors and opacity update the existing background without modifying the input plot.</p></li>
 <li><p><code><a href="../reference/fmt_bg.html">fmt_bg()</a></code> formats every data plot in nested patchworks and lists while retaining layouts, annotations, names and freed alignment. Spacers, guide areas, fixed wrapped graphics and inset overlays are left unchanged.</p></li>

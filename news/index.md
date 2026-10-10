@@ -2,6 +2,13 @@
 
 ## UtilsR 0.6.8
 
+- [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
+  uses trained layout scales when drawing polar sectors and radial
+  bands, fixing rendering failures with
+  [`coord_polar()`](https://ggplot2.tidyverse.org/reference/coord_radial.html)
+  and
+  [`coord_radial()`](https://ggplot2.tidyverse.org/reference/coord_radial.html).
+
 - [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md)
   adds `label_args$lineheight` to control multiline label spacing for
   boxed and plain text. The default 1.2 preserves the existing
