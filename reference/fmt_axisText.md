@@ -81,6 +81,13 @@ fmt_axisText(
 
 Same type as input.
 
+## Details
+
+Data plots are edited recursively within nested patchworks and lists.
+Layouts, annotations, list names and freed alignment are retained.
+Spacers, guide areas, fixed wrapped graphics and inset overlays are not
+edited.
+
 ## See also
 
 Other plot formatting:
