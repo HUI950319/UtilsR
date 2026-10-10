@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fmt_axisText()`](https://hui950319.github.io/UtilsR/reference/fmt_axisText.md)
+  updates explicitly styled primary, secondary and radial axis text
+  elements while retaining blank sides and unrelated element properties.
+
+- [`fmt_axisText()`](https://hui950319.github.io/UtilsR/reference/fmt_axisText.md)
   visits every data plot in nested patchworks and lists while retaining
   layouts, annotations, names, freed alignment and inset overlays.
 
