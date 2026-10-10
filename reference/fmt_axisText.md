@@ -30,53 +30,58 @@ fmt_axisText(
 
 - x:
 
-  Numeric. Rotation angle (degrees) for X-axis text. Common values: `45`
-  (diagonal), `90` (vertical). Default `NULL` (no change).
+  Finite numeric scalar. Rotation angle (degrees) for X-axis text.
+  Common values: `45` (diagonal), `90` (vertical). Default `NULL` (no
+  change).
 
 - y:
 
-  Numeric. Rotation angle (degrees) for Y-axis text. Default `NULL` (no
-  change).
+  Finite numeric scalar. Rotation angle (degrees) for Y-axis text.
+  Default `NULL` (no change).
 
 - x_hjust:
 
-  Numeric. Horizontal justification for X-axis text. Can be set without
-  supplying `x`. Default `NULL`: automatic alignment follows the bottom
-  or top axis side when `x` is supplied; otherwise the existing
-  alignment is retained.
+  Finite numeric scalar. Horizontal justification for X-axis text. Can
+  be set without supplying `x`. Default `NULL`: automatic alignment
+  follows the bottom or top axis side when `x` is supplied; otherwise
+  the existing alignment is retained.
 
 - x_vjust:
 
-  Numeric. Vertical justification for X-axis text. Can be set without
-  supplying `x`. Default `NULL`: automatic alignment follows the bottom
-  or top axis side when `x` is supplied; otherwise the existing
-  alignment is retained.
+  Finite numeric scalar. Vertical justification for X-axis text. Can be
+  set without supplying `x`. Default `NULL`: automatic alignment follows
+  the bottom or top axis side when `x` is supplied; otherwise the
+  existing alignment is retained.
 
 - y_hjust:
 
-  Numeric. Horizontal justification for Y-axis text. Can be set without
-  supplying `y`. Default `NULL`: automatic alignment follows the left or
-  right axis side when `y` is supplied; otherwise the existing alignment
-  is retained.
+  Finite numeric scalar. Horizontal justification for Y-axis text. Can
+  be set without supplying `y`. Default `NULL`: automatic alignment
+  follows the left or right axis side when `y` is supplied; otherwise
+  the existing alignment is retained.
 
 - y_vjust:
 
-  Numeric. Vertical justification for Y-axis text. Can be set without
-  supplying `y`. Default `NULL`: automatic alignment follows the left or
-  right axis side when `y` is supplied; otherwise the existing alignment
-  is retained.
+  Finite numeric scalar. Vertical justification for Y-axis text. Can be
+  set without supplying `y`. Default `NULL`: automatic alignment follows
+  the left or right axis side when `y` is supplied; otherwise the
+  existing alignment is retained.
 
 - size:
 
-  Numeric. Text size for both axes. Default `NULL` (no change).
+  Non-negative finite numeric scalar. Text size in points for both axes,
+  or
+  [`ggplot2::rel()`](https://ggplot2.tidyverse.org/reference/element.html)
+  relative to the parent axis text size. Default `NULL` (no change).
 
 - color:
 
-  Character. Text color for both axes. Default `NULL` (no change).
+  One valid R color or numeric palette index for both axes. `NA` makes
+  text transparent. Default `NULL` (no change).
 
 - face:
 
-  Character. Font face (`"plain"`, `"bold"`, `"italic"`,
+  Character. Font face (`"plain"`, `"bold"`, `"italic"`, `"oblique"`,
   `"bold.italic"`). Default `NULL` (no change).
 
 - ...:
@@ -99,7 +104,8 @@ guides or their other settings. With justification alone, an existing
 guide rotation is retained. Existing text element classes, including
 rich text elements, are retained. Automatic Cartesian alignment follows
 each rendered axis side and treats full turns periodically. Explicit
-justification takes precedence.
+justification takes precedence. Justification values may lie outside the
+usual 0–1 interval.
 
 ## See also
 

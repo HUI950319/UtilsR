@@ -85,57 +85,58 @@ axes, rotation angle, and text appearance.</p>
 
 
 <dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>Numeric. Rotation angle (degrees) for X-axis text.
+<dd><p>Finite numeric scalar. Rotation angle (degrees) for X-axis text.
 Common values: <code>45</code> (diagonal), <code>90</code> (vertical).
 Default <code>NULL</code> (no change).</p></dd>
 
 
 <dt id="arg-y">y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
-<dd><p>Numeric. Rotation angle (degrees) for Y-axis text.
+<dd><p>Finite numeric scalar. Rotation angle (degrees) for Y-axis text.
 Default <code>NULL</code> (no change).</p></dd>
 
 
 <dt id="arg-x-hjust">x_hjust<a class="anchor" aria-label="anchor" href="#arg-x-hjust"></a></dt>
-<dd><p>Numeric. Horizontal justification for X-axis text.
+<dd><p>Finite numeric scalar. Horizontal justification for X-axis text.
 Can be set without supplying <code>x</code>.
 Default <code>NULL</code>: automatic alignment follows the bottom or top axis side
 when <code>x</code> is supplied; otherwise the existing alignment is retained.</p></dd>
 
 
 <dt id="arg-x-vjust">x_vjust<a class="anchor" aria-label="anchor" href="#arg-x-vjust"></a></dt>
-<dd><p>Numeric. Vertical justification for X-axis text.
+<dd><p>Finite numeric scalar. Vertical justification for X-axis text.
 Can be set without supplying <code>x</code>.
 Default <code>NULL</code>: automatic alignment follows the bottom or top axis side
 when <code>x</code> is supplied; otherwise the existing alignment is retained.</p></dd>
 
 
 <dt id="arg-y-hjust">y_hjust<a class="anchor" aria-label="anchor" href="#arg-y-hjust"></a></dt>
-<dd><p>Numeric. Horizontal justification for Y-axis text.
+<dd><p>Finite numeric scalar. Horizontal justification for Y-axis text.
 Can be set without supplying <code>y</code>.
 Default <code>NULL</code>: automatic alignment follows the left or right axis side
 when <code>y</code> is supplied; otherwise the existing alignment is retained.</p></dd>
 
 
 <dt id="arg-y-vjust">y_vjust<a class="anchor" aria-label="anchor" href="#arg-y-vjust"></a></dt>
-<dd><p>Numeric. Vertical justification for Y-axis text.
+<dd><p>Finite numeric scalar. Vertical justification for Y-axis text.
 Can be set without supplying <code>y</code>.
 Default <code>NULL</code>: automatic alignment follows the left or right axis side
 when <code>y</code> is supplied; otherwise the existing alignment is retained.</p></dd>
 
 
 <dt id="arg-size">size<a class="anchor" aria-label="anchor" href="#arg-size"></a></dt>
-<dd><p>Numeric. Text size for both axes. Default <code>NULL</code>
-(no change).</p></dd>
+<dd><p>Non-negative finite numeric scalar. Text size in points for both
+axes, or <code><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">ggplot2::rel()</a></code> relative to the parent axis text size.
+Default <code>NULL</code> (no change).</p></dd>
 
 
 <dt id="arg-color">color<a class="anchor" aria-label="anchor" href="#arg-color"></a></dt>
-<dd><p>Character. Text color for both axes. Default <code>NULL</code>
-(no change).</p></dd>
+<dd><p>One valid R color or numeric palette index for both axes.
+<code>NA</code> makes text transparent. Default <code>NULL</code> (no change).</p></dd>
 
 
 <dt id="arg-face">face<a class="anchor" aria-label="anchor" href="#arg-face"></a></dt>
 <dd><p>Character. Font face (<code>"plain"</code>, <code>"bold"</code>,
-<code>"italic"</code>, <code>"bold.italic"</code>). Default <code>NULL</code>
+<code>"italic"</code>, <code>"oblique"</code>, <code>"bold.italic"</code>). Default <code>NULL</code>
 (no change).</p></dd>
 
 
@@ -159,7 +160,8 @@ original guides or their other settings. With justification alone, an
 existing guide rotation is retained.
 Existing text element classes, including rich text elements, are retained.
 Automatic Cartesian alignment follows each rendered axis side and treats
-full turns periodically. Explicit justification takes precedence.</p>
+full turns periodically. Explicit justification takes precedence.
+Justification values may lie outside the usual 0–1 interval.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
