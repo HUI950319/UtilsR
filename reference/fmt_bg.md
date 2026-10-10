@@ -51,9 +51,10 @@ Same type as input.
 ## Details
 
 Factor, character and logical axes, categorical mapping expressions and
-data supplied directly to a layer are supported. The categorical mapping
-is evaluated using the first applicable layer with a data frame, or the
-plot data. Continuous axes are skipped with a warning.
+layer data supplied as data frames, functions or formulas are supported.
+The first applicable categorical layer mapping is used; numeric
+annotation positions are skipped. Continuous axes are skipped with a
+warning.
 
 Stripes follow the trained scale order, including unused categories and
 the local categories of free-scale facets. Missing categories use

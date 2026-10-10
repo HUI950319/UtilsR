@@ -105,9 +105,9 @@ background rectangles. Zero returns the input unchanged.</p></dd>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Factor, character and logical axes, categorical mapping expressions
-and data supplied directly to a layer are supported. The categorical
-mapping is evaluated using the first applicable layer with a data frame,
-or the plot data. Continuous axes are skipped with a warning.</p>
+and layer data supplied as data frames, functions or formulas are supported.
+The first applicable categorical layer mapping is used; numeric annotation
+positions are skipped. Continuous axes are skipped with a warning.</p>
 <p>Stripes follow the trained scale order, including unused categories and
 the local categories of free-scale facets. Missing categories use
 <code>"grey80"</code>. Facet expressions, marginal panels, flipped and polar
