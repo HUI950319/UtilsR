@@ -3249,6 +3249,8 @@ fmt_com <- function(plot,
 #' data supplied directly to a layer are supported.
 #' Stripes follow the trained scale order, including unused and missing
 #' categories and the local categories of free-scale facets.
+#' Facet expressions and marginal panels are supported without changing the
+#' plot's fill scales or legends.
 #'
 #' @param plot A ggplot, patchwork, or list of ggplots.
 #' @param palette Palette name passed to \code{plotthis::palette_this}.
@@ -3316,36 +3318,13 @@ fmt_bg <- function(plot,
   }
 
   # Unified background layer builder for both x and y axes
-  build_bg_layer <- function(data, axis_values, alpha,
-                             facet_by = NULL, bg_axis = "x") {
+  build_bg_layer <- function(axis_values, alpha, bg_axis = "x") {
     fct <- if (is.factor(axis_values)) droplevels(axis_values) else factor(axis_values)
     lvs <- levels(fct)
 
     bg_color <- resolve_bg_colors(lvs)
 
-    n <- length(lvs)
-    nums <- seq_len(n)
-    bg_data <- data.frame(pos = nums)
-
-    bg_data$xmin <- -Inf
-    bg_data$xmax <- Inf
-    bg_data$ymin <- -Inf
-    bg_data$ymax <- Inf
-    bg_data$fill <- bg_color[lvs]
-
-    # Handle faceting
-    if (!is.null(facet_by) && length(facet_by) > 0) {
-      valid_fb <- facet_by[facet_by %in% colnames(data)]
-      if (length(valid_fb) > 0) {
-        uv <- dplyr::distinct(data, dplyr::across(dplyr::all_of(valid_fb)))
-        bg_data <- tidyr::expand_grid(bg_data, uv)
-        for (fb in valid_fb) {
-          if (is.factor(data[[fb]])) {
-            bg_data[[fb]] <- factor(bg_data[[fb]], levels = levels(data[[fb]]))
-          }
-        }
-      }
-    }
+    bg_data <- data.frame(xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf)
 
     bg_geom <- ggplot2::ggproto("GeomBgStripes", ggplot2::GeomRect,
       draw_panel = function(data, panel_params, coord, na.rm = FALSE) {
@@ -3383,29 +3362,10 @@ fmt_bg <- function(plot,
         xmin = .data[["xmin"]], xmax = .data[["xmax"]],
         ymin = .data[["ymin"]], ymax = .data[["ymax"]]
       ),
-      fill = bg_data$fill, alpha = alpha, inherit.aes = FALSE
+      fill = NA, alpha = alpha, inherit.aes = FALSE, show.legend = FALSE
     )
     bg_layer$geom <- bg_geom
     bg_layer
-  }
-
-  # Extract facet variables from a plot
-  extract_facet_vars <- function(p) {
-    if (is.null(p$facet)) return(NULL)
-    tryCatch({
-      fv <- NULL
-      if (inherits(p$facet, "FacetWrap")) {
-        fv <- p$facet$params$facets
-        fv <- if (is.list(fv)) vapply(fv, rlang::as_name, character(1)) else rlang::as_name(fv)
-      } else if (inherits(p$facet, "FacetGrid")) {
-        rv <- p$facet$params$rows
-        cv <- p$facet$params$cols
-        fv <- character(0)
-        if (length(rv) > 0) fv <- c(fv, vapply(rv, rlang::as_name, character(1)))
-        if (length(cv) > 0) fv <- c(fv, vapply(cv, rlang::as_name, character(1)))
-      }
-      fv
-    }, error = function(e) NULL)
   }
 
   fmt_bg_one <- function(p) {
@@ -3430,12 +3390,7 @@ fmt_bg <- function(plot,
       cli::cli_warn("The {bg_axis}-axis must be categorical; skipping background.")
       return(p)
     }
-    facet_vars <- extract_facet_vars(p)
-
-    bg_layer <- build_bg_layer(
-      data = axis_data, axis_values = axis_values, alpha = alpha,
-      facet_by = facet_vars, bg_axis = bg_axis
-    )
+    bg_layer <- build_bg_layer(axis_values, alpha = alpha, bg_axis = bg_axis)
     p$layers <- c(list(bg_layer), p$layers)
     p
   }

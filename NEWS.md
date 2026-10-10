@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_bg()` supports facet expressions and marginal panels, binds stripe colors
+  during panel drawing, and retains the original fill scales and legends.
+  It no longer expands all categories across the raw facet combinations.
+
 * `fmt_bg()` aligns stripes with trained category positions, scale limits,
   unused and missing categories, free-scale facets, and flipped coordinates.
   Background rectangles no longer expand the original panel ranges.

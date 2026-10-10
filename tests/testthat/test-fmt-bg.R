@@ -106,3 +106,24 @@ test_that("backgrounds support categorical expressions and layer data", {
   expect_warning(q <- fmt_bg(continuous), "categorical")
   expect_identical(q, continuous)
 })
+
+test_that("backgrounds render expression facets and marginal panels without changing fill scales", {
+  p <- bg_plot()
+  p$data$group <- c("P1", "P1", "P2")
+  for (facet in list(ggplot2::facet_wrap(ggplot2::vars(paste0("group_", group))),
+                     ggplot2::facet_grid(. ~ group, margins = TRUE),
+                     ggplot2::facet_grid(ggplot2::vars(row = substr(group, 2, 2)),
+                                           ggplot2::vars(group)))) {
+    z <- p + facet + ggplot2::aes(fill = category) +
+      ggplot2::scale_fill_manual(values = bg_colors)
+    before <- ggplot2::ggplot_build(z)
+    q <- fmt_bg(z, palcolor = bg_colors)
+    expect_equal(length(bg_fills(q)), 3L * nrow(before$layout$layout))
+    after <- ggplot2::ggplot_build(q)
+    expect_identical(after$data[-1], before$data)
+    expect_identical(after$layout$layout, before$layout$layout)
+    expect_identical(q$scales$scales[[1]], z$scales$scales[[1]])
+    expect_identical(after$plot$scales$get_scales("fill")$get_limits(),
+                       before$plot$scales$get_scales("fill")$get_limits())
+  }
+})

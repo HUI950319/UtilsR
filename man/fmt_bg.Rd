@@ -38,6 +38,8 @@ Factor, character and logical axes, categorical mapping expressions and
 data supplied directly to a layer are supported.
 Stripes follow the trained scale order, including unused and missing
 categories and the local categories of free-scale facets.
+Facet expressions and marginal panels are supported without changing the
+plot's fill scales or legends.
 }
 \examples{
 library(ggplot2)
