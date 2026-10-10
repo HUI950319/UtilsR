@@ -2,6 +2,11 @@
 
 ## UtilsR 0.6.8
 
+- [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md)
+  adds `label_args$lineheight` to control multiline label spacing for
+  boxed and plain text. The default 1.2 preserves the existing
+  appearance.
+
 - [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
   validates opacity, returns empty or entirely missing categories
   unchanged, and skips background construction when `alpha = 0`.
