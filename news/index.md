@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fmt_axisTile()`](https://hui950319.github.io/UtilsR/reference/fmt_axisTile.md)
+  preserves native axis decorations when transforming category
+  boundaries, including with ggplot2 3.5.0.
+
+- [`fmt_axisTile()`](https://hui950319.github.io/UtilsR/reference/fmt_axisTile.md)
   makes panel-relative color strips follow their axis guides during
   patchwork axis collection. Different palettes retain separate guides,
   including color-only strips without text labels.
