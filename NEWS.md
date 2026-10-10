@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_bg()` aligns stripes with trained category positions, scale limits,
+  unused and missing categories, free-scale facets, and flipped coordinates.
+  Background rectangles no longer expand the original panel ranges.
+
 * `plt_sankey()` keeps labels centered on their nodes when changing node spacing.
 
 * `fmt_bg()` supports character and logical categories, mapping expressions,

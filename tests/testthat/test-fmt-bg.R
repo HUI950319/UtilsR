@@ -6,9 +6,18 @@ bg_plot <- function() {
 
 bg_colors <- c(A = "#E64B35", B = "#4DBBD5", C = "#00A087")
 
+bg_rects <- function(g) {
+  result <- if (inherits(g, "rect") && grepl("geom_rect|fmt-bg-stripes", g$name)) {
+    data.frame(fill = unname(grDevices::rgb(t(grDevices::col2rgb(g$gp$fill)), maxColorValue = 255)),
+               x = as.numeric(g$x), y = as.numeric(g$y),
+               width = as.numeric(g$width), height = as.numeric(g$height))
+  } else NULL
+  children <- if (inherits(g, "gtable")) g$grobs else g$children
+  do.call(rbind, c(list(result), lapply(children, bg_rects)))
+}
+
 bg_fills <- function(plot) {
-  fills <- ggplot2::ggplot_build(plot)$data[[1]]$fill
-  unname(grDevices::rgb(t(grDevices::col2rgb(fills)), maxColorValue = 255))
+  bg_rects(ggplot2::ggplotGrob(plot))$fill
 }
 
 test_that("manual background colors override palettes without an optional dependency", {
@@ -19,6 +28,37 @@ test_that("manual background colors override palettes without an optional depend
                  unname(bg_colors))
   expect_equal(bg_fills(fmt_bg(p, palcolor = "purple")), rep("#A020F0", 3))
   expect_length(p$layers, 1L)
+})
+
+test_that("background stripes follow trained order and panel-specific categories", {
+  p <- bg_plot()
+  q <- fmt_bg(p + ggplot2::scale_x_discrete(limits = c("C", "B", "A")), palcolor = bg_colors)
+  expect_equal(bg_fills(q), unname(bg_colors[c("C", "B", "A")]))
+  subset <- p
+  subset$data <- subset$data[c(1, 3), ]
+  expect_equal(bg_fills(fmt_bg(subset + ggplot2::scale_x_discrete(drop = FALSE),
+                                palcolor = bg_colors)), unname(bg_colors))
+  subset$data$category[2] <- NA
+  expect_equal(bg_fills(fmt_bg(subset, palcolor = bg_colors)), c(bg_colors[["A"]], "#CCCCCC"))
+  d <- data.frame(category = factor(c("A", "B", "B", "C"), levels = c("A", "B", "C")),
+                   value = 1:4, group = c("P1", "P1", "P2", "P2"))
+  for (axis in c("x", "y")) {
+    p <- if (axis == "x") ggplot2::ggplot(d, ggplot2::aes(category, value)) else
+      ggplot2::ggplot(d, ggplot2::aes(value, category))
+    p <- p + ggplot2::geom_point() + ggplot2::facet_wrap(~group, scales = paste0("free_", axis))
+    q <- fmt_bg(p, palcolor = bg_colors, bg_axis = axis)
+    expect_equal(bg_fills(q), unname(bg_colors[c("A", "B", "B", "C")]))
+    old <- ggplot2::ggplot_build(p)
+    new <- ggplot2::ggplot_build(q)
+    expect_identical(new$data[-1], old$data)
+    expect_equal(lapply(new$layout$panel_params, function(z) z[[paste0(axis, ".range")]]),
+                   lapply(old$layout$panel_params, function(z) z[[paste0(axis, ".range")]]))
+  }
+  p <- bg_plot() + ggplot2::coord_flip()
+  rects <- bg_rects(ggplot2::ggplotGrob(fmt_bg(p, palcolor = bg_colors)))
+  expect_equal(rects$fill, unname(bg_colors))
+  expect_equal(rects$width, rep(1, 3))
+  expect_equal(length(unique(rects$y)), 3L)
 })
 
 test_that("background palette errors remain visible and defaults are retained", {

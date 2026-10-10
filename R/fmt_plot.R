@@ -3247,6 +3247,8 @@ fmt_com <- function(plot,
 #' categorical axis variable.
 #' Factor, character and logical axes, categorical mapping expressions and
 #' data supplied directly to a layer are supported.
+#' Stripes follow the trained scale order, including unused and missing
+#' categories and the local categories of free-scale facets.
 #'
 #' @param plot A ggplot, patchwork, or list of ggplots.
 #' @param palette Palette name passed to \code{plotthis::palette_this}.
@@ -3325,17 +3327,10 @@ fmt_bg <- function(plot,
     nums <- seq_len(n)
     bg_data <- data.frame(pos = nums)
 
-    if (bg_axis == "x") {
-      bg_data$xmin <- ifelse(nums == 1L, -Inf, nums - 0.5)
-      bg_data$xmax <- ifelse(nums == n,   Inf, nums + 0.5)
-      bg_data$ymin <- -Inf
-      bg_data$ymax <- Inf
-    } else {
-      bg_data$xmin <- -Inf
-      bg_data$xmax <- Inf
-      bg_data$ymin <- ifelse(nums == 1L, -Inf, nums - 0.5)
-      bg_data$ymax <- ifelse(nums == n,   Inf, nums + 0.5)
-    }
+    bg_data$xmin <- -Inf
+    bg_data$xmax <- Inf
+    bg_data$ymin <- -Inf
+    bg_data$ymax <- Inf
     bg_data$fill <- bg_color[lvs]
 
     # Handle faceting
@@ -3352,7 +3347,37 @@ fmt_bg <- function(plot,
       }
     }
 
-    ggplot2::geom_rect(
+    bg_geom <- ggplot2::ggproto("GeomBgStripes", ggplot2::GeomRect,
+      draw_panel = function(data, panel_params, coord, na.rm = FALSE) {
+        panel_axis <- if (inherits(coord, "CoordFlip")) {
+          if (bg_axis == "x") "y" else "x"
+        } else bg_axis
+        scale <- panel_params[[panel_axis]]$scale
+        if (!scale$is_discrete()) return(ggplot2::zeroGrob())
+        limits <- scale$get_limits()
+        positions <- as.numeric(scale$map(limits))
+        keep <- is.finite(positions)
+        limits <- limits[keep]
+        positions <- positions[keep]
+        if (!length(limits)) return(ggplot2::zeroGrob())
+        extra <- limits[!is.na(limits) & !limits %in% lvs]
+        colors <- if (length(extra)) resolve_bg_colors(unique(c(lvs, extra))) else bg_color
+        fills <- unname(colors[match(limits, names(colors))])
+        fills[is.na(limits)] <- "grey80"
+        edges <- (head(positions, -1L) + tail(positions, -1L)) / 2
+        rectangles <- data[rep(1L, length(limits)), , drop = FALSE]
+        rectangles$xmin <- -Inf
+        rectangles$xmax <- Inf
+        rectangles$ymin <- -Inf
+        rectangles$ymax <- Inf
+        rectangles[[paste0(bg_axis, "min")]] <- c(-Inf, edges)
+        rectangles[[paste0(bg_axis, "max")]] <- c(edges, Inf)
+        rectangles$fill <- fills
+        grob <- ggplot2::GeomRect$draw_panel(rectangles, panel_params, coord)
+        grob$name <- "fmt-bg-stripes"
+        grob
+      })
+    bg_layer <- ggplot2::geom_rect(
       data = bg_data,
       ggplot2::aes(
         xmin = .data[["xmin"]], xmax = .data[["xmax"]],
@@ -3360,6 +3385,8 @@ fmt_bg <- function(plot,
       ),
       fill = bg_data$fill, alpha = alpha, inherit.aes = FALSE
     )
+    bg_layer$geom <- bg_geom
+    bg_layer
   }
 
   # Extract facet variables from a plot
