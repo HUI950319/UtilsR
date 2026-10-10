@@ -3248,7 +3248,11 @@ fmt_com <- function(plot,
 #'
 #' @param plot A ggplot, patchwork, or list of ggplots.
 #' @param palette Palette name passed to \code{plotthis::palette_this}.
-#' @param palcolor Manual colour vector (overrides palette).
+#'   Requires \pkg{plotthis} only when palette colours are needed. \code{NULL}
+#'   retains the default rainbow colours.
+#' @param palcolor Manual colour vector (overrides palette). Named vectors match
+#'   category values; unnamed vectors are interpolated to the number of levels.
+#'   A complete manual colour specification does not require \pkg{plotthis}.
 #' @param alpha Transparency of the background rectangles.
 #' @param bg_axis Which axis holds the categorical variable: \code{"x"} or
 #'   \code{"y"}.
@@ -3269,19 +3273,51 @@ fmt_bg <- function(plot,
                    bg_axis = c("x", "y")) {
   bg_axis <- match.arg(bg_axis)
 
+  if (!is.null(palcolor)) {
+    if (!is.character(palcolor) || !length(palcolor) || anyNA(palcolor)) {
+      cli::cli_abort("{.arg palcolor} must be a non-empty character colour vector.")
+    }
+    color_names <- names(palcolor)
+    if (!is.null(color_names) &&
+        (anyNA(color_names) || any(!nzchar(color_names)) || anyDuplicated(color_names))) {
+      cli::cli_abort("{.arg palcolor} names must be non-empty and unique.")
+    }
+    tryCatch(grDevices::col2rgb(palcolor), error = function(e) {
+      cli::cli_abort("{.arg palcolor} contains an invalid colour.", parent = e)
+    })
+  }
+
+  resolve_bg_colors <- function(lvs) {
+    if (!is.null(palcolor)) {
+      if (is.null(names(palcolor))) {
+        cols <- if (length(palcolor) == length(lvs)) palcolor else
+          grDevices::colorRampPalette(palcolor)(length(lvs))
+        return(stats::setNames(cols, lvs))
+      }
+      if (all(lvs %in% names(palcolor))) return(palcolor[lvs])
+    }
+    if (is.null(palette)) {
+      cols <- stats::setNames(grDevices::rainbow(length(lvs), alpha = 0.3), lvs)
+    } else {
+      if (!requireNamespace("plotthis", quietly = TRUE)) {
+        cli::cli_abort("Package {.pkg plotthis} is required for {.arg palette}.")
+      }
+      cols <- plotthis::palette_this(lvs, palette = palette)
+    }
+    if (!is.null(palcolor)) {
+      matched <- lvs %in% names(palcolor)
+      cols[matched] <- palcolor[lvs[matched]]
+    }
+    cols
+  }
+
   # Unified background layer builder for both x and y axes
   build_bg_layer <- function(data, var_name, palette, palcolor, alpha,
                              facet_by = NULL, bg_axis = "x") {
     fct <- droplevels(data[[var_name]])
     lvs <- levels(fct)
 
-    bg_color <- tryCatch(
-      plotthis::palette_this(lvs, palette = palette, palcolor = palcolor),
-      error = function(e) {
-        cols <- grDevices::rainbow(length(lvs), alpha = 0.3)
-        stats::setNames(cols, lvs)
-      }
-    )
+    bg_color <- resolve_bg_colors(lvs)
 
     n <- length(lvs)
     nums <- seq_len(n)

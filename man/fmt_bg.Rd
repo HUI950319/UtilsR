@@ -15,9 +15,13 @@ fmt_bg(
 \arguments{
 \item{plot}{A ggplot, patchwork, or list of ggplots.}
 
-\item{palette}{Palette name passed to \code{plotthis::palette_this}.}
+\item{palette}{Palette name passed to \code{plotthis::palette_this}.
+Requires \pkg{plotthis} only when palette colours are needed. \code{NULL}
+retains the default rainbow colours.}
 
-\item{palcolor}{Manual colour vector (overrides palette).}
+\item{palcolor}{Manual colour vector (overrides palette). Named vectors match
+category values; unnamed vectors are interpolated to the number of levels.
+A complete manual colour specification does not require \pkg{plotthis}.}
 
 \item{alpha}{Transparency of the background rectangles.}
 

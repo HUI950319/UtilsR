@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_bg()` honors manual colors without requiring `plotthis`, retains its
+  default rainbow palette, and reports invalid colors and palette errors.
+
 * `plt_sankey()` accepts named `vars` vectors mapping column names to axis
   labels, including line breaks. Unnamed vectors retain their existing behavior.
 
