@@ -405,3 +405,28 @@ test_that("repeated backgrounds retain a bounded serializable object", {
   expect_equal(bg_fills(restored), unname(bg_colors))
   expect_identical(ggplot2::ggplot_build(restored)$data[-1], ggplot2::ggplot_build(bg_plot())$data)
 })
+
+test_that("all-missing facet panels retain their missing-category background", {
+  d <- data.frame(category = factor(c("A", "B", NA, NA)), value = 1:4,
+                   group = rep(c("P1", "P2"), each = 2))
+  for (axis in c("x", "y")) {
+    for (deferred in c(FALSE, TRUE)) {
+      mapping <- if (axis == "x") {
+        if (deferred) ggplot2::aes(factor(category), value) else ggplot2::aes(category, value)
+      } else {
+        if (deferred) ggplot2::aes(value, factor(category)) else ggplot2::aes(value, category)
+      }
+      p <- ggplot2::ggplot(d, mapping) + ggplot2::geom_point() +
+        ggplot2::facet_wrap(~group, scales = paste0("free_", axis))
+      q <- fmt_bg(p, palcolor = bg_colors, bg_axis = axis)
+      expect_equal(bg_fills(q), c(unname(bg_colors[c("A", "B")]), "#CCCCCC"))
+      expect_identical(ggplot2::ggplot_build(q)$data[-1], ggplot2::ggplot_build(p)$data)
+    }
+  }
+  empty <- ggplot2::ggplot(data.frame(category = c(NA_character_, NA_character_), value = 1:2),
+                            ggplot2::aes(factor(category), value)) + ggplot2::geom_point()
+  expect_null(bg_fills(fmt_bg(empty)))
+  changed <- fmt_bg(bg_plot(), palcolor = bg_colors)
+  changed$data$category <- factor(c(NA, NA, NA))
+  expect_null(bg_fills(fmt_bg(changed, palcolor = bg_colors)))
+})

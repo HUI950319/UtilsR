@@ -50,7 +50,9 @@ Stripes follow the trained scale order, including unused categories and
 the local categories of free-scale facets. Category colours are shared
 across panels, including categories contributed by later layers. Missing
 categories use
-\code{"grey80"}. Facet expressions, marginal panels, flipped and polar
+\code{"grey80"}, including panels containing only missing categories when
+other panels have non-missing categories. Facet expressions, marginal
+panels, flipped and polar
 coordinates, radial bands and log-scaled continuous axes are supported.
 Backgrounds retain the
 plot's panel ranges, fill scales and legends.
