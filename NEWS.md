@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_axisText()` validates scalar angles, justification, sizes, colors and
+  font faces immediately with argument-specific errors. Relative sizes,
+  transparent colors and justification outside 0--1 remain supported.
+
 * `fmt_axisText()` computes automatic justification for each Cartesian axis side,
   handles full turns consistently and retains explicitly supplied justification.
 

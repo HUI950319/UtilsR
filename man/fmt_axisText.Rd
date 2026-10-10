@@ -21,41 +21,42 @@ fmt_axisText(
 \arguments{
 \item{plot}{A ggplot, patchwork, or list of ggplot objects.}
 
-\item{x}{Numeric. Rotation angle (degrees) for X-axis text.
+\item{x}{Finite numeric scalar. Rotation angle (degrees) for X-axis text.
 Common values: \code{45} (diagonal), \code{90} (vertical).
 Default \code{NULL} (no change).}
 
-\item{y}{Numeric. Rotation angle (degrees) for Y-axis text.
+\item{y}{Finite numeric scalar. Rotation angle (degrees) for Y-axis text.
 Default \code{NULL} (no change).}
 
-\item{x_hjust}{Numeric. Horizontal justification for X-axis text.
+\item{x_hjust}{Finite numeric scalar. Horizontal justification for X-axis text.
 Can be set without supplying \code{x}.
 Default \code{NULL}: automatic alignment follows the bottom or top axis side
 when \code{x} is supplied; otherwise the existing alignment is retained.}
 
-\item{x_vjust}{Numeric. Vertical justification for X-axis text.
+\item{x_vjust}{Finite numeric scalar. Vertical justification for X-axis text.
 Can be set without supplying \code{x}.
 Default \code{NULL}: automatic alignment follows the bottom or top axis side
 when \code{x} is supplied; otherwise the existing alignment is retained.}
 
-\item{y_hjust}{Numeric. Horizontal justification for Y-axis text.
+\item{y_hjust}{Finite numeric scalar. Horizontal justification for Y-axis text.
 Can be set without supplying \code{y}.
 Default \code{NULL}: automatic alignment follows the left or right axis side
 when \code{y} is supplied; otherwise the existing alignment is retained.}
 
-\item{y_vjust}{Numeric. Vertical justification for Y-axis text.
+\item{y_vjust}{Finite numeric scalar. Vertical justification for Y-axis text.
 Can be set without supplying \code{y}.
 Default \code{NULL}: automatic alignment follows the left or right axis side
 when \code{y} is supplied; otherwise the existing alignment is retained.}
 
-\item{size}{Numeric. Text size for both axes. Default \code{NULL}
-(no change).}
+\item{size}{Non-negative finite numeric scalar. Text size in points for both
+axes, or \code{\link[ggplot2:rel]{ggplot2::rel()}} relative to the parent axis text size.
+Default \code{NULL} (no change).}
 
-\item{color}{Character. Text color for both axes. Default \code{NULL}
-(no change).}
+\item{color}{One valid R color or numeric palette index for both axes.
+\code{NA} makes text transparent. Default \code{NULL} (no change).}
 
 \item{face}{Character. Font face (\code{"plain"}, \code{"bold"},
-\code{"italic"}, \code{"bold.italic"}). Default \code{NULL}
+\code{"italic"}, \code{"oblique"}, \code{"bold.italic"}). Default \code{NULL}
 (no change).}
 
 \item{...}{Additional arguments passed to [ggplot2::theme()].}
@@ -80,6 +81,7 @@ existing guide rotation is retained.
 Existing text element classes, including rich text elements, are retained.
 Automatic Cartesian alignment follows each rendered axis side and treats
 full turns periodically. Explicit justification takes precedence.
+Justification values may lie outside the usual 0--1 interval.
 }
 \examples{
 library(ggplot2)

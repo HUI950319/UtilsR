@@ -259,3 +259,35 @@ test_that("axis text automatic justification treats full turns periodically", {
                    c(labels[[2]]$hjust, labels[[2]]$vjust))
   }
 })
+
+test_that("axis text formatting reports invalid parameter names before rendering", {
+  p <- axis_text_plot()
+  for (name in c("x", "y", "x_hjust", "x_vjust", "y_hjust", "y_vjust", "size")) {
+    for (value in list(numeric(), c(1, 2), NA_real_, NaN, Inf, "45", TRUE)) {
+      expect_error(do.call(fmt_axisText, c(list(p), stats::setNames(list(value), name))),
+                     paste0("`", name, "`"), info = name)
+    }
+  }
+  expect_error(fmt_axisText(p, size = -1), "`size`")
+  for (value in list(character(), c("red", "blue"), "not-a-colour", list("red"), Inf)) {
+    expect_error(fmt_axisText(p, color = value), "`color`")
+  }
+  for (value in list(character(), c("plain", "bold"), "unknown", NA_character_, 5)) {
+    expect_error(fmt_axisText(p, face = value), "`face`")
+  }
+})
+
+test_that("axis text formatting retains valid boundary and relative values", {
+  p <- axis_text_plot()
+  q <- fmt_axisText(p, x = 405, x_hjust = -0.2, x_vjust = 1.2,
+                      size = 0, color = "transparent", face = "oblique")
+  expect_no_error(ggplot2::ggplotGrob(q))
+  expect_equal(axis_text_labels(q, "Alpha")$hjust, -0.2)
+  expect_equal(axis_text_labels(q, "Alpha")$vjust, 1.2)
+  expect_equal(axis_text_labels(q, "Alpha")$size, 0)
+  for (color in list(NA_character_, NA, 2)) {
+    expect_no_error(ggplot2::ggplotGrob(fmt_axisText(p, color = color)))
+  }
+  expect_equal(axis_text_labels(fmt_axisText(p, x = 45, size = ggplot2::rel(0.8)))$size,
+                 axis_text_labels(fmt_axisText(p, size = ggplot2::rel(0.8)))$size)
+})

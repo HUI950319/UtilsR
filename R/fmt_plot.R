@@ -2346,33 +2346,34 @@ fmt_text <- function(plot,
 #' axes, rotation angle, and text appearance.
 #'
 #' @param plot A ggplot, patchwork, or list of ggplot objects.
-#' @param x Numeric. Rotation angle (degrees) for X-axis text.
+#' @param x Finite numeric scalar. Rotation angle (degrees) for X-axis text.
 #'   Common values: \code{45} (diagonal), \code{90} (vertical).
 #'   Default \code{NULL} (no change).
-#' @param y Numeric. Rotation angle (degrees) for Y-axis text.
+#' @param y Finite numeric scalar. Rotation angle (degrees) for Y-axis text.
 #'   Default \code{NULL} (no change).
-#' @param x_hjust Numeric. Horizontal justification for X-axis text.
+#' @param x_hjust Finite numeric scalar. Horizontal justification for X-axis text.
 #'   Can be set without supplying `x`.
 #'   Default \code{NULL}: automatic alignment follows the bottom or top axis side
 #'   when `x` is supplied; otherwise the existing alignment is retained.
-#' @param x_vjust Numeric. Vertical justification for X-axis text.
+#' @param x_vjust Finite numeric scalar. Vertical justification for X-axis text.
 #'   Can be set without supplying `x`.
 #'   Default \code{NULL}: automatic alignment follows the bottom or top axis side
 #'   when `x` is supplied; otherwise the existing alignment is retained.
-#' @param y_hjust Numeric. Horizontal justification for Y-axis text.
+#' @param y_hjust Finite numeric scalar. Horizontal justification for Y-axis text.
 #'   Can be set without supplying `y`.
 #'   Default \code{NULL}: automatic alignment follows the left or right axis side
 #'   when `y` is supplied; otherwise the existing alignment is retained.
-#' @param y_vjust Numeric. Vertical justification for Y-axis text.
+#' @param y_vjust Finite numeric scalar. Vertical justification for Y-axis text.
 #'   Can be set without supplying `y`.
 #'   Default \code{NULL}: automatic alignment follows the left or right axis side
 #'   when `y` is supplied; otherwise the existing alignment is retained.
-#' @param size Numeric. Text size for both axes. Default \code{NULL}
-#'   (no change).
-#' @param color Character. Text color for both axes. Default \code{NULL}
-#'   (no change).
+#' @param size Non-negative finite numeric scalar. Text size in points for both
+#'   axes, or [ggplot2::rel()] relative to the parent axis text size.
+#'   Default \code{NULL} (no change).
+#' @param color One valid R color or numeric palette index for both axes.
+#'   `NA` makes text transparent. Default \code{NULL} (no change).
 #' @param face Character. Font face (\code{"plain"}, \code{"bold"},
-#'   \code{"italic"}, \code{"bold.italic"}). Default \code{NULL}
+#'   \code{"italic"}, \code{"oblique"}, \code{"bold.italic"}). Default \code{NULL}
 #'   (no change).
 #' @param ... Additional arguments passed to [ggplot2::theme()].
 #'
@@ -2387,6 +2388,7 @@ fmt_text <- function(plot,
 #'   Existing text element classes, including rich text elements, are retained.
 #'   Automatic Cartesian alignment follows each rendered axis side and treats
 #'   full turns periodically. Explicit justification takes precedence.
+#'   Justification values may lie outside the usual 0--1 interval.
 #'
 #' @return Same type as input.
 #'
@@ -2419,6 +2421,32 @@ fmt_axisText <- function(plot,
                      color = NULL,
                      face = NULL,
                      ...) {
+
+  values <- list(x = x, y = y, x_hjust = x_hjust, x_vjust = x_vjust,
+                   y_hjust = y_hjust, y_vjust = y_vjust, size = size)
+  for (name in names(values)) {
+    value <- values[[name]]
+    if (!is.null(value) && (!is.numeric(value) || length(value) != 1L ||
+        !is.null(dim(value)) || !is.finite(value))) {
+      stop(sprintf("`%s` must be NULL or a finite numeric scalar.", name), call. = FALSE)
+    }
+  }
+  if (!is.null(size) && size < 0) {
+    stop("`size` must be non-negative.", call. = FALSE)
+  }
+  if (!is.null(color) && (!(is.character(color) || is.numeric(color) ||
+      identical(color, NA)) || length(color) != 1L || !is.null(dim(color)) ||
+      (is.numeric(color) && !is.na(color) && !is.finite(color)) ||
+      !tryCatch({ grDevices::col2rgb(color); TRUE }, error = function(e) FALSE,
+                  warning = function(w) FALSE))) {
+    stop("`color` must be NULL or one valid R color, palette index or NA.", call. = FALSE)
+  }
+  if (!is.null(face) && (!is.character(face) || length(face) != 1L ||
+      !is.null(dim(face)) || is.na(face) ||
+      !face %in% c("plain", "bold", "italic", "oblique", "bold.italic"))) {
+    stop("`face` must be NULL or one of plain, bold, italic, oblique or bold.italic.",
+         call. = FALSE)
+  }
 
   # ---- Auto-compute hjust/vjust for rotated text ----
   auto_just <- function(angle, hjust, vjust, side = "bottom") {
@@ -2495,6 +2523,9 @@ fmt_axisText <- function(plot,
           if (inherits(element$size, "rel")) element$size <- ggplot2::rel(1)
         }
         element_fields <- fields
+        if (inherits(fields$size, "rel") && name != parent) {
+          element_fields$size <- ggplot2::rel(1)
+        }
         just <- auto_just(fields$angle, if (axis == "x") x_hjust else y_hjust,
                             if (axis == "x") x_vjust else y_vjust, side)
         if (!is.null(just$hjust)) element_fields$hjust <- just$hjust
