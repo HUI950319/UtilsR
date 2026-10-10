@@ -114,10 +114,11 @@ adapts `GuideAxis` objects and the default `"axis"` guide. Tile
 positions follow each panel's trained scale and expansion, including
 free facets. Existing guide settings, axis titles and scale labels are
 retained. Rich-text axis elements retain their class, markup and layout
-properties. Editable leaves in nested patchworks and named lists are
-formatted while layouts, annotations, fixed graphics and inset overlays
-are preserved. Repeated calls update the formatting and can switch
-between modes. Subsequent calls to
+properties. In patchworks, color strips are collected together with
+matching axis guides. Editable leaves in nested patchworks and named
+lists are formatted while layouts, annotations, fixed graphics and inset
+overlays are preserved. Repeated calls update the formatting and can
+switch between modes. Subsequent calls to
 [`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md)
 or
 [`fmt_axisText()`](https://hui950319.github.io/UtilsR/reference/fmt_axisText.md)
