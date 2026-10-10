@@ -16,10 +16,13 @@
 #'   using sequential HCL palettes.
 #' @param reverse_levels Logical, reverse factor levels for display.
 #'   Default \code{TRUE}.
-#' @param show_text Character. Controls node label content:
+#' @param show_text Single character string. Controls node label content:
 #'   \itemize{
 #'     \item \code{"all"} (default) — name + count + percentage, e.g.
 #'       \code{"A (10, 30.3\%)"}.
+#'     \item \code{"all_wrap"} — name on the first line, with count and
+#'       percentage together on the second line, e.g. \code{"A"} above
+#'       \code{"(10, 30.3\%)"}.
 #'     \item \code{"n"} — name + count, e.g. \code{"A (10)"}.
 #'     \item \code{"pct"} — name + percentage, e.g. \code{"A (30.3\%)"}.
 #'     \item \code{"name"} — name only, e.g. \code{"A"}.
@@ -38,7 +41,7 @@
 #' @note Requires the \pkg{ggsankey} package
 #'   (\code{pak::pak("davidsjoberg/ggsankey")}).
 #'
-#' @examples
+#' @examplesIf requireNamespace("ggsankey", quietly = TRUE)
 #' df <- data.frame(
 #'   sex = factor(sample(c("M","F"), 200, TRUE)),
 #'   stage = factor(sample(c("I","II","III"), 200, TRUE)),
@@ -55,7 +58,10 @@
 #' plt_sankey(df, vars = c("sex", "stage"), palette = "Paired")
 #'
 #' # Without counts in labels
-#' plt_sankey(df, vars = c("sex", "stage", "grade"), show_n = FALSE)
+#' plt_sankey(df, vars = c("sex", "stage", "grade"), show_text = "pct")
+#'
+#' # Count and percentage on the second line
+#' plt_sankey(df, vars = c("sex", "stage", "grade"), show_text = "all_wrap")
 #'
 #' # Adjust appearance
 #' plt_sankey(df, vars = c("sex", "stage"),
@@ -67,7 +73,7 @@ plt_sankey <- function(data,
                        vars,
                        palette = NULL,
                        reverse_levels = TRUE,
-                       show_text = c("all", "n", "pct", "name"),
+                       show_text = c("all", "n", "pct", "name", "all_wrap"),
                        width = 0.4,
                        space = NULL,
                        label_size = 3,
@@ -112,6 +118,7 @@ plt_sankey <- function(data,
       dplyr::ungroup()
     data[[lv]] <- switch(show_text,
       "all"  = sprintf("%s (%s, %s)", data[[v]], data$.n, data$.pct),
+      "all_wrap" = sprintf("%s\n(%s, %s)", data[[v]], data$.n, data$.pct),
       "n"    = sprintf("%s (%s)", data[[v]], data$.n),
       "pct"  = sprintf("%s (%s)", data[[v]], data$.pct),
       "name" = as.character(data[[v]])

@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `plt_sankey()` supports `show_text = "all_wrap"` to place the node name
+  on the first line and the count and percentage together on the second line.
+  The default `"all"` and existing label styles retain their single-line output.
+
 * `fmt_axis()` hides explicitly styled radial text, major/minor ticks and tick
   lengths, including local guides and secondary axes. In radial plots, `x.axis`
   selects theta and `y.axis` selects r, following ggplot2 theme inheritance for

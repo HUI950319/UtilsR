@@ -9,7 +9,7 @@ plt_sankey(
   vars,
   palette = NULL,
   reverse_levels = TRUE,
-  show_text = c("all", "n", "pct", "name"),
+  show_text = c("all", "n", "pct", "name", "all_wrap"),
   width = 0.4,
   space = NULL,
   label_size = 3,
@@ -31,10 +31,13 @@ using sequential HCL palettes.}
 \item{reverse_levels}{Logical, reverse factor levels for display.
 Default \code{TRUE}.}
 
-\item{show_text}{Character. Controls node label content:
+\item{show_text}{Single character string. Controls node label content:
 \itemize{
   \item \code{"all"} (default) — name + count + percentage, e.g.
     \code{"A (10, 30.3\%)"}.
+  \item \code{"all_wrap"} — name on the first line, with count and
+    percentage together on the second line, e.g. \code{"A"} above
+    \code{"(10, 30.3\%)"}.
   \item \code{"n"} — name + count, e.g. \code{"A (10)"}.
   \item \code{"pct"} — name + percentage, e.g. \code{"A (30.3\%)"}.
   \item \code{"name"} — name only, e.g. \code{"A"}.
@@ -67,6 +70,7 @@ Requires the \pkg{ggsankey} package
   (\code{pak::pak("davidsjoberg/ggsankey")}).
 }
 \examples{
+\dontshow{if (requireNamespace("ggsankey", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 df <- data.frame(
   sex = factor(sample(c("M","F"), 200, TRUE)),
   stage = factor(sample(c("I","II","III"), 200, TRUE)),
@@ -83,12 +87,15 @@ plt_sankey(df, vars = c("sex", "stage"))
 plt_sankey(df, vars = c("sex", "stage"), palette = "Paired")
 
 # Without counts in labels
-plt_sankey(df, vars = c("sex", "stage", "grade"), show_n = FALSE)
+plt_sankey(df, vars = c("sex", "stage", "grade"), show_text = "pct")
+
+# Count and percentage on the second line
+plt_sankey(df, vars = c("sex", "stage", "grade"), show_text = "all_wrap")
 
 # Adjust appearance
 plt_sankey(df, vars = c("sex", "stage"),
            width = 0.3, label_size = 4, alpha = 0.4)
-
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other plot:
