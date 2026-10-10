@@ -228,6 +228,46 @@ test_that("axis text formatting retains rich text elements and hidden parents", 
                  axis_text_labels(input)$size)
 })
 
+test_that("axis guides retain rich text inherited from the plot theme", {
+  skip_if_not_installed("ggtext")
+  element <- ggtext::element_markdown(size = ggplot2::rel(0.8),
+    padding = ggplot2::margin(1, 2, 3, 4), lineheight = 1.4)
+  for (name in c("axis.text.x", "axis.text.x.bottom")) {
+    p <- axis_text_plot() + do.call(ggplot2::theme,
+      stats::setNames(list(element), name))
+    for (guide in list(ggplot2::guide_axis(angle = 90),
+      ggplot2::guide_axis(theme = ggplot2::theme(
+        axis.ticks = ggplot2::element_line(colour = "red"))))) {
+      original <- guide$params
+      numeric_angle <- is.numeric(original$angle)
+      input <- p + ggplot2::guides(x = guide)
+      original_text <- input$theme[[name]]
+      expect_no_error(ggplot2::ggplotGrob(input))
+      output <- if (!numeric_angle) fmt_axisText(input, x = 45) else
+        fmt_axisText(input, x_hjust = 0.2)
+      formatted <- output$guides$guides$x$params
+      text <- ggplot2::calc_element("axis.text.x.bottom",
+        output$theme + formatted$theme)
+      expect_s3_class(text, "element_markdown")
+      expect_identical(text$padding, element$padding)
+      expect_equal(text$lineheight, 1.4)
+      expect_equal(text$angle, if (!numeric_angle) 45 else 90)
+      if (numeric_angle) {
+        expect_equal(text$hjust, 0.2)
+        expect_null(formatted$angle)
+      } else {
+        expect_identical(formatted$theme$axis.ticks, original$theme$axis.ticks)
+      }
+      expect_equal(axis_text_labels(output)$size, axis_text_labels(input)$size)
+      expect_identical(guide$params, original)
+      expect_identical(input$theme[[name]], original_text)
+    }
+    input <- p + ggplot2::scale_x_discrete(guide = ggplot2::guide_axis(angle = 90))
+    output <- fmt_axisText(input, x_hjust = 0.2)
+    expect_equal(axis_text_labels(output)$size, axis_text_labels(input)$size)
+  }
+})
+
 test_that("axis text automatic justification follows each Cartesian axis side", {
   for (side in c("bottom", "top", "left", "right")) {
     axis <- if (side %in% c("bottom", "top")) "x" else "y"

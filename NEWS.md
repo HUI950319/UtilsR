@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_axisText()` retains plot-level rich text when updating guide rotations
+  or local guide themes, including guides configured on scales. Inherited
+  text properties, relative sizes and caller-owned guides are preserved.
+
 * `fmt_axisTile()` preserves rich-text axis element classes and layout settings,
   avoiding incompatible element merges. Text-mode colors follow each rich label's
   axis position rather than its internal text fragment coordinates.

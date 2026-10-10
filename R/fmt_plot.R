@@ -2388,6 +2388,7 @@ fmt_text <- function(plot,
 #'   Guide-local themes and rotation settings are updated without modifying the
 #'   original guides or their other settings. With justification alone, an
 #'   existing guide rotation is retained.
+#'   Guide formatting retains text classes inherited from the plot theme.
 #'   Existing text element classes, including rich text elements, are retained.
 #'   Automatic Cartesian alignment follows each rendered axis side and treats
 #'   full turns periodically. Explicit justification takes precedence.
@@ -2569,7 +2570,7 @@ fmt_axisText <- function(plot,
     output <- do.call(ggplot2::theme, args)
     if (is.null(extra)) output else output + extra
   }
-  format_guide <- function(guide, axis) {
+  format_guide <- function(guide, axis, plot_theme) {
     if (!inherits(guide, "GuideAxis")) return(guide)
     fields <- if (axis == "x") x_args else y_args
     params <- guide$params
@@ -2578,7 +2579,8 @@ fmt_axisText <- function(plot,
     if (is.null(params$theme) && !reset_angle) return(guide)
     angle <- if (reset_angle && is.null(fields$angle)) params$angle else NULL
     theme <- if (is.null(params$theme)) ggplot2::theme() else params$theme
-    params$theme <- theme + text_theme_for(theme, axes = axis, guide_angle = angle)
+    params$theme <- theme + text_theme_for(plot_theme + theme,
+                                           axes = axis, guide_angle = angle)
     if (reset_angle) params$angle <- NULL
     ggplot2::ggproto(NULL, guide, params = params)
   }
@@ -2596,7 +2598,7 @@ fmt_axisText <- function(plot,
       for (axis in axes) {
         for (name in intersect(c(guide_axes[[axis]], paste0(guide_axes[[axis]], ".sec")),
                                 names(guides))) {
-          guides[[name]] <- format_guide(guides[[name]], axis)
+          guides[[name]] <- format_guide(guides[[name]], axis, p$theme)
         }
       }
       if (!identical(guides, p$guides$guides)) {
@@ -2609,9 +2611,10 @@ fmt_axisText <- function(plot,
       selected <- axes[scale_axes %in% scale$aesthetics]
       if (!length(selected)) return(scale)
       axis <- selected[1L]
-      guide <- format_guide(scale$guide, axis)
+      guide <- format_guide(scale$guide, axis, p$theme)
       secondary <- scale$secondary.axis
-      secondary_guide <- if (!is.null(secondary)) format_guide(secondary$guide, axis) else NULL
+      secondary_guide <- if (!is.null(secondary))
+        format_guide(secondary$guide, axis, p$theme) else NULL
       if (identical(guide, scale$guide) &&
           identical(secondary_guide, if (!is.null(secondary)) secondary$guide else NULL)) {
         return(scale)
