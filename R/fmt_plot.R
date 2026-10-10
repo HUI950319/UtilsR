@@ -2652,7 +2652,8 @@ fmt_axisText <- function(plot,
 #'   Required; names must be unique and non-empty. Missing colors use
 #'   \code{"grey70"} in tile mode or \code{text_color} in text mode.
 #' @param mode \code{"tile"} (default) or \code{"text"}.
-#' @param axis Which axis to apply to: \code{"x"} (default) or \code{"y"}.
+#' @param axis Physical axis to apply to: \code{"x"} (horizontal, default) or
+#'   \code{"y"} (vertical), including after \code{coord_flip()}.
 #' @param tile_height Positive finite numeric. Relative height of the tile strip when
 #'   \code{axis = "x"}, as a fraction of the main panel height. Default 0.06.
 #' @param tile_width Positive finite numeric. Relative width of the tile strip when
@@ -2755,21 +2756,33 @@ fmt_axisTile <- function(plot,
 
   info <- .to_plot_list(plot, recurse = TRUE)
   format_one <- function(p) {
-    if (is.data.frame(p$data) && nrow(p$data) == 0L) return(p)
+    if (!inherits(p$coordinates, "CoordCartesian")) {
+      cli::cli_abort("fmt_axisTile() supports Cartesian coordinates only, including coord_flip().")
+    }
+    if (is.data.frame(p$data) && nrow(p$data) == 0L &&
+        all(vapply(p$layers, function(layer) {
+          is.null(layer$data) || inherits(layer$data, "waiver") ||
+            is.data.frame(layer$data) && nrow(layer$data) == 0L
+        }, logical(1)))) return(p)
     original <- p$guides$guides[[axis]]
-    scale <- p$scales$get_scales(axis)
+    scale_axis <- if (inherits(p$coordinates, "CoordFlip")) {
+      if (axis == "x") "y" else "x"
+    } else axis
+    scale <- p$scales$get_scales(scale_axis)
     if (is.null(original) && !is.null(scale)) original <- scale$guide
     if (inherits(original, "AxisTileGuide")) {
       params <- original$params
       params$axis_tile <- NULL
       original <- do.call(ggplot2::ggproto, list(NULL, original$axis_tile_parent, params = params))
     }
+    if (identical(original, "none") || inherits(original, "GuideNone")) return(p)
     if (!inherits(original, "GuideAxis")) original <- ggplot2::guide_axis()
     guide <- .axis_tile_guide(original, list(
       colors = colors, mode = mode, tile_height = tile_height, tile_width = tile_width,
       tile_border = tile_border, tile_border_width = tile_border_width,
       text_size = text_size, text_face = text_face, text_angle = text_angle,
-      text_color = text_color, show_text = show_text
+      text_color = text_color, show_text = show_text,
+      theme = ggplot2::theme_get() + p$theme
     ))
     p <- p + do.call(ggplot2::guides, stats::setNames(list(guide), axis))
     facet <- p$facet
@@ -2846,17 +2859,48 @@ fmt_axisTile <- function(plot,
       ggplot2::ggproto_parent(parent, self)$draw(theme, position, direction, params)
     },
     override_elements = function(params, elements, theme) {
+      params$angle <- settings$text_angle
       elements <- parent$override_elements(params, elements, theme)
+      active <- theme
+      baseline <- settings$theme
+      if (!is.null(params$theme)) active <- active + params$theme
+      if (!is.null(parent$params$theme)) baseline <- baseline + parent$params$theme
+      axis <- if (params$vertical) "y" else "x"
+      if (settings$mode == "tile" && inherits(elements$ticks, "element_blank")) {
+        tick_names <- c("axis.ticks", paste0("axis.ticks.", axis),
+                          paste0("axis.ticks.", axis, ".", params$position))
+        elements$fmt_hide_tiles <- any(vapply(tick_names, function(name) {
+          !identical(active[[name]], baseline[[name]])
+        }, logical(1)))
+      }
       if (settings$show_text) {
         angle <- settings$text_angle
-        vertical <- params$vertical
         text <- ggplot2::element_text(
           colour = settings$text_color, size = settings$text_size, face = settings$text_face,
-          angle = angle, hjust = if (vertical) 1 else if (angle > 0) 1 else if (angle < 0) 0 else 0.5,
-          vjust = if (abs(angle) >= 90 || vertical) 0.5 else 1, inherit.blank = FALSE
+          angle = angle, inherit.blank = FALSE
         )
+        text_names <- c("axis.text", paste0("axis.text.", axis),
+                          paste0("axis.text.", axis, ".", params$position))
+        blank_changed <- FALSE
+        for (name in text_names) {
+          updated <- active[[name]]
+          previous <- baseline[[name]]
+          if (identical(updated, previous)) next
+          if (inherits(updated, "element_blank")) blank_changed <- TRUE
+          if (!inherits(updated, "element_text")) next
+          for (field in c("colour", "size", "face", "angle", "hjust", "vjust")) {
+            value <- updated[[field]]
+            old <- if (inherits(previous, "element_text")) previous[[field]] else NULL
+            if (!is.null(value) && !identical(value, old)) {
+              text[[field]] <- value
+              if (field == "colour") elements$fmt_colour_override <- TRUE
+            }
+          }
+        }
         inherited <- elements$text
-        if (inherits(inherited, "element_blank")) {
+        if (blank_changed && inherits(inherited, "element_blank")) {
+          text <- inherited
+        } else if (inherits(inherited, "element_blank")) {
           inherited <- ggplot2::calc_element("axis.text", ggplot2::theme_gray())
         }
         elements$text <- ggplot2::merge_element(text, inherited)
@@ -2869,6 +2913,7 @@ fmt_axisTile <- function(plot,
     },
     build_ticks = function(key, elements, params, ...) {
       if (settings$mode != "tile") return(parent$build_ticks(key, elements, params, ...))
+      if (isTRUE(elements$fmt_hide_tiles)) return(grid::nullGrob())
       low <- pmax(0, pmin(key$.fmt_lower, key$.fmt_upper))
       high <- pmin(1, pmax(key$.fmt_lower, key$.fmt_upper))
       keep <- is.finite(low) & is.finite(high) & high > low
@@ -2892,7 +2937,8 @@ fmt_axisTile <- function(plot,
     build_labels = function(key, elements, params) {
       if (settings$mode == "tile") key <- key[key$.fmt_label, , drop = FALSE]
       labels <- parent$build_labels(key, elements, params)
-      if (settings$mode != "text" || !settings$show_text || !nrow(key)) return(labels)
+      if (settings$mode != "text" || !settings$show_text || !nrow(key) ||
+          isTRUE(elements$fmt_colour_override)) return(labels)
       fill <- unname(settings$colors[as.character(key$.value)])
       fill[is.na(fill)] <- settings$text_color
       color_labels <- function(g) {

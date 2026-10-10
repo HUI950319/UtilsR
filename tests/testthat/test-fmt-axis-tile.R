@@ -9,7 +9,10 @@ axis_tile_colors <- c(A = "#E64B35", B = "#4DBBD5", C = "#00A087")
 axis_tile_text <- function(g) {
   result <- if (inherits(g, "text")) {
     data.frame(label = as.character(g$label),
-               colour = rep_len(if (is.null(g$gp$col)) NA_character_ else g$gp$col, length(g$label)))
+               colour = rep_len(if (is.null(g$gp$col)) NA_character_ else g$gp$col, length(g$label)),
+               hjust = rep_len(if (is.null(g$hjust)) NA_real_ else g$hjust, length(g$label)),
+               vjust = rep_len(if (is.null(g$vjust)) NA_real_ else g$vjust, length(g$label)),
+               angle = rep_len(if (is.null(g$rot)) NA_real_ else g$rot, length(g$label)))
   } else NULL
   children <- if (inherits(g, "gtable")) g$grobs else g$children
   result <- do.call(rbind, c(list(result), lapply(children, axis_tile_text)))
@@ -163,6 +166,69 @@ test_that("repeated axis formatting updates guides without nesting or duplicate 
   }
 })
 
+test_that("axis tiles respect physical sides and preserve existing guide controls", {
+  p <- axis_tile_plot()
+  right <- ggplot2::ggplot(p$data, ggplot2::aes(value, category)) +
+    ggplot2::geom_col(orientation = "y") + ggplot2::scale_y_discrete(position = "right")
+  cases <- list(
+    list(p + ggplot2::coord_flip(), "y", "axis-l"),
+    list(p + ggplot2::scale_x_discrete(position = "top"), "x", "axis-t"),
+    list(right, "y", "axis-r")
+  )
+  for (case in cases) {
+    q <- fmt_axisTile(case[[1]], axis_tile_colors, axis = case[[2]])
+    g <- ggplot2::ggplotGrob(q[[1]])
+    name <- sub("axis-", "panel-axis-tile-", case[[3]])
+    rects <- axis_tile_rects(g$grobs[[match(name, g$layout$name)]])
+    expect_equal(rects$fill, unname(axis_tile_colors))
+    labels <- axis_tile_text(g$grobs[[match(case[[3]], g$layout$name)]])
+    reference <- case[[1]] + do.call(ggplot2::guides, stats::setNames(
+      list(ggplot2::guide_axis(angle = if (case[[2]] == "x") 45 else 0)), case[[2]]))
+    reference <- ggplot2::ggplotGrob(reference)
+    expected <- axis_tile_text(reference$grobs[[match(case[[3]], reference$layout$name)]])
+    expect_equal(labels$hjust, expected$hjust)
+    expect_equal(labels$vjust, expected$vjust)
+  }
+  original <- ggplot2::guide_axis(n.dodge = 2, check.overlap = TRUE,
+    theme = ggplot2::theme(axis.text = ggplot2::element_text(family = "mono")))
+  params <- original$params
+  p <- p + ggplot2::scale_x_discrete(guide = original) + ggplot2::coord_flip()
+  q <- fmt_axisTile(p, axis_tile_colors, axis = "y")
+  expect_equal(q[[1]]$guides$guides$y$params$n.dodge, 2)
+  expect_identical(q[[1]]$guides$guides$y$params$check.overlap, TRUE)
+  expect_identical(original$params, params)
+  expect_no_error(patchwork::patchworkGrob(q))
+})
+
+test_that("axis tiles leave disabled and continuous axes visually unchanged", {
+  p <- axis_tile_plot() + ggplot2::scale_x_discrete(guide = "none")
+  for (mode in c("tile", "text")) {
+    q <- fmt_axisTile(p, axis_tile_colors, mode = mode)
+    expect_true(identical(q, p))
+  }
+  p <- ggplot2::ggplot(data.frame(x = 1:4, y = 4:1), ggplot2::aes(x, y)) +
+    ggplot2::geom_point() + ggplot2::labs(x = "CONTINUOUS")
+  before <- axis_tile_text(ggplot2::ggplotGrob(p))
+  for (mode in c("tile", "text")) {
+    q <- fmt_axisTile(p, axis_tile_colors, mode = mode)
+    leaf <- if (inherits(q, "patchwork")) q[[1]] else q
+    expect_equal(axis_tile_text(ggplot2::ggplotGrob(leaf)), before)
+    expect_equal(ggplot2::ggplot_build(leaf)$data, ggplot2::ggplot_build(p)$data)
+  }
+})
+
+test_that("axis tiles use non-empty layer data and reject unsupported coordinates", {
+  p <- ggplot2::ggplot(data.frame(category = character(), value = numeric())) +
+    ggplot2::geom_col(data = axis_tile_plot()$data, ggplot2::aes(category, value))
+  q <- fmt_axisTile(p, axis_tile_colors)
+  expect_equal(axis_tile_rects(patchwork::patchworkGrob(q))$fill, unname(axis_tile_colors))
+  for (mode in c("tile", "text")) {
+    for (coord in list(ggplot2::coord_polar(), ggplot2::coord_radial())) {
+      expect_error(fmt_axisTile(axis_tile_plot() + coord, axis_tile_colors, mode = mode),
+                     "Cartesian")
+    }
+  }
+})
 
 test_that("axis tile positions follow each facet's trained expansion and statistics", {
   dat <- data.frame(category = factor(c("A", "B", "A", "C")),
@@ -208,4 +274,20 @@ test_that("axis tile thickness retains panel proportions and independent axis mo
   expect_equal(nrow(axis_tile_rects(patchwork::patchworkGrob(mixed))), 3L)
   text <- fmt_axisTile(mixed, axis_tile_colors, mode = "text")
   expect_null(axis_tile_rects(patchwork::patchworkGrob(text)))
+})
+
+test_that("later axis formatters can hide and restyle colored guides", {
+  for (mode in c("tile", "text")) {
+    q <- fmt_axisTile(axis_tile_plot(), axis_tile_colors, mode = mode)
+    hidden <- fmt_axis(q, x.axis = TRUE)
+    g <- if (inherits(hidden, "patchwork")) patchwork::patchworkGrob(hidden) else ggplot2::ggplotGrob(hidden)
+    expect_false(any(axis_tile_text(g)$label %in% c("A", "B", "C")))
+    expect_null(axis_tile_rects(g))
+    rotated <- fmt_axisText(q, x = 90, color = "black")
+    g <- if (inherits(rotated, "patchwork")) patchwork::patchworkGrob(rotated) else ggplot2::ggplotGrob(rotated)
+    labels <- axis_tile_text(g)
+    index <- match(c("A", "B", "C"), labels$label)
+    expect_equal(labels$angle[index], rep(90, 3))
+    expect_equal(labels$colour[index], rep("black", 3))
+  }
 })

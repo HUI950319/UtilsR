@@ -1,5 +1,10 @@
 # UtilsR 0.6.8
 
+* `fmt_axisTile()` respects physical axis sides, retains scale-guide controls
+  after coordinate flipping, leaves disabled guides and continuous labels intact,
+  uses non-empty layer data even with an empty global data frame, and reports
+  unsupported non-Cartesian coordinates explicitly.
+
 * `fmt_axisTile()` visits editable leaves in nested patchworks and named lists,
   retains layouts, annotations, freed alignment, fixed graphics and insets,
   and supports repeated calls and switching modes without nesting tile strips.

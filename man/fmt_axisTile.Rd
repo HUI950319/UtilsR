@@ -30,7 +30,8 @@ Required; names must be unique and non-empty. Missing colors use
 
 \item{mode}{\code{"tile"} (default) or \code{"text"}.}
 
-\item{axis}{Which axis to apply to: \code{"x"} (default) or \code{"y"}.}
+\item{axis}{Physical axis to apply to: \code{"x"} (horizontal, default) or
+\code{"y"} (vertical), including after \code{coord_flip()}.}
 
 \item{tile_height}{Positive finite numeric. Relative height of the tile strip when
 \code{axis = "x"}, as a fraction of the main panel height. Default 0.06.}
