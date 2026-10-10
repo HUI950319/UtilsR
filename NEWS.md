@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_axisTile()` validates named color maps and scalar styling arguments,
+  uses the intended fallback colors for missing categories, honors `show_text`
+  in both modes, and leaves empty data plots unchanged.
+
 * `plt_sankey()` supports `show_text = "all_wrap"` to place the node name
   on the first line and the count and percentage together on the second line.
   The default `"all"` and existing label styles retain their single-line output.

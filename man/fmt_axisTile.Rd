@@ -25,33 +25,35 @@ fmt_axisTile(
 
 \item{colors}{Named character vector of colors, where names match the
 discrete axis levels (e.g. \code{c(setosa = "red", virginica = "blue")}).
-Required.}
+Required; names must be unique and non-empty. Missing colors use
+\code{"grey70"} in tile mode or \code{text_color} in text mode.}
 
 \item{mode}{\code{"tile"} (default) or \code{"text"}.}
 
 \item{axis}{Which axis to apply to: \code{"x"} (default) or \code{"y"}.}
 
-\item{tile_height}{Numeric. Relative height of the tile strip when
+\item{tile_height}{Positive finite numeric. Relative height of the tile strip when
 \code{axis = "x"}. Default 0.06.}
 
-\item{tile_width}{Numeric. Relative width of the tile strip when
+\item{tile_width}{Positive finite numeric. Relative width of the tile strip when
 \code{axis = "y"}. Default 0.06.}
 
 \item{tile_border}{Color of tile borders. Default \code{"white"}.}
 
-\item{tile_border_width}{Line width of tile borders. Default 0.2.}
+\item{tile_border_width}{Non-negative finite line width of tile borders. Default 0.2.}
 
-\item{text_size}{Size of axis text labels below/beside tiles. Default 9.}
+\item{text_size}{Positive finite size of axis text labels below/beside tiles. Default 9.}
 
-\item{text_face}{Font face of axis text labels. Default \code{"plain"}.}
+\item{text_face}{Font face name or number from 1 to 5. Default \code{"plain"}.}
 
 \item{text_angle}{Rotation angle for axis text labels. Default \code{45}
 for x-axis, \code{0} for y-axis.}
 
-\item{text_color}{Color of axis text labels. Default \code{"black"}.}
+\item{text_color}{Color of tile-mode labels and fallback for unmatched
+text-mode labels. Default \code{"black"}.}
 
 \item{show_text}{Logical. Show text labels below/beside tiles?
-Default \code{TRUE}. Set \code{FALSE} for color-only tiles.}
+Default \code{TRUE}. Set \code{FALSE} to hide labels in either mode.}
 }
 \value{
 A patchwork object (when \code{mode = "tile"}) or same type as

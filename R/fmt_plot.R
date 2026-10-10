@@ -2480,22 +2480,24 @@ fmt_axisText <- function(plot,
 #' @param plot A ggplot, patchwork, or list of ggplot objects.
 #' @param colors Named character vector of colors, where names match the
 #'   discrete axis levels (e.g. \code{c(setosa = "red", virginica = "blue")}).
-#'   Required.
+#'   Required; names must be unique and non-empty. Missing colors use
+#'   \code{"grey70"} in tile mode or \code{text_color} in text mode.
 #' @param mode \code{"tile"} (default) or \code{"text"}.
 #' @param axis Which axis to apply to: \code{"x"} (default) or \code{"y"}.
-#' @param tile_height Numeric. Relative height of the tile strip when
+#' @param tile_height Positive finite numeric. Relative height of the tile strip when
 #'   \code{axis = "x"}. Default 0.06.
-#' @param tile_width Numeric. Relative width of the tile strip when
+#' @param tile_width Positive finite numeric. Relative width of the tile strip when
 #'   \code{axis = "y"}. Default 0.06.
 #' @param tile_border Color of tile borders. Default \code{"white"}.
-#' @param tile_border_width Line width of tile borders. Default 0.2.
-#' @param text_size Size of axis text labels below/beside tiles. Default 9.
-#' @param text_face Font face of axis text labels. Default \code{"plain"}.
+#' @param tile_border_width Non-negative finite line width of tile borders. Default 0.2.
+#' @param text_size Positive finite size of axis text labels below/beside tiles. Default 9.
+#' @param text_face Font face name or number from 1 to 5. Default \code{"plain"}.
 #' @param text_angle Rotation angle for axis text labels. Default \code{45}
 #'   for x-axis, \code{0} for y-axis.
-#' @param text_color Color of axis text labels. Default \code{"black"}.
+#' @param text_color Color of tile-mode labels and fallback for unmatched
+#'   text-mode labels. Default \code{"black"}.
 #' @param show_text Logical. Show text labels below/beside tiles?
-#'   Default \code{TRUE}. Set \code{FALSE} for color-only tiles.
+#'   Default \code{TRUE}. Set \code{FALSE} to hide labels in either mode.
 #'
 #' @return A patchwork object (when \code{mode = "tile"}) or same type as
 #'   input (when \code{mode = "text"}).
@@ -2540,6 +2542,44 @@ fmt_axisTile <- function(plot,
   mode <- match.arg(mode)
   axis <- match.arg(axis)
 
+  if (!is.character(colors) || !length(colors) || is.null(names(colors)) ||
+      anyNA(names(colors)) || any(!nzchar(trimws(names(colors)))) ||
+      anyDuplicated(names(colors))) {
+    cli::cli_abort("{.arg colors} must be a non-empty character vector with unique, non-empty names.")
+  }
+  colour_args <- list(colors = colors, tile_border = tile_border, text_color = text_color)
+  for (arg in names(colour_args)) {
+    value <- colour_args[[arg]]
+    if (arg != "colors" && (length(value) != 1L ||
+        !(is.character(value) || identical(value, NA)))) {
+      cli::cli_abort("{.arg {arg}} must be one valid R colour or NA.")
+    }
+    tryCatch(grDevices::col2rgb(value, alpha = TRUE), error = function(e) {
+      cli::cli_abort("{.arg {arg}} must contain valid R colours.", parent = e)
+    })
+  }
+  numeric_args <- list(tile_height = tile_height, tile_width = tile_width,
+                       tile_border_width = tile_border_width, text_size = text_size,
+                       text_angle = text_angle)
+  for (arg in names(numeric_args)) {
+    value <- numeric_args[[arg]]
+    if (arg == "text_angle" && is.null(value)) next
+    positive <- arg %in% c("tile_height", "tile_width", "text_size")
+    if (length(value) != 1L || !is.numeric(value) || is.complex(value) ||
+        is.object(value) || !is.finite(value) ||
+        (arg != "text_angle" && if (positive) value <= 0 else value < 0)) {
+      cli::cli_abort("{.arg {arg}} must be one finite numeric value{if (positive) ' greater than zero' else if (arg != 'text_angle') ' at least zero' else ''}.")
+    }
+  }
+  if (length(show_text) != 1L || !is.logical(show_text) || is.na(show_text)) {
+    cli::cli_abort("{.arg show_text} must be TRUE or FALSE.")
+  }
+  if (length(text_face) != 1L || is.na(text_face) ||
+      !(is.character(text_face) && text_face %in% c("plain", "bold", "italic", "bold.italic", "symbol") ||
+        is.numeric(text_face) && !is.complex(text_face) && text_face %in% 1:5)) {
+    cli::cli_abort("{.arg text_face} must be one valid font face name or number from 1 to 5.")
+  }
+
   # Default text_angle: 45 for x-axis, 0 for y-axis
   if (is.null(text_angle)) text_angle <- if (axis == "x") 45 else 0
 
@@ -2551,8 +2591,10 @@ fmt_axisTile <- function(plot,
     text_theme_fn <- function(p) {
       lvs <- .extract_discrete_levels(p, axis)
       if (is.null(lvs)) return(p)
-      col_vec <- colors[lvs]
-      col_vec[is.na(col_vec)] <- "black"
+      if (!show_text) return(p + do.call(ggplot2::theme,
+        stats::setNames(list(ggplot2::element_blank()), paste0("axis.text.", axis))))
+      col_vec <- colors[as.character(lvs)]
+      col_vec[is.na(col_vec)] <- text_color
       if (axis == "x") {
         hjust <- if (text_angle > 0) 1 else if (text_angle < 0) 0 else 0.5
         p + ggplot2::theme(axis.text.x = ggplot2::element_text(
@@ -2575,7 +2617,7 @@ fmt_axisTile <- function(plot,
       lbl = factor(lvs, levels = lvs),
       pos = 1
     )
-    col_use <- colors[lvs]
+    col_use <- stats::setNames(colors[as.character(lvs)], as.character(lvs))
     col_use[is.na(col_use)] <- "grey70"
 
     if (orientation == "x") {
@@ -2654,6 +2696,7 @@ fmt_axisTile <- function(plot,
 #' Extract discrete axis levels from a ggplot
 #' @noRd
 .extract_discrete_levels <- function(p, axis = "x") {
+  if (is.data.frame(p$data) && nrow(p$data) == 0L) return(NULL)
   mapping_var <- p$mapping[[axis]]
   if (is.null(mapping_var)) return(NULL)
   var_name <- rlang::as_name(mapping_var)
