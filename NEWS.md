@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_bg()` clips its background stripes to the panel when coordinate
+  clipping is disabled, preserving foreground annotations outside the panel.
+
 * `fmt_bg()` respects explicit discrete position scales when layers supply
   numeric mapped or fixed positions, including flipped coordinates.
 

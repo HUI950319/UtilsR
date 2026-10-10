@@ -3277,8 +3277,8 @@ fmt_com <- function(plot,
 #'   other panels have non-missing categories. Facet expressions, marginal
 #'   panels, flipped and polar
 #'   coordinates, radial bands and log-scaled continuous axes are supported.
-#'   Backgrounds retain the
-#'   plot's panel ranges, fill scales and legends.
+#'   Backgrounds retain the plot's panel ranges, fill scales and legends, and
+#'   stay clipped to the panel even when foreground clipping is disabled.
 #'
 #'   Nested data plots are formatted recursively. Patchwork layouts,
 #'   annotations and list names are retained; spacers, guide areas, inset
@@ -3421,6 +3421,7 @@ fmt_bg <- function(plot,
         rectangles[[paste0(bg_axis, "max")]] <- c(edges, Inf)
         rectangles$fill <- fills
         grob <- ggplot2::GeomRect$draw_panel(rectangles, panel_params, coord)
+        grob$vp <- grid::viewport(clip = "on")
         grob$name <- "fmt-bg-stripes"
         grob
       })

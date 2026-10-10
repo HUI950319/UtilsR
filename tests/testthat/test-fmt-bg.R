@@ -483,3 +483,36 @@ test_that("explicit discrete axes support numeric mapped and fixed positions", {
     }
   }
 })
+
+test_that("backgrounds stay inside panels while foreground clipping remains off", {
+  for (axis in c("x", "y")) {
+    p <- if (axis == "x") {
+      bg_plot() + ggplot2::annotate("point", x = 1.72, y = 3, size = 3) +
+        ggplot2::coord_cartesian(xlim = c(1.75, 2.25), ylim = c(1, 6),
+                                  expand = FALSE, clip = "off")
+    } else {
+      ggplot2::ggplot(bg_plot()$data, ggplot2::aes(value, category)) +
+        ggplot2::geom_point() + ggplot2::annotate("point", x = 3, y = 1.72, size = 3) +
+        ggplot2::coord_cartesian(xlim = c(1, 6), ylim = c(1.75, 2.25),
+                                  expand = FALSE, clip = "off")
+    }
+    q <- fmt_bg(p, palcolor = bg_colors, bg_axis = axis)
+    expect_identical(q$coordinates$clip, "off")
+    expect_identical(ggplot2::ggplot_build(q)$data[-1], ggplot2::ggplot_build(p)$data)
+    if (requireNamespace("ragg", quietly = TRUE)) {
+      render <- function(plot) {
+        capture <- ragg::agg_capture(width = 400, height = 300, res = 72, background = "white")
+        on.exit(grDevices::dev.off())
+        print(plot + ggplot2::theme_void() +
+                ggplot2::theme(plot.margin = ggplot2::margin(30, 30, 30, 30)))
+        capture()
+      }
+      original <- render(p)
+      formatted <- render(q)
+      outside <- row(original) <= 25 | row(original) > 275 |
+        col(original) <= 25 | col(original) > 375
+      expect_true(any(original[outside] != "white"))
+      expect_equal(sum(formatted[outside] != original[outside]), 0L)
+    }
+  }
+})
