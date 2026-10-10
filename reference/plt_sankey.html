@@ -66,13 +66,14 @@ count, and percentage.</p>
 <span>  <span class="va">vars</span>,</span>
 <span>  palette <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  reverse_levels <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  show_text <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"all"</span>, <span class="st">"n"</span>, <span class="st">"pct"</span>, <span class="st">"name"</span>, <span class="st">"all_wrap"</span><span class="op">)</span>,</span>
-<span>  width <span class="op">=</span> <span class="fl">0.4</span>,</span>
-<span>  space <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  label_size <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>  label_hjust <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  alpha <span class="op">=</span> <span class="fl">0.6</span>,</span>
-<span>  base_size <span class="op">=</span> <span class="fl">14</span></span>
+<span>  show_text <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"all"</span>, <span class="st">"n"</span>, <span class="st">"pct"</span>, <span class="st">"name"</span>, <span class="st">"all_wrap"</span>, <span class="st">"none"</span><span class="op">)</span>,</span>
+<span>  flow_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">0.6</span>, fill <span class="op">=</span> <span class="st">"grey"</span>, color <span class="op">=</span> <span class="st">"grey80"</span>, smooth <span class="op">=</span> <span class="fl">8</span><span class="op">)</span>,</span>
+<span>  node_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">0.4</span>, space <span class="op">=</span> <span class="cn">NULL</span>, color <span class="op">=</span> <span class="cn">NA</span>, linewidth <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span>,</span>
+<span>  label_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">3</span>, hjust <span class="op">=</span> <span class="fl">0.5</span>, color <span class="op">=</span> <span class="st">"black"</span>, box <span class="op">=</span> <span class="cn">TRUE</span>, fill <span class="op">=</span> <span class="st">"white"</span>,</span>
+<span>    alpha <span class="op">=</span> <span class="fl">1</span>, min_pct <span class="op">=</span> <span class="fl">0</span>, pct_accuracy <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>,</span>
+<span>  base_size <span class="op">=</span> <span class="fl">14</span>,</span>
+<span>  theme_use <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  save <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -114,38 +115,114 @@ Default <code>TRUE</code>.</p></dd>
 <li><p><code>"n"</code> — name + count, e.g. <code>"A (10)"</code>.</p></li>
 <li><p><code>"pct"</code> — name + percentage, e.g. <code>"A (30.3%)"</code>.</p></li>
 <li><p><code>"name"</code> — name only, e.g. <code>"A"</code>.</p></li>
+<li><p><code>"none"</code> — hide labels without removing nodes or flows.</p></li>
 </ul></dd>
 
 
-<dt id="arg-width">width<a class="anchor" aria-label="anchor" href="#arg-width"></a></dt>
-<dd><p>Sankey node width. Default 0.4.</p></dd>
+<dt id="arg-flow-args">flow_args<a class="anchor" aria-label="anchor" href="#arg-flow-args"></a></dt>
+<dd><p>Named list controlling flow ribbons:</p><dl><dt><code>alpha</code></dt>
+<dd><p>Numeric opacity in [0, 1]. Default 0.6.</p></dd>
+
+  <dt><code>fill</code></dt>
+<dd><p>Single fill colour or <code>NA</code>. Default <code>"grey"</code>.</p></dd>
+
+  <dt><code>color</code></dt>
+<dd><p>Single border colour or <code>NA</code>. Default <code>"grey80"</code>.</p></dd>
+
+  <dt><code>smooth</code></dt>
+<dd><p>Positive finite numeric value controlling the
+    sigmoid curve steepness in ggsankey. Default 8.</p></dd>
 
 
-<dt id="arg-space">space<a class="anchor" aria-label="anchor" href="#arg-space"></a></dt>
-<dd><p>Numeric. Gap between nodes within each column. Default
-<code>NULL</code> (ggsankey auto-calculates). Set <code>0</code> for no gaps
-(consistent total height across columns).</p></dd>
+</dl></dd>
 
 
-<dt id="arg-label-size">label_size<a class="anchor" aria-label="anchor" href="#arg-label-size"></a></dt>
-<dd><p>Label text size. Default 3.</p></dd>
+<dt id="arg-node-args">node_args<a class="anchor" aria-label="anchor" href="#arg-node-args"></a></dt>
+<dd><p>Named list controlling nodes and flow endpoints:</p><dl><dt><code>width</code></dt>
+<dd><p>Numeric width in (0, 1], relative to adjacent
+    x-axis positions. Default 0.4.</p></dd>
+
+  <dt><code>space</code></dt>
+<dd><p><code>NULL</code> for automatic spacing, or a non-negative
+    gap in count units. Default <code>NULL</code>; 0 removes gaps. Labels use
+    the resulting node centers.</p></dd>
+
+  <dt><code>color</code></dt>
+<dd><p>Single border colour or <code>NA</code> for no border.
+    Default <code>NA</code>. Node fills are controlled by <code>palette</code>.</p></dd>
+
+  <dt><code>linewidth</code></dt>
+<dd><p><code>NULL</code> to retain the backend default,
+    or a non-negative border width in mm. Default <code>NULL</code>.</p></dd>
 
 
-<dt id="arg-label-hjust">label_hjust<a class="anchor" aria-label="anchor" href="#arg-label-hjust"></a></dt>
-<dd><p>Label horizontal justification. Default 0.5.</p></dd>
+</dl></dd>
 
 
-<dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
-<dd><p>Flow transparency. Default 0.6.</p></dd>
+<dt id="arg-label-args">label_args<a class="anchor" aria-label="anchor" href="#arg-label-args"></a></dt>
+<dd><p>Named list controlling node labels:</p><dl><dt><code>size</code></dt>
+<dd><p>Positive text size in mm. Default 3.</p></dd>
+
+  <dt><code>hjust</code></dt>
+<dd><p>Finite numeric horizontal justification: 0 is left,
+    0.5 is centered, and 1 is right. Default 0.5.</p></dd>
+
+  <dt><code>color</code></dt>
+<dd><p>Single text colour or <code>NA</code>. Default <code>"black"</code>.</p></dd>
+
+  <dt><code>box</code></dt>
+<dd><p>Logical; use boxed labels when <code>TRUE</code>, plain text
+    when <code>FALSE</code>. Default <code>TRUE</code>.</p></dd>
+
+  <dt><code>fill</code></dt>
+<dd><p>Single background colour or <code>NA</code>, used only
+    when <code>box = TRUE</code>. Default <code>"white"</code>.</p></dd>
+
+  <dt><code>alpha</code></dt>
+<dd><p>Numeric opacity in [0, 1]. Default 1.</p></dd>
+
+  <dt><code>min_pct</code></dt>
+<dd><p>Numeric proportion in [0, 1]. Show labels only
+    when the category count divided by the number of input rows meets
+    this threshold. Default 0; nodes and flows are never filtered.</p></dd>
+
+  <dt><code>pct_accuracy</code></dt>
+<dd><p>Positive rounding accuracy in percentage
+    points, used by styles containing percentages. Default 0.1.</p></dd>
+
+
+</dl></dd>
 
 
 <dt id="arg-base-size">base_size<a class="anchor" aria-label="anchor" href="#arg-base-size"></a></dt>
-<dd><p>Base font size. Default 14.</p></dd>
+<dd><p>Positive base font size in points for the default theme.
+Default 14; ignored when <code>theme_use</code> is supplied.</p></dd>
+
+
+<dt id="arg-theme-use">theme_use<a class="anchor" aria-label="anchor" href="#arg-theme-use"></a></dt>
+<dd><p><code>NULL</code> for <code>ggsankey::theme_sankey(base_size)</code>,
+or a theme specification accepted by the internal <code>.resolve_theme()</code>
+resolver (theme object, function, or function name). Default <code>NULL</code>.</p></dd>
+
+
+<dt id="arg-save">save<a class="anchor" aria-label="anchor" href="#arg-save"></a></dt>
+<dd><p><code>NULL</code>, an empty list, or a named list forwarded to
+<code>RegR::save_plt()</code>. Allowed fields are <code>filename</code> (required),
+<code>width</code> and <code>height</code> (in inches). Writes PDF only; the saver
+appends the extension and defaults to width 10 and height 11.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A ggplot object.</p>
+    <p>A ggplot object. A non-empty <code>save</code> also writes this plot to PDF.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Each configuration list supports partial overrides; unknown,
+  duplicate, and empty field names are rejected. The former top-level
+  <code>alpha</code> is now <code>flow_args$alpha</code>; <code>width</code> and <code>space</code>
+  are now in <code>node_args</code>; <code>label_size</code> and <code>label_hjust</code>
+  are now <code>label_args$size</code> and <code>label_args$hjust</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="note">Note<a class="anchor" aria-label="anchor" href="#note"></a></h2>
@@ -208,7 +285,8 @@ Default <code>TRUE</code>.</p></dd>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Adjust appearance</span></span></span>
 <span class="r-in"><span><span class="fu">plt_sankey</span><span class="op">(</span><span class="va">df</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sex"</span>, <span class="st">"stage"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>           width <span class="op">=</span> <span class="fl">0.3</span>, label_size <span class="op">=</span> <span class="fl">4</span>, alpha <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span></span></span>
+<span class="r-in"><span>           flow_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span>, node_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>           label_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">4</span>, box <span class="op">=</span> <span class="cn">FALSE</span>, min_pct <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>attributes are not identical across measure variables; they will be dropped</span>
 <span class="r-plt img"><img src="plt_sankey-7.png" alt="" width="700" height="433"></span>
 </code></pre></div>

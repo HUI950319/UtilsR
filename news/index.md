@@ -7,6 +7,14 @@
   layouts, annotations, names and freed alignment. Spacers, guide areas,
   fixed wrapped graphics and inset overlays are left unchanged.
 
+- [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md)
+  groups styling in `flow_args`, `node_args` and `label_args`. This
+  replaces the old top-level `alpha`, `width`, `space`, `label_size` and
+  `label_hjust` arguments; migrate them to the corresponding list
+  fields. It also supports label thresholds, plain text, percentage
+  precision, `show_text = "none"`, custom themes and PDF output through
+  `save`.
+
 - [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
   creates background bounds after position-scale transformations,
   retaining stripes on log-scaled axes without warnings from infinite

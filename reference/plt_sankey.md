@@ -12,13 +12,14 @@ plt_sankey(
   vars,
   palette = NULL,
   reverse_levels = TRUE,
-  show_text = c("all", "n", "pct", "name", "all_wrap"),
-  width = 0.4,
-  space = NULL,
-  label_size = 3,
-  label_hjust = 0.5,
-  alpha = 0.6,
-  base_size = 14
+  show_text = c("all", "n", "pct", "name", "all_wrap", "none"),
+  flow_args = list(alpha = 0.6, fill = "grey", color = "grey80", smooth = 8),
+  node_args = list(width = 0.4, space = NULL, color = NA, linewidth = NULL),
+  label_args = list(size = 3, hjust = 0.5, color = "black", box = TRUE, fill = "white",
+    alpha = 1, min_pct = 0, pct_accuracy = 0.1),
+  base_size = 14,
+  theme_use = NULL,
+  save = list()
 )
 ```
 
@@ -66,35 +67,125 @@ plt_sankey(
 
   - `"name"` — name only, e.g. `"A"`.
 
-- width:
+  - `"none"` — hide labels without removing nodes or flows.
 
-  Sankey node width. Default 0.4.
+- flow_args:
 
-- space:
+  Named list controlling flow ribbons:
 
-  Numeric. Gap between nodes within each column. Default `NULL`
-  (ggsankey auto-calculates). Set `0` for no gaps (consistent total
-  height across columns).
+  `alpha`
 
-- label_size:
+  :   Numeric opacity in \[0, 1\]. Default 0.6.
 
-  Label text size. Default 3.
+  `fill`
 
-- label_hjust:
+  :   Single fill colour or `NA`. Default `"grey"`.
 
-  Label horizontal justification. Default 0.5.
+  `color`
 
-- alpha:
+  :   Single border colour or `NA`. Default `"grey80"`.
 
-  Flow transparency. Default 0.6.
+  `smooth`
+
+  :   Positive finite numeric value controlling the sigmoid curve
+      steepness in ggsankey. Default 8.
+
+- node_args:
+
+  Named list controlling nodes and flow endpoints:
+
+  `width`
+
+  :   Numeric width in (0, 1\], relative to adjacent x-axis positions.
+      Default 0.4.
+
+  `space`
+
+  :   `NULL` for automatic spacing, or a non-negative gap in count
+      units. Default `NULL`; 0 removes gaps. Labels use the resulting
+      node centers.
+
+  `color`
+
+  :   Single border colour or `NA` for no border. Default `NA`. Node
+      fills are controlled by `palette`.
+
+  `linewidth`
+
+  :   `NULL` to retain the backend default, or a non-negative border
+      width in mm. Default `NULL`.
+
+- label_args:
+
+  Named list controlling node labels:
+
+  `size`
+
+  :   Positive text size in mm. Default 3.
+
+  `hjust`
+
+  :   Finite numeric horizontal justification: 0 is left, 0.5 is
+      centered, and 1 is right. Default 0.5.
+
+  `color`
+
+  :   Single text colour or `NA`. Default `"black"`.
+
+  `box`
+
+  :   Logical; use boxed labels when `TRUE`, plain text when `FALSE`.
+      Default `TRUE`.
+
+  `fill`
+
+  :   Single background colour or `NA`, used only when `box = TRUE`.
+      Default `"white"`.
+
+  `alpha`
+
+  :   Numeric opacity in \[0, 1\]. Default 1.
+
+  `min_pct`
+
+  :   Numeric proportion in \[0, 1\]. Show labels only when the category
+      count divided by the number of input rows meets this threshold.
+      Default 0; nodes and flows are never filtered.
+
+  `pct_accuracy`
+
+  :   Positive rounding accuracy in percentage points, used by styles
+      containing percentages. Default 0.1.
 
 - base_size:
 
-  Base font size. Default 14.
+  Positive base font size in points for the default theme. Default 14;
+  ignored when `theme_use` is supplied.
+
+- theme_use:
+
+  `NULL` for `ggsankey::theme_sankey(base_size)`, or a theme
+  specification accepted by the internal `.resolve_theme()` resolver
+  (theme object, function, or function name). Default `NULL`.
+
+- save:
+
+  `NULL`, an empty list, or a named list forwarded to
+  `RegR::save_plt()`. Allowed fields are `filename` (required), `width`
+  and `height` (in inches). Writes PDF only; the saver appends the
+  extension and defaults to width 10 and height 11.
 
 ## Value
 
-A ggplot object.
+A ggplot object. A non-empty `save` also writes this plot to PDF.
+
+## Details
+
+Each configuration list supports partial overrides; unknown, duplicate,
+and empty field names are rejected. The former top-level `alpha` is now
+`flow_args$alpha`; `width` and `space` are now in `node_args`;
+`label_size` and `label_hjust` are now `label_args$size` and
+`label_args$hjust`.
 
 ## Note
 
@@ -156,6 +247,7 @@ plt_sankey(df, vars = c("sex", "stage", "grade"), show_text = "all_wrap")
 
 # Adjust appearance
 plt_sankey(df, vars = c("sex", "stage"),
-           width = 0.3, label_size = 4, alpha = 0.4)
+           flow_args = list(alpha = 0.4), node_args = list(width = 0.3),
+           label_args = list(size = 4, box = FALSE, min_pct = 0.05))
 #> Warning: attributes are not identical across measure variables; they will be dropped
 ```
