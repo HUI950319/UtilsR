@@ -2,6 +2,10 @@
 
 ## UtilsR 0.6.8
 
+- [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md)
+  keeps nodes distinct across variables even when their labels match,
+  and retains node colours when changing label styles.
+
 - [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
   honors manual colors without requiring `plotthis`, retains its default
   rainbow palette, and reports invalid colors and palette errors.
