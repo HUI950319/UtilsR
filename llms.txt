@@ -368,7 +368,7 @@ Chain-able ggplot2 formatting helpers.
 - [`fmt_axisText()`](https://hui950319.github.io/UtilsR/reference/fmt_axisText.md)
   : Format axis text rotation and style
 - [`fmt_axisTile()`](https://hui950319.github.io/UtilsR/reference/fmt_axisTile.md)
-  : Add colored tiles between axis and labels
+  : Color discrete axis tiles or text labels
 - [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md)
   : Format panel appearance
 - [`fmt_text()`](https://hui950319.github.io/UtilsR/reference/fmt_text.md)
