@@ -2659,6 +2659,7 @@ fmt_axisText <- function(plot,
 #' Tile positions follow each panel's trained scale and expansion, including
 #' free facets. Existing guide settings, axis titles and scale labels are retained.
 #' Rich-text axis elements retain their class, markup and layout properties.
+#' In patchworks, color strips are collected together with matching axis guides.
 #' Editable leaves in nested patchworks and named lists are formatted while
 #' layouts, annotations, fixed graphics and inset overlays are preserved.
 #' Repeated calls update the formatting and can switch between modes.
@@ -3038,8 +3039,13 @@ fmt_axisTile <- function(plot,
           do.call(grid::grobTree, c(list(tile), as.list(axis$children[lines])))
         } else tile
         for (j in lines) axis$children[[j]] <- grid::nullGrob()
+        slot <- paste0("axis-tile-slot-", i, "-", axis$name)
+        handle <- grid::grob(children = grid::gList(strip), name = slot, cl = "axis_tile_strip")
+        axis <- grid::addGrob(axis, handle)
         table$grobs[[i]] <- axis
-        strips[[length(strips) + 1L]] <- list(index = i, grob = strip, settings = settings)
+        proxy <- ggplot2::zeroGrob()
+        proxy$vp <- grid::viewport(name = slot)
+        strips[[length(strips) + 1L]] <- list(index = i, grob = proxy, settings = settings)
       }
       panels <- grep("^panel", table$layout$name)
       for (vertical in c(FALSE, TRUE)) {
@@ -3075,13 +3081,25 @@ fmt_axisTile <- function(plot,
               l = if (vertical) position + 1L else cell$l,
               r = if (vertical) position + 1L else cell$r,
               # Include strips in the panel extent so patchwork retains null units.
-              clip = "off", name = paste0("panel-axis-tile-", substr(strip$settings$position, 1, 1)))
+              clip = "off", z = -Inf,
+              name = paste0("panel-axis-tile-", substr(strip$settings$position, 1, 1)))
           }
         }
       }
       table
     }
   )
+}
+
+#' Draw a collected axis strip in its panel-relative viewport
+#' @noRd
+#' @importFrom grid drawDetails
+#' @export
+drawDetails.axis_tile_strip <- function(x, recording) {
+  saved <- grid::current.vpPath()
+  on.exit(grid::seekViewport(saved, recording = FALSE))
+  grid::seekViewport(x$name, recording = FALSE)
+  grid::grid.draw(x$children[[1]], recording = FALSE)
 }
 
 # ---- fmt_com ----

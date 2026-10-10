@@ -179,8 +179,7 @@ test_that("axis tiles respect physical sides and preserve existing guide control
   for (case in cases) {
     q <- fmt_axisTile(case[[1]], axis_tile_colors, axis = case[[2]])
     g <- ggplot2::ggplotGrob(q[[1]])
-    name <- sub("axis-", "panel-axis-tile-", case[[3]])
-    rects <- axis_tile_rects(g$grobs[[match(name, g$layout$name)]])
+    rects <- axis_tile_rects(g$grobs[[match(case[[3]], g$layout$name)]])
     expect_equal(rects$fill, unname(axis_tile_colors))
     labels <- axis_tile_text(g$grobs[[match(case[[3]], g$layout$name)]])
     reference <- case[[1]] + do.call(ggplot2::guides, stats::setNames(
@@ -242,7 +241,7 @@ test_that("axis tile positions follow each facet's trained expansion and statist
   build <- ggplot2::ggplot_build(q[[1]])
   expect_equal(build$data, ggplot2::ggplot_build(p)$data)
   g <- ggplot2::ggplotGrob(q[[1]])
-  indices <- grep("^panel-axis-tile-b", g$layout$name)
+  indices <- grep("^axis-b", g$layout$name)
   indices <- indices[order(g$layout$l[indices])]
   for (i in seq_along(indices)) {
     rects <- axis_tile_rects(g$grobs[[indices[i]]])
@@ -346,5 +345,34 @@ test_that("rich axis labels retain markup and category colors", {
     index <- match(c("A", "B", "C"), labels$label)
     expect_false(anyNA(index))
     expect_equal(labels$colour[index], if (mode == "text") unname(axis_tile_colors) else rep("black", 3))
+  }
+})
+
+test_that("collected axes retain one color strip per retained guide", {
+  withr::local_pdf(file = NULL)
+  p <- axis_tile_plot()
+  q <- fmt_axisTile((p / p) + patchwork::plot_layout(axes = "collect_x"), axis_tile_colors)
+  g <- patchwork::patchworkGrob(q)
+  expect_equal(nrow(axis_tile_rects(g)), 3L)
+  expect_equal(sum(axis_tile_text(g)$label %in% c("A", "B", "C")), 3L)
+  expect_no_error(grid::grid.draw(g))
+  vertical <- ggplot2::ggplot(p$data, ggplot2::aes(value, category)) +
+    ggplot2::geom_col(orientation = "y")
+  q <- fmt_axisTile((vertical | vertical) + patchwork::plot_layout(axes = "collect_y"),
+                    axis_tile_colors, axis = "y")
+  expect_equal(nrow(axis_tile_rects(patchwork::patchworkGrob(q))), 3L)
+  hidden <- fmt_axisTile((p / p) + patchwork::plot_layout(axes = "collect_x"),
+                         axis_tile_colors, show_text = FALSE)
+  expect_equal(nrow(axis_tile_rects(patchwork::patchworkGrob(hidden))), 3L)
+  a <- fmt_axisTile(p, axis_tile_colors)[[1]]
+  b <- fmt_axisTile(p, axis_tile_colors[c("C", "B", "A")] |> stats::setNames(c("A", "B", "C")))[[1]]
+  different <- (a / b) + patchwork::plot_layout(axes = "collect_x")
+  expect_equal(nrow(axis_tile_rects(patchwork::patchworkGrob(different))), 6L)
+  expect_equal(sum(axis_tile_text(patchwork::patchworkGrob(different))$label %in% c("A", "B", "C")), 6L)
+  for (side in c("top", "bottom")) {
+    input <- (p + ggplot2::scale_x_discrete(position = side)) /
+      (p + ggplot2::scale_x_discrete(position = side))
+    q <- fmt_axisTile(input + patchwork::plot_layout(axes = "collect_x"), axis_tile_colors)
+    expect_equal(nrow(axis_tile_rects(patchwork::patchworkGrob(q))), 3L)
   }
 })

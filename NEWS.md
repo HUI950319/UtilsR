@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_axisTile()` makes panel-relative color strips follow their axis guides
+  during patchwork axis collection. Different palettes retain separate guides,
+  including color-only strips without text labels.
+
 * `fmt_axisText()` retains rich text inherited from the global theme, including
   side-specific elements, guide formatting and repeated rotations. Complete
   plot themes retain precedence, and the global theme is not modified.
