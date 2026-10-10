@@ -348,6 +348,18 @@ test_that("rich axis labels retain markup and category colors", {
   }
 })
 
+test_that("axis tile bounds retain decoration required by native guides", {
+  native <- ggplot2::guide_axis()
+  guide <- ggplot2::ggproto(NULL, native,
+    transform = function(params, coord, panel_params) {
+      if (is.null(params$decor)) stop("Axis decoration is required")
+      native$transform(params, coord, panel_params)
+    })
+  p <- axis_tile_plot() + ggplot2::guides(x = guide)
+  q <- fmt_axisTile(p, axis_tile_colors)
+  expect_no_error(ggplot2::ggplotGrob(q[[1]]))
+})
+
 test_that("collected axes retain one color strip per retained guide", {
   withr::local_pdf(file = NULL)
   p <- axis_tile_plot()

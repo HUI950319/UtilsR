@@ -2881,7 +2881,6 @@ fmt_axisTile <- function(plot,
       display_axis <- if (params$position %in% c("left", "right")) "y" else "x"
       for (field in c(".fmt_lower", ".fmt_upper")) {
         bounds <- original
-        bounds$decor <- NULL
         bounds$key[[original$aesthetic]] <- original$key[[field]]
         bounds <- parent$transform(bounds, coord, panel_params)
         params$key[[field]] <- bounds$key[[display_axis]]
