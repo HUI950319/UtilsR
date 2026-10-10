@@ -44,3 +44,40 @@ test_that("axis text justification works without supplying a rotation", {
   p <- p + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 30))
   expect_equal(axis_text_labels(fmt_axisText(p, x_hjust = 0.4))$angle, rep(30, 3))
 })
+
+test_that("axis text formatting visits nested data plots and retains containers", {
+  p <- axis_text_plot()
+  nested <- (p | p) / (p | p)
+  annotated <- nested + patchwork::plot_annotation(title = "Keep", tag_levels = "A")
+  freed <- patchwork::free(annotated, side = "l")
+  for (input in list(annotated, freed, list(A = p | p, B = p | p))) {
+    output <- fmt_axisText(input, x = 45)
+    leaves <- .to_plot_list(output, recurse = TRUE)$plots
+    expect_equal(vapply(leaves, function(z) axis_text_labels(z)$angle[1], numeric(1)),
+                   rep(45, 4))
+    plots <- if (is.list(output) && !inherits(output, "gg")) output else list(output)
+    expect_equal(unlist(lapply(plots, function(z) axis_text_labels(z)$angle),
+                          use.names = FALSE),
+                   rep(45, 12))
+    if (inherits(input, "patchwork")) {
+      expect_identical(output$patches$layout, input$patches$layout)
+      expect_identical(output$patches$annotation, input$patches$annotation)
+      expect_identical(attr(output, "patchwork_free_settings"),
+                         attr(input, "patchwork_free_settings"))
+    } else expect_identical(names(output), names(input))
+  }
+})
+
+test_that("axis text formatting preserves insets, spacers and frozen graphics", {
+  p <- axis_text_plot()
+  inset <- p + patchwork::inset_element(p, 0.6, 0.6, 1, 1)
+  expect_equal(axis_text_labels(fmt_axisText(inset, x = 45))$angle,
+                 c(rep(45, 3), rep(0, 3)))
+  for (fixed in list(patchwork::plot_spacer(), patchwork::guide_area(),
+                      patchwork::wrap_elements(full = p))) {
+    input <- list(plot = p, fixed = fixed)
+    output <- fmt_axisText(input, x = 45)
+    expect_identical(output$fixed, fixed)
+    expect_equal(axis_text_labels(output$plot)$angle, rep(45, 3))
+  }
+})

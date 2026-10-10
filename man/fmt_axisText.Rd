@@ -65,6 +65,11 @@ Rotate and style axis tick labels for X and/or Y axes. Inspired by
 Seurat's \code{RotatedAxis()} but with independent control over both
 axes, rotation angle, and text appearance.
 }
+\details{
+Data plots are edited recursively within nested patchworks and lists.
+Layouts, annotations, list names and freed alignment are retained. Spacers,
+guide areas, fixed wrapped graphics and inset overlays are not edited.
+}
 \examples{
 library(ggplot2)
 p <- ggplot(iris, aes(Species, Sepal.Length)) + geom_boxplot()

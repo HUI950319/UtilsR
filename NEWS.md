@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_axisText()` visits every data plot in nested patchworks and lists while
+  retaining layouts, annotations, names, freed alignment and inset overlays.
+
 * `fmt_axisText()` applies explicit horizontal and vertical justification without
   requiring a rotation angle, retaining the existing angle and other styling.
 

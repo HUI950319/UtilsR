@@ -2373,6 +2373,10 @@ fmt_text <- function(plot,
 #'   (no change).
 #' @param ... Additional arguments passed to [ggplot2::theme()].
 #'
+#' @details Data plots are edited recursively within nested patchworks and lists.
+#'   Layouts, annotations, list names and freed alignment are retained. Spacers,
+#'   guide areas, fixed wrapped graphics and inset overlays are not edited.
+#'
 #' @return Same type as input.
 #'
 #' @examples
@@ -2464,9 +2468,10 @@ fmt_axisText <- function(plot,
   text_theme <- x_theme + y_theme + extra
 
   # ---- Apply to plots ----
-  info <- .to_plot_list(plot)
+  info <- .to_plot_list(plot, recurse = TRUE)
   info$plots <- lapply(info$plots, function(p) p + text_theme)
-  .from_plot_list(info$plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
+  .from_plot_list(info$plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig,
+                  recurse = TRUE)
 }
 
 # ---- fmt_axisTile ----
