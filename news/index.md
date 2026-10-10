@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
+  replaces its own background layer on repeated calls, retaining other
+  layers and avoiding accumulated transparency. New colors and opacity
+  update the existing background without modifying the input plot.
+
+- [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
   formats every data plot in nested patchworks and lists while retaining
   layouts, annotations, names and freed alignment. Spacers, guide areas,
   fixed wrapped graphics and inset overlays are left unchanged.

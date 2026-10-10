@@ -60,6 +60,8 @@ annotations and list names are retained; spacers, guide areas, inset
 overlays and fixed wrapped graphics are left unchanged. Format the
 original ggplot before wrapping it with
 [`patchwork::wrap_elements()`](https://patchwork.data-imaginist.com/reference/wrap_elements.html).
+Repeated calls replace this function's background layer while retaining
+all other layers, so transparency does not accumulate.
 
 ## See also
 

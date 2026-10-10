@@ -129,7 +129,9 @@ A complete manual colour specification does not require <span class="pkg">plotth
     <p>Nested data plots are formatted recursively. Patchwork layouts,
 annotations and list names are retained; spacers, guide areas, inset
 overlays and fixed wrapped graphics are left unchanged. Format the
-original ggplot before wrapping it with <code><a href="https://patchwork.data-imaginist.com/reference/wrap_elements.html" class="external-link">patchwork::wrap_elements()</a></code>.</p>
+original ggplot before wrapping it with <code><a href="https://patchwork.data-imaginist.com/reference/wrap_elements.html" class="external-link">patchwork::wrap_elements()</a></code>.
+Repeated calls replace this function's background layer while retaining
+all other layers, so transparency does not accumulate.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
