@@ -12,8 +12,8 @@ plt_sankey(
   show_text = c("all", "n", "pct", "name", "all_wrap", "none"),
   flow_args = list(alpha = 0.6, fill = "grey", color = "grey80", smooth = 8),
   node_args = list(width = 0.4, space = NULL, color = NA, linewidth = NULL),
-  label_args = list(size = 3, hjust = 0.5, color = "black", box = TRUE, fill = "white",
-    alpha = 1, min_pct = 0, pct_accuracy = 0.1),
+  label_args = list(size = 3, lineheight = 1.2, hjust = 0.5, color = "black", box = TRUE,
+    fill = "white", alpha = 1, min_pct = 0, pct_accuracy = 0.1),
   base_size = 14,
   theme_use = NULL,
   save = list()
@@ -75,6 +75,10 @@ Default \code{TRUE}.}
 \item{label_args}{Named list controlling node labels:
 \describe{
   \item{\code{size}}{Positive text size in mm. Default 3.}
+  \item{\code{lineheight}}{Positive finite line spacing multiplier relative
+    to text size. Default 1.2; smaller values make multiline labels more
+    compact. Applies to boxed and plain labels, including \code{all_wrap}
+    and category names containing line breaks. Does not set box padding.}
   \item{\code{hjust}}{Finite numeric horizontal justification: 0 is left,
     0.5 is centered, and 1 is right. Default 0.5.}
   \item{\code{color}}{Single text colour or \code{NA}. Default \code{"black"}.}
@@ -144,8 +148,9 @@ plt_sankey(df, vars = c("sex", "stage"), palette = "Paired")
 # Without counts in labels
 plt_sankey(df, vars = c("sex", "stage", "grade"), show_text = "pct")
 
-# Count and percentage on the second line
-plt_sankey(df, vars = c("sex", "stage", "grade"), show_text = "all_wrap")
+# Count and percentage on the second line, with compact line spacing
+plt_sankey(df, vars = c("sex", "stage", "grade"), show_text = "all_wrap",
+           label_args = list(lineheight = 1))
 
 # Adjust appearance
 plt_sankey(df, vars = c("sex", "stage"),

@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `plt_sankey()` adds `label_args$lineheight` to control multiline label spacing
+  for boxed and plain text. The default 1.2 preserves the existing appearance.
+
 * `fmt_bg()` validates opacity, returns empty or entirely missing categories
   unchanged, and skips background construction when `alpha = 0`.
 

@@ -56,6 +56,10 @@
 #' @param label_args Named list controlling node labels:
 #'   \describe{
 #'     \item{\code{size}}{Positive text size in mm. Default 3.}
+#'     \item{\code{lineheight}}{Positive finite line spacing multiplier relative
+#'       to text size. Default 1.2; smaller values make multiline labels more
+#'       compact. Applies to boxed and plain labels, including \code{all_wrap}
+#'       and category names containing line breaks. Does not set box padding.}
 #'     \item{\code{hjust}}{Finite numeric horizontal justification: 0 is left,
 #'       0.5 is centered, and 1 is right. Default 0.5.}
 #'     \item{\code{color}}{Single text colour or \code{NA}. Default \code{"black"}.}
@@ -113,8 +117,9 @@
 #' # Without counts in labels
 #' plt_sankey(df, vars = c("sex", "stage", "grade"), show_text = "pct")
 #'
-#' # Count and percentage on the second line
-#' plt_sankey(df, vars = c("sex", "stage", "grade"), show_text = "all_wrap")
+#' # Count and percentage on the second line, with compact line spacing
+#' plt_sankey(df, vars = c("sex", "stage", "grade"), show_text = "all_wrap",
+#'            label_args = list(lineheight = 1))
 #'
 #' # Adjust appearance
 #' plt_sankey(df, vars = c("sex", "stage"),
@@ -130,7 +135,7 @@ plt_sankey <- function(data,
                        show_text = c("all", "n", "pct", "name", "all_wrap", "none"),
                        flow_args = list(alpha = 0.6, fill = "grey", color = "grey80", smooth = 8),
                        node_args = list(width = 0.4, space = NULL, color = NA, linewidth = NULL),
-                       label_args = list(size = 3, hjust = 0.5, color = "black", box = TRUE,
+                       label_args = list(size = 3, lineheight = 1.2, hjust = 0.5, color = "black", box = TRUE,
                                          fill = "white", alpha = 1, min_pct = 0, pct_accuracy = 0.1),
                        base_size = 14,
                        theme_use = NULL,
@@ -159,7 +164,7 @@ plt_sankey <- function(data,
   node_args <- merge_args(node_args,
     list(width = 0.4, space = NULL, color = NA, linewidth = NULL), "node_args")
   label_args <- merge_args(label_args,
-    list(size = 3, hjust = 0.5, color = "black", box = TRUE,
+    list(size = 3, lineheight = 1.2, hjust = 0.5, color = "black", box = TRUE,
          fill = "white", alpha = 1, min_pct = 0, pct_accuracy = 0.1), "label_args")
 
   is_number <- function(value, lower = -Inf, upper = Inf, positive = FALSE) {
@@ -172,6 +177,7 @@ plt_sankey <- function(data,
   if (!is.null(node_args$space) && !is_number(node_args$space, 0)) cli::cli_abort("{.arg node_args$space} must be NULL or non-negative and finite.")
   if (!is.null(node_args$linewidth) && !is_number(node_args$linewidth, 0)) cli::cli_abort("{.arg node_args$linewidth} must be NULL or non-negative and finite.")
   if (!is_number(label_args$size, positive = TRUE)) cli::cli_abort("{.arg label_args$size} must be positive and finite.")
+  if (!is_number(label_args$lineheight, positive = TRUE)) cli::cli_abort("{.arg label_args$lineheight} must be positive and finite.")
   if (!is_number(label_args$hjust)) cli::cli_abort("{.arg label_args$hjust} must be finite numeric.")
   if (!is_number(label_args$alpha, 0, 1)) cli::cli_abort("{.arg label_args$alpha} must be in [0, 1].")
   if (!is_number(label_args$min_pct, 0, 1)) cli::cli_abort("{.arg label_args$min_pct} must be in [0, 1].")
@@ -340,7 +346,8 @@ plt_sankey <- function(data,
       label_params <- list(
         data = label_data,
         mapping = ggplot2::aes(x = .data[["x"]], y = .data[["y"]], label = .data[["label"]]),
-        inherit.aes = FALSE, size = label_args$size, hjust = label_args$hjust,
+        inherit.aes = FALSE, size = label_args$size, lineheight = label_args$lineheight,
+        hjust = label_args$hjust,
         color = label_args$color, alpha = label_args$alpha
       )
       if (label_args$box) label_params$fill <- label_args$fill

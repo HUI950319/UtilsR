@@ -162,7 +162,7 @@ test_that("plt_sankey exposes grouped styling and rejects legacy arguments", {
   expect_identical(eval(defaults$node_args),
                    list(width = 0.4, space = NULL, color = NA, linewidth = NULL))
   expect_identical(eval(defaults$label_args),
-                   list(size = 3, hjust = 0.5, color = "black", box = TRUE,
+                   list(size = 3, lineheight = 1.2, hjust = 0.5, color = "black", box = TRUE,
                         fill = "white", alpha = 1, min_pct = 0, pct_accuracy = 0.1))
   expect_identical(tail(names(defaults), 1), "save")
   for (arg in c("width", "space", "alpha", "label_size", "label_hjust")) {
@@ -192,6 +192,26 @@ test_that("plt_sankey grouped styles reach the rendered layers", {
   expect_identical(unique(built[[3]]$colour), "navy")
   expect_equal(unique(built[[3]]$alpha), 0.7)
   expect_null(ggplot2::get_labs(plot)$y)
+})
+
+test_that("plt_sankey controls multiline spacing for boxed and plain labels", {
+  skip_if_not_installed("ggsankey")
+
+  for (box in c(TRUE, FALSE)) {
+    baseline <- ggplot2::ggplot_build(sankey_plot(
+      show_text = "all_wrap", label_args = list(box = box)))$data
+    compact <- ggplot2::ggplot_build(sankey_plot(
+      show_text = "all_wrap", label_args = list(box = box, lineheight = 0.8)))$data
+    expect_equal(unique(baseline[[3]]$lineheight), 1.2)
+    expect_equal(unique(compact[[3]]$lineheight), 0.8)
+    expect_equal(compact[1:2], baseline[1:2])
+    fields <- setdiff(names(baseline[[3]]), "lineheight")
+    expect_equal(compact[[3]][fields], baseline[[3]][fields])
+  }
+  for (bad in list(0, -1, NA_real_, Inf, "1", c(1, 2), NULL)) {
+    expect_error(sankey_plot(label_args = list(lineheight = bad)),
+                 "lineheight.*positive and finite")
+  }
 })
 
 test_that("plt_sankey hides labels without changing nodes or flows", {
