@@ -201,3 +201,34 @@ test_that("repeated background formatting retains rendered opacity", {
   twice <- fmt_bg(once, palcolor = bg_colors)
   expect_equal(sum(capture(twice) != capture(once)), 0L)
 })
+
+test_that("background opacity is validated and zero opacity skips evaluation", {
+  p <- bg_plot()
+  for (alpha in list(NULL, numeric(), c(0.2, 0.3), NA_real_, NaN, Inf,
+                     -0.1, 1.1, TRUE, "0.3", 0.3 + 0i)) {
+    expect_error(fmt_bg(p, alpha = alpha), "alpha")
+  }
+  expect_equal(fmt_bg(p, alpha = 1L)$layers[[1]]$aes_params$alpha, 1L)
+  lazy <- ggplot2::ggplot(p$data, ggplot2::aes(stop("mapping evaluated"), value)) +
+    ggplot2::geom_point()
+  expect_identical(fmt_bg(lazy, alpha = 0), lazy)
+  nested <- (p | p) / (p | p) + patchwork::plot_annotation(title = "Keep")
+  expect_identical(fmt_bg(nested, alpha = 0), nested)
+  expect_identical(fmt_bg(list(first = p, second = p), alpha = 0),
+                     list(first = p, second = p))
+  once <- fmt_bg(p, palcolor = bg_colors)
+  expect_identical(fmt_bg(once, alpha = 0), once)
+  expect_error(fmt_bg("invalid", alpha = 0), "Input")
+  expect_error(fmt_bg(p, alpha = 0, palcolor = "invalid-color"), "palcolor")
+})
+
+test_that("backgrounds skip empty and all-missing categories", {
+  for (categories in list(factor(character(), levels = c("A", "B")), character(),
+                           factor(c(NA, NA), levels = c("A", "B")),
+                           c(NA_character_, NA_character_), c(NA, NA))) {
+    p <- ggplot2::ggplot(data.frame(category = categories, value = seq_along(categories)),
+                           ggplot2::aes(category, value)) + ggplot2::geom_point()
+    expect_identical(fmt_bg(p), p)
+  }
+  expect_identical(fmt_bg(list()), list())
+})

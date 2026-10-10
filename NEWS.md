@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_bg()` validates opacity, returns empty or entirely missing categories
+  unchanged, and skips background construction when `alpha = 0`.
+
 * `fmt_bg()` replaces its own background layer on repeated calls, retaining
   other layers and avoiding accumulated transparency. New colors and opacity
   update the existing background without modifying the input plot.

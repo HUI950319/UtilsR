@@ -3244,42 +3244,54 @@ fmt_com <- function(plot,
 #' Add coloured background stripes
 #'
 #' Inserts shaded rectangles behind the data layer, one per level of the
-#' categorical axis variable.
-#' Factor, character and logical axes, categorical mapping expressions and
-#' data supplied directly to a layer are supported.
-#' Stripes follow the trained scale order, including unused and missing
-#' categories and the local categories of free-scale facets.
-#' Facet expressions and marginal panels are supported without changing the
-#' plot's fill scales or legends.
-#' Background bounds are created during drawing, after position-scale
-#' transformations, so log-scaled continuous axes retain their stripes.
+#' categorical axis variable, including in faceted and combined plots.
 #'
 #' @param plot A ggplot, patchwork, or list of ggplots.
 #' @param palette Palette name passed to \code{plotthis::palette_this}.
 #'   Requires \pkg{plotthis} only when palette colours are needed. \code{NULL}
 #'   retains the default rainbow colours.
 #' @param palcolor Manual colour vector (overrides palette). Named vectors match
-#'   category values; unnamed vectors are interpolated to the number of levels.
+#'   category values, with unmatched categories using the palette. Unnamed
+#'   vectors are interpolated to the number of levels.
 #'   A complete manual colour specification does not require \pkg{plotthis}.
-#' @param alpha Transparency of the background rectangles.
+#' @param alpha A finite numeric value from 0 to 1 giving the opacity of the
+#'   background rectangles. Zero returns the input unchanged.
 #' @param bg_axis Which axis holds the categorical variable: \code{"x"} or
 #'   \code{"y"}.
 #'
-#' @details Nested data plots are formatted recursively. Patchwork layouts,
+#' @details Factor, character and logical axes, categorical mapping expressions
+#'   and data supplied directly to a layer are supported. The categorical
+#'   mapping is evaluated using the first applicable layer with a data frame,
+#'   or the plot data. Continuous axes are skipped with a warning.
+#'
+#'   Stripes follow the trained scale order, including unused categories and
+#'   the local categories of free-scale facets. Missing categories use
+#'   \code{"grey80"}. Facet expressions, marginal panels, flipped coordinates
+#'   and log-scaled continuous axes are supported. Backgrounds retain the
+#'   plot's panel ranges, fill scales and legends.
+#'
+#'   Nested data plots are formatted recursively. Patchwork layouts,
 #'   annotations and list names are retained; spacers, guide areas, inset
 #'   overlays and fixed wrapped graphics are left unchanged. Format the
 #'   original ggplot before wrapping it with [patchwork::wrap_elements()].
 #'   Repeated calls replace this function's background layer while retaining
 #'   all other layers, so transparency does not accumulate.
+#'   Plots with empty or entirely missing categories are returned unchanged.
 #'
 #' @return Same type as input.
 #'
 #' @examples
 #' library(ggplot2)
-#' p <- ggplot(iris, aes(Species, Sepal.Length)) + geom_boxplot()
+#' set.seed(123)
+#' dat <- data.frame(category = factor(rep(c("A", "B", "C"), each = 8)),
+#'                   value = rnorm(24))
+#' p <- ggplot(dat, aes(category, value)) + geom_boxplot()
 #' fmt_bg(p, alpha = 0.2)
+#' fmt_bg(p + scale_x_discrete(limits = c("C", "B", "A")),
+#'        palcolor = c(A = "#E64B35", B = "#4DBBD5", C = "#00A087"))
 #'
 #' @export
+#' @md
 #' @family plot formatting
 fmt_bg <- function(plot,
                    palette = NULL,
@@ -3287,6 +3299,11 @@ fmt_bg <- function(plot,
                    alpha = 0.3,
                    bg_axis = c("x", "y")) {
   bg_axis <- match.arg(bg_axis)
+
+  if (!is.numeric(alpha) || is.complex(alpha) || length(alpha) != 1L ||
+      !is.finite(alpha) || alpha < 0 || alpha > 1) {
+    cli::cli_abort("{.arg alpha} must be a finite number between 0 and 1.")
+  }
 
   if (!is.null(palcolor)) {
     if (!is.character(palcolor) || !length(palcolor) || anyNA(palcolor)) {
@@ -3300,6 +3317,11 @@ fmt_bg <- function(plot,
     tryCatch(grDevices::col2rgb(palcolor), error = function(e) {
       cli::cli_abort("{.arg palcolor} contains an invalid colour.", parent = e)
     })
+  }
+
+  if (alpha == 0) {
+    invisible(.to_plot_list(plot))
+    return(plot)
   }
 
   resolve_bg_colors <- function(lvs) {
@@ -3398,6 +3420,7 @@ fmt_bg <- function(plot,
       cli::cli_warn("The {bg_axis}-axis must be categorical; skipping background.")
       return(p)
     }
+    if (!length(axis_values) || all(is.na(axis_values))) return(p)
     bg_layer <- build_bg_layer(axis_values, alpha = alpha, bg_axis = bg_axis)
     p$layers <- c(list(bg_layer), Filter(function(layer) {
       !inherits(layer$geom, "GeomBgStripes")
