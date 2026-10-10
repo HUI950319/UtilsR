@@ -34,6 +34,8 @@ Same type as input.
 \description{
 Inserts shaded rectangles behind the data layer, one per level of the
 categorical axis variable.
+Factor, character and logical axes, categorical mapping expressions and
+data supplied directly to a layer are supported.
 }
 \examples{
 library(ggplot2)

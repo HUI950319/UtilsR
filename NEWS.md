@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_bg()` supports character and logical categories, mapping expressions,
+  and data and mappings supplied directly to a layer. Continuous axes are
+  skipped with an informative warning.
+
 * `plt_sankey()` keeps nodes distinct across variables even when their labels
   match, and retains node colours when changing label styles.
 

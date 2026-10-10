@@ -3245,6 +3245,8 @@ fmt_com <- function(plot,
 #'
 #' Inserts shaded rectangles behind the data layer, one per level of the
 #' categorical axis variable.
+#' Factor, character and logical axes, categorical mapping expressions and
+#' data supplied directly to a layer are supported.
 #'
 #' @param plot A ggplot, patchwork, or list of ggplots.
 #' @param palette Palette name passed to \code{plotthis::palette_this}.
@@ -3312,9 +3314,9 @@ fmt_bg <- function(plot,
   }
 
   # Unified background layer builder for both x and y axes
-  build_bg_layer <- function(data, var_name, palette, palcolor, alpha,
+  build_bg_layer <- function(data, axis_values, alpha,
                              facet_by = NULL, bg_axis = "x") {
-    fct <- droplevels(data[[var_name]])
+    fct <- if (is.factor(axis_values)) droplevels(axis_values) else factor(axis_values)
     lvs <- levels(fct)
 
     bg_color <- resolve_bg_colors(lvs)
@@ -3381,16 +3383,30 @@ fmt_bg <- function(plot,
 
   fmt_bg_one <- function(p) {
     mapping_var <- p$mapping[[bg_axis]]
+    axis_data <- p$data
+    for (layer in p$layers) {
+      layer_mapping <- layer$mapping[[bg_axis]]
+      if (is.null(layer_mapping) && layer$inherit.aes) layer_mapping <- mapping_var
+      layer_data <- if (is.data.frame(layer$data)) layer$data else axis_data
+      if (!is.null(layer_mapping) && is.data.frame(layer_data)) {
+        mapping_var <- layer_mapping
+        axis_data <- layer_data
+        break
+      }
+    }
     if (is.null(mapping_var)) {
       cli::cli_warn("No {bg_axis}-axis mapping found; skipping background.")
       return(p)
     }
-    axis_var <- rlang::as_name(mapping_var)
+    axis_values <- rlang::eval_tidy(mapping_var, data = axis_data)
+    if (!is.factor(axis_values) && !is.character(axis_values) && !is.logical(axis_values)) {
+      cli::cli_warn("The {bg_axis}-axis must be categorical; skipping background.")
+      return(p)
+    }
     facet_vars <- extract_facet_vars(p)
 
     bg_layer <- build_bg_layer(
-      data = p$data, var_name = axis_var,
-      palette = palette, palcolor = palcolor, alpha = alpha,
+      data = axis_data, axis_values = axis_values, alpha = alpha,
       facet_by = facet_vars, bg_axis = bg_axis
     )
     p$layers <- c(list(bg_layer), p$layers)
