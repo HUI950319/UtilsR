@@ -23,7 +23,8 @@
 #
 #   L2  internals
 #         .resolve_tag_position()      tag keyword -> panel coordinates
-#         .extract_discrete_levels()   read discrete axis levels off a plot
+#         .axis_tile_guide()           style trained discrete axis guides
+#         .axis_tile_facet()           attach panel-relative color strips
 #
 # The container helpers (.to_plot_list / .from_plot_list /
 # flatten_patchwork) live in fmt_plot_utils.R, which is why every formatter
@@ -2633,14 +2634,16 @@ fmt_axisText <- function(plot,
 
 #' Add colored tiles between axis and labels
 #'
-#' Insert a strip of colored tiles between the plot area and the axis text
-#' labels. Two modes are available:
+#' Insert colored tiles at the discrete axis or color its text labels.
+#' Colors are matched to trained scale values, independently of displayed
+#' labels. Scale order, selected breaks, dropped levels and missing categories
+#' are respected. Data and statistics are evaluated only when the plot is built.
+#' Two modes are available:
 #' \itemize{
-#'   \item \code{"tile"} (default) — insert a \code{geom_tile} color strip
-#'     between the axis line and text labels via patchwork. Labels appear
-#'     below (x-axis) or beside (y-axis) the tiles.
-#'   \item \code{"text"} — color the axis label text directly (no background
-#'     tile), lightweight but uses unofficial vectorized \code{element_text}.
+#'   \item \code{"tile"} (default) — draw a colored strip between the
+#'     axis line and labels using the axis guide. Axis titles are retained.
+#'   \item \code{"text"} — color individual axis labels without vectorized
+#'     theme elements or a background tile.
 #' }
 #'
 #' @param plot A ggplot, patchwork, or list of ggplot objects.
@@ -2651,9 +2654,9 @@ fmt_axisText <- function(plot,
 #' @param mode \code{"tile"} (default) or \code{"text"}.
 #' @param axis Which axis to apply to: \code{"x"} (default) or \code{"y"}.
 #' @param tile_height Positive finite numeric. Relative height of the tile strip when
-#'   \code{axis = "x"}. Default 0.06.
+#'   \code{axis = "x"}, as a fraction of the main panel height. Default 0.06.
 #' @param tile_width Positive finite numeric. Relative width of the tile strip when
-#'   \code{axis = "y"}. Default 0.06.
+#'   \code{axis = "y"}, as a fraction of the main panel width. Default 0.06.
 #' @param tile_border Color of tile borders. Default \code{"white"}.
 #' @param tile_border_width Non-negative finite line width of tile borders. Default 0.2.
 #' @param text_size Positive finite size of axis text labels below/beside tiles. Default 9.
@@ -2665,8 +2668,9 @@ fmt_axisText <- function(plot,
 #' @param show_text Logical. Show text labels below/beside tiles?
 #'   Default \code{TRUE}. Set \code{FALSE} to hide labels in either mode.
 #'
-#' @return A patchwork object (when \code{mode = "tile"}) or same type as
-#'   input (when \code{mode = "text"}).
+#' @return In tile mode, a single non-empty ggplot is wrapped in a patchwork;
+#'   patchworks retain their container and lists return lists of formatted plots.
+#'   Text mode retains the input container type. Empty data plots are unchanged.
 #'
 #' @examples
 #' library(ggplot2)
@@ -2750,125 +2754,227 @@ fmt_axisTile <- function(plot,
   if (is.null(text_angle)) text_angle <- if (axis == "x") 45 else 0
 
   info <- .to_plot_list(plot)
-  plots <- info$plots
-
-  # ---- Text mode: color axis labels directly ----
-  if (mode == "text") {
-    text_theme_fn <- function(p) {
-      lvs <- .extract_discrete_levels(p, axis)
-      if (is.null(lvs)) return(p)
-      if (!show_text) return(p + do.call(ggplot2::theme,
-        stats::setNames(list(ggplot2::element_blank()), paste0("axis.text.", axis))))
-      col_vec <- colors[as.character(lvs)]
-      col_vec[is.na(col_vec)] <- text_color
-      if (axis == "x") {
-        hjust <- if (text_angle > 0) 1 else if (text_angle < 0) 0 else 0.5
-        p + ggplot2::theme(axis.text.x = ggplot2::element_text(
-          colour = col_vec, face = text_face, size = text_size,
-          angle = text_angle, hjust = hjust))
-      } else {
-        p + ggplot2::theme(axis.text.y = ggplot2::element_text(
-          colour = col_vec, face = text_face, size = text_size,
-          angle = text_angle))
-      }
+  format_one <- function(p) {
+    if (is.data.frame(p$data) && nrow(p$data) == 0L) return(p)
+    original <- p$guides$guides[[axis]]
+    scale <- p$scales$get_scales(axis)
+    if (is.null(original) && !is.null(scale)) original <- scale$guide
+    if (inherits(original, "AxisTileGuide")) {
+      params <- original$params
+      params$axis_tile <- NULL
+      original <- do.call(ggplot2::ggproto, list(NULL, original$axis_tile_parent, params = params))
     }
-    info$plots <- lapply(plots, text_theme_fn)
-    return(.from_plot_list(info$plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig))
+    if (!inherits(original, "GuideAxis")) original <- ggplot2::guide_axis()
+    guide <- .axis_tile_guide(original, list(
+      colors = colors, mode = mode, tile_height = tile_height, tile_width = tile_width,
+      tile_border = tile_border, tile_border_width = tile_border_width,
+      text_size = text_size, text_face = text_face, text_angle = text_angle,
+      text_color = text_color, show_text = show_text
+    ))
+    p <- p + do.call(ggplot2::guides, stats::setNames(list(guide), axis))
+    facet <- p$facet
+    if (inherits(facet, "AxisTileFacet")) facet <- facet$axis_tile_parent
+    if (any(vapply(p$guides$guides, function(g) {
+      inherits(g, "AxisTileGuide") && identical(g$params$axis_tile$mode, "tile")
+    }, logical(1)))) facet <- .axis_tile_facet(facet)
+    p$facet <- facet
+    p
   }
-
-  # ---- Tile mode: color strip + labels below/beside ----
-
-  build_tile_bar <- function(lvs, orientation = "x") {
-    df_bar <- data.frame(
-      lbl = factor(lvs, levels = lvs),
-      pos = 1
-    )
-    col_use <- stats::setNames(colors[as.character(lvs)], as.character(lvs))
-    col_use[is.na(col_use)] <- "grey70"
-
-    if (orientation == "x") {
-      p_bar <- ggplot2::ggplot(df_bar, ggplot2::aes(
-        x = .data[["lbl"]], y = .data[["pos"]], fill = .data[["lbl"]])) +
-        ggplot2::geom_tile(color = tile_border, linewidth = tile_border_width) +
-        ggplot2::scale_fill_manual(values = col_use, guide = "none") +
-        ggplot2::scale_x_discrete(drop = FALSE) +
-        ggplot2::theme_void() +
-        ggplot2::theme(plot.margin = ggplot2::margin(0, 0, 0, 0))
-
-      # Text labels below the tiles as axis text
-      if (show_text) {
-        hjust <- if (text_angle > 0) 1 else if (text_angle < 0) 0 else 0.5
-        vjust <- if (abs(text_angle) >= 90) 0.5 else 1
-        p_bar <- p_bar + ggplot2::theme(
-          axis.text.x = ggplot2::element_text(
-            size = text_size, face = text_face, color = text_color,
-            angle = text_angle, hjust = hjust, vjust = vjust))
-      }
-    } else {
-      p_bar <- ggplot2::ggplot(df_bar, ggplot2::aes(
-        x = .data[["pos"]], y = .data[["lbl"]], fill = .data[["lbl"]])) +
-        ggplot2::geom_tile(color = tile_border, linewidth = tile_border_width) +
-        ggplot2::scale_fill_manual(values = col_use, guide = "none") +
-        ggplot2::scale_y_discrete(drop = FALSE) +
-        ggplot2::theme_void() +
-        ggplot2::theme(plot.margin = ggplot2::margin(0, 0, 0, 0))
-
-      if (show_text) {
-        p_bar <- p_bar + ggplot2::theme(
-          axis.text.y = ggplot2::element_text(
-            size = text_size, face = text_face, color = text_color,
-            angle = text_angle, hjust = 1))
-      }
-    }
-    p_bar
-  }
-
-  blank <- ggplot2::element_blank()
-
-  combine_one <- function(p) {
-    lvs <- .extract_discrete_levels(p, axis)
-    if (is.null(lvs)) return(p)
-    p_bar <- build_tile_bar(lvs, axis)
-
-    if (axis == "x") {
-      # Hide original x-axis text, keep axis title on the main plot
-      p <- p + ggplot2::theme(
-        axis.text.x = blank, axis.ticks.x = blank,
-        axis.title.x = blank)
-      # Move x-axis title below tiles if present
-      patchwork::wrap_plots(p, p_bar, ncol = 1,
-                            heights = c(1, tile_height))
-    } else {
-      p <- p + ggplot2::theme(
-        axis.text.y = blank, axis.ticks.y = blank,
-        axis.title.y = blank)
-      patchwork::wrap_plots(p_bar, p, ncol = 2,
-                            widths = c(tile_width, 1))
-    }
-  }
-
-  if (info$is_single) {
-    return(combine_one(plots[[1]]))
-  }
-
-  combined <- lapply(plots, combine_one)
-  if (info$is_patchwork) {
-    patchwork::wrap_plots(combined)
-  } else {
-    combined
-  }
+  info$plots <- lapply(info$plots, function(p) {
+    q <- format_one(p)
+    if (mode == "tile" && !info$is_patchwork && !identical(q, p)) {
+      patchwork::wrap_plots(q)
+    } else q
+  })
+  .from_plot_list(info$plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
 }
 
-#' Extract discrete axis levels from a ggplot
+#' Adapt an axis guide to color trained discrete categories
 #' @noRd
-.extract_discrete_levels <- function(p, axis = "x") {
-  if (is.data.frame(p$data) && nrow(p$data) == 0L) return(NULL)
-  mapping_var <- p$mapping[[axis]]
-  if (is.null(mapping_var)) return(NULL)
-  var_name <- rlang::as_name(mapping_var)
-  if (is.null(p$data) || !var_name %in% colnames(p$data)) return(NULL)
-  col <- p$data[[var_name]]
-  if (is.factor(col)) levels(col) else sort(unique(col))
+.axis_tile_guide <- function(parent, settings) {
+  params <- parent$params
+  params$axis_tile <- settings
+  ggplot2::ggproto("AxisTileGuide", parent,
+    axis_tile_parent = parent,
+    params = params,
+    hashables = c(parent$hashables, rlang::exprs(axis_tile)),
+    extract_key = function(scale, aesthetic, ...) {
+      key <- parent$extract_key(scale, aesthetic, ...)
+      if (!scale$is_discrete() || settings$mode == "text") return(key)
+      values <- scale$get_limits()
+      if (!length(values)) return(key)
+      positions <- scale$map(values)
+      full <- data.frame(.value = values, .fmt_lower = positions - 0.5,
+                           .fmt_upper = positions + 0.5)
+      full[[aesthetic]] <- positions
+      index <- match(values, key$.value)
+      full$.label <- if (is.null(key)) rep(NA_character_, length(values)) else key$.label[index]
+      full$.fmt_label <- !is.na(index)
+      full
+    },
+    extract_params = function(scale, params, ...) {
+      params <- parent$extract_params(scale, params, ...)
+      params$fmt_discrete <- scale$is_discrete()
+      params
+    },
+    transform = function(params, coord, panel_params) {
+      original <- params
+      params <- parent$transform(params, coord, panel_params)
+      if (!isTRUE(params$fmt_discrete) || settings$mode != "tile") return(params)
+      display_axis <- if (params$position %in% c("left", "right")) "y" else "x"
+      for (field in c(".fmt_lower", ".fmt_upper")) {
+        bounds <- original
+        bounds$decor <- NULL
+        bounds$key[[original$aesthetic]] <- original$key[[field]]
+        bounds <- parent$transform(bounds, coord, panel_params)
+        params$key[[field]] <- bounds$key[[display_axis]]
+      }
+      params
+    },
+    draw = function(self, theme, position = NULL, direction = NULL, params = self$params) {
+      if (!isTRUE(params$fmt_discrete)) {
+        return(parent$draw(theme, position, direction, params))
+      }
+      ggplot2::ggproto_parent(parent, self)$draw(theme, position, direction, params)
+    },
+    override_elements = function(params, elements, theme) {
+      elements <- parent$override_elements(params, elements, theme)
+      if (settings$show_text) {
+        angle <- settings$text_angle
+        vertical <- params$vertical
+        text <- ggplot2::element_text(
+          colour = settings$text_color, size = settings$text_size, face = settings$text_face,
+          angle = angle, hjust = if (vertical) 1 else if (angle > 0) 1 else if (angle < 0) 0 else 0.5,
+          vjust = if (abs(angle) >= 90 || vertical) 0.5 else 1, inherit.blank = FALSE
+        )
+        inherited <- elements$text
+        if (inherits(inherited, "element_blank")) {
+          inherited <- ggplot2::calc_element("axis.text", ggplot2::theme_gray())
+        }
+        elements$text <- ggplot2::merge_element(text, inherited)
+      } else elements$text <- ggplot2::element_blank()
+      if (settings$mode == "tile") {
+        elements$major_length <- grid::unit(0, "cm")
+        elements$minor_length <- grid::unit(0, "cm")
+      }
+      elements
+    },
+    build_ticks = function(key, elements, params, ...) {
+      if (settings$mode != "tile") return(parent$build_ticks(key, elements, params, ...))
+      low <- pmax(0, pmin(key$.fmt_lower, key$.fmt_upper))
+      high <- pmin(1, pmax(key$.fmt_lower, key$.fmt_upper))
+      keep <- is.finite(low) & is.finite(high) & high > low
+      fill <- unname(settings$colors[as.character(key$.value[keep])])
+      fill[is.na(fill)] <- "grey70"
+      position <- (low[keep] + high[keep]) / 2
+      width <- high[keep] - low[keep]
+      tile <- grid::rectGrob(
+        x = if (params$vertical) 0.5 else position,
+        y = if (params$vertical) position else 0.5,
+        width = if (params$vertical) 1 else width,
+        height = if (params$vertical) width else 1,
+        default.units = "npc", name = "axis-color-tiles",
+        gp = grid::gpar(fill = fill, col = settings$tile_border,
+                        lwd = settings$tile_border_width * 72.27 / 25.4)
+      )
+      attr(tile, "axis_tile") <- list(vertical = params$vertical, position = params$position,
+        fraction = if (params$vertical) settings$tile_width else settings$tile_height)
+      tile
+    },
+    build_labels = function(key, elements, params) {
+      if (settings$mode == "tile") key <- key[key$.fmt_label, , drop = FALSE]
+      labels <- parent$build_labels(key, elements, params)
+      if (settings$mode != "text" || !settings$show_text || !nrow(key)) return(labels)
+      fill <- unname(settings$colors[as.character(key$.value)])
+      fill[is.na(fill)] <- settings$text_color
+      color_labels <- function(g) {
+        if (inherits(g, "text")) {
+          positions <- as.numeric(if (params$vertical) g$y else g$x)
+          index <- vapply(positions, function(pos) which.min(abs(key[[params$aes]] - pos)), integer(1))
+          g$gp$col <- fill[index]
+        }
+        for (i in seq_along(g$children)) g$children[[i]] <- color_labels(g$children[[i]])
+        g
+      }
+      lapply(labels, color_labels)
+    }
+  )
+}
+
+#' Attach axis-guide tiles using the panel's relative dimensions
+#' @noRd
+.axis_tile_facet <- function(parent) {
+  ggplot2::ggproto("AxisTileFacet", parent,
+    axis_tile_parent = parent,
+    draw_panels = function(...) {
+      table <- parent$draw_panels(...)
+      strips <- list()
+      for (i in grep("^axis-[bltr]", table$layout$name)) {
+        tile <- NULL
+        remove_tile <- function(g) {
+          if (identical(g$name, "axis-color-tiles")) {
+            tile <<- g
+            return(grid::nullGrob())
+          }
+          if (inherits(g, "gtable")) {
+            g$grobs <- lapply(g$grobs, remove_tile)
+          } else {
+            for (j in seq_along(g$children)) g$children[[j]] <- remove_tile(g$children[[j]])
+          }
+          g
+        }
+        axis <- remove_tile(table$grobs[[i]])
+        if (is.null(tile)) next
+        settings <- attr(tile, "axis_tile")
+        lines <- which(vapply(axis$children, inherits, logical(1), "polyline"))
+        strip <- if (length(lines)) {
+          do.call(grid::grobTree, c(list(tile), as.list(axis$children[lines])))
+        } else tile
+        for (j in lines) axis$children[[j]] <- grid::nullGrob()
+        table$grobs[[i]] <- axis
+        strips[[length(strips) + 1L]] <- list(index = i, grob = strip, settings = settings)
+      }
+      panels <- grep("^panel", table$layout$name)
+      for (vertical in c(FALSE, TRUE)) {
+        selected <- which(vapply(strips, function(s) identical(s$settings$vertical, vertical), logical(1)))
+        if (!length(selected)) next
+        positions <- vapply(strips[selected], function(s) {
+          cell <- table$layout[s$index, ]
+          if (vertical) {
+            if (s$settings$position == "left") cell$r else cell$l - 1L
+          } else if (s$settings$position == "top") cell$b else cell$t - 1L
+        }, numeric(1))
+        for (position in sort(unique(positions), decreasing = TRUE)) {
+          group <- selected[positions == position]
+          first <- strips[[group[1L]]]
+          cell <- table$layout[first$index, ]
+          candidates <- if (vertical) {
+            panels[table$layout$t[panels] <= cell$t & table$layout$b[panels] >= cell$b]
+          } else panels[table$layout$l[panels] <= cell$l & table$layout$r[panels] >= cell$r]
+          distances <- if (vertical) abs(table$layout$l[candidates] - cell$l) else
+            abs(table$layout$t[candidates] - cell$t)
+          panel <- candidates[which.min(distances)]
+          size <- first$settings$fraction * if (vertical) {
+            table$widths[table$layout$l[panel]]
+          } else table$heights[table$layout$t[panel]]
+          table <- if (vertical) gtable::gtable_add_cols(table, size, pos = position) else
+            gtable::gtable_add_rows(table, size, pos = position)
+          for (j in group) {
+            strip <- strips[[j]]
+            cell <- table$layout[strip$index, ]
+            table <- gtable::gtable_add_grob(table, strip$grob,
+              t = if (vertical) cell$t else position + 1L,
+              b = if (vertical) cell$b else position + 1L,
+              l = if (vertical) position + 1L else cell$l,
+              r = if (vertical) position + 1L else cell$r,
+              # Include strips in the panel extent so patchwork retains null units.
+              clip = "off", name = paste0("panel-axis-tile-", substr(strip$settings$position, 1, 1)))
+          }
+        }
+      }
+      table
+    }
+  )
 }
 
 # ---- fmt_com ----

@@ -33,10 +33,10 @@ Required; names must be unique and non-empty. Missing colors use
 \item{axis}{Which axis to apply to: \code{"x"} (default) or \code{"y"}.}
 
 \item{tile_height}{Positive finite numeric. Relative height of the tile strip when
-\code{axis = "x"}. Default 0.06.}
+\code{axis = "x"}, as a fraction of the main panel height. Default 0.06.}
 
 \item{tile_width}{Positive finite numeric. Relative width of the tile strip when
-\code{axis = "y"}. Default 0.06.}
+\code{axis = "y"}, as a fraction of the main panel width. Default 0.06.}
 
 \item{tile_border}{Color of tile borders. Default \code{"white"}.}
 
@@ -56,18 +56,21 @@ text-mode labels. Default \code{"black"}.}
 Default \code{TRUE}. Set \code{FALSE} to hide labels in either mode.}
 }
 \value{
-A patchwork object (when \code{mode = "tile"}) or same type as
-  input (when \code{mode = "text"}).
+In tile mode, a single non-empty ggplot is wrapped in a patchwork;
+  patchworks retain their container and lists return lists of formatted plots.
+  Text mode retains the input container type. Empty data plots are unchanged.
 }
 \description{
-Insert a strip of colored tiles between the plot area and the axis text
-labels. Two modes are available:
+Insert colored tiles at the discrete axis or color its text labels.
+Colors are matched to trained scale values, independently of displayed
+labels. Scale order, selected breaks, dropped levels and missing categories
+are respected. Data and statistics are evaluated only when the plot is built.
+Two modes are available:
 \itemize{
-  \item \code{"tile"} (default) — insert a \code{geom_tile} color strip
-    between the axis line and text labels via patchwork. Labels appear
-    below (x-axis) or beside (y-axis) the tiles.
-  \item \code{"text"} — color the axis label text directly (no background
-    tile), lightweight but uses unofficial vectorized \code{element_text}.
+  \item \code{"tile"} (default) — draw a colored strip between the
+    axis line and labels using the axis guide. Axis titles are retained.
+  \item \code{"text"} — color individual axis labels without vectorized
+    theme elements or a background tile.
 }
 }
 \examples{

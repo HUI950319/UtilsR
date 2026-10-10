@@ -1,5 +1,12 @@
 # UtilsR 0.6.8
 
+* `fmt_axisTile()` colors trained axis values instead of raw data levels,
+  respecting scale order, breaks, display labels, unused levels and NA values.
+  Both modes use axis guides, retain axis titles and defer data/statistic
+  evaluation until drawing. Text mode no longer uses vectorized theme elements.
+  Tile thickness retains its main-panel proportions, and the existing
+  patchwork/list return types are retained. The guide API requires ggplot2 >= 3.5.0.
+
 * `fmt_axisText()` returns its validated input unchanged for empty calls and
   avoids repeated empty-theme construction and element-tree lookups. Explicit
   additional theme fields retain precedence. Help and examples cover the
