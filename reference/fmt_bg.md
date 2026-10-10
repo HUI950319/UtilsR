@@ -6,7 +6,9 @@ categorical mapping expressions and data supplied directly to a layer
 are supported. Stripes follow the trained scale order, including unused
 and missing categories and the local categories of free-scale facets.
 Facet expressions and marginal panels are supported without changing the
-plot's fill scales or legends.
+plot's fill scales or legends. Background bounds are created during
+drawing, after position-scale transformations, so log-scaled continuous
+axes retain their stripes.
 
 ## Usage
 

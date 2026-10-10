@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
+  creates background bounds after position-scale transformations,
+  retaining stripes on log-scaled axes without warnings from infinite
+  bounds.
+
+- [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
   supports facet expressions and marginal panels, binds stripe colors
   during panel drawing, and retains the original fill scales and
   legends. It no longer expands all categories across the raw facet
