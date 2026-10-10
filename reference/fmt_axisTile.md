@@ -51,7 +51,9 @@ fmt_axisTile(
 
 - axis:
 
-  Which axis to apply to: `"x"` (default) or `"y"`.
+  Physical axis to apply to: `"x"` (horizontal, default) or `"y"`
+  (vertical), including after
+  [`coord_flip()`](https://ggplot2.tidyverse.org/reference/coord_flip.html).
 
 - tile_height:
 
