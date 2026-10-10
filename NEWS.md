@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `plt_sankey()` keeps nodes distinct across variables even when their labels
+  match, and retains node colours when changing label styles.
+
 * `fmt_bg()` honors manual colors without requiring `plotthis`, retains its
   default rainbow palette, and reports invalid colors and palette errors.
 

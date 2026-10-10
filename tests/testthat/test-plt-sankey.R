@@ -30,9 +30,9 @@ test_that("plt_sankey retains the default and existing label styles", {
             "High (25.0%)", "Low (75.0%)"),
     name = c("F", "M", "II", "I", "High", "Low")
   )
-  expect_identical(levels(sankey_plot()$data$node), expected$all)
+  expect_identical(levels(sankey_plot()$data$label), expected$all)
   for (style in names(expected)) {
-    expect_identical(levels(sankey_plot(show_text = style)$data$node),
+    expect_identical(levels(sankey_plot(show_text = style)$data$label),
                      expected[[style]])
   }
 })
@@ -46,7 +46,7 @@ test_that("plt_sankey places count and percentage together on the second line", 
     "High\n(1, 25.0%)", "Low\n(3, 75.0%)"
   )
   expect_s3_class(plot, "ggplot")
-  expect_identical(levels(plot$data$node), expected)
+  expect_identical(levels(plot$data$label), expected)
   expect_setequal(as.character(ggplot2::ggplot_build(plot)$data[[3]]$label),
                   expected)
 })
@@ -115,4 +115,23 @@ test_that("plt_sankey validates named variable maps", {
   expect_error(sankey_plot(vars = c(sex = 1, stage = 2)), "character")
   expect_error(sankey_plot(vars = c(sex = "Sex", missing = "Stage")),
                "not found.*missing")
+})
+
+test_that("plt_sankey keeps identical category labels distinct across variables", {
+  skip_if_not_installed("ggsankey")
+
+  data <- data.frame(a = c("No", "Yes", "No", "Yes"),
+                     b = c("No", "Yes", "Yes", "No"))
+  plain <- sankey_plot(data, show_text = "name")
+  counts <- sankey_plot(data, show_text = "all_wrap")
+  plain_build <- ggplot2::ggplot_build(plain)
+  counts_build <- ggplot2::ggplot_build(counts)
+  nodes <- plain_build$data[[2]]
+  expect_equal(nrow(nodes), 4L)
+  expect_equal(nodes$ymax - nodes$ymin, rep(2, 4))
+  expect_equal(length(unique(nodes$node)), 4L)
+  expect_equal(table(as.character(plain_build$data[[3]]$label)),
+               table(c("No", "Yes", "No", "Yes")))
+  expect_identical(plain$data$node, counts$data$node)
+  expect_identical(nodes$fill, counts_build$data[[2]]$fill)
 })

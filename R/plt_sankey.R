@@ -123,6 +123,7 @@ plt_sankey <- function(data,
 
   # Add count + percentage labels to each variable
   label_vars <- character(length(vars))
+  node_labels <- character()
   for (i in seq_along(vars)) {
     v <- vars[i]
     lv <- paste0(v, "_label")
@@ -145,7 +146,13 @@ plt_sankey <- function(data,
     # Preserve factor order
     lvl_df <- dplyr::distinct(data[, c(v, lv)])
     lvl_df <- lvl_df[order(lvl_df[[v]]), ]
-    data[[lv]] <- factor(data[[lv]], levels = lvl_df[[lv]])
+    node_levels <- paste0(".sankey_", i, "_", seq_len(nrow(lvl_df)))
+    keep_label <- !is.na(lvl_df[[lv]])
+    node_labels <- c(node_labels, stats::setNames(
+      as.character(lvl_df[[lv]][keep_label]), node_levels[keep_label]
+    ))
+    data[[lv]] <- factor(node_levels[match(data[[v]], lvl_df[[v]])],
+                         levels = node_levels[keep_label])
     data$.n <- NULL
     data$.pct <- NULL
   }
@@ -161,6 +168,8 @@ plt_sankey <- function(data,
   # Set node factor levels
   all_levels <- unlist(lapply(label_vars, function(lv) levels(data[[lv]])))
   plot_data$node <- factor(plot_data$node, levels = all_levels)
+  plot_data$label <- factor(unname(node_labels[as.character(plot_data$node)]),
+                            levels = unique(unname(node_labels)))
 
   # Generate colours (always as plain character, not palette class)
   if (is.null(palette)) {
@@ -184,7 +193,7 @@ plt_sankey <- function(data,
     x = .data[["x"]], next_x = .data[["next_x"]],
     node = .data[["node"]], next_node = .data[["next_node"]],
     fill = factor(.data[["node"]]),
-    label = .data[["node"]]
+    label = .data[["label"]]
   )) +
     ggsankey::geom_sankey(
       flow.alpha = alpha, flow.fill = "grey", flow.color = "grey80",
