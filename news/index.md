@@ -2,6 +2,11 @@
 
 ## UtilsR 0.6.8
 
+- [`fmt_axisText()`](https://hui950319.github.io/UtilsR/reference/fmt_axisText.md)
+  applies explicit horizontal and vertical justification without
+  requiring a rotation angle, retaining the existing angle and other
+  styling.
+
 - [`fmt_axisTile()`](https://hui950319.github.io/UtilsR/reference/fmt_axisTile.md)
   validates named color maps and scalar styling arguments, uses the
   intended fallback colors for missing categories, honors `show_text` in

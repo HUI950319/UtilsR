@@ -40,23 +40,25 @@ fmt_axisText(
 
 - x_hjust:
 
-  Numeric. Horizontal justification for X-axis text. Default `NULL`
-  (auto: 1 when `x > 0`, 0 when `x < 0`, 0.5 when `x = 0`).
+  Numeric. Horizontal justification for X-axis text. Can be set without
+  supplying `x`. Default `NULL` (auto: 1 when `x > 0`, 0 when `x < 0`,
+  0.5 when `x = 0`).
 
 - x_vjust:
 
-  Numeric. Vertical justification for X-axis text. Default `NULL` (auto:
-  0.5 when `abs(x) >= 90`, 1 otherwise).
+  Numeric. Vertical justification for X-axis text. Can be set without
+  supplying `x`. Default `NULL` (auto: 0.5 when `abs(x) >= 90`, 1
+  otherwise).
 
 - y_hjust:
 
-  Numeric. Horizontal justification for Y-axis text. Default `NULL`
-  (auto).
+  Numeric. Horizontal justification for Y-axis text. Can be set without
+  supplying `y`. Default `NULL` (auto).
 
 - y_vjust:
 
-  Numeric. Vertical justification for Y-axis text. Default `NULL`
-  (auto).
+  Numeric. Vertical justification for Y-axis text. Can be set without
+  supplying `y`. Default `NULL` (auto).
 
 - size:
 
