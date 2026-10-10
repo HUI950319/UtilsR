@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
+  resolves one category colour map for all panels and data layers,
+  keeping unnamed and palette colours consistent across free-scale
+  facets.
+
+- [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
   defers mapping expressions and data callbacks to ggplot, supporting
   [`after_stat()`](https://ggplot2.tidyverse.org/reference/aes_eval.html)
   categories without changing random draws or executing callbacks twice.
