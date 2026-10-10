@@ -2753,7 +2753,7 @@ fmt_axisTile <- function(plot,
   # Default text_angle: 45 for x-axis, 0 for y-axis
   if (is.null(text_angle)) text_angle <- if (axis == "x") 45 else 0
 
-  info <- .to_plot_list(plot)
+  info <- .to_plot_list(plot, recurse = TRUE)
   format_one <- function(p) {
     if (is.data.frame(p$data) && nrow(p$data) == 0L) return(p)
     original <- p$guides$guides[[axis]]
@@ -2780,13 +2780,21 @@ fmt_axisTile <- function(plot,
     p$facet <- facet
     p
   }
-  info$plots <- lapply(info$plots, function(p) {
-    q <- format_one(p)
-    if (mode == "tile" && !info$is_patchwork && !identical(q, p)) {
-      patchwork::wrap_plots(q)
-    } else q
-  })
-  .from_plot_list(info$plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
+  info$plots <- lapply(info$plots, format_one)
+  result <- .from_plot_list(info$plots, info$is_patchwork, info$is_single,
+                            pw_orig = info$pw_orig, recurse = TRUE)
+  if (mode == "tile" && !info$is_patchwork) {
+    if (info$is_single) {
+      if (!identical(result, plot)) result <- patchwork::wrap_plots(result)
+    } else {
+      for (i in seq_along(result)) {
+        if (!inherits(plot[[i]], "patchwork") && !identical(result[[i]], plot[[i]])) {
+          result[[i]] <- patchwork::wrap_plots(result[[i]])
+        }
+      }
+    }
+  }
+  result
 }
 
 #' Adapt an axis guide to color trained discrete categories

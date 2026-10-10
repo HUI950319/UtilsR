@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_axisTile()` visits editable leaves in nested patchworks and named lists,
+  retains layouts, annotations, freed alignment, fixed graphics and insets,
+  and supports repeated calls and switching modes without nesting tile strips.
+
 * `fmt_axisTile()` colors trained axis values instead of raw data levels,
   respecting scale order, breaks, display labels, unused levels and NA values.
   Both modes use axis guides, retain axis titles and defer data/statistic

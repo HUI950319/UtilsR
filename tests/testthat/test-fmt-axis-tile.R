@@ -123,6 +123,47 @@ test_that("empty discrete data does not create a tile strip", {
   expect_identical(fmt_axisTile(p, axis_tile_colors), p)
 })
 
+test_that("axis tiles visit nested leaves and retain layouts and fixed entries", {
+  p <- axis_tile_plot()
+  inset <- p + patchwork::inset_element(p, 0.6, 0.6, 1, 1)
+  fixed <- patchwork::wrap_elements(full = grid::textGrob("FIXED"))
+  pw <- patchwork::free((p | patchwork::plot_spacer()) / (inset | fixed), side = "l") +
+    patchwork::plot_annotation(title = "KEEP_TITLE", caption = "KEEP_CAPTION")
+  for (mode in c("tile", "text")) {
+    q <- fmt_axisTile(pw, axis_tile_colors, mode = mode)
+    expect_identical(q$patches$layout, pw$patches$layout)
+    expect_identical(q$patches$annotation, pw$patches$annotation)
+    expect_identical(attr(q, "patchwork_free_settings"), attr(pw, "patchwork_free_settings"))
+    leaves <- .to_plot_list(q, recurse = TRUE)$plots
+    expect_true(all(vapply(leaves, function(z) inherits(z$guides$guides$x, "AxisTileGuide"), logical(1))))
+    expect_true(all(c("KEEP_TITLE", "KEEP_CAPTION", "FIXED") %in%
+      axis_tile_text(patchwork::patchworkGrob(q))$label))
+  }
+})
+
+test_that("repeated axis formatting updates guides without nesting or duplicate tiles", {
+  p <- axis_tile_plot()
+  inputs <- list(p, list(first = p, second = p | p))
+  for (input in inputs) {
+    first <- fmt_axisTile(input, axis_tile_colors)
+    second <- fmt_axisTile(first, axis_tile_colors)
+    tree <- function(z) {
+      if (inherits(z, "patchwork")) return(lapply(seq_along(z), function(i) tree(z[[i]])))
+      if (is.list(z) && !inherits(z, "gg")) return(lapply(z, tree))
+      "plot"
+    }
+    expect_identical(tree(second), tree(first))
+    expect_identical(names(second), names(first))
+    leaves <- .to_plot_list(second, recurse = TRUE)$plots
+    expect_true(all(vapply(leaves, function(z) nrow(axis_tile_rects(ggplot2::ggplotGrob(z))) == 3L,
+                           logical(1))))
+    text <- fmt_axisTile(second, axis_tile_colors, mode = "text")
+    expect_true(all(vapply(.to_plot_list(text, recurse = TRUE)$plots,
+      function(z) is.null(axis_tile_rects(ggplot2::ggplotGrob(z))), logical(1))))
+  }
+})
+
+
 test_that("axis tile positions follow each facet's trained expansion and statistics", {
   dat <- data.frame(category = factor(c("A", "B", "A", "C")),
                        group = c("one", "one", "two", "two"))
