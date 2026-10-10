@@ -2,6 +2,9 @@
 
 ## UtilsR 0.6.8
 
+- [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md)
+  keeps labels centered on their nodes when changing node spacing.
+
 - [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
   supports character and logical categories, mapping expressions, and
   data and mappings supplied directly to a layer. Continuous axes are
