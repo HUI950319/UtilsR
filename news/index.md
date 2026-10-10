@@ -2,6 +2,11 @@
 
 ## UtilsR 0.6.8
 
+- [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
+  aligns stripes with trained category positions, scale limits, unused
+  and missing categories, free-scale facets, and flipped coordinates.
+  Background rectangles no longer expand the original panel ranges.
+
 - [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md)
   keeps labels centered on their nodes when changing node spacing.
 

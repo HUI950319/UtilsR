@@ -3,7 +3,8 @@
 Inserts shaded rectangles behind the data layer, one per level of the
 categorical axis variable. Factor, character and logical axes,
 categorical mapping expressions and data supplied directly to a layer
-are supported.
+are supported. Stripes follow the trained scale order, including unused
+and missing categories and the local categories of free-scale facets.
 
 ## Usage
 
