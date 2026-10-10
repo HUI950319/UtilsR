@@ -30,20 +30,23 @@ Default \code{NULL} (no change).}
 
 \item{x_hjust}{Numeric. Horizontal justification for X-axis text.
 Can be set without supplying \code{x}.
-Default \code{NULL} (auto: 1 when \code{x > 0}, 0 when \code{x < 0},
-0.5 when \code{x = 0}).}
+Default \code{NULL}: automatic alignment follows the bottom or top axis side
+when \code{x} is supplied; otherwise the existing alignment is retained.}
 
 \item{x_vjust}{Numeric. Vertical justification for X-axis text.
 Can be set without supplying \code{x}.
-Default \code{NULL} (auto: 0.5 when \code{abs(x) >= 90}, 1 otherwise).}
+Default \code{NULL}: automatic alignment follows the bottom or top axis side
+when \code{x} is supplied; otherwise the existing alignment is retained.}
 
 \item{y_hjust}{Numeric. Horizontal justification for Y-axis text.
 Can be set without supplying \code{y}.
-Default \code{NULL} (auto).}
+Default \code{NULL}: automatic alignment follows the left or right axis side
+when \code{y} is supplied; otherwise the existing alignment is retained.}
 
 \item{y_vjust}{Numeric. Vertical justification for Y-axis text.
 Can be set without supplying \code{y}.
-Default \code{NULL} (auto).}
+Default \code{NULL}: automatic alignment follows the left or right axis side
+when \code{y} is supplied; otherwise the existing alignment is retained.}
 
 \item{size}{Numeric. Text size for both axes. Default \code{NULL}
 (no change).}
@@ -75,6 +78,8 @@ Guide-local themes and rotation settings are updated without modifying the
 original guides or their other settings. With justification alone, an
 existing guide rotation is retained.
 Existing text element classes, including rich text elements, are retained.
+Automatic Cartesian alignment follows each rendered axis side and treats
+full turns periodically. Explicit justification takes precedence.
 }
 \examples{
 library(ggplot2)

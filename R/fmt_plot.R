@@ -2353,17 +2353,20 @@ fmt_text <- function(plot,
 #'   Default \code{NULL} (no change).
 #' @param x_hjust Numeric. Horizontal justification for X-axis text.
 #'   Can be set without supplying `x`.
-#'   Default \code{NULL} (auto: 1 when \code{x > 0}, 0 when \code{x < 0},
-#'   0.5 when \code{x = 0}).
+#'   Default \code{NULL}: automatic alignment follows the bottom or top axis side
+#'   when `x` is supplied; otherwise the existing alignment is retained.
 #' @param x_vjust Numeric. Vertical justification for X-axis text.
 #'   Can be set without supplying `x`.
-#'   Default \code{NULL} (auto: 0.5 when \code{abs(x) >= 90}, 1 otherwise).
+#'   Default \code{NULL}: automatic alignment follows the bottom or top axis side
+#'   when `x` is supplied; otherwise the existing alignment is retained.
 #' @param y_hjust Numeric. Horizontal justification for Y-axis text.
 #'   Can be set without supplying `y`.
-#'   Default \code{NULL} (auto).
+#'   Default \code{NULL}: automatic alignment follows the left or right axis side
+#'   when `y` is supplied; otherwise the existing alignment is retained.
 #' @param y_vjust Numeric. Vertical justification for Y-axis text.
 #'   Can be set without supplying `y`.
-#'   Default \code{NULL} (auto).
+#'   Default \code{NULL}: automatic alignment follows the left or right axis side
+#'   when `y` is supplied; otherwise the existing alignment is retained.
 #' @param size Numeric. Text size for both axes. Default \code{NULL}
 #'   (no change).
 #' @param color Character. Text color for both axes. Default \code{NULL}
@@ -2382,6 +2385,8 @@ fmt_text <- function(plot,
 #'   original guides or their other settings. With justification alone, an
 #'   existing guide rotation is retained.
 #'   Existing text element classes, including rich text elements, are retained.
+#'   Automatic Cartesian alignment follows each rendered axis side and treats
+#'   full turns periodically. Explicit justification takes precedence.
 #'
 #' @return Same type as input.
 #'
@@ -2416,18 +2421,20 @@ fmt_axisText <- function(plot,
                      ...) {
 
   # ---- Auto-compute hjust/vjust for rotated text ----
-  auto_just <- function(angle, hjust, vjust, axis = "x") {
+  auto_just <- function(angle, hjust, vjust, side = "bottom") {
     if (is.null(angle)) return(list(hjust = hjust, vjust = vjust))
-    if (is.null(hjust)) {
-      hjust <- if (axis == "x") {
-        if (angle > 0) 1 else if (angle < 0) 0 else 0.5
-      } else {
-        if (angle > 0) 0 else if (angle < 0) 1 else 0.5
-      }
-    }
-    if (is.null(vjust)) {
-      vjust <- if (abs(angle) >= 90) 0.5 else if (axis == "x") 1 else 0.5
-    }
+    radians <- (angle %% 360) * pi / 180
+    sine <- sin(radians)
+    cosine <- cos(radians)
+    sine <- if (abs(sine) < 1e-12) 0 else sign(sine)
+    cosine <- if (abs(cosine) < 1e-12) 0 else sign(cosine)
+    defaults <- switch(side,
+      bottom = c(0.5 + 0.5 * sine, 0.5 + 0.5 * cosine),
+      top = c(0.5 - 0.5 * sine, 0.5 - 0.5 * cosine),
+      left = c(0.5 + 0.5 * cosine, 0.5 - 0.5 * sine),
+      right = c(0.5 - 0.5 * cosine, 0.5 + 0.5 * sine))
+    if (is.null(hjust)) hjust <- defaults[1L]
+    if (is.null(vjust)) vjust <- defaults[2L]
     list(hjust = hjust, vjust = vjust)
   }
 
@@ -2435,7 +2442,7 @@ fmt_axisText <- function(plot,
   x_args <- list()
   if (!is.null(x) || !is.null(x_hjust) || !is.null(x_vjust) ||
       !is.null(size) || !is.null(color) || !is.null(face)) {
-    x_just <- auto_just(x, x_hjust, x_vjust, "x")
+    x_just <- auto_just(x, x_hjust, x_vjust, "bottom")
     x_args <- list()
     if (!is.null(x))     x_args$angle <- x
     if (!is.null(x_just$hjust)) x_args$hjust <- x_just$hjust
@@ -2449,7 +2456,7 @@ fmt_axisText <- function(plot,
   y_args <- list()
   if (!is.null(y) || !is.null(y_hjust) || !is.null(y_vjust) ||
       !is.null(size) || !is.null(color) || !is.null(face)) {
-    y_just <- auto_just(y, y_hjust, y_vjust, "y")
+    y_just <- auto_just(y, y_hjust, y_vjust, "left")
     y_args <- list()
     if (!is.null(y))     y_args$angle <- y
     if (!is.null(y_just$hjust)) y_args$hjust <- y_just$hjust
@@ -2474,14 +2481,25 @@ fmt_axisText <- function(plot,
       elements <- intersect(elements, names(ggplot2::get_element_tree()))
       for (name in elements) {
         element <- theme[[name]]
-        if (is.null(element) && name != parent) next
+        side <- if (name %in% paste0(parent, ".", sides)) sub(".*\\.", "", name) else sides[1L]
+        if (is.null(element) && name != parent &&
+            (is.null(fields$angle) || !(name %in% paste0(parent, ".", sides)) ||
+             inherits(theme[[parent]], "element_blank"))) next
         if (inherits(element, "element_blank")) {
           args[[name]] <- element
           next
         }
-        if (is.null(element)) element <- ggplot2::element_text()
-        if (is.null(fields$size)) element$size <- NULL
-        for (field in names(fields)) element[[field]] <- fields[[field]]
+        if (is.null(element)) {
+          inherited <- theme[[parent]]
+          element <- if (inherits(inherited, "element_text")) inherited else ggplot2::element_text()
+          if (inherits(element$size, "rel")) element$size <- ggplot2::rel(1)
+        }
+        element_fields <- fields
+        just <- auto_just(fields$angle, if (axis == "x") x_hjust else y_hjust,
+                            if (axis == "x") x_vjust else y_vjust, side)
+        if (!is.null(just$hjust)) element_fields$hjust <- just$hjust
+        if (!is.null(just$vjust)) element_fields$vjust <- just$vjust
+        for (field in names(element_fields)) element[[field]] <- element_fields[[field]]
         args[[name]] <- element
       }
     }

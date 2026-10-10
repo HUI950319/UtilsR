@@ -207,6 +207,8 @@ test_that("axis text formatting retains rich text elements and hidden parents", 
     expect_s3_class(output$theme[[name]], "element_markdown")
     expect_identical(output$theme[[name]]$padding, element$padding)
     expect_equal(output$theme[[name]]$lineheight, 1.4)
+    expect_s3_class(ggplot2::calc_element("axis.text.x.bottom", output$theme),
+                      "element_markdown")
     expect_no_error(ggplot2::ggplotGrob(output))
     expect_identical(input$theme[[name]]$angle, element$angle)
   }
@@ -224,4 +226,36 @@ test_that("axis text formatting retains rich text elements and hidden parents", 
     axis.text.x = ggplot2::element_text(size = ggplot2::rel(0.8)))
   expect_equal(axis_text_labels(fmt_axisText(input, x = 45))$size,
                  axis_text_labels(input)$size)
+})
+
+test_that("axis text automatic justification follows each Cartesian axis side", {
+  for (side in c("bottom", "top", "left", "right")) {
+    axis <- if (side %in% c("bottom", "top")) "x" else "y"
+    p <- if (axis == "x") axis_text_plot() + ggplot2::scale_x_discrete(position = side) else
+      suppressMessages(axis_text_plot() + ggplot2::scale_y_continuous(position = side,
+        breaks = c(2, 4, 6), labels = c("Low", "Mid", "High")))
+    label <- if (axis == "x") "Alpha" else "Low"
+    for (angle in c(-90, -45, 0, 45, 90)) {
+      q <- do.call(fmt_axisText, c(list(p), stats::setNames(list(angle), axis)))
+      reference <- p + do.call(ggplot2::guides,
+        stats::setNames(list(ggplot2::guide_axis(angle = angle)), axis))
+      actual <- axis_text_labels(q, label)
+      expected <- axis_text_labels(reference, label)
+      expect_equal(c(actual$hjust, actual$vjust), c(expected$hjust, expected$vjust),
+                     info = paste(side, angle))
+    }
+    q <- do.call(fmt_axisText, c(list(p), stats::setNames(list(45, 0.2, 0.3),
+      c(axis, paste0(axis, "_hjust"), paste0(axis, "_vjust")))))
+    labels <- axis_text_labels(q, label)
+    expect_equal(c(labels$hjust, labels$vjust), c(0.2, 0.3))
+  }
+})
+
+test_that("axis text automatic justification treats full turns periodically", {
+  p <- axis_text_plot()
+  for (angles in list(c(0, 360), c(-90, 270), c(45, 405), c(-45, -405))) {
+    labels <- lapply(angles, function(a) axis_text_labels(fmt_axisText(p, x = a), "Alpha"))
+    expect_equal(c(labels[[1]]$hjust, labels[[1]]$vjust),
+                   c(labels[[2]]$hjust, labels[[2]]$vjust))
+  }
 })
