@@ -290,3 +290,66 @@ test_that("numeric annotations do not hide categorical background mappings", {
     expect_identical(ggplot2::ggplot_build(q)$data[-1], ggplot2::ggplot_build(p)$data)
   }
 })
+
+test_that("backgrounds use categorical values produced by statistics", {
+  d <- data.frame(category = rep(c("A", "B", "C"), 1:3))
+  p <- ggplot2::ggplot(d, ggplot2::aes(category, ggplot2::after_stat(factor(count)))) +
+    ggplot2::geom_point(stat = "count")
+  colors <- stats::setNames(bg_colors, 1:3)
+  expect_silent(q <- fmt_bg(p, palcolor = colors, bg_axis = "y"))
+  expect_equal(bg_fills(q), unname(colors))
+  expect_identical(ggplot2::ggplot_build(q)$data[-1], ggplot2::ggplot_build(p)$data)
+})
+
+test_that("background formatting does not execute random mapping expressions", {
+  d <- data.frame(category = factor(rep(c("A", "B", "C"), 20)), value = seq_len(60))
+  for (axis in c("x", "y")) {
+    mapping <- if (axis == "x") ggplot2::aes(sample(category), value) else
+      ggplot2::aes(value, sample(category))
+    p <- ggplot2::ggplot(d, mapping) + ggplot2::geom_point()
+    set.seed(123)
+    seed <- .Random.seed
+    q <- fmt_bg(p, palcolor = bg_colors, bg_axis = axis)
+    expect_identical(.Random.seed, seed)
+    after <- ggplot2::ggplot_build(q)
+    set.seed(123)
+    before <- ggplot2::ggplot_build(p)
+    expect_identical(after$data[-1], before$data)
+  }
+})
+
+test_that("background formatting leaves mapping and data callbacks to ggplot", {
+  d <- bg_plot()$data
+  calls <- 0L
+  categories <- function(x) {
+    calls <<- calls + 1L
+    x
+  }
+  p <- ggplot2::ggplot(d, ggplot2::aes(categories(category), value)) + ggplot2::geom_point()
+  q <- fmt_bg(p, palcolor = bg_colors)
+  expect_equal(calls, 0L)
+  expect_equal(bg_fills(q), unname(bg_colors))
+  expect_equal(calls, 1L)
+  calls <- 0L
+  p <- ggplot2::ggplot(d, ggplot2::aes(category, value)) + ggplot2::geom_point(
+    data = function(x) {
+      calls <<- calls + 1L
+      x
+    })
+  q <- fmt_bg(p, palcolor = bg_colors)
+  expect_equal(calls, 0L)
+  expect_equal(bg_fills(q), unname(bg_colors))
+  expect_equal(calls, 1L)
+})
+
+test_that("deferred mappings retain continuous-axis warnings and palette errors", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(as.numeric(cyl), mpg)) + ggplot2::geom_point()
+  expect_silent(q <- fmt_bg(p))
+  expect_warning(fills <- bg_fills(q), "categorical")
+  expect_null(fills)
+  expect_identical(ggplot2::ggplot_build(q)$data[-1], ggplot2::ggplot_build(p)$data)
+  if (requireNamespace("plotthis", quietly = TRUE)) {
+    p <- ggplot2::ggplot(mtcars, ggplot2::aes(factor(cyl), mpg)) + ggplot2::geom_point()
+    expect_error(bg_fills(fmt_bg(p, palette = "invalid")), "palette|Palette")
+  }
+})

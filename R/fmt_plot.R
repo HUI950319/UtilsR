@@ -3263,6 +3263,9 @@ fmt_com <- function(plot,
 #'   and layer data supplied as data frames, functions or formulas are supported.
 #'   The first applicable categorical layer mapping is used; numeric annotation
 #'   positions are skipped. Continuous axes are skipped with a warning.
+#'   Mapping expressions, including [ggplot2::after_stat()], and data callbacks
+#'   are evaluated only by ggplot during rendering. For these mappings,
+#'   categorical-axis checks and palette resolution are deferred until drawing.
 #'
 #'   Stripes follow the trained scale order, including unused categories and
 #'   the local categories of free-scale facets. Missing categories use
@@ -3277,7 +3280,8 @@ fmt_com <- function(plot,
 #'   original ggplot before wrapping it with [patchwork::wrap_elements()].
 #'   Repeated calls replace this function's background layer while retaining
 #'   all other layers, so transparency does not accumulate.
-#'   Plots with empty or entirely missing categories are returned unchanged.
+#'   Direct column mappings with empty or entirely missing categories are
+#'   returned unchanged; deferred mappings with no categories draw no background.
 #'
 #' @return Same type as input.
 #'
@@ -3354,7 +3358,7 @@ fmt_bg <- function(plot,
     fct <- if (is.factor(axis_values)) droplevels(axis_values) else factor(axis_values)
     lvs <- levels(fct)
 
-    bg_color <- resolve_bg_colors(lvs)
+    bg_color <- if (length(lvs)) resolve_bg_colors(lvs) else NULL
 
     bg_data <- data.frame(.bg = TRUE)
 
@@ -3365,6 +3369,9 @@ fmt_bg <- function(plot,
         params$bg_scales <- lapply(seq_len(nrow(layout$layout)), function(i) {
           layout$get_scales(i)[[bg_axis]]
         })
+        if (!any(vapply(params$bg_scales, function(scale) scale$is_discrete(), logical(1)))) {
+          cli::cli_warn("The {bg_axis}-axis must be categorical; skipping background.")
+        }
         ggplot2::ggproto_parent(ggplot2::GeomRect, self)$draw_layer(data, params, layout, coord)
       },
       draw_panel = function(data, panel_params, coord, bg_scales, na.rm = FALSE) {
@@ -3375,7 +3382,7 @@ fmt_bg <- function(plot,
         keep <- is.finite(positions)
         limits <- limits[keep]
         positions <- positions[keep]
-        if (!length(limits)) return(ggplot2::zeroGrob())
+        if (!length(limits) || all(is.na(limits))) return(ggplot2::zeroGrob())
         extra <- limits[!is.na(limits) & !limits %in% lvs]
         colors <- if (length(extra)) resolve_bg_colors(unique(c(lvs, extra))) else bg_color
         fills <- unname(colors[match(limits, names(colors))])
@@ -3406,32 +3413,38 @@ fmt_bg <- function(plot,
     mapping_var <- p$mapping[[bg_axis]]
     axis_values <- NULL
     has_layer_mapping <- FALSE
-    for (layer in p$layers) {
+    deferred <- FALSE
+    layers <- p$layers
+    if (!length(layers)) layers <- list(list(mapping = p$mapping, data = p$data, inherit.aes = FALSE))
+    for (layer in layers) {
       layer_mapping <- layer$mapping[[bg_axis]]
       if (is.null(layer_mapping) && layer$inherit.aes) layer_mapping <- mapping_var
       if (is.null(layer_mapping)) next
-      layer_data <- layer$layer_data(p$data)
-      if (is.data.frame(layer_data)) {
-        has_layer_mapping <- TRUE
-        values <- rlang::eval_tidy(layer_mapping, data = layer_data)
-        if (is.factor(values) || is.character(values) || is.logical(values)) {
-          axis_values <- values
-          if (length(values) && any(!is.na(values))) break
-        }
+      has_layer_mapping <- TRUE
+      expression <- rlang::get_expr(layer_mapping)
+      layer_data <- if (is.data.frame(layer$data)) layer$data else p$data
+      if (is.function(layer$data) || inherits(layer$data, "formula") ||
+          (is.language(expression) && !is.symbol(expression)) ||
+          (is.symbol(expression) &&
+           (!is.data.frame(layer_data) || !as.character(expression) %in% names(layer_data)))) {
+        deferred <- TRUE
+        break
+      }
+      values <- if (is.symbol(expression)) layer_data[[as.character(expression)]] else expression
+      if (is.factor(values) || is.character(values) || is.logical(values)) {
+        axis_values <- values
+        if (length(values) && any(!is.na(values))) break
       }
     }
-    if (!has_layer_mapping && !is.null(mapping_var)) {
-      axis_values <- rlang::eval_tidy(mapping_var, data = p$data)
-    }
-    if (!has_layer_mapping && is.null(mapping_var)) {
+    if (!has_layer_mapping) {
       cli::cli_warn("No {bg_axis}-axis mapping found; skipping background.")
       return(p)
     }
-    if (!is.factor(axis_values) && !is.character(axis_values) && !is.logical(axis_values)) {
+    if (!deferred && !is.factor(axis_values) && !is.character(axis_values) && !is.logical(axis_values)) {
       cli::cli_warn("The {bg_axis}-axis must be categorical; skipping background.")
       return(p)
     }
-    if (!length(axis_values) || all(is.na(axis_values))) return(p)
+    if (!deferred && (!length(axis_values) || all(is.na(axis_values)))) return(p)
     bg_layer <- build_bg_layer(axis_values, alpha = alpha, bg_axis = bg_axis)
     p$layers <- c(list(bg_layer), Filter(function(layer) {
       !inherits(layer$geom, "GeomBgStripes")
