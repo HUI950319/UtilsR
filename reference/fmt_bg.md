@@ -32,8 +32,9 @@ fmt_bg(
 
   Manual colour vector (overrides palette). Named vectors match category
   values, with unmatched categories using the palette. Unnamed vectors
-  are interpolated to the number of levels. A complete manual colour
-  specification does not require plotthis.
+  are interpolated to the number of levels. Named colours covering all
+  displayed categories, after scale limits are applied, do not require
+  plotthis.
 
 - alpha:
 

@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
+  checks complete named manual colours against displayed scale
+  categories, allowing unused data categories to be excluded by scale
+  limits without resolving an unnecessary palette.
+
+- [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
   draws missing-category stripes in free-scale panels containing only
   missing values when other panels have valid categories, while plots
   with no non-missing categories still draw no background.
