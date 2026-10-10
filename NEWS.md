@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `plt_sankey()` accepts named `vars` vectors mapping column names to axis
+  labels, including line breaks. Unnamed vectors retain their existing behavior.
+
 * `fmt_axisTile()` preserves native axis decorations when transforming category
   boundaries, including with ggplot2 3.5.0.
 

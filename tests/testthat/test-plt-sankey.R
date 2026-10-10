@@ -6,10 +6,10 @@ sankey_data <- function() {
   )
 }
 
-sankey_plot <- function(data = sankey_data(), ...) {
+sankey_plot <- function(data = sankey_data(), vars = names(data), ...) {
   withr::local_options(lifecycle_verbosity = "quiet")
   withCallingHandlers(
-    plt_sankey(data, vars = names(data), ...),
+    plt_sankey(data, vars = vars, ...),
     warning = function(w) {
       if (identical(conditionMessage(w),
                     "attributes are not identical across measure variables; they will be dropped")) {
@@ -78,4 +78,41 @@ test_that("plt_sankey wrapping preserves flows, counts, ordering and colours", {
     }
   }
   expect_identical(data, original)
+})
+
+test_that("plt_sankey accepts variable-to-label maps without changing geometry", {
+  skip_if_not_installed("ggsankey")
+
+  name_map <- c(stage = "Disease\nstage", sex = "Sex", grade = "")
+  plain <- sankey_plot(vars = names(name_map), show_text = "all_wrap")
+  named <- sankey_plot(vars = name_map, show_text = "all_wrap")
+  plain_build <- ggplot2::ggplot_build(plain)
+  named_build <- ggplot2::ggplot_build(named)
+
+  expect_identical(named$data, plain$data)
+  expect_equal(named_build$data, plain_build$data)
+  expect_identical(plain_build$layout$panel_scales_x[[1]]$get_labels(),
+                   paste0(names(name_map), "_label"))
+  expect_identical(as.character(named_build$layout$panel_scales_x[[1]]$get_labels()),
+                   unname(name_map))
+  reordered <- ggplot2::ggplot_build(suppressMessages(named + ggplot2::scale_x_discrete(
+    limits = c("sex_label", "stage_label", "grade_label"),
+    labels = named$scales$get_scales("x")$labels
+  )))
+  expect_identical(as.character(reordered$layout$panel_scales_x[[1]]$get_labels()),
+                   unname(name_map[c("sex", "stage", "grade")]))
+})
+
+test_that("plt_sankey validates named variable maps", {
+  skip_if_not_installed("ggsankey")
+
+  expect_error(sankey_plot(vars = c(sex = "Sex", "Stage")), "non-empty")
+  expect_error(sankey_plot(vars = c(sex = "Sex", sex = "Stage")), "unique")
+  expect_error(sankey_plot(vars = setNames(c("Sex", "Stage"), c("sex", NA))),
+               "non-empty")
+  expect_error(sankey_plot(vars = c(sex = "Sex", stage = NA_character_)),
+               "non-missing")
+  expect_error(sankey_plot(vars = c(sex = 1, stage = 2)), "character")
+  expect_error(sankey_plot(vars = c(sex = "Sex", missing = "Stage")),
+               "not found.*missing")
 })

@@ -9,8 +9,13 @@
 #' count, and percentage.
 #'
 #' @param data A data frame.
-#' @param vars Character vector of categorical variable names (>= 2).
-#'   Variables are displayed left-to-right in the given order.
+#' @param vars Character vector selecting at least two categorical variables,
+#'   displayed left-to-right in the given order. An unnamed vector contains
+#'   column names and retains the existing axis labels. A named vector maps
+#'   column names to display labels, e.g. \code{c(sex = "Sex", stage = "Stage")}.
+#'   All names must be non-empty, unique column names; partially named vectors
+#'   are not supported. Labels must be non-missing strings. Empty strings hide
+#'   individual labels, and line breaks are preserved.
 #' @param palette Colour palette name from \code{pal_get()}, or a character
 #'   vector of colours. Default \code{NULL} auto-generates colours per variable
 #'   using sequential HCL palettes.
@@ -54,6 +59,9 @@
 #' # Two variables
 #' plt_sankey(df, vars = c("sex", "stage"))
 #'
+#' # Map column names to axis labels
+#' plt_sankey(df, vars = c(sex = "Sex", stage = "Disease\nstage"))
+#'
 #' # Custom palette
 #' plt_sankey(df, vars = c("sex", "stage"), palette = "Paired")
 #'
@@ -89,6 +97,17 @@ plt_sankey <- function(data,
 
   if (!is.data.frame(data)) cli::cli_abort("{.arg data} must be a data frame.")
   if (length(vars) < 2) cli::cli_abort("{.arg vars} must have at least 2 variables.")
+  var_labels <- NULL
+  if (!is.null(names(vars))) {
+    if (!is.character(vars) || anyNA(vars)) {
+      cli::cli_abort("Named {.arg vars} must contain non-missing character labels.")
+    }
+    if (anyNA(names(vars)) || any(names(vars) == "") || anyDuplicated(names(vars))) {
+      cli::cli_abort("Named {.arg vars} must have non-empty, unique column names.")
+    }
+    var_labels <- stats::setNames(unname(vars), paste0(names(vars), "_label"))
+    vars <- names(vars)
+  }
   missing_vars <- vars[!vars %in% names(data)]
   if (length(missing_vars) > 0) cli::cli_abort("Variable{?s} not found: {.val {missing_vars}}")
 
@@ -161,7 +180,7 @@ plt_sankey <- function(data,
   }
 
   # Plot
-  ggplot2::ggplot(plot_data, ggplot2::aes(
+  plot <- ggplot2::ggplot(plot_data, ggplot2::aes(
     x = .data[["x"]], next_x = .data[["next_x"]],
     node = .data[["node"]], next_node = .data[["next_node"]],
     fill = factor(.data[["node"]]),
@@ -178,4 +197,9 @@ plt_sankey <- function(data,
     ggsankey::theme_sankey(base_size = base_size) +
     ggplot2::labs(x = NULL) +
     ggplot2::theme(legend.position = "none")
+
+  if (!is.null(var_labels)) {
+    plot <- plot + ggplot2::scale_x_discrete(labels = var_labels)
+  }
+  plot
 }
