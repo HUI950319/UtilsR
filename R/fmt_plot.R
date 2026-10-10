@@ -3281,7 +3281,9 @@ fmt_com <- function(plot,
 #'   overlays and fixed wrapped graphics are left unchanged. Format the
 #'   original ggplot before wrapping it with [patchwork::wrap_elements()].
 #'   Repeated calls replace this function's background layer while retaining
-#'   all other layers, so transparency does not accumulate.
+#'   all other layers, so transparency does not accumulate. Background drawing
+#'   closures retain only their colour and axis settings, keeping serialized
+#'   plots bounded across repeated calls.
 #'   Direct column mappings with empty or entirely missing categories are
 #'   returned unchanged; deferred mappings with no categories draw no background.
 #'
@@ -3354,11 +3356,15 @@ fmt_bg <- function(plot,
     }
     cols
   }
+  environment(resolve_bg_colors) <- list2env(list(palette = palette, palcolor = palcolor),
+                                             parent = environment(fmt_bg))
 
   # Unified background layer builder for both x and y axes
-  build_bg_layer <- function(axis_values, alpha, bg_axis = "x") {
-    fct <- if (is.factor(axis_values)) droplevels(axis_values) else factor(axis_values)
-    lvs <- levels(fct)
+  build_bg_layer <- function(lvs, alpha, bg_axis = "x") {
+    # Keep lazy arguments from retaining the caller's plot in ggproto closures.
+    force(lvs)
+    force(alpha)
+    force(bg_axis)
 
     bg_color <- if (length(lvs)) resolve_bg_colors(lvs) else NULL
 
@@ -3413,6 +3419,8 @@ fmt_bg <- function(plot,
     bg_layer$geom <- bg_geom
     bg_layer
   }
+  environment(build_bg_layer) <- list2env(list(resolve_bg_colors = resolve_bg_colors),
+                                          parent = environment(fmt_bg))
 
   fmt_bg_one <- function(p) {
     mapping_var <- p$mapping[[bg_axis]]
@@ -3450,7 +3458,8 @@ fmt_bg <- function(plot,
       return(p)
     }
     if (!deferred && (!length(axis_values) || all(is.na(axis_values)))) return(p)
-    bg_layer <- build_bg_layer(axis_values, alpha = alpha, bg_axis = bg_axis)
+    lvs <- if (is.factor(axis_values)) levels(droplevels(axis_values)) else levels(factor(axis_values))
+    bg_layer <- build_bg_layer(lvs, alpha = alpha, bg_axis = bg_axis)
     p$layers <- c(list(bg_layer), Filter(function(layer) {
       !inherits(layer$geom, "GeomBgStripes")
     }, p$layers))

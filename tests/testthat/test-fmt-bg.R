@@ -392,3 +392,16 @@ test_that("background category colors are shared across layers and free facets",
     }
   }
 })
+
+test_that("repeated backgrounds retain a bounded serializable object", {
+  once <- fmt_bg(bg_plot(), palcolor = bg_colors)
+  repeated <- once
+  for (i in seq_len(9)) repeated <- fmt_bg(repeated, palcolor = bg_colors)
+  first_size <- length(serialize(once, NULL))
+  repeated_bytes <- serialize(repeated, NULL)
+  expect_lte(length(repeated_bytes), first_size * 1.05)
+  restored <- unserialize(repeated_bytes)
+  expect_length(restored$layers, 2L)
+  expect_equal(bg_fills(restored), unname(bg_colors))
+  expect_identical(ggplot2::ggplot_build(restored)$data[-1], ggplot2::ggplot_build(bg_plot())$data)
+})
