@@ -167,3 +167,37 @@ test_that("backgrounds visit nested data plots while preserving container metada
   expect_equal(nrow(bg_rects(patchwork::patchworkGrob(q))), 3L)
   expect_identical(q[[length(q)]], inset[[length(inset)]])
 })
+
+test_that("repeated background formatting replaces only its own layer", {
+  p <- bg_plot() + ggplot2::geom_rect(
+    data = data.frame(xmin = 0.5, xmax = 1.5, ymin = 1, ymax = 2),
+    ggplot2::aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax),
+    fill = "black", inherit.aes = FALSE)
+  once <- fmt_bg(p, palcolor = bg_colors)
+  twice <- fmt_bg(once, palcolor = bg_colors)
+  expect_length(twice$layers, length(once$layers))
+  expect_identical(twice$layers[-1], p$layers)
+  expect_length(once$layers, 3L)
+  changed <- fmt_bg(once, palcolor = c(A = "purple", B = "purple", C = "purple"), alpha = 0.6)
+  expect_length(changed$layers, 3L)
+  expect_equal(bg_fills(changed)[1:3], rep("#A020F0", 3))
+  expect_equal(changed$layers[[1]]$aes_params$alpha, 0.6)
+  expect_equal(once$layers[[1]]$aes_params$alpha, 0.3)
+  nested <- (bg_plot() | bg_plot()) / (bg_plot() | bg_plot())
+  twice <- fmt_bg(fmt_bg(nested, palcolor = bg_colors), palcolor = bg_colors)
+  expect_equal(vapply(.to_plot_list(twice, recurse = TRUE)$plots, function(z) length(z$layers), integer(1)),
+                 rep(2L, 4))
+})
+
+test_that("repeated background formatting retains rendered opacity", {
+  skip_if_not_installed("ragg")
+  capture <- function(p) {
+    grab <- ragg::agg_capture(width = 360, height = 240, units = "px", res = 72)
+    on.exit(grDevices::dev.off())
+    print(p)
+    grab(native = TRUE)
+  }
+  once <- fmt_bg(bg_plot(), palcolor = bg_colors)
+  twice <- fmt_bg(once, palcolor = bg_colors)
+  expect_equal(sum(capture(twice) != capture(once)), 0L)
+})

@@ -3269,6 +3269,8 @@ fmt_com <- function(plot,
 #'   annotations and list names are retained; spacers, guide areas, inset
 #'   overlays and fixed wrapped graphics are left unchanged. Format the
 #'   original ggplot before wrapping it with [patchwork::wrap_elements()].
+#'   Repeated calls replace this function's background layer while retaining
+#'   all other layers, so transparency does not accumulate.
 #'
 #' @return Same type as input.
 #'
@@ -3397,7 +3399,9 @@ fmt_bg <- function(plot,
       return(p)
     }
     bg_layer <- build_bg_layer(axis_values, alpha = alpha, bg_axis = bg_axis)
-    p$layers <- c(list(bg_layer), p$layers)
+    p$layers <- c(list(bg_layer), Filter(function(layer) {
+      !inherits(layer$geom, "GeomBgStripes")
+    }, p$layers))
     p
   }
 

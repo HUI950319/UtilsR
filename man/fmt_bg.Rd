@@ -48,6 +48,8 @@ Nested data plots are formatted recursively. Patchwork layouts,
 annotations and list names are retained; spacers, guide areas, inset
 overlays and fixed wrapped graphics are left unchanged. Format the
 original ggplot before wrapping it with \code{\link[patchwork:wrap_elements]{patchwork::wrap_elements()}}.
+Repeated calls replace this function's background layer while retaining
+all other layers, so transparency does not accumulate.
 }
 \examples{
 library(ggplot2)
