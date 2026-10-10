@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
+  respects explicit discrete position scales when layers supply numeric
+  mapped or fixed positions, including flipped coordinates.
+
+- [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
   checks complete named manual colours against displayed scale
   categories, allowing unused data categories to be excluded by scale
   limits without resolving an unnecessary palette.
