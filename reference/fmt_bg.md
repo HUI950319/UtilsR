@@ -25,10 +25,14 @@ fmt_bg(
 
   Palette name passed to
   [`plotthis::palette_this`](https://pwwang.github.io/plotthis/reference/palette_this.html).
+  Requires plotthis only when palette colours are needed. `NULL` retains
+  the default rainbow colours.
 
 - palcolor:
 
-  Manual colour vector (overrides palette).
+  Manual colour vector (overrides palette). Named vectors match category
+  values; unnamed vectors are interpolated to the number of levels. A
+  complete manual colour specification does not require plotthis.
 
 - alpha:
 

@@ -2,6 +2,14 @@
 
 ## UtilsR 0.6.8
 
+- [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
+  honors manual colors without requiring `plotthis`, retains its default
+  rainbow palette, and reports invalid colors and palette errors.
+
+- [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md)
+  accepts named `vars` vectors mapping column names to axis labels,
+  including line breaks. Unnamed vectors retain their existing behavior.
+
 - [`fmt_axisTile()`](https://hui950319.github.io/UtilsR/reference/fmt_axisTile.md)
   preserves native axis decorations when transforming category
   boundaries, including with ggplot2 3.5.0.

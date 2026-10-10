@@ -30,8 +30,14 @@ plt_sankey(
 
 - vars:
 
-  Character vector of categorical variable names (\>= 2). Variables are
-  displayed left-to-right in the given order.
+  Character vector selecting at least two categorical variables,
+  displayed left-to-right in the given order. An unnamed vector contains
+  column names and retains the existing axis labels. A named vector maps
+  column names to display labels, e.g.
+  `c(sex = "Sex", stage = "Stage")`. All names must be non-empty, unique
+  column names; partially named vectors are not supported. Labels must
+  be non-missing strings. Empty strings hide individual labels, and line
+  breaks are preserved.
 
 - palette:
 
@@ -125,6 +131,11 @@ plt_sankey(df, vars = c("sex", "stage", "grade"))
 
 # Two variables
 plt_sankey(df, vars = c("sex", "stage"))
+#> Warning: attributes are not identical across measure variables; they will be dropped
+
+
+# Map column names to axis labels
+plt_sankey(df, vars = c(sex = "Sex", stage = "Disease\nstage"))
 #> Warning: attributes are not identical across measure variables; they will be dropped
 
 

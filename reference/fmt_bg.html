@@ -76,11 +76,15 @@ categorical axis variable.</p>
 
 
 <dt id="arg-palette">palette<a class="anchor" aria-label="anchor" href="#arg-palette"></a></dt>
-<dd><p>Palette name passed to <code><a href="https://pwwang.github.io/plotthis/reference/palette_this.html" class="external-link">plotthis::palette_this</a></code>.</p></dd>
+<dd><p>Palette name passed to <code><a href="https://pwwang.github.io/plotthis/reference/palette_this.html" class="external-link">plotthis::palette_this</a></code>.
+Requires <span class="pkg">plotthis</span> only when palette colours are needed. <code>NULL</code>
+retains the default rainbow colours.</p></dd>
 
 
 <dt id="arg-palcolor">palcolor<a class="anchor" aria-label="anchor" href="#arg-palcolor"></a></dt>
-<dd><p>Manual colour vector (overrides palette).</p></dd>
+<dd><p>Manual colour vector (overrides palette). Named vectors match
+category values; unnamed vectors are interpolated to the number of levels.
+A complete manual colour specification does not require <span class="pkg">plotthis</span>.</p></dd>
 
 
 <dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>

@@ -50,7 +50,9 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/fmt_axisTile.html">fmt_axisTile()</a></code> preserves native axis decorations when transforming category boundaries, including with ggplot2 3.5.0.</p></li>
+<ul><li><p><code><a href="../reference/fmt_bg.html">fmt_bg()</a></code> honors manual colors without requiring <code>plotthis</code>, retains its default rainbow palette, and reports invalid colors and palette errors.</p></li>
+<li><p><code><a href="../reference/plt_sankey.html">plt_sankey()</a></code> accepts named <code>vars</code> vectors mapping column names to axis labels, including line breaks. Unnamed vectors retain their existing behavior.</p></li>
+<li><p><code><a href="../reference/fmt_axisTile.html">fmt_axisTile()</a></code> preserves native axis decorations when transforming category boundaries, including with ggplot2 3.5.0.</p></li>
 <li><p><code><a href="../reference/fmt_axisTile.html">fmt_axisTile()</a></code> makes panel-relative color strips follow their axis guides during patchwork axis collection. Different palettes retain separate guides, including color-only strips without text labels.</p></li>
 <li><p><code><a href="../reference/fmt_axisText.html">fmt_axisText()</a></code> retains rich text inherited from the global theme, including side-specific elements, guide formatting and repeated rotations. Complete plot themes retain precedence, and the global theme is not modified.</p></li>
 <li><p><code><a href="../reference/fmt_axisText.html">fmt_axisText()</a></code> retains plot-level rich text when updating guide rotations or local guide themes, including guides configured on scales. Inherited text properties, relative sizes and caller-owned guides are preserved.</p></li>
