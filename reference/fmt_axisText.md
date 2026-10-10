@@ -90,7 +90,8 @@ edited. Styling also updates explicitly styled axis sides and radial
 text elements. Explicitly blank side elements are retained. Guide-local
 themes and rotation settings are updated without modifying the original
 guides or their other settings. With justification alone, an existing
-guide rotation is retained.
+guide rotation is retained. Existing text element classes, including
+rich text elements, are retained.
 
 ## See also
 
