@@ -54,7 +54,11 @@ Factor, character and logical axes, categorical mapping expressions and
 layer data supplied as data frames, functions or formulas are supported.
 The first applicable categorical layer mapping is used; numeric
 annotation positions are skipped. Continuous axes are skipped with a
-warning.
+warning. Mapping expressions, including
+[`ggplot2::after_stat()`](https://ggplot2.tidyverse.org/reference/aes_eval.html),
+and data callbacks are evaluated only by ggplot during rendering. For
+these mappings, categorical-axis checks and palette resolution are
+deferred until drawing.
 
 Stripes follow the trained scale order, including unused categories and
 the local categories of free-scale facets. Missing categories use
@@ -68,8 +72,9 @@ overlays and fixed wrapped graphics are left unchanged. Format the
 original ggplot before wrapping it with
 [`patchwork::wrap_elements()`](https://patchwork.data-imaginist.com/reference/wrap_elements.html).
 Repeated calls replace this function's background layer while retaining
-all other layers, so transparency does not accumulate. Plots with empty
-or entirely missing categories are returned unchanged.
+all other layers, so transparency does not accumulate. Direct column
+mappings with empty or entirely missing categories are returned
+unchanged; deferred mappings with no categories draw no background.
 
 ## See also
 

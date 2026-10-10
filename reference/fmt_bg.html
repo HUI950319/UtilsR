@@ -107,7 +107,10 @@ background rectangles. Zero returns the input unchanged.</p></dd>
     <p>Factor, character and logical axes, categorical mapping expressions
 and layer data supplied as data frames, functions or formulas are supported.
 The first applicable categorical layer mapping is used; numeric annotation
-positions are skipped. Continuous axes are skipped with a warning.</p>
+positions are skipped. Continuous axes are skipped with a warning.
+Mapping expressions, including <code><a href="https://ggplot2.tidyverse.org/reference/aes_eval.html" class="external-link">ggplot2::after_stat()</a></code>, and data callbacks
+are evaluated only by ggplot during rendering. For these mappings,
+categorical-axis checks and palette resolution are deferred until drawing.</p>
 <p>Stripes follow the trained scale order, including unused categories and
 the local categories of free-scale facets. Missing categories use
 <code>"grey80"</code>. Facet expressions, marginal panels, flipped and polar
@@ -120,7 +123,8 @@ overlays and fixed wrapped graphics are left unchanged. Format the
 original ggplot before wrapping it with <code><a href="https://patchwork.data-imaginist.com/reference/wrap_elements.html" class="external-link">patchwork::wrap_elements()</a></code>.
 Repeated calls replace this function's background layer while retaining
 all other layers, so transparency does not accumulate.
-Plots with empty or entirely missing categories are returned unchanged.</p>
+Direct column mappings with empty or entirely missing categories are
+returned unchanged; deferred mappings with no categories draw no background.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
