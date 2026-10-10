@@ -141,3 +141,29 @@ test_that("backgrounds span log-scaled panels without transforming infinite boun
     expect_identical(ggplot2::ggplot_build(q)$data[-1], ggplot2::ggplot_build(p)$data)
   }
 })
+
+test_that("backgrounds visit nested data plots while preserving container metadata", {
+  p <- bg_plot()
+  pw <- (p | p) / (p | p) + patchwork::plot_annotation(title = "Keep", tag_levels = "A")
+  q <- fmt_bg(pw, palcolor = bg_colors)
+  expect_equal(nrow(bg_rects(patchwork::patchworkGrob(q))), 12L)
+  expect_identical(q$patches$layout, pw$patches$layout)
+  expect_identical(q$patches$annotation, pw$patches$annotation)
+  expect_equal(vapply(.to_plot_list(pw, recurse = TRUE)$plots, function(z) length(z$layers), integer(1)),
+                 rep(1L, 4))
+  plots <- list(top = p | p, bottom = p | p)
+  q <- fmt_bg(plots, palcolor = bg_colors)
+  expect_identical(names(q), names(plots))
+  expect_equal(vapply(.to_plot_list(q, recurse = TRUE)$plots, function(z) length(z$layers), integer(1)),
+                 rep(2L, 4))
+  fixed <- patchwork::wrap_elements(full = p)
+  pw <- patchwork::free((p | p) / (patchwork::plot_spacer() | fixed))
+  expect_silent(q <- fmt_bg(pw, palcolor = bg_colors))
+  expect_equal(nrow(bg_rects(patchwork::patchworkGrob(q))), 6L)
+  expect_identical(attr(q, "patchwork_free_settings"), attr(pw, "patchwork_free_settings"))
+  expect_identical(fmt_bg(fixed, palcolor = bg_colors), fixed)
+  inset <- p + patchwork::inset_element(p, 0.1, 0.1, 0.5, 0.5)
+  q <- fmt_bg(inset, palcolor = bg_colors)
+  expect_equal(nrow(bg_rects(patchwork::patchworkGrob(q))), 3L)
+  expect_identical(q[[length(q)]], inset[[length(inset)]])
+})

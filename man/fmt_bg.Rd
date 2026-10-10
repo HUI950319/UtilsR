@@ -43,6 +43,12 @@ plot's fill scales or legends.
 Background bounds are created during drawing, after position-scale
 transformations, so log-scaled continuous axes retain their stripes.
 }
+\details{
+Nested data plots are formatted recursively. Patchwork layouts,
+annotations and list names are retained; spacers, guide areas, inset
+overlays and fixed wrapped graphics are left unchanged. Format the
+original ggplot before wrapping it with \code{\link[patchwork:wrap_elements]{patchwork::wrap_elements()}}.
+}
 \examples{
 library(ggplot2)
 p <- ggplot(iris, aes(Species, Sepal.Length)) + geom_boxplot()

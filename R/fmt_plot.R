@@ -3265,6 +3265,11 @@ fmt_com <- function(plot,
 #' @param bg_axis Which axis holds the categorical variable: \code{"x"} or
 #'   \code{"y"}.
 #'
+#' @details Nested data plots are formatted recursively. Patchwork layouts,
+#'   annotations and list names are retained; spacers, guide areas, inset
+#'   overlays and fixed wrapped graphics are left unchanged. Format the
+#'   original ggplot before wrapping it with [patchwork::wrap_elements()].
+#'
 #' @return Same type as input.
 #'
 #' @examples
@@ -3396,9 +3401,10 @@ fmt_bg <- function(plot,
     p
   }
 
-  info <- .to_plot_list(plot)
+  info <- .to_plot_list(plot, recurse = TRUE)
   info$plots <- lapply(info$plots, fmt_bg_one)
-  .from_plot_list(info$plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
+  .from_plot_list(info$plots, info$is_patchwork, info$is_single,
+                  pw_orig = info$pw_orig, recurse = TRUE)
 }
 
 # ---- fmt_his ----
