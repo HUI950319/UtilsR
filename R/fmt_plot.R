@@ -2376,6 +2376,8 @@ fmt_text <- function(plot,
 #' @details Data plots are edited recursively within nested patchworks and lists.
 #'   Layouts, annotations, list names and freed alignment are retained. Spacers,
 #'   guide areas, fixed wrapped graphics and inset overlays are not edited.
+#'   Styling also updates explicitly styled axis sides and radial text elements.
+#'   Explicitly blank side elements are retained.
 #'
 #' @return Same type as input.
 #'
@@ -2427,6 +2429,7 @@ fmt_axisText <- function(plot,
 
   # ---- Build X-axis text theme ----
   x_theme <- ggplot2::theme()
+  x_args <- list()
   if (!is.null(x) || !is.null(x_hjust) || !is.null(x_vjust) ||
       !is.null(size) || !is.null(color) || !is.null(face)) {
     x_just <- auto_just(x, x_hjust, x_vjust, "x")
@@ -2446,6 +2449,7 @@ fmt_axisText <- function(plot,
 
   # ---- Build Y-axis text theme ----
   y_theme <- ggplot2::theme()
+  y_args <- list()
   if (!is.null(y) || !is.null(y_hjust) || !is.null(y_vjust) ||
       !is.null(size) || !is.null(color) || !is.null(face)) {
     y_just <- auto_just(y, y_hjust, y_vjust, "y")
@@ -2465,11 +2469,28 @@ fmt_axisText <- function(plot,
 
   # ---- Combine + extra ... ----
   extra <- if (length(list(...)) > 0) do.call(ggplot2::theme, list(...)) else ggplot2::theme()
-  text_theme <- x_theme + y_theme + extra
+  text_theme <- x_theme + y_theme
+  text_theme_for <- function(theme) {
+    args <- list()
+    for (axis in c("x", "y")) {
+      fields <- if (axis == "x") x_args else y_args
+      if (!length(fields)) next
+      sides <- if (axis == "x") c("bottom", "top") else c("left", "right")
+      elements <- c(paste0("axis.text.", axis, ".", sides),
+                      paste0("axis.text.", if (axis == "x") "theta" else "r"))
+      elements <- intersect(elements, names(ggplot2::get_element_tree()))
+      for (name in elements) {
+        if (is.null(theme[[name]]) || inherits(theme[[name]], "element_blank")) next
+        args[[name]] <- do.call(ggplot2::element_text, fields)
+      }
+    }
+    axis_theme <- if (length(args)) text_theme + do.call(ggplot2::theme, args) else text_theme
+    axis_theme + extra
+  }
 
   # ---- Apply to plots ----
   info <- .to_plot_list(plot, recurse = TRUE)
-  info$plots <- lapply(info$plots, function(p) p + text_theme)
+  info$plots <- lapply(info$plots, function(p) p + text_theme_for(p$theme))
   .from_plot_list(info$plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig,
                   recurse = TRUE)
 }

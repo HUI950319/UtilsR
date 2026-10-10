@@ -69,6 +69,8 @@ axes, rotation angle, and text appearance.
 Data plots are edited recursively within nested patchworks and lists.
 Layouts, annotations, list names and freed alignment are retained. Spacers,
 guide areas, fixed wrapped graphics and inset overlays are not edited.
+Styling also updates explicitly styled axis sides and radial text elements.
+Explicitly blank side elements are retained.
 }
 \examples{
 library(ggplot2)

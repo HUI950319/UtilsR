@@ -81,3 +81,48 @@ test_that("axis text formatting preserves insets, spacers and frozen graphics", 
     expect_equal(axis_text_labels(output$plot)$angle, rep(45, 3))
   }
 })
+
+test_that("axis text formatting overrides styled sides and secondary axes", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = c(2, 4, 6)),
+                         ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    ggplot2::scale_x_continuous(breaks = 1:3,
+      labels = c("Alpha", "Beta", "Gamma"),
+      sec.axis = ggplot2::dup_axis(labels = c("AlphaS", "BetaS", "GammaS"))) +
+    ggplot2::scale_y_continuous(breaks = c(2, 4, 6),
+      labels = c("Low", "Mid", "High"),
+      sec.axis = ggplot2::dup_axis(labels = c("LowS", "MidS", "HighS"))) +
+    ggplot2::theme_classic()
+  names <- c("axis.text.x.bottom", "axis.text.x.top",
+               "axis.text.y.left", "axis.text.y.right")
+  element <- ggplot2::element_text(angle = 0, size = 9, colour = "red",
+                                    margin = ggplot2::margin(3, 4, 5, 6))
+  p <- p + do.call(ggplot2::theme, stats::setNames(rep(list(element), 4), names))
+  q <- fmt_axisText(p, x = 45, y = -30, color = "blue", size = 16)
+  x <- axis_text_labels(q, c("Alpha", "Beta", "Gamma", "AlphaS", "BetaS", "GammaS"))
+  y <- axis_text_labels(q, c("Low", "Mid", "High", "LowS", "MidS", "HighS"))
+  expect_equal(x$angle, rep(45, 6))
+  expect_equal(y$angle, rep(-30, 6))
+  expect_equal(c(x$colour, y$colour), rep("blue", 12))
+  expect_equal(c(x$size, y$size), rep(16, 12))
+  expect_identical(q$theme$axis.text.x.bottom$margin, element$margin)
+  hidden <- fmt_axis(p, x.axis = TRUE)
+  expect_equal(nrow(axis_text_labels(fmt_axisText(hidden, x = 45))), 0L)
+})
+
+test_that("axis text formatting overrides explicit radial styles", {
+  skip_if_not(exists("coord_radial", asNamespace("ggplot2")))
+  element <- ggplot2::element_text(angle = 0, colour = "red", size = 9)
+  for (theta in c("x", "y")) {
+    p <- axis_text_plot() + ggplot2::coord_radial(theta = theta) +
+      ggplot2::theme(axis.text.theta = element, axis.text.r = element)
+    q <- fmt_axisText(p, x = 45, y = -30, color = "blue", size = 16)
+    angular <- if (theta == "x") c("Alpha", "Beta", "Gamma") else c("Low", "Mid", "High")
+    radial <- if (theta == "x") c("Low", "Mid", "High") else c("Alpha", "Beta", "Gamma")
+    x <- axis_text_labels(q, angular)
+    y <- axis_text_labels(q, radial)
+    expect_equal(x$angle, rep(45, 3))
+    expect_equal(y$angle, rep(-30, 3))
+    expect_equal(c(x$colour, y$colour), rep("blue", 6))
+    expect_equal(c(x$size, y$size), rep(16, 6))
+  }
+})
