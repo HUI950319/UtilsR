@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_bg()` uses trained layout scales when drawing polar sectors and radial
+  bands, fixing rendering failures with `coord_polar()` and `coord_radial()`.
+
 * `plt_sankey()` adds `label_args$lineheight` to control multiline label spacing
   for boxed and plain text. The default 1.2 preserves the existing appearance.
 

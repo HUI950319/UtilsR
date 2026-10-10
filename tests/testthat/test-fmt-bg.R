@@ -20,6 +20,12 @@ bg_fills <- function(plot) {
   bg_rects(ggplot2::ggplotGrob(plot))$fill
 }
 
+bg_grobs <- function(g) {
+  if (identical(g$name, "fmt-bg-stripes")) return(list(g))
+  children <- if (inherits(g, "gtable")) g$grobs else g$children
+  unlist(lapply(children, bg_grobs), recursive = FALSE)
+}
+
 test_that("manual background colors override palettes without an optional dependency", {
   p <- bg_plot()
   expect_equal(bg_fills(fmt_bg(p, palcolor = bg_colors)), unname(bg_colors))
@@ -231,4 +237,23 @@ test_that("backgrounds skip empty and all-missing categories", {
     expect_identical(fmt_bg(p), p)
   }
   expect_identical(fmt_bg(list()), list())
+})
+
+test_that("backgrounds render polar sectors and radial bands", {
+  for (axis in c("x", "y")) {
+    p <- if (axis == "x") bg_plot() else
+      ggplot2::ggplot(bg_plot()$data, ggplot2::aes(value, category)) + ggplot2::geom_point()
+    for (theta in c("x", "y")) {
+      for (coord in list(ggplot2::coord_polar(theta = theta),
+                         ggplot2::coord_radial(theta = theta, inner.radius = 0.15))) {
+        z <- p + coord
+        q <- fmt_bg(z, palcolor = bg_colors, bg_axis = axis)
+        expect_silent(g <- ggplot2::ggplotGrob(q))
+        grob <- bg_grobs(g)[[1]]
+        expect_equal(unname(grDevices::rgb(t(grDevices::col2rgb(grob$gp$fill)), maxColorValue = 255)),
+                       unname(bg_colors))
+        expect_identical(ggplot2::ggplot_build(q)$data[-1], ggplot2::ggplot_build(z)$data)
+      }
+    }
+  }
 })

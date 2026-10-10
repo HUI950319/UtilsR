@@ -3266,8 +3266,9 @@ fmt_com <- function(plot,
 #'
 #'   Stripes follow the trained scale order, including unused categories and
 #'   the local categories of free-scale facets. Missing categories use
-#'   \code{"grey80"}. Facet expressions, marginal panels, flipped coordinates
-#'   and log-scaled continuous axes are supported. Backgrounds retain the
+#'   \code{"grey80"}. Facet expressions, marginal panels, flipped and polar
+#'   coordinates, radial bands and log-scaled continuous axes are supported.
+#'   Backgrounds retain the
 #'   plot's panel ranges, fill scales and legends.
 #'
 #'   Nested data plots are formatted recursively. Patchwork layouts,
@@ -3360,11 +3361,14 @@ fmt_bg <- function(plot,
     bg_geom <- ggplot2::ggproto("GeomBgStripes", ggplot2::GeomRect,
       required_aes = character(),
       setup_data = function(data, params) data,
-      draw_panel = function(data, panel_params, coord, na.rm = FALSE) {
-        panel_axis <- if (inherits(coord, "CoordFlip")) {
-          if (bg_axis == "x") "y" else "x"
-        } else bg_axis
-        scale <- panel_params[[panel_axis]]$scale
+      draw_layer = function(self, data, params, layout, coord) {
+        params$bg_scales <- lapply(seq_len(nrow(layout$layout)), function(i) {
+          layout$get_scales(i)[[bg_axis]]
+        })
+        ggplot2::ggproto_parent(ggplot2::GeomRect, self)$draw_layer(data, params, layout, coord)
+      },
+      draw_panel = function(data, panel_params, coord, bg_scales, na.rm = FALSE) {
+        scale <- bg_scales[[as.integer(data$PANEL[1])]]
         if (!scale$is_discrete()) return(ggplot2::zeroGrob())
         limits <- scale$get_limits()
         positions <- as.numeric(scale$map(limits))

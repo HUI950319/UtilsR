@@ -45,8 +45,9 @@ or the plot data. Continuous axes are skipped with a warning.
 
 Stripes follow the trained scale order, including unused categories and
 the local categories of free-scale facets. Missing categories use
-\code{"grey80"}. Facet expressions, marginal panels, flipped coordinates
-and log-scaled continuous axes are supported. Backgrounds retain the
+\code{"grey80"}. Facet expressions, marginal panels, flipped and polar
+coordinates, radial bands and log-scaled continuous axes are supported.
+Backgrounds retain the
 plot's panel ranges, fill scales and legends.
 
 Nested data plots are formatted recursively. Patchwork layouts,
