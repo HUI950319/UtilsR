@@ -104,7 +104,8 @@ labels. Two modes are available:</p><ul><li><p><code>"tile"</code> (default) —
 <dt id="arg-colors">colors<a class="anchor" aria-label="anchor" href="#arg-colors"></a></dt>
 <dd><p>Named character vector of colors, where names match the
 discrete axis levels (e.g. <code>c(setosa = "red", virginica = "blue")</code>).
-Required.</p></dd>
+Required; names must be unique and non-empty. Missing colors use
+<code>"grey70"</code> in tile mode or <code>text_color</code> in text mode.</p></dd>
 
 
 <dt id="arg-mode">mode<a class="anchor" aria-label="anchor" href="#arg-mode"></a></dt>
@@ -116,12 +117,12 @@ Required.</p></dd>
 
 
 <dt id="arg-tile-height">tile_height<a class="anchor" aria-label="anchor" href="#arg-tile-height"></a></dt>
-<dd><p>Numeric. Relative height of the tile strip when
+<dd><p>Positive finite numeric. Relative height of the tile strip when
 <code>axis = "x"</code>. Default 0.06.</p></dd>
 
 
 <dt id="arg-tile-width">tile_width<a class="anchor" aria-label="anchor" href="#arg-tile-width"></a></dt>
-<dd><p>Numeric. Relative width of the tile strip when
+<dd><p>Positive finite numeric. Relative width of the tile strip when
 <code>axis = "y"</code>. Default 0.06.</p></dd>
 
 
@@ -130,15 +131,15 @@ Required.</p></dd>
 
 
 <dt id="arg-tile-border-width">tile_border_width<a class="anchor" aria-label="anchor" href="#arg-tile-border-width"></a></dt>
-<dd><p>Line width of tile borders. Default 0.2.</p></dd>
+<dd><p>Non-negative finite line width of tile borders. Default 0.2.</p></dd>
 
 
 <dt id="arg-text-size">text_size<a class="anchor" aria-label="anchor" href="#arg-text-size"></a></dt>
-<dd><p>Size of axis text labels below/beside tiles. Default 9.</p></dd>
+<dd><p>Positive finite size of axis text labels below/beside tiles. Default 9.</p></dd>
 
 
 <dt id="arg-text-face">text_face<a class="anchor" aria-label="anchor" href="#arg-text-face"></a></dt>
-<dd><p>Font face of axis text labels. Default <code>"plain"</code>.</p></dd>
+<dd><p>Font face name or number from 1 to 5. Default <code>"plain"</code>.</p></dd>
 
 
 <dt id="arg-text-angle">text_angle<a class="anchor" aria-label="anchor" href="#arg-text-angle"></a></dt>
@@ -147,12 +148,13 @@ for x-axis, <code>0</code> for y-axis.</p></dd>
 
 
 <dt id="arg-text-color">text_color<a class="anchor" aria-label="anchor" href="#arg-text-color"></a></dt>
-<dd><p>Color of axis text labels. Default <code>"black"</code>.</p></dd>
+<dd><p>Color of tile-mode labels and fallback for unmatched
+text-mode labels. Default <code>"black"</code>.</p></dd>
 
 
 <dt id="arg-show-text">show_text<a class="anchor" aria-label="anchor" href="#arg-show-text"></a></dt>
 <dd><p>Logical. Show text labels below/beside tiles?
-Default <code>TRUE</code>. Set <code>FALSE</code> for color-only tiles.</p></dd>
+Default <code>TRUE</code>. Set <code>FALSE</code> to hide labels in either mode.</p></dd>
 
 </dl></div>
     <div class="section level2">

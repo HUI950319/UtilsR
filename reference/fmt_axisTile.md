@@ -39,7 +39,9 @@ fmt_axisTile(
 - colors:
 
   Named character vector of colors, where names match the discrete axis
-  levels (e.g. `c(setosa = "red", virginica = "blue")`). Required.
+  levels (e.g. `c(setosa = "red", virginica = "blue")`). Required; names
+  must be unique and non-empty. Missing colors use `"grey70"` in tile
+  mode or `text_color` in text mode.
 
 - mode:
 
@@ -51,13 +53,13 @@ fmt_axisTile(
 
 - tile_height:
 
-  Numeric. Relative height of the tile strip when `axis = "x"`. Default
-  0.06.
+  Positive finite numeric. Relative height of the tile strip when
+  `axis = "x"`. Default 0.06.
 
 - tile_width:
 
-  Numeric. Relative width of the tile strip when `axis = "y"`. Default
-  0.06.
+  Positive finite numeric. Relative width of the tile strip when
+  `axis = "y"`. Default 0.06.
 
 - tile_border:
 
@@ -65,15 +67,16 @@ fmt_axisTile(
 
 - tile_border_width:
 
-  Line width of tile borders. Default 0.2.
+  Non-negative finite line width of tile borders. Default 0.2.
 
 - text_size:
 
-  Size of axis text labels below/beside tiles. Default 9.
+  Positive finite size of axis text labels below/beside tiles. Default
+  9.
 
 - text_face:
 
-  Font face of axis text labels. Default `"plain"`.
+  Font face name or number from 1 to 5. Default `"plain"`.
 
 - text_angle:
 
@@ -82,12 +85,13 @@ fmt_axisTile(
 
 - text_color:
 
-  Color of axis text labels. Default `"black"`.
+  Color of tile-mode labels and fallback for unmatched text-mode labels.
+  Default `"black"`.
 
 - show_text:
 
   Logical. Show text labels below/beside tiles? Default `TRUE`. Set
-  `FALSE` for color-only tiles.
+  `FALSE` to hide labels in either mode.
 
 ## Value
 

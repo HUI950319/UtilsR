@@ -12,7 +12,7 @@ plt_sankey(
   vars,
   palette = NULL,
   reverse_levels = TRUE,
-  show_text = c("all", "n", "pct", "name"),
+  show_text = c("all", "n", "pct", "name", "all_wrap"),
   width = 0.4,
   space = NULL,
   label_size = 3,
@@ -46,10 +46,13 @@ plt_sankey(
 
 - show_text:
 
-  Character. Controls node label content:
+  Single character string. Controls node label content:
 
   - `"all"` (default) — name + count + percentage, e.g.
     `"A (10, 30.3%)"`.
+
+  - `"all_wrap"` — name on the first line, with count and percentage
+    together on the second line, e.g. `"A"` above `"(10, 30.3%)"`.
 
   - `"n"` — name + count, e.g. `"A (10)"`.
 
@@ -131,12 +134,17 @@ plt_sankey(df, vars = c("sex", "stage"), palette = "Paired")
 
 
 # Without counts in labels
-plt_sankey(df, vars = c("sex", "stage", "grade"), show_n = FALSE)
-#> Error in plt_sankey(df, vars = c("sex", "stage", "grade"), show_n = FALSE): unused argument (show_n = FALSE)
+plt_sankey(df, vars = c("sex", "stage", "grade"), show_text = "pct")
+#> Warning: attributes are not identical across measure variables; they will be dropped
+
+
+# Count and percentage on the second line
+plt_sankey(df, vars = c("sex", "stage", "grade"), show_text = "all_wrap")
+#> Warning: attributes are not identical across measure variables; they will be dropped
+
 
 # Adjust appearance
 plt_sankey(df, vars = c("sex", "stage"),
            width = 0.3, label_size = 4, alpha = 0.4)
 #> Warning: attributes are not identical across measure variables; they will be dropped
-
 ```

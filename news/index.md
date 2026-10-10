@@ -2,6 +2,17 @@
 
 ## UtilsR 0.6.8
 
+- [`fmt_axisTile()`](https://hui950319.github.io/UtilsR/reference/fmt_axisTile.md)
+  validates named color maps and scalar styling arguments, uses the
+  intended fallback colors for missing categories, honors `show_text` in
+  both modes, and leaves empty data plots unchanged.
+
+- [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md)
+  supports `show_text = "all_wrap"` to place the node name on the first
+  line and the count and percentage together on the second line. The
+  default `"all"` and existing label styles retain their single-line
+  output.
+
 - [`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md)
   hides explicitly styled radial text, major/minor ticks and tick
   lengths, including local guides and secondary axes. In radial plots,
