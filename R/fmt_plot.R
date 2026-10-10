@@ -3251,6 +3251,8 @@ fmt_com <- function(plot,
 #' categories and the local categories of free-scale facets.
 #' Facet expressions and marginal panels are supported without changing the
 #' plot's fill scales or legends.
+#' Background bounds are created during drawing, after position-scale
+#' transformations, so log-scaled continuous axes retain their stripes.
 #'
 #' @param plot A ggplot, patchwork, or list of ggplots.
 #' @param palette Palette name passed to \code{plotthis::palette_this}.
@@ -3324,9 +3326,11 @@ fmt_bg <- function(plot,
 
     bg_color <- resolve_bg_colors(lvs)
 
-    bg_data <- data.frame(xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf)
+    bg_data <- data.frame(.bg = TRUE)
 
     bg_geom <- ggplot2::ggproto("GeomBgStripes", ggplot2::GeomRect,
+      required_aes = character(),
+      setup_data = function(data, params) data,
       draw_panel = function(data, panel_params, coord, na.rm = FALSE) {
         panel_axis <- if (inherits(coord, "CoordFlip")) {
           if (bg_axis == "x") "y" else "x"
@@ -3358,10 +3362,7 @@ fmt_bg <- function(plot,
       })
     bg_layer <- ggplot2::geom_rect(
       data = bg_data,
-      ggplot2::aes(
-        xmin = .data[["xmin"]], xmax = .data[["xmax"]],
-        ymin = .data[["ymin"]], ymax = .data[["ymax"]]
-      ),
+      ggplot2::aes(),
       fill = NA, alpha = alpha, inherit.aes = FALSE, show.legend = FALSE
     )
     bg_layer$geom <- bg_geom

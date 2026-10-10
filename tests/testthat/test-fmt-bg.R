@@ -127,3 +127,17 @@ test_that("backgrounds render expression facets and marginal panels without chan
                        before$plot$scales$get_scales("fill")$get_limits())
   }
 })
+
+test_that("backgrounds span log-scaled panels without transforming infinite bounds", {
+  for (axis in c("x", "y")) {
+    p <- if (axis == "x") bg_plot() + ggplot2::scale_y_log10() else
+      ggplot2::ggplot(bg_plot()$data, ggplot2::aes(value, category)) +
+        ggplot2::geom_point() + ggplot2::scale_x_log10()
+    q <- fmt_bg(p, palcolor = bg_colors, bg_axis = axis)
+    expect_silent(g <- ggplot2::ggplotGrob(q))
+    rects <- bg_rects(g)
+    expect_equal(rects$fill, unname(bg_colors))
+    expect_equal(rects[[if (axis == "x") "height" else "width"]], rep(1, 3))
+    expect_identical(ggplot2::ggplot_build(q)$data[-1], ggplot2::ggplot_build(p)$data)
+  }
+})
