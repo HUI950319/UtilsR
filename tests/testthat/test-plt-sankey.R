@@ -60,11 +60,11 @@ test_that("plt_sankey wrapping preserves flows, counts, ordering and colours", {
     for (palette in list(NULL, c("#114477", "#77AADD"))) {
       single <- ggplot2::ggplot_build(sankey_plot(
         data, show_text = "all", reverse_levels = reverse,
-        palette = palette, space = 0
+        palette = palette, node_args = list(space = 0)
       ))$data
       wrapped <- ggplot2::ggplot_build(sankey_plot(
         data, show_text = "all_wrap", reverse_levels = reverse,
-        palette = palette, space = 0
+        palette = palette, node_args = list(space = 0)
       ))$data
       expect_length(wrapped, length(single))
       for (i in seq_along(wrapped)) {
@@ -101,6 +101,8 @@ test_that("plt_sankey accepts variable-to-label maps without changing geometry",
   )))
   expect_identical(as.character(reordered$layout$panel_scales_x[[1]]$get_labels()),
                    unname(name_map[c("sex", "stage", "grade")]))
+  label_index <- match(reordered$data[[3]]$label, reordered$data[[2]]$label)
+  expect_equal(reordered$data[[3]]$x, reordered$data[[2]]$x[label_index])
 })
 
 test_that("plt_sankey validates named variable maps", {
@@ -140,11 +142,129 @@ test_that("plt_sankey labels follow custom node spacing", {
   skip_if_not_installed("ggsankey")
 
   for (space in list(NULL, 0, 2)) {
-    built <- ggplot2::ggplot_build(sankey_plot(space = space, width = 0.7))
+    plot <- sankey_plot(node_args = list(space = space, width = 0.7))
+    built <- ggplot2::ggplot_build(plot)
     nodes <- built$data[[2]]
     labels <- built$data[[3]]
-    index <- match(paste(labels$x, labels$node), paste(nodes$x, nodes$node))
+    node_labels <- plot$data$label[match(nodes$node, plot$data$node)]
+    index <- match(paste(labels$x, labels$label), paste(nodes$x, node_labels))
     expect_false(anyNA(index))
     expect_equal(labels$y, (nodes$ymin[index] + nodes$ymax[index]) / 2)
   }
+})
+
+test_that("plt_sankey exposes grouped styling and rejects legacy arguments", {
+  skip_if_not_installed("ggsankey")
+
+  defaults <- formals(plt_sankey)
+  expect_identical(eval(defaults$flow_args),
+                   list(alpha = 0.6, fill = "grey", color = "grey80", smooth = 8))
+  expect_identical(eval(defaults$node_args),
+                   list(width = 0.4, space = NULL, color = NA, linewidth = NULL))
+  expect_identical(eval(defaults$label_args),
+                   list(size = 3, hjust = 0.5, color = "black", box = TRUE,
+                        fill = "white", alpha = 1, min_pct = 0, pct_accuracy = 0.1))
+  expect_identical(tail(names(defaults), 1), "save")
+  for (arg in c("width", "space", "alpha", "label_size", "label_hjust")) {
+    expect_error(do.call(sankey_plot, stats::setNames(list(0.5), arg)),
+                 "unused argument")
+  }
+})
+
+test_that("plt_sankey grouped styles reach the rendered layers", {
+  skip_if_not_installed("ggsankey")
+
+  plot <- sankey_plot(
+    flow_args = list(alpha = 0.25, fill = "red", color = "blue", smooth = 3),
+    node_args = list(width = 0.6, space = 0, color = "black", linewidth = 0.8),
+    label_args = list(size = 4, hjust = 0, color = "navy", box = FALSE, alpha = 0.7)
+  )
+  built <- ggplot2::ggplot_build(plot)$data
+  expect_identical(unique(built[[1]]$fill), "red")
+  expect_identical(unique(built[[1]]$colour), "blue")
+  expect_equal(unique(built[[1]]$alpha), 0.25)
+  expect_equal(as.numeric(built[[2]]$xmax - built[[2]]$xmin), rep(0.6, nrow(built[[2]])))
+  expect_identical(unique(built[[2]]$colour), "black")
+  expect_equal(unique(built[[2]]$linewidth), 0.8)
+  expect_s3_class(plot$layers[[3]]$geom, "GeomText")
+  expect_equal(unique(built[[3]]$size), 4)
+  expect_equal(unique(built[[3]]$hjust), 0)
+  expect_identical(unique(built[[3]]$colour), "navy")
+  expect_equal(unique(built[[3]]$alpha), 0.7)
+  expect_null(ggplot2::get_labs(plot)$y)
+})
+
+test_that("plt_sankey hides labels without changing nodes or flows", {
+  skip_if_not_installed("ggsankey")
+
+  visible <- ggplot2::ggplot_build(sankey_plot())
+  filtered <- ggplot2::ggplot_build(sankey_plot(label_args = list(min_pct = 0.5)))
+  hidden <- ggplot2::ggplot_build(sankey_plot(show_text = "none"))
+  expect_equal(nrow(filtered$data[[3]]), 4L)
+  expect_length(hidden$data, 2L)
+  expect_equal(filtered$data[1:2], visible$data[1:2])
+  for (i in 1:2) {
+    cols <- setdiff(names(visible$data[[i]]), "label")
+    expect_equal(hidden$data[[i]][cols], visible$data[[i]][cols])
+  }
+  thirds <- data.frame(a = c("a", "b", "b"), b = c("x", "x", "y"))
+  labels <- ggplot2::ggplot_build(sankey_plot(thirds,
+    label_args = list(pct_accuracy = 1)))$data[[3]]$label
+  expect_true(any(grepl("33%", labels, fixed = TRUE)))
+})
+
+test_that("plt_sankey validates grouped arguments before rendering", {
+  skip_if_not_installed("ggsankey")
+
+  for (arg in c("flow_args", "node_args", "label_args")) {
+    for (bad in list(1, list(1), list(unknown = 1),
+                    structure(list(1, 2), names = c("alpha", "alpha")))) {
+      expect_error(do.call(sankey_plot, stats::setNames(list(bad), arg)), arg)
+    }
+  }
+  expect_error(sankey_plot(flow_args = list(alpha = 2)), "alpha")
+  expect_error(sankey_plot(flow_args = list(smooth = 0)), "smooth")
+  expect_error(sankey_plot(flow_args = list(fill = "not-a-colour")), "fill")
+  expect_error(sankey_plot(node_args = list(width = 0)), "width")
+  expect_error(sankey_plot(node_args = list(space = -1)), "space")
+  expect_error(sankey_plot(node_args = list(linewidth = Inf)), "linewidth")
+  expect_error(sankey_plot(label_args = list(size = 0)), "size")
+  expect_error(sankey_plot(label_args = list(hjust = NA)), "hjust")
+  expect_error(sankey_plot(label_args = list(alpha = -1)), "alpha")
+  expect_error(sankey_plot(label_args = list(box = NA)), "box")
+  expect_error(sankey_plot(label_args = list(min_pct = 1.1)), "min_pct")
+  expect_error(sankey_plot(label_args = list(pct_accuracy = 0)), "pct_accuracy")
+  expect_error(sankey_plot(base_size = 0), "base_size")
+  expect_error(sankey_plot(reverse_levels = NA), "reverse_levels")
+  default <- ggplot2::ggplot_build(sankey_plot())$data
+  empty <- ggplot2::ggplot_build(sankey_plot(
+    flow_args = list(), node_args = list(), label_args = list()))$data
+  expect_equal(empty, default)
+})
+
+test_that("plt_sankey applies custom themes and saves the final plot", {
+  skip_if_not_installed("ggsankey")
+
+  theme <- ggplot2::theme_minimal(base_size = 17)
+  plot <- sankey_plot(theme_use = theme, base_size = 9)
+  expect_equal(plot$theme$text$size, 17)
+  expect_equal(sankey_plot(base_size = 19)$theme$text$size, 19)
+  for (bad in list(1, list("file"), list(plot = "file"),
+                  list(filename = "a", filename = "b"))) {
+    expect_error(sankey_plot(save = bad), "save")
+  }
+  directory <- withr::local_tempdir()
+  expect_s3_class(sankey_plot(save = NULL), "ggplot")
+  expect_s3_class(sankey_plot(save = list()), "ggplot")
+  expect_length(list.files(directory), 0L)
+  skip_if_not_installed("RegR")
+  path <- file.path(directory, "sankey")
+  saved <- sankey_plot(theme_use = theme,
+    save = list(filename = path, width = 6, height = 4))
+  expect_true(file.exists(paste0(path, ".pdf")))
+  expect_gt(file.info(paste0(path, ".pdf"))$size, 0)
+  expect_equal(ggplot2::ggplot_build(saved)$data, ggplot2::ggplot_build(plot)$data)
+  expect_error(sankey_plot(save = list(filename = paste0(path, ".png"))), "PDF|pdf")
+  expect_error(sankey_plot(save = list(filename = path, width = 0)), "width")
+  expect_error(sankey_plot(save = list(width = 6)), "filename")
 })

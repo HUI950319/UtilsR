@@ -9,13 +9,14 @@ plt_sankey(
   vars,
   palette = NULL,
   reverse_levels = TRUE,
-  show_text = c("all", "n", "pct", "name", "all_wrap"),
-  width = 0.4,
-  space = NULL,
-  label_size = 3,
-  label_hjust = 0.5,
-  alpha = 0.6,
-  base_size = 14
+  show_text = c("all", "n", "pct", "name", "all_wrap", "none"),
+  flow_args = list(alpha = 0.6, fill = "grey", color = "grey80", smooth = 8),
+  node_args = list(width = 0.4, space = NULL, color = NA, linewidth = NULL),
+  label_args = list(size = 3, hjust = 0.5, color = "black", box = TRUE, fill = "white",
+    alpha = 1, min_pct = 0, pct_accuracy = 0.1),
+  base_size = 14,
+  theme_use = NULL,
+  save = list()
 )
 }
 \arguments{
@@ -46,29 +47,75 @@ Default \code{TRUE}.}
   \item \code{"n"} — name + count, e.g. \code{"A (10)"}.
   \item \code{"pct"} — name + percentage, e.g. \code{"A (30.3\%)"}.
   \item \code{"name"} — name only, e.g. \code{"A"}.
+  \item \code{"none"} — hide labels without removing nodes or flows.
 }}
 
-\item{width}{Sankey node width. Default 0.4.}
+\item{flow_args}{Named list controlling flow ribbons:
+\describe{
+  \item{\code{alpha}}{Numeric opacity in [0, 1]. Default 0.6.}
+  \item{\code{fill}}{Single fill colour or \code{NA}. Default \code{"grey"}.}
+  \item{\code{color}}{Single border colour or \code{NA}. Default \code{"grey80"}.}
+  \item{\code{smooth}}{Positive finite numeric value controlling the
+    sigmoid curve steepness in ggsankey. Default 8.}
+}}
 
-\item{space}{Numeric. Gap between nodes within each column. Default
-\code{NULL} (ggsankey auto-calculates). Set \code{0} for no gaps
-(consistent total height across columns).}
+\item{node_args}{Named list controlling nodes and flow endpoints:
+\describe{
+  \item{\code{width}}{Numeric width in (0, 1], relative to adjacent
+    x-axis positions. Default 0.4.}
+  \item{\code{space}}{\code{NULL} for automatic spacing, or a non-negative
+    gap in count units. Default \code{NULL}; 0 removes gaps. Labels use
+    the resulting node centers.}
+  \item{\code{color}}{Single border colour or \code{NA} for no border.
+    Default \code{NA}. Node fills are controlled by \code{palette}.}
+  \item{\code{linewidth}}{\code{NULL} to retain the backend default,
+    or a non-negative border width in mm. Default \code{NULL}.}
+}}
 
-\item{label_size}{Label text size. Default 3.}
+\item{label_args}{Named list controlling node labels:
+\describe{
+  \item{\code{size}}{Positive text size in mm. Default 3.}
+  \item{\code{hjust}}{Finite numeric horizontal justification: 0 is left,
+    0.5 is centered, and 1 is right. Default 0.5.}
+  \item{\code{color}}{Single text colour or \code{NA}. Default \code{"black"}.}
+  \item{\code{box}}{Logical; use boxed labels when \code{TRUE}, plain text
+    when \code{FALSE}. Default \code{TRUE}.}
+  \item{\code{fill}}{Single background colour or \code{NA}, used only
+    when \code{box = TRUE}. Default \code{"white"}.}
+  \item{\code{alpha}}{Numeric opacity in [0, 1]. Default 1.}
+  \item{\code{min_pct}}{Numeric proportion in [0, 1]. Show labels only
+    when the category count divided by the number of input rows meets
+    this threshold. Default 0; nodes and flows are never filtered.}
+  \item{\code{pct_accuracy}}{Positive rounding accuracy in percentage
+    points, used by styles containing percentages. Default 0.1.}
+}}
 
-\item{label_hjust}{Label horizontal justification. Default 0.5.}
+\item{base_size}{Positive base font size in points for the default theme.
+Default 14; ignored when \code{theme_use} is supplied.}
 
-\item{alpha}{Flow transparency. Default 0.6.}
+\item{theme_use}{\code{NULL} for \code{ggsankey::theme_sankey(base_size)},
+or a theme specification accepted by the internal \code{.resolve_theme()}
+resolver (theme object, function, or function name). Default \code{NULL}.}
 
-\item{base_size}{Base font size. Default 14.}
+\item{save}{\code{NULL}, an empty list, or a named list forwarded to
+\code{RegR::save_plt()}. Allowed fields are \code{filename} (required),
+\code{width} and \code{height} (in inches). Writes PDF only; the saver
+appends the extension and defaults to width 10 and height 11.}
 }
 \value{
-A ggplot object.
+A ggplot object. A non-empty \code{save} also writes this plot to PDF.
 }
 \description{
 Visualise the flow/proportion changes across multiple categorical variables
 using a Sankey (alluvial) diagram. Each node label shows the level name,
 count, and percentage.
+}
+\details{
+Each configuration list supports partial overrides; unknown,
+  duplicate, and empty field names are rejected. The former top-level
+  \code{alpha} is now \code{flow_args$alpha}; \code{width} and \code{space}
+  are now in \code{node_args}; \code{label_size} and \code{label_hjust}
+  are now \code{label_args$size} and \code{label_args$hjust}.
 }
 \note{
 Requires the \pkg{ggsankey} package
@@ -102,7 +149,8 @@ plt_sankey(df, vars = c("sex", "stage", "grade"), show_text = "all_wrap")
 
 # Adjust appearance
 plt_sankey(df, vars = c("sex", "stage"),
-           width = 0.3, label_size = 4, alpha = 0.4)
+           flow_args = list(alpha = 0.4), node_args = list(width = 0.3),
+           label_args = list(size = 4, box = FALSE, min_pct = 0.05))
 \dontshow{\}) # examplesIf}
 }
 \seealso{
