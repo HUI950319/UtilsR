@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_axisText()` retains rich text inherited from the global theme, including
+  side-specific elements, guide formatting and repeated rotations. Complete
+  plot themes retain precedence, and the global theme is not modified.
+
 * `fmt_axisText()` retains plot-level rich text when updating guide rotations
   or local guide themes, including guides configured on scales. Inherited
   text properties, relative sizes and caller-owned guides are preserved.

@@ -2390,6 +2390,8 @@ fmt_text <- function(plot,
 #'   existing guide rotation is retained.
 #'   Guide formatting retains text classes inherited from the plot theme.
 #'   Existing text element classes, including rich text elements, are retained.
+#'   Text inherited from the global theme is retained unless a complete plot
+#'   theme overrides it.
 #'   Automatic Cartesian alignment follows each rendered axis side and treats
 #'   full turns periodically. Explicit justification takes precedence.
 #'   Justification values may lie outside the usual 0--1 interval.
@@ -2588,8 +2590,9 @@ fmt_axisText <- function(plot,
   # ---- Apply to plots ----
   info <- .to_plot_list(plot, recurse = TRUE)
   axes <- c(if (length(x_args)) "x", if (length(y_args)) "y")
+  global_theme <- ggplot2::theme_get()
   info$plots <- lapply(info$plots, function(p) {
-    p <- p + text_theme_for(p$theme)
+    p <- p + text_theme_for(global_theme + p$theme)
     radial <- inherits(p$coordinates, "CoordRadial")
     guide_axes <- if (radial) c(x = "theta", y = "r")[axes] else
       stats::setNames(axes, axes)
