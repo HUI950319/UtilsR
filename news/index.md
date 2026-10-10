@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
+  background methods retain only axis and colour settings, preventing
+  old plot objects from accumulating in closures and serialized plots
+  after repeated formatting.
+
+- [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
   resolves one category colour map for all panels and data layers,
   keeping unnamed and palette colours consistent across free-scale
   facets.

@@ -74,9 +74,11 @@ overlays and fixed wrapped graphics are left unchanged. Format the
 original ggplot before wrapping it with
 [`patchwork::wrap_elements()`](https://patchwork.data-imaginist.com/reference/wrap_elements.html).
 Repeated calls replace this function's background layer while retaining
-all other layers, so transparency does not accumulate. Direct column
-mappings with empty or entirely missing categories are returned
-unchanged; deferred mappings with no categories draw no background.
+all other layers, so transparency does not accumulate. Background
+drawing closures retain only their colour and axis settings, keeping
+serialized plots bounded across repeated calls. Direct column mappings
+with empty or entirely missing categories are returned unchanged;
+deferred mappings with no categories draw no background.
 
 ## See also
 

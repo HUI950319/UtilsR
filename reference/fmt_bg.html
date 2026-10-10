@@ -124,7 +124,9 @@ annotations and list names are retained; spacers, guide areas, inset
 overlays and fixed wrapped graphics are left unchanged. Format the
 original ggplot before wrapping it with <code><a href="https://patchwork.data-imaginist.com/reference/wrap_elements.html" class="external-link">patchwork::wrap_elements()</a></code>.
 Repeated calls replace this function's background layer while retaining
-all other layers, so transparency does not accumulate.
+all other layers, so transparency does not accumulate. Background drawing
+closures retain only their colour and axis settings, keeping serialized
+plots bounded across repeated calls.
 Direct column mappings with empty or entirely missing categories are
 returned unchanged; deferred mappings with no categories draw no background.</p>
     </div>
