@@ -86,7 +86,11 @@ fmt_axisText(
 
 - ...:
 
-  Additional arguments passed to \[ggplot2::theme()\].
+  Additional arguments passed to
+  [`ggplot2::theme()`](https://ggplot2.tidyverse.org/reference/theme.html),
+  applied after the generated formatting. Explicit axis text fields in
+  these arguments take precedence; side-specific fields take precedence
+  over their parent.
 
 ## Value
 
@@ -105,7 +109,9 @@ guide rotation is retained. Existing text element classes, including
 rich text elements, are retained. Automatic Cartesian alignment follows
 each rendered axis side and treats full turns periodically. Explicit
 justification takes precedence. Justification values may lie outside the
-usual 0–1 interval.
+usual 0–1 interval. When every formatting argument is `NULL` and `...`
+is empty, the validated input object is returned unchanged without
+evaluating plot data.
 
 ## See also
 
@@ -134,7 +140,11 @@ Other plot formatting:
 
 ``` r
 library(ggplot2)
-p <- ggplot(iris, aes(Species, Sepal.Length)) + geom_boxplot()
+dat <- data.frame(
+  category = factor(rep(c("Alpha", "Beta", "Gamma"), each = 3)),
+  value = c(2, 3, 4, 4, 5, 6, 1, 2, 3)
+)
+p <- ggplot(dat, aes(category, value)) + geom_boxplot()
 
 # Rotate X-axis 45 degrees (like Seurat::RotatedAxis())
 fmt_axisText(p, x = 45)
@@ -151,4 +161,18 @@ fmt_axisText(p, x = 45, y = -30)
 # With custom size and bold
 fmt_axisText(p, x = 45, size = 10, face = "bold")
 
+
+# Adjust justification while retaining the existing angle
+fmt_axisText(p, x_hjust = 0.2)
+
+
+# Preserve a nested layout and named list
+nested <- patchwork::wrap_plots(p, p, nrow = 1)
+fmt_axisText(list(main = nested, detail = p), x = 45)
+#> $main
+
+#> 
+#> $detail
+
+#> 
 ```
