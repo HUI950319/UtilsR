@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_axisText()` retains existing text element classes, including rich text,
+  custom properties and blank parents, without reapplying relative font sizes.
+
 * `fmt_axisText()` applies formatting through plot, scale and secondary-axis
   guides, including flipped and radial coordinates. Other guide settings and
   original objects are retained; justification alone keeps existing guide angles.

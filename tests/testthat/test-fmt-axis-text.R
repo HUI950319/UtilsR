@@ -193,3 +193,35 @@ test_that("axis text formatting updates radial guide themes for either mapping",
     expect_equal(axis_text_labels(q, c(angular, radial))$colour, rep("blue", 6))
   }
 })
+
+test_that("axis text formatting retains rich text elements and hidden parents", {
+  skip_if_not_installed("ggtext")
+  p <- axis_text_plot() + ggplot2::scale_x_discrete(
+    labels = function(x) paste0("<b>", x, "</b>"))
+  element <- ggtext::element_markdown(size = 10, padding = ggplot2::margin(1, 2, 3, 4),
+                                       lineheight = 1.4)
+  for (name in c("axis.text.x", "axis.text.x.bottom")) {
+    input <- p + do.call(ggplot2::theme, stats::setNames(list(element), name))
+    expect_no_error(ggplot2::ggplotGrob(input))
+    output <- fmt_axisText(input, x = 45, size = 16, color = "blue")
+    expect_s3_class(output$theme[[name]], "element_markdown")
+    expect_identical(output$theme[[name]]$padding, element$padding)
+    expect_equal(output$theme[[name]]$lineheight, 1.4)
+    expect_no_error(ggplot2::ggplotGrob(output))
+    expect_identical(input$theme[[name]]$angle, element$angle)
+  }
+  theme <- ggplot2::theme(axis.text.x = element)
+  input <- p + ggplot2::guides(x = ggplot2::guide_axis(theme = theme))
+  output <- fmt_axisText(input, x = 45)
+  expect_s3_class(output$guides$guides$x$params$theme$axis.text.x, "element_markdown")
+  expect_no_error(ggplot2::ggplotGrob(output))
+  for (name in c("axis.text.x", "axis.text.x.bottom")) {
+    input <- axis_text_plot() + do.call(ggplot2::theme,
+      stats::setNames(list(ggplot2::element_blank()), name))
+    expect_equal(nrow(axis_text_labels(fmt_axisText(input, x = 45, size = 16))), 0L)
+  }
+  input <- axis_text_plot() + ggplot2::theme(
+    axis.text.x = ggplot2::element_text(size = ggplot2::rel(0.8)))
+  expect_equal(axis_text_labels(fmt_axisText(input, x = 45))$size,
+                 axis_text_labels(input)$size)
+})

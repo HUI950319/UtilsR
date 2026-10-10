@@ -92,6 +92,7 @@ Suggests:
     Seurat,
     RegR (>= 0.1.1),
     ggbeeswarm,
+    ggtext,
     ggalluvial,
     ggsci,
     ggrastr,

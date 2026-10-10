@@ -2381,6 +2381,7 @@ fmt_text <- function(plot,
 #'   Guide-local themes and rotation settings are updated without modifying the
 #'   original guides or their other settings. With justification alone, an
 #'   existing guide rotation is retained.
+#'   Existing text element classes, including rich text elements, are retained.
 #'
 #' @return Same type as input.
 #'
@@ -2431,7 +2432,6 @@ fmt_axisText <- function(plot,
   }
 
   # ---- Build X-axis text theme ----
-  x_theme <- ggplot2::theme()
   x_args <- list()
   if (!is.null(x) || !is.null(x_hjust) || !is.null(x_vjust) ||
       !is.null(size) || !is.null(color) || !is.null(face)) {
@@ -2443,15 +2443,9 @@ fmt_axisText <- function(plot,
     if (!is.null(size))  x_args$size  <- size
     if (!is.null(color)) x_args$colour <- color
     if (!is.null(face))  x_args$face  <- face
-    if (length(x_args) > 0L) {
-      x_theme <- ggplot2::theme(
-        axis.text.x = do.call(ggplot2::element_text, x_args)
-      )
-    }
   }
 
   # ---- Build Y-axis text theme ----
-  y_theme <- ggplot2::theme()
   y_args <- list()
   if (!is.null(y) || !is.null(y_hjust) || !is.null(y_vjust) ||
       !is.null(size) || !is.null(color) || !is.null(face)) {
@@ -2463,38 +2457,35 @@ fmt_axisText <- function(plot,
     if (!is.null(size))  y_args$size  <- size
     if (!is.null(color)) y_args$colour <- color
     if (!is.null(face))  y_args$face  <- face
-    if (length(y_args) > 0L) {
-      y_theme <- ggplot2::theme(
-        axis.text.y = do.call(ggplot2::element_text, y_args)
-      )
-    }
   }
 
   # ---- Combine + extra ... ----
   extra <- if (length(list(...)) > 0) do.call(ggplot2::theme, list(...)) else ggplot2::theme()
-  text_theme <- x_theme + y_theme
   text_theme_for <- function(theme, axes = c("x", "y"), guide_angle = NULL) {
-    base_theme <- if (length(axes) == 2L) text_theme else
-      if (axes == "x") x_theme else y_theme
     args <- list()
     for (axis in axes) {
       fields <- if (axis == "x") x_args else y_args
       if (!length(fields)) next
-      if (!is.null(guide_angle)) {
-        fields$angle <- guide_angle
-        args[[paste0("axis.text.", axis)]] <- do.call(ggplot2::element_text, fields)
-      }
+      if (!is.null(guide_angle)) fields$angle <- guide_angle
       sides <- if (axis == "x") c("bottom", "top") else c("left", "right")
-      elements <- c(paste0("axis.text.", axis, ".", sides),
+      parent <- paste0("axis.text.", axis)
+      elements <- c(parent, paste0(parent, ".", sides),
                       paste0("axis.text.", if (axis == "x") "theta" else "r"))
       elements <- intersect(elements, names(ggplot2::get_element_tree()))
       for (name in elements) {
-        if (is.null(theme[[name]]) || inherits(theme[[name]], "element_blank")) next
-        args[[name]] <- do.call(ggplot2::element_text, fields)
+        element <- theme[[name]]
+        if (is.null(element) && name != parent) next
+        if (inherits(element, "element_blank")) {
+          args[[name]] <- element
+          next
+        }
+        if (is.null(element)) element <- ggplot2::element_text()
+        if (is.null(fields$size)) element$size <- NULL
+        for (field in names(fields)) element[[field]] <- fields[[field]]
+        args[[name]] <- element
       }
     }
-    axis_theme <- if (length(args)) base_theme + do.call(ggplot2::theme, args) else base_theme
-    axis_theme + extra
+    do.call(ggplot2::theme, args) + extra
   }
   format_guide <- function(guide, axis) {
     if (!inherits(guide, "GuideAxis")) return(guide)
