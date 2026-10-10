@@ -353,3 +353,42 @@ test_that("deferred mappings retain continuous-axis warnings and palette errors"
     expect_error(bg_fills(fmt_bg(p, palette = "invalid")), "palette|Palette")
   }
 })
+
+test_that("background category colors are shared across layers and free facets", {
+  d <- data.frame(category = factor(rep(c("A", "C"), 2), levels = c("A", "B", "C")),
+                   value = 1:4, group = rep(c("P1", "P2"), each = 2))
+  extra <- data.frame(category = factor("B", levels = levels(d$category)),
+                       value = 5, group = "P2")
+  colors <- stats::setNames(unname(bg_colors), c("A", "C", "B"))
+  for (axis in c("x", "y")) {
+    for (deferred in c(FALSE, TRUE)) {
+      mapping <- if (axis == "x") {
+        if (deferred) ggplot2::aes(factor(category), value) else ggplot2::aes(category, value)
+      } else {
+        if (deferred) ggplot2::aes(value, factor(category)) else ggplot2::aes(value, category)
+      }
+      p <- ggplot2::ggplot(d, mapping) + ggplot2::geom_point() +
+        ggplot2::geom_point(data = extra) +
+        ggplot2::facet_wrap(~group, scales = paste0("free_", axis))
+      before <- ggplot2::ggplot_build(p)
+      categories <- unlist(lapply(seq_len(nrow(before$layout$layout)), function(i) {
+        before$layout$get_scales(i)[[axis]]$get_limits()
+      }), use.names = FALSE)
+      q <- fmt_bg(p, palcolor = unname(bg_colors), bg_axis = axis)
+      expect_equal(bg_fills(q), unname(colors[categories]))
+      expect_equal(bg_fills(fmt_bg(p, palcolor = bg_colors, bg_axis = axis)),
+                     unname(bg_colors[categories]))
+      defaults <- stats::setNames(grDevices::rainbow(3), names(colors))
+      expect_equal(bg_fills(fmt_bg(p, bg_axis = axis)), unname(defaults[categories]))
+      if (requireNamespace("plotthis", quietly = TRUE)) {
+        palette_colors <- plotthis::palette_this(names(colors), palette = "Paired")
+        expect_equal(bg_fills(fmt_bg(p, palette = "Paired", bg_axis = axis)),
+                       unname(palette_colors[categories]))
+      }
+      after <- ggplot2::ggplot_build(q)
+      expect_identical(after$data[-1], before$data)
+      expect_equal(lapply(after$layout$panel_params, function(z) z[[paste0(axis, ".range")]]),
+                     lapply(before$layout$panel_params, function(z) z[[paste0(axis, ".range")]]))
+    }
+  }
+})

@@ -3268,7 +3268,9 @@ fmt_com <- function(plot,
 #'   categorical-axis checks and palette resolution are deferred until drawing.
 #'
 #'   Stripes follow the trained scale order, including unused categories and
-#'   the local categories of free-scale facets. Missing categories use
+#'   the local categories of free-scale facets. Category colours are shared
+#'   across panels, including categories contributed by later layers. Missing
+#'   categories use
 #'   \code{"grey80"}. Facet expressions, marginal panels, flipped and polar
 #'   coordinates, radial bands and log-scaled continuous axes are supported.
 #'   Backgrounds retain the
@@ -3372,9 +3374,14 @@ fmt_bg <- function(plot,
         if (!any(vapply(params$bg_scales, function(scale) scale$is_discrete(), logical(1)))) {
           cli::cli_warn("The {bg_axis}-axis must be categorical; skipping background.")
         }
+        limits <- unique(c(lvs, unlist(lapply(params$bg_scales, function(scale) {
+          if (scale$is_discrete()) scale$get_limits() else character()
+        }), use.names = FALSE)))
+        limits <- limits[!is.na(limits)]
+        params$bg_colors <- if (all(limits %in% lvs)) bg_color else resolve_bg_colors(limits)
         ggplot2::ggproto_parent(ggplot2::GeomRect, self)$draw_layer(data, params, layout, coord)
       },
-      draw_panel = function(data, panel_params, coord, bg_scales, na.rm = FALSE) {
+      draw_panel = function(data, panel_params, coord, bg_scales, bg_colors, na.rm = FALSE) {
         scale <- bg_scales[[as.integer(data$PANEL[1])]]
         if (!scale$is_discrete()) return(ggplot2::zeroGrob())
         limits <- scale$get_limits()
@@ -3383,9 +3390,7 @@ fmt_bg <- function(plot,
         limits <- limits[keep]
         positions <- positions[keep]
         if (!length(limits) || all(is.na(limits))) return(ggplot2::zeroGrob())
-        extra <- limits[!is.na(limits) & !limits %in% lvs]
-        colors <- if (length(extra)) resolve_bg_colors(unique(c(lvs, extra))) else bg_color
-        fills <- unname(colors[match(limits, names(colors))])
+        fills <- unname(bg_colors[match(limits, names(bg_colors))])
         fills[is.na(limits)] <- "grey80"
         edges <- (head(positions, -1L) + tail(positions, -1L)) / 2
         rectangles <- data[rep(1L, length(limits)), , drop = FALSE]

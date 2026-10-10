@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_bg()` resolves one category colour map for all panels and data layers,
+  keeping unnamed and palette colours consistent across free-scale facets.
+
 * `fmt_bg()` defers mapping expressions and data callbacks to ggplot, supporting
   `after_stat()` categories without changing random draws or executing callbacks
   twice. Axis and palette checks for deferred mappings occur during drawing.
