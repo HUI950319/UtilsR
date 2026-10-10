@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_bg()` respects explicit discrete position scales when layers supply
+  numeric mapped or fixed positions, including flipped coordinates.
+
 * `fmt_bg()` checks complete named manual colours against displayed scale
   categories, allowing unused data categories to be excluded by scale limits
   without resolving an unnecessary palette.

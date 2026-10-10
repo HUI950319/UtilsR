@@ -457,3 +457,29 @@ test_that("complete manual colors cover the displayed scale categories", {
     }
   }
 })
+
+test_that("explicit discrete axes support numeric mapped and fixed positions", {
+  d <- data.frame(position = 1:3, value = c(2, 5, 3))
+  for (axis in c("x", "y")) {
+    for (fixed in c(FALSE, TRUE)) {
+      p <- if (axis == "x") {
+        if (fixed) ggplot2::ggplot(d, ggplot2::aes(y = value)) + ggplot2::geom_point(x = 1:3) else
+          ggplot2::ggplot(d, ggplot2::aes(position, value)) + ggplot2::geom_point()
+      } else {
+        if (fixed) ggplot2::ggplot(d, ggplot2::aes(x = value)) + ggplot2::geom_point(y = 1:3) else
+          ggplot2::ggplot(d, ggplot2::aes(value, position)) + ggplot2::geom_point()
+      }
+      scale_axis <- if (axis == "x") ggplot2::scale_x_discrete else ggplot2::scale_y_discrete
+      p <- p + scale_axis(limits = names(bg_colors))
+      for (original in list(p, p + ggplot2::coord_flip())) {
+        expect_silent(q <- fmt_bg(original, palcolor = bg_colors, bg_axis = axis))
+        expect_equal(bg_fills(q), unname(bg_colors))
+        before <- ggplot2::ggplot_build(original)
+        after <- ggplot2::ggplot_build(q)
+        expect_identical(after$data[-1], before$data)
+        expect_equal(lapply(after$layout$panel_params, function(z) list(z$x.range, z$y.range)),
+                       lapply(before$layout$panel_params, function(z) list(z$x.range, z$y.range)))
+      }
+    }
+  }
+})

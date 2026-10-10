@@ -3263,7 +3263,8 @@ fmt_com <- function(plot,
 #' @details Factor, character and logical axes, categorical mapping expressions
 #'   and layer data supplied as data frames, functions or formulas are supported.
 #'   The first applicable categorical layer mapping is used; numeric annotation
-#'   positions are skipped. Continuous axes are skipped with a warning.
+#'   positions are skipped. Explicit discrete position scales also support
+#'   numeric mapped or fixed positions. Continuous axes are skipped with a warning.
 #'   Mapping expressions, including [ggplot2::after_stat()], and data callbacks
 #'   are evaluated only by ggplot during rendering. For these mappings,
 #'   categorical-axis checks and palette resolution are deferred until drawing.
@@ -3462,7 +3463,10 @@ fmt_bg <- function(plot,
         if (length(values) && any(!is.na(values))) break
       }
     }
-    if (!has_layer_mapping) {
+    axis_scale <- p$scales$get_scales(bg_axis)
+    has_discrete_scale <- !is.null(axis_scale) && axis_scale$is_discrete()
+    if (has_discrete_scale && is.null(axis_values)) deferred <- TRUE
+    if (!has_layer_mapping && !has_discrete_scale) {
       cli::cli_warn("No {bg_axis}-axis mapping found; skipping background.")
       return(p)
     }

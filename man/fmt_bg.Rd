@@ -42,7 +42,8 @@ categorical axis variable, including in faceted and combined plots.
 Factor, character and logical axes, categorical mapping expressions
 and layer data supplied as data frames, functions or formulas are supported.
 The first applicable categorical layer mapping is used; numeric annotation
-positions are skipped. Continuous axes are skipped with a warning.
+positions are skipped. Explicit discrete position scales also support
+numeric mapped or fixed positions. Continuous axes are skipped with a warning.
 Mapping expressions, including \code{\link[ggplot2:after_stat]{ggplot2::after_stat()}}, and data callbacks
 are evaluated only by ggplot during rendering. For these mappings,
 categorical-axis checks and palette resolution are deferred until drawing.
