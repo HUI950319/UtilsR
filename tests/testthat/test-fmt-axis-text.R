@@ -291,3 +291,49 @@ test_that("axis text formatting retains valid boundary and relative values", {
   expect_equal(axis_text_labels(fmt_axisText(p, x = 45, size = ggplot2::rel(0.8)))$size,
                  axis_text_labels(fmt_axisText(p, size = ggplot2::rel(0.8)))$size)
 })
+
+test_that("axis text empty calls return the exact input without evaluating data", {
+  p <- axis_text_plot() + ggplot2::geom_point(data = function(data) {
+    stop("data must remain unevaluated")
+  })
+  nested <- (p | p) / (p | patchwork::plot_spacer())
+  inputs <- list(p, nested, list(left = nested, right = p), list())
+  for (input in inputs) {
+    expect_true(identical(fmt_axisText(input), input))
+    expect_true(identical(fmt_axisText(input, x = NULL, size = NULL), input))
+  }
+  expect_error(fmt_axisText(1), "Input must be")
+  expect_error(fmt_axisText(list(p, 1)), "All elements")
+})
+
+test_that("axis text additional themes retain precedence and unrelated settings", {
+  p <- axis_text_plot()
+  margin <- ggplot2::margin(1, 2, 3, 4)
+  q <- fmt_axisText(p, x = 45, color = "blue",
+    axis.text.x = ggplot2::element_text(angle = 90, colour = "red"),
+    plot.margin = margin)
+  expect_equal(axis_text_labels(q)$angle, rep(90, 3))
+  expect_equal(axis_text_labels(q)$colour, rep("red", 3))
+  expect_identical(q$theme$plot.margin, margin)
+  q <- fmt_axisText(p, x = 45,
+    axis.text.x = ggplot2::element_text(angle = 90),
+    axis.text.x.bottom = ggplot2::element_text(angle = 30))
+  expect_equal(axis_text_labels(q)$angle, rep(30, 3))
+  expect_equal(axis_text_labels(fmt_axisText(p, axis.text.x =
+    ggplot2::element_text(angle = 90)))$angle, rep(90, 3))
+  q <- fmt_axisText(p, x = 45, size = 16,
+    axis.text.x = ggplot2::element_text(size = ggplot2::rel(0.8)))
+  reference <- p + ggplot2::theme(axis.text.x = ggplot2::element_text(size = ggplot2::rel(0.8)))
+  expect_equal(axis_text_labels(q)$size, axis_text_labels(reference)$size)
+})
+
+test_that("axis text additional rich text themes retain their rendered class", {
+  skip_if_not_installed("ggtext")
+  p <- axis_text_plot() + ggplot2::scale_x_discrete(
+    labels = function(x) paste0("<b>", x, "</b>"))
+  q <- fmt_axisText(p, x = 45,
+    axis.text.x = ggtext::element_markdown(angle = 30))
+  expect_s3_class(ggplot2::calc_element("axis.text.x.bottom", q$theme),
+                    "element_markdown")
+  expect_no_error(ggplot2::ggplotGrob(q))
+})

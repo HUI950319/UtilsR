@@ -1,5 +1,10 @@
 # UtilsR 0.6.8
 
+* `fmt_axisText()` returns its validated input unchanged for empty calls and
+  avoids repeated empty-theme construction and element-tree lookups. Explicit
+  additional theme fields retain precedence. Help and examples cover the
+  updated behavior.
+
 * `fmt_axisText()` validates scalar angles, justification, sizes, colors and
   font faces immediately with argument-specific errors. Relative sizes,
   transparent colors and justification outside 0--1 remain supported.

@@ -2375,7 +2375,9 @@ fmt_text <- function(plot,
 #' @param face Character. Font face (\code{"plain"}, \code{"bold"},
 #'   \code{"italic"}, \code{"oblique"}, \code{"bold.italic"}). Default \code{NULL}
 #'   (no change).
-#' @param ... Additional arguments passed to [ggplot2::theme()].
+#' @param ... Additional arguments passed to [ggplot2::theme()], applied after
+#'   the generated formatting. Explicit axis text fields in these arguments
+#'   take precedence; side-specific fields take precedence over their parent.
 #'
 #' @details Data plots are edited recursively within nested patchworks and lists.
 #'   Layouts, annotations, list names and freed alignment are retained. Spacers,
@@ -2389,12 +2391,18 @@ fmt_text <- function(plot,
 #'   Automatic Cartesian alignment follows each rendered axis side and treats
 #'   full turns periodically. Explicit justification takes precedence.
 #'   Justification values may lie outside the usual 0--1 interval.
+#'   When every formatting argument is `NULL` and `...` is empty, the validated
+#'   input object is returned unchanged without evaluating plot data.
 #'
 #' @return Same type as input.
 #'
 #' @examples
 #' library(ggplot2)
-#' p <- ggplot(iris, aes(Species, Sepal.Length)) + geom_boxplot()
+#' dat <- data.frame(
+#'   category = factor(rep(c("Alpha", "Beta", "Gamma"), each = 3)),
+#'   value = c(2, 3, 4, 4, 5, 6, 1, 2, 3)
+#' )
+#' p <- ggplot(dat, aes(category, value)) + geom_boxplot()
 #'
 #' # Rotate X-axis 45 degrees (like Seurat::RotatedAxis())
 #' fmt_axisText(p, x = 45)
@@ -2408,6 +2416,14 @@ fmt_text <- function(plot,
 #' # With custom size and bold
 #' fmt_axisText(p, x = 45, size = 10, face = "bold")
 #'
+#' # Adjust justification while retaining the existing angle
+#' fmt_axisText(p, x_hjust = 0.2)
+#'
+#' # Preserve a nested layout and named list
+#' nested <- patchwork::wrap_plots(p, p, nrow = 1)
+#' fmt_axisText(list(main = nested, detail = p), x = 45)
+#'
+#' @md
 #' @export
 #' @family plot formatting
 fmt_axisText <- function(plot,
@@ -2424,6 +2440,12 @@ fmt_axisText <- function(plot,
 
   values <- list(x = x, y = y, x_hjust = x_hjust, x_vjust = x_vjust,
                    y_hjust = y_hjust, y_vjust = y_vjust, size = size)
+  dots <- list(...)
+  if (all(vapply(values, is.null, logical(1))) && is.null(color) &&
+      is.null(face) && !length(dots)) {
+    .to_plot_list(plot)
+    return(plot)
+  }
   for (name in names(values)) {
     value <- values[[name]]
     if (!is.null(value) && (!is.numeric(value) || length(value) != 1L ||
@@ -2471,7 +2493,6 @@ fmt_axisText <- function(plot,
   if (!is.null(x) || !is.null(x_hjust) || !is.null(x_vjust) ||
       !is.null(size) || !is.null(color) || !is.null(face)) {
     x_just <- auto_just(x, x_hjust, x_vjust, "bottom")
-    x_args <- list()
     if (!is.null(x))     x_args$angle <- x
     if (!is.null(x_just$hjust)) x_args$hjust <- x_just$hjust
     if (!is.null(x_just$vjust)) x_args$vjust <- x_just$vjust
@@ -2485,7 +2506,6 @@ fmt_axisText <- function(plot,
   if (!is.null(y) || !is.null(y_hjust) || !is.null(y_vjust) ||
       !is.null(size) || !is.null(color) || !is.null(face)) {
     y_just <- auto_just(y, y_hjust, y_vjust, "left")
-    y_args <- list()
     if (!is.null(y))     y_args$angle <- y
     if (!is.null(y_just$hjust)) y_args$hjust <- y_just$hjust
     if (!is.null(y_just$vjust)) y_args$vjust <- y_just$vjust
@@ -2495,8 +2515,10 @@ fmt_axisText <- function(plot,
   }
 
   # ---- Combine + extra ... ----
-  extra <- if (length(list(...)) > 0) do.call(ggplot2::theme, list(...)) else ggplot2::theme()
+  extra <- if (length(dots)) do.call(ggplot2::theme, dots) else NULL
+  element_names <- names(ggplot2::get_element_tree())
   text_theme_for <- function(theme, axes = c("x", "y"), guide_angle = NULL) {
+    if (!is.null(extra)) theme <- theme + extra
     args <- list()
     for (axis in axes) {
       fields <- if (axis == "x") x_args else y_args
@@ -2506,7 +2528,7 @@ fmt_axisText <- function(plot,
       parent <- paste0("axis.text.", axis)
       elements <- c(parent, paste0(parent, ".", sides),
                       paste0("axis.text.", if (axis == "x") "theta" else "r"))
-      elements <- intersect(elements, names(ggplot2::get_element_tree()))
+      elements <- intersect(elements, element_names)
       for (name in elements) {
         element <- theme[[name]]
         side <- if (name %in% paste0(parent, ".", sides)) sub(".*\\.", "", name) else sides[1L]
@@ -2530,11 +2552,21 @@ fmt_axisText <- function(plot,
                             if (axis == "x") x_vjust else y_vjust, side)
         if (!is.null(just$hjust)) element_fields$hjust <- just$hjust
         if (!is.null(just$vjust)) element_fields$vjust <- just$vjust
+        if (name != parent && inherits(extra[[parent]], "element_text")) {
+          for (field in names(element_fields)) {
+            value <- extra[[parent]][[field]]
+            if (!is.null(value)) {
+              element_fields[[field]] <- if (field == "size" && inherits(value, "rel"))
+                ggplot2::rel(1) else value
+            }
+          }
+        }
         for (field in names(element_fields)) element[[field]] <- element_fields[[field]]
         args[[name]] <- element
       }
     }
-    do.call(ggplot2::theme, args) + extra
+    output <- do.call(ggplot2::theme, args)
+    if (is.null(extra)) output else output + extra
   }
   format_guide <- function(guide, axis) {
     if (!inherits(guide, "GuideAxis")) return(guide)
