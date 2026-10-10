@@ -135,3 +135,16 @@ test_that("plt_sankey keeps identical category labels distinct across variables"
   expect_identical(plain$data$node, counts$data$node)
   expect_identical(nodes$fill, counts_build$data[[2]]$fill)
 })
+
+test_that("plt_sankey labels follow custom node spacing", {
+  skip_if_not_installed("ggsankey")
+
+  for (space in list(NULL, 0, 2)) {
+    built <- ggplot2::ggplot_build(sankey_plot(space = space, width = 0.7))
+    nodes <- built$data[[2]]
+    labels <- built$data[[3]]
+    index <- match(paste(labels$x, labels$node), paste(nodes$x, nodes$node))
+    expect_false(anyNA(index))
+    expect_equal(labels$y, (nodes$ymin[index] + nodes$ymax[index]) / 2)
+  }
+})

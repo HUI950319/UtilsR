@@ -200,7 +200,8 @@ plt_sankey <- function(data,
       width = width, space = space
     ) +
     ggsankey::geom_sankey_label(
-      size = label_size, fill = "white", alpha = 1, hjust = label_hjust
+      size = label_size, fill = "white", alpha = 1, hjust = label_hjust,
+      width = width, space = space
     ) +
     ggplot2::scale_fill_manual(values = mycol) +
     ggsankey::theme_sankey(base_size = base_size) +

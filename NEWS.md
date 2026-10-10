@@ -1,5 +1,7 @@
 # UtilsR 0.6.8
 
+* `plt_sankey()` keeps labels centered on their nodes when changing node spacing.
+
 * `fmt_bg()` supports character and logical categories, mapping expressions,
   and data and mappings supplied directly to a layer. Continuous axes are
   skipped with an informative warning.
