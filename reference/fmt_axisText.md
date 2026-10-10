@@ -41,24 +41,30 @@ fmt_axisText(
 - x_hjust:
 
   Numeric. Horizontal justification for X-axis text. Can be set without
-  supplying `x`. Default `NULL` (auto: 1 when `x > 0`, 0 when `x < 0`,
-  0.5 when `x = 0`).
+  supplying `x`. Default `NULL`: automatic alignment follows the bottom
+  or top axis side when `x` is supplied; otherwise the existing
+  alignment is retained.
 
 - x_vjust:
 
   Numeric. Vertical justification for X-axis text. Can be set without
-  supplying `x`. Default `NULL` (auto: 0.5 when `abs(x) >= 90`, 1
-  otherwise).
+  supplying `x`. Default `NULL`: automatic alignment follows the bottom
+  or top axis side when `x` is supplied; otherwise the existing
+  alignment is retained.
 
 - y_hjust:
 
   Numeric. Horizontal justification for Y-axis text. Can be set without
-  supplying `y`. Default `NULL` (auto).
+  supplying `y`. Default `NULL`: automatic alignment follows the left or
+  right axis side when `y` is supplied; otherwise the existing alignment
+  is retained.
 
 - y_vjust:
 
   Numeric. Vertical justification for Y-axis text. Can be set without
-  supplying `y`. Default `NULL` (auto).
+  supplying `y`. Default `NULL`: automatic alignment follows the left or
+  right axis side when `y` is supplied; otherwise the existing alignment
+  is retained.
 
 - size:
 
@@ -91,7 +97,9 @@ text elements. Explicitly blank side elements are retained. Guide-local
 themes and rotation settings are updated without modifying the original
 guides or their other settings. With justification alone, an existing
 guide rotation is retained. Existing text element classes, including
-rich text elements, are retained.
+rich text elements, are retained. Automatic Cartesian alignment follows
+each rendered axis side and treats full turns periodically. Explicit
+justification takes precedence.
 
 ## See also
 

@@ -98,26 +98,29 @@ Default <code>NULL</code> (no change).</p></dd>
 <dt id="arg-x-hjust">x_hjust<a class="anchor" aria-label="anchor" href="#arg-x-hjust"></a></dt>
 <dd><p>Numeric. Horizontal justification for X-axis text.
 Can be set without supplying <code>x</code>.
-Default <code>NULL</code> (auto: 1 when <code>x &gt; 0</code>, 0 when <code>x &lt; 0</code>,
-0.5 when <code>x = 0</code>).</p></dd>
+Default <code>NULL</code>: automatic alignment follows the bottom or top axis side
+when <code>x</code> is supplied; otherwise the existing alignment is retained.</p></dd>
 
 
 <dt id="arg-x-vjust">x_vjust<a class="anchor" aria-label="anchor" href="#arg-x-vjust"></a></dt>
 <dd><p>Numeric. Vertical justification for X-axis text.
 Can be set without supplying <code>x</code>.
-Default <code>NULL</code> (auto: 0.5 when <code>abs(x) &gt;= 90</code>, 1 otherwise).</p></dd>
+Default <code>NULL</code>: automatic alignment follows the bottom or top axis side
+when <code>x</code> is supplied; otherwise the existing alignment is retained.</p></dd>
 
 
 <dt id="arg-y-hjust">y_hjust<a class="anchor" aria-label="anchor" href="#arg-y-hjust"></a></dt>
 <dd><p>Numeric. Horizontal justification for Y-axis text.
 Can be set without supplying <code>y</code>.
-Default <code>NULL</code> (auto).</p></dd>
+Default <code>NULL</code>: automatic alignment follows the left or right axis side
+when <code>y</code> is supplied; otherwise the existing alignment is retained.</p></dd>
 
 
 <dt id="arg-y-vjust">y_vjust<a class="anchor" aria-label="anchor" href="#arg-y-vjust"></a></dt>
 <dd><p>Numeric. Vertical justification for Y-axis text.
 Can be set without supplying <code>y</code>.
-Default <code>NULL</code> (auto).</p></dd>
+Default <code>NULL</code>: automatic alignment follows the left or right axis side
+when <code>y</code> is supplied; otherwise the existing alignment is retained.</p></dd>
 
 
 <dt id="arg-size">size<a class="anchor" aria-label="anchor" href="#arg-size"></a></dt>
@@ -154,7 +157,9 @@ Explicitly blank side elements are retained.
 Guide-local themes and rotation settings are updated without modifying the
 original guides or their other settings. With justification alone, an
 existing guide rotation is retained.
-Existing text element classes, including rich text elements, are retained.</p>
+Existing text element classes, including rich text elements, are retained.
+Automatic Cartesian alignment follows each rendered axis side and treats
+full turns periodically. Explicit justification takes precedence.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

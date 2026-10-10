@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fmt_axisText()`](https://hui950319.github.io/UtilsR/reference/fmt_axisText.md)
+  computes automatic justification for each Cartesian axis side, handles
+  full turns consistently and retains explicitly supplied justification.
+
+- [`fmt_axisText()`](https://hui950319.github.io/UtilsR/reference/fmt_axisText.md)
   retains existing text element classes, including rich text, custom
   properties and blank parents, without reapplying relative font sizes.
 
