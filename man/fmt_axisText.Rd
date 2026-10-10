@@ -29,16 +29,20 @@ Default \code{NULL} (no change).}
 Default \code{NULL} (no change).}
 
 \item{x_hjust}{Numeric. Horizontal justification for X-axis text.
+Can be set without supplying \code{x}.
 Default \code{NULL} (auto: 1 when \code{x > 0}, 0 when \code{x < 0},
 0.5 when \code{x = 0}).}
 
 \item{x_vjust}{Numeric. Vertical justification for X-axis text.
+Can be set without supplying \code{x}.
 Default \code{NULL} (auto: 0.5 when \code{abs(x) >= 90}, 1 otherwise).}
 
 \item{y_hjust}{Numeric. Horizontal justification for Y-axis text.
+Can be set without supplying \code{y}.
 Default \code{NULL} (auto).}
 
 \item{y_vjust}{Numeric. Vertical justification for Y-axis text.
+Can be set without supplying \code{y}.
 Default \code{NULL} (auto).}
 
 \item{size}{Numeric. Text size for both axes. Default \code{NULL}

@@ -2352,13 +2352,17 @@ fmt_text <- function(plot,
 #' @param y Numeric. Rotation angle (degrees) for Y-axis text.
 #'   Default \code{NULL} (no change).
 #' @param x_hjust Numeric. Horizontal justification for X-axis text.
+#'   Can be set without supplying `x`.
 #'   Default \code{NULL} (auto: 1 when \code{x > 0}, 0 when \code{x < 0},
 #'   0.5 when \code{x = 0}).
 #' @param x_vjust Numeric. Vertical justification for X-axis text.
+#'   Can be set without supplying `x`.
 #'   Default \code{NULL} (auto: 0.5 when \code{abs(x) >= 90}, 1 otherwise).
 #' @param y_hjust Numeric. Horizontal justification for Y-axis text.
+#'   Can be set without supplying `y`.
 #'   Default \code{NULL} (auto).
 #' @param y_vjust Numeric. Vertical justification for Y-axis text.
+#'   Can be set without supplying `y`.
 #'   Default \code{NULL} (auto).
 #' @param size Numeric. Text size for both axes. Default \code{NULL}
 #'   (no change).
@@ -2419,12 +2423,13 @@ fmt_axisText <- function(plot,
 
   # ---- Build X-axis text theme ----
   x_theme <- ggplot2::theme()
-  if (!is.null(x) || !is.null(size) || !is.null(color) || !is.null(face)) {
+  if (!is.null(x) || !is.null(x_hjust) || !is.null(x_vjust) ||
+      !is.null(size) || !is.null(color) || !is.null(face)) {
     x_just <- auto_just(x, x_hjust, x_vjust, "x")
     x_args <- list()
     if (!is.null(x))     x_args$angle <- x
-    if (!is.null(x))     x_args$hjust <- x_just$hjust
-    if (!is.null(x))     x_args$vjust <- x_just$vjust
+    if (!is.null(x_just$hjust)) x_args$hjust <- x_just$hjust
+    if (!is.null(x_just$vjust)) x_args$vjust <- x_just$vjust
     if (!is.null(size))  x_args$size  <- size
     if (!is.null(color)) x_args$colour <- color
     if (!is.null(face))  x_args$face  <- face
@@ -2437,12 +2442,13 @@ fmt_axisText <- function(plot,
 
   # ---- Build Y-axis text theme ----
   y_theme <- ggplot2::theme()
-  if (!is.null(y) || !is.null(size) || !is.null(color) || !is.null(face)) {
+  if (!is.null(y) || !is.null(y_hjust) || !is.null(y_vjust) ||
+      !is.null(size) || !is.null(color) || !is.null(face)) {
     y_just <- auto_just(y, y_hjust, y_vjust, "y")
     y_args <- list()
     if (!is.null(y))     y_args$angle <- y
-    if (!is.null(y))     y_args$hjust <- y_just$hjust
-    if (!is.null(y))     y_args$vjust <- y_just$vjust
+    if (!is.null(y_just$hjust)) y_args$hjust <- y_just$hjust
+    if (!is.null(y_just$vjust)) y_args$vjust <- y_just$vjust
     if (!is.null(size))  y_args$size  <- size
     if (!is.null(color)) y_args$colour <- color
     if (!is.null(face))  y_args$face  <- face
