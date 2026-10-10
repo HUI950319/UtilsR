@@ -3260,9 +3260,9 @@ fmt_com <- function(plot,
 #'   \code{"y"}.
 #'
 #' @details Factor, character and logical axes, categorical mapping expressions
-#'   and data supplied directly to a layer are supported. The categorical
-#'   mapping is evaluated using the first applicable layer with a data frame,
-#'   or the plot data. Continuous axes are skipped with a warning.
+#'   and layer data supplied as data frames, functions or formulas are supported.
+#'   The first applicable categorical layer mapping is used; numeric annotation
+#'   positions are skipped. Continuous axes are skipped with a warning.
 #'
 #'   Stripes follow the trained scale order, including unused categories and
 #'   the local categories of free-scale facets. Missing categories use
@@ -3404,22 +3404,29 @@ fmt_bg <- function(plot,
 
   fmt_bg_one <- function(p) {
     mapping_var <- p$mapping[[bg_axis]]
-    axis_data <- p$data
+    axis_values <- NULL
+    has_layer_mapping <- FALSE
     for (layer in p$layers) {
       layer_mapping <- layer$mapping[[bg_axis]]
       if (is.null(layer_mapping) && layer$inherit.aes) layer_mapping <- mapping_var
-      layer_data <- if (is.data.frame(layer$data)) layer$data else axis_data
-      if (!is.null(layer_mapping) && is.data.frame(layer_data)) {
-        mapping_var <- layer_mapping
-        axis_data <- layer_data
-        break
+      if (is.null(layer_mapping)) next
+      layer_data <- layer$layer_data(p$data)
+      if (is.data.frame(layer_data)) {
+        has_layer_mapping <- TRUE
+        values <- rlang::eval_tidy(layer_mapping, data = layer_data)
+        if (is.factor(values) || is.character(values) || is.logical(values)) {
+          axis_values <- values
+          if (length(values) && any(!is.na(values))) break
+        }
       }
     }
-    if (is.null(mapping_var)) {
+    if (!has_layer_mapping && !is.null(mapping_var)) {
+      axis_values <- rlang::eval_tidy(mapping_var, data = p$data)
+    }
+    if (!has_layer_mapping && is.null(mapping_var)) {
       cli::cli_warn("No {bg_axis}-axis mapping found; skipping background.")
       return(p)
     }
-    axis_values <- rlang::eval_tidy(mapping_var, data = axis_data)
     if (!is.factor(axis_values) && !is.character(axis_values) && !is.logical(axis_values)) {
       cli::cli_warn("The {bg_axis}-axis must be categorical; skipping background.")
       return(p)

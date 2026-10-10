@@ -257,3 +257,36 @@ test_that("backgrounds render polar sectors and radial bands", {
     }
   }
 })
+
+test_that("backgrounds use function and formula layer data", {
+  d <- bg_plot()$data
+  mapped_colors <- stats::setNames(bg_colors, paste0("G", names(bg_colors)))
+  for (axis in c("x", "y")) {
+    mapping <- if (axis == "x") ggplot2::aes(category2, value) else
+      ggplot2::aes(value, category2)
+    for (data in list(
+      function(x) transform(x, category2 = factor(paste0("G", category))),
+      ~transform(.x, category2 = factor(paste0("G", category))))) {
+      p <- ggplot2::ggplot(d) + ggplot2::geom_point(data = data, mapping = mapping)
+      q <- fmt_bg(p, palcolor = mapped_colors, bg_axis = axis)
+      expect_equal(bg_fills(q), unname(mapped_colors))
+      expect_identical(ggplot2::ggplot_build(q)$data[-1], ggplot2::ggplot_build(p)$data)
+    }
+    p <- ggplot2::ggplot() + ggplot2::geom_point(
+      data = function(x) transform(d, category2 = factor(paste0("G", category))), mapping = mapping)
+    expect_equal(bg_fills(fmt_bg(p, palcolor = mapped_colors, bg_axis = axis)),
+                   unname(mapped_colors))
+  }
+})
+
+test_that("numeric annotations do not hide categorical background mappings", {
+  for (axis in c("x", "y")) {
+    p <- if (axis == "x") bg_plot() else
+      ggplot2::ggplot(bg_plot()$data, ggplot2::aes(value, category)) + ggplot2::geom_point()
+    p$layers <- c(list(ggplot2::annotate("text", x = 1, y = 1, label = "note")), p$layers)
+    p <- p + if (axis == "x") ggplot2::scale_x_discrete() else ggplot2::scale_y_discrete()
+    expect_silent(q <- fmt_bg(p, palcolor = bg_colors, bg_axis = axis))
+    expect_equal(bg_fills(q), unname(bg_colors))
+    expect_identical(ggplot2::ggplot_build(q)$data[-1], ggplot2::ggplot_build(p)$data)
+  }
+})
