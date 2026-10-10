@@ -1,14 +1,16 @@
 # Add colored tiles between axis and labels
 
-Insert a strip of colored tiles between the plot area and the axis text
-labels. Two modes are available:
+Insert colored tiles at the discrete axis or color its text labels.
+Colors are matched to trained scale values, independently of displayed
+labels. Scale order, selected breaks, dropped levels and missing
+categories are respected. Data and statistics are evaluated only when
+the plot is built. Two modes are available:
 
-- `"tile"` (default) — insert a `geom_tile` color strip between the axis
-  line and text labels via patchwork. Labels appear below (x-axis) or
-  beside (y-axis) the tiles.
+- `"tile"` (default) — draw a colored strip between the axis line and
+  labels using the axis guide. Axis titles are retained.
 
-- `"text"` — color the axis label text directly (no background tile),
-  lightweight but uses unofficial vectorized `element_text`.
+- `"text"` — color individual axis labels without vectorized theme
+  elements or a background tile.
 
 ## Usage
 
@@ -54,12 +56,12 @@ fmt_axisTile(
 - tile_height:
 
   Positive finite numeric. Relative height of the tile strip when
-  `axis = "x"`. Default 0.06.
+  `axis = "x"`, as a fraction of the main panel height. Default 0.06.
 
 - tile_width:
 
   Positive finite numeric. Relative width of the tile strip when
-  `axis = "y"`. Default 0.06.
+  `axis = "y"`, as a fraction of the main panel width. Default 0.06.
 
 - tile_border:
 
@@ -95,8 +97,10 @@ fmt_axisTile(
 
 ## Value
 
-A patchwork object (when `mode = "tile"`) or same type as input (when
-`mode = "text"`).
+In tile mode, a single non-empty ggplot is wrapped in a patchwork;
+patchworks retain their container and lists return lists of formatted
+plots. Text mode retains the input container type. Empty data plots are
+unchanged.
 
 ## See also
 
@@ -138,8 +142,6 @@ fmt_axisTile(p, colors = cols, show_text = FALSE)
 
 # Text mode: colored axis labels (no tiles)
 fmt_axisTile(p, colors = cols, mode = "text")
-#> Warning: Vectorized input to `element_text()` is not officially supported.
-#> ℹ Results may be unexpected or may change in future versions of ggplot2.
 
 
 # Y-axis tiles
