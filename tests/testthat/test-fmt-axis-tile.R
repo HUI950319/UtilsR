@@ -320,3 +320,31 @@ test_that("later relative text sizes are resolved once", {
     expect_equal(labels$size[match(c("A", "B", "C"), labels$label)], expected)
   }
 })
+
+test_that("rich axis labels retain markup and category colors", {
+  skip_if_not_installed("ggtext")
+  p <- axis_tile_plot() + ggplot2::scale_x_discrete(
+    labels = c(A = "<b>A</b>", B = "<i>B</i>", C = "C")) +
+    ggplot2::theme(axis.text.x = ggtext::element_markdown(angle = 0, family = "mono"))
+  rich_labels <- function(g) {
+    children <- if (inherits(g, "gtable")) g$grobs else g$children
+    c(if (inherits(g, "richtext_grob")) list(g), unlist(lapply(children, rich_labels), recursive = FALSE))
+  }
+  for (axis in c("x", "y")) for (mode in c("tile", "text")) {
+    input <- if (axis == "x") p else {
+      ggplot2::ggplot(p$data, ggplot2::aes(value, category)) +
+        ggplot2::geom_col(orientation = "y") +
+        ggplot2::scale_y_discrete(labels = c(A = "<b>A</b>", B = "<i>B</i>", C = "C")) +
+        ggplot2::theme(axis.text.y = ggtext::element_markdown(angle = 0, family = "mono"))
+    }
+    q <- fmt_axisTile(input, axis_tile_colors, mode = mode, axis = axis, text_angle = 0)
+    g <- if (inherits(q, "patchwork")) patchwork::patchworkGrob(q) else ggplot2::ggplotGrob(q)
+    rich <- rich_labels(g)
+    expect_length(rich, 1L)
+    expect_identical(rich[[1]]$gp$fontfamily, "mono")
+    labels <- axis_tile_text(g)
+    index <- match(c("A", "B", "C"), labels$label)
+    expect_false(anyNA(index))
+    expect_equal(labels$colour[index], if (mode == "text") unname(axis_tile_colors) else rep("black", 3))
+  }
+})

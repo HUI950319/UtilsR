@@ -2652,6 +2652,7 @@ fmt_axisText <- function(plot,
 #' and the default \code{"axis"} guide.
 #' Tile positions follow each panel's trained scale and expansion, including
 #' free facets. Existing guide settings, axis titles and scale labels are retained.
+#' Rich-text axis elements retain their class, markup and layout properties.
 #' Editable leaves in nested patchworks and named lists are formatted while
 #' layouts, annotations, fixed graphics and inset overlays are preserved.
 #' Repeated calls update the formatting and can switch between modes.
@@ -2903,10 +2904,13 @@ fmt_axisTile <- function(plot,
       }
       if (settings$show_text) {
         angle <- settings$text_angle
-        text <- ggplot2::element_text(
-          colour = settings$text_color, size = settings$text_size, face = settings$text_face,
-          angle = angle, inherit.blank = FALSE
-        )
+        text <- elements$text
+        if (!inherits(text, "element_text")) text <- ggplot2::element_text()
+        text$colour <- settings$text_color
+        text$size <- settings$text_size
+        text$face <- settings$text_face
+        text$angle <- angle
+        text$inherit.blank <- FALSE
         text_names <- c("axis.text", paste0("axis.text.", axis),
                           paste0("axis.text.", axis, ".", params$position))
         blank_changed <- FALSE
@@ -2970,16 +2974,27 @@ fmt_axisTile <- function(plot,
           isTRUE(elements$fmt_colour_override)) return(labels)
       fill <- unname(settings$colors[as.character(key$.value)])
       fill[is.na(fill)] <- settings$text_color
-      color_labels <- function(g) {
-        if (inherits(g, "text")) {
-          positions <- as.numeric(if (params$vertical) g$y else g$x)
-          index <- match(positions, key[[params$aes]])
-          for (i in which(is.na(index))) {
-            index[i] <- which.min(abs(key[[params$aes]] - positions[i]))
+      index_at <- function(positions) {
+        index <- match(positions, key[[params$aes]])
+        for (i in which(is.na(index))) {
+          index[i] <- which.min(abs(key[[params$aes]] - positions[i]))
+        }
+        index
+      }
+      color_labels <- function(g, index = NULL) {
+        if (inherits(g, "richtext_grob")) {
+          for (i in seq_along(g$children)) {
+            child <- g$children[[i]]
+            position <- as.numeric(if (params$vertical) child$y else child$x)
+            g$children[[i]] <- color_labels(child, index_at(position))
           }
+          return(g)
+        }
+        if (inherits(g, "text")) {
+          if (is.null(index)) index <- index_at(as.numeric(if (params$vertical) g$y else g$x))
           g$gp$col <- fill[index]
         }
-        for (i in seq_along(g$children)) g$children[[i]] <- color_labels(g$children[[i]])
+        for (i in seq_along(g$children)) g$children[[i]] <- color_labels(g$children[[i]], index)
         g
       }
       lapply(labels, color_labels)

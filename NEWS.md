@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_axisTile()` preserves rich-text axis element classes and layout settings,
+  avoiding incompatible element merges. Text-mode colors follow each rich label's
+  axis position rather than its internal text fragment coordinates.
+
 * `fmt_axisTile()` help uses self-contained simulated examples and explains
   scale labels, physical axis selection, facets, nested containers and repeated
   calls. Other guide kinds retain their original plots instead of being replaced
