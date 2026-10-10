@@ -113,7 +113,8 @@ displayed appearance. Other guide kinds are left unchanged; coloring
 adapts `GuideAxis` objects and the default `"axis"` guide. Tile
 positions follow each panel's trained scale and expansion, including
 free facets. Existing guide settings, axis titles and scale labels are
-retained. Editable leaves in nested patchworks and named lists are
+retained. Rich-text axis elements retain their class, markup and layout
+properties. Editable leaves in nested patchworks and named lists are
 formatted while layouts, annotations, fixed graphics and inset overlays
 are preserved. Repeated calls update the formatting and can switch
 between modes. Subsequent calls to
