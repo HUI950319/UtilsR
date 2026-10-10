@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
+  formats every data plot in nested patchworks and lists while retaining
+  layouts, annotations, names and freed alignment. Spacers, guide areas,
+  fixed wrapped graphics and inset overlays are left unchanged.
+
+- [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
   creates background bounds after position-scale transformations,
   retaining stripes on log-scaled axes without warnings from infinite
   bounds.

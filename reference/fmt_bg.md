@@ -53,6 +53,14 @@ fmt_bg(
 
 Same type as input.
 
+## Details
+
+Nested data plots are formatted recursively. Patchwork layouts,
+annotations and list names are retained; spacers, guide areas, inset
+overlays and fixed wrapped graphics are left unchanged. Format the
+original ggplot before wrapping it with
+[`patchwork::wrap_elements()`](https://patchwork.data-imaginist.com/reference/wrap_elements.html).
+
 ## See also
 
 Other plot formatting:
