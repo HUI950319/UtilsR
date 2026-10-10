@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
+  draws missing-category stripes in free-scale panels containing only
+  missing values when other panels have valid categories, while plots
+  with no non-missing categories still draw no background.
+
+- [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
   background methods retain only axis and colour settings, preventing
   old plot objects from accumulating in closures and serialized plots
   after repeated formatting.
