@@ -3253,7 +3253,8 @@ fmt_com <- function(plot,
 #' @param palcolor Manual colour vector (overrides palette). Named vectors match
 #'   category values, with unmatched categories using the palette. Unnamed
 #'   vectors are interpolated to the number of levels.
-#'   A complete manual colour specification does not require \pkg{plotthis}.
+#'   Named colours covering all displayed categories, after scale limits are
+#'   applied, do not require \pkg{plotthis}.
 #' @param alpha A finite numeric value from 0 to 1 giving the opacity of the
 #'   background rectangles. Zero returns the input unchanged.
 #' @param bg_axis Which axis holds the categorical variable: \code{"x"} or
@@ -3368,7 +3369,10 @@ fmt_bg <- function(plot,
     force(alpha)
     force(bg_axis)
 
-    bg_color <- if (length(lvs)) resolve_bg_colors(lvs) else NULL
+    bg_color <- if (length(lvs) &&
+                    (is.null(names(palcolor)) || all(lvs %in% names(palcolor)))) {
+      resolve_bg_colors(lvs)
+    } else NULL
 
     bg_data <- data.frame(.bg = TRUE)
 
@@ -3388,7 +3392,10 @@ fmt_bg <- function(plot,
         params$bg_has_categories <- any(!is.na(trained_limits))
         limits <- unique(c(lvs, trained_limits))
         limits <- limits[!is.na(limits)]
-        params$bg_colors <- if (all(limits %in% lvs)) bg_color else resolve_bg_colors(limits)
+        shown <- unique(trained_limits[!is.na(trained_limits)])
+        params$bg_colors <- if (!is.null(names(palcolor)) && all(shown %in% names(palcolor))) {
+          palcolor[shown]
+        } else if (!is.null(bg_color) && all(limits %in% lvs)) bg_color else resolve_bg_colors(limits)
         ggplot2::ggproto_parent(ggplot2::GeomRect, self)$draw_layer(data, params, layout, coord)
       },
       draw_panel = function(data, panel_params, coord, bg_scales, bg_colors,
@@ -3424,7 +3431,8 @@ fmt_bg <- function(plot,
     bg_layer$geom <- bg_geom
     bg_layer
   }
-  environment(build_bg_layer) <- list2env(list(resolve_bg_colors = resolve_bg_colors),
+  environment(build_bg_layer) <- list2env(list(resolve_bg_colors = resolve_bg_colors,
+                                              palcolor = palcolor),
                                           parent = environment(fmt_bg))
 
   fmt_bg_one <- function(p) {

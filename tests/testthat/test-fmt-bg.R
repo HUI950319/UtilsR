@@ -430,3 +430,30 @@ test_that("all-missing facet panels retain their missing-category background", {
   changed$data$category <- factor(c(NA, NA, NA))
   expect_null(bg_fills(fmt_bg(changed, palcolor = bg_colors)))
 })
+
+test_that("complete manual colors cover the displayed scale categories", {
+  for (axis in c("x", "y")) {
+    for (deferred in c(FALSE, TRUE)) {
+      mapping <- if (axis == "x") {
+        if (deferred) ggplot2::aes(factor(category), value) else ggplot2::aes(category, value)
+      } else {
+        if (deferred) ggplot2::aes(value, factor(category)) else ggplot2::aes(value, category)
+      }
+      p <- ggplot2::ggplot(bg_plot()$data, mapping) + ggplot2::geom_point(na.rm = TRUE)
+      scale_axis <- if (axis == "x") ggplot2::scale_x_discrete else ggplot2::scale_y_discrete
+      for (limits in list(c("A", "C"), c("D", "A"), function(x) c("C", "A"))) {
+        shown <- if (is.function(limits)) limits(c("A", "B", "C")) else limits
+        colors <- c(bg_colors, D = "#A020F0")[shown]
+        original <- p + scale_axis(limits = limits)
+        q <- fmt_bg(original, palette = "invalid", palcolor = colors, bg_axis = axis)
+        expect_equal(bg_fills(q), unname(colors))
+        expect_identical(ggplot2::ggplot_build(q)$data[-1], ggplot2::ggplot_build(original)$data)
+      }
+    }
+    if (requireNamespace("plotthis", quietly = TRUE)) {
+      q <- fmt_bg(p + scale_axis(limits = c("A", "D")), palette = "invalid",
+                    palcolor = c(A = "red"), bg_axis = axis)
+      expect_error(bg_fills(q), "palette|Palette")
+    }
+  }
+})

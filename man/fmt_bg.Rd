@@ -22,7 +22,8 @@ retains the default rainbow colours.}
 \item{palcolor}{Manual colour vector (overrides palette). Named vectors match
 category values, with unmatched categories using the palette. Unnamed
 vectors are interpolated to the number of levels.
-A complete manual colour specification does not require \pkg{plotthis}.}
+Named colours covering all displayed categories, after scale limits are
+applied, do not require \pkg{plotthis}.}
 
 \item{alpha}{A finite numeric value from 0 to 1 giving the opacity of the
 background rectangles. Zero returns the input unchanged.}
