@@ -126,3 +126,70 @@ test_that("axis text formatting overrides explicit radial styles", {
     expect_equal(c(x$size, y$size), rep(16, 6))
   }
 })
+
+test_that("axis text formatting respects guide locations and retains their settings", {
+  p <- axis_text_plot()
+  guide <- ggplot2::guide_axis(angle = 90, n.dodge = 2, cap = "both",
+    minor.ticks = TRUE, theme = ggplot2::theme(
+      axis.text.x.bottom = ggplot2::element_text(angle = 0, colour = "red", size = 9),
+      axis.text.y.left = ggplot2::element_text(angle = 0, colour = "red", size = 9)))
+  original <- guide$params
+  inputs <- list(p + ggplot2::guides(x = guide, y = guide),
+    p + ggplot2::scale_x_discrete(guide = guide) +
+      ggplot2::scale_y_continuous(breaks = c(2, 4, 6),
+        labels = c("Low", "Mid", "High"), guide = guide))
+  for (input in inputs) {
+    q <- fmt_axisText(input, x = 45, y = -30, color = "blue", size = 16)
+    x <- axis_text_labels(q)
+    y <- axis_text_labels(q, c("Low", "Mid", "High"))
+    expect_equal(x$angle, rep(45, 3))
+    expect_equal(y$angle, rep(-30, 3))
+    expect_equal(c(x$colour, y$colour), rep("blue", 6))
+    expect_equal(c(x$size, y$size), rep(16, 6))
+    result <- if (length(q$guides$guides)) q$guides$guides$x else q$scales$get_scales("x")$guide
+    expect_identical(result$params[c("n.dodge", "cap", "minor.ticks")],
+                       original[c("n.dodge", "cap", "minor.ticks")])
+    expect_identical(guide$params, original)
+  }
+  for (input in inputs) {
+    q <- fmt_axisText(input + ggplot2::coord_flip(), x = 45, y = -30)
+    expect_equal(axis_text_labels(q)$angle, rep(-30, 3))
+    expect_equal(axis_text_labels(q, c("Low", "Mid", "High"))$angle, rep(45, 3))
+  }
+})
+
+test_that("axis text formatting handles secondary guide angles and justification alone", {
+  guide <- ggplot2::guide_axis(angle = 90)
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = c(2, 4, 6)),
+                         ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    ggplot2::scale_x_continuous(breaks = 1:3,
+      labels = c("Alpha", "Beta", "Gamma"),
+      sec.axis = ggplot2::dup_axis(labels = c("AlphaS", "BetaS", "GammaS"), guide = guide)) +
+    ggplot2::theme_classic()
+  q <- fmt_axisText(p, x = 45)
+  expect_equal(axis_text_labels(q, c("Alpha", "Beta", "Gamma", "AlphaS", "BetaS", "GammaS"))$angle,
+                 rep(45, 6))
+  p <- axis_text_plot() + ggplot2::guides(x = guide)
+  labels <- axis_text_labels(fmt_axisText(p, x_hjust = 0.2))
+  expect_equal(labels$angle, rep(90, 3))
+  expect_equal(labels$hjust, rep(0.2, 3))
+  expect_equal(axis_text_labels(fmt_axisText(p, color = "blue"))$angle, rep(90, 3))
+})
+
+test_that("axis text formatting updates radial guide themes for either mapping", {
+  skip_if_not(exists("coord_radial", asNamespace("ggplot2")))
+  theme <- ggplot2::theme(
+    axis.text.theta = ggplot2::element_text(angle = 0, colour = "red"),
+    axis.text.r = ggplot2::element_text(angle = 0, colour = "red"))
+  for (theta in c("x", "y")) {
+    p <- axis_text_plot() + ggplot2::coord_radial(theta = theta) +
+      ggplot2::guides(theta = ggplot2::guide_axis_theta(theme = theme),
+                       r = ggplot2::guide_axis(theme = theme))
+    q <- fmt_axisText(p, x = 45, y = -30, color = "blue")
+    angular <- if (theta == "x") c("Alpha", "Beta", "Gamma") else c("Low", "Mid", "High")
+    radial <- if (theta == "x") c("Low", "Mid", "High") else c("Alpha", "Beta", "Gamma")
+    expect_equal(axis_text_labels(q, angular)$angle, rep(45, 3))
+    expect_equal(axis_text_labels(q, radial)$angle, rep(-30, 3))
+    expect_equal(axis_text_labels(q, c(angular, radial))$colour, rep("blue", 6))
+  }
+})

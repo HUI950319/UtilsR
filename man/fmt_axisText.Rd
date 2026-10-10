@@ -71,6 +71,9 @@ Layouts, annotations, list names and freed alignment are retained. Spacers,
 guide areas, fixed wrapped graphics and inset overlays are not edited.
 Styling also updates explicitly styled axis sides and radial text elements.
 Explicitly blank side elements are retained.
+Guide-local themes and rotation settings are updated without modifying the
+original guides or their other settings. With justification alone, an
+existing guide rotation is retained.
 }
 \examples{
 library(ggplot2)

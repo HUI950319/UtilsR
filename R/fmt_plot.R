@@ -2378,6 +2378,9 @@ fmt_text <- function(plot,
 #'   guide areas, fixed wrapped graphics and inset overlays are not edited.
 #'   Styling also updates explicitly styled axis sides and radial text elements.
 #'   Explicitly blank side elements are retained.
+#'   Guide-local themes and rotation settings are updated without modifying the
+#'   original guides or their other settings. With justification alone, an
+#'   existing guide rotation is retained.
 #'
 #' @return Same type as input.
 #'
@@ -2470,11 +2473,17 @@ fmt_axisText <- function(plot,
   # ---- Combine + extra ... ----
   extra <- if (length(list(...)) > 0) do.call(ggplot2::theme, list(...)) else ggplot2::theme()
   text_theme <- x_theme + y_theme
-  text_theme_for <- function(theme) {
+  text_theme_for <- function(theme, axes = c("x", "y"), guide_angle = NULL) {
+    base_theme <- if (length(axes) == 2L) text_theme else
+      if (axes == "x") x_theme else y_theme
     args <- list()
-    for (axis in c("x", "y")) {
+    for (axis in axes) {
       fields <- if (axis == "x") x_args else y_args
       if (!length(fields)) next
+      if (!is.null(guide_angle)) {
+        fields$angle <- guide_angle
+        args[[paste0("axis.text.", axis)]] <- do.call(ggplot2::element_text, fields)
+      }
       sides <- if (axis == "x") c("bottom", "top") else c("left", "right")
       elements <- c(paste0("axis.text.", axis, ".", sides),
                       paste0("axis.text.", if (axis == "x") "theta" else "r"))
@@ -2484,13 +2493,66 @@ fmt_axisText <- function(plot,
         args[[name]] <- do.call(ggplot2::element_text, fields)
       }
     }
-    axis_theme <- if (length(args)) text_theme + do.call(ggplot2::theme, args) else text_theme
+    axis_theme <- if (length(args)) base_theme + do.call(ggplot2::theme, args) else base_theme
     axis_theme + extra
+  }
+  format_guide <- function(guide, axis) {
+    if (!inherits(guide, "GuideAxis")) return(guide)
+    fields <- if (axis == "x") x_args else y_args
+    params <- guide$params
+    reset_angle <- any(c("angle", "hjust", "vjust") %in% names(fields)) &&
+      !is.null(params$angle) && !inherits(params$angle, "waiver")
+    if (is.null(params$theme) && !reset_angle) return(guide)
+    angle <- if (reset_angle && is.null(fields$angle)) params$angle else NULL
+    theme <- if (is.null(params$theme)) ggplot2::theme() else params$theme
+    params$theme <- theme + text_theme_for(theme, axes = axis, guide_angle = angle)
+    if (reset_angle) params$angle <- NULL
+    ggplot2::ggproto(NULL, guide, params = params)
   }
 
   # ---- Apply to plots ----
   info <- .to_plot_list(plot, recurse = TRUE)
-  info$plots <- lapply(info$plots, function(p) p + text_theme_for(p$theme))
+  axes <- c(if (length(x_args)) "x", if (length(y_args)) "y")
+  info$plots <- lapply(info$plots, function(p) {
+    p <- p + text_theme_for(p$theme)
+    radial <- inherits(p$coordinates, "CoordRadial")
+    guide_axes <- if (radial) c(x = "theta", y = "r")[axes] else
+      stats::setNames(axes, axes)
+    if (inherits(p$guides, "Guides")) {
+      guides <- p$guides$guides
+      for (axis in axes) {
+        for (name in intersect(c(guide_axes[[axis]], paste0(guide_axes[[axis]], ".sec")),
+                                names(guides))) {
+          guides[[name]] <- format_guide(guides[[name]], axis)
+        }
+      }
+      if (!identical(guides, p$guides$guides)) {
+        p$guides <- do.call(ggplot2::ggproto, list(NULL, p$guides, guides = guides))
+      }
+    }
+    scale_axes <- if (radial) c(x = p$coordinates$theta, y = p$coordinates$r)[axes] else
+      if (inherits(p$coordinates, "CoordFlip")) c(x = "y", y = "x")[axes] else guide_axes
+    scales <- lapply(p$scales$scales, function(scale) {
+      selected <- axes[scale_axes %in% scale$aesthetics]
+      if (!length(selected)) return(scale)
+      axis <- selected[1L]
+      guide <- format_guide(scale$guide, axis)
+      secondary <- scale$secondary.axis
+      secondary_guide <- if (!is.null(secondary)) format_guide(secondary$guide, axis) else NULL
+      if (identical(guide, scale$guide) &&
+          identical(secondary_guide, if (!is.null(secondary)) secondary$guide else NULL)) {
+        return(scale)
+      }
+      if (!is.null(secondary) && !identical(secondary_guide, secondary$guide)) {
+        secondary <- do.call(ggplot2::ggproto, list(NULL, secondary, guide = secondary_guide))
+      }
+      ggplot2::ggproto(NULL, scale, guide = guide, secondary.axis = secondary)
+    })
+    if (!identical(scales, p$scales$scales)) {
+      p$scales <- do.call(ggplot2::ggproto, list(NULL, p$scales, scales = scales))
+    }
+    p
+  })
   .from_plot_list(info$plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig,
                   recurse = TRUE)
 }

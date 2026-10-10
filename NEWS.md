@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_axisText()` applies formatting through plot, scale and secondary-axis
+  guides, including flipped and radial coordinates. Other guide settings and
+  original objects are retained; justification alone keeps existing guide angles.
+
 * `fmt_axisText()` updates explicitly styled primary, secondary and radial axis
   text elements while retaining blank sides and unrelated element properties.
 
