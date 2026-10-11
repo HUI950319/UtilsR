@@ -729,8 +729,11 @@ fmt_tag <- function(plot,
 #'   [theme_legend1()]. Applied after position/direction settings so it can
 #'   override them. Existing guide-local styling is merged with the requested
 #'   legend styling. Default `NULL` (no extra styling).
-#' @param collect Logical. If `TRUE` and input has multiple plots,
-#'   collect legends into a single shared legend via patchwork. Default `FALSE`.
+#' @param collect Logical. If `TRUE` and input is a patchwork, collect guides
+#'   at its top level, including a single data plot with a guide area.
+#'   Identical rendered guides are deduplicated; different guides remain separate.
+#'   List inputs retain their list type and produce a warning when collection is
+#'   requested. Default `FALSE`.
 #' @param title Character vector of legend titles, one per subplot. Recycled
 #'   to match the number of subplots. Automatically detects which aesthetics
 #'   (colour, fill, shape, etc.) are mapped and renames their legend titles.
@@ -755,6 +758,17 @@ fmt_tag <- function(plot,
 #'   `legend.text`, `legend.key.size`, `legend.background`.
 #'
 #' @return Same type as input.
+#'
+#' @details Existing guide types, order, reversal and aesthetic overrides are
+#'   retained. Layout controls apply to symbol legends; continuous colour bars
+#'   and colour steps retain their native guide type. Disabled guides stay hidden.
+#'   Formatting does not modify caller-owned scales or guides and does not build
+#'   the plot or evaluate layer data callbacks.
+#'
+#'   Nested patchwork layouts, annotations, list names and free settings are
+#'   retained. Spacers, guide areas, wrapped graphics and inset overlays are
+#'   preserved. Position and style changes are also applied to annotations of
+#'   existing collected-guide layouts at each nesting level.
 #'
 #' @examples
 #' library(ggplot2)
@@ -825,6 +839,9 @@ fmt_legend <- function(plot,
       requirement <- if (integer) "one finite positive integer" else "one finite positive number"
       cli::cli_abort("{.arg {nm}} must be {requirement} or NULL.")
     }
+  }
+  if (collect && !info$is_patchwork && !info$is_single) {
+    cli::cli_warn("{.arg collect} requires a patchwork input; the formatted list retains its list type.")
   }
 
   # ---- Rename legend titles per subplot ----
@@ -1072,16 +1089,33 @@ fmt_legend <- function(plot,
   }
 
   # ---- Collect legends mode for patchwork ----
-  if (collect && n > 1L && info$is_patchwork) {
-    plot <- .from_plot_list(plots, info$is_patchwork, info$is_single,
+  output <- .from_plot_list(plots, info$is_patchwork, info$is_single,
                             pw_orig = info$pw_orig, recurse = TRUE)
-    combined <- plot + patchwork::plot_layout(guides = "collect")
-    combined <- combined + patchwork::plot_annotation(theme = leg_theme)
-    return(combined)
+  if (collect && info$is_patchwork) {
+    output <- output + patchwork::plot_layout(guides = "collect")
   }
-
-  .from_plot_list(plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig,
-                  recurse = TRUE)
+  sync_collection_theme <- function(p) {
+    if (inherits(p, "inset_patch") && (!inherits(p, "patchwork") ||
+        match("inset_patch", class(p)) < match("patchwork", class(p)))) return(p)
+    if (inherits(p, "patchwork")) {
+      free_settings <- attr(p, "patchwork_free_settings")
+      for (i in seq_along(p)) {
+        if (inherits(p[[i]], "patchwork")) p[[i]] <- sync_collection_theme(p[[i]])
+      }
+      if (identical(p$patches$layout$guides, "collect")) {
+        p <- p + patchwork::plot_annotation(theme = leg_theme)
+      }
+      if (!is.null(free_settings)) {
+        attr(p, "patchwork_free_settings") <- free_settings
+        class(p) <- unique(c("free_plot", class(p)))
+      }
+    } else if (is.list(p) && !inherits(p, "gg")) {
+      p <- lapply(p, sync_collection_theme)
+    }
+    p
+  }
+  if (length(leg_theme)) output <- sync_collection_theme(output)
+  output
 }
 
 # ---- fmt_ref ----

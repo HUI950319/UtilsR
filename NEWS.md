@@ -1,5 +1,11 @@
 # UtilsR 0.6.8
 
+* `fmt_legend()` collects guides for a single plot with a guide area, warns when
+  collection is requested for a list while retaining its return type, and
+  synchronizes styling in existing nested collection layouts without replacing
+  layouts, annotations or free settings. Identical guides are deduplicated;
+  different guides remain separate.
+
 * `fmt_legend()` validates positions, directions, themes, titles, collection flags,
   scaling factors and layout dimensions before editing plots. Numeric positions
   and corner shortcuts use the current inside-position theme interface.

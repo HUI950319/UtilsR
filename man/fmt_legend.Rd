@@ -39,8 +39,11 @@ Default `NULL` (no change).}
 override them. Existing guide-local styling is merged with the requested
 legend styling. Default `NULL` (no extra styling).}
 
-\item{collect}{Logical. If `TRUE` and input has multiple plots,
-collect legends into a single shared legend via patchwork. Default `FALSE`.}
+\item{collect}{Logical. If `TRUE` and input is a patchwork, collect guides
+at its top level, including a single data plot with a guide area.
+Identical rendered guides are deduplicated; different guides remain separate.
+List inputs retain their list type and produce a warning when collection is
+requested. Default `FALSE`.}
 
 \item{title}{Character vector of legend titles, one per subplot. Recycled
 to match the number of subplots. Automatically detects which aesthetics
@@ -77,6 +80,18 @@ Same type as input.
 \description{
 Adjust legend position, direction, layout, scaling, and optionally
 collect legends across a multi-plot patchwork.
+}
+\details{
+Existing guide types, order, reversal and aesthetic overrides are
+  retained. Layout controls apply to symbol legends; continuous colour bars
+  and colour steps retain their native guide type. Disabled guides stay hidden.
+  Formatting does not modify caller-owned scales or guides and does not build
+  the plot or evaluate layer data callbacks.
+
+  Nested patchwork layouts, annotations, list names and free settings are
+  retained. Spacers, guide areas, wrapped graphics and inset overlays are
+  preserved. Position and style changes are also applied to annotations of
+  existing collected-guide layouts at each nesting level.
 }
 \examples{
 library(ggplot2)

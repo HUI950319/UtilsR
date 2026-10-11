@@ -288,3 +288,48 @@ test_that("inside legend coordinates use the current theme interface", {
     expect_no_error(ggplot2::ggplotGrob(output))
   }
 })
+
+test_that("legend collection preserves list returns and supports a guide area", {
+  p <- legend_test_plot()
+  expect_warning(output <- fmt_legend(list(left = p, right = p), collect = TRUE), "patchwork")
+  expect_identical(names(output), c("left", "right"))
+  expect_type(output, "list")
+  expect_false(inherits(output, "patchwork"))
+  input <- p | patchwork::guide_area()
+  collected <- fmt_legend(input, collect = TRUE)
+  expect_identical(collected$patches$layout$guides, "collect")
+  expect_no_error(patchwork::patchworkGrob(collected))
+  same <- fmt_legend(p | p, collect = TRUE)
+  different <- fmt_legend(p | (p + ggplot2::labs(colour = "Other")), collect = TRUE)
+  count <- function(x) {
+    g <- patchwork::patchworkGrob(x)
+    box <- g$grobs[[which(g$layout$name == "guide-box")]]
+    sum(box$layout$name == "guides")
+  }
+  expect_identical(count(same), 1L)
+  expect_identical(count(different), 2L)
+})
+
+test_that("legend styling updates existing nested collection themes and retains layouts", {
+  p <- legend_test_plot()
+  child <- (p | p) + patchwork::plot_layout(guides = "collect") +
+    patchwork::plot_annotation(theme = ggplot2::theme(legend.position = "right"))
+  input <- (child / p) + patchwork::plot_layout(guides = "keep") +
+    patchwork::plot_annotation(title = "Keep title", tag_levels = "A")
+  output <- fmt_legend(input, legend.position = "bottom")
+  expect_identical(output$patches$layout, input$patches$layout)
+  expect_identical(output$patches$annotation$title, "Keep title")
+  expect_identical(output$patches$annotation$tag_levels, "A")
+  expect_identical(output[[1]]$patches$annotation$theme$legend.position, "bottom")
+  expect_no_error(patchwork::patchworkGrob(output))
+  named <- fmt_legend(list(nested = child, single = p), legend.position = "bottom")
+  expect_identical(names(named), c("nested", "single"))
+  expect_identical(named$nested$patches$annotation$theme$legend.position, "bottom")
+  hidden <- fmt_legend(child, legend.position = "none")
+  expect_false(any(c("group", "a", "b", "c") %in%
+                     legend_test_labels(patchwork::patchworkGrob(hidden))))
+  freed <- patchwork::free(input, side = "l")
+  result <- fmt_legend(freed, collect = TRUE, legend.position = "bottom")
+  expect_identical(attr(result, "patchwork_free_settings"), attr(freed, "patchwork_free_settings"))
+  expect_no_error(patchwork::patchworkGrob(result))
+})
