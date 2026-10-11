@@ -134,9 +134,9 @@ Nested patchwork layouts, annotations, list names and free settings are
 retained. Spacers, guide areas, wrapped graphics and inset overlays are
 preserved. Position, style and spacing changes also apply to annotations
 of existing collected-guide layouts at each nesting level. Calls with no
-formatting controls return the original object unchanged after checking
-the input container. Parameter validation also applies to containers
-without editable data plots.
+formatting controls or only neutral size factors return the original
+object unchanged after checking the input container. Parameter
+validation also applies to containers without editable data plots.
 
 ## See also
 
