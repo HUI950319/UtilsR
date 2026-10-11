@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_legend()` includes explicit legend, box, text and title margins in
+  overall scaling, including local guides and collected guide boxes. Automatic
+  text margins remain adaptive, and independent key sizing leaves margins alone.
+
 * `fmt_legend()` scales spacing in collected guide boxes at each patchwork
   level, including existing annotation themes, without rescaling legend keys.
 

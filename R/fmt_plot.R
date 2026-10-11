@@ -746,6 +746,8 @@ fmt_tag <- function(plot,
 #'   \code{0.8} = shrink to 80\%, \code{1.2} = enlarge to 120\%.
 #'   Adjusts key size, text size, title size, point size, and spacing
 #'   together, including explicit \code{legend.key.spacing.x/y}.
+#'   Also scales \code{legend.margin}, \code{legend.box.margin} and explicit
+#'   margins in \code{legend.text} and \code{legend.title}.
 #'   Each subplot uses its own theme after applying new legend styling.
 #'   Blank text and title elements remain blank, and grid units are retained.
 #'   Default \code{NULL} (no scaling).
@@ -996,11 +998,12 @@ fmt_legend <- function(plot,
               styled <- local[[nm]]
               if (!inherits(styled, "element_text")) styled <- ggplot2::element_text()
               styled$size <- el$size * factor
+              if (!is.null(styled$margin)) styled$margin <- styled$margin * factor
               args[[nm]] <- styled
             }
           }
           for (nm in c("legend.key.size", "legend.key.width", "legend.key.height",
-                       "legend.key.spacing.x", "legend.key.spacing.y")) {
+                       "legend.key.spacing.x", "legend.key.spacing.y", "legend.margin")) {
             if (!is.null(local[[nm]])) args[[nm]] <- get_unit(effective, nm) * factor
           }
         }
@@ -1046,13 +1049,14 @@ fmt_legend <- function(plot,
           styled <- th[[element]]
           if (!inherits(styled, "element_text")) styled <- ggplot2::element_text()
           styled$size <- el$size * factor
+          if (!is.null(styled$margin)) styled$margin <- styled$margin * factor
           scale_args[[element]] <- styled
         }
       }
       unit_elements <- c("legend.key.size", "legend.key.width", "legend.key.height",
                          "legend.key.spacing.x", "legend.key.spacing.y",
                          "legend.spacing", "legend.spacing.x", "legend.spacing.y",
-                         "legend.box.spacing")
+                          "legend.box.spacing", "legend.margin", "legend.box.margin")
       for (element in intersect(unit_elements, names(ggplot2::get_element_tree()))) {
         if (!is.null(th[[element]])) scale_args[[element]] <- get_unit(th, element) * factor
       }
@@ -1181,7 +1185,7 @@ fmt_legend <- function(plot,
           th <- ggplot2::theme_get() + p$patches$annotation$theme
           args <- list()
           for (nm in c("legend.spacing", "legend.spacing.x", "legend.spacing.y",
-                       "legend.box.spacing")) {
+                       "legend.box.spacing", "legend.box.margin")) {
             if (!is.null(th[[nm]])) args[[nm]] <- get_unit(th, nm) * factor
           }
           if (length(args)) p <- p + patchwork::plot_annotation(theme = do.call(ggplot2::theme, args))

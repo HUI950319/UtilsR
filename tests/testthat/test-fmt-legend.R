@@ -533,6 +533,45 @@ test_that("collected legend spacing scales at each collection level", {
                                   "mm", valueOnly = TRUE), 10)
 })
 
+test_that("legend scaling includes explicit box and text margins", {
+  p <- legend_test_plot()
+  styling <- ggplot2::theme(legend.margin = ggplot2::margin(10, 10, 10, 10, unit = "mm"),
+    legend.box.margin = ggplot2::margin(5, 5, 5, 5, unit = "mm"),
+    legend.text = ggplot2::element_text(margin = ggplot2::margin(1, 2, 3, 4, unit = "mm")),
+    legend.title = ggplot2::element_text(margin = ggplot2::margin(4, 3, 2, 1, unit = "mm")))
+  input <- p + styling
+  output <- fmt_legend(input, scale = 0.5)
+  for (nm in c("legend.margin", "legend.box.margin")) {
+    expect_equal(grid::convertUnit(output$theme[[nm]], "mm", valueOnly = TRUE),
+                 grid::convertUnit(styling[[nm]], "mm", valueOnly = TRUE) * 0.5)
+  }
+  for (nm in c("legend.text", "legend.title")) {
+    expect_equal(grid::convertUnit(output$theme[[nm]]$margin, "mm", valueOnly = TRUE),
+                 grid::convertUnit(styling[[nm]]$margin, "mm", valueOnly = TRUE) * 0.5)
+  }
+  local <- p + ggplot2::guides(colour = ggplot2::guide_legend(theme = styling))
+  params <- ggplot2::ggplot_build(fmt_legend(local, scale = 0.5))$plot$guides$guides[[1L]]$params
+  expect_equal(grid::convertUnit(params$theme$legend.margin, "mm", valueOnly = TRUE), rep(5, 4))
+  expect_equal(grid::convertUnit(params$theme$legend.text$margin, "mm", valueOnly = TRUE),
+               c(0.5, 1, 1.5, 2))
+  expect_no_error(ggplot2::ggplotGrob(fmt_legend(local, scale = 0.5)))
+  expected <- fmt_legend(p, scale = 0.5) + ggplot2::theme(
+    legend.margin = styling$legend.margin * 0.5, legend.box.margin = styling$legend.box.margin * 0.5,
+    legend.text = ggplot2::element_text(margin = styling$legend.text$margin * 0.5),
+    legend.title = ggplot2::element_text(margin = styling$legend.title$margin * 0.5))
+  expect_equal(legend_test_box_size(output), legend_test_box_size(expected))
+  expect_equal(legend_test_box_size(fmt_legend(input, scale = 1)), legend_test_box_size(input))
+  expect_equal(grid::convertUnit(fmt_legend(input, scale_width = 2)$theme$legend.margin,
+                                 "mm", valueOnly = TRUE), rep(10, 4))
+  collected <- (p | p) + patchwork::plot_layout(guides = "collect") +
+    patchwork::plot_annotation(theme = styling)
+  changed <- fmt_legend(collected, scale = 0.5)
+  expect_equal(grid::convertUnit(changed$patches$annotation$theme$legend.box.margin,
+                                 "mm", valueOnly = TRUE), rep(2.5, 4))
+  expect_no_error(patchwork::patchworkGrob(changed))
+  expect_equal(grid::convertUnit(styling$legend.margin, "mm", valueOnly = TRUE), rep(10, 4))
+})
+
 test_that("guide clones do not retain formatter plots or grow with repeated calls", {
   p <- legend_test_plot()
   for (args in list(list(scale = 1), list(ncol = 2), list(title = "New group"),
