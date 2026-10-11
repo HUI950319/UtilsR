@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/fmt_legend.html">fmt_legend()</a></code> scales each subplot from its own theme after applying new legend styling, retaining blank text and title elements and collected-guide scaling rather than copying the first subplot’s sizes.</p></li>
+<ul><li><p><code><a href="../reference/fmt_legend.html">fmt_legend()</a></code> merges local guide styling and retains guide order, reversal and aesthetic overrides when combining controls. Legend glyph sizes scale after native key construction, preserving mapped sizes and repeated scaling while leaving plotted data and caller-owned guide objects unchanged.</p></li>
+<li><p><code><a href="../reference/fmt_legend.html">fmt_legend()</a></code> scales each subplot from its own theme after applying new legend styling, retaining blank text and title elements and collected-guide scaling rather than copying the first subplot’s sizes.</p></li>
 <li><p><code><a href="../reference/fmt_legend.html">fmt_legend()</a></code> multiplies existing legend units and spacing without converting them to lines. A scale of one retains the rendered legend size; independent width and height factors combine with the overall scaling factor.</p></li>
 <li><p><code><a href="../reference/fmt_legend.html">fmt_legend()</a></code> retains continuous colour bars, binned colour steps and disabled guides when resizing or arranging legends, and defers guide resolution until normal plot building without evaluating layer data during formatting.</p></li>
 <li><p><code><a href="../reference/fmt_legend.html">fmt_legend()</a></code> renames default and layer-mapped legend titles, including explicit guide titles, without modifying shared input scales or guides.</p></li>

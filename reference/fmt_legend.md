@@ -51,7 +51,8 @@ fmt_legend(
 
   A ggplot2 theme object for legend styling, e.g., \[theme_legend1()\].
   Applied after position/direction settings so it can override them.
-  Default \`NULL\` (no extra styling).
+  Existing guide-local styling is merged with the requested legend
+  styling. Default \`NULL\` (no extra styling).
 
 - collect:
 
