@@ -132,7 +132,9 @@ Formatting does not modify caller-owned scales or guides and does not
 build the plot or evaluate layer data callbacks. Guide and scale clones
 do not retain the formatter's input or working plots. Collection checks
 include fixed aesthetics with explicit scale limits when layers force
-their legend display through `show.legend = TRUE`.
+their legend display through `show.legend = TRUE`. Mappings using
+[`I()`](https://rdrr.io/r/base/AsIs.html) without explicit scale limits
+do not block guide collection.
 
 Nested patchwork layouts, annotations, list names and free settings are
 retained. Spacers, guide areas, wrapped graphics and inset overlays are
