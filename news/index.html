@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/fmt_legend.html">fmt_legend()</a></code> scales spacing in collected guide boxes at each patchwork level, including existing annotation themes, without rescaling legend keys.</p></li>
+<ul><li><p><code><a href="../reference/fmt_legend.html">fmt_legend()</a></code> includes explicit legend, box, text and title margins in overall scaling, including local guides and collected guide boxes. Automatic text margins remain adaptive, and independent key sizing leaves margins alone.</p></li>
+<li><p><code><a href="../reference/fmt_legend.html">fmt_legend()</a></code> scales spacing in collected guide boxes at each patchwork level, including existing annotation themes, without rescaling legend keys.</p></li>
 <li><p><code><a href="../reference/fmt_legend.html">fmt_legend()</a></code> checks visible guides within each collection scope, respecting nested <code>keep</code> layouts, explicit guide positions and disabled guides instead of cancelling unrelated outer guide collection.</p></li>
 <li><p><code><a href="../reference/fmt_legend.html">fmt_legend()</a></code> retains automatic local guide dimensions and text margins, allowing scaled colour bars and legends to adapt when their position changes.</p></li>
 <li><p><code><a href="../reference/fmt_legend.html">fmt_legend()</a></code> respects later explicit guide layout definitions from <code><a href="https://ggplot2.tidyverse.org/reference/guides.html" class="external-link">guides()</a></code> and scales while retaining deferred layout for default guides.</p></li>
