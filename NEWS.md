@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_legend()` renames default and layer-mapped legend titles, including
+  explicit guide titles, without modifying shared input scales or guides.
+
 * `fmt_bg()` clips its background stripes to the panel when coordinate
   clipping is disabled, preserving foreground annotations outside the panel.
 

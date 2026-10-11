@@ -790,19 +790,43 @@ fmt_legend <- function(plot,
   if (!is.null(title)) {
     title <- rep_len(title, n)
     legend_aes <- c("colour", "color", "fill", "shape", "size",
-                    "alpha", "linetype")
+                    "linewidth", "alpha", "linetype")
+    rename_guide <- function(guide, label) {
+      if (!inherits(guide, "Guide") || inherits(guide, "GuideNone")) return(guide)
+      params <- guide$params
+      params$title <- label
+      ggplot2::ggproto(NULL, guide, params = params)
+    }
     for (i in seq_len(n)) {
-      # Only rename scales that produce legends, skip positional (x/y) scales
-      for (sc in plots[[i]]$scales$scales) {
-        if (any(sc$aesthetics %in% legend_aes)) {
-          sc$name <- title[i]
+      p <- plots[[i]]
+      mapped <- unique(c(names(p$mapping), unlist(lapply(p$layers, function(layer) {
+        names(layer$mapping)
+      }), use.names = FALSE), unlist(lapply(p$scales$scales, function(sc) {
+        sc$aesthetics
+      }), use.names = FALSE)))
+      mapped <- intersect(mapped, legend_aes)
+      if (length(mapped)) {
+        p <- p + do.call(ggplot2::labs, stats::setNames(
+          rep(list(title[i]), length(mapped)), mapped
+        ))
+      }
+      scales <- lapply(p$scales$scales, function(sc) {
+        if (!any(sc$aesthetics %in% legend_aes)) return(sc)
+        ggplot2::ggproto(NULL, sc, name = title[i],
+                        guide = rename_guide(sc$guide, title[i]))
+      })
+      if (!identical(scales, p$scales$scales)) {
+        p$scales <- do.call(ggplot2::ggproto, list(NULL, p$scales, scales = scales))
+      }
+      if (inherits(p$guides, "Guides")) {
+        guides <- p$guides$guides
+        selected <- intersect(names(guides), legend_aes)
+        guides[selected] <- lapply(guides[selected], rename_guide, label = title[i])
+        if (!identical(guides, p$guides$guides)) {
+          p$guides <- do.call(ggplot2::ggproto, list(NULL, p$guides, guides = guides))
         }
       }
-    }
-    # Rebuild patchwork so collect mode sees updated titles
-    if (info$is_patchwork) {
-      plot <- .from_plot_list(plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig,
-                              recurse = TRUE)
+      plots[[i]] <- p
     }
   }
 
@@ -974,6 +998,8 @@ fmt_legend <- function(plot,
 
   # ---- Collect legends mode for patchwork ----
   if (collect && n > 1L && info$is_patchwork) {
+    plot <- .from_plot_list(plots, info$is_patchwork, info$is_single,
+                            pw_orig = info$pw_orig, recurse = TRUE)
     combined <- plot + patchwork::plot_layout(guides = "collect")
     combined <- combined & leg_theme
     if (!is.null(no_title_guides)) combined <- combined & no_title_guides
