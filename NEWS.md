@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_legend()` retains key-size inheritance when resizing width or height,
+  respecting local guide sizes, relative dimensions and colour-bar direction.
+
 * `fmt_legend()` composes existing glyph factors when a scaled guide is reused,
   preventing recursive guide callbacks while retaining layout and data.
 

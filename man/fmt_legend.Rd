@@ -95,6 +95,7 @@ Existing guide types, order, reversal and aesthetic overrides are
   Explicit axis guides remain unchanged.
   Later explicit guide definitions replace earlier layout controls.
   Local guide dimensions use the guide's own position and direction.
+  Independent dimensions retain inheritance from local key sizes.
   Automatic dimensions and margins continue to adapt after position changes.
   Reused scaled guides compose their glyph factors without recursive callbacks.
   Hiding via \code{legend.position = "none"} retains explicit guide settings,

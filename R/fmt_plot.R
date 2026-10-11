@@ -772,6 +772,7 @@ fmt_tag <- function(plot,
 #'   Explicit axis guides remain unchanged.
 #'   Later explicit guide definitions replace earlier layout controls.
 #'   Local guide dimensions use the guide's own position and direction.
+#'   Independent dimensions retain inheritance from local key sizes.
 #'   Automatic dimensions and margins continue to adapt after position changes.
 #'   Reused scaled guides compose their glyph factors without recursive callbacks.
 #'   Hiding via \code{legend.position = "none"} retains explicit guide settings,
@@ -1065,14 +1066,20 @@ fmt_legend <- function(plot,
                          "legend.spacing", "legend.spacing.x", "legend.spacing.y",
                          "legend.box.spacing", "legend.margin", "legend.box.margin")
       for (element in intersect(unit_elements, names(ggplot2::get_element_tree()))) {
+        if (element %in% c("legend.key.width", "legend.key.height") &&
+            inherits(th[[element]], "rel")) next
         if (!is.null(th[[element]])) scale_args[[element]] <- get_unit(th, element) * factor
       }
     }
     if (!is.null(scale_width)) {
-      scale_args$legend.key.width <- get_unit(th, "legend.key.width") * factor * scale_width
+      width <- th$legend.key.width %||% ggplot2::rel(1)
+      scale_args$legend.key.width <- if (inherits(width, "rel")) width * scale_width else
+        get_unit(th, "legend.key.width") * factor * scale_width
     }
     if (!is.null(scale_height)) {
-      scale_args$legend.key.height <- get_unit(th, "legend.key.height") * factor * scale_height
+      height <- th$legend.key.height %||% ggplot2::rel(1)
+      scale_args$legend.key.height <- if (inherits(height, "rel")) height * scale_height else
+        get_unit(th, "legend.key.height") * factor * scale_height
     }
     if (length(scale_args)) p <- p + do.call(ggplot2::theme, scale_args)
     plots[[i]] <- p

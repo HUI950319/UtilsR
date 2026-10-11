@@ -319,6 +319,48 @@ test_that("legend formatting overrides and scales local guide themes safely", {
                      legend_test_labels(ggplot2::ggplotGrob(hidden))))
 })
 
+test_that("independent dimensions retain inherited local key sizes", {
+  key_size <- function(p) {
+    g <- ggplot2::ggplotGrob(p)
+    boxes <- Filter(function(x) inherits(x, "gtable"),
+                    g$grobs[grepl("^guide-box", g$layout$name)])
+    guide <- boxes[[1]]$grobs[[which(boxes[[1]]$layout$name == "guides")[1]]]
+    cell <- guide$layout[which(grepl("^key-|^bar$", guide$layout$name))[1], ]
+    c(width = grid::convertWidth(sum(guide$widths[cell$l:cell$r]), "mm", TRUE),
+      height = grid::convertHeight(sum(guide$heights[cell$t:cell$b]), "mm", TRUE))
+  }
+  for (continuous in c(FALSE, TRUE)) for (direction in c("horizontal", "vertical")) {
+    maker <- if (continuous) ggplot2::guide_colourbar else ggplot2::guide_legend
+    guide <- maker(direction = direction,
+      theme = ggplot2::theme(legend.key.size = grid::unit(10, "mm")))
+    p <- legend_test_plot(continuous)
+    for (input in list(p + ggplot2::guides(colour = guide), p +
+                      (if (continuous) ggplot2::scale_colour_continuous(guide = guide) else
+                       ggplot2::scale_colour_discrete(guide = guide)))) {
+      for (relative in c(FALSE, TRUE)) {
+        base <- if (relative) input + ggplot2::theme(legend.key.width = ggplot2::rel(2),
+          legend.key.height = ggplot2::rel(3)) else input
+        before <- key_size(base)
+        for (dimension in c("width", "height")) for (factor in c(1, 0.5)) {
+          args <- list(plot = base, scale = factor)
+          args[[paste0("scale_", dimension)]] <- 2
+          output <- do.call(fmt_legend, args)
+          expected <- before * factor
+          expected[dimension] <- expected[dimension] * 2
+          expect_equal(key_size(output), expected)
+        }
+      }
+    }
+    adaptive <- p + ggplot2::guides(colour = maker(position = "bottom",
+      theme = ggplot2::theme(legend.key.size = grid::unit(10, "mm"))))
+    scaled <- fmt_legend(adaptive, scale = 0.5, scale_width = 2)
+    moved <- fmt_legend(scaled, legend.position = "right")
+    expected <- fmt_legend(adaptive, legend.position = "right", scale = 0.5, scale_width = 2)
+    expect_equal(key_size(moved), key_size(expected))
+    expect_identical(ggplot2::ggplot_build(moved)$data, ggplot2::ggplot_build(adaptive)$data)
+  }
+})
+
 test_that("continuous guide local dimensions and hidden titles retain their semantics", {
   guide <- ggplot2::guide_colourbar(theme = ggplot2::theme(
     legend.key.width = grid::unit(8, "mm"), legend.key.height = grid::unit(20, "mm"),
