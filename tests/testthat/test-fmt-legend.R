@@ -449,3 +449,29 @@ test_that("position hiding is reversible without enabling disabled guides", {
     }
   }
 })
+
+test_that("global and local key spacing scale equally in the rendered legend", {
+  p <- legend_test_plot()
+  spacing <- ggplot2::theme(legend.key.spacing.x = grid::unit(10, "mm"),
+                             legend.key.spacing.y = grid::unit(10, "mm"))
+  for (position in c("right", "bottom")) {
+    global <- p + ggplot2::theme(legend.position = position) + spacing
+    local <- p + ggplot2::guides(colour = ggplot2::guide_legend(position = position,
+                                                              theme = spacing))
+    expect_equal(legend_test_box_size(fmt_legend(global, scale = 1)),
+                 legend_test_box_size(global))
+    for (input in list(global, local)) {
+      output <- fmt_legend(input, scale = 0.5)
+      g <- ggplot2::ggplotGrob(output)
+      box <- g$grobs[[which(grepl("^guide-box", g$layout$name) &
+                              vapply(g$grobs, inherits, logical(1), "gtable"))[1L]]]
+      guide <- box$grobs[[which(box$layout$name == "guides")[1L]]]
+      gaps <- if (position == "right") grid::convertHeight(guide$heights, "mm", TRUE) else
+        grid::convertWidth(guide$widths, "mm", TRUE)
+      expect_true(any(abs(gaps - 5) < 1e-8))
+      expect_false(any(abs(gaps - 10) < 1e-8))
+    }
+    expect_equal(legend_test_box_size(fmt_legend(global, scale = 0.5)),
+                 legend_test_box_size(fmt_legend(local, scale = 0.5)))
+  }
+})

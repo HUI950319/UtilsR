@@ -55,7 +55,8 @@ Default `NULL` (no change).}
 \item{scale}{One finite positive number. Proportionally scale the legend.
 \code{0.8} = shrink to 80\%, \code{1.2} = enlarge to 120\%.
 Adjusts key size, text size, title size, point size, and spacing
-together. Each subplot uses its own theme after applying new legend styling.
+together, including explicit \code{legend.key.spacing.x/y}.
+Each subplot uses its own theme after applying new legend styling.
 Blank text and title elements remain blank, and grid units are retained.
 Default \code{NULL} (no scaling).}
 

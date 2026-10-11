@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_legend()` scales explicit global key spacing in both directions,
+  matching guide-local spacing without changing native inherited defaults.
+
 * `fmt_legend()` hides explicit guides through the plot position without
   discarding their type, titles or settings, allowing later position changes to
   restore them while keeping intentionally disabled guides hidden.

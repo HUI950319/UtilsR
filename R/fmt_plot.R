@@ -743,7 +743,8 @@ fmt_tag <- function(plot,
 #' @param scale One finite positive number. Proportionally scale the legend.
 #'   \code{0.8} = shrink to 80\%, \code{1.2} = enlarge to 120\%.
 #'   Adjusts key size, text size, title size, point size, and spacing
-#'   together. Each subplot uses its own theme after applying new legend styling.
+#'   together, including explicit \code{legend.key.spacing.x/y}.
+#'   Each subplot uses its own theme after applying new legend styling.
 #'   Blank text and title elements remain blank, and grid units are retained.
 #'   Default \code{NULL} (no scaling).
 #' @param scale_width One finite positive number. Scale legend key width independently.
@@ -1038,6 +1039,7 @@ fmt_legend <- function(plot,
         }
       }
       unit_elements <- c("legend.key.size", "legend.key.width", "legend.key.height",
+                         "legend.key.spacing.x", "legend.key.spacing.y",
                          "legend.spacing", "legend.spacing.x", "legend.spacing.y",
                          "legend.box.spacing")
       for (element in intersect(unit_elements, names(ggplot2::get_element_tree()))) {
