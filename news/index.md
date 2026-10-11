@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
+  scales explicit global key spacing in both directions, matching
+  guide-local spacing without changing native inherited defaults.
+
+- [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
   hides explicit guides through the plot position without discarding
   their type, titles or settings, allowing later position changes to
   restore them while keeping intentionally disabled guides hidden.

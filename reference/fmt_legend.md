@@ -75,10 +75,10 @@ fmt_legend(
 
   One finite positive number. Proportionally scale the legend. `0.8` =
   shrink to 80%, `1.2` = enlarge to 120%. Adjusts key size, text size,
-  title size, point size, and spacing together. Each subplot uses its
-  own theme after applying new legend styling. Blank text and title
-  elements remain blank, and grid units are retained. Default `NULL` (no
-  scaling).
+  title size, point size, and spacing together, including explicit
+  `legend.key.spacing.x/y`. Each subplot uses its own theme after
+  applying new legend styling. Blank text and title elements remain
+  blank, and grid units are retained. Default `NULL` (no scaling).
 
 - scale_width:
 
