@@ -92,6 +92,8 @@ Existing guide types, order, reversal and aesthetic overrides are
   retained. Spacers, guide areas, wrapped graphics and inset overlays are
   preserved. Position and style changes are also applied to annotations of
   existing collected-guide layouts at each nesting level.
+  Calls with no formatting controls return the original object unchanged
+  after checking the input container.
 }
 \examples{
 library(ggplot2)

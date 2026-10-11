@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_legend()` returns the original object for calls with no formatting
+  controls, retaining container validation while avoiding recursive traversal,
+  theme construction and guide cloning.
+
 * `fmt_legend()` collects guides for a single plot with a guide area, warns when
   collection is requested for a list while retaining its return type, and
   synchronizes styling in existing nested collection layouts without replacing

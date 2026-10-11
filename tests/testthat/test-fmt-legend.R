@@ -333,3 +333,18 @@ test_that("legend styling updates existing nested collection themes and retains 
   expect_identical(attr(result, "patchwork_free_settings"), attr(freed, "patchwork_free_settings"))
   expect_no_error(patchwork::patchworkGrob(result))
 })
+
+test_that("legend calls without formatting retain exact objects and validate containers", {
+  p <- legend_test_plot()
+  nested <- ((p | patchwork::guide_area()) / (p | patchwork::plot_spacer())) +
+    patchwork::plot_layout(guides = "collect") +
+    patchwork::plot_annotation(title = "Keep title", tag_levels = "A")
+  for (input in list(p, nested, patchwork::free(nested, side = "l"),
+                     list(left = p, nested = nested), list())) {
+    expect_true(identical(fmt_legend(input), input))
+    expect_true(identical(fmt_legend(input, legend.position = NULL, scale = NULL,
+                                    collect = FALSE), input))
+  }
+  expect_error(fmt_legend(1), "Input")
+  expect_error(fmt_legend(list(good = p, bad = "bad")), "ggplot")
+})

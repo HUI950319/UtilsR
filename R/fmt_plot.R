@@ -769,6 +769,8 @@ fmt_tag <- function(plot,
 #'   retained. Spacers, guide areas, wrapped graphics and inset overlays are
 #'   preserved. Position and style changes are also applied to annotations of
 #'   existing collected-guide layouts at each nesting level.
+#'   Calls with no formatting controls return the original object unchanged
+#'   after checking the input container.
 #'
 #' @examples
 #' library(ggplot2)
@@ -800,6 +802,13 @@ fmt_legend <- function(plot,
                        ncol = NULL,
                        nrow = NULL,
                        ...) {
+  if (is.null(legend.position) && is.null(legend.direction) && is.null(legend_theme) &&
+      identical(collect, FALSE) && is.null(title) && is.null(scale) &&
+      is.null(scale_width) && is.null(scale_height) && is.null(ncol) &&
+      is.null(nrow) && ...length() == 0L) {
+    invisible(.to_plot_list(plot))
+    return(plot)
+  }
   info <- .to_plot_list(plot, recurse = TRUE)
   plots <- info$plots
   n <- length(plots)
