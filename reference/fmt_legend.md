@@ -69,7 +69,8 @@ fmt_legend(
   Character vector of legend titles, one per subplot. Recycled to match
   the number of subplots. Automatically detects which aesthetics
   (colour, fill, shape, etc.) are mapped and renames their legend
-  titles. Default \`NULL\` (no change).
+  titles. Also covers aesthetics renamed by ggnewscale for multiple
+  scales. Default \`NULL\` (no change).
 
 - scale:
 
