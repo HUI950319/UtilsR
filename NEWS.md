@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_legend()` scales inherited legend text and title margins, leaving other
+  plot text unchanged and retaining automatic margin adaptation.
+
 * `fmt_legend()` collects guides normally when inside plots only use `I()`
   mappings without explicit scale limits, retaining real guides and layer
   mapping overrides without evaluating data callbacks.

@@ -746,8 +746,8 @@ fmt_tag <- function(plot,
 #'   \code{0.8} = shrink to 80\%, \code{1.2} = enlarge to 120\%.
 #'   Adjusts key size, text size, title size, point size, and spacing
 #'   together, including explicit \code{legend.key.spacing.x/y}.
-#'   Also scales \code{legend.margin}, \code{legend.box.margin} and explicit
-#'   margins in \code{legend.text} and \code{legend.title}.
+#'   Also scales \code{legend.margin}, \code{legend.box.margin} and margins
+#'   set on or inherited by \code{legend.text} and \code{legend.title}.
 #'   Each subplot uses its own theme after applying new legend styling.
 #'   Blank text and title elements remain blank, and grid units are retained.
 #'   Default \code{NULL} (no scaling).
@@ -1010,7 +1010,9 @@ fmt_legend <- function(plot,
               styled <- local[[nm]]
               if (!inherits(styled, "element_text")) styled <- ggplot2::element_text()
               styled$size <- el$size * factor
-              if (!is.null(styled$margin)) styled$margin <- styled$margin * factor
+              if (!is.null(styled$margin) || any(as.numeric(el$margin) != 0, na.rm = TRUE)) {
+                styled$margin <- el$margin * factor
+              }
               args[[nm]] <- styled
             }
           }
@@ -1061,7 +1063,9 @@ fmt_legend <- function(plot,
           styled <- th[[element]]
           if (!inherits(styled, "element_text")) styled <- ggplot2::element_text()
           styled$size <- el$size * factor
-          if (!is.null(styled$margin)) styled$margin <- styled$margin * factor
+          if (!is.null(styled$margin) || any(as.numeric(el$margin) != 0, na.rm = TRUE)) {
+            styled$margin <- el$margin * factor
+          }
           scale_args[[element]] <- styled
         }
       }

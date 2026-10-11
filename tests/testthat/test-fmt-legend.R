@@ -732,6 +732,47 @@ test_that("legend scaling includes explicit box and text margins", {
   expect_equal(grid::convertUnit(styling$legend.margin, "mm", valueOnly = TRUE), rep(10, 4))
 })
 
+test_that("legend scaling includes inherited text margins without changing other text", {
+  for (local in c(FALSE, TRUE)) for (direction in c("horizontal", "vertical")) {
+    styling <- ggplot2::theme(text = ggplot2::element_text(size = 20,
+      margin = ggplot2::margin(5, 5, 5, 5, unit = "mm")))
+    p <- legend_test_plot()
+    input <- if (local) p + ggplot2::guides(colour = ggplot2::guide_legend(
+      direction = direction, theme = styling)) else p + styling +
+        ggplot2::guides(colour = ggplot2::guide_legend(direction = direction))
+    effective <- function(p) {
+      th <- ggplot2::theme_get() + p$theme
+      if (local) th <- th + p$guides$guides$colour$params$theme
+      th
+    }
+    output <- fmt_legend(input, scale = 0.5)
+    repeated <- fmt_legend(output, scale = 0.5)
+    for (nm in c("legend.text", "legend.title")) {
+      before <- ggplot2::calc_element(nm, effective(input))
+      after <- ggplot2::calc_element(nm, effective(output))
+      again <- ggplot2::calc_element(nm, effective(repeated))
+      expect_equal(grid::convertUnit(after$margin, "mm", valueOnly = TRUE), rep(2.5, 4))
+      expect_equal(grid::convertUnit(again$margin, "mm", valueOnly = TRUE), rep(1.25, 4))
+      expect_equal(after$size, before$size * 0.5)
+      expect_equal(grid::convertUnit(before$margin, "mm", valueOnly = TRUE), rep(5, 4))
+    }
+    margin_theme <- ggplot2::theme(
+      legend.text = ggplot2::element_text(margin = ggplot2::margin(2.5, 2.5, 2.5, 2.5, unit = "mm")),
+      legend.title = ggplot2::element_text(margin = ggplot2::margin(2.5, 2.5, 2.5, 2.5, unit = "mm")))
+    if (local) {
+      guide <- output$guides$guides$colour
+      params <- guide$params
+      params$theme <- params$theme + margin_theme
+      expected <- output + ggplot2::guides(colour = ggplot2::ggproto(NULL, guide,
+        params = params, envir = baseenv()))
+    } else expected <- output + margin_theme
+    expect_equal(legend_test_box_size(output), legend_test_box_size(expected))
+    expect_identical(ggplot2::calc_element("axis.text.x", ggplot2::theme_get() + output$theme),
+                     ggplot2::calc_element("axis.text.x", ggplot2::theme_get() + input$theme))
+    expect_identical(ggplot2::ggplot_build(output)$data, ggplot2::ggplot_build(input)$data)
+  }
+})
+
 test_that("guide clones do not retain formatter plots or grow with repeated calls", {
   p <- legend_test_plot()
   for (args in list(list(scale = 1), list(ncol = 2), list(title = "New group"),

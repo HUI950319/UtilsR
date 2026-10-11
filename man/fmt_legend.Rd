@@ -58,8 +58,8 @@ Default `NULL` (no change).}
 \code{0.8} = shrink to 80\%, \code{1.2} = enlarge to 120\%.
 Adjusts key size, text size, title size, point size, and spacing
 together, including explicit \code{legend.key.spacing.x/y}.
-Also scales \code{legend.margin}, \code{legend.box.margin} and explicit
-margins in \code{legend.text} and \code{legend.title}.
+Also scales \code{legend.margin}, \code{legend.box.margin} and margins
+set on or inherited by \code{legend.text} and \code{legend.title}.
 Each subplot uses its own theme after applying new legend styling.
 Blank text and title elements remain blank, and grid units are retained.
 Default \code{NULL} (no scaling).}
