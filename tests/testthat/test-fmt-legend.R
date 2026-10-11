@@ -244,6 +244,27 @@ test_that("legend scaling retains blank text and title elements", {
   expect_false(any(c("group", "a", "b", "c") %in% legend_test_labels(ggplot2::ggplotGrob(blank))))
 })
 
+test_that("reused scaled guides compose glyph factors without recursive callbacks", {
+  p <- legend_test_plot()
+  guide <- ggplot2::ggplot_build(fmt_legend(p, scale = 0.5, ncol = 2))$plot$guides$guides[[1]]
+  for (input in list(p + ggplot2::guides(colour = guide),
+                    p + ggplot2::scale_colour_discrete(guide = guide))) {
+    output <- fmt_legend(input, scale = 0.5, ncol = 3)
+    built <- ggplot2::ggplot_build(output)
+    expect_equal(built$plot$guides$params[[1]]$decor[[1]]$data$size, rep(0.375, 3))
+    expect_equal(built$plot$guides$params[[1]]$ncol, 3)
+    expect_no_error(ggplot2::ggplotGrob(output))
+    expect_identical(built$data, ggplot2::ggplot_build(input)$data)
+    expect_equal(ggplot2::ggplot_build(input)$plot$guides$params[[1]]$decor[[1]]$data$size,
+                 rep(0.75, 3))
+  }
+  expect_equal(guide$.fmt_legend_scale, 0.5)
+  built_plot <- ggplot2::ggplot_build(fmt_legend(p, scale = 0.5, ncol = 2))$plot
+  repeated <- fmt_legend(built_plot, scale = 0.5, ncol = 3)
+  expect_equal(ggplot2::ggplot_build(repeated)$plot$guides$params[[1]]$decor[[1]]$data$size,
+               rep(0.375, 3))
+})
+
 test_that("legend controls merge guide settings and scale displayed key sizes", {
   p <- legend_test_plot()
   guide <- ggplot2::guide_legend(order = 3, reverse = TRUE,

@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_legend()` composes existing glyph factors when a scaled guide is reused,
+  preventing recursive guide callbacks while retaining layout and data.
+
 * `fmt_legend()` treats size factors of one as unchanged, returning the exact
   input for neutral-only calls and avoiding accumulated guide clones. Mixed
   calls still apply their other formatting controls and validate inputs.

@@ -773,6 +773,7 @@ fmt_tag <- function(plot,
 #'   Later explicit guide definitions replace earlier layout controls.
 #'   Local guide dimensions use the guide's own position and direction.
 #'   Automatic dimensions and margins continue to adapt after position changes.
+#'   Reused scaled guides compose their glyph factors without recursive callbacks.
 #'   Hiding via \code{legend.position = "none"} retains explicit guide settings,
 #'   so a later position change can show them again; disabled guides stay disabled.
 #'   Formatting does not modify caller-owned scales or guides and does not build
@@ -1110,8 +1111,14 @@ fmt_legend <- function(plot,
           params[names(updates$layout)] <- updates$layout
         }
         if (!is.null(updates$scale)) {
+          source <- guide
+          glyph_scale <- updates$scale
+          while (!is.null(source$.fmt_legend_source)) {
+            glyph_scale <- glyph_scale * source$.fmt_legend_scale
+            source <- source$.fmt_legend_source
+          }
           return(do.call(ggplot2::ggproto, list(NULL, guide, params = params,
-            .fmt_legend_source = guide, .fmt_legend_scale = updates$scale,
+            .fmt_legend_source = source, .fmt_legend_scale = glyph_scale,
             process_layers = self$.fmt_legend_process_keys[[1L]]), envir = baseenv()))
         }
         do.call(ggplot2::ggproto, list(NULL, guide, params = params), envir = baseenv())
