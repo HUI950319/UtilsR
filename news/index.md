@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
+  multiplies existing legend units and spacing without converting them
+  to lines. A scale of one retains the rendered legend size; independent
+  width and height factors combine with the overall scaling factor.
+
+- [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
   retains continuous colour bars, binned colour steps and disabled
   guides when resizing or arranging legends, and defers guide resolution
   until normal plot building without evaluating layer data during
