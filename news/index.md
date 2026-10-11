@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
+  retains automatic local guide dimensions and text margins, allowing
+  scaled colour bars and legends to adapt when their position changes.
+
+- [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
   respects later explicit guide layout definitions from
   [`guides()`](https://ggplot2.tidyverse.org/reference/guides.html) and
   scales while retaining deferred layout for default guides.
