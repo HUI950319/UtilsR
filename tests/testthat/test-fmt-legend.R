@@ -111,6 +111,19 @@ test_that("guide formatting defers data callbacks and retains later guide edits"
   expect_length(ggplot2::ggplot_build(hidden)$plot$guides$guides, 0L)
 })
 
+test_that("legend glyph scaling supports old and current guide callbacks", {
+  output <- fmt_legend(legend_test_plot(), scale = 0.8)
+  callback <- output$guides$.fmt_legend_process_keys[[1L]]
+  for (method in list(function(self, params, layers, data = NULL) params,
+                      function(self, params, layers, data = NULL, theme = NULL) params)) {
+    native <- ggplot2::ggproto(NULL, ggplot2::GuideLegend, process_layers = method)
+    self <- ggplot2::ggproto(NULL, native, .fmt_legend_source = native,
+                            .fmt_legend_scale = 0.8)
+    params <- list(decor = list(list(data = data.frame(size = 4))))
+    expect_equal(callback(self, params, list())$decor[[1L]]$data$size, 3.2)
+  }
+})
+
 legend_test_box_size <- function(p) {
   g <- ggplot2::ggplotGrob(p)
   index <- which(grepl("^guide-box", g$layout$name) &

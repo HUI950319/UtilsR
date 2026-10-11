@@ -1069,9 +1069,10 @@ fmt_legend <- function(plot,
 
   if (length(guide_args) || scaling) {
     process_keys <- function(self, params, layers, data = NULL, theme = NULL) {
-      params <- ggplot2::ggproto_parent(self$.fmt_legend_source, self)$process_layers(
-        params, layers, data, theme
-      )
+      native <- ggplot2::ggproto_parent(self$.fmt_legend_source, self)$process_layers
+      args <- list(params, layers, data)
+      if (any(c("theme", "...") %in% names(formals(environment(native)$f)))) args$theme <- theme
+      params <- do.call(native, args)
       for (i in seq_along(params$decor)) {
         for (nm in c("size", "linewidth", "stroke")) {
           value <- params$decor[[i]]$data[[nm]]
