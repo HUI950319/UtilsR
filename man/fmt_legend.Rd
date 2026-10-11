@@ -24,7 +24,7 @@ fmt_legend(
 
 \item{legend.position}{Legend position. Accepts:
 \itemize{
-  \item Character: `"top"`, `"bottom"`, `"left"`, `"right"`, `"none"`.
+  \item Character: `"top"`, `"bottom"`, `"left"`, `"right"`, `"none"`, `"inside"`.
   \item Shorthand corner codes: `"br"`, `"bl"`, `"tr"`, `"tl"` (inside
     plot corners).
   \item Numeric vector of length 2: `c(x, y)` coordinates (0-1) for
@@ -47,23 +47,25 @@ to match the number of subplots. Automatically detects which aesthetics
 (colour, fill, shape, etc.) are mapped and renames their legend titles.
 Default `NULL` (no change).}
 
-\item{scale}{Numeric. Proportionally scale the entire legend.
+\item{scale}{One finite positive number. Proportionally scale the legend.
 \code{0.8} = shrink to 80\%, \code{1.2} = enlarge to 120\%.
 Adjusts key size, text size, title size, point size, and spacing
 together. Each subplot uses its own theme after applying new legend styling.
 Blank text and title elements remain blank, and grid units are retained.
 Default \code{NULL} (no scaling).}
 
-\item{scale_width}{Numeric. Scale legend key width independently.
+\item{scale_width}{One finite positive number. Scale legend key width independently.
+Multiplies the overall factor when `scale` is supplied.
 Default \code{NULL} (no change).}
 
-\item{scale_height}{Numeric. Scale legend key height independently.
+\item{scale_height}{One finite positive number. Scale legend key height independently.
+Multiplies the overall factor when `scale` is supplied.
 Default \code{NULL} (no change).}
 
-\item{ncol}{Number of columns in the legend layout (passed to
+\item{ncol}{One finite positive integer giving the columns in the legend layout (passed to
 [ggplot2::guide_legend()]).}
 
-\item{nrow}{Number of rows in the legend layout (passed to
+\item{nrow}{One finite positive integer giving the rows in the legend layout (passed to
 [ggplot2::guide_legend()]).}
 
 \item{...}{Additional arguments passed to [ggplot2::theme()], e.g.,

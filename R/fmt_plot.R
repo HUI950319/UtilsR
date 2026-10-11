@@ -717,7 +717,7 @@ fmt_tag <- function(plot,
 #' @param plot A ggplot, patchwork, or list of ggplot objects.
 #' @param legend.position Legend position. Accepts:
 #'   \itemize{
-#'     \item Character: `"top"`, `"bottom"`, `"left"`, `"right"`, `"none"`.
+#'     \item Character: `"top"`, `"bottom"`, `"left"`, `"right"`, `"none"`, `"inside"`.
 #'     \item Shorthand corner codes: `"br"`, `"bl"`, `"tr"`, `"tl"` (inside
 #'       plot corners).
 #'     \item Numeric vector of length 2: `c(x, y)` coordinates (0-1) for
@@ -735,19 +735,21 @@ fmt_tag <- function(plot,
 #'   to match the number of subplots. Automatically detects which aesthetics
 #'   (colour, fill, shape, etc.) are mapped and renames their legend titles.
 #'   Default `NULL` (no change).
-#' @param scale Numeric. Proportionally scale the entire legend.
+#' @param scale One finite positive number. Proportionally scale the legend.
 #'   \code{0.8} = shrink to 80\%, \code{1.2} = enlarge to 120\%.
 #'   Adjusts key size, text size, title size, point size, and spacing
 #'   together. Each subplot uses its own theme after applying new legend styling.
 #'   Blank text and title elements remain blank, and grid units are retained.
 #'   Default \code{NULL} (no scaling).
-#' @param scale_width Numeric. Scale legend key width independently.
+#' @param scale_width One finite positive number. Scale legend key width independently.
+#'   Multiplies the overall factor when `scale` is supplied.
 #'   Default \code{NULL} (no change).
-#' @param scale_height Numeric. Scale legend key height independently.
+#' @param scale_height One finite positive number. Scale legend key height independently.
+#'   Multiplies the overall factor when `scale` is supplied.
 #'   Default \code{NULL} (no change).
-#' @param ncol Number of columns in the legend layout (passed to
+#' @param ncol One finite positive integer giving the columns in the legend layout (passed to
 #'   [ggplot2::guide_legend()]).
-#' @param nrow Number of rows in the legend layout (passed to
+#' @param nrow One finite positive integer giving the rows in the legend layout (passed to
 #'   [ggplot2::guide_legend()]).
 #' @param ... Additional arguments passed to [ggplot2::theme()], e.g.,
 #'   `legend.text`, `legend.key.size`, `legend.background`.
@@ -788,6 +790,42 @@ fmt_legend <- function(plot,
   plots <- info$plots
   n <- length(plots)
   if (n == 0L) return(plot)
+
+  if (!is.null(legend.position)) {
+    valid <- (is.character(legend.position) && length(legend.position) == 1L &&
+      !is.na(legend.position) && legend.position %in%
+        c("top", "bottom", "left", "right", "none", "inside", "br", "bl", "tr", "tl")) ||
+      (is.numeric(legend.position) && !is.complex(legend.position) &&
+       length(legend.position) == 2L && all(is.finite(legend.position)) &&
+       all(legend.position >= 0 & legend.position <= 1))
+    if (!valid) cli::cli_abort("{.arg legend.position} must be one supported position or two finite coordinates in [0, 1].")
+  }
+  if (!is.null(legend.direction) &&
+      !(is.character(legend.direction) && length(legend.direction) == 1L &&
+        !is.na(legend.direction) && legend.direction %in% c("horizontal", "vertical"))) {
+    cli::cli_abort("{.arg legend.direction} must be 'horizontal' or 'vertical'.")
+  }
+  if (!is.null(legend_theme) && !inherits(legend_theme, "theme")) {
+    cli::cli_abort("{.arg legend_theme} must be a ggplot2 theme object or NULL.")
+  }
+  if (!is.logical(collect) || length(collect) != 1L || is.na(collect)) {
+    cli::cli_abort("{.arg collect} must be TRUE or FALSE.")
+  }
+  if (!is.null(title) && (!is.character(title) || !length(title) || anyNA(title))) {
+    cli::cli_abort("{.arg title} must be a non-empty character vector without missing values.")
+  }
+  for (nm in c("scale", "scale_width", "scale_height", "ncol", "nrow")) {
+    value <- get(nm)
+    if (is.null(value)) next
+    valid <- is.numeric(value) && !is.complex(value) && length(value) == 1L &&
+      is.finite(value) && value > 0
+    integer <- nm %in% c("ncol", "nrow")
+    if (valid && integer) valid <- value == floor(value) && value <= .Machine$integer.max
+    if (!valid) {
+      requirement <- if (integer) "one finite positive integer" else "one finite positive number"
+      cli::cli_abort("{.arg {nm}} must be {requirement} or NULL.")
+    }
+  }
 
   # ---- Rename legend titles per subplot ----
   if (!is.null(title)) {
@@ -833,12 +871,6 @@ fmt_legend <- function(plot,
     }
   }
 
-  if (!is.null(legend.direction) &&
-      !legend.direction %in% c("horizontal", "vertical")) {
-    cli::cli_warn("{.arg legend.direction} must be 'horizontal' or 'vertical'.")
-    legend.direction <- NULL
-  }
-
   # ---- Resolve corner shorthand to numeric coordinates ----
   corner_map <- list(
     br = c(0.95, 0.05), bl = c(0.05, 0.05),
@@ -866,11 +898,17 @@ fmt_legend <- function(plot,
 
   # ---- Build theme ----
   theme_args <- list(...)
-  if (!is.null(legend.position))
+  if (is.numeric(legend.position)) {
+    theme_args$legend.position <- "inside"
+    theme_args$legend.position.inside <- legend.position
+    theme_args$legend.justification.inside <-
+      theme_args$legend.justification.inside %||% legend.justification
+  } else if (!is.null(legend.position)) {
     theme_args$legend.position <- legend.position
+  }
   if (!is.null(legend.direction))
     theme_args$legend.direction <- legend.direction
-  if (!is.null(legend.justification))
+  if (!is.null(legend.justification) && !is.numeric(legend.position))
     theme_args$legend.justification <- legend.justification
 
   leg_theme <- do.call(ggplot2::theme, theme_args)
@@ -885,7 +923,7 @@ fmt_legend <- function(plot,
     el <- ggplot2::calc_element(element, theme)
     if (grid::is.unit(el)) el else grid::unit(1.2, "lines")
   }
-  scaling <- !is.null(scale) && is.numeric(scale) && scale > 0
+  scaling <- !is.null(scale)
   factor <- if (scaling) scale else 1
   style_guide <- function(guide, th) {
     if (!inherits(guide, "Guide") || inherits(guide, "GuideNone")) return(guide)
@@ -979,8 +1017,8 @@ fmt_legend <- function(plot,
 
   # ---- Guide layout (ncol/nrow) ----
   guide_args <- list()
-  if (!is.null(ncol) && is.numeric(ncol)) guide_args$ncol <- ncol
-  if (!is.null(nrow) && is.numeric(nrow)) guide_args$nrow <- nrow
+  if (!is.null(ncol)) guide_args$ncol <- ncol
+  if (!is.null(nrow)) guide_args$nrow <- nrow
 
   if (length(guide_args) || scaling) {
     process_keys <- function(self, params, layers, data = NULL, theme = NULL) {

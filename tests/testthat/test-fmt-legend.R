@@ -254,3 +254,37 @@ test_that("continuous guide local dimensions and hidden titles retain their sema
   expect_s3_class(params$theme$legend.title, "element_blank")
   expect_no_error(ggplot2::ggplotGrob(output))
 })
+
+test_that("legend inputs fail clearly before changing any input objects", {
+  p <- legend_test_plot() + ggplot2::scale_colour_discrete(name = "Original")
+  bad <- list(legend.position = list(NA_character_, "bad", c("top", "bottom"),
+                                   c(NA_real_, 0.2), c(-0.1, 0.2), c(0, Inf), 0.5),
+              legend.direction = list(NA_character_, c("vertical", "horizontal"), "bad"),
+              legend_theme = list(list(legend.text = "bad"), "bad"),
+              collect = list(NA, c(TRUE, FALSE), 1), title = list(character(), NA_character_, 1),
+              scale = list(0, -1, NA_real_, Inf, c(1, 2), "bad"),
+              scale_width = list(0, -1, NA_real_, Inf, c(1, 2), "bad"),
+              scale_height = list(0, -1, NA_real_, Inf, c(1, 2), "bad"),
+              ncol = list(0, -1, NA_real_, Inf, 1.5, c(1, 2), "bad"),
+              nrow = list(0, -1, NA_real_, Inf, 1.5, c(1, 2), "bad"))
+  for (name in names(bad)) {
+    for (value in bad[[name]]) {
+      args <- list(plot = p, title = "Replacement")
+      args[name] <- list(value)
+      expect_error(do.call(fmt_legend, args), name)
+      expect_identical(p$scales$scales[[1]]$name, "Original")
+    }
+  }
+  expect_no_error(fmt_legend(p, title = ""))
+})
+
+test_that("inside legend coordinates use the current theme interface", {
+  p <- legend_test_plot()
+  for (position in list("br", "bl", "tr", "tl", c(0, 1), c(0.5, 0.5))) {
+    expect_warning(output <- fmt_legend(p, legend.position = position), NA)
+    expect_identical(output$theme$legend.position, "inside")
+    expect_length(output$theme$legend.position.inside, 2L)
+    expect_length(output$theme$legend.justification.inside, 2L)
+    expect_no_error(ggplot2::ggplotGrob(output))
+  }
+})
