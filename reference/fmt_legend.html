@@ -103,8 +103,11 @@ legend styling. Default `NULL` (no extra styling).</p></dd>
 
 
 <dt id="arg-collect">collect<a class="anchor" aria-label="anchor" href="#arg-collect"></a></dt>
-<dd><p>Logical. If `TRUE` and input has multiple plots,
-collect legends into a single shared legend via patchwork. Default `FALSE`.</p></dd>
+<dd><p>Logical. If `TRUE` and input is a patchwork, collect guides
+at its top level, including a single data plot with a guide area.
+Identical rendered guides are deduplicated; different guides remain separate.
+List inputs retain their list type and produce a warning when collection is
+requested. Default `FALSE`.</p></dd>
 
 
 <dt id="arg-title">title<a class="anchor" aria-label="anchor" href="#arg-title"></a></dt>
@@ -153,6 +156,18 @@ Default <code>NULL</code> (no change).</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Same type as input.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Existing guide types, order, reversal and aesthetic overrides are
+  retained. Layout controls apply to symbol legends; continuous colour bars
+  and colour steps retain their native guide type. Disabled guides stay hidden.
+  Formatting does not modify caller-owned scales or guides and does not build
+  the plot or evaluate layer data callbacks.</p>
+<p>Nested patchwork layouts, annotations, list names and free settings are
+  retained. Spacers, guide areas, wrapped graphics and inset overlays are
+  preserved. Position and style changes are also applied to annotations of
+  existing collected-guide layouts at each nesting level.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

@@ -56,8 +56,11 @@ fmt_legend(
 
 - collect:
 
-  Logical. If \`TRUE\` and input has multiple plots, collect legends
-  into a single shared legend via patchwork. Default \`FALSE\`.
+  Logical. If \`TRUE\` and input is a patchwork, collect guides at its
+  top level, including a single data plot with a guide area. Identical
+  rendered guides are deduplicated; different guides remain separate.
+  List inputs retain their list type and produce a warning when
+  collection is requested. Default \`FALSE\`.
 
 - title:
 
@@ -105,6 +108,19 @@ fmt_legend(
 ## Value
 
 Same type as input.
+
+## Details
+
+Existing guide types, order, reversal and aesthetic overrides are
+retained. Layout controls apply to symbol legends; continuous colour
+bars and colour steps retain their native guide type. Disabled guides
+stay hidden. Formatting does not modify caller-owned scales or guides
+and does not build the plot or evaluate layer data callbacks.
+
+Nested patchwork layouts, annotations, list names and free settings are
+retained. Spacers, guide areas, wrapped graphics and inset overlays are
+preserved. Position and style changes are also applied to annotations of
+existing collected-guide layouts at each nesting level.
 
 ## See also
 
