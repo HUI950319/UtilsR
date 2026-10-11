@@ -605,6 +605,40 @@ test_that("fixed aesthetic legends retain inside positions during collection", {
   expect_identical(calls, 0L)
 })
 
+test_that("AsIs mappings without trained scales do not block collection", {
+  p <- legend_test_plot()
+  no_guide <- list(
+    ggplot2::ggplot(p$data, ggplot2::aes(x, y, colour = I("red"))) + ggplot2::geom_point(),
+    ggplot2::ggplot(p$data, ggplot2::aes(x, y, colour = base::I("red"))) + ggplot2::geom_point(),
+    ggplot2::ggplot(p$data, ggplot2::aes(x, y, colour = group)) +
+      ggplot2::geom_point(ggplot2::aes(colour = I("red"))))
+  for (input in no_guide) {
+    input <- input + ggplot2::theme(legend.position = "inside")
+    expect_false("group" %in% legend_test_labels(ggplot2::ggplotGrob(input)))
+    expect_warning(output <- fmt_legend(input | p | p, collect = TRUE), NA)
+    expect_identical(output$patches$layout$guides, "collect")
+    g <- patchwork::patchworkGrob(output)
+    expect_equal(sum(legend_test_labels(g) == "group"), 1)
+    expect_identical(ggplot2::ggplot_build(output[[1]])$data, ggplot2::ggplot_build(input)$data)
+  }
+  visible <- no_guide[[1]] + ggplot2::scale_colour_manual(
+    values = c(A = "red", B = "blue"), limits = c("A", "B")) +
+    ggplot2::theme(legend.position = "inside")
+  expect_warning(output <- fmt_legend(visible | p, collect = TRUE), "collection is skipped")
+  expect_identical(output$patches$layout$guides, "keep")
+  overridden <- no_guide[[1]] + ggplot2::geom_point(ggplot2::aes(colour = group)) +
+    ggplot2::theme(legend.position = "inside")
+  expect_warning(output <- fmt_legend(overridden | p, collect = TRUE), "collection is skipped")
+  expect_identical(output$patches$layout$guides, "keep")
+  custom <- local({
+    I <- function(x) x
+    ggplot2::ggplot(p$data, ggplot2::aes(x, y, colour = I(group))) +
+      ggplot2::geom_point() + ggplot2::theme(legend.position = "inside")
+  })
+  expect_warning(output <- fmt_legend(custom | p, collect = TRUE), "collection is skipped")
+  expect_identical(output$patches$layout$guides, "keep")
+})
+
 test_that("legend collection only checks visible guides in its own scope", {
   p <- legend_test_plot()
   inside <- p + ggplot2::theme(legend.position = "inside")

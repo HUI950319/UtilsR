@@ -105,6 +105,8 @@ Existing guide types, order, reversal and aesthetic overrides are
   Guide and scale clones do not retain the formatter's input or working plots.
   Collection checks include fixed aesthetics with explicit scale limits when
   layers force their legend display through \code{show.legend = TRUE}.
+  Mappings using \code{I()} without explicit scale limits do not block
+  guide collection.
 
   Nested patchwork layouts, annotations, list names and free settings are
   retained. Spacers, guide areas, wrapped graphics and inset overlays are

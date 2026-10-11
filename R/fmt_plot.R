@@ -782,6 +782,8 @@ fmt_tag <- function(plot,
 #'   Guide and scale clones do not retain the formatter's input or working plots.
 #'   Collection checks include fixed aesthetics with explicit scale limits when
 #'   layers force their legend display through \code{show.legend = TRUE}.
+#'   Mappings using \code{I()} without explicit scale limits do not block
+#'   guide collection.
 #'
 #'   Nested patchwork layouts, annotations, list names and free settings are
 #'   retained. Spacers, guide areas, wrapped graphics and inset overlays are
@@ -1178,8 +1180,17 @@ fmt_legend <- function(plot,
     })))
     mapped <- unique(unlist(lapply(p$layers, function(layer) {
       if (identical(layer$show.legend, FALSE)) return(character())
-      aesthetics <- names(layer$mapping)
-      if (isTRUE(layer$inherit.aes)) aesthetics <- union(aesthetics, names(p$mapping))
+      mapping <- layer$mapping
+      if (isTRUE(layer$inherit.aes)) {
+        mapping <- c(p$mapping[setdiff(names(p$mapping), names(mapping))], mapping)
+      }
+      asis <- vapply(mapping, function(value) {
+        expr <- rlang::get_expr(value)
+        if (rlang::is_call(expr, "I", ns = "base")) return(TRUE)
+        rlang::is_call(expr, "I", ns = "") &&
+          identical(get("I", envir = rlang::get_env(value), mode = "function"), base::I)
+      }, logical(1))
+      aesthetics <- names(mapping)[!asis | names(mapping) %in% fixed]
       forced <- if (isTRUE(layer$show.legend)) names(layer$geom$default_aes) else
         names(layer$show.legend)[which(layer$show.legend %in% TRUE)]
       aesthetics <- union(aesthetics, intersect(forced, fixed))
