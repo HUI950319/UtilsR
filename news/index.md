@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
+  scales each subplot from its own theme after applying new legend
+  styling, retaining blank text and title elements and collected-guide
+  scaling rather than copying the first subplot’s sizes.
+
+- [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
   multiplies existing legend units and spacing without converting them
   to lines. A scale of one retains the rendered legend size; independent
   width and height factors combine with the overall scaling factor.
