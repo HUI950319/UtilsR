@@ -506,6 +506,33 @@ test_that("legend collection only checks visible guides in its own scope", {
   expect_identical(fmt_legend(scoped, collect = TRUE)[[1L]]$patches$layout$guides, "keep")
 })
 
+test_that("collected legend spacing scales at each collection level", {
+  p <- legend_test_plot()
+  input <- (p | (p + ggplot2::labs(colour = "Other"))) +
+    patchwork::plot_layout(guides = "collect") + patchwork::plot_annotation(
+      theme = ggplot2::theme(legend.box = "horizontal", legend.spacing.x = grid::unit(20, "mm"),
+                            legend.box.spacing = grid::unit(8, "mm")))
+  widths <- function(p) {
+    g <- patchwork::patchworkGrob(p)
+    box <- g$grobs[[which(g$layout$name == "guide-box")]]
+    grid::convertWidth(box$widths, "mm", valueOnly = TRUE)
+  }
+  output <- fmt_legend(input, scale = 0.5)
+  expect_equal(widths(input)[4L], 20)
+  expect_equal(widths(output)[4L], 10)
+  expect_equal(grid::convertWidth(output$patches$annotation$theme$legend.box.spacing,
+                                  "mm", valueOnly = TRUE), 4)
+  expect_equal(widths(fmt_legend(output, scale = 0.5))[4L], 5)
+  expect_equal(widths(fmt_legend(input, scale = 1)), widths(input))
+  nested <- (input / (p | p)) + patchwork::plot_layout(guides = "collect") +
+    patchwork::plot_annotation(theme = ggplot2::theme(legend.spacing.y = grid::unit(30, "mm")))
+  output <- fmt_legend(nested, scale = 0.5)
+  expect_equal(grid::convertHeight(output$patches$annotation$theme$legend.spacing.y,
+                                   "mm", valueOnly = TRUE), 15)
+  expect_equal(grid::convertWidth(output[[1L]]$patches$annotation$theme$legend.spacing.x,
+                                  "mm", valueOnly = TRUE), 10)
+})
+
 test_that("guide clones do not retain formatter plots or grow with repeated calls", {
   p <- legend_test_plot()
   for (args in list(list(scale = 1), list(ncol = 2), list(title = "New group"),

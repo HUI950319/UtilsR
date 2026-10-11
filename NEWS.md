@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_legend()` scales spacing in collected guide boxes at each patchwork
+  level, including existing annotation themes, without rescaling legend keys.
+
 * `fmt_legend()` checks visible guides within each collection scope, respecting
   nested `keep` layouts, explicit guide positions and disabled guides instead
   of cancelling unrelated outer guide collection.

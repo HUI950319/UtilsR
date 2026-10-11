@@ -779,7 +779,7 @@ fmt_tag <- function(plot,
 #'
 #'   Nested patchwork layouts, annotations, list names and free settings are
 #'   retained. Spacers, guide areas, wrapped graphics and inset overlays are
-#'   preserved. Position and style changes are also applied to annotations of
+#'   preserved. Position, style and spacing changes also apply to annotations of
 #'   existing collected-guide layouts at each nesting level.
 #'   Calls with no formatting controls return the original object unchanged
 #'   after checking the input container.
@@ -1177,6 +1177,15 @@ fmt_legend <- function(plot,
       }
       if (identical(p$patches$layout$guides, "collect")) {
         if (length(leg_theme)) p <- p + patchwork::plot_annotation(theme = leg_theme)
+        if (scaling) {
+          th <- ggplot2::theme_get() + p$patches$annotation$theme
+          args <- list()
+          for (nm in c("legend.spacing", "legend.spacing.x", "legend.spacing.y",
+                       "legend.box.spacing")) {
+            if (!is.null(th[[nm]])) args[[nm]] <- get_unit(th, nm) * factor
+          }
+          if (length(args)) p <- p + patchwork::plot_annotation(theme = do.call(ggplot2::theme, args))
+        }
         if (has_inside_legend(p)) {
           p <- p + patchwork::plot_layout(guides = "keep")
           collection_skipped <<- TRUE

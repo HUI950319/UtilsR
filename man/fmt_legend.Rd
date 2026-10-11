@@ -102,7 +102,7 @@ Existing guide types, order, reversal and aesthetic overrides are
 
   Nested patchwork layouts, annotations, list names and free settings are
   retained. Spacers, guide areas, wrapped graphics and inset overlays are
-  preserved. Position and style changes are also applied to annotations of
+  preserved. Position, style and spacing changes also apply to annotations of
   existing collected-guide layouts at each nesting level.
   Calls with no formatting controls return the original object unchanged
   after checking the input container.
