@@ -120,7 +120,9 @@ and does not build the plot or evaluate layer data callbacks.
 Nested patchwork layouts, annotations, list names and free settings are
 retained. Spacers, guide areas, wrapped graphics and inset overlays are
 preserved. Position and style changes are also applied to annotations of
-existing collected-guide layouts at each nesting level.
+existing collected-guide layouts at each nesting level. Calls with no
+formatting controls return the original object unchanged after checking
+the input container.
 
 ## See also
 
