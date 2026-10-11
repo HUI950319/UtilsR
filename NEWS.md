@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_legend()` retains automatic local guide dimensions and text margins,
+  allowing scaled colour bars and legends to adapt when their position changes.
+
 * `fmt_legend()` respects later explicit guide layout definitions from
   `guides()` and scales while retaining deferred layout for default guides.
 

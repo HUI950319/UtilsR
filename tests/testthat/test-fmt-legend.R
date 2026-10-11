@@ -427,6 +427,29 @@ test_that("local guide scaling follows its own position", {
                legend_test_box_size(input))
 })
 
+test_that("scaled local guides adapt automatic dimensions after position changes", {
+  for (continuous in c(FALSE, TRUE)) {
+    guide <- if (continuous) ggplot2::guide_colourbar else ggplot2::guide_legend
+    input <- legend_test_plot(continuous) + ggplot2::guides(
+      colour = guide(position = "bottom", theme = ggplot2::theme()))
+    for (factor in c(1, 0.5, 1.5)) {
+      after <- fmt_legend(fmt_legend(input, scale = factor), legend.position = "right")
+      expected <- fmt_legend(input, legend.position = "right", scale = factor)
+      expect_equal(legend_test_box_size(after), legend_test_box_size(expected))
+      expect_identical(ggplot2::ggplot_build(after)$data, ggplot2::ggplot_build(input)$data)
+      restored <- fmt_legend(after, legend.position = "bottom")
+      expect_equal(legend_test_box_size(restored),
+                   legend_test_box_size(fmt_legend(input, scale = factor)))
+    }
+    fixed <- legend_test_plot(continuous) + ggplot2::guides(colour = guide(
+      position = "bottom", theme = ggplot2::theme(legend.key.width = grid::unit(8, "mm"),
+        legend.key.height = grid::unit(4, "mm"), legend.text = ggplot2::element_text(size = 12))))
+    after <- fmt_legend(fmt_legend(fixed, scale = 0.5), legend.position = "right")
+    expect_equal(legend_test_box_size(after),
+                 legend_test_box_size(fmt_legend(fixed, scale = 0.5, legend.position = "right")))
+  }
+})
+
 test_that("inside legends survive requested and existing collection", {
   p <- legend_test_plot()
   for (position in list("br", "inside", c(0.9, 0.1))) {

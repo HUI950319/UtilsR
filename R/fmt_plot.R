@@ -769,6 +769,7 @@ fmt_tag <- function(plot,
 #'   Explicit axis guides remain unchanged.
 #'   Later explicit guide definitions replace earlier layout controls.
 #'   Local guide dimensions use the guide's own position and direction.
+#'   Automatic dimensions and margins continue to adapt after position changes.
 #'   Hiding via \code{legend.position = "none"} retains explicit guide settings,
 #'   so a later position change can show them again; disabled guides stay disabled.
 #'   Formatting does not modify caller-owned scales or guides and does not build
@@ -985,32 +986,28 @@ fmt_legend <- function(plot,
       local <- params$theme + leg_theme
       params$theme <- local
       if (scaling || !is.null(scale_width) || !is.null(scale_height)) {
-        drawing <- params
-        drawing$direction <- params$direction %||% local$legend.direction %||%
-          th$legend.direction %||% if ((params$position %||% th$legend.position %||% "right") %in%
-                                       c("top", "bottom")) "horizontal" else "vertical"
-        elements <- guide$setup_elements(drawing, guide$elements, th)
+        effective <- th + local
         args <- list()
         if (scaling) {
-          for (nm in c("text", "title")) {
-            el <- elements[[nm]]
+          for (nm in c("legend.text", "legend.title")) {
+            el <- ggplot2::calc_element(nm, effective)
             if (inherits(el, "element_text") && !is.null(el$size)) {
-              el$size <- el$size * factor
-              args[[paste0("legend.", nm)]] <- el
+              styled <- local[[nm]]
+              if (!inherits(styled, "element_text")) styled <- ggplot2::element_text()
+              styled$size <- el$size * factor
+              args[[nm]] <- styled
             }
           }
-          for (nm in c("spacing_x", "spacing_y")) {
-            if (grid::is.unit(elements[[nm]])) {
-              args[[paste0("legend.key.spacing.", sub("spacing_", "", nm))]] <-
-                elements[[nm]] * factor
-            }
+          for (nm in c("legend.key.size", "legend.key.width", "legend.key.height",
+                       "legend.key.spacing.x", "legend.key.spacing.y")) {
+            if (!is.null(local[[nm]])) args[[nm]] <- get_unit(effective, nm) * factor
           }
         }
-        if ((scaling || !is.null(scale_width)) && grid::is.unit(elements$key_width)) {
-          args$legend.key.width <- elements$key_width * factor * (scale_width %||% 1)
+        if (!is.null(scale_width) && !is.null(local$legend.key.width)) {
+          args$legend.key.width <- get_unit(effective, "legend.key.width") * factor * scale_width
         }
-        if ((scaling || !is.null(scale_height)) && grid::is.unit(elements$key_height)) {
-          args$legend.key.height <- elements$key_height * factor * (scale_height %||% 1)
+        if (!is.null(scale_height) && !is.null(local$legend.key.height)) {
+          args$legend.key.height <- get_unit(effective, "legend.key.height") * factor * scale_height
         }
         if (length(args)) params$theme <- local + do.call(ggplot2::theme, args)
       }
