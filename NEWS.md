@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_legend()` hides explicit guides through the plot position without
+  discarding their type, titles or settings, allowing later position changes to
+  restore them while keeping intentionally disabled guides hidden.
+
 * `fmt_legend()` isolates guide and scale inheritance environments from working
   plots and avoids cloning empty guide containers for theme-only formatting,
   preventing excessive serialized-object growth after repeated calls.

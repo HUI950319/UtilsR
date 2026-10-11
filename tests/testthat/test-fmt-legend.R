@@ -417,3 +417,35 @@ test_that("guide clones do not retain formatter plots or grow with repeated call
   expect_false(any(c("plots", "output", "info") %in% ls(retained)))
   expect_false(identical(get("plot", envir = retained, inherits = FALSE), p))
 })
+
+test_that("position hiding is reversible without enabling disabled guides", {
+  for (continuous in c(FALSE, TRUE)) {
+    guide <- if (continuous) ggplot2::guide_colourbar(position = "right", reverse = TRUE,
+      order = 2, title = "Original", theme = ggplot2::theme()) else
+      ggplot2::guide_legend(position = "right", reverse = TRUE, order = 2,
+        title = "Original", override.aes = list(shape = 17), theme = ggplot2::theme())
+    sc <- if (continuous) ggplot2::scale_colour_continuous(guide = guide) else
+      ggplot2::scale_colour_discrete(guide = guide)
+    for (input in list(legend_test_plot(continuous) + ggplot2::guides(colour = guide),
+                      legend_test_plot(continuous) + sc)) {
+      hidden <- fmt_legend(input, legend.position = "none")
+      expect_false("Original" %in% legend_test_labels(ggplot2::ggplotGrob(hidden)))
+      hidden <- fmt_legend(hidden, title = "Restored")
+      expect_false("Restored" %in% legend_test_labels(ggplot2::ggplotGrob(hidden)))
+      restored <- fmt_legend(hidden, legend.position = "right")
+      expect_true("Restored" %in% legend_test_labels(ggplot2::ggplotGrob(restored)))
+      params <- ggplot2::ggplot_build(restored)$plot$guides$guides[[1]]$params
+      expect_true(params$reverse)
+      expect_equal(params$order, 2)
+      expect_identical(guide$params$title, "Original")
+      expect_identical(guide$params$position, "right")
+    }
+    for (disabled in list(legend_test_plot(continuous) + ggplot2::guides(colour = "none"),
+                           legend_test_plot(continuous) + ggplot2::guides(
+                             colour = ggplot2::guide_none()))) {
+      restored <- fmt_legend(fmt_legend(disabled, legend.position = "none"),
+                             legend.position = "right")
+      expect_length(ggplot2::ggplot_build(restored)$plot$guides$guides, 0L)
+    }
+  }
+})
