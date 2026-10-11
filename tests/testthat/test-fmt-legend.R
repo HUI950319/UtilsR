@@ -520,3 +520,22 @@ test_that("multiple ggnewscale legends receive titles and styling", {
   expect_identical(explicit$guides$guides$colour_ggnewscale_1$params$title, "Explicit")
   expect_identical(output$guides$guides$colour_ggnewscale_1$params$title, "Unified")
 })
+
+test_that("containers without editable plots still validate legend controls", {
+  inputs <- list(list(), patchwork::plot_spacer(), patchwork::guide_area(),
+                 patchwork::wrap_elements(legend_test_plot()),
+                 patchwork::plot_spacer() | patchwork::guide_area())
+  invalid <- list(legend.position = "bad", legend.direction = "bad",
+                  legend_theme = list(), collect = NA, title = NA_character_,
+                  scale = -1, scale_width = 0, scale_height = Inf, ncol = 1.5, nrow = 0)
+  for (input in inputs) {
+    for (name in names(invalid)) {
+      expect_error(do.call(fmt_legend, c(list(plot = input), invalid[name])), name)
+    }
+    expect_identical(fmt_legend(input), input)
+    expect_identical(fmt_legend(input, legend.position = "inside", scale = 1,
+                                title = "", ncol = 1), input)
+  }
+  expect_warning(output <- fmt_legend(list(), collect = TRUE), "patchwork")
+  expect_identical(output, list())
+})

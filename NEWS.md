@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_legend()` validates controls for empty lists, spacers, guide areas and
+  wrapped graphics before returning containers without editable data plots.
+
 * `fmt_legend()` recognizes aesthetics renamed by `ggnewscale`, updating titles
   and guide styling across multiple colour and fill scales. `ggnewscale` is an
   optional suggested package used for compatibility tests.

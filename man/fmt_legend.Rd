@@ -102,6 +102,7 @@ Existing guide types, order, reversal and aesthetic overrides are
   existing collected-guide layouts at each nesting level.
   Calls with no formatting controls return the original object unchanged
   after checking the input container.
+  Parameter validation also applies to containers without editable data plots.
 }
 \examples{
 library(ggplot2)

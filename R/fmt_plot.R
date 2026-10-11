@@ -779,6 +779,7 @@ fmt_tag <- function(plot,
 #'   existing collected-guide layouts at each nesting level.
 #'   Calls with no formatting controls return the original object unchanged
 #'   after checking the input container.
+#'   Parameter validation also applies to containers without editable data plots.
 #'
 #' @examples
 #' library(ggplot2)
@@ -820,7 +821,6 @@ fmt_legend <- function(plot,
   info <- .to_plot_list(plot, recurse = TRUE)
   plots <- info$plots
   n <- length(plots)
-  if (n == 0L) return(plot)
 
   if (!is.null(legend.position)) {
     valid <- (is.character(legend.position) && length(legend.position) == 1L &&
@@ -860,6 +860,7 @@ fmt_legend <- function(plot,
   if (collect && !info$is_patchwork && !info$is_single) {
     cli::cli_warn("{.arg collect} requires a patchwork input; the formatted list retains its list type.")
   }
+  if (n == 0L) return(plot)
 
   legend_aes <- c("colour", "color", "fill", "shape", "size",
                   "linewidth", "alpha", "linetype")
