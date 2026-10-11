@@ -146,6 +146,5 @@ fmt_legend(p, scale = 0.8)
 
 # Scale width and height independently
 fmt_legend(p, scale_width = 1.5, scale_height = 0.5)
-#> Warning: `guide_colourbar()` needs continuous scales.
 
 ```

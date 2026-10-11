@@ -3,6 +3,12 @@
 ## UtilsR 0.6.8
 
 - [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
+  retains continuous colour bars, binned colour steps and disabled
+  guides when resizing or arranging legends, and defers guide resolution
+  until normal plot building without evaluating layer data during
+  formatting.
+
+- [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
   renames default and layer-mapped legend titles, including explicit
   guide titles, without modifying shared input scales or guides.
 
