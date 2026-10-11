@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
+  respects later explicit guide layout definitions from
+  [`guides()`](https://ggplot2.tidyverse.org/reference/guides.html) and
+  scales while retaining deferred layout for default guides.
+
+- [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
   scales legend glyphs with both ggplot2 3.5 and current guide
   callbacks, passing the theme only when the native method supports it.
 
