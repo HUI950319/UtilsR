@@ -397,3 +397,23 @@ test_that("inside legends survive requested and existing collection", {
   expect_equal(sum(legend_test_labels(patchwork::patchworkGrob(output)) == "group"), 3)
   expect_identical(nested$patches$layout$guides, "collect")
 })
+
+test_that("guide clones do not retain formatter plots or grow with repeated calls", {
+  p <- legend_test_plot()
+  for (args in list(list(scale = 1), list(ncol = 2), list(title = "New group"),
+                    list(legend.position = "bottom"))) {
+    input <- do.call(fmt_legend, c(list(plot = p), args))
+    first_size <- length(serialize(input, NULL))
+    for (i in seq_len(5L)) input <- do.call(fmt_legend, c(list(plot = input), args))
+    expect_lt(length(serialize(input, NULL)), first_size * 1.25)
+    restored <- unserialize(serialize(input, NULL))
+    expect_no_error(ggplot2::ggplotGrob(restored))
+    expect_equal(legend_test_box_size(restored), legend_test_box_size(input))
+    expect_identical(ggplot2::ggplot_build(restored)$data, ggplot2::ggplot_build(p)$data)
+  }
+  output <- fmt_legend(p, scale = 1)
+  retained <- get("env", envir = environment(get("super", envir = output$guides,
+                                                inherits = FALSE)), inherits = FALSE)
+  expect_false(any(c("plots", "output", "info") %in% ls(retained)))
+  expect_false(identical(get("plot", envir = retained, inherits = FALSE), p))
+})

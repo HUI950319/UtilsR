@@ -767,6 +767,7 @@ fmt_tag <- function(plot,
 #'   Local guide dimensions use the guide's own position and direction.
 #'   Formatting does not modify caller-owned scales or guides and does not build
 #'   the plot or evaluate layer data callbacks.
+#'   Guide and scale clones do not retain the formatter's input or working plots.
 #'
 #'   Nested patchwork layouts, annotations, list names and free settings are
 #'   retained. Spacers, guide areas, wrapped graphics and inset overlays are
@@ -865,7 +866,7 @@ fmt_legend <- function(plot,
       if (!inherits(guide, "Guide") || inherits(guide, "GuideNone")) return(guide)
       params <- guide$params
       params$title <- label
-      ggplot2::ggproto(NULL, guide, params = params)
+      do.call(ggplot2::ggproto, list(NULL, guide, params = params), envir = baseenv())
     }
     for (i in seq_len(n)) {
       p <- plots[[i]]
@@ -882,18 +883,20 @@ fmt_legend <- function(plot,
       }
       scales <- lapply(p$scales$scales, function(sc) {
         if (!any(sc$aesthetics %in% legend_aes)) return(sc)
-        ggplot2::ggproto(NULL, sc, name = title[i],
-                        guide = rename_guide(sc$guide, title[i]))
+        do.call(ggplot2::ggproto, list(NULL, sc, name = title[i],
+          guide = rename_guide(sc$guide, title[i])), envir = baseenv())
       })
       if (!identical(scales, p$scales$scales)) {
-        p$scales <- do.call(ggplot2::ggproto, list(NULL, p$scales, scales = scales))
+        p$scales <- do.call(ggplot2::ggproto, list(NULL, p$scales, scales = scales),
+                            envir = baseenv())
       }
       if (inherits(p$guides, "Guides")) {
         guides <- p$guides$guides
         selected <- intersect(names(guides), legend_aes)
         guides[selected] <- lapply(guides[selected], rename_guide, label = title[i])
         if (!identical(guides, p$guides$guides)) {
-          p$guides <- do.call(ggplot2::ggproto, list(NULL, p$guides, guides = guides))
+          p$guides <- do.call(ggplot2::ggproto, list(NULL, p$guides, guides = guides),
+                              envir = baseenv())
         }
       }
       plots[[i]] <- p
@@ -995,15 +998,17 @@ fmt_legend <- function(plot,
       }
     }
     if (identical(params, guide$params)) return(guide)
-    ggplot2::ggproto(NULL, guide, params = params)
+    do.call(ggplot2::ggproto, list(NULL, guide, params = params), envir = baseenv())
   }
   for (i in seq_len(n)) {
     p <- plots[[i]] + leg_theme
     th <- ggplot2::theme_get() + p$theme
     if (inherits(p$guides, "Guides")) {
-      guides <- lapply(p$guides$guides, style_guide, th = th)
+      guides <- p$guides$guides
+      if (length(guides)) guides <- lapply(guides, style_guide, th = th)
       if (!identical(guides, p$guides$guides)) {
-        p$guides <- do.call(ggplot2::ggproto, list(NULL, p$guides, guides = guides))
+        p$guides <- do.call(ggplot2::ggproto, list(NULL, p$guides, guides = guides),
+                            envir = baseenv())
       }
     }
     scales <- lapply(p$scales$scales, function(sc) {
@@ -1011,10 +1016,11 @@ fmt_legend <- function(plot,
                                     "linewidth", "alpha", "linetype"))) return(sc)
       guide <- style_guide(sc$guide, th)
       if (identical(guide, sc$guide)) return(sc)
-      ggplot2::ggproto(NULL, sc, guide = guide)
+      do.call(ggplot2::ggproto, list(NULL, sc, guide = guide), envir = baseenv())
     })
     if (!identical(scales, p$scales$scales)) {
-      p$scales <- do.call(ggplot2::ggproto, list(NULL, p$scales, scales = scales))
+      p$scales <- do.call(ggplot2::ggproto, list(NULL, p$scales, scales = scales),
+                          envir = baseenv())
     }
     scale_args <- list()
     if (scaling) {
@@ -1077,14 +1083,14 @@ fmt_legend <- function(plot,
         updates <- self$.fmt_legend_args
         params[names(updates$layout)] <- updates$layout
         if (!is.null(updates$scale)) {
-          return(ggplot2::ggproto(NULL, guide, params = params,
+          return(do.call(ggplot2::ggproto, list(NULL, guide, params = params,
             .fmt_legend_source = guide, .fmt_legend_scale = updates$scale,
-            process_layers = self$.fmt_legend_process_keys[[1L]]))
+            process_layers = self$.fmt_legend_process_keys[[1L]]), envir = baseenv()))
         }
-        ggplot2::ggproto(NULL, guide, params = params)
+        do.call(ggplot2::ggproto, list(NULL, guide, params = params), envir = baseenv())
       })
-      ggplot2::ggproto(NULL, resolved, guides = guides,
-                      params = lapply(guides, function(g) g$params))
+      do.call(ggplot2::ggproto, list(NULL, resolved, guides = guides,
+        params = lapply(guides, function(g) g$params)), envir = baseenv())
     }
     # Stored methods retain guide settings only, rather than the formatter's plots.
     environment(setup_guides) <- baseenv()
@@ -1096,7 +1102,7 @@ fmt_legend <- function(plot,
       if (scaling) updates$scale <- (updates$scale %||% 1) * factor
       plots[[i]]$guides <- do.call(ggplot2::ggproto, list(NULL, guides,
         .fmt_legend_parent = parent, .fmt_legend_args = updates,
-        .fmt_legend_process_keys = list(process_keys), setup = setup_guides))
+        .fmt_legend_process_keys = list(process_keys), setup = setup_guides), envir = baseenv())
     }
   }
 

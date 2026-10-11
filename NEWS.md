@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_legend()` isolates guide and scale inheritance environments from working
+  plots and avoids cloning empty guide containers for theme-only formatting,
+  preventing excessive serialized-object growth after repeated calls.
+
 * `fmt_legend()` warns and keeps subplot guides when requested or existing
   collection layouts contain inside legends, preventing their silent loss.
 
