@@ -58,3 +58,55 @@ test_that("legend titles recycle across editable nested plots", {
   expect_identical(names(named), c("left", "right"))
   expect_true("Left" %in% legend_test_labels(ggplot2::ggplotGrob(named$left)))
 })
+
+test_that("legend formatting retains continuous and binned guide types", {
+  controls <- list(list(scale = 0.8), list(ncol = 2),
+                   list(legend_theme = ggplot2::theme(legend.title = ggplot2::element_blank())))
+  for (p in list(legend_test_plot(TRUE), legend_test_plot(TRUE) +
+                 ggplot2::scale_colour_steps())) {
+    before <- ggplot2::ggplot_build(p)$plot$guides$guides[[1]]
+    for (args in controls) {
+      changed <- do.call(fmt_legend, c(list(plot = p), args))
+      after <- ggplot2::ggplot_build(changed)$plot$guides$guides[[1]]
+      expect_identical(class(after), class(before))
+      expect_no_error(ggplot2::ggplotGrob(changed))
+    }
+  }
+})
+
+test_that("legend dimensions preserve discrete guides and disabled guides", {
+  for (continuous in c(FALSE, TRUE)) {
+    p <- legend_test_plot(continuous)
+    before <- ggplot2::ggplot_build(p)$plot$guides$guides[[1]]
+    changed <- fmt_legend(p, scale_width = 1.5, scale_height = 0.5)
+    expect_warning(g <- ggplot2::ggplotGrob(changed), NA)
+    expect_true(any(grepl("^guide-box", g$layout$name) &
+                      vapply(g$grobs, inherits, logical(1), "gtable")))
+    expect_identical(class(ggplot2::ggplot_build(changed)$plot$guides$guides[[1]]),
+                     class(before))
+    hidden_scale <- if (continuous) ggplot2::scale_colour_continuous(guide = "none") else
+      ggplot2::scale_colour_discrete(guide = "none")
+    for (hidden in list(p + ggplot2::guides(colour = "none"), p + hidden_scale)) {
+      output <- fmt_legend(hidden, scale = 0.8, ncol = 2)
+      expect_length(ggplot2::ggplot_build(output)$plot$guides$guides, 0L)
+    }
+  }
+})
+
+test_that("guide formatting defers data callbacks and retains later guide edits", {
+  calls <- 0L
+  p <- ggplot2::ggplot(mapping = ggplot2::aes(x, y, colour = value)) +
+    ggplot2::geom_point(data = function(x) {
+      calls <<- calls + 1L
+      data.frame(x = 1:4, y = 4:1, value = 1:4)
+    })
+  set.seed(14)
+  rng <- .Random.seed
+  result <- fmt_legend(p, scale = 0.8, ncol = 2)
+  expect_identical(calls, 0L)
+  expect_identical(.Random.seed, rng)
+  expect_s3_class(ggplot2::ggplot_build(result)$plot$guides$guides[[1]], "GuideColourbar")
+  expect_identical(calls, 1L)
+  hidden <- result + ggplot2::guides(colour = "none")
+  expect_length(ggplot2::ggplot_build(hidden)$plot$guides$guides, 0L)
+})

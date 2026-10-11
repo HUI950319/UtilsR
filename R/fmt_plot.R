@@ -872,24 +872,14 @@ fmt_legend <- function(plot,
 
   leg_theme <- do.call(ggplot2::theme, theme_args)
 
-  # Append legend_theme — if it sets title to element_blank, also suppress at guide level
-  no_title_guides <- NULL
+  # Append legend_theme without replacing the existing guide type.
   if (!is.null(legend_theme) && inherits(legend_theme, "theme")) {
     leg_theme <- leg_theme + legend_theme
-    title_el <- legend_theme$legend.title
-    if (inherits(title_el, "element_blank")) {
-      no_title <- ggplot2::guide_legend(title = "")
-      no_title_guides <- ggplot2::guides(
-        colour = no_title, fill = no_title,
-        shape = no_title, size = no_title,
-        alpha = no_title, linetype = no_title
-      )
-    }
   }
 
   # ---- Scale legend proportionally ----
   scale_theme <- NULL
-  scale_guides <- NULL
+  point_size <- NULL
   if (!is.null(scale) && is.numeric(scale) && scale > 0) {
     .get_size <- function(p, element) {
       th <- ggplot2::theme_get() + p$theme
@@ -934,18 +924,11 @@ fmt_legend <- function(plot,
       legend.box.spacing = grid::unit(0.2 * scale, "cm")
     )
 
-    guide_obj_scale <- ggplot2::guide_legend(
-      override.aes = list(size = pt_sz * scale)
-    )
-    scale_guides <- ggplot2::guides(
-      colour = guide_obj_scale,
-      fill = guide_obj_scale, shape = guide_obj_scale
-    )
+    point_size <- pt_sz * scale
   }
 
   # ---- Scale width / height independently ----
   dim_theme <- NULL
-  dim_guides <- NULL
   if (!is.null(scale_width) || !is.null(scale_height)) {
     .get_key_dim <- function(p, element) {
       th <- ggplot2::theme_get() + p$theme
@@ -958,27 +941,17 @@ fmt_legend <- function(plot,
     }
     ref_p <- plots[[1]]
     dim_args <- list()
-    # guide_colorbar args for continuous scales
-    bar_args <- list()
     if (!is.null(scale_width)) {
       kw <- .get_key_dim(ref_p, "legend.key.width") %||%
             .get_key_dim(ref_p, "legend.key.size") %||% 1.2
       dim_args$legend.key.width <- grid::unit(kw * scale_width, "lines")
-      bar_args$barwidth <- grid::unit(kw * scale_width, "lines")
     }
     if (!is.null(scale_height)) {
       kh <- .get_key_dim(ref_p, "legend.key.height") %||%
             .get_key_dim(ref_p, "legend.key.size") %||% 1.2
       dim_args$legend.key.height <- grid::unit(kh * scale_height, "lines")
-      bar_args$barheight <- grid::unit(kh * scale_height, "lines")
     }
     dim_theme <- do.call(ggplot2::theme, dim_args)
-    # Apply to both legend and colorbar guides
-    if (length(bar_args) > 0) {
-      guide_cb <- do.call(ggplot2::guide_colorbar, bar_args)
-      guide_lg <- do.call(ggplot2::guide_legend, list())
-      dim_guides <- ggplot2::guides(colour = guide_cb, fill = guide_cb)
-    }
   }
 
   # ---- Guide layout (ncol/nrow) ----
@@ -986,14 +959,40 @@ fmt_legend <- function(plot,
   if (!is.null(ncol) && is.numeric(ncol)) guide_args$ncol <- ncol
   if (!is.null(nrow) && is.numeric(nrow)) guide_args$nrow <- nrow
 
-  legend_guides <- NULL
-  if (length(guide_args) > 0) {
-    guide_obj <- do.call(ggplot2::guide_legend, guide_args)
-    legend_guides <- ggplot2::guides(
-      fill = guide_obj, colour = guide_obj,
-      shape = guide_obj, size = guide_obj, alpha = guide_obj,
-      linetype = guide_obj
-    )
+  if (length(guide_args) || !is.null(point_size)) {
+    # Resolve default guides during normal building, without evaluating data here.
+    setup_guides <- function(self, scales, aesthetics = NULL,
+                              default = self$missing, missing = self$missing) {
+      resolved <- ggplot2::ggproto_parent(self$.fmt_legend_parent, self)$setup(
+        scales, aesthetics, default, missing
+      )
+      guides <- lapply(seq_along(resolved$guides), function(j) {
+        guide <- resolved$guides[[j]]
+        if (!inherits(guide, "GuideLegend") ||
+            inherits(guide, c("GuideColourbar", "GuideNone"))) return(guide)
+        params <- guide$params
+        updates <- self$.fmt_legend_args
+        params[names(updates$layout)] <- updates$layout
+        if (!is.null(updates$point_size) &&
+            resolved$aesthetics[j] %in% c("colour", "fill", "shape")) {
+          params$override.aes <- list(size = updates$point_size)
+        }
+        ggplot2::ggproto(NULL, guide, params = params)
+      })
+      ggplot2::ggproto(NULL, resolved, guides = guides,
+                      params = lapply(guides, function(g) g$params))
+    }
+    # Stored methods retain guide settings only, rather than the formatter's plots.
+    environment(setup_guides) <- baseenv()
+    for (i in seq_len(n)) {
+      guides <- plots[[i]]$guides
+      parent <- guides$.fmt_legend_parent %||% guides
+      updates <- utils::modifyList(guides$.fmt_legend_args %||% list(),
+                                   list(layout = guide_args))
+      if (!is.null(point_size)) updates$point_size <- point_size
+      plots[[i]]$guides <- do.call(ggplot2::ggproto, list(NULL, guides,
+        .fmt_legend_parent = parent, .fmt_legend_args = updates, setup = setup_guides))
+    }
   }
 
   # ---- Collect legends mode for patchwork ----
@@ -1002,24 +1001,16 @@ fmt_legend <- function(plot,
                             pw_orig = info$pw_orig, recurse = TRUE)
     combined <- plot + patchwork::plot_layout(guides = "collect")
     combined <- combined & leg_theme
-    if (!is.null(no_title_guides)) combined <- combined & no_title_guides
     if (!is.null(scale_theme))     combined <- combined & scale_theme
-    if (!is.null(scale_guides))    combined <- combined & scale_guides
     if (!is.null(dim_theme))       combined <- combined & dim_theme
-    if (!is.null(dim_guides))      combined <- combined & dim_guides
-    if (!is.null(legend_guides))   combined <- combined & legend_guides
     return(combined)
   }
 
   # ---- Normal mode: apply to each plot ----
   for (i in seq_len(n)) {
     plots[[i]] <- plots[[i]] + leg_theme
-    if (!is.null(no_title_guides)) plots[[i]] <- plots[[i]] + no_title_guides
     if (!is.null(scale_theme))     plots[[i]] <- plots[[i]] + scale_theme
-    if (!is.null(scale_guides))    plots[[i]] <- plots[[i]] + scale_guides
     if (!is.null(dim_theme))       plots[[i]] <- plots[[i]] + dim_theme
-    if (!is.null(dim_guides))      plots[[i]] <- plots[[i]] + dim_guides
-    if (!is.null(legend_guides))   plots[[i]] <- plots[[i]] + legend_guides
   }
 
   .from_plot_list(plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig,
