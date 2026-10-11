@@ -780,6 +780,8 @@ fmt_tag <- function(plot,
 #'   Formatting does not modify caller-owned scales or guides and does not build
 #'   the plot or evaluate layer data callbacks.
 #'   Guide and scale clones do not retain the formatter's input or working plots.
+#'   Repeated unchanged layouts reuse the guide container, and layout updates
+#'   retain a stable parent while preserving current guide settings.
 #'   Collection checks include fixed aesthetics with explicit scale limits when
 #'   layers force their legend display through \code{show.legend = TRUE}.
 #'   Mappings using \code{I()} without explicit scale limits do not block
@@ -1034,7 +1036,8 @@ fmt_legend <- function(plot,
     do.call(ggplot2::ggproto, list(NULL, guide, params = params), envir = baseenv())
   }
   for (i in seq_len(n)) {
-    p <- plots[[i]] + leg_theme
+    p <- plots[[i]]
+    if (length(leg_theme) || isTRUE(attr(leg_theme, "complete"))) p <- p + leg_theme
     th <- ggplot2::theme_get() + p$theme
     if (inherits(p$guides, "Guides")) {
       guides <- p$guides$guides
@@ -1149,16 +1152,25 @@ fmt_legend <- function(plot,
       updates <- utils::modifyList(guides$.fmt_legend_args %||% list(),
                                    list(layout = guide_args))
       if (scaling) updates$scale <- (updates$scale %||% 1) * factor
-      plots[[i]]$guides <- do.call(ggplot2::ggproto, list(NULL, guides,
-        .fmt_legend_parent = parent, .fmt_legend_args = updates,
-        .fmt_legend_process_keys = list(process_keys), setup = setup_guides), envir = baseenv())
+      if (identical(updates, guides$.fmt_legend_args)) next
+      members <- as.list(guides, all.names = TRUE)
+      inherited <- as.list(parent, all.names = TRUE)
+      members <- members[!vapply(names(members), function(nm) {
+        identical(members[[nm]], inherited[[nm]])
+      }, logical(1))]
+      members$.fmt_legend_parent <- parent
+      members$.fmt_legend_args <- updates
+      members$.fmt_legend_process_keys <- list(process_keys)
+      members$setup <- setup_guides
+      plots[[i]]$guides <- do.call(ggplot2::ggproto, c(list(NULL, parent), members),
+                                 envir = baseenv())
     }
   }
 
   # ---- Collect legends mode for patchwork ----
   output <- .from_plot_list(plots, info$is_patchwork, info$is_single,
                             pw_orig = info$pw_orig, recurse = TRUE)
-  if (collect && info$is_patchwork) {
+  if (collect && info$is_patchwork && !identical(output$patches$layout$guides, "collect")) {
     output <- output + patchwork::plot_layout(guides = "collect")
   }
   collection_skipped <- FALSE

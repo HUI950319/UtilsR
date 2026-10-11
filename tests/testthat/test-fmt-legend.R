@@ -773,6 +773,37 @@ test_that("legend scaling includes inherited text margins without changing other
   }
 })
 
+test_that("unchanged legend layouts reuse containers and changed defaults stay bounded", {
+  p <- legend_test_plot()
+  for (input in list(p, p + ggplot2::guides(colour = ggplot2::guide_legend(reverse = TRUE)))) {
+    output <- fmt_legend(input, ncol = 2)
+    first <- output
+    bytes <- length(serialize(output, NULL))
+    for (i in seq_len(100L)) output <- fmt_legend(output, ncol = 2)
+    expect_true(identical(output$guides, first$guides))
+    expect_equal(length(serialize(output, NULL)), bytes)
+    restored <- unserialize(serialize(output, NULL))
+    expect_equal(legend_test_box_size(restored), legend_test_box_size(first))
+    expect_identical(ggplot2::ggplot_build(restored)$data, ggplot2::ggplot_build(input)$data)
+  }
+  output <- fmt_legend(p, ncol = 2)
+  parent <- output$guides$.fmt_legend_parent
+  bytes <- length(serialize(output, NULL))
+  for (i in seq_len(20L)) {
+    output <- fmt_legend(output, ncol = if (i %% 2L) 3 else 2)
+    expect_identical(output$guides$.fmt_legend_parent, parent)
+  }
+  expect_equal(length(serialize(output, NULL)), bytes)
+  edited <- output + ggplot2::guides(colour = ggplot2::guide_legend(
+    ncol = 3, reverse = TRUE, override.aes = list(size = 4)))
+  scaled <- fmt_legend(edited, scale = 0.5)
+  params <- ggplot2::ggplot_build(scaled)$plot$guides$params[[1]]
+  expect_equal(params$ncol, 3)
+  expect_true(params$reverse)
+  expect_equal(params$decor[[1]]$data$size, rep(2, 3))
+  expect_no_error(ggplot2::ggplotGrob(scaled))
+})
+
 test_that("guide clones do not retain formatter plots or grow with repeated calls", {
   p <- legend_test_plot()
   for (args in list(list(scale = 1), list(ncol = 2), list(title = "New group"),
