@@ -348,3 +348,23 @@ test_that("legend calls without formatting retain exact objects and validate con
   expect_error(fmt_legend(1), "Input")
   expect_error(fmt_legend(list(good = p, bad = "bad")), "ggplot")
 })
+
+test_that("local guide scaling follows its own position", {
+  for (continuous in c(FALSE, TRUE)) {
+    for (position in c("top", "bottom", "left", "right")) {
+      guide <- if (continuous) ggplot2::guide_colourbar(position = position,
+        theme = ggplot2::theme()) else ggplot2::guide_legend(position = position,
+        theme = ggplot2::theme())
+      input <- legend_test_plot(continuous) + ggplot2::guides(colour = guide)
+      output <- fmt_legend(input, scale = 1)
+      expect_equal(legend_test_box_size(output), legend_test_box_size(input))
+      expect_identical(ggplot2::ggplot_build(output)$plot$guides$guides[[1]]$params$position,
+                       position)
+    }
+  }
+  guide <- ggplot2::guide_colourbar(position = "bottom", direction = "vertical",
+                                   theme = ggplot2::theme())
+  input <- legend_test_plot(TRUE) + ggplot2::guides(colour = guide)
+  expect_equal(legend_test_box_size(fmt_legend(input, scale = 1)),
+               legend_test_box_size(input))
+})

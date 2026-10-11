@@ -85,6 +85,7 @@ collect legends across a multi-plot patchwork.
 Existing guide types, order, reversal and aesthetic overrides are
   retained. Layout controls apply to symbol legends; continuous colour bars
   and colour steps retain their native guide type. Disabled guides stay hidden.
+  Local guide dimensions use the guide's own position and direction.
   Formatting does not modify caller-owned scales or guides and does not build
   the plot or evaluate layer data callbacks.
 

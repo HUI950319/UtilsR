@@ -762,6 +762,7 @@ fmt_tag <- function(plot,
 #' @details Existing guide types, order, reversal and aesthetic overrides are
 #'   retained. Layout controls apply to symbol legends; continuous colour bars
 #'   and colour steps retain their native guide type. Disabled guides stay hidden.
+#'   Local guide dimensions use the guide's own position and direction.
 #'   Formatting does not modify caller-owned scales or guides and does not build
 #'   the plot or evaluate layer data callbacks.
 #'
@@ -963,7 +964,7 @@ fmt_legend <- function(plot,
       if (scaling || !is.null(scale_width) || !is.null(scale_height)) {
         drawing <- params
         drawing$direction <- params$direction %||% local$legend.direction %||%
-          th$legend.direction %||% if ((th$legend.position %||% "right") %in%
+          th$legend.direction %||% if ((params$position %||% th$legend.position %||% "right") %in%
                                        c("top", "bottom")) "horizontal" else "vertical"
         elements <- guide$setup_elements(drawing, guide$elements, th)
         args <- list()
