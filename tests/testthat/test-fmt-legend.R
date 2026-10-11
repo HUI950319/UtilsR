@@ -368,3 +368,32 @@ test_that("local guide scaling follows its own position", {
   expect_equal(legend_test_box_size(fmt_legend(input, scale = 1)),
                legend_test_box_size(input))
 })
+
+test_that("inside legends survive requested and existing collection", {
+  p <- legend_test_plot()
+  for (position in list("br", "inside", c(0.9, 0.1))) {
+    expect_warning(output <- fmt_legend(p | p, collect = TRUE,
+                                         legend.position = position), "inside.*keep")
+    expect_identical(output$patches$layout$guides, "keep")
+    expect_equal(sum(legend_test_labels(patchwork::patchworkGrob(output)) == "group"), 2)
+  }
+  expect_warning(output <- fmt_legend(p | p, collect = TRUE,
+    legend_theme = ggplot2::theme(legend.position = "inside")), "inside.*keep")
+  expect_equal(sum(legend_test_labels(patchwork::patchworkGrob(output)) == "group"), 2)
+  inside <- p + ggplot2::theme(legend.position = "inside")
+  expect_warning(mixed <- fmt_legend(inside | p, collect = TRUE), "inside.*keep")
+  expect_equal(sum(legend_test_labels(patchwork::patchworkGrob(mixed)) == "group"), 2)
+  local <- p + ggplot2::guides(colour = ggplot2::guide_legend(position = "inside"))
+  expect_warning(output <- fmt_legend(local | p, collect = TRUE), "inside.*keep")
+  expect_equal(sum(legend_test_labels(patchwork::patchworkGrob(output)) == "group"), 2)
+  child <- (p | p) + patchwork::plot_layout(guides = "collect")
+  nested <- (child / p) + patchwork::plot_layout(guides = "collect") +
+    patchwork::plot_annotation(title = "Keep title", tag_levels = "A")
+  expect_warning(output <- fmt_legend(nested, legend.position = "br"), "inside.*keep")
+  expect_identical(output$patches$layout$guides, "keep")
+  expect_identical(output[[1]]$patches$layout$guides, "keep")
+  expect_identical(output$patches$annotation$title, "Keep title")
+  expect_identical(output$patches$annotation$tag_levels, "A")
+  expect_equal(sum(legend_test_labels(patchwork::patchworkGrob(output)) == "group"), 3)
+  expect_identical(nested$patches$layout$guides, "collect")
+})

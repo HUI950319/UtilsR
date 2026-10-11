@@ -732,6 +732,8 @@ fmt_tag <- function(plot,
 #' @param collect Logical. If `TRUE` and input is a patchwork, collect guides
 #'   at its top level, including a single data plot with a guide area.
 #'   Identical rendered guides are deduplicated; different guides remain separate.
+#'   Collection is skipped with a warning for layouts containing inside legends;
+#'   their guides are kept in each subplot instead of being dropped by patchwork.
 #'   List inputs retain their list type and produce a warning when collection is
 #'   requested. Default `FALSE`.
 #' @param title Character vector of legend titles, one per subplot. Recycled
@@ -1104,6 +1106,20 @@ fmt_legend <- function(plot,
   if (collect && info$is_patchwork) {
     output <- output + patchwork::plot_layout(guides = "collect")
   }
+  collection_skipped <- FALSE
+  has_inside_legend <- function(p) {
+    positions <- list((ggplot2::theme_get() + p$patches$annotation$theme)$legend.position)
+    for (leaf in .to_plot_list(p, recurse = TRUE)$plots) {
+      positions <- c(positions, list((ggplot2::theme_get() + leaf$theme)$legend.position))
+      guides <- c(leaf$guides$guides, lapply(leaf$scales$scales, function(sc) sc$guide))
+      positions <- c(positions, lapply(guides, function(guide) {
+        if (inherits(guide, "Guide") && !inherits(guide, "GuideNone")) guide$params$position
+      }))
+    }
+    any(vapply(positions, function(position) {
+      identical(position, "inside") || (is.numeric(position) && length(position) == 2L)
+    }, logical(1)))
+  }
   sync_collection_theme <- function(p) {
     if (inherits(p, "inset_patch") && (!inherits(p, "patchwork") ||
         match("inset_patch", class(p)) < match("patchwork", class(p)))) return(p)
@@ -1113,7 +1129,11 @@ fmt_legend <- function(plot,
         if (inherits(p[[i]], "patchwork")) p[[i]] <- sync_collection_theme(p[[i]])
       }
       if (identical(p$patches$layout$guides, "collect")) {
-        p <- p + patchwork::plot_annotation(theme = leg_theme)
+        if (length(leg_theme)) p <- p + patchwork::plot_annotation(theme = leg_theme)
+        if (has_inside_legend(p)) {
+          p <- p + patchwork::plot_layout(guides = "keep")
+          collection_skipped <<- TRUE
+        }
       }
       if (!is.null(free_settings)) {
         attr(p, "patchwork_free_settings") <- free_settings
@@ -1124,7 +1144,10 @@ fmt_legend <- function(plot,
     }
     p
   }
-  if (length(leg_theme)) output <- sync_collection_theme(output)
+  output <- sync_collection_theme(output)
+  if (collection_skipped) {
+    cli::cli_warn("Guide collection is skipped for layouts containing inside legends; guides use 'keep' to remain visible in each subplot.")
+  }
   output
 }
 

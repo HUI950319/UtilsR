@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_legend()` warns and keeps subplot guides when requested or existing
+  collection layouts contain inside legends, preventing their silent loss.
+
 * `fmt_legend()` resolves local guide dimensions from the guide's own position,
   retaining horizontal colour bars and legend title margins when scaling by one.
 
