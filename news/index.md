@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
+  scales inherited legend text and title margins, leaving other plot
+  text unchanged and retaining automatic margin adaptation.
+
+- [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
   collects guides normally when inside plots only use
   [`I()`](https://rdrr.io/r/base/AsIs.html) mappings without explicit
   scale limits, retaining real guides and layer mapping overrides

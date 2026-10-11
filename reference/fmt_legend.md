@@ -79,8 +79,8 @@ fmt_legend(
   shrink to 80%, `1.2` = enlarge to 120%. Adjusts key size, text size,
   title size, point size, and spacing together, including explicit
   `legend.key.spacing.x/y`. Also scales `legend.margin`,
-  `legend.box.margin` and explicit margins in `legend.text` and
-  `legend.title`. Each subplot uses its own theme after applying new
+  `legend.box.margin` and margins set on or inherited by `legend.text`
+  and `legend.title`. Each subplot uses its own theme after applying new
   legend styling. Blank text and title elements remain blank, and grid
   units are retained. Default `NULL` (no scaling).
 
