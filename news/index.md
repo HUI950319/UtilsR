@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
+  reuses unchanged guide layouts and keeps a stable container parent for
+  layout updates, preventing accumulated wrappers during repeated
+  formatting while retaining later native guide edits.
+
+- [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
   scales inherited legend text and title margins, leaving other plot
   text unchanged and retaining automatic margin adaptation.
 

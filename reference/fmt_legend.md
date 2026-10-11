@@ -130,7 +130,9 @@ their glyph factors without recursive callbacks. Hiding via
 position change can show them again; disabled guides stay disabled.
 Formatting does not modify caller-owned scales or guides and does not
 build the plot or evaluate layer data callbacks. Guide and scale clones
-do not retain the formatter's input or working plots. Collection checks
+do not retain the formatter's input or working plots. Repeated unchanged
+layouts reuse the guide container, and layout updates retain a stable
+parent while preserving current guide settings. Collection checks
 include fixed aesthetics with explicit scale limits when layers force
 their legend display through `show.legend = TRUE`. Mappings using
 [`I()`](https://rdrr.io/r/base/AsIs.html) without explicit scale limits
