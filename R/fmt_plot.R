@@ -766,6 +766,7 @@ fmt_tag <- function(plot,
 #' @details Existing guide types, order, reversal and aesthetic overrides are
 #'   retained. Layout controls apply to symbol legends; continuous colour bars
 #'   and colour steps retain their native guide type. Disabled guides stay hidden.
+#'   Explicit axis guides remain unchanged.
 #'   Local guide dimensions use the guide's own position and direction.
 #'   Hiding via \code{legend.position = "none"} retains explicit guide settings,
 #'   so a later position change can show them again; disabled guides stay disabled.
@@ -1015,7 +1016,8 @@ fmt_legend <- function(plot,
     th <- ggplot2::theme_get() + p$theme
     if (inherits(p$guides, "Guides")) {
       guides <- p$guides$guides
-      if (length(guides)) guides <- lapply(guides, style_guide, th = th)
+      selected <- names(guides)[is_legend_aes(names(guides))]
+      if (length(selected)) guides[selected] <- lapply(guides[selected], style_guide, th = th)
       if (!identical(guides, p$guides$guides)) {
         p$guides <- do.call(ggplot2::ggproto, list(NULL, p$guides, guides = guides),
                             envir = baseenv())

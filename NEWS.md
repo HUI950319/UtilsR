@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_legend()` leaves explicit axis guides unchanged when positioning,
+  styling or resizing legends, preventing misplaced axes and scaling errors.
+
 * `fmt_legend()` validates controls for empty lists, spacers, guide areas and
   wrapped graphics before returning containers without editable data plots.
 

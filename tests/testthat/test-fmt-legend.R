@@ -120,6 +120,26 @@ legend_test_box_size <- function(p) {
     height = grid::convertHeight(sum(box$heights), "mm", valueOnly = TRUE))
 }
 
+test_that("legend formatting leaves explicit axis guides untouched", {
+  axis <- ggplot2::guide_axis(angle = 45,
+    theme = ggplot2::theme(axis.text.x = ggplot2::element_text(size = 10)))
+  p <- legend_test_plot() + ggplot2::guides(x = axis, y = ggplot2::guide_axis())
+  axes <- function(p) {
+    g <- ggplot2::ggplotGrob(p)
+    lapply(g$grobs[grepl("^axis-", g$layout$name)], legend_test_labels)
+  }
+  before <- axes(p)
+  for (args in list(list(legend.position = "right"), list(legend.position = "none"),
+                   list(legend.direction = "horizontal"), list(scale = 0.8),
+                   list(scale_width = 1.2, scale_height = 0.7))) {
+    expect_no_error(output <- do.call(fmt_legend, c(list(plot = p), args)))
+    expect_identical(output$guides$guides$x, p$guides$guides$x)
+    expect_identical(output$guides$guides$y, p$guides$guides$y)
+    expect_warning(after <- axes(output), NA)
+    expect_identical(after, before)
+  }
+})
+
 test_that("legend scaling retains units and scale one preserves rendered size", {
   for (unit in list(grid::unit(4, "mm"), grid::unit(0.4, "cm"),
                     grid::unit(10, "pt"), grid::unit(0.8, "lines"),
