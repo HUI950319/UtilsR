@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_legend()` respects later explicit guide layout definitions from
+  `guides()` and scales while retaining deferred layout for default guides.
+
 * `fmt_legend()` scales legend glyphs with both ggplot2 3.5 and current guide
   callbacks, passing the theme only when the native method supports it.
 

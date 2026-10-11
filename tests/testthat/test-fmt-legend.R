@@ -133,6 +133,31 @@ legend_test_box_size <- function(p) {
     height = grid::convertHeight(sum(box$heights), "mm", valueOnly = TRUE))
 }
 
+test_that("later native legend layout edits override earlier formatting", {
+  p <- legend_test_plot()
+  earlier <- ggplot2::guide_legend(ncol = 1, reverse = TRUE)
+  input <- p + ggplot2::guides(colour = earlier)
+  changed <- fmt_legend(input, ncol = 2)
+  expect_equal(ggplot2::ggplot_build(changed)$plot$guides$params[[1L]]$ncol, 2)
+  expect_equal(earlier$params$ncol, 1)
+  for (replacement in list(ggplot2::guide_legend(ncol = 3),
+                           ggplot2::guide_legend(nrow = 1), ggplot2::guide_legend())) {
+    for (input in list(p, p + ggplot2::guides(colour = earlier),
+                       p + ggplot2::scale_colour_discrete(guide = earlier))) {
+      formatted <- fmt_legend(input, ncol = 2, nrow = 2) +
+        ggplot2::guides(colour = replacement)
+      params <- ggplot2::ggplot_build(formatted)$plot$guides$params[[1L]]
+      expect_identical(params$ncol, replacement$params$ncol)
+      expect_identical(params$nrow, replacement$params$nrow)
+      expect_equal(legend_test_box_size(formatted),
+                   legend_test_box_size(input + ggplot2::guides(colour = replacement)))
+    }
+  }
+  changed <- fmt_legend(p, ncol = 2, scale = 0.5) +
+    ggplot2::scale_colour_discrete(guide = ggplot2::guide_legend(ncol = 3))
+  expect_equal(ggplot2::ggplot_build(changed)$plot$guides$params[[1L]]$ncol, 3)
+})
+
 test_that("legend formatting leaves explicit axis guides untouched", {
   axis <- ggplot2::guide_axis(angle = 45,
     theme = ggplot2::theme(axis.text.x = ggplot2::element_text(size = 10)))

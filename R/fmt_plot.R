@@ -767,6 +767,7 @@ fmt_tag <- function(plot,
 #'   retained. Layout controls apply to symbol legends; continuous colour bars
 #'   and colour steps retain their native guide type. Disabled guides stay hidden.
 #'   Explicit axis guides remain unchanged.
+#'   Later explicit guide definitions replace earlier layout controls.
 #'   Local guide dimensions use the guide's own position and direction.
 #'   Hiding via \code{legend.position = "none"} retains explicit guide settings,
 #'   so a later position change can show them again; disabled guides stay disabled.
@@ -959,6 +960,10 @@ fmt_legend <- function(plot,
     leg_theme <- leg_theme + legend_theme
   }
 
+  guide_args <- list()
+  if (!is.null(ncol)) guide_args$ncol <- ncol
+  if (!is.null(nrow)) guide_args$nrow <- nrow
+
   # ---- Style and scale each subplot from its effective theme ----
   get_unit <- function(theme, element) {
     el <- ggplot2::calc_element(element, theme)
@@ -969,6 +974,8 @@ fmt_legend <- function(plot,
   style_guide <- function(guide, th) {
     if (!inherits(guide, "Guide") || inherits(guide, "GuideNone")) return(guide)
     params <- guide$params
+    if (length(guide_args) && inherits(guide, "GuideLegend") &&
+        !inherits(guide, "GuideColourbar")) params[names(guide_args)] <- guide_args
     if (!is.null(leg_theme$legend.position)) {
       params$position <- if (identical(leg_theme$legend.position, "none")) NULL else
         leg_theme$legend.position
@@ -1062,11 +1069,7 @@ fmt_legend <- function(plot,
     plots[[i]] <- p
   }
 
-  # ---- Guide layout (ncol/nrow) ----
-  guide_args <- list()
-  if (!is.null(ncol)) guide_args$ncol <- ncol
-  if (!is.null(nrow)) guide_args$nrow <- nrow
-
+  # ---- Resolve default guide layout and glyph scaling during building ----
   if (length(guide_args) || scaling) {
     process_keys <- function(self, params, layers, data = NULL, theme = NULL) {
       native <- ggplot2::ggproto_parent(self$.fmt_legend_source, self)$process_layers
@@ -1088,13 +1091,16 @@ fmt_legend <- function(plot,
       resolved <- ggplot2::ggproto_parent(self$.fmt_legend_parent, self)$setup(
         scales, aesthetics, default, missing
       )
+      explicit <- c(self$guides, lapply(scales, function(sc) sc$guide))
       guides <- lapply(seq_along(resolved$guides), function(j) {
         guide <- resolved$guides[[j]]
         if (!inherits(guide, "GuideLegend") ||
             inherits(guide, c("GuideColourbar", "GuideNone"))) return(guide)
         params <- guide$params
         updates <- self$.fmt_legend_args
-        params[names(updates$layout)] <- updates$layout
+        if (!any(vapply(explicit, identical, logical(1), y = guide))) {
+          params[names(updates$layout)] <- updates$layout
+        }
         if (!is.null(updates$scale)) {
           return(do.call(ggplot2::ggproto, list(NULL, guide, params = params,
             .fmt_legend_source = guide, .fmt_legend_scale = updates$scale,

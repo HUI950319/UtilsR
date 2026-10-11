@@ -90,6 +90,7 @@ Existing guide types, order, reversal and aesthetic overrides are
   retained. Layout controls apply to symbol legends; continuous colour bars
   and colour steps retain their native guide type. Disabled guides stay hidden.
   Explicit axis guides remain unchanged.
+  Later explicit guide definitions replace earlier layout controls.
   Local guide dimensions use the guide's own position and direction.
   Hiding via \code{legend.position = "none"} retains explicit guide settings,
   so a later position change can show them again; disabled guides stay disabled.
