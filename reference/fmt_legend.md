@@ -59,10 +59,11 @@ fmt_legend(
   Logical. If \`TRUE\` and input is a patchwork, collect guides at its
   top level, including a single data plot with a guide area. Identical
   rendered guides are deduplicated; different guides remain separate.
-  Collection is skipped with a warning for layouts containing inside
-  legends; their guides are kept in each subplot instead of being
-  dropped by patchwork. List inputs retain their list type and produce a
-  warning when collection is requested. Default \`FALSE\`.
+  Collection is skipped with a warning when its scope contains visible
+  inside legends; their guides are kept in each subplot instead of being
+  dropped by patchwork. Nested `keep` layouts and disabled guides do not
+  block outer collection. List inputs retain their list type and produce
+  a warning when collection is requested. Default \`FALSE\`.
 
 - title:
 
