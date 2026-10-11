@@ -407,6 +407,30 @@ test_that("legend calls without formatting retain exact objects and validate con
   expect_error(fmt_legend(list(good = p, bad = "bad")), "ggplot")
 })
 
+test_that("neutral legend factors retain exact objects without accumulating clones", {
+  p <- legend_test_plot()
+  local <- p + ggplot2::guides(colour = ggplot2::guide_legend(position = "bottom",
+    theme = ggplot2::theme(legend.text = ggplot2::element_text(size = 12))))
+  for (input in list(p, local, list(left = p, right = local), p | local)) {
+    for (args in list(list(scale = 1), list(scale_width = 1L), list(scale_height = 1),
+                     list(scale = 1L, scale_width = 1, scale_height = 1), list(scale = c(one = 1)))) {
+      expect_identical(do.call(fmt_legend, c(list(plot = input), args)), input)
+    }
+  }
+  output <- local
+  before <- length(serialize(output, NULL))
+  for (i in seq_len(50L)) output <- fmt_legend(output, scale = 1, scale_width = 1, scale_height = 1)
+  expect_identical(output, local)
+  expect_identical(length(serialize(output, NULL)), before)
+  expect_equal(legend_test_box_size(output), legend_test_box_size(local))
+  styled <- fmt_legend(p, scale = 1, scale_width = 1, title = "Changed", ncol = 2)
+  expect_equal(ggplot2::ggplot_build(styled)$plot$guides$params[[1L]]$ncol, 2)
+  expect_equal(sum(legend_test_labels(ggplot2::ggplotGrob(styled)) == "Changed"), 1L)
+  expect_error(fmt_legend(1, scale = 1), "Input")
+  expect_error(fmt_legend(p, scale = 1, ncol = 0), "ncol")
+  expect_error(fmt_legend(p, scale = TRUE), "scale")
+})
+
 test_that("local guide scaling follows its own position", {
   for (continuous in c(FALSE, TRUE)) {
     for (position in c("top", "bottom", "left", "right")) {
@@ -585,7 +609,7 @@ test_that("guide clones do not retain formatter plots or grow with repeated call
     expect_equal(legend_test_box_size(restored), legend_test_box_size(input))
     expect_identical(ggplot2::ggplot_build(restored)$data, ggplot2::ggplot_build(p)$data)
   }
-  output <- fmt_legend(p, scale = 1)
+  output <- fmt_legend(p, scale = 0.8)
   retained <- get("env", envir = environment(get("super", envir = output$guides,
                                                 inherits = FALSE)), inherits = FALSE)
   expect_false(any(c("plots", "output", "info") %in% ls(retained)))

@@ -783,7 +783,8 @@ fmt_tag <- function(plot,
 #'   retained. Spacers, guide areas, wrapped graphics and inset overlays are
 #'   preserved. Position, style and spacing changes also apply to annotations of
 #'   existing collected-guide layouts at each nesting level.
-#'   Calls with no formatting controls return the original object unchanged
+#'   Calls with no formatting controls or only neutral size factors return the
+#'   original object unchanged
 #'   after checking the input container.
 #'   Parameter validation also applies to containers without editable data plots.
 #'
@@ -817,6 +818,11 @@ fmt_legend <- function(plot,
                        ncol = NULL,
                        nrow = NULL,
                        ...) {
+  for (nm in c("scale", "scale_width", "scale_height")) {
+    value <- get(nm)
+    if (is.numeric(value) && !is.complex(value) && length(value) == 1L &&
+        is.finite(value) && value == 1) assign(nm, NULL)
+  }
   if (is.null(legend.position) && is.null(legend.direction) && is.null(legend_theme) &&
       identical(collect, FALSE) && is.null(title) && is.null(scale) &&
       is.null(scale_width) && is.null(scale_height) && is.null(ncol) &&
@@ -1056,7 +1062,7 @@ fmt_legend <- function(plot,
       unit_elements <- c("legend.key.size", "legend.key.width", "legend.key.height",
                          "legend.key.spacing.x", "legend.key.spacing.y",
                          "legend.spacing", "legend.spacing.x", "legend.spacing.y",
-                          "legend.box.spacing", "legend.margin", "legend.box.margin")
+                         "legend.box.spacing", "legend.margin", "legend.box.margin")
       for (element in intersect(unit_elements, names(ggplot2::get_element_tree()))) {
         if (!is.null(th[[element]])) scale_args[[element]] <- get_unit(th, element) * factor
       }

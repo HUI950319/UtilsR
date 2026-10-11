@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_legend()` treats size factors of one as unchanged, returning the exact
+  input for neutral-only calls and avoiding accumulated guide clones. Mixed
+  calls still apply their other formatting controls and validate inputs.
+
 * `fmt_legend()` includes explicit legend, box, text and title margins in
   overall scaling, including local guides and collected guide boxes. Automatic
   text margins remain adaptive, and independent key sizing leaves margins alone.
