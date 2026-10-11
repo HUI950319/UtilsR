@@ -780,6 +780,8 @@ fmt_tag <- function(plot,
 #'   Formatting does not modify caller-owned scales or guides and does not build
 #'   the plot or evaluate layer data callbacks.
 #'   Guide and scale clones do not retain the formatter's input or working plots.
+#'   Collection checks include fixed aesthetics with explicit scale limits when
+#'   layers force their legend display through \code{show.legend = TRUE}.
 #'
 #'   Nested patchwork layouts, annotations, list names and free settings are
 #'   retained. Spacers, guide areas, wrapped graphics and inset overlays are
@@ -1171,10 +1173,16 @@ fmt_legend <- function(plot,
       }, logical(1))))
     }
     if (inherits(p, c("spacer", "guide_area", "wrapped_patch"))) return(FALSE)
+    fixed <- unique(unlist(lapply(p$scales$scales, function(sc) {
+      if (!is.null(sc$limits)) sc$aesthetics else character()
+    })))
     mapped <- unique(unlist(lapply(p$layers, function(layer) {
       if (identical(layer$show.legend, FALSE)) return(character())
       aesthetics <- names(layer$mapping)
       if (isTRUE(layer$inherit.aes)) aesthetics <- union(aesthetics, names(p$mapping))
+      forced <- if (isTRUE(layer$show.legend)) names(layer$geom$default_aes) else
+        names(layer$show.legend)[which(layer$show.legend %in% TRUE)]
+      aesthetics <- union(aesthetics, intersect(forced, fixed))
       hidden <- names(layer$show.legend)[!is.na(layer$show.legend) & !layer$show.legend]
       setdiff(aesthetics, hidden)
     })))

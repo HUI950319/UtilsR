@@ -566,6 +566,45 @@ test_that("inside legends survive requested and existing collection", {
   expect_identical(nested$patches$layout$guides, "collect")
 })
 
+test_that("fixed aesthetic legends retain inside positions during collection", {
+  p <- legend_test_plot()
+  for (show in list(TRUE, c(colour = TRUE))) {
+    fixed <- ggplot2::ggplot(p$data, ggplot2::aes(x, y)) +
+      ggplot2::geom_point(colour = "red", show.legend = show) +
+      ggplot2::scale_colour_manual(values = c(A = "red", B = "blue"), limits = c("A", "B")) +
+      ggplot2::theme(legend.position = "inside", legend.position.inside = c(0.8, 0.8))
+    for (input in list(fixed | fixed,
+                      (fixed | fixed) + patchwork::plot_layout(guides = "collect"))) {
+      expect_warning(output <- fmt_legend(input, collect = TRUE), "collection is skipped")
+      expect_identical(output$patches$layout$guides, "keep")
+      g <- patchwork::patchworkGrob(output)
+      inside <- grepl("^guide-box-inside", g$layout$name) &
+        vapply(g$grobs, inherits, logical(1), "gtable")
+      expect_equal(sum(inside), 2)
+      expect_equal(sum(legend_test_labels(g) == "A"), 2)
+      expect_identical(ggplot2::ggplot_build(output[[1]])$data,
+                       ggplot2::ggplot_build(fixed)$data)
+    }
+    hidden <- fixed + ggplot2::guides(colour = "none")
+    expect_warning(output <- fmt_legend(hidden | hidden, collect = TRUE), NA)
+    expect_identical(output$patches$layout$guides, "collect")
+  }
+  untrained <- ggplot2::ggplot(p$data, ggplot2::aes(x, y)) +
+    ggplot2::geom_point(colour = "red", show.legend = TRUE) +
+    ggplot2::scale_colour_discrete() + ggplot2::theme(legend.position = "inside")
+  expect_warning(output <- fmt_legend(untrained | untrained, collect = TRUE), NA)
+  expect_identical(output$patches$layout$guides, "collect")
+  calls <- 0L
+  deferred <- ggplot2::ggplot(p$data, ggplot2::aes(x, y)) +
+    ggplot2::geom_point(colour = "red", show.legend = TRUE,
+      data = function(data) { calls <<- calls + 1L; data }) +
+    ggplot2::scale_colour_manual(values = c(A = "red", B = "blue"),
+      limits = function(x) { calls <<- calls + 1L; c("A", "B") }) +
+    ggplot2::theme(legend.position = "inside")
+  expect_warning(fmt_legend(deferred | deferred, collect = TRUE), "collection is skipped")
+  expect_identical(calls, 0L)
+})
+
 test_that("legend collection only checks visible guides in its own scope", {
   p <- legend_test_plot()
   inside <- p + ggplot2::theme(legend.position = "inside")
