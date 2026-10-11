@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_legend()` checks visible guides within each collection scope, respecting
+  nested `keep` layouts, explicit guide positions and disabled guides instead
+  of cancelling unrelated outer guide collection.
+
 * `fmt_legend()` retains automatic local guide dimensions and text margins,
   allowing scaled colour bars and legends to adapt when their position changes.
 

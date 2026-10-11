@@ -479,6 +479,33 @@ test_that("inside legends survive requested and existing collection", {
   expect_identical(nested$patches$layout$guides, "collect")
 })
 
+test_that("legend collection only checks visible guides in its own scope", {
+  p <- legend_test_plot()
+  inside <- p + ggplot2::theme(legend.position = "inside")
+  kept <- (inside | inside) + patchwork::plot_layout(guides = "keep")
+  scoped <- (kept / (p | p)) + patchwork::plot_layout(guides = "collect")
+  outside <- inside + ggplot2::guides(colour = ggplot2::guide_legend(position = "right"))
+  scale_outside <- inside + ggplot2::scale_colour_discrete(
+    guide = ggplot2::guide_legend(position = "right"))
+  hidden <- list(inside + ggplot2::guides(colour = "none"),
+                 inside + ggplot2::guides(colour = ggplot2::guide_none()),
+                 inside + ggplot2::scale_colour_discrete(guide = "none"))
+  no_keys <- ggplot2::ggplot(p$data, p$mapping) + ggplot2::geom_point(show.legend = FALSE) +
+    ggplot2::theme(legend.position = "inside")
+  inputs <- c(list(scoped, outside | outside, scale_outside | scale_outside,
+                   no_keys | p | p,
+                   (p + ggplot2::guides(fill = ggplot2::guide_legend(position = "inside"))) | p),
+              lapply(hidden, function(x) x | p | p))
+  for (input in inputs) {
+    native <- input + patchwork::plot_layout(guides = "collect")
+    expect_warning(output <- fmt_legend(input, collect = TRUE), NA)
+    expect_identical(output$patches$layout$guides, "collect")
+    expect_equal(sum(legend_test_labels(patchwork::patchworkGrob(output)) == "group"),
+                 sum(legend_test_labels(patchwork::patchworkGrob(native)) == "group"))
+  }
+  expect_identical(fmt_legend(scoped, collect = TRUE)[[1L]]$patches$layout$guides, "keep")
+})
+
 test_that("guide clones do not retain formatter plots or grow with repeated calls", {
   p <- legend_test_plot()
   for (args in list(list(scale = 1), list(ncol = 2), list(title = "New group"),

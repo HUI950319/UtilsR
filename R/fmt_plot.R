@@ -732,8 +732,9 @@ fmt_tag <- function(plot,
 #' @param collect Logical. If `TRUE` and input is a patchwork, collect guides
 #'   at its top level, including a single data plot with a guide area.
 #'   Identical rendered guides are deduplicated; different guides remain separate.
-#'   Collection is skipped with a warning for layouts containing inside legends;
+#'   Collection is skipped with a warning when its scope contains visible inside legends;
 #'   their guides are kept in each subplot instead of being dropped by patchwork.
+#'   Nested \code{keep} layouts and disabled guides do not block outer collection.
 #'   List inputs retain their list type and produce a warning when collection is
 #'   requested. Default `FALSE`.
 #' @param title Character vector of legend titles, one per subplot. Recycled
@@ -1129,18 +1130,42 @@ fmt_legend <- function(plot,
     output <- output + patchwork::plot_layout(guides = "collect")
   }
   collection_skipped <- FALSE
-  has_inside_legend <- function(p) {
-    positions <- list((ggplot2::theme_get() + p$patches$annotation$theme)$legend.position)
-    for (leaf in .to_plot_list(p, recurse = TRUE)$plots) {
-      positions <- c(positions, list((ggplot2::theme_get() + leaf$theme)$legend.position))
-      guides <- c(leaf$guides$guides, lapply(leaf$scales$scales, function(sc) sc$guide))
-      positions <- c(positions, lapply(guides, function(guide) {
-        if (inherits(guide, "Guide") && !inherits(guide, "GuideNone")) guide$params$position
-      }))
+  is_inside <- function(position) {
+    identical(position, "inside") || (is.numeric(position) && length(position) == 2L)
+  }
+  has_inside_legend <- function(p, annotation_inside = FALSE) {
+    if (inherits(p, "inset_patch") && (!inherits(p, "patchwork") ||
+        match("inset_patch", class(p)) < match("patchwork", class(p)))) return(FALSE)
+    if (inherits(p, "patchwork")) {
+      annotation_inside <- annotation_inside || is_inside(
+        (ggplot2::theme_get() + p$patches$annotation$theme)$legend.position)
+      return(any(vapply(seq_along(p), function(i) {
+        child <- p[[i]]
+        if (inherits(child, "patchwork") &&
+            identical(child$patches$layout$guides, "keep")) return(FALSE)
+        has_inside_legend(child, annotation_inside)
+      }, logical(1))))
     }
-    any(vapply(positions, function(position) {
-      identical(position, "inside") || (is.numeric(position) && length(position) == 2L)
-    }, logical(1)))
+    if (inherits(p, c("spacer", "guide_area", "wrapped_patch"))) return(FALSE)
+    mapped <- unique(unlist(lapply(p$layers, function(layer) {
+      if (identical(layer$show.legend, FALSE)) return(character())
+      aesthetics <- names(layer$mapping)
+      if (isTRUE(layer$inherit.aes)) aesthetics <- union(aesthetics, names(p$mapping))
+      hidden <- names(layer$show.legend)[!is.na(layer$show.legend) & !layer$show.legend]
+      setdiff(aesthetics, hidden)
+    })))
+    for (aes in mapped[is_legend_aes(mapped)]) {
+      guide <- p$guides$guides[[aes]]
+      if (is.null(guide) || inherits(guide, "waiver")) {
+        matching <- Filter(function(sc) aes %in% sc$aesthetics, p$scales$scales)
+        guide <- if (length(matching)) matching[[length(matching)]]$guide else NULL
+      }
+      if (identical(guide, "none") || identical(guide, FALSE) || inherits(guide, "GuideNone")) next
+      position <- if (inherits(guide, "Guide")) guide$params$position else NULL
+      position <- position %||% (ggplot2::theme_get() + p$theme)$legend.position
+      if (annotation_inside || is_inside(position)) return(TRUE)
+    }
+    FALSE
   }
   sync_collection_theme <- function(p) {
     if (inherits(p, "inset_patch") && (!inherits(p, "patchwork") ||
