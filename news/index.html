@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/fmt_legend.html">fmt_legend()</a></code> treats size factors of one as unchanged, returning the exact input for neutral-only calls and avoiding accumulated guide clones. Mixed calls still apply their other formatting controls and validate inputs.</p></li>
+<ul><li><p><code><a href="../reference/fmt_legend.html">fmt_legend()</a></code> composes existing glyph factors when a scaled guide is reused, preventing recursive guide callbacks while retaining layout and data.</p></li>
+<li><p><code><a href="../reference/fmt_legend.html">fmt_legend()</a></code> treats size factors of one as unchanged, returning the exact input for neutral-only calls and avoiding accumulated guide clones. Mixed calls still apply their other formatting controls and validate inputs.</p></li>
 <li><p><code><a href="../reference/fmt_legend.html">fmt_legend()</a></code> includes explicit legend, box, text and title margins in overall scaling, including local guides and collected guide boxes. Automatic text margins remain adaptive, and independent key sizing leaves margins alone.</p></li>
 <li><p><code><a href="../reference/fmt_legend.html">fmt_legend()</a></code> scales spacing in collected guide boxes at each patchwork level, including existing annotation themes, without rescaling legend keys.</p></li>
 <li><p><code><a href="../reference/fmt_legend.html">fmt_legend()</a></code> checks visible guides within each collection scope, respecting nested <code>keep</code> layouts, explicit guide positions and disabled guides instead of cancelling unrelated outer guide collection.</p></li>
