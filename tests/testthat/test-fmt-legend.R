@@ -150,3 +150,38 @@ test_that("independent legend dimensions multiply existing and global sizes", {
     expect_no_error(ggplot2::ggplotGrob(output))
   }
 })
+
+test_that("legend scaling uses each subplot and the newly applied theme", {
+  p <- legend_test_plot()
+  plots <- list(p + ggplot2::theme(legend.text = ggplot2::element_text(size = 10),
+                                  legend.key.width = grid::unit(4, "mm")),
+                p + ggplot2::theme(legend.text = ggplot2::element_text(size = 20),
+                                  legend.key.width = grid::unit(8, "mm")))
+  for (input in list(plots, plots[[1]] | plots[[2]])) {
+    output <- fmt_legend(input, scale = 0.5)
+    leaves <- .to_plot_list(output, recurse = TRUE)$plots
+    expect_equal(vapply(leaves, function(x) x$theme$legend.text$size, numeric(1)), c(5, 10))
+    expect_equal(vapply(leaves, function(x) grid::convertWidth(
+      x$theme$legend.key.width, "mm", valueOnly = TRUE), numeric(1)), c(2, 4))
+  }
+  output <- fmt_legend(p, legend_theme = ggplot2::theme(
+    legend.text = ggplot2::element_text(size = 20, colour = "red")), scale = 0.5)
+  expect_equal(output$theme$legend.text$size, 10)
+  expect_identical(output$theme$legend.text$colour, "red")
+  collected <- fmt_legend(plots[[1]] | plots[[2]], collect = TRUE, scale = 0.5,
+                          legend_theme = ggplot2::theme(legend.text = ggplot2::element_text(size = 20)))
+  expect_equal(vapply(.to_plot_list(collected, recurse = TRUE)$plots,
+                      function(x) x$theme$legend.text$size, numeric(1)), c(10, 10))
+  expect_no_error(patchwork::patchworkGrob(collected))
+})
+
+test_that("legend scaling retains blank text and title elements", {
+  p <- legend_test_plot() + ggplot2::theme(legend.title = ggplot2::element_blank())
+  output <- fmt_legend(p, scale = 0.5)
+  expect_s3_class(output$theme$legend.title, "element_blank")
+  expect_false("group" %in% legend_test_labels(ggplot2::ggplotGrob(output)))
+  blank <- fmt_legend(legend_test_plot(), scale = 0.5, legend_theme = ggplot2::theme(
+    legend.title = ggplot2::element_blank(), legend.text = ggplot2::element_blank()))
+  expect_s3_class(blank$theme$legend.text, "element_blank")
+  expect_false(any(c("group", "a", "b", "c") %in% legend_test_labels(ggplot2::ggplotGrob(blank))))
+})

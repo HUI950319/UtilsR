@@ -737,7 +737,9 @@ fmt_tag <- function(plot,
 #' @param scale Numeric. Proportionally scale the entire legend.
 #'   \code{0.8} = shrink to 80\%, \code{1.2} = enlarge to 120\%.
 #'   Adjusts key size, text size, title size, point size, and spacing
-#'   together. Default \code{NULL} (no scaling).
+#'   together. Each subplot uses its own theme after applying new legend styling.
+#'   Blank text and title elements remain blank, and grid units are retained.
+#'   Default \code{NULL} (no scaling).
 #' @param scale_width Numeric. Scale legend key width independently.
 #'   Default \code{NULL} (no change).
 #' @param scale_height Numeric. Scale legend key height independently.
@@ -877,67 +879,57 @@ fmt_legend <- function(plot,
     leg_theme <- leg_theme + legend_theme
   }
 
-  # ---- Scale legend proportionally ----
-  scale_theme <- NULL
-  point_size <- NULL
-  get_unit <- function(p, element) {
-    el <- ggplot2::calc_element(element, ggplot2::theme_get() + p$theme)
+  # ---- Style and scale each subplot from its effective theme ----
+  point_sizes <- rep(list(NULL), n)
+  get_unit <- function(theme, element) {
+    el <- ggplot2::calc_element(element, theme)
     if (grid::is.unit(el)) el else grid::unit(1.2, "lines")
   }
-  if (!is.null(scale) && is.numeric(scale) && scale > 0) {
-    .get_size <- function(p, element) {
-      th <- ggplot2::theme_get() + p$theme
-      el <- ggplot2::calc_element(element, th)
-      if (inherits(el, "element_text") && !is.null(el$size)) el$size
-      else NULL
+  get_point_size <- function(p) {
+    for (layer in p$layers) {
+      if (inherits(layer$geom, "GeomPoint")) {
+        sz <- tryCatch({
+          s <- layer$aes_params$size
+          if (is.null(s)) s <- layer$geom$default_aes$size
+          if (is.numeric(s)) s else as.numeric(s)
+        }, error = function(e) NULL)
+        if (!is.null(sz) && is.numeric(sz)) return(sz)
+      }
     }
-    .get_point_size <- function(p) {
-      for (layer in p$layers) {
-        if (inherits(layer$geom, "GeomPoint")) {
-          sz <- tryCatch({
-            s <- layer$aes_params$size
-            if (is.null(s)) s <- layer$geom$default_aes$size
-            if (is.numeric(s)) s else as.numeric(s)
-          }, error = function(e) NULL)
-          if (!is.null(sz) && is.numeric(sz)) return(sz)
+    1.5
+  }
+  scaling <- !is.null(scale) && is.numeric(scale) && scale > 0
+  for (i in seq_len(n)) {
+    p <- plots[[i]] + leg_theme
+    th <- ggplot2::theme_get() + p$theme
+    factor <- if (scaling) scale else 1
+    scale_args <- list()
+    if (scaling) {
+      for (element in c("legend.text", "legend.title")) {
+        el <- ggplot2::calc_element(element, th)
+        if (inherits(el, "element_text") && !is.null(el$size)) {
+          styled <- th[[element]]
+          if (!inherits(styled, "element_text")) styled <- ggplot2::element_text()
+          styled$size <- el$size * factor
+          scale_args[[element]] <- styled
         }
       }
-      1.5
+      unit_elements <- c("legend.key.size", "legend.key.width", "legend.key.height",
+                         "legend.spacing", "legend.spacing.x", "legend.spacing.y",
+                         "legend.box.spacing")
+      for (element in intersect(unit_elements, names(ggplot2::get_element_tree()))) {
+        scale_args[[element]] <- get_unit(th, element) * factor
+      }
+      point_sizes[[i]] <- get_point_size(p) * factor
     }
-
-    ref_p <- plots[[1]]
-    text_sz  <- .get_size(ref_p, "legend.text") %||% 8.8
-    title_sz <- .get_size(ref_p, "legend.title") %||% 11
-    pt_sz    <- .get_point_size(ref_p)
-
-    scale_args <- list(
-      legend.text     = ggplot2::element_text(size = text_sz * scale),
-      legend.title    = ggplot2::element_text(size = title_sz * scale)
-    )
-    unit_elements <- c("legend.key.size", "legend.key.width", "legend.key.height",
-                       "legend.spacing", "legend.spacing.x", "legend.spacing.y",
-                       "legend.box.spacing")
-    for (element in intersect(unit_elements, names(ggplot2::get_element_tree()))) {
-      scale_args[[element]] <- get_unit(ref_p, element) * scale
-    }
-    scale_theme <- do.call(ggplot2::theme, scale_args)
-
-    point_size <- pt_sz * scale
-  }
-
-  # ---- Scale width / height independently ----
-  dim_theme <- NULL
-  if (!is.null(scale_width) || !is.null(scale_height)) {
-    ref_p <- plots[[1]]
-    dim_args <- list()
-    factor <- if (!is.null(scale_theme)) scale else 1
     if (!is.null(scale_width)) {
-      dim_args$legend.key.width <- get_unit(ref_p, "legend.key.width") * factor * scale_width
+      scale_args$legend.key.width <- get_unit(th, "legend.key.width") * factor * scale_width
     }
     if (!is.null(scale_height)) {
-      dim_args$legend.key.height <- get_unit(ref_p, "legend.key.height") * factor * scale_height
+      scale_args$legend.key.height <- get_unit(th, "legend.key.height") * factor * scale_height
     }
-    dim_theme <- do.call(ggplot2::theme, dim_args)
+    if (length(scale_args)) p <- p + do.call(ggplot2::theme, scale_args)
+    plots[[i]] <- p
   }
 
   # ---- Guide layout (ncol/nrow) ----
@@ -945,7 +937,7 @@ fmt_legend <- function(plot,
   if (!is.null(ncol) && is.numeric(ncol)) guide_args$ncol <- ncol
   if (!is.null(nrow) && is.numeric(nrow)) guide_args$nrow <- nrow
 
-  if (length(guide_args) || !is.null(point_size)) {
+  if (length(guide_args) || any(lengths(point_sizes))) {
     # Resolve default guides during normal building, without evaluating data here.
     setup_guides <- function(self, scales, aesthetics = NULL,
                               default = self$missing, missing = self$missing) {
@@ -975,7 +967,7 @@ fmt_legend <- function(plot,
       parent <- guides$.fmt_legend_parent %||% guides
       updates <- utils::modifyList(guides$.fmt_legend_args %||% list(),
                                    list(layout = guide_args))
-      if (!is.null(point_size)) updates$point_size <- point_size
+      if (!is.null(point_sizes[[i]])) updates$point_size <- point_sizes[[i]]
       plots[[i]]$guides <- do.call(ggplot2::ggproto, list(NULL, guides,
         .fmt_legend_parent = parent, .fmt_legend_args = updates, setup = setup_guides))
     }
@@ -986,17 +978,8 @@ fmt_legend <- function(plot,
     plot <- .from_plot_list(plots, info$is_patchwork, info$is_single,
                             pw_orig = info$pw_orig, recurse = TRUE)
     combined <- plot + patchwork::plot_layout(guides = "collect")
-    combined <- combined & leg_theme
-    if (!is.null(scale_theme))     combined <- combined & scale_theme
-    if (!is.null(dim_theme))       combined <- combined & dim_theme
+    combined <- combined + patchwork::plot_annotation(theme = leg_theme)
     return(combined)
-  }
-
-  # ---- Normal mode: apply to each plot ----
-  for (i in seq_len(n)) {
-    plots[[i]] <- plots[[i]] + leg_theme
-    if (!is.null(scale_theme))     plots[[i]] <- plots[[i]] + scale_theme
-    if (!is.null(dim_theme))       plots[[i]] <- plots[[i]] + dim_theme
   }
 
   .from_plot_list(plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig,
