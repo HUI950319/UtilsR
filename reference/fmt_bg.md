@@ -69,7 +69,8 @@ categories use `"grey80"`, including panels containing only missing
 categories when other panels have non-missing categories. Facet
 expressions, marginal panels, flipped and polar coordinates, radial
 bands and log-scaled continuous axes are supported. Backgrounds retain
-the plot's panel ranges, fill scales and legends.
+the plot's panel ranges, fill scales and legends, and stay clipped to
+the panel even when foreground clipping is disabled.
 
 Nested data plots are formatted recursively. Patchwork layouts,
 annotations and list names are retained; spacers, guide areas, inset

@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
+  clips its background stripes to the panel when coordinate clipping is
+  disabled, preserving foreground annotations outside the panel.
+
+- [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
   respects explicit discrete position scales when layers supply numeric
   mapped or fixed positions, including flipped coordinates.
 
