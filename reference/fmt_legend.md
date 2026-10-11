@@ -122,7 +122,8 @@ retained. Layout controls apply to symbol legends; continuous colour
 bars and colour steps retain their native guide type. Disabled guides
 stay hidden. Explicit axis guides remain unchanged. Later explicit guide
 definitions replace earlier layout controls. Local guide dimensions use
-the guide's own position and direction. Automatic dimensions and margins
+the guide's own position and direction. Independent dimensions retain
+inheritance from local key sizes. Automatic dimensions and margins
 continue to adapt after position changes. Reused scaled guides compose
 their glyph factors without recursive callbacks. Hiding via
 `legend.position = "none"` retains explicit guide settings, so a later
