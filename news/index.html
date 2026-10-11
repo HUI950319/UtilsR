@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/fmt_legend.html">fmt_legend()</a></code> isolates guide and scale inheritance environments from working plots and avoids cloning empty guide containers for theme-only formatting, preventing excessive serialized-object growth after repeated calls.</p></li>
+<ul><li><p><code><a href="../reference/fmt_legend.html">fmt_legend()</a></code> hides explicit guides through the plot position without discarding their type, titles or settings, allowing later position changes to restore them while keeping intentionally disabled guides hidden.</p></li>
+<li><p><code><a href="../reference/fmt_legend.html">fmt_legend()</a></code> isolates guide and scale inheritance environments from working plots and avoids cloning empty guide containers for theme-only formatting, preventing excessive serialized-object growth after repeated calls.</p></li>
 <li><p><code><a href="../reference/fmt_legend.html">fmt_legend()</a></code> warns and keeps subplot guides when requested or existing collection layouts contain inside legends, preventing their silent loss.</p></li>
 <li><p><code><a href="../reference/fmt_legend.html">fmt_legend()</a></code> resolves local guide dimensions from the guide’s own position, retaining horizontal colour bars and legend title margins when scaling by one.</p></li>
 <li><p><code><a href="../reference/fmt_legend.html">fmt_legend()</a></code> returns the original object for calls with no formatting controls, retaining container validation while avoiding recursive traversal, theme construction and guide cloning.</p></li>

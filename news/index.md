@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
+  hides explicit guides through the plot position without discarding
+  their type, titles or settings, allowing later position changes to
+  restore them while keeping intentionally disabled guides hidden.
+
+- [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
   isolates guide and scale inheritance environments from working plots
   and avoids cloning empty guide containers for theme-only formatting,
   preventing excessive serialized-object growth after repeated calls.

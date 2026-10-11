@@ -117,9 +117,12 @@ Existing guide types, order, reversal and aesthetic overrides are
 retained. Layout controls apply to symbol legends; continuous colour
 bars and colour steps retain their native guide type. Disabled guides
 stay hidden. Local guide dimensions use the guide's own position and
-direction. Formatting does not modify caller-owned scales or guides and
-does not build the plot or evaluate layer data callbacks. Guide and
-scale clones do not retain the formatter's input or working plots.
+direction. Hiding via `legend.position = "none"` retains explicit guide
+settings, so a later position change can show them again; disabled
+guides stay disabled. Formatting does not modify caller-owned scales or
+guides and does not build the plot or evaluate layer data callbacks.
+Guide and scale clones do not retain the formatter's input or working
+plots.
 
 Nested patchwork layouts, annotations, list names and free settings are
 retained. Spacers, guide areas, wrapped graphics and inset overlays are
