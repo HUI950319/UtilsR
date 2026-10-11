@@ -13,7 +13,9 @@ These rules apply to work under `UtilsR/` in addition to the repository-root
 - Check optional dependencies with `requireNamespace()`.
 - Add dependencies to DESCRIPTION and new R files to Collate when applicable.
 - Add every export to `_pkgdown.yml`.
-- After signature or roxygen changes, run `devtools::document("UtilsR")`.
+- Documentation generation and installation follow
+  [the shared change workflow](../r-function-dev.md) §5 and
+  [execution details](../.claude/docs/r-package-execution-workflow.md).
 
 ## Unified plotting parameters
 
@@ -30,9 +32,12 @@ These rules apply to work under `UtilsR/` in addition to the repository-root
 | Marginal plot | `marginal_type` |
 | Legend | `legend_pos`, `legend_theme` |
 | Theme | `theme_use` |
-| Output | `filename`, `width`, `height`, `dpi` |
+| Saving (new integrations) | `save = list()` |
 
 Do not introduce alternative names for an existing concept without approval.
+For new or changed saving interfaces, follow the shared
+[save contract](../r-function-dev.md) §6. Retain existing `filename`, `width`,
+`height` and `dpi` interfaces unless their migration is explicitly authorized.
 
 ## PlotXxx workflow
 
