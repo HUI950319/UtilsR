@@ -727,7 +727,8 @@ fmt_tag <- function(plot,
 #' @param legend.direction `"horizontal"` or `"vertical"`. Default `NULL`.
 #' @param legend_theme A ggplot2 theme object for legend styling, e.g.,
 #'   [theme_legend1()]. Applied after position/direction settings so it can
-#'   override them. Default `NULL` (no extra styling).
+#'   override them. Existing guide-local styling is merged with the requested
+#'   legend styling. Default `NULL` (no extra styling).
 #' @param collect Logical. If `TRUE` and input has multiple plots,
 #'   collect legends into a single shared legend via patchwork. Default `FALSE`.
 #' @param title Character vector of legend titles, one per subplot. Recycled
@@ -880,29 +881,74 @@ fmt_legend <- function(plot,
   }
 
   # ---- Style and scale each subplot from its effective theme ----
-  point_sizes <- rep(list(NULL), n)
   get_unit <- function(theme, element) {
     el <- ggplot2::calc_element(element, theme)
     if (grid::is.unit(el)) el else grid::unit(1.2, "lines")
   }
-  get_point_size <- function(p) {
-    for (layer in p$layers) {
-      if (inherits(layer$geom, "GeomPoint")) {
-        sz <- tryCatch({
-          s <- layer$aes_params$size
-          if (is.null(s)) s <- layer$geom$default_aes$size
-          if (is.numeric(s)) s else as.numeric(s)
-        }, error = function(e) NULL)
-        if (!is.null(sz) && is.numeric(sz)) return(sz)
+  scaling <- !is.null(scale) && is.numeric(scale) && scale > 0
+  factor <- if (scaling) scale else 1
+  style_guide <- function(guide, th) {
+    if (!inherits(guide, "Guide") || inherits(guide, "GuideNone")) return(guide)
+    params <- guide$params
+    if (identical(leg_theme$legend.position, "none")) return(ggplot2::guide_none())
+    if (!is.null(leg_theme$legend.position)) params$position <- leg_theme$legend.position
+    if (!is.null(leg_theme$legend.direction)) params$direction <- leg_theme$legend.direction
+    if (!is.null(params$theme)) {
+      local <- params$theme + leg_theme
+      params$theme <- local
+      if (scaling || !is.null(scale_width) || !is.null(scale_height)) {
+        drawing <- params
+        drawing$direction <- params$direction %||% local$legend.direction %||%
+          th$legend.direction %||% if ((th$legend.position %||% "right") %in%
+                                       c("top", "bottom")) "horizontal" else "vertical"
+        elements <- guide$setup_elements(drawing, guide$elements, th)
+        args <- list()
+        if (scaling) {
+          for (nm in c("text", "title")) {
+            el <- elements[[nm]]
+            if (inherits(el, "element_text") && !is.null(el$size)) {
+              el$size <- el$size * factor
+              args[[paste0("legend.", nm)]] <- el
+            }
+          }
+          for (nm in c("spacing_x", "spacing_y")) {
+            if (grid::is.unit(elements[[nm]])) {
+              args[[paste0("legend.key.spacing.", sub("spacing_", "", nm))]] <-
+                elements[[nm]] * factor
+            }
+          }
+        }
+        if ((scaling || !is.null(scale_width)) && grid::is.unit(elements$key_width)) {
+          args$legend.key.width <- elements$key_width * factor * (scale_width %||% 1)
+        }
+        if ((scaling || !is.null(scale_height)) && grid::is.unit(elements$key_height)) {
+          args$legend.key.height <- elements$key_height * factor * (scale_height %||% 1)
+        }
+        if (length(args)) params$theme <- local + do.call(ggplot2::theme, args)
       }
     }
-    1.5
+    if (identical(params, guide$params)) return(guide)
+    ggplot2::ggproto(NULL, guide, params = params)
   }
-  scaling <- !is.null(scale) && is.numeric(scale) && scale > 0
   for (i in seq_len(n)) {
     p <- plots[[i]] + leg_theme
     th <- ggplot2::theme_get() + p$theme
-    factor <- if (scaling) scale else 1
+    if (inherits(p$guides, "Guides")) {
+      guides <- lapply(p$guides$guides, style_guide, th = th)
+      if (!identical(guides, p$guides$guides)) {
+        p$guides <- do.call(ggplot2::ggproto, list(NULL, p$guides, guides = guides))
+      }
+    }
+    scales <- lapply(p$scales$scales, function(sc) {
+      if (!any(sc$aesthetics %in% c("colour", "color", "fill", "shape", "size",
+                                    "linewidth", "alpha", "linetype"))) return(sc)
+      guide <- style_guide(sc$guide, th)
+      if (identical(guide, sc$guide)) return(sc)
+      ggplot2::ggproto(NULL, sc, guide = guide)
+    })
+    if (!identical(scales, p$scales$scales)) {
+      p$scales <- do.call(ggplot2::ggproto, list(NULL, p$scales, scales = scales))
+    }
     scale_args <- list()
     if (scaling) {
       for (element in c("legend.text", "legend.title")) {
@@ -918,9 +964,8 @@ fmt_legend <- function(plot,
                          "legend.spacing", "legend.spacing.x", "legend.spacing.y",
                          "legend.box.spacing")
       for (element in intersect(unit_elements, names(ggplot2::get_element_tree()))) {
-        scale_args[[element]] <- get_unit(th, element) * factor
+        if (!is.null(th[[element]])) scale_args[[element]] <- get_unit(th, element) * factor
       }
-      point_sizes[[i]] <- get_point_size(p) * factor
     }
     if (!is.null(scale_width)) {
       scale_args$legend.key.width <- get_unit(th, "legend.key.width") * factor * scale_width
@@ -937,7 +982,20 @@ fmt_legend <- function(plot,
   if (!is.null(ncol) && is.numeric(ncol)) guide_args$ncol <- ncol
   if (!is.null(nrow) && is.numeric(nrow)) guide_args$nrow <- nrow
 
-  if (length(guide_args) || any(lengths(point_sizes))) {
+  if (length(guide_args) || scaling) {
+    process_keys <- function(self, params, layers, data = NULL, theme = NULL) {
+      params <- ggplot2::ggproto_parent(self$.fmt_legend_source, self)$process_layers(
+        params, layers, data, theme
+      )
+      for (i in seq_along(params$decor)) {
+        for (nm in c("size", "linewidth", "stroke")) {
+          value <- params$decor[[i]]$data[[nm]]
+          if (is.numeric(value)) params$decor[[i]]$data[[nm]] <- value * self$.fmt_legend_scale
+        }
+      }
+      params
+    }
+    environment(process_keys) <- baseenv()
     # Resolve default guides during normal building, without evaluating data here.
     setup_guides <- function(self, scales, aesthetics = NULL,
                               default = self$missing, missing = self$missing) {
@@ -951,9 +1009,10 @@ fmt_legend <- function(plot,
         params <- guide$params
         updates <- self$.fmt_legend_args
         params[names(updates$layout)] <- updates$layout
-        if (!is.null(updates$point_size) &&
-            resolved$aesthetics[j] %in% c("colour", "fill", "shape")) {
-          params$override.aes <- list(size = updates$point_size)
+        if (!is.null(updates$scale)) {
+          return(ggplot2::ggproto(NULL, guide, params = params,
+            .fmt_legend_source = guide, .fmt_legend_scale = updates$scale,
+            process_layers = self$.fmt_legend_process_keys[[1L]]))
         }
         ggplot2::ggproto(NULL, guide, params = params)
       })
@@ -967,9 +1026,10 @@ fmt_legend <- function(plot,
       parent <- guides$.fmt_legend_parent %||% guides
       updates <- utils::modifyList(guides$.fmt_legend_args %||% list(),
                                    list(layout = guide_args))
-      if (!is.null(point_sizes[[i]])) updates$point_size <- point_sizes[[i]]
+      if (scaling) updates$scale <- (updates$scale %||% 1) * factor
       plots[[i]]$guides <- do.call(ggplot2::ggproto, list(NULL, guides,
-        .fmt_legend_parent = parent, .fmt_legend_args = updates, setup = setup_guides))
+        .fmt_legend_parent = parent, .fmt_legend_args = updates,
+        .fmt_legend_process_keys = list(process_keys), setup = setup_guides))
     }
   }
 

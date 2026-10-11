@@ -36,7 +36,8 @@ Default `NULL` (no change).}
 
 \item{legend_theme}{A ggplot2 theme object for legend styling, e.g.,
 [theme_legend1()]. Applied after position/direction settings so it can
-override them. Default `NULL` (no extra styling).}
+override them. Existing guide-local styling is merged with the requested
+legend styling. Default `NULL` (no extra styling).}
 
 \item{collect}{Logical. If `TRUE` and input has multiple plots,
 collect legends into a single shared legend via patchwork. Default `FALSE`.}

@@ -1,5 +1,10 @@
 # UtilsR 0.6.8
 
+* `fmt_legend()` merges local guide styling and retains guide order, reversal and
+  aesthetic overrides when combining controls. Legend glyph sizes scale after
+  native key construction, preserving mapped sizes and repeated scaling while
+  leaving plotted data and caller-owned guide objects unchanged.
+
 * `fmt_legend()` scales each subplot from its own theme after applying new
   legend styling, retaining blank text and title elements and collected-guide
   scaling rather than copying the first subplot's sizes.

@@ -185,3 +185,72 @@ test_that("legend scaling retains blank text and title elements", {
   expect_s3_class(blank$theme$legend.text, "element_blank")
   expect_false(any(c("group", "a", "b", "c") %in% legend_test_labels(ggplot2::ggplotGrob(blank))))
 })
+
+test_that("legend controls merge guide settings and scale displayed key sizes", {
+  p <- legend_test_plot()
+  guide <- ggplot2::guide_legend(order = 3, reverse = TRUE,
+    override.aes = list(alpha = 0.3, shape = 17, size = 5))
+  input <- p + ggplot2::guides(colour = guide)
+  output <- fmt_legend(input, scale = 0.5, ncol = 2)
+  built <- ggplot2::ggplot_build(output)
+  params <- built$plot$guides$params[[1]]
+  expect_identical(params$order, 3L)
+  expect_true(params$reverse)
+  expect_equal(params$ncol, 2)
+  expect_equal(params$decor[[1]]$data$size, rep(2.5, 3))
+  expect_equal(params$decor[[1]]$data$alpha, rep(0.3, 3))
+  expect_equal(params$decor[[1]]$data$shape, rep(17, 3))
+  expect_identical(guide$params$override.aes, list(alpha = 0.3, shape = 17, size = 5))
+  repeated <- fmt_legend(output, scale = 0.5)
+  expect_equal(ggplot2::ggplot_build(repeated)$plot$guides$params[[1]]$decor[[1]]$data$size,
+               rep(1.25, 3))
+  sized <- p + ggplot2::aes(size = value)
+  before <- ggplot2::ggplot_build(sized)$plot$guides$params
+  after <- ggplot2::ggplot_build(fmt_legend(sized, scale = 0.5, ncol = 2))$plot$guides$params
+  for (i in seq_along(before)) {
+    expect_equal(after[[i]]$decor[[1]]$data$size, before[[i]]$decor[[1]]$data$size * 0.5)
+  }
+  expect_identical(ggplot2::ggplot_build(input)$data, built$data)
+})
+
+test_that("legend formatting overrides and scales local guide themes safely", {
+  p <- legend_test_plot()
+  guide <- ggplot2::guide_legend(direction = "vertical", position = "right",
+    theme = ggplot2::theme(legend.text = ggplot2::element_text(size = 25, colour = "red"),
+                          legend.key.width = grid::unit(8, "mm"),
+                          legend.key.height = grid::unit(4, "mm")))
+  for (input in list(p + ggplot2::guides(colour = guide),
+                    p + ggplot2::scale_colour_discrete(guide = guide))) {
+    output <- fmt_legend(input, legend.position = "bottom", legend.direction = "horizontal",
+                          legend.text = ggplot2::element_text(size = 8),
+                          scale = 0.5, scale_width = 0.5)
+    built <- ggplot2::ggplot_build(output)
+    params <- built$plot$guides$guides[[1]]$params
+    expect_equal(params$theme$legend.text$size, 4)
+    expect_identical(params$theme$legend.text$colour, "red")
+    expect_equal(grid::convertWidth(params$theme$legend.key.width, "mm", valueOnly = TRUE), 2)
+    expect_equal(grid::convertHeight(params$theme$legend.key.height, "mm", valueOnly = TRUE), 2)
+    expect_identical(params$direction, "horizontal")
+    expect_identical(params$position, "bottom")
+    expect_no_error(ggplot2::ggplotGrob(output))
+  }
+  expect_equal(guide$params$theme$legend.text$size, 25)
+  hidden <- fmt_legend(p + ggplot2::guides(colour = guide), legend.position = "none")
+  expect_false(any(c("group", "a", "b", "c") %in%
+                     legend_test_labels(ggplot2::ggplotGrob(hidden))))
+})
+
+test_that("continuous guide local dimensions and hidden titles retain their semantics", {
+  guide <- ggplot2::guide_colourbar(theme = ggplot2::theme(
+    legend.key.width = grid::unit(8, "mm"), legend.key.height = grid::unit(20, "mm"),
+    legend.title = ggplot2::element_blank()))
+  p <- legend_test_plot(TRUE) + ggplot2::guides(colour = guide)
+  unchanged <- fmt_legend(p, scale = 1)
+  expect_equal(legend_test_box_size(unchanged), legend_test_box_size(p))
+  output <- fmt_legend(p, scale = 0.5, scale_height = 2)
+  params <- ggplot2::ggplot_build(output)$plot$guides$guides[[1]]$params
+  expect_equal(grid::convertWidth(params$theme$legend.key.width, "mm", valueOnly = TRUE), 4)
+  expect_equal(grid::convertHeight(params$theme$legend.key.height, "mm", valueOnly = TRUE), 20)
+  expect_s3_class(params$theme$legend.title, "element_blank")
+  expect_no_error(ggplot2::ggplotGrob(output))
+})
