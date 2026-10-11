@@ -880,21 +880,16 @@ fmt_legend <- function(plot,
   # ---- Scale legend proportionally ----
   scale_theme <- NULL
   point_size <- NULL
+  get_unit <- function(p, element) {
+    el <- ggplot2::calc_element(element, ggplot2::theme_get() + p$theme)
+    if (grid::is.unit(el)) el else grid::unit(1.2, "lines")
+  }
   if (!is.null(scale) && is.numeric(scale) && scale > 0) {
     .get_size <- function(p, element) {
       th <- ggplot2::theme_get() + p$theme
       el <- ggplot2::calc_element(element, th)
       if (inherits(el, "element_text") && !is.null(el$size)) el$size
       else NULL
-    }
-    .get_key_size <- function(p) {
-      th <- ggplot2::theme_get() + p$theme
-      el <- ggplot2::calc_element("legend.key.size", th)
-      if (inherits(el, "simpleUnit") || inherits(el, "unit")) {
-        as.numeric(el)
-      } else {
-        1.2
-      }
     }
     .get_point_size <- function(p) {
       for (layer in p$layers) {
@@ -913,16 +908,19 @@ fmt_legend <- function(plot,
     ref_p <- plots[[1]]
     text_sz  <- .get_size(ref_p, "legend.text") %||% 8.8
     title_sz <- .get_size(ref_p, "legend.title") %||% 11
-    key_sz   <- .get_key_size(ref_p)
     pt_sz    <- .get_point_size(ref_p)
 
-    scale_theme <- ggplot2::theme(
+    scale_args <- list(
       legend.text     = ggplot2::element_text(size = text_sz * scale),
-      legend.title    = ggplot2::element_text(size = title_sz * scale),
-      legend.key.size = grid::unit(key_sz * scale, "lines"),
-      legend.spacing  = grid::unit(0.2 * scale, "cm"),
-      legend.box.spacing = grid::unit(0.2 * scale, "cm")
+      legend.title    = ggplot2::element_text(size = title_sz * scale)
     )
+    unit_elements <- c("legend.key.size", "legend.key.width", "legend.key.height",
+                       "legend.spacing", "legend.spacing.x", "legend.spacing.y",
+                       "legend.box.spacing")
+    for (element in intersect(unit_elements, names(ggplot2::get_element_tree()))) {
+      scale_args[[element]] <- get_unit(ref_p, element) * scale
+    }
+    scale_theme <- do.call(ggplot2::theme, scale_args)
 
     point_size <- pt_sz * scale
   }
@@ -930,26 +928,14 @@ fmt_legend <- function(plot,
   # ---- Scale width / height independently ----
   dim_theme <- NULL
   if (!is.null(scale_width) || !is.null(scale_height)) {
-    .get_key_dim <- function(p, element) {
-      th <- ggplot2::theme_get() + p$theme
-      el <- ggplot2::calc_element(element, th)
-      if (inherits(el, "simpleUnit") || inherits(el, "unit")) {
-        as.numeric(el)
-      } else {
-        NULL
-      }
-    }
     ref_p <- plots[[1]]
     dim_args <- list()
+    factor <- if (!is.null(scale_theme)) scale else 1
     if (!is.null(scale_width)) {
-      kw <- .get_key_dim(ref_p, "legend.key.width") %||%
-            .get_key_dim(ref_p, "legend.key.size") %||% 1.2
-      dim_args$legend.key.width <- grid::unit(kw * scale_width, "lines")
+      dim_args$legend.key.width <- get_unit(ref_p, "legend.key.width") * factor * scale_width
     }
     if (!is.null(scale_height)) {
-      kh <- .get_key_dim(ref_p, "legend.key.height") %||%
-            .get_key_dim(ref_p, "legend.key.size") %||% 1.2
-      dim_args$legend.key.height <- grid::unit(kh * scale_height, "lines")
+      dim_args$legend.key.height <- get_unit(ref_p, "legend.key.height") * factor * scale_height
     }
     dim_theme <- do.call(ggplot2::theme, dim_args)
   }

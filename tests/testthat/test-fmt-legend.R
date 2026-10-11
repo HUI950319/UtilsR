@@ -110,3 +110,43 @@ test_that("guide formatting defers data callbacks and retains later guide edits"
   hidden <- result + ggplot2::guides(colour = "none")
   expect_length(ggplot2::ggplot_build(hidden)$plot$guides$guides, 0L)
 })
+
+legend_test_box_size <- function(p) {
+  g <- ggplot2::ggplotGrob(p)
+  index <- which(grepl("^guide-box", g$layout$name) &
+                   vapply(g$grobs, inherits, logical(1), "gtable"))[1]
+  box <- g$grobs[[index]]
+  c(width = grid::convertWidth(sum(box$widths), "mm", valueOnly = TRUE),
+    height = grid::convertHeight(sum(box$heights), "mm", valueOnly = TRUE))
+}
+
+test_that("legend scaling retains units and scale one preserves rendered size", {
+  for (unit in list(grid::unit(4, "mm"), grid::unit(0.4, "cm"),
+                    grid::unit(10, "pt"), grid::unit(0.8, "lines"),
+                    grid::unit(3, "mm") + grid::unit(1, "pt"))) {
+    p <- legend_test_plot() + ggplot2::theme(legend.key.size = unit,
+      legend.box.spacing = grid::unit(8, "mm"),
+      legend.spacing = grid::unit(7, "pt"))
+    output <- fmt_legend(p, scale = 1)
+    expect_equal(grid::convertWidth(output$theme$legend.key.size, "mm", valueOnly = TRUE),
+                 grid::convertWidth(unit, "mm", valueOnly = TRUE))
+    expect_equal(grid::convertWidth(output$theme$legend.box.spacing, "mm", valueOnly = TRUE), 8)
+    expect_equal(legend_test_box_size(output), legend_test_box_size(p))
+  }
+})
+
+test_that("independent legend dimensions multiply existing and global sizes", {
+  p <- legend_test_plot() + ggplot2::theme(legend.key.width = grid::unit(4, "mm"),
+    legend.key.height = grid::unit(8, "mm"))
+  for (args in list(list(scale_width = 1, scale_height = 1),
+                    list(scale_width = 2, scale_height = 0.5),
+                    list(scale = 0.5, scale_width = 2, scale_height = 0.5))) {
+    output <- do.call(fmt_legend, c(list(plot = p), args))
+    factor <- if (is.null(args$scale)) 1 else args$scale
+    expect_equal(grid::convertWidth(output$theme$legend.key.width, "mm", valueOnly = TRUE),
+                 4 * factor * args$scale_width)
+    expect_equal(grid::convertHeight(output$theme$legend.key.height, "mm", valueOnly = TRUE),
+                 8 * factor * args$scale_height)
+    expect_no_error(ggplot2::ggplotGrob(output))
+  }
+})
