@@ -3,6 +3,15 @@
 ## UtilsR 0.6.8
 
 - [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
+  isolates guide and scale inheritance environments from working plots
+  and avoids cloning empty guide containers for theme-only formatting,
+  preventing excessive serialized-object growth after repeated calls.
+
+- [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
+  warns and keeps subplot guides when requested or existing collection
+  layouts contain inside legends, preventing their silent loss.
+
+- [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
   resolves local guide dimensions from the guide’s own position,
   retaining horizontal colour bars and legend title margins when scaling
   by one.
