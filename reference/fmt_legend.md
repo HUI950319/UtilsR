@@ -33,7 +33,7 @@ fmt_legend(
   Legend position. Accepts:
 
   - Character: \`"top"\`, \`"bottom"\`, \`"left"\`, \`"right"\`,
-    \`"none"\`.
+    \`"none"\`, \`"inside"\`.
 
   - Shorthand corner codes: \`"br"\`, \`"bl"\`, \`"tr"\`, \`"tl"\`
     (inside plot corners).
@@ -68,32 +68,34 @@ fmt_legend(
 
 - scale:
 
-  Numeric. Proportionally scale the entire legend. `0.8` = shrink to
-  80%, `1.2` = enlarge to 120%. Adjusts key size, text size, title size,
-  point size, and spacing together. Each subplot uses its own theme
-  after applying new legend styling. Blank text and title elements
-  remain blank, and grid units are retained. Default `NULL` (no
+  One finite positive number. Proportionally scale the legend. `0.8` =
+  shrink to 80%, `1.2` = enlarge to 120%. Adjusts key size, text size,
+  title size, point size, and spacing together. Each subplot uses its
+  own theme after applying new legend styling. Blank text and title
+  elements remain blank, and grid units are retained. Default `NULL` (no
   scaling).
 
 - scale_width:
 
-  Numeric. Scale legend key width independently. Default `NULL` (no
-  change).
+  One finite positive number. Scale legend key width independently.
+  Multiplies the overall factor when \`scale\` is supplied. Default
+  `NULL` (no change).
 
 - scale_height:
 
-  Numeric. Scale legend key height independently. Default `NULL` (no
-  change).
+  One finite positive number. Scale legend key height independently.
+  Multiplies the overall factor when \`scale\` is supplied. Default
+  `NULL` (no change).
 
 - ncol:
 
-  Number of columns in the legend layout (passed to
-  \[ggplot2::guide_legend()\]).
+  One finite positive integer giving the columns in the legend layout
+  (passed to \[ggplot2::guide_legend()\]).
 
 - nrow:
 
-  Number of rows in the legend layout (passed to
-  \[ggplot2::guide_legend()\]).
+  One finite positive integer giving the rows in the legend layout
+  (passed to \[ggplot2::guide_legend()\]).
 
 - ...:
 

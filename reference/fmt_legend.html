@@ -83,7 +83,7 @@ collect legends across a multi-plot patchwork.</p>
 
 
 <dt id="arg-legend-position">legend.position<a class="anchor" aria-label="anchor" href="#arg-legend-position"></a></dt>
-<dd><p>Legend position. Accepts:</p><ul><li><p>Character: `"top"`, `"bottom"`, `"left"`, `"right"`, `"none"`.</p></li>
+<dd><p>Legend position. Accepts:</p><ul><li><p>Character: `"top"`, `"bottom"`, `"left"`, `"right"`, `"none"`, `"inside"`.</p></li>
 <li><p>Shorthand corner codes: `"br"`, `"bl"`, `"tr"`, `"tl"` (inside
     plot corners).</p></li>
 <li><p>Numeric vector of length 2: `c(x, y)` coordinates (0-1) for
@@ -115,7 +115,7 @@ Default `NULL` (no change).</p></dd>
 
 
 <dt id="arg-scale">scale<a class="anchor" aria-label="anchor" href="#arg-scale"></a></dt>
-<dd><p>Numeric. Proportionally scale the entire legend.
+<dd><p>One finite positive number. Proportionally scale the legend.
 <code>0.8</code> = shrink to 80%, <code>1.2</code> = enlarge to 120%.
 Adjusts key size, text size, title size, point size, and spacing
 together. Each subplot uses its own theme after applying new legend styling.
@@ -124,22 +124,24 @@ Default <code>NULL</code> (no scaling).</p></dd>
 
 
 <dt id="arg-scale-width">scale_width<a class="anchor" aria-label="anchor" href="#arg-scale-width"></a></dt>
-<dd><p>Numeric. Scale legend key width independently.
+<dd><p>One finite positive number. Scale legend key width independently.
+Multiplies the overall factor when `scale` is supplied.
 Default <code>NULL</code> (no change).</p></dd>
 
 
 <dt id="arg-scale-height">scale_height<a class="anchor" aria-label="anchor" href="#arg-scale-height"></a></dt>
-<dd><p>Numeric. Scale legend key height independently.
+<dd><p>One finite positive number. Scale legend key height independently.
+Multiplies the overall factor when `scale` is supplied.
 Default <code>NULL</code> (no change).</p></dd>
 
 
 <dt id="arg-ncol">ncol<a class="anchor" aria-label="anchor" href="#arg-ncol"></a></dt>
-<dd><p>Number of columns in the legend layout (passed to
+<dd><p>One finite positive integer giving the columns in the legend layout (passed to
 [ggplot2::guide_legend()]).</p></dd>
 
 
 <dt id="arg-nrow">nrow<a class="anchor" aria-label="anchor" href="#arg-nrow"></a></dt>
-<dd><p>Number of rows in the legend layout (passed to
+<dd><p>One finite positive integer giving the rows in the legend layout (passed to
 [ggplot2::guide_legend()]).</p></dd>
 
 

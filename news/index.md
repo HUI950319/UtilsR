@@ -3,6 +3,12 @@
 ## UtilsR 0.6.8
 
 - [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
+  validates positions, directions, themes, titles, collection flags,
+  scaling factors and layout dimensions before editing plots. Numeric
+  positions and corner shortcuts use the current inside-position theme
+  interface.
+
+- [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
   merges local guide styling and retains guide order, reversal and
   aesthetic overrides when combining controls. Legend glyph sizes scale
   after native key construction, preserving mapped sizes and repeated
