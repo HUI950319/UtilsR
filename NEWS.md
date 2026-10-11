@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_legend()` recognizes aesthetics renamed by `ggnewscale`, updating titles
+  and guide styling across multiple colour and fill scales. `ggnewscale` is an
+  optional suggested package used for compatibility tests.
+
 * `fmt_legend()` scales explicit global key spacing in both directions,
   matching guide-local spacing without changing native inherited defaults.
 

@@ -50,6 +50,7 @@ requested. Default `FALSE`.}
 \item{title}{Character vector of legend titles, one per subplot. Recycled
 to match the number of subplots. Automatically detects which aesthetics
 (colour, fill, shape, etc.) are mapped and renames their legend titles.
+Also covers aesthetics renamed by \pkg{ggnewscale} for multiple scales.
 Default `NULL` (no change).}
 
 \item{scale}{One finite positive number. Proportionally scale the legend.

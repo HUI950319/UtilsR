@@ -475,3 +475,48 @@ test_that("global and local key spacing scale equally in the rendered legend", {
                  legend_test_box_size(fmt_legend(local, scale = 0.5)))
   }
 })
+
+test_that("multiple ggnewscale legends receive titles and styling", {
+  skip_if_not_installed("ggnewscale")
+  p <- legend_test_plot()
+  colour <- p + ggplot2::scale_colour_discrete(name = "First",
+    guide = ggplot2::guide_legend(title = "First guide", reverse = TRUE, order = 2)) +
+    ggnewscale::new_scale_colour() + ggplot2::geom_point(ggplot2::aes(colour = value),
+                                                       shape = 17) +
+    ggplot2::scale_colour_gradient(name = "Second")
+  fill <- ggplot2::ggplot(p$data, ggplot2::aes(x, y, fill = group)) +
+    ggplot2::geom_point(shape = 21) + ggplot2::scale_fill_discrete(name = "First",
+      guide = ggplot2::guide_legend(title = "First guide", reverse = TRUE, order = 2)) +
+    ggnewscale::new_scale_fill() + ggplot2::geom_point(ggplot2::aes(fill = value),
+                                                     shape = 22) +
+    ggplot2::scale_fill_gradient(name = "Second")
+  for (input in list(colour, fill)) {
+    output <- fmt_legend(input, title = "Unified", scale = 0.8, ncol = 2)
+    labels <- legend_test_labels(ggplot2::ggplotGrob(output))
+    expect_equal(sum(labels == "Unified"), 2)
+    expect_false(any(c("First guide", "Second") %in% labels))
+    expect_identical(vapply(output$scales$scales, function(sc) sc$name, character(1)),
+                     c("Unified", "Unified"))
+    expect_identical(input$scales$scales[[1]]$name, "First")
+    expect_true("First guide" %in% legend_test_labels(ggplot2::ggplotGrob(input)))
+    expect_identical(ggplot2::ggplot_build(output)$data, ggplot2::ggplot_build(input)$data)
+    explicit <- output$scales$scales[[1]]$guide$params
+    expect_true(explicit$reverse)
+    expect_equal(explicit$order, 2)
+    expect_identical(explicit$title, "Unified")
+    expect_warning(hidden <- fmt_legend(input, legend.position = "none"), NA)
+    expect_false(any(c("First guide", "Second") %in%
+                       legend_test_labels(ggplot2::ggplotGrob(hidden))))
+  }
+  third <- colour + ggnewscale::new_scale_colour() +
+    ggplot2::geom_point(ggplot2::aes(colour = group), shape = 15) +
+    ggplot2::scale_colour_discrete(name = "Third")
+  output <- fmt_legend(third, title = "Unified")
+  expect_equal(sum(legend_test_labels(ggplot2::ggplotGrob(output)) == "Unified"), 3)
+  explicit <- p + ggplot2::guides(colour = ggplot2::guide_legend(title = "Explicit")) +
+    ggnewscale::new_scale_colour() + ggplot2::geom_point(ggplot2::aes(colour = value))
+  output <- fmt_legend(explicit, title = "Unified")
+  expect_equal(sum(legend_test_labels(ggplot2::ggplotGrob(output)) == "Unified"), 2)
+  expect_identical(explicit$guides$guides$colour_ggnewscale_1$params$title, "Explicit")
+  expect_identical(output$guides$guides$colour_ggnewscale_1$params$title, "Unified")
+})

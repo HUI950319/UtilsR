@@ -739,6 +739,7 @@ fmt_tag <- function(plot,
 #' @param title Character vector of legend titles, one per subplot. Recycled
 #'   to match the number of subplots. Automatically detects which aesthetics
 #'   (colour, fill, shape, etc.) are mapped and renames their legend titles.
+#'   Also covers aesthetics renamed by \pkg{ggnewscale} for multiple scales.
 #'   Default `NULL` (no change).
 #' @param scale One finite positive number. Proportionally scale the legend.
 #'   \code{0.8} = shrink to 80\%, \code{1.2} = enlarge to 120\%.
@@ -860,11 +861,14 @@ fmt_legend <- function(plot,
     cli::cli_warn("{.arg collect} requires a patchwork input; the formatted list retains its list type.")
   }
 
+  legend_aes <- c("colour", "color", "fill", "shape", "size",
+                  "linewidth", "alpha", "linetype")
+  is_legend_aes <- function(aesthetics) {
+    sub("_ggnewscale_[0-9]+$", "", aesthetics) %in% legend_aes
+  }
   # ---- Rename legend titles per subplot ----
   if (!is.null(title)) {
     title <- rep_len(title, n)
-    legend_aes <- c("colour", "color", "fill", "shape", "size",
-                    "linewidth", "alpha", "linetype")
     rename_guide <- function(guide, label) {
       if (!inherits(guide, "Guide") || inherits(guide, "GuideNone")) return(guide)
       params <- guide$params
@@ -878,14 +882,14 @@ fmt_legend <- function(plot,
       }), use.names = FALSE), unlist(lapply(p$scales$scales, function(sc) {
         sc$aesthetics
       }), use.names = FALSE)))
-      mapped <- intersect(mapped, legend_aes)
+      mapped <- mapped[is_legend_aes(mapped)]
       if (length(mapped)) {
         p <- p + do.call(ggplot2::labs, stats::setNames(
           rep(list(title[i]), length(mapped)), mapped
         ))
       }
       scales <- lapply(p$scales$scales, function(sc) {
-        if (!any(sc$aesthetics %in% legend_aes)) return(sc)
+        if (!any(is_legend_aes(sc$aesthetics))) return(sc)
         do.call(ggplot2::ggproto, list(NULL, sc, name = title[i],
           guide = rename_guide(sc$guide, title[i])), envir = baseenv())
       })
@@ -895,7 +899,7 @@ fmt_legend <- function(plot,
       }
       if (inherits(p$guides, "Guides")) {
         guides <- p$guides$guides
-        selected <- intersect(names(guides), legend_aes)
+        selected <- names(guides)[is_legend_aes(names(guides))]
         guides[selected] <- lapply(guides[selected], rename_guide, label = title[i])
         if (!identical(guides, p$guides$guides)) {
           p$guides <- do.call(ggplot2::ggproto, list(NULL, p$guides, guides = guides),
@@ -1017,8 +1021,7 @@ fmt_legend <- function(plot,
       }
     }
     scales <- lapply(p$scales$scales, function(sc) {
-      if (!any(sc$aesthetics %in% c("colour", "color", "fill", "shape", "size",
-                                    "linewidth", "alpha", "linetype"))) return(sc)
+      if (!any(is_legend_aes(sc$aesthetics))) return(sc)
       guide <- style_guide(sc$guide, th)
       if (identical(guide, sc$guide)) return(sc)
       do.call(ggplot2::ggproto, list(NULL, sc, guide = guide), envir = baseenv())
