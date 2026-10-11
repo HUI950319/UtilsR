@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
+  scales legend glyphs with both ggplot2 3.5 and current guide
+  callbacks, passing the theme only when the native method supports it.
+
+- [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
   leaves explicit axis guides unchanged when positioning, styling or
   resizing legends, preventing misplaced axes and scaling errors.
 
