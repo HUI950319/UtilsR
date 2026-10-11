@@ -8,7 +8,9 @@ These rules apply to work under `UtilsR/` in addition to the repository-root
 - Plot functions use positional arguments `data, x, y, group` first.
 - Return the ggplot / patchwork object directly.
 - Roxygen and code comments are written in English.
-- Use `@family` and link related functions with `[FunctionName()]`.
+- Use `@family`. With the current non-Markdown roxygen configuration, link
+  related functions as `\code{\link{FunctionName}()}`; preserve DESCRIPTION's
+  configuration instead of enabling Markdown for a local edit.
 - Every export has a self-contained `@examples` block using simulated data.
 - Check optional dependencies with `requireNamespace()`.
 - Add dependencies to DESCRIPTION and new R files to Collate when applicable.
@@ -46,28 +48,31 @@ Use the seven-step workflow and templates:
 - [PlotXxx workflow](../.claude/docs/plotxxx-workflow-detail.md)
 - [Tutorial YAML template](../.claude/docs/tutorial-yaml-template.md)
 
-The workflow covers source inspection, `test/PlotXxx/`, implementation, at
-least five test cases, WSL testing, Rmd tutorial generation, and PDF rendering.
-Do not copy the full templates into this file.
+The workflow covers new script-to-function deliveries. Existing-function fixes
+use the shared local change workflow; tests cover affected behavior without a
+fixed case count. Do not copy templates or tutorial triggers into this file.
 
 Current PlotXxx implementations live under `../test/Plot*/`; inspect the
 filesystem rather than maintaining a duplicate inventory here.
 
 ## CI and pkgdown checklist
 
-Before pushing:
+Before pushing, follow the root Git rules and stage only task-owned paths or
+hunks. Apply the shared change-type exemptions; documentation-only rule changes
+do not trigger package builds or pkgdown checks.
 
-1. Stage changed `R/*.R`, `man/*.Rd`, NAMESPACE, DESCRIPTION, and data files.
-2. Confirm every export is listed in `_pkgdown.yml`.
-3. Do not use `:::` for exported objects in vignettes.
-4. Build in a clean location:
+When exports, package metadata, examples or site configuration change:
+
+1. Confirm affected exports are listed in `_pkgdown.yml`.
+2. Do not use `:::` for exported objects in vignettes.
+3. When a package build is required, use a clean location:
 
 ```bash
 wsl -d Ubuntu-22.04 -- bash -c \
   'cd /tmp && R CMD build /mnt/e/Rpackage/UtilsR --no-build-vignettes'
 ```
 
-5. Check pkgdown export coverage:
+4. For export/index changes, check pkgdown export coverage:
 
 ```bash
 wsl -d Ubuntu-22.04 -- bash -c \
