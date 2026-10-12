@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_com()` resolves comparisons from observed groups and trained axis
+  positions, preventing missing factor levels from silently selecting another
+  group. Consecutive and all-pairs comparisons respect panel-local scale order.
+
 * `flatten_patchwork()` documents collection scope changes after flattening,
   multiple guide-area behavior, and wrapped groups for retaining nested scopes.
   Examples cover composite inset hosts and protected guide groups.

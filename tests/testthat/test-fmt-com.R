@@ -1,0 +1,41 @@
+com_plot <- function(data = iris) {
+  ggplot2::ggplot(data, ggplot2::aes(Species, Sepal.Length)) +
+    ggplot2::geom_boxplot()
+}
+
+com_stat <- function(plot) {
+  built <- ggplot2::ggplot_build(plot)
+  unique(built$data[[length(built$data)]][, c("PANEL", "group1", "group2", "p", "p.adj", "label", "xmin", "xmax")])
+}
+
+test_that("comparisons resolve observed groups in displayed scale order", {
+  p <- com_plot(subset(iris, Species != "versicolor"))
+  expect_error(fmt_com(p, com_method = list(c("setosa", "versicolor"))),
+               "observed")
+  s <- com_stat(fmt_com(p, com_method = list(c("setosa", "virginica"))))
+  expect_equal(as.numeric(s$xmin), 1)
+  expect_equal(as.numeric(s$xmax), 2)
+
+  p <- com_plot() + ggplot2::scale_x_discrete(
+    limits = c("virginica", "setosa", "versicolor")
+  )
+  s <- com_stat(fmt_com(p, com_method = list(c("setosa", "versicolor"))))
+  expect_equal(as.numeric(s$xmin), 2)
+  expect_equal(as.numeric(s$xmax), 3)
+  expected <- stats::wilcox.test(iris$Sepal.Length[iris$Species == "setosa"],
+                                iris$Sepal.Length[iris$Species == "versicolor"])$p.value
+  expect_equal(s$p, signif(expected, 3), tolerance = 0.01)
+  s <- com_stat(fmt_com(p))
+  expect_equal(as.numeric(s$xmin), c(1, 2))
+  expect_equal(as.numeric(s$xmax), c(2, 3))
+})
+
+test_that("automatic comparisons use the groups available in each facet", {
+  d <- rbind(transform(subset(iris, Species != "setosa"), panel = "A"),
+             transform(subset(iris, Species != "versicolor"), panel = "B"))
+  p <- com_plot(d) + ggplot2::facet_wrap(~panel, scales = "free_x")
+  s <- com_stat(fmt_com(p))
+  expect_equal(nrow(s), 2L)
+  expect_equal(as.numeric(s$xmin), c(1, 1))
+  expect_equal(as.numeric(s$xmax), c(2, 2))
+})

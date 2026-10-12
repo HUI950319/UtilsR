@@ -45,6 +45,9 @@ Same type as input.
 }
 \description{
 Uses \code{ggpubr::geom_pwc} to overlay significance brackets.
+Comparisons follow displayed x-axis order and use observed groups in each
+panel. Custom groups without observations are rejected; pairs absent from
+an individual facet panel are skipped.
 }
 \examples{
 library(ggplot2)

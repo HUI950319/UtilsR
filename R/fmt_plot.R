@@ -3372,6 +3372,9 @@ drawDetails.axis_tile_strip <- function(x, recording) {
 #' Add pairwise statistical comparisons
 #'
 #' Uses \code{ggpubr::geom_pwc} to overlay significance brackets.
+#' Comparisons follow displayed x-axis order and use observed groups in each
+#' panel. Custom groups without observations are rejected; pairs absent from
+#' an individual facet panel are skipped.
 #'
 #' @param plot A ggplot, patchwork, or list of ggplots.
 #' @param com_method Comparison method: \code{"con"} (consecutive), \code{"all"}
@@ -3438,29 +3441,23 @@ fmt_com <- function(plot,
       }
     )
     if (is.null(x_data)) cli::cli_abort("Cannot resolve x variable from plot mapping.")
-    lvs <- if (is.factor(x_data)) levels(x_data) else sort(unique(x_data))
+    observed <- unique(as.character(x_data[!is.na(x_data)]))
 
     if (is.list(cm)) {
       if (!all(vapply(cm, length, integer(1)) == 2L))
         cli::cli_abort("com_method list must contain vectors of length 2.")
       all_grps <- unique(unlist(cm))
-      if (!all(all_grps %in% lvs))
-        cli::cli_abort("Some groups in com_method are not in x variable levels.")
-      comps <- cm
-    } else {
-      comps <- switch(cm,
-        con = Map(c, lvs[-length(lvs)], lvs[-1]),
-        all = utils::combn(lvs, 2, simplify = FALSE),
-        cli::cli_abort("com_method must be 'con', 'all', or a list.")
-      )
+      if (!all(all_grps %in% observed))
+        cli::cli_abort("Some groups in com_method have no observed x values.")
+      return(lapply(cm, as.character))
     }
-    # Convert to numeric indices
-    lapply(comps, function(el) {
-      if (!is.numeric(el)) which(lvs %in% el) else el
-    })
+    if (!is.character(cm) || length(cm) != 1L || !cm %in% c("con", "all"))
+      cli::cli_abort("com_method must be 'con', 'all', or a list.")
+    cm
   }
 
   fmt_com_one <- function(p) {
+    comparisons <- get_comparisons(p, com_method)
     # Determine y position: label.y (absolute) takes priority over label.y.prop
     y_pos <- label.y
     if (is.null(y_pos) && !is.null(label.y.prop)) {
@@ -3475,8 +3472,7 @@ fmt_com <- function(plot,
       }
     }
 
-    p +
-      ggpubr::geom_pwc(
+    layer <- ggpubr::geom_pwc(
         # Override inherited `group` aesthetic. Paired / repeated-measures
         # plots (e.g. ggwithinstats partial-dependence panels) set
         # `aes(group = subject_id)` at the plot level to draw trajectory
@@ -3485,7 +3481,7 @@ fmt_com <- function(plot,
         # one observation per x level, so all tests degenerate to "ns"
         # at scattered positions.
         mapping = ggplot2::aes(group = NULL),
-        method.args = list(comparisons = get_comparisons(p, com_method)),
+        method.args = list(),
         symnum.args = list(
           cutpoints = c(0, 0.001, 0.01, 0.05, Inf),
           symbols = c("***", "**", "*", "ns")
@@ -3498,6 +3494,28 @@ fmt_com <- function(plot,
         fontface = "bold",
         ...
       )
+    native_stat <- layer$stat
+    layer$stat <- ggplot2::ggproto(NULL, native_stat,
+      parameters = function(extra = FALSE) native_stat$parameters(extra),
+      compute_panel = function(data, scales, ...) {
+        args <- list(...)
+        available <- sort(unique(as.numeric(data$x[is.finite(data$y)])))
+        if (length(available) < 2L) return(data.frame())
+        limits <- as.character(scales$x$get_limits())
+        pairs <- if (is.list(comparisons)) {
+          lapply(comparisons, function(pair) match(pair, limits))
+        } else if (comparisons == "con") {
+          Map(c, head(available, -1L), tail(available, -1L))
+        } else utils::combn(available, 2L, simplify = FALSE)
+        pairs <- Filter(function(pair) all(pair %in% available), pairs)
+        if (!length(pairs)) return(data.frame())
+        args$method.args$comparisons <- lapply(pairs, as.character)
+        # Statistical grouping must follow mapped positions after scale training.
+        data$group <- data$x
+        do.call(native_stat$compute_panel, c(list(data = data, scales = scales), args))
+      }
+    )
+    p + layer
   }
 
   info <- .to_plot_list(plot)
