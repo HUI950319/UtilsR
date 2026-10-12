@@ -77,18 +77,22 @@ fmt_com(
   [`ggpubr::geom_pwc`](https://rpkgs.datanovia.com/ggpubr/reference/geom_pwc.html),
   overriding formatting defaults. `method.args` may contain test options
   such as `paired` or `alternative`; select pairs with `com_method`, not
-  `method.args$comparisons`. Pairing follows observation order within
-  each comparison group, so align paired observations before plotting.
-  By default, inherited trajectory grouping is ignored and x groups are
-  compared. Set `group.by = "x.var"` to compare mapped groups within
-  each x value, or `group.by = "legend.var"` to compare x values within
-  each mapped group. An explicit `mapping = aes(group = ...)` also
-  enables grouped comparisons. `com_method` selects the corresponding
-  comparison variable, with consecutive pairs resolved within each
-  subset. When `ref.group` is supplied, it selects reference comparisons
-  instead of automatic consecutive/all pairs; it cannot be combined with
-  a custom `com_method` list. Names and displayed ranks are accepted,
-  and `ref.group = "all"` compares each group against the pooled
+  `method.args$comparisons`. Paired tests retain original observation
+  order and jointly omit incomplete pairs. Original group sizes must
+  match for order-based pairing. Supply
+  `method.args = list(paired = TRUE, id = "subject")` to match a data
+  column independently within each pair; IDs must be non-missing and
+  unique within each comparison group/subset. By default, inherited
+  trajectory grouping is ignored and x groups are compared. Set
+  `group.by = "x.var"` to compare mapped groups within each x value, or
+  `group.by = "legend.var"` to compare x values within each mapped
+  group. An explicit `mapping = aes(group = ...)` also enables grouped
+  comparisons. `com_method` selects the corresponding comparison
+  variable, with consecutive pairs resolved within each subset. When
+  `ref.group` is supplied, it selects reference comparisons instead of
+  automatic consecutive/all pairs; it cannot be combined with a custom
+  `com_method` list. Names and displayed ranks are accepted, and
+  `ref.group = "all"` compares each group against the pooled
   observations. Dunn, Tukey and Games-Howell methods compute their full
   comparison family before display filtering, retaining that family's
   adjustment. Methods returning only adjusted P values use adjusted
