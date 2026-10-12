@@ -3390,7 +3390,10 @@ drawDetails.axis_tile_strip <- function(x, recording) {
 #'   are rejected. Values select categories rather than numeric axis indices.
 #' @param label.y Numeric bracket positions in original y-data units, before
 #'   scale transformation. A scalar sets the first bracket; a vector sets
-#'   individual positions. Default \code{NULL} lets ggpubr auto-calculate.
+#'   individual positions in comparison-family order. Custom vectors follow
+#'   \code{com_method} order within each mapped subset; automatic vectors follow
+#'   displayed global pairs, appending extra sparse-panel pairs. Filtering a
+#'   panel retains the matching entries. Default \code{NULL} uses automatic positions.
 #' @param label.y.prop Numeric proportion (0-1) of each panel's transformed
 #'   y-axis data range for the first bracket. E.g., \code{0.9} is 90\% along
 #'   the displayed range, including log scales and free-y facets. Ignored when
@@ -3400,8 +3403,10 @@ drawDetails.axis_tile_strip <- function(x, recording) {
 #'   \code{"p.signif"}, \code{"p.adj.signif"}, \code{"p.adj.format"}, or
 #'   \code{"\{p.format\}\{p.signif\}"}. The default displays raw P-value stars;
 #'   select an adjusted label to display multiplicity-adjusted results.
-#' @param tip.length Length of the bracket tips. Default \code{0.025}.
-#' @param step.increase Vertical step increase between brackets. Default \code{0.05}.
+#' @param tip.length Fraction of panel height for tips: a scalar, one value per
+#'   comparison, or two values per comparison in left/right order. Default \code{0.025}.
+#' @param step.increase Vertical step as a fraction of panel height: a scalar
+#'   or one value per comparison. Default \code{0.05}. Not added to explicit position vectors.
 #' @param size Line width of the brackets. Default \code{0.8}.
 #' @param ... Named arguments passed to \code{ggpubr::geom_pwc}, overriding
 #'   formatting defaults. \code{method.args} may contain test options such as
@@ -3626,6 +3631,62 @@ fmt_com <- function(plot,
     }
     comparison_order <- if (compare_group) group_labels else
       levels(droplevels(factor(rlang::eval_tidy(source_mapping$x, data = source_data))))
+    if (!is.null(label.y)) {
+      y_scale <- p$scales$get_scales("y")
+      if (!is.null(y_scale) && any(!is.finite(suppressWarnings(y_scale$transform(label.y)))))
+        cli::cli_abort("label.y must lie within the y transformation's domain.")
+    }
+    layout_controls <- list(y = label.y, step = step.increase, tip = tip.length, nudge = dots$bracket.nudge.y)
+    vector_layout <- any(lengths(layout_controls) > 1L)
+    layout_keys <- character()
+    pair_key <- function(a, b, context = "") {
+      values <- c(context, sort(c(a, b)))
+      paste0(nchar(values), ":", values, collapse = "")
+    }
+    if (vector_layout) {
+      n <- nrow(source_data)
+      axis_values <- rep(rlang::eval_tidy(source_mapping$x, data = source_data), length.out = n)
+      group_values <- if (grouped) rep(rlang::eval_tidy(group_quo, data = source_data), length.out = n) else rep("", n)
+      finite <- is.finite(rep(rlang::eval_tidy(source_mapping$y, data = source_data), length.out = n))
+      axis_scale <- p$scales$get_scales("x")
+      axis_scale <- if (is.null(axis_scale)) ggplot2::scale_x_discrete() else axis_scale$clone()
+      axis_scale$train(axis_values)
+      axis_order <- as.character(axis_scale$get_limits())
+      layout_order <- if (compare_group) group_labels else axis_order
+      context <- as.character(if (!grouped) rep("", n) else if (compare_group) axis_values else group_values)
+      contexts <- if (!grouped) "" else if (compare_group) axis_order else group_labels
+      values <- as.character(if (compare_group) group_values else axis_values)
+      facet_values <- lapply(c(p$facet$params$facets, p$facet$params$rows, p$facet$params$cols),
+                             rlang::eval_tidy, data = source_data)
+      panels <- if (length(facet_values)) do.call(interaction,
+        c(lapply(facet_values, function(value) factor(rep(value, length.out = n), exclude = NULL)), list(drop = TRUE))) else rep(1L, n)
+      add_pairs <- function(value, subset, declared = FALSE) {
+        available <- layout_order[!is.na(layout_order) & layout_order %in% value]
+        reference <- if (is.numeric(ref_group)) layout_order[ref_group] else ref_group
+        pairs <- if (ref_all) lapply(available, function(value) c(value, value)) else
+          if (!is.null(reference)) lapply(setdiff(available, reference), function(value) c(reference, value)) else
+          if (is.list(comparisons)) comparisons else
+          if (length(available) < 2L) list() else
+          if (comparisons == "con") Map(c, head(available, -1L), tail(available, -1L)) else
+          utils::combn(available, 2L, simplify = FALSE)
+        if (!declared) pairs <- Filter(function(pair) all(pair %in% available), pairs)
+        keys <- vapply(pairs, function(pair) pair_key(pair[1L], pair[2L], subset), character(1))
+        layout_keys <<- unique(c(layout_keys, keys))
+      }
+      for (subset in contexts) {
+        rows <- which(finite & !is.na(context) & context == subset)
+        if (!length(rows)) next
+        add_pairs(values[rows], subset, declared = is.list(comparisons))
+        for (panel in unique(panels[rows])) add_pairs(values[rows[panels[rows] == panel]], subset)
+      }
+      count <- length(layout_keys)
+      for (name in c("y", "step", "nudge")) {
+        if (length(layout_controls[[name]]) > 1L && length(layout_controls[[name]]) != count)
+          cli::cli_abort("{switch(name, y = 'label.y', step = 'step.increase', nudge = 'bracket.nudge.y')} must have length one or {count}, the comparison-family size.")
+      }
+      if (!length(tip.length) %in% c(1L, count, 2L * count))
+        cli::cli_abort("tip.length must have length one, {count}, or {2L * count}.")
+    }
     if (paired) {
       if (ref_all) cli::cli_abort("Paired tests cannot use a pooled ref.group; select two groups.")
       comparison_values <- rep(rlang::eval_tidy(if (compare_group) group_quo else source_mapping$x,
@@ -3706,6 +3767,13 @@ fmt_com <- function(plot,
         if (!is.null(args$y.position) && is.null(dots$bracket.nudge.y)) {
           args$bracket.nudge.y <- 0
         }
+        layout_y <- args$y.position
+        layout_nudge <- args$bracket.nudge.y
+        if (vector_layout) {
+          args$y.position <- 0
+          args$step.increase <- args$bracket.nudge.y <- 0
+          args$tip.length <- c(0, 0)
+        }
         limits <- as.character(scales$x$get_limits())
         ref_lookup <- if (compare_group) group_labels else limits
         ref_id <- if (is.null(ref_group) || ref_all) NULL else
@@ -3742,7 +3810,7 @@ fmt_com <- function(plot,
           test_args <- list(...)
           test_details <- NULL
           test_classes <- NULL
-          run_test <- function(d) {
+          run_test <- function(d, context = "") {
             variable <- all.vars(formula)[2L]
             lookup <- if (variable == "group") group_labels else limits
             d[[variable]] <- droplevels(factor(d[[variable]]))
@@ -3784,13 +3852,22 @@ fmt_com <- function(plot,
             }
             if (!"p.adj" %in% names(result) && "p" %in% names(result))
               result <- rstatix::adjust_pvalue(result, method = test_args$p.adjust.method)
+            if (vector_layout && nrow(result)) {
+              first <- as.character(result$group1)
+              first[first %in% c("all", ".all.")] <- as.character(result$group2[first %in% c("all", ".all.")])
+              keys <- mapply(function(a, b) pair_key(lookup[as.integer(a)], lookup[as.integer(b)], context),
+                             first, as.character(result$group2), USE.NAMES = FALSE)
+              result$.fmt_com_layout <- match(keys, layout_keys)
+              if (anyNA(result$.fmt_com_layout)) cli::cli_abort("Layout vectors cannot resolve this comparison; supply explicit com_method pairs.")
+            }
             test_details <<- attr(result, "args")
             test_classes <<- class(result)
             result
           }
           if (dplyr::is_grouped_df(data)) {
             result <- dplyr::ungroup(dplyr::group_modify(data, function(.x, .y) {
-              result <- run_test(.x)
+              context <- if (compare_group) limits[as.numeric(as.character(.y$x))] else group_labels[as.numeric(as.character(.y$group))]
+              result <- run_test(.x, context)
               if ("x" %in% names(.y)) {
                 result$.fmt_com_x <- rep(as.numeric(as.character(.y$x)), nrow(result))
               }
@@ -3807,6 +3884,21 @@ fmt_com <- function(plot,
         if (!grouped) data$group <- data$x
         result <- do.call(native_stat$compute_panel, c(list(data = data, scales = scales), args))
         if (nrow(result)) {
+          if (vector_layout) {
+            index <- result$.fmt_com_layout
+            pick <- function(value) if (length(value) == 1L) rep(value, nrow(result)) else value[index]
+            y_range <- diff(scales$y$range$range)
+            y <- if (is.null(layout_y)) rep(scales$y$range$range[2L], nrow(result)) else pick(layout_y)
+            y <- y + y_range * pick(layout_nudge)
+            if (length(layout_y) <= 1L) y <- y + y_range * pick(step.increase) * (result$bracket.group - 1L)
+            tips <- if (length(tip.length) == 2L * length(layout_keys)) {
+              list(left = tip.length[2L * index - 1L], right = tip.length[2L * index])
+            } else list(left = pick(tip.length), right = pick(tip.length))
+            n <- nrow(result) / 3L
+            result$y <- y - y_range * tips$left * rep(c(TRUE, FALSE, FALSE), each = n)
+            result$yend <- y - y_range * tips$right * rep(c(FALSE, FALSE, TRUE), each = n)
+            result$.fmt_com_layout <- NULL
+          }
           # Native brackets use dense positions; restore retained scale holes.
           left <- if (compare_group) result$.fmt_com_x else as.numeric(result$group1)
           right <- if (compare_group) result$.fmt_com_x else as.numeric(result$group2)

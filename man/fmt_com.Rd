@@ -28,7 +28,10 @@ are rejected. Values select categories rather than numeric axis indices.}
 
 \item{label.y}{Numeric bracket positions in original y-data units, before
 scale transformation. A scalar sets the first bracket; a vector sets
-individual positions. Default \code{NULL} lets ggpubr auto-calculate.}
+individual positions in comparison-family order. Custom vectors follow
+\code{com_method} order within each mapped subset; automatic vectors follow
+displayed global pairs, appending extra sparse-panel pairs. Filtering a
+panel retains the matching entries. Default \code{NULL} uses automatic positions.}
 
 \item{label.y.prop}{Numeric proportion (0-1) of each panel's transformed
 y-axis data range for the first bracket. E.g., \code{0.9} is 90\% along
@@ -41,9 +44,11 @@ the displayed range, including log scales and free-y facets. Ignored when
 \code{"\{p.format\}\{p.signif\}"}. The default displays raw P-value stars;
 select an adjusted label to display multiplicity-adjusted results.}
 
-\item{tip.length}{Length of the bracket tips. Default \code{0.025}.}
+\item{tip.length}{Fraction of panel height for tips: a scalar, one value per
+comparison, or two values per comparison in left/right order. Default \code{0.025}.}
 
-\item{step.increase}{Vertical step increase between brackets. Default \code{0.05}.}
+\item{step.increase}{Vertical step as a fraction of panel height: a scalar
+or one value per comparison. Default \code{0.05}. Not added to explicit position vectors.}
 
 \item{size}{Line width of the brackets. Default \code{0.8}.}
 

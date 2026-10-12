@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_com()` validates layout-vector sizes and transformation domains, matches
+  vectors to comparison identities across facet filtering, and supports
+  symmetric or left/right tip lengths per comparison without recycling.
+
 * `fmt_com()` fixes one-sided comparison direction to custom pair order,
   reference order, or original mapped group order for automatic pairs, keeping
   axis reordering from reversing the tested alternative.

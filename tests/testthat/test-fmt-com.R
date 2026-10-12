@@ -340,3 +340,30 @@ test_that("one-sided custom comparisons preserve requested direction", {
   reversed <- com_stat(fmt_com(q, method = "t_test", com_method = "all", method.args = args))
   expect_equal(sort(reversed$p), sort(all$p))
 })
+
+test_that("layout vectors match comparisons and remain aligned after facet filtering", {
+  p <- com_plot()
+  expect_error(fmt_com(p, com_method = "all", label.y = c(8, 9)), "label.y")
+  expect_error(fmt_com(p, com_method = "all", step.increase = c(.01, .02)), "step.increase")
+  q <- fmt_com(p, com_method = "all", label.y = c(8, 9, 10), tip.length = c(.01, .02, .03))
+  b <- ggplot2::ggplot_build(q)$data[[2]]
+  expect_equal(b$yend[1:3] - b$y[1:3], c(.036, .072, .108))
+  expect_equal(b$y[7:9] - b$yend[7:9], c(.036, .072, .108))
+  d <- rbind(transform(subset(iris, Species != "setosa"), panel = "A"),
+             transform(subset(iris, Species != "versicolor"), panel = "B"))
+  p <- com_plot(d) + ggplot2::facet_wrap(~panel)
+  pairs <- list(c("setosa", "versicolor"), c("setosa", "virginica"), c("versicolor", "virginica"))
+  y <- com_y(fmt_com(p, com_method = pairs, label.y = c(8, 9, 10)))
+  expect_equal(y$y, c(10, 9))
+  expect_error(fmt_com(com_plot() + ggplot2::scale_y_log10(), label.y = -1), "label.y")
+  q <- fmt_com(com_plot(), com_method = "all", label.y = c(8, 9, 10),
+               tip.length = c(.01, .02, .03, .04, .05, .06))
+  b <- ggplot2::ggplot_build(q)$data[[2]]
+  expect_equal(b$yend[1:3] - b$y[1:3], c(.036, .108, .18))
+  expect_equal(b$y[7:9] - b$yend[7:9], c(.072, .144, .216))
+  d <- transform(ToothGrowth, dose = factor(dose))
+  grouped <- ggplot2::ggplot(d, ggplot2::aes(dose, len, fill = supp)) + ggplot2::geom_boxplot()
+  expect_equal(com_y(fmt_com(grouped, group.by = "x.var", label.y = c(40, 50, 60)))$y, c(40, 50, 60))
+  pairs <- list(c("versicolor", "virginica"), c("setosa", "virginica"))
+  expect_equal(com_y(fmt_com(com_plot(), method = "dunn_test", com_method = pairs, label.y = c(8, 9)))$y, c(9, 8))
+})
