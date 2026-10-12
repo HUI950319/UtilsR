@@ -283,3 +283,16 @@ test_that("mixed subgroup sizes retain adjusted values and labels", {
                             p.adjust.method = "bonferroni"))
   expect_equal(panel$p.adj, stats::p.adjust(panel$p, "bonferroni"))
 })
+
+test_that("sparse legend subsets use their observed factor levels", {
+  d <- subset(ToothGrowth, !(supp == "VC" & dose == .5))
+  d$dose <- factor(d$dose)
+  p <- ggplot2::ggplot(d, ggplot2::aes(dose, len, fill = supp)) +
+    ggplot2::geom_boxplot(position = ggplot2::position_dodge(.8))
+  s <- com_stat(fmt_com(p, group.by = "legend.var"))
+  expect_equal(nrow(s), 3L)
+  expected <- stats::wilcox.test(len ~ dose, data = droplevels(subset(d, supp == "VC")), exact = FALSE)$p.value
+  expect_equal(s$p[as.numeric(s$xmin) > 2], signif(expected, 3), tolerance = .01)
+  expect_equal(sort(as.numeric(s$xmin)), c(1, 1.8, 2.2))
+  expect_equal(sort(as.numeric(s$xmax)), c(1.8, 2.8, 3.2))
+})

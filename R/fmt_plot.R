@@ -3695,6 +3695,7 @@ fmt_com <- function(plot,
           run_test <- function(d) {
             variable <- all.vars(formula)[2L]
             lookup <- if (variable == "group") group_labels else limits
+            d[[variable]] <- droplevels(factor(d[[variable]]))
             pairs <- select_pairs(d[[variable]], lookup)
             if (!length(pairs)) return(data.frame(group1 = character(), group2 = character(),
               p = numeric(), p.adj = numeric(), n1 = integer(), n2 = integer(), .y. = character()))

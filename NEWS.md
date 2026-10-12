@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_com()` drops unused comparison levels within each grouped subset,
+  retaining valid sparse legend comparisons and their original dodge positions.
+
 * `fmt_com()` retains adjusted P values and labels when grouped subsets have
   different numbers of comparison levels, respecting group/panel adjustment.
 
