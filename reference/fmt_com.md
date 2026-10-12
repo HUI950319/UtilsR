@@ -2,7 +2,10 @@
 
 Uses
 [`ggpubr::geom_pwc`](https://rpkgs.datanovia.com/ggpubr/reference/geom_pwc.html)
-to overlay significance brackets.
+to overlay significance brackets. Comparisons follow displayed x-axis
+order and use observed groups in each panel. Custom groups without
+observations are rejected; pairs absent from an individual facet panel
+are skipped.
 
 ## Usage
 
