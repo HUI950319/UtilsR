@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/fmt_com.html">fmt_com()</a></code> honors explicit grouped comparisons and statistical mappings, resolving requested pairs within each subset and retaining native dodge positions. Default trajectory grouping remains ignored for x comparisons.</p></li>
+<ul><li><p><code><a href="../reference/fmt_com.html">fmt_com()</a></code> supports pair selection for Dunn, Tukey and Games-Howell tests without passing unsupported comparison arguments. Their full-family adjustment is retained; adjusted-only methods display adjusted stars.</p></li>
+<li><p><code><a href="../reference/fmt_com.html">fmt_com()</a></code> honors explicit grouped comparisons and statistical mappings, resolving requested pairs within each subset and retaining native dodge positions. Default trajectory grouping remains ignored for x comparisons.</p></li>
 <li><p><code><a href="../reference/fmt_com.html">fmt_com()</a></code> merges named ggpubr arguments with defaults, allowing paired and one-sided test options, custom significance symbols and font overrides without duplicate arguments. Pair selection remains controlled by <code>com_method</code>.</p></li>
 <li><p><code><a href="../reference/fmt_com.html">fmt_com()</a></code> accepts adjusted P-value labels and custom ggpubr templates while retaining its default raw P-value stars.</p></li>
 <li><p><code><a href="../reference/fmt_com.html">fmt_com()</a></code> resolves comparisons from observed groups and trained axis positions, preventing missing factor levels from silently selecting another group. Consecutive and all-pairs comparisons respect panel-local scale order.</p></li>
