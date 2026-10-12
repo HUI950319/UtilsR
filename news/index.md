@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md)
+  retains adjusted P values and labels when grouped subsets have
+  different numbers of comparison levels, respecting group/panel
+  adjustment.
+
+- [`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md)
   honors reference-group comparisons, including pooled references and
   named legend groups, and rejects conflicting custom comparison lists.
 
