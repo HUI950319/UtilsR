@@ -125,7 +125,13 @@ select an adjusted label to display multiplicity-adjusted results.</p></dd>
 formatting defaults. <code>method.args</code> may contain test options such as
 <code>paired</code> or <code>alternative</code>; select pairs with <code>com_method</code>,
 not <code>method.args$comparisons</code>. Pairing follows observation order within
-each comparison group, so align paired observations before plotting.</p></dd>
+each comparison group, so align paired observations before plotting.
+By default, inherited trajectory grouping is ignored and x groups are
+compared. Set <code>group.by = "x.var"</code> to compare mapped groups within
+each x value, or <code>group.by = "legend.var"</code> to compare x values within
+each mapped group. An explicit <code>mapping = aes(group = ...)</code> also
+enables grouped comparisons. <code>com_method</code> selects the corresponding
+comparison variable, with consecutive pairs resolved within each subset.</p></dd>
 
 </dl></div>
     <div class="section level2">

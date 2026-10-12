@@ -72,6 +72,13 @@ fmt_com(
   such as `paired` or `alternative`; select pairs with `com_method`, not
   `method.args$comparisons`. Pairing follows observation order within
   each comparison group, so align paired observations before plotting.
+  By default, inherited trajectory grouping is ignored and x groups are
+  compared. Set `group.by = "x.var"` to compare mapped groups within
+  each x value, or `group.by = "legend.var"` to compare x values within
+  each mapped group. An explicit `mapping = aes(group = ...)` also
+  enables grouped comparisons. `com_method` selects the corresponding
+  comparison variable, with consecutive pairs resolved within each
+  subset.
 
 ## Value
 

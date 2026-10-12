@@ -3,6 +3,12 @@
 ## UtilsR 0.6.8
 
 - [`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md)
+  honors explicit grouped comparisons and statistical mappings,
+  resolving requested pairs within each subset and retaining native
+  dodge positions. Default trajectory grouping remains ignored for x
+  comparisons.
+
+- [`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md)
   merges named ggpubr arguments with defaults, allowing paired and
   one-sided test options, custom significance symbols and font overrides
   without duplicate arguments. Pair selection remains controlled by
