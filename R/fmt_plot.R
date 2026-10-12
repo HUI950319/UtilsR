@@ -3406,8 +3406,11 @@ drawDetails.axis_tile_strip <- function(x, recording) {
 #' @param ... Named arguments passed to \code{ggpubr::geom_pwc}, overriding
 #'   formatting defaults. \code{method.args} may contain test options such as
 #'   \code{paired} or \code{alternative}; select pairs with \code{com_method},
-#'   not \code{method.args$comparisons}. Pairing follows observation order within
-#'   each comparison group, so align paired observations before plotting.
+#'   not \code{method.args$comparisons}. Paired tests retain original observation
+#'   order and jointly omit incomplete pairs. Original group sizes must match
+#'   for order-based pairing. Supply \code{method.args = list(paired = TRUE,
+#'   id = "subject")} to match a data column independently within each pair;
+#'   IDs must be non-missing and unique within each comparison group/subset.
 #'   By default, inherited trajectory grouping is ignored and x groups are
 #'   compared. Set \code{group.by = "x.var"} to compare mapped groups within
 #'   each x value, or \code{group.by = "legend.var"} to compare x values within
@@ -3483,6 +3486,11 @@ fmt_com <- function(plot,
     cli::cli_abort("method.args must be a list with unique, non-empty option names.")
   if (!is.null(dots$method.args$comparisons))
     cli::cli_abort("Select comparisons with com_method, not method.args$comparisons.")
+  paired <- isTRUE(dots$method.args$paired) || identical(dots$method, "sign_test")
+  pair_id <- dots$method.args$id
+  if (!is.null(pair_id) && (!paired || !is.character(pair_id) || length(pair_id) != 1L ||
+      is.na(pair_id) || !nzchar(pair_id)))
+    cli::cli_abort("method.args$id must name a subject column for a paired test.")
   ref_group <- if (is.null(dots$ref.group)) dots$method.args$ref.group else dots$ref.group
   if (!is.null(dots$ref.group) && !is.null(dots$method.args$ref.group) &&
       !identical(dots$ref.group, dots$method.args$ref.group))
@@ -3612,6 +3620,39 @@ fmt_com <- function(plot,
       values <- rlang::eval_tidy(group_quo, data = source_data)
       group_labels <- levels(droplevels(factor(values)))
     }
+    if (paired) {
+      if (ref_all) cli::cli_abort("Paired tests cannot use a pooled ref.group; select two groups.")
+      comparison_values <- rep(rlang::eval_tidy(if (compare_group) group_quo else source_mapping$x,
+                                              data = source_data), length.out = nrow(source_data))
+      strata <- lapply(c(p$facet$params$facets, p$facet$params$rows, p$facet$params$cols),
+                       rlang::eval_tidy, data = source_data)
+      if (grouped) strata <- c(strata, list(rlang::eval_tidy(
+        if (compare_group) source_mapping$x else group_quo, data = source_data)))
+      strata_key <- if (length(strata)) do.call(interaction,
+        c(lapply(strata, function(value) factor(rep(value, length.out = nrow(source_data)), exclude = NULL)),
+          list(drop = TRUE))) else factor(rep(1L, nrow(source_data)))
+      if (is.null(pair_id)) {
+        counts <- table(as.character(comparison_values), strata_key)
+        unequal <- apply(counts, 2L, function(n) {
+          if (is.list(comparisons)) return(any(vapply(comparisons, function(pair) {
+            sizes <- n[match(pair, names(n))]
+            all(!is.na(sizes) & sizes > 0L) && sizes[1L] != sizes[2L]
+          }, logical(1))))
+          length(unique(n[n > 0L])) > 1L
+        })
+        if (any(unequal)) cli::cli_abort("Paired groups have unequal original sizes; supply method.args$id.")
+        ids <- ave(seq_len(nrow(source_data)), interaction(factor(comparison_values), strata_key, drop = TRUE), FUN = seq_along)
+      } else {
+        if (!pair_id %in% names(source_data)) cli::cli_abort("method.args$id column is absent from statistical data.")
+        ids <- source_data[[pair_id]]
+        if (anyNA(ids) || anyDuplicated(data.frame(stratum = strata_key, comparison = comparison_values, id = ids)))
+          cli::cli_abort("method.args$id must be non-missing and unique within each comparison group/subset.")
+        ids <- match(ids, unique(ids))
+      }
+      id_column <- tail(make.unique(c(names(source_data), ".fmt_com_pair_id")), 1L)
+      source_data[[id_column]] <- as.numeric(ids)
+      source_mapping$.fmt_com_id <- rlang::new_quosure(rlang::sym(id_column), rlang::base_env())
+    }
     source_mapping$group <- if (grouped) group_quo else NULL
     geom_args <- list(
         data = source_data,
@@ -3635,6 +3676,8 @@ fmt_com <- function(plot,
     full_family <- method_name %in% c("dunn_test", "tukey_hsd", "games_howell_test", "games_howell")
     if (full_family && ref_all)
       cli::cli_abort("This full-family method does not support ref.group = 'all'.")
+    if (full_family && paired)
+      cli::cli_abort("This full-family method does not support paired comparisons.")
     if (method_name %in% c("tukey_hsd", "games_howell_test", "games_howell")) {
       geom_args$label <- gsub("p.signif", "p.adj.signif", geom_args$label, fixed = TRUE)
     }
@@ -3644,6 +3687,7 @@ fmt_com <- function(plot,
     layer$mapping <- stat_mapping
     native_stat <- layer$stat
     layer$stat <- ggplot2::ggproto(NULL, native_stat,
+      optional_aes = unique(c(native_stat$optional_aes, ".fmt_com_id")),
       parameters = function(extra = FALSE) native_stat$parameters(extra),
       compute_panel = function(data, scales, ...) {
         args <- list(...)
@@ -3701,7 +3745,24 @@ fmt_com <- function(plot,
               p = numeric(), p.adj = numeric(), n1 = integer(), n2 = integer(), .y. = character()))
             if (!full_family && !ref_all) test_args$comparisons <- lapply(pairs, as.character)
             if (full_family) test_args$ref.group <- NULL
-            result <- do.call(native_method, c(list(data = d, formula = formula), test_args))
+            if (paired) {
+              pair_args <- test_args
+              pair_args$id <- pair_args$comparisons <- NULL
+              parts <- lapply(pairs, function(pair) {
+                part <- d[as.character(d[[variable]]) %in% as.character(pair), , drop = FALSE]
+                ids <- lapply(as.character(pair), function(group) part$.fmt_com_id[as.character(part[[variable]]) == group])
+                common <- intersect(ids[[1L]], ids[[2L]])
+                part <- part[part$.fmt_com_id %in% common, , drop = FALSE]
+                part <- part[order(part[[variable]], part$.fmt_com_id), , drop = FALSE]
+                part[[variable]] <- droplevels(part[[variable]])
+                do.call(native_method, c(list(data = part, formula = formula), pair_args))
+              })
+              details <- attr(parts[[1L]], "args")
+              details$data <- d
+              details$formula <- formula
+              result <- rstatix::adjust_pvalue(dplyr::bind_rows(parts), method = test_args$p.adjust.method)
+              attr(result, "args") <- details
+            } else result <- do.call(native_method, c(list(data = d, formula = formula), test_args))
             if (full_family) {
               selected <- vapply(pairs, function(pair) paste(sort(as.character(pair)), collapse = ":"), character(1))
               keys <- mapply(function(a, b) paste(sort(c(as.character(a), as.character(b))), collapse = ":"),

@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_com()` preserves paired observations through missing-value and scale
+  filtering, with joint pair omission. `method.args$id` matches explicit
+  subject IDs; ambiguous unequal-size row pairing is rejected.
+
 * `fmt_com()` drops unused comparison levels within each grouped subset,
   retaining valid sparse legend comparisons and their original dodge positions.
 

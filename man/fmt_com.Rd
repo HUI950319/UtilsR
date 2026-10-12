@@ -50,8 +50,11 @@ select an adjusted label to display multiplicity-adjusted results.}
 \item{...}{Named arguments passed to \code{ggpubr::geom_pwc}, overriding
 formatting defaults. \code{method.args} may contain test options such as
 \code{paired} or \code{alternative}; select pairs with \code{com_method},
-not \code{method.args$comparisons}. Pairing follows observation order within
-each comparison group, so align paired observations before plotting.
+not \code{method.args$comparisons}. Paired tests retain original observation
+order and jointly omit incomplete pairs. Original group sizes must match
+for order-based pairing. Supply \code{method.args = list(paired = TRUE,
+id = "subject")} to match a data column independently within each pair;
+IDs must be non-missing and unique within each comparison group/subset.
 By default, inherited trajectory grouping is ignored and x groups are
 compared. Set \code{group.by = "x.var"} to compare mapped groups within
 each x value, or \code{group.by = "legend.var"} to compare x values within

@@ -296,3 +296,30 @@ test_that("sparse legend subsets use their observed factor levels", {
   expect_equal(sort(as.numeric(s$xmin)), c(1, 1.8, 2.2))
   expect_equal(sort(as.numeric(s$xmax)), c(1.8, 2.8, 3.2))
 })
+
+test_that("paired tests retain row alignment and support explicit subject IDs", {
+  d <- data.frame(id = rep(1:5, 2), x = rep(c("A", "B"), each = 5),
+                  y = c(1, 2, 4, 8, NA, NA, 5, 5, 9, 16))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  expected <- stats::t.test(c(2, 4, 8), c(5, 5, 9), paired = TRUE)$p.value
+  s <- suppressWarnings(com_stat(fmt_com(p, method = "t_test", method.args = list(paired = TRUE))))
+  expect_equal(s$p, signif(expected, 3))
+  reordered <- d[c(1:5, 10:6), ]
+  p <- ggplot2::ggplot(reordered, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  s <- suppressWarnings(com_stat(fmt_com(p, method = "t_test", method.args = list(paired = TRUE, id = "id"))))
+  expect_equal(s$p, signif(expected, 3))
+  expect_identical(p$data, reordered)
+  expect_error(fmt_com(p, method.args = list(paired = TRUE, id = "missing")), "id")
+  unbalanced <- p
+  unbalanced$data <- reordered[-1, ]
+  expect_error(fmt_com(unbalanced, method.args = list(paired = TRUE)), "id")
+  faceted <- rbind(transform(d, panel = "one"), transform(d, panel = "two", y = y + 2))
+  p <- ggplot2::ggplot(faceted, ggplot2::aes("all", y, fill = x)) +
+    ggplot2::geom_boxplot() + ggplot2::facet_wrap(~panel)
+  s <- suppressWarnings(com_stat(fmt_com(p, group.by = "x.var", method = "t_test",
+                                         method.args = list(paired = TRUE, id = "id"))))
+  expect_equal(s$p, rep(signif(expected, 3), 2L))
+  faceted$id[2] <- faceted$id[1]
+  p$data <- faceted
+  expect_error(fmt_com(p, group.by = "x.var", method.args = list(paired = TRUE, id = "id")), "unique")
+})
