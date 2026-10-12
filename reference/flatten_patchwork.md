@@ -22,15 +22,11 @@ flatten_patchwork(plots, ..., select_inds = NULL, nrow_inds_order = NULL)
 
 - select_inds:
 
-  Integer indices applied after flattening. Positive indices select and
-  may repeat plots; negative indices exclude plots. Zero is ignored.
-  Missing, fractional, mixed-sign and out-of-range indices are rejected.
+  Integer vector of indices to keep after flattening.
 
 - nrow_inds_order:
 
-  Single positive integer, at most the number of selected plots, to
-  reorder them by interleaving rows. Applied after selection; it does
-  not set the output layout's `nrow`.
+  Single integer to reorder plots by interleaving rows.
 
 ## Value
 
