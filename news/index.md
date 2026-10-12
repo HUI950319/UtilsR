@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
+  reports the index and original cause of unreadable patchwork children
+  instead of silently removing them from the result.
+
+- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
   preserves top-level annotations and collection settings, accepts
   explicit layout overrides and keeps
   [`free()`](https://patchwork.data-imaginist.com/reference/free.html)
