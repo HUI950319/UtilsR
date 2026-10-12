@@ -253,7 +253,22 @@ flatten_patchwork <- function(plots, ..., select_inds = NULL, nrow_inds_order = 
         cli::cli_abort("Cannot read patchwork child {i}.", parent = e)
       })
     }
-    unlist(lapply(children, flatten_recursive), recursive = FALSE)
+    cells <- list()
+    i <- 1L
+    while (i <= n) {
+      child <- children[[i]]
+      if (is_inset(child)) cli::cli_abort("An inset must follow its main plot.")
+      next_i <- i + 1L
+      has_inset <- next_i <= n && is_inset(children[[next_i]])
+      if (has_inset) child <- patchwork::wrap_plots(list(child))
+      while (next_i <= n && is_inset(children[[next_i]])) {
+        child <- child + children[[next_i]]
+        next_i <- next_i + 1L
+      }
+      cells <- c(cells, if (has_inset) list(child) else flatten_recursive(child))
+      i <- next_i
+    }
+    cells
   }
 
   all_subplots <- flatten_recursive(plots)

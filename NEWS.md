@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `flatten_patchwork()` groups insets with their host before recursion, retaining
+  a composite host as one selectable cell and preserving inset coordinates
+  relative to that entire host.
+
 * `flatten_patchwork()` distinguishes a freed plot from its enclosing patchwork,
   allowing containers ending in `free()` leaves to flatten, render and retain
   their overall annotations and collection settings.

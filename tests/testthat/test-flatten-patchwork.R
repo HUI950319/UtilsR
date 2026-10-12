@@ -97,6 +97,32 @@ test_that("flattening keeps nested insets with their main plot", {
                  "inset.*main plot")
 })
 
+test_that("flattening keeps an inset attached to its composite host", {
+  host <- flatten_test_plot("Host 1") | flatten_test_plot("Host 2")
+  overlay <- flatten_test_plot("Inset")
+  other <- flatten_test_plot("Other")
+  for (align_to in c("panel", "plot", "full")) {
+    input <- patchwork::wrap_plots(list(host)) +
+      patchwork::inset_element(overlay, .5, .5, 1, 1, align_to = align_to)
+    before <- serialize(input, NULL)
+    output <- flatten_patchwork(input)
+    expect_true(identical(serialize(input, NULL), before))
+    expect_length(output, 1L)
+    expect_equal(flatten_test_labels(patchwork::patchworkGrob(output[[1]])),
+      flatten_test_labels(patchwork::patchworkGrob(input)))
+    expect_equal(patchwork::patchworkGrob(output[[1]])$layout,
+      patchwork::patchworkGrob(input)$layout)
+    selected <- flatten_patchwork(list(input, other), select_inds = c(2, 1))
+    expect_length(selected, 2L)
+    expect_equal(flatten_test_labels(patchwork::patchworkGrob(selected[[2]])),
+      flatten_test_labels(patchwork::patchworkGrob(input)))
+    repeated <- flatten_patchwork(output)
+    expect_length(repeated, 1L)
+    expect_equal(patchwork::patchworkGrob(repeated[[1]])$layout,
+      patchwork::patchworkGrob(input)$layout)
+  }
+})
+
 test_that("flattening retains top annotations and collection with explicit overrides", {
   p <- flatten_test_plot("Data", colour = TRUE)
   input <- ((p | p) / (p | p)) +
