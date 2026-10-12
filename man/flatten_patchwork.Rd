@@ -22,9 +22,17 @@ not set the output layout's \code{nrow}.}
 \value{
 A patchwork object with ordinary grid cells at one level. Insets and
 their main plot stay together and count as one cell for selection/reordering.
+Containers marked with \code{patchwork::free()} also remain intact.
 }
 \description{
 Recursively flatten nested patchwork objects into a single-level patchwork.
+}
+\details{
+Top-level plot annotations and the \code{guides}, \code{axes},
+\code{axis_titles} and \code{tag_level} settings are retained for patchwork
+input. Explicit arguments in \code{...} override inherited settings.
+Grid geometry (dimensions, widths, heights and design) is rebuilt using
+\code{...}; nested annotation and tagging scopes are not promoted.
 }
 \examples{
 library(ggplot2)

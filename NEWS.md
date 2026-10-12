@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `flatten_patchwork()` preserves top-level annotations and collection settings,
+  accepts explicit layout overrides and keeps `free()` containers intact.
+  Grid geometry is rebuilt from the requested output layout.
+
 * `flatten_patchwork()` retains nested insets with their main plot during
   flattening, selection and reordering, preserving overlay placement.
 

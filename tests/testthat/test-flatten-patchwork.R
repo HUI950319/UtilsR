@@ -1,6 +1,7 @@
-flatten_test_plot <- function(title) {
+flatten_test_plot <- function(title, colour = FALSE) {
+  mapping <- if (colour) ggplot2::aes(x, y, colour = factor(x)) else ggplot2::aes(x, y)
   ggplot2::ggplot(data.frame(x = 1:3, y = c(2, 1, 3)),
-                   ggplot2::aes(x, y)) + ggplot2::geom_point() +
+                   mapping) + ggplot2::geom_point() +
     ggplot2::labs(title = title, x = "Shared X", y = "Shared Y")
 }
 
@@ -94,4 +95,47 @@ test_that("flattening keeps nested insets with their main plot", {
                  flatten_test_labels(patchwork::patchworkGrob(double)))
   expect_error(flatten_patchwork(patchwork::inset_element(overlay, .5, .5, 1, 1)),
                  "inset.*main plot")
+})
+
+test_that("flattening retains top annotations and collection with explicit overrides", {
+  p <- flatten_test_plot("Data", colour = TRUE)
+  input <- ((p | p) / (p | p)) +
+    patchwork::plot_layout(guides = "collect", axis_titles = "collect") +
+    patchwork::plot_annotation(title = "Overall title", subtitle = "Overall subtitle",
+      caption = "Overall caption", tag_levels = "A", tag_prefix = "Tag ",
+      theme = ggplot2::theme(plot.background = ggplot2::element_rect(fill = "pink")))
+  before <- serialize(input, NULL)
+  output <- flatten_patchwork(input, ncol = 2)
+  expect_identical(output$patches$annotation, input$patches$annotation)
+  expect_identical(output$patches$layout$guides, "collect")
+  expect_identical(output$patches$layout$axis_titles, "collect")
+  overridden <- flatten_patchwork(input, ncol = 2, guides = "keep", axis_titles = "keep")
+  expect_identical(overridden$patches$layout$guides, "keep")
+  expect_identical(overridden$patches$layout$axis_titles, "keep")
+  expect_true(identical(serialize(input, NULL), before))
+  labels <- flatten_test_labels(patchwork::patchworkGrob(output))
+  for (label in c("Overall title", "Overall subtitle", "Overall caption",
+                    "Shared X", "Shared Y", paste0("Tag ", LETTERS[1:4]))) {
+    expect_equal(sum(labels == label), 1L)
+  }
+})
+
+test_that("flattening protects free containers and retains ordinary layout cells", {
+  p <- flatten_test_plot("Data")
+  free_group <- patchwork::free((p | p) / p, side = "l")
+  output <- flatten_patchwork(list(free_group, p))
+  expect_length(output, 2L)
+  preserved <- patchwork::wrap_plots(list(output[[1]]))
+  expect_equal(flatten_test_labels(patchwork::patchworkGrob(preserved)),
+                 flatten_test_labels(patchwork::patchworkGrob(free_group)))
+  expect_equal(patchwork::patchworkGrob(preserved)$layout,
+                 patchwork::patchworkGrob(free_group)$layout)
+  fixed <- patchwork::wrap_elements(full = grid::textGrob("Wrapped"))
+  special <- flatten_patchwork((p | patchwork::plot_spacer()) /
+                                (patchwork::guide_area() | fixed), ncol = 2)
+  expect_length(special, 4L)
+  expect_s3_class(special[[2]], "spacer")
+  expect_s3_class(special[[3]], "guide_area")
+  expect_s3_class(special[[4]], "wrapped_patch")
+  expect_equal(sum(flatten_test_labels(patchwork::patchworkGrob(special)) == "Wrapped"), 1L)
 })

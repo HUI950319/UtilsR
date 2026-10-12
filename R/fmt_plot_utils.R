@@ -183,6 +183,13 @@
 #'
 #' @return A patchwork object with ordinary grid cells at one level. Insets and
 #'   their main plot stay together and count as one cell for selection/reordering.
+#'   Containers marked with \code{patchwork::free()} also remain intact.
+#'
+#' @details Top-level plot annotations and the \code{guides}, \code{axes},
+#'   \code{axis_titles} and \code{tag_level} settings are retained for patchwork
+#'   input. Explicit arguments in \code{...} override inherited settings.
+#'   Grid geometry (dimensions, widths, heights and design) is rebuilt using
+#'   \code{...}; nested annotation and tagging scopes are not promoted.
 #'
 #' @examples
 #' library(ggplot2)
@@ -213,7 +220,7 @@ flatten_patchwork <- function(plots, ..., select_inds = NULL, nrow_inds_order = 
       match("inset_patch", class(plot)) < match("patchwork", class(plot)))
   }
   flatten_recursive <- function(plot_obj) {
-    if (is_inset(plot_obj)) return(list(plot_obj))
+    if (is_inset(plot_obj) || inherits(plot_obj, "free_plot")) return(list(plot_obj))
     if (!inherits(plot_obj, "patchwork")) {
       if (inherits(plot_obj, c("ggplot", "grob"))) return(list(plot_obj))
       if (!is.list(plot_obj)) {
@@ -273,7 +280,18 @@ flatten_patchwork <- function(plots, ..., select_inds = NULL, nrow_inds_order = 
     all_subplots <- all_subplots[inds_order]
   }
 
-  patchwork::wrap_plots(all_subplots, ...)
+  layout_args <- list()
+  annotation <- NULL
+  if (inherits(plots, "patchwork") && !inherits(plots, "free_plot")) {
+    annotation <- plots$patches$annotation
+    layout_args <- plots$patches$layout[c("guides", "axes", "axis_titles", "tag_level")]
+    layout_args <- layout_args[!vapply(layout_args, is.null, logical(1))]
+  }
+  dots <- list(...)
+  layout_args <- layout_args[setdiff(names(layout_args), names(dots))]
+  result <- do.call(patchwork::wrap_plots, c(list(all_subplots), layout_args, dots))
+  if (!is.null(annotation)) result <- result + annotation
+  result
 }
 
 # NOTE: `.resolve_theme()` moved to utils-resolve.R (shared `.resolve_*` family).
