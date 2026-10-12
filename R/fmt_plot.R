@@ -3414,6 +3414,10 @@ drawDetails.axis_tile_strip <- function(x, recording) {
 #'   each mapped group. An explicit \code{mapping = aes(group = ...)} also
 #'   enables grouped comparisons. \code{com_method} selects the corresponding
 #'   comparison variable, with consecutive pairs resolved within each subset.
+#'   When \code{ref.group} is supplied, it selects reference comparisons instead
+#'   of automatic consecutive/all pairs; it cannot be combined with a custom
+#'   \code{com_method} list. Names and displayed ranks are accepted, and
+#'   \code{ref.group = "all"} compares each group against the pooled observations.
 #'   Dunn, Tukey and Games-Howell methods compute their full comparison family
 #'   before display filtering, retaining that family's adjustment. Methods
 #'   returning only adjusted P values use adjusted significance stars.
@@ -3479,6 +3483,20 @@ fmt_com <- function(plot,
     cli::cli_abort("method.args must be a list with unique, non-empty option names.")
   if (!is.null(dots$method.args$comparisons))
     cli::cli_abort("Select comparisons with com_method, not method.args$comparisons.")
+  ref_group <- if (is.null(dots$ref.group)) dots$method.args$ref.group else dots$ref.group
+  if (!is.null(dots$ref.group) && !is.null(dots$method.args$ref.group) &&
+      !identical(dots$ref.group, dots$method.args$ref.group))
+    cli::cli_abort("Set ref.group only once, in ... or method.args.")
+  if (!is.null(ref_group)) {
+    valid_ref <- length(ref_group) == 1L && !anyNA(ref_group) &&
+      ((is.character(ref_group) && nzchar(ref_group)) ||
+       (is.numeric(ref_group) && is.finite(ref_group) && ref_group >= 1 && ref_group == floor(ref_group)))
+    if (!valid_ref) cli::cli_abort("ref.group must be a group name, a positive integer rank, or 'all'.")
+    if (is.list(com_method)) cli::cli_abort("Use ref.group or a custom com_method list, not both.")
+    dots$ref.group <- ref_group
+    dots$method.args$ref.group <- NULL
+  }
+  ref_all <- !is.null(ref_group) && ref_group %in% c("all", ".all.")
   if ("y.position" %in% names(dots))
     cli::cli_abort("Set bracket positions with label.y, not y.position.")
   if (!is.null(dots$mapping) && !inherits(dots$mapping, "uneval"))
@@ -3536,6 +3554,8 @@ fmt_com <- function(plot,
     observed <- unique(as.character(x_data[!is.na(x_data) & is.finite(y_data)]))
     if (length(observed) < 2L)
       cli::cli_abort("Comparisons require at least two observed groups with finite outcomes.")
+    if (is.character(ref_group) && !ref_all && !ref_group %in% observed)
+      cli::cli_abort("The ref.group has no observed comparison values.")
 
     if (is.list(cm)) {
       all_grps <- unique(unlist(cm))
@@ -3613,6 +3633,8 @@ fmt_com <- function(plot,
     method_name <- if (is.character(geom_args$method))
       gsub(".", "_", geom_args$method, fixed = TRUE) else ""
     full_family <- method_name %in% c("dunn_test", "tukey_hsd", "games_howell_test", "games_howell")
+    if (full_family && ref_all)
+      cli::cli_abort("This full-family method does not support ref.group = 'all'.")
     if (method_name %in% c("tukey_hsd", "games_howell_test", "games_howell")) {
       geom_args$label <- gsub("p.signif", "p.adj.signif", geom_args$label, fixed = TRUE)
     }
@@ -3635,11 +3657,20 @@ fmt_com <- function(plot,
           args$bracket.nudge.y <- 0
         }
         limits <- as.character(scales$x$get_limits())
+        ref_lookup <- if (compare_group) group_labels else limits
+        ref_id <- if (is.null(ref_group) || ref_all) NULL else
+          if (is.numeric(ref_group)) as.integer(ref_group) else match(ref_group, ref_lookup)
+        if (!is.null(ref_id)) args$ref.group <- ref_id
         select_pairs <- function(values, lookup) {
           available <- sort(unique(as.numeric(as.character(values))))
           available <- available[available %in% which(!is.na(lookup))]
           if (length(available) < 2L) return(list())
-          pairs <- if (is.list(comparisons)) {
+          pairs <- if (ref_all) {
+            lapply(available, function(value) c(value, value))
+          } else if (!is.null(ref_id)) {
+            if (!ref_id %in% available) return(list())
+            lapply(setdiff(available, ref_id), function(value) c(ref_id, value))
+          } else if (is.list(comparisons)) {
             lapply(comparisons, function(pair) match(pair, lookup))
           } else if (comparisons == "con") {
             Map(c, head(available, -1L), tail(available, -1L))
@@ -3667,7 +3698,8 @@ fmt_com <- function(plot,
             pairs <- select_pairs(d[[variable]], lookup)
             if (!length(pairs)) return(data.frame(group1 = character(), group2 = character(),
               p = numeric(), p.adj = numeric(), n1 = integer(), n2 = integer(), .y. = character()))
-            if (!full_family) test_args$comparisons <- lapply(pairs, as.character)
+            if (!full_family && !ref_all) test_args$comparisons <- lapply(pairs, as.character)
+            if (full_family) test_args$ref.group <- NULL
             result <- do.call(native_method, c(list(data = d, formula = formula), test_args))
             if (full_family) {
               selected <- vapply(pairs, function(pair) paste(sort(as.character(pair)), collapse = ":"), character(1))

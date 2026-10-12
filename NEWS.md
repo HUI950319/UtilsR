@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_com()` honors reference-group comparisons, including pooled references
+  and named legend groups, and rejects conflicting custom comparison lists.
+
 * `flatten_patchwork()` rejects unknown, unnamed and duplicate layout controls,
   reporting misspelled arguments and misplaced extra graphics explicitly.
   Multiple graphics remain supported through the `plots` list input.

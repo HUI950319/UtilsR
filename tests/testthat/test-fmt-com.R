@@ -249,3 +249,22 @@ test_that("missing panel pairs are skipped and retained scale gaps stay aligned"
   expect_equal(sort(as.numeric(s$xmin)), c(.8, 1.2))
   expect_equal(sort(as.numeric(s$xmax)), c(2.8, 3.2))
 })
+
+test_that("reference groups control the comparison family", {
+  p <- com_plot()
+  s <- com_stat(fmt_com(p, ref.group = 1))
+  expect_equal(as.numeric(s$xmin), c(1, 1))
+  expect_equal(as.numeric(s$xmax), c(2, 3))
+  expected <- com_stat(p + ggpubr::geom_pwc(ref.group = "all"))
+  actual <- com_stat(fmt_com(p, ref.group = "all"))
+  expect_equal(actual$p, expected$p)
+  expect_equal(as.numeric(actual$xmin), c(1, 2, 3))
+  expect_equal(as.numeric(actual$xmax), c(1, 2, 3))
+  d <- transform(ToothGrowth, dose = factor(dose))
+  grouped <- ggplot2::ggplot(d, ggplot2::aes(supp, len, fill = dose)) +
+    ggplot2::geom_boxplot()
+  s <- com_stat(fmt_com(grouped, group.by = "x.var", ref.group = "0.5"))
+  expect_equal(nrow(s), 4L)
+  expect_error(fmt_com(p, ref.group = 1, com_method = list(c("setosa", "versicolor"))),
+               "ref.group")
+})
