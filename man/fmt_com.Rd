@@ -55,6 +55,10 @@ order and jointly omit incomplete pairs. Original group sizes must match
 for order-based pairing. Supply \code{method.args = list(paired = TRUE,
 id = "subject")} to match a data column independently within each pair;
 IDs must be non-missing and unique within each comparison group/subset.
+One-sided custom pairs test the first group against the second. Reference
+comparisons test the reference against the other group; automatic pairs
+use the original mapped group order for direction, independently of axis
+display order.
 By default, inherited trajectory grouping is ignored and x groups are
 compared. Set \code{group.by = "x.var"} to compare mapped groups within
 each x value, or \code{group.by = "legend.var"} to compare x values within

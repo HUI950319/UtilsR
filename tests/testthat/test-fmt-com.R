@@ -323,3 +323,20 @@ test_that("paired tests retain row alignment and support explicit subject IDs", 
   p$data <- faceted
   expect_error(fmt_com(p, group.by = "x.var", method.args = list(paired = TRUE, id = "id")), "unique")
 })
+
+test_that("one-sided custom comparisons preserve requested direction", {
+  p <- com_plot()
+  pair <- list(c("virginica", "setosa"))
+  args <- list(alternative = "greater")
+  expected <- stats::t.test(iris$Sepal.Length[iris$Species == "virginica"],
+                            iris$Sepal.Length[iris$Species == "setosa"], alternative = "greater")$p.value
+  s <- com_stat(fmt_com(p, method = "t_test", com_method = pair, method.args = args))
+  expect_equal(s$p, signif(expected, 3))
+  q <- p + ggplot2::scale_x_discrete(limits = c("virginica", "versicolor", "setosa"))
+  expect_equal(com_stat(fmt_com(q, method = "t_test", com_method = pair, method.args = args))$p, s$p)
+  expect_equal(com_stat(fmt_com(p, method = "t_test", com_method = pair,
+                               method.args = list(alternative = "less")))$p, 1)
+  all <- com_stat(fmt_com(p, method = "t_test", com_method = "all", method.args = args))
+  reversed <- com_stat(fmt_com(q, method = "t_test", com_method = "all", method.args = args))
+  expect_equal(sort(reversed$p), sort(all$p))
+})

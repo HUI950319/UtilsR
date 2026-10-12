@@ -3411,6 +3411,10 @@ drawDetails.axis_tile_strip <- function(x, recording) {
 #'   for order-based pairing. Supply \code{method.args = list(paired = TRUE,
 #'   id = "subject")} to match a data column independently within each pair;
 #'   IDs must be non-missing and unique within each comparison group/subset.
+#'   One-sided custom pairs test the first group against the second. Reference
+#'   comparisons test the reference against the other group; automatic pairs
+#'   use the original mapped group order for direction, independently of axis
+#'   display order.
 #'   By default, inherited trajectory grouping is ignored and x groups are
 #'   compared. Set \code{group.by = "x.var"} to compare mapped groups within
 #'   each x value, or \code{group.by = "legend.var"} to compare x values within
@@ -3620,6 +3624,8 @@ fmt_com <- function(plot,
       values <- rlang::eval_tidy(group_quo, data = source_data)
       group_labels <- levels(droplevels(factor(values)))
     }
+    comparison_order <- if (compare_group) group_labels else
+      levels(droplevels(factor(rlang::eval_tidy(source_mapping$x, data = source_data))))
     if (paired) {
       if (ref_all) cli::cli_abort("Paired tests cannot use a pooled ref.group; select two groups.")
       comparison_values <- rep(rlang::eval_tidy(if (compare_group) group_quo else source_mapping$x,
@@ -3743,18 +3749,25 @@ fmt_com <- function(plot,
             pairs <- select_pairs(d[[variable]], lookup)
             if (!length(pairs)) return(data.frame(group1 = character(), group2 = character(),
               p = numeric(), p.adj = numeric(), n1 = integer(), n2 = integer(), .y. = character()))
+            directional <- !is.null(test_args$alternative) &&
+              match.arg(test_args$alternative, c("two.sided", "less", "greater")) != "two.sided"
+            if (directional && is.null(ref_group) && !is.list(comparisons))
+              pairs <- lapply(pairs, function(pair) pair[order(match(lookup[pair], comparison_order))])
             if (!full_family && !ref_all) test_args$comparisons <- lapply(pairs, as.character)
             if (full_family) test_args$ref.group <- NULL
-            if (paired) {
+            if (paired || (directional && !full_family && !ref_all)) {
               pair_args <- test_args
               pair_args$id <- pair_args$comparisons <- NULL
               parts <- lapply(pairs, function(pair) {
                 part <- d[as.character(d[[variable]]) %in% as.character(pair), , drop = FALSE]
-                ids <- lapply(as.character(pair), function(group) part$.fmt_com_id[as.character(part[[variable]]) == group])
-                common <- intersect(ids[[1L]], ids[[2L]])
-                part <- part[part$.fmt_com_id %in% common, , drop = FALSE]
-                part <- part[order(part[[variable]], part$.fmt_com_id), , drop = FALSE]
-                part[[variable]] <- droplevels(part[[variable]])
+                if (paired) {
+                  ids <- lapply(as.character(pair), function(group) part$.fmt_com_id[as.character(part[[variable]]) == group])
+                  common <- intersect(ids[[1L]], ids[[2L]])
+                  part <- part[part$.fmt_com_id %in% common, , drop = FALSE]
+                  part <- part[order(part[[variable]], part$.fmt_com_id), , drop = FALSE]
+                }
+                part[[variable]] <- if (directional) factor(as.character(part[[variable]]), levels = as.character(pair)) else
+                  droplevels(part[[variable]])
                 do.call(native_method, c(list(data = part, formula = formula), pair_args))
               })
               details <- attr(parts[[1L]], "args")
