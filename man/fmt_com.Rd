@@ -17,7 +17,9 @@ fmt_com(
 )
 }
 \arguments{
-\item{plot}{A ggplot, patchwork, or list of ggplots.}
+\item{plot}{A ggplot, nested patchwork, or list of ggplots/patchworks.
+Layouts, annotations and list names are retained. Spacers, guide areas,
+insets and frozen wrapped graphics are left unchanged.}
 
 \item{com_method}{Comparison method: \code{"con"} (consecutive), \code{"all"}
 (all pairs), or a list of length-2 character vectors.}

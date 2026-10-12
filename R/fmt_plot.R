@@ -3376,7 +3376,9 @@ drawDetails.axis_tile_strip <- function(x, recording) {
 #' panel. Custom groups without observations are rejected; pairs absent from
 #' an individual facet panel are skipped.
 #'
-#' @param plot A ggplot, patchwork, or list of ggplots.
+#' @param plot A ggplot, nested patchwork, or list of ggplots/patchworks.
+#'   Layouts, annotations and list names are retained. Spacers, guide areas,
+#'   insets and frozen wrapped graphics are left unchanged.
 #' @param com_method Comparison method: \code{"con"} (consecutive), \code{"all"}
 #'   (all pairs), or a list of length-2 character vectors.
 #' @param label.y Numeric y-position for the first bracket (absolute y-axis
@@ -3591,9 +3593,10 @@ fmt_com <- function(plot,
     p + layer
   }
 
-  info <- .to_plot_list(plot)
+  info <- .to_plot_list(plot, recurse = TRUE)
   info$plots <- lapply(info$plots, fmt_com_one)
-  .from_plot_list(info$plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
+  .from_plot_list(info$plots, info$is_patchwork, info$is_single,
+                  pw_orig = info$pw_orig, recurse = TRUE)
 }
 
 # ---- fmt_bg ----

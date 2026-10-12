@@ -123,3 +123,33 @@ test_that("full-family methods filter requested pairs and display available P va
   expect_equal(com_stat(fmt_com(p, method = "dunn_test", com_method = pair))$p.adj,
                expected)
 })
+
+test_that("nested containers retain layout, annotations and protected cells", {
+  p <- com_plot()
+  pw <- (p | p) / (p | p) + patchwork::plot_annotation(title = "Comparisons")
+  q <- fmt_com(pw)
+  counts <- function(x) {
+    if (inherits(x, "patchwork")) {
+      return(unlist(lapply(seq_along(x), function(i) counts(x[[i]]))))
+    }
+    length(x$layers)
+  }
+  expect_equal(counts(q), rep(2L, 4))
+  expect_identical(q$patches$layout, pw$patches$layout)
+  expect_identical(q$patches$annotation, pw$patches$annotation)
+  expect_s3_class(patchwork::patchworkGrob(q), "gtable")
+  expect_equal(counts(pw), rep(1L, 4))
+  expect_identical(pw[[1]][[1]]$data, iris)
+
+  mixed <- p + patchwork::plot_spacer() + patchwork::guide_area() +
+    patchwork::wrap_elements(full = p)
+  q <- fmt_com(mixed)
+  expect_equal(length(q[[1]]$layers), 2L)
+  for (i in 2:4) expect_identical(q[[i]], mixed[[i]])
+  inset <- p + patchwork::inset_element(p, .6, .6, 1, 1)
+  q <- fmt_com(inset)
+  expect_equal(length(q[[1]]$layers), 2L)
+  expect_identical(q[[2]], inset[[2]])
+  named <- list(first = p, second = pw)
+  expect_equal(names(fmt_com(named)), names(named))
+})

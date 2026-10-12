@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_com()` formats all ordinary leaves of nested patchworks and plot lists,
+  retaining layout, annotations and names while skipping spacers, guide areas,
+  insets and frozen wrapped graphics.
+
 * `fmt_com()` supports pair selection for Dunn, Tukey and Games-Howell tests
   without passing unsupported comparison arguments. Their full-family
   adjustment is retained; adjusted-only methods display adjusted stars.
