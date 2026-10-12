@@ -31,6 +31,23 @@ test_that("flattening accepts lists and preserves named design assignments", {
   expect_error(flatten_patchwork(list(p1, 42)), "ggplot|grob")
 })
 
+test_that("flattening retains cell names through nested lists and insets", {
+  first <- flatten_test_plot("First")
+  second <- flatten_test_plot("Second")
+  inset <- second + patchwork::inset_element(flatten_test_plot("Inset"), .5, .5, 1, 1)
+  for (input in list(list(B = inset, A = first),
+                    list(group = list(B = inset, A = first)),
+                    list(group = list(B = inset), A = first))) {
+    before <- serialize(input, NULL)
+    output <- flatten_patchwork(input, design = "AB")
+    expect_true(identical(serialize(input, NULL), before))
+    expect_length(output, 2L)
+    expect_identical(output[[1]]$labels$title, "First")
+    expect_equal(flatten_test_labels(patchwork::patchworkGrob(output[[2]])),
+      flatten_test_labels(patchwork::patchworkGrob(inset)))
+  }
+})
+
 test_that("flattening validates indices without changing integer selection", {
   plots <- lapply(1:4, function(i) flatten_test_plot(paste0("P", i)))
   input <- patchwork::wrap_plots(plots)

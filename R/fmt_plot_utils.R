@@ -244,7 +244,14 @@ flatten_patchwork <- function(plots, ..., select_inds = NULL, nrow_inds_order = 
       if (!is.list(plot_obj)) {
         cli::cli_abort("Input must contain ggplot, patchwork, or grob objects.")
       }
-      return(unlist(lapply(plot_obj, flatten_recursive), recursive = FALSE))
+      return(unlist(lapply(seq_along(plot_obj), function(i) {
+        cells <- flatten_recursive(plot_obj[[i]])
+        if (length(cells) == 1L && is.null(names(cells)) &&
+            !is.null(names(plot_obj)) && nzchar(names(plot_obj)[i])) {
+          names(cells) <- names(plot_obj)[i]
+        }
+        cells
+      }), recursive = FALSE))
     }
     n <- length(plot_obj)
     children <- vector("list", n)
