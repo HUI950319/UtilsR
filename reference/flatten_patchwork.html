@@ -78,7 +78,9 @@ such as <code>nrow</code>, <code>ncol</code>, <code>design</code>, <code>guides<
 <dt id="arg-select-inds">select_inds<a class="anchor" aria-label="anchor" href="#arg-select-inds"></a></dt>
 <dd><p>Integer indices applied after flattening. Positive indices
 select and may repeat plots; negative indices exclude plots. Zero is ignored.
-Missing, fractional, mixed-sign and out-of-range indices are rejected.</p></dd>
+Missing, fractional, mixed-sign and out-of-range indices are rejected.
+Duplicate cell names matched by a character <code>design</code> are rejected;
+use an unnamed list to repeat cells by position in that design.</p></dd>
 
 
 <dt id="arg-nrow-inds-order">nrow_inds_order<a class="anchor" aria-label="anchor" href="#arg-nrow-inds-order"></a></dt>

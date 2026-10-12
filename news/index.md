@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
+  rejects duplicate cell names when a character design would merge them,
+  preventing silent loss of repeated selections. Unnamed lists retain
+  positional repetition in character designs.
+
+- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
   keeps cell names through nested lists without adding container-name
   prefixes, including named plots with insets in character layout
   designs.

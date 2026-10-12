@@ -27,6 +27,8 @@ flatten_patchwork(plots, ..., select_inds = NULL, nrow_inds_order = NULL)
   Integer indices applied after flattening. Positive indices select and
   may repeat plots; negative indices exclude plots. Zero is ignored.
   Missing, fractional, mixed-sign and out-of-range indices are rejected.
+  Duplicate cell names matched by a character `design` are rejected; use
+  an unnamed list to repeat cells by position in that design.
 
 - nrow_inds_order:
 
