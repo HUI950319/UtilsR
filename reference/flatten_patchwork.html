@@ -112,7 +112,9 @@ not set the output layout's <code>nrow</code>.</p></dd>
   allowing shared axes and axis titles to be collected. Composite inset hosts
   remain intact. The returned object's <code><a href="https://rdrr.io/r/base/length.html" class="external-link">length()</a></code> and <code>[[</code> follow
   native patchwork child indexing and include inset objects; selection and
-  row interleaving use complete cells, including each host's insets.</p>
+  row interleaving use complete cells, including each host's insets.
+  Nested lists are unwrapped before binding each inset to its preceding host,
+  so list and patchwork inputs retain the same inset boundaries.</p>
 <p>Flattening ordinary containers removes their nested collection scopes,
   including inner <code>guides = "keep"</code> or <code>guides = "collect"</code> settings.
   Collection is determined by the retained top-level settings and <code>...</code>.

@@ -65,7 +65,9 @@ allowing shared axes and axis titles to be collected. Composite inset
 hosts remain intact. The returned object's
 [`length()`](https://rdrr.io/r/base/length.html) and `[[` follow native
 patchwork child indexing and include inset objects; selection and row
-interleaving use complete cells, including each host's insets.
+interleaving use complete cells, including each host's insets. Nested
+lists are unwrapped before binding each inset to its preceding host, so
+list and patchwork inputs retain the same inset boundaries.
 
 Flattening ordinary containers removes their nested collection scopes,
 including inner `guides = "keep"` or `guides = "collect"` settings.
