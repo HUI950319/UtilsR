@@ -3,6 +3,13 @@
 ## UtilsR 0.6.8
 
 - [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
+  distinguishes a freed plot from its enclosing patchwork, allowing
+  containers ending in
+  [`free()`](https://patchwork.data-imaginist.com/reference/free.html)
+  leaves to flatten, render and retain their overall annotations and
+  collection settings.
+
+- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
   reports the index and original cause of unreadable patchwork children
   instead of silently removing them from the result.
 
