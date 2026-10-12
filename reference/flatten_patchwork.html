@@ -85,7 +85,16 @@ not set the output layout's <code>nrow</code>.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A patchwork object with ordinary grid cells at one level. Insets and
-their main plot stay together and count as one cell for selection/reordering.</p>
+their main plot stay together and count as one cell for selection/reordering.
+Containers marked with <code><a href="https://patchwork.data-imaginist.com/reference/free.html" class="external-link">patchwork::free()</a></code> also remain intact.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Top-level plot annotations and the <code>guides</code>, <code>axes</code>,
+<code>axis_titles</code> and <code>tag_level</code> settings are retained for patchwork
+input. Explicit arguments in <code>...</code> override inherited settings.
+Grid geometry (dimensions, widths, heights and design) is rebuilt using
+<code>...</code>; nested annotation and tagging scopes are not promoted.</p>
     </div>
 
     <div class="section level2">

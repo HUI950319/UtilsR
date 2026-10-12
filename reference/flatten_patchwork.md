@@ -36,7 +36,17 @@ flatten_patchwork(plots, ..., select_inds = NULL, nrow_inds_order = NULL)
 
 A patchwork object with ordinary grid cells at one level. Insets and
 their main plot stay together and count as one cell for
-selection/reordering.
+selection/reordering. Containers marked with
+[`patchwork::free()`](https://patchwork.data-imaginist.com/reference/free.html)
+also remain intact.
+
+## Details
+
+Top-level plot annotations and the `guides`, `axes`, `axis_titles` and
+`tag_level` settings are retained for patchwork input. Explicit
+arguments in `...` override inherited settings. Grid geometry
+(dimensions, widths, heights and design) is rebuilt using `...`; nested
+annotation and tagging scopes are not promoted.
 
 ## Examples
 

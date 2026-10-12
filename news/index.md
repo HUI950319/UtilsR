@@ -3,6 +3,13 @@
 ## UtilsR 0.6.8
 
 - [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
+  preserves top-level annotations and collection settings, accepts
+  explicit layout overrides and keeps
+  [`free()`](https://patchwork.data-imaginist.com/reference/free.html)
+  containers intact. Grid geometry is rebuilt from the requested output
+  layout.
+
+- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
   retains nested insets with their main plot during flattening,
   selection and reordering, preserving overlay placement.
 
