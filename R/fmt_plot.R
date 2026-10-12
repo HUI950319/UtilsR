@@ -3396,6 +3396,12 @@ drawDetails.axis_tile_strip <- function(x, recording) {
 #'   \code{paired} or \code{alternative}; select pairs with \code{com_method},
 #'   not \code{method.args$comparisons}. Pairing follows observation order within
 #'   each comparison group, so align paired observations before plotting.
+#'   By default, inherited trajectory grouping is ignored and x groups are
+#'   compared. Set \code{group.by = "x.var"} to compare mapped groups within
+#'   each x value, or \code{group.by = "legend.var"} to compare x values within
+#'   each mapped group. An explicit \code{mapping = aes(group = ...)} also
+#'   enables grouped comparisons. \code{com_method} selects the corresponding
+#'   comparison variable, with consecutive pairs resolved within each subset.
 #'
 #' @return Same type as input.
 #'
@@ -3442,8 +3448,8 @@ fmt_com <- function(plot,
   if (!is.null(dots$method.args$comparisons))
     cli::cli_abort("Select comparisons with com_method, not method.args$comparisons.")
 
-  get_comparisons <- function(p, cm) {
-    x_quo <- p$mapping$x
+  get_comparisons <- function(p, cm, group_quo = NULL) {
+    x_quo <- if (is.null(group_quo)) p$mapping$x else group_quo
     if (is.null(x_quo)) cli::cli_abort("No x variable found in ggplot mapping.")
     # Evaluate the x aesthetic to get actual data values
     x_data <- tryCatch(
@@ -3462,7 +3468,7 @@ fmt_com <- function(plot,
         cli::cli_abort("com_method list must contain vectors of length 2.")
       all_grps <- unique(unlist(cm))
       if (!all(all_grps %in% observed))
-        cli::cli_abort("Some groups in com_method have no observed x values.")
+        cli::cli_abort("Some groups in com_method have no observed comparison values.")
       return(lapply(cm, as.character))
     }
     if (!is.character(cm) || length(cm) != 1L || !cm %in% c("con", "all"))
@@ -3471,7 +3477,21 @@ fmt_com <- function(plot,
   }
 
   fmt_com_one <- function(p) {
-    comparisons <- get_comparisons(p, com_method)
+    grouped <- !is.null(dots$group.by) || !is.null(dots$mapping$group)
+    group_quo <- dots$mapping$group
+    if (grouped && is.null(group_quo)) group_quo <- p$mapping$group
+    if (grouped && is.null(group_quo)) group_quo <- p$mapping$fill
+    if (grouped && is.null(group_quo)) group_quo <- p$mapping$colour
+    if (grouped && is.null(group_quo))
+      cli::cli_abort("Grouped comparisons require a group, fill or colour mapping.")
+    compare_group <- grouped && !identical(dots$group.by, "legend.var")
+    comparisons <- get_comparisons(p, com_method, if (compare_group) group_quo else NULL)
+    group_labels <- NULL
+    if (grouped) {
+      values <- rlang::eval_tidy(group_quo, data = p$data)
+      group_labels <- if (is.factor(values)) levels(droplevels(values)) else
+        sort(unique(as.character(values[!is.na(values)])))
+    }
     # Determine y position: label.y (absolute) takes priority over label.y.prop
     y_pos <- label.y
     if (is.null(y_pos) && !is.null(label.y.prop)) {
@@ -3487,14 +3507,8 @@ fmt_com <- function(plot,
     }
 
     geom_args <- list(
-        # Override inherited `group` aesthetic. Paired / repeated-measures
-        # plots (e.g. ggwithinstats partial-dependence panels) set
-        # `aes(group = subject_id)` at the plot level to draw trajectory
-        # lines; without this override, geom_pwc inherits that grouping
-        # and computes within-subject pairwise tests -- each subject has
-        # one observation per x level, so all tests degenerate to "ns"
-        # at scattered positions.
-        mapping = ggplot2::aes(group = NULL),
+        mapping = if (grouped) ggplot2::aes(group = !!group_quo) else
+          ggplot2::aes(group = NULL),
         method.args = list(),
         symnum.args = list(
           cutpoints = c(0, 0.001, 0.01, 0.05, Inf),
@@ -3508,25 +3522,54 @@ fmt_com <- function(plot,
         fontface = "bold"
       )
     geom_args <- utils::modifyList(geom_args, dots, keep.null = TRUE)
+    stat_mapping <- geom_args$mapping
+    geom_args$mapping <- NULL
     layer <- do.call(ggpubr::geom_pwc, geom_args)
+    layer$mapping <- stat_mapping
     native_stat <- layer$stat
     layer$stat <- ggplot2::ggproto(NULL, native_stat,
       parameters = function(extra = FALSE) native_stat$parameters(extra),
       compute_panel = function(data, scales, ...) {
         args <- list(...)
         available <- sort(unique(as.numeric(data$x[is.finite(data$y)])))
-        if (length(available) < 2L) return(data.frame())
+        if (!grouped && length(available) < 2L) return(data.frame())
         limits <- as.character(scales$x$get_limits())
-        pairs <- if (is.list(comparisons)) {
-          lapply(comparisons, function(pair) match(pair, limits))
-        } else if (comparisons == "con") {
-          Map(c, head(available, -1L), tail(available, -1L))
-        } else utils::combn(available, 2L, simplify = FALSE)
-        pairs <- Filter(function(pair) all(pair %in% available), pairs)
-        if (!length(pairs)) return(data.frame())
-        args$method.args$comparisons <- lapply(pairs, as.character)
-        # Statistical grouping must follow mapped positions after scale training.
-        data$group <- data$x
+        native_method <- args$method
+        args$method <- function(data, formula, ...) {
+          test_args <- list(...)
+          test_details <- NULL
+          test_classes <- NULL
+          run_test <- function(d) {
+            variable <- all.vars(formula)[2L]
+            available <- sort(unique(as.numeric(as.character(d[[variable]]))))
+            lookup <- if (variable == "group") group_labels else limits
+            pairs <- if (is.list(comparisons)) {
+              lapply(comparisons, function(pair) match(pair, lookup))
+            } else if (comparisons == "con") {
+              Map(c, head(available, -1L), tail(available, -1L))
+            } else if (length(available) >= 2L) {
+              utils::combn(available, 2L, simplify = FALSE)
+            } else list()
+            pairs <- Filter(function(pair) length(pair) == 2L && all(pair %in% available), pairs)
+            if (!length(pairs)) return(data.frame(group1 = character(), group2 = character(),
+              p = numeric(), p.adj = numeric(), n1 = integer(), n2 = integer(), .y. = character()))
+            test_args$comparisons <- lapply(pairs, as.character)
+            result <- do.call(native_method, c(list(data = d, formula = formula), test_args))
+            test_details <<- attr(result, "args")
+            test_classes <<- class(result)
+            result
+          }
+          if (dplyr::is_grouped_df(data)) {
+            result <- dplyr::ungroup(dplyr::group_modify(data, function(.x, .y) run_test(.x)))
+            test_details$data <- data
+            test_details$formula <- formula
+            attr(result, "args") <- test_details
+            class(result) <- unique(c(test_classes, class(result)))
+            return(result)
+          }
+          run_test(data)
+        }
+        if (!grouped) data$group <- data$x
         do.call(native_stat$compute_panel, c(list(data = data, scales = scales), args))
       }
     )

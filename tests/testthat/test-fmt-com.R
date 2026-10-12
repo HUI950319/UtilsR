@@ -77,3 +77,30 @@ test_that("extra arguments override defaults without duplicate matching", {
                "com_method")
   expect_equal(length(p$layers), 1L)
 })
+
+test_that("explicit grouping controls retain the intended comparison variable", {
+  d <- transform(ToothGrowth, dose = factor(dose))
+  p <- ggplot2::ggplot(d, ggplot2::aes(dose, len, group = interaction(dose, supp))) +
+    ggplot2::geom_boxplot()
+  actual <- com_stat(fmt_com(p, group.by = "x.var", method = "t_test"))
+  expected <- com_stat(p + ggpubr::geom_pwc(group.by = "x.var", method = "t_test"))
+  expected_p <- vapply(split(d, d$dose), function(part) {
+    stats::t.test(len ~ supp, data = part)$p.value
+  }, numeric(1))
+  expect_equal(actual$p, unname(signif(expected_p, 3)))
+  expect_equal(as.numeric(actual$xmin), as.numeric(expected$xmin))
+  expect_equal(as.numeric(actual$xmax), as.numeric(expected$xmax))
+
+  p <- ggplot2::ggplot(d, ggplot2::aes(dose, len, fill = supp)) + ggplot2::geom_boxplot()
+  s <- com_stat(fmt_com(p, group.by = "x.var", method = "t_test",
+                       com_method = list(c("OJ", "VC"))))
+  expect_equal(nrow(s), 3L)
+  s <- com_stat(fmt_com(p, group.by = "legend.var", method = "t_test"))
+  expect_equal(nrow(s), 4L)
+  q <- fmt_com(p, mapping = ggplot2::aes(group = supp), method = "t_test")
+  expect_equal(nrow(com_stat(q)), 3L)
+
+  subjects <- transform(iris, subject = rep(seq_len(50), 3))
+  trajectories <- com_plot(subjects) + ggplot2::aes(group = subject)
+  expect_equal(com_stat(fmt_com(trajectories))$p, com_stat(fmt_com(com_plot()))$p)
+})

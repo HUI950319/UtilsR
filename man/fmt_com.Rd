@@ -44,7 +44,13 @@ select an adjusted label to display multiplicity-adjusted results.}
 formatting defaults. \code{method.args} may contain test options such as
 \code{paired} or \code{alternative}; select pairs with \code{com_method},
 not \code{method.args$comparisons}. Pairing follows observation order within
-each comparison group, so align paired observations before plotting.}
+each comparison group, so align paired observations before plotting.
+By default, inherited trajectory grouping is ignored and x groups are
+compared. Set \code{group.by = "x.var"} to compare mapped groups within
+each x value, or \code{group.by = "legend.var"} to compare x values within
+each mapped group. An explicit \code{mapping = aes(group = ...)} also
+enables grouped comparisons. \code{com_method} selects the corresponding
+comparison variable, with consecutive pairs resolved within each subset.}
 }
 \value{
 Same type as input.

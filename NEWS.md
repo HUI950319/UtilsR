@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_com()` honors explicit grouped comparisons and statistical mappings,
+  resolving requested pairs within each subset and retaining native dodge
+  positions. Default trajectory grouping remains ignored for x comparisons.
+
 * `fmt_com()` merges named ggpubr arguments with defaults, allowing paired and
   one-sided test options, custom significance symbols and font overrides without
   duplicate arguments. Pair selection remains controlled by `com_method`.
