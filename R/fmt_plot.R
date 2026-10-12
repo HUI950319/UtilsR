@@ -29,6 +29,11 @@
 # The container helpers (.to_plot_list / .from_plot_list /
 # flatten_patchwork) live in fmt_plot_utils.R, which is why every formatter
 # accepts a ggplot, a patchwork or a plain list of plots.
+#
+#   fmt_com: L1 validate arguments / recurse ordinary leaves
+#              L2 fmt_com_one -> resolve statistical data and mappings
+#                 L3 panel stat -> transform positions / preserve grouping
+#                    L4 select_pairs / run_test -> adapt comparison methods
 # =============================================================================
 
 # ---- fmt_axis ----
@@ -3380,7 +3385,9 @@ drawDetails.axis_tile_strip <- function(x, recording) {
 #'   Layouts, annotations and list names are retained. Spacers, guide areas,
 #'   insets and frozen wrapped graphics are left unchanged.
 #' @param com_method Comparison method: \code{"con"} (consecutive), \code{"all"}
-#'   (all pairs), or a list of length-2 character vectors.
+#'   (all pairs), or a non-empty list of length-2 category-value vectors.
+#'   Pairs must contain distinct observed values; reversed duplicate pairs
+#'   are rejected. Values select categories rather than numeric axis indices.
 #' @param label.y Numeric bracket positions in original y-data units, before
 #'   scale transformation. A scalar sets the first bracket; a vector sets
 #'   individual positions. Default \code{NULL} lets ggpubr auto-calculate.
@@ -3411,6 +3418,15 @@ drawDetails.axis_tile_strip <- function(x, recording) {
 #'   before display filtering, retaining that family's adjustment. Methods
 #'   returning only adjusted P values use adjusted significance stars.
 #'
+#' @details A categorical x axis and numeric y outcome are required. Statistical
+#' data and mapping can be supplied explicitly through \code{...}; otherwise a
+#' complete plot-level source is used, then an unambiguous layer-level source.
+#' Multiple different layer sources require explicit \code{data} and
+#' \code{mapping}. Statistical data must be a data frame; callbacks and
+#' after-stat mappings are not supported. Missing panel-specific pairs are
+#' skipped. The backend evaluates tests on the layer data during plot building;
+#' scale transformations and scale limits affect the observations it receives.
+#'
 #' @return Same type as input.
 #'
 #' @examples
@@ -3432,8 +3448,12 @@ drawDetails.axis_tile_strip <- function(x, recording) {
 #' # Show both p-value and stars
 #' fmt_com(p, label = "{p.format}{p.signif}")
 #'
+#' # Display adjusted significance stars
+#' fmt_com(p, label = "p.adj.signif", p.adjust.method = "bonferroni")
+#'
 #' # Adjust bracket y-position (absolute y-axis value, not proportion)
 #' fmt_com(p, label.y = 8)
+#' fmt_com(p + scale_y_log10(), label.y = 8)
 #'
 #' @export
 #' @family plot formatting
@@ -3453,27 +3473,71 @@ fmt_com <- function(plot,
   if (length(dots) && (is.null(names(dots)) || any(!nzchar(names(dots))) ||
                        anyDuplicated(names(dots))))
     cli::cli_abort("Arguments in ... must have unique, non-empty names.")
+  if (!is.null(dots$method.args) && (!is.list(dots$method.args) ||
+      (length(dots$method.args) && (is.null(names(dots$method.args)) ||
+       any(!nzchar(names(dots$method.args))) || anyDuplicated(names(dots$method.args))))))
+    cli::cli_abort("method.args must be a list with unique, non-empty option names.")
   if (!is.null(dots$method.args$comparisons))
     cli::cli_abort("Select comparisons with com_method, not method.args$comparisons.")
+  if ("y.position" %in% names(dots))
+    cli::cli_abort("Set bracket positions with label.y, not y.position.")
+  if (!is.null(dots$mapping) && !inherits(dots$mapping, "uneval"))
+    cli::cli_abort("mapping must be created with ggplot2::aes().")
+  if (!is.null(dots$group.by) && (!is.character(dots$group.by) ||
+      length(dots$group.by) != 1L || is.na(dots$group.by) ||
+      !dots$group.by %in% c("x.var", "legend.var")))
+    cli::cli_abort("group.by must be 'x.var' or 'legend.var'.")
+
+  check_numeric <- function(value, name, lower = -Inf, upper = Inf, scalar = FALSE) {
+    if (!is.null(value) && (!is.numeric(value) || is.complex(value) ||
+        !is.null(dim(value)) || !length(value) || (scalar && length(value) != 1L) ||
+        any(!is.finite(value)) || any(value < lower | value > upper)))
+      cli::cli_abort("{name} must contain finite numeric values in [{lower}, {upper}]{if (scalar) ' with length one' else ''}.")
+  }
+  check_numeric(label.y, "label.y")
+  check_numeric(label.y.prop, "label.y.prop", 0, 1, TRUE)
+  check_numeric(tip.length, "tip.length", 0, 1)
+  check_numeric(step.increase, "step.increase", 0)
+  check_numeric(size, "size", 0, scalar = TRUE)
+  check_numeric(dots$bracket.nudge.y, "bracket.nudge.y")
+  if (is.list(com_method) && (!length(com_method) ||
+      !all(vapply(com_method, function(pair) {
+        (is.character(pair) || is.numeric(pair)) && !is.complex(pair) &&
+          is.null(dim(pair)) && length(pair) == 2L && !anyNA(pair) &&
+          all(nzchar(as.character(pair))) && length(unique(pair)) == 2L
+      }, logical(1))) || anyDuplicated(lapply(com_method, function(pair) sort(as.character(pair))))))
+    cli::cli_abort("com_method must contain distinct, non-missing pairs without duplicates.")
+
+  merge_mapping <- function(base, replacement) {
+    for (name in names(replacement)) base[[name]] <- replacement[[name]]
+    base
+  }
 
   get_comparisons <- function(p, cm, group_quo = NULL) {
     x_quo <- if (is.null(group_quo)) p$mapping$x else group_quo
     if (is.null(x_quo)) cli::cli_abort("No x variable found in ggplot mapping.")
-    # Evaluate the x aesthetic to get actual data values
     x_data <- tryCatch(
       rlang::eval_tidy(x_quo, data = p$data),
-      error = function(e) {
-        # Fallback: try as_name for simple symbols
-        x_var <- rlang::as_name(x_quo)
-        p$data[[x_var]]
-      }
+      error = function(e) cli::cli_abort("Cannot resolve the comparison mapping.", parent = e)
     )
     if (is.null(x_data)) cli::cli_abort("Cannot resolve x variable from plot mapping.")
-    observed <- unique(as.character(x_data[!is.na(x_data)]))
+    axis_data <- if (is.null(group_quo)) x_data else
+      rlang::eval_tidy(p$mapping$x, data = p$data)
+    if (!is.factor(axis_data) && !is.character(axis_data) && !is.logical(axis_data))
+      cli::cli_abort("The x comparison axis must be categorical; use factor() for numeric categories.")
+    y_data <- rlang::eval_tidy(p$mapping$y, data = p$data)
+    if (!is.numeric(y_data) || is.complex(y_data) || !any(is.finite(y_data)))
+      cli::cli_abort("The y comparison variable must contain finite numeric observations.")
+    n <- nrow(p$data)
+    if (!length(x_data) %in% c(1L, n) || !length(y_data) %in% c(1L, n))
+      cli::cli_abort("Comparison mappings must have length one or match the statistical data rows.")
+    x_data <- rep(x_data, length.out = n)
+    y_data <- rep(y_data, length.out = n)
+    observed <- unique(as.character(x_data[!is.na(x_data) & is.finite(y_data)]))
+    if (length(observed) < 2L)
+      cli::cli_abort("Comparisons require at least two observed groups with finite outcomes.")
 
     if (is.list(cm)) {
-      if (!all(vapply(cm, length, integer(1)) == 2L))
-        cli::cli_abort("com_method list must contain vectors of length 2.")
       all_grps <- unique(unlist(cm))
       if (!all(all_grps %in% observed))
         cli::cli_abort("Some groups in com_method have no observed comparison values.")
@@ -3485,24 +3549,53 @@ fmt_com <- function(plot,
   }
 
   fmt_com_one <- function(p) {
+    source_data <- if (is.null(dots$data)) p$data else dots$data
+    if (!is.null(dots$data) && !is.data.frame(dots$data))
+      cli::cli_abort("Statistical data must be an explicit data.frame; data callbacks are not supported.")
+    source_mapping <- if (isFALSE(dots$inherit.aes)) ggplot2::aes() else p$mapping
+    source_mapping <- merge_mapping(source_mapping, dots$mapping)
+    if (is.null(source_mapping$x) || is.null(source_mapping$y) || !is.data.frame(source_data)) {
+      candidates <- list()
+      for (existing in p$layers) {
+        mapping <- if (isTRUE(existing$inherit.aes)) p$mapping else ggplot2::aes()
+        mapping <- merge_mapping(merge_mapping(mapping, existing$mapping), dots$mapping)
+        data <- if (!is.null(dots$data)) dots$data else existing$data
+        if (is.null(data) || inherits(data, "waiver")) data <- p$data
+        if (!is.null(mapping$x) && !is.null(mapping$y) && is.data.frame(data)) {
+          candidates[[length(candidates) + 1L]] <- list(data = data, mapping = mapping)
+        }
+      }
+      if (!length(candidates))
+        cli::cli_abort("Supply a data.frame and resolvable x/y mapping for statistical comparisons.")
+      first <- candidates[[1L]]
+      if (!all(vapply(candidates, function(candidate) {
+        identical(candidate$data, first$data) &&
+          identical(candidate$mapping$x, first$mapping$x) &&
+          identical(candidate$mapping$y, first$mapping$y)
+      }, logical(1))))
+        cli::cli_abort("Statistical layer sources are ambiguous; supply data and mapping explicitly.")
+      source_data <- first$data
+      source_mapping <- first$mapping
+    }
+    source <- list(data = source_data, mapping = source_mapping)
     grouped <- !is.null(dots$group.by) || !is.null(dots$mapping$group)
     group_quo <- dots$mapping$group
-    if (grouped && is.null(group_quo)) group_quo <- p$mapping$group
-    if (grouped && is.null(group_quo)) group_quo <- p$mapping$fill
-    if (grouped && is.null(group_quo)) group_quo <- p$mapping$colour
+    if (grouped && is.null(group_quo)) group_quo <- source_mapping$group
+    if (grouped && is.null(group_quo)) group_quo <- source_mapping$fill
+    if (grouped && is.null(group_quo)) group_quo <- source_mapping$colour
     if (grouped && is.null(group_quo))
       cli::cli_abort("Grouped comparisons require a group, fill or colour mapping.")
     compare_group <- grouped && !identical(dots$group.by, "legend.var")
-    comparisons <- get_comparisons(p, com_method, if (compare_group) group_quo else NULL)
+    comparisons <- get_comparisons(source, com_method, if (compare_group) group_quo else NULL)
     group_labels <- NULL
     if (grouped) {
-      values <- rlang::eval_tidy(group_quo, data = p$data)
-      group_labels <- if (is.factor(values)) levels(droplevels(values)) else
-        sort(unique(as.character(values[!is.na(values)])))
+      values <- rlang::eval_tidy(group_quo, data = source_data)
+      group_labels <- levels(droplevels(factor(values)))
     }
+    source_mapping$group <- if (grouped) group_quo else NULL
     geom_args <- list(
-        mapping = if (grouped) ggplot2::aes(group = !!group_quo) else
-          ggplot2::aes(group = NULL),
+        data = source_data,
+        mapping = source_mapping,
         method.args = list(),
         symnum.args = list(
           cutpoints = c(0, 0.001, 0.01, 0.05, Inf),
@@ -3515,7 +3608,8 @@ fmt_com <- function(plot,
         y.position = label.y,
         fontface = "bold"
       )
-    geom_args <- utils::modifyList(geom_args, dots, keep.null = TRUE)
+    geom_args <- utils::modifyList(geom_args,
+      dots[setdiff(names(dots), c("mapping", "data"))], keep.null = TRUE)
     method_name <- if (is.character(geom_args$method))
       gsub(".", "_", geom_args$method, fixed = TRUE) else ""
     full_family <- method_name %in% c("dunn_test", "tukey_hsd", "games_howell_test", "games_howell")
@@ -3540,9 +3634,28 @@ fmt_com <- function(plot,
         if (!is.null(args$y.position) && is.null(dots$bracket.nudge.y)) {
           args$bracket.nudge.y <- 0
         }
-        available <- sort(unique(as.numeric(data$x[is.finite(data$y)])))
-        if (!grouped && length(available) < 2L) return(data.frame())
         limits <- as.character(scales$x$get_limits())
+        select_pairs <- function(values, lookup) {
+          available <- sort(unique(as.numeric(as.character(values))))
+          available <- available[available %in% which(!is.na(lookup))]
+          if (length(available) < 2L) return(list())
+          pairs <- if (is.list(comparisons)) {
+            lapply(comparisons, function(pair) match(pair, lookup))
+          } else if (comparisons == "con") {
+            Map(c, head(available, -1L), tail(available, -1L))
+          } else utils::combn(available, 2L, simplify = FALSE)
+          Filter(function(pair) all(pair %in% available), pairs)
+        }
+        keys <- if (!grouped) rep("all", nrow(data)) else
+          as.character(if (compare_group) data$x else data$group)
+        values <- if (compare_group) data$group else data$x
+        lookup <- if (compare_group) group_labels else limits
+        eligible <- vapply(split(values, keys), function(value) {
+          length(select_pairs(value, lookup)) > 0L
+        }, logical(1))
+        data <- data[keys %in% names(eligible)[eligible], , drop = FALSE]
+        if (!nrow(data)) return(data.frame())
+        positions <- sort(unique(as.numeric(data$x)))
         native_method <- args$method
         args$method <- function(data, formula, ...) {
           test_args <- list(...)
@@ -3550,16 +3663,8 @@ fmt_com <- function(plot,
           test_classes <- NULL
           run_test <- function(d) {
             variable <- all.vars(formula)[2L]
-            available <- sort(unique(as.numeric(as.character(d[[variable]]))))
             lookup <- if (variable == "group") group_labels else limits
-            pairs <- if (is.list(comparisons)) {
-              lapply(comparisons, function(pair) match(pair, lookup))
-            } else if (comparisons == "con") {
-              Map(c, head(available, -1L), tail(available, -1L))
-            } else if (length(available) >= 2L) {
-              utils::combn(available, 2L, simplify = FALSE)
-            } else list()
-            pairs <- Filter(function(pair) length(pair) == 2L && all(pair %in% available), pairs)
+            pairs <- select_pairs(d[[variable]], lookup)
             if (!length(pairs)) return(data.frame(group1 = character(), group2 = character(),
               p = numeric(), p.adj = numeric(), n1 = integer(), n2 = integer(), .y. = character()))
             if (!full_family) test_args$comparisons <- lapply(pairs, as.character)
@@ -3575,7 +3680,13 @@ fmt_com <- function(plot,
             result
           }
           if (dplyr::is_grouped_df(data)) {
-            result <- dplyr::ungroup(dplyr::group_modify(data, function(.x, .y) run_test(.x)))
+            result <- dplyr::ungroup(dplyr::group_modify(data, function(.x, .y) {
+              result <- run_test(.x)
+              if ("x" %in% names(.y)) {
+                result$.fmt_com_x <- rep(as.numeric(as.character(.y$x)), nrow(result))
+              }
+              result
+            }))
             test_details$data <- data
             test_details$formula <- formula
             attr(result, "args") <- test_details
@@ -3585,7 +3696,21 @@ fmt_com <- function(plot,
           run_test(data)
         }
         if (!grouped) data$group <- data$x
-        do.call(native_stat$compute_panel, c(list(data = data, scales = scales), args))
+        result <- do.call(native_stat$compute_panel, c(list(data = data, scales = scales), args))
+        if (nrow(result)) {
+          # Native brackets use dense positions; restore retained scale holes.
+          left <- if (compare_group) result$.fmt_com_x else as.numeric(result$group1)
+          right <- if (compare_group) result$.fmt_com_x else as.numeric(result$group2)
+          left_shift <- left - match(left, positions)
+          right_shift <- right - match(right, positions)
+          n <- nrow(result) / 3L
+          result$x <- result$x + ifelse(rep(c(TRUE, TRUE, FALSE), each = n), left_shift, right_shift)
+          result$xend <- result$xend + ifelse(rep(c(TRUE, FALSE, FALSE), each = n), left_shift, right_shift)
+          result$xmin <- result$xmin + left_shift
+          result$xmax <- result$xmax + right_shift
+          result$.fmt_com_x <- NULL
+        }
+        result
       }
     )
     p + layer

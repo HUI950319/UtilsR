@@ -102,7 +102,9 @@ test_that("explicit grouping controls retain the intended comparison variable", 
 
   subjects <- transform(iris, subject = rep(seq_len(50), 3))
   trajectories <- com_plot(subjects) + ggplot2::aes(group = subject)
+  mapping_before <- trajectories$mapping$group
   expect_equal(com_stat(fmt_com(trajectories))$p, com_stat(fmt_com(com_plot()))$p)
+  expect_identical(trajectories$mapping$group, mapping_before)
 })
 
 test_that("full-family methods filter requested pairs and display available P values", {
@@ -177,4 +179,70 @@ test_that("bracket positions use data units and panel-local transformed ranges",
   y <- com_y(fmt_com(q, label.y.prop = .9))
   first <- y$y[!duplicated(y$PANEL)]
   expect_equal(first, c(754, 7.54))
+})
+
+test_that("invalid comparison and position arguments fail before drawing", {
+  p <- com_plot()
+  for (bad in list(list(), list(c("setosa", "setosa")), list(c("setosa", NA)),
+                  list(c("setosa", "versicolor"), c("versicolor", "setosa")))) {
+    expect_error(fmt_com(p, com_method = bad), "com_method")
+  }
+  for (bad in list(-.1, 2, NA_real_, c(.5, .9), "high")) {
+    expect_error(fmt_com(p, label.y.prop = bad), "label.y.prop")
+  }
+  expect_error(fmt_com(p, label.y = Inf), "label.y")
+  expect_error(fmt_com(p, tip.length = -.1), "tip.length")
+  expect_error(fmt_com(p, step.increase = NA_real_), "step.increase")
+  expect_error(fmt_com(p, size = -1), "size")
+  expect_error(fmt_com(p, method.args = 1), "method.args")
+  expect_error(fmt_com(p, method.args = list(TRUE)), "method.args")
+  expect_error(fmt_com(p, method.args = list(paired = TRUE, paired = FALSE)), "method.args")
+  expect_error(fmt_com(p, y.position = 8), "label.y")
+  expect_error(fmt_com(com_plot(subset(iris, Species == "setosa"))), "two")
+  expect_error(fmt_com(ggplot2::ggplot(iris, ggplot2::aes(Sepal.Width, Sepal.Length)) +
+                         ggplot2::geom_point()), "categorical")
+})
+
+test_that("statistical sources resolve layer mappings and explicit overrides", {
+  root <- com_plot()
+  layer_only <- ggplot2::ggplot() +
+    ggplot2::geom_boxplot(data = iris, ggplot2::aes(Species, Sepal.Length))
+  expect_equal(com_stat(fmt_com(layer_only))$p, com_stat(fmt_com(root))$p)
+  partial <- ggplot2::ggplot(iris, ggplot2::aes(Species)) +
+    ggplot2::geom_boxplot(ggplot2::aes(y = Sepal.Length))
+  expect_equal(com_stat(fmt_com(partial))$p, com_stat(fmt_com(root))$p)
+  d <- subset(iris, Species != "versicolor")
+  q <- fmt_com(root, data = d, com_method = list(c("setosa", "virginica")))
+  expect_equal(com_stat(q)$p, com_stat(fmt_com(com_plot(d)))$p)
+  expect_error(fmt_com(root, data = d, com_method = list(c("setosa", "versicolor"))), "observed")
+  ambiguous <- layer_only + ggplot2::geom_point(data = d, ggplot2::aes(Species, Sepal.Length))
+  expect_error(fmt_com(ambiguous), "ambiguous")
+  expect_equal(com_stat(fmt_com(ambiguous, data = iris,
+                               mapping = ggplot2::aes(Species, Sepal.Length)))$p,
+               com_stat(fmt_com(root))$p)
+  expect_error(fmt_com(root, data = function(d) d), "data.frame")
+})
+
+test_that("missing panel pairs are skipped and retained scale gaps stay aligned", {
+  p <- com_plot(subset(iris, Species != "versicolor")) +
+    ggplot2::scale_x_discrete(drop = FALSE)
+  s <- com_stat(fmt_com(p))
+  expect_equal(as.numeric(s$xmin), 1)
+  expect_equal(as.numeric(s$xmax), 3)
+  d <- rbind(transform(subset(iris, Species != "setosa"), panel = "A"),
+             transform(subset(iris, Species != "versicolor"), panel = "B"))
+  q <- com_plot(d) + ggplot2::facet_wrap(~panel)
+  s <- com_stat(fmt_com(q, com_method = list(c("setosa", "virginica"))))
+  expect_equal(nrow(s), 1L)
+  expect_equal(as.character(s$PANEL), "2")
+
+  d <- subset(transform(ToothGrowth, dose = factor(dose)), dose != "1")
+  p <- ggplot2::ggplot(d, ggplot2::aes(dose, len, fill = supp)) +
+    ggplot2::geom_boxplot() + ggplot2::scale_x_discrete(drop = FALSE)
+  s <- com_stat(fmt_com(p, group.by = "x.var", method = "t_test"))
+  expect_equal(as.numeric(s$xmin), c(.8, 2.8))
+  expect_equal(as.numeric(s$xmax), c(1.2, 3.2))
+  s <- com_stat(fmt_com(p, group.by = "legend.var", method = "t_test"))
+  expect_equal(sort(as.numeric(s$xmin)), c(.8, 1.2))
+  expect_equal(sort(as.numeric(s$xmax)), c(2.8, 3.2))
 })

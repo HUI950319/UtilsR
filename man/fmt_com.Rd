@@ -22,7 +22,9 @@ Layouts, annotations and list names are retained. Spacers, guide areas,
 insets and frozen wrapped graphics are left unchanged.}
 
 \item{com_method}{Comparison method: \code{"con"} (consecutive), \code{"all"}
-(all pairs), or a list of length-2 character vectors.}
+(all pairs), or a non-empty list of length-2 category-value vectors.
+Pairs must contain distinct observed values; reversed duplicate pairs
+are rejected. Values select categories rather than numeric axis indices.}
 
 \item{label.y}{Numeric bracket positions in original y-data units, before
 scale transformation. A scalar sets the first bracket; a vector sets
@@ -69,6 +71,16 @@ Comparisons follow displayed x-axis order and use observed groups in each
 panel. Custom groups without observations are rejected; pairs absent from
 an individual facet panel are skipped.
 }
+\details{
+A categorical x axis and numeric y outcome are required. Statistical
+data and mapping can be supplied explicitly through \code{...}; otherwise a
+complete plot-level source is used, then an unambiguous layer-level source.
+Multiple different layer sources require explicit \code{data} and
+\code{mapping}. Statistical data must be a data frame; callbacks and
+after-stat mappings are not supported. Missing panel-specific pairs are
+skipped. The backend evaluates tests on the layer data during plot building;
+scale transformations and scale limits affect the observations it receives.
+}
 \examples{
 library(ggplot2)
 p <- ggplot(iris, aes(Species, Sepal.Length)) + geom_boxplot()
@@ -88,12 +100,17 @@ fmt_com(p, label = "p.format")
 # Show both p-value and stars
 fmt_com(p, label = "{p.format}{p.signif}")
 
+# Display adjusted significance stars
+fmt_com(p, label = "p.adj.signif", p.adjust.method = "bonferroni")
+
 # Adjust bracket y-position (absolute y-axis value, not proportion)
 fmt_com(p, label.y = 8)
+fmt_com(p + scale_y_log10(), label.y = 8)
 
 }
 \seealso{
 Other plot formatting:
+\code{\link[=flatten_patchwork]{flatten_patchwork()}},
 \code{\link[=fmt_axis]{fmt_axis()}},
 \code{\link[=fmt_axisText]{fmt_axisText()}},
 \code{\link[=fmt_axisTile]{fmt_axisTile()}},
