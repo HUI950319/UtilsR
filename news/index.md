@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
+  rejects unknown, unnamed and duplicate layout controls, reporting
+  misspelled arguments and misplaced extra graphics explicitly. Multiple
+  graphics remain supported through the `plots` list input.
+
+- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
   binds insets before extracting hosts from plain or nested lists,
   retaining composite and grob hosts, their cell names and selection
   boundaries consistently with native patchwork inputs.

@@ -18,9 +18,11 @@ flatten_patchwork(plots, ..., select_inds = NULL, nrow_inds_order = NULL)
 
 - ...:
 
-  Arguments passed to
+  Named layout arguments passed to
   [`patchwork::wrap_plots()`](https://patchwork.data-imaginist.com/reference/wrap_plots.html),
-  such as `nrow`, `ncol`, `design`, `guides` and `axis_titles`.
+  such as `nrow`, `ncol`, `design`, `guides` and `axis_titles`. Unknown,
+  unnamed and duplicate arguments are rejected. Supply additional
+  graphics in `plots` as a list.
 
 - select_inds:
 

@@ -70,9 +70,11 @@ arrange them in a new patchwork, optionally selecting or reordering cells.</p>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Arguments passed to <code><a href="https://patchwork.data-imaginist.com/reference/wrap_plots.html" class="external-link">patchwork::wrap_plots()</a></code>,
+<dd><p>Named layout arguments passed to
+<code><a href="https://patchwork.data-imaginist.com/reference/wrap_plots.html" class="external-link">patchwork::wrap_plots()</a></code>,
 such as <code>nrow</code>, <code>ncol</code>, <code>design</code>, <code>guides</code> and
-<code>axis_titles</code>.</p></dd>
+<code>axis_titles</code>. Unknown, unnamed and duplicate arguments are rejected.
+Supply additional graphics in <code>plots</code> as a list.</p></dd>
 
 
 <dt id="arg-select-inds">select_inds<a class="anchor" aria-label="anchor" href="#arg-select-inds"></a></dt>
