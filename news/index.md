@@ -3,6 +3,13 @@
 ## UtilsR 0.6.8
 
 - [`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md)
+  validates comparisons, numeric positions and test-option names;
+  resolves unambiguous layer data/mappings and explicit statistical
+  overrides; and skips missing panel pairs without failed-test warnings.
+  Retained unused axis categories no longer compress ordinary or grouped
+  bracket positions.
+
+- [`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md)
   transforms absolute bracket positions from data units and resolves
   proportional positions within each panel’s trained y range. Explicit
   positions no longer receive an implicit nudge; a supplied bracket

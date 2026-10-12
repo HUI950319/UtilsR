@@ -34,7 +34,9 @@ fmt_com(
 - com_method:
 
   Comparison method: `"con"` (consecutive), `"all"` (all pairs), or a
-  list of length-2 character vectors.
+  non-empty list of length-2 category-value vectors. Pairs must contain
+  distinct observed values; reversed duplicate pairs are rejected.
+  Values select categories rather than numeric axis indices.
 
 - label.y:
 
@@ -92,9 +94,22 @@ fmt_com(
 
 Same type as input.
 
+## Details
+
+A categorical x axis and numeric y outcome are required. Statistical
+data and mapping can be supplied explicitly through `...`; otherwise a
+complete plot-level source is used, then an unambiguous layer-level
+source. Multiple different layer sources require explicit `data` and
+`mapping`. Statistical data must be a data frame; callbacks and
+after-stat mappings are not supported. Missing panel-specific pairs are
+skipped. The backend evaluates tests on the layer data during plot
+building; scale transformations and scale limits affect the observations
+it receives.
+
 ## See also
 
 Other plot formatting:
+[`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md),
 [`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md),
 [`fmt_axisText()`](https://hui950319.github.io/UtilsR/reference/fmt_axisText.md),
 [`fmt_axisTile()`](https://hui950319.github.io/UtilsR/reference/fmt_axisTile.md),
@@ -141,7 +156,13 @@ fmt_com(p, label = "p.format")
 fmt_com(p, label = "{p.format}{p.signif}")
 
 
+# Display adjusted significance stars
+fmt_com(p, label = "p.adj.signif", p.adjust.method = "bonferroni")
+
+
 # Adjust bracket y-position (absolute y-axis value, not proportion)
 fmt_com(p, label.y = 8)
+
+fmt_com(p + scale_y_log10(), label.y = 8)
 
 ```
