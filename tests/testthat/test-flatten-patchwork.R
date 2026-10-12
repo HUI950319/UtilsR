@@ -66,6 +66,24 @@ test_that("flattening validates indices without changing integer selection", {
                  c("P1", "P3", "P4"))
 })
 
+test_that("named character designs reject ambiguous duplicate cell names", {
+  plots <- list(A = flatten_test_plot("First"), B = flatten_test_plot("Second"))
+  expect_error(flatten_patchwork(plots, select_inds = c(1, 1, 2), design = "ABC"),
+    "unique.*names|unnamed")
+  expect_error(flatten_patchwork(list(A = plots[[1]], A = plots[[2]]), design = "AB"),
+    "unique.*names|unnamed")
+  repeated <- flatten_patchwork(unname(plots), select_inds = c(1, 1, 2), design = "ABC")
+  expect_equal(flatten_test_titles(repeated), c("First", "First", "Second"))
+  labels <- flatten_test_labels(patchwork::patchworkGrob(repeated))
+  expect_equal(sum(labels == "First"), 2L)
+  expect_equal(sum(labels == "Second"), 1L)
+  expect_equal(flatten_test_titles(flatten_patchwork(plots, select_inds = c(1, 1, 2))),
+    c("First", "First", "Second"))
+  names(plots) <- c("X", "Y")
+  expect_equal(flatten_test_titles(flatten_patchwork(plots, select_inds = c(1, 1, 2),
+    design = "ABC")), c("First", "First", "Second"))
+})
+
 test_that("row interleaving rejects invalid counts and handles uneven grids", {
   plots <- lapply(1:5, function(i) flatten_test_plot(paste0("P", i)))
   input <- patchwork::wrap_plots(plots)

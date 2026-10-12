@@ -180,6 +180,8 @@
 #' @param select_inds Integer indices applied after flattening. Positive indices
 #'   select and may repeat plots; negative indices exclude plots. Zero is ignored.
 #'   Missing, fractional, mixed-sign and out-of-range indices are rejected.
+#'   Duplicate cell names matched by a character \code{design} are rejected;
+#'   use an unnamed list to repeat cells by position in that design.
 #' @param nrow_inds_order Single positive integer, at most the number of selected
 #'   plots, to reorder them by interleaving rows. Applied after selection; it does
 #'   not set the output layout's \code{nrow}.
@@ -329,6 +331,12 @@ flatten_patchwork <- function(plots, ..., select_inds = NULL, nrow_inds_order = 
     layout_args <- layout_args[!vapply(layout_args, is.null, logical(1))]
   }
   dots <- list(...)
+  if (is.character(dots$design) && anyDuplicated(names(all_subplots))) {
+    area_names <- setdiff(unique(trimws(strsplit(dots$design, "")[[1]])), c("", "#"))
+    if (all(names(all_subplots) %in% area_names)) {
+      cli::cli_abort("Cell names must be unique when matched to a character {.arg design}; use an unnamed list to repeat cells by position.")
+    }
+  }
   layout_args <- layout_args[setdiff(names(layout_args), names(dots))]
   result <- do.call(patchwork::wrap_plots, c(list(all_subplots), layout_args, dots))
   if (!is.null(annotation)) result <- result + annotation

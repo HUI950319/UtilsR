@@ -15,7 +15,9 @@ such as \code{nrow}, \code{ncol}, \code{design}, \code{guides} and
 
 \item{select_inds}{Integer indices applied after flattening. Positive indices
 select and may repeat plots; negative indices exclude plots. Zero is ignored.
-Missing, fractional, mixed-sign and out-of-range indices are rejected.}
+Missing, fractional, mixed-sign and out-of-range indices are rejected.
+Duplicate cell names matched by a character \code{design} are rejected;
+use an unnamed list to repeat cells by position in that design.}
 
 \item{nrow_inds_order}{Single positive integer, at most the number of selected
 plots, to reorder them by interleaving rows. Applied after selection; it does
