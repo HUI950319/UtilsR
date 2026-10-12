@@ -140,6 +140,30 @@ test_that("flattening protects free containers and retains ordinary layout cells
   expect_equal(sum(flatten_test_labels(patchwork::patchworkGrob(special)) == "Wrapped"), 1L)
 })
 
+test_that("flattening distinguishes free leaves from free containers", {
+  plots <- lapply(1:3, function(i) flatten_test_plot(paste0("P", i)))
+  for (type in c("panel", "label", "space")) {
+    input <- ((plots[[1]] | plots[[2]]) /
+      patchwork::free(plots[[3]], type = type, side = "l")) +
+      patchwork::plot_layout(guides = "collect") +
+      patchwork::plot_annotation(title = "Overall title")
+    before <- serialize(input, NULL)
+    output <- flatten_patchwork(input, ncol = 3)
+    expect_true(identical(serialize(input, NULL), before))
+    expect_length(output, 3L)
+    expect_equal(flatten_test_titles(output), paste0("P", 1:3))
+    expect_s3_class(output[[3]], "free_plot")
+    expect_identical(attr(output[[3]], "free_settings"),
+      attr(input[[2]], "free_settings"))
+    expect_identical(output$patches$annotation, input$patches$annotation)
+    expect_identical(output$patches$layout$guides, "collect")
+    expect_s3_class(patchwork::patchworkGrob(output), "gtable")
+    selected <- flatten_patchwork(input, select_inds = c(3, 1))
+    expect_equal(flatten_test_titles(selected), c("P3", "P1"))
+    expect_s3_class(patchwork::patchworkGrob(selected), "gtable")
+  }
+})
+
 test_that("flattening reports unreadable children instead of omitting them", {
   rlang::local_bindings(`[[.flatten_bad_patchwork` = function(x, ...) {
     if (list(...)[[1]] == 2L) stop("Broken child")

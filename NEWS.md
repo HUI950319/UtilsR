@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `flatten_patchwork()` distinguishes a freed plot from its enclosing patchwork,
+  allowing containers ending in `free()` leaves to flatten, render and retain
+  their overall annotations and collection settings.
+
 * `flatten_patchwork()` reports the index and original cause of unreadable
   patchwork children instead of silently removing them from the result.
 
