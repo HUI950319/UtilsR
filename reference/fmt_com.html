@@ -121,7 +121,11 @@ select an adjusted label to display multiplicity-adjusted results.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments passed to <code><a href="https://rpkgs.datanovia.com/ggpubr/reference/geom_pwc.html" class="external-link">ggpubr::geom_pwc</a></code>.</p></dd>
+<dd><p>Named arguments passed to <code><a href="https://rpkgs.datanovia.com/ggpubr/reference/geom_pwc.html" class="external-link">ggpubr::geom_pwc</a></code>, overriding
+formatting defaults. <code>method.args</code> may contain test options such as
+<code>paired</code> or <code>alternative</code>; select pairs with <code>com_method</code>,
+not <code>method.args$comparisons</code>. Pairing follows observation order within
+each comparison group, so align paired observations before plotting.</p></dd>
 
 </dl></div>
     <div class="section level2">

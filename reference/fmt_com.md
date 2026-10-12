@@ -66,8 +66,12 @@ fmt_com(
 
 - ...:
 
-  Additional arguments passed to
-  [`ggpubr::geom_pwc`](https://rpkgs.datanovia.com/ggpubr/reference/geom_pwc.html).
+  Named arguments passed to
+  [`ggpubr::geom_pwc`](https://rpkgs.datanovia.com/ggpubr/reference/geom_pwc.html),
+  overriding formatting defaults. `method.args` may contain test options
+  such as `paired` or `alternative`; select pairs with `com_method`, not
+  `method.args$comparisons`. Pairing follows observation order within
+  each comparison group, so align paired observations before plotting.
 
 ## Value
 
