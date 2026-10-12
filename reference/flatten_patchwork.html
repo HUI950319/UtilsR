@@ -71,16 +71,21 @@
 
 
 <dt id="arg-select-inds">select_inds<a class="anchor" aria-label="anchor" href="#arg-select-inds"></a></dt>
-<dd><p>Integer vector of indices to keep after flattening.</p></dd>
+<dd><p>Integer indices applied after flattening. Positive indices
+select and may repeat plots; negative indices exclude plots. Zero is ignored.
+Missing, fractional, mixed-sign and out-of-range indices are rejected.</p></dd>
 
 
 <dt id="arg-nrow-inds-order">nrow_inds_order<a class="anchor" aria-label="anchor" href="#arg-nrow-inds-order"></a></dt>
-<dd><p>Single integer to reorder plots by interleaving rows.</p></dd>
+<dd><p>Single positive integer, at most the number of selected
+plots, to reorder them by interleaving rows. Applied after selection; it does
+not set the output layout's <code>nrow</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A patchwork object with all sub-plots at one level.</p>
+    <p>A patchwork object with ordinary grid cells at one level. Insets and
+their main plot stay together and count as one cell for selection/reordering.</p>
     </div>
 
     <div class="section level2">
