@@ -2,6 +2,13 @@
 
 ## UtilsR 0.6.8
 
+- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
+  emits ordinary inset hosts at the same layout level as their
+  neighbours, retaining shared axis and axis-title collection. Selection
+  and reordering still operate on complete host/inset cells; returned
+  patchwork child indexing now includes inset objects. Composite inset
+  hosts stay intact.
+
 - [`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md)
   validates comparisons, numeric positions and test-option names;
   resolves unambiguous layer data/mappings and explicit statistical

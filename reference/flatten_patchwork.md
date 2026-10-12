@@ -60,6 +60,13 @@ without container-name prefixes. These cell names can be matched to a
 character layout design by
 [`wrap_plots()`](https://patchwork.data-imaginist.com/reference/wrap_plots.html).
 
+Insets are emitted alongside ordinary hosts at the same layout level,
+allowing shared axes and axis titles to be collected. Composite inset
+hosts remain intact. The returned object's
+[`length()`](https://rdrr.io/r/base/length.html) and `[[` follow native
+patchwork child indexing and include inset objects; selection and row
+interleaving use complete cells, including each host's insets.
+
 Flattening ordinary containers removes their nested collection scopes,
 including inner `guides = "keep"` or `guides = "collect"` settings.
 Collection is determined by the retained top-level settings and `...`.

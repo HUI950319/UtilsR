@@ -108,6 +108,11 @@ not set the output layout's <code>nrow</code>.</p></dd>
   that produce one cell retain their name; names inside nested lists are
   retained without container-name prefixes. These cell names can be matched
   to a character layout design by <code><a href="https://patchwork.data-imaginist.com/reference/wrap_plots.html" class="external-link">wrap_plots()</a></code>.</p>
+<p>Insets are emitted alongside ordinary hosts at the same layout level,
+  allowing shared axes and axis titles to be collected. Composite inset hosts
+  remain intact. The returned object's <code><a href="https://rdrr.io/r/base/length.html" class="external-link">length()</a></code> and <code>[[</code> follow
+  native patchwork child indexing and include inset objects; selection and
+  row interleaving use complete cells, including each host's insets.</p>
 <p>Flattening ordinary containers removes their nested collection scopes,
   including inner <code>guides = "keep"</code> or <code>guides = "collect"</code> settings.
   Collection is determined by the retained top-level settings and <code>...</code>.
