@@ -29,8 +29,10 @@ value). Default \code{NULL} lets ggpubr auto-calculate.}
 the first bracket position. E.g., \code{0.9} = 90\% of data range.
 Ignored when \code{label.y} is provided. Default \code{NULL}.}
 
-\item{label}{Label type: \code{"p.signif"}, \code{"\{p.format\}\{p.signif\}"},
-or \code{"p.format"}.}
+\item{label}{A ggpubr result column or glue template, such as
+\code{"p.signif"}, \code{"p.adj.signif"}, \code{"p.adj.format"}, or
+\code{"\{p.format\}\{p.signif\}"}. The default displays raw P-value stars;
+select an adjusted label to display multiplicity-adjusted results.}
 
 \item{tip.length}{Length of the bracket tips. Default \code{0.025}.}
 

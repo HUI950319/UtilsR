@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_com()` accepts adjusted P-value labels and custom ggpubr templates while
+  retaining its default raw P-value stars.
+
 * `fmt_com()` resolves comparisons from observed groups and trained axis
   positions, preventing missing factor levels from silently selecting another
   group. Consecutive and all-pairs comparisons respect panel-local scale order.

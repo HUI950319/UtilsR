@@ -3384,8 +3384,10 @@ drawDetails.axis_tile_strip <- function(x, recording) {
 #' @param label.y.prop Numeric proportion (0-1) of the y-axis data range for
 #'   the first bracket position. E.g., \code{0.9} = 90\% of data range.
 #'   Ignored when \code{label.y} is provided. Default \code{NULL}.
-#' @param label Label type: \code{"p.signif"}, \code{"\{p.format\}\{p.signif\}"},
-#'   or \code{"p.format"}.
+#' @param label A ggpubr result column or glue template, such as
+#'   \code{"p.signif"}, \code{"p.adj.signif"}, \code{"p.adj.format"}, or
+#'   \code{"\{p.format\}\{p.signif\}"}. The default displays raw P-value stars;
+#'   select an adjusted label to display multiplicity-adjusted results.
 #' @param tip.length Length of the bracket tips. Default \code{0.025}.
 #' @param step.increase Vertical step increase between brackets. Default \code{0.05}.
 #' @param size Line width of the brackets. Default \code{0.8}.
@@ -3426,7 +3428,9 @@ fmt_com <- function(plot,
                     step.increase = 0.05,
                     size = 0.8,
                     ...) {
-  label <- match.arg(label)
+  if (missing(label)) label <- label[1L]
+  if (!is.character(label) || length(label) != 1L || is.na(label) || !nzchar(label))
+    cli::cli_abort("label must be a single non-empty result column or template.")
 
   get_comparisons <- function(p, cm) {
     x_quo <- p$mapping$x
