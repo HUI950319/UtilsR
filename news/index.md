@@ -2,6 +2,10 @@
 
 ## UtilsR 0.6.8
 
+- [`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md)
+  honors reference-group comparisons, including pooled references and
+  named legend groups, and rejects conflicting custom comparison lists.
+
 - [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
   rejects unknown, unnamed and duplicate layout controls, reporting
   misspelled arguments and misplaced extra graphics explicitly. Multiple

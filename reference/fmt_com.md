@@ -85,7 +85,11 @@ fmt_com(
   each mapped group. An explicit `mapping = aes(group = ...)` also
   enables grouped comparisons. `com_method` selects the corresponding
   comparison variable, with consecutive pairs resolved within each
-  subset. Dunn, Tukey and Games-Howell methods compute their full
+  subset. When `ref.group` is supplied, it selects reference comparisons
+  instead of automatic consecutive/all pairs; it cannot be combined with
+  a custom `com_method` list. Names and displayed ranks are accepted,
+  and `ref.group = "all"` compares each group against the pooled
+  observations. Dunn, Tukey and Games-Howell methods compute their full
   comparison family before display filtering, retaining that family's
   adjustment. Methods returning only adjusted P values use adjusted
   significance stars.
