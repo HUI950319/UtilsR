@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `flatten_patchwork()` retains nested insets with their main plot during
+  flattening, selection and reordering, preserving overlay placement.
+
 * `flatten_patchwork()` validates selection and row-interleaving indices before
   arranging plots, preventing fractional-index omissions and empty output.
   Integer exclusion, repetition and zero indices retain their existing meaning.

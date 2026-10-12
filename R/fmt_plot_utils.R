@@ -181,7 +181,8 @@
 #'   plots, to reorder them by interleaving rows. Applied after selection; it does
 #'   not set the output layout's \code{nrow}.
 #'
-#' @return A patchwork object with all sub-plots at one level.
+#' @return A patchwork object with ordinary grid cells at one level. Insets and
+#'   their main plot stay together and count as one cell for selection/reordering.
 #'
 #' @examples
 #' library(ggplot2)
@@ -207,7 +208,12 @@
 #'
 #' @export
 flatten_patchwork <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) {
+  is_inset <- function(plot) {
+    inherits(plot, "inset_patch") && (!inherits(plot, "patchwork") ||
+      match("inset_patch", class(plot)) < match("patchwork", class(plot)))
+  }
   flatten_recursive <- function(plot_obj) {
+    if (is_inset(plot_obj)) return(list(plot_obj))
     if (!inherits(plot_obj, "patchwork")) {
       if (inherits(plot_obj, c("ggplot", "grob"))) return(list(plot_obj))
       if (!is.list(plot_obj)) {
@@ -225,6 +231,19 @@ flatten_patchwork <- function(plots, ..., select_inds = NULL, nrow_inds_order = 
   }
 
   all_subplots <- flatten_recursive(plots)
+  cells <- list()
+  for (i in seq_along(all_subplots)) {
+    if (is_inset(all_subplots[[i]])) {
+      if (length(cells) == 0L) {
+        cli::cli_abort("An inset must follow its main plot.")
+      }
+      last <- length(cells)
+      cells[[last]] <- cells[[last]] + all_subplots[[i]]
+    } else {
+      cells <- c(cells, all_subplots[i])
+    }
+  }
+  all_subplots <- cells
 
   if (!is.null(select_inds)) {
     if (!is.numeric(select_inds) || is.complex(select_inds) ||

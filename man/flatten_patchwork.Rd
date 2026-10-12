@@ -20,7 +20,8 @@ plots, to reorder them by interleaving rows. Applied after selection; it does
 not set the output layout's \code{nrow}.}
 }
 \value{
-A patchwork object with all sub-plots at one level.
+A patchwork object with ordinary grid cells at one level. Insets and
+their main plot stay together and count as one cell for selection/reordering.
 }
 \description{
 Recursively flatten nested patchwork objects into a single-level patchwork.

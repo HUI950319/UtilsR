@@ -8,6 +8,12 @@ flatten_test_titles <- function(plot) {
   vapply(seq_along(plot), function(i) plot[[i]]$labels$title, character(1))
 }
 
+flatten_test_labels <- function(grob) {
+  labels <- if (inherits(grob, "text")) as.character(grob$label) else character()
+  children <- if (inherits(grob, "gtable")) grob$grobs else grob$children
+  c(labels, unlist(lapply(children, flatten_test_labels), use.names = FALSE))
+}
+
 test_that("flattening accepts lists and preserves named design assignments", {
   p1 <- flatten_test_plot("First")
   p2 <- flatten_test_plot("Second")
@@ -56,4 +62,36 @@ test_that("row interleaving rejects invalid counts and handles uneven grids", {
                  c("P5", "P1", "P3"))
   expect_error(flatten_patchwork(input, select_inds = 1, nrow_inds_order = 2),
                  "nrow_inds_order")
+})
+
+test_that("flattening keeps nested insets with their main plot", {
+  main <- flatten_test_plot("Main")
+  overlay <- flatten_test_plot("Inset 1") | flatten_test_plot("Inset 2")
+  input <- main + patchwork::inset_element(overlay, .5, .5, 1, 1)
+  before <- serialize(input, NULL)
+  output <- flatten_patchwork(input)
+  expect_length(output, 1L)
+  expect_identical(serialize(input, NULL), before)
+  expect_equal(flatten_test_labels(patchwork::patchworkGrob(output[[1]])),
+                 flatten_test_labels(patchwork::patchworkGrob(input)))
+  expect_equal(patchwork::patchworkGrob(output[[1]])$layout,
+                 patchwork::patchworkGrob(input)$layout)
+  expect_identical(attr(output[[1]][[2]], "inset_settings"),
+                     attr(input[[2]], "inset_settings"))
+
+  double <- input + patchwork::inset_element(overlay, 0, 0, .4, .4, on_top = FALSE)
+  cells <- flatten_patchwork(list(double, main))
+  expect_length(cells, 2L)
+  expect_equal(flatten_test_labels(patchwork::patchworkGrob(cells[[1]])),
+                 flatten_test_labels(patchwork::patchworkGrob(double)))
+  expect_equal(patchwork::patchworkGrob(cells[[1]])$layout,
+                 patchwork::patchworkGrob(double)$layout)
+  selected <- flatten_patchwork(list(main, double), select_inds = 2)
+  expect_equal(flatten_test_labels(patchwork::patchworkGrob(selected[[1]])),
+                 flatten_test_labels(patchwork::patchworkGrob(double)))
+  reordered <- flatten_patchwork(list(double, main), select_inds = c(2, 1))
+  expect_equal(flatten_test_labels(patchwork::patchworkGrob(reordered[[2]])),
+                 flatten_test_labels(patchwork::patchworkGrob(double)))
+  expect_error(flatten_patchwork(patchwork::inset_element(overlay, .5, .5, 1, 1)),
+                 "inset.*main plot")
 })
