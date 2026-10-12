@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
+  keeps cell names through nested lists without adding container-name
+  prefixes, including named plots with insets in character layout
+  designs.
+
+- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
   groups insets with their host before recursion, retaining a composite
   host as one selectable cell and preserving inset coordinates relative
   to that entire host.
