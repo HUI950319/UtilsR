@@ -3,6 +3,12 @@
 ## UtilsR 0.6.8
 
 - [`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md)
+  transforms absolute bracket positions from data units and resolves
+  proportional positions within each panel’s trained y range. Explicit
+  positions no longer receive an implicit nudge; a supplied bracket
+  nudge remains supported.
+
+- [`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md)
   formats all ordinary leaves of nested patchworks and plot lists,
   retaining layout, annotations and names while skipping spacers, guide
   areas, insets and frozen wrapped graphics.

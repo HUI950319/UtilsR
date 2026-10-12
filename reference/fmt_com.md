@@ -38,14 +38,17 @@ fmt_com(
 
 - label.y:
 
-  Numeric y-position for the first bracket (absolute y-axis value).
-  Default `NULL` lets ggpubr auto-calculate.
+  Numeric bracket positions in original y-data units, before scale
+  transformation. A scalar sets the first bracket; a vector sets
+  individual positions. Default `NULL` lets ggpubr auto-calculate.
 
 - label.y.prop:
 
-  Numeric proportion (0-1) of the y-axis data range for the first
-  bracket position. E.g., `0.9` = 90% of data range. Ignored when
-  `label.y` is provided. Default `NULL`.
+  Numeric proportion (0-1) of each panel's transformed y-axis data range
+  for the first bracket. E.g., `0.9` is 90% along the displayed range,
+  including log scales and free-y facets. Ignored when `label.y` is
+  provided. Explicit positions have no default nudge; `bracket.nudge.y`
+  in `...` adds an optional offset.
 
 - label:
 
