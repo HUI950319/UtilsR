@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md)
+  fixes one-sided comparison direction to custom pair order, reference
+  order, or original mapped group order for automatic pairs, keeping
+  axis reordering from reversing the tested alternative.
+
+- [`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md)
   preserves paired observations through missing-value and scale
   filtering, with joint pair omission. `method.args$id` matches explicit
   subject IDs; ambiguous unequal-size row pairing is rejected.

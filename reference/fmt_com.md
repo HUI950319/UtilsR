@@ -82,15 +82,19 @@ fmt_com(
   match for order-based pairing. Supply
   `method.args = list(paired = TRUE, id = "subject")` to match a data
   column independently within each pair; IDs must be non-missing and
-  unique within each comparison group/subset. By default, inherited
-  trajectory grouping is ignored and x groups are compared. Set
-  `group.by = "x.var"` to compare mapped groups within each x value, or
-  `group.by = "legend.var"` to compare x values within each mapped
-  group. An explicit `mapping = aes(group = ...)` also enables grouped
-  comparisons. `com_method` selects the corresponding comparison
-  variable, with consecutive pairs resolved within each subset. When
-  `ref.group` is supplied, it selects reference comparisons instead of
-  automatic consecutive/all pairs; it cannot be combined with a custom
+  unique within each comparison group/subset. One-sided custom pairs
+  test the first group against the second. Reference comparisons test
+  the reference against the other group; automatic pairs use the
+  original mapped group order for direction, independently of axis
+  display order. By default, inherited trajectory grouping is ignored
+  and x groups are compared. Set `group.by = "x.var"` to compare mapped
+  groups within each x value, or `group.by = "legend.var"` to compare x
+  values within each mapped group. An explicit
+  `mapping = aes(group = ...)` also enables grouped comparisons.
+  `com_method` selects the corresponding comparison variable, with
+  consecutive pairs resolved within each subset. When `ref.group` is
+  supplied, it selects reference comparisons instead of automatic
+  consecutive/all pairs; it cannot be combined with a custom
   `com_method` list. Names and displayed ranks are accepted, and
   `ref.group = "all"` compares each group against the pooled
   observations. Dunn, Tukey and Games-Howell methods compute their full
