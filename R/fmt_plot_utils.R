@@ -170,10 +170,13 @@
 
 #' Flatten nested patchwork objects
 #'
-#' Recursively flatten nested patchwork objects into a single-level patchwork.
+#' Recursively extract ordinary grid cells from nested patchwork objects and
+#' arrange them in a new patchwork, optionally selecting or reordering cells.
 #'
 #' @param plots A ggplot, patchwork object, grob, or nested list of these objects.
-#' @param ... Arguments passed to [patchwork::wrap_plots()], e.g. `nrow`, `ncol`.
+#' @param ... Arguments passed to \code{\link[patchwork:wrap_plots]{patchwork::wrap_plots()}},
+#'   such as \code{nrow}, \code{ncol}, \code{design}, \code{guides} and
+#'   \code{axis_titles}.
 #' @param select_inds Integer indices applied after flattening. Positive indices
 #'   select and may repeat plots; negative indices exclude plots. Zero is ignored.
 #'   Missing, fractional, mixed-sign and out-of-range indices are rejected.
@@ -190,6 +193,12 @@
 #'   input. Explicit arguments in \code{...} override inherited settings.
 #'   Grid geometry (dimensions, widths, heights and design) is rebuilt using
 #'   \code{...}; nested annotation and tagging scopes are not promoted.
+#'   Selection indices refer to the extracted cells, including spacers, guide
+#'   areas and wrapped graphics. A main plot with its insets, or a protected
+#'   \code{free()} container, occupies one selection index. Named list entries
+#'   can be matched to a character layout design by \code{wrap_plots()}.
+#'
+#' @family plot formatting
 #'
 #' @examples
 #' library(ggplot2)
@@ -206,12 +215,17 @@
 #'
 #' # Select specific sub-plots
 #' flatten_patchwork(nested, select_inds = c(1, 3))
-#' }
 #'
-#' @examplesIf packageVersion("patchwork") < "2.0.0"
-#' # Reorder by rows (column-first -> row-first)
-#' nested2 <- (p1 | p2) / (p3 | p4)
-#' flatten_patchwork(nested2, nrow_inds_order = 2, ncol = 2)
+#' # Interleave indices 1, 3, 2, 4, then arrange in two columns
+#' flatten_patchwork(nested, nrow_inds_order = 2, ncol = 2)
+#'
+#' # Retain the overall title and collect matching axis titles
+#' annotated <- nested + plot_annotation(title = "Example plots")
+#' flatten_patchwork(annotated, ncol = 2, axis_titles = "collect")
+#'
+#' # Names determine placement in a character design
+#' flatten_patchwork(list(B = p2, A = p1), design = "AB")
+#' }
 #'
 #' @export
 flatten_patchwork <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) {

@@ -153,3 +153,20 @@ test_that("flattening reports unreadable children instead of omitting them", {
   expect_s3_class(error, "rlang_error")
   expect_match(conditionMessage(error$parent), "Broken child")
 })
+
+test_that("flattening keeps plot data and accepts standalone grobs", {
+  plots <- lapply(1:4, function(i) flatten_test_plot(paste0("P", i)))
+  input <- (plots[[1]] | plots[[2]]) / (plots[[3]] | plots[[4]])
+  before <- serialize(input, NULL)
+  output <- flatten_patchwork(input, select_inds = c(4, 2, 1), ncol = 3)
+  expect_true(identical(serialize(input, NULL), before))
+  for (i in seq_len(3)) {
+    original <- plots[[c(4, 2, 1)[i]]]
+    expect_equal(ggplot2::ggplot_build(output[[i]])$data,
+                   ggplot2::ggplot_build(original)$data)
+  }
+  grob <- grid::textGrob("Standalone")
+  output <- flatten_patchwork(grob)
+  expect_s3_class(output, "patchwork")
+  expect_equal(sum(flatten_test_labels(patchwork::patchworkGrob(output)) == "Standalone"), 1L)
+})
