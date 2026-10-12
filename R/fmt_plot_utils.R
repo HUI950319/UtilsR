@@ -174,9 +174,11 @@
 #' arrange them in a new patchwork, optionally selecting or reordering cells.
 #'
 #' @param plots A ggplot, patchwork object, grob, or nested list of these objects.
-#' @param ... Arguments passed to \code{\link[patchwork:wrap_plots]{patchwork::wrap_plots()}},
+#' @param ... Named layout arguments passed to
+#'   \code{\link[patchwork:wrap_plots]{patchwork::wrap_plots()}},
 #'   such as \code{nrow}, \code{ncol}, \code{design}, \code{guides} and
-#'   \code{axis_titles}.
+#'   \code{axis_titles}. Unknown, unnamed and duplicate arguments are rejected.
+#'   Supply additional graphics in \code{plots} as a list.
 #' @param select_inds Integer indices applied after flattening. Positive indices
 #'   select and may repeat plots; negative indices exclude plots. Zero is ignored.
 #'   Missing, fractional, mixed-sign and out-of-range indices are rejected.
@@ -363,6 +365,20 @@ flatten_patchwork <- function(plots, ..., select_inds = NULL, nrow_inds_order = 
     layout_args <- layout_args[!vapply(layout_args, is.null, logical(1))]
   }
   dots <- list(...)
+  if (length(dots)) {
+    dot_names <- names(dots)
+    if (is.null(dot_names) || any(is.na(dot_names) | !nzchar(dot_names))) {
+      cli::cli_abort("All arguments in {.code ...} must be named layout controls; supply additional graphics in {.arg plots} as a list.")
+    }
+    if (anyDuplicated(dot_names)) {
+      cli::cli_abort("Layout control names in {.code ...} must be unique.")
+    }
+    allowed <- setdiff(names(formals(patchwork::wrap_plots)), "...")
+    unknown <- setdiff(dot_names, allowed)
+    if (length(unknown)) {
+      cli::cli_abort("Unknown layout control in {.code ...}: {.arg {unknown}}.")
+    }
+  }
   if (is.character(dots$design) && !is.null(names(all_subplots))) {
     area_names <- sort(setdiff(unique(trimws(strsplit(dots$design, "")[[1]])), c("", "#")))
     if (all(names(all_subplots) %in% area_names)) {

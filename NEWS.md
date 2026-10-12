@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `flatten_patchwork()` rejects unknown, unnamed and duplicate layout controls,
+  reporting misspelled arguments and misplaced extra graphics explicitly.
+  Multiple graphics remain supported through the `plots` list input.
+
 * `flatten_patchwork()` binds insets before extracting hosts from plain or nested
   lists, retaining composite and grob hosts, their cell names and selection
   boundaries consistently with native patchwork inputs.

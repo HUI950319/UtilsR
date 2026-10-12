@@ -9,9 +9,11 @@ flatten_patchwork(plots, ..., select_inds = NULL, nrow_inds_order = NULL)
 \arguments{
 \item{plots}{A ggplot, patchwork object, grob, or nested list of these objects.}
 
-\item{...}{Arguments passed to \code{\link[patchwork:wrap_plots]{patchwork::wrap_plots()}},
+\item{...}{Named layout arguments passed to
+\code{\link[patchwork:wrap_plots]{patchwork::wrap_plots()}},
 such as \code{nrow}, \code{ncol}, \code{design}, \code{guides} and
-\code{axis_titles}.}
+\code{axis_titles}. Unknown, unnamed and duplicate arguments are rejected.
+Supply additional graphics in \code{plots} as a list.}
 
 \item{select_inds}{Integer indices applied after flattening. Positive indices
 select and may repeat plots; negative indices exclude plots. Zero is ignored.

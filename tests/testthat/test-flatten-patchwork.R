@@ -85,6 +85,20 @@ test_that("named character designs reject ambiguous duplicate cell names", {
     design = "ABC")), c("First", "First", "Second"))
 })
 
+test_that("layout dots reject unknown, unnamed and duplicate arguments", {
+  p <- flatten_test_plot("Data")
+  expect_error(flatten_patchwork(p | p, ncols = 2), "ncols")
+  expect_error(flatten_patchwork(p | p, guide = "collect"), "guide")
+  expect_error(flatten_patchwork(p, p), "plots.*list|list.*plots")
+  expect_error(flatten_patchwork(p, 2), "named")
+  expect_error(flatten_patchwork(p, ncol = 1, ncol = 2), "unique")
+  output <- flatten_patchwork(p | p, ncol = 2L, nrow = 1L, byrow = FALSE,
+    widths = c(1, 2), heights = 1, guides = "collect", tag_level = "keep",
+    design = NULL, axes = "collect", axis_titles = "collect")
+  expect_identical(output$patches$layout$ncol, 2L)
+  expect_s3_class(patchwork::patchworkGrob(output), "gtable")
+})
+
 test_that("row interleaving rejects invalid counts and handles uneven grids", {
   plots <- lapply(1:5, function(i) flatten_test_plot(paste0("P", i)))
   input <- patchwork::wrap_plots(plots)
