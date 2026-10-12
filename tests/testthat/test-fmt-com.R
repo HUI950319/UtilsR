@@ -268,3 +268,18 @@ test_that("reference groups control the comparison family", {
   expect_error(fmt_com(p, ref.group = 1, com_method = list(c("setosa", "versicolor"))),
                "ref.group")
 })
+
+test_that("mixed subgroup sizes retain adjusted values and labels", {
+  set.seed(201)
+  d <- data.frame(x = c(rep("A", 30), rep("B", 20)),
+                  g = c(rep(c("G1", "G2", "G3"), each = 10), rep(c("G1", "G2"), each = 10)),
+                  y = rnorm(50) + c(rep(c(0, 1, 2), each = 10), rep(c(0, 1), each = 10)))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, fill = g)) + ggplot2::geom_boxplot()
+  s <- com_stat(fmt_com(p, group.by = "x.var", label = "p.adj.signif"))
+  expect_equal(is.na(s$p.adj), rep(FALSE, 3L))
+  expect_equal(s$p.adj[as.numeric(s$xmin) > 1.5], s$p[as.numeric(s$xmin) > 1.5])
+  expect_equal(s$label[as.numeric(s$xmin) > 1.5], "*")
+  panel <- com_stat(fmt_com(p, group.by = "x.var", p.adjust.by = "panel",
+                            p.adjust.method = "bonferroni"))
+  expect_equal(panel$p.adj, stats::p.adjust(panel$p, "bonferroni"))
+})

@@ -3707,6 +3707,8 @@ fmt_com <- function(plot,
                              result$group1, result$group2, USE.NAMES = FALSE)
               result <- result[keys %in% selected, , drop = FALSE]
             }
+            if (!"p.adj" %in% names(result) && "p" %in% names(result))
+              result <- rstatix::adjust_pvalue(result, method = test_args$p.adjust.method)
             test_details <<- attr(result, "args")
             test_classes <<- class(result)
             result
