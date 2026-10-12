@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_com()` merges named ggpubr arguments with defaults, allowing paired and
+  one-sided test options, custom significance symbols and font overrides without
+  duplicate arguments. Pair selection remains controlled by `com_method`.
+
 * `fmt_com()` accepts adjusted P-value labels and custom ggpubr templates while
   retaining its default raw P-value stars.
 

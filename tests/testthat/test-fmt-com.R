@@ -58,3 +58,22 @@ test_that("adjusted labels and custom templates preserve the raw-label default",
   custom <- com_stat(fmt_com(p, label = "adjusted {p.adj.format}"))
   expect_equal(startsWith(custom$label, "adjusted "), rep(TRUE, nrow(custom)))
 })
+
+test_that("extra arguments override defaults without duplicate matching", {
+  p <- com_plot()
+  q <- fmt_com(p, method = "t_test", method.args = list(paired = TRUE),
+               com_method = list(c("setosa", "versicolor")), fontface = "plain",
+               symnum.args = list(cutpoints = c(0, .05, Inf), symbols = c("yes", "no")))
+  s <- com_stat(q)
+  expected <- stats::t.test(iris$Sepal.Length[iris$Species == "setosa"],
+                           iris$Sepal.Length[iris$Species == "versicolor"], paired = TRUE)$p.value
+  expect_equal(s$p, signif(expected, 3), tolerance = 0.01)
+  expect_equal(s$label, "yes")
+  expect_equal(q$layers[[2]]$aes_params$fontface, "plain")
+  q <- fmt_com(p, method = "t_test", method.args = list(alternative = "greater"),
+               com_method = list(c("setosa", "versicolor")))
+  expect_equal(com_stat(q)$p, 1)
+  expect_error(fmt_com(p, method.args = list(comparisons = list(c(1, 2)))),
+               "com_method")
+  expect_equal(length(p$layers), 1L)
+})

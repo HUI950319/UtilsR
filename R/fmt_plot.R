@@ -3391,7 +3391,11 @@ drawDetails.axis_tile_strip <- function(x, recording) {
 #' @param tip.length Length of the bracket tips. Default \code{0.025}.
 #' @param step.increase Vertical step increase between brackets. Default \code{0.05}.
 #' @param size Line width of the brackets. Default \code{0.8}.
-#' @param ... Additional arguments passed to \code{ggpubr::geom_pwc}.
+#' @param ... Named arguments passed to \code{ggpubr::geom_pwc}, overriding
+#'   formatting defaults. \code{method.args} may contain test options such as
+#'   \code{paired} or \code{alternative}; select pairs with \code{com_method},
+#'   not \code{method.args$comparisons}. Pairing follows observation order within
+#'   each comparison group, so align paired observations before plotting.
 #'
 #' @return Same type as input.
 #'
@@ -3431,6 +3435,12 @@ fmt_com <- function(plot,
   if (missing(label)) label <- label[1L]
   if (!is.character(label) || length(label) != 1L || is.na(label) || !nzchar(label))
     cli::cli_abort("label must be a single non-empty result column or template.")
+  dots <- list(...)
+  if (length(dots) && (is.null(names(dots)) || any(!nzchar(names(dots))) ||
+                       anyDuplicated(names(dots))))
+    cli::cli_abort("Arguments in ... must have unique, non-empty names.")
+  if (!is.null(dots$method.args$comparisons))
+    cli::cli_abort("Select comparisons with com_method, not method.args$comparisons.")
 
   get_comparisons <- function(p, cm) {
     x_quo <- p$mapping$x
@@ -3476,7 +3486,7 @@ fmt_com <- function(plot,
       }
     }
 
-    layer <- ggpubr::geom_pwc(
+    geom_args <- list(
         # Override inherited `group` aesthetic. Paired / repeated-measures
         # plots (e.g. ggwithinstats partial-dependence panels) set
         # `aes(group = subject_id)` at the plot level to draw trajectory
@@ -3495,9 +3505,10 @@ fmt_com <- function(plot,
         step.increase = step.increase,
         tip.length = tip.length,
         y.position = y_pos,
-        fontface = "bold",
-        ...
+        fontface = "bold"
       )
+    geom_args <- utils::modifyList(geom_args, dots, keep.null = TRUE)
+    layer <- do.call(ggpubr::geom_pwc, geom_args)
     native_stat <- layer$stat
     layer$stat <- ggplot2::ggproto(NULL, native_stat,
       parameters = function(extra = FALSE) native_stat$parameters(extra),

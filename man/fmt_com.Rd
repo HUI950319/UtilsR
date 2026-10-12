@@ -40,7 +40,11 @@ select an adjusted label to display multiplicity-adjusted results.}
 
 \item{size}{Line width of the brackets. Default \code{0.8}.}
 
-\item{...}{Additional arguments passed to \code{ggpubr::geom_pwc}.}
+\item{...}{Named arguments passed to \code{ggpubr::geom_pwc}, overriding
+formatting defaults. \code{method.args} may contain test options such as
+\code{paired} or \code{alternative}; select pairs with \code{com_method},
+not \code{method.args$comparisons}. Pairing follows observation order within
+each comparison group, so align paired observations before plotting.}
 }
 \value{
 Same type as input.
