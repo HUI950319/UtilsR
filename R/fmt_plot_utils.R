@@ -174,8 +174,12 @@
 #'
 #' @param plots A ggplot, patchwork object, grob, or nested list of these objects.
 #' @param ... Arguments passed to [patchwork::wrap_plots()], e.g. `nrow`, `ncol`.
-#' @param select_inds Integer vector of indices to keep after flattening.
-#' @param nrow_inds_order Single integer to reorder plots by interleaving rows.
+#' @param select_inds Integer indices applied after flattening. Positive indices
+#'   select and may repeat plots; negative indices exclude plots. Zero is ignored.
+#'   Missing, fractional, mixed-sign and out-of-range indices are rejected.
+#' @param nrow_inds_order Single positive integer, at most the number of selected
+#'   plots, to reorder them by interleaving rows. Applied after selection; it does
+#'   not set the output layout's \code{nrow}.
 #'
 #' @return A patchwork object with all sub-plots at one level.
 #'
@@ -222,9 +226,27 @@ flatten_patchwork <- function(plots, ..., select_inds = NULL, nrow_inds_order = 
 
   all_subplots <- flatten_recursive(plots)
 
-  if (!is.null(select_inds)) all_subplots <- all_subplots[select_inds]
+  if (!is.null(select_inds)) {
+    if (!is.numeric(select_inds) || is.complex(select_inds) ||
+        !is.null(dim(select_inds)) || any(!is.finite(select_inds)) ||
+        any(select_inds != trunc(select_inds)) ||
+        any(abs(select_inds) > length(all_subplots)) ||
+        (any(select_inds < 0) && any(select_inds > 0))) {
+      cli::cli_abort("{.arg select_inds} must contain finite integer indices within the plot range, without mixing positive and negative indices.")
+    }
+    all_subplots <- all_subplots[select_inds]
+  }
+  if (length(all_subplots) == 0L) {
+    cli::cli_abort("There are no plots to arrange after flattening and selection.")
+  }
 
-  if (!is.null(nrow_inds_order) && length(nrow_inds_order) == 1L) {
+  if (!is.null(nrow_inds_order)) {
+    if (!is.numeric(nrow_inds_order) || is.complex(nrow_inds_order) ||
+        !is.null(dim(nrow_inds_order)) || length(nrow_inds_order) != 1L ||
+        !is.finite(nrow_inds_order) || nrow_inds_order != trunc(nrow_inds_order) ||
+        nrow_inds_order < 1 || nrow_inds_order > length(all_subplots)) {
+      cli::cli_abort("{.arg nrow_inds_order} must be a single positive integer no larger than the number of selected plots.")
+    }
     inds_order <- unlist(lapply(
       seq_len(nrow_inds_order),
       function(i) seq(i, length(all_subplots), by = nrow_inds_order)

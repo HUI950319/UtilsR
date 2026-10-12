@@ -11,9 +11,13 @@ flatten_patchwork(plots, ..., select_inds = NULL, nrow_inds_order = NULL)
 
 \item{...}{Arguments passed to [patchwork::wrap_plots()], e.g. `nrow`, `ncol`.}
 
-\item{select_inds}{Integer vector of indices to keep after flattening.}
+\item{select_inds}{Integer indices applied after flattening. Positive indices
+select and may repeat plots; negative indices exclude plots. Zero is ignored.
+Missing, fractional, mixed-sign and out-of-range indices are rejected.}
 
-\item{nrow_inds_order}{Single integer to reorder plots by interleaving rows.}
+\item{nrow_inds_order}{Single positive integer, at most the number of selected
+plots, to reorder them by interleaving rows. Applied after selection; it does
+not set the output layout's \code{nrow}.}
 }
 \value{
 A patchwork object with all sub-plots at one level.
