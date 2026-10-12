@@ -105,7 +105,16 @@ not set the output layout's <code>nrow</code>.</p></dd>
   Selection indices refer to the extracted cells, including spacers, guide
   areas and wrapped graphics. A main plot with its insets, or a protected
   <code><a href="https://patchwork.data-imaginist.com/reference/free.html" class="external-link">free()</a></code> container, occupies one selection index. Named list entries
-  can be matched to a character layout design by <code><a href="https://patchwork.data-imaginist.com/reference/wrap_plots.html" class="external-link">wrap_plots()</a></code>.</p>
+  that produce one cell retain their name; names inside nested lists are
+  retained without container-name prefixes. These cell names can be matched
+  to a character layout design by <code><a href="https://patchwork.data-imaginist.com/reference/wrap_plots.html" class="external-link">wrap_plots()</a></code>.</p>
+<p>Flattening ordinary containers removes their nested collection scopes,
+  including inner <code>guides = "keep"</code> or <code>guides = "collect"</code> settings.
+  Collection is determined by the retained top-level settings and <code>...</code>.
+  Guide areas move to the same output level; when collecting guides,
+  patchwork uses only the first guide area if several are present. Use
+  <code>patchwork::wrap_elements(full = group)</code> to retain an entire group,
+  including its nested collection scopes, as one wrapped cell.</p>
     </div>
 
     <div class="section level2">
@@ -139,6 +148,17 @@ not set the output layout's <code>nrow</code>.</p></dd>
 <span class="r-in"><span><span class="co"># Names determine placement in a character design</span></span></span>
 <span class="r-in"><span><span class="fu">flatten_patchwork</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>B <span class="op">=</span> <span class="va">p2</span>, A <span class="op">=</span> <span class="va">p1</span><span class="op">)</span>, design <span class="op">=</span> <span class="st">"AB"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="flatten_patchwork-5.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Keep a composite inset host together</span></span></span>
+<span class="r-in"><span><span class="va">inset_group</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/wrap_plots.html" class="external-link">wrap_plots</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">p1</span> <span class="op">|</span> <span class="va">p2</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/inset_element.html" class="external-link">inset_element</a></span><span class="op">(</span><span class="va">p3</span>, <span class="fl">.5</span>, <span class="fl">.5</span>, <span class="fl">1</span>, <span class="fl">1</span>, align_to <span class="op">=</span> <span class="st">"full"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">flatten_patchwork</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">inset_group</span>, <span class="va">p4</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="flatten_patchwork-6.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Retain a nested guide scope inside a wrapped cell</span></span></span>
+<span class="r-in"><span><span class="va">kept_group</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">p1</span> <span class="op">|</span> <span class="va">p2</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>guides <span class="op">=</span> <span class="st">"keep"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">flatten_patchwork</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://patchwork.data-imaginist.com/reference/wrap_elements.html" class="external-link">wrap_elements</a></span><span class="op">(</span>full <span class="op">=</span> <span class="va">kept_group</span><span class="op">)</span>, <span class="va">p3</span><span class="op">)</span>, guides <span class="op">=</span> <span class="st">"collect"</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="flatten_patchwork-7.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
