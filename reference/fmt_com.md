@@ -27,7 +27,9 @@ fmt_com(
 
 - plot:
 
-  A ggplot, patchwork, or list of ggplots.
+  A ggplot, nested patchwork, or list of ggplots/patchworks. Layouts,
+  annotations and list names are retained. Spacers, guide areas, insets
+  and frozen wrapped graphics are left unchanged.
 
 - com_method:
 
