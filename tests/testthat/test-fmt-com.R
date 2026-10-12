@@ -104,3 +104,22 @@ test_that("explicit grouping controls retain the intended comparison variable", 
   trajectories <- com_plot(subjects) + ggplot2::aes(group = subject)
   expect_equal(com_stat(fmt_com(trajectories))$p, com_stat(fmt_com(com_plot()))$p)
 })
+
+test_that("full-family methods filter requested pairs and display available P values", {
+  p <- com_plot()
+  pair <- list(c("setosa", "versicolor"))
+  for (method in c("dunn_test", "tukey_hsd", "games_howell_test")) {
+    s <- com_stat(fmt_com(p, method = method, com_method = pair))
+    expect_equal(nrow(s), 1L, info = method)
+    expect_equal(as.numeric(s$xmin), 1, info = method)
+    expect_equal(as.numeric(s$xmax), 2, info = method)
+    expect_equal(nzchar(s$label), TRUE, info = method)
+    expect_equal(nrow(com_stat(fmt_com(p, method = method))), 2L, info = method)
+    expect_equal(nrow(com_stat(fmt_com(p, method = method, com_method = "all"))), 3L,
+                 info = method)
+  }
+  dunn <- rstatix::dunn_test(iris, Sepal.Length ~ Species)
+  expected <- dunn$p.adj[dunn$group1 == "setosa" & dunn$group2 == "versicolor"]
+  expect_equal(com_stat(fmt_com(p, method = "dunn_test", com_method = pair))$p.adj,
+               expected)
+})

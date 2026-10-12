@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_com()` supports pair selection for Dunn, Tukey and Games-Howell tests
+  without passing unsupported comparison arguments. Their full-family
+  adjustment is retained; adjusted-only methods display adjusted stars.
+
 * `fmt_com()` honors explicit grouped comparisons and statistical mappings,
   resolving requested pairs within each subset and retaining native dodge
   positions. Default trajectory grouping remains ignored for x comparisons.

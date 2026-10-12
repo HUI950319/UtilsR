@@ -50,7 +50,10 @@ compared. Set \code{group.by = "x.var"} to compare mapped groups within
 each x value, or \code{group.by = "legend.var"} to compare x values within
 each mapped group. An explicit \code{mapping = aes(group = ...)} also
 enables grouped comparisons. \code{com_method} selects the corresponding
-comparison variable, with consecutive pairs resolved within each subset.}
+comparison variable, with consecutive pairs resolved within each subset.
+Dunn, Tukey and Games-Howell methods compute their full comparison family
+before display filtering, retaining that family's adjustment. Methods
+returning only adjusted P values use adjusted significance stars.}
 }
 \value{
 Same type as input.

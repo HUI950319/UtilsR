@@ -3402,6 +3402,9 @@ drawDetails.axis_tile_strip <- function(x, recording) {
 #'   each mapped group. An explicit \code{mapping = aes(group = ...)} also
 #'   enables grouped comparisons. \code{com_method} selects the corresponding
 #'   comparison variable, with consecutive pairs resolved within each subset.
+#'   Dunn, Tukey and Games-Howell methods compute their full comparison family
+#'   before display filtering, retaining that family's adjustment. Methods
+#'   returning only adjusted P values use adjusted significance stars.
 #'
 #' @return Same type as input.
 #'
@@ -3522,6 +3525,12 @@ fmt_com <- function(plot,
         fontface = "bold"
       )
     geom_args <- utils::modifyList(geom_args, dots, keep.null = TRUE)
+    method_name <- if (is.character(geom_args$method))
+      gsub(".", "_", geom_args$method, fixed = TRUE) else ""
+    full_family <- method_name %in% c("dunn_test", "tukey_hsd", "games_howell_test", "games_howell")
+    if (method_name %in% c("tukey_hsd", "games_howell_test", "games_howell")) {
+      geom_args$label <- gsub("p.signif", "p.adj.signif", geom_args$label, fixed = TRUE)
+    }
     stat_mapping <- geom_args$mapping
     geom_args$mapping <- NULL
     layer <- do.call(ggpubr::geom_pwc, geom_args)
@@ -3553,8 +3562,14 @@ fmt_com <- function(plot,
             pairs <- Filter(function(pair) length(pair) == 2L && all(pair %in% available), pairs)
             if (!length(pairs)) return(data.frame(group1 = character(), group2 = character(),
               p = numeric(), p.adj = numeric(), n1 = integer(), n2 = integer(), .y. = character()))
-            test_args$comparisons <- lapply(pairs, as.character)
+            if (!full_family) test_args$comparisons <- lapply(pairs, as.character)
             result <- do.call(native_method, c(list(data = d, formula = formula), test_args))
+            if (full_family) {
+              selected <- vapply(pairs, function(pair) paste(sort(as.character(pair)), collapse = ":"), character(1))
+              keys <- mapply(function(a, b) paste(sort(c(as.character(a), as.character(b))), collapse = ":"),
+                             result$group1, result$group2, USE.NAMES = FALSE)
+              result <- result[keys %in% selected, , drop = FALSE]
+            }
             test_details <<- attr(result, "args")
             test_classes <<- class(result)
             result
