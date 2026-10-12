@@ -3381,11 +3381,14 @@ drawDetails.axis_tile_strip <- function(x, recording) {
 #'   insets and frozen wrapped graphics are left unchanged.
 #' @param com_method Comparison method: \code{"con"} (consecutive), \code{"all"}
 #'   (all pairs), or a list of length-2 character vectors.
-#' @param label.y Numeric y-position for the first bracket (absolute y-axis
-#'   value). Default \code{NULL} lets ggpubr auto-calculate.
-#' @param label.y.prop Numeric proportion (0-1) of the y-axis data range for
-#'   the first bracket position. E.g., \code{0.9} = 90\% of data range.
-#'   Ignored when \code{label.y} is provided. Default \code{NULL}.
+#' @param label.y Numeric bracket positions in original y-data units, before
+#'   scale transformation. A scalar sets the first bracket; a vector sets
+#'   individual positions. Default \code{NULL} lets ggpubr auto-calculate.
+#' @param label.y.prop Numeric proportion (0-1) of each panel's transformed
+#'   y-axis data range for the first bracket. E.g., \code{0.9} is 90\% along
+#'   the displayed range, including log scales and free-y facets. Ignored when
+#'   \code{label.y} is provided. Explicit positions have no default nudge;
+#'   \code{bracket.nudge.y} in \code{...} adds an optional offset.
 #' @param label A ggpubr result column or glue template, such as
 #'   \code{"p.signif"}, \code{"p.adj.signif"}, \code{"p.adj.format"}, or
 #'   \code{"\{p.format\}\{p.signif\}"}. The default displays raw P-value stars;
@@ -3497,20 +3500,6 @@ fmt_com <- function(plot,
       group_labels <- if (is.factor(values)) levels(droplevels(values)) else
         sort(unique(as.character(values[!is.na(values)])))
     }
-    # Determine y position: label.y (absolute) takes priority over label.y.prop
-    y_pos <- label.y
-    if (is.null(y_pos) && !is.null(label.y.prop)) {
-      y_quo <- p$mapping$y
-      y_data <- tryCatch(
-        rlang::eval_tidy(y_quo, data = p$data),
-        error = function(e) NULL
-      )
-      if (!is.null(y_data) && is.numeric(y_data)) {
-        y_range <- range(y_data, na.rm = TRUE)
-        y_pos <- y_range[1] + label.y.prop * (y_range[2] - y_range[1])
-      }
-    }
-
     geom_args <- list(
         mapping = if (grouped) ggplot2::aes(group = !!group_quo) else
           ggplot2::aes(group = NULL),
@@ -3523,7 +3512,7 @@ fmt_com <- function(plot,
         size = size,
         step.increase = step.increase,
         tip.length = tip.length,
-        y.position = y_pos,
+        y.position = label.y,
         fontface = "bold"
       )
     geom_args <- utils::modifyList(geom_args, dots, keep.null = TRUE)
@@ -3542,6 +3531,15 @@ fmt_com <- function(plot,
       parameters = function(extra = FALSE) native_stat$parameters(extra),
       compute_panel = function(data, scales, ...) {
         args <- list(...)
+        if (!is.null(args$y.position)) {
+          args$y.position <- scales$y$transform(args$y.position)
+        } else if (!is.null(label.y.prop)) {
+          y_range <- scales$y$range$range
+          args$y.position <- y_range[1] + label.y.prop * diff(y_range)
+        }
+        if (!is.null(args$y.position) && is.null(dots$bracket.nudge.y)) {
+          args$bracket.nudge.y <- 0
+        }
         available <- sort(unique(as.numeric(data$x[is.finite(data$y)])))
         if (!grouped && length(available) < 2L) return(data.frame())
         limits <- as.character(scales$x$get_limits())

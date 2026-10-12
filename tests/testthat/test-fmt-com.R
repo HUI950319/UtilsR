@@ -153,3 +153,28 @@ test_that("nested containers retain layout, annotations and protected cells", {
   named <- list(first = p, second = pw)
   expect_equal(names(fmt_com(named)), names(named))
 })
+
+com_y <- function(plot) {
+  b <- ggplot2::ggplot_build(plot)
+  d <- b$data[[length(b$data)]]
+  d[d$x != d$xend, c("PANEL", "y")]
+}
+
+test_that("bracket positions use data units and panel-local transformed ranges", {
+  p <- com_plot()
+  expect_equal(com_y(fmt_com(p, label.y = 8))$y[1], 8)
+  expect_equal(com_y(fmt_com(p, label.y = 8, bracket.nudge.y = .1))$y[1], 8.36)
+  q <- p + ggplot2::scale_y_log10()
+  expect_equal(com_y(fmt_com(q, label.y = 8))$y[1], log10(8))
+  limits <- range(log10(iris$Sepal.Length))
+  expected <- limits[1] + .9 * diff(limits)
+  expect_equal(com_y(fmt_com(q, label.y.prop = .9))$y[1], unname(expected))
+  expect_equal(com_y(fmt_com(q, label.y = 8, label.y.prop = .2))$y[1], log10(8))
+
+  d <- rbind(transform(iris, panel = "small"),
+             transform(iris, Sepal.Length = Sepal.Length * 100, panel = "large"))
+  q <- com_plot(d) + ggplot2::facet_wrap(~panel, scales = "free_y")
+  y <- com_y(fmt_com(q, label.y.prop = .9))
+  first <- y$y[!duplicated(y$PANEL)]
+  expect_equal(first, c(754, 7.54))
+})

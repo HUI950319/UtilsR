@@ -24,12 +24,15 @@ insets and frozen wrapped graphics are left unchanged.}
 \item{com_method}{Comparison method: \code{"con"} (consecutive), \code{"all"}
 (all pairs), or a list of length-2 character vectors.}
 
-\item{label.y}{Numeric y-position for the first bracket (absolute y-axis
-value). Default \code{NULL} lets ggpubr auto-calculate.}
+\item{label.y}{Numeric bracket positions in original y-data units, before
+scale transformation. A scalar sets the first bracket; a vector sets
+individual positions. Default \code{NULL} lets ggpubr auto-calculate.}
 
-\item{label.y.prop}{Numeric proportion (0-1) of the y-axis data range for
-the first bracket position. E.g., \code{0.9} = 90\% of data range.
-Ignored when \code{label.y} is provided. Default \code{NULL}.}
+\item{label.y.prop}{Numeric proportion (0-1) of each panel's transformed
+y-axis data range for the first bracket. E.g., \code{0.9} is 90\% along
+the displayed range, including log scales and free-y facets. Ignored when
+\code{label.y} is provided. Explicit positions have no default nudge;
+\code{bracket.nudge.y} in \code{...} adds an optional offset.}
 
 \item{label}{A ggpubr result column or glue template, such as
 \code{"p.signif"}, \code{"p.adj.signif"}, \code{"p.adj.format"}, or
