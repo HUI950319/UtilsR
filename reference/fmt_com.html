@@ -102,8 +102,10 @@ Ignored when <code>label.y</code> is provided. Default <code>NULL</code>.</p></d
 
 
 <dt id="arg-label">label<a class="anchor" aria-label="anchor" href="#arg-label"></a></dt>
-<dd><p>Label type: <code>"p.signif"</code>, <code>"\{p.format\}\{p.signif\}"</code>,
-or <code>"p.format"</code>.</p></dd>
+<dd><p>A ggpubr result column or glue template, such as
+<code>"p.signif"</code>, <code>"p.adj.signif"</code>, <code>"p.adj.format"</code>, or
+<code>"\{p.format\}\{p.signif\}"</code>. The default displays raw P-value stars;
+select an adjusted label to display multiplicity-adjusted results.</p></dd>
 
 
 <dt id="arg-tip-length">tip.length<a class="anchor" aria-label="anchor" href="#arg-tip-length"></a></dt>

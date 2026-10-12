@@ -47,8 +47,10 @@ fmt_com(
 
 - label:
 
-  Label type: `"p.signif"`, `"\{p.format\}\{p.signif\}"`, or
-  `"p.format"`.
+  A ggpubr result column or glue template, such as `"p.signif"`,
+  `"p.adj.signif"`, `"p.adj.format"`, or `"\{p.format\}\{p.signif\}"`.
+  The default displays raw P-value stars; select an adjusted label to
+  display multiplicity-adjusted results.
 
 - tip.length:
 
