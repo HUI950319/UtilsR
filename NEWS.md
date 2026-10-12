@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `flatten_patchwork()` reports the index and original cause of unreadable
+  patchwork children instead of silently removing them from the result.
+
 * `flatten_patchwork()` preserves top-level annotations and collection settings,
   accepts explicit layout overrides and keeps `free()` containers intact.
   Grid geometry is rebuilt from the requested output layout.

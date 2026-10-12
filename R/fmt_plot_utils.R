@@ -231,9 +231,10 @@ flatten_patchwork <- function(plots, ..., select_inds = NULL, nrow_inds_order = 
     n <- length(plot_obj)
     children <- vector("list", n)
     for (i in seq_len(n)) {
-      children[[i]] <- tryCatch(plot_obj[[i]], error = function(e) NULL)
+      children[[i]] <- tryCatch(plot_obj[[i]], error = function(e) {
+        cli::cli_abort("Cannot read patchwork child {i}.", parent = e)
+      })
     }
-    children <- Filter(Negate(is.null), children)
     unlist(lapply(children, flatten_recursive), recursive = FALSE)
   }
 

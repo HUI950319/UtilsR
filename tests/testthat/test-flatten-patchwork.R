@@ -139,3 +139,17 @@ test_that("flattening protects free containers and retains ordinary layout cells
   expect_s3_class(special[[4]], "wrapped_patch")
   expect_equal(sum(flatten_test_labels(patchwork::patchworkGrob(special)) == "Wrapped"), 1L)
 })
+
+test_that("flattening reports unreadable children instead of omitting them", {
+  rlang::local_bindings(`[[.flatten_bad_patchwork` = function(x, ...) {
+    if (list(...)[[1]] == 2L) stop("Broken child")
+    NextMethod()
+  }, .env = .GlobalEnv)
+  p <- flatten_test_plot("Data")
+  input <- p | p | p
+  class(input) <- c("flatten_bad_patchwork", class(input))
+  expect_error(flatten_patchwork(input), "child 2")
+  error <- tryCatch(flatten_patchwork(input), error = identity)
+  expect_s3_class(error, "rlang_error")
+  expect_match(conditionMessage(error$parent), "Broken child")
+})
