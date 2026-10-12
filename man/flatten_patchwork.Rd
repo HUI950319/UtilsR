@@ -41,7 +41,17 @@ Top-level plot annotations and the \code{guides}, \code{axes},
   Selection indices refer to the extracted cells, including spacers, guide
   areas and wrapped graphics. A main plot with its insets, or a protected
   \code{free()} container, occupies one selection index. Named list entries
-  can be matched to a character layout design by \code{wrap_plots()}.
+  that produce one cell retain their name; names inside nested lists are
+  retained without container-name prefixes. These cell names can be matched
+  to a character layout design by \code{wrap_plots()}.
+
+  Flattening ordinary containers removes their nested collection scopes,
+  including inner \code{guides = "keep"} or \code{guides = "collect"} settings.
+  Collection is determined by the retained top-level settings and \code{...}.
+  Guide areas move to the same output level; when collecting guides,
+  patchwork uses only the first guide area if several are present. Use
+  \code{patchwork::wrap_elements(full = group)} to retain an entire group,
+  including its nested collection scopes, as one wrapped cell.
 }
 \examples{
 library(ggplot2)
@@ -68,6 +78,15 @@ flatten_patchwork(annotated, ncol = 2, axis_titles = "collect")
 
 # Names determine placement in a character design
 flatten_patchwork(list(B = p2, A = p1), design = "AB")
+
+# Keep a composite inset host together
+inset_group <- wrap_plots(list(p1 | p2)) +
+  inset_element(p3, .5, .5, 1, 1, align_to = "full")
+flatten_patchwork(list(inset_group, p4), ncol = 2)
+
+# Retain a nested guide scope inside a wrapped cell
+kept_group <- (p1 | p2) + plot_layout(guides = "keep")
+flatten_patchwork(list(wrap_elements(full = kept_group), p3), guides = "collect")
 }
 
 }

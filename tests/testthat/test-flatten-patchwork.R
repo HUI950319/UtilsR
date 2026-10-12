@@ -181,6 +181,26 @@ test_that("flattening retains top annotations and collection with explicit overr
   }
 })
 
+test_that("flattening documents collection scope changes and wrapped protection", {
+  p <- flatten_test_plot("Data", colour = TRUE)
+  input <- ((p | p) + patchwork::plot_layout(guides = "keep")) / p +
+    patchwork::plot_layout(guides = "collect")
+  label <- "factor(x)"
+  expect_equal(sum(flatten_test_labels(patchwork::patchworkGrob(input)) == label), 3L)
+  output <- flatten_patchwork(input)
+  expect_equal(sum(flatten_test_labels(patchwork::patchworkGrob(output)) == label), 1L)
+  kept <- flatten_patchwork(input, guides = "keep")
+  expect_equal(sum(flatten_test_labels(patchwork::patchworkGrob(kept)) == label), 3L)
+  wrapped <- flatten_patchwork(patchwork::wrap_elements(full = input), guides = "collect")
+  expect_length(wrapped, 1L)
+  expect_equal(sum(flatten_test_labels(patchwork::patchworkGrob(wrapped)) == label), 3L)
+  areas <- ((p | patchwork::guide_area()) + patchwork::plot_layout(guides = "collect")) /
+    ((p | patchwork::guide_area()) + patchwork::plot_layout(guides = "collect"))
+  collected <- flatten_patchwork(areas, guides = "collect")
+  expect_warning(grob <- patchwork::patchworkGrob(collected), "first guide area")
+  expect_equal(sum(flatten_test_labels(grob) == label), 1L)
+})
+
 test_that("flattening protects free containers and retains ordinary layout cells", {
   p <- flatten_test_plot("Data")
   free_group <- patchwork::free((p | p) / p, side = "l")

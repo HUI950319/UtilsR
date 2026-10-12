@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `flatten_patchwork()` documents collection scope changes after flattening,
+  multiple guide-area behavior, and wrapped groups for retaining nested scopes.
+  Examples cover composite inset hosts and protected guide groups.
+
 * `flatten_patchwork()` rejects duplicate cell names when a character design
   would merge them, preventing silent loss of repeated selections. Unnamed
   lists retain positional repetition in character designs.
