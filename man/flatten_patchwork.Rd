@@ -45,6 +45,12 @@ Top-level plot annotations and the \code{guides}, \code{axes},
   retained without container-name prefixes. These cell names can be matched
   to a character layout design by \code{wrap_plots()}.
 
+  Insets are emitted alongside ordinary hosts at the same layout level,
+  allowing shared axes and axis titles to be collected. Composite inset hosts
+  remain intact. The returned object's \code{length()} and \code{[[} follow
+  native patchwork child indexing and include inset objects; selection and
+  row interleaving use complete cells, including each host's insets.
+
   Flattening ordinary containers removes their nested collection scopes,
   including inner \code{guides = "keep"} or \code{guides = "collect"} settings.
   Collection is determined by the retained top-level settings and \code{...}.

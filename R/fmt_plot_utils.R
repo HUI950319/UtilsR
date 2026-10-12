@@ -202,6 +202,12 @@
 #'   retained without container-name prefixes. These cell names can be matched
 #'   to a character layout design by \code{wrap_plots()}.
 #'
+#'   Insets are emitted alongside ordinary hosts at the same layout level,
+#'   allowing shared axes and axis titles to be collected. Composite inset hosts
+#'   remain intact. The returned object's \code{length()} and \code{[[} follow
+#'   native patchwork child indexing and include inset objects; selection and
+#'   row interleaving use complete cells, including each host's insets.
+#'
 #'   Flattening ordinary containers removes their nested collection scopes,
 #'   including inner \code{guides = "keep"} or \code{guides = "collect"} settings.
 #'   Collection is determined by the retained top-level settings and \code{...}.
@@ -259,9 +265,13 @@ flatten_patchwork <- function(plots, ..., select_inds = NULL, nrow_inds_order = 
       match("free_plot", class(plot)) < match("patchwork", class(plot)))
   }
   flatten_recursive <- function(plot_obj) {
-    if (is_inset(plot_obj) || is_free(plot_obj)) return(list(plot_obj))
+    if (is_inset(plot_obj) || is_free(plot_obj)) {
+      return(list(list(plot = plot_obj, insets = list())))
+    }
     if (!inherits(plot_obj, "patchwork")) {
-      if (inherits(plot_obj, c("ggplot", "grob"))) return(list(plot_obj))
+      if (inherits(plot_obj, c("ggplot", "grob"))) {
+        return(list(list(plot = plot_obj, insets = list())))
+      }
       if (!is.list(plot_obj)) {
         cli::cli_abort("Input must contain ggplot, patchwork, or grob objects.")
       }
@@ -287,13 +297,14 @@ flatten_patchwork <- function(plots, ..., select_inds = NULL, nrow_inds_order = 
       child <- children[[i]]
       if (is_inset(child)) cli::cli_abort("An inset must follow its main plot.")
       next_i <- i + 1L
-      has_inset <- next_i <= n && is_inset(children[[next_i]])
-      if (has_inset) child <- patchwork::wrap_plots(list(child))
+      insets <- list()
       while (next_i <= n && is_inset(children[[next_i]])) {
-        child <- child + children[[next_i]]
+        insets <- c(insets, children[next_i])
         next_i <- next_i + 1L
       }
-      cells <- c(cells, if (has_inset) list(child) else flatten_recursive(child))
+      cells <- c(cells, if (length(insets)) {
+        list(list(plot = child, insets = insets))
+      } else flatten_recursive(child))
       i <- next_i
     }
     cells
@@ -302,12 +313,12 @@ flatten_patchwork <- function(plots, ..., select_inds = NULL, nrow_inds_order = 
   all_subplots <- flatten_recursive(plots)
   cells <- list()
   for (i in seq_along(all_subplots)) {
-    if (is_inset(all_subplots[[i]])) {
+    if (is_inset(all_subplots[[i]]$plot)) {
       if (length(cells) == 0L) {
         cli::cli_abort("An inset must follow its main plot.")
       }
       last <- length(cells)
-      cells[[last]] <- cells[[last]] + all_subplots[[i]]
+      cells[[last]]$insets <- c(cells[[last]]$insets, list(all_subplots[[i]]$plot))
     } else {
       cells <- c(cells, all_subplots[i])
     }
@@ -350,14 +361,25 @@ flatten_patchwork <- function(plots, ..., select_inds = NULL, nrow_inds_order = 
     layout_args <- layout_args[!vapply(layout_args, is.null, logical(1))]
   }
   dots <- list(...)
-  if (is.character(dots$design) && anyDuplicated(names(all_subplots))) {
-    area_names <- setdiff(unique(trimws(strsplit(dots$design, "")[[1]])), c("", "#"))
+  if (is.character(dots$design) && !is.null(names(all_subplots))) {
+    area_names <- sort(setdiff(unique(trimws(strsplit(dots$design, "")[[1]])), c("", "#")))
     if (all(names(all_subplots) %in% area_names)) {
-      cli::cli_abort("Cell names must be unique when matched to a character {.arg design}; use an unnamed list to repeat cells by position.")
+      if (anyDuplicated(names(all_subplots))) {
+        cli::cli_abort("Cell names must be unique when matched to a character {.arg design}; use an unnamed list to repeat cells by position.")
+      }
+      named_cells <- vector("list", length(area_names))
+      names(named_cells) <- area_names
+      named_cells[names(all_subplots)] <- all_subplots
+      named_cells[vapply(named_cells, is.null, logical(1))] <-
+        list(list(plot = patchwork::plot_spacer(), insets = list()))
+      all_subplots <- named_cells
     }
   }
+  plot_objects <- unlist(lapply(all_subplots, function(cell) {
+    c(list(cell$plot), cell$insets)
+  }), recursive = FALSE, use.names = FALSE)
   layout_args <- layout_args[setdiff(names(layout_args), names(dots))]
-  result <- do.call(patchwork::wrap_plots, c(list(all_subplots), layout_args, dots))
+  result <- do.call(patchwork::wrap_plots, c(list(plot_objects), layout_args, dots))
   if (!is.null(annotation)) result <- result + annotation
   result
 }

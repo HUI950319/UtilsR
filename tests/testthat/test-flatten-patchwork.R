@@ -41,9 +41,10 @@ test_that("flattening retains cell names through nested lists and insets", {
     before <- serialize(input, NULL)
     output <- flatten_patchwork(input, design = "AB")
     expect_true(identical(serialize(input, NULL), before))
-    expect_length(output, 2L)
+    expect_length(output, 3L)
     expect_identical(output[[1]]$labels$title, "First")
-    expect_equal(flatten_test_labels(patchwork::patchworkGrob(output[[2]])),
+    selected <- flatten_patchwork(output, select_inds = 2)
+    expect_equal(flatten_test_labels(patchwork::patchworkGrob(selected)),
       flatten_test_labels(patchwork::patchworkGrob(inset)))
   }
 })
@@ -106,27 +107,29 @@ test_that("flattening keeps nested insets with their main plot", {
   input <- main + patchwork::inset_element(overlay, .5, .5, 1, 1)
   before <- serialize(input, NULL)
   output <- flatten_patchwork(input)
-  expect_length(output, 1L)
+  expect_length(output, 2L)
   expect_identical(serialize(input, NULL), before)
-  expect_equal(flatten_test_labels(patchwork::patchworkGrob(output[[1]])),
+  expect_equal(flatten_test_labels(patchwork::patchworkGrob(output)),
                  flatten_test_labels(patchwork::patchworkGrob(input)))
-  expect_equal(patchwork::patchworkGrob(output[[1]])$layout,
+  expect_equal(patchwork::patchworkGrob(output)$layout,
                  patchwork::patchworkGrob(input)$layout)
-  expect_identical(attr(output[[1]][[2]], "inset_settings"),
+  expect_identical(attr(output[[2]], "inset_settings"),
                      attr(input[[2]], "inset_settings"))
 
   double <- input + patchwork::inset_element(overlay, 0, 0, .4, .4, on_top = FALSE)
   cells <- flatten_patchwork(list(double, main))
-  expect_length(cells, 2L)
-  expect_equal(flatten_test_labels(patchwork::patchworkGrob(cells[[1]])),
+  expect_length(cells, 4L)
+  first <- flatten_patchwork(cells, select_inds = 1)
+  expect_equal(flatten_test_labels(patchwork::patchworkGrob(first)),
                  flatten_test_labels(patchwork::patchworkGrob(double)))
-  expect_equal(patchwork::patchworkGrob(cells[[1]])$layout,
+  expect_equal(patchwork::patchworkGrob(first)$layout,
                  patchwork::patchworkGrob(double)$layout)
   selected <- flatten_patchwork(list(main, double), select_inds = 2)
-  expect_equal(flatten_test_labels(patchwork::patchworkGrob(selected[[1]])),
+  expect_equal(flatten_test_labels(patchwork::patchworkGrob(selected)),
                  flatten_test_labels(patchwork::patchworkGrob(double)))
   reordered <- flatten_patchwork(list(double, main), select_inds = c(2, 1))
-  expect_equal(flatten_test_labels(patchwork::patchworkGrob(reordered[[2]])),
+  second <- flatten_patchwork(reordered, select_inds = 2)
+  expect_equal(flatten_test_labels(patchwork::patchworkGrob(second)),
                  flatten_test_labels(patchwork::patchworkGrob(double)))
   expect_error(flatten_patchwork(patchwork::inset_element(overlay, .5, .5, 1, 1)),
                  "inset.*main plot")
@@ -142,18 +145,19 @@ test_that("flattening keeps an inset attached to its composite host", {
     before <- serialize(input, NULL)
     output <- flatten_patchwork(input)
     expect_true(identical(serialize(input, NULL), before))
-    expect_length(output, 1L)
-    expect_equal(flatten_test_labels(patchwork::patchworkGrob(output[[1]])),
+    expect_length(output, 2L)
+    expect_equal(flatten_test_labels(patchwork::patchworkGrob(output)),
       flatten_test_labels(patchwork::patchworkGrob(input)))
-    expect_equal(patchwork::patchworkGrob(output[[1]])$layout,
+    expect_equal(patchwork::patchworkGrob(output)$layout,
       patchwork::patchworkGrob(input)$layout)
     selected <- flatten_patchwork(list(input, other), select_inds = c(2, 1))
-    expect_length(selected, 2L)
-    expect_equal(flatten_test_labels(patchwork::patchworkGrob(selected[[2]])),
+    expect_length(selected, 3L)
+    host_cell <- flatten_patchwork(selected, select_inds = 2)
+    expect_equal(flatten_test_labels(patchwork::patchworkGrob(host_cell)),
       flatten_test_labels(patchwork::patchworkGrob(input)))
     repeated <- flatten_patchwork(output)
-    expect_length(repeated, 1L)
-    expect_equal(patchwork::patchworkGrob(repeated[[1]])$layout,
+    expect_length(repeated, 2L)
+    expect_equal(patchwork::patchworkGrob(repeated)$layout,
       patchwork::patchworkGrob(input)$layout)
   }
 })
@@ -179,6 +183,29 @@ test_that("flattening retains top annotations and collection with explicit overr
                     "Shared X", "Shared Y", paste0("Tag ", LETTERS[1:4]))) {
     expect_equal(sum(labels == label), 1L)
   }
+})
+
+test_that("ordinary inset hosts retain shared axis collection", {
+  first <- flatten_test_plot("First")
+  second <- flatten_test_plot("Second")
+  overlay <- patchwork::inset_element(grid::rectGrob(), .6, .6, .9, .9)
+  input <- first + overlay + second +
+    patchwork::plot_layout(ncol = 2, axes = "collect", axis_titles = "collect")
+  before <- serialize(input, NULL)
+  output <- flatten_patchwork(input, ncol = 2)
+  expect_true(identical(serialize(input, NULL), before))
+  labels <- flatten_test_labels(patchwork::patchworkGrob(output))
+  expect_equal(sum(labels == "Shared X"), 1L)
+  expect_equal(sum(labels == "Shared Y"), 1L)
+  expect_equal(patchwork::patchworkGrob(output)$layout,
+    patchwork::patchworkGrob(input)$layout)
+  reordered <- flatten_patchwork(input, select_inds = c(2, 1), ncol = 2)
+  expect_equal(reordered[[1]]$labels$title, "Second")
+  expect_equal(reordered[[2]]$labels$title, "First")
+  expect_s3_class(reordered[[3]], "inset_patch")
+  repeated <- flatten_patchwork(output, ncol = 2)
+  expect_equal(patchwork::patchworkGrob(repeated)$layout,
+    patchwork::patchworkGrob(output)$layout)
 })
 
 test_that("flattening documents collection scope changes and wrapped protection", {
