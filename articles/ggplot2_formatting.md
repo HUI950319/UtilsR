@@ -219,7 +219,14 @@ p + theme_my(base_size = 16)
 
 library(patchwork)
 nested <- (p1 | p2) / (p3 | p4)
-flat <- flatten_patchwork(nested)
+flat <- flatten_patchwork(nested, ncol = 2, axis_titles = "collect")
 ```
 
-Recursively flattens nested patchwork objects into a single-level list.
+Returns a patchwork with ordinary grid cells at one level. Overall
+annotations and collection settings are retained; dimensions and design
+are rebuilt from the supplied layout arguments. Insets stay with their
+main plot, and
+[`free()`](https://patchwork.data-imaginist.com/reference/free.html)
+containers remain intact. Selection indices count these protected groups
+as one cell, as well as ordinary plots, spacers, guide areas and wrapped
+graphics.

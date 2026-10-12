@@ -1,7 +1,8 @@
 # Flatten nested patchwork objects
 
-Recursively flatten nested patchwork objects into a single-level
-patchwork.
+Recursively extract ordinary grid cells from nested patchwork objects
+and arrange them in a new patchwork, optionally selecting or reordering
+cells.
 
 ## Usage
 
@@ -17,8 +18,9 @@ flatten_patchwork(plots, ..., select_inds = NULL, nrow_inds_order = NULL)
 
 - ...:
 
-  Arguments passed to \[patchwork::wrap_plots()\], e.g. \`nrow\`,
-  \`ncol\`.
+  Arguments passed to
+  [`patchwork::wrap_plots()`](https://patchwork.data-imaginist.com/reference/wrap_plots.html),
+  such as `nrow`, `ncol`, `design`, `guides` and `axis_titles`.
 
 - select_inds:
 
@@ -46,7 +48,13 @@ Top-level plot annotations and the `guides`, `axes`, `axis_titles` and
 `tag_level` settings are retained for patchwork input. Explicit
 arguments in `...` override inherited settings. Grid geometry
 (dimensions, widths, heights and design) is rebuilt using `...`; nested
-annotation and tagging scopes are not promoted.
+annotation and tagging scopes are not promoted. Selection indices refer
+to the extracted cells, including spacers, guide areas and wrapped
+graphics. A main plot with its insets, or a protected
+[`free()`](https://patchwork.data-imaginist.com/reference/free.html)
+container, occupies one selection index. Named list entries can be
+matched to a character layout design by
+[`wrap_plots()`](https://patchwork.data-imaginist.com/reference/wrap_plots.html).
 
 ## Examples
 
@@ -67,9 +75,18 @@ flatten_patchwork(nested, nrow = 1)
 # Select specific sub-plots
 flatten_patchwork(nested, select_inds = c(1, 3))
 
-# }
 
-# Reorder by rows (column-first -> row-first)
-nested2 <- (p1 | p2) / (p3 | p4)
-flatten_patchwork(nested2, nrow_inds_order = 2, ncol = 2)
+# Interleave indices 1, 3, 2, 4, then arrange in two columns
+flatten_patchwork(nested, nrow_inds_order = 2, ncol = 2)
+
+
+# Retain the overall title and collect matching axis titles
+annotated <- nested + plot_annotation(title = "Example plots")
+flatten_patchwork(annotated, ncol = 2, axis_titles = "collect")
+
+
+# Names determine placement in a character design
+flatten_patchwork(list(B = p2, A = p1), design = "AB")
+
+# }
 ```
