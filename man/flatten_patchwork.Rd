@@ -50,6 +50,8 @@ Top-level plot annotations and the \code{guides}, \code{axes},
   remain intact. The returned object's \code{length()} and \code{[[} follow
   native patchwork child indexing and include inset objects; selection and
   row interleaving use complete cells, including each host's insets.
+  Nested lists are unwrapped before binding each inset to its preceding host,
+  so list and patchwork inputs retain the same inset boundaries.
 
   Flattening ordinary containers removes their nested collection scopes,
   including inner \code{guides = "keep"} or \code{guides = "collect"} settings.

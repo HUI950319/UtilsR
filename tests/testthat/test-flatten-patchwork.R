@@ -162,6 +162,40 @@ test_that("flattening keeps an inset attached to its composite host", {
   }
 })
 
+test_that("list inputs bind insets before flattening their hosts", {
+  host <- flatten_test_plot("Host 1") | flatten_test_plot("Host 2")
+  overlay <- patchwork::inset_element(grid::rectGrob(), .6, .6, .9, .9,
+    align_to = "full")
+  other <- flatten_test_plot("Other")
+  for (input in list(list(host, overlay, other),
+                    list(list(host), list(overlay), other),
+                    list(list(host, overlay), other))) {
+    before <- serialize(input, NULL)
+    output <- flatten_patchwork(input, ncol = 2)
+    expect_true(identical(serialize(input, NULL), before))
+    native <- patchwork::wrap_plots(list(host, overlay, other), ncol = 2)
+    expect_length(output, 3L)
+    expect_equal(flatten_test_labels(patchwork::patchworkGrob(output)),
+      flatten_test_labels(patchwork::patchworkGrob(native)))
+    expect_equal(patchwork::patchworkGrob(output)$layout,
+      patchwork::patchworkGrob(native)$layout)
+    selected <- flatten_patchwork(input, select_inds = 1)
+    expect_equal(flatten_test_labels(patchwork::patchworkGrob(selected)),
+      flatten_test_labels(patchwork::patchworkGrob(patchwork::wrap_plots(list(host, overlay)))))
+    expect_error(flatten_patchwork(input, select_inds = 3), "select_inds")
+  }
+  input <- list(B = host, overlay, A = other)
+  output <- flatten_patchwork(input, design = "AB")
+  expect_equal(output[[1]]$labels$title, "Other")
+  selected <- flatten_patchwork(output, select_inds = 2)
+  expect_equal(flatten_test_labels(patchwork::patchworkGrob(selected)),
+    flatten_test_labels(patchwork::patchworkGrob(patchwork::wrap_plots(list(host, overlay)))))
+  grob_input <- list(grid::textGrob("Host"), overlay)
+  output <- flatten_patchwork(grob_input)
+  expect_equal(flatten_test_labels(patchwork::patchworkGrob(output)),
+    flatten_test_labels(patchwork::patchworkGrob(patchwork::wrap_plots(grob_input))))
+})
+
 test_that("flattening retains top annotations and collection with explicit overrides", {
   p <- flatten_test_plot("Data", colour = TRUE)
   input <- ((p | p) / (p | p)) +

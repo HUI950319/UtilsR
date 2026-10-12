@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `flatten_patchwork()` binds insets before extracting hosts from plain or nested
+  lists, retaining composite and grob hosts, their cell names and selection
+  boundaries consistently with native patchwork inputs.
+
 * `flatten_patchwork()` emits ordinary inset hosts at the same layout level as
   their neighbours, retaining shared axis and axis-title collection. Selection
   and reordering still operate on complete host/inset cells; returned patchwork

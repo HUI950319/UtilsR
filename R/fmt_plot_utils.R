@@ -207,6 +207,8 @@
 #'   remain intact. The returned object's \code{length()} and \code{[[} follow
 #'   native patchwork child indexing and include inset objects; selection and
 #'   row interleaving use complete cells, including each host's insets.
+#'   Nested lists are unwrapped before binding each inset to its preceding host,
+#'   so list and patchwork inputs retain the same inset boundaries.
 #'
 #'   Flattening ordinary containers removes their nested collection scopes,
 #'   including inner \code{guides = "keep"} or \code{guides = "collect"} settings.
@@ -264,8 +266,22 @@ flatten_patchwork <- function(plots, ..., select_inds = NULL, nrow_inds_order = 
     inherits(plot, "free_plot") && (!inherits(plot, "patchwork") ||
       match("free_plot", class(plot)) < match("patchwork", class(plot)))
   }
+  flatten_lists <- function(plot_obj) {
+    if (!is.list(plot_obj) || inherits(plot_obj, c("ggplot", "patchwork", "grob"))) {
+      return(list(plot_obj))
+    }
+    unlist(lapply(seq_along(plot_obj), function(i) {
+      children <- flatten_lists(plot_obj[[i]])
+      if (length(children) == 1L && is.null(names(children)) &&
+          !is.null(names(plot_obj)) && nzchar(names(plot_obj)[i])) {
+        names(children) <- names(plot_obj)[i]
+      }
+      children
+    }), recursive = FALSE)
+  }
   flatten_recursive <- function(plot_obj) {
-    if (is_inset(plot_obj) || is_free(plot_obj)) {
+    if (is_inset(plot_obj)) cli::cli_abort("An inset must follow its main plot.")
+    if (is_free(plot_obj)) {
       return(list(list(plot = plot_obj, insets = list())))
     }
     if (!inherits(plot_obj, "patchwork")) {
@@ -275,22 +291,16 @@ flatten_patchwork <- function(plots, ..., select_inds = NULL, nrow_inds_order = 
       if (!is.list(plot_obj)) {
         cli::cli_abort("Input must contain ggplot, patchwork, or grob objects.")
       }
-      return(unlist(lapply(seq_along(plot_obj), function(i) {
-        cells <- flatten_recursive(plot_obj[[i]])
-        if (length(cells) == 1L && is.null(names(cells)) &&
-            !is.null(names(plot_obj)) && nzchar(names(plot_obj)[i])) {
-          names(cells) <- names(plot_obj)[i]
-        }
-        cells
-      }), recursive = FALSE))
+      children <- flatten_lists(plot_obj)
+    } else {
+      children <- vector("list", length(plot_obj))
+      for (i in seq_along(children)) {
+        children[[i]] <- tryCatch(plot_obj[[i]], error = function(e) {
+          cli::cli_abort("Cannot read patchwork child {i}.", parent = e)
+        })
+      }
     }
-    n <- length(plot_obj)
-    children <- vector("list", n)
-    for (i in seq_len(n)) {
-      children[[i]] <- tryCatch(plot_obj[[i]], error = function(e) {
-        cli::cli_abort("Cannot read patchwork child {i}.", parent = e)
-      })
-    }
+    n <- length(children)
     cells <- list()
     i <- 1L
     while (i <= n) {
@@ -302,28 +312,20 @@ flatten_patchwork <- function(plots, ..., select_inds = NULL, nrow_inds_order = 
         insets <- c(insets, children[next_i])
         next_i <- next_i + 1L
       }
-      cells <- c(cells, if (length(insets)) {
+      child_cells <- if (length(insets)) {
         list(list(plot = child, insets = insets))
-      } else flatten_recursive(child))
+      } else flatten_recursive(child)
+      if (length(child_cells) == 1L && is.null(names(child_cells)) &&
+          !is.null(names(children)) && nzchar(names(children)[i])) {
+        names(child_cells) <- names(children)[i]
+      }
+      cells <- c(cells, child_cells)
       i <- next_i
     }
     cells
   }
 
   all_subplots <- flatten_recursive(plots)
-  cells <- list()
-  for (i in seq_along(all_subplots)) {
-    if (is_inset(all_subplots[[i]]$plot)) {
-      if (length(cells) == 0L) {
-        cli::cli_abort("An inset must follow its main plot.")
-      }
-      last <- length(cells)
-      cells[[last]]$insets <- c(cells[[last]]$insets, list(all_subplots[[i]]$plot))
-    } else {
-      cells <- c(cells, all_subplots[i])
-    }
-  }
-  all_subplots <- cells
 
   if (!is.null(select_inds)) {
     if (!is.numeric(select_inds) || is.complex(select_inds) ||
