@@ -13,7 +13,7 @@ flatten_patchwork(plots, ..., select_inds = NULL, nrow_inds_order = NULL)
 
 - plots:
 
-  A patchwork object (possibly nested) or a list of ggplot objects.
+  A ggplot, patchwork object, grob, or nested list of these objects.
 
 - ...:
 
@@ -22,11 +22,15 @@ flatten_patchwork(plots, ..., select_inds = NULL, nrow_inds_order = NULL)
 
 - select_inds:
 
-  Integer vector of indices to keep after flattening.
+  Integer indices applied after flattening. Positive indices select and
+  may repeat plots; negative indices exclude plots. Zero is ignored.
+  Missing, fractional, mixed-sign and out-of-range indices are rejected.
 
 - nrow_inds_order:
 
-  Single integer to reorder plots by interleaving rows.
+  Single positive integer, at most the number of selected plots, to
+  reorder them by interleaving rows. Applied after selection; it does
+  not set the output layout's `nrow`.
 
 ## Value
 

@@ -2,6 +2,15 @@
 
 ## UtilsR 0.6.8
 
+- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
+  validates selection and row-interleaving indices before arranging
+  plots, preventing fractional-index omissions and empty output. Integer
+  exclusion, repetition and zero indices retain their existing meaning.
+
+- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
+  accepts single plots and nested lists, retaining names for named
+  layout designs and rejecting invalid list elements.
+
 - [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
   reuses unchanged guide layouts and keeps a stable container parent for
   layout updates, preventing accumulated wrappers during repeated
