@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `flatten_patchwork()` accepts single plots and nested lists, retaining names
+  for named layout designs and rejecting invalid list elements.
+
 * `fmt_legend()` reuses unchanged guide layouts and keeps a stable container
   parent for layout updates, preventing accumulated wrappers during repeated
   formatting while retaining later native guide edits.

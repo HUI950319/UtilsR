@@ -7,7 +7,7 @@
 flatten_patchwork(plots, ..., select_inds = NULL, nrow_inds_order = NULL)
 }
 \arguments{
-\item{plots}{A patchwork object (possibly nested) or a list of ggplot objects.}
+\item{plots}{A ggplot, patchwork object, grob, or nested list of these objects.}
 
 \item{...}{Arguments passed to [patchwork::wrap_plots()], e.g. `nrow`, `ncol`.}
 

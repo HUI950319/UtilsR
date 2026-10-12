@@ -172,7 +172,7 @@
 #'
 #' Recursively flatten nested patchwork objects into a single-level patchwork.
 #'
-#' @param plots A patchwork object (possibly nested) or a list of ggplot objects.
+#' @param plots A ggplot, patchwork object, grob, or nested list of these objects.
 #' @param ... Arguments passed to [patchwork::wrap_plots()], e.g. `nrow`, `ncol`.
 #' @param select_inds Integer vector of indices to keep after flattening.
 #' @param nrow_inds_order Single integer to reorder plots by interleaving rows.
@@ -204,7 +204,13 @@
 #' @export
 flatten_patchwork <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) {
   flatten_recursive <- function(plot_obj) {
-    if (!inherits(plot_obj, "patchwork")) return(list(plot_obj))
+    if (!inherits(plot_obj, "patchwork")) {
+      if (inherits(plot_obj, c("ggplot", "grob"))) return(list(plot_obj))
+      if (!is.list(plot_obj)) {
+        cli::cli_abort("Input must contain ggplot, patchwork, or grob objects.")
+      }
+      return(unlist(lapply(plot_obj, flatten_recursive), recursive = FALSE))
+    }
     n <- length(plot_obj)
     children <- vector("list", n)
     for (i in seq_len(n)) {
