@@ -42,7 +42,11 @@ fmt_com(
 
   Numeric bracket positions in original y-data units, before scale
   transformation. A scalar sets the first bracket; a vector sets
-  individual positions. Default `NULL` lets ggpubr auto-calculate.
+  individual positions in comparison-family order. Custom vectors follow
+  `com_method` order within each mapped subset; automatic vectors follow
+  displayed global pairs, appending extra sparse-panel pairs. Filtering
+  a panel retains the matching entries. Default `NULL` uses automatic
+  positions.
 
 - label.y.prop:
 
@@ -61,11 +65,13 @@ fmt_com(
 
 - tip.length:
 
-  Length of the bracket tips. Default `0.025`.
+  Fraction of panel height for tips: a scalar, one value per comparison,
+  or two values per comparison in left/right order. Default `0.025`.
 
 - step.increase:
 
-  Vertical step increase between brackets. Default `0.05`.
+  Vertical step as a fraction of panel height: a scalar or one value per
+  comparison. Default `0.05`. Not added to explicit position vectors.
 
 - size:
 

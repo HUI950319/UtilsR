@@ -97,7 +97,10 @@ are rejected. Values select categories rather than numeric axis indices.</p></dd
 <dt id="arg-label-y">label.y<a class="anchor" aria-label="anchor" href="#arg-label-y"></a></dt>
 <dd><p>Numeric bracket positions in original y-data units, before
 scale transformation. A scalar sets the first bracket; a vector sets
-individual positions. Default <code>NULL</code> lets ggpubr auto-calculate.</p></dd>
+individual positions in comparison-family order. Custom vectors follow
+<code>com_method</code> order within each mapped subset; automatic vectors follow
+displayed global pairs, appending extra sparse-panel pairs. Filtering a
+panel retains the matching entries. Default <code>NULL</code> uses automatic positions.</p></dd>
 
 
 <dt id="arg-label-y-prop">label.y.prop<a class="anchor" aria-label="anchor" href="#arg-label-y-prop"></a></dt>
@@ -116,11 +119,13 @@ select an adjusted label to display multiplicity-adjusted results.</p></dd>
 
 
 <dt id="arg-tip-length">tip.length<a class="anchor" aria-label="anchor" href="#arg-tip-length"></a></dt>
-<dd><p>Length of the bracket tips. Default <code>0.025</code>.</p></dd>
+<dd><p>Fraction of panel height for tips: a scalar, one value per
+comparison, or two values per comparison in left/right order. Default <code>0.025</code>.</p></dd>
 
 
 <dt id="arg-step-increase">step.increase<a class="anchor" aria-label="anchor" href="#arg-step-increase"></a></dt>
-<dd><p>Vertical step increase between brackets. Default <code>0.05</code>.</p></dd>
+<dd><p>Vertical step as a fraction of panel height: a scalar
+or one value per comparison. Default <code>0.05</code>. Not added to explicit position vectors.</p></dd>
 
 
 <dt id="arg-size">size<a class="anchor" aria-label="anchor" href="#arg-size"></a></dt>
