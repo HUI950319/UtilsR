@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_com()` limits statistical closures to the current plot's configuration,
+  so extracting one formatted plot no longer retains other container plots
+  and their data during serialization.
+
 * `fmt_com()` validates layout-vector sizes and transformation domains, matches
   vectors to comparison identities across facet filtering, and supports
   symmetric or left/right tip lengths per comparison without recycling.

@@ -3667,7 +3667,7 @@ fmt_com <- function(plot,
           if (!is.null(reference)) lapply(setdiff(available, reference), function(value) c(reference, value)) else
           if (is.list(comparisons)) comparisons else
           if (length(available) < 2L) list() else
-          if (comparisons == "con") Map(c, head(available, -1L), tail(available, -1L)) else
+          if (comparisons == "con") Map(c, utils::head(available, -1L), utils::tail(available, -1L)) else
           utils::combn(available, 2L, simplify = FALSE)
         if (!declared) pairs <- Filter(function(pair) all(pair %in% available), pairs)
         keys <- vapply(pairs, function(pair) pair_key(pair[1L], pair[2L], subset), character(1))
@@ -3708,7 +3708,7 @@ fmt_com <- function(plot,
           length(unique(n[n > 0L])) > 1L
         })
         if (any(unequal)) cli::cli_abort("Paired groups have unequal original sizes; supply method.args$id.")
-        ids <- ave(seq_len(nrow(source_data)), interaction(factor(comparison_values), strata_key, drop = TRUE), FUN = seq_along)
+        ids <- stats::ave(seq_len(nrow(source_data)), interaction(factor(comparison_values), strata_key, drop = TRUE), FUN = seq_along)
       } else {
         if (!pair_id %in% names(source_data)) cli::cli_abort("method.args$id column is absent from statistical data.")
         ids <- source_data[[pair_id]]
@@ -3716,7 +3716,7 @@ fmt_com <- function(plot,
           cli::cli_abort("method.args$id must be non-missing and unique within each comparison group/subset.")
         ids <- match(ids, unique(ids))
       }
-      id_column <- tail(make.unique(c(names(source_data), ".fmt_com_pair_id")), 1L)
+      id_column <- utils::tail(make.unique(c(names(source_data), ".fmt_com_pair_id")), 1L)
       source_data[[id_column]] <- as.numeric(ids)
       source_mapping$.fmt_com_id <- rlang::new_quosure(rlang::sym(id_column), rlang::base_env())
     }
@@ -3750,10 +3750,18 @@ fmt_com <- function(plot,
     }
     stat_mapping <- geom_args$mapping
     geom_args$mapping <- NULL
-    layer <- do.call(ggpubr::geom_pwc, geom_args)
+    layer <- do.call(ggpubr::geom_pwc, geom_args, envir = baseenv())
     layer$mapping <- stat_mapping
     native_stat <- layer$stat
-    layer$stat <- ggplot2::ggproto(NULL, native_stat,
+    environment(pair_key) <- baseenv()
+    stat_env <- list2env(list(native_stat = native_stat, grouped = grouped,
+      compare_group = compare_group, comparisons = comparisons, group_labels = group_labels,
+      comparison_order = comparison_order, ref_group = ref_group, ref_all = ref_all,
+      paired = paired, full_family = full_family, label.y.prop = label.y.prop,
+      dots = list(bracket.nudge.y = dots$bracket.nudge.y), vector_layout = vector_layout,
+      layout_keys = layout_keys, pair_key = pair_key, step.increase = step.increase,
+      tip.length = tip.length), parent = environment(fmt_com))
+    layer$stat <- eval(quote(ggplot2::ggproto(NULL, native_stat,
       optional_aes = unique(c(native_stat$optional_aes, ".fmt_com_id")),
       parameters = function(extra = FALSE) native_stat$parameters(extra),
       compute_panel = function(data, scales, ...) {
@@ -3791,7 +3799,7 @@ fmt_com <- function(plot,
           } else if (is.list(comparisons)) {
             lapply(comparisons, function(pair) match(pair, lookup))
           } else if (comparisons == "con") {
-            Map(c, head(available, -1L), tail(available, -1L))
+            Map(c, utils::head(available, -1L), utils::tail(available, -1L))
           } else utils::combn(available, 2L, simplify = FALSE)
           Filter(function(pair) all(pair %in% available), pairs)
         }
@@ -3913,7 +3921,7 @@ fmt_com <- function(plot,
         }
         result
       }
-    )
+    )), stat_env)
     p + layer
   }
 

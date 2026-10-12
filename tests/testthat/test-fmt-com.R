@@ -367,3 +367,15 @@ test_that("layout vectors match comparisons and remain aligned after facet filte
   pairs <- list(c("versicolor", "virginica"), c("setosa", "virginica"))
   expect_equal(com_y(fmt_com(com_plot(), method = "dunn_test", com_method = pairs, label.y = c(8, 9)))$y, c(9, 8))
 })
+
+test_that("extracted plots do not retain unrelated container data", {
+  p <- evalq(ggplot2::ggplot(iris, ggplot2::aes(Species, Sepal.Length)) +
+               ggplot2::geom_boxplot(), envir = .GlobalEnv)
+  large <- p
+  large$data <- iris[rep(seq_len(nrow(iris)), 200), ]
+  single <- fmt_com(p)
+  extracted <- fmt_com(list(p, large))[[1]]
+  expect_lt(length(serialize(extracted, NULL)), 1.1 * length(serialize(single, NULL)))
+  expect_equal(com_stat(extracted), com_stat(single))
+  expect_identical(p$data, iris)
+})
