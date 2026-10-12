@@ -139,7 +139,10 @@ test_that("nested containers retain layout, annotations and protected cells", {
   expect_equal(counts(q), rep(2L, 4))
   expect_identical(q$patches$layout, pw$patches$layout)
   expect_identical(q$patches$annotation, pw$patches$annotation)
-  expect_s3_class(patchwork::patchworkGrob(q), "gtable")
+  grDevices::pdf(file = NULL)
+  device <- grDevices::dev.cur()
+  tryCatch(expect_s3_class(patchwork::patchworkGrob(q), "gtable"),
+           finally = grDevices::dev.off(device))
   expect_equal(counts(pw), rep(1L, 4))
   expect_identical(pw[[1]][[1]]$data, iris)
 
