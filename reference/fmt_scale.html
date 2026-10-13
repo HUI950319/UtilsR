@@ -76,6 +76,8 @@ user-supplied arguments via <code>do.call</code>.</p>
 <dd><p>Named list of arguments accepted by the selected ggplot2 x-axis
 scale function. Names must be unique, non-empty and non-missing;
 unambiguous partial names are matched to full argument names.
+Across repeated calls, the most recent value of a matched argument wins;
+<code>trans</code> and <code>transform</code> refer to the same setting.
 For example, <code>list(limits = c(4, 8), breaks = seq(4, 8, 1))</code>.
 <code>NULL</code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> leaves the axis unchanged. Explicit
 <code>NULL</code> child values are passed to the scale constructor.</p></dd>

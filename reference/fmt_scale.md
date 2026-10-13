@@ -20,7 +20,9 @@ fmt_scale(plot, x = NULL, y = NULL)
 
   Named list of arguments accepted by the selected ggplot2 x-axis scale
   function. Names must be unique, non-empty and non-missing; unambiguous
-  partial names are matched to full argument names. For example,
+  partial names are matched to full argument names. Across repeated
+  calls, the most recent value of a matched argument wins; `trans` and
+  `transform` refer to the same setting. For example,
   `list(limits = c(4, 8), breaks = seq(4, 8, 1))`. `NULL` or
   [`list()`](https://rdrr.io/r/base/list.html) leaves the axis
   unchanged. Explicit `NULL` child values are passed to the scale
