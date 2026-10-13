@@ -73,12 +73,16 @@ user-supplied arguments via <code>do.call</code>.</p>
 
 
 <dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>Named list of arguments for the x-axis scale function.
-E.g. <code>list(limits = c(4, 8), breaks = seq(4, 8, 1))</code>.</p></dd>
+<dd><p>Named list of arguments accepted by the selected ggplot2 x-axis
+scale function. Names must be unique, non-empty and non-missing;
+unambiguous partial names are matched to full argument names.
+For example, <code>list(limits = c(4, 8), breaks = seq(4, 8, 1))</code>.
+<code>NULL</code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> leaves the axis unchanged. Explicit
+<code>NULL</code> child values are passed to the scale constructor.</p></dd>
 
 
 <dt id="arg-y">y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
-<dd><p>Named list of arguments for the y-axis scale function.</p></dd>
+<dd><p>Like <code>x</code>, for the y-axis scale function.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -93,6 +97,17 @@ secondary axis are kept unless named in the list. Continuous limits are
 interpreted on the existing transformation; when only <code>transform</code> is
 supplied, existing limits are re-expressed on the new one. Without an
 existing scale, a new scale of the detected type is added.</p>
+<p>Existing binned position scales accept their own controls, including
+<code>right</code>, <code>nice.breaks</code> and <code>show.limits</code>. Nested patchworks
+are updated recursively without changing their layout or annotations.</p>
+<p>Function and formula layer data are resolved during normal plot building;
+formatting does not execute the data function. Scale settings are then
+applied to the actual scale type. A scale added explicitly afterward takes
+precedence over deferred settings. Repeated calls reuse unchanged scales
+and retain custom scale classes and clone behavior when settings change.</p>
+<p>Scale construction errors keep their original cause and identify the axis.
+Limits are scale limits and can remove out-of-range observations; use
+<code><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" class="external-link">ggplot2::coord_cartesian()</a></code> when only a visual zoom is needed.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

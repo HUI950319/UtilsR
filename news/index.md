@@ -2,6 +2,26 @@
 
 ## UtilsR 0.6.8
 
+- [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md)
+  preserves observations when changing to or from a reversed
+  transformation, including on the minimum supported ggplot2 version.
+
+- [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md)
+  formats all leaves of nested patchworks and applies settings to native
+  scales for function and formula layer data without extra data calls.
+
+- [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md)
+  validates named axis lists, matches unambiguous argument abbreviations
+  consistently, and retains the cause of scale construction errors.
+
+- [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md)
+  supports controls on existing binned position scales and reuses
+  unchanged scales. Changed axes clone once per plot without retaining
+  prior scale instances or bound callback histories.
+
+- The formatting vignette uses the current `fmt_scale(x = ..., y = ...)`
+  API.
+
 - [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
   keeps scale storage bounded when padding changes repeatedly, retaining
   custom scale classes, fields and clone behavior without chaining

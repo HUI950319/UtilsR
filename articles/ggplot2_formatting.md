@@ -172,8 +172,8 @@ p |> fmt_bg(palette = "Paired", alpha = 0.1)
 
 ``` r
 
-p |> fmt_scale(scale_x_list = list(limits = c(4, 8)),
-               scale_y_list = list(limits = c(2, 4.5)))
+p |> fmt_scale(x = list(limits = c(4, 8)),
+               y = list(limits = c(2, 4.5)))
 ```
 
 ------------------------------------------------------------------------
