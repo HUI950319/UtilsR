@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/fmt_scale.html">fmt_scale()</a></code> retains the same observations for partially automatic limits when changing between increasing and decreasing transformations.</p></li>
+<ul><li><p><code><a href="../reference/fmt_scale.html">fmt_scale()</a></code> defers dynamic mapping evaluation to normal plot building, preserving function-call counts, lazy bindings and random-number state.</p></li>
+<li><p><code><a href="../reference/fmt_scale.html">fmt_scale()</a></code> retains the same observations for partially automatic limits when changing between increasing and decreasing transformations.</p></li>
 <li><p><code><a href="../reference/fmt_expand.html">fmt_expand()</a></code> leaves lazy mapping bindings unevaluated until plot building, retaining native mapping evaluation order and random-number state.</p></li>
 <li><p>Alternating <code><a href="../reference/fmt_expand.html">fmt_expand()</a></code> and <code><a href="../reference/fmt_scale.html">fmt_scale()</a></code> retains all deferred settings; the most recent formatter takes precedence when both set expansion.</p></li>
 <li><p><code><a href="../reference/fmt_expand.html">fmt_expand()</a></code> defers active bindings in mapping environments without evaluating them or changing the random-number state during formatting.</p></li>

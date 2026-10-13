@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md)
+  defers dynamic mapping evaluation to normal plot building, preserving
+  function-call counts, lazy bindings and random-number state.
+
+- [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md)
   retains the same observations for partially automatic limits when
   changing between increasing and decreasing transformations.
 
