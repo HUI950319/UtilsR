@@ -3,6 +3,19 @@
 ## UtilsR 0.6.8
 
 - [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
+  and
+  [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md)
+  infer only initial-stage mappings, keeping computed statistics
+  separate from same-named source columns and accepting legacy statistic
+  mappings.
+
+- [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md)
+  updates only the supplied settings of an existing position scale
+  instead of replacing it, so limits, breaks, labels, transformation,
+  expansion and secondary axes set earlier are kept. Continuous limits
+  use the existing transformation.
+
+- [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
   reuses unchanged scales and clones changed scales only once per plot,
   avoiding retained clone histories during repeated formatting.
 
