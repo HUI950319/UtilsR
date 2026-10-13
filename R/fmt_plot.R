@@ -4334,7 +4334,12 @@ fmt_his <- function(plot,
   names(args) <- arg_names <- allowed[matched]
   if (anyDuplicated(arg_names))
     cli::cli_abort("{.arg {axis}} argument names must remain unique after matching.")
-  if (is.null(scale)) return(do.call(fn, args))
+  construct <- function(args) {
+    tryCatch(do.call(fn, args), error = function(e) {
+      cli::cli_abort("Cannot update the {axis}-axis scale.", parent = e)
+    })
+  }
+  if (is.null(scale)) return(construct(args))
   arg_fields <- list(transform = "trans", trans = "trans",
                      sec.axis = "secondary.axis", date_breaks = "breaks",
                      date_labels = "labels", date_minor_breaks = "minor_breaks",
@@ -4344,7 +4349,7 @@ fmt_his <- function(plot,
     args$transform <- scale$trans
   remap_limits <- new_trans && !"limits" %in% arg_names && is.numeric(scale$limits)
   if (remap_limits) args$limits <- scale$trans$inverse(scale$limits)
-  new <- do.call(fn, args)
+  new <- construct(args)
   if (remap_limits) scale$limits <- new$limits
   for (f in unique(unlist(lapply(arg_names, function(a) {
     if (a %in% names(arg_fields)) arg_fields[[a]] else a
@@ -4441,12 +4446,7 @@ fmt_scale <- function(plot, x = NULL, y = NULL) {
       .update_position_scale(p$scales$get_scales(axis), args, axis, fn_name)
       return(p)
     }
-    tryCatch(
-      p + .update_position_scale(NULL, args, axis, fn_name),
-      error = function(e) {
-        p + .update_position_scale(NULL, args, axis, paste0("scale_", axis, "_continuous"))
-      }
-    )
+    p + .update_position_scale(NULL, args, axis, fn_name)
   }
 
   fmt_scale_one <- function(p) {

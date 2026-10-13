@@ -151,3 +151,17 @@ test_that("partial argument names update new and existing scales consistently", 
                      c("N1", "N2"))
   }
 })
+
+test_that("invalid temporal settings retain their original error without a type fallback", {
+  p <- ggplot2::ggplot(data.frame(x = as.Date("2026-01-01") + 0:2, y = 1:3),
+                       ggplot2::aes(x, y)) + ggplot2::geom_point()
+  expect_error(fmt_scale(p, x = list(transform = "sqrt")), "x-axis")
+  error <- tryCatch(fmt_scale(p, x = list(limits = c(0, 1))), error = identity)
+  expect_s3_class(error, "error")
+  if (inherits(error, "error")) {
+    expect_match(conditionMessage(error), "x-axis")
+    expect_s3_class(error$parent, "error")
+    expect_match(conditionMessage(error$parent), "Date")
+  }
+  expect_null(p$scales$get_scales("x"))
+})
