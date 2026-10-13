@@ -252,3 +252,43 @@ test_that("computed statistic mappings retain their continuous defaults", {
   expect_identical(ggplot2::ggplot_build(q)$data,
                    ggplot2::ggplot_build(p)$data)
 })
+
+test_that("repeated unchanged expansion does not retain scale clone histories", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3),
+                       ggplot2::aes(x, y)) + ggplot2::geom_point()
+  q <- fmt_expand(p, mult = 0.05)
+  invisible(q$scales$get_scales("x"))
+  invisible(q$scales$get_scales("y"))
+  original_size <- length(serialize(q$scales, NULL))
+  repeated <- q
+  for (i in 1:25) repeated <- fmt_expand(repeated, mult = 0.05)
+  expect_lte(length(serialize(repeated$scales, NULL)), original_size)
+  expect_identical(ggplot2::ggplot_build(repeated)$data,
+                   ggplot2::ggplot_build(q)$data)
+})
+
+test_that("changing expansion remains isolated from earlier plot results", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3),
+                       ggplot2::aes(x, y)) + ggplot2::geom_point()
+  first <- fmt_expand(p, mult = 0.1)
+  second <- fmt_expand(first, mult = 0.2, axis = "x")
+  expect_equal(ggplot2::ggplot_build(first)$layout$panel_params[[1]]$x.range, c(0.8, 3.2))
+  expect_equal(ggplot2::ggplot_build(second)$layout$panel_params[[1]]$x.range, c(0.6, 3.4))
+  expect_equal(ggplot2::ggplot_build(second)$layout$panel_params[[1]]$y.range, c(0.8, 3.2))
+})
+
+test_that("scale inference does not run layer statistics eagerly", {
+  calls <- 0L
+  stat <- ggplot2::ggproto("StatExpandCounter", ggplot2::Stat,
+    required_aes = c("x", "y"),
+    compute_group = function(data, scales) {
+      calls <<- calls + 1L
+      data
+    })
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3), ggplot2::aes(x, y)) +
+    ggplot2::geom_point(stat = stat)
+  q <- fmt_expand(p)
+  expect_identical(calls, 0L)
+  invisible(ggplot2::ggplot_build(q))
+  expect_identical(calls, 1L)
+})

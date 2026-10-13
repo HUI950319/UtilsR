@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_expand()` reuses unchanged scales and clones changed scales only once
+  per plot, avoiding retained clone histories during repeated formatting.
+
 * `fmt_text()` gains `axis_titles` (default `"collect"`), passed to
   `patchwork::plot_layout()`, so labels shared by all panels of a patchwork
   are drawn once. Use `axis_titles = NULL` to keep the previous layout.

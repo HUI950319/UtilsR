@@ -4376,6 +4376,7 @@ fmt_scale <- function(plot, x = NULL, y = NULL) {
 #' Nested patchworks are updated recursively without changing their layout.
 #' Ordinary mapping evaluation errors retain their original cause. Computed
 #' statistic mappings use continuous defaults unless a position scale is supplied.
+#' Repeated calls with unchanged expansion reuse existing position scales.
 #'
 #' @param plot A ggplot, patchwork, or list of ggplots.
 #' @param mult Finite numeric expansion factor of length one or two. A scalar
@@ -4406,22 +4407,23 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
   if (any(!is.finite(expansion_setting)))
     cli::cli_abort("`mult` and `add` must contain only finite values.")
 
-  apply_expansion <- function(p, ax) {
-    if (!is.null(p$scales$get_scales(ax))) {
-      p$scales <- p$scales$clone()
-      scale <- p$scales$get_scales(ax)
-      scale$expand <- expansion_setting
-      return(p)
-    }
-    fn_name <- .detect_scale_type(p, ax)
-    fn <- utils::getFromNamespace(fn_name, "ggplot2")
-    p + fn(expand = expansion_setting)
-  }
-
+  axes <- if (is.null(axis)) c("x", "y") else axis
   fmt_expand_one <- function(p) {
-    axes <- if (is.null(axis)) c("x", "y") else axis
+    scales_cloned <- FALSE
     for (ax in axes) {
-      p <- apply_expansion(p, ax)
+      scale <- p$scales$get_scales(ax)
+      if (!is.null(scale)) {
+        if (identical(scale$expand, expansion_setting)) next
+        if (!scales_cloned) {
+          p$scales <- p$scales$clone()
+          scales_cloned <- TRUE
+          scale <- p$scales$get_scales(ax)
+        }
+        scale$expand <- expansion_setting
+      } else {
+        fn <- getExportedValue("ggplot2", .detect_scale_type(p, ax))
+        p <- p + fn(expand = expansion_setting)
+      }
     }
     p
   }

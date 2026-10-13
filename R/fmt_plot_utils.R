@@ -122,19 +122,8 @@
 #' @noRd
 .detect_scale_type <- function(plot, axis = c("x", "y")) {
   axis <- match.arg(axis)
-  existing_scales <- plot$scales$scales
-  has_scale <- any(vapply(
-    existing_scales,
-    function(s) axis %in% s$aesthetics,
-    logical(1)
-  ))
-
-  if (has_scale) {
-    sc <- existing_scales[vapply(
-      existing_scales,
-      function(s) axis %in% s$aesthetics,
-      logical(1)
-    )][[1]]
+  sc <- plot$scales$get_scales(axis)
+  if (!is.null(sc)) {
     type <- if (inherits(sc, "ScaleDiscrete")) {
       "discrete"
     } else if (inherits(sc, c("ScaleContinuousDatetime", "ScaleDatetime"))) {

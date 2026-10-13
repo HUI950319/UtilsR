@@ -32,6 +32,7 @@ including variables captured in the mapping environment.
 Nested patchworks are updated recursively without changing their layout.
 Ordinary mapping evaluation errors retain their original cause. Computed
 statistic mappings use continuous defaults unless a position scale is supplied.
+Repeated calls with unchanged expansion reuse existing position scales.
 }
 \examples{
 library(ggplot2)
@@ -42,6 +43,7 @@ fmt_expand(p, add = c(0.5, 0), axis = "x")
 }
 \seealso{
 Other plot formatting:
+\code{\link[=flatten_patchwork]{flatten_patchwork()}},
 \code{\link[=fmt_axis]{fmt_axis()}},
 \code{\link[=fmt_axisText]{fmt_axisText()}},
 \code{\link[=fmt_axisTile]{fmt_axisTile()}},
