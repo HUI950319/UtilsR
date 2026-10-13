@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_panel()` consistently hides axis-specific grid lines and applies explicit
+  grid styling to both axes.
+
 * `fmt_scale()` uses native scales for statistic-generated axes, including
   categorical `after_stat()` values and implicit statistic default mappings.
 

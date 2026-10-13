@@ -2379,29 +2379,40 @@ fmt_panel <- function(plot,
   grid_theme <- switch(grid,
     "none" = ggplot2::theme(
       panel.grid.major = blank,
-      panel.grid.minor = blank
+      panel.grid.minor = blank,
+      panel.grid.major.x = blank, panel.grid.major.y = blank,
+      panel.grid.minor.x = blank, panel.grid.minor.y = blank
     ),
     "major" = {
-      th <- ggplot2::theme(panel.grid.minor = blank)
-      if (!is.null(gl)) th <- th + ggplot2::theme(panel.grid.major = gl)
+      th <- ggplot2::theme(panel.grid.minor = blank,
+                           panel.grid.minor.x = blank, panel.grid.minor.y = blank)
+      if (!is.null(gl)) th <- th + ggplot2::theme(
+        panel.grid.major = gl, panel.grid.major.x = gl, panel.grid.major.y = gl)
       th
     },
     "minor" = {
-      th <- ggplot2::theme(panel.grid.major = blank)
-      if (!is.null(gl)) th <- th + ggplot2::theme(panel.grid.minor = gl)
+      th <- ggplot2::theme(panel.grid.major = blank,
+                           panel.grid.major.x = blank, panel.grid.major.y = blank)
+      if (!is.null(gl)) th <- th + ggplot2::theme(
+        panel.grid.minor = gl, panel.grid.minor.x = gl, panel.grid.minor.y = gl)
       th
     },
     "both" = {
-      if (!is.null(gl)) ggplot2::theme(panel.grid.major = gl, panel.grid.minor = gl)
+      if (!is.null(gl)) ggplot2::theme(
+        panel.grid.major = gl, panel.grid.minor = gl,
+        panel.grid.major.x = gl, panel.grid.major.y = gl,
+        panel.grid.minor.x = gl, panel.grid.minor.y = gl)
       else ggplot2::theme()
     },
     "x" = {
-      th <- ggplot2::theme(panel.grid.major.y = blank, panel.grid.minor = blank)
+      th <- ggplot2::theme(panel.grid.major.y = blank, panel.grid.minor = blank,
+                           panel.grid.minor.x = blank, panel.grid.minor.y = blank)
       if (!is.null(gl)) th <- th + ggplot2::theme(panel.grid.major.x = gl)
       th
     },
     "y" = {
-      th <- ggplot2::theme(panel.grid.major.x = blank, panel.grid.minor = blank)
+      th <- ggplot2::theme(panel.grid.major.x = blank, panel.grid.minor = blank,
+                           panel.grid.minor.x = blank, panel.grid.minor.y = blank)
       if (!is.null(gl)) th <- th + ggplot2::theme(panel.grid.major.y = gl)
       th
     }
