@@ -23,6 +23,11 @@
   API.
 
 - [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
+  defers function-call mappings to normal plot building, avoiding extra
+  evaluations and preserving random mappings. Function errors are
+  reported at build time with their original cause.
+
+- [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
   keeps scale storage bounded when padding changes repeatedly, retaining
   custom scale classes, fields and clone behavior without chaining
   previous instances as parents.
