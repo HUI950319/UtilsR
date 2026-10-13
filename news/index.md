@@ -2,6 +2,10 @@
 
 ## UtilsR 0.6.8
 
+- [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
+  preserves existing position scales, including transformations, limits,
+  custom labels, discrete ordering, binned scales and secondary axes.
+
 - [`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md)
   limits statistical closures to the current plot’s configuration, so
   extracting one formatted plot no longer retains other container plots

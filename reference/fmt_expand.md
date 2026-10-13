@@ -3,6 +3,8 @@
 Applies
 [`ggplot2::expansion()`](https://ggplot2.tidyverse.org/reference/expansion.html)
 to one or both axes, automatically detecting the correct scale type.
+Existing position scales retain their transformation, limits, breaks,
+labels, guides and secondary axes.
 
 ## Usage
 
