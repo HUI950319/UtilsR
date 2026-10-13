@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
+  resolves layer data, mapping overrides and captured variables when
+  choosing new scales. Shared detection also supports
+  [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md).
+
+- [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
   distinguishes dates, date-times and times, retaining sub-day
   resolution. Shared detection also accepts temporal controls in
   [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md).

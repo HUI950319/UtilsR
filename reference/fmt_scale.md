@@ -1,7 +1,8 @@
 # Set axis scales
 
-Automatically detects discrete / continuous / date scale type and
-applies user-supplied arguments via `do.call`.
+Automatically detects discrete / continuous / date-time scale type from
+existing scales or effective layer mappings and data, and applies
+user-supplied arguments via `do.call`.
 
 ## Usage
 
