@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
+  defers active bindings in mapping environments without evaluating them
+  or changing the random-number state during formatting.
+
+- [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
   retains native scales when axes are supplied by statistic default
   mappings, including categorical outputs from custom statistics.
 
