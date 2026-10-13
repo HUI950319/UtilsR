@@ -643,6 +643,44 @@ test_that("lazy mapping bindings retain native evaluation order and random state
   expect_equal(built$plot$scales$get_scales("y")$expand, ggplot2::expansion(mult = 0.1))
 })
 
+test_that("deferred aliases override earlier settings across formatter calls", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3), ggplot2::aes(x, y)) +
+    ggplot2::geom_point(data = function(d) d)
+  for (axis in c("x", "y")) {
+    set_scale <- function(plot, args) {
+      do.call(fmt_scale, c(list(plot = plot), setNames(list(args), axis)))
+    }
+    for (spellings in list(c("expand", "exp"), c("exp", "expand"))) {
+      q <- set_scale(p, setNames(list(ggplot2::expansion(mult = 0.3)), spellings[1L]))
+      q <- fmt_expand(q, mult = 0.2, axis = axis)
+      q <- set_scale(q, setNames(list(ggplot2::expansion(mult = 0.4)), spellings[2L]))
+      built <- ggplot2::ggplot_build(q)
+      expect_equal(built$plot$scales$get_scales(axis)$expand,
+                   ggplot2::expansion(mult = 0.4))
+      expect_identical(built$data, ggplot2::ggplot_build(p)$data)
+      q <- fmt_expand(q, mult = 0.2, axis = axis)
+      q <- set_scale(q, setNames(list(ggplot2::expansion(mult = 0.3)), spellings[1L]))
+      expect_equal(ggplot2::ggplot_build(q)$plot$scales$get_scales(axis)$expand,
+                   ggplot2::expansion(mult = 0.3))
+    }
+    q <- set_scale(p, list(labels = function(x) paste0("old", x), breaks = 1:3))
+    q <- fmt_expand(q, mult = 0.2, axis = axis)
+    q <- set_scale(q, list(lab = function(x) paste0("new", x)))
+    built <- ggplot2::ggplot_build(q)
+    expect_identical(as.character(built$layout$panel_params[[1]][[axis]]$get_labels()),
+                     paste0("new", 1:3))
+    expect_equal(built$plot$scales$get_scales(axis)$expand,
+                 ggplot2::expansion(mult = 0.2))
+    q <- set_scale(q, list(lab = NULL))
+    expect_null(ggplot2::ggplot_build(q)$plot$scales$get_scales(axis)$labels)
+    expect_error(ggplot2::ggplot_build(set_scale(p, list(
+      expand = ggplot2::expansion(mult = 0.2), exp = ggplot2::expansion(mult = 0.4)))),
+      "unique")
+    expect_null(p$scales$get_scales(axis))
+  }
+  expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+})
+
 test_that("implicit extension scales retain native scale_type dispatch", {
   methods <- get(".__S3MethodsTable__.", envir = asNamespace("ggplot2"))
   method_name <- "scale_type.fmt_expand_binned"
