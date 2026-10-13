@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_expand()` retains native scales when axes are supplied by statistic
+  default mappings, including categorical outputs from custom statistics.
+
 * `fmt_scale()` preserves observations when changing to or from a reversed
   transformation, including on the minimum supported ggplot2 version.
 * `fmt_scale()` formats all leaves of nested patchworks and applies settings

@@ -514,6 +514,35 @@ test_that("computed categorical mappings retain native discrete scales", {
   expect_null(p$scales$get_scales("y"))
 })
 
+test_that("statistic default mappings retain native position scales", {
+  calls <- 0L
+  stat <- ggplot2::ggproto("StatExpandCategories", ggplot2::Stat,
+    required_aes = "label",
+    default_aes = ggplot2::aes(x = ggplot2::after_stat(category),
+                               y = ggplot2::after_stat(value)),
+    compute_group = function(data, scales) {
+      calls <<- calls + 1L
+      data.frame(category = factor(c("a", "b")), value = c(1, 2),
+                 label = data$label)
+    })
+  p <- ggplot2::ggplot(data.frame(label = 1:2), ggplot2::aes(label = label)) +
+    ggplot2::geom_point(stat = stat)
+  native <- ggplot2::ggplot_build(p)
+  calls <- 0L
+  q <- fmt_expand(p, mult = 0.1)
+  expect_identical(calls, 0L)
+  built <- ggplot2::ggplot_build(q)
+  expect_identical(calls, 1L)
+  expect_s3_class(built$plot$scales$get_scales("x"), "ScaleDiscretePosition")
+  expect_identical(built$data, native$data)
+  for (axis in c("x", "y")) {
+    expect_equal(built$plot$scales$get_scales(axis)$expand,
+                 ggplot2::expansion(mult = 0.1))
+    expect_null(p$scales$get_scales(axis))
+  }
+  expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+})
+
 test_that("implicit extension scales retain native scale_type dispatch", {
   methods <- get(".__S3MethodsTable__.", envir = asNamespace("ggplot2"))
   method_name <- "scale_type.fmt_expand_binned"

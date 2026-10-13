@@ -196,7 +196,7 @@
     }
     return(paste0("scale_", axis, "_continuous"))
   }
-  paste0("scale_", axis, "_continuous")
+  if (defer) NULL else paste0("scale_", axis, "_continuous")
 }
 
 .scale_inference_parent <- function(scales) {
