@@ -7,7 +7,9 @@ Existing position scales retain their transformation, limits, breaks,
 labels, guides and secondary axes. New scales are inferred from
 effective layer mappings and their data, including variables captured in
 the mapping environment. Nested patchworks are updated recursively
-without changing their layout.
+without changing their layout. Ordinary mapping evaluation errors retain
+their original cause. Computed statistic mappings use continuous
+defaults unless a position scale is supplied.
 
 ## Usage
 

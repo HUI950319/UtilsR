@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
+  reports ordinary mapping errors with their original cause instead of
+  silently substituting a continuous scale. Computed statistics remain
+  deferred to ggplot2.
+
+- [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
   validates scalar axis choices and finite padding values, with
   documented scalar/asymmetric expansion and temporal units.
 
