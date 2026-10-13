@@ -28,6 +28,7 @@ fmt_text(
   axis_title_size = NULL,
   axis_title_face = NULL,
   axis_title_color = NULL,
+  axis_titles = "collect",
   ...
 )
 ```
@@ -119,6 +120,15 @@ fmt_text(
 
   Character. Color for both axis titles. Default `NULL`.
 
+- axis_titles:
+
+  Passed to
+  [`plot_layout()`](https://patchwork.data-imaginist.com/reference/plot_layout.html)
+  `axis_titles` when input is a patchwork. Default `"collect"` merges
+  identical adjacent axis titles into one; `"collect_x"` / `"collect_y"`
+  merge one axis only, `"keep"` keeps every title, and `NULL` leaves the
+  layout setting unchanged. Ignored for a single ggplot or list.
+
 - ...:
 
   Additional arguments passed to \[ggplot2::labs()\].
@@ -162,5 +172,11 @@ fmt_text(p, title = "Iris", xlab = "Length", ylab = "Width")
 
 # Per-plot labels (patchwork)
 fmt_text(p + p, ylab = c("Width 1", "Width 2"))
+
+
+# Shared labels on a patchwork are merged into one title by default
+fmt_text(p + p, ylab = "Width")
+
+fmt_text(p + p, ylab = "Width", axis_titles = "keep")
 
 ```

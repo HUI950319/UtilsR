@@ -6,14 +6,16 @@ New scales are inferred from effective layer mappings and their data,
 including variables captured in the mapping environment.
 Nested patchworks are updated recursively without changing their layout.
 Ordinary mapping evaluation errors retain their original cause. Computed
-statistic mappings use continuous defaults unless a position scale is supplied."><meta property="og:description" content="Applies ggplot2::expansion() to one or both axes, automatically
+statistic mappings use continuous defaults unless a position scale is supplied.
+Repeated calls with unchanged expansion reuse existing position scales."><meta property="og:description" content="Applies ggplot2::expansion() to one or both axes, automatically
 detecting the correct scale type. Existing position scales retain their
 transformation, limits, breaks, labels, guides and secondary axes.
 New scales are inferred from effective layer mappings and their data,
 including variables captured in the mapping environment.
 Nested patchworks are updated recursively without changing their layout.
 Ordinary mapping evaluation errors retain their original cause. Computed
-statistic mappings use continuous defaults unless a position scale is supplied."><meta property="og:image" content="https://hui950319.github.io/UtilsR/logo.png"></head><body>
+statistic mappings use continuous defaults unless a position scale is supplied.
+Repeated calls with unchanged expansion reuse existing position scales."><meta property="og:image" content="https://hui950319.github.io/UtilsR/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -71,7 +73,8 @@ New scales are inferred from effective layer mappings and their data,
 including variables captured in the mapping environment.
 Nested patchworks are updated recursively without changing their layout.
 Ordinary mapping evaluation errors retain their original cause. Computed
-statistic mappings use continuous defaults unless a position scale is supplied.</p>
+statistic mappings use continuous defaults unless a position scale is supplied.
+Repeated calls with unchanged expansion reuse existing position scales.</p>
     </div>
 
     <div class="section level2">
@@ -111,6 +114,7 @@ scale units for other axes.</p></dd>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other plot formatting:
+<code><a href="flatten_patchwork.html">flatten_patchwork()</a></code>,
 <code><a href="fmt_axis.html">fmt_axis()</a></code>,
 <code><a href="fmt_axisText.html">fmt_axisText()</a></code>,
 <code><a href="fmt_axisTile.html">fmt_axisTile()</a></code>,

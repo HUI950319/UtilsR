@@ -9,7 +9,8 @@ effective layer mappings and their data, including variables captured in
 the mapping environment. Nested patchworks are updated recursively
 without changing their layout. Ordinary mapping evaluation errors retain
 their original cause. Computed statistic mappings use continuous
-defaults unless a position scale is supplied.
+defaults unless a position scale is supplied. Repeated calls with
+unchanged expansion reuse existing position scales.
 
 ## Usage
 
@@ -45,6 +46,7 @@ Same type as input.
 ## See also
 
 Other plot formatting:
+[`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md),
 [`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md),
 [`fmt_axisText()`](https://hui950319.github.io/UtilsR/reference/fmt_axisText.md),
 [`fmt_axisTile()`](https://hui950319.github.io/UtilsR/reference/fmt_axisTile.md),

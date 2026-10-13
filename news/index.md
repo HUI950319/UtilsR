@@ -3,6 +3,16 @@
 ## UtilsR 0.6.8
 
 - [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
+  reuses unchanged scales and clones changed scales only once per plot,
+  avoiding retained clone histories during repeated formatting.
+
+- [`fmt_text()`](https://hui950319.github.io/UtilsR/reference/fmt_text.md)
+  gains `axis_titles` (default `"collect"`), passed to
+  [`patchwork::plot_layout()`](https://patchwork.data-imaginist.com/reference/plot_layout.html),
+  so labels shared by all panels of a patchwork are drawn once. Use
+  `axis_titles = NULL` to keep the previous layout.
+
+- [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
   reports ordinary mapping errors with their original cause instead of
   silently substituting a continuous scale. Computed statistics remain
   deferred to ggplot2.
