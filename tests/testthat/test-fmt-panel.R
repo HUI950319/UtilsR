@@ -96,3 +96,35 @@ test_that("panel formatting retains the shape of nested lists", {
   expect_identical(fmt_panel(list()), list())
   expect_error(fmt_panel(list(p, "invalid")), "ggplot")
 })
+
+test_that("panel arguments reject malformed borders, widths and colours immediately", {
+  p <- panel_test_plot()
+  for (border in list(1, NA, c(TRUE, FALSE), logical(), character(),
+                       c("red", "blue"), NA_character_)) {
+    expect_error(fmt_panel(p, border = border), "border")
+  }
+  for (width in list(-1, Inf, NaN, NA_real_, numeric(), c(0.1, 0.2), "0.5", TRUE, 1 + 0i)) {
+    expect_error(fmt_panel(p, grid_linewidth = width), "grid_linewidth")
+    expect_error(fmt_panel(p, border_linewidth = width), "border_linewidth")
+  }
+  for (colour in list("invalid-colour", c("red", "blue"), character(), 1, TRUE)) {
+    expect_error(fmt_panel(p, grid_color = colour), "grid_color")
+    expect_error(fmt_panel(p, bg = colour), "bg")
+  }
+  expect_error(fmt_panel(p, border = "invalid-colour"), "border")
+  expect_error(fmt_panel(p, border_linewidth = NULL), "border_linewidth")
+  expect_silent(ggplot2::ggplotGrob(fmt_panel(p, grid = "both", grid_color = NA,
+                                           bg = NA, grid_linewidth = 0,
+                                           border = "transparent", border_linewidth = 0L)))
+  expect_equal(fmt_panel(p, border = FALSE)$theme$panel.border, ggplot2::element_blank())
+})
+
+test_that("panel grid line types accept named, numeric and hexadecimal patterns", {
+  p <- panel_test_plot()
+  for (value in list(NA, numeric(), c(1, 2), -1, 7, 1.5, 1 + 0i, "invalid", "123", "10")) {
+    expect_error(fmt_panel(p, grid_linetype = value), "grid_linetype")
+  }
+  for (value in list(NULL, 0L, 1, 6L, "solid", "dashed", "22", "F1F1")) {
+    expect_silent(ggplot2::ggplotGrob(fmt_panel(p, grid = "major", grid_linetype = value)))
+  }
+})

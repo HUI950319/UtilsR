@@ -2362,6 +2362,40 @@ fmt_panel <- function(plot,
                       bg = NULL,
                       ...) {
   grid <- match.arg(grid)
+  if (!is.null(border) &&
+      (!(is.logical(border) || is.character(border)) || length(border) != 1L || anyNA(border))) {
+    cli::cli_abort("{.arg border} must be NULL, TRUE, FALSE, or a single colour string.")
+  }
+  colours <- list(grid_color = grid_color, bg = bg,
+                  border = if (is.character(border)) border else NULL)
+  for (nm in names(colours)) {
+    value <- colours[[nm]]
+    if (is.null(value)) next
+    if (length(value) != 1L ||
+        !(is.character(value) || (is.logical(value) && is.na(value))) ||
+        !tryCatch({ grDevices::col2rgb(value); TRUE }, error = function(e) FALSE)) {
+      cli::cli_abort("{.arg {nm}} must be a single valid colour string or NA.")
+    }
+  }
+  widths <- list(grid_linewidth = grid_linewidth, border_linewidth = border_linewidth)
+  for (nm in names(widths)) {
+    value <- widths[[nm]]
+    if (is.null(value) && nm == "grid_linewidth") next
+    if (!is.numeric(value) || is.complex(value) || length(value) != 1L ||
+        !is.finite(value) || value < 0) {
+      cli::cli_abort("{.arg {nm}} must be a finite, non-negative number.")
+    }
+  }
+  if (!is.null(grid_linetype)) {
+    valid <- length(grid_linetype) == 1L && !anyNA(grid_linetype) &&
+      ((is.numeric(grid_linetype) && !is.complex(grid_linetype) && grid_linetype %in% 0:6) ||
+       (is.character(grid_linetype) &&
+        (grid_linetype %in% c("blank", "solid", "dashed", "dotted", "dotdash", "longdash", "twodash") ||
+         grepl("^([1-9A-Fa-f]{2}){1,4}$", grid_linetype))))
+    if (!valid) {
+      cli::cli_abort("{.arg grid_linetype} must be a named line type, an integer from 0 to 6, or an even hexadecimal pattern without zeroes.")
+    }
+  }
   blank <- ggplot2::element_blank()
 
   # ---- Helper: build element_line for retained grid lines ----
