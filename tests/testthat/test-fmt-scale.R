@@ -125,3 +125,29 @@ test_that("temporal settings use function output without extra data calls", {
   labels <- built$layout$panel_params[[1]]$x$get_labels()
   expect_identical(labels[!is.na(labels)], c("01-02", "01-03", "01-04"))
 })
+
+test_that("axis arguments require valid named lists before scale selection", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3), ggplot2::aes(x, y)) +
+    ggplot2::geom_point()
+  invalid <- list(c(breaks = 1), list(1:3),
+                  structure(list(1:3), names = NA_character_),
+                  structure(list(1:3, 1:3), names = c("breaks", "breaks")))
+  for (plot in list(p, p + ggplot2::scale_x_continuous())) {
+    for (args in invalid) expect_error(fmt_scale(plot, x = args), "list|names")
+    expect_error(fmt_scale(plot, y = c(breaks = 1)), "list")
+    expect_error(fmt_scale(plot, x = list(brek = 1:3)), "Unknown|ambiguous")
+    expect_error(fmt_scale(plot, x = list(lim = c(1, 2), limits = c(1, 3))), "unique")
+  }
+})
+
+test_that("partial argument names update new and existing scales consistently", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3), ggplot2::aes(x, y)) +
+    ggplot2::geom_point()
+  for (plot in list(p, p + ggplot2::scale_x_continuous(limits = c(1, 3)))) {
+    q <- fmt_scale(plot, x = list(lim = c(1, 2), breaks = 1:2,
+                                 lab = function(x) paste0("N", x)))
+    expect_equal(q$scales$get_scales("x")$limits, c(1, 2))
+    expect_identical(ggplot2::ggplot_build(q)$layout$panel_params[[1]]$x$get_labels(),
+                     c("N1", "N2"))
+  }
+})

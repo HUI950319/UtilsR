@@ -4322,10 +4322,19 @@ fmt_his <- function(plot,
 # Function data -> ScalesList defaults -> .apply_deferred_scale_settings()
 .update_position_scale <- function(scale, args, axis, fn_name) {
   fn <- getExportedValue("ggplot2", fn_name)
-  if (is.null(scale)) return(do.call(fn, args))
   arg_names <- names(args)
-  if (is.null(arg_names) || any(arg_names == "") || anyDuplicated(arg_names))
-    cli::cli_abort("{.arg {axis}} must be a list with unique, non-empty names.")
+  allowed <- setdiff(names(formals(fn)), "...")
+  if ("..." %in% names(formals(fn))) {
+    forwarded <- if (grepl("_discrete$", fn_name)) ggplot2::discrete_scale else ggplot2::continuous_scale
+    allowed <- union(allowed, setdiff(names(formals(forwarded)), "..."))
+  }
+  matched <- pmatch(arg_names, allowed, duplicates.ok = TRUE)
+  if (anyNA(matched))
+    cli::cli_abort("Unknown or ambiguous {axis}-axis scale argument: {.arg {arg_names[is.na(matched)]}}.")
+  names(args) <- arg_names <- allowed[matched]
+  if (anyDuplicated(arg_names))
+    cli::cli_abort("{.arg {axis}} argument names must remain unique after matching.")
+  if (is.null(scale)) return(do.call(fn, args))
   arg_fields <- list(transform = "trans", trans = "trans",
                      sec.axis = "secondary.axis", date_breaks = "breaks",
                      date_labels = "labels", date_minor_breaks = "minor_breaks",
@@ -4401,6 +4410,15 @@ fmt_his <- function(plot,
 #' @export
 #' @family plot formatting
 fmt_scale <- function(plot, x = NULL, y = NULL) {
+  for (axis in c("x", "y")) {
+    args <- if (axis == "x") x else y
+    if (is.null(args)) next
+    if (!is.list(args)) cli::cli_abort("{.arg {axis}} must be NULL or a named list.")
+    if (!length(args)) next
+    arg_names <- names(args)
+    if (is.null(arg_names) || anyNA(arg_names) || any(arg_names == "") || anyDuplicated(arg_names))
+      cli::cli_abort("{.arg {axis}} must be a list with unique, non-empty names.")
+  }
   apply_scale <- function(p, args, axis) {
     if (is.null(args) || length(args) == 0L) return(p)
     scale <- p$scales$get_scales(axis)
