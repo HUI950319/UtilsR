@@ -226,3 +226,29 @@ test_that("valid asymmetric and negative padding retains ggplot2 behavior", {
   trimmed <- fmt_expand(p, mult = -0.1, axis = "x")
   expect_equal(ggplot2::ggplot_build(trimmed)$layout$panel_params[[1]]$x.range, c(1.2, 2.8))
 })
+
+test_that("scale inference reports invalid ordinary mappings before construction", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3),
+                       ggplot2::aes(missing_column, y)) + ggplot2::geom_point()
+  expect_error(fmt_expand(p, axis = "x"), "Cannot infer the x-axis", class = "rlang_error")
+  expect_error(fmt_scale(p, x = list(expand = c(0, 0))),
+               "Cannot infer the x-axis", class = "rlang_error")
+})
+
+test_that("scale inference retains the cause of mapping evaluation errors", {
+  failed_mapping <- function(x) stop("source mapping failed")
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3),
+                       ggplot2::aes(failed_mapping(x), y)) + ggplot2::geom_point()
+  error <- tryCatch(fmt_expand(p, axis = "x"), error = identity)
+  expect_s3_class(error, "rlang_error")
+  expect_match(conditionMessage(error), "source mapping failed")
+})
+
+test_that("computed statistic mappings retain their continuous defaults", {
+  p <- ggplot2::ggplot(data.frame(x = 1:4),
+                       ggplot2::aes(x, y = ggplot2::after_stat(count))) +
+    ggplot2::geom_histogram(binwidth = 1)
+  q <- fmt_expand(p, mult = 0.1)
+  expect_identical(ggplot2::ggplot_build(q)$data,
+                   ggplot2::ggplot_build(p)$data)
+})

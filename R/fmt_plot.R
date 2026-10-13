@@ -4360,6 +4360,8 @@ fmt_scale <- function(plot, x = NULL, y = NULL) {
 #' New scales are inferred from effective layer mappings and their data,
 #' including variables captured in the mapping environment.
 #' Nested patchworks are updated recursively without changing their layout.
+#' Ordinary mapping evaluation errors retain their original cause. Computed
+#' statistic mappings use continuous defaults unless a position scale is supplied.
 #'
 #' @param plot A ggplot, patchwork, or list of ggplots.
 #' @param mult Finite numeric expansion factor of length one or two. A scalar
@@ -4399,13 +4401,7 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
     }
     fn_name <- .detect_scale_type(p, ax)
     fn <- utils::getFromNamespace(fn_name, "ggplot2")
-    tryCatch(
-      p + fn(expand = expansion_setting),
-      error = function(e) {
-        fallback <- utils::getFromNamespace(paste0("scale_", ax, "_continuous"), "ggplot2")
-        p + fallback(expand = expansion_setting)
-      }
-    )
+    p + fn(expand = expansion_setting)
   }
 
   fmt_expand_one <- function(p) {

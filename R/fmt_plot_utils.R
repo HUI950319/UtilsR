@@ -149,39 +149,40 @@
     return(paste0("scale_", axis, "_", type))
   }
 
-  tryCatch({
-    layers <- if (length(plot$layers)) plot$layers else list(NULL)
-    for (layer in layers) {
-      mapping <- as.list(plot$mapping)
-      data <- plot$data
-      if (!is.null(layer)) {
-        mapping <- if (isTRUE(layer$inherit.aes)) {
-          utils::modifyList(mapping, as.list(layer$mapping))
-        } else as.list(layer$mapping)
-        if (!is.null(layer$data) && !inherits(layer$data, "waiver")) data <- layer$data
-      }
-      var_quo <- mapping[[axis]]
-      if (is.null(var_quo) || is.function(data)) next
-      d <- tryCatch(
-        rlang::eval_tidy(var_quo, data = if (is.data.frame(data)) data else NULL),
-        error = function(e) NULL
-      )
-      if (is.null(d)) next
-      if (is.factor(d) || is.character(d) || is.logical(d)) {
-        return(paste0("scale_", axis, "_discrete"))
-      } else if (inherits(d, "Date")) {
-        return(paste0("scale_", axis, "_date"))
-      } else if (inherits(d, c("POSIXct", "POSIXt"))) {
-        return(paste0("scale_", axis, "_datetime"))
-      } else if (inherits(d, "hms")) {
-        return(paste0("scale_", axis, "_time"))
-      }
-      return(paste0("scale_", axis, "_continuous"))
+  layers <- if (length(plot$layers)) plot$layers else list(NULL)
+  for (layer in layers) {
+    mapping <- as.list(plot$mapping)
+    data <- plot$data
+    if (!is.null(layer)) {
+      mapping <- if (isTRUE(layer$inherit.aes)) {
+        utils::modifyList(mapping, as.list(layer$mapping))
+      } else as.list(layer$mapping)
+      if (!is.null(layer$data) && !inherits(layer$data, "waiver")) data <- layer$data
     }
-    paste0("scale_", axis, "_continuous")
-  }, error = function(e) {
-    paste0("scale_", axis, "_continuous")
-  })
+    var_quo <- mapping[[axis]]
+    if (is.null(var_quo) || is.function(data)) next
+    d <- tryCatch(
+      rlang::eval_tidy(var_quo, data = if (is.data.frame(data)) data else NULL),
+      error = function(e) {
+        expr <- rlang::get_expr(var_quo)
+        if (is.call(expr) && any(all.names(expr) %in%
+            c("after_stat", "after_scale", "stage"))) return(NULL)
+        cli::cli_abort("Cannot infer the {axis}-axis scale from the mapping.", parent = e)
+      }
+    )
+    if (is.null(d)) next
+    if (is.factor(d) || is.character(d) || is.logical(d)) {
+      return(paste0("scale_", axis, "_discrete"))
+    } else if (inherits(d, "Date")) {
+      return(paste0("scale_", axis, "_date"))
+    } else if (inherits(d, c("POSIXct", "POSIXt"))) {
+      return(paste0("scale_", axis, "_datetime"))
+    } else if (inherits(d, "hms")) {
+      return(paste0("scale_", axis, "_time"))
+    }
+    return(paste0("scale_", axis, "_continuous"))
+  }
+  paste0("scale_", axis, "_continuous")
 }
 
 # ---- Exported ----
