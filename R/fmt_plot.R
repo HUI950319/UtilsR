@@ -2451,7 +2451,6 @@ fmt_panel <- function(plot,
   panel_theme <- grid_theme + border_theme + bg_theme + extra_theme
 
   # ---- Apply to plots ----
-  info <- .to_plot_list(plot)
   enabled <- switch(grid,
     "none" = character(),
     "major" = c("panel.grid.major.x", "panel.grid.major.y"),
@@ -2461,7 +2460,10 @@ fmt_panel <- function(plot,
     "x" = "panel.grid.major.x", "y" = "panel.grid.major.y"
   )
   base_theme <- ggplot2::theme_get()
-  info$plots <- lapply(info$plots, function(p) {
+  format_panel <- function(p) {
+    if (!inherits(p, "gg")) {
+      cli::cli_abort("Input must be a ggplot, patchwork, or nested list of ggplots.")
+    }
     if (length(enabled)) {
       effective <- base_theme + p$theme
       restored <- list()
@@ -2482,8 +2484,8 @@ fmt_panel <- function(plot,
       if (length(restored)) p <- p + do.call(ggplot2::theme, restored)
     }
     p + panel_theme
-  })
-  .from_plot_list(info$plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
+  }
+  .map_plot_leaves(plot, format_panel)
 }
 
 # ---- fmt_text ----

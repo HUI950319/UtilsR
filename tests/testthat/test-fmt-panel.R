@@ -55,9 +55,44 @@ test_that("panel grid mode switches restore enabled lines without new styling", 
   styled <- p + ggplot2::theme(
     panel.grid = ggplot2::element_line(colour = "purple", linewidth = 0.7),
     panel.grid.major.x = ggplot2::element_blank())
-  before <- serialize(styled, NULL)
+  before <- styled$theme
   grids <- panel_test_grids(fmt_panel(styled, grid = "x"))
   expect_equal(grids$colour, "purple")
   expect_equal(grids$linewidth, 0.7 * 72.27 / 25.4)
-  expect_identical(serialize(styled, NULL), before)
+  expect_identical(styled$theme, before)
+})
+
+test_that("panel formatting reaches nested leaves and retains layouts and names", {
+  p <- panel_test_plot()
+  nested <- ((p | p) / (p | p)) +
+    patchwork::plot_annotation(title = "Keep", tag_levels = "A")
+  before <- nested
+  output <- fmt_panel(nested, bg = "pink", border = TRUE)
+  leaves <- .to_plot_list(output, recurse = TRUE)$plots
+  expect_equal(vapply(leaves, function(z) z$theme$panel.background$fill, character(1)),
+                rep("pink", 4))
+  expect_null(panel_test_grid_grobs(patchwork::patchworkGrob(output)))
+  expect_identical(output$patches$layout, nested$patches$layout)
+  expect_identical(output$patches$annotation, nested$patches$annotation)
+  expect_identical(output[[1]]$patches$layout, nested[[1]]$patches$layout)
+  expect_identical(nested, before)
+  plots <- list(top = nested, bottom = p)
+  output <- fmt_panel(plots, bg = "pink")
+  expect_named(output, names(plots))
+  expect_equal(vapply(.to_plot_list(output, recurse = TRUE)$plots,
+                      function(z) z$theme$panel.background$fill, character(1)),
+                rep("pink", 5))
+})
+
+test_that("panel formatting retains the shape of nested lists", {
+  p <- panel_test_plot()
+  plots <- list(first = list(left = p, right = p | p), last = p)
+  output <- fmt_panel(plots, bg = "pink")
+  expect_named(output, names(plots))
+  expect_named(output$first, names(plots$first))
+  expect_equal(output$first$left$theme$panel.background$fill, "pink")
+  expect_equal(output$first$right[[1]]$theme$panel.background$fill, "pink")
+  expect_equal(output$first$right[[2]]$theme$panel.background$fill, "pink")
+  expect_identical(fmt_panel(list()), list())
+  expect_error(fmt_panel(list(p, "invalid")), "ggplot")
 })

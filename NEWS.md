@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_panel()` formats every ordinary leaf of nested patchworks and lists,
+  preserving container layouts, annotations and list names.
+
 * `fmt_scale()` merges deferred argument abbreviations by their matched names
   in call order, including `trans` / `transform`; duplicates within one call
   remain errors and explicit `NULL` settings are retained.
