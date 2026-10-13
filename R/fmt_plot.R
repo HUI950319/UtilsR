@@ -4359,6 +4359,7 @@ fmt_scale <- function(plot, x = NULL, y = NULL) {
 #' transformation, limits, breaks, labels, guides and secondary axes.
 #' New scales are inferred from effective layer mappings and their data,
 #' including variables captured in the mapping environment.
+#' Nested patchworks are updated recursively without changing their layout.
 #'
 #' @param plot A ggplot, patchwork, or list of ggplots.
 #' @param mult Multiplicative expansion factor.
@@ -4409,9 +4410,10 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
     p
   }
 
-  info <- .to_plot_list(plot)
+  info <- .to_plot_list(plot, recurse = TRUE)
   info$plots <- lapply(info$plots, fmt_expand_one)
-  .from_plot_list(info$plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
+  .from_plot_list(info$plots, info$is_patchwork, info$is_single,
+                  pw_orig = info$pw_orig, recurse = TRUE)
 }
 
 # ---- fmt_boxplot ----

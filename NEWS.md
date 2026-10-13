@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_expand()` updates every nested patchwork leaf, retaining layouts,
+  annotations, free settings, named containers, spacers and inset overlays.
+
 * `fmt_expand()` resolves layer data, mapping overrides and captured variables
   when choosing new scales. Shared detection also supports `fmt_scale()`.
 

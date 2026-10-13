@@ -151,3 +151,47 @@ test_that("layer inference also applies to temporal and y axes and fmt_scale", {
   expect_identical(ggplot2::ggplot_build(q_scale)$layout$panel_params[[1]]$y$get_labels(),
                    c("A", "B", "C"))
 })
+
+test_that("expansion visits every nested patchwork leaf and retains its layout", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3),
+                       ggplot2::aes(x, y)) + ggplot2::geom_point()
+  pw <- ((p | p) / p) + patchwork::plot_annotation(title = "KEEP", tag_levels = "A")
+  q <- fmt_expand(pw, mult = 0.1)
+  leaves <- .to_plot_list(q, recurse = TRUE)$plots
+  expect_length(leaves, 3L)
+  for (leaf in leaves) {
+    panel <- ggplot2::ggplot_build(leaf)$layout$panel_params[[1]]
+    expect_equal(panel$x.range, c(0.8, 3.2))
+    expect_equal(panel$y.range, c(0.8, 3.2))
+  }
+  expect_identical(q$patches$layout, pw$patches$layout)
+  expect_identical(q$patches$annotation, pw$patches$annotation)
+  expect_length(p$scales$scales, 0L)
+})
+
+test_that("recursive expansion retains named containers and special patchwork entries", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3),
+                       ggplot2::aes(x, y)) + ggplot2::geom_point()
+  inset <- p + patchwork::inset_element(p, 0.6, 0.6, 1, 1)
+  fixed <- patchwork::wrap_elements(full = grid::textGrob("FIXED"))
+  pw <- patchwork::free((p | patchwork::plot_spacer()) / (inset | fixed), side = "l") +
+    patchwork::plot_annotation(title = "KEEP", caption = "CAPTION")
+  result <- fmt_expand(list(plain = p, nested = pw), add = 1, axis = "x")
+  expect_named(result, c("plain", "nested"))
+  q <- result$nested
+  leaves <- .to_plot_list(q, recurse = TRUE)$plots
+  expect_length(leaves, 2L)
+  for (leaf in leaves) {
+    expect_equal(ggplot2::ggplot_build(leaf)$layout$panel_params[[1]]$x.range, c(0, 4))
+    expect_null(leaf$scales$get_scales("y"))
+  }
+  expect_identical(q$patches$layout, pw$patches$layout)
+  expect_identical(q$patches$annotation, pw$patches$annotation)
+  expect_identical(attr(q, "patchwork_free_settings"), attr(pw, "patchwork_free_settings"))
+  labels <- function(g) {
+    own <- if (inherits(g, "text")) as.character(g$label) else character()
+    children <- if (inherits(g, "gtable")) g$grobs else g$children
+    c(own, unlist(lapply(children, labels), use.names = FALSE))
+  }
+  expect_true(all(c("KEEP", "CAPTION", "FIXED") %in% labels(patchwork::patchworkGrob(q))))
+})
