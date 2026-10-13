@@ -249,3 +249,28 @@ test_that("changing transformation keeps partial limits on the same observations
     expect_identical(original$scales$get_scales("x")$limits, limits)
   }
 })
+
+test_that("deferred scale and expansion settings compose independently on both axes", {
+  p <- ggplot2::ggplot(data.frame(x = 1:5, y = 1:5), ggplot2::aes(x, y)) +
+    ggplot2::geom_point(data = ~ .x)
+  labels <- function(x) paste0("L", x)
+  first <- fmt_scale(p, x = list(labels = labels), y = list(breaks = c(1, 3, 5)))
+  q <- fmt_expand(first, axis = "x", mult = 0, add = 0)
+  q <- fmt_scale(q, x = list(breaks = 1:5))
+  built <- ggplot2::ggplot_build(q)
+  expect_equal(built$layout$panel_params[[1]]$x.range, c(1, 5))
+  expect_identical(built$layout$panel_params[[1]]$x$get_labels(), paste0("L", 1:5))
+  expect_identical(built$layout$panel_params[[1]]$y$get_breaks(), c(1, 3, 5))
+  expect_equal(ggplot2::ggplot_build(first)$layout$panel_params[[1]]$x.range, c(0.8, 5.2))
+
+  q <- fmt_expand(p, axis = "y", mult = 0.1, add = 0)
+  q <- fmt_scale(q, x = list(labels = labels, breaks = 1:5), y = list(breaks = 1:5))
+  q <- fmt_expand(q, axis = "x", mult = 0.2, add = 0)
+  built <- ggplot2::ggplot_build(q)
+  expect_equal(built$layout$panel_params[[1]]$x.range, c(0.2, 5.8))
+  expect_equal(built$layout$panel_params[[1]]$y.range, c(0.6, 5.4))
+  expect_identical(built$layout$panel_params[[1]]$x$get_labels(), paste0("L", 1:5))
+  expect_null(p$scales$get_scales("x"))
+  expect_null(p$scales$get_scales("y"))
+  expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+})
