@@ -120,7 +120,7 @@
 }
 
 #' @noRd
-.detect_scale_type <- function(plot, axis = c("x", "y")) {
+.detect_scale_type <- function(plot, axis = c("x", "y"), defer = FALSE) {
   axis <- match.arg(axis)
   sc <- plot$scales$get_scales(axis)
   if (!is.null(sc)) {
@@ -163,7 +163,14 @@
     }
     var_quo <- mapping[[axis]]
     if (is.null(var_quo) || is.function(data)) next
-    if (mapping_is_late(rlang::get_expr(var_quo))) next
+    expr <- rlang::get_expr(var_quo)
+    if (mapping_is_late(expr)) next
+    if (defer && is.call(expr)) {
+      direct_column <- length(expr) == 3L &&
+        any(rlang::call_name(expr) %in% c("$", "[[")) &&
+        identical(expr[[2L]], as.name(".data")) && !is.call(expr[[3L]])
+      if (!direct_column) return(NULL)
+    }
     d <- tryCatch(
       rlang::eval_tidy(var_quo, data = if (is.data.frame(data)) data else NULL),
       error = function(e) {

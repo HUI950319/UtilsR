@@ -4506,6 +4506,9 @@ fmt_scale <- function(plot, x = NULL, y = NULL) {
 #' including variables captured in the mapping environment.
 #' Function and formula layer data are resolved during normal plot building,
 #' without executing the data function during formatting.
+#' Function-call mappings are also deferred to plot building, preserving
+#' random-number state and avoiding extra mapping calls. Their errors are
+#' reported at build time with the original cause.
 #' Nested patchworks are updated recursively without changing their layout.
 #' Ordinary mapping evaluation errors retain their original cause. Computed
 #' statistic mappings use continuous defaults unless a position scale is supplied.
@@ -4548,6 +4551,8 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
     }, logical(1)))
     for (ax in axes) {
       scale <- p$scales$get_scales(ax)
+      fn_name <- if (is.null(scale) && !defer_scale)
+        .detect_scale_type(p, ax, defer = TRUE) else NULL
       if (!is.null(scale)) {
         if (identical(scale$expand, expansion_setting)) next
         if (!scales_cloned) {
@@ -4556,7 +4561,7 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
           scale <- p$scales$get_scales(ax)
         }
         scale$expand <- expansion_setting
-      } else if (defer_scale) {
+      } else if (defer_scale || is.null(fn_name)) {
         if (identical(p$scales$.fmt_expand[[ax]], expansion_setting)) next
         if (!scales_cloned) {
           p$scales <- .clone_plot_scales(p$scales)
@@ -4568,7 +4573,7 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
         p$scales$add_defaults <- .add_expansion_defaults
         p$scales$add_missing <- .add_expansion_missing
       } else {
-        fn <- getExportedValue("ggplot2", .detect_scale_type(p, ax))
+        fn <- getExportedValue("ggplot2", fn_name)
         p <- p + fn(expand = expansion_setting)
       }
     }

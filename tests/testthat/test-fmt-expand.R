@@ -239,7 +239,8 @@ test_that("scale inference retains the cause of mapping evaluation errors", {
   failed_mapping <- function(x) stop("source mapping failed")
   p <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3),
                        ggplot2::aes(failed_mapping(x), y)) + ggplot2::geom_point()
-  error <- tryCatch(fmt_expand(p, axis = "x"), error = identity)
+  q <- fmt_expand(p, axis = "x")
+  error <- tryCatch(ggplot2::ggplot_build(q), error = identity)
   expect_s3_class(error, "rlang_error")
   expect_match(conditionMessage(error), "source mapping failed")
 })
@@ -335,7 +336,8 @@ test_that("stage start mappings and ordinary stage-named errors stay distinct", 
   expect_identical(built$data, ggplot2::ggplot_build(p)$data)
   invalid <- ggplot2::ggplot(dat, ggplot2::aes(factor(stage), value)) +
     ggplot2::geom_point()
-  expect_error(fmt_expand(invalid, axis = "x"), "Cannot infer the x-axis")
+  expect_error(ggplot2::ggplot_build(fmt_expand(invalid, axis = "x")))
+  expect_error(fmt_scale(invalid, x = list(expand = c(0, 0))), "Cannot infer the x-axis")
 })
 
 test_that("function and formula layer data retain native position scale types", {
@@ -463,4 +465,36 @@ test_that("scale cloning retains custom fields, classes and clone behavior", {
   expect_identical(q$scales$get_scales("x")$clone_count, 1L)
   expect_identical(p$scales$get_scales("x")$clone_count, 0L)
   expect_identical(ggplot2::ggplot_build(q)$data, ggplot2::ggplot_build(p)$data)
+})
+
+test_that("formatting defers mapping calls to normal plot building", {
+  calls <- 0L
+  counted <- function(x) {
+    calls <<- calls + 1L
+    factor(x)
+  }
+  p <- ggplot2::ggplot(data.frame(x = c("a", "b", "c"), y = 1:3),
+                       ggplot2::aes(counted(x), y)) + ggplot2::geom_point()
+  q <- fmt_expand(p, mult = 0.1)
+  expect_identical(calls, 0L)
+  for (i in 1:10) q <- fmt_expand(q, mult = 0.1)
+  expect_identical(calls, 0L)
+  built <- ggplot2::ggplot_build(q)
+  expect_identical(calls, 1L)
+  expect_s3_class(built$plot$scales$get_scales("x"), "ScaleDiscretePosition")
+  expect_equal(built$plot$scales$get_scales("x")$expand,
+               ggplot2::expansion(mult = 0.1))
+})
+
+test_that("formatting preserves random mappings and the random number state", {
+  p <- ggplot2::ggplot(data.frame(y = 1:5),
+                       ggplot2::aes(x = rnorm(length(y)), y = y)) +
+    ggplot2::geom_point()
+  set.seed(407)
+  native <- ggplot2::ggplot_build(p)
+  set.seed(407)
+  seed <- .Random.seed
+  q <- fmt_expand(p, mult = 0.1)
+  expect_identical(.Random.seed, seed)
+  expect_identical(ggplot2::ggplot_build(q)$data, native$data)
 })
