@@ -12,6 +12,8 @@ fmt_scale(plot, x = NULL, y = NULL)
 \item{x}{Named list of arguments accepted by the selected ggplot2 x-axis
 scale function. Names must be unique, non-empty and non-missing;
 unambiguous partial names are matched to full argument names.
+Across repeated calls, the most recent value of a matched argument wins;
+\code{trans} and \code{transform} refer to the same setting.
 For example, \code{list(limits = c(4, 8), breaks = seq(4, 8, 1))}.
 \code{NULL} or \code{list()} leaves the axis unchanged. Explicit
 \code{NULL} child values are passed to the scale constructor.}

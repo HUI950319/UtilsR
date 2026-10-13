@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_scale()` merges deferred argument abbreviations by their matched names
+  in call order, including `trans` / `transform`; duplicates within one call
+  remain errors and explicit `NULL` settings are retained.
+
 * `fmt_panel()` restores enabled grids when switching modes or formatting themes
   that previously hid their grids, retaining available inherited line styling.
 

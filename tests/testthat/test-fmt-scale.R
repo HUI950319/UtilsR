@@ -345,3 +345,48 @@ test_that("statistic-produced categorical axes keep native scales and formatted 
     expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
   }
 })
+
+test_that("deferred partial names merge by canonical arguments in call order", {
+  p <- ggplot2::ggplot(data.frame(x = 1:5, y = 1:5), ggplot2::aes(x, y)) +
+    ggplot2::geom_point(data = function(d) d)
+  for (names in list(c("lim", "limits"), c("limits", "lim"))) {
+    q <- fmt_scale(p, x = setNames(list(c(1, 4)), names[[1L]]))
+    q <- fmt_scale(q, x = setNames(list(c(2, 5)), names[[2L]]))
+    expect_equal(ggplot2::ggplot_build(q)$data[[1]]$x, c(NA, 2, 3, 4, 5))
+    # An unchanged raw value becomes the most recent setting again.
+    q <- fmt_scale(q, x = setNames(list(c(1, 4)), names[[1L]]))
+    expect_equal(ggplot2::ggplot_build(q)$data[[1]]$x, c(1, 2, 3, 4, NA))
+  }
+  first <- fmt_scale(p, x = list(lab = function(x) paste0("old", x), breaks = 1:5))
+  q <- fmt_scale(first, x = list(labels = function(x) paste0("new", x)))
+  expect_identical(x_params(q)$get_labels(), paste0("new", 1:5))
+  expect_identical(x_params(first)$get_labels(), paste0("old", 1:5))
+  q <- fmt_scale(q, x = list(lab = NULL))
+  expect_null(ggplot2::ggplot_build(q)$plot$scales$get_scales("x")$labels)
+  expect_null(p$scales$get_scales("x"))
+})
+
+test_that("trans aliases share one deferred transformation setting", {
+  p <- ggplot2::ggplot(data.frame(x = c(1, 10, 100), y = 1:3), ggplot2::aes(x, y)) +
+    ggplot2::geom_point(data = ~ .x)
+  for (names in list(c("trans", "transform"), c("transform", "trans"))) {
+    q <- fmt_scale(p, x = setNames(list("sqrt"), names[[1L]]))
+    q <- fmt_scale(q, x = setNames(list("log10"), names[[2L]]))
+    expect_equal(ggplot2::ggplot_build(q)$data[[1]]$x, c(0, 1, 2))
+  }
+  duplicates <- list(list(lim = c(1, 10), limits = c(1, 100)),
+                      list(trans = "sqrt", transform = "log10"))
+  for (args in duplicates)
+    expect_error(ggplot2::ggplot_build(fmt_scale(p, x = args)), "unique")
+})
+
+test_that("deferred temporal abbreviations use the actual scale's arguments", {
+  dates <- as.Date("2026-01-01") + 0:2
+  p <- ggplot2::ggplot(data.frame(x = dates, y = 1:3), ggplot2::aes(x, y)) +
+    ggplot2::geom_point(data = function(d) d)
+  q <- fmt_scale(p, x = list(date_lab = "%b", breaks = dates))
+  q <- fmt_scale(q, x = list(date_labels = "%m-%d"))
+  expect_identical(x_params(q)$get_labels(), c("01-01", "01-02", "01-03"))
+  expect_error(ggplot2::ggplot_build(fmt_scale(p, x = list(date_l = "%b", date_labels = "%Y"))),
+               "unique")
+})

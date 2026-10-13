@@ -4360,11 +4360,13 @@ fmt_his <- function(plot,
 # ---- fmt_scale ----
 
 # fmt_scale() -> recursive leaves -> .update_position_scale()
-# Function data -> ScalesList defaults -> .apply_deferred_scale_settings()
-.update_position_scale <- function(scale, args, axis, fn_name, fields_only = FALSE) {
+# Deferred axes -> ScalesList defaults -> .apply_deferred_scale_settings()
+.update_position_scale <- function(scale, args, axis, fn_name, fields_only = FALSE,
+                                    arg_calls = NULL) {
   if (inherits(scale, "ScaleBinnedPosition")) fn_name <- paste0("scale_", axis, "_binned")
   fn <- getExportedValue("ggplot2", fn_name)
   arg_names <- names(args)
+  arg_calls <- arg_calls[arg_names]
   allowed <- setdiff(names(formals(fn)), "...")
   if ("..." %in% names(formals(fn))) {
     forwarded <- if (grepl("_discrete$", fn_name)) ggplot2::discrete_scale else ggplot2::continuous_scale
@@ -4373,9 +4375,19 @@ fmt_his <- function(plot,
   matched <- pmatch(arg_names, allowed, duplicates.ok = TRUE)
   if (anyNA(matched))
     cli::cli_abort("Unknown or ambiguous {axis}-axis scale argument: {.arg {arg_names[is.na(matched)]}}.")
-  names(args) <- arg_names <- allowed[matched]
-  if (anyDuplicated(arg_names))
+  arg_names <- allowed[matched]
+  arg_names[arg_names == "trans"] <- "transform"
+  names(args) <- arg_names
+  if (anyDuplicated(arg_names) &&
+      (is.null(arg_calls) || anyDuplicated(paste(arg_names, arg_calls, sep = "\r"))))
     cli::cli_abort("{.arg {axis}} argument names must remain unique after matching.")
+  if (!is.null(arg_calls)) {
+    # Match against the actual scale before merging aliases from different calls.
+    latest <- order(arg_calls)
+    latest <- latest[!duplicated(arg_names[latest], fromLast = TRUE)]
+    args <- args[latest]
+    arg_names <- names(args)
+  }
   construct <- function(args) {
     tryCatch({
       new <- do.call(fn, args)
@@ -4389,11 +4401,11 @@ fmt_his <- function(plot,
     })
   }
   if (is.null(scale)) return(construct(args))
-  arg_fields <- list(transform = "trans", trans = "trans",
+  arg_fields <- list(transform = "trans",
                      sec.axis = "secondary.axis", date_breaks = "breaks",
                      date_labels = "labels", date_minor_breaks = "minor_breaks",
                      timezone = c("timezone", "trans"))
-  new_trans <- any(c("transform", "trans") %in% arg_names)
+  new_trans <- "transform" %in% arg_names
   if (fn_name %in% paste0("scale_", axis, c("_continuous", "_binned")) && !new_trans)
     args$transform <- scale$trans
   remap_limits <- new_trans && !"limits" %in% arg_names && is.numeric(scale$limits)
@@ -4428,7 +4440,8 @@ fmt_his <- function(plot,
       args <- self$.fmt_scale_args[[axis]]
       if (length(args))
         .update_position_scale(scale, args, axis,
-                               .detect_scale_type(list(scales = self), axis))
+                               .detect_scale_type(list(scales = self), axis),
+                               arg_calls = self$.fmt_scale_calls[[axis]])
       if (!scale_last && !is.null(expansion)) scale$expand <- expansion
     }
   }
@@ -4483,6 +4496,8 @@ fmt_his <- function(plot,
 #' @param x Named list of arguments accepted by the selected ggplot2 x-axis
 #'   scale function. Names must be unique, non-empty and non-missing;
 #'   unambiguous partial names are matched to full argument names.
+#'   Across repeated calls, the most recent value of a matched argument wins;
+#'   \code{trans} and \code{transform} refer to the same setting.
 #'   For example, \code{list(limits = c(4, 8), breaks = seq(4, 8, 1))}.
 #'   \code{NULL} or \code{list()} leaves the axis unchanged. Explicit
 #'   \code{NULL} child values are passed to the scale constructor.
@@ -4522,11 +4537,15 @@ fmt_scale <- function(plot, x = NULL, y = NULL) {
       fn_name <- if (is.null(scale) && !defer_scale)
         .detect_scale_type(p, axis, defer = TRUE) else NULL
       if (is.null(scale) && (defer_scale || is.null(fn_name))) {
-        pending <- utils::modifyList(p$scales$.fmt_scale_args[[axis]] %||% list(), args,
-                                     keep.null = TRUE)
+        previous <- p$scales$.fmt_scale_args[[axis]] %||% list()
+        pending <- utils::modifyList(previous, args, keep.null = TRUE)
+        calls <- p$scales$.fmt_scale_calls[[axis]] %||%
+          stats::setNames(rep.int(0L, length(previous)), names(previous))
         sets_expansion <- any(startsWith("expand", names(args)))
-        if (identical(pending, p$scales$.fmt_scale_args[[axis]]) &&
+        if (identical(pending, previous) &&
+            all(calls[names(args)] == max(c(0L, calls))) &&
             (!sets_expansion || isTRUE(p$scales$.fmt_scale_last[[axis]]))) next
+        calls[names(args)] <- max(c(0L, calls)) + 1L
         if (!scales_cloned) {
           p$scales <- .clone_plot_scales(p$scales)
           scales_cloned <- TRUE
@@ -4535,6 +4554,7 @@ fmt_scale <- function(plot, x = NULL, y = NULL) {
           p$scales$.fmt_scale_parent <- p$scales$.fmt_expand_parent %||%
             .scale_inference_parent(p$scales)
         p$scales$.fmt_scale_args[[axis]] <- pending
+        p$scales$.fmt_scale_calls[[axis]] <- calls[names(pending)]
         if (sets_expansion) p$scales$.fmt_scale_last[[axis]] <- TRUE
         p$scales$add_defaults <- .add_fmt_scale_defaults
         p$scales$add_missing <- .add_fmt_scale_missing
