@@ -4403,10 +4403,28 @@ fmt_his <- function(plot,
 #' supplied, existing limits are re-expressed on the new one. Without an
 #' existing scale, a new scale of the detected type is added.
 #'
+#' Existing binned position scales accept their own controls, including
+#' \code{right}, \code{nice.breaks} and \code{show.limits}. Nested patchworks
+#' are updated recursively without changing their layout or annotations.
+#'
+#' Function and formula layer data are resolved during normal plot building;
+#' formatting does not execute the data function. Scale settings are then
+#' applied to the actual scale type. A scale added explicitly afterward takes
+#' precedence over deferred settings. Repeated calls reuse unchanged scales
+#' and retain custom scale classes and clone behavior when settings change.
+#'
+#' Scale construction errors keep their original cause and identify the axis.
+#' Limits are scale limits and can remove out-of-range observations; use
+#' \code{ggplot2::coord_cartesian()} when only a visual zoom is needed.
+#'
 #' @param plot A ggplot, patchwork, or list of ggplots.
-#' @param x Named list of arguments for the x-axis scale function.
-#'   E.g. \code{list(limits = c(4, 8), breaks = seq(4, 8, 1))}.
-#' @param y Named list of arguments for the y-axis scale function.
+#' @param x Named list of arguments accepted by the selected ggplot2 x-axis
+#'   scale function. Names must be unique, non-empty and non-missing;
+#'   unambiguous partial names are matched to full argument names.
+#'   For example, \code{list(limits = c(4, 8), breaks = seq(4, 8, 1))}.
+#'   \code{NULL} or \code{list()} leaves the axis unchanged. Explicit
+#'   \code{NULL} child values are passed to the scale constructor.
+#' @param y Like \code{x}, for the y-axis scale function.
 #'
 #' @return Same type as input.
 #'
