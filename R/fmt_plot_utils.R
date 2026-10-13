@@ -178,6 +178,10 @@
       }
     )
     if (length(d) == 0L) next
+    if (defer && any(!class(d) %in% c(
+      "factor", "ordered", "Date", "POSIXct", "POSIXlt", "POSIXt",
+      "hms", "difftime", "numeric", "integer", "character", "logical"
+    ))) return(NULL)
     if (is.factor(d) || is.character(d) || is.logical(d)) {
       return(paste0("scale_", axis, "_discrete"))
     } else if (inherits(d, "Date")) {

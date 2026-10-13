@@ -11,6 +11,9 @@
   scale instances or bound callback histories.
 * The formatting vignette uses the current `fmt_scale(x = ..., y = ...)` API.
 
+* `fmt_expand()` preserves native `scale_type()` dispatch for extension classes,
+  including implicit binned position scales, without extra dispatch calls.
+
 * `fmt_expand()` defers function-call mappings to normal plot building,
   avoiding extra evaluations and preserving random mappings. Function errors
   are reported at build time with their original cause.

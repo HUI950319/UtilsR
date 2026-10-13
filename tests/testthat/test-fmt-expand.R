@@ -498,3 +498,28 @@ test_that("formatting preserves random mappings and the random number state", {
   expect_identical(.Random.seed, seed)
   expect_identical(ggplot2::ggplot_build(q)$data, native$data)
 })
+
+test_that("implicit extension scales retain native scale_type dispatch", {
+  methods <- get(".__S3MethodsTable__.", envir = asNamespace("ggplot2"))
+  method_name <- "scale_type.fmt_expand_binned"
+  type_calls <- 0L
+  registerS3method("scale_type", "fmt_expand_binned", function(x) {
+    type_calls <<- type_calls + 1L
+    "binned"
+  }, envir = asNamespace("ggplot2"))
+  tryCatch({
+    dat <- data.frame(y = 1:4)
+    dat$x <- structure(c(1.2, 1.8, 2.7, 3.4),
+                       class = c("fmt_expand_binned", "numeric"))
+    p <- ggplot2::ggplot(dat, ggplot2::aes(x, y)) + ggplot2::geom_point()
+    native <- ggplot2::ggplot_build(p)
+    type_calls <- 0L
+    q <- fmt_expand(p, mult = 0.1, axis = "x")
+    expect_identical(type_calls, 0L)
+    built <- ggplot2::ggplot_build(q)
+    expect_s3_class(built$plot$scales$get_scales("x"), "ScaleBinnedPosition")
+    expect_identical(built$data, native$data)
+    expect_equal(built$plot$scales$get_scales("x")$expand,
+                 ggplot2::expansion(mult = 0.1))
+  }, finally = rm(list = method_name, envir = methods))
+})
