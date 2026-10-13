@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md)
+  reports malformed border, colour, line-width and line-type arguments
+  before rendering; transparent colours and zero widths remain valid.
+
+- [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md)
   formats every ordinary leaf of nested patchworks and lists, preserving
   container layouts, annotations and list names.
 
