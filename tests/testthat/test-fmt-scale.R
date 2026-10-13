@@ -94,3 +94,34 @@ test_that("axis settings reach every nested patchwork leaf without changing layo
   expect_null(p$scales$get_scales("x"))
   expect_s3_class(patchwork::patchworkGrob(q), "gtable")
 })
+
+test_that("function and formula layer data keep categorical axis settings", {
+  d <- data.frame(x = factor(c("a", "b", "c")), y = 1:3)
+  for (layer_data in list(function(d) d, ~ .x)) {
+    p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point(data = layer_data)
+    q <- fmt_scale(p, x = list(labels = toupper))
+    built <- ggplot2::ggplot_build(q)
+    expect_identical(as.character(built$layout$panel_params[[1]]$x$get_labels()),
+                     c("A", "B", "C"))
+    expect_equal(as.numeric(built$data[[1]]$x), 1:3)
+    expect_null(p$scales$get_scales("x"))
+  }
+})
+
+test_that("temporal settings use function output without extra data calls", {
+  calls <- 0L
+  layer_data <- function(d) {
+    calls <<- calls + 1L
+    d$x <- as.Date("2026-01-01") + d$x
+    d
+  }
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3), ggplot2::aes(x, y)) +
+    ggplot2::geom_point(data = layer_data)
+  q <- fmt_scale(p, x = list(date_breaks = "1 day", date_labels = "%m-%d"))
+  expect_identical(calls, 0L)
+  built <- ggplot2::ggplot_build(q)
+  expect_identical(calls, 1L)
+  expect_s3_class(built$plot$scales$get_scales("x"), "ScaleContinuousDate")
+  labels <- built$layout$panel_params[[1]]$x$get_labels()
+  expect_identical(labels[!is.na(labels)], c("01-02", "01-03", "01-04"))
+})

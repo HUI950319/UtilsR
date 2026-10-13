@@ -4318,6 +4318,56 @@ fmt_his <- function(plot,
 
 # ---- fmt_scale ----
 
+# fmt_scale() -> recursive leaves -> .update_position_scale()
+# Function data -> ScalesList defaults -> .apply_deferred_scale_settings()
+.update_position_scale <- function(scale, args, axis, fn_name) {
+  fn <- getExportedValue("ggplot2", fn_name)
+  if (is.null(scale)) return(do.call(fn, args))
+  arg_names <- names(args)
+  if (is.null(arg_names) || any(arg_names == "") || anyDuplicated(arg_names))
+    cli::cli_abort("{.arg {axis}} must be a list with unique, non-empty names.")
+  arg_fields <- list(transform = "trans", trans = "trans",
+                     sec.axis = "secondary.axis", date_breaks = "breaks",
+                     date_labels = "labels", date_minor_breaks = "minor_breaks",
+                     timezone = c("timezone", "trans"))
+  new_trans <- any(c("transform", "trans") %in% arg_names)
+  if (fn_name == paste0("scale_", axis, "_continuous") && !new_trans)
+    args$transform <- scale$trans
+  remap_limits <- new_trans && !"limits" %in% arg_names && is.numeric(scale$limits)
+  if (remap_limits) args$limits <- scale$trans$inverse(scale$limits)
+  new <- do.call(fn, args)
+  if (remap_limits) scale$limits <- new$limits
+  for (f in unique(unlist(lapply(arg_names, function(a) {
+    if (a %in% names(arg_fields)) arg_fields[[a]] else a
+  })))) {
+    scale[[f]] <- new[[f]]
+  }
+  scale
+}
+
+.apply_deferred_scale_settings <- function(self, method, ...) {
+  axes <- names(self$.fmt_scale_args)
+  missing <- axes[vapply(axes, function(axis) is.null(self$get_scales(axis)), logical(1))]
+  parent <- ggplot2::ggproto_parent(self$.fmt_scale_parent, self)
+  if (method == "add_defaults") parent$add_defaults(...) else parent$add_missing(...)
+  for (axis in missing) {
+    scale <- self$get_scales(axis)
+    if (!is.null(scale)) {
+      .update_position_scale(scale, self$.fmt_scale_args[[axis]], axis,
+                             .detect_scale_type(list(scales = self), axis))
+    }
+  }
+  invisible(NULL)
+}
+
+.add_fmt_scale_defaults <- function(self, data, env) {
+  .apply_deferred_scale_settings(self, "add_defaults", data, env)
+}
+
+.add_fmt_scale_missing <- function(self, aesthetics, env) {
+  .apply_deferred_scale_settings(self, "add_missing", aesthetics, env)
+}
+
 #' Set axis scales
 #'
 #' Automatically detects discrete / continuous / date-time scale type from
@@ -4351,44 +4401,32 @@ fmt_his <- function(plot,
 #' @export
 #' @family plot formatting
 fmt_scale <- function(plot, x = NULL, y = NULL) {
-  # Constructor arguments stored under another scale field name
-  arg_fields <- list(transform = "trans", trans = "trans",
-                     sec.axis = "secondary.axis", date_breaks = "breaks",
-                     date_labels = "labels", date_minor_breaks = "minor_breaks",
-                     timezone = c("timezone", "trans"))
-
   apply_scale <- function(p, args, axis) {
     if (is.null(args) || length(args) == 0L) return(p)
-    fn_name <- .detect_scale_type(p, axis)
-    fn <- utils::getFromNamespace(fn_name, "ggplot2")
-
-    # ---- Existing scale: update only the supplied fields ----
-    if (!is.null(p$scales$get_scales(axis))) {
-      arg_names <- names(args)
-      if (is.null(arg_names) || any(arg_names == "") || anyDuplicated(arg_names))
-        cli::cli_abort("{.arg {axis}} must be a list with unique, non-empty names.")
+    scale <- p$scales$get_scales(axis)
+    if (is.null(scale) && any(vapply(p$layers, function(layer) is.function(layer$data), logical(1)))) {
       p$scales <- p$scales$clone()
-      sc <- p$scales$get_scales(axis)
-      new_trans <- any(c("transform", "trans") %in% arg_names)
-      if (fn_name == paste0("scale_", axis, "_continuous") && !new_trans)
-        args$transform <- sc$trans
-      remap_limits <- new_trans && !"limits" %in% arg_names && is.numeric(sc$limits)
-      if (remap_limits) args$limits <- sc$trans$inverse(sc$limits)
-      new <- do.call(fn, args)
-      if (remap_limits) sc$limits <- new$limits
-      for (f in unique(unlist(lapply(arg_names, function(a) {
-        if (a %in% names(arg_fields)) arg_fields[[a]] else a
-      })))) {
-        sc[[f]] <- new[[f]]
+      if (is.null(p$scales$.fmt_scale_parent)) {
+        p$scales$.fmt_scale_parent <- do.call(ggplot2::ggproto,
+          c(list(NULL), as.list(p$scales)[c("add_defaults", "add_missing")]),
+          quote = TRUE, envir = baseenv())
       }
+      p$scales$.fmt_scale_args[[axis]] <- utils::modifyList(
+        p$scales$.fmt_scale_args[[axis]] %||% list(), args, keep.null = TRUE)
+      p$scales$add_defaults <- .add_fmt_scale_defaults
+      p$scales$add_missing <- .add_fmt_scale_missing
       return(p)
     }
-
+    fn_name <- .detect_scale_type(p, axis)
+    if (!is.null(scale)) {
+      p$scales <- p$scales$clone()
+      .update_position_scale(p$scales$get_scales(axis), args, axis, fn_name)
+      return(p)
+    }
     tryCatch(
-      p + do.call(fn, args),
+      p + .update_position_scale(NULL, args, axis, fn_name),
       error = function(e) {
-        fallback <- utils::getFromNamespace(paste0("scale_", axis, "_continuous"), "ggplot2")
-        p + do.call(fallback, args)
+        p + .update_position_scale(NULL, args, axis, paste0("scale_", axis, "_continuous"))
       }
     )
   }
