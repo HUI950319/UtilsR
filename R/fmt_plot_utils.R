@@ -150,14 +150,23 @@
   }
 
   tryCatch({
-    var_quo <- plot$mapping[[axis]]
-    if (!is.null(var_quo) && !is.null(plot$data)) {
-      # Try simple name first (aes(x = Age)); fall back to eval_tidy for
-      # .data[[var]] / !!sym(var) / other quosure expressions.
+    layers <- if (length(plot$layers)) plot$layers else list(NULL)
+    for (layer in layers) {
+      mapping <- as.list(plot$mapping)
+      data <- plot$data
+      if (!is.null(layer)) {
+        mapping <- if (isTRUE(layer$inherit.aes)) {
+          utils::modifyList(mapping, as.list(layer$mapping))
+        } else as.list(layer$mapping)
+        if (!is.null(layer$data) && !inherits(layer$data, "waiver")) data <- layer$data
+      }
+      var_quo <- mapping[[axis]]
+      if (is.null(var_quo) || is.function(data)) next
       d <- tryCatch(
-        plot$data[[rlang::as_name(var_quo)]],
-        error = function(e) rlang::eval_tidy(var_quo, data = plot$data)
+        rlang::eval_tidy(var_quo, data = if (is.data.frame(data)) data else NULL),
+        error = function(e) NULL
       )
+      if (is.null(d)) next
       if (is.factor(d) || is.character(d) || is.logical(d)) {
         return(paste0("scale_", axis, "_discrete"))
       } else if (inherits(d, "Date")) {
@@ -167,6 +176,7 @@
       } else if (inherits(d, "hms")) {
         return(paste0("scale_", axis, "_time"))
       }
+      return(paste0("scale_", axis, "_continuous"))
     }
     paste0("scale_", axis, "_continuous")
   }, error = function(e) {

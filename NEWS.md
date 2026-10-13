@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_expand()` resolves layer data, mapping overrides and captured variables
+  when choosing new scales. Shared detection also supports `fmt_scale()`.
+
 * `fmt_expand()` distinguishes dates, date-times and times, retaining sub-day
   resolution. Shared detection also accepts temporal controls in `fmt_scale()`.
 

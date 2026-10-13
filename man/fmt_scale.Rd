@@ -18,7 +18,8 @@ E.g. \code{list(limits = c(4, 8), breaks = seq(4, 8, 1))}.}
 Same type as input.
 }
 \description{
-Automatically detects discrete / continuous / date scale type and applies
+Automatically detects discrete / continuous / date-time scale type from
+existing scales or effective layer mappings and data, and applies
 user-supplied arguments via \code{do.call}.
 }
 \examples{

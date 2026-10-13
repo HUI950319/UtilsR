@@ -4306,7 +4306,8 @@ fmt_his <- function(plot,
 
 #' Set axis scales
 #'
-#' Automatically detects discrete / continuous / date scale type and applies
+#' Automatically detects discrete / continuous / date-time scale type from
+#' existing scales or effective layer mappings and data, and applies
 #' user-supplied arguments via \code{do.call}.
 #'
 #' @param plot A ggplot, patchwork, or list of ggplots.
@@ -4356,6 +4357,8 @@ fmt_scale <- function(plot, x = NULL, y = NULL) {
 #' Applies \code{ggplot2::expansion()} to one or both axes, automatically
 #' detecting the correct scale type. Existing position scales retain their
 #' transformation, limits, breaks, labels, guides and secondary axes.
+#' New scales are inferred from effective layer mappings and their data,
+#' including variables captured in the mapping environment.
 #'
 #' @param plot A ggplot, patchwork, or list of ggplots.
 #' @param mult Multiplicative expansion factor.

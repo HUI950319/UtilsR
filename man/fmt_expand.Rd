@@ -24,6 +24,8 @@ Same type as input.
 Applies \code{ggplot2::expansion()} to one or both axes, automatically
 detecting the correct scale type. Existing position scales retain their
 transformation, limits, breaks, labels, guides and secondary axes.
+New scales are inferred from effective layer mappings and their data,
+including variables captured in the mapping environment.
 }
 \examples{
 library(ggplot2)

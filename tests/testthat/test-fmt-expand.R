@@ -108,3 +108,46 @@ test_that("shared scale detection accepts temporal controls in fmt_scale", {
   expect_identical(q_time$scales$get_scales("x")$timezone, "Asia/Shanghai")
   expect_equal(ggplot2::ggplot_build(q_time)$data[[1]]$x, as.numeric(times))
 })
+
+test_that("expansion resolves layer data, inherited mappings and layer overrides", {
+  dat <- data.frame(category = factor(c("a", "b", "c")), value = 1:3)
+  plots <- list(
+    ggplot2::ggplot() + ggplot2::geom_col(data = dat, ggplot2::aes(category, value)),
+    ggplot2::ggplot(mapping = ggplot2::aes(category, value)) +
+      ggplot2::geom_col(data = dat),
+    ggplot2::ggplot(data.frame(x = 1:3, y = 1:3), ggplot2::aes(x, y)) +
+      ggplot2::geom_col(data = dat, ggplot2::aes(category, value), inherit.aes = FALSE),
+    ggplot2::ggplot() + ggplot2::geom_col(data = dat,
+      ggplot2::aes(.data[["category"]], .data[["value"]]))
+  )
+  for (p in plots) {
+    q <- fmt_expand(p, add = 0.5, axis = "x")
+    expect_s3_class(q$scales$get_scales("x"), "ScaleDiscretePosition")
+    expect_identical(ggplot2::ggplot_build(q)$layout$panel_params[[1]]$x$get_labels(),
+                     c("a", "b", "c"))
+  }
+})
+
+test_that("expansion evaluates mappings in their captured environments", {
+  make_plot <- function() {
+    category <- factor(c("a", "b", "c"))
+    ggplot2::ggplot(data.frame(value = 1:3), ggplot2::aes(category, value)) +
+      ggplot2::geom_point()
+  }
+  q <- fmt_expand(make_plot(), axis = "x")
+  expect_s3_class(q$scales$get_scales("x"), "ScaleDiscretePosition")
+  expect_equal(as.numeric(ggplot2::ggplot_build(q)$data[[1]]$x), 1:3)
+})
+
+test_that("layer inference also applies to temporal and y axes and fmt_scale", {
+  times <- as.POSIXct("2026-10-13 08:00:00", tz = "UTC") + c(0, 3600, 7200)
+  p <- ggplot2::ggplot() + ggplot2::geom_point(
+    data = data.frame(time = times, category = factor(c("a", "b", "c"))),
+    ggplot2::aes(time, category))
+  q <- fmt_expand(p)
+  expect_equal(ggplot2::ggplot_build(q)$data[[1]]$x, as.numeric(times))
+  expect_s3_class(q$scales$get_scales("y"), "ScaleDiscretePosition")
+  q_scale <- fmt_scale(p, y = list(labels = c("A", "B", "C")))
+  expect_identical(ggplot2::ggplot_build(q_scale)$layout$panel_params[[1]]$y$get_labels(),
+                   c("A", "B", "C"))
+})
