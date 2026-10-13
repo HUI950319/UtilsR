@@ -138,6 +138,19 @@
     return(paste0("scale_", axis, "_", type))
   }
 
+  mapping_is_late <- function(expr) {
+    if (rlang::is_missing(expr)) return(FALSE)
+    if (is.symbol(expr)) return(grepl("^\\.\\..+\\.\\.$", as.character(expr)))
+    if (!is.call(expr)) return(FALSE)
+    name <- rlang::call_name(expr)
+    if (any(name %in% c("after_stat", "stat", "after_scale", "from_theme"))) return(TRUE)
+    if (identical(name, "stage")) {
+      start <- match.call(ggplot2::stage, expr)[["start"]]
+      return(mapping_is_late(start))
+    }
+    any(vapply(as.list(expr)[-1L], mapping_is_late, logical(1)))
+  }
+
   layers <- if (length(plot$layers)) plot$layers else list(NULL)
   for (layer in layers) {
     mapping <- as.list(plot$mapping)
@@ -150,12 +163,10 @@
     }
     var_quo <- mapping[[axis]]
     if (is.null(var_quo) || is.function(data)) next
+    if (mapping_is_late(rlang::get_expr(var_quo))) next
     d <- tryCatch(
       rlang::eval_tidy(var_quo, data = if (is.data.frame(data)) data else NULL),
       error = function(e) {
-        expr <- rlang::get_expr(var_quo)
-        if (is.call(expr) && any(all.names(expr) %in%
-            c("after_stat", "after_scale", "stage"))) return(NULL)
         cli::cli_abort("Cannot infer the {axis}-axis scale from the mapping.", parent = e)
       }
     )

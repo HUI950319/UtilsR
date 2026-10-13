@@ -42,7 +42,8 @@ test_that("fmt_scale() keeps temporal and discrete scale settings", {
   od <- fmt_scale(pd, x = list(date_breaks = "1 month", date_labels = "%b"))
   expect_equal(od$scales$get_scales("x")$limits, as.numeric(lims))
   date_labels <- x_params(od)$get_labels()
-  expect_identical(date_labels[!is.na(date_labels)][1:2], c("Dec", "Jan"))
+  expect_identical(date_labels[!is.na(date_labels)][1:2],
+                   format(as.Date(c("2025-12-01", "2026-01-01")), "%b"))
 
   pc <- ggplot2::ggplot(data.frame(x = c("a", "b", "c"), y = 1:3), ggplot2::aes(x, y)) +
     ggplot2::geom_point() + ggplot2::scale_x_discrete(limits = c("c", "b", "a"))

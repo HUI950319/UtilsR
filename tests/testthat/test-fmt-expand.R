@@ -292,3 +292,48 @@ test_that("scale inference does not run layer statistics eagerly", {
   invisible(ggplot2::ggplot_build(q))
   expect_identical(calls, 1L)
 })
+
+test_that("statistic mappings ignore same-named columns in source data", {
+  for (count in list(c("unused", "unused", "unused"),
+                     as.Date("2026-01-01") + 0:2)) {
+    dat <- data.frame(x = factor(c("a", "b", "a")), count = count)
+    p <- ggplot2::ggplot(dat, ggplot2::aes(x, y = ggplot2::after_stat(count))) +
+      ggplot2::geom_bar()
+    native <- ggplot2::ggplot_build(p)
+    built <- ggplot2::ggplot_build(fmt_expand(p, mult = 0.05, axis = "y"))
+    expect_identical(class(built$plot$scales$get_scales("y")),
+                     class(native$plot$scales$get_scales("y")))
+    expect_identical(built$layout$panel_params[[1]]$y$get_labels(),
+                     native$layout$panel_params[[1]]$y$get_labels())
+    expect_identical(built$data, native$data)
+    q <- fmt_scale(p, y = list(breaks = c(0, 1, 2)))
+    expect_s3_class(q$scales$get_scales("y"), "ScaleContinuousPosition")
+  }
+})
+
+test_that("legacy statistic mappings retain native count scales", {
+  dat <- data.frame(x = factor(c("a", "b", "a")))
+  mappings <- list(ggplot2::aes(x, y = ..count..),
+                   ggplot2::aes(x, y = stat(count)))
+  for (mapping in mappings) {
+    p <- ggplot2::ggplot(dat, mapping) + ggplot2::geom_bar()
+    native <- suppressWarnings(ggplot2::ggplot_build(p))
+    built <- suppressWarnings(ggplot2::ggplot_build(
+      fmt_expand(p, mult = 0.05, axis = "y")))
+    expect_identical(built$data, native$data)
+    expect_identical(built$layout$panel_params[[1]]$y$get_labels(),
+                     native$layout$panel_params[[1]]$y$get_labels())
+  }
+})
+
+test_that("stage start mappings and ordinary stage-named errors stay distinct", {
+  dat <- data.frame(category = factor(c("a", "b", "c")), value = 1:3)
+  p <- ggplot2::ggplot(dat, ggplot2::aes(
+    x = ggplot2::stage(start = category, after_scale = x), y = value)) +
+    ggplot2::geom_point()
+  built <- ggplot2::ggplot_build(fmt_expand(p, axis = "x"))
+  expect_identical(built$data, ggplot2::ggplot_build(p)$data)
+  invalid <- ggplot2::ggplot(dat, ggplot2::aes(factor(stage), value)) +
+    ggplot2::geom_point()
+  expect_error(fmt_expand(invalid, axis = "x"), "Cannot infer the x-axis")
+})

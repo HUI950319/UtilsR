@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_expand()` and `fmt_scale()` infer only initial-stage mappings, keeping
+  computed statistics separate from same-named source columns and accepting
+  legacy statistic mappings.
+
 * `fmt_scale()` updates only the supplied settings of an existing position
   scale instead of replacing it, so limits, breaks, labels, transformation,
   expansion and secondary axes set earlier are kept. Continuous limits use the
