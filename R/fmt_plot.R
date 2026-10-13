@@ -2423,93 +2423,7 @@ fmt_panel <- function(plot,
   }
   blank <- ggplot2::element_blank()
 
-  # ---- Helper: build element_line for retained grid lines ----
-  grid_line <- function() {
-    args <- list()
-    if (!is.null(grid_color))     args$colour   <- grid_color
-    if (!is.null(grid_linewidth)) args$linewidth <- grid_linewidth
-    if (!is.null(grid_linetype))  args$linetype  <- grid_linetype
-    if (length(args) == 0L) return(NULL)
-    do.call(ggplot2::element_line, args)
-  }
-  gl <- grid_line()
-
-  # ---- Build grid theme ----
-  grid_theme <- switch(grid,
-    "none" = ggplot2::theme(
-      panel.grid.major = blank,
-      panel.grid.minor = blank,
-      panel.grid.major.x = blank, panel.grid.major.y = blank,
-      panel.grid.minor.x = blank, panel.grid.minor.y = blank
-    ),
-    "major" = {
-      th <- ggplot2::theme(panel.grid.minor = blank,
-                           panel.grid.minor.x = blank, panel.grid.minor.y = blank)
-      if (!is.null(gl)) th <- th + ggplot2::theme(
-        panel.grid.major = gl, panel.grid.major.x = gl, panel.grid.major.y = gl)
-      th
-    },
-    "minor" = {
-      th <- ggplot2::theme(panel.grid.major = blank,
-                           panel.grid.major.x = blank, panel.grid.major.y = blank)
-      if (!is.null(gl)) th <- th + ggplot2::theme(
-        panel.grid.minor = gl, panel.grid.minor.x = gl, panel.grid.minor.y = gl)
-      th
-    },
-    "both" = {
-      if (!is.null(gl)) ggplot2::theme(
-        panel.grid.major = gl, panel.grid.minor = gl,
-        panel.grid.major.x = gl, panel.grid.major.y = gl,
-        panel.grid.minor.x = gl, panel.grid.minor.y = gl)
-      else ggplot2::theme()
-    },
-    "x" = {
-      th <- ggplot2::theme(panel.grid.major.y = blank, panel.grid.minor = blank,
-                           panel.grid.minor.x = blank, panel.grid.minor.y = blank)
-      if (!is.null(gl)) th <- th + ggplot2::theme(panel.grid.major.x = gl)
-      th
-    },
-    "y" = {
-      th <- ggplot2::theme(panel.grid.major.x = blank, panel.grid.minor = blank,
-                           panel.grid.minor.x = blank, panel.grid.minor.y = blank)
-      if (!is.null(gl)) th <- th + ggplot2::theme(panel.grid.major.y = gl)
-      th
-    }
-  )
-
-  # ---- Build border theme ----
-  border_theme <- ggplot2::theme()
-  if (!is.null(border)) {
-    if (isTRUE(border)) {
-      border_theme <- ggplot2::theme(
-        panel.border = ggplot2::element_rect(
-          colour = "black", fill = NA, linewidth = border_linewidth
-        )
-      )
-    } else if (isFALSE(border)) {
-      border_theme <- ggplot2::theme(panel.border = blank)
-    } else if (is.character(border)) {
-      border_theme <- ggplot2::theme(
-        panel.border = ggplot2::element_rect(
-          colour = border, fill = NA, linewidth = border_linewidth
-        )
-      )
-    }
-  }
-
-  # ---- Build background theme ----
-  bg_theme <- ggplot2::theme()
-  if (!is.null(bg)) {
-    bg_theme <- ggplot2::theme(
-      panel.background = ggplot2::element_rect(fill = bg, colour = NA)
-    )
-  }
-
-  # ---- Combine all + extra ... ----
-  extra_theme <- if (length(list(...)) > 0) do.call(ggplot2::theme, list(...)) else ggplot2::theme()
-  panel_theme <- grid_theme + border_theme + bg_theme + extra_theme
-
-  # ---- Apply to plots ----
+  # ---- Assemble panel settings once ----
   enabled <- switch(grid,
     "none" = character(),
     "major" = c("panel.grid.major.x", "panel.grid.major.y"),
@@ -2518,11 +2432,44 @@ fmt_panel <- function(plot,
                 "panel.grid.minor.x", "panel.grid.minor.y"),
     "x" = "panel.grid.major.x", "y" = "panel.grid.major.y"
   )
-  base_theme <- ggplot2::theme_get()
+  grid_elements <- c("panel.grid.major.x", "panel.grid.major.y",
+                      "panel.grid.minor.x", "panel.grid.minor.y")
+  hidden_groups <- switch(grid,
+    "none" = c("panel.grid.major", "panel.grid.minor"),
+    "major" = "panel.grid.minor", "minor" = "panel.grid.major",
+    "both" = character(), "x" = "panel.grid.minor", "y" = "panel.grid.minor")
+  hidden <- c(hidden_groups, setdiff(grid_elements, enabled))
+  theme_args <- stats::setNames(rep(list(blank), length(hidden)), hidden)
+  line_args <- list(colour = grid_color, linewidth = grid_linewidth, linetype = grid_linetype)
+  line_args <- Filter(Negate(is.null), line_args)
+  if (length(enabled) && length(line_args)) {
+    visible_groups <- switch(grid,
+      "major" = "panel.grid.major", "minor" = "panel.grid.minor",
+      "both" = c("panel.grid.major", "panel.grid.minor"), character())
+    styled <- c(visible_groups, enabled)
+    theme_args[styled] <- rep(list(do.call(ggplot2::element_line, line_args)), length(styled))
+  }
+
+  if (!is.null(border)) {
+    theme_args$panel.border <- if (isFALSE(border)) blank else
+      ggplot2::element_rect(colour = if (isTRUE(border)) "black" else border,
+                            fill = NA, linewidth = border_linewidth)
+  }
+  if (!is.null(bg)) {
+    theme_args$panel.background <- ggplot2::element_rect(fill = bg, colour = NA)
+  }
+  panel_theme <- do.call(ggplot2::theme, theme_args)
+  extra_args <- list(...)
+  if (length(extra_args)) panel_theme <- panel_theme + do.call(ggplot2::theme, extra_args)
+
+  # ---- Apply to plots ----
+  base_theme <- if (length(enabled)) ggplot2::theme_get() else NULL
+  fallback_theme <- NULL
   format_panel <- function(p) {
     if (!inherits(p, "gg")) {
       cli::cli_abort("Input must be a ggplot, patchwork, or nested list of ggplots.")
     }
+    current_theme <- panel_theme
     if (length(enabled)) {
       effective <- base_theme + p$theme
       restored <- list()
@@ -2532,7 +2479,10 @@ fmt_panel <- function(plot,
         for (field in c(nm, sub("\\.[xy]$", "", nm), "panel.grid", "line")) {
           if (inherits(inherited[[field]], "element_blank")) {
             value <- base_theme[[field]]
-            if (inherits(value, "element_blank")) value <- ggplot2::theme_gray()[[field]]
+            if (inherits(value, "element_blank")) {
+              if (is.null(fallback_theme)) fallback_theme <<- ggplot2::theme_gray()
+              value <- fallback_theme[[field]]
+            }
             inherited[[field]] <- value
           }
         }
@@ -2540,9 +2490,9 @@ fmt_panel <- function(plot,
         restored[[nm]] <- ggplot2::merge_element(
           ggplot2::element_line(inherit.blank = FALSE), element)
       }
-      if (length(restored)) p <- p + do.call(ggplot2::theme, restored)
+      if (length(restored)) current_theme <- do.call(ggplot2::theme, restored) + panel_theme
     }
-    p + panel_theme
+    p + current_theme
   }
   .map_plot_leaves(plot, format_panel)
 }

@@ -216,3 +216,18 @@ test_that("repeated panel formatting retains rendered pixels and stable themes",
   expect_identical(repeated$theme, twice$theme)
   expect_length(repeated$layers, length(once$layers))
 })
+
+test_that("panel fallback styles use the current global theme on every call", {
+  old <- ggplot2::theme_set(ggplot2::theme_minimal())
+  withr::defer(ggplot2::theme_set(old))
+  p <- panel_test_plot() + ggplot2::theme(panel.grid = ggplot2::element_blank())
+  for (colour in c("orange", "purple")) {
+    ggplot2::theme_set(ggplot2::theme_minimal() +
+                        ggplot2::theme(panel.grid = ggplot2::element_line(colour = colour)))
+    grids <- panel_test_grids(fmt_panel(p, grid = "both"))
+    expect_equal(grids$colour, rep(colour, 4))
+  }
+  ggplot2::theme_set(ggplot2::theme_void())
+  expect_setequal(panel_test_grids(fmt_panel(p, grid = "both"))$element,
+                  c("major.x", "major.y", "minor.x", "minor.y"))
+})

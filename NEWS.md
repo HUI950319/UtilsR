@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_panel()` builds shared panel settings once and avoids redundant plot copies
+  when restoring grid lines.
+
 * `fmt_panel()` documents its grid-style fallback, protected cells and extra-theme
   overrides, with regressions for rendering, computed data and caller-owned plots.
 
