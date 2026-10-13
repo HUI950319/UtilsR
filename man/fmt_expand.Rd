@@ -9,13 +9,16 @@ fmt_expand(plot, mult = 0, add = c(0, 0), axis = NULL)
 \arguments{
 \item{plot}{A ggplot, patchwork, or list of ggplots.}
 
-\item{mult}{Multiplicative expansion factor.}
+\item{mult}{Finite numeric expansion factor of length one or two. A scalar
+applies to both ends; two values specify lower and upper expansion.}
 
-\item{add}{Additive expansion (length-2 vector for lower/upper).
+\item{add}{Finite numeric additive expansion of length one or two, with the
+same lower/upper convention as \code{mult}.
 Units are days for dates, seconds for date-times and times, and transformed
 scale units for other axes.}
 
-\item{axis}{\code{"x"}, \code{"y"}, or \code{NULL} (both).}
+\item{axis}{A character scalar, \code{"x"} or \code{"y"}, or
+\code{NULL} for both axes.}
 }
 \value{
 Same type as input.

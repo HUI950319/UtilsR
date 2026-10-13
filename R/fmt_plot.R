@@ -4362,11 +4362,14 @@ fmt_scale <- function(plot, x = NULL, y = NULL) {
 #' Nested patchworks are updated recursively without changing their layout.
 #'
 #' @param plot A ggplot, patchwork, or list of ggplots.
-#' @param mult Multiplicative expansion factor.
-#' @param add Additive expansion (length-2 vector for lower/upper).
+#' @param mult Finite numeric expansion factor of length one or two. A scalar
+#'   applies to both ends; two values specify lower and upper expansion.
+#' @param add Finite numeric additive expansion of length one or two, with the
+#'   same lower/upper convention as \code{mult}.
 #'   Units are days for dates, seconds for date-times and times, and transformed
 #'   scale units for other axes.
-#' @param axis \code{"x"}, \code{"y"}, or \code{NULL} (both).
+#' @param axis A character scalar, \code{"x"} or \code{"y"}, or
+#'   \code{NULL} for both axes.
 #'
 #' @return Same type as input.
 #'
@@ -4379,10 +4382,13 @@ fmt_scale <- function(plot, x = NULL, y = NULL) {
 #' @export
 #' @family plot formatting
 fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
-  if (!is.null(axis) && !axis %in% c("x", "y"))
+  if (!is.null(axis) && (!is.character(axis) || length(axis) != 1L ||
+      is.na(axis) || !axis %in% c("x", "y")))
     cli::cli_abort("`axis` must be 'x', 'y', or NULL.")
 
   expansion_setting <- ggplot2::expansion(add = add, mult = mult)
+  if (any(!is.finite(expansion_setting)))
+    cli::cli_abort("`mult` and `add` must contain only finite values.")
 
   apply_expansion <- function(p, ax) {
     if (!is.null(p$scales$get_scales(ax))) {

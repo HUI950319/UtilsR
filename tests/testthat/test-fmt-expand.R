@@ -195,3 +195,34 @@ test_that("recursive expansion retains named containers and special patchwork en
   }
   expect_true(all(c("KEEP", "CAPTION", "FIXED") %in% labels(patchwork::patchworkGrob(q))))
 })
+
+test_that("expansion rejects malformed axis choices with a parameter error", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3),
+                       ggplot2::aes(x, y)) + ggplot2::geom_point()
+  for (axis in list(character(), c("x", "y"), list("x"), factor("x"),
+                   NA_character_, TRUE, 1, "z")) {
+    expect_error(fmt_expand(p, axis = axis), "axis", class = "rlang_error")
+  }
+})
+
+test_that("expansion rejects non-finite padding values", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3),
+                       ggplot2::aes(x, y)) + ggplot2::geom_point()
+  for (parameter in c("mult", "add")) {
+    for (value in list(NA_real_, NaN, Inf, -Inf)) {
+      args <- list(plot = p, axis = "x")
+      args[[parameter]] <- value
+      expect_error(do.call(fmt_expand, args), "finite", class = "rlang_error")
+    }
+  }
+})
+
+test_that("valid asymmetric and negative padding retains ggplot2 behavior", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3),
+                       ggplot2::aes(x, y)) + ggplot2::geom_point()
+  q <- fmt_expand(p, mult = c(0, 0.1), add = c(2, 3), axis = "x")
+  expect_equal(ggplot2::ggplot_build(q)$layout$panel_params[[1]]$x.range, c(-1, 6.2))
+  expect_null(q$scales$get_scales("y"))
+  trimmed <- fmt_expand(p, mult = -0.1, axis = "x")
+  expect_equal(ggplot2::ggplot_build(trimmed)$layout$panel_params[[1]]$x.range, c(1.2, 2.8))
+})

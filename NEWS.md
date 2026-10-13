@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_expand()` validates scalar axis choices and finite padding values,
+  with documented scalar/asymmetric expansion and temporal units.
+
 * `fmt_expand()` updates every nested patchwork leaf, retaining layouts,
   annotations, free settings, named containers, spacers and inset overlays.
 
