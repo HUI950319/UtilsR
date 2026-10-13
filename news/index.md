@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
+  keeps scale storage bounded when padding changes repeatedly, retaining
+  custom scale classes, fields and clone behavior without chaining
+  previous instances as parents.
+
+- [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
   and
   [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md)
   ignore empty position mappings when choosing a scale, so later
