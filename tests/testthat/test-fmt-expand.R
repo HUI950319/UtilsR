@@ -389,3 +389,26 @@ test_that("function data padding also applies to native fallback axes", {
                  ggplot2::expansion(mult = 0.1))
   }
 })
+
+test_that("empty position mappings do not determine later layer scales", {
+  dat <- data.frame(category = factor(c("a", "b", "c")), value = 1:3)
+  for (empty_x in list(numeric(), as.Date(character()),
+                       as.POSIXct(character(), tz = "UTC"))) {
+    empty <- data.frame(x = empty_x, y = numeric())
+    p <- ggplot2::ggplot(dat, ggplot2::aes(category, value)) +
+      ggplot2::geom_point(data = empty, ggplot2::aes(x, y), inherit.aes = FALSE) +
+      ggplot2::geom_point()
+    built <- ggplot2::ggplot_build(fmt_expand(p, axis = "x"))
+    expect_s3_class(built$plot$scales$get_scales("x"), "ScaleDiscretePosition")
+    expect_identical(built$data, ggplot2::ggplot_build(p)$data)
+    q_scale <- fmt_scale(p, x = list(labels = toupper))
+    expect_identical(as.character(ggplot2::ggplot_build(q_scale)$layout$panel_params[[1]]$x$get_labels()),
+                     c("A", "B", "C"))
+  }
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3), ggplot2::aes(x, y)) +
+    ggplot2::geom_point(data = data.frame(x = as.Date(character()), y = numeric())) +
+    ggplot2::geom_point()
+  built <- ggplot2::ggplot_build(fmt_expand(p, axis = "x"))
+  expect_identical(built$plot$scales$get_scales("x")$trans$name, "identity")
+  expect_identical(built$data, ggplot2::ggplot_build(p)$data)
+})

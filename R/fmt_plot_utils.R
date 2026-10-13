@@ -170,7 +170,7 @@
         cli::cli_abort("Cannot infer the {axis}-axis scale from the mapping.", parent = e)
       }
     )
-    if (is.null(d)) next
+    if (length(d) == 0L) next
     if (is.factor(d) || is.character(d) || is.logical(d)) {
       return(paste0("scale_", axis, "_discrete"))
     } else if (inherits(d, "Date")) {

@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_expand()` and `fmt_scale()` ignore empty position mappings when
+  choosing a scale, so later non-empty layers retain their native scale type.
+
 * `fmt_expand()` retains native scales for function and formula layer data,
   resolving them during plot building without extra calls to the data function.
 
