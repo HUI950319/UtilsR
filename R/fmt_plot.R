@@ -4372,9 +4372,10 @@ fmt_scale <- function(plot, x = NULL, y = NULL) {
       new_trans <- any(c("transform", "trans") %in% arg_names)
       if (fn_name == paste0("scale_", axis, "_continuous") && !new_trans)
         args$transform <- sc$trans
+      remap_limits <- new_trans && !"limits" %in% arg_names && is.numeric(sc$limits)
+      if (remap_limits) args$limits <- sc$trans$inverse(sc$limits)
       new <- do.call(fn, args)
-      if (new_trans && !"limits" %in% arg_names && is.numeric(sc$limits))
-        sc$limits <- new$trans$transform(sc$trans$inverse(sc$limits))
+      if (remap_limits) sc$limits <- new$limits
       for (f in unique(unlist(lapply(arg_names, function(a) {
         if (a %in% names(arg_fields)) arg_fields[[a]] else a
       })))) {

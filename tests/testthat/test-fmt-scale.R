@@ -59,3 +59,21 @@ test_that("fmt_scale() still adds a scale when none exists", {
   expect_s3_class(out$scales$get_scales("y"), "ScaleContinuousPosition")
   expect_identical(out$scales$get_scales("y")$breaks, 1:3)
 })
+
+test_that("changing transformation preserves observations across reversed limits", {
+  d <- data.frame(x = c(1, 10, 100), y = 1:3)
+  base <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  cases <- list(
+    list(from = "identity", to = "reverse", x = c(-1, -10, -100)),
+    list(from = "reverse", to = "identity", x = c(1, 10, 100)),
+    list(from = "sqrt", to = "reverse", x = c(-1, -10, -100))
+  )
+  for (case in cases) {
+    p <- base + ggplot2::scale_x_continuous(transform = case$from,
+                                          limits = c(1, 100))
+    original <- p$scales$get_scales("x")$limits
+    q <- fmt_scale(p, x = list(transform = case$to))
+    expect_equal(ggplot2::ggplot_build(q)$data[[1]]$x, case$x)
+    expect_identical(p$scales$get_scales("x")$limits, original)
+  }
+})
