@@ -2,10 +2,6 @@
 
 ## UtilsR 0.6.8
 
-- [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md)
-  consistently hides axis-specific grid lines and applies explicit grid
-  styling to both axes.
-
 - [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md)
   uses native scales for statistic-generated axes, including categorical
   [`after_stat()`](https://ggplot2.tidyverse.org/reference/aes_eval.html)
