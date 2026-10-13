@@ -4354,7 +4354,8 @@ fmt_scale <- function(plot, x = NULL, y = NULL) {
 #' Set axis expansion
 #'
 #' Applies \code{ggplot2::expansion()} to one or both axes, automatically
-#' detecting the correct scale type.
+#' detecting the correct scale type. Existing position scales retain their
+#' transformation, limits, breaks, labels, guides and secondary axes.
 #'
 #' @param plot A ggplot, patchwork, or list of ggplots.
 #' @param mult Multiplicative expansion factor.
@@ -4378,6 +4379,12 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
   expansion_setting <- ggplot2::expansion(add = add, mult = mult)
 
   apply_expansion <- function(p, ax) {
+    if (!is.null(p$scales$get_scales(ax))) {
+      p$scales <- p$scales$clone()
+      scale <- p$scales$get_scales(ax)
+      scale$expand <- expansion_setting
+      return(p)
+    }
     fn_name <- .detect_scale_type(p, ax)
     fn <- utils::getFromNamespace(fn_name, "ggplot2")
     tryCatch(

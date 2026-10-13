@@ -20,7 +20,8 @@ Same type as input.
 }
 \description{
 Applies \code{ggplot2::expansion()} to one or both axes, automatically
-detecting the correct scale type.
+detecting the correct scale type. Existing position scales retain their
+transformation, limits, breaks, labels, guides and secondary axes.
 }
 \examples{
 library(ggplot2)

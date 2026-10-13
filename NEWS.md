@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_expand()` preserves existing position scales, including transformations,
+  limits, custom labels, discrete ordering, binned scales and secondary axes.
+
 * `fmt_com()` limits statistical closures to the current plot's configuration,
   so extracting one formatted plot no longer retains other container plots
   and their data during serialization.
