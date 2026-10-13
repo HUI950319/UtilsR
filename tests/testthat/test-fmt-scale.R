@@ -185,3 +185,45 @@ test_that("binned position scales accept bin controls and retain transformations
   expect_equal(trimmed$scales$get_scales("x")$limits, c(0, 1))
   expect_true(original$scales$get_scales("x")$right)
 })
+
+test_that("unchanged settings reuse scales and changed axes clone only once", {
+  calls <- 0L
+  scale <- ggplot2::ggproto("ScaleFmtTracked", ggplot2::scale_x_log10(breaks = c(1, 100)),
+    custom_setting = "retained", clone = function(self) {
+      calls <<- calls + 1L
+      ggplot2::ggproto_parent(ggplot2::ScaleContinuous, self)$clone()
+    })
+  p <- ggplot2::ggplot(data.frame(x = c(1, 10, 100), y = 1:3), ggplot2::aes(x, y)) +
+    ggplot2::geom_point() + scale + ggplot2::scale_y_continuous(breaks = 1:3)
+  same <- fmt_scale(p, x = list(breaks = c(1, 100)), y = list(breaks = 1:3))
+  expect_true(identical(same$scales, p$scales))
+  calls <- 0L
+  changed <- fmt_scale(p, x = list(breaks = c(1, 10, 100)), y = list(breaks = c(1, 3)))
+  expect_identical(calls, 1L)
+  expect_s3_class(changed$scales$get_scales("x"), "ScaleFmtTracked")
+  expect_identical(changed$scales$get_scales("x")$custom_setting, "retained")
+  expect_identical(p$scales$get_scales("y")$breaks, 1:3)
+})
+
+test_that("repeated scale changes keep storage bounded and retain earlier results", {
+  p <- ggplot2::ggplot(data.frame(x = c(1, 10, 100), y = 1:3, g = factor(letters[1:3])),
+                       ggplot2::aes(x, y, colour = g)) + ggplot2::geom_point()
+  plots <- list(
+    p + ggplot2::scale_x_log10() + ggplot2::scale_y_continuous(),
+    p + ggplot2::aes(x = g) + ggplot2::scale_x_discrete(drop = FALSE),
+    p + ggplot2::scale_x_binned(breaks = c(1, 10, 100)),
+    p + ggplot2::geom_point(data = function(d) d)
+  )
+  for (plot in plots) {
+    first <- fmt_scale(plot, x = list(labels = toupper), y = list(breaks = 1:3))
+    initial_size <- length(serialize(first$scales, NULL))
+    repeated <- first
+    for (i in 1:25) repeated <- fmt_scale(repeated,
+      x = list(labels = if (i %% 2L) tolower else toupper), y = list(breaks = c(1, 3)))
+    expect_lte(length(serialize(repeated$scales, NULL)), initial_size + 8192)
+    built <- ggplot2::ggplot_build(repeated)
+    expect_identical(built$layout$panel_params[[1]]$y$get_breaks(), c(1, 3))
+    expect_identical(ggplot2::ggplot_build(first)$layout$panel_params[[1]]$y$get_breaks(),
+                     as.numeric(1:3))
+  }
+})

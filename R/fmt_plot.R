@@ -4320,7 +4320,7 @@ fmt_his <- function(plot,
 
 # fmt_scale() -> recursive leaves -> .update_position_scale()
 # Function data -> ScalesList defaults -> .apply_deferred_scale_settings()
-.update_position_scale <- function(scale, args, axis, fn_name) {
+.update_position_scale <- function(scale, args, axis, fn_name, fields_only = FALSE) {
   if (inherits(scale, "ScaleBinnedPosition")) fn_name <- paste0("scale_", axis, "_binned")
   fn <- getExportedValue("ggplot2", fn_name)
   arg_names <- names(args)
@@ -4351,12 +4351,12 @@ fmt_his <- function(plot,
   remap_limits <- new_trans && !"limits" %in% arg_names && is.numeric(scale$limits)
   if (remap_limits) args$limits <- scale$trans$inverse(scale$limits)
   new <- construct(args)
-  if (remap_limits) scale$limits <- new$limits
-  for (f in unique(unlist(lapply(arg_names, function(a) {
+  fields <- unique(c(if (remap_limits) "limits", unlist(lapply(arg_names, function(a) {
     if (a %in% names(arg_fields)) arg_fields[[a]] else a
-  })))) {
-    scale[[f]] <- new[[f]]
-  }
+  }))))
+  values <- as.list(new, all.names = TRUE)[fields]
+  if (fields_only) return(values)
+  for (f in fields) scale[[f]] <- values[[f]]
   scale
 }
 
@@ -4425,34 +4425,42 @@ fmt_scale <- function(plot, x = NULL, y = NULL) {
     if (is.null(arg_names) || anyNA(arg_names) || any(arg_names == "") || anyDuplicated(arg_names))
       cli::cli_abort("{.arg {axis}} must be a list with unique, non-empty names.")
   }
-  apply_scale <- function(p, args, axis) {
-    if (is.null(args) || length(args) == 0L) return(p)
-    scale <- p$scales$get_scales(axis)
-    if (is.null(scale) && any(vapply(p$layers, function(layer) is.function(layer$data), logical(1)))) {
-      p$scales <- p$scales$clone()
-      if (is.null(p$scales$.fmt_scale_parent)) {
-        p$scales$.fmt_scale_parent <- do.call(ggplot2::ggproto,
-          c(list(NULL), as.list(p$scales)[c("add_defaults", "add_missing")]),
-          quote = TRUE, envir = baseenv())
-      }
-      p$scales$.fmt_scale_args[[axis]] <- utils::modifyList(
-        p$scales$.fmt_scale_args[[axis]] %||% list(), args, keep.null = TRUE)
-      p$scales$add_defaults <- .add_fmt_scale_defaults
-      p$scales$add_missing <- .add_fmt_scale_missing
-      return(p)
-    }
-    fn_name <- .detect_scale_type(p, axis)
-    if (!is.null(scale)) {
-      p$scales <- p$scales$clone()
-      .update_position_scale(p$scales$get_scales(axis), args, axis, fn_name)
-      return(p)
-    }
-    p + .update_position_scale(NULL, args, axis, fn_name)
-  }
-
   fmt_scale_one <- function(p) {
-    p <- apply_scale(p, x, "x")
-    p <- apply_scale(p, y, "y")
+    scales_cloned <- FALSE
+    defer_scale <- any(vapply(p$layers, function(layer) is.function(layer$data), logical(1)))
+    for (axis in c("x", "y")) {
+      args <- if (axis == "x") x else y
+      if (is.null(args) || !length(args)) next
+      scale <- p$scales$get_scales(axis)
+      if (is.null(scale) && defer_scale) {
+        pending <- utils::modifyList(p$scales$.fmt_scale_args[[axis]] %||% list(), args,
+                                     keep.null = TRUE)
+        if (identical(pending, p$scales$.fmt_scale_args[[axis]])) next
+        if (!scales_cloned) {
+          p$scales <- .clone_plot_scales(p$scales)
+          scales_cloned <- TRUE
+        }
+        if (is.null(p$scales$.fmt_scale_parent))
+          p$scales$.fmt_scale_parent <- .scale_inference_parent(p$scales)
+        p$scales$.fmt_scale_args[[axis]] <- pending
+        p$scales$add_defaults <- .add_fmt_scale_defaults
+        p$scales$add_missing <- .add_fmt_scale_missing
+      } else if (!is.null(scale)) {
+        fields <- .update_position_scale(scale, args, axis, .detect_scale_type(p, axis),
+                                          fields_only = TRUE)
+        original_fields <- as.list(scale, all.names = TRUE)
+        changed <- names(fields)[!vapply(names(fields), function(f) identical(original_fields[[f]], fields[[f]]), logical(1))]
+        if (!length(changed)) next
+        if (!scales_cloned) {
+          p$scales <- .clone_plot_scales(p$scales)
+          scales_cloned <- TRUE
+        }
+        scale <- p$scales$get_scales(axis)
+        for (f in changed) scale[[f]] <- fields[[f]]
+      } else {
+        p <- p + .update_position_scale(NULL, args, axis, .detect_scale_type(p, axis))
+      }
+    }
     p
   }
 
