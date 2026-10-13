@@ -24,7 +24,7 @@ fmt_panel(
 
 - plot:
 
-  A ggplot, patchwork, or list of ggplot objects.
+  A ggplot, patchwork, or nested list of these objects.
 
 - grid:
 
@@ -44,22 +44,24 @@ fmt_panel(
 
 - grid_color:
 
-  Color of retained grid lines. Default `NULL` (inherit from current
-  theme).
+  A single color string, or `NA` for transparent grid lines. Default
+  `NULL` (inherit from the current theme).
 
 - grid_linewidth:
 
-  Numeric. Line width of retained grid lines. Default `NULL` (inherit
-  from current theme).
+  A single finite, non-negative number. Line width of retained grid
+  lines. Default `NULL` (inherit from current theme).
 
 - grid_linetype:
 
-  Linetype of retained grid lines (e.g. `"solid"`, `"dashed"`,
-  `"dotted"`). Default `NULL` (inherit from current theme).
+  A single named line type (e.g. `"solid"`, `"dashed"`, `"dotted"`), an
+  integer from 0 to 6, or a pattern of 2, 4, 6 or 8 hexadecimal digits
+  without zeroes (e.g. `"22"`). Default `NULL` (inherit from current
+  theme).
 
 - border:
 
-  Logical or character.
+  A single non-missing logical value or color string.
 
   - `TRUE` — draw a black rectangle border around the panel.
 
@@ -71,24 +73,50 @@ fmt_panel(
 
 - border_linewidth:
 
-  Numeric. Border line width. Default 0.5.
+  A single finite, non-negative number. Border line width, used only
+  when `border` is `TRUE` or a color string. Default 0.5.
 
 - bg:
 
-  Panel background color. `NULL` (default) = no change, `"white"`,
-  `"transparent"`, or any valid color string.
+  A single panel background color string, or `NA` for a transparent
+  background. `NULL` (default) leaves the background unchanged.
 
 - ...:
 
-  Additional arguments passed to \[ggplot2::theme()\].
+  Additional arguments passed to
+  [`ggplot2::theme()`](https://ggplot2.tidyverse.org/reference/theme.html),
+  applied after panel settings.
 
 ## Value
 
 Same type as input.
 
+## Details
+
+Grid modes control visibility even when the original theme hides grid
+lines. Retained grids keep available inherited styling. When enabling a
+blank grid element, blank entries in its inheritance chain are replaced
+with entries from the current global theme, falling back to
+[`ggplot2::theme_gray()`](https://ggplot2.tidyverse.org/reference/ggtheme.html)
+when those entries are also blank. Styles overwritten by earlier
+formatting cannot be recovered. Grid lines still require corresponding
+scale breaks.
+
+Ordinary plot leaves are formatted recursively. Layouts, annotations and
+list names are retained. Spacers, guide areas, frozen
+[`wrap_elements()`](https://patchwork.data-imaginist.com/reference/wrap_elements.html)
+cells and inset overlays are returned unchanged; format their plots
+before wrapping or adding them as insets.
+
+Extra theme arguments follow normal ggplot2 theme inheritance. To
+override a grid mode through `...`, set the corresponding axis-specific
+elements, such as `panel.grid.major.x`. The `bg` argument changes only
+the panel background; use `plot.background` in `...` for the full plot.
+
 ## See also
 
 Other plot formatting:
+[`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md),
 [`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md),
 [`fmt_axisText()`](https://hui950319.github.io/UtilsR/reference/fmt_axisText.md),
 [`fmt_axisTile()`](https://hui950319.github.io/UtilsR/reference/fmt_axisTile.md),
@@ -100,8 +128,8 @@ Other plot formatting:
 [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md),
 [`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md),
 [`fmt_plot_base()`](https://hui950319.github.io/UtilsR/reference/fmt_plot_base.md),
-[`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md),
-[`fmt_raster()`](https://hui950319.github.io/UtilsR/reference/fmt_raster.md),
+[`fmt_point`](https://hui950319.github.io/UtilsR/reference/fmt_point.md),
+[`fmt_raster`](https://hui950319.github.io/UtilsR/reference/fmt_raster.md),
 [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md),
 [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md),
 [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md),
@@ -113,7 +141,9 @@ Other plot formatting:
 
 ``` r
 library(ggplot2)
-p <- ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) +
+d <- data.frame(x = 1:20, y = sin((1:20) / 3) + (1:20) / 10,
+                group = rep(c("A", "B"), each = 10))
+p <- ggplot(d, aes(x, y, color = group)) +
   geom_point()
 
 # Remove all grid lines (most common usage, like Seurat::NoGrid())

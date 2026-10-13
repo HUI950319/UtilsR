@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md)
+  documents its grid-style fallback, protected cells and extra-theme
+  overrides, with regressions for rendering, computed data and
+  caller-owned plots.
+
+- [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md)
   reports malformed border, colour, line-width and line-type arguments
   before rendering; transparent colours and zero widths remain valid.
 
