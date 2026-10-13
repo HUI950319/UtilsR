@@ -4321,6 +4321,7 @@ fmt_his <- function(plot,
 # fmt_scale() -> recursive leaves -> .update_position_scale()
 # Function data -> ScalesList defaults -> .apply_deferred_scale_settings()
 .update_position_scale <- function(scale, args, axis, fn_name) {
+  if (inherits(scale, "ScaleBinnedPosition")) fn_name <- paste0("scale_", axis, "_binned")
   fn <- getExportedValue("ggplot2", fn_name)
   arg_names <- names(args)
   allowed <- setdiff(names(formals(fn)), "...")
@@ -4345,7 +4346,7 @@ fmt_his <- function(plot,
                      date_labels = "labels", date_minor_breaks = "minor_breaks",
                      timezone = c("timezone", "trans"))
   new_trans <- any(c("transform", "trans") %in% arg_names)
-  if (fn_name == paste0("scale_", axis, "_continuous") && !new_trans)
+  if (fn_name %in% paste0("scale_", axis, c("_continuous", "_binned")) && !new_trans)
     args$transform <- scale$trans
   remap_limits <- new_trans && !"limits" %in% arg_names && is.numeric(scale$limits)
   if (remap_limits) args$limits <- scale$trans$inverse(scale$limits)

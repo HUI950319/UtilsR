@@ -165,3 +165,23 @@ test_that("invalid temporal settings retain their original error without a type 
   }
   expect_null(p$scales$get_scales("x"))
 })
+
+test_that("binned position scales accept bin controls and retain transformations", {
+  p <- ggplot2::ggplot(data.frame(x = c(1, 10, 100), y = 1:3), ggplot2::aes(x, y)) +
+    ggplot2::geom_point()
+  scale_args <- list(name = "Dose", breaks = c(1, 10, 100), limits = c(1, 100),
+                     transform = "log10", right = TRUE)
+  original <- p + do.call(ggplot2::scale_x_binned, scale_args)
+  q <- fmt_scale(original, x = list(right = FALSE, nice.breaks = FALSE, show.limits = TRUE))
+  scale <- q$scales$get_scales("x")
+  expect_s3_class(scale, "ScaleBinnedPosition")
+  expect_identical(scale$trans$name, "log-10")
+  expect_identical(scale$name, "Dose")
+  expect_false(scale$right)
+  expected <- p + do.call(ggplot2::scale_x_binned,
+    utils::modifyList(scale_args, list(right = FALSE, nice.breaks = FALSE, show.limits = TRUE)))
+  expect_equal(ggplot2::ggplot_build(q)$data, ggplot2::ggplot_build(expected)$data)
+  trimmed <- fmt_scale(original, x = list(limits = c(1, 10)))
+  expect_equal(trimmed$scales$get_scales("x")$limits, c(0, 1))
+  expect_true(original$scales$get_scales("x")$right)
+})
