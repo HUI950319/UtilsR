@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
+  distinguishes dates, date-times and times, retaining sub-day
+  resolution. Shared detection also accepts temporal controls in
+  [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md).
+
+- [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
   preserves existing position scales, including transformations, limits,
   custom labels, discrete ordering, binned scales and secondary axes.
 

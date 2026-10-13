@@ -24,7 +24,9 @@ fmt_expand(plot, mult = 0, add = c(0, 0), axis = NULL)
 
 - add:
 
-  Additive expansion (length-2 vector for lower/upper).
+  Additive expansion (length-2 vector for lower/upper). Units are days
+  for dates, seconds for date-times and times, and transformed scale
+  units for other axes.
 
 - axis:
 
