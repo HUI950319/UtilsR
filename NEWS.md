@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_expand()` distinguishes dates, date-times and times, retaining sub-day
+  resolution. Shared detection also accepts temporal controls in `fmt_scale()`.
+
 * `fmt_expand()` preserves existing position scales, including transformations,
   limits, custom labels, discrete ordering, binned scales and secondary axes.
 

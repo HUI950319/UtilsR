@@ -4360,6 +4360,8 @@ fmt_scale <- function(plot, x = NULL, y = NULL) {
 #' @param plot A ggplot, patchwork, or list of ggplots.
 #' @param mult Multiplicative expansion factor.
 #' @param add Additive expansion (length-2 vector for lower/upper).
+#'   Units are days for dates, seconds for date-times and times, and transformed
+#'   scale units for other axes.
 #' @param axis \code{"x"}, \code{"y"}, or \code{NULL} (both).
 #'
 #' @return Same type as input.

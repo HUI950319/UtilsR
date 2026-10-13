@@ -11,7 +11,9 @@ fmt_expand(plot, mult = 0, add = c(0, 0), axis = NULL)
 
 \item{mult}{Multiplicative expansion factor.}
 
-\item{add}{Additive expansion (length-2 vector for lower/upper).}
+\item{add}{Additive expansion (length-2 vector for lower/upper).
+Units are days for dates, seconds for date-times and times, and transformed
+scale units for other axes.}
 
 \item{axis}{\code{"x"}, \code{"y"}, or \code{NULL} (both).}
 }

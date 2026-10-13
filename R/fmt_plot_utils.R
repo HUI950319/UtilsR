@@ -9,7 +9,7 @@
 #
 #   L2  .to_plot_list()        ggplot | patchwork | list -> list of ggplots
 #       .from_plot_list()      list of ggplots -> original container type
-#       .detect_scale_type()   classify a plot's colour / fill scale
+#       .detect_scale_type()   classify x / y position scales
 # =============================================================================
 
 # ---- Internal helpers ----
@@ -137,8 +137,12 @@
     )][[1]]
     type <- if (inherits(sc, "ScaleDiscrete")) {
       "discrete"
-    } else if (inherits(sc, c("ScaleDate", "ScaleDatetime"))) {
+    } else if (inherits(sc, c("ScaleContinuousDatetime", "ScaleDatetime"))) {
+      "datetime"
+    } else if (inherits(sc, c("ScaleContinuousDate", "ScaleDate"))) {
       "date"
+    } else if (identical(sc$trans$name, "hms")) {
+      "time"
     } else {
       "continuous"
     }
@@ -156,8 +160,12 @@
       )
       if (is.factor(d) || is.character(d) || is.logical(d)) {
         return(paste0("scale_", axis, "_discrete"))
-      } else if (inherits(d, c("Date", "POSIXct", "POSIXt"))) {
+      } else if (inherits(d, "Date")) {
         return(paste0("scale_", axis, "_date"))
+      } else if (inherits(d, c("POSIXct", "POSIXt"))) {
+        return(paste0("scale_", axis, "_datetime"))
+      } else if (inherits(d, "hms")) {
+        return(paste0("scale_", axis, "_time"))
       }
     }
     paste0("scale_", axis, "_continuous")

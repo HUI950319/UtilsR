@@ -58,3 +58,53 @@ test_that("expansion defaults and named list returns remain unchanged", {
     }
   }
 })
+
+test_that("implicit temporal axes retain their scale types and time resolution", {
+  cases <- list(
+    list(x = as.Date("2026-10-13") + 0:2, transform = "date"),
+    list(x = as.POSIXct("2026-10-13 08:00:00", tz = "UTC") + c(0, 3600, 7200),
+         transform = "time"),
+    list(x = structure(c(0, 3600, 7200), class = c("hms", "difftime"), units = "secs"),
+         transform = "hms")
+  )
+  for (case in cases) {
+    p <- ggplot2::ggplot(data.frame(x = case$x, y = 1:3),
+                         ggplot2::aes(x, y)) + ggplot2::geom_point()
+    q <- fmt_expand(p, mult = 0.05, axis = "x")
+    expect_identical(q$scales$get_scales("x")$trans$name, case$transform)
+    expect_equal(ggplot2::ggplot_build(q)$data[[1]]$x, as.numeric(case$x))
+  }
+})
+
+test_that("additive temporal expansion uses days for dates and seconds for times", {
+  cases <- list(
+    list(x = as.Date("2026-10-13") + 0:2, add = 2),
+    list(x = as.POSIXct("2026-10-13 08:00:00", tz = "UTC") + c(0, 3600, 7200),
+         add = 3600)
+  )
+  for (case in cases) {
+    p <- ggplot2::ggplot(data.frame(x = case$x, y = 1:3),
+                         ggplot2::aes(x, y)) + ggplot2::geom_point()
+    q <- fmt_expand(p, add = c(case$add, 0), axis = "x")
+    expect_equal(ggplot2::ggplot_build(q)$layout$panel_params[[1]]$x.range,
+                 c(min(as.numeric(case$x)) - case$add, max(as.numeric(case$x))))
+  }
+})
+
+test_that("shared scale detection accepts temporal controls in fmt_scale", {
+  dates <- as.Date("2026-10-13") + 0:2
+  times <- as.POSIXct("2026-10-13 08:00:00", tz = "UTC") + c(0, 3600, 7200)
+  date_plot <- ggplot2::ggplot(data.frame(x = dates, y = 1:3),
+                               ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    ggplot2::scale_x_date()
+  time_plot <- ggplot2::ggplot(data.frame(x = times, y = 1:3),
+                               ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    ggplot2::scale_x_datetime()
+  q_date <- suppressMessages(fmt_scale(date_plot, x = list(date_labels = "%Y-%m-%d")))
+  q_time <- suppressMessages(fmt_scale(time_plot,
+    x = list(date_labels = "%H:%M", timezone = "Asia/Shanghai")))
+  expect_identical(q_date$scales$get_scales("x")$trans$name, "date")
+  expect_identical(q_time$scales$get_scales("x")$trans$name, "time")
+  expect_identical(q_time$scales$get_scales("x")$timezone, "Asia/Shanghai")
+  expect_equal(ggplot2::ggplot_build(q_time)$data[[1]]$x, as.numeric(times))
+})
