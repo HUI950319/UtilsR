@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_expand()` retains native scales for function and formula layer data,
+  resolving them during plot building without extra calls to the data function.
+
 * `fmt_expand()` and `fmt_scale()` infer only initial-stage mappings, keeping
   computed statistics separate from same-named source columns and accepting
   legacy statistic mappings.

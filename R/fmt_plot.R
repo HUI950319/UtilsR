@@ -4412,6 +4412,8 @@ fmt_scale <- function(plot, x = NULL, y = NULL) {
 #' transformation, limits, breaks, labels, guides and secondary axes.
 #' New scales are inferred from effective layer mappings and their data,
 #' including variables captured in the mapping environment.
+#' Function and formula layer data are resolved during normal plot building,
+#' without executing the data function during formatting.
 #' Nested patchworks are updated recursively without changing their layout.
 #' Ordinary mapping evaluation errors retain their original cause. Computed
 #' statistic mappings use continuous defaults unless a position scale is supplied.
@@ -4449,6 +4451,9 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
   axes <- if (is.null(axis)) c("x", "y") else axis
   fmt_expand_one <- function(p) {
     scales_cloned <- FALSE
+    defer_scale <- any(vapply(p$layers, function(layer) {
+      is.function(layer$data)
+    }, logical(1)))
     for (ax in axes) {
       scale <- p$scales$get_scales(ax)
       if (!is.null(scale)) {
@@ -4459,6 +4464,17 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
           scale <- p$scales$get_scales(ax)
         }
         scale$expand <- expansion_setting
+      } else if (defer_scale) {
+        if (identical(p$scales$.fmt_expand[[ax]], expansion_setting)) next
+        if (!scales_cloned) {
+          p$scales <- p$scales$clone()
+          scales_cloned <- TRUE
+        }
+        if (is.null(p$scales$.fmt_expand_parent))
+          p$scales$.fmt_expand_parent <- p$scales$super()
+        p$scales$.fmt_expand[[ax]] <- expansion_setting
+        p$scales$add_defaults <- .add_expansion_defaults
+        p$scales$add_missing <- .add_expansion_missing
       } else {
         fn <- getExportedValue("ggplot2", .detect_scale_type(p, ax))
         p <- p + fn(expand = expansion_setting)

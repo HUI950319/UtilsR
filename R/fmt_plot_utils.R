@@ -185,6 +185,33 @@
   paste0("scale_", axis, "_continuous")
 }
 
+# Apply padding after ggplot2 selects a scale from actual layer values.
+.add_expansion_defaults <- function(self, data, env) {
+  axes <- names(self$.fmt_expand)
+  missing <- axes[vapply(axes, function(axis) {
+    is.null(self$get_scales(axis))
+  }, logical(1))]
+  ggplot2::ggproto_parent(self$.fmt_expand_parent, self)$add_defaults(data, env)
+  for (axis in missing) {
+    scale <- self$get_scales(axis)
+    if (!is.null(scale)) scale$expand <- self$.fmt_expand[[axis]]
+  }
+  invisible(NULL)
+}
+
+.add_expansion_missing <- function(self, aesthetics, env) {
+  axes <- names(self$.fmt_expand)
+  missing <- axes[vapply(axes, function(axis) {
+    is.null(self$get_scales(axis))
+  }, logical(1))]
+  ggplot2::ggproto_parent(self$.fmt_expand_parent, self)$add_missing(aesthetics, env)
+  for (axis in missing) {
+    scale <- self$get_scales(axis)
+    if (!is.null(scale)) scale$expand <- self$.fmt_expand[[axis]]
+  }
+  invisible(NULL)
+}
+
 # ---- Exported ----
 
 #' Flatten nested patchwork objects

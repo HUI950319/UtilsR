@@ -337,3 +337,55 @@ test_that("stage start mappings and ordinary stage-named errors stay distinct", 
     ggplot2::geom_point()
   expect_error(fmt_expand(invalid, axis = "x"), "Cannot infer the x-axis")
 })
+
+test_that("function and formula layer data retain native position scale types", {
+  dat <- data.frame(category = factor(c("a", "b", "c")), value = 1:3)
+  for (layer_data in list(function(d) head(d, 2), ~ head(.x, 2))) {
+    p <- ggplot2::ggplot(dat, ggplot2::aes(category, value)) +
+      ggplot2::geom_point(data = layer_data)
+    q <- fmt_expand(p, mult = 0.1)
+    built <- ggplot2::ggplot_build(q)
+    expect_s3_class(built$plot$scales$get_scales("x"), "ScaleDiscretePosition")
+    expect_identical(built$data, ggplot2::ggplot_build(p)$data)
+    expect_equal(built$plot$scales$get_scales("x")$expand,
+                 ggplot2::expansion(mult = 0.1))
+  }
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3), ggplot2::aes(x, y)) +
+    ggplot2::geom_point(data = function(d) {
+      d$x <- as.Date("2026-01-01") + d$x
+      d
+    })
+  built <- ggplot2::ggplot_build(fmt_expand(p, add = 1, axis = "x"))
+  expect_s3_class(built$plot$scales$get_scales("x"), "ScaleContinuousDate")
+  expect_identical(built$data, ggplot2::ggplot_build(p)$data)
+  expect_equal(built$layout$panel_params[[1]]$x.range, c(20454, 20458))
+})
+
+test_that("formatting does not execute or replace function layer data", {
+  calls <- 0L
+  layer_data <- function(d) {
+    calls <<- calls + 1L
+    head(d, 2)
+  }
+  p <- ggplot2::ggplot(data.frame(x = factor(c("a", "b", "c")), y = 1:3),
+                       ggplot2::aes(x, y)) + ggplot2::geom_point(data = layer_data)
+  q <- fmt_expand(p, mult = 0.1)
+  expect_identical(calls, 0L)
+  expect_identical(q$layers[[1]]$data, p$layers[[1]]$data)
+  invisible(ggplot2::ggplot_build(q))
+  expect_identical(calls, 1L)
+  expect_null(p$scales$get_scales("x"))
+  later <- q + ggplot2::scale_x_discrete(expand = ggplot2::expansion(add = 2))
+  expect_equal(ggplot2::ggplot_build(later)$plot$scales$get_scales("x")$expand,
+               ggplot2::expansion(add = 2))
+})
+
+test_that("function data padding also applies to native fallback axes", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3)) +
+    ggplot2::geom_vline(data = function(d) d, ggplot2::aes(xintercept = x))
+  built <- ggplot2::ggplot_build(fmt_expand(p, mult = 0.1))
+  for (axis in c("x", "y")) {
+    expect_equal(built$plot$scales$get_scales(axis)$expand,
+                 ggplot2::expansion(mult = 0.1))
+  }
+})
