@@ -50,11 +50,13 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/fmt_scale.html">fmt_scale()</a></code> preserves observations when changing to or from a reversed transformation, including on the minimum supported ggplot2 version.</p></li>
+<ul><li><p><code><a href="../reference/fmt_expand.html">fmt_expand()</a></code> retains native scales when axes are supplied by statistic default mappings, including categorical outputs from custom statistics.</p></li>
+<li><p><code><a href="../reference/fmt_scale.html">fmt_scale()</a></code> preserves observations when changing to or from a reversed transformation, including on the minimum supported ggplot2 version.</p></li>
 <li><p><code><a href="../reference/fmt_scale.html">fmt_scale()</a></code> formats all leaves of nested patchworks and applies settings to native scales for function and formula layer data without extra data calls.</p></li>
 <li><p><code><a href="../reference/fmt_scale.html">fmt_scale()</a></code> validates named axis lists, matches unambiguous argument abbreviations consistently, and retains the cause of scale construction errors.</p></li>
 <li><p><code><a href="../reference/fmt_scale.html">fmt_scale()</a></code> supports controls on existing binned position scales and reuses unchanged scales. Changed axes clone once per plot without retaining prior scale instances or bound callback histories.</p></li>
 <li><p>The formatting vignette uses the current <code>fmt_scale(x = ..., y = ...)</code> API.</p></li>
+<li><p><code><a href="../reference/fmt_expand.html">fmt_expand()</a></code> retains native scale inference for computed statistics, including categorical <code><a href="https://ggplot2.tidyverse.org/reference/aes_eval.html" class="external-link">after_stat()</a></code> mappings.</p></li>
 <li><p><code><a href="../reference/fmt_expand.html">fmt_expand()</a></code> preserves native <code><a href="https://ggplot2.tidyverse.org/reference/scale_type.html" class="external-link">scale_type()</a></code> dispatch for extension classes, including implicit binned position scales, without extra dispatch calls.</p></li>
 <li><p><code><a href="../reference/fmt_expand.html">fmt_expand()</a></code> defers function-call mappings to normal plot building, avoiding extra evaluations and preserving random mappings. Function errors are reported at build time with their original cause.</p></li>
 <li><p><code><a href="../reference/fmt_expand.html">fmt_expand()</a></code> keeps scale storage bounded when padding changes repeatedly, retaining custom scale classes, fields and clone behavior without chaining previous instances as parents.</p></li>

@@ -2,6 +2,10 @@
 
 ## UtilsR 0.6.8
 
+- [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
+  retains native scales when axes are supplied by statistic default
+  mappings, including categorical outputs from custom statistics.
+
 - [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md)
   preserves observations when changing to or from a reversed
   transformation, including on the minimum supported ggplot2 version.
@@ -21,6 +25,12 @@
 
 - The formatting vignette uses the current `fmt_scale(x = ..., y = ...)`
   API.
+
+- [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
+  retains native scale inference for computed statistics, including
+  categorical
+  [`after_stat()`](https://ggplot2.tidyverse.org/reference/aes_eval.html)
+  mappings.
 
 - [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
   preserves native
