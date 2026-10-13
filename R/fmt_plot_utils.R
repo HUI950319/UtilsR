@@ -185,6 +185,48 @@
   paste0("scale_", axis, "_continuous")
 }
 
+.scale_inference_parent <- function(scales) {
+  do.call(ggplot2::ggproto,
+          c(list(NULL), as.list(scales)[c("add_defaults", "add_missing")]),
+          quote = TRUE, envir = baseenv())
+}
+
+.clone_plot_scales <- function(scales) {
+  flatten <- function(original, copy) {
+    parent <- original
+    while (is.function(parent$super)) {
+      candidate <- parent$super()
+      if (!identical(class(candidate), class(original))) break
+      parent <- candidate
+    }
+    fields <- list()
+    object <- copy
+    # Inherited as.list() does not propagate all.names to parent objects.
+    repeat {
+      own <- as.list(object, inherit = FALSE, all.names = TRUE)
+      missing <- setdiff(names(own), names(fields))
+      fields[missing] <- own[missing]
+      if (!is.function(object$super)) break
+      object <- object$super()
+      if (is.null(object)) break
+    }
+    inherited <- as.list(parent, all.names = TRUE)
+    fields <- fields[!vapply(names(fields), function(name) {
+      is.function(fields[[name]]) && identical(fields[[name]], inherited[[name]])
+    }, logical(1))]
+    # Avoid evaluating stored calls or capturing this formatter's frame.
+    result <- do.call(ggplot2::ggproto, c(list(NULL, parent), fields),
+                      quote = TRUE, envir = baseenv())
+    attributes(result) <- attributes(copy)
+    result
+  }
+  copy <- scales$clone()
+  copy$scales <- Map(flatten, scales$scales, copy$scales)
+  if (!is.null(copy$.fmt_expand_parent))
+    copy$.fmt_expand_parent <- .scale_inference_parent(copy$.fmt_expand_parent)
+  flatten(scales, copy)
+}
+
 # Apply padding after ggplot2 selects a scale from actual layer values.
 .add_expansion_defaults <- function(self, data, env) {
   axes <- names(self$.fmt_expand)

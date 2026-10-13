@@ -4518,7 +4518,7 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
       if (!is.null(scale)) {
         if (identical(scale$expand, expansion_setting)) next
         if (!scales_cloned) {
-          p$scales <- p$scales$clone()
+          p$scales <- .clone_plot_scales(p$scales)
           scales_cloned <- TRUE
           scale <- p$scales$get_scales(ax)
         }
@@ -4526,11 +4526,11 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
       } else if (defer_scale) {
         if (identical(p$scales$.fmt_expand[[ax]], expansion_setting)) next
         if (!scales_cloned) {
-          p$scales <- p$scales$clone()
+          p$scales <- .clone_plot_scales(p$scales)
           scales_cloned <- TRUE
         }
         if (is.null(p$scales$.fmt_expand_parent))
-          p$scales$.fmt_expand_parent <- p$scales$super()
+          p$scales$.fmt_expand_parent <- .scale_inference_parent(p$scales)
         p$scales$.fmt_expand[[ax]] <- expansion_setting
         p$scales$add_defaults <- .add_expansion_defaults
         p$scales$add_missing <- .add_expansion_missing

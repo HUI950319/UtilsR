@@ -412,3 +412,55 @@ test_that("empty position mappings do not determine later layer scales", {
   expect_identical(built$plot$scales$get_scales("x")$trans$name, "identity")
   expect_identical(built$data, ggplot2::ggplot_build(p)$data)
 })
+
+test_that("changing padding repeatedly keeps scale storage bounded", {
+  dat <- data.frame(x = c(1, 10, 100), y = 1:3, group = factor(c("a", "b", "c")))
+  p <- ggplot2::ggplot(dat, ggplot2::aes(x, y, colour = group)) + ggplot2::geom_point()
+  plots <- list(
+    p + ggplot2::scale_x_log10() + ggplot2::scale_y_continuous() +
+      ggplot2::scale_colour_discrete(),
+    p + ggplot2::aes(x = group) + ggplot2::scale_x_discrete(drop = FALSE) +
+      ggplot2::scale_y_continuous(),
+    p + ggplot2::scale_x_binned(breaks = c(1, 10, 100)) + ggplot2::scale_y_continuous(),
+    p + ggplot2::geom_point(data = function(d) d)
+  )
+  for (plot in plots) {
+    first <- fmt_expand(plot, mult = 0.05)
+    repeated <- fmt_expand(first, mult = 0.1)
+    initial_size <- length(serialize(repeated$scales, NULL))
+    for (i in 1:24) repeated <- fmt_expand(repeated, mult = if (i %% 2L) 0.05 else 0.1)
+    expect_lte(length(serialize(repeated$scales, NULL)), initial_size + 8192)
+    built <- ggplot2::ggplot_build(repeated)
+    fresh <- ggplot2::ggplot_build(fmt_expand(plot, mult = 0.1))
+    expect_identical(built$data, fresh$data)
+    expect_equal(built$layout$panel_params[[1]]$x.range,
+                 fresh$layout$panel_params[[1]]$x.range)
+    expect_equal(built$layout$panel_params[[1]]$y.range,
+                 fresh$layout$panel_params[[1]]$y.range)
+    original_scale <- first$scales$get_scales("x")
+    original_expand <- if (is.null(original_scale)) first$scales$.fmt_expand$x
+      else original_scale$expand
+    expect_equal(original_expand,
+                 ggplot2::expansion(mult = 0.05))
+  }
+})
+
+test_that("scale cloning retains custom fields, classes and clone behavior", {
+  scale <- ggplot2::ggproto("ScaleExpandTracked", ggplot2::scale_x_log10(),
+    clone_count = 0L, custom_setting = list(label = "retained"),
+    .hidden_setting = "retained",
+    clone = function(self) {
+      result <- ggplot2::ggproto_parent(ggplot2::ScaleContinuous, self)$clone()
+      result$clone_count <- self$clone_count + 1L
+      result
+    })
+  p <- ggplot2::ggplot(data.frame(x = c(1, 10, 100), y = 1:3), ggplot2::aes(x, y)) +
+    ggplot2::geom_point() + scale
+  q <- fmt_expand(p, mult = 0.1, axis = "x")
+  expect_s3_class(q$scales$get_scales("x"), "ScaleExpandTracked")
+  expect_identical(q$scales$get_scales("x")$custom_setting, list(label = "retained"))
+  expect_identical(q$scales$get_scales("x")$.hidden_setting, "retained")
+  expect_identical(q$scales$get_scales("x")$clone_count, 1L)
+  expect_identical(p$scales$get_scales("x")$clone_count, 0L)
+  expect_identical(ggplot2::ggplot_build(q)$data, ggplot2::ggplot_build(p)$data)
+})

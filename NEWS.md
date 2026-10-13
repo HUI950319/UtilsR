@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_expand()` keeps scale storage bounded when padding changes repeatedly,
+  retaining custom scale classes, fields and clone behavior without chaining
+  previous instances as parents.
+
 * `fmt_expand()` and `fmt_scale()` ignore empty position mappings when
   choosing a scale, so later non-empty layers retain their native scale type.
 
