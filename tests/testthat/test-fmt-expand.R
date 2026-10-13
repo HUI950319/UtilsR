@@ -612,6 +612,34 @@ test_that("alternating deferred formatters retain settings and last expansion", 
   expect_equal(built$plot$scales$get_scales("x")$expand, ggplot2::expansion(mult = 0.2))
 })
 
+test_that("lazy mapping bindings retain native evaluation order and random state", {
+  make_plot <- function() {
+    binding_env <- new.env()
+    binding_env$calls <- 0L
+    delayedAssign("values", {
+      calls <- calls + 1L
+      stats::runif(3)
+    }, assign.env = binding_env, eval.env = binding_env)
+    mapping <- ggplot2::aes(x = stats::rnorm(3), y = values)
+    mapping$y <- rlang::new_quosure(quote(values), binding_env)
+    list(plot = ggplot2::ggplot(mapping = mapping) + ggplot2::geom_point(),
+         binding_env = binding_env)
+  }
+  set.seed(903)
+  native <- ggplot2::ggplot_build(make_plot()$plot)
+  set.seed(903)
+  fixture <- make_plot()
+  seed <- .Random.seed
+  q <- fmt_expand(fixture$plot, mult = 0.1)
+  expect_identical(fixture$binding_env$calls, 0L)
+  expect_true(identical(.Random.seed, seed))
+  expect_true(rlang::env_binding_are_lazy(fixture$binding_env, "values")[[1L]])
+  built <- ggplot2::ggplot_build(q)
+  expect_identical(built$data, native$data)
+  expect_identical(fixture$binding_env$calls, 1L)
+  expect_equal(built$plot$scales$get_scales("y")$expand, ggplot2::expansion(mult = 0.1))
+})
+
 test_that("implicit extension scales retain native scale_type dispatch", {
   methods <- get(".__S3MethodsTable__.", envir = asNamespace("ggplot2"))
   method_name <- "scale_type.fmt_expand_binned"

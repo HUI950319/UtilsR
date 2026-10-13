@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_expand()` leaves lazy mapping bindings unevaluated until plot building,
+  retaining native mapping evaluation order and random-number state.
+
 * Alternating `fmt_expand()` and `fmt_scale()` retains all deferred settings;
   the most recent formatter takes precedence when both set expansion.
 

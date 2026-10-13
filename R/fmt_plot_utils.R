@@ -179,7 +179,9 @@
       binding_env <- rlang::get_env(var_quo)
       while (!identical(binding_env, emptyenv())) {
         if (exists(as.character(expr), envir = binding_env, inherits = FALSE)) {
-          if (bindingIsActive(as.character(expr), binding_env)) return(NULL)
+          if (bindingIsActive(as.character(expr), binding_env) ||
+              rlang::env_binding_are_lazy(binding_env, as.character(expr))[[1L]])
+            return(NULL)
           break
         }
         binding_env <- parent.env(binding_env)
