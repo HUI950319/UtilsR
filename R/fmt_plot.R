@@ -2452,7 +2452,37 @@ fmt_panel <- function(plot,
 
   # ---- Apply to plots ----
   info <- .to_plot_list(plot)
-  info$plots <- lapply(info$plots, function(p) p + panel_theme)
+  enabled <- switch(grid,
+    "none" = character(),
+    "major" = c("panel.grid.major.x", "panel.grid.major.y"),
+    "minor" = c("panel.grid.minor.x", "panel.grid.minor.y"),
+    "both" = c("panel.grid.major.x", "panel.grid.major.y",
+                "panel.grid.minor.x", "panel.grid.minor.y"),
+    "x" = "panel.grid.major.x", "y" = "panel.grid.major.y"
+  )
+  base_theme <- ggplot2::theme_get()
+  info$plots <- lapply(info$plots, function(p) {
+    if (length(enabled)) {
+      effective <- base_theme + p$theme
+      restored <- list()
+      for (nm in enabled) {
+        if (!inherits(ggplot2::calc_element(nm, effective), "element_blank")) next
+        inherited <- effective
+        for (field in c(nm, sub("\\.[xy]$", "", nm), "panel.grid", "line")) {
+          if (inherits(inherited[[field]], "element_blank")) {
+            value <- base_theme[[field]]
+            if (inherits(value, "element_blank")) value <- ggplot2::theme_gray()[[field]]
+            inherited[[field]] <- value
+          }
+        }
+        element <- ggplot2::calc_element(nm, inherited)
+        restored[[nm]] <- ggplot2::merge_element(
+          ggplot2::element_line(inherit.blank = FALSE), element)
+      }
+      if (length(restored)) p <- p + do.call(ggplot2::theme, restored)
+    }
+    p + panel_theme
+  })
   .from_plot_list(info$plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
 }
 

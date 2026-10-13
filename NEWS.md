@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_panel()` restores enabled grids when switching modes or formatting themes
+  that previously hid their grids, retaining available inherited line styling.
+
 * `fmt_panel()` consistently hides axis-specific grid lines and applies explicit
   grid styling to both axes.
 
