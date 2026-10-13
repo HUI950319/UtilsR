@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_scale()` retains the same observations for partially automatic limits
+  when changing between increasing and decreasing transformations.
+
 * `fmt_expand()` leaves lazy mapping bindings unevaluated until plot building,
   retaining native mapping evaluation order and random-number state.
 

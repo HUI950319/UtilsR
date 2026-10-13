@@ -229,3 +229,23 @@ test_that("repeated scale changes keep storage bounded and retain earlier result
                      as.numeric(1:3))
   }
 })
+
+test_that("changing transformation keeps partial limits on the same observations", {
+  p <- ggplot2::ggplot(data.frame(x = 1:5, y = 1:5), ggplot2::aes(x, y)) +
+    ggplot2::geom_point()
+  cases <- list(
+    list(from = "identity", to = "reverse", limits = c(NA, 4), x = c(-1, -2, -3, -4, NA)),
+    list(from = "identity", to = "reverse", limits = c(2, NA), x = c(NA, -2, -3, -4, -5)),
+    list(from = "reverse", to = "identity", limits = c(NA, 4), x = c(NA, NA, NA, 4, 5)),
+    list(from = "reverse", to = "log10", limits = c(2, NA), x = c(0, log10(2), NA, NA, NA)),
+    list(from = "sqrt", to = "reverse", limits = c(NA, 4), x = c(-1, -2, -3, -4, NA))
+  )
+  for (case in cases) {
+    original <- p + ggplot2::scale_x_continuous(transform = case$from,
+                                               limits = case$limits)
+    limits <- original$scales$get_scales("x")$limits
+    q <- fmt_scale(original, x = list(transform = case$to))
+    expect_equal(ggplot2::ggplot_build(q)$data[[1]]$x, case$x)
+    expect_identical(original$scales$get_scales("x")$limits, limits)
+  }
+})

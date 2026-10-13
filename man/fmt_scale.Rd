@@ -33,6 +33,8 @@ secondary axis are kept unless named in the list. Continuous limits are
 interpreted on the existing transformation; when only \code{transform} is
 supplied, existing limits are re-expressed on the new one. Without an
 existing scale, a new scale of the detected type is added.
+Partially automatic limits retain the same observations when changing
+between increasing and decreasing transformations.
 
 Existing binned position scales accept their own controls, including
 \code{right}, \code{nice.breaks} and \code{show.limits}. Nested patchworks

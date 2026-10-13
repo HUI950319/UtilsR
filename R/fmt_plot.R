@@ -4358,6 +4358,12 @@ fmt_his <- function(plot,
   remap_limits <- new_trans && !"limits" %in% arg_names && is.numeric(scale$limits)
   if (remap_limits) args$limits <- scale$trans$inverse(scale$limits)
   new <- construct(args)
+  if (remap_limits && length(scale$limits) == 2L && anyNA(scale$limits)) {
+    old_domain <- scale$trans$transform(scale$trans$domain)
+    new_domain <- new$trans$transform(new$trans$domain)
+    if (isTRUE(old_domain[1L] > old_domain[2L]) !=
+        isTRUE(new_domain[1L] > new_domain[2L])) new$limits <- rev(new$limits)
+  }
   fields <- unique(c(if (remap_limits) "limits", unlist(lapply(arg_names, function(a) {
     if (a %in% names(arg_fields)) arg_fields[[a]] else a
   }))))
@@ -4408,6 +4414,8 @@ fmt_his <- function(plot,
 #' interpreted on the existing transformation; when only \code{transform} is
 #' supplied, existing limits are re-expressed on the new one. Without an
 #' existing scale, a new scale of the detected type is added.
+#' Partially automatic limits retain the same observations when changing
+#' between increasing and decreasing transformations.
 #'
 #' Existing binned position scales accept their own controls, including
 #' \code{right}, \code{nice.breaks} and \code{show.limits}. Nested patchworks
