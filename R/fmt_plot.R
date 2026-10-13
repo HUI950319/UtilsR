@@ -4336,7 +4336,14 @@ fmt_his <- function(plot,
   if (anyDuplicated(arg_names))
     cli::cli_abort("{.arg {axis}} argument names must remain unique after matching.")
   construct <- function(args) {
-    tryCatch(do.call(fn, args), error = function(e) {
+    tryCatch({
+      new <- do.call(fn, args)
+      limits <- new$limits
+      if (inherits(new, c("ScaleContinuous", "ScaleBinnedPosition")) &&
+          is.numeric(limits) && length(limits) == 2L && !anyNA(limits) && limits[1L] > limits[2L])
+        new$limits <- rev(limits)
+      new
+    }, error = function(e) {
       cli::cli_abort("Cannot update the {axis}-axis scale.", parent = e)
     })
   }

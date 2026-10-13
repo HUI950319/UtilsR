@@ -76,6 +76,8 @@ test_that("changing transformation preserves observations across reversed limits
     expect_equal(ggplot2::ggplot_build(q)$data[[1]]$x, case$x)
     expect_identical(p$scales$get_scales("x")$limits, original)
   }
+  explicit <- fmt_scale(base, x = list(transform = "reverse", limits = c(1, 100)))
+  expect_equal(ggplot2::ggplot_build(explicit)$data[[1]]$x, c(-1, -10, -100))
 })
 
 test_that("axis settings reach every nested patchwork leaf without changing layout", {
