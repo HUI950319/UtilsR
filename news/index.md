@@ -23,12 +23,6 @@
   API.
 
 - [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
-  retains native scale inference for computed statistics, including
-  categorical
-  [`after_stat()`](https://ggplot2.tidyverse.org/reference/aes_eval.html)
-  mappings.
-
-- [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
   preserves native
   [`scale_type()`](https://ggplot2.tidyverse.org/reference/scale_type.html)
   dispatch for extension classes, including implicit binned position
