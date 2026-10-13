@@ -321,3 +321,27 @@ test_that("lazy mapping values retain native evaluation order during formatting"
   expect_identical(ggplot2::ggplot_build(q)$data, native$data)
   expect_identical(fixture$env$calls, 1L)
 })
+
+test_that("statistic-produced categorical axes keep native scales and formatted labels", {
+  dat <- data.frame(x = c(1, 1, 2))
+  statistic <- ggplot2::ggproto("StatFmtScaleDiscrete", ggplot2::StatCount,
+    default_aes = ggplot2::aes(y = ggplot2::after_stat(factor(count))))
+  plots <- list(
+    ggplot2::ggplot(dat, ggplot2::aes(x)) + ggplot2::stat_count(
+      ggplot2::aes(y = ggplot2::after_stat(factor(count))), geom = "point"),
+    ggplot2::ggplot(dat, ggplot2::aes(x)) + ggplot2::geom_point(stat = statistic)
+  )
+  for (p in plots) {
+    native <- ggplot2::ggplot_build(p)
+    q <- fmt_scale(p, y = list(labels = function(x) paste0("n", x)))
+    built <- ggplot2::ggplot_build(q)
+    expect_s3_class(built$plot$scales$get_scales("y"), "ScaleDiscretePosition")
+    expect_identical(built$data, native$data)
+    expect_identical(as.character(built$layout$panel_params[[1]]$y$get_labels()), c("n1", "n2"))
+    expect_null(p$scales$get_scales("y"))
+    explicit <- q + ggplot2::scale_y_discrete(labels = c("ONE", "TWO"))
+    expect_identical(as.character(ggplot2::ggplot_build(explicit)$layout$panel_params[[1]]$y$get_labels()),
+                     c("ONE", "TWO"))
+    expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+  }
+})

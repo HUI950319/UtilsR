@@ -4431,6 +4431,8 @@ fmt_his <- function(plot,
 #' and retain custom scale classes and clone behavior when settings change.
 #' When combined with \code{fmt_expand()}, deferred settings are retained;
 #' the most recent explicit expansion setting takes precedence.
+#' Axes computed by statistics, including statistic default mappings, use
+#' their native scale type before formatting settings are applied.
 #'
 #' Scale construction errors keep their original cause and identify the axis.
 #' Limits are scale limits and can remove out-of-range observations; use

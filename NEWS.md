@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_scale()` uses native scales for statistic-generated axes, including
+  categorical `after_stat()` values and implicit statistic default mappings.
+
 * `fmt_scale()` defers dynamic mapping evaluation to normal plot building,
   preserving function-call counts, lazy bindings and random-number state.
 
