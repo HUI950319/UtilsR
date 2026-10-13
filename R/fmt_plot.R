@@ -4422,8 +4422,11 @@ fmt_his <- function(plot,
 #' are updated recursively without changing their layout or annotations.
 #'
 #' Function and formula layer data are resolved during normal plot building;
-#' formatting does not execute the data function. Scale settings are then
-#' applied to the actual scale type. A scale added explicitly afterward takes
+#' formatting does not execute the data function. Function-call mappings and
+#' active or lazy mapping bindings are also evaluated during normal building,
+#' preserving their evaluation order and random-number state. Mapping errors
+#' are reported during building with their original cause. Scale settings are
+#' then applied to the actual scale type. A scale added explicitly afterward takes
 #' precedence over deferred settings. Repeated calls reuse unchanged scales
 #' and retain custom scale classes and clone behavior when settings change.
 #' When combined with \code{fmt_expand()}, deferred settings are retained;
@@ -4473,7 +4476,9 @@ fmt_scale <- function(plot, x = NULL, y = NULL) {
       args <- if (axis == "x") x else y
       if (is.null(args) || !length(args)) next
       scale <- p$scales$get_scales(axis)
-      if (is.null(scale) && defer_scale) {
+      fn_name <- if (is.null(scale) && !defer_scale)
+        .detect_scale_type(p, axis, defer = TRUE) else NULL
+      if (is.null(scale) && (defer_scale || is.null(fn_name))) {
         pending <- utils::modifyList(p$scales$.fmt_scale_args[[axis]] %||% list(), args,
                                      keep.null = TRUE)
         sets_expansion <- any(startsWith("expand", names(args)))
@@ -4503,7 +4508,7 @@ fmt_scale <- function(plot, x = NULL, y = NULL) {
         scale <- p$scales$get_scales(axis)
         for (f in changed) scale[[f]] <- fields[[f]]
       } else {
-        p <- p + .update_position_scale(NULL, args, axis, .detect_scale_type(p, axis))
+        p <- p + .update_position_scale(NULL, args, axis, fn_name)
       }
     }
     p

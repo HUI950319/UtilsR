@@ -308,7 +308,9 @@ test_that("statistic mappings ignore same-named columns in source data", {
                      native$layout$panel_params[[1]]$y$get_labels())
     expect_identical(built$data, native$data)
     q <- fmt_scale(p, y = list(breaks = c(0, 1, 2)))
-    expect_s3_class(q$scales$get_scales("y"), "ScaleContinuousPosition")
+    formatted <- ggplot2::ggplot_build(q)
+    expect_s3_class(formatted$plot$scales$get_scales("y"), "ScaleContinuousPosition")
+    expect_identical(formatted$layout$panel_params[[1]]$y$get_breaks(), c(0, 1, 2))
   }
 })
 
@@ -337,7 +339,8 @@ test_that("stage start mappings and ordinary stage-named errors stay distinct", 
   invalid <- ggplot2::ggplot(dat, ggplot2::aes(factor(stage), value)) +
     ggplot2::geom_point()
   expect_error(ggplot2::ggplot_build(fmt_expand(invalid, axis = "x")))
-  expect_error(fmt_scale(invalid, x = list(expand = c(0, 0))), "Cannot infer the x-axis")
+  expect_error(ggplot2::ggplot_build(fmt_scale(invalid, x = list(expand = c(0, 0)))),
+               "computing aesthetics")
 })
 
 test_that("function and formula layer data retain native position scale types", {

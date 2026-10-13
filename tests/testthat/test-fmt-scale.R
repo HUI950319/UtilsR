@@ -274,3 +274,50 @@ test_that("deferred scale and expansion settings compose independently on both a
   expect_null(p$scales$get_scales("y"))
   expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
 })
+
+test_that("mapping calls run only during native building and preserve random state", {
+  calls <- 0L
+  draw <- function() {
+    calls <<- calls + 1L
+    stats::runif(5)
+  }
+  p <- ggplot2::ggplot(data.frame(y = 1:5), ggplot2::aes(x = draw(), y = y)) +
+    ggplot2::geom_point()
+  set.seed(420)
+  native <- ggplot2::ggplot_build(p)
+  set.seed(420)
+  calls <- 0L
+  seed <- .Random.seed
+  q <- fmt_scale(p, x = list(labels = function(x) paste0("L", x)))
+  expect_identical(calls, 0L)
+  expect_true(identical(.Random.seed, seed))
+  built <- ggplot2::ggplot_build(q)
+  expect_identical(calls, 1L)
+  expect_identical(built$data, native$data)
+  expect_null(p$scales$get_scales("x"))
+})
+
+test_that("lazy mapping values retain native evaluation order during formatting", {
+  make_plot <- function() {
+    env <- new.env()
+    env$calls <- 0L
+    delayedAssign("values", {
+      calls <- calls + 1L
+      stats::runif(3)
+    }, assign.env = env, eval.env = env)
+    mapping <- ggplot2::aes(x = stats::rnorm(3), y = values)
+    mapping$y <- rlang::new_quosure(quote(values), env)
+    list(plot = ggplot2::ggplot(mapping = mapping) + ggplot2::geom_point(), env = env)
+  }
+  set.seed(421)
+  native <- ggplot2::ggplot_build(make_plot()$plot)
+  set.seed(421)
+  fixture <- make_plot()
+  seed <- .Random.seed
+  q <- fmt_scale(fixture$plot, x = list(breaks = c(-1, 0, 1)), y = list(labels = scales::label_number()))
+  expect_identical(fixture$env$calls, 0L)
+  expect_true(rlang::env_binding_are_lazy(fixture$env, "values")[[1L]])
+  expect_true(identical(.Random.seed, seed))
+  expect_identical(ggplot2::ggplot_build(q)$data, native$data)
+  expect_identical(fixture$env$calls, 1L)
+})

@@ -41,8 +41,11 @@ Existing binned position scales accept their own controls, including
 are updated recursively without changing their layout or annotations.
 
 Function and formula layer data are resolved during normal plot building;
-formatting does not execute the data function. Scale settings are then
-applied to the actual scale type. A scale added explicitly afterward takes
+formatting does not execute the data function. Function-call mappings and
+active or lazy mapping bindings are also evaluated during normal building,
+preserving their evaluation order and random-number state. Mapping errors
+are reported during building with their original cause. Scale settings are
+then applied to the actual scale type. A scale added explicitly afterward takes
 precedence over deferred settings. Repeated calls reuse unchanged scales
 and retain custom scale classes and clone behavior when settings change.
 When combined with \code{fmt_expand()}, deferred settings are retained;

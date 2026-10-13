@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_scale()` defers dynamic mapping evaluation to normal plot building,
+  preserving function-call counts, lazy bindings and random-number state.
+
 * `fmt_scale()` retains the same observations for partially automatic limits
   when changing between increasing and decreasing transformations.
 
