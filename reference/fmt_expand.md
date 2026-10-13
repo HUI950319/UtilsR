@@ -23,17 +23,18 @@ fmt_expand(plot, mult = 0, add = c(0, 0), axis = NULL)
 
 - mult:
 
-  Multiplicative expansion factor.
+  Finite numeric expansion factor of length one or two. A scalar applies
+  to both ends; two values specify lower and upper expansion.
 
 - add:
 
-  Additive expansion (length-2 vector for lower/upper). Units are days
-  for dates, seconds for date-times and times, and transformed scale
-  units for other axes.
+  Finite numeric additive expansion of length one or two, with the same
+  lower/upper convention as `mult`. Units are days for dates, seconds
+  for date-times and times, and transformed scale units for other axes.
 
 - axis:
 
-  `"x"`, `"y"`, or `NULL` (both).
+  A character scalar, `"x"` or `"y"`, or `NULL` for both axes.
 
 ## Value
 

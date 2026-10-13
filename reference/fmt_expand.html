@@ -82,17 +82,20 @@ Nested patchworks are updated recursively without changing their layout.</p>
 
 
 <dt id="arg-mult">mult<a class="anchor" aria-label="anchor" href="#arg-mult"></a></dt>
-<dd><p>Multiplicative expansion factor.</p></dd>
+<dd><p>Finite numeric expansion factor of length one or two. A scalar
+applies to both ends; two values specify lower and upper expansion.</p></dd>
 
 
 <dt id="arg-add">add<a class="anchor" aria-label="anchor" href="#arg-add"></a></dt>
-<dd><p>Additive expansion (length-2 vector for lower/upper).
+<dd><p>Finite numeric additive expansion of length one or two, with the
+same lower/upper convention as <code>mult</code>.
 Units are days for dates, seconds for date-times and times, and transformed
 scale units for other axes.</p></dd>
 
 
 <dt id="arg-axis">axis<a class="anchor" aria-label="anchor" href="#arg-axis"></a></dt>
-<dd><p><code>"x"</code>, <code>"y"</code>, or <code>NULL</code> (both).</p></dd>
+<dd><p>A character scalar, <code>"x"</code> or <code>"y"</code>, or
+<code>NULL</code> for both axes.</p></dd>
 
 </dl></div>
     <div class="section level2">
