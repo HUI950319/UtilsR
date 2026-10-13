@@ -128,3 +128,91 @@ test_that("panel grid line types accept named, numeric and hexadecimal patterns"
     expect_silent(ggplot2::ggplotGrob(fmt_panel(p, grid = "major", grid_linetype = value)))
   }
 })
+
+test_that("panel formatting leaves fixed cells and inset overlays unchanged", {
+  p <- panel_test_plot()
+  fixed <- patchwork::wrap_elements(full = p)
+  spacer <- patchwork::plot_spacer()
+  guides <- patchwork::guide_area()
+  for (input in list(fixed, spacer, guides)) {
+    expect_identical(fmt_panel(input, border = TRUE, bg = "pink"), input)
+    combined <- p | input
+    output <- fmt_panel(combined, border = TRUE, bg = "pink")
+    expect_identical(output[[2]], combined[[2]])
+    expect_silent(patchwork::patchworkGrob(output))
+  }
+  input <- patchwork::free((p | p) / (p | fixed), side = "l")
+  output <- fmt_panel(input, border = TRUE, bg = "pink")
+  expect_identical(attr(output, "patchwork_free_settings"), attr(input, "patchwork_free_settings"))
+  expect_equal(vapply(.to_plot_list(output, recurse = TRUE)$plots,
+                      function(z) z$theme$panel.background$fill, character(1)),
+                rep("pink", 3))
+  expect_silent(patchwork::patchworkGrob(output))
+  inset <- p + patchwork::inset_element(p, 0.1, 0.1, 0.5, 0.5)
+  output <- fmt_panel(inset, border = TRUE, bg = "pink")
+  expect_identical(output[[2]], inset[[2]])
+  expect_equal(output[[1]]$theme$panel.background$fill, "pink")
+  expect_silent(patchwork::patchworkGrob(output))
+})
+
+test_that("panel formatting preserves computed data and evaluates no data functions", {
+  d <- data.frame(x = rep(1:3, 4), y = (1:12)^2,
+                   group = rep(c("A", "B"), each = 6))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    ggplot2::stat_summary(fun = mean, geom = "line") + ggplot2::facet_wrap(~group) +
+    ggplot2::scale_x_continuous(limits = c(0, 4), breaks = 1:3)
+  before <- ggplot2::ggplot_build(p)
+  output <- fmt_panel(p, grid = "major", border = TRUE, bg = "white")
+  after <- ggplot2::ggplot_build(output)
+  expect_identical(after$data, before$data)
+  expect_identical(after$layout$layout, before$layout$layout)
+  expect_identical(output$data, p$data)
+  expect_identical(output$mapping, p$mapping)
+  expect_identical(output$layers, p$layers)
+  expect_identical(output$scales$get_scales("x")$limits, c(0, 4))
+  expect_identical(output$scales$get_scales("x")$breaks, 1:3)
+  expect_identical(class(output$scales$get_scales("x")), class(p$scales$get_scales("x")))
+  expect_identical(p$scales$get_scales("x")$limits, c(0, 4))
+  calls <- 0L
+  dynamic <- ggplot2::ggplot(data.frame(x = 1:3, y = 3:1), ggplot2::aes(x, y)) +
+    ggplot2::geom_point(data = function(d) { calls <<- calls + 1L; d })
+  formatted <- fmt_panel(dynamic, grid = "both", bg = "white")
+  expect_equal(calls, 0L)
+  ggplot2::ggplot_build(formatted)
+  expect_equal(calls, 1L)
+})
+
+test_that("extra panel themes retain their documented override priority", {
+  p <- panel_test_plot()
+  output <- fmt_panel(p, grid = "none", bg = "white", border = TRUE,
+                      panel.background = ggplot2::element_rect(fill = "pink"),
+                      panel.grid.major.x = ggplot2::element_line(colour = "green"),
+                      panel.border = ggplot2::element_rect(fill = NA, colour = "blue"))
+  expect_equal(output$theme$panel.background$fill, "pink")
+  expect_equal(output$theme$panel.border$colour, "blue")
+  expect_equal(panel_test_grids(output)$element, "major.x")
+  expect_equal(panel_test_grids(output)$colour, "green")
+  expect_identical(fmt_panel(p, border_linewidth = 2)$theme$panel.border, p$theme$panel.border)
+  expect_identical(names(formals(fmt_panel)),
+                    c("plot", "grid", "grid_color", "grid_linewidth", "grid_linetype",
+                      "border", "border_linewidth", "bg", "..."))
+})
+
+test_that("repeated panel formatting retains rendered pixels and stable themes", {
+  skip_if_not_installed("ragg")
+  capture <- function(p) {
+    grab <- ragg::agg_capture(width = 360, height = 240, units = "px", res = 72)
+    on.exit(grDevices::dev.off())
+    print(p)
+    grab(native = TRUE)
+  }
+  once <- fmt_panel(panel_test_plot(), grid = "y", grid_color = "grey70",
+                     border = TRUE, bg = "white")
+  twice <- fmt_panel(once, grid = "y", grid_color = "grey70", border = TRUE, bg = "white")
+  expect_equal(sum(capture(once) != capture(twice)), 0L)
+  repeated <- twice
+  for (i in 1:20) repeated <- fmt_panel(repeated, grid = "y", grid_color = "grey70",
+                                       border = TRUE, bg = "white")
+  expect_identical(repeated$theme, twice$theme)
+  expect_length(repeated$layers, length(once$layers))
+})

@@ -2292,7 +2292,7 @@ fmt_strip2 <- function(plot,
 #' Inspired by Seurat's \code{NoGrid()} but with fine-grained control
 #' over each panel element.
 #'
-#' @param plot A ggplot, patchwork, or list of ggplot objects.
+#' @param plot A ggplot, patchwork, or nested list of these objects.
 #' @param grid Which grid lines to display.
 #'   \itemize{
 #'     \item \code{"none"} — remove all grid lines (default).
@@ -2302,30 +2302,55 @@ fmt_strip2 <- function(plot,
 #'     \item \code{"x"} — show only vertical (x-axis) major grid lines.
 #'     \item \code{"y"} — show only horizontal (y-axis) major grid lines.
 #'   }
-#' @param grid_color Color of retained grid lines. Default \code{NULL}
-#'   (inherit from current theme).
-#' @param grid_linewidth Numeric. Line width of retained grid lines.
+#' @param grid_color A single color string, or \code{NA} for transparent grid
+#'   lines. Default \code{NULL} (inherit from the current theme).
+#' @param grid_linewidth A single finite, non-negative number. Line width of
+#'   retained grid lines.
 #'   Default \code{NULL} (inherit from current theme).
-#' @param grid_linetype Linetype of retained grid lines (e.g.
-#'   \code{"solid"}, \code{"dashed"}, \code{"dotted"}).
+#' @param grid_linetype A single named line type (e.g. \code{"solid"},
+#'   \code{"dashed"}, \code{"dotted"}), an integer from 0 to 6, or a pattern of
+#'   2, 4, 6 or 8 hexadecimal digits without zeroes (e.g. \code{"22"}).
 #'   Default \code{NULL} (inherit from current theme).
-#' @param border Logical or character.
+#' @param border A single non-missing logical value or color string.
 #'   \itemize{
 #'     \item \code{TRUE} — draw a black rectangle border around the panel.
 #'     \item \code{FALSE} — remove the panel border.
 #'     \item A color string (e.g. \code{"grey50"}) — draw border in that color.
 #'     \item \code{NULL} (default) — no change.
 #'   }
-#' @param border_linewidth Numeric. Border line width. Default 0.5.
-#' @param bg Panel background color. \code{NULL} (default) = no change,
-#'   \code{"white"}, \code{"transparent"}, or any valid color string.
-#' @param ... Additional arguments passed to [ggplot2::theme()].
+#' @param border_linewidth A single finite, non-negative number. Border line
+#'   width, used only when \code{border} is \code{TRUE} or a color string.
+#'   Default 0.5.
+#' @param bg A single panel background color string, or \code{NA} for a
+#'   transparent background. \code{NULL} (default) leaves the background unchanged.
+#' @param ... Additional arguments passed to
+#'   \code{\link[ggplot2:theme]{ggplot2::theme()}}, applied after panel settings.
+#'
+#' @details
+#' Grid modes control visibility even when the original theme hides grid lines.
+#' Retained grids keep available inherited styling. When enabling a blank grid
+#' element, blank entries in its inheritance chain are replaced with entries from
+#' the current global theme, falling back to \code{ggplot2::theme_gray()} when
+#' those entries are also blank. Styles overwritten by earlier formatting cannot
+#' be recovered. Grid lines still require corresponding scale breaks.
+#'
+#' Ordinary plot leaves are formatted recursively. Layouts, annotations and list
+#' names are retained. Spacers, guide areas, frozen \code{wrap_elements()} cells
+#' and inset overlays are returned unchanged; format their plots before wrapping
+#' or adding them as insets.
+#'
+#' Extra theme arguments follow normal ggplot2 theme inheritance. To override
+#' a grid mode through \code{...}, set the corresponding axis-specific elements,
+#' such as \code{panel.grid.major.x}. The \code{bg} argument changes only the
+#' panel background; use \code{plot.background} in \code{...} for the full plot.
 #'
 #' @return Same type as input.
 #'
 #' @examples
 #' library(ggplot2)
-#' p <- ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) +
+#' d <- data.frame(x = 1:20, y = sin((1:20) / 3) + (1:20) / 10,
+#'                 group = rep(c("A", "B"), each = 10))
+#' p <- ggplot(d, aes(x, y, color = group)) +
 #'   geom_point()
 #'
 #' # Remove all grid lines (most common usage, like Seurat::NoGrid())
