@@ -10,8 +10,8 @@ the mapping environment. Function and formula layer data are resolved
 during normal plot building, without executing the data function during
 formatting. Function-call mappings are also deferred to plot building,
 preserving random-number state and avoiding extra mapping calls. Their
-errors are reported at build time with the original cause. Active
-bindings in mapping environments are also resolved during building.
+errors are reported at build time with the original cause. Active and
+lazy bindings in mapping environments are resolved during building.
 Nested patchworks are updated recursively without changing their layout.
 Ordinary mapping evaluation errors retain their original cause. Computed
 statistic mappings retain ggplot2's native scale inference at build
