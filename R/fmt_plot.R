@@ -4324,6 +4324,13 @@ fmt_his <- function(plot,
 #' existing scales or effective layer mappings and data, and applies
 #' user-supplied arguments via \code{do.call}.
 #'
+#' When the axis already has a position scale, only the supplied settings are
+#' updated: its limits, breaks, labels, transformation, expansion, guide and
+#' secondary axis are kept unless named in the list. Continuous limits are
+#' interpreted on the existing transformation; when only \code{transform} is
+#' supplied, existing limits are re-expressed on the new one. Without an
+#' existing scale, a new scale of the detected type is added.
+#'
 #' @param plot A ggplot, patchwork, or list of ggplots.
 #' @param x Named list of arguments for the x-axis scale function.
 #'   E.g. \code{list(limits = c(4, 8), breaks = seq(4, 8, 1))}.
@@ -4337,13 +4344,45 @@ fmt_his <- function(plot,
 #' fmt_scale(p, x = list(limits = c(4, 8), breaks = seq(4, 8, 1)))
 #' fmt_scale(p, y = list(labels = scales::label_percent()))
 #'
+#' # Existing breaks and limits are kept when only labels change
+#' p2 <- p + scale_x_continuous(limits = c(4, 8), breaks = 4:8)
+#' fmt_scale(p2, x = list(labels = function(x) paste0(x, " cm")))
+#'
 #' @export
 #' @family plot formatting
 fmt_scale <- function(plot, x = NULL, y = NULL) {
+  # Constructor arguments stored under another scale field name
+  arg_fields <- list(transform = "trans", trans = "trans",
+                     sec.axis = "secondary.axis", date_breaks = "breaks",
+                     date_labels = "labels", date_minor_breaks = "minor_breaks",
+                     timezone = c("timezone", "trans"))
+
   apply_scale <- function(p, args, axis) {
     if (is.null(args) || length(args) == 0L) return(p)
     fn_name <- .detect_scale_type(p, axis)
     fn <- utils::getFromNamespace(fn_name, "ggplot2")
+
+    # ---- Existing scale: update only the supplied fields ----
+    if (!is.null(p$scales$get_scales(axis))) {
+      arg_names <- names(args)
+      if (is.null(arg_names) || any(arg_names == "") || anyDuplicated(arg_names))
+        cli::cli_abort("{.arg {axis}} must be a list with unique, non-empty names.")
+      p$scales <- p$scales$clone()
+      sc <- p$scales$get_scales(axis)
+      new_trans <- any(c("transform", "trans") %in% arg_names)
+      if (fn_name == paste0("scale_", axis, "_continuous") && !new_trans)
+        args$transform <- sc$trans
+      new <- do.call(fn, args)
+      if (new_trans && !"limits" %in% arg_names && is.numeric(sc$limits))
+        sc$limits <- new$trans$transform(sc$trans$inverse(sc$limits))
+      for (f in unique(unlist(lapply(arg_names, function(a) {
+        if (a %in% names(arg_fields)) arg_fields[[a]] else a
+      })))) {
+        sc[[f]] <- new[[f]]
+      }
+      return(p)
+    }
+
     tryCatch(
       p + do.call(fn, args),
       error = function(e) {

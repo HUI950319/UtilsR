@@ -22,11 +22,23 @@ Automatically detects discrete / continuous / date-time scale type from
 existing scales or effective layer mappings and data, and applies
 user-supplied arguments via \code{do.call}.
 }
+\details{
+When the axis already has a position scale, only the supplied settings are
+updated: its limits, breaks, labels, transformation, expansion, guide and
+secondary axis are kept unless named in the list. Continuous limits are
+interpreted on the existing transformation; when only \code{transform} is
+supplied, existing limits are re-expressed on the new one. Without an
+existing scale, a new scale of the detected type is added.
+}
 \examples{
 library(ggplot2)
 p <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) + geom_point()
 fmt_scale(p, x = list(limits = c(4, 8), breaks = seq(4, 8, 1)))
 fmt_scale(p, y = list(labels = scales::label_percent()))
+
+# Existing breaks and limits are kept when only labels change
+p2 <- p + scale_x_continuous(limits = c(4, 8), breaks = 4:8)
+fmt_scale(p2, x = list(labels = function(x) paste0(x, " cm")))
 
 }
 \seealso{

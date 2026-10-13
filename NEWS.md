@@ -1,5 +1,10 @@
 # UtilsR 0.6.8
 
+* `fmt_scale()` updates only the supplied settings of an existing position
+  scale instead of replacing it, so limits, breaks, labels, transformation,
+  expansion and secondary axes set earlier are kept. Continuous limits use the
+  existing transformation.
+
 * `fmt_expand()` reuses unchanged scales and clones changed scales only once
   per plot, avoiding retained clone histories during repeated formatting.
 
