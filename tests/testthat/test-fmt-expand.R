@@ -543,6 +543,39 @@ test_that("statistic default mappings retain native position scales", {
   expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
 })
 
+test_that("active mapping bindings are not evaluated during formatting", {
+  binding_env <- new.env(parent = baseenv())
+  calls <- 0L
+  makeActiveBinding("values", function(value) {
+    calls <<- calls + 1L
+    stats::runif(3)
+  }, binding_env)
+  # The binding is inherited from the mapping environment, not a data column.
+  mapping_env <- new.env(parent = binding_env)
+  mapping <- ggplot2::aes(x = values, y = 1:3)
+  mapping$x <- rlang::new_quosure(quote(values), mapping_env)
+  p <- ggplot2::ggplot(mapping = mapping) + ggplot2::geom_point()
+  set.seed(702)
+  native <- ggplot2::ggplot_build(p)
+  set.seed(702)
+  seed <- .Random.seed
+  calls <- 0L
+  q <- fmt_expand(p, mult = 0.1)
+  q <- fmt_expand(q, mult = 0.1)
+  expect_identical(calls, 0L)
+  expect_identical(.Random.seed, seed)
+  expect_identical(ggplot2::ggplot_build(q)$data, native$data)
+  expect_identical(calls, 1L)
+  expect_null(p$scales$get_scales("x"))
+  # A data column masks the binding and still supports eager inference.
+  p_data <- ggplot2::ggplot(data.frame(values = factor(c("a", "b", "c"))),
+                            mapping) + ggplot2::geom_point()
+  calls <- 0L
+  q_data <- fmt_expand(p_data, axis = "x")
+  expect_identical(calls, 0L)
+  expect_s3_class(q_data$scales$get_scales("x"), "ScaleDiscretePosition")
+})
+
 test_that("implicit extension scales retain native scale_type dispatch", {
   methods <- get(".__S3MethodsTable__.", envir = asNamespace("ggplot2"))
   method_name <- "scale_type.fmt_expand_binned"

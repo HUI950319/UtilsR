@@ -174,6 +174,17 @@
         identical(expr[[2L]], as.name(".data")) && !is.call(expr[[3L]])
       if (!direct_column) return(NULL)
     }
+    if (defer && is.symbol(expr) &&
+        !(is.data.frame(data) && as.character(expr) %in% names(data))) {
+      binding_env <- rlang::get_env(var_quo)
+      while (!identical(binding_env, emptyenv())) {
+        if (exists(as.character(expr), envir = binding_env, inherits = FALSE)) {
+          if (bindingIsActive(as.character(expr), binding_env)) return(NULL)
+          break
+        }
+        binding_env <- parent.env(binding_env)
+      }
+    }
     d <- tryCatch(
       rlang::eval_tidy(var_quo, data = if (is.data.frame(data)) data else NULL),
       error = function(e) {
