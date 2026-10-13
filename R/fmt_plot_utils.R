@@ -164,7 +164,10 @@
     var_quo <- mapping[[axis]]
     if (is.null(var_quo) || is.function(data)) next
     expr <- rlang::get_expr(var_quo)
-    if (mapping_is_late(expr)) next
+    if (mapping_is_late(expr)) {
+      if (defer) return(NULL)
+      next
+    }
     if (defer && is.call(expr)) {
       direct_column <- length(expr) == 3L &&
         any(rlang::call_name(expr) %in% c("$", "[[")) &&

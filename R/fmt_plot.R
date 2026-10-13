@@ -4511,7 +4511,7 @@ fmt_scale <- function(plot, x = NULL, y = NULL) {
 #' reported at build time with the original cause.
 #' Nested patchworks are updated recursively without changing their layout.
 #' Ordinary mapping evaluation errors retain their original cause. Computed
-#' statistic mappings use continuous defaults unless a position scale is supplied.
+#' statistic mappings retain ggplot2's native scale inference at build time.
 #' Repeated calls with unchanged expansion reuse existing position scales.
 #'
 #' @param plot A ggplot, patchwork, or list of ggplots.

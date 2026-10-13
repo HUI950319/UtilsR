@@ -499,6 +499,21 @@ test_that("formatting preserves random mappings and the random number state", {
   expect_identical(ggplot2::ggplot_build(q)$data, native$data)
 })
 
+test_that("computed categorical mappings retain native discrete scales", {
+  p <- ggplot2::ggplot(data.frame(x = factor(c("A", "B", "A"))),
+                       ggplot2::aes(x, y = ggplot2::after_stat(factor(count)))) +
+    ggplot2::geom_point(stat = "count")
+  native <- ggplot2::ggplot_build(p)
+  q <- fmt_expand(p, mult = 0.1, axis = "y")
+  built <- ggplot2::ggplot_build(q)
+  expect_s3_class(built$plot$scales$get_scales("y"), "ScaleDiscretePosition")
+  expect_identical(built$data, native$data)
+  expect_equal(built$plot$scales$get_scales("y")$expand,
+               ggplot2::expansion(mult = 0.1))
+  expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+  expect_null(p$scales$get_scales("y"))
+})
+
 test_that("implicit extension scales retain native scale_type dispatch", {
   methods <- get(".__S3MethodsTable__.", envir = asNamespace("ggplot2"))
   method_name <- "scale_type.fmt_expand_binned"

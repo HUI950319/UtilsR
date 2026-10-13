@@ -11,6 +11,9 @@
   scale instances or bound callback histories.
 * The formatting vignette uses the current `fmt_scale(x = ..., y = ...)` API.
 
+* `fmt_expand()` retains native scale inference for computed statistics,
+  including categorical `after_stat()` mappings.
+
 * `fmt_expand()` preserves native `scale_type()` dispatch for extension classes,
   including implicit binned position scales, without extra dispatch calls.
 
