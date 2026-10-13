@@ -13,7 +13,9 @@ Active bindings in mapping environments are also resolved during building.
 Nested patchworks are updated recursively without changing their layout.
 Ordinary mapping evaluation errors retain their original cause. Computed
 statistic mappings retain ggplot2's native scale inference at build time.
-Repeated calls with unchanged expansion reuse existing position scales."><meta property="og:description" content="Applies ggplot2::expansion() to one or both axes, automatically
+Repeated calls with unchanged expansion reuse existing position scales.
+When combined with fmt_scale(), deferred settings are retained;
+the most recent explicit expansion setting takes precedence."><meta property="og:description" content="Applies ggplot2::expansion() to one or both axes, automatically
 detecting the correct scale type. Existing position scales retain their
 transformation, limits, breaks, labels, guides and secondary axes.
 New scales are inferred from effective layer mappings and their data,
@@ -27,7 +29,9 @@ Active bindings in mapping environments are also resolved during building.
 Nested patchworks are updated recursively without changing their layout.
 Ordinary mapping evaluation errors retain their original cause. Computed
 statistic mappings retain ggplot2's native scale inference at build time.
-Repeated calls with unchanged expansion reuse existing position scales."><meta property="og:image" content="https://hui950319.github.io/UtilsR/logo.png"></head><body>
+Repeated calls with unchanged expansion reuse existing position scales.
+When combined with fmt_scale(), deferred settings are retained;
+the most recent explicit expansion setting takes precedence."><meta property="og:image" content="https://hui950319.github.io/UtilsR/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -92,7 +96,9 @@ Active bindings in mapping environments are also resolved during building.
 Nested patchworks are updated recursively without changing their layout.
 Ordinary mapping evaluation errors retain their original cause. Computed
 statistic mappings retain ggplot2's native scale inference at build time.
-Repeated calls with unchanged expansion reuse existing position scales.</p>
+Repeated calls with unchanged expansion reuse existing position scales.
+When combined with <code><a href="fmt_scale.html">fmt_scale()</a></code>, deferred settings are retained;
+the most recent explicit expansion setting takes precedence.</p>
     </div>
 
     <div class="section level2">

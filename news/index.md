@@ -2,6 +2,13 @@
 
 ## UtilsR 0.6.8
 
+- Alternating
+  [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
+  and
+  [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md)
+  retains all deferred settings; the most recent formatter takes
+  precedence when both set expansion.
+
 - [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
   defers active bindings in mapping environments without evaluating them
   or changing the random-number state during formatting.

@@ -16,7 +16,10 @@ Nested patchworks are updated recursively without changing their layout.
 Ordinary mapping evaluation errors retain their original cause. Computed
 statistic mappings retain ggplot2's native scale inference at build
 time. Repeated calls with unchanged expansion reuse existing position
-scales.
+scales. When combined with
+[`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md),
+deferred settings are retained; the most recent explicit expansion
+setting takes precedence.
 
 ## Usage
 

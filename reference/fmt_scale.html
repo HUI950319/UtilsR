@@ -104,7 +104,9 @@ are updated recursively without changing their layout or annotations.</p>
 formatting does not execute the data function. Scale settings are then
 applied to the actual scale type. A scale added explicitly afterward takes
 precedence over deferred settings. Repeated calls reuse unchanged scales
-and retain custom scale classes and clone behavior when settings change.</p>
+and retain custom scale classes and clone behavior when settings change.
+When combined with <code><a href="fmt_expand.html">fmt_expand()</a></code>, deferred settings are retained;
+the most recent explicit expansion setting takes precedence.</p>
 <p>Scale construction errors keep their original cause and identify the axis.
 Limits are scale limits and can remove out-of-range observations; use
 <code><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" class="external-link">ggplot2::coord_cartesian()</a></code> when only a visual zoom is needed.</p>
