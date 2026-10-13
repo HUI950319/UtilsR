@@ -77,3 +77,20 @@ test_that("changing transformation preserves observations across reversed limits
     expect_identical(p$scales$get_scales("x")$limits, original)
   }
 })
+
+test_that("axis settings reach every nested patchwork leaf without changing layout", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3), ggplot2::aes(x, y)) +
+    ggplot2::geom_point()
+  nested <- (p | p) / (p | p) + patchwork::plot_annotation(title = "Four panels")
+  q <- fmt_scale(nested, x = list(breaks = c(1, 3)), y = list(labels = toupper))
+  leaves <- .to_plot_list(q, recurse = TRUE)$plots
+  expect_length(leaves, 4L)
+  for (leaf in leaves) {
+    expect_identical(ggplot2::ggplot_build(leaf)$layout$panel_params[[1]]$x$get_breaks(),
+                     c(1, 3))
+  }
+  expect_identical(q$patches$layout, nested$patches$layout)
+  expect_identical(q$patches$annotation, nested$patches$annotation)
+  expect_null(p$scales$get_scales("x"))
+  expect_s3_class(patchwork::patchworkGrob(q), "gtable")
+})
