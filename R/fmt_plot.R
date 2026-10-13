@@ -4368,15 +4368,21 @@ fmt_his <- function(plot,
 }
 
 .apply_deferred_scale_settings <- function(self, method, ...) {
-  axes <- names(self$.fmt_scale_args)
+  axes <- union(names(self$.fmt_scale_args), names(self$.fmt_expand))
   missing <- axes[vapply(axes, function(axis) is.null(self$get_scales(axis)), logical(1))]
-  parent <- ggplot2::ggproto_parent(self$.fmt_scale_parent, self)
+  parent <- ggplot2::ggproto_parent(self$.fmt_scale_parent %||% self$.fmt_expand_parent, self)
   if (method == "add_defaults") parent$add_defaults(...) else parent$add_missing(...)
   for (axis in missing) {
     scale <- self$get_scales(axis)
     if (!is.null(scale)) {
-      .update_position_scale(scale, self$.fmt_scale_args[[axis]], axis,
-                             .detect_scale_type(list(scales = self), axis))
+      expansion <- self$.fmt_expand[[axis]]
+      scale_last <- isTRUE(self$.fmt_scale_last[[axis]])
+      if (scale_last && !is.null(expansion)) scale$expand <- expansion
+      args <- self$.fmt_scale_args[[axis]]
+      if (length(args))
+        .update_position_scale(scale, args, axis,
+                               .detect_scale_type(list(scales = self), axis))
+      if (!scale_last && !is.null(expansion)) scale$expand <- expansion
     }
   }
   invisible(NULL)
@@ -4412,6 +4418,8 @@ fmt_his <- function(plot,
 #' applied to the actual scale type. A scale added explicitly afterward takes
 #' precedence over deferred settings. Repeated calls reuse unchanged scales
 #' and retain custom scale classes and clone behavior when settings change.
+#' When combined with \code{fmt_expand()}, deferred settings are retained;
+#' the most recent explicit expansion setting takes precedence.
 #'
 #' Scale construction errors keep their original cause and identify the axis.
 #' Limits are scale limits and can remove out-of-range observations; use
@@ -4460,14 +4468,18 @@ fmt_scale <- function(plot, x = NULL, y = NULL) {
       if (is.null(scale) && defer_scale) {
         pending <- utils::modifyList(p$scales$.fmt_scale_args[[axis]] %||% list(), args,
                                      keep.null = TRUE)
-        if (identical(pending, p$scales$.fmt_scale_args[[axis]])) next
+        sets_expansion <- any(startsWith("expand", names(args)))
+        if (identical(pending, p$scales$.fmt_scale_args[[axis]]) &&
+            (!sets_expansion || isTRUE(p$scales$.fmt_scale_last[[axis]]))) next
         if (!scales_cloned) {
           p$scales <- .clone_plot_scales(p$scales)
           scales_cloned <- TRUE
         }
         if (is.null(p$scales$.fmt_scale_parent))
-          p$scales$.fmt_scale_parent <- .scale_inference_parent(p$scales)
+          p$scales$.fmt_scale_parent <- p$scales$.fmt_expand_parent %||%
+            .scale_inference_parent(p$scales)
         p$scales$.fmt_scale_args[[axis]] <- pending
+        if (sets_expansion) p$scales$.fmt_scale_last[[axis]] <- TRUE
         p$scales$add_defaults <- .add_fmt_scale_defaults
         p$scales$add_missing <- .add_fmt_scale_missing
       } else if (!is.null(scale)) {
@@ -4514,6 +4526,8 @@ fmt_scale <- function(plot, x = NULL, y = NULL) {
 #' Ordinary mapping evaluation errors retain their original cause. Computed
 #' statistic mappings retain ggplot2's native scale inference at build time.
 #' Repeated calls with unchanged expansion reuse existing position scales.
+#' When combined with \code{fmt_scale()}, deferred settings are retained;
+#' the most recent explicit expansion setting takes precedence.
 #'
 #' @param plot A ggplot, patchwork, or list of ggplots.
 #' @param mult Finite numeric expansion factor of length one or two. A scalar
@@ -4563,14 +4577,17 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
         }
         scale$expand <- expansion_setting
       } else if (defer_scale || is.null(fn_name)) {
-        if (identical(p$scales$.fmt_expand[[ax]], expansion_setting)) next
+        if (identical(p$scales$.fmt_expand[[ax]], expansion_setting) &&
+            !isTRUE(p$scales$.fmt_scale_last[[ax]])) next
         if (!scales_cloned) {
           p$scales <- .clone_plot_scales(p$scales)
           scales_cloned <- TRUE
         }
         if (is.null(p$scales$.fmt_expand_parent))
-          p$scales$.fmt_expand_parent <- .scale_inference_parent(p$scales)
+          p$scales$.fmt_expand_parent <- p$scales$.fmt_scale_parent %||%
+            .scale_inference_parent(p$scales)
         p$scales$.fmt_expand[[ax]] <- expansion_setting
+        p$scales$.fmt_scale_last[[ax]] <- FALSE
         p$scales$add_defaults <- .add_expansion_defaults
         p$scales$add_missing <- .add_expansion_missing
       } else {

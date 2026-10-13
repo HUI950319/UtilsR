@@ -576,6 +576,42 @@ test_that("active mapping bindings are not evaluated during formatting", {
   expect_s3_class(q_data$scales$get_scales("x"), "ScaleDiscretePosition")
 })
 
+test_that("alternating deferred formatters retain settings and last expansion", {
+  p <- ggplot2::ggplot(data.frame(x = factor(c("a", "b", "c")), y = 1:3),
+                       ggplot2::aes(x, y)) + ggplot2::geom_point(data = function(d) d)
+  q <- fmt_expand(p, mult = 0.1)
+  q <- fmt_scale(q, x = list(labels = toupper, expand = ggplot2::expansion(mult = 0.3)))
+  q <- fmt_expand(q, mult = 0.2)
+  built <- ggplot2::ggplot_build(q)
+  expect_identical(as.character(built$layout$panel_params[[1]]$x$get_labels()),
+                   c("A", "B", "C"))
+  expect_equal(built$plot$scales$get_scales("x")$expand, ggplot2::expansion(mult = 0.2))
+  q <- fmt_scale(q, x = list(labels = toupper, expand = ggplot2::expansion(mult = 0.3)))
+  built <- ggplot2::ggplot_build(q)
+  expect_equal(built$plot$scales$get_scales("x")$expand, ggplot2::expansion(mult = 0.3))
+  q <- fmt_expand(q, mult = 0.2)
+  q <- fmt_scale(q, x = list(breaks = c("a", "c")))
+  built <- ggplot2::ggplot_build(q)
+  expect_identical(as.character(built$layout$panel_params[[1]]$x$get_labels()), c("A", "C"))
+  expect_equal(built$plot$scales$get_scales("x")$expand, ggplot2::expansion(mult = 0.2))
+  expect_equal(built$plot$scales$get_scales("y")$expand, ggplot2::expansion(mult = 0.2))
+  expect_null(p$scales$get_scales("x"))
+  expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+  reversed <- fmt_scale(p, x = list(labels = toupper))
+  reversed <- fmt_expand(reversed, mult = 0.2)
+  reversed <- fmt_scale(reversed, x = list(labels = toupper))
+  size <- length(serialize(reversed$scales, NULL))
+  for (i in 1:24) {
+    reversed <- fmt_expand(reversed, mult = if (i %% 2L) 0.1 else 0.2)
+    reversed <- fmt_scale(reversed, x = list(labels = toupper))
+  }
+  expect_lte(length(serialize(reversed$scales, NULL)), size + 8192)
+  built <- ggplot2::ggplot_build(reversed)
+  expect_identical(as.character(built$layout$panel_params[[1]]$x$get_labels()),
+                   c("A", "B", "C"))
+  expect_equal(built$plot$scales$get_scales("x")$expand, ggplot2::expansion(mult = 0.2))
+})
+
 test_that("implicit extension scales retain native scale_type dispatch", {
   methods <- get(".__S3MethodsTable__.", envir = asNamespace("ggplot2"))
   method_name <- "scale_type.fmt_expand_binned"

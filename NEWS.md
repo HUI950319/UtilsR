@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* Alternating `fmt_expand()` and `fmt_scale()` retains all deferred settings;
+  the most recent formatter takes precedence when both set expansion.
+
 * `fmt_expand()` defers active bindings in mapping environments without
   evaluating them or changing the random-number state during formatting.
 
