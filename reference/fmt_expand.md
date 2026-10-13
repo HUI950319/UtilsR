@@ -6,11 +6,13 @@ to one or both axes, automatically detecting the correct scale type.
 Existing position scales retain their transformation, limits, breaks,
 labels, guides and secondary axes. New scales are inferred from
 effective layer mappings and their data, including variables captured in
-the mapping environment. Nested patchworks are updated recursively
-without changing their layout. Ordinary mapping evaluation errors retain
-their original cause. Computed statistic mappings use continuous
-defaults unless a position scale is supplied. Repeated calls with
-unchanged expansion reuse existing position scales.
+the mapping environment. Function and formula layer data are resolved
+during normal plot building, without executing the data function during
+formatting. Nested patchworks are updated recursively without changing
+their layout. Ordinary mapping evaluation errors retain their original
+cause. Computed statistic mappings use continuous defaults unless a
+position scale is supplied. Repeated calls with unchanged expansion
+reuse existing position scales.
 
 ## Usage
 
