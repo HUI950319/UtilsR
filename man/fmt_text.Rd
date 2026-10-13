@@ -25,6 +25,7 @@ fmt_text(
   axis_title_size = NULL,
   axis_title_face = NULL,
   axis_title_color = NULL,
+  axis_titles = "collect",
   ...
 )
 }
@@ -74,6 +75,12 @@ A vector sets different captions per plot.}
 
 \item{axis_title_color}{Character. Color for both axis titles. Default \code{NULL}.}
 
+\item{axis_titles}{Passed to \code{\link[patchwork]{plot_layout}()} \code{axis_titles}
+when input is a patchwork. Default \code{"collect"} merges identical
+adjacent axis titles into one; \code{"collect_x"} / \code{"collect_y"}
+merge one axis only, \code{"keep"} keeps every title, and \code{NULL}
+leaves the layout setting unchanged. Ignored for a single ggplot or list.}
+
 \item{...}{Additional arguments passed to [ggplot2::labs()].}
 }
 \value{
@@ -93,6 +100,10 @@ fmt_text(p, title = "Iris", xlab = "Length", ylab = "Width")
 
 # Per-plot labels (patchwork)
 fmt_text(p + p, ylab = c("Width 1", "Width 2"))
+
+# Shared labels on a patchwork are merged into one title by default
+fmt_text(p + p, ylab = "Width")
+fmt_text(p + p, ylab = "Width", axis_titles = "keep")
 
 }
 \seealso{

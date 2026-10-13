@@ -2478,6 +2478,11 @@ fmt_panel <- function(plot,
 #' @param axis_title_size Numeric. Font size for both axis titles. Default \code{NULL}.
 #' @param axis_title_face Character. Font face for both axis titles. Default \code{NULL}.
 #' @param axis_title_color Character. Color for both axis titles. Default \code{NULL}.
+#' @param axis_titles Passed to \code{\link[patchwork]{plot_layout}()} \code{axis_titles}
+#'   when input is a patchwork. Default \code{"collect"} merges identical
+#'   adjacent axis titles into one; \code{"collect_x"} / \code{"collect_y"}
+#'   merge one axis only, \code{"keep"} keeps every title, and \code{NULL}
+#'   leaves the layout setting unchanged. Ignored for a single ggplot or list.
 #' @param ... Additional arguments passed to [ggplot2::labs()].
 #'
 #' @return Same type as input.
@@ -2491,6 +2496,10 @@ fmt_panel <- function(plot,
 #'
 #' # Per-plot labels (patchwork)
 #' fmt_text(p + p, ylab = c("Width 1", "Width 2"))
+#'
+#' # Shared labels on a patchwork are merged into one title by default
+#' fmt_text(p + p, ylab = "Width")
+#' fmt_text(p + p, ylab = "Width", axis_titles = "keep")
 #'
 #' @export
 #' @family plot formatting
@@ -2514,6 +2523,7 @@ fmt_text <- function(plot,
                      axis_title_size = NULL,
                      axis_title_face = NULL,
                      axis_title_color = NULL,
+                     axis_titles = "collect",
                      ...) {
 
   info <- .to_plot_list(plot)
@@ -2606,7 +2616,11 @@ fmt_text <- function(plot,
     info$plots[[i]] <- p
   }
 
-  .from_plot_list(info$plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
+  out <- .from_plot_list(info$plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
+  if (!is.null(axis_titles) && inherits(out, "patchwork")) {
+    out <- out + patchwork::plot_layout(axis_titles = axis_titles)
+  }
+  out
 }
 
 # ---- fmt_axisText ----

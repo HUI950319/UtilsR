@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_text()` gains `axis_titles` (default `"collect"`), passed to
+  `patchwork::plot_layout()`, so labels shared by all panels of a patchwork
+  are drawn once. Use `axis_titles = NULL` to keep the previous layout.
+
 * `fmt_expand()` reports ordinary mapping errors with their original cause
   instead of silently substituting a continuous scale. Computed statistics
   remain deferred to ggplot2.
