@@ -42,7 +42,8 @@ guide and secondary axis are kept unless named in the list. Continuous
 limits are interpreted on the existing transformation; when only
 `transform` is supplied, existing limits are re-expressed on the new
 one. Without an existing scale, a new scale of the detected type is
-added.
+added. Partially automatic limits retain the same observations when
+changing between increasing and decreasing transformations.
 
 Existing binned position scales accept their own controls, including
 `right`, `nice.breaks` and `show.limits`. Nested patchworks are updated

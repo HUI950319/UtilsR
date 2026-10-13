@@ -96,7 +96,9 @@ updated: its limits, breaks, labels, transformation, expansion, guide and
 secondary axis are kept unless named in the list. Continuous limits are
 interpreted on the existing transformation; when only <code>transform</code> is
 supplied, existing limits are re-expressed on the new one. Without an
-existing scale, a new scale of the detected type is added.</p>
+existing scale, a new scale of the detected type is added.
+Partially automatic limits retain the same observations when changing
+between increasing and decreasing transformations.</p>
 <p>Existing binned position scales accept their own controls, including
 <code>right</code>, <code>nice.breaks</code> and <code>show.limits</code>. Nested patchworks
 are updated recursively without changing their layout or annotations.</p>
