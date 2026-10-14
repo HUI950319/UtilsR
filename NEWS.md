@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_panel()` reuses a recent additional theme in batches, including after
+  the four-theme cache stops scanning, avoiding repeated grid resolution when
+  later plots share a theme.
+
 * `fmt_panel()` checks automatically restored grid contrast against the colour
   of transparent panel fills composited over a known opaque plot background,
   preserving background transparency and explicit grid colours.

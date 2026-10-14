@@ -90,6 +90,7 @@ Ordinary plot leaves are formatted recursively. Layouts, annotations and list
 names are retained. Spacers, guide areas, frozen \code{wrap_elements()} cells
 and inset overlays are returned unchanged; format their plots before wrapping
 or adding them as insets.
+Repeated plot themes reuse grid settings within each list or patchwork call.
 
 Extra theme arguments follow normal ggplot2 theme inheritance. To override
 a grid mode through \code{...}, set the corresponding axis-specific elements,

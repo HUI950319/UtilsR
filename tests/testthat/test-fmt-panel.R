@@ -480,3 +480,31 @@ test_that("automatic contrast uses known opaque composited backgrounds", {
   }
   expect_identical(p$theme, before)
 })
+
+test_that("batch themes are reused beyond the initial cache and after misses", {
+  p <- panel_test_plot()
+  plots <- lapply(seq_len(9), function(i) p + ggplot2::theme(
+    panel.grid = ggplot2::element_line(colour = grDevices::gray(i / 10))))
+  patterns <- list(
+    list(plots = c(plots[1:4], rep(plots[5], 12)), resolutions = 5L),
+    list(plots = rep(plots[1:5], 3), resolutions = 5L),
+    list(plots = c(plots[1:8], rep(plots[8], 12), rep(plots[9], 12)), resolutions = 9L))
+  calls <- 0L
+  calc <- ggplot2::calc_element
+  testthat::local_mocked_bindings(calc_element = function(...) {
+    calls <<- calls + 1L
+    calc(...)
+  }, .package = "ggplot2")
+  fmt_panel(p, grid = "both")
+  single_calls <- calls
+  for (pattern in patterns) {
+    before <- lapply(pattern$plots, function(z) z$theme)
+    calls <- 0L
+    output <- fmt_panel(pattern$plots, grid = "both")
+    expect_equal(calls, pattern$resolutions * single_calls)
+    expected <- lapply(pattern$plots, fmt_panel, grid = "both")
+    expect_identical(lapply(output, function(z) z$theme),
+                     lapply(expected, function(z) z$theme))
+    expect_identical(lapply(pattern$plots, function(z) z$theme), before)
+  }
+})

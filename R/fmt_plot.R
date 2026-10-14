@@ -2349,6 +2349,7 @@ fmt_strip2 <- function(plot,
 #' names are retained. Spacers, guide areas, frozen \code{wrap_elements()} cells
 #' and inset overlays are returned unchanged; format their plots before wrapping
 #' or adding them as insets.
+#' Repeated plot themes reuse grid settings within each list or patchwork call.
 #'
 #' Extra theme arguments follow normal ggplot2 theme inheritance. To override
 #' a grid mode through \code{...}, set the corresponding axis-specific elements,
@@ -2481,21 +2482,28 @@ fmt_panel <- function(plot,
   cache_themes <- list()
   cache_panels <- list()
   cache_misses <- 0L
+  last_theme <- NULL
+  last_panel <- NULL
   format_panel <- function(p) {
     if (!inherits(p, "ggplot")) {
       cli::cli_abort("Input must be a ggplot, patchwork, or nested list of ggplots.")
     }
+    plot_theme <- p$theme
     if (cache_enabled) {
       for (j in seq_along(cache_themes)) {
-        if (identical(p$theme, cache_themes[[j]])) {
+        if (identical(plot_theme, cache_themes[[j]])) {
           cache_misses <<- 0L
           return(p + cache_panels[[j]])
         }
       }
     }
+    if (!is.null(last_panel) && identical(plot_theme, last_theme)) {
+      cache_misses <<- 0L
+      return(p + last_panel)
+    }
     current_theme <- panel_theme
     if (length(enabled)) {
-      effective <- base_theme + p$theme
+      effective <- base_theme + plot_theme
       restored <- list()
       for (nm in enabled) {
         if (!inherits(ggplot2::calc_element(nm, effective), "element_blank")) next
@@ -2574,12 +2582,17 @@ fmt_panel <- function(plot,
     }
     if (cache_enabled) {
       if (length(cache_themes) < 4L) {
-        cache_themes[[length(cache_themes) + 1L]] <<- p$theme
+        cache_themes[[length(cache_themes) + 1L]] <<- plot_theme
         cache_panels[[length(cache_panels) + 1L]] <<- current_theme
       } else {
+        last_theme <<- plot_theme
+        last_panel <<- current_theme
         cache_misses <<- cache_misses + 1L
         if (cache_misses >= 4L) cache_enabled <<- FALSE
       }
+    } else if (!is.null(last_panel)) {
+      last_theme <<- plot_theme
+      last_panel <<- current_theme
     }
     p + current_theme
   }
