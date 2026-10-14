@@ -22,6 +22,11 @@
   minor and axis-specific grids while preserving explicit plot styles.
 
 - [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
+  follows binned position mappings before and after statistics, matching
+  native distribution counts and geometry while preserving original
+  points, axes and unscaled mappings.
+
+- [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
   delegates unscaled distributions without an x scale to native ggplot2
   statistics, retaining supported histograms instead of returning empty
   layers.

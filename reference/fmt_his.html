@@ -106,7 +106,7 @@ to the first applicable layer mapping.</p></dd>
 are rejected. <code>NULL</code> retains the default for each control.</p><dl><dt><code>binwidth</code></dt>
 <dd><p>Positive finite bin width or a function, as in
     <code><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">ggplot2::geom_histogram()</a></code>. Default: 3. Histogram only;
-    measured after the x-scale transformation.</p></dd>
+    measured after the x-scale transformation and any binned position mapping.</p></dd>
 
   <dt><code>adjust</code></dt>
 <dd><p>Positive finite density bandwidth multiplier.
@@ -145,6 +145,7 @@ are rejected. <code>NULL</code> retains the default for each control.</p><dl><dt
   With automatic x limits, density grids span the original scale range and
   the distribution samples. Explicit x-scale limits retain the original
   panel's resolved endpoints, including function, formula and <code>NA</code> limits.
+  Binned x position scales follow ggplot2's mapping before and after statistics.
   Cartesian coordinates, including flipped and fixed-ratio coordinates,
   are supported. Other coordinate systems are rejected, including when
   added after formatting. The default baseline follows the display bottom under

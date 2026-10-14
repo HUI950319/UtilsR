@@ -56,7 +56,7 @@ fmt_his(
   :   Positive finite bin width or a function, as in
       [`ggplot2::geom_histogram()`](https://ggplot2.tidyverse.org/reference/geom_histogram.html).
       Default: 3. Histogram only; measured after the x-scale
-      transformation.
+      transformation and any binned position mapping.
 
   `adjust`
 
@@ -96,15 +96,16 @@ position scales or inherit grouping, weights or legends. With automatic
 x limits, density grids span the original scale range and the
 distribution samples. Explicit x-scale limits retain the original
 panel's resolved endpoints, including function, formula and `NA` limits.
-Cartesian coordinates, including flipped and fixed-ratio coordinates,
-are supported. Other coordinate systems are rejected, including when
-added after formatting. The default baseline follows the display bottom
-under coordinate reversal; explicit `y_rescale` retains its endpoint
-order. Nested patchwork layouts and annotations are preserved; spacers,
-wrapped grobs and inset overlays are skipped. Repeated calls add
-additional distribution layers. Mapping expressions and data callbacks
-are evaluated during the normal plot build; formatting does not build or
-refit the original plot. Final
+Binned x position scales follow ggplot2's mapping before and after
+statistics. Cartesian coordinates, including flipped and fixed-ratio
+coordinates, are supported. Other coordinate systems are rejected,
+including when added after formatting. The default baseline follows the
+display bottom under coordinate reversal; explicit `y_rescale` retains
+its endpoint order. Nested patchwork layouts and annotations are
+preserved; spacers, wrapped grobs and inset overlays are skipped.
+Repeated calls add additional distribution layers. Mapping expressions
+and data callbacks are evaluated during the normal plot build;
+formatting does not build or refit the original plot. Final
 [`after_scale()`](https://ggplot2.tidyverse.org/reference/aes_eval.html)
 x mappings are retained. Each distribution layer evaluates its x mapping
 once per build. Continuous x values are transformed once using their
