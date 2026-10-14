@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md)
+  uses absolute millimetres for grid and border widths and rejects
+  relative width objects before rendering.
+
+- [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md)
   restores hidden grids without fixing inherited styles onto
   axis-specific elements, so later parent grid themes still take effect.
 

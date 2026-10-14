@@ -49,8 +49,11 @@ fmt_panel(
 
 - grid_linewidth:
 
-  A single finite, non-negative number. Line width of retained grid
-  lines. Default `NULL` (inherit from current theme).
+  A single finite, non-negative absolute width in millimetres. Relative
+  widths created by
+  [`ggplot2::rel()`](https://ggplot2.tidyverse.org/reference/element.html)
+  are not accepted. Line width of retained grid lines. Default `NULL`
+  (inherit from current theme).
 
 - grid_linetype:
 
@@ -73,8 +76,11 @@ fmt_panel(
 
 - border_linewidth:
 
-  A single finite, non-negative number. Border line width, used only
-  when `border` is `TRUE` or a color string. Default 0.5.
+  A single finite, non-negative absolute width in millimetres. Relative
+  widths created by
+  [`ggplot2::rel()`](https://ggplot2.tidyverse.org/reference/element.html)
+  are not accepted. Border line width, used only when `border` is `TRUE`
+  or a color string. Default 0.5.
 
 - bg:
 
