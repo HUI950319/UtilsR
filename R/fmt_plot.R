@@ -4363,8 +4363,11 @@ fmt_his <- function(plot,
   setup_his <- function(self, data, params) {
     parent <- if (inherits(self, "GeomDensity")) ggplot2::GeomDensity else ggplot2::GeomBar
     data <- parent$setup_data(data, params)
-    data$ymin <- params$his_baseline
+    data$ymin <- params$his_baseline[as.integer(data$PANEL)]
     data$ymax <- data$y
+    for (name in intersect(c("x", "xmin", "xmax", "y", "ymin", "ymax"), names(data))) {
+      data[[paste0(".fmt_his_", name)]] <- data[[name]]
+    }
     data
   }
   environment(setup_his) <- environment(fmt_his)
@@ -4386,31 +4389,57 @@ fmt_his <- function(plot,
 
     # Panel ranges are already transformed and swapped by coord_flip().
     built <- ggplot2::ggplot_build(p)
-    panel <- built$layout$panel_params[[1L]]
     flipped <- inherits(old_coord, "CoordFlip")
-    x_range <- panel[[if (flipped) "y.range" else "x.range"]]
-    y_range <- panel[[if (flipped) "x.range" else "y.range"]] %||% c(0, 1)
-    x_scale <- built$layout$panel_scales_x[[1L]]
-    y_scale <- built$layout$panel_scales_y[[1L]]
-    y_min <- y_range[1]
-    y_max <- y_range[2]
-    hist_height <- (y_max - y_min) * height_ratio
-
-    yr <- if (is.null(y_rescale)) c(y_min, y_min + hist_height) else y_scale$transform(y_rescale)
-    rescale_his <- eval(quote(function(value) {
-      inverse(scales::rescale(value, bounds, from = c(0, max(value))))
-    }), list2env(list(bounds = yr, inverse = y_scale$trans$inverse), parent = baseenv()))
+    y_scales <- built$layout$panel_scales_y[built$layout$layout$SCALE_Y]
+    yr <- lapply(seq_along(built$layout$panel_params), function(i) {
+      y_range <- built$layout$panel_params[[i]][[if (flipped) "x.range" else "y.range"]]
+      if (is.null(y_rescale)) c(y_range[[1L]], y_range[[1L]] + diff(y_range) * height_ratio)
+      else y_scales[[i]]$transform(y_rescale)
+    })
+    inverses <- lapply(y_scales, function(scale) scale$trans$inverse)
+    rescale_his <- eval(quote(function(value, panel) {
+      result <- numeric(length(value))
+      for (i in unique(as.integer(panel))) {
+        rows <- as.integer(panel) == i
+        result[rows] <- inverses[[i]](scales::rescale(value[rows], bounds[[i]],
+                                                     from = c(0, max(value[rows]))))
+      }
+      result
+    }), list2env(list(bounds = yr, inverses = inverses), parent = baseenv()))
     mapping_env <- list2env(list(v = v, rescale_his = rescale_his), parent = environment(fmt_his))
     layer_mapping <- eval(if (type == "histogram") quote(ggplot2::aes(
-      x = .data[[v]], y = rescale_his(ggplot2::after_stat(count))
+      x = .data[[v]], y = rescale_his(ggplot2::after_stat(count), ggplot2::after_stat(PANEL))
     )) else quote(ggplot2::aes(
-      x = .data[[v]], y = rescale_his(ggplot2::after_stat(density))
+      x = .data[[v]], y = rescale_his(ggplot2::after_stat(density), ggplot2::after_stat(PANEL))
     )), mapping_env)
-    coord_env <- list2env(list(parent_coord = old_coord, limits = list(
-      x = x_scale$trans$inverse(x_range), y = ylim %||% y_scale$trans$inverse(y_range)
-    )), parent = environment(fmt_his))
-    new_coord <- eval(quote(ggplot2::ggproto(NULL, parent_coord, limits = limits,
-                                           expand = FALSE)), coord_env)
+    new_coord <- old_coord
+    if (!is.null(ylim)) {
+      limits <- old_coord$limits
+      limits$y <- ylim
+      coord_env <- list2env(list(parent_coord = old_coord, limits = limits), parent = environment(fmt_his))
+      new_coord <- eval(quote(ggplot2::ggproto(NULL, parent_coord, limits = limits)), coord_env)
+    }
+    if (!inherits(p$facet, "FacetHis")) {
+      facet_env <- list2env(list(parent_facet = p$facet), parent = environment(fmt_his))
+      p$facet <- eval(quote(ggplot2::ggproto("FacetHis", parent_facet,
+        train_scales = function(self, x_scales, y_scales, layout, data, params) {
+          data <- Filter(function(d) !".fmt_his" %in% names(d), data)
+          ggplot2::ggproto_parent(parent_facet, self)$train_scales(x_scales, y_scales, layout, data, params)
+        },
+        finish_data = function(self, data, layout, x_scales, y_scales, params) {
+          if (".fmt_his" %in% names(data)) {
+            for (name in c("x", "xmin", "xmax", "y", "ymin", "ymax")) {
+              saved <- paste0(".fmt_his_", name)
+              if (saved %in% names(data)) {
+                data[[name]] <- data[[saved]]
+                data[[saved]] <- NULL
+              }
+            }
+          }
+          ggplot2::ggproto_parent(parent_facet, self)$finish_data(data, layout, x_scales, y_scales, params)
+        }
+      )), facet_env)
+    }
 
     if (type == "histogram") {
       p <- p +
@@ -4436,8 +4465,27 @@ fmt_his <- function(plot,
     layer <- p$layers[[length(p$layers)]]
     parent_geom <- layer$geom
     layer$geom <- ggplot2::ggproto(NULL, parent_geom, setup_data = setup_his,
-                                  extra_params = c(parent_geom$extra_params, "his_baseline"))
-    layer$geom_params$his_baseline <- yr[[1L]]
+                                  extra_params = c(parent_geom$extra_params, "his_baseline"),
+                                  optional_aes = c(parent_geom$optional_aes, ".fmt_his", ".fmt_his_input"))
+    layer$mapping[[".fmt_his"]] <- 1
+    layer$mapping[[".fmt_his_input"]] <- layer$mapping$x
+    stat_env <- list2env(list(parent_stat = layer$stat), parent = environment(fmt_his))
+    layer$stat <- eval(quote(ggplot2::ggproto(NULL, parent_stat,
+      setup_data = function(data, params) {
+        data$x <- data$.fmt_his_input
+        parent_stat$setup_data(data, params)
+      },
+      compute_panel = function(data, scales, ...) {
+        data$x <- scales$x$transform(data$.fmt_his_input)
+        data$.fmt_his_input <- NULL
+        if (!is.null(scales$x$limits)) data$x <- scales$x$oob(data$x, scales$x$get_limits())
+        data <- data[is.finite(data$x), , drop = FALSE]
+        x_scale <- scales$x$clone()
+        x_scale$range$train(data$x)
+        parent_stat$compute_panel(data, list(x = x_scale, y = scales$y), ...)
+      }
+    )), stat_env)
+    layer$geom_params$his_baseline <- vapply(yr, `[[`, numeric(1), 1L)
     p
   }
 

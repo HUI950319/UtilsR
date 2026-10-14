@@ -68,3 +68,41 @@ test_that("overlays preserve transformed axes and original coordinates", {
     }
   }
 })
+
+test_that("each facet keeps its own ranges and overlay height", {
+  d <- data.frame(x = c(rep(1:3, c(1, 2, 3)), rep(101:103, c(3, 2, 1))),
+                  y = c(rep(c(1, 2, 3), c(1, 2, 3)), rep(c(101, 102, 103), c(3, 2, 1))),
+                  panel = rep(c("A", "B"), each = 6))
+  for (scales in c("fixed", "free_x", "free_y", "free")) {
+    p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point() +
+      ggplot2::facet_wrap(~panel, scales = scales)
+    before <- ggplot2::ggplot_build(p)
+    for (type in c("h", "d")) {
+      q <- suppressMessages(fmt_his(p, type = type, binwidth = 1))
+      after <- ggplot2::ggplot_build(q)
+      expect_identical(after$data[[1L]], before$data[[1L]])
+      for (i in seq_along(before$layout$panel_params)) {
+        pp <- before$layout$panel_params[[i]]
+        expect_equal(after$layout$panel_params[[i]]$x.range, pp$x.range)
+        expect_equal(after$layout$panel_params[[i]]$y.range, pp$y.range)
+        overlay <- after$data[[2L]][as.integer(after$data[[2L]]$PANEL) == i, ]
+        expect_equal(unique(overlay$ymin), pp$y.range[[1L]])
+        expect_equal(max(overlay$ymax), pp$y.range[[1L]] + diff(pp$y.range) * 0.3)
+      }
+      expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+    }
+    expect_s3_class(p$facet, "FacetWrap")
+    expect_false(inherits(p$facet, "FacetHis"))
+  }
+})
+
+test_that("external samples are counted without retraining the original axes", {
+  p <- his_test_plot()
+  before <- ggplot2::ggplot_build(p)
+  d <- data.frame(x = rep(100:102, c(10, 20, 30)))
+  after <- his_test_build(p, data = d, con_var = "x", binwidth = 1)
+  expect_equal(sum(after$data[[2L]]$count), 60)
+  expect_equal(after$layout$panel_params[[1L]]$x.range, c(0.5, 3.5))
+  expect_equal(after$layout$panel_params[[1L]]$y.range, c(0, 10))
+  expect_identical(after$data[[1L]], before$data[[1L]])
+})

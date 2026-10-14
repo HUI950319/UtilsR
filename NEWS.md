@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_his()` scales each facet independently and keeps distribution layers out
+  of position-scale training, preserving original axes and externally supplied samples.
+
 * `fmt_his()` preserves flipped and fixed-ratio Cartesian coordinates and
   correctly positions overlays on transformed axes without transforming limits twice.
 
