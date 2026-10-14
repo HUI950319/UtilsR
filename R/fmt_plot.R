@@ -4446,7 +4446,7 @@ fmt_his <- function(plot,
   environment(setup_his) <- environment(fmt_his)
 
   wrap_facet <- function(parent_facet, specs) {
-    parent_facet <- if (inherits(parent_facet, "FacetHis")) parent_facet$his_parent %||% parent_facet else parent_facet
+    if (exists("his_parent", envir = parent_facet, inherits = FALSE)) parent_facet <- parent_facet$his_parent
     facet_env <- list2env(list(parent_facet = parent_facet), parent = environment(fmt_his))
     facet <- eval(quote(ggplot2::ggproto("FacetHis", parent_facet,
         his_parent = parent_facet,
@@ -4461,6 +4461,10 @@ fmt_his <- function(plot,
           panel_params
         },
         finish_data = function(self, data, layout, x_scales, y_scales, params) {
+          marker <- data$.fmt_his
+          data$.fmt_his <- NULL
+          data <- ggplot2::ggproto_parent(parent_facet, self)$finish_data(data, layout, x_scales, y_scales, params)
+          if (!is.null(marker)) data$.fmt_his <- marker
           if (nrow(data) && ".fmt_his" %in% names(data)) {
             for (name in c("x", "xmin", "xmax")) {
               saved <- paste0(".fmt_his_", name)
@@ -4496,7 +4500,7 @@ fmt_his <- function(plot,
               data$ymax[rows] <- data$y[rows]
             }
           }
-          ggplot2::ggproto_parent(parent_facet, self)$finish_data(data, layout, x_scales, y_scales, params)
+          data
         }
       )), facet_env)
     facet$his_specs <- specs
@@ -4550,7 +4554,6 @@ fmt_his <- function(plot,
     }
     id <- length(specs) + 1L
     specs[[id]] <- list(type = type, height_ratio = height_ratio, y_rescale = y_rescale)
-    p$facet <- wrap_facet(p$facet, specs)
     p$coordinates <- new_coord
 
     if (type == "histogram") {

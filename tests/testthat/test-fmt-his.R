@@ -360,3 +360,37 @@ test_that("coordinate reversal keeps the default baseline at the display bottom"
     }
   }
 })
+
+test_that("individual facet transforms are applied once to distribution layers", {
+  skip_if_not_installed("ggh4x")
+  d <- data.frame(x = rep(c(1, 2, 3, 10, 100, 1000), each = 10),
+                  y = rep(c(2, 4, 6, 10, 100, 1000), each = 10),
+                  panel = rep(c("A", "B"), each = 30))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  facet <- ggplot2::facet_wrap(~panel, scales = "free")
+  scales <- ggh4x::facetted_pos_scales(
+    x = list(NULL, ggplot2::scale_x_log10()),
+    y = list(NULL, ggplot2::scale_y_log10()))
+  reference <- ggplot2::ggplot_build(p + facet + scales)
+  for (type in c("h", "d")) {
+    plots <- list(
+      fmt_his(p + facet + scales, type = type, binwidth = 1),
+      fmt_his(p + facet, type = type, binwidth = 1) + scales,
+      fmt_his(p, type = type, binwidth = 1) + facet + scales)
+    for (q in plots) {
+      built <- ggplot2::ggplot_build(q)
+      expect_identical(built$data[[1L]], reference$data[[1L]])
+      curve <- built$data[[2L]][as.integer(built$data[[2L]]$PANEL) == 2L, ]
+      expect_equal(range(curve$x), c(1, 3))
+      expect_equal(unique(curve$ymin), 0.9)
+      expect_equal(max(curve$ymax), 0.9 + 2.2 * 0.3)
+      expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+    }
+    q <- fmt_his(p + facet + scales, type = type, binwidth = 1,
+                 y_rescale = c(10, 100))
+    curve <- ggplot2::ggplot_build(q)$data[[2L]]
+    curve <- curve[as.integer(curve$PANEL) == 2L, ]
+    expect_equal(unique(curve$ymin), 1)
+    expect_equal(max(curve$ymax), 2)
+  }
+})

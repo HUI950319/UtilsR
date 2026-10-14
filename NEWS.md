@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_his()` preserves individual facet scales, including scales added after
+  formatting, and avoids applying their position transformations twice.
+
 * `fmt_his()` anchors default overlays to the display bottom when Cartesian
   coordinates reverse the vertical direction.
 
