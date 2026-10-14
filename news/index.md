@@ -17,6 +17,13 @@
   minor and axis-specific grids while preserving explicit plot styles.
 
 - [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
+  retains the original panel’s resolved x limits when computing
+  distributions, including function, formula and partial limits.
+  Automatic density grids also cover the original scale range,
+  preserving visible tails for externally supplied samples without
+  retraining the original axes.
+
+- [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
   preserves unscaled [`I()`](https://rdrr.io/r/base/AsIs.html) x
   mappings, preventing repeated transformations and scale-limit
   censoring of their distribution samples.

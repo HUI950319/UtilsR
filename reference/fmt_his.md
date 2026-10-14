@@ -92,15 +92,18 @@ Same type as input.
 Counts and densities are scaled from statistical zero, preserving their
 relative heights. The fill starts at the requested baseline. Each facet
 is scaled independently; distribution layers do not retrain the original
-position scales or inherit grouping, weights or legends. Cartesian
-coordinates, including flipped and fixed-ratio coordinates, are
-supported. Other coordinate systems are rejected, including when added
-after formatting. The default baseline follows the display bottom under
-coordinate reversal; explicit `y_rescale` retains its endpoint order.
-Nested patchwork layouts and annotations are preserved; spacers, wrapped
-grobs and inset overlays are skipped. Repeated calls add additional
-distribution layers. Mapping expressions and data callbacks are
-evaluated during the normal plot build; formatting does not build or
+position scales or inherit grouping, weights or legends. With automatic
+x limits, density grids span the original scale range and the
+distribution samples. Explicit x-scale limits retain the original
+panel's resolved endpoints, including function, formula and `NA` limits.
+Cartesian coordinates, including flipped and fixed-ratio coordinates,
+are supported. Other coordinate systems are rejected, including when
+added after formatting. The default baseline follows the display bottom
+under coordinate reversal; explicit `y_rescale` retains its endpoint
+order. Nested patchwork layouts and annotations are preserved; spacers,
+wrapped grobs and inset overlays are skipped. Repeated calls add
+additional distribution layers. Mapping expressions and data callbacks
+are evaluated during the normal plot build; formatting does not build or
 refit the original plot. Each distribution layer evaluates its x mapping
 once per build. Continuous x values are transformed once using their
 panel's final x scale; unscaled
