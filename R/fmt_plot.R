@@ -4403,7 +4403,8 @@ fmt_his <- function(plot,
           data = d,
           mapping = ggplot2::aes(
             x = .data[[v]],
-            y = scales::rescale(ggplot2::after_stat(count), yr)
+            y = scales::rescale(ggplot2::after_stat(count), yr,
+                                from = c(0, max(ggplot2::after_stat(count))))
           ),
           fill = his_color, color = his_color,
           binwidth = binwidth, alpha = his_alpha,
@@ -4416,7 +4417,8 @@ fmt_his <- function(plot,
           data = d,
           mapping = ggplot2::aes(
             x = .data[[v]],
-            y = scales::rescale(ggplot2::after_stat(density), yr)
+            y = scales::rescale(ggplot2::after_stat(density), yr,
+                                from = c(0, max(ggplot2::after_stat(density))))
           ),
           fill = his_color,
           color = ggplot2::alpha(his_color, his_alpha),

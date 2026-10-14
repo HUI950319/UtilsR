@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_his()` preserves histogram frequency and density ratios when every
+  computed bin or density value is positive, including equally populated bins.
+
 * `fmt_panel()` reuses resolved settings for repeated themes within a batch,
   with a bounded cache that stops after consecutive theme mismatches.
 
