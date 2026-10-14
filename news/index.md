@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
+  rejects unsupported coordinates added after formatting during plot
+  building, with the same clear error as coordinates supplied initially.
+
+- [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
   documents standard facet matching for external data, including
   repeated samples and newly introduced panels, and adds a
   deferred-facet example.
