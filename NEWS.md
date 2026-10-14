@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_his()` traverses nested patchworks recursively while preserving layouts,
+  annotations, spacers, wrapped grobs and plot-list names.
+
 * `fmt_his()` uses independent distribution mappings, avoiding inherited
   groups, weights and missing aesthetics in externally supplied data.
 

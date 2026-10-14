@@ -123,3 +123,31 @@ test_that("distribution overlays do not inherit grouping or weights", {
     expect_length(unique(external$data[[2L]]$group), 1L)
   }
 })
+
+test_that("nested patchworks format every leaf while retaining layout", {
+  p <- his_test_plot()
+  pw <- ((p / p) | p) + patchwork::plot_annotation(title = "Combined")
+  q <- suppressMessages(fmt_his(pw, binwidth = 1))
+  expect_length(q[[1L]][[1L]]$layers, 2L)
+  expect_length(q[[1L]][[2L]]$layers, 2L)
+  expect_length(q[[2L]]$layers, 2L)
+  expect_identical(q$patches$layout, pw$patches$layout)
+  expect_identical(q$patches$annotation, pw$patches$annotation)
+  expect_identical(q[[1L]]$patches$layout, pw[[1L]]$patches$layout)
+  expect_s3_class(patchwork::patchworkGrob(q), "gtable")
+  expect_length(p$layers, 1L)
+})
+
+test_that("patchwork placeholders and named plot lists retain their structure", {
+  p <- his_test_plot()
+  for (placeholder in list(patchwork::plot_spacer(),
+                           patchwork::wrap_elements(grid::textGrob("Note")))) {
+    q <- suppressMessages(fmt_his(p | placeholder, binwidth = 1))
+    expect_length(q[[1L]]$layers, 2L)
+    expect_identical(class(q[[2L]]), class(placeholder))
+    expect_s3_class(patchwork::patchworkGrob(q), "gtable")
+  }
+  q <- suppressMessages(fmt_his(list(first = p, second = p), binwidth = 1))
+  expect_identical(names(q), c("first", "second"))
+  expect_equal(vapply(q, function(x) length(x$layers), integer(1)), c(first = 2L, second = 2L))
+})
