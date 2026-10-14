@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
+  resolves layer data and preserves x-mapping expressions and their
+  environments, including `.data` and `.env` pronouns.
+
+- [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
   traverses nested patchworks recursively while preserving layouts,
   annotations, spacers, wrapped grobs and plot-list names.
 
