@@ -63,6 +63,8 @@ Counts and densities are scaled from statistical zero, preserving
   are supported. Nested patchwork layouts and annotations are preserved;
   spacers, wrapped grobs and inset overlays are skipped. Repeated calls add
   additional distribution layers.
+  Mapping expressions and data callbacks are evaluated during the normal
+  plot build; formatting does not build or refit the original plot.
 }
 \examples{
 library(ggplot2)

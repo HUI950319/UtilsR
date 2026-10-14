@@ -225,3 +225,58 @@ test_that("nullable defaults and mode-specific controls remain compatible", {
   q <- suppressMessages(fmt_his(p, binwidth = 1, ylim = c(NA, 12)))
   expect_equal(ggplot2::ggplot_build(q)$layout$panel_params[[1L]]$y.range[[2L]], 12)
 })
+
+test_that("formatting defers original statistics until one display build", {
+  calls <- 0L
+  summarize <- function(y) { calls <<- calls + 1L; mean(y) }
+  p <- ggplot2::ggplot(his_test_plot()$data, ggplot2::aes(x = 1, y = y)) +
+    ggplot2::stat_summary(fun = summarize, geom = "point")
+  q <- suppressMessages(fmt_his(p, con_var = "x", binwidth = 1))
+  expect_equal(calls, 0L)
+  expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+  expect_equal(calls, 1L)
+  expect_length(p$layers, 1L)
+})
+
+test_that("function and formula data remain lazy during formatting", {
+  d <- his_test_plot()$data
+  for (formula in c(FALSE, TRUE)) {
+    calls <- 0L
+    callback <- if (formula) ~{ calls <<- calls + 1L; d } else
+      function(data) { calls <<- calls + 1L; d }
+    p <- ggplot2::ggplot() + ggplot2::geom_point(data = callback, ggplot2::aes(x, y))
+    q <- suppressMessages(fmt_his(p, binwidth = 1))
+    expect_equal(calls, 0L)
+    built <- ggplot2::ggplot_build(q)
+    expect_equal(calls, 2L)
+    expect_equal(built$data[[2L]]$count, c(10, 20, 30))
+  }
+})
+
+test_that("overlay heights follow later scale and coordinate changes", {
+  q <- suppressMessages(fmt_his(his_test_plot(), binwidth = 1))
+  q <- suppressMessages(q + ggplot2::coord_cartesian(ylim = c(-5, 15), expand = FALSE))
+  bars <- ggplot2::ggplot_build(q)$data[[2L]]
+  expect_equal(bars$ymin, rep(-5, 3))
+  expect_equal(bars$ymax, c(-3, -1, 1))
+  q <- fmt_his(his_test_plot(), binwidth = 1) + ggplot2::scale_y_reverse()
+  bars <- ggplot2::ggplot_build(q)$data[[2L]]
+  # Older ggplot2 retains decreasing coordinate ranges under a reverse scale.
+  reference <- ggplot2::ggplot_build(his_test_plot() + ggplot2::scale_y_reverse())
+  range <- reference$layout$panel_params[[1L]]$y.range
+  expect_equal(bars$ymin, rep(range[[1L]], 3))
+  expect_equal(bars$ymax, range[[1L]] + diff(range) * c(0.1, 0.2, 0.3))
+})
+
+test_that("repeated calls retain independent overlay settings", {
+  p <- his_test_plot()
+  q <- suppressMessages(fmt_his(p, type = "h", binwidth = 1, height_ratio = 0.2))
+  q <- suppressMessages(fmt_his(q, type = "d", height_ratio = 0.5))
+  built <- ggplot2::ggplot_build(q)
+  expect_length(q$layers, 3L)
+  expect_equal(max(built$data[[2L]]$ymax), 2)
+  expect_equal(max(built$data[[3L]]$ymax), 5)
+  expect_equal(built$layout$panel_params[[1L]]$y.range, c(0, 10))
+  expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+  expect_length(p$layers, 1L)
+})

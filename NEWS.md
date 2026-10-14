@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_his()` defers overlay scaling to the normal plot build, avoiding an
+  extra evaluation of original statistics and data callbacks. Overlay heights
+  follow later axis changes and repeated calls keep their individual settings.
+
 * `fmt_his()` validates overlay controls and documents their defaults, units,
   mode-specific effects and supported mappings with runnable simulated examples.
 

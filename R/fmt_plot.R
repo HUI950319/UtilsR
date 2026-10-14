@@ -4355,6 +4355,8 @@ fmt_bg <- function(plot,
 #'   are supported. Nested patchwork layouts and annotations are preserved;
 #'   spacers, wrapped grobs and inset overlays are skipped. Repeated calls add
 #'   additional distribution layers.
+#'   Mapping expressions and data callbacks are evaluated during the normal
+#'   plot build; formatting does not build or refit the original plot.
 #'
 #' @return Same type as input.
 #'
@@ -4419,9 +4421,9 @@ fmt_his <- function(plot,
   setup_his <- function(self, data, params) {
     parent <- if (inherits(self, "GeomDensity")) ggplot2::GeomDensity else ggplot2::GeomBar
     data <- parent$setup_data(data, params)
-    data$ymin <- params$his_baseline[as.integer(data$PANEL)]
+    data$ymin <- data$y
     data$ymax <- data$y
-    for (name in intersect(c("x", "xmin", "xmax", "y", "ymin", "ymax"), names(data))) {
+    for (name in intersect(c("x", "xmin", "xmax"), names(data))) {
       data[[paste0(".fmt_his_", name)]] <- data[[name]]
     }
     data
@@ -4448,37 +4450,18 @@ fmt_his <- function(plot,
     if (is.null(x_mapping)) cli::cli_abort("No x mapping found and `con_var` is NULL.")
     if (!is.null(con_var) && is.data.frame(d) && !con_var %in% names(d))
       cli::cli_abort("Variable '{con_var}' not found in data.")
+    if (inherits(d, "ggproto_method")) {
+      d <- eval(quote(function(data) callback(data)),
+                list2env(list(callback = d), parent = baseenv()))
+    }
 
     old_coord <- p$coordinates
     if (!inherits(old_coord, "CoordCartesian")) {
       cli::cli_abort("Distribution overlays require Cartesian coordinates.")
     }
 
-    # Panel ranges are already transformed and swapped by coord_flip().
-    built <- ggplot2::ggplot_build(p)
-    flipped <- inherits(old_coord, "CoordFlip")
-    y_scales <- built$layout$panel_scales_y[built$layout$layout$SCALE_Y]
-    yr <- lapply(seq_along(built$layout$panel_params), function(i) {
-      y_range <- built$layout$panel_params[[i]][[if (flipped) "x.range" else "y.range"]]
-      if (is.null(y_rescale)) c(y_range[[1L]], y_range[[1L]] + diff(y_range) * height_ratio)
-      else y_scales[[i]]$transform(y_rescale)
-    })
-    inverses <- lapply(y_scales, function(scale) scale$trans$inverse)
-    rescale_his <- eval(quote(function(value, panel) {
-      result <- numeric(length(value))
-      for (i in unique(as.integer(panel))) {
-        rows <- as.integer(panel) == i
-        result[rows] <- inverses[[i]](scales::rescale(value[rows], bounds[[i]],
-                                                     from = c(0, max(value[rows]))))
-      }
-      result
-    }), list2env(list(bounds = yr, inverses = inverses), parent = baseenv()))
-    mapping_env <- list2env(list(rescale_his = rescale_his), parent = environment(fmt_his))
-    layer_mapping <- eval(if (type == "histogram") quote(ggplot2::aes(
-      y = rescale_his(ggplot2::after_stat(count), ggplot2::after_stat(PANEL))
-    )) else quote(ggplot2::aes(
-      y = rescale_his(ggplot2::after_stat(density), ggplot2::after_stat(PANEL))
-    )), mapping_env)
+    # Resolve overlay heights only after the original scales finish training.
+    layer_mapping <- eval(quote(ggplot2::aes(y = ggplot2::after_stat(NA_real_))), baseenv())
     layer_mapping[["x"]] <- x_mapping
     new_coord <- old_coord
     if (!is.null(ylim)) {
@@ -4487,27 +4470,61 @@ fmt_his <- function(plot,
       coord_env <- list2env(list(parent_coord = old_coord, limits = limits), parent = environment(fmt_his))
       new_coord <- eval(quote(ggplot2::ggproto(NULL, parent_coord, limits = limits)), coord_env)
     }
-    if (!inherits(p$facet, "FacetHis")) {
-      facet_env <- list2env(list(parent_facet = p$facet), parent = environment(fmt_his))
-      p$facet <- eval(quote(ggplot2::ggproto("FacetHis", parent_facet,
+    specs <- p$facet$his_specs %||% list()
+    id <- length(specs) + 1L
+    specs[[id]] <- list(type = type, height_ratio = height_ratio, y_rescale = y_rescale)
+    parent_facet <- if (inherits(p$facet, "FacetHis")) p$facet$his_parent %||% p$facet else p$facet
+    facet_env <- list2env(list(parent_facet = parent_facet), parent = environment(fmt_his))
+    p$facet <- eval(quote(ggplot2::ggproto("FacetHis", parent_facet,
+        his_parent = parent_facet,
         train_scales = function(self, x_scales, y_scales, layout, data, params) {
           data <- Filter(function(d) !".fmt_his" %in% names(d), data)
           ggplot2::ggproto_parent(parent_facet, self)$train_scales(x_scales, y_scales, layout, data, params)
         },
+        setup_panel_params = function(self, panel_params, coord) {
+          panel_params <- ggplot2::ggproto_parent(parent_facet, self)$setup_panel_params(panel_params, coord)
+          axis <- if (inherits(coord, "CoordFlip")) "x.range" else "y.range"
+          self$his_y_ranges <- lapply(panel_params, `[[`, axis)
+          panel_params
+        },
         finish_data = function(self, data, layout, x_scales, y_scales, params) {
-          if (".fmt_his" %in% names(data)) {
-            for (name in c("x", "xmin", "xmax", "y", "ymin", "ymax")) {
+          if (nrow(data) && ".fmt_his" %in% names(data)) {
+            for (name in c("x", "xmin", "xmax")) {
               saved <- paste0(".fmt_his_", name)
               if (saved %in% names(data)) {
                 data[[name]] <- data[[saved]]
                 data[[saved]] <- NULL
               }
             }
+            spec <- self$his_specs[[as.integer(data$.fmt_his[[1L]])]]
+            for (panel in unique(as.integer(data$PANEL))) {
+              rows <- as.integer(data$PANEL) == panel
+              index <- match(panel, as.integer(layout$PANEL))
+              range <- self$his_y_ranges[[index]]
+              if (is.null(range)) {
+                coord <- self$his_coord
+                pp <- coord$setup_panel_params(x_scales[[layout$SCALE_X[[index]]]],
+                                               y_scales[[layout$SCALE_Y[[index]]]],
+                                               coord$setup_params(list()))
+                range <- pp[[if (inherits(coord, "CoordFlip")) "x.range" else "y.range"]]
+              }
+              bounds <- if (is.null(spec$y_rescale)) {
+                c(range[[1L]], range[[1L]] + diff(range) * spec$height_ratio)
+              } else y_scales[[layout$SCALE_Y[[index]]]]$transform(spec$y_rescale)
+              if (any(!is.finite(bounds))) cli::cli_abort("{.arg y_rescale} must be finite on the plot's y scale.")
+              values <- data[[if (spec$type == "histogram") "count" else "density"]][rows]
+              peak <- max(values)
+              height <- if (peak > 0) values / peak else numeric(length(values))
+              data$y[rows] <- bounds[[1L]] + diff(bounds) * height
+              data$ymin[rows] <- bounds[[1L]]
+              data$ymax[rows] <- data$y[rows]
+            }
           }
           ggplot2::ggproto_parent(parent_facet, self)$finish_data(data, layout, x_scales, y_scales, params)
         }
       )), facet_env)
-    }
+    p$facet$his_specs <- specs
+    p$coordinates <- new_coord
 
     if (type == "histogram") {
       p <- p +
@@ -4517,8 +4534,7 @@ fmt_his <- function(plot,
           fill = his_color, color = his_color,
           binwidth = binwidth, alpha = his_alpha,
           position = "identity", inherit.aes = FALSE, show.legend = FALSE
-        ) +
-        new_coord
+        )
     } else {
       p <- p +
         ggplot2::geom_density(
@@ -4527,15 +4543,19 @@ fmt_his <- function(plot,
           fill = his_color,
           color = ggplot2::alpha(his_color, his_alpha),
           alpha = his_alpha, adjust = adjust, inherit.aes = FALSE, show.legend = FALSE
-        ) +
-        new_coord
+        )
     }
     layer <- p$layers[[length(p$layers)]]
-    parent_geom <- layer$geom
-    layer$geom <- ggplot2::ggproto(NULL, parent_geom, setup_data = setup_his,
-                                  extra_params = c(parent_geom$extra_params, "his_baseline"),
-                                  optional_aes = c(parent_geom$optional_aes, ".fmt_his", ".fmt_his_input"))
-    layer$mapping[[".fmt_his"]] <- 1
+    layer_env <- list2env(list(parent_layer = layer$super()), parent = environment(fmt_his))
+    layer$setup_layer <- eval(quote(function(self, data, plot) {
+      plot$facet$his_coord <- plot$coordinates
+      ggplot2::ggproto_parent(parent_layer, self)$setup_layer(data, plot)
+    }), layer_env)
+    geom_env <- list2env(list(parent_geom = layer$geom, setup_his = setup_his), parent = environment(fmt_his))
+    layer$geom <- eval(quote(ggplot2::ggproto(NULL, parent_geom, setup_data = setup_his,
+      optional_aes = c(parent_geom$optional_aes, ".fmt_his", ".fmt_his_input")
+    )), geom_env)
+    layer$mapping[[".fmt_his"]] <- id
     layer$mapping[[".fmt_his_input"]] <- layer$mapping$x
     stat_env <- list2env(list(parent_stat = layer$stat), parent = environment(fmt_his))
     layer$stat <- eval(quote(ggplot2::ggproto(NULL, parent_stat,
@@ -4553,7 +4573,6 @@ fmt_his <- function(plot,
         parent_stat$compute_panel(data, list(x = x_scale, y = scales$y), ...)
       }
     )), stat_env)
-    layer$geom_params$his_baseline <- vapply(yr, `[[`, numeric(1), 1L)
     p
   }
 
