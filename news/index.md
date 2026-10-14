@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
+  preserves individual facet scales, including scales added after
+  formatting, and avoids applying their position transformations twice.
+
+- [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
   anchors default overlays to the display bottom when Cartesian
   coordinates reverse the vertical direction.
 
