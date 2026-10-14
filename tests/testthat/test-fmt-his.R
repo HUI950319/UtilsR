@@ -666,6 +666,27 @@ test_that("distribution layers preserve native after-scale x mappings", {
   }
 })
 
+test_that("unscaled histograms work without an explicit x scale", {
+  d <- his_test_plot()$data
+  d$x <- d$x / 4
+  p <- ggplot2::ggplot(d, ggplot2::aes(I(x), y)) + ggplot2::geom_point() +
+    ggplot2::coord_cartesian(xlim = c(0, 1), ylim = c(0, 10), expand = FALSE)
+  reference <- suppressWarnings(ggplot2::ggplot_build(p + ggplot2::geom_histogram(
+    ggplot2::aes(y = ggplot2::after_stat(count)), binwidth = 0.25,
+    position = "identity")))$data[[2L]]
+  skip_if(!nrow(reference), "Native ggplot2 does not support this unscaled histogram.")
+  before <- ggplot2::ggplot_build(p)
+  q <- fmt_his(p, binwidth = 0.25)
+  built <- ggplot2::ggplot_build(q)
+  expect_equal(built$data[[2L]][c("x", "count")], reference[c("x", "count")])
+  expect_equal(sum(built$data[[2L]]$count), 60)
+  expect_identical(built$data[[1L]], before$data[[1L]])
+  expect_equal(built$layout$panel_params[[1L]]$x.range,
+               before$layout$panel_params[[1L]]$x.range)
+  expect_null(p$scales$get_scales("x"))
+  expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+})
+
 test_that("histogram overlays retain native discrete-x validation", {
   for (x in list(factor(rep(1:3, each = 20)), rep(c("A", "B", "C"), each = 20),
                  rep(c(TRUE, FALSE), each = 30))) {
