@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
+  identifies its own distribution layers without reserving a mapped
+  aesthetic name, preserving unrelated fields with matching names.
+
+- [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
   evaluates each distribution layer’s x mapping once per build and
   reuses the evaluated values for its statistics.
 
