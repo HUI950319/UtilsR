@@ -24,6 +24,8 @@ visible panel's y-axis range used for the overlay height. Default: 0.3.}
 
 \item{data}{Optional data frame, layer data function or formula. If
 \code{NULL}, uses the plot data or the first applicable layer's data.
+Layer fallback requires an x mapping when \code{con_var} is \code{NULL};
+otherwise, it skips data frames missing the requested column.
 With standard ggplot2 facets, missing facet columns repeat samples across
 applicable panels; new facet values can add panels, as for other layers.}
 

@@ -187,6 +187,49 @@ test_that("distribution data and mappings fall back to applicable layers", {
   }
 })
 
+test_that("layer data fallback skips annotations and missing requested columns", {
+  d <- his_test_plot()$data
+  x <- 2
+  plots <- list(
+    ggplot2::ggplot() + ggplot2::geom_hline(yintercept = 0) +
+      ggplot2::geom_point(data = d, ggplot2::aes(x, y)),
+    ggplot2::ggplot(mapping = ggplot2::aes(x, y)) +
+      ggplot2::geom_hline(yintercept = 0) + ggplot2::geom_point(data = d))
+  for (p in plots) {
+    before <- ggplot2::ggplot_build(p)
+    for (con_var in list(NULL, "x")) {
+      for (type in c("h", "d")) {
+        after <- his_test_build(p, type = type, con_var = con_var, binwidth = 1)
+        overlay <- after$data[[3L]]
+        if (type == "h") expect_equal(overlay$count, c(10, 20, 30))
+        else expect_equal(unique(overlay$n), 60)
+        expect_identical(after$data[1:2], before$data)
+      }
+    }
+    expect_length(p$layers, 2L)
+  }
+  p <- ggplot2::ggplot() + ggplot2::geom_point(data = d, ggplot2::aes(x, y)) +
+    ggplot2::geom_point(data = transform(d, z = x), ggplot2::aes(z, y))
+  expect_equal(his_test_build(p, con_var = "z", binwidth = 1)$data[[3L]]$count,
+               c(10, 20, 30))
+})
+
+test_that("annotation fallback keeps function and formula data lazy", {
+  d <- his_test_plot()$data
+  for (formula in c(FALSE, TRUE)) {
+    calls <- 0L
+    callback <- if (formula) ~{ calls <<- calls + 1L; d } else
+      function(data) { calls <<- calls + 1L; d }
+    p <- ggplot2::ggplot(mapping = ggplot2::aes(x, y)) +
+      ggplot2::geom_hline(yintercept = 0) + ggplot2::geom_point(data = callback)
+    q <- fmt_his(p, binwidth = 1)
+    expect_equal(calls, 0L)
+    built <- ggplot2::ggplot_build(q)
+    expect_equal(calls, 2L)
+    expect_equal(built$data[[3L]]$count, c(10, 20, 30))
+  }
+})
+
 test_that("overlay controls reject unknown names and invalid numeric values", {
   p <- his_test_plot()
   expect_error(fmt_his(p, binwdith = 1), "binwdith")

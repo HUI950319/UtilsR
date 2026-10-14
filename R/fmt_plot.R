@@ -4369,6 +4369,8 @@ ggplot_build.ggplot_his <- function(plot, ...) {
 #'   visible panel's y-axis range used for the overlay height. Default: 0.3.
 #' @param data Optional data frame, layer data function or formula. If
 #'   \code{NULL}, uses the plot data or the first applicable layer's data.
+#'   Layer fallback requires an x mapping when \code{con_var} is \code{NULL};
+#'   otherwise, it skips data frames missing the requested column.
 #'   With standard ggplot2 facets, missing facet columns repeat samples across
 #'   applicable panels; new facet values can add panels, as for other layers.
 #' @param con_var Optional single column name overriding the x mapping.
@@ -4556,8 +4558,9 @@ fmt_his <- function(plot,
       for (layer in p$layers) {
         candidate <- layer$mapping$x %||% if (isTRUE(layer$inherit.aes)) p$mapping$x
         layer_data <- data %||% if (is.null(layer$data) || inherits(layer$data, "waiver")) p$data else layer$data
+        if (!is.null(con_var) && is.data.frame(layer_data) && !con_var %in% names(layer_data)) next
         if ((is.data.frame(layer_data) || is.function(layer_data) || inherits(layer_data, "formula")) &&
-            (!is.null(x_mapping) || !is.null(candidate))) {
+            (!is.null(con_var) || !is.null(candidate))) {
           d <- layer_data
           x_mapping <- x_mapping %||% candidate
           break
