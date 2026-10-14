@@ -78,6 +78,11 @@ those entries are also blank. Styles overwritten by earlier formatting cannot
 be recovered. Restored grids continue to inherit parent grid-theme changes.
 Grid lines still require corresponding scale breaks.
 
+If an automatically restored grid color matches the known opaque background,
+it becomes \code{"grey70"} (or \code{"grey30"} on a \code{"grey70"} background).
+Available plot styles and explicit grid colors, including those in \code{...},
+retain their normal priority. Transparent or unknown backgrounds are unchanged.
+
 Ordinary plot leaves are formatted recursively. Layouts, annotations and list
 names are retained. Spacers, guide areas, frozen \code{wrap_elements()} cells
 and inset overlays are returned unchanged; format their plots before wrapping

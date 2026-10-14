@@ -289,3 +289,52 @@ test_that("panel width arguments use absolute millimetres and reject relative va
                         panel.grid.major = ggplot2::element_line(linewidth = ggplot2::rel(0.5)))
   expect_equal(panel_test_grids(relative)$linewidth, rep(0.25 * 72.27 / 25.4, 2))
 })
+
+test_that("automatic restored grid colours remain visible on matching backgrounds", {
+  skip_if_not_installed("ragg")
+  old <- ggplot2::theme_set(ggplot2::theme_gray())
+  withr::defer(ggplot2::theme_set(old))
+  p <- panel_test_plot() + ggplot2::theme_classic()
+  before <- p$theme
+  capture <- function(plot) {
+    grab <- ragg::agg_capture(width = 360, height = 240, units = "px", res = 96)
+    on.exit(grDevices::dev.off())
+    print(plot)
+    grab(native = TRUE)
+  }
+  output <- fmt_panel(p, grid = "both")
+  expect_equal(panel_test_grids(output)$colour, rep("grey70", 4))
+  expect_gt(sum(capture(output) != capture(fmt_panel(p, grid = "none"))), 0)
+  expect_identical(ggplot2::ggplot_build(output)$data, ggplot2::ggplot_build(p)$data)
+  expect_identical(output$theme$panel.background, p$theme$panel.background)
+  expect_identical(p$theme, before)
+  ggplot2::theme_set(ggplot2::theme_gray() +
+                      ggplot2::theme(panel.grid = ggplot2::element_line(colour = "grey70")))
+  expect_equal(panel_test_grids(fmt_panel(p, grid = "both", bg = "grey70"))$colour,
+               rep("grey30", 4))
+})
+
+test_that("contrast fallback preserves available and explicit grid colours", {
+  old <- ggplot2::theme_set(ggplot2::theme_gray())
+  withr::defer(ggplot2::theme_set(old))
+  p <- panel_test_plot() + ggplot2::theme_classic()
+  expect_equal(panel_test_grids(fmt_panel(p, grid = "both", grid_color = "white"))$colour,
+               rep("white", 4))
+  expect_equal(panel_test_grids(fmt_panel(p, grid = "both",
+                                         panel.grid = ggplot2::element_line(colour = "white")))$colour,
+               rep("white", 4))
+  expect_equal(panel_test_grids(fmt_panel(p, grid = "major",
+                                         panel.grid.major = ggplot2::element_line(colour = "white")))$colour,
+               rep("white", 2))
+  expect_equal(panel_test_grids(fmt_panel(p, grid = "both", bg = "black"))$colour,
+               rep("white", 4))
+  available <- panel_test_plot() + ggplot2::theme(
+    panel.grid = ggplot2::element_line(colour = "purple"),
+    panel.grid.major.x = ggplot2::element_blank())
+  expect_equal(panel_test_grids(fmt_panel(available, grid = "x", bg = "purple"))$colour,
+               "purple")
+  transparent <- fmt_panel(p, grid = "both", bg = NA,
+                           plot.background = ggplot2::element_rect(fill = NA, colour = NA))
+  expect_equal(panel_test_grids(transparent)$colour, rep("white", 4))
+  expect_identical(transparent$theme$panel.background$fill, NA)
+})
