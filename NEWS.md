@@ -14,6 +14,9 @@
 * `fmt_panel()` corrects matching background colours in automatically restored
   major, minor and axis-specific grids while preserving explicit plot styles.
 
+* `fmt_his()` preserves final `after_scale()` x mappings without evaluating
+  them again, keeping distribution positions aligned with native layers.
+
 * `fmt_his()` normalizes time-difference samples to numeric positions while
   retaining their units, preventing empty histogram and density overlays.
 

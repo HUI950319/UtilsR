@@ -640,6 +640,32 @@ test_that("time-difference samples retain native units and statistics", {
   }
 })
 
+test_that("distribution layers preserve native after-scale x mappings", {
+  for (type in c("h", "d")) {
+    calls <- 0L
+    modify_x <- function(x) { calls <<- calls + 1L; x * 2 }
+    p <- his_test_plot()
+    p$mapping <- ggplot2::aes(ggplot2::stage(start = x,
+      after_scale = modify_x(x)), y)
+    native <- if (type == "h") ggplot2::geom_histogram(
+      ggplot2::aes(y = ggplot2::after_stat(count)), binwidth = 1,
+      position = "identity") else ggplot2::geom_density(adjust = 1)
+    reference <- ggplot2::ggplot_build(p + native)
+    native_calls <- calls
+    calls <- 0L
+    q <- fmt_his(p, type = type, binwidth = 1, adjust = 1)
+    expect_equal(calls, 0L)
+    built <- ggplot2::ggplot_build(q)
+    expect_equal(calls, native_calls)
+    fields <- if (type == "h") c("x", "xmin", "xmax", "count") else
+      c("x", "density", "n")
+    expect_equal(built$data[[2L]][fields], reference$data[[2L]][fields])
+    expect_identical(built$data[[1L]], reference$data[[1L]])
+    expect_equal(built$layout$panel_params[[1L]]$x.range,
+                 ggplot2::ggplot_build(p)$layout$panel_params[[1L]]$x.range)
+  }
+})
+
 test_that("histogram overlays retain native discrete-x validation", {
   for (x in list(factor(rep(1:3, each = 20)), rep(c("A", "B", "C"), each = 20),
                  rep(c(TRUE, FALSE), each = 30))) {

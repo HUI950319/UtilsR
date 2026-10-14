@@ -4423,6 +4423,7 @@ ggplot_build.ggplot_his <- function(plot, ...) {
 #'   additional distribution layers.
 #'   Mapping expressions and data callbacks are evaluated during the normal
 #'   plot build; formatting does not build or refit the original plot.
+#'   Final \code{after_scale()} x mappings are retained.
 #'   Each distribution layer evaluates its x mapping once per build. Continuous
 #'   x values are transformed once using their panel's final x scale; unscaled
 #'   \code{I()} mappings bypass transformation and limit censoring, as in ggplot2. Facets
@@ -4661,7 +4662,21 @@ fmt_his <- function(plot,
     }), layer_env)
     geom_env <- list2env(list(parent_geom = layer$geom, setup_his = setup_his), parent = environment(fmt_his))
     layer$geom <- eval(quote(ggplot2::ggproto(NULL, parent_geom, setup_data = setup_his,
-      optional_aes = c(parent_geom$optional_aes, ".fmt_his_input")
+      optional_aes = c(parent_geom$optional_aes, ".fmt_his_input"),
+      use_defaults = function(self, data, ...) {
+        # Restore statistical positions before native after-scale mappings.
+        positions <- intersect(c("x", "xmin", "xmax"), names(data))
+        for (name in positions) {
+          saved <- paste0(".fmt_his_", name)
+          if (saved %in% names(data)) data[[name]] <- data[[saved]]
+        }
+        data <- ggplot2::ggproto_parent(parent_geom, self)$use_defaults(data, ...)
+        for (name in positions) {
+          saved <- paste0(".fmt_his_", name)
+          if (saved %in% names(data)) data[[saved]] <- data[[name]]
+        }
+        data
+      }
     )), geom_env)
     stat_env <- list2env(list(parent_stat = layer$stat), parent = environment(fmt_his))
     layer$stat <- eval(quote(ggplot2::ggproto(NULL, parent_stat,

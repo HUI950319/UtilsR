@@ -75,6 +75,7 @@ Counts and densities are scaled from statistical zero, preserving
   additional distribution layers.
   Mapping expressions and data callbacks are evaluated during the normal
   plot build; formatting does not build or refit the original plot.
+  Final \code{after_scale()} x mappings are retained.
   Each distribution layer evaluates its x mapping once per build. Continuous
   x values are transformed once using their panel's final x scale; unscaled
   \code{I()} mappings bypass transformation and limit censoring, as in ggplot2. Facets
