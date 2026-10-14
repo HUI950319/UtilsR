@@ -2480,7 +2480,7 @@ fmt_panel <- function(plot,
   cache_panels <- list()
   cache_misses <- 0L
   format_panel <- function(p) {
-    if (!inherits(p, "gg")) {
+    if (!inherits(p, "ggplot")) {
       cli::cli_abort("Input must be a ggplot, patchwork, or nested list of ggplots.")
     }
     if (cache_enabled) {

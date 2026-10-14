@@ -416,3 +416,21 @@ test_that("automatic contrast corrects restored group and axis colours", {
     }
   }
 })
+
+test_that("panel formatting rejects non-plot gg components", {
+  p <- panel_test_plot()
+  before <- p$theme
+  components <- list(ggplot2::theme_gray(), ggplot2::theme(),
+                     ggplot2::aes(x, y), structure(list(), class = "gg"))
+  for (component in components) {
+    for (mode in c("none", "both")) {
+      expect_error(fmt_panel(component, grid = mode), "Input must be a ggplot")
+      expect_error(fmt_panel(list(first = p, next_plot = list(component)),
+                             grid = mode), "Input must be a ggplot")
+    }
+  }
+  expect_true(inherits(fmt_panel(p), "ggplot"))
+  expect_true(inherits(fmt_panel(p | p), "patchwork"))
+  expect_true(inherits(fmt_panel(list(p))[[1]], "ggplot"))
+  expect_identical(p$theme, before)
+})
