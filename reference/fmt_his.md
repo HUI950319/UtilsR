@@ -34,7 +34,9 @@ fmt_his(
 - data:
 
   Optional data frame, layer data function or formula. If `NULL`, uses
-  the plot data or the first applicable layer's data.
+  the plot data or the first applicable layer's data. With standard
+  ggplot2 facets, missing facet columns repeat samples across applicable
+  panels; new facet values can add panels, as for other layers.
 
 - con_var:
 
@@ -90,15 +92,22 @@ relative heights. The fill starts at the requested baseline. Each facet
 is scaled independently; distribution layers do not retrain the original
 position scales or inherit grouping, weights or legends. Cartesian
 coordinates, including flipped and fixed-ratio coordinates, are
-supported. Nested patchwork layouts and annotations are preserved;
-spacers, wrapped grobs and inset overlays are skipped. Repeated calls
-add additional distribution layers. Mapping expressions and data
-callbacks are evaluated during the normal plot build; formatting does
-not build or refit the original plot.
+supported. The default baseline follows the display bottom under
+coordinate reversal; explicit `y_rescale` retains its endpoint order.
+Nested patchwork layouts and annotations are preserved; spacers, wrapped
+grobs and inset overlays are skipped. Repeated calls add additional
+distribution layers. Mapping expressions and data callbacks are
+evaluated during the normal plot build; formatting does not build or
+refit the original plot. Each distribution layer evaluates its x mapping
+once per build. Facets and individual facet position scales can be added
+after formatting. Density panels with fewer than two finite samples
+retain ggplot2's warning and are omitted; empty distribution layers
+leave the original plot intact.
 
 ## See also
 
 Other plot formatting:
+[`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md),
 [`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md),
 [`fmt_axisText()`](https://hui950319.github.io/UtilsR/reference/fmt_axisText.md),
 [`fmt_axisTile()`](https://hui950319.github.io/UtilsR/reference/fmt_axisTile.md),
@@ -129,5 +138,9 @@ p <- ggplot(d, aes(x, y)) + geom_point()
 fmt_his(p, type = "histogram", height_ratio = 0.3, binwidth = 0.5)
 
 fmt_his(p, type = "density", height_ratio = 0.2, adjust = 1)
+
+d$panel <- rep(c("A", "B"), each = 50)
+p <- ggplot(d, aes(x, y)) + geom_point()
+fmt_his(p, type = "density", adjust = 1) + facet_wrap(~panel, scales = "free")
 
 ```

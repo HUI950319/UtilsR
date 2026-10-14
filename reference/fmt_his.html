@@ -88,7 +88,9 @@ visible panel's y-axis range used for the overlay height. Default: 0.3.</p></dd>
 
 <dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
 <dd><p>Optional data frame, layer data function or formula. If
-<code>NULL</code>, uses the plot data or the first applicable layer's data.</p></dd>
+<code>NULL</code>, uses the plot data or the first applicable layer's data.
+With standard ggplot2 facets, missing facet columns repeat samples across
+applicable panels; new facet values can add panels, as for other layers.</p></dd>
 
 
 <dt id="arg-con-var">con_var<a class="anchor" aria-label="anchor" href="#arg-con-var"></a></dt>
@@ -139,15 +141,22 @@ are rejected. <code>NULL</code> retains the default for each control.</p><dl><dt
   Each facet is scaled independently; distribution layers do not retrain
   the original position scales or inherit grouping, weights or legends.
   Cartesian coordinates, including flipped and fixed-ratio coordinates,
-  are supported. Nested patchwork layouts and annotations are preserved;
+  are supported. The default baseline follows the display bottom under
+  coordinate reversal; explicit <code>y_rescale</code> retains its endpoint order.
+  Nested patchwork layouts and annotations are preserved;
   spacers, wrapped grobs and inset overlays are skipped. Repeated calls add
   additional distribution layers.
   Mapping expressions and data callbacks are evaluated during the normal
-  plot build; formatting does not build or refit the original plot.</p>
+  plot build; formatting does not build or refit the original plot.
+  Each distribution layer evaluates its x mapping once per build. Facets
+  and individual facet position scales can be added after formatting.
+  Density panels with fewer than two finite samples retain ggplot2's warning
+  and are omitted; empty distribution layers leave the original plot intact.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other plot formatting:
+<code><a href="flatten_patchwork.html">flatten_patchwork()</a></code>,
 <code><a href="fmt_axis.html">fmt_axis()</a></code>,
 <code><a href="fmt_axisText.html">fmt_axisText()</a></code>,
 <code><a href="fmt_axisTile.html">fmt_axisTile()</a></code>,
@@ -179,6 +188,10 @@ are rejected. <code>NULL</code> retains the default for each control.</p><dl><dt
 <span class="r-plt img"><img src="fmt_his-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">fmt_his</span><span class="op">(</span><span class="va">p</span>, type <span class="op">=</span> <span class="st">"density"</span>, height_ratio <span class="op">=</span> <span class="fl">0.2</span>, adjust <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="fmt_his-2.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="va">d</span><span class="op">$</span><span class="va">panel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span>, each <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">d</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">fmt_his</span><span class="op">(</span><span class="va">p</span>, type <span class="op">=</span> <span class="st">"density"</span>, adjust <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">panel</span>, scales <span class="op">=</span> <span class="st">"free"</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="fmt_his-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
