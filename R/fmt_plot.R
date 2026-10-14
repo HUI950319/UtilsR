@@ -4379,42 +4379,44 @@ fmt_his <- function(plot,
     }
     if (!v %in% names(d)) cli::cli_abort("Variable '{v}' not found in data.")
 
-    # Y-axis range
+    old_coord <- p$coordinates
+    if (!inherits(old_coord, "CoordCartesian")) {
+      cli::cli_abort("Distribution overlays require Cartesian coordinates.")
+    }
+
+    # Panel ranges are already transformed and swapped by coord_flip().
     built <- ggplot2::ggplot_build(p)
-    y_range <- built$layout$panel_params[[1]]$y.range %||% c(0, 1)
+    panel <- built$layout$panel_params[[1L]]
+    flipped <- inherits(old_coord, "CoordFlip")
+    x_range <- panel[[if (flipped) "y.range" else "x.range"]]
+    y_range <- panel[[if (flipped) "x.range" else "y.range"]] %||% c(0, 1)
+    x_scale <- built$layout$panel_scales_x[[1L]]
+    y_scale <- built$layout$panel_scales_y[[1L]]
     y_min <- y_range[1]
     y_max <- y_range[2]
     hist_height <- (y_max - y_min) * height_ratio
 
-    yr <- y_rescale %||% c(y_min, y_min + hist_height)
-
-    # Adding a fresh coord_cartesian() REPLACES the plot's coordinate system,
-    # and its default expand = TRUE would silently override a caller's
-    # expand = FALSE (turning a tight, edge-to-edge y-axis back into 5% padding).
-    # Freeze the ORIGINAL built panel ranges with expand = FALSE: x.range /
-    # y.range already bake in whatever expansion the plot had, so re-applying
-    # them with expand = FALSE reproduces the original axes exactly and the
-    # overlay can no longer shift or re-pad them. `clip` is inherited.
-    x_range   <- built$layout$panel_params[[1]]$x.range
-    old_coord <- p$coordinates
-    keep_clip <- if (inherits(old_coord, "CoordCartesian") &&
-                     !is.null(old_coord$clip)) old_coord$clip else "on"
-
-    yl <- ylim %||% y_range
-
-    new_coord <- ggplot2::coord_cartesian(
-      xlim = x_range, ylim = yl, expand = FALSE, clip = keep_clip
-    )
+    yr <- if (is.null(y_rescale)) c(y_min, y_min + hist_height) else y_scale$transform(y_rescale)
+    rescale_his <- eval(quote(function(value) {
+      inverse(scales::rescale(value, bounds, from = c(0, max(value))))
+    }), list2env(list(bounds = yr, inverse = y_scale$trans$inverse), parent = baseenv()))
+    mapping_env <- list2env(list(v = v, rescale_his = rescale_his), parent = environment(fmt_his))
+    layer_mapping <- eval(if (type == "histogram") quote(ggplot2::aes(
+      x = .data[[v]], y = rescale_his(ggplot2::after_stat(count))
+    )) else quote(ggplot2::aes(
+      x = .data[[v]], y = rescale_his(ggplot2::after_stat(density))
+    )), mapping_env)
+    coord_env <- list2env(list(parent_coord = old_coord, limits = list(
+      x = x_scale$trans$inverse(x_range), y = ylim %||% y_scale$trans$inverse(y_range)
+    )), parent = environment(fmt_his))
+    new_coord <- eval(quote(ggplot2::ggproto(NULL, parent_coord, limits = limits,
+                                           expand = FALSE)), coord_env)
 
     if (type == "histogram") {
       p <- p +
         ggplot2::geom_histogram(
           data = d,
-          mapping = ggplot2::aes(
-            x = .data[[v]],
-            y = scales::rescale(ggplot2::after_stat(count), yr,
-                                from = c(0, max(ggplot2::after_stat(count))))
-          ),
+          mapping = layer_mapping,
           fill = his_color, color = his_color,
           binwidth = binwidth, alpha = his_alpha,
           position = "identity"
@@ -4424,11 +4426,7 @@ fmt_his <- function(plot,
       p <- p +
         ggplot2::geom_density(
           data = d,
-          mapping = ggplot2::aes(
-            x = .data[[v]],
-            y = scales::rescale(ggplot2::after_stat(density), yr,
-                                from = c(0, max(ggplot2::after_stat(density))))
-          ),
+          mapping = layer_mapping,
           fill = his_color,
           color = ggplot2::alpha(his_color, his_alpha),
           alpha = his_alpha, adjust = adjust

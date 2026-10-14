@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_his()` preserves flipped and fixed-ratio Cartesian coordinates and
+  correctly positions overlays on transformed axes without transforming limits twice.
+
 * `fmt_his()` anchors histogram and density fills to the requested lower
   boundary, including negative y ranges and explicit `y_rescale` intervals.
 

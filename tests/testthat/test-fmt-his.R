@@ -41,3 +41,30 @@ test_that("distribution fills start at their requested baseline", {
     expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
   }
 })
+
+test_that("overlays preserve transformed axes and original coordinates", {
+  d <- data.frame(x = 10^seq(0, 3, length.out = 60), y = 10^seq(1, 3, length.out = 60))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  plots <- list(p + ggplot2::scale_x_log10(), p + ggplot2::scale_y_log10(),
+                p + ggplot2::scale_y_reverse(), p + ggplot2::coord_flip(clip = "off"),
+                p + ggplot2::coord_fixed(ratio = 2))
+  for (plot in plots) {
+    before <- ggplot2::ggplot_build(plot)
+    for (type in c("h", "d")) {
+      q <- suppressMessages(fmt_his(plot, type = type))
+      after <- ggplot2::ggplot_build(q)
+      expect_equal(after$layout$panel_params[[1L]]$x.range, before$layout$panel_params[[1L]]$x.range)
+      expect_equal(after$layout$panel_params[[1L]]$y.range, before$layout$panel_params[[1L]]$y.range)
+      expect_identical(after$data[[1L]], before$data[[1L]])
+      expect_identical(class(q$coordinates), class(plot$coordinates))
+      expect_identical(q$coordinates$ratio, plot$coordinates$ratio)
+      expect_identical(q$coordinates$clip, plot$coordinates$clip)
+      native_y <- if (inherits(plot$coordinates, "CoordFlip"))
+        before$layout$panel_params[[1L]]$x.range else before$layout$panel_params[[1L]]$y.range
+      overlay <- after$data[[2L]]
+      expect_equal(min(overlay$ymin), native_y[[1L]])
+      expect_equal(max(overlay$ymax), native_y[[1L]] + diff(native_y) * 0.3)
+      expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+    }
+  }
+})
