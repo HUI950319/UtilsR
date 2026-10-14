@@ -14,6 +14,9 @@
 * `fmt_panel()` corrects matching background colours in automatically restored
   major, minor and axis-specific grids while preserving explicit plot styles.
 
+* `fmt_his()` normalizes time-difference samples to numeric positions while
+  retaining their units, preventing empty histogram and density overlays.
+
 * `fmt_his()` retains the original panel's resolved x limits when computing
   distributions, including function, formula and partial limits. Automatic
   density grids also cover the original scale range, preserving visible tails

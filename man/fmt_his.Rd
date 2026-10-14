@@ -79,6 +79,8 @@ Counts and densities are scaled from statistical zero, preserving
   x values are transformed once using their panel's final x scale; unscaled
   \code{I()} mappings bypass transformation and limit censoring, as in ggplot2. Facets
   and individual facet position scales can be added after formatting.
+  Time-difference (\code{difftime}) samples retain their stored units under
+  an ordinary continuous x scale, following ggplot2's numeric position mapping.
   Density panels with fewer than two finite samples retain ggplot2's warning
   and are omitted; empty distribution layers leave the original plot intact.
 }

@@ -4427,6 +4427,8 @@ ggplot_build.ggplot_his <- function(plot, ...) {
 #'   x values are transformed once using their panel's final x scale; unscaled
 #'   \code{I()} mappings bypass transformation and limit censoring, as in ggplot2. Facets
 #'   and individual facet position scales can be added after formatting.
+#'   Time-difference (\code{difftime}) samples retain their stored units under
+#'   an ordinary continuous x scale, following ggplot2's numeric position mapping.
 #'   Density panels with fewer than two finite samples retain ggplot2's warning
 #'   and are omitted; empty distribution layers leave the original plot intact.
 #'
@@ -4675,6 +4677,7 @@ fmt_his <- function(plot,
         if (!nrow(data)) return(data.frame())
         unscaled <- inherits(data$.fmt_his_input, "AsIs")
         data$x <- if (unscaled) data$.fmt_his_input else scales$x$transform(data$.fmt_his_input)
+        if (inherits(data$x, "difftime")) data$x <- as.numeric(data$x)
         data$.fmt_his_input <- NULL
         if (!unscaled && !is.null(scales$x$limits)) data$x <- scales$x$oob(data$x, scales$x$get_limits())
         data <- data[is.finite(data$x), , drop = FALSE]

@@ -618,6 +618,28 @@ test_that("external density domains follow each panel's position scale", {
   }
 })
 
+test_that("time-difference samples retain native units and statistics", {
+  for (units in c("hours", "secs")) {
+    d <- his_test_plot()$data
+    d$x <- as.difftime(d$x, units = units)
+    p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+    before <- suppressMessages(ggplot2::ggplot_build(p))
+    for (type in c("h", "d")) {
+      native <- if (type == "h") ggplot2::geom_histogram(
+        ggplot2::aes(y = ggplot2::after_stat(count)), binwidth = 1,
+        position = "identity") else ggplot2::geom_density(adjust = 1)
+      reference <- suppressMessages(ggplot2::ggplot_build(p + native))$data[[2L]]
+      built <- suppressMessages(his_test_build(p, type = type, binwidth = 1, adjust = 1))
+      fields <- if (type == "h") c("x", "count") else c("x", "density", "n")
+      expect_equal(built$data[[2L]][fields], reference[fields])
+      expect_identical(built$data[[1L]], before$data[[1L]])
+      expect_equal(built$layout$panel_params[[1L]]$x.range,
+                   before$layout$panel_params[[1L]]$x.range)
+    }
+    expect_identical(units(d$x), units)
+  }
+})
+
 test_that("histogram overlays retain native discrete-x validation", {
   for (x in list(factor(rep(1:3, each = 20)), rep(c("A", "B", "C"), each = 20),
                  rep(c(TRUE, FALSE), each = 30))) {
