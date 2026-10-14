@@ -106,8 +106,9 @@ with entries from the current global theme, falling back to
 [`ggplot2::theme_gray()`](https://ggplot2.tidyverse.org/reference/ggtheme.html)
 when those entries are also blank. Styles overwritten by earlier
 formatting cannot be recovered. Restored grids continue to inherit
-parent grid-theme changes. Grid lines still require corresponding scale
-breaks.
+parent grid-theme changes, including blank parent grids unless an
+available style explicitly disables blank inheritance. Grid lines still
+require corresponding scale breaks.
 
 If an automatically restored grid element's color matches the known
 opaque background, it becomes `"grey70"` (or `"grey30"` on a `"grey70"`

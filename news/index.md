@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md)
+  lets restored grid placeholders inherit blank parent-grid settings
+  during and after formatting, preserving explicit blank-inheritance
+  overrides and the restoration of grids hidden by a blank root line.
+
+- [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md)
   gives automatically restored grids contrasting colours when a blank
   root line hides them, including on dark panels with
   [`theme_void()`](https://ggplot2.tidyverse.org/reference/ggtheme.html),

@@ -147,7 +147,9 @@ Retained grids keep available inherited styling. When enabling a blank grid
 element, blank entries in its inheritance chain are replaced with entries from
 the current global theme, falling back to <code><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">ggplot2::theme_gray()</a></code> when
 those entries are also blank. Styles overwritten by earlier formatting cannot
-be recovered. Restored grids continue to inherit parent grid-theme changes.
+be recovered. Restored grids continue to inherit parent grid-theme changes,
+including blank parent grids unless an available style explicitly disables
+blank inheritance.
 Grid lines still require corresponding scale breaks.</p>
 <p>If an automatically restored grid element's color matches the known opaque background,
 it becomes <code>"grey70"</code> (or <code>"grey30"</code> on a <code>"grey70"</code> background).
