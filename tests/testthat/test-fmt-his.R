@@ -394,3 +394,21 @@ test_that("individual facet transforms are applied once to distribution layers",
     expect_equal(max(curve$ymax), 2)
   }
 })
+
+test_that("each distribution layer evaluates its x mapping once per build", {
+  for (type in c("h", "d")) {
+    calls <- 0L
+    map_x <- function(x) {
+      calls <<- calls + 1L
+      if (calls == 3L) x + 100 else x
+    }
+    p <- his_test_plot()
+    p$mapping <- ggplot2::aes(map_x(x), y)
+    q <- fmt_his(p, type = type, binwidth = 1)
+    expect_equal(calls, 0L)
+    built <- ggplot2::ggplot_build(q)
+    expect_equal(calls, 2L)
+    expect_equal(range(built$data[[2L]]$x), c(1, 3))
+    expect_equal(range(built$data[[1L]]$x), c(1, 3))
+  }
+})

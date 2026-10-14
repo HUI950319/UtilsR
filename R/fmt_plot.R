@@ -4584,12 +4584,16 @@ fmt_his <- function(plot,
       plot$facet$his_coord <- plot$coordinates
       ggplot2::ggproto_parent(parent_layer, self)$setup_layer(data, plot)
     }), layer_env)
+    layer$compute_aesthetics <- eval(quote(function(self, data, plot) {
+      data <- ggplot2::ggproto_parent(parent_layer, self)$compute_aesthetics(data, plot)
+      data$.fmt_his_input <- data$x
+      data
+    }), layer_env)
     geom_env <- list2env(list(parent_geom = layer$geom, setup_his = setup_his), parent = environment(fmt_his))
     layer$geom <- eval(quote(ggplot2::ggproto(NULL, parent_geom, setup_data = setup_his,
       optional_aes = c(parent_geom$optional_aes, ".fmt_his", ".fmt_his_input")
     )), geom_env)
     layer$mapping[[".fmt_his"]] <- id
-    layer$mapping[[".fmt_his_input"]] <- layer$mapping$x
     stat_env <- list2env(list(parent_stat = layer$stat), parent = environment(fmt_his))
     layer$stat <- eval(quote(ggplot2::ggproto(NULL, parent_stat,
       setup_data = function(data, params) {
