@@ -28,25 +28,71 @@ fmt_his(
 
 - height_ratio:
 
-  Fraction of the y-axis range used for the overlay height.
+  Finite number from 0 to 1 giving the fraction of each visible panel's
+  y-axis range used for the overlay height. Default: 0.3.
 
 - data:
 
-  Optional data frame. If `NULL`, uses the plot data.
+  Optional data frame, layer data function or formula. If `NULL`, uses
+  the plot data or the first applicable layer's data.
 
 - con_var:
 
-  Variable name for the x-axis. If `NULL`, extracted from the plot
-  mapping.
+  Optional single column name overriding the x mapping. If `NULL`,
+  retains the plot's x-mapping expression, falling back to the first
+  applicable layer mapping.
 
 - ...:
 
-  Additional arguments: `binwidth`, `adjust`, `his_color`, `his_alpha`,
-  `y_rescale`, `ylim`.
+  Named overlay controls. Unknown, unnamed or duplicate arguments are
+  rejected. `NULL` retains the default for each control.
+
+  `binwidth`
+
+  :   Positive finite bin width or a function, as in
+      [`ggplot2::geom_histogram()`](https://ggplot2.tidyverse.org/reference/geom_histogram.html).
+      Default: 3. Histogram only; measured after the x-scale
+      transformation.
+
+  `adjust`
+
+  :   Positive finite density bandwidth multiplier. Default: 3. Density
+      only.
+
+  `his_color`
+
+  :   Single colour or `NA`. Default: `"gray85"`.
+
+  `his_alpha`
+
+  :   Finite opacity from 0 to 1. Default: 0.5.
+
+  `y_rescale`
+
+  :   Two finite values giving the baseline and peak in original y-data
+      units. Default: the panel bottom and `height_ratio` above it in
+      transformed display coordinates.
+
+  `ylim`
+
+  :   Two y-coordinate limits in original data units. `NA` endpoints
+      remain automatic. Default: original limits; original coordinate
+      type, expansion, clipping and aspect ratio are retained.
 
 ## Value
 
 Same type as input.
+
+## Details
+
+Counts and densities are scaled from statistical zero, preserving their
+relative heights. The fill starts at the requested baseline. Each facet
+is scaled independently; distribution layers do not retrain the original
+position scales or inherit grouping, weights or legends. Cartesian
+coordinates, including flipped and fixed-ratio coordinates, are
+supported. Nested patchwork layouts and annotations are preserved;
+spacers, wrapped grobs and inset overlays are skipped. Repeated calls
+add additional distribution layers.
 
 ## See also
 
@@ -74,10 +120,12 @@ Other plot formatting:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
 library(ggplot2)
-p <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) + geom_point()
-fmt_his(p, type = "histogram", height_ratio = 0.3)
-fmt_his(p, type = "density", height_ratio = 0.2)
-} # }
+set.seed(1)
+d <- data.frame(x = rnorm(100), y = rnorm(100))
+p <- ggplot(d, aes(x, y)) + geom_point()
+fmt_his(p, type = "histogram", height_ratio = 0.3, binwidth = 0.5)
+
+fmt_his(p, type = "density", height_ratio = 0.2, adjust = 1)
+
 ```

@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
+  validates overlay controls and documents their defaults, units,
+  mode-specific effects and supported mappings with runnable simulated
+  examples.
+
+- [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
   resolves layer data and preserves x-mapping expressions and their
   environments, including `.data` and `.env` pronouns.
 

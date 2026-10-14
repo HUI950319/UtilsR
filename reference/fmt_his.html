@@ -82,26 +82,66 @@ using the x-axis variable (or a user-supplied variable).</p>
 
 
 <dt id="arg-height-ratio">height_ratio<a class="anchor" aria-label="anchor" href="#arg-height-ratio"></a></dt>
-<dd><p>Fraction of the y-axis range used for the overlay height.</p></dd>
+<dd><p>Finite number from 0 to 1 giving the fraction of each
+visible panel's y-axis range used for the overlay height. Default: 0.3.</p></dd>
 
 
 <dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p>Optional data frame. If <code>NULL</code>, uses the plot data.</p></dd>
+<dd><p>Optional data frame, layer data function or formula. If
+<code>NULL</code>, uses the plot data or the first applicable layer's data.</p></dd>
 
 
 <dt id="arg-con-var">con_var<a class="anchor" aria-label="anchor" href="#arg-con-var"></a></dt>
-<dd><p>Variable name for the x-axis. If <code>NULL</code>, extracted from
-the plot mapping.</p></dd>
+<dd><p>Optional single column name overriding the x mapping.
+If <code>NULL</code>, retains the plot's x-mapping expression, falling back
+to the first applicable layer mapping.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments: <code>binwidth</code>, <code>adjust</code>,
-<code>his_color</code>, <code>his_alpha</code>, <code>y_rescale</code>, <code>ylim</code>.</p></dd>
+<dd><p>Named overlay controls. Unknown, unnamed or duplicate arguments
+are rejected. <code>NULL</code> retains the default for each control.</p><dl><dt><code>binwidth</code></dt>
+<dd><p>Positive finite bin width or a function, as in
+    <code><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">ggplot2::geom_histogram()</a></code>. Default: 3. Histogram only;
+    measured after the x-scale transformation.</p></dd>
+
+  <dt><code>adjust</code></dt>
+<dd><p>Positive finite density bandwidth multiplier.
+    Default: 3. Density only.</p></dd>
+
+  <dt><code>his_color</code></dt>
+<dd><p>Single colour or <code>NA</code>. Default: <code>"gray85"</code>.</p></dd>
+
+  <dt><code>his_alpha</code></dt>
+<dd><p>Finite opacity from 0 to 1. Default: 0.5.</p></dd>
+
+  <dt><code>y_rescale</code></dt>
+<dd><p>Two finite values giving the baseline and peak
+    in original y-data units. Default: the panel bottom and
+    <code>height_ratio</code> above it in transformed display coordinates.</p></dd>
+
+  <dt><code>ylim</code></dt>
+<dd><p>Two y-coordinate limits in original data units.
+    <code>NA</code> endpoints remain automatic. Default: original limits;
+    original coordinate type, expansion, clipping and aspect ratio are retained.</p></dd>
+
+
+</dl></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Same type as input.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Counts and densities are scaled from statistical zero, preserving
+  their relative heights. The fill starts at the requested baseline.
+  Each facet is scaled independently; distribution layers do not retrain
+  the original position scales or inherit grouping, weights or legends.
+  Cartesian coordinates, including flipped and fixed-ratio coordinates,
+  are supported. Nested patchwork layouts and annotations are preserved;
+  spacers, wrapped grobs and inset overlays are skipped. Repeated calls add
+  additional distribution layers.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -129,12 +169,14 @@ the plot mapping.</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">iris</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">Sepal.Length</span>, <span class="va">Sepal.Width</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">fmt_his</span><span class="op">(</span><span class="va">p</span>, type <span class="op">=</span> <span class="st">"histogram"</span>, height_ratio <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">fmt_his</span><span class="op">(</span><span class="va">p</span>, type <span class="op">=</span> <span class="st">"density"</span>, height_ratio <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">d</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">fmt_his</span><span class="op">(</span><span class="va">p</span>, type <span class="op">=</span> <span class="st">"histogram"</span>, height_ratio <span class="op">=</span> <span class="fl">0.3</span>, binwidth <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="fmt_his-1.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">fmt_his</span><span class="op">(</span><span class="va">p</span>, type <span class="op">=</span> <span class="st">"density"</span>, height_ratio <span class="op">=</span> <span class="fl">0.2</span>, adjust <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="fmt_his-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
