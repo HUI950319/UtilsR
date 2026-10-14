@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md)
+  retains empty themes in its batch cache on older ggplot2 versions,
+  keeping batch grid output identical to formatting plots individually.
+
+- [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md)
   reuses a recent additional theme in batches, including after the
   four-theme cache stops scanning, avoiding repeated grid resolution
   when later plots share a theme.
