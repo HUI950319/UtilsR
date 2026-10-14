@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_his()` preserves the plot when a density panel has fewer than two
+  samples or a distribution layer has no finite samples.
+
 * `fmt_his()` defers overlay scaling to the normal plot build, avoiding an
   extra evaluation of original statistics and data callbacks. Overlay heights
   follow later axis changes and repeated calls keep their individual settings.

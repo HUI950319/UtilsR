@@ -4513,7 +4513,8 @@ fmt_his <- function(plot,
               } else y_scales[[layout$SCALE_Y[[index]]]]$transform(spec$y_rescale)
               if (any(!is.finite(bounds))) cli::cli_abort("{.arg y_rescale} must be finite on the plot's y scale.")
               values <- data[[if (spec$type == "histogram") "count" else "density"]][rows]
-              peak <- max(values)
+              if (!any(is.finite(values))) next
+              peak <- max(values[is.finite(values)])
               height <- if (peak > 0) values / peak else numeric(length(values))
               data$y[rows] <- bounds[[1L]] + diff(bounds) * height
               data$ymin[rows] <- bounds[[1L]]
@@ -4564,10 +4565,12 @@ fmt_his <- function(plot,
         parent_stat$setup_data(data, params)
       },
       compute_panel = function(data, scales, ...) {
+        if (!nrow(data)) return(data.frame())
         data$x <- scales$x$transform(data$.fmt_his_input)
         data$.fmt_his_input <- NULL
         if (!is.null(scales$x$limits)) data$x <- scales$x$oob(data$x, scales$x$get_limits())
         data <- data[is.finite(data$x), , drop = FALSE]
+        if (!nrow(data)) return(data.frame())
         x_scale <- scales$x$clone()
         x_scale$range$train(data$x)
         parent_stat$compute_panel(data, list(x = x_scale, y = scales$y), ...)

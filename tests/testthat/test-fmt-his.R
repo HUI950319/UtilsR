@@ -280,3 +280,31 @@ test_that("repeated calls retain independent overlay settings", {
   expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
   expect_length(p$layers, 1L)
 })
+
+test_that("sparse and empty distribution panels preserve the original plot", {
+  p <- his_test_plot()
+  before <- ggplot2::ggplot_build(p)
+  for (type in c("h", "d")) {
+    for (x in list(numeric(), rep(NA_real_, 3), 1)) {
+      warnings <- character()
+      q <- fmt_his(p, type = type, data = data.frame(x = x), binwidth = 1)
+      built <- withCallingHandlers(ggplot2::ggplot_build(q), warning = function(w) {
+        warnings <<- c(warnings, conditionMessage(w))
+        invokeRestart("muffleWarning")
+      })
+      expect_false(any(grepl("Computation failed", warnings, fixed = TRUE)))
+      expect_identical(built$data[[1L]], before$data[[1L]])
+      expect_equal(built$layout$panel_params[[1L]]$y.range, c(0, 10))
+      expect_s3_class(suppressWarnings(ggplot2::ggplotGrob(q)), "gtable")
+    }
+  }
+  d <- data.frame(x = c(1, 2, 3, 1), y = c(1, 2, 3, 5),
+                  panel = c("A", "A", "A", "B"))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    ggplot2::facet_wrap(~panel, scales = "free")
+  built <- suppressWarnings(his_test_build(p, type = "d", adjust = 1))
+  curve <- built$data[[2L]]
+  expect_true(any(is.finite(curve$y[as.integer(curve$PANEL) == 1L])))
+  expect_false(any(is.finite(curve$y[as.integer(curve$PANEL) == 2L])))
+  expect_identical(built$data[[1L]], ggplot2::ggplot_build(p)$data[[1L]])
+})
