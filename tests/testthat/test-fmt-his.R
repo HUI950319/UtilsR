@@ -151,3 +151,38 @@ test_that("patchwork placeholders and named plot lists retain their structure", 
   expect_identical(names(q), c("first", "second"))
   expect_equal(vapply(q, function(x) length(x$layers), integer(1)), c(first = 2L, second = 2L))
 })
+
+test_that("distribution mappings support data pronouns and expressions", {
+  d <- his_test_plot()$data
+  for (mapping in list(ggplot2::aes(.data[["x"]], y), ggplot2::aes(.data$x, y))) {
+    p <- ggplot2::ggplot(d, mapping) + ggplot2::geom_point()
+    bars <- his_test_build(p, binwidth = 1)$data[[2L]]
+    expect_equal(bars$count, c(10, 20, 30))
+    expect_equal(bars$x, 1:3)
+  }
+  d$x <- exp(d$x - 1)
+  p <- ggplot2::ggplot(d, ggplot2::aes(log(x), y)) + ggplot2::geom_point()
+  bars <- his_test_build(p, binwidth = 1)$data[[2L]]
+  expect_equal(bars$x, 0:2)
+  expect_equal(bars$count, c(10, 20, 30))
+  offset <- 5
+  p <- ggplot2::ggplot(d, ggplot2::aes(log(x) + .env$offset, y)) + ggplot2::geom_point()
+  bars <- his_test_build(p, binwidth = 1)$data[[2L]]
+  expect_equal(bars$x, 5:7)
+  expect_equal(bars$count, c(10, 20, 30))
+})
+
+test_that("distribution data and mappings fall back to applicable layers", {
+  d <- his_test_plot()$data
+  plots <- list(
+    ggplot2::ggplot(d) + ggplot2::geom_point(ggplot2::aes(x, y)),
+    ggplot2::ggplot(mapping = ggplot2::aes(x, y)) + ggplot2::geom_point(data = d),
+    ggplot2::ggplot() + ggplot2::geom_point(data = d, ggplot2::aes(x, y)))
+  for (p in plots) {
+    before <- ggplot2::ggplot_build(p)$data[[1L]]
+    after <- his_test_build(p, binwidth = 1)
+    expect_equal(after$data[[2L]]$count, c(10, 20, 30))
+    expect_identical(after$data[[1L]], before)
+    expect_length(p$layers, 1L)
+  }
+})

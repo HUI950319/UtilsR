@@ -4375,12 +4375,23 @@ fmt_his <- function(plot,
   fmt_his_one <- function(p) {
     # Resolve data and variable
     d <- data %||% p$data
-    if (is.null(d)) cli::cli_abort("No data found in plot and `data` is NULL.")
-    v <- con_var %||% {
-      if (!is.null(p$mapping$x)) rlang::as_name(p$mapping$x)
-      else cli::cli_abort("No x variable found and `con_var` is NULL.")
+    x_mapping <- if (is.null(con_var)) p$mapping$x else rlang::new_quosure(rlang::sym(con_var))
+    if (is.null(x_mapping) || is.null(d) || inherits(d, "waiver")) {
+      for (layer in p$layers) {
+        candidate <- layer$mapping$x %||% if (isTRUE(layer$inherit.aes)) p$mapping$x
+        layer_data <- data %||% if (is.null(layer$data) || inherits(layer$data, "waiver")) p$data else layer$data
+        if ((is.data.frame(layer_data) || is.function(layer_data) || inherits(layer_data, "formula")) &&
+            (!is.null(x_mapping) || !is.null(candidate))) {
+          d <- layer_data
+          x_mapping <- x_mapping %||% candidate
+          break
+        }
+      }
     }
-    if (!v %in% names(d)) cli::cli_abort("Variable '{v}' not found in data.")
+    if (is.null(d) || inherits(d, "waiver")) cli::cli_abort("No data found in plot and `data` is NULL.")
+    if (is.null(x_mapping)) cli::cli_abort("No x mapping found and `con_var` is NULL.")
+    if (!is.null(con_var) && is.data.frame(d) && !con_var %in% names(d))
+      cli::cli_abort("Variable '{con_var}' not found in data.")
 
     old_coord <- p$coordinates
     if (!inherits(old_coord, "CoordCartesian")) {
@@ -4406,12 +4417,13 @@ fmt_his <- function(plot,
       }
       result
     }), list2env(list(bounds = yr, inverses = inverses), parent = baseenv()))
-    mapping_env <- list2env(list(v = v, rescale_his = rescale_his), parent = environment(fmt_his))
+    mapping_env <- list2env(list(rescale_his = rescale_his), parent = environment(fmt_his))
     layer_mapping <- eval(if (type == "histogram") quote(ggplot2::aes(
-      x = .data[[v]], y = rescale_his(ggplot2::after_stat(count), ggplot2::after_stat(PANEL))
+      y = rescale_his(ggplot2::after_stat(count), ggplot2::after_stat(PANEL))
     )) else quote(ggplot2::aes(
-      x = .data[[v]], y = rescale_his(ggplot2::after_stat(density), ggplot2::after_stat(PANEL))
+      y = rescale_his(ggplot2::after_stat(density), ggplot2::after_stat(PANEL))
     )), mapping_env)
+    layer_mapping[["x"]] <- x_mapping
     new_coord <- old_coord
     if (!is.null(ylim)) {
       limits <- old_coord$limits
