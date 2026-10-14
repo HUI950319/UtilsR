@@ -4360,6 +4360,15 @@ fmt_his <- function(plot,
   y_rescale <- dots$y_rescale
   ylim      <- dots$ylim
 
+  setup_his <- function(self, data, params) {
+    parent <- if (inherits(self, "GeomDensity")) ggplot2::GeomDensity else ggplot2::GeomBar
+    data <- parent$setup_data(data, params)
+    data$ymin <- params$his_baseline
+    data$ymax <- data$y
+    data
+  }
+  environment(setup_his) <- environment(fmt_his)
+
   fmt_his_one <- function(p) {
     # Resolve data and variable
     d <- data %||% p$data
@@ -4408,7 +4417,7 @@ fmt_his <- function(plot,
           ),
           fill = his_color, color = his_color,
           binwidth = binwidth, alpha = his_alpha,
-          position = "stack"
+          position = "identity"
         ) +
         new_coord
     } else {
@@ -4426,6 +4435,11 @@ fmt_his <- function(plot,
         ) +
         new_coord
     }
+    layer <- p$layers[[length(p$layers)]]
+    parent_geom <- layer$geom
+    layer$geom <- ggplot2::ggproto(NULL, parent_geom, setup_data = setup_his,
+                                  extra_params = c(parent_geom$extra_params, "his_baseline"))
+    layer$geom_params$his_baseline <- yr[[1L]]
     p
   }
 

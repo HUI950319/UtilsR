@@ -23,3 +23,21 @@ test_that("density overlays preserve density ratios", {
   expect_equal(curve$y, 3 * curve$density / max(curve$density))
   expect_gt(min(curve$y), 0)
 })
+
+test_that("distribution fills start at their requested baseline", {
+  for (bounds in list(c(-5, 5), c(5, 15))) {
+    for (type in c("h", "d")) {
+      layer <- his_test_build(his_test_plot(bounds), type = type, binwidth = 1)$data[[2L]]
+      expect_equal(layer$ymin, rep(bounds[[1L]], nrow(layer)))
+      expect_equal(max(layer$ymax), bounds[[1L]] + 3)
+      expect_true(all(layer$ymax > layer$ymin))
+    }
+  }
+  layer <- his_test_build(his_test_plot(), binwidth = 1, y_rescale = c(2, 6))$data[[2L]]
+  expect_equal(layer$ymin, rep(2, 3))
+  expect_equal(layer$ymax, c(10 / 3, 14 / 3, 6))
+  for (type in c("h", "d")) {
+    q <- suppressMessages(fmt_his(his_test_plot(c(-5, 5)), type = type, binwidth = 1))
+    expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+  }
+})

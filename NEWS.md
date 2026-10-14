@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_his()` anchors histogram and density fills to the requested lower
+  boundary, including negative y ranges and explicit `y_rescale` intervals.
+
 * `fmt_his()` preserves histogram frequency and density ratios when every
   computed bin or density value is positive, including equally populated bins.
 
