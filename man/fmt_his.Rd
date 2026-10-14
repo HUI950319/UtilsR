@@ -19,15 +19,33 @@ fmt_his(
 \item{type}{\code{"histogram"} (or \code{"h"}) or \code{"density"}
 (or \code{"d"}).}
 
-\item{height_ratio}{Fraction of the y-axis range used for the overlay height.}
+\item{height_ratio}{Finite number from 0 to 1 giving the fraction of each
+visible panel's y-axis range used for the overlay height. Default: 0.3.}
 
-\item{data}{Optional data frame. If \code{NULL}, uses the plot data.}
+\item{data}{Optional data frame, layer data function or formula. If
+\code{NULL}, uses the plot data or the first applicable layer's data.}
 
-\item{con_var}{Variable name for the x-axis. If \code{NULL}, extracted from
-the plot mapping.}
+\item{con_var}{Optional single column name overriding the x mapping.
+If \code{NULL}, retains the plot's x-mapping expression, falling back
+to the first applicable layer mapping.}
 
-\item{...}{Additional arguments: \code{binwidth}, \code{adjust},
-\code{his_color}, \code{his_alpha}, \code{y_rescale}, \code{ylim}.}
+\item{...}{Named overlay controls. Unknown, unnamed or duplicate arguments
+are rejected. \code{NULL} retains the default for each control.
+\describe{
+  \item{\code{binwidth}}{Positive finite bin width or a function, as in
+    \code{ggplot2::geom_histogram()}. Default: 3. Histogram only;
+    measured after the x-scale transformation.}
+  \item{\code{adjust}}{Positive finite density bandwidth multiplier.
+    Default: 3. Density only.}
+  \item{\code{his_color}}{Single colour or \code{NA}. Default: \code{"gray85"}.}
+  \item{\code{his_alpha}}{Finite opacity from 0 to 1. Default: 0.5.}
+  \item{\code{y_rescale}}{Two finite values giving the baseline and peak
+    in original y-data units. Default: the panel bottom and
+    \code{height_ratio} above it in transformed display coordinates.}
+  \item{\code{ylim}}{Two y-coordinate limits in original data units.
+    \code{NA} endpoints remain automatic. Default: original limits;
+    original coordinate type, expansion, clipping and aspect ratio are retained.}
+}}
 }
 \value{
 Same type as input.
@@ -36,13 +54,23 @@ Same type as input.
 Overlays a rescaled histogram or density curve on the existing plot,
 using the x-axis variable (or a user-supplied variable).
 }
-\examples{
-\dontrun{
-library(ggplot2)
-p <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) + geom_point()
-fmt_his(p, type = "histogram", height_ratio = 0.3)
-fmt_his(p, type = "density", height_ratio = 0.2)
+\details{
+Counts and densities are scaled from statistical zero, preserving
+  their relative heights. The fill starts at the requested baseline.
+  Each facet is scaled independently; distribution layers do not retrain
+  the original position scales or inherit grouping, weights or legends.
+  Cartesian coordinates, including flipped and fixed-ratio coordinates,
+  are supported. Nested patchwork layouts and annotations are preserved;
+  spacers, wrapped grobs and inset overlays are skipped. Repeated calls add
+  additional distribution layers.
 }
+\examples{
+library(ggplot2)
+set.seed(1)
+d <- data.frame(x = rnorm(100), y = rnorm(100))
+p <- ggplot(d, aes(x, y)) + geom_point()
+fmt_his(p, type = "histogram", height_ratio = 0.3, binwidth = 0.5)
+fmt_his(p, type = "density", height_ratio = 0.2, adjust = 1)
 
 }
 \seealso{

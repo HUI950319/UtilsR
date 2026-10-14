@@ -186,3 +186,42 @@ test_that("distribution data and mappings fall back to applicable layers", {
     expect_length(p$layers, 1L)
   }
 })
+
+test_that("overlay controls reject unknown names and invalid numeric values", {
+  p <- his_test_plot()
+  expect_error(fmt_his(p, binwdith = 1), "binwdith")
+  expect_error(fmt_his(p, binwidth = 1, binwidth = 2), "unique")
+  expect_error(fmt_his(p, type = "h", height_ratio = 0.3, data = NULL, con_var = NULL, 1), "named")
+  for (value in list(-0.1, 1.1, NA_real_, Inf, c(0.2, 0.3), "0.3", NULL))
+    expect_error(fmt_his(p, height_ratio = value), "height_ratio")
+  for (value in list(0, -1, NA_real_, Inf, c(1, 2), "1")) {
+    expect_error(fmt_his(p, binwidth = value), "binwidth")
+    expect_error(fmt_his(p, type = "d", adjust = value), "adjust")
+  }
+  for (value in list(-0.1, 1.1, NA_real_, Inf, c(0.2, 0.3), "0.5"))
+    expect_error(fmt_his(p, his_alpha = value), "his_alpha")
+  for (value in list("invalid-colour", c("red", "blue")))
+    expect_error(fmt_his(p, his_color = value), "his_color")
+  for (value in list(1, c(1, 2, 3), c(NA_real_, 2), c(1, Inf), "1"))
+    expect_error(fmt_his(p, y_rescale = value), "y_rescale")
+  for (value in list(1, c(1, 2, 3), c(1, Inf), "1"))
+    expect_error(fmt_his(p, ylim = value), "ylim")
+  for (value in list("", NA_character_, c("x", "y"), 1))
+    expect_error(fmt_his(p, con_var = value), "con_var")
+  expect_error(fmt_his(p, data = list(x = 1:3)), "data")
+})
+
+test_that("nullable defaults and mode-specific controls remain compatible", {
+  p <- his_test_plot()
+  for (type in c("h", "d")) {
+    default <- his_test_build(p, type = type)$data[[2L]]
+    nullable <- his_test_build(p, type = type, binwidth = NULL, adjust = NULL,
+                              his_color = NULL, his_alpha = NULL, y_rescale = NULL, ylim = NULL)$data[[2L]]
+    expect_identical(nullable, default)
+  }
+  expect_equal(sum(his_test_build(p, binwidth = function(x) 1)$data[[2L]]$count), 60)
+  expect_equal(his_test_build(p, type = "h", adjust = 0, binwidth = 1)$data[[2L]]$count, c(10, 20, 30))
+  expect_equal(his_test_build(p, type = "d", binwidth = 0)$data[[2L]]$n, rep(60, 512))
+  q <- suppressMessages(fmt_his(p, binwidth = 1, ylim = c(NA, 12)))
+  expect_equal(ggplot2::ggplot_build(q)$layout$panel_params[[1L]]$y.range[[2L]], 12)
+})

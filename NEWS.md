@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_his()` validates overlay controls and documents their defaults, units,
+  mode-specific effects and supported mappings with runnable simulated examples.
+
 * `fmt_his()` resolves layer data and preserves x-mapping expressions and
   their environments, including `.data` and `.env` pronouns.
 
