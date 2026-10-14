@@ -4319,11 +4319,12 @@ fmt_bg <- function(plot,
 #' @method ggplot_build ggplot_his
 #' @importFrom ggplot2 ggplot_build
 ggplot_build.ggplot_his <- function(plot, ...) {
-  layers <- Filter(function(layer) !is.null(layer$his_spec), plot$layers)
+  layers <- Filter(function(layer) inherits(layer, "LayerHis"), plot$layers)
   if (length(layers)) {
     specs <- plot$facet$his_specs %||% list()
     for (layer in layers) specs[[layer$his_id]] <- layer$his_spec
     plot$facet <- layers[[1L]]$his_wrap(plot$facet, specs)
+    plot$facet$his_layers <- which(vapply(plot$layers, inherits, logical(1), "LayerHis"))
     plot$facet$his_coord <- plot$coordinates
   }
   NextMethod()
@@ -4451,7 +4452,7 @@ fmt_his <- function(plot,
     facet <- eval(quote(ggplot2::ggproto("FacetHis", parent_facet,
         his_parent = parent_facet,
         train_scales = function(self, x_scales, y_scales, layout, data, params) {
-          data <- Filter(function(d) !".fmt_his" %in% names(d), data)
+          data <- data[!seq_along(data) %in% self$his_layers]
           ggplot2::ggproto_parent(parent_facet, self)$train_scales(x_scales, y_scales, layout, data, params)
         },
         setup_panel_params = function(self, panel_params, coord) {
@@ -4461,11 +4462,10 @@ fmt_his <- function(plot,
           panel_params
         },
         finish_data = function(self, data, layout, x_scales, y_scales, params) {
-          marker <- data$.fmt_his
-          data$.fmt_his <- NULL
+          layer <- attr(data, "fmt_his_layer", exact = TRUE)
+          attr(data, "fmt_his_layer") <- NULL
           data <- ggplot2::ggproto_parent(parent_facet, self)$finish_data(data, layout, x_scales, y_scales, params)
-          if (!is.null(marker)) data$.fmt_his <- marker
-          if (nrow(data) && ".fmt_his" %in% names(data)) {
+          if (inherits(layer, "LayerHis") && nrow(data)) {
             for (name in c("x", "xmin", "xmax")) {
               saved <- paste0(".fmt_his_", name)
               if (saved %in% names(data)) {
@@ -4473,7 +4473,7 @@ fmt_his <- function(plot,
                 data[[saved]] <- NULL
               }
             }
-            spec <- self$his_specs[[as.integer(data$.fmt_his[[1L]])]]
+            spec <- self$his_specs[[layer$his_id]]
             for (panel in unique(as.integer(data$PANEL))) {
               rows <- as.integer(data$PANEL) == panel
               index <- match(panel, as.integer(layout$PANEL))
@@ -4550,7 +4550,7 @@ fmt_his <- function(plot,
     }
     specs <- p$facet$his_specs %||% list()
     for (layer in p$layers) {
-      if (!is.null(layer$his_spec)) specs[[layer$his_id]] <- layer$his_spec
+      if (inherits(layer, "LayerHis")) specs[[layer$his_id]] <- layer$his_spec
     }
     id <- length(specs) + 1L
     specs[[id]] <- list(type = type, height_ratio = height_ratio, y_rescale = y_rescale)
@@ -4576,6 +4576,7 @@ fmt_his <- function(plot,
         )
     }
     layer <- p$layers[[length(p$layers)]]
+    class(layer) <- unique(c("LayerHis", class(layer)))
     layer$his_id <- id
     layer$his_spec <- specs[[id]]
     layer$his_wrap <- wrap_facet
@@ -4589,11 +4590,15 @@ fmt_his <- function(plot,
       data$.fmt_his_input <- data$x
       data
     }), layer_env)
+    layer$finish_statistics <- eval(quote(function(self, data) {
+      data <- ggplot2::ggproto_parent(parent_layer, self)$finish_statistics(data)
+      attr(data, "fmt_his_layer") <- self
+      data
+    }), layer_env)
     geom_env <- list2env(list(parent_geom = layer$geom, setup_his = setup_his), parent = environment(fmt_his))
     layer$geom <- eval(quote(ggplot2::ggproto(NULL, parent_geom, setup_data = setup_his,
-      optional_aes = c(parent_geom$optional_aes, ".fmt_his", ".fmt_his_input")
+      optional_aes = c(parent_geom$optional_aes, ".fmt_his_input")
     )), geom_env)
-    layer$mapping[[".fmt_his"]] <- id
     stat_env <- list2env(list(parent_stat = layer$stat), parent = environment(fmt_his))
     layer$stat <- eval(quote(ggplot2::ggproto(NULL, parent_stat,
       setup_data = function(data, params) {

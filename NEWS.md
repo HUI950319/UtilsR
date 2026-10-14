@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_his()` identifies its own distribution layers without reserving a
+  mapped aesthetic name, preserving unrelated fields with matching names.
+
 * `fmt_his()` evaluates each distribution layer's x mapping once per build
   and reuses the evaluated values for its statistics.
 

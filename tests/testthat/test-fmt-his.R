@@ -412,3 +412,22 @@ test_that("each distribution layer evaluates its x mapping once per build", {
     expect_equal(range(built$data[[1L]]$x), c(1, 3))
   }
 })
+
+test_that("internal distribution markers do not alter unrelated mapped fields", {
+  p <- his_test_plot()
+  p$mapping <- ggplot2::aes(x, y, .fmt_his = 1, .fmt_his_input = 999,
+                            .fmt_his_x = 42)
+  before <- ggplot2::ggplot_build(p)
+  for (type in c("h", "d")) {
+    q <- fmt_his(p, type = type, binwidth = 1)
+    built <- ggplot2::ggplot_build(q)
+    expect_identical(built$data[[1L]], before$data[[1L]])
+    expect_equal(built$layout$panel_params[[1L]]$x.range,
+                 before$layout$panel_params[[1L]]$x.range)
+    expect_equal(built$layout$panel_params[[1L]]$y.range,
+                 before$layout$panel_params[[1L]]$y.range)
+    expect_equal(range(built$data[[2L]]$x), c(1, 3))
+    expect_equal(max(built$data[[2L]]$ymax), 3)
+    expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+  }
+})
