@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_his()` uses independent distribution mappings, avoiding inherited
+  groups, weights and missing aesthetics in externally supplied data.
+
 * `fmt_his()` scales each facet independently and keeps distribution layers out
   of position-scale training, preserving original axes and externally supplied samples.
 

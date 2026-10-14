@@ -4448,7 +4448,7 @@ fmt_his <- function(plot,
           mapping = layer_mapping,
           fill = his_color, color = his_color,
           binwidth = binwidth, alpha = his_alpha,
-          position = "identity"
+          position = "identity", inherit.aes = FALSE, show.legend = FALSE
         ) +
         new_coord
     } else {
@@ -4458,7 +4458,7 @@ fmt_his <- function(plot,
           mapping = layer_mapping,
           fill = his_color,
           color = ggplot2::alpha(his_color, his_alpha),
-          alpha = his_alpha, adjust = adjust
+          alpha = his_alpha, adjust = adjust, inherit.aes = FALSE, show.legend = FALSE
         ) +
         new_coord
     }

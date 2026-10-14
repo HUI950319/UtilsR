@@ -106,3 +106,20 @@ test_that("external samples are counted without retraining the original axes", {
   expect_equal(after$layout$panel_params[[1L]]$y.range, c(0, 10))
   expect_identical(after$data[[1L]], before$data[[1L]])
 })
+
+test_that("distribution overlays do not inherit grouping or weights", {
+  d <- rbind(transform(his_test_plot()$data, g = "A", weight = 10),
+             transform(his_test_plot()$data, g = "B", weight = 20))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, group = g, colour = g, weight = weight)) +
+    ggplot2::geom_point() + ggplot2::coord_cartesian(ylim = c(0, 10), expand = FALSE)
+  for (type in c("h", "d")) {
+    overlay <- his_test_build(p, type = type, binwidth = 1)$data[[2L]]
+    expect_length(unique(overlay$group), 1L)
+    expect_equal(max(overlay$ymax), 3)
+    if (type == "h") expect_equal(sum(overlay$count), 120)
+    else expect_equal(unique(overlay$n), 120)
+    external <- his_test_build(p, type = type, data = d["x"], con_var = "x", binwidth = 1)
+    expect_identical(external$data[[1L]], ggplot2::ggplot_build(p)$data[[1L]])
+    expect_length(unique(external$data[[2L]]$group), 1L)
+  }
+})
