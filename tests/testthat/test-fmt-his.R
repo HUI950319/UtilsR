@@ -524,6 +524,40 @@ test_that("distribution scales transform x samples once per layer", {
   }
 })
 
+test_that("unscaled x mappings retain native distribution statistics", {
+  p <- his_test_plot()
+  p$mapping <- ggplot2::aes(I(x), y)
+  reversed <- p
+  reversed$mapping <- ggplot2::aes(I(-x), y)
+  plots <- list(
+    p + ggplot2::scale_x_continuous(limits = c(0, 4)),
+    p + ggplot2::scale_x_log10(limits = c(10^(-0.5), 10^3.5)),
+    reversed + ggplot2::scale_x_reverse(limits = c(4, 0)))
+  for (plot in plots) {
+    original <- ggplot2::ggplot_build(plot)
+    for (type in c("h", "d")) {
+      native <- if (type == "h") ggplot2::geom_histogram(
+        ggplot2::aes(y = ggplot2::after_stat(count)), binwidth = 1,
+        position = "identity") else ggplot2::geom_density(
+          ggplot2::aes(y = ggplot2::after_stat(density)), adjust = 1)
+      reference <- ggplot2::ggplot_build(plot + native)$data[[2L]]
+      built <- his_test_build(plot, type = type, binwidth = 1, adjust = 1)
+      actual <- built$data[[2L]]
+      if (type == "h") {
+        expect_equal(sum(actual$count), 60)
+        fields <- c("x", "count")
+      } else {
+        expect_equal(unique(actual$n), 60)
+        fields <- c("x", "density", "n")
+      }
+      expect_equal(actual[fields], reference[fields])
+      expect_identical(built$data[[1L]], original$data[[1L]])
+      expect_equal(built$layout$panel_params[[1L]]$x.range,
+                   original$layout$panel_params[[1L]]$x.range)
+    }
+  }
+})
+
 test_that("histogram overlays retain native discrete-x validation", {
   for (x in list(factor(rep(1:3, each = 20)), rep(c("A", "B", "C"), each = 20),
                  rep(c(TRUE, FALSE), each = 30))) {

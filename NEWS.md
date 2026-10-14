@@ -10,6 +10,9 @@
 * `fmt_panel()` corrects matching background colours in automatically restored
   major, minor and axis-specific grids while preserving explicit plot styles.
 
+* `fmt_his()` preserves unscaled `I()` x mappings, preventing repeated
+  transformations and scale-limit censoring of their distribution samples.
+
 * `fmt_his()` skips inapplicable layer data when resolving distribution
   samples, including annotations and data frames missing an explicit variable.
   Function and formula data retain their deferred evaluation.

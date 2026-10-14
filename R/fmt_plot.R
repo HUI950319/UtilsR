@@ -4408,7 +4408,8 @@ ggplot_build.ggplot_his <- function(plot, ...) {
 #'   Mapping expressions and data callbacks are evaluated during the normal
 #'   plot build; formatting does not build or refit the original plot.
 #'   Each distribution layer evaluates its x mapping once per build. Continuous
-#'   x values are transformed once using their panel's final x scale. Facets
+#'   x values are transformed once using their panel's final x scale; unscaled
+#'   \code{I()} mappings bypass transformation and limit censoring, as in ggplot2. Facets
 #'   and individual facet position scales can be added after formatting.
 #'   Density panels with fewer than two finite samples retain ggplot2's warning
 #'   and are omitted; empty distribution layers leave the original plot intact.
@@ -4656,9 +4657,10 @@ fmt_his <- function(plot,
       },
       compute_panel = function(data, scales, ...) {
         if (!nrow(data)) return(data.frame())
-        data$x <- scales$x$transform(data$.fmt_his_input)
+        unscaled <- inherits(data$.fmt_his_input, "AsIs")
+        data$x <- if (unscaled) data$.fmt_his_input else scales$x$transform(data$.fmt_his_input)
         data$.fmt_his_input <- NULL
-        if (!is.null(scales$x$limits)) data$x <- scales$x$oob(data$x, scales$x$get_limits())
+        if (!unscaled && !is.null(scales$x$limits)) data$x <- scales$x$oob(data$x, scales$x$get_limits())
         data <- data[is.finite(data$x), , drop = FALSE]
         if (!nrow(data)) return(data.frame())
         x_scale <- scales$x$clone()

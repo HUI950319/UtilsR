@@ -73,7 +73,8 @@ Counts and densities are scaled from statistical zero, preserving
   Mapping expressions and data callbacks are evaluated during the normal
   plot build; formatting does not build or refit the original plot.
   Each distribution layer evaluates its x mapping once per build. Continuous
-  x values are transformed once using their panel's final x scale. Facets
+  x values are transformed once using their panel's final x scale; unscaled
+  \code{I()} mappings bypass transformation and limit censoring, as in ggplot2. Facets
   and individual facet position scales can be added after formatting.
   Density panels with fewer than two finite samples retain ggplot2's warning
   and are omitted; empty distribution layers leave the original plot intact.
