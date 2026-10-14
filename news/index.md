@@ -22,6 +22,11 @@
   minor and axis-specific grids while preserving explicit plot styles.
 
 - [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
+  normalizes time-difference samples to numeric positions while
+  retaining their units, preventing empty histogram and density
+  overlays.
+
+- [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
   retains the original panel’s resolved x limits when computing
   distributions, including function, formula and partial limits.
   Automatic density grids also cover the original scale range,
