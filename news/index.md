@@ -22,6 +22,11 @@
   minor and axis-specific grids while preserving explicit plot styles.
 
 - [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
+  delegates unscaled distributions without an x scale to native ggplot2
+  statistics, retaining supported histograms instead of returning empty
+  layers.
+
+- [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
   preserves final
   [`after_scale()`](https://ggplot2.tidyverse.org/reference/aes_eval.html)
   x mappings without evaluating them again, keeping distribution

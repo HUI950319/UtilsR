@@ -111,7 +111,9 @@ once per build. Continuous x values are transformed once using their
 panel's final x scale; unscaled
 [`I()`](https://rdrr.io/r/base/AsIs.html) mappings bypass transformation
 and limit censoring, as in ggplot2. Facets and individual facet position
-scales can be added after formatting. Time-difference (`difftime`)
+scales can be added after formatting. Without an explicit x scale,
+unscaled histograms use ggplot2's native statistical path where
+supported by the installed ggplot2 version. Time-difference (`difftime`)
 samples retain their stored units under an ordinary continuous x scale,
 following ggplot2's numeric position mapping. Density panels with fewer
 than two finite samples retain ggplot2's warning and are omitted; empty
