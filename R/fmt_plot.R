@@ -4380,7 +4380,8 @@ ggplot_build.ggplot_his <- function(plot, ...) {
 #'   additional distribution layers.
 #'   Mapping expressions and data callbacks are evaluated during the normal
 #'   plot build; formatting does not build or refit the original plot.
-#'   Each distribution layer evaluates its x mapping once per build. Facets
+#'   Each distribution layer evaluates its x mapping once per build. Continuous
+#'   x values are transformed once using their panel's final x scale. Facets
 #'   and individual facet position scales can be added after formatting.
 #'   Density panels with fewer than two finite samples retain ggplot2's warning
 #'   and are omitted; empty distribution layers leave the original plot intact.
@@ -4602,6 +4603,8 @@ fmt_his <- function(plot,
     layer$compute_aesthetics <- eval(quote(function(self, data, plot) {
       data <- ggplot2::ggproto_parent(parent_layer, self)$compute_aesthetics(data, plot)
       data$.fmt_his_input <- data$x
+      # Continuous samples are transformed once, using their final panel scale.
+      if (!inherits(plot$scales$get_scales("x"), "ScaleDiscrete")) data$x <- NULL
       data
     }), layer_env)
     layer$finish_statistics <- eval(quote(function(self, data) {
@@ -4615,6 +4618,10 @@ fmt_his <- function(plot,
     )), geom_env)
     stat_env <- list2env(list(parent_stat = layer$stat), parent = environment(fmt_his))
     layer$stat <- eval(quote(ggplot2::ggproto(NULL, parent_stat,
+      setup_params = function(data, params) {
+        if (is.null(data$x)) data$x <- data$.fmt_his_input
+        parent_stat$setup_params(data, params)
+      },
       setup_data = function(data, params) {
         data$x <- data$.fmt_his_input
         parent_stat$setup_data(data, params)

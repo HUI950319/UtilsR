@@ -455,3 +455,37 @@ test_that("distribution builds reject non-Cartesian coordinates added later", {
   expect_length(p$layers, 1L)
   expect_s3_class(p$coordinates, "CoordCartesian")
 })
+
+test_that("distribution scales transform x samples once per layer", {
+  for (type in c("h", "d")) {
+    for (external in c(FALSE, TRUE)) {
+      p <- his_test_plot()
+      samples <- if (external) data.frame(x = rep(c(10, 100, 1000), each = 20)) else NULL
+      raw <- if (external) samples$x else p$data$x
+      calls <- 0L
+      transform_x <- function(x) {
+        if (identical(x, raw)) calls <<- calls + 1L
+        log10(x)
+      }
+      trans <- scales::new_transform("counted_log10", transform_x, function(x) 10^x)
+      reference <- his_test_build(p + ggplot2::scale_x_log10(), type = type,
+                                  data = samples, binwidth = 0.25, adjust = 1)
+      q <- fmt_his(p + ggplot2::scale_x_continuous(transform = trans),
+                   type = type, data = samples, binwidth = 0.25, adjust = 1)
+      expect_equal(calls, 0L)
+      built <- ggplot2::ggplot_build(q)
+      expect_equal(calls, if (external) 1L else 2L)
+      expect_equal(built$data[[1L]], reference$data[[1L]])
+      expect_equal(built$data[[2L]], reference$data[[2L]])
+    }
+  }
+})
+
+test_that("histogram overlays retain native discrete-x validation", {
+  for (x in list(factor(rep(1:3, each = 20)), rep(c("A", "B", "C"), each = 20),
+                 rep(c(TRUE, FALSE), each = 30))) {
+    p <- his_test_plot()
+    p$data$x <- x
+    expect_error(ggplot2::ggplot_build(fmt_his(p, binwidth = 1)), "requires a continuous")
+  }
+})

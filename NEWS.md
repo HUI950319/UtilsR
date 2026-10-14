@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_his()` transforms continuous distribution samples once using each
+  panel's final x scale, avoiding redundant transformations while retaining
+  original axes and externally supplied samples.
+
 * `fmt_his()` rejects unsupported coordinates added after formatting during
   plot building, with the same clear error as coordinates supplied initially.
 
