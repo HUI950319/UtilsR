@@ -308,3 +308,30 @@ test_that("sparse and empty distribution panels preserve the original plot", {
   expect_false(any(is.finite(curve$y[as.integer(curve$PANEL) == 2L])))
   expect_identical(built$data[[1L]], ggplot2::ggplot_build(p)$data[[1L]])
 })
+
+test_that("distribution layers survive facets added after formatting", {
+  d <- data.frame(x = c(rep(1:3, c(1, 2, 3)), rep(101:103, c(3, 2, 1))),
+                  y = c(rep(1:3, c(1, 2, 3)), rep(101:103, c(3, 2, 1))),
+                  panel = rep(c("A", "B"), each = 6))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  for (type in c("h", "d")) {
+    for (scales in c("fixed", "free")) {
+      facet <- ggplot2::facet_wrap(~panel, scales = scales)
+      before <- his_test_build(p + facet, type = type, binwidth = 1)
+      q <- fmt_his(p, type = type, binwidth = 1) + facet
+      after <- ggplot2::ggplot_build(q)
+      expect_identical(after$data[[1L]], before$data[[1L]])
+      expect_equal(after$data[[2L]], before$data[[2L]])
+      expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+    }
+  }
+  q <- fmt_his(p, type = "h", height_ratio = 0.2, binwidth = 1) +
+    ggplot2::facet_grid(. ~ panel)
+  q <- fmt_his(q, type = "d", height_ratio = 0.5)
+  built <- ggplot2::ggplot_build(q)
+  range <- built$layout$panel_params[[1L]]$y.range
+  expect_equal(max(built$data[[2L]]$ymax), range[[1L]] + diff(range) * 0.2)
+  expect_equal(max(built$data[[3L]]$ymax), range[[1L]] + diff(range) * 0.5)
+  expect_false(inherits(p$facet, "FacetHis"))
+  expect_length(p$layers, 1L)
+})

@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_his()` retains distribution layers and their individual settings when
+  a facet is added or replaced after formatting.
+
 * `fmt_his()` preserves the plot when a density panel has fewer than two
   samples or a distribution layer has no finite samples.
 

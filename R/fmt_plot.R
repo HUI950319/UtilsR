@@ -4314,6 +4314,21 @@ fmt_bg <- function(plot,
 
 # ---- fmt_his ----
 
+#' @export
+#' @noRd
+#' @method ggplot_build ggplot_his
+#' @importFrom ggplot2 ggplot_build
+ggplot_build.ggplot_his <- function(plot, ...) {
+  layers <- Filter(function(layer) !is.null(layer$his_spec), plot$layers)
+  if (length(layers)) {
+    specs <- plot$facet$his_specs %||% list()
+    for (layer in layers) specs[[layer$his_id]] <- layer$his_spec
+    plot$facet <- layers[[1L]]$his_wrap(plot$facet, specs)
+    plot$facet$his_coord <- plot$coordinates
+  }
+  NextMethod()
+}
+
 #' Add marginal histogram or density overlay
 #'
 #' Overlays a rescaled histogram or density curve on the existing plot,
@@ -4430,52 +4445,10 @@ fmt_his <- function(plot,
   }
   environment(setup_his) <- environment(fmt_his)
 
-  fmt_his_one <- function(p) {
-    # Resolve data and variable
-    d <- data %||% p$data
-    x_mapping <- if (is.null(con_var)) p$mapping$x else rlang::new_quosure(rlang::sym(con_var))
-    if (is.null(x_mapping) || is.null(d) || inherits(d, "waiver")) {
-      for (layer in p$layers) {
-        candidate <- layer$mapping$x %||% if (isTRUE(layer$inherit.aes)) p$mapping$x
-        layer_data <- data %||% if (is.null(layer$data) || inherits(layer$data, "waiver")) p$data else layer$data
-        if ((is.data.frame(layer_data) || is.function(layer_data) || inherits(layer_data, "formula")) &&
-            (!is.null(x_mapping) || !is.null(candidate))) {
-          d <- layer_data
-          x_mapping <- x_mapping %||% candidate
-          break
-        }
-      }
-    }
-    if (is.null(d) || inherits(d, "waiver")) cli::cli_abort("No data found in plot and `data` is NULL.")
-    if (is.null(x_mapping)) cli::cli_abort("No x mapping found and `con_var` is NULL.")
-    if (!is.null(con_var) && is.data.frame(d) && !con_var %in% names(d))
-      cli::cli_abort("Variable '{con_var}' not found in data.")
-    if (inherits(d, "ggproto_method")) {
-      d <- eval(quote(function(data) callback(data)),
-                list2env(list(callback = d), parent = baseenv()))
-    }
-
-    old_coord <- p$coordinates
-    if (!inherits(old_coord, "CoordCartesian")) {
-      cli::cli_abort("Distribution overlays require Cartesian coordinates.")
-    }
-
-    # Resolve overlay heights only after the original scales finish training.
-    layer_mapping <- eval(quote(ggplot2::aes(y = ggplot2::after_stat(NA_real_))), baseenv())
-    layer_mapping[["x"]] <- x_mapping
-    new_coord <- old_coord
-    if (!is.null(ylim)) {
-      limits <- old_coord$limits
-      limits$y <- ylim
-      coord_env <- list2env(list(parent_coord = old_coord, limits = limits), parent = environment(fmt_his))
-      new_coord <- eval(quote(ggplot2::ggproto(NULL, parent_coord, limits = limits)), coord_env)
-    }
-    specs <- p$facet$his_specs %||% list()
-    id <- length(specs) + 1L
-    specs[[id]] <- list(type = type, height_ratio = height_ratio, y_rescale = y_rescale)
-    parent_facet <- if (inherits(p$facet, "FacetHis")) p$facet$his_parent %||% p$facet else p$facet
+  wrap_facet <- function(parent_facet, specs) {
+    parent_facet <- if (inherits(parent_facet, "FacetHis")) parent_facet$his_parent %||% parent_facet else parent_facet
     facet_env <- list2env(list(parent_facet = parent_facet), parent = environment(fmt_his))
-    p$facet <- eval(quote(ggplot2::ggproto("FacetHis", parent_facet,
+    facet <- eval(quote(ggplot2::ggproto("FacetHis", parent_facet,
         his_parent = parent_facet,
         train_scales = function(self, x_scales, y_scales, layout, data, params) {
           data <- Filter(function(d) !".fmt_his" %in% names(d), data)
@@ -4524,7 +4497,58 @@ fmt_his <- function(plot,
           ggplot2::ggproto_parent(parent_facet, self)$finish_data(data, layout, x_scales, y_scales, params)
         }
       )), facet_env)
-    p$facet$his_specs <- specs
+    facet$his_specs <- specs
+    facet
+  }
+  environment(wrap_facet) <- environment(fmt_his)
+
+  fmt_his_one <- function(p) {
+    # Resolve data and variable
+    d <- data %||% p$data
+    x_mapping <- if (is.null(con_var)) p$mapping$x else rlang::new_quosure(rlang::sym(con_var))
+    if (is.null(x_mapping) || is.null(d) || inherits(d, "waiver")) {
+      for (layer in p$layers) {
+        candidate <- layer$mapping$x %||% if (isTRUE(layer$inherit.aes)) p$mapping$x
+        layer_data <- data %||% if (is.null(layer$data) || inherits(layer$data, "waiver")) p$data else layer$data
+        if ((is.data.frame(layer_data) || is.function(layer_data) || inherits(layer_data, "formula")) &&
+            (!is.null(x_mapping) || !is.null(candidate))) {
+          d <- layer_data
+          x_mapping <- x_mapping %||% candidate
+          break
+        }
+      }
+    }
+    if (is.null(d) || inherits(d, "waiver")) cli::cli_abort("No data found in plot and `data` is NULL.")
+    if (is.null(x_mapping)) cli::cli_abort("No x mapping found and `con_var` is NULL.")
+    if (!is.null(con_var) && is.data.frame(d) && !con_var %in% names(d))
+      cli::cli_abort("Variable '{con_var}' not found in data.")
+    if (inherits(d, "ggproto_method")) {
+      d <- eval(quote(function(data) callback(data)),
+                list2env(list(callback = d), parent = baseenv()))
+    }
+
+    old_coord <- p$coordinates
+    if (!inherits(old_coord, "CoordCartesian")) {
+      cli::cli_abort("Distribution overlays require Cartesian coordinates.")
+    }
+
+    # Resolve overlay heights only after the original scales finish training.
+    layer_mapping <- eval(quote(ggplot2::aes(y = ggplot2::after_stat(NA_real_))), baseenv())
+    layer_mapping[["x"]] <- x_mapping
+    new_coord <- old_coord
+    if (!is.null(ylim)) {
+      limits <- old_coord$limits
+      limits$y <- ylim
+      coord_env <- list2env(list(parent_coord = old_coord, limits = limits), parent = environment(fmt_his))
+      new_coord <- eval(quote(ggplot2::ggproto(NULL, parent_coord, limits = limits)), coord_env)
+    }
+    specs <- p$facet$his_specs %||% list()
+    for (layer in p$layers) {
+      if (!is.null(layer$his_spec)) specs[[layer$his_id]] <- layer$his_spec
+    }
+    id <- length(specs) + 1L
+    specs[[id]] <- list(type = type, height_ratio = height_ratio, y_rescale = y_rescale)
+    p$facet <- wrap_facet(p$facet, specs)
     p$coordinates <- new_coord
 
     if (type == "histogram") {
@@ -4547,6 +4571,9 @@ fmt_his <- function(plot,
         )
     }
     layer <- p$layers[[length(p$layers)]]
+    layer$his_id <- id
+    layer$his_spec <- specs[[id]]
+    layer$his_wrap <- wrap_facet
     layer_env <- list2env(list(parent_layer = layer$super()), parent = environment(fmt_his))
     layer$setup_layer <- eval(quote(function(self, data, plot) {
       plot$facet$his_coord <- plot$coordinates
@@ -4576,6 +4603,7 @@ fmt_his <- function(plot,
         parent_stat$compute_panel(data, list(x = x_scale, y = scales$y), ...)
       }
     )), stat_env)
+    class(p) <- unique(c("ggplot_his", class(p)))
     p
   }
 
