@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
+  preserves flipped and fixed-ratio Cartesian coordinates and correctly
+  positions overlays on transformed axes without transforming limits
+  twice.
+
+- [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
   anchors histogram and density fills to the requested lower boundary,
   including negative y ranges and explicit `y_rescale` intervals.
 
