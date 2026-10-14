@@ -508,3 +508,43 @@ test_that("batch themes are reused beyond the initial cache and after misses", {
     expect_identical(lapply(pattern$plots, function(z) z$theme), before)
   }
 })
+
+test_that("batch formatting retains empty theme entries alongside other themes", {
+  old <- ggplot2::theme_set(ggplot2::theme_gray())
+  withr::defer(ggplot2::theme_set(old))
+  p <- panel_test_plot()
+  empty <- p
+  empty$theme <- NULL
+  hidden <- p + ggplot2::theme(panel.grid.major.x = ggplot2::element_blank())
+  classic <- p + ggplot2::theme_classic()
+  patterns <- list(list(empty, hidden, hidden, classic, classic),
+                   list(hidden, empty, classic, classic, hidden),
+                   list(empty, empty, hidden, classic, empty))
+  for (plots in patterns) {
+    before <- lapply(plots, function(z) z$theme)
+    output <- fmt_panel(plots, grid = "both")
+    expected <- lapply(plots, fmt_panel, grid = "both")
+    expect_identical(lapply(output, function(z) z$theme),
+                     lapply(expected, function(z) z$theme))
+    for (i in seq_along(output)) {
+      expect_setequal(panel_test_grids(output[[i]])$element %||% character(),
+                      c("major.x", "major.y", "minor.x", "minor.y"))
+    }
+    expect_identical(lapply(output, function(z) ggplot2::ggplot_build(z)$data),
+                     lapply(expected, function(z) ggplot2::ggplot_build(z)$data))
+    expect_identical(lapply(plots, function(z) z$theme), before)
+  }
+  if (requireNamespace("ragg", quietly = TRUE)) {
+    capture <- function(p) {
+      grab <- ragg::agg_capture(width = 360, height = 240, units = "px", res = 96)
+      on.exit(grDevices::dev.off())
+      print(p)
+      grab(native = TRUE)
+    }
+    output <- fmt_panel(patterns[[1]], grid = "both")
+    expected <- lapply(patterns[[1]], fmt_panel, grid = "both")
+    for (i in seq_along(output)) {
+      expect_identical(capture(output[[i]]), capture(expected[[i]]))
+    }
+  }
+})

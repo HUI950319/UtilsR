@@ -2582,7 +2582,7 @@ fmt_panel <- function(plot,
     }
     if (cache_enabled) {
       if (length(cache_themes) < 4L) {
-        cache_themes[[length(cache_themes) + 1L]] <<- plot_theme
+        cache_themes[length(cache_themes) + 1L] <<- list(plot_theme)
         cache_panels[[length(cache_panels) + 1L]] <<- current_theme
       } else {
         last_theme <<- plot_theme
