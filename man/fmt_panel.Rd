@@ -78,8 +78,9 @@ those entries are also blank. Styles overwritten by earlier formatting cannot
 be recovered. Restored grids continue to inherit parent grid-theme changes.
 Grid lines still require corresponding scale breaks.
 
-If an automatically restored grid color matches the known opaque background,
+If an automatically restored grid element's color matches the known opaque background,
 it becomes \code{"grey70"} (or \code{"grey30"} on a \code{"grey70"} background).
+This also applies to restored major, minor and axis-specific grid elements.
 Available plot styles and explicit grid colors, including those in \code{...},
 retain their normal priority. Transparent or unknown backgrounds are unchanged.
 

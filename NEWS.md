@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_panel()` corrects matching background colours in automatically restored
+  major, minor and axis-specific grids while preserving explicit plot styles.
+
 * `fmt_his()` transforms continuous distribution samples once using each
   panel's final x scale, avoiding redundant transformations while retaining
   original axes and externally supplied samples.

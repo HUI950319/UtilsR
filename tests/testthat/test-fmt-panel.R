@@ -383,3 +383,36 @@ test_that("batch theme reuse preserves mixed styles and refreshes between calls"
                  rep(list(rep(colour, 4)), 3))
   }
 })
+
+test_that("automatic contrast corrects restored group and axis colours", {
+  old <- ggplot2::theme_set(ggplot2::theme_gray())
+  withr::defer(ggplot2::theme_set(old))
+  p <- panel_test_plot() + ggplot2::theme_classic()
+  fields <- list(groups = c("panel.grid.major", "panel.grid.minor"),
+                 axes = c("panel.grid.major.x", "panel.grid.major.y",
+                          "panel.grid.minor.x", "panel.grid.minor.y"))
+  for (elements in fields) {
+    ggplot2::theme_set(ggplot2::theme_gray() + do.call(ggplot2::theme,
+      stats::setNames(rep(list(ggplot2::element_line(colour = "white")),
+                          length(elements)), elements)))
+    hidden <- do.call(ggplot2::theme,
+      stats::setNames(rep(list(ggplot2::element_blank()), length(elements)), elements))
+    for (root in list(ggplot2::element_blank(),
+                     ggplot2::element_line(colour = "purple"))) {
+      input <- p + hidden + ggplot2::theme(panel.grid = root)
+      before <- input$theme
+      output <- fmt_panel(input, grid = "both")
+      expect_equal(panel_test_grids(output)$colour, rep("grey70", 4))
+      expect_identical(ggplot2::ggplot_build(output)$data,
+                       ggplot2::ggplot_build(input)$data)
+      expect_identical(input$theme, before)
+      expect_equal(panel_test_grids(fmt_panel(input, grid = "both",
+                                              grid_color = "white"))$colour,
+                   rep("white", 4))
+      explicit <- do.call(fmt_panel, c(list(plot = input, grid = "both"),
+        stats::setNames(rep(list(ggplot2::element_line(colour = "white")),
+                            length(elements)), elements)))
+      expect_equal(panel_test_grids(explicit)$colour, rep("white", 4))
+    }
+  }
+})

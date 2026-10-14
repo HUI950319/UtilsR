@@ -2337,8 +2337,9 @@ fmt_strip2 <- function(plot,
 #' be recovered. Restored grids continue to inherit parent grid-theme changes.
 #' Grid lines still require corresponding scale breaks.
 #'
-#' If an automatically restored grid color matches the known opaque background,
+#' If an automatically restored grid element's color matches the known opaque background,
 #' it becomes \code{"grey70"} (or \code{"grey30"} on a \code{"grey70"} background).
+#' This also applies to restored major, minor and axis-specific grid elements.
 #' Available plot styles and explicit grid colors, including those in \code{...},
 #' retain their normal priority. Transparent or unknown backgrounds are unchanged.
 #'
@@ -2517,32 +2518,48 @@ fmt_panel <- function(plot,
         }
       }
       if (length(restored)) current_theme <- do.call(ggplot2::theme, restored) + panel_theme
-      if (is.null(grid_color) && inherits(effective$panel.grid, "element_blank") &&
+      if (is.null(grid_color) && length(restored) &&
           !any(vapply(extra_args[c("panel.grid", "line")], function(el) {
             inherits(el, "element_line") && !is.null(el$colour)
           }, logical(1)))) {
-        styled_theme <- effective + current_theme
-        line <- ggplot2::calc_element("panel.grid", styled_theme)
-        background <- ggplot2::calc_element("panel.background", styled_theme)
-        if (!inherits(background, "element_rect") || is.null(background$fill)) {
-          background <- ggplot2::calc_element("plot.background", styled_theme)
-        }
-        if (inherits(line, "element_line") && is.character(line$colour) &&
-            length(line$colour) == 1L && inherits(background, "element_rect") &&
-            length(background$fill) == 1L &&
-            (is.character(background$fill) || anyNA(background$fill))) {
-          rgba <- grDevices::col2rgb(c(line$colour, background$fill), alpha = TRUE)
-          if (rgba[4L, 2L] == 0L) {
-            outside <- ggplot2::calc_element("plot.background", styled_theme)
-            if (inherits(outside, "element_rect") && is.character(outside$fill) &&
-                length(outside$fill) == 1L) {
-              rgba[, 2L] <- grDevices::col2rgb(outside$fill, alpha = TRUE)
-            }
+        colour_elements <- Filter(function(nm) {
+          value <- restored[[nm]]
+          inherits(effective[[nm]], "element_blank") &&
+            (nm == "panel.grid" ||
+             (inherits(value, "element_line") && !is.null(value$colour)))
+        }, names(restored))
+        if (length(colour_elements)) {
+          styled_theme <- effective + current_theme
+          background <- ggplot2::calc_element("panel.background", styled_theme)
+          if (!inherits(background, "element_rect") || is.null(background$fill)) {
+            background <- ggplot2::calc_element("plot.background", styled_theme)
           }
-          if (rgba[4L, 1L] == 255L && all(rgba[, 1L] == rgba[, 2L])) {
-            colour <- if (all(rgba[1:3, 2L] == grDevices::col2rgb("grey70"))) "grey30" else "grey70"
-            current_theme <- current_theme + ggplot2::theme(
-              panel.grid = ggplot2::element_line(colour = colour))
+          if (inherits(background, "element_rect") && length(background$fill) == 1L &&
+              (is.character(background$fill) || anyNA(background$fill))) {
+            background_rgba <- grDevices::col2rgb(background$fill, alpha = TRUE)
+            if (background_rgba[4L] == 0L) {
+              outside <- ggplot2::calc_element("plot.background", styled_theme)
+              if (inherits(outside, "element_rect") && is.character(outside$fill) &&
+                  length(outside$fill) == 1L) {
+                background_rgba <- grDevices::col2rgb(outside$fill, alpha = TRUE)
+              }
+            }
+            contrast_args <- list()
+            for (nm in colour_elements) {
+              explicit <- extra_args[[nm]]
+              if (inherits(explicit, "element_line") && !is.null(explicit$colour)) next
+              line <- ggplot2::calc_element(nm, styled_theme)
+              if (!inherits(line, "element_line") || !is.character(line$colour) ||
+                  length(line$colour) != 1L) next
+              rgba <- grDevices::col2rgb(line$colour, alpha = TRUE)
+              if (rgba[4L] == 255L && all(rgba == background_rgba)) {
+                colour <- if (all(background_rgba[1:3] == grDevices::col2rgb("grey70"))) "grey30" else "grey70"
+                contrast_args[[nm]] <- ggplot2::element_line(colour = colour)
+              }
+            }
+            if (length(contrast_args)) {
+              current_theme <- current_theme + do.call(ggplot2::theme, contrast_args)
+            }
           }
         }
       }
