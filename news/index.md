@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md)
+  gives automatically restored grids a contrasting grey when their
+  colour matches a known opaque background, preserving explicit grid
+  colours.
+
+- [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md)
   uses absolute millimetres for grid and border widths and rejects
   relative width objects before rendering.
 
