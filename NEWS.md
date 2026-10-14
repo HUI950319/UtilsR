@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_his()` anchors default overlays to the display bottom when Cartesian
+  coordinates reverse the vertical direction.
+
 * `fmt_his()` retains distribution layers and their individual settings when
   a facet is added or replaced after formatting.
 

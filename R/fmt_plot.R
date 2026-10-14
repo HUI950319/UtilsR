@@ -4482,6 +4482,8 @@ fmt_his <- function(plot,
                 range <- pp[[if (inherits(coord, "CoordFlip")) "x.range" else "y.range"]]
               }
               bounds <- if (is.null(spec$y_rescale)) {
+                axis <- if (inherits(self$his_coord, "CoordFlip")) "x" else "y"
+                if (grepl(axis, self$his_coord$reverse %||% "none", fixed = TRUE)) range <- rev(range)
                 c(range[[1L]], range[[1L]] + diff(range) * spec$height_ratio)
               } else y_scales[[layout$SCALE_Y[[index]]]]$transform(spec$y_rescale)
               if (any(!is.finite(bounds))) cli::cli_abort("{.arg y_rescale} must be finite on the plot's y scale.")

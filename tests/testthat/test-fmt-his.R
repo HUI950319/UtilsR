@@ -335,3 +335,28 @@ test_that("distribution layers survive facets added after formatting", {
   expect_false(inherits(p$facet, "FacetHis"))
   expect_length(p$layers, 1L)
 })
+
+test_that("coordinate reversal keeps the default baseline at the display bottom", {
+  skip_if_not("reverse" %in% names(formals(ggplot2::coord_cartesian)))
+  p <- his_test_plot()
+  for (type in c("h", "d")) {
+    for (reverse in c("x", "y", "xy")) {
+      coord <- ggplot2::coord_cartesian(ylim = c(0, 10), expand = FALSE,
+                                        reverse = reverse)
+      before <- suppressMessages(ggplot2::ggplot_build(p + coord))
+      q <- suppressMessages(fmt_his(p, type = type, binwidth = 1) + coord)
+      built <- ggplot2::ggplot_build(q)
+      curve <- built$data[[2L]]
+      view <- q$coordinates$transform(
+        data.frame(x = curve$x, y = curve$ymin), built$layout$panel_params[[1L]])
+      top <- q$coordinates$transform(
+        data.frame(x = curve$x, y = curve$ymax), built$layout$panel_params[[1L]])
+      expect_equal(view$y, rep(0, nrow(curve)))
+      expect_equal(max(top$y), 0.3)
+      expect_identical(built$data[[1L]], before$data[[1L]])
+      expect_identical(built$layout$panel_params[[1L]]$y.range,
+                       before$layout$panel_params[[1L]]$y.range)
+      expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+    }
+  }
+})
