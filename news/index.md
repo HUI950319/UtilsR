@@ -3,6 +3,12 @@
 ## UtilsR 0.6.8
 
 - [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md)
+  checks automatically restored grid contrast against the colour of
+  transparent panel fills composited over a known opaque plot
+  background, preserving background transparency and explicit grid
+  colours.
+
+- [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md)
   rejects themes, aesthetic mappings and other non-plot `gg` components
   instead of returning a theme or silently producing `NULL`.
 
