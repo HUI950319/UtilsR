@@ -593,3 +593,40 @@ test_that("automatic contrast includes grids restored past a blank root line", {
                            plot.background = ggplot2::element_rect(fill = NA, colour = NA))
   expect_equal(panel_test_grids(transparent)$colour, rep("black", 4))
 })
+
+test_that("restored grid placeholders respect blank parent grids", {
+  old <- ggplot2::theme_set(ggplot2::theme_gray())
+  withr::defer(ggplot2::theme_set(old))
+  p <- panel_test_plot()
+  for (base in list(p, p + ggplot2::theme_void())) {
+    for (mode in c("major", "minor")) {
+      group <- paste0("panel.grid.", mode)
+      for (hidden in c(paste0(group, ".x"), group, "panel.grid")) {
+        input <- base + do.call(ggplot2::theme,
+          stats::setNames(list(ggplot2::element_blank()), hidden))
+        before <- input$theme
+        formatted <- fmt_panel(input, grid = mode)
+        expect_setequal(panel_test_grids(formatted)$element,
+                        paste0(mode, c(".x", ".y")))
+        for (parent in c(group, "panel.grid")) {
+          args <- stats::setNames(list(ggplot2::element_blank()), parent)
+          outputs <- list(formatted + do.call(ggplot2::theme, args),
+                          do.call(fmt_panel, c(list(plot = input, grid = mode), args)))
+          for (output in outputs) {
+            expect_null(panel_test_grids(output))
+            expect_identical(ggplot2::ggplot_build(output)$data,
+                             ggplot2::ggplot_build(input)$data)
+          }
+        }
+        expect_identical(input$theme, before)
+      }
+    }
+  }
+  explicit <- p + ggplot2::theme(panel.grid.major.x = ggplot2::element_line(
+    colour = "red", linewidth = 0.6, linetype = "solid", inherit.blank = FALSE))
+  output <- fmt_panel(explicit, grid = "major") +
+    ggplot2::theme(panel.grid.major = ggplot2::element_blank())
+  expect_equal(panel_test_grids(output)$element, "major.x")
+  expect_equal(panel_test_grids(output)$colour, "red")
+  expect_identical(output$theme$panel.grid.major.x, explicit$theme$panel.grid.major.x)
+})

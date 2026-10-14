@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_panel()` lets restored grid placeholders inherit blank parent-grid
+  settings during and after formatting, preserving explicit blank-inheritance
+  overrides and the restoration of grids hidden by a blank root line.
+
 * `fmt_panel()` gives automatically restored grids contrasting colours when
   a blank root line hides them, including on dark panels with `theme_void()`,
   while preserving explicit colours and transparent backgrounds.

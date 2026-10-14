@@ -2334,7 +2334,9 @@ fmt_strip2 <- function(plot,
 #' element, blank entries in its inheritance chain are replaced with entries from
 #' the current global theme, falling back to \code{ggplot2::theme_gray()} when
 #' those entries are also blank. Styles overwritten by earlier formatting cannot
-#' be recovered. Restored grids continue to inherit parent grid-theme changes.
+#' be recovered. Restored grids continue to inherit parent grid-theme changes,
+#' including blank parent grids unless an available style explicitly disables
+#' blank inheritance.
 #' Grid lines still require corresponding scale breaks.
 #'
 #' If an automatically restored grid element's color matches the known opaque background,
@@ -2518,7 +2520,7 @@ fmt_panel <- function(plot,
             }
             inherited[[field]] <- value
             if (field != "line") {
-              restored[[field]] <- value %||% ggplot2::element_line(inherit.blank = FALSE)
+              restored[[field]] <- value %||% ggplot2::element_line(inherit.blank = TRUE)
             }
           }
         }
