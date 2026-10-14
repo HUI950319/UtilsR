@@ -32,8 +32,9 @@ fmt_panel(
 \item{grid_color}{A single color string, or \code{NA} for transparent grid
 lines. Default \code{NULL} (inherit from the current theme).}
 
-\item{grid_linewidth}{A single finite, non-negative number. Line width of
-retained grid lines.
+\item{grid_linewidth}{A single finite, non-negative absolute width in
+millimetres. Relative widths created by \code{ggplot2::rel()} are not accepted.
+Line width of retained grid lines.
 Default \code{NULL} (inherit from current theme).}
 
 \item{grid_linetype}{A single named line type (e.g. \code{"solid"},
@@ -49,8 +50,9 @@ Default \code{NULL} (inherit from current theme).}
   \item \code{NULL} (default) — no change.
 }}
 
-\item{border_linewidth}{A single finite, non-negative number. Border line
-width, used only when \code{border} is \code{TRUE} or a color string.
+\item{border_linewidth}{A single finite, non-negative absolute width in
+millimetres. Relative widths created by \code{ggplot2::rel()} are not accepted.
+Border line width, used only when \code{border} is \code{TRUE} or a color string.
 Default 0.5.}
 
 \item{bg}{A single panel background color string, or \code{NA} for a

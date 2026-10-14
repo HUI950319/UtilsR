@@ -270,3 +270,22 @@ test_that("grid restoration leaves blank root lines and relative minor styles in
   expect_equal(grids$linewidth[grepl("major", grids$element)], rep(0.8 * 72.27 / 25.4, 2))
   expect_equal(grids$linewidth[grepl("minor", grids$element)], rep(0.4 * 72.27 / 25.4, 2))
 })
+
+test_that("panel width arguments use absolute millimetres and reject relative values", {
+  p <- panel_test_plot()
+  for (mode in c("none", "major", "minor", "both", "x", "y")) {
+    expect_error(fmt_panel(p, grid = mode, grid_linewidth = ggplot2::rel(0.5)),
+                 "grid_linewidth.*absolute")
+    expect_error(fmt_panel(p, grid = mode, border = TRUE,
+                           border_linewidth = ggplot2::rel(0.5)),
+                 "border_linewidth.*absolute")
+  }
+  output <- fmt_panel(p, grid = "both", grid_linewidth = 0.3,
+                      border = TRUE, border_linewidth = 0.8)
+  expect_equal(panel_test_grids(output)$linewidth, rep(0.3 * 72.27 / 25.4, 4))
+  expect_equal(ggplot2::calc_element("panel.border",
+                                    ggplot2::theme_get() + output$theme)$linewidth, 0.8)
+  relative <- fmt_panel(p, grid = "major",
+                        panel.grid.major = ggplot2::element_line(linewidth = ggplot2::rel(0.5)))
+  expect_equal(panel_test_grids(relative)$linewidth, rep(0.25 * 72.27 / 25.4, 2))
+})

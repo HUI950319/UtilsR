@@ -2304,8 +2304,9 @@ fmt_strip2 <- function(plot,
 #'   }
 #' @param grid_color A single color string, or \code{NA} for transparent grid
 #'   lines. Default \code{NULL} (inherit from the current theme).
-#' @param grid_linewidth A single finite, non-negative number. Line width of
-#'   retained grid lines.
+#' @param grid_linewidth A single finite, non-negative absolute width in
+#'   millimetres. Relative widths created by \code{ggplot2::rel()} are not accepted.
+#'   Line width of retained grid lines.
 #'   Default \code{NULL} (inherit from current theme).
 #' @param grid_linetype A single named line type (e.g. \code{"solid"},
 #'   \code{"dashed"}, \code{"dotted"}), an integer from 0 to 6, or a pattern of
@@ -2318,8 +2319,9 @@ fmt_strip2 <- function(plot,
 #'     \item A color string (e.g. \code{"grey50"}) — draw border in that color.
 #'     \item \code{NULL} (default) — no change.
 #'   }
-#' @param border_linewidth A single finite, non-negative number. Border line
-#'   width, used only when \code{border} is \code{TRUE} or a color string.
+#' @param border_linewidth A single finite, non-negative absolute width in
+#'   millimetres. Relative widths created by \code{ggplot2::rel()} are not accepted.
+#'   Border line width, used only when \code{border} is \code{TRUE} or a color string.
 #'   Default 0.5.
 #' @param bg A single panel background color string, or \code{NA} for a
 #'   transparent background. \code{NULL} (default) leaves the background unchanged.
@@ -2407,9 +2409,9 @@ fmt_panel <- function(plot,
   for (nm in names(widths)) {
     value <- widths[[nm]]
     if (is.null(value) && nm == "grid_linewidth") next
-    if (!is.numeric(value) || is.complex(value) || length(value) != 1L ||
+    if (!is.numeric(value) || is.complex(value) || inherits(value, "rel") || length(value) != 1L ||
         !is.finite(value) || value < 0) {
-      cli::cli_abort("{.arg {nm}} must be a finite, non-negative number.")
+      cli::cli_abort("{.arg {nm}} must be a finite, non-negative absolute width in millimetres.")
     }
   }
   if (!is.null(grid_linetype)) {
