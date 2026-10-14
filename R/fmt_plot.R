@@ -2332,7 +2332,8 @@ fmt_strip2 <- function(plot,
 #' element, blank entries in its inheritance chain are replaced with entries from
 #' the current global theme, falling back to \code{ggplot2::theme_gray()} when
 #' those entries are also blank. Styles overwritten by earlier formatting cannot
-#' be recovered. Grid lines still require corresponding scale breaks.
+#' be recovered. Restored grids continue to inherit parent grid-theme changes.
+#' Grid lines still require corresponding scale breaks.
 #'
 #' Ordinary plot leaves are formatted recursively. Layouts, annotations and list
 #' names are retained. Spacers, guide areas, frozen \code{wrap_elements()} cells
@@ -2484,11 +2485,16 @@ fmt_panel <- function(plot,
               value <- fallback_theme[[field]]
             }
             inherited[[field]] <- value
+            if (field != "line") {
+              restored[[field]] <- value %||% ggplot2::element_line(inherit.blank = FALSE)
+            }
           }
         }
-        element <- ggplot2::calc_element(nm, inherited)
-        restored[[nm]] <- ggplot2::merge_element(
-          ggplot2::element_line(inherit.blank = FALSE), element)
+        if (inherits(effective$line, "element_blank")) {
+          restored$panel.grid <- ggplot2::merge_element(
+            ggplot2::element_line(inherit.blank = FALSE),
+            ggplot2::calc_element("panel.grid", inherited))
+        }
       }
       if (length(restored)) current_theme <- do.call(ggplot2::theme, restored) + panel_theme
     }

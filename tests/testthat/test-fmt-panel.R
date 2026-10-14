@@ -231,3 +231,42 @@ test_that("panel fallback styles use the current global theme on every call", {
   expect_setequal(panel_test_grids(fmt_panel(p, grid = "both"))$element,
                   c("major.x", "major.y", "minor.x", "minor.y"))
 })
+
+test_that("restored grids inherit parent styles during and after formatting", {
+  p <- panel_test_plot()
+  parent <- ggplot2::element_line(colour = "red", linewidth = 1.1,
+                                 linetype = "dashed")
+  for (hidden in c("panel.grid.major.x", "panel.grid.major", "panel.grid")) {
+    input <- p + do.call(ggplot2::theme,
+                         stats::setNames(list(ggplot2::element_blank()), hidden))
+    before <- input$theme
+    outputs <- list(
+      fmt_panel(input, grid = "major", panel.grid.major = parent),
+      fmt_panel(input, grid = "major") + ggplot2::theme(panel.grid.major = parent))
+    for (output in outputs) {
+      grids <- panel_test_grids(output)
+      expect_setequal(grids$element, c("major.x", "major.y"))
+      expect_equal(grids$colour, rep("red", 2))
+      expect_equal(grids$linewidth, rep(1.1 * 72.27 / 25.4, 2))
+      expect_equal(grids$linetype, rep("dashed", 2))
+      expect_identical(ggplot2::ggplot_build(output)$data,
+                       ggplot2::ggplot_build(input)$data)
+    }
+    expect_identical(input$theme, before)
+  }
+})
+
+test_that("grid restoration leaves blank root lines and relative minor styles intact", {
+  p <- panel_test_plot() + ggplot2::theme(line = ggplot2::element_blank(),
+                                        panel.grid = ggplot2::element_blank())
+  output <- fmt_panel(p, grid = "both")
+  grids <- panel_test_grids(output)
+  expect_identical(output$theme$line, p$theme$line)
+  expect_setequal(grids$element, c("major.x", "major.y", "minor.x", "minor.y"))
+  expect_equal(grids$linewidth[grepl("major", grids$element)], rep(0.5 * 72.27 / 25.4, 2))
+  expect_equal(grids$linewidth[grepl("minor", grids$element)], rep(0.25 * 72.27 / 25.4, 2))
+  updated <- output + ggplot2::theme(panel.grid = ggplot2::element_line(linewidth = 0.8))
+  grids <- panel_test_grids(updated)
+  expect_equal(grids$linewidth[grepl("major", grids$element)], rep(0.8 * 72.27 / 25.4, 2))
+  expect_equal(grids$linewidth[grepl("minor", grids$element)], rep(0.4 * 72.27 / 25.4, 2))
+})
