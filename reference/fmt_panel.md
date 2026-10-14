@@ -109,11 +109,12 @@ formatting cannot be recovered. Restored grids continue to inherit
 parent grid-theme changes. Grid lines still require corresponding scale
 breaks.
 
-If an automatically restored grid color matches the known opaque
-background, it becomes `"grey70"` (or `"grey30"` on a `"grey70"`
-background). Available plot styles and explicit grid colors, including
-those in `...`, retain their normal priority. Transparent or unknown
-backgrounds are unchanged.
+If an automatically restored grid element's color matches the known
+opaque background, it becomes `"grey70"` (or `"grey30"` on a `"grey70"`
+background). This also applies to restored major, minor and
+axis-specific grid elements. Available plot styles and explicit grid
+colors, including those in `...`, retain their normal priority.
+Transparent or unknown backgrounds are unchanged.
 
 Ordinary plot leaves are formatted recursively. Layouts, annotations and
 list names are retained. Spacers, guide areas, frozen

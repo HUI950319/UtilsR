@@ -2,6 +2,10 @@
 
 ## UtilsR 0.6.8
 
+- [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md)
+  corrects matching background colours in automatically restored major,
+  minor and axis-specific grids while preserving explicit plot styles.
+
 - [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
   transforms continuous distribution samples once using each panel’s
   final x scale, avoiding redundant transformations while retaining
