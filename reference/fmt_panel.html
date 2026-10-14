@@ -152,6 +152,7 @@ Grid lines still require corresponding scale breaks.</p>
 <p>If an automatically restored grid element's color matches the known opaque background,
 it becomes <code>"grey70"</code> (or <code>"grey30"</code> on a <code>"grey70"</code> background).
 This also applies to restored major, minor and axis-specific grid elements.
+This includes grids hidden by a blank root <code>line</code> element.
 Available plot styles and explicit grid colors, including those in <code>...</code>,
 retain their normal priority. Transparent panel fills are composited over a
 known opaque plot background for this check. If the resulting background is

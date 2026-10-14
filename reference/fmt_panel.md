@@ -112,11 +112,12 @@ breaks.
 If an automatically restored grid element's color matches the known
 opaque background, it becomes `"grey70"` (or `"grey30"` on a `"grey70"`
 background). This also applies to restored major, minor and
-axis-specific grid elements. Available plot styles and explicit grid
-colors, including those in `...`, retain their normal priority.
-Transparent panel fills are composited over a known opaque plot
-background for this check. If the resulting background is still
-transparent or unknown, its grid color is unchanged.
+axis-specific grid elements. This includes grids hidden by a blank root
+`line` element. Available plot styles and explicit grid colors,
+including those in `...`, retain their normal priority. Transparent
+panel fills are composited over a known opaque plot background for this
+check. If the resulting background is still transparent or unknown, its
+grid color is unchanged.
 
 Ordinary plot leaves are formatted recursively. Layouts, annotations and
 list names are retained. Spacers, guide areas, frozen
