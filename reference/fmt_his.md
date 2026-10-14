@@ -104,7 +104,9 @@ order. Nested patchwork layouts and annotations are preserved; spacers,
 wrapped grobs and inset overlays are skipped. Repeated calls add
 additional distribution layers. Mapping expressions and data callbacks
 are evaluated during the normal plot build; formatting does not build or
-refit the original plot. Each distribution layer evaluates its x mapping
+refit the original plot. Final
+[`after_scale()`](https://ggplot2.tidyverse.org/reference/aes_eval.html)
+x mappings are retained. Each distribution layer evaluates its x mapping
 once per build. Continuous x values are transformed once using their
 panel's final x scale; unscaled
 [`I()`](https://rdrr.io/r/base/AsIs.html) mappings bypass transformation

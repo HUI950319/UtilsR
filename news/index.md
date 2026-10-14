@@ -22,6 +22,12 @@
   minor and axis-specific grids while preserving explicit plot styles.
 
 - [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
+  preserves final
+  [`after_scale()`](https://ggplot2.tidyverse.org/reference/aes_eval.html)
+  x mappings without evaluating them again, keeping distribution
+  positions aligned with native layers.
+
+- [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
   normalizes time-difference samples to numeric positions while
   retaining their units, preventing empty histogram and density
   overlays.
