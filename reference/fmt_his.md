@@ -100,10 +100,11 @@ grobs and inset overlays are skipped. Repeated calls add additional
 distribution layers. Mapping expressions and data callbacks are
 evaluated during the normal plot build; formatting does not build or
 refit the original plot. Each distribution layer evaluates its x mapping
-once per build. Facets and individual facet position scales can be added
-after formatting. Density panels with fewer than two finite samples
-retain ggplot2's warning and are omitted; empty distribution layers
-leave the original plot intact.
+once per build. Continuous x values are transformed once using their
+panel's final x scale. Facets and individual facet position scales can
+be added after formatting. Density panels with fewer than two finite
+samples retain ggplot2's warning and are omitted; empty distribution
+layers leave the original plot intact.
 
 ## See also
 

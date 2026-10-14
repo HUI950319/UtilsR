@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
+  transforms continuous distribution samples once using each panel’s
+  final x scale, avoiding redundant transformations while retaining
+  original axes and externally supplied samples.
+
+- [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
   rejects unsupported coordinates added after formatting during plot
   building, with the same clear error as coordinates supplied initially.
 
