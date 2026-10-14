@@ -159,7 +159,8 @@ still transparent or unknown, its grid color is unchanged.</p>
 <p>Ordinary plot leaves are formatted recursively. Layouts, annotations and list
 names are retained. Spacers, guide areas, frozen <code><a href="https://patchwork.data-imaginist.com/reference/wrap_elements.html" class="external-link">wrap_elements()</a></code> cells
 and inset overlays are returned unchanged; format their plots before wrapping
-or adding them as insets.</p>
+or adding them as insets.
+Repeated plot themes reuse grid settings within each list or patchwork call.</p>
 <p>Extra theme arguments follow normal ggplot2 theme inheritance. To override
 a grid mode through <code>...</code>, set the corresponding axis-specific elements,
 such as <code>panel.grid.major.x</code>. The <code>bg</code> argument changes only the
