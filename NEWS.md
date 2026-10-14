@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_his()` documents standard facet matching for external data, including
+  repeated samples and newly introduced panels, and adds a deferred-facet example.
+
 * `fmt_his()` identifies its own distribution layers without reserving a
   mapped aesthetic name, preserving unrelated fields with matching names.
 

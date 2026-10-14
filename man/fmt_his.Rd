@@ -23,7 +23,9 @@ fmt_his(
 visible panel's y-axis range used for the overlay height. Default: 0.3.}
 
 \item{data}{Optional data frame, layer data function or formula. If
-\code{NULL}, uses the plot data or the first applicable layer's data.}
+\code{NULL}, uses the plot data or the first applicable layer's data.
+With standard ggplot2 facets, missing facet columns repeat samples across
+applicable panels; new facet values can add panels, as for other layers.}
 
 \item{con_var}{Optional single column name overriding the x mapping.
 If \code{NULL}, retains the plot's x-mapping expression, falling back
@@ -60,11 +62,17 @@ Counts and densities are scaled from statistical zero, preserving
   Each facet is scaled independently; distribution layers do not retrain
   the original position scales or inherit grouping, weights or legends.
   Cartesian coordinates, including flipped and fixed-ratio coordinates,
-  are supported. Nested patchwork layouts and annotations are preserved;
+  are supported. The default baseline follows the display bottom under
+  coordinate reversal; explicit \code{y_rescale} retains its endpoint order.
+  Nested patchwork layouts and annotations are preserved;
   spacers, wrapped grobs and inset overlays are skipped. Repeated calls add
   additional distribution layers.
   Mapping expressions and data callbacks are evaluated during the normal
   plot build; formatting does not build or refit the original plot.
+  Each distribution layer evaluates its x mapping once per build. Facets
+  and individual facet position scales can be added after formatting.
+  Density panels with fewer than two finite samples retain ggplot2's warning
+  and are omitted; empty distribution layers leave the original plot intact.
 }
 \examples{
 library(ggplot2)
@@ -73,10 +81,14 @@ d <- data.frame(x = rnorm(100), y = rnorm(100))
 p <- ggplot(d, aes(x, y)) + geom_point()
 fmt_his(p, type = "histogram", height_ratio = 0.3, binwidth = 0.5)
 fmt_his(p, type = "density", height_ratio = 0.2, adjust = 1)
+d$panel <- rep(c("A", "B"), each = 50)
+p <- ggplot(d, aes(x, y)) + geom_point()
+fmt_his(p, type = "density", adjust = 1) + facet_wrap(~panel, scales = "free")
 
 }
 \seealso{
 Other plot formatting:
+\code{\link[=flatten_patchwork]{flatten_patchwork()}},
 \code{\link[=fmt_axis]{fmt_axis()}},
 \code{\link[=fmt_axisText]{fmt_axisText()}},
 \code{\link[=fmt_axisTile]{fmt_axisTile()}},
