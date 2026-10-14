@@ -548,3 +548,48 @@ test_that("batch formatting retains empty theme entries alongside other themes",
     }
   }
 })
+
+test_that("automatic contrast includes grids restored past a blank root line", {
+  old <- ggplot2::theme_set(ggplot2::theme_gray())
+  withr::defer(ggplot2::theme_set(old))
+  p <- panel_test_plot() + ggplot2::theme_void()
+  inputs <- list(p, p + ggplot2::theme(
+    panel.grid = ggplot2::element_line(linewidth = 0.8, inherit.blank = TRUE)))
+  for (input in inputs) {
+    before <- input$theme
+    output <- fmt_panel(input, grid = "both", bg = "black")
+    expect_equal(panel_test_grids(output)$colour, rep("grey70", 4))
+    expect_identical(output$theme$line, input$theme$line)
+    expect_identical(ggplot2::ggplot_build(output)$data,
+                     ggplot2::ggplot_build(input)$data)
+    expect_identical(input$theme, before)
+    expect_equal(panel_test_grids(fmt_panel(input, grid = "both", bg = "black",
+                                            grid_color = "black"))$colour,
+                 rep("black", 4))
+    expect_equal(panel_test_grids(fmt_panel(input, grid = "both", bg = "black",
+      panel.grid = ggplot2::element_line(colour = "black")))$colour,
+      rep("black", 4))
+    if (requireNamespace("ragg", quietly = TRUE)) {
+      capture <- function(p) {
+        grab <- ragg::agg_capture(width = 360, height = 240, units = "px", res = 96)
+        on.exit(grDevices::dev.off())
+        print(p)
+        grab(native = TRUE)
+      }
+      expect_gt(sum(capture(output) != capture(fmt_panel(input, grid = "none",
+                                                        bg = "black"))), 0L)
+    }
+  }
+  explicit <- p + ggplot2::theme(panel.grid = ggplot2::element_line(
+    colour = "black", linewidth = 0.8, inherit.blank = TRUE))
+  expect_equal(panel_test_grids(fmt_panel(explicit, grid = "both", bg = "black"))$colour,
+               rep("black", 4))
+  axis <- p + ggplot2::theme(panel.grid.major.x = ggplot2::element_line(
+    colour = "black", inherit.blank = TRUE))
+  grids <- panel_test_grids(fmt_panel(axis, grid = "both", bg = "black"))
+  expect_equal(grids$colour[grids$element == "major.x"], "black")
+  expect_equal(grids$colour[grids$element != "major.x"], rep("grey70", 3))
+  transparent <- fmt_panel(p, grid = "both", bg = NA,
+                           plot.background = ggplot2::element_rect(fill = NA, colour = NA))
+  expect_equal(panel_test_grids(transparent)$colour, rep("black", 4))
+})

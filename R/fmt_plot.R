@@ -2340,6 +2340,7 @@ fmt_strip2 <- function(plot,
 #' If an automatically restored grid element's color matches the known opaque background,
 #' it becomes \code{"grey70"} (or \code{"grey30"} on a \code{"grey70"} background).
 #' This also applies to restored major, minor and axis-specific grid elements.
+#' This includes grids hidden by a blank root \code{line} element.
 #' Available plot styles and explicit grid colors, including those in \code{...},
 #' retain their normal priority. Transparent panel fills are composited over a
 #' known opaque plot background for this check. If the resulting background is
@@ -2534,7 +2535,9 @@ fmt_panel <- function(plot,
           }, logical(1)))) {
         colour_elements <- Filter(function(nm) {
           value <- restored[[nm]]
-          inherits(effective[[nm]], "element_blank") &&
+          (inherits(effective[[nm]], "element_blank") ||
+           (nm == "panel.grid" && inherits(effective$line, "element_blank") &&
+            is.null(effective[[nm]]$colour))) &&
             (nm == "panel.grid" ||
              (inherits(value, "element_line") && !is.null(value$colour)))
         }, names(restored))

@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_panel()` gives automatically restored grids contrasting colours when
+  a blank root line hides them, including on dark panels with `theme_void()`,
+  while preserving explicit colours and transparent backgrounds.
+
 * `fmt_panel()` retains empty themes in its batch cache on older ggplot2
   versions, keeping batch grid output identical to formatting plots individually.
 
