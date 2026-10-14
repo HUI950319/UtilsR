@@ -338,3 +338,46 @@ test_that("contrast fallback preserves available and explicit grid colours", {
   expect_equal(panel_test_grids(transparent)$colour, rep("white", 4))
   expect_identical(transparent$theme$panel.background$fill, NA)
 })
+
+test_that("batch formatting resolves identical grid themes only once", {
+  p <- panel_test_plot()
+  before <- p$theme
+  calc <- ggplot2::calc_element
+  calls <- 0L
+  testthat::local_mocked_bindings(calc_element = function(...) {
+    calls <<- calls + 1L
+    calc(...)
+  }, .package = "ggplot2")
+  single <- fmt_panel(p, grid = "both")
+  single_calls <- calls
+  calls <- 0L
+  output <- fmt_panel(rep(list(p), 12), grid = "both")
+  expect_gt(single_calls, 0L)
+  expect_equal(calls, single_calls)
+  expect_identical(lapply(output, function(z) z$theme), rep(list(single$theme), 12))
+  expect_identical(p$theme, before)
+})
+
+test_that("batch theme reuse preserves mixed styles and refreshes between calls", {
+  p <- panel_test_plot()
+  q <- p + ggplot2::theme(panel.grid = ggplot2::element_line(colour = "purple"),
+                          panel.grid.major.x = ggplot2::element_blank())
+  plots <- rep(list(p, q, p + ggplot2::theme_classic(), p + ggplot2::theme_void()), 3)
+  output <- fmt_panel(plots, grid = "both")
+  expected <- lapply(plots, fmt_panel, grid = "both")
+  expect_identical(lapply(output, function(z) z$theme), lapply(expected, function(z) z$theme))
+  for (i in seq_along(output)) {
+    expect_identical(ggplot2::ggplot_build(output[[i]])$data,
+                     ggplot2::ggplot_build(expected[[i]])$data)
+  }
+  old <- ggplot2::theme_set(ggplot2::theme_minimal())
+  withr::defer(ggplot2::theme_set(old))
+  hidden <- p + ggplot2::theme(panel.grid = ggplot2::element_blank())
+  for (colour in c("orange", "purple")) {
+    ggplot2::theme_set(ggplot2::theme_minimal() +
+                        ggplot2::theme(panel.grid = ggplot2::element_line(colour = colour)))
+    output <- fmt_panel(rep(list(hidden), 3), grid = "both")
+    expect_equal(lapply(output, function(z) panel_test_grids(z)$colour),
+                 rep(list(rep(colour, 4)), 3))
+  }
+})

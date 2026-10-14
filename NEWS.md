@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_panel()` reuses resolved settings for repeated themes within a batch,
+  with a bounded cache that stops after consecutive theme mismatches.
+
 * `fmt_panel()` gives automatically restored grids a contrasting grey when their
   colour matches a known opaque background, preserving explicit grid colours.
 

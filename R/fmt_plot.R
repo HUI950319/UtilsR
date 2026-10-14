@@ -2473,9 +2473,22 @@ fmt_panel <- function(plot,
   # ---- Apply to plots ----
   base_theme <- if (length(enabled)) ggplot2::theme_get() else NULL
   fallback_theme <- NULL
+  cache_enabled <- length(enabled) &&
+    (inherits(plot, "patchwork") || (is.list(plot) && !inherits(plot, "gg")))
+  cache_themes <- list()
+  cache_panels <- list()
+  cache_misses <- 0L
   format_panel <- function(p) {
     if (!inherits(p, "gg")) {
       cli::cli_abort("Input must be a ggplot, patchwork, or nested list of ggplots.")
+    }
+    if (cache_enabled) {
+      for (j in seq_along(cache_themes)) {
+        if (identical(p$theme, cache_themes[[j]])) {
+          cache_misses <<- 0L
+          return(p + cache_panels[[j]])
+        }
+      }
     }
     current_theme <- panel_theme
     if (length(enabled)) {
@@ -2532,6 +2545,15 @@ fmt_panel <- function(plot,
               panel.grid = ggplot2::element_line(colour = colour))
           }
         }
+      }
+    }
+    if (cache_enabled) {
+      if (length(cache_themes) < 4L) {
+        cache_themes[[length(cache_themes) + 1L]] <<- p$theme
+        cache_panels[[length(cache_panels) + 1L]] <<- current_theme
+      } else {
+        cache_misses <<- cache_misses + 1L
+        if (cache_misses >= 4L) cache_enabled <<- FALSE
       }
     }
     p + current_theme
