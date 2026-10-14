@@ -459,7 +459,7 @@ test_that("each distribution layer evaluates its x mapping once per build", {
 test_that("internal distribution markers do not alter unrelated mapped fields", {
   p <- his_test_plot()
   p$mapping <- ggplot2::aes(x, y, .fmt_his = 1, .fmt_his_input = 999,
-                            .fmt_his_x = 42)
+                            .fmt_his_x = 42, .fmt_his_binned = TRUE)
   before <- ggplot2::ggplot_build(p)
   for (type in c("h", "d")) {
     q <- fmt_his(p, type = type, binwidth = 1)
@@ -685,6 +685,57 @@ test_that("unscaled histograms work without an explicit x scale", {
                before$layout$panel_params[[1L]]$x.range)
   expect_null(p$scales$get_scales("x"))
   expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+})
+
+test_that("binned position scales retain native statistics and mapped geometry", {
+  d <- his_test_plot()$data
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  unscaled <- p
+  unscaled$mapping <- ggplot2::aes(I(x), y)
+  logged <- ggplot2::ggplot(transform(d, x = 10^x), ggplot2::aes(x, y)) +
+    ggplot2::geom_point()
+  plots <- list(p + ggplot2::scale_x_binned(n.breaks = 3),
+    logged + ggplot2::scale_x_binned(n.breaks = 3, transform = "log10"),
+    unscaled + ggplot2::scale_x_binned(n.breaks = 3, limits = c(1, 3)))
+  for (plot in plots) {
+    before <- ggplot2::ggplot_build(plot)
+    for (type in c("h", "d")) {
+      native <- if (type == "h") ggplot2::geom_histogram(
+        ggplot2::aes(y = ggplot2::after_stat(count)), binwidth = 1,
+        position = "identity") else ggplot2::geom_density(adjust = 1)
+      reference <- ggplot2::ggplot_build(plot + native)$data[[2L]]
+      built <- his_test_build(plot, type = type, binwidth = 1, adjust = 1)
+      fields <- if (type == "h") c("x", "xmin", "xmax", "count") else
+        c("x", "density", "n")
+      expect_equal(built$data[[2L]][fields], reference[fields])
+      expect_identical(built$data[[1L]], before$data[[1L]])
+      expect_equal(built$layout$panel_params[[1L]]$x.range,
+                   before$layout$panel_params[[1L]]$x.range)
+      expect_false(".fmt_his_binned" %in% names(built$data[[2L]]))
+    }
+  }
+})
+
+test_that("individual facets can mix binned and continuous position scales", {
+  skip_if_not_installed("ggh4x")
+  d <- rbind(transform(his_test_plot()$data, panel = "A"),
+             transform(his_test_plot()$data, panel = "B"))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    ggplot2::facet_wrap(~panel, scales = "free_x") +
+    ggh4x::facetted_pos_scales(x = list(ggplot2::scale_x_continuous(),
+      ggplot2::scale_x_binned(n.breaks = 3)))
+  before <- ggplot2::ggplot_build(p)
+  for (type in c("h", "d")) {
+    native <- if (type == "h") ggplot2::geom_histogram(
+      ggplot2::aes(y = ggplot2::after_stat(count)), binwidth = 1,
+      position = "identity") else ggplot2::geom_density(adjust = 1)
+    reference <- ggplot2::ggplot_build(p + native)$data[[2L]]
+    built <- his_test_build(p, type = type, binwidth = 1, adjust = 1)
+    fields <- c("x", "PANEL", if (type == "h") "count" else "density")
+    expect_equal(built$data[[2L]][fields], reference[fields])
+    expect_identical(built$data[[1L]], before$data[[1L]])
+    expect_false(".fmt_his_binned" %in% names(built$data[[2L]]))
+  }
 })
 
 test_that("histogram overlays retain native discrete-x validation", {

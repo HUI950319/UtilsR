@@ -14,6 +14,10 @@
 * `fmt_panel()` corrects matching background colours in automatically restored
   major, minor and axis-specific grids while preserving explicit plot styles.
 
+* `fmt_his()` follows binned position mappings before and after statistics,
+  matching native distribution counts and geometry while preserving original
+  points, axes and unscaled mappings.
+
 * `fmt_his()` delegates unscaled distributions without an x scale to native
   ggplot2 statistics, retaining supported histograms instead of returning empty layers.
 

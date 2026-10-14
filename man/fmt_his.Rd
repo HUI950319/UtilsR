@@ -38,7 +38,7 @@ are rejected. \code{NULL} retains the default for each control.
 \describe{
   \item{\code{binwidth}}{Positive finite bin width or a function, as in
     \code{ggplot2::geom_histogram()}. Default: 3. Histogram only;
-    measured after the x-scale transformation.}
+    measured after the x-scale transformation and any binned position mapping.}
   \item{\code{adjust}}{Positive finite density bandwidth multiplier.
     Default: 3. Density only.}
   \item{\code{his_color}}{Single colour or \code{NA}. Default: \code{"gray85"}.}
@@ -66,6 +66,7 @@ Counts and densities are scaled from statistical zero, preserving
   With automatic x limits, density grids span the original scale range and
   the distribution samples. Explicit x-scale limits retain the original
   panel's resolved endpoints, including function, formula and \code{NA} limits.
+  Binned x position scales follow ggplot2's mapping before and after statistics.
   Cartesian coordinates, including flipped and fixed-ratio coordinates,
   are supported. Other coordinate systems are rejected, including when
   added after formatting. The default baseline follows the display bottom under

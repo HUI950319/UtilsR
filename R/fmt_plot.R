@@ -4394,7 +4394,7 @@ ggplot_build.ggplot_his <- function(plot, ...) {
 #'   \describe{
 #'     \item{\code{binwidth}}{Positive finite bin width or a function, as in
 #'       \code{ggplot2::geom_histogram()}. Default: 3. Histogram only;
-#'       measured after the x-scale transformation.}
+#'       measured after the x-scale transformation and any binned position mapping.}
 #'     \item{\code{adjust}}{Positive finite density bandwidth multiplier.
 #'       Default: 3. Density only.}
 #'     \item{\code{his_color}}{Single colour or \code{NA}. Default: \code{"gray85"}.}
@@ -4414,6 +4414,7 @@ ggplot_build.ggplot_his <- function(plot, ...) {
 #'   With automatic x limits, density grids span the original scale range and
 #'   the distribution samples. Explicit x-scale limits retain the original
 #'   panel's resolved endpoints, including function, formula and \code{NA} limits.
+#'   Binned x position scales follow ggplot2's mapping before and after statistics.
 #'   Cartesian coordinates, including flipped and fixed-ratio coordinates,
 #'   are supported. Other coordinate systems are rejected, including when
 #'   added after formatting. The default baseline follows the display bottom under
@@ -4668,10 +4669,16 @@ fmt_his <- function(plot,
       use_defaults = function(self, data, ...) {
         # Restore statistical positions before native after-scale mappings.
         positions <- intersect(c("x", "xmin", "xmax"), names(data))
+        # Binned panels already carry the native post-stat positions.
+        binned <- !is.na(data$.fmt_his_binned) & data$.fmt_his_binned
         for (name in positions) {
           saved <- paste0(".fmt_his_", name)
-          if (saved %in% names(data)) data[[name]] <- data[[saved]]
+          if (saved %in% names(data)) {
+            if (any(binned)) data[[name]][!binned] <- data[[saved]][!binned]
+            else data[[name]] <- data[[saved]]
+          }
         }
+        if (".fmt_his_binned" %in% names(data)) data$.fmt_his_binned <- NULL
         data <- ggplot2::ggproto_parent(parent_geom, self)$use_defaults(data, ...)
         for (name in positions) {
           saved <- paste0(".fmt_his_", name)
@@ -4696,18 +4703,24 @@ fmt_his <- function(plot,
         data$x <- if (unscaled) data$.fmt_his_input else scales$x$transform(data$.fmt_his_input)
         if (inherits(data$x, "difftime")) data$x <- as.numeric(data$x)
         data$.fmt_his_input <- NULL
-        if (!unscaled && !is.null(scales$x$limits)) data$x <- scales$x$oob(data$x, scales$x$get_limits())
+        binned <- inherits(scales$x, "ScaleBinnedPosition")
+        if (!unscaled) {
+          if (binned) data$x <- scales$x$map(data$x)
+          else if (!is.null(scales$x$limits)) data$x <- scales$x$oob(data$x, scales$x$get_limits())
+        }
         data <- data[is.finite(data$x), , drop = FALSE]
         if (!nrow(data)) return(data.frame())
         if (is.null(scales$x)) return(parent_stat$compute_panel(data, scales, ...))
         x_scale <- scales$x$clone()
-        if (!is.null(scales$x$limits)) {
+        if (binned || !is.null(scales$x$limits)) {
           x_scale$limits <- scales$x$get_limits()
         } else if (inherits(parent_stat, "StatDensity")) {
           x_scale$range$train(scales$x$range$range)
         }
         x_scale$range$train(data$x)
-        parent_stat$compute_panel(data, list(x = x_scale, y = scales$y), ...)
+        data <- parent_stat$compute_panel(data, list(x = x_scale, y = scales$y), ...)
+        if (binned) data$.fmt_his_binned <- rep(TRUE, nrow(data))
+        data
       }
     )), stat_env)
     class(p) <- unique(c("ggplot_his", class(p)))
