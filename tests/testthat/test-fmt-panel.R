@@ -294,7 +294,8 @@ test_that("automatic restored grid colours remain visible on matching background
   skip_if_not_installed("ragg")
   old <- ggplot2::theme_set(ggplot2::theme_gray())
   withr::defer(ggplot2::theme_set(old))
-  p <- panel_test_plot() + ggplot2::theme_classic()
+  p <- panel_test_plot() + ggplot2::theme_classic() +
+    ggplot2::theme(panel.grid = ggplot2::element_blank())
   before <- p$theme
   capture <- function(plot) {
     grab <- ragg::agg_capture(width = 360, height = 240, units = "px", res = 96)
@@ -317,7 +318,8 @@ test_that("automatic restored grid colours remain visible on matching background
 test_that("contrast fallback preserves available and explicit grid colours", {
   old <- ggplot2::theme_set(ggplot2::theme_gray())
   withr::defer(ggplot2::theme_set(old))
-  p <- panel_test_plot() + ggplot2::theme_classic()
+  p <- panel_test_plot() + ggplot2::theme_classic() +
+    ggplot2::theme(panel.grid = ggplot2::element_blank())
   expect_equal(panel_test_grids(fmt_panel(p, grid = "both", grid_color = "white"))$colour,
                rep("white", 4))
   expect_equal(panel_test_grids(fmt_panel(p, grid = "both",
