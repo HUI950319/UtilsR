@@ -34,9 +34,11 @@ fmt_his(
 - data:
 
   Optional data frame, layer data function or formula. If `NULL`, uses
-  the plot data or the first applicable layer's data. With standard
-  ggplot2 facets, missing facet columns repeat samples across applicable
-  panels; new facet values can add panels, as for other layers.
+  the plot data or the first applicable layer's data. Layer fallback
+  requires an x mapping when `con_var` is `NULL`; otherwise, it skips
+  data frames missing the requested column. With standard ggplot2
+  facets, missing facet columns repeat samples across applicable panels;
+  new facet values can add panels, as for other layers.
 
 - con_var:
 

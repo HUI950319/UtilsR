@@ -17,6 +17,11 @@
   minor and axis-specific grids while preserving explicit plot styles.
 
 - [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
+  skips inapplicable layer data when resolving distribution samples,
+  including annotations and data frames missing an explicit variable.
+  Function and formula data retain their deferred evaluation.
+
+- [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
   transforms continuous distribution samples once using each panel’s
   final x scale, avoiding redundant transformations while retaining
   original axes and externally supplied samples.
