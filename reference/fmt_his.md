@@ -92,7 +92,9 @@ position scales or inherit grouping, weights or legends. Cartesian
 coordinates, including flipped and fixed-ratio coordinates, are
 supported. Nested patchwork layouts and annotations are preserved;
 spacers, wrapped grobs and inset overlays are skipped. Repeated calls
-add additional distribution layers.
+add additional distribution layers. Mapping expressions and data
+callbacks are evaluated during the normal plot build; formatting does
+not build or refit the original plot.
 
 ## See also
 

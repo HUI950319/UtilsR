@@ -141,7 +141,9 @@ are rejected. <code>NULL</code> retains the default for each control.</p><dl><dt
   Cartesian coordinates, including flipped and fixed-ratio coordinates,
   are supported. Nested patchwork layouts and annotations are preserved;
   spacers, wrapped grobs and inset overlays are skipped. Repeated calls add
-  additional distribution layers.</p>
+  additional distribution layers.
+  Mapping expressions and data callbacks are evaluated during the normal
+  plot build; formatting does not build or refit the original plot.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
