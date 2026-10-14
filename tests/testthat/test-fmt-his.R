@@ -431,3 +431,27 @@ test_that("internal distribution markers do not alter unrelated mapped fields", 
     expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
   }
 })
+
+test_that("distribution builds reject non-Cartesian coordinates added later", {
+  p <- his_test_plot()
+  transformed <- if ("coord_transform" %in% getNamespaceExports("ggplot2"))
+    ggplot2::coord_transform(y = "log10") else
+      suppressWarnings(ggplot2::coord_trans(y = "log10"))
+  for (type in c("h", "d")) {
+    q <- fmt_his(p, type = type, binwidth = 1)
+    for (coord in list(ggplot2::coord_polar(), transformed)) {
+      invalid <- suppressMessages(q + coord)
+      expect_error(ggplot2::ggplot_build(invalid),
+                   "Distribution overlays require Cartesian coordinates.", fixed = TRUE)
+      expect_error(ggplot2::ggplotGrob(invalid),
+                   "Distribution overlays require Cartesian coordinates.", fixed = TRUE)
+    }
+    nested <- suppressMessages((q / (q + ggplot2::coord_polar())) | p)
+    expect_error(patchwork::patchworkGrob(nested),
+                 "Distribution overlays require Cartesian coordinates.", fixed = TRUE)
+    q$layers <- q$layers[!vapply(q$layers, inherits, logical(1), "LayerHis")]
+    expect_s3_class(ggplot2::ggplotGrob(suppressMessages(q + ggplot2::coord_polar())), "gtable")
+  }
+  expect_length(p$layers, 1L)
+  expect_s3_class(p$coordinates, "CoordCartesian")
+})

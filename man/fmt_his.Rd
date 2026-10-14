@@ -62,7 +62,8 @@ Counts and densities are scaled from statistical zero, preserving
   Each facet is scaled independently; distribution layers do not retrain
   the original position scales or inherit grouping, weights or legends.
   Cartesian coordinates, including flipped and fixed-ratio coordinates,
-  are supported. The default baseline follows the display bottom under
+  are supported. Other coordinate systems are rejected, including when
+  added after formatting. The default baseline follows the display bottom under
   coordinate reversal; explicit \code{y_rescale} retains its endpoint order.
   Nested patchwork layouts and annotations are preserved;
   spacers, wrapped grobs and inset overlays are skipped. Repeated calls add
