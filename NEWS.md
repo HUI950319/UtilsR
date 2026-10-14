@@ -10,6 +10,11 @@
 * `fmt_panel()` corrects matching background colours in automatically restored
   major, minor and axis-specific grids while preserving explicit plot styles.
 
+* `fmt_his()` retains the original panel's resolved x limits when computing
+  distributions, including function, formula and partial limits. Automatic
+  density grids also cover the original scale range, preserving visible tails
+  for externally supplied samples without retraining the original axes.
+
 * `fmt_his()` preserves unscaled `I()` x mappings, preventing repeated
   transformations and scale-limit censoring of their distribution samples.
 

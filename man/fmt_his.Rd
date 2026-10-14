@@ -63,6 +63,9 @@ Counts and densities are scaled from statistical zero, preserving
   their relative heights. The fill starts at the requested baseline.
   Each facet is scaled independently; distribution layers do not retrain
   the original position scales or inherit grouping, weights or legends.
+  With automatic x limits, density grids span the original scale range and
+  the distribution samples. Explicit x-scale limits retain the original
+  panel's resolved endpoints, including function, formula and \code{NA} limits.
   Cartesian coordinates, including flipped and fixed-ratio coordinates,
   are supported. Other coordinate systems are rejected, including when
   added after formatting. The default baseline follows the display bottom under

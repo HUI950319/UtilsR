@@ -4398,6 +4398,9 @@ ggplot_build.ggplot_his <- function(plot, ...) {
 #'   their relative heights. The fill starts at the requested baseline.
 #'   Each facet is scaled independently; distribution layers do not retrain
 #'   the original position scales or inherit grouping, weights or legends.
+#'   With automatic x limits, density grids span the original scale range and
+#'   the distribution samples. Explicit x-scale limits retain the original
+#'   panel's resolved endpoints, including function, formula and \code{NA} limits.
 #'   Cartesian coordinates, including flipped and fixed-ratio coordinates,
 #'   are supported. Other coordinate systems are rejected, including when
 #'   added after formatting. The default baseline follows the display bottom under
@@ -4664,6 +4667,11 @@ fmt_his <- function(plot,
         data <- data[is.finite(data$x), , drop = FALSE]
         if (!nrow(data)) return(data.frame())
         x_scale <- scales$x$clone()
+        if (!is.null(scales$x$limits)) {
+          x_scale$limits <- scales$x$get_limits()
+        } else if (inherits(parent_stat, "StatDensity")) {
+          x_scale$range$train(scales$x$range$range)
+        }
         x_scale$range$train(data$x)
         parent_stat$compute_panel(data, list(x = x_scale, y = scales$y), ...)
       }

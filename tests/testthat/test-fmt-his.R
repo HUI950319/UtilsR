@@ -558,6 +558,66 @@ test_that("unscaled x mappings retain native distribution statistics", {
   }
 })
 
+test_that("external densities retain the original statistical domain", {
+  p <- his_test_plot()
+  samples <- data.frame(x = rep(2:3, c(10, 20)))
+  limits <- list(NULL, function(x) range(x) + c(-1, 1),
+                 ~range(.x) + c(-1, 1), c(NA, 4))
+  for (limit in limits) {
+    plot <- p + ggplot2::scale_x_continuous(limits = limit)
+    before <- ggplot2::ggplot_build(plot)
+    reference <- ggplot2::ggplot_build(plot + ggplot2::geom_density(
+      data = samples, ggplot2::aes(x, ggplot2::after_stat(density)),
+      inherit.aes = FALSE, adjust = 1))$data[[2L]]
+    built <- his_test_build(plot, type = "d", data = samples, adjust = 1)
+    fields <- c("x", "density", "n")
+    expect_equal(built$data[[2L]][fields], reference[fields])
+    expect_identical(built$data[[1L]], before$data[[1L]])
+    expect_equal(built$layout$panel_params[[1L]]$x.range,
+                 before$layout$panel_params[[1L]]$x.range)
+  }
+  samples <- data.frame(x = rep(100:102, c(10, 20, 30)))
+  built <- his_test_build(p, type = "d", data = samples, adjust = 1)
+  expect_equal(range(built$data[[2L]]$x), c(1, 102))
+  expect_equal(unique(built$data[[2L]]$n), 60)
+  expect_equal(built$layout$panel_params[[1L]]$x.range, c(0.5, 3.5))
+})
+
+test_that("histogram limits retain the original resolved endpoints", {
+  p <- his_test_plot()
+  samples <- data.frame(x = rep(2:3, c(10, 20)))
+  for (limit in list(function(x) range(x) + c(-1, 1),
+                     ~range(.x) + c(-1, 1), c(NA, 4))) {
+    plot <- p + ggplot2::scale_x_continuous(limits = limit)
+    reference <- ggplot2::ggplot_build(plot + ggplot2::geom_histogram(
+      data = samples, ggplot2::aes(x, ggplot2::after_stat(count)),
+      inherit.aes = FALSE, binwidth = 1, position = "identity"))$data[[2L]]
+    actual <- his_test_build(plot, data = samples, binwidth = 1)$data[[2L]]
+    expect_equal(actual[c("x", "count")], reference[c("x", "count")])
+  }
+})
+
+test_that("external density domains follow each panel's position scale", {
+  d <- rbind(transform(his_test_plot()$data, panel = "A"),
+             transform(his_test_plot()$data, x = x + 100, panel = "B"))
+  samples <- d[d$x %in% c(2, 3, 102, 103), c("x", "panel")]
+  for (scales in c("fixed", "free_x")) {
+    p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point() +
+      ggplot2::facet_wrap(~panel, scales = scales)
+    before <- ggplot2::ggplot_build(p)
+    reference <- ggplot2::ggplot_build(p + ggplot2::geom_density(
+      data = samples, ggplot2::aes(x, ggplot2::after_stat(density)),
+      inherit.aes = FALSE, adjust = 1))$data[[2L]]
+    built <- his_test_build(p, type = "d", data = samples, adjust = 1)
+    fields <- c("x", "density", "n", "PANEL")
+    expect_equal(built$data[[2L]][fields], reference[fields])
+    expect_identical(built$data[[1L]], before$data[[1L]])
+    for (i in seq_along(before$layout$panel_params))
+      expect_equal(built$layout$panel_params[[i]]$x.range,
+                   before$layout$panel_params[[i]]$x.range)
+  }
+})
+
 test_that("histogram overlays retain native discrete-x validation", {
   for (x in list(factor(rep(1:3, each = 20)), rep(c("A", "B", "C"), each = 20),
                  rep(c(TRUE, FALSE), each = 30))) {
