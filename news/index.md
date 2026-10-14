@@ -17,6 +17,11 @@
   minor and axis-specific grids while preserving explicit plot styles.
 
 - [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
+  preserves unscaled [`I()`](https://rdrr.io/r/base/AsIs.html) x
+  mappings, preventing repeated transformations and scale-limit
+  censoring of their distribution samples.
+
+- [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
   skips inapplicable layer data when resolving distribution samples,
   including annotations and data frames missing an explicit variable.
   Function and formula data retain their deferred evaluation.
