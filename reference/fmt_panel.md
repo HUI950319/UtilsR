@@ -99,8 +99,9 @@ blank grid element, blank entries in its inheritance chain are replaced
 with entries from the current global theme, falling back to
 [`ggplot2::theme_gray()`](https://ggplot2.tidyverse.org/reference/ggtheme.html)
 when those entries are also blank. Styles overwritten by earlier
-formatting cannot be recovered. Grid lines still require corresponding
-scale breaks.
+formatting cannot be recovered. Restored grids continue to inherit
+parent grid-theme changes. Grid lines still require corresponding scale
+breaks.
 
 Ordinary plot leaves are formatted recursively. Layouts, annotations and
 list names are retained. Spacers, guide areas, frozen

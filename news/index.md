@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md)
+  restores hidden grids without fixing inherited styles onto
+  axis-specific elements, so later parent grid themes still take effect.
+
+- [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md)
   builds shared panel settings once and avoids redundant plot copies
   when restoring grid lines.
 

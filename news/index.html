@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/fmt_panel.html">fmt_panel()</a></code> builds shared panel settings once and avoids redundant plot copies when restoring grid lines.</p></li>
+<ul><li><p><code><a href="../reference/fmt_panel.html">fmt_panel()</a></code> restores hidden grids without fixing inherited styles onto axis-specific elements, so later parent grid themes still take effect.</p></li>
+<li><p><code><a href="../reference/fmt_panel.html">fmt_panel()</a></code> builds shared panel settings once and avoids redundant plot copies when restoring grid lines.</p></li>
 <li><p><code><a href="../reference/fmt_panel.html">fmt_panel()</a></code> documents its grid-style fallback, protected cells and extra-theme overrides, with regressions for rendering, computed data and caller-owned plots.</p></li>
 <li><p><code><a href="../reference/fmt_panel.html">fmt_panel()</a></code> reports malformed border, colour, line-width and line-type arguments before rendering; transparent colours and zero widths remain valid.</p></li>
 <li><p><code><a href="../reference/fmt_panel.html">fmt_panel()</a></code> formats every ordinary leaf of nested patchworks and lists, preserving container layouts, annotations and list names.</p></li>

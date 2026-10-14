@@ -145,7 +145,8 @@ Retained grids keep available inherited styling. When enabling a blank grid
 element, blank entries in its inheritance chain are replaced with entries from
 the current global theme, falling back to <code><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">ggplot2::theme_gray()</a></code> when
 those entries are also blank. Styles overwritten by earlier formatting cannot
-be recovered. Grid lines still require corresponding scale breaks.</p>
+be recovered. Restored grids continue to inherit parent grid-theme changes.
+Grid lines still require corresponding scale breaks.</p>
 <p>Ordinary plot leaves are formatted recursively. Layouts, annotations and list
 names are retained. Spacers, guide areas, frozen <code><a href="https://patchwork.data-imaginist.com/reference/wrap_elements.html" class="external-link">wrap_elements()</a></code> cells
 and inset overlays are returned unchanged; format their plots before wrapping
