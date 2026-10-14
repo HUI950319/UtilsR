@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
+  uses independent distribution mappings, avoiding inherited groups,
+  weights and missing aesthetics in externally supplied data.
+
+- [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
   scales each facet independently and keeps distribution layers out of
   position-scale training, preserving original axes and externally
   supplied samples.
