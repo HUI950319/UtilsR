@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md)
+  reuses resolved settings for repeated themes within a batch, with a
+  bounded cache that stops after consecutive theme mismatches.
+
+- [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md)
   gives automatically restored grids a contrasting grey when their
   colour matches a known opaque background, preserving explicit grid
   colours.
