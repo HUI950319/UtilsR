@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md)
+  rejects themes, aesthetic mappings and other non-plot `gg` components
+  instead of returning a theme or silently producing `NULL`.
+
+- [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md)
   corrects matching background colours in automatically restored major,
   minor and axis-specific grids while preserving explicit plot styles.
 
