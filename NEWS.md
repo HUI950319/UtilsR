@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_panel()` checks automatically restored grid contrast against the colour
+  of transparent panel fills composited over a known opaque plot background,
+  preserving background transparency and explicit grid colours.
+
 * `fmt_panel()` rejects themes, aesthetic mappings and other non-plot `gg`
   components instead of returning a theme or silently producing `NULL`.
 

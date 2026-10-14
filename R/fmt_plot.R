@@ -2341,7 +2341,9 @@ fmt_strip2 <- function(plot,
 #' it becomes \code{"grey70"} (or \code{"grey30"} on a \code{"grey70"} background).
 #' This also applies to restored major, minor and axis-specific grid elements.
 #' Available plot styles and explicit grid colors, including those in \code{...},
-#' retain their normal priority. Transparent or unknown backgrounds are unchanged.
+#' retain their normal priority. Transparent panel fills are composited over a
+#' known opaque plot background for this check. If the resulting background is
+#' still transparent or unknown, its grid color is unchanged.
 #'
 #' Ordinary plot leaves are formatted recursively. Layouts, annotations and list
 #' names are retained. Spacers, guide areas, frozen \code{wrap_elements()} cells
@@ -2537,11 +2539,17 @@ fmt_panel <- function(plot,
           if (inherits(background, "element_rect") && length(background$fill) == 1L &&
               (is.character(background$fill) || anyNA(background$fill))) {
             background_rgba <- grDevices::col2rgb(background$fill, alpha = TRUE)
-            if (background_rgba[4L] == 0L) {
+            if (background_rgba[4L] < 255L) {
               outside <- ggplot2::calc_element("plot.background", styled_theme)
               if (inherits(outside, "element_rect") && is.character(outside$fill) &&
                   length(outside$fill) == 1L) {
-                background_rgba <- grDevices::col2rgb(outside$fill, alpha = TRUE)
+                outside_rgba <- grDevices::col2rgb(outside$fill, alpha = TRUE)
+                if (outside_rgba[4L] == 255L) {
+                  alpha <- background_rgba[4L] / 255
+                  background_rgba[1:3] <- round(background_rgba[1:3] * alpha +
+                                                outside_rgba[1:3] * (1 - alpha))
+                  background_rgba[4L] <- 255L
+                }
               }
             }
             contrast_args <- list()

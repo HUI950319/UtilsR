@@ -434,3 +434,49 @@ test_that("panel formatting rejects non-plot gg components", {
   expect_true(inherits(fmt_panel(list(p))[[1]], "ggplot"))
   expect_identical(p$theme, before)
 })
+
+test_that("automatic contrast uses known opaque composited backgrounds", {
+  old <- ggplot2::theme_set(ggplot2::theme_gray())
+  withr::defer(ggplot2::theme_set(old))
+  p <- panel_test_plot() + ggplot2::theme_classic() +
+    ggplot2::theme(panel.grid = ggplot2::element_blank())
+  before <- p$theme
+  cases <- list(
+    list(bg = "#FFFFFF80", outside = "white", grid = "white", expected = "grey70"),
+    list(bg = "#00000080", outside = "black", grid = "black", expected = "grey70"),
+    list(bg = "#FFFFFF80", outside = "black", grid = "#808080", expected = "grey70"),
+    list(bg = "#FFFFFF80", outside = "black", grid = "white", expected = "white"),
+    list(bg = "#FFFFFF80", outside = "#FFFFFF80", grid = "white", expected = "white"),
+    list(bg = "#FFFFFF80", outside = NA, grid = "white", expected = "white"))
+  for (case in cases) {
+    ggplot2::theme_set(ggplot2::theme_gray() +
+                        ggplot2::theme(panel.grid = ggplot2::element_line(colour = case$grid)))
+    output <- fmt_panel(p, grid = "both", bg = case$bg,
+                        plot.background = ggplot2::element_rect(fill = case$outside, colour = NA))
+    expect_equal(panel_test_grids(output)$colour, rep(case$expected, 4))
+    expect_identical(output$theme$panel.background$fill, case$bg)
+    expect_identical(output$theme$plot.background$fill, case$outside)
+    expect_identical(ggplot2::ggplot_build(output)$data, ggplot2::ggplot_build(p)$data)
+  }
+  ggplot2::theme_set(ggplot2::theme_gray())
+  for (extra in list(list(grid_color = "white"),
+                    list(panel.grid = ggplot2::element_line(colour = "white")))) {
+    output <- do.call(fmt_panel, c(list(plot = p, grid = "both", bg = "#FFFFFF80",
+      plot.background = ggplot2::element_rect(fill = "white", colour = NA)), extra))
+    expect_equal(panel_test_grids(output)$colour, rep("white", 4))
+  }
+  if (requireNamespace("ragg", quietly = TRUE)) {
+    capture <- function(p) {
+      grab <- ragg::agg_capture(width = 360, height = 240, units = "px", res = 96)
+      on.exit(grDevices::dev.off())
+      print(p)
+      grab(native = TRUE)
+    }
+    visible <- fmt_panel(p, grid = "both", bg = "#FFFFFF80",
+                         plot.background = ggplot2::element_rect(fill = "white", colour = NA))
+    hidden <- fmt_panel(p, grid = "none", bg = "#FFFFFF80",
+                        plot.background = ggplot2::element_rect(fill = "white", colour = NA))
+    expect_gt(sum(capture(visible) != capture(hidden)), 0L)
+  }
+  expect_identical(p$theme, before)
+})

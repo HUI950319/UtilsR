@@ -82,7 +82,9 @@ If an automatically restored grid element's color matches the known opaque backg
 it becomes \code{"grey70"} (or \code{"grey30"} on a \code{"grey70"} background).
 This also applies to restored major, minor and axis-specific grid elements.
 Available plot styles and explicit grid colors, including those in \code{...},
-retain their normal priority. Transparent or unknown backgrounds are unchanged.
+retain their normal priority. Transparent panel fills are composited over a
+known opaque plot background for this check. If the resulting background is
+still transparent or unknown, its grid color is unchanged.
 
 Ordinary plot leaves are formatted recursively. Layouts, annotations and list
 names are retained. Spacers, guide areas, frozen \code{wrap_elements()} cells
