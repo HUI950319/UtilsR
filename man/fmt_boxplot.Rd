@@ -9,12 +9,16 @@ fmt_boxplot(plot, boxplot.args = list(), inherit.aes = TRUE)
 \arguments{
 \item{plot}{A ggplot, patchwork, or list of ggplots.}
 
-\item{boxplot.args}{Named list of arguments passed to
+\item{boxplot.args}{Named list with unique, non-empty names, or \code{NULL},
+of arguments passed to
 \code{ggplot2::geom_boxplot}. Defaults include \code{width = 0.3},
 \code{alpha = 0.2}, \code{na.rm = TRUE} and \code{outlier.shape = NA}.
-An explicit \code{outlier.shape}, including \code{NULL}, is retained.}
+An explicit \code{outlier.shape}, including \code{NULL}, is retained.
+A supplied \code{mapping} must be created by \code{ggplot2::aes()}.}
 
-\item{inherit.aes}{Whether to inherit aesthetics from the parent plot.}
+\item{inherit.aes}{A single \code{TRUE} or \code{FALSE}: whether to inherit
+aesthetics from the parent plot. Takes precedence over the same argument
+inside \code{boxplot.args}.}
 }
 \value{
 Same type as input.

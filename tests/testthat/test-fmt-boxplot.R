@@ -181,3 +181,40 @@ test_that("explicit outlier shapes render like native layers", {
                    list(outlier.shape = 1))
   expect_equal(point_shapes(ggplot2::ggplotGrob(q)), c(16, 1))
 })
+
+test_that("boxplot argument lists have unique nonempty names", {
+  d <- data.frame(x = rep(c("a", "b"), each = 10), y = 1:20)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  invalid <- list(1, "width", data.frame(width = 0.2), ggplot2::aes(x, y),
+                  list(0.2), setNames(list(0.2), " "),
+                  setNames(list(0.2), NA_character_), list(width = 0.2, width = 0.8))
+  for (args in invalid) {
+    expect_error(fmt_boxplot(p, args), "must be NULL or a named list")
+  }
+  expect_identical(ggplot2::ggplot_build(fmt_boxplot(p, NULL))$data,
+                   ggplot2::ggplot_build(fmt_boxplot(p))$data)
+})
+
+test_that("boxplot inheritance flags and explicit mappings are checked at entry", {
+  d <- data.frame(x = rep(c("a", "b"), each = 10), y = 1:20)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  for (inherit in list(NULL, NA, c(TRUE, FALSE), 0, 1, "TRUE", list(TRUE))) {
+    expect_error(fmt_boxplot(p, inherit.aes = inherit), "single TRUE or FALSE")
+  }
+  for (inherit in c(TRUE, FALSE)) {
+    expect_error(fmt_boxplot(p, list(mapping = list(x = quote(x), y = quote(y))),
+                             inherit.aes = inherit), "boxplot.args\\$mapping")
+  }
+  q <- fmt_boxplot(p, list(inherit.aes = FALSE), inherit.aes = TRUE)
+  expect_identical(q$layers[[2L]]$inherit.aes, TRUE)
+})
+
+test_that("non-plot gg components fail with a clear input error", {
+  d <- data.frame(x = rep(c("a", "b"), each = 10), y = 1:20)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  for (invalid in list(ggplot2::theme_bw(), ggplot2::aes(x, y),
+                       list(p, ggplot2::theme_bw()))) {
+    expect_error(fmt_boxplot(invalid), "Input must be a ggplot")
+  }
+  expect_identical(fmt_boxplot(list()), list())
+})

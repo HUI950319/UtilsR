@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_boxplot()` rejects malformed argument lists, invalid inheritance flags,
+  non-aesthetic mappings and non-plot gg components with clear input errors.
+
 * `fmt_boxplot()` honours explicitly supplied outlier shapes, including `NULL`,
   while retaining hidden outlier markers as the default.
 

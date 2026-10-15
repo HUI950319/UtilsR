@@ -5069,11 +5069,15 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 #' Outliers are suppressed by default.
 #'
 #' @param plot A ggplot, patchwork, or list of ggplots.
-#' @param boxplot.args Named list of arguments passed to
+#' @param boxplot.args Named list with unique, non-empty names, or \code{NULL},
+#'   of arguments passed to
 #'   \code{ggplot2::geom_boxplot}. Defaults include \code{width = 0.3},
 #'   \code{alpha = 0.2}, \code{na.rm = TRUE} and \code{outlier.shape = NA}.
 #'   An explicit \code{outlier.shape}, including \code{NULL}, is retained.
-#' @param inherit.aes Whether to inherit aesthetics from the parent plot.
+#'   A supplied \code{mapping} must be created by \code{ggplot2::aes()}.
+#' @param inherit.aes A single \code{TRUE} or \code{FALSE}: whether to inherit
+#'   aesthetics from the parent plot. Takes precedence over the same argument
+#'   inside \code{boxplot.args}.
 #'
 #' @details With \code{inherit.aes = FALSE}, explicit \code{data} and
 #'   \code{mapping} in \code{boxplot.args} are retained. Missing data and
@@ -5099,6 +5103,22 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 fmt_boxplot <- function(plot,
                         boxplot.args = list(),
                         inherit.aes = TRUE) {
+  if (!is.logical(inherit.aes) || length(inherit.aes) != 1L || is.na(inherit.aes)) {
+    cli::cli_abort("{.arg inherit.aes} must be a single TRUE or FALSE.")
+  }
+  boxplot.args <- boxplot.args %||% list()
+  arg_names <- names(boxplot.args)
+  if (!is.list(boxplot.args) || is.object(boxplot.args) ||
+      length(boxplot.args) > 0L && (is.null(arg_names) || anyNA(arg_names) ||
+        any(!nzchar(trimws(arg_names))) || anyDuplicated(arg_names) != 0L)) {
+    cli::cli_abort(paste("{.arg boxplot.args} must be NULL or a named list",
+                        "with unique, non-empty names."))
+  }
+  mapping <- boxplot.args[["mapping"]]
+  if (!is.null(mapping) && !inherits(mapping, c("uneval", "ggplot2::mapping"))) {
+    cli::cli_abort("{.arg boxplot.args$mapping} must be created by {.fn ggplot2::aes}.")
+  }
+
   # Set sensible defaults
   defaults <- list(width = 0.3, alpha = 0.2, na.rm = TRUE)
   for (nm in names(defaults)) {
@@ -5108,6 +5128,9 @@ fmt_boxplot <- function(plot,
   boxplot.args$inherit.aes <- inherit.aes
 
   fmt_boxplot_one <- function(p) {
+    if (!inherits(p, "ggplot")) {
+      cli::cli_abort("Input must be a ggplot, patchwork, or list of ggplots.")
+    }
     args <- boxplot.args
     if (!inherit.aes) {
       resolved <- single_axis <- NULL
