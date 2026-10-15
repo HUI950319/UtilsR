@@ -5081,6 +5081,9 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 #'   mappings are copied automatically; other mappings must be supplied explicitly.
 #'   An unresolved source raises an error without restoring aesthetic inheritance.
 #'   Data functions and formulas are evaluated only during normal plot building.
+#'   Nested patchworks are traversed recursively while preserving layouts,
+#'   annotations and plot-list names. Spacers, guide areas, wrapped grobs and
+#'   inset overlays are skipped.
 #'
 #' @return Same type as input.
 #'
@@ -5144,7 +5147,8 @@ fmt_boxplot <- function(plot,
     p + rlang::exec(ggplot2::geom_boxplot, !!!args)
   }
 
-  info <- .to_plot_list(plot)
+  info <- .to_plot_list(plot, recurse = TRUE)
   info$plots <- lapply(info$plots, fmt_boxplot_one)
-  .from_plot_list(info$plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
+  .from_plot_list(info$plots, info$is_patchwork, info$is_single,
+                  pw_orig = info$pw_orig, recurse = TRUE)
 }

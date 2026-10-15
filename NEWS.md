@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_boxplot()` formats every leaf of nested patchworks while preserving
+  layouts, annotations, plot-list names and non-plot placeholders or overlays.
+
 * `fmt_boxplot()` resolves independent overlays from existing layer data and
   position mappings, preserving deferred evaluation and single-axis boxplots.
   Missing sources now give a clear error instead of enabling inheritance.
