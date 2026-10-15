@@ -41,10 +41,11 @@ With `inherit.aes = FALSE`, explicit `data` and `mapping` in
 `boxplot.args` are retained. Missing data and position mappings are
 resolved from the parent plot, then the first suitable existing layer.
 Single-axis boxplots are supported. Only x and y mappings are copied
-automatically; other mappings must be supplied explicitly. An unresolved
-source raises an error without restoring aesthetic inheritance. Data
-functions and formulas are evaluated only during normal plot building.
-Nested patchworks are traversed recursively while preserving layouts,
+automatically; other mappings must be supplied explicitly. Explicit
+`x = NULL` or `y = NULL` mappings remain cleared. An unresolved source
+raises an error without restoring aesthetic inheritance. Data functions
+and formulas are evaluated only during normal plot building. Nested
+patchworks are traversed recursively while preserving layouts,
 annotations and plot-list names. Spacers, guide areas, wrapped grobs and
 inset overlays are skipped.
 
