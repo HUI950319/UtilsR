@@ -1275,9 +1275,9 @@ fmt_legend <- function(plot,
 
 #' Add reference lines to plots
 #'
-#' Add vertical and/or horizontal reference lines to one or more plots. When
-#' multiple intercept values are provided with matching per-line colors, each
-#' line is added individually so that colors are applied correctly.
+#' Add vertical and/or horizontal reference lines to one or more plots. Styles
+#' are recycled separately for each direction. Multiple lines share a layer
+#' unless additional geom arguments require the original per-line behaviour.
 #'
 #' @param plot A ggplot, patchwork, or list of ggplot objects.
 #' @param x Numeric vector of x-intercept values for vertical lines, or `NULL`.
@@ -1310,43 +1310,47 @@ fmt_ref <- function(plot,
                     color = "gray50",
                     alpha = 0.8,
                     ...) {
-  intercept_args <- intersect(c("xintercept", "yintercept"), names(rlang::list2(...)))
+  dots <- rlang::list2(...)
+  intercept_args <- intersect(c("xintercept", "yintercept"), names(dots))
   if (length(intercept_args)) {
     cli::cli_abort("Use {.arg x} and {.arg y} instead of {.arg {intercept_args}}.")
   }
   info <- .to_plot_list(plot, recurse = TRUE)
   plots <- info$plots
 
-  .add_ref_one <- function(p) {
-    if (!is.null(x)) {
-      x_color <- rep_len(color, length(x))
-      x_lt <- rep_len(linetype, length(x))
-      x_lw <- rep_len(linewidth, length(x))
-      x_alpha <- rep_len(alpha, length(x))
-      for (j in seq_along(x)) {
-        p <- p + ggplot2::geom_vline(
-          xintercept = x[j], linetype = x_lt[j], linewidth = x_lw[j],
-          color = x_color[j], alpha = x_alpha[j], ...
-        )
-      }
+  .ref_layers <- function(values, axis) {
+    if (!length(values)) return(list())
+    styles <- list(colour = rep_len(color, length(values)),
+                   linetype = rep_len(linetype, length(values)),
+                   linewidth = rep_len(linewidth, length(values)),
+                   alpha = rep_len(alpha, length(values)))
+    geom <- if (axis == "x") ggplot2::geom_vline else ggplot2::geom_hline
+    if (length(dots)) {
+      return(lapply(seq_along(values), function(j) {
+        args <- c(stats::setNames(list(values[j]), paste0(axis, "intercept")),
+                  lapply(styles, function(style) style[j]), dots)
+        do.call(geom, args)
+      }))
     }
-    if (!is.null(y)) {
-      y_color <- rep_len(color, length(y))
-      y_lt <- rep_len(linetype, length(y))
-      y_lw <- rep_len(linewidth, length(y))
-      y_alpha <- rep_len(alpha, length(y))
-      for (j in seq_along(y)) {
-        p <- p + ggplot2::geom_hline(
-          yintercept = y[j], linetype = y_lt[j], linewidth = y_lw[j],
-          color = y_color[j], alpha = y_alpha[j], ...
-        )
-      }
-    }
-    p
+    data <- data.frame(.fmt_ref_intercept = values,
+                       .fmt_ref_group = seq_along(values))
+    for (name in names(styles)) data[[paste0(".fmt_ref_", name)]] <- styles[[name]]
+    mapping <- ggplot2::aes(
+      colour = I(.data[[".fmt_ref_colour"]]),
+      linetype = I(.data[[".fmt_ref_linetype"]]),
+      linewidth = I(.data[[".fmt_ref_linewidth"]]),
+      alpha = I(.data[[".fmt_ref_alpha"]]), group = .data[[".fmt_ref_group"]]
+    )
+    mapping[[paste0(axis, "intercept")]] <- rlang::new_quosure(
+      quote(.data[[".fmt_ref_intercept"]]), env = rlang::base_env()
+    )
+    list(geom(data = data, mapping = mapping, show.legend = FALSE))
   }
 
+  layers <- c(.ref_layers(x, "x"), .ref_layers(y, "y"))
+  if (!length(layers)) return(plot)
   for (i in seq_along(plots)) {
-    plots[[i]] <- .add_ref_one(plots[[i]])
+    plots[[i]] <- plots[[i]] + layers
   }
 
   .from_plot_list(plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig,

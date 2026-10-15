@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_ref()` batches reference lines by direction and reuses their layers across
+  plots, retaining per-line styles, facet replication and existing colour scales.
+  Extra geom arguments keep the native per-line path for compatibility.
+
 * `fmt_ref()` rejects geom intercept argument names with a clear suggestion to
   use `x` and `y`. The formatting vignette now uses those supported arguments.
 

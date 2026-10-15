@@ -40,9 +40,9 @@ Default `"gray50"`.}
 Same type as input.
 }
 \description{
-Add vertical and/or horizontal reference lines to one or more plots. When
-multiple intercept values are provided with matching per-line colors, each
-line is added individually so that colors are applied correctly.
+Add vertical and/or horizontal reference lines to one or more plots. Styles
+are recycled separately for each direction. Multiple lines share a layer
+unless additional geom arguments require the original per-line behaviour.
 }
 \examples{
 library(ggplot2)
