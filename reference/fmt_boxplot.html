@@ -72,7 +72,8 @@ Outliers are suppressed by default.</p>
 <dt id="arg-boxplot-args">boxplot.args<a class="anchor" aria-label="anchor" href="#arg-boxplot-args"></a></dt>
 <dd><p>Named list of arguments passed to
 <code><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html" class="external-link">ggplot2::geom_boxplot</a></code>. Defaults include <code>width = 0.3</code>,
-<code>alpha = 0.2</code>, <code>na.rm = TRUE</code>.</p></dd>
+<code>alpha = 0.2</code>, <code>na.rm = TRUE</code> and <code>outlier.shape = NA</code>.
+An explicit <code>outlier.shape</code>, including <code>NULL</code>, is retained.</p></dd>
 
 
 <dt id="arg-inherit-aes">inherit.aes<a class="anchor" aria-label="anchor" href="#arg-inherit-aes"></a></dt>
@@ -91,7 +92,10 @@ position mappings are resolved from the parent plot, then the first
 suitable existing layer. Single-axis boxplots are supported. Only x and y
 mappings are copied automatically; other mappings must be supplied explicitly.
 An unresolved source raises an error without restoring aesthetic inheritance.
-Data functions and formulas are evaluated only during normal plot building.</p>
+Data functions and formulas are evaluated only during normal plot building.
+Nested patchworks are traversed recursively while preserving layouts,
+annotations and plot-list names. Spacers, guide areas, wrapped grobs and
+inset overlays are skipped.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

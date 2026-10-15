@@ -19,7 +19,9 @@ fmt_boxplot(plot, boxplot.args = list(), inherit.aes = TRUE)
 
   Named list of arguments passed to
   [`ggplot2::geom_boxplot`](https://ggplot2.tidyverse.org/reference/geom_boxplot.html).
-  Defaults include `width = 0.3`, `alpha = 0.2`, `na.rm = TRUE`.
+  Defaults include `width = 0.3`, `alpha = 0.2`, `na.rm = TRUE` and
+  `outlier.shape = NA`. An explicit `outlier.shape`, including `NULL`,
+  is retained.
 
 - inherit.aes:
 
@@ -38,6 +40,9 @@ Single-axis boxplots are supported. Only x and y mappings are copied
 automatically; other mappings must be supplied explicitly. An unresolved
 source raises an error without restoring aesthetic inheritance. Data
 functions and formulas are evaluated only during normal plot building.
+Nested patchworks are traversed recursively while preserving layouts,
+annotations and plot-list names. Spacers, guide areas, wrapped grobs and
+inset overlays are skipped.
 
 ## See also
 

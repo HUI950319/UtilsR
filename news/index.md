@@ -3,6 +3,14 @@
 ## UtilsR 0.6.8
 
 - [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
+  honours explicitly supplied outlier shapes, including `NULL`, while
+  retaining hidden outlier markers as the default.
+
+- [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
+  formats every leaf of nested patchworks while preserving layouts,
+  annotations, plot-list names and non-plot placeholders or overlays.
+
+- [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
   resolves independent overlays from existing layer data and position
   mappings, preserving deferred evaluation and single-axis boxplots.
   Missing sources now give a clear error instead of enabling
