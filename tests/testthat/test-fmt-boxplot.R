@@ -345,3 +345,49 @@ test_that("automatic layer callbacks are selected without eager evaluation", {
   expect_equal(ggplot2::ggplot_build(q)$data[[2L]]$middle, c(5.5, 15.5))
   expect_identical(calls, 2L)
 })
+
+test_that("identity boxplot statistics retain complete summary mappings", {
+  d <- data.frame(group = rep(c("a", "b"), each = 10), value = 1:20)
+  summaries <- data.frame(group = c("a", "b"), low = c(1, 11),
+    q1 = c(3, 13), mid = c(5.5, 15.5), q3 = c(8, 18), high = c(10, 20))
+  cases <- list(
+    list(plot = ggplot2::ggplot(d, ggplot2::aes(group, value)) +
+           ggplot2::geom_point(), orientation = "x",
+         mapping = ggplot2::aes(x = group, ymin = low, lower = q1,
+                               middle = mid, upper = q3, ymax = high)),
+    list(plot = ggplot2::ggplot(d, ggplot2::aes(value, group)) +
+           ggplot2::geom_point(), orientation = "y",
+         mapping = ggplot2::aes(y = group, xmin = low, xlower = q1,
+                               xmiddle = mid, xupper = q3, xmax = high)))
+  for (case in cases) {
+    for (stat in list("identity", ggplot2::StatIdentity)) {
+      args <- list(data = summaries, mapping = case$mapping, stat = stat,
+                   orientation = case$orientation)
+      q <- fmt_boxplot(case$plot, args, inherit.aes = FALSE)
+      native <- case$plot + do.call(ggplot2::geom_boxplot,
+        c(args, list(inherit.aes = FALSE, width = 0.3, alpha = 0.2,
+                     na.rm = TRUE, outlier.shape = NA)))
+      expect_identical(q$layers[[2L]]$mapping, case$mapping)
+      expect_identical(ggplot2::ggplot_build(q)$data,
+                       ggplot2::ggplot_build(native)$data)
+    }
+  }
+})
+
+test_that("identity boxplot data callbacks remain deferred", {
+  d <- data.frame(x = rep(c("a", "b"), each = 10), y = 1:20)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  summaries <- data.frame(x = c("a", "b"), low = c(1, 11),
+    q1 = c(3, 13), mid = c(5.5, 15.5), q3 = c(8, 18), high = c(10, 20))
+  mapping <- ggplot2::aes(x = x, ymin = low, lower = q1,
+                          middle = mid, upper = q3, ymax = high)
+  calls <- 0L
+  q <- fmt_boxplot(p, list(stat = "identity", mapping = mapping,
+    data = function(data) { calls <<- calls + 1L; summaries }), inherit.aes = FALSE)
+  expect_identical(calls, 0L)
+  expect_equal(ggplot2::ggplot_build(q)$data[[2L]]$middle, summaries$mid)
+  expect_identical(calls, 1L)
+  q <- fmt_boxplot(p, list(stat = "identity", mapping = mapping,
+                           data = ~ summaries), inherit.aes = FALSE)
+  expect_equal(ggplot2::ggplot_build(q)$data[[2L]]$middle, summaries$mid)
+})

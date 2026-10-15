@@ -39,6 +39,8 @@ mappings are copied automatically; other mappings must be supplied explicitly.
 Explicit \code{x = NULL} or \code{y = NULL} mappings remain cleared.
 Automatic layer lookup skips text, label, segment, curve and reference-line
 geoms. Supply explicit data and mappings to use such sources.
+For \code{stat = "identity"} or \code{ggplot2::StatIdentity}, an explicit
+mapping is passed unchanged, without adding raw-data position mappings.
 An unresolved source raises an error without restoring aesthetic inheritance.
 Data functions and formulas are evaluated only during normal plot building.
 Nested patchworks are traversed recursively while preserving layouts,

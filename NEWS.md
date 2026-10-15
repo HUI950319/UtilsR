@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_boxplot()` preserves explicit summary mappings for identity statistics,
+  supporting vertical and horizontal precomputed boxplots without injecting
+  unrelated raw-data axes. Data callbacks remain deferred.
+
 * `fmt_boxplot()` selects data and position mappings actually used by existing
   layers before unused parent settings, avoiding incompatible or empty parent
   samples. Automatic empty data frames are skipped; explicit empty data and

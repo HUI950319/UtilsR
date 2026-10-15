@@ -5090,6 +5090,8 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 #'   Explicit \code{x = NULL} or \code{y = NULL} mappings remain cleared.
 #'   Automatic layer lookup skips text, label, segment, curve and reference-line
 #'   geoms. Supply explicit data and mappings to use such sources.
+#'   For \code{stat = "identity"} or \code{ggplot2::StatIdentity}, an explicit
+#'   mapping is passed unchanged, without adding raw-data position mappings.
 #'   An unresolved source raises an error without restoring aesthetic inheritance.
 #'   Data functions and formulas are evaluated only during normal plot building.
 #'   Nested patchworks are traversed recursively while preserving layouts,
@@ -5139,6 +5141,8 @@ fmt_boxplot <- function(plot,
     }
     args <- boxplot.args
     if (!inherit.aes) {
+      keep_mapping <- !is.null(args$mapping) &&
+        (identical(args$stat, "identity") || inherits(args$stat, "StatIdentity"))
       resolved <- single_axis <- NULL
       layers <- Filter(function(layer) !inherits(layer$geom, c("GeomText", "GeomLabel",
         "GeomSegment", "GeomCurve", "GeomAbline", "GeomHline", "GeomVline")), p$layers)
@@ -5165,10 +5169,12 @@ fmt_boxplot <- function(plot,
         if (is.null(pd) || inherits(pd, "waiver")) next
         if (is.null(args$data) && is.data.frame(pd) && nrow(pd) == 0L) next
         mapping <- args$mapping %||% ggplot2::aes()
-        for (axis in c("x", "y")) {
-          if (!(axis %in% names(mapping))) mapping[[axis]] <- pm[[axis]]
+        if (!keep_mapping) {
+          for (axis in c("x", "y")) {
+            if (!(axis %in% names(mapping))) mapping[[axis]] <- pm[[axis]]
+          }
         }
-        if (!is.null(mapping$x) && !is.null(mapping$y)) {
+        if (keep_mapping || (!is.null(mapping$x) && !is.null(mapping$y))) {
           resolved <- list(data = pd, mapping = mapping)
           break
         }
