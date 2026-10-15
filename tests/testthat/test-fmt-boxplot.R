@@ -218,3 +218,31 @@ test_that("non-plot gg components fail with a clear input error", {
   }
   expect_identical(fmt_boxplot(list()), list())
 })
+
+test_that("explicit NULL position mappings remain cleared in both orientations", {
+  d <- data.frame(group = rep(c("a", "b"), each = 10), value = 1:20)
+  cases <- list(
+    list(plot = ggplot2::ggplot(d, ggplot2::aes(group, value)) +
+           ggplot2::geom_point(), mapping = ggplot2::aes(x = NULL, y = value)),
+    list(plot = ggplot2::ggplot(d, ggplot2::aes(value, group)) +
+           ggplot2::geom_point(), mapping = ggplot2::aes(x = value, y = NULL)))
+  for (case in cases) {
+    native <- case$plot + ggplot2::geom_boxplot(mapping = case$mapping,
+      inherit.aes = FALSE, width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
+    expected <- ggplot2::ggplot_build(native)$data
+    q <- fmt_boxplot(case$plot, list(mapping = case$mapping), inherit.aes = FALSE)
+    expect_identical(q$layers[[2L]]$mapping, case$mapping)
+    expect_identical(ggplot2::ggplot_build(q)$data, expected)
+    expect_equal(nrow(ggplot2::ggplot_build(q)$data[[2L]]), 1L)
+  }
+})
+
+test_that("cleared source-layer axes do not reappear in independent overlays", {
+  d <- data.frame(group = rep(c("a", "b"), each = 10), value = 1:20)
+  p <- ggplot2::ggplot(mapping = ggplot2::aes(group, value)) +
+    ggplot2::geom_boxplot(data = d, mapping = ggplot2::aes(x = NULL))
+  q <- fmt_boxplot(p, inherit.aes = FALSE)
+  expect_null(q$layers[[2L]]$mapping$x)
+  expect_equal(ggplot2::ggplot_build(q)$data[[2L]]$middle, 10.5)
+  expect_identical(rlang::get_expr(p$mapping$x), quote(group))
+})

@@ -33,6 +33,7 @@ With \code{inherit.aes = FALSE}, explicit \code{data} and
 position mappings are resolved from the parent plot, then the first
 suitable existing layer. Single-axis boxplots are supported. Only x and y
 mappings are copied automatically; other mappings must be supplied explicitly.
+Explicit \code{x = NULL} or \code{y = NULL} mappings remain cleared.
 An unresolved source raises an error without restoring aesthetic inheritance.
 Data functions and formulas are evaluated only during normal plot building.
 Nested patchworks are traversed recursively while preserving layouts,

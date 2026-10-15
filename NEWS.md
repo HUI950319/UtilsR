@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_boxplot()` preserves explicitly cleared x or y mappings in independent
+  overlays, including cleared mappings inherited from an existing source layer.
+
 * `fmt_boxplot()` rejects malformed argument lists, invalid inheritance flags,
   non-aesthetic mappings and non-plot gg components with clear input errors.
 

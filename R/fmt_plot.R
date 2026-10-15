@@ -5084,6 +5084,7 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 #'   position mappings are resolved from the parent plot, then the first
 #'   suitable existing layer. Single-axis boxplots are supported. Only x and y
 #'   mappings are copied automatically; other mappings must be supplied explicitly.
+#'   Explicit \code{x = NULL} or \code{y = NULL} mappings remain cleared.
 #'   An unresolved source raises an error without restoring aesthetic inheritance.
 #'   Data functions and formulas are evaluated only during normal plot building.
 #'   Nested patchworks are traversed recursively while preserving layouts,
@@ -5142,7 +5143,7 @@ fmt_boxplot <- function(plot,
         if (!is.null(layer)) {
           if (!is.null(layer$data) && !inherits(layer$data, "waiver")) pd <- layer$data
           for (axis in c("x", "y")) {
-            if (!is.null(layer$mapping[[axis]])) pm[[axis]] <- layer$mapping[[axis]]
+            if (axis %in% names(layer$mapping)) pm[[axis]] <- layer$mapping[[axis]]
           }
         }
         pd <- args$data %||% pd
@@ -5150,7 +5151,7 @@ fmt_boxplot <- function(plot,
         if (is.null(pd) || inherits(pd, "waiver")) next
         mapping <- args$mapping %||% ggplot2::aes()
         for (axis in c("x", "y")) {
-          if (is.null(mapping[[axis]])) mapping[[axis]] <- pm[[axis]]
+          if (!(axis %in% names(mapping))) mapping[[axis]] <- pm[[axis]]
         }
         if (!is.null(mapping$x) && !is.null(mapping$y)) {
           resolved <- list(data = pd, mapping = mapping)
