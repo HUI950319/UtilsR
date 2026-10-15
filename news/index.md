@@ -3,6 +3,15 @@
 ## UtilsR 0.6.8
 
 - [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md)
+  gives argument-specific errors for empty and non-vector line styles
+  when positions are supplied. Unused styles, native missing-value
+  semantics, date positions and discrete category labels are retained.
+
+- [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md)
+  rejects `colour` with a suggestion to use its `color` parameter,
+  avoiding duplicate aesthetics and silently ignored colour requests.
+
+- [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md)
   batches reference lines by direction and reuses their layers across
   plots, retaining per-line styles, facet replication and existing
   colour scales. Extra geom arguments keep the native per-line path for

@@ -28,12 +28,14 @@ fmt_ref(
 
 - x:
 
-  Numeric vector of x-intercept values for vertical lines, or \`NULL\`.
+  Vector of x-intercept values compatible with the plot's x scale,
+  including numeric values, dates or discrete category labels. `NULL` or
+  an empty vector adds no vertical lines.
 
 - y:
 
-  Numeric vector of y-intercept values for horizontal lines, or
-  \`NULL\`.
+  Vector of y-intercept values compatible with the plot's y scale.
+  `NULL` or an empty vector adds no horizontal lines.
 
 - linetype:
 
@@ -59,11 +61,18 @@ fmt_ref(
   or
   [`geom_hline()`](https://ggplot2.tidyverse.org/reference/geom_abline.html).
   Supply positions with `x` and `y`; `xintercept` and `yintercept` are
-  rejected.
+  rejected. Use `color` for line colors; `colour` is rejected to prevent
+  conflicting color settings.
 
 ## Value
 
 Same type as input.
+
+## Details
+
+When positions are supplied, `linetype`, `linewidth`, `color` and
+`alpha` must be non-empty vectors. Missing style values retain their
+native ggplot2 meaning.
 
 ## See also
 

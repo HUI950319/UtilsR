@@ -82,11 +82,14 @@ unless additional geom arguments require the original per-line behaviour.</p>
 
 
 <dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>Numeric vector of x-intercept values for vertical lines, or `NULL`.</p></dd>
+<dd><p>Vector of x-intercept values compatible with the plot's x scale,
+including numeric values, dates or discrete category labels. <code>NULL</code>
+or an empty vector adds no vertical lines.</p></dd>
 
 
 <dt id="arg-y">y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
-<dd><p>Numeric vector of y-intercept values for horizontal lines, or `NULL`.</p></dd>
+<dd><p>Vector of y-intercept values compatible with the plot's y scale.
+<code>NULL</code> or an empty vector adds no horizontal lines.</p></dd>
 
 
 <dt id="arg-linetype">linetype<a class="anchor" aria-label="anchor" href="#arg-linetype"></a></dt>
@@ -110,12 +113,20 @@ Default `"gray50"`.</p></dd>
 <dd><p>Additional arguments passed to
 <code><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline()</a></code> or
 <code><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline()</a></code>. Supply positions with
-<code>x</code> and <code>y</code>; <code>xintercept</code> and <code>yintercept</code> are rejected.</p></dd>
+<code>x</code> and <code>y</code>; <code>xintercept</code> and <code>yintercept</code> are rejected.
+Use <code>color</code> for line colors; <code>colour</code> is rejected to prevent
+conflicting color settings.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Same type as input.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>When positions are supplied, <code>linetype</code>, <code>linewidth</code>,
+<code>color</code> and <code>alpha</code> must be non-empty vectors. Missing style
+values retain their native ggplot2 meaning.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
