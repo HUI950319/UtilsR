@@ -273,7 +273,7 @@ test_that("outside tags compose with reference, legend, axis and strip formattin
                   fmt_ref_list = list(x = 20),
                   fmt_legend_list = list(legend.position = "none"))
   grob <- patchwork::patchworkGrob(res)
-  refs <- Filter(function(g) identical(g$gp$lty, "dashed"), find_grobs(grob, "segments"))
+  refs <- Filter(function(g) identical(as.character(g$gp$lty), "dashed"), find_grobs(grob, "segments"))
   texts <- unlist(lapply(find_grobs(grob, "text"), function(g) as.character(g$label)))
   expect_length(refs, 2L)
   expect_equal(sum(texts == "factor(cyl)"), 0L)
@@ -293,7 +293,7 @@ test_that("outside tags compose with reference, legend, axis and strip formattin
 
   nested <- fmt_tag((p | patchwork::plot_spacer()) / (p | p), label_position = "tl-out")
   nested <- fmt_ref(nested, y = 300)
-  refs <- Filter(function(g) identical(g$gp$lty, "dashed"),
+  refs <- Filter(function(g) identical(as.character(g$gp$lty), "dashed"),
                   find_grobs(patchwork::patchworkGrob(nested), "segments"))
   expect_length(refs, 3L)
   expect_length(p$layers, 1L)

@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* Dedicated `fmt_ref()` regression tests cover native rendering, transformed and
+  non-numeric positions, nested containers, input preservation and deferred data.
+
 * `fmt_ref()` gives argument-specific errors for empty and non-vector line styles
   when positions are supplied. Unused styles, native missing-value semantics,
   date positions and discrete category labels are retained.

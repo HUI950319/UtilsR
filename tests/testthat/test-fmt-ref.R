@@ -140,3 +140,127 @@ test_that("batched references render like native lines across plot layouts", {
     expect_identical(capture_plot(result), capture_plot(expected), info = name)
   }
 })
+
+test_that("reference positions follow date datetime and discrete scales", {
+  dates <- as.Date("2026-01-01") + 0:3
+  times <- as.POSIXct("2026-01-01 12:00:00", tz = "UTC") + (0:3) * 3600
+  categories <- factor(c("B", "A", "C", "B"), levels = c("C", "B", "A"))
+  for (x in list(dates, times, categories, as.character(categories))) {
+    p <- ggplot2::ggplot(data.frame(x = x, y = 1:4), ggplot2::aes(x, y)) +
+      ggplot2::geom_point()
+    values <- x[c(2, 3)]
+    result <- ggplot2::ggplot_build(fmt_ref(p, x = values))
+    expected <- ggplot2::ggplot_build(p + ggplot2::geom_vline(xintercept = values))
+    expect_equal(result$data[[2]]$xintercept, expected$data[[2]]$xintercept)
+    expect_equal(result$data[[1]], expected$data[[1]])
+    expect_equal(result$layout$panel_params[[1]]$x.range,
+                 expected$layout$panel_params[[1]]$x.range)
+  }
+})
+
+test_that("reference positions follow transformed axes and coordinate limits", {
+  p <- ggplot2::ggplot(data.frame(x = 1:6, y = 6:1), ggplot2::aes(x, y)) +
+    ggplot2::geom_point()
+  fixtures <- list(p + ggplot2::scale_x_log10() + ggplot2::scale_y_reverse(),
+                   p + ggplot2::scale_y_log10() + ggplot2::coord_cartesian(xlim = c(2, 4)))
+  for (input in fixtures) {
+    result <- ggplot2::ggplot_build(fmt_ref(input, x = c(2, 5), y = c(2, 4)))
+    expected <- ggplot2::ggplot_build(input + ggplot2::geom_vline(xintercept = c(2, 5)) +
+                                       ggplot2::geom_hline(yintercept = c(2, 4)))
+    expect_equal(result$data[[2]]$xintercept, expected$data[[2]]$xintercept)
+    expect_equal(result$data[[3]]$yintercept, expected$data[[3]]$yintercept)
+    expect_equal(result$layout$panel_params[[1]]$x.range,
+                 expected$layout$panel_params[[1]]$x.range)
+    expect_equal(result$layout$panel_params[[1]]$y.range,
+                 expected$layout$panel_params[[1]]$y.range)
+  }
+})
+
+test_that("infinite and missing positions retain native handling", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 3:1), ggplot2::aes(x, y)) +
+    ggplot2::geom_point()
+  result <- fmt_ref(p, x = c(-Inf, Inf, NA_real_))
+  expect_equal(ggplot2::ggplot_build(result)$data[[2]]$xintercept, c(-Inf, Inf, NA_real_))
+  expect_no_warning(ggplot2::ggplotGrob(fmt_ref(p, x = c(-Inf, Inf), y = c(-Inf, Inf))))
+  expect_no_warning(ggplot2::ggplotGrob(fmt_ref(p, x = c(NA_real_, 2), na.rm = TRUE)))
+})
+
+test_that("nested containers retain names annotations placeholders and caller objects", {
+  input <- local({
+    d <- data.frame(x = 1:4, y = 4:1)
+    p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+    nested <- ((p | patchwork::plot_spacer()) / (p | p)) +
+      patchwork::plot_annotation(title = "Keep", caption = "Caption", tag_levels = "A")
+    list(first = p, nested = nested, spacer = patchwork::plot_spacer(),
+         guide = patchwork::guide_area(),
+         wrapped = patchwork::wrap_elements(grid::textGrob("Wrapped")))
+  }, envir = new.env(parent = baseenv()))
+  nested <- input$nested
+  # Warm native drawing-method caches before comparing serialized plot objects.
+  invisible(patchwork::patchworkGrob(nested))
+  before <- serialize(input, NULL)
+  result <- fmt_ref(input, x = c(2, 3), y = 2)
+  expect_identical(names(result), names(input))
+  expect_identical(result$nested$patches$layout, nested$patches$layout)
+  expect_identical(result$nested$patches$annotation, nested$patches$annotation)
+  for (name in c("spacer", "guide", "wrapped")) expect_identical(result[[name]], input[[name]])
+  plots <- .to_plot_list(result, recurse = TRUE)$plots
+  expect_length(plots, 4L)
+  expect_equal(vapply(plots, function(q) length(q$layers), integer(1)), rep(3L, 4L))
+  expect_no_error(patchwork::patchworkGrob(result$nested))
+  expect_true(identical(serialize(input, NULL), before))
+})
+
+test_that("inset overlays and freed patchwork alignment are preserved", {
+  p <- ggplot2::ggplot(data.frame(x = 1:4, y = 4:1), ggplot2::aes(x, y)) +
+    ggplot2::geom_point()
+  overlay <- (p | p) & ggplot2::labs(title = "Inset")
+  input <- (p | p) + patchwork::inset_element(overlay, 0.6, 0.6, 1, 1)
+  inputs <- list(input, patchwork::free(input, side = "l"))
+  for (original in inputs) {
+    result <- fmt_ref(original, x = 2)
+    expect_length(.to_plot_list(result, recurse = TRUE)$plots, 2L)
+    expect_identical(result$patches$layout, original$patches$layout)
+    expect_identical(attr(result, "patchwork_free_settings"),
+                     attr(original, "patchwork_free_settings"))
+    expect_no_error(patchwork::patchworkGrob(result))
+  }
+})
+
+test_that("reference construction preserves RNG and defers layer data callbacks", {
+  calls <- 0L
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 3:1), ggplot2::aes(x, y)) +
+    ggplot2::geom_point(data = function(d) {
+      calls <<- calls + 1L
+      d
+    })
+  set.seed(42)
+  seed <- .Random.seed
+  nested <- (p | patchwork::plot_spacer()) / (p | p)
+  for (input in list(p, nested, list(A = p, B = p), list())) {
+    expect_identical(fmt_ref(input), input)
+    expect_identical(fmt_ref(input, x = numeric(), y = numeric()), input)
+  }
+  result <- fmt_ref(p, x = c(1, 2), y = 2)
+  expect_equal(calls, 0L)
+  expect_identical(.Random.seed, seed)
+  expect_error(fmt_ref(1), "ggplot")
+  expect_error(fmt_ref(list(p, "invalid")), "ggplot")
+  expect_no_error(ggplot2::ggplot_build(result))
+  expect_equal(calls, 1L)
+})
+
+test_that("repeated reference calls append lines without changing earlier plots", {
+  p <- ggplot2::ggplot(data.frame(x = 1:4, y = 4:1), ggplot2::aes(x, y)) +
+    ggplot2::geom_point()
+  first <- fmt_ref(p, x = c(1, 3), color = "red")
+  result <- fmt_ref(first, y = c(2, 4), color = "blue")
+  data <- ggplot2::ggplot_build(result)$data
+  expect_length(p$layers, 1L)
+  expect_length(first$layers, 2L)
+  expect_length(result$layers, 3L)
+  expect_equal(data[[2]]$xintercept, c(1, 3))
+  expect_equal(data[[3]]$yintercept, c(2, 4))
+  expect_equal(as.character(data[[2]]$colour), rep("red", 2))
+  expect_equal(as.character(data[[3]]$colour), rep("blue", 2))
+})
