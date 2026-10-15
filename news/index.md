@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
+  skips text, label, segment, curve and reference-line layers when
+  selecting samples automatically, preserving valid single-axis sources
+  instead of replacing them with annotation coordinates.
+
+- [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
   preserves explicitly cleared x or y mappings in independent overlays,
   including cleared mappings inherited from an existing source layer.
 
