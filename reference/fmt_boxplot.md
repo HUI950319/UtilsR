@@ -19,9 +19,7 @@ fmt_boxplot(plot, boxplot.args = list(), inherit.aes = TRUE)
 
   Named list of arguments passed to
   [`ggplot2::geom_boxplot`](https://ggplot2.tidyverse.org/reference/geom_boxplot.html).
-  Defaults include `width = 0.3`, `alpha = 0.2`, `na.rm = TRUE` and
-  `outlier.shape = NA`. An explicit `outlier.shape`, including `NULL`,
-  is retained.
+  Defaults include `width = 0.3`, `alpha = 0.2`, `na.rm = TRUE`.
 
 - inherit.aes:
 
