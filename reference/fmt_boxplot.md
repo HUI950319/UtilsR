@@ -17,13 +17,19 @@ fmt_boxplot(plot, boxplot.args = list(), inherit.aes = TRUE)
 
 - boxplot.args:
 
-  Named list of arguments passed to
+  Named list with unique, non-empty names, or `NULL`, of arguments
+  passed to
   [`ggplot2::geom_boxplot`](https://ggplot2.tidyverse.org/reference/geom_boxplot.html).
-  Defaults include `width = 0.3`, `alpha = 0.2`, `na.rm = TRUE`.
+  Defaults include `width = 0.3`, `alpha = 0.2`, `na.rm = TRUE` and
+  `outlier.shape = NA`. An explicit `outlier.shape`, including `NULL`,
+  is retained. A supplied `mapping` must be created by
+  [`ggplot2::aes()`](https://ggplot2.tidyverse.org/reference/aes.html).
 
 - inherit.aes:
 
-  Whether to inherit aesthetics from the parent plot.
+  A single `TRUE` or `FALSE`: whether to inherit aesthetics from the
+  parent plot. Takes precedence over the same argument inside
+  `boxplot.args`.
 
 ## Value
 

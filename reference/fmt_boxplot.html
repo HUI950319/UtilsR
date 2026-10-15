@@ -70,13 +70,18 @@ Outliers are suppressed by default.</p>
 
 
 <dt id="arg-boxplot-args">boxplot.args<a class="anchor" aria-label="anchor" href="#arg-boxplot-args"></a></dt>
-<dd><p>Named list of arguments passed to
+<dd><p>Named list with unique, non-empty names, or <code>NULL</code>,
+of arguments passed to
 <code><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html" class="external-link">ggplot2::geom_boxplot</a></code>. Defaults include <code>width = 0.3</code>,
-<code>alpha = 0.2</code>, <code>na.rm = TRUE</code>.</p></dd>
+<code>alpha = 0.2</code>, <code>na.rm = TRUE</code> and <code>outlier.shape = NA</code>.
+An explicit <code>outlier.shape</code>, including <code>NULL</code>, is retained.
+A supplied <code>mapping</code> must be created by <code><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">ggplot2::aes()</a></code>.</p></dd>
 
 
 <dt id="arg-inherit-aes">inherit.aes<a class="anchor" aria-label="anchor" href="#arg-inherit-aes"></a></dt>
-<dd><p>Whether to inherit aesthetics from the parent plot.</p></dd>
+<dd><p>A single <code>TRUE</code> or <code>FALSE</code>: whether to inherit
+aesthetics from the parent plot. Takes precedence over the same argument
+inside <code>boxplot.args</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
