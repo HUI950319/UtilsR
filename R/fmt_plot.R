@@ -1280,8 +1280,11 @@ fmt_legend <- function(plot,
 #' unless additional geom arguments require the original per-line behaviour.
 #'
 #' @param plot A ggplot, patchwork, or list of ggplot objects.
-#' @param x Numeric vector of x-intercept values for vertical lines, or `NULL`.
-#' @param y Numeric vector of y-intercept values for horizontal lines, or `NULL`.
+#' @param x Vector of x-intercept values compatible with the plot's x scale,
+#'   including numeric values, dates or discrete category labels. \code{NULL}
+#'   or an empty vector adds no vertical lines.
+#' @param y Vector of y-intercept values compatible with the plot's y scale.
+#'   \code{NULL} or an empty vector adds no horizontal lines.
 #' @param linetype Line type. Default `"dashed"`.
 #' @param linewidth Line width. Default `0.5`.
 #' @param color Line color(s). Recycled to match the number of intercepts.
@@ -1293,6 +1296,10 @@ fmt_legend <- function(plot,
 #'   \code{x} and \code{y}; \code{xintercept} and \code{yintercept} are rejected.
 #'   Use \code{color} for line colors; \code{colour} is rejected to prevent
 #'   conflicting color settings.
+#'
+#' @details When positions are supplied, \code{linetype}, \code{linewidth},
+#'   \code{color} and \code{alpha} must be non-empty vectors. Missing style
+#'   values retain their native ggplot2 meaning.
 #'
 #' @return Same type as input.
 #'
@@ -1322,6 +1329,16 @@ fmt_ref <- function(plot,
   }
   info <- .to_plot_list(plot, recurse = TRUE)
   plots <- info$plots
+
+  if (length(x) || length(y)) {
+    styles <- list(linetype = linetype, linewidth = linewidth, color = color, alpha = alpha)
+    for (name in names(styles)) {
+      value <- styles[[name]]
+      if (!is.atomic(value) || !length(value) || !is.null(dim(value))) {
+        cli::cli_abort("{.arg {name}} must be a non-empty vector.")
+      }
+    }
+  }
 
   .ref_layers <- function(values, axis) {
     if (!length(values)) return(list())

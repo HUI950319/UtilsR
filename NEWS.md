@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_ref()` gives argument-specific errors for empty and non-vector line styles
+  when positions are supplied. Unused styles, native missing-value semantics,
+  date positions and discrete category labels are retained.
+
 * `fmt_ref()` rejects `colour` with a suggestion to use its `color` parameter,
   avoiding duplicate aesthetics and silently ignored colour requests.
 

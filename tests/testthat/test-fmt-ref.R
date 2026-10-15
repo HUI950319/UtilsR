@@ -33,6 +33,34 @@ test_that("reference positions add vertical and horizontal lines", {
   expect_length(p$layers, 1L)
 })
 
+test_that("active references reject empty or non-vector styles early", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 3:1), ggplot2::aes(x, y)) +
+    ggplot2::geom_point()
+  styles <- list(linetype = "solid", linewidth = 0.5, color = "red", alpha = 0.8)
+  for (name in names(styles)) {
+    value <- styles[[name]]
+    for (invalid in list(NULL, value[FALSE], as.list(value), matrix(value))) {
+      args <- c(list(plot = p, x = 2), stats::setNames(list(invalid), name))
+      expect_error(do.call(fmt_ref, args), paste0(name, ".*non-empty vector"))
+    }
+    args <- c(list(plot = p, y = 2, lineend = "round"),
+              stats::setNames(list(NULL), name))
+    expect_error(do.call(fmt_ref, args), paste0(name, ".*non-empty vector"))
+  }
+})
+
+test_that("unused and native missing styles retain their existing meaning", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 3:1), ggplot2::aes(x, y)) +
+    ggplot2::geom_point()
+  expect_identical(fmt_ref(p, color = character(), alpha = NULL), p)
+  expect_identical(fmt_ref(p, x = numeric(), y = NULL, linetype = list()), p)
+  expect_no_error(result <- fmt_ref(p, x = c(1, 2), color = c(NA, "red"),
+                                     linetype = c(0, 2), linewidth = c(0, 0.5),
+                                     alpha = c(NA, 0.8)))
+  expect_no_warning(ggplot2::ggplotGrob(result))
+  expect_equal(as.numeric(ggplot2::ggplot_build(result)$data[[2]]$linetype), c(0, 2))
+})
+
 test_that("multiple references share layers without changing per-line styles", {
   p <- ggplot2::ggplot(data.frame(x = 1:5, y = 5:1), ggplot2::aes(x, y)) +
     ggplot2::geom_point()

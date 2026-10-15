@@ -18,9 +18,12 @@ fmt_ref(
 \arguments{
 \item{plot}{A ggplot, patchwork, or list of ggplot objects.}
 
-\item{x}{Numeric vector of x-intercept values for vertical lines, or `NULL`.}
+\item{x}{Vector of x-intercept values compatible with the plot's x scale,
+including numeric values, dates or discrete category labels. \code{NULL}
+or an empty vector adds no vertical lines.}
 
-\item{y}{Numeric vector of y-intercept values for horizontal lines, or `NULL`.}
+\item{y}{Vector of y-intercept values compatible with the plot's y scale.
+\code{NULL} or an empty vector adds no horizontal lines.}
 
 \item{linetype}{Line type. Default `"dashed"`.}
 
@@ -45,6 +48,11 @@ Same type as input.
 Add vertical and/or horizontal reference lines to one or more plots. Styles
 are recycled separately for each direction. Multiple lines share a layer
 unless additional geom arguments require the original per-line behaviour.
+}
+\details{
+When positions are supplied, \code{linetype}, \code{linewidth},
+\code{color} and \code{alpha} must be non-empty vectors. Missing style
+values retain their native ggplot2 meaning.
 }
 \examples{
 library(ggplot2)
