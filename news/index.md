@@ -3,6 +3,12 @@
 ## UtilsR 0.6.8
 
 - [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
+  resolves independent overlays from existing layer data and position
+  mappings, preserving deferred evaluation and single-axis boxplots.
+  Missing sources now give a clear error instead of enabling
+  inheritance.
+
+- [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
   retains explicit data, mappings and deferred data callbacks in
   independent layers, filling only missing position mappings from the
   plot.

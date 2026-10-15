@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/fmt_boxplot.html">fmt_boxplot()</a></code> retains explicit data, mappings and deferred data callbacks in independent layers, filling only missing position mappings from the plot.</p></li>
+<ul><li><p><code><a href="../reference/fmt_boxplot.html">fmt_boxplot()</a></code> resolves independent overlays from existing layer data and position mappings, preserving deferred evaluation and single-axis boxplots. Missing sources now give a clear error instead of enabling inheritance.</p></li>
+<li><p><code><a href="../reference/fmt_boxplot.html">fmt_boxplot()</a></code> retains explicit data, mappings and deferred data callbacks in independent layers, filling only missing position mappings from the plot.</p></li>
 <li><p><code><a href="../reference/fmt_panel.html">fmt_panel()</a></code> lets restored grid placeholders inherit blank parent-grid settings during and after formatting, preserving explicit blank-inheritance overrides and the restoration of grids hidden by a blank root line.</p></li>
 <li><p><code><a href="../reference/fmt_panel.html">fmt_panel()</a></code> gives automatically restored grids contrasting colours when a blank root line hides them, including on dark panels with <code><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_void()</a></code>, while preserving explicit colours and transparent backgrounds.</p></li>
 <li><p><code><a href="../reference/fmt_panel.html">fmt_panel()</a></code> retains empty themes in its batch cache on older ggplot2 versions, keeping batch grid output identical to formatting plots individually.</p></li>

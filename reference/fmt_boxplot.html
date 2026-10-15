@@ -86,9 +86,12 @@ Outliers are suppressed by default.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>With <code>inherit.aes = FALSE</code>, explicit <code>data</code> and
-<code>mapping</code> in <code>boxplot.args</code> are retained. Missing x and y
-mappings are filled from the parent plot. Data functions and formulas
-are evaluated only during normal plot building.</p>
+<code>mapping</code> in <code>boxplot.args</code> are retained. Missing data and
+position mappings are resolved from the parent plot, then the first
+suitable existing layer. Single-axis boxplots are supported. Only x and y
+mappings are copied automatically; other mappings must be supplied explicitly.
+An unresolved source raises an error without restoring aesthetic inheritance.
+Data functions and formulas are evaluated only during normal plot building.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
