@@ -5071,7 +5071,8 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 #' @param plot A ggplot, patchwork, or list of ggplots.
 #' @param boxplot.args Named list of arguments passed to
 #'   \code{ggplot2::geom_boxplot}. Defaults include \code{width = 0.3},
-#'   \code{alpha = 0.2}, \code{na.rm = TRUE}.
+#'   \code{alpha = 0.2}, \code{na.rm = TRUE} and \code{outlier.shape = NA}.
+#'   An explicit \code{outlier.shape}, including \code{NULL}, is retained.
 #' @param inherit.aes Whether to inherit aesthetics from the parent plot.
 #'
 #' @details With \code{inherit.aes = FALSE}, explicit \code{data} and
@@ -5103,7 +5104,7 @@ fmt_boxplot <- function(plot,
   for (nm in names(defaults)) {
     if (is.null(boxplot.args[[nm]])) boxplot.args[[nm]] <- defaults[[nm]]
   }
-  boxplot.args$outlier.shape <- NA
+  if (!("outlier.shape" %in% names(boxplot.args))) boxplot.args$outlier.shape <- NA
   boxplot.args$inherit.aes <- inherit.aes
 
   fmt_boxplot_one <- function(p) {

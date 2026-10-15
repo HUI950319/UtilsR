@@ -158,3 +158,26 @@ test_that("named plot lists retain their names and format all nested plot leaves
   expect_length(q$combined[[2L]]$layers, 2L)
   expect_length(plots$combined[[1L]]$layers, 1L)
 })
+
+test_that("explicit outlier shapes render like native layers", {
+  d <- data.frame(x = "a", y = c(1:9, 100))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_blank()
+  point_shapes <- function(g) {
+    shapes <- if (inherits(g, "points")) g$pch else NULL
+    children <- if (inherits(g, "gtable")) g$grobs else g$children
+    c(shapes, unlist(lapply(children, point_shapes), use.names = FALSE))
+  }
+  for (shape in list(16, 1, NA, NULL)) {
+    q <- fmt_boxplot(p, list(outlier.shape = shape))
+    native <- p + ggplot2::geom_boxplot(width = 0.3, alpha = 0.2,
+      na.rm = TRUE, outlier.shape = shape)
+    expect_identical(ggplot2::ggplot_build(q)$data,
+                     ggplot2::ggplot_build(native)$data)
+    expect_identical(point_shapes(ggplot2::ggplotGrob(q)),
+                     point_shapes(ggplot2::ggplotGrob(native)))
+  }
+  expect_identical(is.na(point_shapes(ggplot2::ggplotGrob(fmt_boxplot(p)))), TRUE)
+  q <- fmt_boxplot(fmt_boxplot(p, list(outlier.shape = 16)),
+                   list(outlier.shape = 1))
+  expect_equal(point_shapes(ggplot2::ggplotGrob(q)), c(16, 1))
+})

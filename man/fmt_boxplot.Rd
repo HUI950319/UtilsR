@@ -11,7 +11,8 @@ fmt_boxplot(plot, boxplot.args = list(), inherit.aes = TRUE)
 
 \item{boxplot.args}{Named list of arguments passed to
 \code{ggplot2::geom_boxplot}. Defaults include \code{width = 0.3},
-\code{alpha = 0.2}, \code{na.rm = TRUE}.}
+\code{alpha = 0.2}, \code{na.rm = TRUE} and \code{outlier.shape = NA}.
+An explicit \code{outlier.shape}, including \code{NULL}, is retained.}
 
 \item{inherit.aes}{Whether to inherit aesthetics from the parent plot.}
 }

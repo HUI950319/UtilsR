@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_boxplot()` honours explicitly supplied outlier shapes, including `NULL`,
+  while retaining hidden outlier markers as the default.
+
 * `fmt_boxplot()` formats every leaf of nested patchworks while preserving
   layouts, annotations, plot-list names and non-plot placeholders or overlays.
 
