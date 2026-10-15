@@ -2,6 +2,11 @@
 
 ## UtilsR 0.6.8
 
+- [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md)
+  rejects geom intercept argument names with a clear suggestion to use
+  `x` and `y`. The formatting vignette now uses those supported
+  arguments.
+
 - [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
   aligns independent overlays with scalar fixed source x or y positions
   by mapping those constants before computing statistics. Explicit

@@ -97,7 +97,7 @@ p |> fmt_legend(position = "bottom", direction = "horizontal")
 
 ``` r
 
-p |> fmt_ref(xintercept = 5.8, yintercept = 3.0)
+p |> fmt_ref(x = 5.8, y = 3.0)
 ```
 
 ![](ggplot2_formatting_files/figure-html/fmt-ref-1.png)
@@ -105,7 +105,7 @@ p |> fmt_ref(xintercept = 5.8, yintercept = 3.0)
 ``` r
 
 # Multiple lines with colours
-p |> fmt_ref(xintercept = c(5, 6, 7), color = c("red", "blue", "green"))
+p |> fmt_ref(x = c(5, 6, 7), color = c("red", "blue", "green"))
 ```
 
 ![](ggplot2_formatting_files/figure-html/fmt-ref-multi-1.png)

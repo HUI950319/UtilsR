@@ -54,8 +54,12 @@ fmt_ref(
 
 - ...:
 
-  Additional arguments passed to \[ggplot2::geom_vline()\] or
-  \[ggplot2::geom_hline()\].
+  Additional arguments passed to
+  [`geom_vline()`](https://ggplot2.tidyverse.org/reference/geom_abline.html)
+  or
+  [`geom_hline()`](https://ggplot2.tidyverse.org/reference/geom_abline.html).
+  Supply positions with `x` and `y`; `xintercept` and `yintercept` are
+  rejected.
 
 ## Value
 
