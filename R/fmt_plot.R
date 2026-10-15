@@ -5075,9 +5075,12 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 #' @param inherit.aes Whether to inherit aesthetics from the parent plot.
 #'
 #' @details With \code{inherit.aes = FALSE}, explicit \code{data} and
-#'   \code{mapping} in \code{boxplot.args} are retained. Missing x and y
-#'   mappings are filled from the parent plot. Data functions and formulas
-#'   are evaluated only during normal plot building.
+#'   \code{mapping} in \code{boxplot.args} are retained. Missing data and
+#'   position mappings are resolved from the parent plot, then the first
+#'   suitable existing layer. Single-axis boxplots are supported. Only x and y
+#'   mappings are copied automatically; other mappings must be supplied explicitly.
+#'   An unresolved source raises an error without restoring aesthetic inheritance.
+#'   Data functions and formulas are evaluated only during normal plot building.
 #'
 #' @return Same type as input.
 #'
@@ -5103,18 +5106,40 @@ fmt_boxplot <- function(plot,
   fmt_boxplot_one <- function(p) {
     args <- boxplot.args
     if (!inherit.aes) {
-      pd <- args$data %||% p$data
-      pm <- args$mapping %||% ggplot2::aes()
-      for (axis in c("x", "y")) {
-        if (is.null(pm[[axis]])) pm[[axis]] <- p$mapping[[axis]]
+      resolved <- single_axis <- NULL
+      for (layer in c(list(NULL), p$layers)) {
+        pd <- p$data
+        pm <- if (is.null(layer) || isTRUE(layer$inherit.aes)) {
+          p$mapping
+        } else ggplot2::aes()
+        if (!is.null(layer)) {
+          if (!is.null(layer$data) && !inherits(layer$data, "waiver")) pd <- layer$data
+          for (axis in c("x", "y")) {
+            if (!is.null(layer$mapping[[axis]])) pm[[axis]] <- layer$mapping[[axis]]
+          }
+        }
+        pd <- args$data %||% pd
+        if (is.function(pd)) pd <- unclass(pd)
+        if (is.null(pd) || inherits(pd, "waiver")) next
+        mapping <- args$mapping %||% ggplot2::aes()
+        for (axis in c("x", "y")) {
+          if (is.null(mapping[[axis]])) mapping[[axis]] <- pm[[axis]]
+        }
+        if (!is.null(mapping$x) && !is.null(mapping$y)) {
+          resolved <- list(data = pd, mapping = mapping)
+          break
+        }
+        if (is.null(single_axis) && (!is.null(mapping$x) || !is.null(mapping$y))) {
+          single_axis <- list(data = pd, mapping = mapping)
+        }
       }
-      if (is.null(pd) || is.null(pm$x) || is.null(pm$y)) {
-        cli::cli_warn("Cannot extract data/mapping; falling back to inherit.aes = TRUE.")
-        args$inherit.aes <- TRUE
-      } else {
-        args$data <- pd
-        args$mapping <- pm
+      resolved <- resolved %||% single_axis
+      if (is.null(resolved)) {
+        cli::cli_abort(c("Cannot resolve boxplot data and position mappings.",
+                        "i" = "Supply {.arg boxplot.args} with data and mapping."))
       }
+      args$data <- resolved$data
+      args$mapping <- resolved$mapping
     }
     p + rlang::exec(ggplot2::geom_boxplot, !!!args)
   }

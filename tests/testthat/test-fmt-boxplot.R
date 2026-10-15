@@ -58,3 +58,55 @@ test_that("explicit boxplot callbacks stay deferred until plot building", {
                    inherit.aes = FALSE)
   expect_equal(ggplot2::ggplot_build(q)$data[[2L]]$middle, c(105.5, 115.5))
 })
+
+test_that("independent boxplots resolve data and mappings from existing layers", {
+  d <- data.frame(x = rep(c("a", "b"), each = 10), y = 1:20)
+  p <- ggplot2::ggplot() + ggplot2::geom_point(data = d, ggplot2::aes(x, y))
+  q <- fmt_boxplot(p, inherit.aes = FALSE)
+  expect_identical(q$layers[[2L]]$inherit.aes, FALSE)
+  expect_equal(ggplot2::ggplot_build(q)$data[[2L]]$middle, c(5.5, 15.5))
+  expect_identical(q$layers[[2L]]$data, d)
+  expect_length(p$layers, 1L)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, colour = x)) +
+    ggplot2::geom_point(ggplot2::aes(y = y))
+  q <- fmt_boxplot(p, inherit.aes = FALSE)
+  expect_setequal(names(q$layers[[2L]]$mapping), c("x", "y"))
+  expect_equal(ggplot2::ggplot_build(q)$data[[2L]]$middle, c(5.5, 15.5))
+  expect_null(p$mapping$y)
+})
+
+test_that("independent layers never restore unrelated parent aesthetics", {
+  d <- data.frame(x = rep(c("a", "b"), each = 10), y = 1:20)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, colour = x)) +
+    ggplot2::geom_point(ggplot2::aes(y = y))
+  external <- data.frame(a = rep(c("c", "d"), each = 4), b = 21:28)
+  q <- fmt_boxplot(p, list(data = external, mapping = ggplot2::aes(a, b)),
+                   inherit.aes = FALSE)
+  expect_identical(q$layers[[2L]]$inherit.aes, FALSE)
+  expect_equal(ggplot2::ggplot_build(q)$data[[2L]]$middle, c(22.5, 26.5))
+})
+
+test_that("layer data callbacks remain deferred and keep mapping environments", {
+  d <- data.frame(x = rep(c("a", "b"), each = 10), y = 1:20)
+  calls <- 0L
+  shift <- 100
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, colour = x)) +
+    ggplot2::geom_point(ggplot2::aes(y = y + shift), data = function(data) {
+      calls <<- calls + 1L
+      data
+    })
+  q <- fmt_boxplot(p, inherit.aes = FALSE)
+  expect_identical(calls, 0L)
+  expect_equal(ggplot2::ggplot_build(q)$data[[2L]]$middle, c(105.5, 115.5))
+  expect_identical(calls, 2L)
+})
+
+test_that("single-axis boxplots stay independent and missing sources fail clearly", {
+  d <- data.frame(y = 1:12)
+  p <- ggplot2::ggplot(d, ggplot2::aes(y = y)) + ggplot2::geom_blank()
+  q <- fmt_boxplot(p, inherit.aes = FALSE)
+  expect_identical(q$layers[[2L]]$inherit.aes, FALSE)
+  expect_equal(ggplot2::ggplot_build(q)$data[[2L]]$middle, 6.5)
+  expect_error(fmt_boxplot(ggplot2::ggplot(), inherit.aes = FALSE),
+               "Cannot resolve boxplot data and position mappings")
+})
