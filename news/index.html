@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/fmt_ref.html">fmt_ref()</a></code> rejects geom intercept argument names with a clear suggestion to use <code>x</code> and <code>y</code>. The formatting vignette now uses those supported arguments.</p></li>
+<ul><li><p><code><a href="../reference/fmt_ref.html">fmt_ref()</a></code> batches reference lines by direction and reuses their layers across plots, retaining per-line styles, facet replication and existing colour scales. Extra geom arguments keep the native per-line path for compatibility.</p></li>
+<li><p><code><a href="../reference/fmt_ref.html">fmt_ref()</a></code> rejects geom intercept argument names with a clear suggestion to use <code>x</code> and <code>y</code>. The formatting vignette now uses those supported arguments.</p></li>
 <li><p><code><a href="../reference/fmt_boxplot.html">fmt_boxplot()</a></code> aligns independent overlays with scalar fixed source x or y positions by mapping those constants before computing statistics. Explicit boxplot positions and cleared mappings retain priority; fixed vectors are not copied and data callbacks remain deferred.</p></li>
 <li><p><code><a href="../reference/fmt_boxplot.html">fmt_boxplot()</a></code> tries range-only blank layers after ordinary sample layers, retaining blank-only sources and documenting explicit source selection when point annotations share a plot with sample points.</p></li>
 <li><p><code><a href="../reference/fmt_boxplot.html">fmt_boxplot()</a></code> supports independent vector mappings without an explicit data frame while retaining their environments and deferred evaluation.</p></li>

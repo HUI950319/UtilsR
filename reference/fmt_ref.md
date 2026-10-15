@@ -1,9 +1,9 @@
 # Add reference lines to plots
 
 Add vertical and/or horizontal reference lines to one or more plots.
-When multiple intercept values are provided with matching per-line
-colors, each line is added individually so that colors are applied
-correctly.
+Styles are recycled separately for each direction. Multiple lines share
+a layer unless additional geom arguments require the original per-line
+behaviour.
 
 ## Usage
 
