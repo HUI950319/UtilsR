@@ -29,6 +29,13 @@ fmt_boxplot(plot, boxplot.args = list(), inherit.aes = TRUE)
 
 Same type as input.
 
+## Details
+
+With `inherit.aes = FALSE`, explicit `data` and `mapping` in
+`boxplot.args` are retained. Missing x and y mappings are filled from
+the parent plot. Data functions and formulas are evaluated only during
+normal plot building.
+
 ## See also
 
 Other plot formatting:
