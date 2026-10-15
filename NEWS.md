@@ -1,5 +1,10 @@
 # UtilsR 0.6.8
 
+* `fmt_boxplot()` aligns independent overlays with scalar fixed source x or y
+  positions by mapping those constants before computing statistics. Explicit
+  boxplot positions and cleared mappings retain priority; fixed vectors are
+  not copied and data callbacks remain deferred.
+
 * `fmt_boxplot()` tries range-only blank layers after ordinary sample layers,
   retaining blank-only sources and documenting explicit source selection when
   point annotations share a plot with sample points.

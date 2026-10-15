@@ -5094,6 +5094,9 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 #'   sources; later two-axis layers do not take priority. Only x and y
 #'   mappings are copied automatically; other mappings must be supplied explicitly.
 #'   Explicit \code{x = NULL} or \code{y = NULL} mappings remain cleared.
+#'   Scalar fixed x or y positions in source layers are also supplied as constant
+#'   mappings before computing statistics. Explicit boxplot position arguments
+#'   and mappings take precedence; fixed position vectors are not copied.
 #'   Automatic layer lookup skips text, label, segment, curve and reference-line
 #'   geoms. Supply explicit data and mappings to use such sources.
 #'   Blank layers are tried after other eligible layers and remain available as
@@ -5158,7 +5161,8 @@ fmt_boxplot <- function(plot,
       blank <- vapply(layers, function(layer) inherits(layer$geom, "GeomBlank"), logical(1))
       parent_used <- !length(layers) || any(vapply(layers[!blank], function(layer) {
         (is.null(layer$data) || inherits(layer$data, "waiver")) &&
-          isTRUE(layer$inherit.aes) && !any(c("x", "y") %in% names(layer$mapping))
+          isTRUE(layer$inherit.aes) &&
+          !any(c("x", "y") %in% c(names(layer$mapping), names(layer$aes_params)))
       }, logical(1)))
       layers <- c(layers[!blank], layers[blank])
       sources <- if (parent_used) {
@@ -5173,6 +5177,10 @@ fmt_boxplot <- function(plot,
           if (!is.null(layer$data) && !inherits(layer$data, "waiver")) pd <- layer$data
           for (axis in c("x", "y")) {
             if (axis %in% names(layer$mapping)) pm[[axis]] <- layer$mapping[[axis]]
+            fixed <- layer$aes_params[[axis]]
+            if (!(axis %in% names(args)) && is.atomic(fixed) && length(fixed) == 1L) {
+              pm[[axis]] <- fixed
+            }
           }
         }
         pd <- args[["data"]] %||% pd

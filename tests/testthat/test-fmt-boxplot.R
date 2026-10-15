@@ -560,3 +560,89 @@ test_that("blank-only sources and explicitly selected point samples still work",
   expect_identical(ggplot2::ggplot_build(q)$data,
                    ggplot2::ggplot_build(native)$data)
 })
+
+test_that("scalar fixed source coordinates align independent boxplots", {
+  d <- data.frame(value = 1:20)
+  cases <- list(
+    list(mapping = ggplot2::aes(y = value), fixed = list(x = 2), orientation = "x",
+         expected = ggplot2::aes(x = 2, y = value),
+         scale = ggplot2::scale_x_continuous(limits = c(-0.5, 2.5))),
+    list(mapping = ggplot2::aes(x = value), fixed = list(y = 2), orientation = "y",
+         expected = ggplot2::aes(x = value, y = 2),
+         scale = ggplot2::scale_y_continuous(limits = c(-0.5, 2.5))))
+  for (case in cases) {
+    for (parent in c(TRUE, FALSE)) {
+      p <- if (parent) {
+        ggplot2::ggplot(d, case$mapping) + do.call(ggplot2::geom_point, case$fixed)
+      } else {
+        ggplot2::ggplot() + do.call(ggplot2::geom_point,
+          c(list(data = d, mapping = case$mapping), case$fixed))
+      }
+      p <- p + case$scale
+      q <- fmt_boxplot(p, list(orientation = case$orientation), inherit.aes = FALSE)
+      native <- p + ggplot2::geom_boxplot(data = d, mapping = case$expected,
+        orientation = case$orientation, inherit.aes = FALSE,
+        width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
+      expect_identical(ggplot2::ggplot_build(q)$data,
+                       ggplot2::ggplot_build(native)$data)
+      expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+      expect_length(p$layers, 1L)
+    }
+  }
+})
+
+test_that("explicit boxplot positions take precedence over source constants", {
+  d <- data.frame(value = 1:20)
+  p <- ggplot2::ggplot(d, ggplot2::aes(y = value)) + ggplot2::geom_point(x = 2)
+  for (mapping in list(ggplot2::aes(x = 4), ggplot2::aes(x = NULL))) {
+    q <- fmt_boxplot(p, list(mapping = mapping), inherit.aes = FALSE)
+    expected <- mapping
+    expected$y <- ggplot2::aes(y = value)$y
+    native <- p + ggplot2::geom_boxplot(data = d, mapping = expected,
+      inherit.aes = FALSE, width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
+    expect_identical(ggplot2::ggplot_build(q)$data,
+                     ggplot2::ggplot_build(native)$data)
+    expect_identical(q$layers[[2L]]$mapping$x, mapping$x)
+  }
+  q <- fmt_boxplot(p, list(x = 4), inherit.aes = FALSE)
+  native <- p + ggplot2::geom_boxplot(data = d, ggplot2::aes(y = value), x = 4,
+    inherit.aes = FALSE, width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
+  expect_identical(ggplot2::ggplot_build(q)$data,
+                   ggplot2::ggplot_build(native)$data)
+  expect_null(q$layers[[2L]]$mapping$x)
+})
+
+test_that("source constants keep data callbacks deferred", {
+  d <- data.frame(value = 1:20)
+  calls <- 0L
+  p <- ggplot2::ggplot(d, ggplot2::aes(y = value)) +
+    ggplot2::geom_point(x = 2, data = function(data) {
+      calls <<- calls + 1L
+      subset(data, value > 10)
+    })
+  q <- fmt_boxplot(p, inherit.aes = FALSE)
+  expect_identical(calls, 0L)
+  built <- ggplot2::ggplot_build(q)$data[[2L]]
+  expect_equal(built$middle, 15.5)
+  expect_equal(built$x, 2)
+  expect_equal(built$xmin, 1.85)
+  expect_identical(calls, 2L)
+})
+
+test_that("scalar fixed positions override source mappings without copying vectors", {
+  d <- data.frame(value = 1:20)
+  p <- ggplot2::ggplot(d, ggplot2::aes(value, value)) + ggplot2::geom_point(x = 2)
+  q <- fmt_boxplot(p, inherit.aes = FALSE)
+  native <- p + ggplot2::geom_boxplot(data = d, ggplot2::aes(x = 2, y = value),
+    inherit.aes = FALSE, width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
+  expect_identical(ggplot2::ggplot_build(q)$data,
+                   ggplot2::ggplot_build(native)$data)
+  p <- ggplot2::ggplot(d, ggplot2::aes(y = value)) +
+    ggplot2::geom_point(x = rep(2:3, each = 10))
+  q <- fmt_boxplot(p, inherit.aes = FALSE)
+  native <- p + ggplot2::geom_boxplot(data = d, ggplot2::aes(y = value),
+    inherit.aes = FALSE, width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
+  expect_null(q$layers[[2L]]$mapping$x)
+  expect_identical(ggplot2::ggplot_build(q)$data,
+                   ggplot2::ggplot_build(native)$data)
+})
