@@ -52,12 +52,15 @@ position vectors defined in the mapping environment. The first source
 with a position mapping is used, including single-axis sources; later
 two-axis layers do not take priority. Only x and y mappings are copied
 automatically; other mappings must be supplied explicitly. Explicit
-`x = NULL` or `y = NULL` mappings remain cleared. Automatic layer lookup
-skips text, label, segment, curve and reference-line geoms. Supply
-explicit data and mappings to use such sources. Blank layers are tried
-after other eligible layers and remain available as fallback sources.
-Point annotations share the same geom as sample points; supply explicit
-data and mappings when their source order is ambiguous. For
+`x = NULL` or `y = NULL` mappings remain cleared. Scalar fixed x or y
+positions in source layers are also supplied as constant mappings before
+computing statistics. Explicit boxplot position arguments and mappings
+take precedence; fixed position vectors are not copied. Automatic layer
+lookup skips text, label, segment, curve and reference-line geoms.
+Supply explicit data and mappings to use such sources. Blank layers are
+tried after other eligible layers and remain available as fallback
+sources. Point annotations share the same geom as sample points; supply
+explicit data and mappings when their source order is ambiguous. For
 `stat = "identity"` or
 [`ggplot2::StatIdentity`](https://ggplot2.tidyverse.org/reference/Stat.html),
 an explicit mapping is passed unchanged, without adding raw-data
