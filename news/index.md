@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
+  supports independent vector mappings without an explicit data frame
+  while retaining their environments and deferred evaluation.
+
+- [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
   retains the first single-axis source instead of replacing it with
   later two-axis layers in independent overlays.
 

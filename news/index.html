@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/fmt_boxplot.html">fmt_boxplot()</a></code> retains the first single-axis source instead of replacing it with later two-axis layers in independent overlays.</p></li>
+<ul><li><p><code><a href="../reference/fmt_boxplot.html">fmt_boxplot()</a></code> supports independent vector mappings without an explicit data frame while retaining their environments and deferred evaluation.</p></li>
+<li><p><code><a href="../reference/fmt_boxplot.html">fmt_boxplot()</a></code> retains the first single-axis source instead of replacing it with later two-axis layers in independent overlays.</p></li>
 <li><p><code><a href="../reference/fmt_boxplot.html">fmt_boxplot()</a></code> preserves the mapping-source order when explicit data are supplied, avoiding unused parent columns in independent overlays.</p></li>
 <li><p><code><a href="../reference/fmt_boxplot.html">fmt_boxplot()</a></code> matches data, mapping and stat argument names exactly, preventing unrecognized names from changing samples or statistics while retaining native geom validation and warnings.</p></li>
 <li><p><code><a href="../reference/fmt_boxplot.html">fmt_boxplot()</a></code> preserves explicit summary mappings for identity statistics, supporting vertical and horizontal precomputed boxplots without injecting unrelated raw-data axes. Data callbacks remain deferred.</p></li>
