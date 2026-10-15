@@ -22,6 +22,12 @@ Same type as input.
 Adds \code{geom_boxplot} on top of existing layers (e.g. violin, jitter).
 Outliers are suppressed by default.
 }
+\details{
+With \code{inherit.aes = FALSE}, explicit \code{data} and
+\code{mapping} in \code{boxplot.args} are retained. Missing x and y
+mappings are filled from the parent plot. Data functions and formulas
+are evaluated only during normal plot building.
+}
 \examples{
 library(ggplot2)
 p <- ggplot(iris, aes(Species, Sepal.Length)) + geom_violin()

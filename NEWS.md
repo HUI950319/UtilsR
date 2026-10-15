@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_boxplot()` retains explicit data, mappings and deferred data callbacks
+  in independent layers, filling only missing position mappings from the plot.
+
 * `fmt_panel()` lets restored grid placeholders inherit blank parent-grid
   settings during and after formatting, preserving explicit blank-inheritance
   overrides and the restoration of grids hidden by a blank root line.

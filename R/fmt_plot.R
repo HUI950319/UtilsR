@@ -5074,6 +5074,11 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 #'   \code{alpha = 0.2}, \code{na.rm = TRUE}.
 #' @param inherit.aes Whether to inherit aesthetics from the parent plot.
 #'
+#' @details With \code{inherit.aes = FALSE}, explicit \code{data} and
+#'   \code{mapping} in \code{boxplot.args} are retained. Missing x and y
+#'   mappings are filled from the parent plot. Data functions and formulas
+#'   are evaluated only during normal plot building.
+#'
 #' @return Same type as input.
 #'
 #' @examples
@@ -5098,14 +5103,17 @@ fmt_boxplot <- function(plot,
   fmt_boxplot_one <- function(p) {
     args <- boxplot.args
     if (!inherit.aes) {
-      pd <- p$data
-      pm <- p$mapping
+      pd <- args$data %||% p$data
+      pm <- args$mapping %||% ggplot2::aes()
+      for (axis in c("x", "y")) {
+        if (is.null(pm[[axis]])) pm[[axis]] <- p$mapping[[axis]]
+      }
       if (is.null(pd) || is.null(pm$x) || is.null(pm$y)) {
         cli::cli_warn("Cannot extract data/mapping; falling back to inherit.aes = TRUE.")
         args$inherit.aes <- TRUE
       } else {
         args$data <- pd
-        args$mapping <- ggplot2::aes(x = !!pm$x, y = !!pm$y)
+        args$mapping <- pm
       }
     }
     p + rlang::exec(ggplot2::geom_boxplot, !!!args)
