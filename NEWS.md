@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_boxplot()` preserves the mapping-source order when explicit data are
+  supplied, avoiding unused parent columns in independent overlays.
+
 * `fmt_boxplot()` matches data, mapping and stat argument names exactly,
   preventing unrecognized names from changing samples or statistics while
   retaining native geom validation and warnings.

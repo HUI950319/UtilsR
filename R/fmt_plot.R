@@ -5086,6 +5086,7 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 #'   position mappings follow sources used by existing layers. Parent settings
 #'   are tried first when an eligible layer inherits its data and position
 #'   mappings unchanged; otherwise eligible layers are tried before the parent.
+#'   Explicit data do not change this mapping-source order.
 #'   Empty automatic data frames are skipped; explicit empty data are retained.
 #'   Single-axis boxplots are supported. Only x and y
 #'   mappings are copied automatically; other mappings must be supplied explicitly.
@@ -5152,7 +5153,7 @@ fmt_boxplot <- function(plot,
         (is.null(layer$data) || inherits(layer$data, "waiver")) &&
           isTRUE(layer$inherit.aes) && !any(c("x", "y") %in% names(layer$mapping))
       }, logical(1)))
-      sources <- if (parent_used || !is.null(args[["data"]])) {
+      sources <- if (parent_used) {
         c(list(NULL), layers)
       } else c(layers, list(NULL))
       for (layer in sources) {

@@ -434,3 +434,26 @@ test_that("native statistical and layer arguments remain available", {
   expect_identical(ggplot2::ggplot_build(q)$data,
                    ggplot2::ggplot_build(native)$data)
 })
+
+test_that("explicit data do not restore unused parent position mappings", {
+  d <- data.frame(x = rep(c("a", "b"), each = 10), y = 1:20)
+  samples <- data.frame(a = d$x, b = d$y + 100)
+  for (external in list(transform(samples, x = a, y = b + 100), samples)) {
+    p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) +
+      ggplot2::geom_point(data = external, ggplot2::aes(a, b))
+    for (mapping in list(NULL, ggplot2::aes(y = b + 10))) {
+      q <- fmt_boxplot(p, list(data = external, mapping = mapping),
+                       inherit.aes = FALSE)
+      expected_mapping <- if (is.null(mapping)) ggplot2::aes(a, b) else {
+        ggplot2::aes(x = a, y = b + 10)
+      }
+      native <- p + ggplot2::geom_boxplot(data = external,
+        mapping = expected_mapping, inherit.aes = FALSE,
+        width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
+      expect_identical(q$layers[[2L]]$data, external)
+      expect_identical(ggplot2::ggplot_build(q)$data,
+                       ggplot2::ggplot_build(native)$data)
+    }
+    expect_length(p$layers, 1L)
+  }
+})
