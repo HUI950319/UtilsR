@@ -5088,7 +5088,8 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 #'   mappings unchanged; otherwise eligible layers are tried before the parent.
 #'   Explicit data do not change this mapping-source order.
 #'   Empty automatic data frames are skipped; explicit empty data are retained.
-#'   Single-axis boxplots are supported. Only x and y
+#'   The first source with a position mapping is used, including single-axis
+#'   sources; later two-axis layers do not take priority. Only x and y
 #'   mappings are copied automatically; other mappings must be supplied explicitly.
 #'   Explicit \code{x = NULL} or \code{y = NULL} mappings remain cleared.
 #'   Automatic layer lookup skips text, label, segment, curve and reference-line
@@ -5146,7 +5147,7 @@ fmt_boxplot <- function(plot,
     if (!inherit.aes) {
       keep_mapping <- !is.null(args[["mapping"]]) &&
         (identical(args[["stat"]], "identity") || inherits(args[["stat"]], "StatIdentity"))
-      resolved <- single_axis <- NULL
+      resolved <- NULL
       layers <- Filter(function(layer) !inherits(layer$geom, c("GeomText", "GeomLabel",
         "GeomSegment", "GeomCurve", "GeomAbline", "GeomHline", "GeomVline")), p$layers)
       parent_used <- !length(layers) || any(vapply(layers, function(layer) {
@@ -5177,15 +5178,11 @@ fmt_boxplot <- function(plot,
             if (!(axis %in% names(mapping))) mapping[[axis]] <- pm[[axis]]
           }
         }
-        if (keep_mapping || (!is.null(mapping[["x"]]) && !is.null(mapping[["y"]]))) {
+        if (keep_mapping || !is.null(mapping[["x"]]) || !is.null(mapping[["y"]])) {
           resolved <- list(data = pd, mapping = mapping)
           break
         }
-        if (is.null(single_axis) && (!is.null(mapping[["x"]]) || !is.null(mapping[["y"]]))) {
-          single_axis <- list(data = pd, mapping = mapping)
-        }
       }
-      resolved <- resolved %||% single_axis
       if (is.null(resolved)) {
         cli::cli_abort(c("Cannot resolve boxplot data and position mappings.",
                         "i" = "Supply {.arg boxplot.args} with data and mapping."))

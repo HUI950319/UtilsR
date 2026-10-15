@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_boxplot()` retains the first single-axis source instead of replacing it
+  with later two-axis layers in independent overlays.
+
 * `fmt_boxplot()` preserves the mapping-source order when explicit data are
   supplied, avoiding unused parent columns in independent overlays.
 

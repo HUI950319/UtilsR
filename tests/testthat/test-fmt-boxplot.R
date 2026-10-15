@@ -457,3 +457,30 @@ test_that("explicit data do not restore unused parent position mappings", {
     expect_length(p$layers, 1L)
   }
 })
+
+test_that("valid single-axis sources retain priority over later two-axis layers", {
+  d <- data.frame(value = 1:20)
+  cases <- list(
+    list(mapping = ggplot2::aes(y = value), orientation = "x",
+         later = ggplot2::aes(x = 5, y = value + 100)),
+    list(mapping = ggplot2::aes(x = value), orientation = "y",
+         later = ggplot2::aes(x = value + 100, y = 5)))
+  for (case in cases) {
+    for (parent in c(TRUE, FALSE)) {
+      p <- if (parent) {
+        ggplot2::ggplot(d, case$mapping) + ggplot2::geom_boxplot()
+      } else {
+        ggplot2::ggplot() + ggplot2::geom_boxplot(data = d, mapping = case$mapping)
+      }
+      p <- p + ggplot2::geom_point(data = d, mapping = case$later)
+      q <- fmt_boxplot(p, list(orientation = case$orientation), inherit.aes = FALSE)
+      native <- p + ggplot2::geom_boxplot(data = d, mapping = case$mapping,
+        orientation = case$orientation, inherit.aes = FALSE,
+        width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
+      expect_setequal(names(q$layers[[3L]]$mapping), names(case$mapping))
+      expect_identical(ggplot2::ggplot_build(q)$data,
+                       ggplot2::ggplot_build(native)$data)
+      expect_length(p$layers, 2L)
+    }
+  }
+})
