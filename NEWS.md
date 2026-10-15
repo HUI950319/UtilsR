@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_ref()` rejects geom intercept argument names with a clear suggestion to
+  use `x` and `y`. The formatting vignette now uses those supported arguments.
+
 * `fmt_boxplot()` aligns independent overlays with scalar fixed source x or y
   positions by mapping those constants before computing statistics. Explicit
   boxplot positions and cleared mappings retain priority; fixed vectors are

@@ -1287,8 +1287,10 @@ fmt_legend <- function(plot,
 #' @param color Line color(s). Recycled to match the number of intercepts.
 #'   Default `"gray50"`.
 #' @param alpha Line transparency. Default `0.8`.
-#' @param ... Additional arguments passed to [ggplot2::geom_vline()] or
-#'   [ggplot2::geom_hline()].
+#' @param ... Additional arguments passed to
+#'   \code{\link[ggplot2:geom_vline]{geom_vline()}} or
+#'   \code{\link[ggplot2:geom_hline]{geom_hline()}}. Supply positions with
+#'   \code{x} and \code{y}; \code{xintercept} and \code{yintercept} are rejected.
 #'
 #' @return Same type as input.
 #'
@@ -1308,6 +1310,10 @@ fmt_ref <- function(plot,
                     color = "gray50",
                     alpha = 0.8,
                     ...) {
+  intercept_args <- intersect(c("xintercept", "yintercept"), names(rlang::list2(...)))
+  if (length(intercept_args)) {
+    cli::cli_abort("Use {.arg x} and {.arg y} instead of {.arg {intercept_args}}.")
+  }
   info <- .to_plot_list(plot, recurse = TRUE)
   plots <- info$plots
 

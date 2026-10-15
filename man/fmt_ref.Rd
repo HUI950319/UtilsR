@@ -31,8 +31,10 @@ Default `"gray50"`.}
 
 \item{alpha}{Line transparency. Default `0.8`.}
 
-\item{...}{Additional arguments passed to [ggplot2::geom_vline()] or
-[ggplot2::geom_hline()].}
+\item{...}{Additional arguments passed to
+\code{\link[ggplot2:geom_vline]{geom_vline()}} or
+\code{\link[ggplot2:geom_hline]{geom_hline()}}. Supply positions with
+\code{x} and \code{y}; \code{xintercept} and \code{yintercept} are rejected.}
 }
 \value{
 Same type as input.
