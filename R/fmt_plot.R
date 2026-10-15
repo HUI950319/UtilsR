@@ -5088,6 +5088,8 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 #'   mappings unchanged; otherwise eligible layers are tried before the parent.
 #'   Explicit data do not change this mapping-source order.
 #'   Empty automatic data frames are skipped; explicit empty data are retained.
+#'   Mappings without a data frame follow native build-time evaluation, allowing
+#'   position vectors defined in the mapping environment.
 #'   The first source with a position mapping is used, including single-axis
 #'   sources; later two-axis layers do not take priority. Only x and y
 #'   mappings are copied automatically; other mappings must be supplied explicitly.
@@ -5170,7 +5172,7 @@ fmt_boxplot <- function(plot,
         }
         pd <- args[["data"]] %||% pd
         if (is.function(pd)) pd <- unclass(pd)
-        if (is.null(pd) || inherits(pd, "waiver")) next
+        if (is.null(pd) || inherits(pd, "waiver")) pd <- NULL
         if (is.null(args[["data"]]) && is.data.frame(pd) && nrow(pd) == 0L) next
         mapping <- args[["mapping"]] %||% ggplot2::aes()
         if (!keep_mapping) {

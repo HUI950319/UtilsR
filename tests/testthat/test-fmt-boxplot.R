@@ -484,3 +484,39 @@ test_that("valid single-axis sources retain priority over later two-axis layers"
     }
   }
 })
+
+test_that("vector position mappings work without an explicit data frame", {
+  values <- 1:20
+  shift <- 100
+  for (mapping in list(ggplot2::aes(x = "a", y = values + shift),
+                       ggplot2::aes(x = values + shift, y = "a"))) {
+    for (parent in c(TRUE, FALSE)) {
+      p <- if (parent) {
+        ggplot2::ggplot(mapping = mapping) + ggplot2::geom_point()
+      } else {
+        ggplot2::ggplot() + ggplot2::geom_point(mapping = mapping)
+      }
+      q <- fmt_boxplot(p, inherit.aes = FALSE)
+      native <- p + ggplot2::geom_boxplot(mapping = mapping, inherit.aes = FALSE,
+        width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
+      expect_identical(ggplot2::ggplot_build(q)$data,
+                       ggplot2::ggplot_build(native)$data)
+      expect_identical(q$layers[[2L]]$inherit.aes, FALSE)
+      expect_length(p$layers, 1L)
+    }
+  }
+})
+
+test_that("explicit vector mappings remain deferred on an empty plot", {
+  values <- 1:20
+  calls <- 0L
+  mapping <- ggplot2::aes(y = { calls <<- calls + 1L; values })
+  p <- ggplot2::ggplot()
+  q <- fmt_boxplot(p, list(mapping = mapping), inherit.aes = FALSE)
+  expect_identical(calls, 0L)
+  native <- p + ggplot2::geom_boxplot(mapping = mapping, inherit.aes = FALSE,
+    width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
+  expect_identical(ggplot2::ggplot_build(q)$data,
+                   ggplot2::ggplot_build(native)$data)
+  expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+})

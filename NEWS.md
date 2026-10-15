@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_boxplot()` supports independent vector mappings without an explicit
+  data frame while retaining their environments and deferred evaluation.
+
 * `fmt_boxplot()` retains the first single-axis source instead of replacing it
   with later two-axis layers in independent overlays.
 
