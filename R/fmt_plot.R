@@ -5075,6 +5075,8 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 #'   \code{alpha = 0.2}, \code{na.rm = TRUE} and \code{outlier.shape = NA}.
 #'   An explicit \code{outlier.shape}, including \code{NULL}, is retained.
 #'   A supplied \code{mapping} must be created by \code{ggplot2::aes()}.
+#'   Names are matched exactly. Unrecognized arguments follow the native
+#'   validation and warnings of \code{ggplot2::geom_boxplot()}.
 #' @param inherit.aes A single \code{TRUE} or \code{FALSE}: whether to inherit
 #'   aesthetics from the parent plot. Takes precedence over the same argument
 #'   inside \code{boxplot.args}.
@@ -5141,8 +5143,8 @@ fmt_boxplot <- function(plot,
     }
     args <- boxplot.args
     if (!inherit.aes) {
-      keep_mapping <- !is.null(args$mapping) &&
-        (identical(args$stat, "identity") || inherits(args$stat, "StatIdentity"))
+      keep_mapping <- !is.null(args[["mapping"]]) &&
+        (identical(args[["stat"]], "identity") || inherits(args[["stat"]], "StatIdentity"))
       resolved <- single_axis <- NULL
       layers <- Filter(function(layer) !inherits(layer$geom, c("GeomText", "GeomLabel",
         "GeomSegment", "GeomCurve", "GeomAbline", "GeomHline", "GeomVline")), p$layers)
@@ -5150,7 +5152,7 @@ fmt_boxplot <- function(plot,
         (is.null(layer$data) || inherits(layer$data, "waiver")) &&
           isTRUE(layer$inherit.aes) && !any(c("x", "y") %in% names(layer$mapping))
       }, logical(1)))
-      sources <- if (parent_used || !is.null(args$data)) {
+      sources <- if (parent_used || !is.null(args[["data"]])) {
         c(list(NULL), layers)
       } else c(layers, list(NULL))
       for (layer in sources) {
@@ -5164,21 +5166,21 @@ fmt_boxplot <- function(plot,
             if (axis %in% names(layer$mapping)) pm[[axis]] <- layer$mapping[[axis]]
           }
         }
-        pd <- args$data %||% pd
+        pd <- args[["data"]] %||% pd
         if (is.function(pd)) pd <- unclass(pd)
         if (is.null(pd) || inherits(pd, "waiver")) next
-        if (is.null(args$data) && is.data.frame(pd) && nrow(pd) == 0L) next
-        mapping <- args$mapping %||% ggplot2::aes()
+        if (is.null(args[["data"]]) && is.data.frame(pd) && nrow(pd) == 0L) next
+        mapping <- args[["mapping"]] %||% ggplot2::aes()
         if (!keep_mapping) {
           for (axis in c("x", "y")) {
             if (!(axis %in% names(mapping))) mapping[[axis]] <- pm[[axis]]
           }
         }
-        if (keep_mapping || (!is.null(mapping$x) && !is.null(mapping$y))) {
+        if (keep_mapping || (!is.null(mapping[["x"]]) && !is.null(mapping[["y"]]))) {
           resolved <- list(data = pd, mapping = mapping)
           break
         }
-        if (is.null(single_axis) && (!is.null(mapping$x) || !is.null(mapping$y))) {
+        if (is.null(single_axis) && (!is.null(mapping[["x"]]) || !is.null(mapping[["y"]]))) {
           single_axis <- list(data = pd, mapping = mapping)
         }
       }

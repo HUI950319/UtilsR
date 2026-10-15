@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_boxplot()` matches data, mapping and stat argument names exactly,
+  preventing unrecognized names from changing samples or statistics while
+  retaining native geom validation and warnings.
+
 * `fmt_boxplot()` preserves explicit summary mappings for identity statistics,
   supporting vertical and horizontal precomputed boxplots without injecting
   unrelated raw-data axes. Data callbacks remain deferred.

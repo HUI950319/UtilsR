@@ -391,3 +391,46 @@ test_that("identity boxplot data callbacks remain deferred", {
                            data = ~ summaries), inherit.aes = FALSE)
   expect_equal(ggplot2::ggplot_build(q)$data[[2L]]$middle, summaries$mid)
 })
+
+test_that("unknown argument names do not partially match boxplot controls", {
+  d <- data.frame(x = rep(c("a", "b"), each = 10), y = 1:20)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  cases <- list(
+    list(args = list(dataset = transform(d, y = y + 100)), expected = list()),
+    list(args = list(mapping_extra = ggplot2::aes(x, y + 100)), expected = list()),
+    list(args = list(mapping_extra = 1), expected = list()),
+    list(args = list(mapping = ggplot2::aes(y = y + 100), stat_extra = "identity"),
+         expected = list(mapping = ggplot2::aes(y = y + 100))))
+  for (case in cases) {
+    reference <- fmt_boxplot(p, case$expected, inherit.aes = FALSE)
+    expect_warning(q <- fmt_boxplot(p, case$args, inherit.aes = FALSE),
+                   "Ignoring unknown parameters")
+    expect_identical(q$layers[[2L]]$data, reference$layers[[2L]]$data)
+    expect_identical(ggplot2::ggplot_build(q)$data,
+                     ggplot2::ggplot_build(reference)$data)
+  }
+})
+
+test_that("unknown data callbacks are never used as layer data", {
+  d <- data.frame(x = rep(c("a", "b"), each = 10), y = 1:20)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  calls <- 0L
+  expect_warning(q <- fmt_boxplot(p, list(dataset = function(data) {
+    calls <<- calls + 1L
+    transform(data, y = y + 100)
+  }), inherit.aes = FALSE), "Ignoring unknown parameters")
+  expect_equal(ggplot2::ggplot_build(q)$data[[2L]]$middle, c(5.5, 15.5))
+  expect_identical(calls, 0L)
+})
+
+test_that("native statistical and layer arguments remain available", {
+  d <- data.frame(x = "a", y = c(1:9, 20))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  q <- fmt_boxplot(p, list(coef = 1, position = "identity", show.legend = FALSE),
+                   inherit.aes = FALSE)
+  native <- p + ggplot2::geom_boxplot(mapping = ggplot2::aes(x, y), data = d,
+    coef = 1, position = "identity", show.legend = FALSE, inherit.aes = FALSE,
+    width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
+  expect_identical(ggplot2::ggplot_build(q)$data,
+                   ggplot2::ggplot_build(native)$data)
+})
