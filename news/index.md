@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
+  matches data, mapping and stat argument names exactly, preventing
+  unrecognized names from changing samples or statistics while retaining
+  native geom validation and warnings.
+
+- [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
   preserves explicit summary mappings for identity statistics,
   supporting vertical and horizontal precomputed boxplots without
   injecting unrelated raw-data axes. Data callbacks remain deferred.

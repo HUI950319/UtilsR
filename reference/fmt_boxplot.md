@@ -24,6 +24,9 @@ fmt_boxplot(plot, boxplot.args = list(), inherit.aes = TRUE)
   `outlier.shape = NA`. An explicit `outlier.shape`, including `NULL`,
   is retained. A supplied `mapping` must be created by
   [`ggplot2::aes()`](https://ggplot2.tidyverse.org/reference/aes.html).
+  Names are matched exactly. Unrecognized arguments follow the native
+  validation and warnings of
+  [`ggplot2::geom_boxplot()`](https://ggplot2.tidyverse.org/reference/geom_boxplot.html).
 
 - inherit.aes:
 
