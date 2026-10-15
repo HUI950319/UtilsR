@@ -3,6 +3,12 @@
 ## UtilsR 0.6.8
 
 - [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
+  selects data and position mappings actually used by existing layers
+  before unused parent settings, avoiding incompatible or empty parent
+  samples. Automatic empty data frames are skipped; explicit empty data
+  and deferred callbacks retain their normal behaviour.
+
+- [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
   skips text, label, segment, curve and reference-line layers when
   selecting samples automatically, preserving valid single-axis sources
   instead of replacing them with annotation coordinates.

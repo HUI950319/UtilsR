@@ -38,18 +38,21 @@ Same type as input.
 ## Details
 
 With `inherit.aes = FALSE`, explicit `data` and `mapping` in
-`boxplot.args` are retained. Missing data and position mappings are
-resolved from the parent plot, then the first suitable existing layer.
-Single-axis boxplots are supported. Only x and y mappings are copied
-automatically; other mappings must be supplied explicitly. Explicit
-`x = NULL` or `y = NULL` mappings remain cleared. Automatic layer lookup
-skips text, label, segment, curve and reference-line geoms. Supply
-explicit data and mappings to use such sources. An unresolved source
-raises an error without restoring aesthetic inheritance. Data functions
-and formulas are evaluated only during normal plot building. Nested
-patchworks are traversed recursively while preserving layouts,
-annotations and plot-list names. Spacers, guide areas, wrapped grobs and
-inset overlays are skipped.
+`boxplot.args` are retained. Missing data and position mappings follow
+sources used by existing layers. Parent settings are tried first when an
+eligible layer inherits its data and position mappings unchanged;
+otherwise eligible layers are tried before the parent. Empty automatic
+data frames are skipped; explicit empty data are retained. Single-axis
+boxplots are supported. Only x and y mappings are copied automatically;
+other mappings must be supplied explicitly. Explicit `x = NULL` or
+`y = NULL` mappings remain cleared. Automatic layer lookup skips text,
+label, segment, curve and reference-line geoms. Supply explicit data and
+mappings to use such sources. An unresolved source raises an error
+without restoring aesthetic inheritance. Data functions and formulas are
+evaluated only during normal plot building. Nested patchworks are
+traversed recursively while preserving layouts, annotations and
+plot-list names. Spacers, guide areas, wrapped grobs and inset overlays
+are skipped.
 
 ## See also
 

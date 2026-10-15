@@ -92,8 +92,11 @@ inside <code>boxplot.args</code>.</p></dd>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>With <code>inherit.aes = FALSE</code>, explicit <code>data</code> and
 <code>mapping</code> in <code>boxplot.args</code> are retained. Missing data and
-position mappings are resolved from the parent plot, then the first
-suitable existing layer. Single-axis boxplots are supported. Only x and y
+position mappings follow sources used by existing layers. Parent settings
+are tried first when an eligible layer inherits its data and position
+mappings unchanged; otherwise eligible layers are tried before the parent.
+Empty automatic data frames are skipped; explicit empty data are retained.
+Single-axis boxplots are supported. Only x and y
 mappings are copied automatically; other mappings must be supplied explicitly.
 Explicit <code>x = NULL</code> or <code>y = NULL</code> mappings remain cleared.
 Automatic layer lookup skips text, label, segment, curve and reference-line
