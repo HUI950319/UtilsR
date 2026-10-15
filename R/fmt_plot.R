@@ -5085,6 +5085,8 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 #'   suitable existing layer. Single-axis boxplots are supported. Only x and y
 #'   mappings are copied automatically; other mappings must be supplied explicitly.
 #'   Explicit \code{x = NULL} or \code{y = NULL} mappings remain cleared.
+#'   Automatic layer lookup skips text, label, segment, curve and reference-line
+#'   geoms. Supply explicit data and mappings to use such sources.
 #'   An unresolved source raises an error without restoring aesthetic inheritance.
 #'   Data functions and formulas are evaluated only during normal plot building.
 #'   Nested patchworks are traversed recursively while preserving layouts,
@@ -5136,6 +5138,8 @@ fmt_boxplot <- function(plot,
     if (!inherit.aes) {
       resolved <- single_axis <- NULL
       for (layer in c(list(NULL), p$layers)) {
+        if (!is.null(layer) && inherits(layer$geom, c("GeomText", "GeomLabel",
+            "GeomSegment", "GeomCurve", "GeomAbline", "GeomHline", "GeomVline"))) next
         pd <- p$data
         pm <- if (is.null(layer) || isTRUE(layer$inherit.aes)) {
           p$mapping

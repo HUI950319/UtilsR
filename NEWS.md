@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_boxplot()` skips text, label, segment, curve and reference-line layers
+  when selecting samples automatically, preserving valid single-axis sources
+  instead of replacing them with annotation coordinates.
+
 * `fmt_boxplot()` preserves explicitly cleared x or y mappings in independent
   overlays, including cleared mappings inherited from an existing source layer.
 

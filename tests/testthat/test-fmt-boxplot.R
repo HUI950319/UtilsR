@@ -246,3 +246,45 @@ test_that("cleared source-layer axes do not reappear in independent overlays", {
   expect_equal(ggplot2::ggplot_build(q)$data[[2L]]$middle, 10.5)
   expect_identical(rlang::get_expr(p$mapping$x), quote(group))
 })
+
+test_that("annotation layers are not selected as automatic boxplot samples", {
+  d <- data.frame(x = rep(c("a", "b"), each = 10), y = 1:20)
+  annotations <- list(
+    ggplot2::annotate("text", x = "a", y = 100, label = "Note"),
+    ggplot2::annotate("label", x = "a", y = 100, label = "Note"),
+    ggplot2::annotate("segment", x = "a", y = 100, xend = "b", yend = 100),
+    ggplot2::annotate("curve", x = "a", y = 100, xend = "b", yend = 100))
+  for (annotation in annotations) {
+    p <- ggplot2::ggplot() + annotation +
+      ggplot2::geom_point(data = d, ggplot2::aes(x, y))
+    q <- fmt_boxplot(p, inherit.aes = FALSE)
+    native <- p + ggplot2::geom_boxplot(data = d, ggplot2::aes(x, y),
+      inherit.aes = FALSE, width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
+    expect_identical(ggplot2::ggplot_build(q)$data,
+                     ggplot2::ggplot_build(native)$data)
+    expect_equal(ggplot2::ggplot_build(q)$data[[3L]]$middle, c(5.5, 15.5))
+  }
+})
+
+test_that("annotations do not replace valid single-axis boxplot sources", {
+  d <- data.frame(y = 1:20)
+  p <- ggplot2::ggplot(d, ggplot2::aes(y = y)) + ggplot2::geom_boxplot()
+  for (annotation in list(
+    ggplot2::annotate("text", x = 1, y = 100, label = "Note"),
+    ggplot2::annotate("label", x = 1, y = 100, label = "Note"),
+    ggplot2::annotate("segment", x = 1, y = 100, xend = 2, yend = 100),
+    ggplot2::annotate("curve", x = 1, y = 100, xend = 2, yend = 100))) {
+    q <- fmt_boxplot(p + annotation, inherit.aes = FALSE)
+    expect_equal(ggplot2::ggplot_build(q)$data[[3L]]$middle, 10.5)
+    expect_null(q$layers[[3L]]$mapping$x)
+  }
+})
+
+test_that("explicit data and mappings work on annotation-only plots", {
+  d <- data.frame(x = rep(c("a", "b"), each = 10), y = 1:20)
+  p <- ggplot2::ggplot() + ggplot2::annotate("text", x = "a", y = 100, label = "Note")
+  q <- fmt_boxplot(p, list(data = d, mapping = ggplot2::aes(x, y)),
+                   inherit.aes = FALSE)
+  expect_identical(q$layers[[2L]]$data, d)
+  expect_equal(ggplot2::ggplot_build(q)$data[[2L]]$middle, c(5.5, 15.5))
+})
