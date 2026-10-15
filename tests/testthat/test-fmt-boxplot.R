@@ -288,3 +288,60 @@ test_that("explicit data and mappings work on annotation-only plots", {
   expect_identical(q$layers[[2L]]$data, d)
   expect_equal(ggplot2::ggplot_build(q)$data[[2L]]$middle, c(5.5, 15.5))
 })
+
+test_that("unused incompatible parent data do not block valid sample layers", {
+  d <- data.frame(x = rep(c("a", "b"), each = 10), y = 1:20)
+  shift <- 100
+  mappings <- list(ggplot2::aes(x, y),
+                   ggplot2::aes(x, .data[["y"]] + .env$shift))
+  for (mapping in mappings) {
+    p <- ggplot2::ggplot(data.frame(x = "a"), mapping) +
+      ggplot2::geom_point(data = d)
+    q <- fmt_boxplot(p, inherit.aes = FALSE)
+    native <- p + ggplot2::geom_boxplot(data = d, mapping = mapping,
+      inherit.aes = FALSE, width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
+    expect_equal(nrow(ggplot2::ggplot_build(p)$data[[1L]]), 20L)
+    expect_identical(q$layers[[2L]]$data, d)
+    expect_identical(ggplot2::ggplot_build(q)$data,
+                     ggplot2::ggplot_build(native)$data)
+  }
+})
+
+test_that("empty automatic data are skipped but explicit empty data are retained", {
+  d <- data.frame(x = rep(c("a", "b"), each = 10), y = 1:20)
+  p <- ggplot2::ggplot(d[FALSE, ], ggplot2::aes(x, y)) +
+    ggplot2::geom_blank() + ggplot2::geom_point(data = d)
+  q <- fmt_boxplot(p, inherit.aes = FALSE)
+  expect_equal(ggplot2::ggplot_build(q)$data[[3L]]$middle, c(5.5, 15.5))
+  q <- fmt_boxplot(p, list(data = d[FALSE, ]), inherit.aes = FALSE)
+  expect_identical(q$layers[[3L]]$data, d[FALSE, ])
+  expect_equal(nrow(ggplot2::ggplot_build(q)$data[[3L]]), 0L)
+})
+
+test_that("source resolution follows the data and position mappings actually used", {
+  d <- data.frame(x = rep(c("a", "b"), each = 10), y = 1:20)
+  selected <- subset(d, y > 10)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point(data = selected)
+  q <- fmt_boxplot(p, inherit.aes = FALSE)
+  expect_identical(q$layers[[2L]]$data, selected)
+  expect_equal(ggplot2::ggplot_build(q)$data[[2L]]$middle, 15.5)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) +
+    ggplot2::geom_point(ggplot2::aes(y = y + 100))
+  q <- fmt_boxplot(p, inherit.aes = FALSE)
+  expect_equal(ggplot2::ggplot_build(q)$data[[2L]]$middle, c(105.5, 115.5))
+  expect_identical(rlang::get_expr(p$mapping$y), quote(y))
+})
+
+test_that("automatic layer callbacks are selected without eager evaluation", {
+  d <- data.frame(x = rep(c("a", "b"), each = 10), y = 1:20)
+  calls <- 0L
+  p <- ggplot2::ggplot(data.frame(x = "a"), ggplot2::aes(x, y)) +
+    ggplot2::geom_point(data = function(data) {
+      calls <<- calls + 1L
+      d
+    })
+  q <- fmt_boxplot(p, inherit.aes = FALSE)
+  expect_identical(calls, 0L)
+  expect_equal(ggplot2::ggplot_build(q)$data[[2L]]$middle, c(5.5, 15.5))
+  expect_identical(calls, 2L)
+})

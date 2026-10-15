@@ -30,8 +30,11 @@ Outliers are suppressed by default.
 \details{
 With \code{inherit.aes = FALSE}, explicit \code{data} and
 \code{mapping} in \code{boxplot.args} are retained. Missing data and
-position mappings are resolved from the parent plot, then the first
-suitable existing layer. Single-axis boxplots are supported. Only x and y
+position mappings follow sources used by existing layers. Parent settings
+are tried first when an eligible layer inherits its data and position
+mappings unchanged; otherwise eligible layers are tried before the parent.
+Empty automatic data frames are skipped; explicit empty data are retained.
+Single-axis boxplots are supported. Only x and y
 mappings are copied automatically; other mappings must be supplied explicitly.
 Explicit \code{x = NULL} or \code{y = NULL} mappings remain cleared.
 Automatic layer lookup skips text, label, segment, curve and reference-line

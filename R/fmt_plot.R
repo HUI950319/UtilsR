@@ -5081,8 +5081,11 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 #'
 #' @details With \code{inherit.aes = FALSE}, explicit \code{data} and
 #'   \code{mapping} in \code{boxplot.args} are retained. Missing data and
-#'   position mappings are resolved from the parent plot, then the first
-#'   suitable existing layer. Single-axis boxplots are supported. Only x and y
+#'   position mappings follow sources used by existing layers. Parent settings
+#'   are tried first when an eligible layer inherits its data and position
+#'   mappings unchanged; otherwise eligible layers are tried before the parent.
+#'   Empty automatic data frames are skipped; explicit empty data are retained.
+#'   Single-axis boxplots are supported. Only x and y
 #'   mappings are copied automatically; other mappings must be supplied explicitly.
 #'   Explicit \code{x = NULL} or \code{y = NULL} mappings remain cleared.
 #'   Automatic layer lookup skips text, label, segment, curve and reference-line
@@ -5137,9 +5140,16 @@ fmt_boxplot <- function(plot,
     args <- boxplot.args
     if (!inherit.aes) {
       resolved <- single_axis <- NULL
-      for (layer in c(list(NULL), p$layers)) {
-        if (!is.null(layer) && inherits(layer$geom, c("GeomText", "GeomLabel",
-            "GeomSegment", "GeomCurve", "GeomAbline", "GeomHline", "GeomVline"))) next
+      layers <- Filter(function(layer) !inherits(layer$geom, c("GeomText", "GeomLabel",
+        "GeomSegment", "GeomCurve", "GeomAbline", "GeomHline", "GeomVline")), p$layers)
+      parent_used <- !length(layers) || any(vapply(layers, function(layer) {
+        (is.null(layer$data) || inherits(layer$data, "waiver")) &&
+          isTRUE(layer$inherit.aes) && !any(c("x", "y") %in% names(layer$mapping))
+      }, logical(1)))
+      sources <- if (parent_used || !is.null(args$data)) {
+        c(list(NULL), layers)
+      } else c(layers, list(NULL))
+      for (layer in sources) {
         pd <- p$data
         pm <- if (is.null(layer) || isTRUE(layer$inherit.aes)) {
           p$mapping
@@ -5153,6 +5163,7 @@ fmt_boxplot <- function(plot,
         pd <- args$data %||% pd
         if (is.function(pd)) pd <- unclass(pd)
         if (is.null(pd) || inherits(pd, "waiver")) next
+        if (is.null(args$data) && is.data.frame(pd) && nrow(pd) == 0L) next
         mapping <- args$mapping %||% ggplot2::aes()
         for (axis in c("x", "y")) {
           if (!(axis %in% names(mapping))) mapping[[axis]] <- pm[[axis]]
