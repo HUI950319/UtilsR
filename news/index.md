@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
+  tries range-only blank layers after ordinary sample layers, retaining
+  blank-only sources and documenting explicit source selection when
+  point annotations share a plot with sample points.
+
+- [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
   supports independent vector mappings without an explicit data frame
   while retaining their environments and deferred evaluation.
 
