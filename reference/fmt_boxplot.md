@@ -46,12 +46,14 @@ sources used by existing layers. Parent settings are tried first when an
 eligible layer inherits its data and position mappings unchanged;
 otherwise eligible layers are tried before the parent. Explicit data do
 not change this mapping-source order. Empty automatic data frames are
-skipped; explicit empty data are retained. Single-axis boxplots are
-supported. Only x and y mappings are copied automatically; other
-mappings must be supplied explicitly. Explicit `x = NULL` or `y = NULL`
-mappings remain cleared. Automatic layer lookup skips text, label,
-segment, curve and reference-line geoms. Supply explicit data and
-mappings to use such sources. For `stat = "identity"` or
+skipped; explicit empty data are retained. The first source with a
+position mapping is used, including single-axis sources; later two-axis
+layers do not take priority. Only x and y mappings are copied
+automatically; other mappings must be supplied explicitly. Explicit
+`x = NULL` or `y = NULL` mappings remain cleared. Automatic layer lookup
+skips text, label, segment, curve and reference-line geoms. Supply
+explicit data and mappings to use such sources. For `stat = "identity"`
+or
 [`ggplot2::StatIdentity`](https://ggplot2.tidyverse.org/reference/Stat.html),
 an explicit mapping is passed unchanged, without adding raw-data
 position mappings. An unresolved source raises an error without
