@@ -47,8 +47,11 @@ boxplots are supported. Only x and y mappings are copied automatically;
 other mappings must be supplied explicitly. Explicit `x = NULL` or
 `y = NULL` mappings remain cleared. Automatic layer lookup skips text,
 label, segment, curve and reference-line geoms. Supply explicit data and
-mappings to use such sources. An unresolved source raises an error
-without restoring aesthetic inheritance. Data functions and formulas are
+mappings to use such sources. For `stat = "identity"` or
+[`ggplot2::StatIdentity`](https://ggplot2.tidyverse.org/reference/Stat.html),
+an explicit mapping is passed unchanged, without adding raw-data
+position mappings. An unresolved source raises an error without
+restoring aesthetic inheritance. Data functions and formulas are
 evaluated only during normal plot building. Nested patchworks are
 traversed recursively while preserving layouts, annotations and
 plot-list names. Spacers, guide areas, wrapped grobs and inset overlays

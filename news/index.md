@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
+  preserves explicit summary mappings for identity statistics,
+  supporting vertical and horizontal precomputed boxplots without
+  injecting unrelated raw-data axes. Data callbacks remain deferred.
+
+- [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
   selects data and position mappings actually used by existing layers
   before unused parent settings, avoiding incompatible or empty parent
   samples. Automatic empty data frames are skipped; explicit empty data
