@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_ref()` rejects `colour` with a suggestion to use its `color` parameter,
+  avoiding duplicate aesthetics and silently ignored colour requests.
+
 * `fmt_ref()` batches reference lines by direction and reuses their layers across
   plots, retaining per-line styles, facet replication and existing colour scales.
   Extra geom arguments keep the native per-line path for compatibility.

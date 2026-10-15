@@ -1291,6 +1291,8 @@ fmt_legend <- function(plot,
 #'   \code{\link[ggplot2:geom_vline]{geom_vline()}} or
 #'   \code{\link[ggplot2:geom_hline]{geom_hline()}}. Supply positions with
 #'   \code{x} and \code{y}; \code{xintercept} and \code{yintercept} are rejected.
+#'   Use \code{color} for line colors; \code{colour} is rejected to prevent
+#'   conflicting color settings.
 #'
 #' @return Same type as input.
 #'
@@ -1314,6 +1316,9 @@ fmt_ref <- function(plot,
   intercept_args <- intersect(c("xintercept", "yintercept"), names(dots))
   if (length(intercept_args)) {
     cli::cli_abort("Use {.arg x} and {.arg y} instead of {.arg {intercept_args}}.")
+  }
+  if ("colour" %in% names(dots)) {
+    cli::cli_abort("Use {.arg color} instead of {.arg colour}.")
   }
   info <- .to_plot_list(plot, recurse = TRUE)
   plots <- info$plots

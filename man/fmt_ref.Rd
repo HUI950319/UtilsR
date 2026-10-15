@@ -34,7 +34,9 @@ Default `"gray50"`.}
 \item{...}{Additional arguments passed to
 \code{\link[ggplot2:geom_vline]{geom_vline()}} or
 \code{\link[ggplot2:geom_hline]{geom_hline()}}. Supply positions with
-\code{x} and \code{y}; \code{xintercept} and \code{yintercept} are rejected.}
+\code{x} and \code{y}; \code{xintercept} and \code{yintercept} are rejected.
+Use \code{color} for line colors; \code{colour} is rejected to prevent
+conflicting color settings.}
 }
 \value{
 Same type as input.

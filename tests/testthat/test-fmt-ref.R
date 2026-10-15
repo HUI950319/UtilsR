@@ -8,6 +8,19 @@ test_that("reference positions reject geom intercept argument names", {
   expect_error(fmt_plot(p, fmt_ref_list = list(yintercept = 2)), "yintercept")
 })
 
+test_that("colour arguments direct callers to the supported color parameter", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 3:1), ggplot2::aes(x, y)) +
+    ggplot2::geom_point()
+  for (args in list(list(x = 2, colour = "red"),
+                    list(x = 2, color = "blue", colour = "red"),
+                    list(colour = "red"), list(x = 2, colour = NULL))) {
+    expect_error(do.call(fmt_ref, c(list(plot = p), args)), "Use.*color.*colour")
+  }
+  expect_error(fmt_plot(p, fmt_ref_list = list(x = 2, colour = "red")), "Use.*color")
+  expect_no_warning(result <- fmt_ref(p, x = 2, color = "red"))
+  expect_equal(as.character(ggplot2::ggplot_build(result)$data[[2]]$colour), "red")
+})
+
 test_that("reference positions add vertical and horizontal lines", {
   p <- ggplot2::ggplot(data.frame(x = 1:3, y = 3:1), ggplot2::aes(x, y)) +
     ggplot2::geom_point()
