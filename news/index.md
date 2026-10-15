@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
+  preserves the mapping-source order when explicit data are supplied,
+  avoiding unused parent columns in independent overlays.
+
+- [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
   matches data, mapping and stat argument names exactly, preventing
   unrecognized names from changing samples or statistics while retaining
   native geom validation and warnings.
