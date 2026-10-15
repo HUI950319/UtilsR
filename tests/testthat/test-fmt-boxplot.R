@@ -520,3 +520,43 @@ test_that("explicit vector mappings remain deferred on an empty plot", {
                    ggplot2::ggplot_build(native)$data)
   expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
 })
+
+test_that("range-only blank layers are tried after ordinary sample layers", {
+  d <- data.frame(x = rep(c("a", "b"), each = 10), y = 1:20)
+  cases <- list(
+    list(plot = ggplot2::ggplot() +
+           ggplot2::geom_blank(data = data.frame(x = "a", y = 100),
+                               mapping = ggplot2::aes(x, y)) +
+           ggplot2::geom_point(data = d, ggplot2::aes(x, y)),
+         mapping = ggplot2::aes(x, y)),
+    list(plot = ggplot2::ggplot(d, ggplot2::aes(x, y)) +
+           ggplot2::geom_blank() + ggplot2::geom_point(ggplot2::aes(y = y + 100)),
+         mapping = ggplot2::aes(x, y + 100)),
+    list(plot = ggplot2::ggplot(d, ggplot2::aes(x, y)) +
+           ggplot2::geom_point(ggplot2::aes(y = y + 100)) + ggplot2::geom_blank(),
+         mapping = ggplot2::aes(x, y + 100)))
+  for (case in cases) {
+    q <- fmt_boxplot(case$plot, inherit.aes = FALSE)
+    native <- case$plot + ggplot2::geom_boxplot(data = d, mapping = case$mapping,
+      inherit.aes = FALSE, width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
+    expect_identical(q$layers[[3L]]$data, d)
+    expect_identical(ggplot2::ggplot_build(q)$data,
+                     ggplot2::ggplot_build(native)$data)
+    expect_length(case$plot$layers, 2L)
+  }
+})
+
+test_that("blank-only sources and explicitly selected point samples still work", {
+  d <- data.frame(x = rep(c("a", "b"), each = 10), y = 1:20)
+  p <- ggplot2::ggplot() + ggplot2::geom_blank(data = d, ggplot2::aes(x, y))
+  q <- fmt_boxplot(p, inherit.aes = FALSE)
+  expect_equal(ggplot2::ggplot_build(q)$data[[2L]]$middle, c(5.5, 15.5))
+  p <- ggplot2::ggplot() + ggplot2::annotate("point", x = "a", y = 100) +
+    ggplot2::geom_point(data = d, ggplot2::aes(x, y))
+  q <- fmt_boxplot(p, list(data = d, mapping = ggplot2::aes(x, y)),
+                   inherit.aes = FALSE)
+  native <- p + ggplot2::geom_boxplot(data = d, ggplot2::aes(x, y),
+    inherit.aes = FALSE, width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
+  expect_identical(ggplot2::ggplot_build(q)$data,
+                   ggplot2::ggplot_build(native)$data)
+})

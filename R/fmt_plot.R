@@ -5084,7 +5084,7 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 #' @details With \code{inherit.aes = FALSE}, explicit \code{data} and
 #'   \code{mapping} in \code{boxplot.args} are retained. Missing data and
 #'   position mappings follow sources used by existing layers. Parent settings
-#'   are tried first when an eligible layer inherits its data and position
+#'   are tried first when a non-blank eligible layer inherits its data and position
 #'   mappings unchanged; otherwise eligible layers are tried before the parent.
 #'   Explicit data do not change this mapping-source order.
 #'   Empty automatic data frames are skipped; explicit empty data are retained.
@@ -5096,6 +5096,9 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 #'   Explicit \code{x = NULL} or \code{y = NULL} mappings remain cleared.
 #'   Automatic layer lookup skips text, label, segment, curve and reference-line
 #'   geoms. Supply explicit data and mappings to use such sources.
+#'   Blank layers are tried after other eligible layers and remain available as
+#'   fallback sources. Point annotations share the same geom as sample points;
+#'   supply explicit data and mappings when their source order is ambiguous.
 #'   For \code{stat = "identity"} or \code{ggplot2::StatIdentity}, an explicit
 #'   mapping is passed unchanged, without adding raw-data position mappings.
 #'   An unresolved source raises an error without restoring aesthetic inheritance.
@@ -5152,10 +5155,12 @@ fmt_boxplot <- function(plot,
       resolved <- NULL
       layers <- Filter(function(layer) !inherits(layer$geom, c("GeomText", "GeomLabel",
         "GeomSegment", "GeomCurve", "GeomAbline", "GeomHline", "GeomVline")), p$layers)
-      parent_used <- !length(layers) || any(vapply(layers, function(layer) {
+      blank <- vapply(layers, function(layer) inherits(layer$geom, "GeomBlank"), logical(1))
+      parent_used <- !length(layers) || any(vapply(layers[!blank], function(layer) {
         (is.null(layer$data) || inherits(layer$data, "waiver")) &&
           isTRUE(layer$inherit.aes) && !any(c("x", "y") %in% names(layer$mapping))
       }, logical(1)))
+      layers <- c(layers[!blank], layers[blank])
       sources <- if (parent_used) {
         c(list(NULL), layers)
       } else c(layers, list(NULL))

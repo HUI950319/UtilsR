@@ -33,7 +33,7 @@ Outliers are suppressed by default.
 With \code{inherit.aes = FALSE}, explicit \code{data} and
 \code{mapping} in \code{boxplot.args} are retained. Missing data and
 position mappings follow sources used by existing layers. Parent settings
-are tried first when an eligible layer inherits its data and position
+are tried first when a non-blank eligible layer inherits its data and position
 mappings unchanged; otherwise eligible layers are tried before the parent.
 Explicit data do not change this mapping-source order.
 Empty automatic data frames are skipped; explicit empty data are retained.
@@ -45,6 +45,9 @@ mappings are copied automatically; other mappings must be supplied explicitly.
 Explicit \code{x = NULL} or \code{y = NULL} mappings remain cleared.
 Automatic layer lookup skips text, label, segment, curve and reference-line
 geoms. Supply explicit data and mappings to use such sources.
+Blank layers are tried after other eligible layers and remain available as
+fallback sources. Point annotations share the same geom as sample points;
+supply explicit data and mappings when their source order is ambiguous.
 For \code{stat = "identity"} or \code{ggplot2::StatIdentity}, an explicit
 mapping is passed unchanged, without adding raw-data position mappings.
 An unresolved source raises an error without restoring aesthetic inheritance.
