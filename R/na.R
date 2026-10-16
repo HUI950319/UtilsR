@@ -54,22 +54,6 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
 
   n_total <- nrow(data)
 
-  .count_special_values <- function(x) {
-    if (is.factor(x) || is.character(x)) {
-      x_clean <- tolower(as.character(x))
-      special_patterns <- c("unknown", "blank", "n/a", "na", "missing",
-                            "unspecified", "not available")
-      count <- 0
-      for (p in special_patterns) {
-        count <- count + sum(grepl(p, x_clean, fixed = TRUE), na.rm = TRUE)
-      }
-      count <- count + sum(x_clean == "", na.rm = TRUE)
-      return(count)
-    } else {
-      0
-    }
-  }
-
   result_list <- list()
 
   for (var_name in names(data)) {
@@ -267,4 +251,28 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
   print(gt_table)
 
   invisible(data)
+}
+
+
+# Count the values of a factor / character vector that mark a missing or
+# unknown entry ("Unknown", "N/A", "Blank(s)", an empty string, ...); used by
+# check_na() and lv(). A pattern must match a whole word, so "Regional" or
+# "Canada" do not count through "na", and a value holding several patterns
+# counts once. Patterns are matched on the distinct values only and weighted
+# by their counts; NA is a missing value, not a special one.
+.count_special_values <- function(x) {
+  if (!is.factor(x) && !is.character(x)) return(0L)
+  if (is.factor(x)) {
+    u <- levels(x)
+    n <- tabulate(as.integer(x), nbins = length(u))
+  } else {
+    u <- unique(x)
+    n <- tabulate(match(x, u), nbins = length(u))
+  }
+  u <- tolower(u)
+  special <- grepl(
+    "\\b(unknown|blank|n/a|na|missing|unspecified|not available)\\b",
+    u, perl = TRUE
+  ) | u %in% ""
+  sum(n[special & !is.na(u)]) + 0
 }

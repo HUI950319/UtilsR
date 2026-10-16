@@ -1,5 +1,13 @@
 # UtilsR 0.6.8
 
+* `check_na()` and `lv()` count a special value ("unknown", "blank", "n/a",
+  "na", "missing", "unspecified", "not available" or an empty string) only as
+  a whole word and once per value. "Regional", "Canada", "anaplastic" or
+  "NACT" no longer count through "na", and "Unknown/unstaged/unspecified"
+  counts once instead of twice. Matching runs on the distinct values, which
+  makes `check_na()` about ten times and `lv()` about a third faster on a
+  257,000-row SEER table.
+
 * `fmt_ref()` keeps batching with scalar `na.rm` and `lineend` arguments while
   retaining native rendering, missing-value warnings and fallback for other args.
 

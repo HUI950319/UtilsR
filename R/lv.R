@@ -256,22 +256,6 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   # Internal helper functions
   # ==========================================================================
 
-  .count_special_values <- function(x) {
-    if (is.factor(x) || is.character(x)) {
-      x_clean <- tolower(as.character(x))
-      special_patterns <- c("unknown", "blank", "n/a", "na", "missing",
-                            "unspecified", "not available")
-      count <- 0
-      for (p in special_patterns) {
-        count <- count + sum(grepl(p, x_clean, fixed = TRUE), na.rm = TRUE)
-      }
-      count <- count + sum(x_clean == "", na.rm = TRUE)
-      return(count)
-    } else {
-      return(0L)
-    }
-  }
-
   .get_levels <- function(x) {
     if (is.factor(x)) {
       levels(x)
@@ -663,7 +647,13 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
         paste0(
           vars, " (",
           vapply(data[vars], function(x) class(x)[1], character(1)), ", ",
-          vapply(data[vars], function(x) length(unique(x[!is.na(x)])), integer(1)),
+          # Observed values: .lv_one() already counted them for non-factors;
+          # its factor count includes unused levels, so tabulate the codes.
+          vapply(vars, function(v) {
+            x <- data[[v]]
+            if (is.factor(x)) sum(tabulate(as.integer(x), nlevels(x)) > 0L)
+            else as.integer(result$n_unique[match(v, result$vars)])
+          }, integer(1)),
           ")"
         ),
         vars
