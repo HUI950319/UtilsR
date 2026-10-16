@@ -177,3 +177,28 @@ test_that("sampled data callbacks retain only their own sampling context", {
                length(serialize(small$layers[[1]]$data, NULL)))
   expect_equal(nrow(ggplot2::ggplot_build(large)$data[[1]]), 2L)
 })
+
+test_that("point layers respect local mappings and explicit aesthetic overrides", {
+  d <- data.frame(x = 1:6, y = 6:1, g = rep(c("a", "b"), 3))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y))
+  native <- ggplot2::ggplot_build(p + ggplot2::geom_point(ggplot2::aes(shape = g)))$data[[1]]
+  result <- ggplot2::ggplot_build(fmt_point(p, mapping = ggplot2::aes(shape = g)))$data[[1]]
+  expect_equal(result$shape, native$shape)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, shape = g, size = y))
+  result <- ggplot2::ggplot_build(fmt_point(p, shape = 17, size = 7))$data[[1]]
+  expect_equal(result$shape, rep(17, 6))
+  expect_equal(result$size, rep(7, 6))
+  result <- ggplot2::ggplot_build(fmt_point(p, inherit.aes = FALSE,
+    mapping = ggplot2::aes(x, y), size = 7))$data[[1]]
+  expect_equal(result$size, rep(7, 6))
+})
+
+test_that("sampling uses the effective layer mapping", {
+  d <- data.frame(x = 1:12, y = 12:1, g = rep(c("a", "b"), 6))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y))
+  result <- fmt_point(p, mapping = ggplot2::aes(colour = g), sample_n = 2)
+  expect_equal(nrow(result$layers[[1]]$data), 4L)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, colour = g))
+  result <- fmt_point(p, inherit.aes = FALSE, mapping = ggplot2::aes(x, y), sample_n = 2)
+  expect_equal(nrow(result$layers[[1]]$data), 2L)
+})

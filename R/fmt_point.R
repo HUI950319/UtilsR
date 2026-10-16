@@ -23,8 +23,10 @@
 #'   Can be a data.frame or a function/formula applied to the plot data
 #'   (e.g. \code{~ subset(.x, value > 10)}). Functions and formulas are evaluated
 #'   at plot build time, before optional sampling.
-#' @param shape Point shape. Default 19 (solid circle).
-#' @param size Point size. Default 1.
+#' @param shape Point shape. Default 19 (solid circle). Omitted values preserve
+#'   mapped shapes; explicitly supplied values override mappings.
+#' @param size Point size. Default 1. Omitted values preserve mapped sizes;
+#'   explicitly supplied values override mappings.
 #' @param white_border Logical. If \code{TRUE}, converts shapes to fillable
 #'   versions (21-25) with white stroke, retaining scaled colours as fills.
 #'   Default \code{FALSE}.
@@ -99,6 +101,8 @@ fmt_point <- function(plot,
                       rasterize.dpi = 300,
                       ...) {
   type <- match.arg(type)
+  shape_missing <- missing(shape)
+  size_missing <- missing(size)
 
   # Jitter defaults
   jit <- list(width = 0.2, height = 0)
@@ -110,17 +114,30 @@ fmt_point <- function(plot,
   bee[names(beeswarm.args)] <- beeswarm.args
 
   fmt_point_one <- function(p) {
+    params <- list(size = size, shape = shape, ...)
+    if ("color" %in% names(params) && !"colour" %in% names(params)) {
+      params$colour <- params$color
+      params$color <- NULL
+    }
+    layer_mapping <- if (isFALSE(params$inherit.aes)) list() else as.list(p$mapping)
+    layer_mapping[names(params$mapping)] <- as.list(params$mapping)
+    if (shape_missing && !is.null(layer_mapping$shape)) params$shape <- NULL
+    if (size_missing && !is.null(layer_mapping$size)) params$size <- NULL
+    for (aes_name in intersect(names(params), names(layer_mapping))) {
+      if (!is.null(params[[aes_name]])) layer_mapping[[aes_name]] <- NULL
+    }
+
     # --- Subsample data ---
     if (!is.null(sample_n)) {
       if (is.function(data) || rlang::is_formula(data)) {
         sampled_data <- function(d) .fmt_point_sample(data_fun(d), mapping, sample_n, seed)
         environment(sampled_data) <- list2env(list(
           .fmt_point_sample = .fmt_point_sample, data_fun = rlang::as_function(data),
-          mapping = as.list(p$mapping), sample_n = sample_n, seed = seed
+          mapping = layer_mapping, sample_n = sample_n, seed = seed
         ), parent = baseenv())
         data <- sampled_data
       } else {
-        data <- .fmt_point_sample(data %||% p$data, as.list(p$mapping), sample_n, seed)
+        data <- .fmt_point_sample(data %||% p$data, layer_mapping, sample_n, seed)
       }
     }
 
@@ -148,8 +165,6 @@ fmt_point <- function(plot,
       }
     }
 
-    # --- Build params ---
-    params <- list(size = size, shape = shape, ...)
     if (!is.null(data)) params$data <- data
 
     # --- White border ---
@@ -161,11 +176,10 @@ fmt_point <- function(plot,
         params$colour <- params$color
         params$color <- NULL
       }
-      border_mapping <- if (isFALSE(params$inherit.aes)) list() else as.list(p$mapping)
-      border_mapping[names(params$mapping)] <- as.list(params$mapping)
-      params$shape <- .shape_convert(params$shape)
+      border_mapping <- layer_mapping
+      if (!is.null(params$shape)) params$shape <- .shape_convert(params$shape)
       if (!is.null(border_mapping$shape) || all(params$shape %in% 21:25)) {
-        params$size <- params$size * 1.5
+        if (!is.null(params$size)) params$size <- params$size * 1.5
         if (is.null(params$mapping)) params$mapping <- ggplot2::aes()
         if (!is.null(border_mapping$colour) && is.null(params$colour)) {
           colour_mapping <- border_mapping$colour
@@ -203,10 +217,6 @@ fmt_point <- function(plot,
         }
       }
     }
-
-    # Skip fixed aesthetics if mapped
-    if ("shape" %in% names(p$mapping)) params$shape <- NULL
-    if ("size" %in% names(p$mapping)) params$size <- NULL
 
     # --- Create geom ---
     if (type == "beeswarm") {

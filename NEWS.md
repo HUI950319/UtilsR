@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_point()` respects layer-local mappings and `inherit.aes` when sampling
+  and styling points. Explicit `shape`/`size` values override mappings, while
+  omitted values retain the mapped aesthetics.
+
 * `fmt_point()` supports sampling function/formula data after the callback runs
   at build time. Sampling callbacks do not capture unrelated plots or data.
 

@@ -32,9 +32,11 @@ Can be a data.frame or a function/formula applied to the plot data
 (e.g. \code{~ subset(.x, value > 10)}). Functions and formulas are evaluated
 at plot build time, before optional sampling.}
 
-\item{shape}{Point shape. Default 19 (solid circle).}
+\item{shape}{Point shape. Default 19 (solid circle). Omitted values preserve
+mapped shapes; explicitly supplied values override mappings.}
 
-\item{size}{Point size. Default 1.}
+\item{size}{Point size. Default 1. Omitted values preserve mapped sizes;
+explicitly supplied values override mappings.}
 
 \item{white_border}{Logical. If \code{TRUE}, converts shapes to fillable
 versions (21-25) with white stroke, retaining scaled colours as fills.
