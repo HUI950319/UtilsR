@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
+  supports group-only jitter-dodge on ggplot2 3.5.x without adding
+  visible aesthetics or changing ggplot2 4.x positioning.
+
+- [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
   samples rows independently of hidden dplyr grouping attributes;
   rowwise and grouped inputs follow the same aesthetic-based sample
   limits.
