@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_point()` validates sample sizes, seeds and layout controls consistently,
+  rejects malformed jitter options and incompatible grouping lengths, and
+  accepts `NULL` jitter dimensions for ggplot2's native defaults.
+
 * `fmt_point()` forwards supported `beeswarm.args` options such as `priority`
   and `side`, and rejects unknown, duplicate or unnamed options.
 

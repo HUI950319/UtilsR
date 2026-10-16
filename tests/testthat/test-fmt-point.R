@@ -254,3 +254,41 @@ test_that("beeswarm arguments reach the position adjustment", {
   expect_error(fmt_point(p, type = "beeswarm", beeswarm.args = list(cex = 2, cex = 3)),
                "beeswarm.args.*unique")
 })
+
+test_that("sampling controls reject invalid sizes consistently", {
+  d <- data.frame(x = 1:6, y = 6:1, g = rep(c("a", "b"), 3))
+  for (mapping in list(ggplot2::aes(x, y), ggplot2::aes(x, y, colour = g))) {
+    p <- ggplot2::ggplot(d, mapping)
+    for (invalid in list(2.5, -1, NA_real_, Inf, numeric(), c(1, 2), TRUE, "2")) {
+      expect_error(fmt_point(p, sample_n = invalid), "sample_n.*non-negative integer")
+    }
+    expect_equal(nrow(fmt_point(p, sample_n = 0)$layers[[1]]$data), 0L)
+    expect_error(fmt_point(p, sample_n = 2, seed = NA_real_), "seed")
+  }
+})
+
+test_that("sampling groups cannot silently recycle incompatible lengths", {
+  d <- data.frame(x = 1:6, y = 6:1)
+  bad_groups <- c("a", "b")
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, colour = bad_groups))
+  expect_error(fmt_point(p, sample_n = 2), "colour.*length")
+})
+
+test_that("point layout controls fail early with argument-specific errors", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 3:1), ggplot2::aes(x, y))
+  expect_error(fmt_point(p, dodge.width = -1), "dodge.width")
+  expect_error(fmt_point(p, white_border = NA), "white_border")
+  expect_error(fmt_point(p, rasterize = NA), "rasterize")
+  expect_error(fmt_point(p, rasterize = TRUE, rasterize.dpi = 0), "rasterize.dpi")
+  for (args in list(list(0.2), list(width = 0.2, width = 0.3),
+                    stats::setNames(list(0.2), NA_character_), list(widht = 0.2))) {
+    expect_error(fmt_point(p, type = "jitter", jitter.args = args), "jitter.args")
+  }
+  expect_error(fmt_point(p, type = "jitter", jitter.args = list(width = -1)),
+               "jitter.args.*width")
+  native <- p + ggplot2::geom_point(shape = 19, size = 1,
+    position = ggplot2::position_jitter(width = NULL, height = 0, seed = 42))
+  result <- fmt_point(p, type = "jitter", jitter.args = list(width = NULL))
+  expect_equal(ggplot2::ggplot_build(result)$data[[1]]$x,
+               ggplot2::ggplot_build(native)$data[[1]]$x)
+})

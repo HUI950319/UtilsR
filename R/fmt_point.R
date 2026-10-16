@@ -34,6 +34,8 @@
 #'   Set to 0 to disable dodging.
 #' @param jitter.args Named list of jitter arguments. Only used when
 #'   \code{type = "jitter"}. Defaults: \code{list(width = 0.2, height = 0)}.
+#'   Width and height must be non-negative numbers or \code{NULL} for native
+#'   ggplot2 defaults.
 #' @param beeswarm.args Named list of beeswarm arguments. Only used when
 #'   \code{type = "beeswarm"}.
 #'   Defaults: \code{list(cex = 3, corral = "wrap", corral.width = 0.5)}.
@@ -41,7 +43,7 @@
 #'   \code{orientation}, \code{groupOnX}, \code{preserve.data.axis}, and
 #'   \code{beeswarmArgs} when supported by ggbeeswarm. Values override the same
 #'   arguments in \code{...}; use \code{dodge.width} to control dodging.
-#' @param sample_n Integer or \code{NULL}. When set, randomly subsample data
+#' @param sample_n Non-negative integer or \code{NULL}. When set, subsample data
 #'   before plotting to reduce overplotting. An explicit \code{group} mapping
 #'   takes priority over discrete color/fill mappings, including expressions.
 #'   Sampling takes at most \code{sample_n} points \strong{per group}; missing
@@ -107,10 +109,52 @@ fmt_point <- function(plot,
   type <- match.arg(type)
   shape_missing <- missing(shape)
   size_missing <- missing(size)
+  if (!is.null(sample_n) &&
+      (!is.numeric(sample_n) || length(sample_n) != 1L || !is.finite(sample_n) ||
+       sample_n < 0 || sample_n != floor(sample_n))) {
+    cli::cli_abort("{.arg sample_n} must be a non-negative integer or NULL.")
+  }
+  if (!is.null(sample_n) && !is.null(seed) &&
+      (!is.numeric(seed) || length(seed) != 1L || !is.finite(seed) ||
+       seed != floor(seed) || abs(seed) > .Machine$integer.max)) {
+    cli::cli_abort("{.arg seed} must be a finite integer or NULL.")
+  }
+  for (name in c("white_border", "rasterize")) {
+    value <- get(name)
+    if (!is.logical(value) || length(value) != 1L || is.na(value)) {
+      cli::cli_abort("{.arg {name}} must be TRUE or FALSE.")
+    }
+  }
+  if (!is.numeric(dodge.width) || length(dodge.width) != 1L ||
+      !is.finite(dodge.width) || dodge.width < 0) {
+    cli::cli_abort("{.arg dodge.width} must be one finite non-negative number.")
+  }
+  if (rasterize && (!is.numeric(rasterize.dpi) || length(rasterize.dpi) != 1L ||
+      !is.finite(rasterize.dpi) || rasterize.dpi <= 0)) {
+    cli::cli_abort("{.arg rasterize.dpi} must be one finite positive number.")
+  }
 
   # Jitter defaults
   jit <- list(width = 0.2, height = 0)
-  jit[names(jitter.args)] <- jitter.args
+  if (type == "jitter") {
+    if (!is.list(jitter.args) ||
+        (length(jitter.args) && (is.null(names(jitter.args)) ||
+         anyNA(names(jitter.args)) || any(!nzchar(names(jitter.args))) ||
+         anyDuplicated(names(jitter.args))))) {
+      cli::cli_abort("{.arg jitter.args} must be a list with unique, non-empty names.")
+    }
+    if (length(setdiff(names(jitter.args), c("width", "height")))) {
+      cli::cli_abort("{.arg jitter.args} only accepts width and height.")
+    }
+    jit <- utils::modifyList(jit, jitter.args, keep.null = TRUE)
+    for (name in names(jit)) {
+      value <- jit[[name]]
+      if (!is.null(value) && (!is.numeric(value) || length(value) != 1L ||
+          !is.finite(value) || value < 0)) {
+        cli::cli_abort("{.arg jitter.args} {.val {name}} must be non-negative or NULL.")
+      }
+    }
+  }
   if (type == "point") { jit$width <- 0; jit$height <- 0 }
 
   # Beeswarm defaults
@@ -170,7 +214,7 @@ fmt_point <- function(plot,
     if (type == "beeswarm") {
       position <- NULL
     } else if (dodge.width == 0 || !has_group) {
-      if (jit$width == 0 && jit$height == 0) {
+      if (isTRUE(jit$width == 0) && isTRUE(jit$height == 0)) {
         position <- ggplot2::position_identity()
       } else {
         position <- ggplot2::position_jitter(
@@ -178,7 +222,7 @@ fmt_point <- function(plot,
         )
       }
     } else {
-      if (jit$width == 0 && jit$height == 0) {
+      if (isTRUE(jit$width == 0) && isTRUE(jit$height == 0)) {
         position <- ggplot2::position_dodge(width = dodge.width, preserve = "total")
       } else {
         position <- ggplot2::position_jitterdodge(
@@ -297,6 +341,9 @@ fmt_point <- function(plot,
     if (!is.null(values) &&
         (aes_name == "group" || is.factor(values) ||
          is.character(values) || is.logical(values))) {
+      if (!length(values) %in% c(1L, nrow(data))) {
+        cli::cli_abort("Sampling {.arg {aes_name}} must have length 1 or nrow(data).")
+      }
       group_values <- rep_len(values, nrow(data))
       break
     }

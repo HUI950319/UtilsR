@@ -46,7 +46,9 @@ Default \code{FALSE}.}
 Set to 0 to disable dodging.}
 
 \item{jitter.args}{Named list of jitter arguments. Only used when
-\code{type = "jitter"}. Defaults: \code{list(width = 0.2, height = 0)}.}
+\code{type = "jitter"}. Defaults: \code{list(width = 0.2, height = 0)}.
+Width and height must be non-negative numbers or \code{NULL} for native
+ggplot2 defaults.}
 
 \item{beeswarm.args}{Named list of beeswarm arguments. Only used when
 \code{type = "beeswarm"}.
@@ -56,7 +58,7 @@ Also accepts \code{method}, \code{side}, \code{priority}, \code{fast},
 \code{beeswarmArgs} when supported by ggbeeswarm. Values override the same
 arguments in \code{...}; use \code{dodge.width} to control dodging.}
 
-\item{sample_n}{Integer or \code{NULL}. When set, randomly subsample data
+\item{sample_n}{Non-negative integer or \code{NULL}. When set, subsample data
 before plotting to reduce overplotting. An explicit \code{group} mapping
 takes priority over discrete color/fill mappings, including expressions.
 Sampling takes at most \code{sample_n} points \strong{per group}; missing
