@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/fmt_point.html">fmt_point()</a></code> supports group-only jitter-dodge on ggplot2 3.5.x without adding visible aesthetics or changing ggplot2 4.x positioning.</p></li>
+<ul><li><p><code><a href="../reference/fmt_point.html">fmt_point()</a></code> resolves dodge groups from built layer data, so continuous or NULL aesthetics retain plain jitter widths and data callbacks remain deferred.</p></li>
+<li><p><code><a href="../reference/fmt_point.html">fmt_point()</a></code> supports group-only jitter-dodge on ggplot2 3.5.x without adding visible aesthetics or changing ggplot2 4.x positioning.</p></li>
 <li><p><code><a href="../reference/fmt_point.html">fmt_point()</a></code> samples rows independently of hidden dplyr grouping attributes; rowwise and grouped inputs follow the same aesthetic-based sample limits.</p></li>
 <li><p><code><a href="../reference/fmt_point.html">fmt_point()</a></code> distinguishes ordinary columns named <code>stage</code>, <code>after_stat</code>, <code>after_scale</code> or <code>from_theme</code> from delayed aesthetic function calls.</p></li>
 <li><p><code>fmt_point(white_border = TRUE)</code> keeps non-fillable symbols visible using a white underlay, and handles named shapes and an explicit NULL shape.</p></li>
