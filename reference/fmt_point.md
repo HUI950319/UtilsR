@@ -39,7 +39,8 @@ fmt_point(
 
   Data for the point layer. Default `NULL` inherits from plot. Can be a
   data.frame or a function/formula applied to the plot data (e.g.
-  `~ subset(.x, value > 10)`).
+  `~ subset(.x, value > 10)`). Functions and formulas are evaluated at
+  plot build time, before optional sampling.
 
 - shape:
 

@@ -2,6 +2,10 @@
 
 ## UtilsR 0.6.8
 
+- [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
+  supports sampling function/formula data after the callback runs at
+  build time. Sampling callbacks do not capture unrelated plots or data.
+
 - `fmt_point(white_border = TRUE)` retains scaled group colours and
   existing fills, treats `color` and `colour` consistently, and supports
   mapped shapes and shape 25 without replacing the original plot’s
