@@ -144,7 +144,9 @@ before plotting to reduce overplotting. An explicit <code>group</code> mapping
 takes priority over discrete color/fill mappings, including expressions.
 Sampling takes at most <code>sample_n</code> points <strong>per group</strong>; missing
 group values form a separate group. Continuous color/fill mappings do not
-define sampling groups. Default <code>NULL</code> (no sampling).</p></dd>
+define sampling groups. Sampling requires scalar fixed aesthetics; put
+external row vectors into <code>data</code> and map its columns instead.
+Default <code>NULL</code> (no sampling).</p></dd>
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>

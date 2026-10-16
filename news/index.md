@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
+  diagnoses fixed aesthetic vectors and external row-vector mappings
+  before sampling, with instructions to map columns in layer data.
+
+- [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
   uses exact parameter lookups, preventing ignored geom arguments from
   partially matching inheritance, shape, colour or fill controls.
 

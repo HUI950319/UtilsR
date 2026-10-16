@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/fmt_point.html">fmt_point()</a></code> uses exact parameter lookups, preventing ignored geom arguments from partially matching inheritance, shape, colour or fill controls.</p></li>
+<ul><li><p><code><a href="../reference/fmt_point.html">fmt_point()</a></code> diagnoses fixed aesthetic vectors and external row-vector mappings before sampling, with instructions to map columns in layer data.</p></li>
+<li><p><code><a href="../reference/fmt_point.html">fmt_point()</a></code> uses exact parameter lookups, preventing ignored geom arguments from partially matching inheritance, shape, colour or fill controls.</p></li>
 <li><p><code><a href="../reference/fmt_point.html">fmt_point()</a></code> resolves dodge groups from built layer data, so continuous or NULL aesthetics retain plain jitter widths and data callbacks remain deferred.</p></li>
 <li><p><code><a href="../reference/fmt_point.html">fmt_point()</a></code> supports group-only jitter-dodge on ggplot2 3.5.x without adding visible aesthetics or changing ggplot2 4.x positioning.</p></li>
 <li><p><code><a href="../reference/fmt_point.html">fmt_point()</a></code> samples rows independently of hidden dplyr grouping attributes; rowwise and grouped inputs follow the same aesthetic-based sample limits.</p></li>
