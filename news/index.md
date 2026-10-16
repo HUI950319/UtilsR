@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
+  uses exact parameter lookups, preventing ignored geom arguments from
+  partially matching inheritance, shape, colour or fill controls.
+
+- [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
   resolves dodge groups from built layer data, so continuous or NULL
   aesthetics retain plain jitter widths and data callbacks remain
   deferred.
