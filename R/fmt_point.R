@@ -54,7 +54,9 @@
 #'   takes priority over discrete color/fill mappings, including expressions.
 #'   Sampling takes at most \code{sample_n} points \strong{per group}; missing
 #'   group values form a separate group. Continuous color/fill mappings do not
-#'   define sampling groups. Default \code{NULL} (no sampling).
+#'   define sampling groups. Sampling requires scalar fixed aesthetics; put
+#'   external row vectors into \code{data} and map its columns instead.
+#'   Default \code{NULL} (no sampling).
 #' @param seed Random seed for reproducible sampling. Default 42. Sampling
 #'   preserves the caller's random-number state.
 #' @param rasterize Logical. If \code{TRUE}, rasterizes the point layer
@@ -201,15 +203,16 @@ fmt_point <- function(plot,
 
     # --- Subsample data ---
     if (!is.null(sample_n)) {
+      fixed <- params[intersect(names(params), ggplot2::GeomPoint$aesthetics())]
       if (is.function(data) || rlang::is_formula(data)) {
-        sampled_data <- function(d) .fmt_point_sample(data_fun(d), mapping, sample_n, seed)
+        sampled_data <- function(d) .fmt_point_sample(data_fun(d), mapping, sample_n, seed, fixed)
         environment(sampled_data) <- list2env(list(
           .fmt_point_sample = .fmt_point_sample, data_fun = rlang::as_function(data),
-          mapping = layer_mapping, sample_n = sample_n, seed = seed
+          mapping = layer_mapping, sample_n = sample_n, seed = seed, fixed = fixed
         ), parent = baseenv())
         data <- sampled_data
       } else {
-        data <- .fmt_point_sample(data %||% p$data, layer_mapping, sample_n, seed)
+        data <- .fmt_point_sample(data %||% p$data, layer_mapping, sample_n, seed, fixed)
       }
     }
 
@@ -338,7 +341,7 @@ fmt_point <- function(plot,
 
 # --- Internal helper ---
 
-.fmt_point_sample <- function(data, mapping, sample_n, seed) {
+.fmt_point_sample <- function(data, mapping, sample_n, seed, fixed = list()) {
   if (!is.data.frame(data)) {
     cli::cli_abort("Sampling requires {.arg data} to resolve to a data frame.")
   }
@@ -356,10 +359,37 @@ fmt_point <- function(plot,
   set.seed(seed)
   group_values <- NULL
   is_late <- function(expr) {
+    if (rlang::is_missing(expr)) return(FALSE)
     if (!is.call(expr)) return(FALSE)
     if (rlang::call_name(expr) %in% c("after_stat", "after_scale", "stage", "from_theme"))
       return(TRUE)
     any(vapply(as.list(expr)[-1L], is_late, logical(1)))
+  }
+  if (any(lengths(fixed) > 1L)) {
+    cli::cli_abort("Sampling requires scalar fixed aesthetics; put row vectors in {.arg data} and map its columns.")
+  }
+  external_vector <- function(expr, env) {
+    if (rlang::is_missing(expr)) return(FALSE)
+    value <- NULL
+    if (is.symbol(expr)) {
+      name <- as.character(expr)
+      if (name %in% c(names(data), ".data", ".env")) return(FALSE)
+      value <- get0(name, envir = env, inherits = TRUE)
+    } else if (is.call(expr)) {
+      if (rlang::call_name(expr) %in% c("$", "[[")) {
+        if (identical(expr[[2L]], quote(.data))) return(FALSE)
+        value <- rlang::eval_tidy(rlang::new_quosure(expr, env), data = data)
+      }
+      if (is.null(value))
+        return(any(vapply(as.list(expr)[-1L], external_vector, logical(1), env = env)))
+    }
+    is.atomic(value) && length(value) > 1L && length(value) == nrow(data)
+  }
+  for (aesthetic in mapping) {
+    expr <- .fmt_point_stage_args(aesthetic)$start
+    if (is.null(expr) || is_late(expr)) next
+    if (external_vector(expr, rlang::get_env(aesthetic, default = baseenv())))
+      cli::cli_abort("Sampling cannot align external row vectors; put them in {.arg data} and map its columns.")
   }
   for (aes_name in c("group", "colour", "fill")) {
     aesthetic <- mapping[[aes_name]]

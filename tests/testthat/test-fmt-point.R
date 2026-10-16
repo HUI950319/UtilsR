@@ -428,3 +428,25 @@ test_that("ignored geom arguments cannot partially match formatting controls", {
                  "Ignoring unknown parameters")
   expect_equal(ggplot2::ggplot_build(out)$data[[1]]$fill, rep("black", nrow(d)))
 })
+
+test_that("sampling diagnoses row vectors outside layer data", {
+  d <- data.frame(x = 1:12, y = 12:1)
+  colours <- rep(c("red", "blue"), 6)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y))
+  expect_error(fmt_point(p, sample_n = 2, colour = colours), "Sampling.*scalar")
+  for (mapping in list(ggplot2::aes(x, y, colour = .env$colours),
+                      ggplot2::aes(x, y, colour = colours),
+                      ggplot2::aes(x, y, colour = factor(.env[["colours"]])))) {
+    p <- ggplot2::ggplot(d, mapping)
+    expect_error(fmt_point(p, sample_n = 2), "Sampling.*external")
+    deferred <- fmt_point(p, data = ~ .x, sample_n = 2)
+    expect_error(ggplot2::ggplot_build(deferred), "Sampling.*external")
+    expect_no_warning(ggplot2::ggplot_build(fmt_point(p, sample_n = 20)))
+  }
+  d$colours <- colours
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, colour = colours))
+  expect_equal(nrow(ggplot2::ggplot_build(fmt_point(p, sample_n = 2))$data[[1]]), 4L)
+  d$matrix_column <- I(matrix(1:24, nrow = 12))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, matrix_column[, 1], colour = colours))
+  expect_equal(nrow(ggplot2::ggplot_build(fmt_point(p, sample_n = 2))$data[[1]]), 4L)
+})

@@ -64,7 +64,9 @@ before plotting to reduce overplotting. An explicit \code{group} mapping
 takes priority over discrete color/fill mappings, including expressions.
 Sampling takes at most \code{sample_n} points \strong{per group}; missing
 group values form a separate group. Continuous color/fill mappings do not
-define sampling groups. Default \code{NULL} (no sampling).}
+define sampling groups. Sampling requires scalar fixed aesthetics; put
+external row vectors into \code{data} and map its columns instead.
+Default \code{NULL} (no sampling).}
 
 \item{seed}{Random seed for reproducible sampling. Default 42. Sampling
 preserves the caller's random-number state.}
