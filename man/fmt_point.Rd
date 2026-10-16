@@ -50,7 +50,11 @@ Set to 0 to disable dodging.}
 
 \item{beeswarm.args}{Named list of beeswarm arguments. Only used when
 \code{type = "beeswarm"}.
-Defaults: \code{list(cex = 3, corral = "wrap", corral.width = 0.5)}.}
+Defaults: \code{list(cex = 3, corral = "wrap", corral.width = 0.5)}.
+Also accepts \code{method}, \code{side}, \code{priority}, \code{fast},
+\code{orientation}, \code{groupOnX}, \code{preserve.data.axis}, and
+\code{beeswarmArgs} when supported by ggbeeswarm. Values override the same
+arguments in \code{...}; use \code{dodge.width} to control dodging.}
 
 \item{sample_n}{Integer or \code{NULL}. When set, randomly subsample data
 before plotting to reduce overplotting. An explicit \code{group} mapping

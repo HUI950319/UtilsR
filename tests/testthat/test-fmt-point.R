@@ -226,3 +226,31 @@ test_that("automatic dodging uses explicit and layer-local groups", {
   result <- fmt_point(p, inherit.aes = FALSE, mapping = ggplot2::aes(x, y))
   expect_s3_class(result$layers[[1]]$position, "PositionIdentity")
 })
+
+test_that("beeswarm arguments reach the position adjustment", {
+  skip_if_not_installed("ggbeeswarm")
+  p <- ggplot2::ggplot(data.frame(x = rep("a", 8), y = rep(1:4, 2)),
+                       ggplot2::aes(x, y))
+  result <- fmt_point(p, type = "beeswarm",
+                      beeswarm.args = list(priority = "descending", side = 1))
+  native <- p + ggbeeswarm::geom_beeswarm(size = 1, shape = 19,
+    cex = 3, corral = "wrap", corral.width = 0.5, dodge.width = 0.8,
+    priority = "descending", side = 1)
+  expect_equal(ggplot2::ggplot_build(result)$data[[1]]$x,
+               ggplot2::ggplot_build(native)$data[[1]]$x)
+  expect_identical(result$layers[[1]]$position$priority, "descending")
+  expect_equal(result$layers[[1]]$position$side, 1)
+  if (requireNamespace("ragg", quietly = TRUE)) {
+    capture <- function(q) {
+      device <- ragg::agg_capture(width = 640, height = 480, res = 100)
+      on.exit(grDevices::dev.off(), add = TRUE)
+      print(q)
+      device(native = TRUE)
+    }
+    expect_identical(capture(result), capture(native))
+  }
+  expect_error(fmt_point(p, type = "beeswarm", beeswarm.args = list(priorit = "none")),
+               "beeswarm.args.*priorit")
+  expect_error(fmt_point(p, type = "beeswarm", beeswarm.args = list(cex = 2, cex = 3)),
+               "beeswarm.args.*unique")
+})

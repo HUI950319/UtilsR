@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_point()` forwards supported `beeswarm.args` options such as `priority`
+  and `side`, and rejects unknown, duplicate or unnamed options.
+
 * `fmt_point()` includes explicit and layer-local groups in automatic dodging
   and ignores parent mappings when `inherit.aes = FALSE`.
 

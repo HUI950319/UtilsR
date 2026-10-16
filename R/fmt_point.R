@@ -37,6 +37,10 @@
 #' @param beeswarm.args Named list of beeswarm arguments. Only used when
 #'   \code{type = "beeswarm"}.
 #'   Defaults: \code{list(cex = 3, corral = "wrap", corral.width = 0.5)}.
+#'   Also accepts \code{method}, \code{side}, \code{priority}, \code{fast},
+#'   \code{orientation}, \code{groupOnX}, \code{preserve.data.axis}, and
+#'   \code{beeswarmArgs} when supported by ggbeeswarm. Values override the same
+#'   arguments in \code{...}; use \code{dodge.width} to control dodging.
 #' @param sample_n Integer or \code{NULL}. When set, randomly subsample data
 #'   before plotting to reduce overplotting. An explicit \code{group} mapping
 #'   takes priority over discrete color/fill mappings, including expressions.
@@ -111,7 +115,25 @@ fmt_point <- function(plot,
 
   # Beeswarm defaults
   bee <- list(cex = 3, corral = "wrap", corral.width = 0.5)
-  bee[names(beeswarm.args)] <- beeswarm.args
+  if (type == "beeswarm") {
+    if (!requireNamespace("ggbeeswarm", quietly = TRUE)) {
+      cli::cli_abort("Package {.pkg ggbeeswarm} is required for type='beeswarm'.")
+    }
+    if (!is.list(beeswarm.args) ||
+        (length(beeswarm.args) && (is.null(names(beeswarm.args)) ||
+         anyNA(names(beeswarm.args)) || any(!nzchar(names(beeswarm.args))) ||
+         anyDuplicated(names(beeswarm.args))))) {
+      cli::cli_abort("{.arg beeswarm.args} must be a list with unique, non-empty names.")
+    }
+    allowed <- intersect(c(setdiff(names(formals(ggbeeswarm::position_beeswarm)),
+                                  "dodge.width"), "beeswarmArgs"),
+                         names(formals(ggbeeswarm::geom_beeswarm)))
+    unknown <- setdiff(names(beeswarm.args), allowed)
+    if (length(unknown)) {
+      cli::cli_abort("{.arg beeswarm.args} contains unsupported names: {.val {unknown}}.")
+    }
+    bee <- utils::modifyList(bee, beeswarm.args, keep.null = TRUE)
+  }
 
   fmt_point_one <- function(p) {
     params <- list(size = size, shape = shape, ...)
@@ -221,13 +243,8 @@ fmt_point <- function(plot,
 
     # --- Create geom ---
     if (type == "beeswarm") {
-      if (!requireNamespace("ggbeeswarm", quietly = TRUE)) {
-        cli::cli_abort("Package {.pkg ggbeeswarm} is required for type='beeswarm'.")
-      }
       params$dodge.width <- dodge.width
-      params$cex <- bee$cex
-      params$corral <- bee$corral
-      params$corral.width <- bee$corral.width
+      params[names(bee)] <- bee
       geom <- do.call(ggbeeswarm::geom_beeswarm, params)
     } else {
       params$position <- position
