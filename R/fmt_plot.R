@@ -1353,7 +1353,7 @@ fmt_ref <- function(plot,
       return(lapply(seq_along(values), function(j) {
         args <- c(stats::setNames(list(values[j]), paste0(axis, "intercept")),
                   lapply(styles, function(style) style[j]), dots)
-        do.call(geom, args)
+        do.call(geom, args, envir = baseenv())
       }))
     }
     data <- data.frame(.fmt_ref_intercept = values,
@@ -1368,7 +1368,11 @@ fmt_ref <- function(plot,
     mapping[[paste0(axis, "intercept")]] <- rlang::new_quosure(
       quote(.data[[".fmt_ref_intercept"]]), env = rlang::base_env()
     )
-    list(geom(data = data, mapping = mapping, show.legend = FALSE))
+    for (aesthetic in names(mapping)) {
+      mapping[[aesthetic]] <- rlang::quo_set_env(mapping[[aesthetic]], rlang::base_env())
+    }
+    list(do.call(geom, list(data = data, mapping = mapping, show.legend = FALSE),
+                 envir = baseenv()))
   }
 
   layers <- c(.ref_layers(x, "x"), .ref_layers(y, "y"))

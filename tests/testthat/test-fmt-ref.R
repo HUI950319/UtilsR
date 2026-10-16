@@ -88,6 +88,27 @@ test_that("factor colors use labels and numeric palette colors retain their mean
   }
 })
 
+test_that("returned reference plots do not retain data from peer plots", {
+  plots <- local({
+    make_plot <- function(n) {
+      d <- data.frame(x = seq_len(n), y = sin(seq_len(n)), unused = cos(seq_len(n)))
+      ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+    }
+    list(small = make_plot(5L), large = make_plot(50000L))
+  }, envir = new.env(parent = baseenv()))
+  invisible(ggplot2::ggplotGrob(plots$small))
+  peer_bytes <- length(serialize(plots$large$data, NULL))
+  for (extra in list(list(), list(inherit.aes = FALSE))) {
+    small_peer <- do.call(fmt_ref, c(list(plot = list(plots$small, plots$small),
+                                         x = c(2, 4), y = 3), extra))[[1]]
+    large_peer <- do.call(fmt_ref, c(list(plot = plots, x = c(2, 4), y = 3), extra))[[1]]
+    extra_bytes <- length(serialize(large_peer, NULL)) - length(serialize(small_peer, NULL))
+    expect_lt(extra_bytes, peer_bytes / 10)
+    expect_equal(ggplot2::ggplot_build(large_peer)$data,
+                 ggplot2::ggplot_build(small_peer)$data)
+  }
+})
+
 test_that("multiple references share layers without changing per-line styles", {
   p <- ggplot2::ggplot(data.frame(x = 1:5, y = 5:1), ggplot2::aes(x, y)) +
     ggplot2::geom_point()
