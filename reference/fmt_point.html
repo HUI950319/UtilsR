@@ -128,7 +128,11 @@ Set to 0 to disable dodging.</p></dd>
 <dt id="arg-beeswarm-args">beeswarm.args<a class="anchor" aria-label="anchor" href="#arg-beeswarm-args"></a></dt>
 <dd><p>Named list of beeswarm arguments. Only used when
 <code>type = "beeswarm"</code>.
-Defaults: <code>list(cex = 3, corral = "wrap", corral.width = 0.5)</code>.</p></dd>
+Defaults: <code>list(cex = 3, corral = "wrap", corral.width = 0.5)</code>.
+Also accepts <code>method</code>, <code>side</code>, <code>priority</code>, <code>fast</code>,
+<code>orientation</code>, <code>groupOnX</code>, <code>preserve.data.axis</code>, and
+<code>beeswarmArgs</code> when supported by ggbeeswarm. Values override the same
+arguments in <code>...</code>; use <code>dodge.width</code> to control dodging.</p></dd>
 
 
 <dt id="arg-sample-n">sample_n<a class="anchor" aria-label="anchor" href="#arg-sample-n"></a></dt>

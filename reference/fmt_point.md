@@ -70,7 +70,11 @@ fmt_point(
 - beeswarm.args:
 
   Named list of beeswarm arguments. Only used when `type = "beeswarm"`.
-  Defaults: `list(cex = 3, corral = "wrap", corral.width = 0.5)`.
+  Defaults: `list(cex = 3, corral = "wrap", corral.width = 0.5)`. Also
+  accepts `method`, `side`, `priority`, `fast`, `orientation`,
+  `groupOnX`, `preserve.data.axis`, and `beeswarmArgs` when supported by
+  ggbeeswarm. Values override the same arguments in `...`; use
+  `dodge.width` to control dodging.
 
 - sample_n:
 
