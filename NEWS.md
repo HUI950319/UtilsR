@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_point()` adds independent point layers to every nested patchwork leaf
+  while preserving layout, annotations, spacers and the original plots.
+
 * `fmt_point()` samples expression-based groups, retains missing groups, and
   prioritizes explicit groups over discrete colour/fill mappings. Continuous
   colour/fill values no longer create one sampling group per distinct value.

@@ -222,9 +222,10 @@ fmt_point <- function(plot,
     }
   }
 
-  info <- .to_plot_list(plot)
+  info <- .to_plot_list(plot, recurse = TRUE)
   info$plots <- lapply(info$plots, fmt_point_one)
-  .from_plot_list(info$plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
+  .from_plot_list(info$plots, info$is_patchwork, info$is_single,
+                  pw_orig = info$pw_orig, recurse = TRUE)
 }
 
 # --- Internal helper ---
