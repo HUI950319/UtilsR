@@ -401,3 +401,17 @@ test_that("unmapped dplyr grouping does not change sampling", {
     expect_no_warning(ggplot2::ggplot_build(out))
   }
 })
+
+test_that("continuous and null aesthetics do not trigger dodge", {
+  d <- data.frame(x = rep(c("x", "y"), each = 6), y = 1:12)
+  for (mapping in list(ggplot2::aes(x, y, colour = y), ggplot2::aes(x, y, size = y),
+                      ggplot2::aes(x, y, alpha = y), ggplot2::aes(x, y, colour = NULL))) {
+    p <- ggplot2::ggplot(d, mapping)
+    expected <- ggplot2::ggplot_build(fmt_point(p, type = "jitter", dodge.width = 0))$data[[1]]
+    for (data in list(NULL, ~ .x)) {
+      actual <- ggplot2::ggplot_build(fmt_point(p, type = "jitter", data = data))$data[[1]]
+      expect_identical(actual$x, expected$x)
+      expect_identical(actual$y, expected$y)
+    }
+  }
+})

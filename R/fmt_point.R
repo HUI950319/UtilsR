@@ -11,6 +11,8 @@
 #         +-- L2  .fmt_point_draw_panel()   white underlay for open symbols
 #         +-- L2  .fmt_point_draw_key()     matching symbol keys
 #         +-- L2  .fmt_point_jitterdodge_setup()   legacy group-only dodge
+#         +-- L2  .fmt_point_position_setup()    resolve actual dodge groups
+#         +-- L2  .fmt_point_position_layer()    delegate native positioning
 # =============================================================================
 
 #' Add Data Points to a Plot
@@ -238,6 +240,14 @@ fmt_point <- function(plot,
             setup_params = .fmt_point_jitterdodge_setup), quote = TRUE, envir = baseenv())
         }
       }
+      plain <- if (isTRUE(jit$width == 0) && isTRUE(jit$height == 0))
+        ggplot2::position_identity() else
+        ggplot2::position_jitter(width = jit$width, height = jit$height, seed = 42)
+      position <- do.call(ggplot2::ggproto, list(NULL, ggplot2::Position,
+        required_aes = c("x", "y"), dodge = position, plain = plain,
+        explicit_group = !is.null(rlang::get_expr(layer_mapping[["group"]])),
+        setup_params = .fmt_point_position_setup,
+        compute_layer = .fmt_point_position_layer), quote = TRUE, envir = baseenv())
     }
 
     if (!is.null(data)) params$data <- data
@@ -444,6 +454,18 @@ fmt_point <- function(plot,
   if (!any(c("fill", "colour", "linetype", "shape", "size", "alpha") %in% names(data)))
     data$fill <- factor(data$group)
   ggplot2::ggproto_parent(ggplot2::PositionJitterdodge, self)$setup_params(data)
+}
+
+.fmt_point_position_setup <- function(self, data) {
+  candidates <- intersect(c("fill", "colour", "linetype", "shape", "size", "alpha"), names(data))
+  discrete <- vapply(data[candidates], function(x)
+    is.factor(x) || is.character(x) || is.logical(x), logical(1))
+  position <- if (self$explicit_group || any(discrete)) self$dodge else self$plain
+  list(position = position, args = position$setup_params(data))
+}
+
+.fmt_point_position_layer <- function(data, params, layout) {
+  params$position$compute_layer(data, params$args, layout)
 }
 
 .fmt_point_stage_args <- function(mapping) {
