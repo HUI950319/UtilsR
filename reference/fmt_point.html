@@ -129,10 +129,11 @@ Defaults: <code>list(cex = 3, corral = "wrap", corral.width = 0.5)</code>.</p></
 
 <dt id="arg-sample-n">sample_n<a class="anchor" aria-label="anchor" href="#arg-sample-n"></a></dt>
 <dd><p>Integer or <code>NULL</code>. When set, randomly subsample data
-before plotting to reduce overplotting. If the plot has a group aesthetic
-(color/fill), sampling is stratified: <code>sample_n</code> points are taken
-<strong>per group</strong>. Groups with fewer points are kept in full.
-Default <code>NULL</code> (no sampling).</p></dd>
+before plotting to reduce overplotting. An explicit <code>group</code> mapping
+takes priority over discrete color/fill mappings, including expressions.
+Sampling takes at most <code>sample_n</code> points <strong>per group</strong>; missing
+group values form a separate group. Continuous color/fill mappings do not
+define sampling groups. Default <code>NULL</code> (no sampling).</p></dd>
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>

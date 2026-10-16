@@ -72,10 +72,11 @@ fmt_point(
 - sample_n:
 
   Integer or `NULL`. When set, randomly subsample data before plotting
-  to reduce overplotting. If the plot has a group aesthetic
-  (color/fill), sampling is stratified: `sample_n` points are taken
-  **per group**. Groups with fewer points are kept in full. Default
-  `NULL` (no sampling).
+  to reduce overplotting. An explicit `group` mapping takes priority
+  over discrete color/fill mappings, including expressions. Sampling
+  takes at most `sample_n` points **per group**; missing group values
+  form a separate group. Continuous color/fill mappings do not define
+  sampling groups. Default `NULL` (no sampling).
 
 - seed:
 
