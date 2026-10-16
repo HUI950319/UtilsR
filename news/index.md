@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md)
+  creates separate reference layers for each subplot, so subsequent
+  edits to one subplot’s reference data or styles do not alter its
+  peers.
+
+- [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md)
   uses native per-line layers when facet expressions reference its
   helper-column prefix, preserving panels without evaluating data
   callbacks.
@@ -32,10 +37,9 @@
   avoiding duplicate aesthetics and silently ignored colour requests.
 
 - [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md)
-  batches reference lines by direction and reuses their layers across
-  plots, retaining per-line styles, facet replication and existing
-  colour scales. Extra geom arguments keep the native per-line path for
-  compatibility.
+  batches reference lines by direction, retaining per-line styles, facet
+  replication and existing colour scales. Extra geom arguments keep the
+  native per-line path for compatibility.
 
 - [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md)
   rejects geom intercept argument names with a clear suggestion to use
