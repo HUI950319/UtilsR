@@ -79,7 +79,8 @@ fmt_point(
 
 - seed:
 
-  Random seed for reproducible sampling. Default 42.
+  Random seed for reproducible sampling. Default 42. Sampling preserves
+  the caller's random-number state.
 
 - rasterize:
 

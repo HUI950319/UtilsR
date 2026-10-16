@@ -2,6 +2,10 @@
 
 ## UtilsR 0.6.8
 
+- [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
+  preserves the caller’s random-number state when sampling, including
+  calls that keep all rows and sessions without an existing seed.
+
 - [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
   and [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) count
   a special value (“unknown”, “blank”, “n/a”, “na”, “missing”,
