@@ -337,3 +337,14 @@ test_that("sampled white-border jitter also renders through rasterization", {
   expect_no_warning(print(result))
   expect_identical(dim(device(native = TRUE)), c(480L, 640L))
 })
+
+test_that("sampling uses the start expression of staged group colours", {
+  d <- data.frame(x = 1:12, y = 12:1, g = rep(c("a", "b"), 6))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, colour = ggplot2::stage(
+    start = factor(g), after_scale = scales::alpha(colour, 0.5))))
+  result <- fmt_point(p, sample_n = 2, white_border = TRUE)
+  expect_equal(as.integer(table(result$layers[[1]]$data$g)), c(2L, 2L))
+  built <- ggplot2::ggplot_build(result)$data[[1]]
+  expect_equal(nrow(built), 4L)
+  expect_setequal(built$fill, c("#F8766D80", "#00BFC480"))
+})

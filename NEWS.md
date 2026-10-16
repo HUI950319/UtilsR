@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_point()` uses the raw `start` expression of staged aesthetics for
+  stratified sampling while retaining later colour transformations.
+
 * `fmt_point()` samples row indices before slicing grouped data, reducing
   copying while preserving row order and random selections. Matrix columns
   retain the existing path; single-column data frames keep their dimensions.

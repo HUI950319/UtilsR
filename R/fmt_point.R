@@ -335,6 +335,11 @@ fmt_point <- function(plot,
     aesthetic <- mapping[[aes_name]]
     if (is.null(aesthetic)) next
     expr <- rlang::get_expr(aesthetic)
+    if (is.call(expr) && identical(rlang::call_name(expr), "stage")) {
+      expr <- .fmt_point_stage_args(aesthetic)$start
+      if (is.null(expr)) next
+      aesthetic <- rlang::new_quosure(expr, rlang::get_env(aesthetic, default = baseenv()))
+    }
     if (any(all.names(expr) %in% c("after_stat", "after_scale", "stage",
                                   "from_theme"))) next
     values <- rlang::eval_tidy(aesthetic, data = data)
