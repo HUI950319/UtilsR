@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code>fmt_point(white_border = TRUE)</code> keeps non-fillable symbols visible using a white underlay, and handles named shapes and an explicit NULL shape.</p></li>
+<ul><li><p><code><a href="../reference/fmt_point.html">fmt_point()</a></code> distinguishes ordinary columns named <code>stage</code>, <code>after_stat</code>, <code>after_scale</code> or <code>from_theme</code> from delayed aesthetic function calls.</p></li>
+<li><p><code>fmt_point(white_border = TRUE)</code> keeps non-fillable symbols visible using a white underlay, and handles named shapes and an explicit NULL shape.</p></li>
 <li><p><code><a href="../reference/fmt_point.html">fmt_point()</a></code> uses the raw <code>start</code> expression of staged aesthetics for stratified sampling while retaining later colour transformations.</p></li>
 <li><p><code><a href="../reference/fmt_point.html">fmt_point()</a></code> samples row indices before slicing grouped data, reducing copying while preserving row order and random selections. Matrix columns retain the existing path; single-column data frames keep their dimensions.</p></li>
 <li><p><code><a href="../reference/fmt_point.html">fmt_point()</a></code> validates sample sizes, seeds and layout controls consistently, rejects malformed jitter options and incompatible grouping lengths, and accepts <code>NULL</code> jitter dimensions for ggplot2’s native defaults.</p></li>
