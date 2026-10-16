@@ -40,6 +40,7 @@ explicitly supplied values override mappings.}
 
 \item{white_border}{Logical. If \code{TRUE}, converts shapes to fillable
 versions (21-25) with white stroke, retaining scaled colours as fills.
+Other symbols retain their shape and colour over a white underlay.
 Default \code{FALSE}.}
 
 \item{dodge.width}{Dodge width for grouped data. Default 0.8.

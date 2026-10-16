@@ -348,3 +348,24 @@ test_that("sampling uses the start expression of staged group colours", {
   expect_equal(nrow(built), 4L)
   expect_setequal(built$fill, c("#F8766D80", "#00BFC480"))
 })
+
+test_that("white borders retain visible non-fillable and named symbols", {
+  d <- data.frame(x = rep(letters[1:6], each = 2), y = rep(1:2, 6),
+                  g = factor(rep(letters[1:6], each = 2)))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, colour = g, shape = g))
+  result <- fmt_point(p, white_border = TRUE)
+  built <- ggplot2::ggplot_build(result)$data[[1]]
+  colours <- function(g) {
+    if (inherits(g, "points")) return(as.character(g$gp$col))
+    unlist(c(lapply(g$grobs, colours), lapply(g$children, colours)), use.names = FALSE)
+  }
+  drawn <- colours(ggplot2::ggplotGrob(result))
+  expect_true(all(scales::alpha(built$fill[!built$shape %in% 21:25], 1) %in% drawn))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y))
+  for (shape in list("circle", "triangle", NULL)) {
+    result <- fmt_point(p, shape = shape, colour = "red", white_border = TRUE)
+    expect_no_warning(built <- ggplot2::ggplot_build(result)$data[[1]])
+    expect_true(all(built$shape %in% 21:25))
+    expect_equal(built$fill, rep("red", nrow(d)))
+  }
+})

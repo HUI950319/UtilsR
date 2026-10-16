@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_point(white_border = TRUE)` keeps non-fillable symbols visible using a
+  white underlay, and handles named shapes and an explicit NULL shape.
+
 * `fmt_point()` uses the raw `start` expression of staged aesthetics for
   stratified sampling while retaining later colour transformations.
 

@@ -8,6 +8,8 @@
 #         +-- L2  .shape_convert()   shape name or code -> ggplot2 shape
 #         +-- L2  .fmt_point_stage_args()   preserve staged aesthetics
 #         +-- L2  .fmt_point_sample()   sample resolved layer data
+#         +-- L2  .fmt_point_draw_panel()   white underlay for open symbols
+#         +-- L2  .fmt_point_draw_key()     matching symbol keys
 # =============================================================================
 
 #' Add Data Points to a Plot
@@ -29,6 +31,7 @@
 #'   explicitly supplied values override mappings.
 #' @param white_border Logical. If \code{TRUE}, converts shapes to fillable
 #'   versions (21-25) with white stroke, retaining scaled colours as fills.
+#'   Other symbols retain their shape and colour over a white underlay.
 #'   Default \code{FALSE}.
 #' @param dodge.width Dodge width for grouped data. Default 0.8.
 #'   Set to 0 to disable dodging.
@@ -244,8 +247,9 @@ fmt_point <- function(plot,
         params$color <- NULL
       }
       border_mapping <- layer_mapping
+      if (is.null(params$shape) && is.null(border_mapping$shape)) params$shape <- 19
       if (!is.null(params$shape)) params$shape <- .shape_convert(params$shape)
-      if (!is.null(border_mapping$shape) || all(params$shape %in% 21:25)) {
+      if (!is.null(border_mapping$shape) || length(params$shape) > 0L) {
         if (!is.null(params$size)) params$size <- params$size * 1.5
         if (is.null(params$mapping)) params$mapping <- ggplot2::aes()
         if (!is.null(border_mapping$colour) && is.null(params$colour)) {
@@ -293,6 +297,11 @@ fmt_point <- function(plot,
     } else {
       params$position <- position
       geom <- do.call(ggplot2::geom_point, params)
+    }
+    if (white_border) {
+      geom$geom <- do.call(ggplot2::ggproto, list(NULL, ggplot2::GeomPoint,
+        draw_panel = .fmt_point_draw_panel, draw_key = .fmt_point_draw_key),
+        quote = TRUE, envir = baseenv())
     }
 
     # --- Add layer (with optional rasterization) ---
@@ -378,6 +387,18 @@ fmt_point <- function(plot,
 
 #' @noRd
 .shape_convert <- function(x) {
+  shape_names <- c("square open" = 0, "circle open" = 1, "triangle open" = 2,
+    "plus" = 3, "cross" = 4, "diamond open" = 5, "triangle down open" = 6,
+    "square cross" = 7, "asterisk" = 8, "diamond plus" = 9, "circle plus" = 10,
+    "star" = 11, "square plus" = 12, "circle cross" = 13, "square triangle" = 14,
+    "triangle square" = 14, "square" = 15, "circle small" = 16, "triangle" = 17,
+    "diamond" = 18, "circle" = 19, "bullet" = 20, "circle filled" = 21,
+    "square filled" = 22, "diamond filled" = 23, "triangle filled" = 24,
+    "triangle down filled" = 25)
+  if (is.character(x) && length(x) && nchar(x[[1L]]) > 1L) {
+    matched <- charmatch(x, names(shape_names))
+    if (all(!is.na(matched) & matched > 0L)) x <- unname(shape_names[matched])
+  }
   dict <- c("0" = 22, "15" = 22,
             "1" = 21, "16" = 21, "19" = 21, "20" = 21,
             "2" = 24, "17" = 24,
@@ -387,6 +408,24 @@ fmt_point <- function(plot,
   if (all(!is.na(converted))) return(converted)
   x[!is.na(converted)] <- converted[!is.na(converted)]
   x
+}
+
+.fmt_point_draw_panel <- function(data, panel_params, coord, na.rm = FALSE) {
+  base <- ggplot2::GeomPoint$draw_panel(data, panel_params, coord, na.rm = na.rm)
+  foreground <- data[!data$shape %in% 21:25, , drop = FALSE]
+  if (!nrow(foreground)) return(base)
+  foreground$colour <- foreground$fill
+  foreground$size <- foreground$size / 1.5
+  grid::grobTree(base, ggplot2::GeomPoint$draw_panel(
+    foreground, panel_params, coord, na.rm = na.rm))
+}
+
+.fmt_point_draw_key <- function(data, params, size) {
+  base <- ggplot2::draw_key_point(data, params, size)
+  if (data$shape %in% 21:25) return(base)
+  data$colour <- data$fill
+  data$size <- data$size / 1.5
+  grid::grobTree(base, ggplot2::draw_key_point(data, params, size))
 }
 
 .fmt_point_stage_args <- function(mapping) {
