@@ -142,7 +142,8 @@ fmt_point <- function(plot,
     }
 
     # --- Compute position ---
-    has_group <- any(c("fill", "colour", "linetype", "shape", "size", "alpha") %in% names(p$mapping))
+    has_group <- any(c("group", "fill", "colour", "linetype", "shape", "size", "alpha") %in%
+                       names(layer_mapping))
 
     if (type == "beeswarm") {
       position <- NULL

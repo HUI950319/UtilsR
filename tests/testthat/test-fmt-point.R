@@ -202,3 +202,27 @@ test_that("sampling uses the effective layer mapping", {
   result <- fmt_point(p, inherit.aes = FALSE, mapping = ggplot2::aes(x, y), sample_n = 2)
   expect_equal(nrow(result$layers[[1]]$data), 2L)
 })
+
+test_that("automatic dodging uses explicit and layer-local groups", {
+  d <- data.frame(x = rep(c("x", "y"), each = 4), y = 1:8,
+                  g = rep(c("a", "b"), 4))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, group = g))
+  native <- ggplot2::ggplot_build(p + ggplot2::geom_point(
+    position = ggplot2::position_dodge(width = 0.8)))$data[[1]]
+  result <- ggplot2::ggplot_build(fmt_point(p))$data[[1]]
+  expect_equal(result$x, native$x)
+  native_jitter <- ggplot2::ggplot_build(p + ggplot2::geom_point(
+    position = ggplot2::position_jitterdodge(jitter.width = 0.2,
+      jitter.height = 0, dodge.width = 0.8, seed = 42)))$data[[1]]
+  expect_equal(ggplot2::ggplot_build(fmt_point(p, type = "jitter"))$data[[1]]$x,
+               native_jitter$x)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y))
+  result <- ggplot2::ggplot_build(fmt_point(p, mapping = ggplot2::aes(group = g)))$data[[1]]
+  expect_equal(result$x, native$x)
+  result <- ggplot2::ggplot_build(fmt_point(p, mapping = ggplot2::aes(group = g),
+                                           dodge.width = 0))$data[[1]]
+  expect_equal(as.numeric(result$x), rep(1:2, each = 4))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, colour = g))
+  result <- fmt_point(p, inherit.aes = FALSE, mapping = ggplot2::aes(x, y))
+  expect_s3_class(result$layers[[1]]$position, "PositionIdentity")
+})
