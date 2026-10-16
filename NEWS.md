@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_ref()` creates separate reference layers for each subplot, so subsequent
+  edits to one subplot's reference data or styles do not alter its peers.
+
 * `fmt_ref()` uses native per-line layers when facet expressions reference its
   helper-column prefix, preserving panels without evaluating data callbacks.
 
@@ -19,8 +22,8 @@
 * `fmt_ref()` rejects `colour` with a suggestion to use its `color` parameter,
   avoiding duplicate aesthetics and silently ignored colour requests.
 
-* `fmt_ref()` batches reference lines by direction and reuses their layers across
-  plots, retaining per-line styles, facet replication and existing colour scales.
+* `fmt_ref()` batches reference lines by direction, retaining per-line styles,
+  facet replication and existing colour scales.
   Extra geom arguments keep the native per-line path for compatibility.
 
 * `fmt_ref()` rejects geom intercept argument names with a clear suggestion to

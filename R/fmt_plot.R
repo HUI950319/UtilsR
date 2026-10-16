@@ -1375,8 +1375,7 @@ fmt_ref <- function(plot,
                  envir = baseenv()))
   }
 
-  layers <- c(.ref_layers(x, "x"), .ref_layers(y, "y"))
-  if (!length(layers)) return(plot)
+  if (!length(x) && !length(y)) return(plot)
   for (i in seq_along(plots)) {
     facets <- c(plots[[i]]$facet$params$facets, plots[[i]]$facet$params$rows,
                 plots[[i]]$facet$params$cols)
@@ -1386,7 +1385,7 @@ fmt_ref <- function(plot,
     # Native layers cannot supply our helper columns as spurious facet values.
     plot_layers <- if (any(grepl(".fmt_ref_", facet_text, fixed = TRUE))) {
       c(.ref_layers(x, "x", native = TRUE), .ref_layers(y, "y", native = TRUE))
-    } else layers
+    } else c(.ref_layers(x, "x"), .ref_layers(y, "y"))
     plots[[i]] <- plots[[i]] + plot_layers
   }
 

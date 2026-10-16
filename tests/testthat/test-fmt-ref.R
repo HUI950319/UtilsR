@@ -334,6 +334,31 @@ test_that("reference construction preserves RNG and defers layer data callbacks"
   expect_equal(calls, 1L)
 })
 
+test_that("new reference layers can be edited independently across subplots", {
+  p <- ggplot2::ggplot(data.frame(x = 1:4, y = 4:1), ggplot2::aes(x, y)) +
+    ggplot2::geom_point()
+  for (input in list(list(first = p, second = p), (p | patchwork::plot_spacer()) / p)) {
+    for (extra in list(list(), list(inherit.aes = FALSE))) {
+      result <- do.call(fmt_ref, c(list(plot = input, x = c(2, 3), y = c(2, 3),
+                                       color = c("blue", "black")), extra))
+      leaves <- .to_plot_list(result, recurse = TRUE)$plots
+      first <- leaves[[1]]
+      second <- leaves[[2]]
+      before <- ggplot2::ggplot_build(second)$data
+      for (i in seq.int(2L, length(first$layers))) {
+        second_data <- second$layers[[i]]$data
+        second_styles <- second$layers[[i]]$aes_params
+        first$layers[[i]]$data[[1L]][1L] <- 99
+        first$layers[[i]]$aes_params$colour <- "purple"
+        expect_equal(second$layers[[i]]$data, second_data)
+        expect_equal(second$layers[[i]]$aes_params, second_styles)
+      }
+      expect_equal(ggplot2::ggplot_build(second)$data, before)
+      expect_length(p$layers, 1L)
+    }
+  }
+})
+
 test_that("repeated reference calls append lines without changing earlier plots", {
   p <- ggplot2::ggplot(data.frame(x = 1:4, y = 4:1), ggplot2::aes(x, y)) +
     ggplot2::geom_point()
