@@ -369,3 +369,20 @@ test_that("white borders retain visible non-fillable and named symbols", {
     expect_equal(built$fill, rep("red", nrow(d)))
   }
 })
+
+test_that("sampling distinguishes stage functions from ordinary column names", {
+  d <- data.frame(x = 1:12, y = 12:1, stage = factor(rep(c("I", "II", "III"), 4)))
+  for (name in c("stage", "after_stat", "after_scale", "from_theme")) {
+    names(d)[3] <- name
+    p <- ggplot2::ggplot(d, ggplot2::aes(x, y, colour = !!rlang::sym(name)))
+    sampled <- fmt_point(p, sample_n = 2)$layers[[1]]$data
+    expect_equal(as.integer(table(sampled[[name]])), rep(2L, 3))
+  }
+  names(d)[3] <- "stage"
+  for (mapping in list(ggplot2::aes(x, y, group = stage),
+                      ggplot2::aes(x, y, colour = factor(stage)),
+                      ggplot2::aes(x, y, colour = ggplot2::stage(start = stage)))) {
+    sampled <- fmt_point(ggplot2::ggplot(d, mapping), sample_n = 2)$layers[[1]]$data
+    expect_equal(as.integer(table(sampled$stage)), rep(2L, 3))
+  }
+})

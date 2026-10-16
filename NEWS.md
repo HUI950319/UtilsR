@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_point()` distinguishes ordinary columns named `stage`, `after_stat`,
+  `after_scale` or `from_theme` from delayed aesthetic function calls.
+
 * `fmt_point(white_border = TRUE)` keeps non-fillable symbols visible using a
   white underlay, and handles named shapes and an explicit NULL shape.
 

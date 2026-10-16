@@ -340,6 +340,12 @@ fmt_point <- function(plot,
   }, add = TRUE)
   set.seed(seed)
   group_values <- NULL
+  is_late <- function(expr) {
+    if (!is.call(expr)) return(FALSE)
+    if (rlang::call_name(expr) %in% c("after_stat", "after_scale", "stage", "from_theme"))
+      return(TRUE)
+    any(vapply(as.list(expr)[-1L], is_late, logical(1)))
+  }
   for (aes_name in c("group", "colour", "fill")) {
     aesthetic <- mapping[[aes_name]]
     if (is.null(aesthetic)) next
@@ -349,8 +355,7 @@ fmt_point <- function(plot,
       if (is.null(expr)) next
       aesthetic <- rlang::new_quosure(expr, rlang::get_env(aesthetic, default = baseenv()))
     }
-    if (any(all.names(expr) %in% c("after_stat", "after_scale", "stage",
-                                  "from_theme"))) next
+    if (is_late(expr)) next
     values <- rlang::eval_tidy(aesthetic, data = data)
     if (!is.null(values) &&
         (aes_name == "group" || is.factor(values) ||
