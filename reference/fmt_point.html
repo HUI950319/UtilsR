@@ -122,7 +122,9 @@ Set to 0 to disable dodging.</p></dd>
 
 <dt id="arg-jitter-args">jitter.args<a class="anchor" aria-label="anchor" href="#arg-jitter-args"></a></dt>
 <dd><p>Named list of jitter arguments. Only used when
-<code>type = "jitter"</code>. Defaults: <code>list(width = 0.2, height = 0)</code>.</p></dd>
+<code>type = "jitter"</code>. Defaults: <code>list(width = 0.2, height = 0)</code>.
+Width and height must be non-negative numbers or <code>NULL</code> for native
+ggplot2 defaults.</p></dd>
 
 
 <dt id="arg-beeswarm-args">beeswarm.args<a class="anchor" aria-label="anchor" href="#arg-beeswarm-args"></a></dt>
@@ -136,7 +138,7 @@ arguments in <code>...</code>; use <code>dodge.width</code> to control dodging.<
 
 
 <dt id="arg-sample-n">sample_n<a class="anchor" aria-label="anchor" href="#arg-sample-n"></a></dt>
-<dd><p>Integer or <code>NULL</code>. When set, randomly subsample data
+<dd><p>Non-negative integer or <code>NULL</code>. When set, subsample data
 before plotting to reduce overplotting. An explicit <code>group</code> mapping
 takes priority over discrete color/fill mappings, including expressions.
 Sampling takes at most <code>sample_n</code> points <strong>per group</strong>; missing

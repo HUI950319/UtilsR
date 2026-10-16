@@ -65,7 +65,8 @@ fmt_point(
 - jitter.args:
 
   Named list of jitter arguments. Only used when `type = "jitter"`.
-  Defaults: `list(width = 0.2, height = 0)`.
+  Defaults: `list(width = 0.2, height = 0)`. Width and height must be
+  non-negative numbers or `NULL` for native ggplot2 defaults.
 
 - beeswarm.args:
 
@@ -78,12 +79,12 @@ fmt_point(
 
 - sample_n:
 
-  Integer or `NULL`. When set, randomly subsample data before plotting
-  to reduce overplotting. An explicit `group` mapping takes priority
-  over discrete color/fill mappings, including expressions. Sampling
-  takes at most `sample_n` points **per group**; missing group values
-  form a separate group. Continuous color/fill mappings do not define
-  sampling groups. Default `NULL` (no sampling).
+  Non-negative integer or `NULL`. When set, subsample data before
+  plotting to reduce overplotting. An explicit `group` mapping takes
+  priority over discrete color/fill mappings, including expressions.
+  Sampling takes at most `sample_n` points **per group**; missing group
+  values form a separate group. Continuous color/fill mappings do not
+  define sampling groups. Default `NULL` (no sampling).
 
 - seed:
 
