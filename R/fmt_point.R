@@ -7,6 +7,7 @@
 #   L1  fmt_point(plot, type, data, shape, size, ...)   -- public API
 #         +-- L2  .shape_convert()   shape name or code -> ggplot2 shape
 #         +-- L2  .fmt_point_stage_args()   preserve staged aesthetics
+#         +-- L2  .fmt_point_sample()   sample resolved layer data
 # =============================================================================
 
 #' Add Data Points to a Plot
@@ -20,7 +21,8 @@
 #'   or \code{"beeswarm"}.
 #' @param data Data for the point layer. Default \code{NULL} inherits from plot.
 #'   Can be a data.frame or a function/formula applied to the plot data
-#'   (e.g. \code{~ subset(.x, value > 10)}).
+#'   (e.g. \code{~ subset(.x, value > 10)}). Functions and formulas are evaluated
+#'   at plot build time, before optional sampling.
 #' @param shape Point shape. Default 19 (solid circle).
 #' @param size Point size. Default 1.
 #' @param white_border Logical. If \code{TRUE}, converts shapes to fillable
@@ -110,47 +112,15 @@ fmt_point <- function(plot,
   fmt_point_one <- function(p) {
     # --- Subsample data ---
     if (!is.null(sample_n)) {
-      old_seed <- get0(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
-      on.exit({
-        if (is.null(old_seed)) {
-          if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) {
-            rm(".Random.seed", envir = .GlobalEnv)
-          }
-        } else {
-          assign(".Random.seed", old_seed, envir = .GlobalEnv)
-        }
-      }, add = TRUE)
-      set.seed(seed)
-      d <- data %||% p$data
-      if (!is.null(d) && nrow(d) > sample_n) {
-        # Use raw-data groups; stat/scale-stage mappings are not available yet.
-        group_values <- NULL
-        for (aes_name in c("group", "colour", "fill")) {
-          mapping <- p$mapping[[aes_name]]
-          if (is.null(mapping)) next
-          expr <- rlang::get_expr(mapping)
-          if (any(all.names(expr) %in% c("after_stat", "after_scale", "stage",
-                                        "from_theme"))) next
-          values <- rlang::eval_tidy(mapping, data = d)
-          if (!is.null(values) &&
-              (aes_name == "group" || is.factor(values) ||
-               is.character(values) || is.logical(values))) {
-            group_values <- rep_len(values, nrow(d))
-            break
-          }
-        }
-        if (!is.null(group_values)) {
-          # Stratified: sample_n per group (keep all if group < sample_n)
-          groups <- addNA(as.factor(group_values), ifany = TRUE)
-          d <- do.call(rbind, lapply(split(d, groups), function(grp) {
-            if (nrow(grp) <= sample_n) grp else grp[sample.int(nrow(grp), sample_n), ]
-          }))
-          rownames(d) <- NULL
-        } else {
-          # Global: sample_n total
-          d <- dplyr::slice_sample(d, n = min(sample_n, nrow(d)))
-        }
-        data <- d
+      if (is.function(data) || rlang::is_formula(data)) {
+        sampled_data <- function(d) .fmt_point_sample(data_fun(d), mapping, sample_n, seed)
+        environment(sampled_data) <- list2env(list(
+          .fmt_point_sample = .fmt_point_sample, data_fun = rlang::as_function(data),
+          mapping = as.list(p$mapping), sample_n = sample_n, seed = seed
+        ), parent = baseenv())
+        data <- sampled_data
+      } else {
+        data <- .fmt_point_sample(data %||% p$data, as.list(p$mapping), sample_n, seed)
       }
     }
 
@@ -271,6 +241,49 @@ fmt_point <- function(plot,
 }
 
 # --- Internal helper ---
+
+.fmt_point_sample <- function(data, mapping, sample_n, seed) {
+  if (!is.data.frame(data)) {
+    cli::cli_abort("Sampling requires {.arg data} to resolve to a data frame.")
+  }
+  if (nrow(data) <= sample_n) return(data)
+  old_seed <- get0(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+  on.exit({
+    if (is.null(old_seed)) {
+      if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) {
+        rm(".Random.seed", envir = .GlobalEnv)
+      }
+    } else {
+      assign(".Random.seed", old_seed, envir = .GlobalEnv)
+    }
+  }, add = TRUE)
+  set.seed(seed)
+  group_values <- NULL
+  for (aes_name in c("group", "colour", "fill")) {
+    aesthetic <- mapping[[aes_name]]
+    if (is.null(aesthetic)) next
+    expr <- rlang::get_expr(aesthetic)
+    if (any(all.names(expr) %in% c("after_stat", "after_scale", "stage",
+                                  "from_theme"))) next
+    values <- rlang::eval_tidy(aesthetic, data = data)
+    if (!is.null(values) &&
+        (aes_name == "group" || is.factor(values) ||
+         is.character(values) || is.logical(values))) {
+      group_values <- rep_len(values, nrow(data))
+      break
+    }
+  }
+  if (!is.null(group_values)) {
+    groups <- addNA(as.factor(group_values), ifany = TRUE)
+    data <- do.call(rbind, lapply(split(data, groups), function(grp) {
+      if (nrow(grp) <= sample_n) grp else grp[sample.int(nrow(grp), sample_n), ]
+    }))
+    rownames(data) <- NULL
+    data
+  } else {
+    dplyr::slice_sample(data, n = min(sample_n, nrow(data)))
+  }
+}
 
 #' @noRd
 .shape_convert <- function(x) {

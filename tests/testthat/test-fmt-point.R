@@ -136,3 +136,44 @@ test_that("white borders retain mapped shapes and after-scale colours", {
   expect_equal(result$fill, native$colour)
   expect_equal(result$colour, rep("#FFFFFF", 4))
 })
+
+test_that("sampling function and formula data remains deferred", {
+  d <- data.frame(x = 1:12, y = 12:1)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y))
+  calls <- 0L
+  callback <- function(data) {
+    calls <<- calls + 1L
+    utils::head(data, 8)
+  }
+  withr::local_seed(321)
+  before <- .Random.seed
+  result <- fmt_point(p, data = callback, sample_n = 3)
+  expect_identical(calls, 0L)
+  first <- ggplot2::ggplot_build(result)$data[[1]]
+  expect_identical(calls, 1L)
+  expect_equal(nrow(first), 3L)
+  expect_equal(first$x <= 8, rep(TRUE, 3))
+  expect_identical(.Random.seed, before)
+  expect_identical(ggplot2::ggplot_build(result)$data[[1]], first)
+  expect_identical(calls, 2L)
+  result <- fmt_point(p, data = ~ utils::head(.x, 8), sample_n = 3)
+  expect_equal(nrow(ggplot2::ggplot_build(result)$data[[1]]), 3L)
+  expect_equal(nrow(ggplot2::ggplot_build(
+    fmt_point(p, data = ~ .x[FALSE, ], sample_n = 3))$data[[1]]), 0L)
+})
+
+test_that("sampled data callbacks retain only their own sampling context", {
+  p <- ggplot2::ggplot(data.frame(x = 1:6, y = 6:1))
+  p$mapping <- ggplot2::aes(x, y)
+  for (name in names(p$mapping)) {
+    p$mapping[[name]] <- rlang::new_quosure(rlang::get_expr(p$mapping[[name]]), baseenv())
+  }
+  formula <- rlang::new_formula(NULL, quote(utils::head(.x, 4)), baseenv())
+  small <- fmt_point(list(p, p), data = formula, sample_n = 2)[[1]]
+  peer <- ggplot2::ggplot(data.frame(x = 1:100000, y = seq_len(100000)))
+  peer$mapping <- p$mapping
+  large <- fmt_point(list(p, peer), data = formula, sample_n = 2)[[1]]
+  expect_equal(length(serialize(large$layers[[1]]$data, NULL)),
+               length(serialize(small$layers[[1]]$data, NULL)))
+  expect_equal(nrow(ggplot2::ggplot_build(large)$data[[1]]), 2L)
+})

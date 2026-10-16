@@ -29,7 +29,8 @@ or \code{"beeswarm"}.}
 
 \item{data}{Data for the point layer. Default \code{NULL} inherits from plot.
 Can be a data.frame or a function/formula applied to the plot data
-(e.g. \code{~ subset(.x, value > 10)}).}
+(e.g. \code{~ subset(.x, value > 10)}). Functions and formulas are evaluated
+at plot build time, before optional sampling.}
 
 \item{shape}{Point shape. Default 19 (solid circle).}
 
