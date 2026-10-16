@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p>Dedicated <code><a href="../reference/fmt_ref.html">fmt_ref()</a></code> regression tests cover native rendering, transformed and non-numeric positions, nested containers, input preservation and deferred data.</p></li>
+<ul><li><p><code><a href="../reference/fmt_ref.html">fmt_ref()</a></code> uses factor color labels consistently in batched and native layers, preserving numeric palette indices, missing colors and encoded transparency.</p></li>
+<li><p>Dedicated <code><a href="../reference/fmt_ref.html">fmt_ref()</a></code> regression tests cover native rendering, transformed and non-numeric positions, nested containers, input preservation and deferred data.</p></li>
 <li><p><code><a href="../reference/fmt_ref.html">fmt_ref()</a></code> gives argument-specific errors for empty and non-vector line styles when positions are supplied. Unused styles, native missing-value semantics, date positions and discrete category labels are retained.</p></li>
 <li><p><code><a href="../reference/fmt_ref.html">fmt_ref()</a></code> rejects <code>colour</code> with a suggestion to use its <code>color</code> parameter, avoiding duplicate aesthetics and silently ignored colour requests.</p></li>
 <li><p><code><a href="../reference/fmt_ref.html">fmt_ref()</a></code> batches reference lines by direction and reuses their layers across plots, retaining per-line styles, facet replication and existing colour scales. Extra geom arguments keep the native per-line path for compatibility.</p></li>

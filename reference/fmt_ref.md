@@ -47,7 +47,8 @@ fmt_ref(
 
 - color:
 
-  Line color(s). Recycled to match the number of intercepts. Default
+  Line color(s). Recycled to match the number of intercepts. Factors use
+  their labels; numeric values retain their palette indices. Default
   \`"gray50"\`.
 
 - alpha:

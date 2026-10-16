@@ -2,6 +2,11 @@
 
 ## UtilsR 0.6.8
 
+- [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md)
+  uses factor color labels consistently in batched and native layers,
+  preserving numeric palette indices, missing colors and encoded
+  transparency.
+
 - Dedicated
   [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md)
   regression tests cover native rendering, transformed and non-numeric
