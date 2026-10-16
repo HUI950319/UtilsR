@@ -177,16 +177,61 @@ test_that("reference helper columns do not change facet panels", {
   }
 })
 
-test_that("extra geom arguments retain native reference-line behaviour", {
+test_that("safe extra geom arguments retain batched native rendering", {
+  skip_if_not_installed("ragg")
+  capture_plot <- function(q) {
+    capture <- ragg::agg_capture(width = 700, height = 480, res = 100)
+    on.exit(grDevices::dev.off(), add = TRUE)
+    print(q)
+    capture(native = TRUE)
+  }
+  p <- ggplot2::ggplot(data.frame(x = 1:6, y = 6:1, facet = rep(c("A", "B"), 3)),
+                       ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    ggplot2::facet_wrap(~facet)
+  for (extra in list(list(na.rm = FALSE), list(na.rm = TRUE), list(lineend = "round"),
+                     list(na.rm = TRUE, lineend = "square"))) {
+    result <- do.call(fmt_ref, c(list(plot = p, x = c(2, 4), color = c("red", "blue"),
+                                     linewidth = c(0.5, 1.5)), extra))
+    expected <- p
+    for (i in seq_len(2L)) {
+      expected <- expected + do.call(ggplot2::geom_vline,
+        c(list(xintercept = c(2, 4)[i], colour = c("red", "blue")[i],
+               linetype = "dashed", linewidth = c(0.5, 1.5)[i], alpha = 0.8), extra))
+    }
+    expect_length(result$layers, 2L)
+    data <- ggplot2::ggplot_build(result)$data[[2]]
+    for (panel in unique(data$PANEL)) {
+      rows <- data[data$PANEL == panel, ]
+      expect_equal(rows$xintercept, c(2, 4))
+      expect_equal(as.character(rows$colour), c("red", "blue"))
+      expect_equal(as.numeric(rows$linewidth), c(0.5, 1.5))
+    }
+    expect_true(identical(capture_plot(result), capture_plot(expected)))
+  }
+  expect_warning(ggplot2::ggplotGrob(fmt_ref(p, x = c(2, NA), na.rm = FALSE)),
+                 "Removed 2 rows")
+  expect_no_warning(ggplot2::ggplotGrob(fmt_ref(p, x = c(2, NA), na.rm = TRUE)))
+})
+
+test_that("other geom arguments retain native per-line forwarding", {
   p <- ggplot2::ggplot(data.frame(x = 1:5, y = 5:1), ggplot2::aes(x, y)) +
     ggplot2::geom_point()
-  expected <- p + ggplot2::geom_vline(xintercept = 2, colour = "red", linetype = "dashed",
-                                     linewidth = 0.5, alpha = 0.8, lineend = "round") +
-    ggplot2::geom_vline(xintercept = 4, colour = "blue", linetype = "dashed",
-                        linewidth = 0.5, alpha = 0.8, lineend = "round")
-  result <- fmt_ref(p, x = c(2, 4), color = c("red", "blue"), lineend = "round")
-  expect_equal(ggplot2::ggplot_build(result)$data,
-               ggplot2::ggplot_build(expected)$data)
+  for (extra in list(list(inherit.aes = FALSE), list(show.legend = TRUE),
+                     list(lineend = c("round", "butt")))) {
+    result <- do.call(fmt_ref, c(list(plot = p, x = c(2, 4)), extra))
+    expected <- p
+    for (x in c(2, 4)) {
+      expected <- expected + do.call(ggplot2::geom_vline,
+        c(list(xintercept = x, colour = "gray50", linetype = "dashed",
+               linewidth = 0.5, alpha = 0.8), extra))
+    }
+    expect_length(result$layers, 3L)
+    expect_equal(ggplot2::ggplot_build(result)$data,
+                 ggplot2::ggplot_build(expected)$data)
+  }
+  expect_error(do.call(fmt_ref, c(list(plot = p, x = c(2, 4)),
+                                list(na.rm = FALSE, na.rm = TRUE))),
+               "matched by multiple actual arguments")
 })
 
 test_that("batched references render like native lines across plot layouts", {

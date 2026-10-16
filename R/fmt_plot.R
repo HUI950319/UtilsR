@@ -1296,7 +1296,8 @@ fmt_legend <- function(plot,
 #'   \code{\link[ggplot2:geom_hline]{geom_hline()}}. Supply positions with
 #'   \code{x} and \code{y}; \code{xintercept} and \code{yintercept} are rejected.
 #'   Use \code{color} for line colors; \code{colour} is rejected to prevent
-#'   conflicting color settings.
+#'   conflicting color settings. Scalar \code{na.rm} and \code{lineend} values
+#'   retain batching; other geom arguments use native per-line layers.
 #'
 #' @details When positions are supplied, \code{linetype}, \code{linewidth},
 #'   \code{color} and \code{alpha} must be non-empty vectors. Missing style
@@ -1328,6 +1329,9 @@ fmt_ref <- function(plot,
   if ("colour" %in% names(dots)) {
     cli::cli_abort("Use {.arg color} instead of {.arg colour}.")
   }
+  batch_dots <- length(names(dots)) == length(dots) &&
+    !anyDuplicated(names(dots)) && all(names(dots) %in% c("na.rm", "lineend")) &&
+    all(lengths(dots) == 1L) && all(vapply(dots, is.atomic, logical(1)))
   info <- .to_plot_list(plot, recurse = TRUE)
   plots <- info$plots
 
@@ -1349,7 +1353,7 @@ fmt_ref <- function(plot,
                    linewidth = rep_len(linewidth, length(values)),
                    alpha = rep_len(alpha, length(values)))
     geom <- if (axis == "x") ggplot2::geom_vline else ggplot2::geom_hline
-    if (length(dots) || native) {
+    if (!batch_dots || native) {
       return(lapply(seq_along(values), function(j) {
         args <- c(stats::setNames(list(values[j]), paste0(axis, "intercept")),
                   lapply(styles, function(style) style[j]), dots)
@@ -1371,8 +1375,8 @@ fmt_ref <- function(plot,
     for (aesthetic in names(mapping)) {
       mapping[[aesthetic]] <- rlang::quo_set_env(mapping[[aesthetic]], rlang::base_env())
     }
-    list(do.call(geom, list(data = data, mapping = mapping, show.legend = FALSE),
-                 envir = baseenv()))
+    args <- c(list(data = data, mapping = mapping, show.legend = FALSE), dots)
+    list(do.call(geom, args, envir = baseenv()))
   }
 
   if (!length(x) && !length(y)) return(plot)

@@ -40,7 +40,8 @@ Default `"gray50"`.}
 \code{\link[ggplot2:geom_hline]{geom_hline()}}. Supply positions with
 \code{x} and \code{y}; \code{xintercept} and \code{yintercept} are rejected.
 Use \code{color} for line colors; \code{colour} is rejected to prevent
-conflicting color settings.}
+conflicting color settings. Scalar \code{na.rm} and \code{lineend} values
+retain batching; other geom arguments use native per-line layers.}
 }
 \value{
 Same type as input.

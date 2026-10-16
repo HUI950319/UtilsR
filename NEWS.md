@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_ref()` keeps batching with scalar `na.rm` and `lineend` arguments while
+  retaining native rendering, missing-value warnings and fallback for other args.
+
 * `fmt_ref()` creates separate reference layers for each subplot, so subsequent
   edits to one subplot's reference data or styles do not alter its peers.
 
@@ -24,7 +27,7 @@
 
 * `fmt_ref()` batches reference lines by direction, retaining per-line styles,
   facet replication and existing colour scales.
-  Extra geom arguments keep the native per-line path for compatibility.
+  Other geom arguments keep the native per-line path for compatibility.
 
 * `fmt_ref()` rejects geom intercept argument names with a clear suggestion to
   use `x` and `y`. The formatting vignette now uses those supported arguments.
