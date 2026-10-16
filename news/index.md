@@ -2,6 +2,19 @@
 
 ## UtilsR 0.6.8
 
+- [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
+  and [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) count
+  a special value (“unknown”, “blank”, “n/a”, “na”, “missing”,
+  “unspecified”, “not available” or an empty string) only as a whole
+  word and once per value. “Regional”, “Canada”, “anaplastic” or “NACT”
+  no longer count through “na”, and “Unknown/unstaged/unspecified”
+  counts once instead of twice. Matching runs on the distinct values,
+  which makes
+  [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
+  about ten times and
+  [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) about a
+  third faster on a 257,000-row SEER table.
+
 - [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md)
   keeps batching with scalar `na.rm` and `lineend` arguments while
   retaining native rendering, missing-value warnings and fallback for
