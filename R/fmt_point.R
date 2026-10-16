@@ -10,6 +10,7 @@
 #         +-- L2  .fmt_point_sample()   sample resolved layer data
 #         +-- L2  .fmt_point_draw_panel()   white underlay for open symbols
 #         +-- L2  .fmt_point_draw_key()     matching symbol keys
+#         +-- L2  .fmt_point_jitterdodge_setup()   legacy group-only dodge
 # =============================================================================
 
 #' Add Data Points to a Plot
@@ -232,6 +233,10 @@ fmt_point <- function(plot,
           jitter.width = jit$width, jitter.height = jit$height,
           dodge.width = dodge.width, seed = 42
         )
+        if (utils::packageVersion("ggplot2") < "4.0.0") {
+          position <- do.call(ggplot2::ggproto, list(NULL, position,
+            setup_params = .fmt_point_jitterdodge_setup), quote = TRUE, envir = baseenv())
+        }
       }
     }
 
@@ -433,6 +438,12 @@ fmt_point <- function(plot,
   data$colour <- data$fill
   data$size <- data$size / 1.5
   grid::grobTree(base, ggplot2::draw_key_point(data, params, size))
+}
+
+.fmt_point_jitterdodge_setup <- function(self, data) {
+  if (!any(c("fill", "colour", "linetype", "shape", "size", "alpha") %in% names(data)))
+    data$fill <- factor(data$group)
+  ggplot2::ggproto_parent(ggplot2::PositionJitterdodge, self)$setup_params(data)
 }
 
 .fmt_point_stage_args <- function(mapping) {

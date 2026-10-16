@@ -211,7 +211,9 @@ test_that("automatic dodging uses explicit and layer-local groups", {
     position = ggplot2::position_dodge(width = 0.8)))$data[[1]]
   result <- ggplot2::ggplot_build(fmt_point(p))$data[[1]]
   expect_equal(result$x, native$x)
-  native_jitter <- ggplot2::ggplot_build(p + ggplot2::geom_point(
+  reference <- if (utils::packageVersion("ggplot2") < "4.0.0")
+    p + ggplot2::aes(fill = factor(g)) else p
+  native_jitter <- ggplot2::ggplot_build(reference + ggplot2::geom_point(
     position = ggplot2::position_jitterdodge(jitter.width = 0.2,
       jitter.height = 0, dodge.width = 0.8, seed = 42)))$data[[1]]
   expect_equal(ggplot2::ggplot_build(fmt_point(p, type = "jitter"))$data[[1]]$x,
