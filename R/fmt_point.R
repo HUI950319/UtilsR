@@ -386,7 +386,9 @@ fmt_point <- function(plot,
     rownames(data) <- NULL
     data
   } else {
-    dplyr::slice_sample(data, n = min(sample_n, nrow(data)))
+    data <- data[sample.int(nrow(data), min(sample_n, nrow(data))), , drop = FALSE]
+    rownames(data) <- NULL
+    data
   }
 }
 

@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_point()` samples rows independently of hidden dplyr grouping attributes;
+  rowwise and grouped inputs follow the same aesthetic-based sample limits.
+
 * `fmt_point()` distinguishes ordinary columns named `stage`, `after_stat`,
   `after_scale` or `from_theme` from delayed aesthetic function calls.
 

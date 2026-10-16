@@ -386,3 +386,16 @@ test_that("sampling distinguishes stage functions from ordinary column names", {
     expect_equal(as.integer(table(sampled$stage)), rep(2L, 3))
   }
 })
+
+test_that("unmapped dplyr grouping does not change sampling", {
+  d <- data.frame(x = 1:12, y = 12:1, g = rep(letters[1:3], 4))
+  expected <- fmt_point(ggplot2::ggplot(d, ggplot2::aes(x, y)), sample_n = 2)$layers[[1]]$data
+  for (input in list(dplyr::group_by(d, g), dplyr::rowwise(d))) {
+    out <- fmt_point(ggplot2::ggplot(input, ggplot2::aes(x, y)), sample_n = 2)
+    sampled <- out$layers[[1]]$data
+    expect_equal(nrow(sampled), 2L)
+    expect_identical(class(sampled), class(input))
+    expect_identical(sampled$x, expected$x)
+    expect_no_warning(ggplot2::ggplot_build(out))
+  }
+})
