@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_point()` samples expression-based groups, retains missing groups, and
+  prioritizes explicit groups over discrete colour/fill mappings. Continuous
+  colour/fill values no longer create one sampling group per distinct value.
+
 * `fmt_point()` preserves the caller's random-number state when sampling,
   including calls that keep all rows and sessions without an existing seed.
 

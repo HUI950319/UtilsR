@@ -32,10 +32,11 @@
 #'   \code{type = "beeswarm"}.
 #'   Defaults: \code{list(cex = 3, corral = "wrap", corral.width = 0.5)}.
 #' @param sample_n Integer or \code{NULL}. When set, randomly subsample data
-#'   before plotting to reduce overplotting. If the plot has a group aesthetic
-#'   (color/fill), sampling is stratified: \code{sample_n} points are taken
-#'   \strong{per group}. Groups with fewer points are kept in full.
-#'   Default \code{NULL} (no sampling).
+#'   before plotting to reduce overplotting. An explicit \code{group} mapping
+#'   takes priority over discrete color/fill mappings, including expressions.
+#'   Sampling takes at most \code{sample_n} points \strong{per group}; missing
+#'   group values form a separate group. Continuous color/fill mappings do not
+#'   define sampling groups. Default \code{NULL} (no sampling).
 #' @param seed Random seed for reproducible sampling. Default 42. Sampling
 #'   preserves the caller's random-number state.
 #' @param rasterize Logical. If \code{TRUE}, rasterizes the point layer
@@ -120,17 +121,26 @@ fmt_point <- function(plot,
       set.seed(seed)
       d <- data %||% p$data
       if (!is.null(d) && nrow(d) > sample_n) {
-        # Detect group variable from aesthetics
-        group_var <- NULL
-        for (aes_name in c("colour", "fill", "group")) {
-          if (aes_name %in% names(p$mapping)) {
-            group_var <- rlang::as_name(p$mapping[[aes_name]])
+        # Use raw-data groups; stat/scale-stage mappings are not available yet.
+        group_values <- NULL
+        for (aes_name in c("group", "colour", "fill")) {
+          mapping <- p$mapping[[aes_name]]
+          if (is.null(mapping)) next
+          expr <- rlang::get_expr(mapping)
+          if (any(all.names(expr) %in% c("after_stat", "after_scale", "stage",
+                                        "from_theme"))) next
+          values <- rlang::eval_tidy(mapping, data = d)
+          if (!is.null(values) &&
+              (aes_name == "group" || is.factor(values) ||
+               is.character(values) || is.logical(values))) {
+            group_values <- rep_len(values, nrow(d))
             break
           }
         }
-        if (!is.null(group_var) && group_var %in% names(d)) {
+        if (!is.null(group_values)) {
           # Stratified: sample_n per group (keep all if group < sample_n)
-          d <- do.call(rbind, lapply(split(d, d[[group_var]]), function(grp) {
+          groups <- addNA(as.factor(group_values), ifany = TRUE)
+          d <- do.call(rbind, lapply(split(d, groups), function(grp) {
             if (nrow(grp) <= sample_n) grp else grp[sample.int(nrow(grp), sample_n), ]
           }))
           rownames(d) <- NULL

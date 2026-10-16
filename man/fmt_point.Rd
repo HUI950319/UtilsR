@@ -49,10 +49,11 @@ Set to 0 to disable dodging.}
 Defaults: \code{list(cex = 3, corral = "wrap", corral.width = 0.5)}.}
 
 \item{sample_n}{Integer or \code{NULL}. When set, randomly subsample data
-before plotting to reduce overplotting. If the plot has a group aesthetic
-(color/fill), sampling is stratified: \code{sample_n} points are taken
-\strong{per group}. Groups with fewer points are kept in full.
-Default \code{NULL} (no sampling).}
+before plotting to reduce overplotting. An explicit \code{group} mapping
+takes priority over discrete color/fill mappings, including expressions.
+Sampling takes at most \code{sample_n} points \strong{per group}; missing
+group values form a separate group. Continuous color/fill mappings do not
+define sampling groups. Default \code{NULL} (no sampling).}
 
 \item{seed}{Random seed for reproducible sampling. Default 42. Sampling
 preserves the caller's random-number state.}
