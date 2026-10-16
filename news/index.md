@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
+  includes explicit and layer-local groups in automatic dodging and
+  ignores parent mappings when `inherit.aes = FALSE`.
+
+- [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
   respects layer-local mappings and `inherit.aes` when sampling and
   styling points. Explicit `shape`/`size` values override mappings,
   while omitted values retain the mapped aesthetics.
