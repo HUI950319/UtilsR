@@ -292,3 +292,48 @@ test_that("point layout controls fail early with argument-specific errors", {
   expect_equal(ggplot2::ggplot_build(result)$data[[1]]$x,
                ggplot2::ggplot_build(native)$data[[1]]$x)
 })
+
+test_that("stratified sampling preserves data frames with one or complex columns", {
+  d <- data.frame(x = 1:12)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, x, colour = factor(x %% 2)))
+  sampled <- fmt_point(p, sample_n = 2)$layers[[1]]$data
+  expect_s3_class(sampled, "data.frame")
+  expect_identical(names(sampled), "x")
+  expect_equal(nrow(sampled), 4L)
+  expect_equal(as.integer(table(sampled$x %% 2)), c(2L, 2L))
+  d <- data.frame(x = 1:12, y = 12:1,
+    g = factor(rep(c("b", "a", NA), 4), levels = c("b", "a", "unused")),
+    date = as.Date("2020-01-01") + 1:12)
+  d$list_column <- as.list(seq_len(12))
+  d$matrix_column <- I(matrix(seq_len(24), ncol = 2))
+  for (input in list(d, tibble::as_tibble(d))) {
+    p <- ggplot2::ggplot(input, ggplot2::aes(x, y, colour = g))
+    sampled <- fmt_point(p, sample_n = 2)$layers[[1]]$data
+    expect_identical(class(sampled), class(input))
+    expect_identical(names(sampled), names(input))
+    expect_identical(levels(sampled$g), levels(input$g))
+    expect_identical(sampled$date, input$date[sampled$x])
+    expect_identical(sampled$list_column, input$list_column[sampled$x])
+    expect_equal(as.vector(sampled$matrix_column),
+                 as.vector(input$matrix_column[sampled$x, , drop = FALSE]))
+    expect_identical(dim(sampled$matrix_column), c(6L, 2L))
+    expect_equal(nrow(sampled), 6L)
+  }
+})
+
+test_that("sampled white-border jitter also renders through rasterization", {
+  skip_if_not_installed("ggrastr")
+  skip_if_not_installed("ragg")
+  d <- data.frame(x = rep(c("x", "y"), each = 6), y = 1:12,
+                  g = rep(c("a", "b"), 6))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, colour = g))
+  result <- fmt_point(p, type = "jitter", data = ~ utils::head(.x, 10),
+    sample_n = 2, white_border = TRUE, rasterize = TRUE)
+  built <- ggplot2::ggplot_build(result)$data[[1]]
+  expect_equal(nrow(built), 4L)
+  expect_equal(built$colour, rep("#FFFFFF", 4))
+  device <- ragg::agg_capture(width = 640, height = 480, res = 100)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  expect_no_warning(print(result))
+  expect_identical(dim(device(native = TRUE)), c(480L, 640L))
+})

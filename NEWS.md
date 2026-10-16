@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_point()` samples row indices before slicing grouped data, reducing
+  copying while preserving row order and random selections. Matrix columns
+  retain the existing path; single-column data frames keep their dimensions.
+
 * `fmt_point()` validates sample sizes, seeds and layout controls consistently,
   rejects malformed jitter options and incompatible grouping lengths, and
   accepts `NULL` jitter dimensions for ggplot2's native defaults.

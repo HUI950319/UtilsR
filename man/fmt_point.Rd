@@ -118,6 +118,7 @@ fmt_point(p2, type = "jitter", sample_n = 10, alpha = 0.5)
 }
 \seealso{
 Other plot formatting:
+\code{\link[=flatten_patchwork]{flatten_patchwork()}},
 \code{\link[=fmt_axis]{fmt_axis()}},
 \code{\link[=fmt_axisText]{fmt_axisText()}},
 \code{\link[=fmt_axisTile]{fmt_axisTile()}},

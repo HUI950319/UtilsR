@@ -350,9 +350,20 @@ fmt_point <- function(plot,
   }
   if (!is.null(group_values)) {
     groups <- addNA(as.factor(group_values), ifany = TRUE)
-    data <- do.call(rbind, lapply(split(data, groups), function(grp) {
-      if (nrow(grp) <= sample_n) grp else grp[sample.int(nrow(grp), sample_n), ]
-    }))
+    # Matrix columns retain rbind's existing class/dimname semantics.
+    if (any(vapply(data, is.matrix, logical(1)))) {
+      data <- do.call(rbind, lapply(split(data, groups), function(grp) {
+        if (nrow(grp) <= sample_n) grp else
+          grp[sample.int(nrow(grp), sample_n), , drop = FALSE]
+      }))
+      rownames(data) <- NULL
+      return(data)
+    }
+    rows <- unlist(lapply(split(seq_len(nrow(data)), groups), function(indices) {
+      if (length(indices) <= sample_n) indices else
+        indices[sample.int(length(indices), sample_n)]
+    }), use.names = FALSE)
+    data <- data[rows, , drop = FALSE]
     rownames(data) <- NULL
     data
   } else {
