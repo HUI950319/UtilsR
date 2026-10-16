@@ -3,6 +3,12 @@
 ## UtilsR 0.6.8
 
 - [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
+  samples row indices before slicing grouped data, reducing copying
+  while preserving row order and random selections. Matrix columns
+  retain the existing path; single-column data frames keep their
+  dimensions.
+
+- [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
   validates sample sizes, seeds and layout controls consistently,
   rejects malformed jitter options and incompatible grouping lengths,
   and accepts `NULL` jitter dimensions for ggplot2’s native defaults.
