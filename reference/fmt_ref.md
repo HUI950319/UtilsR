@@ -2,8 +2,8 @@
 
 Add vertical and/or horizontal reference lines to one or more plots.
 Styles are recycled separately for each direction. Multiple lines share
-a layer unless additional geom arguments require the original per-line
-behaviour.
+a layer unless geom arguments or facet-variable conflicts require
+per-line layers.
 
 ## Usage
 

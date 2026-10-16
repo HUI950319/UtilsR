@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md)
+  uses native per-line layers when facet expressions reference its
+  helper-column prefix, preserving panels without evaluating data
+  callbacks.
+
+- [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md)
   constructs self-contained reference mappings and layers, avoiding
   retention of peer plots and their data when a formatted subplot is
   extracted.
