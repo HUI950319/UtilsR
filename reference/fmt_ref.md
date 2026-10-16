@@ -63,7 +63,8 @@ fmt_ref(
   [`geom_hline()`](https://ggplot2.tidyverse.org/reference/geom_abline.html).
   Supply positions with `x` and `y`; `xintercept` and `yintercept` are
   rejected. Use `color` for line colors; `colour` is rejected to prevent
-  conflicting color settings.
+  conflicting color settings. Scalar `na.rm` and `lineend` values retain
+  batching; other geom arguments use native per-line layers.
 
 ## Value
 

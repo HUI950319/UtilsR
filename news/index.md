@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md)
+  keeps batching with scalar `na.rm` and `lineend` arguments while
+  retaining native rendering, missing-value warnings and fallback for
+  other args.
+
+- [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md)
   creates separate reference layers for each subplot, so subsequent
   edits to one subplot’s reference data or styles do not alter its
   peers.
@@ -38,7 +43,7 @@
 
 - [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md)
   batches reference lines by direction, retaining per-line styles, facet
-  replication and existing colour scales. Extra geom arguments keep the
+  replication and existing colour scales. Other geom arguments keep the
   native per-line path for compatibility.
 
 - [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md)

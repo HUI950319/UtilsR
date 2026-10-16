@@ -116,7 +116,8 @@ Default `"gray50"`.</p></dd>
 <code><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline()</a></code>. Supply positions with
 <code>x</code> and <code>y</code>; <code>xintercept</code> and <code>yintercept</code> are rejected.
 Use <code>color</code> for line colors; <code>colour</code> is rejected to prevent
-conflicting color settings.</p></dd>
+conflicting color settings. Scalar <code>na.rm</code> and <code>lineend</code> values
+retain batching; other geom arguments use native per-line layers.</p></dd>
 
 </dl></div>
     <div class="section level2">
