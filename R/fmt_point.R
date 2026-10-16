@@ -188,13 +188,13 @@ fmt_point <- function(plot,
   fmt_point_one <- function(p) {
     params <- list(size = size, shape = shape, ...)
     if ("color" %in% names(params) && !"colour" %in% names(params)) {
-      params$colour <- params$color
-      params$color <- NULL
+      params[["colour"]] <- params[["color"]]
+      params[["color"]] <- NULL
     }
-    layer_mapping <- if (isFALSE(params$inherit.aes)) list() else as.list(p$mapping)
-    layer_mapping[names(params$mapping)] <- as.list(params$mapping)
-    if (shape_missing && !is.null(layer_mapping$shape)) params$shape <- NULL
-    if (size_missing && !is.null(layer_mapping$size)) params$size <- NULL
+    layer_mapping <- if (isFALSE(params[["inherit.aes"]])) list() else as.list(p$mapping)
+    layer_mapping[names(params[["mapping"]])] <- as.list(params[["mapping"]])
+    if (shape_missing && !is.null(layer_mapping[["shape"]])) params[["shape"]] <- NULL
+    if (size_missing && !is.null(layer_mapping[["size"]])) params[["size"]] <- NULL
     for (aes_name in intersect(names(params), names(layer_mapping))) {
       if (!is.null(params[[aes_name]])) layer_mapping[[aes_name]] <- NULL
     }
@@ -250,7 +250,7 @@ fmt_point <- function(plot,
         compute_layer = .fmt_point_position_layer), quote = TRUE, envir = baseenv())
     }
 
-    if (!is.null(data)) params$data <- data
+    if (!is.null(data)) params[["data"]] <- data
 
     # --- White border ---
     if (white_border) {
@@ -258,59 +258,59 @@ fmt_point <- function(plot,
         if ("colour" %in% names(params)) {
           cli::cli_abort("Supply only one of {.arg color} and {.arg colour}.")
         }
-        params$colour <- params$color
-        params$color <- NULL
+        params[["colour"]] <- params[["color"]]
+        params[["color"]] <- NULL
       }
       border_mapping <- layer_mapping
-      if (is.null(params$shape) && is.null(border_mapping$shape)) params$shape <- 19
-      if (!is.null(params$shape)) params$shape <- .shape_convert(params$shape)
-      if (!is.null(border_mapping$shape) || length(params$shape) > 0L) {
-        if (!is.null(params$size)) params$size <- params$size * 1.5
-        if (is.null(params$mapping)) params$mapping <- ggplot2::aes()
-        if (!is.null(border_mapping$colour) && is.null(params$colour)) {
-          colour_mapping <- border_mapping$colour
+      if (is.null(params[["shape"]]) && is.null(border_mapping[["shape"]])) params[["shape"]] <- 19
+      if (!is.null(params[["shape"]])) params[["shape"]] <- .shape_convert(params[["shape"]])
+      if (!is.null(border_mapping[["shape"]]) || length(params[["shape"]]) > 0L) {
+        if (!is.null(params[["size"]])) params[["size"]] <- params[["size"]] * 1.5
+        if (is.null(params[["mapping"]])) params[["mapping"]] <- ggplot2::aes()
+        if (!is.null(border_mapping[["colour"]]) && is.null(params[["colour"]])) {
+          colour_mapping <- border_mapping[["colour"]]
           args <- .fmt_point_stage_args(colour_mapping)
-          if (is.null(params$fill) && is.null(border_mapping$fill)) {
+          if (is.null(params[["fill"]]) && is.null(border_mapping[["fill"]])) {
             fill_expr <- args$after_scale %||% quote(colour)
-            params$mapping$fill <- rlang::new_quosure(
+            params[["mapping"]]$fill <- rlang::new_quosure(
               rlang::call2("after_scale", fill_expr, .ns = "ggplot2"),
               rlang::get_env(colour_mapping, default = baseenv())
             )
           }
           args$after_scale <- "#FFFFFF"
-          params$mapping$colour <- rlang::new_quosure(
+          params[["mapping"]]$colour <- rlang::new_quosure(
             rlang::call2("stage", !!!args, .ns = "ggplot2"),
             rlang::get_env(colour_mapping, default = baseenv())
           )
         } else {
-          if (is.null(params$fill) && is.null(border_mapping$fill)) {
-            params$fill <- params$colour %||% "black"
+          if (is.null(params[["fill"]]) && is.null(border_mapping[["fill"]])) {
+            params[["fill"]] <- params[["colour"]] %||% "black"
           }
-          params$colour <- "#FFFFFF"
+          params[["colour"]] <- "#FFFFFF"
         }
-        if (!is.null(border_mapping$shape)) {
-          shape_mapping <- border_mapping$shape
+        if (!is.null(border_mapping[["shape"]])) {
+          shape_mapping <- border_mapping[["shape"]]
           args <- .fmt_point_stage_args(shape_mapping)
           args$after_scale <- rlang::call2(
             ".fmt_point_shape", args$after_scale %||% quote(shape)
           )
-          params$mapping$shape <- rlang::new_quosure(
+          params[["mapping"]]$shape <- rlang::new_quosure(
             rlang::call2("stage", !!!args, .ns = "ggplot2"),
             rlang::env(rlang::get_env(shape_mapping, default = baseenv()),
                        .fmt_point_shape = .shape_convert)
           )
-          params$shape <- NULL
+          params[["shape"]] <- NULL
         }
       }
     }
 
     # --- Create geom ---
     if (type == "beeswarm") {
-      params$dodge.width <- dodge.width
+      params[["dodge.width"]] <- dodge.width
       params[names(bee)] <- bee
       geom <- do.call(ggbeeswarm::geom_beeswarm, params)
     } else {
-      params$position <- position
+      params[["position"]] <- position
       geom <- do.call(ggplot2::geom_point, params)
     }
     if (white_border) {
@@ -465,7 +465,7 @@ fmt_point <- function(plot,
 }
 
 .fmt_point_position_layer <- function(data, params, layout) {
-  params$position$compute_layer(data, params$args, layout)
+  params[["position"]]$compute_layer(data, params[["args"]], layout)
 }
 
 .fmt_point_stage_args <- function(mapping) {

@@ -415,3 +415,16 @@ test_that("continuous and null aesthetics do not trigger dodge", {
     }
   }
 })
+
+test_that("ignored geom arguments cannot partially match formatting controls", {
+  d <- data.frame(x = 1:12, y = 12:1, g = rep(letters[1:3], 4))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, colour = g))
+  expect_warning(out <- fmt_point(p, sample_n = 2, inherit.aes_extra = FALSE),
+                 "Ignoring unknown parameters")
+  expect_equal(nrow(out$layers[[1]]$data), 6L)
+  expect_true(out$layers[[1]]$inherit.aes)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y))
+  expect_warning(out <- fmt_point(p, white_border = TRUE, fill_extra = "red"),
+                 "Ignoring unknown parameters")
+  expect_equal(ggplot2::ggplot_build(out)$data[[1]]$fill, rep("black", nrow(d)))
+})
