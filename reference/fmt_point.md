@@ -44,11 +44,13 @@ fmt_point(
 
 - shape:
 
-  Point shape. Default 19 (solid circle).
+  Point shape. Default 19 (solid circle). Omitted values preserve mapped
+  shapes; explicitly supplied values override mappings.
 
 - size:
 
-  Point size. Default 1.
+  Point size. Default 1. Omitted values preserve mapped sizes;
+  explicitly supplied values override mappings.
 
 - white_border:
 
