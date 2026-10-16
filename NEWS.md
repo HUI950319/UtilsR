@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_point()` preserves the caller's random-number state when sampling,
+  including calls that keep all rows and sessions without an existing seed.
+
 * `check_na()` and `lv()` count a special value ("unknown", "blank", "n/a",
   "na", "missing", "unspecified", "not available" or an empty string) only as
   a whole word and once per value. "Regional", "Canada", "anaplastic" or

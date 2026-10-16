@@ -54,7 +54,8 @@ before plotting to reduce overplotting. If the plot has a group aesthetic
 \strong{per group}. Groups with fewer points are kept in full.
 Default \code{NULL} (no sampling).}
 
-\item{seed}{Random seed for reproducible sampling. Default 42.}
+\item{seed}{Random seed for reproducible sampling. Default 42. Sampling
+preserves the caller's random-number state.}
 
 \item{rasterize}{Logical. If \code{TRUE}, rasterizes the point layer
 via \code{ggrastr::rasterise} for large datasets. Default \code{FALSE}.}

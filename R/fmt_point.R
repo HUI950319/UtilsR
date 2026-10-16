@@ -36,7 +36,8 @@
 #'   (color/fill), sampling is stratified: \code{sample_n} points are taken
 #'   \strong{per group}. Groups with fewer points are kept in full.
 #'   Default \code{NULL} (no sampling).
-#' @param seed Random seed for reproducible sampling. Default 42.
+#' @param seed Random seed for reproducible sampling. Default 42. Sampling
+#'   preserves the caller's random-number state.
 #' @param rasterize Logical. If \code{TRUE}, rasterizes the point layer
 #'   via \code{ggrastr::rasterise} for large datasets. Default \code{FALSE}.
 #' @param rasterize.dpi Integer, DPI for rasterization. Default 300.
@@ -106,6 +107,16 @@ fmt_point <- function(plot,
   fmt_point_one <- function(p) {
     # --- Subsample data ---
     if (!is.null(sample_n)) {
+      old_seed <- get0(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+      on.exit({
+        if (is.null(old_seed)) {
+          if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) {
+            rm(".Random.seed", envir = .GlobalEnv)
+          }
+        } else {
+          assign(".Random.seed", old_seed, envir = .GlobalEnv)
+        }
+      }, add = TRUE)
       set.seed(seed)
       d <- data %||% p$data
       if (!is.null(d) && nrow(d) > sample_n) {
