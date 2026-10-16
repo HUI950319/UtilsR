@@ -1277,7 +1277,7 @@ fmt_legend <- function(plot,
 #'
 #' Add vertical and/or horizontal reference lines to one or more plots. Styles
 #' are recycled separately for each direction. Multiple lines share a layer
-#' unless additional geom arguments require the original per-line behaviour.
+#' unless geom arguments or facet-variable conflicts require per-line layers.
 #'
 #' @param plot A ggplot, patchwork, or list of ggplot objects.
 #' @param x Vector of x-intercept values compatible with the plot's x scale,
@@ -1342,14 +1342,14 @@ fmt_ref <- function(plot,
     if (is.factor(color)) color <- as.character(color)
   }
 
-  .ref_layers <- function(values, axis) {
+  .ref_layers <- function(values, axis, native = FALSE) {
     if (!length(values)) return(list())
     styles <- list(colour = rep_len(color, length(values)),
                    linetype = rep_len(linetype, length(values)),
                    linewidth = rep_len(linewidth, length(values)),
                    alpha = rep_len(alpha, length(values)))
     geom <- if (axis == "x") ggplot2::geom_vline else ggplot2::geom_hline
-    if (length(dots)) {
+    if (length(dots) || native) {
       return(lapply(seq_along(values), function(j) {
         args <- c(stats::setNames(list(values[j]), paste0(axis, "intercept")),
                   lapply(styles, function(style) style[j]), dots)
@@ -1378,7 +1378,16 @@ fmt_ref <- function(plot,
   layers <- c(.ref_layers(x, "x"), .ref_layers(y, "y"))
   if (!length(layers)) return(plot)
   for (i in seq_along(plots)) {
-    plots[[i]] <- plots[[i]] + layers
+    facets <- c(plots[[i]]$facet$params$facets, plots[[i]]$facet$params$rows,
+                plots[[i]]$facet$params$cols)
+    facet_text <- c(names(facets), unlist(lapply(facets, function(facet) {
+      deparse(rlang::get_expr(facet))
+    }), use.names = FALSE))
+    # Native layers cannot supply our helper columns as spurious facet values.
+    plot_layers <- if (any(grepl(".fmt_ref_", facet_text, fixed = TRUE))) {
+      c(.ref_layers(x, "x", native = TRUE), .ref_layers(y, "y", native = TRUE))
+    } else layers
+    plots[[i]] <- plots[[i]] + plot_layers
   }
 
   .from_plot_list(plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig,

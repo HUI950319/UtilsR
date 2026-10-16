@@ -141,6 +141,42 @@ test_that("reference styles survive facet replication", {
   }
 })
 
+test_that("reference helper columns do not change facet panels", {
+  helper_names <- paste0(".fmt_ref_", c("intercept", "group", "colour", "linetype",
+                                       "linewidth", "alpha"))
+  for (name in helper_names) {
+    d <- data.frame(x = 1:6, y = 6:1)
+    d[[name]] <- rep(c("A", "B"), 3)
+    p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+    for (facet in list(ggplot2::facet_wrap(stats::reformulate(name)),
+                       ggplot2::facet_grid(stats::reformulate(name)))) {
+      input <- p + facet
+      expected <- input + ggplot2::geom_vline(xintercept = 2, colour = "red",
+                                               linetype = "dashed", linewidth = 0.5,
+                                               alpha = 0.8) +
+        ggplot2::geom_vline(xintercept = 4, colour = "blue", linetype = "dashed",
+                            linewidth = 0.5, alpha = 0.8)
+      expect_no_warning(result <- ggplot2::ggplot_build(
+        fmt_ref(input, x = c(2, 4), color = c("red", "blue"))))
+      native <- ggplot2::ggplot_build(expected)
+      expect_equal(result$layout$layout, native$layout$layout, info = name)
+      expect_equal(result$data, native$data, info = name)
+    }
+  }
+  calls <- 0L
+  p <- ggplot2::ggplot(mapping = ggplot2::aes(x, y)) +
+    ggplot2::geom_point(data = function(d) {
+      calls <<- calls + 1L
+      data.frame(x = 1:4, y = 4:1, .fmt_ref_group = c("A", "B", "A", "B"))
+    }) + ggplot2::facet_wrap(ggplot2::vars(tolower(.data[[".fmt_ref_group"]])))
+  result <- fmt_ref(list(single = p, nested = p | p), x = c(2, 3))
+  expect_equal(calls, 0L)
+  for (q in .to_plot_list(result, recurse = TRUE)$plots) {
+    expect_no_warning(built <- ggplot2::ggplot_build(q))
+    expect_equal(nrow(built$layout$layout), 2L)
+  }
+})
+
 test_that("extra geom arguments retain native reference-line behaviour", {
   p <- ggplot2::ggplot(data.frame(x = 1:5, y = 5:1), ggplot2::aes(x, y)) +
     ggplot2::geom_point()

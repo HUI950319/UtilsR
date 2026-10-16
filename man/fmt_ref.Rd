@@ -48,7 +48,7 @@ Same type as input.
 \description{
 Add vertical and/or horizontal reference lines to one or more plots. Styles
 are recycled separately for each direction. Multiple lines share a layer
-unless additional geom arguments require the original per-line behaviour.
+unless geom arguments or facet-variable conflicts require per-line layers.
 }
 \details{
 When positions are supplied, \code{linetype}, \code{linewidth},
