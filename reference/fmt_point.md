@@ -51,8 +51,8 @@ fmt_point(
 
 - white_border:
 
-  Logical. If `TRUE`, converts shapes to fillable versions (21-24) with
-  white stroke. Default `FALSE`.
+  Logical. If `TRUE`, converts shapes to fillable versions (21-25) with
+  white stroke, retaining scaled colours as fills. Default `FALSE`.
 
 - dodge.width:
 

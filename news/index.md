@@ -2,6 +2,11 @@
 
 ## UtilsR 0.6.8
 
+- `fmt_point(white_border = TRUE)` retains scaled group colours and
+  existing fills, treats `color` and `colour` consistently, and supports
+  mapped shapes and shape 25 without replacing the original plot’s
+  scales.
+
 - [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
   adds independent point layers to every nested patchwork leaf while
   preserving layout, annotations, spacers and the original plots.
