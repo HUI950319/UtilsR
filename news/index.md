@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md)
+  constructs self-contained reference mappings and layers, avoiding
+  retention of peer plots and their data when a formatted subplot is
+  extracted.
+
+- [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md)
   uses factor color labels consistently in batched and native layers,
   preserving numeric palette indices, missing colors and encoded
   transparency.
