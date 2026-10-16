@@ -85,3 +85,54 @@ test_that("point overlays preserve spacers and independent sibling layers", {
   expect_equal(siblings[[2]]$layers[[1]]$aes_params$size, 1)
   expect_length(p$layers, 0L)
 })
+
+test_that("white borders preserve scaled group colours and existing fills", {
+  d <- data.frame(x = 1:4, y = 4:1, g = rep(c("a", "b"), 2))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, colour = g)) +
+    ggplot2::scale_colour_manual(values = c(a = "red", b = "blue"))
+  original <- ggplot2::ggplot_build(fmt_point(p))$data[[1]]
+  result <- ggplot2::ggplot_build(fmt_point(p, white_border = TRUE))$data[[1]]
+  expect_equal(result$fill, original$colour)
+  expect_equal(result$colour, rep("#FFFFFF", 4))
+  expect_equal(result$shape, rep(21, 4))
+  result <- ggplot2::ggplot_build(fmt_point(p, white_border = TRUE,
+                                           fill = "purple"))$data[[1]]
+  expect_equal(result$fill, rep("purple", 4))
+  grob <- ggplot2::ggplotGrob(fmt_point(p, white_border = TRUE))
+  point_fills <- function(g) {
+    if (inherits(g, "points")) return(as.character(g$gp$fill))
+    unlist(c(lapply(g$grobs, point_fills), lapply(g$children, point_fills)),
+           use.names = FALSE)
+  }
+  guides <- grob$grobs[grepl("guide-box", grob$layout$name)]
+  expect_setequal(unlist(lapply(guides, point_fills)), c("#FF0000FF", "#0000FFFF"))
+})
+
+test_that("white borders normalize colour aliases and include shape 25", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 3:1), ggplot2::aes(x, y))
+  for (spelling in c("color", "colour")) {
+    result <- do.call(fmt_point, c(list(plot = p, white_border = TRUE),
+                                   stats::setNames(list("red"), spelling)))
+    built <- ggplot2::ggplot_build(result)$data[[1]]
+    expect_equal(built$colour, rep("#FFFFFF", 3))
+    expect_equal(built$fill, rep("red", 3))
+  }
+  result <- ggplot2::ggplot_build(fmt_point(p, shape = 25, colour = "red",
+                                           fill = "blue", white_border = TRUE))$data[[1]]
+  expect_equal(result$colour, rep("#FFFFFF", 3))
+  expect_equal(result$fill, rep("blue", 3))
+})
+
+test_that("white borders retain mapped shapes and after-scale colours", {
+  d <- data.frame(x = 1:4, y = 4:1, g = rep(c("a", "b"), 2))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, colour = g, shape = g)) +
+    ggplot2::scale_shape_manual(values = c(a = 16, b = 17))
+  result <- ggplot2::ggplot_build(fmt_point(p, white_border = TRUE))$data[[1]]
+  expect_equal(result$shape, c(21, 24, 21, 24))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y,
+    colour = ggplot2::stage(start = g, after_scale = scales::alpha(colour, 0.5))))
+  native <- ggplot2::ggplot_build(p + ggplot2::geom_point())$data[[1]]
+  result <- ggplot2::ggplot_build(fmt_point(p, white_border = TRUE))$data[[1]]
+  expect_equal(result$fill, native$colour)
+  expect_equal(result$colour, rep("#FFFFFF", 4))
+})

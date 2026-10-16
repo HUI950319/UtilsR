@@ -6,6 +6,7 @@
 #
 #   L1  fmt_point(plot, type, data, shape, size, ...)   -- public API
 #         +-- L2  .shape_convert()   shape name or code -> ggplot2 shape
+#         +-- L2  .fmt_point_stage_args()   preserve staged aesthetics
 # =============================================================================
 
 #' Add Data Points to a Plot
@@ -23,7 +24,8 @@
 #' @param shape Point shape. Default 19 (solid circle).
 #' @param size Point size. Default 1.
 #' @param white_border Logical. If \code{TRUE}, converts shapes to fillable
-#'   versions (21-24) with white stroke. Default \code{FALSE}.
+#'   versions (21-25) with white stroke, retaining scaled colours as fills.
+#'   Default \code{FALSE}.
 #' @param dodge.width Dodge width for grouped data. Default 0.8.
 #'   Set to 0 to disable dodging.
 #' @param jitter.args Named list of jitter arguments. Only used when
@@ -182,13 +184,53 @@ fmt_point <- function(plot,
 
     # --- White border ---
     if (white_border) {
-      params$shape <- .shape_convert(params$shape)
-      if (params$shape %in% 21:24) {
-        params$size <- params$size * 1.5
-        if ("color" %in% names(params) && !"fill" %in% names(params)) {
-          params$fill <- params$color
+      if ("color" %in% names(params)) {
+        if ("colour" %in% names(params)) {
+          cli::cli_abort("Supply only one of {.arg color} and {.arg colour}.")
         }
-        params$color <- "#FFFFFF"
+        params$colour <- params$color
+        params$color <- NULL
+      }
+      border_mapping <- if (isFALSE(params$inherit.aes)) list() else as.list(p$mapping)
+      border_mapping[names(params$mapping)] <- as.list(params$mapping)
+      params$shape <- .shape_convert(params$shape)
+      if (!is.null(border_mapping$shape) || all(params$shape %in% 21:25)) {
+        params$size <- params$size * 1.5
+        if (is.null(params$mapping)) params$mapping <- ggplot2::aes()
+        if (!is.null(border_mapping$colour) && is.null(params$colour)) {
+          colour_mapping <- border_mapping$colour
+          args <- .fmt_point_stage_args(colour_mapping)
+          if (is.null(params$fill) && is.null(border_mapping$fill)) {
+            fill_expr <- args$after_scale %||% quote(colour)
+            params$mapping$fill <- rlang::new_quosure(
+              rlang::call2("after_scale", fill_expr, .ns = "ggplot2"),
+              rlang::get_env(colour_mapping, default = baseenv())
+            )
+          }
+          args$after_scale <- "#FFFFFF"
+          params$mapping$colour <- rlang::new_quosure(
+            rlang::call2("stage", !!!args, .ns = "ggplot2"),
+            rlang::get_env(colour_mapping, default = baseenv())
+          )
+        } else {
+          if (is.null(params$fill) && is.null(border_mapping$fill)) {
+            params$fill <- params$colour %||% "black"
+          }
+          params$colour <- "#FFFFFF"
+        }
+        if (!is.null(border_mapping$shape)) {
+          shape_mapping <- border_mapping$shape
+          args <- .fmt_point_stage_args(shape_mapping)
+          args$after_scale <- rlang::call2(
+            ".fmt_point_shape", args$after_scale %||% quote(shape)
+          )
+          params$mapping$shape <- rlang::new_quosure(
+            rlang::call2("stage", !!!args, .ns = "ggplot2"),
+            rlang::env(rlang::get_env(shape_mapping, default = baseenv()),
+                       .fmt_point_shape = .shape_convert)
+          )
+          params$shape <- NULL
+        }
       }
     }
 
@@ -235,7 +277,21 @@ fmt_point <- function(plot,
   dict <- c("0" = 22, "15" = 22,
             "1" = 21, "16" = 21, "19" = 21, "20" = 21,
             "2" = 24, "17" = 24,
-            "5" = 23, "18" = 23)
+            "5" = 23, "18" = 23, "6" = 25)
   key <- as.character(x)
-  if (key %in% names(dict)) unname(dict[key]) else x
+  converted <- unname(dict[key])
+  if (all(!is.na(converted))) return(converted)
+  x[!is.na(converted)] <- converted[!is.na(converted)]
+  x
+}
+
+.fmt_point_stage_args <- function(mapping) {
+  expr <- rlang::get_expr(mapping)
+  name <- if (is.call(expr)) rlang::call_name(expr) else NULL
+  if (identical(name, "stage")) {
+    return(as.list(match.call(ggplot2::stage, expr))[-1L])
+  }
+  if (identical(name, "after_stat")) return(list(after_stat = expr[[2L]]))
+  if (identical(name, "after_scale")) return(list(after_scale = expr[[2L]]))
+  list(start = expr)
 }

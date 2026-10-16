@@ -36,7 +36,8 @@ Can be a data.frame or a function/formula applied to the plot data
 \item{size}{Point size. Default 1.}
 
 \item{white_border}{Logical. If \code{TRUE}, converts shapes to fillable
-versions (21-24) with white stroke. Default \code{FALSE}.}
+versions (21-25) with white stroke, retaining scaled colours as fills.
+Default \code{FALSE}.}
 
 \item{dodge.width}{Dodge width for grouped data. Default 0.8.
 Set to 0 to disable dodging.}
