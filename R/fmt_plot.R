@@ -1288,6 +1288,7 @@ fmt_legend <- function(plot,
 #' @param linetype Line type. Default `"dashed"`.
 #' @param linewidth Line width. Default `0.5`.
 #' @param color Line color(s). Recycled to match the number of intercepts.
+#'   Factors use their labels; numeric values retain their palette indices.
 #'   Default `"gray50"`.
 #' @param alpha Line transparency. Default `0.8`.
 #' @param ... Additional arguments passed to
@@ -1338,6 +1339,7 @@ fmt_ref <- function(plot,
         cli::cli_abort("{.arg {name}} must be a non-empty vector.")
       }
     }
+    if (is.factor(color)) color <- as.character(color)
   }
 
   .ref_layers <- function(values, axis) {

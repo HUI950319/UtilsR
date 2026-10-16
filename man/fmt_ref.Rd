@@ -30,6 +30,7 @@ or an empty vector adds no vertical lines.}
 \item{linewidth}{Line width. Default `0.5`.}
 
 \item{color}{Line color(s). Recycled to match the number of intercepts.
+Factors use their labels; numeric values retain their palette indices.
 Default `"gray50"`.}
 
 \item{alpha}{Line transparency. Default `0.8`.}

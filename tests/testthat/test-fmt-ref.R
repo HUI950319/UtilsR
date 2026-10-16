@@ -61,6 +61,33 @@ test_that("unused and native missing styles retain their existing meaning", {
   expect_equal(as.numeric(ggplot2::ggplot_build(result)$data[[2]]$linetype), c(0, 2))
 })
 
+test_that("factor colors use labels and numeric palette colors retain their meaning", {
+  skip_if_not_installed("ragg")
+  capture_plot <- function(q) {
+    capture <- ragg::agg_capture(width = 700, height = 480, res = 100)
+    on.exit(grDevices::dev.off(), add = TRUE)
+    print(q)
+    capture(native = TRUE)
+  }
+  p <- ggplot2::ggplot(data.frame(x = 1:5, y = 5:1), ggplot2::aes(x, y)) +
+    ggplot2::geom_point()
+  for (colors in list(factor(c("red", "blue", NA), levels = c("blue", "red")),
+                      c(2, 4), c("#FF000080", "#0000FF40", NA))) {
+    expected_colors <- if (is.factor(colors)) as.character(colors) else colors
+    expected <- p
+    for (i in seq_len(3L)) {
+      color <- rep_len(expected_colors, 3L)[i]
+      expected <- expected + ggplot2::geom_vline(xintercept = i + 1, colour = color,
+                                                 linetype = "dashed", linewidth = 0.5,
+                                                 alpha = 0.8)
+    }
+    for (extra in list(list(), list(inherit.aes = FALSE))) {
+      result <- do.call(fmt_ref, c(list(plot = p, x = 2:4, color = colors), extra))
+      expect_true(identical(capture_plot(result), capture_plot(expected)))
+    }
+  }
+})
+
 test_that("multiple references share layers without changing per-line styles", {
   p <- ggplot2::ggplot(data.frame(x = 1:5, y = 5:1), ggplot2::aes(x, y)) +
     ggplot2::geom_point()
