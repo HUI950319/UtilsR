@@ -66,7 +66,8 @@
 #' @param rasterize.dpi Integer, DPI for rasterization. Default 300.
 #' @param ... Additional arguments passed to \code{geom_point} or
 #'   \code{geom_beeswarm}. An explicit \code{position} overrides automatic
-#'   point/jitter positioning.
+#'   point/jitter positioning. Supplied position objects and their inherited
+#'   settings are copied separately for each plot leaf.
 #'
 #' @return Same type as input (ggplot, patchwork, or list).
 #'
@@ -341,6 +342,10 @@ fmt_point <- function(plot,
   force(white_border)
   force(rasterize)
   force(dpi)
+  if (inherits(params[["position"]], "Position")) {
+    params$position <- rlang::exec(ggplot2::ggproto, NULL, params[["position"]],
+      !!!as.list(params[["position"]], inherit = TRUE))
+  }
   args <- lapply(names(params), function(name) call("[[", quote(params), name))
   names(args) <- names(params)
   call <- if (type == "beeswarm")

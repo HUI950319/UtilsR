@@ -561,3 +561,28 @@ test_that("sampling accepts anonymous and dynamically selected functions", {
   p <- ggplot2::ggplot(d, ggplot2::aes(x, y, colour = (function(z) z)(colours)))
   expect_error(fmt_point(p, sample_n = 2), "Sampling.*external")
 })
+
+test_that("point leaves snapshot explicit and inherited position settings", {
+  d <- data.frame(x = 1:6, y = 6:1)
+  for (type in c("point", "jitter")) {
+    parent <- ggplot2::position_nudge(x = 1, y = 2)
+    position <- ggplot2::ggproto("PositionPointTest", parent)
+    p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) +
+      ggplot2::geom_point(position = position)
+    out <- fmt_point(list(p, p), type = type, position = position)
+    expected <- ggplot2::ggplot_build(p + ggplot2::geom_point(size = 1, shape = 19,
+      position = ggplot2::position_nudge(x = 1, y = 2)))$data[[2L]]
+    expect_identical(ggplot2::ggplot_build(out[[1L]])$data[[2L]], expected)
+    expect_s3_class(out[[1L]]$layers[[2L]]$position, "PositionPointTest")
+    position$x <- 3
+    parent$y <- 4
+    expect_equal(out[[1L]]$layers[[2L]]$position$x, 1)
+    expect_equal(out[[2L]]$layers[[2L]]$position$y, 2)
+    expect_identical(ggplot2::ggplot_build(out[[2L]])$data[[2L]], expected)
+    out[[1L]]$layers[[2L]]$position$x <- 9
+    expect_equal(out[[2L]]$layers[[2L]]$position$x, 1)
+    expect_equal(position$x, 3)
+    expect_equal(parent$x, 1)
+    expect_identical(p$layers[[1L]]$position, position)
+  }
+})
