@@ -62,6 +62,10 @@
   environments.
 
 - [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
+  snapshots supplied position objects and inherited settings per plot
+  leaf, isolating edits to sibling overlays and caller-owned positions.
+
+- [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
   samples mappings with anonymous or dynamically selected functions
   without failing when the call has no static function name.
 

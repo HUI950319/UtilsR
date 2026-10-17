@@ -109,6 +109,8 @@ fmt_point(
 
   Additional arguments passed to `geom_point` or `geom_beeswarm`. An
   explicit `position` overrides automatic point/jitter positioning.
+  Supplied position objects and their inherited settings are copied
+  separately for each plot leaf.
 
 ## Value
 
