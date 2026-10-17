@@ -540,3 +540,24 @@ test_that("factor configuration vectors do not count as external rows", {
   p <- ggplot2::ggplot(d, ggplot2::aes(x, y, colour = factor(colours, levels = colours)))
   expect_error(fmt_point(p, sample_n = 2), "Sampling.*external")
 })
+
+test_that("sampling accepts anonymous and dynamically selected functions", {
+  d <- data.frame(x = 1:12, y = 12:1, g = rep(c("a", "b"), 6))
+  transform <- factor
+  factory <- function() factor
+  mappings <- list(
+    ggplot2::aes(x, y, colour = (function(z) factor(z))(g)),
+    ggplot2::aes(x, y, colour = (.env$transform)(g)),
+    ggplot2::aes(x, y, colour = (factory())(g)))
+  expected <- fmt_point(ggplot2::ggplot(d, ggplot2::aes(x, y, colour = g)),
+    sample_n = 2, dodge.width = 0)
+  for (mapping in mappings) for (data in list(NULL, ~ .x)) {
+    p <- ggplot2::ggplot(d, mapping)
+    out <- fmt_point(p, sample_n = 2, data = data, dodge.width = 0)
+    expect_identical(ggplot2::ggplot_build(out)$data,
+                     ggplot2::ggplot_build(expected)$data)
+  }
+  colours <- rep(c("red", "blue"), 6)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, colour = (function(z) z)(colours)))
+  expect_error(fmt_point(p, sample_n = 2), "Sampling.*external")
+})

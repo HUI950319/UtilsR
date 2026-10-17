@@ -45,6 +45,9 @@
   omitting computed-statistic and after-scale positions in independent overlays.
   Explicit boxplot mappings keep their evaluation stages and environments.
 
+* `fmt_point()` samples mappings with anonymous or dynamically selected
+  functions without failing when the call has no static function name.
+
 * `fmt_point()` accepts external factor levels and labels during sampling,
   including positional configuration arguments and ordered factors. External
   row vectors in the factor input still require columns in layer data.

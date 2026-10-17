@@ -375,7 +375,7 @@ fmt_point <- function(plot,
   is_late <- function(expr) {
     if (rlang::is_missing(expr)) return(FALSE)
     if (!is.call(expr)) return(FALSE)
-    if (rlang::call_name(expr) %in% c("after_stat", "after_scale", "stage", "from_theme"))
+    if (isTRUE(rlang::call_name(expr) %in% c("after_stat", "after_scale", "stage", "from_theme")))
       return(TRUE)
     any(vapply(as.list(expr)[-1L], is_late, logical(1)))
   }
@@ -390,13 +390,13 @@ fmt_point <- function(plot,
       if (name %in% c(names(data), ".data", ".env")) return(FALSE)
       value <- get0(name, envir = env, inherits = TRUE)
     } else if (is.call(expr)) {
-      if (rlang::call_name(expr) %in% c("$", "[[")) {
+      if (isTRUE(rlang::call_name(expr) %in% c("$", "[["))) {
         if (identical(expr[[2L]], quote(.data))) return(FALSE)
         value <- rlang::eval_tidy(rlang::new_quosure(expr, env), data = data)
       }
       if (is.null(value)) {
         args <- as.list(expr)[-1L]
-        if (rlang::call_name(expr) %in% c("factor", "ordered")) {
+        if (isTRUE(rlang::call_name(expr) %in% c("factor", "ordered"))) {
           fun <- eval(expr[[1L]], env)
           if (identical(fun, base::factor) || identical(fun, base::ordered))
             args <- as.list(match.call(fun, expr))["x"]
