@@ -82,7 +82,8 @@ fmt_point(
 
   Non-negative integer or `NULL`. When set, subsample data before
   plotting to reduce overplotting. An explicit `group` mapping takes
-  priority over discrete color/fill mappings, including expressions.
+  priority; otherwise discrete color/fill mappings form joint strata,
+  including expressions. Existing facet variables add separate strata.
   Sampling takes at most `sample_n` points **per group**; missing group
   values form a separate group. Continuous color/fill mappings do not
   define sampling groups. Sampling requires scalar fixed aesthetics; put
