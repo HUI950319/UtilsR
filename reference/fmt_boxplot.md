@@ -21,8 +21,9 @@ fmt_boxplot(plot, boxplot.args = list(), inherit.aes = TRUE)
   passed to
   [`ggplot2::geom_boxplot`](https://ggplot2.tidyverse.org/reference/geom_boxplot.html).
   Defaults include `width = 0.3`, `alpha = 0.2`, `na.rm = TRUE` and
-  `outlier.shape = NA`. An explicit `outlier.shape`, including `NULL`,
-  is retained. A supplied `mapping` must be created by
+  `outlier.shape = NA`. Defaults apply only to omitted arguments.
+  Explicit values, including `NULL`, retain native ggplot2 behaviour and
+  validation. A supplied `mapping` must be created by
   [`ggplot2::aes()`](https://ggplot2.tidyverse.org/reference/aes.html).
   Names are matched exactly. Unrecognized arguments follow the native
   validation and warnings of

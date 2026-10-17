@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
+  retains explicit `NULL` controls, including width and alpha, instead
+  of replacing them with wrapper defaults. Omitted controls retain their
+  existing defaults and explicit values follow native validation.
+
+- [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
   copies raw positions from staged source mappings while omitting
   computed-statistic and after-scale positions in independent overlays.
   Explicit boxplot mappings keep their evaluation stages and
