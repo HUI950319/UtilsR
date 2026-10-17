@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
+  accepts anonymous and environment-selected function calls in automatic
+  position mappings without failing during evaluation-stage lookup.
+
+- [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
   formats plot leaves in one traversal and skips source lookup when
   independent data and complete mappings are explicit, preserving
   deferred callbacks, nested layouts and input validation.
