@@ -394,8 +394,15 @@ fmt_point <- function(plot,
         if (identical(expr[[2L]], quote(.data))) return(FALSE)
         value <- rlang::eval_tidy(rlang::new_quosure(expr, env), data = data)
       }
-      if (is.null(value))
-        return(any(vapply(as.list(expr)[-1L], external_vector, logical(1), env = env)))
+      if (is.null(value)) {
+        args <- as.list(expr)[-1L]
+        if (rlang::call_name(expr) %in% c("factor", "ordered")) {
+          fun <- eval(expr[[1L]], env)
+          if (identical(fun, base::factor) || identical(fun, base::ordered))
+            args <- as.list(match.call(fun, expr))["x"]
+        }
+        return(any(vapply(args, external_vector, logical(1), env = env)))
+      }
     }
     is.atomic(value) && length(value) > 1L && length(value) == nrow(data)
   }

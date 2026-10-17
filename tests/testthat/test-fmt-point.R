@@ -520,3 +520,23 @@ test_that("returned point layers do not retain unrelated plot leaves", {
                      ggplot2::ggplot_build(small)$data)
   }
 })
+
+test_that("factor configuration vectors do not count as external rows", {
+  d <- data.frame(x = 1:12, y = 12:1, g = rep(c("Jan", "Feb"), 6))
+  levels <- month.abb
+  labels <- tolower(levels)
+  mappings <- list(
+    ggplot2::aes(x, y, colour = factor(g, levels = month.abb)),
+    ggplot2::aes(x, y, colour = base::factor(g, .env$levels, .env$labels)),
+    ggplot2::aes(x, y, colour = ordered(g, levels = .env$levels)))
+  for (mapping in mappings) for (data in list(NULL, ~ .x)) {
+    p <- ggplot2::ggplot(d, mapping)
+    out <- fmt_point(p, sample_n = 2, data = data, dodge.width = 0)
+    built <- ggplot2::ggplot_build(out)$data[[1L]]
+    expect_equal(nrow(built), 4L)
+    expect_equal(as.integer(table(built$colour)), c(2L, 2L))
+  }
+  colours <- rep(c("red", "blue"), 6)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, colour = factor(colours, levels = colours)))
+  expect_error(fmt_point(p, sample_n = 2), "Sampling.*external")
+})
