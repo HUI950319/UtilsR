@@ -16,7 +16,8 @@ of arguments passed to
 Defaults apply only to omitted arguments. Explicit values, including
 \code{NULL}, retain native ggplot2 behaviour and validation.
 A supplied \code{mapping} must be created by \code{ggplot2::aes()}.
-Supplied position objects are copied separately for each plot leaf.
+Supplied position objects and their inherited settings are copied
+separately for each plot leaf.
 Names are matched exactly. Unrecognized arguments follow the native
 validation and warnings of \code{ggplot2::geom_boxplot()}.}
 

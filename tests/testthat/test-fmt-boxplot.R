@@ -1002,3 +1002,29 @@ test_that("automatic positions retain raw stages nested inside expressions", {
   expect_identical(ggplot2::ggplot_build(q)$data,
                    ggplot2::ggplot_build(native)$data)
 })
+
+test_that("inherited position settings are snapshots for each boxplot layer", {
+  d <- data.frame(x = rep(c("a", "b"), each = 20),
+    group = rep(rep(c("one", "two"), each = 10), 2), y = 1:40)
+  parent <- ggplot2::position_dodge2(width = 0.8, padding = 0.1, preserve = "total")
+  position <- ggplot2::ggproto("PositionBoxplotTest", parent)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, fill = group)) + ggplot2::geom_point()
+  q <- fmt_boxplot(list(first = p, second = p), list(position = position))
+  native <- p + ggplot2::geom_boxplot(
+    position = ggplot2::position_dodge2(width = 0.8, padding = 0.1, preserve = "total"),
+    width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
+  expected <- ggplot2::ggplot_build(native)$data
+  expect_identical(ggplot2::ggplot_build(q$first)$data, expected)
+  expect_s3_class(q$first$layers[[2L]]$position, "PositionBoxplotTest")
+  position$padding <- 0.8
+  parent$width <- 0.15
+  expect_identical(q$first$layers[[2L]]$position$padding, 0.1)
+  expect_identical(q$second$layers[[2L]]$position$width, 0.8)
+  expect_identical(ggplot2::ggplot_build(q$first)$data, expected)
+  expect_identical(ggplot2::ggplot_build(q$second)$data, expected)
+  q$first$layers[[2L]]$position$padding <- 0.4
+  expect_identical(q$second$layers[[2L]]$position$padding, 0.1)
+  expect_identical(position$padding, 0.8)
+  expect_identical(parent$padding, 0.1)
+  expect_s3_class(ggplot2::ggplotGrob(q$second), "gtable")
+})

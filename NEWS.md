@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_boxplot()` snapshots inherited position settings as well as local
+  settings, so edits to a supplied position or its parent do not alter overlays.
+
 * `fmt_boxplot()` retains raw source positions when staged mappings are nested
   inside arithmetic or function calls, preserving their environments and axes.
 
