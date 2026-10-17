@@ -67,7 +67,9 @@
 #' @param ... Additional arguments passed to \code{geom_point} or
 #'   \code{geom_beeswarm}. An explicit \code{position} overrides automatic
 #'   point/jitter positioning. Supplied position objects and their inherited
-#'   settings are copied separately for each plot leaf.
+#'   settings are copied separately for each plot leaf. \code{pch} is an alias
+#'   for \code{shape}; for point/jitter layouts, \code{cex} is an alias for
+#'   \code{size}. Explicit \code{shape} and \code{size} take precedence.
 #'
 #' @return Same type as input (ggplot, patchwork, or list).
 #'
@@ -193,6 +195,16 @@ fmt_point <- function(plot,
 
   fmt_point_one <- function(p) {
     params <- list(size = size, shape = shape, ...)
+    if ("pch" %in% names(params)) {
+      if (shape_missing) params["shape"] <- params["pch"]
+      params["pch"] <- NULL
+      shape_missing <- FALSE
+    }
+    if (type != "beeswarm" && "cex" %in% names(params)) {
+      if (size_missing) params["size"] <- params["cex"]
+      params["cex"] <- NULL
+      size_missing <- FALSE
+    }
     if ("color" %in% names(params) && !"colour" %in% names(params)) {
       params[["colour"]] <- params[["color"]]
       params[["color"]] <- NULL

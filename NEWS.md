@@ -45,6 +45,10 @@
   omitting computed-statistic and after-scale positions in independent overlays.
   Explicit boxplot mappings keep their evaluation stages and environments.
 
+* `fmt_point()` normalizes `pch` and point/jitter `cex` aliases before applying
+  omitted defaults. Explicit shape/size arguments retain priority, and beeswarm
+  `cex` keeps its existing layout meaning and argument-list precedence.
+
 * `fmt_point()` snapshots supplied position objects and inherited settings
   per plot leaf, isolating edits to sibling overlays and caller-owned positions.
 

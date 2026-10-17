@@ -586,3 +586,33 @@ test_that("point leaves snapshot explicit and inherited position settings", {
     expect_identical(p$layers[[1L]]$position, position)
   }
 })
+
+test_that("point aliases override omitted defaults and mapped aesthetics", {
+  d <- data.frame(x = 1:6, y = 6:1, g = rep(c("a", "b"), 3))
+  plain <- ggplot2::ggplot(d, ggplot2::aes(x, y))
+  expect_no_warning(out <- fmt_point(plain, pch = 17, cex = 4))
+  expect_identical(ggplot2::ggplot_build(out)$data,
+                   ggplot2::ggplot_build(plain + ggplot2::geom_point(pch = 17, cex = 4))$data)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, shape = g, size = y))
+  native <- p + ggplot2::geom_point(pch = 17, cex = 4)
+  for (type in c("point", "jitter")) {
+    expect_no_warning(out <- fmt_point(p, type = type, pch = 17, cex = 4,
+      position = "identity"))
+    expect_identical(ggplot2::ggplot_build(out)$data, ggplot2::ggplot_build(native)$data)
+    expect_no_warning(out <- fmt_point(p, type = type, shape = 15, size = 2,
+      pch = 17, cex = 4, position = "identity"))
+    built <- ggplot2::ggplot_build(out)$data[[1L]]
+    expect_equal(built$shape, rep(15, 6))
+    expect_equal(built$size, rep(2, 6))
+  }
+  expect_no_warning(out <- fmt_point(p, pch = 17, cex = 4, white_border = TRUE))
+  expected <- fmt_point(p, shape = 17, size = 4, white_border = TRUE)
+  expect_identical(ggplot2::ggplot_build(out)$data, ggplot2::ggplot_build(expected)$data)
+  expect_error(fmt_point(p, sample_n = 2, cex = 1:6), "Sampling.*scalar")
+  if (requireNamespace("ggbeeswarm", quietly = TRUE)) {
+    expect_no_warning(out <- fmt_point(p, type = "beeswarm", pch = 17, cex = 5,
+      beeswarm.args = list(cex = 2)))
+    expected <- fmt_point(p, type = "beeswarm", shape = 17, beeswarm.args = list(cex = 2))
+    expect_identical(ggplot2::ggplot_build(out)$data, ggplot2::ggplot_build(expected)$data)
+  }
+})

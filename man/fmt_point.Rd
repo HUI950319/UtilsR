@@ -80,7 +80,9 @@ via \code{ggrastr::rasterise} for large datasets. Default \code{FALSE}.}
 \item{...}{Additional arguments passed to \code{geom_point} or
 \code{geom_beeswarm}. An explicit \code{position} overrides automatic
 point/jitter positioning. Supplied position objects and their inherited
-settings are copied separately for each plot leaf.}
+settings are copied separately for each plot leaf. \code{pch} is an alias
+for \code{shape}; for point/jitter layouts, \code{cex} is an alias for
+\code{size}. Explicit \code{shape} and \code{size} take precedence.}
 }
 \value{
 Same type as input (ggplot, patchwork, or list).
