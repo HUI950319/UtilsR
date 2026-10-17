@@ -5219,8 +5219,8 @@ fmt_boxplot <- function(plot,
     if (rlang::is_missing(expr)) return(FALSE)
     if (is.symbol(expr)) return(grepl("^\\.\\..+\\.\\.$", as.character(expr)))
     if (!is.call(expr)) return(FALSE)
-    if (rlang::call_name(expr) %in%
-        c("after_stat", "stat", "after_scale", "stage", "from_theme")) return(TRUE)
+    if (any(rlang::call_name(expr) %in%
+        c("after_stat", "stat", "after_scale", "stage", "from_theme"))) return(TRUE)
     any(vapply(as.list(expr)[-1L], is_late, logical(1)))
   }
 

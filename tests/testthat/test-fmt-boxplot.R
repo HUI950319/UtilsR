@@ -818,3 +818,21 @@ test_that("complete explicit mappings keep data callbacks and formulas deferred"
     mapping = ggplot2::aes(x = NULL, y = NULL)), inherit.aes = FALSE),
     "Cannot resolve boxplot data and position mappings")
 })
+
+test_that("automatic positions accept anonymous and dynamic function calls", {
+  d <- data.frame(x = rep(c("a", "b"), each = 10), y = 1:20)
+  transform_value <- function(v) 2 * v
+  mappings <- list(
+    ggplot2::aes(x, y = (function(v) 2 * v)(y)),
+    ggplot2::aes(x, y = .env$transform_value(y)),
+    ggplot2::aes(x, y = sqrt(.env$transform_value(y))))
+  for (mapping in mappings) {
+    p <- ggplot2::ggplot(d, mapping) + ggplot2::geom_point()
+    q <- fmt_boxplot(p, inherit.aes = FALSE)
+    native <- p + ggplot2::geom_boxplot(data = d, mapping = mapping,
+      inherit.aes = FALSE, width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
+    expect_identical(ggplot2::ggplot_build(q)$data,
+                     ggplot2::ggplot_build(native)$data)
+    expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+  }
+})
