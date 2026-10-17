@@ -5123,7 +5123,12 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
   params <- lapply(names(args), function(nm) call("[[", quote(args), nm))
   names(params) <- names(args)
   call <- rlang::call2("geom_boxplot", !!!params, .ns = "ggplot2")
-  eval(call, list2env(list(args = args), parent = baseenv()))
+  call_env <- list2env(list(args = args), parent = baseenv())
+  rm(args)
+  layer <- eval(call, call_env)
+  # Native construction has materialized all layer arguments.
+  rm(list = "args", envir = call_env)
+  layer
 }
 
 #' Overlay a boxplot layer

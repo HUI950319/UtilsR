@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_boxplot()` releases temporary construction bindings after native layer
+  creation, avoiding an extra serialized data copy while retaining deferred
+  callbacks, formulas, position objects and symbolic constructor calls.
+
 * `fmt_boxplot()` combines source mappings with explicit fixed summary
   arguments when resolving independent identity overlays, including
   partial summaries and horizontal boxplots.

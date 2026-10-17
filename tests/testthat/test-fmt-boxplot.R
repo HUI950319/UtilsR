@@ -214,7 +214,7 @@ test_that("non-plot gg components fail with a clear input error", {
   p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
   for (invalid in list(ggplot2::theme_bw(), ggplot2::aes(x, y),
                        list(p, ggplot2::theme_bw()))) {
-    expect_error(fmt_boxplot(invalid), "Input must be a ggplot")
+    expect_error(fmt_boxplot(invalid), "Input must be a ggplot|All elements in the list must be ggplot")
   }
   expect_identical(fmt_boxplot(list()), list())
 })
@@ -675,8 +675,9 @@ test_that("automatic boxplots use raw positions instead of computed source mappi
 test_that("automatic staged positions keep their raw expression and environment", {
   d <- data.frame(value = 1:20)
   shift <- 100
+  stage <- ggplot2::stage
   p <- ggplot2::ggplot(d) + ggplot2::geom_point(ggplot2::aes(x = 1,
-    y = ggplot2::stage(value + shift, after_scale = y + 10)))
+    y = stage(value + shift, after_scale = y + 10)))
   q <- fmt_boxplot(p, inherit.aes = FALSE)
   native <- p + ggplot2::geom_boxplot(data = d, ggplot2::aes(x = 1, y = value + shift),
     inherit.aes = FALSE, width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
@@ -684,7 +685,7 @@ test_that("automatic staged positions keep their raw expression and environment"
   expect_identical(ggplot2::ggplot_build(q)$data,
                    ggplot2::ggplot_build(native)$data)
   expect_identical(rlang::get_expr(p$layers[[1L]]$mapping$y),
-                   quote(ggplot2::stage(value + shift, after_scale = y + 10)))
+                   quote(stage(value + shift, after_scale = y + 10)))
 })
 
 test_that("automatic positions distinguish ordinary column names from stage calls", {
@@ -695,8 +696,8 @@ test_that("automatic positions distinguish ordinary column names from stage call
     inherit.aes = FALSE, width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
   expect_identical(ggplot2::ggplot_build(q)$data,
                    ggplot2::ggplot_build(native)$data)
-  mapping <- ggplot2::aes(x = stage,
-    y = ggplot2::stage(after_stat, after_stat = middle))
+  stage <- ggplot2::stage
+  mapping <- ggplot2::aes(x = stage, y = stage(after_stat, after_stat = middle))
   q <- fmt_boxplot(p, list(mapping = mapping), inherit.aes = FALSE)
   native <- p + ggplot2::geom_boxplot(data = d, mapping = mapping,
     inherit.aes = FALSE, width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
@@ -715,6 +716,11 @@ test_that("explicit NULL controls retain native boxplot behaviour", {
       }
     })
   }
+  native_build <- function(plot) {
+    built <- tryCatch(native_empty(ggplot2::ggplot_build(plot)),
+      error = function(e) conditionMessage(e))
+    if (is.character(built)) built else built$data
+  }
   for (args in list(list(width = NULL), list(alpha = NULL),
                     list(width = NULL, alpha = NULL))) {
     original <- args
@@ -722,8 +728,7 @@ test_that("explicit NULL controls retain native boxplot behaviour", {
     native_args[names(args)] <- args
     q <- native_empty(fmt_boxplot(p, args))
     native <- native_empty(p + rlang::exec(ggplot2::geom_boxplot, !!!native_args))
-    expect_identical(native_empty(ggplot2::ggplot_build(q))$data,
-                     native_empty(ggplot2::ggplot_build(native))$data)
+    expect_identical(native_build(q), native_build(native))
     expect_identical(args, original)
   }
   q <- fmt_boxplot(p, list(na.rm = NULL))
@@ -731,8 +736,7 @@ test_that("explicit NULL controls retain native boxplot behaviour", {
                                      na.rm = NULL, outlier.shape = NA)
   expect_identical(q$layers[[2L]]$geom_params$na.rm,
                    native$layers[[2L]]$geom_params$na.rm)
-  expect_identical(ggplot2::ggplot_build(q)$data,
-                   ggplot2::ggplot_build(native)$data)
+  expect_identical(native_build(q), native_build(native))
 })
 
 test_that("identity boxplots automatically copy complete source summary mappings", {
@@ -1091,4 +1095,53 @@ test_that("identity overlays combine mapped and fixed summary statistics", {
   expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
   expect_error(fmt_boxplot(p, list(stat = "identity", upper = NULL), inherit.aes = FALSE),
                "Cannot resolve boxplot data and position mappings")
+})
+
+test_that("independent layers retain no additional input-sized data copy", {
+  make_layers <- function(n, explicit) {
+    d <- data.frame(x = rep(c("a", "b"), length.out = n),
+      y = as.double(rep(1:10, length.out = n)))
+    mapping <- eval(quote(ggplot2::aes(x, y)), baseenv())
+    input <- list2env(list(d = d, mapping = mapping), parent = baseenv())
+    p <- eval(quote(ggplot2::ggplot(d, mapping) + ggplot2::geom_point()), input)
+    q <- if (explicit) {
+      fmt_boxplot(p, list(data = d, mapping = mapping), inherit.aes = FALSE)
+    } else fmt_boxplot(p, inherit.aes = FALSE)
+    native <- eval(quote(ggplot2::geom_boxplot(data = d, mapping = mapping,
+      inherit.aes = FALSE, width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)), input)
+    # Isolate the native baseline from the fixture's input bindings.
+    rm(list = ls(input, all.names = TRUE), envir = input)
+    list(overlay = q$layers[[2L]], native = native)
+  }
+  for (explicit in c(FALSE, TRUE)) {
+    small <- make_layers(100L, explicit)
+    large <- make_layers(6000L, explicit)
+    overlay_growth <- length(serialize(large$overlay, NULL)) -
+      length(serialize(small$overlay, NULL))
+    native_growth <- length(serialize(large$native, NULL)) -
+      length(serialize(small$native, NULL))
+    expect_lte(overlay_growth, native_growth + 1024L)
+  }
+})
+
+test_that("serialized boxplot callbacks and formulas retain their environments", {
+  d <- data.frame(x = rep(c("a", "b"), each = 10), y = 1:20)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  callback_env <- list2env(list(calls = 0L, shift = 100), parent = baseenv())
+  callback <- eval(quote(function(data) {
+    calls <<- calls + 1L
+    transform(data, y = y + shift)
+  }), callback_env)
+  q <- fmt_boxplot(p, list(data = callback, mapping = ggplot2::aes(x, y)), inherit.aes = FALSE)
+  expect_identical(callback_env$calls, 0L)
+  restored <- unserialize(serialize(q, NULL))
+  expect_equal(ggplot2::ggplot_build(restored)$data[[2L]]$middle, c(105.5, 115.5))
+  expect_identical(callback_env$calls, 0L)
+  expect_equal(ggplot2::ggplot_build(q)$data[[2L]]$middle, c(105.5, 115.5))
+  expect_identical(callback_env$calls, 1L)
+  formula <- eval(quote(~ transform(.x, y = y + shift)), callback_env)
+  q <- fmt_boxplot(p, list(data = formula, mapping = ggplot2::aes(x, y)), inherit.aes = FALSE)
+  restored <- unserialize(serialize(q, NULL))
+  expect_equal(ggplot2::ggplot_build(restored)$data[[2L]]$middle, c(105.5, 115.5))
+  expect_s3_class(ggplot2::ggplotGrob(restored), "gtable")
 })
