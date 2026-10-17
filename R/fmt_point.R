@@ -5,6 +5,7 @@
 # Architecture (2 layers):
 #
 #   L1  fmt_point(plot, type, data, shape, size, ...)   -- public API
+#         +-- L2  .fmt_point_layer()   isolate returned layer construction
 #         +-- L2  .shape_convert()   shape name or code -> ggplot2 shape
 #         +-- L2  .fmt_point_stage_args()   preserve staged aesthetics
 #         +-- L2  .fmt_point_sample()   sample resolved layer data
@@ -316,26 +317,14 @@ fmt_point <- function(plot,
     if (type == "beeswarm") {
       params[["dodge.width"]] <- dodge.width
       params[names(bee)] <- bee
-      geom <- do.call(ggbeeswarm::geom_beeswarm, params)
     } else {
       if (!"position" %in% names(params)) params[["position"]] <- position
-      geom <- do.call(ggplot2::geom_point, params)
-    }
-    if (white_border) {
-      geom$geom <- do.call(ggplot2::ggproto, list(NULL, ggplot2::GeomPoint,
-        draw_panel = .fmt_point_draw_panel, draw_key = .fmt_point_draw_key),
-        quote = TRUE, envir = baseenv())
     }
 
     # --- Add layer (with optional rasterization) ---
-    if (rasterize) {
-      if (!requireNamespace("ggrastr", quietly = TRUE)) {
-        cli::cli_abort("Package {.pkg ggrastr} is required for rasterize=TRUE.")
-      }
-      p + ggrastr::rasterise(geom, dpi = rasterize.dpi, dev = "ragg")
-    } else {
-      p + geom
-    }
+    if (rasterize && !requireNamespace("ggrastr", quietly = TRUE))
+      cli::cli_abort("Package {.pkg ggrastr} is required for rasterize=TRUE.")
+    p + .fmt_point_layer(params, type, white_border, rasterize, rasterize.dpi)
   }
 
   info <- .to_plot_list(plot, recurse = TRUE)
@@ -345,6 +334,26 @@ fmt_point <- function(plot,
 }
 
 # --- Internal helper ---
+
+.fmt_point_layer <- function(params, type, white_border, rasterize, dpi) {
+  force(params)
+  force(type)
+  force(white_border)
+  force(rasterize)
+  force(dpi)
+  args <- lapply(names(params), function(name) call("[[", quote(params), name))
+  names(args) <- names(params)
+  call <- if (type == "beeswarm")
+    rlang::call2("geom_beeswarm", !!!args, .ns = "ggbeeswarm") else
+    rlang::call2("geom_point", !!!args, .ns = "ggplot2")
+  geom <- eval(call, list2env(list(params = params), parent = baseenv()))
+  if (white_border) {
+    geom$geom <- do.call(ggplot2::ggproto, list(NULL, ggplot2::GeomPoint,
+      draw_panel = .fmt_point_draw_panel, draw_key = .fmt_point_draw_key),
+      quote = TRUE, envir = baseenv())
+  }
+  if (rasterize) ggrastr::rasterise(geom, dpi = dpi, dev = "ragg") else geom
+}
 
 .fmt_point_sample <- function(data, mapping, sample_n, seed, fixed = list(), facets = list()) {
   if (!is.data.frame(data)) {

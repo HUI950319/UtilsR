@@ -490,3 +490,33 @@ test_that("sampling preserves joint aesthetic and existing facet strata", {
   out <- fmt_point(p, data = layer_data, sample_n = 2)
   expect_equal(nrow(ggplot2::ggplot_build(out)$data[[1]]), 6L)
 })
+
+test_that("returned point layers do not retain unrelated plot leaves", {
+  make_plot <- function(n) {
+    p <- ggplot2::ggplot(data.frame(x = rep(c("a", "b"), length.out = n),
+      y = rep(1, n)), eval(quote(ggplot2::aes(x, y)), baseenv()))
+    p$plot_env <- baseenv()
+    p
+  }
+  environment(make_plot) <- baseenv()
+  make_result <- function(n, settings) {
+    do.call(fmt_point, c(list(plot = list(make_plot(12), make_plot(n))), settings))[[1L]]
+  }
+  environment(make_result) <- list2env(list(make_plot = make_plot, fmt_point = fmt_point),
+                                      parent = baseenv())
+  cases <- list(list(), list(sample_n = 2), list(white_border = TRUE),
+    list(type = "jitter"), list(position = "identity"),
+    list(data = rlang::new_formula(NULL, quote(.x), baseenv()), sample_n = 2))
+  if (requireNamespace("ggbeeswarm", quietly = TRUE))
+    cases <- c(cases, list(list(type = "beeswarm")))
+  if (requireNamespace("ggrastr", quietly = TRUE))
+    cases <- c(cases, list(list(rasterize = TRUE)))
+  for (settings in cases) {
+    small <- make_result(12L, settings)
+    large <- make_result(2000L, settings)
+    expect_equal(length(serialize(large, NULL)), length(serialize(small, NULL)))
+    restored <- unserialize(serialize(large, NULL))
+    expect_identical(ggplot2::ggplot_build(restored)$data,
+                     ggplot2::ggplot_build(small)$data)
+  }
+})

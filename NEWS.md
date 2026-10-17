@@ -45,6 +45,10 @@
   omitting computed-statistic and after-scale positions in independent overlays.
   Explicit boxplot mappings keep their evaluation stages and environments.
 
+* `fmt_point()` constructs point, beeswarm and rasterized layers in isolated
+  environments, so extracted plot leaves do not retain unrelated input plots.
+  Layer constructor calls keep symbolic arguments instead of embedding data.
+
 * `fmt_point()` retains missing character shapes during white-border
   normalization instead of failing before ggplot2 handles missing points.
 
