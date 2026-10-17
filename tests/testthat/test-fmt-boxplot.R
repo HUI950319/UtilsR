@@ -734,3 +734,66 @@ test_that("explicit NULL controls retain native boxplot behaviour", {
   expect_identical(ggplot2::ggplot_build(q)$data,
                    ggplot2::ggplot_build(native)$data)
 })
+
+test_that("identity boxplots automatically copy complete source summary mappings", {
+  d <- data.frame(label = c("a", "b"), low = c(1, 11), q1 = c(3, 13),
+                  mid = c(5.5, 15.5), q3 = c(8, 18), high = c(10, 20))
+  mappings <- list(
+    ggplot2::aes(x = label, ymin = low, lower = q1, middle = mid, upper = q3, ymax = high),
+    ggplot2::aes(y = label, xmin = low, xlower = q1, xmiddle = mid, xupper = q3, xmax = high))
+  for (mapping in mappings) {
+    for (parent in c(TRUE, FALSE)) {
+      p <- if (parent) {
+        ggplot2::ggplot(d, mapping) + ggplot2::geom_boxplot(stat = "identity")
+      } else {
+        ggplot2::ggplot() + ggplot2::geom_boxplot(data = d, mapping = mapping,
+                                                stat = "identity")
+      }
+      for (stat in list("identity", ggplot2::StatIdentity)) {
+        q <- fmt_boxplot(p, list(stat = stat), inherit.aes = FALSE)
+        native <- p + ggplot2::geom_boxplot(data = d, mapping = mapping, stat = stat,
+          inherit.aes = FALSE, width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
+        expect_identical(ggplot2::ggplot_build(q)$data,
+                         ggplot2::ggplot_build(native)$data)
+        expect_length(p$layers, 1L)
+      }
+    }
+  }
+})
+
+test_that("identity lookup skips raw samples and retains source groups and callbacks", {
+  d <- data.frame(position = rep(1:2, each = 10), value = 1:20)
+  summaries <- data.frame(position = 1:2, id = c("a", "b"), low = c(1, 11),
+    q1 = c(3, 13), mid = c(5.5, 15.5), q3 = c(8, 18), high = c(10, 20))
+  mapping <- ggplot2::aes(x = position, group = id, ymin = low, lower = q1,
+                          middle = mid, upper = q3, ymax = high)
+  calls <- 0L
+  callback <- function(data) { calls <<- calls + 1L; summaries }
+  p <- ggplot2::ggplot(d, ggplot2::aes(position, value)) + ggplot2::geom_point() +
+    ggplot2::geom_boxplot(data = callback, mapping = mapping, stat = "identity",
+                          inherit.aes = FALSE)
+  q <- fmt_boxplot(p, list(stat = "identity"), inherit.aes = FALSE)
+  expect_identical(calls, 0L)
+  built <- ggplot2::ggplot_build(q)$data[[3L]]
+  expect_equal(built$middle, summaries$mid)
+  expect_identical(calls, 2L)
+  expect_identical(q$layers[[3L]]$mapping$group, mapping$group)
+  expect_length(p$layers, 2L)
+  pw <- p | p
+  q <- fmt_boxplot(pw, list(stat = "identity"), inherit.aes = FALSE)
+  expect_s3_class(patchwork::patchworkGrob(q), "gtable")
+})
+
+test_that("identity lookup retains summary overrides used by source layers", {
+  d <- data.frame(label = c("a", "b"), low = c(1, 11), q1 = c(3, 13),
+                  mid = c(5.5, 15.5), q3 = c(8, 18), high = c(10, 20))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x = label, ymin = low, lower = q1,
+    middle = mid, upper = q3, ymax = high)) +
+    ggplot2::geom_boxplot(ggplot2::aes(middle = mid + 0.1), stat = "identity")
+  q <- fmt_boxplot(p, list(stat = "identity"), inherit.aes = FALSE)
+  expect_equal(ggplot2::ggplot_build(q)$data[[2L]]$middle, d$mid + 0.1)
+  raw <- ggplot2::ggplot(data.frame(value = 1:20), ggplot2::aes(y = value)) +
+    ggplot2::geom_point(x = 1)
+  expect_error(fmt_boxplot(raw, list(stat = "identity"), inherit.aes = FALSE),
+               "Cannot resolve boxplot data and position mappings")
+})

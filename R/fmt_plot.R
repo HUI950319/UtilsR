@@ -5158,6 +5158,8 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 #'   supply explicit data and mappings when their source order is ambiguous.
 #'   For \code{stat = "identity"} or \code{ggplot2::StatIdentity}, an explicit
 #'   mapping is passed unchanged, without adding raw-data position mappings.
+#'   Without an explicit mapping, the first source with complete vertical or
+#'   horizontal summary mappings is used, including its group mapping when present.
 #'   An unresolved source raises an error without restoring aesthetic inheritance.
 #'   Data functions and formulas are evaluated only during normal plot building.
 #'   Nested patchworks are traversed recursively while preserving layouts,
@@ -5216,8 +5218,14 @@ fmt_boxplot <- function(plot,
     }
     args <- boxplot.args
     if (!inherit.aes) {
-      keep_mapping <- !is.null(args[["mapping"]]) &&
-        (identical(args[["stat"]], "identity") || inherits(args[["stat"]], "StatIdentity"))
+      identity_stat <- identical(args[["stat"]], "identity") ||
+        inherits(args[["stat"]], "StatIdentity")
+      keep_mapping <- identity_stat && !is.null(args[["mapping"]])
+      positions <- c("x", "y")
+      if (identity_stat) {
+        positions <- c(positions, "ymin", "lower", "middle", "upper", "ymax",
+                       "xmin", "xlower", "xmiddle", "xupper", "xmax", "group")
+      }
       resolved <- NULL
       layers <- Filter(function(layer) !inherits(layer$geom, c("GeomText", "GeomLabel",
         "GeomSegment", "GeomCurve", "GeomAbline", "GeomHline", "GeomVline")), p$layers)
@@ -5225,7 +5233,7 @@ fmt_boxplot <- function(plot,
       parent_used <- !length(layers) || any(vapply(layers[!blank], function(layer) {
         (is.null(layer$data) || inherits(layer$data, "waiver")) &&
           isTRUE(layer$inherit.aes) &&
-          !any(c("x", "y") %in% c(names(layer$mapping), names(layer$aes_params)))
+          !any(positions %in% c(names(layer$mapping), names(layer$aes_params)))
       }, logical(1)))
       layers <- c(layers[!blank], layers[blank])
       sources <- if (parent_used) {
@@ -5238,7 +5246,7 @@ fmt_boxplot <- function(plot,
         } else ggplot2::aes()
         if (!is.null(layer)) {
           if (!is.null(layer$data) && !inherits(layer$data, "waiver")) pd <- layer$data
-          for (axis in c("x", "y")) {
+          for (axis in positions) {
             if (axis %in% names(layer$mapping)) pm[[axis]] <- layer$mapping[[axis]]
             fixed <- layer$aes_params[[axis]]
             if (!(axis %in% names(args)) && is.atomic(fixed) && length(fixed) == 1L) {
@@ -5252,7 +5260,7 @@ fmt_boxplot <- function(plot,
         if (is.null(args[["data"]]) && is.data.frame(pd) && nrow(pd) == 0L) next
         mapping <- args[["mapping"]] %||% ggplot2::aes()
         if (!keep_mapping) {
-          for (axis in c("x", "y")) {
+          for (axis in positions) {
             if (axis %in% names(mapping)) next
             candidate <- pm[[axis]]
             expr <- rlang::get_expr(candidate)
@@ -5264,6 +5272,11 @@ fmt_boxplot <- function(plot,
             }
             if (!is_late(expr)) mapping[[axis]] <- candidate
           }
+        }
+        if (identity_stat && !keep_mapping) {
+          available <- names(mapping)[!vapply(mapping, is.null, logical(1))]
+          if (!all(c("x", "ymin", "lower", "middle", "upper", "ymax") %in% available) &&
+              !all(c("y", "xmin", "xlower", "xmiddle", "xupper", "xmax") %in% available)) next
         }
         if (keep_mapping || !is.null(mapping[["x"]]) || !is.null(mapping[["y"]])) {
           resolved <- list(data = pd, mapping = mapping)

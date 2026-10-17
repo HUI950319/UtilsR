@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_boxplot()` resolves complete vertical or horizontal summary mappings
+  automatically for independent identity-statistic overlays, retaining source
+  groups and deferred data callbacks while leaving explicit mappings unchanged.
+
 * `fmt_boxplot()` retains explicit `NULL` controls, including width and alpha,
   instead of replacing them with wrapper defaults. Omitted controls retain
   their existing defaults and explicit values follow native validation.
