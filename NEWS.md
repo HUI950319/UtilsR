@@ -49,6 +49,10 @@
   omitting computed-statistic and after-scale positions in independent overlays.
   Explicit boxplot mappings keep their evaluation stages and environments.
 
+* `fmt_point()` skips unused factor strata during sampling, avoiding empty
+  per-group work and matrix-column subsets while retaining data factor levels,
+  missing groups, sampling order and column attributes.
+
 * `fmt_point()` normalizes `pch` and point/jitter `cex` aliases before applying
   omitted defaults. Explicit shape/size arguments retain priority, and beeswarm
   `cex` keeps its existing layout meaning and argument-list precedence.

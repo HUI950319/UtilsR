@@ -462,6 +462,7 @@ fmt_point <- function(plot,
     strata <- lapply(group_values, function(x) addNA(as.factor(x), ifany = TRUE))
     groups <- if (length(strata) == 1L) strata[[1L]] else
       factor(do.call(paste, c(lapply(strata, as.integer), sep = ":")))
+    groups <- droplevels(groups, exclude = NULL)
     rows <- lapply(split(seq_len(nrow(data)), groups), function(indices) {
       if (length(indices) <= sample_n) indices else
         indices[sample.int(length(indices), sample_n)]

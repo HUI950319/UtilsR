@@ -616,3 +616,27 @@ test_that("point aliases override omitted defaults and mapped aesthetics", {
     expect_identical(ggplot2::ggplot_build(out)$data, ggplot2::ggplot_build(expected)$data)
   }
 })
+
+test_that("unused sampling strata retain factor levels and matrix attributes", {
+  d <- data.frame(x = 1:24, y = 24:1,
+    g = factor(rep(c("b", "a", NA), 8),
+      levels = c("unused_first", "b", "unused_middle", "a", "unused_last")))
+  d$matrix <- I(matrix(1:48, ncol = 2,
+    dimnames = list(paste0("row", 1:24), c("one", "two"))))
+  for (input in list(d, tibble::as_tibble(d))) for (k in c(0, 2)) {
+    p <- ggplot2::ggplot(input, ggplot2::aes(x, y, group = g, colour = g)) +
+      ggplot2::scale_colour_discrete(drop = FALSE)
+    reference <- p
+    reference$mapping$group <- ggplot2::aes(group = droplevels(g))$group
+    withr::local_seed(321)
+    before <- .Random.seed
+    out <- fmt_point(p, sample_n = k)
+    expected <- fmt_point(reference, sample_n = k)
+    expect_equal(nrow(out$layers[[1L]]$data), 3L * k)
+    expect_identical(out$layers[[1L]]$data, expected$layers[[1L]]$data)
+    expect_identical(ggplot2::ggplot_build(out)$data, ggplot2::ggplot_build(expected)$data)
+    expect_identical(levels(out$layers[[1L]]$data$g), levels(input$g))
+    expect_identical(p$data, input)
+    expect_identical(.Random.seed, before)
+  }
+})
