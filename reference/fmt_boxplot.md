@@ -68,7 +68,9 @@ and mappings when their source order is ambiguous. For
 `stat = "identity"` or
 [`ggplot2::StatIdentity`](https://ggplot2.tidyverse.org/reference/Stat.html),
 an explicit mapping is passed unchanged, without adding raw-data
-position mappings. An unresolved source raises an error without
+position mappings. Without an explicit mapping, the first source with
+complete vertical or horizontal summary mappings is used, including its
+group mapping when present. An unresolved source raises an error without
 restoring aesthetic inheritance. Data functions and formulas are
 evaluated only during normal plot building. Nested patchworks are
 traversed recursively while preserving layouts, annotations and
