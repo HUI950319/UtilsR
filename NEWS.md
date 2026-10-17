@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_point()` respects explicit point/jitter positions supplied through
+  `...`, including position objects and native position names.
+
 * `fmt_point()` diagnoses fixed aesthetic vectors and external row-vector
   mappings before sampling, with instructions to map columns in layer data.
 

@@ -77,7 +77,8 @@ via \code{ggrastr::rasterise} for large datasets. Default \code{FALSE}.}
 \item{rasterize.dpi}{Integer, DPI for rasterization. Default 300.}
 
 \item{...}{Additional arguments passed to \code{geom_point} or
-\code{geom_beeswarm}.}
+\code{geom_beeswarm}. An explicit \code{position} overrides automatic
+point/jitter positioning.}
 }
 \value{
 Same type as input (ggplot, patchwork, or list).

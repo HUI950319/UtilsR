@@ -450,3 +450,16 @@ test_that("sampling diagnoses row vectors outside layer data", {
   p <- ggplot2::ggplot(d, ggplot2::aes(x, matrix_column[, 1], colour = colours))
   expect_equal(nrow(ggplot2::ggplot_build(fmt_point(p, sample_n = 2))$data[[1]]), 4L)
 })
+
+test_that("explicit positions override automatic point positioning", {
+  d <- data.frame(x = 1:6, y = 6:1, g = rep(c("a", "b"), 3))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, colour = g))
+  expected <- ggplot2::ggplot_build(p + ggplot2::geom_point(
+    position = ggplot2::position_nudge(x = 1, y = 2)))$data[[1]]
+  for (type in c("point", "jitter")) {
+    actual <- ggplot2::ggplot_build(fmt_point(p, type = type,
+      position = ggplot2::position_nudge(x = 1, y = 2)))$data[[1]]
+    expect_identical(actual$x, expected$x)
+    expect_identical(actual$y, expected$y)
+  }
+})

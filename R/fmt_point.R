@@ -63,7 +63,8 @@
 #'   via \code{ggrastr::rasterise} for large datasets. Default \code{FALSE}.
 #' @param rasterize.dpi Integer, DPI for rasterization. Default 300.
 #' @param ... Additional arguments passed to \code{geom_point} or
-#'   \code{geom_beeswarm}.
+#'   \code{geom_beeswarm}. An explicit \code{position} overrides automatic
+#'   point/jitter positioning.
 #'
 #' @return Same type as input (ggplot, patchwork, or list).
 #'
@@ -313,7 +314,7 @@ fmt_point <- function(plot,
       params[names(bee)] <- bee
       geom <- do.call(ggbeeswarm::geom_beeswarm, params)
     } else {
-      params[["position"]] <- position
+      if (!"position" %in% names(params)) params[["position"]] <- position
       geom <- do.call(ggplot2::geom_point, params)
     }
     if (white_border) {
