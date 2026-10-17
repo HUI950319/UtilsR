@@ -70,12 +70,13 @@ and mappings when their source order is ambiguous. For
 an explicit mapping is passed unchanged, without adding raw-data
 position mappings. Without an explicit mapping, the first source with
 complete vertical or horizontal summary mappings is used, including its
-group mapping when present. An unresolved source raises an error without
-restoring aesthetic inheritance. Data functions and formulas are
-evaluated only during normal plot building. Nested patchworks are
-traversed recursively while preserving layouts, annotations and
-plot-list names. Spacers, guide areas, wrapped grobs and inset overlays
-are skipped.
+group mapping when present. Notch boundaries and relative widths are
+also copied when `notch = TRUE` and `varwidth = TRUE`, respectively. An
+unresolved source raises an error without restoring aesthetic
+inheritance. Data functions and formulas are evaluated only during
+normal plot building. Nested patchworks are traversed recursively while
+preserving layouts, annotations and plot-list names. Spacers, guide
+areas, wrapped grobs and inset overlays are skipped.
 
 ## See also
 

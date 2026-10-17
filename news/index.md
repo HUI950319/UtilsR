@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
+  retains source notch boundaries and relative width mappings for
+  independent identity-statistic overlays when those features are
+  requested, including horizontal summaries and layer-level overrides.
+
+- [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
   accepts anonymous and environment-selected function calls in automatic
   position mappings without failing during evaluation-stage lookup.
 
