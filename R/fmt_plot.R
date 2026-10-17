@@ -5113,6 +5113,19 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 
 # ---- fmt_boxplot ----
 
+# Keep returned layers outside the source-resolution environment.
+.fmt_boxplot_layer <- function(args) {
+  force(args)
+  if (inherits(args[["position"]], "Position")) {
+    args$position <- rlang::exec(ggplot2::ggproto, NULL, args[["position"]],
+      !!!as.list(args[["position"]], inherit = FALSE))
+  }
+  params <- lapply(names(args), function(nm) call("[[", quote(args), nm))
+  names(params) <- names(args)
+  call <- rlang::call2("geom_boxplot", !!!params, .ns = "ggplot2")
+  eval(call, list2env(list(args = args), parent = baseenv()))
+}
+
 #' Overlay a boxplot layer
 #'
 #' Adds \code{geom_boxplot} on top of existing layers (e.g. violin, jitter).
@@ -5303,11 +5316,7 @@ fmt_boxplot <- function(plot,
     } else if (!inherit.aes && is.function(args[["data"]])) {
       args$data <- unclass(args[["data"]])
     }
-    if (inherits(args[["position"]], "Position")) {
-      args$position <- rlang::exec(ggplot2::ggproto, NULL, args[["position"]],
-        !!!as.list(args[["position"]], inherit = FALSE))
-    }
-    p + rlang::exec(ggplot2::geom_boxplot, !!!args)
+    p + .fmt_boxplot_layer(args)
   }
 
   if (is.list(plot) && !inherits(plot, "gg")) .to_plot_list(plot)

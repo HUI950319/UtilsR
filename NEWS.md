@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_boxplot()` constructs returned layers in an isolated environment and
+  stores symbolic argument calls, avoiding retention of the source-resolution
+  workspace and duplicate data in layer constructor calls.
+
 * `fmt_boxplot()` copies explicit position objects and their settings per plot
   leaf, preventing variable-width adjustment and later edits from changing the
   caller's position, existing layers or sibling overlays.

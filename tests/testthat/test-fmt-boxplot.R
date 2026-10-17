@@ -934,3 +934,39 @@ test_that("variable widths cannot mutate a position shared with the source layer
                    ggplot2::ggplot_build(native)$data)
   expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
 })
+
+test_that("added boxplot layers do not retain unrelated source data", {
+  make_layers <- function(n) {
+    d <- data.frame(x = rep(c("a", "b"), length.out = n), y = rep(1:10, length.out = n))
+    source_env <- list2env(list(d = d), parent = baseenv())
+    p <- eval(quote(ggplot2::ggplot(d, ggplot2::aes(x, y)) +
+      ggplot2::geom_point()), source_env)
+    external <- data.frame(x = rep(c("a", "b"), each = 5), y = 1:10)
+    mapping <- eval(quote(ggplot2::aes(x, y)), baseenv())
+    list(
+      default = fmt_boxplot(p)$layers[[2L]],
+      explicit = fmt_boxplot(p, list(data = external, mapping = mapping),
+        inherit.aes = FALSE)$layers[[2L]],
+      position = fmt_boxplot(p, list(position = ggplot2::position_dodge2()))$layers[[2L]])
+  }
+  small <- make_layers(20L)
+  large <- make_layers(20000L)
+  for (name in names(small)) {
+    expect_equal(length(serialize(large[[name]], NULL)),
+                  length(serialize(small[[name]], NULL)), info = name)
+  }
+})
+
+test_that("independent boxplots store symbolic calls and survive serialization", {
+  d <- data.frame(x = rep(c("a", "b"), each = 10), y = 1:20)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  q <- fmt_boxplot(p, inherit.aes = FALSE)
+  if (!is.null(q$layers[[2L]]$constructor)) {
+    expect_false(is.data.frame(q$layers[[2L]]$constructor[["data"]]))
+    expect_true(is.language(q$layers[[2L]]$constructor[["data"]]))
+  }
+  restored <- unserialize(serialize(q, NULL))
+  expect_identical(ggplot2::ggplot_build(restored)$data,
+                   ggplot2::ggplot_build(q)$data)
+  expect_s3_class(ggplot2::ggplotGrob(restored), "gtable")
+})
