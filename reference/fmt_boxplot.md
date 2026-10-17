@@ -55,9 +55,10 @@ with a position mapping is used, including single-axis sources; later
 two-axis layers do not take priority. Only x and y mappings are copied
 automatically; other mappings must be supplied explicitly. Automatic
 positions omit computed-statistic and after-scale mappings. Staged
-source mappings use their raw-data expression; explicit boxplot mappings
-retain all evaluation stages. Explicit `x = NULL` or `y = NULL` mappings
-remain cleared. Scalar fixed x or y positions in source layers are also
+source mappings use their raw-data expression, including stages nested
+inside other expressions. Explicit boxplot mappings retain all
+evaluation stages. Explicit `x = NULL` or `y = NULL` mappings remain
+cleared. Scalar fixed x or y positions in source layers are also
 supplied as constant mappings before computing statistics. Explicit
 boxplot position arguments and mappings take precedence; fixed position
 vectors are not copied. Automatic layer lookup skips text, label,
