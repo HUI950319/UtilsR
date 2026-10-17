@@ -132,9 +132,10 @@ or <code>"image"</code>.</p></dd>
 <code>"ragg"</code> backend returns a patchwork-wrapped gtable with a
 <code>size</code> attribute: a list with <code>width</code>, <code>height</code>, and
 <code>units</code> describing the complete fixed plot dimensions. The
-<code>"image"</code> backend returns a patchwork-wrapped <code>rasterGrob</code> with
-the same <code>size</code> attribute for the rendered image. For list
-inputs, returns a corresponding list and preserves its names.</p>
+<code>"image"</code> backend returns a patchwork-wrapped <code>rasterGrob</code>
+without plot margins, with the same <code>size</code> attribute for the
+rendered image. For list inputs, returns a corresponding list and
+preserves its names.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -172,12 +173,15 @@ benefit of rasterization.</p>
 <h3 id="how-ragg-preserves-text">How <code>"ragg"</code> preserves text<a class="anchor" aria-label="anchor" href="#how-ragg-preserves-text"></a></h3>
 <p>The function inspects each grob child inside a panel. Children whose own
 name or class identifies text/labels, or whose descendants contain text,
-are kept as vectors. Mixed text/geometry trees are retained together to
-preserve their internal layout. A viewport alone does not prevent
-rasterization. Other children (points, lines, polygons, raster, etc.) are
-captured in contiguous runs and inserted as
-<code>rasterGrob</code> objects. Vector text and rasterized geometry retain their
-original draw order, including text covered by a later geometric layer.</p>
+are kept as vectors, as are the panel's background grid and border. Mixed
+text/geometry trees are retained together to preserve their internal
+layout. A viewport alone does not prevent rasterization. Empty grobs are
+dropped. Other children (points, lines, polygons, raster, etc.) are
+captured in contiguous runs and inserted as <code>rasterGrob</code> objects,
+each after an empty opaque polygon so that <code><a href="https://rdrr.io/r/grDevices/pdf.html" class="external-link">pdf()</a></code> does not draw it
+with the transparency of the grob before it. Vector text and rasterized
+geometry retain their original draw order, including text covered by a
+later geometric layer.</p>
 </div>
 
     </div>

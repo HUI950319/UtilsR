@@ -74,8 +74,9 @@ The `"ggrastr"` backend preserves the input type. The `"ragg"` backend
 returns a patchwork-wrapped gtable with a `size` attribute: a list with
 `width`, `height`, and `units` describing the complete fixed plot
 dimensions. The `"image"` backend returns a patchwork-wrapped
-`rasterGrob` with the same `size` attribute for the rendered image. For
-list inputs, returns a corresponding list and preserves its names.
+`rasterGrob` without plot margins, with the same `size` attribute for
+the rendered image. For list inputs, returns a corresponding list and
+preserves its names.
 
 ## Details
 
@@ -122,12 +123,16 @@ file-size benefit of rasterization.
 
 The function inspects each grob child inside a panel. Children whose own
 name or class identifies text/labels, or whose descendants contain text,
-are kept as vectors. Mixed text/geometry trees are retained together to
-preserve their internal layout. A viewport alone does not prevent
-rasterization. Other children (points, lines, polygons, raster, etc.)
-are captured in contiguous runs and inserted as `rasterGrob` objects.
-Vector text and rasterized geometry retain their original draw order,
-including text covered by a later geometric layer.
+are kept as vectors, as are the panel's background grid and border.
+Mixed text/geometry trees are retained together to preserve their
+internal layout. A viewport alone does not prevent rasterization. Empty
+grobs are dropped. Other children (points, lines, polygons, raster,
+etc.) are captured in contiguous runs and inserted as `rasterGrob`
+objects, each after an empty opaque polygon so that
+[`pdf()`](https://rdrr.io/r/grDevices/pdf.html) does not draw it with
+the transparency of the grob before it. Vector text and rasterized
+geometry retain their original draw order, including text covered by a
+later geometric layer.
 
 ## See also
 
