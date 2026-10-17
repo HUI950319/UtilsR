@@ -25,9 +25,9 @@ fmt_boxplot(plot, boxplot.args = list(), inherit.aes = TRUE)
   Explicit values, including `NULL`, retain native ggplot2 behaviour and
   validation. A supplied `mapping` must be created by
   [`ggplot2::aes()`](https://ggplot2.tidyverse.org/reference/aes.html).
-  Supplied position objects are copied separately for each plot leaf.
-  Names are matched exactly. Unrecognized arguments follow the native
-  validation and warnings of
+  Supplied position objects and their inherited settings are copied
+  separately for each plot leaf. Names are matched exactly. Unrecognized
+  arguments follow the native validation and warnings of
   [`ggplot2::geom_boxplot()`](https://ggplot2.tidyverse.org/reference/geom_boxplot.html).
 
 - inherit.aes:
