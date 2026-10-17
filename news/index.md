@@ -62,6 +62,11 @@
   environments.
 
 - [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
+  accepts external factor levels and labels during sampling, including
+  positional configuration arguments and ordered factors. External row
+  vectors in the factor input still require columns in layer data.
+
+- [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
   constructs point, beeswarm and rasterized layers in isolated
   environments, so extracted plot leaves do not retain unrelated input
   plots. Layer constructor calls keep symbolic arguments instead of
