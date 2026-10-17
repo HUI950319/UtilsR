@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/fmt_point.html">fmt_point()</a></code> retains missing character shapes during white-border normalization instead of failing before ggplot2 handles missing points.</p></li>
+<ul><li><p><code><a href="../reference/fmt_boxplot.html">fmt_boxplot()</a></code> copies raw positions from staged source mappings while omitting computed-statistic and after-scale positions in independent overlays. Explicit boxplot mappings keep their evaluation stages and environments.</p></li>
+<li><p><code><a href="../reference/fmt_point.html">fmt_point()</a></code> retains missing character shapes during white-border normalization instead of failing before ggplot2 handles missing points.</p></li>
 <li><p><code><a href="../reference/fmt_point.html">fmt_point()</a></code> samples indices before slicing matrix-column data, avoiding full-data group copies while retaining native binding and matrix attributes.</p></li>
 <li><p><code><a href="../reference/fmt_point.html">fmt_point()</a></code> samples joint discrete colour/fill strata and existing facets; explicit groups retain priority, and layers missing facet columns still replicate.</p></li>
 <li><p><code><a href="../reference/fmt_point.html">fmt_point()</a></code> respects explicit point/jitter positions supplied through <code>...</code>, including position objects and native position names.</p></li>
