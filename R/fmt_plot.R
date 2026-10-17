@@ -5174,8 +5174,9 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 #'   supply explicit data and mappings when their source order is ambiguous.
 #'   For \code{stat = "identity"} or \code{ggplot2::StatIdentity}, an explicit
 #'   mapping is passed unchanged, without adding raw-data position mappings.
-#'   Without an explicit mapping, the first source with complete vertical or
-#'   horizontal summary mappings is used, including its group mapping when present.
+#'   Without an explicit mapping, the first source whose mappings and explicit
+#'   fixed summary arguments provide a complete vertical or
+#'   horizontal summary is used. Its group mapping is retained when present.
 #'   Notch boundaries and relative widths are also copied when
 #'   \code{notch = TRUE} and \code{varwidth = TRUE}, respectively.
 #'   Source outlier mappings are copied when \code{outlier.shape} is supplied
@@ -5317,7 +5318,8 @@ fmt_boxplot <- function(plot,
           }
         }
         if (identity_stat && !keep_mapping) {
-          available <- names(mapping)[!vapply(mapping, is.null, logical(1))]
+          available <- c(names(mapping)[!vapply(mapping, is.null, logical(1))],
+                         names(args)[!vapply(args, is.null, logical(1))])
           if (!all(c("x", "ymin", "lower", "middle", "upper", "ymax") %in% available) &&
               !all(c("y", "xmin", "xlower", "xmiddle", "xupper", "xmax") %in% available)) next
         }

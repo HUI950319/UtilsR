@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_boxplot()` combines source mappings with explicit fixed summary
+  arguments when resolving independent identity overlays, including
+  partial summaries and horizontal boxplots.
+
 * `fmt_boxplot()` retains precomputed outlier mappings for independent
   identity overlays when outlier shape is explicit, including an explicit NULL.
   Default suppression and explicit `outliers = FALSE` remain unchanged.

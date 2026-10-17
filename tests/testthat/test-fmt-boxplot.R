@@ -1057,3 +1057,38 @@ test_that("identity overlays retain outlier mappings when shape is explicit", {
     expect_null(q$layers[[2L]]$mapping$outliers)
   }
 })
+
+test_that("identity overlays combine mapped axes with fixed summary arguments", {
+  d <- data.frame(label = c("a", "b"))
+  cases <- list(
+    list(mapping = ggplot2::aes(x = label),
+      fixed = list(ymin = 1, lower = 3, middle = 5, upper = 8, ymax = 10)),
+    list(mapping = ggplot2::aes(y = label),
+      fixed = list(xmin = 1, xlower = 3, xmiddle = 5, xupper = 8, xmax = 10)))
+  for (case in cases) {
+    p <- ggplot2::ggplot(d, case$mapping) + ggplot2::geom_blank()
+    native <- p + rlang::exec(ggplot2::geom_boxplot, data = d, mapping = case$mapping,
+      stat = "identity", !!!case$fixed, inherit.aes = FALSE,
+      width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
+    expect_s3_class(ggplot2::ggplotGrob(native), "gtable")
+    q <- fmt_boxplot(p, c(list(stat = "identity"), case$fixed), inherit.aes = FALSE)
+    expect_identical(ggplot2::ggplot_build(q)$data,
+                     ggplot2::ggplot_build(native)$data)
+    expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+  }
+})
+
+test_that("identity overlays combine mapped and fixed summary statistics", {
+  d <- data.frame(label = c("a", "b"), low = c(1, 1), q1 = c(2, 4),
+    mid = c(5, 6), high = c(10, 10))
+  mapping <- ggplot2::aes(x = label, ymin = low, lower = q1, middle = mid, ymax = high)
+  p <- ggplot2::ggplot(d, mapping) + ggplot2::geom_blank()
+  native <- p + ggplot2::geom_boxplot(data = d, mapping = mapping, stat = "identity",
+    upper = 8, inherit.aes = FALSE, width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
+  q <- fmt_boxplot(p, list(stat = "identity", upper = 8), inherit.aes = FALSE)
+  expect_identical(ggplot2::ggplot_build(q)$data,
+                   ggplot2::ggplot_build(native)$data)
+  expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+  expect_error(fmt_boxplot(p, list(stat = "identity", upper = NULL), inherit.aes = FALSE),
+               "Cannot resolve boxplot data and position mappings")
+})
