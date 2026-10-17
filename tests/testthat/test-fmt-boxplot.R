@@ -836,3 +836,60 @@ test_that("automatic positions accept anonymous and dynamic function calls", {
     expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
   }
 })
+
+test_that("identity notches retain auxiliary mappings and layer overrides", {
+  d <- data.frame(label = c("a", "b"), low = c(1, 11), q1 = c(3, 13),
+    mid = c(5.5, 15.5), q3 = c(8, 18), high = c(10, 20), nl = c(4, 14), nu = c(7, 17))
+  mappings <- list(
+    ggplot2::aes(x = label, ymin = low, lower = q1, middle = mid,
+      upper = q3, ymax = high, notchlower = nl, notchupper = nu),
+    ggplot2::aes(y = label, xmin = low, xlower = q1, xmiddle = mid,
+      xupper = q3, xmax = high, notchlower = nl, notchupper = nu))
+  for (mapping in mappings) {
+    for (parent in c(TRUE, FALSE)) {
+      if (parent) {
+        p <- ggplot2::ggplot(d, mapping) + ggplot2::geom_boxplot(stat = "identity")
+      } else {
+        expect_warning(p <- ggplot2::ggplot() + ggplot2::geom_boxplot(data = d,
+          mapping = mapping, stat = "identity"), "Ignoring unknown aesthetics:.*notchlower")
+      }
+      expect_warning(q <- fmt_boxplot(p, list(stat = "identity", notch = TRUE),
+        inherit.aes = FALSE), "Ignoring unknown aesthetics:.*notchlower")
+      expect_warning(native <- p + ggplot2::geom_boxplot(data = d, mapping = mapping,
+        stat = "identity", notch = TRUE, inherit.aes = FALSE, width = 0.3,
+        alpha = 0.2, na.rm = TRUE, outlier.shape = NA),
+        "Ignoring unknown aesthetics:.*notchlower")
+      expect_identical(ggplot2::ggplot_build(q)$data,
+                       ggplot2::ggplot_build(native)$data)
+      expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+    }
+  }
+  expect_warning(p <- ggplot2::ggplot(d, mappings[[1L]]) +
+    ggplot2::geom_boxplot(ggplot2::aes(notchlower = nl + 0.2), stat = "identity"),
+    "Ignoring unknown aesthetics:.*notchlower")
+  expect_warning(q <- fmt_boxplot(p, list(stat = "identity", notch = TRUE),
+    inherit.aes = FALSE), "Ignoring unknown aesthetics:.*notchlower")
+  expect_equal(ggplot2::ggplot_build(q)$data[[2L]]$notchlower, d$nl + 0.2)
+})
+
+test_that("identity variable widths retain the source width ratios", {
+  d <- data.frame(label = c("a", "b"), low = c(1, 11), q1 = c(3, 13),
+    mid = c(5.5, 15.5), q3 = c(8, 18), high = c(10, 20), rw = c(1, 2))
+  mappings <- list(
+    ggplot2::aes(x = label, ymin = low, lower = q1, middle = mid,
+      upper = q3, ymax = high, relvarwidth = rw),
+    ggplot2::aes(y = label, xmin = low, xlower = q1, xmiddle = mid,
+      xupper = q3, xmax = high, relvarwidth = rw))
+  for (mapping in mappings) {
+    p <- ggplot2::ggplot(d, mapping) + ggplot2::geom_boxplot(stat = "identity")
+    expect_warning(q <- fmt_boxplot(p, list(stat = "identity", varwidth = TRUE),
+      inherit.aes = FALSE), "Ignoring unknown aesthetics:.*relvarwidth")
+    expect_warning(native <- p + ggplot2::geom_boxplot(data = d, mapping = mapping,
+      stat = "identity", varwidth = TRUE, inherit.aes = FALSE, width = 0.3,
+      alpha = 0.2, na.rm = TRUE, outlier.shape = NA),
+      "Ignoring unknown aesthetics:.*relvarwidth")
+    expect_identical(ggplot2::ggplot_build(q)$data,
+                     ggplot2::ggplot_build(native)$data)
+    expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+  }
+})
