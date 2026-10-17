@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_point()` samples indices before slicing matrix-column data, avoiding
+  full-data group copies while retaining native binding and matrix attributes.
+
 * `fmt_point()` samples joint discrete colour/fill strata and existing facets;
   explicit groups retain priority, and layers missing facet columns still replicate.
 

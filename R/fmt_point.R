@@ -429,20 +429,16 @@ fmt_point <- function(plot,
     strata <- lapply(group_values, function(x) addNA(as.factor(x), ifany = TRUE))
     groups <- if (length(strata) == 1L) strata[[1L]] else
       factor(do.call(paste, c(lapply(strata, as.integer), sep = ":")))
-    # Matrix columns retain rbind's existing class/dimname semantics.
-    if (any(vapply(data, is.matrix, logical(1)))) {
-      data <- do.call(rbind, lapply(split(data, groups), function(grp) {
-        if (nrow(grp) <= sample_n) grp else
-          grp[sample.int(nrow(grp), sample_n), , drop = FALSE]
-      }))
-      rownames(data) <- NULL
-      return(data)
-    }
-    rows <- unlist(lapply(split(seq_len(nrow(data)), groups), function(indices) {
+    rows <- lapply(split(seq_len(nrow(data)), groups), function(indices) {
       if (length(indices) <= sample_n) indices else
         indices[sample.int(length(indices), sample_n)]
-    }), use.names = FALSE)
-    data <- data[rows, , drop = FALSE]
+    })
+    if (any(vapply(data, is.matrix, logical(1)))) {
+      # Bind only sampled rows, retaining native matrix class/dimname semantics.
+      data <- do.call(rbind, lapply(rows, function(indices) data[indices, , drop = FALSE]))
+    } else {
+      data <- data[unlist(rows, use.names = FALSE), , drop = FALSE]
+    }
     rownames(data) <- NULL
     data
   } else {
