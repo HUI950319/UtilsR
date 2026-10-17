@@ -370,6 +370,8 @@ test_that("white borders retain visible non-fillable and named symbols", {
     expect_true(all(built$shape %in% 21:25))
     expect_equal(built$fill, rep("red", nrow(d)))
   }
+  expect_no_warning(result <- fmt_point(p, shape = NA_character_, white_border = TRUE))
+  expect_true(all(is.na(ggplot2::ggplot_build(result)$data[[1]]$shape)))
 })
 
 test_that("sampling distinguishes stage functions from ordinary column names", {

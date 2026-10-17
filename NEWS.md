@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_point()` retains missing character shapes during white-border
+  normalization instead of failing before ggplot2 handles missing points.
+
 * `fmt_point()` samples indices before slicing matrix-column data, avoiding
   full-data group copies while retaining native binding and matrix attributes.
 

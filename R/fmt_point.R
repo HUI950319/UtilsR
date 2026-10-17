@@ -458,7 +458,7 @@ fmt_point <- function(plot,
     "diamond" = 18, "circle" = 19, "bullet" = 20, "circle filled" = 21,
     "square filled" = 22, "diamond filled" = 23, "triangle filled" = 24,
     "triangle down filled" = 25)
-  if (is.character(x) && length(x) && nchar(x[[1L]]) > 1L) {
+  if (is.character(x) && length(x) && !is.na(x[[1L]]) && nchar(x[[1L]]) > 1L) {
     matched <- charmatch(x, names(shape_names))
     if (all(!is.na(matched) & matched > 0L)) x <- unname(shape_names[matched])
   }
