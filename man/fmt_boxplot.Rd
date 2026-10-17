@@ -13,7 +13,8 @@ fmt_boxplot(plot, boxplot.args = list(), inherit.aes = TRUE)
 of arguments passed to
 \code{ggplot2::geom_boxplot}. Defaults include \code{width = 0.3},
 \code{alpha = 0.2}, \code{na.rm = TRUE} and \code{outlier.shape = NA}.
-An explicit \code{outlier.shape}, including \code{NULL}, is retained.
+Defaults apply only to omitted arguments. Explicit values, including
+\code{NULL}, retain native ggplot2 behaviour and validation.
 A supplied \code{mapping} must be created by \code{ggplot2::aes()}.
 Names are matched exactly. Unrecognized arguments follow the native
 validation and warnings of \code{ggplot2::geom_boxplot()}.}

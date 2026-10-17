@@ -704,3 +704,33 @@ test_that("automatic positions distinguish ordinary column names from stage call
   expect_identical(ggplot2::ggplot_build(q)$data,
                    ggplot2::ggplot_build(native)$data)
 })
+
+test_that("explicit NULL controls retain native boxplot behaviour", {
+  d <- data.frame(x = rep(c("a", "b"), each = 10), y = 1:20)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  native_empty <- function(expr) {
+    withCallingHandlers(expr, warning = function(w) {
+      if (grepl("Ignoring empty aesthetic", conditionMessage(w), fixed = TRUE)) {
+        invokeRestart("muffleWarning")
+      }
+    })
+  }
+  for (args in list(list(width = NULL), list(alpha = NULL),
+                    list(width = NULL, alpha = NULL))) {
+    original <- args
+    native_args <- list(width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
+    native_args[names(args)] <- args
+    q <- native_empty(fmt_boxplot(p, args))
+    native <- native_empty(p + rlang::exec(ggplot2::geom_boxplot, !!!native_args))
+    expect_identical(native_empty(ggplot2::ggplot_build(q))$data,
+                     native_empty(ggplot2::ggplot_build(native))$data)
+    expect_identical(args, original)
+  }
+  q <- fmt_boxplot(p, list(na.rm = NULL))
+  native <- p + ggplot2::geom_boxplot(width = 0.3, alpha = 0.2,
+                                     na.rm = NULL, outlier.shape = NA)
+  expect_identical(q$layers[[2L]]$geom_params$na.rm,
+                   native$layers[[2L]]$geom_params$na.rm)
+  expect_identical(ggplot2::ggplot_build(q)$data,
+                   ggplot2::ggplot_build(native)$data)
+})

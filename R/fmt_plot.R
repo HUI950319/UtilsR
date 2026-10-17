@@ -5123,7 +5123,8 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 #'   of arguments passed to
 #'   \code{ggplot2::geom_boxplot}. Defaults include \code{width = 0.3},
 #'   \code{alpha = 0.2}, \code{na.rm = TRUE} and \code{outlier.shape = NA}.
-#'   An explicit \code{outlier.shape}, including \code{NULL}, is retained.
+#'   Defaults apply only to omitted arguments. Explicit values, including
+#'   \code{NULL}, retain native ggplot2 behaviour and validation.
 #'   A supplied \code{mapping} must be created by \code{ggplot2::aes()}.
 #'   Names are matched exactly. Unrecognized arguments follow the native
 #'   validation and warnings of \code{ggplot2::geom_boxplot()}.
@@ -5195,7 +5196,7 @@ fmt_boxplot <- function(plot,
   # Set sensible defaults
   defaults <- list(width = 0.3, alpha = 0.2, na.rm = TRUE)
   for (nm in names(defaults)) {
-    if (is.null(boxplot.args[[nm]])) boxplot.args[[nm]] <- defaults[[nm]]
+    if (!(nm %in% arg_names)) boxplot.args[[nm]] <- defaults[[nm]]
   }
   if (!("outlier.shape" %in% names(boxplot.args))) boxplot.args$outlier.shape <- NA
   boxplot.args$inherit.aes <- inherit.aes
