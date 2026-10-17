@@ -5143,6 +5143,9 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 #'   The first source with a position mapping is used, including single-axis
 #'   sources; later two-axis layers do not take priority. Only x and y
 #'   mappings are copied automatically; other mappings must be supplied explicitly.
+#'   Automatic positions omit computed-statistic and after-scale mappings.
+#'   Staged source mappings use their raw-data expression; explicit boxplot
+#'   mappings retain all evaluation stages.
 #'   Explicit \code{x = NULL} or \code{y = NULL} mappings remain cleared.
 #'   Scalar fixed x or y positions in source layers are also supplied as constant
 #'   mappings before computing statistics. Explicit boxplot position arguments
@@ -5197,6 +5200,15 @@ fmt_boxplot <- function(plot,
   if (!("outlier.shape" %in% names(boxplot.args))) boxplot.args$outlier.shape <- NA
   boxplot.args$inherit.aes <- inherit.aes
 
+  is_late <- function(expr) {
+    if (rlang::is_missing(expr)) return(FALSE)
+    if (is.symbol(expr)) return(grepl("^\\.\\..+\\.\\.$", as.character(expr)))
+    if (!is.call(expr)) return(FALSE)
+    if (rlang::call_name(expr) %in%
+        c("after_stat", "stat", "after_scale", "stage", "from_theme")) return(TRUE)
+    any(vapply(as.list(expr)[-1L], is_late, logical(1)))
+  }
+
   fmt_boxplot_one <- function(p) {
     if (!inherits(p, "ggplot")) {
       cli::cli_abort("Input must be a ggplot, patchwork, or list of ggplots.")
@@ -5240,7 +5252,16 @@ fmt_boxplot <- function(plot,
         mapping <- args[["mapping"]] %||% ggplot2::aes()
         if (!keep_mapping) {
           for (axis in c("x", "y")) {
-            if (!(axis %in% names(mapping))) mapping[[axis]] <- pm[[axis]]
+            if (axis %in% names(mapping)) next
+            candidate <- pm[[axis]]
+            expr <- rlang::get_expr(candidate)
+            if (is.call(expr) && identical(rlang::call_name(expr), "stage")) {
+              expr <- match.call(ggplot2::stage, expr)[["start"]]
+              candidate <- if (is.null(expr)) NULL else {
+                rlang::new_quosure(expr, rlang::get_env(candidate, default = baseenv()))
+              }
+            }
+            if (!is_late(expr)) mapping[[axis]] <- candidate
           }
         }
         if (keep_mapping || !is.null(mapping[["x"]]) || !is.null(mapping[["y"]])) {

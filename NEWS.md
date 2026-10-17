@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_boxplot()` copies raw positions from staged source mappings while
+  omitting computed-statistic and after-scale positions in independent overlays.
+  Explicit boxplot mappings keep their evaluation stages and environments.
+
 * `fmt_point()` retains missing character shapes during white-border
   normalization instead of failing before ggplot2 handles missing points.
 

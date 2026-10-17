@@ -646,3 +646,61 @@ test_that("scalar fixed positions override source mappings without copying vecto
   expect_identical(ggplot2::ggplot_build(q)$data,
                    ggplot2::ggplot_build(native)$data)
 })
+
+test_that("automatic boxplots use raw positions instead of computed source mappings", {
+  d <- data.frame(value = 1:20)
+  mappings <- list(ggplot2::aes(value, ggplot2::after_stat(density)),
+                   ggplot2::aes(value, 2 * ggplot2::after_stat(density)))
+  for (mapping in mappings) {
+    p <- ggplot2::ggplot() +
+      ggplot2::geom_histogram(data = d, mapping = mapping, bins = 5)
+    q <- fmt_boxplot(p, list(orientation = "y"), inherit.aes = FALSE)
+    native <- p + ggplot2::geom_boxplot(data = d, ggplot2::aes(x = value),
+      inherit.aes = FALSE, orientation = "y", width = 0.3, alpha = 0.2,
+      na.rm = TRUE, outlier.shape = NA)
+    expect_identical(ggplot2::ggplot_build(q)$data,
+                     ggplot2::ggplot_build(native)$data)
+    expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+  }
+  p <- ggplot2::ggplot(d, ggplot2::aes(value, ggplot2::after_stat(density))) +
+    ggplot2::geom_density()
+  q <- fmt_boxplot(p, list(orientation = "y"), inherit.aes = FALSE)
+  native <- p + ggplot2::geom_boxplot(data = d, ggplot2::aes(x = value),
+    inherit.aes = FALSE, orientation = "y", width = 0.3, alpha = 0.2,
+    na.rm = TRUE, outlier.shape = NA)
+  expect_identical(ggplot2::ggplot_build(q)$data,
+                   ggplot2::ggplot_build(native)$data)
+})
+
+test_that("automatic staged positions keep their raw expression and environment", {
+  d <- data.frame(value = 1:20)
+  shift <- 100
+  p <- ggplot2::ggplot(d) + ggplot2::geom_point(ggplot2::aes(x = 1,
+    y = ggplot2::stage(value + shift, after_scale = y + 10)))
+  q <- fmt_boxplot(p, inherit.aes = FALSE)
+  native <- p + ggplot2::geom_boxplot(data = d, ggplot2::aes(x = 1, y = value + shift),
+    inherit.aes = FALSE, width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
+  expect_no_warning(ggplot2::ggplot_build(q))
+  expect_identical(ggplot2::ggplot_build(q)$data,
+                   ggplot2::ggplot_build(native)$data)
+  expect_identical(rlang::get_expr(p$layers[[1L]]$mapping$y),
+                   quote(ggplot2::stage(value + shift, after_scale = y + 10)))
+})
+
+test_that("automatic positions distinguish ordinary column names from stage calls", {
+  d <- data.frame(stage = rep(c("a", "b"), each = 10), after_stat = 1:20)
+  p <- ggplot2::ggplot(d, ggplot2::aes(stage, after_stat)) + ggplot2::geom_point()
+  q <- fmt_boxplot(p, inherit.aes = FALSE)
+  native <- p + ggplot2::geom_boxplot(data = d, ggplot2::aes(stage, after_stat),
+    inherit.aes = FALSE, width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
+  expect_identical(ggplot2::ggplot_build(q)$data,
+                   ggplot2::ggplot_build(native)$data)
+  mapping <- ggplot2::aes(x = stage,
+    y = ggplot2::stage(after_stat, after_stat = middle))
+  q <- fmt_boxplot(p, list(mapping = mapping), inherit.aes = FALSE)
+  native <- p + ggplot2::geom_boxplot(data = d, mapping = mapping,
+    inherit.aes = FALSE, width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
+  expect_identical(q$layers[[2L]]$mapping, mapping)
+  expect_identical(ggplot2::ggplot_build(q)$data,
+                   ggplot2::ggplot_build(native)$data)
+})
