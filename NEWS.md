@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_boxplot()` retains precomputed outlier mappings for independent
+  identity overlays when outlier shape is explicit, including an explicit NULL.
+  Default suppression and explicit `outliers = FALSE` remain unchanged.
+
 * `fmt_boxplot()` snapshots inherited position settings as well as local
   settings, so edits to a supplied position or its parent do not alter overlays.
 

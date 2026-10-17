@@ -1028,3 +1028,32 @@ test_that("inherited position settings are snapshots for each boxplot layer", {
   expect_identical(parent$padding, 0.1)
   expect_s3_class(ggplot2::ggplotGrob(q$second), "gtable")
 })
+
+test_that("identity overlays retain outlier mappings when shape is explicit", {
+  d <- data.frame(label = c("a", "b"), low = c(1, 11), q1 = c(3, 13),
+    mid = c(5.5, 15.5), q3 = c(8, 18), high = c(10, 20))
+  d$outside <- list(c(-10, 50), c(0, 35))
+  mappings <- list(
+    ggplot2::aes(x = label, ymin = low, lower = q1, middle = mid,
+      upper = q3, ymax = high, outliers = outside),
+    ggplot2::aes(y = label, xmin = low, xlower = q1, xmiddle = mid,
+      xupper = q3, xmax = high, outliers = outside))
+  for (mapping in mappings) {
+    p <- ggplot2::ggplot(d, mapping) +
+      ggplot2::geom_boxplot(stat = "identity", outlier.shape = NA)
+    expect_no_warning(fmt_boxplot(p, list(stat = "identity"), inherit.aes = FALSE))
+    for (shape in list(8, NULL)) {
+      expect_warning(q <- fmt_boxplot(p, list(stat = "identity", outlier.shape = shape),
+        inherit.aes = FALSE), "Ignoring unknown aesthetics:.*outliers")
+      expect_warning(native <- p + ggplot2::geom_boxplot(data = d, mapping = mapping,
+        stat = "identity", outlier.shape = shape, inherit.aes = FALSE,
+        width = 0.3, alpha = 0.2, na.rm = TRUE), "Ignoring unknown aesthetics:.*outliers")
+      expect_identical(ggplot2::ggplot_build(q)$data,
+                       ggplot2::ggplot_build(native)$data)
+      expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+    }
+    expect_no_warning(q <- fmt_boxplot(p,
+      list(stat = "identity", outlier.shape = 8, outliers = FALSE), inherit.aes = FALSE))
+    expect_null(q$layers[[2L]]$mapping$outliers)
+  }
+})

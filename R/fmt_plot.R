@@ -5178,6 +5178,8 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 #'   horizontal summary mappings is used, including its group mapping when present.
 #'   Notch boundaries and relative widths are also copied when
 #'   \code{notch = TRUE} and \code{varwidth = TRUE}, respectively.
+#'   Source outlier mappings are copied when \code{outlier.shape} is supplied
+#'   explicitly, unless \code{outliers = FALSE} disables them.
 #'   An unresolved source raises an error without restoring aesthetic inheritance.
 #'   Data functions and formulas are evaluated only during normal plot building.
 #'   Nested patchworks are traversed recursively while preserving layouts,
@@ -5235,6 +5237,9 @@ fmt_boxplot <- function(plot,
       positions <- c(positions, "notchlower", "notchupper")
     }
     if (isTRUE(boxplot.args[["varwidth"]])) positions <- c(positions, "relvarwidth")
+    if ("outlier.shape" %in% arg_names && !identical(boxplot.args[["outliers"]], FALSE)) {
+      positions <- c(positions, "outliers")
+    }
   }
 
   is_late <- function(expr) {
