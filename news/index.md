@@ -62,6 +62,12 @@
   environments.
 
 - [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
+  constructs point, beeswarm and rasterized layers in isolated
+  environments, so extracted plot leaves do not retain unrelated input
+  plots. Layer constructor calls keep symbolic arguments instead of
+  embedding data.
+
+- [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
   retains missing character shapes during white-border normalization
   instead of failing before ggplot2 handles missing points.
 
