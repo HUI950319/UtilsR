@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fmt_boxplot()` retains raw source positions when staged mappings are nested
+  inside arithmetic or function calls, preserving their environments and axes.
+
 * `fmt_boxplot()` constructs returned layers in an isolated environment and
   stores symbolic argument calls, avoiding retention of the source-resolution
   workspace and duplicate data in layer constructor calls.

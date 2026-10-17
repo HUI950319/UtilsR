@@ -970,3 +970,35 @@ test_that("independent boxplots store symbolic calls and survive serialization",
                    ggplot2::ggplot_build(q)$data)
   expect_s3_class(ggplot2::ggplotGrob(restored), "gtable")
 })
+
+test_that("automatic positions retain raw stages nested inside expressions", {
+  d <- data.frame(x = rep(c("a", "b"), each = 10), y = 1:20)
+  shift <- 7
+  cases <- list(
+    list(source = ggplot2::aes(x, y = 1 + ggplot2::stage(y)),
+         raw = ggplot2::aes(x, y = 1 + y)),
+    list(source = ggplot2::aes(x, y = log(ggplot2::stage(y + shift, after_scale = y + 10))),
+         raw = ggplot2::aes(x, y = log(y + shift))),
+    list(source = ggplot2::aes(x = 1 + ggplot2::stage(y), y = x),
+         raw = ggplot2::aes(x = 1 + y, y = x)),
+    list(source = ggplot2::aes(x, y = ggplot2::stage(1 + ggplot2::stage(y))),
+         raw = ggplot2::aes(x, y = 1 + y)))
+  for (case in cases) {
+    p <- ggplot2::ggplot(d, case$source) + ggplot2::geom_point()
+    q <- fmt_boxplot(p, inherit.aes = FALSE)
+    native <- p + ggplot2::geom_boxplot(data = d, mapping = case$raw,
+      inherit.aes = FALSE, width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
+    expect_identical(ggplot2::ggplot_build(q)$data,
+                     ggplot2::ggplot_build(native)$data)
+    expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+    expect_identical(p$mapping, case$source)
+  }
+  d$value <- matrix(1:40, nrow = 20)
+  mapping <- ggplot2::aes(x, y = value[, 1])
+  p <- ggplot2::ggplot(d, mapping) + ggplot2::geom_point()
+  q <- fmt_boxplot(p, inherit.aes = FALSE)
+  native <- p + ggplot2::geom_boxplot(data = d, mapping = mapping,
+    inherit.aes = FALSE, width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
+  expect_identical(ggplot2::ggplot_build(q)$data,
+                   ggplot2::ggplot_build(native)$data)
+})

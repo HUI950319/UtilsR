@@ -5159,8 +5159,9 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 #'   sources; later two-axis layers do not take priority. Only x and y
 #'   mappings are copied automatically; other mappings must be supplied explicitly.
 #'   Automatic positions omit computed-statistic and after-scale mappings.
-#'   Staged source mappings use their raw-data expression; explicit boxplot
-#'   mappings retain all evaluation stages.
+#'   Staged source mappings use their raw-data expression, including stages
+#'   nested inside other expressions. Explicit boxplot mappings retain all
+#'   evaluation stages.
 #'   Explicit \code{x = NULL} or \code{y = NULL} mappings remain cleared.
 #'   Scalar fixed x or y positions in source layers are also supplied as constant
 #'   mappings before computing statistics. Explicit boxplot position arguments
@@ -5243,6 +5244,18 @@ fmt_boxplot <- function(plot,
         c("after_stat", "stat", "after_scale", "stage", "from_theme"))) return(TRUE)
     any(vapply(as.list(expr)[-1L], is_late, logical(1)))
   }
+  raw_start <- function(expr) {
+    if (rlang::is_missing(expr)) return(rlang::missing_arg())
+    if (!is.call(expr)) return(expr)
+    if (identical(rlang::call_name(expr), "stage")) {
+      start <- match.call(ggplot2::stage, expr)[["start"]]
+      if (!is.null(start)) return(raw_start(start))
+      return(expr)
+    }
+    parts <- as.list(expr)
+    parts[-1L] <- lapply(parts[-1L], raw_start)
+    as.call(parts)
+  }
 
   fmt_boxplot_one <- function(p) {
     if (!inherits(p, "ggplot")) {
@@ -5288,11 +5301,11 @@ fmt_boxplot <- function(plot,
             if (axis %in% names(mapping)) next
             candidate <- pm[[axis]]
             expr <- rlang::get_expr(candidate)
-            if (is.call(expr) && identical(rlang::call_name(expr), "stage")) {
-              expr <- match.call(ggplot2::stage, expr)[["start"]]
-              candidate <- if (is.null(expr)) NULL else {
-                rlang::new_quosure(expr, rlang::get_env(candidate, default = baseenv()))
-              }
+            raw <- raw_start(expr)
+            if (!identical(raw, expr)) {
+              expr <- raw
+              candidate <- rlang::new_quosure(expr,
+                rlang::get_env(candidate, default = baseenv()))
             }
             if (!is_late(expr)) mapping[[axis]] <- candidate
           }
