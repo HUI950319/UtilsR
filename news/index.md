@@ -67,6 +67,11 @@
   environments.
 
 - [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
+  skips unused factor strata during sampling, avoiding empty per-group
+  work and matrix-column subsets while retaining data factor levels,
+  missing groups, sampling order and column attributes.
+
+- [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
   normalizes `pch` and point/jitter `cex` aliases before applying
   omitted defaults. Explicit shape/size arguments retain priority, and
   beeswarm `cex` keeps its existing layout meaning and argument-list
