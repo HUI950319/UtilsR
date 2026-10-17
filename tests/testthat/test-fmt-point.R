@@ -463,3 +463,28 @@ test_that("explicit positions override automatic point positioning", {
     expect_identical(actual$y, expected$y)
   }
 })
+
+test_that("sampling preserves joint aesthetic and existing facet strata", {
+  d <- expand.grid(g = c("a", "b"), h = c("c", "d"), panel = c("u", "v", "w"),
+                    replicate = 1:5)
+  d$x <- seq_len(nrow(d))
+  d$y <- rev(d$x)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, colour = g, fill = h)) +
+    ggplot2::facet_wrap(~ panel)
+  for (data in list(NULL, ~ .x)) {
+    out <- fmt_point(p, sample_n = 2, data = data)
+    built <- ggplot2::ggplot_build(out)$data[[1]]
+    expect_equal(nrow(built), 24L)
+    expect_true(all(table(built$colour, built$fill, built$PANEL) == 2L))
+  }
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, group = g, colour = h)) +
+    ggplot2::facet_grid(rows = ggplot2::vars(panel))
+  sampled <- fmt_point(p, sample_n = 2)$layers[[1]]$data
+  expect_equal(as.integer(table(sampled$g, sampled$panel)), rep(2L, 6))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::facet_wrap(~ panel)
+  sampled <- fmt_point(p, sample_n = 2)$layers[[1]]$data
+  expect_equal(as.integer(table(sampled$panel)), rep(2L, 3))
+  layer_data <- d[c("x", "y")]
+  out <- fmt_point(p, data = layer_data, sample_n = 2)
+  expect_equal(nrow(ggplot2::ggplot_build(out)$data[[1]]), 6L)
+})

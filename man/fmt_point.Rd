@@ -61,7 +61,8 @@ arguments in \code{...}; use \code{dodge.width} to control dodging.}
 
 \item{sample_n}{Non-negative integer or \code{NULL}. When set, subsample data
 before plotting to reduce overplotting. An explicit \code{group} mapping
-takes priority over discrete color/fill mappings, including expressions.
+takes priority; otherwise discrete color/fill mappings form joint strata,
+including expressions. Existing facet variables add separate strata.
 Sampling takes at most \code{sample_n} points \strong{per group}; missing
 group values form a separate group. Continuous color/fill mappings do not
 define sampling groups. Sampling requires scalar fixed aesthetics; put

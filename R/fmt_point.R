@@ -51,7 +51,8 @@
 #'   arguments in \code{...}; use \code{dodge.width} to control dodging.
 #' @param sample_n Non-negative integer or \code{NULL}. When set, subsample data
 #'   before plotting to reduce overplotting. An explicit \code{group} mapping
-#'   takes priority over discrete color/fill mappings, including expressions.
+#'   takes priority; otherwise discrete color/fill mappings form joint strata,
+#'   including expressions. Existing facet variables add separate strata.
 #'   Sampling takes at most \code{sample_n} points \strong{per group}; missing
 #'   group values form a separate group. Continuous color/fill mappings do not
 #'   define sampling groups. Sampling requires scalar fixed aesthetics; put
@@ -205,15 +206,18 @@ fmt_point <- function(plot,
     # --- Subsample data ---
     if (!is.null(sample_n)) {
       fixed <- params[intersect(names(params), ggplot2::GeomPoint$aesthetics())]
+      facet_params <- p$facet$params
+      facets <- c(facet_params[["facets"]], facet_params[["rows"]], facet_params[["cols"]])
       if (is.function(data) || rlang::is_formula(data)) {
-        sampled_data <- function(d) .fmt_point_sample(data_fun(d), mapping, sample_n, seed, fixed)
+        sampled_data <- function(d) .fmt_point_sample(data_fun(d), mapping, sample_n, seed, fixed, facets)
         environment(sampled_data) <- list2env(list(
           .fmt_point_sample = .fmt_point_sample, data_fun = rlang::as_function(data),
-          mapping = layer_mapping, sample_n = sample_n, seed = seed, fixed = fixed
+          mapping = layer_mapping, sample_n = sample_n, seed = seed, fixed = fixed,
+          facets = facets
         ), parent = baseenv())
         data <- sampled_data
       } else {
-        data <- .fmt_point_sample(data %||% p$data, layer_mapping, sample_n, seed, fixed)
+        data <- .fmt_point_sample(data %||% p$data, layer_mapping, sample_n, seed, fixed, facets)
       }
     }
 
@@ -342,7 +346,7 @@ fmt_point <- function(plot,
 
 # --- Internal helper ---
 
-.fmt_point_sample <- function(data, mapping, sample_n, seed, fixed = list()) {
+.fmt_point_sample <- function(data, mapping, sample_n, seed, fixed = list(), facets = list()) {
   if (!is.data.frame(data)) {
     cli::cli_abort("Sampling requires {.arg data} to resolve to a data frame.")
   }
@@ -386,7 +390,7 @@ fmt_point <- function(plot,
     }
     is.atomic(value) && length(value) > 1L && length(value) == nrow(data)
   }
-  for (aesthetic in mapping) {
+  for (aesthetic in c(mapping, facets)) {
     expr <- .fmt_point_stage_args(aesthetic)$start
     if (is.null(expr) || is_late(expr)) next
     if (external_vector(expr, rlang::get_env(aesthetic, default = baseenv())))
@@ -409,12 +413,22 @@ fmt_point <- function(plot,
       if (!length(values) %in% c(1L, nrow(data))) {
         cli::cli_abort("Sampling {.arg {aes_name}} must have length 1 or nrow(data).")
       }
-      group_values <- rep_len(values, nrow(data))
-      break
+      group_values <- c(group_values, list(rep_len(values, nrow(data))))
+      if (aes_name == "group") break
     }
   }
+  for (facet in facets) {
+    # Absent facet variables replicate the layer; ggplot2 diagnoses invalid facets.
+    values <- tryCatch(rlang::eval_tidy(facet, data = data), error = function(e) NULL)
+    if (is.null(values)) next
+    if (!length(values) %in% c(1L, nrow(data)))
+      cli::cli_abort("Sampling facet values must have length 1 or nrow(data).")
+    group_values <- c(group_values, list(rep_len(values, nrow(data))))
+  }
   if (!is.null(group_values)) {
-    groups <- addNA(as.factor(group_values), ifany = TRUE)
+    strata <- lapply(group_values, function(x) addNA(as.factor(x), ifany = TRUE))
+    groups <- if (length(strata) == 1L) strata[[1L]] else
+      factor(do.call(paste, c(lapply(strata, as.integer), sep = ":")))
     # Matrix columns retain rbind's existing class/dimname semantics.
     if (any(vapply(data, is.matrix, logical(1)))) {
       data <- do.call(rbind, lapply(split(data, groups), function(grp) {
