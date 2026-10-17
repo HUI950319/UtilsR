@@ -70,9 +70,10 @@
 #'   \code{"ragg"} backend returns a patchwork-wrapped gtable with a
 #'   \code{size} attribute: a list with \code{width}, \code{height}, and
 #'   \code{units} describing the complete fixed plot dimensions. The
-#'   \code{"image"} backend returns a patchwork-wrapped \code{rasterGrob} with
-#'   the same \code{size} attribute for the rendered image. For list
-#'   inputs, returns a corresponding list and preserves its names.
+#'   \code{"image"} backend returns a patchwork-wrapped \code{rasterGrob}
+#'   without plot margins, with the same \code{size} attribute for the
+#'   rendered image. For list inputs, returns a corresponding list and
+#'   preserves its names.
 #'
 #' @details
 #' The \code{"ragg"} backend renders geometry immediately. Apply data,
@@ -88,12 +89,15 @@
 #' \subsection{How \code{"ragg"} preserves text}{
 #' The function inspects each grob child inside a panel. Children whose own
 #' name or class identifies text/labels, or whose descendants contain text,
-#' are kept as vectors. Mixed text/geometry trees are retained together to
-#' preserve their internal layout. A viewport alone does not prevent
-#' rasterization. Other children (points, lines, polygons, raster, etc.) are
-#' captured in contiguous runs and inserted as
-#' \code{rasterGrob} objects. Vector text and rasterized geometry retain their
-#' original draw order, including text covered by a later geometric layer.
+#' are kept as vectors, as are the panel's background grid and border. Mixed
+#' text/geometry trees are retained together to preserve their internal
+#' layout. A viewport alone does not prevent rasterization. Empty grobs are
+#' dropped. Other children (points, lines, polygons, raster, etc.) are
+#' captured in contiguous runs and inserted as \code{rasterGrob} objects,
+#' each after an empty opaque polygon so that \code{pdf()} does not draw it
+#' with the transparency of the grob before it. Vector text and rasterized
+#' geometry retain their original draw order, including text covered by a
+#' later geometric layer.
 #' }
 #'
 #' @seealso [grob_as()], [ggrastr::rasterise()]
@@ -230,9 +234,9 @@ fmt_raster <- function(
     grDevices::dev.size("in")
   }
   # Measure on a private device to preserve the caller's viewport.
-  ragg::agg_capture(width = ceiling(device_size[1] * 72),
-                     height = ceiling(device_size[2] * 72), units = "px",
-                     res = 72, background = "transparent")
+  .agg_capture(width = ceiling(device_size[1] * 72),
+               height = ceiling(device_size[2] * 72), units = "px",
+               res = 72, background = "transparent")
   measurement_device <- grDevices::dev.cur()
   on.exit({
     if (measurement_device %in% grDevices::dev.list()) {
@@ -412,8 +416,8 @@ fmt_raster <- function(
     if (is.null(height)) height <- device_size[2] * per_inch
   }
 
-  capture <- ragg::agg_capture(width = width, height = height, units = units,
-                               res = dpi, background = bg)
+  capture <- .agg_capture(width = width, height = height, units = units,
+                          res = dpi, background = bg)
   capture_device <- grDevices::dev.cur()
   on.exit({
     if (capture_device %in% grDevices::dev.list()) {
@@ -426,7 +430,9 @@ fmt_raster <- function(
   if (inherits(plot, "grob")) grid::grid.draw(plot) else print(plot)
   image <- capture(native = TRUE)
 
-  p <- patchwork::wrap_plots(grid::rasterGrob(image, interpolate = TRUE))
+  # No margins: shown at its own size, the image is drawn pixel for pixel.
+  p <- patchwork::wrap_plots(.opaque_raster(image, interpolate = TRUE)) &
+    ggplot2::theme(plot.margin = ggplot2::margin())
   attr(p, "size") <- list(width = width, height = height, units = units)
   p
 }
@@ -469,7 +475,9 @@ fmt_raster <- function(
 #' @noRd
 .rasterize_panel_grob <- function(g, w, h, dpi, units, bg) {
   ordered <- match(g$childrenOrder, names(g$children))
-  ordered <- ordered[!vapply(g$children[ordered], inherits, logical(1), "zeroGrob")]
+  # Empty grobs draw nothing: they neither become nor split a raster run.
+  ordered <- ordered[!vapply(g$children[ordered], inherits, logical(1),
+                             c("zeroGrob", "null"))]
   output <- list()
   # A panel background belongs below every run, including vector text.
   if (!is.na(bg) && bg != "transparent") {
@@ -485,8 +493,8 @@ fmt_raster <- function(
     g_geom$childrenOrder <- names(g_geom$children)
     if (is.null(g_geom$vp)) g_geom$vp <- grid::viewport()
     previous_device <- grDevices::dev.cur()
-    capture <- ragg::agg_capture(width = w, height = h, background = "transparent",
-                                  res = dpi, units = units)
+    capture <- .agg_capture(width = w, height = h, background = "transparent",
+                            res = dpi, units = units)
     raster_device <- grDevices::dev.cur()
     on.exit({
       if (raster_device %in% grDevices::dev.list()) grDevices::dev.off(raster_device)
@@ -495,14 +503,16 @@ fmt_raster <- function(
     grid::grid.draw(g_geom)
     pixels <- capture(native = TRUE)
     grDevices::dev.off(raster_device)
-    grid::rasterGrob(pixels)
+    .opaque_raster(pixels)
   }
 
-  # Capture contiguous geometry runs without moving them across vector text.
+  # Capture contiguous geometry runs without moving them across vector text;
+  # the background grid and the border stay vector too.
   pending <- integer()
   for (j in ordered) {
     child <- g$children[[j]]
-    if (.is_text_grob(child, names(g$children)[j])) {
+    name <- names(g$children)[j]
+    if (grepl("^(grill|panel\\.border)", name) || .is_text_grob(child, name)) {
       if (length(pending)) {
         output <- c(output, list(capture_run(pending)))
         pending <- integer()
@@ -515,6 +525,35 @@ fmt_raster <- function(
   if (length(pending)) output <- c(output, list(capture_run(pending)))
   g <- grid::setChildren(g, do.call(grid::gList, output))
   g
+}
+
+
+# --- Raster that pdf() draws opaque ---
+#' @noRd
+.opaque_raster <- function(image, ...) {
+  # pdf() paints a raster with the fill alpha of the grob drawn before it
+  # (VPetukhov/ggrastr#39); an empty opaque polygon resets that alpha first.
+  grid::grobTree(
+    grid::polygonGrob(c(0, 0, 0), c(0, 0, 0),
+                      gp = grid::gpar(fill = "white", col = NA)),
+    grid::rasterGrob(image, ...)
+  )
+}
+
+
+# --- In-memory ragg device that leaves the random stream alone ---
+#' @noRd
+.agg_capture <- function(...) {
+  # ragg before 1.5.1 names the device with sample() (r-lib/ragg#211).
+  seed <- get0(".Random.seed", envir = globalenv(), inherits = FALSE)
+  on.exit(if (is.null(seed)) {
+    if (exists(".Random.seed", envir = globalenv(), inherits = FALSE)) {
+      rm(".Random.seed", envir = globalenv())
+    }
+  } else {
+    assign(".Random.seed", seed, envir = globalenv())
+  })
+  ragg::agg_capture(...)
 }
 
 

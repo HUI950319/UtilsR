@@ -359,3 +359,96 @@ test_that("ragg rejects positive panel dimensions smaller than one pixel", {
   expect_error(fmt_raster(p, method = "ragg", dpi = 72, width = 0.1,
                           height = 10, units = "mm"), "at least one pixel")
 })
+
+test_that("ragg and image leave the random stream where it was", {
+  skip_if_not_installed("ragg")
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  # ragg before 1.5.1 named each capture device with sample() (r-lib/ragg#211).
+  capture <- ragg::agg_capture
+  local_mocked_bindings(agg_capture = function(...) {
+    sample.int(10L, 1L)
+    capture(...)
+  }, .package = "ragg")
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3), ggplot2::aes(x, y)) +
+    ggplot2::geom_point()
+  set.seed(1)
+  expected <- stats::runif(1)
+  for (method in c("ragg", "image")) {
+    set.seed(1)
+    fmt_raster(p, method = method, dpi = 10, width = 1, height = 1)
+    expect_identical(stats::runif(1), expected)
+  }
+})
+
+test_that("pdf() draws rasters opaque after translucent vector grobs", {
+  skip_if_not_installed("ragg")
+  skip_if_not_installed("png")
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  data <- data.frame(x = c(1, 3), y = 1)
+  p <- ggplot2::ggplot(mapping = ggplot2::aes(x, y)) +
+    ggplot2::geom_point(data = data[1, ], colour = "blue", size = 20) +
+    ggplot2::annotate("text", x = 2, y = 1, label = "TEXT", alpha = 0.3, size = 10) +
+    ggplot2::geom_point(data = data[2, ], colour = "blue", size = 20) +
+    ggplot2::scale_x_continuous(limits = c(0, 4), expand = c(0, 0)) +
+    ggplot2::theme_void()
+  result <- fmt_raster(p, method = "ragg", dpi = 72, width = 4, height = 2)
+  # Each raster comes after an opaque grob that resets pdf()'s fill alpha.
+  holders <- Filter(function(g) {
+    any(vapply(g$children, inherits, logical(1), "rastergrob"))
+  }, raster_find_grobs(attr(result, "grobs")$full, "gTree"))
+  expect_length(holders, 2L)
+  for (g in holders) {
+    expect_false(inherits(g$children[[1]], "rastergrob"))
+    expect_equal(grDevices::col2rgb(g$children[[1]]$gp$fill, alpha = TRUE)[4], 255)
+  }
+
+  skip_if(!nzchar(Sys.which("pdftoppm")), "pdftoppm is not available")
+  file <- tempfile(fileext = ".pdf")
+  stub <- tempfile()
+  on.exit(unlink(c(file, paste0(stub, ".png"))), add = TRUE)
+  size <- attr(result, "size")
+  grDevices::pdf(file, width = size$width, height = size$height)
+  print(result)
+  grDevices::dev.off()
+  system2("pdftoppm", c("-r", "72", "-png", "-singlefile", file, stub))
+  image <- png::readPNG(paste0(stub, ".png"))
+  # The point drawn after the translucent text is as pure a blue as the first.
+  blue <- image[, , 1] < 0.1 & image[, , 2] < 0.1 & image[, , 3] > 0.9
+  left <- seq_len(ncol(blue) %/% 2)
+  expect_gt(sum(blue[, left]), 100)
+  expect_gt(sum(blue[, -left]), 0.9 * sum(blue[, left]))
+})
+
+test_that("ragg keeps the panel grid and border vector and drops empty grobs", {
+  skip_if_not_installed("ragg")
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg)) + ggplot2::geom_point() +
+    ggplot2::annotate("text", x = 3, y = 30, label = "a") + ggplot2::geom_blank() +
+    ggplot2::annotate("text", x = 4, y = 30, label = "b") + ggplot2::theme_bw()
+  result <- fmt_raster(p, method = "ragg", dpi = 72, width = 2, height = 2)
+  gt <- attr(result, "grobs")$full
+  panel <- gt$grobs[[which(gt$layout$name == "panel")]]
+  expect_length(raster_find_grobs(panel, "rastergrob"), 1L)
+  expect_true(any(startsWith(names(panel$children), "grill")))
+  expect_true(any(startsWith(names(panel$children), "panel.border")))
+  expect_gt(length(raster_find_grobs(panel, "polyline")), 0L)
+  expect_false(any(vapply(panel$children, inherits, logical(1), "null")))
+})
+
+test_that("image fills its own size without patchwork margins", {
+  skip_if_not_installed("ragg")
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3), ggplot2::aes(x, y)) +
+    ggplot2::geom_point() +
+    ggplot2::theme(plot.background = ggplot2::element_rect(fill = "red", colour = NA))
+  result <- fmt_raster(p, method = "image", dpi = 50, width = 2, height = 1)
+  capture <- ragg::agg_capture(width = 2, height = 1, units = "in", res = 50,
+                               background = "white")
+  device <- grDevices::dev.cur()
+  on.exit(grDevices::dev.off(device), add = TRUE)
+  print(result)
+  pixels <- capture()
+  expect_identical(pixels[c(1, 50), c(1, 100)], matrix("red", 2, 2))
+})

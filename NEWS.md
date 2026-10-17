@@ -1,5 +1,20 @@
 # UtilsR 0.6.8
 
+* `fmt_raster(method = "ragg")` and `method = "image"` leave the random
+  stream where it was: ragg before 1.5.1 drew from it to name each capture
+  device, so a later random step gave other results than without the raster.
+
+* `fmt_raster(method = "ragg")` and `method = "image"` rasters are drawn
+  opaque by `pdf()`, which painted a raster with the transparency of the
+  translucent grob drawn before it.
+
+* `fmt_raster(method = "ragg")` keeps the panel's background grid and border
+  vector and drops empty grobs, so they no longer add whole-panel images;
+  a 200,000-point facetted plot written with `pdf()` is about 40% smaller.
+
+* `fmt_raster(method = "image")` has no plot margins, so at its own size the
+  image is drawn pixel for pixel instead of shrunk to about 95%.
+
 * `fmt_boxplot()` releases temporary construction bindings after native layer
   creation, avoiding an extra serialized data copy while retaining deferred
   callbacks, formulas, position objects and symbolic constructor calls.

@@ -53,9 +53,10 @@ The \code{"ggrastr"} backend preserves the input type. The
 \code{"ragg"} backend returns a patchwork-wrapped gtable with a
 \code{size} attribute: a list with \code{width}, \code{height}, and
 \code{units} describing the complete fixed plot dimensions. The
-\code{"image"} backend returns a patchwork-wrapped \code{rasterGrob} with
-the same \code{size} attribute for the rendered image. For list
-inputs, returns a corresponding list and preserves its names.
+\code{"image"} backend returns a patchwork-wrapped \code{rasterGrob}
+without plot margins, with the same \code{size} attribute for the
+rendered image. For list inputs, returns a corresponding list and
+preserves its names.
 }
 \description{
 Rasterize geometric layers (points, lines, polygons) in ggplot panels to
@@ -96,12 +97,15 @@ benefit of rasterization.
 \subsection{How \code{"ragg"} preserves text}{
 The function inspects each grob child inside a panel. Children whose own
 name or class identifies text/labels, or whose descendants contain text,
-are kept as vectors. Mixed text/geometry trees are retained together to
-preserve their internal layout. A viewport alone does not prevent
-rasterization. Other children (points, lines, polygons, raster, etc.) are
-captured in contiguous runs and inserted as
-\code{rasterGrob} objects. Vector text and rasterized geometry retain their
-original draw order, including text covered by a later geometric layer.
+are kept as vectors, as are the panel's background grid and border. Mixed
+text/geometry trees are retained together to preserve their internal
+layout. A viewport alone does not prevent rasterization. Empty grobs are
+dropped. Other children (points, lines, polygons, raster, etc.) are
+captured in contiguous runs and inserted as \code{rasterGrob} objects,
+each after an empty opaque polygon so that \code{pdf()} does not draw it
+with the transparency of the grob before it. Vector text and rasterized
+geometry retain their original draw order, including text covered by a
+later geometric layer.
 }
 }
 \examples{
