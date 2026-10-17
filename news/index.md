@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
+  formats plot leaves in one traversal and skips source lookup when
+  independent data and complete mappings are explicit, preserving
+  deferred callbacks, nested layouts and input validation.
+
+- [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
   resolves complete vertical or horizontal summary mappings
   automatically for independent identity-statistic overlays, retaining
   source groups and deferred data callbacks while leaving explicit
