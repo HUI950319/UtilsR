@@ -110,7 +110,9 @@ fmt_point(
   Additional arguments passed to `geom_point` or `geom_beeswarm`. An
   explicit `position` overrides automatic point/jitter positioning.
   Supplied position objects and their inherited settings are copied
-  separately for each plot leaf.
+  separately for each plot leaf. `pch` is an alias for `shape`; for
+  point/jitter layouts, `cex` is an alias for `size`. Explicit `shape`
+  and `size` take precedence.
 
 ## Value
 
