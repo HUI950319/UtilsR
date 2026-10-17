@@ -893,3 +893,44 @@ test_that("identity variable widths retain the source width ratios", {
     expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
   }
 })
+
+test_that("explicit positions are independent of the caller and sibling plots", {
+  d <- data.frame(x = rep(c("a", "b"), each = 10), y = 1:20)
+  position <- ggplot2::position_dodge2(width = 0.8, preserve = "total")
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) +
+    ggplot2::geom_point(position = position)
+  q <- fmt_boxplot(list(first = p, second = p), list(position = position))
+  native <- p + ggplot2::geom_boxplot(
+    position = ggplot2::position_dodge2(width = 0.8, preserve = "total"),
+    width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
+  expect_identical(ggplot2::ggplot_build(q$first)$data,
+                   ggplot2::ggplot_build(native)$data)
+  expect_false(identical(q$first$layers[[2L]]$position, position))
+  expect_false(identical(q$first$layers[[2L]]$position, q$second$layers[[2L]]$position))
+  q$first$layers[[2L]]$position$width <- 0.15
+  q$first$layers[[2L]]$position$preserve <- "single"
+  expect_identical(position$width, 0.8)
+  expect_identical(position$preserve, "total")
+  expect_identical(q$second$layers[[2L]]$position$width, 0.8)
+  expect_identical(q$second$layers[[2L]]$position$preserve, "total")
+  position$width <- 0.9
+  expect_identical(q$second$layers[[2L]]$position$width, 0.8)
+})
+
+test_that("variable widths cannot mutate a position shared with the source layer", {
+  d <- data.frame(x = rep(c("a", "b"), each = 10), y = 1:20)
+  position <- ggplot2::position_dodge2(width = 0.8, preserve = "total")
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) +
+    ggplot2::geom_point(position = position)
+  expect_warning(q <- fmt_boxplot(p, list(position = position, varwidth = TRUE)),
+                  "Can't preserve total widths")
+  expect_identical(position$preserve, "total")
+  expect_identical(p$layers[[1L]]$position$preserve, "total")
+  expect_identical(q$layers[[2L]]$position$preserve, "single")
+  native <- p + ggplot2::geom_boxplot(varwidth = TRUE,
+    position = ggplot2::position_dodge2(width = 0.8, preserve = "single"),
+    width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
+  expect_identical(ggplot2::ggplot_build(q)$data,
+                   ggplot2::ggplot_build(native)$data)
+  expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+})

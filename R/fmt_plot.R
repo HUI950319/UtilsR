@@ -5126,6 +5126,7 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 #'   Defaults apply only to omitted arguments. Explicit values, including
 #'   \code{NULL}, retain native ggplot2 behaviour and validation.
 #'   A supplied \code{mapping} must be created by \code{ggplot2::aes()}.
+#'   Supplied position objects are copied separately for each plot leaf.
 #'   Names are matched exactly. Unrecognized arguments follow the native
 #'   validation and warnings of \code{ggplot2::geom_boxplot()}.
 #' @param inherit.aes A single \code{TRUE} or \code{FALSE}: whether to inherit
@@ -5301,6 +5302,10 @@ fmt_boxplot <- function(plot,
       args$mapping <- resolved$mapping
     } else if (!inherit.aes && is.function(args[["data"]])) {
       args$data <- unclass(args[["data"]])
+    }
+    if (inherits(args[["position"]], "Position")) {
+      args$position <- rlang::exec(ggplot2::ggproto, NULL, args[["position"]],
+        !!!as.list(args[["position"]], inherit = FALSE))
     }
     p + rlang::exec(ggplot2::geom_boxplot, !!!args)
   }

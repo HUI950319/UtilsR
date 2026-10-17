@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_boxplot()` copies explicit position objects and their settings per plot
+  leaf, preventing variable-width adjustment and later edits from changing the
+  caller's position, existing layers or sibling overlays.
+
 * `fmt_boxplot()` retains source notch boundaries and relative width mappings
   for independent identity-statistic overlays when those features are requested,
   including horizontal summaries and layer-level overrides.
