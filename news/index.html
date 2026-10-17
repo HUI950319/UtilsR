@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/fmt_boxplot.html">fmt_boxplot()</a></code> retains precomputed outlier mappings for independent identity overlays when outlier shape is explicit, including an explicit NULL. Default suppression and explicit <code>outliers = FALSE</code> remain unchanged.</p></li>
+<ul><li><p><code><a href="../reference/fmt_boxplot.html">fmt_boxplot()</a></code> combines source mappings with explicit fixed summary arguments when resolving independent identity overlays, including partial summaries and horizontal boxplots.</p></li>
+<li><p><code><a href="../reference/fmt_boxplot.html">fmt_boxplot()</a></code> retains precomputed outlier mappings for independent identity overlays when outlier shape is explicit, including an explicit NULL. Default suppression and explicit <code>outliers = FALSE</code> remain unchanged.</p></li>
 <li><p><code><a href="../reference/fmt_boxplot.html">fmt_boxplot()</a></code> snapshots inherited position settings as well as local settings, so edits to a supplied position or its parent do not alter overlays.</p></li>
 <li><p><code><a href="../reference/fmt_boxplot.html">fmt_boxplot()</a></code> retains raw source positions when staged mappings are nested inside arithmetic or function calls, preserving their environments and axes.</p></li>
 <li><p><code><a href="../reference/fmt_boxplot.html">fmt_boxplot()</a></code> constructs returned layers in an isolated environment and stores symbolic argument calls, avoiding retention of the source-resolution workspace and duplicate data in layer constructor calls.</p></li>

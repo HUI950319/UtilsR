@@ -70,17 +70,18 @@ and mappings when their source order is ambiguous. For
 `stat = "identity"` or
 [`ggplot2::StatIdentity`](https://ggplot2.tidyverse.org/reference/Stat.html),
 an explicit mapping is passed unchanged, without adding raw-data
-position mappings. Without an explicit mapping, the first source with
-complete vertical or horizontal summary mappings is used, including its
-group mapping when present. Notch boundaries and relative widths are
-also copied when `notch = TRUE` and `varwidth = TRUE`, respectively.
-Source outlier mappings are copied when `outlier.shape` is supplied
-explicitly, unless `outliers = FALSE` disables them. An unresolved
-source raises an error without restoring aesthetic inheritance. Data
-functions and formulas are evaluated only during normal plot building.
-Nested patchworks are traversed recursively while preserving layouts,
-annotations and plot-list names. Spacers, guide areas, wrapped grobs and
-inset overlays are skipped.
+position mappings. Without an explicit mapping, the first source whose
+mappings and explicit fixed summary arguments provide a complete
+vertical or horizontal summary is used. Its group mapping is retained
+when present. Notch boundaries and relative widths are also copied when
+`notch = TRUE` and `varwidth = TRUE`, respectively. Source outlier
+mappings are copied when `outlier.shape` is supplied explicitly, unless
+`outliers = FALSE` disables them. An unresolved source raises an error
+without restoring aesthetic inheritance. Data functions and formulas are
+evaluated only during normal plot building. Nested patchworks are
+traversed recursively while preserving layouts, annotations and
+plot-list names. Spacers, guide areas, wrapped grobs and inset overlays
+are skipped.
 
 ## See also
 
