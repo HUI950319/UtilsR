@@ -5202,6 +5202,18 @@ fmt_boxplot <- function(plot,
   }
   if (!("outlier.shape" %in% names(boxplot.args))) boxplot.args$outlier.shape <- NA
   boxplot.args$inherit.aes <- inherit.aes
+  identity_stat <- identical(boxplot.args[["stat"]], "identity") ||
+    inherits(boxplot.args[["stat"]], "StatIdentity")
+  keep_mapping <- identity_stat && !is.null(mapping)
+  resolve_source <- !inherit.aes && (is.null(boxplot.args[["data"]]) ||
+    inherits(boxplot.args[["data"]], "waiver") ||
+    !(keep_mapping || all(c("x", "y") %in% names(mapping)) &&
+      (!is.null(mapping[["x"]]) || !is.null(mapping[["y"]]))))
+  positions <- c("x", "y")
+  if (identity_stat) {
+    positions <- c(positions, "ymin", "lower", "middle", "upper", "ymax",
+                   "xmin", "xlower", "xmiddle", "xupper", "xmax", "group")
+  }
 
   is_late <- function(expr) {
     if (rlang::is_missing(expr)) return(FALSE)
@@ -5217,15 +5229,7 @@ fmt_boxplot <- function(plot,
       cli::cli_abort("Input must be a ggplot, patchwork, or list of ggplots.")
     }
     args <- boxplot.args
-    if (!inherit.aes) {
-      identity_stat <- identical(args[["stat"]], "identity") ||
-        inherits(args[["stat"]], "StatIdentity")
-      keep_mapping <- identity_stat && !is.null(args[["mapping"]])
-      positions <- c("x", "y")
-      if (identity_stat) {
-        positions <- c(positions, "ymin", "lower", "middle", "upper", "ymax",
-                       "xmin", "xlower", "xmiddle", "xupper", "xmax", "group")
-      }
+    if (resolve_source) {
       resolved <- NULL
       layers <- Filter(function(layer) !inherits(layer$geom, c("GeomText", "GeomLabel",
         "GeomSegment", "GeomCurve", "GeomAbline", "GeomHline", "GeomVline")), p$layers)
@@ -5289,12 +5293,12 @@ fmt_boxplot <- function(plot,
       }
       args$data <- resolved$data
       args$mapping <- resolved$mapping
+    } else if (!inherit.aes && is.function(args[["data"]])) {
+      args$data <- unclass(args[["data"]])
     }
     p + rlang::exec(ggplot2::geom_boxplot, !!!args)
   }
 
-  info <- .to_plot_list(plot, recurse = TRUE)
-  info$plots <- lapply(info$plots, fmt_boxplot_one)
-  .from_plot_list(info$plots, info$is_patchwork, info$is_single,
-                  pw_orig = info$pw_orig, recurse = TRUE)
+  if (is.list(plot) && !inherits(plot, "gg")) .to_plot_list(plot)
+  .map_plot_leaves(plot, fmt_boxplot_one)
 }

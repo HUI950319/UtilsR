@@ -797,3 +797,24 @@ test_that("identity lookup retains summary overrides used by source layers", {
   expect_error(fmt_boxplot(raw, list(stat = "identity"), inherit.aes = FALSE),
                "Cannot resolve boxplot data and position mappings")
 })
+
+test_that("complete explicit mappings keep data callbacks and formulas deferred", {
+  d <- data.frame(x = rep(c("a", "b"), each = 10), y = 1:20)
+  external <- data.frame(label = d$x, value = d$y + 100)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  calls <- 0L
+  callback <- function(data) { calls <<- calls + 1L; external }
+  mapping <- ggplot2::aes(label, value)
+  q <- fmt_boxplot(p, list(data = callback, mapping = mapping), inherit.aes = FALSE)
+  expect_identical(calls, 0L)
+  expect_equal(ggplot2::ggplot_build(q)$data[[2L]]$middle, c(105.5, 115.5))
+  expect_identical(calls, 1L)
+  q <- fmt_boxplot(p, list(data = ~ external, mapping = mapping), inherit.aes = FALSE)
+  native <- p + ggplot2::geom_boxplot(data = ~ external, mapping = mapping,
+    inherit.aes = FALSE, width = 0.3, alpha = 0.2, na.rm = TRUE, outlier.shape = NA)
+  expect_identical(ggplot2::ggplot_build(q)$data,
+                   ggplot2::ggplot_build(native)$data)
+  expect_error(fmt_boxplot(p, list(data = external,
+    mapping = ggplot2::aes(x = NULL, y = NULL)), inherit.aes = FALSE),
+    "Cannot resolve boxplot data and position mappings")
+})
