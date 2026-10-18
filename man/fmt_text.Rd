@@ -100,6 +100,11 @@ Set and style plot text elements (title, subtitle, caption, axis titles,
 legend title) in one call. Supports per-plot labels when input is a
 patchwork or list (pass a vector to \code{xlab}, \code{ylab}, etc.).
 }
+\details{
+Text styles are added to each plot's current elements. Rich text
+  elements, such as \code{ggtext::element_markdown()} set in the plot or
+  global theme, keep their class and other settings.
+}
 \examples{
 library(ggplot2)
 p <- ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) + geom_point()

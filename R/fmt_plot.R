@@ -2765,6 +2765,10 @@ fmt_panel <- function(plot,
 #'   leaves the layout setting unchanged. Ignored for a single ggplot or list.
 #' @param ... Additional arguments passed to [ggplot2::labs()].
 #'
+#' @details Text styles are added to each plot's current elements. Rich text
+#'   elements, such as \code{ggtext::element_markdown()} set in the plot or
+#'   global theme, keep their class and other settings.
+#'
 #' @return Same type as input.
 #'
 #' @examples
@@ -2821,31 +2825,33 @@ fmt_text <- function(plot,
   caption_vec  <- vec_or_null(caption)
   legend_vec   <- vec_or_null(legend_title)
 
-  # ---- Build text style theme ----
-  .build_element <- function(size, face, color, hjust = NULL) {
-    args <- list()
-    if (!is.null(size))  args$size   <- size
-    if (!is.null(face))  args$face   <- face
-    if (!is.null(color)) args$colour <- color
-    if (!is.null(hjust)) args$hjust  <- hjust
-    if (length(args) == 0L) return(NULL)
-    do.call(ggplot2::element_text, args)
+  # ---- Build text style fields ----
+  style_fields <- function(size, face, color, hjust = NULL) {
+    fields <- list(size = size, face = face, colour = color, hjust = hjust)
+    fields[!vapply(fields, is.null, logical(1))]
   }
-
-  theme_args <- list()
-  el <- .build_element(title_size, title_face, title_color, title_hjust)
-  if (!is.null(el)) theme_args$plot.title <- el
-  el <- .build_element(subtitle_size, subtitle_face, subtitle_color)
-  if (!is.null(el)) theme_args$plot.subtitle <- el
-  el <- .build_element(caption_size, caption_face, caption_color)
-  if (!is.null(el)) theme_args$plot.caption <- el
-  el <- .build_element(axis_title_size, axis_title_face, axis_title_color)
-  if (!is.null(el)) theme_args$axis.title <- el
-
-  style_theme <- if (length(theme_args) > 0L) {
-    do.call(ggplot2::theme, theme_args)
-  } else {
-    NULL
+  styles <- list(
+    plot.title    = style_fields(title_size, title_face, title_color, title_hjust),
+    plot.subtitle = style_fields(subtitle_size, subtitle_face, subtitle_color),
+    plot.caption  = style_fields(caption_size, caption_face, caption_color),
+    axis.title    = style_fields(axis_title_size, axis_title_face, axis_title_color)
+  )
+  styles <- styles[lengths(styles) > 0L]
+  # A rich text element (e.g. ggtext::element_markdown()) cannot be merged with
+  # a plain element_text(), so it is styled in place to keep its class.
+  plain_class <- class(ggplot2::element_text())
+  global_theme <- ggplot2::theme_get()
+  style_theme_for <- function(p) {
+    theme <- global_theme + p$theme
+    args <- lapply(names(styles), function(name) {
+      element <- theme[[name]]
+      if (!inherits(element, "element_text") || identical(class(element), plain_class)) {
+        return(do.call(ggplot2::element_text, styles[[name]]))
+      }
+      for (field in names(styles[[name]])) element[[field]] <- styles[[name]][[field]]
+      element
+    })
+    do.call(ggplot2::theme, stats::setNames(args, names(styles)))
   }
 
   # ---- Extra labs via ... ----
@@ -2867,7 +2873,7 @@ fmt_text <- function(plot,
     if (!is.null(caption_vec[[i]]))  labs_i$caption  <- caption_vec[[i]]
     if (length(labs_i) > 0L) p <- p + do.call(ggplot2::labs, labs_i)
     if (!is.null(extra_layer))  p <- p + extra_layer
-    if (!is.null(style_theme))  p <- p + style_theme
+    if (length(styles))         p <- p + style_theme_for(p)
     legend_i <- legend_vec[[i]]
     if (is.character(legend_i) && identical(legend_i, "")) {
       p <- p + ggplot2::theme(legend.title = ggplot2::element_blank())

@@ -100,3 +100,26 @@ test_that("fmt_text() legend_title keeps guide types and settings", {
   expect_s3_class(per_plot[[1]]$theme$legend.title, "element_blank")
   expect_identical(built_guides(per_plot[[2]])$params[[1]]$title, "Second")
 })
+
+test_that("fmt_text() styles rich text elements in place", {
+  skip_if_not_installed("ggtext")
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  d <- data.frame(x = 1:3, y = c(2, 1, 3))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    ggplot2::labs(title = "**Bold** title")
+
+  rich <- p + ggplot2::theme(plot.title = ggtext::element_markdown(colour = "red"))
+  out <- fmt_text(rich, title_size = 20)
+  expect_s3_class(out$theme$plot.title, "element_markdown")
+  expect_identical(out$theme$plot.title$size, 20)
+  expect_identical(out$theme$plot.title$colour, "red")
+  expect_no_error(ggplot2::ggplotGrob(out))
+
+  old <- ggplot2::theme_set(ggplot2::theme_grey() +
+                              ggplot2::theme(axis.title = ggtext::element_markdown()))
+  on.exit(ggplot2::theme_set(old), add = TRUE)
+  out <- fmt_text(p, axis_title_size = 14)
+  expect_s3_class(out$theme$axis.title, "element_markdown")
+  expect_no_error(ggplot2::ggplotGrob(out))
+})

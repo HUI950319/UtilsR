@@ -10,6 +10,11 @@
   as `c(2, 2)`. The help also points to `patchwork::plot_layout(axes =
   "collect")`, which removes only identical axes.
 
+* `fmt_text()` styles rich text elements in place: a title or axis title set
+  with `ggtext::element_markdown()` in the plot or global theme keeps its class
+  and settings, where styling it failed with "Only elements of the same class
+  can be merged".
+
 * `fmt_text(legend_title = )` titles legends as `fmt_legend(title = )` does.
   A continuous colour bar stays a colour bar instead of becoming a key
   legend, guide settings such as `ncol` and `reverse` are kept, linewidth
