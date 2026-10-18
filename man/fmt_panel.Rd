@@ -80,14 +80,18 @@ including blank parent grids unless an available style explicitly disables
 blank inheritance.
 Grid lines still require corresponding scale breaks.
 
-If an automatically restored grid element's color matches the known opaque background,
-it becomes \code{"grey70"} (or \code{"grey30"} on a \code{"grey70"} background).
-This also applies to restored major, minor and axis-specific grid elements.
-This includes grids hidden by a blank root \code{line} element.
-Available plot styles and explicit grid colors, including those in \code{...},
-retain their normal priority. Transparent panel fills are composited over a
-known opaque plot background for this check. If the resulting background is
-still transparent or unknown, its grid color is unchanged.
+Grids restored past a blank root \code{line} element, such as in
+\code{theme_void()}, are drawn in \code{"grey85"} unless a grid element
+supplies its own colour, instead of taking the colour of the root line.
+
+Without \code{grid_color}, a displayed grid line whose colour matches the
+known opaque panel background, such as \code{theme_gray()}'s white grid with
+\code{bg = "white"}, becomes \code{"grey70"} (or \code{"grey30"} on a
+\code{"grey70"} background). This applies to restored grids and to grid
+colours from the plot theme alike; grid colours given in \code{...} are kept.
+Transparent panel fills are composited over a known opaque plot background
+for this check. If the resulting background is still transparent or unknown,
+its grid color is unchanged.
 
 Ordinary plot leaves are formatted recursively. Layouts, annotations and list
 names are retained. Spacers, guide areas, frozen \code{wrap_elements()} cells

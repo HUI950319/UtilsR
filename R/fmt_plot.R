@@ -2408,14 +2408,18 @@ fmt_strip2 <- function(plot,
 #' blank inheritance.
 #' Grid lines still require corresponding scale breaks.
 #'
-#' If an automatically restored grid element's color matches the known opaque background,
-#' it becomes \code{"grey70"} (or \code{"grey30"} on a \code{"grey70"} background).
-#' This also applies to restored major, minor and axis-specific grid elements.
-#' This includes grids hidden by a blank root \code{line} element.
-#' Available plot styles and explicit grid colors, including those in \code{...},
-#' retain their normal priority. Transparent panel fills are composited over a
-#' known opaque plot background for this check. If the resulting background is
-#' still transparent or unknown, its grid color is unchanged.
+#' Grids restored past a blank root \code{line} element, such as in
+#' \code{theme_void()}, are drawn in \code{"grey85"} unless a grid element
+#' supplies its own colour, instead of taking the colour of the root line.
+#'
+#' Without \code{grid_color}, a displayed grid line whose colour matches the
+#' known opaque panel background, such as \code{theme_gray()}'s white grid with
+#' \code{bg = "white"}, becomes \code{"grey70"} (or \code{"grey30"} on a
+#' \code{"grey70"} background). This applies to restored grids and to grid
+#' colours from the plot theme alike; grid colours given in \code{...} are kept.
+#' Transparent panel fills are composited over a known opaque plot background
+#' for this check. If the resulting background is still transparent or unknown,
+#' its grid color is unchanged.
 #'
 #' Ordinary plot leaves are formatted recursively. Layouts, annotations and list
 #' names are retained. Spacers, guide areas, frozen \code{wrap_elements()} cells
@@ -2594,13 +2598,19 @@ fmt_panel <- function(plot,
           }
         }
         if (inherits(effective$line, "element_blank")) {
+          grid_line <- ggplot2::calc_element("panel.grid", inherited)
+          # Without a grid colour of their own, restored grids would take the
+          # ink colour of the root line.
+          if (is.null(inherited$panel.grid$colour)) {
+            grid_line <- ggplot2::merge_element(ggplot2::element_line(colour = "grey85"),
+                                                grid_line)
+          }
           restored$panel.grid <- ggplot2::merge_element(
-            ggplot2::element_line(inherit.blank = FALSE),
-            ggplot2::calc_element("panel.grid", inherited))
+            ggplot2::element_line(inherit.blank = FALSE), grid_line)
         }
       }
       if (length(restored)) current_theme <- do.call(ggplot2::theme, restored) + panel_theme
-      if (is.null(grid_color) && length(restored) &&
+      if (is.null(grid_color) &&
           !any(vapply(extra_args[c("panel.grid", "line")], function(el) {
             inherits(el, "element_line") && !is.null(el$colour)
           }, logical(1)))) {
@@ -2612,32 +2622,37 @@ fmt_panel <- function(plot,
             (nm == "panel.grid" ||
              (inherits(value, "element_line") && !is.null(value$colour)))
         }, names(restored))
-        if (length(colour_elements)) {
-          styled_theme <- effective + current_theme
-          background <- ggplot2::calc_element("panel.background", styled_theme)
-          if (!inherits(background, "element_rect") || is.null(background$fill)) {
-            background <- ggplot2::calc_element("plot.background", styled_theme)
-          }
-          if (inherits(background, "element_rect") && length(background$fill) == 1L &&
-              (is.character(background$fill) || anyNA(background$fill))) {
-            background_rgba <- grDevices::col2rgb(background$fill, alpha = TRUE)
-            if (background_rgba[4L] < 255L) {
-              outside <- ggplot2::calc_element("plot.background", styled_theme)
-              if (inherits(outside, "element_rect") && is.character(outside$fill) &&
-                  length(outside$fill) == 1L) {
-                outside_rgba <- grDevices::col2rgb(outside$fill, alpha = TRUE)
-                if (outside_rgba[4L] == 255L) {
-                  alpha <- background_rgba[4L] / 255
-                  background_rgba[1:3] <- round(background_rgba[1:3] * alpha +
-                                                outside_rgba[1:3] * (1 - alpha))
-                  background_rgba[4L] <- 255L
-                }
+        styled_theme <- effective + current_theme
+        background <- ggplot2::calc_element("panel.background", styled_theme)
+        if (!inherits(background, "element_rect") || is.null(background$fill)) {
+          background <- ggplot2::calc_element("plot.background", styled_theme)
+        }
+        if (inherits(background, "element_rect") && length(background$fill) == 1L &&
+            (is.character(background$fill) || anyNA(background$fill))) {
+          background_rgba <- grDevices::col2rgb(background$fill, alpha = TRUE)
+          if (background_rgba[4L] < 255L) {
+            outside <- ggplot2::calc_element("plot.background", styled_theme)
+            if (inherits(outside, "element_rect") && is.character(outside$fill) &&
+                length(outside$fill) == 1L) {
+              outside_rgba <- grDevices::col2rgb(outside$fill, alpha = TRUE)
+              if (outside_rgba[4L] == 255L) {
+                alpha <- background_rgba[4L] / 255
+                background_rgba[1:3] <- round(background_rgba[1:3] * alpha +
+                                              outside_rgba[1:3] * (1 - alpha))
+                background_rgba[4L] <- 255L
               }
             }
+          }
+          # Correct restored entries where they are restored, so later parent
+          # changes still reach them; then any displayed grid still drawn in the
+          # background colour, on its own element.
+          for (elements in list(colour_elements, enabled)) {
             contrast_args <- list()
-            for (nm in colour_elements) {
-              explicit <- extra_args[[nm]]
-              if (inherits(explicit, "element_line") && !is.null(explicit$colour)) next
+            for (nm in elements) {
+              explicit <- extra_args[unique(c(nm, sub("\\.[xy]$", "", nm)))]
+              if (any(vapply(explicit, function(el) {
+                inherits(el, "element_line") && !is.null(el$colour)
+              }, logical(1)))) next
               line <- ggplot2::calc_element(nm, styled_theme)
               if (!inherits(line, "element_line") || !is.character(line$colour) ||
                   length(line$colour) != 1L) next
@@ -2649,6 +2664,7 @@ fmt_panel <- function(plot,
             }
             if (length(contrast_args)) {
               current_theme <- current_theme + do.call(ggplot2::theme, contrast_args)
+              styled_theme <- effective + current_theme
             }
           }
         }

@@ -23,6 +23,12 @@
   data: a 21 MB plot relabelled three times serialized to 90 MB, now 22 MB.
   `fmt_strip2()` did the same for panels holding a native single-panel facet.
 
+* `fmt_panel()` keeps displayed grids visible. Without `grid_color`, a grid
+  drawn in the panel background colour, such as `theme_gray()`'s white grid
+  with `bg = "white"`, becomes `"grey70"`; before, only restored grids were
+  checked. Grids restored under a blank root `line` (`theme_void()`) are
+  `"grey85"` instead of the root line's black.
+
 * `fmt_flatten()` given `axes` without `axis_titles` drops the input's
   `axis_titles` as well, so axis titles follow `axes` as in `wrap_plots()`
   instead of staying collected.

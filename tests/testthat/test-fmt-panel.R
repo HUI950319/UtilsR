@@ -334,7 +334,7 @@ test_that("contrast fallback preserves available and explicit grid colours", {
     panel.grid = ggplot2::element_line(colour = "purple"),
     panel.grid.major.x = ggplot2::element_blank())
   expect_equal(panel_test_grids(fmt_panel(available, grid = "x", bg = "purple"))$colour,
-               "purple")
+               "grey70")
   transparent <- fmt_panel(p, grid = "both", bg = NA,
                            plot.background = ggplot2::element_rect(fill = NA, colour = NA))
   expect_equal(panel_test_grids(transparent)$colour, rep("white", 4))
@@ -558,7 +558,7 @@ test_that("automatic contrast includes grids restored past a blank root line", {
   for (input in inputs) {
     before <- input$theme
     output <- fmt_panel(input, grid = "both", bg = "black")
-    expect_equal(panel_test_grids(output)$colour, rep("grey70", 4))
+    expect_equal(panel_test_grids(output)$colour, rep("grey85", 4))
     expect_identical(output$theme$line, input$theme$line)
     expect_identical(ggplot2::ggplot_build(output)$data,
                      ggplot2::ggplot_build(input)$data)
@@ -583,15 +583,15 @@ test_that("automatic contrast includes grids restored past a blank root line", {
   explicit <- p + ggplot2::theme(panel.grid = ggplot2::element_line(
     colour = "black", linewidth = 0.8, inherit.blank = TRUE))
   expect_equal(panel_test_grids(fmt_panel(explicit, grid = "both", bg = "black"))$colour,
-               rep("black", 4))
+               rep("grey70", 4))
   axis <- p + ggplot2::theme(panel.grid.major.x = ggplot2::element_line(
     colour = "black", inherit.blank = TRUE))
   grids <- panel_test_grids(fmt_panel(axis, grid = "both", bg = "black"))
-  expect_equal(grids$colour[grids$element == "major.x"], "black")
-  expect_equal(grids$colour[grids$element != "major.x"], rep("grey70", 3))
+  expect_equal(grids$colour[grids$element == "major.x"], "grey70")
+  expect_equal(grids$colour[grids$element != "major.x"], rep("grey85", 3))
   transparent <- fmt_panel(p, grid = "both", bg = NA,
                            plot.background = ggplot2::element_rect(fill = NA, colour = NA))
-  expect_equal(panel_test_grids(transparent)$colour, rep("black", 4))
+  expect_equal(panel_test_grids(transparent)$colour, rep("grey85", 4))
 })
 
 test_that("restored grid placeholders respect blank parent grids", {
@@ -629,4 +629,25 @@ test_that("restored grid placeholders respect blank parent grids", {
   expect_equal(panel_test_grids(output)$element, "major.x")
   expect_equal(panel_test_grids(output)$colour, "red")
   expect_identical(output$theme$panel.grid.major.x, explicit$theme$panel.grid.major.x)
+})
+
+test_that("displayed grids stay visible on matching panel backgrounds", {
+  old <- ggplot2::theme_set(ggplot2::theme_gray())
+  withr::defer(ggplot2::theme_set(old))
+  p <- panel_test_plot()
+  expect_equal(panel_test_grids(fmt_panel(p, grid = "major", bg = "white"))$colour,
+               rep("grey70", 2))
+  grey <- p + ggplot2::theme(panel.grid = ggplot2::element_line(colour = "grey70"))
+  expect_equal(panel_test_grids(fmt_panel(grey, grid = "y", bg = "grey70"))$colour, "grey30")
+  expect_equal(panel_test_grids(fmt_panel(p, grid = "major"))$colour, rep("white", 2))
+  for (extra in list(list(grid_color = "white"),
+                    list(panel.grid.major = ggplot2::element_line(colour = "white")),
+                    list(panel.grid.major.x = ggplot2::element_line(colour = "white"),
+                         panel.grid.major.y = ggplot2::element_line(colour = "white")))) {
+    output <- do.call(fmt_panel, c(list(plot = p, grid = "major", bg = "white"), extra))
+    expect_equal(panel_test_grids(output)$colour, rep("white", 2))
+  }
+  void <- fmt_panel(p + ggplot2::theme_void(), grid = "both")
+  expect_equal(panel_test_grids(void)$colour, rep("grey85", 4))
+  expect_identical(ggplot2::ggplot_build(void)$data, ggplot2::ggplot_build(p)$data)
 })
