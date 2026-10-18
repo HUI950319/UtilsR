@@ -30,6 +30,12 @@
 * `fmt_expand()` warns when a plot's coordinate system has `expand = FALSE`,
   which makes ggplot2 ignore the scale expansion it sets.
 
+* `fmt_tag()` labels use the font family of each plot's theme (its `plot.tag`
+  element), as patchwork tags do. Outside labels always used the device font,
+  and inside labels did too with ggpp before 0.6.0 (Windows R has 0.5.8.1),
+  so a `theme_bw(base_family = "serif")` figure got sans-serif tags. A
+  `family` passed in `...` still wins for inside labels.
+
 * `fmt_legend()` keeps a `legend.justification` or `legend.justification.inside`
   passed through `...`; the justification derived from `legend.position`
   replaced it (causalR's balance plot set it again after the call).

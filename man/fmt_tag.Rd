@@ -66,7 +66,9 @@ Default `unit(0.2, "lines")`.}
 
 \item{...}{Additional inside-label arguments passed to
 [ggpp::geom_label_npc()], such as `fill`, `alpha`, `family` or `parse`.
-Ignored when an `-out` keyword is used.}
+Ignored when an `-out` keyword is used. Labels otherwise use the font
+family of each plot's `plot.tag` theme element, which follows the
+theme's base family.}
 }
 \value{
 Same type as input. With an `-out` keyword each ggplot carries
@@ -138,8 +140,8 @@ Other plot formatting:
 \code{\link[=fmt_panel]{fmt_panel()}},
 \code{\link[=fmt_plot]{fmt_plot()}},
 \code{\link[=fmt_plot_base]{fmt_plot_base()}},
-\code{\link{fmt_point}},
-\code{\link{fmt_raster}},
+\code{\link[=fmt_point]{fmt_point()}},
+\code{\link[=fmt_raster]{fmt_raster()}},
 \code{\link[=fmt_ref]{fmt_ref()}},
 \code{\link[=fmt_scale]{fmt_scale()}},
 \code{\link[=fmt_strip]{fmt_strip()}},

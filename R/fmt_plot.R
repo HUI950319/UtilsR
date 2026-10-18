@@ -434,7 +434,9 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
 #'   Default `unit(0.2, "lines")`.
 #' @param ... Additional inside-label arguments passed to
 #'   [ggpp::geom_label_npc()], such as `fill`, `alpha`, `family` or `parse`.
-#'   Ignored when an `-out` keyword is used.
+#'   Ignored when an `-out` keyword is used. Labels otherwise use the font
+#'   family of each plot's `plot.tag` theme element, which follows the
+#'   theme's base family.
 #'
 #' @details Repeated calls replace only labels created by `fmt_tag()`, preserving
 #'   user annotations and insets. Inside labels repeat the same plot label in
@@ -636,6 +638,11 @@ fmt_tag <- function(plot,
   npcy <- rep_len(pos$y, n)
   size <- rep_len(size, n)
   color <- rep_len(color, n)
+  # ggpp labels and plain grobs default to the device font, not the theme's.
+  family <- vapply(plots, function(p) {
+    value <- ggplot2::calc_element("plot.tag", ggplot2::theme_get() + p$theme)$family
+    if (is.character(value) && length(value) == 1L && !is.na(value)) value else ""
+  }, character(1))
 
   for (i in seq_len(n)) {
     if (outside) {
@@ -650,7 +657,8 @@ fmt_tag <- function(plot,
       half <- grid::unit(label.size / 2, "mm")
       txt <- grid::textGrob(
         labels[i],
-        gp = grid::gpar(fontsize = size[i], fontface = fontface, col = color[i])
+        gp = grid::gpar(fontsize = size[i], fontface = fontface, col = color[i],
+                        fontfamily = family[i])
       )
       txt$x <- grid::unit(0.5, "npc") + (label.padding[4] - label.padding[2]) / 2
       txt$y <- grid::unit(0.5, "npc") + (label.padding[3] - label.padding[1]) / 2
@@ -715,6 +723,7 @@ fmt_tag <- function(plot,
             label.r = label.r, label.size = label.size, size.unit = size.unit)
         }
       )
+      if (!"family" %in% ...names()) layer$aes_params$family <- family[i]
       attr(layer, ".fmt_tag_generated") <- TRUE
       plots[[i]] <- plots[[i]] + layer
     }

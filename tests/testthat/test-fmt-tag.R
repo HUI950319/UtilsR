@@ -425,3 +425,21 @@ test_that("existing automatic tag levels are preserved with a conflict warning",
   expect_no_warning(res <- fmt_tag(manual))
   expect_identical(res$labels$tag, "Manual")
 })
+
+test_that("tags use the font family of the plot theme", {
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, disp)) + ggplot2::geom_point() +
+    ggplot2::theme_bw(base_family = "serif")
+  inside <- fmt_tag(p, labels = "A")
+  expect_identical(ggplot2::layer_data(inside, 2L)$family, "serif")
+  expect_identical(ggplot2::layer_data(fmt_tag(p, labels = "A", family = "mono"), 2L)$family,
+                   "mono")
+  outside <- fmt_tag(p, labels = "A", label_position = "tl-out")
+  tags <- Filter(function(g) identical(g$label, "A"),
+                 find_grobs(patchwork::patchworkGrob(outside), "text"))
+  expect_length(tags, 1L)
+  expect_identical(tags[[1]]$gp$fontfamily, "serif")
+  plain <- fmt_tag(ggplot2::ggplot(mtcars, ggplot2::aes(mpg, disp)) + ggplot2::geom_point())
+  expect_identical(ggplot2::layer_data(plain, 2L)$family, "")
+})
