@@ -85,10 +85,12 @@ A vector sets different titles per plot.}
 \item{axis_title_color}{Character. Color for both axis titles. Default \code{NULL}.}
 
 \item{axis_titles}{Passed to \code{\link[patchwork]{plot_layout}()} \code{axis_titles}
-when input is a patchwork. Default \code{"collect"} merges identical
+when input is a patchwork and \code{xlab} or \code{ylab} is supplied.
+Default \code{"collect"} merges identical
 adjacent axis titles into one; \code{"collect_x"} / \code{"collect_y"}
 merge one axis only, \code{"keep"} keeps every title, and \code{NULL}
-leaves the layout setting unchanged. Ignored for a single ggplot or list.}
+leaves the layout setting unchanged. Ignored for a single ggplot or list,
+and when no axis title is set, so restyling text keeps the layout.}
 
 \item{...}{Additional arguments passed to [ggplot2::labs()].}
 }

@@ -26,6 +26,11 @@
 * `fmt_expand()` warns when a plot's coordinate system has `expand = FALSE`,
   which makes ggplot2 ignore the scale expansion it sets.
 
+* `fmt_text()` sets a patchwork's `axis_titles` only when `xlab` or `ylab` is
+  supplied. Changing only a title, a caption or text styles merged the axis
+  titles too and replaced an existing `"keep"`. A misspelt `axis_titles` is
+  still rejected.
+
 * An empty string now removes a title without leaving space, as documented:
   `fmt_text(title = "", xlab = "", ...)` (also `ylab`, `subtitle` and
   `caption`) kept an empty title row of about 6 mm and an empty axis title row

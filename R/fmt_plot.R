@@ -2796,10 +2796,12 @@ fmt_panel <- function(plot,
 #' @param axis_title_face Character. Font face for both axis titles. Default \code{NULL}.
 #' @param axis_title_color Character. Color for both axis titles. Default \code{NULL}.
 #' @param axis_titles Passed to \code{\link[patchwork]{plot_layout}()} \code{axis_titles}
-#'   when input is a patchwork. Default \code{"collect"} merges identical
+#'   when input is a patchwork and \code{xlab} or \code{ylab} is supplied.
+#'   Default \code{"collect"} merges identical
 #'   adjacent axis titles into one; \code{"collect_x"} / \code{"collect_y"}
 #'   merge one axis only, \code{"keep"} keeps every title, and \code{NULL}
-#'   leaves the layout setting unchanged. Ignored for a single ggplot or list.
+#'   leaves the layout setting unchanged. Ignored for a single ggplot or list,
+#'   and when no axis title is set, so restyling text keeps the layout.
 #' @param ... Additional arguments passed to [ggplot2::labs()].
 #'
 #' @details Text styles are added to each plot's current elements. Rich text
@@ -2851,6 +2853,9 @@ fmt_text <- function(plot,
 
   info <- .to_plot_list(plot, recurse = TRUE)
   n <- length(info$plots)
+  if (!is.null(axis_titles)) {
+    axis_titles <- rlang::arg_match0(axis_titles, c("keep", "collect", "collect_x", "collect_y"))
+  }
 
   # ---- Vectorize label params (recycle to n plots) ----
   vec_or_null <- function(x) {
@@ -2947,7 +2952,8 @@ fmt_text <- function(plot,
 
   out <- .from_plot_list(info$plots, info$is_patchwork, info$is_single,
                          pw_orig = info$pw_orig, recurse = TRUE)
-  if (!is.null(axis_titles) && inherits(out, "patchwork")) {
+  if (!is.null(axis_titles) && inherits(out, "patchwork") &&
+      (!is.null(xlab) || !is.null(ylab))) {
     out <- out + patchwork::plot_layout(axis_titles = axis_titles)
   }
   out

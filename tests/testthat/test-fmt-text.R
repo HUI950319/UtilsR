@@ -157,3 +157,16 @@ test_that("fmt_text() removes labels given as empty strings", {
                c(title = 0, subtitle = 0, caption = 0, `xlab-b` = 0))
   expect_equal(size("ylab-l", "width"), 0)
 })
+
+test_that("fmt_text() changes axis_titles only when an axis title is set", {
+  skip_if_not_installed("patchwork")
+  d <- data.frame(x = 1:3, y = c(2, 1, 3))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  pw <- patchwork::wrap_plots(p, p)
+  styled <- fmt_text(pw, title = "T", title_size = 14)
+  expect_identical(styled$patches$layout$axis_titles, pw$patches$layout$axis_titles)
+  kept <- pw + patchwork::plot_layout(axis_titles = "keep")
+  expect_identical(fmt_text(kept, caption = "C")$patches$layout$axis_titles, "keep")
+  expect_identical(fmt_text(pw, ylab = "Y")$patches$layout$axis_titles, "collect")
+  expect_error(fmt_text(pw, title_size = 14, axis_titles = "colect"), "axis_titles")
+})
