@@ -96,44 +96,44 @@ inside <code>boxplot.args</code>.</p></dd>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>With <code>inherit.aes = FALSE</code>, explicit <code>data</code> and
-<code>mapping</code> in <code>boxplot.args</code> are retained. Missing data and
-position mappings follow sources used by existing layers. Parent settings
-are tried first when a non-blank eligible layer inherits its data and position
-mappings unchanged; otherwise eligible layers are tried before the parent.
-Explicit data do not change this mapping-source order.
-Empty automatic data frames are skipped; explicit empty data are retained.
-Mappings without a data frame follow native build-time evaluation, allowing
-position vectors defined in the mapping environment.
-The first source with a position mapping is used, including single-axis
-sources; later two-axis layers do not take priority. Only x and y
-mappings are copied automatically; other mappings must be supplied explicitly.
-Automatic positions omit computed-statistic and after-scale mappings.
-Staged source mappings use their raw-data expression, including stages
-nested inside other expressions. Explicit boxplot mappings retain all
-evaluation stages.
-Explicit <code>x = NULL</code> or <code>y = NULL</code> mappings remain cleared.
-Scalar fixed x or y positions in source layers are also supplied as constant
-mappings before computing statistics. Explicit boxplot position arguments
-and mappings take precedence; fixed position vectors are not copied.
-Automatic layer lookup skips text, label, segment, curve and reference-line
-geoms. Supply explicit data and mappings to use such sources.
-Blank layers are tried after other eligible layers and remain available as
-fallback sources. Point annotations share the same geom as sample points;
-supply explicit data and mappings when their source order is ambiguous.
-For <code>stat = "identity"</code> or <code><a href="https://ggplot2.tidyverse.org/reference/Stat.html" class="external-link">ggplot2::StatIdentity</a></code>, an explicit
-mapping is passed unchanged, without adding raw-data position mappings.
-Without an explicit mapping, the first source whose mappings and explicit
-fixed summary arguments provide a complete vertical or
-horizontal summary is used. Its group mapping is retained when present.
-Notch boundaries and relative widths are also copied when
-<code>notch = TRUE</code> and <code>varwidth = TRUE</code>, respectively.
-Source outlier mappings are copied when <code>outlier.shape</code> is supplied
-explicitly, unless <code>outliers = FALSE</code> disables them.
-An unresolved source raises an error without restoring aesthetic inheritance.
-Data functions and formulas are evaluated only during normal plot building.
-Nested patchworks are traversed recursively while preserving layouts,
-annotations and plot-list names. Spacers, guide areas, wrapped grobs and
-inset overlays are skipped.</p>
+  <code>mapping</code> in <code>boxplot.args</code> are retained. Missing data and
+  position mappings follow sources used by existing layers. Parent settings
+  are tried first when a non-blank eligible layer inherits its data and position
+  mappings unchanged; otherwise eligible layers are tried before the parent.
+  Explicit data do not change this mapping-source order.
+  Empty automatic data frames are skipped; explicit empty data are retained.
+  Mappings without a data frame follow native build-time evaluation, allowing
+  position vectors defined in the mapping environment.
+  The first source with a position mapping is used, including single-axis
+  sources; later two-axis layers do not take priority. Only x and y
+  mappings are copied automatically; other mappings must be supplied explicitly.
+  Automatic positions omit computed-statistic and after-scale mappings.
+  Staged source mappings use their raw-data expression, including stages
+  nested inside other expressions. Explicit boxplot mappings retain all
+  evaluation stages.
+  Explicit <code>x = NULL</code> or <code>y = NULL</code> mappings remain cleared.
+  Scalar fixed x or y positions in source layers are also supplied as constant
+  mappings before computing statistics. Explicit boxplot position arguments
+  and mappings take precedence; fixed position vectors are not copied.
+  Automatic layer lookup skips text, label, segment, curve and reference-line
+  geoms. Supply explicit data and mappings to use such sources.
+  Blank layers are tried after other eligible layers and remain available as
+  fallback sources. Point annotations share the same geom as sample points;
+  supply explicit data and mappings when their source order is ambiguous.
+  For <code>stat = "identity"</code> or <code><a href="https://ggplot2.tidyverse.org/reference/Stat.html" class="external-link">ggplot2::StatIdentity</a></code>, an explicit
+  mapping is passed unchanged, without adding raw-data position mappings.
+  Without an explicit mapping, the first source whose mappings and explicit
+  fixed summary arguments provide a complete vertical or
+  horizontal summary is used. Its group mapping is retained when present.
+  Notch boundaries and relative widths are also copied when
+  <code>notch = TRUE</code> and <code>varwidth = TRUE</code>, respectively.
+  Source outlier mappings are copied when <code>outlier.shape</code> is supplied
+  explicitly, unless <code>outliers = FALSE</code> disables them.
+  An unresolved source raises an error without restoring aesthetic inheritance.
+  Data functions and formulas are evaluated only during normal plot building.
+  Nested patchworks are traversed recursively while preserving layouts,
+  annotations and plot-list names. Spacers, guide areas, wrapped grobs and
+  inset overlays are skipped.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
