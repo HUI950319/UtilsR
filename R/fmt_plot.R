@@ -408,7 +408,10 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
 #'       whole plot, drawn as a
 #'       full-plot [patchwork::inset_element()]):
 #'       `"tl-out"`, `"tr-out"`, `"bl-out"`, `"br-out"`. Underscore
-#'       variants (`"tl_out"` etc.) are also accepted.
+#'       variants (`"tl_out"` etc.) are also accepted. The label is drawn
+#'       over the plot and reserves no space, so it can cover a title or axis
+#'       title at that corner (e.g. with `plot.title.position = "plot"`);
+#'       widen `plot.margin` on that side or use an inside position then.
 #'   }
 #'   Both placements use a box styled by `label.size`,
 #'   `label.padding` and `label.r`; `...` only applies to inside placements.
