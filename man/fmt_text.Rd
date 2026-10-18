@@ -30,7 +30,11 @@ fmt_text(
 )
 }
 \arguments{
-\item{plot}{A ggplot, patchwork, or list of ggplot objects.}
+\item{plot}{A ggplot, patchwork, or list of ggplot objects. Data plots are
+formatted recursively in leaf order, so per-plot vectors map to them in
+that order. Spacers, guide areas, inset overlays (including outside
+\code{\link{fmt_tag}()} labels) and fixed wrapped graphics are skipped
+and do not consume per-plot values.}
 
 \item{xlab}{X-axis title. \code{NULL} = no change, \code{""} = remove.
 A vector sets different labels per plot.}

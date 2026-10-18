@@ -2715,7 +2715,11 @@ fmt_panel <- function(plot,
 #' legend title) in one call. Supports per-plot labels when input is a
 #' patchwork or list (pass a vector to \code{xlab}, \code{ylab}, etc.).
 #'
-#' @param plot A ggplot, patchwork, or list of ggplot objects.
+#' @param plot A ggplot, patchwork, or list of ggplot objects. Data plots are
+#'   formatted recursively in leaf order, so per-plot vectors map to them in
+#'   that order. Spacers, guide areas, inset overlays (including outside
+#'   \code{\link{fmt_tag}()} labels) and fixed wrapped graphics are skipped
+#'   and do not consume per-plot values.
 #' @param xlab X-axis title. \code{NULL} = no change, \code{""} = remove.
 #'   A vector sets different labels per plot.
 #' @param ylab Y-axis title. \code{NULL} = no change, \code{""} = remove.
@@ -2788,7 +2792,7 @@ fmt_text <- function(plot,
                      axis_titles = "collect",
                      ...) {
 
-  info <- .to_plot_list(plot)
+  info <- .to_plot_list(plot, recurse = TRUE)
   n <- length(info$plots)
 
   # ---- Vectorize label params (recycle to n plots) ----
@@ -2878,7 +2882,8 @@ fmt_text <- function(plot,
     info$plots[[i]] <- p
   }
 
-  out <- .from_plot_list(info$plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
+  out <- .from_plot_list(info$plots, info$is_patchwork, info$is_single,
+                         pw_orig = info$pw_orig, recurse = TRUE)
   if (!is.null(axis_titles) && inherits(out, "patchwork")) {
     out <- out + patchwork::plot_layout(axis_titles = axis_titles)
   }
