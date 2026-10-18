@@ -138,6 +138,10 @@
   more) had a contrast of 3.5:1; it is now white. Pass `label_color =
   "black"` for the earlier text.
 
+* `fmt_panel(grid = "keep")` leaves the grid lines as they are, so the border
+  or background can be changed alone; any other call removed or reset the
+  grid, as the default `grid = "none"` still does.
+
 * `fmt_flatten()` given `axes` without `axis_titles` drops the input's
   `axis_titles` as well, so axis titles follow `axes` as in `wrap_plots()`
   instead of staying collected.

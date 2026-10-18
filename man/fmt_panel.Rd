@@ -6,7 +6,7 @@
 \usage{
 fmt_panel(
   plot,
-  grid = c("none", "major", "minor", "both", "x", "y"),
+  grid = c("none", "major", "minor", "both", "x", "y", "keep"),
   grid_color = NULL,
   grid_linewidth = NULL,
   grid_linetype = NULL,
@@ -27,7 +27,11 @@ fmt_panel(
   \item \code{"both"} — show both major and minor grid lines.
   \item \code{"x"} — show only vertical (x-axis) major grid lines.
   \item \code{"y"} — show only horizontal (y-axis) major grid lines.
-}}
+  \item \code{"keep"} — leave the grid lines unchanged, to change only
+    the border or background.
+}
+The grid style arguments apply to the lines a mode shows; they are
+ignored with \code{"none"} and \code{"keep"}.}
 
 \item{grid_color}{A single color string, or \code{NA} for transparent grid
 lines. Default \code{NULL} (inherit from the current theme).}

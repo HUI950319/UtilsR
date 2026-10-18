@@ -651,3 +651,29 @@ test_that("displayed grids stay visible on matching panel backgrounds", {
   expect_equal(panel_test_grids(void)$colour, rep("grey85", 4))
   expect_identical(ggplot2::ggplot_build(void)$data, ggplot2::ggplot_build(p)$data)
 })
+
+test_that("grid = 'keep' changes the background and border but not the grid", {
+  styled <- panel_test_plot() + ggplot2::theme(
+    panel.grid.major.x = ggplot2::element_blank(),
+    panel.grid.minor = ggplot2::element_line(colour = "purple"))
+  grid_theme <- function(p) p$theme[grepl("^panel\\.grid", names(p$theme))]
+  # Row names follow the grob order, which the border changes.
+  grids <- function(p) {
+    out <- panel_test_grids(p)
+    rownames(out) <- NULL
+    out
+  }
+  for (extra in list(list(), list(grid_color = "red", grid_linewidth = 1))) {
+    out <- do.call(fmt_panel, c(list(plot = styled, grid = "keep", bg = "white",
+                                     border = TRUE), extra))
+    expect_identical(grids(out), grids(styled))
+    expect_identical(grid_theme(out), grid_theme(styled))
+    expect_identical(ggplot2::calc_element("panel.background",
+                                           ggplot2::theme_get() + out$theme)$fill, "white")
+    expect_identical(ggplot2::calc_element("panel.border",
+                                           ggplot2::theme_get() + out$theme)$colour, "black")
+  }
+  expect_identical(formals(fmt_panel)$grid,
+                   quote(c("none", "major", "minor", "both", "x", "y", "keep")))
+  expect_null(panel_test_grids(fmt_panel(styled, bg = "white")))
+})

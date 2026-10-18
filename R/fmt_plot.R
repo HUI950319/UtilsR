@@ -2470,7 +2470,11 @@ fmt_strip2 <- function(plot,
 #'     \item \code{"both"} — show both major and minor grid lines.
 #'     \item \code{"x"} — show only vertical (x-axis) major grid lines.
 #'     \item \code{"y"} — show only horizontal (y-axis) major grid lines.
+#'     \item \code{"keep"} — leave the grid lines unchanged, to change only
+#'       the border or background.
 #'   }
+#'   The grid style arguments apply to the lines a mode shows; they are
+#'   ignored with \code{"none"} and \code{"keep"}.
 #' @param grid_color A single color string, or \code{NA} for transparent grid
 #'   lines. Default \code{NULL} (inherit from the current theme).
 #' @param grid_linewidth A single finite, non-negative absolute width in
@@ -2566,7 +2570,7 @@ fmt_strip2 <- function(plot,
 #' @export
 #' @family plot formatting
 fmt_panel <- function(plot,
-                      grid = c("none", "major", "minor", "both", "x", "y"),
+                      grid = c("none", "major", "minor", "both", "x", "y", "keep"),
                       grid_color = NULL,
                       grid_linewidth = NULL,
                       grid_linetype = NULL,
@@ -2618,15 +2622,18 @@ fmt_panel <- function(plot,
     "minor" = c("panel.grid.minor.x", "panel.grid.minor.y"),
     "both" = c("panel.grid.major.x", "panel.grid.major.y",
                 "panel.grid.minor.x", "panel.grid.minor.y"),
-    "x" = "panel.grid.major.x", "y" = "panel.grid.major.y"
+    "x" = "panel.grid.major.x", "y" = "panel.grid.major.y",
+    "keep" = character()
   )
   grid_elements <- c("panel.grid.major.x", "panel.grid.major.y",
                       "panel.grid.minor.x", "panel.grid.minor.y")
   hidden_groups <- switch(grid,
     "none" = c("panel.grid.major", "panel.grid.minor"),
     "major" = "panel.grid.minor", "minor" = "panel.grid.major",
-    "both" = character(), "x" = "panel.grid.minor", "y" = "panel.grid.minor")
-  hidden <- c(hidden_groups, setdiff(grid_elements, enabled))
+    "both" = character(), "x" = "panel.grid.minor", "y" = "panel.grid.minor",
+    "keep" = character())
+  hidden <- if (grid == "keep") character() else
+    c(hidden_groups, setdiff(grid_elements, enabled))
   theme_args <- stats::setNames(rep(list(blank), length(hidden)), hidden)
   line_args <- list(colour = grid_color, linewidth = grid_linewidth, linetype = grid_linetype)
   line_args <- Filter(Negate(is.null), line_args)
