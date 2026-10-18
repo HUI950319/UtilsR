@@ -1,5 +1,11 @@
 # UtilsR 0.6.8
 
+* `fmt_raster(method = "ggrastr")`, the default, rasterizes only point and
+  tile layers, as `ggrastr::rasterise()` does by default. Lines, bars and
+  polygons stay vector: as images they made a PDF larger (a 6-facet scatter
+  with a smooth and a reference line: 103 KB, now 31 KB; 13 KB as vectors).
+  A plot without such layers no longer warns about disabled clipping.
+
 * `fmt_flatten()` is the new name of `flatten_patchwork()`, so it is found
   with the other `fmt_*` formatters. `flatten_patchwork()` remains as the
   same function without a deprecation warning.

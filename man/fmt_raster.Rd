@@ -70,9 +70,14 @@ one image for fast on-screen redrawing.
 \details{
 Three backends are available:
 \describe{
-\item{\code{"ggrastr"}}{Wraps the plot with \code{ggrastr::rasterise()},
-which marks non-text geom layers for rasterization at render time.
-Text/label layers, custom annotations, and theme elements remain vectors.}
+\item{\code{"ggrastr"}}{Wraps the plot's point and tile layers (as
+\code{geom_point()}, \code{geom_jitter()} and \code{geom_tile()} draw)
+with \code{ggrastr::rasterise()}, which rasterizes them at render
+time, as ggrastr does by default. Other layers, such as lines, bars,
+polygons, text and custom annotations, and theme elements remain
+vectors: they are few objects, which as an image only make a PDF
+larger. The raster is redrawn on every render, so on screen it can be
+slower than the vector plot.}
 \item{\code{"ragg"}}{Captures panel geometry in memory via
 \code{ragg::agg_capture()} and inserts it as a \code{rasterGrob}.
 Text/label grobs inside the panel are automatically detected and kept

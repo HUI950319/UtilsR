@@ -231,19 +231,28 @@ test_that("ragg preserves named plot lists and checks all elements first", {
   expect_identical(grDevices::dev.list(), devices)
 })
 
-test_that("ggrastr rasterizes geometric layers and retains text layers", {
+test_that("ggrastr rasterizes point and tile layers only", {
   skip_if_not_installed("ggrastr")
   grDevices::pdf(NULL)
   on.exit(grDevices::dev.off(), add = TRUE)
   data <- data.frame(x = c(0, 1, 1, 0), y = c(0, 0, 1, 1))
-  geoms <- list(ggplot2::geom_point(), ggplot2::geom_tile(), ggplot2::geom_col(),
-                ggplot2::geom_polygon(), ggplot2::geom_line())
-  for (geom in geoms) {
-    p <- ggplot2::ggplot(data, ggplot2::aes(x, y)) + geom +
+  # Lines, bars and polygons are few objects: as images they only grow a PDF.
+  geoms <- list(point = ggplot2::geom_point(), jitter = ggplot2::geom_jitter(),
+                tile = ggplot2::geom_tile(), col = ggplot2::geom_col(),
+                polygon = ggplot2::geom_polygon(), line = ggplot2::geom_line())
+  expected <- c(point = 1L, jitter = 1L, tile = 1L, col = 0L, polygon = 0L,
+                line = 0L)
+  for (name in names(geoms)) {
+    p <- ggplot2::ggplot(data, ggplot2::aes(x, y)) + geoms[[name]] +
       ggplot2::geom_text(label = "text") + ggplot2::geom_label(label = "label")
     result <- fmt_raster(p, dpi = 72)
-    expect_length(raster_find_grobs(ggplot2::ggplotGrob(result), "rasteriser"), 1L)
+    expect_length(raster_find_grobs(ggplot2::ggplotGrob(result), "rasteriser"),
+                  expected[[name]])
   }
+  # Nothing to rasterize: no warning about clipping.
+  unclipped <- ggplot2::ggplot(data, ggplot2::aes(x, y)) + ggplot2::geom_line() +
+    ggplot2::coord_cartesian(clip = "off")
+  expect_no_warning(fmt_raster(unclipped, dpi = 72))
 })
 
 test_that("ggrastr visits all leaves without changing nested layouts", {
