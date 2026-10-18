@@ -525,3 +525,17 @@ test_that("image fills its own size without patchwork margins", {
   pixels <- capture()
   expect_identical(pixels[c(1, 50), c(1, 100)], matrix("red", 2, 2))
 })
+
+test_that("the ggrastr backend keeps fmt_com() brackets drawable", {
+  skip_if_not_installed("ggrastr")
+  skip_if_not_installed("ggpubr")
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  d <- data.frame(g = rep(c("A", "B", "C"), each = 20),
+                  y = rep(1:3, each = 20) + rep(seq(-1, 1, length.out = 20), 3))
+  p <- fmt_com(ggplot2::ggplot(d, ggplot2::aes(g, y)) + ggplot2::geom_boxplot() +
+                 ggplot2::geom_point())
+  # ggrastr::rasterise() cannot draw ggpubr's bracket layer, so it stays vector.
+  expect_no_error(g <- ggplot2::ggplotGrob(fmt_raster(p, dpi = 72)))
+  expect_length(raster_find_grobs(g, "rasteriser"), 1L)
+})
