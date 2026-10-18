@@ -459,6 +459,41 @@ test_that("pdf() draws rasters opaque after translucent vector grobs", {
   expect_gt(sum(blue[, -left]), 0.9 * sum(blue[, left]))
 })
 
+test_that("pdf() draws ggrastr rasters opaque after translucent vector grobs", {
+  skip_if_not_installed("ggrastr")
+  skip_if_not_installed("ragg")
+  skip_if_not_installed("png")
+  skip_if(!nzchar(Sys.which("pdftoppm")), "pdftoppm is not available")
+  data <- data.frame(x = c(1, 3), y = 1)
+  p <- ggplot2::ggplot(mapping = ggplot2::aes(x, y)) +
+    ggplot2::geom_point(data = data[1, ], colour = "blue", size = 20) +
+    ggplot2::annotate("text", x = 2, y = 1, label = "TEXT", alpha = 0.3, size = 10) +
+    ggplot2::geom_point(data = data[2, ], colour = "blue", size = 20) +
+    ggplot2::scale_x_continuous(limits = c(0, 4), expand = c(0, 0)) +
+    ggplot2::theme_void()
+  result <- fmt_raster(p, dpi = 72)
+  file <- tempfile(fileext = ".pdf")
+  stub <- tempfile()
+  on.exit(unlink(c(file, paste0(stub, ".png"))), add = TRUE)
+  grDevices::pdf(file, width = 4, height = 2)
+  print(result)
+  grDevices::dev.off()
+  system2("pdftoppm", c("-r", "72", "-png", "-singlefile", file, stub))
+  image <- png::readPNG(paste0(stub, ".png"))
+  # The point drawn after the translucent text is as pure a blue as the first.
+  blue <- image[, , 1] < 0.1 & image[, , 2] < 0.1 & image[, , 3] > 0.9
+  left <- seq_len(ncol(blue) %/% 2)
+  expect_gt(sum(blue[, left]), 100)
+  expect_gt(sum(blue[, -left]), 0.9 * sum(blue[, left]))
+
+  # A repeated call rasterizes each layer once, at the latest dpi.
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  rasters <- raster_find_grobs(ggplot2::ggplotGrob(fmt_raster(result, dpi = 150)), "rasteriser")
+  expect_length(rasters, 2L)
+  expect_identical(unname(vapply(rasters, function(g) g$dpi, numeric(1))), c(150, 150))
+})
+
 test_that("ragg keeps the panel grid and border vector and drops empty grobs", {
   skip_if_not_installed("ragg")
   grDevices::pdf(NULL)

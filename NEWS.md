@@ -1,5 +1,11 @@
 # UtilsR 0.6.8
 
+* `fmt_raster()`'s default `"ggrastr"` backend draws each raster after an
+  empty opaque polygon, as the `"ragg"` and `"image"` backends do: `pdf()`
+  painted points drawn after a translucent grob, such as text with
+  `alpha = 0.3`, with that transparency. A repeated call rasterizes a layer
+  once, at the latest `dpi`.
+
 * `fmt_plot_base()` applies `scale_y_list` and `scale_x_list` with
   `fmt_scale()`. Each panel keeps its scale type, so a discrete or date axis
   no longer fails with "Discrete value supplied to a continuous scale", and an

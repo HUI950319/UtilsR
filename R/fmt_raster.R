@@ -7,6 +7,7 @@
 #   L1  fmt_raster(plot, method, dpi, width, height, ...)   -- public API
 #         |   method = "ggrastr" (default) | "ragg" | "image"
 #         +-- L2  .fmt_raster_ggrastr()   re-wrap layers through ggrastr
+#         |     +-- L3  .opaque_raster_layer()   ggrastr layer drawn opaque
 #         +-- L2  .fmt_raster_ragg()      render panel grobs through ragg
 #         |     +-- L3  .resolve_panel_size()     physical panel dimensions
 #         |     +-- L3  .rasterize_panel_grob()   grob -> raster grob
@@ -30,7 +31,10 @@
 #'     polygons, text and custom annotations, and theme elements remain
 #'     vectors: they are few objects, which as an image only make a PDF
 #'     larger. The raster is redrawn on every render, so on screen it can be
-#'     slower than the vector plot.}
+#'     slower than the vector plot. Each raster is drawn after an empty
+#'     opaque polygon, so that \code{pdf()} does not paint it with the
+#'     transparency of the grob before it; a repeated call rasterizes a
+#'     layer once, at the latest \code{dpi}.}
 #'   \item{\code{"ragg"}}{Captures panel geometry in memory via
 #'     \code{ragg::agg_capture()} and inserts it as a \code{rasterGrob}.
 #'     Text/label grobs inside the panel are automatically detected and kept
@@ -208,7 +212,7 @@ fmt_raster <- function(
       cli::cli_warn("Plots with clipping disabled are kept as vectors to preserve geometry outside the panel.")
       return(p)
     }
-    p$layers[targets] <- lapply(p$layers[targets], ggrastr::rasterise,
+    p$layers[targets] <- lapply(p$layers[targets], .opaque_raster_layer,
                                 dpi = dpi, dev = dev)
     p
   }
@@ -546,15 +550,34 @@ fmt_raster <- function(
 }
 
 
+# --- ggrastr layer whose rasters pdf() draws opaque ---
+#' @noRd
+.opaque_raster_layer <- function(layer, dpi, dev) {
+  # Built here, not in the caller, so the returned layer does not carry the
+  # whole input plot in its environment. A layer rasterized by an earlier
+  # call is rasterized again from its source, not on top of its raster.
+  source <- layer$fmt_raster_source %||% layer
+  rasterised <- ggrastr::rasterise(source, dpi = dpi, dev = dev)
+  ggplot2::ggproto(NULL, rasterised, fmt_raster_source = source,
+    draw_geom = function(self, data, layout) {
+      grobs <- ggplot2::ggproto_parent(rasterised, self)$draw_geom(data, layout)
+      lapply(grobs, function(g) if (inherits(g, "zeroGrob")) g else .opaque_grob(g))
+    })
+}
+
+
 # --- Raster that pdf() draws opaque ---
 #' @noRd
-.opaque_raster <- function(image, ...) {
+.opaque_raster <- function(image, ...) .opaque_grob(grid::rasterGrob(image, ...))
+
+#' @noRd
+.opaque_grob <- function(grob) {
   # pdf() paints a raster with the fill alpha of the grob drawn before it
   # (VPetukhov/ggrastr#39); an empty opaque polygon resets that alpha first.
   grid::grobTree(
     grid::polygonGrob(c(0, 0, 0), c(0, 0, 0),
                       gp = grid::gpar(fill = "white", col = NA)),
-    grid::rasterGrob(image, ...)
+    grob
   )
 }
 
