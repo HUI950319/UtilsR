@@ -6,7 +6,7 @@
 # container type, so they compose freely in a pipe.
 #
 #   L1  fmt_plot(plot, fmt_axis_list, fmt_tag_list, fmt_legend_list,
-#         |       fmt_ref_list, plot.margin, tag_levels, axis_titles, ...)
+#         |       fmt_ref_list, plot.margin, tag_levels, axis_titles)
 #         |                                         -- master orchestrator
 #         +-- rlang::exec(fmt_axis,   !!!fmt_axis_list)
 #         +-- rlang::exec(fmt_tag,    !!!fmt_tag_list)
@@ -1448,7 +1448,6 @@ fmt_ref <- function(plot,
 #'   conflict warning from [fmt_tag()].
 #' @param axis_titles Passed to [patchwork::plot_layout()] `axis_titles`
 #'   argument. Only used when input is a patchwork object.
-#' @param ... Currently unused.
 #'
 #' @return Same type as input.
 #'
@@ -1480,8 +1479,7 @@ fmt_plot <- function(plot,
                      fmt_ref_list = NULL,
                      plot.margin = NULL,
                      tag_levels = NULL,
-                     axis_titles = NULL,
-                     ...) {
+                     axis_titles = NULL) {
 
   if (!is.null(fmt_tag_list) && !is.null(tag_levels)) {
     cli::cli_warn("{.arg tag_levels} is ignored when {.arg fmt_tag_list} supplies explicit tags.")

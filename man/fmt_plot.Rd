@@ -12,8 +12,7 @@ fmt_plot(
   fmt_ref_list = NULL,
   plot.margin = NULL,
   tag_levels = NULL,
-  axis_titles = NULL,
-  ...
+  axis_titles = NULL
 )
 }
 \arguments{
@@ -42,8 +41,6 @@ conflict warning from \code{\link[=fmt_tag]{fmt_tag()}}.}
 
 \item{axis_titles}{Passed to \code{\link[patchwork:plot_layout]{patchwork::plot_layout()}} \code{axis_titles}
 argument. Only used when input is a patchwork object.}
-
-\item{...}{Currently unused.}
 }
 \value{
 Same type as input.

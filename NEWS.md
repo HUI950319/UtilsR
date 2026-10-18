@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_plot()` no longer has an unused `...`: a misspelled or unsupported
+  argument, such as `fmt_strip_list`, is an "unused argument" error instead
+  of being ignored without notice.
+
 * `fmt_plot()` and `fmt_plot_base()` format each plot of a plain list and
   return the list. A list gave `NULL`, because patchwork's `&` falls back to
   `+` for anything but a patchwork; a list holding a non-plot is an error.

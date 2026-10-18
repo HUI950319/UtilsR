@@ -24,3 +24,9 @@ test_that("fmt_plot() and fmt_plot_base() format each plot of a plain list", {
   expect_error(fmt_plot(list(p, 1), plot.margin = 4), "ggplot")
   expect_error(fmt_plot_base(list(p, 1), labs_list = list(x = "X")), "ggplot")
 })
+
+test_that("fmt_plot() rejects arguments it does not have", {
+  p <- plot_fixture()
+  expect_error(fmt_plot(p, fmt_strip_list = list(label = "A")), "unused argument")
+  expect_error(fmt_plot(p, plot_margin = 4), "unused argument")
+})
