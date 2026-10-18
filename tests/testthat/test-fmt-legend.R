@@ -965,3 +965,13 @@ test_that("fmt_legend() centres an inside legend on a 0.5 coordinate", {
   expect_identical(fmt_legend(p, legend.position = "br")$theme$legend.justification.inside,
                    c(1, 0))
 })
+
+test_that("fmt_legend() keeps a justification passed through ...", {
+  p <- legend_test_plot()
+  out <- fmt_legend(p, legend.position = "top", legend.justification = "left")
+  expect_identical(out$theme$legend.justification, "left")
+  out <- fmt_legend(p, legend.position = c(0.9, 0.1), legend.justification = c(0.5, 0.5))
+  expect_identical(out$theme$legend.justification.inside, c(0.5, 0.5))
+  out <- fmt_legend(p, legend.position = "br", legend.justification.inside = c(1, 1))
+  expect_identical(out$theme$legend.justification.inside, c(1, 1))
+})

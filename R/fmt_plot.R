@@ -836,7 +836,9 @@ fmt_tag <- function(plot,
 #' @param nrow One finite positive integer giving the rows in the legend layout (passed to
 #'   [ggplot2::guide_legend()]).
 #' @param ... Additional arguments passed to [ggplot2::theme()], e.g.,
-#'   `legend.text`, `legend.key.size`, `legend.background`.
+#'   `legend.text`, `legend.key.size`, `legend.background`. A
+#'   `legend.justification` or `legend.justification.inside` given here
+#'   replaces the justification derived from `legend.position`.
 #'
 #' @return Same type as input.
 #'
@@ -995,15 +997,16 @@ fmt_legend <- function(plot,
   if (is.numeric(legend.position)) {
     theme_args$legend.position <- "inside"
     theme_args$legend.position.inside <- legend.position
-    theme_args$legend.justification.inside <-
-      theme_args$legend.justification.inside %||% legend.justification
+    # The inside justification inherits legend.justification in ggplot2.
+    theme_args$legend.justification.inside <- theme_args$legend.justification.inside %||%
+      theme_args$legend.justification %||% legend.justification
   } else if (!is.null(legend.position)) {
     theme_args$legend.position <- legend.position
   }
   if (!is.null(legend.direction))
     theme_args$legend.direction <- legend.direction
   if (!is.null(legend.justification) && !is.numeric(legend.position))
-    theme_args$legend.justification <- legend.justification
+    theme_args$legend.justification <- theme_args$legend.justification %||% legend.justification
 
   leg_theme <- do.call(ggplot2::theme, theme_args)
 

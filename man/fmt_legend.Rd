@@ -81,7 +81,9 @@ Default \code{NULL} (no change).}
 [ggplot2::guide_legend()]).}
 
 \item{...}{Additional arguments passed to [ggplot2::theme()], e.g.,
-`legend.text`, `legend.key.size`, `legend.background`.}
+`legend.text`, `legend.key.size`, `legend.background`. A
+`legend.justification` or `legend.justification.inside` given here
+replaces the justification derived from `legend.position`.}
 }
 \value{
 Same type as input.

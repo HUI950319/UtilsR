@@ -30,6 +30,10 @@
 * `fmt_expand()` warns when a plot's coordinate system has `expand = FALSE`,
   which makes ggplot2 ignore the scale expansion it sets.
 
+* `fmt_legend()` keeps a `legend.justification` or `legend.justification.inside`
+  passed through `...`; the justification derived from `legend.position`
+  replaced it (causalR's balance plot set it again after the call).
+
 * `fmt_legend(legend.position = c(x, y))` centres the legend on a coordinate
   of exactly 0.5: `c(0.5, 0.95)` put the legend's left edge on the panel's
   centre line, so a "top centre" legend sat right of centre. Other coordinates
