@@ -43,7 +43,13 @@ test_that("fmt_strip maps label vectors within a single faceted plot", {
                    c("Four", "Six", "Eight"))
   expect_identical(labels(fmt_strip(wrapped, c("A", "B"))), c("A", "B", "A"))
   expect_identical(labels(fmt_strip(wrapped, "All")), rep("All", 3))
-  expect_identical(labels(fmt_strip(wrapped)), rep("Figure1", 3))
+  expect_identical(labels(fmt_strip(wrapped)), c("4", "6", "8"))
+  styled <- fmt_strip(wrapped, label_fill = "steelblue")
+  expect_identical(labels(styled), c("4", "6", "8"))
+  expect_identical(vapply(.fmt_strip_text(styled, "rect"), function(x) x$gp$fill,
+                          character(1)), rep("steelblue", 3))
+  mixed <- fmt_strip(list(wrapped, p))
+  expect_identical(c(labels(mixed[[1]]), labels(mixed[[2]])), c("4", "6", "8", "Figure2"))
 
   plots <- list(left = p, right = p, last = p)
   out <- fmt_strip(plots, c("A", "B"))

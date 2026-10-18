@@ -56,6 +56,11 @@
   checked. Grids restored under a blank root `line` (`theme_void()`) are
   `"grey85"` instead of the root line's black.
 
+* `fmt_strip()` with `label = NULL` keeps the labels of a faceted plot and
+  changes only the strip style. It renamed every panel `Figure1`, so
+  `fmt_strip(p, label_fill = "steelblue")` lost the facet levels. Unfaceted
+  plots are still labelled `Figure1`, `Figure2`, etc.
+
 * `fmt_flatten()` given `axes` without `axis_titles` drops the input's
   `axis_titles` as well, so axis titles follow `axes` as in `wrap_plots()`
   instead of staying collected.

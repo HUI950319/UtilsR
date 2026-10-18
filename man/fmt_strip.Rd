@@ -24,8 +24,9 @@ its first facet variable: the first wrap variable, or the first grid column
 variable (row variable when there are no columns). Other variables retain
 their labeller, including row/column labellers and single-line formatting.
 For multiple plots, labels are recycled across leaf plots
-in their existing order. \code{NULL} generates \code{Figure1}, \code{Figure2}, etc.; \code{""}
-gives a blank label.}
+in their existing order. \code{NULL} keeps the labels of faceted plots, so only
+the strip style changes, and labels unfaceted plots \code{Figure1}, \code{Figure2},
+etc. by their position among the leaf plots; \code{""} gives a blank label.}
 
 \item{label_color}{Text colour(s). Default \code{"black"} uses bold text.
 \code{NULL} inherits the existing text colour and face. Valid R colour names,

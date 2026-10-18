@@ -1729,8 +1729,9 @@ fmt_plot_base <- function(plot, ggtheme = NULL, labs_list = NULL,
 #'   variable (row variable when there are no columns). Other variables retain
 #'   their labeller, including row/column labellers and single-line formatting.
 #'   For multiple plots, labels are recycled across leaf plots
-#'   in their existing order. `NULL` generates `Figure1`, `Figure2`, etc.; `""`
-#'   gives a blank label.
+#'   in their existing order. `NULL` keeps the labels of faceted plots, so only
+#'   the strip style changes, and labels unfaceted plots `Figure1`, `Figure2`,
+#'   etc. by their position among the leaf plots; `""` gives a blank label.
 #' @param label_color Text colour(s). Default \code{"black"} uses bold text.
 #'   `NULL` inherits the existing text colour and face. Valid R colour names,
 #'   hexadecimal colours, numeric palette indices and `NA` are accepted.
@@ -1882,7 +1883,8 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
   label_color <- colours$label_color
   label_fill <- colours$label_fill
 
-  if (is.null(label)) label <- paste0("Figure", seq_len(n))
+  relabel <- !is.null(label)
+  if (!relabel) label <- paste0("Figure", seq_len(n))
   if (n > 1L) label <- rep_len(label, n)
   if (!is.null(label_color)) label_color <- rep_len(label_color, n)
   if (!is.null(label_fill))  label_fill  <- rep_len(label_fill, n)
@@ -1938,7 +1940,7 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
       facet_vars <- c(names(old_facet$params$facets),
                       names(old_facet$params$cols), names(old_facet$params$rows))
 
-      if (length(facet_vars) > 0) {
+      if (relabel && length(facet_vars) > 0) {
         fvar <- facet_vars[1]
         # Keep every facet variable and setting.
         params <- old_facet$params
