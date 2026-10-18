@@ -889,3 +889,45 @@ test_that("fmt_strip2 uses top_right_fill palettes by default", {
     "#58AC56"
   )
 })
+
+test_that("repeated strip formatting adds no copies of the plot data", {
+  testthat::skip_if_not_installed("ggh4x")
+  set.seed(1)
+  d <- data.frame(x = stats::rnorm(2e5), y = stats::rnorm(2e5),
+                  g = sample(c("a", "b", "c"), 2e5, TRUE))
+  bytes <- function(x) length(serialize(x, NULL))
+  # Growth between repeated calls: fixed costs such as ggh4x classes and the
+  # source references kept by load_all() cancel out, while a retained
+  # formatter frame adds at least one copy of the data per call. Each call
+  # still nests one small ggproto child (about 0.1-1 MB), independent of data.
+  grown <- function(last, first) bytes(last) - bytes(first)
+  copy <- bytes(d)
+  # Plot and facet environments must not capture the test environment, which
+  # would hold the outputs as well.
+  make_plot <- function(d, facet) {
+    p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+    switch(facet,
+      none = p,
+      wrap = p + ggplot2::facet_wrap(ggplot2::vars(g)),
+      themed = p + ggh4x::facet_wrap2(ggplot2::vars(g), strip = ggh4x::strip_themed(
+        background_x = ggh4x::elem_list_rect(fill = "pink"))),
+      single = p + ggplot2::facet_wrap(ggplot2::vars(panel = "One"))
+    )
+  }
+  environment(make_plot) <- globalenv()
+  for (facet in c("wrap", "themed", "none")) {
+    first <- fmt_strip(make_plot(d, facet), c("A", "B", "C"), label_fill = "grey90")
+    out <- first
+    for (i in 1:2) out <- fmt_strip(out, c("D", "E", "F"), label_fill = "grey80")
+    expect_lt(grown(out, first), copy)
+    hidden <- fmt_strip(first, strip = FALSE)
+    out <- fmt_strip(fmt_strip(hidden, c("A", "B", "C")), strip = FALSE)
+    expect_lt(grown(out, hidden), copy)
+  }
+
+  grid <- patchwork::wrap_plots(make_plot(d, "single"), make_plot(d, "single"), ncol = 2)
+  first <- fmt_strip2(grid, top_label = c("L", "R"), right_label = "Row")
+  out <- first
+  for (i in 1:2) out <- fmt_strip2(out, top_label = c("L", "R"), right_label = "Row")
+  expect_lt(grown(out, first), copy)
+})

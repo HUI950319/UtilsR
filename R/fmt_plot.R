@@ -1588,6 +1588,101 @@ fmt_plot_base <- function(plot, ggtheme = NULL, labs_list = NULL,
 
 # ---- fmt_strip ----
 
+# Strip and facet children for fmt_strip() and fmt_strip2(). ggproto() keeps
+# the environment it is called from to re-read the parent by name, and closures
+# keep theirs; building them here keeps returned plots from retaining the
+# formatter's frame and every input plot. Never reassign `parent`.
+.fmt_strip_child <- function(parent, ...) {
+  # Force the members with base R first: ggproto() reads them through
+  # rlang::list2(), which leaves each promise holding the caller's frame.
+  list(...)
+  ggplot2::ggproto(NULL, parent, ...)
+}
+
+# ggh4x themed / nested strip with its text and fills cleared.
+.fmt_strip_blank_given <- function(parent) {
+  given <- parent$given_elements
+  given[c("text_x", "text_y", "background_x", "background_y")] <- list(NULL)
+  ggplot2::ggproto(
+    NULL, parent,
+    given_elements = given,
+    # strip_nested() warns on the NULL sizes of blank multi-layer strips
+    assemble_strip = function(self, ...) {
+      suppressWarnings(
+        ggplot2::ggproto_parent(parent, self)$assemble_strip(...)
+      )
+    }
+  )
+}
+
+# Labeller giving the levels of `variable` the `replacement` labels; other facet
+# variables keep the `original` labeller.
+.fmt_strip_labeller <- function(original, variable, replacement) {
+  # Unevaluated arguments would keep the caller's frame through their promises.
+  force(original)
+  force(variable)
+  force(replacement)
+  labeller <- function(values) {
+    if (!variable %in% names(values)) return(original(values))
+    # The labeller receives levels in facet order, which can differ from their
+    # first appearance in the raw data.
+    levels <- unique(values[[variable]])
+    mapped <- rep_len(replacement, length(levels))[match(values[[variable]], levels)]
+    if (length(values) == 1L) return(stats::setNames(list(mapped), variable))
+    out <- original(values)
+    if (length(out) > 1L) {
+      out[[match(variable, names(values))]] <- mapped
+      return(out)
+    }
+    # Combined labels stay on one line. Keep the facet context when
+    # asking the original labeller to format the remaining variables.
+    others <- values[setdiff(names(values), variable)]
+    for (nm in c("type", "facet")) attr(others, nm) <- attr(values, nm)
+    remaining <- original(others)[[1L]]
+    out[[1L]] <- if (is.expression(remaining) || is.list(remaining)) {
+      Map(function(text, value) {
+        if (is.expression(value) && length(value) == 1L) value <- value[[1L]]
+        as.expression(list(substitute(paste(text, ", ", value),
+                                      list(text = text, value = value))))
+      }, mapped, as.list(remaining))
+    } else {
+      paste(mapped, remaining, sep = ", ")
+    }
+    out
+  }
+  class(labeller) <- c("function", "labeller")
+  attr(labeller, ".fmt_strip_original_labeller") <- original
+  labeller
+}
+
+# Header facet for fmt_strip2(). A native facet it replaces must have a single
+# panel, which is checked when the layout is built.
+.fmt_strip2_protect_facet <- function(original, replacement) {
+  if (!is.null(original$.fmt_strip2_original_facet)) {
+    original <- original$.fmt_strip2_original_facet
+  }
+  replacement$shrink <- original$shrink
+  if (inherits(original, "FacetNull") || isTRUE(original$.fmt_strip_generated)) {
+    return(replacement)
+  }
+  guarded <- ggplot2::ggproto(NULL, replacement,
+    compute_layout = function(self, data, params) {
+      native_params <- original$params
+      native_params$plot_env <- params$plot_env
+      native_params <- original$setup_params(data, native_params)
+      native_data <- original$setup_data(data, native_params)
+      if (nrow(original$compute_layout(native_data, native_params)) != 1L) {
+        cli::cli_abort(
+          "`fmt_strip2()` cannot replace a native facet with multiple panels."
+        )
+      }
+      ggplot2::ggproto_parent(replacement, self)$compute_layout(data, params)
+    }
+  )
+  guarded$.fmt_strip2_original_facet <- original
+  guarded
+}
+
 #' Add facet strip labels to a plot
 #'
 #' Add a top strip to an unfaceted plot or update the labels and style of an
@@ -1696,8 +1791,7 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
     # their structure without evaluating data or statistics. Blank leaf elements,
     # since a user-set `strip.text.x` ignores a blank parent. ggh4x themed / nested
     # strips carry text and fill elements that beat the theme, so those are
-    # cleared on ggproto children, leaving the input plot as is. ggproto()
-    # re-reads a parent by name, so never reassign `facet` or `old_strip`.
+    # cleared on ggproto children, leaving the input plot as is.
     plots <- lapply(plots, function(p) {
       if (inherits(p$facet, "FacetNull")) return(p)
       if (!is.null(p$facet$.fmt_strip_hidden)) {
@@ -1717,23 +1811,9 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
                                 hidden_elements),
         strip = old_strip
       )
-      new_strip <- old_strip
-      if (!is.null(old_strip$given_elements)) {
-        given <- old_strip$given_elements
-        given[c("text_x", "text_y", "background_x", "background_y")] <- list(NULL)
-        new_strip <- ggplot2::ggproto(
-          NULL, old_strip,
-          given_elements = given,
-          # strip_nested() warns on the NULL sizes of blank multi-layer strips
-          assemble_strip = function(self, ...) {
-            suppressWarnings(
-              ggplot2::ggproto_parent(old_strip, self)$assemble_strip(...)
-            )
-          }
-        )
-      }
-      p <- p + ggplot2::ggproto(NULL, facet, strip = new_strip,
-                                .fmt_strip_hidden = hidden)
+      new_strip <- if (is.null(old_strip$given_elements)) old_strip else
+        .fmt_strip_blank_given(old_strip)
+      p <- p + .fmt_strip_child(facet, strip = new_strip, .fmt_strip_hidden = hidden)
       blank <- ggplot2::element_blank()
       p + ggplot2::theme(
         strip.text.x.top = blank, strip.text.x.bottom = blank,
@@ -1819,10 +1899,8 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
           plots[[i]]$theme[[nm]] <- hidden$theme[[nm]]
         }
       }
-      plots[[i]] <- plots[[i]] + local({
-        facet <- plots[[i]]$facet
-        ggplot2::ggproto(NULL, facet, strip = hidden$strip, .fmt_strip_hidden = NULL)
-      })
+      plots[[i]] <- plots[[i]] +
+        .fmt_strip_child(plots[[i]]$facet, strip = hidden$strip, .fmt_strip_hidden = NULL)
     }
     if (.has_facet(plots[[i]])) {
       # Facet quosure names are the columns passed to the labeller, including
@@ -1833,47 +1911,13 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
 
       if (length(facet_vars) > 0) {
         fvar <- facet_vars[1]
-        # The labeller receives levels in facet order, which can differ
-        # from their first appearance in the raw data.
-        # Keep every facet variable and setting. Bind the ggproto parent in
-        # its own environment so later loop iterations cannot replace it.
-        plots[[i]] <- plots[[i]] + local({
-          facet <- old_facet
-          params <- facet$params
-          original <- attr(params$labeller, ".fmt_strip_original_labeller")
-          if (is.null(original)) original <- params$labeller
-          variable <- fvar
-          replacement <- if (n == 1L) label else label[i]
-          params$labeller <- function(values) {
-            if (!variable %in% names(values)) return(original(values))
-            levels <- unique(values[[variable]])
-            mapped <- rep_len(replacement, length(levels))[match(values[[variable]], levels)]
-            if (length(values) == 1L) return(stats::setNames(list(mapped), variable))
-            out <- original(values)
-            if (length(out) > 1L) {
-              out[[match(variable, names(values))]] <- mapped
-              return(out)
-            }
-            # Combined labels stay on one line. Keep the facet context when
-            # asking the original labeller to format the remaining variables.
-            others <- values[setdiff(names(values), variable)]
-            for (nm in c("type", "facet")) attr(others, nm) <- attr(values, nm)
-            remaining <- original(others)[[1L]]
-            out[[1L]] <- if (is.expression(remaining) || is.list(remaining)) {
-              Map(function(text, value) {
-                if (is.expression(value) && length(value) == 1L) value <- value[[1L]]
-                as.expression(list(substitute(paste(text, ", ", value),
-                                              list(text = text, value = value))))
-              }, mapped, as.list(remaining))
-            } else {
-              paste(mapped, remaining, sep = ", ")
-            }
-            out
-          }
-          class(params$labeller) <- c("function", "labeller")
-          attr(params$labeller, ".fmt_strip_original_labeller") <- original
-          ggplot2::ggproto(NULL, facet, params = params)
-        })
+        # Keep every facet variable and setting.
+        params <- old_facet$params
+        original <- attr(params$labeller, ".fmt_strip_original_labeller")
+        if (is.null(original)) original <- params$labeller
+        params$labeller <- .fmt_strip_labeller(original, fvar,
+                                               if (n == 1L) label else label[i])
+        plots[[i]] <- plots[[i]] + .fmt_strip_child(old_facet, params = params)
       }
 
       # Apply strip style via theme
@@ -1913,8 +1957,7 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
               }
             }
           }
-          ggplot2::ggproto(NULL, facet,
-                           strip = ggplot2::ggproto(NULL, old_strip, given_elements = given))
+          .fmt_strip_child(facet, strip = .fmt_strip_child(old_strip, given_elements = given))
         })
       }
 
@@ -2085,32 +2128,6 @@ fmt_strip2 <- function(plot,
   if (!is.null(right_label)) right_fill <- colours$right_fill
   label_color <- colours$label_color
   info  <- .to_plot_list(plot)
-
-  protect_facet <- function(original, replacement) {
-    if (!is.null(original$.fmt_strip2_original_facet)) {
-      original <- original$.fmt_strip2_original_facet
-    }
-    replacement$shrink <- original$shrink
-    if (inherits(original, "FacetNull") || isTRUE(original$.fmt_strip_generated)) {
-      return(replacement)
-    }
-    guarded <- ggplot2::ggproto(NULL, replacement,
-      compute_layout = function(self, data, params) {
-        native_params <- original$params
-        native_params$plot_env <- params$plot_env
-        native_params <- original$setup_params(data, native_params)
-        native_data <- original$setup_data(data, native_params)
-        if (nrow(original$compute_layout(native_data, native_params)) != 1L) {
-          cli::cli_abort(
-            "`fmt_strip2()` cannot replace a native facet with multiple panels."
-          )
-        }
-        ggplot2::ggproto_parent(replacement, self)$compute_layout(data, params)
-      }
-    )
-    guarded$.fmt_strip2_original_facet <- original
-    guarded
-  }
 
   # Each nested grid contributes its dimensions without rebuilding the container.
   collect_grid <- function(children, lay = NULL, path = integer()) {
@@ -2319,7 +2336,7 @@ fmt_strip2 <- function(plot,
         )
       )
     }
-    p$facet <- protect_facet(original_facet, p$facet)
+    p$facet <- .fmt_strip2_protect_facet(original_facet, p$facet)
     p$facet$.fmt_strip_generated <- is.null(p$facet$.fmt_strip2_original_facet)
     plots[[i]] <- p
   }

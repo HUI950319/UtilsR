@@ -6,6 +6,11 @@
   with a smooth and a reference line: 103 KB, now 31 KB; 13 KB as vectors).
   A plot without such layers no longer warns about disabled clipping.
 
+* `fmt_strip()` no longer keeps its call frame in the plots it returns. Each
+  call on a faceted plot stored further copies of the input plots and their
+  data: a 21 MB plot relabelled three times serialized to 90 MB, now 22 MB.
+  `fmt_strip2()` did the same for panels holding a native single-panel facet.
+
 * `fmt_flatten()` is the new name of `flatten_patchwork()`, so it is found
   with the other `fmt_*` formatters. `flatten_patchwork()` remains as the
   same function without a deprecation warning.
