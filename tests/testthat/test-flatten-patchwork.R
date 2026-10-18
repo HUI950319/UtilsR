@@ -23,6 +23,29 @@ test_that("fmt_flatten() is flatten_patchwork() under its fmt_* name", {
                c("First", "Second", "First"))
 })
 
+test_that("errors name the called function and the unsupported object", {
+  p <- flatten_test_plot("Data")
+  error <- tryCatch(fmt_flatten(list(p, list(p, data.frame(x = 1)))), error = identity)
+  expect_identical(conditionCall(error)[[1]], quote(fmt_flatten))
+  expect_match(conditionMessage(error), "data.frame")
+  expect_error(fmt_flatten(list(p, 42)), "numeric")
+  inset <- patchwork::inset_element(p, .5, .5, 1, 1)
+  error <- tryCatch(flatten_patchwork(list(list(inset), p)), error = identity)
+  expect_identical(conditionCall(error)[[1]], quote(flatten_patchwork))
+})
+
+test_that("explicit axes replace the inherited axis_titles", {
+  p <- flatten_test_plot("Data")
+  input <- (p | p) / (p | p) + patchwork::plot_layout(axes = "collect")
+  output <- flatten_patchwork(input, axes = "keep", ncol = 2)
+  expect_identical(output$patches$layout$axis_titles, "keep")
+  labels <- flatten_test_labels(patchwork::patchworkGrob(output))
+  expect_equal(sum(labels == "Shared Y"), 4L)
+  both <- flatten_patchwork(input, axes = "keep", axis_titles = "collect", ncol = 2)
+  expect_identical(both$patches$layout$axis_titles, "collect")
+  expect_identical(flatten_patchwork(input, ncol = 2)$patches$layout$axis_titles, "collect")
+})
+
 test_that("flattening accepts lists and preserves named design assignments", {
   p1 <- flatten_test_plot("First")
   p2 <- flatten_test_plot("Second")

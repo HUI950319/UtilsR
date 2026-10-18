@@ -16,6 +16,15 @@
   data: a 21 MB plot relabelled three times serialized to 90 MB, now 22 MB.
   `fmt_strip2()` did the same for panels holding a native single-panel facet.
 
+* `fmt_flatten()` given `axes` without `axis_titles` drops the input's
+  `axis_titles` as well, so axis titles follow `axes` as in `wrap_plots()`
+  instead of staying collected.
+
+* `fmt_flatten()` errors name `fmt_flatten()` (or `flatten_patchwork()`)
+  rather than an internal helper and report the class of an unsupported
+  element, without descending into list-based objects such as data frames
+  or gt tables.
+
 * `fmt_flatten()` is the new name of `flatten_patchwork()`, so it is found
   with the other `fmt_*` formatters. `flatten_patchwork()` remains as the
   same function without a deprecation warning.

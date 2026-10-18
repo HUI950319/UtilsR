@@ -292,7 +292,11 @@
 #'   use an unnamed list to repeat cells by position in that design.
 #' @param nrow_inds_order Single positive integer, at most the number of selected
 #'   plots, to reorder them by interleaving rows. Applied after selection; it does
-#'   not set the output layout's \code{nrow}.
+#'   not set the output layout's \code{nrow}. With \code{ceiling(n / nrow_inds_order)}
+#'   output columns for \code{n} selected cells, plots take the positions that
+#'   \code{byrow = FALSE} with \code{nrow = nrow_inds_order} would give them;
+#'   unlike \code{byrow}, the cells themselves are reordered, so tags then run
+#'   across rows instead of down columns.
 #'
 #' @return A patchwork object with ordinary grid cells at one level. Insets and
 #'   their main plot stay together and count as one cell for selection/reordering.
@@ -300,7 +304,9 @@
 #'
 #' @details Top-level plot annotations and the \code{guides}, \code{axes},
 #'   \code{axis_titles} and \code{tag_level} settings are retained for patchwork
-#'   input. Explicit arguments in \code{...} override inherited settings.
+#'   input. Explicit arguments in \code{...} override inherited settings; an
+#'   explicit \code{axes} without \code{axis_titles} also drops the inherited
+#'   \code{axis_titles}, which then follows \code{axes} as in \code{wrap_plots()}.
 #'   Grid geometry (dimensions, widths, heights and design) is rebuilt using
 #'   \code{...}; nested annotation and tagging scopes are not promoted.
 #'   Selection indices refer to the extracted cells, including spacers, guide
@@ -309,6 +315,10 @@
 #'   that produce one cell retain their name; names inside nested lists are
 #'   retained without container-name prefixes. These cell names can be matched
 #'   to a character layout design by \code{wrap_plots()}.
+#'
+#'   Tags from \code{plot_annotation(tag_levels)}, including custom tag vectors,
+#'   are assigned in output order, so they follow \code{select_inds} and
+#'   \code{nrow_inds_order} rather than the original positions.
 #'
 #'   Insets are emitted alongside ordinary hosts at the same layout level,
 #'   allowing shared axes and axis titles to be collected. Composite inset hosts
@@ -366,6 +376,7 @@
 #'
 #' @export
 fmt_flatten <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) {
+  error_call <- environment()
   is_inset <- function(plot) {
     inherits(plot, "inset_patch") && (!inherits(plot, "patchwork") ||
       match("inset_patch", class(plot)) < match("patchwork", class(plot)))
@@ -375,7 +386,8 @@ fmt_flatten <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) 
       match("free_plot", class(plot)) < match("patchwork", class(plot)))
   }
   flatten_lists <- function(plot_obj) {
-    if (!is.list(plot_obj) || inherits(plot_obj, c("ggplot", "patchwork", "grob"))) {
+    # Classed lists such as data frames are reported, not walked into.
+    if (!is.list(plot_obj) || is.object(plot_obj)) {
       return(list(plot_obj))
     }
     unlist(lapply(seq_along(plot_obj), function(i) {
@@ -388,7 +400,9 @@ fmt_flatten <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) 
     }), recursive = FALSE)
   }
   flatten_recursive <- function(plot_obj) {
-    if (is_inset(plot_obj)) cli::cli_abort("An inset must follow its main plot.")
+    if (is_inset(plot_obj)) {
+      cli::cli_abort("An inset must follow its main plot.", call = error_call)
+    }
     if (is_free(plot_obj)) {
       return(list(list(plot = plot_obj, insets = list())))
     }
@@ -396,15 +410,16 @@ fmt_flatten <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) 
       if (inherits(plot_obj, c("ggplot", "grob"))) {
         return(list(list(plot = plot_obj, insets = list())))
       }
-      if (!is.list(plot_obj)) {
-        cli::cli_abort("Input must contain ggplot, patchwork, or grob objects.")
+      if (!is.list(plot_obj) || is.object(plot_obj)) {
+        cli::cli_abort("Input must contain ggplot, patchwork, or grob objects, not {.cls {class(plot_obj)}}.",
+                       call = error_call)
       }
       children <- flatten_lists(plot_obj)
     } else {
       children <- vector("list", length(plot_obj))
       for (i in seq_along(children)) {
         children[[i]] <- tryCatch(plot_obj[[i]], error = function(e) {
-          cli::cli_abort("Cannot read patchwork child {i}.", parent = e)
+          cli::cli_abort("Cannot read patchwork child {i}.", parent = e, call = error_call)
         })
       }
     }
@@ -413,7 +428,9 @@ fmt_flatten <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) 
     i <- 1L
     while (i <= n) {
       child <- children[[i]]
-      if (is_inset(child)) cli::cli_abort("An inset must follow its main plot.")
+      if (is_inset(child)) {
+        cli::cli_abort("An inset must follow its main plot.", call = error_call)
+      }
       next_i <- i + 1L
       insets <- list()
       while (next_i <= n && is_inset(children[[next_i]])) {
@@ -503,6 +520,10 @@ fmt_flatten <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) 
     c(list(cell$plot), cell$insets)
   }), recursive = FALSE, use.names = FALSE)
   layout_args <- layout_args[setdiff(names(layout_args), names(dots))]
+  # As in wrap_plots(), axis titles follow an explicit `axes` unless given.
+  if ("axes" %in% names(dots) && !"axis_titles" %in% names(dots)) {
+    layout_args$axis_titles <- NULL
+  }
   result <- do.call(patchwork::wrap_plots, c(list(plot_objects), layout_args, dots))
   if (!is.null(annotation)) result <- result + annotation
   result

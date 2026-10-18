@@ -26,7 +26,11 @@ use an unnamed list to repeat cells by position in that design.}
 
 \item{nrow_inds_order}{Single positive integer, at most the number of selected
 plots, to reorder them by interleaving rows. Applied after selection; it does
-not set the output layout's \code{nrow}.}
+not set the output layout's \code{nrow}. With \code{ceiling(n / nrow_inds_order)}
+output columns for \code{n} selected cells, plots take the positions that
+\code{byrow = FALSE} with \code{nrow = nrow_inds_order} would give them;
+unlike \code{byrow}, the cells themselves are reordered, so tags then run
+across rows instead of down columns.}
 }
 \value{
 A patchwork object with ordinary grid cells at one level. Insets and
@@ -42,7 +46,9 @@ kept for existing code.
 \details{
 Top-level plot annotations and the \code{guides}, \code{axes},
   \code{axis_titles} and \code{tag_level} settings are retained for patchwork
-  input. Explicit arguments in \code{...} override inherited settings.
+  input. Explicit arguments in \code{...} override inherited settings; an
+  explicit \code{axes} without \code{axis_titles} also drops the inherited
+  \code{axis_titles}, which then follows \code{axes} as in \code{wrap_plots()}.
   Grid geometry (dimensions, widths, heights and design) is rebuilt using
   \code{...}; nested annotation and tagging scopes are not promoted.
   Selection indices refer to the extracted cells, including spacers, guide
@@ -51,6 +57,10 @@ Top-level plot annotations and the \code{guides}, \code{axes},
   that produce one cell retain their name; names inside nested lists are
   retained without container-name prefixes. These cell names can be matched
   to a character layout design by \code{wrap_plots()}.
+
+  Tags from \code{plot_annotation(tag_levels)}, including custom tag vectors,
+  are assigned in output order, so they follow \code{select_inds} and
+  \code{nrow_inds_order} rather than the original positions.
 
   Insets are emitted alongside ordinary hosts at the same layout level,
   allowing shared axes and axis titles to be collected. Composite inset hosts
