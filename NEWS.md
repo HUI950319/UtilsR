@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_axisTile()` warns once, when the plot is drawn, if no name in `colors`
+  matches the axis values; a misspelled or wrongly cased name gave grey tiles
+  or plain labels without notice. Axes with free facet scales are not checked.
+
 * `fmt_scale()` gives an updated scale its own copy of the secondary axis.
   The copy shared the input plot's axis, and ggplot2 fills a `dup_axis()`'s
   derived breaks and labels when a plot is drawn: drawing the result gave the

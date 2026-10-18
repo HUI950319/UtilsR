@@ -26,7 +26,9 @@ fmt_axisTile(
 \item{colors}{Named character vector of colors, where names match the
 discrete axis levels (e.g. \code{c(setosa = "red", virginica = "blue")}).
 Required; names must be unique and non-empty. Missing colors use
-\code{"grey70"} in tile mode or \code{text_color} in text mode.}
+\code{"grey70"} in tile mode or \code{text_color} in text mode. Drawing
+the plot warns once when no name matches the axis values, except on an
+axis with free facet scales, where a panel may show none of them.}
 
 \item{mode}{\code{"tile"} (default) or \code{"text"}.}
 

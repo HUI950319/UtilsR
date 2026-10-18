@@ -3181,7 +3181,9 @@ fmt_axisText <- function(plot,
 #' @param colors Named character vector of colors, where names match the
 #'   discrete axis levels (e.g. \code{c(setosa = "red", virginica = "blue")}).
 #'   Required; names must be unique and non-empty. Missing colors use
-#'   \code{"grey70"} in tile mode or \code{text_color} in text mode.
+#'   \code{"grey70"} in tile mode or \code{text_color} in text mode. Drawing
+#'   the plot warns once when no name matches the axis values, except on an
+#'   axis with free facet scales, where a panel may show none of them.
 #' @param mode \code{"tile"} (default) or \code{"text"}.
 #' @param axis Physical axis to apply to: \code{"x"} (horizontal, default) or
 #'   \code{"y"} (vertical), including after \code{coord_flip()}.
@@ -3329,7 +3331,9 @@ fmt_axisTile <- function(plot,
       tile_border = tile_border, tile_border_width = tile_border_width,
       text_size = text_size, text_face = text_face, text_angle = text_angle,
       text_color = text_color, show_text = show_text,
-      theme = ggplot2::theme_get() + p$theme
+      theme = ggplot2::theme_get() + p$theme, axis = axis,
+      # A free-scale panel may hold none of the colored values.
+      check_names = !isTRUE(p$facet$params$free[[scale_axis]])
     ))
     p <- p + do.call(ggplot2::guides, stats::setNames(list(guide), axis))
     facet <- p$facet
@@ -3362,15 +3366,22 @@ fmt_axisTile <- function(plot,
 .axis_tile_guide <- function(parent, settings) {
   params <- parent$params
   params$axis_tile <- settings
+  warned <- FALSE
   ggplot2::ggproto("AxisTileGuide", parent,
     axis_tile_parent = parent,
     params = params,
     hashables = c(parent$hashables, rlang::exprs(axis_tile)),
     extract_key = function(scale, aesthetic, ...) {
       key <- parent$extract_key(scale, aesthetic, ...)
-      if (!scale$is_discrete() || settings$mode == "text") return(key)
+      if (!scale$is_discrete()) return(key)
       values <- scale$get_limits()
-      if (!length(values)) return(key)
+      if (!warned && settings$check_names && length(values) &&
+          !any(names(settings$colors) %in% as.character(values))) {
+        warned <<- TRUE
+        cli::cli_warn(c("No names in {.arg colors} match the {settings$axis}-axis values.",
+                        i = "Axis values: {.val {as.character(values)}}."))
+      }
+      if (settings$mode == "text" || !length(values)) return(key)
       positions <- scale$map(values)
       full <- data.frame(.value = values, .fmt_lower = positions - 0.5,
                            .fmt_upper = positions + 0.5)

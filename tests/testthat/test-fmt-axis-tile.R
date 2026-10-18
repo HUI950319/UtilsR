@@ -388,3 +388,26 @@ test_that("collected axes retain one color strip per retained guide", {
     expect_equal(nrow(axis_tile_rects(patchwork::patchworkGrob(q))), 3L)
   }
 })
+
+test_that("colors whose names match no axis value warn once per formatted plot", {
+  grob <- function(q) {
+    if (inherits(q, "patchwork")) patchwork::patchworkGrob(q) else ggplot2::ggplotGrob(q)
+  }
+  p <- axis_tile_plot()
+  for (mode in c("tile", "text")) {
+    q <- fmt_axisTile(p, c(a = "red", b = "blue"), mode = mode)
+    expect_warning(grob(q), "match the x-axis values")
+    expect_no_warning(grob(q))
+  }
+  flipped <- fmt_axisTile(p + ggplot2::coord_flip(), c(a = "red"), axis = "y")
+  expect_warning(grob(flipped), "match the y-axis values")
+  expect_no_warning(grob(fmt_axisTile(p, axis_tile_colors["A"])))
+  # A panel of a free scale may show none of the colored values.
+  d <- data.frame(category = c("A", "B", "D", "E"), value = 1:4,
+                  panel = rep(c("p1", "p2"), each = 2))
+  facetted <- ggplot2::ggplot(d, ggplot2::aes(category, value)) + ggplot2::geom_col()
+  expect_no_warning(grob(fmt_axisTile(
+    facetted + ggplot2::facet_wrap(~panel, scales = "free_x"), axis_tile_colors)))
+  expect_no_warning(grob(fmt_axisTile(
+    facetted + ggplot2::facet_wrap(~panel), axis_tile_colors)))
+})
