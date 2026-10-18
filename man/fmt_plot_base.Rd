@@ -13,7 +13,8 @@ fmt_plot_base(
 )
 }
 \arguments{
-\item{plot}{A patchwork (or ggplot) object.}
+\item{plot}{A ggplot, patchwork, or list of these. Each plot of a list is
+formatted on its own.}
 
 \item{ggtheme}{Theme to broadcast. Polymorphic (resolved internally): a
 \code{ggplot2::theme} object, a theme \strong{function} (e.g. \code{theme_my}),
@@ -31,7 +32,8 @@ or a function-name \strong{string} (e.g. \code{"theme_km"}). \code{NULL}
 \code{ggplot2::scale_x_continuous()}. \code{NULL} = no change.}
 }
 \value{
-The input plot with the requested layers broadcast via \code{&}.
+Same type as input, with the requested settings added to every
+plot via \code{&}.
 }
 \description{
 Apply a theme, axis labels, and continuous y/x scales to \strong{every} panel of

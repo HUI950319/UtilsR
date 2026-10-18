@@ -1415,7 +1415,7 @@ fmt_ref <- function(plot,
 #' @param fmt_ref_list Named list of arguments for [fmt_ref()]. Set to `NULL`
 #'   to skip.
 #' @param plot.margin Numeric vector of length 1 or 4, or a [ggplot2::margin()]
-#'   object. Applied to all plots via `&`.
+#'   object. Applied to every plot via `&`, including each plot of a list.
 #' @param tag_levels Character string for patchwork tag levels (e.g. `"A"`,
 #'   `"a"`, `"1"`). Only used when input is a patchwork object. Ignored with a
 #'   warning when `fmt_tag_list` supplies explicit labels.
@@ -1509,7 +1509,7 @@ fmt_plot <- function(plot,
     } else {
       cli::cli_abort("{.arg plot.margin} must be numeric or a margin object.")
     }
-    plot <- plot & ggplot2::theme(plot.margin = margin_obj)
+    plot <- .broadcast_plot(plot, ggplot2::theme(plot.margin = margin_obj))
   }
 
   # Apply patchwork tag_levels
@@ -1539,7 +1539,8 @@ fmt_plot <- function(plot,
 #' Each argument is applied only when non-\code{NULL}, so a bare
 #' \code{fmt_plot_base(p)} returns \code{p} unchanged.
 #'
-#' @param plot A patchwork (or ggplot) object.
+#' @param plot A ggplot, patchwork, or list of these. Each plot of a list is
+#'   formatted on its own.
 #' @param ggtheme Theme to broadcast. Polymorphic (resolved internally): a
 #'   \code{ggplot2::theme} object, a theme **function** (e.g. \code{theme_my}),
 #'   or a function-name **string** (e.g. \code{"theme_km"}). \code{NULL}
@@ -1552,7 +1553,8 @@ fmt_plot <- function(plot,
 #' @param scale_x_list Named list passed to
 #'   \code{ggplot2::scale_x_continuous()}. \code{NULL} = no change.
 #'
-#' @return The input plot with the requested layers broadcast via \code{&}.
+#' @return Same type as input, with the requested settings added to every
+#'   plot via \code{&}.
 #'
 #' @examples
 #' library(ggplot2); library(patchwork)
@@ -1577,10 +1579,10 @@ fmt_plot <- function(plot,
 #' @seealso [fmt_plot()]
 fmt_plot_base <- function(plot, ggtheme = NULL, labs_list = NULL,
                           scale_y_list = NULL, scale_x_list = NULL) {
-  if (!is.null(ggtheme))      plot <- plot & .resolve_theme(ggtheme)
-  if (!is.null(labs_list))    plot <- plot & do.call(ggplot2::labs, labs_list)
-  if (!is.null(scale_y_list)) plot <- plot & do.call(ggplot2::scale_y_continuous, scale_y_list)
-  if (!is.null(scale_x_list)) plot <- plot & do.call(ggplot2::scale_x_continuous, scale_x_list)
+  if (!is.null(ggtheme))      plot <- .broadcast_plot(plot, .resolve_theme(ggtheme))
+  if (!is.null(labs_list))    plot <- .broadcast_plot(plot, do.call(ggplot2::labs, labs_list))
+  if (!is.null(scale_y_list)) plot <- .broadcast_plot(plot, do.call(ggplot2::scale_y_continuous, scale_y_list))
+  if (!is.null(scale_x_list)) plot <- .broadcast_plot(plot, do.call(ggplot2::scale_x_continuous, scale_x_list))
   plot
 }
 

@@ -32,7 +32,7 @@ to skip.}
 to skip.}
 
 \item{plot.margin}{Numeric vector of length 1 or 4, or a \code{\link[ggplot2:margin]{ggplot2::margin()}}
-object. Applied to all plots via \code{&}.}
+object. Applied to every plot via \code{&}, including each plot of a list.}
 
 \item{tag_levels}{Character string for patchwork tag levels (e.g. \code{"A"},
 \code{"a"}, \code{"1"}). Only used when input is a patchwork object. Ignored with a

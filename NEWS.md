@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_plot()` and `fmt_plot_base()` format each plot of a plain list and
+  return the list. A list gave `NULL`, because patchwork's `&` falls back to
+  `+` for anything but a patchwork; a list holding a non-plot is an error.
+
 * The help pages of `fmt_plot()` and `fmt_plot_base()` show links and code
   formatting instead of raw Markdown such as `[fmt_axis()]` and `**every**`.
 

@@ -121,6 +121,15 @@
 }
 
 #' @noRd
+.broadcast_plot <- function(plot, e) {
+  # `&` adds `e` to every plot of a patchwork; for a plain list it falls back
+  # to `+`, which returns NULL, so list elements are formatted one by one.
+  if (inherits(plot, "gg")) return(plot & e)
+  .to_plot_list(plot)  # validates the list
+  lapply(plot, function(p) p & e)
+}
+
+#' @noRd
 .detect_scale_type <- function(plot, axis = c("x", "y"), defer = FALSE) {
   axis <- match.arg(axis)
   sc <- plot$scales$get_scales(axis)
