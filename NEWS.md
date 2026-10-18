@@ -1,5 +1,10 @@
 # UtilsR 0.6.8
 
+* `fmt_scale()` gives an updated scale its own copy of the secondary axis.
+  The copy shared the input plot's axis, and ggplot2 fills a `dup_axis()`'s
+  derived breaks and labels when a plot is drawn: drawing the result gave the
+  input plot's secondary axis the result's breaks.
+
 * `fmt_raster(method = "ggrastr")`, the default, rasterizes only point and
   tile layers, as `ggrastr::rasterise()` does by default. Lines, bars and
   polygons stay vector: as images they made a PDF larger (a 6-facet scatter

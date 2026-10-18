@@ -390,3 +390,26 @@ test_that("deferred temporal abbreviations use the actual scale's arguments", {
   expect_error(ggplot2::ggplot_build(fmt_scale(p, x = list(date_l = "%b", date_labels = "%Y"))),
                "unique")
 })
+
+test_that("updated scales do not share secondary axes with the input plot", {
+  right_labels <- function(plot) {
+    g <- ggplot2::ggplotGrob(plot)
+    text <- function(x) {
+      labels <- if (inherits(x, "text")) as.character(x$label) else character()
+      children <- if (inherits(x, "gtable")) x$grobs else x$children
+      c(labels, unlist(lapply(children, text), use.names = FALSE))
+    }
+    text(g$grobs[[which(g$layout$name == "axis-r")]])
+  }
+  base <- ggplot2::ggplot(data.frame(x = 1:8, y = 1:8), ggplot2::aes(x, y)) +
+    ggplot2::geom_point()
+  p <- base + ggplot2::scale_y_continuous(sec.axis = ggplot2::dup_axis())
+  q <- fmt_scale(p, y = list(breaks = c(2, 6)))
+  expect_identical(right_labels(q), c("2", "6"))
+  expect_identical(right_labels(p), c("2", "4", "6", "8"))
+  # Drawing p filled its own derived axis settings; a new axis follows again.
+  labelled <- fmt_scale(p, y = list(labels = function(x) paste0(x, "%"),
+                                    sec.axis = ggplot2::dup_axis()))
+  expect_identical(right_labels(labelled), c("2%", "4%", "6%", "8%"))
+  expect_identical(right_labels(p), c("2", "4", "6", "8"))
+})

@@ -250,6 +250,12 @@
   }
   copy <- scales$clone()
   copy$scales <- Map(flatten, scales$scales, copy$scales)
+  # ggplot2 fills derived secondary-axis fields in place when a plot is drawn;
+  # a child axis keeps those fills out of the input plot.
+  for (scale in copy$scales) {
+    if (inherits(scale$secondary.axis, "AxisSecondary"))
+      scale$secondary.axis <- do.call(ggplot2::ggproto, list(NULL, scale$secondary.axis))
+  }
   if (!is.null(copy$.fmt_expand_parent))
     copy$.fmt_expand_parent <- .scale_inference_parent(copy$.fmt_expand_parent)
   flatten(scales, copy)
