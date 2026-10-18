@@ -19,28 +19,28 @@ fmt_plot(
 \arguments{
 \item{plot}{A ggplot, patchwork, or list of ggplot objects.}
 
-\item{fmt_axis_list}{Named list of arguments for [fmt_axis()]. Set to `NULL`
+\item{fmt_axis_list}{Named list of arguments for \code{\link[=fmt_axis]{fmt_axis()}}. Set to \code{NULL}
 (default) to skip.}
 
-\item{fmt_tag_list}{Named list of arguments for [fmt_tag()]. Set to `NULL`
+\item{fmt_tag_list}{Named list of arguments for \code{\link[=fmt_tag]{fmt_tag()}}. Set to \code{NULL}
 to skip.}
 
-\item{fmt_legend_list}{Named list of arguments for [fmt_legend()]. Set to
-`NULL` to skip.}
+\item{fmt_legend_list}{Named list of arguments for \code{\link[=fmt_legend]{fmt_legend()}}. Set to
+\code{NULL} to skip.}
 
-\item{fmt_ref_list}{Named list of arguments for [fmt_ref()]. Set to `NULL`
+\item{fmt_ref_list}{Named list of arguments for \code{\link[=fmt_ref]{fmt_ref()}}. Set to \code{NULL}
 to skip.}
 
-\item{plot.margin}{Numeric vector of length 1 or 4, or a [ggplot2::margin()]
-object. Applied to all plots via `&`.}
+\item{plot.margin}{Numeric vector of length 1 or 4, or a \code{\link[ggplot2:margin]{ggplot2::margin()}}
+object. Applied to all plots via \code{&}.}
 
-\item{tag_levels}{Character string for patchwork tag levels (e.g. `"A"`,
-`"a"`, `"1"`). Only used when input is a patchwork object. Ignored with a
-warning when `fmt_tag_list` supplies explicit labels.
-Automatic tag levels already present in `plot` are preserved, with a
-conflict warning from [fmt_tag()].}
+\item{tag_levels}{Character string for patchwork tag levels (e.g. \code{"A"},
+\code{"a"}, \code{"1"}). Only used when input is a patchwork object. Ignored with a
+warning when \code{fmt_tag_list} supplies explicit labels.
+Automatic tag levels already present in \code{plot} are preserved, with a
+conflict warning from \code{\link[=fmt_tag]{fmt_tag()}}.}
 
-\item{axis_titles}{Passed to [patchwork::plot_layout()] `axis_titles`
+\item{axis_titles}{Passed to \code{\link[patchwork:plot_layout]{patchwork::plot_layout()}} \code{axis_titles}
 argument. Only used when input is a patchwork object.}
 
 \item{...}{Currently unused.}
@@ -49,9 +49,9 @@ argument. Only used when input is a patchwork object.}
 Same type as input.
 }
 \description{
-Convenience wrapper that chains [fmt_axis()], [fmt_tag()], [fmt_legend()],
-and [fmt_ref()] in sequence. Each sub-formatter is applied only when its
-corresponding `*_list` argument is non-NULL.
+Convenience wrapper that chains \code{\link[=fmt_axis]{fmt_axis()}}, \code{\link[=fmt_tag]{fmt_tag()}}, \code{\link[=fmt_legend]{fmt_legend()}},
+and \code{\link[=fmt_ref]{fmt_ref()}} in sequence. Each sub-formatter is applied only when its
+corresponding \verb{*_list} argument is non-NULL.
 }
 \examples{
 library(ggplot2)

@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* The help pages of `fmt_plot()` and `fmt_plot_base()` show links and code
+  formatting instead of raw Markdown such as `[fmt_axis()]` and `**every**`.
+
 * `fmt_axisTile()` warns once, when the plot is drawn, if no name in `colors`
   matches the axis values; a misspelled or wrongly cased name gave grey tiles
   or plain labels without notice. Axes with free facet scales are not checked.

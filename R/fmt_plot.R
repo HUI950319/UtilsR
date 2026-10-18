@@ -1445,6 +1445,7 @@ fmt_ref <- function(plot,
 #'                      fmt_legend_list = list(collect = TRUE))
 #' combined
 #'
+#' @md
 #' @export
 #' @family plot formatting
 fmt_plot <- function(plot,
@@ -1570,6 +1571,7 @@ fmt_plot <- function(plot,
 #' fmt_plot_base(p, ggtheme = "theme_km")   # string
 #' }
 #'
+#' @md
 #' @export
 #' @family plot formatting
 #' @seealso [fmt_plot()]

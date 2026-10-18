@@ -2,7 +2,7 @@
 % Please edit documentation in R/fmt_plot.R
 \name{fmt_plot_base}
 \alias{fmt_plot_base}
-\title{Broadcast theme / labs / scales onto a patchwork via `&`}
+\title{Broadcast theme / labs / scales onto a patchwork via \code{&}}
 \usage{
 fmt_plot_base(
   plot,
@@ -16,8 +16,8 @@ fmt_plot_base(
 \item{plot}{A patchwork (or ggplot) object.}
 
 \item{ggtheme}{Theme to broadcast. Polymorphic (resolved internally): a
-\code{ggplot2::theme} object, a theme **function** (e.g. \code{theme_my}),
-or a function-name **string** (e.g. \code{"theme_km"}). \code{NULL}
+\code{ggplot2::theme} object, a theme \strong{function} (e.g. \code{theme_my}),
+or a function-name \strong{string} (e.g. \code{"theme_km"}). \code{NULL}
 (default) leaves the theme untouched.}
 
 \item{labs_list}{Named list passed to \code{ggplot2::labs()}, e.g.
@@ -34,7 +34,7 @@ or a function-name **string** (e.g. \code{"theme_km"}). \code{NULL}
 The input plot with the requested layers broadcast via \code{&}.
 }
 \description{
-Apply a theme, axis labels, and continuous y/x scales to **every** panel of
+Apply a theme, axis labels, and continuous y/x scales to \strong{every} panel of
 a patchwork in one call, using patchwork's \code{&} operator. This is the
 packaged form of the legacy FeatureAnalysis helper \code{.fmt_plot.base()}:
 a list-driven wrapper that is handy when assembling multi-panel figures.
@@ -62,7 +62,7 @@ fmt_plot_base(p, ggtheme = "theme_km")   # string
 
 }
 \seealso{
-[fmt_plot()]
+\code{\link[=fmt_plot]{fmt_plot()}}
 
 Other plot formatting:
 \code{\link[=fmt_axis]{fmt_axis()}},
