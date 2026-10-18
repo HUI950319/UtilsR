@@ -151,14 +151,17 @@ be recovered. Restored grids continue to inherit parent grid-theme changes,
 including blank parent grids unless an available style explicitly disables
 blank inheritance.
 Grid lines still require corresponding scale breaks.</p>
-<p>If an automatically restored grid element's color matches the known opaque background,
-it becomes <code>"grey70"</code> (or <code>"grey30"</code> on a <code>"grey70"</code> background).
-This also applies to restored major, minor and axis-specific grid elements.
-This includes grids hidden by a blank root <code>line</code> element.
-Available plot styles and explicit grid colors, including those in <code>...</code>,
-retain their normal priority. Transparent panel fills are composited over a
-known opaque plot background for this check. If the resulting background is
-still transparent or unknown, its grid color is unchanged.</p>
+<p>Grids restored past a blank root <code>line</code> element, such as in
+<code><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_void()</a></code>, are drawn in <code>"grey85"</code> unless a grid element
+supplies its own colour, instead of taking the colour of the root line.</p>
+<p>Without <code>grid_color</code>, a displayed grid line whose colour matches the
+known opaque panel background, such as <code><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_gray()</a></code>'s white grid with
+<code>bg = "white"</code>, becomes <code>"grey70"</code> (or <code>"grey30"</code> on a
+<code>"grey70"</code> background). This applies to restored grids and to grid
+colours from the plot theme alike; grid colours given in <code>...</code> are kept.
+Transparent panel fills are composited over a known opaque plot background
+for this check. If the resulting background is still transparent or unknown,
+its grid color is unchanged.</p>
 <p>Ordinary plot leaves are formatted recursively. Layouts, annotations and list
 names are retained. Spacers, guide areas, frozen <code><a href="https://patchwork.data-imaginist.com/reference/wrap_elements.html" class="external-link">wrap_elements()</a></code> cells
 and inset overlays are returned unchanged; format their plots before wrapping

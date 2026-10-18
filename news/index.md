@@ -2,6 +2,13 @@
 
 ## UtilsR 0.6.8
 
+- [`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md)
+  and
+  [`fmt_plot_base()`](https://hui950319.github.io/UtilsR/reference/fmt_plot_base.md)
+  format each plot of a plain list and return the list. A list gave
+  `NULL`, because patchwork’s `&` falls back to `+` for anything but a
+  patchwork; a list holding a non-plot is an error.
+
 - The help pages of
   [`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md)
   and
@@ -36,6 +43,15 @@
   a 21 MB plot relabelled three times serialized to 90 MB, now 22 MB.
   [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
   did the same for panels holding a native single-panel facet.
+
+- [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md)
+  keeps displayed grids visible. Without `grid_color`, a grid drawn in
+  the panel background colour, such as
+  [`theme_gray()`](https://ggplot2.tidyverse.org/reference/ggtheme.html)’s
+  white grid with `bg = "white"`, becomes `"grey70"`; before, only
+  restored grids were checked. Grids restored under a blank root `line`
+  ([`theme_void()`](https://ggplot2.tidyverse.org/reference/ggtheme.html))
+  are `"grey85"` instead of the root line’s black.
 
 - [`fmt_flatten()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
   given `axes` without `axis_titles` drops the input’s `axis_titles` as
