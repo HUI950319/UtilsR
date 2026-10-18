@@ -2104,9 +2104,11 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
 #'   strips (recycled to `ncol` / `nrow`). `NULL` = light grey when
 #'   `top_right_fill = NULL`. Accepts R colour names, hexadecimal colours,
 #'   numeric palette indices and `NA`; `NA` gives a transparent fill.
-#' @param label_color Strip text colour. Default `"black"`. Accepts the same
-#'   R colour specifications as `top_fill`; `NULL` inherits the text colour
-#'   from the theme or existing ggh4x strip.
+#' @param label_color Strip text colour. Default `"auto"` uses black or white
+#'   text on each strip, whichever contrasts more with its fill, and black on
+#'   transparent fills. Accepts the same R colour specifications as
+#'   `top_fill`; `NULL` inherits the text colour from the theme or existing
+#'   ggh4x strip.
 #' @param top_right_fill Character vector of one or two `colorspace` sequential
 #'   HCL palette names used to generate the top and right fills. The first
 #'   palette is used for top strips and the second for right strips; a single
@@ -2156,7 +2158,7 @@ fmt_strip2 <- function(plot,
                        ncol        = NULL,
                        top_fill    = NULL,
                        right_fill  = NULL,
-                       label_color = "black",
+                       label_color = "auto",
                        top_right_fill = c("Grays", "Greens")) {
 
   check_dimension <- function(value, arg) {
@@ -2178,7 +2180,7 @@ fmt_strip2 <- function(plot,
   colours <- list(
     top_fill = if (!is.null(top_label)) top_fill,
     right_fill = if (!is.null(right_label)) right_fill,
-    label_color = if (!is.null(top_label) || !is.null(right_label)) label_color
+    label_color = if (!identical(label_color, "auto")) label_color
   )
   for (arg in names(colours)) {
     value <- colours[[arg]]
@@ -2204,7 +2206,7 @@ fmt_strip2 <- function(plot,
   }
   if (!is.null(top_label)) top_fill <- colours$top_fill
   if (!is.null(right_label)) right_fill <- colours$right_fill
-  label_color <- colours$label_color
+  if (!identical(label_color, "auto")) label_color <- colours$label_color
   info  <- .to_plot_list(plot)
 
   # Each nested grid contributes its dimensions without rebuilding the container.
@@ -2372,8 +2374,18 @@ fmt_strip2 <- function(plot,
 
     given_text <- if (!is.null(hidden)) hidden$strip$given_elements else
       original_facet$strip$given_elements
-    header_text <- function(axis) {
-      elements <- ggh4x::elem_list_text(colour = label_color, face = "bold")
+    # WCAG contrast: white text when it contrasts more with the fill than black.
+    text_colour <- function(fill) {
+      if (!identical(label_color, "auto")) return(label_color)
+      rgba <- grDevices::col2rgb(fill, alpha = TRUE)[, 1L] / 255
+      if (rgba[[4L]] == 0) return("black")
+      linear <- ifelse(rgba[1:3] <= 0.03928, rgba[1:3] / 12.92,
+                       ((rgba[1:3] + 0.055) / 1.055)^2.4)
+      luminance <- sum(c(0.2126, 0.7152, 0.0722) * linear)
+      if (1.05 / (luminance + 0.05) > (luminance + 0.05) / 0.05) "white" else "black"
+    }
+    header_text <- function(axis, fill) {
+      elements <- ggh4x::elem_list_text(colour = text_colour(fill), face = "bold")
       inherited <- given_text[[axis]]
       if (length(inherited) && !inherits(inherited[[1L]], "element_blank")) {
         elements <- lapply(elements, function(element) {
@@ -2393,8 +2405,8 @@ fmt_strip2 <- function(plot,
         strip = ggh4x::strip_themed(
           background_x = ggh4x::elem_list_rect(fill = top_bg),
           background_y = ggh4x::elem_list_rect(fill = right_bg),
-          text_x = header_text("text_x"),
-          text_y = header_text("text_y")
+          text_x = header_text("text_x", top_bg),
+          text_y = header_text("text_y", right_bg)
         )
       )
     } else if (need_top) {
@@ -2402,7 +2414,7 @@ fmt_strip2 <- function(plot,
         ggplot2::vars(.top. = !!top_label[grid_col]), strip.position = "top",
         strip = ggh4x::strip_themed(
           background_x = ggh4x::elem_list_rect(fill = top_bg),
-          text_x = header_text("text_x")
+          text_x = header_text("text_x", top_bg)
         )
       )
     } else { # need_right only
@@ -2410,7 +2422,7 @@ fmt_strip2 <- function(plot,
         ggplot2::vars(.right. = !!right_label[grid_row]), strip.position = "right",
         strip = ggh4x::strip_themed(
           background_y = ggh4x::elem_list_rect(fill = right_bg),
-          text_y = header_text("text_y")
+          text_y = header_text("text_y", right_bg)
         )
       )
     }

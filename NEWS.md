@@ -122,6 +122,12 @@
   figure could mix framed and unframed strips. On themes without a strip
   background, such as `theme_minimal()`, neither draws a border.
 
+* `fmt_strip2()`'s `label_color` defaults to `"auto"`: each header uses black
+  or white text, whichever contrasts more with its fill. Black bold text on
+  the darkest generated grey (`"#636363"`, used with one column or three or
+  more) had a contrast of 3.5:1; it is now white. Pass `label_color =
+  "black"` for the earlier text.
+
 * `fmt_flatten()` given `axes` without `axis_titles` drops the input's
   `axis_titles` as well, so axis titles follow `axes` as in `wrap_plots()`
   instead of staying collected.

@@ -903,6 +903,27 @@ test_that("fmt_strip2 keeps explicit fills ahead of top_right_fill palettes", {
   )
 })
 
+test_that("fmt_strip2 picks black or white header text for each fill", {
+  testthat::skip_if_not_installed("ggh4x")
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) + ggplot2::geom_point()
+  grid <- patchwork::wrap_plots(p, p, p, ncol = 3)
+  colours <- function(out) vapply(seq_along(out), function(i) {
+    .fmt_strip_text(out[[i]])[[1]]$gp$col
+  }, character(1))
+  out <- fmt_strip2(grid, top_label = c("A", "B", "C"))
+  expect_identical(out[[3]]$facet$strip$given_elements$background_x[[1]]@fill, "#636363")
+  expect_identical(colours(out), c("black", "black", "white"))
+  dark <- fmt_strip2(grid, top_label = c("A", "B", "C"), top_fill = c("navy", "yellow", NA))
+  expect_identical(colours(dark), c("white", "black", "black"))
+  rows <- fmt_strip2(patchwork::wrap_plots(p, p, ncol = 1), right_label = c("R1", "R2"),
+                     right_fill = c("darkgreen", "palegreen"))
+  expect_identical(colours(rows), c("white", "black"))
+  fixed <- fmt_strip2(grid, top_label = c("A", "B", "C"), label_color = "black")
+  expect_identical(colours(fixed), rep("black", 3))
+  expect_identical(formals(fmt_strip2)$label_color, "auto")
+  expect_error(fmt_strip2(grid, top_label = "A", label_color = c("auto", "red")), "label_color")
+})
+
 test_that("fmt_strip2 uses top_right_fill palettes by default", {
   testthat::skip_if_not_installed("ggh4x")
 

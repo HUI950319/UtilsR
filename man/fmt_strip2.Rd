@@ -11,7 +11,7 @@ fmt_strip2(
   ncol = NULL,
   top_fill = NULL,
   right_fill = NULL,
-  label_color = "black",
+  label_color = "auto",
   top_right_fill = c("Grays", "Greens")
 )
 }
@@ -45,9 +45,11 @@ strips (recycled to \code{ncol} / \code{nrow}). \code{NULL} = light grey when
 \code{top_right_fill = NULL}. Accepts R colour names, hexadecimal colours,
 numeric palette indices and \code{NA}; \code{NA} gives a transparent fill.}
 
-\item{label_color}{Strip text colour. Default \code{"black"}. Accepts the same
-R colour specifications as \code{top_fill}; \code{NULL} inherits the text colour
-from the theme or existing ggh4x strip.}
+\item{label_color}{Strip text colour. Default \code{"auto"} uses black or white
+text on each strip, whichever contrasts more with its fill, and black on
+transparent fills. Accepts the same R colour specifications as
+\code{top_fill}; \code{NULL} inherits the text colour from the theme or existing
+ggh4x strip.}
 
 \item{top_right_fill}{Character vector of one or two \code{colorspace} sequential
 HCL palette names used to generate the top and right fills. The first
