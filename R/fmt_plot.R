@@ -27,7 +27,7 @@
 #         .axis_tile_facet()           attach panel-relative color strips
 #
 # The container helpers (.to_plot_list / .from_plot_list /
-# flatten_patchwork) live in fmt_plot_utils.R, which is why every formatter
+# fmt_flatten) live in fmt_plot_utils.R, which is why every formatter
 # accepts a ggplot, a patchwork or a plain list of plots.
 #
 #   fmt_com: L1 validate arguments / recurse ordinary leaves
@@ -1945,7 +1945,7 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
 #' columns and a stratifier down rows.
 #'
 #' Typical use: a `get_vpd(EXP.obj, c(stratifier, exposure))` result flattened
-#' via [flatten_patchwork()] into a `4 x 2` grid (rows = stratifier levels,
+#' via [fmt_flatten()] into a `4 x 2` grid (rows = stratifier levels,
 #' columns = Variable / Partial dependence plot) -- `fmt_strip2()` then labels
 #' the two columns on top and the four rows on the right.
 #'

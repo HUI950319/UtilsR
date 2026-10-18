@@ -170,14 +170,15 @@ p + theme_my(base_size = 16)
 
 ---
 
-## `flatten_patchwork()` — Flatten Nested Patchwork
+## `fmt_flatten()` — Flatten Nested Patchwork
 
 ```{r flatten, eval=FALSE}
 library(patchwork)
 nested <- (p1 | p2) / (p3 | p4)
-flat <- flatten_patchwork(nested, ncol = 2, axis_titles = "collect")
+flat <- fmt_flatten(nested, ncol = 2, axis_titles = "collect")
 ```
 
+`flatten_patchwork()` is the same function under its original name.
 Returns a patchwork with ordinary grid cells at one level. Overall annotations
 and collection settings are retained; dimensions and design are rebuilt from
 the supplied layout arguments. Insets stay with their main plot, and `free()`

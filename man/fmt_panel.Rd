@@ -132,7 +132,6 @@ fmt_panel(p, grid = "y", grid_linetype = "dotted", grid_color = "grey70")
 }
 \seealso{
 Other plot formatting:
-\code{\link[=flatten_patchwork]{flatten_patchwork()}},
 \code{\link[=fmt_axis]{fmt_axis()}},
 \code{\link[=fmt_axisText]{fmt_axisText()}},
 \code{\link[=fmt_axisTile]{fmt_axisTile()}},
@@ -140,6 +139,7 @@ Other plot formatting:
 \code{\link[=fmt_boxplot]{fmt_boxplot()}},
 \code{\link[=fmt_com]{fmt_com()}},
 \code{\link[=fmt_expand]{fmt_expand()}},
+\code{\link[=fmt_flatten]{fmt_flatten()}},
 \code{\link[=fmt_his]{fmt_his()}},
 \code{\link[=fmt_legend]{fmt_legend()}},
 \code{\link[=fmt_plot]{fmt_plot()}},

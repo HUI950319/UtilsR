@@ -4,7 +4,8 @@
 #
 # Architecture (1 layer; consumed by every formatter in fmt_plot.R):
 #
-#   L1  flatten_patchwork(plot)                     -- public API
+#   L1  fmt_flatten(plot)                           -- public API
+#       (alias flatten_patchwork)
 #             flatten nested patchwork objects into a single grid
 #
 #   L2  .to_plot_list()        ggplot | patchwork | list -> list of ggplots
@@ -269,6 +270,8 @@
 #'
 #' Recursively extract ordinary grid cells from nested patchwork objects and
 #' arrange them in a new patchwork, optionally selecting or reordering cells.
+#' \code{flatten_patchwork()} is the same function under its original name,
+#' kept for existing code.
 #'
 #' @param plots A ggplot, patchwork object, grob, or nested list of these objects.
 #' @param ... Named layout arguments passed to
@@ -330,33 +333,33 @@
 #' \donttest{
 #' # Flatten nested patchwork
 #' nested <- (p1 | p2) / (p3 | p4)
-#' flatten_patchwork(nested, nrow = 1)
+#' fmt_flatten(nested, nrow = 1)
 #'
 #' # Select specific sub-plots
-#' flatten_patchwork(nested, select_inds = c(1, 3))
+#' fmt_flatten(nested, select_inds = c(1, 3))
 #'
 #' # Interleave indices 1, 3, 2, 4, then arrange in two columns
-#' flatten_patchwork(nested, nrow_inds_order = 2, ncol = 2)
+#' fmt_flatten(nested, nrow_inds_order = 2, ncol = 2)
 #'
 #' # Retain the overall title and collect matching axis titles
 #' annotated <- nested + plot_annotation(title = "Example plots")
-#' flatten_patchwork(annotated, ncol = 2, axis_titles = "collect")
+#' fmt_flatten(annotated, ncol = 2, axis_titles = "collect")
 #'
 #' # Names determine placement in a character design
-#' flatten_patchwork(list(B = p2, A = p1), design = "AB")
+#' fmt_flatten(list(B = p2, A = p1), design = "AB")
 #'
 #' # Keep a composite inset host together
 #' inset_group <- wrap_plots(list(p1 | p2)) +
 #'   inset_element(p3, .5, .5, 1, 1, align_to = "full")
-#' flatten_patchwork(list(inset_group, p4), ncol = 2)
+#' fmt_flatten(list(inset_group, p4), ncol = 2)
 #'
 #' # Retain a nested guide scope inside a wrapped cell
 #' kept_group <- (p1 | p2) + plot_layout(guides = "keep")
-#' flatten_patchwork(list(wrap_elements(full = kept_group), p3), guides = "collect")
+#' fmt_flatten(list(wrap_elements(full = kept_group), p3), guides = "collect")
 #' }
 #'
 #' @export
-flatten_patchwork <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) {
+fmt_flatten <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) {
   is_inset <- function(plot) {
     inherits(plot, "inset_patch") && (!inherits(plot, "patchwork") ||
       match("inset_patch", class(plot)) < match("patchwork", class(plot)))
@@ -498,5 +501,9 @@ flatten_patchwork <- function(plots, ..., select_inds = NULL, nrow_inds_order = 
   if (!is.null(annotation)) result <- result + annotation
   result
 }
+
+#' @rdname fmt_flatten
+#' @export
+flatten_patchwork <- fmt_flatten
 
 # NOTE: `.resolve_theme()` moved to utils-resolve.R (shared `.resolve_*` family).

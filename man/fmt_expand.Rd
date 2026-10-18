@@ -51,13 +51,13 @@ fmt_expand(p, add = c(0.5, 0), axis = "x")
 }
 \seealso{
 Other plot formatting:
-\code{\link[=flatten_patchwork]{flatten_patchwork()}},
 \code{\link[=fmt_axis]{fmt_axis()}},
 \code{\link[=fmt_axisText]{fmt_axisText()}},
 \code{\link[=fmt_axisTile]{fmt_axisTile()}},
 \code{\link[=fmt_bg]{fmt_bg()}},
 \code{\link[=fmt_boxplot]{fmt_boxplot()}},
 \code{\link[=fmt_com]{fmt_com()}},
+\code{\link[=fmt_flatten]{fmt_flatten()}},
 \code{\link[=fmt_his]{fmt_his()}},
 \code{\link[=fmt_legend]{fmt_legend()}},
 \code{\link[=fmt_panel]{fmt_panel()}},

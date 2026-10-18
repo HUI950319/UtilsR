@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_flatten()` is the new name of `flatten_patchwork()`, so it is found
+  with the other `fmt_*` formatters. `flatten_patchwork()` remains as the
+  same function without a deprecation warning.
+
 * `fmt_raster(method = "ragg")` and `method = "image"` leave the random
   stream where it was: ragg before 1.5.1 drew from it to name each capture
   device, so a later random step gave other results than without the raster.

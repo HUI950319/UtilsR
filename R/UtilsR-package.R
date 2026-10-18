@@ -70,7 +70,8 @@
 #'   \item{\code{\link{fmt_scale}}}{Set axis scales}
 #'   \item{\code{\link{fmt_expand}}}{Set axis expansion}
 #'   \item{\code{\link{fmt_boxplot}}}{Overlay boxplot layer}
-#'   \item{\code{\link{flatten_patchwork}}}{Flatten nested patchwork objects}
+#'   \item{\code{\link{fmt_flatten}}}{Flatten nested patchwork objects
+#'     (also \code{flatten_patchwork()})}
 #' }
 #'
 #' @section ggplot2 Themes:

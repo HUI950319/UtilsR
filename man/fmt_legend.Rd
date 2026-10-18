@@ -145,6 +145,7 @@ Other plot formatting:
 \code{\link[=fmt_boxplot]{fmt_boxplot()}},
 \code{\link[=fmt_com]{fmt_com()}},
 \code{\link[=fmt_expand]{fmt_expand()}},
+\code{\link[=fmt_flatten]{fmt_flatten()}},
 \code{\link[=fmt_his]{fmt_his()}},
 \code{\link[=fmt_panel]{fmt_panel()}},
 \code{\link[=fmt_plot]{fmt_plot()}},

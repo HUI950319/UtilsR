@@ -15,6 +15,14 @@ flatten_test_labels <- function(grob) {
   c(labels, unlist(lapply(children, flatten_test_labels), use.names = FALSE))
 }
 
+test_that("fmt_flatten() is flatten_patchwork() under its fmt_* name", {
+  expect_identical(flatten_patchwork, fmt_flatten)
+  p1 <- flatten_test_plot("First")
+  p2 <- flatten_test_plot("Second")
+  expect_equal(flatten_test_titles(fmt_flatten((p1 | p2) / p1)),
+               c("First", "Second", "First"))
+})
+
 test_that("flattening accepts lists and preserves named design assignments", {
   p1 <- flatten_test_plot("First")
   p2 <- flatten_test_plot("Second")

@@ -112,6 +112,7 @@ reference:
       - fmt_boxplot
       - fmt_point
       - fmt_raster
+      - fmt_flatten
       - flatten_patchwork
 
   - title: Themes

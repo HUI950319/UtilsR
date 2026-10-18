@@ -69,7 +69,7 @@ columns and a stratifier down rows.
 }
 \details{
 Typical use: a \code{get_vpd(EXP.obj, c(stratifier, exposure))} result flattened
-via \code{\link[=flatten_patchwork]{flatten_patchwork()}} into a \verb{4 x 2} grid (rows = stratifier levels,
+via \code{\link[=fmt_flatten]{fmt_flatten()}} into a \verb{4 x 2} grid (rows = stratifier levels,
 columns = Variable / Partial dependence plot) -- \code{fmt_strip2()} then labels
 the two columns on top and the four rows on the right.
 
@@ -123,6 +123,7 @@ Other plot formatting:
 \code{\link[=fmt_boxplot]{fmt_boxplot()}},
 \code{\link[=fmt_com]{fmt_com()}},
 \code{\link[=fmt_expand]{fmt_expand()}},
+\code{\link[=fmt_flatten]{fmt_flatten()}},
 \code{\link[=fmt_his]{fmt_his()}},
 \code{\link[=fmt_legend]{fmt_legend()}},
 \code{\link[=fmt_panel]{fmt_panel()}},
