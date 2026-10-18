@@ -5111,6 +5111,8 @@ fmt_scale <- function(plot, x = NULL, y = NULL) {
 #' Repeated calls with unchanged expansion reuse existing position scales.
 #' When combined with \code{fmt_scale()}, deferred settings are retained;
 #' the most recent explicit expansion setting takes precedence.
+#' A coordinate system with \code{expand = FALSE} ignores scale expansion,
+#' so such plots give a warning.
 #'
 #' @param plot A ggplot, patchwork, or list of ggplots.
 #' @param mult Finite numeric expansion factor of length one or two. A scalar
@@ -5142,7 +5144,13 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
     cli::cli_abort("`mult` and `add` must contain only finite values.")
 
   axes <- if (is.null(axis)) c("x", "y") else axis
+  coord_ignores <- FALSE
   fmt_expand_one <- function(p) {
+    # A scalar or four-sided FALSE disables expansion on every side.
+    expand <- p$coordinates$expand
+    if (is.logical(expand) && !anyNA(expand) && !any(expand) &&
+        (length(expand) == 4L || length(expand) == 1L && is.null(names(expand))))
+      coord_ignores <<- TRUE
     scales_cloned <- FALSE
     defer_scale <- any(vapply(p$layers, function(layer) {
       is.function(layer$data)
@@ -5183,6 +5191,10 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 
   info <- .to_plot_list(plot, recurse = TRUE)
   info$plots <- lapply(info$plots, fmt_expand_one)
+  if (coord_ignores) {
+    cli::cli_warn(c("A coordinate system with {.code expand = FALSE} ignores scale expansion.",
+                    i = "Remove that setting for {.fn fmt_expand} to take effect."))
+  }
   .from_plot_list(info$plots, info$is_patchwork, info$is_single,
                   pw_orig = info$pw_orig, recurse = TRUE)
 }

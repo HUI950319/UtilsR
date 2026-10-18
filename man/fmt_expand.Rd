@@ -41,6 +41,8 @@ statistic mappings retain ggplot2's native scale inference at build time.
 Repeated calls with unchanged expansion reuse existing position scales.
 When combined with \code{fmt_scale()}, deferred settings are retained;
 the most recent explicit expansion setting takes precedence.
+A coordinate system with \code{expand = FALSE} ignores scale expansion,
+so such plots give a warning.
 }
 \examples{
 library(ggplot2)

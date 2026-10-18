@@ -705,3 +705,19 @@ test_that("implicit extension scales retain native scale_type dispatch", {
                  ggplot2::expansion(mult = 0.1))
   }, finally = rm(list = method_name, envir = methods))
 })
+
+test_that("coordinate systems that disable expansion warn once per call", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3), ggplot2::aes(x, y)) +
+    ggplot2::geom_point()
+  expect_warning(fmt_expand(p + ggplot2::coord_cartesian(expand = FALSE), mult = 0.5),
+                 "expand = FALSE")
+  both <- patchwork::wrap_plots(p + ggplot2::coord_flip(expand = FALSE),
+                                p + ggplot2::coord_cartesian(expand = FALSE))
+  expect_length(testthat::capture_warnings(fmt_expand(both, mult = 0.5)), 1L)
+  expect_no_warning(fmt_expand(p, mult = 0.5))
+  if (utils::packageVersion("ggplot2") >= "4.0.0") {
+    # Only one side is disabled, so the other sides still expand.
+    expect_no_warning(fmt_expand(p + ggplot2::coord_cartesian(expand = c(left = FALSE)),
+                                 mult = 0.5))
+  }
+})
