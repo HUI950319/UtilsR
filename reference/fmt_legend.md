@@ -39,7 +39,8 @@ fmt_legend(
     (inside plot corners).
 
   - Numeric vector of length 2: \`c(x, y)\` coordinates (0-1) for
-    inside-plot positioning.
+    inside-plot positioning. The legend side nearest each coordinate is
+    placed at it; a coordinate of exactly 0.5 centres the legend.
 
   Default \`NULL\` (no change).
 

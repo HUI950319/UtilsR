@@ -74,7 +74,7 @@ columns and a stratifier down rows.</p>
 <span>  ncol <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  top_fill <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  right_fill <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  label_color <span class="op">=</span> <span class="st">"black"</span>,</span>
+<span>  label_color <span class="op">=</span> <span class="st">"auto"</span>,</span>
 <span>  top_right_fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Grays"</span>, <span class="st">"Greens"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -123,9 +123,11 @@ numeric palette indices and <code>NA</code>; <code>NA</code> gives a transparent
 
 
 <dt id="arg-label-color">label_color<a class="anchor" aria-label="anchor" href="#arg-label-color"></a></dt>
-<dd><p>Strip text colour. Default <code>"black"</code>. Accepts the same
-R colour specifications as <code>top_fill</code>; <code>NULL</code> inherits the text colour
-from the theme or existing ggh4x strip.</p></dd>
+<dd><p>Strip text colour. Default <code>"auto"</code> uses black or white
+text on each strip, whichever contrasts more with its fill, and black on
+transparent fills. Accepts the same R colour specifications as
+<code>top_fill</code>; <code>NULL</code> inherits the text colour from the theme or existing
+ggh4x strip.</p></dd>
 
 
 <dt id="arg-top-right-fill">top_right_fill<a class="anchor" aria-label="anchor" href="#arg-top-right-fill"></a></dt>

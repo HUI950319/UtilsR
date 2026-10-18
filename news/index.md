@@ -2,6 +2,11 @@
 
 ## UtilsR 0.6.8
 
+- `fmt_axisTile(mode = "tile")` returns a ggplot for a ggplot, and a
+  list of ggplots for a list of them; it wrapped each one in a
+  patchwork, which drew the same color strip but changed the object’s
+  class.
+
 - [`fmt_axisTile()`](https://hui950319.github.io/UtilsR/reference/fmt_axisTile.md)’s
   `text_size`, `text_face`, `text_angle` and `text_color` default to
   `NULL`, which keeps the plot’s own axis text style. They were 9,
@@ -36,6 +41,12 @@
 - [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
   warns when a plot’s coordinate system has `expand = FALSE`, which
   makes ggplot2 ignore the scale expansion it sets.
+
+- `fmt_legend(legend.position = c(x, y))` centres the legend on a
+  coordinate of exactly 0.5: `c(0.5, 0.95)` put the legend’s left edge
+  on the panel’s centre line, so a “top centre” legend sat right of
+  centre. Other coordinates and the corner codes keep their
+  justification.
 
 - [`fmt_text()`](https://hui950319.github.io/UtilsR/reference/fmt_text.md)
   sets a patchwork’s `axis_titles` only when `xlab` or `ylab` is
@@ -155,6 +166,13 @@
   background, such as
   [`theme_minimal()`](https://ggplot2.tidyverse.org/reference/ggtheme.html),
   neither draws a border.
+
+- [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)’s
+  `label_color` defaults to `"auto"`: each header uses black or white
+  text, whichever contrasts more with its fill. Black bold text on the
+  darkest generated grey (`"#636363"`, used with one column or three or
+  more) had a contrast of 3.5:1; it is now white. Pass
+  `label_color = "black"` for the earlier text.
 
 - [`fmt_flatten()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
   given `axes` without `axis_titles` drops the input’s `axis_titles` as

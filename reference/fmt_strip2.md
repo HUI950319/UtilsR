@@ -16,7 +16,7 @@ fmt_strip2(
   ncol = NULL,
   top_fill = NULL,
   right_fill = NULL,
-  label_color = "black",
+  label_color = "auto",
   top_right_fill = c("Grays", "Greens")
 )
 ```
@@ -64,9 +64,11 @@ fmt_strip2(
 
 - label_color:
 
-  Strip text colour. Default `"black"`. Accepts the same R colour
-  specifications as `top_fill`; `NULL` inherits the text colour from the
-  theme or existing ggh4x strip.
+  Strip text colour. Default `"auto"` uses black or white text on each
+  strip, whichever contrasts more with its fill, and black on
+  transparent fills. Accepts the same R colour specifications as
+  `top_fill`; `NULL` inherits the text colour from the theme or existing
+  ggh4x strip.
 
 - top_right_fill:
 

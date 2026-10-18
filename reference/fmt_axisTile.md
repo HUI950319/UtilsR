@@ -104,9 +104,8 @@ fmt_axisTile(
 
 ## Value
 
-In tile mode, a formatted standalone ggplot is wrapped in a patchwork;
-patchworks retain their container and lists return lists of formatted
-plots. Text mode retains the input container type. Empty-data and
+Same type as input (ggplot, patchwork, or list) in both modes, with
+layouts, annotations and list names retained. Empty-data and
 disabled-guide plots are unchanged.
 
 ## Details
