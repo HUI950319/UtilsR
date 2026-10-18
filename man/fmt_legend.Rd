@@ -52,6 +52,7 @@ requested. Default `FALSE`.}
 to match the number of subplots. Automatically detects which aesthetics
 (colour, fill, shape, etc.) are mapped and renames their legend titles.
 Also covers aesthetics renamed by \pkg{ggnewscale} for multiple scales.
+An empty string removes the titles without leaving space.
 Default `NULL` (no change).}
 
 \item{scale}{One finite positive number. Proportionally scale the legend.

@@ -45,10 +45,10 @@ A vector sets different labels per plot.}
 \item{title}{Plot title. \code{NULL} = no change, \code{""} = remove.
 A vector sets different titles per plot.}
 
-\item{subtitle}{Plot subtitle. \code{NULL} = no change.
+\item{subtitle}{Plot subtitle. \code{NULL} = no change, \code{""} = remove.
 A vector sets different subtitles per plot.}
 
-\item{caption}{Plot caption. \code{NULL} = no change.
+\item{caption}{Plot caption. \code{NULL} = no change, \code{""} = remove.
 A vector sets different captions per plot.}
 
 \item{legend_title}{Legend title, applied to every mapped colour, fill,

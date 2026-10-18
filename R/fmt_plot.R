@@ -744,7 +744,7 @@ fmt_tag <- function(plot,
   rename_guide <- function(guide) {
     if (!inherits(guide, "Guide") || inherits(guide, "GuideNone")) return(guide)
     params <- guide$params
-    params$title <- label
+    params["title"] <- list(label)
     do.call(ggplot2::ggproto, list(NULL, guide, params = params), envir = baseenv())
   }
   mapped <- unique(c(names(p$mapping), unlist(lapply(p$layers, function(layer) {
@@ -813,6 +813,7 @@ fmt_tag <- function(plot,
 #'   to match the number of subplots. Automatically detects which aesthetics
 #'   (colour, fill, shape, etc.) are mapped and renames their legend titles.
 #'   Also covers aesthetics renamed by \pkg{ggnewscale} for multiple scales.
+#'   An empty string removes the titles without leaving space.
 #'   Default `NULL` (no change).
 #' @param scale One finite positive number. Proportionally scale the legend.
 #'   \code{0.8} = shrink to 80\%, \code{1.2} = enlarge to 120\%.
@@ -958,7 +959,10 @@ fmt_legend <- function(plot,
   # ---- Rename legend titles per subplot ----
   if (!is.null(title)) {
     title <- rep_len(title, n)
-    for (i in seq_len(n)) plots[[i]] <- .set_legend_title(plots[[i]], title[i])
+    # ggplot2 leaves no space only for a NULL title.
+    for (i in seq_len(n)) {
+      plots[[i]] <- .set_legend_title(plots[[i]], if (identical(title[i], "")) NULL else title[i])
+    }
   }
 
   # ---- Resolve corner shorthand to numeric coordinates ----
@@ -2768,9 +2772,9 @@ fmt_panel <- function(plot,
 #'   A vector sets different labels per plot.
 #' @param title Plot title. \code{NULL} = no change, \code{""} = remove.
 #'   A vector sets different titles per plot.
-#' @param subtitle Plot subtitle. \code{NULL} = no change.
+#' @param subtitle Plot subtitle. \code{NULL} = no change, \code{""} = remove.
 #'   A vector sets different subtitles per plot.
-#' @param caption Plot caption. \code{NULL} = no change.
+#' @param caption Plot caption. \code{NULL} = no change, \code{""} = remove.
 #'   A vector sets different captions per plot.
 #' @param legend_title Legend title, applied to every mapped colour, fill,
 #'   shape, size, linewidth, alpha and linetype legend (including
@@ -2927,6 +2931,8 @@ fmt_text <- function(plot,
     if (!is.null(title_vec[[i]]))    labs_i$title    <- title_vec[[i]]
     if (!is.null(subtitle_vec[[i]])) labs_i$subtitle <- subtitle_vec[[i]]
     if (!is.null(caption_vec[[i]]))  labs_i$caption  <- caption_vec[[i]]
+    # ggplot2 leaves no space only for NULL labels; "" keeps an empty row.
+    labs_i[vapply(labs_i, identical, logical(1), "")] <- list(NULL)
     if (length(labs_i) > 0L) p <- p + do.call(ggplot2::labs, labs_i)
     if (!is.null(extra_layer))  p <- p + extra_layer
     if (length(styles))         p <- p + style_theme_for(p)

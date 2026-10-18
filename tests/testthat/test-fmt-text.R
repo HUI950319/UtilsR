@@ -137,3 +137,23 @@ test_that("fmt_text() axis title styles reach sides that set them", {
   expect_identical(list(y$size, y$face), list(20, "bold"))
   expect_s3_class(out$theme$axis.title.y.right, "element_blank")
 })
+
+test_that("fmt_text() removes labels given as empty strings", {
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  d <- data.frame(x = 1:3, y = c(2, 1, 3))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    ggplot2::labs(title = "Title", subtitle = "Sub", caption = "Cap", x = "X", y = "Y")
+  g <- ggplot2::ggplotGrob(fmt_text(p, title = "", subtitle = "", caption = "",
+                                    xlab = "", ylab = ""))
+  size <- function(name, along = c("height", "width")) {
+    if (match.arg(along) == "height") {
+      grid::convertHeight(g$heights[g$layout$t[g$layout$name == name]], "mm", valueOnly = TRUE)
+    } else {
+      grid::convertWidth(g$widths[g$layout$l[g$layout$name == name]], "mm", valueOnly = TRUE)
+    }
+  }
+  expect_equal(vapply(c("title", "subtitle", "caption", "xlab-b"), size, numeric(1)),
+               c(title = 0, subtitle = 0, caption = 0, `xlab-b` = 0))
+  expect_equal(size("ylab-l", "width"), 0)
+})

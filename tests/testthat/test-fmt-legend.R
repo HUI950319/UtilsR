@@ -945,3 +945,13 @@ test_that("containers without editable plots still validate legend controls", {
   expect_warning(output <- fmt_legend(list(), collect = TRUE), "patchwork")
   expect_identical(output, list())
 })
+
+test_that("fmt_legend() title = '' removes the title without leaving space", {
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  p <- legend_test_plot()
+  expect_equal(legend_test_box_size(fmt_legend(p, title = "")),
+               legend_test_box_size(p + ggplot2::labs(colour = NULL)))
+  expect_equal(legend_test_box_size(fmt_legend(legend_test_plot(TRUE), title = "")),
+               legend_test_box_size(legend_test_plot(TRUE) + ggplot2::labs(colour = NULL)))
+})

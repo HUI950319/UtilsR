@@ -26,6 +26,11 @@
 * `fmt_expand()` warns when a plot's coordinate system has `expand = FALSE`,
   which makes ggplot2 ignore the scale expansion it sets.
 
+* An empty string now removes a title without leaving space, as documented:
+  `fmt_text(title = "", xlab = "", ...)` (also `ylab`, `subtitle` and
+  `caption`) kept an empty title row of about 6 mm and an empty axis title row
+  of about 5 mm, and `fmt_legend(title = "")` kept about 5.6 mm above the keys.
+
 * `fmt_text(axis_title_size, axis_title_face, axis_title_color)` also reach
   axis title sides that set the same field themselves. A theme with an
   explicit `axis.title.x` size, as several RegR plots use, kept that size and
