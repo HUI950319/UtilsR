@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fmt_axisTile(mode = "tile")` returns a ggplot for a ggplot, and a list of
+  ggplots for a list of them; it wrapped each one in a patchwork, which drew
+  the same color strip but changed the object's class.
+
 * `fmt_axisTile()`'s `text_size`, `text_face`, `text_angle` and `text_color`
   default to `NULL`, which keeps the plot's own axis text style. They were 9,
   `"plain"`, 45 degrees on the x axis and `"black"`, so even `mode = "text"`,

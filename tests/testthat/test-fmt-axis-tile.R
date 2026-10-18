@@ -60,7 +60,7 @@ test_that("axis tiles validate color keys and scalar styling arguments", {
 test_that("missing axis colors use documented fallbacks and text visibility", {
   p <- axis_tile_plot()
   tile <- fmt_axisTile(p, axis_tile_colors["A"])
-  expect_equal(axis_tile_rects(patchwork::patchworkGrob(tile))$fill,
+  expect_equal(axis_tile_rects(ggplot2::ggplotGrob(tile))$fill,
                  c(axis_tile_colors[["A"]], "#B3B3B3", "#B3B3B3"))
   text <- suppressWarnings(fmt_axisTile(p, axis_tile_colors["A"], mode = "text",
                                          text_color = "purple"))
@@ -75,7 +75,7 @@ test_that("axis colors follow trained scale order, breaks and display labels", {
   p <- axis_tile_plot() + ggplot2::scale_x_discrete(
     limits = c("C", "B", "A"), breaks = c("C", "A"), labels = c("Gamma", "Alpha"))
   tile <- fmt_axisTile(p, axis_tile_colors)
-  g <- patchwork::patchworkGrob(tile)
+  g <- ggplot2::ggplotGrob(tile)
   expect_equal(axis_tile_rects(g)$fill, unname(axis_tile_colors[c("C", "B", "A")]))
   expect_true(all(c("Gamma", "Alpha") %in% axis_tile_text(g)$label))
   expect_false(any(axis_tile_text(g)$label %in% c("A", "B", "C")))
@@ -90,12 +90,12 @@ test_that("axis tiles support expression and layer mappings without eager evalua
   p <- ggplot2::ggplot(mtcars, ggplot2::aes(factor(cyl), mpg)) + ggplot2::geom_boxplot()
   for (mode in c("tile", "text")) {
     q <- fmt_axisTile(p, colors, mode = mode)
-    expect_no_error(if (mode == "tile") patchwork::patchworkGrob(q) else ggplot2::ggplotGrob(q))
+    expect_no_error(ggplot2::ggplotGrob(q))
   }
   p <- ggplot2::ggplot() + ggplot2::geom_col(
     data = axis_tile_plot()$data, ggplot2::aes(.data[["category"]], value))
   q <- fmt_axisTile(p, axis_tile_colors)
-  expect_equal(nrow(axis_tile_rects(patchwork::patchworkGrob(q))), 3L)
+  expect_equal(nrow(axis_tile_rects(ggplot2::ggplotGrob(q))), 3L)
   calls <- 0L
   p <- ggplot2::ggplot(data.frame(category = c("A", "B"), value = 1:2),
                        ggplot2::aes(category, value)) + ggplot2::geom_point(
@@ -105,7 +105,7 @@ test_that("axis tiles support expression and layer mappings without eager evalua
   q <- fmt_axisTile(p, axis_tile_colors)
   expect_equal(calls, 0L)
   expect_identical(.Random.seed, seed)
-  patchwork::patchworkGrob(q)
+  ggplot2::ggplotGrob(q)
   expect_equal(calls, 1L)
 })
 
@@ -113,11 +113,11 @@ test_that("axis tiles follow dropped and missing categories", {
   p <- axis_tile_plot()
   p$data <- p$data[c(1, 3), ]
   q <- fmt_axisTile(p, axis_tile_colors)
-  expect_equal(axis_tile_rects(patchwork::patchworkGrob(q))$fill,
+  expect_equal(axis_tile_rects(ggplot2::ggplotGrob(q))$fill,
                  unname(axis_tile_colors[c("A", "C")]))
   p$data$category[2] <- NA
   q <- fmt_axisTile(p, axis_tile_colors)
-  expect_equal(axis_tile_rects(patchwork::patchworkGrob(q))$fill,
+  expect_equal(axis_tile_rects(ggplot2::ggplotGrob(q))$fill,
                  c(axis_tile_colors[["A"]], "#B3B3B3"))
 })
 
@@ -179,7 +179,7 @@ test_that("axis tiles respect physical sides and preserve existing guide control
   for (case in cases) {
     angle <- if (case[[2]] == "x") 45 else 0
     q <- fmt_axisTile(case[[1]], axis_tile_colors, axis = case[[2]], text_angle = angle)
-    g <- ggplot2::ggplotGrob(q[[1]])
+    g <- ggplot2::ggplotGrob(q)
     rects <- axis_tile_rects(g$grobs[[match(case[[3]], g$layout$name)]])
     expect_equal(rects$fill, unname(axis_tile_colors))
     labels <- axis_tile_text(g$grobs[[match(case[[3]], g$layout$name)]])
@@ -195,10 +195,10 @@ test_that("axis tiles respect physical sides and preserve existing guide control
   params <- original$params
   p <- p + ggplot2::scale_x_discrete(guide = original) + ggplot2::coord_flip()
   q <- fmt_axisTile(p, axis_tile_colors, axis = "y")
-  expect_equal(q[[1]]$guides$guides$y$params$n.dodge, 2)
-  expect_identical(q[[1]]$guides$guides$y$params$check.overlap, TRUE)
+  expect_equal(q$guides$guides$y$params$n.dodge, 2)
+  expect_identical(q$guides$guides$y$params$check.overlap, TRUE)
   expect_identical(original$params, params)
-  expect_no_error(patchwork::patchworkGrob(q))
+  expect_no_error(ggplot2::ggplotGrob(q))
 })
 
 test_that("axis tiles leave disabled and continuous axes visually unchanged", {
@@ -222,7 +222,7 @@ test_that("axis tiles use non-empty layer data and reject unsupported coordinate
   p <- ggplot2::ggplot(data.frame(category = character(), value = numeric())) +
     ggplot2::geom_col(data = axis_tile_plot()$data, ggplot2::aes(category, value))
   q <- fmt_axisTile(p, axis_tile_colors)
-  expect_equal(axis_tile_rects(patchwork::patchworkGrob(q))$fill, unname(axis_tile_colors))
+  expect_equal(axis_tile_rects(ggplot2::ggplotGrob(q))$fill, unname(axis_tile_colors))
   for (mode in c("tile", "text")) {
     for (coord in list(ggplot2::coord_polar(), ggplot2::coord_radial())) {
       expect_error(fmt_axisTile(axis_tile_plot() + coord, axis_tile_colors, mode = mode),
@@ -239,9 +239,9 @@ test_that("axis tile positions follow each facet's trained expansion and statist
     ggplot2::scale_x_discrete(expand = ggplot2::expansion(add = 2)) +
     ggplot2::labs(x = "CATEGORY_TITLE")
   q <- fmt_axisTile(p, axis_tile_colors)
-  build <- ggplot2::ggplot_build(q[[1]])
+  build <- ggplot2::ggplot_build(q)
   expect_equal(build$data, ggplot2::ggplot_build(p)$data)
-  g <- ggplot2::ggplotGrob(q[[1]])
+  g <- ggplot2::ggplotGrob(q)
   indices <- grep("^axis-b", g$layout$name)
   indices <- indices[order(g$layout$l[indices])]
   for (i in seq_along(indices)) {
@@ -261,7 +261,7 @@ test_that("axis tile positions follow each facet's trained expansion and statist
 test_that("axis tile thickness retains panel proportions and independent axis modes", {
   p <- axis_tile_plot()
   q <- fmt_axisTile(p, axis_tile_colors, tile_height = 0.12)
-  g <- ggplot2::ggplotGrob(q[[1]])
+  g <- ggplot2::ggplotGrob(q)
   strip <- g$layout$t[match("panel-axis-tile-b", g$layout$name)]
   panel <- g$layout$t[match("panel", g$layout$name)]
   expect_equal(as.numeric(g$heights[strip]) / as.numeric(g$heights[panel]), 0.12)
@@ -270,11 +270,11 @@ test_that("axis tile thickness retains panel proportions and independent axis mo
   p <- ggplot2::ggplot(p$data, ggplot2::aes(category, second)) + ggplot2::geom_point()
   colors_y <- stats::setNames(axis_tile_colors, c("D", "E", "F"))
   both <- fmt_axisTile(fmt_axisTile(p, axis_tile_colors), colors_y, axis = "y")
-  expect_equal(nrow(axis_tile_rects(patchwork::patchworkGrob(both))), 6L)
+  expect_equal(nrow(axis_tile_rects(ggplot2::ggplotGrob(both))), 6L)
   mixed <- fmt_axisTile(both, colors_y, axis = "y", mode = "text")
-  expect_equal(nrow(axis_tile_rects(patchwork::patchworkGrob(mixed))), 3L)
+  expect_equal(nrow(axis_tile_rects(ggplot2::ggplotGrob(mixed))), 3L)
   text <- fmt_axisTile(mixed, axis_tile_colors, mode = "text")
-  expect_null(axis_tile_rects(patchwork::patchworkGrob(text)))
+  expect_null(axis_tile_rects(ggplot2::ggplotGrob(text)))
 })
 
 test_that("later axis formatters can hide and restyle colored guides", {
@@ -359,7 +359,7 @@ test_that("axis tile bounds retain decoration required by native guides", {
     })
   p <- axis_tile_plot() + ggplot2::guides(x = guide)
   q <- fmt_axisTile(p, axis_tile_colors)
-  expect_no_error(ggplot2::ggplotGrob(q[[1]]))
+  expect_no_error(ggplot2::ggplotGrob(q))
 })
 
 test_that("collected axes retain one color strip per retained guide", {
@@ -378,8 +378,8 @@ test_that("collected axes retain one color strip per retained guide", {
   hidden <- fmt_axisTile((p / p) + patchwork::plot_layout(axes = "collect_x"),
                          axis_tile_colors, show_text = FALSE)
   expect_equal(nrow(axis_tile_rects(patchwork::patchworkGrob(hidden))), 3L)
-  a <- fmt_axisTile(p, axis_tile_colors)[[1]]
-  b <- fmt_axisTile(p, axis_tile_colors[c("C", "B", "A")] |> stats::setNames(c("A", "B", "C")))[[1]]
+  a <- fmt_axisTile(p, axis_tile_colors)
+  b <- fmt_axisTile(p, axis_tile_colors[c("C", "B", "A")] |> stats::setNames(c("A", "B", "C")))
   different <- (a / b) + patchwork::plot_layout(axes = "collect_x")
   expect_equal(nrow(axis_tile_rects(patchwork::patchworkGrob(different))), 6L)
   expect_equal(sum(axis_tile_text(patchwork::patchworkGrob(different))$label %in% c("A", "B", "C")), 6L)
@@ -454,4 +454,18 @@ test_that("text styling defaults keep the plot's axis text style", {
   expect_equal(c(labels$hjust[1], labels$vjust[1]), c(1, 1))
   expect_equal(labels$colour, rep("purple", 3))
   expect_equal(unique(fonts(explicit)), 1L)
+})
+
+test_that("tile mode returns the input container type", {
+  p <- axis_tile_plot()
+  q <- fmt_axisTile(p, axis_tile_colors)
+  expect_s3_class(q, "ggplot")
+  expect_false(inherits(q, "patchwork"))
+  expect_equal(nrow(axis_tile_rects(ggplot2::ggplotGrob(q))), 3L)
+  listed <- fmt_axisTile(list(a = p, b = p | p), axis_tile_colors)
+  expect_named(listed, c("a", "b"))
+  expect_false(inherits(listed$a, "patchwork"))
+  expect_s3_class(listed$b, "patchwork")
+  # Formatted plots still combine with their own strips.
+  expect_equal(nrow(axis_tile_rects(patchwork::patchworkGrob(q | q))), 6L)
 })

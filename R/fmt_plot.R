@@ -3328,9 +3328,8 @@ fmt_axisText <- function(plot,
 #' @param show_text Logical. Show text labels below/beside tiles?
 #'   Default \code{TRUE}. Set \code{FALSE} to hide labels in either mode.
 #'
-#' @return In tile mode, a formatted standalone ggplot is wrapped in a patchwork;
-#'   patchworks retain their container and lists return lists of formatted plots.
-#'   Text mode retains the input container type. Empty-data and disabled-guide
+#' @return Same type as input (ggplot, patchwork, or list) in both modes, with
+#'   layouts, annotations and list names retained. Empty-data and disabled-guide
 #'   plots are unchanged.
 #'
 #' @examples
@@ -3472,20 +3471,8 @@ fmt_axisTile <- function(plot,
     p
   }
   info$plots <- lapply(info$plots, format_one)
-  result <- .from_plot_list(info$plots, info$is_patchwork, info$is_single,
-                            pw_orig = info$pw_orig, recurse = TRUE)
-  if (mode == "tile" && !info$is_patchwork) {
-    if (info$is_single) {
-      if (!identical(result, plot)) result <- patchwork::wrap_plots(result)
-    } else {
-      for (i in seq_along(result)) {
-        if (!inherits(plot[[i]], "patchwork") && !identical(result[[i]], plot[[i]])) {
-          result[[i]] <- patchwork::wrap_plots(result[[i]])
-        }
-      }
-    }
-  }
-  result
+  .from_plot_list(info$plots, info$is_patchwork, info$is_single,
+                  pw_orig = info$pw_orig, recurse = TRUE)
 }
 
 #' Adapt an axis guide to color trained discrete categories

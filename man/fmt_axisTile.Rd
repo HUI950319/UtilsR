@@ -63,9 +63,8 @@ a matching color. Default \code{NULL} keeps the plot's axis text colour.}
 Default \code{TRUE}. Set \code{FALSE} to hide labels in either mode.}
 }
 \value{
-In tile mode, a formatted standalone ggplot is wrapped in a patchwork;
-  patchworks retain their container and lists return lists of formatted plots.
-  Text mode retains the input container type. Empty-data and disabled-guide
+Same type as input (ggplot, patchwork, or list) in both modes, with
+  layouts, annotations and list names retained. Empty-data and disabled-guide
   plots are unchanged.
 }
 \description{
