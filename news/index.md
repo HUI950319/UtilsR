@@ -42,6 +42,18 @@
   warns when a plot’s coordinate system has `expand = FALSE`, which
   makes ggplot2 ignore the scale expansion it sets.
 
+- [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
+  labels use the font family of each plot’s theme (its `plot.tag`
+  element), as patchwork tags do. Outside labels always used the device
+  font, and inside labels did too with ggpp before 0.6.0 (Windows R has
+  0.5.8.1), so a `theme_bw(base_family = "serif")` figure got sans-serif
+  tags. A `family` passed in `...` still wins for inside labels.
+
+- [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
+  keeps a `legend.justification` or `legend.justification.inside` passed
+  through `...`; the justification derived from `legend.position`
+  replaced it (causalR’s balance plot set it again after the call).
+
 - `fmt_legend(legend.position = c(x, y))` centres the legend on a
   coordinate of exactly 0.5: `c(0.5, 0.95)` put the legend’s left edge
   on the panel’s centre line, so a “top centre” legend sat right of
@@ -173,6 +185,10 @@
   darkest generated grey (`"#636363"`, used with one column or three or
   more) had a contrast of 3.5:1; it is now white. Pass
   `label_color = "black"` for the earlier text.
+
+- `fmt_panel(grid = "keep")` leaves the grid lines as they are, so the
+  border or background can be changed alone; any other call removed or
+  reset the grid, as the default `grid = "none"` still does.
 
 - [`fmt_flatten()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
   given `axes` without `axis_titles` drops the input’s `axis_titles` as

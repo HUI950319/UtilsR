@@ -149,7 +149,9 @@ Default `unit(0.2, "lines")`.</p></dd>
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Additional inside-label arguments passed to
 [ggpp::geom_label_npc()], such as `fill`, `alpha`, `family` or `parse`.
-Ignored when an `-out` keyword is used.</p></dd>
+Ignored when an `-out` keyword is used. Labels otherwise use the font
+family of each plot's `plot.tag` theme element, which follows the
+theme's base family.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -189,8 +191,8 @@ Ignored when an `-out` keyword is used.</p></dd>
 <code><a href="fmt_panel.html">fmt_panel()</a></code>,
 <code><a href="fmt_plot.html">fmt_plot()</a></code>,
 <code><a href="fmt_plot_base.html">fmt_plot_base()</a></code>,
-<code><a href="fmt_point.html">fmt_point</a></code>,
-<code><a href="fmt_raster.html">fmt_raster</a></code>,
+<code><a href="fmt_point.html">fmt_point()</a></code>,
+<code><a href="fmt_raster.html">fmt_raster()</a></code>,
 <code><a href="fmt_ref.html">fmt_ref()</a></code>,
 <code><a href="fmt_scale.html">fmt_scale()</a></code>,
 <code><a href="fmt_strip.html">fmt_strip()</a></code>,

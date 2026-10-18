@@ -93,7 +93,9 @@ fmt_tag(
 
   Additional inside-label arguments passed to
   \[ggpp::geom_label_npc()\], such as \`fill\`, \`alpha\`, \`family\` or
-  \`parse\`. Ignored when an \`-out\` keyword is used.
+  \`parse\`. Ignored when an \`-out\` keyword is used. Labels otherwise
+  use the font family of each plot's \`plot.tag\` theme element, which
+  follows the theme's base family.
 
 ## Value
 
@@ -132,8 +134,8 @@ Other plot formatting:
 [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md),
 [`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md),
 [`fmt_plot_base()`](https://hui950319.github.io/UtilsR/reference/fmt_plot_base.md),
-[`fmt_point`](https://hui950319.github.io/UtilsR/reference/fmt_point.md),
-[`fmt_raster`](https://hui950319.github.io/UtilsR/reference/fmt_raster.md),
+[`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md),
+[`fmt_raster()`](https://hui950319.github.io/UtilsR/reference/fmt_raster.md),
 [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md),
 [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md),
 [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md),

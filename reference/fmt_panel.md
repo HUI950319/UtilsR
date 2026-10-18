@@ -9,7 +9,7 @@ element.
 ``` r
 fmt_panel(
   plot,
-  grid = c("none", "major", "minor", "both", "x", "y"),
+  grid = c("none", "major", "minor", "both", "x", "y", "keep"),
   grid_color = NULL,
   grid_linewidth = NULL,
   grid_linetype = NULL,
@@ -41,6 +41,12 @@ fmt_panel(
   - `"x"` — show only vertical (x-axis) major grid lines.
 
   - `"y"` — show only horizontal (y-axis) major grid lines.
+
+  - `"keep"` — leave the grid lines unchanged, to change only the border
+    or background.
+
+  The grid style arguments apply to the lines a mode shows; they are
+  ignored with `"none"` and `"keep"`.
 
 - grid_color:
 
