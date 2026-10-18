@@ -35,6 +35,35 @@ test_that("image renders the whole plot, text included, into one raster", {
                "width")
 })
 
+test_that("image draws recorded plots and other printable objects", {
+  skip_if_not_installed("ragg")
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  grDevices::dev.control(displaylist = "enable")
+  graphics::plot(1:3)
+  recorded <- grDevices::recordPlot()
+  # A classed list drawn by its own print method, as a forestplot is.
+  rlang::local_bindings(print.fmt_raster_test_plot = function(x, ...) {
+    grid::grid.newpage()
+    grid::grid.rect(gp = grid::gpar(fill = "red", col = NA))
+    invisible(x)
+  }, .env = globalenv())
+  drawn <- structure(list(1), class = "fmt_raster_test_plot")
+
+  # Large enough for the base plot's default margins.
+  result <- fmt_raster(list(recorded = recorded, drawn = drawn),
+                       method = "image", dpi = 10, width = 4, height = 4)
+  expect_named(result, c("recorded", "drawn"))
+  pixels <- lapply(result, function(r) {
+    raster_find_grobs(attr(r, "grobs")$full, "rastergrob")[[1]]$raster
+  })
+  expect_true(any(bitwAnd(bitwShiftR(pixels$recorded, 24), 255L) > 0))
+  centre <- pixels$drawn[20, 20]
+  expect_equal(c(bitwAnd(centre, 255L), bitwAnd(bitwShiftR(centre, 8), 255L)),
+               c(255, 0))
+  expect_error(fmt_raster(list(drawn, NULL), method = "image"), "All elements")
+})
+
 test_that("ragg preserves every panel and the labels of nested patchworks", {
   skip_if_not_installed("ragg")
   skip_if_not_installed("png")

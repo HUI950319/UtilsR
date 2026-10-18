@@ -16,7 +16,10 @@ fmt_raster(
 )
 }
 \arguments{
-\item{plot}{A ggplot, patchwork, or list containing either type.}
+\item{plot}{A ggplot, patchwork, or list containing either type. For
+\code{method = "image"}, also a grob, a recorded base plot
+(\code{grDevices::recordPlot()}) or any object its print method draws,
+such as a forestplot; only a plain list holds several plots.}
 
 \item{method}{Rasterization backend: \code{"ggrastr"} (default, simple
 layer-level), \code{"ragg"} (panel-level, also fixes panel size), or

@@ -40,7 +40,10 @@
 #'     publication export.}
 #' }
 #'
-#' @param plot A ggplot, patchwork, or list containing either type.
+#' @param plot A ggplot, patchwork, or list containing either type. For
+#'   \code{method = "image"}, also a grob, a recorded base plot
+#'   (\code{grDevices::recordPlot()}) or any object its print method draws,
+#'   such as a forestplot; only a plain list holds several plots.
 #' @param method Rasterization backend: \code{"ggrastr"} (default, simple
 #'   layer-level), \code{"ragg"} (panel-level, also fixes panel size), or
 #'   \code{"image"} (the whole plot as one raster).
@@ -394,12 +397,14 @@ fmt_raster <- function(
   if (!requireNamespace("ragg", quietly = TRUE)) {
     cli::cli_abort("Package {.pkg ragg} is required for {.code method = \"image\"}.")
   }
-  if (is.list(plot) && !inherits(plot, c("gg", "gtable"))) {
-    plots <- .to_plot_list(plot)$plots
-    return(lapply(plots, function(p) {
-      .fmt_raster_image(p, dpi = dpi, width = width, height = height,
-                        units = units, bg = bg)
-    }))
+  # Only a plain list holds several plots; a classed list such as a forestplot
+  # is one figure that its print method draws.
+  if (is.list(plot) && !is.object(plot)) {
+    if (any(vapply(plot, is.null, logical(1)))) {
+      cli::cli_abort("All elements in the list must be plots.")
+    }
+    return(lapply(plot, .fmt_raster_image, dpi = dpi, width = width,
+                  height = height, units = units, bg = bg))
   }
 
   # A missing dimension takes the open device's size (pdf.options() without
@@ -427,7 +432,13 @@ fmt_raster <- function(
       grDevices::dev.set(original_device)
     }
   }, add = TRUE)
-  if (inherits(plot, "grob")) grid::grid.draw(plot) else print(plot)
+  if (inherits(plot, "grob")) {
+    grid::grid.draw(plot)
+  } else if (inherits(plot, "recordedplot")) {
+    grDevices::replayPlot(plot)
+  } else {
+    print(plot)
+  }
   image <- capture(native = TRUE)
 
   # No margins: shown at its own size, the image is drawn pixel for pixel.
