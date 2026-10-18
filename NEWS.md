@@ -14,6 +14,11 @@
 * `fmt_expand()` warns when a plot's coordinate system has `expand = FALSE`,
   which makes ggplot2 ignore the scale expansion it sets.
 
+* `fmt_text(axis_title_size, axis_title_face, axis_title_color)` also reach
+  axis title sides that set the same field themselves. A theme with an
+  explicit `axis.title.x` size, as several RegR plots use, kept that size and
+  ignored the requested one. Blank sides stay blank.
+
 * `fmt_plot()` and `fmt_plot_base()` format each plot of a plain list and
   return the list. A list gave `NULL`, because patchwork's `&` falls back to
   `+` for anything but a patchwork; a list holding a non-plot is an error.

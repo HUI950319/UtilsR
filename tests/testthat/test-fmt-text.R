@@ -123,3 +123,17 @@ test_that("fmt_text() styles rich text elements in place", {
   expect_s3_class(out$theme$axis.title, "element_markdown")
   expect_no_error(ggplot2::ggplotGrob(out))
 })
+
+test_that("fmt_text() axis title styles reach sides that set them", {
+  d <- data.frame(x = 1:3, y = c(2, 1, 3))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    ggplot2::theme(axis.title.x = ggplot2::element_text(size = 8, colour = "grey40"),
+                   axis.title.y.right = ggplot2::element_blank())
+  out <- fmt_text(p, axis_title_size = 20, axis_title_face = "bold")
+  th <- ggplot2::theme_get() + out$theme
+  x <- ggplot2::calc_element("axis.title.x.bottom", th)
+  expect_identical(list(x$size, x$face, x$colour), list(20, "bold", "grey40"))
+  y <- ggplot2::calc_element("axis.title.y.left", th)
+  expect_identical(list(y$size, y$face), list(20, "bold"))
+  expect_s3_class(out$theme$axis.title.y.right, "element_blank")
+})

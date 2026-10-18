@@ -2800,7 +2800,9 @@ fmt_panel <- function(plot,
 #'
 #' @details Text styles are added to each plot's current elements. Rich text
 #'   elements, such as \code{ggtext::element_markdown()} set in the plot or
-#'   global theme, keep their class and other settings.
+#'   global theme, keep their class and other settings. Axis title styles also
+#'   replace the same field on axis title sides that set it themselves, such
+#'   as an explicit \code{axis.title.x} size; blank sides stay blank.
 #'
 #' @return Same type as input.
 #'
@@ -2874,6 +2876,11 @@ fmt_text <- function(plot,
   # a plain element_text(), so it is styled in place to keep its class.
   plain_class <- class(ggplot2::element_text())
   global_theme <- ggplot2::theme_get()
+  axis_title_sides <- intersect(
+    c("axis.title.x", "axis.title.x.top", "axis.title.x.bottom",
+      "axis.title.y", "axis.title.y.left", "axis.title.y.right"),
+    names(ggplot2::get_element_tree())
+  )
   style_theme_for <- function(p) {
     theme <- global_theme + p$theme
     args <- lapply(names(styles), function(name) {
@@ -2884,7 +2891,23 @@ fmt_text <- function(plot,
       for (field in names(styles[[name]])) element[[field]] <- styles[[name]][[field]]
       element
     })
-    do.call(ggplot2::theme, stats::setNames(args, names(styles)))
+    names(args) <- names(styles)
+    # A side that sets a field itself would mask the axis.title style.
+    fields <- styles$axis.title
+    if (length(fields)) for (side in axis_title_sides) {
+      element <- theme[[side]]
+      if (!inherits(element, "element_text")) next
+      explicit <- names(fields)[!vapply(names(fields), function(field) {
+        is.null(element[[field]])
+      }, logical(1))]
+      if (!length(explicit)) next
+      for (field in explicit) {
+        element[[field]] <- if (field == "size" && inherits(fields$size, "rel"))
+          ggplot2::rel(1) else fields[[field]]
+      }
+      args[[side]] <- element
+    }
+    do.call(ggplot2::theme, args)
   }
 
   # ---- Extra labs via ... ----

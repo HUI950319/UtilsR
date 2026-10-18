@@ -103,7 +103,9 @@ patchwork or list (pass a vector to \code{xlab}, \code{ylab}, etc.).
 \details{
 Text styles are added to each plot's current elements. Rich text
   elements, such as \code{ggtext::element_markdown()} set in the plot or
-  global theme, keep their class and other settings.
+  global theme, keep their class and other settings. Axis title styles also
+  replace the same field on axis title sides that set it themselves, such
+  as an explicit \code{axis.title.x} size; blank sides stay blank.
 }
 \examples{
 library(ggplot2)
