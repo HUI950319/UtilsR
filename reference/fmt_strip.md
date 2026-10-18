@@ -33,11 +33,15 @@ fmt_strip(
   its first facet variable: the first wrap variable, or the first grid
   column variable (row variable when there are no columns). Other
   variables retain their labeller, including row/column labellers and
-  single-line formatting. For multiple plots, labels are recycled across
-  leaf plots in their existing order. `NULL` keeps the labels of faceted
-  plots, so only the strip style changes, and labels unfaceted plots
-  `Figure1`, `Figure2`, etc. by their position among the leaf plots;
-  `""` gives a blank label.
+  single-line formatting. Named labels are matched to those levels by
+  name; levels without a name keep their label, and names matching no
+  level give a warning. Unnamed labels follow the panel order, with a
+  warning unless one label or one per level is given. For multiple
+  plots, labels are recycled across leaf plots in their existing order,
+  and names are ignored. `NULL` keeps the labels of faceted plots, so
+  only the strip style changes, and labels unfaceted plots `Figure1`,
+  `Figure2`, etc. by their position among the leaf plots; `""` gives a
+  blank label.
 
 - label_color:
 

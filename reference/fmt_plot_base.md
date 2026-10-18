@@ -1,9 +1,12 @@
-# Broadcast theme / labs / scales onto a patchwork via `&`
+# Broadcast theme / labs / scales onto every panel
 
-Apply a theme, axis labels, and continuous y/x scales to **every** panel
-of a patchwork in one call, using patchwork's `&` operator. This is the
-packaged form of the legacy FeatureAnalysis helper `.fmt_plot.base()`: a
-list-driven wrapper that is handy when assembling multi-panel figures.
+Apply a theme, axis labels and axis-scale settings to **every** panel of
+a patchwork in one call: the theme and labels with patchwork's `&`
+operator, the scale settings with
+[`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md).
+This is the packaged form of the legacy FeatureAnalysis helper
+`.fmt_plot.base()`: a list-driven wrapper that is handy when assembling
+multi-panel figures.
 
 ## Usage
 
@@ -40,21 +43,20 @@ fmt_plot_base(
 
 - scale_y_list:
 
-  Named list passed to
-  [`ggplot2::scale_y_continuous()`](https://ggplot2.tidyverse.org/reference/scale_continuous.html),
-  e.g. `list(limits = c(0, 1), breaks = seq(0, 1, 0.2))`. `NULL` = no
-  change.
+  Named list of y-axis scale arguments, applied to every panel with
+  [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md):
+  each panel keeps its scale type (continuous, discrete, date, ...), and
+  an existing scale keeps the settings the list does not name, such as a
+  log transformation. E.g.
+  `list(limits = c(0, 1), breaks = seq(0, 1, 0.2))`. `NULL` = no change.
 
 - scale_x_list:
 
-  Named list passed to
-  [`ggplot2::scale_x_continuous()`](https://ggplot2.tidyverse.org/reference/scale_continuous.html).
-  `NULL` = no change.
+  Like `scale_y_list`, for the x axis.
 
 ## Value
 
-Same type as input, with the requested settings added to every plot via
-`&`.
+Same type as input, with the requested settings added to every plot.
 
 ## Details
 

@@ -2,10 +2,29 @@
 
 ## UtilsR 0.6.8
 
+- [`fmt_plot_base()`](https://hui950319.github.io/UtilsR/reference/fmt_plot_base.md)
+  applies `scale_y_list` and `scale_x_list` with
+  [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md).
+  Each panel keeps its scale type, so a discrete or date axis no longer
+  fails with “Discrete value supplied to a continuous scale”, and an
+  existing scale keeps the settings the list does not name: a
+  [`scale_y_log10()`](https://ggplot2.tidyverse.org/reference/scale_continuous.html)
+  used to turn linear, with a “Scale for y is already present” message
+  for every panel.
+
 - [`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md)
   no longer has an unused `...`: a misspelled or unsupported argument,
   such as `fmt_strip_list`, is an “unused argument” error instead of
   being ignored without notice.
+
+- [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
+  warns when a plot’s coordinate system has `expand = FALSE`, which
+  makes ggplot2 ignore the scale expansion it sets.
+
+- `fmt_text(axis_title_size, axis_title_face, axis_title_color)` also
+  reach axis title sides that set the same field themselves. A theme
+  with an explicit `axis.title.x` size, as several RegR plots use, kept
+  that size and ignored the requested one. Blank sides stay blank.
 
 - [`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md)
   and
@@ -93,6 +112,13 @@
   only the strip style. It renamed every panel `Figure1`, so
   `fmt_strip(p, label_fill = "steelblue")` lost the facet levels.
   Unfaceted plots are still labelled `Figure1`, `Figure2`, etc.
+
+- [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
+  matches named labels of a faceted plot to its facet levels:
+  `c("8" = "Eight", "4" = "Four")` labelled the 4-cylinder panel
+  “Eight”. Unnamed levels keep their label. Unnamed labels whose number
+  is neither one nor the number of levels, and names matching no level,
+  now give a warning instead of being recycled or dropped silently.
 
 - [`fmt_flatten()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
   given `axes` without `axis_titles` drops the input’s `axis_titles` as

@@ -19,7 +19,8 @@ time. Repeated calls with unchanged expansion reuse existing position
 scales. When combined with
 [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md),
 deferred settings are retained; the most recent explicit expansion
-setting takes precedence.
+setting takes precedence. A coordinate system with `expand = FALSE`
+ignores scale expansion, so such plots give a warning.
 
 ## Usage
 

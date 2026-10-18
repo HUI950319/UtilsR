@@ -205,7 +205,9 @@ leaves the layout setting unchanged. Ignored for a single ggplot or list.</p></d
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Text styles are added to each plot's current elements. Rich text
   elements, such as <code>ggtext::element_markdown()</code> set in the plot or
-  global theme, keep their class and other settings.</p>
+  global theme, keep their class and other settings. Axis title styles also
+  replace the same field on axis title sides that set it themselves, such
+  as an explicit <code>axis.title.x</code> size; blank sides stay blank.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
