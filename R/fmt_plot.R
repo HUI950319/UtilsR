@@ -1656,7 +1656,30 @@ fmt_plot_base <- function(plot, ggtheme = NULL, labs_list = NULL,
     # The labeller receives levels in facet order, which can differ from their
     # first appearance in the raw data.
     levels <- unique(values[[variable]])
-    mapped <- rep_len(replacement, length(levels))[match(values[[variable]], levels)]
+    if (is.null(names(replacement))) {
+      if (!length(replacement) %in% c(1L, length(levels))) {
+        cli::cli_warn(c(
+          "{.fn fmt_strip} got {length(replacement)} labels for {length(levels)} \\
+           level{?s} of {.field {variable}}; recycling them.",
+          i = "Give one label, one per level, or name the labels by level."
+        ))
+      }
+      mapped <- rep_len(replacement, length(levels))[match(values[[variable]], levels)]
+    } else {
+      keys <- as.character(values[[variable]])
+      unmatched <- setdiff(names(replacement), keys)
+      if (length(unmatched)) {
+        cli::cli_warn("{.arg label} names {.val {unmatched}} match no level of {.field {variable}}.")
+      }
+      mapped <- unname(replacement[keys])
+      kept <- is.na(mapped)
+      if (any(kept)) {
+        single <- values[variable]
+        for (nm in c("type", "facet")) attr(single, nm) <- attr(values, nm)
+        current <- original(single)[[1L]]
+        mapped[kept] <- if (is.character(current)) current[kept] else keys[kept]
+      }
+    }
     if (length(values) == 1L) return(stats::setNames(list(mapped), variable))
     out <- original(values)
     if (length(out) > 1L) {
@@ -1728,8 +1751,12 @@ fmt_plot_base <- function(plot, ggtheme = NULL, labs_list = NULL,
 #'   its first facet variable: the first wrap variable, or the first grid column
 #'   variable (row variable when there are no columns). Other variables retain
 #'   their labeller, including row/column labellers and single-line formatting.
+#'   Named labels are matched to those levels by name; levels without a name
+#'   keep their label, and names matching no level give a warning. Unnamed
+#'   labels follow the panel order, with a warning unless one label or one per
+#'   level is given.
 #'   For multiple plots, labels are recycled across leaf plots
-#'   in their existing order. `NULL` keeps the labels of faceted plots, so only
+#'   in their existing order, and names are ignored. `NULL` keeps the labels of faceted plots, so only
 #'   the strip style changes, and labels unfaceted plots `Figure1`, `Figure2`,
 #'   etc. by their position among the leaf plots; `""` gives a blank label.
 #' @param label_color Text colour(s). Default \code{"black"} uses bold text.
@@ -1856,6 +1883,10 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
 
   if (!is.null(label) && (!is.character(label) || length(label) == 0L || anyNA(label))) {
     cli::cli_abort("{.arg label} must be NULL or a non-empty character vector without missing values.")
+  }
+  if (!is.null(names(label)) &&
+      (anyNA(names(label)) || any(!nzchar(names(label))) || anyDuplicated(names(label)))) {
+    cli::cli_abort("{.arg label} names must be non-empty and unique.")
   }
   colours <- list(label_color = label_color, label_fill = label_fill)
   for (arg in names(colours)) {

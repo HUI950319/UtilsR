@@ -75,6 +75,12 @@
   `fmt_strip(p, label_fill = "steelblue")` lost the facet levels. Unfaceted
   plots are still labelled `Figure1`, `Figure2`, etc.
 
+* `fmt_strip()` matches named labels of a faceted plot to its facet levels:
+  `c("8" = "Eight", "4" = "Four")` labelled the 4-cylinder panel "Eight".
+  Unnamed levels keep their label. Unnamed labels whose number is neither one
+  nor the number of levels, and names matching no level, now give a warning
+  instead of being recycled or dropped silently.
+
 * `fmt_flatten()` given `axes` without `axis_titles` drops the input's
   `axis_titles` as well, so axis titles follow `axes` as in `wrap_plots()`
   instead of staying collected.

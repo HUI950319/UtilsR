@@ -41,7 +41,8 @@ test_that("fmt_strip maps label vectors within a single faceted plot", {
   wrapped <- p + ggplot2::facet_wrap(ggplot2::vars(cyl))
   expect_identical(labels(fmt_strip(wrapped, c("Four", "Six", "Eight"))),
                    c("Four", "Six", "Eight"))
-  expect_identical(labels(fmt_strip(wrapped, c("A", "B"))), c("A", "B", "A"))
+  expect_warning(recycled <- labels(fmt_strip(wrapped, c("A", "B"))), "2 labels for 3")
+  expect_identical(recycled, c("A", "B", "A"))
   expect_identical(labels(fmt_strip(wrapped, "All")), rep("All", 3))
   expect_identical(labels(fmt_strip(wrapped)), c("4", "6", "8"))
   styled <- fmt_strip(wrapped, label_fill = "steelblue")
@@ -55,6 +56,31 @@ test_that("fmt_strip maps label vectors within a single faceted plot", {
   out <- fmt_strip(plots, c("A", "B"))
   expect_identical(names(out), names(plots))
   expect_identical(unname(vapply(out, labels, character(1))), c("A", "B", "A"))
+})
+
+test_that("fmt_strip matches named labels to the levels of the first facet", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) + ggplot2::geom_point()
+  labels <- function(p) vapply(.fmt_strip_text(p), `[[`, character(1), "label")
+  wrapped <- p + ggplot2::facet_wrap(ggplot2::vars(cyl))
+  expect_identical(labels(fmt_strip(wrapped, c(`8` = "Eight", `4` = "Four", `6` = "Six"))),
+                   c("Four", "Six", "Eight"))
+  expect_identical(labels(fmt_strip(wrapped, c(`6` = "Six"))), c("4", "Six", "8"))
+  expect_warning(partial <- labels(fmt_strip(wrapped, c(`6` = "Six", `5` = "Five"))),
+                 "match no level")
+  expect_identical(partial, c("4", "Six", "8"))
+  expect_no_warning(labels(fmt_strip(wrapped, "All")))
+  expect_no_warning(labels(fmt_strip(wrapped, c("A", "B", "C"))))
+  expect_warning(labels(fmt_strip(wrapped, c("A", "B", "C", "D"))), "4 labels for 3")
+
+  gridded <- p + ggplot2::facet_grid(am ~ cyl, labeller = ggplot2::label_both)
+  expect_setequal(labels(fmt_strip(gridded, c(`6` = "Six"))),
+                  c("cyl: 4", "Six", "cyl: 8", "am: 0", "am: 1"))
+  factor_levels <- p + ggplot2::facet_wrap(ggplot2::vars(gear = factor(gear)))
+  expect_identical(labels(fmt_strip(factor_levels, c(`5` = "Five", `3` = "Three"))),
+                   c("Three", "4", "Five"))
+  for (bad in list(c(a = "A", "B"), c(a = "A", a = "B"))) {
+    expect_error(fmt_strip(wrapped, bad), "names must be non-empty and unique")
+  }
 })
 
 test_that("fmt_strip handles facet expressions and repeated relabelling", {
