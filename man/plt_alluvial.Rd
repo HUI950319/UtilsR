@@ -106,10 +106,17 @@ Default \code{1}.}
 \code{.resolve_theme()}.}
 
 \item{save}{\code{NULL}, an empty list, or a named list forwarded to
-\code{RegR::save_plt()}. Allowed fields are \code{filename}, \code{width}, and \code{height}.}
+\code{RegR::save_plt()}. Allowed fields are \code{filename}, \code{width}, and \code{height}.
+A \code{width} or \code{height} left out defaults to the page the plot is laid out
+for -- 1.6 in per \code{cat_var} level (at least 4 in) and 0.45 in per \code{group}
+level (at least 4 in) per facet, beside the measured axis text and
+legend -- which every call prints with the matching \code{save} line. Saving,
+and the size note, need the \pkg{RegR} package.}
 }
 \value{
-A ggplot object. A non-empty \code{save} also writes the same plot to PDF.
+A ggplot object carrying its page size as \code{attr(p, "plot_size")},
+\code{c(width, height)} in inches. A non-empty \code{save} also writes the same
+plot to PDF.
 }
 \description{
 Draw an alluvial plot for the distribution of \code{group} across the categories

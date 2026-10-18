@@ -14,7 +14,8 @@ plt_dist(
   label = c("count_percent", "count", "percent", "none"),
   gap = 0.01,
   curve_type = "linear",
-  theme_use = theme_heat(14)
+  theme_use = theme_heat(14),
+  save = list()
 )
 }
 \arguments{
@@ -72,9 +73,20 @@ would otherwise hide it, but a custom theme's legend placement is kept);
 the **heatmap** never shows one, since each tile is labelled directly.
 In **alluvial** mode only the base font size is taken from \code{theme_use};
 [theme_alluvia()] supplies the plot's remaining theme settings.}
+
+\item{save}{\code{NULL}, an empty list (default), or a named list forwarded
+to \code{RegR::save_plt()} for PDF output: \code{filename} and optionally
+\code{width} and \code{height}. A \code{width} or \code{height} left out
+defaults to the page the plot is laid out for -- for the alluvial plot see
+\code{\link{plt_alluvial}()}; 0.9 in per x level (at least 3 in) by 4 in
+per facet for the bar chart, and 1.1 in per column by 0.6 in per row of
+cells for the heatmap, beside the measured axis text and legend -- which
+every call prints with the matching \code{save} line. Saving, and the size
+note, need the \pkg{RegR} package.}
 }
 \value{
-A ggplot object.
+A ggplot object carrying that page size as \code{attr(p,
+  "plot_size")}, \code{c(width, height)} in inches.
 }
 \description{
 Visualise the cross-distribution of categorical variables. With 2 variables

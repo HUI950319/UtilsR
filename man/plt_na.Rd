@@ -9,7 +9,8 @@ plt_na(
   name.map = NULL,
   miss_palette = as.character(pal_lancet[c(1, 2, 3)]),
   output = c("both", "both_reverse", "matrix", "percentage"),
-  sort = c("desc", "asc")
+  sort = c("desc", "asc"),
+  save = list()
 )
 }
 \arguments{
@@ -29,11 +30,21 @@ the left and matrix on the right), `"matrix"`, or `"percentage"`.}
 
 \item{sort}{Variable order by missing rate: `"desc"` (default, largest to
 smallest) or `"asc"` (smallest to largest).}
+
+\item{save}{\code{NULL}, an empty list (default), or a named list forwarded
+to \code{RegR::save_plt()} for PDF output: \code{filename} and optionally
+\code{width} and \code{height}. A \code{width} or \code{height} left out
+defaults to the page the plot is laid out for -- 0.3 in per variable (at
+least 3 in) tall, with a 5 in matrix panel and a 3.5 in percentage panel,
+beside the measured axis text, strips and legend -- which every call prints
+with the matching \code{save} line; with no missing values there is no
+file. Saving, and the size note, need the \pkg{RegR} package.}
 }
 \value{
-A single ggplot-compatible object. Combined outputs return a
-  patchwork object, which inherits from ggplot. Returns `NULL` with a
-  warning when no missing values are found.
+A single ggplot-compatible object, carrying that page size as
+  \code{attr(p, "plot_size")}, \code{c(width, height)} in inches. Combined
+  outputs return a patchwork object, which inherits from ggplot. Returns
+  `NULL` with a warning when no missing values are found.
 }
 \description{
 Create a missing-value matrix, a missing-percentage bar chart, or one of

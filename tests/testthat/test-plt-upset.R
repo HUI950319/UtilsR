@@ -113,3 +113,24 @@ test_that("plt_upset hides zero intersections and preserves value membership", {
 
   expect_equal(as.character(result$intersect_group), c("A", "B", "A/B"))
 })
+
+test_that("plt_upset saves its plot, the combined one for all, and nothing for data", {
+  skip_if_not_installed("ggVennDiagram")
+  skip_if_not_installed("RegR")
+  withr::local_pdf(withr::local_tempfile(fileext = ".pdf"))
+  expect_identical(tail(names(formals(plt_upset)), 1), "save")
+  f <- withr::local_tempfile(fileext = ".pdf")
+  for (output in c("venn", "upset", "both")) {
+    out <- utils::capture.output(p <- suppressWarnings(plt_upset(
+      bmi_missing_data(), vars = c("BMI_1", "BMI_2", "BMI_3"), levels = NA,
+      output = output, save = list(filename = f))))
+    expect_saved_at_plot_size(out, p)
+  }
+  out <- utils::capture.output(res <- suppressWarnings(plt_upset(
+    bmi_missing_data(), vars = c("BMI_1", "BMI_2", "BMI_3"), levels = NA,
+    output = "all", save = list(filename = f))))
+  expect_saved_at_plot_size(out, res$combined)
+  expect_error(plt_upset(bmi_missing_data(), vars = c("BMI_1", "BMI_2", "BMI_3"),
+                         levels = NA, output = "data",
+                         save = list(filename = f)), "no plot")
+})

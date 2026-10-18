@@ -103,8 +103,18 @@
 #' @param force Logical. Override >100 level safety? Default \code{FALSE}.
 #' @param seed Integer. Random seed for jitter. Default 11.
 #'
-#' @return A ggplot/patchwork object (if \code{combine = TRUE}) or a named
-#'   list of ggplots.
+#' @param save \code{NULL}, an empty list (default), or a named list forwarded
+#'   to \code{RegR::save_plt()} for PDF output: \code{filename} and optionally
+#'   \code{width} and \code{height}. A \code{width} or \code{height} left out
+#'   defaults to the page the plot is laid out for -- a 4 x 4 in panel, or
+#'   3.5 x 3.5 in per panel of several, beside the measured axis text, strips
+#'   and legend -- which every call prints with the matching \code{save} line; a
+#'   named list (\code{combine = FALSE}) has no single plot to save. Saving, and
+#'   the size note, need the \pkg{RegR} package.
+#'
+#' @return A ggplot/patchwork object (if \code{combine = TRUE}) carrying that
+#'   page size as \code{attr(p, "plot_size")}, \code{c(width, height)} in
+#'   inches, or a named list of ggplots.
 #'
 #' @examples
 #' set.seed(1)
@@ -206,7 +216,14 @@ plt_con <- function(data,
                     facet_ncol = NULL,
                     combine = TRUE,
                     force = FALSE,
-                    seed = 11) {
+                    seed = 11,
+                    save = list()) {
+  finish <- function(p) {
+    .save_sized(p, save, function(n_col, n_row) {
+      if (n_col * n_row > 1) c(3.5, 3.5) else c(4, 4)
+    }, lead = "plot laid out for",
+    filename = "Figure X. Continuous distribution.pdf")
+  }
 
   # --- Input validation -------------------------------------------------------
   if (!is.data.frame(data)) {
@@ -311,7 +328,8 @@ plt_con <- function(data,
     split_levels <- levels(data[[split.by]])
     plot_list <- lapply(split_levels, function(lv) {
       sub_data <- data[data[[split.by]] == lv, , drop = FALSE]
-      plt_con(
+      # each panel is reported as part of the split figure, not on its own
+      utils::capture.output(sub <- plt_con(
         data = sub_data, stat.by = stat.by,
         group.by = if (dummy_group) NULL else group.by,
         split.by = NULL, bg.by = bg.by,
@@ -339,12 +357,13 @@ plt_con <- function(data,
         bg_palette = bg_palette, bg_alpha = bg_alpha,
         facet_nrow = NULL, facet_ncol = NULL, combine = TRUE,
         force = force, seed = seed
-      )
+      ))
+      sub
     })
-    return(
+    return(finish(
       patchwork::wrap_plots(plot_list, nrow = facet_nrow, ncol = facet_ncol) +
         patchwork::plot_layout(guides = "collect")
-    )
+    ))
   }
 
   # --- Auto pt.size -----------------------------------------------------------
@@ -441,12 +460,16 @@ plt_con <- function(data,
   # --- Combine ----------------------------------------------------------------
   if (isTRUE(combine)) {
     if (length(plist) == 1) {
-      return(plist[[1]])
+      return(finish(plist[[1]]))
     }
-    return(
+    return(finish(
       patchwork::wrap_plots(plist, nrow = facet_nrow, ncol = facet_ncol) +
         patchwork::plot_layout(guides = "collect")
-    )
+    ))
+  }
+  if (length(save)) {
+    cli::cli_abort(paste("{.code combine = FALSE} returns a list of plots;",
+                         "{.arg save} needs one plot."))
   }
 
   plist

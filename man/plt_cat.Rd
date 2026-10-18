@@ -40,7 +40,8 @@ plt_cat(
   facet_byrow = TRUE,
   base_size = 14,
   force = FALSE,
-  ...
+  ...,
+  save = list()
 )
 }
 \arguments{
@@ -145,9 +146,21 @@ Default 14.}
 Default \code{FALSE}.}
 
 \item{...}{Additional arguments passed to the type-specific plot function.}
+
+\item{save}{\code{NULL}, an empty list (default), or a named list forwarded
+to \code{RegR::save_plt()} for PDF output: \code{filename} and optionally
+\code{width} and \code{height}. A \code{width} or \code{height} left out
+defaults to the page the plot is laid out for -- a 4.5 x 4 in panel, or
+3.5 x 3.5 in per panel of a split, beside the measured axis text and
+legend; 5 x 5 in for a Venn diagram, a 6 x 4.5 in UpSet panel, a 6 x 5 in
+Sankey panel and a 7 x 7 in chord diagram -- which every call prints with
+the matching \code{save} line. Saving, and the size note, need the
+\pkg{RegR} package.}
 }
 \value{
-A ggplot object (or patchwork for split/set types).
+A ggplot object (or patchwork for split/set types; a recorded base
+  plot for \code{"chord"}), carrying that page size as \code{attr(p,
+  "plot_size")}, \code{c(width, height)} in inches.
 }
 \description{
 A single entry point for 11 categorical chart types: bar, rose, ring, pie,

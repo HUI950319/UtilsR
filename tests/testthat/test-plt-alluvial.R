@@ -411,3 +411,26 @@ test_that("plt_dist alluvial mode delegates to plt_alluvial with facets", {
     2L
   )
 })
+
+test_that("plt_alluvial and plt_dist save at the page their content is laid out for", {
+  skip_if_not_installed("ggalluvial")
+  skip_if_not_installed("RegR")
+  withr::local_pdf(withr::local_tempfile(fileext = ".pdf"))
+  expect_identical(tail(names(formals(plt_dist)), 1), "save")
+  f <- withr::local_tempfile(fileext = ".pdf")
+  out <- utils::capture.output(p <- plt_alluvial(alluvial_data(), "category", "group",
+                                                 save = list(filename = f)))
+  expect_saved_at_plot_size(out, p)
+  out <- utils::capture.output(p <- plt_dist(alluvial_data(),
+                                             dis_vars = c("category", "group"),
+                                             save = list(filename = f)))
+  expect_saved_at_plot_size(out, p)
+  out <- utils::capture.output(p <- plt_dist(alluvial_data(),
+                                             dis_vars = c("category", "group"),
+                                             type = "bar", save = list(filename = f)))
+  expect_saved_at_plot_size(out, p)
+  out <- utils::capture.output(p <- plt_dist(alluvial_data(),
+                                             dis_vars = c("category", "group", "panel"),
+                                             save = list(filename = f)))
+  expect_saved_at_plot_size(out, p)
+})

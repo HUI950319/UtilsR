@@ -22,9 +22,19 @@
 #' @param sort Variable order by missing rate: `"desc"` (default, largest to
 #'   smallest) or `"asc"` (smallest to largest).
 #'
-#' @return A single ggplot-compatible object. Combined outputs return a
-#'   patchwork object, which inherits from ggplot. Returns `NULL` with a
-#'   warning when no missing values are found.
+#' @param save \code{NULL}, an empty list (default), or a named list forwarded
+#'   to \code{RegR::save_plt()} for PDF output: \code{filename} and optionally
+#'   \code{width} and \code{height}. A \code{width} or \code{height} left out
+#'   defaults to the page the plot is laid out for -- 0.3 in per variable (at
+#'   least 3 in) tall, with a 5 in matrix panel and a 3.5 in percentage panel,
+#'   beside the measured axis text, strips and legend -- which every call prints
+#'   with the matching \code{save} line; with no missing values there is no
+#'   file. Saving, and the size note, need the \pkg{RegR} package.
+#'
+#' @return A single ggplot-compatible object, carrying that page size as
+#'   \code{attr(p, "plot_size")}, \code{c(width, height)} in inches. Combined
+#'   outputs return a patchwork object, which inherits from ggplot. Returns
+#'   `NULL` with a warning when no missing values are found.
 #'
 #' @examples
 #' \donttest{
@@ -54,7 +64,8 @@ plt_na <- function(
     name.map = NULL,
     miss_palette = as.character(pal_lancet[c(1, 2, 3)]),
     output = c("both", "both_reverse", "matrix", "percentage"),
-    sort = c("desc", "asc")) {
+    sort = c("desc", "asc"),
+    save = list()) {
   output <- match.arg(output)
   sort <- match.arg(sort)
 
@@ -301,11 +312,16 @@ plt_na <- function(
     plot
   }
 
+  rows_h <- max(3, 0.3 * length(missing_vars))
+  finish <- function(p, panel) {
+    .save_sized(p, save, panel, lead = "missing-value plot laid out for",
+                filename = "Figure X. Missing values.pdf")
+  }
   if (output == "percentage") {
-    return(UtilsR::fmt_strip(
+    return(finish(UtilsR::fmt_strip(
       build_percentage_plot(),
       label = "Percentage of Missing Values"
-    ))
+    ), c(3.5, rows_h)))
   }
 
   reverse <- output == "both_reverse"
@@ -320,10 +336,10 @@ plt_na <- function(
     gap_side = matrix_gap_side
   )
   if (output == "matrix") {
-    return(UtilsR::fmt_strip(
+    return(finish(UtilsR::fmt_strip(
       matrix_plot,
       label = "Distribution of Missing Values"
-    ))
+    ), c(5, rows_h)))
   }
 
   percentage_plot <- build_percentage_plot(
@@ -354,5 +370,6 @@ plt_na <- function(
     )
   }
 
-  UtilsR::fmt_strip(combined_plot, label = strip_labels)
+  finish(UtilsR::fmt_strip(combined_plot, label = strip_labels),
+         c(4.25, rows_h))
 }

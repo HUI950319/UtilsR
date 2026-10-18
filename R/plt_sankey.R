@@ -82,9 +82,15 @@
 #' @param save \code{NULL}, an empty list, or a named list forwarded to
 #'   \code{RegR::save_plt()}. Allowed fields are \code{filename} (required),
 #'   \code{width} and \code{height} (in inches). Writes PDF only; the saver
-#'   appends the extension and defaults to width 10 and height 11.
+#'   appends the extension. A \code{width} or \code{height} left out defaults
+#'   to the page the plot is laid out for -- 2 in per variable and 0.5 in per
+#'   level of the variable with most levels, at least 4 x 4 in, beside the
+#'   measured axis text -- which every call prints with the matching
+#'   \code{save} line. Saving, and the size note, need the \pkg{RegR} package.
 #'
-#' @return A ggplot object. A non-empty \code{save} also writes this plot to PDF.
+#' @return A ggplot object carrying that page size as \code{attr(p,
+#'   "plot_size")}, \code{c(width, height)} in inches. A non-empty \code{save}
+#'   also writes this plot to PDF.
 #'
 #' @details Each configuration list supports partial overrides; unknown,
 #'   duplicate, and empty field names are rejected. The former top-level
@@ -354,11 +360,9 @@ plt_sankey <- function(data,
       plot <- plot + do.call(label_geom, label_params)
     }
   }
-  if (length(save)) {
-    if (!requireNamespace("RegR", quietly = TRUE)) {
-      cli::cli_abort("Package {.pkg RegR} is required when {.arg save} is non-empty.")
-    }
-    do.call(RegR::save_plt, c(list(plot = plot), save))
-  }
-  plot
+  n_level <- max(vapply(vars, function(v) nlevels(factor(data[[v]])),
+                        integer(1)))
+  .save_sized(plot, save, c(max(4, 2 * length(vars)), max(4, 0.5 * n_level)),
+              lead = "Sankey diagram laid out for",
+              filename = "Figure X. Sankey diagram.pdf")
 }

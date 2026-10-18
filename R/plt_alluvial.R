@@ -81,6 +81,11 @@
 #'   `.resolve_theme()`.
 #' @param save `NULL`, an empty list, or a named list forwarded to
 #'   `RegR::save_plt()`. Allowed fields are `filename`, `width`, and `height`.
+#'   A `width` or `height` left out defaults to the page the plot is laid out
+#'   for -- 1.6 in per `cat_var` level (at least 4 in) and 0.45 in per `group`
+#'   level (at least 4 in) per facet, beside the measured axis text and
+#'   legend -- which every call prints with the matching `save` line. Saving,
+#'   and the size note, need the \pkg{RegR} package.
 #'
 #' @details With `y_type = "percent"`, real strata are normalized within each
 #' `facet` by `cat_var` combination before the requested gap space is inserted.
@@ -88,7 +93,9 @@
 #' each facet. Rows with missing values in required columns are removed with an
 #' informational message.
 #'
-#' @return A ggplot object. A non-empty `save` also writes the same plot to PDF.
+#' @return A ggplot object carrying its page size as `attr(p, "plot_size")`,
+#'   `c(width, height)` in inches. A non-empty `save` also writes the same
+#'   plot to PDF.
 #'
 #' @examples
 #' if (requireNamespace("ggalluvial", quietly = TRUE)) {
@@ -677,14 +684,14 @@ plt_alluvial <- function(
           "{.arg save} has unknown field{?s}: {.val {unknown_save}}."
         )
       }
-      if (!requireNamespace("RegR", quietly = TRUE)) {
-        cli::cli_abort(
-          "Package {.pkg RegR} is required when {.arg save} is non-empty."
-        )
-      }
-      do.call(RegR::save_plt, c(list(plot = plot), save))
     }
   }
 
-  plot
+  .save_sized(
+    plot, save,
+    c(max(4, 1.6 * length(unique(stat$.cat_var))),
+      max(4, 0.45 * length(group_levels))),
+    lead = "alluvial plot laid out for",
+    filename = "Figure X. Alluvial plot.pdf"
+  )
 }

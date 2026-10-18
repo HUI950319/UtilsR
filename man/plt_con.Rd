@@ -55,7 +55,8 @@ plt_con(
   facet_ncol = NULL,
   combine = TRUE,
   force = FALSE,
-  seed = 11
+  seed = 11,
+  save = list()
 )
 }
 \arguments{
@@ -190,10 +191,20 @@ Default \code{NULL}.}
 \item{force}{Logical. Override >100 level safety? Default \code{FALSE}.}
 
 \item{seed}{Integer. Random seed for jitter. Default 11.}
+
+\item{save}{\code{NULL}, an empty list (default), or a named list forwarded
+to \code{RegR::save_plt()} for PDF output: \code{filename} and optionally
+\code{width} and \code{height}. A \code{width} or \code{height} left out
+defaults to the page the plot is laid out for -- a 4 x 4 in panel, or
+3.5 x 3.5 in per panel of several, beside the measured axis text, strips
+and legend -- which every call prints with the matching \code{save} line; a
+named list (\code{combine = FALSE}) has no single plot to save. Saving, and
+the size note, need the \pkg{RegR} package.}
 }
 \value{
-A ggplot/patchwork object (if \code{combine = TRUE}) or a named
-  list of ggplots.
+A ggplot/patchwork object (if \code{combine = TRUE}) carrying that
+  page size as \code{attr(p, "plot_size")}, \code{c(width, height)} in
+  inches, or a named list of ggplots.
 }
 \description{
 A single entry point for continuous/numeric variable plotting with

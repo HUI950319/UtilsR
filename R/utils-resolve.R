@@ -14,6 +14,8 @@
 #                                        -> ggplot2 theme
 #       .resolve_color(palette, n, ...)  NULL | name | colour(s)
 #                                        -> hex colour vector
+#       .save_sized(p, save, panel, ...) report the page size, save through
+#                                        RegR::save_plt()
 # =============================================================================
 
 # ---- .resolve_theme --------------------------------------------------------
@@ -115,4 +117,39 @@
   out <- as.character(palette)
   if (!is.null(n)) out <- rep_len(out, n)
   out
+}
+
+
+# ---- .save_sized -------------------------------------------------------------
+
+# The save side effect of the plot functions: the page the plot is laid out
+# for -- `panel` inches per panel, measured beside its axis text and legends by
+# RegR's `.plot_canvas_size()`, or a given `size` (`panel` itself for an object
+# ggplot2 cannot lay out, such as ggVennDiagram's UpSet plot) -- is printed
+# with a pasteable `save` line, kept as `attr(p, "plot_size")` and handed to a
+# `save` list that leaves the dimensions out. UtilsR only suggests RegR:
+# without a RegR that provides these helpers the plot is returned as it is,
+# and only a non-empty `save` is an error.
+.save_sized <- function(p, save, panel, lead, filename, size = NULL) {
+  if (!is.null(save) && !is.list(save)) {
+    cli::cli_abort("{.arg save} must be NULL or a named list.")
+  }
+  regr <- requireNamespace("RegR", quietly = TRUE) &&
+    exists(".save_sized", envir = asNamespace("RegR"), inherits = FALSE)
+  if (!regr) {
+    if (length(save)) {
+      cli::cli_abort(paste("Package {.pkg RegR} (0.1.3 or later) is required",
+                           "when {.arg save} is non-empty."))
+    }
+    return(p)
+  }
+  ns <- asNamespace("RegR")
+  if (is.null(size)) {
+    size <- if (inherits(p, c("ggplot", "patchwork", "gtable"))) {
+      ns$.plot_canvas_size(p, panel)
+    } else {
+      panel
+    }
+  }
+  ns$.save_sized(p, save, size, lead = lead, filename = filename)
 }

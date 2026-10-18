@@ -288,3 +288,12 @@ test_that("plt_sankey applies custom themes and saves the final plot", {
   expect_error(sankey_plot(save = list(filename = path, width = 0)), "width")
   expect_error(sankey_plot(save = list(width = 6)), "filename")
 })
+
+test_that("plt_sankey saves at the page its variables and levels are laid out for", {
+  skip_if_not_installed("ggsankey")
+  skip_if_not_installed("RegR")
+  withr::local_pdf(withr::local_tempfile(fileext = ".pdf"))
+  f <- withr::local_tempfile(fileext = ".pdf")
+  out <- utils::capture.output(p <- sankey_plot(save = list(filename = f)))
+  expect_saved_at_plot_size(out, p)
+})

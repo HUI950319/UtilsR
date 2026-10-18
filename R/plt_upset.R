@@ -68,8 +68,20 @@
 #'   e.g. \code{c(TraceGene = "Trajectory", PropCor = "Proportion Cor")}.
 #'   Unmatched names keep the original. Default \code{NULL} (no renaming).
 #'
+#' @param save \code{NULL}, an empty list (default), or a named list forwarded
+#'   to \code{RegR::save_plt()} for PDF output: \code{filename} and optionally
+#'   \code{width} and \code{height}. A \code{width} or \code{height} left out
+#'   defaults to the page the plot is laid out for -- 5 x 5 in for the Venn
+#'   diagram, a 6 x 4.5 in panel for the UpSet plot, and 5 x 4.5 in per unit of
+#'   their 0.4 : 1 widths side by side, beside the measured axis text -- which
+#'   every call prints with the matching \code{save} line; \code{"all"} saves
+#'   the combined plot and \code{"data"} draws none to save. Saving, and the
+#'   size note, need the \pkg{RegR} package.
+#'
 #' @return Depends on \code{output}: a ggplot, a combined plot, a data frame,
-#'   or a named list.
+#'   or a named list. Plots carry their page size as
+#'   \code{attr(p, "plot_size")}, the list of \code{"all"} on its
+#'   \code{combined} element.
 #'
 #' @note Requires \pkg{ggVennDiagram} and optionally \pkg{aplot} (for combined
 #'   layout). Install with \code{pak::pak(c("ggVennDiagram", "aplot"))}.
@@ -143,7 +155,8 @@ plt_upset <- function(data,
                       edge.color    = "grey30",
                       edge.size     = 1,
                       set.name.size = 4,
-                      set.labels    = NULL) {
+                      set.labels    = NULL,
+                      save          = list()) {
 
   if (!requireNamespace("ggVennDiagram", quietly = TRUE)) {
     cli::cli_abort("Package {.pkg ggVennDiagram} is required. Install with: {.code pak::pak('ggVennDiagram')}")
@@ -331,12 +344,22 @@ plt_upset <- function(data,
   }
 
   # ── Return ───────────────────────────────────────────────────────────────
+  if (identical(output, "data")) {
+    if (length(save)) {
+      cli::cli_abort("{.code output = \"data\"} draws no plot to save.")
+    }
+    return(grp_data)
+  }
+  finish <- function(p) {
+    panel <- switch(output, venn = c(5, 5), upset = c(6, 4.5), c(5, 4.5))
+    .save_sized(p, save, panel, lead = "set plot laid out for",
+                filename = "Figure X. Set overlaps.pdf")
+  }
   switch(output,
-    venn = p_venn,
-    upset = p_upset,
-    both = p_combined,
-    data = grp_data,
+    venn = finish(p_venn),
+    upset = finish(p_upset),
+    both = finish(p_combined),
     all = list(venn = p_venn, upset = p_upset,
-               combined = p_combined, data = grp_data)
+               combined = finish(p_combined), data = grp_data)
   )
 }

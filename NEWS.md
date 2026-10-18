@@ -1,5 +1,17 @@
 # UtilsR 0.6.8
 
+* `plt_cat()`, `plt_con()`, `plt_dist()`, `plt_na()` and `plt_upset()` gain
+  `save`, and `plt_alluvial()` and `plt_sankey()` stop saving at
+  `RegR::save_plt()`'s generic 10 x 11 in: a `save` list that leaves out
+  `width` or `height` writes the page the plot is laid out for, with room for
+  its levels, variables or panels beside the measured axis text and legends.
+  Every call prints that size with a pasteable `save` line and the plot
+  carries it as `attr(p, "plot_size")`; a supplied dimension is kept. The
+  size and the saving need RegR 0.1.3 or later. `plt_upset(output = "all")`
+  saves the combined plot and `output = "data"` refuses a `save`;
+  `plt_con(combine = FALSE)` refuses one too. A `split.by` figure of
+  `plt_cat()` or `plt_con()` is reported once, not per panel.
+
 * `fmt_axisTile(mode = "tile")` returns a ggplot for a ggplot, and a list of
   ggplots for a list of them; it wrapped each one in a patchwork, which drew
   the same color strip but changed the object's class.

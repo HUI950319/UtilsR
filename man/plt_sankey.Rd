@@ -104,10 +104,16 @@ resolver (theme object, function, or function name). Default \code{NULL}.}
 \item{save}{\code{NULL}, an empty list, or a named list forwarded to
 \code{RegR::save_plt()}. Allowed fields are \code{filename} (required),
 \code{width} and \code{height} (in inches). Writes PDF only; the saver
-appends the extension and defaults to width 10 and height 11.}
+appends the extension. A \code{width} or \code{height} left out defaults
+to the page the plot is laid out for -- 2 in per variable and 0.5 in per
+level of the variable with most levels, at least 4 x 4 in, beside the
+measured axis text -- which every call prints with the matching
+\code{save} line. Saving, and the size note, need the \pkg{RegR} package.}
 }
 \value{
-A ggplot object. A non-empty \code{save} also writes this plot to PDF.
+A ggplot object carrying that page size as \code{attr(p,
+  "plot_size")}, \code{c(width, height)} in inches. A non-empty \code{save}
+  also writes this plot to PDF.
 }
 \description{
 Visualise the flow/proportion changes across multiple categorical variables

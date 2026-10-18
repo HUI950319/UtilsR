@@ -56,7 +56,18 @@
 #'   In **alluvial** mode only the base font size is taken from \code{theme_use};
 #'   [theme_alluvia()] supplies the plot's remaining theme settings.
 #'
-#' @return A ggplot object.
+#' @param save \code{NULL}, an empty list (default), or a named list forwarded
+#'   to \code{RegR::save_plt()} for PDF output: \code{filename} and optionally
+#'   \code{width} and \code{height}. A \code{width} or \code{height} left out
+#'   defaults to the page the plot is laid out for -- for the alluvial plot see
+#'   \code{\link{plt_alluvial}()}; 0.9 in per x level (at least 3 in) by 4 in
+#'   per facet for the bar chart, and 1.1 in per column by 0.6 in per row of
+#'   cells for the heatmap, beside the measured axis text and legend -- which
+#'   every call prints with the matching \code{save} line. Saving, and the size
+#'   note, need the \pkg{RegR} package.
+#'
+#' @return A ggplot object carrying that page size as \code{attr(p,
+#'   "plot_size")}, \code{c(width, height)} in inches.
 #'
 #' @examples
 #' set.seed(1)
@@ -111,7 +122,8 @@ plt_dist <- function(data,
                      label = c("count_percent", "count", "percent", "none"),
                      gap = 0.01,
                      curve_type = "linear",
-                     theme_use = theme_heat(14)) {
+                     theme_use = theme_heat(14),
+                     save = list()) {
 
   label <- match.arg(label)
   type  <- match.arg(type)
@@ -145,7 +157,8 @@ plt_dist <- function(data,
       flow_args = list(alpha = alpha, curve_type = curve_type),
       stratum_args = list(gap = gap),
       label_args = list(style = label),
-      theme_use = theme_alluvia(base_size)
+      theme_use = theme_alluvia(base_size),
+      save = save
     ))
   }
 
@@ -216,7 +229,9 @@ plt_dist <- function(data,
                                    nrow = ceiling(n_facet / 3))
     }
 
-    return(p)
+    return(.save_sized(p, save, c(max(3, 0.9 * nlevels(data[[x_var]])), 4),
+                       lead = "bar chart laid out for",
+                       filename = "Figure X. Distribution.pdf"))
   }
 
   # --- 3 variables: heatmap ---
@@ -252,5 +267,8 @@ plt_dist <- function(data,
     )
   }
 
-  p
+  .save_sized(p, save, c(max(3, 1.1 * length(unique(plotdata[[x_var]]))),
+                         max(2, 0.6 * length(unique(plotdata[[y_var]])))),
+              lead = "heatmap laid out for",
+              filename = "Figure X. Distribution.pdf")
 }

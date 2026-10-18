@@ -101,7 +101,19 @@
 #'   Default \code{FALSE}.
 #' @param ... Additional arguments passed to the type-specific plot function.
 #'
-#' @return A ggplot object (or patchwork for split/set types).
+#' @param save \code{NULL}, an empty list (default), or a named list forwarded
+#'   to \code{RegR::save_plt()} for PDF output: \code{filename} and optionally
+#'   \code{width} and \code{height}. A \code{width} or \code{height} left out
+#'   defaults to the page the plot is laid out for -- a 4.5 x 4 in panel, or
+#'   3.5 x 3.5 in per panel of a split, beside the measured axis text and
+#'   legend; 5 x 5 in for a Venn diagram, a 6 x 4.5 in UpSet panel, a 6 x 5 in
+#'   Sankey panel and a 7 x 7 in chord diagram -- which every call prints with
+#'   the matching \code{save} line. Saving, and the size note, need the
+#'   \pkg{RegR} package.
+#'
+#' @return A ggplot object (or patchwork for split/set types; a recorded base
+#'   plot for \code{"chord"}), carrying that page size as \code{attr(p,
+#'   "plot_size")}, \code{c(width, height)} in inches.
 #'
 #' @note Set types require additional packages:
 #'   \itemize{
@@ -244,7 +256,14 @@ plt_cat <- function(data,
                     facet_byrow = TRUE,
                     base_size = 14,
                     force = FALSE,
-                    ...) {
+                    ...,
+                    save = list()) {
+  finish <- function(p, panel = function(n_col, n_row) {
+    if (n_col * n_row > 1) c(3.5, 3.5) else c(4.5, 4)
+  }, size = NULL) {
+    .save_sized(p, save, panel, size = size, lead = "plot laid out for",
+                filename = "Figure X. Categorical distribution.pdf")
+  }
 
   # --- Input validation -------------------------------------------------------
   if (!is.data.frame(data)) {
@@ -371,7 +390,8 @@ plt_cat <- function(data,
     split_levels <- levels(factor(data[[split.by]]))
     plot_list <- lapply(split_levels, function(lv) {
       sub_data <- data[data[[split.by]] == lv, , drop = FALSE]
-      plt_cat(
+      # each panel is reported as part of the split figure, not on its own
+      utils::capture.output(sub <- plt_cat(
         data = sub_data, stat.by = stat.by, group.by = group.by,
         split.by = NULL, type = type, stat = stat, position = position,
         palette = palette, alpha = alpha, label = label,
@@ -384,13 +404,14 @@ plt_cat <- function(data,
         legend.direction = legend.direction, aspect.ratio = aspect.ratio,
         facet_nrow = NULL, facet_ncol = NULL, base_size = base_size,
         force = TRUE, ...
-      )
+      ))
+      sub
     })
-    return(
+    return(finish(
       patchwork::wrap_plots(plot_list, nrow = facet_nrow, ncol = facet_ncol,
                             byrow = facet_byrow) +
         patchwork::plot_layout(guides = "collect")
-    )
+    ))
   }
 
   # --- Dispatch to type-specific functions ------------------------------------
@@ -412,7 +433,12 @@ plt_cat <- function(data,
         p <- p + ggplot2::labs(title = title, subtitle = subtitle)
       }
     }
-    return(p)
+    return(switch(type,
+      chord = finish(p, size = c(7, 7)),
+      venn = finish(p, c(5, 5)),
+      upset = finish(p, c(6, 4.5)),
+      finish(p, c(6, 5))
+    ))
   }
 
   # --- Standard types: prepare data then plot ---------------------------------
@@ -489,7 +515,7 @@ plt_cat <- function(data,
     aspect.ratio = aspect.ratio
   )
 
-  p
+  finish(p)
 }
 
 

@@ -153,3 +153,24 @@ test_that("plt_na warns and returns NULL when no values are missing", {
   )
   expect_null(result)
 })
+
+test_that("plt_na saves at a page that grows with its variables", {
+  skip_if_not_installed("RegR")
+  withr::local_pdf(withr::local_tempfile(fileext = ".pdf"))
+  expect_identical(tail(names(formals(plt_na)), 1), "save")
+  make <- function(k) {
+    set.seed(1)
+    out <- as.data.frame(matrix(stats::rnorm(40 * k), ncol = k))
+    for (j in seq_len(k)) out[sample.int(40, j), j] <- NA
+    out
+  }
+  f <- withr::local_tempfile(fileext = ".pdf")
+  for (output in c("both", "matrix", "percentage")) {
+    out <- utils::capture.output(p <- plt_na(make(4), output = output,
+                                             save = list(filename = f)))
+    expect_saved_at_plot_size(out, p)
+  }
+  utils::capture.output(short <- plt_na(make(4)))
+  utils::capture.output(tall <- plt_na(make(16)))
+  expect_gt(attr(tall, "plot_size")[[2]], attr(short, "plot_size")[[2]])
+})
