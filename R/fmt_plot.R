@@ -1770,6 +1770,8 @@ fmt_plot_base <- function(plot, ggtheme = NULL, labs_list = NULL,
 #' @param label_fill Background fill colour(s), recycled across leaf plots.
 #'   One faceted plot uses the first fill. `NULL` inherits the current theme or
 #'   ggh4x strip background; use `NA` or `"transparent"` for a transparent fill.
+#'   The strip border keeps its colour from the theme, and is not drawn when the
+#'   theme has no strip background, as in `theme_minimal()`.
 #'   Accepts the same colour specifications as `label_color`.
 #' @param strip Logical. \code{TRUE} (default) adds the strip labels.
 #'   \code{FALSE} shows no strip at all and ignores \code{label},
@@ -1934,10 +1936,18 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
     )
   }
 
-  create_strip <- function(lc, lf) {
+  # A fill on a theme without strip backgrounds would otherwise take its border
+  # from an unrelated parent element. ggh4x reads NA as "inherit", so the
+  # border is made transparent instead.
+  border_colour <- function(p) {
+    background <- ggplot2::calc_element("strip.background", ggplot2::theme_get() + p$theme)
+    if (inherits(background, "element_blank")) "transparent" else NULL
+  }
+
+  create_strip <- function(lc, lf, border = NULL) {
     if (!is.null(lf)) {
       ggh4x::strip_themed(
-        background_x = ggh4x::elem_list_rect(fill = lf),
+        background_x = ggh4x::elem_list_rect(fill = lf, colour = border),
         text_x = list(centered_strip_text(lc, face = if (is.null(lc)) NULL else "bold"))
       )
     } else if (!is.null(lc)) {
@@ -1994,7 +2004,8 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
         strip_theme[[nm]] <- text_element
       }
       if (!is.null(label_fill)) {
-        background_element <- ggplot2::element_rect(fill = label_fill[i], colour = "black")
+        background_element <- ggplot2::element_rect(fill = label_fill[i],
+                                                    colour = border_colour(plots[[i]]))
         for (nm in c("strip.background", "strip.background.x", "strip.background.y")) {
           strip_theme[[nm]] <- background_element
         }
@@ -2031,7 +2042,8 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
       # A constant facet expression leaves plot/layer data and mappings intact.
       cur_strip <- create_strip(
         lc = if (!is.null(label_color)) label_color[i] else NULL,
-        lf = if (!is.null(label_fill))  label_fill[i]  else NULL
+        lf = if (!is.null(label_fill))  label_fill[i]  else NULL,
+        border = border_colour(plots[[i]])
       )
       facet_formula <- ggplot2::vars(.strip_label. = !!label[i])
       facet <- ggh4x::facet_wrap2(facet_formula, strip = cur_strip)

@@ -40,6 +40,8 @@ Colours are recycled across leaf plots; one faceted plot uses the first.}
 \item{label_fill}{Background fill colour(s), recycled across leaf plots.
 One faceted plot uses the first fill. \code{NULL} inherits the current theme or
 ggh4x strip background; use \code{NA} or \code{"transparent"} for a transparent fill.
+The strip border keeps its colour from the theme, and is not drawn when the
+theme has no strip background, as in \code{theme_minimal()}.
 Accepts the same colour specifications as \code{label_color}.}
 
 \item{strip}{Logical. \code{TRUE} (default) adds the strip labels.

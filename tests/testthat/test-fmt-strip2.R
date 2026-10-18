@@ -241,6 +241,28 @@ test_that("fmt_strip restores hidden strips and respects explicit style controls
   }
 })
 
+test_that("fmt_strip keeps the theme's strip border with an explicit fill", {
+  testthat::skip_if_not_installed("ggh4x")
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) + ggplot2::geom_point()
+  border <- function(p) unique(vapply(.fmt_strip_text(p, "rect"), function(x) {
+    if (is.null(x$gp$col)) "NULL" else format(x$gp$col)
+  }, character(1)))
+  for (theme in list(ggplot2::theme_gray(), ggplot2::theme_bw(), ggplot2::theme_classic())) {
+    themed <- p + theme
+    faceted <- themed + ggplot2::facet_wrap(ggplot2::vars(am))
+    filled <- fmt_strip(faceted, c("A", "B"), label_fill = "pink")
+    expect_identical(border(filled), border(faceted))
+    expect_identical(border(fmt_strip(themed, "X", label_fill = "pink")), border(faceted))
+    expect_identical(unique(vapply(.fmt_strip_text(filled, "rect"), function(x) x$gp$fill,
+                                   character(1))), "pink")
+  }
+  minimal <- p + ggplot2::theme_minimal()
+  faceted <- fmt_strip(minimal + ggplot2::facet_wrap(ggplot2::vars(am)), c("A", "B"),
+                       label_fill = "pink")
+  expect_identical(border(faceted), "transparent")
+  expect_identical(border(fmt_strip(minimal, "X", label_fill = "pink")), "transparent")
+})
+
 test_that("fmt_strip inherits font face when an explicit fill is supplied", {
   p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) + ggplot2::geom_point() +
     ggplot2::theme(strip.text = ggplot2::element_text(face = "italic", colour = "red"),

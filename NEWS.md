@@ -108,6 +108,11 @@
   nor the number of levels, and names matching no level, now give a warning
   instead of being recycled or dropped silently.
 
+* `fmt_strip()` with `label_fill` keeps the theme's strip border on faceted
+  plots, as it already did on unfaceted ones; it drew a black border, so one
+  figure could mix framed and unframed strips. On themes without a strip
+  background, such as `theme_minimal()`, neither draws a border.
+
 * `fmt_flatten()` given `axes` without `axis_titles` drops the input's
   `axis_titles` as well, so axis titles follow `axes` as in `wrap_plots()`
   instead of staying collected.
