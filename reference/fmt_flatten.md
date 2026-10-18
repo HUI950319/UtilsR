@@ -39,7 +39,12 @@ flatten_patchwork(plots, ..., select_inds = NULL, nrow_inds_order = NULL)
 
   Single positive integer, at most the number of selected plots, to
   reorder them by interleaving rows. Applied after selection; it does
-  not set the output layout's `nrow`.
+  not set the output layout's `nrow`. With
+  `ceiling(n / nrow_inds_order)` output columns for `n` selected cells,
+  plots take the positions that `byrow = FALSE` with
+  `nrow = nrow_inds_order` would give them; unlike `byrow`, the cells
+  themselves are reordered, so tags then run across rows instead of down
+  columns.
 
 ## Value
 
@@ -53,17 +58,24 @@ also remain intact.
 
 Top-level plot annotations and the `guides`, `axes`, `axis_titles` and
 `tag_level` settings are retained for patchwork input. Explicit
-arguments in `...` override inherited settings. Grid geometry
-(dimensions, widths, heights and design) is rebuilt using `...`; nested
-annotation and tagging scopes are not promoted. Selection indices refer
-to the extracted cells, including spacers, guide areas and wrapped
-graphics. A main plot with its insets, or a protected
+arguments in `...` override inherited settings; an explicit `axes`
+without `axis_titles` also drops the inherited `axis_titles`, which then
+follows `axes` as in
+[`wrap_plots()`](https://patchwork.data-imaginist.com/reference/wrap_plots.html).
+Grid geometry (dimensions, widths, heights and design) is rebuilt using
+`...`; nested annotation and tagging scopes are not promoted. Selection
+indices refer to the extracted cells, including spacers, guide areas and
+wrapped graphics. A main plot with its insets, or a protected
 [`free()`](https://patchwork.data-imaginist.com/reference/free.html)
 container, occupies one selection index. Named list entries that produce
 one cell retain their name; names inside nested lists are retained
 without container-name prefixes. These cell names can be matched to a
 character layout design by
 [`wrap_plots()`](https://patchwork.data-imaginist.com/reference/wrap_plots.html).
+
+Tags from `plot_annotation(tag_levels)`, including custom tag vectors,
+are assigned in output order, so they follow `select_inds` and
+`nrow_inds_order` rather than the original positions.
 
 Insets are emitted alongside ordinary hosts at the same layout level,
 allowing shared axes and axis titles to be collected. Composite inset

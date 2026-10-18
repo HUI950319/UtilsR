@@ -2,6 +2,26 @@
 
 ## UtilsR 0.6.8
 
+- The help pages of
+  [`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md)
+  and
+  [`fmt_plot_base()`](https://hui950319.github.io/UtilsR/reference/fmt_plot_base.md)
+  show links and code formatting instead of raw Markdown such as
+  `[fmt_axis()]` and `**every**`.
+
+- [`fmt_axisTile()`](https://hui950319.github.io/UtilsR/reference/fmt_axisTile.md)
+  warns once, when the plot is drawn, if no name in `colors` matches the
+  axis values; a misspelled or wrongly cased name gave grey tiles or
+  plain labels without notice. Axes with free facet scales are not
+  checked.
+
+- [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md)
+  gives an updated scale its own copy of the secondary axis. The copy
+  shared the input plot’s axis, and ggplot2 fills a
+  [`dup_axis()`](https://ggplot2.tidyverse.org/reference/sec_axis.html)’s
+  derived breaks and labels when a plot is drawn: drawing the result
+  gave the input plot’s secondary axis the result’s breaks.
+
 - `fmt_raster(method = "ggrastr")`, the default, rasterizes only point
   and tile layers, as
   [`ggrastr::rasterise()`](https://rdrr.io/pkg/ggrastr/man/rasterise.html)
@@ -16,6 +36,21 @@
   a 21 MB plot relabelled three times serialized to 90 MB, now 22 MB.
   [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
   did the same for panels holding a native single-panel facet.
+
+- [`fmt_flatten()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
+  given `axes` without `axis_titles` drops the input’s `axis_titles` as
+  well, so axis titles follow `axes` as in
+  [`wrap_plots()`](https://patchwork.data-imaginist.com/reference/wrap_plots.html)
+  instead of staying collected.
+
+- [`fmt_flatten()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
+  errors name
+  [`fmt_flatten()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
+  (or
+  [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md))
+  rather than an internal helper and report the class of an unsupported
+  element, without descending into list-based objects such as data
+  frames or gt tables.
 
 - [`fmt_flatten()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
   is the new name of

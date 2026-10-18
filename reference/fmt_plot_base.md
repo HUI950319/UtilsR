@@ -1,10 +1,9 @@
-# Broadcast theme / labs / scales onto a patchwork via \`&\`
+# Broadcast theme / labs / scales onto a patchwork via `&`
 
-Apply a theme, axis labels, and continuous y/x scales to \*\*every\*\*
-panel of a patchwork in one call, using patchwork's `&` operator. This
-is the packaged form of the legacy FeatureAnalysis helper
-`.fmt_plot.base()`: a list-driven wrapper that is handy when assembling
-multi-panel figures.
+Apply a theme, axis labels, and continuous y/x scales to **every** panel
+of a patchwork in one call, using patchwork's `&` operator. This is the
+packaged form of the legacy FeatureAnalysis helper `.fmt_plot.base()`: a
+list-driven wrapper that is handy when assembling multi-panel figures.
 
 ## Usage
 
@@ -28,8 +27,8 @@ fmt_plot_base(
 
   Theme to broadcast. Polymorphic (resolved internally): a
   [`ggplot2::theme`](https://ggplot2.tidyverse.org/reference/theme.html)
-  object, a theme \*\*function\*\* (e.g. `theme_my`), or a function-name
-  \*\*string\*\* (e.g. `"theme_km"`). `NULL` (default) leaves the theme
+  object, a theme **function** (e.g. `theme_my`), or a function-name
+  **string** (e.g. `"theme_km"`). `NULL` (default) leaves the theme
   untouched.
 
 - labs_list:
@@ -62,7 +61,7 @@ Each argument is applied only when non-`NULL`, so a bare
 
 ## See also
 
-\[fmt_plot()\]
+[`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md)
 
 Other plot formatting:
 [`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md),

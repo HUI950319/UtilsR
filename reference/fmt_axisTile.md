@@ -43,7 +43,9 @@ fmt_axisTile(
   Named character vector of colors, where names match the discrete axis
   levels (e.g. `c(setosa = "red", virginica = "blue")`). Required; names
   must be unique and non-empty. Missing colors use `"grey70"` in tile
-  mode or `text_color` in text mode.
+  mode or `text_color` in text mode. Drawing the plot warns once when no
+  name matches the axis values, except on an axis with free facet
+  scales, where a panel may show none of them.
 
 - mode:
 

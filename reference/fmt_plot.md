@@ -1,8 +1,13 @@
 # Master plot formatting function
 
-Convenience wrapper that chains \[fmt_axis()\], \[fmt_tag()\],
-\[fmt_legend()\], and \[fmt_ref()\] in sequence. Each sub-formatter is
-applied only when its corresponding \`\*\_list\` argument is non-NULL.
+Convenience wrapper that chains
+[`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md),
+[`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md),
+[`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md),
+and
+[`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md)
+in sequence. Each sub-formatter is applied only when its corresponding
+`*_list` argument is non-NULL.
 
 ## Usage
 
@@ -28,38 +33,47 @@ fmt_plot(
 
 - fmt_axis_list:
 
-  Named list of arguments for \[fmt_axis()\]. Set to \`NULL\` (default)
-  to skip.
+  Named list of arguments for
+  [`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md).
+  Set to `NULL` (default) to skip.
 
 - fmt_tag_list:
 
-  Named list of arguments for \[fmt_tag()\]. Set to \`NULL\` to skip.
+  Named list of arguments for
+  [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md).
+  Set to `NULL` to skip.
 
 - fmt_legend_list:
 
-  Named list of arguments for \[fmt_legend()\]. Set to \`NULL\` to skip.
+  Named list of arguments for
+  [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md).
+  Set to `NULL` to skip.
 
 - fmt_ref_list:
 
-  Named list of arguments for \[fmt_ref()\]. Set to \`NULL\` to skip.
+  Named list of arguments for
+  [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md).
+  Set to `NULL` to skip.
 
 - plot.margin:
 
-  Numeric vector of length 1 or 4, or a \[ggplot2::margin()\] object.
-  Applied to all plots via \`&\`.
+  Numeric vector of length 1 or 4, or a
+  [`ggplot2::margin()`](https://ggplot2.tidyverse.org/reference/element.html)
+  object. Applied to all plots via `&`.
 
 - tag_levels:
 
-  Character string for patchwork tag levels (e.g. \`"A"\`, \`"a"\`,
-  \`"1"\`). Only used when input is a patchwork object. Ignored with a
-  warning when \`fmt_tag_list\` supplies explicit labels. Automatic tag
-  levels already present in \`plot\` are preserved, with a conflict
-  warning from \[fmt_tag()\].
+  Character string for patchwork tag levels (e.g. `"A"`, `"a"`, `"1"`).
+  Only used when input is a patchwork object. Ignored with a warning
+  when `fmt_tag_list` supplies explicit labels. Automatic tag levels
+  already present in `plot` are preserved, with a conflict warning from
+  [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md).
 
 - axis_titles:
 
-  Passed to \[patchwork::plot_layout()\] \`axis_titles\` argument. Only
-  used when input is a patchwork object.
+  Passed to
+  [`patchwork::plot_layout()`](https://patchwork.data-imaginist.com/reference/plot_layout.html)
+  `axis_titles` argument. Only used when input is a patchwork object.
 
 - ...:
 

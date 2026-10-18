@@ -96,7 +96,11 @@ use an unnamed list to repeat cells by position in that design.</p></dd>
 <dt id="arg-nrow-inds-order">nrow_inds_order<a class="anchor" aria-label="anchor" href="#arg-nrow-inds-order"></a></dt>
 <dd><p>Single positive integer, at most the number of selected
 plots, to reorder them by interleaving rows. Applied after selection; it does
-not set the output layout's <code>nrow</code>.</p></dd>
+not set the output layout's <code>nrow</code>. With <code>ceiling(n / nrow_inds_order)</code>
+output columns for <code>n</code> selected cells, plots take the positions that
+<code>byrow = FALSE</code> with <code>nrow = nrow_inds_order</code> would give them;
+unlike <code>byrow</code>, the cells themselves are reordered, so tags then run
+across rows instead of down columns.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -109,7 +113,9 @@ not set the output layout's <code>nrow</code>.</p></dd>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Top-level plot annotations and the <code>guides</code>, <code>axes</code>,
   <code>axis_titles</code> and <code>tag_level</code> settings are retained for patchwork
-  input. Explicit arguments in <code>...</code> override inherited settings.
+  input. Explicit arguments in <code>...</code> override inherited settings; an
+  explicit <code>axes</code> without <code>axis_titles</code> also drops the inherited
+  <code>axis_titles</code>, which then follows <code>axes</code> as in <code><a href="https://patchwork.data-imaginist.com/reference/wrap_plots.html" class="external-link">wrap_plots()</a></code>.
   Grid geometry (dimensions, widths, heights and design) is rebuilt using
   <code>...</code>; nested annotation and tagging scopes are not promoted.
   Selection indices refer to the extracted cells, including spacers, guide
@@ -118,6 +124,9 @@ not set the output layout's <code>nrow</code>.</p></dd>
   that produce one cell retain their name; names inside nested lists are
   retained without container-name prefixes. These cell names can be matched
   to a character layout design by <code><a href="https://patchwork.data-imaginist.com/reference/wrap_plots.html" class="external-link">wrap_plots()</a></code>.</p>
+<p>Tags from <code>plot_annotation(tag_levels)</code>, including custom tag vectors,
+  are assigned in output order, so they follow <code>select_inds</code> and
+  <code>nrow_inds_order</code> rather than the original positions.</p>
 <p>Insets are emitted alongside ordinary hosts at the same layout level,
   allowing shared axes and axis titles to be collected. Composite inset hosts
   remain intact. The returned object's <code><a href="https://rdrr.io/r/base/length.html" class="external-link">length()</a></code> and <code>[[</code> follow

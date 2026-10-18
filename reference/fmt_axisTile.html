@@ -111,7 +111,9 @@ Two modes are available:</p><ul><li><p><code>"tile"</code> (default) — draw a 
 <dd><p>Named character vector of colors, where names match the
 discrete axis levels (e.g. <code>c(setosa = "red", virginica = "blue")</code>).
 Required; names must be unique and non-empty. Missing colors use
-<code>"grey70"</code> in tile mode or <code>text_color</code> in text mode.</p></dd>
+<code>"grey70"</code> in tile mode or <code>text_color</code> in text mode. Drawing
+the plot warns once when no name matches the axis values, except on an
+axis with free facet scales, where a panel may show none of them.</p></dd>
 
 
 <dt id="arg-mode">mode<a class="anchor" aria-label="anchor" href="#arg-mode"></a></dt>

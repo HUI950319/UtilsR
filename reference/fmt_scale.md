@@ -47,6 +47,13 @@ one. Without an existing scale, a new scale of the detected type is
 added. Partially automatic limits retain the same observations when
 changing between increasing and decreasing transformations.
 
+A kept secondary axis is copied, so drawing the result does not change
+the input plot. ggplot2 fills derived secondary-axis settings, such as
+the breaks of
+[`dup_axis()`](https://ggplot2.tidyverse.org/reference/sec_axis.html),
+when a plot is first drawn; to make the secondary axis of an already
+drawn plot follow new breaks or labels, supply `sec.axis` again.
+
 Existing binned position scales accept their own controls, including
 `right`, `nice.breaks` and `show.limits`. Nested patchworks are updated
 recursively without changing their layout or annotations.
