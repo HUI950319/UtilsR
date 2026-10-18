@@ -400,7 +400,8 @@ Chain-able ggplot2 formatting helpers.
   : Add Data Points to a Plot
 - [`fmt_raster()`](https://hui950319.github.io/UtilsR/reference/fmt_raster.md)
   : Rasterize Plot Panels
-- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
+- [`fmt_flatten()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
+  [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
   : Flatten nested patchwork objects
 
 ## Themes

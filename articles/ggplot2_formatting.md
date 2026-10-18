@@ -213,19 +213,20 @@ p + theme_my(base_size = 16)
 
 ------------------------------------------------------------------------
 
-## `flatten_patchwork()` — Flatten Nested Patchwork
+## `fmt_flatten()` — Flatten Nested Patchwork
 
 ``` r
 
 library(patchwork)
 nested <- (p1 | p2) / (p3 | p4)
-flat <- flatten_patchwork(nested, ncol = 2, axis_titles = "collect")
+flat <- fmt_flatten(nested, ncol = 2, axis_titles = "collect")
 ```
 
-Returns a patchwork with ordinary grid cells at one level. Overall
-annotations and collection settings are retained; dimensions and design
-are rebuilt from the supplied layout arguments. Insets stay with their
-main plot, and
+[`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
+is the same function under its original name. Returns a patchwork with
+ordinary grid cells at one level. Overall annotations and collection
+settings are retained; dimensions and design are rebuilt from the
+supplied layout arguments. Insets stay with their main plot, and
 [`free()`](https://patchwork.data-imaginist.com/reference/free.html)
 containers remain intact. Selection indices count these protected groups
 as one cell, as well as ordinary plots, spacers, guide areas and wrapped

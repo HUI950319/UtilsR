@@ -24,7 +24,11 @@ fmt_raster(
 
 - plot:
 
-  A ggplot, patchwork, or list containing either type.
+  A ggplot, patchwork, or list containing either type. For
+  `method = "image"`, also a grob, a recorded base plot
+  ([`grDevices::recordPlot()`](https://rdrr.io/r/grDevices/recordplot.html))
+  or any object its print method draws, such as a forestplot; only a
+  plain list holds several plots.
 
 - method:
 
@@ -84,11 +88,18 @@ Three backends are available:
 
 - `"ggrastr"`:
 
-  Wraps the plot with
+  Wraps the plot's point and tile layers (as
+  [`geom_point()`](https://ggplot2.tidyverse.org/reference/geom_point.html),
+  [`geom_jitter()`](https://ggplot2.tidyverse.org/reference/geom_jitter.html)
+  and
+  [`geom_tile()`](https://ggplot2.tidyverse.org/reference/geom_tile.html)
+  draw) with
   [`ggrastr::rasterise()`](https://rdrr.io/pkg/ggrastr/man/rasterise.html),
-  which marks non-text geom layers for rasterization at render time.
-  Text/label layers, custom annotations, and theme elements remain
-  vectors.
+  which rasterizes them at render time, as ggrastr does by default.
+  Other layers, such as lines, bars, polygons, text and custom
+  annotations, and theme elements remain vectors: they are few objects,
+  which as an image only make a PDF larger. The raster is redrawn on
+  every render, so on screen it can be slower than the vector plot.
 
 - `"ragg"`:
 
@@ -147,6 +158,7 @@ Other plot formatting:
 [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md),
 [`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md),
 [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md),
+[`fmt_flatten()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md),
 [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md),
 [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md),
 [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md),

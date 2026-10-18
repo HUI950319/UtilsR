@@ -86,7 +86,7 @@ data, mappings and nested container metadata are preserved.
 
 Typical use: a `get_vpd(EXP.obj, c(stratifier, exposure))` result
 flattened via
-[`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
+[`fmt_flatten()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
 into a `4 x 2` grid (rows = stratifier levels, columns = Variable /
 Partial dependence plot) – `fmt_strip2()` then labels the two columns on
 top and the four rows on the right.
@@ -122,6 +122,7 @@ Other plot formatting:
 [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md),
 [`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md),
 [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md),
+[`fmt_flatten()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md),
 [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md),
 [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md),
 [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md),

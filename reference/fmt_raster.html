@@ -81,7 +81,10 @@ one image for fast on-screen redrawing.</p>
 
 
 <dl><dt id="arg-plot">plot<a class="anchor" aria-label="anchor" href="#arg-plot"></a></dt>
-<dd><p>A ggplot, patchwork, or list containing either type.</p></dd>
+<dd><p>A ggplot, patchwork, or list containing either type. For
+<code>method = "image"</code>, also a grob, a recorded base plot
+(<code><a href="https://rdrr.io/r/grDevices/recordplot.html" class="external-link">grDevices::recordPlot()</a></code>) or any object its print method draws,
+such as a forestplot; only a plain list holds several plots.</p></dd>
 
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
@@ -140,9 +143,14 @@ preserves its names.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Three backends are available:</p><dl><dt><code>"ggrastr"</code></dt>
-<dd><p>Wraps the plot with <code><a href="https://rdrr.io/pkg/ggrastr/man/rasterise.html" class="external-link">ggrastr::rasterise()</a></code>,
-which marks non-text geom layers for rasterization at render time.
-Text/label layers, custom annotations, and theme elements remain vectors.</p></dd>
+<dd><p>Wraps the plot's point and tile layers (as
+<code><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point()</a></code>, <code><a href="https://ggplot2.tidyverse.org/reference/geom_jitter.html" class="external-link">geom_jitter()</a></code> and <code><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html" class="external-link">geom_tile()</a></code> draw)
+with <code><a href="https://rdrr.io/pkg/ggrastr/man/rasterise.html" class="external-link">ggrastr::rasterise()</a></code>, which rasterizes them at render
+time, as ggrastr does by default. Other layers, such as lines, bars,
+polygons, text and custom annotations, and theme elements remain
+vectors: they are few objects, which as an image only make a PDF
+larger. The raster is redrawn on every render, so on screen it can be
+slower than the vector plot.</p></dd>
 
 <dt><code>"ragg"</code></dt>
 <dd><p>Captures panel geometry in memory via
@@ -196,6 +204,7 @@ later geometric layer.</p>
 <code><a href="fmt_boxplot.html">fmt_boxplot()</a></code>,
 <code><a href="fmt_com.html">fmt_com()</a></code>,
 <code><a href="fmt_expand.html">fmt_expand()</a></code>,
+<code><a href="fmt_flatten.html">fmt_flatten()</a></code>,
 <code><a href="fmt_his.html">fmt_his()</a></code>,
 <code><a href="fmt_legend.html">fmt_legend()</a></code>,
 <code><a href="fmt_panel.html">fmt_panel()</a></code>,

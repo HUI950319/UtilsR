@@ -2,6 +2,33 @@
 
 ## UtilsR 0.6.8
 
+- `fmt_raster(method = "ggrastr")`, the default, rasterizes only point
+  and tile layers, as
+  [`ggrastr::rasterise()`](https://rdrr.io/pkg/ggrastr/man/rasterise.html)
+  does by default. Lines, bars and polygons stay vector: as images they
+  made a PDF larger (a 6-facet scatter with a smooth and a reference
+  line: 103 KB, now 31 KB; 13 KB as vectors). A plot without such layers
+  no longer warns about disabled clipping.
+
+- [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
+  no longer keeps its call frame in the plots it returns. Each call on a
+  faceted plot stored further copies of the input plots and their data:
+  a 21 MB plot relabelled three times serialized to 90 MB, now 22 MB.
+  [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
+  did the same for panels holding a native single-panel facet.
+
+- [`fmt_flatten()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
+  is the new name of
+  [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md),
+  so it is found with the other `fmt_*` formatters.
+  [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
+  remains as the same function without a deprecation warning.
+
+- `fmt_raster(method = "image")` takes any figure that draws itself:
+  grobs, recorded base plots (replayed) and classed objects with a print
+  method, such as `RegR::plt_eff2()`’s forestplot, which it rejected as
+  a list of non-ggplot objects. Only a plain list holds several plots.
+
 - `fmt_raster(method = "ragg")` and `method = "image"` leave the random
   stream where it was: ragg before 1.5.1 drew from it to name each
   capture device, so a later random step gave other results than without
@@ -712,17 +739,17 @@
   honors reference-group comparisons, including pooled references and
   named legend groups, and rejects conflicting custom comparison lists.
 
-- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
+- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
   rejects unknown, unnamed and duplicate layout controls, reporting
   misspelled arguments and misplaced extra graphics explicitly. Multiple
   graphics remain supported through the `plots` list input.
 
-- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
+- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
   binds insets before extracting hosts from plain or nested lists,
   retaining composite and grob hosts, their cell names and selection
   boundaries consistently with native patchwork inputs.
 
-- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
+- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
   emits ordinary inset hosts at the same layout level as their
   neighbours, retaining shared axis and axis-title collection. Selection
   and reordering still operate on complete host/inset cells; returned
@@ -774,54 +801,54 @@
   group. Consecutive and all-pairs comparisons respect panel-local scale
   order.
 
-- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
+- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
   documents collection scope changes after flattening, multiple
   guide-area behavior, and wrapped groups for retaining nested scopes.
   Examples cover composite inset hosts and protected guide groups.
 
-- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
+- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
   rejects duplicate cell names when a character design would merge them,
   preventing silent loss of repeated selections. Unnamed lists retain
   positional repetition in character designs.
 
-- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
+- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
   keeps cell names through nested lists without adding container-name
   prefixes, including named plots with insets in character layout
   designs.
 
-- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
+- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
   groups insets with their host before recursion, retaining a composite
   host as one selectable cell and preserving inset coordinates relative
   to that entire host.
 
-- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
+- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
   distinguishes a freed plot from its enclosing patchwork, allowing
   containers ending in
   [`free()`](https://patchwork.data-imaginist.com/reference/free.html)
   leaves to flatten, render and retain their overall annotations and
   collection settings.
 
-- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
+- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
   reports the index and original cause of unreadable patchwork children
   instead of silently removing them from the result.
 
-- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
+- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
   preserves top-level annotations and collection settings, accepts
   explicit layout overrides and keeps
   [`free()`](https://patchwork.data-imaginist.com/reference/free.html)
   containers intact. Grid geometry is rebuilt from the requested output
   layout.
 
-- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
+- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
   retains nested insets with their main plot during flattening,
   selection and reordering, preserving overlay placement.
 
-- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
+- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
   validates selection and row-interleaving indices before arranging
   plots, preventing fractional-index omissions and empty output. Integer
   exclusion, repetition and zero indices retain their existing meaning.
 
-- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
+- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
   accepts single plots and nested lists, retaining names for named
   layout designs and rejecting invalid list elements.
 
@@ -1845,7 +1872,7 @@ re-application failure.
 - [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
   — Unified point/jitter/beeswarm layer with auto-dodge and white
   border.
-- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md)
+- [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
   — Recursively flatten nested patchwork objects.
 - [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
   — Display colour swatches in RStudio console.

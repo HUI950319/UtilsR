@@ -121,7 +121,6 @@ Same type as input (ggplot, patchwork, or list).
 ## See also
 
 Other plot formatting:
-[`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md),
 [`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md),
 [`fmt_axisText()`](https://hui950319.github.io/UtilsR/reference/fmt_axisText.md),
 [`fmt_axisTile()`](https://hui950319.github.io/UtilsR/reference/fmt_axisTile.md),
@@ -129,6 +128,7 @@ Other plot formatting:
 [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md),
 [`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md),
 [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md),
+[`fmt_flatten()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md),
 [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md),
 [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md),
 [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md),

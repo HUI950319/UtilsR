@@ -88,6 +88,7 @@ Other plot formatting:
 [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md),
 [`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md),
 [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md),
+[`fmt_flatten()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md),
 [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md),
 [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md),
 [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md),

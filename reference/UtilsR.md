@@ -153,9 +153,10 @@ formatting, colour palettes, ggplot2 formatting, and console styling.
 
   Overlay boxplot layer
 
-- [`flatten_patchwork`](https://hui950319.github.io/UtilsR/reference/flatten_patchwork.md):
+- [`fmt_flatten`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md):
 
-  Flatten nested patchwork objects
+  Flatten nested patchwork objects (also
+  [`flatten_patchwork()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md))
 
 ## ggplot2 Themes
 
