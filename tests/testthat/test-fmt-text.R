@@ -75,3 +75,28 @@ test_that("fmt_text() formats nested data plots and skips spacers and inset tags
   expect_identical(c(text_test_count(listed[[1]], "One"),
                      text_test_count(listed[[2]], "Two")), c(1L, 1L))
 })
+
+test_that("fmt_text() legend_title keeps guide types and settings", {
+  d <- data.frame(x = 1:4, y = c(2, 1, 3, 4), g = c("a", "b", "a", "b"), z = 1:4)
+  built_guides <- function(p) ggplot2::ggplot_build(p)$plot$guides
+
+  continuous <- ggplot2::ggplot(d, ggplot2::aes(x, y, colour = z)) + ggplot2::geom_point()
+  expect_silent(guides <- built_guides(fmt_text(continuous, legend_title = "Z")))
+  expect_s3_class(guides$guides[[1]], "GuideColourbar")
+  expect_identical(guides$params[[1]]$title, "Z")
+
+  styled <- ggplot2::ggplot(d, ggplot2::aes(x, y, colour = g)) + ggplot2::geom_point() +
+    ggplot2::guides(colour = ggplot2::guide_legend(ncol = 2, reverse = TRUE))
+  params <- built_guides(fmt_text(styled, legend_title = "G"))$params[[1]]
+  expect_identical(params[c("title", "ncol", "reverse")],
+                   list(title = "G", ncol = 2, reverse = TRUE))
+  params <- built_guides(fmt_text(fmt_legend(styled, nrow = 1), legend_title = "G"))$params[[1]]
+  expect_identical(params$nrow, 1)
+
+  width <- ggplot2::ggplot(d, ggplot2::aes(x, y, linewidth = z)) + ggplot2::geom_line()
+  expect_identical(built_guides(fmt_text(width, legend_title = "W"))$params[[1]]$title, "W")
+
+  per_plot <- fmt_text(list(styled, styled), legend_title = c("", "Second"))
+  expect_s3_class(per_plot[[1]]$theme$legend.title, "element_blank")
+  expect_identical(built_guides(per_plot[[2]])$params[[1]]$title, "Second")
+})

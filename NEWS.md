@@ -10,6 +10,12 @@
   as `c(2, 2)`. The help also points to `patchwork::plot_layout(axes =
   "collect")`, which removes only identical axes.
 
+* `fmt_text(legend_title = )` titles legends as `fmt_legend(title = )` does.
+  A continuous colour bar stays a colour bar instead of becoming a key
+  legend, guide settings such as `ncol` and `reverse` are kept, linewidth
+  legends are titled too, a vector sets one title per plot instead of failing,
+  and ggplot2 4.0 no longer reports unknown labels or duplicated aesthetics.
+
 * `fmt_text()` formats the data plots of nested patchworks and skips spacers,
   guide areas and inset overlays, as the other formatters do. Per-plot labels
   no longer land on a spacer or the wrong plot, the first plot of a nested

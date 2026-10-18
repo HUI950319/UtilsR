@@ -728,6 +728,57 @@ fmt_tag <- function(plot,
   .from_plot_list(restored, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
 }
 
+# ---- fmt_legend helpers ----
+
+# Legend aesthetics formatted by fmt_legend() and fmt_text(), including the
+# aesthetics renamed by ggnewscale for multiple scales.
+.is_legend_aes <- function(aesthetics) {
+  sub("_ggnewscale_[0-9]+$", "", aesthetics) %in%
+    c("colour", "color", "fill", "shape", "size", "linewidth", "alpha", "linetype")
+}
+
+# Title every legend of one plot through labs(), scale names and explicit
+# guides, keeping guide types and their other settings. Only mapped legend
+# aesthetics are labelled, so ggplot2 reports no unknown labels.
+.set_legend_title <- function(p, label) {
+  rename_guide <- function(guide) {
+    if (!inherits(guide, "Guide") || inherits(guide, "GuideNone")) return(guide)
+    params <- guide$params
+    params$title <- label
+    do.call(ggplot2::ggproto, list(NULL, guide, params = params), envir = baseenv())
+  }
+  mapped <- unique(c(names(p$mapping), unlist(lapply(p$layers, function(layer) {
+    names(layer$mapping)
+  }), use.names = FALSE), unlist(lapply(p$scales$scales, function(sc) {
+    sc$aesthetics
+  }), use.names = FALSE)))
+  mapped <- mapped[.is_legend_aes(mapped)]
+  if (length(mapped)) {
+    p <- p + do.call(ggplot2::labs, stats::setNames(
+      rep(list(label), length(mapped)), mapped
+    ))
+  }
+  scales <- lapply(p$scales$scales, function(sc) {
+    if (!any(.is_legend_aes(sc$aesthetics))) return(sc)
+    do.call(ggplot2::ggproto, list(NULL, sc, name = label,
+      guide = rename_guide(sc$guide)), envir = baseenv())
+  })
+  if (!identical(scales, p$scales$scales)) {
+    p$scales <- do.call(ggplot2::ggproto, list(NULL, p$scales, scales = scales),
+                        envir = baseenv())
+  }
+  if (inherits(p$guides, "Guides")) {
+    guides <- p$guides$guides
+    selected <- names(guides)[.is_legend_aes(names(guides))]
+    guides[selected] <- lapply(guides[selected], rename_guide)
+    if (!identical(guides, p$guides$guides)) {
+      p$guides <- do.call(ggplot2::ggproto, list(NULL, p$guides, guides = guides),
+                          envir = baseenv())
+    }
+  }
+  p
+}
+
 # ---- fmt_legend ----
 
 #' Format legend position and style
@@ -903,53 +954,11 @@ fmt_legend <- function(plot,
   }
   if (n == 0L) return(plot)
 
-  legend_aes <- c("colour", "color", "fill", "shape", "size",
-                  "linewidth", "alpha", "linetype")
-  is_legend_aes <- function(aesthetics) {
-    sub("_ggnewscale_[0-9]+$", "", aesthetics) %in% legend_aes
-  }
+  is_legend_aes <- .is_legend_aes
   # ---- Rename legend titles per subplot ----
   if (!is.null(title)) {
     title <- rep_len(title, n)
-    rename_guide <- function(guide, label) {
-      if (!inherits(guide, "Guide") || inherits(guide, "GuideNone")) return(guide)
-      params <- guide$params
-      params$title <- label
-      do.call(ggplot2::ggproto, list(NULL, guide, params = params), envir = baseenv())
-    }
-    for (i in seq_len(n)) {
-      p <- plots[[i]]
-      mapped <- unique(c(names(p$mapping), unlist(lapply(p$layers, function(layer) {
-        names(layer$mapping)
-      }), use.names = FALSE), unlist(lapply(p$scales$scales, function(sc) {
-        sc$aesthetics
-      }), use.names = FALSE)))
-      mapped <- mapped[is_legend_aes(mapped)]
-      if (length(mapped)) {
-        p <- p + do.call(ggplot2::labs, stats::setNames(
-          rep(list(title[i]), length(mapped)), mapped
-        ))
-      }
-      scales <- lapply(p$scales$scales, function(sc) {
-        if (!any(is_legend_aes(sc$aesthetics))) return(sc)
-        do.call(ggplot2::ggproto, list(NULL, sc, name = title[i],
-          guide = rename_guide(sc$guide, title[i])), envir = baseenv())
-      })
-      if (!identical(scales, p$scales$scales)) {
-        p$scales <- do.call(ggplot2::ggproto, list(NULL, p$scales, scales = scales),
-                            envir = baseenv())
-      }
-      if (inherits(p$guides, "Guides")) {
-        guides <- p$guides$guides
-        selected <- names(guides)[is_legend_aes(names(guides))]
-        guides[selected] <- lapply(guides[selected], rename_guide, label = title[i])
-        if (!identical(guides, p$guides$guides)) {
-          p$guides <- do.call(ggplot2::ggproto, list(NULL, p$guides, guides = guides),
-                              envir = baseenv())
-        }
-      }
-      plots[[i]] <- p
-    }
+    for (i in seq_len(n)) plots[[i]] <- .set_legend_title(plots[[i]], title[i])
   }
 
   # ---- Resolve corner shorthand to numeric coordinates ----
@@ -2730,7 +2739,12 @@ fmt_panel <- function(plot,
 #'   A vector sets different subtitles per plot.
 #' @param caption Plot caption. \code{NULL} = no change.
 #'   A vector sets different captions per plot.
-#' @param legend_title Legend title. \code{NULL} = no change, \code{""} = remove.
+#' @param legend_title Legend title, applied to every mapped colour, fill,
+#'   shape, size, linewidth, alpha and linetype legend (including
+#'   \pkg{ggnewscale} scales) as \code{\link{fmt_legend}(title = )} does:
+#'   guide types and settings such as colour bars, \code{ncol} or
+#'   \code{reverse} are kept. \code{NULL} = no change, \code{""} = remove.
+#'   A vector sets different titles per plot.
 #' @param title_size Numeric. Title font size. Default \code{NULL}.
 #' @param title_face Character. Title font face. Default \code{NULL}.
 #' @param title_color Character. Title color. Default \code{NULL}.
@@ -2805,6 +2819,7 @@ fmt_text <- function(plot,
   title_vec    <- vec_or_null(title)
   subtitle_vec <- vec_or_null(subtitle)
   caption_vec  <- vec_or_null(caption)
+  legend_vec   <- vec_or_null(legend_title)
 
   # ---- Build text style theme ----
   .build_element <- function(size, face, color, hjust = NULL) {
@@ -2833,25 +2848,6 @@ fmt_text <- function(plot,
     NULL
   }
 
-  # ---- Handle legend title (guides + labs for full override) ----
-  legend_layer <- NULL
-  if (!is.null(legend_title)) {
-    if (legend_title == "") {
-      legend_layer <- ggplot2::theme(legend.title = ggplot2::element_blank())
-    } else {
-      guide_obj <- ggplot2::guide_legend(title = legend_title)
-      legend_layer <- list(
-        ggplot2::labs(fill = legend_title, colour = legend_title,
-                      shape = legend_title, size = legend_title,
-                      alpha = legend_title, linetype = legend_title),
-        ggplot2::guides(fill = guide_obj, colour = guide_obj,
-                        shape = guide_obj, size = guide_obj,
-                        alpha = guide_obj, linetype = guide_obj,
-                        color = guide_obj)
-      )
-    }
-  }
-
   # ---- Extra labs via ... ----
   extra_labs <- list(...)
   extra_layer <- if (length(extra_labs) > 0L) {
@@ -2872,12 +2868,11 @@ fmt_text <- function(plot,
     if (length(labs_i) > 0L) p <- p + do.call(ggplot2::labs, labs_i)
     if (!is.null(extra_layer))  p <- p + extra_layer
     if (!is.null(style_theme))  p <- p + style_theme
-    if (!is.null(legend_layer)) {
-      if (is.list(legend_layer) && !inherits(legend_layer, "theme")) {
-        for (ll in legend_layer) p <- p + ll
-      } else {
-        p <- p + legend_layer
-      }
+    legend_i <- legend_vec[[i]]
+    if (is.character(legend_i) && identical(legend_i, "")) {
+      p <- p + ggplot2::theme(legend.title = ggplot2::element_blank())
+    } else if (!is.null(legend_i)) {
+      p <- .set_legend_title(p, legend_i)
     }
     info$plots[[i]] <- p
   }

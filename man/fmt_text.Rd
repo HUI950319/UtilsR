@@ -51,7 +51,12 @@ A vector sets different subtitles per plot.}
 \item{caption}{Plot caption. \code{NULL} = no change.
 A vector sets different captions per plot.}
 
-\item{legend_title}{Legend title. \code{NULL} = no change, \code{""} = remove.}
+\item{legend_title}{Legend title, applied to every mapped colour, fill,
+shape, size, linewidth, alpha and linetype legend (including
+\pkg{ggnewscale} scales) as \code{\link{fmt_legend}(title = )} does:
+guide types and settings such as colour bars, \code{ncol} or
+\code{reverse} are kept. \code{NULL} = no change, \code{""} = remove.
+A vector sets different titles per plot.}
 
 \item{title_size}{Numeric. Title font size. Default \code{NULL}.}
 
