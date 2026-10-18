@@ -34,8 +34,10 @@ fmt_strip(
   column variable (row variable when there are no columns). Other
   variables retain their labeller, including row/column labellers and
   single-line formatting. For multiple plots, labels are recycled across
-  leaf plots in their existing order. `NULL` generates `Figure1`,
-  `Figure2`, etc.; `""` gives a blank label.
+  leaf plots in their existing order. `NULL` keeps the labels of faceted
+  plots, so only the strip style changes, and labels unfaceted plots
+  `Figure1`, `Figure2`, etc. by their position among the leaf plots;
+  `""` gives a blank label.
 
 - label_color:
 

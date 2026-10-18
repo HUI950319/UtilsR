@@ -92,7 +92,11 @@ patchwork or list (pass a vector to <code>xlab</code>, <code>ylab</code>, etc.).
 
 
 <dl><dt id="arg-plot">plot<a class="anchor" aria-label="anchor" href="#arg-plot"></a></dt>
-<dd><p>A ggplot, patchwork, or list of ggplot objects.</p></dd>
+<dd><p>A ggplot, patchwork, or list of ggplot objects. Data plots are
+formatted recursively in leaf order, so per-plot vectors map to them in
+that order. Spacers, guide areas, inset overlays (including outside
+<code><a href="fmt_tag.html">fmt_tag()</a></code> labels) and fixed wrapped graphics are skipped
+and do not consume per-plot values.</p></dd>
 
 
 <dt id="arg-xlab">xlab<a class="anchor" aria-label="anchor" href="#arg-xlab"></a></dt>
@@ -121,7 +125,12 @@ A vector sets different captions per plot.</p></dd>
 
 
 <dt id="arg-legend-title">legend_title<a class="anchor" aria-label="anchor" href="#arg-legend-title"></a></dt>
-<dd><p>Legend title. <code>NULL</code> = no change, <code>""</code> = remove.</p></dd>
+<dd><p>Legend title, applied to every mapped colour, fill,
+shape, size, linewidth, alpha and linetype legend (including
+<span class="pkg">ggnewscale</span> scales) as <code><a href="fmt_legend.html">fmt_legend</a>(title = )</code> does:
+guide types and settings such as colour bars, <code>ncol</code> or
+<code>reverse</code> are kept. <code>NULL</code> = no change, <code>""</code> = remove.
+A vector sets different titles per plot.</p></dd>
 
 
 <dt id="arg-title-size">title_size<a class="anchor" aria-label="anchor" href="#arg-title-size"></a></dt>
@@ -191,6 +200,12 @@ leaves the layout setting unchanged. Ignored for a single ggplot or list.</p></d
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Same type as input.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Text styles are added to each plot's current elements. Rich text
+  elements, such as <code>ggtext::element_markdown()</code> set in the plot or
+  global theme, keep their class and other settings.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

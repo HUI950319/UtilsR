@@ -2,6 +2,43 @@
 
 ## UtilsR 0.6.8
 
+- [`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md)
+  and
+  [`fmt_plot_base()`](https://hui950319.github.io/UtilsR/reference/fmt_plot_base.md)
+  format each plot of a plain list and return the list. A list gave
+  `NULL`, because patchwork’s `&` falls back to `+` for anything but a
+  patchwork; a list holding a non-plot is an error.
+
+- [`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md)
+  warns when `plot_dims` differs from the layout of a patchwork without
+  nested patchworks. Such a patchwork’s own layout decides which axes
+  are hidden, so `plot_dims = c(4, 1)` on a 2 x 2 grid was silently
+  treated as `c(2, 2)`. The help also points to
+  `patchwork::plot_layout(axes = "collect")`, which removes only
+  identical axes.
+
+- [`fmt_text()`](https://hui950319.github.io/UtilsR/reference/fmt_text.md)
+  styles rich text elements in place: a title or axis title set with
+  `ggtext::element_markdown()` in the plot or global theme keeps its
+  class and settings, where styling it failed with “Only elements of the
+  same class can be merged”.
+
+- `fmt_text(legend_title = )` titles legends as `fmt_legend(title = )`
+  does. A continuous colour bar stays a colour bar instead of becoming a
+  key legend, guide settings such as `ncol` and `reverse` are kept,
+  linewidth legends are titled too, a vector sets one title per plot
+  instead of failing, and ggplot2 4.0 no longer reports unknown labels
+  or duplicated aesthetics.
+
+- [`fmt_text()`](https://hui950319.github.io/UtilsR/reference/fmt_text.md)
+  formats the data plots of nested patchworks and skips spacers, guide
+  areas and inset overlays, as the other formatters do. Per-plot labels
+  no longer land on a spacer or the wrong plot, the first plot of a
+  nested layout is no longer left out, and a title added after an
+  outside
+  [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
+  label is drawn once instead of twice (or not at all in a list).
+
 - The help pages of
   [`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md)
   and
@@ -45,6 +82,12 @@
   restored grids were checked. Grids restored under a blank root `line`
   ([`theme_void()`](https://ggplot2.tidyverse.org/reference/ggtheme.html))
   are `"grey85"` instead of the root line’s black.
+
+- [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
+  with `label = NULL` keeps the labels of a faceted plot and changes
+  only the strip style. It renamed every panel `Figure1`, so
+  `fmt_strip(p, label_fill = "steelblue")` lost the facet levels.
+  Unfaceted plots are still labelled `Figure1`, `Figure2`, etc.
 
 - [`fmt_flatten()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
   given `axes` without `axis_titles` drops the input’s `axis_titles` as

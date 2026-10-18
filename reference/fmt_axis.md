@@ -47,16 +47,17 @@ fmt_axis(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL)
   x-axes are hidden for all rows except the last, y-axes for all columns
   except the first. Patchwork positions follow the existing layout,
   including column-major filling, empty cells, nested grids and spanning
-  design areas; \`plot_dims\` does not rearrange the plots. Insets do
-  not occupy grid cells. Lists retain cells occupied by spacers, guide
-  areas and fixed graphics, and nested containers retain their own
-  layout. Dimensions must be finite positive integers with enough cells
-  for the editable plots in a patchwork, or for the top-level grid
-  entries in a list. A single value specifies the number of rows;
-  columns are inferred. Empty trailing rows do not remove the x-axes of
-  the last occupied row. When provided, layout-based selection overrides
-  both \`x.axis\` and \`y.axis\`, including one-row and one-column
-  layouts. Manual selectors are still validated.
+  design areas; \`plot_dims\` does not rearrange the plots, and a
+  patchwork without nested patchworks warns when its layout differs.
+  Insets do not occupy grid cells. Lists retain cells occupied by
+  spacers, guide areas and fixed graphics, and nested containers retain
+  their own layout. Dimensions must be finite positive integers with
+  enough cells for the editable plots in a patchwork, or for the
+  top-level grid entries in a list. A single value specifies the number
+  of rows; columns are inferred. Empty trailing rows do not remove the
+  x-axes of the last occupied row. When provided, layout-based selection
+  overrides both \`x.axis\` and \`y.axis\`, including one-row and
+  one-column layouts. Manual selectors are still validated.
 
 ## Value
 
@@ -76,8 +77,9 @@ modified. For
 mapped to theta. Axis lines, data, scales, coordinates and facet
 structure are retained. The function does not verify or synchronize
 scales between plots; use automatic selection only for axes that can be
-meaningfully shared. Selections operate on whole plots, including all
-facets.
+meaningfully shared. For an assembled patchwork,
+`patchwork::plot_layout(axes = "collect")` removes only identical axes.
+Selections operate on whole plots, including all facets.
 
 ## See also
 

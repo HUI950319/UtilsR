@@ -37,7 +37,12 @@ fmt_text(
 
 - plot:
 
-  A ggplot, patchwork, or list of ggplot objects.
+  A ggplot, patchwork, or list of ggplot objects. Data plots are
+  formatted recursively in leaf order, so per-plot vectors map to them
+  in that order. Spacers, guide areas, inset overlays (including outside
+  [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
+  labels) and fixed wrapped graphics are skipped and do not consume
+  per-plot values.
 
 - xlab:
 
@@ -66,7 +71,12 @@ fmt_text(
 
 - legend_title:
 
-  Legend title. `NULL` = no change, `""` = remove.
+  Legend title, applied to every mapped colour, fill, shape, size,
+  linewidth, alpha and linetype legend (including ggnewscale scales) as
+  [`fmt_legend`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)`(title = )`
+  does: guide types and settings such as colour bars, `ncol` or
+  `reverse` are kept. `NULL` = no change, `""` = remove. A vector sets
+  different titles per plot.
 
 - title_size:
 
@@ -136,6 +146,12 @@ fmt_text(
 ## Value
 
 Same type as input.
+
+## Details
+
+Text styles are added to each plot's current elements. Rich text
+elements, such as `ggtext::element_markdown()` set in the plot or global
+theme, keep their class and other settings.
 
 ## See also
 
