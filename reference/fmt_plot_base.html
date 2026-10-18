@@ -78,8 +78,7 @@ a list-driven wrapper that is handy when assembling multi-panel figures.</p>
 
 
 <dl><dt id="arg-plot">plot<a class="anchor" aria-label="anchor" href="#arg-plot"></a></dt>
-<dd><p>A ggplot, patchwork, or list of these. Each plot of a list is
-formatted on its own.</p></dd>
+<dd><p>A patchwork (or ggplot) object.</p></dd>
 
 
 <dt id="arg-ggtheme">ggtheme<a class="anchor" aria-label="anchor" href="#arg-ggtheme"></a></dt>
@@ -107,8 +106,7 @@ or a function-name <strong>string</strong> (e.g. <code>"theme_km"</code>). <code
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Same type as input, with the requested settings added to every
-plot via <code>&amp;</code>.</p>
+    <p>The input plot with the requested layers broadcast via <code>&amp;</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

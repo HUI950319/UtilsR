@@ -59,7 +59,7 @@ fmt_plot(
 
   Numeric vector of length 1 or 4, or a
   [`ggplot2::margin()`](https://ggplot2.tidyverse.org/reference/element.html)
-  object. Applied to every plot via `&`, including each plot of a list.
+  object. Applied to all plots via `&`.
 
 - tag_levels:
 

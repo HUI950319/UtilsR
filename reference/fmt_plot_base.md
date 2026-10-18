@@ -21,8 +21,7 @@ fmt_plot_base(
 
 - plot:
 
-  A ggplot, patchwork, or list of these. Each plot of a list is
-  formatted on its own.
+  A patchwork (or ggplot) object.
 
 - ggtheme:
 
@@ -53,8 +52,7 @@ fmt_plot_base(
 
 ## Value
 
-Same type as input, with the requested settings added to every plot via
-`&`.
+The input plot with the requested layers broadcast via `&`.
 
 ## Details
 

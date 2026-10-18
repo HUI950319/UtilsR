@@ -2,13 +2,6 @@
 
 ## UtilsR 0.6.8
 
-- [`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md)
-  and
-  [`fmt_plot_base()`](https://hui950319.github.io/UtilsR/reference/fmt_plot_base.md)
-  format each plot of a plain list and return the list. A list gave
-  `NULL`, because patchwork’s `&` falls back to `+` for anything but a
-  patchwork; a list holding a non-plot is an error.
-
 - The help pages of
   [`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md)
   and
