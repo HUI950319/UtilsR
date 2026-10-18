@@ -20,8 +20,7 @@ fmt_plot(
   fmt_ref_list = NULL,
   plot.margin = NULL,
   tag_levels = NULL,
-  axis_titles = NULL,
-  ...
+  axis_titles = NULL
 )
 ```
 
@@ -74,10 +73,6 @@ fmt_plot(
   Passed to
   [`patchwork::plot_layout()`](https://patchwork.data-imaginist.com/reference/plot_layout.html)
   `axis_titles` argument. Only used when input is a patchwork object.
-
-- ...:
-
-  Currently unused.
 
 ## Value
 
