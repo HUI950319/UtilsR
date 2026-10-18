@@ -53,8 +53,8 @@ unless geom arguments or facet-variable conflicts require per-line layers.
 }
 \details{
 When positions are supplied, \code{linetype}, \code{linewidth},
-\code{color} and \code{alpha} must be non-empty vectors. Missing style
-values retain their native ggplot2 meaning.
+  \code{color} and \code{alpha} must be non-empty vectors. Missing style
+  values retain their native ggplot2 meaning.
 }
 \examples{
 library(ggplot2)

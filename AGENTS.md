@@ -66,9 +66,6 @@ filesystem rather than maintaining a duplicate inventory here.
   `all.names()` also matches a column named `stage`, and calls such as
   `1 + stage(y)` nest. Test a new check with these cases (2026-10-17
   `fmt_boxplot()`: 7862e14 missed the `NULL` case, fixed in 7945bd6).
-- Until a one-time roxygen sync lands, `document()` also reorders `NAMESPACE`,
-  rewraps `fmt_boxplot.Rd` and rewrites `@family` links in several Rd files
-  (2026-10-18, four sessions). Restore those hunks unless the change is yours.
 
 ## CI and pkgdown checklist
 
