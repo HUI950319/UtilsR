@@ -1,5 +1,12 @@
 # UtilsR 0.6.8
 
+* `fmt_plot_base()` applies `scale_y_list` and `scale_x_list` with
+  `fmt_scale()`. Each panel keeps its scale type, so a discrete or date axis
+  no longer fails with "Discrete value supplied to a continuous scale", and an
+  existing scale keeps the settings the list does not name: a
+  `scale_y_log10()` used to turn linear, with a "Scale for y is already
+  present" message for every panel.
+
 * `fmt_plot()` no longer has an unused `...`: a misspelled or unsupported
   argument, such as `fmt_strip_list`, is an "unused argument" error instead
   of being ignored without notice.

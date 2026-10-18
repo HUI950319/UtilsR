@@ -2,7 +2,7 @@
 % Please edit documentation in R/fmt_plot.R
 \name{fmt_plot_base}
 \alias{fmt_plot_base}
-\title{Broadcast theme / labs / scales onto a patchwork via \code{&}}
+\title{Broadcast theme / labs / scales onto every panel}
 \usage{
 fmt_plot_base(
   plot,
@@ -24,20 +24,22 @@ or a function-name \strong{string} (e.g. \code{"theme_km"}). \code{NULL}
 \item{labs_list}{Named list passed to \code{ggplot2::labs()}, e.g.
 \code{list(x = "ETE", y = "SHAP value")}. \code{NULL} = no change.}
 
-\item{scale_y_list}{Named list passed to
-\code{ggplot2::scale_y_continuous()}, e.g.
+\item{scale_y_list}{Named list of y-axis scale arguments, applied to every
+panel with \code{\link[=fmt_scale]{fmt_scale()}}: each panel keeps its scale type (continuous,
+discrete, date, ...), and an existing scale keeps the settings the list
+does not name, such as a log transformation. E.g.
 \code{list(limits = c(0, 1), breaks = seq(0, 1, 0.2))}. \code{NULL} = no change.}
 
-\item{scale_x_list}{Named list passed to
-\code{ggplot2::scale_x_continuous()}. \code{NULL} = no change.}
+\item{scale_x_list}{Like \code{scale_y_list}, for the x axis.}
 }
 \value{
 Same type as input, with the requested settings added to every
-plot via \code{&}.
+plot.
 }
 \description{
-Apply a theme, axis labels, and continuous y/x scales to \strong{every} panel of
-a patchwork in one call, using patchwork's \code{&} operator. This is the
+Apply a theme, axis labels and axis-scale settings to \strong{every} panel of
+a patchwork in one call: the theme and labels with patchwork's \code{&}
+operator, the scale settings with \code{\link[=fmt_scale]{fmt_scale()}}. This is the
 packaged form of the legacy FeatureAnalysis helper \code{.fmt_plot.base()}:
 a list-driven wrapper that is handy when assembling multi-panel figures.
 }

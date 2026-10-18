@@ -1552,10 +1552,11 @@ fmt_plot <- function(plot,
 
 # ---- fmt_plot_base ----
 
-#' Broadcast theme / labs / scales onto a patchwork via `&`
+#' Broadcast theme / labs / scales onto every panel
 #'
-#' Apply a theme, axis labels, and continuous y/x scales to **every** panel of
-#' a patchwork in one call, using patchwork's \code{&} operator. This is the
+#' Apply a theme, axis labels and axis-scale settings to **every** panel of
+#' a patchwork in one call: the theme and labels with patchwork's \code{&}
+#' operator, the scale settings with [fmt_scale()]. This is the
 #' packaged form of the legacy FeatureAnalysis helper \code{.fmt_plot.base()}:
 #' a list-driven wrapper that is handy when assembling multi-panel figures.
 #'
@@ -1570,14 +1571,15 @@ fmt_plot <- function(plot,
 #'   (default) leaves the theme untouched.
 #' @param labs_list Named list passed to \code{ggplot2::labs()}, e.g.
 #'   \code{list(x = "ETE", y = "SHAP value")}. \code{NULL} = no change.
-#' @param scale_y_list Named list passed to
-#'   \code{ggplot2::scale_y_continuous()}, e.g.
+#' @param scale_y_list Named list of y-axis scale arguments, applied to every
+#'   panel with [fmt_scale()]: each panel keeps its scale type (continuous,
+#'   discrete, date, ...), and an existing scale keeps the settings the list
+#'   does not name, such as a log transformation. E.g.
 #'   \code{list(limits = c(0, 1), breaks = seq(0, 1, 0.2))}. \code{NULL} = no change.
-#' @param scale_x_list Named list passed to
-#'   \code{ggplot2::scale_x_continuous()}. \code{NULL} = no change.
+#' @param scale_x_list Like \code{scale_y_list}, for the x axis.
 #'
 #' @return Same type as input, with the requested settings added to every
-#'   plot via \code{&}.
+#'   plot.
 #'
 #' @examples
 #' library(ggplot2); library(patchwork)
@@ -1604,8 +1606,8 @@ fmt_plot_base <- function(plot, ggtheme = NULL, labs_list = NULL,
                           scale_y_list = NULL, scale_x_list = NULL) {
   if (!is.null(ggtheme))      plot <- .broadcast_plot(plot, .resolve_theme(ggtheme))
   if (!is.null(labs_list))    plot <- .broadcast_plot(plot, do.call(ggplot2::labs, labs_list))
-  if (!is.null(scale_y_list)) plot <- .broadcast_plot(plot, do.call(ggplot2::scale_y_continuous, scale_y_list))
-  if (!is.null(scale_x_list)) plot <- .broadcast_plot(plot, do.call(ggplot2::scale_x_continuous, scale_x_list))
+  if (!is.null(scale_y_list) || !is.null(scale_x_list))
+    plot <- fmt_scale(plot, x = scale_x_list, y = scale_y_list)
   plot
 }
 
