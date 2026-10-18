@@ -115,12 +115,12 @@ A vector sets different titles per plot.</p></dd>
 
 
 <dt id="arg-subtitle">subtitle<a class="anchor" aria-label="anchor" href="#arg-subtitle"></a></dt>
-<dd><p>Plot subtitle. <code>NULL</code> = no change.
+<dd><p>Plot subtitle. <code>NULL</code> = no change, <code>""</code> = remove.
 A vector sets different subtitles per plot.</p></dd>
 
 
 <dt id="arg-caption">caption<a class="anchor" aria-label="anchor" href="#arg-caption"></a></dt>
-<dd><p>Plot caption. <code>NULL</code> = no change.
+<dd><p>Plot caption. <code>NULL</code> = no change, <code>""</code> = remove.
 A vector sets different captions per plot.</p></dd>
 
 
@@ -187,10 +187,12 @@ A vector sets different titles per plot.</p></dd>
 
 <dt id="arg-axis-titles">axis_titles<a class="anchor" aria-label="anchor" href="#arg-axis-titles"></a></dt>
 <dd><p>Passed to <code><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout()</a></code> <code>axis_titles</code>
-when input is a patchwork. Default <code>"collect"</code> merges identical
+when input is a patchwork and <code>xlab</code> or <code>ylab</code> is supplied.
+Default <code>"collect"</code> merges identical
 adjacent axis titles into one; <code>"collect_x"</code> / <code>"collect_y"</code>
 merge one axis only, <code>"keep"</code> keeps every title, and <code>NULL</code>
-leaves the layout setting unchanged. Ignored for a single ggplot or list.</p></dd>
+leaves the layout setting unchanged. Ignored for a single ggplot or list,
+and when no axis title is set, so restyling text keeps the layout.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

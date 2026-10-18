@@ -55,6 +55,9 @@ fmt_strip(
   Background fill colour(s), recycled across leaf plots. One faceted
   plot uses the first fill. `NULL` inherits the current theme or ggh4x
   strip background; use `NA` or `"transparent"` for a transparent fill.
+  The strip border keeps its colour from the theme, and is not drawn
+  when the theme has no strip background, as in
+  [`theme_minimal()`](https://ggplot2.tidyverse.org/reference/ggtheme.html).
   Accepts the same colour specifications as `label_color`.
 
 - strip:

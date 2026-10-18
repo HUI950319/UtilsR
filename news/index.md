@@ -2,6 +2,14 @@
 
 ## UtilsR 0.6.8
 
+- [`fmt_axisTile()`](https://hui950319.github.io/UtilsR/reference/fmt_axisTile.md)’s
+  `text_size`, `text_face`, `text_angle` and `text_color` default to
+  `NULL`, which keeps the plot’s own axis text style. They were 9,
+  `"plain"`, 45 degrees on the x axis and `"black"`, so even
+  `mode = "text"`, meant only to color the labels, made them smaller,
+  black and rotated. Pass `text_angle = 45` for the earlier rotated
+  labels.
+
 - [`fmt_raster()`](https://hui950319.github.io/UtilsR/reference/fmt_raster.md)’s
   default `"ggrastr"` backend draws each raster after an empty opaque
   polygon, as the `"ragg"` and `"image"` backends do:
@@ -28,6 +36,18 @@
 - [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
   warns when a plot’s coordinate system has `expand = FALSE`, which
   makes ggplot2 ignore the scale expansion it sets.
+
+- [`fmt_text()`](https://hui950319.github.io/UtilsR/reference/fmt_text.md)
+  sets a patchwork’s `axis_titles` only when `xlab` or `ylab` is
+  supplied. Changing only a title, a caption or text styles merged the
+  axis titles too and replaced an existing `"keep"`. A misspelt
+  `axis_titles` is still rejected.
+
+- An empty string now removes a title without leaving space, as
+  documented: `fmt_text(title = "", xlab = "", ...)` (also `ylab`,
+  `subtitle` and `caption`) kept an empty title row of about 6 mm and an
+  empty axis title row of about 5 mm, and `fmt_legend(title = "")` kept
+  about 5.6 mm above the keys.
 
 - `fmt_text(axis_title_size, axis_title_face, axis_title_color)` also
   reach axis title sides that set the same field themselves. A theme
@@ -127,6 +147,14 @@
   “Eight”. Unnamed levels keep their label. Unnamed labels whose number
   is neither one nor the number of levels, and names matching no level,
   now give a warning instead of being recycled or dropped silently.
+
+- [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
+  with `label_fill` keeps the theme’s strip border on faceted plots, as
+  it already did on unfaceted ones; it drew a black border, so one
+  figure could mix framed and unframed strips. On themes without a strip
+  background, such as
+  [`theme_minimal()`](https://ggplot2.tidyverse.org/reference/ggtheme.html),
+  neither draws a border.
 
 - [`fmt_flatten()`](https://hui950319.github.io/UtilsR/reference/fmt_flatten.md)
   given `axes` without `axis_titles` drops the input’s `axis_titles` as

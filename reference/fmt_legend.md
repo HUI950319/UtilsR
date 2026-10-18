@@ -71,7 +71,8 @@ fmt_legend(
   the number of subplots. Automatically detects which aesthetics
   (colour, fill, shape, etc.) are mapped and renames their legend
   titles. Also covers aesthetics renamed by ggnewscale for multiple
-  scales. Default \`NULL\` (no change).
+  scales. An empty string removes the titles without leaving space.
+  Default \`NULL\` (no change).
 
 - scale:
 

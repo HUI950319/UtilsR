@@ -91,10 +91,10 @@ Two modes are available:</p><ul><li><p><code>"tile"</code> (default) — draw a 
 <span>  tile_width <span class="op">=</span> <span class="fl">0.06</span>,</span>
 <span>  tile_border <span class="op">=</span> <span class="st">"white"</span>,</span>
 <span>  tile_border_width <span class="op">=</span> <span class="fl">0.2</span>,</span>
-<span>  text_size <span class="op">=</span> <span class="fl">9</span>,</span>
-<span>  text_face <span class="op">=</span> <span class="st">"plain"</span>,</span>
+<span>  text_size <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  text_face <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  text_angle <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  text_color <span class="op">=</span> <span class="st">"black"</span>,</span>
+<span>  text_color <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  show_text <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -111,7 +111,8 @@ Two modes are available:</p><ul><li><p><code>"tile"</code> (default) — draw a 
 <dd><p>Named character vector of colors, where names match the
 discrete axis levels (e.g. <code>c(setosa = "red", virginica = "blue")</code>).
 Required; names must be unique and non-empty. Missing colors use
-<code>"grey70"</code> in tile mode or <code>text_color</code> in text mode. Drawing
+<code>"grey70"</code> in tile mode and <code>text_color</code>, or the plot's axis
+text colour when it is <code>NULL</code>, in text mode. Drawing
 the plot warns once when no name matches the axis values, except on an
 axis with free facet scales, where a panel may show none of them.</p></dd>
 
@@ -144,21 +145,24 @@ axis with free facet scales, where a panel may show none of them.</p></dd>
 
 
 <dt id="arg-text-size">text_size<a class="anchor" aria-label="anchor" href="#arg-text-size"></a></dt>
-<dd><p>Positive finite size of axis text labels below/beside tiles. Default 9.</p></dd>
+<dd><p>Positive finite size of the axis text labels in points.
+Default <code>NULL</code> keeps the plot's axis text size.</p></dd>
 
 
 <dt id="arg-text-face">text_face<a class="anchor" aria-label="anchor" href="#arg-text-face"></a></dt>
-<dd><p>Font face name or number from 1 to 5. Default <code>"plain"</code>.</p></dd>
+<dd><p>Font face name or number from 1 to 5. Default <code>NULL</code>
+keeps the plot's font face.</p></dd>
 
 
 <dt id="arg-text-angle">text_angle<a class="anchor" aria-label="anchor" href="#arg-text-angle"></a></dt>
-<dd><p>Rotation angle for axis text labels. Default <code>45</code>
-for x-axis, <code>0</code> for y-axis.</p></dd>
+<dd><p>Rotation angle of the axis text labels; justification
+follows the axis side. Default <code>NULL</code> keeps the existing angle,
+including one set by <code>guide_axis(angle = )</code>.</p></dd>
 
 
 <dt id="arg-text-color">text_color<a class="anchor" aria-label="anchor" href="#arg-text-color"></a></dt>
-<dd><p>Color of tile-mode labels and fallback for unmatched
-text-mode labels. Default <code>"black"</code>.</p></dd>
+<dd><p>Color of tile-mode labels and of text-mode labels without
+a matching color. Default <code>NULL</code> keeps the plot's axis text colour.</p></dd>
 
 
 <dt id="arg-show-text">show_text<a class="anchor" aria-label="anchor" href="#arg-show-text"></a></dt>
@@ -224,32 +228,36 @@ Subsequent calls to <code><a href="fmt_axis.html">fmt_axis()</a></code> or
 <span class="r-in"><span><span class="va">cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>A <span class="op">=</span> <span class="st">"#E64B35"</span>, B <span class="op">=</span> <span class="st">"#4DBBD5"</span>, C <span class="op">=</span> <span class="st">"#00A087"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">dat</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">category</span>, <span class="va">value</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html" class="external-link">geom_boxplot</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Tile mode: color strip between axis and rotated labels</span></span></span>
+<span class="r-in"><span><span class="co"># Tile mode: color strip between the axis and its labels</span></span></span>
 <span class="r-in"><span><span class="fu">fmt_axisTile</span><span class="op">(</span><span class="va">p</span>, colors <span class="op">=</span> <span class="va">cols</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="fmt_axisTile-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Rotate the labels; justification follows the axis side</span></span></span>
+<span class="r-in"><span><span class="fu">fmt_axisTile</span><span class="op">(</span><span class="va">p</span>, colors <span class="op">=</span> <span class="va">cols</span>, text_angle <span class="op">=</span> <span class="fl">45</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="fmt_axisTile-2.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Tile mode: no text labels, color-only strip</span></span></span>
 <span class="r-in"><span><span class="fu">fmt_axisTile</span><span class="op">(</span><span class="va">p</span>, colors <span class="op">=</span> <span class="va">cols</span>, show_text <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="fmt_axisTile-2.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="fmt_axisTile-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Text mode: colored axis labels (no tiles)</span></span></span>
 <span class="r-in"><span><span class="fu">fmt_axisTile</span><span class="op">(</span><span class="va">p</span>, colors <span class="op">=</span> <span class="va">cols</span>, mode <span class="op">=</span> <span class="st">"text"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="fmt_axisTile-3.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="fmt_axisTile-4.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Y-axis tiles</span></span></span>
 <span class="r-in"><span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">dat</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">value</span>, <span class="va">category</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html" class="external-link">geom_boxplot</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">fmt_axisTile</span><span class="op">(</span><span class="va">p2</span>, colors <span class="op">=</span> <span class="va">cols</span>, axis <span class="op">=</span> <span class="st">"y"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="fmt_axisTile-4.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="fmt_axisTile-5.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Match colors to scale values rather than their display labels</span></span></span>
 <span class="r-in"><span><span class="va">p3</span> <span class="op">&lt;-</span> <span class="va">p</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_discrete.html" class="external-link">scale_x_discrete</a></span><span class="op">(</span>limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C"</span>, <span class="st">"B"</span>, <span class="st">"A"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                         labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>C <span class="op">=</span> <span class="st">"Gamma"</span>, B <span class="op">=</span> <span class="st">"Beta"</span>, A <span class="op">=</span> <span class="st">"Alpha"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">fmt_axisTile</span><span class="op">(</span><span class="va">p3</span>, colors <span class="op">=</span> <span class="va">cols</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="fmt_axisTile-5.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="fmt_axisTile-6.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Select the physical vertical axis after flipping</span></span></span>
 <span class="r-in"><span><span class="fu">fmt_axisTile</span><span class="op">(</span><span class="va">p</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_flip.html" class="external-link">coord_flip</a></span><span class="op">(</span><span class="op">)</span>, colors <span class="op">=</span> <span class="va">cols</span>, axis <span class="op">=</span> <span class="st">"y"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="fmt_axisTile-6.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="fmt_axisTile-7.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

@@ -61,13 +61,13 @@ fmt_text(
 
 - subtitle:
 
-  Plot subtitle. `NULL` = no change. A vector sets different subtitles
-  per plot.
+  Plot subtitle. `NULL` = no change, `""` = remove. A vector sets
+  different subtitles per plot.
 
 - caption:
 
-  Plot caption. `NULL` = no change. A vector sets different captions per
-  plot.
+  Plot caption. `NULL` = no change, `""` = remove. A vector sets
+  different captions per plot.
 
 - legend_title:
 
@@ -134,10 +134,12 @@ fmt_text(
 
   Passed to
   [`plot_layout()`](https://patchwork.data-imaginist.com/reference/plot_layout.html)
-  `axis_titles` when input is a patchwork. Default `"collect"` merges
-  identical adjacent axis titles into one; `"collect_x"` / `"collect_y"`
-  merge one axis only, `"keep"` keeps every title, and `NULL` leaves the
-  layout setting unchanged. Ignored for a single ggplot or list.
+  `axis_titles` when input is a patchwork and `xlab` or `ylab` is
+  supplied. Default `"collect"` merges identical adjacent axis titles
+  into one; `"collect_x"` / `"collect_y"` merge one axis only, `"keep"`
+  keeps every title, and `NULL` leaves the layout setting unchanged.
+  Ignored for a single ggplot or list, and when no axis title is set, so
+  restyling text keeps the layout.
 
 - ...:
 
