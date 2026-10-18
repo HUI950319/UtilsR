@@ -177,13 +177,14 @@ test_that("axis tiles respect physical sides and preserve existing guide control
     list(right, "y", "axis-r")
   )
   for (case in cases) {
-    q <- fmt_axisTile(case[[1]], axis_tile_colors, axis = case[[2]])
+    angle <- if (case[[2]] == "x") 45 else 0
+    q <- fmt_axisTile(case[[1]], axis_tile_colors, axis = case[[2]], text_angle = angle)
     g <- ggplot2::ggplotGrob(q[[1]])
     rects <- axis_tile_rects(g$grobs[[match(case[[3]], g$layout$name)]])
     expect_equal(rects$fill, unname(axis_tile_colors))
     labels <- axis_tile_text(g$grobs[[match(case[[3]], g$layout$name)]])
     reference <- case[[1]] + do.call(ggplot2::guides, stats::setNames(
-      list(ggplot2::guide_axis(angle = if (case[[2]] == "x") 45 else 0)), case[[2]]))
+      list(ggplot2::guide_axis(angle = angle)), case[[2]]))
     reference <- ggplot2::ggplotGrob(reference)
     expected <- axis_tile_text(reference$grobs[[match(case[[3]], reference$layout$name)]])
     expect_equal(labels$hjust, expected$hjust)
@@ -336,7 +337,8 @@ test_that("rich axis labels retain markup and category colors", {
         ggplot2::scale_y_discrete(labels = c(A = "<b>A</b>", B = "<i>B</i>", C = "C")) +
         ggplot2::theme(axis.text.y = ggtext::element_markdown(angle = 0, family = "mono"))
     }
-    q <- fmt_axisTile(input, axis_tile_colors, mode = mode, axis = axis, text_angle = 0)
+    q <- fmt_axisTile(input, axis_tile_colors, mode = mode, axis = axis, text_angle = 0,
+                      text_color = "black")
     g <- if (inherits(q, "patchwork")) patchwork::patchworkGrob(q) else ggplot2::ggplotGrob(q)
     rich <- rich_labels(g)
     expect_length(rich, 1L)
@@ -410,4 +412,46 @@ test_that("colors whose names match no axis value warn once per formatted plot",
     facetted + ggplot2::facet_wrap(~panel, scales = "free_x"), axis_tile_colors)))
   expect_no_warning(grob(fmt_axisTile(
     facetted + ggplot2::facet_wrap(~panel), axis_tile_colors)))
+})
+
+test_that("text styling defaults keep the plot's axis text style", {
+  grob <- function(q) {
+    if (inherits(q, "patchwork")) patchwork::patchworkGrob(q) else ggplot2::ggplotGrob(q)
+  }
+  label_style <- function(g) {
+    labels <- axis_tile_text(g)
+    labels[match(c("A", "B", "C"), labels$label), ]
+  }
+  fonts <- function(g) {
+    own <- if (inherits(g, "text") && any(g$label %in% c("A", "B", "C"))) g$gp$font
+    children <- if (inherits(g, "gtable")) g$grobs else g$children
+    c(own, unlist(lapply(children, fonts), use.names = FALSE))
+  }
+  styles <- c("text_size", "text_face", "text_angle", "text_color")
+  expect_identical(as.list(formals(fmt_axisTile))[styles],
+                   stats::setNames(vector("list", 4L), styles))
+  styled <- axis_tile_plot() + ggplot2::theme(axis.text.x = ggplot2::element_text(
+    size = 14, colour = "blue", face = "bold"))
+  native_grob <- ggplot2::ggplotGrob(styled)
+  native <- label_style(native_grob)
+  for (mode in c("tile", "text")) {
+    g <- grob(fmt_axisTile(styled, axis_tile_colors, mode = mode))
+    labels <- label_style(g)
+    for (field in c("size", "angle", "hjust", "vjust")) {
+      expect_equal(labels[[field]], native[[field]])
+    }
+    expect_equal(labels$colour,
+                 if (mode == "text") unname(axis_tile_colors) else native$colour)
+    expect_equal(unique(fonts(g)), unique(fonts(native_grob)))
+  }
+  partial <- label_style(grob(fmt_axisTile(styled, axis_tile_colors["A"], mode = "text")))
+  expect_equal(partial$colour, c(axis_tile_colors[["A"]], "blue", "blue"))
+  explicit <- grob(fmt_axisTile(styled, axis_tile_colors, text_size = 9, text_face = "plain",
+                                text_angle = 45, text_color = "purple"))
+  labels <- label_style(explicit)
+  expect_equal(labels$size, rep(9, 3))
+  expect_equal(labels$angle, rep(45, 3))
+  expect_equal(c(labels$hjust[1], labels$vjust[1]), c(1, 1))
+  expect_equal(labels$colour, rep("purple", 3))
+  expect_equal(unique(fonts(explicit)), 1L)
 })

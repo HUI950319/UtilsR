@@ -13,10 +13,10 @@ fmt_axisTile(
   tile_width = 0.06,
   tile_border = "white",
   tile_border_width = 0.2,
-  text_size = 9,
-  text_face = "plain",
+  text_size = NULL,
+  text_face = NULL,
   text_angle = NULL,
-  text_color = "black",
+  text_color = NULL,
   show_text = TRUE
 )
 }
@@ -26,7 +26,8 @@ fmt_axisTile(
 \item{colors}{Named character vector of colors, where names match the
 discrete axis levels (e.g. \code{c(setosa = "red", virginica = "blue")}).
 Required; names must be unique and non-empty. Missing colors use
-\code{"grey70"} in tile mode or \code{text_color} in text mode. Drawing
+\code{"grey70"} in tile mode and \code{text_color}, or the plot's axis
+text colour when it is \code{NULL}, in text mode. Drawing
 the plot warns once when no name matches the axis values, except on an
 axis with free facet scales, where a panel may show none of them.}
 
@@ -45,15 +46,18 @@ axis with free facet scales, where a panel may show none of them.}
 
 \item{tile_border_width}{Non-negative finite line width of tile borders. Default 0.2.}
 
-\item{text_size}{Positive finite size of axis text labels below/beside tiles. Default 9.}
+\item{text_size}{Positive finite size of the axis text labels in points.
+Default \code{NULL} keeps the plot's axis text size.}
 
-\item{text_face}{Font face name or number from 1 to 5. Default \code{"plain"}.}
+\item{text_face}{Font face name or number from 1 to 5. Default \code{NULL}
+keeps the plot's font face.}
 
-\item{text_angle}{Rotation angle for axis text labels. Default \code{45}
-for x-axis, \code{0} for y-axis.}
+\item{text_angle}{Rotation angle of the axis text labels; justification
+follows the axis side. Default \code{NULL} keeps the existing angle,
+including one set by \code{guide_axis(angle = )}.}
 
-\item{text_color}{Color of tile-mode labels and fallback for unmatched
-text-mode labels. Default \code{"black"}.}
+\item{text_color}{Color of tile-mode labels and of text-mode labels without
+a matching color. Default \code{NULL} keeps the plot's axis text colour.}
 
 \item{show_text}{Logical. Show text labels below/beside tiles?
 Default \code{TRUE}. Set \code{FALSE} to hide labels in either mode.}
@@ -101,8 +105,11 @@ dat <- data.frame(
 cols <- c(A = "#E64B35", B = "#4DBBD5", C = "#00A087")
 p <- ggplot(dat, aes(category, value)) + geom_boxplot()
 
-# Tile mode: color strip between axis and rotated labels
+# Tile mode: color strip between the axis and its labels
 fmt_axisTile(p, colors = cols)
+
+# Rotate the labels; justification follows the axis side
+fmt_axisTile(p, colors = cols, text_angle = 45)
 
 # Tile mode: no text labels, color-only strip
 fmt_axisTile(p, colors = cols, show_text = FALSE)

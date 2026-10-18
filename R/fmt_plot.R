@@ -3279,7 +3279,8 @@ fmt_axisText <- function(plot,
 #' @param colors Named character vector of colors, where names match the
 #'   discrete axis levels (e.g. \code{c(setosa = "red", virginica = "blue")}).
 #'   Required; names must be unique and non-empty. Missing colors use
-#'   \code{"grey70"} in tile mode or \code{text_color} in text mode. Drawing
+#'   \code{"grey70"} in tile mode and \code{text_color}, or the plot's axis
+#'   text colour when it is \code{NULL}, in text mode. Drawing
 #'   the plot warns once when no name matches the axis values, except on an
 #'   axis with free facet scales, where a panel may show none of them.
 #' @param mode \code{"tile"} (default) or \code{"text"}.
@@ -3291,12 +3292,15 @@ fmt_axisText <- function(plot,
 #'   \code{axis = "y"}, as a fraction of the main panel width. Default 0.06.
 #' @param tile_border Color of tile borders. Default \code{"white"}.
 #' @param tile_border_width Non-negative finite line width of tile borders. Default 0.2.
-#' @param text_size Positive finite size of axis text labels below/beside tiles. Default 9.
-#' @param text_face Font face name or number from 1 to 5. Default \code{"plain"}.
-#' @param text_angle Rotation angle for axis text labels. Default \code{45}
-#'   for x-axis, \code{0} for y-axis.
-#' @param text_color Color of tile-mode labels and fallback for unmatched
-#'   text-mode labels. Default \code{"black"}.
+#' @param text_size Positive finite size of the axis text labels in points.
+#'   Default \code{NULL} keeps the plot's axis text size.
+#' @param text_face Font face name or number from 1 to 5. Default \code{NULL}
+#'   keeps the plot's font face.
+#' @param text_angle Rotation angle of the axis text labels; justification
+#'   follows the axis side. Default \code{NULL} keeps the existing angle,
+#'   including one set by \code{guide_axis(angle = )}.
+#' @param text_color Color of tile-mode labels and of text-mode labels without
+#'   a matching color. Default \code{NULL} keeps the plot's axis text colour.
 #' @param show_text Logical. Show text labels below/beside tiles?
 #'   Default \code{TRUE}. Set \code{FALSE} to hide labels in either mode.
 #'
@@ -3314,8 +3318,11 @@ fmt_axisText <- function(plot,
 #' cols <- c(A = "#E64B35", B = "#4DBBD5", C = "#00A087")
 #' p <- ggplot(dat, aes(category, value)) + geom_boxplot()
 #'
-#' # Tile mode: color strip between axis and rotated labels
+#' # Tile mode: color strip between the axis and its labels
 #' fmt_axisTile(p, colors = cols)
+#'
+#' # Rotate the labels; justification follows the axis side
+#' fmt_axisTile(p, colors = cols, text_angle = 45)
 #'
 #' # Tile mode: no text labels, color-only strip
 #' fmt_axisTile(p, colors = cols, show_text = FALSE)
@@ -3345,10 +3352,10 @@ fmt_axisTile <- function(plot,
                          tile_width = 0.06,
                          tile_border = "white",
                          tile_border_width = 0.2,
-                         text_size = 9,
-                         text_face = "plain",
+                         text_size = NULL,
+                         text_face = NULL,
                          text_angle = NULL,
-                         text_color = "black",
+                         text_color = NULL,
                          show_text = TRUE) {
 
   if (!requireNamespace("patchwork", quietly = TRUE))
@@ -3365,6 +3372,7 @@ fmt_axisTile <- function(plot,
   colour_args <- list(colors = colors, tile_border = tile_border, text_color = text_color)
   for (arg in names(colour_args)) {
     value <- colour_args[[arg]]
+    if (arg == "text_color" && is.null(value)) next
     if (arg != "colors" && (length(value) != 1L ||
         !(is.character(value) || identical(value, NA)))) {
       cli::cli_abort("{.arg {arg}} must be one valid R colour or NA.")
@@ -3378,7 +3386,7 @@ fmt_axisTile <- function(plot,
                        text_angle = text_angle)
   for (arg in names(numeric_args)) {
     value <- numeric_args[[arg]]
-    if (arg == "text_angle" && is.null(value)) next
+    if (arg %in% c("text_size", "text_angle") && is.null(value)) next
     positive <- arg %in% c("tile_height", "tile_width", "text_size")
     if (length(value) != 1L || !is.numeric(value) || is.complex(value) ||
         is.object(value) || !is.finite(value) ||
@@ -3389,14 +3397,11 @@ fmt_axisTile <- function(plot,
   if (length(show_text) != 1L || !is.logical(show_text) || is.na(show_text)) {
     cli::cli_abort("{.arg show_text} must be TRUE or FALSE.")
   }
-  if (length(text_face) != 1L || is.na(text_face) ||
+  if (!is.null(text_face) && (length(text_face) != 1L || is.na(text_face) ||
       !(is.character(text_face) && text_face %in% c("plain", "bold", "italic", "bold.italic", "symbol") ||
-        is.numeric(text_face) && !is.complex(text_face) && text_face %in% 1:5)) {
+        is.numeric(text_face) && !is.complex(text_face) && text_face %in% 1:5))) {
     cli::cli_abort("{.arg text_face} must be one valid font face name or number from 1 to 5.")
   }
-
-  # Default text_angle: 45 for x-axis, 0 for y-axis
-  if (is.null(text_angle)) text_angle <- if (axis == "x") 45 else 0
 
   info <- .to_plot_list(plot, recurse = TRUE)
   format_one <- function(p) {
@@ -3514,7 +3519,7 @@ fmt_axisTile <- function(plot,
       ggplot2::ggproto_parent(parent, self)$draw(theme, position, direction, params)
     },
     override_elements = function(params, elements, theme) {
-      params$angle <- settings$text_angle
+      if (!is.null(settings$text_angle)) params$angle <- settings$text_angle
       elements <- parent$override_elements(params, elements, theme)
       active <- theme
       baseline <- settings$theme
@@ -3529,13 +3534,15 @@ fmt_axisTile <- function(plot,
         }, logical(1)))
       }
       if (settings$show_text) {
-        angle <- settings$text_angle
         text <- elements$text
         if (!inherits(text, "element_text")) text <- ggplot2::element_text()
-        text$colour <- settings$text_color
-        text$size <- settings$text_size
-        text$face <- settings$text_face
-        text$angle <- angle
+        # NULL settings keep the plot's own axis text style.
+        styles <- c(colour = "text_color", size = "text_size", face = "text_face",
+                    angle = "text_angle")
+        for (field in names(styles)) {
+          value <- settings[[styles[[field]]]]
+          if (!is.null(value)) text[[field]] <- value
+        }
         text$inherit.blank <- FALSE
         text_names <- c("axis.text", paste0("axis.text.", axis),
                           paste0("axis.text.", axis, ".", params$position))
@@ -3599,7 +3606,7 @@ fmt_axisTile <- function(plot,
       if (settings$mode != "text" || !settings$show_text || !nrow(key) ||
           isTRUE(elements$fmt_colour_override)) return(labels)
       fill <- unname(settings$colors[as.character(key$.value)])
-      fill[is.na(fill)] <- settings$text_color
+      fill[is.na(fill)] <- settings$text_color %||% elements$text$colour
       index_at <- function(positions) {
         index <- match(positions, key[[params$aes]])
         for (i in which(is.na(index))) {

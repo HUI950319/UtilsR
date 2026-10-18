@@ -1,5 +1,11 @@
 # UtilsR 0.6.8
 
+* `fmt_axisTile()`'s `text_size`, `text_face`, `text_angle` and `text_color`
+  default to `NULL`, which keeps the plot's own axis text style. They were 9,
+  `"plain"`, 45 degrees on the x axis and `"black"`, so even `mode = "text"`,
+  meant only to color the labels, made them smaller, black and rotated. Pass
+  `text_angle = 45` for the earlier rotated labels.
+
 * `fmt_raster()`'s default `"ggrastr"` backend draws each raster after an
   empty opaque polygon, as the `"ragg"` and `"image"` backends do: `pdf()`
   painted points drawn after a translucent grob, such as text with
