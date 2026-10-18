@@ -4,6 +4,12 @@
   return the list. A list gave `NULL`, because patchwork's `&` falls back to
   `+` for anything but a patchwork; a list holding a non-plot is an error.
 
+* `fmt_axis()` warns when `plot_dims` differs from the layout of a patchwork
+  without nested patchworks. Such a patchwork's own layout decides which axes
+  are hidden, so `plot_dims = c(4, 1)` on a 2 x 2 grid was silently treated
+  as `c(2, 2)`. The help also points to `patchwork::plot_layout(axes =
+  "collect")`, which removes only identical axes.
+
 * The help pages of `fmt_plot()` and `fmt_plot_base()` show links and code
   formatting instead of raw Markdown such as `[fmt_axis()]` and `**every**`.
 

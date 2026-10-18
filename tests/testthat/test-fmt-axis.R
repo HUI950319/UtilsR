@@ -186,8 +186,8 @@ test_that("layout-based selection consistently takes precedence over manual sele
                    list(x = integer(), y = integer()))
   # Existing patchwork positions are authoritative; dimensions do not rearrange it.
   pw <- patchwork::wrap_plots(plots, nrow = 2, ncol = 2)
-  expect_identical(axis_hidden_indices(fmt_axis(pw, plot_dims = c(1, 4))),
-                   list(x = 1:2, y = c(2L, 4L)))
+  expect_warning(hidden <- fmt_axis(pw, plot_dims = c(1, 4)), "patchwork layout")
+  expect_identical(axis_hidden_indices(hidden), list(x = 1:2, y = c(2L, 4L)))
 })
 
 test_that("empty selections retain input containers without evaluating data", {
@@ -412,4 +412,21 @@ test_that("radial axes hide explicit themes and local guides in both theta mappi
   params <- list(theta_guide$params, radius_guide$params)
   invisible(fmt_axis(scale_guides, TRUE, TRUE))
   expect_identical(list(theta_guide$params, radius_guide$params), params)
+})
+
+test_that("patchwork dimensions that differ from the layout warn", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3), ggplot2::aes(x, y)) +
+    ggplot2::geom_point()
+  grid <- patchwork::wrap_plots(p, p, p, p, nrow = 2)
+  expect_warning(q <- fmt_axis(grid, plot_dims = c(4, 1)), "patchwork layout \\(2 x 2\\)")
+  expect_identical(axis_hidden_indices(q),
+                   axis_hidden_indices(fmt_axis(grid, plot_dims = c(2, 2))))
+  expect_warning(fmt_axis(grid, plot_dims = 1), "patchwork layout")
+  expect_no_warning(fmt_axis(grid, plot_dims = c(2, 2)))
+  expect_no_warning(fmt_axis(grid, plot_dims = 2))
+  expect_no_warning(fmt_axis(patchwork::wrap_plots(p, p, ncol = 1), plot_dims = 2))
+  expect_no_warning(fmt_axis(patchwork::wrap_plots(p, p, p), plot_dims = c(1, 3)))
+  # Nested grids lay out their leaves themselves, and lists have no layout yet.
+  expect_no_warning(fmt_axis((p | p) / (p | p), plot_dims = c(2, 2)))
+  expect_no_warning(fmt_axis(list(p, p, p, p), plot_dims = c(4, 1)))
 })

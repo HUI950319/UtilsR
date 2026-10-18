@@ -65,7 +65,8 @@
 #'   x-axes are hidden for all rows except the last, y-axes for all columns
 #'   except the first. Patchwork positions follow the existing layout, including
 #'   column-major filling, empty cells, nested grids and spanning design areas;
-#'   `plot_dims` does not rearrange the plots. Insets do not occupy grid cells.
+#'   `plot_dims` does not rearrange the plots, and a patchwork without nested
+#'   patchworks warns when its layout differs. Insets do not occupy grid cells.
 #'   Lists retain cells occupied by spacers, guide areas and fixed graphics,
 #'   and nested containers retain their own layout. Dimensions must be finite
 #'   positive integers with enough cells for the editable plots in a patchwork,
@@ -84,7 +85,9 @@
 #'   Axis lines, data, scales, coordinates and
 #'   facet structure are retained. The function does not verify or synchronize
 #'   scales between plots; use automatic selection only for axes that can be
-#'   meaningfully shared. Selections operate on whole plots, including all facets.
+#'   meaningfully shared. For an assembled patchwork,
+#'   \code{patchwork::plot_layout(axes = "collect")} removes only identical
+#'   axes. Selections operate on whole plots, including all facets.
 #'
 #' @return Same type as input (ggplot, patchwork, or list), with list names,
 #'   patchwork layout and annotations retained. Empty selections return the input.
@@ -165,6 +168,8 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
 
     # Read cell positions without drawing the plots. Insets do not occupy cells.
     positions <- list()
+    top_dims <- NULL
+    top_nested <- FALSE
     collect_positions <- function(children, lay, bounds = c(0, 0, 1, 1)) {
       insets <- vapply(children, function(p) {
         inherits(p, "inset_patch") && (!inherits(p, "patchwork") ||
@@ -208,6 +213,10 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
         rows <- max(areas$b)
         cols <- max(areas$r)
       }
+      if (is.null(top_dims)) {
+        top_dims <<- c(rows, cols)
+        top_nested <<- any(vapply(children, inherits, logical(1), "patchwork"))
+      }
       for (i in seq_len(count)) {
         area <- unlist(areas[i, c("t", "l", "b", "r")], use.names = FALSE)
         cell <- (area - c(1, 1, 0, 0)) / c(rows, cols, rows, cols)
@@ -225,6 +234,13 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
     if (info$is_patchwork) {
       collect_positions(lapply(seq_along(plot), function(i) plot[[i]]),
                         plot$patches$layout)
+      # Nested grids lay out their own leaves, so only a flat grid is compared.
+      if (!top_nested && !is.null(top_dims) &&
+          any(plot_dims != top_dims[seq_along(plot_dims)])) {
+        cli::cli_warn(c(
+          "{.arg plot_dims} = {paste(plot_dims, collapse = ' x ')} differs from the patchwork layout ({top_dims[1]} x {top_dims[2]}).",
+          i = "The patchwork layout decides which axes are hidden."))
+      }
     } else {
       collect_positions(if (info$is_single) list(plot) else plot,
                         list(nrow = nr, ncol = nc))
