@@ -150,7 +150,10 @@ time, as ggrastr does by default. Other layers, such as lines, bars,
 polygons, text and custom annotations, and theme elements remain
 vectors: they are few objects, which as an image only make a PDF
 larger. The raster is redrawn on every render, so on screen it can be
-slower than the vector plot.</p></dd>
+slower than the vector plot. Each raster is drawn after an empty
+opaque polygon, so that <code><a href="https://rdrr.io/r/grDevices/pdf.html" class="external-link">pdf()</a></code> does not paint it with the
+transparency of the grob before it; a repeated call rasterizes a
+layer once, at the latest <code>dpi</code>.</p></dd>
 
 <dt><code>"ragg"</code></dt>
 <dd><p>Captures panel geometry in memory via

@@ -2,6 +2,14 @@
 
 ## UtilsR 0.6.8
 
+- [`fmt_raster()`](https://hui950319.github.io/UtilsR/reference/fmt_raster.md)’s
+  default `"ggrastr"` backend draws each raster after an empty opaque
+  polygon, as the `"ragg"` and `"image"` backends do:
+  [`pdf()`](https://rdrr.io/r/grDevices/pdf.html) painted points drawn
+  after a translucent grob, such as text with `alpha = 0.3`, with that
+  transparency. A repeated call rasterizes a layer once, at the latest
+  `dpi`.
+
 - [`fmt_plot_base()`](https://hui950319.github.io/UtilsR/reference/fmt_plot_base.md)
   applies `scale_y_list` and `scale_x_list` with
   [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md).

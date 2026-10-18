@@ -99,7 +99,11 @@ Three backends are available:
   Other layers, such as lines, bars, polygons, text and custom
   annotations, and theme elements remain vectors: they are few objects,
   which as an image only make a PDF larger. The raster is redrawn on
-  every render, so on screen it can be slower than the vector plot.
+  every render, so on screen it can be slower than the vector plot. Each
+  raster is drawn after an empty opaque polygon, so that
+  [`pdf()`](https://rdrr.io/r/grDevices/pdf.html) does not paint it with
+  the transparency of the grob before it; a repeated call rasterizes a
+  layer once, at the latest `dpi`.
 
 - `"ragg"`:
 
