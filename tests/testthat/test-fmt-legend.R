@@ -955,3 +955,13 @@ test_that("fmt_legend() title = '' removes the title without leaving space", {
   expect_equal(legend_test_box_size(fmt_legend(legend_test_plot(TRUE), title = "")),
                legend_test_box_size(legend_test_plot(TRUE) + ggplot2::labs(colour = NULL)))
 })
+
+test_that("fmt_legend() centres an inside legend on a 0.5 coordinate", {
+  p <- legend_test_plot()
+  expect_identical(fmt_legend(p, legend.position = c(0.5, 0.95))$theme$legend.justification.inside,
+                   c(0.5, 1))
+  expect_identical(fmt_legend(p, legend.position = c(0.2, 0.5))$theme$legend.justification.inside,
+                   c(0, 0.5))
+  expect_identical(fmt_legend(p, legend.position = "br")$theme$legend.justification.inside,
+                   c(1, 0))
+})

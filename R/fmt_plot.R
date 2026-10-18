@@ -793,7 +793,8 @@ fmt_tag <- function(plot,
 #'     \item Shorthand corner codes: `"br"`, `"bl"`, `"tr"`, `"tl"` (inside
 #'       plot corners).
 #'     \item Numeric vector of length 2: `c(x, y)` coordinates (0-1) for
-#'       inside-plot positioning.
+#'       inside-plot positioning. The legend side nearest each coordinate is
+#'       placed at it; a coordinate of exactly 0.5 centres the legend.
 #'   }
 #'   Default `NULL` (no change).
 #' @param legend.direction `"horizontal"` or `"vertical"`. Default `NULL`.
@@ -977,9 +978,8 @@ fmt_legend <- function(plot,
   # ---- Build justification ----
   legend.justification <- NULL
   if (is.numeric(legend.position) && length(legend.position) == 2) {
-    just_x <- ifelse(legend.position[1] > 0.5, 1, 0)
-    just_y <- ifelse(legend.position[2] > 0.5, 1, 0)
-    legend.justification <- c(just_x, just_y)
+    # 0 below the centre, 1 above it, 0.5 at it.
+    legend.justification <- 0.5 + sign(legend.position - 0.5) / 2
   } else if (is.character(legend.position)) {
     legend.justification <- switch(legend.position,
       "top"    = c(0.5, 0),

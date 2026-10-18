@@ -30,6 +30,11 @@
 * `fmt_expand()` warns when a plot's coordinate system has `expand = FALSE`,
   which makes ggplot2 ignore the scale expansion it sets.
 
+* `fmt_legend(legend.position = c(x, y))` centres the legend on a coordinate
+  of exactly 0.5: `c(0.5, 0.95)` put the legend's left edge on the panel's
+  centre line, so a "top centre" legend sat right of centre. Other coordinates
+  and the corner codes keep their justification.
+
 * `fmt_text()` sets a patchwork's `axis_titles` only when `xlab` or `ylab` is
   supplied. Changing only a title, a caption or text styles merged the axis
   titles too and replaced an existing `"keep"`. A misspelt `axis_titles` is
