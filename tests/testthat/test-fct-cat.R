@@ -119,3 +119,50 @@ test_that("empty and entirely missing factors keep valid levels", {
   expect_identical(fct_cat(x, AB = 1:2), factor(rep(NA_character_, 3)))
   expect_identical(levels(fct_cat(x, reverse = TRUE)), rev(levels(x)))
 })
+
+test_that("changed levels discard matrix contrasts but retain other metadata", {
+  x <- factor(rep(letters[1:3], 2))
+  contrasts(x) <- contr.sum(3)
+  attr(x, "label") <- "Grade"
+  original <- x
+  results <- list(
+    fct_cat(x, reverse = TRUE), fct_cat(x, "c"),
+    fct_cat(x, AB = 1:2), fct_cat(x, binary_ref = 1L),
+    fct_to_group(x, list(AB = 1:2)),
+    fct_cat(x, new_labels = LETTERS[1:3]),
+    fct_cat(x, new_labels = c("A", "A", "C")),
+    fct_label(x, LETTERS[1:3])
+  )
+  for (result in results) {
+    expect_null(attr(result, "contrasts"))
+    expect_identical(attr(result, "label"), "Grade")
+  }
+  grouped <- fct_cat(x, AB = 1:2)
+  design <- model.matrix(~ grouped)
+  expect_identical(ncol(design), 2L)
+  expect_identical(qr(design)[["rank"]], 2L)
+  expect_false(anyNA(coef(lm(seq_along(grouped) ~ grouped))))
+  expect_identical(x, original)
+  expect_identical(attr(fct_cat(x, "a"), "contrasts"), attr(x, "contrasts"))
+  expect_identical(attr(fct_cat(x, a = "a"), "contrasts"), attr(x, "contrasts"))
+  expect_identical(attr(fct_cat(x, new_labels = levels(x)), "contrasts"),
+                   attr(x, "contrasts"))
+})
+
+test_that("named contrast functions remain usable after regrouping", {
+  x <- factor(rep(letters[1:3], 2))
+  contrasts(x) <- "contr.sum"
+  result <- fct_cat(x, AB = 1:2)
+  expect_identical(attr(result, "contrasts"), "contr.sum")
+  expect_identical(dim(contrasts(result)), c(2L, 1L))
+  expect_identical(ncol(model.matrix(~ result)), 2L)
+})
+
+test_that("changed levels also discard sparse contrast matrices", {
+  skip_if_not_installed("Matrix")
+  x <- factor(rep(letters[1:3], 2))
+  contrasts(x) <- contr.treatment(3, sparse = TRUE)
+  result <- fct_cat(x, AB = 1:2)
+  expect_null(attr(result, "contrasts"))
+  expect_identical(ncol(model.matrix(~ result)), 2L)
+})

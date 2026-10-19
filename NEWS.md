@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fct_cat()` clears matrix-valued contrasts when the output levels change,
+  preventing stale contrast rows and redundant model-matrix columns after
+  regrouping. Names, labels and contrast function names remain preserved.
+
 * `fct_cat()` remaps integer factor codes when changing level order or
   dropping unused levels, avoiding character conversion and rebuilding.
   Unique, non-missing replacement labels use a direct levels update;

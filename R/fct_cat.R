@@ -12,6 +12,7 @@
 #         +-- L2  .do_binary()          collapse to a two-level factor
 #               +-- .recode_factor()
 #         +-- L2  .relevel_factor()     preserve metadata and missing codes
+#               +-- .factor_attributes() clear stale matrix contrasts
 # =============================================================================
 
 #' Unified Factor Manipulation
@@ -40,6 +41,8 @@
 #' @return A factor preserving names, class and other attributes. Reordering
 #'   preserves all levels, including an explicit \code{NA} level. Recoding
 #'   drops unused levels but preserves an explicit \code{NA} level when used.
+#'   Matrix-valued contrasts are cleared when output levels differ from input
+#'   levels; contrast function names are retained.
 #'
 #' @examples
 #' x <- factor(letters[1:6])
@@ -111,7 +114,8 @@ fct_cat <- function(x, ...,
 
   # 3. new_labels
   if (!is.null(new_labels)) {
-    n_lvl <- nlevels(x)
+    old_levels <- levels(x)
+    n_lvl <- length(old_levels)
     if (length(new_labels) != n_lvl) {
       cli::cli_abort("{.arg new_labels} must have length {n_lvl} (same as number of levels), got {length(new_labels)}.")
     }
@@ -121,6 +125,7 @@ fct_cat <- function(x, ...,
     } else {
       levels(x) <- new_labels
     }
+    attributes(x) <- .factor_attributes(x, levels(x), old_levels)
     return(x)
   }
 
@@ -201,7 +206,8 @@ fct_cat <- function(x, ...,
   newlevels <- c(newlevels, stats::setNames(as.list(unmatched), unmatched))
 
   levels(x) <- newlevels
-  .relevel_factor(x, levels(x)[tabulate(x, nbins = nlevels(x)) > 0L])
+  .relevel_factor(x, levels(x)[tabulate(x, nbins = nlevels(x)) > 0L],
+                  old_levels = lvls)
 }
 
 
@@ -228,12 +234,21 @@ fct_cat <- function(x, ...,
 
 
 # ---- Shared helpers ----
-.relevel_factor <- function(x, new_levels) {
+.relevel_factor <- function(x, new_levels, old_levels = levels(x)) {
   out <- match(levels(x), new_levels)[as.integer(x)]
-  at <- attributes(x)
-  at[["levels"]] <- new_levels
-  attributes(out) <- at
+  attributes(out) <- .factor_attributes(x, new_levels, old_levels)
   out
+}
+
+.factor_attributes <- function(x, new_levels, old_levels = levels(x)) {
+  at <- attributes(x)
+  ctr <- at[["contrasts"]]
+  if ((is.matrix(ctr) || inherits(ctr, "Matrix")) &&
+      !identical(old_levels, new_levels)) {
+    at[["contrasts"]] <- NULL
+  }
+  at[["levels"]] <- new_levels
+  at
 }
 
 .as_factor <- function(x) {
