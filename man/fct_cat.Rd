@@ -45,7 +45,8 @@ A factor preserving names, class and other attributes. Reordering
   preserves all levels, including an explicit \code{NA} level. Recoding
   drops unused levels but preserves an explicit \code{NA} level when used.
   Matrix-valued contrasts are cleared when output levels differ from input
-  levels; contrast function names are retained.
+  levels; contrast function names are retained. The \code{scores} attribute
+  from \code{stats::reorder()} is cleared when levels or their mapping change.
 }
 \description{
 One function for all single-vector factor operations. Auto-detects the

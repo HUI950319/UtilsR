@@ -304,3 +304,22 @@ test_that("reordering normalizes each numeric argument before combining", {
   expect_identical(fct_cat(x, 1L, bit64::as.integer64(3L)),
                    factor(letters[1:3], levels = c("a", "c", "b")))
 })
+
+test_that("changed level mappings discard obsolete reorder scores", {
+  x <- stats::reorder(factor(rep(letters[1:3], each = 2)), 1:6)
+  attr(x, "label") <- "Grade"
+  original <- x
+  results <- list(fct_cat(x, reverse = TRUE), fct_cat(x, "c"),
+                  fct_cat(x, AB = 1:2), fct_cat(x, binary_ref = 1L),
+                  fct_to_group(x, list(AB = 1:2)),
+                  fct_label(x, LETTERS[1:3]),
+                  fct_cat(x, a = "b", b = "a"))
+  for (result in results) {
+    expect_null(attr(result, "scores"))
+    expect_identical(attr(result, "label"), "Grade")
+  }
+  expect_identical(fct_cat(x, "a"), original)
+  expect_identical(fct_cat(x, a = "a"), original)
+  expect_identical(fct_cat(x, new_labels = levels(x)), original)
+  expect_identical(x, original)
+})

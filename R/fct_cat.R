@@ -12,7 +12,7 @@
 #         +-- L2  .do_binary()          collapse to a two-level factor
 #               +-- .recode_factor()
 #         +-- L2  .relevel_factor()     preserve metadata and missing codes
-#               +-- .factor_attributes() clear stale matrix contrasts
+#               +-- .factor_attributes() clear stale level attributes
 # =============================================================================
 
 #' Unified Factor Manipulation
@@ -47,7 +47,8 @@
 #'   preserves all levels, including an explicit \code{NA} level. Recoding
 #'   drops unused levels but preserves an explicit \code{NA} level when used.
 #'   Matrix-valued contrasts are cleared when output levels differ from input
-#'   levels; contrast function names are retained.
+#'   levels; contrast function names are retained. The \code{scores} attribute
+#'   from \code{stats::reorder()} is cleared when levels or their mapping change.
 #'
 #' @details Numeric indices are converted to native integers after their
 #'   values and bounds have been checked, including classed numeric vectors.
@@ -225,7 +226,8 @@ fct_cat <- function(x, ...,
   used <- unique(target[tabulate(x, nbins = length(lvls)) > 0L])
   new_levels <- new_levels[new_levels %in% used]
   out <- match(target, new_levels)[x]
-  attributes(out) <- .factor_attributes(x, new_levels)
+  attributes(out) <- .factor_attributes(x, new_levels,
+                                         drop_scores = !identical(target, lvls))
   out
 }
 
@@ -259,13 +261,15 @@ fct_cat <- function(x, ...,
   out
 }
 
-.factor_attributes <- function(x, new_levels, old_levels = levels(x)) {
+.factor_attributes <- function(x, new_levels, old_levels = levels(x),
+                                drop_scores = FALSE) {
   at <- attributes(x)
+  changed <- !identical(old_levels, new_levels)
   ctr <- at[["contrasts"]]
-  if ((is.matrix(ctr) || inherits(ctr, "Matrix")) &&
-      !identical(old_levels, new_levels)) {
+  if ((is.matrix(ctr) || inherits(ctr, "Matrix")) && changed) {
     at[["contrasts"]] <- NULL
   }
+  if (changed || drop_scores) at[["scores"]] <- NULL
   at[["levels"]] <- new_levels
   at
 }
