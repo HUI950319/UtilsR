@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md)
+  checks old recode levels in one batch instead of rebuilding a
+  membership table for every group, reducing time and allocation when
+  there are many levels and groups.
+
+- [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md)
   determines used output groups from the original level counts and
   constructs recoded observations once, combining regrouping and
   unused-level removal without an intermediate full-length factor.
