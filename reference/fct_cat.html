@@ -85,22 +85,26 @@ auto-named groups (e.g. `g1/3`), see [fct_to_group()].</p>
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>For recode: named args (new = old). For reorder: level names
 or integer indices in desired order (unnamed). Must be ALL named or ALL
-unnamed. Cannot be combined with another active mode.</p></dd>
+unnamed. Each recode group may use character levels or finite,
+non-missing integer indices. Unknown levels are errors. Cannot be
+combined with another active mode.</p></dd>
 
 
 <dt id="arg-reverse">reverse<a class="anchor" aria-label="anchor" href="#arg-reverse"></a></dt>
-<dd><p>Logical. Reverse all levels? Default <code>FALSE</code>.</p></dd>
+<dd><p>A single non-missing logical. Reverse all levels?
+Default <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg-binary-ref">binary_ref<a class="anchor" aria-label="anchor" href="#arg-binary-ref"></a></dt>
-<dd><p>Integer index(es) of reference level(s). Others
+<dd><p>Finite, non-missing integer index(es) of reference level(s). Others
 collapse to <code>"Oth"</code>. The reference label must differ from
 <code>"Oth"</code> when other levels remain.</p></dd>
 
 
 <dt id="arg-groups">groups<a class="anchor" aria-label="anchor" href="#arg-groups"></a></dt>
 <dd><p>Named list of integer index vectors for custom grouping,
-e.g. <code>list(early = 1:2, late = 3:4)</code>.</p></dd>
+e.g. <code>list(early = 1:2, late = 3:4)</code>. Names must be non-empty,
+and indices must be finite and non-missing.</p></dd>
 
 
 <dt id="arg-new-labels">new_labels<a class="anchor" aria-label="anchor" href="#arg-new-labels"></a></dt>

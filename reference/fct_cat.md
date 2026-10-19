@@ -28,21 +28,25 @@ fct_cat(
 
   For recode: named args (new = old). For reorder: level names or
   integer indices in desired order (unnamed). Must be ALL named or ALL
-  unnamed. Cannot be combined with another active mode.
+  unnamed. Each recode group may use character levels or finite,
+  non-missing integer indices. Unknown levels are errors. Cannot be
+  combined with another active mode.
 
 - reverse:
 
-  Logical. Reverse all levels? Default `FALSE`.
+  A single non-missing logical. Reverse all levels? Default `FALSE`.
 
 - binary_ref:
 
-  Integer index(es) of reference level(s). Others collapse to `"Oth"`.
-  The reference label must differ from `"Oth"` when other levels remain.
+  Finite, non-missing integer index(es) of reference level(s). Others
+  collapse to `"Oth"`. The reference label must differ from `"Oth"` when
+  other levels remain.
 
 - groups:
 
   Named list of integer index vectors for custom grouping, e.g.
-  `list(early = 1:2, late = 3:4)`.
+  `list(early = 1:2, late = 3:4)`. Names must be non-empty, and indices
+  must be finite and non-missing.
 
 - new_labels:
 

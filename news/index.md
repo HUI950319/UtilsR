@@ -3,6 +3,12 @@
 ## UtilsR 0.6.8
 
 - [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md)
+  validates scalar logical flags, finite integer indices, non-empty
+  group names, duplicate reorder levels and unknown recode levels.
+  Recode groups can mix index-based and label-based specifications; each
+  group is resolved before checking for overlapping old levels.
+
+- [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md)
   includes non-empty `...` in its mode exclusivity check, instead of
   silently ignoring recode or reorder arguments when another mode is
   active.
