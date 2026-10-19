@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code>fct_cat(new_labels = ...)</code> and <code><a href="../reference/fct_label.html">fct_label()</a></code> reject lists and other non-atomic label containers instead of interpreting them as grouping instructions. Atomic numeric labels remain supported.</p></li>
+<ul><li><p><code><a href="../reference/fct_cat.html">fct_cat()</a></code> indexes level maps with factor codes directly, removing an extra full-length integer copy during reordering and unused-level removal.</p></li>
+<li><p><code>fct_cat(new_labels = ...)</code> and <code><a href="../reference/fct_label.html">fct_label()</a></code> reject lists and other non-atomic label containers instead of interpreting them as grouping instructions. Atomic numeric labels remain supported.</p></li>
 <li><p><code><a href="../reference/fct_cat.html">fct_cat()</a></code> clears matrix-valued contrasts when the output levels change, preventing stale contrast rows and redundant model-matrix columns after regrouping. Names, labels and contrast function names remain preserved.</p></li>
 <li><p><code><a href="../reference/fct_cat.html">fct_cat()</a></code> remaps integer factor codes when changing level order or dropping unused levels, avoiding character conversion and rebuilding. Unique, non-missing replacement labels use a direct levels update; duplicate and missing labels retain their existing merging semantics.</p></li>
 <li><p><code><a href="../reference/fct_cat.html">fct_cat()</a></code> preserves factor names, class and metadata such as <code>label</code> across recoding and reordering. An explicit <code>NA</code> level remains distinct from missing codes; recoding still removes unused levels.</p></li>
