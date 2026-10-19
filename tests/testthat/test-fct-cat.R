@@ -277,3 +277,15 @@ test_that("binary conversion requires at least one reference index", {
   expect_error(fct_cat(factor(character()), binary_ref = integer()), "at least one")
   expect_identical(fct_cat(x, binary_ref = 1:2), factor(c("a_b", "a_b", NA)))
 })
+
+test_that("grouping wrappers use core validation without max warnings", {
+  x <- factor(c("a", "b", NA), levels = letters[1:3])
+  expect_no_warning(expect_identical(fct_to_group(x, list(A = integer())),
+                                      factor(c("a", "b", NA))))
+  for (idx in list(NA_integer_, Inf, 1.5, 1 + 1i)) {
+    expect_no_warning(expect_error(fct_to_group(x, list(A = idx)), "finite integer"))
+  }
+  expect_no_warning(expect_error(fct_to_group(x, list(A = 4L)), "between"))
+  expect_identical(fct_to_group(x, list(2L, 1L)),
+                   factor(c("g1", "g2", NA), levels = c("g2", "g1")))
+})

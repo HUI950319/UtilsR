@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fct_to_group()` delegates index checks to `fct_cat()`, avoiding a warning
+  for empty groups and an unrelated `if` error for missing indices.
+
 * `fct_cat(binary_ref = ...)` requires at least one reference index instead
   of silently putting every observed level into `"Oth"` for an empty input.
 

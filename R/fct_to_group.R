@@ -17,6 +17,7 @@
 #'   level positions to merge into one new group. Either fully named (user
 #'   names used as new level names) or unnamed (auto-named via
 #'   `name_prefix` + `name_sep`). Indices must be between 1 and `nlevels(x)`.
+#'   Values must be finite and non-missing. Empty groups add no levels.
 #' @param name_prefix Prefix for auto-generated group names. Default `"g"`.
 #' @param name_sep Separator for auto-generated group names. Default `"/"`.
 #'
@@ -56,14 +57,6 @@ fct_to_group <- function(x, g_lis,
   }
 
   if (!is.factor(x)) x <- factor(x)
-
-  max_idx <- max(unlist(g_lis))
-  if (max_idx > nlevels(x)) {
-    cli::cli_abort(c(
-      "Index out of range.",
-      "i" = "Got max index {.val {max_idx}} but {.code nlevels(x)} = {.val {nlevels(x)}}."
-    ))
-  }
 
   # Auto-name unnamed elements; user names take precedence
   cur_names <- names(g_lis)

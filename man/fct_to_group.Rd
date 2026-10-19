@@ -13,7 +13,8 @@ fct_to_group(x, g_lis, name_prefix = "g", name_sep = "/")
 \item{g_lis}{A list of integer index vectors. Each element specifies the
 level positions to merge into one new group. Either fully named (user
 names used as new level names) or unnamed (auto-named via
-`name_prefix` + `name_sep`). Indices must be between 1 and `nlevels(x)`.}
+`name_prefix` + `name_sep`). Indices must be between 1 and `nlevels(x)`.
+Values must be finite and non-missing. Empty groups add no levels.}
 
 \item{name_prefix}{Prefix for auto-generated group names. Default `"g"`.}
 
