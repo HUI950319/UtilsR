@@ -240,7 +240,7 @@ fct_cat <- function(x, ...,
 
 # ---- Shared helpers ----
 .relevel_factor <- function(x, new_levels, old_levels = levels(x)) {
-  out <- match(levels(x), new_levels)[as.integer(x)]
+  out <- match(levels(x), new_levels)[x]
   attributes(out) <- .factor_attributes(x, new_levels, old_levels)
   out
 }

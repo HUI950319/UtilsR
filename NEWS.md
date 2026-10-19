@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fct_cat()` indexes level maps with factor codes directly, removing an
+  extra full-length integer copy during reordering and unused-level removal.
+
 * `fct_cat(new_labels = ...)` and `fct_label()` reject lists and other
   non-atomic label containers instead of interpreting them as grouping
   instructions. Atomic numeric labels remain supported.
