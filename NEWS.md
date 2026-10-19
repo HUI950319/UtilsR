@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fct_cat()` rejects reorder calls that mix character levels and numeric
+  positions. Numeric arguments are normalized separately before combining,
+  including calls that mix native numbers and classed numeric indices.
+
 * `fct_to_group()` delegates index checks to `fct_cat()`, avoiding a warning
   for empty groups and an unrelated `if` error for missing indices.
 

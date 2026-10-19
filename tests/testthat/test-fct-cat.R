@@ -289,3 +289,18 @@ test_that("grouping wrappers use core validation without max warnings", {
   expect_identical(fct_to_group(x, list(2L, 1L)),
                    factor(c("g1", "g2", NA), levels = c("g2", "g1")))
 })
+
+test_that("reordering cannot mix labels and positions", {
+  x <- factor(c("b", "1", "2"), levels = c("b", "1", "2"))
+  expect_error(fct_cat(x, 1L, "b"), "cannot mix")
+  expect_error(fct_cat(x, "b", 1L), "cannot mix")
+  expect_identical(fct_cat(x, "1", "2"),
+                   factor(c("b", "1", "2"), levels = c("1", "2", "b")))
+})
+
+test_that("reordering normalizes each numeric argument before combining", {
+  skip_if_not_installed("bit64")
+  x <- factor(letters[1:3])
+  expect_identical(fct_cat(x, 1L, bit64::as.integer64(3L)),
+                   factor(letters[1:3], levels = c("a", "c", "b")))
+})

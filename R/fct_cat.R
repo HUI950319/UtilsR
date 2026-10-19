@@ -27,7 +27,8 @@
 #'   or integer indices in desired order (unnamed). Must be ALL named or ALL
 #'   unnamed. Each recode group may use character levels or finite,
 #'   non-missing integer indices. Unknown levels are errors. Cannot be
-#'   combined with another active mode.
+#'   combined with another active mode. Unnamed reorder arguments must all
+#'   use character levels or all use numeric indices; they cannot mix the two.
 #' @param reverse A single non-missing logical. Reverse all levels?
 #'   Default \code{FALSE}.
 #' @param binary_ref One or more finite, non-missing integer indices of reference
@@ -164,12 +165,17 @@ fct_cat <- function(x, ...,
   if (all(has_names)) {
     return(.recode_factor(x, dots))
   } else {
-    new_order <- unname(c(...))
     cur <- levels(x)
-    # Allow integer indices (1-based) in addition to level names.
-    if (!is.character(new_order)) {
-      new_order <- .check_integer_index(new_order, "reorder index", length(cur))
-      new_order <- cur[new_order]
+    is_character <- vapply(dots, is.character, logical(1L))
+    if (any(is_character) && !all(is_character)) {
+      cli::cli_abort("Reorder arguments cannot mix character levels with numeric or other index types.")
+    }
+    if (all(is_character)) {
+      new_order <- unname(c(...))
+    } else {
+      indices <- lapply(dots, .check_integer_index,
+                        arg_name = "reorder index", n_levels = length(cur))
+      new_order <- cur[unlist(indices, use.names = FALSE)]
     }
     bad <- setdiff(new_order, cur)
     if (length(bad) > 0) {
