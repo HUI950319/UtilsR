@@ -37,6 +37,8 @@
 #'   e.g. \code{list(early = 1:2, late = 3:4)}. Names must be non-empty,
 #'   and indices must be finite and non-missing.
 #' @param new_labels Character vector to rename levels (same length as levels).
+#'   Other atomic vectors are coerced to character for compatibility;
+#'   lists and other non-atomic objects are not accepted.
 #'
 #' @return A factor preserving names, class and other attributes. Reordering
 #'   preserves all levels, including an explicit \code{NA} level. Recoding
@@ -114,6 +116,9 @@ fct_cat <- function(x, ...,
 
   # 3. new_labels
   if (!is.null(new_labels)) {
+    if (!is.atomic(new_labels)) {
+      cli::cli_abort("{.arg new_labels} must be an atomic vector of labels, not a list or another non-atomic object.")
+    }
     old_levels <- levels(x)
     n_lvl <- length(old_levels)
     if (length(new_labels) != n_lvl) {

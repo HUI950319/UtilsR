@@ -33,7 +33,9 @@ collapse to \code{"Oth"}. The reference label must differ from
 e.g. \code{list(early = 1:2, late = 3:4)}. Names must be non-empty,
 and indices must be finite and non-missing.}
 
-\item{new_labels}{Character vector to rename levels (same length as levels).}
+\item{new_labels}{Character vector to rename levels (same length as levels).
+Other atomic vectors are coerced to character for compatibility;
+lists and other non-atomic objects are not accepted.}
 }
 \value{
 A factor preserving names, class and other attributes. Reordering

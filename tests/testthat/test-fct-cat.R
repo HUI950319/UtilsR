@@ -166,3 +166,19 @@ test_that("changed levels also discard sparse contrast matrices", {
   expect_null(attr(result, "contrasts"))
   expect_identical(ncol(model.matrix(~ result)), 2L)
 })
+
+test_that("replacement labels cannot invoke list-based grouping", {
+  x <- factor(c("a", "b"))
+  data <- data.frame(grade = x, id = 1:2)
+  original <- data
+  for (labels in list(list("A", "B"),
+                      list(A = c("a", "b"), B = character()),
+                      data.frame(label = c("A", "B")),
+                      expression(A, B))) {
+    expect_error(fct_cat(x, new_labels = labels), "atomic vector")
+    expect_error(fct_label(x, labels), "atomic vector")
+    expect_error(fct_label(data, grade, labels), "atomic vector")
+  }
+  expect_identical(fct_cat(x, new_labels = 1:2), factor(c("1", "2")))
+  expect_identical(data, original)
+})
