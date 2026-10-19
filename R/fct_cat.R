@@ -208,23 +208,22 @@ fct_cat <- function(x, ...,
   })
 
   all_vals <- unlist(newlevels, use.names = FALSE)
-  bad <- setdiff(all_vals, lvls)
+  pos <- match(all_vals, lvls)
+  bad <- unique(all_vals[is.na(pos)])
   if (length(bad) > 0L) {
     cli::cli_abort("Level{?s} not found: {.val {bad}}.")
   }
-  if (anyDuplicated(all_vals)) {
-    cli::cli_abort("New levels contain non-unique values: {.val {all_vals[duplicated(all_vals)]}}.")
+  if (anyDuplicated(pos)) {
+    cli::cli_abort("New levels contain non-unique values: {.val {all_vals[duplicated(pos)]}}.")
   }
 
-  # Keep unmatched levels as-is
-  unmatched <- setdiff(lvls, all_vals)
-  newlevels <- c(newlevels, stats::setNames(as.list(unmatched), unmatched))
-
-  old <- unlist(newlevels, use.names = FALSE)
   mapped <- rep(names(newlevels), lengths(newlevels))
-  target <- mapped[match(lvls, old)]
-  new_levels <- unique(mapped)
-  used <- unique(target[tabulate(x, nbins = length(lvls)) > 0L])
+  target <- lvls
+  target[pos] <- mapped
+  seen <- rep(FALSE, length(lvls))
+  seen[pos] <- TRUE
+  new_levels <- unique(c(mapped, unname(lvls[!seen])))
+  used <- target[tabulate(x, nbins = length(lvls)) > 0L]
   new_levels <- new_levels[new_levels %in% used]
   out <- match(target, new_levels)[x]
   attributes(out) <- .factor_attributes(x, new_levels,
