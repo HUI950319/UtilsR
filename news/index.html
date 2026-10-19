@@ -50,7 +50,9 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/fct_cat.html">fct_cat()</a></code> returns the original factor when reordering leaves its levels unchanged, avoiding a full-length allocation for an unchanged order, empty factors and one-level reversals.</p></li>
+<ul><li><p><code><a href="../reference/fct_cat.html">fct_cat()</a></code> ignores names attached to a reorder vector. A named vector that leaves the level order unchanged preserves the original contrasts and model-matrix encoding.</p></li>
+<li><p><code><a href="../reference/fct_cat.html">fct_cat()</a></code> normalizes numeric indices after validating their values and bounds. Classed indices such as <code><a href="https://bit64.r-lib.org/reference/bit64-package.html" class="external-link">bit64::integer64</a></code> now select the intended levels in recoding, grouping, reordering and binary conversion.</p></li>
+<li><p><code><a href="../reference/fct_cat.html">fct_cat()</a></code> returns the original factor when reordering leaves its levels unchanged, avoiding a full-length allocation for an unchanged order, empty factors and one-level reversals.</p></li>
 <li><p><code><a href="../reference/fct_cat.html">fct_cat()</a></code> checks old recode levels in one batch instead of rebuilding a membership table for every group, reducing time and allocation when there are many levels and groups.</p></li>
 <li><p><code><a href="../reference/fct_cat.html">fct_cat()</a></code> determines used output groups from the original level counts and constructs recoded observations once, combining regrouping and unused-level removal without an intermediate full-length factor.</p></li>
 <li><p><code><a href="../reference/fct_cat.html">fct_cat()</a></code> indexes level maps with factor codes directly, removing an extra full-length integer copy during reordering and unused-level removal.</p></li>

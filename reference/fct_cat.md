@@ -62,6 +62,11 @@ unused levels but preserves an explicit `NA` level when used.
 Matrix-valued contrasts are cleared when output levels differ from input
 levels; contrast function names are retained.
 
+## Details
+
+Numeric indices are converted to native integers after their values and
+bounds have been checked, including classed numeric vectors.
+
 ## See also
 
 Other factor tools:

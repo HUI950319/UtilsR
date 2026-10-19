@@ -3,6 +3,18 @@
 ## UtilsR 0.6.8
 
 - [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md)
+  ignores names attached to a reorder vector. A named vector that leaves
+  the level order unchanged preserves the original contrasts and
+  model-matrix encoding.
+
+- [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md)
+  normalizes numeric indices after validating their values and bounds.
+  Classed indices such as
+  [`bit64::integer64`](https://bit64.r-lib.org/reference/bit64-package.html)
+  now select the intended levels in recoding, grouping, reordering and
+  binary conversion.
+
+- [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md)
   returns the original factor when reordering leaves its levels
   unchanged, avoiding a full-length allocation for an unchanged order,
   empty factors and one-level reversals.
