@@ -138,6 +138,7 @@ fct_cat <- function(x, ...,
       cli::cli_abort("After conversion to character, {.arg new_labels} must be a character vector of length {n_lvl}.")
     }
     if (!anyNA(new_labels) && !anyDuplicated(new_labels)) {
+      if (identical(old_levels, new_labels)) return(x)
       attr(x, "levels") <- new_labels
     } else {
       levels(x) <- new_labels

@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fct_cat(new_labels = ...)` returns the original factor when normalized,
+  non-missing labels are unchanged, avoiding an unnecessary observation copy.
+
 * `fct_cat()` clears obsolete `stats::reorder()` scores after changing
   levels or recode mappings. Operations that leave both unchanged retain
   the scores and other metadata.

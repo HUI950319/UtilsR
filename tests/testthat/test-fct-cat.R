@@ -323,3 +323,14 @@ test_that("changed level mappings discard obsolete reorder scores", {
   expect_identical(fct_cat(x, new_labels = levels(x)), original)
   expect_identical(x, original)
 })
+
+test_that("unchanged replacement labels retain base missing-label semantics", {
+  x <- factor(c("a", NA), levels = c("a", NA), exclude = NULL)
+  expected <- x
+  levels(expected) <- levels(x)
+  expect_identical(fct_cat(x, new_labels = levels(x)), expected)
+  expect_identical(levels(x), c("a", NA_character_))
+  empty <- factor(character())
+  attr(empty, "label") <- "Empty"
+  expect_identical(fct_cat(empty, new_labels = character()), empty)
+})
