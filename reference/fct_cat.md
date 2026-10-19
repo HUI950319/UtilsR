@@ -50,7 +50,9 @@ fct_cat(
 
 - new_labels:
 
-  Character vector to rename levels (same length as levels).
+  Character vector to rename levels (same length as levels). Other
+  atomic vectors are coerced to character for compatibility; lists and
+  other non-atomic objects are not accepted.
 
 ## Value
 

@@ -2,6 +2,12 @@
 
 ## UtilsR 0.6.8
 
+- `fct_cat(new_labels = ...)` and
+  [`fct_label()`](https://hui950319.github.io/UtilsR/reference/fct_label.md)
+  reject lists and other non-atomic label containers instead of
+  interpreting them as grouping instructions. Atomic numeric labels
+  remain supported.
+
 - [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md)
   clears matrix-valued contrasts when the output levels change,
   preventing stale contrast rows and redundant model-matrix columns
