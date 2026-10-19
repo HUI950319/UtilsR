@@ -64,7 +64,9 @@ A factor preserving names, class and other attributes. Reordering
 preserves all levels, including an explicit `NA` level. Recoding drops
 unused levels but preserves an explicit `NA` level when used.
 Matrix-valued contrasts are cleared when output levels differ from input
-levels; contrast function names are retained.
+levels; contrast function names are retained. The `scores` attribute
+from [`stats::reorder()`](https://rdrr.io/r/stats/reorder.factor.html)
+is cleared when levels or their mapping change.
 
 ## Details
 

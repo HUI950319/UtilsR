@@ -122,7 +122,8 @@ merging and removal semantics.</p></dd>
   preserves all levels, including an explicit <code>NA</code> level. Recoding
   drops unused levels but preserves an explicit <code>NA</code> level when used.
   Matrix-valued contrasts are cleared when output levels differ from input
-  levels; contrast function names are retained.</p>
+  levels; contrast function names are retained. The <code>scores</code> attribute
+  from <code><a href="https://rdrr.io/r/stats/reorder.factor.html" class="external-link">stats::reorder()</a></code> is cleared when levels or their mapping change.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

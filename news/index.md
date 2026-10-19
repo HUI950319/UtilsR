@@ -3,6 +3,12 @@
 ## UtilsR 0.6.8
 
 - [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md)
+  clears obsolete
+  [`stats::reorder()`](https://rdrr.io/r/stats/reorder.factor.html)
+  scores after changing levels or recode mappings. Operations that leave
+  both unchanged retain the scores and other metadata.
+
+- [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md)
   rejects reorder calls that mix character levels and numeric positions.
   Numeric arguments are normalized separately before combining,
   including calls that mix native numbers and classed numeric indices.
