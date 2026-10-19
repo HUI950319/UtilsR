@@ -77,7 +77,8 @@ columns row-wise, `fct_to_group()` regroups levels of a single factor.</p>
 <dd><p>A list of integer index vectors. Each element specifies the
 level positions to merge into one new group. Either fully named (user
 names used as new level names) or unnamed (auto-named via
-`name_prefix` + `name_sep`). Indices must be between 1 and `nlevels(x)`.</p></dd>
+`name_prefix` + `name_sep`). Indices must be between 1 and `nlevels(x)`.
+Values must be finite and non-missing. Empty groups add no levels.</p></dd>
 
 
 <dt id="arg-name-prefix">name_prefix<a class="anchor" aria-label="anchor" href="#arg-name-prefix"></a></dt>
