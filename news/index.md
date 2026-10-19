@@ -3,6 +3,16 @@
 ## UtilsR 0.6.8
 
 - [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md)
+  validates replacement labels after character conversion. Classed
+  character labels can no longer bypass merging or missing-label
+  removal, and conversions that change the label count are rejected.
+
+- [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md)
+  ignores names attached to a reorder vector. A named vector that leaves
+  the level order unchanged preserves the original contrasts and
+  model-matrix encoding.
+
+- [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md)
   normalizes numeric indices after validating their values and bounds.
   Classed indices such as
   [`bit64::integer64`](https://bit64.r-lib.org/reference/bit64-package.html)

@@ -52,7 +52,9 @@ fct_cat(
 
   Character vector to rename levels (same length as levels). Other
   atomic vectors are coerced to character for compatibility; lists and
-  other non-atomic objects are not accepted.
+  other non-atomic objects are not accepted. Length is checked again
+  after conversion. Duplicate and missing labels retain base merging and
+  removal semantics.
 
 ## Value
 
