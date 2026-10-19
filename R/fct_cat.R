@@ -30,8 +30,8 @@
 #'   combined with another active mode.
 #' @param reverse A single non-missing logical. Reverse all levels?
 #'   Default \code{FALSE}.
-#' @param binary_ref Finite, non-missing integer index(es) of reference level(s). Others
-#'   collapse to \code{"Oth"}. The reference label must differ from
+#' @param binary_ref One or more finite, non-missing integer indices of reference
+#'   levels. Others collapse to \code{"Oth"}. The reference label must differ from
 #'   \code{"Oth"} when other levels remain.
 #' @param groups Named list of integer index vectors for custom grouping,
 #'   e.g. \code{list(early = 1:2, late = 3:4)}. Names must be non-empty,
@@ -226,6 +226,9 @@ fct_cat <- function(x, ...,
 
 # ---- Internal: binary ----
 .do_binary <- function(x, binary_ref) {
+  if (length(binary_ref) == 0L) {
+    cli::cli_abort("{.arg binary_ref} must contain at least one reference index.")
+  }
   n_lvl <- nlevels(x)
   lvls <- levels(x)
 

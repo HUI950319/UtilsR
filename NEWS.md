@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fct_cat(binary_ref = ...)` requires at least one reference index instead
+  of silently putting every observed level into `"Oth"` for an empty input.
+
 * `fct_cat()` validates replacement labels after character conversion.
   Classed character labels can no longer bypass merging or missing-label
   removal, and conversions that change the label count are rejected.

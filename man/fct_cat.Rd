@@ -25,8 +25,8 @@ combined with another active mode.}
 \item{reverse}{A single non-missing logical. Reverse all levels?
 Default \code{FALSE}.}
 
-\item{binary_ref}{Finite, non-missing integer index(es) of reference level(s). Others
-collapse to \code{"Oth"}. The reference label must differ from
+\item{binary_ref}{One or more finite, non-missing integer indices of reference
+levels. Others collapse to \code{"Oth"}. The reference label must differ from
 \code{"Oth"} when other levels remain.}
 
 \item{groups}{Named list of integer index vectors for custom grouping,

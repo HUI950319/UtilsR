@@ -269,3 +269,11 @@ test_that("converted replacement labels are checked before updating levels", {
   expect_error(fct_label(data, grade, labels), "After conversion.*length")
   expect_identical(data[["grade"]], x)
 })
+
+test_that("binary conversion requires at least one reference index", {
+  x <- factor(c("a", "b", NA))
+  expect_error(fct_cat(x, binary_ref = integer()), "at least one")
+  expect_error(fct_cat(x, binary_ref = numeric()), "at least one")
+  expect_error(fct_cat(factor(character()), binary_ref = integer()), "at least one")
+  expect_identical(fct_cat(x, binary_ref = 1:2), factor(c("a_b", "a_b", NA)))
+})
