@@ -30,7 +30,9 @@ fct_cat(
   integer indices in desired order (unnamed). Must be ALL named or ALL
   unnamed. Each recode group may use character levels or finite,
   non-missing integer indices. Unknown levels are errors. Cannot be
-  combined with another active mode.
+  combined with another active mode. Unnamed reorder arguments must all
+  use character levels or all use numeric indices; they cannot mix the
+  two.
 
 - reverse:
 

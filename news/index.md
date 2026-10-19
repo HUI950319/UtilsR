@@ -2,6 +2,11 @@
 
 ## UtilsR 0.6.8
 
+- [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md)
+  rejects reorder calls that mix character levels and numeric positions.
+  Numeric arguments are normalized separately before combining,
+  including calls that mix native numbers and classed numeric indices.
+
 - [`fct_to_group()`](https://hui950319.github.io/UtilsR/reference/fct_to_group.md)
   delegates index checks to
   [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md),
