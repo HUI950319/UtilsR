@@ -54,7 +54,9 @@ fct_cat(
 
 ## Value
 
-A factor.
+A factor preserving names, class and other attributes. Reordering
+preserves all levels, including an explicit `NA` level. Recoding drops
+unused levels but preserves an explicit `NA` level when used.
 
 ## See also
 

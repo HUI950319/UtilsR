@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md)
+  preserves factor names, class and metadata such as `label` across
+  recoding and reordering. An explicit `NA` level remains distinct from
+  missing codes; recoding still removes unused levels.
+
+- [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md)
   validates scalar logical flags, finite integer indices, non-empty
   group names, duplicate reorder levels and unknown recode levels.
   Recode groups can mix index-based and label-based specifications; each
