@@ -57,6 +57,8 @@ fct_cat(
 A factor preserving names, class and other attributes. Reordering
 preserves all levels, including an explicit `NA` level. Recoding drops
 unused levels but preserves an explicit `NA` level when used.
+Matrix-valued contrasts are cleared when output levels differ from input
+levels; contrast function names are retained.
 
 ## See also
 
