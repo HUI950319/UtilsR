@@ -23,7 +23,8 @@ unnamed.}
 \item{reverse}{Logical. Reverse all levels? Default \code{FALSE}.}
 
 \item{binary_ref}{Integer index(es) of reference level(s). Others
-collapse to \code{"Oth"}.}
+collapse to \code{"Oth"}. The reference label must differ from
+\code{"Oth"} when other levels remain.}
 
 \item{groups}{Named list of integer index vectors for custom grouping,
 e.g. \code{list(early = 1:2, late = 3:4)}.}

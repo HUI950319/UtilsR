@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fct_cat(binary_ref = ...)` rejects a reference label of `"Oth"` when
+  other levels remain, instead of silently merging both binary groups.
+
 * `fct_cat()` and `fct_to_group()` correctly merge into an existing,
   unmatched level; that level's name no longer overwrites the mapping and
   turns the recoded observations into missing values.

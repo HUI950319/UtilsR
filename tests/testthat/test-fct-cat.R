@@ -15,3 +15,11 @@ test_that("recoding retains group-first ordering and drops unused levels", {
   expect_identical(fct_cat(x, Z = "c"),
                    factor(c("a", "b", "Z"), levels = c("Z", "a", "b")))
 })
+
+test_that("binary reference labels cannot collide with the other group", {
+  x <- factor(c("Oth", "a"), levels = c("Oth", "a"))
+  expect_error(fct_cat(x, binary_ref = 1L), "conflicts with.*Oth")
+  expect_identical(fct_cat(x, binary_ref = 2L),
+                   factor(c("Oth", "a"), levels = c("a", "Oth")))
+  expect_identical(fct_cat(factor("Oth"), binary_ref = 1L), factor("Oth"))
+})

@@ -26,7 +26,8 @@
 #'   unnamed.
 #' @param reverse Logical. Reverse all levels? Default \code{FALSE}.
 #' @param binary_ref Integer index(es) of reference level(s). Others
-#'   collapse to \code{"Oth"}.
+#'   collapse to \code{"Oth"}. The reference label must differ from
+#'   \code{"Oth"} when other levels remain.
 #' @param groups Named list of integer index vectors for custom grouping,
 #'   e.g. \code{list(early = 1:2, late = 3:4)}.
 #' @param new_labels Character vector to rename levels (same length as levels).
@@ -186,8 +187,12 @@ fct_cat <- function(x, ...,
   }
 
   ref_name <- paste(lvls[binary_ref], collapse = "_")
+  other <- setdiff(seq_len(n_lvl), binary_ref)
+  if (identical(ref_name, "Oth") && length(other) > 0L) {
+    cli::cli_abort("The reference label conflicts with {.val Oth}, the label for other levels.")
+  }
   g <- stats::setNames(
-    list(binary_ref, setdiff(seq_len(n_lvl), binary_ref)),
+    list(binary_ref, other),
     c(ref_name, "Oth")
   )
   .recode_factor(x, g)
