@@ -38,9 +38,9 @@ fct_cat(
 
 - binary_ref:
 
-  Finite, non-missing integer index(es) of reference level(s). Others
-  collapse to `"Oth"`. The reference label must differ from `"Oth"` when
-  other levels remain.
+  One or more finite, non-missing integer indices of reference levels.
+  Others collapse to `"Oth"`. The reference label must differ from
+  `"Oth"` when other levels remain.
 
 - groups:
 
