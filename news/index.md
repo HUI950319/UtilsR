@@ -2,6 +2,11 @@
 
 ## UtilsR 0.6.8
 
+- [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md)
+  includes non-empty `...` in its mode exclusivity check, instead of
+  silently ignoring recode or reorder arguments when another mode is
+  active.
+
 - `fct_cat(binary_ref = ...)` rejects a reference label of `"Oth"` when
   other levels remain, instead of silently merging both binary groups.
 

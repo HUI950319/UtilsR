@@ -28,7 +28,7 @@ fct_cat(
 
   For recode: named args (new = old). For reorder: level names or
   integer indices in desired order (unnamed). Must be ALL named or ALL
-  unnamed.
+  unnamed. Cannot be combined with another active mode.
 
 - reverse:
 
