@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fct_cat()` includes non-empty `...` in its mode exclusivity check,
+  instead of silently ignoring recode or reorder arguments when another
+  mode is active.
+
 * `fct_cat(binary_ref = ...)` rejects a reference label of `"Oth"` when
   other levels remain, instead of silently merging both binary groups.
 

@@ -23,3 +23,16 @@ test_that("binary reference labels cannot collide with the other group", {
                    factor(c("Oth", "a"), levels = c("a", "Oth")))
   expect_identical(fct_cat(factor("Oth"), binary_ref = 1L), factor("Oth"))
 })
+
+test_that("dots cannot be silently ignored by another factor mode", {
+  x <- factor(letters[1:3])
+  expect_error(fct_cat(x, A = "a", reverse = TRUE), "Only one mode")
+  expect_error(fct_cat(x, "b", binary_ref = 1L), "Only one mode")
+  expect_error(fct_cat(x, A = "a", groups = list(B = 2L)), "Only one mode")
+  expect_error(fct_cat(x, A = "a", new_labels = LETTERS[1:3]), "Only one mode")
+  expect_error(fct_cat(x, stop("dots must not be evaluated"), reverse = TRUE),
+               "Only one mode")
+  expect_identical(fct_cat(x, reverse = FALSE), x)
+  expect_identical(fct_cat(x, A = "a", reverse = FALSE),
+                   factor(c("A", "b", "c")))
+})

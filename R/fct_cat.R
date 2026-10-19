@@ -23,7 +23,7 @@
 #' @param x A factor or character vector.
 #' @param ... For recode: named args (new = old). For reorder: level names
 #'   or integer indices in desired order (unnamed). Must be ALL named or ALL
-#'   unnamed.
+#'   unnamed. Cannot be combined with another active mode.
 #' @param reverse Logical. Reverse all levels? Default \code{FALSE}.
 #' @param binary_ref Integer index(es) of reference level(s). Others
 #'   collapse to \code{"Oth"}. The reference label must differ from
@@ -73,9 +73,9 @@ fct_cat <- function(x, ...,
 
   # --- Mutual exclusivity check ---
   n_modes <- sum(!is.null(binary_ref), !is.null(groups),
-                 !is.null(new_labels), reverse)
+                 !is.null(new_labels), reverse, ...length() > 0L)
   if (n_modes > 1) {
-    cli::cli_abort("Only one mode at a time: {.arg binary_ref}, {.arg groups}, {.arg new_labels}, or {.arg reverse}.")
+    cli::cli_abort("Only one mode at a time: {.arg ...}, {.arg binary_ref}, {.arg groups}, {.arg new_labels}, or {.arg reverse}.")
   }
 
   x <- .as_factor(x)

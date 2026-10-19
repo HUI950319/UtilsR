@@ -18,7 +18,7 @@ fct_cat(
 
 \item{...}{For recode: named args (new = old). For reorder: level names
 or integer indices in desired order (unnamed). Must be ALL named or ALL
-unnamed.}
+unnamed. Cannot be combined with another active mode.}
 
 \item{reverse}{Logical. Reverse all levels? Default \code{FALSE}.}
 
