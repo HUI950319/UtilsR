@@ -2,6 +2,10 @@
 
 ## UtilsR 0.6.8
 
+- `fct_cat(new_labels = ...)` returns the original factor when
+  normalized, non-missing labels are unchanged, avoiding an unnecessary
+  observation copy.
+
 - [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md)
   clears obsolete
   [`stats::reorder()`](https://rdrr.io/r/stats/reorder.factor.html)
