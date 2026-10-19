@@ -223,12 +223,19 @@ Default <code>1</code>.</p></dd>
 
 <dt id="arg-save">save<a class="anchor" aria-label="anchor" href="#arg-save"></a></dt>
 <dd><p><code>NULL</code>, an empty list, or a named list forwarded to
-<code>RegR::save_plt()</code>. Allowed fields are <code>filename</code>, <code>width</code>, and <code>height</code>.</p></dd>
+<code>RegR::save_plt()</code>. Allowed fields are <code>filename</code>, <code>width</code>, and <code>height</code>.
+A <code>width</code> or <code>height</code> left out defaults to the page the plot is laid out
+for – 1.6 in per <code>cat_var</code> level (at least 4 in) and 0.45 in per <code>group</code>
+level (at least 4 in) per facet, beside the measured axis text and
+legend – which every call prints with the matching <code>save</code> line. Saving,
+and the size note, need the <span class="pkg">RegR</span> package.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A ggplot object. A non-empty <code>save</code> also writes the same plot to PDF.</p>
+    <p>A ggplot object carrying its page size as <code>attr(p, "plot_size")</code>,
+<code>c(width, height)</code> in inches. A non-empty <code>save</code> also writes the same
+plot to PDF.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

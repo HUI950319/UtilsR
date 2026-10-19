@@ -180,11 +180,17 @@ plt_sankey(
   `NULL`, an empty list, or a named list forwarded to
   `RegR::save_plt()`. Allowed fields are `filename` (required), `width`
   and `height` (in inches). Writes PDF only; the saver appends the
-  extension and defaults to width 10 and height 11.
+  extension. A `width` or `height` left out defaults to the page the
+  plot is laid out for – 2 in per variable and 0.5 in per level of the
+  variable with most levels, at least 4 x 4 in, beside the measured axis
+  text – which every call prints with the matching `save` line. Saving,
+  and the size note, need the RegR package.
 
 ## Value
 
-A ggplot object. A non-empty `save` also writes this plot to PDF.
+A ggplot object carrying that page size as `attr(p, "plot_size")`,
+`c(width, height)` in inches. A non-empty `save` also writes this plot
+to PDF.
 
 ## Details
 

@@ -77,7 +77,8 @@ faceting and only requires the suggested <span class="pkg">ggalluvial</span> pac
 <span>  label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"count_percent"</span>, <span class="st">"count"</span>, <span class="st">"percent"</span>, <span class="st">"none"</span><span class="op">)</span>,</span>
 <span>  gap <span class="op">=</span> <span class="fl">0.01</span>,</span>
 <span>  curve_type <span class="op">=</span> <span class="st">"linear"</span>,</span>
-<span>  theme_use <span class="op">=</span> <span class="fu"><a href="theme_heat.html">theme_heat</a></span><span class="op">(</span><span class="fl">14</span><span class="op">)</span></span>
+<span>  theme_use <span class="op">=</span> <span class="fu"><a href="theme_heat.html">theme_heat</a></span><span class="op">(</span><span class="fl">14</span><span class="op">)</span>,</span>
+<span>  save <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -157,10 +158,23 @@ the **heatmap** never shows one, since each tile is labelled directly.
 In **alluvial** mode only the base font size is taken from <code>theme_use</code>;
 [theme_alluvia()] supplies the plot's remaining theme settings.</p></dd>
 
+
+<dt id="arg-save">save<a class="anchor" aria-label="anchor" href="#arg-save"></a></dt>
+<dd><p><code>NULL</code>, an empty list (default), or a named list forwarded
+to <code>RegR::save_plt()</code> for PDF output: <code>filename</code> and optionally
+<code>width</code> and <code>height</code>. A <code>width</code> or <code>height</code> left out
+defaults to the page the plot is laid out for – for the alluvial plot see
+<code><a href="plt_alluvial.html">plt_alluvial()</a></code>; 0.9 in per x level (at least 3 in) by 4 in
+per facet for the bar chart, and 1.1 in per column by 0.6 in per row of
+cells for the heatmap, beside the measured axis text and legend – which
+every call prints with the matching <code>save</code> line. Saving, and the size
+note, need the <span class="pkg">RegR</span> package.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A ggplot object.</p>
+    <p>A ggplot object carrying that page size as <code>attr(p,
+  "plot_size")</code>, <code>c(width, height)</code> in inches.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

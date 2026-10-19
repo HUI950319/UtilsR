@@ -118,7 +118,8 @@ trend lines), and the same split/group/bg patterns as
 <span>  facet_ncol <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  combine <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  force <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  seed <span class="op">=</span> <span class="fl">11</span></span>
+<span>  seed <span class="op">=</span> <span class="fl">11</span>,</span>
+<span>  save <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -357,11 +358,23 @@ Default <code>NULL</code>.</p></dd>
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
 <dd><p>Integer. Random seed for jitter. Default 11.</p></dd>
 
+
+<dt id="arg-save">save<a class="anchor" aria-label="anchor" href="#arg-save"></a></dt>
+<dd><p><code>NULL</code>, an empty list (default), or a named list forwarded
+to <code>RegR::save_plt()</code> for PDF output: <code>filename</code> and optionally
+<code>width</code> and <code>height</code>. A <code>width</code> or <code>height</code> left out
+defaults to the page the plot is laid out for – a 4 x 4 in panel, or
+3.5 x 3.5 in per panel of several, beside the measured axis text, strips
+and legend – which every call prints with the matching <code>save</code> line; a
+named list (<code>combine = FALSE</code>) has no single plot to save. Saving, and
+the size note, need the <span class="pkg">RegR</span> package.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A ggplot/patchwork object (if <code>combine = TRUE</code>) or a named
-  list of ggplots.</p>
+    <p>A ggplot/patchwork object (if <code>combine = TRUE</code>) carrying that
+  page size as <code>attr(p, "plot_size")</code>, <code>c(width, height)</code> in
+  inches, or a named list of ggplots.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

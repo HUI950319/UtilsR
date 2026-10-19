@@ -20,7 +20,8 @@ plt_dist(
   label = c("count_percent", "count", "percent", "none"),
   gap = 0.01,
   curve_type = "linear",
-  theme_use = theme_heat(14)
+  theme_use = theme_heat(14),
+  save = list()
 )
 ```
 
@@ -103,9 +104,23 @@ plt_dist(
   taken from `theme_use`; \[theme_alluvia()\] supplies the plot's
   remaining theme settings.
 
+- save:
+
+  `NULL`, an empty list (default), or a named list forwarded to
+  `RegR::save_plt()` for PDF output: `filename` and optionally `width`
+  and `height`. A `width` or `height` left out defaults to the page the
+  plot is laid out for – for the alluvial plot see
+  [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md);
+  0.9 in per x level (at least 3 in) by 4 in per facet for the bar
+  chart, and 1.1 in per column by 0.6 in per row of cells for the
+  heatmap, beside the measured axis text and legend – which every call
+  prints with the matching `save` line. Saving, and the size note, need
+  the RegR package.
+
 ## Value
 
-A ggplot object.
+A ggplot object carrying that page size as `attr(p, "plot_size")`,
+`c(width, height)` in inches.
 
 ## See also
 

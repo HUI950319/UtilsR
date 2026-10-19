@@ -215,12 +215,18 @@ resolver (theme object, function, or function name). Default <code>NULL</code>.<
 <dd><p><code>NULL</code>, an empty list, or a named list forwarded to
 <code>RegR::save_plt()</code>. Allowed fields are <code>filename</code> (required),
 <code>width</code> and <code>height</code> (in inches). Writes PDF only; the saver
-appends the extension and defaults to width 10 and height 11.</p></dd>
+appends the extension. A <code>width</code> or <code>height</code> left out defaults
+to the page the plot is laid out for – 2 in per variable and 0.5 in per
+level of the variable with most levels, at least 4 x 4 in, beside the
+measured axis text – which every call prints with the matching
+<code>save</code> line. Saving, and the size note, need the <span class="pkg">RegR</span> package.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A ggplot object. A non-empty <code>save</code> also writes this plot to PDF.</p>
+    <p>A ggplot object carrying that page size as <code>attr(p,
+  "plot_size")</code>, <code>c(width, height)</code> in inches. A non-empty <code>save</code>
+  also writes this plot to PDF.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

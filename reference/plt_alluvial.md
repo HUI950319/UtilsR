@@ -178,11 +178,17 @@ plt_alluvial(
 
   `NULL`, an empty list, or a named list forwarded to
   `RegR::save_plt()`. Allowed fields are `filename`, `width`, and
-  `height`.
+  `height`. A `width` or `height` left out defaults to the page the plot
+  is laid out for – 1.6 in per `cat_var` level (at least 4 in) and 0.45
+  in per `group` level (at least 4 in) per facet, beside the measured
+  axis text and legend – which every call prints with the matching
+  `save` line. Saving, and the size note, need the RegR package.
 
 ## Value
 
-A ggplot object. A non-empty `save` also writes the same plot to PDF.
+A ggplot object carrying its page size as `attr(p, "plot_size")`,
+`c(width, height)` in inches. A non-empty `save` also writes the same
+plot to PDF.
 
 ## Details
 

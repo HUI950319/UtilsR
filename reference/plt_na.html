@@ -69,7 +69,8 @@ patterns across selected variables.</p>
 <span>  name.map <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  miss_palette <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">pal_lancet</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>,</span>
 <span>  output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"both"</span>, <span class="st">"both_reverse"</span>, <span class="st">"matrix"</span>, <span class="st">"percentage"</span><span class="op">)</span>,</span>
-<span>  sort <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"desc"</span>, <span class="st">"asc"</span><span class="op">)</span></span>
+<span>  sort <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"desc"</span>, <span class="st">"asc"</span><span class="op">)</span>,</span>
+<span>  save <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -103,12 +104,24 @@ the left and matrix on the right), `"matrix"`, or `"percentage"`.</p></dd>
 <dd><p>Variable order by missing rate: `"desc"` (default, largest to
 smallest) or `"asc"` (smallest to largest).</p></dd>
 
+
+<dt id="arg-save">save<a class="anchor" aria-label="anchor" href="#arg-save"></a></dt>
+<dd><p><code>NULL</code>, an empty list (default), or a named list forwarded
+to <code>RegR::save_plt()</code> for PDF output: <code>filename</code> and optionally
+<code>width</code> and <code>height</code>. A <code>width</code> or <code>height</code> left out
+defaults to the page the plot is laid out for – 0.3 in per variable (at
+least 3 in) tall, with a 5 in matrix panel and a 3.5 in percentage panel,
+beside the measured axis text, strips and legend – which every call prints
+with the matching <code>save</code> line; with no missing values there is no
+file. Saving, and the size note, need the <span class="pkg">RegR</span> package.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A single ggplot-compatible object. Combined outputs return a
-  patchwork object, which inherits from ggplot. Returns `NULL` with a
-  warning when no missing values are found.</p>
+    <p>A single ggplot-compatible object, carrying that page size as
+  <code>attr(p, "plot_size")</code>, <code>c(width, height)</code> in inches. Combined
+  outputs return a patchwork object, which inherits from ggplot. Returns
+  `NULL` with a warning when no missing values are found.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
