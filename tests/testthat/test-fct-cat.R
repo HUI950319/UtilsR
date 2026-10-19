@@ -196,3 +196,24 @@ test_that("many recode groups validate all old levels together", {
   expect_error(do.call(fct_cat, c(list(x), recode)), "not found.*unknown")
   expect_error(fct_cat(x, missing = NA_character_), "not found")
 })
+
+test_that("unchanged ordering preserves complete factor attributes", {
+  x <- ordered(c("a", NA, "b", "a"),
+               levels = c("a", "b", NA), exclude = NULL)
+  is.na(x) <- c(FALSE, FALSE, FALSE, TRUE)
+  names(x) <- paste0("r", seq_along(x))
+  attr(x, "label") <- "Grade"
+  contrasts(x) <- contr.sum(3)
+  original <- x
+  expect_identical(fct_cat(x, 1L), original)
+  expect_identical(fct_cat(x, seq_len(nlevels(x))), original)
+  expect_identical(fct_cat(x, levels(x)), original)
+  expect_identical(x, original)
+
+  single <- ordered(c("a", NA))
+  attr(single, "label") <- "Single level"
+  expect_identical(fct_cat(single, reverse = TRUE), single)
+  empty <- factor(character())
+  expect_identical(fct_cat(empty, integer()), empty)
+  expect_identical(fct_cat(empty, reverse = TRUE), empty)
+})

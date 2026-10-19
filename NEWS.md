@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fct_cat()` returns the original factor when reordering leaves its levels
+  unchanged, avoiding a full-length allocation for an unchanged order,
+  empty factors and one-level reversals.
+
 * `fct_cat()` checks old recode levels in one batch instead of rebuilding
   a membership table for every group, reducing time and allocation when
   there are many levels and groups.

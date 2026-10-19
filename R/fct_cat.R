@@ -245,6 +245,7 @@ fct_cat <- function(x, ...,
 
 # ---- Shared helpers ----
 .relevel_factor <- function(x, new_levels) {
+  if (identical(levels(x), new_levels)) return(x)
   out <- match(levels(x), new_levels)[x]
   attributes(out) <- .factor_attributes(x, new_levels)
   out
