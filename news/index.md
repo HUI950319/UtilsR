@@ -2,6 +2,9 @@
 
 ## UtilsR 0.6.8
 
+- `fct_cat(binary_ref = ...)` rejects a reference label of `"Oth"` when
+  other levels remain, instead of silently merging both binary groups.
+
 - [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md)
   and
   [`fct_to_group()`](https://hui950319.github.io/UtilsR/reference/fct_to_group.md)

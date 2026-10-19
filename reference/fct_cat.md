@@ -37,6 +37,7 @@ fct_cat(
 - binary_ref:
 
   Integer index(es) of reference level(s). Others collapse to `"Oth"`.
+  The reference label must differ from `"Oth"` when other levels remain.
 
 - groups:
 
