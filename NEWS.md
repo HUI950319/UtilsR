@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fct_cat()` ignores names attached to a reorder vector. A named vector
+  that leaves the level order unchanged preserves the original contrasts
+  and model-matrix encoding.
+
 * `fct_cat()` normalizes numeric indices after validating their values and
   bounds. Classed indices such as `bit64::integer64` now select the intended
   levels in recoding, grouping, reordering and binary conversion.

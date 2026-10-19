@@ -234,3 +234,17 @@ test_that("integer64 indices use their values in every factor mode", {
   expect_no_warning(expect_error(fct_cat(x, binary_ref = too_large), "between"))
   expect_identical(as.character(x), c("a", "b", "c", NA_character_))
 })
+
+test_that("reorder vector names do not change levels or contrasts", {
+  x <- factor(rep(letters[1:3], each = 2))
+  contrasts(x) <- contr.sum(3)
+  names(x) <- paste0("r", seq_along(x))
+  original <- x
+  result <- fct_cat(x, c(first = "a"))
+  expect_identical(result, original)
+  expect_identical(model.matrix(~ grade, data.frame(grade = result)),
+                   model.matrix(~ grade, data.frame(grade = original)))
+  expect_identical(fct_cat(x, c(first = "c", second = "b")),
+                   fct_cat(x, "c", "b"))
+  expect_identical(x, original)
+})

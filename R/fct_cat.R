@@ -159,7 +159,7 @@ fct_cat <- function(x, ...,
   if (all(has_names)) {
     return(.recode_factor(x, dots))
   } else {
-    new_order <- c(...)
+    new_order <- unname(c(...))
     cur <- levels(x)
     # Allow integer indices (1-based) in addition to level names.
     if (!is.character(new_order)) {
