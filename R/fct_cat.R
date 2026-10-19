@@ -115,7 +115,12 @@ fct_cat <- function(x, ...,
     if (length(new_labels) != n_lvl) {
       cli::cli_abort("{.arg new_labels} must have length {n_lvl} (same as number of levels), got {length(new_labels)}.")
     }
-    levels(x) <- new_labels
+    if (is.character(new_labels) && !anyNA(new_labels) &&
+        !anyDuplicated(new_labels)) {
+      attr(x, "levels") <- as.character(new_labels)
+    } else {
+      levels(x) <- new_labels
+    }
     return(x)
   }
 
@@ -224,11 +229,9 @@ fct_cat <- function(x, ...,
 
 # ---- Shared helpers ----
 .relevel_factor <- function(x, new_levels) {
-  out <- factor(x, levels = new_levels, exclude = NULL)
-  # factor() otherwise merges missing codes into an explicit NA level.
-  is.na(out) <- is.na(as.integer(x))
+  out <- match(levels(x), new_levels)[as.integer(x)]
   at <- attributes(x)
-  at[["levels"]] <- levels(out)
+  at[["levels"]] <- new_levels
   attributes(out) <- at
   out
 }

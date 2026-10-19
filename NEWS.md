@@ -1,5 +1,10 @@
 # UtilsR 0.6.8
 
+* `fct_cat()` remaps integer factor codes when changing level order or
+  dropping unused levels, avoiding character conversion and rebuilding.
+  Unique, non-missing replacement labels use a direct levels update;
+  duplicate and missing labels retain their existing merging semantics.
+
 * `fct_cat()` preserves factor names, class and metadata such as `label`
   across recoding and reordering. An explicit `NA` level remains distinct
   from missing codes; recoding still removes unused levels.

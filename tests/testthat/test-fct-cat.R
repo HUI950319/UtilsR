@@ -94,3 +94,28 @@ test_that("factor operations preserve explicit missing levels and metadata", {
   expect_identical(as.integer(results[["recode"]]), c(1L, 2L, 1L, NA_integer_))
   expect_identical(x, original)
 })
+
+test_that("relabelling preserves metadata and base merging semantics", {
+  x <- factor(c("a", "b", "c", NA), levels = letters[1:4])
+  attr(x, "label") <- "Grade"
+  for (labels in list(LETTERS[1:4], c("A", "A", "C", "U"),
+                     c("A", NA, "C", "U"), setNames(LETTERS[1:4], 1:4), 1:4)) {
+    expected <- x
+    levels(expected) <- labels
+    expect_identical(fct_cat(x, new_labels = labels), expected)
+    expect_identical(fct_label(x, labels), expected)
+    df <- data.frame(grade = x, id = 1:4)
+    result <- fct_label(df, grade, labels)
+    expect_identical(result[["grade"]], expected)
+    expect_identical(result[["id"]], df[["id"]])
+  }
+})
+
+test_that("empty and entirely missing factors keep valid levels", {
+  empty <- factor(character())
+  expect_identical(fct_cat(empty, reverse = TRUE), empty)
+  expect_identical(fct_cat(empty, new_labels = character()), empty)
+  x <- factor(rep(NA_character_, 3), levels = letters[1:3])
+  expect_identical(fct_cat(x, AB = 1:2), factor(rep(NA_character_, 3)))
+  expect_identical(levels(fct_cat(x, reverse = TRUE)), rev(levels(x)))
+})
