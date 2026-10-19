@@ -217,3 +217,20 @@ test_that("unchanged ordering preserves complete factor attributes", {
   expect_identical(fct_cat(empty, integer()), empty)
   expect_identical(fct_cat(empty, reverse = TRUE), empty)
 })
+
+test_that("integer64 indices use their values in every factor mode", {
+  skip_if_not_installed("bit64")
+  x <- factor(c("a", "b", "c", NA))
+  idx <- bit64::as.integer64(c(3L, 1L))
+  expected <- factor(c("CA", "b", "CA", NA), levels = c("CA", "b"))
+  expect_identical(fct_cat(x, CA = idx), expected)
+  expect_identical(fct_cat(x, groups = list(CA = idx)), expected)
+  expect_identical(fct_to_group(x, list(CA = idx)), expected)
+  expect_identical(fct_cat(x, idx),
+                   factor(c("a", "b", "c", NA), levels = c("c", "a", "b")))
+  expect_identical(fct_cat(x, binary_ref = idx),
+                   factor(c("c_a", "Oth", "c_a", NA), levels = c("c_a", "Oth")))
+  too_large <- bit64::as.integer64("9007199254740993")
+  expect_no_warning(expect_error(fct_cat(x, binary_ref = too_large), "between"))
+  expect_identical(as.character(x), c("a", "b", "c", NA_character_))
+})

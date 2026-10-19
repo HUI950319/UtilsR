@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fct_cat()` normalizes numeric indices after validating their values and
+  bounds. Classed indices such as `bit64::integer64` now select the intended
+  levels in recoding, grouping, reordering and binary conversion.
+
 * `fct_cat()` returns the original factor when reordering leaves its levels
   unchanged, avoiding a full-length allocation for an unchanged order,
   empty factors and one-level reversals.

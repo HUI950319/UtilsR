@@ -50,6 +50,10 @@ action from arguments. For combining multiple columns into one factor,
 see [fct_to_combine()]. For grouping levels by integer indices with
 auto-named groups (e.g. `g1/3`), see [fct_to_group()].
 }
+\details{
+Numeric indices are converted to native integers after their
+values and bounds have been checked, including classed numeric vectors.
+}
 \examples{
 x <- factor(letters[1:6])
 

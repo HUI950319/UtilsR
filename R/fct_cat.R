@@ -8,7 +8,7 @@
 #         |                                         -- public API
 #         +-- L2  .as_factor()          coerce any vector -> factor
 #         +-- L2  .recode_factor()      rename / reorder / group levels
-#         |     +-- L3  .check_integer_index()   validate integer indices
+#         |     +-- L3  .check_integer_index()   validate / normalize indices
 #         +-- L2  .do_binary()          collapse to a two-level factor
 #               +-- .recode_factor()
 #         +-- L2  .relevel_factor()     preserve metadata and missing codes
@@ -45,6 +45,9 @@
 #'   drops unused levels but preserves an explicit \code{NA} level when used.
 #'   Matrix-valued contrasts are cleared when output levels differ from input
 #'   levels; contrast function names are retained.
+#'
+#' @details Numeric indices are converted to native integers after their
+#'   values and bounds have been checked, including classed numeric vectors.
 #'
 #' @examples
 #' x <- factor(letters[1:6])
@@ -98,7 +101,7 @@ fct_cat <- function(x, ...,
 
   # 1. binary
   if (!is.null(binary_ref)) {
-    .check_integer_index(binary_ref, "binary_ref")
+    binary_ref <- .check_integer_index(binary_ref, "binary_ref", nlevels(x))
     return(.do_binary(x, binary_ref))
   }
 
@@ -109,7 +112,9 @@ fct_cat <- function(x, ...,
       cli::cli_abort("{.arg groups} must be a named list with non-empty names, e.g. {.code list(early = 1:2, late = 3:4)}.")
     }
     for (i in seq_along(groups)) {
-      .check_integer_index(groups[[i]], paste0("groups$", names(groups)[i]))
+      groups[[i]] <- .check_integer_index(groups[[i]],
+                                          paste0("groups$", names(groups)[i]),
+                                          nlevels(x))
     }
     return(.recode_factor(x, groups))
   }
@@ -158,11 +163,7 @@ fct_cat <- function(x, ...,
     cur <- levels(x)
     # Allow integer indices (1-based) in addition to level names.
     if (!is.character(new_order)) {
-      .check_integer_index(new_order, "reorder index")
-      oob <- new_order < 1 | new_order > length(cur)
-      if (any(oob)) {
-        cli::cli_abort("Indices must be between 1 and {length(cur)}, got: {.val {new_order[oob]}}.")
-      }
+      new_order <- .check_integer_index(new_order, "reorder index", length(cur))
       new_order <- cur[new_order]
     }
     bad <- setdiff(new_order, cur)
@@ -184,10 +185,7 @@ fct_cat <- function(x, ...,
   lvls <- levels(x)
   newlevels <- lapply(newlevels, function(i) {
     if (is.numeric(i) || is.complex(i)) {
-      .check_integer_index(i, "recode index")
-      if (any(i < 1 | i > length(lvls))) {
-        cli::cli_abort("Indices must be between 1 and {length(lvls)}, got: {.val {i[i < 1 | i > length(lvls)]}}.")
-      }
+      i <- .check_integer_index(i, "recode index", length(lvls))
       return(lvls[i])
     }
     if (!is.character(i)) {
@@ -226,10 +224,6 @@ fct_cat <- function(x, ...,
   n_lvl <- nlevels(x)
   lvls <- levels(x)
 
-  if (any(binary_ref < 1 | binary_ref > n_lvl)) {
-    cli::cli_abort("{.arg binary_ref} must be between 1 and {n_lvl}.")
-  }
-
   ref_name <- paste(lvls[binary_ref], collapse = "_")
   other <- setdiff(seq_len(n_lvl), binary_ref)
   if (identical(ref_name, "Oth") && length(other) > 0L) {
@@ -266,9 +260,14 @@ fct_cat <- function(x, ...,
   if (is.factor(x)) x else factor(x)
 }
 
-.check_integer_index <- function(x, arg_name) {
+.check_integer_index <- function(x, arg_name, n_levels) {
   if (!is.numeric(x) || is.complex(x) || !is.null(dim(x)) || anyNA(x) ||
       any(!is.finite(x)) || any(x != trunc(x))) {
     cli::cli_abort("{.arg {arg_name}} must contain finite integer values, got: {.val {x}}.")
   }
+  oob <- x < 1 | x > n_levels
+  if (any(oob)) {
+    cli::cli_abort("{.arg {arg_name}} must be between 1 and {n_levels}, got: {.val {x[oob]}}.")
+  }
+  as.integer(x)
 }

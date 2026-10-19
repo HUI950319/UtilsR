@@ -87,6 +87,7 @@ Imports:
     ggprism,
     scales
 Suggests:
+    bit64,
     RColorBrewer,
     cowplot,
     SeuratObject,
