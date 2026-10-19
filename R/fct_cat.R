@@ -168,7 +168,8 @@ fct_cat <- function(x, ...,
 
   # Keep unmatched levels as-is
   matched <- unlist(newlevels)
-  for (u in setdiff(lvls, matched)) newlevels[[u]] <- u
+  unmatched <- setdiff(lvls, matched)
+  newlevels <- c(newlevels, stats::setNames(as.list(unmatched), unmatched))
 
   levels(x) <- newlevels
   factor(x)

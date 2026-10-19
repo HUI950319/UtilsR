@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fct_cat()` and `fct_to_group()` correctly merge into an existing,
+  unmatched level; that level's name no longer overwrites the mapping and
+  turns the recoded observations into missing values.
+
 * `plt_cat()`, `plt_con()`, `plt_dist()`, `plt_na()` and `plt_upset()` gain
   `save`, and `plt_alluvial()` and `plt_sankey()` stop saving at
   `RegR::save_plt()`'s generic 10 x 11 in: a `save` list that leaves out
