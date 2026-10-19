@@ -210,9 +210,15 @@ fct_cat <- function(x, ...,
   unmatched <- setdiff(lvls, matched)
   newlevels <- c(newlevels, stats::setNames(as.list(unmatched), unmatched))
 
-  levels(x) <- newlevels
-  .relevel_factor(x, levels(x)[tabulate(x, nbins = nlevels(x)) > 0L],
-                  old_levels = lvls)
+  old <- unlist(newlevels, use.names = FALSE)
+  mapped <- rep(names(newlevels), lengths(newlevels))
+  target <- mapped[match(lvls, old)]
+  new_levels <- unique(mapped)
+  used <- unique(target[tabulate(x, nbins = length(lvls)) > 0L])
+  new_levels <- new_levels[new_levels %in% used]
+  out <- match(target, new_levels)[x]
+  attributes(out) <- .factor_attributes(x, new_levels)
+  out
 }
 
 
@@ -239,9 +245,9 @@ fct_cat <- function(x, ...,
 
 
 # ---- Shared helpers ----
-.relevel_factor <- function(x, new_levels, old_levels = levels(x)) {
+.relevel_factor <- function(x, new_levels) {
   out <- match(levels(x), new_levels)[x]
-  attributes(out) <- .factor_attributes(x, new_levels, old_levels)
+  attributes(out) <- .factor_attributes(x, new_levels)
   out
 }
 

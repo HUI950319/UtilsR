@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fct_cat()` determines used output groups from the original level counts
+  and constructs recoded observations once, combining regrouping and
+  unused-level removal without an intermediate full-length factor.
+
 * `fct_cat()` indexes level maps with factor codes directly, removing an
   extra full-length integer copy during reordering and unused-level removal.
 
