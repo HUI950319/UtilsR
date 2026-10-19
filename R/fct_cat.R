@@ -23,13 +23,17 @@
 #' @param x A factor or character vector.
 #' @param ... For recode: named args (new = old). For reorder: level names
 #'   or integer indices in desired order (unnamed). Must be ALL named or ALL
-#'   unnamed. Cannot be combined with another active mode.
-#' @param reverse Logical. Reverse all levels? Default \code{FALSE}.
-#' @param binary_ref Integer index(es) of reference level(s). Others
+#'   unnamed. Each recode group may use character levels or finite,
+#'   non-missing integer indices. Unknown levels are errors. Cannot be
+#'   combined with another active mode.
+#' @param reverse A single non-missing logical. Reverse all levels?
+#'   Default \code{FALSE}.
+#' @param binary_ref Finite, non-missing integer index(es) of reference level(s). Others
 #'   collapse to \code{"Oth"}. The reference label must differ from
 #'   \code{"Oth"} when other levels remain.
 #' @param groups Named list of integer index vectors for custom grouping,
-#'   e.g. \code{list(early = 1:2, late = 3:4)}.
+#'   e.g. \code{list(early = 1:2, late = 3:4)}. Names must be non-empty,
+#'   and indices must be finite and non-missing.
 #' @param new_labels Character vector to rename levels (same length as levels).
 #'
 #' @return A factor.
@@ -71,6 +75,10 @@ fct_cat <- function(x, ...,
                     groups = NULL,
                     new_labels = NULL) {
 
+  if (!is.logical(reverse) || length(reverse) != 1L || is.na(reverse)) {
+    cli::cli_abort("{.arg reverse} must be a single non-missing logical value.")
+  }
+
   # --- Mutual exclusivity check ---
   n_modes <- sum(!is.null(binary_ref), !is.null(groups),
                  !is.null(new_labels), reverse, ...length() > 0L)
@@ -88,11 +96,12 @@ fct_cat <- function(x, ...,
 
   # 2. groups
   if (!is.null(groups)) {
-    if (!is.list(groups) || is.null(names(groups))) {
-      cli::cli_abort("{.arg groups} must be a named list, e.g. {.code list(early = 1:2, late = 3:4)}.")
+    if (!is.list(groups) || is.null(names(groups)) ||
+        anyNA(names(groups)) || any(!nzchar(names(groups)))) {
+      cli::cli_abort("{.arg groups} must be a named list with non-empty names, e.g. {.code list(early = 1:2, late = 3:4)}.")
     }
-    for (nm in names(groups)) {
-      .check_integer_index(groups[[nm]], paste0("groups$", nm))
+    for (i in seq_along(groups)) {
+      .check_integer_index(groups[[i]], paste0("groups$", names(groups)[i]))
     }
     return(.recode_factor(x, groups))
   }
@@ -130,7 +139,7 @@ fct_cat <- function(x, ...,
     new_order <- c(...)
     cur <- levels(x)
     # Allow integer indices (1-based) in addition to level names.
-    if (is.numeric(new_order)) {
+    if (!is.character(new_order)) {
       .check_integer_index(new_order, "reorder index")
       oob <- new_order < 1 | new_order > length(cur)
       if (any(oob)) {
@@ -142,6 +151,9 @@ fct_cat <- function(x, ...,
     if (length(bad) > 0) {
       cli::cli_abort("Level{?s} not found: {.val {bad}}.")
     }
+    if (anyDuplicated(new_order)) {
+      cli::cli_abort("Reorder levels must not be duplicated.")
+    }
     return(factor(x, levels = c(new_order, setdiff(cur, new_order))))
   }
 }
@@ -151,20 +163,28 @@ fct_cat <- function(x, ...,
 .recode_factor <- function(x, newlevels) {
   if (length(newlevels) == 0) return(x)
 
-  all_vals <- unlist(newlevels)
-  if (anyDuplicated(all_vals)) {
-    cli::cli_abort("New levels contain non-unique values: {.val {all_vals[duplicated(all_vals)]}}.")
-  }
-
   lvls <- levels(x)
-  if (all(vapply(newlevels, is.numeric, logical(1)))) {
-    newlevels <- lapply(newlevels, function(i) {
+  newlevels <- lapply(newlevels, function(i) {
+    if (is.numeric(i) || is.complex(i)) {
       .check_integer_index(i, "recode index")
       if (any(i < 1 | i > length(lvls))) {
         cli::cli_abort("Indices must be between 1 and {length(lvls)}, got: {.val {i[i < 1 | i > length(lvls)]}}.")
       }
-      lvls[i]
-    })
+      return(lvls[i])
+    }
+    if (!is.character(i)) {
+      cli::cli_abort("Recode values must be character levels or integer indices.")
+    }
+    bad <- setdiff(i, lvls)
+    if (length(bad) > 0L) {
+      cli::cli_abort("Level{?s} not found: {.val {bad}}.")
+    }
+    i
+  })
+
+  all_vals <- unlist(newlevels, use.names = FALSE)
+  if (anyDuplicated(all_vals)) {
+    cli::cli_abort("New levels contain non-unique values: {.val {all_vals[duplicated(all_vals)]}}.")
   }
 
   # Keep unmatched levels as-is
@@ -205,7 +225,8 @@ fct_cat <- function(x, ...,
 }
 
 .check_integer_index <- function(x, arg_name) {
-  if (!is.numeric(x) || any(x != as.integer(x), na.rm = TRUE)) {
-    cli::cli_abort("{.arg {arg_name}} must be integer values, got: {.val {x}}.")
+  if (!is.numeric(x) || is.complex(x) || !is.null(dim(x)) || anyNA(x) ||
+      any(!is.finite(x)) || any(x != trunc(x))) {
+    cli::cli_abort("{.arg {arg_name}} must contain finite integer values, got: {.val {x}}.")
   }
 }

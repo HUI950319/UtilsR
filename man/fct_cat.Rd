@@ -18,16 +18,20 @@ fct_cat(
 
 \item{...}{For recode: named args (new = old). For reorder: level names
 or integer indices in desired order (unnamed). Must be ALL named or ALL
-unnamed. Cannot be combined with another active mode.}
+unnamed. Each recode group may use character levels or finite,
+non-missing integer indices. Unknown levels are errors. Cannot be
+combined with another active mode.}
 
-\item{reverse}{Logical. Reverse all levels? Default \code{FALSE}.}
+\item{reverse}{A single non-missing logical. Reverse all levels?
+Default \code{FALSE}.}
 
-\item{binary_ref}{Integer index(es) of reference level(s). Others
+\item{binary_ref}{Finite, non-missing integer index(es) of reference level(s). Others
 collapse to \code{"Oth"}. The reference label must differ from
 \code{"Oth"} when other levels remain.}
 
 \item{groups}{Named list of integer index vectors for custom grouping,
-e.g. \code{list(early = 1:2, late = 3:4)}.}
+e.g. \code{list(early = 1:2, late = 3:4)}. Names must be non-empty,
+and indices must be finite and non-missing.}
 
 \item{new_labels}{Character vector to rename levels (same length as levels).}
 }
