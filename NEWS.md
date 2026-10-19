@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fct_cat()` checks old recode levels in one batch instead of rebuilding
+  a membership table for every group, reducing time and allocation when
+  there are many levels and groups.
+
 * `fct_cat()` determines used output groups from the original level counts
   and constructs recoded observations once, combining regrouping and
   unused-level removal without an intermediate full-length factor.

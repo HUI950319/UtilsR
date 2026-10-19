@@ -193,21 +193,20 @@ fct_cat <- function(x, ...,
     if (!is.character(i)) {
       cli::cli_abort("Recode values must be character levels or integer indices.")
     }
-    bad <- setdiff(i, lvls)
-    if (length(bad) > 0L) {
-      cli::cli_abort("Level{?s} not found: {.val {bad}}.")
-    }
     i
   })
 
   all_vals <- unlist(newlevels, use.names = FALSE)
+  bad <- setdiff(all_vals, lvls)
+  if (length(bad) > 0L) {
+    cli::cli_abort("Level{?s} not found: {.val {bad}}.")
+  }
   if (anyDuplicated(all_vals)) {
     cli::cli_abort("New levels contain non-unique values: {.val {all_vals[duplicated(all_vals)]}}.")
   }
 
   # Keep unmatched levels as-is
-  matched <- unlist(newlevels)
-  unmatched <- setdiff(lvls, matched)
+  unmatched <- setdiff(lvls, all_vals)
   newlevels <- c(newlevels, stats::setNames(as.list(unmatched), unmatched))
 
   old <- unlist(newlevels, use.names = FALSE)

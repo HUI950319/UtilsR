@@ -182,3 +182,17 @@ test_that("replacement labels cannot invoke list-based grouping", {
   expect_identical(fct_cat(x, new_labels = 1:2), factor(c("1", "2")))
   expect_identical(data, original)
 })
+
+test_that("many recode groups validate all old levels together", {
+  old <- sprintf("L%03d", 1:200)
+  labels <- sprintf("G%02d", 1:40)
+  x <- factor(c(old, NA), levels = old)
+  recode <- split(old, rep(labels, each = 5))
+  expected <- factor(c(rep(labels, each = 5), NA), levels = labels)
+  expect_identical(do.call(fct_cat, c(list(x), recode)), expected)
+  indices <- split(seq_along(old), rep(labels, each = 5))
+  expect_identical(fct_cat(x, groups = indices), expected)
+  recode[[40]] <- c(recode[[40]], "unknown")
+  expect_error(do.call(fct_cat, c(list(x), recode)), "not found.*unknown")
+  expect_error(fct_cat(x, missing = NA_character_), "not found")
+})
