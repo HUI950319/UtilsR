@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fct_cat()` validates replacement labels after character conversion.
+  Classed character labels can no longer bypass merging or missing-label
+  removal, and conversions that change the label count are rejected.
+
 * `fct_cat()` ignores names attached to a reorder vector. A named vector
   that leaves the level order unchanged preserves the original contrasts
   and model-matrix encoding.

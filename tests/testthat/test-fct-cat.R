@@ -248,3 +248,24 @@ test_that("reorder vector names do not change levels or contrasts", {
                    fct_cat(x, "c", "b"))
   expect_identical(x, original)
 })
+
+test_that("converted replacement labels are checked before updating levels", {
+  methods <- get(".__S3MethodsTable__.", envir = asNamespace("base"))
+  rlang::local_bindings(as.character.fct_cat_labels = function(x, ...) {
+    attr(x, "converted")
+  }, .env = methods)
+  x <- factor(c("a", "b"))
+  labels <- structure(c("A", "B"), class = "fct_cat_labels",
+                      converted = c("X", "X"))
+  expected <- factor(c("X", "X"))
+  expect_identical(fct_cat(x, new_labels = labels), expected)
+  expect_identical(fct_label(x, labels), expected)
+  data <- data.frame(grade = x)
+  expect_identical(fct_label(data, grade, labels)[["grade"]], expected)
+  attr(labels, "converted") <- c("X", NA_character_)
+  expect_identical(fct_cat(x, new_labels = labels), factor(c("X", NA)))
+  attr(labels, "converted") <- "X"
+  expect_error(fct_cat(x, new_labels = labels), "After conversion.*length")
+  expect_error(fct_label(data, grade, labels), "After conversion.*length")
+  expect_identical(data[["grade"]], x)
+})

@@ -38,7 +38,9 @@
 #'   and indices must be finite and non-missing.
 #' @param new_labels Character vector to rename levels (same length as levels).
 #'   Other atomic vectors are coerced to character for compatibility;
-#'   lists and other non-atomic objects are not accepted.
+#'   lists and other non-atomic objects are not accepted. Length is checked
+#'   again after conversion. Duplicate and missing labels retain base
+#'   merging and removal semantics.
 #'
 #' @return A factor preserving names, class and other attributes. Reordering
 #'   preserves all levels, including an explicit \code{NA} level. Recoding
@@ -129,9 +131,12 @@ fct_cat <- function(x, ...,
     if (length(new_labels) != n_lvl) {
       cli::cli_abort("{.arg new_labels} must have length {n_lvl} (same as number of levels), got {length(new_labels)}.")
     }
-    if (is.character(new_labels) && !anyNA(new_labels) &&
-        !anyDuplicated(new_labels)) {
-      attr(x, "levels") <- as.character(new_labels)
+    new_labels <- as.character(new_labels)
+    if (!is.character(new_labels) || length(new_labels) != n_lvl) {
+      cli::cli_abort("After conversion to character, {.arg new_labels} must be a character vector of length {n_lvl}.")
+    }
+    if (!anyNA(new_labels) && !anyDuplicated(new_labels)) {
+      attr(x, "levels") <- new_labels
     } else {
       levels(x) <- new_labels
     }
