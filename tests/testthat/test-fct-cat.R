@@ -63,3 +63,34 @@ test_that("recoding resolves each group's index or label before checking it", {
   expect_identical(fct_cat(x, groups = list(A = 1L, A = 2L)),
                    factor(c("A", "A", "c", NA)))
 })
+
+test_that("factor operations preserve explicit missing levels and metadata", {
+  x <- factor(c("a", NA, "b", "a"),
+              levels = c("a", "b", "unused", NA),
+              exclude = NULL, ordered = TRUE)
+  is.na(x) <- c(FALSE, FALSE, FALSE, TRUE)
+  names(x) <- paste0("r", 1:4)
+  attr(x, "label") <- "Clinical grade"
+  original <- x
+
+  results <- list(
+    reverse = fct_cat(x, reverse = TRUE),
+    reorder = fct_cat(x, "b"),
+    recode = fct_cat(x, AB = c("a", "b")),
+    group = fct_cat(x, groups = list(AB = 1:2)),
+    wrapper = fct_to_group(x, list(AB = 1:2)),
+    binary = fct_cat(x, binary_ref = 1L),
+    relabel = fct_cat(x, new_labels = c("A", "B", "U", "Missing"))
+  )
+  for (result in results) {
+    expect_identical(class(result), class(x))
+    expect_identical(names(result), names(x))
+    expect_identical(attr(result, "label"), "Clinical grade")
+    expect_identical(is.na(as.integer(result)), c(FALSE, FALSE, FALSE, TRUE))
+  }
+  expect_identical(levels(results[["reverse"]]), rev(levels(x)))
+  expect_identical(levels(results[["reorder"]]), c("b", "a", "unused", NA))
+  expect_identical(levels(results[["recode"]]), c("AB", NA_character_))
+  expect_identical(as.integer(results[["recode"]]), c(1L, 2L, 1L, NA_integer_))
+  expect_identical(x, original)
+})

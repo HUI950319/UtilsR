@@ -11,6 +11,7 @@
 #         |     +-- L3  .check_integer_index()   validate integer indices
 #         +-- L2  .do_binary()          collapse to a two-level factor
 #               +-- .recode_factor()
+#         +-- L2  .relevel_factor()     preserve metadata and missing codes
 # =============================================================================
 
 #' Unified Factor Manipulation
@@ -36,7 +37,9 @@
 #'   and indices must be finite and non-missing.
 #' @param new_labels Character vector to rename levels (same length as levels).
 #'
-#' @return A factor.
+#' @return A factor preserving names, class and other attributes. Reordering
+#'   preserves all levels, including an explicit \code{NA} level. Recoding
+#'   drops unused levels but preserves an explicit \code{NA} level when used.
 #'
 #' @examples
 #' x <- factor(letters[1:6])
@@ -118,7 +121,7 @@ fct_cat <- function(x, ...,
 
   # 4. reverse
   if (reverse) {
-    return(factor(x, levels = rev(levels(x))))
+    return(.relevel_factor(x, rev(levels(x))))
   }
 
   # 5. ... — named = recode, unnamed = reorder
@@ -154,7 +157,7 @@ fct_cat <- function(x, ...,
     if (anyDuplicated(new_order)) {
       cli::cli_abort("Reorder levels must not be duplicated.")
     }
-    return(factor(x, levels = c(new_order, setdiff(cur, new_order))))
+    return(.relevel_factor(x, c(new_order, setdiff(cur, new_order))))
   }
 }
 
@@ -193,7 +196,7 @@ fct_cat <- function(x, ...,
   newlevels <- c(newlevels, stats::setNames(as.list(unmatched), unmatched))
 
   levels(x) <- newlevels
-  factor(x)
+  .relevel_factor(x, levels(x)[tabulate(x, nbins = nlevels(x)) > 0L])
 }
 
 
@@ -220,6 +223,16 @@ fct_cat <- function(x, ...,
 
 
 # ---- Shared helpers ----
+.relevel_factor <- function(x, new_levels) {
+  out <- factor(x, levels = new_levels, exclude = NULL)
+  # factor() otherwise merges missing codes into an explicit NA level.
+  is.na(out) <- is.na(as.integer(x))
+  at <- attributes(x)
+  at[["levels"]] <- levels(out)
+  attributes(out) <- at
+  out
+}
+
 .as_factor <- function(x) {
   if (is.factor(x)) x else factor(x)
 }
