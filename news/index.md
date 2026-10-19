@@ -2,6 +2,11 @@
 
 ## UtilsR 0.6.8
 
+- [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md)
+  reuses matched level positions when recoding and keeps unmatched
+  levels in a vector, avoiding an intermediate list and repeated
+  membership tables for factors with many levels.
+
 - `fct_cat(new_labels = ...)` returns the original factor when
   normalized, non-missing labels are unchanged, avoiding an unnecessary
   observation copy.
