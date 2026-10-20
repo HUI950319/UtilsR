@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `check_size()` identifies its summary by row position, so an object named
+  `**TOTAL**` retains the normal object styles and size gradient.
+
 * `check_size()` formats bars from raw sizes, respects later gt formatters,
   and keeps HTML bars out of LaTeX, RTF and Word output.
 

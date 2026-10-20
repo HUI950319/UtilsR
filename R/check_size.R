@@ -172,7 +172,7 @@ check_size <- function(..., pattern = NULL) {
     gt::data_color(
       columns = "Size",
       target_columns = "Size_fmt",
-      rows = object_info$Object != "**TOTAL**",
+      rows = seq_len(nrow(object_info)) > 1L,
       palette = c("#FFFFFF", "#FF0000"),
       na_color = "transparent"
     ) %>%
@@ -192,7 +192,7 @@ check_size <- function(..., pattern = NULL) {
     gt::tab_style(
       style = gt::cell_text(weight = "bold", color = "#FF0000"),
       locations = gt::cells_body(
-        rows = object_info$Object == "**TOTAL**"
+        rows = seq_len(nrow(object_info)) == 1L
       )
     ) %>%
     gt::opt_table_font(font = "Arial") %>%

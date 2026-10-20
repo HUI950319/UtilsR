@@ -194,3 +194,23 @@ test_that("check_size keeps HTML bars out of other output formats", {
     }
   })
 })
+
+test_that("check_size distinguishes a TOTAL-named object from the summary", {
+  with_size_objects(list(other = raw(1024)), function(nms) {
+    reserved <- "**TOTAL**"
+    stopifnot(!exists(reserved, envir = .GlobalEnv, inherits = FALSE))
+    assign(reserved, raw(32), envir = .GlobalEnv)
+    on.exit(rm(list = reserved, envir = .GlobalEnv), add = TRUE)
+    result <- check_size(c(reserved, nms))
+    expect_identical(result[["_data"]][["Object"]], c(reserved, nms, reserved))
+    expect_match(result[["_heading"]][["subtitle"]], "Total objects: 2", fixed = TRUE)
+    styles <- result[["_styles"]]
+    object_rows <- styles[["rownum"]][styles[["colname"]] == "Object" &
+                                       !is.na(styles[["rownum"]])]
+    expect_identical(object_rows, 1L)
+    html <- gt::as_raw_html(result)
+    cells <- grep('headers="Size_fmt"', strsplit(html, "\n", fixed = TRUE)[[1]], value = TRUE)
+    expect_length(cells, 3L)
+    expect_match(cells[[3L]], "background-color: #FFFFFF", fixed = TRUE)
+  })
+})
