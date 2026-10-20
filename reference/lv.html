@@ -5,13 +5,17 @@ counts, unique values, missing values and special values (e.g. "unknown",
 cross-tabulation. Special-value matching uses Unicode-aware whole-word
 markers and normalizes whitespace, including Unicode whitespace-only blanks.
 Values recognized by is.na(), including SPSS user-missing codes,
-are excluded from special-value counts.'><meta property="og:description" content='Inspect variables in a data.frame or Seurat object, including frequency
+are excluded from special-value counts.
+Methods for serialized haven-labelled and integer64 columns are loaded
+before inspection; integer64 columns require the optional bit64 package.'><meta property="og:description" content='Inspect variables in a data.frame or Seurat object, including frequency
 counts, unique values, missing values and special values (e.g. "unknown",
 "blank", "n/a"). Supports grouped summaries and multi-variable
 cross-tabulation. Special-value matching uses Unicode-aware whole-word
 markers and normalizes whitespace, including Unicode whitespace-only blanks.
 Values recognized by is.na(), including SPSS user-missing codes,
-are excluded from special-value counts.'><meta property="og:image" content="https://hui950319.github.io/UtilsR/logo.png"></head><body>
+are excluded from special-value counts.
+Methods for serialized haven-labelled and integer64 columns are loaded
+before inspection; integer64 columns require the optional bit64 package.'><meta property="og:image" content="https://hui950319.github.io/UtilsR/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -68,7 +72,9 @@ counts, unique values, missing values and special values (e.g. "unknown",
 cross-tabulation. Special-value matching uses Unicode-aware whole-word
 markers and normalizes whitespace, including Unicode whitespace-only blanks.
 Values recognized by <code><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na()</a></code>, including SPSS user-missing codes,
-are excluded from special-value counts.</p>
+are excluded from special-value counts.
+Methods for serialized haven-labelled and integer64 columns are loaded
+before inspection; integer64 columns require the optional <span class="pkg">bit64</span> package.</p>
     </div>
 
     <div class="section level2">

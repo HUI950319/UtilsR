@@ -52,11 +52,13 @@ Unicode-aware whole-word markers after collapsing whitespace, including
 Unicode spaces. Whitespace-only strings count as blank values. Each
 value is counted once. Values recognized by
 [`is.na()`](https://rdrr.io/r/base/NA.html), including SPSS user-missing
-codes, count only as missing values. Severity colors use unrounded
-percentages. Percentages are rounded only for display, to one decimal
-place in cells and two in the summary. The subtitle counts variables
-containing issues; the summary counts individual missing and special
-values across the selected columns.
+codes, count only as missing values. Inspection loads methods for
+serialized haven-labelled and integer64 columns before counting missing
+values. Integer64 columns require the optional bit64 package. Severity
+colors use unrounded percentages. Percentages are rounded only for
+display, to one decimal place in cells and two in the summary. The
+subtitle counts variables containing issues; the summary counts
+individual missing and special values across the selected columns.
 
 ## See also
 

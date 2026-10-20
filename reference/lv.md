@@ -7,7 +7,9 @@ multi-variable cross-tabulation. Special-value matching uses
 Unicode-aware whole-word markers and normalizes whitespace, including
 Unicode whitespace-only blanks. Values recognized by
 [`is.na()`](https://rdrr.io/r/base/NA.html), including SPSS user-missing
-codes, are excluded from special-value counts.
+codes, are excluded from special-value counts. Methods for serialized
+haven-labelled and integer64 columns are loaded before inspection;
+integer64 columns require the optional bit64 package.
 
 ## Usage
 
