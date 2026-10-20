@@ -2,10 +2,6 @@
 
 ## UtilsR 0.6.8
 
-- The package description now names the exported
-  [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
-  function correctly.
-
 - [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
   displays small positive proportions as `<0.1%` in cells and `<0.01%`
   in summaries, distinguishing them from exact zeros.
