@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fct_num()` rejects logical labels before computing cut points, so
+  `labels = FALSE` cannot return integer codes when quantile ties leave one group.
+
 * `fct_num()` rejects matrices and arrays instead of silently flattening
   multidimensional data into a factor vector.
 

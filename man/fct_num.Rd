@@ -27,7 +27,8 @@ Time-span classes must be converted to numeric cut points in the same unit as \c
 
 \item{labels}{Character vector of group labels. If \code{NULL}, labels
 are auto-generated (e.g. \code{"below_50"}, \code{"50-80"}, \code{"above_80"}).
-Additional digits distinguish cut points whose usual text representations coincide.}
+Additional digits distinguish cut points whose usual text representations coincide.
+Logical labels, including \code{FALSE}, are not supported; the result is always a factor.}
 
 \item{nbins}{Single finite integer number of bins, at least 2 and less than
 \code{.Machine$integer.max}. Mutually exclusive with \code{breaks}.}

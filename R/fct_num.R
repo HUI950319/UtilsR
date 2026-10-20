@@ -28,6 +28,7 @@
 #' @param labels Character vector of group labels. If \code{NULL}, labels
 #'   are auto-generated (e.g. \code{"below_50"}, \code{"50-80"}, \code{"above_80"}).
 #'   Additional digits distinguish cut points whose usual text representations coincide.
+#'   Logical labels, including \code{FALSE}, are not supported; the result is always a factor.
 #' @param nbins Single finite integer number of bins, at least 2 and less than
 #'   \code{.Machine$integer.max}. Mutually exclusive with \code{breaks}.
 #' @param type Binning method when using \code{nbins}: \code{"quantile"}
@@ -90,6 +91,9 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
   }
 
   type <- match.arg(type)
+  if (is.logical(labels)) {
+    cli::cli_abort("{.arg labels} must not be logical. Use {.code NULL} for automatic labels or supply group names.")
+  }
 
   # --- Mode 1: fixed cut points ---
   if (!is.null(breaks)) {
