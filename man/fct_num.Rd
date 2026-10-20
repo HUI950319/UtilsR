@@ -48,6 +48,10 @@ Cut a numeric vector into factor groups. Works on vectors (usable in
 \details{
 Intervals are right-closed: each cut point belongs to the lower
   group. The lowest endpoint is included. Thus \code{"below_50"} includes 50.
+
+  Automatic labels for fixed cut points follow the current numeric formatting,
+  including \code{getOption("scipen")}. Supply \code{labels} when factor level
+  names must remain stable across sessions or display settings.
 }
 \examples{
 x <- c(10, 25, 40, 55, 70, 85, 100)
@@ -56,6 +60,9 @@ x <- c(10, 25, 40, 55, 70, 85, 100)
 fct_num(x, breaks = 50)
 fct_num(x, breaks = c(30, 70))
 fct_num(x, breaks = c(30, 70), labels = c("Low", "Mid", "High"))
+
+# Explicit labels stay stable across numeric formatting settings
+fct_num(c(50000, 150000), breaks = 100000, labels = c("Lower", "Higher"))
 
 # Automatic binning
 fct_num(x, nbins = 3)
