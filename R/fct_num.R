@@ -14,9 +14,10 @@
 #' Cut a numeric vector into factor groups. Works on vectors (usable in
 #' \code{mutate()}). Supports fixed cut points or automatic binning.
 #'
-#' @param x A numeric vector.
+#' @param x A numeric vector. Vectors with \code{integer64} storage are not supported.
 #' @param breaks Numeric vector of cut points. E.g. \code{50} for binary,
 #'   \code{c(20, 50)} for 3 groups. Mutually exclusive with \code{nbins}.
+#'   Vectors with \code{integer64} storage are not supported.
 #' @param labels Character vector of group labels. If \code{NULL}, labels
 #'   are auto-generated (e.g. \code{"below_50"}, \code{"50-80"}, \code{"above_80"}).
 #' @param nbins Integer number of bins for automatic binning. Mutually
@@ -53,6 +54,9 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
   if (!is.numeric(x)) {
     cli::cli_abort("{.arg x} must be numeric, got {.cls {class(x)}}.")
   }
+  if (inherits(x, "integer64")) {
+    cli::cli_abort("{.arg x} with {.cls integer64} storage is not supported.")
+  }
   if (all(is.na(x))) {
     cli::cli_abort("{.arg x} is all NA.")
   }
@@ -68,6 +72,9 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
 
   # --- Mode 1: fixed cut points ---
   if (!is.null(breaks)) {
+    if (inherits(breaks, "integer64")) {
+      cli::cli_abort("{.arg breaks} with {.cls integer64} storage is not supported.")
+    }
     if (length(breaks) == 0) {
       cli::cli_abort("{.arg breaks} must have at least one value.")
     }

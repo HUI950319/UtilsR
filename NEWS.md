@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fct_num()` rejects unsupported `integer64` data and cut points instead
+  of silently misclassifying their values or losing missing observations.
+
 * `fct_cat()` reuses matched level positions when recoding and keeps
   unmatched levels in a vector, avoiding an intermediate list and repeated
   membership tables for factors with many levels.
