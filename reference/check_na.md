@@ -58,9 +58,11 @@ values. Integer64 columns require the optional bit64 package.
 Dataset-size calculations use double precision, and counts are formatted
 as whole numbers without a 32-bit integer limit. Severity colors use
 unrounded percentages. Percentages are rounded only for display, to one
-decimal place in cells and two in the summary. The subtitle counts
-variables containing issues; the summary counts individual missing and
-special values across the selected columns.
+decimal place in cells and two in the summary. Positive percentages
+below these display resolutions appear as `<0.1%` in cells and `<0.01%`
+in the summary; zeros retain their usual numeric format. The subtitle
+counts variables containing issues; the summary counts individual
+missing and special values across the selected columns.
 
 ## See also
 
