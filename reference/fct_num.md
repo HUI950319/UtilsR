@@ -71,6 +71,21 @@ Automatic labels for fixed cut points follow the current numeric
 formatting, including `getOption("scipen")`. Supply `labels` when factor
 level names must remain stable across sessions or display settings.
 
+Quantile binning removes repeated cut points with a warning. The
+resulting number of intervals may be smaller than `nbins`; custom
+`labels` must match the number of remaining intervals.
+
+Repeated custom labels merge intervals into one factor level, following
+[`cut()`](https://rdrr.io/r/base/cut.html). Use distinct labels to keep
+every interval separate.
+
+With fixed cut points, observations equal to `-Inf` or `Inf` belong to
+the first or last interval, respectively. Equal-width binning requires
+finite minimum and maximum values. Quantile binning passes infinite
+observations to
+[`stats::quantile()`](https://rdrr.io/r/stats/quantile.html) without
+filtering them; they may lead to fewer intervals or an error.
+
 ## See also
 
 Other factor tools:
@@ -110,6 +125,22 @@ fct_num(x, nbins = 2, labels = c("Low", "High"))
 fct_num(x, nbins = 4, type = "equal")
 #> [1] low       low       medium    medium    high      very_high very_high
 #> Levels: low medium high very_high
+
+# Quantile ties reduce four requested bins to two, with a warning
+fct_num(c(1, 1, 1, 2), nbins = 4)
+#> Warning: Ties in quantiles reduced 4 bins to 2.
+#> [1] low  low  low  high
+#> Levels: low high
+
+# Repeated labels merge intervals into the same factor level
+fct_num(c(1, 5, 9), breaks = c(3, 7), labels = c("Lower", "Lower", "Higher"))
+#> [1] Lower  Lower  Higher
+#> Levels: Lower Higher
+
+# Fixed cut points retain infinite observations in the outer intervals
+fct_num(c(-Inf, 50, Inf, NA), breaks = 50)
+#> [1] below_50 below_50 above_50 <NA>    
+#> Levels: below_50 above_50
 
 # In mutate():
 if (FALSE) { # \dontrun{

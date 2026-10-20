@@ -118,6 +118,16 @@ Equal-width binning also errors when numeric precision cannot represent distinct
 <p>Automatic labels for fixed cut points follow the current numeric formatting,
   including <code>getOption("scipen")</code>. Supply <code>labels</code> when factor level
   names must remain stable across sessions or display settings.</p>
+<p>Quantile binning removes repeated cut points with a warning. The resulting
+  number of intervals may be smaller than <code>nbins</code>; custom <code>labels</code>
+  must match the number of remaining intervals.</p>
+<p>Repeated custom labels merge intervals into one factor level, following
+  <code><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut()</a></code>. Use distinct labels to keep every interval separate.</p>
+<p>With fixed cut points, observations equal to <code>-Inf</code> or <code>Inf</code>
+  belong to the first or last interval, respectively. Equal-width binning
+  requires finite minimum and maximum values. Quantile binning passes
+  infinite observations to <code><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">stats::quantile()</a></code> without filtering them;
+  they may lead to fewer intervals or an error.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -158,6 +168,22 @@ Equal-width binning also errors when numeric precision cannot represent distinct
 <span class="r-in"><span><span class="fu">fct_num</span><span class="op">(</span><span class="va">x</span>, nbins <span class="op">=</span> <span class="fl">4</span>, type <span class="op">=</span> <span class="st">"equal"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] low       low       medium    medium    high      very_high very_high</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Levels: low medium high very_high</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Quantile ties reduce four requested bins to two, with a warning</span></span></span>
+<span class="r-in"><span><span class="fu">fct_num</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, nbins <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Ties in quantiles reduced 4 bins to 2.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] low  low  low  high</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Levels: low high</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Repeated labels merge intervals into the same factor level</span></span></span>
+<span class="r-in"><span><span class="fu">fct_num</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">5</span>, <span class="fl">9</span><span class="op">)</span>, breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">7</span><span class="op">)</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Lower"</span>, <span class="st">"Lower"</span>, <span class="st">"Higher"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] Lower  Lower  Higher</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Levels: Lower Higher</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Fixed cut points retain infinite observations in the outer intervals</span></span></span>
+<span class="r-in"><span><span class="fu">fct_num</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="cn">Inf</span>, <span class="fl">50</span>, <span class="cn">Inf</span>, <span class="cn">NA</span><span class="op">)</span>, breaks <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] below_50 below_50 above_50 &lt;NA&gt;    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Levels: below_50 above_50</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># In mutate():</span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>

@@ -2,6 +2,12 @@
 
 ## UtilsR 0.6.8
 
+- [`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md)
+  documents and demonstrates reduced bin counts after quantile ties,
+  merged factor levels from repeated labels, and the handling of
+  infinite data in fixed-cut and automatic binning modes. These
+  behaviors are unchanged.
+
 - `fct_num(type = "equal")` computes plain numeric ranges without
   concatenating or filtering the full vector, reducing allocations while
   retaining cut points, missing values, and class-specific range

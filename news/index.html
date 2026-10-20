@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code>fct_num(type = "equal")</code> computes plain numeric ranges without concatenating or filtering the full vector, reducing allocations while retaining cut points, missing values, and class-specific range methods.</p></li>
+<ul><li><p><code><a href="../reference/fct_num.html">fct_num()</a></code> documents and demonstrates reduced bin counts after quantile ties, merged factor levels from repeated labels, and the handling of infinite data in fixed-cut and automatic binning modes. These behaviors are unchanged.</p></li>
+<li><p><code>fct_num(type = "equal")</code> computes plain numeric ranges without concatenating or filtering the full vector, reducing allocations while retaining cut points, missing values, and class-specific range methods.</p></li>
 <li><p><code><a href="../reference/fct_num.html">fct_num()</a></code> rejects time-span objects supplied as <code>nbins</code>, preventing their conversion to seconds from silently requesting a different number of bins. Valid numeric and <code>integer64</code> bin counts retain their existing behavior.</p></li>
 <li><p><code><a href="../reference/fct_num.html">fct_num()</a></code> documents that automatic fixed-cut labels follow numeric formatting options such as <code>scipen</code>, and shows explicit labels for stable factor levels.</p></li>
 <li><p><code><a href="../reference/fct_num.html">fct_num()</a></code> constructs fixed-cut interval labels in one vectorized operation, reducing overhead when many cut points are supplied while preserving labels and interval order.</p></li>
