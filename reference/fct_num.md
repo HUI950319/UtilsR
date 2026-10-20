@@ -23,9 +23,9 @@ fct_num(
 
 - breaks:
 
-  Numeric vector of cut points. E.g. `50` for binary, `c(20, 50)` for 3
-  groups. Mutually exclusive with `nbins`. Vectors with `integer64`
-  storage are not supported.
+  Numeric vector of finite, distinct cut points. E.g. `50` for binary,
+  `c(20, 50)` for 3 groups. Mutually exclusive with `nbins`. Vectors
+  with `integer64` storage are not supported.
 
 - labels:
 
