@@ -81,26 +81,19 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
     return(invisible(input_data))
   }
 
-  result_list <- list()
-
-  for (var_name in names(data)) {
-    var_data <- data[[var_name]]
-    missing_count <- sum(is.na(var_data))
-    special_count <- .count_special_values(var_data)
-
-    result_list[[var_name]] <- data.frame(
-      variable = var_name,
-      missing_count = missing_count,
-      missing_percentage = round((missing_count / n_total) * 100, 2),
-      special_count = special_count,
-      special_percentage = round((special_count / n_total) * 100, 2),
-      data_type = class(var_data)[1],
-      stringsAsFactors = FALSE
-    )
-  }
-
-  res_na <- do.call(rbind, result_list)
-  rownames(res_na) <- NULL
+  missing_count <- unlist(lapply(data, function(x) sum(is.na(x))),
+                          use.names = FALSE)
+  special_count <- unlist(lapply(data, .count_special_values), use.names = FALSE)
+  res_na <- data.frame(
+    variable = names(data),
+    missing_count = missing_count,
+    missing_percentage = round((missing_count / n_total) * 100, 2),
+    special_count = special_count,
+    special_percentage = round((special_count / n_total) * 100, 2),
+    data_type = vapply(data, function(x) class(x)[1L], character(1)),
+    stringsAsFactors = FALSE,
+    row.names = NULL
+  )
 
   res_na <- res_na %>%
     dplyr::mutate(

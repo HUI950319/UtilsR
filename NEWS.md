@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `check_na()` constructs its summary in one operation, reducing overhead on
+  wide datasets while preserving counts, ordering, formatting and table styles.
+
 * `check_na()` and `lv()` recognize whitespace-only blanks and markers with
   repeated spaces, tabs or newlines. Matching still runs on distinct values,
   counts each value once, and keeps actual `NA` values separate.
