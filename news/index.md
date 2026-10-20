@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md)
+  increases automatic label precision only when cut-point text collides,
+  preventing nearby numeric intervals from merging into one level.
+
+- [`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md)
   validates fixed cut points before sorting, rejecting missing,
   non-finite, duplicate, or non-numeric values instead of silently
   changing groups or assigning misleading labels.

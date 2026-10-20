@@ -30,7 +30,8 @@ fct_num(
 - labels:
 
   Character vector of group labels. If `NULL`, labels are auto-generated
-  (e.g. `"below_50"`, `"50-80"`, `"above_80"`).
+  (e.g. `"below_50"`, `"50-80"`, `"above_80"`). Additional digits
+  distinguish cut points whose usual text representations coincide.
 
 - nbins:
 
