@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/fct_num.html">fct_num()</a></code> rejects <code>Duration</code>, <code>Period</code>, and <code>Interval</code> data and cut points before using their numeric storage. Convert them to explicitly chosen numeric units first to avoid incorrect ranges or ignored time components.</p></li>
+<ul><li><p><code><a href="../reference/fct_num.html">fct_num()</a></code> rejects matrices and arrays instead of silently flattening multidimensional data into a factor vector.</p></li>
+<li><p><code><a href="../reference/fct_num.html">fct_num()</a></code> rejects <code>Duration</code>, <code>Period</code>, and <code>Interval</code> data and cut points before using their numeric storage. Convert them to explicitly chosen numeric units first to avoid incorrect ranges or ignored time components.</p></li>
 <li><p><code><a href="../reference/fct_num.html">fct_num()</a></code> rejects SPSS user-missing data and cut points with a message to normalize them first, preventing missing codes from entering valid groups or influencing automatic cut points.</p></li>
 <li><p><code><a href="../reference/fct_num.html">fct_num()</a></code> reuses integer bin codes for ordinary numeric data and unique text labels, reducing factor-construction allocations. Classed inputs and nonstandard labels retain the existing <code><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut()</a></code> path and group semantics.</p></li>
 <li><p><code><a href="../reference/fct_num.html">fct_num()</a></code> reports constant data explicitly in both automatic binning modes, without misleading zero-bin warnings or label-length errors. Fixed-cut behavior and right-closed group boundaries are unchanged.</p></li>

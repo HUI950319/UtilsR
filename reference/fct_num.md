@@ -19,8 +19,9 @@ fct_num(
 
 - x:
 
-  A numeric vector. Vectors with `integer64` storage are not supported.
-  SPSS user-missing vectors must first be normalized with
+  A numeric vector without dimensions; matrices and arrays are not
+  supported. Vectors with `integer64` storage are not supported. SPSS
+  user-missing vectors must first be normalized with
   [`haven::zap_missing()`](https://haven.tidyverse.org/reference/zap_missing.html).
   Time-span classes `Duration`, `Period`, and `Interval` are not
   supported; choose a time unit and convert to numeric values before

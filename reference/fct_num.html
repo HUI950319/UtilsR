@@ -72,7 +72,8 @@ mutate()). Supports fixed cut points or automatic binning."><meta property="og:i
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>A numeric vector. Vectors with <code>integer64</code> storage are not supported.
+<dd><p>A numeric vector without dimensions; matrices and arrays are not supported.
+Vectors with <code>integer64</code> storage are not supported.
 SPSS user-missing vectors must first be normalized with <code><a href="https://haven.tidyverse.org/reference/zap_missing.html" class="external-link">haven::zap_missing()</a></code>.
 Time-span classes <code>Duration</code>, <code>Period</code>, and <code>Interval</code> are not
 supported; choose a time unit and convert to numeric values before binning.</p></dd>
