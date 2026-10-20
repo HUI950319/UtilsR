@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `check_na()` displays small positive proportions as `<0.1%` in cells and
+  `<0.01%` in summaries, distinguishing them from exact zeros.
+
 * `check_na()` and `lv()` skip unused factor levels when matching special-value
   markers, preserving counts and the original factor levels.
 

@@ -447,3 +447,45 @@ test_that("inspection preserves factors with unused and missing levels", {
   expect_equal(as.numeric(tab$n_special), 2)
   expect_identical(data, before)
 })
+
+test_that("check_na distinguishes small positive percentages from zero", {
+  n <- 20000L
+  data <- data.frame(
+    missing_rare = c(NA, rep("ok", n - 1L)),
+    missing_near = c(rep(NA, 19L), rep("ok", n - 19L)),
+    missing_at = c(rep(NA, 20L), rep("ok", n - 20L)),
+    special_rare = c("Unknown", rep("ok", n - 1L)),
+    special_near = c(rep("Unknown", 19L), rep("ok", n - 19L)),
+    special_at = c(rep("Unknown", 20L), rep("ok", n - 20L)),
+    clean = rep("ok", n)
+  )
+  tab <- capture_gt_table(result <- check_na(data, show_all = TRUE))
+  missing <- stats::setNames(tab[["_data"]]$missing_combined, tab[["_data"]]$variable)
+  special <- stats::setNames(tab[["_data"]]$special_combined, tab[["_data"]]$variable)
+  expected <- c("1 (<0.1%)", "19 (<0.1%)", "20 (0.1%)", "0 (0.0%)")
+
+  expect_identical(unname(missing[c("missing_rare", "missing_near", "missing_at", "clean")]),
+                   expected)
+  expect_identical(unname(special[c("special_rare", "special_near", "special_at", "clean")]),
+                   expected)
+  expect_identical(result, data)
+  expect_true(grepl("1 (&lt;0.1%)", gt::as_raw_html(tab), fixed = TRUE))
+})
+
+test_that("check_na formats tiny summary proportions and their boundaries", {
+  n <- 100000L
+  for (marker in c(NA_character_, "Unknown")) {
+    kind <- if (is.na(marker)) "missing" else "special"
+    for (count in c(0L, 1L, 6L, 10L)) {
+      data <- data.frame(x = c(rep(marker, count), rep("ok", n - count)))
+      tab <- capture_gt_table(check_na(data, show_all = TRUE))
+      note <- paste(unlist(tab[["_source_notes"]]), collapse = " ")
+      pct <- if (count == 0L) "0.00%" else if (count < 10L) "<0.01%" else "0.01%"
+      expected <- sprintf("%d %s values (%s)", count, kind, pct)
+
+      expect_match(note, expected, fixed = TRUE)
+      expect_true(grepl(sub("<", "&lt;", expected, fixed = TRUE),
+                        gt::as_raw_html(tab), fixed = TRUE))
+    }
+  }
+})

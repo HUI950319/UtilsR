@@ -39,6 +39,9 @@
 #'   as whole numbers without a 32-bit integer limit.
 #'   Severity colors use unrounded percentages. Percentages are rounded only
 #'   for display, to one decimal place in cells and two in the summary.
+#'   Positive percentages below these display resolutions appear as
+#'   \code{<0.1\%} in cells and \code{<0.01\%} in the summary; zeros retain
+#'   their usual numeric format.
 #'   The subtitle counts variables containing issues; the summary counts
 #'   individual missing and special values across the selected columns.
 #'
@@ -112,10 +115,16 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
     row.names = NULL
   )
 
+  format_pct <- function(x, digits) {
+    fmt <- paste0("%.", digits, "f%%")
+    text <- sprintf(fmt, x)
+    text[x > 0 & x < 10^(-digits)] <- paste0("<", sprintf(fmt, 10^(-digits)))
+    text
+  }
   res_na <- res_na %>%
     dplyr::mutate(
-      missing_combined = sprintf("%.0f (%.1f%%)", missing_count, missing_percentage),
-      special_combined = sprintf("%.0f (%.1f%%)", special_count, special_percentage),
+      missing_combined = sprintf("%.0f (%s)", missing_count, format_pct(missing_percentage, 1L)),
+      special_combined = sprintf("%.0f (%s)", special_count, format_pct(special_percentage, 1L)),
       total_issues = missing_count + special_count
     )
 
@@ -263,9 +272,9 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
     gt_table <- gt_table %>%
       gt::tab_source_note(
         source_note = gt::md(sprintf(
-          "**Summary:** %.0f missing values (%.2f%%), %.0f special values (%.2f%%) out of %.0f total data points",
-          total_missing, overall_missing_pct,
-          total_special, overall_special_pct,
+          "**Summary:** %.0f missing values (%s), %.0f special values (%s) out of %.0f total data points",
+          total_missing, format_pct(overall_missing_pct, 2L),
+          total_special, format_pct(overall_special_pct, 2L),
           n_points
         ))
       )
