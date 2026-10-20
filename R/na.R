@@ -8,14 +8,16 @@
 #' for each variable. Outputs a styled \code{gt} table with conditional
 #' formatting based on severity.
 #'
-#' @param data A data.frame.
+#' @param data A data.frame with unique, non-empty column names. Selected
+#'   columns must be one-dimensional. Grouped inputs are inspected across all
+#'   rows, preserving the grouping in the returned input.
 #' @param ... Variable selection using \code{dplyr::select} syntax. Omit to
 #'   inspect all columns. Renaming changes only the displayed variable names.
 #' @param pattern Optional regex pattern for matching variable names. Takes
 #'   precedence over \code{...}. An unmatched pattern or selection inspects no
 #'   columns and returns the input with an informational message.
-#' @param show_all Logical. If \code{FALSE} (default), only variables with
-#'   issues are shown.
+#' @param show_all A single non-missing logical. If \code{FALSE} (default),
+#'   only variables with issues are shown.
 #'
 #' @return Invisibly returns the complete input data unchanged, including
 #'   columns that were not selected for inspection.
@@ -42,6 +44,13 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
   if (!is.data.frame(data)) {
     cli::cli_abort("{.arg data} must be a data.frame, not {.cls {class(data)}}.")
   }
+  if (!is.logical(show_all) || length(show_all) != 1L || is.na(show_all)) {
+    cli::cli_abort("{.arg show_all} must be a single non-missing logical.")
+  }
+  if (anyNA(names(data)) || any(!nzchar(names(data))) ||
+      anyDuplicated(names(data)) > 0L) {
+    cli::cli_abort("{.arg data} must have unique, non-empty column names.")
+  }
   input_data <- data
 
   # Variable selection
@@ -53,6 +62,13 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
   if (ncol(data) == 0L) {
     .cat_line("No variables selected for data quality analysis.", type = "info")
     return(invisible(input_data))
+  }
+  unsupported <- vapply(data, function(x) !is.null(dim(x)), logical(1))
+  if (any(unsupported)) {
+    cli::cli_abort(c(
+      "Selected columns must be one-dimensional.",
+      "x" = "Unsupported columns: {.val {names(data)[unsupported]}}."
+    ))
   }
 
   n_total <- nrow(data)

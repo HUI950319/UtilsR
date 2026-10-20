@@ -108,3 +108,26 @@ test_that("check_na returns empty inputs without constructing percentages", {
     }
   }
 })
+
+test_that("check_na rejects ambiguous column names before pattern selection", {
+  data <- data.frame(a = c(1, NA), b = c("ok", "Unknown"))
+  for (bad_names in list(c("x", "x"), c("x", ""), c("x", NA_character_))) {
+    names(data) <- bad_names
+    expect_error(capture_gt_data(check_na(data, pattern = ".")),
+                 "unique, non-empty column names")
+  }
+})
+
+test_that("check_na rejects multidimensional selected columns", {
+  data <- data.frame(good = c(1, NA), matrix = I(matrix(NA_real_, 2, 2)))
+  expect_error(capture_gt_data(check_na(data, show_all = TRUE)), "one-dimensional")
+  seen <- capture_gt_data(check_na(data, good))
+  expect_identical(seen[[1L]]$missing_combined, "1 (50.0%)")
+})
+
+test_that("check_na validates show_all as a non-missing logical scalar", {
+  for (value in list(NA, NULL, c(TRUE, FALSE), 1)) {
+    expect_error(check_na(data.frame(x = 1), show_all = value),
+                 "single non-missing logical")
+  }
+})

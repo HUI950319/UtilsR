@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `check_na()` rejects ambiguous column names, multidimensional selected
+  columns, and invalid `show_all` values with informative errors, preventing
+  duplicated counts and missingness percentages above 100% for matrix columns.
+
 * `check_na()` returns empty inputs unchanged with an informational message,
   avoiding undefined percentages and empty-table errors.
 
