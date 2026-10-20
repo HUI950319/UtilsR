@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `check_size()` validates object names, indices and regular expressions,
+  deduplicates selections, and never expands unmatched selections or searches
+  parent environments for missing objects.
+
 * `check_size()` renders its size bars directly in HTML, avoiding per-object
   plots and temporary SVG files while handling zero-sized objects.
 

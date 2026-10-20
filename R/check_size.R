@@ -7,9 +7,13 @@
 #' Check memory usage of objects in \code{.GlobalEnv}. Outputs a styled
 #' \code{gt} table with bar chart and color gradient.
 #'
-#' @param ... Object names (character strings) or numeric indices. If empty,
-#'   all objects are analyzed.
-#' @param pattern Optional regex pattern for matching object names.
+#' @param ... Object names (character vectors) or plain numeric vectors of
+#'   finite, positive integer indices into the alphabetically sorted names in
+#'   \code{.GlobalEnv}, including hidden names. With no arguments, all objects
+#'   are analyzed. Duplicate names are inspected once. Missing names are
+#'   skipped with a warning; empty selections do not select all objects.
+#' @param pattern Optional single, non-missing regular expression for matching
+#'   object names. Takes precedence over \code{...}; no matches select no objects.
 #'
 #' @return A \code{gt} table object.
 #'
@@ -28,7 +32,14 @@ check_size <- function(..., pattern = NULL) {
   all_objects <- ls(envir = .GlobalEnv, all.names = TRUE)
 
   if (!is.null(pattern)) {
-    objects <- all_objects[grepl(pattern, all_objects)]
+    if (!is.character(pattern) || length(pattern) != 1L || is.na(pattern)) {
+      stop("`pattern` must be a single, non-missing character string.", call. = FALSE)
+    }
+    matched <- tryCatch(suppressWarnings(grepl(pattern, all_objects)),
+                        error = function(e) {
+                          stop("Invalid `pattern`: ", conditionMessage(e), call. = FALSE)
+                        })
+    objects <- all_objects[matched]
   } else {
     selected_objects <- list(...)
     if (length(selected_objects) == 0) {
@@ -36,26 +47,34 @@ check_size <- function(..., pattern = NULL) {
     } else {
       objects <- character(0)
       for (obj in selected_objects) {
+        if (is.object(obj) || !is.null(dim(obj))) {
+          stop("Object names and indices must be plain vectors.", call. = FALSE)
+        }
         if (is.character(obj)) {
+          if (anyNA(obj) || any(!nzchar(obj))) {
+            stop("Object names must be non-missing, non-empty strings.", call. = FALSE)
+          }
           objects <- c(objects, obj)
-        } else if (is.numeric(obj)) {
-          valid_indices <- obj[obj >= 1 & obj <= length(all_objects)]
-          objects <- c(objects, all_objects[valid_indices])
+        } else if (typeof(obj) %in% c("integer", "double")) {
+          if (any(!is.finite(obj)) || any(obj != trunc(obj)) ||
+              any(obj < 1 | obj > length(all_objects))) {
+            stop("Object indices must be finite integers within the available names.",
+                 call. = FALSE)
+          }
+          objects <- c(objects, all_objects[as.integer(obj)])
+        } else {
+          stop("Object names must be character vectors or numeric indices.", call. = FALSE)
         }
       }
     }
   }
 
-  if (length(objects) == 0) {
-    if (!is.null(pattern)) {
-      .cat_line(
-        sprintf("\u672a\u627e\u5230\u5339\u914d\u6a21\u5f0f: %s, \u5c06\u5206\u6790\u6240\u6709\u5bf9\u8c61",
-                pattern),
-        type = "error"
-      )
-    }
-    .cat_line("Analysis all objects in the environment", type = "warning")
-    objects <- all_objects
+  objects <- unique(objects)
+  found <- vapply(objects, exists, logical(1), envir = .GlobalEnv, inherits = FALSE)
+  if (any(!found)) {
+    warning("Objects not found in `.GlobalEnv`: ", paste(objects[!found], collapse = ", "),
+            call. = FALSE)
+    objects <- objects[found]
   }
 
   if (length(objects) == 0) {
@@ -66,7 +85,7 @@ check_size <- function(..., pattern = NULL) {
 
   object_sizes <- pbapply::pblapply(objects, function(x) {
     tryCatch({
-      utils::object.size(get(x, envir = .GlobalEnv)) / (1024^2)
+      utils::object.size(get(x, envir = .GlobalEnv, inherits = FALSE)) / (1024^2)
     }, error = function(e) {
       NA_real_
     })
@@ -74,7 +93,7 @@ check_size <- function(..., pattern = NULL) {
 
   object_classes <- pbapply::pblapply(objects, function(x) {
     tryCatch({
-      obj <- get(x, envir = .GlobalEnv)
+      obj <- get(x, envir = .GlobalEnv, inherits = FALSE)
       paste(class(obj), collapse = ", ")
     }, error = function(e) {
       "Unknown"
