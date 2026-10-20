@@ -171,7 +171,11 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
       cli::cli_warn("Ties in quantiles reduced {nbins} bins to {n_groups}.")
     }
   } else {
-    rng <- if (plain_x) range(x, na.rm = has_na) else range(x, na.rm = TRUE)
+    rng <- if (plain_x) {
+      c(min(x, na.rm = has_na), max(x, na.rm = has_na))
+    } else {
+      range(x, na.rm = TRUE)
+    }
     if (rng[1] == rng[2]) {
       cli::cli_abort("Cannot split constant {.arg x} into multiple groups.")
     }

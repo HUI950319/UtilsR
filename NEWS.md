@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fct_num(type = "equal")` computes plain numeric ranges without concatenating
+  or filtering the full vector, reducing allocations while retaining cut points,
+  missing values, and class-specific range methods.
+
 * `fct_num()` rejects time-span objects supplied as `nbins`, preventing their
   conversion to seconds from silently requesting a different number of bins.
   Valid numeric and `integer64` bin counts retain their existing behavior.

@@ -135,6 +135,21 @@ test_that("equal-width binning diagnoses insufficient numeric precision", {
   }
 })
 
+test_that("equal-width ranges retain endpoints and class-specific methods", {
+  x <- c(-4, -2, 0, 2, 4, NA, NaN)
+  expect_identical(as.integer(fct_num(x, nbins = 4, type = "equal")),
+                   c(1L, 1L, 2L, 3L, 4L, NA_integer_, NA_integer_))
+  methods <- get(".__S3MethodsTable__.", envir = asNamespace("base"))
+  rlang::local_bindings(range.fct_num_test_range = function(..., na.rm = FALSE) {
+    c(-10, 20)
+  }, .env = methods)
+  x <- structure(c(1, 5.25, 10, NA), class = "fct_num_test_range")
+  expect_identical(as.integer(fct_num(x, nbins = 2, type = "equal")),
+                   c(1L, 2L, 2L, NA_integer_))
+  expect_identical(as.integer(fct_num(as.numeric(x), nbins = 2, type = "equal")),
+                   c(1L, 1L, 2L, NA_integer_))
+})
+
 test_that("numeric binning retains missing-data and classed-vector behavior", {
   for (x in list(numeric(), NA_real_, c(NA_real_, NaN))) {
     expect_error(fct_num(x, breaks = 2), "all NA")
