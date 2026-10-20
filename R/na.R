@@ -20,6 +20,9 @@
 #' @return Invisibly returns the complete input data unchanged, including
 #'   columns that were not selected for inspection.
 #'
+#' @details Inputs with zero rows or zero columns return unchanged with an
+#'   informational message and no table.
+#'
 #' @examples
 #' \donttest{
 #' # Analyze all variables
@@ -53,6 +56,10 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
   }
 
   n_total <- nrow(data)
+  if (n_total == 0L) {
+    .cat_line("No observations available for data quality analysis.", type = "info")
+    return(invisible(input_data))
+  }
 
   result_list <- list()
 

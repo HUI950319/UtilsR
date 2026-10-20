@@ -28,6 +28,10 @@ Analyze missing values and special values (e.g. "unknown", "blank", "n/a")
 for each variable. Outputs a styled \code{gt} table with conditional
 formatting based on severity.
 }
+\details{
+Inputs with zero rows or zero columns return unchanged with an
+informational message and no table.
+}
 \examples{
 \donttest{
 # Analyze all variables

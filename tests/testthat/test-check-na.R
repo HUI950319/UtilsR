@@ -95,3 +95,16 @@ test_that("check_na selects grouped inputs across all rows", {
   expect_identical(selected[[1L]]$missing_combined, "1 (50.0%)")
   expect_identical(result, data)
 })
+
+test_that("check_na returns empty inputs without constructing percentages", {
+  inputs <- list(data.frame(x = numeric()), data.frame(row.names = 1:2),
+                 data.frame())
+  for (data in inputs) {
+    for (show_all in c(FALSE, TRUE)) {
+      seen <- capture_gt_data(result <- withVisible(check_na(data, show_all = show_all)))
+      expect_identical(result$value, data)
+      expect_false(result$visible)
+      expect_length(seen, 0L)
+    }
+  }
+})
