@@ -15,7 +15,8 @@
 #' @param pattern Optional single, non-missing regular expression for matching
 #'   object names. Takes precedence over \code{...}; no matches select no objects.
 #'
-#' @return A \code{gt} table object.
+#' @return A \code{gt} table object, including a zero-row table when no objects
+#'   can be inspected. Objects that fail to load are skipped with a warning.
 #'
 #' @examples
 #' \dontrun{
@@ -78,9 +79,7 @@ check_size <- function(..., pattern = NULL) {
   }
 
   if (length(objects) == 0) {
-    .cat_line("No objects found in the environment.", type = "error")
-    return(data.frame(Object = character(), Class = character(),
-                      Size = numeric(), stringsAsFactors = FALSE))
+    .cat_line("No objects selected in the global environment.", type = "info")
   }
 
   object_sizes <- pbapply::pblapply(objects, function(x) {
@@ -102,22 +101,25 @@ check_size <- function(..., pattern = NULL) {
 
   object_info <- data.frame(
     Object = objects,
-    Class = unlist(object_classes),
-    Size = unlist(object_sizes),
+    Class = as.character(unlist(object_classes)),
+    Size = as.numeric(unlist(object_sizes)),
     stringsAsFactors = FALSE
   )
 
+  failed <- is.na(object_info$Size)
+  if (any(failed)) {
+    warning("Could not inspect objects: ", paste(object_info$Object[failed], collapse = ", "),
+            call. = FALSE)
+  }
   object_info <- object_info %>%
     dplyr::filter(!is.na(Size)) %>%
-    dplyr::arrange(dplyr::desc(Size)) %>%
-    {
-      if (nrow(.) > 0) {
-        tibble::add_row(., Object = "**TOTAL**", Class = "Summary",
-                        Size = sum(.$Size, na.rm = TRUE), .before = 1)
-      } else {
-        .
-      }
-    }
+    dplyr::arrange(dplyr::desc(Size))
+  object_count <- nrow(object_info)
+  total_mb <- sum(object_info$Size)
+  if (object_count > 0) {
+    object_info <- tibble::add_row(object_info, Object = "**TOTAL**", Class = "Summary",
+                                   Size = total_mb, .before = 1)
+  }
 
   # Format size with auto unit (KB / MB / GB)
   object_info <- object_info %>%
@@ -133,7 +135,6 @@ check_size <- function(..., pattern = NULL) {
     )
 
   # Total size string
-  total_mb <- sum(object_info$Size[object_info$Object != "**TOTAL**"], na.rm = TRUE)
   total_str <- if (total_mb >= 1024) sprintf("%.2f GB", total_mb / 1024) else sprintf("%.2f MB", total_mb)
 
   # Render simple bars directly in HTML, including an all-zero column.
@@ -164,7 +165,7 @@ check_size <- function(..., pattern = NULL) {
       title = gt::md("**Object Size Analysis**"),
       subtitle = gt::md(sprintf(
         "Total objects: %d | Total size: %s",
-        nrow(object_info) - 1,
+        object_count,
         total_str
       ))
     ) %>%

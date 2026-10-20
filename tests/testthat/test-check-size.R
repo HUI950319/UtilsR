@@ -69,3 +69,42 @@ test_that("check_size deduplicates names and never inherits objects", {
     expect_identical(result[["_data"]][["Object"]], c("**TOTAL**", nms))
   })
 })
+
+test_that("check_size returns a renderable empty gt table for no matches", {
+  invisible(capture.output(result <- check_size(pattern = "^no_size_match$")))
+  expect_s3_class(result, "gt_tbl")
+  expect_named(result[["_data"]], c("Object", "Class", "Size", "Size_fmt", "Size_bar"))
+  expect_equal(nrow(result[["_data"]]), 0L)
+  expect_match(result[["_heading"]][["subtitle"]], "Total objects: 0", fixed = TRUE)
+  expect_no_error(gt::as_raw_html(result))
+})
+
+test_that("check_size reports read failures without losing readable objects", {
+  with_size_objects(list(ok = raw(16), bad = 1), function(nms) {
+    rm(list = nms[[2]], envir = .GlobalEnv)
+    makeActiveBinding(nms[[2]], function(value) stop("unreadable fixture"), .GlobalEnv)
+    expect_warning(result <- check_size(nms), "Could not inspect.*bad")
+    expect_identical(result[["_data"]][["Object"]], c("**TOTAL**", nms[[1]]))
+    invisible(capture.output(expect_warning(empty <- check_size(nms[[2]]),
+                                           "Could not inspect.*bad")))
+    expect_s3_class(empty, "gt_tbl")
+    expect_equal(nrow(empty[["_data"]]), 0L)
+    expect_match(empty[["_heading"]][["subtitle"]], "Total objects: 0", fixed = TRUE)
+  })
+})
+
+test_that("check_size handles a truly empty global environment", {
+  fn_file <- tempfile(fileext = ".rds")
+  script <- tempfile(fileext = ".R")
+  on.exit(unlink(c(fn_file, script)), add = TRUE)
+  saveRDS(check_size, fn_file)
+  writeLines(c("local({", "f <- readRDS(commandArgs(trailingOnly = TRUE)[[1L]])",
+               "stopifnot(length(ls(envir = .GlobalEnv, all.names = TRUE)) == 0L)",
+               "out <- f()", "stopifnot(inherits(out, 'gt_tbl'))",
+               "stopifnot(nrow(out[['_data']]) == 0L)",
+               "invisible(gt::as_raw_html(out))", "})"), script)
+  rscript <- file.path(R.home("bin"), if (.Platform[["OS.type"]] == "windows") "Rscript.exe" else "Rscript")
+  output <- system2(rscript, c("--vanilla", shQuote(script), shQuote(fn_file)),
+                    stdout = TRUE, stderr = TRUE)
+  expect_null(attr(output, "status"), info = paste(output, collapse = "\n"))
+})

@@ -17,7 +17,8 @@ skipped with a warning; empty selections do not select all objects.}
 object names. Takes precedence over \code{...}; no matches select no objects.}
 }
 \value{
-A \code{gt} table object.
+A \code{gt} table object, including a zero-row table when no objects
+can be inspected. Objects that fail to load are skipped with a warning.
 }
 \description{
 Check memory usage of objects in \code{.GlobalEnv}. Outputs a styled

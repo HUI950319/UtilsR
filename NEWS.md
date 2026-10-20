@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `check_size()` consistently returns a renderable gt table for empty selections,
+  reports unreadable objects, and counts only successfully inspected objects.
+
 * `check_na()` validates `pattern` as `NULL` or one non-missing character string,
   with clear errors for invalid inputs. Empty patterns still match all columns.
 
