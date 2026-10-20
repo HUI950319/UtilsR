@@ -34,6 +34,8 @@
 #'   values.
 #'   Severity colors use unrounded percentages. Percentages are rounded only
 #'   for display, to one decimal place in cells and two in the summary.
+#'   The subtitle counts variables containing issues; the summary counts
+#'   individual missing and special values across the selected columns.
 #'
 #' @examples
 #' \donttest{
@@ -135,7 +137,9 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
     gt::tab_header(
       title = gt::md("**Missing & Special Value Analysis**"),
       subtitle = gt::md(sprintf(
-        "Dataset: *%d* observations, *%d* variables, *%d* missing, *%d* Unknown/Blank/N/A",
+        paste0("Dataset: *%d* observations, *%d* variables, ",
+               "*%d* variables with missing values, ",
+               "*%d* variables with special values"),
         n_total, ncol(data), total_missing_vars, total_special_vars
       ))
     ) %>%

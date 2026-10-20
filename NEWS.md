@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `check_na()` labels affected-variable counts explicitly in its subtitle,
+  distinguishing them from the individual-value counts in the summary.
+
 * `check_size()` consistently returns a renderable gt table for empty selections,
   reports unreadable objects, and counts only successfully inspected objects.
 

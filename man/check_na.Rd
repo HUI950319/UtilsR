@@ -43,6 +43,8 @@ Inputs with zero rows or zero columns return unchanged with an
   values.
   Severity colors use unrounded percentages. Percentages are rounded only
   for display, to one decimal place in cells and two in the summary.
+  The subtitle counts variables containing issues; the summary counts
+  individual missing and special values across the selected columns.
 }
 \examples{
 \donttest{

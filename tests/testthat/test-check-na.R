@@ -289,3 +289,18 @@ test_that("check_na retains empty patterns and pattern precedence", {
   expect_identical(selected[[1L]]$variable, "b")
   expect_identical(result, data)
 })
+
+test_that("check_na distinguishes affected variables from missing cells", {
+  data <- data.frame(missing = c(NA, NA, 3, 4),
+                     special = c("Unknown", "Unknown", "ok", "ok"),
+                     complete = 1:4)
+  tab <- capture_gt_table(check_na(data))
+  subtitle <- as.character(tab[["_heading"]][["subtitle"]])
+
+  expect_match(subtitle, "*4* observations, *3* variables", fixed = TRUE)
+  expect_match(subtitle, "*1* variables with missing values", fixed = TRUE)
+  expect_match(subtitle, "*1* variables with special values", fixed = TRUE)
+  html <- gt::as_raw_html(tab)
+  expect_match(html, "2 missing values (16.67%)", fixed = TRUE)
+  expect_match(html, "2 special values (16.67%)", fixed = TRUE)
+})
