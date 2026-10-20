@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
+  documents the limits of summed object-size estimates and the
+  evaluation of active bindings and promises, with self-contained
+  examples.
+
+- [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
   colors the visible size cells and uses consistent byte-to-GB labels in
   both the table and subtitle, keeping tiny objects distinct from zero.
 
