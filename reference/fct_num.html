@@ -90,7 +90,8 @@ Time-span classes must be converted to numeric cut points in the same unit as <c
 <dt id="arg-labels">labels<a class="anchor" aria-label="anchor" href="#arg-labels"></a></dt>
 <dd><p>Character vector of group labels. If <code>NULL</code>, labels
 are auto-generated (e.g. <code>"below_50"</code>, <code>"50-80"</code>, <code>"above_80"</code>).
-Additional digits distinguish cut points whose usual text representations coincide.</p></dd>
+Additional digits distinguish cut points whose usual text representations coincide.
+Logical labels, including <code>FALSE</code>, are not supported; the result is always a factor.</p></dd>
 
 
 <dt id="arg-nbins">nbins<a class="anchor" aria-label="anchor" href="#arg-nbins"></a></dt>

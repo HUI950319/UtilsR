@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md)
+  rejects logical labels before computing cut points, so
+  `labels = FALSE` cannot return integer codes when quantile ties leave
+  one group.
+
+- [`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md)
   rejects matrices and arrays instead of silently flattening
   multidimensional data into a factor vector.
 
