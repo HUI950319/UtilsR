@@ -48,12 +48,13 @@
 #' @family inspect
 check_size <- function(..., pattern = NULL) {
 
-  all_objects <- ls(envir = .GlobalEnv, all.names = TRUE)
+  all_objects <- NULL
 
   if (!is.null(pattern)) {
     if (!is.character(pattern) || length(pattern) != 1L || is.na(pattern)) {
       stop("`pattern` must be a single, non-missing character string.", call. = FALSE)
     }
+    all_objects <- ls(envir = .GlobalEnv, all.names = TRUE)
     matched <- tryCatch(suppressWarnings(grepl(pattern, all_objects)),
                         error = function(e) {
                           stop("Invalid `pattern`: ", conditionMessage(e), call. = FALSE)
@@ -62,7 +63,7 @@ check_size <- function(..., pattern = NULL) {
   } else {
     selected_objects <- list(...)
     if (length(selected_objects) == 0) {
-      objects <- all_objects
+      objects <- ls(envir = .GlobalEnv, all.names = TRUE)
     } else {
       objects <- character(0)
       for (obj in selected_objects) {
@@ -75,6 +76,9 @@ check_size <- function(..., pattern = NULL) {
           }
           objects <- c(objects, obj)
         } else if (typeof(obj) %in% c("integer", "double")) {
+          if (is.null(all_objects)) {
+            all_objects <- ls(envir = .GlobalEnv, all.names = TRUE)
+          }
           if (any(!is.finite(obj)) || any(obj != trunc(obj)) ||
               any(obj < 1 | obj > length(all_objects))) {
             stop("Object indices must be finite integers within the available names.",

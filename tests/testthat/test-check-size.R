@@ -214,3 +214,26 @@ test_that("check_size distinguishes a TOTAL-named object from the summary", {
     expect_match(cells[[3L]], "background-color: #FFFFFF", fixed = TRUE)
   })
 })
+
+test_that("check_size enumerates global names only when selection needs them", {
+  with_size_objects(list(a = raw(16), b = raw(64)), function(nms) {
+    enumerations <- 0L
+    lookup <- new.env(parent = environment(check_size))
+    lookup[["ls"]] <- function(...) {
+      enumerations <<- enumerations + 1L
+      base::ls(...)
+    }
+    inspect <- check_size
+    environment(inspect) <- lookup
+    result <- inspect(nms, nms[[1L]])
+    expect_identical(enumerations, 0L)
+    expect_identical(result[["_data"]][["Object"]], c("**TOTAL**", rev(nms)))
+    indices <- match(nms, ls(envir = .GlobalEnv, all.names = TRUE))
+    mixed <- inspect(nms, indices, indices)
+    expect_identical(enumerations, 1L)
+    expect_identical(mixed[["_data"]], result[["_data"]])
+    patterned <- inspect(stop("pattern must take precedence"),
+                         pattern = "^\\.check_size_test_[ab]$")
+    expect_identical(patterned[["_data"]], result[["_data"]])
+  })
+})
