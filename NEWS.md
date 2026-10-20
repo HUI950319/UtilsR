@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fct_num(type = "equal")` reports when numeric precision produces repeated
+  cut points, with guidance to reduce the bin count or supply explicit cut points.
+  It does not merge bins or move their boundaries.
+
 * `fct_num()` rejects logical labels before computing cut points, so
   `labels = FALSE` cannot return integer codes when quantile ties leave one group.
 

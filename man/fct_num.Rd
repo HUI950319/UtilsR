@@ -35,7 +35,8 @@ Logical labels, including \code{FALSE}, are not supported; the result is always 
 
 \item{type}{Binning method when using \code{nbins}: \code{"quantile"}
 (default) or \code{"equal"} width. Constant non-missing data cannot be
-automatically split into multiple groups and produce an error.}
+automatically split into multiple groups and produce an error.
+Equal-width binning also errors when numeric precision cannot represent distinct cut points.}
 }
 \value{
 A factor.

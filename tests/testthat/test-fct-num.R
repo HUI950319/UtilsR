@@ -102,6 +102,17 @@ test_that("automatic binning reports constant data before constructing groups", 
                    factor(c("low", "low", "low", "high"), levels = c("low", "high")))
 })
 
+test_that("equal-width binning diagnoses insufficient numeric precision", {
+  for (x in list(c(1, 1 + .Machine$double.eps),
+                 c(-1, -1 + .Machine$double.eps),
+                 c(1e12, 1e12 + 0.0001220703125))) {
+    expect_error(fct_num(x, nbins = 4, type = "equal"), "numeric precision")
+    expect_error(fct_num(x, nbins = 4, type = "equal", labels = letters[1:4]),
+                 "numeric precision")
+    expect_identical(as.integer(fct_num(x, breaks = x[1])), 1:2)
+  }
+})
+
 test_that("logical labels cannot switch numeric binning to integer codes", {
   expect_error(fct_num(c(1, 1, 1, 2), nbins = 2, labels = FALSE), "labels.*logical")
   for (labels in list(FALSE, TRUE, NA, logical(), c(TRUE, FALSE))) {

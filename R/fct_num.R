@@ -34,6 +34,7 @@
 #' @param type Binning method when using \code{nbins}: \code{"quantile"}
 #'   (default) or \code{"equal"} width. Constant non-missing data cannot be
 #'   automatically split into multiple groups and produce an error.
+#'   Equal-width binning also errors when numeric precision cannot represent distinct cut points.
 #'
 #' @details Intervals are right-closed: each cut point belongs to the lower
 #'   group. The lowest endpoint is included. Thus \code{"below_50"} includes 50.
@@ -158,6 +159,9 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
       cli::cli_abort("Cannot split constant {.arg x} into multiple groups.")
     }
     bin_breaks <- seq(rng[1], rng[2], length.out = nbins + 1L)
+    if (anyDuplicated(bin_breaks)) {
+      cli::cli_abort("Cannot create {nbins} equal-width bins at the numeric precision of {.arg x}. Reduce {.arg nbins} or use explicit {.arg breaks}.")
+    }
     n_groups <- nbins
   }
 
