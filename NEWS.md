@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fct_num()` rejects `Duration`, `Period`, and `Interval` data and cut points
+  before using their numeric storage. Convert them to explicitly chosen numeric
+  units first to avoid incorrect ranges or ignored time components.
+
 * `fct_num()` rejects SPSS user-missing data and cut points with a message
   to normalize them first, preventing missing codes from entering valid groups
   or influencing automatic cut points.

@@ -17,10 +17,13 @@
 #'
 #' @param x A numeric vector. Vectors with \code{integer64} storage are not supported.
 #'   SPSS user-missing vectors must first be normalized with \code{haven::zap_missing()}.
+#'   Time-span classes \code{Duration}, \code{Period}, and \code{Interval} are not
+#'   supported; choose a time unit and convert to numeric values before binning.
 #' @param breaks Numeric vector of finite, distinct cut points. E.g. \code{50} for binary,
 #'   \code{c(20, 50)} for 3 groups. Mutually exclusive with \code{nbins}.
 #'   Vectors with \code{integer64} storage are not supported.
 #'   SPSS user-missing vectors must first be normalized with \code{haven::zap_missing()}.
+#'   Time-span classes must be converted to numeric cut points in the same unit as \code{x}.
 #' @param labels Character vector of group labels. If \code{NULL}, labels
 #'   are auto-generated (e.g. \code{"below_50"}, \code{"50-80"}, \code{"above_80"}).
 #'   Additional digits distinguish cut points whose usual text representations coincide.
@@ -68,6 +71,9 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
   if (inherits(x, "haven_labelled_spss")) {
     cli::cli_abort("{.arg x} with {.cls haven_labelled_spss} storage is not supported. Use {.code haven::zap_missing()} first.")
   }
+  if (inherits(x, c("Duration", "Period", "Interval"))) {
+    cli::cli_abort("{.arg x} with a time-span class is not supported. Choose a time unit and convert to numeric values first.")
+  }
   if (all(is.na(x))) {
     cli::cli_abort("{.arg x} is all NA.")
   }
@@ -88,6 +94,9 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
     }
     if (inherits(breaks, "haven_labelled_spss")) {
       cli::cli_abort("{.arg breaks} with {.cls haven_labelled_spss} storage is not supported. Use {.code haven::zap_missing()} first.")
+    }
+    if (inherits(breaks, c("Duration", "Period", "Interval"))) {
+      cli::cli_abort("{.arg breaks} with a time-span class is not supported. Convert to numeric values in the same unit as {.arg x} first.")
     }
     if (length(breaks) == 0) {
       cli::cli_abort("{.arg breaks} must have at least one value.")

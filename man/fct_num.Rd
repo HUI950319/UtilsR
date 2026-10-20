@@ -14,12 +14,15 @@ fct_num(
 }
 \arguments{
 \item{x}{A numeric vector. Vectors with \code{integer64} storage are not supported.
-SPSS user-missing vectors must first be normalized with \code{haven::zap_missing()}.}
+SPSS user-missing vectors must first be normalized with \code{haven::zap_missing()}.
+Time-span classes \code{Duration}, \code{Period}, and \code{Interval} are not
+supported; choose a time unit and convert to numeric values before binning.}
 
 \item{breaks}{Numeric vector of finite, distinct cut points. E.g. \code{50} for binary,
 \code{c(20, 50)} for 3 groups. Mutually exclusive with \code{nbins}.
 Vectors with \code{integer64} storage are not supported.
-SPSS user-missing vectors must first be normalized with \code{haven::zap_missing()}.}
+SPSS user-missing vectors must first be normalized with \code{haven::zap_missing()}.
+Time-span classes must be converted to numeric cut points in the same unit as \code{x}.}
 
 \item{labels}{Character vector of group labels. If \code{NULL}, labels
 are auto-generated (e.g. \code{"below_50"}, \code{"50-80"}, \code{"above_80"}).

@@ -17,6 +17,17 @@ test_that("numeric binning rejects SPSS user-missing storage", {
   expect_error(fct_num(1:4, breaks = x[1]), "breaks.*haven_labelled_spss")
 })
 
+test_that("numeric binning rejects time-span classes before using numeric storage", {
+  for (cls in c("Duration", "Period", "Interval")) {
+    x <- structure(c(60, 120, 180), class = cls)
+    expect_error(fct_num(x, breaks = 120), "x.*time-span")
+    expect_error(fct_num(x, nbins = 2), "x.*time-span")
+    expect_error(fct_num(x, nbins = 2, type = "equal"), "x.*time-span")
+    expect_error(fct_num(c(60, 120, 180), breaks = structure(120, class = cls)),
+                 "breaks.*time-span")
+  }
+})
+
 test_that("numeric binning retains right-closed boundaries and missing values", {
   x <- c(-Inf, 49, 50, 51, Inf, NA, NaN)
   expect_identical(fct_num(x, breaks = 50),
