@@ -43,3 +43,16 @@ test_that("automatic labels keep nearby cut points in separate groups", {
   expect_identical(levels(fct_num(1:10, breaks = c(2.5, 7.5))),
                    c("below_2.5", "2.5-7.5", "above_7.5"))
 })
+
+test_that("automatic bin counts are validated before integer conversion", {
+  for (nbins in list(2.9, "3", factor("3", levels = c("2", "3")),
+                    integer(), c(2, 3), NA_real_, NaN, Inf, -Inf, 1, 0, -2,
+                    TRUE, list(3), 2 + 1i, matrix(3), .Machine$integer.max, 1e20)) {
+    expect_no_warning(expect_error(fct_num(1:10, nbins = nbins),
+                                   "nbins.*single finite integer"))
+  }
+  expect_identical(fct_num(1:6, nbins = 3),
+                   factor(c("low", "low", "middle", "middle", "high", "high"),
+                          levels = c("low", "middle", "high")))
+  expect_identical(fct_num(1:6, nbins = 3), fct_num(1:6, nbins = 3L))
+})

@@ -23,8 +23,8 @@ Vectors with \code{integer64} storage are not supported.}
 are auto-generated (e.g. \code{"below_50"}, \code{"50-80"}, \code{"above_80"}).
 Additional digits distinguish cut points whose usual text representations coincide.}
 
-\item{nbins}{Integer number of bins for automatic binning. Mutually
-exclusive with \code{breaks}.}
+\item{nbins}{Single finite integer number of bins, at least 2 and less than
+\code{.Machine$integer.max}. Mutually exclusive with \code{breaks}.}
 
 \item{type}{Binning method when using \code{nbins}: \code{"quantile"}
 (default) or \code{"equal"} width.}

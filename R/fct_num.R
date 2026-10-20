@@ -21,8 +21,8 @@
 #' @param labels Character vector of group labels. If \code{NULL}, labels
 #'   are auto-generated (e.g. \code{"below_50"}, \code{"50-80"}, \code{"above_80"}).
 #'   Additional digits distinguish cut points whose usual text representations coincide.
-#' @param nbins Integer number of bins for automatic binning. Mutually
-#'   exclusive with \code{breaks}.
+#' @param nbins Single finite integer number of bins, at least 2 and less than
+#'   \code{.Machine$integer.max}. Mutually exclusive with \code{breaks}.
 #' @param type Binning method when using \code{nbins}: \code{"quantile"}
 #'   (default) or \code{"equal"} width.
 #'
@@ -103,10 +103,12 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
   }
 
   # --- Mode 2: automatic binning ---
-  if (!is.integer(nbins)) nbins <- as.integer(nbins)
-  if (nbins < 2L) {
-    cli::cli_abort("{.arg nbins} must be >= 2, got {nbins}.")
+  if (!is.numeric(nbins) || is.complex(nbins) || length(nbins) != 1L ||
+      !is.null(dim(nbins)) || is.na(nbins) || !is.finite(nbins) ||
+      nbins < 2 || nbins >= .Machine$integer.max || nbins != floor(nbins)) {
+    cli::cli_abort("{.arg nbins} must be a single finite integer >= 2 and < {(.Machine$integer.max)}.")
   }
+  nbins <- as.integer(nbins)
 
   if (type == "quantile") {
     probs <- seq(0, 1, length.out = nbins + 1L)
