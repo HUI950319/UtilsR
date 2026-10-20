@@ -26,7 +26,8 @@ check_size(..., pattern = NULL)
 
 ## Value
 
-A `gt` table object.
+A `gt` table object, including a zero-row table when no objects can be
+inspected. Objects that fail to load are skipped with a warning.
 
 ## See also
 

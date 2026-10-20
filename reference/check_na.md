@@ -27,9 +27,11 @@ check_na(data, ..., pattern = NULL, show_all = FALSE)
 
 - pattern:
 
-  Optional regex pattern for matching variable names. Takes precedence
-  over `...`. An unmatched pattern or selection inspects no columns and
-  returns the input with an informational message.
+  `NULL` or a single non-missing character string used as a regex
+  pattern for matching variable names. Takes precedence over `...`. An
+  empty string matches all columns. An unmatched pattern or selection
+  inspects no columns and returns the input with an informational
+  message.
 
 - show_all:
 
@@ -50,7 +52,9 @@ Unicode-aware whole-word markers after collapsing whitespace, including
 Unicode spaces. Whitespace-only strings count as blank values. Each
 value is counted once. Values recognized by
 [`is.na()`](https://rdrr.io/r/base/NA.html), including SPSS user-missing
-codes, count only as missing values.
+codes, count only as missing values. Severity colors use unrounded
+percentages. Percentages are rounded only for display, to one decimal
+place in cells and two in the summary.
 
 ## See also
 

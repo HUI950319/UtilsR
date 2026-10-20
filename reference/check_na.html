@@ -80,9 +80,11 @@ inspect all columns. Renaming changes only the displayed variable names.</p></dd
 
 
 <dt id="arg-pattern">pattern<a class="anchor" aria-label="anchor" href="#arg-pattern"></a></dt>
-<dd><p>Optional regex pattern for matching variable names. Takes
-precedence over <code>...</code>. An unmatched pattern or selection inspects no
-columns and returns the input with an informational message.</p></dd>
+<dd><p><code>NULL</code> or a single non-missing character string used
+as a regex pattern for matching variable names. Takes precedence over
+<code>...</code>. An empty string matches all columns. An unmatched pattern or
+selection inspects no columns and returns the input with an informational
+message.</p></dd>
 
 
 <dt id="arg-show-all">show_all<a class="anchor" aria-label="anchor" href="#arg-show-all"></a></dt>
@@ -104,7 +106,9 @@ only variables with issues are shown.</p></dd>
   whitespace, including Unicode spaces. Whitespace-only strings count as
   blank values. Each value is counted once. Values recognized by
   <code><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na()</a></code>, including SPSS user-missing codes, count only as missing
-  values.</p>
+  values.
+  Severity colors use unrounded percentages. Percentages are rounded only
+  for display, to one decimal place in cells and two in the summary.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

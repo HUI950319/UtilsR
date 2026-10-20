@@ -3,6 +3,16 @@
 ## UtilsR 0.6.8
 
 - [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
+  consistently returns a renderable gt table for empty selections,
+  reports unreadable objects, and counts only successfully inspected
+  objects.
+
+- [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
+  validates `pattern` as `NULL` or one non-missing character string,
+  with clear errors for invalid inputs. Empty patterns still match all
+  columns.
+
+- [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
   validates object names, indices and regular expressions, deduplicates
   selections, and never expands unmatched selections or searches parent
   environments for missing objects.
@@ -10,6 +20,11 @@
 - [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
   renders its size bars directly in HTML, avoiding per-object plots and
   temporary SVG files while handling zero-sized objects.
+
+- [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
+  rounds percentages only for display and uses unrounded values for
+  severity colors, correcting double rounding and threshold
+  misclassification.
 
 - [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
   and [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
