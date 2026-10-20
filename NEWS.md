@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `check_na()` and `lv()` load missing-value methods for serialized labelled
+  and integer64 columns, preventing session-dependent errors or missed NA values.
+
 * `check_size()` skips global name enumeration for explicit character selectors,
   while retaining sorted numeric indices and pattern selection.
 

@@ -32,6 +32,9 @@
 #'   blank values. Each value is counted once. Values recognized by
 #'   \code{is.na()}, including SPSS user-missing codes, count only as missing
 #'   values.
+#'   Inspection loads methods for serialized haven-labelled and integer64
+#'   columns before counting missing values. Integer64 columns require the
+#'   optional \pkg{bit64} package.
 #'   Severity colors use unrounded percentages. Percentages are rounded only
 #'   for display, to one decimal place in cells and two in the summary.
 #'   The subtitle counts variables containing issues; the summary counts
@@ -93,7 +96,7 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
     return(invisible(input_data))
   }
 
-  missing_count <- unlist(lapply(data, function(x) sum(is.na(x))),
+  missing_count <- unlist(lapply(data, .count_missing_values),
                           use.names = FALSE)
   special_count <- unlist(lapply(data, .count_special_values), use.names = FALSE)
   res_na <- data.frame(
@@ -283,6 +286,16 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
   invisible(input_data)
 }
 
+
+# Register supported serialized-vector methods before generic NA checks.
+# Shared by check_na() and lv(), including their special-value counts.
+.count_missing_values <- function(x) {
+  if (inherits(x, "haven_labelled")) loadNamespace("labelled")
+  if (inherits(x, "integer64") && !requireNamespace("bit64", quietly = TRUE)) {
+    cli::cli_abort("Inspecting integer64 columns requires the {.pkg bit64} package.")
+  }
+  sum(is.na(x))
+}
 
 # Count the values of a factor / character vector that mark a missing or
 # unknown entry ("Unknown", "N/A", "Blank(s)", an empty string, ...); used by

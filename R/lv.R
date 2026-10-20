@@ -25,6 +25,8 @@
 #' markers and normalizes whitespace, including Unicode whitespace-only blanks.
 #' Values recognized by \code{is.na()}, including SPSS user-missing codes,
 #' are excluded from special-value counts.
+#' Methods for serialized haven-labelled and integer64 columns are loaded
+#' before inspection; integer64 columns require the optional \pkg{bit64} package.
 #'
 #' @param data A data object: data.frame or Seurat object. If omitted,
 #'   \code{lv()} falls back to a global object named \code{data}, otherwise
@@ -269,6 +271,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
 
   .lv_one <- function(data, var) {
     col_data <- data[[var]]
+    n_na <- .count_missing_values(col_data)
     var_class <- class(col_data)[1]
 
     cli::cli_h1(
@@ -291,7 +294,6 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
 
     unique_values <- .get_levels(col_data)
     n_unique <- length(unique_values)
-    n_na <- sum(is.na(col_data))
 
     display_values <- if (n_unique > 10) {
       c(head(unique_values, 8), "...")

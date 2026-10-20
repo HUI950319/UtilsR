@@ -304,3 +304,110 @@ test_that("check_na distinguishes affected variables from missing cells", {
   expect_match(html, "2 missing values (16.67%)", fixed = TRUE)
   expect_match(html, "2 special values (16.67%)", fixed = TRUE)
 })
+
+# Load only the inspection sources in a fresh process: load_all() would preload
+# Imports and hide missing S3 registrations. Installed checks use the namespace.
+inspect_in_fresh_r <- function(data, entry = "check_na") {
+  files <- c(script = tempfile(fileext = ".R"), input = tempfile(fileext = ".rds"),
+             output = tempfile(fileext = ".rds"))
+  on.exit(unlink(files), add = TRUE)
+  saveRDS(data, files[["input"]])
+  writeLines(c(
+    "local({",
+    "  args <- commandArgs(TRUE)",
+    "  .libPaths(strsplit(args[[5L]], .Platform[['path.sep']], fixed = TRUE)[[1L]])",
+    "  ns <- asNamespace('UtilsR')",
+    "  e <- ns",
+    "  if (file.exists(args[[1L]])) {",
+    "    e <- new.env(parent = ns)",
+    "    sys.source(args[[1L]], e)",
+    "    if (args[[4L]] == 'lv') {",
+    "      sys.source(file.path(dirname(args[[1L]]), 'lv.R'), e)",
+    "      registerS3method('lv', 'data.frame', e[['lv.data.frame']], envir = ns)",
+    "    }",
+    "  }",
+    "  seen <- list()",
+    "  original <- gt::gt",
+    "  testthat::local_mocked_bindings(gt = function(data, ...) {",
+    "    seen[[length(seen) + 1L]] <<- data",
+    "    original(data, ...)",
+    "  }, .package = 'gt')",
+    "  before <- c(haven = 'haven' %in% loadedNamespaces(),",
+    "              bit64 = 'bit64' %in% loadedNamespaces())",
+    "  available <- length(find.package('bit64', quiet = TRUE)) > 0L",
+    "  data <- readRDS(args[[2L]])",
+    "  f <- if (args[[4L]] == 'lv') getExportedValue('UtilsR', 'lv') else e[['check_na']]",
+    "  error <- NULL",
+    "  returned <- NULL",
+    "  output <- capture.output(tryCatch(suppressMessages({",
+    "    returned <- if (args[[4L]] == 'lv') f(data) else f(data, show_all = TRUE)",
+    "  }), error = function(cnd) { error <<- conditionMessage(cnd) }))",
+    "  saveRDS(list(before = before, available = available, error = error,",
+    "               tables = seen, returned = returned), args[[3L]])",
+    "})"
+  ), files[["script"]])
+  source <- normalizePath(testthat::test_path("..", "..", "R", "na.R"),
+                          winslash = "/", mustWork = FALSE)
+  executable <- file.path(R.home("bin"), if (.Platform$OS.type == "windows")
+    "Rscript.exe" else "Rscript")
+  previous_tests <- Sys.getenv("R_TESTS", unset = NA_character_)
+  Sys.unsetenv("R_TESTS")
+  on.exit(if (is.na(previous_tests)) Sys.unsetenv("R_TESTS") else
+    Sys.setenv(R_TESTS = previous_tests), add = TRUE)
+  output <- system2(executable,
+    c("--vanilla", shQuote(files[["script"]]), shQuote(source),
+      shQuote(files[["input"]]), shQuote(files[["output"]]), entry,
+      shQuote(paste(.libPaths(), collapse = .Platform$path.sep))),
+    stdout = TRUE, stderr = TRUE)
+  if (!is.null(attr(output, "status")) || !file.exists(files[["output"]])) {
+    stop(paste(output, collapse = "\n"))
+  }
+  readRDS(files[["output"]])
+}
+
+test_that("inspection registers SPSS methods in a fresh R process", {
+  data <- spss_special_values_data()
+  data$numeric <- structure(c(1, 9, NA_real_, 1, 1),
+    class = c("haven_labelled_spss", "haven_labelled", "vctrs_vctr", "double"),
+    na_values = 9)
+  for (entry in c("check_na", "lv")) {
+    result <- inspect_in_fresh_r(data, entry)
+    expect_false(result$before[["haven"]])
+    expect_null(result$error)
+    if (!is.null(result$error)) next
+    if (entry == "check_na") {
+      tab <- result$tables[[1L]]
+      counts <- stats::setNames(tab$missing_combined, tab$variable)
+      expect_identical(unname(counts[names(data)]),
+                       c("3 (60.0%)", "2 (40.0%)", "4 (80.0%)", "2 (40.0%)"))
+      expect_identical(result$returned, data)
+    } else {
+      tab <- Filter(function(x) "n_na" %in% names(x), result$tables)[[1L]]
+      expect_equal(as.numeric(tab$n_na), c(3, 2, 4, 2))
+      expect_equal(as.numeric(tab$n_special), c(1, 2, 0, 0))
+    }
+  }
+})
+
+test_that("inspection registers integer64 methods in a fresh R process", {
+  # IEEE negative zero is bit64's NA sentinel; ordinary zero is integer64 zero.
+  data <- structure(list(x = structure(c(0, -0.0, 0), class = "integer64")),
+                    class = "data.frame", row.names = c(NA_integer_, -3L))
+  for (entry in c("check_na", "lv")) {
+    result <- inspect_in_fresh_r(data, entry)
+    expect_false(result$before[["bit64"]])
+    if (!result$available) {
+      expect_match(result$error, "bit64")
+    } else {
+      expect_null(result$error)
+      if (!is.null(result$error)) next
+      if (entry == "check_na") {
+        expect_identical(result$tables[[1L]]$missing_combined, "1 (33.3%)")
+        expect_identical(result$returned, data)
+      } else {
+        tab <- Filter(function(x) "n_na" %in% names(x), result$tables)[[1L]]
+        expect_equal(as.numeric(tab$n_na), 1)
+      }
+    }
+  }
+})
