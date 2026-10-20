@@ -24,7 +24,11 @@
 #' @param nbins Single finite integer number of bins, at least 2 and less than
 #'   \code{.Machine$integer.max}. Mutually exclusive with \code{breaks}.
 #' @param type Binning method when using \code{nbins}: \code{"quantile"}
-#'   (default) or \code{"equal"} width.
+#'   (default) or \code{"equal"} width. Constant non-missing data cannot be
+#'   automatically split into multiple groups and produce an error.
+#'
+#' @details Intervals are right-closed: each cut point belongs to the lower
+#'   group. The lowest endpoint is included. Thus \code{"below_50"} includes 50.
 #'
 #' @return A factor.
 #'
@@ -116,11 +120,17 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
     # Deduplicate (ties in quantiles)
     bin_breaks <- unique(bin_breaks)
     n_groups <- length(bin_breaks) - 1L
+    if (n_groups < 1L) {
+      cli::cli_abort("Cannot split constant {.arg x} into multiple groups.")
+    }
     if (n_groups < nbins) {
       cli::cli_warn("Ties in quantiles reduced {nbins} bins to {n_groups}.")
     }
   } else {
     rng <- range(x, na.rm = TRUE)
+    if (rng[1] == rng[2]) {
+      cli::cli_abort("Cannot split constant {.arg x} into multiple groups.")
+    }
     bin_breaks <- seq(rng[1], rng[2], length.out = nbins + 1L)
     n_groups <- nbins
   }

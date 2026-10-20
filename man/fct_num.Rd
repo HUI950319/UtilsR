@@ -27,7 +27,8 @@ Additional digits distinguish cut points whose usual text representations coinci
 \code{.Machine$integer.max}. Mutually exclusive with \code{breaks}.}
 
 \item{type}{Binning method when using \code{nbins}: \code{"quantile"}
-(default) or \code{"equal"} width.}
+(default) or \code{"equal"} width. Constant non-missing data cannot be
+automatically split into multiple groups and produce an error.}
 }
 \value{
 A factor.
@@ -35,6 +36,10 @@ A factor.
 \description{
 Cut a numeric vector into factor groups. Works on vectors (usable in
 \code{mutate()}). Supports fixed cut points or automatic binning.
+}
+\details{
+Intervals are right-closed: each cut point belongs to the lower
+group. The lowest endpoint is included. Thus \code{"below_50"} includes 50.
 }
 \examples{
 x <- c(10, 25, 40, 55, 70, 85, 100)

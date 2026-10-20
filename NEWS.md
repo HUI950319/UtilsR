@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fct_num()` reports constant data explicitly in both automatic binning
+  modes, without misleading zero-bin warnings or label-length errors.
+  Fixed-cut behavior and right-closed group boundaries are unchanged.
+
 * `fct_num()` validates `nbins` before conversion, rejecting fractional,
   missing, non-scalar, non-numeric, or overflowing counts without coercion
   warnings or silently changing the requested number of bins.

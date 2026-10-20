@@ -56,3 +56,18 @@ test_that("automatic bin counts are validated before integer conversion", {
                           levels = c("low", "middle", "high")))
   expect_identical(fct_num(1:6, nbins = 3), fct_num(1:6, nbins = 3L))
 })
+
+test_that("automatic binning reports constant data before constructing groups", {
+  for (type in c("quantile", "equal")) {
+    for (x in list(5, rep(5, 4), c(0, 0, NA, NaN), c(-3, NA, -3))) {
+      expect_no_warning(expect_error(fct_num(x, nbins = 3, type = type),
+                                     "constant.*x"))
+    }
+  }
+  expect_identical(fct_num(rep(5, 3), breaks = 5),
+                   factor(rep("below_5", 3), levels = c("below_5", "above_5")))
+  expect_warning(result <- fct_num(c(1, 1, 1, 2), nbins = 4),
+                 "reduced 4 bins to 2")
+  expect_identical(result,
+                   factor(c("low", "low", "low", "high"), levels = c("low", "high")))
+})
