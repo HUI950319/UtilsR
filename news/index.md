@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md)
+  validates `nbins` before conversion, rejecting fractional, missing,
+  non-scalar, non-numeric, or overflowing counts without coercion
+  warnings or silently changing the requested number of bins.
+
+- [`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md)
   increases automatic label precision only when cut-point text collides,
   preventing nearby numeric intervals from merging into one level.
 

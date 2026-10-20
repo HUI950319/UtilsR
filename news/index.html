@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/fct_num.html">fct_num()</a></code> increases automatic label precision only when cut-point text collides, preventing nearby numeric intervals from merging into one level.</p></li>
+<ul><li><p><code><a href="../reference/fct_num.html">fct_num()</a></code> validates <code>nbins</code> before conversion, rejecting fractional, missing, non-scalar, non-numeric, or overflowing counts without coercion warnings or silently changing the requested number of bins.</p></li>
+<li><p><code><a href="../reference/fct_num.html">fct_num()</a></code> increases automatic label precision only when cut-point text collides, preventing nearby numeric intervals from merging into one level.</p></li>
 <li><p><code><a href="../reference/fct_num.html">fct_num()</a></code> validates fixed cut points before sorting, rejecting missing, non-finite, duplicate, or non-numeric values instead of silently changing groups or assigning misleading labels.</p></li>
 <li><p><code><a href="../reference/fct_num.html">fct_num()</a></code> rejects unsupported <code>integer64</code> data and cut points instead of silently misclassifying their values or losing missing observations.</p></li>
 <li><p><code><a href="../reference/fct_cat.html">fct_cat()</a></code> reuses matched level positions when recoding and keeps unmatched levels in a vector, avoiding an intermediate list and repeated membership tables for factors with many levels.</p></li>

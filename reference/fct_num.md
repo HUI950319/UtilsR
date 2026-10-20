@@ -35,8 +35,8 @@ fct_num(
 
 - nbins:
 
-  Integer number of bins for automatic binning. Mutually exclusive with
-  `breaks`.
+  Single finite integer number of bins, at least 2 and less than
+  `.Machine$integer.max`. Mutually exclusive with `breaks`.
 
 - type:
 
