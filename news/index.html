@@ -50,7 +50,9 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/check_size.html">check_size()</a></code> consistently returns a renderable gt table for empty selections, reports unreadable objects, and counts only successfully inspected objects.</p></li>
+<ul><li><p><code><a href="../reference/check_size.html">check_size()</a></code> reads each selected binding once, so size and class describe the same value even when an active binding changes between reads.</p></li>
+<li><p><code><a href="../reference/check_na.html">check_na()</a></code> labels affected-variable counts explicitly in its subtitle, distinguishing them from the individual-value counts in the summary.</p></li>
+<li><p><code><a href="../reference/check_size.html">check_size()</a></code> consistently returns a renderable gt table for empty selections, reports unreadable objects, and counts only successfully inspected objects.</p></li>
 <li><p><code><a href="../reference/check_na.html">check_na()</a></code> validates <code>pattern</code> as <code>NULL</code> or one non-missing character string, with clear errors for invalid inputs. Empty patterns still match all columns.</p></li>
 <li><p><code><a href="../reference/check_size.html">check_size()</a></code> validates object names, indices and regular expressions, deduplicates selections, and never expands unmatched selections or searches parent environments for missing objects.</p></li>
 <li><p><code><a href="../reference/check_size.html">check_size()</a></code> renders its size bars directly in HTML, avoiding per-object plots and temporary SVG files while handling zero-sized objects.</p></li>

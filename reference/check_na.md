@@ -54,7 +54,9 @@ value is counted once. Values recognized by
 [`is.na()`](https://rdrr.io/r/base/NA.html), including SPSS user-missing
 codes, count only as missing values. Severity colors use unrounded
 percentages. Percentages are rounded only for display, to one decimal
-place in cells and two in the summary.
+place in cells and two in the summary. The subtitle counts variables
+containing issues; the summary counts individual missing and special
+values across the selected columns.
 
 ## See also
 
@@ -528,7 +530,7 @@ check_na(airquality)
 #>       <td colspan="4" class="gt_heading gt_title gt_font_normal" style><span class='gt_from_md'><strong>Missing &amp; Special Value Analysis</strong></span></td>
 #>     </tr>
 #>     <tr class="gt_heading">
-#>       <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style><span class='gt_from_md'>Dataset: <em>153</em> observations, <em>6</em> variables, <em>2</em> missing, <em>0</em> Unknown/Blank/N/A</span></td>
+#>       <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style><span class='gt_from_md'>Dataset: <em>153</em> observations, <em>6</em> variables, <em>2</em> variables with missing values, <em>0</em> variables with special values</span></td>
 #>     </tr>
 #>     <tr class="gt_col_headings">
 #>       <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="variable"><span class='gt_from_md'><strong>Variable</strong></span></th>
@@ -1013,7 +1015,7 @@ check_na(airquality, Ozone, Solar.R)
 #>       <td colspan="4" class="gt_heading gt_title gt_font_normal" style><span class='gt_from_md'><strong>Missing &amp; Special Value Analysis</strong></span></td>
 #>     </tr>
 #>     <tr class="gt_heading">
-#>       <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style><span class='gt_from_md'>Dataset: <em>153</em> observations, <em>2</em> variables, <em>2</em> missing, <em>0</em> Unknown/Blank/N/A</span></td>
+#>       <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style><span class='gt_from_md'>Dataset: <em>153</em> observations, <em>2</em> variables, <em>2</em> variables with missing values, <em>0</em> variables with special values</span></td>
 #>     </tr>
 #>     <tr class="gt_col_headings">
 #>       <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="variable"><span class='gt_from_md'><strong>Variable</strong></span></th>
@@ -1498,7 +1500,7 @@ check_na(airquality, show_all = TRUE)
 #>       <td colspan="4" class="gt_heading gt_title gt_font_normal" style><span class='gt_from_md'><strong>Missing &amp; Special Value Analysis</strong></span></td>
 #>     </tr>
 #>     <tr class="gt_heading">
-#>       <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style><span class='gt_from_md'>Dataset: <em>153</em> observations, <em>6</em> variables, <em>2</em> missing, <em>0</em> Unknown/Blank/N/A</span></td>
+#>       <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style><span class='gt_from_md'>Dataset: <em>153</em> observations, <em>6</em> variables, <em>2</em> variables with missing values, <em>0</em> variables with special values</span></td>
 #>     </tr>
 #>     <tr class="gt_col_headings">
 #>       <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="variable"><span class='gt_from_md'><strong>Variable</strong></span></th>

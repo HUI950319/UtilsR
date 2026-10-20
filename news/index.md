@@ -3,6 +3,14 @@
 ## UtilsR 0.6.8
 
 - [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
+  reads each selected binding once, so size and class describe the same
+  value even when an active binding changes between reads.
+
+- [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
+  labels affected-variable counts explicitly in its subtitle,
+  distinguishing them from the individual-value counts in the summary.
+
+- [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
   consistently returns a renderable gt table for empty selections,
   reports unreadable objects, and counts only successfully inspected
   objects.

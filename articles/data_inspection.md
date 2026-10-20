@@ -7069,7 +7069,7 @@ check_na(df)
 #>       <td colspan="4" class="gt_heading gt_title gt_font_normal" style><span class='gt_from_md'><strong>Missing &amp; Special Value Analysis</strong></span></td>
 #>     </tr>
 #>     <tr class="gt_heading">
-#>       <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style><span class='gt_from_md'>Dataset: <em>5</em> observations, <em>3</em> variables, <em>2</em> missing, <em>0</em> Unknown/Blank/N/A</span></td>
+#>       <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style><span class='gt_from_md'>Dataset: <em>5</em> observations, <em>3</em> variables, <em>2</em> variables with missing values, <em>0</em> variables with special values</span></td>
 #>     </tr>
 #>     <tr class="gt_col_headings">
 #>       <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="variable"><span class='gt_from_md'><strong>Variable</strong></span></th>
