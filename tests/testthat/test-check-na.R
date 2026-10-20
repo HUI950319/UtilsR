@@ -427,3 +427,23 @@ test_that("check_na handles totals above the integer limit", {
   expect_match(note, "0 special values (0.00%)", fixed = TRUE)
   expect_match(note, "out of 2200000000 total data points", fixed = TRUE)
 })
+
+test_that("inspection preserves factors with unused and missing levels", {
+  data <- data.frame(
+    ordered = ordered(c("ok", "Unknown", NA, "Unknown"),
+                      levels = c("ok", "Unknown", "", "unused")),
+    na_level = factor(c("ok", NA, "ok", NA),
+                      levels = c("ok", NA, "Unknown"), exclude = NULL)
+  )
+  before <- data
+  seen <- capture_gt_data(result <- check_na(data, show_all = TRUE))
+  counts <- stats::setNames(seen[[1L]]$special_combined, seen[[1L]]$variable)
+
+  expect_identical(unname(counts[names(data)]), c("2 (50.0%)", "0 (0.0%)"))
+  expect_identical(result, before)
+  expect_identical(data, before)
+  tab <- Filter(function(x) "n_special" %in% names(x),
+                capture_gt_data(lv(data["ordered"])))[[1L]]
+  expect_equal(as.numeric(tab$n_special), 2)
+  expect_identical(data, before)
+})

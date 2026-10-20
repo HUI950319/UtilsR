@@ -312,6 +312,9 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
   if (is.factor(x)) {
     u <- levels(x)
     n <- tabulate(as.integer(x), nbins = length(u))
+    observed <- n > 0L
+    u <- u[observed]
+    n <- n[observed]
   } else {
     u <- unique(x)
     n <- tabulate(match(x, u), nbins = length(u))
