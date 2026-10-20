@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md)
+  constructs fixed-cut interval labels in one vectorized operation,
+  reducing overhead when many cut points are supplied while preserving
+  labels and interval order.
+
+- [`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md)
   avoids full-vector missing-value masks and redundant filtering for
   ordinary complete numeric data, and skips unused quantile names.
   Classed-vector dispatch, missing values, and group boundaries are
