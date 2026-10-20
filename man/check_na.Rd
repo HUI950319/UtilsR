@@ -14,9 +14,11 @@ rows, preserving the grouping in the returned input.}
 \item{...}{Variable selection using \code{dplyr::select} syntax. Omit to
 inspect all columns. Renaming changes only the displayed variable names.}
 
-\item{pattern}{Optional regex pattern for matching variable names. Takes
-precedence over \code{...}. An unmatched pattern or selection inspects no
-columns and returns the input with an informational message.}
+\item{pattern}{\code{NULL} or a single non-missing character string used
+as a regex pattern for matching variable names. Takes precedence over
+\code{...}. An empty string matches all columns. An unmatched pattern or
+selection inspects no columns and returns the input with an informational
+message.}
 
 \item{show_all}{A single non-missing logical. If \code{FALSE} (default),
 only variables with issues are shown.}

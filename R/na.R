@@ -13,9 +13,11 @@
 #'   rows, preserving the grouping in the returned input.
 #' @param ... Variable selection using \code{dplyr::select} syntax. Omit to
 #'   inspect all columns. Renaming changes only the displayed variable names.
-#' @param pattern Optional regex pattern for matching variable names. Takes
-#'   precedence over \code{...}. An unmatched pattern or selection inspects no
-#'   columns and returns the input with an informational message.
+#' @param pattern \code{NULL} or a single non-missing character string used
+#'   as a regex pattern for matching variable names. Takes precedence over
+#'   \code{...}. An empty string matches all columns. An unmatched pattern or
+#'   selection inspects no columns and returns the input with an informational
+#'   message.
 #' @param show_all A single non-missing logical. If \code{FALSE} (default),
 #'   only variables with issues are shown.
 #'
@@ -54,6 +56,10 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
   }
   if (!is.logical(show_all) || length(show_all) != 1L || is.na(show_all)) {
     cli::cli_abort("{.arg show_all} must be a single non-missing logical.")
+  }
+  if (!is.null(pattern) &&
+      (!is.character(pattern) || length(pattern) != 1L || is.na(pattern))) {
+    cli::cli_abort("{.arg pattern} must be NULL or a single non-missing character string.")
   }
   if (anyNA(names(data)) || any(!nzchar(names(data))) ||
       anyDuplicated(names(data)) > 0L) {

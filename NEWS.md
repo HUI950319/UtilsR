@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `check_na()` validates `pattern` as `NULL` or one non-missing character string,
+  with clear errors for invalid inputs. Empty patterns still match all columns.
+
 * `check_size()` validates object names, indices and regular expressions,
   deduplicates selections, and never expands unmatched selections or searches
   parent environments for missing objects.
