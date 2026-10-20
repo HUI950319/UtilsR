@@ -98,13 +98,18 @@ test_that("check_size handles a truly empty global environment", {
   script <- tempfile(fileext = ".R")
   on.exit(unlink(c(fn_file, script)), add = TRUE)
   saveRDS(check_size, fn_file)
-  writeLines(c("local({", "f <- readRDS(commandArgs(trailingOnly = TRUE)[[1L]])",
+  package_path <- getNamespaceInfo("UtilsR", "path")
+  writeLines(c("local({", "args <- commandArgs(trailingOnly = TRUE)",
+               "if (file.exists(file.path(args[[2L]], 'R', 'check_size.R'))) {",
+               "  pkgload::load_all(args[[2L]], quiet = TRUE, helpers = FALSE)",
+               "} else { loadNamespace('UtilsR', lib.loc = dirname(args[[2L]])) }",
+               "f <- readRDS(args[[1L]])",
                "stopifnot(length(ls(envir = .GlobalEnv, all.names = TRUE)) == 0L)",
                "out <- f()", "stopifnot(inherits(out, 'gt_tbl'))",
                "stopifnot(nrow(out[['_data']]) == 0L)",
                "invisible(gt::as_raw_html(out))", "})"), script)
   rscript <- file.path(R.home("bin"), if (.Platform[["OS.type"]] == "windows") "Rscript.exe" else "Rscript")
-  output <- system2(rscript, c("--vanilla", shQuote(script), shQuote(fn_file)),
+  output <- system2(rscript, c("--vanilla", shQuote(script), shQuote(fn_file), shQuote(package_path)),
                     stdout = TRUE, stderr = TRUE)
   expect_null(attr(output, "status"), info = paste(output, collapse = "\n"))
 })
@@ -134,5 +139,30 @@ test_that("check_size inspects promised objects without reevaluating them", {
     result <- check_size(nms)[["_data"]]
     expect_identical(counter[["evaluations"]], 1L)
     expect_identical(result[["Class"]], c("Summary", "raw"))
+  })
+})
+
+test_that("check_size distinguishes bytes from zero and uses consistent units", {
+  with_size_objects(list(zero = NULL, tiny = integer(), kilo = raw(2000),
+                         mega = raw(1024^2)), function(nms) {
+    result <- check_size(nms)
+    data <- result[["_data"]]
+    labels <- stats::setNames(data[["Size_fmt"]], data[["Object"]])
+    expect_identical(labels[[nms[[1]]]], "0 B")
+    expect_identical(labels[[nms[[2]]]],
+                     sprintf("%.0f B", as.numeric(utils::object.size(integer()))))
+    expect_match(labels[[nms[[3]]]], " KB$", fixed = FALSE)
+    expect_match(labels[[nms[[4]]]], " MB$", fixed = FALSE)
+    expect_match(result[["_heading"]][["subtitle"]], labels[["**TOTAL**"]], fixed = TRUE)
+  })
+})
+
+test_that("check_size applies its numeric gradient to the visible size cells", {
+  with_size_objects(list(small = raw(16), large = raw(2000)), function(nms) {
+    html <- gt::as_raw_html(check_size(nms))
+    cells <- grep('headers="Size_fmt"', strsplit(html, "\n", fixed = TRUE)[[1]], value = TRUE)
+    expect_length(cells, 3L)
+    expect_match(cells[[2]], "background-color: #FF0000", fixed = TRUE)
+    expect_match(cells[[3]], "background-color: #FFFFFF", fixed = TRUE)
   })
 })

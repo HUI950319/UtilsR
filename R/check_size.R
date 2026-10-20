@@ -114,21 +114,24 @@ check_size <- function(..., pattern = NULL) {
                                    Size = total_mb, .before = 1)
   }
 
-  # Format size with auto unit (KB / MB / GB)
+  # Share display units between body cells and the total subtitle.
+  format_size <- function(size_mb) {
+    dplyr::case_when(
+      size_mb >= 1024   ~ sprintf("%.2f GB", size_mb / 1024),
+      size_mb >= 1      ~ sprintf("%.2f MB", size_mb),
+      size_mb >= 1/1024 ~ sprintf("%.2f KB", size_mb * 1024),
+      TRUE             ~ sprintf("%.0f B", size_mb * 1024^2)
+    )
+  }
   object_info <- object_info %>%
     dplyr::mutate(
-      Size_fmt = dplyr::case_when(
-        Size >= 1024   ~ sprintf("%.2f GB", Size / 1024),
-        Size >= 1      ~ sprintf("%.2f MB", Size),
-        Size >= 1/1024 ~ sprintf("%.2f KB", Size * 1024),
-        TRUE           ~ sprintf("%.4f MB", Size)
-      ),
+      Size_fmt = format_size(Size),
       Size_bar = Size,
       .after = Size
     )
 
   # Total size string
-  total_str <- if (total_mb >= 1024) sprintf("%.2f GB", total_mb / 1024) else sprintf("%.2f MB", total_mb)
+  total_str <- format_size(total_mb)
 
   # Render simple bars directly in HTML, including an all-zero column.
   bar_html <- function(x) {
@@ -149,6 +152,7 @@ check_size <- function(..., pattern = NULL) {
     ) %>%
     gt::data_color(
       columns = "Size",
+      target_columns = "Size_fmt",
       rows = object_info$Object != "**TOTAL**",
       palette = c("#FFFFFF", "#FF0000"),
       na_color = "transparent"
