@@ -25,9 +25,10 @@
 #' @details Inputs with zero rows or zero columns return unchanged with an
 #'   informational message and no table.
 #'   Special-value counts apply to character and factor columns. Matching is
-#'   case-insensitive and uses whole-word markers after collapsing repeated
-#'   whitespace. Whitespace-only strings count as blank values. Each value is
-#'   counted once; actual \code{NA} values count only as missing values.
+#'   case-insensitive and uses Unicode-aware whole-word markers after collapsing
+#'   whitespace, including Unicode spaces. Whitespace-only strings count as
+#'   blank values. Each value is counted once; actual \code{NA} values count
+#'   only as missing values.
 #'
 #' @examples
 #' \donttest{
@@ -290,9 +291,9 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
     u <- unique(x)
     n <- tabulate(match(x, u), nbins = length(u))
   }
-  u <- tolower(trimws(gsub("[[:space:]]+", " ", u)))
+  u <- tolower(trimws(gsub("[\\h\\v]+", " ", u, perl = TRUE)))
   special <- grepl(
-    "\\b(unknown|blank|n/a|na|missing|unspecified|not available)\\b",
+    "(*UCP)\\b(unknown|blank|n/a|na|missing|unspecified|not available)\\b",
     u, perl = TRUE
   ) | u %in% ""
   sum(n[special & !is.na(u)]) + 0

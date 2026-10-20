@@ -67,8 +67,8 @@ Invisibly returns the input data.
 Inspect variables in a data.frame or Seurat object, including frequency
 counts, unique values, missing values and special values (e.g. "unknown",
 "blank", "n/a"). Supports grouped summaries and multi-variable
-cross-tabulation. Special-value matching normalizes whitespace, including
-whitespace-only blank values.
+cross-tabulation. Special-value matching uses Unicode-aware whole-word
+markers and normalizes whitespace, including Unicode whitespace-only blanks.
 }
 \examples{
 \dontrun{

@@ -34,9 +34,10 @@ formatting based on severity.
 Inputs with zero rows or zero columns return unchanged with an
   informational message and no table.
   Special-value counts apply to character and factor columns. Matching is
-  case-insensitive and uses whole-word markers after collapsing repeated
-  whitespace. Whitespace-only strings count as blank values. Each value is
-  counted once; actual \code{NA} values count only as missing values.
+  case-insensitive and uses Unicode-aware whole-word markers after collapsing
+  whitespace, including Unicode spaces. Whitespace-only strings count as
+  blank values. Each value is counted once; actual \code{NA} values count
+  only as missing values.
 }
 \examples{
 \donttest{

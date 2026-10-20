@@ -150,3 +150,32 @@ test_that("lv uses the same whitespace-normalized special-value counts", {
 
   expect_equal(as.numeric(tab$n_special), c(3, 3))
 })
+
+unicode_special_values_data <- function() {
+  words <- c("na\u00efve", "NA\u00cfVE", "na\u00efve T cells", "Canada", "NACT",
+             "Unknown", "N/A", "Blank(s)", "missing data")
+  spaces <- c("\u00a0", "\u202f", "\u2007", "\u0085", "\u3000",
+              "not\u00a0available", "ok", "ok", NA_character_)
+  data.frame(words = words, word_factor = factor(words),
+             spaces = spaces, space_factor = factor(spaces))
+}
+
+test_that("check_na respects Unicode words and whitespace", {
+  seen <- capture_gt_data(check_na(unicode_special_values_data(), show_all = TRUE))
+  tab <- seen[[1L]]
+  counts <- stats::setNames(tab$special_combined, tab$variable)
+  missing <- stats::setNames(tab$missing_combined, tab$variable)
+
+  expect_identical(unname(counts[c("words", "word_factor")]), rep("4 (44.4%)", 2L))
+  expect_identical(unname(counts[c("spaces", "space_factor")]), rep("6 (66.7%)", 2L))
+  expect_identical(unname(missing[c("spaces", "space_factor")]), rep("1 (11.1%)", 2L))
+})
+
+test_that("lv uses the same Unicode special-value semantics", {
+  seen <- capture_gt_data(lv(unicode_special_values_data()))
+  tab <- Filter(function(x) "n_special" %in% names(x), seen)[[1L]]
+  counts <- stats::setNames(as.numeric(tab$n_special), tab$vars)
+
+  expect_equal(unname(counts[c("words", "word_factor")]), c(4, 4))
+  expect_equal(unname(counts[c("spaces", "space_factor")]), c(6, 6))
+})

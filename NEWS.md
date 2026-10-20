@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `check_na()` and `lv()` use Unicode-aware word boundaries and whitespace
+  normalization, avoiding false matches within accented words and recognizing
+  non-breaking spaces and other Unicode blanks.
+
 * `check_na()` constructs its summary in one operation, reducing overhead on
   wide datasets while preserving counts, ordering, formatting and table styles.
 
