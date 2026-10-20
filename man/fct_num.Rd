@@ -15,7 +15,7 @@ fct_num(
 \arguments{
 \item{x}{A numeric vector. Vectors with \code{integer64} storage are not supported.}
 
-\item{breaks}{Numeric vector of cut points. E.g. \code{50} for binary,
+\item{breaks}{Numeric vector of finite, distinct cut points. E.g. \code{50} for binary,
 \code{c(20, 50)} for 3 groups. Mutually exclusive with \code{nbins}.
 Vectors with \code{integer64} storage are not supported.}
 

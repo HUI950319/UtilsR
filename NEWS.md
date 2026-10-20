@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fct_num()` validates fixed cut points before sorting, rejecting missing,
+  non-finite, duplicate, or non-numeric values instead of silently changing
+  groups or assigning misleading labels.
+
 * `fct_num()` rejects unsupported `integer64` data and cut points instead
   of silently misclassifying their values or losing missing observations.
 

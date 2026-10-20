@@ -15,7 +15,7 @@
 #' \code{mutate()}). Supports fixed cut points or automatic binning.
 #'
 #' @param x A numeric vector. Vectors with \code{integer64} storage are not supported.
-#' @param breaks Numeric vector of cut points. E.g. \code{50} for binary,
+#' @param breaks Numeric vector of finite, distinct cut points. E.g. \code{50} for binary,
 #'   \code{c(20, 50)} for 3 groups. Mutually exclusive with \code{nbins}.
 #'   Vectors with \code{integer64} storage are not supported.
 #' @param labels Character vector of group labels. If \code{NULL}, labels
@@ -77,6 +77,15 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
     }
     if (length(breaks) == 0) {
       cli::cli_abort("{.arg breaks} must have at least one value.")
+    }
+    if (!is.numeric(breaks) || is.complex(breaks) || !is.null(dim(breaks))) {
+      cli::cli_abort("{.arg breaks} must be a numeric vector of cut points.")
+    }
+    if (anyNA(breaks) || any(!is.finite(breaks))) {
+      cli::cli_abort("{.arg breaks} must contain only finite, non-missing values.")
+    }
+    if (anyDuplicated(breaks)) {
+      cli::cli_abort("{.arg breaks} must contain distinct values.")
     }
     breaks <- sort(breaks)
     full_breaks <- c(-Inf, breaks, Inf)

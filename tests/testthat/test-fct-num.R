@@ -18,3 +18,15 @@ test_that("numeric binning retains right-closed boundaries and missing values", 
                    factor(c("<45", "45-54", "45-54", ">=55", NA),
                           levels = c("<45", "45-54", ">=55")))
 })
+
+test_that("fixed cut points must be finite distinct numeric values", {
+  for (breaks in list(numeric(), NA_real_, c(NA_real_, 5), NaN, Inf, -Inf,
+                     c(5, Inf), c(5, 5), c("2", "10"), TRUE, list(5),
+                     1 + 1i, matrix(c(2, 5), nrow = 1))) {
+    expect_no_warning(expect_error(fct_num(c(1, 5, 9), breaks = breaks),
+                                   "breaks.*(numeric|finite|distinct|value)"))
+  }
+  expect_identical(fct_num(c(1, 5, 9), breaks = c(7, 3)),
+                   factor(c("below_3", "3-7", "above_7"),
+                          levels = c("below_3", "3-7", "above_7")))
+})
