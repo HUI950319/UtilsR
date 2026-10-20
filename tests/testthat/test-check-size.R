@@ -237,3 +237,16 @@ test_that("check_size enumerates global names only when selection needs them", {
     expect_identical(patterned[["_data"]], result[["_data"]])
   })
 })
+
+test_that("check_size scales object bars independently of the total", {
+  with_size_objects(list(small = raw(1024), large = raw(2048)), function(nms) {
+    result <- check_size(nms)
+    sizes <- result[["_data"]][["Size"]]
+    html <- gt::as_raw_html(result)
+    tokens <- regmatches(html, gregexpr("background-color:#4CAF50;width:[0-9.]+%", html))[[1L]]
+    widths <- as.numeric(sub(".*width:([0-9.]+)%", "\\1", tokens))
+    expect_equal(widths, c(100, 100, 100 * sizes[[3L]] / sizes[[2L]]),
+                 tolerance = 0.0001)
+    expect_true(all(widths <= 100))
+  })
+})

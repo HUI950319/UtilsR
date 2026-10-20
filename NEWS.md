@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `check_size()` scales object bars to the largest individual estimate instead
+  of the total, keeping large selections readable and capping the total bar.
+
 * `check_na()` and `lv()` load missing-value methods for serialized labelled
   and integer64 columns, preventing session-dependent errors or missed NA values.
 
