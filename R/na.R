@@ -14,7 +14,8 @@
 #' @param show_all Logical. If \code{FALSE} (default), only variables with
 #'   issues are shown.
 #'
-#' @return Invisibly returns the input data.
+#' @return Invisibly returns the complete input data unchanged, including
+#'   columns that were not selected for inspection.
 #'
 #' @examples
 #' \donttest{
@@ -35,6 +36,7 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
   if (!is.data.frame(data)) {
     cli::cli_abort("{.arg data} must be a data.frame, not {.cls {class(data)}}.")
   }
+  input_data <- data
 
   # Variable selection
   if (!is.null(pattern)) {
@@ -93,7 +95,7 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
   if (nrow(res_na) == 0 && !show_all) {
     .cat_box("No missing values or special values found in the dataset!",
              type = "success")
-    return(invisible(data))
+    return(invisible(input_data))
   }
 
   total_missing_vars <- sum(res_na$missing_count > 0)
@@ -250,7 +252,7 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
 
   print(gt_table)
 
-  invisible(data)
+  invisible(input_data)
 }
 
 

@@ -46,3 +46,22 @@ test_that("lv counts special values as whole words, once per value", {
   counts <- stats::setNames(as.numeric(tab$n_special), tab$vars)
   expect_equal(counts[names(expected_special)], expected_special)
 })
+
+test_that("check_na returns the complete input after inspecting selected columns", {
+  data <- data.frame(a = c(1, NA), b = c("ok", "Unknown"))
+  attr(data, "source") <- "original"
+  seen <- capture_gt_data(result <- withVisible(check_na(data, a)))
+
+  expect_identical(result$value, data)
+  expect_false(result$visible)
+  expect_identical(seen[[1L]]$variable, "a")
+})
+
+test_that("check_na preserves the input when selected columns have no issues", {
+  data <- data.frame(a = c(1, NA), b = c("ok", "ok"))
+  seen <- capture_gt_data(result <- withVisible(check_na(data, b)))
+
+  expect_identical(result$value, data)
+  expect_false(result$visible)
+  expect_length(seen, 0L)
+})

@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `check_na()` preserves the complete input and its attributes when inspecting
+  selected columns, including calls where the selected columns have no issues.
+
 * `fct_num()` documents and demonstrates reduced bin counts after quantile ties,
   merged factor levels from repeated labels, and the handling of infinite data
   in fixed-cut and automatic binning modes. These behaviors are unchanged.

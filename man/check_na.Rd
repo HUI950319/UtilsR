@@ -17,7 +17,8 @@ check_na(data, ..., pattern = NULL, show_all = FALSE)
 issues are shown.}
 }
 \value{
-Invisibly returns the input data.
+Invisibly returns the complete input data unchanged, including
+columns that were not selected for inspection.
 }
 \description{
 Analyze missing values and special values (e.g. "unknown", "blank", "n/a")
