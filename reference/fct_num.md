@@ -41,11 +41,17 @@ fct_num(
 - type:
 
   Binning method when using `nbins`: `"quantile"` (default) or `"equal"`
-  width.
+  width. Constant non-missing data cannot be automatically split into
+  multiple groups and produce an error.
 
 ## Value
 
 A factor.
+
+## Details
+
+Intervals are right-closed: each cut point belongs to the lower group.
+The lowest endpoint is included. Thus `"below_50"` includes 50.
 
 ## See also
 

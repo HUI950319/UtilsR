@@ -94,12 +94,18 @@ Additional digits distinguish cut points whose usual text representations coinci
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
 <dd><p>Binning method when using <code>nbins</code>: <code>"quantile"</code>
-(default) or <code>"equal"</code> width.</p></dd>
+(default) or <code>"equal"</code> width. Constant non-missing data cannot be
+automatically split into multiple groups and produce an error.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A factor.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Intervals are right-closed: each cut point belongs to the lower
+group. The lowest endpoint is included. Thus <code>"below_50"</code> includes 50.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
