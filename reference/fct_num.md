@@ -48,7 +48,8 @@ fct_num(
 - nbins:
 
   Single finite integer number of bins, at least 2 and less than
-  `.Machine$integer.max`. Mutually exclusive with `breaks`.
+  `.Machine$integer.max`. Mutually exclusive with `breaks`. Time-span
+  classes are not supported; supply a dimensionless bin count.
 
 - type:
 

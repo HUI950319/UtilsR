@@ -3,6 +3,12 @@
 ## UtilsR 0.6.8
 
 - [`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md)
+  rejects time-span objects supplied as `nbins`, preventing their
+  conversion to seconds from silently requesting a different number of
+  bins. Valid numeric and `integer64` bin counts retain their existing
+  behavior.
+
+- [`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md)
   documents that automatic fixed-cut labels follow numeric formatting
   options such as `scipen`, and shows explicit labels for stable factor
   levels.
