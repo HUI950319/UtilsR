@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
+  validates object names, indices and regular expressions, deduplicates
+  selections, and never expands unmatched selections or searches parent
+  environments for missing objects.
+
+- [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
   renders its size bars directly in HTML, avoiding per-object plots and
   temporary SVG files while handling zero-sized objects.
 

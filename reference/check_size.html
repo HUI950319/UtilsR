@@ -66,12 +66,16 @@ gt table with bar chart and color gradient."><meta property="og:image" content="
 
 
 <dl><dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Object names (character strings) or numeric indices. If empty,
-all objects are analyzed.</p></dd>
+<dd><p>Object names (character vectors) or plain numeric vectors of
+finite, positive integer indices into the alphabetically sorted names in
+<code>.GlobalEnv</code>, including hidden names. With no arguments, all objects
+are analyzed. Duplicate names are inspected once. Missing names are
+skipped with a warning; empty selections do not select all objects.</p></dd>
 
 
 <dt id="arg-pattern">pattern<a class="anchor" aria-label="anchor" href="#arg-pattern"></a></dt>
-<dd><p>Optional regex pattern for matching object names.</p></dd>
+<dd><p>Optional single, non-missing regular expression for matching
+object names. Takes precedence over <code>...</code>; no matches select no objects.</p></dd>
 
 </dl></div>
     <div class="section level2">

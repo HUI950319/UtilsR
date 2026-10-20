@@ -13,12 +13,16 @@ check_size(..., pattern = NULL)
 
 - ...:
 
-  Object names (character strings) or numeric indices. If empty, all
-  objects are analyzed.
+  Object names (character vectors) or plain numeric vectors of finite,
+  positive integer indices into the alphabetically sorted names in
+  `.GlobalEnv`, including hidden names. With no arguments, all objects
+  are analyzed. Duplicate names are inspected once. Missing names are
+  skipped with a warning; empty selections do not select all objects.
 
 - pattern:
 
-  Optional regex pattern for matching object names.
+  Optional single, non-missing regular expression for matching object
+  names. Takes precedence over `...`; no matches select no objects.
 
 ## Value
 
