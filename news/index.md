@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
+  colors the visible size cells and uses consistent byte-to-GB labels in
+  both the table and subtitle, keeping tiny objects distinct from zero.
+
+- [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
   reads each selected binding once, so size and class describe the same
   value even when an active binding changes between reads.
 
