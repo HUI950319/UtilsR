@@ -72,12 +72,13 @@ mutate()). Supports fixed cut points or automatic binning."><meta property="og:i
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>A numeric vector.</p></dd>
+<dd><p>A numeric vector. Vectors with <code>integer64</code> storage are not supported.</p></dd>
 
 
 <dt id="arg-breaks">breaks<a class="anchor" aria-label="anchor" href="#arg-breaks"></a></dt>
 <dd><p>Numeric vector of cut points. E.g. <code>50</code> for binary,
-<code>c(20, 50)</code> for 3 groups. Mutually exclusive with <code>nbins</code>.</p></dd>
+<code>c(20, 50)</code> for 3 groups. Mutually exclusive with <code>nbins</code>.
+Vectors with <code>integer64</code> storage are not supported.</p></dd>
 
 
 <dt id="arg-labels">labels<a class="anchor" aria-label="anchor" href="#arg-labels"></a></dt>

@@ -2,6 +2,10 @@
 
 ## UtilsR 0.6.8
 
+- [`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md)
+  rejects unsupported `integer64` data and cut points instead of
+  silently misclassifying their values or losing missing observations.
+
 - [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md)
   reuses matched level positions when recoding and keeps unmatched
   levels in a vector, avoiding an intermediate list and repeated
