@@ -20,12 +20,16 @@ fct_num(
 - x:
 
   A numeric vector. Vectors with `integer64` storage are not supported.
+  SPSS user-missing vectors must first be normalized with
+  [`haven::zap_missing()`](https://haven.tidyverse.org/reference/zap_missing.html).
 
 - breaks:
 
   Numeric vector of finite, distinct cut points. E.g. `50` for binary,
   `c(20, 50)` for 3 groups. Mutually exclusive with `nbins`. Vectors
-  with `integer64` storage are not supported.
+  with `integer64` storage are not supported. SPSS user-missing vectors
+  must first be normalized with
+  [`haven::zap_missing()`](https://haven.tidyverse.org/reference/zap_missing.html).
 
 - labels:
 
