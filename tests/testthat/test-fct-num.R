@@ -5,6 +5,10 @@ test_that("numeric binning rejects unsupported integer64 storage", {
   expect_error(fct_num(x, nbins = 3), "x.*integer64")
   expect_error(fct_num(c(1, 5, 9), breaks = bit64::as.integer64(5)),
                "breaks.*integer64")
+  for (type in c("quantile", "equal")) {
+    expect_identical(fct_num(1:12, nbins = bit64::as.integer64(3), type = type),
+                     fct_num(1:12, nbins = 3, type = type))
+  }
 })
 
 test_that("numeric binning rejects SPSS user-missing storage", {
@@ -34,6 +38,15 @@ test_that("numeric binning rejects dimensional data instead of flattening it", {
     expect_error(fct_num(x, breaks = 2), "x.*vector.*dimension")
     expect_error(fct_num(x, nbins = 2), "x.*vector.*dimension")
     expect_error(fct_num(x, nbins = 2, type = "equal"), "x.*vector.*dimension")
+  }
+})
+
+test_that("bin counts reject time-span classes before integer conversion", {
+  for (cls in c("Duration", "Period", "Interval")) {
+    for (type in c("quantile", "equal")) {
+      expect_error(fct_num(1:12, nbins = structure(3, class = cls), type = type),
+                   "nbins.*time-span")
+    }
   }
 })
 

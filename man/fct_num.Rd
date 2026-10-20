@@ -31,7 +31,8 @@ Additional digits distinguish cut points whose usual text representations coinci
 Logical labels, including \code{FALSE}, are not supported; the result is always a factor.}
 
 \item{nbins}{Single finite integer number of bins, at least 2 and less than
-\code{.Machine$integer.max}. Mutually exclusive with \code{breaks}.}
+\code{.Machine$integer.max}. Mutually exclusive with \code{breaks}.
+Time-span classes are not supported; supply a dimensionless bin count.}
 
 \item{type}{Binning method when using \code{nbins}: \code{"quantile"}
 (default) or \code{"equal"} width. Constant non-missing data cannot be
