@@ -44,6 +44,8 @@ Inputs with zero rows or zero columns return unchanged with an
   Inspection loads methods for serialized haven-labelled and integer64
   columns before counting missing values. Integer64 columns require the
   optional \pkg{bit64} package.
+  Dataset-size calculations use double precision, and counts are formatted
+  as whole numbers without a 32-bit integer limit.
   Severity colors use unrounded percentages. Percentages are rounded only
   for display, to one decimal place in cells and two in the summary.
   The subtitle counts variables containing issues; the summary counts

@@ -35,6 +35,8 @@
 #'   Inspection loads methods for serialized haven-labelled and integer64
 #'   columns before counting missing values. Integer64 columns require the
 #'   optional \pkg{bit64} package.
+#'   Dataset-size calculations use double precision, and counts are formatted
+#'   as whole numbers without a 32-bit integer limit.
 #'   Severity colors use unrounded percentages. Percentages are rounded only
 #'   for display, to one decimal place in cells and two in the summary.
 #'   The subtitle counts variables containing issues; the summary counts
@@ -112,8 +114,8 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
 
   res_na <- res_na %>%
     dplyr::mutate(
-      missing_combined = sprintf("%d (%.1f%%)", missing_count, missing_percentage),
-      special_combined = sprintf("%d (%.1f%%)", special_count, special_percentage),
+      missing_combined = sprintf("%.0f (%.1f%%)", missing_count, missing_percentage),
+      special_combined = sprintf("%.0f (%.1f%%)", special_count, special_percentage),
       total_issues = missing_count + special_count
     )
 
@@ -140,9 +142,9 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
     gt::tab_header(
       title = gt::md("**Missing & Special Value Analysis**"),
       subtitle = gt::md(sprintf(
-        paste0("Dataset: *%d* observations, *%d* variables, ",
-               "*%d* variables with missing values, ",
-               "*%d* variables with special values"),
+        paste0("Dataset: *%.0f* observations, *%.0f* variables, ",
+               "*%.0f* variables with missing values, ",
+               "*%.0f* variables with special values"),
         n_total, ncol(data), total_missing_vars, total_special_vars
       ))
     ) %>%
@@ -254,28 +256,29 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
   if (nrow(res_na) > 0) {
     total_missing <- sum(res_na$missing_count)
     total_special <- sum(res_na$special_count)
-    overall_missing_pct <- (total_missing / (n_total * ncol(data))) * 100
-    overall_special_pct <- (total_special / (n_total * ncol(data))) * 100
+    n_points <- as.double(n_total) * ncol(data)
+    overall_missing_pct <- (total_missing / n_points) * 100
+    overall_special_pct <- (total_special / n_points) * 100
 
     gt_table <- gt_table %>%
       gt::tab_source_note(
         source_note = gt::md(sprintf(
-          "**Summary:** %d missing values (%.2f%%), %d special values (%.2f%%) out of %d total data points",
+          "**Summary:** %.0f missing values (%.2f%%), %.0f special values (%.2f%%) out of %.0f total data points",
           total_missing, overall_missing_pct,
           total_special, overall_special_pct,
-          n_total * ncol(data)
+          n_points
         ))
       )
   }
 
   if (show_all) {
     .cat_line(
-      sprintf("Data quality analysis: showing all %d variables", nrow(res_na)),
+      sprintf("Data quality analysis: showing all %.0f variables", nrow(res_na)),
       type = "info"
     )
   } else {
     .cat_line(
-      sprintf("Data quality analysis: %d variables with data quality issues",
+      sprintf("Data quality analysis: %.0f variables with data quality issues",
               nrow(res_na)),
       type = "info"
     )

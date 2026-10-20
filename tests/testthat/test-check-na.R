@@ -411,3 +411,19 @@ test_that("inspection registers integer64 methods in a fresh R process", {
     }
   }
 })
+
+test_that("check_na handles totals above the integer limit", {
+  # Shared column storage keeps this valid 2.2-billion-cell fixture compact.
+  n <- 2000000L
+  p <- 1100L
+  data <- structure(stats::setNames(rep(list(rep(NA_real_, n)), p),
+                                    paste0("V", seq_len(p))),
+                    class = "data.frame", row.names = c(NA_integer_, -n))
+  tab <- capture_gt_table(check_na(data))
+  note <- paste(unlist(tab[["_source_notes"]]), collapse = " ")
+
+  expect_identical(tab[["_data"]]$missing_combined[[1L]], "2000000 (100.0%)")
+  expect_match(note, "2200000000 missing values (100.00%)", fixed = TRUE)
+  expect_match(note, "0 special values (0.00%)", fixed = TRUE)
+  expect_match(note, "out of 2200000000 total data points", fixed = TRUE)
+})

@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `check_na()` avoids integer overflow in dataset-size calculations and count
+  formatting, including summaries with more than 2^31 - 1 data points or issues.
+
 * `check_size()` scales object bars to the largest individual estimate instead
   of the total, keeping large selections readable and capping the total bar.
 
