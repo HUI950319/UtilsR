@@ -131,3 +131,22 @@ test_that("check_na validates show_all as a non-missing logical scalar", {
                  "single non-missing logical")
   }
 })
+
+test_that("check_na counts whitespace-only and whitespace-normalized markers", {
+  values <- c("", " ", "\t", "\r\n", "Not  available", "not\tavailable",
+              "Unknown / N/A", "Canada", NA_character_)
+  data <- data.frame(text = values, factor = factor(values))
+  seen <- capture_gt_data(check_na(data, show_all = TRUE))
+
+  expect_identical(seen[[1L]]$special_combined, rep("7 (77.8%)", 2L))
+  expect_identical(seen[[1L]]$missing_combined, rep("1 (11.1%)", 2L))
+})
+
+test_that("lv uses the same whitespace-normalized special-value counts", {
+  data <- data.frame(text = c(" ", "\t", "Not  available", "ok", NA_character_),
+                     factor = factor(c("", "\r\n", "not\tavailable", "ok", NA)))
+  seen <- capture_gt_data(lv(data))
+  tab <- Filter(function(x) "n_special" %in% names(x), seen)[[1L]]
+
+  expect_equal(as.numeric(tab$n_special), c(3, 3))
+})

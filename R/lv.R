@@ -21,7 +21,8 @@
 #' Inspect variables in a data.frame or Seurat object, including frequency
 #' counts, unique values, missing values and special values (e.g. "unknown",
 #' "blank", "n/a"). Supports grouped summaries and multi-variable
-#' cross-tabulation.
+#' cross-tabulation. Special-value matching normalizes whitespace, including
+#' whitespace-only blank values.
 #'
 #' @param data A data object: data.frame or Seurat object. If omitted,
 #'   \code{lv()} falls back to a global object named \code{data}, otherwise

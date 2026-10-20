@@ -24,6 +24,10 @@
 #'
 #' @details Inputs with zero rows or zero columns return unchanged with an
 #'   informational message and no table.
+#'   Special-value counts apply to character and factor columns. Matching is
+#'   case-insensitive and uses whole-word markers after collapsing repeated
+#'   whitespace. Whitespace-only strings count as blank values. Each value is
+#'   counted once; actual \code{NA} values count only as missing values.
 #'
 #' @examples
 #' \donttest{
@@ -282,7 +286,8 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
 # check_na() and lv(). A pattern must match a whole word, so "Regional" or
 # "Canada" do not count through "na", and a value holding several patterns
 # counts once. Patterns are matched on the distinct values only and weighted
-# by their counts; NA is a missing value, not a special one.
+# by their counts after normalizing whitespace; whitespace-only values are
+# blank. NA is a missing value, not a special one.
 .count_special_values <- function(x) {
   if (!is.factor(x) && !is.character(x)) return(0L)
   if (is.factor(x)) {
@@ -292,7 +297,7 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
     u <- unique(x)
     n <- tabulate(match(x, u), nbins = length(u))
   }
-  u <- tolower(u)
+  u <- tolower(trimws(gsub("[[:space:]]+", " ", u)))
   special <- grepl(
     "\\b(unknown|blank|n/a|na|missing|unspecified|not available)\\b",
     u, perl = TRUE

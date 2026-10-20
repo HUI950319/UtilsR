@@ -23,7 +23,7 @@ only variables with issues are shown.}
 }
 \value{
 Invisibly returns the complete input data unchanged, including
-columns that were not selected for inspection.
+  columns that were not selected for inspection.
 }
 \description{
 Analyze missing values and special values (e.g. "unknown", "blank", "n/a")
@@ -32,7 +32,11 @@ formatting based on severity.
 }
 \details{
 Inputs with zero rows or zero columns return unchanged with an
-informational message and no table.
+  informational message and no table.
+  Special-value counts apply to character and factor columns. Matching is
+  case-insensitive and uses whole-word markers after collapsing repeated
+  whitespace. Whitespace-only strings count as blank values. Each value is
+  counted once; actual \code{NA} values count only as missing values.
 }
 \examples{
 \donttest{

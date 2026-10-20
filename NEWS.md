@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `check_na()` and `lv()` recognize whitespace-only blanks and markers with
+  repeated spaces, tabs or newlines. Matching still runs on distinct values,
+  counts each value once, and keeps actual `NA` values separate.
+
 * `check_na()` rejects ambiguous column names, multidimensional selected
   columns, and invalid `show_all` values with informative errors, preventing
   duplicated counts and missingness percentages above 100% for matrix columns.
