@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
+  skips global name enumeration for explicit character selectors, while
+  retaining sorted numeric indices and pattern selection.
+
+- [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
   identifies its summary by row position, so an object named `**TOTAL**`
   retains the normal object styles and size gradient.
 
