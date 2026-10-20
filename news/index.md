@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
+  formats bars from raw sizes, respects later gt formatters, and keeps
+  HTML bars out of LaTeX, RTF and Word output.
+
+- [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
   documents the limits of summed object-size estimates and the
   evaluation of active bindings and promises, with self-contained
   examples.

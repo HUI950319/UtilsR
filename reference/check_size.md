@@ -30,7 +30,8 @@ A `gt` table object, including a zero-row table when no objects can be
 inspected. Objects that fail to load are skipped with a warning. Its
 underlying data contain `Object`, `Class`, `Size`, `Size_fmt` and
 `Size_bar`. Numeric sizes remain in MB (\\1024^2\\ bytes), with
-automatic B, KB, MB or GB display labels.
+automatic B, KB, MB or GB display labels. Size bars appear in HTML
+output; other formats retain the size labels.
 
 ## Details
 
