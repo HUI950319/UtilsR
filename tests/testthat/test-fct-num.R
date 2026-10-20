@@ -71,3 +71,18 @@ test_that("automatic binning reports constant data before constructing groups", 
   expect_identical(result,
                    factor(c("low", "low", "low", "high"), levels = c("low", "high")))
 })
+
+test_that("numeric binning preserves custom labels and unused groups", {
+  x <- c(-Inf, 0, 1, 2, Inf, NA, NaN)
+  for (labels in list(c("A", "B", "C"), c("A", "A", "C"),
+                     c("A", NA, "C"), setNames(c("A", "B", "C"), letters[1:3]),
+                     factor(c("A", "B", "C")), c(10, 20, 30), list("A", "B", "C"))) {
+    expect_identical(fct_num(x, breaks = c(0, 1), labels = labels),
+                     cut(x, c(-Inf, 0, 1, Inf), labels = labels, include.lowest = TRUE))
+  }
+  expect_identical(fct_num(c(0, 10, NA), nbins = 4, type = "equal"),
+                   factor(c("low", "very_high", NA),
+                          levels = c("low", "medium", "high", "very_high")))
+  expect_identical(fct_num(setNames(1:4, letters[1:4]), breaks = 2),
+                   fct_num(1:4, breaks = 2))
+})

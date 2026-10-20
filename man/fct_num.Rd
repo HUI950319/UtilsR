@@ -39,7 +39,7 @@ Cut a numeric vector into factor groups. Works on vectors (usable in
 }
 \details{
 Intervals are right-closed: each cut point belongs to the lower
-group. The lowest endpoint is included. Thus \code{"below_50"} includes 50.
+  group. The lowest endpoint is included. Thus \code{"below_50"} includes 50.
 }
 \examples{
 x <- c(10, 25, 40, 55, 70, 85, 100)

@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fct_num()` reuses integer bin codes for ordinary numeric data and unique
+  text labels, reducing factor-construction allocations. Classed inputs and
+  nonstandard labels retain the existing `cut()` path and group semantics.
+
 * `fct_num()` reports constant data explicitly in both automatic binning
   modes, without misleading zero-bin warnings or label-length errors.
   Fixed-cut behavior and right-closed group boundaries are unchanged.

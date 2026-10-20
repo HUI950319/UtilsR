@@ -7,6 +7,7 @@
 #   L1  fct_num(x, breaks, labels, nbins, type)     -- public API
 #         +-- L2  .make_break_labels()        labels from explicit breaks
 #         +-- L2  .make_default_bin_labels()  labels for quantile/equal bins
+#         +-- L2  .fct_num_cut()             reuse codes for plain inputs
 # =============================================================================
 
 #' Convert Numeric to Factor
@@ -103,7 +104,7 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
       cli::cli_abort("{.arg labels} must have length {length(full_breaks) - 1} (number of groups), got {length(labels)}.")
     }
 
-    return(cut(x, breaks = full_breaks, labels = labels, include.lowest = TRUE))
+    return(.fct_num_cut(x, full_breaks, labels))
   }
 
   # --- Mode 2: automatic binning ---
@@ -143,7 +144,21 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
     cli::cli_abort("{.arg labels} must have length {n_groups}, got {length(labels)}.")
   }
 
-  cut(x, breaks = bin_breaks, labels = labels, include.lowest = TRUE)
+  .fct_num_cut(x, bin_breaks, labels)
+}
+
+
+# ---- Internal: avoid rematching already computed integer bin codes ----
+.fct_num_cut <- function(x, breaks, labels) {
+  if (!is.object(x) && !is.complex(x) && !is.object(breaks) &&
+      is.character(labels) && !is.object(labels) &&
+      !anyNA(labels) && !anyDuplicated(labels) &&
+      length(breaks) > 1L && !anyNA(breaks) &&
+      !anyDuplicated(breaks) && !is.unsorted(breaks)) {
+    return(structure(.bincode(x, breaks, right = TRUE, include.lowest = TRUE),
+                     levels = as.character(labels), class = "factor"))
+  }
+  cut(x, breaks = breaks, labels = labels, include.lowest = TRUE)
 }
 
 
