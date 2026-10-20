@@ -13,7 +13,8 @@ fct_num(
 )
 }
 \arguments{
-\item{x}{A numeric vector. Vectors with \code{integer64} storage are not supported.
+\item{x}{A numeric vector without dimensions; matrices and arrays are not supported.
+Vectors with \code{integer64} storage are not supported.
 SPSS user-missing vectors must first be normalized with \code{haven::zap_missing()}.
 Time-span classes \code{Duration}, \code{Period}, and \code{Interval} are not
 supported; choose a time unit and convert to numeric values before binning.}

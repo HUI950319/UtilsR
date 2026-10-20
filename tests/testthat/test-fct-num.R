@@ -28,6 +28,15 @@ test_that("numeric binning rejects time-span classes before using numeric storag
   }
 })
 
+test_that("numeric binning rejects dimensional data instead of flattening it", {
+  for (x in list(matrix(1:4, nrow = 2), array(1:8, dim = c(2, 2, 2)),
+                 array(1:4, dim = 4))) {
+    expect_error(fct_num(x, breaks = 2), "x.*vector.*dimension")
+    expect_error(fct_num(x, nbins = 2), "x.*vector.*dimension")
+    expect_error(fct_num(x, nbins = 2, type = "equal"), "x.*vector.*dimension")
+  }
+})
+
 test_that("numeric binning retains right-closed boundaries and missing values", {
   x <- c(-Inf, 49, 50, 51, Inf, NA, NaN)
   expect_identical(fct_num(x, breaks = 50),

@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fct_num()` rejects matrices and arrays instead of silently flattening
+  multidimensional data into a factor vector.
+
 * `fct_num()` rejects `Duration`, `Period`, and `Interval` data and cut points
   before using their numeric storage. Convert them to explicitly chosen numeric
   units first to avoid incorrect ranges or ignored time components.

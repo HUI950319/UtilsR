@@ -15,7 +15,8 @@
 #' Cut a numeric vector into factor groups. Works on vectors (usable in
 #' \code{mutate()}). Supports fixed cut points or automatic binning.
 #'
-#' @param x A numeric vector. Vectors with \code{integer64} storage are not supported.
+#' @param x A numeric vector without dimensions; matrices and arrays are not supported.
+#'   Vectors with \code{integer64} storage are not supported.
 #'   SPSS user-missing vectors must first be normalized with \code{haven::zap_missing()}.
 #'   Time-span classes \code{Duration}, \code{Period}, and \code{Interval} are not
 #'   supported; choose a time unit and convert to numeric values before binning.
@@ -64,6 +65,9 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
 
   if (!is.numeric(x)) {
     cli::cli_abort("{.arg x} must be numeric, got {.cls {class(x)}}.")
+  }
+  if (!is.null(dim(x))) {
+    cli::cli_abort("{.arg x} must be a numeric vector without dimensions.")
   }
   if (inherits(x, "integer64")) {
     cli::cli_abort("{.arg x} with {.cls integer64} storage is not supported.")
