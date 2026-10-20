@@ -102,7 +102,8 @@ Logical labels, including <code>FALSE</code>, are not supported; the result is a
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
 <dd><p>Binning method when using <code>nbins</code>: <code>"quantile"</code>
 (default) or <code>"equal"</code> width. Constant non-missing data cannot be
-automatically split into multiple groups and produce an error.</p></dd>
+automatically split into multiple groups and produce an error.
+Equal-width binning also errors when numeric precision cannot represent distinct cut points.</p></dd>
 
 </dl></div>
     <div class="section level2">

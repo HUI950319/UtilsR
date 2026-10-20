@@ -54,7 +54,8 @@ fct_num(
 
   Binning method when using `nbins`: `"quantile"` (default) or `"equal"`
   width. Constant non-missing data cannot be automatically split into
-  multiple groups and produce an error.
+  multiple groups and produce an error. Equal-width binning also errors
+  when numeric precision cannot represent distinct cut points.
 
 ## Value
 
