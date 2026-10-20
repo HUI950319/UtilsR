@@ -80,7 +80,9 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
   if (inherits(x, c("Duration", "Period", "Interval"))) {
     cli::cli_abort("{.arg x} with a time-span class is not supported. Choose a time unit and convert to numeric values first.")
   }
-  if (all(is.na(x))) {
+  plain_x <- !is.object(x)
+  has_na <- if (plain_x) anyNA(x) else TRUE
+  if ((has_na || length(x) == 0L) && all(is.na(x))) {
     cli::cli_abort("{.arg x} is all NA.")
   }
 
@@ -143,7 +145,11 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
 
   if (type == "quantile") {
     probs <- seq(0, 1, length.out = nbins + 1L)
-    bin_breaks <- stats::quantile(x, probs = probs, na.rm = TRUE)
+    bin_breaks <- if (plain_x) {
+      stats::quantile(x, probs = probs, na.rm = has_na, names = FALSE)
+    } else {
+      stats::quantile(x, probs = probs, na.rm = TRUE)
+    }
     # Deduplicate (ties in quantiles)
     bin_breaks <- unique(bin_breaks)
     n_groups <- length(bin_breaks) - 1L
@@ -154,7 +160,7 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
       cli::cli_warn("Ties in quantiles reduced {nbins} bins to {n_groups}.")
     }
   } else {
-    rng <- range(x, na.rm = TRUE)
+    rng <- if (plain_x) range(x, na.rm = has_na) else range(x, na.rm = TRUE)
     if (rng[1] == rng[2]) {
       cli::cli_abort("Cannot split constant {.arg x} into multiple groups.")
     }

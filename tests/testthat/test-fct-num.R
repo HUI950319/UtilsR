@@ -113,6 +113,19 @@ test_that("equal-width binning diagnoses insufficient numeric precision", {
   }
 })
 
+test_that("numeric binning retains missing-data and classed-vector behavior", {
+  for (x in list(numeric(), NA_real_, c(NA_real_, NaN))) {
+    expect_error(fct_num(x, breaks = 2), "all NA")
+    expect_error(fct_num(x, nbins = 2), "all NA")
+  }
+  expected <- factor(c("low", "low", "middle", "middle", "high", "high", NA, NA),
+                     levels = c("low", "middle", "high"))
+  expect_identical(fct_num(c(1:6, NA, NaN), nbins = 3), expected)
+  expect_identical(fct_num(I(1:6), nbins = 3), fct_num(1:6, nbins = 3))
+  expect_identical(fct_num(I(1:6), nbins = 3, type = "equal"),
+                   fct_num(1:6, nbins = 3, type = "equal"))
+})
+
 test_that("logical labels cannot switch numeric binning to integer codes", {
   expect_error(fct_num(c(1, 1, 1, 2), nbins = 2, labels = FALSE), "labels.*logical")
   for (labels in list(FALSE, TRUE, NA, logical(), c(TRUE, FALSE))) {

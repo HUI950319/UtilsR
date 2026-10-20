@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fct_num()` avoids full-vector missing-value masks and redundant filtering
+  for ordinary complete numeric data, and skips unused quantile names.
+  Classed-vector dispatch, missing values, and group boundaries are preserved.
+
 * `fct_num(type = "equal")` reports when numeric precision produces repeated
   cut points, with guidance to reduce the bin count or supply explicit cut points.
   It does not merge bins or move their boundaries.
