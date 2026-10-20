@@ -3,7 +3,11 @@
 Inspect variables in a data.frame or Seurat object, including frequency
 counts, unique values, missing values and special values (e.g.
 "unknown", "blank", "n/a"). Supports grouped summaries and
-multi-variable cross-tabulation.
+multi-variable cross-tabulation. Special-value matching uses
+Unicode-aware whole-word markers and normalizes whitespace, including
+Unicode whitespace-only blanks. Values recognized by
+[`is.na()`](https://rdrr.io/r/base/NA.html), including SPSS user-missing
+codes, are excluded from special-value counts.
 
 ## Usage
 

@@ -69,25 +69,42 @@ formatting based on severity.</p>
 
 
 <dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p>A data.frame.</p></dd>
+<dd><p>A data.frame with unique, non-empty column names. Selected
+columns must be one-dimensional. Grouped inputs are inspected across all
+rows, preserving the grouping in the returned input.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Variable selection using <code><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">dplyr::select</a></code> syntax.</p></dd>
+<dd><p>Variable selection using <code><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">dplyr::select</a></code> syntax. Omit to
+inspect all columns. Renaming changes only the displayed variable names.</p></dd>
 
 
 <dt id="arg-pattern">pattern<a class="anchor" aria-label="anchor" href="#arg-pattern"></a></dt>
-<dd><p>Optional regex pattern for matching variable names.</p></dd>
+<dd><p>Optional regex pattern for matching variable names. Takes
+precedence over <code>...</code>. An unmatched pattern or selection inspects no
+columns and returns the input with an informational message.</p></dd>
 
 
 <dt id="arg-show-all">show_all<a class="anchor" aria-label="anchor" href="#arg-show-all"></a></dt>
-<dd><p>Logical. If <code>FALSE</code> (default), only variables with
-issues are shown.</p></dd>
+<dd><p>A single non-missing logical. If <code>FALSE</code> (default),
+only variables with issues are shown.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Invisibly returns the input data.</p>
+    <p>Invisibly returns the complete input data unchanged, including
+  columns that were not selected for inspection.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Inputs with zero rows or zero columns return unchanged with an
+  informational message and no table.
+  Special-value counts apply to character and factor columns. Matching is
+  case-insensitive and uses Unicode-aware whole-word markers after collapsing
+  whitespace, including Unicode spaces. Whitespace-only strings count as
+  blank values. Each value is counted once. Values recognized by
+  <code><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na()</a></code>, including SPSS user-missing codes, count only as missing
+  values.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

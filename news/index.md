@@ -2,6 +2,53 @@
 
 ## UtilsR 0.6.8
 
+- [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
+  renders its size bars directly in HTML, avoiding per-object plots and
+  temporary SVG files while handling zero-sized objects.
+
+- [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
+  and [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
+  preserve class-specific missing-value semantics when counting special
+  values, so SPSS user-missing codes are not counted twice.
+
+- [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
+  and [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) use
+  Unicode-aware word boundaries and whitespace normalization, avoiding
+  false matches within accented words and recognizing non-breaking
+  spaces and other Unicode blanks.
+
+- [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
+  constructs its summary in one operation, reducing overhead on wide
+  datasets while preserving counts, ordering, formatting and table
+  styles.
+
+- [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
+  and [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
+  recognize whitespace-only blanks and markers with repeated spaces,
+  tabs or newlines. Matching still runs on distinct values, counts each
+  value once, and keeps actual `NA` values separate.
+
+- [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
+  rejects ambiguous column names, multidimensional selected columns, and
+  invalid `show_all` values with informative errors, preventing
+  duplicated counts and missingness percentages above 100% for matrix
+  columns.
+
+- [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
+  returns empty inputs unchanged with an informational message, avoiding
+  undefined percentages and empty-table errors.
+
+- [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
+  supports renamed selections, inspects all columns by default for
+  grouped inputs, and no longer expands unmatched selections or patterns
+  to the full dataset. Explicit selections inspect the chosen columns
+  across all rows.
+
+- [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
+  preserves the complete input and its attributes when inspecting
+  selected columns, including calls where the selected columns have no
+  issues.
+
 - [`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md)
   documents and demonstrates reduced bin counts after quantile ties,
   merged factor levels from repeated labels, and the handling of

@@ -14,25 +14,43 @@ check_na(data, ..., pattern = NULL, show_all = FALSE)
 
 - data:
 
-  A data.frame.
+  A data.frame with unique, non-empty column names. Selected columns
+  must be one-dimensional. Grouped inputs are inspected across all rows,
+  preserving the grouping in the returned input.
 
 - ...:
 
   Variable selection using
   [`dplyr::select`](https://dplyr.tidyverse.org/reference/select.html)
-  syntax.
+  syntax. Omit to inspect all columns. Renaming changes only the
+  displayed variable names.
 
 - pattern:
 
-  Optional regex pattern for matching variable names.
+  Optional regex pattern for matching variable names. Takes precedence
+  over `...`. An unmatched pattern or selection inspects no columns and
+  returns the input with an informational message.
 
 - show_all:
 
-  Logical. If `FALSE` (default), only variables with issues are shown.
+  A single non-missing logical. If `FALSE` (default), only variables
+  with issues are shown.
 
 ## Value
 
-Invisibly returns the input data.
+Invisibly returns the complete input data unchanged, including columns
+that were not selected for inspection.
+
+## Details
+
+Inputs with zero rows or zero columns return unchanged with an
+informational message and no table. Special-value counts apply to
+character and factor columns. Matching is case-insensitive and uses
+Unicode-aware whole-word markers after collapsing whitespace, including
+Unicode spaces. Whitespace-only strings count as blank values. Each
+value is counted once. Values recognized by
+[`is.na()`](https://rdrr.io/r/base/NA.html), including SPSS user-missing
+codes, count only as missing values.
 
 ## See also
 
