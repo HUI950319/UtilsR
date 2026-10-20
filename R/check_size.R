@@ -20,6 +20,7 @@
 #'   Its underlying data contain \code{Object}, \code{Class}, \code{Size},
 #'   \code{Size_fmt} and \code{Size_bar}. Numeric sizes remain in MB
 #'   (\eqn{1024^2} bytes), with automatic B, KB, MB or GB display labels.
+#'   Size bars appear in HTML output; other formats retain the size labels.
 #'
 #' @details
 #' Sizes are estimates from \code{utils::object.size()}, not process memory
@@ -152,20 +153,21 @@ check_size <- function(..., pattern = NULL) {
 
   # Render simple bars directly in HTML, including an all-zero column.
   bar_html <- function(x) {
-    values <- as.numeric(x)
-    largest <- max(values, 0, na.rm = TRUE)
-    widths <- if (largest > 0) 100 * values / largest else rep(0, length(values))
+    largest <- max(x, 0, na.rm = TRUE)
+    widths <- if (largest > 0) 100 * x / largest else rep(0, length(x))
     sprintf(paste0('<div style="width:110px;height:18px;">',
                    '<div style="background-color:#4CAF50;width:%.4f%%;',
                    'height:18px;"></div></div>'), widths)
   }
   environment(bar_html) <- baseenv()
+  bar_text <- function(x) rep("", length(x))
+  environment(bar_text) <- baseenv()
 
   gt_table <- object_info %>%
     gt::gt() %>%
-    gt::text_transform(
-      locations = gt::cells_body(columns = "Size_bar"),
-      fn = bar_html
+    gt::fmt(
+      columns = "Size_bar",
+      fns = list(html = bar_html, default = bar_text)
     ) %>%
     gt::data_color(
       columns = "Size",

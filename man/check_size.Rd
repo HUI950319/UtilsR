@@ -22,6 +22,7 @@ A \code{gt} table object, including a zero-row table when no objects
   Its underlying data contain \code{Object}, \code{Class}, \code{Size},
   \code{Size_fmt} and \code{Size_bar}. Numeric sizes remain in MB
   (\eqn{1024^2} bytes), with automatic B, KB, MB or GB display labels.
+  Size bars appear in HTML output; other formats retain the size labels.
 }
 \description{
 Check memory usage of objects in \code{.GlobalEnv}. Outputs a styled

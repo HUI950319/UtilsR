@@ -166,3 +166,31 @@ test_that("check_size applies its numeric gradient to the visible size cells", {
     expect_match(cells[[3]], "background-color: #FFFFFF", fixed = TRUE)
   })
 })
+
+test_that("check_size respects later gt formatting without parsing display text", {
+  with_size_objects(list(small = raw(1024), large = raw(2048)), function(nms) {
+    result <- check_size(nms)
+    formatters <- list(
+      function(x) gt::fmt_number(x, columns = "Size_bar", decimals = 2),
+      function(x) gt::fmt_number(x, columns = "Size_bar", decimals = 4, locale = "de"),
+      function(x) gt::fmt_scientific(x, columns = "Size_bar")
+    )
+    for (formatter in formatters) {
+      formatted <- formatter(result)
+      expect_no_warning(html <- gt::as_raw_html(formatted))
+      expect_false(grepl("background-color:#4CAF50", html, fixed = TRUE))
+      expect_identical(formatted[["_data"]], result[["_data"]])
+    }
+  })
+})
+
+test_that("check_size keeps HTML bars out of other output formats", {
+  with_size_objects(list(kilo = raw(1024)), function(nms) {
+    result <- check_size(nms)
+    for (render in list(gt::as_latex, gt::as_rtf, gt::as_word)) {
+      output <- as.character(render(result))
+      expect_false(any(grepl("background-color:#4CAF50", output, fixed = TRUE)))
+      expect_true(any(grepl(result[["_data"]][["Size_fmt"]][[2L]], output, fixed = TRUE)))
+    }
+  })
+})
