@@ -7,6 +7,9 @@
 * `check_size()` renders its size bars directly in HTML, avoiding per-object
   plots and temporary SVG files while handling zero-sized objects.
 
+* `check_na()` rounds percentages only for display and uses unrounded values
+  for severity colors, correcting double rounding and threshold misclassification.
+
 * `check_na()` and `lv()` preserve class-specific missing-value semantics when
   counting special values, so SPSS user-missing codes are not counted twice.
 

@@ -30,6 +30,8 @@
 #'   blank values. Each value is counted once. Values recognized by
 #'   \code{is.na()}, including SPSS user-missing codes, count only as missing
 #'   values.
+#'   Severity colors use unrounded percentages. Percentages are rounded only
+#'   for display, to one decimal place in cells and two in the summary.
 #'
 #' @examples
 #' \donttest{
@@ -89,9 +91,9 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
   res_na <- data.frame(
     variable = names(data),
     missing_count = missing_count,
-    missing_percentage = round((missing_count / n_total) * 100, 2),
+    missing_percentage = (missing_count / n_total) * 100,
     special_count = special_count,
-    special_percentage = round((special_count / n_total) * 100, 2),
+    special_percentage = (special_count / n_total) * 100,
     data_type = vapply(data, function(x) class(x)[1L], character(1)),
     stringsAsFactors = FALSE,
     row.names = NULL
@@ -239,12 +241,8 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
   if (nrow(res_na) > 0) {
     total_missing <- sum(res_na$missing_count)
     total_special <- sum(res_na$special_count)
-    overall_missing_pct <- round(
-      (total_missing / (n_total * ncol(data))) * 100, 2
-    )
-    overall_special_pct <- round(
-      (total_special / (n_total * ncol(data))) * 100, 2
-    )
+    overall_missing_pct <- (total_missing / (n_total * ncol(data))) * 100
+    overall_special_pct <- (total_special / (n_total * ncol(data))) * 100
 
     gt_table <- gt_table %>%
       gt::tab_source_note(

@@ -39,6 +39,8 @@ Inputs with zero rows or zero columns return unchanged with an
   blank values. Each value is counted once. Values recognized by
   \code{is.na()}, including SPSS user-missing codes, count only as missing
   values.
+  Severity colors use unrounded percentages. Percentages are rounded only
+  for display, to one decimal place in cells and two in the summary.
 }
 \examples{
 \donttest{

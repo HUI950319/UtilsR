@@ -17,6 +17,21 @@ capture_gt_data <- function(expr) {
   seen
 }
 
+# Source notes are added after all styles; retain the fully constructed table.
+capture_gt_table <- function(expr) {
+  seen <- NULL
+  note_orig <- gt::tab_source_note
+  testthat::local_mocked_bindings(
+    tab_source_note = function(data, ...) {
+      seen <<- note_orig(data, ...)
+      seen
+    },
+    .package = "gt"
+  )
+  invisible(utils::capture.output(suppressMessages(expr)))
+  seen
+}
+
 special_values_data <- function() {
   data.frame(
     region = c("Regional", "National", "Canada", "Local", "Distant", "Local"),
@@ -211,4 +226,46 @@ test_that("lv excludes SPSS user missings from special-value counts", {
 
   expect_equal(as.numeric(tab$n_special), c(1, 2, 0))
   expect_equal(as.numeric(tab$n_na), c(3, 2, 4))
+})
+
+test_that("check_na rounds percentages only when formatting them", {
+  for (case in list(c(6L, 13L, "46.2"), c(1L, 26L, "3.8"))) {
+    count <- as.integer(case[[1L]])
+    n <- as.integer(case[[2L]])
+    data <- data.frame(missing = c(rep(NA_real_, count), rep(1, n - count)),
+                       special = c(rep("Unknown", count), rep("ok", n - count)))
+    seen <- capture_gt_data(check_na(data))
+    tab <- seen[[1L]]
+    expected <- paste0(count, " (", case[[3L]], "%)")
+
+    expect_identical(tab$missing_combined[tab$variable == "missing"], expected)
+    expect_identical(tab$special_combined[tab$variable == "special"], expected)
+  }
+})
+
+test_that("check_na assigns severity styles using unrounded proportions", {
+  n <- 100000L
+  data <- data.frame(
+    missing_medium = c(rep(NA_real_, 20001L), rep(1, n - 20001L)),
+    missing_high = c(rep(NA_real_, 50001L), rep(1, n - 50001L)),
+    missing_rare = c(NA_real_, rep(1, n - 1L)),
+    special_medium = c(rep("Unknown", 10001L), rep("ok", n - 10001L)),
+    special_high = c(rep("Unknown", 30001L), rep("ok", n - 30001L)),
+    special_rare = c("Unknown", rep("ok", n - 1L))
+  )
+  tab <- capture_gt_table(check_na(data))
+  fills <- function(variable, column) {
+    row <- match(variable, tab[["_data"]]$variable)
+    styles <- tab[["_styles"]]
+    cells <- styles$styles[styles$colname == column & styles$rownum == row]
+    unlist(lapply(cells, function(x) x[["cell_fill"]][["color"]]),
+           use.names = FALSE)
+  }
+
+  expect_identical(fills("missing_medium", "missing_combined"), "#FFCC80")
+  expect_identical(fills("missing_high", "missing_combined"), "#FFCDD2")
+  expect_identical(fills("missing_rare", "missing_combined"), "#FFF176")
+  expect_identical(fills("special_medium", "special_combined"), "#BBDEFB")
+  expect_identical(fills("special_high", "special_combined"), "#E3F2FD")
+  expect_identical(fills("special_rare", "special_combined"), "#E1F5FE")
 })
