@@ -108,3 +108,31 @@ test_that("check_size handles a truly empty global environment", {
                     stdout = TRUE, stderr = TRUE)
   expect_null(attr(output, "status"), info = paste(output, collapse = "\n"))
 })
+
+test_that("check_size reads an active binding once for both size and class", {
+  with_size_objects(list(active = 1), function(nms) {
+    rm(list = nms, envir = .GlobalEnv)
+    reads <- 0L
+    makeActiveBinding(nms, function(value) {
+      reads <<- reads + 1L
+      if (reads == 1L) rep(1, 100) else "changed"
+    }, .GlobalEnv)
+    result <- check_size(nms)[["_data"]]
+    expect_identical(reads, 1L)
+    expect_identical(result[["Class"]], c("Summary", "numeric"))
+    expect_equal(result[["Size"]][[2]],
+                 as.numeric(utils::object.size(rep(1, 100))) / 1024^2)
+  })
+})
+
+test_that("check_size inspects promised objects without reevaluating them", {
+  with_size_objects(list(lazy = 1), function(nms) {
+    counter <- new.env(parent = emptyenv())
+    counter[["evaluations"]] <- 0L
+    delayedAssign(nms, { counter[["evaluations"]] <- counter[["evaluations"]] + 1L; raw(16) },
+                  eval.env = environment(), assign.env = .GlobalEnv)
+    result <- check_size(nms)[["_data"]]
+    expect_identical(counter[["evaluations"]], 1L)
+    expect_identical(result[["Class"]], c("Summary", "raw"))
+  })
+})

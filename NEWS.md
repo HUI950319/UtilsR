@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `check_size()` reads each selected binding once, so size and class describe
+  the same value even when an active binding changes between reads.
+
 * `check_na()` labels affected-variable counts explicitly in its subtitle,
   distinguishing them from the individual-value counts in the summary.
 

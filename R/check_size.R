@@ -82,27 +82,20 @@ check_size <- function(..., pattern = NULL) {
     .cat_line("No objects selected in the global environment.", type = "info")
   }
 
-  object_sizes <- pbapply::pblapply(objects, function(x) {
-    tryCatch({
-      utils::object.size(get(x, envir = .GlobalEnv, inherits = FALSE)) / (1024^2)
-    }, error = function(e) {
-      NA_real_
-    })
-  })
-
-  object_classes <- pbapply::pblapply(objects, function(x) {
+  object_metrics <- pbapply::pblapply(objects, function(x) {
     tryCatch({
       obj <- get(x, envir = .GlobalEnv, inherits = FALSE)
-      paste(class(obj), collapse = ", ")
+      list(size = as.numeric(utils::object.size(obj)) / (1024^2),
+           class = paste(class(obj), collapse = ", "))
     }, error = function(e) {
-      "Unknown"
+      list(size = NA_real_, class = "Unknown")
     })
   })
 
   object_info <- data.frame(
     Object = objects,
-    Class = as.character(unlist(object_classes)),
-    Size = as.numeric(unlist(object_sizes)),
+    Class = vapply(object_metrics, `[[`, character(1), "class"),
+    Size = vapply(object_metrics, `[[`, numeric(1), "size"),
     stringsAsFactors = FALSE
   )
 
