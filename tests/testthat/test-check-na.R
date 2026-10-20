@@ -65,3 +65,33 @@ test_that("check_na preserves the input when selected columns have no issues", {
   expect_false(result$visible)
   expect_length(seen, 0L)
 })
+
+test_that("check_na inspects renamed selections without changing the input", {
+  data <- data.frame(a = c(1, NA), b = c("ok", "Unknown"))
+  seen <- capture_gt_data(result <- check_na(data, renamed = a))
+
+  expect_identical(seen[[1L]]$variable, "renamed")
+  expect_identical(seen[[1L]]$missing_combined, "1 (50.0%)")
+  expect_identical(result, data)
+})
+
+test_that("check_na does not expand unmatched selections to every column", {
+  data <- data.frame(a = c(1, NA), b = c("ok", "Unknown"))
+  selected <- capture_gt_data(result <- check_na(data, dplyr::starts_with("absent")))
+  patterned <- capture_gt_data(check_na(data, pattern = "^absent"))
+
+  expect_length(selected, 0L)
+  expect_length(patterned, 0L)
+  expect_identical(result, data)
+})
+
+test_that("check_na selects grouped inputs across all rows", {
+  data <- dplyr::group_by(data.frame(group = c("A", "B"), x = c(1, NA)), group)
+  all <- capture_gt_data(result <- check_na(data, show_all = TRUE))
+  selected <- capture_gt_data(check_na(data, x, show_all = TRUE))
+
+  expect_setequal(all[[1L]]$variable, c("group", "x"))
+  expect_identical(selected[[1L]]$variable, "x")
+  expect_identical(selected[[1L]]$missing_combined, "1 (50.0%)")
+  expect_identical(result, data)
+})

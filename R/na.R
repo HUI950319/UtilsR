@@ -9,8 +9,11 @@
 #' formatting based on severity.
 #'
 #' @param data A data.frame.
-#' @param ... Variable selection using \code{dplyr::select} syntax.
-#' @param pattern Optional regex pattern for matching variable names.
+#' @param ... Variable selection using \code{dplyr::select} syntax. Omit to
+#'   inspect all columns. Renaming changes only the displayed variable names.
+#' @param pattern Optional regex pattern for matching variable names. Takes
+#'   precedence over \code{...}. An unmatched pattern or selection inspects no
+#'   columns and returns the input with an informational message.
 #' @param show_all Logical. If \code{FALSE} (default), only variables with
 #'   issues are shown.
 #'
@@ -40,19 +43,14 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
 
   # Variable selection
   if (!is.null(pattern)) {
-    vars <- names(data)[grepl(pattern, names(data))]
-  } else {
-    vars <- names(dplyr::select(data, ...))
+    data <- data[, grepl(pattern, names(data)), drop = FALSE]
+  } else if (...length() > 0L) {
+    data <- dplyr::select(dplyr::ungroup(data), ...)
   }
-  if (length(vars) == 0) {
-    if (!is.null(pattern)) {
-      cli::cli_alert_warning(
-        "\u672a\u627e\u5230\u5339\u914d\u6a21\u5f0f '{pattern}' \u7684\u53d8\u91cf\uff0c\u5c06\u5206\u6790\u6240\u6709\u53d8\u91cf"
-      )
-    }
-    vars <- names(data)
+  if (ncol(data) == 0L) {
+    .cat_line("No variables selected for data quality analysis.", type = "info")
+    return(invisible(input_data))
   }
-  data <- data[, vars, drop = FALSE]
 
   n_total <- nrow(data)
 

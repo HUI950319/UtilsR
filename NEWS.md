@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `check_na()` supports renamed selections, inspects all columns by default for
+  grouped inputs, and no longer expands unmatched selections or patterns to the
+  full dataset. Explicit selections inspect the chosen columns across all rows.
+
 * `check_na()` preserves the complete input and its attributes when inspecting
   selected columns, including calls where the selected columns have no issues.
 
