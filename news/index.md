@@ -2,6 +2,11 @@
 
 ## UtilsR 0.6.8
 
+- `fct_num(type = "equal")` computes plain numeric ranges without
+  concatenating or filtering the full vector, reducing allocations while
+  retaining cut points, missing values, and class-specific range
+  methods.
+
 - [`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md)
   rejects time-span objects supplied as `nbins`, preventing their
   conversion to seconds from silently requesting a different number of
