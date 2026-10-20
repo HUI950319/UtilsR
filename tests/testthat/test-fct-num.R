@@ -74,6 +74,15 @@ test_that("automatic labels keep nearby cut points in separate groups", {
                    c("below_2.5", "2.5-7.5", "above_7.5"))
 })
 
+test_that("many fixed cut points retain interval order and labels", {
+  result <- fct_num(c(-Inf, 1, 500, 1000, Inf, NA), breaks = 1:1000)
+  expect_identical(as.integer(result), c(1L, 1L, 500L, 1000L, 1001L, NA_integer_))
+  expect_length(levels(result), 1001L)
+  expect_identical(anyDuplicated(levels(result)), 0L)
+  expect_identical(levels(result)[c(1, 2, 500, 1000, 1001)],
+                   c("below_1", "1-2", "499-500", "999-1000", "above_1000"))
+})
+
 test_that("automatic bin counts are validated before integer conversion", {
   for (nbins in list(2.9, "3", factor("3", levels = c("2", "3")),
                     integer(), c(2, 3), NA_real_, NaN, Inf, -Inf, 1, 0, -2,
