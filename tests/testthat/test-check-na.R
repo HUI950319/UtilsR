@@ -179,3 +179,36 @@ test_that("lv uses the same Unicode special-value semantics", {
   expect_equal(unname(counts[c("words", "word_factor")]), c(4, 4))
   expect_equal(unname(counts[c("spaces", "space_factor")]), c(6, 6))
 })
+
+spss_special_values_data <- function() {
+  codes <- list(marker = "Unknown", blank = "", both = c("Unknown", ""))
+  as.data.frame(lapply(codes, function(code) {
+    structure(c("Unknown", "", NA_character_, "ok", "Unknown"),
+              class = c("haven_labelled_spss", "haven_labelled", "vctrs_vctr",
+                        "character"), na_values = code)
+  }))
+}
+
+test_that("check_na counts SPSS user missings only as missing values", {
+  data <- spss_special_values_data()
+  expect_identical(unname(vapply(data, function(x) sum(is.na(x)), integer(1))),
+                   c(3L, 2L, 4L))
+  seen <- capture_gt_data(result <- check_na(data, show_all = TRUE))
+  tab <- seen[[1L]]
+  special <- stats::setNames(tab$special_combined, tab$variable)
+  missing <- stats::setNames(tab$missing_combined, tab$variable)
+
+  expect_identical(unname(special[names(data)]),
+                   c("1 (20.0%)", "2 (40.0%)", "0 (0.0%)"))
+  expect_identical(unname(missing[names(data)]),
+                   c("3 (60.0%)", "2 (40.0%)", "4 (80.0%)"))
+  expect_identical(result, data)
+})
+
+test_that("lv excludes SPSS user missings from special-value counts", {
+  seen <- capture_gt_data(lv(spss_special_values_data()))
+  tab <- Filter(function(x) "n_special" %in% names(x), seen)[[1L]]
+
+  expect_equal(as.numeric(tab$n_special), c(1, 2, 0))
+  expect_equal(as.numeric(tab$n_na), c(3, 2, 4))
+})

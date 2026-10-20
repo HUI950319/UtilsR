@@ -36,8 +36,9 @@ Inputs with zero rows or zero columns return unchanged with an
   Special-value counts apply to character and factor columns. Matching is
   case-insensitive and uses Unicode-aware whole-word markers after collapsing
   whitespace, including Unicode spaces. Whitespace-only strings count as
-  blank values. Each value is counted once; actual \code{NA} values count
-  only as missing values.
+  blank values. Each value is counted once. Values recognized by
+  \code{is.na()}, including SPSS user-missing codes, count only as missing
+  values.
 }
 \examples{
 \donttest{

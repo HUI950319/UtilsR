@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `check_na()` and `lv()` preserve class-specific missing-value semantics when
+  counting special values, so SPSS user-missing codes are not counted twice.
+
 * `check_na()` and `lv()` use Unicode-aware word boundaries and whitespace
   normalization, avoiding false matches within accented words and recognizing
   non-breaking spaces and other Unicode blanks.

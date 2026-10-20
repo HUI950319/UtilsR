@@ -23,6 +23,8 @@
 #' "blank", "n/a"). Supports grouped summaries and multi-variable
 #' cross-tabulation. Special-value matching uses Unicode-aware whole-word
 #' markers and normalizes whitespace, including Unicode whitespace-only blanks.
+#' Values recognized by \code{is.na()}, including SPSS user-missing codes,
+#' are excluded from special-value counts.
 #'
 #' @param data A data object: data.frame or Seurat object. If omitted,
 #'   \code{lv()} falls back to a global object named \code{data}, otherwise

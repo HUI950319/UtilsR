@@ -69,6 +69,8 @@ counts, unique values, missing values and special values (e.g. "unknown",
 "blank", "n/a"). Supports grouped summaries and multi-variable
 cross-tabulation. Special-value matching uses Unicode-aware whole-word
 markers and normalizes whitespace, including Unicode whitespace-only blanks.
+Values recognized by \code{is.na()}, including SPSS user-missing codes,
+are excluded from special-value counts.
 }
 \examples{
 \dontrun{
