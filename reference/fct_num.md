@@ -66,6 +66,10 @@ A factor.
 Intervals are right-closed: each cut point belongs to the lower group.
 The lowest endpoint is included. Thus `"below_50"` includes 50.
 
+Automatic labels for fixed cut points follow the current numeric
+formatting, including `getOption("scipen")`. Supply `labels` when factor
+level names must remain stable across sessions or display settings.
+
 ## See also
 
 Other factor tools:
@@ -89,6 +93,11 @@ fct_num(x, breaks = c(30, 70))
 fct_num(x, breaks = c(30, 70), labels = c("Low", "Mid", "High"))
 #> [1] Low  Low  Mid  Mid  Mid  High High
 #> Levels: Low Mid High
+
+# Explicit labels stay stable across numeric formatting settings
+fct_num(c(50000, 150000), breaks = 100000, labels = c("Lower", "Higher"))
+#> [1] Lower  Higher
+#> Levels: Lower Higher
 
 # Automatic binning
 fct_num(x, nbins = 3)

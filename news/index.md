@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md)
+  documents that automatic fixed-cut labels follow numeric formatting
+  options such as `scipen`, and shows explicit labels for stable factor
+  levels.
+
+- [`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md)
   constructs fixed-cut interval labels in one vectorized operation,
   reducing overhead when many cut points are supplied while preserving
   labels and interval order.

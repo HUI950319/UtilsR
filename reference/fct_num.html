@@ -114,6 +114,9 @@ Equal-width binning also errors when numeric precision cannot represent distinct
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Intervals are right-closed: each cut point belongs to the lower
   group. The lowest endpoint is included. Thus <code>"below_50"</code> includes 50.</p>
+<p>Automatic labels for fixed cut points follow the current numeric formatting,
+  including <code>getOption("scipen")</code>. Supply <code>labels</code> when factor level
+  names must remain stable across sessions or display settings.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -138,6 +141,11 @@ Equal-width binning also errors when numeric precision cannot represent distinct
 <span class="r-in"><span><span class="fu">fct_num</span><span class="op">(</span><span class="va">x</span>, breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">30</span>, <span class="fl">70</span><span class="op">)</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Low"</span>, <span class="st">"Mid"</span>, <span class="st">"High"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] Low  Low  Mid  Mid  Mid  High High</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Levels: Low Mid High</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Explicit labels stay stable across numeric formatting settings</span></span></span>
+<span class="r-in"><span><span class="fu">fct_num</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">50000</span>, <span class="fl">150000</span><span class="op">)</span>, breaks <span class="op">=</span> <span class="fl">100000</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Lower"</span>, <span class="st">"Higher"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] Lower  Higher</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Levels: Lower Higher</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Automatic binning</span></span></span>
 <span class="r-in"><span><span class="fu">fct_num</span><span class="op">(</span><span class="va">x</span>, nbins <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
