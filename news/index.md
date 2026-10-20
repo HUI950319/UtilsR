@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
+  and [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) skip
+  unused factor levels when matching special-value markers, preserving
+  counts and the original factor levels.
+
+- [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
   avoids integer overflow in dataset-size calculations and count
   formatting, including summaries with more than 2^31 - 1 data points or
   issues.
