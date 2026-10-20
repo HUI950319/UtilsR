@@ -2,6 +2,10 @@
 
 ## UtilsR 0.6.8
 
+- [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
+  scales object bars to the largest individual estimate instead of the
+  total, keeping large selections readable and capping the total bar.
+
 - [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
   and [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) load
   missing-value methods for serialized labelled and integer64 columns,

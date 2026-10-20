@@ -31,7 +31,8 @@ inspected. Objects that fail to load are skipped with a warning. Its
 underlying data contain `Object`, `Class`, `Size`, `Size_fmt` and
 `Size_bar`. Numeric sizes remain in MB (\\1024^2\\ bytes), with
 automatic B, KB, MB or GB display labels. Size bars appear in HTML
-output; other formats retain the size labels.
+output; other formats retain the size labels. Object bars are scaled to
+the largest individual object; the total bar is capped at full width.
 
 ## Details
 
