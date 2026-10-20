@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fct_num()` increases automatic label precision only when cut-point text
+  collides, preventing nearby numeric intervals from merging into one level.
+
 * `fct_num()` validates fixed cut points before sorting, rejecting missing,
   non-finite, duplicate, or non-numeric values instead of silently changing
   groups or assigning misleading labels.

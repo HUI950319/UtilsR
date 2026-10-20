@@ -30,3 +30,16 @@ test_that("fixed cut points must be finite distinct numeric values", {
                    factor(c("below_3", "3-7", "above_7"),
                           levels = c("below_3", "3-7", "above_7")))
 })
+
+test_that("automatic labels keep nearby cut points in separate groups", {
+  for (breaks in list(1 + c(0, 1e-15, 2e-15, 3e-15),
+                     -1 + c(0, 1e-15, 2e-15, 3e-15),
+                     1e12 + c(0, 0.001, 0.002, 0.003))) {
+    result <- fct_num(c(breaks, Inf, NA), breaks = breaks)
+    expect_identical(as.integer(result), c(1:5, NA_integer_))
+    expect_length(levels(result), 5L)
+    expect_identical(anyDuplicated(levels(result)), 0L)
+  }
+  expect_identical(levels(fct_num(1:10, breaks = c(2.5, 7.5))),
+                   c("below_2.5", "2.5-7.5", "above_7.5"))
+})

@@ -20,7 +20,8 @@ fct_num(
 Vectors with \code{integer64} storage are not supported.}
 
 \item{labels}{Character vector of group labels. If \code{NULL}, labels
-are auto-generated (e.g. \code{"below_50"}, \code{"50-80"}, \code{"above_80"}).}
+are auto-generated (e.g. \code{"below_50"}, \code{"50-80"}, \code{"above_80"}).
+Additional digits distinguish cut points whose usual text representations coincide.}
 
 \item{nbins}{Integer number of bins for automatic binning. Mutually
 exclusive with \code{breaks}.}

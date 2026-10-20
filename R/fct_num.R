@@ -20,6 +20,7 @@
 #'   Vectors with \code{integer64} storage are not supported.
 #' @param labels Character vector of group labels. If \code{NULL}, labels
 #'   are auto-generated (e.g. \code{"below_50"}, \code{"50-80"}, \code{"above_80"}).
+#'   Additional digits distinguish cut points whose usual text representations coincide.
 #' @param nbins Integer number of bins for automatic binning. Mutually
 #'   exclusive with \code{breaks}.
 #' @param type Binning method when using \code{nbins}: \code{"quantile"}
@@ -137,14 +138,18 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
 # ---- Internal: auto-generate labels for fixed breaks ----
 .make_break_labels <- function(breaks) {
   n <- length(breaks)
+  break_text <- as.character(breaks)
+  if (anyDuplicated(break_text)) {
+    break_text <- sprintf("%.17g", breaks)
+  }
   labs <- character(n + 1L)
-  labs[1] <- paste0("below_", breaks[1])
+  labs[1] <- paste0("below_", break_text[1])
   if (n >= 2) {
     for (i in seq_len(n - 1)) {
-      labs[i + 1] <- paste0(breaks[i], "-", breaks[i + 1])
+      labs[i + 1] <- paste0(break_text[i], "-", break_text[i + 1])
     }
   }
-  labs[n + 1] <- paste0("above_", breaks[n])
+  labs[n + 1] <- paste0("above_", break_text[n])
   labs
 }
 
