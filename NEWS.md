@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fct_num()` rejects SPSS user-missing data and cut points with a message
+  to normalize them first, preventing missing codes from entering valid groups
+  or influencing automatic cut points.
+
 * `fct_num()` reuses integer bin codes for ordinary numeric data and unique
   text labels, reducing factor-construction allocations. Classed inputs and
   nonstandard labels retain the existing `cut()` path and group semantics.

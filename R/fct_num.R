@@ -16,9 +16,11 @@
 #' \code{mutate()}). Supports fixed cut points or automatic binning.
 #'
 #' @param x A numeric vector. Vectors with \code{integer64} storage are not supported.
+#'   SPSS user-missing vectors must first be normalized with \code{haven::zap_missing()}.
 #' @param breaks Numeric vector of finite, distinct cut points. E.g. \code{50} for binary,
 #'   \code{c(20, 50)} for 3 groups. Mutually exclusive with \code{nbins}.
 #'   Vectors with \code{integer64} storage are not supported.
+#'   SPSS user-missing vectors must first be normalized with \code{haven::zap_missing()}.
 #' @param labels Character vector of group labels. If \code{NULL}, labels
 #'   are auto-generated (e.g. \code{"below_50"}, \code{"50-80"}, \code{"above_80"}).
 #'   Additional digits distinguish cut points whose usual text representations coincide.
@@ -63,6 +65,9 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
   if (inherits(x, "integer64")) {
     cli::cli_abort("{.arg x} with {.cls integer64} storage is not supported.")
   }
+  if (inherits(x, "haven_labelled_spss")) {
+    cli::cli_abort("{.arg x} with {.cls haven_labelled_spss} storage is not supported. Use {.code haven::zap_missing()} first.")
+  }
   if (all(is.na(x))) {
     cli::cli_abort("{.arg x} is all NA.")
   }
@@ -80,6 +85,9 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
   if (!is.null(breaks)) {
     if (inherits(breaks, "integer64")) {
       cli::cli_abort("{.arg breaks} with {.cls integer64} storage is not supported.")
+    }
+    if (inherits(breaks, "haven_labelled_spss")) {
+      cli::cli_abort("{.arg breaks} with {.cls haven_labelled_spss} storage is not supported. Use {.code haven::zap_missing()} first.")
     }
     if (length(breaks) == 0) {
       cli::cli_abort("{.arg breaks} must have at least one value.")

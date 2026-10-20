@@ -7,6 +7,16 @@ test_that("numeric binning rejects unsupported integer64 storage", {
                "breaks.*integer64")
 })
 
+test_that("numeric binning rejects SPSS user-missing storage", {
+  x <- structure(c(1, 2, 99, NA_real_),
+                 class = c("haven_labelled_spss", "haven_labelled", "vctrs_vctr", "double"),
+                 na_values = 99)
+  expect_error(fct_num(x, breaks = 2), "zap_missing")
+  expect_error(fct_num(x, nbins = 2), "zap_missing")
+  expect_error(fct_num(x, nbins = 2, type = "equal"), "zap_missing")
+  expect_error(fct_num(1:4, breaks = x[1]), "breaks.*haven_labelled_spss")
+})
+
 test_that("numeric binning retains right-closed boundaries and missing values", {
   x <- c(-Inf, 49, 50, 51, Inf, NA, NaN)
   expect_identical(fct_num(x, breaks = 50),

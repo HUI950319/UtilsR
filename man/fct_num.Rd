@@ -13,11 +13,13 @@ fct_num(
 )
 }
 \arguments{
-\item{x}{A numeric vector. Vectors with \code{integer64} storage are not supported.}
+\item{x}{A numeric vector. Vectors with \code{integer64} storage are not supported.
+SPSS user-missing vectors must first be normalized with \code{haven::zap_missing()}.}
 
 \item{breaks}{Numeric vector of finite, distinct cut points. E.g. \code{50} for binary,
 \code{c(20, 50)} for 3 groups. Mutually exclusive with \code{nbins}.
-Vectors with \code{integer64} storage are not supported.}
+Vectors with \code{integer64} storage are not supported.
+SPSS user-missing vectors must first be normalized with \code{haven::zap_missing()}.}
 
 \item{labels}{Character vector of group labels. If \code{NULL}, labels
 are auto-generated (e.g. \code{"below_50"}, \code{"50-80"}, \code{"above_80"}).
