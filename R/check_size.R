@@ -17,14 +17,31 @@
 #'
 #' @return A \code{gt} table object, including a zero-row table when no objects
 #'   can be inspected. Objects that fail to load are skipped with a warning.
+#'   Its underlying data contain \code{Object}, \code{Class}, \code{Size},
+#'   \code{Size_fmt} and \code{Size_bar}. Numeric sizes remain in MB
+#'   (\eqn{1024^2} bytes), with automatic B, KB, MB or GB display labels.
+#'
+#' @details
+#' Sizes are estimates from \code{utils::object.size()}, not process memory
+#' usage or the memory that would be freed by removing an object. The total
+#' sums the individual estimates; shared storage can therefore be counted
+#' more than once. Environments, closure environments, external pointers and
+#' compact ALTREP representations are not fully accounted for by this method.
+#' Each selected binding is read once. Reading active bindings invokes their
+#' functions, and reading promises evaluates them; inspection can therefore
+#' trigger user-defined computations.
 #'
 #' @examples
-#' \dontrun{
-#' check_size()
-#' check_size(1:5)
-#' check_size("data", "result", "model")
-#' check_size(pattern = "data")
-#' }
+#' (function() {
+#'   prefix <- basename(tempfile("check_size_example_"))
+#'   object_names <- paste0(prefix, c("_small", "_large"))
+#'   list2env(stats::setNames(list(1:10, raw(2048)), object_names), .GlobalEnv)
+#'   on.exit(rm(list = object_names, envir = .GlobalEnv), add = TRUE)
+#'   check_size(object_names)
+#'   indices <- match(object_names, ls(envir = .GlobalEnv, all.names = TRUE))
+#'   check_size(indices)
+#'   check_size(pattern = paste0("^", prefix))
+#' })()
 #'
 #' @export
 #' @family inspect
