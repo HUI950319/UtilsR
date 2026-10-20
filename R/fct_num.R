@@ -44,6 +44,19 @@
 #'   including \code{getOption("scipen")}. Supply \code{labels} when factor level
 #'   names must remain stable across sessions or display settings.
 #'
+#'   Quantile binning removes repeated cut points with a warning. The resulting
+#'   number of intervals may be smaller than \code{nbins}; custom \code{labels}
+#'   must match the number of remaining intervals.
+#'
+#'   Repeated custom labels merge intervals into one factor level, following
+#'   \code{\link{cut}()}. Use distinct labels to keep every interval separate.
+#'
+#'   With fixed cut points, observations equal to \code{-Inf} or \code{Inf}
+#'   belong to the first or last interval, respectively. Equal-width binning
+#'   requires finite minimum and maximum values. Quantile binning passes
+#'   infinite observations to \code{stats::quantile()} without filtering them;
+#'   they may lead to fewer intervals or an error.
+#'
 #' @return A factor.
 #'
 #' @examples
@@ -61,6 +74,15 @@
 #' fct_num(x, nbins = 3)
 #' fct_num(x, nbins = 2, labels = c("Low", "High"))
 #' fct_num(x, nbins = 4, type = "equal")
+#'
+#' # Quantile ties reduce four requested bins to two, with a warning
+#' fct_num(c(1, 1, 1, 2), nbins = 4)
+#'
+#' # Repeated labels merge intervals into the same factor level
+#' fct_num(c(1, 5, 9), breaks = c(3, 7), labels = c("Lower", "Lower", "Higher"))
+#'
+#' # Fixed cut points retain infinite observations in the outer intervals
+#' fct_num(c(-Inf, 50, Inf, NA), breaks = 50)
 #'
 #' # In mutate():
 #' \dontrun{
