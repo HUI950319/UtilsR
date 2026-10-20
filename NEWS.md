@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `check_size()` renders its size bars directly in HTML, avoiding per-object
+  plots and temporary SVG files while handling zero-sized objects.
+
 * `check_na()` and `lv()` preserve class-specific missing-value semantics when
   counting special values, so SPSS user-missing codes are not counted twice.
 

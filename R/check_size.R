@@ -117,14 +117,22 @@ check_size <- function(..., pattern = NULL) {
   total_mb <- sum(object_info$Size[object_info$Object != "**TOTAL**"], na.rm = TRUE)
   total_str <- if (total_mb >= 1024) sprintf("%.2f GB", total_mb / 1024) else sprintf("%.2f MB", total_mb)
 
+  # Render simple bars directly in HTML, including an all-zero column.
+  bar_html <- function(x) {
+    values <- as.numeric(x)
+    largest <- max(values, 0, na.rm = TRUE)
+    widths <- if (largest > 0) 100 * values / largest else rep(0, length(values))
+    sprintf(paste0('<div style="width:110px;height:18px;">',
+                   '<div style="background-color:#4CAF50;width:%.4f%%;',
+                   'height:18px;"></div></div>'), widths)
+  }
+  environment(bar_html) <- baseenv()
+
   gt_table <- object_info %>%
     gt::gt() %>%
-    gtExtras::gt_plt_bar(
-      column = Size_bar,
-      keep_column = FALSE,
-      color = "#4CAF50",
-      scale_type = "number",
-      width = 30
+    gt::text_transform(
+      locations = gt::cells_body(columns = "Size_bar"),
+      fn = bar_html
     ) %>%
     gt::data_color(
       columns = "Size",
