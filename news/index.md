@@ -3,6 +3,14 @@
 ## UtilsR 0.6.8
 
 - [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
+  and [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) also
+  count “Blanks”, “Unknowns”, “Not applicable”, “Not stated”, “Not
+  reported”, “NULL” and values made only of `?`, `-` or `.` as special
+  values. The new `check_na(special = )` argument replaces the built-in
+  markers with user-supplied regular expressions, and
+  `special = character(0)` turns special-value counting off.
+
+- [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
   returns its gt table visibly instead of printing it and returning the
   input data invisibly, so the table renders in R Markdown, Quarto and
   pkgdown and can be saved with

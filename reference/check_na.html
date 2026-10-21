@@ -61,7 +61,7 @@ formatting based on severity.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">check_na</span><span class="op">(</span><span class="va">data</span>, <span class="va">...</span>, pattern <span class="op">=</span> <span class="cn">NULL</span>, show_all <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">check_na</span><span class="op">(</span><span class="va">data</span>, <span class="va">...</span>, pattern <span class="op">=</span> <span class="cn">NULL</span>, special <span class="op">=</span> <span class="cn">NULL</span>, show_all <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -88,6 +88,15 @@ unmatched pattern or selection inspects no columns and returns
 <code>NULL</code> with an informational message.</p></dd>
 
 
+<dt id="arg-special">special<a class="anchor" aria-label="anchor" href="#arg-special"></a></dt>
+<dd><p><code>NULL</code> (default) for the built-in special-value markers,
+or a character vector of regular expressions that replaces them. Patterns
+are matched case-insensitively, with a Unicode-aware <code>\b</code>, anywhere
+in each whitespace-normalized value; anchor them with <code>^...$</code> or
+<code>\b</code> as needed. <code>character(0)</code> counts no special values, and
+empty strings count only when a pattern matches them.</p></dd>
+
+
 <dt id="arg-show-all">show_all<a class="anchor" aria-label="anchor" href="#arg-show-all"></a></dt>
 <dd><p>A single non-missing logical. If <code>FALSE</code> (default),
 only variables with issues are shown.</p></dd>
@@ -105,11 +114,15 @@ only variables with issues are shown.</p></dd>
     <p>Inputs with zero rows or zero columns return <code>NULL</code> invisibly
   with an informational message and no table.
   Special-value counts apply to character and factor columns. Matching is
-  case-insensitive and uses Unicode-aware whole-word markers after collapsing
-  whitespace, including Unicode spaces. Whitespace-only strings count as
-  blank values. Each value is counted once. Values recognized by
-  <code><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na()</a></code>, including SPSS user-missing codes, count only as missing
-  values.
+  case-insensitive and runs after collapsing whitespace, including Unicode
+  spaces. The built-in markers are the whole words unknown(s), blank(s), n/a,
+  na, missing, unspecified, not available, not applicable, not stated, not
+  reported and null, values made only of ?, - or . characters, and empty or
+  whitespace-only strings. A marker anywhere in a value counts it, so a
+  category such as "Unknown primary site" counts as special; supply
+  <code>special</code> to change the markers. Each value is counted once. Values
+  recognized by <code><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na()</a></code>, including SPSS user-missing codes, count only
+  as missing values.
   Inspection loads methods for serialized haven-labelled and integer64
   columns before counting missing values. Integer64 columns require the
   optional <span class="pkg">bit64</span> package.
