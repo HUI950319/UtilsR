@@ -265,9 +265,10 @@ test_that("check_na assigns severity styles using unrounded proportions", {
   expect_identical(fills("missing_medium", "missing_combined"), "#FFCC80")
   expect_identical(fills("missing_high", "missing_combined"), "#FFCDD2")
   expect_identical(fills("missing_rare", "missing_combined"), "#FFF176")
+  # Special-value fills darken with severity.
   expect_identical(fills("special_medium", "special_combined"), "#BBDEFB")
-  expect_identical(fills("special_high", "special_combined"), "#E3F2FD")
-  expect_identical(fills("special_rare", "special_combined"), "#E1F5FE")
+  expect_identical(fills("special_high", "special_combined"), "#90CAF9")
+  expect_identical(fills("special_rare", "special_combined"), "#E3F2FD")
 })
 
 test_that("check_na validates pattern as NULL or one non-missing string", {

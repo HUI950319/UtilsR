@@ -240,7 +240,7 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
         )
       ) %>%
       gt::tab_style(
-        style = gt::cell_fill(color = "#e3f2fd"),
+        style = gt::cell_fill(color = "#90caf9"),
         locations = gt::cells_body(
           columns = "special_combined",
           rows = high_special_rows
@@ -254,7 +254,7 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
         )
       ) %>%
       gt::tab_style(
-        style = gt::cell_fill(color = "#e1f5fe"),
+        style = gt::cell_fill(color = "#e3f2fd"),
         locations = gt::cells_body(
           columns = "special_combined",
           rows = low_special_rows

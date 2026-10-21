@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `check_na()` shades special-value cells from light to dark blue as their
+  share rises, so the highest severity is no longer the palest.
+
 * The package description now names the exported `check_na()` function correctly.
 
 * `check_na()` displays small positive proportions as `<0.1%` in cells and
