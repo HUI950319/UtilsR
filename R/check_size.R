@@ -180,6 +180,7 @@ check_size <- function(..., pattern = NULL) {
       target_columns = "Size_fmt",
       rows = seq_len(nrow(object_info)) > 1L,
       palette = c("#FFFFFF", "#FF0000"),
+      domain = if (total_mb == 0) c(0, 1) else NULL,
       na_color = "transparent"
     ) %>%
     gt::cols_hide("Size") %>%

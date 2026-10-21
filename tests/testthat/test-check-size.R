@@ -269,3 +269,15 @@ test_that("check_size sorts pattern matches without sorting every global name", 
     expect_identical(result[["_data"]][["Object"]], c("**TOTAL**", expected))
   })
 })
+
+test_that("check_size uses neutral size colors when every estimate is zero", {
+  with_size_objects(list(a = NULL, b = NULL), function(nms) {
+    result <- check_size(nms)
+    expect_identical(result[["_data"]][["Size"]], c(0, 0, 0))
+    html <- gt::as_raw_html(result)
+    cells <- grep('headers="Size_fmt"', strsplit(html, "\n", fixed = TRUE)[[1]], value = TRUE)
+    expect_length(cells, 3L)
+    expect_match(cells[[2L]], "background-color: #FFFFFF", fixed = TRUE)
+    expect_match(cells[[3L]], "background-color: #FFFFFF", fixed = TRUE)
+  })
+})

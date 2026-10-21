@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `check_size()` uses a neutral white size gradient for all-zero estimates,
+  avoiding the misleading midpoint color of a zero-width domain.
+
 * `check_size()` sorts only names matched by `pattern`, avoiding a full global
   name sort while preserving alphabetical order among equally sized objects.
 
