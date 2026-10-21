@@ -9,7 +9,7 @@ check_na(data, ..., pattern = NULL, show_all = FALSE)
 \arguments{
 \item{data}{A data.frame with unique, non-empty column names. Selected
 columns must be one-dimensional. Grouped inputs are inspected across all
-rows, preserving the grouping in the returned input.}
+rows.}
 
 \item{...}{Variable selection using \code{dplyr::select} syntax. Omit to
 inspect all columns. Renaming changes only the displayed variable names.}
@@ -18,24 +18,26 @@ inspect all columns. Renaming changes only the displayed variable names.}
 as a regex pattern for matching variable names. Takes precedence over
 \code{...}, with a warning when both are supplied; an invalid regular
 expression is an error. An empty string matches all columns. An
-unmatched pattern or selection inspects no columns and returns the input
-with an informational message.}
+unmatched pattern or selection inspects no columns and returns
+\code{NULL} with an informational message.}
 
 \item{show_all}{A single non-missing logical. If \code{FALSE} (default),
 only variables with issues are shown.}
 }
 \value{
-Invisibly returns the complete input data unchanged, including
-  columns that were not selected for inspection.
+A \code{gt} table, returned visibly so that it prints in the console,
+  renders in R Markdown, Quarto and pkgdown, and can be saved with
+  \code{gt::gtsave()}. \code{NULL}, invisibly, when no table is produced:
+  no selected columns, no rows, or no issues with \code{show_all = FALSE}.
 }
 \description{
 Analyze missing values and special values (e.g. "unknown", "blank", "n/a")
-for each variable. Outputs a styled \code{gt} table with conditional
+for each variable. Returns a styled \code{gt} table with conditional
 formatting based on severity.
 }
 \details{
-Inputs with zero rows or zero columns return unchanged with an
-  informational message and no table.
+Inputs with zero rows or zero columns return \code{NULL} invisibly
+  with an informational message and no table.
   Special-value counts apply to character and factor columns. Matching is
   case-insensitive and uses Unicode-aware whole-word markers after collapsing
   whitespace, including Unicode spaces. Whitespace-only strings count as

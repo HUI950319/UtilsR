@@ -62,21 +62,24 @@ test_that("lv counts special values as whole words, once per value", {
   expect_equal(counts[names(expected_special)], expected_special)
 })
 
-test_that("check_na returns the complete input after inspecting selected columns", {
+test_that("check_na returns its gt table visibly after inspecting selected columns", {
   data <- data.frame(a = c(1, NA), b = c("ok", "Unknown"))
   attr(data, "source") <- "original"
+  before <- data
   seen <- capture_gt_data(result <- withVisible(check_na(data, a)))
 
-  expect_identical(result$value, data)
-  expect_false(result$visible)
+  expect_s3_class(result$value, "gt_tbl")
+  expect_true(result$visible)
+  expect_identical(result$value[["_data"]]$variable, "a")
   expect_identical(seen[[1L]]$variable, "a")
+  expect_identical(data, before)
 })
 
-test_that("check_na preserves the input when selected columns have no issues", {
+test_that("check_na returns NULL invisibly when selected columns have no issues", {
   data <- data.frame(a = c(1, NA), b = c("ok", "ok"))
   seen <- capture_gt_data(result <- withVisible(check_na(data, b)))
 
-  expect_identical(result$value, data)
+  expect_null(result$value)
   expect_false(result$visible)
   expect_length(seen, 0L)
 })
@@ -87,7 +90,7 @@ test_that("check_na inspects renamed selections without changing the input", {
 
   expect_identical(seen[[1L]]$variable, "renamed")
   expect_identical(seen[[1L]]$missing_combined, "1 (50.0%)")
-  expect_identical(result, data)
+  expect_s3_class(result, "gt_tbl")
 })
 
 test_that("check_na does not expand unmatched selections to every column", {
@@ -97,7 +100,7 @@ test_that("check_na does not expand unmatched selections to every column", {
 
   expect_length(selected, 0L)
   expect_length(patterned, 0L)
-  expect_identical(result, data)
+  expect_null(result)
 })
 
 test_that("check_na selects grouped inputs across all rows", {
@@ -108,7 +111,7 @@ test_that("check_na selects grouped inputs across all rows", {
   expect_setequal(all[[1L]]$variable, c("group", "x"))
   expect_identical(selected[[1L]]$variable, "x")
   expect_identical(selected[[1L]]$missing_combined, "1 (50.0%)")
-  expect_identical(result, data)
+  expect_s3_class(result, "gt_tbl")
 })
 
 test_that("check_na returns empty inputs without constructing percentages", {
@@ -117,7 +120,7 @@ test_that("check_na returns empty inputs without constructing percentages", {
   for (data in inputs) {
     for (show_all in c(FALSE, TRUE)) {
       seen <- capture_gt_data(result <- withVisible(check_na(data, show_all = show_all)))
-      expect_identical(result$value, data)
+      expect_null(result$value)
       expect_false(result$visible)
       expect_length(seen, 0L)
     }
@@ -217,7 +220,7 @@ test_that("check_na counts SPSS user missings only as missing values", {
                    c("1 (20.0%)", "2 (40.0%)", "0 (0.0%)"))
   expect_identical(unname(missing[names(data)]),
                    c("3 (60.0%)", "2 (40.0%)", "4 (80.0%)"))
-  expect_identical(result, data)
+  expect_s3_class(result, "gt_tbl")
 })
 
 test_that("lv excludes SPSS user missings from special-value counts", {
@@ -294,7 +297,7 @@ test_that("check_na retains empty patterns and pattern precedence", {
 
   expect_setequal(all[[1L]]$variable, names(data))
   expect_identical(selected[[1L]]$variable, "b")
-  expect_identical(result, data)
+  expect_s3_class(result, "gt_tbl")
   expect_no_warning(capture_gt_data(check_na(data, pattern = "^b$")))
 })
 
@@ -407,7 +410,7 @@ test_that("inspection registers SPSS methods in a fresh R process", {
       counts <- stats::setNames(tab$missing_combined, tab$variable)
       expect_identical(unname(counts[names(data)]),
                        c("3 (60.0%)", "2 (40.0%)", "4 (80.0%)", "2 (40.0%)"))
-      expect_identical(result$returned, data)
+      expect_s3_class(result$returned, "gt_tbl")
     } else {
       tab <- Filter(function(x) "n_na" %in% names(x), result$tables)[[1L]]
       expect_equal(as.numeric(tab$n_na), c(3, 2, 4, 2))
@@ -430,7 +433,7 @@ test_that("inspection registers integer64 methods in a fresh R process", {
       if (!is.null(result$error)) next
       if (entry == "check_na") {
         expect_identical(result$tables[[1L]]$missing_combined, "1 (33.3%)")
-        expect_identical(result$returned, data)
+        expect_s3_class(result$returned, "gt_tbl")
       } else {
         tab <- Filter(function(x) "n_na" %in% names(x), result$tables)[[1L]]
         expect_equal(as.numeric(tab$n_na), 1)
@@ -467,7 +470,7 @@ test_that("inspection preserves factors with unused and missing levels", {
   counts <- stats::setNames(seen[[1L]]$special_combined, seen[[1L]]$variable)
 
   expect_identical(unname(counts[names(data)]), c("2 (50.0%)", "0 (0.0%)"))
-  expect_identical(result, before)
+  expect_s3_class(result, "gt_tbl")
   expect_identical(data, before)
   tab <- Filter(function(x) "n_special" %in% names(x),
                 capture_gt_data(lv(data["ordered"])))[[1L]]
@@ -495,7 +498,7 @@ test_that("check_na distinguishes small positive percentages from zero", {
                    expected)
   expect_identical(unname(special[c("special_rare", "special_near", "special_at", "clean")]),
                    expected)
-  expect_identical(result, data)
+  expect_s3_class(result, "gt_tbl")
   expect_true(grepl("1 (&lt;0.1%)", gt::as_raw_html(tab), fixed = TRUE))
 })
 
