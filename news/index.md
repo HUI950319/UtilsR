@@ -2,6 +2,10 @@
 
 ## UtilsR 0.6.8
 
+- [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
+  sorts only names matched by `pattern`, avoiding a full global name
+  sort while preserving alphabetical order among equally sized objects.
+
 - [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
   and [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) also
   count “Blanks”, “Unknowns”, “Not applicable”, “Not stated”, “Not
