@@ -136,7 +136,7 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
   res_na <- res_na %>%
     dplyr::arrange(dplyr::desc(missing_count), dplyr::desc(special_count))
 
-  if (nrow(res_na) == 0 && !show_all) {
+  if (nrow(res_na) == 0) {
     .cat_box("No missing values or special values found in the dataset!",
              type = "success")
     return(invisible(input_data))
@@ -179,106 +179,102 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
       heading.background.color = "#F0F8FF"
     )
 
-  if (nrow(res_na) > 0) {
-    high_missing_rows <- which(res_na$missing_percentage > 50)
-    medium_missing_rows <- which(
-      res_na$missing_percentage > 20 & res_na$missing_percentage <= 50
-    )
-    low_missing_rows <- which(
-      res_na$missing_percentage > 0 & res_na$missing_percentage <= 20
-    )
+  high_missing_rows <- which(res_na$missing_percentage > 50)
+  medium_missing_rows <- which(
+    res_na$missing_percentage > 20 & res_na$missing_percentage <= 50
+  )
+  low_missing_rows <- which(
+    res_na$missing_percentage > 0 & res_na$missing_percentage <= 20
+  )
 
-    high_special_rows <- which(res_na$special_percentage > 30)
-    medium_special_rows <- which(
-      res_na$special_percentage > 10 & res_na$special_percentage <= 30
-    )
-    low_special_rows <- which(
-      res_na$special_percentage > 0 & res_na$special_percentage <= 10
-    )
+  high_special_rows <- which(res_na$special_percentage > 30)
+  medium_special_rows <- which(
+    res_na$special_percentage > 10 & res_na$special_percentage <= 30
+  )
+  low_special_rows <- which(
+    res_na$special_percentage > 0 & res_na$special_percentage <= 10
+  )
 
-    gt_table <- gt_table %>%
-      gt::tab_style(
-        style = gt::cell_fill(color = "#ffebee"),
-        locations = gt::cells_body(
-          columns = c("variable", "data_type"),
-          rows = high_missing_rows
-        )
-      ) %>%
-      gt::tab_style(
-        style = gt::cell_fill(color = "#ffcdd2"),
-        locations = gt::cells_body(
-          columns = "missing_combined",
-          rows = high_missing_rows
-        )
-      ) %>%
-      gt::tab_style(
-        style = gt::cell_fill(color = "#fff3e0"),
-        locations = gt::cells_body(
-          columns = c("variable", "data_type"),
-          rows = medium_missing_rows
-        )
-      ) %>%
-      gt::tab_style(
-        style = gt::cell_fill(color = "#ffcc80"),
-        locations = gt::cells_body(
-          columns = "missing_combined",
-          rows = medium_missing_rows
-        )
-      ) %>%
-      gt::tab_style(
-        style = gt::cell_fill(color = "#fef9e7"),
-        locations = gt::cells_body(
-          columns = c("variable", "data_type"),
-          rows = low_missing_rows
-        )
-      ) %>%
-      gt::tab_style(
-        style = gt::cell_fill(color = "#fff176"),
-        locations = gt::cells_body(
-          columns = "missing_combined",
-          rows = low_missing_rows
-        )
-      ) %>%
-      gt::tab_style(
-        style = gt::cell_fill(color = "#90caf9"),
-        locations = gt::cells_body(
-          columns = "special_combined",
-          rows = high_special_rows
-        )
-      ) %>%
-      gt::tab_style(
-        style = gt::cell_fill(color = "#bbdefb"),
-        locations = gt::cells_body(
-          columns = "special_combined",
-          rows = medium_special_rows
-        )
-      ) %>%
-      gt::tab_style(
-        style = gt::cell_fill(color = "#e3f2fd"),
-        locations = gt::cells_body(
-          columns = "special_combined",
-          rows = low_special_rows
-        )
+  gt_table <- gt_table %>%
+    gt::tab_style(
+      style = gt::cell_fill(color = "#ffebee"),
+      locations = gt::cells_body(
+        columns = c("variable", "data_type"),
+        rows = high_missing_rows
       )
-  }
-
-  if (nrow(res_na) > 0) {
-    total_missing <- sum(res_na$missing_count)
-    total_special <- sum(res_na$special_count)
-    n_points <- as.double(n_total) * ncol(data)
-    overall_missing_pct <- (total_missing / n_points) * 100
-    overall_special_pct <- (total_special / n_points) * 100
-
-    gt_table <- gt_table %>%
-      gt::tab_source_note(
-        source_note = gt::md(sprintf(
-          "**Summary:** %.0f missing values (%s), %.0f special values (%s) out of %.0f total data points",
-          total_missing, format_pct(overall_missing_pct, 2L),
-          total_special, format_pct(overall_special_pct, 2L),
-          n_points
-        ))
+    ) %>%
+    gt::tab_style(
+      style = gt::cell_fill(color = "#ffcdd2"),
+      locations = gt::cells_body(
+        columns = "missing_combined",
+        rows = high_missing_rows
       )
-  }
+    ) %>%
+    gt::tab_style(
+      style = gt::cell_fill(color = "#fff3e0"),
+      locations = gt::cells_body(
+        columns = c("variable", "data_type"),
+        rows = medium_missing_rows
+      )
+    ) %>%
+    gt::tab_style(
+      style = gt::cell_fill(color = "#ffcc80"),
+      locations = gt::cells_body(
+        columns = "missing_combined",
+        rows = medium_missing_rows
+      )
+    ) %>%
+    gt::tab_style(
+      style = gt::cell_fill(color = "#fef9e7"),
+      locations = gt::cells_body(
+        columns = c("variable", "data_type"),
+        rows = low_missing_rows
+      )
+    ) %>%
+    gt::tab_style(
+      style = gt::cell_fill(color = "#fff176"),
+      locations = gt::cells_body(
+        columns = "missing_combined",
+        rows = low_missing_rows
+      )
+    ) %>%
+    gt::tab_style(
+      style = gt::cell_fill(color = "#90caf9"),
+      locations = gt::cells_body(
+        columns = "special_combined",
+        rows = high_special_rows
+      )
+    ) %>%
+    gt::tab_style(
+      style = gt::cell_fill(color = "#bbdefb"),
+      locations = gt::cells_body(
+        columns = "special_combined",
+        rows = medium_special_rows
+      )
+    ) %>%
+    gt::tab_style(
+      style = gt::cell_fill(color = "#e3f2fd"),
+      locations = gt::cells_body(
+        columns = "special_combined",
+        rows = low_special_rows
+      )
+    )
+
+  total_missing <- sum(res_na$missing_count)
+  total_special <- sum(res_na$special_count)
+  n_points <- as.double(n_total) * ncol(data)
+  overall_missing_pct <- (total_missing / n_points) * 100
+  overall_special_pct <- (total_special / n_points) * 100
+
+  gt_table <- gt_table %>%
+    gt::tab_source_note(
+      source_note = gt::md(sprintf(
+        "**Summary:** %.0f missing values (%s), %.0f special values (%s) out of %.0f total data points",
+        total_missing, format_pct(overall_missing_pct, 2L),
+        total_special, format_pct(overall_special_pct, 2L),
+        n_points
+      ))
+    )
 
   if (show_all) {
     .cat_line(
