@@ -329,10 +329,14 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
     n <- tabulate(match(x, u), nbins = length(u))
   }
   missing <- is.na(u)
-  u <- tolower(trimws(gsub("[\\h\\v]+", " ", u, perl = TRUE)))
+  # Normalize only values holding whitespace and match caselessly, so values
+  # such as identifiers are not copied, lowercased or trimmed with TRE.
+  ws <- grepl("[\\h\\v]", u, perl = TRUE)
+  u[ws] <- gsub("^ | $", "", gsub("[\\h\\v]+", " ", u[ws], perl = TRUE),
+                perl = TRUE)
   special <- grepl(
     "(*UCP)\\b(unknown|blank|n/a|na|missing|unspecified|not available)\\b",
-    u, perl = TRUE
+    u, ignore.case = TRUE, perl = TRUE
   ) | u %in% ""
   sum(n[special & !missing]) + 0
 }
