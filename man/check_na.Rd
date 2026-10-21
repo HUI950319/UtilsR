@@ -4,7 +4,7 @@
 \alias{check_na}
 \title{Comprehensive Data Quality Analysis}
 \usage{
-check_na(data, ..., pattern = NULL, show_all = FALSE)
+check_na(data, ..., pattern = NULL, special = NULL, show_all = FALSE)
 }
 \arguments{
 \item{data}{A data.frame with unique, non-empty column names. Selected
@@ -20,6 +20,13 @@ as a regex pattern for matching variable names. Takes precedence over
 expression is an error. An empty string matches all columns. An
 unmatched pattern or selection inspects no columns and returns
 \code{NULL} with an informational message.}
+
+\item{special}{\code{NULL} (default) for the built-in special-value markers,
+or a character vector of regular expressions that replaces them. Patterns
+are matched case-insensitively, with a Unicode-aware \code{\\b}, anywhere
+in each whitespace-normalized value; anchor them with \code{^...$} or
+\code{\\b} as needed. \code{character(0)} counts no special values, and
+empty strings count only when a pattern matches them.}
 
 \item{show_all}{A single non-missing logical. If \code{FALSE} (default),
 only variables with issues are shown.}
@@ -39,11 +46,15 @@ formatting based on severity.
 Inputs with zero rows or zero columns return \code{NULL} invisibly
   with an informational message and no table.
   Special-value counts apply to character and factor columns. Matching is
-  case-insensitive and uses Unicode-aware whole-word markers after collapsing
-  whitespace, including Unicode spaces. Whitespace-only strings count as
-  blank values. Each value is counted once. Values recognized by
-  \code{is.na()}, including SPSS user-missing codes, count only as missing
-  values.
+  case-insensitive and runs after collapsing whitespace, including Unicode
+  spaces. The built-in markers are the whole words unknown(s), blank(s), n/a,
+  na, missing, unspecified, not available, not applicable, not stated, not
+  reported and null, values made only of ?, - or . characters, and empty or
+  whitespace-only strings. A marker anywhere in a value counts it, so a
+  category such as "Unknown primary site" counts as special; supply
+  \code{special} to change the markers. Each value is counted once. Values
+  recognized by \code{is.na()}, including SPSS user-missing codes, count only
+  as missing values.
   Inspection loads methods for serialized haven-labelled and integer64
   columns before counting missing values. Integer64 columns require the
   optional \pkg{bit64} package.

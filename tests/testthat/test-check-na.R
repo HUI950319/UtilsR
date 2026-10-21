@@ -519,3 +519,50 @@ test_that("check_na formats tiny summary proportions and their boundaries", {
     }
   }
 })
+
+extended_special_values_data <- function() {
+  values <- c("Blanks", "Unknowns", "Not applicable", "not  stated",
+              "Not reported", "NULL", "?", "-", "...", "None", "nullable",
+              "3.5", "-1", "Unknown primary site", "ok", NA_character_)
+  data.frame(text = values, factor = factor(values))
+}
+
+test_that("check_na recognizes plural and extended built-in markers", {
+  seen <- capture_gt_data(check_na(extended_special_values_data(), show_all = TRUE))
+
+  # Ten markers plus a category that contains "Unknown"; None, nullable,
+  # numbers and NA are not special.
+  expect_identical(seen[[1L]]$special_combined, rep("10 (62.5%)", 2L))
+})
+
+test_that("lv uses the extended built-in markers", {
+  seen <- capture_gt_data(lv(extended_special_values_data()))
+  tab <- Filter(function(x) "n_special" %in% names(x), seen)[[1L]]
+
+  expect_equal(as.numeric(tab$n_special), c(10, 10))
+})
+
+test_that("check_na special replaces the built-in markers", {
+  data <- data.frame(text = c("None", "NONE", "not  stated", "Unknown", "", "ok", NA),
+                     stringsAsFactors = TRUE)
+  count <- function(special) {
+    seen <- capture_gt_data(check_na(data, special = special, show_all = TRUE))
+    seen[[1L]]$special_combined
+  }
+
+  expect_identical(count(NULL), "3 (42.9%)")
+  expect_identical(count("^none$"), "2 (28.6%)")
+  expect_identical(count(c("^none$", "\\bnot stated\\b")), "3 (42.9%)")
+  expect_identical(count(character()), "0 (0.0%)")
+  expect_identical(count("^$"), "1 (14.3%)")
+})
+
+test_that("check_na validates special", {
+  data <- data.frame(text = c("None", "ok"))
+  for (special in list(NA_character_, c("a", NA), 1, TRUE, list("a"))) {
+    expect_error(capture_gt_data(check_na(data, special = special)),
+                 "NULL or a character vector")
+  }
+  expect_error(capture_gt_data(check_na(data, special = c("^none$", "("))),
+               "valid regular expressions")
+})

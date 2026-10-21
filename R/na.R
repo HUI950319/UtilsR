@@ -19,6 +19,12 @@
 #'   expression is an error. An empty string matches all columns. An
 #'   unmatched pattern or selection inspects no columns and returns
 #'   \code{NULL} with an informational message.
+#' @param special \code{NULL} (default) for the built-in special-value markers,
+#'   or a character vector of regular expressions that replaces them. Patterns
+#'   are matched case-insensitively, with a Unicode-aware \code{\\b}, anywhere
+#'   in each whitespace-normalized value; anchor them with \code{^...$} or
+#'   \code{\\b} as needed. \code{character(0)} counts no special values, and
+#'   empty strings count only when a pattern matches them.
 #' @param show_all A single non-missing logical. If \code{FALSE} (default),
 #'   only variables with issues are shown.
 #'
@@ -30,11 +36,15 @@
 #' @details Inputs with zero rows or zero columns return \code{NULL} invisibly
 #'   with an informational message and no table.
 #'   Special-value counts apply to character and factor columns. Matching is
-#'   case-insensitive and uses Unicode-aware whole-word markers after collapsing
-#'   whitespace, including Unicode spaces. Whitespace-only strings count as
-#'   blank values. Each value is counted once. Values recognized by
-#'   \code{is.na()}, including SPSS user-missing codes, count only as missing
-#'   values.
+#'   case-insensitive and runs after collapsing whitespace, including Unicode
+#'   spaces. The built-in markers are the whole words unknown(s), blank(s), n/a,
+#'   na, missing, unspecified, not available, not applicable, not stated, not
+#'   reported and null, values made only of ?, - or . characters, and empty or
+#'   whitespace-only strings. A marker anywhere in a value counts it, so a
+#'   category such as "Unknown primary site" counts as special; supply
+#'   \code{special} to change the markers. Each value is counted once. Values
+#'   recognized by \code{is.na()}, including SPSS user-missing codes, count only
+#'   as missing values.
 #'   Inspection loads methods for serialized haven-labelled and integer64
 #'   columns before counting missing values. Integer64 columns require the
 #'   optional \pkg{bit64} package.
@@ -68,7 +78,8 @@
 #'
 #' @export
 #' @family inspect
-check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
+check_na <- function(data, ..., pattern = NULL, special = NULL,
+                     show_all = FALSE) {
 
   if (!is.data.frame(data)) {
     cli::cli_abort("{.arg data} must be a data.frame, not {.cls {class(data)}}.")
@@ -79,6 +90,16 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
   if (!is.null(pattern) &&
       (!is.character(pattern) || length(pattern) != 1L || is.na(pattern))) {
     cli::cli_abort("{.arg pattern} must be NULL or a single non-missing character string.")
+  }
+  if (!is.null(special) && (!is.character(special) || anyNA(special))) {
+    cli::cli_abort("{.arg special} must be NULL or a character vector without missing values.")
+  }
+  invalid <- special[vapply(special, function(p) inherits(tryCatch(
+    suppressWarnings(grepl(p, "", perl = TRUE)), error = function(e) e), "error"),
+    logical(1))]
+  if (length(invalid) > 0L) {
+    cli::cli_abort(c("{.arg special} must hold valid regular expressions.",
+                     "x" = "Invalid patterns: {.val {invalid}}."))
   }
   if (anyNA(names(data)) || any(!nzchar(names(data))) ||
       anyDuplicated(names(data)) > 0L) {
@@ -120,7 +141,8 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
 
   missing_count <- unlist(lapply(data, .count_missing_values),
                           use.names = FALSE)
-  special_count <- unlist(lapply(data, .count_special_values), use.names = FALSE)
+  special_count <- unlist(lapply(data, .count_special_values, special = special),
+                          use.names = FALSE)
   res_na <- data.frame(
     variable = names(data),
     missing_count = missing_count,
@@ -327,14 +349,17 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
 }
 
 # Count the values of a factor / character vector that mark a missing or
-# unknown entry ("Unknown", "N/A", "Blank(s)", an empty string, ...); used by
-# check_na() and lv(). A pattern must match a whole word, so "Regional" or
-# "Canada" do not count through "na", and a value holding several patterns
-# counts once. Patterns are matched on the distinct values only and weighted
-# by their counts after normalizing whitespace; whitespace-only values are
-# blank. Values recognized by is.na() are missing, not special.
-.count_special_values <- function(x) {
+# unknown entry ("Unknown", "N/A", "Blanks", an empty string, ...); used by
+# check_na() and lv(). A built-in marker must match a whole word, so
+# "Regional" or "Canada" do not count through "na", and a value holding
+# several markers counts once. Patterns are matched on the distinct values
+# only and weighted by their counts after normalizing whitespace;
+# whitespace-only values are blank. `special`, a character vector of regular
+# expressions, replaces the built-in markers. Values recognized by is.na() are
+# missing, not special.
+.count_special_values <- function(x, special = NULL) {
   if (!is.factor(x) && !is.character(x)) return(0L)
+  if (!is.null(special) && length(special) == 0L) return(0)
   if (is.factor(x)) {
     u <- levels(x)
     n <- tabulate(as.integer(x), nbins = length(u))
@@ -351,9 +376,13 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
   ws <- grepl("[\\h\\v]", u, perl = TRUE)
   u[ws] <- gsub("^ | $", "", gsub("[\\h\\v]+", " ", u[ws], perl = TRUE),
                 perl = TRUE)
-  special <- grepl(
-    "(*UCP)\\b(unknown|blank|n/a|na|missing|unspecified|not available)\\b",
-    u, ignore.case = TRUE, perl = TRUE
-  ) | u %in% ""
-  sum(n[special & !missing]) + 0
+  hit <- if (is.null(special)) {
+    grepl(paste0("(*UCP)\\b(unknowns?|blanks?|n/a|na|missing|unspecified|",
+                 "not (available|applicable|stated|reported)|null)\\b|^[?.-]+$"),
+          u, ignore.case = TRUE, perl = TRUE) | u %in% ""
+  } else {
+    grepl(paste0("(*UCP)(?:", paste(special, collapse = ")|(?:"), ")"),
+          u, ignore.case = TRUE, perl = TRUE)
+  }
+  sum(n[hit & !missing]) + 0
 }
