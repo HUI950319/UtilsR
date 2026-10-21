@@ -27,7 +27,8 @@ check_size(..., pattern = NULL)
 ## Value
 
 A `gt` table object, including a zero-row table when no objects can be
-inspected. Objects that fail to load are skipped with a warning. Its
+inspected. Objects that fail to load are skipped with a warning
+identifying each binding and the underlying error message. Its
 underlying data contain `Object`, `Class`, `Size`, `Size_fmt` and
 `Size_bar`. Numeric sizes remain in MB (\\1024^2\\ bytes), with
 automatic B, KB, MB or GB display labels. Size bars appear in HTML
