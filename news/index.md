@@ -3,6 +3,14 @@
 ## UtilsR 0.6.8
 
 - [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
+  shades special-value cells from light to dark blue as their share
+  rises, so the highest severity is no longer the palest.
+
+- The package description now names the exported
+  [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
+  function correctly.
+
+- [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
   displays small positive proportions as `<0.1%` in cells and `<0.01%`
   in summaries, distinguishing them from exact zeros.
 
