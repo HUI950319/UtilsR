@@ -306,6 +306,17 @@ test_that("check_na distinguishes affected variables from missing cells", {
   expect_match(html, "2 special values (16.67%)", fixed = TRUE)
 })
 
+test_that("check_na explains its severity shading under the table", {
+  data <- data.frame(missing = c(NA, 2), special = c("Unknown", "ok"))
+  tab <- capture_gt_table(check_na(data))
+  note <- paste(unlist(tab[["_source_notes"]]), collapse = " ")
+
+  expect_match(note, "missing values >0-20% yellow, >20-50% orange, >50% red",
+               fixed = TRUE)
+  expect_match(note, "special values >0-10%, >10-30%, >30% light to dark blue",
+               fixed = TRUE)
+})
+
 # Load only the inspection sources in a fresh process: load_all() would preload
 # Imports and hide missing S3 registrations. Installed checks use the namespace.
 inspect_in_fresh_r <- function(data, entry = "check_na") {

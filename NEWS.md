@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `check_na()` adds a source note explaining its severity shading and
+  documents the thresholds and the denominator of its summary percentages.
+
 * `check_na()` and `lv()` count special values about three to five times
   faster on columns with many distinct values, normalizing only values that
   contain whitespace and matching markers caselessly. A dotted capital I

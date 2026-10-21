@@ -46,13 +46,19 @@ Inputs with zero rows or zero columns return unchanged with an
   optional \pkg{bit64} package.
   Dataset-size calculations use double precision, and counts are formatted
   as whole numbers without a 32-bit integer limit.
-  Severity colors use unrounded percentages. Percentages are rounded only
+  Severity colors use unrounded percentages. Missing-value shading is
+  yellow above 0\%, orange above 20\% and red above 50\%, and also tints
+  the variable and type cells. Special-value shading deepens from light
+  to dark blue above 0\%, 10\% and 30\%. A source note under the table
+  repeats these thresholds. Percentages are rounded only
   for display, to one decimal place in cells and two in the summary.
   Positive percentages below these display resolutions appear as
   \code{<0.1\%} in cells and \code{<0.01\%} in the summary; zeros retain
   their usual numeric format.
   The subtitle counts variables containing issues; the summary counts
   individual missing and special values across the selected columns.
+  Both summary percentages use every selected cell as the denominator,
+  including columns that cannot hold special values.
 }
 \examples{
 \donttest{

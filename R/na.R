@@ -37,13 +37,19 @@
 #'   optional \pkg{bit64} package.
 #'   Dataset-size calculations use double precision, and counts are formatted
 #'   as whole numbers without a 32-bit integer limit.
-#'   Severity colors use unrounded percentages. Percentages are rounded only
+#'   Severity colors use unrounded percentages. Missing-value shading is
+#'   yellow above 0\%, orange above 20\% and red above 50\%, and also tints
+#'   the variable and type cells. Special-value shading deepens from light
+#'   to dark blue above 0\%, 10\% and 30\%. A source note under the table
+#'   repeats these thresholds. Percentages are rounded only
 #'   for display, to one decimal place in cells and two in the summary.
 #'   Positive percentages below these display resolutions appear as
 #'   \code{<0.1\%} in cells and \code{<0.01\%} in the summary; zeros retain
 #'   their usual numeric format.
 #'   The subtitle counts variables containing issues; the summary counts
 #'   individual missing and special values across the selected columns.
+#'   Both summary percentages use every selected cell as the denominator,
+#'   including columns that cannot hold special values.
 #'
 #' @examples
 #' \donttest{
@@ -273,6 +279,12 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
         total_missing, format_pct(overall_missing_pct, 2L),
         total_special, format_pct(overall_special_pct, 2L),
         n_points
+      ))
+    ) %>%
+    gt::tab_source_note(
+      source_note = gt::md(paste0(
+        "**Shading:** missing values >0-20% yellow, >20-50% orange, >50% red; ",
+        "special values >0-10%, >10-30%, >30% light to dark blue"
       ))
     )
 
