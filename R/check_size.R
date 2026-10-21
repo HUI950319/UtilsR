@@ -16,7 +16,8 @@
 #'   object names. Takes precedence over \code{...}; no matches select no objects.
 #'
 #' @return A \code{gt} table object, including a zero-row table when no objects
-#'   can be inspected. Objects that fail to load are skipped with a warning.
+#'   can be inspected. Objects that fail to load are skipped with a warning
+#'   identifying each binding and the underlying error message.
 #'   Its underlying data contain \code{Object}, \code{Class}, \code{Size},
 #'   \code{Size_fmt} and \code{Size_bar}. Numeric sizes remain in MB
 #'   (\eqn{1024^2} bytes), with automatic B, KB, MB or GB display labels.
@@ -112,7 +113,7 @@ check_size <- function(..., pattern = NULL) {
       list(size = as.numeric(utils::object.size(obj)) / (1024^2),
            class = paste(class(obj), collapse = ", "))
     }, error = function(e) {
-      list(size = NA_real_, class = "Unknown")
+      list(size = NA_real_, class = "Unknown", error = conditionMessage(e))
     })
   })
 
@@ -125,7 +126,9 @@ check_size <- function(..., pattern = NULL) {
 
   failed <- is.na(object_info$Size)
   if (any(failed)) {
-    warning("Could not inspect objects: ", paste(object_info$Object[failed], collapse = ", "),
+    reasons <- vapply(object_metrics[failed], `[[`, character(1), "error")
+    warning("Could not inspect objects: ",
+            paste0(object_info$Object[failed], " (", reasons, ")", collapse = ", "),
             call. = FALSE)
   }
   object_info <- object_info %>%

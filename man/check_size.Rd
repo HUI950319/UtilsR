@@ -18,7 +18,8 @@ object names. Takes precedence over \code{...}; no matches select no objects.}
 }
 \value{
 A \code{gt} table object, including a zero-row table when no objects
-  can be inspected. Objects that fail to load are skipped with a warning.
+  can be inspected. Objects that fail to load are skipped with a warning
+  identifying each binding and the underlying error message.
   Its underlying data contain \code{Object}, \code{Class}, \code{Size},
   \code{Size_fmt} and \code{Size_bar}. Numeric sizes remain in MB
   (\eqn{1024^2} bytes), with automatic B, KB, MB or GB display labels.

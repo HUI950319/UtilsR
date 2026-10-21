@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `check_size()` includes each binding's original error message in its combined
+  read-failure warning without evaluating failed bindings again.
+
 * `check_size()` uses a neutral white size gradient for all-zero estimates,
   avoiding the misleading midpoint color of a zero-width domain.
 

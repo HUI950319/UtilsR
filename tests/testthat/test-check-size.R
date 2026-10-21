@@ -281,3 +281,29 @@ test_that("check_size uses neutral size colors when every estimate is zero", {
     expect_match(cells[[3L]], "background-color: #FFFFFF", fixed = TRUE)
   })
 })
+
+test_that("check_size reports each read failure cause without reading again", {
+  with_size_objects(list(ok = raw(16), bad_a = 1, bad_b = 1), function(nms) {
+    rm(list = nms[2:3], envir = .GlobalEnv)
+    read_counts <- integer(2L)
+    makeActiveBinding(nms[[2L]], function(value) {
+      read_counts[[1L]] <<- read_counts[[1L]] + 1L
+      stop("missing backing file")
+    }, .GlobalEnv)
+    makeActiveBinding(nms[[3L]], function(value) {
+      read_counts[[2L]] <<- read_counts[[2L]] + 1L
+      stop("access denied")
+    }, .GlobalEnv)
+    warnings <- character()
+    result <- withCallingHandlers(check_size(nms), warning = function(w) {
+      warnings <<- c(warnings, conditionMessage(w))
+      invokeRestart("muffleWarning")
+    })
+    expect_length(warnings, 1L)
+    expect_match(warnings[[1L]], "Could not inspect.*bad_a.*missing backing file.*bad_b.*access denied")
+    expect_identical(read_counts, c(1L, 1L))
+    expect_identical(result[["_data"]][["Object"]], c("**TOTAL**", nms[[1L]]))
+    expect_warning(empty <- check_size(nms[[2L]]), "bad_a.*missing backing file")
+    expect_equal(nrow(empty[["_data"]]), 0L)
+  })
+})
