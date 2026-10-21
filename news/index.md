@@ -6,7 +6,7 @@
   and [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) count
   special values about three to five times faster on columns with many
   distinct values, normalizing only values that contain whitespace and
-  matching markers caselessly. A dotted capital I (`"İ"`) no longer
+  matching markers caselessly. A dotted capital I (U+0130) no longer
   folds to `"i"` when matching markers.
 
 - [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
