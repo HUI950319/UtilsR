@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `check_size()` sorts only names matched by `pattern`, avoiding a full global
+  name sort while preserving alphabetical order among equally sized objects.
+
 * `check_na()` and `lv()` also count "Blanks", "Unknowns", "Not applicable",
   "Not stated", "Not reported", "NULL" and values made only of `?`, `-` or `.`
   as special values. The new `check_na(special = )` argument replaces the

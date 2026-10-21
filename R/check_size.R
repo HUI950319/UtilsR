@@ -56,12 +56,12 @@ check_size <- function(..., pattern = NULL) {
     if (!is.character(pattern) || length(pattern) != 1L || is.na(pattern)) {
       stop("`pattern` must be a single, non-missing character string.", call. = FALSE)
     }
-    all_objects <- ls(envir = .GlobalEnv, all.names = TRUE)
+    all_objects <- ls(envir = .GlobalEnv, all.names = TRUE, sorted = FALSE)
     matched <- tryCatch(suppressWarnings(grepl(pattern, all_objects)),
                         error = function(e) {
                           stop("Invalid `pattern`: ", conditionMessage(e), call. = FALSE)
                         })
-    objects <- all_objects[matched]
+    objects <- sort(all_objects[matched])
   } else {
     selected_objects <- list(...)
     if (length(selected_objects) == 0) {

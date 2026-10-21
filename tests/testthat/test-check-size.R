@@ -250,3 +250,22 @@ test_that("check_size scales object bars independently of the total", {
     expect_true(all(widths <= 100))
   })
 })
+
+test_that("check_size sorts pattern matches without sorting every global name", {
+  values <- stats::setNames(rep(list(raw(16)), 5L), c("z", "a", "A", "\u00e9", "\u4e2d"))
+  with_size_objects(values, function(nms) {
+    sort_requests <- logical()
+    lookup <- new.env(parent = environment(check_size))
+    lookup[["ls"]] <- function(..., sorted = TRUE) {
+      sort_requests <<- c(sort_requests, sorted)
+      base::ls(..., sorted = sorted)
+    }
+    inspect <- check_size
+    environment(inspect) <- lookup
+    expected <- ls(envir = .GlobalEnv, all.names = TRUE)
+    expected <- expected[expected %in% nms]
+    result <- inspect(pattern = "^\\.check_size_test_")
+    expect_identical(sort_requests, FALSE)
+    expect_identical(result[["_data"]][["Object"]], c("**TOTAL**", expected))
+  })
+})
