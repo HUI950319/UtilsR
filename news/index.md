@@ -3,6 +3,14 @@
 ## UtilsR 0.6.8
 
 - [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
+  returns its gt table visibly instead of printing it and returning the
+  input data invisibly, so the table renders in R Markdown, Quarto and
+  pkgdown and can be saved with
+  [`gt::gtsave()`](https://gt.rstudio.com/reference/gtsave.html). Calls
+  that produce no table return `NULL` invisibly. Code that piped the
+  returned data onward needs updating.
+
+- [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
   warns when `pattern` overrides a selection in `...`, and reports an
   invalid `pattern` regular expression with a clear error.
 
