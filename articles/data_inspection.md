@@ -7092,6 +7092,9 @@ check_na(df)
 #>     <tr class="gt_sourcenotes">
 #>       <td class="gt_sourcenote" colspan="4"><span class='gt_from_md'><strong>Summary:</strong> 3 missing values (20.00%), 0 special values (0.00%) out of 15 total data points</span></td>
 #>     </tr>
+#>     <tr class="gt_sourcenotes">
+#>       <td class="gt_sourcenote" colspan="4"><span class='gt_from_md'><strong>Shading:</strong> missing values &gt;0-20% yellow, &gt;20-50% orange, &gt;50% red; special values &gt;0-10%, &gt;10-30%, &gt;30% light to dark blue</span></td>
+#>     </tr>
 #>   </tfoot>
 #> </table>
 #> </div>
