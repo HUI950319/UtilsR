@@ -28,10 +28,11 @@ check_na(data, ..., pattern = NULL, show_all = FALSE)
 - pattern:
 
   `NULL` or a single non-missing character string used as a regex
-  pattern for matching variable names. Takes precedence over `...`. An
-  empty string matches all columns. An unmatched pattern or selection
-  inspects no columns and returns the input with an informational
-  message.
+  pattern for matching variable names. Takes precedence over `...`, with
+  a warning when both are supplied; an invalid regular expression is an
+  error. An empty string matches all columns. An unmatched pattern or
+  selection inspects no columns and returns the input with an
+  informational message.
 
 - show_all:
 

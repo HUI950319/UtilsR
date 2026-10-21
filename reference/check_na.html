@@ -82,9 +82,10 @@ inspect all columns. Renaming changes only the displayed variable names.</p></dd
 <dt id="arg-pattern">pattern<a class="anchor" aria-label="anchor" href="#arg-pattern"></a></dt>
 <dd><p><code>NULL</code> or a single non-missing character string used
 as a regex pattern for matching variable names. Takes precedence over
-<code>...</code>. An empty string matches all columns. An unmatched pattern or
-selection inspects no columns and returns the input with an informational
-message.</p></dd>
+<code>...</code>, with a warning when both are supplied; an invalid regular
+expression is an error. An empty string matches all columns. An
+unmatched pattern or selection inspects no columns and returns the input
+with an informational message.</p></dd>
 
 
 <dt id="arg-show-all">show_all<a class="anchor" aria-label="anchor" href="#arg-show-all"></a></dt>
