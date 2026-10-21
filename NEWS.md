@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `check_na()` warns when `pattern` overrides a selection in `...`, and
+  reports an invalid `pattern` regular expression with a clear error.
+
 * `check_na()` adds a source note explaining its severity shading and
   documents the thresholds and the denominator of its summary percentages.
 

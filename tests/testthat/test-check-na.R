@@ -283,12 +283,27 @@ test_that("check_na validates pattern as NULL or one non-missing string", {
 
 test_that("check_na retains empty patterns and pattern precedence", {
   data <- data.frame(a = c(1, NA), b = c("ok", "Unknown"))
-  all <- capture_gt_data(check_na(data, dplyr::starts_with("absent"), pattern = ""))
-  selected <- capture_gt_data(result <- check_na(data, a, pattern = "^b$"))
+  expect_warning(
+    all <- capture_gt_data(check_na(data, dplyr::starts_with("absent"), pattern = "")),
+    "selection in `...` is ignored"
+  )
+  expect_warning(
+    selected <- capture_gt_data(result <- check_na(data, a, pattern = "^b$")),
+    "selection in `...` is ignored"
+  )
 
   expect_setequal(all[[1L]]$variable, names(data))
   expect_identical(selected[[1L]]$variable, "b")
   expect_identical(result, data)
+  expect_no_warning(capture_gt_data(check_na(data, pattern = "^b$")))
+})
+
+test_that("check_na reports invalid pattern regular expressions", {
+  data <- data.frame(a = c(1, NA), b = c("ok", "Unknown"))
+  for (pattern in c("(", "a{2")) {
+    expect_error(capture_gt_data(check_na(data, pattern = pattern)),
+                 "must be a valid regular expression")
+  }
 })
 
 test_that("check_na distinguishes affected variables from missing cells", {

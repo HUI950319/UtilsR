@@ -15,9 +15,10 @@
 #'   inspect all columns. Renaming changes only the displayed variable names.
 #' @param pattern \code{NULL} or a single non-missing character string used
 #'   as a regex pattern for matching variable names. Takes precedence over
-#'   \code{...}. An empty string matches all columns. An unmatched pattern or
-#'   selection inspects no columns and returns the input with an informational
-#'   message.
+#'   \code{...}, with a warning when both are supplied; an invalid regular
+#'   expression is an error. An empty string matches all columns. An
+#'   unmatched pattern or selection inspects no columns and returns the input
+#'   with an informational message.
 #' @param show_all A single non-missing logical. If \code{FALSE} (default),
 #'   only variables with issues are shown.
 #'
@@ -85,7 +86,16 @@ check_na <- function(data, ..., pattern = NULL, show_all = FALSE) {
 
   # Variable selection
   if (!is.null(pattern)) {
-    data <- data[, grepl(pattern, names(data)), drop = FALSE]
+    if (...length() > 0L) {
+      cli::cli_warn("{.arg pattern} takes precedence; the selection in {.arg ...} is ignored.")
+    }
+    matched <- tryCatch(suppressWarnings(grepl(pattern, names(data))),
+                        error = function(e) e)
+    if (inherits(matched, "error")) {
+      cli::cli_abort(c("{.arg pattern} must be a valid regular expression.",
+                       "x" = "{conditionMessage(matched)}"))
+    }
+    data <- data[, matched, drop = FALSE]
   } else if (...length() > 0L) {
     data <- dplyr::select(dplyr::ungroup(data), ...)
   }

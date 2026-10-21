@@ -16,9 +16,10 @@ inspect all columns. Renaming changes only the displayed variable names.}
 
 \item{pattern}{\code{NULL} or a single non-missing character string used
 as a regex pattern for matching variable names. Takes precedence over
-\code{...}. An empty string matches all columns. An unmatched pattern or
-selection inspects no columns and returns the input with an informational
-message.}
+\code{...}, with a warning when both are supplied; an invalid regular
+expression is an error. An empty string matches all columns. An
+unmatched pattern or selection inspects no columns and returns the input
+with an informational message.}
 
 \item{show_all}{A single non-missing logical. If \code{FALSE} (default),
 only variables with issues are shown.}
