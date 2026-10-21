@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/check_na.html">check_na()</a></code> shades special-value cells from light to dark blue as their share rises, so the highest severity is no longer the palest.</p></li>
+<ul><li><p><code><a href="../reference/check_na.html">check_na()</a></code> and <code><a href="../reference/lv.html">lv()</a></code> count special values about three to five times faster on columns with many distinct values, normalizing only values that contain whitespace and matching markers caselessly. A dotted capital I (<code>"İ"</code>) no longer folds to <code>"i"</code> when matching markers.</p></li>
+<li><p><code><a href="../reference/check_na.html">check_na()</a></code> shades special-value cells from light to dark blue as their share rises, so the highest severity is no longer the palest.</p></li>
 <li><p>The package description now names the exported <code><a href="../reference/check_na.html">check_na()</a></code> function correctly.</p></li>
 <li><p><code><a href="../reference/check_na.html">check_na()</a></code> displays small positive proportions as <code>&lt;0.1%</code> in cells and <code>&lt;0.01%</code> in summaries, distinguishing them from exact zeros.</p></li>
 <li><p><code><a href="../reference/check_na.html">check_na()</a></code> and <code><a href="../reference/lv.html">lv()</a></code> skip unused factor levels when matching special-value markers, preserving counts and the original factor levels.</p></li>
