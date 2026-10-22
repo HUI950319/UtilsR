@@ -29,9 +29,8 @@ fct_to_combine(..., sep = " & ")
 
 - ...:
 
-  (vector method) One-dimensional atomic vectors of equal length to
-  combine. Must be empty for the data.frame method. A single character
-  vector of column names (length \>= 2) is resolved through
+  (vector method) Further vectors of equal length to combine. A single
+  character vector of column names (length \>= 2) is resolved through
   `dplyr::pick(all_of(.))` when called inside a data-masking verb,
   enabling `mutate(g = fct_to_combine(c("sex", "age")))`. Vector names
   do not affect combinations. The name `sep` is reserved for the
@@ -47,19 +46,15 @@ fct_to_combine(..., sep = " & ")
 - vars:
 
   (data.frame method) Character vector of \>= 2 column names to combine.
-  Names must be unique, non-missing and non-empty, and identify
-  unambiguous columns in the data frame.
 
 - var_name:
 
   (data.frame method) Name of the new column. Default `NULL` =
-  `paste(vars, collapse = "_")`. Otherwise a single non-missing,
-  non-empty string. An existing column of this name is replaced.
+  `paste(vars, collapse = "_")`.
 
 - sep:
 
-  A single non-missing string separating cell values. Default `" & "`;
-  an empty string is allowed.
+  Separator between cell values. Default `" & "`.
 
 ## Value
 
@@ -74,11 +69,6 @@ and [`base::interaction()`](https://rdrr.io/r/base/interaction.html),
 but with a default separator (`" & "`) tuned for clinical /
 epidemiological group labels. For regrouping levels of a single factor
 (the dual operation), see \[fct_to_group()\].
-
-A row is missing if any input is missing according to its
-[`is.na()`](https://rdrr.io/r/base/NA.html) method, including `NaN` and
-SPSS user-missing values and ranges. The literal string `"NA"` remains
-an ordinary category.
 
 ## See also
 

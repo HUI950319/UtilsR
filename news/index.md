@@ -3,17 +3,6 @@
 ## UtilsR 0.6.8
 
 - [`fct_to_combine()`](https://hui950319.github.io/UtilsR/reference/fct_to_combine.md)
-  propagates missing inputs to genuine missing results, including NaN
-  and SPSS user-missing codes and ranges. The literal string `"NA"`
-  remains a category. Class methods are registered for restored labelled
-  and integer64 inputs before combining them.
-
-- [`fct_to_combine()`](https://hui950319.github.io/UtilsR/reference/fct_to_combine.md)
-  validates vector dimensions, separators, selected column names and
-  output names. Unused arguments to the data-frame method now error
-  instead of silently ignoring misspelled controls.
-
-- [`fct_to_combine()`](https://hui950319.github.io/UtilsR/reference/fct_to_combine.md)
   ignores vector names when constructing labels and sorting levels,
   preventing columns such as `collapse` or `na.last` from changing the
   output length or level order in programmatic calls.
