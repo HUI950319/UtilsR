@@ -25,7 +25,7 @@
 #'   (\eqn{1024^2} bytes), with automatic B, KB, MB or GB display labels.
 #'   Size bars appear in HTML output; other formats retain the size labels.
 #'   Object bars are scaled to the largest individual object; the total bar
-#'   is capped at full width.
+#'   is capped at full width. A source note states the limits of the estimates.
 #'
 #' @details
 #' Sizes are estimates from \code{utils::object.size()}, not process memory
@@ -211,6 +211,10 @@ check_size <- function(..., pattern = NULL) {
         total_str
       ))
     ) %>%
+    gt::tab_source_note(paste(
+      "Sizes are utils::object.size() estimates. The total can count shared storage",
+      "more than once; environments and closures may be underestimated."
+    )) %>%
     gt::tab_style(
       style = gt::cell_text(weight = "bold"),
       locations = gt::cells_column_labels()

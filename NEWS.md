@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `check_size()` adds a source note stating that sizes are `object.size()`
+  estimates, so the table itself warns that totals can double-count shared
+  storage and that environments and closures may be underestimated.
+
 * `check_size()` renders its summary label as bold `TOTAL` instead of showing
   literal asterisks; the underlying data still label the row `**TOTAL**`.
 

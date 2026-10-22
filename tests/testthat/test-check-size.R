@@ -232,6 +232,14 @@ test_that("check_size renders the summary label without literal asterisks", {
   })
 })
 
+test_that("check_size notes the limits of its size estimates", {
+  with_size_objects(list(a = raw(16)), function(nms) {
+    html <- gt::as_raw_html(check_size(nms))
+    expect_match(html, "object.size() estimates", fixed = TRUE)
+    expect_match(html, "shared storage", fixed = TRUE)
+  })
+})
+
 test_that("check_size enumerates global names only when selection needs them", {
   with_size_objects(list(a = raw(16), b = raw(64)), function(nms) {
     enumerations <- 0L
