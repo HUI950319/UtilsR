@@ -2,6 +2,31 @@
 
 ## UtilsR 0.6.8
 
+- [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
+  displays signed zero like ordinary zero in P-value modes, retaining
+  its significance symbol and the existing plain-number display.
+
+- [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
+  displays signed zero like ordinary zero in P-value modes, retaining
+  its significance symbol and the existing plain-number display.
+
+- [`fct_to_combine()`](https://hui950319.github.io/UtilsR/reference/fct_to_combine.md)
+  groups integer factor codes before sorting combinations and
+  constructing labels, reducing repeated work when many rows share
+  groups. Only observed combinations are retained, in the same
+  factor-level order.
+
+- [`fct_to_combine()`](https://hui950319.github.io/UtilsR/reference/fct_to_combine.md)
+  errors when distinct input combinations produce the same label, rather
+  than silently merging groups. Repeated identical combinations remain
+  valid.
+
+- [`fct_to_combine()`](https://hui950319.github.io/UtilsR/reference/fct_to_combine.md)
+  propagates missing inputs to genuine missing results, including NaN
+  and SPSS user-missing codes and ranges. The literal string `"NA"`
+  remains a category. Class methods are registered for restored labelled
+  and integer64 inputs before combining them.
+
 - [`fct_to_combine()`](https://hui950319.github.io/UtilsR/reference/fct_to_combine.md)
   validates vector dimensions, separators, selected column names and
   output names. Unused arguments to the data-frame method now error

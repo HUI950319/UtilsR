@@ -75,6 +75,13 @@ but with a default separator (`" & "`) tuned for clinical /
 epidemiological group labels. For regrouping levels of a single factor
 (the dual operation), see \[fct_to_group()\].
 
+A row is missing if any input is missing according to its
+[`is.na()`](https://rdrr.io/r/base/NA.html) method, including `NaN` and
+SPSS user-missing values and ranges. The literal string `"NA"` remains
+an ordinary category. If distinct combinations produce the same label,
+the function errors; choose a different `sep` or relabel the inputs to
+disambiguate them.
+
 ## See also
 
 \[fct_to_group()\], \[fct_cat()\], \[fct_label()\]
