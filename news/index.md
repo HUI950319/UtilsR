@@ -3,6 +3,17 @@
 ## UtilsR 0.6.8
 
 - [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
+  rejects impossible strict P-value bounds (`<0` and `>1`), including
+  scientific notation, while retaining inclusive bounds and plain number
+  formatting. Decimal text is checked before floating-point rounding can
+  turn a tiny positive endpoint into zero or an endpoint below one into
+  one.
+
+- [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
+  accepts Unicode whitespace around numeric text and after bound
+  operators, including non-breaking and thin spaces copied from tables.
+
+- [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
   avoids formatting missing values and existing bound labels, while
   retaining a direct path for complete numeric vectors.
 
