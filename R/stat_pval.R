@@ -30,6 +30,8 @@
 #'   An entirely missing logical vector is also accepted.
 #' @param digits Single integer, decimal places (default: 3 for stars/pvalue,
 #'   2 for plain). Must be at least 1 for P-value modes or 0 for \code{plain}.
+#'   At most 8190; a sign or a longer integer part can lower this limit to
+#'   keep each formatted number within the 8192-byte limit of \code{sprintf}.
 #'   Ignored when \code{add_star_p} is provided.
 #' @param mode Formatting mode (ignored when \code{add_star_p} is provided):
 #'   \describe{
@@ -130,8 +132,8 @@ stat_pval <- function(x,
   d <- digits %||% if (mode == "plain") 2L else 3L
   min_digits <- if (mode == "plain") 0L else 1L
   if (!is.numeric(d) || is.object(d) || !is.null(dim(d)) || length(d) != 1L ||
-      !is.finite(d) || d < min_digits || d %% 1 != 0 || d > .Machine$integer.max) {
-    cli::cli_abort("{.arg digits} must be a single integer between {min_digits} and {(.Machine$integer.max)} for this mode.")
+      !is.finite(d) || d < min_digits || d %% 1 != 0 || d > 8190L) {
+    cli::cli_abort("{.arg digits} must be a single integer between {min_digits} and 8190 for this mode.")
   }
   d <- as.integer(d)
 
@@ -157,6 +159,19 @@ stat_pval <- function(x,
     cli::cli_abort("{.arg x} must be numeric or character.")
   }
 
+  if (mode != "plain") .validate_p(x_num, "x")
+  if (!length(x_num)) {
+    if (mode == "stars") .add_stars(x_num, map_signif)
+    return(stats::setNames(character(), input_names))
+  }
+  # A finite double needs at most 310 bytes before the decimal point.
+  if (d > 7881L) {
+    widths <- nchar(sprintf("%.0f", trunc(x_num[is.finite(x_num)])))
+    if (any(widths + 1L + d > 8192L)) {
+      cli::cli_abort("{.arg digits} exceeds the 8192-byte limit for a formatted number in {.arg x}.")
+    }
+  }
+
   # plain mode
   if (mode == "plain") {
     fmt <- sprintf("%%.%df", d)
@@ -168,7 +183,6 @@ stat_pval <- function(x,
   }
 
   # pvalue / stars mode
-  .validate_p(x_num, "x")
   fmt <- sprintf("%%.%df", d)
   out <- sprintf(fmt, x_num)
   out[is.na(x_num)] <- NA_character_

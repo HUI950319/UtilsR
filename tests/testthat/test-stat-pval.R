@@ -178,3 +178,19 @@ test_that("logical vectors are accepted only when entirely missing", {
   expect_error(stat_pval("HR", add_star_p = TRUE), "numeric")
   expect_error(stat_pval("HR", add_star_p = NA, map_signif = .05), "map_signif")
 })
+
+test_that("decimal precision respects the formatter's output limit", {
+  for (x in list(.01, numeric(), NA_real_)) {
+    for (mode in c("stars", "pvalue", "plain")) {
+      expect_error(stat_pval(x, digits = 8191, mode = mode), "digits")
+    }
+  }
+  expect_error(stat_pval(numeric(), digits = 1000000), "digits")
+  expect_error(stat_pval(-.Machine$double.xmax, digits = 8000, mode = "plain"),
+               "8192-byte")
+  expect_error(stat_pval("-0", digits = 8190), "8192-byte")
+  expect_identical(nchar(stat_pval(.01, digits = 8190, mode = "pvalue")), 8192L)
+  expect_identical(nchar(stat_pval(9.99, digits = 8190, mode = "plain")), 8192L)
+  expect_identical(stat_pval(numeric(), digits = 8190), character())
+  expect_error(stat_pval(numeric(), map_signif = .05), "map_signif")
+})

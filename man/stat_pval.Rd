@@ -37,6 +37,8 @@ An entirely missing logical vector is also accepted.}
 
 \item{digits}{Single integer, decimal places (default: 3 for stars/pvalue,
 2 for plain). Must be at least 1 for P-value modes or 0 for \code{plain}.
+At most 8190; a sign or a longer integer part can lower this limit to
+keep each formatted number within the 8192-byte limit of \code{sprintf}.
 Ignored when \code{add_star_p} is provided.}
 
 \item{mode}{Formatting mode (ignored when \code{add_star_p} is provided):

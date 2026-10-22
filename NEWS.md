@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `stat_pval()` checks decimal precision against the formatter's output limit
+  and returns empty vectors before allocating display thresholds.
+
 * `stat_pval()` accepts entirely missing logical vectors in formatting and
   annotation paths, while continuing to reject observed logical values.
 
