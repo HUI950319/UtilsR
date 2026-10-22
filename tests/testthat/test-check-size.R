@@ -331,13 +331,16 @@ test_that("check_size uses neutral size colors when every estimate is zero", {
 
 test_that("check_size warns when a top-level numeric variable is used as indices", {
   with_size_objects(list(a = raw(16), idx = 1), function(nms) {
+    # Index the fixture itself so the test never reads unrelated global objects.
+    fixture_index <- match(nms[[1L]], ls(envir = .GlobalEnv, all.names = TRUE))
+    assign(nms[[2L]], fixture_index, envir = .GlobalEnv)
     top_level <- as.call(list(check_size, as.symbol(nms[[2L]])))
     expect_warning(result <- eval(top_level, .GlobalEnv),
                    "used as object indices.*quote its name")
-    expect_equal(nrow(result[["_data"]]), 2L)
+    expect_identical(result[["_data"]][["Object"]], c("**TOTAL**", nms[[1L]]))
     indices <- match(nms, ls(envir = .GlobalEnv, all.names = TRUE))
     expect_no_warning(check_size(indices))
-    expect_no_warning(eval(as.call(list(check_size, 1)), .GlobalEnv))
+    expect_no_warning(eval(as.call(list(check_size, fixture_index)), .GlobalEnv))
     expect_no_warning(eval(as.call(list(check_size, nms[[1L]])), .GlobalEnv))
   })
 })
