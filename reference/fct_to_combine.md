@@ -33,7 +33,12 @@ fct_to_combine(..., sep = " & ")
   combine. Must be empty for the data.frame method. A single character
   vector of column names (length \>= 2) is resolved through
   `dplyr::pick(all_of(.))` when called inside a data-masking verb,
-  enabling `mutate(g = fct_to_combine(c("sex", "age")))`. Vector names
+  enabling `mutate(g = fct_to_combine(c("sex", "age")))`. This shortcut
+  always interprets a character vector of length \>= 2 as column names;
+  use `factor(x)` to combine a single character vector of values.
+  Grouping columns are unavailable to
+  [`pick()`](https://dplyr.tidyverse.org/reference/pick.html); pass such
+  columns directly as vectors or use the data.frame method. Vector names
   do not affect combinations. The name `sep` is reserved for the
   separator; combine a column named `sep` with the data.frame method, or
   remove column-list names before
@@ -73,7 +78,8 @@ Conceptually similar to
 and [`base::interaction()`](https://rdrr.io/r/base/interaction.html),
 but with a default separator (`" & "`) tuned for clinical /
 epidemiological group labels. For regrouping levels of a single factor
-(the dual operation), see \[fct_to_group()\].
+(the dual operation), see
+[`fct_to_group()`](https://hui950319.github.io/UtilsR/reference/fct_to_group.md).
 
 A row is missing if any input is missing according to its
 [`is.na()`](https://rdrr.io/r/base/NA.html) method, including `NaN` and
@@ -84,7 +90,9 @@ disambiguate them.
 
 ## See also
 
-\[fct_to_group()\], \[fct_cat()\], \[fct_label()\]
+[`fct_to_group()`](https://hui950319.github.io/UtilsR/reference/fct_to_group.md),
+[`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md),
+[`fct_label()`](https://hui950319.github.io/UtilsR/reference/fct_label.md)
 
 Other factor tools:
 [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md),
@@ -128,11 +136,40 @@ fct_to_combine(df, c("sex", "age"), var_name = "group")   # new col "group"
 #> 6   M   old   M & old
 
 # Inside mutate (vector method, most natural usage)
-if (FALSE) { # \dontrun{
+# \donttest{
 library(dplyr)
+#> 
+#> Attaching package: ‘dplyr’
+#> The following objects are masked from ‘package:stats’:
+#> 
+#>     filter, lag
+#> The following objects are masked from ‘package:base’:
+#> 
+#>     intersect, setdiff, setequal, union
 df %>% mutate(grp = fct_to_combine(sex, age))
+#>   sex   age       grp
+#> 1   F young F & young
+#> 2   F   mid   F & mid
+#> 3   F   old   F & old
+#> 4   M young M & young
+#> 5   M   mid   M & mid
+#> 6   M   old   M & old
 df %>% mutate(grp = fct_to_combine(c("sex", "age")))
+#>   sex   age       grp
+#> 1   F young F & young
+#> 2   F   mid   F & mid
+#> 3   F   old   F & old
+#> 4   M young M & young
+#> 5   M   mid   M & mid
+#> 6   M   old   M & old
 # pipe with the data.frame method
 df |> fct_to_combine(c("sex", "age"), var_name = "group")
-} # }
+#>   sex   age     group
+#> 1   F young F & young
+#> 2   F   mid   F & mid
+#> 3   F   old   F & old
+#> 4   M young M & young
+#> 5   M   mid   M & mid
+#> 6   M   old   M & old
+# }
 ```
