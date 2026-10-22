@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fct_to_combine()` documents group-wise factor-level merging in dplyr and
+  shows how to retain a whole-data level order with the data-frame method.
+
 * `fct_to_combine()` rejects matrix/array selectors and raw vectors explicitly
   rather than passing them to column indexing or factor conversion.
 

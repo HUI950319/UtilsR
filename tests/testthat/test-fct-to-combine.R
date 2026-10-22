@@ -213,3 +213,21 @@ test_that("unsupported selector dimensions and raw storage fail explicitly", {
   expect_error(fct_to_combine(as.raw(c(1, 2)), data$b), "Raw vectors.*not supported")
   expect_error(fct_to_combine(raw(), character()), "Raw vectors.*not supported")
 })
+
+test_that("whole-data combination retains global level order in grouped frames", {
+  data <- tibble::tibble(
+    group = c("g1", "g1", "g2", "g2"),
+    a = factor(c("B", "B", "A", "A"), levels = c("A", "B")),
+    b = factor(c("Y", "X", "X", "Y"), levels = c("X", "Y"))
+  )
+  grouped <- dplyr::group_by(data, group)
+  whole <- fct_to_combine(grouped, c("a", "b"), var_name = "z")
+  expect_identical(levels(whole$z), c("A & X", "A & Y", "B & X", "B & Y"))
+  expect_identical(dplyr::group_data(whole), dplyr::group_data(grouped))
+  per_group <- dplyr::mutate(grouped, z = fct_to_combine(a, b))
+  expect_identical(as.character(per_group$z), as.character(whole$z))
+  expect_identical(levels(per_group$z), c("B & X", "B & Y", "A & X", "A & Y"))
+  per_row <- dplyr::mutate(dplyr::rowwise(data), z = fct_to_combine(a, b))
+  expect_identical(as.character(per_row$z), as.character(whole$z))
+  expect_identical(levels(per_row$z), c("B & Y", "B & X", "A & X", "A & Y"))
+})

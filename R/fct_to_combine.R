@@ -38,6 +38,12 @@
 #' If distinct combinations produce the same label, the function errors;
 #' choose a different \code{sep} or relabel the inputs to disambiguate them.
 #'
+#' Inside grouped or rowwise \code{dplyr::mutate()}, combinations are computed
+#' separately for each group. When dplyr combines the results, their level
+#' order may differ from whole-data ordering and change the first level used
+#' as a model reference. To use one level order across the data, use the
+#' data.frame method on the whole data frame; its grouping is retained.
+#'
 #' @param x First input. A factor / character / vector (vector method), OR a
 #'   data.frame (data.frame method). A \pkg{data.table} input is copied before
 #'   writing the result; keys and indices affected by replacement are cleared.
@@ -91,6 +97,9 @@
 #' df %>% mutate(grp = fct_to_combine(c("sex", "age")))
 #' # pipe with the data.frame method
 #' df |> fct_to_combine(c("sex", "age"), var_name = "group")
+#' # One level order across the whole data, while retaining dplyr groups
+#' df %>% group_by(age) %>%
+#'   fct_to_combine(c("sex", "age"), var_name = "group")
 #' }
 #'
 #' @export
