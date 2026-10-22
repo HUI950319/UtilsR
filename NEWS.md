@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `stat_pval()` rejects integer64, date, date-time, and time-span storage
+  before formatting values or adding stars; convert these inputs explicitly.
+
 * `stat_pval()` rejects nonfinite and out-of-range P-values in both formatting
   and annotation paths. Ordinary numbers in `plain` mode keep their range.
 

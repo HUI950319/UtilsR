@@ -21,7 +21,9 @@ are returned with outer whitespace removed, without inferring stars.
 Other non-numeric strings are rejected.
 In P-value modes, observed values and numeric bound endpoints must be
 finite and between 0 and 1. Ordinary numbers in \code{plain} mode are
-not restricted to that range.}
+not restricted to that range.
+Numeric input must not use \code{integer64}, date, date-time, or
+time-span storage; convert such values explicitly before formatting.}
 
 \item{add_star_p}{Numeric vector of p-values for star annotation. When provided,
 stars are appended to \code{x} based on these p-values.

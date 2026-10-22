@@ -52,3 +52,24 @@ test_that("P-value paths reject nonfinite and out-of-range observations", {
   expect_identical(stat_pval(c(-.1, 1.2, Inf, -Inf), mode = "plain"),
                    c("-0.10", "1.20", "Inf", "-Inf"))
 })
+
+test_that("special numeric storage cannot be mistaken for P-values", {
+  values <- list(as.difftime(.01, units = "secs"), as.Date("1970-01-01"),
+                 as.POSIXct("1970-01-01", tz = "UTC"))
+  for (x in values) {
+    for (mode in c("stars", "pvalue", "plain")) {
+      expect_error(stat_pval(x, mode = mode), "ordinary numeric")
+    }
+    expect_error(stat_pval("HR", add_star_p = x), "ordinary numeric")
+  }
+})
+
+test_that("integer64 input is rejected before reading its double storage", {
+  skip_if_not_installed("bit64")
+  x <- bit64::as.integer64(c(0, 1, NA))
+  for (mode in c("stars", "pvalue", "plain")) {
+    expect_error(stat_pval(x, mode = mode), "ordinary numeric")
+  }
+  expect_error(stat_pval(rep("HR", 3), add_star_p = x), "ordinary numeric")
+  expect_identical(stat_pval(as.double(x)), c("<0.001***", "1.000", NA_character_))
+})

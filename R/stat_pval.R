@@ -17,6 +17,8 @@
 #'   In P-value modes, observed values and numeric bound endpoints must be
 #'   finite and between 0 and 1. Ordinary numbers in \code{plain} mode are
 #'   not restricted to that range.
+#'   Numeric input must not use \code{integer64}, date, date-time, or
+#'   time-span storage; convert such values explicitly before formatting.
 #' @param add_star_p Numeric vector of p-values for star annotation. When provided,
 #'   stars are appended to \code{x} based on these p-values.
 #'   Missing values in \code{x} remain missing; a missing P-value leaves
@@ -60,6 +62,13 @@ stat_pval <- function(x,
                   digits = NULL,
                   mode = c("stars", "pvalue", "plain"),
                   map_signif = c("***" = 0.001, "**" = 0.01, "*" = 0.05, "." = 0.1)) {
+
+  numeric_input <- if (is.null(add_star_p)) x else add_star_p
+  if (inherits(numeric_input, c("integer64", "Date", "POSIXt", "difftime",
+                                "Duration", "Period", "Interval"))) {
+    arg <- if (is.null(add_star_p)) "x" else "add_star_p"
+    cli::cli_abort("{.arg {arg}} must use ordinary numeric values, not integer64, date, date-time, or time-span storage.")
+  }
 
   .validate_p <- function(p, arg) {
     if (any(!is.na(p) & (!is.finite(p) | p < 0 | p > 1))) {
