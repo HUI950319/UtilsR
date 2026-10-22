@@ -3,6 +3,19 @@
 ## UtilsR 0.6.8
 
 - [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
+  rejects integer64, date, date-time, and time-span storage before
+  formatting values or adding stars; convert these inputs explicitly.
+
+- [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
+  rejects nonfinite and out-of-range P-values in both formatting and
+  annotation paths. Ordinary numbers in `plain` mode keep their range.
+
+- [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
+  retains missing values after appending stars, including missing text
+  supplied with `add_star_p`. Missing P-values leave observed annotation
+  text unchanged.
+
+- [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
   preserves character P-value bounds without treating their endpoints as
   exact P-values or inferring significance stars. Malformed numeric
   strings now fail explicitly.
