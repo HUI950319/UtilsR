@@ -123,6 +123,10 @@ without <code>level</code> does not round the input; at least one with
 
 <dt id="arg-map-signif">map_signif<a class="anchor" aria-label="anchor" href="#arg-map-signif"></a></dt>
 <dd><p>Named numeric vector for star thresholds.
+Default: <code>c("***" = 0.001, "**" = 0.01, "*" = 0.05)</code>.
+Thresholds must be finite, non-missing values between 0 and 1, with
+non-missing names. Empty symbols are allowed; an empty numeric vector
+disables stars. For repeated thresholds, the first symbol is used.
 Only used when <code>output</code> is <code>"ci_star"</code> or <code>"p_star"</code>.</p></dd>
 
 </dl></div>

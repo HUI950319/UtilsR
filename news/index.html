@@ -50,7 +50,10 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> checks decimal precision against the formatter’s output limit and returns empty vectors before allocating display thresholds.</p></li>
+<ul><li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> accepts Unicode whitespace around numeric text and after bound operators, including non-breaking and thin spaces copied from tables.</p></li>
+<li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> avoids formatting missing values and existing bound labels, while retaining a direct path for complete numeric vectors.</p></li>
+<li><p><code><a href="../reference/stat_ci_parse.html">stat_ci_parse()</a></code> shares significance-map validation with <code><a href="../reference/stat_pval.html">stat_pval()</a></code>, including empty maps, empty symbols and duplicate thresholds; its default mapping continues to stop at <code>*</code> without a marginal-significance dot.</p></li>
+<li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> checks decimal precision against the formatter’s output limit and returns empty vectors before allocating display thresholds.</p></li>
 <li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> accepts entirely missing logical vectors in formatting and annotation paths, while continuing to reject observed logical values.</p></li>
 <li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> displays signed zero like ordinary zero in P-value modes, retaining its significance symbol and the existing plain-number display.</p></li>
 <li><p><code><a href="../reference/fct_to_combine.html">fct_to_combine()</a></code> groups integer factor codes before sorting combinations and constructing labels, reducing repeated work when many rows share groups. Only observed combinations are retained, in the same factor-level order.</p></li>
