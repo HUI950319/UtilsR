@@ -4,7 +4,12 @@
 \alias{check_size}
 \title{Analyze Object Sizes in an Environment}
 \usage{
-check_size(..., pattern = NULL, envir = .GlobalEnv)
+check_size(
+  ...,
+  pattern = NULL,
+  envir = .GlobalEnv,
+  method = c("object.size", "lobstr")
+)
 }
 \arguments{
 \item{...}{Object names (character vectors) or plain numeric vectors of
@@ -21,6 +26,12 @@ object names. Takes precedence over \code{...}; no matches select no objects.}
 
 \item{envir}{Environment whose objects are inspected. Defaults to
 \code{.GlobalEnv}; parent environments are never searched.}
+
+\item{method}{Size estimator: \code{"object.size"} (default) uses
+\code{utils::object.size()} and sums the rows for the total;
+\code{"lobstr"} uses \code{lobstr::obj_size()}, which requires the
+\pkg{lobstr} package and counts storage shared between objects once in
+the total.}
 }
 \value{
 A \code{gt} table object, including a zero-row table when no objects
@@ -29,7 +40,8 @@ A \code{gt} table object, including a zero-row table when no objects
   Its underlying data contain \code{Object}, \code{Class}, \code{Size},
   \code{Size_fmt} and \code{Size_bar}. Objects are listed from largest to
   smallest, with equally sized objects in alphabetical order. Numeric
-  sizes remain in MB (\eqn{1024^2} bytes), with automatic B, KB, MB or GB display labels.
+  sizes remain in MB (\eqn{1024^2} bytes), with automatic B, KB, MB or GB
+  display labels.
   Size bars appear in HTML output; other formats retain the size labels.
   Object bars are scaled to the largest individual object; the total bar
   is capped at full width. A source note states the limits of the estimates.
@@ -39,11 +51,17 @@ Check memory usage of objects in an environment, \code{.GlobalEnv} by
 default. Outputs a styled \code{gt} table with bar chart and color gradient.
 }
 \details{
-Sizes are estimates from \code{utils::object.size()}, not process memory
-usage or the memory that would be freed by removing an object. The total
-sums the individual estimates; shared storage can therefore be counted
-more than once. Environments, closure environments, external pointers and
-compact ALTREP representations are not fully accounted for by this method.
+By default, sizes are estimates from \code{utils::object.size()}, not
+process memory usage or the memory that would be freed by removing an
+object. The total sums the individual estimates; shared storage can
+therefore be counted more than once. Environments, closure environments,
+external pointers and compact ALTREP representations are not fully
+accounted for by this method.
+With \code{method = "lobstr"}, each row includes the environments an object
+captures (except \code{envir} itself, the global and base environments and
+namespaces), compact ALTREP vectors report their compact size, and the
+total counts shared storage once, so it can be smaller than the sum of the
+rows. It can be several times slower on deeply nested lists.
 Each selected binding is read once. Reading active bindings invokes their
 functions, and reading promises evaluates them; inspection can therefore
 trigger user-defined computations.
@@ -62,6 +80,13 @@ trigger user-defined computations.
 
 # Inspect a local environment instead of the global one
 check_size(envir = list2env(list(small = 1:10, large = raw(2048))))
+
+# Count storage shared between objects once
+if (requireNamespace("lobstr", quietly = TRUE)) {
+  shared <- rnorm(1000)
+  check_size(envir = list2env(list(x = shared, y = list(shared, shared))),
+             method = "lobstr")
+}
 
 }
 \seealso{

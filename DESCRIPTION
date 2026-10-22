@@ -108,6 +108,7 @@ Suggests:
     gridExtra,
     geomtextpath,
     plotthis,
+    lobstr,
     testthat,
     ToyData,
     VIM (>= 4.5.0),

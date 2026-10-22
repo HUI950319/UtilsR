@@ -357,6 +357,27 @@ test_that("check_size inspects only the supplied environment", {
   })
 })
 
+test_that("check_size counts shared storage once with the lobstr method", {
+  skip_if_not_installed("lobstr")
+  x <- rnorm(1e4)
+  # Enclose `f` outside the test frame so later test objects do not change its size.
+  f <- function() big
+  environment(f) <- list2env(list(big = x), parent = globalenv())
+  env <- list2env(list(x = x, y = list(x, x), f = f, s = 1:1e6))
+  result <- check_size(envir = env, method = "lobstr")
+  data <- result[["_data"]]
+  sizes <- vapply(data[["Object"]][-1L], function(nm) {
+    as.numeric(lobstr::obj_size(get(nm, envir = env), env = env))
+  }, numeric(1))
+  expect_equal(data[["Size"]][-1L], unname(sizes) / 1024^2)
+  combined <- as.numeric(lobstr::obj_size(env$x, env$y, env$f, env$s, env = env))
+  expect_equal(data[["Size"]][[1L]], combined / 1024^2)
+  expect_lt(data[["Size"]][[1L]], sum(data[["Size"]][-1L]))
+  expect_identical(data[["Size_fmt"]][data[["Object"]] == "s"], "680 B")
+  expect_match(gt::as_raw_html(result), "lobstr::obj_size() estimates", fixed = TRUE)
+  expect_error(check_size(envir = env, method = "bad"), "should be one of")
+})
+
 test_that("check_size reports each read failure cause without reading again", {
   with_size_objects(list(ok = raw(16), bad_a = 1, bad_b = 1), function(nms) {
     rm(list = nms[2:3], envir = .GlobalEnv)
