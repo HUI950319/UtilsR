@@ -1,21 +1,24 @@
 # =============================================================================
-# check_size.R -- Object size analysis in the global environment
+# check_size.R -- Object size analysis in an environment
 # =============================================================================
 
-#' Analyze Object Sizes in Global Environment
+#' Analyze Object Sizes in an Environment
 #'
-#' Check memory usage of objects in \code{.GlobalEnv}. Outputs a styled
-#' \code{gt} table with bar chart and color gradient.
+#' Check memory usage of objects in an environment, \code{.GlobalEnv} by
+#' default. Outputs a styled \code{gt} table with bar chart and color gradient.
 #'
 #' @param ... Object names (character vectors) or plain numeric vectors of
 #'   finite, positive integer indices into the alphabetically sorted names in
-#'   \code{.GlobalEnv}, including hidden names. With no arguments, all objects
+#'   \code{envir}, including hidden names. With no arguments, all objects
 #'   are analyzed. Duplicate names are inspected once. Missing names are
 #'   skipped with a warning; empty selections do not select all objects.
 #'   Arguments are evaluated, so an unquoted numeric variable supplies
-#'   indices, not its own name; a top-level call warns when this happens.
+#'   indices, not its own name; a call made from \code{envir} itself warns
+#'   when this happens.
 #' @param pattern Optional single, non-missing regular expression for matching
 #'   object names. Takes precedence over \code{...}; no matches select no objects.
+#' @param envir Environment whose objects are inspected. Defaults to
+#'   \code{.GlobalEnv}; parent environments are never searched.
 #'
 #' @return A \code{gt} table object, including a zero-row table when no objects
 #'   can be inspected. Objects that fail to load are skipped with a warning
@@ -50,17 +53,23 @@
 #'   check_size(pattern = paste0("^", prefix))
 #' })()
 #'
+#' # Inspect a local environment instead of the global one
+#' check_size(envir = list2env(list(small = 1:10, large = raw(2048))))
+#'
 #' @export
 #' @family inspect
-check_size <- function(..., pattern = NULL) {
+check_size <- function(..., pattern = NULL, envir = .GlobalEnv) {
 
+  if (!is.environment(envir)) {
+    stop("`envir` must be an environment.", call. = FALSE)
+  }
   all_objects <- NULL
 
   if (!is.null(pattern)) {
     if (!is.character(pattern) || length(pattern) != 1L || is.na(pattern)) {
       stop("`pattern` must be a single, non-missing character string.", call. = FALSE)
     }
-    all_objects <- ls(envir = .GlobalEnv, all.names = TRUE, sorted = FALSE)
+    all_objects <- ls(envir = envir, all.names = TRUE, sorted = FALSE)
     matched <- tryCatch(suppressWarnings(grepl(pattern, all_objects)),
                         error = function(e) {
                           stop("Invalid `pattern`: ", conditionMessage(e), call. = FALSE)
@@ -69,12 +78,13 @@ check_size <- function(..., pattern = NULL) {
   } else {
     selected_objects <- list(...)
     if (length(selected_objects) == 0) {
-      objects <- ls(envir = .GlobalEnv, all.names = TRUE, sorted = FALSE)
+      objects <- ls(envir = envir, all.names = TRUE, sorted = FALSE)
     } else {
       objects <- character(0)
-      # A bare top-level symbol is most likely the object the user meant to inspect.
+      # A bare symbol evaluated in `envir` is most likely the object the user
+      # meant to inspect.
       selected_exprs <- as.list(substitute(list(...)))[-1L]
-      called_from_top <- identical(parent.frame(), .GlobalEnv)
+      called_from_envir <- identical(parent.frame(), envir)
       for (i in seq_along(selected_objects)) {
         obj <- selected_objects[[i]]
         if (is.object(obj) || !is.null(dim(obj))) {
@@ -87,14 +97,14 @@ check_size <- function(..., pattern = NULL) {
           objects <- c(objects, obj)
         } else if (typeof(obj) %in% c("integer", "double")) {
           if (is.null(all_objects)) {
-            all_objects <- ls(envir = .GlobalEnv, all.names = TRUE)
+            all_objects <- ls(envir = envir, all.names = TRUE)
           }
           if (any(!is.finite(obj)) || any(obj != trunc(obj)) ||
               any(obj < 1 | obj > length(all_objects))) {
             stop("Object indices must be finite integers within the available names.",
                  call. = FALSE)
           }
-          if (called_from_top && is.symbol(selected_exprs[[i]])) {
+          if (called_from_envir && is.symbol(selected_exprs[[i]])) {
             var_name <- as.character(selected_exprs[[i]])
             warning(sprintf(paste0("`%s` was used as object indices. To inspect the ",
                                    "variable itself, quote its name: check_size(\"%s\")."),
@@ -110,20 +120,20 @@ check_size <- function(..., pattern = NULL) {
 
   # Sort once so equally sized objects keep alphabetical order for every selector.
   objects <- sort(unique(objects))
-  found <- vapply(objects, exists, logical(1), envir = .GlobalEnv, inherits = FALSE)
+  found <- vapply(objects, exists, logical(1), envir = envir, inherits = FALSE)
   if (any(!found)) {
-    warning("Objects not found in `.GlobalEnv`: ", paste(objects[!found], collapse = ", "),
+    warning("Objects not found in `envir`: ", paste(objects[!found], collapse = ", "),
             call. = FALSE)
     objects <- objects[found]
   }
 
   if (length(objects) == 0) {
-    .cat_line("No objects selected in the global environment.", type = "info")
+    .cat_line("No objects selected in `envir`.", type = "info")
   }
 
   object_metrics <- pbapply::pblapply(objects, function(x) {
     tryCatch({
-      obj <- get(x, envir = .GlobalEnv, inherits = FALSE)
+      obj <- get(x, envir = envir, inherits = FALSE)
       list(size = as.numeric(utils::object.size(obj)) / (1024^2),
            class = paste(class(obj), collapse = ", "))
     }, error = function(e) {

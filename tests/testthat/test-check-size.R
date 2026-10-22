@@ -341,6 +341,22 @@ test_that("check_size warns when a top-level numeric variable is used as indices
   })
 })
 
+test_that("check_size inspects only the supplied environment", {
+  env <- list2env(list(small = raw(16), large = raw(64)))
+  object_column <- function(x) x[["_data"]][["Object"]]
+  expect_identical(object_column(check_size(envir = env)), c("**TOTAL**", "large", "small"))
+  expect_identical(object_column(check_size(2L, envir = env)), c("**TOTAL**", "small"))
+  expect_identical(object_column(check_size(pattern = "^l", envir = env)),
+                   c("**TOTAL**", "large"))
+  expect_warning(result <- check_size("small", "mean", envir = env), "not found.*mean")
+  expect_identical(object_column(result), c("**TOTAL**", "small"))
+  expect_error(check_size(envir = list(small = 1)), "`envir` must be an environment")
+  local({
+    n <- 1
+    expect_warning(check_size(n, envir = environment()), "`n` was used as object indices")
+  })
+})
+
 test_that("check_size reports each read failure cause without reading again", {
   with_size_objects(list(ok = raw(16), bad_a = 1, bad_b = 1), function(nms) {
     rm(list = nms[2:3], envir = .GlobalEnv)

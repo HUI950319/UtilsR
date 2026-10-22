@@ -2,21 +2,25 @@
 % Please edit documentation in R/check_size.R
 \name{check_size}
 \alias{check_size}
-\title{Analyze Object Sizes in Global Environment}
+\title{Analyze Object Sizes in an Environment}
 \usage{
-check_size(..., pattern = NULL)
+check_size(..., pattern = NULL, envir = .GlobalEnv)
 }
 \arguments{
 \item{...}{Object names (character vectors) or plain numeric vectors of
 finite, positive integer indices into the alphabetically sorted names in
-\code{.GlobalEnv}, including hidden names. With no arguments, all objects
+\code{envir}, including hidden names. With no arguments, all objects
 are analyzed. Duplicate names are inspected once. Missing names are
 skipped with a warning; empty selections do not select all objects.
 Arguments are evaluated, so an unquoted numeric variable supplies
-indices, not its own name; a top-level call warns when this happens.}
+indices, not its own name; a call made from \code{envir} itself warns
+when this happens.}
 
 \item{pattern}{Optional single, non-missing regular expression for matching
 object names. Takes precedence over \code{...}; no matches select no objects.}
+
+\item{envir}{Environment whose objects are inspected. Defaults to
+\code{.GlobalEnv}; parent environments are never searched.}
 }
 \value{
 A \code{gt} table object, including a zero-row table when no objects
@@ -31,8 +35,8 @@ A \code{gt} table object, including a zero-row table when no objects
   is capped at full width. A source note states the limits of the estimates.
 }
 \description{
-Check memory usage of objects in \code{.GlobalEnv}. Outputs a styled
-\code{gt} table with bar chart and color gradient.
+Check memory usage of objects in an environment, \code{.GlobalEnv} by
+default. Outputs a styled \code{gt} table with bar chart and color gradient.
 }
 \details{
 Sizes are estimates from \code{utils::object.size()}, not process memory
@@ -55,6 +59,9 @@ trigger user-defined computations.
   check_size(indices)
   check_size(pattern = paste0("^", prefix))
 })()
+
+# Inspect a local environment instead of the global one
+check_size(envir = list2env(list(small = 1:10, large = raw(2048))))
 
 }
 \seealso{
