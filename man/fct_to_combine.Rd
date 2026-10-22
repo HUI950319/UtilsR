@@ -38,7 +38,8 @@ unambiguous columns in the data frame.}
 
 \item{var_name}{(data.frame method) Name of the new column. Default
 \code{NULL} = \code{paste(vars, collapse = "_")}. Otherwise a single
-non-missing, non-empty string. An existing column of this name is replaced.}
+non-missing, non-empty string. An existing column of this name is replaced.
+A name matching multiple existing columns is rejected.}
 
 \item{sep}{A single non-missing string separating cell values. Default
 \code{" & "}; an empty string is allowed.}

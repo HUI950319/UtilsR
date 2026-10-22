@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fct_to_combine()` rejects ambiguous output names, including a default name
+  matching several existing columns, before replacing any column.
+
 * `fct_to_combine()` validates column-name shortcuts before selection and
   ignores names attached to selector vectors in both data-frame and data-mask
   calls, so duplicate columns cannot silently become a single input.

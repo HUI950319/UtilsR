@@ -60,6 +60,7 @@
 #' @param var_name (data.frame method) Name of the new column. Default
 #'   \code{NULL} = \code{paste(vars, collapse = "_")}. Otherwise a single
 #'   non-missing, non-empty string. An existing column of this name is replaced.
+#'   A name matching multiple existing columns is rejected.
 #' @param sep A single non-missing string separating cell values. Default
 #'   \code{" & "}; an empty string is allowed.
 #'
@@ -130,9 +131,12 @@ fct_to_combine.data.frame <- function(x, vars, var_name = NULL, sep = " & ", ...
   if (anyDuplicated(names(x)[names(x) %in% vars])) {
     cli::cli_abort("Selected column names must be unique in the data frame.")
   }
+  new_var <- if (!is.null(var_name)) var_name else paste(vars, collapse = "_")
+  if (sum(names(x) == new_var, na.rm = TRUE) > 1L) {
+    cli::cli_abort("Output column name {.val {new_var}} is ambiguous in the data frame.")
+  }
   combined <- do.call(fct_to_combine.default,
                       c(lapply(vars, function(nm) x[[nm]]), list(sep = sep)))
-  new_var <- if (!is.null(var_name)) var_name else paste(vars, collapse = "_")
   if (inherits(x, "data.table")) {
     if (!requireNamespace("data.table", quietly = TRUE)) {
       cli::cli_abort("Combining data.table columns requires the {.pkg data.table} package.")

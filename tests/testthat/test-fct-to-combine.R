@@ -175,3 +175,19 @@ test_that("column-name shortcuts share data-frame selector validation", {
   expect_identical(dplyr::mutate(data, g = fct_to_combine(cols))$g, expected)
   expect_identical(fct_to_combine(data, cols, var_name = "g")$g, expected)
 })
+
+test_that("output names must identify an unambiguous column", {
+  data <- data.frame(a = c("A", "B"), b = c("X", "Y"),
+                     g = 1:2, g = 3:4, check.names = FALSE)
+  before <- data
+  expect_error(fct_to_combine(data, c("a", "b"), var_name = "g"),
+               "Output column name.*ambiguous")
+  expect_identical(data, before)
+  names(data)[3:4] <- c("a_b", "a_b")
+  expect_error(fct_to_combine(data, c("a", "b")),
+               "Output column name.*ambiguous")
+
+  result <- fct_to_combine(data, c("a", "b"), var_name = "group")
+  expect_identical(result$group, fct_to_combine(data$a, data$b))
+  expect_identical(names(result)[c(1, 2, 5)], c("a", "b", "group"))
+})
