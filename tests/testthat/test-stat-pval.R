@@ -154,3 +154,12 @@ test_that("star lookup respects unsorted maps, ties, and exact cutoffs", {
   expect_identical(stat_pval(c(0, 1), map_signif = c(zero = 0, one = 1)),
                    c("<0.001zero", "1.000one"))
 })
+
+test_that("signed zero follows the same P-value display and star rules", {
+  for (x in list(-1 / Inf, "-0", "-0.0e0")) {
+    expect_identical(stat_pval(x), "<0.001***")
+    expect_identical(stat_pval(x, mode = "pvalue", digits = 4), "<0.0001")
+    expect_identical(stat_pval(x, map_signif = c(zero = 0)), "<0.001zero")
+  }
+  expect_identical(stat_pval("-0", mode = "plain"), "-0.00")
+})

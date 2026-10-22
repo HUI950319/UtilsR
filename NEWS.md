@@ -3,6 +3,9 @@
 * `stat_pval()` displays signed zero like ordinary zero in P-value modes,
   retaining its significance symbol and the existing plain-number display.
 
+* `stat_pval()` displays signed zero like ordinary zero in P-value modes,
+  retaining its significance symbol and the existing plain-number display.
+
 * `fct_to_combine()` groups integer factor codes before sorting combinations
   and constructing labels, reducing repeated work when many rows share groups.
   Only observed combinations are retained, in the same factor-level order.

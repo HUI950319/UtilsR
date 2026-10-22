@@ -166,7 +166,7 @@ stat_pval <- function(x,
   out <- sprintf(fmt, x_num)
   out[is.na(x_num)] <- NA_character_
   threshold <- paste0("<0.", strrep("0", d - 1L), "1")
-  out[!is.na(out) & grepl("^0\\.0*$", out)] <- threshold
+  out[!is.na(out) & grepl("^-?0\\.0*$", out)] <- threshold
 
   if (mode == "stars") {
     out <- paste0(out, .add_stars(x_num, map_signif))
