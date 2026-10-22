@@ -55,3 +55,34 @@ test_that("combination inputs are one-dimensional atomic vectors", {
   expect_identical(as.character(fct_to_combine(x, c("A", "B"))),
                    c("2020-01-01 & A", "2020-01-02 & B"))
 })
+
+test_that("missing inputs propagate without consuming the literal NA category", {
+  a <- factor(c(NA, "NA", "A", "A"), levels = c("NA", "A"))
+  b <- c("X", "X", NA, "Y")
+  expected <- factor(c(NA, "NA & X", NA, "A & Y"),
+                     levels = c("NA & X", "A & Y"))
+  expect_identical(fct_to_combine(a, b), expected)
+  expect_identical(fct_to_combine(data.frame(a, b), c("a", "b"))$a_b, expected)
+  expect_identical(is.na(fct_to_combine(c(1, NA, NaN), rep("X", 3))),
+                   c(FALSE, TRUE, TRUE))
+  expect_identical(fct_to_combine(c(NA, NA), c("A", "B")),
+                   factor(c(NA_character_, NA_character_)))
+})
+
+test_that("SPSS missing codes and ranges propagate", {
+  skip_if_not_installed("haven")
+  x <- haven::labelled_spss(c(1, 9, 90, 95, NA, NaN),
+                           na_values = 9, na_range = c(90, 99))
+  expect_identical(is.na(fct_to_combine(x, rep("X", 6))),
+                   c(FALSE, TRUE, TRUE, TRUE, TRUE, TRUE))
+  expect_identical(levels(fct_to_combine(x, rep("X", 6))), "1 & X")
+  x <- haven::labelled(c(1, haven::tagged_na("a"), NA))
+  expect_identical(is.na(fct_to_combine(x, rep("X", 3))), c(FALSE, TRUE, TRUE))
+})
+
+test_that("integer64 labels and missing values retain their meaning", {
+  skip_if_not_installed("bit64")
+  x <- bit64::as.integer64(c("9007199254740993", "9007199254740994", NA))
+  expect_identical(as.character(fct_to_combine(x, rep("X", 3))),
+                   c("9007199254740993 & X", "9007199254740994 & X", NA))
+})

@@ -31,6 +31,10 @@
 #' for clinical / epidemiological group labels. For regrouping levels of a
 #' single factor (the dual operation), see [fct_to_group()].
 #'
+#' A row is missing if any input is missing according to its \code{is.na()}
+#' method, including \code{NaN} and SPSS user-missing values and ranges.
+#' The literal string \code{"NA"} remains an ordinary category.
+#'
 #' @param x First input. A factor / character / vector (vector method), OR a
 #'   data.frame (data.frame method).
 #' @param ... (vector method) One-dimensional atomic vectors of equal length
@@ -164,17 +168,27 @@ fct_to_combine.default <- function(..., sep = " & ") {
     ))
   }
 
-  ensure_factor <- function(v) if (is.factor(v)) v else factor(v)
+  ensure_factor <- function(v) {
+    # Register class methods even when inputs were restored from an RDS file.
+    if (inherits(v, "haven_labelled")) loadNamespace("labelled")
+    if (inherits(v, "integer64") && !requireNamespace("bit64", quietly = TRUE)) {
+      cli::cli_abort("Combining integer64 vectors requires the {.pkg bit64} package.")
+    }
+    if (is.factor(v)) v else factor(v)
+  }
   fct_list <- unname(lapply(args, ensure_factor))
+  missing_rows <- Reduce(`|`, lapply(args, is.na))
 
   val_list <- lapply(fct_list, as.character)
   all_vals <- do.call(paste, c(val_list, list(sep = sep)))
+  all_vals[missing_rows] <- NA_character_
 
   # Build ordered levels: do.call(order, fct_list) sorts rows by each
   # factor's internal level order (stable, no alphabetic coercion).
   ord <- do.call(order, fct_list)
   ordered_keys <- all_vals[ord]
   lvls <- ordered_keys[!duplicated(ordered_keys)]
+  lvls <- lvls[!is.na(lvls)]
 
   factor(all_vals, levels = lvls)
 }

@@ -59,6 +59,10 @@ Conceptually similar to \code{forcats::fct_cross()} and
 \code{base::interaction()}, but with a default separator (\code{" & "}) tuned
 for clinical / epidemiological group labels. For regrouping levels of a
 single factor (the dual operation), see [fct_to_group()].
+
+A row is missing if any input is missing according to its \code{is.na()}
+method, including \code{NaN} and SPSS user-missing values and ranges.
+The literal string \code{"NA"} remains an ordinary category.
 }
 \examples{
 df <- data.frame(
