@@ -45,7 +45,9 @@ stat_pval(
 - digits:
 
   Single integer, decimal places (default: 3 for stars/pvalue, 2 for
-  plain). Must be at least 1 for P-value modes or 0 for `plain`. Ignored
+  plain). Must be at least 1 for P-value modes or 0 for `plain`. At most
+  8190; a sign or a longer integer part can lower this limit to keep
+  each formatted number within the 8192-byte limit of `sprintf`. Ignored
   when `add_star_p` is provided.
 
 - mode:
