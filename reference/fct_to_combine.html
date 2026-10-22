@@ -103,7 +103,8 @@ otherwise on the first argument:</p><ul><li><p><strong>vectors</strong> – <cod
 
 <dl><dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>(vector method) One-dimensional atomic vectors of equal length
-to combine. Must be empty for the data.frame method. A
+to combine. Raw vectors must be converted explicitly before use.
+Must be empty for the data.frame method. A
 single character vector of column names (length &gt;= 2) is resolved through
 <code>dplyr::pick(all_of(.))</code> when called inside a data-masking verb,
 enabling <code>mutate(g = fct_to_combine(c("sex", "age")))</code>.
@@ -125,8 +126,8 @@ writing the result; keys and indices affected by replacement are cleared.</p></d
 
 
 <dt id="arg-vars">vars<a class="anchor" aria-label="anchor" href="#arg-vars"></a></dt>
-<dd><p>(data.frame method) Character vector of &gt;= 2 column names to
-combine. Names must be unique, non-missing and non-empty, and identify
+<dd><p>(data.frame method) One-dimensional character vector of &gt;= 2
+column names to combine. Names must be unique, non-missing and non-empty, and identify
 unambiguous columns in the data frame.</p></dd>
 
 

@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`fct_to_combine()`](https://hui950319.github.io/UtilsR/reference/fct_to_combine.md)
+  rejects matrix/array selectors and raw vectors explicitly rather than
+  passing them to column indexing or factor conversion.
+
+- [`fct_to_combine()`](https://hui950319.github.io/UtilsR/reference/fct_to_combine.md)
   recognizes an explicitly named data-frame `x` regardless of the order
   of named controls, while vector arguments retain their order.
 

@@ -31,13 +31,14 @@ fct_to_combine(..., sep = " & ")
 - ...:
 
   (vector method) One-dimensional atomic vectors of equal length to
-  combine. Must be empty for the data.frame method. A single character
-  vector of column names (length \>= 2) is resolved through
-  `dplyr::pick(all_of(.))` when called inside a data-masking verb,
-  enabling `mutate(g = fct_to_combine(c("sex", "age")))`. This shortcut
-  always interprets a character vector of length \>= 2 as column names;
-  use `factor(x)` to combine a single character vector of values.
-  Grouping columns are unavailable to
+  combine. Raw vectors must be converted explicitly before use. Must be
+  empty for the data.frame method. A single character vector of column
+  names (length \>= 2) is resolved through `dplyr::pick(all_of(.))` when
+  called inside a data-masking verb, enabling
+  `mutate(g = fct_to_combine(c("sex", "age")))`. This shortcut always
+  interprets a character vector of length \>= 2 as column names; use
+  `factor(x)` to combine a single character vector of values. Grouping
+  columns are unavailable to
   [`pick()`](https://dplyr.tidyverse.org/reference/pick.html); pass such
   columns directly as vectors or use the data.frame method. Repeated,
   missing and empty column names are rejected. Names attached to a
@@ -55,9 +56,9 @@ fct_to_combine(..., sep = " & ")
 
 - vars:
 
-  (data.frame method) Character vector of \>= 2 column names to combine.
-  Names must be unique, non-missing and non-empty, and identify
-  unambiguous columns in the data frame.
+  (data.frame method) One-dimensional character vector of \>= 2 column
+  names to combine. Names must be unique, non-missing and non-empty, and
+  identify unambiguous columns in the data frame.
 
 - var_name:
 
