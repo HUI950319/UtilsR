@@ -10,6 +10,10 @@
 #'
 #' @param x Numeric/character vector of p-values (when \code{add_star_p} is NULL),
 #'   or any value to annotate with stars (when \code{add_star_p} is provided).
+#'   Numeric strings may use scientific notation. Strings beginning with
+#'   \code{<}, \code{<=}, \code{>}, \code{>=}, or their Unicode equivalents
+#'   are returned with outer whitespace removed, without inferring stars.
+#'   Other non-numeric strings are rejected.
 #' @param add_star_p Numeric vector of p-values for star annotation. When provided,
 #'   stars are appended to \code{x} based on these p-values.
 #' @param digits Integer, decimal places (default: 3 for stars/pvalue, 2 for plain).
@@ -77,8 +81,18 @@ stat_pval <- function(x,
   d <- as.integer(d)
   if (d < 0L) cli::cli_abort("{.arg digits} must be non-negative.")
 
+  bounded <- rep(FALSE, length(x))
   x_num <- if (is.character(x)) {
-    as.numeric(gsub("[<>]", "", x))
+    text <- trimws(x)
+    number <- "[+-]?(?:[0-9]+\\.?[0-9]*|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?"
+    prefix <- "(?:[<>]=?|[\u2264\u2265])\\s*"
+    bounded <- !is.na(text) & grepl(paste0("^", prefix, number, "$"), text, perl = TRUE)
+    exact <- grepl(paste0("^(?:", number, "|[+-]?Inf(?:inity)?|NaN|NA)$"),
+                   text, perl = TRUE)
+    if (any(!is.na(text) & !bounded & !exact)) {
+      cli::cli_abort("{.arg x} must contain numeric strings or numeric bounds.")
+    }
+    as.numeric(sub(paste0("^", prefix), "", text, perl = TRUE))
   } else if (is.numeric(x)) {
     x
   } else {
@@ -88,7 +102,9 @@ stat_pval <- function(x,
   # plain mode
   if (mode == "plain") {
     fmt <- sprintf("%%.%df", d)
-    return(ifelse(is.na(x_num), NA_character_, sprintf(fmt, x_num)))
+    out <- ifelse(is.na(x_num), NA_character_, sprintf(fmt, x_num))
+    if (any(bounded)) out[bounded] <- text[bounded]
+    return(out)
   }
 
   # pvalue / stars mode
@@ -104,5 +120,6 @@ stat_pval <- function(x,
     out <- paste0(out, .add_stars(x_num, map_signif))
   }
 
+  if (any(bounded)) out[bounded] <- text[bounded]
   out
 }

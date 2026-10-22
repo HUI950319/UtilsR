@@ -14,7 +14,11 @@ stat_pval(
 }
 \arguments{
 \item{x}{Numeric/character vector of p-values (when \code{add_star_p} is NULL),
-or any value to annotate with stars (when \code{add_star_p} is provided).}
+or any value to annotate with stars (when \code{add_star_p} is provided).
+Numeric strings may use scientific notation. Strings beginning with
+\code{<}, \code{<=}, \code{>}, \code{>=}, or their Unicode equivalents
+are returned with outer whitespace removed, without inferring stars.
+Other non-numeric strings are rejected.}
 
 \item{add_star_p}{Numeric vector of p-values for star annotation. When provided,
 stars are appended to \code{x} based on these p-values.}

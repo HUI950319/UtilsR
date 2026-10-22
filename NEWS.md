@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `stat_pval()` preserves character P-value bounds without treating their
+  endpoints as exact P-values or inferring significance stars. Malformed
+  numeric strings now fail explicitly.
+
 * `check_size()` shades size cells on a log scale of bytes, so objects ten or a
   hundred times smaller than the largest keep a visible color instead of
   appearing white. Size bars remain linear.
