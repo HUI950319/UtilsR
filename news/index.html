@@ -50,9 +50,7 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/fct_to_combine.html">fct_to_combine()</a></code> rejects ambiguous output names, including a default name matching several existing columns, before replacing any column.</p></li>
-<li><p><code><a href="../reference/fct_to_combine.html">fct_to_combine()</a></code> validates column-name shortcuts before selection and ignores names attached to selector vectors in both data-frame and data-mask calls, so duplicate columns cannot silently become a single input.</p></li>
-<li><p><code><a href="../reference/fct_to_combine.html">fct_to_combine()</a></code> copies data.table inputs before writing results and invalidates keys and indices affected by replacement, preventing incorrect grouping after a key column is overwritten.</p></li>
+<ul><li><p><code><a href="../reference/fct_to_combine.html">fct_to_combine()</a></code> copies data.table inputs before writing results and invalidates keys and indices affected by replacement, preventing incorrect grouping after a key column is overwritten.</p></li>
 <li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> rejects impossible strict P-value bounds (<code>&lt;0</code> and <code>&gt;1</code>), including scientific notation, while retaining inclusive bounds and plain number formatting. Decimal text is checked before floating-point rounding can turn a tiny positive endpoint into zero or an endpoint below one into one.</p></li>
 <li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> accepts Unicode whitespace around numeric text and after bound operators, including non-breaking and thin spaces copied from tables.</p></li>
 <li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> avoids formatting missing values and existing bound labels, while retaining a direct path for complete numeric vectors.</p></li>
