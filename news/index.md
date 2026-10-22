@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
+  switches to the next unit when a label would round up to 1024, showing
+  `1.00 MB` or `1.00 GB` instead of `1024.00 KB` or `1024.00 MB`.
+
+- [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
   lists equally sized objects alphabetically for names and indices too,
   matching `pattern` and the default selection instead of following the
   order in which objects were supplied.
