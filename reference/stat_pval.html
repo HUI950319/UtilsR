@@ -85,7 +85,8 @@ In P-value modes, observed values and numeric bound endpoints must be
 finite and between 0 and 1. Ordinary numbers in <code>plain</code> mode are
 not restricted to that range.
 Numeric input must not use <code>integer64</code>, date, date-time, or
-time-span storage; convert such values explicitly before formatting.</p></dd>
+time-span storage; convert such values explicitly before formatting.
+Matrix and array inputs are not supported.</p></dd>
 
 
 <dt id="arg-add-star-p">add_star_p<a class="anchor" aria-label="anchor" href="#arg-add-star-p"></a></dt>
@@ -93,7 +94,8 @@ time-span storage; convert such values explicitly before formatting.</p></dd>
 stars are appended to <code>x</code> based on these p-values.
 Missing values in <code>x</code> remain missing; a missing P-value leaves
 non-missing text unchanged.
-Observed P-values must be finite and between 0 and 1.</p></dd>
+Observed P-values must be finite and between 0 and 1.
+Matrix and array inputs are not supported.</p></dd>
 
 
 <dt id="arg-digits">digits<a class="anchor" aria-label="anchor" href="#arg-digits"></a></dt>
@@ -129,7 +131,8 @@ when <code>add_star_p</code> is NULL.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Character vector of formatted values.</p>
+    <p>Character vector of formatted values, preserving the names of
+<code>x</code>. Empty input returns a zero-length character vector.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

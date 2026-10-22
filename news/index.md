@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
+  preserves input names and returns character vectors for empty inputs
+  in every mode. Matrix and array inputs now fail explicitly.
+
+- [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
   validates significance maps consistently in formatting and annotation
   paths. Empty maps disable stars; empty symbols and first-match
   precedence for tied thresholds are retained.

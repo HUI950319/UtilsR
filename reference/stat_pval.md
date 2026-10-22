@@ -29,14 +29,16 @@ stat_pval(
   bound endpoints must be finite and between 0 and 1. Ordinary numbers
   in `plain` mode are not restricted to that range. Numeric input must
   not use `integer64`, date, date-time, or time-span storage; convert
-  such values explicitly before formatting.
+  such values explicitly before formatting. Matrix and array inputs are
+  not supported.
 
 - add_star_p:
 
   Numeric vector of p-values for star annotation. When provided, stars
   are appended to `x` based on these p-values. Missing values in `x`
   remain missing; a missing P-value leaves non-missing text unchanged.
-  Observed P-values must be finite and between 0 and 1.
+  Observed P-values must be finite and between 0 and 1. Matrix and array
+  inputs are not supported.
 
 - digits:
 
@@ -73,7 +75,8 @@ stat_pval(
 
 ## Value
 
-Character vector of formatted values.
+Character vector of formatted values, preserving the names of `x`. Empty
+input returns a zero-length character vector.
 
 ## See also
 
