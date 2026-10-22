@@ -13,7 +13,8 @@ fct_to_combine(...)
 \method{fct_to_combine}{default}(..., sep = " & ")
 }
 \arguments{
-\item{...}{(vector method) Further vectors of equal length to combine. A
+\item{...}{(vector method) One-dimensional atomic vectors of equal length
+to combine. Must be empty for the data.frame method. A
 single character vector of column names (length >= 2) is resolved through
 \code{dplyr::pick(all_of(.))} when called inside a data-masking verb,
 enabling \code{mutate(g = fct_to_combine(c("sex", "age")))}.
@@ -25,12 +26,15 @@ method, or remove column-list names before \code{do.call()}.}
 data.frame (data.frame method).}
 
 \item{vars}{(data.frame method) Character vector of >= 2 column names to
-combine.}
+combine. Names must be unique, non-missing and non-empty, and identify
+unambiguous columns in the data frame.}
 
 \item{var_name}{(data.frame method) Name of the new column. Default
-\code{NULL} = \code{paste(vars, collapse = "_")}.}
+\code{NULL} = \code{paste(vars, collapse = "_")}. Otherwise a single
+non-missing, non-empty string. An existing column of this name is replaced.}
 
-\item{sep}{Separator between cell values. Default \code{" & "}.}
+\item{sep}{A single non-missing string separating cell values. Default
+\code{" & "}; an empty string is allowed.}
 }
 \value{
 A factor (vector method) of length \code{length(..1)}; or the input

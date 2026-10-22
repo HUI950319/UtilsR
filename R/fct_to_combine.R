@@ -33,7 +33,8 @@
 #'
 #' @param x First input. A factor / character / vector (vector method), OR a
 #'   data.frame (data.frame method).
-#' @param ... (vector method) Further vectors of equal length to combine. A
+#' @param ... (vector method) One-dimensional atomic vectors of equal length
+#'   to combine. Must be empty for the data.frame method. A
 #'   single character vector of column names (length >= 2) is resolved through
 #'   \code{dplyr::pick(all_of(.))} when called inside a data-masking verb,
 #'   enabling \code{mutate(g = fct_to_combine(c("sex", "age")))}.
@@ -41,10 +42,13 @@
 #'   for the separator; combine a column named \code{sep} with the data.frame
 #'   method, or remove column-list names before \code{do.call()}.
 #' @param vars (data.frame method) Character vector of >= 2 column names to
-#'   combine.
+#'   combine. Names must be unique, non-missing and non-empty, and identify
+#'   unambiguous columns in the data frame.
 #' @param var_name (data.frame method) Name of the new column. Default
-#'   \code{NULL} = \code{paste(vars, collapse = "_")}.
-#' @param sep Separator between cell values. Default \code{" & "}.
+#'   \code{NULL} = \code{paste(vars, collapse = "_")}. Otherwise a single
+#'   non-missing, non-empty string. An existing column of this name is replaced.
+#' @param sep A single non-missing string separating cell values. Default
+#'   \code{" & "}; an empty string is allowed.
 #'
 #' @return A factor (vector method) of length \code{length(..1)}; or the input
 #'   data frame with the combined column appended (data.frame method).
@@ -89,15 +93,27 @@ fct_to_combine <- function(...) {
 #' @rdname fct_to_combine
 #' @export
 fct_to_combine.data.frame <- function(x, vars, var_name = NULL, sep = " & ", ...) {
+  rlang::check_dots_empty()
   if (missing(vars) || !is.character(vars) || length(vars) < 2L) {
     cli::cli_abort(c(
       "{.arg vars} must be a character vector of >= 2 column names.",
       "i" = "e.g. {.code fct_to_combine(df, c(\"sex\", \"age\"))}"
     ))
   }
+  if (anyNA(vars) || any(!nzchar(vars)) || anyDuplicated(vars)) {
+    cli::cli_abort("{.arg vars} must contain unique, non-missing, non-empty column names.")
+  }
+  if (!is.null(var_name) &&
+      (!is.character(var_name) || length(var_name) != 1L ||
+       is.na(var_name) || !nzchar(var_name))) {
+    cli::cli_abort("{.arg var_name} must be NULL or a single non-missing, non-empty string.")
+  }
   miss <- setdiff(vars, names(x))
   if (length(miss) > 0L) {
     cli::cli_abort("Column{?s} {.val {miss}} not found in the data frame.")
+  }
+  if (anyDuplicated(names(x)[names(x) %in% vars])) {
+    cli::cli_abort("Selected column names must be unique in the data frame.")
   }
   combined <- do.call(fct_to_combine.default,
                       c(unname(as.list(x[vars])), list(sep = sep)))
@@ -109,7 +125,9 @@ fct_to_combine.data.frame <- function(x, vars, var_name = NULL, sep = " & ", ...
 #' @rdname fct_to_combine
 #' @export
 fct_to_combine.default <- function(..., sep = " & ") {
-
+  if (!is.character(sep) || length(sep) != 1L || is.na(sep)) {
+    cli::cli_abort("{.arg sep} must be a single non-missing string.")
+  }
   args <- list(...)
   if (length(args) < 1L) {
     cli::cli_abort("Must supply at least one vector in {.arg ...}.")
@@ -120,7 +138,7 @@ fct_to_combine.default <- function(..., sep = " & ") {
   # (mutate / summarise / filter). This enables:
   #   mutate(g = fct_to_combine(c("sex", "age")))
   #   exposure_names <- c("sex","age"); mutate(g = fct_to_combine(exposure_names))
-  if (length(args) == 1L && is.character(args[[1L]]) &&
+  if (length(args) == 1L && is.character(args[[1L]]) && is.null(dim(args[[1L]])) &&
       length(args[[1L]]) >= 2L) {
     cols <- args[[1L]]
     args <- tryCatch(
@@ -135,6 +153,9 @@ fct_to_combine.default <- function(..., sep = " & ") {
     )
   }
 
+  if (!all(vapply(args, function(v) is.atomic(v) && is.null(dim(v)), logical(1L)))) {
+    cli::cli_abort("All inputs must be one-dimensional atomic vectors.")
+  }
   lens <- vapply(args, length, integer(1L))
   if (length(unique(lens)) != 1L) {
     cli::cli_abort(c(

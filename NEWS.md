@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fct_to_combine()` validates vector dimensions, separators, selected column
+  names and output names. Unused arguments to the data-frame method now error
+  instead of silently ignoring misspelled controls.
+
 * `fct_to_combine()` ignores vector names when constructing labels and sorting
   levels, preventing columns such as `collapse` or `na.last` from changing the
   output length or level order in programmatic calls.
