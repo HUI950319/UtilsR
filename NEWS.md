@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `stat_pval()` avoids formatting missing values and existing bound labels,
+  while retaining a direct path for complete numeric vectors.
+
 * `stat_ci_parse()` shares significance-map validation with `stat_pval()`,
   including empty maps, empty symbols and duplicate thresholds; its default
   mapping continues to stop at `*` without a marginal-significance dot.

@@ -168,29 +168,29 @@ stat_pval <- function(x,
     }
   }
 
-  # plain mode
-  if (mode == "plain") {
-    fmt <- sprintf("%%.%df", d)
-    out <- sprintf(fmt, x_num)
-    out[is.na(x_num)] <- NA_character_
-    if (any(bounded)) out[bounded] <- text[bounded]
-    names(out) <- input_names
-    return(out)
+  # Only subset when some values do not need numeric formatting.
+  selective <- anyNA(x_num) || any(bounded)
+  if (selective) {
+    format_at <- which(!is.na(x_num) & !bounded)
+    format_x <- x_num[format_at]
+  } else {
+    format_x <- x_num
   }
-
-  # pvalue / stars mode
   fmt <- sprintf("%%.%df", d)
-  out <- sprintf(fmt, x_num)
-  out[is.na(x_num)] <- NA_character_
-  threshold <- paste0("<0.", strrep("0", d - 1L), "1")
-  out[!is.na(out) & grepl("^-?0\\.0*$", out)] <- threshold
-
-  if (mode == "stars") {
-    out <- paste0(out, .add_stars(x_num, map_signif))
-    out[is.na(x_num)] <- NA_character_
+  out <- sprintf(fmt, format_x)
+  if (mode != "plain" && length(out)) {
+    threshold <- paste0("<0.", strrep("0", d - 1L), "1")
+    out[grepl("^-?0\\.0*$", out)] <- threshold
   }
-
-  if (any(bounded)) out[bounded] <- text[bounded]
+  if (mode == "stars") {
+    out <- paste0(out, .add_stars(format_x, map_signif))
+  }
+  if (selective) {
+    formatted <- rep(NA_character_, length(x_num))
+    formatted[format_at] <- out
+    if (any(bounded)) formatted[bounded] <- text[bounded]
+    out <- formatted
+  }
   names(out) <- input_names
   out
 }

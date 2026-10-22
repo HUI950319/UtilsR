@@ -194,3 +194,20 @@ test_that("decimal precision respects the formatter's output limit", {
   expect_identical(stat_pval(numeric(), digits = 8190), character())
   expect_error(stat_pval(numeric(), map_signif = .05), "map_signif")
 })
+
+test_that("mixed missing, bounded and exact values retain their positions", {
+  x <- c(a = NA_character_, b = "<0.001", c = "0.01", d = "NaN", e = ">=0.5")
+  expect_identical(stat_pval(x),
+                   c(a = NA_character_, b = "<0.001", c = "0.010**",
+                     d = NA_character_, e = ">=0.5"))
+  expect_identical(stat_pval(x, mode = "plain"),
+                   c(a = NA_character_, b = "<0.001", c = "0.01",
+                     d = NA_character_, e = ">=0.5"))
+  expect_identical(stat_pval(c(Inf, NA, -Inf), mode = "plain"),
+                   c("Inf", NA_character_, "-Inf"))
+  for (x in list(c(NA_real_, NaN), c("<0.001", ">0.5"))) {
+    expect_error(stat_pval(x, map_signif = .05), "map_signif")
+    expect_identical(stat_pval(x, map_signif = numeric()),
+                     stat_pval(x, mode = "pvalue"))
+  }
+})
