@@ -16,7 +16,8 @@
 #'   indices, not its own name; a call made from \code{envir} itself warns
 #'   when this happens.
 #' @param pattern Optional single, non-missing regular expression for matching
-#'   object names. Takes precedence over \code{...}; no matches select no objects.
+#'   object names. Takes precedence over \code{...}, with a warning when both
+#'   are supplied; no matches select no objects.
 #' @param envir Environment whose objects are inspected. Defaults to
 #'   \code{.GlobalEnv}; parent environments are never searched.
 #' @param method Size estimator: \code{"object.size"} (default) uses
@@ -92,6 +93,11 @@ check_size <- function(..., pattern = NULL, envir = .GlobalEnv,
   if (!is.null(pattern)) {
     if (!is.character(pattern) || length(pattern) != 1L || is.na(pattern)) {
       stop("`pattern` must be a single, non-missing character string.", call. = FALSE)
+    }
+    # Count the dots without evaluating them.
+    if (...length() > 0L) {
+      warning("`pattern` takes precedence; the selection in `...` is ignored.",
+              call. = FALSE)
     }
     all_objects <- ls(envir = envir, all.names = TRUE, sorted = FALSE)
     matched <- tryCatch(suppressWarnings(grepl(pattern, all_objects)),

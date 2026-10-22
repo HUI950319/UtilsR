@@ -278,8 +278,9 @@ test_that("check_size enumerates global names only when selection needs them", {
     mixed <- inspect(nms, indices, indices)
     expect_identical(enumerations, 1L)
     expect_identical(mixed[["_data"]], result[["_data"]])
-    patterned <- inspect(stop("pattern must take precedence"),
-                         pattern = "^\\.check_size_test_[ab]$")
+    expect_warning(patterned <- inspect(stop("pattern must take precedence"),
+                                        pattern = "^\\.check_size_test_[ab]$"),
+                   "`pattern` takes precedence")
     expect_identical(patterned[["_data"]], result[["_data"]])
   })
 })
@@ -376,6 +377,14 @@ test_that("check_size counts shared storage once with the lobstr method", {
   expect_identical(data[["Size_fmt"]][data[["Object"]] == "s"], "680 B")
   expect_match(gt::as_raw_html(result), "lobstr::obj_size() estimates", fixed = TRUE)
   expect_error(check_size(envir = env, method = "bad"), "should be one of")
+})
+
+test_that("check_size warns when pattern overrides selected names", {
+  env <- list2env(list(a = raw(8), b = raw(8)))
+  expect_warning(result <- check_size("a", pattern = "^b$", envir = env),
+                 "`pattern` takes precedence")
+  expect_identical(result[["_data"]][["Object"]], c("**TOTAL**", "b"))
+  expect_no_warning(check_size(pattern = "^b$", envir = env))
 })
 
 test_that("check_size colors a single or equally sized object as the largest", {

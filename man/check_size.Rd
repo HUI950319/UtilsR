@@ -22,7 +22,8 @@ indices, not its own name; a call made from \code{envir} itself warns
 when this happens.}
 
 \item{pattern}{Optional single, non-missing regular expression for matching
-object names. Takes precedence over \code{...}; no matches select no objects.}
+object names. Takes precedence over \code{...}, with a warning when both
+are supplied; no matches select no objects.}
 
 \item{envir}{Environment whose objects are inspected. Defaults to
 \code{.GlobalEnv}; parent environments are never searched.}

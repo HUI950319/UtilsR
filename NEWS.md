@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `check_size()` warns when `pattern` overrides names or indices supplied in
+  `...`, matching `check_na()`. The ignored selection is still not evaluated.
+
 * `check_size()` colors a single object, or several equally sized objects, in
   the full red of the largest size instead of the palette midpoint.
 
