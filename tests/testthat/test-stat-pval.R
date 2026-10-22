@@ -163,3 +163,18 @@ test_that("signed zero follows the same P-value display and star rules", {
   }
   expect_identical(stat_pval("-0", mode = "plain"), "-0.00")
 })
+
+test_that("logical vectors are accepted only when entirely missing", {
+  for (mode in c("stars", "pvalue", "plain")) {
+    expect_identical(stat_pval(c(a = NA, b = NA), mode = mode),
+                     c(a = NA_character_, b = NA_character_))
+    expect_identical(stat_pval(logical(), mode = mode), character())
+    expect_error(stat_pval(c(NA, TRUE), mode = mode), "numeric or character")
+    expect_error(stat_pval(FALSE, mode = mode), "numeric or character")
+  }
+  expect_identical(stat_pval(c(a = "HR", b = NA_character_), add_star_p = c(NA, NA)),
+                   c(a = "HR", b = NA_character_))
+  expect_identical(stat_pval(character(), add_star_p = logical()), character())
+  expect_error(stat_pval("HR", add_star_p = TRUE), "numeric")
+  expect_error(stat_pval("HR", add_star_p = NA, map_signif = .05), "map_signif")
+})

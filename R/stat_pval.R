@@ -20,12 +20,14 @@
 #'   Numeric input must not use \code{integer64}, date, date-time, or
 #'   time-span storage; convert such values explicitly before formatting.
 #'   Matrix and array inputs are not supported.
+#'   A logical vector is accepted only when all its elements are missing.
 #' @param add_star_p Numeric vector of p-values for star annotation. When provided,
 #'   stars are appended to \code{x} based on these p-values.
 #'   Missing values in \code{x} remain missing; a missing P-value leaves
 #'   non-missing text unchanged.
 #'   Observed P-values must be finite and between 0 and 1.
 #'   Matrix and array inputs are not supported.
+#'   An entirely missing logical vector is also accepted.
 #' @param digits Single integer, decimal places (default: 3 for stars/pvalue,
 #'   2 for plain). Must be at least 1 for P-value modes or 0 for \code{plain}.
 #'   Ignored when \code{add_star_p} is provided.
@@ -107,6 +109,9 @@ stat_pval <- function(x,
 
   # --- Mode 2: Add stars to x based on external p ---
   if (!is.null(add_star_p)) {
+    if (is.logical(add_star_p) && all(is.na(add_star_p))) {
+      add_star_p <- as.double(add_star_p)
+    }
     if (!is.numeric(add_star_p)) cli::cli_abort("{.arg add_star_p} must be numeric.")
     .validate_p(add_star_p, "add_star_p")
     missing_x <- is.na(x)
@@ -146,6 +151,8 @@ stat_pval <- function(x,
     as.numeric(values)
   } else if (is.numeric(x)) {
     x
+  } else if (is.logical(x) && all(is.na(x))) {
+    rep(NA_real_, length(x))
   } else {
     cli::cli_abort("{.arg x} must be numeric or character.")
   }

@@ -24,14 +24,16 @@ finite and between 0 and 1. Ordinary numbers in \code{plain} mode are
 not restricted to that range.
 Numeric input must not use \code{integer64}, date, date-time, or
 time-span storage; convert such values explicitly before formatting.
-Matrix and array inputs are not supported.}
+Matrix and array inputs are not supported.
+A logical vector is accepted only when all its elements are missing.}
 
 \item{add_star_p}{Numeric vector of p-values for star annotation. When provided,
 stars are appended to \code{x} based on these p-values.
 Missing values in \code{x} remain missing; a missing P-value leaves
 non-missing text unchanged.
 Observed P-values must be finite and between 0 and 1.
-Matrix and array inputs are not supported.}
+Matrix and array inputs are not supported.
+An entirely missing logical vector is also accepted.}
 
 \item{digits}{Single integer, decimal places (default: 3 for stars/pvalue,
 2 for plain). Must be at least 1 for P-value modes or 0 for \code{plain}.

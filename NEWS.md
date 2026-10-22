@@ -1,7 +1,7 @@
 # UtilsR 0.6.8
 
-* `stat_pval()` displays signed zero like ordinary zero in P-value modes,
-  retaining its significance symbol and the existing plain-number display.
+* `stat_pval()` accepts entirely missing logical vectors in formatting and
+  annotation paths, while continuing to reject observed logical values.
 
 * `stat_pval()` displays signed zero like ordinary zero in P-value modes,
   retaining its significance symbol and the existing plain-number display.
