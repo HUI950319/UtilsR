@@ -62,7 +62,8 @@ fct_to_combine(..., sep = " & ")
 
   (data.frame method) Name of the new column. Default `NULL` =
   `paste(vars, collapse = "_")`. Otherwise a single non-missing,
-  non-empty string. An existing column of this name is replaced.
+  non-empty string. An existing column of this name is replaced. A name
+  matching multiple existing columns is rejected.
 
 - sep:
 
