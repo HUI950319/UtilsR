@@ -27,9 +27,7 @@ stat_pval(
   outer whitespace removed, without inferring stars. Other non-numeric
   strings are rejected. In P-value modes, observed values and numeric
   bound endpoints must be finite and between 0 and 1. Ordinary numbers
-  in `plain` mode are not restricted to that range. Numeric input must
-  not use `integer64`, date, date-time, or time-span storage; convert
-  such values explicitly before formatting.
+  in `plain` mode are not restricted to that range.
 
 - add_star_p:
 
@@ -40,9 +38,8 @@ stat_pval(
 
 - digits:
 
-  Single integer, decimal places (default: 3 for stars/pvalue, 2 for
-  plain). Must be at least 1 for P-value modes or 0 for `plain`. Ignored
-  when `add_star_p` is provided.
+  Integer, decimal places (default: 3 for stars/pvalue, 2 for plain).
+  Ignored when `add_star_p` is provided.
 
 - mode:
 

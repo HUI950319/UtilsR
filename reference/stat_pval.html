@@ -83,9 +83,7 @@ are returned with outer whitespace removed, without inferring stars.
 Other non-numeric strings are rejected.
 In P-value modes, observed values and numeric bound endpoints must be
 finite and between 0 and 1. Ordinary numbers in <code>plain</code> mode are
-not restricted to that range.
-Numeric input must not use <code>integer64</code>, date, date-time, or
-time-span storage; convert such values explicitly before formatting.</p></dd>
+not restricted to that range.</p></dd>
 
 
 <dt id="arg-add-star-p">add_star_p<a class="anchor" aria-label="anchor" href="#arg-add-star-p"></a></dt>
@@ -97,8 +95,7 @@ Observed P-values must be finite and between 0 and 1.</p></dd>
 
 
 <dt id="arg-digits">digits<a class="anchor" aria-label="anchor" href="#arg-digits"></a></dt>
-<dd><p>Single integer, decimal places (default: 3 for stars/pvalue,
-2 for plain). Must be at least 1 for P-value modes or 0 for <code>plain</code>.
+<dd><p>Integer, decimal places (default: 3 for stars/pvalue, 2 for plain).
 Ignored when <code>add_star_p</code> is provided.</p></dd>
 
 
