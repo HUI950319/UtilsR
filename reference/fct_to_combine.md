@@ -94,6 +94,14 @@ an ordinary category. If distinct combinations produce the same label,
 the function errors; choose a different `sep` or relabel the inputs to
 disambiguate them.
 
+Inside grouped or rowwise
+[`dplyr::mutate()`](https://dplyr.tidyverse.org/reference/mutate.html),
+combinations are computed separately for each group. When dplyr combines
+the results, their level order may differ from whole-data ordering and
+change the first level used as a model reference. To use one level order
+across the data, use the data.frame method on the whole data frame; its
+grouping is retained.
+
 ## See also
 
 [`fct_to_group()`](https://hui950319.github.io/UtilsR/reference/fct_to_group.md),
@@ -177,5 +185,18 @@ df |> fct_to_combine(c("sex", "age"), var_name = "group")
 #> 4   M young M & young
 #> 5   M   mid   M & mid
 #> 6   M   old   M & old
+# One level order across the whole data, while retaining dplyr groups
+df %>% group_by(age) %>%
+  fct_to_combine(c("sex", "age"), var_name = "group")
+#> # A tibble: 6 × 3
+#> # Groups:   age [3]
+#>   sex   age   group    
+#>   <fct> <fct> <fct>    
+#> 1 F     young F & young
+#> 2 F     mid   F & mid  
+#> 3 F     old   F & old  
+#> 4 M     young M & young
+#> 5 M     mid   M & mid  
+#> 6 M     old   M & old  
 # }
 ```

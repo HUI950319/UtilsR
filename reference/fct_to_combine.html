@@ -159,6 +159,11 @@ method, including <code>NaN</code> and SPSS user-missing values and ranges.
 The literal string <code>"NA"</code> remains an ordinary category.
 If distinct combinations produce the same label, the function errors;
 choose a different <code>sep</code> or relabel the inputs to disambiguate them.</p>
+<p>Inside grouped or rowwise <code><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">dplyr::mutate()</a></code>, combinations are computed
+separately for each group. When dplyr combines the results, their level
+order may differ from whole-data ordering and change the first level used
+as a model reference. To use one level order across the data, use the
+data.frame method on the whole data frame; its grouping is retained.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -241,6 +246,19 @@ choose a different <code>sep</code> or relabel the inputs to disambiguate them.<
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4   M young M &amp; young</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5   M   mid   M &amp; mid</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6   M   old   M &amp; old</span>
+<span class="r-in"><span><span class="co"># One level order across the whole data, while retaining dplyr groups</span></span></span>
+<span class="r-in"><span><span class="va">df</span> <span class="op"><a href="operators.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">age</span><span class="op">)</span> <span class="op"><a href="operators.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu">fct_to_combine</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sex"</span>, <span class="st">"age"</span><span class="op">)</span>, var_name <span class="op">=</span> <span class="st">"group"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 6 × 3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Groups:   age [3]</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   sex   age   group    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> F     young F &amp; young</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> F     mid   F &amp; mid  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> F     old   F &amp; old  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> M     young M &amp; young</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> M     mid   M &amp; mid  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> M     old   M &amp; old  </span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
