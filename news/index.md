@@ -3,6 +3,12 @@
 ## UtilsR 0.6.8
 
 - [`fct_to_combine()`](https://hui950319.github.io/UtilsR/reference/fct_to_combine.md)
+  excludes missing rows from combination grouping and returns
+  immediately when every row is missing, retaining missing-value and
+  observed-level semantics. Complete inputs keep their existing grouping
+  path.
+
+- [`fct_to_combine()`](https://hui950319.github.io/UtilsR/reference/fct_to_combine.md)
   documents group-wise factor-level merging in dplyr and shows how to
   retain a whole-data level order with the data-frame method.
 
