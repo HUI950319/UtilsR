@@ -3,10 +3,6 @@
 ## UtilsR 0.6.8
 
 - [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
-  accepts Unicode whitespace around numeric text and after bound
-  operators, including non-breaking and thin spaces copied from tables.
-
-- [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
   avoids formatting missing values and existing bound labels, while
   retaining a direct path for complete numeric vectors.
 
