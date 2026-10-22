@@ -231,3 +231,26 @@ test_that("whole-data combination retains global level order in grouped frames",
   expect_identical(as.character(per_row$z), as.character(whole$z))
   expect_identical(levels(per_row$z), c("B & Y", "B & X", "A & X", "A & Y"))
 })
+
+test_that("missing rows never contribute observed combination levels", {
+  a <- factor(c("B", "A", NA, "B", "A"), levels = c("B", "A"))
+  b <- factor(c(NA, "Y", "X", "X", NA), levels = c("Y", "X"))
+  expected <- factor(c(NA, "A & Y", NA, "B & X", NA),
+                     levels = c("B & X", "A & Y"))
+  expect_identical(fct_to_combine(a, b), expected)
+  expect_identical(fct_to_combine(factor(rep(NA_character_, 5)), factor(1:5)),
+                   factor(rep(NA_character_, 5)))
+})
+
+test_that("explicit missing levels remain distinct from missing codes", {
+  a <- factor(c(NA, "A", NA), exclude = NULL)
+  is.na(a) <- c(FALSE, FALSE, TRUE)
+  expect_identical(is.na(a), c(FALSE, FALSE, TRUE))
+  expect_identical(fct_to_combine(a, rep("X", 3)),
+                   factor(c("NA & X", "A & X", NA),
+                          levels = c("A & X", "NA & X")))
+  expect_identical(fct_to_combine(a, rep(NA_character_, 3)),
+                   factor(rep(NA_character_, 3)))
+  expect_error(fct_to_combine(factor(c(NA, "NA"), exclude = NULL), rep("X", 2)),
+               "Distinct combinations.*same label")
+})

@@ -221,15 +221,28 @@ fct_to_combine.default <- function(..., sep = " & ") {
   fct_list <- unname(lapply(args, ensure_factor))
   missing_rows <- Reduce(`|`, lapply(args, is.na))
 
+  complete_rows <- NULL
+  n <- lens[[1L]]
+  if (any(missing_rows)) {
+    complete_rows <- which(!missing_rows)
+    if (!length(complete_rows)) {
+      return(structure(rep.int(NA_integer_, n), levels = character(), class = "factor"))
+    }
+  }
+
   # Group integer codes before building labels; repeated rows need no strings.
   codes <- lapply(fct_list, as.integer)
+  if (!is.null(complete_rows)) {
+    codes <- lapply(codes, function(v) v[complete_rows])
+  }
   names(codes) <- paste0("v", seq_along(codes))
-  ids <- vctrs::vec_group_id(vctrs::new_data_frame(codes, n = lens[[1L]]))
+  group_n <- if (is.null(complete_rows)) n else length(complete_rows)
+  ids <- vctrs::vec_group_id(vctrs::new_data_frame(codes, n = group_n))
   first <- match(seq_len(attr(ids, "n")), ids)
-  first <- first[!missing_rows[first]]
   ord <- do.call(order, unname(lapply(codes, function(v) v[first])))
   first <- first[ord]
-  lvls <- do.call(paste, c(lapply(fct_list, function(f) as.character(f[first])),
+  label_rows <- if (is.null(complete_rows)) first else complete_rows[first]
+  lvls <- do.call(paste, c(lapply(fct_list, function(f) as.character(f[label_rows])),
                            list(sep = sep)))
   if (anyDuplicated(lvls)) {
     cli::cli_abort(c(
@@ -238,5 +251,10 @@ fct_to_combine.default <- function(..., sep = " & ") {
     ))
   }
 
+  if (!is.null(complete_rows)) {
+    result <- rep.int(NA_integer_, n)
+    result[complete_rows] <- match(ids, ids[first])
+    return(structure(result, levels = lvls, class = "factor"))
+  }
   structure(match(ids, ids[first]), levels = lvls, class = "factor")
 }
