@@ -3,17 +3,6 @@
 ## UtilsR 0.6.8
 
 - [`fct_to_combine()`](https://hui950319.github.io/UtilsR/reference/fct_to_combine.md)
-  errors when distinct input combinations produce the same label, rather
-  than silently merging groups. Repeated identical combinations remain
-  valid.
-
-- [`fct_to_combine()`](https://hui950319.github.io/UtilsR/reference/fct_to_combine.md)
-  propagates missing inputs to genuine missing results, including NaN
-  and SPSS user-missing codes and ranges. The literal string `"NA"`
-  remains a category. Class methods are registered for restored labelled
-  and integer64 inputs before combining them.
-
-- [`fct_to_combine()`](https://hui950319.github.io/UtilsR/reference/fct_to_combine.md)
   validates vector dimensions, separators, selected column names and
   output names. Unused arguments to the data-frame method now error
   instead of silently ignoring misspelled controls.

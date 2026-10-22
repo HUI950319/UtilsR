@@ -142,11 +142,6 @@ non-missing, non-empty string. An existing column of this name is replaced.</p><
 <code><a href="https://rdrr.io/r/base/interaction.html" class="external-link">base::interaction()</a></code>, but with a default separator (<code>" &amp; "</code>) tuned
 for clinical / epidemiological group labels. For regrouping levels of a
 single factor (the dual operation), see [fct_to_group()].</p>
-<p>A row is missing if any input is missing according to its <code><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na()</a></code>
-method, including <code>NaN</code> and SPSS user-missing values and ranges.
-The literal string <code>"NA"</code> remains an ordinary category.
-If distinct combinations produce the same label, the function errors;
-choose a different <code>sep</code> or relabel the inputs to disambiguate them.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
