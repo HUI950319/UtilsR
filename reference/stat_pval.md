@@ -27,7 +27,9 @@ stat_pval(
   outer whitespace removed, without inferring stars. Other non-numeric
   strings are rejected. In P-value modes, observed values and numeric
   bound endpoints must be finite and between 0 and 1. Ordinary numbers
-  in `plain` mode are not restricted to that range.
+  in `plain` mode are not restricted to that range. Numeric input must
+  not use `integer64`, date, date-time, or time-span storage; convert
+  such values explicitly before formatting.
 
 - add_star_p:
 
@@ -38,8 +40,9 @@ stat_pval(
 
 - digits:
 
-  Integer, decimal places (default: 3 for stars/pvalue, 2 for plain).
-  Ignored when `add_star_p` is provided.
+  Single integer, decimal places (default: 3 for stars/pvalue, 2 for
+  plain). Must be at least 1 for P-value modes or 0 for `plain`. Ignored
+  when `add_star_p` is provided.
 
 - mode:
 
@@ -60,7 +63,13 @@ stat_pval(
 - map_signif:
 
   Named numeric vector of significance thresholds. Default:
-  `c("***" = 0.001, "**" = 0.01, "*" = 0.05, "." = 0.1)`.
+  `c("***" = 0.001, "**" = 0.01, "*" = 0.05, "." = 0.1)`. Thresholds
+  must be finite, non-missing values between 0 and 1, with non-missing
+  names. Empty symbols are allowed; an empty numeric vector disables
+  stars. For repeated thresholds, the first symbol is used. The smallest
+  threshold greater than or equal to the unrounded P-value determines
+  its symbol. Ignored in `pvalue` and `plain` modes when `add_star_p` is
+  NULL.
 
 ## Value
 

@@ -83,7 +83,9 @@ are returned with outer whitespace removed, without inferring stars.
 Other non-numeric strings are rejected.
 In P-value modes, observed values and numeric bound endpoints must be
 finite and between 0 and 1. Ordinary numbers in <code>plain</code> mode are
-not restricted to that range.</p></dd>
+not restricted to that range.
+Numeric input must not use <code>integer64</code>, date, date-time, or
+time-span storage; convert such values explicitly before formatting.</p></dd>
 
 
 <dt id="arg-add-star-p">add_star_p<a class="anchor" aria-label="anchor" href="#arg-add-star-p"></a></dt>
@@ -95,7 +97,8 @@ Observed P-values must be finite and between 0 and 1.</p></dd>
 
 
 <dt id="arg-digits">digits<a class="anchor" aria-label="anchor" href="#arg-digits"></a></dt>
-<dd><p>Integer, decimal places (default: 3 for stars/pvalue, 2 for plain).
+<dd><p>Single integer, decimal places (default: 3 for stars/pvalue,
+2 for plain). Must be at least 1 for P-value modes or 0 for <code>plain</code>.
 Ignored when <code>add_star_p</code> is provided.</p></dd>
 
 
@@ -115,7 +118,13 @@ Ignored when <code>add_star_p</code> is provided.</p></dd>
 
 <dt id="arg-map-signif">map_signif<a class="anchor" aria-label="anchor" href="#arg-map-signif"></a></dt>
 <dd><p>Named numeric vector of significance thresholds.
-Default: <code>c("***" = 0.001, "**" = 0.01, "*" = 0.05, "." = 0.1)</code>.</p></dd>
+Default: <code>c("***" = 0.001, "**" = 0.01, "*" = 0.05, "." = 0.1)</code>.
+Thresholds must be finite, non-missing values between 0 and 1, with
+non-missing names. Empty symbols are allowed; an empty numeric vector
+disables stars. For repeated thresholds, the first symbol is used.
+The smallest threshold greater than or equal to the unrounded P-value
+determines its symbol. Ignored in <code>pvalue</code> and <code>plain</code> modes
+when <code>add_star_p</code> is NULL.</p></dd>
 
 </dl></div>
     <div class="section level2">
