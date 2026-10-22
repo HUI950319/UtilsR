@@ -13,6 +13,8 @@
 #'   Numeric strings may use scientific notation. Strings beginning with
 #'   \code{<}, \code{<=}, \code{>}, \code{>=}, or their Unicode equivalents
 #'   are returned with outer whitespace removed, without inferring stars.
+#'   ASCII and Unicode whitespace is accepted around numbers and after
+#'   a bound operator; whitespace within a number is not accepted.
 #'   Other non-numeric strings are rejected.
 #'   In P-value modes, observed values and numeric bound endpoints must be
 #'   finite and between 0 and 1. Ordinary numbers in \code{plain} mode are
@@ -135,9 +137,9 @@ stat_pval <- function(x,
 
   bounded <- rep(FALSE, length(x))
   x_num <- if (is.character(x)) {
-    text <- trimws(x)
+    text <- trimws(x, whitespace = "[\\h\\v]")
     number <- "[+-]?(?:[0-9]+\\.?[0-9]*|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?"
-    prefix <- "(?:[<>]=?|[\u2264\u2265])\\s*"
+    prefix <- "(?:[<>]=?|[\u2264\u2265])[\\h\\v]*"
     bounded <- !is.na(text) & grepl(paste0("^", prefix, number, "$"), text, perl = TRUE)
     exact <- grepl(paste0("^(?:", number, "|[+-]?Inf(?:inity)?|NaN|NA)$"),
                    text, perl = TRUE)

@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `stat_pval()` accepts Unicode whitespace around numeric text and after
+  bound operators, including non-breaking and thin spaces copied from tables.
+
 * `stat_pval()` avoids formatting missing values and existing bound labels,
   while retaining a direct path for complete numeric vectors.
 

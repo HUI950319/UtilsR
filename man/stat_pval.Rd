@@ -18,6 +18,8 @@ or any value to annotate with stars (when \code{add_star_p} is provided).
 Numeric strings may use scientific notation. Strings beginning with
 \code{<}, \code{<=}, \code{>}, \code{>=}, or their Unicode equivalents
 are returned with outer whitespace removed, without inferring stars.
+ASCII and Unicode whitespace is accepted around numbers and after
+a bound operator; whitespace within a number is not accepted.
 Other non-numeric strings are rejected.
 In P-value modes, observed values and numeric bound endpoints must be
 finite and between 0 and 1. Ordinary numbers in \code{plain} mode are

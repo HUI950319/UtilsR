@@ -211,3 +211,22 @@ test_that("mixed missing, bounded and exact values retain their positions", {
                      stat_pval(x, mode = "pvalue"))
   }
 })
+
+test_that("numeric text accepts Unicode outer and bound-prefix whitespace", {
+  for (space in c("\u00a0", "\u2009", "\u202f", "\u3000", "\u2028", "\t\n")) {
+    x <- c(exact = paste0(space, "0.05", space),
+           bound = paste0(space, "<", space, "0.001", space),
+           unicode = paste0(space, "\u2264", space, "0.05", space),
+           missing = paste0(space, "NA", space))
+    for (mode in c("stars", "pvalue", "plain")) {
+      expected <- c(exact = switch(mode, stars = "0.050*", pvalue = "0.050", plain = "0.05"),
+                    bound = paste0("<", space, "0.001"),
+                    unicode = paste0("\u2264", space, "0.05"), missing = NA_character_)
+      expect_identical(stat_pval(x, mode = mode), expected)
+    }
+    expect_error(stat_pval(paste0("0", space, ".05")), "numeric strings")
+    expect_error(stat_pval(space), "numeric strings")
+  }
+  expect_identical(stat_pval("\u00a0HR\u00a0", add_star_p = .01),
+                   "\u00a0HR\u00a0**")
+})
