@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fct_to_combine()` ignores vector names when constructing labels and sorting
+  levels, preventing columns such as `collapse` or `na.last` from changing the
+  output length or level order in programmatic calls.
+
 * `stat_pval()` matches significance thresholds across the vector rather than
   calling a function for each P-value, retaining all existing star cutoffs.
 

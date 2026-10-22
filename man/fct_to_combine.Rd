@@ -16,7 +16,10 @@ fct_to_combine(...)
 \item{...}{(vector method) Further vectors of equal length to combine. A
 single character vector of column names (length >= 2) is resolved through
 \code{dplyr::pick(all_of(.))} when called inside a data-masking verb,
-enabling \code{mutate(g = fct_to_combine(c("sex", "age")))}.}
+enabling \code{mutate(g = fct_to_combine(c("sex", "age")))}.
+Vector names do not affect combinations. The name \code{sep} is reserved
+for the separator; combine a column named \code{sep} with the data.frame
+method, or remove column-list names before \code{do.call()}.}
 
 \item{x}{First input. A factor / character / vector (vector method), OR a
 data.frame (data.frame method).}

@@ -37,6 +37,9 @@
 #'   single character vector of column names (length >= 2) is resolved through
 #'   \code{dplyr::pick(all_of(.))} when called inside a data-masking verb,
 #'   enabling \code{mutate(g = fct_to_combine(c("sex", "age")))}.
+#'   Vector names do not affect combinations. The name \code{sep} is reserved
+#'   for the separator; combine a column named \code{sep} with the data.frame
+#'   method, or remove column-list names before \code{do.call()}.
 #' @param vars (data.frame method) Character vector of >= 2 column names to
 #'   combine.
 #' @param var_name (data.frame method) Name of the new column. Default
@@ -141,7 +144,7 @@ fct_to_combine.default <- function(..., sep = " & ") {
   }
 
   ensure_factor <- function(v) if (is.factor(v)) v else factor(v)
-  fct_list <- lapply(args, ensure_factor)
+  fct_list <- unname(lapply(args, ensure_factor))
 
   val_list <- lapply(fct_list, as.character)
   all_vals <- do.call(paste, c(val_list, list(sep = sep)))
