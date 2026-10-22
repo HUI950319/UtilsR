@@ -76,12 +76,18 @@ appends significance stars to <code>x</code> based on <code>add_star_p</code>.</
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>Numeric/character vector of p-values (when <code>add_star_p</code> is NULL),
-or any value to annotate with stars (when <code>add_star_p</code> is provided).</p></dd>
+or any value to annotate with stars (when <code>add_star_p</code> is provided).
+Numeric strings may use scientific notation. Strings beginning with
+<code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code>, or their Unicode equivalents
+are returned with outer whitespace removed, without inferring stars.
+Other non-numeric strings are rejected.</p></dd>
 
 
 <dt id="arg-add-star-p">add_star_p<a class="anchor" aria-label="anchor" href="#arg-add-star-p"></a></dt>
 <dd><p>Numeric vector of p-values for star annotation. When provided,
-stars are appended to <code>x</code> based on these p-values.</p></dd>
+stars are appended to <code>x</code> based on these p-values.
+Missing values in <code>x</code> remain missing; a missing P-value leaves
+non-missing text unchanged.</p></dd>
 
 
 <dt id="arg-digits">digits<a class="anchor" aria-label="anchor" href="#arg-digits"></a></dt>

@@ -2,6 +2,16 @@
 
 ## UtilsR 0.6.8
 
+- [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
+  retains missing values after appending stars, including missing text
+  supplied with `add_star_p`. Missing P-values leave observed annotation
+  text unchanged.
+
+- [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
+  preserves character P-value bounds without treating their endpoints as
+  exact P-values or inferring significance stars. Malformed numeric
+  strings now fail explicitly.
+
 - [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
   shades size cells on a log scale of bytes, so objects ten or a hundred
   times smaller than the largest keep a visible color instead of

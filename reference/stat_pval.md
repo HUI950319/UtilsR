@@ -22,11 +22,16 @@ stat_pval(
 
   Numeric/character vector of p-values (when `add_star_p` is NULL), or
   any value to annotate with stars (when `add_star_p` is provided).
+  Numeric strings may use scientific notation. Strings beginning with
+  `<`, `<=`, `>`, `>=`, or their Unicode equivalents are returned with
+  outer whitespace removed, without inferring stars. Other non-numeric
+  strings are rejected.
 
 - add_star_p:
 
   Numeric vector of p-values for star annotation. When provided, stars
-  are appended to `x` based on these p-values.
+  are appended to `x` based on these p-values. Missing values in `x`
+  remain missing; a missing P-value leaves non-missing text unchanged.
 
 - digits:
 
