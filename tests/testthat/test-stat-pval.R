@@ -230,3 +230,19 @@ test_that("numeric text accepts Unicode outer and bound-prefix whitespace", {
   expect_identical(stat_pval("\u00a0HR\u00a0", add_star_p = .01),
                    "\u00a0HR\u00a0**")
 })
+
+test_that("P-value bounds must describe a possible value", {
+  impossible <- c("<0", "< -0.0", "<+0e-10", "<.000e+999", ">1", ">+1.0",
+                  ">10e-1", ">.1e1", ">00100.0e-2", ">\u00a01.0")
+  for (x in impossible) {
+    expect_error(stat_pval(x), "possible P-value")
+    expect_error(stat_pval(x, mode = "pvalue"), "possible P-value")
+    expect_identical(stat_pval(x, mode = "plain"), x)
+  }
+  valid <- c(a = "<=0", b = ">=1", c = "\u22640", d = "\u22651", e = "<1",
+             f = ">0", g = "<1e-999", h = ">0.99999999999999999", i = NA_character_)
+  for (mode in c("stars", "pvalue", "plain")) {
+    expect_identical(stat_pval(valid, mode = mode), valid)
+  }
+  expect_identical(stat_pval("<0", add_star_p = .01), "<0**")
+})

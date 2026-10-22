@@ -17,7 +17,9 @@
 #'   a bound operator; whitespace within a number is not accepted.
 #'   Other non-numeric strings are rejected.
 #'   In P-value modes, observed values and numeric bound endpoints must be
-#'   finite and between 0 and 1. Ordinary numbers in \code{plain} mode are
+#'   finite and between 0 and 1. Strict bounds \code{<0} and \code{>1}
+#'   are rejected because they cannot describe a possible P-value.
+#'   Ordinary numbers in \code{plain} mode are
 #'   not restricted to that range.
 #'   Numeric input must not use \code{integer64}, date, date-time, or
 #'   time-span storage; convert such values explicitly before formatting.
@@ -158,6 +160,27 @@ stat_pval <- function(x,
   }
 
   if (mode != "plain") .validate_p(x_num, "x")
+  if (mode != "plain" && any(bounded)) {
+    edge <- which(bounded & x_num %in% c(0, 1))
+    edge <- edge[grepl("^[<>](?!=)", text[edge], perl = TRUE)]
+    if (length(edge)) {
+      # Check the decimal text exactly: tiny positives can round to zero,
+      # and values just below one can round to one when parsed as doubles.
+      endpoint <- values[edge]
+      mantissa <- sub("[eE].*$", "", endpoint)
+      exponent <- as.numeric(ifelse(grepl("[eE]", endpoint),
+                                    sub("^.*[eE]", "", endpoint), "0"))
+      decimals <- nchar(sub("^[^.]*[.]?", "", mantissa))
+      coefficient <- gsub("[.+-]", "", mantissa)
+      zero <- grepl("^0+$", coefficient)
+      one <- grepl("^0*10*$", coefficient) &
+        exponent == decimals - nchar(sub("^0*1", "", coefficient))
+      if (any((startsWith(text[edge], "<") & zero) |
+              (startsWith(text[edge], ">") & one))) {
+        cli::cli_abort("{.arg x} contains a strict bound that cannot describe a possible P-value (<0 or >1).")
+      }
+    }
+  }
   if (!length(x_num)) {
     if (mode == "stars") .add_stars(x_num, map_signif)
     return(stats::setNames(character(), input_names))

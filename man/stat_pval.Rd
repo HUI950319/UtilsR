@@ -22,7 +22,9 @@ ASCII and Unicode whitespace is accepted around numbers and after
 a bound operator; whitespace within a number is not accepted.
 Other non-numeric strings are rejected.
 In P-value modes, observed values and numeric bound endpoints must be
-finite and between 0 and 1. Ordinary numbers in \code{plain} mode are
+finite and between 0 and 1. Strict bounds \code{<0} and \code{>1}
+are rejected because they cannot describe a possible P-value.
+Ordinary numbers in \code{plain} mode are
 not restricted to that range.
 Numeric input must not use \code{integer64}, date, date-time, or
 time-span storage; convert such values explicitly before formatting.
@@ -61,7 +63,7 @@ when \code{add_star_p} is NULL.}
 }
 \value{
 Character vector of formatted values, preserving the names of
-\code{x}. Empty input returns a zero-length character vector.
+  \code{x}. Empty input returns a zero-length character vector.
 }
 \description{
 Unified formatting for p-values and plain numbers. When \code{x} is provided

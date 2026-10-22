@@ -1,5 +1,10 @@
 # UtilsR 0.6.8
 
+* `stat_pval()` rejects impossible strict P-value bounds (`<0` and `>1`),
+  including scientific notation, while retaining inclusive bounds and plain
+  number formatting. Decimal text is checked before floating-point rounding
+  can turn a tiny positive endpoint into zero or an endpoint below one into one.
+
 * `stat_pval()` accepts Unicode whitespace around numeric text and after
   bound operators, including non-breaking and thin spaces copied from tables.
 
