@@ -157,6 +157,16 @@ test_that("check_size distinguishes bytes from zero and uses consistent units", 
   })
 })
 
+test_that("check_size moves to the next unit when a label would round up to 1024", {
+  bytes <- list(kb_edge = 1048570, mb_rounds = 1048571, gb_rounds = 1073737000)
+  local_mocked_bindings(object.size = function(x) x, .package = "utils")
+  with_size_objects(bytes, function(nms) {
+    data <- check_size(nms)[["_data"]]
+    labels <- stats::setNames(data[["Size_fmt"]], data[["Object"]])
+    expect_identical(unname(labels[nms]), c("1023.99 KB", "1.00 MB", "1.00 GB"))
+  })
+})
+
 test_that("check_size applies its numeric gradient to the visible size cells", {
   with_size_objects(list(small = raw(16), large = raw(2000)), function(nms) {
     html <- gt::as_raw_html(check_size(nms))

@@ -155,13 +155,14 @@ check_size <- function(..., pattern = NULL) {
                                    Size = total_mb, .before = 1)
   }
 
-  # Share display units between body cells and the total subtitle.
+  # Share display units between body cells and the total subtitle. Thresholds
+  # sit where a two-decimal label would round up to 1024 of the smaller unit.
   format_size <- function(size_mb) {
     dplyr::case_when(
-      size_mb >= 1024   ~ sprintf("%.2f GB", size_mb / 1024),
-      size_mb >= 1      ~ sprintf("%.2f MB", size_mb),
-      size_mb >= 1/1024 ~ sprintf("%.2f KB", size_mb * 1024),
-      TRUE             ~ sprintf("%.0f B", size_mb * 1024^2)
+      size_mb >= 1023.995             ~ sprintf("%.2f GB", size_mb / 1024),
+      size_mb >= 1023.995 / 1024      ~ sprintf("%.2f MB", size_mb),
+      size_mb >= 1023.5 / 1024^2      ~ sprintf("%.2f KB", size_mb * 1024),
+      TRUE                            ~ sprintf("%.0f B", size_mb * 1024^2)
     )
   }
   object_info <- object_info %>%
