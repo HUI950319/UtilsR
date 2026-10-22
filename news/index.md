@@ -2,13 +2,6 @@
 
 ## UtilsR 0.6.8
 
-- [`stat_ci_parse()`](https://hui950319.github.io/UtilsR/reference/stat_ci_parse.md)
-  shares significance-map validation with
-  [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md),
-  including empty maps, empty symbols and duplicate thresholds; its
-  default mapping continues to stop at `*` without a
-  marginal-significance dot.
-
 - [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
   checks decimal precision against the formatter’s output limit and
   returns empty vectors before allocating display thresholds.

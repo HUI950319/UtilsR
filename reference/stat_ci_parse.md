@@ -71,12 +71,8 @@ stat_ci_parse(
 
 - map_signif:
 
-  Named numeric vector for star thresholds. Default:
-  `c("***" = 0.001, "**" = 0.01, "*" = 0.05)`. Thresholds must be
-  finite, non-missing values between 0 and 1, with non-missing names.
-  Empty symbols are allowed; an empty numeric vector disables stars. For
-  repeated thresholds, the first symbol is used. Only used when `output`
-  is `"ci_star"` or `"p_star"`.
+  Named numeric vector for star thresholds. Only used when `output` is
+  `"ci_star"` or `"p_star"`.
 
 ## Value
 
