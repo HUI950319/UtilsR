@@ -30,7 +30,8 @@ check_size(
 - pattern:
 
   Optional single, non-missing regular expression for matching object
-  names. Takes precedence over `...`; no matches select no objects.
+  names. Takes precedence over `...`, with a warning when both are
+  supplied; no matches select no objects.
 
 - envir:
 
