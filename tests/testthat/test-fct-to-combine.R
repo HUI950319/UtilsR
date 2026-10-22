@@ -100,3 +100,18 @@ test_that("distinct tuples cannot silently share a label", {
   expect_identical(fct_to_combine(rep("A & B", 3), rep("C", 3)),
                    factor(rep("A & B & C", 3)))
 })
+
+test_that("observed combinations follow input level priority", {
+  a <- ordered(c("B", "A", "B", "B"), levels = c("B", "unused", "A"))
+  b <- factor(c("X", "Y", "Y", "X"), levels = c("Y", "unused", "X"))
+  expected <- factor(c("B & X", "A & Y", "B & Y", "B & X"),
+                     levels = c("B & Y", "B & X", "A & Y"))
+  expect_identical(fct_to_combine(a, b), expected)
+  expect_identical(fct_to_combine(a[4:1], b[4:1]), expected[4:1])
+  expect_identical(fct_to_combine(a[0], b[0]), factor(character()))
+  expect_identical(fct_to_combine(a[1], b[1]), factor("B & X"))
+  names(a) <- letters[1:4]
+  expect_identical(fct_to_combine(a, b), expected)
+  expect_identical(fct_to_combine(a), factor(c("B", "A", "B", "B"),
+                                           levels = c("B", "A")))
+})

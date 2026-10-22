@@ -79,6 +79,7 @@ Imports:
     tidyr,
     purrr,
     rlang,
+    vctrs,
     forcats,
     ggh4x,
     labelled,

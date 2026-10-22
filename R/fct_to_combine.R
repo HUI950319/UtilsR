@@ -181,20 +181,16 @@ fct_to_combine.default <- function(..., sep = " & ") {
   fct_list <- unname(lapply(args, ensure_factor))
   missing_rows <- Reduce(`|`, lapply(args, is.na))
 
-  val_list <- lapply(fct_list, as.character)
-  all_vals <- do.call(paste, c(val_list, list(sep = sep)))
-  all_vals[missing_rows] <- NA_character_
-
-  # Build ordered levels: do.call(order, fct_list) sorts rows by each
-  # factor's internal level order (stable, no alphabetic coercion).
-  ord <- do.call(order, fct_list)
-  ord <- ord[!missing_rows[ord]]
-  first <- ord
-  if (length(ord) > 1L) {
-    changed <- Reduce(`|`, lapply(fct_list, function(f) diff(as.integer(f)[ord]) != 0L))
-    first <- ord[c(TRUE, changed)]
-  }
-  lvls <- all_vals[first]
+  # Group integer codes before building labels; repeated rows need no strings.
+  codes <- lapply(fct_list, as.integer)
+  names(codes) <- paste0("v", seq_along(codes))
+  ids <- vctrs::vec_group_id(vctrs::new_data_frame(codes, n = lens[[1L]]))
+  first <- match(seq_len(attr(ids, "n")), ids)
+  first <- first[!missing_rows[first]]
+  ord <- do.call(order, unname(lapply(codes, function(v) v[first])))
+  first <- first[ord]
+  lvls <- do.call(paste, c(lapply(fct_list, function(f) as.character(f[first])),
+                           list(sep = sep)))
   if (anyDuplicated(lvls)) {
     cli::cli_abort(c(
       "Distinct combinations produce the same label.",
@@ -202,5 +198,5 @@ fct_to_combine.default <- function(..., sep = " & ") {
     ))
   }
 
-  factor(all_vals, levels = lvls)
+  structure(match(ids, ids[first]), levels = lvls, class = "factor")
 }
