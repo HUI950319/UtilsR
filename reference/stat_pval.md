@@ -40,8 +40,9 @@ stat_pval(
 
 - digits:
 
-  Integer, decimal places (default: 3 for stars/pvalue, 2 for plain).
-  Ignored when `add_star_p` is provided.
+  Single integer, decimal places (default: 3 for stars/pvalue, 2 for
+  plain). Must be at least 1 for P-value modes or 0 for `plain`. Ignored
+  when `add_star_p` is provided.
 
 - mode:
 
