@@ -19,11 +19,13 @@
 #'   not restricted to that range.
 #'   Numeric input must not use \code{integer64}, date, date-time, or
 #'   time-span storage; convert such values explicitly before formatting.
+#'   Matrix and array inputs are not supported.
 #' @param add_star_p Numeric vector of p-values for star annotation. When provided,
 #'   stars are appended to \code{x} based on these p-values.
 #'   Missing values in \code{x} remain missing; a missing P-value leaves
 #'   non-missing text unchanged.
 #'   Observed P-values must be finite and between 0 and 1.
+#'   Matrix and array inputs are not supported.
 #' @param digits Single integer, decimal places (default: 3 for stars/pvalue,
 #'   2 for plain). Must be at least 1 for P-value modes or 0 for \code{plain}.
 #'   Ignored when \code{add_star_p} is provided.
@@ -42,7 +44,8 @@
 #'   determines its symbol. Ignored in \code{pvalue} and \code{plain} modes
 #'   when \code{add_star_p} is NULL.
 #'
-#' @return Character vector of formatted values.
+#' @return Character vector of formatted values, preserving the names of
+#'   \code{x}. Empty input returns a zero-length character vector.
 #'
 #' @examples
 #' # --- Format p-values (x only) ---
@@ -70,6 +73,9 @@ stat_pval <- function(x,
                   mode = c("stars", "pvalue", "plain"),
                   map_signif = c("***" = 0.001, "**" = 0.01, "*" = 0.05, "." = 0.1)) {
 
+  if (!is.null(dim(x))) cli::cli_abort("{.arg x} must be a vector, not a matrix or array.")
+  if (!is.null(dim(add_star_p))) cli::cli_abort("{.arg add_star_p} must be a vector, not a matrix or array.")
+  input_names <- names(x)
   numeric_input <- if (is.null(add_star_p)) x else add_star_p
   if (inherits(numeric_input, c("integer64", "Date", "POSIXt", "difftime",
                                 "Duration", "Period", "Interval"))) {
@@ -109,6 +115,7 @@ stat_pval <- function(x,
     }
     out <- paste0(x, .add_stars(add_star_p, map_signif))
     out[missing_x] <- NA_character_
+    names(out) <- input_names
     return(out)
   }
 
@@ -145,17 +152,20 @@ stat_pval <- function(x,
   # plain mode
   if (mode == "plain") {
     fmt <- sprintf("%%.%df", d)
-    out <- ifelse(is.na(x_num), NA_character_, sprintf(fmt, x_num))
+    out <- sprintf(fmt, x_num)
+    out[is.na(x_num)] <- NA_character_
     if (any(bounded)) out[bounded] <- text[bounded]
+    names(out) <- input_names
     return(out)
   }
 
   # pvalue / stars mode
   .validate_p(x_num, "x")
   fmt <- sprintf("%%.%df", d)
-  out <- ifelse(is.na(x_num), NA_character_, sprintf(fmt, x_num))
+  out <- sprintf(fmt, x_num)
+  out[is.na(x_num)] <- NA_character_
   threshold <- paste0("<0.", strrep("0", d - 1L), "1")
-  out <- ifelse(!is.na(out) & grepl("^0\\.0*$", out), threshold, out)
+  out[!is.na(out) & grepl("^0\\.0*$", out)] <- threshold
 
   if (mode == "stars") {
     out <- paste0(out, .add_stars(x_num, map_signif))
@@ -163,5 +173,6 @@ stat_pval <- function(x,
   }
 
   if (any(bounded)) out[bounded] <- text[bounded]
+  names(out) <- input_names
   out
 }

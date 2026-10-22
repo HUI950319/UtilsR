@@ -104,3 +104,37 @@ test_that("star maps have the same validation in both entry paths", {
                    c("0.010", "0.100!"))
   expect_identical(stat_pval(.01, mode = "pvalue", map_signif = "ignored"), "0.010")
 })
+
+test_that("empty vectors have a stable character return type", {
+  for (x in list(numeric(), character(), setNames(numeric(), character()))) {
+    for (mode in c("stars", "pvalue", "plain")) {
+      expect_identical(stat_pval(x, mode = mode), setNames(character(), names(x)))
+    }
+    expect_identical(stat_pval(x, add_star_p = numeric()),
+                     setNames(character(), names(x)))
+  }
+})
+
+test_that("formatting preserves names from x in every mode", {
+  x <- c(low = .01, missing = NA_real_, high = .5)
+  for (mode in c("stars", "pvalue", "plain")) {
+    expect_identical(stat_pval(x, mode = mode),
+                     setNames(stat_pval(unname(x), mode = mode), names(x)))
+  }
+  expect_identical(stat_pval(c(bound = "<0.001", exact = "0.05")),
+                   c(bound = "<0.001", exact = "0.050*"))
+  expect_identical(stat_pval(c(effect = "HR", missing = NA_character_),
+                            add_star_p = c(first = .01, second = .05)),
+                   c(effect = "HR**", missing = NA_character_))
+  expect_identical(x, c(low = .01, missing = NA_real_, high = .5))
+})
+
+test_that("matrix and array inputs are rejected instead of flattened", {
+  for (x in list(matrix(.01, 1, 1), array(.01, c(1, 1, 1)))) {
+    for (mode in c("stars", "pvalue", "plain")) {
+      expect_error(stat_pval(x, mode = mode), "x.*vector")
+    }
+    expect_error(stat_pval(x, add_star_p = .01), "x.*vector")
+    expect_error(stat_pval("HR", add_star_p = x), "add_star_p.*vector")
+  }
+})
