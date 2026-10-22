@@ -18,6 +18,8 @@ check_size(..., pattern = NULL)
   `.GlobalEnv`, including hidden names. With no arguments, all objects
   are analyzed. Duplicate names are inspected once. Missing names are
   skipped with a warning; empty selections do not select all objects.
+  Arguments are evaluated, so an unquoted numeric variable supplies
+  indices, not its own name; a top-level call warns when this happens.
 
 - pattern:
 
