@@ -3,7 +3,8 @@
 S3 generic that pastes several vectors cell-wise into one factor. Levels
 are the unique combinations sorted by each input's factor-level order
 (preserving meaningful orderings such as TNM stages or graded
-categories), not alphabetic. Dispatches on the first argument:
+categories), not alphabetic. Dispatches on an explicitly named
+data.frame `x`, or otherwise on the first argument:
 
 - **vectors** – `fct_to_combine(v1, v2, ...)` returns the combined
   factor directly (also resolves a single character vector of column
@@ -38,11 +39,12 @@ fct_to_combine(..., sep = " & ")
   use `factor(x)` to combine a single character vector of values.
   Grouping columns are unavailable to
   [`pick()`](https://dplyr.tidyverse.org/reference/pick.html); pass such
-  columns directly as vectors or use the data.frame method. Vector names
-  do not affect combinations. The name `sep` is reserved for the
-  separator; combine a column named `sep` with the data.frame method, or
-  remove column-list names before
-  [`do.call()`](https://rdrr.io/r/base/do.call.html).
+  columns directly as vectors or use the data.frame method. Repeated,
+  missing and empty column names are rejected. Names attached to a
+  column-name vector are ignored. Vector names do not affect
+  combinations. The name `sep` is reserved for the separator; combine a
+  column named `sep` with the data.frame method, or remove column-list
+  names before [`do.call()`](https://rdrr.io/r/base/do.call.html).
 
 - x:
 
@@ -61,7 +63,8 @@ fct_to_combine(..., sep = " & ")
 
   (data.frame method) Name of the new column. Default `NULL` =
   `paste(vars, collapse = "_")`. Otherwise a single non-missing,
-  non-empty string. An existing column of this name is replaced.
+  non-empty string. An existing column of this name is replaced. A name
+  matching multiple existing columns is rejected.
 
 - sep:
 
