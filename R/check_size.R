@@ -186,6 +186,10 @@ check_size <- function(..., pattern = NULL) {
 
   gt_table <- object_info %>%
     gt::gt() %>%
+    gt::fmt_markdown(
+      columns = "Object",
+      rows = seq_len(nrow(object_info)) == 1L
+    ) %>%
     gt::fmt(
       columns = "Size_bar",
       fns = list(html = bar_html, default = bar_text)

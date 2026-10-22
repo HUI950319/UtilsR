@@ -215,6 +215,23 @@ test_that("check_size distinguishes a TOTAL-named object from the summary", {
   })
 })
 
+test_that("check_size renders the summary label without literal asterisks", {
+  with_size_objects(list(other = raw(1024)), function(nms) {
+    reserved <- "**TOTAL**"
+    stopifnot(!exists(reserved, envir = .GlobalEnv, inherits = FALSE))
+    assign(reserved, raw(32), envir = .GlobalEnv)
+    on.exit(rm(list = reserved, envir = .GlobalEnv), add = TRUE)
+    result <- check_size(c(reserved, nms))
+    expect_identical(result[["_data"]][["Object"]][[1L]], reserved)
+    cells <- grep('headers="Object"', strsplit(gt::as_raw_html(result), "\n", fixed = TRUE)[[1]],
+                  value = TRUE)
+    expect_length(cells, 3L)
+    expect_match(cells[[1L]], "<strong[^>]*>TOTAL</strong>")
+    expect_false(grepl(reserved, cells[[1L]], fixed = TRUE))
+    expect_match(cells[[3L]], reserved, fixed = TRUE)
+  })
+})
+
 test_that("check_size enumerates global names only when selection needs them", {
   with_size_objects(list(a = raw(16), b = raw(64)), function(nms) {
     enumerations <- 0L
