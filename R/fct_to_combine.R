@@ -34,6 +34,8 @@
 #' A row is missing if any input is missing according to its \code{is.na()}
 #' method, including \code{NaN} and SPSS user-missing values and ranges.
 #' The literal string \code{"NA"} remains an ordinary category.
+#' If distinct combinations produce the same label, the function errors;
+#' choose a different \code{sep} or relabel the inputs to disambiguate them.
 #'
 #' @param x First input. A factor / character / vector (vector method), OR a
 #'   data.frame (data.frame method).
@@ -186,9 +188,19 @@ fct_to_combine.default <- function(..., sep = " & ") {
   # Build ordered levels: do.call(order, fct_list) sorts rows by each
   # factor's internal level order (stable, no alphabetic coercion).
   ord <- do.call(order, fct_list)
-  ordered_keys <- all_vals[ord]
-  lvls <- ordered_keys[!duplicated(ordered_keys)]
-  lvls <- lvls[!is.na(lvls)]
+  ord <- ord[!missing_rows[ord]]
+  first <- ord
+  if (length(ord) > 1L) {
+    changed <- Reduce(`|`, lapply(fct_list, function(f) diff(as.integer(f)[ord]) != 0L))
+    first <- ord[c(TRUE, changed)]
+  }
+  lvls <- all_vals[first]
+  if (anyDuplicated(lvls)) {
+    cli::cli_abort(c(
+      "Distinct combinations produce the same label.",
+      "i" = "Choose a different {.arg sep} or relabel the inputs."
+    ))
+  }
 
   factor(all_vals, levels = lvls)
 }

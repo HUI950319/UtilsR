@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fct_to_combine()` errors when distinct input combinations produce the same
+  label, rather than silently merging groups. Repeated identical combinations
+  remain valid.
+
 * `fct_to_combine()` propagates missing inputs to genuine missing results,
   including NaN and SPSS user-missing codes and ranges. The literal string
   `"NA"` remains a category. Class methods are registered for restored labelled

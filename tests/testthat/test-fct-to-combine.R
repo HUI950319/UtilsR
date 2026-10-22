@@ -86,3 +86,17 @@ test_that("integer64 labels and missing values retain their meaning", {
   expect_identical(as.character(fct_to_combine(x, rep("X", 3))),
                    c("9007199254740993 & X", "9007199254740994 & X", NA))
 })
+
+test_that("distinct tuples cannot silently share a label", {
+  a <- c("A & B", "A")
+  b <- c("C", "B & C")
+  expect_error(fct_to_combine(a, b), "Distinct combinations.*same label")
+  expect_error(fct_to_combine(data.frame(a, b), c("a", "b")),
+               "Distinct combinations.*same label")
+  expect_error(fct_to_combine(c("ab", "a"), c("c", "bc"), sep = ""),
+               "Distinct combinations.*same label")
+  expect_identical(as.character(fct_to_combine(a, b, sep = " / ")),
+                   c("A & B / C", "A / B & C"))
+  expect_identical(fct_to_combine(rep("A & B", 3), rep("C", 3)),
+                   factor(rep("A & B & C", 3)))
+})

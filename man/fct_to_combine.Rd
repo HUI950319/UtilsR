@@ -63,6 +63,8 @@ single factor (the dual operation), see [fct_to_group()].
 A row is missing if any input is missing according to its \code{is.na()}
 method, including \code{NaN} and SPSS user-missing values and ranges.
 The literal string \code{"NA"} remains an ordinary category.
+If distinct combinations produce the same label, the function errors;
+choose a different \code{sep} or relabel the inputs to disambiguate them.
 }
 \examples{
 df <- data.frame(
