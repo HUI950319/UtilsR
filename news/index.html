@@ -50,7 +50,10 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> matches significance thresholds across the vector rather than calling a function for each P-value, retaining all existing star cutoffs.</p></li>
+<ul><li><p><code><a href="../reference/fct_to_combine.html">fct_to_combine()</a></code> propagates missing inputs to genuine missing results, including NaN and SPSS user-missing codes and ranges. The literal string <code>"NA"</code> remains a category. Class methods are registered for restored labelled and integer64 inputs before combining them.</p></li>
+<li><p><code><a href="../reference/fct_to_combine.html">fct_to_combine()</a></code> validates vector dimensions, separators, selected column names and output names. Unused arguments to the data-frame method now error instead of silently ignoring misspelled controls.</p></li>
+<li><p><code><a href="../reference/fct_to_combine.html">fct_to_combine()</a></code> ignores vector names when constructing labels and sorting levels, preventing columns such as <code>collapse</code> or <code>na.last</code> from changing the output length or level order in programmatic calls.</p></li>
+<li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> matches significance thresholds across the vector rather than calling a function for each P-value, retaining all existing star cutoffs.</p></li>
 <li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> preserves input names and returns character vectors for empty inputs in every mode. Matrix and array inputs now fail explicitly.</p></li>
 <li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> validates significance maps consistently in formatting and annotation paths. Empty maps disable stars; empty symbols and first-match precedence for tied thresholds are retained.</p></li>
 <li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> validates <code>digits</code> before integer conversion. Fractional, missing, nonfinite, non-scalar, and non-numeric values are rejected; zero decimal places are supported only in <code>plain</code> mode.</p></li>

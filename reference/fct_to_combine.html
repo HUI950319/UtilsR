@@ -99,10 +99,14 @@ alphabetic. Dispatches on the first argument:</p><ul><li><p><strong>vectors</str
 
 
 <dl><dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>(vector method) Further vectors of equal length to combine. A
+<dd><p>(vector method) One-dimensional atomic vectors of equal length
+to combine. Must be empty for the data.frame method. A
 single character vector of column names (length &gt;= 2) is resolved through
 <code>dplyr::pick(all_of(.))</code> when called inside a data-masking verb,
-enabling <code>mutate(g = fct_to_combine(c("sex", "age")))</code>.</p></dd>
+enabling <code>mutate(g = fct_to_combine(c("sex", "age")))</code>.
+Vector names do not affect combinations. The name <code>sep</code> is reserved
+for the separator; combine a column named <code>sep</code> with the data.frame
+method, or remove column-list names before <code><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call()</a></code>.</p></dd>
 
 
 <dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
@@ -112,16 +116,19 @@ data.frame (data.frame method).</p></dd>
 
 <dt id="arg-vars">vars<a class="anchor" aria-label="anchor" href="#arg-vars"></a></dt>
 <dd><p>(data.frame method) Character vector of &gt;= 2 column names to
-combine.</p></dd>
+combine. Names must be unique, non-missing and non-empty, and identify
+unambiguous columns in the data frame.</p></dd>
 
 
 <dt id="arg-var-name">var_name<a class="anchor" aria-label="anchor" href="#arg-var-name"></a></dt>
 <dd><p>(data.frame method) Name of the new column. Default
-<code>NULL</code> = <code>paste(vars, collapse = "_")</code>.</p></dd>
+<code>NULL</code> = <code>paste(vars, collapse = "_")</code>. Otherwise a single
+non-missing, non-empty string. An existing column of this name is replaced.</p></dd>
 
 
 <dt id="arg-sep">sep<a class="anchor" aria-label="anchor" href="#arg-sep"></a></dt>
-<dd><p>Separator between cell values. Default <code>" &amp; "</code>.</p></dd>
+<dd><p>A single non-missing string separating cell values. Default
+<code>" &amp; "</code>; an empty string is allowed.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -135,6 +142,9 @@ combine.</p></dd>
 <code><a href="https://rdrr.io/r/base/interaction.html" class="external-link">base::interaction()</a></code>, but with a default separator (<code>" &amp; "</code>) tuned
 for clinical / epidemiological group labels. For regrouping levels of a
 single factor (the dual operation), see [fct_to_group()].</p>
+<p>A row is missing if any input is missing according to its <code><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na()</a></code>
+method, including <code>NaN</code> and SPSS user-missing values and ranges.
+The literal string <code>"NA"</code> remains an ordinary category.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
