@@ -6643,4 +6643,7 @@ Reports OS, R version, memory, CPU info, and loaded packages.
 check_size()
 ```
 
-Shows memory usage of all objects in the current environment.
+Shows memory usage of all objects in the global environment, even when
+called inside a function. Pass `envir = environment()` to inspect the
+calling function’s objects instead, and `method = "lobstr"` for a total
+that counts storage shared between objects once.

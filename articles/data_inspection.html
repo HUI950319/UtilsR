@@ -7190,7 +7190,11 @@ frame (or Seurat object).</p>
 </h2>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/check_size.html">check_size</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>Shows memory usage of all objects in the current environment.</p>
+<p>Shows memory usage of all objects in the global environment, even
+when called inside a function. Pass <code>envir = environment()</code>
+to inspect the calling function’s objects instead, and
+<code>method = "lobstr"</code> for a total that counts storage shared
+between objects once.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
