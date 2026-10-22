@@ -30,7 +30,8 @@ stat_pval(
   in `plain` mode are not restricted to that range. Numeric input must
   not use `integer64`, date, date-time, or time-span storage; convert
   such values explicitly before formatting. Matrix and array inputs are
-  not supported.
+  not supported. A logical vector is accepted only when all its elements
+  are missing.
 
 - add_star_p:
 
@@ -38,7 +39,8 @@ stat_pval(
   are appended to `x` based on these p-values. Missing values in `x`
   remain missing; a missing P-value leaves non-missing text unchanged.
   Observed P-values must be finite and between 0 and 1. Matrix and array
-  inputs are not supported.
+  inputs are not supported. An entirely missing logical vector is also
+  accepted.
 
 - digits:
 

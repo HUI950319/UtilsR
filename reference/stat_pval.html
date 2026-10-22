@@ -86,7 +86,8 @@ finite and between 0 and 1. Ordinary numbers in <code>plain</code> mode are
 not restricted to that range.
 Numeric input must not use <code>integer64</code>, date, date-time, or
 time-span storage; convert such values explicitly before formatting.
-Matrix and array inputs are not supported.</p></dd>
+Matrix and array inputs are not supported.
+A logical vector is accepted only when all its elements are missing.</p></dd>
 
 
 <dt id="arg-add-star-p">add_star_p<a class="anchor" aria-label="anchor" href="#arg-add-star-p"></a></dt>
@@ -95,7 +96,8 @@ stars are appended to <code>x</code> based on these p-values.
 Missing values in <code>x</code> remain missing; a missing P-value leaves
 non-missing text unchanged.
 Observed P-values must be finite and between 0 and 1.
-Matrix and array inputs are not supported.</p></dd>
+Matrix and array inputs are not supported.
+An entirely missing logical vector is also accepted.</p></dd>
 
 
 <dt id="arg-digits">digits<a class="anchor" aria-label="anchor" href="#arg-digits"></a></dt>
