@@ -191,3 +191,16 @@ test_that("output names must identify an unambiguous column", {
   expect_identical(result$group, fct_to_combine(data$a, data$b))
   expect_identical(names(result)[c(1, 2, 5)], c("a", "b", "group"))
 })
+
+test_that("a named data-frame x dispatches independently of control order", {
+  data <- data.frame(a = c("A", "B"), b = c("X", "Y"))
+  expected <- fct_to_combine(data, c("a", "b"), var_name = "g", sep = "/")
+  controls <- list(vars = c("a", "b"), var_name = "g", sep = "/")
+  for (i in 0:3) {
+    call <- append(controls, list(x = data), after = i)
+    expect_identical(do.call(fct_to_combine, call), expected)
+    expect_identical(rlang::exec(fct_to_combine, !!!call), expected)
+  }
+  expect_identical(fct_to_combine(b = data$b, x = data$a),
+                   fct_to_combine(data$b, data$a))
+})

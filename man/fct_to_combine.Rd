@@ -52,7 +52,8 @@ A factor (vector method) of length \code{length(..1)}; or the input
 S3 generic that pastes several vectors cell-wise into one factor. Levels are
 the unique combinations sorted by each input's factor-level order (preserving
 meaningful orderings such as TNM stages or graded categories), not
-alphabetic. Dispatches on the first argument:
+alphabetic. Dispatches on an explicitly named data.frame \code{x}, or
+otherwise on the first argument:
 \itemize{
   \item \strong{vectors} -- \code{fct_to_combine(v1, v2, ...)} returns the
     combined factor directly (also resolves a single character vector of

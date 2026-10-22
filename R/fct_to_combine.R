@@ -5,7 +5,7 @@
 # Architecture (S3 generic, 2 layers):
 #
 #   L1  fct_to_combine(...)                         -- public generic
-#         |   pure-dots generic dispatching on the first element's class,
+#         |   pure-dots generic dispatching on named data.frame x or first input,
 #         |   so do.call() / rlang::exec() over a named list still works
 #         +-- L2  fct_to_combine.data.frame()   combine selected columns
 #         +-- L2  fct_to_combine.default()      combine bare vectors
@@ -16,7 +16,8 @@
 #' S3 generic that pastes several vectors cell-wise into one factor. Levels are
 #' the unique combinations sorted by each input's factor-level order (preserving
 #' meaningful orderings such as TNM stages or graded categories), not
-#' alphabetic. Dispatches on the first argument:
+#' alphabetic. Dispatches on an explicitly named data.frame \code{x}, or
+#' otherwise on the first argument:
 #' \itemize{
 #'   \item \strong{vectors} -- \code{fct_to_combine(v1, v2, ...)} returns the
 #'     combined factor directly (also resolves a single character vector of
@@ -99,9 +100,10 @@ fct_to_combine <- function(...) {
   # Pure-`...` generic so that `do.call(fct_to_combine, df[vars])` and
   # `rlang::exec(fct_to_combine, !!!df[vars])` (which spread a *named* list of
   # column vectors) still work -- a named first formal `x` would be left
-  # unbound by such calls. Dispatch explicitly on the first element's class.
+  # unbound by such calls. Named data-frame x may follow the method controls.
   dots <- list(...)
   obj  <- if (length(dots) >= 1L) dots[[1L]] else NULL
+  if (is.data.frame(dots[["x"]])) obj <- dots[["x"]]
   UseMethod("fct_to_combine", obj)
 }
 

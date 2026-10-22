@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `fct_to_combine()` recognizes an explicitly named data-frame `x` regardless
+  of the order of named controls, while vector arguments retain their order.
+
 * `fct_to_combine()` rejects ambiguous output names, including a default name
   matching several existing columns, before replacing any column.
 
