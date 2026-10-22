@@ -285,7 +285,7 @@ Explore variables, missing values, and system resources.
 - [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md)
   : Check System Resources and Environment
 - [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
-  : Analyze Object Sizes in Global Environment
+  : Analyze Object Sizes in an Environment
 - [`count_packages_in_libpaths()`](https://hui950319.github.io/UtilsR/reference/count_packages_in_libpaths.md)
   : Count Installed Packages in Each Library Path
 

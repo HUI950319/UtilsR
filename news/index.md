@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
+  gains `envir`, so objects in a function frame or any other environment
+  can be inspected. It defaults to `.GlobalEnv`, keeping existing calls
+  unchanged, and never searches parent environments.
+
+- [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
   switches to the next unit when a label would round up to 1024, showing
   `1.00 MB` or `1.00 GB` instead of `1024.00 KB` or `1024.00 MB`.
 

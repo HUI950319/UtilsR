@@ -1,12 +1,12 @@
-# Analyze Object Sizes in Global Environment
+# Analyze Object Sizes in an Environment
 
-Check memory usage of objects in `.GlobalEnv`. Outputs a styled `gt`
-table with bar chart and color gradient.
+Check memory usage of objects in an environment, `.GlobalEnv` by
+default. Outputs a styled `gt` table with bar chart and color gradient.
 
 ## Usage
 
 ``` r
-check_size(..., pattern = NULL)
+check_size(..., pattern = NULL, envir = .GlobalEnv)
 ```
 
 ## Arguments
@@ -15,16 +15,22 @@ check_size(..., pattern = NULL)
 
   Object names (character vectors) or plain numeric vectors of finite,
   positive integer indices into the alphabetically sorted names in
-  `.GlobalEnv`, including hidden names. With no arguments, all objects
-  are analyzed. Duplicate names are inspected once. Missing names are
+  `envir`, including hidden names. With no arguments, all objects are
+  analyzed. Duplicate names are inspected once. Missing names are
   skipped with a warning; empty selections do not select all objects.
   Arguments are evaluated, so an unquoted numeric variable supplies
-  indices, not its own name; a top-level call warns when this happens.
+  indices, not its own name; a call made from `envir` itself warns when
+  this happens.
 
 - pattern:
 
   Optional single, non-missing regular expression for matching object
   names. Takes precedence over `...`; no matches select no objects.
+
+- envir:
+
+  Environment whose objects are inspected. Defaults to `.GlobalEnv`;
+  parent environments are never searched.
 
 ## Value
 
