@@ -3,6 +3,16 @@
 ## UtilsR 0.6.8
 
 - [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
+  adds a source note stating that sizes are
+  [`object.size()`](https://rdrr.io/r/utils/object.size.html) estimates,
+  so the table itself warns that totals can double-count shared storage
+  and that environments and closures may be underestimated.
+
+- [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
+  renders its summary label as bold `TOTAL` instead of showing literal
+  asterisks; the underlying data still label the row `**TOTAL**`.
+
+- [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
   warns when a top-level call passes an unquoted numeric variable, which
   is used as object indices rather than as the variable’s name.
 
