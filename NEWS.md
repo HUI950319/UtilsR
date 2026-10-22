@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fct_to_combine()` copies data.table inputs before writing results and
+  invalidates keys and indices affected by replacement, preventing incorrect
+  grouping after a key column is overwritten.
+
 * `stat_pval()` rejects impossible strict P-value bounds (`<0` and `>1`),
   including scientific notation, while retaining inclusive bounds and plain
   number formatting. Decimal text is checked before floating-point rounding

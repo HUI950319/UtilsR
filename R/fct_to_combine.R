@@ -38,7 +38,8 @@
 #' choose a different \code{sep} or relabel the inputs to disambiguate them.
 #'
 #' @param x First input. A factor / character / vector (vector method), OR a
-#'   data.frame (data.frame method).
+#'   data.frame (data.frame method). A \pkg{data.table} input is copied before
+#'   writing the result; keys and indices affected by replacement are cleared.
 #' @param ... (vector method) One-dimensional atomic vectors of equal length
 #'   to combine. Must be empty for the data.frame method. A
 #'   single character vector of column names (length >= 2) is resolved through
@@ -127,9 +128,17 @@ fct_to_combine.data.frame <- function(x, vars, var_name = NULL, sep = " & ", ...
     cli::cli_abort("Selected column names must be unique in the data frame.")
   }
   combined <- do.call(fct_to_combine.default,
-                      c(unname(as.list(x[vars])), list(sep = sep)))
+                      c(lapply(vars, function(nm) x[[nm]]), list(sep = sep)))
   new_var <- if (!is.null(var_name)) var_name else paste(vars, collapse = "_")
-  x[[new_var]] <- combined
+  if (inherits(x, "data.table")) {
+    if (!requireNamespace("data.table", quietly = TRUE)) {
+      cli::cli_abort("Combining data.table columns requires the {.pkg data.table} package.")
+    }
+    x <- data.table::copy(x)
+    data.table::set(x, j = new_var, value = combined)
+  } else {
+    x[[new_var]] <- combined
+  }
   x
 }
 

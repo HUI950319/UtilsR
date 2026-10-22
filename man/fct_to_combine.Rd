@@ -27,7 +27,8 @@ for the separator; combine a column named \code{sep} with the data.frame
 method, or remove column-list names before \code{do.call()}.}
 
 \item{x}{First input. A factor / character / vector (vector method), OR a
-data.frame (data.frame method).}
+data.frame (data.frame method). A \pkg{data.table} input is copied before
+writing the result; keys and indices affected by replacement are cleared.}
 
 \item{vars}{(data.frame method) Character vector of >= 2 column names to
 combine. Names must be unique, non-missing and non-empty, and identify

@@ -135,3 +135,31 @@ test_that("data-frame and data-mask paths retain their documented contracts", {
   expect_error(dplyr::mutate(grouped, g = fct_to_combine(cols)), "Cannot resolve")
   expect_error(fct_to_combine(c("A", "B")), "Cannot resolve")
 })
+
+test_that("data.table writes invalidate changed keys and indices without modifying input", {
+  skip_if_not_installed("data.table")
+  data <- data.table::data.table(a = c("a", "a", "a", "a", "b"),
+                                b = c("Y", "X", "Y", "X", "Z"))
+  data.table::setkeyv(data, "a")
+  data.table::setindexv(data, "b")
+  before <- data.table::copy(data)
+
+  result <- fct_to_combine(data, c("a", "b"), var_name = "a")
+  expect_null(data.table::key(result))
+  expect_identical(as.character(result$a),
+                   c("a & Y", "a & X", "a & Y", "a & X", "b & Z"))
+  expect_identical(as.integer(table(result$a)), c(2L, 2L, 1L))
+  expect_identical(data, before)
+  expect_identical(class(result), class(data))
+
+  result <- fct_to_combine(data, c("a", "b"), var_name = "b")
+  expect_false("b" %in% data.table::indices(result))
+  expect_identical(data, before)
+
+  result <- fct_to_combine(data, c("a", "b"), var_name = "group")
+  expect_identical(data.table::key(result), "a")
+  expect_identical(data.table::indices(result), "b")
+  expect_identical(as.character(result$group),
+                   c("a & Y", "a & X", "a & Y", "a & X", "b & Z"))
+  expect_identical(data, before)
+})

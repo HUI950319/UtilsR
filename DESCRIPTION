@@ -89,6 +89,7 @@ Imports:
     scales
 Suggests:
     bit64,
+    data.table,
     RColorBrewer,
     cowplot,
     SeuratObject,
