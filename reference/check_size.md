@@ -6,7 +6,12 @@ default. Outputs a styled `gt` table with bar chart and color gradient.
 ## Usage
 
 ``` r
-check_size(..., pattern = NULL, envir = .GlobalEnv)
+check_size(
+  ...,
+  pattern = NULL,
+  envir = .GlobalEnv,
+  method = c("object.size", "lobstr")
+)
 ```
 
 ## Arguments
@@ -32,6 +37,14 @@ check_size(..., pattern = NULL, envir = .GlobalEnv)
   Environment whose objects are inspected. Defaults to `.GlobalEnv`;
   parent environments are never searched.
 
+- method:
+
+  Size estimator: `"object.size"` (default) uses
+  [`utils::object.size()`](https://rdrr.io/r/utils/object.size.html) and
+  sums the rows for the total; `"lobstr"` uses `lobstr::obj_size()`,
+  which requires the lobstr package and counts storage shared between
+  objects once in the total.
+
 ## Value
 
 A `gt` table object, including a zero-row table when no objects can be
@@ -47,13 +60,18 @@ capped at full width. A source note states the limits of the estimates.
 
 ## Details
 
-Sizes are estimates from
+By default, sizes are estimates from
 [`utils::object.size()`](https://rdrr.io/r/utils/object.size.html), not
 process memory usage or the memory that would be freed by removing an
 object. The total sums the individual estimates; shared storage can
 therefore be counted more than once. Environments, closure environments,
 external pointers and compact ALTREP representations are not fully
-accounted for by this method. Each selected binding is read once.
+accounted for by this method. With `method = "lobstr"`, each row
+includes the environments an object captures (except `envir` itself, the
+global and base environments and namespaces), compact ALTREP vectors
+report their compact size, and the total counts shared storage once, so
+it can be smaller than the sum of the rows. It can be several times
+slower on deeply nested lists. Each selected binding is read once.
 Reading active bindings invokes their functions, and reading promises
 evaluates them; inspection can therefore trigger user-defined
 computations.
