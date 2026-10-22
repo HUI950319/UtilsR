@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `check_size()` shades size cells on a log scale of bytes, so objects ten or a
+  hundred times smaller than the largest keep a visible color instead of
+  appearing white. Size bars remain linear.
+
 * `check_size()` warns when `pattern` overrides names or indices supplied in
   `...`, matching `check_na()`. The ignored selection is still not evaluated.
 

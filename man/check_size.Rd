@@ -45,7 +45,8 @@ A \code{gt} table object, including a zero-row table when no objects
   display labels.
   Size bars appear in HTML output; other formats retain the size labels.
   Object bars are scaled to the largest individual object; the total bar
-  is capped at full width. A source note states the limits of the estimates.
+  is capped at full width. Size cells are shaded from white to red on a
+  log scale of bytes. A source note states the limits of the estimates.
 }
 \description{
 Check memory usage of objects in an environment, \code{.GlobalEnv} by

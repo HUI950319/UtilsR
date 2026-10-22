@@ -36,7 +36,8 @@
 #'   display labels.
 #'   Size bars appear in HTML output; other formats retain the size labels.
 #'   Object bars are scaled to the largest individual object; the total bar
-#'   is capped at full width. A source note states the limits of the estimates.
+#'   is capped at full width. Size cells are shaded from white to red on a
+#'   log scale of bytes. A source note states the limits of the estimates.
 #'
 #' @details
 #' By default, sizes are estimates from \code{utils::object.size()}, not
@@ -246,13 +247,20 @@ check_size <- function(..., pattern = NULL, envir = .GlobalEnv,
   bar_text <- function(x) rep("", length(x))
   environment(bar_text) <- baseenv()
 
-  # A zero-width range would take the palette midpoint; anchor it at zero so
-  # one object or equally sized objects read as the largest, while all-zero
-  # sizes stay white.
-  size_domain <- if (object_count > 0) range(object_info$Size[-1L]) else c(0, 1)
-  if (size_domain[[1L]] == size_domain[[2L]]) {
-    size_domain <- c(0, if (size_domain[[2L]] > 0) size_domain[[2L]] else 1)
+  # Shade log10(bytes + 1) so objects far below the largest keep a visible
+  # color. A zero-width range would take the palette midpoint; anchor it at
+  # zero so one object or equally sized objects read as the largest, while
+  # all-zero sizes stay white.
+  size_colors <- function(x) {
+    if (length(x) == 0L) return(character())
+    log_size <- log10(x * 1024^2 + 1)
+    domain <- range(log_size)
+    if (domain[[1L]] == domain[[2L]]) {
+      domain <- c(0, if (domain[[2L]] > 0) domain[[2L]] else 1)
+    }
+    scales::col_numeric(c("#FFFFFF", "#FF0000"), domain = domain)(log_size)
   }
+  environment(size_colors) <- baseenv()
 
   gt_table <- object_info %>%
     gt::gt() %>%
@@ -268,9 +276,7 @@ check_size <- function(..., pattern = NULL, envir = .GlobalEnv,
       columns = "Size",
       target_columns = "Size_fmt",
       rows = seq_len(nrow(object_info)) > 1L,
-      palette = c("#FFFFFF", "#FF0000"),
-      domain = size_domain,
-      na_color = "transparent"
+      fn = size_colors
     ) %>%
     gt::cols_hide("Size") %>%
     gt::tab_header(

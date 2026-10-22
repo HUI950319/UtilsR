@@ -390,6 +390,21 @@ test_that("check_size warns when pattern overrides selected names", {
   expect_no_warning(check_size(pattern = "^b$", envir = env))
 })
 
+test_that("check_size shades sizes on a log scale", {
+  env <- list2env(list(big = raw(1e7), m1 = raw(1e6), k100 = raw(1e5), k10 = raw(1e4)))
+  result <- check_size(envir = env)
+  expect_identical(result[["_data"]][["Object"]][-1L], c("big", "m1", "k100", "k10"))
+  cells <- grep('headers="Size_fmt"', strsplit(gt::as_raw_html(result), "\n", fixed = TRUE)[[1]],
+                value = TRUE)[-1L]
+  colors <- sub('.*background-color: (#[0-9A-Fa-f]{6}).*', "\\1", cells)
+  green <- strtoi(substr(colors, 4L, 5L), 16L)
+  expect_identical(colors[c(1L, 4L)], c("#FF0000", "#FFFFFF"))
+  expect_true(all(diff(green) > 0))
+  # A linear scale leaves 1 MB and 100 KB almost white next to 10 MB.
+  expect_lt(green[[2L]], 200)
+  expect_lt(green[[3L]], 230)
+})
+
 test_that("check_size colors a single or equally sized object as the largest", {
   size_colors <- function(result) {
     html <- gt::as_raw_html(result)
