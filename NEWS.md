@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `check_size()` lists equally sized objects alphabetically for names and
+  indices too, matching `pattern` and the default selection instead of
+  following the order in which objects were supplied.
+
 * `check_size()` adds a source note stating that sizes are `object.size()`
   estimates, so the table itself warns that totals can double-count shared
   storage and that environments and closures may be underestimated.

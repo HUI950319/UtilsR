@@ -21,8 +21,9 @@
 #'   can be inspected. Objects that fail to load are skipped with a warning
 #'   identifying each binding and the underlying error message.
 #'   Its underlying data contain \code{Object}, \code{Class}, \code{Size},
-#'   \code{Size_fmt} and \code{Size_bar}. Numeric sizes remain in MB
-#'   (\eqn{1024^2} bytes), with automatic B, KB, MB or GB display labels.
+#'   \code{Size_fmt} and \code{Size_bar}. Objects are listed from largest to
+#'   smallest, with equally sized objects in alphabetical order. Numeric
+#'   sizes remain in MB (\eqn{1024^2} bytes), with automatic B, KB, MB or GB display labels.
 #'   Size bars appear in HTML output; other formats retain the size labels.
 #'   Object bars are scaled to the largest individual object; the total bar
 #'   is capped at full width. A source note states the limits of the estimates.
@@ -64,11 +65,11 @@ check_size <- function(..., pattern = NULL) {
                         error = function(e) {
                           stop("Invalid `pattern`: ", conditionMessage(e), call. = FALSE)
                         })
-    objects <- sort(all_objects[matched])
+    objects <- all_objects[matched]
   } else {
     selected_objects <- list(...)
     if (length(selected_objects) == 0) {
-      objects <- ls(envir = .GlobalEnv, all.names = TRUE)
+      objects <- ls(envir = .GlobalEnv, all.names = TRUE, sorted = FALSE)
     } else {
       objects <- character(0)
       # A bare top-level symbol is most likely the object the user meant to inspect.
@@ -107,7 +108,8 @@ check_size <- function(..., pattern = NULL) {
     }
   }
 
-  objects <- unique(objects)
+  # Sort once so equally sized objects keep alphabetical order for every selector.
+  objects <- sort(unique(objects))
   found <- vapply(objects, exists, logical(1), envir = .GlobalEnv, inherits = FALSE)
   if (any(!found)) {
     warning("Objects not found in `.GlobalEnv`: ", paste(objects[!found], collapse = ", "),

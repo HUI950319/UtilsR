@@ -232,6 +232,17 @@ test_that("check_size renders the summary label without literal asterisks", {
   })
 })
 
+test_that("check_size lists equally sized objects alphabetically for every selector", {
+  with_size_objects(list(z = raw(8), a = raw(8), big = raw(64)), function(nms) {
+    expected <- c("**TOTAL**", nms[[3L]], nms[[2L]], nms[[1L]])
+    expect_identical(check_size(nms)[["_data"]][["Object"]], expected)
+    indices <- match(nms, ls(envir = .GlobalEnv, all.names = TRUE))
+    expect_identical(check_size(indices)[["_data"]][["Object"]], expected)
+    expect_identical(check_size(pattern = "^\\.check_size_test_(z|a|big)$")[["_data"]][["Object"]],
+                     expected)
+  })
+})
+
 test_that("check_size notes the limits of its size estimates", {
   with_size_objects(list(a = raw(16)), function(nms) {
     html <- gt::as_raw_html(check_size(nms))
