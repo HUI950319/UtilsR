@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `stat_pval()` validates `digits` before integer conversion. Fractional,
+  missing, nonfinite, non-scalar, and non-numeric values are rejected;
+  zero decimal places are supported only in `plain` mode.
+
 * `stat_pval()` rejects integer64, date, date-time, and time-span storage
   before formatting values or adding stars; convert these inputs explicitly.
 

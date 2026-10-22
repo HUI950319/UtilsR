@@ -73,3 +73,17 @@ test_that("integer64 input is rejected before reading its double storage", {
   expect_error(stat_pval(rep("HR", 3), add_star_p = x), "ordinary numeric")
   expect_identical(stat_pval(as.double(x)), c("<0.001***", "1.000", NA_character_))
 })
+
+test_that("digits is checked before conversion or formatting", {
+  invalid <- list(-1, -.9, 1.9, NA_real_, Inf, numeric(), c(2, 3), "3", TRUE,
+                  .Machine$integer.max + 1, as.difftime(3, units = "secs"))
+  for (digits in invalid) {
+    for (mode in c("stars", "pvalue", "plain")) {
+      expect_error(stat_pval(.0123, digits = digits, mode = mode), "digits")
+    }
+  }
+  expect_error(stat_pval(.1, digits = 0), "digits")
+  expect_error(stat_pval(.1, digits = 0, mode = "pvalue"), "digits")
+  expect_identical(stat_pval(1.2, digits = 0, mode = "plain"), "1")
+  expect_identical(stat_pval(.0123, digits = 4L), "0.0123*")
+})

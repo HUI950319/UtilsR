@@ -24,7 +24,8 @@
 #'   Missing values in \code{x} remain missing; a missing P-value leaves
 #'   non-missing text unchanged.
 #'   Observed P-values must be finite and between 0 and 1.
-#' @param digits Integer, decimal places (default: 3 for stars/pvalue, 2 for plain).
+#' @param digits Single integer, decimal places (default: 3 for stars/pvalue,
+#'   2 for plain). Must be at least 1 for P-value modes or 0 for \code{plain}.
 #'   Ignored when \code{add_star_p} is provided.
 #' @param mode Formatting mode (ignored when \code{add_star_p} is provided):
 #'   \describe{
@@ -103,8 +104,12 @@ stat_pval <- function(x,
   # --- Mode 1: Format p-values ---
   mode <- match.arg(mode)
   d <- digits %||% if (mode == "plain") 2L else 3L
+  min_digits <- if (mode == "plain") 0L else 1L
+  if (!is.numeric(d) || is.object(d) || !is.null(dim(d)) || length(d) != 1L ||
+      !is.finite(d) || d < min_digits || d %% 1 != 0 || d > .Machine$integer.max) {
+    cli::cli_abort("{.arg digits} must be a single integer between {min_digits} and {(.Machine$integer.max)} for this mode.")
+  }
   d <- as.integer(d)
-  if (d < 0L) cli::cli_abort("{.arg digits} must be non-negative.")
 
   bounded <- rep(FALSE, length(x))
   x_num <- if (is.character(x)) {

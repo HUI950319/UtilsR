@@ -31,7 +31,8 @@ Missing values in \code{x} remain missing; a missing P-value leaves
 non-missing text unchanged.
 Observed P-values must be finite and between 0 and 1.}
 
-\item{digits}{Integer, decimal places (default: 3 for stars/pvalue, 2 for plain).
+\item{digits}{Single integer, decimal places (default: 3 for stars/pvalue,
+2 for plain). Must be at least 1 for P-value modes or 0 for \code{plain}.
 Ignored when \code{add_star_p} is provided.}
 
 \item{mode}{Formatting mode (ignored when \code{add_star_p} is provided):
