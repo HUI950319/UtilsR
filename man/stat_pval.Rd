@@ -21,7 +21,9 @@ are returned with outer whitespace removed, without inferring stars.
 Other non-numeric strings are rejected.}
 
 \item{add_star_p}{Numeric vector of p-values for star annotation. When provided,
-stars are appended to \code{x} based on these p-values.}
+stars are appended to \code{x} based on these p-values.
+Missing values in \code{x} remain missing; a missing P-value leaves
+non-missing text unchanged.}
 
 \item{digits}{Integer, decimal places (default: 3 for stars/pvalue, 2 for plain).
 Ignored when \code{add_star_p} is provided.}

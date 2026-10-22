@@ -12,6 +12,20 @@ test_that("default formatting and significance boundaries stay unchanged", {
                             digits = "ignored"), "HR**")
 })
 
+test_that("missing values stay missing when stars are appended", {
+  for (mode in c("stars", "pvalue", "plain")) {
+    expect_identical(stat_pval(c(NA_real_, NaN), mode = mode),
+                     rep(NA_character_, 2))
+    expect_identical(stat_pval(c(NA_character_, "NA", "NaN"), mode = mode),
+                     rep(NA_character_, 3))
+  }
+  expect_identical(stat_pval(c(NA_character_, "HR"), add_star_p = c(.01, NA)),
+                   c(NA_character_, "HR"))
+  expect_identical(stat_pval(c(NaN, 1), add_star_p = c(.01, .01)),
+                   c(NA_character_, "1**"))
+  expect_identical(stat_pval(c("", "HR"), add_star_p = c(NA, .01)), c("", "HR**"))
+})
+
 test_that("character bounds retain their meaning without inferred stars", {
   x <- c("<0.001", ">0.05", "<=0.01", ">=0.1", "\u22640.05", "\u22650.1")
   for (mode in c("stars", "pvalue", "plain")) {

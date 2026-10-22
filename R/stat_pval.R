@@ -16,6 +16,8 @@
 #'   Other non-numeric strings are rejected.
 #' @param add_star_p Numeric vector of p-values for star annotation. When provided,
 #'   stars are appended to \code{x} based on these p-values.
+#'   Missing values in \code{x} remain missing; a missing P-value leaves
+#'   non-missing text unchanged.
 #' @param digits Integer, decimal places (default: 3 for stars/pvalue, 2 for plain).
 #'   Ignored when \code{add_star_p} is provided.
 #' @param mode Formatting mode (ignored when \code{add_star_p} is provided):
@@ -68,11 +70,14 @@ stat_pval <- function(x,
   # --- Mode 2: Add stars to x based on external p ---
   if (!is.null(add_star_p)) {
     if (!is.numeric(add_star_p)) cli::cli_abort("{.arg add_star_p} must be numeric.")
+    missing_x <- is.na(x)
     x <- as.character(x)
     if (length(add_star_p) != length(x)) {
       cli::cli_abort("{.arg x} and {.arg add_star_p} must have the same length.")
     }
-    return(paste0(x, .add_stars(add_star_p, map_signif)))
+    out <- paste0(x, .add_stars(add_star_p, map_signif))
+    out[missing_x] <- NA_character_
+    return(out)
   }
 
   # --- Mode 1: Format p-values ---
@@ -92,7 +97,9 @@ stat_pval <- function(x,
     if (any(!is.na(text) & !bounded & !exact)) {
       cli::cli_abort("{.arg x} must contain numeric strings or numeric bounds.")
     }
-    as.numeric(sub(paste0("^", prefix), "", text, perl = TRUE))
+    values <- sub(paste0("^", prefix), "", text, perl = TRUE)
+    values[values %in% c("NA", "NaN")] <- NA_character_
+    as.numeric(values)
   } else if (is.numeric(x)) {
     x
   } else {
@@ -118,6 +125,7 @@ stat_pval <- function(x,
       cli::cli_abort("{.arg map_signif} must be a named numeric vector.")
     }
     out <- paste0(out, .add_stars(x_num, map_signif))
+    out[is.na(x_num)] <- NA_character_
   }
 
   if (any(bounded)) out[bounded] <- text[bounded]
