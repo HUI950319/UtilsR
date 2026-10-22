@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> preserves input names and returns character vectors for empty inputs in every mode. Matrix and array inputs now fail explicitly.</p></li>
+<ul><li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> matches significance thresholds across the vector rather than calling a function for each P-value, retaining all existing star cutoffs.</p></li>
+<li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> preserves input names and returns character vectors for empty inputs in every mode. Matrix and array inputs now fail explicitly.</p></li>
 <li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> validates significance maps consistently in formatting and annotation paths. Empty maps disable stars; empty symbols and first-match precedence for tied thresholds are retained.</p></li>
 <li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> validates <code>digits</code> before integer conversion. Fractional, missing, nonfinite, non-scalar, and non-numeric values are rejected; zero decimal places are supported only in <code>plain</code> mode.</p></li>
 <li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> rejects integer64, date, date-time, and time-span storage before formatting values or adding stars; convert these inputs explicitly.</p></li>
