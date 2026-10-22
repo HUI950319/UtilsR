@@ -2,6 +2,16 @@
 
 ## UtilsR 0.6.8
 
+- [`fct_to_combine()`](https://hui950319.github.io/UtilsR/reference/fct_to_combine.md)
+  validates column-name shortcuts before selection and ignores names
+  attached to selector vectors in both data-frame and data-mask calls,
+  so duplicate columns cannot silently become a single input.
+
+- [`fct_to_combine()`](https://hui950319.github.io/UtilsR/reference/fct_to_combine.md)
+  copies data.table inputs before writing results and invalidates keys
+  and indices affected by replacement, preventing incorrect grouping
+  after a key column is overwritten.
+
 - [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
   rejects impossible strict P-value bounds (`<0` and `>1`), including
   scientific notation, while retaining inclusive bounds and plain number

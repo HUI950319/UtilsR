@@ -108,6 +108,8 @@ This shortcut always interprets a character vector of length &gt;= 2 as
 column names; use <code>factor(x)</code> to combine a single character vector
 of values. Grouping columns are unavailable to <code><a href="https://dplyr.tidyverse.org/reference/pick.html" class="external-link">pick()</a></code>; pass such
 columns directly as vectors or use the data.frame method.
+Repeated, missing and empty column names are rejected. Names attached to
+a column-name vector are ignored.
 Vector names do not affect combinations. The name <code>sep</code> is reserved
 for the separator; combine a column named <code>sep</code> with the data.frame
 method, or remove column-list names before <code><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call()</a></code>.</p></dd>
@@ -115,7 +117,8 @@ method, or remove column-list names before <code><a href="https://rdrr.io/r/base
 
 <dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>First input. A factor / character / vector (vector method), OR a
-data.frame (data.frame method).</p></dd>
+data.frame (data.frame method). A <span class="pkg">data.table</span> input is copied before
+writing the result; keys and indices affected by replacement are cleared.</p></dd>
 
 
 <dt id="arg-vars">vars<a class="anchor" aria-label="anchor" href="#arg-vars"></a></dt>

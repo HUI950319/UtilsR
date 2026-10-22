@@ -38,16 +38,19 @@ fct_to_combine(..., sep = " & ")
   use `factor(x)` to combine a single character vector of values.
   Grouping columns are unavailable to
   [`pick()`](https://dplyr.tidyverse.org/reference/pick.html); pass such
-  columns directly as vectors or use the data.frame method. Vector names
-  do not affect combinations. The name `sep` is reserved for the
-  separator; combine a column named `sep` with the data.frame method, or
-  remove column-list names before
-  [`do.call()`](https://rdrr.io/r/base/do.call.html).
+  columns directly as vectors or use the data.frame method. Repeated,
+  missing and empty column names are rejected. Names attached to a
+  column-name vector are ignored. Vector names do not affect
+  combinations. The name `sep` is reserved for the separator; combine a
+  column named `sep` with the data.frame method, or remove column-list
+  names before [`do.call()`](https://rdrr.io/r/base/do.call.html).
 
 - x:
 
   First input. A factor / character / vector (vector method), OR a
-  data.frame (data.frame method).
+  data.frame (data.frame method). A data.table input is copied before
+  writing the result; keys and indices affected by replacement are
+  cleared.
 
 - vars:
 
