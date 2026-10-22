@@ -95,11 +95,7 @@ stat_pval <- function(x,
 
   # --- Stars helper (shared) ---
   .add_stars <- function(pvals, map) {
-    if (!is.numeric(map) || is.object(map) || !is.null(dim(map)) ||
-        (length(map) > 0L && is.null(names(map))) || anyNA(names(map)) ||
-        any(!is.finite(map) | map < 0 | map > 1)) {
-      cli::cli_abort("{.arg map_signif} must be a named numeric vector with finite thresholds between 0 and 1 and non-missing names.")
-    }
+    .validate_signif_map(map)
     map <- sort(map)
     out <- rep("", length(pvals))
     observed <- !is.na(pvals)
@@ -197,4 +193,13 @@ stat_pval <- function(x,
   if (any(bounded)) out[bounded] <- text[bounded]
   names(out) <- input_names
   out
+}
+
+#' @noRd
+.validate_signif_map <- function(map) {
+  if (!is.numeric(map) || is.object(map) || !is.null(dim(map)) ||
+      (length(map) > 0L && is.null(names(map))) || anyNA(names(map)) ||
+      any(!is.finite(map) | map < 0 | map > 1)) {
+    cli::cli_abort("{.arg map_signif} must be a named numeric vector with finite thresholds between 0 and 1 and non-missing names.")
+  }
 }

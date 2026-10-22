@@ -154,3 +154,28 @@ test_that("arguments are validated up front", {
   expect_error(stat_ci_parse(x, output = "ci_star", map_signif = 0.05),
                "map_signif")
 })
+
+test_that("star outputs share the stat_pval significance map contract", {
+  x <- c(a = "2.00 (1.00, 3.00)", b = "0.00 (-1.00, 1.00)")
+  p <- stat_ci_parse(x, output = "p", exp = FALSE)
+  maps <- list(numeric(), setNames(.05, ""),
+               c(loose = 1, first = .05, second = .05))
+  for (map in maps) {
+    expect_identical(stat_ci_parse(x, output = "ci_star", exp = FALSE, map_signif = map),
+                     stat_pval(x, add_star_p = p, map_signif = map))
+    expect_identical(stat_ci_parse(x, output = "p_star", exp = FALSE, map_signif = map),
+                     stat_pval(p, map_signif = map))
+  }
+  invalid <- list(.05, c("*" = NA_real_), c("*" = Inf), c("*" = -.1),
+                  c("*" = 1.2), setNames(.05, NA_character_), matrix(.05),
+                  structure(.05, class = "integer64"))
+  for (map in invalid) {
+    for (output in c("ci_star", "p_star")) {
+      expect_error(stat_ci_parse(x, output = output, map_signif = map), "map_signif")
+      expect_error(stat_ci_parse(character(), output = output, map_signif = map), "map_signif")
+    }
+  }
+  expect_identical(stat_ci_parse(x, output = "ci", exp = FALSE, map_signif = "ignored"), x)
+  expect_identical(eval(formals(stat_ci_parse)$map_signif),
+                   c("***" = .001, "**" = .01, "*" = .05))
+})

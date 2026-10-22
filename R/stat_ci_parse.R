@@ -44,6 +44,10 @@
 #'   without \code{level} does not round the input; at least one with
 #'   \code{level}.
 #' @param map_signif Named numeric vector for star thresholds.
+#'   Default: \code{c("***" = 0.001, "**" = 0.01, "*" = 0.05)}.
+#'   Thresholds must be finite, non-missing values between 0 and 1, with
+#'   non-missing names. Empty symbols are allowed; an empty numeric vector
+#'   disables stars. For repeated thresholds, the first symbol is used.
 #'   Only used when \code{output} is \code{"ci_star"} or \code{"p_star"}.
 #'
 #' @details
@@ -123,11 +127,7 @@ stat_ci_parse <- function(x,
                             digits == round(digits))) {
     cli::cli_abort("{.arg digits} must be a single non-negative whole number.")
   }
-  if (output %in% c("ci_star", "p_star") &&
-      !(is.numeric(map_signif) && !anyNA(map_signif) &&
-        !is.null(names(map_signif)) && all(nzchar(names(map_signif))))) {
-    cli::cli_abort("{.arg map_signif} must be a named numeric vector.")
-  }
+  if (output %in% c("ci_star", "p_star")) .validate_signif_map(map_signif)
   if (!length(x)) return(if (output == "p") numeric(0) else character(0))
 
   # --- Parse CI strings ---
