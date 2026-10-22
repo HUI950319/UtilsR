@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/check_size.html">check_size()</a></code> warns when <code>pattern</code> overrides names or indices supplied in <code>...</code>, matching <code><a href="../reference/check_na.html">check_na()</a></code>. The ignored selection is still not evaluated.</p></li>
+<ul><li><p><code><a href="../reference/check_size.html">check_size()</a></code> shades size cells on a log scale of bytes, so objects ten or a hundred times smaller than the largest keep a visible color instead of appearing white. Size bars remain linear.</p></li>
+<li><p><code><a href="../reference/check_size.html">check_size()</a></code> warns when <code>pattern</code> overrides names or indices supplied in <code>...</code>, matching <code><a href="../reference/check_na.html">check_na()</a></code>. The ignored selection is still not evaluated.</p></li>
 <li><p><code><a href="../reference/check_size.html">check_size()</a></code> colors a single object, or several equally sized objects, in the full red of the largest size instead of the palette midpoint.</p></li>
 <li><p><code><a href="../reference/check_size.html">check_size()</a></code> gains <code>method = "lobstr"</code>, which sizes objects with <code>lobstr::obj_size()</code>: rows include captured environments and compact ALTREP sizes, and the total counts storage shared between objects once. The default <code>method = "object.size"</code> keeps the previous estimates. lobstr is suggested.</p></li>
 <li><p><code><a href="../reference/check_size.html">check_size()</a></code> gains <code>envir</code>, so objects in a function frame or any other environment can be inspected. It defaults to <code>.GlobalEnv</code>, keeping existing calls unchanged, and never searches parent environments.</p></li>
