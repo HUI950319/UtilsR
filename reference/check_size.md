@@ -32,11 +32,12 @@ A `gt` table object, including a zero-row table when no objects can be
 inspected. Objects that fail to load are skipped with a warning
 identifying each binding and the underlying error message. Its
 underlying data contain `Object`, `Class`, `Size`, `Size_fmt` and
-`Size_bar`. Numeric sizes remain in MB (\\1024^2\\ bytes), with
-automatic B, KB, MB or GB display labels. Size bars appear in HTML
-output; other formats retain the size labels. Object bars are scaled to
-the largest individual object; the total bar is capped at full width. A
-source note states the limits of the estimates.
+`Size_bar`. Objects are listed from largest to smallest, with equally
+sized objects in alphabetical order. Numeric sizes remain in MB
+(\\1024^2\\ bytes), with automatic B, KB, MB or GB display labels. Size
+bars appear in HTML output; other formats retain the size labels. Object
+bars are scaled to the largest individual object; the total bar is
+capped at full width. A source note states the limits of the estimates.
 
 ## Details
 

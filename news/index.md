@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
+  lists equally sized objects alphabetically for names and indices too,
+  matching `pattern` and the default selection instead of following the
+  order in which objects were supplied.
+
+- [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
   adds a source note stating that sizes are
   [`object.size()`](https://rdrr.io/r/utils/object.size.html) estimates,
   so the table itself warns that totals can double-count shared storage
