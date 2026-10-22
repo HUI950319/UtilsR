@@ -22,6 +22,8 @@ This shortcut always interprets a character vector of length >= 2 as
 column names; use \code{factor(x)} to combine a single character vector
 of values. Grouping columns are unavailable to \code{pick()}; pass such
 columns directly as vectors or use the data.frame method.
+Repeated, missing and empty column names are rejected. Names attached to
+a column-name vector are ignored.
 Vector names do not affect combinations. The name \code{sep} is reserved
 for the separator; combine a column named \code{sep} with the data.frame
 method, or remove column-list names before \code{do.call()}.}

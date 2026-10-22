@@ -163,3 +163,15 @@ test_that("data.table writes invalidate changed keys and indices without modifyi
                    c("a & Y", "a & X", "a & Y", "a & X", "b & Z"))
   expect_identical(data, before)
 })
+
+test_that("column-name shortcuts share data-frame selector validation", {
+  data <- data.frame(a = c("B", "A"), b = c("X", "Y"))
+  for (cols in list(c("a", "a"), c("a", NA), c("a", ""))) {
+    expect_error(dplyr::mutate(data, g = fct_to_combine(cols)),
+                 "unique.*non-empty")
+  }
+  cols <- c(sep = "a", collapse = "b")
+  expected <- fct_to_combine(data$a, data$b)
+  expect_identical(dplyr::mutate(data, g = fct_to_combine(cols))$g, expected)
+  expect_identical(fct_to_combine(data, cols, var_name = "g")$g, expected)
+})

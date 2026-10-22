@@ -49,6 +49,8 @@
 #'   column names; use \code{factor(x)} to combine a single character vector
 #'   of values. Grouping columns are unavailable to \code{pick()}; pass such
 #'   columns directly as vectors or use the data.frame method.
+#'   Repeated, missing and empty column names are rejected. Names attached to
+#'   a column-name vector are ignored.
 #'   Vector names do not affect combinations. The name \code{sep} is reserved
 #'   for the separator; combine a column named \code{sep} with the data.frame
 #'   method, or remove column-list names before \code{do.call()}.
@@ -115,6 +117,7 @@ fct_to_combine.data.frame <- function(x, vars, var_name = NULL, sep = " & ", ...
   if (anyNA(vars) || any(!nzchar(vars)) || anyDuplicated(vars)) {
     cli::cli_abort("{.arg vars} must contain unique, non-missing, non-empty column names.")
   }
+  vars <- unname(vars)
   if (!is.null(var_name) &&
       (!is.character(var_name) || length(var_name) != 1L ||
        is.na(var_name) || !nzchar(var_name))) {
@@ -160,7 +163,10 @@ fct_to_combine.default <- function(..., sep = " & ") {
   #   exposure_names <- c("sex","age"); mutate(g = fct_to_combine(exposure_names))
   if (length(args) == 1L && is.character(args[[1L]]) && is.null(dim(args[[1L]])) &&
       length(args[[1L]]) >= 2L) {
-    cols <- args[[1L]]
+    cols <- unname(args[[1L]])
+    if (anyNA(cols) || any(!nzchar(cols)) || anyDuplicated(cols)) {
+      cli::cli_abort("Column names must be unique, non-missing and non-empty.")
+    }
     args <- tryCatch(
       as.list(dplyr::pick(dplyr::all_of(cols))),
       error = function(e) {
