@@ -29,7 +29,7 @@
 #' Conceptually similar to \code{forcats::fct_cross()} and
 #' \code{base::interaction()}, but with a default separator (\code{" & "}) tuned
 #' for clinical / epidemiological group labels. For regrouping levels of a
-#' single factor (the dual operation), see [fct_to_group()].
+#' single factor (the dual operation), see \code{\link{fct_to_group}()}.
 #'
 #' A row is missing if any input is missing according to its \code{is.na()}
 #' method, including \code{NaN} and SPSS user-missing values and ranges.
@@ -44,6 +44,10 @@
 #'   single character vector of column names (length >= 2) is resolved through
 #'   \code{dplyr::pick(all_of(.))} when called inside a data-masking verb,
 #'   enabling \code{mutate(g = fct_to_combine(c("sex", "age")))}.
+#'   This shortcut always interprets a character vector of length >= 2 as
+#'   column names; use \code{factor(x)} to combine a single character vector
+#'   of values. Grouping columns are unavailable to \code{pick()}; pass such
+#'   columns directly as vectors or use the data.frame method.
 #'   Vector names do not affect combinations. The name \code{sep} is reserved
 #'   for the separator; combine a column named \code{sep} with the data.frame
 #'   method, or remove column-list names before \code{do.call()}.
@@ -75,7 +79,7 @@
 #' fct_to_combine(df, c("sex", "age"), var_name = "group")   # new col "group"
 #'
 #' # Inside mutate (vector method, most natural usage)
-#' \dontrun{
+#' \donttest{
 #' library(dplyr)
 #' df %>% mutate(grp = fct_to_combine(sex, age))
 #' df %>% mutate(grp = fct_to_combine(c("sex", "age")))
@@ -85,7 +89,8 @@
 #'
 #' @export
 #' @family factor tools
-#' @seealso [fct_to_group()], [fct_cat()], [fct_label()]
+#' @seealso \code{\link{fct_to_group}()}, \code{\link{fct_cat}()},
+#'   \code{\link{fct_label}()}
 fct_to_combine <- function(...) {
   # Pure-`...` generic so that `do.call(fct_to_combine, df[vars])` and
   # `rlang::exec(fct_to_combine, !!!df[vars])` (which spread a *named* list of

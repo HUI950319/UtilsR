@@ -115,3 +115,23 @@ test_that("observed combinations follow input level priority", {
   expect_identical(fct_to_combine(a), factor(c("B", "A", "B", "B"),
                                            levels = c("B", "A")))
 })
+
+test_that("data-frame and data-mask paths retain their documented contracts", {
+  data <- tibble::tibble(a = factor(c("B", "A", "B"), levels = c("B", "A")),
+                         b = factor(c("X", "Y", "Y")))
+  expected <- fct_to_combine(data$a, data$b)
+  expect_identical(class(fct_to_combine(data, c("a", "b"))), class(data))
+  expect_identical(fct_to_combine(data[0, ], c("a", "b"))$a_b, factor(character()))
+  expect_identical(dplyr::mutate(data, g = fct_to_combine(a, b))$g, expected)
+  cols <- c("a", "b")
+  expect_identical(dplyr::mutate(data, g = fct_to_combine(cols))$g, expected)
+  grouped <- dplyr::group_by(data, a)
+  combined <- fct_to_combine(grouped, cols)
+  expect_identical(class(combined), class(grouped))
+  expect_identical(dplyr::group_vars(combined), "a")
+  expect_identical(combined$a_b, expected)
+  expect_identical(as.character(dplyr::mutate(grouped, g = fct_to_combine(a, b))$g),
+                   as.character(expected))
+  expect_error(dplyr::mutate(grouped, g = fct_to_combine(cols)), "Cannot resolve")
+  expect_error(fct_to_combine(c("A", "B")), "Cannot resolve")
+})
