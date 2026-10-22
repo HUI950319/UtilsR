@@ -240,6 +240,14 @@ check_size <- function(..., pattern = NULL, envir = .GlobalEnv,
   bar_text <- function(x) rep("", length(x))
   environment(bar_text) <- baseenv()
 
+  # A zero-width range would take the palette midpoint; anchor it at zero so
+  # one object or equally sized objects read as the largest, while all-zero
+  # sizes stay white.
+  size_domain <- if (object_count > 0) range(object_info$Size[-1L]) else c(0, 1)
+  if (size_domain[[1L]] == size_domain[[2L]]) {
+    size_domain <- c(0, if (size_domain[[2L]] > 0) size_domain[[2L]] else 1)
+  }
+
   gt_table <- object_info %>%
     gt::gt() %>%
     gt::fmt_markdown(
@@ -255,7 +263,7 @@ check_size <- function(..., pattern = NULL, envir = .GlobalEnv,
       target_columns = "Size_fmt",
       rows = seq_len(nrow(object_info)) > 1L,
       palette = c("#FFFFFF", "#FF0000"),
-      domain = if (total_mb == 0) c(0, 1) else NULL,
+      domain = size_domain,
       na_color = "transparent"
     ) %>%
     gt::cols_hide("Size") %>%

@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `check_size()` colors a single object, or several equally sized objects, in
+  the full red of the largest size instead of the palette midpoint.
+
 * `check_size()` gains `method = "lobstr"`, which sizes objects with
   `lobstr::obj_size()`: rows include captured environments and compact ALTREP
   sizes, and the total counts storage shared between objects once. The default

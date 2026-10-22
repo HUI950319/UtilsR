@@ -378,6 +378,17 @@ test_that("check_size counts shared storage once with the lobstr method", {
   expect_error(check_size(envir = env, method = "bad"), "should be one of")
 })
 
+test_that("check_size colors a single or equally sized object as the largest", {
+  size_colors <- function(result) {
+    html <- gt::as_raw_html(result)
+    cells <- grep('headers="Size_fmt"', strsplit(html, "\n", fixed = TRUE)[[1]], value = TRUE)
+    sub('.*background-color: (#[0-9A-Fa-f]{6}).*', "\\1", cells[-1L])
+  }
+  expect_identical(size_colors(check_size(envir = list2env(list(a = raw(100))))), "#FF0000")
+  expect_identical(size_colors(check_size(envir = list2env(list(a = raw(100), b = raw(100))))),
+                   c("#FF0000", "#FF0000"))
+})
+
 test_that("check_size reports each read failure cause without reading again", {
   with_size_objects(list(ok = raw(16), bad_a = 1, bad_b = 1), function(nms) {
     rm(list = nms[2:3], envir = .GlobalEnv)
