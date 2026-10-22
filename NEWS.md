@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `stat_pval()` matches significance thresholds across the vector rather than
+  calling a function for each P-value, retaining all existing star cutoffs.
+
 * `stat_pval()` preserves input names and returns character vectors for empty
   inputs in every mode. Matrix and array inputs now fail explicitly.
 

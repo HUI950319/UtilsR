@@ -138,3 +138,19 @@ test_that("matrix and array inputs are rejected instead of flattened", {
     expect_error(stat_pval("HR", add_star_p = x), "add_star_p.*vector")
   }
 })
+
+test_that("star lookup respects unsorted maps, ties, and exact cutoffs", {
+  p <- c(0, .01, .01 + 1e-12, .05, .05 + 1e-12, .1, .1 + 1e-12, 1, NA, NaN)
+  map <- c(loose = .1, first = .01, second = .01, middle = .05)
+  expected <- c("first", "first", "middle", "middle", "loose", "loose",
+                "", "", "", "")
+  expect_identical(stat_pval(rep("", length(p)), add_star_p = p, map_signif = map),
+                   expected)
+  formatted <- paste0(stat_pval(p, mode = "pvalue"), expected)
+  formatted[is.na(p)] <- NA_character_
+  expect_identical(stat_pval(p, map_signif = map), formatted)
+  expect_identical(stat_pval(rep("HR", 2), add_star_p = c(NA_real_, NaN)),
+                   rep("HR", 2))
+  expect_identical(stat_pval(c(0, 1), map_signif = c(zero = 0, one = 1)),
+                   c("<0.001zero", "1.000one"))
+})

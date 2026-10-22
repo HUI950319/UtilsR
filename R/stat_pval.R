@@ -97,11 +97,12 @@ stat_pval <- function(x,
       cli::cli_abort("{.arg map_signif} must be a named numeric vector with finite thresholds between 0 and 1 and non-missing names.")
     }
     map <- sort(map)
-    vapply(pvals, function(pv) {
-      if (is.na(pv)) return("")
-      hit <- map[map >= pv]
-      if (length(hit) > 0L) names(which.min(hit)) else ""
-    }, character(1))
+    out <- rep("", length(pvals))
+    observed <- !is.na(pvals)
+    for (i in rev(seq_along(map))) {
+      out[observed & pvals <= map[[i]]] <- names(map)[[i]]
+    }
+    out
   }
 
   # --- Mode 2: Add stars to x based on external p ---
