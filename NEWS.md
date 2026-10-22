@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `check_size()` warns when a top-level call passes an unquoted numeric
+  variable, which is used as object indices rather than as the variable's name.
+
 * `check_size()` includes each binding's original error message in its combined
   read-failure warning without evaluating failed bindings again.
 

@@ -11,7 +11,9 @@ check_size(..., pattern = NULL)
 finite, positive integer indices into the alphabetically sorted names in
 \code{.GlobalEnv}, including hidden names. With no arguments, all objects
 are analyzed. Duplicate names are inspected once. Missing names are
-skipped with a warning; empty selections do not select all objects.}
+skipped with a warning; empty selections do not select all objects.
+Arguments are evaluated, so an unquoted numeric variable supplies
+indices, not its own name; a top-level call warns when this happens.}
 
 \item{pattern}{Optional single, non-missing regular expression for matching
 object names. Takes precedence over \code{...}; no matches select no objects.}

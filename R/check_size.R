@@ -12,6 +12,8 @@
 #'   \code{.GlobalEnv}, including hidden names. With no arguments, all objects
 #'   are analyzed. Duplicate names are inspected once. Missing names are
 #'   skipped with a warning; empty selections do not select all objects.
+#'   Arguments are evaluated, so an unquoted numeric variable supplies
+#'   indices, not its own name; a top-level call warns when this happens.
 #' @param pattern Optional single, non-missing regular expression for matching
 #'   object names. Takes precedence over \code{...}; no matches select no objects.
 #'
@@ -69,7 +71,11 @@ check_size <- function(..., pattern = NULL) {
       objects <- ls(envir = .GlobalEnv, all.names = TRUE)
     } else {
       objects <- character(0)
-      for (obj in selected_objects) {
+      # A bare top-level symbol is most likely the object the user meant to inspect.
+      selected_exprs <- as.list(substitute(list(...)))[-1L]
+      called_from_top <- identical(parent.frame(), .GlobalEnv)
+      for (i in seq_along(selected_objects)) {
+        obj <- selected_objects[[i]]
         if (is.object(obj) || !is.null(dim(obj))) {
           stop("Object names and indices must be plain vectors.", call. = FALSE)
         }
@@ -86,6 +92,12 @@ check_size <- function(..., pattern = NULL) {
               any(obj < 1 | obj > length(all_objects))) {
             stop("Object indices must be finite integers within the available names.",
                  call. = FALSE)
+          }
+          if (called_from_top && is.symbol(selected_exprs[[i]])) {
+            var_name <- as.character(selected_exprs[[i]])
+            warning(sprintf(paste0("`%s` was used as object indices. To inspect the ",
+                                   "variable itself, quote its name: check_size(\"%s\")."),
+                            var_name, var_name), call. = FALSE)
           }
           objects <- c(objects, all_objects[as.integer(obj)])
         } else {
