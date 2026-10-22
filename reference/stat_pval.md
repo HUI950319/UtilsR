@@ -30,8 +30,7 @@ stat_pval(
 - add_star_p:
 
   Numeric vector of p-values for star annotation. When provided, stars
-  are appended to `x` based on these p-values. Missing values in `x`
-  remain missing; a missing P-value leaves non-missing text unchanged.
+  are appended to `x` based on these p-values.
 
 - digits:
 
