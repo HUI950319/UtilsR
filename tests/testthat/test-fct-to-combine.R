@@ -204,3 +204,12 @@ test_that("a named data-frame x dispatches independently of control order", {
   expect_identical(fct_to_combine(b = data$b, x = data$a),
                    fct_to_combine(data$b, data$a))
 })
+
+test_that("unsupported selector dimensions and raw storage fail explicitly", {
+  data <- data.frame(a = c("A", "B"), b = c("X", "Y"))
+  for (vars in list(matrix(c("a", "b"), 1), array(c("a", "b"), c(1, 1, 2)))) {
+    expect_error(fct_to_combine(data, vars), "vars.*one-dimensional character")
+  }
+  expect_error(fct_to_combine(as.raw(c(1, 2)), data$b), "Raw vectors.*not supported")
+  expect_error(fct_to_combine(raw(), character()), "Raw vectors.*not supported")
+})

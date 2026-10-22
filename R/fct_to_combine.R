@@ -42,7 +42,8 @@
 #'   data.frame (data.frame method). A \pkg{data.table} input is copied before
 #'   writing the result; keys and indices affected by replacement are cleared.
 #' @param ... (vector method) One-dimensional atomic vectors of equal length
-#'   to combine. Must be empty for the data.frame method. A
+#'   to combine. Raw vectors must be converted explicitly before use.
+#'   Must be empty for the data.frame method. A
 #'   single character vector of column names (length >= 2) is resolved through
 #'   \code{dplyr::pick(all_of(.))} when called inside a data-masking verb,
 #'   enabling \code{mutate(g = fct_to_combine(c("sex", "age")))}.
@@ -55,8 +56,8 @@
 #'   Vector names do not affect combinations. The name \code{sep} is reserved
 #'   for the separator; combine a column named \code{sep} with the data.frame
 #'   method, or remove column-list names before \code{do.call()}.
-#' @param vars (data.frame method) Character vector of >= 2 column names to
-#'   combine. Names must be unique, non-missing and non-empty, and identify
+#' @param vars (data.frame method) One-dimensional character vector of >= 2
+#'   column names to combine. Names must be unique, non-missing and non-empty, and identify
 #'   unambiguous columns in the data frame.
 #' @param var_name (data.frame method) Name of the new column. Default
 #'   \code{NULL} = \code{paste(vars, collapse = "_")}. Otherwise a single
@@ -111,9 +112,10 @@ fct_to_combine <- function(...) {
 #' @export
 fct_to_combine.data.frame <- function(x, vars, var_name = NULL, sep = " & ", ...) {
   rlang::check_dots_empty()
-  if (missing(vars) || !is.character(vars) || length(vars) < 2L) {
+  if (missing(vars) || !is.character(vars) || !is.null(dim(vars)) ||
+      length(vars) < 2L) {
     cli::cli_abort(c(
-      "{.arg vars} must be a character vector of >= 2 column names.",
+      "{.arg vars} must be a one-dimensional character vector of >= 2 column names.",
       "i" = "e.g. {.code fct_to_combine(df, c(\"sex\", \"age\"))}"
     ))
   }
@@ -187,6 +189,9 @@ fct_to_combine.default <- function(..., sep = " & ") {
 
   if (!all(vapply(args, function(v) is.atomic(v) && is.null(dim(v)), logical(1L)))) {
     cli::cli_abort("All inputs must be one-dimensional atomic vectors.")
+  }
+  if (any(vapply(args, is.raw, logical(1L)))) {
+    cli::cli_abort("Raw vectors are not supported; convert them explicitly before combining.")
   }
   lens <- vapply(args, length, integer(1L))
   if (length(unique(lens)) != 1L) {

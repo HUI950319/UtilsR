@@ -14,7 +14,8 @@ fct_to_combine(...)
 }
 \arguments{
 \item{...}{(vector method) One-dimensional atomic vectors of equal length
-to combine. Must be empty for the data.frame method. A
+to combine. Raw vectors must be converted explicitly before use.
+Must be empty for the data.frame method. A
 single character vector of column names (length >= 2) is resolved through
 \code{dplyr::pick(all_of(.))} when called inside a data-masking verb,
 enabling \code{mutate(g = fct_to_combine(c("sex", "age")))}.
@@ -32,8 +33,8 @@ method, or remove column-list names before \code{do.call()}.}
 data.frame (data.frame method). A \pkg{data.table} input is copied before
 writing the result; keys and indices affected by replacement are cleared.}
 
-\item{vars}{(data.frame method) Character vector of >= 2 column names to
-combine. Names must be unique, non-missing and non-empty, and identify
+\item{vars}{(data.frame method) One-dimensional character vector of >= 2
+column names to combine. Names must be unique, non-missing and non-empty, and identify
 unambiguous columns in the data frame.}
 
 \item{var_name}{(data.frame method) Name of the new column. Default
