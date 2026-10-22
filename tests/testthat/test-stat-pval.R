@@ -37,3 +37,18 @@ test_that("character bounds retain their meaning without inferred stars", {
     expect_error(stat_pval(x), "numeric strings")
   }
 })
+
+test_that("P-value paths reject nonfinite and out-of-range observations", {
+  for (p in c(-0.1, 1.2, Inf, -Inf)) {
+    for (mode in c("stars", "pvalue")) {
+      expect_error(stat_pval(c(NA, .05, p), mode = mode), "between 0 and 1")
+      expect_error(stat_pval(as.character(p), mode = mode), "between 0 and 1")
+    }
+    expect_error(stat_pval("HR", add_star_p = p), "between 0 and 1")
+  }
+  expect_error(stat_pval("<1.5"), "between 0 and 1")
+  expect_error(stat_pval("1e999"), "between 0 and 1")
+  expect_identical(stat_pval(c(0, 1)), c("<0.001***", "1.000"))
+  expect_identical(stat_pval(c(-.1, 1.2, Inf, -Inf), mode = "plain"),
+                   c("-0.10", "1.20", "Inf", "-Inf"))
+})

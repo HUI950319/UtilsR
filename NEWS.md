@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `stat_pval()` rejects nonfinite and out-of-range P-values in both formatting
+  and annotation paths. Ordinary numbers in `plain` mode keep their range.
+
 * `stat_pval()` retains missing values after appending stars, including
   missing text supplied with `add_star_p`. Missing P-values leave observed
   annotation text unchanged.

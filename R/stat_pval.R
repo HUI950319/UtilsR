@@ -14,10 +14,14 @@
 #'   \code{<}, \code{<=}, \code{>}, \code{>=}, or their Unicode equivalents
 #'   are returned with outer whitespace removed, without inferring stars.
 #'   Other non-numeric strings are rejected.
+#'   In P-value modes, observed values and numeric bound endpoints must be
+#'   finite and between 0 and 1. Ordinary numbers in \code{plain} mode are
+#'   not restricted to that range.
 #' @param add_star_p Numeric vector of p-values for star annotation. When provided,
 #'   stars are appended to \code{x} based on these p-values.
 #'   Missing values in \code{x} remain missing; a missing P-value leaves
 #'   non-missing text unchanged.
+#'   Observed P-values must be finite and between 0 and 1.
 #' @param digits Integer, decimal places (default: 3 for stars/pvalue, 2 for plain).
 #'   Ignored when \code{add_star_p} is provided.
 #' @param mode Formatting mode (ignored when \code{add_star_p} is provided):
@@ -57,6 +61,12 @@ stat_pval <- function(x,
                   mode = c("stars", "pvalue", "plain"),
                   map_signif = c("***" = 0.001, "**" = 0.01, "*" = 0.05, "." = 0.1)) {
 
+  .validate_p <- function(p, arg) {
+    if (any(!is.na(p) & (!is.finite(p) | p < 0 | p > 1))) {
+      cli::cli_abort("{.arg {arg}} must contain finite P-values between 0 and 1, or missing values.")
+    }
+  }
+
   # --- Stars helper (shared) ---
   .add_stars <- function(pvals, map) {
     map <- sort(map)
@@ -70,6 +80,7 @@ stat_pval <- function(x,
   # --- Mode 2: Add stars to x based on external p ---
   if (!is.null(add_star_p)) {
     if (!is.numeric(add_star_p)) cli::cli_abort("{.arg add_star_p} must be numeric.")
+    .validate_p(add_star_p, "add_star_p")
     missing_x <- is.na(x)
     x <- as.character(x)
     if (length(add_star_p) != length(x)) {
@@ -115,6 +126,7 @@ stat_pval <- function(x,
   }
 
   # pvalue / stars mode
+  .validate_p(x_num, "x")
   fmt <- sprintf("%%.%df", d)
   out <- ifelse(is.na(x_num), NA_character_, sprintf(fmt, x_num))
   threshold <- paste0("<0.", strrep("0", d - 1L), "1")

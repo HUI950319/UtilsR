@@ -18,12 +18,16 @@ or any value to annotate with stars (when \code{add_star_p} is provided).
 Numeric strings may use scientific notation. Strings beginning with
 \code{<}, \code{<=}, \code{>}, \code{>=}, or their Unicode equivalents
 are returned with outer whitespace removed, without inferring stars.
-Other non-numeric strings are rejected.}
+Other non-numeric strings are rejected.
+In P-value modes, observed values and numeric bound endpoints must be
+finite and between 0 and 1. Ordinary numbers in \code{plain} mode are
+not restricted to that range.}
 
 \item{add_star_p}{Numeric vector of p-values for star annotation. When provided,
 stars are appended to \code{x} based on these p-values.
 Missing values in \code{x} remain missing; a missing P-value leaves
-non-missing text unchanged.}
+non-missing text unchanged.
+Observed P-values must be finite and between 0 and 1.}
 
 \item{digits}{Integer, decimal places (default: 3 for stars/pvalue, 2 for plain).
 Ignored when \code{add_star_p} is provided.}
