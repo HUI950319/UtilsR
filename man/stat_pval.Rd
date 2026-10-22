@@ -43,7 +43,13 @@ Ignored when \code{add_star_p} is provided.}
 }}
 
 \item{map_signif}{Named numeric vector of significance thresholds.
-Default: \code{c("***" = 0.001, "**" = 0.01, "*" = 0.05, "." = 0.1)}.}
+Default: \code{c("***" = 0.001, "**" = 0.01, "*" = 0.05, "." = 0.1)}.
+Thresholds must be finite, non-missing values between 0 and 1, with
+non-missing names. Empty symbols are allowed; an empty numeric vector
+disables stars. For repeated thresholds, the first symbol is used.
+The smallest threshold greater than or equal to the unrounded P-value
+determines its symbol. Ignored in \code{pvalue} and \code{plain} modes
+when \code{add_star_p} is NULL.}
 }
 \value{
 Character vector of formatted values.

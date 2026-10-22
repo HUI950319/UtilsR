@@ -35,6 +35,12 @@
 #'   }
 #' @param map_signif Named numeric vector of significance thresholds.
 #'   Default: \code{c("***" = 0.001, "**" = 0.01, "*" = 0.05, "." = 0.1)}.
+#'   Thresholds must be finite, non-missing values between 0 and 1, with
+#'   non-missing names. Empty symbols are allowed; an empty numeric vector
+#'   disables stars. For repeated thresholds, the first symbol is used.
+#'   The smallest threshold greater than or equal to the unrounded P-value
+#'   determines its symbol. Ignored in \code{pvalue} and \code{plain} modes
+#'   when \code{add_star_p} is NULL.
 #'
 #' @return Character vector of formatted values.
 #'
@@ -79,6 +85,11 @@ stat_pval <- function(x,
 
   # --- Stars helper (shared) ---
   .add_stars <- function(pvals, map) {
+    if (!is.numeric(map) || is.object(map) || !is.null(dim(map)) ||
+        (length(map) > 0L && is.null(names(map))) || anyNA(names(map)) ||
+        any(!is.finite(map) | map < 0 | map > 1)) {
+      cli::cli_abort("{.arg map_signif} must be a named numeric vector with finite thresholds between 0 and 1 and non-missing names.")
+    }
     map <- sort(map)
     vapply(pvals, function(pv) {
       if (is.na(pv)) return("")
@@ -147,9 +158,6 @@ stat_pval <- function(x,
   out <- ifelse(!is.na(out) & grepl("^0\\.0*$", out), threshold, out)
 
   if (mode == "stars") {
-    if (!is.numeric(map_signif) || is.null(names(map_signif))) {
-      cli::cli_abort("{.arg map_signif} must be a named numeric vector.")
-    }
     out <- paste0(out, .add_stars(x_num, map_signif))
     out[is.na(x_num)] <- NA_character_
   }

@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `stat_pval()` validates significance maps consistently in formatting and
+  annotation paths. Empty maps disable stars; empty symbols and first-match
+  precedence for tied thresholds are retained.
+
 * `stat_pval()` validates `digits` before integer conversion. Fractional,
   missing, nonfinite, non-scalar, and non-numeric values are rejected;
   zero decimal places are supported only in `plain` mode.

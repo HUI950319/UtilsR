@@ -87,3 +87,20 @@ test_that("digits is checked before conversion or formatting", {
   expect_identical(stat_pval(1.2, digits = 0, mode = "plain"), "1")
   expect_identical(stat_pval(.0123, digits = 4L), "0.0123*")
 })
+
+test_that("star maps have the same validation in both entry paths", {
+  invalid <- list(.05, c("*" = NA_real_), c("*" = Inf), c("*" = -.1),
+                  c("*" = 1.2), setNames(.05, NA_character_), c("*" = "0.05"),
+                  matrix(.05), structure(.05, class = "integer64"))
+  for (map in invalid) {
+    expect_error(stat_pval(.01, map_signif = map), "map_signif")
+    expect_error(stat_pval("HR", add_star_p = .01, map_signif = map), "map_signif")
+  }
+  expect_identical(stat_pval(.01, map_signif = numeric()), "0.010")
+  expect_identical(stat_pval("HR", add_star_p = .01, map_signif = numeric()), "HR")
+  expect_identical(stat_pval(.01, map_signif = c(first = .05, second = .05)),
+                   "0.010first")
+  expect_identical(stat_pval(c(.01, .1), map_signif = setNames(c(.05, .1), c("", "!"))),
+                   c("0.010", "0.100!"))
+  expect_identical(stat_pval(.01, mode = "pvalue", map_signif = "ignored"), "0.010")
+})
