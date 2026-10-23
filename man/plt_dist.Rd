@@ -11,7 +11,7 @@ plt_dist(
   facet = NULL,
   color = NULL,
   alpha = 0.7,
-  label = c("count_percent", "count", "percent", "none"),
+  label = c("count_percent", "count_percent_wrap", "count", "percent", "none"),
   gap = 0.01,
   curve_type = "linear",
   theme_use = theme_heat(14),
@@ -60,13 +60,17 @@ retain their positions in an unnamed palette.}
 flow ribbon transparency (\code{flow.alpha}).}
 
 \item{label}{Label content, one of \code{"count_percent"} (default),
-\code{"count"}, \code{"percent"}, \code{"none"}. For the **bar chart** this
-selects the count / percentage text on each segment. For the **heatmap**
-any value other than \code{"none"} prints the third variable's category in
-each tile; \code{"none"} hides the labels and shows a fill legend.
-For the **alluvial** plot it
+\code{"count_percent_wrap"}, \code{"count"}, \code{"percent"},
+\code{"none"}. For the **bar chart** this selects the count / percentage
+text on each segment: \code{"count_percent"} gives \code{count\\n(percent)}
+and \code{"count_percent_wrap"} gives \code{count\\npercent}. For the
+**heatmap** any value other than \code{"none"} prints the third variable's
+category in each tile; \code{"none"} hides the labels and shows a fill
+legend. For the **alluvial** plot it
 maps to `label_args$style` in [plt_alluvial()]: \code{"count_percent"}
-\eqn{\rightarrow} name + count + percent, \code{"count"} \eqn{\rightarrow}
+\eqn{\rightarrow} name + count + percent on one line,
+\code{"count_percent_wrap"} \eqn{\rightarrow} name, then count + percent
+on a second line, \code{"count"} \eqn{\rightarrow}
 name + count, \code{"percent"} \eqn{\rightarrow} name + percent,
 \code{"none"} \eqn{\rightarrow} no labels.}
 

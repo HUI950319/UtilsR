@@ -66,7 +66,9 @@ total in each facet. Default \code{0.01}.}
 \item{label_args}{A named list controlling labels:
 \describe{
 \item{\code{style}}{Character scalar selecting label content:
-\code{"count_percent"} gives \code{name (count, percent)}, \code{"count"} gives
+\code{"count_percent"} gives \code{name (count, percent)},
+\code{"count_percent_wrap"} puts \code{name} on the first line and
+\code{count (percent)} on the second, \code{"count"} gives
 \code{name (count)}, \code{"percent"} gives \verb{name percent}, \code{"name"} gives the
 group name, and \code{"none"} hides labels. Default \code{"count_percent"}.}
 \item{\code{min_pct}}{Numeric scalar in \eqn{[0, 1]}. Labels are shown

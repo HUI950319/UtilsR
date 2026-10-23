@@ -9,6 +9,11 @@
   two-part key-value badges (key on dark grey, value on a chosen colour) to
   combine on one line.
 
+* `plt_dist()` gains `label = "count_percent_wrap"`, which puts counts and
+  percentages on separate lines: `count\npercent` on stacked bars, and the
+  group name above `count (percent)` in alluvial plots. `plt_alluvial()`
+  accepts the same value in `label_args$style`. Defaults are unchanged.
+
 # UtilsR 0.6.8
 
 * New `.cat_step()` announces a numbered step (`[i/n]`) of a longer

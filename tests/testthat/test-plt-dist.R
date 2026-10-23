@@ -25,6 +25,23 @@ test_that("bar calculations do not overwrite selected input names", {
   expect_identical(data, original)
 })
 
+test_that("count_percent_wrap labels put counts and percentages on separate lines", {
+  expect_identical(eval(formals(plt_dist)$label),
+                   c("count_percent", "count_percent_wrap", "count", "percent", "none"))
+  data <- data.frame(x = c("A", "A", "B"), group = c("F", "M", "M"))
+  bar <- dist_test_plot(data, c("x", "group"), type = "bar",
+                        label = "count_percent_wrap")
+  expect_identical(ggplot2::layer_data(bar, 2L)$label,
+                   c("1\n50.0%", "1\n50.0%", "1\n100.0%"))
+  heat <- data.frame(x = c("A", "B"), y = "C", group = c("F", "M"))
+  tiles <- dist_test_plot(heat, c("x", "y", "group"), label = "count_percent_wrap")
+  expect_identical(as.character(ggplot2::layer_data(tiles, 2L)$label), c("F", "M"))
+  skip_if_not_installed("ggalluvial")
+  alluvial <- dist_test_plot(data, c("x", "group"), label = "count_percent_wrap")
+  expect_identical(alluvial$data$.label[!is.na(alluvial$data$.label)],
+                   c("F\n1 (50.0%)", "M\n1 (50.0%)", "M\n1 (100.0%)"))
+})
+
 test_that("distribution counts ignore unrelated input grouping", {
   data <- data.frame(x = rep(c("A", "B"), each = 4),
                      group = rep(c("F", "M"), 4),

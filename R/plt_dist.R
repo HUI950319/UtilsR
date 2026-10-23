@@ -45,13 +45,17 @@
 #' @param alpha One finite number between 0 and 1. Default 0.7. In alluvial mode this is the
 #'   flow ribbon transparency (\code{flow.alpha}).
 #' @param label Label content, one of \code{"count_percent"} (default),
-#'   \code{"count"}, \code{"percent"}, \code{"none"}. For the **bar chart** this
-#'   selects the count / percentage text on each segment. For the **heatmap**
-#'   any value other than \code{"none"} prints the third variable's category in
-#'   each tile; \code{"none"} hides the labels and shows a fill legend.
-#'   For the **alluvial** plot it
+#'   \code{"count_percent_wrap"}, \code{"count"}, \code{"percent"},
+#'   \code{"none"}. For the **bar chart** this selects the count / percentage
+#'   text on each segment: \code{"count_percent"} gives \code{count\\n(percent)}
+#'   and \code{"count_percent_wrap"} gives \code{count\\npercent}. For the
+#'   **heatmap** any value other than \code{"none"} prints the third variable's
+#'   category in each tile; \code{"none"} hides the labels and shows a fill
+#'   legend. For the **alluvial** plot it
 #'   maps to `label_args$style` in [plt_alluvial()]: \code{"count_percent"}
-#'   \eqn{\rightarrow} name + count + percent, \code{"count"} \eqn{\rightarrow}
+#'   \eqn{\rightarrow} name + count + percent on one line,
+#'   \code{"count_percent_wrap"} \eqn{\rightarrow} name, then count + percent
+#'   on a second line, \code{"count"} \eqn{\rightarrow}
 #'   name + count, \code{"percent"} \eqn{\rightarrow} name + percent,
 #'   \code{"none"} \eqn{\rightarrow} no labels.
 #' @param gap Alluvial only. Gap between strata as a fraction of total height,
@@ -139,7 +143,8 @@ plt_dist <- function(data,
                      facet = NULL,
                      color = NULL,
                      alpha = 0.7,
-                     label = c("count_percent", "count", "percent", "none"),
+                     label = c("count_percent", "count_percent_wrap", "count",
+                               "percent", "none"),
                      gap = 0.01,
                      curve_type = "linear",
                      theme_use = theme_heat(14),
@@ -281,6 +286,7 @@ plt_dist <- function(data,
       count         = as.character(plotdata[[count_name]]),
       percent       = pct,
       count_percent = sprintf("%s\n(%s)", plotdata[[count_name]], pct),
+      count_percent_wrap = sprintf("%s\n%s", plotdata[[count_name]], pct),
       none          = NA_character_
     )
 

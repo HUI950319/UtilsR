@@ -44,7 +44,9 @@
 #' @param label_args A named list controlling labels:
 #'   \describe{
 #'     \item{\code{style}}{Character scalar selecting label content:
-#'       `"count_percent"` gives `name (count, percent)`, `"count"` gives
+#'       `"count_percent"` gives `name (count, percent)`,
+#'       `"count_percent_wrap"` puts `name` on the first line and
+#'       `count (percent)` on the second, `"count"` gives
 #'       `name (count)`, `"percent"` gives `name percent`, `"name"` gives the
 #'       group name, and `"none"` hides labels. Default `"count_percent"`.}
 #'     \item{\code{min_pct}}{Numeric scalar in \eqn{[0, 1]}. Labels are shown
@@ -318,7 +320,9 @@ plt_alluvial <- function(
     cli::cli_abort("{.arg stratum_args$gap} must be a non-negative number.")
   }
 
-  label_styles <- c("count_percent", "count", "percent", "name", "none")
+  label_styles <- c(
+    "count_percent", "count_percent_wrap", "count", "percent", "name", "none"
+  )
   if (
     !is.character(label_args$style) ||
       length(label_args$style) != 1L ||
@@ -472,6 +476,9 @@ plt_alluvial <- function(
     stat$.label[show_label] <- switch(
       label_args$style,
       count_percent = sprintf("%s (%s, %s)", group_name, count_text, pct_text),
+      count_percent_wrap = sprintf(
+        "%s\n%s (%s)", group_name, count_text, pct_text
+      ),
       count = sprintf("%s (%s)", group_name, count_text),
       percent = sprintf("%s %s", group_name, pct_text),
       name = group_name,

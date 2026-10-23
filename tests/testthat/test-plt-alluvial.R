@@ -220,7 +220,8 @@ test_that("plt_alluvial labels follow final axis positions and stratum centers",
 test_that("plt_alluvial exposes the requested label styles", {
   skip_if_not_installed("ggalluvial")
 
-  styles <- c("count_percent", "count", "percent", "name", "none")
+  styles <- c("count_percent", "count", "percent", "name", "none",
+              "count_percent_wrap")
   plots <- lapply(styles, function(style) {
     plt_alluvial(
       alluvial_data(),
@@ -236,6 +237,8 @@ test_that("plt_alluvial exposes the requested label styles", {
   expect_match(plots[[3]]$data$.label[1], "66\\.7%")
   expect_identical(plots[[4]]$data$.label[1], "G2")
   expect_true(all(is.na(plots[[5]]$data$.label)))
+  expect_identical(plots[[6]]$data$.label[1], "G2\n2 (66.7%)")
+  expect_true("G2\n2 (66.7%)" %in% ggplot2::layer_data(plots[[6]], 3L)$label)
 })
 
 test_that("plt_alluvial applies list overrides and colour resolution", {
