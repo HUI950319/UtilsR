@@ -1,5 +1,11 @@
 # UtilsR 0.6.8
 
+* `lv()` inspects atomic vectors and matrices, returning them invisibly,
+  instead of treating them as column selections of the global `data`, where
+  `lv(1:2)` silently reported its first two columns. Bare column names and
+  character vectors of column names still select from the default data, and
+  an unevaluable first argument without default data reports its own error.
+
 * `lv()` leaves character and factor columns with more than 100 categories,
   such as identifiers, out of its frequency and grouped tables with a message;
   they stay in the variable summary. A 50,000-row identifier column previously

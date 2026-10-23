@@ -361,3 +361,39 @@ test_that("columns with more than 100 categories stay out of summary tables", {
   expect_length(only_id, 0L)
   expect_length(capture_reports(lv(data, id)), 1L)
 })
+
+test_that("vectors and matrices are inspected; column names still select", {
+  summary_of <- function(result) {
+    Filter(function(x) "n_special" %in% names(x), result$tables)[[1L]]
+  }
+  data <- data.frame(a = 1:5, b = letters[1:5], c = 6:10)
+  rlang::local_bindings(data = data, .env = globalenv())
+
+  numbers <- capture_lv(lv(1:2))
+  expect_equal(summary_of(numbers)$n_unique, 2)
+  expect_false(any(c("a", "b") %in% summary_of(numbers)$vars))
+  expect_identical(numbers$value$value, 1:2)
+  expect_false(numbers$value$visible)
+  letters_in <- capture_lv(lv(c("x", "y", "x")))
+  expect_equal(summary_of(letters_in)$n_unique, 2)
+  matrix_in <- as.matrix(data.frame(p = 1:3, q = 4:6))
+  matrix_out <- capture_lv(lv(matrix_in))
+  expect_identical(summary_of(matrix_out)$vars, c("p", "q"))
+  expect_identical(matrix_out$value$value, matrix_in)
+
+  expect_identical(summary_of(capture_lv(lv("b")))$vars, "b")
+  columns <- c("a", "b")
+  expect_identical(summary_of(capture_lv(lv(columns)))$vars, c("a", "b"))
+  a <- 99
+  by_name <- summary_of(capture_lv(lv(a)))
+  expect_identical(by_name$vars, "a")
+  expect_equal(by_name$n_unique, 5)
+})
+
+test_that("without default data, vectors are inspected and typos are named", {
+  rlang::local_bindings(data = 1, data_all = 1, .env = globalenv())
+  result <- capture_lv(lv(mtcars$cyl))
+  summary <- Filter(function(x) "n_special" %in% names(x), result$tables)[[1L]]
+  expect_equal(summary$n_unique, 3)
+  expect_error(capture_lv(lv(not_an_object)), "not_an_object")
+})

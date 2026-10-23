@@ -5,7 +5,8 @@
 # Architecture (S3 generic, 2 layers):
 #
 #   L1  lv(data, ...)                               -- public generic
-#         |   a missing `data` re-calls lv() on the default global data
+#         |   a missing `data`, or a selection of its columns, re-calls lv()
+#         |   on the default global data
 #         +-- L2  lv.data.frame()   frequency / unique / NA / special-value
 #         |                         summaries, grouped and cross-tabulated
 #         +-- L2  lv.default()      single vector -> one-column data.frame,
@@ -30,9 +31,14 @@
 #' Methods for serialized haven-labelled and integer64 columns are loaded
 #' before inspection; integer64 columns require the optional \pkg{bit64} package.
 #'
-#' @param data A data object: data.frame or Seurat object. If omitted,
+#' @param data A data object: data.frame or Seurat object. An atomic vector
+#'   or matrix is inspected as a data frame of its columns. If omitted,
 #'   \code{lv()} falls back to a global object named \code{data}, otherwise
 #'   \code{data_all} (the first that is a data.frame / Seurat object).
+#'   A first argument that is not a dataset selects variables of that default
+#'   data when it is a bare column name, a character vector of column names,
+#'   or an expression that cannot be evaluated, e.g. \code{lv(Sex)}; column
+#'   names take precedence over caller objects of the same name.
 #'   Empty data frames are returned unchanged with a message and no report.
 #' @param ... Variable selection using \code{dplyr::select} syntax, including
 #'   renamed selections. With no selection, all variables are inspected;
@@ -135,18 +141,37 @@ lv <- function(data, ...) {
   if (missing(data)) return(lv(.lv_default_data(), ...))
 
   # (b) First argument evaluates to a dataset -> normal S3 dispatch.
-  is_dataset <- tryCatch(is.data.frame(data) || inherits(data, "Seurat"),
-                         error = function(e) FALSE)
-  if (isTRUE(is_dataset)) return(UseMethod("lv"))
+  value <- tryCatch(data, error = function(e) e)
+  failed <- inherits(value, "error")
+  if (!failed && (is.data.frame(value) || inherits(value, "Seurat"))) {
+    return(UseMethod("lv"))
+  }
 
-  # (c) First argument is NOT a dataset -- it is a variable selection meant for
-  #     the default global data (e.g. `lv(Sex)` = inspect column Sex of the
-  #     global `data`). Re-invoke on the default data with that expression (and
-  #     any further ... args) forwarded UNEVALUATED as the tidyselect selection.
+  # (c) A vector or matrix is inspected itself (lv.default), unless it names
+  #     columns of the default global data: as for `group`, column names win,
+  #     so a bare column name or a character vector of column names is a
+  #     selection, like an expression that cannot be evaluated (`lv(Sex)`).
   first_expr <- substitute(data)
+  default <- tryCatch(.lv_default_data(), error = function(e) NULL)
+  columns <- if (inherits(default, "Seurat")) names(default@meta.data) else names(default)
+  selects <- failed || !is.atomic(value) ||
+    (is.symbol(first_expr) && as.character(first_expr) %in% columns) ||
+    (is.character(value) && length(value) > 0L && all(value %in% columns))
+  if (!selects) return(UseMethod("lv"))
+  if (is.null(default)) {
+    if (failed) {
+      cli::cli_abort(c("Cannot evaluate the first argument of {.fn lv}.",
+                       "x" = conditionMessage(value),
+                       "i" = "No global {.code data} or {.code data_all} to select it from."))
+    }
+    .lv_default_data()
+  }
+
+  # Re-invoke on the default data with that expression (and any further ...
+  # args) forwarded UNEVALUATED as the tidyselect selection.
   dots_expr  <- as.list(substitute(list(...)))[-1L]
   env <- new.env(parent = parent.frame())
-  env[[".__lv_data__"]] <- .lv_default_data()
+  env[[".__lv_data__"]] <- default
   eval(as.call(c(list(quote(lv), as.name(".__lv_data__"), first_expr), dots_expr)),
        envir = env)
 }
@@ -217,6 +242,7 @@ lv.default <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   rlang::inject(lv.data.frame(input, ..., pattern = pattern,
                              group = !!group_var, count = !!count_vars,
                              cat_args = cat_args))
+  invisible(data)
 }
 
 #' @rdname lv
