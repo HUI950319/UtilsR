@@ -33,7 +33,8 @@ plt_dist(
   variables selected by `dis_vars` and `facet`. Rows missing any
   required value are removed with a message in every mode; unrelated
   columns do not affect inclusion. An error is raised if no complete
-  rows remain. The heatmap ignores `facet`.
+  rows remain. Alluvial mode also removes explicit NA factor levels and
+  SPSS user-defined missing values. The heatmap ignores `facet`.
 
 - dis_vars:
 

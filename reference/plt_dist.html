@@ -91,7 +91,8 @@ faceting and only requires the suggested <span class="pkg">ggalluvial</span> pac
 only the variables selected by <code>dis_vars</code> and <code>facet</code>. Rows
 missing any required value are removed with a message in every mode;
 unrelated columns do not affect inclusion. An error is raised if no
-complete rows remain. The heatmap ignores <code>facet</code>.</p></dd>
+complete rows remain. Alluvial mode also removes explicit NA factor levels
+and SPSS user-defined missing values. The heatmap ignores <code>facet</code>.</p></dd>
 
 
 <dt id="arg-dis-vars">dis_vars<a class="anchor" aria-label="anchor" href="#arg-dis-vars"></a></dt>

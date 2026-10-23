@@ -2,6 +2,23 @@
 
 ## UtilsR 0.6.8
 
+- `plt_dist(type = "alluvial")` removes categorical missing values
+  before matching named colours, following the
+  [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
+  missing-row rule.
+
+- [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
+  counts only observed facet/category combinations while preserving
+  zero-count groups, avoiding the full cross-facet frequency table.
+
+- The [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
+  variable summary tints rows by variable type: character, numeric or
+  integer, and factor (including ordered) variables.
+
+- [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
+  retains only required input columns in its plot environment, keeping
+  unused data out of serialized plot objects.
+
 - [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
   rejects out-of-range facet and legend dimensions with a clear argument
   error before integer conversion.
