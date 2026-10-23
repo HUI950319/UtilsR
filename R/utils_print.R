@@ -9,6 +9,7 @@
 #         pr_kv(x)                     aligned key-value block
 #         pr_section(title)            grey rule with a bold title
 #         pr_note(...)                 grey italic "# note", cli markup
+#         pr_badge(key, value)         two-part badge strings (not printed)
 #
 #   L2  shared internals
 #         ._chip()       short label on a solid background (utils_display.R)
@@ -163,4 +164,38 @@ pr_section <- function(title, width = NULL) {
 pr_note <- function(..., .envir = parent.frame()) {
   text <- cli::format_inline(..., .envir = .envir)
   ._pr_out(cli::col_grey(cli::style_italic(paste("#", text))))
+}
+
+# ------------- pr_badge -----------------------------------------------------
+
+#' Two-part key-value badge
+#'
+#' Build badges in the style of a status badge: the key on dark grey, the
+#' value on a colour that can carry its meaning (e.g. red for a violated
+#' assumption). Unlike the other print helpers, \code{pr_badge()} returns the
+#' strings without printing them, so several badges can share a line.
+#'
+#' @param key,value Keys and values, recycled to a common length (equal
+#'   lengths, or length 1). Values are converted with \code{as.character()}.
+#' @param bg,fg Background and text colour of the value part: anything
+#'   \code{cli::make_ansi_style()} accepts, as in \code{\link{pr_head}()}.
+#'
+#' @return A character vector of badges, one per key.
+#'
+#' @examples
+#' cat(pr_badge("model", "cox"), pr_badge("n", "2,314", bg = "green"),
+#'     pr_badge("PH", "violated", bg = "red"), "\n")
+#'
+#' @export
+#' @family print helpers
+pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
+  n <- max(length(key), length(value))
+  if (!all(c(length(key), length(value)) %in% c(1L, n))) {
+    cli::cli_abort("{.arg key} and {.arg value} must have the same length, or length 1.")
+  }
+  white <- cli::make_ansi_style("br_white")
+  paste0(._chip(rep_len(as.character(key), n),
+                cli::make_ansi_style("grey30", bg = TRUE), white),
+         ._chip(rep_len(as.character(value), n),
+                cli::make_ansi_style(bg, bg = TRUE), cli::make_ansi_style(fg)))
 }

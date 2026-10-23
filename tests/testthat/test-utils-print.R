@@ -61,3 +61,15 @@ test_that("pr_note() prints a grey note with cli markup and caller values", {
   link <- utils::capture.output(pr_note("Run {.run RegR::plt_eff(res)}"))
   expect_match(link, "x-r-run:RegR::plt_eff(res)", fixed = TRUE)
 })
+
+test_that("pr_badge() returns two-part badges without printing", {
+  withr::local_options(cli.num_colors = 256)
+  expect_silent(b <- pr_badge(c("model", "n"), c("cox", "2,314")))
+  expect_identical(cli::ansi_strip(b), c(" model  cox ", " n  2,314 "))
+  expect_match(b[1], "\033[44m", fixed = TRUE)
+
+  ph <- pr_badge("PH", "violated", bg = "red")
+  expect_match(ph, "\033[41m", fixed = TRUE)
+  expect_identical(cli::ansi_strip(pr_badge("events", 412)), " events  412 ")
+  expect_error(pr_badge(c("a", "b", "c"), c("x", "y")), "same length")
+})

@@ -5,7 +5,9 @@
   a key-value block, keys in grey and aligned by display width. `pr_section()`
   prints a grey rule led by a bold title. `pr_note()` prints a grey italic
   `# ...` line with cli inline markup, so `{.run pkg::fun(x)}` becomes a
-  clickable link in consoles that support hyperlinks.
+  clickable link in consoles that support hyperlinks. `pr_badge()` returns
+  two-part key-value badges (key on dark grey, value on a chosen colour) to
+  combine on one line.
 
 # UtilsR 0.6.8
 
