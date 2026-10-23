@@ -55,7 +55,8 @@ PlotRankCor(
 
   Character. Column name for the numeric score used to compute ranks.
   Ranks are computed as `rank(-score)` (descending) within each
-  `group.by` x `method.by` combination.
+  `group.by` x `method.by` combination. Missing scores remain missing
+  and do not contribute to the correlation.
 
 - group.by:
 

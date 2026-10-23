@@ -2,6 +2,43 @@
 
 ## UtilsR 0.6.8
 
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
+  summarizes entirely missing character columns in its default and
+  grouped tables instead of failing in gtsummary formatting.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
+  summarizes date and date-time columns with more than ten distinct
+  values instead of failing while truncating their suggested filter.
+
+- [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+  keeps missing scores out of ranks and correlations, both in its
+  default rank mode and when applying a rank transform to raw scores.
+
+- [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
+  formats character intervals with vectorized dynamic precision,
+  retaining detected precision and warnings while avoiding per-row
+  templates.
+
+- [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
+  removes the minus sign from formatted zeros without changing other
+  rounding or unparsed text. The mean/SD example now reflects its actual
+  [`sprintf()`](https://rdrr.io/r/base/sprintf.html) rounding.
+
+- [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
+  preserves the names of `x` in numeric CI, mean/SD, and character
+  modes, including missing observations and empty named vectors.
+
+- [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
+  leaves missing and whitespace-only strings unchanged without warning,
+  including Unicode whitespace, while still reporting other text that
+  cannot be parsed as an interval.
+
+- Numeric
+  [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
+  rows with missing components return genuine missing strings, including
+  SPSS user-missing codes and entirely missing logical vectors, instead
+  of embedding missing-value text or codes in the result.
+
 - [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
   warns when reformatting drops trailing annotations such as a P-value.
   Ignoring trailing stars and a terminal period remains supported.

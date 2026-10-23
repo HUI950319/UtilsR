@@ -112,7 +112,8 @@ separate facet with its own correlation statistics.</p>
 <dt id="arg-value-by">value.by<a class="anchor" aria-label="anchor" href="#arg-value-by"></a></dt>
 <dd><p>Character. Column name for the numeric score used to
 compute ranks. Ranks are computed as <code>rank(-score)</code> (descending)
-within each <code>group.by</code> x <code>method.by</code> combination.</p></dd>
+within each <code>group.by</code> x <code>method.by</code> combination.
+Missing scores remain missing and do not contribute to the correlation.</p></dd>
 
 
 <dt id="arg-group-by">group.by<a class="anchor" aria-label="anchor" href="#arg-group-by"></a></dt>

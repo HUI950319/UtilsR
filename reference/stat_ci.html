@@ -78,7 +78,8 @@ CI mode (3 vectors) or SD mode (2 vectors) for numeric input.</p>
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>Numeric vector (estimate/mean) or character vector (CI strings to
 reformat). Trailing stars and a terminal period are ignored; other text
-after a parsed interval is dropped with a warning.</p></dd>
+after a parsed interval is dropped with a warning. Missing and
+whitespace-only strings pass through unchanged without a warning.</p></dd>
 
 
 <dt id="arg-y">y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
@@ -112,7 +113,11 @@ Only used in CI mode. Common choices: <code>"\u2013"</code>, <code>", "</code>, 
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Character vector of formatted strings. Empty input returns
-<code>character(0)</code>.</p>
+  <code>character(0)</code>. In numeric modes, a missing component (including
+  <code>NaN</code> and SPSS user-missing codes) makes the whole string
+  <code>NA_character_</code>. Entirely missing logical vectors are accepted.
+  Output names are taken from <code>x</code>. Rounded zeros are displayed without
+  a minus sign; other rounding follows <code><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -135,7 +140,7 @@ Only used in CI mode. Common choices: <code>"\u2013"</code>, <code>", "</code>, 
 <span class="r-in"><span><span class="co"># --- Numeric: SD mode (2 arguments) ---</span></span></span>
 <span class="r-in"><span><span class="fu">stat_ci</span><span class="op">(</span><span class="fl">1.23</span>, <span class="fl">0.15</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "1.2(0.1)"</span>
-<span class="r-in"><span><span class="co"># "1.2(0.2)"</span></span></span>
+<span class="r-in"><span><span class="co"># "1.2(0.1)"</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># --- Character: reformat CI strings ---</span></span></span>
 <span class="r-in"><span><span class="fu">stat_ci</span><span class="op">(</span><span class="st">"1.23 (0.95, 1.59)"</span>, bracket <span class="op">=</span> <span class="st">"["</span>, sep <span class="op">=</span> <span class="st">"\u2013"</span><span class="op">)</span></span></span>
