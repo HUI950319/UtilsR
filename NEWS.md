@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `plt_alluvial()` removes and reports rows with explicit NA factor levels or
+  SPSS user-defined missing values in its required columns.
+
 * `plt_alluvial()` calculates labels with the final stratum layout, so labels
   follow later axis changes. It no longer builds the plot in advance for labels.
 

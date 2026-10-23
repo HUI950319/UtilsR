@@ -128,7 +128,8 @@ With \code{y_type = "percent"}, real strata are normalized within each
 \code{facet} by \code{cat_var} combination before the requested gap space is inserted.
 With \code{y_type = "count"}, gaps are scaled by the largest category total in
 each facet. Rows with missing values in required columns are removed with an
-informational message.
+informational message. Explicit NA factor levels and SPSS user-defined
+missing values are also treated as missing.
 }
 \examples{
 if (requireNamespace("ggalluvial", quietly = TRUE)) {

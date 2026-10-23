@@ -316,6 +316,31 @@ test_that("plt_alluvial removes incomplete required rows", {
   expect_equal(sum(plot$data$count[!plot$data$.is_gap]), 7)
 })
 
+test_that("plt_alluvial reports explicit NA levels and user-defined missing values", {
+  skip_if_not_installed("ggalluvial")
+
+  for (column in c("category", "group", "panel")) {
+    data <- alluvial_data()
+    data[[column]][1] <- NA
+    data[[column]] <- factor(data[[column]], exclude = NULL)
+    expect_message(capture.output(plot <- plt_alluvial(
+      data, "category", "group", facet = "panel"
+    )), "Removed 1 row")
+    expect_equal(sum(plot$data$count), 7)
+  }
+
+  skip_if_not_installed("haven")
+  data <- alluvial_data()
+  data$group <- haven::labelled_spss(
+    c(1, 2, 99, 1, 2, 97, 98, NA), na_values = 99, na_range = c(97, 98)
+  )
+  expect_message(capture.output(plot <- plt_alluvial(
+    data, "category", "group", label_args = list(style = "none")
+  )), "Removed 4 rows")
+  expect_equal(sum(plot$data$count), 4)
+  expect_setequal(as.character(plot$data$.group[!plot$data$.is_gap]), c("1", "2"))
+})
+
 test_that("plt_alluvial rejects invalid columns and overlapping roles", {
   skip_if_not_installed("ggalluvial")
 

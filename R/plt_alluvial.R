@@ -91,7 +91,8 @@
 #' `facet` by `cat_var` combination before the requested gap space is inserted.
 #' With `y_type = "count"`, gaps are scaled by the largest category total in
 #' each facet. Rows with missing values in required columns are removed with an
-#' informational message.
+#' informational message. Explicit NA factor levels and SPSS user-defined
+#' missing values are also treated as missing.
 #'
 #' @return A ggplot object carrying its page size as `attr(p, "plot_size")`,
 #'   `c(width, height)` in inches. A non-empty `save` also writes the same
@@ -390,7 +391,11 @@ plt_alluvial <- function(
   }
 
   y_type <- match.arg(y_type)
-  keep <- stats::complete.cases(data[, required, drop = FALSE])
+  keep <- rep(TRUE, nrow(data))
+  for (column in required) {
+    value <- data[[column]]
+    keep <- keep & !is.na(value) & !is.na(as.character(value))
+  }
   removed <- sum(!keep)
   if (removed > 0L) {
     cli::cli_inform(c(
