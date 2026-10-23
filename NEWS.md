@@ -1,3 +1,8 @@
+# UtilsR 0.6.9
+
+* New print helpers for S3 print methods. `pr_head()` prints a class label
+  on a solid background followed by a grey one-line summary.
+
 # UtilsR 0.6.8
 
 * New `.cat_step()` announces a numbered step (`[i/n]`) of a longer

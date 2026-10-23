@@ -1,7 +1,7 @@
 Package: UtilsR
 Type: Package
 Title: Utility Functions for Data Exploration and System Diagnostics
-Version: 0.6.8
+Version: 0.6.9
 Authors@R: person("Hui", "Ouyang", email = "ouyangyuhao@outlook.com",
                   role = c("aut", "cre"))
 Description: A collection of utility functions for interactive data exploration,
@@ -19,6 +19,7 @@ LazyData: true
 Collate:
     'zzz.R'
     'utils_display.R'
+    'utils_print.R'
     'theme.R'
     'grob.R'
     'lv.R'
@@ -62,7 +63,7 @@ Collate:
     'PlotRankCor.R'
     'UtilsR-package.R'
 Imports:
-    cli,
+    cli (>= 3.0.0),
     colorspace,
     dplyr,
     ggplot2 (>= 3.5.0),
