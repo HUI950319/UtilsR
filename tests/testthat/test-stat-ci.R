@@ -112,3 +112,15 @@ test_that("output names follow x in every formatting mode", {
   expect_identical(stat_ci(empty), empty)
   expect_null(names(stat_ci(1.23, c(other = .95), 1.59)))
 })
+
+test_that("formatted zero loses its sign without changing other rounding", {
+  expect_identical(stat_ci(-.0001, -.004, .004), "0.00 (0.00\u20130.00)")
+  expect_identical(stat_ci(-.0001, -.0001, digits = 2), "0.00(0.00)")
+  expect_identical(stat_ci("-0.0001 (-0.004, 0.004)", digits = 2),
+                   "0.00 (0.00\u20130.00)")
+  expect_identical(stat_ci(-.1, -.4, .4, digits = 0), "0 (0\u20130)")
+  expect_identical(stat_ci(-.01, -.10, .20), "-0.01 (-0.10\u20130.20)")
+  expect_identical(stat_ci(-.15, .15, digits = 1), sprintf("%.1f(%.1f)", -.15, .15))
+  expect_warning(out <- stat_ci("Reference -0.00"), "could not be parsed")
+  expect_identical(out, "Reference -0.00")
+})

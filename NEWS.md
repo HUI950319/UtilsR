@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `stat_ci()` removes the minus sign from formatted zeros without changing
+  other rounding or unparsed text. The mean/SD example now reflects its
+  actual `sprintf()` rounding.
+
 * `stat_ci()` preserves the names of `x` in numeric CI, mean/SD, and character
   modes, including missing observations and empty named vectors.
 

@@ -30,7 +30,8 @@
 #'   \code{character(0)}. In numeric modes, a missing component (including
 #'   \code{NaN} and SPSS user-missing codes) makes the whole string
 #'   \code{NA_character_}. Entirely missing logical vectors are accepted.
-#'   Output names are taken from \code{x}.
+#'   Output names are taken from \code{x}. Rounded zeros are displayed without
+#'   a minus sign; other rounding follows \code{sprintf()}.
 #'
 #' @examples
 #' # --- Numeric: CI mode (3 arguments) ---
@@ -42,7 +43,7 @@
 #'
 #' # --- Numeric: SD mode (2 arguments) ---
 #' stat_ci(1.23, 0.15)
-#' # "1.2(0.2)"
+#' # "1.2(0.1)"
 #'
 #' # --- Character: reformat CI strings ---
 #' stat_ci("1.23 (0.95, 1.59)", bracket = "[", sep = "\u2013")
@@ -87,6 +88,9 @@ stat_ci <- function(x, y = NULL, z = NULL,
         }
       }
     }
+  }
+  .drop_signed_zero <- function(text) {
+    gsub("-0(?=(?:\\.0+)?(?:[^0-9.]|$))", "0", text, perl = TRUE)
   }
   if (!is.null(dim(x))) cli::cli_abort("{.arg x} must be a vector, not a matrix or array.")
   if (!is.character(x)) {
@@ -139,6 +143,7 @@ stat_ci <- function(x, y = NULL, z = NULL,
         sprintf(fmt, e, l, h)
       }, est, lo, hi, d, USE.NAMES = FALSE),
       x)
+    out[valid] <- .drop_signed_zero(out[valid])
     names(out) <- input_names
     return(out)
   }
@@ -158,6 +163,7 @@ stat_ci <- function(x, y = NULL, z = NULL,
     .check_precision(d, x[observed], y[observed], z[observed])
     fmt <- sprintf("%%.%df %s%%.%df%s%%.%df%s", d, bp[1], d, sep, d, bp[2])
     out[observed] <- sprintf(fmt, x[observed], y[observed], z[observed])
+    out[observed] <- .drop_signed_zero(out[observed])
     names(out) <- input_names
     return(out)
   }
@@ -176,6 +182,7 @@ stat_ci <- function(x, y = NULL, z = NULL,
   .check_precision(d, x[observed], y[observed])
   fmt <- sprintf("%%.%df%s%%.%df%s", d, bp[1], d, bp[2])
   out[observed] <- sprintf(fmt, x[observed], y[observed])
+  out[observed] <- .drop_signed_zero(out[observed])
   names(out) <- input_names
   out
 }
