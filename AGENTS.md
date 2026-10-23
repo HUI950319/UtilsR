@@ -68,6 +68,10 @@ filesystem rather than maintaining a duplicate inventory here.
   minimum versions in DESCRIPTION: ggplot2 3.5.0 with patchwork 1.3.0 in a
   scratchpad library (patchwork 1.3.2 needs a newer ggplot2). A group-only
   jitter-dodge in `fmt_point()` failed only on 3.5.0 (2026-10-17, 0cfc870).
+  Build that library from the CRAN Archive tarballs with
+  `install.packages(<urls>, lib = <dir>, repos = NULL, type = "source")`, then
+  put it first in `.libPaths()` before `load_all()` (about a minute in WSL,
+  2026-10-24 `plt_dist()`).
 - Code that inspects mapping expressions walks the call structure:
   `rlang::call_name()` returns `NULL` for anonymous and `.env$f()` calls,
   `all.names()` also matches a column named `stage`, and calls such as
