@@ -18,16 +18,16 @@ test_that("recoding retains group-first ordering and drops unused levels", {
 
 test_that("binary reference labels cannot collide with the other group", {
   x <- factor(c("Oth", "a"), levels = c("Oth", "a"))
-  expect_error(fct_cat(x, binary_ref = 1L), "conflicts with.*Oth")
-  expect_identical(fct_cat(x, binary_ref = 2L),
+  expect_error(fct_cat(x, ref_idx = 1L), "conflicts with.*Oth")
+  expect_identical(fct_cat(x, ref_idx = 2L),
                    factor(c("Oth", "a"), levels = c("a", "Oth")))
-  expect_identical(fct_cat(factor("Oth"), binary_ref = 1L), factor("Oth"))
+  expect_identical(fct_cat(factor("Oth"), ref_idx = 1L), factor("Oth"))
 })
 
 test_that("dots cannot be silently ignored by another factor mode", {
   x <- factor(letters[1:3])
   expect_error(fct_cat(x, A = "a", reverse = TRUE), "Only one mode")
-  expect_error(fct_cat(x, "b", binary_ref = 1L), "Only one mode")
+  expect_error(fct_cat(x, "b", ref_idx = 1L), "Only one mode")
   expect_error(fct_cat(x, A = "a", groups = list(B = 2L)), "Only one mode")
   expect_error(fct_cat(x, A = "a", new_labels = LETTERS[1:3]), "Only one mode")
   expect_error(fct_cat(x, stop("dots must not be evaluated"), reverse = TRUE),
@@ -43,7 +43,7 @@ test_that("factor modes validate logical flags and finite integer indices", {
     expect_error(fct_cat(x, reverse = flag), "single.*logical")
   }
   for (idx in list(NA_integer_, NaN, Inf, -Inf, 1.5, 1 + 1i)) {
-    expect_no_warning(expect_error(fct_cat(x, binary_ref = idx), "finite integer"))
+    expect_no_warning(expect_error(fct_cat(x, ref_idx = idx), "finite integer"))
     expect_no_warning(expect_error(fct_cat(x, groups = list(A = idx)), "finite integer"))
     expect_no_warning(expect_error(fct_cat(x, idx), "finite integer"))
   }
@@ -79,7 +79,7 @@ test_that("factor operations preserve explicit missing levels and metadata", {
     recode = fct_cat(x, AB = c("a", "b")),
     group = fct_cat(x, groups = list(AB = 1:2)),
     wrapper = fct_to_group(x, list(AB = 1:2)),
-    binary = fct_cat(x, binary_ref = 1L),
+    binary = fct_cat(x, ref_idx = 1L),
     relabel = fct_cat(x, new_labels = c("A", "B", "U", "Missing"))
   )
   for (result in results) {
@@ -127,7 +127,7 @@ test_that("changed levels discard matrix contrasts but retain other metadata", {
   original <- x
   results <- list(
     fct_cat(x, reverse = TRUE), fct_cat(x, "c"),
-    fct_cat(x, AB = 1:2), fct_cat(x, binary_ref = 1L),
+    fct_cat(x, AB = 1:2), fct_cat(x, ref_idx = 1L),
     fct_to_group(x, list(AB = 1:2)),
     fct_cat(x, new_labels = LETTERS[1:3]),
     fct_cat(x, new_labels = c("A", "A", "C")),
@@ -228,10 +228,10 @@ test_that("integer64 indices use their values in every factor mode", {
   expect_identical(fct_to_group(x, list(CA = idx)), expected)
   expect_identical(fct_cat(x, idx),
                    factor(c("a", "b", "c", NA), levels = c("c", "a", "b")))
-  expect_identical(fct_cat(x, binary_ref = idx),
+  expect_identical(fct_cat(x, ref_idx = idx),
                    factor(c("c_a", "Oth", "c_a", NA), levels = c("c_a", "Oth")))
   too_large <- bit64::as.integer64("9007199254740993")
-  expect_no_warning(expect_error(fct_cat(x, binary_ref = too_large), "between"))
+  expect_no_warning(expect_error(fct_cat(x, ref_idx = too_large), "between"))
   expect_identical(as.character(x), c("a", "b", "c", NA_character_))
 })
 
@@ -272,10 +272,10 @@ test_that("converted replacement labels are checked before updating levels", {
 
 test_that("binary conversion requires at least one reference index", {
   x <- factor(c("a", "b", NA))
-  expect_error(fct_cat(x, binary_ref = integer()), "at least one")
-  expect_error(fct_cat(x, binary_ref = numeric()), "at least one")
-  expect_error(fct_cat(factor(character()), binary_ref = integer()), "at least one")
-  expect_identical(fct_cat(x, binary_ref = 1:2), factor(c("a_b", "a_b", NA)))
+  expect_error(fct_cat(x, ref_idx = integer()), "at least one")
+  expect_error(fct_cat(x, ref_idx = numeric()), "at least one")
+  expect_error(fct_cat(factor(character()), ref_idx = integer()), "at least one")
+  expect_identical(fct_cat(x, ref_idx = 1:2), factor(c("a_b", "a_b", NA)))
 })
 
 test_that("grouping wrappers use core validation without max warnings", {
@@ -310,7 +310,7 @@ test_that("changed level mappings discard obsolete reorder scores", {
   attr(x, "label") <- "Grade"
   original <- x
   results <- list(fct_cat(x, reverse = TRUE), fct_cat(x, "c"),
-                  fct_cat(x, AB = 1:2), fct_cat(x, binary_ref = 1L),
+                  fct_cat(x, AB = 1:2), fct_cat(x, ref_idx = 1L),
                   fct_to_group(x, list(AB = 1:2)),
                   fct_label(x, LETTERS[1:3]),
                   fct_cat(x, a = "b", b = "a"))
@@ -336,18 +336,33 @@ test_that("unchanged replacement labels retain base missing-label semantics", {
 })
 
 
-test_that("binary_ref also takes the reference levels by name", {
+test_that("ref_idx also takes the reference levels by name", {
   x <- factor(c("Yes", "No", "No", "Unknown", "Yes"),
               levels = c("Yes", "No", "Unknown"))
-  expect_identical(fct_cat(x, binary_ref = "No"), fct_cat(x, binary_ref = 2L))
-  expect_identical(fct_cat(x, binary_ref = c("Unknown", "Yes")),
-                   fct_cat(x, binary_ref = c(3L, 1L)))
-  expect_identical(levels(fct_cat(x, binary_ref = "No")), c("No", "Oth"))
+  expect_identical(fct_cat(x, ref_idx = "No"), fct_cat(x, ref_idx = 2L))
+  expect_identical(fct_cat(x, ref_idx = c("Unknown", "Yes")),
+                   fct_cat(x, ref_idx = c(3L, 1L)))
+  expect_identical(levels(fct_cat(x, ref_idx = "No")), c("No", "Oth"))
   # A character vector is coerced to a factor first, as for indices.
-  expect_identical(fct_cat(c("b", "a", "c"), binary_ref = "c"),
-                   fct_cat(c("b", "a", "c"), binary_ref = 3L))
-  expect_error(fct_cat(x, binary_ref = c("No", "Maybe")),
-               "binary_ref.*not found.*Maybe")
-  expect_error(fct_cat(x, binary_ref = NA_character_), "not found")
-  expect_error(fct_cat(x, binary_ref = character()), "at least one")
+  expect_identical(fct_cat(c("b", "a", "c"), ref_idx = "c"),
+                   fct_cat(c("b", "a", "c"), ref_idx = 3L))
+  expect_error(fct_cat(x, ref_idx = c("No", "Maybe")),
+               "ref_idx.*not found.*Maybe")
+  expect_error(fct_cat(x, ref_idx = NA_character_), "not found")
+  expect_error(fct_cat(x, ref_idx = character()), "at least one")
+})
+
+
+test_that("binary_ref, the former name of ref_idx, still works with a warning", {
+  x <- factor(c("a", "b", "c", "b"))
+  expect_warning(old <- fct_cat(x, binary_ref = 2L),
+                 "binary_ref.*deprecated.*ref_idx")
+  expect_identical(old, fct_cat(x, ref_idx = 2L))
+  expect_warning(expect_identical(fct_cat(x, binary_ref = "c"),
+                                  fct_cat(x, ref_idx = 3L)), "deprecated")
+  expect_error(fct_cat(x, ref_idx = 1L, binary_ref = 1L),
+               "ref_idx.*only.*binary_ref")
+  expect_identical(names(formals(fct_cat)),
+                   c("x", "...", "reverse", "ref_idx", "groups",
+                     "new_labels", "binary_ref"))
 })

@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `fct_cat()`'s `binary_ref` is renamed `ref_idx`, in the same place:
+  `fct_cat(x, ref_idx = 1)` or `ref_idx = "No"`. `binary_ref` still works,
+  with a deprecation warning, and giving both is an error.
+
 * `lv()` summarizes `difftime` columns as numbers in their own units and
   leaves list columns out of its frequency and grouped tables with a message;
   both previously made gtsummary fail.

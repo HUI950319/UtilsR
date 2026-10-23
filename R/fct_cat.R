@@ -4,7 +4,7 @@
 #
 # Architecture (2 layers):
 #
-#   L1  fct_cat(x, ..., reverse, binary_ref, groups, new_labels)
+#   L1  fct_cat(x, ..., reverse, ref_idx, groups, new_labels, binary_ref)
 #         |                                         -- public API
 #         +-- L2  .as_factor()          coerce any vector -> factor
 #         +-- L2  .recode_factor()      rename / reorder / group levels
@@ -31,8 +31,8 @@
 #'   use character levels or all use numeric indices; they cannot mix the two.
 #' @param reverse A single non-missing logical. Reverse all levels?
 #'   Default \code{FALSE}.
-#' @param binary_ref The reference levels, as one or more finite, non-missing
-#'   integer indices or as level names (\code{binary_ref = "No"}). They form
+#' @param ref_idx The reference levels, as one or more finite, non-missing
+#'   integer indices or as level names (\code{ref_idx = "No"}). They form
 #'   one group, named by joining them with \code{"_"}; the other levels
 #'   collapse to \code{"Oth"}. An unknown name is an error. The reference
 #'   label must differ from \code{"Oth"} when other levels remain.
@@ -44,6 +44,8 @@
 #'   lists and other non-atomic objects are not accepted. Length is checked
 #'   again after conversion. Duplicate and missing labels retain base
 #'   merging and removal semantics.
+#' @param binary_ref Deprecated former name of \code{ref_idx}, still accepted
+#'   with a warning. Giving both is an error.
 #'
 #' @return A factor preserving names, class and other attributes. Reordering
 #'   preserves all levels, including an explicit \code{NA} level. Recoding
@@ -70,8 +72,8 @@
 #' fct_cat(factor(letters[1:4]), reverse = TRUE)
 #'
 #' # Binary: by index or by level name
-#' fct_cat(factor(c("I","II","III","IV")), binary_ref = 1)
-#' fct_cat(factor(c("I","II","III","IV")), binary_ref = c("I", "II"))
+#' fct_cat(factor(c("I","II","III","IV")), ref_idx = 1)
+#' fct_cat(factor(c("I","II","III","IV")), ref_idx = c("I", "II"))
 #'
 #' # Group
 #' fct_cat(factor(c("I","II","III","IV")), groups = list(early = 1:2, late = 3:4))
@@ -89,35 +91,45 @@
 #' @family factor tools
 fct_cat <- function(x, ...,
                     reverse = FALSE,
-                    binary_ref = NULL,
+                    ref_idx = NULL,
                     groups = NULL,
-                    new_labels = NULL) {
+                    new_labels = NULL,
+                    binary_ref = NULL) {
 
   if (!is.logical(reverse) || length(reverse) != 1L || is.na(reverse)) {
     cli::cli_abort("{.arg reverse} must be a single non-missing logical value.")
   }
 
+  # `binary_ref`, the former name of `ref_idx`, still works with a warning.
+  if (!is.null(binary_ref)) {
+    if (!is.null(ref_idx)) {
+      cli::cli_abort("Give {.arg ref_idx} only; {.arg binary_ref} is its former name.")
+    }
+    cli::cli_warn("{.arg binary_ref} of {.fn fct_cat} is deprecated; use {.arg ref_idx}.")
+    ref_idx <- binary_ref
+  }
+
   # --- Mutual exclusivity check ---
-  n_modes <- sum(!is.null(binary_ref), !is.null(groups),
+  n_modes <- sum(!is.null(ref_idx), !is.null(groups),
                  !is.null(new_labels), reverse, ...length() > 0L)
   if (n_modes > 1) {
-    cli::cli_abort("Only one mode at a time: {.arg ...}, {.arg binary_ref}, {.arg groups}, {.arg new_labels}, or {.arg reverse}.")
+    cli::cli_abort("Only one mode at a time: {.arg ...}, {.arg ref_idx}, {.arg groups}, {.arg new_labels}, or {.arg reverse}.")
   }
 
   x <- .as_factor(x)
 
   # 1. binary -- reference levels by index or by name
-  if (!is.null(binary_ref)) {
-    if (is.character(binary_ref)) {
-      pos <- match(binary_ref, levels(x))
+  if (!is.null(ref_idx)) {
+    if (is.character(ref_idx)) {
+      pos <- match(ref_idx, levels(x))
       if (anyNA(pos)) {
-        cli::cli_abort("{.arg binary_ref} level{?s} not found: {.val {binary_ref[is.na(pos)]}}.")
+        cli::cli_abort("{.arg ref_idx} level{?s} not found: {.val {ref_idx[is.na(pos)]}}.")
       }
-      binary_ref <- pos
+      ref_idx <- pos
     } else {
-      binary_ref <- .check_integer_index(binary_ref, "binary_ref", nlevels(x))
+      ref_idx <- .check_integer_index(ref_idx, "ref_idx", nlevels(x))
     }
-    return(.do_binary(x, binary_ref))
+    return(.do_binary(x, ref_idx))
   }
 
   # 2. groups
@@ -244,20 +256,20 @@ fct_cat <- function(x, ...,
 
 
 # ---- Internal: binary ----
-.do_binary <- function(x, binary_ref) {
-  if (length(binary_ref) == 0L) {
-    cli::cli_abort("{.arg binary_ref} must contain at least one reference index.")
+.do_binary <- function(x, ref_idx) {
+  if (length(ref_idx) == 0L) {
+    cli::cli_abort("{.arg ref_idx} must contain at least one reference index.")
   }
   n_lvl <- nlevels(x)
   lvls <- levels(x)
 
-  ref_name <- paste(lvls[binary_ref], collapse = "_")
-  other <- setdiff(seq_len(n_lvl), binary_ref)
+  ref_name <- paste(lvls[ref_idx], collapse = "_")
+  other <- setdiff(seq_len(n_lvl), ref_idx)
   if (identical(ref_name, "Oth") && length(other) > 0L) {
     cli::cli_abort("The reference label conflicts with {.val Oth}, the label for other levels.")
   }
   g <- stats::setNames(
-    list(binary_ref, other),
+    list(ref_idx, other),
     c(ref_name, "Oth")
   )
   .recode_factor(x, g)

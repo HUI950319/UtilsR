@@ -8,9 +8,10 @@ fct_cat(
   x,
   ...,
   reverse = FALSE,
-  binary_ref = NULL,
+  ref_idx = NULL,
   groups = NULL,
-  new_labels = NULL
+  new_labels = NULL,
+  binary_ref = NULL
 )
 }
 \arguments{
@@ -26,8 +27,8 @@ use character levels or all use numeric indices; they cannot mix the two.}
 \item{reverse}{A single non-missing logical. Reverse all levels?
 Default \code{FALSE}.}
 
-\item{binary_ref}{The reference levels, as one or more finite, non-missing
-integer indices or as level names (\code{binary_ref = "No"}). They form
+\item{ref_idx}{The reference levels, as one or more finite, non-missing
+integer indices or as level names (\code{ref_idx = "No"}). They form
 one group, named by joining them with \code{"_"}; the other levels
 collapse to \code{"Oth"}. An unknown name is an error. The reference
 label must differ from \code{"Oth"} when other levels remain.}
@@ -41,6 +42,9 @@ Other atomic vectors are coerced to character for compatibility;
 lists and other non-atomic objects are not accepted. Length is checked
 again after conversion. Duplicate and missing labels retain base
 merging and removal semantics.}
+
+\item{binary_ref}{Deprecated former name of \code{ref_idx}, still accepted
+with a warning. Giving both is an error.}
 }
 \value{
 A factor preserving names, class and other attributes. Reordering
@@ -75,8 +79,8 @@ fct_cat(factor(letters[1:4]), 3, 2)
 fct_cat(factor(letters[1:4]), reverse = TRUE)
 
 # Binary: by index or by level name
-fct_cat(factor(c("I","II","III","IV")), binary_ref = 1)
-fct_cat(factor(c("I","II","III","IV")), binary_ref = c("I", "II"))
+fct_cat(factor(c("I","II","III","IV")), ref_idx = 1)
+fct_cat(factor(c("I","II","III","IV")), ref_idx = c("I", "II"))
 
 # Group
 fct_cat(factor(c("I","II","III","IV")), groups = list(early = 1:2, late = 3:4))
