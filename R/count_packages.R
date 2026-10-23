@@ -5,7 +5,9 @@
 #' Count Installed Packages in Each Library Path
 #'
 #' Enumerate all \code{.libPaths()} and count the number of installed packages
-#' in each directory.
+#' in each directory using \code{utils::installed.packages()}. Unrelated
+#' directories and installation locks are excluded. The total counts installed
+#' copies across libraries, including packages installed in more than one library.
 #'
 #' @return A data.frame with columns \code{Library_Path} and
 #'   \code{Package_Count}, including a total row.
@@ -28,7 +30,7 @@ count_packages_in_libpaths <- function() {
   )
 
   for (path in lib_paths) {
-    pkg_count <- length(list.dirs(path, full.names = FALSE, recursive = FALSE))
+    pkg_count <- nrow(utils::installed.packages(lib.loc = path))
     result <- rbind(result, data.frame(
       Library_Path = path,
       Package_Count = pkg_count

@@ -12,7 +12,9 @@ A data.frame with columns \code{Library_Path} and
 }
 \description{
 Enumerate all \code{.libPaths()} and count the number of installed packages
-in each directory.
+in each directory using \code{utils::installed.packages()}. Unrelated
+directories and installation locks are excluded. The total counts installed
+copies across libraries, including packages installed in more than one library.
 }
 \examples{
 \dontrun{
