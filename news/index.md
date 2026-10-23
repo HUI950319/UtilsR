@@ -2,6 +2,21 @@
 
 ## UtilsR 0.6.8
 
+- Suggested [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
+  filters write numbers and logicals as literals when their text reads
+  back exactly, and mark truncation with a trailing comment instead of a
+  literal `"..."` value. Factor value counts and filters omit unused
+  levels, matching the frequency-table labels.
+
+- Console [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
+  reports render the variable summary and frequency tables once, in
+  their final group, instead of also rendering each beforehand; this
+  saves about 40% of the printing time.
+
+- [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md)
+  queries Windows memory, OS, and CPU information with PowerShell CIM,
+  retaining WMIC as a fallback for older environments.
+
 - Grouped [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
   summaries show missing group values as their own last group and
   include them in the overall column. They were previously dropped from
