@@ -71,8 +71,7 @@ lv(
   (NSE) or character vector `c("var1", "var2")`. Independent of `group`.
   Existing dplyr groups are ignored for this table. Generated frequency,
   percentage, and total column names receive numeric suffixes when
-  needed to preserve input columns and category labels. Empty category
-  labels are displayed as `(blank)` in wide tables. Names must be
+  needed to preserve input columns and category labels. Names must be
   non-missing and distinct; invalid controls are errors.
 
 - cat_args:
@@ -99,15 +98,6 @@ lv(
 ## Value
 
 Invisibly returns the input data.
-
-## Details
-
-In R Markdown or Quarto, use a code chunk with `results = "asis"` (and
-optionally `message = FALSE`). Reports are emitted through
-[`knitr::knit_print()`](https://rdrr.io/pkg/knitr/man/knit_print.html)
-in the document's native format, with dependencies retained. Console
-frequency listings are omitted while knitting, and each default summary
-table is included only once.
 
 ## See also
 

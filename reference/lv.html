@@ -138,7 +138,6 @@ variable name (NSE or string), multiple variable names via
 Existing dplyr groups are ignored for this table. Generated frequency,
 percentage, and total column names receive numeric suffixes when needed
 to preserve input columns and category labels.
-Empty category labels are displayed as <code>(blank)</code> in wide tables.
 Names must be non-missing and distinct; invalid controls are errors.</p></dd>
 
 
@@ -169,14 +168,6 @@ Requires <span class="pkg">RegR</span> (declared in Suggests).</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Invisibly returns the input data.</p>
-    </div>
-    <div class="section level2">
-    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>In R Markdown or Quarto, use a code chunk with
-<code>results = "asis"</code> (and optionally <code>message = FALSE</code>). Reports
-are emitted through <code><a href="https://rdrr.io/pkg/knitr/man/knit_print.html" class="external-link">knitr::knit_print()</a></code> in the document's native
-format, with dependencies retained. Console frequency listings are omitted
-while knitting, and each default summary table is included only once.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

@@ -2,57 +2,9 @@
 
 ## UtilsR 0.6.8
 
-- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) retains
-  empty cross-tabulation categories in wide tables, displaying them as
-  `(blank)` and disambiguating an existing category with that label.
-
-- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
-  uses complete required rows in every mode and reports how many rows
-  were removed. Unrelated missing columns are ignored; no usable rows
-  produce an explicit error instead of an empty plot.
-
-- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
-  consistently validates distinct column selectors, facets, and
-  transparency across plot modes. Three-variable heatmaps now truly
-  ignore `type`, as documented.
-
-- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
-  shows a fill legend for unlabelled heatmaps and preserves custom
-  visible legend positions; labelled tiles still hide the legend.
-
-- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
-  maps named colours to categories in every mode, checks category
-  coverage, and keeps unnamed palette positions for unused factor levels
-  in bars and heatmaps. Shared colour resolvers are unchanged.
-
-- Two-variable
-  [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
-  cross-tabulations reuse one frequency table for the long counts, wide
-  counts, and row percentages, retaining their output.
-
-- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
-  rejects heatmap cells with multiple fill categories instead of hiding
-  categories under overlapping tiles. Heatmap examples use one category
-  per cell; repeated observations of that category remain valid.
-
-- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
-  constructs suggested filters as R expressions, correctly escaping
-  non-syntactic column names, quotes, backslashes, and line breaks in
-  values.
-
-- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
-  treats bar facet column names literally, including spaces, operators,
-  and backticks, instead of parsing them as formula expressions.
-
 - [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
   ignores unrelated dplyr groups and rowwise grouping when counting
   categories, so input grouping cannot split bars or labels.
-
-- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) emits
-  native knitr tables with their dependencies in documented
-  `results = 'asis'` chunks, avoiding duplicated report tables and
-  console listings while knitting. The data-inspection vignette uses
-  that format.
 
 - [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
   keeps bar counts, proportions, and labels separate from identically
