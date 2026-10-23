@@ -397,3 +397,21 @@ test_that("without default data, vectors are inspected and typos are named", {
   expect_equal(summary$n_unique, 3)
   expect_error(capture_lv(lv(not_an_object)), "not_an_object")
 })
+
+test_that("missing group values form their own group in the grouped table", {
+  data <- data.frame(g = c("A", "A", "B", NA, NA, NA), x = 1:6)
+  reports <- capture_reports(lv(data, x, group = g))
+  header <- reports[[1L]]$table_styling$header
+  labels <- header$label[grepl("^stat_", header$column)]
+  expect_length(labels, 4L)
+  expect_true(any(grepl("Overall", labels) & grepl("N = 6", labels)))
+  expect_true(any(grepl("\u7f3a\u5931", labels) & grepl("N = 3", labels)))
+
+  factor_data <- data.frame(g = factor(c("B", NA, "A"), levels = c("B", "A")),
+                            x = 1:3)
+  reports <- capture_reports(lv(factor_data, x, group = g))
+  header <- reports[[1L]]$table_styling$header
+  labels <- header$label[grepl("^stat_[1-9]", header$column)]
+  expect_true(all(mapply(grepl, c("**B**", "**A**", "\u7f3a\u5931"), labels, fixed = TRUE)))
+  expect_identical(factor_data$g, factor(c("B", NA, "A"), levels = c("B", "A")))
+})

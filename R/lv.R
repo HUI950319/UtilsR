@@ -50,6 +50,8 @@
 #'   Ident.
 #'   Bare column names take precedence over caller objects;
 #'   character names can also be supplied through variables or expressions.
+#'   Missing group values form their own last group, labelled as missing, and
+#'   are included in the overall column.
 #' @param count Optional variable(s) for cross-tabulation. Accepts a single
 #'   variable name (NSE or string), multiple variable names via
 #'   \code{c(var1, var2)} (NSE) or character vector
@@ -641,7 +643,16 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     cli::cli_alert_info("Groups: {.val {n_groups}}")
 
     grouped_data <- .tbl_input(tibble::as_tibble(analysis_data)[, vars, drop = FALSE])
-    grouped_data[[group_var]] <- data[[group_var]]
+    # Missing group values form their own last group, so the groups match the
+    # count above and the overall column covers every row; tbl_summary()
+    # would otherwise drop those rows.
+    by <- data[[group_var]]
+    if (anyNA(by)) {
+      by <- as.factor(by)
+      if (!"\u7f3a\u5931" %in% levels(by)) levels(by) <- c(levels(by), "\u7f3a\u5931")
+      by[is.na(by)] <- "\u7f3a\u5931"
+    }
+    grouped_data[[group_var]] <- by
     res_grouped <-
       grouped_data[, c(group_var, vars), drop = FALSE] %>%
       gtsummary::tbl_summary(

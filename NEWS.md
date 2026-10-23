@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* Grouped `lv()` summaries show missing group values as their own last group
+  and include them in the overall column. They were previously dropped from
+  both, while the reported group count still included them.
+
 * `lv()` inspects atomic vectors and matrices, returning them invisibly,
   instead of treating them as column selections of the global `data`, where
   `lv(1:2)` silently reported its first two columns. Bare column names and
