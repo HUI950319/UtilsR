@@ -26,6 +26,10 @@ unrelated columns do not affect inclusion. An error is raised if no
 complete rows remain. The heatmap ignores \code{facet}.}
 
 \item{dis_vars}{Character vector of 2 or 3 distinct, non-empty column names.
+Plain integer and double columns are treated as categories in numeric
+ascending order in every mode; values are not binned. Existing factors
+keep their level order. Character columns retain their existing ordering:
+first appearance for alluvial plots, sorted for bar charts and heatmaps.
 \itemize{
   \item 2 variables: \code{c(x, fill)} \eqn{\rightarrow} alluvial flow
     (\code{type = "alluvial"}, default) or stacked bar (\code{type = "bar"}).
@@ -40,7 +44,8 @@ or \code{"bar"} (stacked proportion bar). Ignored when \code{dis_vars} has
 
 \item{facet}{Optional faceting variable name (string). Used by both
 2-variable plot types and must differ from \code{dis_vars}; ignored for
-the 3-variable heatmap.}
+the 3-variable heatmap. Plain integer and double facet values use numeric
+ascending order; existing factors keep their level order.}
 
 \item{color}{Colour specification, resolved by the internal colour resolver:
 \code{NULL} (default \code{pal_lancet}), a registered palette name (e.g.

@@ -160,3 +160,76 @@ test_that("all distribution modes use complete required rows and report removals
   expect_equal(nrow(p$data), 2L)
   expect_identical(as.character(p$data$x), c("A", "B"))
 })
+
+test_that("numeric distribution categories and facets use numeric order", {
+  skip_if_not_installed("ggalluvial")
+  expected <- c("1", "2", "10")
+  colors <- c("10" = "red", "1" = "blue", "2" = "green")
+  for (values in list(c(10L, 2L, 1L), c(10, 2, 1))) {
+    data <- expand.grid(x = values, group = values, panel = values)
+    data$unrelated <- seq_len(nrow(data))
+    original <- data
+    for (type in c("bar", "alluvial")) {
+      p <- dist_test_plot(data, c("x", "group"), type = type,
+                          facet = "panel", color = colors)
+      built <- ggplot2::ggplot_build(p)
+      expect_identical(built$layout$panel_params[[1]]$x$get_labels(), expected)
+      fill <- built$plot$scales$get_scales("fill")
+      expect_equal(as.character(fill$get_breaks()), expected)
+      expect_equal(unname(grDevices::col2rgb(fill$map(expected))),
+                   unname(grDevices::col2rgb(colors[expected])))
+      facet_column <- if (type == "bar") "panel" else ".facet"
+      expect_identical(as.character(built$layout$layout[[facet_column]]), expected)
+      expect_identical(data, original)
+    }
+    heat <- expand.grid(x = values, y = values)
+    heat$group <- rep(values, 3)
+    built <- ggplot2::ggplot_build(
+      dist_test_plot(heat, c("x", "y", "group"), color = colors)
+    )
+    expect_identical(built$layout$panel_params[[1]]$x$get_labels(), expected)
+    expect_identical(built$layout$panel_params[[1]]$y$get_labels(), rev(expected))
+    expect_equal(as.character(built$plot$scales$get_scales("fill")$get_breaks()),
+                 expected)
+  }
+})
+
+test_that("distribution normalization preserves factors and character order", {
+  skip_if_not_installed("ggalluvial")
+  values <- c("10", "2", "1")
+  for (factor_input in c(FALSE, TRUE)) {
+    data <- expand.grid(x = values, group = values, panel = values,
+                        stringsAsFactors = FALSE)
+    if (factor_input) {
+      data[] <- lapply(data, ordered, levels = c("2", "10", "1", "unused"))
+    }
+    original <- data
+    for (type in c("bar", "alluvial")) {
+      p <- dist_test_plot(data, c("x", "group"), type = type, facet = "panel")
+      built <- ggplot2::ggplot_build(p)
+      expected <- if (factor_input) c("2", "10", "1") else
+        if (type == "bar") sort(values) else values
+      expect_identical(built$layout$panel_params[[1]]$x$get_labels(), expected)
+      expect_equal(as.character(built$plot$scales$get_scales("fill")$get_breaks()),
+                   expected)
+      expect_identical(data, original)
+    }
+  }
+})
+
+test_that("numeric distribution normalization keeps missing-value rules", {
+  skip_if_not_installed("ggalluvial")
+  data <- data.frame(x = c(10, 2, 1, NA, 2, 1),
+                     group = c(2, 1, 2, 1, NaN, 2),
+                     panel = c(10, 2, 1, 1, 2, NA), unrelated = NA_real_)
+  for (type in c("bar", "alluvial")) {
+    expect_message(output <- utils::capture.output(
+      p <- plt_dist(data, c("x", "group"), type = type, facet = "panel")
+    ), "Removed 3 rows")
+    count <- if (type == "bar") p$data$n else p$data$count[!p$data$.is_gap]
+    expect_equal(sum(count), 3)
+    columns <- if (type == "bar") c("x", "group", "panel") else
+      c(".cat_var", ".group", ".facet")
+    expect_false(anyNA(p$data[columns]))
+  }
+})

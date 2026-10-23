@@ -16,6 +16,10 @@
 #'   unrelated columns do not affect inclusion. An error is raised if no
 #'   complete rows remain. The heatmap ignores \code{facet}.
 #' @param dis_vars Character vector of 2 or 3 distinct, non-empty column names.
+#'   Plain integer and double columns are treated as categories in numeric
+#'   ascending order in every mode; values are not binned. Existing factors
+#'   keep their level order. Character columns retain their existing ordering:
+#'   first appearance for alluvial plots, sorted for bar charts and heatmaps.
 #'   \itemize{
 #'     \item 2 variables: \code{c(x, fill)} \eqn{\rightarrow} alluvial flow
 #'       (\code{type = "alluvial"}, default) or stacked bar (\code{type = "bar"}).
@@ -28,7 +32,8 @@
 #'   3 variables.
 #' @param facet Optional faceting variable name (string). Used by both
 #'   2-variable plot types and must differ from \code{dis_vars}; ignored for
-#'   the 3-variable heatmap.
+#'   the 3-variable heatmap. Plain integer and double facet values use numeric
+#'   ascending order; existing factors keep their level order.
 #' @param color Colour specification, resolved by the internal colour resolver:
 #'   \code{NULL} (default \code{pal_lancet}), a registered palette name (e.g.
 #'   \code{"Paired"}), a single literal colour, or a vector of colours. In
@@ -178,6 +183,14 @@ plt_dist <- function(data,
   if (nrow(data) == 0L) {
     cli::cli_abort("No complete rows remain in the required columns.")
   }
+
+  # Normalize plain numeric categories before palette and mode dispatch.
+  for (v in required) {
+    if ((is.integer(data[[v]]) || is.double(data[[v]])) && !is.object(data[[v]])) {
+      data[[v]] <- factor(data[[v]])
+    }
+  }
+
   named_palette <- NULL
   if (!is.null(names(color))) {
     color_names <- names(color)

@@ -6,6 +6,10 @@
 * `plt_alluvial()` removes and reports rows with explicit NA factor levels or
   SPSS user-defined missing values in its required columns.
 
+* `plt_dist()` treats plain numeric distribution and facet variables as
+  categories in numeric ascending order in every plot mode. Existing factor
+  orders, character ordering, named colours and missing-row rules are retained.
+
 * `plt_alluvial()` calculates labels with the final stratum layout, so labels
   follow later axis changes. It no longer builds the plot in advance for labels.
 
