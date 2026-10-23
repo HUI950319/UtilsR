@@ -25,9 +25,14 @@ lv(data, ...)
 )
 }
 \arguments{
-\item{data}{A data object: data.frame or Seurat object. If omitted,
+\item{data}{A data object: data.frame or Seurat object. An atomic vector
+or matrix is inspected as a data frame of its columns. If omitted,
 \code{lv()} falls back to a global object named \code{data}, otherwise
 \code{data_all} (the first that is a data.frame / Seurat object).
+A first argument that is not a dataset selects variables of that default
+data when it is a bare column name, a character vector of column names,
+or an expression that cannot be evaluated, e.g. \code{lv(Sex)}; column
+names take precedence over caller objects of the same name.
 Empty data frames are returned unchanged with a message and no report.}
 
 \item{...}{Variable selection using \code{dplyr::select} syntax, including
@@ -41,12 +46,15 @@ Overrides \code{...} with a warning, without evaluating those selections.}
 character string. For Seurat objects, set to \code{TRUE} to use current
 Ident.
 Bare column names take precedence over caller objects;
-character names can also be supplied through variables or expressions.}
+character names can also be supplied through variables or expressions.
+Missing group values form their own last group, labelled as missing, and
+are included in the overall column.}
 
 \item{count}{Optional variable(s) for cross-tabulation. Accepts a single
 variable name (NSE or string), multiple variable names via
 \code{c(var1, var2)} (NSE) or character vector
-\code{c("var1", "var2")}. Independent of \code{group}.
+\code{c("var1", "var2")}. Selections in \code{...}, \code{pattern} and
+\code{group} are ignored in this mode, with a warning.
 Existing dplyr groups are ignored for this table. Generated frequency,
 percentage, and total column names receive numeric suffixes when needed
 to preserve input columns and category labels.
@@ -74,13 +82,6 @@ Requires \pkg{RegR} (declared in Suggests).}
 \value{
 Invisibly returns the input data.
 }
-\details{
-In R Markdown or Quarto, use a code chunk with
-\code{results = "asis"} (and optionally \code{message = FALSE}). Reports
-are emitted through \code{knitr::knit_print()} in the document's native
-format, with dependencies retained. Console frequency listings are omitted
-while knitting, and each default summary table is included only once.
-}
 \description{
 Inspect variables in a data.frame or Seurat object, including frequency
 counts, unique values, missing values and special values (e.g. "unknown",
@@ -91,6 +92,18 @@ Values recognized by \code{is.na()}, including SPSS user-missing codes,
 are excluded from special-value counts.
 Methods for serialized haven-labelled and integer64 columns are loaded
 before inspection; integer64 columns require the optional \pkg{bit64} package.
+}
+\details{
+In R Markdown or Quarto, use a code chunk with
+  \code{results = "asis"} (and optionally \code{message = FALSE}). Reports
+  are emitted through \code{knitr::knit_print()} in the document's native
+  format, with dependencies retained. Console frequency listings are omitted
+  while knitting, and each default summary table is included only once.
+
+  Character or factor columns with more than 100 categories, such as
+  identifiers, and list columns are reported in the variable summary but
+  left out of the frequency and grouped tables, with a message. Time spans
+  (\code{difftime}) are summarized as numbers in their own units.
 }
 \examples{
 \dontrun{
