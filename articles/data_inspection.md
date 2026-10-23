@@ -19,11 +19,11 @@ lv(iris)
 |----|----|----|----|----|----|
 | Dataset: *150* observations, *5* variables, *0* missing, *0* Unknown/Blank/N/A |  |  |  |  |  |
 | vars | class | n_unique | n_na | n_special | unique |
-| Sepal.Length | numeric | 35 | 0 | 0 | get_flt(Sepal.Length %in% c("5.1","4.9","4.7","4.6","5","5.4","4.4","4.8","...")) |
-| Sepal.Width | numeric | 23 | 0 | 0 | get_flt(Sepal.Width %in% c("3.5","3","3.2","3.1","3.6","3.9","3.4","2.9","...")) |
-| Petal.Length | numeric | 43 | 0 | 0 | get_flt(Petal.Length %in% c("1.4","1.3","1.5","1.7","1.6","1.1","1.2","1","...")) |
-| Petal.Width | numeric | 22 | 0 | 0 | get_flt(Petal.Width %in% c("0.2","0.4","0.3","0.1","0.5","0.6","1.4","1.5","...")) |
-| Species | factor | 3 | 0 | 0 | get_flt(Species %in% c("setosa","versicolor","virginica")) |
+| Sepal.Length | numeric | 35 | 0 | 0 | get_flt(Sepal.Length %in% c("5.1", "4.9", "4.7", "4.6", "5", "5.4", "4.4", "4.8", "...")) |
+| Sepal.Width | numeric | 23 | 0 | 0 | get_flt(Sepal.Width %in% c("3.5", "3", "3.2", "3.1", "3.6", "3.9", "3.4", "2.9", "...")) |
+| Petal.Length | numeric | 43 | 0 | 0 | get_flt(Petal.Length %in% c("1.4", "1.3", "1.5", "1.7", "1.6", "1.1", "1.2", "1", "...")) |
+| Petal.Width | numeric | 22 | 0 | 0 | get_flt(Petal.Width %in% c("0.2", "0.4", "0.3", "0.1", "0.5", "0.6", "1.4", "1.5", "...")) |
+| Species | factor | 3 | 0 | 0 | get_flt(Species %in% c("setosa", "versicolor", "virginica")) |
 
 [TABLE]
 
@@ -37,8 +37,8 @@ lv(iris, Species, Sepal.Length)
 |----|----|----|----|----|----|
 | Dataset: *150* observations, *2* variables, *0* missing, *0* Unknown/Blank/N/A |  |  |  |  |  |
 | vars | class | n_unique | n_na | n_special | unique |
-| Species | factor | 3 | 0 | 0 | get_flt(Species %in% c("setosa","versicolor","virginica")) |
-| Sepal.Length | numeric | 35 | 0 | 0 | get_flt(Sepal.Length %in% c("5.1","4.9","4.7","4.6","5","5.4","4.4","4.8","...")) |
+| Species | factor | 3 | 0 | 0 | get_flt(Species %in% c("setosa", "versicolor", "virginica")) |
+| Sepal.Length | numeric | 35 | 0 | 0 | get_flt(Sepal.Length %in% c("5.1", "4.9", "4.7", "4.6", "5", "5.4", "4.4", "4.8", "...")) |
 
 [TABLE]
 
@@ -52,8 +52,8 @@ lv(iris, pattern = "Sepal")
 |----|----|----|----|----|----|
 | Dataset: *150* observations, *2* variables, *0* missing, *0* Unknown/Blank/N/A |  |  |  |  |  |
 | vars | class | n_unique | n_na | n_special | unique |
-| Sepal.Length | numeric | 35 | 0 | 0 | get_flt(Sepal.Length %in% c("5.1","4.9","4.7","4.6","5","5.4","4.4","4.8","...")) |
-| Sepal.Width | numeric | 23 | 0 | 0 | get_flt(Sepal.Width %in% c("3.5","3","3.2","3.1","3.6","3.9","3.4","2.9","...")) |
+| Sepal.Length | numeric | 35 | 0 | 0 | get_flt(Sepal.Length %in% c("5.1", "4.9", "4.7", "4.6", "5", "5.4", "4.4", "4.8", "...")) |
+| Sepal.Width | numeric | 23 | 0 | 0 | get_flt(Sepal.Width %in% c("3.5", "3", "3.2", "3.1", "3.6", "3.9", "3.4", "2.9", "...")) |
 
 [TABLE]
 
