@@ -7,7 +7,10 @@
   `# ...` line with cli inline markup, so `{.run pkg::fun(x)}` becomes a
   clickable link in consoles that support hyperlinks. `pr_badge()` returns
   two-part key-value badges (key on dark grey, value on a chosen colour) to
-  combine on one line.
+  combine on one line. `pr_table()` prints a data frame as an aligned
+  plain-text table: columns aligned by display width, P-value columns
+  coloured by significance (bold red below 0.001, red below 0.05) and
+  chosen rows highlighted.
 
 * `plt_dist()` gains `label = "count_percent_wrap"`, which puts counts and
   percentages on separate lines: `count\npercent` on stacked bars, and the

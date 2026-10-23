@@ -73,3 +73,38 @@ test_that("pr_badge() returns two-part badges without printing", {
   expect_identical(cli::ansi_strip(pr_badge("events", 412)), " events  412 ")
   expect_error(pr_badge(c("a", "b", "c"), c("x", "y")), "same length")
 })
+
+test_that("pr_table() aligns by display width and colours P values", {
+  withr::local_options(cli.num_colors = 256, cli.unicode = TRUE)
+  df <- data.frame(Variable = c("Age >= 55", "Male", "\u591a\u7076"),
+                   HR = c(1.853, 1.25, NA), n = c(412, 87, 5),
+                   P = c(0.0003, 0.012, 0.21))
+  out <- utils::capture.output(lines <- pr_table(df, p_col = "P", highlight = 1))
+  expect_identical(out, as.character(lines))
+  expect_identical(cli::ansi_strip(out), c(
+    "  Variable     HR    n       P",
+    paste0("  ", strrep(cli::symbol$line, 28L)),
+    "  Age >= 55  1.85  412  <0.001",
+    "  Male       1.25   87   0.012",
+    paste0("  \u591a\u7076", strrep(" ", 9L), "NA    5   0.210")
+  ))
+  expect_match(out[1], "\033[1m", fixed = TRUE)
+  expect_match(out[3], "\033[48;5;229m", fixed = TRUE)
+  expect_false(grepl("\033[31m", out[3], fixed = TRUE))
+  expect_match(out[4], "\033[31m0.012", fixed = TRUE)
+  expect_match(out[5], "\033[90m0.210", fixed = TRUE)
+  expect_match(out[5], "\033[90mNA", fixed = TRUE)
+
+  chr <- utils::capture.output(pr_table(data.frame(P = c("<0.001", "0.30")),
+                                        p_col = "P"))
+  expect_match(chr[3], "\033[1m", fixed = TRUE)
+  expect_match(chr[3], "\033[31m", fixed = TRUE)
+  expect_match(chr[4], "\033[90m", fixed = TRUE)
+
+  logical_hl <- utils::capture.output(pr_table(df[1:2, ], highlight = c(FALSE, TRUE)))
+  expect_match(logical_hl[4], "\033[48;5;229m", fixed = TRUE)
+  expect_length(utils::capture.output(pr_table(df[0, ])), 2L)
+
+  expect_error(pr_table(df, p_col = "p_value"), "p_value")
+  expect_error(pr_table(as.list(df)), "data frame")
+})

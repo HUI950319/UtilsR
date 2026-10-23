@@ -32,6 +32,7 @@ Other print helpers:
 \code{\link[=pr_head]{pr_head()}},
 \code{\link[=pr_kv]{pr_kv()}},
 \code{\link[=pr_note]{pr_note()}},
-\code{\link[=pr_section]{pr_section()}}
+\code{\link[=pr_section]{pr_section()}},
+\code{\link[=pr_table]{pr_table()}}
 }
 \concept{print helpers}

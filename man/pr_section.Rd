@@ -29,6 +29,7 @@ Other print helpers:
 \code{\link[=pr_badge]{pr_badge()}},
 \code{\link[=pr_head]{pr_head()}},
 \code{\link[=pr_kv]{pr_kv()}},
-\code{\link[=pr_note]{pr_note()}}
+\code{\link[=pr_note]{pr_note()}},
+\code{\link[=pr_table]{pr_table()}}
 }
 \concept{print helpers}

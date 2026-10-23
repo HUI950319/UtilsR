@@ -10,10 +10,13 @@
 #         pr_section(title)            grey rule with a bold title
 #         pr_note(...)                 grey italic "# note", cli markup
 #         pr_badge(key, value)         two-part badge strings (not printed)
+#         pr_table(data, p_col, ...)   console table, P values coloured
+#               +-- ._p_cells()
 #
 #   L2  shared internals
 #         ._chip()       short label on a solid background (utils_display.R)
 #         ._kv_lines()   named values -> aligned "key  value" lines
+#         ._p_cells()    P values -> coloured cells (stat_pval() wording)
 #         ._pr_out()     write lines to stdout, return them invisibly
 #
 # Print methods write to stdout with cat(), as print() output is expected
@@ -198,4 +201,115 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
                 cli::make_ansi_style("grey30", bg = TRUE), white),
          ._chip(rep_len(as.character(value), n),
                 cli::make_ansi_style(bg, bg = TRUE), cli::make_ansi_style(fg)))
+}
+
+# ------------- pr_table -----------------------------------------------------
+
+# P values -> cells: numbers take stat_pval()'s "<0.001" wording, text keeps
+# its own; bold red below 0.001, red below 0.05, grey otherwise. A bound such
+# as "<0.05" counts as below its endpoint.
+._p_cells <- function(v) {
+  if (is.numeric(v)) {
+    num <- v
+    txt <- stat_pval(v, mode = "pvalue")
+    below <- rep(FALSE, length(v))
+  } else {
+    txt   <- trimws(as.character(v))
+    num   <- suppressWarnings(as.numeric(sub("^[<>]=?\\s*", "", txt)))
+    below <- grepl("^<", txt)
+  }
+  strong <- !is.na(num) & (num < 0.001 | (below & num <= 0.001))
+  sig    <- !is.na(num) & !strong & (num < 0.05 | (below & num <= 0.05))
+  out <- as.character(cli::col_grey(ifelse(is.na(txt), "NA", txt)))
+  out[sig]    <- cli::col_red(txt[sig])
+  out[strong] <- cli::style_bold(cli::col_red(txt[strong]))
+  out
+}
+
+#' Console table for a print method
+#'
+#' Print a data frame as an aligned plain-text table: a bold header, a grey
+#' rule, then one line per row. Columns are aligned by display width, so
+#' Chinese text lines up; P-value columns are coloured by significance, and
+#' chosen rows can be highlighted.
+#'
+#' Cells are formatted as follows. P-value columns: numbers take the
+#' \code{\link{stat_pval}(mode = "pvalue")} wording (\code{"<0.001"}),
+#' text is kept as written, and values print bold red below 0.001, red below
+#' 0.05 and grey otherwise. Other double columns are rounded to
+#' \code{digits} decimals, or none when every value is whole. Missing values
+#' print as a grey \code{NA}. Everything else uses \code{as.character()}.
+#'
+#' @param data A data frame (tibbles included).
+#' @param p_col Character. Names of the P-value columns, or \code{NULL}.
+#' @param highlight Rows to highlight in black on light yellow: integer row
+#'   numbers or a logical vector. Highlighted rows drop their other colours.
+#' @param align Column alignment, recycled: \code{"left"}, \code{"right"}
+#'   or \code{"center"}. \code{NULL} (default) right-aligns numeric and
+#'   P-value columns and left-aligns the rest.
+#' @param digits Integer. Decimals for double columns (default 2).
+#' @param indent Integer. Spaces before each line (default 2).
+#'
+#' @return The printed lines, invisibly.
+#'
+#' @examples
+#' res <- data.frame(
+#'   Variable = c("Age >= 55", "Male", "Multifocal"),
+#'   HR = c(1.85, 1.25, 1.08),
+#'   P = c(0.0003, 0.012, 0.21)
+#' )
+#' pr_table(res, p_col = "P", highlight = 1)
+#'
+#' @export
+#' @family print helpers
+pr_table <- function(data, p_col = NULL, highlight = NULL, align = NULL,
+                     digits = 2, indent = 2) {
+  if (!is.data.frame(data)) {
+    cli::cli_abort("{.arg data} must be a data frame, not {.obj_type_friendly {data}}.")
+  }
+  miss <- setdiff(p_col, names(data))
+  if (length(miss)) {
+    cli::cli_abort("{.arg p_col} names column{?s} absent from {.arg data}: {.val {miss}}.")
+  }
+  if (!ncol(data)) return(._pr_out(character()))
+  data <- as.data.frame(data)
+
+  is_num <- vapply(data, is.numeric, logical(1)) | names(data) %in% p_col
+  cells  <- lapply(names(data), function(nm) {
+    v <- data[[nm]]
+    if (nm %in% p_col) return(._p_cells(v))
+    if (is.double(v) && is.numeric(v)) {
+      fin <- v[is.finite(v)]
+      txt <- formatC(v, format = "f",
+                     digits = if (all(fin == round(fin))) 0L else digits)
+    } else {
+      txt <- as.character(v)
+    }
+    ifelse(is.na(v), cli::col_grey("NA"), txt)
+  })
+
+  align <- if (is.null(align)) ifelse(is_num, "right", "left") else
+    rep_len(match.arg(align, c("left", "right", "center"), several.ok = TRUE),
+            ncol(data))
+  width <- vapply(seq_along(cells), function(j) {
+    max(cli::ansi_nchar(c(names(data)[j], cells[[j]]), type = "width"))
+  }, numeric(1))
+  row <- function(x) {
+    paste(vapply(seq_along(x), function(j) {
+      cli::ansi_align(x[[j]], width[j], align[j])
+    }, character(1)), collapse = "  ")
+  }
+
+  pad    <- strrep(" ", indent)
+  header <- paste0(pad, cli::style_bold(row(names(data))))
+  rule   <- paste0(pad, cli::col_grey(strrep(cli::symbol$line,
+                                             sum(width) + 2 * (length(width) - 1))))
+  hl     <- if (is.logical(highlight)) which(highlight) else as.integer(highlight)
+  hl_bg  <- cli::make_ansi_style("#FFFF99", bg = TRUE)
+  body   <- vapply(seq_len(nrow(data)), function(i) {
+    r <- row(lapply(cells, `[`, i))
+    if (i %in% hl) r <- hl_bg(cli::col_black(cli::ansi_strip(r)))
+    paste0(pad, r)
+  }, character(1))
+  ._pr_out(c(header, rule, body))
 }
