@@ -455,3 +455,15 @@ test_that("count warns that it ignores selections and group", {
   }
   expect_no_warning(capture_lv(lv(data, count = c(g, x))))
 })
+
+test_that("time spans are summarized and list columns stay out of tables", {
+  data <- data.frame(g = rep(c("A", "B"), length.out = 5), x = 1:5,
+                     span = as.difftime(c(1:4, NA), units = "days"))
+  data$items <- list(1, 2:3, "a", NULL, 4)
+  reports <- capture_reports(lv(data))
+  expect_identical(reports[[1L]][["_data"]]$vars, c("g", "x", "span", "items"))
+  expect_identical(unique(reports[[2L]][["_data"]]$variable), c("g", "x", "span"))
+  utils::capture.output(expect_message(lv(data), "list column"))
+  grouped <- capture_reports(lv(data, x, span, items, group = g))
+  expect_identical(unique(grouped[[1L]]$table_body$variable), c("x", "span"))
+})

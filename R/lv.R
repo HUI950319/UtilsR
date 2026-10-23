@@ -83,8 +83,9 @@
 #'   while knitting, and each default summary table is included only once.
 #'
 #'   Character or factor columns with more than 100 categories, such as
-#'   identifiers, are reported in the variable summary but left out of the
-#'   frequency and grouped tables, with a message.
+#'   identifiers, and list columns are reported in the variable summary but
+#'   left out of the frequency and grouped tables, with a message. Time spans
+#'   (\code{difftime}) are summarized as numbers in their own units.
 #'
 #' @examples
 #' \dontrun{
@@ -421,29 +422,40 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
 
   # gtsummary treats an entirely missing character column as continuous and
   # fails formatting it (and rejects a level-less factor); a missing logical
-  # reports the same missing count.
+  # reports the same missing count. It cannot tabulate time spans either, so
+  # they are summarized as numbers in their own units.
   .tbl_input <- function(df) {
     empty_chr <- vapply(df, function(x) is.character(x) && all(is.na(x)),
                         logical(1))
     df[empty_chr] <- lapply(df[empty_chr], as.logical)
+    spans <- vapply(df, inherits, logical(1), what = "difftime")
+    df[spans] <- lapply(df[spans], as.numeric)
     df
   }
 
   # A character or factor column with more than 100 categories (an
   # identifier, free text) adds a table row per value, and tbl_summary() and
-  # gt then take minutes; such columns stay in the variable summary only.
+  # gt then take minutes; such columns, like list columns that gtsummary
+  # cannot tabulate, stay in the variable summary only.
   .tbl_vars <- function(vars) {
     many <- vapply(analysis_data[vars], function(x) {
       if (is.factor(x)) nlevels(x) > 100L
       else is.character(x) && length(unique(x[!is.na(x)])) > 100L
     }, logical(1))
+    lists <- vapply(analysis_data[vars], is.list, logical(1))
     if (any(many)) {
       cli::cli_inform(c("i" = paste(
         "{.var {vars[many]}} ha{?s/ve} more than 100 categories and",
         "{?is/are} left out of the summary table."
       )))
     }
-    vars[!many]
+    if (any(lists)) {
+      cli::cli_inform(c("i" = paste(
+        "{.var {vars[lists]}} {?is a list column/are list columns} and",
+        "{?is/are} left out of the summary table."
+      )))
+    }
+    vars[!many & !lists]
   }
 
   # Optional RegR::get_gt_cat hook (called once at end of each mode)

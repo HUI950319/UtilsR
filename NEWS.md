@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `lv()` summarizes `difftime` columns as numbers in their own units and
+  leaves list columns out of its frequency and grouped tables with a message;
+  both previously made gtsummary fail.
+
 * `count_packages_in_libpaths()` counts installed packages instead of all
   library subdirectories, excluding installation locks and unrelated folders.
 
