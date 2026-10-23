@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `lv()` keeps cross-tabulation counts, percentages, and row totals separate
+  from identically named input columns or categories, and counts only the
+  requested variables when input carries dplyr grouping.
+
 * `fct_to_combine()` excludes missing rows from combination grouping and
   returns immediately when every row is missing, retaining missing-value and
   observed-level semantics. Complete inputs keep their existing grouping path.

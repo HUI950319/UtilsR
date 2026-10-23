@@ -40,6 +40,9 @@
 #'   variable name (NSE or string), multiple variable names via
 #'   \code{c(var1, var2)} (NSE) or character vector
 #'   \code{c("var1", "var2")}. Independent of \code{group}.
+#'   Existing dplyr groups are ignored for this table. Generated frequency,
+#'   percentage, and total column names receive numeric suffixes when needed
+#'   to preserve input columns and category labels.
 #' @param cat_args Optional named list of extra arguments forwarded to
 #'   \code{\link[RegR:get_gt_cat]{RegR::get_gt_cat()}} for an additional
 #'   publication-ready categorical-summary table (with survival-outcome
@@ -521,14 +524,21 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     cli::cli_h1(cli::col_cyan(glue::glue("Cross-tabulation: {count_title}")))
     cli::cli_alert_info("Variables: {.val {paste(count_vars, collapse = ', ')}}")
 
-    cross_count <- data %>%
-      dplyr::count(dplyr::across(dplyr::all_of(count_vars))) %>%
+    # Keep generated fields separate from the variables being inspected.
+    count_names <- tail(make.unique(c(count_vars, "n", "pct", "n_pct"),
+                                    sep = "_"), 3L)
+    n_name <- count_names[1L]
+    pct_name <- count_names[2L]
+    label_name <- count_names[3L]
+    count_data <- dplyr::ungroup(data)
+    cross_count <- count_data %>%
+      dplyr::count(dplyr::across(dplyr::all_of(count_vars)), name = n_name) %>%
       dplyr::arrange(dplyr::across(dplyr::all_of(count_vars)))
 
     cross_count <- cross_count %>%
       dplyr::mutate(
-        pct = round(n / sum(n) * 100, 2),
-        n_pct = glue::glue("{n} ({pct}%)")
+        "{pct_name}" := round(.data[[n_name]] / sum(.data[[n_name]]) * 100, 2),
+        "{label_name}" := glue::glue("{.data[[n_name]]} ({.data[[pct_name]]}%)")
       )
 
     print(tibble::as_tibble(cross_count))
@@ -536,16 +546,19 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     if (length(count_vars) == 2) {
       cli::cli_h2(cli::col_yellow("Wide Format Table"))
 
-      cross_wide <- data %>%
-        dplyr::count(dplyr::across(dplyr::all_of(count_vars))) %>%
+      cross_wide <- count_data %>%
+        dplyr::count(dplyr::across(dplyr::all_of(count_vars)), name = n_name) %>%
         tidyr::pivot_wider(
           names_from = dplyr::all_of(count_vars[2]),
-          values_from = "n",
-          values_fill = 0
+          values_from = dplyr::all_of(n_name),
+          values_fill = 0,
+          names_repair = "minimal"
         )
+      names(cross_wide) <- make.unique(names(cross_wide), sep = "_")
+      total_name <- tail(make.unique(c(names(cross_wide), "Total"), sep = "_"), 1L)
 
       cross_wide <- cross_wide %>%
-        dplyr::mutate(Total = rowSums(dplyr::pick(-1)))
+        dplyr::mutate("{total_name}" := rowSums(dplyr::pick(-1)))
 
       print(tibble::as_tibble(cross_wide))
 
@@ -572,17 +585,20 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
 
       cli::cli_h3(cli::col_yellow("Row Percentages (%)"))
 
-      cross_pct <- data %>%
-        dplyr::count(dplyr::across(dplyr::all_of(count_vars))) %>%
+      cross_pct <- count_data %>%
+        dplyr::count(dplyr::across(dplyr::all_of(count_vars)), name = n_name) %>%
         dplyr::group_by(.data[[count_vars[1]]]) %>%
-        dplyr::mutate(pct = round(n / sum(n) * 100, 1)) %>%
+        dplyr::mutate("{pct_name}" :=
+                        round(.data[[n_name]] / sum(.data[[n_name]]) * 100, 1)) %>%
         dplyr::ungroup() %>%
-        dplyr::select(-"n") %>%
+        dplyr::select(-dplyr::all_of(n_name)) %>%
         tidyr::pivot_wider(
           names_from = dplyr::all_of(count_vars[2]),
-          values_from = "pct",
-          values_fill = 0
+          values_from = dplyr::all_of(pct_name),
+          values_fill = 0,
+          names_repair = "minimal"
         )
+      names(cross_pct) <- make.unique(names(cross_pct), sep = "_")
 
       print(tibble::as_tibble(cross_pct))
     }

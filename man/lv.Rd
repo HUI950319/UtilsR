@@ -40,7 +40,10 @@ Ident.}
 \item{count}{Optional variable(s) for cross-tabulation. Accepts a single
 variable name (NSE or string), multiple variable names via
 \code{c(var1, var2)} (NSE) or character vector
-\code{c("var1", "var2")}. Independent of \code{group}.}
+\code{c("var1", "var2")}. Independent of \code{group}.
+Existing dplyr groups are ignored for this table. Generated frequency,
+percentage, and total column names receive numeric suffixes when needed
+to preserve input columns and category labels.}
 
 \item{cat_args}{Optional named list of extra arguments forwarded to
 \code{\link[RegR:get_gt_cat]{RegR::get_gt_cat()}} for an additional
