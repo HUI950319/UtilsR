@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p>When <code><a href="../reference/lv.html">lv()</a></code> finds no global <code>data</code> or <code>data_all</code>, its error names the data frames and Seurat objects in the global environment. Called without data, it reports that error directly again instead of as an unevaluable first argument.</p></li>
+<ul><li><p><code><a href="../reference/plt_alluvial.html">plt_alluvial()</a></code> keeps real groups named <code>.gap_1</code> or starting with <code>.gap_</code> distinct from its transparent gap strata, including their labels.</p></li>
+<li><p>When <code><a href="../reference/lv.html">lv()</a></code> finds no global <code>data</code> or <code>data_all</code>, its error names the data frames and Seurat objects in the global environment. Called without data, it reports that error directly again instead of as an unevaluable first argument.</p></li>
 <li><p>The <code><a href="../reference/lv.html">lv()</a></code> variable-summary subtitle says it counts variables with missing or Unknown/Blank/N/A values, rather than reading as a count of values.</p></li>
 <li><p>Seurat <code><a href="../reference/lv.html">lv()</a></code> cell statistics no longer list <code>orig.ident</code>, the sample identity, as a clustering.</p></li>
 <li><p><code><a href="../reference/lv.html">lv()</a></code> labels empty-string categories <code>(blank)</code> in its long count table and its default and grouped summaries, as its wide count table already did, unless a <code>(blank)</code> value exists and the two would merge.</p></li>
