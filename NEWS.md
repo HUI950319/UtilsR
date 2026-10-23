@@ -40,6 +40,9 @@
   `label_args$style = "count_percent_wrap"` (group name above
   `count (percent)`), and writes counts with a comma as thousands separator.
 
+* `plt_dist(type = "bar")` stacks the first fill category on top, in the
+  order of the legend and of the alluvial strata (it was at the bottom).
+
 # UtilsR 0.6.8
 
 * New `.cat_step()` announces a numbered step (`[i/n]`) of a longer

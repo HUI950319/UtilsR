@@ -35,8 +35,9 @@
 #'       only one fill category; otherwise an error prevents overplotting.
 #'   }
 #' @param type Plot type for the 2-variable case: \code{"alluvial"} (default)
-#'   or \code{"bar"} (stacked proportion bar on a percentage axis). Ignored
-#'   when \code{dis_vars} has
+#'   or \code{"bar"} (stacked proportion bar on a percentage axis, with the
+#'   first fill category on top as in the legend and the alluvial plot).
+#'   Ignored when \code{dis_vars} has
 #'   3 variables.
 #' @param facet Optional faceting variable name (string). Used by both
 #'   2-variable plot types and must differ from \code{dis_vars}; ignored for
@@ -457,8 +458,7 @@ plt_dist <- function(data,
 
     p <- ggplot2::ggplot(plotdata, ggplot2::aes(
       x = .data[[x_var]], y = .data[[prop_name]], fill = .data[[fill_var]])) +
-      ggplot2::geom_bar(stat = "identity",
-                        position = ggplot2::position_fill(reverse = TRUE)) +
+      ggplot2::geom_bar(stat = "identity", position = ggplot2::position_fill()) +
       ggplot2::scale_fill_manual(values = pal_cols) +
       ggplot2::scale_y_continuous(labels = scales::label_percent()) +
       ggplot2::guides(fill = ggplot2::guide_legend(ncol = legend_args$ncol)) +
@@ -481,7 +481,7 @@ plt_dist <- function(data,
       # the labels stacked like the bar segments.
       label_mapping <- ggplot2::aes(label = .data[[label_name]],
                                     group = .data[[fill_var]])
-      label_position <- ggplot2::position_fill(reverse = TRUE, vjust = 0.5)
+      label_position <- ggplot2::position_fill(vjust = 0.5)
       label_size <- label_args$size %||% ((base_size - 4) / ggplot2::.pt)
       p <- p + if (label_args$box) {
         ggplot2::geom_label(label_mapping, position = label_position,

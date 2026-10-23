@@ -98,6 +98,17 @@ test_that("bar labels, axis and label boxes follow label_args", {
   expect_equal(unique(ggplot2::layer_data(tiles, 2L)$size), (14 - 2) / ggplot2::.pt)
 })
 
+test_that("bar segments stack in legend order, like the alluvial strata", {
+  data <- data.frame(x = rep(c("A", "B"), each = 6),
+                     g = factor(rep(c("g1", "g2", "g3"), 4)))
+  bar <- dist_test_plot(data, c("x", "g"), type = "bar")
+  bars <- ggplot2::layer_data(bar, 1L)
+  first <- bars[bars$x == 1, ]
+  expect_identical(levels(data$g)[first$group[order(-first$ymax)]],
+                   c("g1", "g2", "g3"))
+  expect_equal(ggplot2::layer_data(bar, 2L)$y, (bars$ymin + bars$ymax) / 2)
+})
+
 test_that("bar facets use observed levels and the facet and legend lists", {
   data <- data.frame(
     x = factor(rep(c("A", "B"), 6), levels = c("A", "B", "Unused")),

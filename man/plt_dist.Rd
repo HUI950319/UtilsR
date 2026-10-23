@@ -43,8 +43,9 @@ first appearance for alluvial plots, sorted for bar charts and heatmaps.
 }}
 
 \item{type}{Plot type for the 2-variable case: \code{"alluvial"} (default)
-or \code{"bar"} (stacked proportion bar on a percentage axis). Ignored
-when \code{dis_vars} has
+or \code{"bar"} (stacked proportion bar on a percentage axis, with the
+first fill category on top as in the legend and the alluvial plot).
+Ignored when \code{dis_vars} has
 3 variables.}
 
 \item{facet}{Optional faceting variable name (string). Used by both
