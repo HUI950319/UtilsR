@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/lv.html">lv()</a></code> restores the complete existing gtsummary theme after successful reports and after errors, instead of clearing it or leaving Compact active.</p></li>
+<ul><li><p><code><a href="../reference/lv.html">lv()</a></code> resolves bare group/count columns before caller objects, accepts character names from enclosing functions, and rejects invalid or repeated names instead of silently switching to an ungrouped summary.</p></li>
+<li><p><code><a href="../reference/lv.html">lv()</a></code> restores the complete existing gtsummary theme after successful reports and after errors, instead of clearing it or leaving Compact active.</p></li>
 <li><p><code><a href="../reference/lv.html">lv()</a></code> keeps cross-tabulation counts, percentages, and row totals separate from identically named input columns or categories, and counts only the requested variables when input carries dplyr grouping.</p></li>
 <li><p><code><a href="../reference/fct_to_combine.html">fct_to_combine()</a></code> excludes missing rows from combination grouping and returns immediately when every row is missing, retaining missing-value and observed-level semantics. Complete inputs keep their existing grouping path.</p></li>
 <li><p><code><a href="../reference/fct_to_combine.html">fct_to_combine()</a></code> documents group-wise factor-level merging in dplyr and shows how to retain a whole-data level order with the data-frame method.</p></li>

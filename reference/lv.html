@@ -121,7 +121,9 @@ before inspection; integer64 columns require the optional <span class="pkg">bit6
 <dt id="arg-group">group<a class="anchor" aria-label="anchor" href="#arg-group"></a></dt>
 <dd><p>Optional grouping variable. Supports NSE (bare name) or
 character string. For Seurat objects, set to <code>TRUE</code> to use current
-Ident.</p></dd>
+Ident.
+For data frames, bare column names take precedence over caller objects;
+character names can also be supplied through variables or expressions.</p></dd>
 
 
 <dt id="arg-count">count<a class="anchor" aria-label="anchor" href="#arg-count"></a></dt>
@@ -131,7 +133,8 @@ variable name (NSE or string), multiple variable names via
 <code>c("var1", "var2")</code>. Independent of <code>group</code>.
 Existing dplyr groups are ignored for this table. Generated frequency,
 percentage, and total column names receive numeric suffixes when needed
-to preserve input columns and category labels.</p></dd>
+to preserve input columns and category labels.
+Names must be non-missing and distinct; invalid controls are errors.</p></dd>
 
 
 <dt id="arg-cat-args">cat_args<a class="anchor" aria-label="anchor" href="#arg-cat-args"></a></dt>
