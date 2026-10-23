@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `plt_alluvial()` counts only observed facet/category combinations while
+  preserving zero-count groups, avoiding the full cross-facet frequency table.
+
 * The `lv()` variable summary tints rows by variable type: character, numeric
   or integer, and factor (including ordered) variables.
 

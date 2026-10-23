@@ -431,23 +431,21 @@ plt_alluvial <- function(
   group_levels <- levels(plot_input$.group)
   facet_levels <- levels(plot_input$.facet)
 
-  frequency <- table(
-    plot_input$.facet,
-    plot_input$.cat_var,
-    plot_input$.group
-  )
-  stat <- as.data.frame(frequency, responseName = "count")
-  names(stat)[1:3] <- c(".facet", ".cat_var", ".group")
-  stat$.facet <- factor(stat$.facet, levels = facet_levels)
-  stat$.cat_var <- factor(stat$.cat_var, levels = cat_levels)
-  stat$.group <- factor(stat$.group, levels = group_levels)
-  stat$group_total <- ave(
-    stat$count,
-    stat$.facet,
-    stat$.cat_var,
-    FUN = sum
-  )
-  stat <- stat[stat$group_total > 0, , drop = FALSE]
+  # Count only observed facet/category pairs, keeping zero-count group strata.
+  panels <- split(plot_input, plot_input$.facet, drop = TRUE)
+  stat <- do.call(rbind, lapply(panels, function(panel) {
+    frequency <- table(droplevels(panel$.cat_var), panel$.group)
+    cells <- as.data.frame(frequency, responseName = "count")
+    names(cells)[1:2] <- c(".cat_var", ".group")
+    cells$.facet <- factor(as.character(panel$.facet[1L]), levels = facet_levels)
+    cells$.cat_var <- factor(cells$.cat_var, levels = cat_levels)
+    cells$group_total <- rep.int(
+      as.integer(rowSums(frequency)), length(group_levels)
+    )
+    cells[c(".facet", ".cat_var", ".group", "count", "group_total")]
+  }))
+  stat <- stat[order(stat$.group, stat$.cat_var, stat$.facet), , drop = FALSE]
+  rownames(stat) <- NULL
   stat$percent <- stat$count / stat$group_total
   stat$.is_gap <- FALSE
 
