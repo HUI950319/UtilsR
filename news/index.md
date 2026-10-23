@@ -2,9 +2,26 @@
 
 ## UtilsR 0.6.8
 
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) inspects
+  atomic vectors and matrices, returning them invisibly, instead of
+  treating them as column selections of the global `data`, where
+  `lv(1:2)` silently reported its first two columns. Bare column names
+  and character vectors of column names still select from the default
+  data, and an unevaluable first argument without default data reports
+  its own error.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) leaves
+  character and factor columns with more than 100 categories, such as
+  identifiers, out of its frequency and grouped tables with a message;
+  they stay in the variable summary. A 50,000-row identifier column
+  previously took about four minutes to tabulate and now adds no table
+  rows.
+
 - [`PlotHeatmapJaccard()`](https://hui950319.github.io/UtilsR/reference/PlotHeatmapJaccard.md)
   excludes missing group labels and feature names from feature sets,
-  preventing false overlaps, and reports missing groups clearly.
+  preventing false overlaps, and reports missing groups clearly. Its
+  default strip palette repeats beyond 16 groups instead of producing
+  missing colours.
 
 - [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
   highlights the category levels its special-value counts include, using
