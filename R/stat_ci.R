@@ -121,7 +121,7 @@ stat_ci <- function(x, y = NULL, z = NULL,
     est <- parsed$estimate
     lo  <- parsed$lower
     hi  <- parsed$upper
-    d   <- if (!is.null(digits)) rep(as.integer(digits), length(x)) else parsed$digits
+    d   <- if (!is.null(digits)) rep.int(digits, length(x)) else parsed$digits
     valid <- parsed$valid
     .check_precision(d, est, lo, hi)
 
@@ -136,12 +136,9 @@ stat_ci <- function(x, y = NULL, z = NULL,
       cli::cli_warn("{n_tail} element{?s} had trailing text after the closing bracket, which was dropped.")
     }
 
-    # Build new format template
+    # Format mixed precisions in one vectorized call.
     out <- ifelse(valid,
-      mapply(function(e, l, h, dd) {
-        fmt <- sprintf("%%.%df %s%%.%df%s%%.%df%s", dd, bp[1], dd, sep, dd, bp[2])
-        sprintf(fmt, e, l, h)
-      }, est, lo, hi, d, USE.NAMES = FALSE),
+      sprintf("%.*f %s%.*f%s%.*f%s", d, est, bp[1], d, lo, sep, d, hi, bp[2]),
       x)
     out[valid] <- .drop_signed_zero(out[valid])
     names(out) <- input_names

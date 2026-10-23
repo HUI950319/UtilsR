@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `stat_ci()` formats character intervals with vectorized dynamic precision,
+  retaining detected precision and warnings while avoiding per-row templates.
+
 * `stat_ci()` removes the minus sign from formatted zeros without changing
   other rounding or unparsed text. The mean/SD example now reflects its
   actual `sprintf()` rounding.

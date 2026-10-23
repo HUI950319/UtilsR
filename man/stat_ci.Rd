@@ -39,11 +39,11 @@ Only used in CI mode. Common choices: \code{"\u2013"}, \code{", "}, \code{" to "
 }
 \value{
 Character vector of formatted strings. Empty input returns
-\code{character(0)}. In numeric modes, a missing component (including
-\code{NaN} and SPSS user-missing codes) makes the whole string
-\code{NA_character_}. Entirely missing logical vectors are accepted.
-Output names are taken from \code{x}. Rounded zeros are displayed without
-a minus sign; other rounding follows \code{sprintf()}.
+  \code{character(0)}. In numeric modes, a missing component (including
+  \code{NaN} and SPSS user-missing codes) makes the whole string
+  \code{NA_character_}. Entirely missing logical vectors are accepted.
+  Output names are taken from \code{x}. Rounded zeros are displayed without
+  a minus sign; other rounding follows \code{sprintf()}.
 }
 \description{
 Build CI strings from numeric vectors, or reformat existing CI strings

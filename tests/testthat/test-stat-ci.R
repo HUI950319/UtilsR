@@ -124,3 +124,11 @@ test_that("formatted zero loses its sign without changing other rounding", {
   expect_warning(out <- stat_ci("Reference -0.00"), "could not be parsed")
   expect_identical(out, "Reference -0.00")
 })
+
+test_that("character vectors retain independently detected precision", {
+  x <- c(integer = "12 (10, 15)", precise = "1.200 (0.950, 1.590)",
+         scientific = "1.2e-3 (0.8e-3, 1.7e-3)", missing = NA_character_)
+  expect_identical(stat_ci(x, bracket = "[", sep = " to "),
+                   c(integer = "12 [10 to 15]", precise = "1.200 [0.950 to 1.590]",
+                     scientific = "0.0012 [0.0008 to 0.0017]", missing = NA_character_))
+})
