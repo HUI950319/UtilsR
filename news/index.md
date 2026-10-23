@@ -2,6 +2,10 @@
 
 ## UtilsR 0.6.8
 
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) retains
+  empty cross-tabulation categories in wide tables, displaying them as
+  `(blank)` and disambiguating an existing category with that label.
+
 - [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
   uses complete required rows in every mode and reports how many rows
   were removed. Unrelated missing columns are ignored; no usable rows
