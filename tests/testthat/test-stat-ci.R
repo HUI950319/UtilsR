@@ -98,3 +98,17 @@ test_that("missing and whitespace-only strings pass through without warnings", {
   expect_warning(out <- stat_ci(c(blanks, "Reference")), "1 element could not")
   expect_identical(out, c(blanks, "Reference"))
 })
+
+test_that("output names follow x in every formatting mode", {
+  x <- c(first = 1.23, missing = NA_real_)
+  expect_identical(stat_ci(x, c(.95, .5), c(1.59, 1.5)),
+                   c(first = "1.23 (0.95\u20131.59)", missing = NA_character_))
+  expect_identical(stat_ci(x, c(.15, .1)),
+                   c(first = "1.2(0.1)", missing = NA_character_))
+  expect_identical(stat_ci(c(first = "1.23 (0.95, 1.59)", missing = NA)),
+                   c(first = "1.23 (0.95\u20131.59)", missing = NA_character_))
+  expect_identical(stat_ci(c(missing = NA), NA), c(missing = NA_character_))
+  empty <- stats::setNames(character(), character())
+  expect_identical(stat_ci(empty), empty)
+  expect_null(names(stat_ci(1.23, c(other = .95), 1.59)))
+})

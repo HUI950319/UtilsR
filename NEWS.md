@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `stat_ci()` preserves the names of `x` in numeric CI, mean/SD, and character
+  modes, including missing observations and empty named vectors.
+
 * `stat_ci()` leaves missing and whitespace-only strings unchanged without
   warning, including Unicode whitespace, while still reporting other text
   that cannot be parsed as an interval.

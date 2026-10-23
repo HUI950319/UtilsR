@@ -30,6 +30,7 @@
 #'   \code{character(0)}. In numeric modes, a missing component (including
 #'   \code{NaN} and SPSS user-missing codes) makes the whole string
 #'   \code{NA_character_}. Entirely missing logical vectors are accepted.
+#'   Output names are taken from \code{x}.
 #'
 #' @examples
 #' # --- Numeric: CI mode (3 arguments) ---
@@ -63,6 +64,7 @@ stat_ci <- function(x, y = NULL, z = NULL,
   bracket <- match.arg(bracket)
   sep <- match.arg(sep)
   bp <- if (bracket == "(") c("(", ")") else c("[", "]")
+  input_names <- names(x)
 
   if (!is.null(digits)) {
     if (!is.numeric(digits) || is.object(digits) || !is.null(dim(digits)) ||
@@ -110,7 +112,7 @@ stat_ci <- function(x, y = NULL, z = NULL,
 
   # --- Character input: reformat CI strings ---
   if (is.character(x)) {
-    if (!length(x)) return(character())
+    if (!length(x)) return(stats::setNames(character(), input_names))
     parsed <- .ci_extract(x)
     est <- parsed$estimate
     lo  <- parsed$lower
@@ -137,6 +139,7 @@ stat_ci <- function(x, y = NULL, z = NULL,
         sprintf(fmt, e, l, h)
       }, est, lo, hi, d, USE.NAMES = FALSE),
       x)
+    names(out) <- input_names
     return(out)
   }
 
@@ -155,6 +158,7 @@ stat_ci <- function(x, y = NULL, z = NULL,
     .check_precision(d, x[observed], y[observed], z[observed])
     fmt <- sprintf("%%.%df %s%%.%df%s%%.%df%s", d, bp[1], d, sep, d, bp[2])
     out[observed] <- sprintf(fmt, x[observed], y[observed], z[observed])
+    names(out) <- input_names
     return(out)
   }
 
@@ -172,5 +176,6 @@ stat_ci <- function(x, y = NULL, z = NULL,
   .check_precision(d, x[observed], y[observed])
   fmt <- sprintf("%%.%df%s%%.%df%s", d, bp[1], d, bp[2])
   out[observed] <- sprintf(fmt, x[observed], y[observed])
+  names(out) <- input_names
   out
 }
