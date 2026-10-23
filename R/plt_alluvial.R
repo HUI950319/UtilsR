@@ -551,7 +551,7 @@ plt_alluvial <- function(
 
   if (label_args$style != "none" && any(!is.na(stat$.label))) {
     # Non-missing inputs keep gap strata in the stat; hide their labels afterward.
-    label_mapping <- ggplot2::aes(label = ggplot2::stage(
+    label_mapping <- ggplot2::aes(label = stage(
       start = ifelse(is.na(.data$.label), "", paste0("1", .data$.label)),
       after_stat = ifelse(
         nzchar(.data$label), substring(.data$label, 2L), NA_character_
