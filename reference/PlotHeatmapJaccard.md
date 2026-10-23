@@ -87,9 +87,7 @@ PlotHeatmapJaccard(
 - strip_colors:
 
   Character vector of colours for each group strip. `NULL` = auto
-  palette (same order as `group_levels` / `ct_names`). The 16-colour
-  auto palette repeats for additional groups, as do shorter custom
-  palettes.
+  palette (same order as `group_levels` / `ct_names`).
 
 - strip_size:
 

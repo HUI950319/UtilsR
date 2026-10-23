@@ -51,10 +51,10 @@ fct_cat(x, reverse = TRUE)
 ``` r
 
 # Binary: reference level vs "Oth" (by position index)
-fct_cat(x, ref_idx = 1)   # I vs Oth
+fct_cat(x, binary_ref = 1)   # I vs Oth
 #> [1] I   Oth Oth Oth
 #> Levels: I Oth
-fct_cat(x, ref_idx = 3)   # III vs Oth
+fct_cat(x, binary_ref = 3)   # III vs Oth
 #> [1] Oth Oth III Oth
 #> Levels: III Oth
 ```

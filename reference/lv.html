@@ -105,14 +105,9 @@ before inspection; integer64 columns require the optional <span class="pkg">bit6
 
 
 <dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p>A data object: data.frame or Seurat object. An atomic vector
-or matrix is inspected as a data frame of its columns. If omitted,
+<dd><p>A data object: data.frame or Seurat object. If omitted,
 <code>lv()</code> falls back to a global object named <code>data</code>, otherwise
 <code>data_all</code> (the first that is a data.frame / Seurat object).
-A first argument that is not a dataset selects variables of that default
-data when it is a bare column name, a character vector of column names,
-or an expression that cannot be evaluated, e.g. <code>lv(Sex)</code>; column
-names take precedence over caller objects of the same name.
 Empty data frames are returned unchanged with a message and no report.</p></dd>
 
 
@@ -132,17 +127,14 @@ Overrides <code>...</code> with a warning, without evaluating those selections.<
 character string. For Seurat objects, set to <code>TRUE</code> to use current
 Ident.
 Bare column names take precedence over caller objects;
-character names can also be supplied through variables or expressions.
-Missing group values form their own last group, labelled as missing, and
-are included in the overall column.</p></dd>
+character names can also be supplied through variables or expressions.</p></dd>
 
 
 <dt id="arg-count">count<a class="anchor" aria-label="anchor" href="#arg-count"></a></dt>
 <dd><p>Optional variable(s) for cross-tabulation. Accepts a single
 variable name (NSE or string), multiple variable names via
 <code>c(var1, var2)</code> (NSE) or character vector
-<code>c("var1", "var2")</code>. Selections in <code>...</code>, <code>pattern</code> and
-<code>group</code> are ignored in this mode, with a warning.
+<code>c("var1", "var2")</code>. Independent of <code>group</code>.
 Existing dplyr groups are ignored for this table. Generated frequency,
 percentage, and total column names receive numeric suffixes when needed
 to preserve input columns and category labels.
@@ -181,14 +173,10 @@ Requires <span class="pkg">RegR</span> (declared in Suggests).</p></dd>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>In R Markdown or Quarto, use a code chunk with
-  <code>results = "asis"</code> (and optionally <code>message = FALSE</code>). Reports
-  are emitted through <code><a href="https://rdrr.io/pkg/knitr/man/knit_print.html" class="external-link">knitr::knit_print()</a></code> in the document's native
-  format, with dependencies retained. Console frequency listings are omitted
-  while knitting, and each default summary table is included only once.</p>
-<p>Character or factor columns with more than 100 categories, such as
-  identifiers, and list columns are reported in the variable summary but
-  left out of the frequency and grouped tables, with a message. Time spans
-  (<code>difftime</code>) are summarized as numbers in their own units.</p>
+<code>results = "asis"</code> (and optionally <code>message = FALSE</code>). Reports
+are emitted through <code><a href="https://rdrr.io/pkg/knitr/man/knit_print.html" class="external-link">knitr::knit_print()</a></code> in the document's native
+format, with dependencies retained. Console frequency listings are omitted
+while knitting, and each default summary table is included only once.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
