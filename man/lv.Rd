@@ -48,13 +48,16 @@ Ident.
 Bare column names take precedence over caller objects;
 character names can also be supplied through variables or expressions.
 Missing group values form their own last group, labelled as missing, and
-are included in the overall column.}
+are included in the overall column. A group with more than 100 distinct
+values (factor levels) is an error.}
 
 \item{count}{Optional variable(s) for cross-tabulation. Accepts a single
 variable name (NSE or string), multiple variable names via
 \code{c(var1, var2)} (NSE) or character vector
 \code{c("var1", "var2")}. Selections in \code{...}, \code{pattern} and
-\code{group} are ignored in this mode, with a warning.
+\code{group} are ignored in this mode, with a warning. Two-variable
+wide and row-percentage tables are skipped, with a message, when either
+variable has more than 100 categories.
 Existing dplyr groups are ignored for this table. Generated frequency,
 percentage, and total column names receive numeric suffixes when needed
 to preserve input columns and category labels.
