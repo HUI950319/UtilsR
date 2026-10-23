@@ -789,7 +789,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     gt::tab_header(
       title = gt::md("**Variable Summary**"),
       subtitle = gt::md(sprintf(
-        "Dataset: *%d* observations, *%d* variables, *%d* missing, *%d* Unknown/Blank/N/A",
+        "Dataset: *%d* observations, *%d* variables; *%d* with missing values, *%d* with Unknown/Blank/N/A",
         nrow(data),
         nrow(result),
         sum(result$n_na > 0, na.rm = TRUE),

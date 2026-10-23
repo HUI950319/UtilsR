@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* The `lv()` variable-summary subtitle says it counts variables with missing
+  or Unknown/Blank/N/A values, rather than reading as a count of values.
+
 * Seurat `lv()` cell statistics no longer list `orig.ident`, the sample
   identity, as a clustering.
 

@@ -539,3 +539,11 @@ test_that("Seurat cluster statistics leave out the sample identity", {
   expect_true(any(grepl("seurat_clusters", clusters)))
   expect_false(any(grepl("orig.ident", clusters)))
 })
+
+test_that("the summary subtitle counts variables with missing or special values", {
+  data <- data.frame(x = c(1, NA, NA), y = c("unknown", "a", "b"), z = 1:3)
+  reports <- capture_reports(lv(data))
+  subtitle <- as.character(reports[[1L]][["_heading"]]$subtitle)
+  expect_match(subtitle, "*1* with missing values", fixed = TRUE)
+  expect_match(subtitle, "*1* with Unknown/Blank/N/A", fixed = TRUE)
+})
