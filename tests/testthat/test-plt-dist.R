@@ -24,3 +24,21 @@ test_that("bar calculations do not overwrite selected input names", {
   }
   expect_identical(data, original)
 })
+
+test_that("distribution counts ignore unrelated input grouping", {
+  data <- data.frame(x = rep(c("A", "B"), each = 4),
+                     group = rep(c("F", "M"), 4),
+                     batch = rep(c("b1", "b1", "b2", "b2"), 2))
+  data$tile <- paste(data$x, data$group)
+  for (input in list(dplyr::group_by(data, batch), dplyr::rowwise(data))) {
+    original <- input
+    for (variables in list(c("x", "group"), c("x", "group", "tile"))) {
+      p <- dist_test_plot(input, variables, type = "bar")
+      reference <- dist_test_plot(data, variables, type = "bar")
+      expect_equal(as.data.frame(p$data), as.data.frame(reference$data))
+      expect_equal(ggplot2::ggplot_build(p)$data,
+                   ggplot2::ggplot_build(reference)$data)
+    }
+    expect_identical(input, original)
+  }
+})

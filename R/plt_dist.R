@@ -10,7 +10,8 @@
 #' heatmap**. The alluvial mode uses [plt_alluvial()], so it supports native
 #' faceting and only requires the suggested \pkg{ggalluvial} package.
 #'
-#' @param data A data frame.
+#' @param data A data frame. Existing dplyr grouping is ignored; counts use
+#'   only the variables selected by \code{dis_vars} and \code{facet}.
 #' @param dis_vars Character vector of variable names.
 #'   \itemize{
 #'     \item 2 variables: \code{c(x, fill)} \eqn{\rightarrow} alluvial flow
@@ -137,6 +138,7 @@ plt_dist <- function(data,
   if (length(missing_vars) > 0) {
     cli::cli_abort("Variable{?s} not found in data: {.val {missing_vars}}")
   }
+  data <- dplyr::ungroup(data)
 
   # --- Resolve theme + fill colours ---
   # .resolve_theme(): NULL -> theme_km, else theme/function/name -> theme.

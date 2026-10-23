@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `plt_dist()` ignores unrelated dplyr groups and rowwise grouping when
+  counting categories, so input grouping cannot split bars or labels.
+
 * `plt_dist()` keeps bar counts, proportions, and labels separate from
   identically named input columns, preserving categories and plotted values.
 

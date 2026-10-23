@@ -19,7 +19,8 @@ plt_dist(
 )
 }
 \arguments{
-\item{data}{A data frame.}
+\item{data}{A data frame. Existing dplyr grouping is ignored; counts use
+only the variables selected by \code{dis_vars} and \code{facet}.}
 
 \item{dis_vars}{Character vector of variable names.
 \itemize{
