@@ -80,7 +80,9 @@ PlotRankCor(
 
   Character. Scaling method for x-axis values (only when
   `use_rank = FALSE`). One of `"none"` (default), `"minmax"`,
-  `"zscore"`, `"log1p"`, or `"rank"`. Applied per group.
+  `"zscore"`, `"log1p"`, or `"rank"`. Applied per group. Scaling
+  preserves missing values. Constant observed values map to zero;
+  z-scores with fewer than two observed values remain missing.
 
 - scale_y:
 

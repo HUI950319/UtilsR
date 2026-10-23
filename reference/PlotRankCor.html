@@ -137,7 +137,9 @@ Pearson correlation.</p></dd>
 <dt id="arg-scale-x">scale_x<a class="anchor" aria-label="anchor" href="#arg-scale-x"></a></dt>
 <dd><p>Character. Scaling method for x-axis values (only when
 <code>use_rank = FALSE</code>). One of <code>"none"</code> (default), <code>"minmax"</code>,
-<code>"zscore"</code>, <code>"log1p"</code>, or <code>"rank"</code>. Applied per group.</p></dd>
+<code>"zscore"</code>, <code>"log1p"</code>, or <code>"rank"</code>. Applied per group.
+Scaling preserves missing values. Constant observed values map to zero;
+z-scores with fewer than two observed values remain missing.</p></dd>
 
 
 <dt id="arg-scale-y">scale_y<a class="anchor" aria-label="anchor" href="#arg-scale-y"></a></dt>

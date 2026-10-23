@@ -3,6 +3,16 @@
 ## UtilsR 0.6.8
 
 - [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
+  highlights the category levels its special-value counts include, using
+  the same whole-word rules, instead of separate substring matches that
+  also coloured variable labels and missed markers such as “Not stated”.
+
+- `fct_cat(binary_ref = )` also takes the reference levels by name:
+  `fct_cat(x, binary_ref = "No")` keeps `"No"` and collapses the other
+  levels to `"Oth"`, as `binary_ref = 2` does when `"No"` is the second
+  level. An unknown name is an error. Integer indices work as before.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
   summarizes entirely missing character columns in its default and
   grouped tables instead of failing in gtsummary formatting.
 
@@ -13,6 +23,8 @@
 - [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
   keeps missing scores out of ranks and correlations, both in its
   default rank mode and when applying a rank transform to raw scores.
+  Min-max and z-score scaling also retain missing values and handle
+  sparse groups without failing or manufacturing complete observations.
 
 - [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
   formats character intervals with vectorized dynamic precision,

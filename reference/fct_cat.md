@@ -40,9 +40,11 @@ fct_cat(
 
 - binary_ref:
 
-  One or more finite, non-missing integer indices of reference levels.
-  Others collapse to `"Oth"`. The reference label must differ from
-  `"Oth"` when other levels remain.
+  The reference levels, as one or more finite, non-missing integer
+  indices or as level names (`binary_ref = "No"`). They form one group,
+  named by joining them with `"_"`; the other levels collapse to
+  `"Oth"`. An unknown name is an error. The reference label must differ
+  from `"Oth"` when other levels remain.
 
 - groups:
 
@@ -107,10 +109,13 @@ fct_cat(factor(letters[1:4]), reverse = TRUE)
 #> [1] a b c d
 #> Levels: d c b a
 
-# Binary
+# Binary: by index or by level name
 fct_cat(factor(c("I","II","III","IV")), binary_ref = 1)
 #> [1] I   Oth Oth Oth
 #> Levels: I Oth
+fct_cat(factor(c("I","II","III","IV")), binary_ref = c("I", "II"))
+#> [1] I_II I_II Oth  Oth 
+#> Levels: I_II Oth
 
 # Group
 fct_cat(factor(c("I","II","III","IV")), groups = list(early = 1:2, late = 3:4))

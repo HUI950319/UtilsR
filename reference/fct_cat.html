@@ -97,9 +97,11 @@ Default <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg-binary-ref">binary_ref<a class="anchor" aria-label="anchor" href="#arg-binary-ref"></a></dt>
-<dd><p>One or more finite, non-missing integer indices of reference
-levels. Others collapse to <code>"Oth"</code>. The reference label must differ from
-<code>"Oth"</code> when other levels remain.</p></dd>
+<dd><p>The reference levels, as one or more finite, non-missing
+integer indices or as level names (<code>binary_ref = "No"</code>). They form
+one group, named by joining them with <code>"_"</code>; the other levels
+collapse to <code>"Oth"</code>. An unknown name is an error. The reference
+label must differ from <code>"Oth"</code> when other levels remain.</p></dd>
 
 
 <dt id="arg-groups">groups<a class="anchor" aria-label="anchor" href="#arg-groups"></a></dt>
@@ -164,10 +166,13 @@ merging and removal semantics.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] a b c d</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Levels: d c b a</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Binary</span></span></span>
+<span class="r-in"><span><span class="co"># Binary: by index or by level name</span></span></span>
 <span class="r-in"><span><span class="fu">fct_cat</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"I"</span>,<span class="st">"II"</span>,<span class="st">"III"</span>,<span class="st">"IV"</span><span class="op">)</span><span class="op">)</span>, binary_ref <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] I   Oth Oth Oth</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Levels: I Oth</span>
+<span class="r-in"><span><span class="fu">fct_cat</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"I"</span>,<span class="st">"II"</span>,<span class="st">"III"</span>,<span class="st">"IV"</span><span class="op">)</span><span class="op">)</span>, binary_ref <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"I"</span>, <span class="st">"II"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] I_II I_II Oth  Oth </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Levels: I_II Oth</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Group</span></span></span>
 <span class="r-in"><span><span class="fu">fct_cat</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"I"</span>,<span class="st">"II"</span>,<span class="st">"III"</span>,<span class="st">"IV"</span><span class="op">)</span><span class="op">)</span>, groups <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>early <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, late <span class="op">=</span> <span class="fl">3</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>

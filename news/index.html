@@ -50,9 +50,11 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/lv.html">lv()</a></code> summarizes entirely missing character columns in its default and grouped tables instead of failing in gtsummary formatting.</p></li>
+<ul><li><p><code><a href="../reference/lv.html">lv()</a></code> highlights the category levels its special-value counts include, using the same whole-word rules, instead of separate substring matches that also coloured variable labels and missed markers such as “Not stated”.</p></li>
+<li><p><code>fct_cat(binary_ref = )</code> also takes the reference levels by name: <code>fct_cat(x, binary_ref = "No")</code> keeps <code>"No"</code> and collapses the other levels to <code>"Oth"</code>, as <code>binary_ref = 2</code> does when <code>"No"</code> is the second level. An unknown name is an error. Integer indices work as before.</p></li>
+<li><p><code><a href="../reference/lv.html">lv()</a></code> summarizes entirely missing character columns in its default and grouped tables instead of failing in gtsummary formatting.</p></li>
 <li><p><code><a href="../reference/lv.html">lv()</a></code> summarizes date and date-time columns with more than ten distinct values instead of failing while truncating their suggested filter.</p></li>
-<li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> keeps missing scores out of ranks and correlations, both in its default rank mode and when applying a rank transform to raw scores.</p></li>
+<li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> keeps missing scores out of ranks and correlations, both in its default rank mode and when applying a rank transform to raw scores. Min-max and z-score scaling also retain missing values and handle sparse groups without failing or manufacturing complete observations.</p></li>
 <li><p><code><a href="../reference/stat_ci.html">stat_ci()</a></code> formats character intervals with vectorized dynamic precision, retaining detected precision and warnings while avoiding per-row templates.</p></li>
 <li><p><code><a href="../reference/stat_ci.html">stat_ci()</a></code> removes the minus sign from formatted zeros without changing other rounding or unparsed text. The mean/SD example now reflects its actual <code><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf()</a></code> rounding.</p></li>
 <li><p><code><a href="../reference/stat_ci.html">stat_ci()</a></code> preserves the names of <code>x</code> in numeric CI, mean/SD, and character modes, including missing observations and empty named vectors.</p></li>
