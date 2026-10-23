@@ -550,93 +550,26 @@ plt_alluvial <- function(
   }
 
   if (label_args$style != "none" && any(!is.na(stat$.label))) {
-    built <- ggplot2::ggplot_build(plot)
-    stratum_data <- built$data[[2L]]
-    if (is.factor(stratum_data$stratum)) {
-      stratum_data$.group_chr <- as.character(stratum_data$stratum)
-    } else if (is.numeric(stratum_data$stratum)) {
-      stratum_data$.group_chr <- all_group_levels[as.integer(
-        stratum_data$stratum
-      )]
-    } else {
-      stratum_data$.group_chr <- as.character(stratum_data$stratum)
-    }
-    if (facet_used) {
-      layout <- built$layout$layout
-      layout_index <- match(
-        as.character(stratum_data$PANEL),
-        as.character(layout$PANEL)
+    # Non-missing inputs keep gap strata in the stat; hide their labels afterward.
+    label_mapping <- ggplot2::aes(label = ggplot2::stage(
+      start = ifelse(is.na(.data$.label), "", paste0("1", .data$.label)),
+      after_stat = ifelse(
+        nzchar(.data$label), substring(.data$label, 2L), NA_character_
       )
-      stratum_data$.facet_chr <- as.character(layout$.facet[layout_index])
-      panel_number <- as.integer(layout$PANEL[layout_index])
-      stratum_data$.cat_var_chr <- vapply(
-        seq_along(stratum_data$x),
-        function(index) {
-          panel_labels <- built$layout$panel_params[[panel_number[
-            index
-          ]]]$x$get_labels()
-          as.character(panel_labels[as.integer(stratum_data$x[index])])
-        },
-        character(1)
+    ))
+    if (label_args$box) {
+      plot <- plot + ggalluvial::stat_stratum(
+        geom = "label", mapping = label_mapping,
+        size = label_args$size, color = label_args$color,
+        fill = label_args$fill, alpha = label_args$alpha,
+        na.rm = TRUE, show.legend = FALSE
       )
     } else {
-      stratum_data$.facet_chr <- facet_levels[1L]
-      stratum_data$.cat_var_chr <- cat_levels[as.integer(stratum_data$x)]
-    }
-    stratum_data$.y_center <- (stratum_data$ymin + stratum_data$ymax) / 2
-
-    label_lookup <- stat[
-      !stat$.is_gap & !is.na(stat$.label),
-      c(".facet", ".cat_var", ".group", ".label")
-    ]
-    label_lookup$.facet_chr <- as.character(label_lookup$.facet)
-    label_lookup$.cat_var_chr <- as.character(label_lookup$.cat_var)
-    label_lookup$.group_chr <- as.character(label_lookup$.group)
-    label_lookup <- label_lookup[
-      c(".facet_chr", ".cat_var_chr", ".group_chr", ".label")
-    ]
-    label_data <- merge(
-      stratum_data,
-      label_lookup,
-      by = c(".facet_chr", ".cat_var_chr", ".group_chr"),
-      all = FALSE,
-      sort = FALSE
-    )
-    label_data <- label_data[
-      !is.na(label_data$.label),
-      ,
-      drop = FALSE
-    ]
-    label_data$.facet <- factor(label_data$.facet_chr, levels = facet_levels)
-
-    if (nrow(label_data) > 0L) {
-      label_mapping <- ggplot2::aes(
-        x = .data$x,
-        y = .data$.y_center,
-        label = .data$.label
+      plot <- plot + ggalluvial::stat_stratum(
+        geom = "text", mapping = label_mapping,
+        size = label_args$size, color = label_args$color,
+        alpha = label_args$alpha, na.rm = TRUE, show.legend = FALSE
       )
-      if (label_args$box) {
-        plot <- plot +
-          ggplot2::geom_label(
-            data = label_data,
-            mapping = label_mapping,
-            inherit.aes = FALSE,
-            size = label_args$size,
-            color = label_args$color,
-            fill = label_args$fill,
-            alpha = label_args$alpha
-          )
-      } else {
-        plot <- plot +
-          ggplot2::geom_text(
-            data = label_data,
-            mapping = label_mapping,
-            inherit.aes = FALSE,
-            size = label_args$size,
-            color = label_args$color,
-            alpha = label_args$alpha
-          )
-      }
     }
   }
 

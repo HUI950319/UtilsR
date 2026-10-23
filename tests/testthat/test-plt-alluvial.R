@@ -82,8 +82,9 @@ test_that("plt_alluvial returns a facet-aware ggplot", {
     FUN = sum
   )
   expect_equal(totals$x, rep(1, nrow(totals)))
-  expect_equal(nrow(plot$layers[[3]]$data), sum(real$count > 0))
-  expect_setequal(as.character(plot$layers[[3]]$data$.facet), c("P1", "P2"))
+  built <- ggplot2::ggplot_build(plot)
+  expect_equal(sum(!is.na(built$data[[3]]$label)), sum(real$count > 0))
+  expect_setequal(as.character(built$layout$layout$.facet), c("P1", "P2"))
 })
 
 test_that("plt_alluvial supports count mode and preserves input order", {
@@ -116,7 +117,9 @@ test_that("plt_alluvial distinguishes real group names from gap strata", {
     real <- plot$data[!plot$data$.is_gap, ]
     expect_equal(sum(real$count), nrow(data))
     expect_setequal(
-      as.character(unlist(lapply(ggplot2::ggplot_build(plot)$data, `[[`, "label"))),
+      stats::na.omit(as.character(unlist(lapply(
+        ggplot2::ggplot_build(plot)$data, `[[`, "label"
+      )))),
       real$.label[!is.na(real$.label)]
     )
     expect_length(intersect(
@@ -177,12 +180,41 @@ test_that("plt_alluvial maps labels correctly with free x scales", {
     facet_args = list(scales = "free_x"),
     stratum_args = list(gap = 0)
   )
-  labels <- plot$layers[[3]]$data
-
+  built <- ggplot2::ggplot_build(plot)
+  labels <- built$data[[3]]
+  panel <- built$layout$layout$PANEL[built$layout$layout$.facet == "P2"]
   expect_setequal(
-    unique(labels$.cat_var_chr[labels$.facet_chr == "P2"]),
-    "A"
+    labels$label[labels$PANEL == panel & !is.na(labels$label)],
+    plot$data$.label[plot$data$.facet == "P2" & !is.na(plot$data$.label)]
   )
+})
+
+test_that("plt_alluvial labels follow final axis positions and stratum centers", {
+  skip_if_not_installed("ggalluvial")
+
+  data <- data.frame(
+    category = rep(c("A", "B"), each = 4),
+    group = c("F", "F", "F", "M", "F", "M", "M", "M")
+  )
+  for (box in c(TRUE, FALSE)) for (gap in c(0, 0.01)) {
+    plot <- plt_alluvial(
+      data, "category", "group", stratum_args = list(gap = gap),
+      label_args = list(box = box)
+    )
+    real <- plot$data[!plot$data$.is_gap, ]
+    built <- ggplot2::ggplot_build(plot + ggplot2::scale_x_discrete(limits = rev))
+    labels <- built$data[[3]]
+    labels <- labels[!is.na(labels$label), ]
+    source <- real[match(labels$label, real$.label), ]
+    expected_x <- match(as.character(source$.cat_var), c("B", "A"))
+    expect_equal(as.numeric(labels$x), expected_x)
+    strata <- built$data[[2]]
+    index <- match(
+      paste(expected_x, source$.group), paste(strata$x, strata$stratum)
+    )
+    expect_equal(labels$y, (strata$ymin[index] + strata$ymax[index]) / 2)
+    expect_no_warning(ggplot2::ggplotGrob(plot))
+  }
 })
 
 test_that("plt_alluvial exposes the requested label styles", {

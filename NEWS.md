@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `plt_alluvial()` calculates labels with the final stratum layout, so labels
+  follow later axis changes. It no longer builds the plot in advance for labels.
+
 * `plt_alluvial()` keeps real groups named `.gap_1` or starting with `.gap_`
   distinct from its transparent gap strata, including their labels.
 
