@@ -6,19 +6,42 @@
 #
 #   L1  print helpers: write to stdout, return the lines invisibly -- public API
 #         pr_head(class, ...)          class chip + grey one-line summary
+#         pr_kv(x)                     aligned key-value block
 #
 #   L2  shared internals
 #         ._chip()       short label on a solid background (utils_display.R)
+#         ._kv_lines()   named values -> aligned "key  value" lines
 #         ._pr_out()     write lines to stdout, return them invisibly
 #
 # Print methods write to stdout with cat(), as print() output is expected
 # to; running notices belong to .cat_message() / .cat_step() instead.
 # =============================================================================
 
-# Write lines to stdout and return them invisibly
+# Write lines to stdout and return them invisibly; no lines print nothing
+# (cat(character(), sep = "\n") would still end an empty line)
 ._pr_out <- function(lines) {
-  cat(lines, sep = "\n")
+  if (length(lines)) cat(lines, sep = "\n")
   invisible(lines)
+}
+
+# Named values -> "key  value" lines with grey keys aligned by display width,
+# so wide (CJK) keys line up. NULL values are dropped, atomic vectors joined
+# with ", ", and other objects shown by their class.
+._kv_lines <- function(x, arg = "x") {
+  keys <- names(x)
+  if (length(x) && (is.null(keys) || anyNA(keys) || !all(nzchar(keys)))) {
+    cli::cli_abort("Every element of {.arg {arg}} must be named.")
+  }
+  x    <- as.list(x)
+  keep <- !vapply(x, is.null, logical(1))
+  if (!any(keep)) return(character())
+  keys <- keys[keep]
+  vals <- vapply(x[keep], function(v) {
+    if (is.atomic(v)) paste(as.character(v), collapse = ", ")
+    else paste0("<", class(v)[1], ">")
+  }, character(1), USE.NAMES = FALSE)
+  width <- max(cli::ansi_nchar(keys, type = "width"))
+  paste0(cli::col_grey(cli::ansi_align(keys, width)), "  ", vals)
 }
 
 # ------------- pr_head ------------------------------------------------------
@@ -53,4 +76,31 @@ pr_head <- function(class, ..., bg = "blue", fg = "br_white") {
     line <- paste(line, cli::col_grey(paste(parts, collapse = " \u00b7 ")))
   }
   ._pr_out(line)
+}
+
+# ------------- pr_kv --------------------------------------------------------
+
+#' Aligned key-value block for a print method
+#'
+#' Print one \code{key  value} line per element, keys in grey and aligned by
+#' their display width, so Chinese or other wide-character keys line up.
+#'
+#' @param x A named list or named vector. \code{NULL} elements are dropped,
+#'   so optional settings can be passed as they are; atomic values are
+#'   joined with \code{", "} and other objects are shown by their class,
+#'   e.g. \code{<lm>}.
+#' @param indent Integer. Spaces before each key (default 2).
+#'
+#' @return The printed lines, invisibly.
+#'
+#' @examples
+#' pr_kv(list(treat = "Surgery", outcome = "Surv(time, DSS)",
+#'            conf_level = 0.95, instrument = NULL))
+#'
+#' @export
+#' @family print helpers
+pr_kv <- function(x, indent = 2) {
+  lines <- ._kv_lines(x)
+  if (length(lines)) lines <- paste0(strrep(" ", indent), lines)
+  ._pr_out(lines)
 }

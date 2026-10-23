@@ -29,4 +29,8 @@ summary: the first line of an S3 print method.
 pr_head("sens_res", 'method = "cox"', "tipr 1.0.2", "n = 2,314")
 
 }
+\seealso{
+Other print helpers:
+\code{\link[=pr_kv]{pr_kv()}}
+}
 \concept{print helpers}
