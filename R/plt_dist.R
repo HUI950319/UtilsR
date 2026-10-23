@@ -28,7 +28,10 @@
 #' @param color Colour specification, resolved by the internal colour resolver:
 #'   \code{NULL} (default \code{pal_lancet}), a registered palette name (e.g.
 #'   \code{"Paired"}), a single literal colour, or a vector of colours. In
-#'   alluvial mode these are passed to [plt_alluvial()].
+#'   a named vector, names must be unique category labels and include every
+#'   observed fill category. Unnamed vectors follow factor-level order (data
+#'   order for character alluvial groups). Unused bar/heatmap factor levels
+#'   retain their positions in an unnamed palette.
 #' @param alpha Colour transparency. Default 0.7. In alluvial mode this is the
 #'   flow ribbon transparency (\code{flow.alpha}).
 #' @param label Label content, one of \code{"count_percent"} (default),
@@ -143,6 +146,28 @@ plt_dist <- function(data,
     cli::cli_abort("Variable{?s} not found in data: {.val {missing_vars}}")
   }
   data <- dplyr::ungroup(data)
+  named_palette <- NULL
+  if (!is.null(names(color))) {
+    color_names <- names(color)
+    if (!is.character(color) || anyNA(color_names) ||
+        any(!nzchar(color_names)) || anyDuplicated(color_names)) {
+      cli::cli_abort("Named {.arg color} values must have unique, non-empty category names.")
+    }
+    fill_values <- data[[dis_vars[length(dis_vars)]]]
+    if (length(dis_vars) == 2L && type == "alluvial") {
+      fill_values <- fill_values[stats::complete.cases(data[c(dis_vars, facet)])]
+    }
+    needed_levels <- if (is.factor(fill_values)) {
+      levels(fill_values)[levels(fill_values) %in% as.character(fill_values)]
+    } else {
+      unique(as.character(fill_values[!is.na(fill_values)]))
+    }
+    missing_colors <- setdiff(needed_levels, color_names)
+    if (length(missing_colors)) {
+      cli::cli_abort("Named {.arg color} must include every observed fill category; missing {.val {missing_colors}}.")
+    }
+    named_palette <- color[needed_levels]
+  }
 
   # --- Resolve theme + fill colours ---
   # .resolve_theme(): NULL -> theme_km, else theme/function/name -> theme.
@@ -159,7 +184,7 @@ plt_dist <- function(data,
       cat_var = dis_vars[1L],
       group = dis_vars[2L],
       facet = facet,
-      color = color,
+      color = if (is.null(named_palette)) color else unname(named_palette),
       flow_args = list(alpha = alpha, curve_type = curve_type),
       stratum_args = list(gap = gap),
       label_args = list(style = label),
@@ -177,7 +202,12 @@ plt_dist <- function(data,
   # colour(s) -> recycled; sized to the number of fill levels. Alpha here.
   fill_var    <- dis_vars[length(dis_vars)]
   fill_levels <- levels(data[[fill_var]])
-  pal_cols    <- ggplot2::alpha(.resolve_color(color, n = length(fill_levels)), alpha)
+  pal_cols <- if (is.null(named_palette)) {
+    stats::setNames(ggplot2::alpha(.resolve_color(color, n = length(fill_levels)), alpha),
+                    fill_levels)
+  } else {
+    stats::setNames(ggplot2::alpha(unname(named_palette), alpha), names(named_palette))
+  }
 
   # --- 2 variables: stacked bar ---
   if (length(dis_vars) == 2) {

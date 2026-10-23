@@ -41,7 +41,10 @@ or \code{"bar"} (stacked proportion bar). Ignored when \code{dis_vars} has
 \item{color}{Colour specification, resolved by the internal colour resolver:
 \code{NULL} (default \code{pal_lancet}), a registered palette name (e.g.
 \code{"Paired"}), a single literal colour, or a vector of colours. In
-alluvial mode these are passed to [plt_alluvial()].}
+a named vector, names must be unique category labels and include every
+observed fill category. Unnamed vectors follow factor-level order (data
+order for character alluvial groups). Unused bar/heatmap factor levels
+retain their positions in an unnamed palette.}
 
 \item{alpha}{Colour transparency. Default 0.7. In alluvial mode this is the
 flow ribbon transparency (\code{flow.alpha}).}

@@ -71,3 +71,25 @@ test_that("heatmaps reject cells containing more than one fill category", {
   tiles <- ggplot2::ggplot_build(p)$data[[1L]]
   expect_equal(nrow(unique(tiles[c("x", "y")])), nrow(tiles))
 })
+
+test_that("distribution palettes keep category names and unused-level positions", {
+  data <- data.frame(x = c("A", "B"), y = "C", group = c("F", "M"))
+  for (mode in c("bar", "alluvial", "heatmap")) {
+    if (mode == "alluvial" && !requireNamespace("ggalluvial", quietly = TRUE)) next
+    variables <- if (mode == "heatmap") c("x", "y", "group") else c("x", "group")
+    type <- if (mode == "alluvial") "alluvial" else "bar"
+    p <- dist_test_plot(data, variables, type = type, color = c(M = "red", F = "blue"))
+    built <- ggplot2::ggplot_build(p)
+    mapped <- built$plot$scales$get_scales("fill")$map(c("F", "M"))
+    expect_equal(unname(grDevices::col2rgb(mapped)),
+                 unname(grDevices::col2rgb(c("blue", "red"))))
+    expect_error(plt_dist(data, variables, type = type, color = c(F = "blue")),
+                 "every observed fill category")
+  }
+  data$group <- factor(data$group, levels = c("Unused", "F", "M"))
+  p <- dist_test_plot(data, c("x", "group"), type = "bar",
+                     color = c("red", "blue", "green"))
+  mapped <- ggplot2::ggplot_build(p)$plot$scales$get_scales("fill")$map(c("F", "M"))
+  expect_equal(unname(grDevices::col2rgb(mapped)),
+               unname(grDevices::col2rgb(c("blue", "green"))))
+})
