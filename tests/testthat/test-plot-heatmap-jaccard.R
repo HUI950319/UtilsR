@@ -37,3 +37,22 @@ test_that("data without non-missing groups fails clearly", {
   expect_error(PlotHeatmapJaccard(dat), "No non-missing groups")
   expect_error(PlotHeatmapJaccard(dat[FALSE, ]), "No non-missing groups")
 })
+
+test_that("axis strips keep valid colours beyond the default palette length", {
+  dat <- data.frame(cell_type = sprintf("G%02d", 1:17), gene = paste0("gene", 1:17))
+  plot <- PlotHeatmapJaccard(dat, show_strip = TRUE, text_size = 0)
+  layers <- ggplot2::ggplot_build(plot)$data
+  bottom <- layers[[2L]]$fill
+  left <- layers[[3L]]$fill
+  expect_length(bottom, 17)
+  expect_false(anyNA(bottom))
+  expect_identical(left, bottom)
+  expect_identical(bottom[c(1L, 16L)], c("#E41A1C", "#B3B3B3"))
+  expect_identical(bottom[17L], bottom[1L])
+  expect_s3_class(ggplot2::ggplotGrob(plot), "gtable")
+
+  custom <- PlotHeatmapJaccard(dat, show_strip = TRUE, text_size = 0,
+                              strip_colors = c("red", "blue"))
+  expect_identical(ggplot2::ggplot_build(custom)$data[[2L]]$fill,
+                   rep_len(c("red", "blue"), 17))
+})

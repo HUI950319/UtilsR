@@ -28,6 +28,8 @@
 #'   the top (X axis) and left (Y axis) of the heatmap. Default \code{FALSE}.
 #' @param strip_colors Character vector of colours for each group strip.
 #'   \code{NULL} = auto palette (same order as \code{group_levels} / \code{ct_names}).
+#'   The 16-colour auto palette repeats for additional groups, as do shorter
+#'   custom palettes.
 #' @param strip_size Numeric. Width/height of the colour strip in data units.
 #'   Default \code{0.45}.
 #' @param return_type What to return: \code{"plot"} (default, the ggplot object),
@@ -147,7 +149,7 @@ PlotHeatmapJaccard <- function(
       "#A65628", "#F781BF", "#999999", "#66C2A5", "#FC8D62",
       "#8DA0CB", "#E78AC3", "#A6D854", "#FFD92F", "#E5C494", "#B3B3B3"
     )
-    strip_colors <- default_cols[seq_len(n_ct)]
+    strip_colors <- rep_len(default_cols, n_ct)
   }
   if (show_strip && length(strip_colors) < n_ct)
     strip_colors <- rep_len(strip_colors, n_ct)

@@ -56,7 +56,9 @@ Set to \code{0} to hide labels.}
 the top (X axis) and left (Y axis) of the heatmap. Default \code{FALSE}.}
 
 \item{strip_colors}{Character vector of colours for each group strip.
-\code{NULL} = auto palette (same order as \code{group_levels} / \code{ct_names}).}
+\code{NULL} = auto palette (same order as \code{group_levels} / \code{ct_names}).
+The 16-colour auto palette repeats for additional groups, as do shorter
+custom palettes.}
 
 \item{strip_size}{Numeric. Width/height of the colour strip in data units.
 Default \code{0.45}.}
