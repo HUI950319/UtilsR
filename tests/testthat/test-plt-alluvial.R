@@ -234,7 +234,10 @@ test_that("plt_alluvial applies list overrides and colour resolution", {
     label_args = list(style = "none")
   )
   single_colors <- unname(single$scales$get_scales("fill")$palette(2))
-  expect_equal(single_colors[single_colors != "transparent"], rep("red", 2))
+  expect_equal(
+    grDevices::col2rgb(single_colors[single_colors != "transparent"]),
+    grDevices::col2rgb(rep("red", 2))
+  )
 
   registered <- plt_alluvial(
     alluvial_data(),
