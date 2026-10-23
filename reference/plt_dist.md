@@ -29,8 +29,7 @@ plt_dist(
 
 - data:
 
-  A data frame. Existing dplyr grouping is ignored; counts use only the
-  variables selected by `dis_vars` and `facet`.
+  A data frame.
 
 - dis_vars:
 

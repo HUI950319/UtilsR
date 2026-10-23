@@ -2,34 +2,6 @@
 
 ## UtilsR 0.6.8
 
-- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
-  constructs suggested filters as R expressions, correctly escaping
-  non-syntactic column names, quotes, backslashes, and line breaks in
-  values.
-
-- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
-  treats bar facet column names literally, including spaces, operators,
-  and backticks, instead of parsing them as formula expressions.
-
-- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
-  ignores unrelated dplyr groups and rowwise grouping when counting
-  categories, so input grouping cannot split bars or labels.
-
-- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) emits
-  native knitr tables with their dependencies in documented
-  `results = 'asis'` chunks, avoiding duplicated report tables and
-  console listings while knitting. The data-inspection vignette uses
-  that format.
-
-- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
-  keeps bar counts, proportions, and labels separate from identically
-  named input columns, preserving categories and plotted values.
-
-- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) returns
-  zero-row and zero-column inputs unchanged with a message, before
-  report construction or temporary theme changes in every data-frame
-  mode.
-
 - [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) supports
   renamed selections and keeps explicit empty selections empty,
   including selection of only the grouping column. Omitted selections
