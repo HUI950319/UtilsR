@@ -32,8 +32,11 @@
 #' @param data A data object: data.frame or Seurat object. If omitted,
 #'   \code{lv()} falls back to a global object named \code{data}, otherwise
 #'   \code{data_all} (the first that is a data.frame / Seurat object).
-#' @param ... Variable selection using \code{dplyr::select} syntax.
-#' @param pattern Optional regex pattern for matching variable names.
+#' @param ... Variable selection using \code{dplyr::select} syntax, including
+#'   renamed selections. With no selection, all variables are inspected;
+#'   an explicit empty selection returns the input without a report.
+#' @param pattern Optional single regex pattern for matching variable names.
+#'   Overrides \code{...} with a warning, without evaluating those selections.
 #' @param group Optional grouping variable. Supports NSE (bare name) or
 #'   character string. For Seurat objects, set to \code{TRUE} to use current
 #'   Ident.
@@ -434,19 +437,29 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   # ==========================================================================
 
   # Variable selection
+  analysis_data <- dplyr::ungroup(data)
+  n_selections <- length(rlang::enquos(...))
   if (!is.null(pattern)) {
-    vars <- names(data)[grepl(pattern, names(data), ignore.case = TRUE)]
-  } else {
-    vars <- names(dplyr::select(data, ...))
-  }
-
-  if (length(vars) == 0) {
-    if (!is.null(pattern)) {
-      cli::cli_alert_warning(
-        "\u672a\u627e\u5230\u5339\u914d\u6a21\u5f0f '{pattern}' \u7684\u53d8\u91cf\uff0c\u5c06\u5206\u6790\u6240\u6709\u53d8\u91cf"
-      )
+    if (!is.character(pattern) || !is.null(dim(pattern)) ||
+        length(pattern) != 1L || is.na(pattern)) {
+      cli::cli_abort("{.arg pattern} must be NULL or a single regular expression.")
     }
-    vars <- names(data)
+    matched <- tryCatch(
+      grepl(pattern, names(data), ignore.case = TRUE),
+      error = function(e) cli::cli_abort("{.arg pattern} must be a valid regular expression."),
+      warning = function(w) cli::cli_abort("{.arg pattern} must be a valid regular expression.")
+    )
+    if (n_selections) {
+      cli::cli_warn("{.arg pattern} overrides selections in {.code ...}; they were not evaluated.")
+    }
+    analysis_data <- analysis_data[, matched, drop = FALSE]
+  } else if (n_selections) {
+    analysis_data <- dplyr::select(analysis_data, ...)
+  }
+  vars <- names(analysis_data)
+  if (!length(vars) && is.null(count_vars)) {
+    cli::cli_inform("No variables selected; returning input without a report.")
+    return(invisible(data))
   }
 
   # ==========================================================================
@@ -562,9 +575,14 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       cli::cli_abort("\u53d8\u91cf {.var {group_var}} \u4e0d\u5b58\u5728\u4e8e\u6570\u636e\u4e2d")
     }
 
+    if (group_var %in% vars &&
+        !identical(analysis_data[[group_var]], data[[group_var]])) {
+      cli::cli_abort("A selected column name conflicts with {.arg group}; use another alias.")
+    }
     vars <- setdiff(vars, group_var)
     if (length(vars) == 0) {
-      vars <- setdiff(names(data), group_var)
+      cli::cli_inform("No variables selected apart from the group; returning input.")
+      return(invisible(data))
     }
 
     cli::cli_h1(cli::col_magenta(glue::glue("Variable Summary by {group_var}")))
@@ -572,8 +590,10 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     n_groups <- length(unique(data[[group_var]]))
     cli::cli_alert_info("Groups: {.val {n_groups}}")
 
+    grouped_data <- tibble::as_tibble(analysis_data)[, vars, drop = FALSE]
+    grouped_data[[group_var]] <- data[[group_var]]
     res_grouped <-
-      tibble::as_tibble(data)[, c(group_var, vars), drop = FALSE] %>%
+      grouped_data[, c(group_var, vars), drop = FALSE] %>%
       gtsummary::tbl_summary(
         by = dplyr::all_of(group_var),
         type = list(
@@ -600,19 +620,19 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   # Default mode (no group, no count)
   # ==========================================================================
 
-  result <- purrr::map_dfr(vars, ~ .lv_one(data, .x))
+  result <- purrr::map_dfr(vars, ~ .lv_one(analysis_data, .x))
 
   res_count <-
-    tibble::as_tibble(data)[, vars, drop = FALSE] %>%
+    tibble::as_tibble(analysis_data)[, vars, drop = FALSE] %>%
     labelled::set_variable_labels(
       .labels = setNames(
         paste0(
           vars, " (",
-          vapply(data[vars], function(x) class(x)[1], character(1)), ", ",
+          vapply(analysis_data[vars], function(x) class(x)[1], character(1)), ", ",
           # Observed values: .lv_one() already counted them for non-factors;
           # its factor count includes unused levels, so tabulate the codes.
           vapply(vars, function(v) {
-            x <- data[[v]]
+            x <- analysis_data[[v]]
             if (is.factor(x)) sum(tabulate(as.integer(x), nlevels(x)) > 0L)
             else as.integer(result$n_unique[match(v, result$vars)])
           }, integer(1)),

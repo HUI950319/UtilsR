@@ -145,3 +145,59 @@ test_that("Seurat controls use the same name resolution and preserve the object"
                              add_cell_stats = FALSE))$tables)
   expect_identical(object, before)
 })
+
+test_that("column selection retains aliases without altering input", {
+  data <- data.frame(g = c("A", "A", "B", "B"), x = 1:4, other = 5:8)
+  attr(data, "source") <- "unchanged"
+  before <- data
+  result <- capture_lv(lv(data, renamed = x))
+  summary <- Filter(function(x) "n_special" %in% names(x), result$tables)[[1L]]
+  expect_identical(summary$vars, "renamed")
+  expect_equal(summary$n_unique, 4)
+  expect_identical(result$value$value, before)
+  expect_identical(data, before)
+  grouped <- capture_lv(lv(data, renamed = x, group = g))
+  expect_true(any(vapply(grouped$tables, function(x) {
+    "label" %in% names(x) && any(grepl("renamed", x$label))
+  }, logical(1))))
+})
+
+test_that("explicit empty selections do not expand to all columns", {
+  data <- data.frame(g = c("A", "A", "B", "B"), x = 1:4)
+  empty <- list(
+    capture_lv(lv(data, dplyr::starts_with("absent"))),
+    capture_lv(lv(data, pattern = "^absent$")),
+    capture_lv(lv(data, g, group = g))
+  )
+  for (result in empty) {
+    expect_length(result$tables, 0L)
+    expect_identical(result$value$value, data)
+    expect_false(result$value$visible)
+  }
+  all <- capture_lv(lv(data))
+  summary <- Filter(function(x) "n_special" %in% names(x), all$tables)[[1L]]
+  expect_identical(summary$vars, names(data))
+})
+
+test_that("pattern validation and override do not evaluate ignored selections", {
+  data <- data.frame(x = 1:4, y = 5:8)
+  expect_warning(
+    result <- capture_lv(lv(data, stop("ignored"), pattern = "^y$")),
+    "overrides"
+  )
+  summary <- Filter(function(x) "n_special" %in% names(x), result$tables)[[1L]]
+  expect_identical(summary$vars, "y")
+  for (pattern in list(NA_character_, c("x", "y"), 1, list("x"), "[")) {
+    expect_error(capture_lv(lv(data, pattern = pattern)), "pattern")
+  }
+})
+
+test_that("global data shortcuts still inspect and return the original dataset", {
+  data <- data.frame(x = 1:4, y = 5:8)
+  rlang::local_bindings(data = data, .env = globalenv())
+  result <- capture_lv(lv(x))
+  summary <- Filter(function(x) "n_special" %in% names(x), result$tables)[[1L]]
+  expect_identical(summary$vars, "x")
+  expect_identical(result$value$value, data)
+  expect_identical(get("data", envir = globalenv()), data)
+})

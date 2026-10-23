@@ -29,9 +29,12 @@ lv(data, ...)
 \code{lv()} falls back to a global object named \code{data}, otherwise
 \code{data_all} (the first that is a data.frame / Seurat object).}
 
-\item{...}{Variable selection using \code{dplyr::select} syntax.}
+\item{...}{Variable selection using \code{dplyr::select} syntax, including
+renamed selections. With no selection, all variables are inspected;
+an explicit empty selection returns the input without a report.}
 
-\item{pattern}{Optional regex pattern for matching variable names.}
+\item{pattern}{Optional single regex pattern for matching variable names.
+Overrides \code{...} with a warning, without evaluating those selections.}
 
 \item{group}{Optional grouping variable. Supports NSE (bare name) or
 character string. For Seurat objects, set to \code{TRUE} to use current
