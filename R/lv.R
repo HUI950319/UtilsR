@@ -435,7 +435,21 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     df[spans] <- lapply(df[spans], as.numeric)
     lt <- vapply(df, inherits, logical(1), what = "POSIXlt")
     df[lt] <- lapply(df[lt], as.POSIXct)
+    df[] <- lapply(df, .label_blank)
     df
+  }
+
+  # Empty categories display as "(blank)", as in the wide count table,
+  # unless that label is itself a value and the two would merge.
+  .label_blank <- function(x) {
+    if (is.factor(x)) {
+      # Reassigning levels would also drop an NA level, so only touch "".
+      blank <- levels(x) %in% ""
+      if (any(blank) && !"(blank)" %in% levels(x)) levels(x)[blank] <- "(blank)"
+    } else if (is.character(x) && !"(blank)" %in% x) {
+      x[x %in% ""] <- "(blank)"
+    }
+    x
   }
 
   # A character or factor column with more than 100 categories (an
@@ -557,6 +571,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
         "{pct_name}" := round(.data[[n_name]] / sum(.data[[n_name]]) * 100, 2),
         "{label_name}" := glue::glue("{.data[[n_name]]} ({.data[[pct_name]]}%)")
       )
+    cross_count[count_vars] <- lapply(cross_count[count_vars], .label_blank)
 
     if (knitting) .lv_print_report(gt::gt(cross_count))
     else print(tibble::as_tibble(cross_count))
@@ -694,7 +709,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       if (!"\u7f3a\u5931" %in% levels(by)) levels(by) <- c(levels(by), "\u7f3a\u5931")
       by[is.na(by)] <- "\u7f3a\u5931"
     }
-    grouped_data[[group_var]] <- by
+    grouped_data[[group_var]] <- .label_blank(by)
     res_grouped <-
       grouped_data[, c(group_var, vars), drop = FALSE] %>%
       gtsummary::tbl_summary(

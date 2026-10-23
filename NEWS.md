@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `lv()` labels empty-string categories `(blank)` in its long count table and
+  its default and grouped summaries, as its wide count table already did,
+  unless a `(blank)` value exists and the two would merge.
+
 * Two-variable `lv(count = )` tables skip the wide and row-percentage tables,
   with a message, when either variable has more than 100 categories; a
   5,000-category wide table previously took about 18 seconds.

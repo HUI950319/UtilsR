@@ -496,3 +496,26 @@ test_that("two-way counts with more than 100 categories skip the wide tables", {
     utils::capture.output(expect_message(lv(data, count = vars), "more than 100"))
   }
 })
+
+test_that("empty categories display as (blank) in every table", {
+  data <- data.frame(x = c("", "a", "a", ""), g = c("A", "B", "", "A"),
+                     f = factor(c("", "u", "u", "u")))
+  default <- capture_reports(lv(data))
+  labels <- as.character(default[[2L]][["_data"]]$label)
+  expect_equal(sum(labels == "(blank)"), 3)
+  expect_equal(default[[1L]][["_data"]]$n_special, c(2, 1, 1))
+  grouped <- capture_reports(lv(data, x, group = g))
+  body <- grouped[[1L]]$table_body
+  expect_true("(blank)" %in% body$label)
+  header <- grouped[[1L]]$table_styling$header
+  expect_true(any(grepl("(blank)", header$label, fixed = TRUE)))
+  counted <- capture_reports(lv(data, count = c(x, g)))
+  expect_true("(blank)" %in% counted[[1L]][["_data"]]$x)
+
+  # A genuine "(blank)" value keeps both categories apart.
+  clash <- data.frame(x = c("", "(blank)", "(blank)"))
+  reports <- capture_reports(lv(clash))
+  body <- reports[[2L]][["_data"]]
+  expect_setequal(as.character(body$label[body$row_type == "level"]),
+                  c("", "(blank)"))
+})
