@@ -14,7 +14,8 @@
   result list as a tree with short grey descriptions such as
   `<tibble 12 x 7>`, listing extra attributes as well. `pr_box()` frames
   key-value or plain lines in a rounded box with an optional header and
-  footer in its border.
+  footer in its border. `pr_spark()` prints one line per column: a
+  sparkline of its distribution, a short summary and the missing share.
 
 * `plt_dist()` gains `label = "count_percent_wrap"`, which puts counts and
   percentages on separate lines: `count\npercent` on stacked bars, and the

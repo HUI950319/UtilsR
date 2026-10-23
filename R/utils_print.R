@@ -16,6 +16,7 @@
 #               +-- ._obj_desc()
 #         pr_box(x, header, footer)    rounded box of key-value lines
 #               +-- ._kv_lines()
+#         pr_spark(data, vars)         one distribution line per column
 #
 #   L2  shared internals
 #         ._chip()       short label on a solid background (utils_display.R)
@@ -465,4 +466,90 @@ pr_box <- function(x, header = NULL, footer = NULL, col = "cyan") {
   )
   # a boxx is one string with embedded newlines
   ._pr_out(strsplit(as.character(box), "\n", fixed = TRUE)[[1]])
+}
+
+# ------------- pr_spark -----------------------------------------------------
+
+#' One-line distribution of each column
+#'
+#' Print one line per column: its name, a sparkline of its distribution, a
+#' short summary and the share of missing values, for a quick look at a
+#' data set before modelling.
+#'
+#' Numeric columns show a histogram of \code{bins} equal-width bins over the
+#' finite values, with their mean and SD (3 significant digits). Factor,
+#' character and logical columns show their level counts (in level order,
+#' or the \code{bins} most frequent levels when there are more), the number
+#' of levels and the most frequent one with its share of non-missing
+#' values. Other columns show their class only.
+#'
+#' @param data A data frame (tibbles included).
+#' @param vars Character. Columns to show; \code{NULL} (default) shows all.
+#' @param bins Integer. Histogram bins, and the most levels drawn for a
+#'   categorical column (default 12).
+#' @param indent Integer. Spaces before each line (default 2).
+#'
+#' @return The printed lines, invisibly.
+#'
+#' @examples
+#' set.seed(1)
+#' df <- data.frame(age = rnorm(200, 56, 11),
+#'                  stage = factor(sample(c("I", "II", "III"), 200, TRUE)),
+#'                  size_mm = rlnorm(200, 2.6, 0.5))
+#' pr_spark(df)
+#'
+#' @export
+#' @family print helpers
+pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
+  if (!is.data.frame(data)) {
+    cli::cli_abort("{.arg data} must be a data frame, not {.obj_type_friendly {data}}.")
+  }
+  vars <- vars %||% names(data)
+  miss <- setdiff(vars, names(data))
+  if (length(miss)) {
+    cli::cli_abort("{.arg vars} names column{?s} absent from {.arg data}: {.val {miss}}.")
+  }
+  if (!length(vars)) return(._pr_out(character()))
+
+  spark <- function(counts) {
+    if (!length(counts) || max(counts) == 0) return("")
+    format(cli::spark_bar(as.numeric(counts) / max(counts)))
+  }
+  sig3 <- function(z) formatC(z, digits = 3, format = "fg")
+  # one column -> c(sparkline, summary, missing share)
+  one <- function(v) {
+    na <- sprintf("NA %.1f%%", 100 * mean(is.na(v)))
+    if (is.numeric(v)) {
+      fin <- v[is.finite(v)]
+      if (!length(fin)) return(c("", "all missing", na))
+      rng <- range(fin)
+      counts <- if (rng[1] == rng[2]) length(fin) else
+        tabulate(findInterval(fin, seq(rng[1], rng[2], length.out = bins + 1),
+                              rightmost.closed = TRUE), nbins = bins)
+      return(c(spark(counts),
+               sprintf("mean %s  sd %s", sig3(mean(fin)), sig3(stats::sd(fin))), na))
+    }
+    if (is.factor(v) || is.character(v) || is.logical(v)) {
+      tab <- table(v)
+      if (!length(tab)) return(c("", "all missing", na))
+      k   <- length(tab)
+      top <- which.max(tab)
+      info <- sprintf("%d level%s \u00b7 top %s (%.1f%%)", k, if (k == 1L) "" else "s",
+                      names(tab)[top], 100 * tab[[top]] / sum(!is.na(v)))
+      if (k > bins) tab <- sort(tab, decreasing = TRUE)[seq_len(bins)]
+      return(c(spark(tab), info, na))
+    }
+    c("", paste0("<", class(v)[1], ">"), na)
+  }
+
+  parts <- lapply(vars, function(nm) one(data[[nm]]))
+  col   <- function(j) {
+    x <- vapply(parts, `[`, "", j)
+    cli::ansi_align(x, max(cli::ansi_nchar(x, type = "width")))
+  }
+  name <- cli::ansi_align(vars, max(cli::ansi_nchar(vars, type = "width")))
+  lines <- paste0(strrep(" ", indent), cli::style_bold(name), "  ",
+                  cli::col_cyan(col(1)), "  ", col(2), "  ",
+                  cli::col_grey(vapply(parts, `[`, "", 3)))
+  ._pr_out(lines)
 }

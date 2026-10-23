@@ -165,3 +165,28 @@ test_that("pr_box() frames key-value lines under a header and footer", {
   expect_length(plain2, 4L)
   expect_match(plain2[2], "line one", fixed = TRUE)
 })
+
+test_that("pr_spark() prints one distribution line per column", {
+  withr::local_options(cli.num_colors = 256, cli.unicode = TRUE)
+  df <- data.frame(age = c(40, 50, 50, 60, 60, 60, 70, NA),
+                   sex = factor(c("M", "F", "M", "M", "F", "M", "M", "F")))
+  df$id <- I(as.list(1:8))
+  out <- utils::capture.output(lines <- pr_spark(df, bins = 4))
+  expect_identical(out, as.character(lines))
+  plain <- cli::ansi_strip(out)
+  expect_length(plain, 3L)
+  n_bars <- function(x) lengths(regmatches(x, gregexpr("[\u2581-\u2588]", x)))
+
+  expect_match(plain[1], "^  age ", perl = TRUE)
+  expect_identical(n_bars(plain[1]), 4L)
+  for (s in c("mean 55.7", "sd 9.76", "NA 12.5%")) expect_match(plain[1], s, fixed = TRUE)
+  expect_match(out[1], "\033[36m", fixed = TRUE)
+
+  expect_identical(n_bars(plain[2]), 2L)
+  expect_match(plain[2], "2 levels \u00b7 top M (62.5%)", fixed = TRUE)
+  expect_match(plain[2], "NA 0.0%", fixed = TRUE)
+  expect_match(plain[3], "<AsIs>", fixed = TRUE)
+
+  expect_length(utils::capture.output(pr_spark(df, vars = "sex")), 1L)
+  expect_error(pr_spark(df, vars = "stage"), "stage")
+})

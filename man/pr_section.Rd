@@ -31,6 +31,7 @@ Other print helpers:
 \code{\link[=pr_head]{pr_head()}},
 \code{\link[=pr_kv]{pr_kv()}},
 \code{\link[=pr_note]{pr_note()}},
+\code{\link[=pr_spark]{pr_spark()}},
 \code{\link[=pr_table]{pr_table()}},
 \code{\link[=pr_tree]{pr_tree()}}
 }
