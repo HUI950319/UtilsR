@@ -475,7 +475,9 @@ plt_alluvial <- function(
 
   gap_names <- character()
   if (stratum_args$gap > 0 && length(group_levels) > 1L) {
-    gap_names <- paste0(".gap_", seq_len(length(group_levels) - 1L))
+    gap_names <- tail(make.unique(c(
+      group_levels, paste0(".gap_", seq_len(length(group_levels) - 1L))
+    )), length(group_levels) - 1L)
     observed <- unique(stat[, c(".facet", ".cat_var", "group_total")])
     max_total <- tapply(stat$group_total, stat$.facet, max)
     gap_rows <- lapply(gap_names, function(gap_name) {
@@ -601,7 +603,7 @@ plt_alluvial <- function(
       sort = FALSE
     )
     label_data <- label_data[
-      !grepl("^\\.gap_", label_data$.group_chr) & !is.na(label_data$.label),
+      !is.na(label_data$.label),
       ,
       drop = FALSE
     ]

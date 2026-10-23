@@ -106,6 +106,25 @@ test_that("plt_alluvial supports count mode and preserves input order", {
   expect_true(any(real$count == 0))
 })
 
+test_that("plt_alluvial distinguishes real group names from gap strata", {
+  skip_if_not_installed("ggalluvial")
+
+  for (gap in c(0, 0.01)) {
+    data <- alluvial_data()
+    data$group <- ifelse(data$group == "G1", ".gap_1", ".gap_clinical")
+    plot <- plt_alluvial(data, "category", "group", stratum_args = list(gap = gap))
+    real <- plot$data[!plot$data$.is_gap, ]
+    expect_equal(sum(real$count), nrow(data))
+    expect_setequal(
+      as.character(unlist(lapply(ggplot2::ggplot_build(plot)$data, `[[`, "label"))),
+      real$.label[!is.na(real$.label)]
+    )
+    expect_length(intersect(
+      as.character(plot$data$.group[plot$data$.is_gap]), data$group
+    ), 0L)
+  }
+})
+
 test_that("plt_alluvial inserts facet-specific gap space", {
   skip_if_not_installed("ggalluvial")
 

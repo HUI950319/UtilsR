@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `plt_alluvial()` keeps real groups named `.gap_1` or starting with `.gap_`
+  distinct from its transparent gap strata, including their labels.
+
 * When `lv()` finds no global `data` or `data_all`, its error names the data
   frames and Seurat objects in the global environment. Called without data,
   it reports that error directly again instead of as an unevaluable first
