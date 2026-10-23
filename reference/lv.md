@@ -63,6 +63,9 @@ lv(
   Optional variable(s) for cross-tabulation. Accepts a single variable
   name (NSE or string), multiple variable names via `c(var1, var2)`
   (NSE) or character vector `c("var1", "var2")`. Independent of `group`.
+  Existing dplyr groups are ignored for this table. Generated frequency,
+  percentage, and total column names receive numeric suffixes when
+  needed to preserve input columns and category labels.
 
 - cat_args:
 

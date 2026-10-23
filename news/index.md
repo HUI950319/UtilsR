@@ -2,6 +2,11 @@
 
 ## UtilsR 0.6.8
 
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) keeps
+  cross-tabulation counts, percentages, and row totals separate from
+  identically named input columns or categories, and counts only the
+  requested variables when input carries dplyr grouping.
+
 - [`fct_to_combine()`](https://hui950319.github.io/UtilsR/reference/fct_to_combine.md)
   excludes missing rows from combination grouping and returns
   immediately when every row is missing, retaining missing-value and
