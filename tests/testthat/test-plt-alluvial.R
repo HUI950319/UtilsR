@@ -478,6 +478,22 @@ test_that("plt_alluvial keeps save optional and preserves its return", {
   expect_equal(saved$data, plain$data)
 })
 
+test_that("plt_alluvial rejects layout integers outside the supported range", {
+  skip_if_not_installed("ggalluvial")
+
+  for (value in c(2^31, 1e50)) {
+    for (field in c("nrow", "ncol")) {
+      expect_error(plt_alluvial(
+        alluvial_data(), "category", "group",
+        facet_args = stats::setNames(list(value), field)
+      ), "positive integer")
+    }
+    expect_error(plt_alluvial(
+      alluvial_data(), "category", "group", legend_args = list(ncol = value)
+    ), "positive integer")
+  }
+})
+
 test_that("plt_dist alluvial mode delegates to plt_alluvial with facets", {
   skip_if_not_installed("ggalluvial")
 

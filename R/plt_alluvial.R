@@ -271,7 +271,8 @@ plt_alluvial <- function(
     lower_ok && value <= upper
   }
   is_integer <- function(value) {
-    is_number(value, lower = 1) && value == as.integer(value)
+    is_number(value, lower = 1, upper = .Machine$integer.max) &&
+      value == trunc(value)
   }
 
   if (!is_number(flow_args$alpha, lower = 0, upper = 1)) {

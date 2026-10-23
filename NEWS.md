@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `plt_alluvial()` rejects out-of-range facet and legend dimensions with a
+  clear argument error before integer conversion.
+
 * `plt_alluvial()` matches named colours to observed group names, ignoring
   unused names and rejecting incomplete or ambiguous named palettes.
 
