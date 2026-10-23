@@ -14,25 +14,27 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ## `lv()` — Variable Summary
 
 `lv()` provides a quick overview of variables in a data frame (or Seurat object).
+It invisibly returns the original data. In a knitted document, use
+`results = "asis"` so the native report tables render directly.
 
-```{r lv-basic}
+```{r lv-basic, results='asis', message=FALSE}
 library(UtilsR)
 
 # All variables
 lv(iris)
 ```
 
-```{r lv-select}
+```{r lv-select, results='asis', message=FALSE}
 # Select specific variables
 lv(iris, Species, Sepal.Length)
 ```
 
-```{r lv-pattern}
+```{r lv-pattern, results='asis', message=FALSE}
 # Regex pattern matching
 lv(iris, pattern = "Sepal")
 ```
 
-```{r lv-group}
+```{r lv-group, results='asis', message=FALSE}
 # Grouped summary
 lv(iris, Sepal.Length, group = "Species")
 ```

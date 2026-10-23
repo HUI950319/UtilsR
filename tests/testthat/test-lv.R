@@ -218,3 +218,39 @@ test_that("empty datasets return unchanged without reports or theme changes", {
   }
   expect_identical(gtsummary::get_gtsummary_theme(), before)
 })
+
+test_that("knitr receives native tables once in an asis chunk", {
+  skip_if_not_installed("knitr")
+  previous <- knitr::opts_knit$get("rmarkdown.pandoc.to")
+  withr::defer(knitr::opts_knit$set(rmarkdown.pandoc.to = previous))
+  knitr::opts_knit$set(rmarkdown.pandoc.to = "html")
+  markdown <- knitr::knit(text = c(
+    "```{r, results='asis', echo=FALSE, message=FALSE}",
+    "d <- data.frame(x=c('ok','unknown'))",
+    "stopifnot(identical(lv(d), d))",
+    "```"
+  ), quiet = TRUE)
+  tables <- gregexpr("<table ", markdown, fixed = TRUE)[[1L]]
+  expect_length(tables, 2L)
+  expect_false(grepl("## <div", markdown, fixed = TRUE))
+  expect_false(grepl("# A tibble", markdown, fixed = TRUE))
+
+  for (call in c("lv(d, count=c(g,x))", "lv(d, x, group=g)")) {
+    document <- knitr::knit(text = c(
+      "```{r, results='asis', echo=FALSE, message=FALSE}",
+      "d <- data.frame(g=c('A','A','B','B'),x=c('a','b','a','b'))",
+      call, "```"
+    ), quiet = TRUE)
+    expect_true(grepl("<table ", document, fixed = TRUE))
+    expect_false(grepl("# A tibble", document, fixed = TRUE))
+  }
+
+  knitr::opts_knit$set(rmarkdown.pandoc.to = "latex")
+  latex <- knitr::knit(text = c(
+    "```{r, results='asis', echo=FALSE, message=FALSE}",
+    "lv(data.frame(x=c('ok','unknown')))",
+    "```"
+  ), quiet = TRUE)
+  expect_true(grepl("\\begin{table}", latex, fixed = TRUE))
+  expect_false(grepl("<table", latex, fixed = TRUE))
+})

@@ -3,6 +3,10 @@
 * `plt_dist()` ignores unrelated dplyr groups and rowwise grouping when
   counting categories, so input grouping cannot split bars or labels.
 
+* `lv()` emits native knitr tables with their dependencies in documented
+  `results = 'asis'` chunks, avoiding duplicated report tables and console
+  listings while knitting. The data-inspection vignette uses that format.
+
 * `plt_dist()` keeps bar counts, proportions, and labels separate from
   identically named input columns, preserving categories and plotted values.
 

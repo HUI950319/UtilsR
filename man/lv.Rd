@@ -73,6 +73,13 @@ Requires \pkg{RegR} (declared in Suggests).}
 \value{
 Invisibly returns the input data.
 }
+\details{
+In R Markdown or Quarto, use a code chunk with
+\code{results = "asis"} (and optionally \code{message = FALSE}). Reports
+are emitted through \code{knitr::knit_print()} in the document's native
+format, with dependencies retained. Console frequency listings are omitted
+while knitting, and each default summary table is included only once.
+}
 \description{
 Inspect variables in a data.frame or Seurat object, including frequency
 counts, unique values, missing values and special values (e.g. "unknown",

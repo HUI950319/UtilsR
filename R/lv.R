@@ -65,6 +65,12 @@
 #'
 #' @return Invisibly returns the input data.
 #'
+#' @details In R Markdown or Quarto, use a code chunk with
+#'   \code{results = "asis"} (and optionally \code{message = FALSE}). Reports
+#'   are emitted through \code{knitr::knit_print()} in the document's native
+#'   format, with dependencies retained. Console frequency listings are omitted
+#'   while knitting, and each default summary table is included only once.
+#'
 #' @examples
 #' \dontrun{
 #' # data.frame basic usage
@@ -180,6 +186,20 @@ lv <- function(data, ...) {
   unname(value)
 }
 
+#' @noRd
+.lv_print_report <- function(x) {
+  if (isTRUE(getOption("knitr.in.progress")) &&
+      requireNamespace("knitr", quietly = TRUE)) {
+    rendered <- knitr::knit_print(x)
+    meta <- attr(rendered, "knit_meta")
+    if (length(meta)) knitr::knit_meta_add(meta)
+    cat(as.character(rendered), "\n\n", sep = "")
+  } else {
+    print(x)
+  }
+  invisible(x)
+}
+
 #' @rdname lv
 #' @export
 lv.default <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
@@ -201,6 +221,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   group_var <- .lv_resolve_vars(rlang::enquo(group), names(data), "group")
   count_vars <- .lv_resolve_vars(rlang::enquo(count), names(data), "count",
                                   multiple = TRUE)
+  knitting <- isTRUE(getOption("knitr.in.progress")) &&
+    requireNamespace("knitr", quietly = TRUE)
 
   # ==========================================================================
   # Internal helper functions
@@ -227,15 +249,17 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       )
     )
 
-    cat(sprintf("----1. %s (%s) count----------\n", var, var_class))
-    data %>%
-      tibble::as_tibble() %>%
-      dplyr::count(.data[[var]]) %>%
-      print()
+    if (!knitting) {
+      cat(sprintf("----1. %s (%s) count----------\n", var, var_class))
+      data %>%
+        tibble::as_tibble() %>%
+        dplyr::count(.data[[var]]) %>%
+        print()
 
-    cat(sprintf("----2. %s (%s) %s----------\n",
-                var, var_class,
-                if (is.factor(col_data)) "Levels" else "unique"))
+      cat(sprintf("----2. %s (%s) %s----------\n",
+                  var, var_class,
+                  if (is.factor(col_data)) "Levels" else "unique"))
+    }
 
     unique_values <- .get_levels(col_data)
     n_unique <- length(unique_values)
@@ -251,7 +275,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
               var,
               paste(display_values, collapse = '","'))
     )
-    print(.get_flt_formula)
+    if (!knitting) print(.get_flt_formula)
 
     if (n_unique > 10) {
       unique_display <- paste(c(head(unique_values, 8), "..."), collapse = ", ")
@@ -497,7 +521,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
         "{label_name}" := glue::glue("{.data[[n_name]]} ({.data[[pct_name]]}%)")
       )
 
-    print(tibble::as_tibble(cross_count))
+    if (knitting) .lv_print_report(gt::gt(cross_count))
+    else print(tibble::as_tibble(cross_count))
 
     if (length(count_vars) == 2) {
       cli::cli_h2(cli::col_yellow("Wide Format Table"))
@@ -516,7 +541,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       cross_wide <- cross_wide %>%
         dplyr::mutate("{total_name}" := rowSums(dplyr::pick(-1)))
 
-      print(tibble::as_tibble(cross_wide))
+      if (!knitting) print(tibble::as_tibble(cross_wide))
 
       cross_gt <- cross_wide %>%
         gt::gt(rowname_col = count_vars[1]) %>%
@@ -537,7 +562,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
           stub.background.color = "#F5F5F5"
         )
 
-      print(cross_gt)
+      .lv_print_report(cross_gt)
 
       cli::cli_h3(cli::col_yellow("Row Percentages (%)"))
 
@@ -556,7 +581,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
         )
       names(cross_pct) <- make.unique(names(cross_pct), sep = "_")
 
-      print(tibble::as_tibble(cross_pct))
+      if (knitting) .lv_print_report(gt::gt(cross_pct))
+      else print(tibble::as_tibble(cross_pct))
     }
 
     cli::cli_rule()
@@ -614,7 +640,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       gtsummary::bold_labels() %>%
       gtsummary::add_overall()
 
-    print(res_grouped)
+    .lv_print_report(res_grouped)
 
     restore_theme()
     .run_cat_args()
@@ -662,14 +688,16 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     gtsummary::bold_labels() %>%
     gtsummary::modify_header(label = "**Vars**", stat_0 = "**Summary**")
 
-  .cat_line(sprintf("** Variable Counts (%d variables) **", length(vars)),
-            type = "info")
-  print(tibble::as_tibble(res_count))
-  print(res_count)
+  if (!knitting) {
+    .cat_line(sprintf("** Variable Counts (%d variables) **", length(vars)),
+              type = "info")
+    print(tibble::as_tibble(res_count))
+    print(res_count)
 
-  .cat_line(sprintf("** Variable Summary (%d variables) **", length(vars)),
-            type = "success")
-  print(result)
+    .cat_line(sprintf("** Variable Summary (%d variables) **", length(vars)),
+              type = "success")
+    print(result)
+  }
 
   res_summary <-
     gt::gt(result) %>%
@@ -695,17 +723,18 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       heading.align = "center"
     )
 
-  print(res_summary)
+  if (!knitting) print(res_summary)
 
-  print(
-    gt::gt_group(
-      res_summary,
-      gtsummary::as_gt(res_count) %>%
-        .gt_highlight_low_percentage() %>%
-        .gt_highlight_special_values() %>%
-        gt::tab_options(column_labels.background.color = "#E8F4FD")
-    )
-  )
+  styled_count <- gtsummary::as_gt(res_count) %>%
+    .gt_highlight_low_percentage() %>%
+    .gt_highlight_special_values() %>%
+    gt::tab_options(column_labels.background.color = "#E8F4FD")
+  if (knitting) {
+    .lv_print_report(res_summary)
+    .lv_print_report(styled_count)
+  } else {
+    print(gt::gt_group(res_summary, styled_count))
+  }
 
   restore_theme()
   .run_cat_args()
