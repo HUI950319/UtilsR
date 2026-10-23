@@ -50,7 +50,11 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/plt_alluvial.html">plt_alluvial()</a></code> removes and reports rows with explicit NA factor levels or SPSS user-defined missing values in its required columns.</p></li>
+<ul><li><p><code><a href="../reference/plt_alluvial.html">plt_alluvial()</a></code> retains only required input columns in its plot environment, keeping unused data out of serialized plot objects.</p></li>
+<li><p><code><a href="../reference/plt_alluvial.html">plt_alluvial()</a></code> rejects out-of-range facet and legend dimensions with a clear argument error before integer conversion.</p></li>
+<li><p><code><a href="../reference/plt_alluvial.html">plt_alluvial()</a></code> matches named colours to observed group names, ignoring unused names and rejecting incomplete or ambiguous named palettes.</p></li>
+<li><p><code><a href="../reference/plt_alluvial.html">plt_alluvial()</a></code> removes and reports rows with explicit NA factor levels or SPSS user-defined missing values in its required columns.</p></li>
+<li><p><code><a href="../reference/plt_dist.html">plt_dist()</a></code> treats plain numeric distribution and facet variables as categories in numeric ascending order in every plot mode. Existing factor orders, character ordering, named colours and missing-row rules are retained.</p></li>
 <li><p><code><a href="../reference/plt_alluvial.html">plt_alluvial()</a></code> calculates labels with the final stratum layout, so labels follow later axis changes. It no longer builds the plot in advance for labels.</p></li>
 <li><p><code><a href="../reference/plt_alluvial.html">plt_alluvial()</a></code> keeps real groups named <code>.gap_1</code> or starting with <code>.gap_</code> distinct from its transparent gap strata, including their labels.</p></li>
 <li><p>When <code><a href="../reference/lv.html">lv()</a></code> finds no global <code>data</code> or <code>data_all</code>, its error names the data frames and Seurat objects in the global environment. Called without data, it reports that error directly again instead of as an unevaluable first argument.</p></li>

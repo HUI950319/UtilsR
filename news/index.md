@@ -3,8 +3,25 @@
 ## UtilsR 0.6.8
 
 - [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
+  retains only required input columns in its plot environment, keeping
+  unused data out of serialized plot objects.
+
+- [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
+  rejects out-of-range facet and legend dimensions with a clear argument
+  error before integer conversion.
+
+- [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
+  matches named colours to observed group names, ignoring unused names
+  and rejecting incomplete or ambiguous named palettes.
+
+- [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
   removes and reports rows with explicit NA factor levels or SPSS
   user-defined missing values in its required columns.
+
+- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
+  treats plain numeric distribution and facet variables as categories in
+  numeric ascending order in every plot mode. Existing factor orders,
+  character ordering, named colours and missing-row rules are retained.
 
 - [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
   calculates labels with the final stratum layout, so labels follow

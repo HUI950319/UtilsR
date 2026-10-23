@@ -37,7 +37,12 @@ plt_dist(
 
 - dis_vars:
 
-  Character vector of 2 or 3 distinct, non-empty column names.
+  Character vector of 2 or 3 distinct, non-empty column names. Plain
+  integer and double columns are treated as categories in numeric
+  ascending order in every mode; values are not binned. Existing factors
+  keep their level order. Character columns retain their existing
+  ordering: first appearance for alluvial plots, sorted for bar charts
+  and heatmaps.
 
   - 2 variables: `c(x, fill)` \\\rightarrow\\ alluvial flow
     (`type = "alluvial"`, default) or stacked bar (`type = "bar"`).
@@ -55,7 +60,8 @@ plt_dist(
 
   Optional faceting variable name (string). Used by both 2-variable plot
   types and must differ from `dis_vars`; ignored for the 3-variable
-  heatmap.
+  heatmap. Plain integer and double facet values use numeric ascending
+  order; existing factors keep their level order.
 
 - color:
 

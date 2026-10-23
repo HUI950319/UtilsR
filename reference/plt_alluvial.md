@@ -51,7 +51,8 @@ plt_alluvial(
 - color:
 
   A registered UtilsR palette name, a single colour, or a colour vector.
-  See the internal `.resolve_color()` resolver.
+  Named vectors match observed group names and must cover every observed
+  group; extra names are ignored. Unnamed vectors match group order.
 
 - flow_args:
 
