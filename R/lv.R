@@ -338,26 +338,14 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   .gt_highlight_low_percentage <- function(gt_tbl,
                                            color_lt10 = "lightgreen",
                                            color_lt5 = "#FFFF00",
-                                           color_lt1 = "#FF4D4D",
-                                           columns = NULL) {
+                                           color_lt1 = "#FF4D4D") {
     if (!inherits(gt_tbl, "gt_tbl") || is.null(gt_tbl$`_data`)) return(gt_tbl)
 
     df_data <- as.data.frame(gt_tbl$`_data`)
     col_names <- names(df_data)
 
-    if (is.null(columns)) {
-      target_cols <- col_names
-    } else if (is.numeric(columns)) {
-      target_cols <- col_names[columns[columns >= 1 & columns <= length(col_names)]]
-    } else if (is.character(columns)) {
-      target_cols <- intersect(columns, col_names)
-    } else {
-      target_cols <- col_names
-    }
-
     for (j in seq_along(df_data)) {
       col_values <- df_data[[j]]
-      if (!(col_names[j] %in% target_cols)) next
       if (is.character(col_values) || is.factor(col_values)) {
         col_chr <- as.character(col_values)
         has_pct <- grepl("%", col_chr, fixed = TRUE)
@@ -530,11 +518,6 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
         "{.code ...}, {.arg pattern} and {.arg group} were ignored."
       ))
     }
-    missing_vars <- setdiff(count_vars, names(data))
-    if (length(missing_vars) > 0) {
-      cli::cli_abort("\u53d8\u91cf {.var {missing_vars}} \u4e0d\u5b58\u5728\u4e8e\u6570\u636e\u4e2d")
-    }
-
     count_title <- paste(count_vars, collapse = " \u00d7 ")
     cli::cli_h1(cli::col_cyan(glue::glue("Cross-tabulation: {count_title}")))
     cli::cli_alert_info("Variables: {.val {paste(count_vars, collapse = ', ')}}")
@@ -548,10 +531,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     count_data <- dplyr::ungroup(data)
     count_base <- count_data %>%
       dplyr::count(dplyr::across(dplyr::all_of(count_vars)), name = n_name)
-    cross_count <- count_base %>%
-      dplyr::arrange(dplyr::across(dplyr::all_of(count_vars)))
 
-    cross_count <- cross_count %>%
+    cross_count <- count_base %>%
       dplyr::mutate(
         "{pct_name}" := round(.data[[n_name]] / sum(.data[[n_name]]) * 100, 2),
         "{label_name}" := glue::glue("{.data[[n_name]]} ({.data[[pct_name]]}%)")
@@ -642,10 +623,6 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   gtsummary::theme_gtsummary_compact()
 
   if (!is.null(group_var)) {
-    if (!group_var %in% names(data)) {
-      cli::cli_abort("\u53d8\u91cf {.var {group_var}} \u4e0d\u5b58\u5728\u4e8e\u6570\u636e\u4e2d")
-    }
-
     if (group_var %in% vars &&
         !identical(analysis_data[[group_var]], data[[group_var]])) {
       cli::cli_abort("A selected column name conflicts with {.arg group}; use another alias.")
