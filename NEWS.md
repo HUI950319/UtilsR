@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* Two-variable `lv(count = )` tables skip the wide and row-percentage tables,
+  with a message, when either variable has more than 100 categories; a
+  5,000-category wide table previously took about 18 seconds.
+
 * `lv(group = )` rejects a grouping column with more than 100 distinct values
   or factor levels, pointing to `count` instead; a 5,000-value identifier
   used as the group previously took over a minute to tabulate.

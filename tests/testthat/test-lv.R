@@ -486,3 +486,13 @@ test_that("group variables with more than 100 values are rejected", {
   expect_error(capture_lv(lv(data, x, group = f)), "101")
   expect_no_error(capture_lv(lv(data, x, group = age)))
 })
+
+test_that("two-way counts with more than 100 categories skip the wide tables", {
+  data <- data.frame(id = sprintf("P%03d", 1:150), g = rep(c("A", "B"), 75))
+  for (vars in list(c("g", "id"), c("id", "g"))) {
+    result <- capture_lv(lv(data, count = vars))
+    expect_length(result$tables, 0L)
+    expect_true(any(grepl("1 (0.67%)", result$output, fixed = TRUE)))
+    utils::capture.output(expect_message(lv(data, count = vars), "more than 100"))
+  }
+})

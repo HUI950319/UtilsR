@@ -57,7 +57,9 @@
 #'   variable name (NSE or string), multiple variable names via
 #'   \code{c(var1, var2)} (NSE) or character vector
 #'   \code{c("var1", "var2")}. Selections in \code{...}, \code{pattern} and
-#'   \code{group} are ignored in this mode, with a warning.
+#'   \code{group} are ignored in this mode, with a warning. Two-variable
+#'   wide and row-percentage tables are skipped, with a message, when either
+#'   variable has more than 100 categories.
 #'   Existing dplyr groups are ignored for this table. Generated frequency,
 #'   percentage, and total column names receive numeric suffixes when needed
 #'   to preserve input columns and category labels.
@@ -559,7 +561,22 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     if (knitting) .lv_print_report(gt::gt(cross_count))
     else print(tibble::as_tibble(cross_count))
 
-    if (length(count_vars) == 2) {
+    # A wide table gets one column per category of the second variable and
+    # one row per category of the first; beyond 100 it is unreadable and
+    # slow (5,000 columns took 18 s), so only the long table is shown.
+    two_way <- length(count_vars) == 2
+    if (two_way) {
+      n_cat <- vapply(count_vars, function(v) dplyr::n_distinct(count_base[[v]]),
+                      integer(1))
+      if (any(n_cat > 100L)) {
+        cli::cli_inform(c("i" = paste(
+          "{.var {count_vars[n_cat > 100L]}} ha{?s/ve} more than 100",
+          "categories; the wide and row-percentage tables are skipped."
+        )))
+        two_way <- FALSE
+      }
+    }
+    if (two_way) {
       cli::cli_h2(cli::col_yellow("Wide Format Table"))
 
       cross_wide <- count_base %>%
