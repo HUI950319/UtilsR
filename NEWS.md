@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* The `lv()` variable summary tints rows by variable type: character, numeric
+  or integer, and factor (including ordered) variables.
+
 * `plt_alluvial()` retains only required input columns in its plot environment,
   keeping unused data out of serialized plot objects.
 

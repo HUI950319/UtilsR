@@ -559,3 +559,26 @@ test_that("missing default data errors name the global data frames", {
   rlang::local_bindings(`odd{name}` = mtcars, .env = globalenv())
   expect_error(capture_lv(lv()), "odd{name}", fixed = TRUE)
 })
+
+test_that("the variable summary tints rows by variable type", {
+  data <- data.frame(chr = c("a", "b", "a"), num = c(1.5, 2, 3), int = 1:3,
+                     fac = factor(c("x", "y", "x")),
+                     ord = factor(c("lo", "hi", "lo"), c("lo", "hi"), ordered = TRUE),
+                     flag = c(TRUE, FALSE, TRUE))
+  summary <- capture_reports(lv(data))[[1L]]
+  styles <- summary[["_styles"]]
+  fill <- vapply(styles$styles, function(s) {
+    color <- s[["cell_fill"]][["color"]]
+    if (is.null(color)) NA_character_ else color
+  }, character(1))
+  filled <- unique(data.frame(var = summary[["_data"]]$vars[styles$rownum],
+                              col = styles$colname, fill = fill)[!is.na(fill), ])
+  expect_setequal(filled$fill[filled$var == "chr"], "#FDF0E6")
+  expect_setequal(filled$fill[filled$var %in% c("num", "int")], "#E9F2FB")
+  expect_setequal(filled$fill[filled$var %in% c("fac", "ord")], "#EAF5E4")
+  columns <- c("vars", "class", "n_unique", "n_na", "n_special", "unique")
+  for (v in c("chr", "num", "int", "fac", "ord")) {
+    expect_setequal(filled$col[filled$var == v], columns)
+  }
+  expect_false("flag" %in% filled$var)
+})

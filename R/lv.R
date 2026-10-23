@@ -91,6 +91,8 @@
 #'   identifiers, and list columns are reported in the variable summary but
 #'   left out of the frequency and grouped tables, with a message. Time spans
 #'   (\code{difftime}) are summarized as numbers in their own units.
+#'   Variable-summary rows are tinted by type: character, numeric or
+#'   integer, and factor (including ordered) variables.
 #'
 #' @examples
 #' \dontrun{
@@ -839,6 +841,19 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       locations = gt::cells_column_labels()
     ) %>%
     gt::cols_align(align = "center", columns = c("n_unique", "n_na")) %>%
+    # Tint whole rows by variable type: character, numeric and factor.
+    gt::tab_style(
+      style = gt::cell_fill(color = "#FDF0E6"),
+      locations = gt::cells_body(rows = class == "character")
+    ) %>%
+    gt::tab_style(
+      style = gt::cell_fill(color = "#E9F2FB"),
+      locations = gt::cells_body(rows = class %in% c("numeric", "integer"))
+    ) %>%
+    gt::tab_style(
+      style = gt::cell_fill(color = "#EAF5E4"),
+      locations = gt::cells_body(rows = class %in% c("factor", "ordered"))
+    ) %>%
     gt::tab_options(
       column_labels.background.color = "#E8F4FD",
       heading.background.color = "#F0F8FF",
