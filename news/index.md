@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
+  removes and reports rows with explicit NA factor levels or SPSS
+  user-defined missing values in its required columns.
+
+- [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
   calculates labels with the final stratum layout, so labels follow
   later axis changes. It no longer builds the plot in advance for
   labels.
