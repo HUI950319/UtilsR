@@ -611,6 +611,14 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   # ==========================================================================
   # Grouped mode
   # ==========================================================================
+  original_theme <- gtsummary::get_gtsummary_theme()
+  restore_theme <- function() {
+    gtsummary::reset_gtsummary_theme()
+    suppressMessages(gtsummary::set_gtsummary_theme(original_theme))
+  }
+  on.exit(restore_theme(), add = TRUE)
+  gtsummary::theme_gtsummary_compact()
+
   if (!is.null(group_var)) {
     if (!group_var %in% names(data)) {
       cli::cli_abort("\u53d8\u91cf {.var {group_var}} \u4e0d\u5b58\u5728\u4e8e\u6570\u636e\u4e2d")
@@ -625,8 +633,6 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
 
     n_groups <- length(unique(data[[group_var]]))
     cli::cli_alert_info("Groups: {.val {n_groups}}")
-
-    gtsummary::theme_gtsummary_compact()
 
     res_grouped <-
       tibble::as_tibble(data)[, c(group_var, vars), drop = FALSE] %>%
@@ -647,8 +653,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
 
     print(res_grouped)
 
-    gtsummary::reset_gtsummary_theme()
-
+    restore_theme()
     .run_cat_args()
     return(invisible(data))
   }
@@ -658,8 +663,6 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   # ==========================================================================
 
   result <- purrr::map_dfr(vars, ~ .lv_one(data, .x))
-
-  gtsummary::theme_gtsummary_compact()
 
   res_count <-
     tibble::as_tibble(data)[, vars, drop = FALSE] %>%
@@ -741,8 +744,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     )
   )
 
-  gtsummary::reset_gtsummary_theme()
-
+  restore_theme()
   .run_cat_args()
   return(invisible(data))
 }

@@ -54,3 +54,28 @@ test_that("cross-tabulation uses the requested variables on grouped input", {
   expect_false("stratum" %in% names(result$tables[[1L]]))
   expect_identical(result$value$value, grouped)
 })
+
+test_that("lv preserves the caller's complete gtsummary theme", {
+  original <- gtsummary::get_gtsummary_theme()
+  withr::defer({
+    gtsummary::reset_gtsummary_theme()
+    suppressMessages(gtsummary::set_gtsummary_theme(original))
+  })
+  custom <- list("pkgwide-str:theme_name" = "caller theme",
+                 "pkgwide-str:language" = "en")
+  suppressMessages(gtsummary::set_gtsummary_theme(custom))
+  before <- gtsummary::get_gtsummary_theme()
+  data <- data.frame(g = c("A", "A", "B", "B"), x = 1:4)
+
+  capture_lv(lv(data, x))
+  expect_identical(gtsummary::get_gtsummary_theme(), before)
+  capture_lv(lv(data, x, group = g))
+  expect_identical(gtsummary::get_gtsummary_theme(), before)
+  capture_lv(lv(data, count = g))
+  expect_identical(gtsummary::get_gtsummary_theme(), before)
+
+  # This remains an upstream unsupported input, and must still restore state.
+  invalid <- data.frame(x = factor(c("a", NA), exclude = NULL))
+  expect_error(capture_lv(lv(invalid)), "Factors with NA levels")
+  expect_identical(gtsummary::get_gtsummary_theme(), before)
+})

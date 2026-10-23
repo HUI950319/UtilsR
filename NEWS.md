@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `lv()` restores the complete existing gtsummary theme after successful
+  reports and after errors, instead of clearing it or leaving Compact active.
+
 * `lv()` keeps cross-tabulation counts, percentages, and row totals separate
   from identically named input columns or categories, and counts only the
   requested variables when input carries dplyr grouping.
