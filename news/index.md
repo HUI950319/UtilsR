@@ -3,10 +3,6 @@
 ## UtilsR 0.6.8
 
 - [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
-  ignores unrelated dplyr groups and rowwise grouping when counting
-  categories, so input grouping cannot split bars or labels.
-
-- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
   keeps bar counts, proportions, and labels separate from identically
   named input columns, preserving categories and plotted values.
 
