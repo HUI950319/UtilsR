@@ -334,3 +334,20 @@ test_that("unchanged replacement labels retain base missing-label semantics", {
   attr(empty, "label") <- "Empty"
   expect_identical(fct_cat(empty, new_labels = character()), empty)
 })
+
+
+test_that("binary_ref also takes the reference levels by name", {
+  x <- factor(c("Yes", "No", "No", "Unknown", "Yes"),
+              levels = c("Yes", "No", "Unknown"))
+  expect_identical(fct_cat(x, binary_ref = "No"), fct_cat(x, binary_ref = 2L))
+  expect_identical(fct_cat(x, binary_ref = c("Unknown", "Yes")),
+                   fct_cat(x, binary_ref = c(3L, 1L)))
+  expect_identical(levels(fct_cat(x, binary_ref = "No")), c("No", "Oth"))
+  # A character vector is coerced to a factor first, as for indices.
+  expect_identical(fct_cat(c("b", "a", "c"), binary_ref = "c"),
+                   fct_cat(c("b", "a", "c"), binary_ref = 3L))
+  expect_error(fct_cat(x, binary_ref = c("No", "Maybe")),
+               "binary_ref.*not found.*Maybe")
+  expect_error(fct_cat(x, binary_ref = NA_character_), "not found")
+  expect_error(fct_cat(x, binary_ref = character()), "at least one")
+})

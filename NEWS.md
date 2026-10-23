@@ -1,5 +1,10 @@
 # UtilsR 0.6.8
 
+* `fct_cat(binary_ref = )` also takes the reference levels by name:
+  `fct_cat(x, binary_ref = "No")` keeps `"No"` and collapses the other levels
+  to `"Oth"`, as `binary_ref = 2` does when `"No"` is the second level. An
+  unknown name is an error. Integer indices work as before.
+
 * `lv()` summarizes entirely missing character columns in its default and
   grouped tables instead of failing in gtsummary formatting.
 

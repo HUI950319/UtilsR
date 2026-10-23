@@ -31,9 +31,11 @@
 #'   use character levels or all use numeric indices; they cannot mix the two.
 #' @param reverse A single non-missing logical. Reverse all levels?
 #'   Default \code{FALSE}.
-#' @param binary_ref One or more finite, non-missing integer indices of reference
-#'   levels. Others collapse to \code{"Oth"}. The reference label must differ from
-#'   \code{"Oth"} when other levels remain.
+#' @param binary_ref The reference levels, as one or more finite, non-missing
+#'   integer indices or as level names (\code{binary_ref = "No"}). They form
+#'   one group, named by joining them with \code{"_"}; the other levels
+#'   collapse to \code{"Oth"}. An unknown name is an error. The reference
+#'   label must differ from \code{"Oth"} when other levels remain.
 #' @param groups Named list of integer index vectors for custom grouping,
 #'   e.g. \code{list(early = 1:2, late = 3:4)}. Names must be non-empty,
 #'   and indices must be finite and non-missing.
@@ -67,8 +69,9 @@
 #' # Reverse
 #' fct_cat(factor(letters[1:4]), reverse = TRUE)
 #'
-#' # Binary
+#' # Binary: by index or by level name
 #' fct_cat(factor(c("I","II","III","IV")), binary_ref = 1)
+#' fct_cat(factor(c("I","II","III","IV")), binary_ref = c("I", "II"))
 #'
 #' # Group
 #' fct_cat(factor(c("I","II","III","IV")), groups = list(early = 1:2, late = 3:4))
@@ -103,9 +106,17 @@ fct_cat <- function(x, ...,
 
   x <- .as_factor(x)
 
-  # 1. binary
+  # 1. binary -- reference levels by index or by name
   if (!is.null(binary_ref)) {
-    binary_ref <- .check_integer_index(binary_ref, "binary_ref", nlevels(x))
+    if (is.character(binary_ref)) {
+      pos <- match(binary_ref, levels(x))
+      if (anyNA(pos)) {
+        cli::cli_abort("{.arg binary_ref} level{?s} not found: {.val {binary_ref[is.na(pos)]}}.")
+      }
+      binary_ref <- pos
+    } else {
+      binary_ref <- .check_integer_index(binary_ref, "binary_ref", nlevels(x))
+    }
     return(.do_binary(x, binary_ref))
   }
 
