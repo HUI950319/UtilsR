@@ -5,10 +5,16 @@
 #' Plot Categorical Variable Distribution
 #'
 #' Visualise the cross-distribution of categorical variables. With 2 variables
-#' the plot is an **alluvial / Sankey flow** (default) or a **stacked
-#' proportion bar**, selected via \code{type}; with 3 variables it is a **tile
-#' heatmap**. The alluvial mode uses [plt_alluvial()], so it supports native
-#' faceting and only requires the suggested \pkg{ggalluvial} package.
+#' the plot is an \strong{alluvial / Sankey flow} (default) or a
+#' \strong{stacked proportion bar}, selected via \code{type}; with 3 variables
+#' it is a \strong{tile heatmap}. The alluvial mode uses
+#' \code{\link{plt_alluvial}()}, so it supports native faceting and only
+#' requires the suggested \pkg{ggalluvial} package.
+#'
+#' The list arguments (\code{label_args}, \code{flow_args},
+#' \code{stratum_args}, \code{facet_args}, \code{legend_args}) follow
+#' \code{\link{plt_alluvial}()}: a partial list is merged with the defaults
+#' shown in the usage, and unknown or duplicated fields are rejected.
 #'
 #' @param data A data frame. Existing dplyr grouping is ignored; counts use
 #'   only the variables selected by \code{dis_vars} and \code{facet}. Rows
@@ -29,12 +35,14 @@
 #'       only one fill category; otherwise an error prevents overplotting.
 #'   }
 #' @param type Plot type for the 2-variable case: \code{"alluvial"} (default)
-#'   or \code{"bar"} (stacked proportion bar). Ignored when \code{dis_vars} has
+#'   or \code{"bar"} (stacked proportion bar on a percentage axis). Ignored
+#'   when \code{dis_vars} has
 #'   3 variables.
 #' @param facet Optional faceting variable name (string). Used by both
 #'   2-variable plot types and must differ from \code{dis_vars}; ignored for
 #'   the 3-variable heatmap. Plain integer and double facet values use numeric
-#'   ascending order; existing factors keep their level order.
+#'   ascending order; existing factors keep their level order. Panel layout
+#'   follows \code{facet_args}.
 #' @param color Colour specification, resolved by the internal colour resolver:
 #'   \code{NULL} (default \code{pal_lancet}), a registered palette name (e.g.
 #'   \code{"Paired"}), a single literal colour, or a vector of colours. In
@@ -42,40 +50,100 @@
 #'   observed fill category. Unnamed vectors follow factor-level order (data
 #'   order for character alluvial groups). Unused bar/heatmap factor levels
 #'   retain their positions in an unnamed palette.
-#' @param alpha One finite number between 0 and 1. Default 0.7. In alluvial mode this is the
-#'   flow ribbon transparency (\code{flow.alpha}).
-#' @param label Label content, one of \code{"count_percent"} (default),
-#'   \code{"count_percent_wrap"}, \code{"count"}, \code{"percent"},
-#'   \code{"none"}. For the **bar chart** this selects the count / percentage
-#'   text on each segment: \code{"count_percent"} gives \code{count\\n(percent)}
-#'   and \code{"count_percent_wrap"} gives \code{count\\npercent}. For the
-#'   **heatmap** any value other than \code{"none"} prints the third variable's
-#'   category in each tile; \code{"none"} hides the labels and shows a fill
-#'   legend. For the **alluvial** plot it
-#'   maps to `label_args$style` in [plt_alluvial()]: \code{"count_percent"}
-#'   \eqn{\rightarrow} name + count + percent on one line,
-#'   \code{"count_percent_wrap"} \eqn{\rightarrow} name, then count + percent
-#'   on a second line, \code{"count"} \eqn{\rightarrow}
-#'   name + count, \code{"percent"} \eqn{\rightarrow} name + percent,
-#'   \code{"none"} \eqn{\rightarrow} no labels.
-#' @param gap Alluvial only. Gap between strata as a fraction of total height,
-#'   forwarded to [plt_alluvial()]. Default 0.01; set 0 for no gaps.
-#' @param curve_type Alluvial only. Flow ribbon curve type forwarded to
-#'   [plt_alluvial()]. Default \code{"linear"}; other
-#'   options include \code{"sigmoid"}, \code{"cubic"}, \code{"xspline"}.
-#' @param theme_use Theme specification, resolved by [.resolve_theme()].
-#'   Default [theme_heat]\code{(14)} (clean look). Also accepts a
-#'   \code{ggplot2::theme} object, a theme function, a function-name string
-#'   (e.g. \code{"theme_my"}), or \code{NULL} (\eqn{\rightarrow} [theme_km]).
-#'   In-plot label sizes scale with the theme's base size, so control sizing
-#'   through the theme itself, e.g. \code{theme_use = theme_my(base_size = 16)}.
-#'   Note on the legend: the **bar chart** always shows the fill legend (it is
-#'   re-enabled when the theme -- such as the default \code{theme_heat()} --
-#'   would otherwise hide it, but a custom theme's legend placement is kept);
-#'   the **heatmap** hides it when tiles are labelled and shows it when
-#'   \code{label = "none"}, retaining a custom theme's visible placement.
-#'   In **alluvial** mode only the base font size is taken from \code{theme_use};
-#'   [theme_alluvia()] supplies the plot's remaining theme settings.
+#' @param alpha One finite number between 0 and 1 giving the opacity of the
+#'   bar segments and heatmap tiles, and of the flow ribbons in alluvial mode
+#'   (where \code{\link{plt_alluvial}()} calls it \code{flow_args$alpha}).
+#'   Default 0.7.
+#' @param label_args A named list controlling the in-plot labels:
+#'   \describe{
+#'     \item{\code{style}}{Character scalar selecting label content. Default
+#'       \code{"count_percent"}. Bar chart: \code{"count_percent"} gives
+#'       \code{count (percent)} on one line, \code{"count_percent_wrap"} puts
+#'       the count above the percentage, \code{"count"} and \code{"percent"}
+#'       give one of them, and \code{"none"} hides the labels. Alluvial plot:
+#'       \code{"count_percent"} gives \code{name (count, percent)},
+#'       \code{"count_percent_wrap"} puts the name above
+#'       \code{count (percent)}, \code{"count"} gives \code{name (count)},
+#'       \code{"percent"} gives \code{name percent}, and \code{"none"} hides
+#'       the labels. Heatmap: any value other than \code{"none"} prints the
+#'       third variable's category in each tile; \code{"none"} hides the
+#'       labels and shows the fill legend. Counts use a comma as thousands
+#'       separator.}
+#'     \item{\code{min_pct}}{Numeric scalar in \eqn{[0, 1]}. Bar segments and
+#'       alluvial strata whose within-category proportion is below it are left
+#'       unlabelled. Not used by the heatmap. Default \code{0}.}
+#'     \item{\code{size}}{\code{NULL} or a positive number giving the ggplot2
+#'       text size. \code{NULL} (default) scales with the base font size of
+#'       \code{theme_use}: \code{(base_size - 4) / .pt} on bars,
+#'       \code{(base_size - 2) / .pt} on the heatmap and
+#'       \code{3 * base_size / 14} in alluvial mode.}
+#'     \item{\code{color}}{Character scalar giving the label text colour.
+#'       Default \code{"black"}.}
+#'     \item{\code{box}}{Logical scalar. \code{TRUE} (default) draws boxed
+#'       labels; \code{FALSE} draws plain text.}
+#'     \item{\code{fill}}{Character scalar giving the label box background;
+#'       used only when \code{box = TRUE}. Default \code{"white"}.}
+#'     \item{\code{alpha}}{Numeric scalar in \eqn{[0, 1]} giving the label
+#'       opacity. Default \code{1}.}
+#'     \item{\code{pct_accuracy}}{Positive number giving the rounding accuracy
+#'       of percentages, as in \code{scales::percent()}: \code{0.1} (default)
+#'       keeps one decimal place and \code{1} gives whole percentages. Not used
+#'       by the heatmap.}
+#'   }
+#' @param flow_args A named list for the flow ribbons, used only in alluvial
+#'   mode:
+#'   \describe{
+#'     \item{\code{curve_type}}{Character scalar: \code{"linear"} (default),
+#'       \code{"cubic"}, \code{"quintic"}, \code{"sine"},
+#'       \code{"arctangent"}, \code{"sigmoid"} or \code{"xspline"}.}
+#'   }
+#'   The ribbon opacity is set by \code{alpha}.
+#' @param stratum_args A named list for the strata, used only in alluvial mode:
+#'   \describe{
+#'     \item{\code{width}}{Number in \eqn{(0, 1]} giving the stratum width
+#'       relative to the spacing of the x positions. Default \code{0.5}.}
+#'     \item{\code{color}}{Character scalar giving the stratum border colour.
+#'       Default \code{"gray50"}.}
+#'     \item{\code{linewidth}}{Non-negative number giving the stratum border
+#'       width. Default \code{0.3}.}
+#'     \item{\code{gap}}{Non-negative number giving the transparent gap between
+#'       strata as a fraction of the panel height; the gaps together must stay
+#'       below 1. Default \code{0.01}; \code{0} removes them.}
+#'   }
+#' @param facet_args A named list controlling \code{ggplot2::facet_wrap()}
+#'   when \code{facet} is set (bar and alluvial modes):
+#'   \describe{
+#'     \item{\code{nrow}}{\code{NULL} or a positive integer giving the number
+#'       of panel rows. \code{NULL} (default) puts up to three panels in a row
+#'       on bar charts (unless \code{ncol} is set) and keeps
+#'       \code{facet_wrap()}'s layout in alluvial mode. Only facet values
+#'       present in the data are counted.}
+#'     \item{\code{ncol}}{\code{NULL} or a positive integer giving the number
+#'       of panel columns. Default \code{NULL}.}
+#'     \item{\code{scales}}{\code{"fixed"} (default), \code{"free"},
+#'       \code{"free_x"} or \code{"free_y"}.}
+#'   }
+#' @param legend_args A named list controlling the fill legend:
+#'   \describe{
+#'     \item{\code{position}}{\code{NULL} or one of \code{"right"},
+#'       \code{"left"}, \code{"top"}, \code{"bottom"}, \code{"none"}.
+#'       \code{NULL} (default) keeps the automatic placement: the bar chart
+#'       uses the theme's position, or \code{"right"} when the theme hides the
+#'       legend (as the default \code{theme_heat()} does); the heatmap hides
+#'       the legend when its tiles are labelled and otherwise places it like
+#'       the bar chart; the alluvial plot uses \code{"right"}.}
+#'     \item{\code{ncol}}{Positive integer giving the number of legend
+#'       columns. Default \code{1}.}
+#'   }
+#' @param theme_use Theme specification, resolved by the internal theme
+#'   resolver. Default \code{\link{theme_heat}(14)} (clean look). Also accepts
+#'   a \code{ggplot2::theme} object, a theme function, a function-name string
+#'   (e.g. \code{"theme_my"}), or \code{NULL} (\eqn{\rightarrow}
+#'   \code{\link{theme_km}()}). Unless \code{label_args$size} is set, label
+#'   sizes follow the theme's base font size, e.g.
+#'   \code{theme_use = theme_my(base_size = 16)}. In alluvial mode only the
+#'   base font size is taken from \code{theme_use};
+#'   \code{\link{theme_alluvia}()} supplies the remaining theme settings.
 #'
 #' @param save \code{NULL}, an empty list (default), or a named list forwarded
 #'   to \code{RegR::save_plt()} for PDF output: \code{filename} and optionally
@@ -100,22 +168,30 @@
 #' )
 #'
 #' # --- Stacked bar (type = "bar") -------------------------------------------
-#' # Count + percent labels
+#' # "count (percent)" labels on one line
 #' plt_dist(df, dis_vars = c("stage", "sex"), type = "bar")
 #'
-#' # Percent-only labels, with facet
+#' # Count above percent, whole percentages, segments below 10% unlabelled
 #' plt_dist(df, dis_vars = c("stage", "sex"), type = "bar",
-#'          facet = "race", label = "percent")
+#'          label_args = list(style = "count_percent_wrap", pct_accuracy = 1,
+#'                            min_pct = 0.1))
+#'
+#' # Percent-only labels, facets in one column, legend below
+#' plt_dist(df, dis_vars = c("stage", "sex"), type = "bar", facet = "race",
+#'          label_args = list(style = "percent"),
+#'          facet_args = list(ncol = 1),
+#'          legend_args = list(position = "bottom", ncol = 2))
 #'
 #' # No labels
-#' plt_dist(df, dis_vars = c("stage", "sex"), type = "bar", label = "none")
+#' plt_dist(df, dis_vars = c("stage", "sex"), type = "bar",
+#'          label_args = list(style = "none"))
 #'
 #' # Registered palette name / literal colour vector
 #' plt_dist(df, dis_vars = c("stage", "sex"), type = "bar", color = "Paired")
 #' plt_dist(df, dis_vars = c("stage", "sex"), type = "bar",
 #'          color = c("steelblue", "tomato"))
 #'
-#' # Theme + size carried by theme_use
+#' # Theme + label size carried by theme_use
 #' plt_dist(df, dis_vars = c("stage", "sex"), type = "bar",
 #'          theme_use = theme_my(base_size = 16))
 #'
@@ -124,15 +200,18 @@
 #'                          grade = c("Low", "Mid", "High"))
 #' heat_data$category <- factor(rep(c("A", "B"), 6))
 #' plt_dist(heat_data, dis_vars = c("stage", "grade", "category"))
-#' plt_dist(heat_data, dis_vars = c("stage", "grade", "category"), label = "none")
+#' plt_dist(heat_data, dis_vars = c("stage", "grade", "category"),
+#'          label_args = list(style = "none"))
 #'
 #' # --- Alluvial flow (default; needs ggalluvial) ----------------------------
 #' if (requireNamespace("ggalluvial", quietly = TRUE)) {
 #'   plt_dist(df, dis_vars = c("stage", "sex"))
 #'   plt_dist(df, dis_vars = c("stage", "sex"), facet = "race")
-#'   plt_dist(df, dis_vars = c("stage", "sex"), gap = 0.02)
-#'   plt_dist(df, dis_vars = c("stage", "sex"), curve_type = "sigmoid")
-#'   plt_dist(df, dis_vars = c("stage", "sex"), label = "percent")
+#'   plt_dist(df, dis_vars = c("stage", "sex"),
+#'            label_args = list(style = "count_percent_wrap"))
+#'   plt_dist(df, dis_vars = c("stage", "sex"),
+#'            flow_args = list(curve_type = "sigmoid"),
+#'            stratum_args = list(width = 0.4, gap = 0.02))
 #' }
 #'
 #' @export
@@ -143,14 +222,17 @@ plt_dist <- function(data,
                      facet = NULL,
                      color = NULL,
                      alpha = 0.7,
-                     label = c("count_percent", "count_percent_wrap", "count",
-                               "percent", "none"),
-                     gap = 0.01,
-                     curve_type = "linear",
+                     label_args = list(style = "count_percent", min_pct = 0,
+                                       size = NULL, color = "black", box = TRUE,
+                                       fill = "white", alpha = 1,
+                                       pct_accuracy = 0.1),
+                     flow_args = list(curve_type = "linear"),
+                     stratum_args = list(width = 0.5, color = "gray50",
+                                         linewidth = 0.3, gap = 0.01),
+                     facet_args = list(nrow = NULL, ncol = NULL, scales = "fixed"),
+                     legend_args = list(position = NULL, ncol = 1),
                      theme_use = theme_heat(14),
                      save = list()) {
-
-  label <- match.arg(label)
 
   # --- Validate ---
   if (!is.data.frame(data)) cli::cli_abort("{.arg data} must be a data frame.")
@@ -178,6 +260,82 @@ plt_dist <- function(data,
       !is.finite(alpha) || alpha < 0 || alpha > 1) {
     cli::cli_abort("{.arg alpha} must be one finite number between 0 and 1.")
   }
+  # --- List settings: merge partial lists into the documented defaults ---
+  merge_args <- function(value, defaults, arg) {
+    if (!is.list(value)) cli::cli_abort("{.arg {arg}} must be a named list.")
+    if (length(value) == 0L) return(defaults)
+    value_names <- names(value)
+    if (is.null(value_names) || anyNA(value_names) || any(!nzchar(value_names))) {
+      cli::cli_abort("Every element of {.arg {arg}} must have a non-empty name.")
+    }
+    if (anyDuplicated(value_names)) {
+      cli::cli_abort("{.arg {arg}} must not contain duplicate names.")
+    }
+    unknown <- setdiff(value_names, names(defaults))
+    if (length(unknown) > 0L) {
+      cli::cli_abort("{.arg {arg}} has unknown field{?s}: {.val {unknown}}.")
+    }
+    utils::modifyList(defaults, value, keep.null = TRUE)
+  }
+  label_args <- merge_args(label_args, list(
+    style = "count_percent", min_pct = 0, size = NULL, color = "black",
+    box = TRUE, fill = "white", alpha = 1, pct_accuracy = 0.1
+  ), "label_args")
+  flow_args <- merge_args(flow_args, list(curve_type = "linear"), "flow_args")
+  stratum_args <- merge_args(stratum_args, list(
+    width = 0.5, color = "gray50", linewidth = 0.3, gap = 0.01
+  ), "stratum_args")
+  facet_args <- merge_args(facet_args,
+                           list(nrow = NULL, ncol = NULL, scales = "fixed"),
+                           "facet_args")
+  legend_args <- merge_args(legend_args, list(position = NULL, ncol = 1),
+                            "legend_args")
+
+  # Fields used by the bar and heatmap code; plt_alluvial() checks
+  # flow_args and stratum_args, which only alluvial mode uses.
+  is_number <- function(value, lower = -Inf, upper = Inf, lower_open = FALSE) {
+    is.numeric(value) && length(value) == 1L && !is.na(value) &&
+      is.finite(value) && (if (lower_open) value > lower else value >= lower) &&
+      value <= upper
+  }
+  is_string <- function(value) {
+    is.character(value) && length(value) == 1L && !is.na(value)
+  }
+  is_count <- function(value) is_number(value, lower = 1) && value == trunc(value)
+  one_of <- function(values) paste("one of", paste0('"', values, '"', collapse = ", "))
+  check_field <- function(ok, arg, requirement) {
+    if (!ok) cli::cli_abort("{.arg {arg}} must be {requirement}.")
+  }
+  label_styles <- c("count_percent", "count_percent_wrap", "count", "percent", "none")
+  facet_scales <- c("fixed", "free", "free_x", "free_y")
+  legend_positions <- c("right", "left", "top", "bottom", "none")
+  check_field(is_string(label_args$style) && label_args$style %in% label_styles,
+              "label_args$style", one_of(label_styles))
+  check_field(is_number(label_args$min_pct, 0, 1), "label_args$min_pct",
+              "between 0 and 1")
+  check_field(is.null(label_args$size) ||
+                is_number(label_args$size, 0, lower_open = TRUE),
+              "label_args$size", "`NULL` or a number greater than 0")
+  check_field(is_string(label_args$color), "label_args$color", "one colour string")
+  check_field(isTRUE(label_args$box) || isFALSE(label_args$box), "label_args$box",
+              "`TRUE` or `FALSE`")
+  check_field(is_string(label_args$fill), "label_args$fill", "one colour string")
+  check_field(is_number(label_args$alpha, 0, 1), "label_args$alpha",
+              "between 0 and 1")
+  check_field(is_number(label_args$pct_accuracy, 0, lower_open = TRUE),
+              "label_args$pct_accuracy", "a number greater than 0")
+  for (field in c("nrow", "ncol")) {
+    check_field(is.null(facet_args[[field]]) || is_count(facet_args[[field]]),
+                paste0("facet_args$", field), "`NULL` or a positive integer")
+  }
+  check_field(is_string(facet_args$scales) && facet_args$scales %in% facet_scales,
+              "facet_args$scales", one_of(facet_scales))
+  check_field(is.null(legend_args$position) ||
+                (is_string(legend_args$position) &&
+                   legend_args$position %in% legend_positions),
+              "legend_args$position", paste("`NULL` or", one_of(legend_positions)))
+  check_field(is_count(legend_args$ncol), "legend_args$ncol", "a positive integer")
+
   data <- dplyr::ungroup(data)
   required <- c(dis_vars, if (length(dis_vars) == 2L) facet)
   keep <- stats::complete.cases(data[required])
@@ -224,23 +382,27 @@ plt_dist <- function(data,
 
   # --- Resolve theme + fill colours ---
   # .resolve_theme(): NULL -> theme_km, else theme/function/name -> theme.
-  # Label text size scales with the theme's base font size (so it is carried
-  # by `theme_use`, not a separate base_size argument).
+  # Unless `label_args$size` is set, label text size scales with the theme's
+  # base font size (so it is carried by `theme_use`).
   thm <- .resolve_theme(theme_use)
   base_size <- tryCatch(thm$text$size, error = function(e) NULL)
   if (is.null(base_size) || !is.numeric(base_size)) base_size <- 14
 
   # --- Alluvial mode (2 variables only) -------------------------------------
   if (length(dis_vars) == 2L && type == "alluvial") {
+    label_args$size <- label_args$size %||% (3 * base_size / 14)
     return(plt_alluvial(
       data = data,
       cat_var = dis_vars[1L],
       group = dis_vars[2L],
       facet = facet,
       color = if (is.null(named_palette)) color else unname(named_palette),
-      flow_args = list(alpha = alpha, curve_type = curve_type),
-      stratum_args = list(gap = gap),
-      label_args = list(style = label),
+      flow_args = list(alpha = alpha, curve_type = flow_args$curve_type),
+      stratum_args = stratum_args,
+      label_args = label_args,
+      facet_args = facet_args,
+      legend_args = list(ncol = legend_args$ncol,
+                         position = legend_args$position %||% "right"),
       theme_use = theme_alluvia(base_size),
       save = save
     ))
@@ -280,21 +442,26 @@ plt_dist <- function(data,
       dplyr::mutate(!!prop_name := .data[[count_name]] / sum(.data[[count_name]])) %>%
       dplyr::ungroup()
 
-    # Label text per `label` mode
-    pct <- scales::percent(plotdata[[prop_name]], accuracy = 0.1)
-    plotdata[[label_name]] <- switch(label,
-      count         = as.character(plotdata[[count_name]]),
-      percent       = pct,
-      count_percent = sprintf("%s\n(%s)", plotdata[[count_name]], pct),
-      count_percent_wrap = sprintf("%s\n%s", plotdata[[count_name]], pct),
-      none          = NA_character_
+    # Label text per `label_args$style`; segments below `min_pct` get NA
+    # labels, which are dropped when drawn without changing the stacking.
+    counts <- scales::comma(plotdata[[count_name]], accuracy = 1)
+    pct <- scales::percent(plotdata[[prop_name]], accuracy = label_args$pct_accuracy)
+    plotdata[[label_name]] <- switch(label_args$style,
+      count              = counts,
+      percent            = pct,
+      count_percent      = sprintf("%s (%s)", counts, pct),
+      count_percent_wrap = sprintf("%s\n%s", counts, pct),
+      none               = NA_character_
     )
+    plotdata[[label_name]][plotdata[[prop_name]] < label_args$min_pct] <- NA_character_
 
     p <- ggplot2::ggplot(plotdata, ggplot2::aes(
       x = .data[[x_var]], y = .data[[prop_name]], fill = .data[[fill_var]])) +
       ggplot2::geom_bar(stat = "identity",
                         position = ggplot2::position_fill(reverse = TRUE)) +
       ggplot2::scale_fill_manual(values = pal_cols) +
+      ggplot2::scale_y_continuous(labels = scales::label_percent()) +
+      ggplot2::guides(fill = ggplot2::guide_legend(ncol = legend_args$ncol)) +
       ggplot2::labs(x = x_var, y = "Proportion") +
       thm
 
@@ -303,27 +470,44 @@ plt_dist <- function(data,
     # legend is needed to read the chart. The default theme_heat() hides the
     # legend (it targets the self-labelled heatmap); re-enable it here when the
     # active theme would hide it, leaving a custom theme's placement intact.
-    if (identical(thm$legend.position, "none")) {
-      p <- p + ggplot2::theme(legend.position = "right")
+    legend_position <- legend_args$position %||%
+      (if (identical(thm$legend.position, "none")) "right")
+    if (!is.null(legend_position)) {
+      p <- p + ggplot2::theme(legend.position = legend_position)
     }
 
-    if (label != "none") {
-      p <- p + ggplot2::geom_label(
-        ggplot2::aes(label = .data[[label_name]]),
-        position = ggplot2::position_fill(reverse = TRUE, vjust = 0.5),
-        show.legend = FALSE, size = (base_size - 4) / ggplot2::.pt
-      )
+    if (label_args$style != "none") {
+      # A fixed label fill drops the inherited fill mapping, so `group` keeps
+      # the labels stacked like the bar segments.
+      label_mapping <- ggplot2::aes(label = .data[[label_name]],
+                                    group = .data[[fill_var]])
+      label_position <- ggplot2::position_fill(reverse = TRUE, vjust = 0.5)
+      label_size <- label_args$size %||% ((base_size - 4) / ggplot2::.pt)
+      p <- p + if (label_args$box) {
+        ggplot2::geom_label(label_mapping, position = label_position,
+                            size = label_size, colour = label_args$color,
+                            fill = label_args$fill, alpha = label_args$alpha,
+                            na.rm = TRUE, show.legend = FALSE)
+      } else {
+        ggplot2::geom_text(label_mapping, position = label_position,
+                           size = label_size, colour = label_args$color,
+                           alpha = label_args$alpha, na.rm = TRUE,
+                           show.legend = FALSE)
+      }
     }
 
     if (!is.null(facet)) {
-      if (!facet %in% names(data)) cli::cli_abort("Facet variable {.val {facet}} not found.")
-      if (!is.factor(data[[facet]])) data[[facet]] <- factor(data[[facet]])
-      n_facet <- nlevels(data[[facet]])
-      p <- p + ggplot2::facet_wrap(ggplot2::vars(!!rlang::sym(facet)),
-                                   nrow = ceiling(n_facet / 3))
+      n_facet <- length(unique(data[[facet]]))
+      p <- p + ggplot2::facet_wrap(
+        ggplot2::vars(!!rlang::sym(facet)),
+        nrow = facet_args$nrow %||%
+          (if (is.null(facet_args$ncol)) ceiling(n_facet / 3)),
+        ncol = facet_args$ncol,
+        scales = facet_args$scales
+      )
     }
 
-    return(.save_sized(p, save, c(max(3, 0.9 * nlevels(data[[x_var]])), 4),
+    return(.save_sized(p, save, c(max(3, 0.9 * length(unique(data[[x_var]]))), 4),
                        lead = "bar chart laid out for",
                        filename = "Figure X. Distribution.pdf"))
   }
@@ -343,29 +527,39 @@ plt_dist <- function(data,
 
   # Resolved theme + the tile-grid overrides (no legend / grid / ticks / axis
   # line) that previously lived in theme_heat(); applied on top of `theme_use`.
+  labelled <- label_args$style != "none"
+  heat_legend <- legend_args$position %||%
+    (if (labelled) "none" else
+      if (identical(thm$legend.position, "none")) "right" else thm$legend.position)
   p <- ggplot2::ggplot(plotdata, ggplot2::aes(
     x = .data[[x_var]], y = .data[[y_var]])) +
     ggplot2::geom_tile(ggplot2::aes(fill = .data[[fill_var]]),
                        color = "black", linewidth = 0.5) +
     ggplot2::scale_fill_manual(values = pal_cols) +
+    ggplot2::guides(fill = ggplot2::guide_legend(ncol = legend_args$ncol)) +
     ggplot2::scale_x_discrete(position = "top") +
     ggplot2::scale_y_discrete(limits = rev) +
     ggplot2::labs(x = NULL, y = NULL) +
     thm +
     ggplot2::theme(
-      legend.position = if (label != "none") "none" else
-        if (identical(thm$legend.position, "none")) "right" else thm$legend.position,
+      legend.position = heat_legend,
       panel.grid = ggplot2::element_blank(),
       axis.ticks = ggplot2::element_blank(),
       axis.line = ggplot2::element_blank()
     )
 
-  if (label != "none") {
-    p <- p + ggplot2::geom_label(
-      ggplot2::aes(label = .data[[fill_var]]),
-      color = "black", fontface = "bold",
-      size = (base_size - 2) / ggplot2::.pt
-    )
+  if (labelled) {
+    label_size <- label_args$size %||% ((base_size - 2) / ggplot2::.pt)
+    p <- p + if (label_args$box) {
+      ggplot2::geom_label(ggplot2::aes(label = .data[[fill_var]]),
+                          colour = label_args$color, fill = label_args$fill,
+                          alpha = label_args$alpha, fontface = "bold",
+                          size = label_size)
+    } else {
+      ggplot2::geom_text(ggplot2::aes(label = .data[[fill_var]]),
+                         colour = label_args$color, alpha = label_args$alpha,
+                         fontface = "bold", size = label_size)
+    }
   }
 
   .save_sized(p, save, c(max(3, 1.1 * length(unique(plotdata[[x_var]]))),

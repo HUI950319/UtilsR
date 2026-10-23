@@ -25,21 +25,124 @@ test_that("bar calculations do not overwrite selected input names", {
   expect_identical(data, original)
 })
 
-test_that("count_percent_wrap labels put counts and percentages on separate lines", {
-  expect_identical(eval(formals(plt_dist)$label),
-                   c("count_percent", "count_percent_wrap", "count", "percent", "none"))
-  data <- data.frame(x = c("A", "A", "B"), group = c("F", "M", "M"))
-  bar <- dist_test_plot(data, c("x", "group"), type = "bar",
-                        label = "count_percent_wrap")
-  expect_identical(ggplot2::layer_data(bar, 2L)$label,
-                   c("1\n50.0%", "1\n50.0%", "1\n100.0%"))
+dist_label_data <- function() {
+  data.frame(x = rep(c("A", "B"), c(1500, 3)),
+             group = c(rep("F", 1499), "M", "F", "M", "M"))
+}
+
+test_that("plt_dist packs its plot settings into plt_alluvial-style lists", {
+  expect_identical(
+    names(formals(plt_dist)),
+    c("data", "dis_vars", "type", "facet", "color", "alpha", "label_args",
+      "flow_args", "stratum_args", "facet_args", "legend_args", "theme_use", "save")
+  )
+  defaults <- lapply(
+    c("label_args", "flow_args", "stratum_args", "facet_args", "legend_args"),
+    \(argument) eval(formals(plt_dist)[[argument]])
+  )
+  expect_identical(defaults, list(
+    list(style = "count_percent", min_pct = 0, size = NULL, color = "black",
+         box = TRUE, fill = "white", alpha = 1, pct_accuracy = 0.1),
+    list(curve_type = "linear"),
+    list(width = 0.5, color = "gray50", linewidth = 0.3, gap = 0.01),
+    list(nrow = NULL, ncol = NULL, scales = "fixed"),
+    list(position = NULL, ncol = 1)
+  ))
+  data <- data.frame(x = c("A", "B"), group = c("F", "M"))
+  # `label` partially matches `label_args`, so an old string value is rejected there.
+  expect_error(plt_dist(data, c("x", "group"), label = "none"), "label_args.*named list")
+  expect_error(plt_dist(data, c("x", "group"), gap = 0), "unused argument")
+  expect_error(plt_dist(data, c("x", "group"), curve_type = "linear"), "unused argument")
+  for (argument in c("label_args", "flow_args", "stratum_args", "facet_args",
+                     "legend_args")) {
+    expect_error(rlang::exec(plt_dist, data, c("x", "group"), type = "bar",
+                             !!!stats::setNames(list(list(unknown = 1)), argument)),
+                 "unknown")
+  }
+  expect_error(plt_dist(data, c("x", "group"), type = "bar",
+                        label_args = list(style = "name")), "label_args\\$style")
+  expect_error(plt_dist(data, c("x", "group"), type = "bar",
+                        label_args = list(pct_accuracy = 0)), "pct_accuracy")
+  expect_error(plt_dist(data, c("x", "group"), type = "bar",
+                        legend_args = list(position = "middle")), "position")
+})
+
+test_that("bar labels, axis and label boxes follow label_args", {
+  bar <- dist_test_plot(dist_label_data(), c("x", "group"), type = "bar")
+  labels <- ggplot2::layer_data(bar, 2L)
+  expect_identical(labels$label,
+                   c("1,499 (99.9%)", "1 (0.1%)", "1 (33.3%)", "2 (66.7%)"))
+  expect_true(all(labels$fill == "white"))
+  expect_equal(unique(labels$size), (14 - 4) / ggplot2::.pt)
+  bars <- ggplot2::layer_data(bar, 1L)
+  expect_equal(labels$y, (bars$ymin + bars$ymax) / 2)
+  built <- ggplot2::ggplot_build(bar)
+  expect_identical(built$layout$panel_params[[1]]$y$get_labels(),
+                   c("0%", "25%", "50%", "75%", "100%"))
+
+  wrap <- dist_test_plot(dist_label_data(), c("x", "group"), type = "bar",
+                         label_args = list(style = "count_percent_wrap",
+                                           min_pct = 0.05, pct_accuracy = 1,
+                                           size = 4, box = FALSE, color = "red"))
+  expect_s3_class(wrap$layers[[2]]$geom, "GeomText")
+  labels <- ggplot2::layer_data(wrap, 2L)
+  expect_identical(labels$label[!is.na(labels$label)],
+                   c("1,499\n100%", "1\n33%", "2\n67%"))
+  expect_true(all(labels$colour == "red"))
+  expect_equal(unique(labels$size), 4)
+
   heat <- data.frame(x = c("A", "B"), y = "C", group = c("F", "M"))
-  tiles <- dist_test_plot(heat, c("x", "y", "group"), label = "count_percent_wrap")
+  tiles <- dist_test_plot(heat, c("x", "y", "group"),
+                          label_args = list(style = "count_percent_wrap"))
   expect_identical(as.character(ggplot2::layer_data(tiles, 2L)$label), c("F", "M"))
+  expect_equal(unique(ggplot2::layer_data(tiles, 2L)$size), (14 - 2) / ggplot2::.pt)
+})
+
+test_that("bar facets use observed levels and the facet and legend lists", {
+  data <- data.frame(
+    x = factor(rep(c("A", "B"), 6), levels = c("A", "B", "Unused")),
+    group = rep(c("F", "M"), each = 6),
+    panel = factor(rep(c("P1", "P2", "P3"), 4),
+                   levels = c("P1", "P2", "P3", "U1", "U2", "U3", "U4"))
+  )
+  p <- dist_test_plot(data, c("x", "group"), type = "bar", facet = "panel")
+  layout <- ggplot2::ggplot_build(p)$layout$layout
+  expect_identical(c(max(layout$ROW), max(layout$COL)), c(1L, 3L))
+  custom <- dist_test_plot(data, c("x", "group"), type = "bar", facet = "panel",
+                           facet_args = list(ncol = 1, scales = "free_x"),
+                           legend_args = list(position = "bottom", ncol = 2))
+  layout <- ggplot2::ggplot_build(custom)$layout$layout
+  expect_identical(c(max(layout$ROW), max(layout$COL)), c(3L, 1L))
+  expect_true(custom$facet$params$free$x)
+  expect_identical(custom$theme$legend.position, "bottom")
+  expect_identical(custom$guides$guides$fill$params$ncol, 2)
+  skip_if_not_installed("RegR")
+  plain <- dist_test_plot(droplevels(data), c("x", "group"), type = "bar",
+                          facet = "panel")
+  expect_equal(attr(p, "plot_size"), attr(plain, "plot_size"))
+})
+
+test_that("alluvial mode forwards the list settings to plt_alluvial", {
   skip_if_not_installed("ggalluvial")
-  alluvial <- dist_test_plot(data, c("x", "group"), label = "count_percent_wrap")
-  expect_identical(alluvial$data$.label[!is.na(alluvial$data$.label)],
-                   c("F\n1 (50.0%)", "M\n1 (50.0%)", "M\n1 (100.0%)"))
+  p <- dist_test_plot(dist_label_data(), c("x", "group"))
+  expect_identical(p$data$.label[!is.na(p$data$.label)],
+                   c("F (1,499, 99.9%)", "F (1, 33.3%)", "M (1, 0.1%)", "M (2, 66.7%)"))
+  expect_equal(unique(ggplot2::layer_data(p, 3L)$size), 3)
+  wrap <- dist_test_plot(
+    dist_label_data(), c("x", "group"), theme_use = theme_my(base_size = 21),
+    label_args = list(style = "count_percent_wrap", min_pct = 0.05, pct_accuracy = 1),
+    flow_args = list(curve_type = "sigmoid"),
+    stratum_args = list(width = 0.3, gap = 0),
+    legend_args = list(position = "bottom")
+  )
+  expect_identical(wrap$data$.label[!is.na(wrap$data$.label)],
+                   c("F\n1,499 (100%)", "F\n1 (33%)", "M\n2 (67%)"))
+  expect_equal(unique(ggplot2::layer_data(wrap, 3L)$size), 3 * 21 / 14)
+  expect_identical(wrap$layers[[1]]$geom_params$curve_type, "sigmoid")
+  strata <- ggplot2::layer_data(wrap, 2L)
+  expect_equal(unique(round(strata$xmax - strata$xmin, 6)), 0.3)
+  expect_false(any(wrap$data$.is_gap))
+  expect_identical(wrap$theme$legend.position, "bottom")
 })
 
 test_that("distribution counts ignore unrelated input grouping", {
@@ -79,7 +182,8 @@ test_that("bar facets accept literal non-syntactic column names", {
 test_that("heatmaps reject cells containing more than one fill category", {
   conflicting <- data.frame(x = "A", y = "B", group = c("F", rep("M", 9)))
   for (label in c("count_percent", "none")) {
-    expect_error(plt_dist(conflicting, c("x", "y", "group"), label = label),
+    expect_error(plt_dist(conflicting, c("x", "y", "group"),
+                          label_args = list(style = label)),
                  "more than one.*category")
   }
   valid <- data.frame(x = c("A", "A", "B"), y = "C", group = c("F", "F", "M"))
@@ -115,7 +219,8 @@ test_that("unlabelled heatmaps retain a visible category legend", {
   data <- data.frame(x = c("A", "B"), y = "C", group = c("F", "M"))
   for (theme in list(theme_heat(14), ggplot2::theme_bw() +
                      ggplot2::theme(legend.position = "bottom"))) {
-    p <- dist_test_plot(data, c("x", "y", "group"), label = "none", theme_use = theme)
+    p <- dist_test_plot(data, c("x", "y", "group"), label_args = list(style = "none"),
+                        theme_use = theme)
     expected <- if (identical(theme$legend.position, "none")) "right" else "bottom"
     expect_identical(p$theme$legend.position, expected)
     grob <- ggplot2::ggplotGrob(p)

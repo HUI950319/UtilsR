@@ -14,7 +14,7 @@ plt_alluvial(
   flow_args = list(alpha = 0.4, curve_type = "linear"),
   stratum_args = list(width = 0.5, color = "gray50", linewidth = 0.3, gap = 0.01),
   label_args = list(style = "count_percent", min_pct = 0, size = 3, color = "black", box
-    = TRUE, fill = "white", alpha = 1),
+    = TRUE, fill = "white", alpha = 1, pct_accuracy = 0.1),
   facet_args = list(nrow = NULL, ncol = NULL, scales = "fixed"),
   legend_args = list(ncol = 1, position = "right"),
   theme_use = theme_alluvia(15),
@@ -70,7 +70,8 @@ total in each facet. Default \code{0.01}.}
 \code{"count_percent_wrap"} puts \code{name} on the first line and
 \code{count (percent)} on the second, \code{"count"} gives
 \code{name (count)}, \code{"percent"} gives \verb{name percent}, \code{"name"} gives the
-group name, and \code{"none"} hides labels. Default \code{"count_percent"}.}
+group name, and \code{"none"} hides labels. Counts use a comma as
+thousands separator. Default \code{"count_percent"}.}
 \item{\code{min_pct}}{Numeric scalar in \eqn{[0, 1]}. Labels are shown
 only for groups at or above this within-\code{facet} by \code{cat_var}
 proportion. Default \code{0}.}
@@ -84,6 +85,9 @@ uses plain text. Default \code{TRUE}.}
 colour; used only when \code{box = TRUE}. Default \code{"white"}.}
 \item{\code{alpha}}{Numeric scalar in \eqn{[0, 1]} controlling label
 opacity. Default \code{1}.}
+\item{\code{pct_accuracy}}{Positive number giving the rounding accuracy
+of label percentages, as in \code{scales::percent()}: \code{0.1} keeps one
+decimal place and \code{1} gives whole percentages. Default \code{0.1}.}
 }}
 
 \item{facet_args}{A named list controlling \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}:

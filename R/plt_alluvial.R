@@ -48,7 +48,8 @@
 #'       `"count_percent_wrap"` puts `name` on the first line and
 #'       `count (percent)` on the second, `"count"` gives
 #'       `name (count)`, `"percent"` gives `name percent`, `"name"` gives the
-#'       group name, and `"none"` hides labels. Default `"count_percent"`.}
+#'       group name, and `"none"` hides labels. Counts use a comma as
+#'       thousands separator. Default `"count_percent"`.}
 #'     \item{\code{min_pct}}{Numeric scalar in \eqn{[0, 1]}. Labels are shown
 #'       only for groups at or above this within-`facet` by `cat_var`
 #'       proportion. Default `0`.}
@@ -62,6 +63,9 @@
 #'       colour; used only when `box = TRUE`. Default `"white"`.}
 #'     \item{\code{alpha}}{Numeric scalar in \eqn{[0, 1]} controlling label
 #'       opacity. Default `1`.}
+#'     \item{\code{pct_accuracy}}{Positive number giving the rounding accuracy
+#'       of label percentages, as in `scales::percent()`: `0.1` keeps one
+#'       decimal place and `1` gives whole percentages. Default `0.1`.}
 #'   }
 #' @param facet_args A named list controlling [ggplot2::facet_wrap()]:
 #'   \describe{
@@ -155,7 +159,8 @@ plt_alluvial <- function(
     color = "black",
     box = TRUE,
     fill = "white",
-    alpha = 1
+    alpha = 1,
+    pct_accuracy = 0.1
   ),
   facet_args = list(nrow = NULL, ncol = NULL, scales = "fixed"),
   legend_args = list(ncol = 1, position = "right"),
@@ -246,7 +251,8 @@ plt_alluvial <- function(
       color = "black",
       box = TRUE,
       fill = "white",
-      alpha = 1
+      alpha = 1,
+      pct_accuracy = 0.1
     ),
     "label_args"
   )
@@ -362,6 +368,9 @@ plt_alluvial <- function(
   if (!is_number(label_args$alpha, lower = 0, upper = 1)) {
     cli::cli_abort("{.arg label_args$alpha} must be between 0 and 1.")
   }
+  if (!is_number(label_args$pct_accuracy, lower = 0, lower_open = TRUE)) {
+    cli::cli_abort("{.arg label_args$pct_accuracy} must be greater than 0.")
+  }
 
   if (!is.null(facet_args$nrow) && !is_integer(facet_args$nrow)) {
     cli::cli_abort(
@@ -471,8 +480,10 @@ plt_alluvial <- function(
     label_args$style != "none"
   if (any(show_label)) {
     group_name <- as.character(stat$.group[show_label])
-    count_text <- as.character(stat$count[show_label])
-    pct_text <- scales::percent(stat$percent[show_label], accuracy = 0.1)
+    count_text <- scales::comma(stat$count[show_label], accuracy = 1)
+    pct_text <- scales::percent(
+      stat$percent[show_label], accuracy = label_args$pct_accuracy
+    )
     stat$.label[show_label] <- switch(
       label_args$style,
       count_percent = sprintf("%s (%s, %s)", group_name, count_text, pct_text),

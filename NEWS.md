@@ -17,10 +17,28 @@
   footer in its border. `pr_spark()` prints one line per column: a
   sparkline of its distribution, a short summary and the missing share.
 
-* `plt_dist()` gains `label = "count_percent_wrap"`, which puts counts and
-  percentages on separate lines: `count\npercent` on stacked bars, and the
-  group name above `count (percent)` in alluvial plots. `plt_alluvial()`
-  accepts the same value in `label_args$style`. Defaults are unchanged.
+* `plt_dist()` takes its plot settings as `plt_alluvial()`-style lists:
+  `label_args`, `flow_args`, `stratum_args`, `facet_args` and `legend_args`.
+  The standalone `label`, `gap` and `curve_type` arguments are removed; use
+  `label_args$style`, `stratum_args$gap` and `flow_args$curve_type`.
+  `label_args` also sets `min_pct` (leave small segments unlabelled),
+  `pct_accuracy`, `size`, `color`, `box`, `fill` and `alpha`, and
+  `style = "count_percent_wrap"` puts counts and percentages on separate
+  lines.
+
+* `plt_dist(type = "bar")` labels default to one line, `count (percent)`, in
+  white boxes (previously `count\n(percent)` in boxes filled with the segment
+  colour), and the y axis shows percentages. Bar and alluvial label counts
+  use a comma as thousands separator.
+
+* `plt_dist()` bar facets count only the facet values present in the data, so
+  unused factor levels no longer stack the panels in one column. Alluvial
+  label sizes scale with the base font size of `theme_use` like the bar and
+  heatmap labels (unchanged at the default size 14).
+
+* `plt_alluvial()` gains `label_args$pct_accuracy`, accepts
+  `label_args$style = "count_percent_wrap"` (group name above
+  `count (percent)`), and writes counts with a comma as thousands separator.
 
 # UtilsR 0.6.8
 

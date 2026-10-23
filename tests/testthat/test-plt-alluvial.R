@@ -51,7 +51,8 @@ test_that("plt_alluvial advertises semantic list defaults", {
         color = "black",
         box = TRUE,
         fill = "white",
-        alpha = 1
+        alpha = 1,
+        pct_accuracy = 0.1
       ),
       list(nrow = NULL, ncol = NULL, scales = "fixed"),
       list(ncol = 1, position = "right")
@@ -239,6 +240,11 @@ test_that("plt_alluvial exposes the requested label styles", {
   expect_true(all(is.na(plots[[5]]$data$.label)))
   expect_identical(plots[[6]]$data$.label[1], "G2\n2 (66.7%)")
   expect_true("G2\n2 (66.7%)" %in% ggplot2::layer_data(plots[[6]], 3L)$label)
+  rounded <- plt_alluvial(alluvial_data(), "category", "group",
+                          label_args = list(pct_accuracy = 1))
+  expect_identical(rounded$data$.label[1], "G2 (2, 67%)")
+  expect_error(plt_alluvial(alluvial_data(), "category", "group",
+                            label_args = list(pct_accuracy = -1)), "pct_accuracy")
 })
 
 test_that("plt_alluvial applies list overrides and colour resolution", {
@@ -547,9 +553,9 @@ test_that("plt_dist alluvial mode delegates to plt_alluvial with facets", {
     facet = "panel",
     color = c("#112233", "#445566"),
     alpha = 0.6,
-    label = "percent",
-    gap = 0.02,
-    curve_type = "cubic"
+    label_args = list(style = "percent"),
+    flow_args = list(curve_type = "cubic"),
+    stratum_args = list(gap = 0.02)
   )
 
   expect_equal(adapted$data, direct$data)
