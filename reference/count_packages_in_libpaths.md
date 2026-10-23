@@ -1,7 +1,11 @@
 # Count Installed Packages in Each Library Path
 
 Enumerate all [`.libPaths()`](https://rdrr.io/r/base/libPaths.html) and
-count the number of installed packages in each directory.
+count the number of installed packages in each directory using
+[`utils::installed.packages()`](https://rdrr.io/r/utils/installed.packages.html).
+Unrelated directories and installation locks are excluded. The total
+counts installed copies across libraries, including packages installed
+in more than one library.
 
 ## Usage
 

@@ -2,6 +2,13 @@
 
 ## UtilsR 0.6.8
 
+- [`count_packages_in_libpaths()`](https://hui950319.github.io/UtilsR/reference/count_packages_in_libpaths.md)
+  counts installed packages instead of all library subdirectories,
+  excluding installation locks and unrelated folders.
+
+- `lv(count = )` warns that it ignores selections in `...`, `pattern`
+  and `group`, which it previously dropped silently.
+
 - Suggested [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
   filters write numbers and logicals as literals when their text reads
   back exactly, and mark truncation with a trailing comment instead of a
