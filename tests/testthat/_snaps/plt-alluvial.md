@@ -1,10 +1,3 @@
-# plt_alluvial removes incomplete required rows
-
-    Code
-      plot <- plt_alluvial(data, "category", "group", label_args = list(style = "none"))
-    Message
-      i Removed 1 row with missing values in required columns.
-
 # plt_alluvial rejects invalid columns and overlapping roles
 
     Code

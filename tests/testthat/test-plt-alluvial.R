@@ -255,13 +255,12 @@ test_that("plt_alluvial removes incomplete required rows", {
 
   data <- alluvial_data()
   data$group[1] <- NA
-  expect_snapshot(
-    plot <- plt_alluvial(
-      data,
-      "category",
-      "group",
-      label_args = list(style = "none")
-    )
+  expect_message(
+    capture.output(plot <- plt_alluvial(
+      data, "category", "group", label_args = list(style = "none")
+    )),
+    "Removed 1 row with missing values in required columns.",
+    fixed = TRUE
   )
   expect_equal(sum(plot$data$count[!plot$data$.is_gap]), 7)
 })
