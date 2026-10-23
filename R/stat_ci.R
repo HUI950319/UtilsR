@@ -26,7 +26,9 @@
 #'   Only used in CI mode. Common choices: \code{"\u2013"}, \code{", "}, \code{" to "}.
 #'
 #' @return Character vector of formatted strings. Empty input returns
-#'   \code{character(0)}.
+#'   \code{character(0)}. In numeric modes, a missing component (including
+#'   \code{NaN} and SPSS user-missing codes) makes the whole string
+#'   \code{NA_character_}. Entirely missing logical vectors are accepted.
 #'
 #' @examples
 #' # --- Numeric: CI mode (3 arguments) ---
@@ -95,7 +97,14 @@ stat_ci <- function(x, y = NULL, z = NULL,
                             "Duration", "Period", "Interval"))) {
         cli::cli_abort("{.arg {arg}} must use ordinary numeric values, not integer64, date, date-time, or time-span storage.")
       }
+      if (inherits(value, "haven_labelled")) loadNamespace("labelled")
+      if (is.logical(value) && all(is.na(value))) {
+        inputs[[arg]] <- as.double(value)
+      }
     }
+    x <- inputs[["x"]]
+    y <- inputs[["y"]]
+    z <- inputs[["z"]]
   }
 
   # --- Character input: reformat CI strings ---
@@ -139,9 +148,12 @@ stat_ci <- function(x, y = NULL, z = NULL,
       cli::cli_abort("All vectors must have the same length.")
     }
     d <- digits %||% 2L
-    .check_precision(d, x, y, z)
+    observed <- !(is.na(x) | is.na(y) | is.na(z))
+    out <- rep(NA_character_, n)
+    .check_precision(d, x[observed], y[observed], z[observed])
     fmt <- sprintf("%%.%df %s%%.%df%s%%.%df%s", d, bp[1], d, sep, d, bp[2])
-    return(sprintf(fmt, x, y, z))
+    out[observed] <- sprintf(fmt, x[observed], y[observed], z[observed])
+    return(out)
   }
 
   # --- Numeric: SD mode (2 args) ---
@@ -153,7 +165,10 @@ stat_ci <- function(x, y = NULL, z = NULL,
     cli::cli_abort("All vectors must have the same length.")
   }
   d <- digits %||% 1L
-  .check_precision(d, x, y)
+  observed <- !(is.na(x) | is.na(y))
+  out <- rep(NA_character_, length(x))
+  .check_precision(d, x[observed], y[observed])
   fmt <- sprintf("%%.%df%s%%.%df%s", d, bp[1], d, bp[2])
-  sprintf(fmt, x, y)
+  out[observed] <- sprintf(fmt, x[observed], y[observed])
+  out
 }

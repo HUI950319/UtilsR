@@ -68,3 +68,25 @@ test_that("discarded trailing text is reported once for the input vector", {
   expect_no_warning(stat_ci("1.23 (0.95, 1.59)** "))
   expect_no_warning(stat_ci("1.23 (0.95, 1.59)."))
 })
+
+test_that("missing numeric components produce genuine missing strings", {
+  expect_identical(stat_ci(c(NA, 1, 1, NaN, 1), c(.1, NA, .5, 0, .5),
+                           c(2, 1.5, NA, 1, 1.5)),
+                   c(rep(NA_character_, 4), "1.00 (0.50\u20131.50)"))
+  expect_identical(stat_ci(c(NA, 1, 1), c(.1, NA, .1)),
+                   c(NA_character_, NA_character_, "1.0(0.1)"))
+  expect_identical(stat_ci(NA, NA, NA), NA_character_)
+  expect_identical(stat_ci(NA, NA), NA_character_)
+  expect_error(stat_ci(TRUE, .1), "numeric")
+  expect_identical(stat_ci(1, -Inf, Inf), "1.00 (-Inf\u2013Inf)")
+})
+
+test_that("serialized labelled missing codes retain their meaning", {
+  x <- structure(c(1, 99, NA), na_values = 99,
+                 class = c("haven_labelled_spss", "haven_labelled",
+                           "vctrs_vctr", "double"))
+  expect_identical(stat_ci(x, c(.5, 98, 0), c(1.5, 100, 1)),
+                   c("1.00 (0.50\u20131.50)", NA_character_, NA_character_))
+  expect_identical(stat_ci(c(1, 1, 1), x),
+                   c("1.0(1.0)", NA_character_, NA_character_))
+})

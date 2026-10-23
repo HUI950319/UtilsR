@@ -38,7 +38,9 @@ Only used in CI mode. Common choices: \code{"\u2013"}, \code{", "}, \code{" to "
 }
 \value{
 Character vector of formatted strings. Empty input returns
-\code{character(0)}.
+\code{character(0)}. In numeric modes, a missing component (including
+\code{NaN} and SPSS user-missing codes) makes the whole string
+\code{NA_character_}. Entirely missing logical vectors are accepted.
 }
 \description{
 Build CI strings from numeric vectors, or reformat existing CI strings

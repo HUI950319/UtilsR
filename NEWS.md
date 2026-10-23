@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* Numeric `stat_ci()` rows with missing components return genuine missing
+  strings, including SPSS user-missing codes and entirely missing logical
+  vectors, instead of embedding missing-value text or codes in the result.
+
 * `stat_ci()` warns when reformatting drops trailing annotations such as a
   P-value. Ignoring trailing stars and a terminal period remains supported.
 
