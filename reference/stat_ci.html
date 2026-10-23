@@ -81,7 +81,9 @@ CI mode (3 vectors) or SD mode (2 vectors) for numeric input.</p>
 
 <dt id="arg-y">y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
 <dd><p>Numeric vector: lower CI bound (CI mode) or SD (SD mode).
-Ignored when <code>x</code> is character.</p></dd>
+Ignored when <code>x</code> is character.
+Numeric inputs must be one-dimensional; integer64, date, date-time and
+time-span storage are rejected instead of formatting their internal codes.</p></dd>
 
 
 <dt id="arg-z">z<a class="anchor" aria-label="anchor" href="#arg-z"></a></dt>

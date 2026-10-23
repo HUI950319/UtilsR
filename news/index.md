@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
+  rejects matrices, arrays, and unsupported numeric storage such as
+  integer64 and time spans, avoiding silently flattened or misread
+  values.
+
+- [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
   validates scalar integer precision before coercion or formatting in
   every mode and reports precision that exceeds the formatted-number
   limit.

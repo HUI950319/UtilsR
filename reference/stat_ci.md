@@ -27,7 +27,9 @@ stat_ci(
 - y:
 
   Numeric vector: lower CI bound (CI mode) or SD (SD mode). Ignored when
-  `x` is character.
+  `x` is character. Numeric inputs must be one-dimensional; integer64,
+  date, date-time and time-span storage are rejected instead of
+  formatting their internal codes.
 
 - z:
 
