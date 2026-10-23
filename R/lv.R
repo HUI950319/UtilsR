@@ -14,6 +14,8 @@
 #         +-- L2  lv.Seurat()       @meta.data -> lv.data.frame()
 #
 #   L3  .lv_default_data()   locate the default data.frame in the caller
+#       .lv_dataset_hint()  name global datasets when no default is found
+#       .lv_cli_text()      escape braces in text passed to cli messages
 #       .lv_resolve_vars()  resolve column names and caller-supplied strings
 #       .lv_print_report() emit native report tables while knitting
 # =============================================================================
@@ -145,7 +147,12 @@ lv <- function(data, ...) {
   # (a) No first argument at all -> default global data, inspect all variables.
   #     Re-call with `data` supplied (reassigning a missing arg before
   #     UseMethod does NOT propagate the new value to the method).
-  if (missing(data)) return(lv(.lv_default_data(), ...))
+  #     Resolved first, so a missing default reports its own error rather
+  #     than surfacing as an unevaluable first argument below.
+  if (missing(data)) {
+    default <- .lv_default_data()
+    return(lv(default, ...))
+  }
 
   # (b) First argument evaluates to a dataset -> normal S3 dispatch.
   value <- tryCatch(data, error = function(e) e)
@@ -168,8 +175,9 @@ lv <- function(data, ...) {
   if (is.null(default)) {
     if (failed) {
       cli::cli_abort(c("Cannot evaluate the first argument of {.fn lv}.",
-                       "x" = conditionMessage(value),
-                       "i" = "No global {.code data} or {.code data_all} to select it from."))
+                       "x" = .lv_cli_text(conditionMessage(value)),
+                       "i" = "No global {.code data} or {.code data_all} to select it from.",
+                       .lv_dataset_hint()))
     }
     .lv_default_data()
   }
@@ -196,8 +204,37 @@ lv <- function(data, ...) {
       if (is_dataset(obj)) return(obj)
     }
   }
-  stop("lv(): `data` not supplied and no global `data` or `data_all` ",
-       "(data.frame / Seurat) found in the global environment.", call. = FALSE)
+  cli::cli_abort(c(
+    "{.fn lv}: {.arg data} not supplied and no global {.code data} or {.code data_all} (data.frame / Seurat) found in the global environment.",
+    .lv_dataset_hint()
+  ), call = NULL)
+}
+
+# Hint naming the datasets in the global environment that could be passed.
+#' @keywords internal
+#' @noRd
+.lv_dataset_hint <- function() {
+  ge <- globalenv()
+  found <- Filter(function(nm) {
+    obj <- get(nm, envir = ge, inherits = FALSE)
+    is.data.frame(obj) || inherits(obj, "Seurat")
+  }, ls(ge))
+  if (!length(found)) return(character())
+  # Formatted here: the caller's cli_abort() interpolates in its own frame.
+  shown <- head(found, 5)
+  more <- if (length(found) > 5) ", ..." else ""
+  hint <- cli::format_inline(
+    "Global datasets: {.val {shown}}{more}; pass one as {.code lv(<name>, ...)}."
+  )
+  c("i" = .lv_cli_text(hint))
+}
+
+# Literal text for a cli message: cli_abort() interpolates every element, so
+# braces from object names or other messages are doubled.
+#' @keywords internal
+#' @noRd
+.lv_cli_text <- function(x) {
+  gsub("}", "}}", gsub("{", "{{", x, fixed = TRUE), fixed = TRUE)
 }
 
 #' @noRd

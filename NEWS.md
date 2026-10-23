@@ -1,5 +1,10 @@
 # UtilsR 0.6.8
 
+* When `lv()` finds no global `data` or `data_all`, its error names the data
+  frames and Seurat objects in the global environment. Called without data,
+  it reports that error directly again instead of as an unevaluable first
+  argument.
+
 * The `lv()` variable-summary subtitle says it counts variables with missing
   or Unknown/Blank/N/A values, rather than reading as a count of values.
 

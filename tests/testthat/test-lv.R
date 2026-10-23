@@ -547,3 +547,15 @@ test_that("the summary subtitle counts variables with missing or special values"
   expect_match(subtitle, "*1* with missing values", fixed = TRUE)
   expect_match(subtitle, "*1* with Unknown/Blank/N/A", fixed = TRUE)
 })
+
+test_that("missing default data errors name the global data frames", {
+  rlang::local_bindings(data = 1, data_all = 1, lv_candidate = mtcars,
+                        .env = globalenv())
+  expect_error(capture_lv(lv()), "lv_candidate")
+  direct <- tryCatch(capture_lv(lv()), error = conditionMessage)
+  expect_false(grepl("Cannot evaluate", direct))
+  expect_error(capture_lv(lv(not_an_object)), "not_an_object")
+  expect_error(capture_lv(lv(not_an_object)), "lv_candidate")
+  rlang::local_bindings(`odd{name}` = mtcars, .env = globalenv())
+  expect_error(capture_lv(lv()), "odd{name}", fixed = TRUE)
+})
