@@ -196,6 +196,7 @@ plt_alluvial <- function(
       "{.arg cat_var}, {.arg group}, and {.arg facet} must name different columns."
     )
   }
+  data <- as.data.frame(data)[required]
 
   merge_args <- function(value, defaults, arg) {
     if (!is.list(value)) {

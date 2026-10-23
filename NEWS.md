@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `plt_alluvial()` retains only required input columns in its plot environment,
+  keeping unused data out of serialized plot objects.
+
 * `plt_alluvial()` rejects out-of-range facet and legend dimensions with a
   clear argument error before integer conversion.
 

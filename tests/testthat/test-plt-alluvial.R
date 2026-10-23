@@ -478,6 +478,23 @@ test_that("plt_alluvial keeps save optional and preserves its return", {
   expect_equal(saved$data, plain$data)
 })
 
+test_that("plt_alluvial does not retain unused input columns in serialized plots", {
+  skip_if_not_installed("ggalluvial")
+
+  make_plot <- function(payload) {
+    data <- alluvial_data()
+    if (payload) data$unused <- I(matrix(rep(as.double(1:8), 10000), nrow = 8))
+    capture.output(plot <- plt_alluvial(data, "category", "group"))
+    serialize(plot, NULL)
+  }
+  plain <- make_plot(FALSE)
+  wide <- make_plot(TRUE)
+  expect_lt(length(wide) - length(plain), 100000)
+  plot <- unserialize(wide)
+  expect_equal(sum(plot$data$count), 8)
+  expect_no_warning(ggplot2::ggplotGrob(plot))
+})
+
 test_that("plt_alluvial rejects layout integers outside the supported range", {
   skip_if_not_installed("ggalluvial")
 
