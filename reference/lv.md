@@ -41,17 +41,21 @@ lv(
 
   A data object: data.frame or Seurat object. If omitted, `lv()` falls
   back to a global object named `data`, otherwise `data_all` (the first
-  that is a data.frame / Seurat object).
+  that is a data.frame / Seurat object). Empty data frames are returned
+  unchanged with a message and no report.
 
 - ...:
 
   Variable selection using
   [`dplyr::select`](https://dplyr.tidyverse.org/reference/select.html)
-  syntax.
+  syntax, including renamed selections. With no selection, all variables
+  are inspected; an explicit empty selection returns the input without a
+  report.
 
 - pattern:
 
-  Optional regex pattern for matching variable names.
+  Optional single regex pattern for matching variable names. Overrides
+  `...` with a warning, without evaluating those selections.
 
 - group:
 

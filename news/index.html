@@ -50,7 +50,9 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p>Seurat <code><a href="../reference/lv.html">lv()</a></code> uses the same column-name resolution as data frames, including character variables and <code>group = TRUE</code>, and forwards resolved controls without collisions with metadata column names.</p></li>
+<ul><li><p><code><a href="../reference/lv.html">lv()</a></code> returns zero-row and zero-column inputs unchanged with a message, before report construction or temporary theme changes in every data-frame mode.</p></li>
+<li><p><code><a href="../reference/lv.html">lv()</a></code> supports renamed selections and keeps explicit empty selections empty, including selection of only the grouping column. Omitted selections still inspect all columns. Patterns are validated and warn when overriding unevaluated selections; input data and global-data shortcuts are preserved.</p></li>
+<li><p>Seurat <code><a href="../reference/lv.html">lv()</a></code> uses the same column-name resolution as data frames, including character variables and <code>group = TRUE</code>, and forwards resolved controls without collisions with metadata column names.</p></li>
 <li><p><code><a href="../reference/lv.html">lv()</a></code> resolves bare group/count columns before caller objects, accepts character names from enclosing functions, and rejects invalid or repeated names instead of silently switching to an ungrouped summary.</p></li>
 <li><p><code><a href="../reference/lv.html">lv()</a></code> restores the complete existing gtsummary theme after successful reports and after errors, instead of clearing it or leaving Compact active.</p></li>
 <li><p><code><a href="../reference/lv.html">lv()</a></code> keeps cross-tabulation counts, percentages, and row totals separate from identically named input columns or categories, and counts only the requested variables when input carries dplyr grouping.</p></li>

@@ -2,6 +2,18 @@
 
 ## UtilsR 0.6.8
 
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) returns
+  zero-row and zero-column inputs unchanged with a message, before
+  report construction or temporary theme changes in every data-frame
+  mode.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) supports
+  renamed selections and keeps explicit empty selections empty,
+  including selection of only the grouping column. Omitted selections
+  still inspect all columns. Patterns are validated and warn when
+  overriding unevaluated selections; input data and global-data
+  shortcuts are preserved.
+
 - Seurat [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
   uses the same column-name resolution as data frames, including
   character variables and `group = TRUE`, and forwards resolved controls
