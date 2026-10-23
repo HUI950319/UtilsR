@@ -48,3 +48,16 @@ test_that("pr_section() prints a grey rule with a bold title", {
   wide <- cli::ansi_strip(utils::capture.output(pr_section("x")))
   expect_identical(cli::ansi_nchar(wide, type = "width"), 80L)
 })
+
+test_that("pr_note() prints a grey note with cli markup and caller values", {
+  withr::local_options(cli.num_colors = 256)
+  k <- 3
+  out <- utils::capture.output(pr_note("Next: {.code plt_sens(res)} for {k} panel{?s}"))
+  expect_identical(cli::ansi_strip(out), "# Next: `plt_sens(res)` for 3 panels")
+  expect_match(out, "\033[90m", fixed = TRUE)
+  expect_match(out, "\033[3m", fixed = TRUE)
+
+  withr::local_options(cli.hyperlink = TRUE, cli.hyperlink_run = TRUE)
+  link <- utils::capture.output(pr_note("Run {.run RegR::plt_eff(res)}"))
+  expect_match(link, "x-r-run:RegR::plt_eff(res)", fixed = TRUE)
+})

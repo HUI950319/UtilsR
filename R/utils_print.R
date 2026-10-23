@@ -8,6 +8,7 @@
 #         pr_head(class, ...)          class chip + grey one-line summary
 #         pr_kv(x)                     aligned key-value block
 #         pr_section(title)            grey rule with a bold title
+#         pr_note(...)                 grey italic "# note", cli markup
 #
 #   L2  shared internals
 #         ._chip()       short label on a solid background (utils_display.R)
@@ -130,4 +131,36 @@ pr_section <- function(title, width = NULL) {
   line  <- cli::rule(left = cli::style_bold(title), line_col = cli::col_grey,
                      width = width)
   ._pr_out(as.character(line))
+}
+
+# ------------- pr_note ------------------------------------------------------
+
+#' Grey note line for a print method
+#'
+#' Print a grey italic \code{# ...} line for caveats and next steps, such as
+#' the plotting call that suits the printed result.
+#'
+#' The text goes through \code{cli::format_inline()}: \code{{x}} is
+#' interpolated from \code{.envir}, inline markup such as \code{{.code ...}}
+#' and \code{{.fn ...}} is styled, and in consoles that support hyperlinks
+#' (recent RStudio versions) \code{{.run pkg::fun(x)}} and
+#' \code{{.help pkg::fun}} become clickable links. Double literal braces, as
+#' in \code{"{{x}}"}.
+#'
+#' @param ... Character pieces of the note, pasted together.
+#' @param .envir Environment in which \code{{}} expressions are evaluated;
+#'   defaults to the caller.
+#'
+#' @return The printed line, invisibly.
+#'
+#' @examples
+#' n_panel <- 2
+#' pr_note("RV / xRV are partial R2; E-values are risk-ratio multipliers.")
+#' pr_note("Plot with {.run causalR::plt_sens(res)} ({n_panel} panels)")
+#'
+#' @export
+#' @family print helpers
+pr_note <- function(..., .envir = parent.frame()) {
+  text <- cli::format_inline(..., .envir = .envir)
+  ._pr_out(cli::col_grey(cli::style_italic(paste("#", text))))
 }

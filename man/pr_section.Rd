@@ -27,6 +27,7 @@ pr_section("Effect ranges")
 \seealso{
 Other print helpers:
 \code{\link[=pr_head]{pr_head()}},
-\code{\link[=pr_kv]{pr_kv()}}
+\code{\link[=pr_kv]{pr_kv()}},
+\code{\link[=pr_note]{pr_note()}}
 }
 \concept{print helpers}

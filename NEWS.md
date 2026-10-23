@@ -3,7 +3,9 @@
 * New print helpers for S3 print methods. `pr_head()` prints a class label
   on a solid background followed by a grey one-line summary. `pr_kv()` prints
   a key-value block, keys in grey and aligned by display width. `pr_section()`
-  prints a grey rule led by a bold title.
+  prints a grey rule led by a bold title. `pr_note()` prints a grey italic
+  `# ...` line with cli inline markup, so `{.run pkg::fun(x)}` becomes a
+  clickable link in consoles that support hyperlinks.
 
 # UtilsR 0.6.8
 
