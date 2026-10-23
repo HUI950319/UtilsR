@@ -41,7 +41,8 @@ lv(
 
   A data object: data.frame or Seurat object. If omitted, `lv()` falls
   back to a global object named `data`, otherwise `data_all` (the first
-  that is a data.frame / Seurat object).
+  that is a data.frame / Seurat object). Empty data frames are returned
+  unchanged with a message and no report.
 
 - ...:
 
@@ -97,6 +98,15 @@ lv(
 ## Value
 
 Invisibly returns the input data.
+
+## Details
+
+In R Markdown or Quarto, use a code chunk with `results = "asis"` (and
+optionally `message = FALSE`). Reports are emitted through
+[`knitr::knit_print()`](https://rdrr.io/pkg/knitr/man/knit_print.html)
+in the document's native format, with dependencies retained. Console
+frequency listings are omitted while knitting, and each default summary
+table is included only once.
 
 ## See also
 

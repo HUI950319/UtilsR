@@ -29,7 +29,8 @@ plt_dist(
 
 - data:
 
-  A data frame.
+  A data frame. Existing dplyr grouping is ignored; counts use only the
+  variables selected by `dis_vars` and `facet`.
 
 - dis_vars:
 
@@ -39,7 +40,8 @@ plt_dist(
     (`type = "alluvial"`, default) or stacked bar (`type = "bar"`).
 
   - 3 variables: `c(x, y, fill)` \\\rightarrow\\ tile heatmap (`type`
-    ignored).
+    ignored). Each observed `(x, y)` cell must have only one fill
+    category; otherwise an error prevents overplotting.
 
 - type:
 
@@ -171,9 +173,12 @@ plt_dist(df, dis_vars = c("stage", "sex"), type = "bar",
 
 
 # --- Tile heatmap (3 variables; type ignored) -----------------------------
-plt_dist(df, dis_vars = c("stage", "grade", "sex"))
+heat_data <- expand.grid(stage = c("I", "II", "III", "IV"),
+                         grade = c("Low", "Mid", "High"))
+heat_data$category <- factor(rep(c("A", "B"), 6))
+plt_dist(heat_data, dis_vars = c("stage", "grade", "category"))
 
-plt_dist(df, dis_vars = c("stage", "grade", "sex"), label = "none")
+plt_dist(heat_data, dis_vars = c("stage", "grade", "category"), label = "none")
 
 
 # --- Alluvial flow (default; needs ggalluvial) ----------------------------
