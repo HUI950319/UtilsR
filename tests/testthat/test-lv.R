@@ -445,3 +445,13 @@ test_that("suggested filters keep literals runnable and count observed levels", 
   labels <- as.character(reports[[2L]][["_data"]]$label)
   expect_true("f (factor, 1)" %in% labels)
 })
+
+test_that("count warns that it ignores selections and group", {
+  data <- data.frame(g = c("A", "A", "B"), x = c("p", "q", "p"), y = 1:3)
+  for (call in list(quote(lv(data, y, count = c(g, x))),
+                    quote(lv(data, count = g, group = x)),
+                    quote(lv(data, pattern = "^y$", count = g)))) {
+    expect_warning(capture_lv(eval(call)), "count")
+  }
+  expect_no_warning(capture_lv(lv(data, count = c(g, x))))
+})

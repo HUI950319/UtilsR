@@ -55,7 +55,8 @@
 #' @param count Optional variable(s) for cross-tabulation. Accepts a single
 #'   variable name (NSE or string), multiple variable names via
 #'   \code{c(var1, var2)} (NSE) or character vector
-#'   \code{c("var1", "var2")}. Independent of \code{group}.
+#'   \code{c("var1", "var2")}. Selections in \code{...}, \code{pattern} and
+#'   \code{group} are ignored in this mode, with a warning.
 #'   Existing dplyr groups are ignored for this table. Generated frequency,
 #'   percentage, and total column names receive numeric suffixes when needed
 #'   to preserve input columns and category labels.
@@ -523,6 +524,12 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   # Count mode
   # ==========================================================================
   if (!is.null(count_vars)) {
+    if (n_selections || !is.null(pattern) || !is.null(group_var)) {
+      cli::cli_warn(paste(
+        "{.arg count} tabulates only its own variables; selections in",
+        "{.code ...}, {.arg pattern} and {.arg group} were ignored."
+      ))
+    }
     missing_vars <- setdiff(count_vars, names(data))
     if (length(missing_vars) > 0) {
       cli::cli_abort("\u53d8\u91cf {.var {missing_vars}} \u4e0d\u5b58\u5728\u4e8e\u6570\u636e\u4e2d")

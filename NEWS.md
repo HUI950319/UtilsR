@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `lv(count = )` warns that it ignores selections in `...`, `pattern` and
+  `group`, which it previously dropped silently.
+
 * Suggested `lv()` filters write numbers and logicals as literals when their
   text reads back exactly, and mark truncation with a trailing comment
   instead of a literal `"..."` value. Factor value counts and filters omit
