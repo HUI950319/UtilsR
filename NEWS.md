@@ -12,7 +12,9 @@
   coloured by significance (bold red below 0.001, red below 0.05) and
   chosen rows highlighted. `pr_tree()` prints the structure of a nested
   result list as a tree with short grey descriptions such as
-  `<tibble 12 x 7>`, listing extra attributes as well.
+  `<tibble 12 x 7>`, listing extra attributes as well. `pr_box()` frames
+  key-value or plain lines in a rounded box with an optional header and
+  footer in its border.
 
 * `plt_dist()` gains `label = "count_percent_wrap"`, which puts counts and
   percentages on separate lines: `count\npercent` on stacked bars, and the

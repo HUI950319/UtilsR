@@ -14,6 +14,8 @@
 #               +-- ._p_cells()
 #         pr_tree(x)                   structure tree of a nested result list
 #               +-- ._obj_desc()
+#         pr_box(x, header, footer)    rounded box of key-value lines
+#               +-- ._kv_lines()
 #
 #   L2  shared internals
 #         ._chip()       short label on a solid background (utils_display.R)
@@ -425,4 +427,42 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, attrs = TRUE) {
                                label = rows$label, stringsAsFactors = FALSE),
                     root = root)
   ._pr_out(as.character(tree))
+}
+
+# ------------- pr_box -------------------------------------------------------
+
+#' Boxed summary for a print method
+#'
+#' Print a rounded box around key-value lines (as in \code{\link{pr_kv}()})
+#' or plain lines, with an optional bold header in the top border and a grey
+#' footer in the bottom one; suits a model specification such as outcome,
+#' exposure, covariates and sample size.
+#'
+#' @param x A named list or named vector, shown as aligned key-value lines
+#'   with \code{NULL} elements dropped, or an unnamed character vector, shown
+#'   line by line.
+#' @param header,footer Character, or \code{NULL} for none. Text set into
+#'   the top and bottom border.
+#' @param col Border colour: anything \code{cli::make_ansi_style()} accepts
+#'   (default \code{"cyan"}).
+#'
+#' @return The printed lines, invisibly.
+#'
+#' @examples
+#' pr_box(list(Outcome = "Surv(time, DSS)", Exposure = "Surgery (Yes vs No)",
+#'             Adjust = "Age + Sex + Stage", N = "2,314 (412 events)"),
+#'        header = "Cox model", footer = "adjusted")
+#'
+#' @export
+#' @family print helpers
+pr_box <- function(x, header = NULL, footer = NULL, col = "cyan") {
+  lines <- if (is.character(x) && is.null(names(x))) x else ._kv_lines(x)
+  box <- cli::boxx(
+    lines,
+    header = if (is.null(header)) "" else cli::style_bold(paste0(" ", header, " ")),
+    footer = if (is.null(footer)) "" else cli::col_grey(paste0(" ", footer, " ")),
+    border_style = "round", border_col = col, padding = c(0, 2, 0, 2)
+  )
+  # a boxx is one string with embedded newlines
+  ._pr_out(strsplit(as.character(box), "\n", fixed = TRUE)[[1]])
 }

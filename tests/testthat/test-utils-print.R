@@ -146,3 +146,22 @@ test_that("pr_tree() shows the structure of a nested result list", {
   expect_length(many, 7L)
   expect_match(many[7], "25 more", fixed = TRUE)
 })
+
+test_that("pr_box() frames key-value lines under a header and footer", {
+  withr::local_options(cli.num_colors = 256, cli.unicode = TRUE)
+  x <- list(Outcome = "Surv(time, DSS)", N = "2,314", time = NULL)
+  out <- utils::capture.output(lines <- pr_box(x, header = "Cox model", footer = "adjusted"))
+  expect_identical(out, as.character(lines))
+  plain <- cli::ansi_strip(out)
+  expect_length(plain, 4L)
+  expect_match(plain[1], "Cox model", fixed = TRUE)
+  expect_match(plain[2], "Outcome  Surv(time, DSS)", fixed = TRUE)
+  expect_match(plain[3], "N        2,314", fixed = TRUE)
+  expect_match(plain[4], "adjusted", fixed = TRUE)
+  expect_length(unique(cli::ansi_nchar(plain, type = "width")), 1L)
+  expect_match(out[2], "\033[36m", fixed = TRUE)
+
+  plain2 <- cli::ansi_strip(utils::capture.output(pr_box(c("line one", "line two"))))
+  expect_length(plain2, 4L)
+  expect_match(plain2[2], "line one", fixed = TRUE)
+})

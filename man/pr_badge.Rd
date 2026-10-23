@@ -29,6 +29,7 @@ cat(pr_badge("model", "cox"), pr_badge("n", "2,314", bg = "green"),
 }
 \seealso{
 Other print helpers:
+\code{\link[=pr_box]{pr_box()}},
 \code{\link[=pr_head]{pr_head()}},
 \code{\link[=pr_kv]{pr_kv()}},
 \code{\link[=pr_note]{pr_note()}},
