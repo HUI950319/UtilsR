@@ -460,8 +460,9 @@ pr_box <- function(x, header = NULL, footer = NULL, col = "cyan") {
   lines <- if (is.character(x) && is.null(names(x))) x else ._kv_lines(x)
   box <- cli::boxx(
     lines,
-    header = if (is.null(header)) "" else cli::style_bold(paste0(" ", header, " ")),
-    footer = if (is.null(footer)) "" else cli::col_grey(paste0(" ", footer, " ")),
+    # boxx() already pads the header and footer with a space on each side
+    header = if (is.null(header)) "" else cli::style_bold(header),
+    footer = if (is.null(footer)) "" else cli::col_grey(footer),
     border_style = "round", border_col = col, padding = c(0, 2, 0, 2)
   )
   # a boxx is one string with embedded newlines
@@ -515,7 +516,8 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
     if (!length(counts) || max(counts) == 0) return("")
     format(cli::spark_bar(as.numeric(counts) / max(counts)))
   }
-  sig3 <- function(z) formatC(z, digits = 3, format = "fg")
+  # 3 significant digits, trailing zeros kept, without formatC()'s padding
+  sig3 <- function(z) trimws(formatC(z, digits = 3, format = "fg", flag = "#"))
   # one column -> c(sparkline, summary, missing share)
   one <- function(v) {
     na <- sprintf("NA %.1f%%", 100 * mean(is.na(v)))

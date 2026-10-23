@@ -155,6 +155,8 @@ test_that("pr_box() frames key-value lines under a header and footer", {
   plain <- cli::ansi_strip(out)
   expect_length(plain, 4L)
   expect_match(plain[1], "Cox model", fixed = TRUE)
+  expect_false(grepl("  Cox model", plain[1], fixed = TRUE))
+  expect_false(grepl("  adjusted", plain[4], fixed = TRUE))
   expect_match(plain[2], "Outcome  Surv(time, DSS)", fixed = TRUE)
   expect_match(plain[3], "N        2,314", fixed = TRUE)
   expect_match(plain[4], "adjusted", fixed = TRUE)
@@ -188,5 +190,7 @@ test_that("pr_spark() prints one distribution line per column", {
   expect_match(plain[3], "<AsIs>", fixed = TRUE)
 
   expect_length(utils::capture.output(pr_spark(df, vars = "sex")), 1L)
+  even <- cli::ansi_strip(utils::capture.output(pr_spark(data.frame(x = c(2, 4, 6)))))
+  expect_match(even, "mean 4.00  sd 2.00", fixed = TRUE)
   expect_error(pr_spark(df, vars = "stage"), "stage")
 })
