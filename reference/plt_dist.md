@@ -57,8 +57,11 @@ plt_dist(
 
   Colour specification, resolved by the internal colour resolver: `NULL`
   (default `pal_lancet`), a registered palette name (e.g. `"Paired"`), a
-  single literal colour, or a vector of colours. In alluvial mode these
-  are passed to \[plt_alluvial()\].
+  single literal colour, or a vector of colours. In a named vector,
+  names must be unique category labels and include every observed fill
+  category. Unnamed vectors follow factor-level order (data order for
+  character alluvial groups). Unused bar/heatmap factor levels retain
+  their positions in an unnamed palette.
 
 - alpha:
 

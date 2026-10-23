@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
+  maps named colours to categories in every mode, checks category
+  coverage, and keeps unnamed palette positions for unused factor levels
+  in bars and heatmaps. Shared colour resolvers are unchanged.
+
+- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
   rejects heatmap cells with multiple fill categories instead of hiding
   categories under overlapping tiles. Heatmap examples use one category
   per cell; repeated observations of that category remain valid.

@@ -115,7 +115,10 @@ or <code>"bar"</code> (stacked proportion bar). Ignored when <code>dis_vars</cod
 <dd><p>Colour specification, resolved by the internal colour resolver:
 <code>NULL</code> (default <code>pal_lancet</code>), a registered palette name (e.g.
 <code>"Paired"</code>), a single literal colour, or a vector of colours. In
-alluvial mode these are passed to [plt_alluvial()].</p></dd>
+a named vector, names must be unique category labels and include every
+observed fill category. Unnamed vectors follow factor-level order (data
+order for character alluvial groups). Unused bar/heatmap factor levels
+retain their positions in an unnamed palette.</p></dd>
 
 
 <dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
