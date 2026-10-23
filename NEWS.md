@@ -4,6 +4,9 @@
   category coverage, and keeps unnamed palette positions for unused factor
   levels in bars and heatmaps. Shared colour resolvers are unchanged.
 
+* Two-variable `lv()` cross-tabulations reuse one frequency table for the
+  long counts, wide counts, and row percentages, retaining their output.
+
 * `plt_dist()` rejects heatmap cells with multiple fill categories instead
   of hiding categories under overlapping tiles. Heatmap examples use one
   category per cell; repeated observations of that category remain valid.

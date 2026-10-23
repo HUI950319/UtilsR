@@ -512,8 +512,9 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     pct_name <- count_names[2L]
     label_name <- count_names[3L]
     count_data <- dplyr::ungroup(data)
-    cross_count <- count_data %>%
-      dplyr::count(dplyr::across(dplyr::all_of(count_vars)), name = n_name) %>%
+    count_base <- count_data %>%
+      dplyr::count(dplyr::across(dplyr::all_of(count_vars)), name = n_name)
+    cross_count <- count_base %>%
       dplyr::arrange(dplyr::across(dplyr::all_of(count_vars)))
 
     cross_count <- cross_count %>%
@@ -528,8 +529,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     if (length(count_vars) == 2) {
       cli::cli_h2(cli::col_yellow("Wide Format Table"))
 
-      cross_wide <- count_data %>%
-        dplyr::count(dplyr::across(dplyr::all_of(count_vars)), name = n_name) %>%
+      cross_wide <- count_base %>%
         tidyr::pivot_wider(
           names_from = dplyr::all_of(count_vars[2]),
           values_from = dplyr::all_of(n_name),
@@ -567,8 +567,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
 
       cli::cli_h3(cli::col_yellow("Row Percentages (%)"))
 
-      cross_pct <- count_data %>%
-        dplyr::count(dplyr::across(dplyr::all_of(count_vars)), name = n_name) %>%
+      cross_pct <- count_base %>%
         dplyr::group_by(.data[[count_vars[1]]]) %>%
         dplyr::mutate("{pct_name}" :=
                         round(.data[[n_name]] / sum(.data[[n_name]]) * 100, 1)) %>%
