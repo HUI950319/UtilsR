@@ -20,7 +20,10 @@ plt_dist(
 }
 \arguments{
 \item{data}{A data frame. Existing dplyr grouping is ignored; counts use
-only the variables selected by \code{dis_vars} and \code{facet}.}
+only the variables selected by \code{dis_vars} and \code{facet}. Rows
+missing any required value are removed with a message in every mode;
+unrelated columns do not affect inclusion. An error is raised if no
+complete rows remain. The heatmap ignores \code{facet}.}
 
 \item{dis_vars}{Character vector of 2 or 3 distinct, non-empty column names.
 \itemize{

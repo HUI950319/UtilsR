@@ -11,7 +11,10 @@
 #' faceting and only requires the suggested \pkg{ggalluvial} package.
 #'
 #' @param data A data frame. Existing dplyr grouping is ignored; counts use
-#'   only the variables selected by \code{dis_vars} and \code{facet}.
+#'   only the variables selected by \code{dis_vars} and \code{facet}. Rows
+#'   missing any required value are removed with a message in every mode;
+#'   unrelated columns do not affect inclusion. An error is raised if no
+#'   complete rows remain. The heatmap ignores \code{facet}.
 #' @param dis_vars Character vector of 2 or 3 distinct, non-empty column names.
 #'   \itemize{
 #'     \item 2 variables: \code{c(x, fill)} \eqn{\rightarrow} alluvial flow
@@ -165,6 +168,16 @@ plt_dist <- function(data,
     cli::cli_abort("{.arg alpha} must be one finite number between 0 and 1.")
   }
   data <- dplyr::ungroup(data)
+  required <- c(dis_vars, if (length(dis_vars) == 2L) facet)
+  keep <- stats::complete.cases(data[required])
+  removed <- sum(!keep)
+  if (removed > 0L) {
+    cli::cli_inform("Removed {removed} row{?s} with missing values in required columns.")
+    data <- data[keep, , drop = FALSE]
+  }
+  if (nrow(data) == 0L) {
+    cli::cli_abort("No complete rows remain in the required columns.")
+  }
   named_palette <- NULL
   if (!is.null(names(color))) {
     color_names <- names(color)
@@ -173,9 +186,6 @@ plt_dist <- function(data,
       cli::cli_abort("Named {.arg color} values must have unique, non-empty category names.")
     }
     fill_values <- data[[dis_vars[length(dis_vars)]]]
-    if (length(dis_vars) == 2L && type == "alluvial") {
-      fill_values <- fill_values[stats::complete.cases(data[c(dis_vars, facet)])]
-    }
     needed_levels <- if (is.factor(fill_values)) {
       levels(fill_values)[levels(fill_values) %in% as.character(fill_values)]
     } else {

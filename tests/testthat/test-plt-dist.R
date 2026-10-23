@@ -130,3 +130,33 @@ test_that("distribution selectors and transparency are validated consistently", 
   expect_equal(ggplot2::ggplot_build(ignored)$data,
                ggplot2::ggplot_build(reference)$data)
 })
+
+test_that("all distribution modes use complete required rows and report removals", {
+  data <- data.frame(x = c("A", "A", "A", "B"),
+                     group = c("F", "M", NA, "M"),
+                     panel = c("P1", "P1", "P1", NA), unrelated = NA_real_)
+  for (type in c("bar", "alluvial")) {
+    if (type == "alluvial" && !requireNamespace("ggalluvial", quietly = TRUE)) next
+    expect_message(output <- utils::capture.output(
+      p <- plt_dist(data, c("x", "group"), type = type, facet = "panel")
+    ), "Removed 2 rows")
+    if (type == "bar") {
+      expect_equal(p$data$n, c(1L, 1L))
+      expect_equal(p$data$prop, c(0.5, 0.5))
+    } else {
+      expect_equal(sum(p$data$count), 2)
+      expect_equal(p$data$percent[!p$data$.is_gap], c(0.5, 0.5))
+    }
+    expect_error(plt_dist(data[FALSE, ], c("x", "group"), type = type),
+                 "No complete rows")
+    expect_error(plt_dist(data.frame(x = NA_character_, group = "F"),
+                          c("x", "group"), type = type), "No complete rows")
+  }
+  heat <- data.frame(x = LETTERS[1:4], y = c("Y", "Y", NA, "Y"),
+                     group = c("F", "M", "F", NA), unrelated = NA_real_)
+  expect_message(output <- utils::capture.output(
+    p <- plt_dist(heat, c("x", "y", "group"), facet = "ignored")
+  ), "Removed 2 rows")
+  expect_equal(nrow(p$data), 2L)
+  expect_identical(as.character(p$data$x), c("A", "B"))
+})
