@@ -58,3 +58,16 @@ test_that("bar facets accept literal non-syntactic column names", {
     expect_identical(as.character(p$data[[name]]), data$panel)
   }
 })
+
+test_that("heatmaps reject cells containing more than one fill category", {
+  conflicting <- data.frame(x = "A", y = "B", group = c("F", rep("M", 9)))
+  for (label in c("count_percent", "none")) {
+    expect_error(plt_dist(conflicting, c("x", "y", "group"), label = label),
+                 "more than one.*category")
+  }
+  valid <- data.frame(x = c("A", "A", "B"), y = "C", group = c("F", "F", "M"))
+  p <- dist_test_plot(valid, c("x", "y", "group"))
+  expect_equal(p$data$n, c(2L, 1L))
+  tiles <- ggplot2::ggplot_build(p)$data[[1L]]
+  expect_equal(nrow(unique(tiles[c("x", "y")])), nrow(tiles))
+})

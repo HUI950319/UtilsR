@@ -17,7 +17,8 @@
 #'     \item 2 variables: \code{c(x, fill)} \eqn{\rightarrow} alluvial flow
 #'       (\code{type = "alluvial"}, default) or stacked bar (\code{type = "bar"}).
 #'     \item 3 variables: \code{c(x, y, fill)} \eqn{\rightarrow} tile heatmap
-#'       (\code{type} ignored).
+#'       (\code{type} ignored). Each observed \code{(x, y)} cell must have
+#'       only one fill category; otherwise an error prevents overplotting.
 #'   }
 #' @param type Plot type for the 2-variable case: \code{"alluvial"} (default)
 #'   or \code{"bar"} (stacked proportion bar). Ignored when \code{dis_vars} has
@@ -100,8 +101,11 @@
 #'          theme_use = theme_my(base_size = 16))
 #'
 #' # --- Tile heatmap (3 variables; type ignored) -----------------------------
-#' plt_dist(df, dis_vars = c("stage", "grade", "sex"))
-#' plt_dist(df, dis_vars = c("stage", "grade", "sex"), label = "none")
+#' heat_data <- expand.grid(stage = c("I", "II", "III", "IV"),
+#'                          grade = c("Low", "Mid", "High"))
+#' heat_data$category <- factor(rep(c("A", "B"), 6))
+#' plt_dist(heat_data, dis_vars = c("stage", "grade", "category"))
+#' plt_dist(heat_data, dis_vars = c("stage", "grade", "category"), label = "none")
 #'
 #' # --- Alluvial flow (default; needs ggalluvial) ----------------------------
 #' if (requireNamespace("ggalluvial", quietly = TRUE)) {
@@ -246,6 +250,12 @@ plt_dist <- function(data,
 
   plotdata <- data %>%
     dplyr::count(dplyr::across(dplyr::all_of(dis_vars)))
+  if (anyDuplicated(plotdata[dis_vars[1:2]])) {
+    cli::cli_abort(c(
+      "Heatmap cells must not contain more than one fill category.",
+      "i" = "Use a bar or alluvial plot to show category composition."
+    ))
+  }
 
   # Resolved theme + the tile-grid overrides (no legend / grid / ticks / axis
   # line) that previously lived in theme_heat(); applied on top of `theme_use`.
