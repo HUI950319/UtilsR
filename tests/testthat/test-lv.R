@@ -291,3 +291,17 @@ test_that("date-time columns with more than ten values are summarized", {
   expect_match(as.character(summary$unique[1L]), "2020-01-01", fixed = TRUE)
   expect_identical(result$value$value, data)
 })
+
+test_that("entirely missing character columns are summarized in every mode", {
+  data <- data.frame(g = c("A", "A", "B", "B"), x = 1:4,
+                     empty = rep(NA_character_, 4))
+  default <- capture_lv(lv(data))
+  summary <- Filter(function(x) "n_special" %in% names(x), default$tables)[[1L]]
+  expect_equal(summary$n_na[summary$vars == "empty"], 4)
+  expect_identical(default$value$value, data)
+  grouped <- capture_lv(lv(data, x, empty, group = g))
+  expect_true(any(vapply(grouped$tables, function(x) {
+    "label" %in% names(x) && any(grepl("empty", x$label))
+  }, logical(1))))
+  expect_identical(grouped$value$value, data)
+})

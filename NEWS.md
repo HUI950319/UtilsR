@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `lv()` summarizes entirely missing character columns in its default and
+  grouped tables instead of failing in gtsummary formatting.
+
 * `lv()` summarizes date and date-time columns with more than ten distinct
   values instead of failing while truncating their suggested filter.
 

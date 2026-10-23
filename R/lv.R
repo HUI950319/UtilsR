@@ -426,6 +426,16 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     gt_tbl
   }
 
+  # gtsummary treats an entirely missing character column as continuous and
+  # fails formatting it (and rejects a level-less factor); a missing logical
+  # reports the same missing count.
+  .tbl_input <- function(df) {
+    empty_chr <- vapply(df, function(x) is.character(x) && all(is.na(x)),
+                        logical(1))
+    df[empty_chr] <- lapply(df[empty_chr], as.logical)
+    df
+  }
+
   # Optional RegR::get_gt_cat hook (called once at end of each mode)
   .run_cat_args <- function() {
     if (length(cat_args) == 0L) return(invisible(NULL))
@@ -623,7 +633,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     n_groups <- length(unique(data[[group_var]]))
     cli::cli_alert_info("Groups: {.val {n_groups}}")
 
-    grouped_data <- tibble::as_tibble(analysis_data)[, vars, drop = FALSE]
+    grouped_data <- .tbl_input(tibble::as_tibble(analysis_data)[, vars, drop = FALSE])
     grouped_data[[group_var]] <- data[[group_var]]
     res_grouped <-
       grouped_data[, c(group_var, vars), drop = FALSE] %>%
@@ -656,7 +666,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   result <- purrr::map_dfr(vars, ~ .lv_one(analysis_data, .x))
 
   res_count <-
-    tibble::as_tibble(analysis_data)[, vars, drop = FALSE] %>%
+    .tbl_input(tibble::as_tibble(analysis_data)[, vars, drop = FALSE]) %>%
     labelled::set_variable_labels(
       .labels = setNames(
         paste0(
