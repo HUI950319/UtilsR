@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `lv()` summarizes date and date-time columns with more than ten distinct
+  values instead of failing while truncating their suggested filter.
+
 * `stat_ci()` formats character intervals with vectorized dynamic precision,
   retaining detected precision and warnings while avoiding per-row templates.
 

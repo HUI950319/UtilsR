@@ -280,3 +280,14 @@ test_that("blank cross-tabulation categories remain distinct and renderable", {
   expect_equal(wide[["Total"]], c(2, 1))
   expect_identical(result$value$value, data)
 })
+
+test_that("date-time columns with more than ten values are summarized", {
+  data <- data.frame(date = as.Date("2020-01-01") + 0:10,
+                     time = as.POSIXct("2020-01-01", tz = "UTC") + 0:10 * 3600)
+  result <- capture_lv(lv(data))
+  summary <- Filter(function(x) "n_special" %in% names(x), result$tables)[[1L]]
+  expect_identical(summary$vars, c("date", "time"))
+  expect_equal(summary$n_unique, c(11, 11))
+  expect_match(as.character(summary$unique[1L]), "2020-01-01", fixed = TRUE)
+  expect_identical(result$value$value, data)
+})

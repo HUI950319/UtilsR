@@ -266,8 +266,9 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     unique_values <- .get_levels(col_data)
     n_unique <- length(unique_values)
 
+    # Convert before appending the marker: c() on dates would parse "...".
     display_values <- if (n_unique > 10) {
-      c(head(unique_values, 8), "...")
+      c(as.character(head(unique_values, 8)), "...")
     } else {
       unique_values
     }
@@ -278,12 +279,6 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     .get_flt_formula <- noquote(paste(deparse(filter_expr, width.cutoff = 500L),
                                      collapse = " "))
     if (!knitting) print(.get_flt_formula)
-
-    if (n_unique > 10) {
-      unique_display <- paste(c(head(unique_values, 8), "..."), collapse = ", ")
-    } else {
-      unique_display <- paste(unique_values, collapse = ", ")
-    }
 
     tibble::tibble(
       vars = var,
