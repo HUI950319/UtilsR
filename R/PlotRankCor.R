@@ -29,6 +29,8 @@
 #' @param scale_x Character. Scaling method for x-axis values (only when
 #'   \code{use_rank = FALSE}). One of \code{"none"} (default), \code{"minmax"},
 #'   \code{"zscore"}, \code{"log1p"}, or \code{"rank"}. Applied per group.
+#'   Scaling preserves missing values. Constant observed values map to zero;
+#'   z-scores with fewer than two observed values remain missing.
 #' @param scale_y Character. Scaling method for y-axis values (only when
 #'   \code{use_rank = FALSE}). Same options as \code{scale_x}.
 #' @param size_by Character or \code{NULL}. Column name for a numeric variable
@@ -232,14 +234,22 @@ PlotRankCor <- function(
     switch(method,
       "none"   = x,
       "minmax" = {
+        if (all(is.na(x))) return(x)
         rng <- range(x, na.rm = TRUE)
-        if (rng[2] == rng[1]) return(rep(0, length(x)))
+        if (rng[2] == rng[1]) {
+          x[!is.na(x)] <- 0
+          return(x)
+        }
         (x - rng[1]) / (rng[2] - rng[1])
       },
       "zscore" = {
+        if (sum(!is.na(x)) < 2L) return(rep(NA_real_, length(x)))
         mu <- mean(x, na.rm = TRUE)
         sd_val <- stats::sd(x, na.rm = TRUE)
-        if (sd_val == 0) return(rep(0, length(x)))
+        if (sd_val == 0) {
+          x[!is.na(x)] <- 0
+          return(x)
+        }
         (x - mu) / sd_val
       },
       "log1p"  = log1p(abs(x)) * sign(x),

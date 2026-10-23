@@ -17,6 +17,8 @@
 
 * `PlotRankCor()` keeps missing scores out of ranks and correlations, both in
   its default rank mode and when applying a rank transform to raw scores.
+  Min-max and z-score scaling also retain missing values and handle sparse
+  groups without failing or manufacturing complete observations.
 
 * `stat_ci()` formats character intervals with vectorized dynamic precision,
   retaining detected precision and warnings while avoiding per-row templates.

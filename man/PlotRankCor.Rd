@@ -60,7 +60,9 @@ Pearson correlation.}
 
 \item{scale_x}{Character. Scaling method for x-axis values (only when
 \code{use_rank = FALSE}). One of \code{"none"} (default), \code{"minmax"},
-\code{"zscore"}, \code{"log1p"}, or \code{"rank"}. Applied per group.}
+\code{"zscore"}, \code{"log1p"}, or \code{"rank"}. Applied per group.
+Scaling preserves missing values. Constant observed values map to zero;
+z-scores with fewer than two observed values remain missing.}
 
 \item{scale_y}{Character. Scaling method for y-axis values (only when
 \code{use_rank = FALSE}). Same options as \code{scale_x}.}
