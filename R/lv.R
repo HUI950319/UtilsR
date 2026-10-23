@@ -725,7 +725,6 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       .cat_line(sprintf("** Variable Counts (%d variables) **", length(table_vars)),
                 type = "info")
       print(tibble::as_tibble(res_count))
-      print(res_count)
     }
 
     .cat_line(sprintf("** Variable Summary (%d variables) **", length(vars)),
@@ -757,8 +756,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       heading.align = "center"
     )
 
-  if (!knitting) print(res_summary)
-
+  # The console shows both HTML tables once, in one group, after the text.
   styled_count <- if (!is.null(res_count)) {
     gtsummary::as_gt(res_count) %>%
       .gt_highlight_low_percentage() %>%

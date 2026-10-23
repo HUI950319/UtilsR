@@ -415,3 +415,11 @@ test_that("missing group values form their own group in the grouped table", {
   expect_true(all(mapply(grepl, c("**B**", "**A**", "\u7f3a\u5931"), labels, fixed = TRUE)))
   expect_identical(factor_data$g, factor(c("B", NA, "A"), levels = c("B", "A")))
 })
+
+test_that("console reports render each default table once", {
+  data <- data.frame(x = c("a", "b", "a"), y = 1:3)
+  output <- utils::capture.output(suppressMessages(lv(data)))
+  tables <- gregexpr("<table", paste(output, collapse = "\n"), fixed = TRUE)[[1L]]
+  expect_length(tables, 2L)
+  expect_true(any(grepl("# A tibble", output, fixed = TRUE)))
+})

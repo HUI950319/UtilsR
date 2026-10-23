@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* Console `lv()` reports render the variable summary and frequency tables once,
+  in their final group, instead of also rendering each beforehand; this saves
+  about 40% of the printing time.
+
 * Grouped `lv()` summaries show missing group values as their own last group
   and include them in the overall column. They were previously dropped from
   both, while the reported group count still included them.
