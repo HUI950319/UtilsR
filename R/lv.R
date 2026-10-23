@@ -13,6 +13,7 @@
 #         +-- L2  lv.Seurat()       @meta.data -> lv.data.frame()
 #
 #   L3  .lv_default_data()   locate the default data.frame in the caller
+#       .lv_resolve_vars()  resolve column names and caller-supplied strings
 # =============================================================================
 
 #' @title Variable Inspection Generic Function
@@ -36,6 +37,8 @@
 #' @param group Optional grouping variable. Supports NSE (bare name) or
 #'   character string. For Seurat objects, set to \code{TRUE} to use current
 #'   Ident.
+#'   For data frames, bare column names take precedence over caller objects;
+#'   character names can also be supplied through variables or expressions.
 #' @param count Optional variable(s) for cross-tabulation. Accepts a single
 #'   variable name (NSE or string), multiple variable names via
 #'   \code{c(var1, var2)} (NSE) or character vector
@@ -43,6 +46,7 @@
 #'   Existing dplyr groups are ignored for this table. Generated frequency,
 #'   percentage, and total column names receive numeric suffixes when needed
 #'   to preserve input columns and category labels.
+#'   Names must be non-missing and distinct; invalid controls are errors.
 #' @param cat_args Optional named list of extra arguments forwarded to
 #'   \code{\link[RegR:get_gt_cat]{RegR::get_gt_cat()}} for an additional
 #'   publication-ready categorical-summary table (with survival-outcome
@@ -148,62 +152,40 @@ lv <- function(data, ...) {
        "(data.frame / Seurat) found in the global environment.", call. = FALSE)
 }
 
+#' @noRd
+.lv_resolve_vars <- function(quo, data_names, arg, multiple = FALSE) {
+  if (rlang::quo_is_null(quo)) return(NULL)
+  # A data mask of names keeps bare columns ahead of caller variables without
+  # evaluating a full data column merely to select it.
+  mask <- stats::setNames(as.list(data_names), data_names)
+  value <- tryCatch(rlang::eval_tidy(quo, data = mask), error = function(e) {
+    cli::cli_abort(c("Cannot resolve {.arg {arg}}.", "x" = conditionMessage(e)))
+  })
+  if (is.null(value)) return(NULL)
+  valid <- is.character(value) && is.null(dim(value)) && length(value) > 0L &&
+    !anyNA(value) && all(nzchar(value)) && !anyDuplicated(value)
+  if (!valid || (!multiple && length(value) != 1L)) {
+    what <- if (multiple) "one or more distinct column names" else "one column name"
+    cli::cli_abort("{.arg {arg}} must be NULL or {what}.")
+  }
+  missing <- setdiff(value, data_names)
+  if (length(missing)) {
+    cli::cli_abort("Columns {.val {missing}} in {.arg {arg}} not found in data.")
+  }
+  unname(value)
+}
+
 #' @rdname lv
 #' @export
 lv.default <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
                        cat_args = list()) {
-  # Process group argument
-  group_var <- NULL
-  group_sub <- substitute(group)
-
-  if (!is.null(group_sub) && !identical(group_sub, quote(NULL))) {
-    if (is.character(group_sub)) {
-      group_var <- group_sub
-    } else if (is.symbol(group_sub)) {
-      sym_name <- as.character(group_sub)
-      caller_env <- parent.frame()
-      if (exists(sym_name, envir = caller_env, inherits = FALSE)) {
-        val <- get(sym_name, envir = caller_env, inherits = FALSE)
-        if (is.character(val) && length(val) == 1) {
-          group_var <- val
-        }
-      } else {
-        group_var <- sym_name
-      }
-    }
-  }
-
-  # Process count argument
-  count_vars <- NULL
-  count_sub <- substitute(count)
-
-  if (!is.null(count_sub) && !identical(count_sub, quote(NULL))) {
-    if (is.character(count_sub)) {
-      count_vars <- count_sub
-    } else if (is.symbol(count_sub)) {
-      sym_name <- as.character(count_sub)
-      caller_env <- parent.frame()
-      if (exists(sym_name, envir = caller_env, inherits = FALSE)) {
-        val <- get(sym_name, envir = caller_env, inherits = FALSE)
-        if (is.character(val)) {
-          count_vars <- val
-        }
-      } else {
-        count_vars <- sym_name
-      }
-    } else if (is.call(count_sub) && identical(count_sub[[1]], quote(c))) {
-      args <- as.list(count_sub)[-1]
-      if (length(args) > 0 && is.character(args[[1]])) {
-        count_vars <- eval(count_sub, envir = parent.frame())
-      } else {
-        count_vars <- vapply(args, as.character, character(1))
-      }
-    }
-  }
-
-  lv.data.frame(as.data.frame(data), ..., pattern = pattern,
-                group = group_var, count = count_vars,
-                cat_args = cat_args)
+  input <- as.data.frame(data)
+  group_var <- .lv_resolve_vars(rlang::enquo(group), names(input), "group")
+  count_vars <- .lv_resolve_vars(rlang::enquo(count), names(input), "count",
+                                  multiple = TRUE)
+  rlang::inject(lv.data.frame(input, ..., pattern = pattern,
+                             group = !!group_var, count = !!count_vars,
+                             cat_args = cat_args))
 }
 
 #' @rdname lv
@@ -211,54 +193,9 @@ lv.default <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
 lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
                           cat_args = list()) {
 
-  # Process group argument: support NSE and character string
-  group_var <- NULL
-  group_sub <- substitute(group)
-
-  if (!is.null(group_sub) && !identical(group_sub, quote(NULL))) {
-    if (is.character(group_sub)) {
-      group_var <- group_sub
-    } else if (is.symbol(group_sub)) {
-      sym_name <- as.character(group_sub)
-      caller_env <- parent.frame()
-      if (exists(sym_name, envir = caller_env, inherits = FALSE)) {
-        val <- get(sym_name, envir = caller_env, inherits = FALSE)
-        if (is.character(val) && length(val) == 1) {
-          group_var <- val
-        }
-      } else {
-        group_var <- sym_name
-      }
-    }
-  }
-
-  # Process count argument
-  count_vars <- NULL
-  count_sub <- substitute(count)
-
-  if (!is.null(count_sub) && !identical(count_sub, quote(NULL))) {
-    if (is.character(count_sub)) {
-      count_vars <- count_sub
-    } else if (is.symbol(count_sub)) {
-      sym_name <- as.character(count_sub)
-      caller_env <- parent.frame()
-      if (exists(sym_name, envir = caller_env, inherits = FALSE)) {
-        val <- get(sym_name, envir = caller_env, inherits = FALSE)
-        if (is.character(val)) {
-          count_vars <- val
-        }
-      } else {
-        count_vars <- sym_name
-      }
-    } else if (is.call(count_sub) && identical(count_sub[[1]], quote(c))) {
-      args <- as.list(count_sub)[-1]
-      if (length(args) > 0 && is.character(args[[1]])) {
-        count_vars <- eval(count_sub, envir = parent.frame())
-      } else {
-        count_vars <- vapply(args, as.character, character(1))
-      }
-    }
-  }
+  group_var <- .lv_resolve_vars(rlang::enquo(group), names(data), "group")
+  count_vars <- .lv_resolve_vars(rlang::enquo(count), names(data), "count",
+                                  multiple = TRUE)
 
   # ==========================================================================
   # Internal helper functions

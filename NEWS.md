@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `lv()` resolves bare group/count columns before caller objects, accepts
+  character names from enclosing functions, and rejects invalid or repeated
+  names instead of silently switching to an ungrouped summary.
+
 * `lv()` restores the complete existing gtsummary theme after successful
   reports and after errors, instead of clearing it or leaving Compact active.
 

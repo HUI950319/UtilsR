@@ -35,7 +35,9 @@ lv(data, ...)
 
 \item{group}{Optional grouping variable. Supports NSE (bare name) or
 character string. For Seurat objects, set to \code{TRUE} to use current
-Ident.}
+Ident.
+For data frames, bare column names take precedence over caller objects;
+character names can also be supplied through variables or expressions.}
 
 \item{count}{Optional variable(s) for cross-tabulation. Accepts a single
 variable name (NSE or string), multiple variable names via
@@ -43,7 +45,8 @@ variable name (NSE or string), multiple variable names via
 \code{c("var1", "var2")}. Independent of \code{group}.
 Existing dplyr groups are ignored for this table. Generated frequency,
 percentage, and total column names receive numeric suffixes when needed
-to preserve input columns and category labels.}
+to preserve input columns and category labels.
+Names must be non-missing and distinct; invalid controls are errors.}
 
 \item{cat_args}{Optional named list of extra arguments forwarded to
 \code{\link[RegR:get_gt_cat]{RegR::get_gt_cat()}} for an additional

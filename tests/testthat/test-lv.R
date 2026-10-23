@@ -79,3 +79,37 @@ test_that("lv preserves the caller's complete gtsummary theme", {
   expect_error(capture_lv(lv(invalid)), "Factors with NA levels")
   expect_identical(gtsummary::get_gtsummary_theme(), before)
 })
+
+test_that("group and count resolve column names before caller objects", {
+  data <- data.frame(g = c("A", "A", "B", "B"), x = 1:4)
+  g <- 99
+  grouped <- capture_lv(lv(data, x, group = g))
+  expect_true(any(vapply(grouped$tables, function(x) {
+    all(c("stat_1", "stat_2") %in% names(x)) && !"stat_3" %in% names(x)
+  }, logical(1))))
+  counted <- capture_lv(lv(data, count = g))
+  expect_match(paste(counted$output, collapse = "\n"), "2 (50%)", fixed = TRUE)
+
+  column <- "g"
+  wrapper <- function(input) capture_lv(lv(input, x, group = column))
+  expect_true(any(vapply(wrapper(data)$tables, function(x) {
+    all(c("stat_1", "stat_2") %in% names(x))
+  }, logical(1))))
+  vars <- c("g", "x")
+  expect_identical(capture_lv(lv(data, count = vars))$value$value, data)
+  expect_identical(capture_lv(lv(data, count = c(column, "x")))$value$value, data)
+})
+
+test_that("invalid group and count controls cannot silently disable a mode", {
+  data <- data.frame(g = c("A", "A", "B", "B"), x = 1:4)
+  for (bad in list(FALSE, TRUE, 1, character(), NA_character_, c("g", "x"),
+                   matrix("g"), list("g"))) {
+    expect_error(capture_lv(lv(data, group = bad)), "group")
+  }
+  for (bad in list(FALSE, 1, character(), NA_character_, c("g", "g"),
+                   matrix("g"), list("g"))) {
+    expect_error(capture_lv(lv(data, count = bad)), "count")
+  }
+  expect_error(capture_lv(lv(data, count = c(g, g))), "distinct")
+  expect_error(capture_lv(lv(data, group = "absent")), "not found")
+})
