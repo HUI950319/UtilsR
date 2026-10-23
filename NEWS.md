@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `plt_dist()` consistently validates distinct column selectors, facets,
+  and transparency across plot modes. Three-variable heatmaps now truly
+  ignore `type`, as documented.
+
 * `plt_dist()` shows a fill legend for unlabelled heatmaps and preserves
   custom visible legend positions; labelled tiles still hide the legend.
 

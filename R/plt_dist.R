@@ -12,7 +12,7 @@
 #'
 #' @param data A data frame. Existing dplyr grouping is ignored; counts use
 #'   only the variables selected by \code{dis_vars} and \code{facet}.
-#' @param dis_vars Character vector of variable names.
+#' @param dis_vars Character vector of 2 or 3 distinct, non-empty column names.
 #'   \itemize{
 #'     \item 2 variables: \code{c(x, fill)} \eqn{\rightarrow} alluvial flow
 #'       (\code{type = "alluvial"}, default) or stacked bar (\code{type = "bar"}).
@@ -24,7 +24,8 @@
 #'   or \code{"bar"} (stacked proportion bar). Ignored when \code{dis_vars} has
 #'   3 variables.
 #' @param facet Optional faceting variable name (string). Used by both
-#'   2-variable plot types; ignored for the 3-variable heatmap.
+#'   2-variable plot types and must differ from \code{dis_vars}; ignored for
+#'   the 3-variable heatmap.
 #' @param color Colour specification, resolved by the internal colour resolver:
 #'   \code{NULL} (default \code{pal_lancet}), a registered palette name (e.g.
 #'   \code{"Paired"}), a single literal colour, or a vector of colours. In
@@ -32,7 +33,7 @@
 #'   observed fill category. Unnamed vectors follow factor-level order (data
 #'   order for character alluvial groups). Unused bar/heatmap factor levels
 #'   retain their positions in an unnamed palette.
-#' @param alpha Colour transparency. Default 0.7. In alluvial mode this is the
+#' @param alpha One finite number between 0 and 1. Default 0.7. In alluvial mode this is the
 #'   flow ribbon transparency (\code{flow.alpha}).
 #' @param label Label content, one of \code{"count_percent"} (default),
 #'   \code{"count"}, \code{"percent"}, \code{"none"}. For the **bar chart** this
@@ -136,16 +137,32 @@ plt_dist <- function(data,
                      save = list()) {
 
   label <- match.arg(label)
-  type  <- match.arg(type)
 
   # --- Validate ---
   if (!is.data.frame(data)) cli::cli_abort("{.arg data} must be a data frame.")
-  if (length(dis_vars) < 2 || length(dis_vars) > 3) {
-    cli::cli_abort("{.arg dis_vars} must have 2 or 3 variable names.")
+  if (!is.character(dis_vars) || !is.null(dim(dis_vars)) ||
+      !length(dis_vars) %in% c(2L, 3L) || anyNA(dis_vars) ||
+      any(!nzchar(dis_vars)) || anyDuplicated(dis_vars)) {
+    cli::cli_abort("{.arg dis_vars} must have 2 or 3 distinct, non-empty column names.")
   }
+  dis_vars <- unname(dis_vars)
   missing_vars <- dis_vars[!dis_vars %in% names(data)]
   if (length(missing_vars) > 0) {
     cli::cli_abort("Variable{?s} not found in data: {.val {missing_vars}}")
+  }
+  if (length(dis_vars) == 2L) {
+    type <- match.arg(type)
+    if (!is.null(facet)) {
+      if (!is.character(facet) || length(facet) != 1L || is.na(facet) ||
+          !nzchar(facet) || !facet %in% names(data) || facet %in% dis_vars) {
+        cli::cli_abort("{.arg facet} must name one existing column different from {.arg dis_vars}.")
+      }
+      facet <- unname(facet)
+    }
+  }
+  if (!is.numeric(alpha) || length(alpha) != 1L || is.na(alpha) ||
+      !is.finite(alpha) || alpha < 0 || alpha > 1) {
+    cli::cli_abort("{.arg alpha} must be one finite number between 0 and 1.")
   }
   data <- dplyr::ungroup(data)
   named_palette <- NULL

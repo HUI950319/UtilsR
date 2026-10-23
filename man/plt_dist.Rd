@@ -22,7 +22,7 @@ plt_dist(
 \item{data}{A data frame. Existing dplyr grouping is ignored; counts use
 only the variables selected by \code{dis_vars} and \code{facet}.}
 
-\item{dis_vars}{Character vector of variable names.
+\item{dis_vars}{Character vector of 2 or 3 distinct, non-empty column names.
 \itemize{
   \item 2 variables: \code{c(x, fill)} \eqn{\rightarrow} alluvial flow
     (\code{type = "alluvial"}, default) or stacked bar (\code{type = "bar"}).
@@ -36,7 +36,8 @@ or \code{"bar"} (stacked proportion bar). Ignored when \code{dis_vars} has
 3 variables.}
 
 \item{facet}{Optional faceting variable name (string). Used by both
-2-variable plot types; ignored for the 3-variable heatmap.}
+2-variable plot types and must differ from \code{dis_vars}; ignored for
+the 3-variable heatmap.}
 
 \item{color}{Colour specification, resolved by the internal colour resolver:
 \code{NULL} (default \code{pal_lancet}), a registered palette name (e.g.
@@ -46,7 +47,7 @@ observed fill category. Unnamed vectors follow factor-level order (data
 order for character alluvial groups). Unused bar/heatmap factor levels
 retain their positions in an unnamed palette.}
 
-\item{alpha}{Colour transparency. Default 0.7. In alluvial mode this is the
+\item{alpha}{One finite number between 0 and 1. Default 0.7. In alluvial mode this is the
 flow ribbon transparency (\code{flow.alpha}).}
 
 \item{label}{Label content, one of \code{"count_percent"} (default),

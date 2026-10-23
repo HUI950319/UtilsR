@@ -108,3 +108,25 @@ test_that("unlabelled heatmaps retain a visible category legend", {
   labelled <- dist_test_plot(data, c("x", "y", "group"))
   expect_identical(labelled$theme$legend.position, "none")
 })
+
+test_that("distribution selectors and transparency are validated consistently", {
+  data <- data.frame(x = c("A", "B"), group = c("F", "M"), panel = c("P1", "P2"))
+  for (type in c("bar", "alluvial")) {
+    for (variables in list(c("x", "x"), c("x", NA_character_),
+                           list("x", "group"), matrix(c("x", "group"), nrow = 1))) {
+      expect_error(plt_dist(data, variables, type = type), "dis_vars")
+    }
+    for (facet in list(c("x", "panel"), NA_character_, 1, "", "absent", "x")) {
+      expect_error(plt_dist(data, c("x", "group"), type = type, facet = facet),
+                   "facet")
+    }
+    for (alpha in list(-0.1, 1.1, NA_real_, Inf, numeric(), c(0.2, 0.3), TRUE)) {
+      expect_error(plt_dist(data, c("x", "group"), type = type, alpha = alpha),
+                   "alpha")
+    }
+  }
+  reference <- dist_test_plot(data, c("x", "panel", "group"))
+  ignored <- dist_test_plot(data, c("x", "panel", "group"), type = "ignored")
+  expect_equal(ggplot2::ggplot_build(ignored)$data,
+               ggplot2::ggplot_build(reference)$data)
+})
