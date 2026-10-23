@@ -2,6 +2,11 @@
 
 ## UtilsR 0.6.8
 
+- Seurat [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
+  uses the same column-name resolution as data frames, including
+  character variables and `group = TRUE`, and forwards resolved controls
+  without collisions with metadata column names.
+
 - [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) resolves
   bare group/count columns before caller objects, accepts character
   names from enclosing functions, and rejects invalid or repeated names

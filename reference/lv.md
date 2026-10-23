@@ -56,9 +56,9 @@ lv(
 - group:
 
   Optional grouping variable. Supports NSE (bare name) or character
-  string. For Seurat objects, set to `TRUE` to use current Ident. For
-  data frames, bare column names take precedence over caller objects;
-  character names can also be supplied through variables or expressions.
+  string. For Seurat objects, set to `TRUE` to use current Ident. Bare
+  column names take precedence over caller objects; character names can
+  also be supplied through variables or expressions.
 
 - count:
 
