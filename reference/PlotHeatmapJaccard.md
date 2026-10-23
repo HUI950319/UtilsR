@@ -35,6 +35,8 @@ PlotHeatmapJaccard(
 - data:
 
   A data.frame containing at least a group column and a name column.
+  Rows with missing group labels or feature names do not contribute to
+  sets.
 
 - group_col:
 
@@ -85,7 +87,9 @@ PlotHeatmapJaccard(
 - strip_colors:
 
   Character vector of colours for each group strip. `NULL` = auto
-  palette (same order as `group_levels` / `ct_names`).
+  palette (same order as `group_levels` / `ct_names`). The 16-colour
+  auto palette repeats for additional groups, as do shorter custom
+  palettes.
 
 - strip_size:
 
