@@ -430,6 +430,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     df[empty_chr] <- lapply(df[empty_chr], as.logical)
     spans <- vapply(df, inherits, logical(1), what = "difftime")
     df[spans] <- lapply(df[spans], as.numeric)
+    lt <- vapply(df, inherits, logical(1), what = "POSIXlt")
+    df[lt] <- lapply(df[lt], as.POSIXct)
     df
   }
 
@@ -442,7 +444,10 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       if (is.factor(x)) nlevels(x) > 100L
       else is.character(x) && length(unique(x[!is.na(x)])) > 100L
     }, logical(1))
-    lists <- vapply(analysis_data[vars], is.list, logical(1))
+    # POSIXlt is stored as a list but summarized as a date-time.
+    lists <- vapply(analysis_data[vars], function(x) {
+      is.list(x) && !inherits(x, "POSIXlt")
+    }, logical(1))
     if (any(many)) {
       cli::cli_inform(c("i" = paste(
         "{.var {vars[many]}} ha{?s/ve} more than 100 categories and",

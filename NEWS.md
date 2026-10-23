@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `lv()` summarizes `POSIXlt` date-time columns in its frequency and grouped
+  tables again instead of reporting them as list columns.
+
 * `fct_cat()`'s `binary_ref` is renamed `ref_idx`, in the same place:
   `fct_cat(x, ref_idx = 1)` or `ref_idx = "No"`. `binary_ref` still works,
   with a deprecation warning, and giving both is an error.

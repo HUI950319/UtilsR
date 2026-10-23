@@ -467,3 +467,13 @@ test_that("time spans are summarized and list columns stay out of tables", {
   grouped <- capture_reports(lv(data, x, span, items, group = g))
   expect_identical(unique(grouped[[1L]]$table_body$variable), c("x", "span"))
 })
+
+test_that("POSIXlt columns are summarized rather than skipped as lists", {
+  data <- data.frame(g = c("A", "B", "A"))
+  data$when <- as.POSIXlt(c("2020-01-01", "2020-02-01", NA), tz = "UTC")
+  utils::capture.output(expect_no_message(lv(data), message = "list column"))
+  reports <- capture_reports(lv(data))
+  expect_true("when" %in% reports[[2L]][["_data"]]$variable)
+  grouped <- capture_reports(lv(data, when, group = g))
+  expect_identical(unique(grouped[[1L]]$table_body$variable), "when")
+})
