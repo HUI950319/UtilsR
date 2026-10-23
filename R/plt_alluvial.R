@@ -481,7 +481,7 @@ plt_alluvial <- function(
 
   gap_names <- character()
   if (stratum_args$gap > 0 && length(group_levels) > 1L) {
-    gap_names <- tail(make.unique(c(
+    gap_names <- utils::tail(make.unique(c(
       group_levels, paste0(".gap_", seq_len(length(group_levels) - 1L))
     )), length(group_levels) - 1L)
     observed <- unique(stat[, c(".facet", ".cat_var", "group_total")])
