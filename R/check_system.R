@@ -6,6 +6,7 @@
 #'
 #' Display system information including OS, R version, memory usage, and CPU
 #' details with colored console output.
+#' Windows uses PowerShell CIM when available, with WMIC as a legacy fallback.
 #'
 #' @param return_result Logical. If \code{TRUE}, return the result list
 #'   visibly. Default \code{FALSE}.
@@ -34,21 +35,60 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
   }
   r_mem_used_gb <- as.numeric(r_mem_used_bytes) / 1024^3
 
+  # Query Windows once for both memory and system details.
+  windows_info <- NULL
+  if (.Platform$OS.type == "windows" && nzchar(Sys.which("powershell"))) {
+    windows_info <- tryCatch({
+      command <- paste(
+        "$ErrorActionPreference = 'Stop';",
+        "[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false);",
+        "$os = Get-CimInstance Win32_OperatingSystem;",
+        "$cpu = Get-CimInstance Win32_Processor | Select-Object -First 1;",
+        "[pscustomobject]@{TotalVisibleMemorySize=$os.TotalVisibleMemorySize;",
+        "FreePhysicalMemory=$os.FreePhysicalMemory; Caption=$os.Caption;",
+        "Version=$os.Version; CpuName=$cpu.Name} | ConvertTo-Csv -NoTypeInformation"
+      )
+      lines <- suppressWarnings(system2(
+        Sys.which("powershell"),
+        c("-NoLogo", "-NoProfile", "-NonInteractive", "-Command", shQuote(command)),
+        stdout = TRUE, stderr = TRUE
+      ))
+      if (!is.null(attr(lines, "status")) && attr(lines, "status") != 0L)
+        stop("Windows CIM query failed.")
+      info <- utils::read.csv(text = paste(lines, collapse = "\n"),
+                              stringsAsFactors = FALSE, encoding = "UTF-8")
+      fields <- c("TotalVisibleMemorySize", "FreePhysicalMemory", "Caption",
+                  "Version", "CpuName")
+      if (nrow(info) != 1L || !all(fields %in% names(info)))
+        stop("Incomplete Windows CIM result.")
+      memory <- suppressWarnings(as.numeric(info[1L, fields[1:2]]))
+      if (any(!is.finite(memory)) || memory[1L] <= 0 ||
+          memory[2L] < 0 || memory[2L] > memory[1L])
+        stop("Invalid Windows CIM memory result.")
+      info
+    }, error = function(e) NULL)
+  }
+
   # Internal: get system memory info
   .get_system_memory <- function() {
     tryCatch({
       if (.Platform$OS.type == "windows") {
-        total_cmd <- "wmic OS get TotalVisibleMemorySize /Value"
-        free_cmd <- "wmic OS get FreePhysicalMemory /Value"
+        if (!is.null(windows_info)) {
+          total_mem_kb <- as.numeric(windows_info[["TotalVisibleMemorySize"]])
+          free_mem_kb <- as.numeric(windows_info[["FreePhysicalMemory"]])
+        } else {
+          total_cmd <- "wmic OS get TotalVisibleMemorySize /Value"
+          free_cmd <- "wmic OS get FreePhysicalMemory /Value"
 
-        total_info <- system(total_cmd, intern = TRUE)
-        free_info <- system(free_cmd, intern = TRUE)
+          total_info <- system(total_cmd, intern = TRUE)
+          free_info <- system(free_cmd, intern = TRUE)
 
-        total_line <- total_info[grep("TotalVisibleMemorySize", total_info)]
-        free_line <- free_info[grep("FreePhysicalMemory", free_info)]
+          total_line <- total_info[grep("TotalVisibleMemorySize", total_info)]
+          free_line <- free_info[grep("FreePhysicalMemory", free_info)]
 
-        total_mem_kb <- as.numeric(gsub("TotalVisibleMemorySize=", "", total_line))
-        free_mem_kb <- as.numeric(gsub("FreePhysicalMemory=", "", free_line))
+          total_mem_kb <- as.numeric(gsub("TotalVisibleMemorySize=", "", total_line))
+          free_mem_kb <- as.numeric(gsub("FreePhysicalMemory=", "", free_line))
+        }
 
         list(
           total_gb = total_mem_kb / 1024^2,
@@ -124,7 +164,13 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
       machine <- Sys.info()[["machine"]]
 
       if (os_type == "windows") {
-        sys_info <- tryCatch({
+        sys_info <- if (!is.null(windows_info)) {
+          list(
+            os_full_name = trimws(windows_info[["Caption"]]),
+            os_version = trimws(windows_info[["Version"]]),
+            cpu_name = trimws(windows_info[["CpuName"]])
+          )
+        } else tryCatch({
           ver_info <- system("wmic os get Caption,Version /format:list",
                              intern = TRUE)
           caption_line <- ver_info[grep("Caption=", ver_info)]

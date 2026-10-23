@@ -9,6 +9,9 @@
   in their final group, instead of also rendering each beforehand; this saves
   about 40% of the printing time.
 
+* `check_system()` queries Windows memory, OS, and CPU information with
+  PowerShell CIM, retaining WMIC as a fallback for older environments.
+
 * Grouped `lv()` summaries show missing group values as their own last group
   and include them in the overall column. They were previously dropped from
   both, while the reported group count still included them.

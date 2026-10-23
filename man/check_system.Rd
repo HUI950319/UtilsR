@@ -20,6 +20,7 @@ A list (invisible by default) containing system_info, r_environment,
 \description{
 Display system information including OS, R version, memory usage, and CPU
 details with colored console output.
+Windows uses PowerShell CIM when available, with WMIC as a legacy fallback.
 }
 \examples{
 \dontrun{
