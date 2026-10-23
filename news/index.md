@@ -2,6 +2,25 @@
 
 ## UtilsR 0.6.8
 
+- [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
+  validates scalar integer precision before coercion or formatting in
+  every mode and reports precision that exceeds the formatted-number
+  limit.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) retains
+  empty cross-tabulation categories in wide tables, displaying them as
+  `(blank)` and disambiguating an existing category with that label.
+
+- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
+  uses complete required rows in every mode and reports how many rows
+  were removed. Unrelated missing columns are ignored; no usable rows
+  produce an explicit error instead of an empty plot.
+
+- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
+  consistently validates distinct column selectors, facets, and
+  transparency across plot modes. Three-variable heatmaps now truly
+  ignore `type`, as documented.
+
 - [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
   shows a fill legend for unlabelled heatmaps and preserves custom
   visible legend positions; labelled tiles still hide the legend.

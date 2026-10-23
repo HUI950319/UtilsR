@@ -71,7 +71,8 @@ lv(
   (NSE) or character vector `c("var1", "var2")`. Independent of `group`.
   Existing dplyr groups are ignored for this table. Generated frequency,
   percentage, and total column names receive numeric suffixes when
-  needed to preserve input columns and category labels. Names must be
+  needed to preserve input columns and category labels. Empty category
+  labels are displayed as `(blank)` in wide tables. Names must be
   non-missing and distinct; invalid controls are errors.
 
 - cat_args:

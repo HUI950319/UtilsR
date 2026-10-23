@@ -90,8 +90,10 @@ is used; otherwise SD mode. Ignored when <code>x</code> is character.</p></dd>
 
 
 <dt id="arg-digits">digits<a class="anchor" aria-label="anchor" href="#arg-digits"></a></dt>
-<dd><p>Integer, number of decimal places (default: 2 for CI, 1 for SD).
-For character input, default is auto-detected from the string.</p></dd>
+<dd><p>A single integer from 0 to 8190, giving the number of decimal
+places (default: 2 for CI, 1 for SD). For character input, default is
+auto-detected from the string. Each formatted number must fit within
+<code><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf()</a></code>'s 8192-byte limit, including its integer part and sign.</p></dd>
 
 
 <dt id="arg-bracket">bracket<a class="anchor" aria-label="anchor" href="#arg-bracket"></a></dt>

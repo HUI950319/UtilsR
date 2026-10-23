@@ -36,8 +36,11 @@ stat_ci(
 
 - digits:
 
-  Integer, number of decimal places (default: 2 for CI, 1 for SD). For
-  character input, default is auto-detected from the string.
+  A single integer from 0 to 8190, giving the number of decimal places
+  (default: 2 for CI, 1 for SD). For character input, default is
+  auto-detected from the string. Each formatted number must fit within
+  [`sprintf()`](https://rdrr.io/r/base/sprintf.html)'s 8192-byte limit,
+  including its integer part and sign.
 
 - bracket:
 

@@ -30,11 +30,14 @@ plt_dist(
 - data:
 
   A data frame. Existing dplyr grouping is ignored; counts use only the
-  variables selected by `dis_vars` and `facet`.
+  variables selected by `dis_vars` and `facet`. Rows missing any
+  required value are removed with a message in every mode; unrelated
+  columns do not affect inclusion. An error is raised if no complete
+  rows remain. The heatmap ignores `facet`.
 
 - dis_vars:
 
-  Character vector of variable names.
+  Character vector of 2 or 3 distinct, non-empty column names.
 
   - 2 variables: `c(x, fill)` \\\rightarrow\\ alluvial flow
     (`type = "alluvial"`, default) or stacked bar (`type = "bar"`).
@@ -51,7 +54,8 @@ plt_dist(
 - facet:
 
   Optional faceting variable name (string). Used by both 2-variable plot
-  types; ignored for the 3-variable heatmap.
+  types and must differ from `dis_vars`; ignored for the 3-variable
+  heatmap.
 
 - color:
 
@@ -65,8 +69,8 @@ plt_dist(
 
 - alpha:
 
-  Colour transparency. Default 0.7. In alluvial mode this is the flow
-  ribbon transparency (`flow.alpha`).
+  One finite number between 0 and 1. Default 0.7. In alluvial mode this
+  is the flow ribbon transparency (`flow.alpha`).
 
 - label:
 
