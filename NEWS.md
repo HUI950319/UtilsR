@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `lv()` highlights the category levels its special-value counts include,
+  using the same whole-word rules, instead of separate substring matches that
+  also coloured variable labels and missed markers such as "Not stated".
+
 * `fct_cat(binary_ref = )` also takes the reference levels by name:
   `fct_cat(x, binary_ref = "No")` keeps `"No"` and collapses the other levels
   to `"Oth"`, as `binary_ref = 2` does when `"No"` is the second level. An

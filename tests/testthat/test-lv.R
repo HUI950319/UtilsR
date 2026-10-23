@@ -305,3 +305,40 @@ test_that("entirely missing character columns are summarized in every mode", {
   }, logical(1))))
   expect_identical(grouped$value$value, data)
 })
+
+# Reports handed to knitr, including the styled frequency table.
+capture_reports <- function(expr) {
+  reports <- list()
+  withr::local_options(knitr.in.progress = TRUE)
+  testthat::local_mocked_bindings(
+    .lv_print_report = function(x) {
+      reports[[length(reports) + 1L]] <<- x
+      invisible(x)
+    },
+    .package = "UtilsR"
+  )
+  utils::capture.output(suppressMessages(expr))
+  reports
+}
+
+filled_labels <- function(gt_tbl, color) {
+  styles <- gt_tbl[["_styles"]]
+  fill <- vapply(styles$styles, function(s) {
+    colors <- unlist(lapply(s, function(x) x$color))
+    if (length(colors)) colors[[1L]] else NA_character_
+  }, character(1))
+  rows <- styles$rownum[styles$colname == "label" & fill %in% color]
+  as.character(gt_tbl[["_data"]]$label[sort(unique(rows))])
+}
+
+test_that("special-value highlights follow the special-value counts", {
+  data <- data.frame(
+    v = c("Blanket", "Unknownness", "n/a", "Missing", "Not stated", "ok"),
+    unknown_flag = c(1, 1, 2, 2, 3, 3)
+  )
+  reports <- capture_reports(lv(data))
+  summary <- reports[[1L]][["_data"]]
+  expect_equal(summary$n_special, c(3, 0))
+  highlighted <- filled_labels(reports[[2L]], "#FFFF00")
+  expect_setequal(highlighted, c("n/a", "Missing", "Not stated"))
+})

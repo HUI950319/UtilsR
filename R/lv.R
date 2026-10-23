@@ -357,71 +357,31 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     gt_tbl
   }
 
+  # Highlight missing rows and the category levels that the n_special counts
+  # treat as special; variable labels and statistics are left plain.
   .gt_highlight_special_values <- function(gt_tbl,
                                            color_missing = "#FF4D4D",
-                                           color_blank = "#FFFF00",
-                                           color_unknown = "#FFFF00",
-                                           color_na = "#FFFF00",
-                                           columns = NULL) {
+                                           color_special = "#FFFF00") {
     if (!inherits(gt_tbl, "gt_tbl") || is.null(gt_tbl$`_data`)) return(gt_tbl)
 
-    df_data <- as.data.frame(gt_tbl$`_data`)
-    col_names <- names(df_data)
+    body <- gt_tbl$`_data`
+    rows_missing <- which(body$row_type == "missing")
+    rows_special <- which(body$row_type == "level" &
+                            .is_special_value(as.character(body$label)))
 
-    if (is.null(columns)) {
-      target_cols <- col_names
-    } else if (is.numeric(columns)) {
-      target_cols <- col_names[columns[columns >= 1 & columns <= length(col_names)]]
-    } else if (is.character(columns)) {
-      target_cols <- intersect(columns, col_names)
-    } else {
-      target_cols <- col_names
+    if (length(rows_missing) > 0) {
+      gt_tbl <- gt_tbl %>%
+        gt::tab_style(
+          style = gt::cell_fill(color = color_missing),
+          locations = gt::cells_body(columns = "label", rows = rows_missing)
+        )
     }
-
-    for (j in seq_along(df_data)) {
-      col_values <- df_data[[j]]
-      if (!(col_names[j] %in% target_cols)) next
-      if (is.character(col_values) || is.factor(col_values)) {
-        col_chr <- as.character(col_values)
-
-        rows_missing <- which(grepl("\u7f3a\u5931", col_chr, fixed = TRUE))
-        rows_blank <- which(grepl("blank", col_chr, ignore.case = TRUE))
-        rows_unknown <- which(grepl("unknown", col_chr, ignore.case = TRUE))
-        rows_na <- which(grepl("\\bn/?a\\b", col_chr, ignore.case = TRUE))
-
-        if (length(rows_missing) > 0) {
-          gt_tbl <- gt_tbl %>%
-            gt::tab_style(
-              style = gt::cell_fill(color = color_missing),
-              locations = gt::cells_body(columns = dplyr::all_of(col_names[j]),
-                                         rows = rows_missing)
-            )
-        }
-        if (length(rows_blank) > 0) {
-          gt_tbl <- gt_tbl %>%
-            gt::tab_style(
-              style = gt::cell_fill(color = color_blank),
-              locations = gt::cells_body(columns = dplyr::all_of(col_names[j]),
-                                         rows = rows_blank)
-            )
-        }
-        if (length(rows_unknown) > 0) {
-          gt_tbl <- gt_tbl %>%
-            gt::tab_style(
-              style = gt::cell_fill(color = color_unknown),
-              locations = gt::cells_body(columns = dplyr::all_of(col_names[j]),
-                                         rows = rows_unknown)
-            )
-        }
-        if (length(rows_na) > 0) {
-          gt_tbl <- gt_tbl %>%
-            gt::tab_style(
-              style = gt::cell_fill(color = color_na),
-              locations = gt::cells_body(columns = dplyr::all_of(col_names[j]),
-                                         rows = rows_na)
-            )
-        }
-      }
+    if (length(rows_special) > 0) {
+      gt_tbl <- gt_tbl %>%
+        gt::tab_style(
+          style = gt::cell_fill(color = color_special),
+          locations = gt::cells_body(columns = "label", rows = rows_special)
+        )
     }
     gt_tbl
   }
