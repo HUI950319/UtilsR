@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `stat_ci()` validates scalar integer precision before coercion or formatting
+  in every mode and reports precision that exceeds the formatted-number limit.
+
 * `lv()` retains empty cross-tabulation categories in wide tables, displaying
   them as `(blank)` and disambiguating an existing category with that label.
 

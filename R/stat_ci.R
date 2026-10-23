@@ -13,8 +13,10 @@
 #'   Ignored when \code{x} is character.
 #' @param z Numeric vector (optional): upper CI bound. If provided, CI mode
 #'   is used; otherwise SD mode. Ignored when \code{x} is character.
-#' @param digits Integer, number of decimal places (default: 2 for CI, 1 for SD).
-#'   For character input, default is auto-detected from the string.
+#' @param digits A single integer from 0 to 8190, giving the number of decimal
+#'   places (default: 2 for CI, 1 for SD). For character input, default is
+#'   auto-detected from the string. Each formatted number must fit within
+#'   \code{sprintf()}'s 8192-byte limit, including its integer part and sign.
 #' @param bracket Character, bracket type: \code{"("} (default) or \code{"["}.
 #' @param sep Character, separator between CI bounds (default: en dash).
 #'   Only used in CI mode. Common choices: \code{"\u2013"}, \code{", "}, \code{" to "}.
@@ -54,6 +56,29 @@ stat_ci <- function(x, y = NULL, z = NULL,
   sep <- match.arg(sep)
   bp <- if (bracket == "(") c("(", ")") else c("[", "]")
 
+  if (!is.null(digits)) {
+    if (!is.numeric(digits) || is.object(digits) || !is.null(dim(digits)) ||
+        length(digits) != 1L || !is.finite(digits) || digits < 0 ||
+        digits %% 1 != 0 || digits > 8190L) {
+      cli::cli_abort("{.arg digits} must be a single integer between 0 and 8190.")
+    }
+    digits <- as.integer(digits)
+  }
+  .check_precision <- function(d, ...) {
+    if (any(!is.finite(d) | d < 0 | d > 8190L)) {
+      cli::cli_abort("The detected {.arg digits} must be between 0 and 8190.")
+    }
+    if (any(d > 7881L)) {
+      for (values in list(...)) {
+        at <- which(is.finite(values) & d > 7881L)
+        widths <- nchar(sprintf("%.0f", trunc(values[at])))
+        if (any(widths + 1L + rep_len(d, length(values))[at] > 8192L)) {
+          cli::cli_abort("{.arg digits} exceeds the 8192-byte limit for a formatted number.")
+        }
+      }
+    }
+  }
+
   # --- Character input: reformat CI strings ---
   if (is.character(x)) {
     parsed <- .ci_extract(x)
@@ -62,6 +87,7 @@ stat_ci <- function(x, y = NULL, z = NULL,
     hi  <- parsed$upper
     d   <- if (!is.null(digits)) rep(as.integer(digits), length(x)) else parsed$digits
     valid <- parsed$valid
+    .check_precision(d, est, lo, hi)
 
     # Warn about unparseable elements
     n_fail <- sum(!valid)
@@ -89,6 +115,7 @@ stat_ci <- function(x, y = NULL, z = NULL,
       cli::cli_abort("All vectors must have the same length.")
     }
     d <- digits %||% 2L
+    .check_precision(d, x, y, z)
     fmt <- sprintf("%%.%df %s%%.%df%s%%.%df%s", d, bp[1], d, sep, d, bp[2])
     return(sprintf(fmt, x, y, z))
   }
@@ -102,6 +129,7 @@ stat_ci <- function(x, y = NULL, z = NULL,
     cli::cli_abort("All vectors must have the same length.")
   }
   d <- digits %||% 1L
+  .check_precision(d, x, y)
   fmt <- sprintf("%%.%df%s%%.%df%s", d, bp[1], d, bp[2])
   sprintf(fmt, x, y)
 }
