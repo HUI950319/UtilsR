@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `plt_dist()` keeps bar counts, proportions, and labels separate from
+  identically named input columns, preserving categories and plotted values.
+
 * `lv()` returns zero-row and zero-column inputs unchanged with a message,
   before report construction or temporary theme changes in every data-frame mode.
 

@@ -176,28 +176,32 @@ plt_dist <- function(data,
   # --- 2 variables: stacked bar ---
   if (length(dis_vars) == 2) {
     x_var <- dis_vars[1]
+    internal_names <- tail(make.unique(c(names(data), "n", "prop", ".lab")), 3L)
+    count_name <- internal_names[1L]
+    prop_name <- internal_names[2L]
+    label_name <- internal_names[3L]
 
     # Compute proportions within each x (and facet) group
     grp_vars <- if (!is.null(facet)) c(x_var, fill_var, facet) else c(x_var, fill_var)
     plotdata <- data %>%
-      dplyr::count(dplyr::across(dplyr::all_of(grp_vars))) %>%
+      dplyr::count(dplyr::across(dplyr::all_of(grp_vars)), name = count_name) %>%
       dplyr::group_by(dplyr::across(dplyr::all_of(
         if (!is.null(facet)) c(x_var, facet) else x_var
       ))) %>%
-      dplyr::mutate(prop = .data[["n"]] / sum(.data[["n"]])) %>%
+      dplyr::mutate(!!prop_name := .data[[count_name]] / sum(.data[[count_name]])) %>%
       dplyr::ungroup()
 
     # Label text per `label` mode
-    pct <- scales::percent(plotdata$prop, accuracy = 0.1)
-    plotdata$.lab <- switch(label,
-      count         = as.character(plotdata$n),
+    pct <- scales::percent(plotdata[[prop_name]], accuracy = 0.1)
+    plotdata[[label_name]] <- switch(label,
+      count         = as.character(plotdata[[count_name]]),
       percent       = pct,
-      count_percent = sprintf("%s\n(%s)", plotdata$n, pct),
+      count_percent = sprintf("%s\n(%s)", plotdata[[count_name]], pct),
       none          = NA_character_
     )
 
     p <- ggplot2::ggplot(plotdata, ggplot2::aes(
-      x = .data[[x_var]], y = .data[["prop"]], fill = .data[[fill_var]])) +
+      x = .data[[x_var]], y = .data[[prop_name]], fill = .data[[fill_var]])) +
       ggplot2::geom_bar(stat = "identity",
                         position = ggplot2::position_fill(reverse = TRUE)) +
       ggplot2::scale_fill_manual(values = pal_cols) +
@@ -215,7 +219,7 @@ plt_dist <- function(data,
 
     if (label != "none") {
       p <- p + ggplot2::geom_label(
-        ggplot2::aes(label = .data[[".lab"]]),
+        ggplot2::aes(label = .data[[label_name]]),
         position = ggplot2::position_fill(reverse = TRUE, vjust = 0.5),
         show.legend = FALSE, size = (base_size - 4) / ggplot2::.pt
       )
