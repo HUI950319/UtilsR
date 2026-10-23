@@ -121,11 +121,12 @@ PlotHeatmapJaccard <- function(
   jmat <- matrix(0, nrow = n_ct, ncol = n_ct,
                  dimnames = list(ct_names, ct_names))
   for (i in seq_len(n_ct)) {
-    for (j in seq_len(n_ct)) {
+    for (j in seq_len(i)) {
       gi <- top_sets[[i]]
       gj <- top_sets[[j]]
       n_union <- length(union(gi, gj))
       jmat[i, j] <- if (n_union > 0) length(intersect(gi, gj)) / n_union else 0
+      jmat[j, i] <- jmat[i, j]
     }
   }
 

@@ -38,6 +38,18 @@ test_that("data without non-missing groups fails clearly", {
   expect_error(PlotHeatmapJaccard(dat[FALSE, ]), "No non-missing groups")
 })
 
+test_that("the complete similarity matrix retains symmetric and empty-set results", {
+  groups <- c("A", "B", "C", "empty")
+  dat <- data.frame(cell_type = factor(c("A", "A", "B", "B", "C"), levels = groups),
+                    gene = c("g1", "g2", "g2", "g3", "g4"))
+  expected <- rbind(c(1, 1/3, 0, 0), c(1/3, 1, 0, 0), c(0, 0, 1, 0), c(0, 0, 0, 0))
+  dimnames(expected) <- list(groups, groups)
+  result <- PlotHeatmapJaccard(dat, return_type = "both")
+  expect_identical(result$matrix, expected)
+  expect_true(all(is.na(result$plot$data$Jaccard[result$plot$data$Group1 ==
+                                                result$plot$data$Group2])))
+})
+
 test_that("axis strips keep valid colours beyond the default palette length", {
   dat <- data.frame(cell_type = sprintf("G%02d", 1:17), gene = paste0("gene", 1:17))
   plot <- PlotHeatmapJaccard(dat, show_strip = TRUE, text_size = 0)

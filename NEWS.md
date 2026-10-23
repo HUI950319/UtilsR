@@ -19,6 +19,7 @@
   feature sets, preventing false overlaps, and reports missing groups clearly.
   Its default strip palette repeats beyond 16 groups instead of producing
   missing colours.
+  Pairwise calculations reuse symmetry instead of computing both directions.
 
 * `lv()` highlights the category levels its special-value counts include,
   using the same whole-word rules, instead of separate substring matches that
