@@ -109,6 +109,23 @@ test_that("bar segments stack in legend order, like the alluvial strata", {
   expect_equal(ggplot2::layer_data(bar, 2L)$y, (bars$ymin + bars$ymax) / 2)
 })
 
+test_that("labelled categories show their value labels in every mode", {
+  data <- data.frame(x = rep(c("A", "B"), 3))
+  data$sex <- labelled::labelled(rep(c(1, 2, 1), 2), c(Male = 1, Female = 2))
+  for (type in c("bar", "alluvial")) {
+    if (type == "alluvial" && !requireNamespace("ggalluvial", quietly = TRUE)) next
+    p <- dist_test_plot(data, c("x", "sex"), type = type,
+                        color = c(Female = "red", Male = "blue"))
+    fill <- ggplot2::ggplot_build(p)$plot$scales$get_scales("fill")
+    expect_equal(as.character(fill$get_breaks()), c("Male", "Female"))
+  }
+  heat <- data.frame(x = c("A", "B"), y = "C")
+  heat$z <- labelled::labelled(c(1, 2), c(Low = 1, High = 2))
+  tiles <- dist_test_plot(heat, c("x", "y", "z"))
+  expect_identical(as.character(ggplot2::layer_data(tiles, 2L)$label),
+                   c("Low", "High"))
+})
+
 test_that("bar facets use observed levels and the facet and legend lists", {
   data <- data.frame(
     x = factor(rep(c("A", "B"), 6), levels = c("A", "B", "Unused")),

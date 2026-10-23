@@ -31,7 +31,9 @@ and SPSS user-defined missing values. The heatmap ignores \code{facet}.}
 
 \item{dis_vars}{Character vector of 2 or 3 distinct, non-empty column names.
 Plain integer and double columns are treated as categories in numeric
-ascending order in every mode; values are not binned. Existing factors
+ascending order in every mode; values are not binned. Labelled columns
+(\code{haven_labelled}, also as \code{facet}) are converted with
+\code{labelled::to_factor()}, so they show their value labels. Existing factors
 keep their level order. Character columns retain their existing ordering:
 first appearance for alluvial plots, sorted for bar charts and heatmaps.
 \itemize{

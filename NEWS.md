@@ -43,6 +43,10 @@
 * `plt_dist(type = "bar")` stacks the first fill category on top, in the
   order of the legend and of the alluvial strata (it was at the bottom).
 
+* `plt_dist()` converts labelled (`haven_labelled`) categories and facets
+  with `labelled::to_factor()`, so plots, legends and named colours use the
+  value labels instead of the numeric codes.
+
 # UtilsR 0.6.8
 
 * New `.cat_step()` announces a numbered step (`[i/n]`) of a longer
