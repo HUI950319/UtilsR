@@ -34,7 +34,7 @@ plt_dist(
 
 - dis_vars:
 
-  Character vector of variable names.
+  Character vector of 2 or 3 distinct, non-empty column names.
 
   - 2 variables: `c(x, fill)` \\\rightarrow\\ alluvial flow
     (`type = "alluvial"`, default) or stacked bar (`type = "bar"`).
@@ -51,7 +51,8 @@ plt_dist(
 - facet:
 
   Optional faceting variable name (string). Used by both 2-variable plot
-  types; ignored for the 3-variable heatmap.
+  types and must differ from `dis_vars`; ignored for the 3-variable
+  heatmap.
 
 - color:
 
@@ -65,8 +66,8 @@ plt_dist(
 
 - alpha:
 
-  Colour transparency. Default 0.7. In alluvial mode this is the flow
-  ribbon transparency (`flow.alpha`).
+  One finite number between 0 and 1. Default 0.7. In alluvial mode this
+  is the flow ribbon transparency (`flow.alpha`).
 
 - label:
 
@@ -74,11 +75,11 @@ plt_dist(
   `"percent"`, `"none"`. For the \*\*bar chart\*\* this selects the
   count / percentage text on each segment. For the \*\*heatmap\*\* any
   value other than `"none"` prints the third variable's category in each
-  tile; `"none"` hides the labels. For the \*\*alluvial\*\* plot it maps
-  to \`label_args\$style\` in \[plt_alluvial()\]: `"count_percent"`
-  \\\rightarrow\\ name + count + percent, `"count"` \\\rightarrow\\
-  name + count, `"percent"` \\\rightarrow\\ name + percent, `"none"`
-  \\\rightarrow\\ no labels.
+  tile; `"none"` hides the labels and shows a fill legend. For the
+  \*\*alluvial\*\* plot it maps to \`label_args\$style\` in
+  \[plt_alluvial()\]: `"count_percent"` \\\rightarrow\\ name + count +
+  percent, `"count"` \\\rightarrow\\ name + count, `"percent"`
+  \\\rightarrow\\ name + percent, `"none"` \\\rightarrow\\ no labels.
 
 - gap:
 
@@ -104,10 +105,11 @@ plt_dist(
   re-enabled when the theme – such as the default
   [`theme_heat()`](https://hui950319.github.io/UtilsR/reference/theme_heat.md)
   – would otherwise hide it, but a custom theme's legend placement is
-  kept); the \*\*heatmap\*\* never shows one, since each tile is
-  labelled directly. In \*\*alluvial\*\* mode only the base font size is
-  taken from `theme_use`; \[theme_alluvia()\] supplies the plot's
-  remaining theme settings.
+  kept); the \*\*heatmap\*\* hides it when tiles are labelled and shows
+  it when `label = "none"`, retaining a custom theme's visible
+  placement. In \*\*alluvial\*\* mode only the base font size is taken
+  from `theme_use`; \[theme_alluvia()\] supplies the plot's remaining
+  theme settings.
 
 - save:
 

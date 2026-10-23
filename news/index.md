@@ -3,6 +3,15 @@
 ## UtilsR 0.6.8
 
 - [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
+  consistently validates distinct column selectors, facets, and
+  transparency across plot modes. Three-variable heatmaps now truly
+  ignore `type`, as documented.
+
+- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
+  shows a fill legend for unlabelled heatmaps and preserves custom
+  visible legend positions; labelled tiles still hide the legend.
+
+- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
   maps named colours to categories in every mode, checks category
   coverage, and keeps unnamed palette positions for unused factor levels
   in bars and heatmaps. Shared colour resolvers are unchanged.
