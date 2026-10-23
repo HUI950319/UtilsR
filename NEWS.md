@@ -1,5 +1,10 @@
 # UtilsR 0.6.8
 
+* `lv()` leaves character and factor columns with more than 100 categories,
+  such as identifiers, out of its frequency and grouped tables with a message;
+  they stay in the variable summary. A 50,000-row identifier column previously
+  took about four minutes to tabulate and now adds no table rows.
+
 * `PlotHeatmapJaccard()` excludes missing group labels and feature names from
   feature sets, preventing false overlaps, and reports missing groups clearly.
 

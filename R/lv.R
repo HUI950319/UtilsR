@@ -73,6 +73,10 @@
 #'   format, with dependencies retained. Console frequency listings are omitted
 #'   while knitting, and each default summary table is included only once.
 #'
+#'   Character or factor columns with more than 100 categories, such as
+#'   identifiers, are reported in the variable summary but left out of the
+#'   frequency and grouped tables, with a message.
+#'
 #' @examples
 #' \dontrun{
 #' # data.frame basic usage
@@ -396,6 +400,23 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     df
   }
 
+  # A character or factor column with more than 100 categories (an
+  # identifier, free text) adds a table row per value, and tbl_summary() and
+  # gt then take minutes; such columns stay in the variable summary only.
+  .tbl_vars <- function(vars) {
+    many <- vapply(analysis_data[vars], function(x) {
+      if (is.factor(x)) nlevels(x) > 100L
+      else is.character(x) && length(unique(x[!is.na(x)])) > 100L
+    }, logical(1))
+    if (any(many)) {
+      cli::cli_inform(c("i" = paste(
+        "{.var {vars[many]}} ha{?s/ve} more than 100 categories and",
+        "{?is/are} left out of the summary table."
+      )))
+    }
+    vars[!many]
+  }
+
   # Optional RegR::get_gt_cat hook (called once at end of each mode)
   .run_cat_args <- function() {
     if (length(cat_args) == 0L) return(invisible(NULL))
@@ -582,9 +603,9 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
         !identical(analysis_data[[group_var]], data[[group_var]])) {
       cli::cli_abort("A selected column name conflicts with {.arg group}; use another alias.")
     }
-    vars <- setdiff(vars, group_var)
+    vars <- .tbl_vars(setdiff(vars, group_var))
     if (length(vars) == 0) {
-      cli::cli_inform("No variables selected apart from the group; returning input.")
+      cli::cli_inform("No variables to summarize apart from the group; returning input.")
       return(invisible(data))
     }
 
@@ -625,23 +646,24 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
 
   result <- purrr::map_dfr(vars, ~ .lv_one(analysis_data, .x))
 
-  res_count <-
-    .tbl_input(tibble::as_tibble(analysis_data)[, vars, drop = FALSE]) %>%
+  table_vars <- .tbl_vars(vars)
+  res_count <- if (length(table_vars)) {
+    .tbl_input(tibble::as_tibble(analysis_data)[, table_vars, drop = FALSE]) %>%
     labelled::set_variable_labels(
       .labels = setNames(
         paste0(
-          vars, " (",
-          vapply(analysis_data[vars], function(x) class(x)[1], character(1)), ", ",
+          table_vars, " (",
+          vapply(analysis_data[table_vars], function(x) class(x)[1], character(1)), ", ",
           # Observed values: .lv_one() already counted them for non-factors;
           # its factor count includes unused levels, so tabulate the codes.
-          vapply(vars, function(v) {
+          vapply(table_vars, function(v) {
             x <- analysis_data[[v]]
             if (is.factor(x)) sum(tabulate(as.integer(x), nlevels(x)) > 0L)
             else as.integer(result$n_unique[match(v, result$vars)])
           }, integer(1)),
           ")"
         ),
-        vars
+        table_vars
       )
     ) %>%
     gtsummary::tbl_summary(
@@ -659,12 +681,15 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     ) %>%
     gtsummary::bold_labels() %>%
     gtsummary::modify_header(label = "**Vars**", stat_0 = "**Summary**")
+  }
 
   if (!knitting) {
-    .cat_line(sprintf("** Variable Counts (%d variables) **", length(vars)),
-              type = "info")
-    print(tibble::as_tibble(res_count))
-    print(res_count)
+    if (!is.null(res_count)) {
+      .cat_line(sprintf("** Variable Counts (%d variables) **", length(table_vars)),
+                type = "info")
+      print(tibble::as_tibble(res_count))
+      print(res_count)
+    }
 
     .cat_line(sprintf("** Variable Summary (%d variables) **", length(vars)),
               type = "success")
@@ -697,13 +722,17 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
 
   if (!knitting) print(res_summary)
 
-  styled_count <- gtsummary::as_gt(res_count) %>%
-    .gt_highlight_low_percentage() %>%
-    .gt_highlight_special_values() %>%
-    gt::tab_options(column_labels.background.color = "#E8F4FD")
+  styled_count <- if (!is.null(res_count)) {
+    gtsummary::as_gt(res_count) %>%
+      .gt_highlight_low_percentage() %>%
+      .gt_highlight_special_values() %>%
+      gt::tab_options(column_labels.background.color = "#E8F4FD")
+  }
   if (knitting) {
     .lv_print_report(res_summary)
-    .lv_print_report(styled_count)
+    if (!is.null(styled_count)) .lv_print_report(styled_count)
+  } else if (is.null(styled_count)) {
+    print(res_summary)
   } else {
     print(gt::gt_group(res_summary, styled_count))
   }

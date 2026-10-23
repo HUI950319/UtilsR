@@ -342,3 +342,22 @@ test_that("special-value highlights follow the special-value counts", {
   highlighted <- filled_labels(reports[[2L]], "#FFFF00")
   expect_setequal(highlighted, c("n/a", "Missing", "Not stated"))
 })
+
+test_that("columns with more than 100 categories stay out of summary tables", {
+  data <- data.frame(id = sprintf("P%03d", 1:150), x = rep(1:3, 50),
+                     g = rep(c("A", "B"), 75),
+                     f = factor(rep("a", 150), levels = as.character(1:101)))
+  reports <- capture_reports(lv(data))
+  expect_identical(reports[[1L]][["_data"]]$vars, c("id", "x", "g", "f"))
+  expect_equal(reports[[1L]][["_data"]]$n_unique[1L], 150)
+  expect_identical(unique(reports[[2L]][["_data"]]$variable), c("x", "g"))
+  utils::capture.output(
+    expect_message(lv(data), "more than 100 categories")
+  )
+
+  grouped <- capture_reports(lv(data, id, x, f, group = g))
+  expect_identical(unique(grouped[[1L]]$table_body$variable), "x")
+  only_id <- capture_reports(lv(data, id, group = g))
+  expect_length(only_id, 0L)
+  expect_length(capture_reports(lv(data, id)), 1L)
+})
