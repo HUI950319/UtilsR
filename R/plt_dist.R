@@ -14,7 +14,8 @@
 #'   only the variables selected by \code{dis_vars} and \code{facet}. Rows
 #'   missing any required value are removed with a message in every mode;
 #'   unrelated columns do not affect inclusion. An error is raised if no
-#'   complete rows remain. The heatmap ignores \code{facet}.
+#'   complete rows remain. Alluvial mode also removes explicit NA factor levels
+#'   and SPSS user-defined missing values. The heatmap ignores \code{facet}.
 #' @param dis_vars Character vector of 2 or 3 distinct, non-empty column names.
 #'   Plain integer and double columns are treated as categories in numeric
 #'   ascending order in every mode; values are not binned. Existing factors
@@ -175,6 +176,11 @@ plt_dist <- function(data,
   data <- dplyr::ungroup(data)
   required <- c(dis_vars, if (length(dis_vars) == 2L) facet)
   keep <- stats::complete.cases(data[required])
+  if (length(dis_vars) == 2L && type == "alluvial") {
+    for (v in required) {
+      keep <- keep & !is.na(data[[v]]) & !is.na(as.character(data[[v]]))
+    }
+  }
   removed <- sum(!keep)
   if (removed > 0L) {
     cli::cli_inform("Removed {removed} row{?s} with missing values in required columns.")

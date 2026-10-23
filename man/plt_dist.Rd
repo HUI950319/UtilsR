@@ -23,7 +23,8 @@ plt_dist(
 only the variables selected by \code{dis_vars} and \code{facet}. Rows
 missing any required value are removed with a message in every mode;
 unrelated columns do not affect inclusion. An error is raised if no
-complete rows remain. The heatmap ignores \code{facet}.}
+complete rows remain. Alluvial mode also removes explicit NA factor levels
+and SPSS user-defined missing values. The heatmap ignores \code{facet}.}
 
 \item{dis_vars}{Character vector of 2 or 3 distinct, non-empty column names.
 Plain integer and double columns are treated as categories in numeric

@@ -362,6 +362,18 @@ test_that("plt_alluvial reports explicit NA levels and user-defined missing valu
   expect_setequal(as.character(plot$data$.group[!plot$data$.is_gap]), c("1", "2"))
 })
 
+test_that("plt_dist removes alluvial missing categories before matching named colours", {
+  skip_if_not_installed("ggalluvial")
+
+  data <- alluvial_data()
+  data$group[1] <- NA
+  data$group <- factor(data$group, exclude = NULL)
+  expect_message(capture.output(plot <- plt_dist(
+    data, c("category", "group"), color = c(G1 = "blue", G2 = "red")
+  )), "Removed 1 row")
+  expect_equal(sum(plot$data$count), 7)
+})
+
 test_that("plt_alluvial rejects invalid columns and overlapping roles", {
   skip_if_not_installed("ggalluvial")
 

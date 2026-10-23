@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `plt_dist(type = "alluvial")` removes categorical missing values before
+  matching named colours, following the `plt_alluvial()` missing-row rule.
+
 * `plt_alluvial()` counts only observed facet/category combinations while
   preserving zero-count groups, avoiding the full cross-facet frequency table.
 
