@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `PlotHeatmapJaccard()` excludes missing group labels and feature names from
+  feature sets, preventing false overlaps, and reports missing groups clearly.
+
 * `lv()` highlights the category levels its special-value counts include,
   using the same whole-word rules, instead of separate substring matches that
   also coloured variable labels and missed markers such as "Not stated".

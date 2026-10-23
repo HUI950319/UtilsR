@@ -26,7 +26,8 @@ PlotHeatmapJaccard(
 )
 }
 \arguments{
-\item{data}{A data.frame containing at least a group column and a name column.}
+\item{data}{A data.frame containing at least a group column and a name column.
+Rows with missing group labels or feature names do not contribute to sets.}
 
 \item{group_col}{Column name for the grouping variable (e.g. cell type).
 Default \code{"cell_type"}.}

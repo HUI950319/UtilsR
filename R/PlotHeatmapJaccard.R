@@ -9,6 +9,7 @@
 #' optional numeric labels per cell and optional coloured axis strips.
 #'
 #' @param data A data.frame containing at least a group column and a name column.
+#'   Rows with missing group labels or feature names do not contribute to sets.
 #' @param group_col Column name for the grouping variable (e.g. cell type).
 #'   Default \code{"cell_type"}.
 #' @param name_col Column name for the feature/gene names used to compute
@@ -102,12 +103,16 @@ PlotHeatmapJaccard <- function(
   } else {
     unique(data[[group_col]])
   }
+  ct_names <- ct_names[!is.na(ct_names)]
   n_ct <- length(ct_names)
+  if (n_ct == 0L)
+    stop("No non-missing groups available.", call. = FALSE)
 
   # ---- 2. Build per-group feature sets ----
   top_sets <- lapply(
     stats::setNames(ct_names, ct_names),
-    function(ct) data[[name_col]][data[[group_col]] == ct]
+    function(ct) data[[name_col]][which(data[[group_col]] == ct &
+                                        !is.na(data[[name_col]]))]
   )
 
   # ---- 3. Compute pairwise Jaccard similarity ----
