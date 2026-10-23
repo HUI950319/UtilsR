@@ -106,8 +106,7 @@ optional facet is normalized independently.</p>
 
 <dt id="arg-color">color<a class="anchor" aria-label="anchor" href="#arg-color"></a></dt>
 <dd><p>A registered UtilsR palette name, a single colour, or a colour
-vector. Named vectors match observed group names and must cover every
-observed group; extra names are ignored. Unnamed vectors match group order.</p></dd>
+vector. See the internal <code>.resolve_color()</code> resolver.</p></dd>
 
 
 <dt id="arg-flow-args">flow_args<a class="anchor" aria-label="anchor" href="#arg-flow-args"></a></dt>
@@ -244,8 +243,7 @@ plot to PDF.</p>
 <code>facet</code> by <code>cat_var</code> combination before the requested gap space is inserted.
 With <code>y_type = "count"</code>, gaps are scaled by the largest category total in
 each facet. Rows with missing values in required columns are removed with an
-informational message. Explicit NA factor levels and SPSS user-defined
-missing values are also treated as missing.</p>
+informational message.</p>
     </div>
 
     <div class="section level2">

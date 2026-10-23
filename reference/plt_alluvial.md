@@ -51,8 +51,7 @@ plt_alluvial(
 - color:
 
   A registered UtilsR palette name, a single colour, or a colour vector.
-  Named vectors match observed group names and must cover every observed
-  group; extra names are ignored. Unnamed vectors match group order.
+  See the internal `.resolve_color()` resolver.
 
 - flow_args:
 
@@ -197,8 +196,7 @@ With `y_type = "percent"`, real strata are normalized within each
 `facet` by `cat_var` combination before the requested gap space is
 inserted. With `y_type = "count"`, gaps are scaled by the largest
 category total in each facet. Rows with missing values in required
-columns are removed with an informational message. Explicit NA factor
-levels and SPSS user-defined missing values are also treated as missing.
+columns are removed with an informational message.
 
 ## Examples
 
