@@ -30,7 +30,10 @@ plt_dist(
 - data:
 
   A data frame. Existing dplyr grouping is ignored; counts use only the
-  variables selected by `dis_vars` and `facet`.
+  variables selected by `dis_vars` and `facet`. Rows missing any
+  required value are removed with a message in every mode; unrelated
+  columns do not affect inclusion. An error is raised if no complete
+  rows remain. The heatmap ignores `facet`.
 
 - dis_vars:
 

@@ -88,7 +88,10 @@ faceting and only requires the suggested <span class="pkg">ggalluvial</span> pac
 
 <dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
 <dd><p>A data frame. Existing dplyr grouping is ignored; counts use
-only the variables selected by <code>dis_vars</code> and <code>facet</code>.</p></dd>
+only the variables selected by <code>dis_vars</code> and <code>facet</code>. Rows
+missing any required value are removed with a message in every mode;
+unrelated columns do not affect inclusion. An error is raised if no
+complete rows remain. The heatmap ignores <code>facet</code>.</p></dd>
 
 
 <dt id="arg-dis-vars">dis_vars<a class="anchor" aria-label="anchor" href="#arg-dis-vars"></a></dt>

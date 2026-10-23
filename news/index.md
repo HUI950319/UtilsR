@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
+  uses complete required rows in every mode and reports how many rows
+  were removed. Unrelated missing columns are ignored; no usable rows
+  produce an explicit error instead of an empty plot.
+
+- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
   consistently validates distinct column selectors, facets, and
   transparency across plot modes. Three-variable heatmaps now truly
   ignore `type`, as documented.
