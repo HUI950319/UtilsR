@@ -262,9 +262,10 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   # Internal helper functions
   # ==========================================================================
 
+  # Observed values; a factor keeps its level order without unused levels.
   .get_levels <- function(x) {
     if (is.factor(x)) {
-      levels(x)
+      levels(x)[tabulate(as.integer(x), nlevels(x)) > 0L]
     } else {
       unique(x[!is.na(x)])
     }
@@ -298,18 +299,29 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     unique_values <- .get_levels(col_data)
     n_unique <- length(unique_values)
 
-    # Convert before appending the marker: c() on dates would parse "...".
-    display_values <- if (n_unique > 10) {
-      c(as.character(head(unique_values, 8)), "...")
-    } else {
-      unique_values
-    }
+    display_values <- if (n_unique > 10) head(unique_values, 8) else unique_values
 
-    values_expr <- as.call(c(list(quote(c)), as.list(as.character(display_values))))
+    # Numbers stay literal when their text reads back exactly, logicals stay
+    # logical; other values (dates, imprecise doubles) match through text.
+    display_text <- as.character(display_values)
+    values <- if (is.logical(display_values)) {
+      as.list(display_values)
+    } else if (is.numeric(display_values) && !is.object(display_values) &&
+               identical(as.numeric(display_text), as.numeric(display_values))) {
+      as.list(as.numeric(display_text))
+    } else {
+      as.list(display_text)
+    }
+    values_expr <- as.call(c(list(quote(c)), values))
     filter_expr <- substitute(get_flt(VAR %in% VALUES),
                               list(VAR = as.name(var), VALUES = values_expr))
-    .get_flt_formula <- noquote(paste(deparse(filter_expr, width.cutoff = 500L),
-                                     collapse = " "))
+    .get_flt_formula <- paste(deparse(filter_expr, width.cutoff = 500L),
+                              collapse = " ")
+    # A comment marks truncation, so the code still runs as written.
+    if (n_unique > 10) {
+      .get_flt_formula <- sprintf("%s  # +%d more", .get_flt_formula, n_unique - 8L)
+    }
+    .get_flt_formula <- noquote(.get_flt_formula)
     if (!knitting) print(.get_flt_formula)
 
     tibble::tibble(
@@ -691,13 +703,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
         paste0(
           table_vars, " (",
           vapply(analysis_data[table_vars], function(x) class(x)[1], character(1)), ", ",
-          # Observed values: .lv_one() already counted them for non-factors;
-          # its factor count includes unused levels, so tabulate the codes.
-          vapply(table_vars, function(v) {
-            x <- analysis_data[[v]]
-            if (is.factor(x)) sum(tabulate(as.integer(x), nlevels(x)) > 0L)
-            else as.integer(result$n_unique[match(v, result$vars)])
-          }, integer(1)),
+          # Observed values, as counted by .lv_one().
+          as.integer(result$n_unique[match(table_vars, result$vars)]),
           ")"
         ),
         table_vars

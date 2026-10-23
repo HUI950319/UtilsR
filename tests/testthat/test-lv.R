@@ -423,3 +423,25 @@ test_that("console reports render each default table once", {
   expect_length(tables, 2L)
   expect_true(any(grepl("# A tibble", output, fixed = TRUE)))
 })
+
+test_that("suggested filters keep literals runnable and count observed levels", {
+  data <- data.frame(num = c(1:12, 0.5), int = rep(1:2, length.out = 13),
+                     flag = rep(c(TRUE, FALSE), length.out = 13),
+                     f = factor(rep("a", 13), levels = c("a", "b", "c")),
+                     float = rep(c(0.1 + 0.2, 1), length.out = 13))
+  reports <- capture_reports(lv(data))
+  summary <- reports[[1L]][["_data"]]
+  filters <- stats::setNames(as.character(summary$unique), summary$vars)
+  expect_identical(filters[["num"]],
+                   "get_flt(num %in% c(1, 2, 3, 4, 5, 6, 7, 8))  # +5 more")
+  expect_identical(filters[["int"]], "get_flt(int %in% c(1, 2))")
+  expect_identical(filters[["flag"]], "get_flt(flag %in% c(TRUE, FALSE))")
+  expect_identical(filters[["f"]], 'get_flt(f %in% c("a"))')
+  expect_equal(summary$n_unique, c(13, 2, 2, 1, 2))
+  for (v in c("int", "flag", "f", "float")) {
+    call <- parse(text = filters[[v]])[[1L]]
+    expect_true(all(eval(call[[2L]], envir = data)))
+  }
+  labels <- as.character(reports[[2L]][["_data"]]$label)
+  expect_true("f (factor, 1)" %in% labels)
+})

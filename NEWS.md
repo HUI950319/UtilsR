@@ -1,5 +1,10 @@
 # UtilsR 0.6.8
 
+* Suggested `lv()` filters write numbers and logicals as literals when their
+  text reads back exactly, and mark truncation with a trailing comment
+  instead of a literal `"..."` value. Factor value counts and filters omit
+  unused levels, matching the frequency-table labels.
+
 * Console `lv()` reports render the variable summary and frequency tables once,
   in their final group, instead of also rendering each beforehand; this saves
   about 40% of the printing time.
