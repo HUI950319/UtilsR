@@ -50,7 +50,7 @@ pr_head <- function(class, ..., bg = "blue", fg = "br_white") {
   line  <- ._chip(class, cli::make_ansi_style(bg, bg = TRUE),
                   cli::make_ansi_style(fg))
   if (length(parts)) {
-    line <- paste(line, cli::col_grey(paste(parts, collapse = " · ")))
+    line <- paste(line, cli::col_grey(paste(parts, collapse = " \u00b7 ")))
   }
   ._pr_out(line)
 }
