@@ -264,35 +264,19 @@ plt_dist <- function(data,
     cli::cli_abort("{.arg alpha} must be one finite number between 0 and 1.")
   }
   # --- List settings: merge partial lists into the documented defaults ---
-  merge_args <- function(value, defaults, arg) {
-    if (!is.list(value)) cli::cli_abort("{.arg {arg}} must be a named list.")
-    if (length(value) == 0L) return(defaults)
-    value_names <- names(value)
-    if (is.null(value_names) || anyNA(value_names) || any(!nzchar(value_names))) {
-      cli::cli_abort("Every element of {.arg {arg}} must have a non-empty name.")
-    }
-    if (anyDuplicated(value_names)) {
-      cli::cli_abort("{.arg {arg}} must not contain duplicate names.")
-    }
-    unknown <- setdiff(value_names, names(defaults))
-    if (length(unknown) > 0L) {
-      cli::cli_abort("{.arg {arg}} has unknown field{?s}: {.val {unknown}}.")
-    }
-    utils::modifyList(defaults, value, keep.null = TRUE)
-  }
-  label_args <- merge_args(label_args, list(
+  label_args <- .merge_args(label_args, list(
     style = "count_percent", min_pct = 0, size = NULL, color = "black",
     box = TRUE, fill = "white", alpha = 1, pct_accuracy = 0.1
   ), "label_args")
-  flow_args <- merge_args(flow_args, list(curve_type = "linear"), "flow_args")
-  stratum_args <- merge_args(stratum_args, list(
+  flow_args <- .merge_args(flow_args, list(curve_type = "linear"), "flow_args")
+  stratum_args <- .merge_args(stratum_args, list(
     width = 0.5, color = "gray50", linewidth = 0.3, gap = 0.01
   ), "stratum_args")
-  facet_args <- merge_args(facet_args,
-                           list(nrow = NULL, ncol = NULL, scales = "fixed"),
-                           "facet_args")
-  legend_args <- merge_args(legend_args, list(position = NULL, ncol = 1),
-                            "legend_args")
+  facet_args <- .merge_args(facet_args,
+                            list(nrow = NULL, ncol = NULL, scales = "fixed"),
+                            "facet_args")
+  legend_args <- .merge_args(legend_args, list(position = NULL, ncol = 1),
+                             "legend_args")
 
   # Fields used by the bar and heatmap code; plt_alluvial() checks
   # flow_args and stratum_args, which only alluvial mode uses.

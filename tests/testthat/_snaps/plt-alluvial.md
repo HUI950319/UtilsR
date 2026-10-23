@@ -27,7 +27,7 @@
     Code
       plt_alluvial(alluvial_data(), "category", "group", flow_args = list(foo = 1))
     Condition
-      Error in `merge_args()`:
+      Error in `plt_alluvial()`:
       ! `flow_args` has unknown field: "foo".
 
 ---
@@ -35,7 +35,7 @@
     Code
       plt_alluvial(alluvial_data(), "category", "group", flow_args = list(0.2))
     Condition
-      Error in `merge_args()`:
+      Error in `plt_alluvial()`:
       ! Every element of `flow_args` must have a non-empty name.
 
 ---
@@ -43,7 +43,7 @@
     Code
       plt_alluvial(alluvial_data(), "category", "group", flow_args = duplicate_alpha)
     Condition
-      Error in `merge_args()`:
+      Error in `plt_alluvial()`:
       ! `flow_args` must not contain duplicate names.
 
 ---

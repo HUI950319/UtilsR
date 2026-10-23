@@ -153,3 +153,27 @@
   }
   ns$.save_sized(p, save, size, lead = lead, filename = filename)
 }
+
+# Merge a partial named-list argument (e.g. `label_args`) into its documented
+# defaults, rejecting unnamed, duplicated or unknown fields. Errors name the
+# plotting function that called it.
+.merge_args <- function(value, defaults, arg, call = rlang::caller_env()) {
+  if (!is.list(value)) {
+    cli::cli_abort("{.arg {arg}} must be a named list.", call = call)
+  }
+  if (length(value) == 0L) return(defaults)
+  value_names <- names(value)
+  if (is.null(value_names) || anyNA(value_names) || any(!nzchar(value_names))) {
+    cli::cli_abort("Every element of {.arg {arg}} must have a non-empty name.",
+                   call = call)
+  }
+  if (anyDuplicated(value_names)) {
+    cli::cli_abort("{.arg {arg}} must not contain duplicate names.", call = call)
+  }
+  unknown <- setdiff(value_names, names(defaults))
+  if (length(unknown) > 0L) {
+    cli::cli_abort("{.arg {arg}} has unknown field{?s}: {.val {unknown}}.",
+                   call = call)
+  }
+  utils::modifyList(defaults, value, keep.null = TRUE)
+}

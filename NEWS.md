@@ -47,6 +47,11 @@
   with `labelled::to_factor()`, so plots, legends and named colours use the
   value labels instead of the numeric codes.
 
+* `plt_dist()`, `plt_alluvial()` and `plt_sankey()` share one internal
+  helper for their list arguments, so a malformed list reports the plotting
+  function (not `merge_args()`) as the source of the error, and
+  `plt_sankey()` words a single unknown field in the singular.
+
 # UtilsR 0.6.8
 
 * New `.cat_step()` announces a numbered step (`[i/n]`) of a longer

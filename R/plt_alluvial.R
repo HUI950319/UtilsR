@@ -205,44 +205,17 @@ plt_alluvial <- function(
   }
   data <- as.data.frame(data)[required]
 
-  merge_args <- function(value, defaults, arg) {
-    if (!is.list(value)) {
-      cli::cli_abort("{.arg {arg}} must be a named list.")
-    }
-    if (length(value) == 0L) {
-      return(defaults)
-    }
-    value_names <- names(value)
-    if (
-      is.null(value_names) ||
-        any(is.na(value_names)) ||
-        any(!nzchar(value_names))
-    ) {
-      cli::cli_abort(
-        "Every element of {.arg {arg}} must have a non-empty name."
-      )
-    }
-    if (anyDuplicated(value_names)) {
-      cli::cli_abort("{.arg {arg}} must not contain duplicate names.")
-    }
-    unknown <- setdiff(value_names, names(defaults))
-    if (length(unknown) > 0L) {
-      cli::cli_abort("{.arg {arg}} has unknown field{?s}: {.val {unknown}}.")
-    }
-    utils::modifyList(defaults, value, keep.null = TRUE)
-  }
-
-  flow_args <- merge_args(
+  flow_args <- .merge_args(
     flow_args,
     list(alpha = 0.4, curve_type = "linear"),
     "flow_args"
   )
-  stratum_args <- merge_args(
+  stratum_args <- .merge_args(
     stratum_args,
     list(width = 0.5, color = "gray50", linewidth = 0.3, gap = 0.01),
     "stratum_args"
   )
-  label_args <- merge_args(
+  label_args <- .merge_args(
     label_args,
     list(
       style = "count_percent",
@@ -256,12 +229,12 @@ plt_alluvial <- function(
     ),
     "label_args"
   )
-  facet_args <- merge_args(
+  facet_args <- .merge_args(
     facet_args,
     list(nrow = NULL, ncol = NULL, scales = "fixed"),
     "facet_args"
   )
-  legend_args <- merge_args(
+  legend_args <- .merge_args(
     legend_args,
     list(ncol = 1, position = "right"),
     "legend_args"

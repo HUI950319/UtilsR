@@ -67,6 +67,25 @@ test_that("plt_dist packs its plot settings into plt_alluvial-style lists", {
                         legend_args = list(position = "middle")), "position")
 })
 
+test_that("list-argument errors name the plotting function", {
+  data <- data.frame(x = c("A", "B"), group = c("F", "M"))
+  calls <- list(
+    plt_dist = quote(plt_dist(data, c("x", "group"), type = "bar",
+                              label_args = list(unknown = 1))),
+    plt_alluvial = quote(plt_alluvial(data, "x", "group",
+                                      flow_args = list(unknown = 1))),
+    plt_sankey = quote(plt_sankey(data, c("x", "group"),
+                                  node_args = list(unknown = 1)))
+  )
+  needs <- c(plt_dist = "ggplot2", plt_alluvial = "ggalluvial", plt_sankey = "ggsankey")
+  for (fn in names(calls)) {
+    if (!requireNamespace(needs[[fn]], quietly = TRUE)) next
+    err <- tryCatch(eval(calls[[fn]]), error = identity)
+    expect_match(conditionMessage(err), "has unknown field: ")
+    expect_identical(rlang::call_name(conditionCall(err)), fn)
+  }
+})
+
 test_that("bar labels, axis and label boxes follow label_args", {
   bar <- dist_test_plot(dist_label_data(), c("x", "group"), type = "bar")
   labels <- ggplot2::layer_data(bar, 2L)

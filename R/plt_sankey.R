@@ -153,23 +153,11 @@ plt_sankey <- function(data,
     cli::cli_abort("Package {.pkg ggsankey} is required. Install with: {.code pak::pak('davidsjoberg/ggsankey')}")
   }
 
-  merge_args <- function(value, defaults, arg) {
-    if (!is.list(value)) cli::cli_abort("{.arg {arg}} must be a named list.")
-    if (length(value) == 0L) return(defaults)
-    nms <- names(value)
-    if (is.null(nms) || anyNA(nms) || any(!nzchar(nms))) {
-      cli::cli_abort("Every element of {.arg {arg}} must have a non-empty name.")
-    }
-    if (anyDuplicated(nms)) cli::cli_abort("{.arg {arg}} must not contain duplicate names.")
-    unknown <- setdiff(nms, names(defaults))
-    if (length(unknown)) cli::cli_abort("{.arg {arg}} has unknown fields: {.val {unknown}}.")
-    utils::modifyList(defaults, value, keep.null = TRUE)
-  }
-  flow_args <- merge_args(flow_args,
+  flow_args <- .merge_args(flow_args,
     list(alpha = 0.6, fill = "grey", color = "grey80", smooth = 8), "flow_args")
-  node_args <- merge_args(node_args,
+  node_args <- .merge_args(node_args,
     list(width = 0.4, space = NULL, color = NA, linewidth = NULL), "node_args")
-  label_args <- merge_args(label_args,
+  label_args <- .merge_args(label_args,
     list(size = 3, lineheight = 1.2, hjust = 0.5, color = "black", box = TRUE,
          fill = "white", alpha = 1, min_pct = 0, pct_accuracy = 0.1), "label_args")
 
