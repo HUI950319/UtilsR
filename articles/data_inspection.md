@@ -11,6 +11,8 @@ library(UtilsR)
 
 # All variables
 lv(iris)
+#> Setting theme "Compact"
+#> 
 #> 
 #> ── ** summary for Sepal.Length (numeric) ** ────────────────────────────────────
 #> ----1. Sepal.Length (numeric) count----------
@@ -98,7 +100,6 @@ lv(iris)
 #> 3 virginica     50
 #> ----2. Species (factor) Levels----------
 #> [1] get_flt(Species %in% c("setosa","versicolor","virginica"))
-#> Setting theme "Compact"
 #> ==================   ℹ ** Variable Counts (5 variables) ** ℹ   =================
 #> # A tibble: 20 × 2
 #>    `**Vars**`                     `**Summary**`    
@@ -2150,6 +2151,8 @@ lv(iris)
 
 # Select specific variables
 lv(iris, Species, Sepal.Length)
+#> Setting theme "Compact"
+#> 
 #> 
 #> ── ** summary for Species (factor) ** ──────────────────────────────────────────
 #> ----1. Species (factor) count----------
@@ -2180,7 +2183,6 @@ lv(iris, Species, Sepal.Length)
 #> # ℹ 25 more rows
 #> ----2. Sepal.Length (numeric) unique----------
 #> [1] get_flt(Sepal.Length %in% c("5.1","4.9","4.7","4.6","5","5.4","4.4","4.8","..."))
-#> Setting theme "Compact"
 #> ==================   ℹ ** Variable Counts (2 variables) ** ℹ   =================
 #> # A tibble: 8 × 2
 #>   `**Vars**`                     `**Summary**`    
@@ -4133,6 +4135,8 @@ lv(iris, Species, Sepal.Length)
 
 # Regex pattern matching
 lv(iris, pattern = "Sepal")
+#> Setting theme "Compact"
+#> 
 #> 
 #> ── ** summary for Sepal.Length (numeric) ** ────────────────────────────────────
 #> ----1. Sepal.Length (numeric) count----------
@@ -4171,7 +4175,6 @@ lv(iris, pattern = "Sepal")
 #> # ℹ 13 more rows
 #> ----2. Sepal.Width (numeric) unique----------
 #> [1] get_flt(Sepal.Width %in% c("3.5","3","3.2","3.1","3.6","3.9","3.4","2.9","..."))
-#> Setting theme "Compact"
 #> ==================   ℹ ** Variable Counts (2 variables) ** ℹ   =================
 #> # A tibble: 8 × 2
 #>   `**Vars**`                     `**Summary**`    
@@ -6116,10 +6119,12 @@ lv(iris, pattern = "Sepal")
 
 # Grouped summary
 lv(iris, Sepal.Length, group = "Species")
+#> Setting theme "Compact"
+#> 
 #> 
 #> ── Variable Summary by Species ─────────────────────────────────────────────────
+#> 
 #> ℹ Groups: 3
-#> Setting theme "Compact"
 #> <div id="qnkvjkybyi" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 #>   <style>#qnkvjkybyi table {
 #>   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';

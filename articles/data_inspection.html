@@ -93,6 +93,8 @@ frame (or Seurat object).</p>
 <span></span>
 <span><span class="co"># All variables</span></span>
 <span><span class="fu"><a href="../reference/lv.html">lv</a></span><span class="op">(</span><span class="va">iris</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Setting theme <span style="color: #0000BB;">"Compact"</span></span></span>
+<span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="color: #FFFFFF; background-color: #00BBBB; font-weight: bold;">** summary for Sepal.Length (numeric) **</span> <span style="color: #00BBBB;">────────────────────────────────────</span></span></span>
 <span><span class="co">#&gt; ----1. Sepal.Length (numeric) count----------</span></span>
@@ -180,7 +182,6 @@ frame (or Seurat object).</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> virginica     50</span></span>
 <span><span class="co">#&gt; ----2. Species (factor) Levels----------</span></span>
 <span><span class="co">#&gt; [1] get_flt(Species %in% c("setosa","versicolor","virginica"))</span></span>
-<span><span class="co">#&gt; Setting theme <span style="color: #0000BB;">"Compact"</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">==================</span> <span style="background-color: #00BBBB;">  </span><span style="color: #FFFFFF; background-color: #00BBBB; font-weight: bold;">ℹ ** Variable Counts (5 variables) ** ℹ</span><span style="background-color: #00BBBB;">  </span> <span style="color: #00BBBB;">=================</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 20 × 2</span></span></span>
 <span><span class="co">#&gt;    `**Vars**`                     `**Summary**`    </span></span>
@@ -2229,6 +2230,8 @@ frame (or Seurat object).</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Select specific variables</span></span>
 <span><span class="fu"><a href="../reference/lv.html">lv</a></span><span class="op">(</span><span class="va">iris</span>, <span class="va">Species</span>, <span class="va">Sepal.Length</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Setting theme <span style="color: #0000BB;">"Compact"</span></span></span>
+<span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="color: #FFFFFF; background-color: #00BBBB; font-weight: bold;">** summary for Species (factor) **</span> <span style="color: #00BBBB;">──────────────────────────────────────────</span></span></span>
 <span><span class="co">#&gt; ----1. Species (factor) count----------</span></span>
@@ -2259,7 +2262,6 @@ frame (or Seurat object).</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 25 more rows</span></span></span>
 <span><span class="co">#&gt; ----2. Sepal.Length (numeric) unique----------</span></span>
 <span><span class="co">#&gt; [1] get_flt(Sepal.Length %in% c("5.1","4.9","4.7","4.6","5","5.4","4.4","4.8","..."))</span></span>
-<span><span class="co">#&gt; Setting theme <span style="color: #0000BB;">"Compact"</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">==================</span> <span style="background-color: #00BBBB;">  </span><span style="color: #FFFFFF; background-color: #00BBBB; font-weight: bold;">ℹ ** Variable Counts (2 variables) ** ℹ</span><span style="background-color: #00BBBB;">  </span> <span style="color: #00BBBB;">=================</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 8 × 2</span></span></span>
 <span><span class="co">#&gt;   `**Vars**`                     `**Summary**`    </span></span>
@@ -4209,6 +4211,8 @@ frame (or Seurat object).</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Regex pattern matching</span></span>
 <span><span class="fu"><a href="../reference/lv.html">lv</a></span><span class="op">(</span><span class="va">iris</span>, pattern <span class="op">=</span> <span class="st">"Sepal"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Setting theme <span style="color: #0000BB;">"Compact"</span></span></span>
+<span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="color: #FFFFFF; background-color: #00BBBB; font-weight: bold;">** summary for Sepal.Length (numeric) **</span> <span style="color: #00BBBB;">────────────────────────────────────</span></span></span>
 <span><span class="co">#&gt; ----1. Sepal.Length (numeric) count----------</span></span>
@@ -4247,7 +4251,6 @@ frame (or Seurat object).</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 13 more rows</span></span></span>
 <span><span class="co">#&gt; ----2. Sepal.Width (numeric) unique----------</span></span>
 <span><span class="co">#&gt; [1] get_flt(Sepal.Width %in% c("3.5","3","3.2","3.1","3.6","3.9","3.4","2.9","..."))</span></span>
-<span><span class="co">#&gt; Setting theme <span style="color: #0000BB;">"Compact"</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">==================</span> <span style="background-color: #00BBBB;">  </span><span style="color: #FFFFFF; background-color: #00BBBB; font-weight: bold;">ℹ ** Variable Counts (2 variables) ** ℹ</span><span style="background-color: #00BBBB;">  </span> <span style="color: #00BBBB;">=================</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 8 × 2</span></span></span>
 <span><span class="co">#&gt;   `**Vars**`                     `**Summary**`    </span></span>
@@ -6189,10 +6192,12 @@ frame (or Seurat object).</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Grouped summary</span></span>
 <span><span class="fu"><a href="../reference/lv.html">lv</a></span><span class="op">(</span><span class="va">iris</span>, <span class="va">Sepal.Length</span>, group <span class="op">=</span> <span class="st">"Species"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Setting theme <span style="color: #0000BB;">"Compact"</span></span></span>
+<span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="color: #BB00BB; font-weight: bold;">Variable Summary by Species</span> <span style="color: #00BBBB;">─────────────────────────────────────────────────</span></span></span>
+<span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Groups: <span style="color: #0000BB;">3</span></span></span>
-<span><span class="co">#&gt; Setting theme <span style="color: #0000BB;">"Compact"</span></span></span>
 <span><span class="co">#&gt; &lt;div id="qnkvjkybyi" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;"&gt;</span></span>
 <span><span class="co">#&gt;   &lt;style&gt;#qnkvjkybyi table {</span></span>
 <span><span class="co">#&gt;   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';</span></span>
