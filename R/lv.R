@@ -51,7 +51,8 @@
 #'   Bare column names take precedence over caller objects;
 #'   character names can also be supplied through variables or expressions.
 #'   Missing group values form their own last group, labelled as missing, and
-#'   are included in the overall column.
+#'   are included in the overall column. A group with more than 100 distinct
+#'   values (factor levels) is an error.
 #' @param count Optional variable(s) for cross-tabulation. Accepts a single
 #'   variable name (NSE or string), multiple variable names via
 #'   \code{c(var1, var2)} (NSE) or character vector
@@ -640,6 +641,17 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   gtsummary::theme_gtsummary_compact()
 
   if (!is.null(group_var)) {
+    # One table column per group (every factor level): an identifier as the
+    # group took over a minute for 5,000 values.
+    by_values <- data[[group_var]]
+    n_by <- if (is.factor(by_values)) nlevels(by_values) else
+      length(unique(by_values[!is.na(by_values)]))
+    if (n_by > 100L) {
+      cli::cli_abort(c(
+        "{.arg group} column {.var {group_var}} has {n_by} distinct values; grouped summaries take at most 100.",
+        "i" = "Use {.arg count} for its frequencies, or group a binned version."
+      ))
+    }
     if (group_var %in% vars &&
         !identical(analysis_data[[group_var]], data[[group_var]])) {
       cli::cli_abort("A selected column name conflicts with {.arg group}; use another alias.")

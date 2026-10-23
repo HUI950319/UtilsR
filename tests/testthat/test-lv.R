@@ -477,3 +477,12 @@ test_that("POSIXlt columns are summarized rather than skipped as lists", {
   grouped <- capture_reports(lv(data, when, group = g))
   expect_identical(unique(grouped[[1L]]$table_body$variable), "when")
 })
+
+test_that("group variables with more than 100 values are rejected", {
+  data <- data.frame(id = sprintf("P%03d", 1:150), x = rnorm(150),
+                     age = rep(20:79, length.out = 150))
+  expect_error(capture_lv(lv(data, x, group = id)), "150 distinct values")
+  data$f <- factor(rep("a", 150), levels = as.character(1:101))
+  expect_error(capture_lv(lv(data, x, group = f)), "101")
+  expect_no_error(capture_lv(lv(data, x, group = age)))
+})

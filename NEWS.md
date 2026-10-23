@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `lv(group = )` rejects a grouping column with more than 100 distinct values
+  or factor levels, pointing to `count` instead; a 5,000-value identifier
+  used as the group previously took over a minute to tabulate.
+
 * `lv()` summarizes `POSIXlt` date-time columns in its frequency and grouped
   tables again instead of reporting them as list columns.
 
