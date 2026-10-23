@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `plt_alluvial()` matches named colours to observed group names, ignoring
+  unused names and rejecting incomplete or ambiguous named palettes.
+
 * `plt_alluvial()` removes and reports rows with explicit NA factor levels or
   SPSS user-defined missing values in its required columns.
 

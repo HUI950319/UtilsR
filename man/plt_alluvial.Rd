@@ -34,7 +34,8 @@ plt_alluvial(
 \item{y_type}{Display within-category percentages or raw counts.}
 
 \item{color}{A registered UtilsR palette name, a single colour, or a colour
-vector. See the internal \code{.resolve_color()} resolver.}
+vector. Named vectors match observed group names and must cover every
+observed group; extra names are ignored. Unnamed vectors match group order.}
 
 \item{flow_args}{A named list controlling the alluvial flows:
 \describe{

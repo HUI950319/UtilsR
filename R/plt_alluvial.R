@@ -15,7 +15,8 @@
 #'   [ggplot2::facet_wrap()].
 #' @param y_type Display within-category percentages or raw counts.
 #' @param color A registered UtilsR palette name, a single colour, or a colour
-#'   vector. See the internal `.resolve_color()` resolver.
+#'   vector. Named vectors match observed group names and must cover every
+#'   observed group; extra names are ignored. Unnamed vectors match group order.
 #' @param flow_args A named list controlling the alluvial flows:
 #'   \describe{
 #'     \item{\code{alpha}}{Numeric scalar in \eqn{[0, 1]}. Opacity of the flow
@@ -516,6 +517,16 @@ plt_alluvial <- function(
   stat$.cat_var <- factor(stat$.cat_var, levels = cat_levels)
   stat$.group <- factor(stat$.group, levels = all_group_levels)
 
+  if (!is.null(names(color))) {
+    color_names <- names(color)
+    if (anyNA(color_names) || any(!nzchar(color_names)) || anyDuplicated(color_names)) {
+      cli::cli_abort("Named {.arg color} must have unique, non-empty names.")
+    }
+    if (!all(group_levels %in% color_names)) {
+      cli::cli_abort("Named {.arg color} must cover every observed group.")
+    }
+    color <- unname(color[group_levels])
+  }
   colors <- .resolve_color(color, n = length(group_levels))
   real_colors <- stats::setNames(as.character(colors), group_levels)
   gap_colors <- stats::setNames(

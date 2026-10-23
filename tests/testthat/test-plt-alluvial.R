@@ -316,6 +316,27 @@ test_that("plt_alluvial removes incomplete required rows", {
   expect_equal(sum(plot$data$count[!plot$data$.is_gap]), 7)
 })
 
+test_that("plt_alluvial matches named colours to observed groups", {
+  skip_if_not_installed("ggalluvial")
+
+  colors <- c(G1 = "blue", unused = "green", G2 = "red")
+  plot <- plt_alluvial(alluvial_data(), "category", "group", color = colors)
+  scale <- ggplot2::ggplot_build(plot)$plot$scales$get_scales("fill")
+  expect_equal(
+    grDevices::col2rgb(scale$map(c("G1", "G2"))),
+    grDevices::col2rgb(unname(colors[c("G1", "G2")]))
+  )
+  expect_error(
+    plt_alluvial(alluvial_data(), "category", "group", color = c(G1 = "blue")),
+    "cover every observed group"
+  )
+  expect_error(
+    plt_alluvial(alluvial_data(), "category", "group",
+                 color = c(G1 = "blue", G1 = "red")),
+    "unique, non-empty"
+  )
+})
+
 test_that("plt_alluvial reports explicit NA levels and user-defined missing values", {
   skip_if_not_installed("ggalluvial")
 
