@@ -12,9 +12,10 @@ fct_cat(
   x,
   ...,
   reverse = FALSE,
-  binary_ref = NULL,
+  ref_idx = NULL,
   groups = NULL,
-  new_labels = NULL
+  new_labels = NULL,
+  binary_ref = NULL
 )
 ```
 
@@ -38,10 +39,10 @@ fct_cat(
 
   A single non-missing logical. Reverse all levels? Default `FALSE`.
 
-- binary_ref:
+- ref_idx:
 
   The reference levels, as one or more finite, non-missing integer
-  indices or as level names (`binary_ref = "No"`). They form one group,
+  indices or as level names (`ref_idx = "No"`). They form one group,
   named by joining them with `"_"`; the other levels collapse to
   `"Oth"`. An unknown name is an error. The reference label must differ
   from `"Oth"` when other levels remain.
@@ -59,6 +60,11 @@ fct_cat(
   other non-atomic objects are not accepted. Length is checked again
   after conversion. Duplicate and missing labels retain base merging and
   removal semantics.
+
+- binary_ref:
+
+  Deprecated former name of `ref_idx`, still accepted with a warning.
+  Giving both is an error.
 
 ## Value
 
@@ -110,10 +116,10 @@ fct_cat(factor(letters[1:4]), reverse = TRUE)
 #> Levels: d c b a
 
 # Binary: by index or by level name
-fct_cat(factor(c("I","II","III","IV")), binary_ref = 1)
+fct_cat(factor(c("I","II","III","IV")), ref_idx = 1)
 #> [1] I   Oth Oth Oth
 #> Levels: I Oth
-fct_cat(factor(c("I","II","III","IV")), binary_ref = c("I", "II"))
+fct_cat(factor(c("I","II","III","IV")), ref_idx = c("I", "II"))
 #> [1] I_II I_II Oth  Oth 
 #> Levels: I_II Oth
 

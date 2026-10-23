@@ -2,6 +2,76 @@
 
 ## UtilsR 0.6.8
 
+- When [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
+  finds no global `data` or `data_all`, its error names the data frames
+  and Seurat objects in the global environment. Called without data, it
+  reports that error directly again instead of as an unevaluable first
+  argument.
+
+- The [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
+  variable-summary subtitle says it counts variables with missing or
+  Unknown/Blank/N/A values, rather than reading as a count of values.
+
+- Seurat [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
+  cell statistics no longer list `orig.ident`, the sample identity, as a
+  clustering.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) labels
+  empty-string categories `(blank)` in its long count table and its
+  default and grouped summaries, as its wide count table already did,
+  unless a `(blank)` value exists and the two would merge.
+
+- Two-variable `lv(count = )` tables skip the wide and row-percentage
+  tables, with a message, when either variable has more than 100
+  categories; a 5,000-category wide table previously took about 18
+  seconds.
+
+- `lv(group = )` rejects a grouping column with more than 100 distinct
+  values or factor levels, pointing to `count` instead; a 5,000-value
+  identifier used as the group previously took over a minute to
+  tabulate.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
+  summarizes `POSIXlt` date-time columns in its frequency and grouped
+  tables again instead of reporting them as list columns.
+
+- [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md)’s
+  `binary_ref` is renamed `ref_idx`, in the same place:
+  `fct_cat(x, ref_idx = 1)` or `ref_idx = "No"`. `binary_ref` still
+  works, with a deprecation warning, and giving both is an error.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
+  summarizes `difftime` columns as numbers in their own units and leaves
+  list columns out of its frequency and grouped tables with a message;
+  both previously made gtsummary fail.
+
+- [`count_packages_in_libpaths()`](https://hui950319.github.io/UtilsR/reference/count_packages_in_libpaths.md)
+  counts installed packages instead of all library subdirectories,
+  excluding installation locks and unrelated folders.
+
+- `lv(count = )` warns that it ignores selections in `...`, `pattern`
+  and `group`, which it previously dropped silently.
+
+- Suggested [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
+  filters write numbers and logicals as literals when their text reads
+  back exactly, and mark truncation with a trailing comment instead of a
+  literal `"..."` value. Factor value counts and filters omit unused
+  levels, matching the frequency-table labels.
+
+- Console [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
+  reports render the variable summary and frequency tables once, in
+  their final group, instead of also rendering each beforehand; this
+  saves about 40% of the printing time.
+
+- [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md)
+  queries Windows memory, OS, and CPU information with PowerShell CIM,
+  retaining WMIC as a fallback for older environments.
+
+- Grouped [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
+  summaries show missing group values as their own last group and
+  include them in the overall column. They were previously dropped from
+  both, while the reported group count still included them.
+
 - [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) inspects
   atomic vectors and matrices, returning them invisibly, instead of
   treating them as column selections of the global `data`, where
@@ -21,7 +91,8 @@
   excludes missing group labels and feature names from feature sets,
   preventing false overlaps, and reports missing groups clearly. Its
   default strip palette repeats beyond 16 groups instead of producing
-  missing colours.
+  missing colours. Pairwise calculations reuse symmetry instead of
+  computing both directions.
 
 - [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
   highlights the category levels its special-value counts include, using
