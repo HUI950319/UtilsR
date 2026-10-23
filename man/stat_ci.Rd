@@ -16,7 +16,8 @@ stat_ci(
 \arguments{
 \item{x}{Numeric vector (estimate/mean) or character vector (CI strings to
 reformat). Trailing stars and a terminal period are ignored; other text
-after a parsed interval is dropped with a warning.}
+after a parsed interval is dropped with a warning. Missing and
+whitespace-only strings pass through unchanged without a warning.}
 
 \item{y}{Numeric vector: lower CI bound (CI mode) or SD (SD mode).
 Ignored when \code{x} is character.

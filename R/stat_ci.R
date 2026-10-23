@@ -10,7 +10,8 @@
 #'
 #' @param x Numeric vector (estimate/mean) or character vector (CI strings to
 #'   reformat). Trailing stars and a terminal period are ignored; other text
-#'   after a parsed interval is dropped with a warning.
+#'   after a parsed interval is dropped with a warning. Missing and
+#'   whitespace-only strings pass through unchanged without a warning.
 #' @param y Numeric vector: lower CI bound (CI mode) or SD (SD mode).
 #'   Ignored when \code{x} is character.
 #'   Numeric inputs must be one-dimensional; integer64, date, date-time and
@@ -119,7 +120,8 @@ stat_ci <- function(x, y = NULL, z = NULL,
     .check_precision(d, est, lo, hi)
 
     # Warn about unparseable elements
-    n_fail <- sum(!valid)
+    n_fail <- sum(!valid & !is.na(x) &
+                    nzchar(trimws(x, whitespace = "[\\h\\v]")))
     if (n_fail > 0L) {
       cli::cli_warn("{n_fail} element{?s} could not be parsed as CI string{?s} and {?was/were} returned as-is.")
     }

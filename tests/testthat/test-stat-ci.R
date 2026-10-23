@@ -90,3 +90,11 @@ test_that("serialized labelled missing codes retain their meaning", {
   expect_identical(stat_ci(c(1, 1, 1), x),
                    c("1.0(1.0)", NA_character_, NA_character_))
 })
+
+test_that("missing and whitespace-only strings pass through without warnings", {
+  blanks <- c(NA_character_, "", " \t\n", "\u00a0\u2003")
+  expect_no_warning(out <- stat_ci(blanks))
+  expect_identical(out, blanks)
+  expect_warning(out <- stat_ci(c(blanks, "Reference")), "1 element could not")
+  expect_identical(out, c(blanks, "Reference"))
+})

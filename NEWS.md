@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `stat_ci()` leaves missing and whitespace-only strings unchanged without
+  warning, including Unicode whitespace, while still reporting other text
+  that cannot be parsed as an interval.
+
 * Numeric `stat_ci()` rows with missing components return genuine missing
   strings, including SPSS user-missing codes and entirely missing logical
   vectors, instead of embedding missing-value text or codes in the result.
