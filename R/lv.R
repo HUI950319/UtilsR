@@ -902,8 +902,9 @@ lv.Seurat <- function(data, ...,
       )
     }
 
-    cluster_cols <- grep("cluster|seurat_cluster|ident", names(meta_data),
-                         ignore.case = TRUE, value = TRUE)
+    # orig.ident names the sample each cell came from, not a clustering.
+    cluster_cols <- setdiff(grep("cluster|seurat_cluster|ident", names(meta_data),
+                                 ignore.case = TRUE, value = TRUE), "orig.ident")
     if (length(cluster_cols) > 0) {
       for (cc in cluster_cols) {
         n_clusters <- length(unique(meta_data[[cc]]))

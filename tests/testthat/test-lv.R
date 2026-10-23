@@ -519,3 +519,23 @@ test_that("empty categories display as (blank) in every table", {
   expect_setequal(as.character(body$label[body$row_type == "level"]),
                   c("", "(blank)"))
 })
+
+test_that("Seurat cluster statistics leave out the sample identity", {
+  skip_if_not_installed("SeuratObject")
+  counts <- matrix(rep(1:5, 8), nrow = 5,
+                   dimnames = list(paste0("f", 1:5), paste0("c", 1:8)))
+  object <- SeuratObject::CreateSeuratObject(Matrix::Matrix(counts, sparse = TRUE))
+  object[["seurat_clusters"]] <- factor(rep(0:1, 4))
+  object[["score"]] <- seq_len(8)
+  seen <- character()
+  utils::capture.output(withCallingHandlers(
+    lv(object, score),
+    message = function(m) {
+      seen <<- c(seen, conditionMessage(m))
+      invokeRestart("muffleMessage")
+    }
+  ))
+  clusters <- grep("clusters", seen, value = TRUE)
+  expect_true(any(grepl("seurat_clusters", clusters)))
+  expect_false(any(grepl("orig.ident", clusters)))
+})

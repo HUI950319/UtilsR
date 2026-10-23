@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* Seurat `lv()` cell statistics no longer list `orig.ident`, the sample
+  identity, as a clustering.
+
 * `lv()` labels empty-string categories `(blank)` in its long count table and
   its default and grouped summaries, as its wide count table already did,
   unless a `(blank)` value exists and the two would merge.
