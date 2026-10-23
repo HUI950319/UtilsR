@@ -27,7 +27,8 @@ lv(data, ...)
 \arguments{
 \item{data}{A data object: data.frame or Seurat object. If omitted,
 \code{lv()} falls back to a global object named \code{data}, otherwise
-\code{data_all} (the first that is a data.frame / Seurat object).}
+\code{data_all} (the first that is a data.frame / Seurat object).
+Empty data frames are returned unchanged with a message and no report.}
 
 \item{...}{Variable selection using \code{dplyr::select} syntax, including
 renamed selections. With no selection, all variables are inspected;

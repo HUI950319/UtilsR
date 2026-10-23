@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `lv()` returns zero-row and zero-column inputs unchanged with a message,
+  before report construction or temporary theme changes in every data-frame mode.
+
 * `lv()` supports renamed selections and keeps explicit empty selections
   empty, including selection of only the grouping column. Omitted selections
   still inspect all columns. Patterns are validated and warn when overriding

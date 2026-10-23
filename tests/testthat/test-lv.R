@@ -201,3 +201,20 @@ test_that("global data shortcuts still inspect and return the original dataset",
   expect_identical(result$value$value, data)
   expect_identical(get("data", envir = globalenv()), data)
 })
+
+test_that("empty datasets return unchanged without reports or theme changes", {
+  zero_rows <- data.frame(g = character(), x = numeric())
+  zero_cols <- data.frame(row.names = seq_len(2))
+  before <- gtsummary::get_gtsummary_theme()
+  results <- list(capture_lv(lv(zero_rows)),
+                  capture_lv(lv(zero_rows, group = g)),
+                  capture_lv(lv(zero_rows, count = c(g, x))),
+                  capture_lv(lv(zero_cols)))
+  for (i in seq_along(results)) {
+    result <- results[[i]]
+    expect_length(result$tables, 0L)
+    expect_identical(result$value$value, if (i == 4L) zero_cols else zero_rows)
+    expect_false(result$value$visible)
+  }
+  expect_identical(gtsummary::get_gtsummary_theme(), before)
+})

@@ -32,6 +32,7 @@
 #' @param data A data object: data.frame or Seurat object. If omitted,
 #'   \code{lv()} falls back to a global object named \code{data}, otherwise
 #'   \code{data_all} (the first that is a data.frame / Seurat object).
+#'   Empty data frames are returned unchanged with a message and no report.
 #' @param ... Variable selection using \code{dplyr::select} syntax, including
 #'   renamed selections. With no selection, all variables are inspected;
 #'   an explicit empty selection returns the input without a report.
@@ -457,6 +458,10 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     analysis_data <- dplyr::select(analysis_data, ...)
   }
   vars <- names(analysis_data)
+  if (!nrow(data) || !ncol(data)) {
+    cli::cli_inform("Input has no rows or columns; returning input without a report.")
+    return(invisible(data))
+  }
   if (!length(vars) && is.null(count_vars)) {
     cli::cli_inform("No variables selected; returning input without a report.")
     return(invisible(data))
