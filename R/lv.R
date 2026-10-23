@@ -37,7 +37,7 @@
 #' @param group Optional grouping variable. Supports NSE (bare name) or
 #'   character string. For Seurat objects, set to \code{TRUE} to use current
 #'   Ident.
-#'   For data frames, bare column names take precedence over caller objects;
+#'   Bare column names take precedence over caller objects;
 #'   character names can also be supplied through variables or expressions.
 #' @param count Optional variable(s) for cross-tabulation. Accepts a single
 #'   variable name (NSE or string), multiple variable names via
@@ -153,7 +153,7 @@ lv <- function(data, ...) {
 }
 
 #' @noRd
-.lv_resolve_vars <- function(quo, data_names, arg, multiple = FALSE) {
+.lv_resolve_vars <- function(quo, data_names, arg, multiple = FALSE, ident = FALSE) {
   if (rlang::quo_is_null(quo)) return(NULL)
   # A data mask of names keeps bare columns ahead of caller variables without
   # evaluating a full data column merely to select it.
@@ -162,6 +162,7 @@ lv <- function(data, ...) {
     cli::cli_abort(c("Cannot resolve {.arg {arg}}.", "x" = conditionMessage(e)))
   })
   if (is.null(value)) return(NULL)
+  if (ident && isTRUE(value)) return(".ident")
   valid <- is.character(value) && is.null(dim(value)) && length(value) > 0L &&
     !anyNA(value) && all(nzchar(value)) && !anyDuplicated(value)
   if (!valid || (!multiple && length(value) != 1L)) {
@@ -708,40 +709,14 @@ lv.Seurat <- function(data, ...,
     ))
   }
 
-  # Process group argument: NSE, character string, and TRUE
-  group_quo <- rlang::enquo(group)
-  group_var <- NULL
-
-  if (!rlang::quo_is_null(group_quo)) {
-    group_expr <- rlang::quo_get_expr(group_quo)
-
-    if (isTRUE(group_expr)) {
-      group_var <- ".ident"
-    } else if (is.character(group_expr)) {
-      group_var <- group_expr
-    } else if (is.symbol(group_expr)) {
-      group_var <- rlang::as_name(group_quo)
-    }
+  meta_data <- data@meta.data
+  group_var <- .lv_resolve_vars(rlang::enquo(group), c(names(meta_data), ".ident"),
+                                 "group", ident = TRUE)
+  if (identical(group_var, ".ident")) {
+    meta_data[[".ident"]] <- SeuratObject::Idents(data)
   }
-
-  # Process count argument
-  count_sub <- substitute(count)
-  count_vars <- NULL
-
-  if (!is.null(count_sub) && !identical(count_sub, quote(NULL))) {
-    if (is.character(count_sub)) {
-      count_vars <- count_sub
-    } else if (is.symbol(count_sub)) {
-      count_vars <- as.character(count_sub)
-    } else if (is.call(count_sub) && identical(count_sub[[1]], quote(c))) {
-      args <- as.list(count_sub)[-1]
-      if (length(args) > 0 && is.character(args[[1]])) {
-        count_vars <- eval(count_sub, envir = parent.frame())
-      } else {
-        count_vars <- vapply(args, as.character, character(1))
-      }
-    }
-  }
+  count_vars <- .lv_resolve_vars(rlang::enquo(count), names(meta_data), "count",
+                                  multiple = TRUE)
 
   # Print Seurat object basic info
   cli::cli_h1(cli::col_magenta("Seurat Object Summary"))
@@ -758,12 +733,6 @@ lv.Seurat <- function(data, ...,
   reductions <- SeuratObject::Reductions(data)
   if (length(reductions) > 0) {
     cli::cli_alert_info("Reductions: {.val {paste(reductions, collapse = ', ')}}")
-  }
-
-  meta_data <- data@meta.data
-
-  if (!is.null(group_var) && group_var == ".ident") {
-    meta_data$`.ident` <- SeuratObject::Idents(data)
   }
 
   if (add_reductions && length(reductions) > 0) {
@@ -803,9 +772,9 @@ lv.Seurat <- function(data, ...,
 
   cli::cli_rule()
 
-  lv.data.frame(meta_data, ..., pattern = pattern,
-                group = group_var, count = count_vars,
-                cat_args = cat_args)
+  rlang::inject(lv.data.frame(meta_data, ..., pattern = pattern,
+                             group = !!group_var, count = !!count_vars,
+                             cat_args = cat_args))
 
   return(invisible(data))
 }

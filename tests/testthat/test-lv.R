@@ -113,3 +113,35 @@ test_that("invalid group and count controls cannot silently disable a mode", {
   expect_error(capture_lv(lv(data, count = c(g, g))), "distinct")
   expect_error(capture_lv(lv(data, group = "absent")), "not found")
 })
+
+test_that("Seurat controls use the same name resolution and preserve the object", {
+  skip_if_not_installed("SeuratObject")
+  counts <- matrix(rep(1:5, 8), nrow = 5,
+                   dimnames = list(paste0("f", 1:5), paste0("c", 1:8)))
+  object <- SeuratObject::CreateSeuratObject(Matrix::Matrix(counts, sparse = TRUE))
+  object[["batch"]] <- rep(c("A", "B"), each = 4)
+  object[["score"]] <- seq_len(8)
+  object[["group_var"]] <- rep(c("u", "v"), 4)
+  object[["count_vars"]] <- rep(c("u", "v"), 4)
+  SeuratObject::Idents(object) <- rep(c("I", "II"), each = 4)
+  before <- object
+
+  column <- "batch"
+  literal <- capture_lv(lv(object, score, group = "batch", add_cell_stats = FALSE))
+  external <- capture_lv(lv(object, score, group = column, add_cell_stats = FALSE))
+  expected <- capture_lv(lv(object[[]], score, group = "batch"))
+  expect_equal(literal$tables, expected$tables)
+  expect_equal(external$tables, expected$tables)
+  expect_identical(external$value$value, before)
+  expect_false(external$value$visible)
+
+  vars <- c("batch", "orig.ident")
+  counted <- capture_lv(lv(object, count = vars, add_cell_stats = FALSE))
+  expect_equal(counted$tables[[1L]][["SeuratProject"]], c(4, 4))
+  identity <- TRUE
+  by_ident <- capture_lv(lv(object, score, group = identity, add_cell_stats = FALSE))
+  expect_equal(by_ident$tables,
+               capture_lv(lv(object, score, group = TRUE,
+                             add_cell_stats = FALSE))$tables)
+  expect_identical(object, before)
+})

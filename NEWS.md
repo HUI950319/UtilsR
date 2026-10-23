@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* Seurat `lv()` uses the same column-name resolution as data frames,
+  including character variables and `group = TRUE`, and forwards resolved
+  controls without collisions with metadata column names.
+
 * `lv()` resolves bare group/count columns before caller objects, accepts
   character names from enclosing functions, and rejects invalid or repeated
   names instead of silently switching to an ungrouped summary.

@@ -36,7 +36,7 @@ lv(data, ...)
 \item{group}{Optional grouping variable. Supports NSE (bare name) or
 character string. For Seurat objects, set to \code{TRUE} to use current
 Ident.
-For data frames, bare column names take precedence over caller objects;
+Bare column names take precedence over caller objects;
 character names can also be supplied through variables or expressions.}
 
 \item{count}{Optional variable(s) for cross-tabulation. Accepts a single
