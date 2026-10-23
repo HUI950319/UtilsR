@@ -170,6 +170,14 @@ Requires <span class="pkg">RegR</span> (declared in Suggests).</p></dd>
     <p>Invisibly returns the input data.</p>
     </div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>In R Markdown or Quarto, use a code chunk with
+<code>results = "asis"</code> (and optionally <code>message = FALSE</code>). Reports
+are emitted through <code><a href="https://rdrr.io/pkg/knitr/man/knit_print.html" class="external-link">knitr::knit_print()</a></code> in the document's native
+format, with dependencies retained. Console frequency listings are omitted
+while knitting, and each default summary table is included only once.</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other inspect:
 <code><a href="check_na.html">check_na()</a></code>,

@@ -87,14 +87,16 @@ faceting and only requires the suggested <span class="pkg">ggalluvial</span> pac
 
 
 <dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p>A data frame.</p></dd>
+<dd><p>A data frame. Existing dplyr grouping is ignored; counts use
+only the variables selected by <code>dis_vars</code> and <code>facet</code>.</p></dd>
 
 
 <dt id="arg-dis-vars">dis_vars<a class="anchor" aria-label="anchor" href="#arg-dis-vars"></a></dt>
 <dd><p>Character vector of variable names.</p><ul><li><p>2 variables: <code>c(x, fill)</code> \(\rightarrow\) alluvial flow
     (<code>type = "alluvial"</code>, default) or stacked bar (<code>type = "bar"</code>).</p></li>
 <li><p>3 variables: <code>c(x, y, fill)</code> \(\rightarrow\) tile heatmap
-    (<code>type</code> ignored).</p></li>
+    (<code>type</code> ignored). Each observed <code>(x, y)</code> cell must have
+    only one fill category; otherwise an error prevents overplotting.</p></li>
 </ul></dd>
 
 
@@ -113,7 +115,10 @@ or <code>"bar"</code> (stacked proportion bar). Ignored when <code>dis_vars</cod
 <dd><p>Colour specification, resolved by the internal colour resolver:
 <code>NULL</code> (default <code>pal_lancet</code>), a registered palette name (e.g.
 <code>"Paired"</code>), a single literal colour, or a vector of colours. In
-alluvial mode these are passed to [plt_alluvial()].</p></dd>
+a named vector, names must be unique category labels and include every
+observed fill category. Unnamed vectors follow factor-level order (data
+order for character alluvial groups). Unused bar/heatmap factor levels
+retain their positions in an unnamed palette.</p></dd>
 
 
 <dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
@@ -126,7 +131,8 @@ flow ribbon transparency (<code>flow.alpha</code>).</p></dd>
 <code>"count"</code>, <code>"percent"</code>, <code>"none"</code>. For the **bar chart** this
 selects the count / percentage text on each segment. For the **heatmap**
 any value other than <code>"none"</code> prints the third variable's category in
-each tile; <code>"none"</code> hides the labels. For the **alluvial** plot it
+each tile; <code>"none"</code> hides the labels and shows a fill legend.
+For the **alluvial** plot it
 maps to `label_args$style` in [plt_alluvial()]: <code>"count_percent"</code>
 \(\rightarrow\) name + count + percent, <code>"count"</code> \(\rightarrow\)
 name + count, <code>"percent"</code> \(\rightarrow\) name + percent,
@@ -154,7 +160,8 @@ through the theme itself, e.g. <code>theme_use = theme_my(base_size = 16)</code>
 Note on the legend: the **bar chart** always shows the fill legend (it is
 re-enabled when the theme – such as the default <code><a href="theme_heat.html">theme_heat()</a></code> –
 would otherwise hide it, but a custom theme's legend placement is kept);
-the **heatmap** never shows one, since each tile is labelled directly.
+the **heatmap** hides it when tiles are labelled and shows it when
+<code>label = "none"</code>, retaining a custom theme's visible placement.
 In **alluvial** mode only the base font size is taken from <code>theme_use</code>;
 [theme_alluvia()] supplies the plot's remaining theme settings.</p></dd>
 
@@ -225,9 +232,12 @@ note, need the <span class="pkg">RegR</span> package.</p></dd>
 <span class="r-plt img"><img src="plt_dist-6.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># --- Tile heatmap (3 variables; type ignored) -----------------------------</span></span></span>
-<span class="r-in"><span><span class="fu">plt_dist</span><span class="op">(</span><span class="va">df</span>, dis_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"stage"</span>, <span class="st">"grade"</span>, <span class="st">"sex"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">heat_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>stage <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"I"</span>, <span class="st">"II"</span>, <span class="st">"III"</span>, <span class="st">"IV"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                         grade <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Low"</span>, <span class="st">"Mid"</span>, <span class="st">"High"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">heat_data</span><span class="op">$</span><span class="va">category</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span>, <span class="fl">6</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">plt_dist</span><span class="op">(</span><span class="va">heat_data</span>, dis_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"stage"</span>, <span class="st">"grade"</span>, <span class="st">"category"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plt_dist-7.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">plt_dist</span><span class="op">(</span><span class="va">df</span>, dis_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"stage"</span>, <span class="st">"grade"</span>, <span class="st">"sex"</span><span class="op">)</span>, label <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">plt_dist</span><span class="op">(</span><span class="va">heat_data</span>, dis_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"stage"</span>, <span class="st">"grade"</span>, <span class="st">"category"</span><span class="op">)</span>, label <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plt_dist-8.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># --- Alluvial flow (default; needs ggalluvial) ----------------------------</span></span></span>

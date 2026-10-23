@@ -50,7 +50,15 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/plt_dist.html">plt_dist()</a></code> keeps bar counts, proportions, and labels separate from identically named input columns, preserving categories and plotted values.</p></li>
+<ul><li><p><code><a href="../reference/plt_dist.html">plt_dist()</a></code> shows a fill legend for unlabelled heatmaps and preserves custom visible legend positions; labelled tiles still hide the legend.</p></li>
+<li><p><code><a href="../reference/plt_dist.html">plt_dist()</a></code> maps named colours to categories in every mode, checks category coverage, and keeps unnamed palette positions for unused factor levels in bars and heatmaps. Shared colour resolvers are unchanged.</p></li>
+<li><p>Two-variable <code><a href="../reference/lv.html">lv()</a></code> cross-tabulations reuse one frequency table for the long counts, wide counts, and row percentages, retaining their output.</p></li>
+<li><p><code><a href="../reference/plt_dist.html">plt_dist()</a></code> rejects heatmap cells with multiple fill categories instead of hiding categories under overlapping tiles. Heatmap examples use one category per cell; repeated observations of that category remain valid.</p></li>
+<li><p><code><a href="../reference/lv.html">lv()</a></code> constructs suggested filters as R expressions, correctly escaping non-syntactic column names, quotes, backslashes, and line breaks in values.</p></li>
+<li><p><code><a href="../reference/plt_dist.html">plt_dist()</a></code> treats bar facet column names literally, including spaces, operators, and backticks, instead of parsing them as formula expressions.</p></li>
+<li><p><code><a href="../reference/plt_dist.html">plt_dist()</a></code> ignores unrelated dplyr groups and rowwise grouping when counting categories, so input grouping cannot split bars or labels.</p></li>
+<li><p><code><a href="../reference/lv.html">lv()</a></code> emits native knitr tables with their dependencies in documented <code>results = 'asis'</code> chunks, avoiding duplicated report tables and console listings while knitting. The data-inspection vignette uses that format.</p></li>
+<li><p><code><a href="../reference/plt_dist.html">plt_dist()</a></code> keeps bar counts, proportions, and labels separate from identically named input columns, preserving categories and plotted values.</p></li>
 <li><p><code><a href="../reference/lv.html">lv()</a></code> returns zero-row and zero-column inputs unchanged with a message, before report construction or temporary theme changes in every data-frame mode.</p></li>
 <li><p><code><a href="../reference/lv.html">lv()</a></code> supports renamed selections and keeps explicit empty selections empty, including selection of only the grouping column. Omitted selections still inspect all columns. Patterns are validated and warn when overriding unevaluated selections; input data and global-data shortcuts are preserved.</p></li>
 <li><p>Seurat <code><a href="../reference/lv.html">lv()</a></code> uses the same column-name resolution as data frames, including character variables and <code>group = TRUE</code>, and forwards resolved controls without collisions with metadata column names.</p></li>

@@ -29,7 +29,8 @@ plt_dist(
 
 - data:
 
-  A data frame.
+  A data frame. Existing dplyr grouping is ignored; counts use only the
+  variables selected by `dis_vars` and `facet`.
 
 - dis_vars:
 
@@ -39,7 +40,8 @@ plt_dist(
     (`type = "alluvial"`, default) or stacked bar (`type = "bar"`).
 
   - 3 variables: `c(x, y, fill)` \\\rightarrow\\ tile heatmap (`type`
-    ignored).
+    ignored). Each observed `(x, y)` cell must have only one fill
+    category; otherwise an error prevents overplotting.
 
 - type:
 
@@ -55,8 +57,11 @@ plt_dist(
 
   Colour specification, resolved by the internal colour resolver: `NULL`
   (default `pal_lancet`), a registered palette name (e.g. `"Paired"`), a
-  single literal colour, or a vector of colours. In alluvial mode these
-  are passed to \[plt_alluvial()\].
+  single literal colour, or a vector of colours. In a named vector,
+  names must be unique category labels and include every observed fill
+  category. Unnamed vectors follow factor-level order (data order for
+  character alluvial groups). Unused bar/heatmap factor levels retain
+  their positions in an unnamed palette.
 
 - alpha:
 
@@ -69,11 +74,11 @@ plt_dist(
   `"percent"`, `"none"`. For the \*\*bar chart\*\* this selects the
   count / percentage text on each segment. For the \*\*heatmap\*\* any
   value other than `"none"` prints the third variable's category in each
-  tile; `"none"` hides the labels. For the \*\*alluvial\*\* plot it maps
-  to \`label_args\$style\` in \[plt_alluvial()\]: `"count_percent"`
-  \\\rightarrow\\ name + count + percent, `"count"` \\\rightarrow\\
-  name + count, `"percent"` \\\rightarrow\\ name + percent, `"none"`
-  \\\rightarrow\\ no labels.
+  tile; `"none"` hides the labels and shows a fill legend. For the
+  \*\*alluvial\*\* plot it maps to \`label_args\$style\` in
+  \[plt_alluvial()\]: `"count_percent"` \\\rightarrow\\ name + count +
+  percent, `"count"` \\\rightarrow\\ name + count, `"percent"`
+  \\\rightarrow\\ name + percent, `"none"` \\\rightarrow\\ no labels.
 
 - gap:
 
@@ -99,10 +104,11 @@ plt_dist(
   re-enabled when the theme – such as the default
   [`theme_heat()`](https://hui950319.github.io/UtilsR/reference/theme_heat.md)
   – would otherwise hide it, but a custom theme's legend placement is
-  kept); the \*\*heatmap\*\* never shows one, since each tile is
-  labelled directly. In \*\*alluvial\*\* mode only the base font size is
-  taken from `theme_use`; \[theme_alluvia()\] supplies the plot's
-  remaining theme settings.
+  kept); the \*\*heatmap\*\* hides it when tiles are labelled and shows
+  it when `label = "none"`, retaining a custom theme's visible
+  placement. In \*\*alluvial\*\* mode only the base font size is taken
+  from `theme_use`; \[theme_alluvia()\] supplies the plot's remaining
+  theme settings.
 
 - save:
 
@@ -171,9 +177,12 @@ plt_dist(df, dis_vars = c("stage", "sex"), type = "bar",
 
 
 # --- Tile heatmap (3 variables; type ignored) -----------------------------
-plt_dist(df, dis_vars = c("stage", "grade", "sex"))
+heat_data <- expand.grid(stage = c("I", "II", "III", "IV"),
+                         grade = c("Low", "Mid", "High"))
+heat_data$category <- factor(rep(c("A", "B"), 6))
+plt_dist(heat_data, dis_vars = c("stage", "grade", "category"))
 
-plt_dist(df, dis_vars = c("stage", "grade", "sex"), label = "none")
+plt_dist(heat_data, dis_vars = c("stage", "grade", "category"), label = "none")
 
 
 # --- Alluvial flow (default; needs ggalluvial) ----------------------------
