@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `.cat_line()`, `.cat_box()` and `.cat_message()` print `type = "warning"`
+  labels in black on the yellow background; white text had too little
+  contrast there.
+
 * `plt_dist(type = "alluvial")` removes categorical missing values before
   matching named colours, following the `plt_alluvial()` missing-row rule.
 

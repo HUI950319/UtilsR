@@ -16,20 +16,21 @@
 #   L2  shared internals
 #         ._type_cfg()     type -> symbol / colour / ANSI background
 #         ._cli_bg()       type -> cli background style
+#         ._cli_fg()       type -> cli text colour on that background
 #         ._ansi_styled()  wrap text in an ANSI background
 #         console_width()  terminal width, with a fallback
 # =============================================================================
 
 # ------------- Shared internals ---------------------------------------------
 
-# Type configuration: symbol, border_col, line_col, ANSI bg code
+# Type configuration: symbol, border_col, line_col, ANSI bg and text codes
 ._type_cfg <- function(type = c("info", "success", "warning", "error")) {
   type <- match.arg(type)
   cfg <- list(
-    info    = list(symbol = "\u2139", col = "cyan",   ansi_bg = "\033[46m"),
-    success = list(symbol = "\u2713", col = "green",  ansi_bg = "\033[42m"),
-    warning = list(symbol = "\u26A0", col = "yellow", ansi_bg = "\033[43m"),
-    error   = list(symbol = "\u2717", col = "red",    ansi_bg = "\033[41m")
+    info    = list(symbol = "\u2139", col = "cyan",   ansi_bg = "\033[46m", ansi_fg = "\033[97m"),
+    success = list(symbol = "\u2713", col = "green",  ansi_bg = "\033[42m", ansi_fg = "\033[97m"),
+    warning = list(symbol = "\u26A0", col = "yellow", ansi_bg = "\033[43m", ansi_fg = "\033[30m"),
+    error   = list(symbol = "\u2717", col = "red",    ansi_bg = "\033[41m", ansi_fg = "\033[97m")
   )
   c(cfg[[type]], list(type = type))
 }
@@ -44,9 +45,15 @@
   )
 }
 
-# ANSI bold + white + bg helper (single line)
-._ansi_styled <- function(text, ansi_bg) {
-  paste0(ansi_bg, " \033[1m\033[97m", text, " \033[0m")
+# cli text colour by type: black on the yellow warning background, where
+# white text has too little contrast; bright white on the other backgrounds
+._cli_fg <- function(type) {
+  if (identical(type, "warning")) cli::col_black else cli::col_br_white
+}
+
+# ANSI bold + text colour + bg helper (single line)
+._ansi_styled <- function(text, ansi_bg, ansi_fg = "\033[97m") {
+  paste0(ansi_bg, " \033[1m", ansi_fg, text, " \033[0m")
 }
 
 # ------------- console_width ------------------------------------------------
@@ -84,7 +91,7 @@ console_width <- function() {
 
   tryCatch({
     bg <- ._cli_bg(cfg$type)
-    styled <- cli::style_bold(cli::col_br_white(label))
+    styled <- cli::style_bold(._cli_fg(cfg$type)(label))
     cli::cat_rule(
       center   = bg(paste(" ", styled, " ")),
       line     = line_char,
@@ -97,7 +104,7 @@ console_width <- function() {
     half <- (width - tw) / 2
     ll   <- paste(rep(line_char, max(floor(half), 0)), collapse = "")
     rl   <- paste(rep(line_char, max(ceiling(half), 0)), collapse = "")
-    cat(ll, ._ansi_styled(label, cfg$ansi_bg), rl, "\n", sep = "")
+    cat(ll, ._ansi_styled(label, cfg$ansi_bg, cfg$ansi_fg), rl, "\n", sep = "")
   })
   invisible()
 }
@@ -124,7 +131,7 @@ console_width <- function() {
 
   tryCatch({
     bg <- ._cli_bg(cfg$type)
-    styled <- cli::style_bold(bg(cli::col_br_white(label)))
+    styled <- cli::style_bold(bg(._cli_fg(cfg$type)(label)))
     cli::cat_boxx(
       styled,
       padding      = 1,
@@ -141,7 +148,7 @@ console_width <- function() {
     cat(rule, "\n", sep = "")
     pad <- max((w - nchar(label) - 4) %/% 2, 0)
     cat(paste(rep(" ", pad), collapse = ""),
-        ._ansi_styled(label, cfg$ansi_bg), "\n", sep = "")
+        ._ansi_styled(label, cfg$ansi_bg, cfg$ansi_fg), "\n", sep = "")
     cat(rule, "\n", sep = "")
   })
   invisible()
@@ -177,15 +184,15 @@ console_width <- function() {
 
   tryCatch({
     bg    <- ._cli_bg(cfg$type)
-    white <- cli::col_br_white
+    fg    <- ._cli_fg(cfg$type)
     ts_col <- cli::col_magenta(ts)
 
     for (i in seq_along(lines)) {
       body <- if (i == 1L) {
-        paste0(" ", cli::style_bold(white(cfg$symbol)), " ",
-               cli::style_bold(white(lines[i])), " ")
+        paste0(" ", cli::style_bold(fg(cfg$symbol)), " ",
+               cli::style_bold(fg(lines[i])), " ")
       } else {
-        paste0(" ", cli::style_bold(white(lines[i])), " ")
+        paste0(" ", cli::style_bold(fg(lines[i])), " ")
       }
       prefix <- if (i == 1L) paste0(ts_col, " ") else strrep(" ", nchar(ts) + 3)
       cat(prefix, bg(body), "\n", sep = "")
@@ -195,7 +202,7 @@ console_width <- function() {
     for (i in seq_along(lines)) {
       body <- if (i == 1L) paste(cfg$symbol, lines[i]) else lines[i]
       prefix <- if (i == 1L) paste0("\033[90m", ts, "\033[0m ") else strrep(" ", nchar(ts) + 3)
-      cat(prefix, ._ansi_styled(body, cfg$ansi_bg), "\n", sep = "")
+      cat(prefix, ._ansi_styled(body, cfg$ansi_bg, cfg$ansi_fg), "\n", sep = "")
     }
   })
   invisible()
