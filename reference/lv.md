@@ -124,6 +124,8 @@ Character or factor columns with more than 100 categories, such as
 identifiers, and list columns are reported in the variable summary but
 left out of the frequency and grouped tables, with a message. Time spans
 (`difftime`) are summarized as numbers in their own units.
+Variable-summary rows are tinted by type: character, numeric or integer,
+and factor (including ordered) variables.
 
 ## See also
 

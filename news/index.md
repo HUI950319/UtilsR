@@ -3,6 +3,14 @@
 ## UtilsR 0.6.8
 
 - [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
+  counts only observed facet/category combinations while preserving
+  zero-count groups, avoiding the full cross-facet frequency table.
+
+- The [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
+  variable summary tints rows by variable type: character, numeric or
+  integer, and factor (including ordered) variables.
+
+- [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
   retains only required input columns in its plot environment, keeping
   unused data out of serialized plot objects.
 
