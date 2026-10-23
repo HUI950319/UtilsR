@@ -93,3 +93,18 @@ test_that("distribution palettes keep category names and unused-level positions"
   expect_equal(unname(grDevices::col2rgb(mapped)),
                unname(grDevices::col2rgb(c("blue", "green"))))
 })
+
+test_that("unlabelled heatmaps retain a visible category legend", {
+  data <- data.frame(x = c("A", "B"), y = "C", group = c("F", "M"))
+  for (theme in list(theme_heat(14), ggplot2::theme_bw() +
+                     ggplot2::theme(legend.position = "bottom"))) {
+    p <- dist_test_plot(data, c("x", "y", "group"), label = "none", theme_use = theme)
+    expected <- if (identical(theme$legend.position, "none")) "right" else "bottom"
+    expect_identical(p$theme$legend.position, expected)
+    grob <- ggplot2::ggplotGrob(p)
+    guides <- grob$grobs[grepl("^guide-box", grob$layout$name)]
+    expect_true(any(vapply(guides, inherits, logical(1), what = "gtable")))
+  }
+  labelled <- dist_test_plot(data, c("x", "y", "group"))
+  expect_identical(labelled$theme$legend.position, "none")
+})

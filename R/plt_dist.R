@@ -38,7 +38,8 @@
 #'   \code{"count"}, \code{"percent"}, \code{"none"}. For the **bar chart** this
 #'   selects the count / percentage text on each segment. For the **heatmap**
 #'   any value other than \code{"none"} prints the third variable's category in
-#'   each tile; \code{"none"} hides the labels. For the **alluvial** plot it
+#'   each tile; \code{"none"} hides the labels and shows a fill legend.
+#'   For the **alluvial** plot it
 #'   maps to `label_args$style` in [plt_alluvial()]: \code{"count_percent"}
 #'   \eqn{\rightarrow} name + count + percent, \code{"count"} \eqn{\rightarrow}
 #'   name + count, \code{"percent"} \eqn{\rightarrow} name + percent,
@@ -57,7 +58,8 @@
 #'   Note on the legend: the **bar chart** always shows the fill legend (it is
 #'   re-enabled when the theme -- such as the default \code{theme_heat()} --
 #'   would otherwise hide it, but a custom theme's legend placement is kept);
-#'   the **heatmap** never shows one, since each tile is labelled directly.
+#'   the **heatmap** hides it when tiles are labelled and shows it when
+#'   \code{label = "none"}, retaining a custom theme's visible placement.
 #'   In **alluvial** mode only the base font size is taken from \code{theme_use};
 #'   [theme_alluvia()] supplies the plot's remaining theme settings.
 #'
@@ -299,7 +301,8 @@ plt_dist <- function(data,
     ggplot2::labs(x = NULL, y = NULL) +
     thm +
     ggplot2::theme(
-      legend.position = "none",
+      legend.position = if (label != "none") "none" else
+        if (identical(thm$legend.position, "none")) "right" else thm$legend.position,
       panel.grid = ggplot2::element_blank(),
       axis.ticks = ggplot2::element_blank(),
       axis.line = ggplot2::element_blank()
