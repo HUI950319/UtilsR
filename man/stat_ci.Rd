@@ -35,7 +35,8 @@ auto-detected from the string. Each formatted number must fit within
 Only used in CI mode. Common choices: \code{"\u2013"}, \code{", "}, \code{" to "}.}
 }
 \value{
-Character vector of formatted strings.
+Character vector of formatted strings. Empty input returns
+\code{character(0)}.
 }
 \description{
 Build CI strings from numeric vectors, or reformat existing CI strings

@@ -51,3 +51,11 @@ test_that("numeric storage must represent ordinary one-dimensional values", {
   expect_identical(stat_ci("1.23 (0.95, 1.59)", y = matrix(1), z = Sys.Date()),
                    "1.23 (0.95\u20131.59)")
 })
+
+test_that("empty inputs retain the character return type in every mode", {
+  expect_identical(stat_ci(character()), character())
+  expect_identical(stat_ci(character(), digits = 2L), character())
+  expect_identical(stat_ci(numeric(), numeric(), numeric()), character())
+  expect_identical(stat_ci(numeric(), numeric()), character())
+  expect_error(stat_ci(character(), digits = -1), "digits")
+})

@@ -23,7 +23,8 @@
 #' @param sep Character, separator between CI bounds (default: en dash).
 #'   Only used in CI mode. Common choices: \code{"\u2013"}, \code{", "}, \code{" to "}.
 #'
-#' @return Character vector of formatted strings.
+#' @return Character vector of formatted strings. Empty input returns
+#'   \code{character(0)}.
 #'
 #' @examples
 #' # --- Numeric: CI mode (3 arguments) ---
@@ -97,6 +98,7 @@ stat_ci <- function(x, y = NULL, z = NULL,
 
   # --- Character input: reformat CI strings ---
   if (is.character(x)) {
+    if (!length(x)) return(character())
     parsed <- .ci_extract(x)
     est <- parsed$estimate
     lo  <- parsed$lower
