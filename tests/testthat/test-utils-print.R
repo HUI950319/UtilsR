@@ -33,3 +33,18 @@ test_that("pr_kv() aligns grey keys by display width and drops NULL values", {
   expect_error(pr_kv(list(1, a = 2)), "must be named")
   expect_identical(utils::capture.output(pr_kv(list(a = NULL))), character())
 })
+
+test_that("pr_section() prints a grey rule with a bold title", {
+  withr::local_options(cli.num_colors = 256, cli.unicode = TRUE)
+  out <- utils::capture.output(pr_section("Effect ranges", width = 40))
+  plain <- cli::ansi_strip(out)
+  expect_identical(cli::ansi_nchar(plain, type = "width"), 40L)
+  expect_identical(gsub(cli::symbol$line, "-", plain, fixed = TRUE),
+                   paste0("-- Effect ranges ", strrep("-", 23L)))
+  expect_match(out, "\033[1m", fixed = TRUE)
+  expect_match(out, "\033[90m", fixed = TRUE)
+
+  withr::local_options(cli.width = 200)
+  wide <- cli::ansi_strip(utils::capture.output(pr_section("x")))
+  expect_identical(cli::ansi_nchar(wide, type = "width"), 80L)
+})

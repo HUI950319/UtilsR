@@ -31,6 +31,7 @@ pr_head("sens_res", 'method = "cox"', "tipr 1.0.2", "n = 2,314")
 }
 \seealso{
 Other print helpers:
-\code{\link[=pr_kv]{pr_kv()}}
+\code{\link[=pr_kv]{pr_kv()}},
+\code{\link[=pr_section]{pr_section()}}
 }
 \concept{print helpers}

@@ -28,6 +28,7 @@ pr_kv(list(treat = "Surgery", outcome = "Surv(time, DSS)",
 }
 \seealso{
 Other print helpers:
-\code{\link[=pr_head]{pr_head()}}
+\code{\link[=pr_head]{pr_head()}},
+\code{\link[=pr_section]{pr_section()}}
 }
 \concept{print helpers}

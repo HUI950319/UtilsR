@@ -7,6 +7,7 @@
 #   L1  print helpers: write to stdout, return the lines invisibly -- public API
 #         pr_head(class, ...)          class chip + grey one-line summary
 #         pr_kv(x)                     aligned key-value block
+#         pr_section(title)            grey rule with a bold title
 #
 #   L2  shared internals
 #         ._chip()       short label on a solid background (utils_display.R)
@@ -103,4 +104,30 @@ pr_kv <- function(x, indent = 2) {
   lines <- ._kv_lines(x)
   if (length(lines)) lines <- paste0(strrep(" ", indent), lines)
   ._pr_out(lines)
+}
+
+# ------------- pr_section ---------------------------------------------------
+
+#' Section rule for a print method
+#'
+#' Print a thin grey rule led by a bold title, to separate the blocks of a
+#' print method.
+#'
+#' @param title Character. Section title.
+#' @param width Integer. Rule width in characters; \code{NULL} (default) uses
+#'   the console width, capped at 80 so the rule does not stretch across
+#'   wide consoles.
+#'
+#' @return The printed line, invisibly.
+#'
+#' @examples
+#' pr_section("Effect ranges")
+#'
+#' @export
+#' @family print helpers
+pr_section <- function(title, width = NULL) {
+  width <- width %||% min(console_width(), 80L)
+  line  <- cli::rule(left = cli::style_bold(title), line_col = cli::col_grey,
+                     width = width)
+  ._pr_out(as.character(line))
 }

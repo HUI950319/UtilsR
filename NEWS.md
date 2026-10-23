@@ -2,7 +2,8 @@
 
 * New print helpers for S3 print methods. `pr_head()` prints a class label
   on a solid background followed by a grey one-line summary. `pr_kv()` prints
-  a key-value block, keys in grey and aligned by display width.
+  a key-value block, keys in grey and aligned by display width. `pr_section()`
+  prints a grey rule led by a bold title.
 
 # UtilsR 0.6.8
 
