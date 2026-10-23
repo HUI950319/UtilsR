@@ -78,7 +78,8 @@ CI mode (3 vectors) or SD mode (2 vectors) for numeric input.</p>
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>Numeric vector (estimate/mean) or character vector (CI strings to
 reformat). Trailing stars and a terminal period are ignored; other text
-after a parsed interval is dropped with a warning.</p></dd>
+after a parsed interval is dropped with a warning. Missing and
+whitespace-only strings pass through unchanged without a warning.</p></dd>
 
 
 <dt id="arg-y">y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
@@ -114,7 +115,8 @@ Only used in CI mode. Common choices: <code>"\u2013"</code>, <code>", "</code>, 
     <p>Character vector of formatted strings. Empty input returns
 <code>character(0)</code>. In numeric modes, a missing component (including
 <code>NaN</code> and SPSS user-missing codes) makes the whole string
-<code>NA_character_</code>. Entirely missing logical vectors are accepted.</p>
+<code>NA_character_</code>. Entirely missing logical vectors are accepted.
+Output names are taken from <code>x</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

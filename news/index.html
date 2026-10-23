@@ -50,7 +50,9 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p>Numeric <code><a href="../reference/stat_ci.html">stat_ci()</a></code> rows with missing components return genuine missing strings, including SPSS user-missing codes and entirely missing logical vectors, instead of embedding missing-value text or codes in the result.</p></li>
+<ul><li><p><code><a href="../reference/stat_ci.html">stat_ci()</a></code> preserves the names of <code>x</code> in numeric CI, mean/SD, and character modes, including missing observations and empty named vectors.</p></li>
+<li><p><code><a href="../reference/stat_ci.html">stat_ci()</a></code> leaves missing and whitespace-only strings unchanged without warning, including Unicode whitespace, while still reporting other text that cannot be parsed as an interval.</p></li>
+<li><p>Numeric <code><a href="../reference/stat_ci.html">stat_ci()</a></code> rows with missing components return genuine missing strings, including SPSS user-missing codes and entirely missing logical vectors, instead of embedding missing-value text or codes in the result.</p></li>
 <li><p><code><a href="../reference/stat_ci.html">stat_ci()</a></code> warns when reformatting drops trailing annotations such as a P-value. Ignoring trailing stars and a terminal period remains supported.</p></li>
 <li><p><code><a href="../reference/stat_ci.html">stat_ci()</a></code> returns <code>character(0)</code> for empty character input, matching its numeric modes and documented return type.</p></li>
 <li><p><code><a href="../reference/stat_ci.html">stat_ci()</a></code> rejects matrices, arrays, and unsupported numeric storage such as integer64 and time spans, avoiding silently flattened or misread values.</p></li>

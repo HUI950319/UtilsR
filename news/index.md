@@ -2,6 +2,15 @@
 
 ## UtilsR 0.6.8
 
+- [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
+  preserves the names of `x` in numeric CI, mean/SD, and character
+  modes, including missing observations and empty named vectors.
+
+- [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
+  leaves missing and whitespace-only strings unchanged without warning,
+  including Unicode whitespace, while still reporting other text that
+  cannot be parsed as an interval.
+
 - Numeric
   [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
   rows with missing components return genuine missing strings, including

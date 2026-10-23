@@ -23,7 +23,8 @@ stat_ci(
 
   Numeric vector (estimate/mean) or character vector (CI strings to
   reformat). Trailing stars and a terminal period are ignored; other
-  text after a parsed interval is dropped with a warning.
+  text after a parsed interval is dropped with a warning. Missing and
+  whitespace-only strings pass through unchanged without a warning.
 
 - y:
 
@@ -59,7 +60,8 @@ stat_ci(
 Character vector of formatted strings. Empty input returns
 `character(0)`. In numeric modes, a missing component (including `NaN`
 and SPSS user-missing codes) makes the whole string `NA_character_`.
-Entirely missing logical vectors are accepted.
+Entirely missing logical vectors are accepted. Output names are taken
+from `x`.
 
 ## See also
 
