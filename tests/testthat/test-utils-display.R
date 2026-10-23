@@ -36,3 +36,19 @@ test_that(".cat_message() emits a message that suppressMessages() silences", {
 
   expect_identical(cli::cli_fmt(.cat_message("Loaded", verbose = FALSE)), character())
 })
+
+test_that(".cat_message(style = \"chip\") colours only a short type label", {
+  out <- capture_display(.cat_message("Loading\nsecond line", type = "warning",
+                                      timestamp_format = "%H:%M", style = "chip"))
+  plain <- cli::ansi_strip(out)
+  expect_match(plain[1], "^[0-9]{2}:[0-9]{2}  WARN  Loading$")
+  expect_identical(plain[2], paste0(strrep(" ", 13L), "second line"))
+  # the background closes before the message text, which stays unstyled
+  expect_match(out[1], "WARN .*\033\\[49m.*Loading$")
+
+  chips <- c(info = " INFO ", success = " DONE ", error = " FAIL ")
+  for (type in names(chips)) {
+    shown <- cli::ansi_strip(capture_display(.cat_message("x", type = type, style = "chip")))
+    expect_match(shown, chips[[type]], fixed = TRUE, info = type)
+  }
+})

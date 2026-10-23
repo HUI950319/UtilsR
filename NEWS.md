@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `.cat_message()` gains `style = "chip"`, which prints the timestamp in grey
+  and colours only a short `INFO` / `DONE` / `WARN` / `FAIL` label, leaving the
+  message text plain. The default `style = "full"` keeps the shaded line.
+
 * `.cat_message()` emits a cli message instead of `cat()` output, so
   `suppressMessages()` silences it (as it does `set_wd()`'s notice). It still
   prints to standard output in interactive sessions and shows braces as typed.

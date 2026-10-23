@@ -17,6 +17,7 @@
 #         ._type_cfg()     type -> symbol / colour / ANSI background
 #         ._cli_bg()       type -> cli background style
 #         ._cli_fg()       type -> cli text colour on that background
+#         ._chip()         short bold label on a solid background
 #         ._ansi_styled()  wrap text in an ANSI background
 #         console_width()  terminal width, with a fallback
 # =============================================================================
@@ -49,6 +50,12 @@
 # white text has too little contrast; bright white on the other backgrounds
 ._cli_fg <- function(type) {
   if (identical(type, "warning")) cli::col_black else cli::col_br_white
+}
+
+# Short bold label on a solid background, padded by one space on each side.
+# `bg` and `fg` are cli ANSI style functions.
+._chip <- function(text, bg, fg) {
+  cli::combine_ansi_styles(bg, fg, "bold")(paste0(" ", text, " "))
 }
 
 # ANSI bold + text colour + bg helper (single line)
@@ -171,19 +178,26 @@ console_width <- function() {
 #'   \code{"error"}.
 #' @param timestamp_format \code{strftime} format string (default
 #'   \code{"[\%Y-\%m-\%d \%H:\%M:\%S]"}).
+#' @param style \code{"full"} (default) shades the whole message in the type
+#'   colour after a magenta timestamp. \code{"chip"} prints the timestamp in
+#'   grey and colours only a short type label (\code{INFO}, \code{DONE},
+#'   \code{WARN}, \code{FAIL}), leaving the text plain.
 #' @param verbose Logical. If \code{FALSE}, suppress output.
 #'
 #' @examples
 #' .cat_message("Loading simulated data", verbose = FALSE)
+#' .cat_message("Saved forest.pdf", type = "success", style = "chip")
 #'
 #' @export
 #' @family console display
 .cat_message <- function(message,
                          type = c("info", "success", "warning", "error"),
                          timestamp_format = "[%Y-%m-%d %H:%M:%S]",
+                         style = c("full", "chip"),
                          verbose = TRUE) {
   if (!verbose) return(invisible())
   cfg   <- ._type_cfg(match.arg(type))
+  style <- match.arg(style)
   lines <- strsplit(as.character(message), "\n")[[1]]
   ts    <- format(Sys.time(), timestamp_format)
 
@@ -193,7 +207,14 @@ console_width <- function() {
     ts_col <- cli::col_magenta(ts)
 
     out <- character(length(lines))
-    for (i in seq_along(lines)) {
+    if (style == "chip") {
+      label <- c(info = "INFO", success = "DONE",
+                 warning = "WARN", error = "FAIL")[[cfg$type]]
+      lead  <- paste0(cli::col_grey(ts), " ", ._chip(label, bg, fg), " ")
+      # continuation lines start under the text: timestamp, space, chip, space
+      out   <- paste0(c(lead, rep(strrep(" ", nchar(ts) + nchar(label) + 4),
+                                  length(lines) - 1L)), lines)
+    } else for (i in seq_along(lines)) {
       body <- if (i == 1L) {
         paste0(" ", cli::style_bold(fg(cfg$symbol)), " ",
                cli::style_bold(fg(lines[i])), " ")

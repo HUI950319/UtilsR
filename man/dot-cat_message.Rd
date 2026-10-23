@@ -8,6 +8,7 @@
   message,
   type = c("info", "success", "warning", "error"),
   timestamp_format = "[\%Y-\%m-\%d \%H:\%M:\%S]",
+  style = c("full", "chip"),
   verbose = TRUE
 )
 }
@@ -19,6 +20,11 @@
 
 \item{timestamp_format}{\code{strftime} format string (default
 \code{"[\%Y-\%m-\%d \%H:\%M:\%S]"}).}
+
+\item{style}{\code{"full"} (default) shades the whole message in the type
+colour after a magenta timestamp. \code{"chip"} prints the timestamp in
+grey and colours only a short type label (\code{INFO}, \code{DONE},
+\code{WARN}, \code{FAIL}), leaving the text plain.}
 
 \item{verbose}{Logical. If \code{FALSE}, suppress output.}
 }
@@ -34,6 +40,7 @@ verbatim, so braces are not interpolated.
 }
 \examples{
 .cat_message("Loading simulated data", verbose = FALSE)
+.cat_message("Saved forest.pdf", type = "success", style = "chip")
 
 }
 \seealso{
