@@ -2,6 +2,16 @@
 
 ## UtilsR 0.6.8
 
+- [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md)’s
+  `binary_ref` is renamed `ref_idx`, in the same place:
+  `fct_cat(x, ref_idx = 1)` or `ref_idx = "No"`. `binary_ref` still
+  works, with a deprecation warning, and giving both is an error.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
+  summarizes `difftime` columns as numbers in their own units and leaves
+  list columns out of its frequency and grouped tables with a message;
+  both previously made gtsummary fail.
+
 - [`count_packages_in_libpaths()`](https://hui950319.github.io/UtilsR/reference/count_packages_in_libpaths.md)
   counts installed packages instead of all library subdirectories,
   excluding installation locks and unrelated folders.
