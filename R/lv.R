@@ -14,6 +14,7 @@
 #
 #   L3  .lv_default_data()   locate the default data.frame in the caller
 #       .lv_resolve_vars()  resolve column names and caller-supplied strings
+#       .lv_print_report() emit native report tables while knitting
 # =============================================================================
 
 #' @title Variable Inspection Generic Function
@@ -270,11 +271,11 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       unique_values
     }
 
-    .get_flt_formula <- noquote(
-      sprintf('get_flt(%s %%in%% c("%s"))',
-              var,
-              paste(display_values, collapse = '","'))
-    )
+    values_expr <- as.call(c(list(quote(c)), as.list(as.character(display_values))))
+    filter_expr <- substitute(get_flt(VAR %in% VALUES),
+                              list(VAR = as.name(var), VALUES = values_expr))
+    .get_flt_formula <- noquote(paste(deparse(filter_expr, width.cutoff = 500L),
+                                     collapse = " "))
     if (!knitting) print(.get_flt_formula)
 
     if (n_unique > 10) {

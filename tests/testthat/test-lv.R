@@ -254,3 +254,18 @@ test_that("knitr receives native tables once in an asis chunk", {
   expect_true(grepl("\\begin{table}", latex, fixed = TRUE))
   expect_false(grepl("<table", latex, fixed = TRUE))
 })
+
+test_that("suggested filters escape column names and character values", {
+  values <- c('a"b', "c\\d", "line\nbreak", "", "a'b")
+  for (column in c("a b", "a`b")) {
+    data <- stats::setNames(data.frame(values), column)
+    result <- capture_lv(lv(data))
+    summary <- Filter(function(x) "n_special" %in% names(x), result$tables)[[1L]]
+    expression <- parse(text = as.character(summary$unique))[[1L]]
+    expect_identical(expression[[1L]], quote(get_flt))
+    expect_identical(expression[[2L]][[2L]], as.name(column))
+    expect_identical(eval(expression[[2L]][[3L]]), values)
+    expect_true(all(eval(expression[[2L]], envir = data)))
+    expect_identical(result$value$value, data)
+  }
+})
