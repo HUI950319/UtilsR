@@ -4,7 +4,8 @@ test_that("console display helpers are exported", {
     ".cat_box",
     ".cat_message",
     ".cat_formula",
-    ".cat_tb"
+    ".cat_tb",
+    ".cat_step"
   )
 
   expect_setequal(helpers, intersect(helpers, getNamespaceExports("UtilsR")))

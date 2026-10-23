@@ -8,6 +8,7 @@
 #         .cat_line(text, type, ...)       separator rule with a label
 #         .cat_box(cat_text, type, ...)    boxed notice
 #         .cat_message(message, type)      timestamped log line
+#         .cat_step(msg, i, n)             numbered step, timed when it ends
 #         .cat_formula(data, co_var, ...)  model formula with a header
 #               +-- .cat_line() + .cat_box()
 #         .cat_tb(...)                     table with pattern highlighting
@@ -238,6 +239,58 @@ console_width <- function() {
     message(paste(out, collapse = "\n"))
   })
   invisible()
+}
+
+# ------------- .cat_step ----------------------------------------------------
+
+#' Numbered, timed progress step
+#'
+#' Announce one step of a longer computation. The step is marked done, with
+#' its elapsed time, when the next step starts or when the calling function
+#' returns; an error marks it failed. A wrapper of
+#' \code{cli::cli_progress_step()} that numbers steps and honours
+#' \code{verbose}.
+#'
+#' @param msg Character. Step description. cli inline markup and glue
+#'   interpolation are evaluated in \code{.envir}, so \code{"Fitting {n}
+#'   models"} picks up \code{n} from the caller.
+#' @param i,n Optional step number and total, shown as a grey \code{[i/n]}
+#'   prefix (\code{[i]} when \code{n} is \code{NULL}).
+#' @param msg_done Character. Text shown when the step completes; defaults
+#'   to \code{msg}. It takes the same prefix.
+#' @param verbose Logical. If \code{FALSE}, print nothing.
+#' @param .envir Environment whose exit ends the step and in which
+#'   \code{msg} is interpolated. Defaults to the caller of \code{.cat_step()};
+#'   a helper that calls \code{.cat_step()} for its own caller passes its
+#'   \code{parent.frame()}.
+#'
+#' @return The cli progress bar id, invisibly (\code{NULL} when
+#'   \code{verbose = FALSE}).
+#'
+#' @examples
+#' fit_all <- function() {
+#'   .cat_step("Fitting models", i = 1, n = 2)
+#'   Sys.sleep(0.1)
+#'   .cat_step("Drawing plot", i = 2, n = 2, msg_done = "Drew plot")
+#'   invisible()
+#' }
+#' fit_all()
+#'
+#' @export
+#' @family console display
+.cat_step <- function(msg, i = NULL, n = NULL, msg_done = msg,
+                      verbose = TRUE, .envir = parent.frame()) {
+  if (!isTRUE(verbose)) return(invisible(NULL))
+  # force the default before `msg` gains its prefix, or it would get two
+  force(msg_done)
+  if (!is.null(i)) {
+    num <- if (is.null(n)) sprintf("[%d]", as.integer(i)) else
+      sprintf("[%d/%d]", as.integer(i), as.integer(n))
+    msg      <- paste(cli::col_grey(num), msg)
+    msg_done <- paste(cli::col_grey(num), msg_done)
+  }
+  invisible(cli::cli_progress_step(msg, msg_done = msg_done, msg_failed = msg,
+                                   .envir = .envir))
 }
 
 # ------------- .cat_formula -------------------------------------------------

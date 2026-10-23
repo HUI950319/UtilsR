@@ -1,5 +1,10 @@
 # UtilsR 0.6.8
 
+* New `.cat_step()` announces a numbered step (`[i/n]`) of a longer
+  computation and marks it done with its elapsed time when the next step
+  starts or the calling function returns. It wraps `cli::cli_progress_step()`
+  and honours `verbose`.
+
 * `.cat_message()` gains `style = "chip"`, which prints the timestamp in grey
   and colours only a short `INFO` / `DONE` / `WARN` / `FAIL` label, leaving the
   message text plain. The default `style = "full"` keeps the shaded line.

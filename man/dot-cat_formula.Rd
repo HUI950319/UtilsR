@@ -48,6 +48,7 @@ Other console display:
 \code{\link[=.cat_box]{.cat_box()}},
 \code{\link[=.cat_line]{.cat_line()}},
 \code{\link[=.cat_message]{.cat_message()}},
+\code{\link[=.cat_step]{.cat_step()}},
 \code{\link[=.cat_tb]{.cat_tb()}}
 }
 \concept{console display}
