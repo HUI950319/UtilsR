@@ -2,6 +2,16 @@
 
 ## UtilsR 0.6.8
 
+- Numeric
+  [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
+  rows with missing components return genuine missing strings, including
+  SPSS user-missing codes and entirely missing logical vectors, instead
+  of embedding missing-value text or codes in the result.
+
+- [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
+  warns when reformatting drops trailing annotations such as a P-value.
+  Ignoring trailing stars and a terminal period remains supported.
+
 - [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
   returns `character(0)` for empty character input, matching its numeric
   modes and documented return type.
