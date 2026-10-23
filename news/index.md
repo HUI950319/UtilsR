@@ -3,17 +3,6 @@
 ## UtilsR 0.6.8
 
 - [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
-  leaves missing and whitespace-only strings unchanged without warning,
-  including Unicode whitespace, while still reporting other text that
-  cannot be parsed as an interval.
-
-- Numeric
-  [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
-  rows with missing components return genuine missing strings, including
-  SPSS user-missing codes and entirely missing logical vectors, instead
-  of embedding missing-value text or codes in the result.
-
-- [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
   warns when reformatting drops trailing annotations such as a P-value.
   Ignoring trailing stars and a terminal period remains supported.
 
