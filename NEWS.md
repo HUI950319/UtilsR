@@ -10,7 +10,9 @@
   combine on one line. `pr_table()` prints a data frame as an aligned
   plain-text table: columns aligned by display width, P-value columns
   coloured by significance (bold red below 0.001, red below 0.05) and
-  chosen rows highlighted.
+  chosen rows highlighted. `pr_tree()` prints the structure of a nested
+  result list as a tree with short grey descriptions such as
+  `<tibble 12 x 7>`, listing extra attributes as well.
 
 * `plt_dist()` gains `label = "count_percent_wrap"`, which puts counts and
   percentages on separate lines: `count\npercent` on stacked bars, and the

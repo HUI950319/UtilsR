@@ -108,3 +108,41 @@ test_that("pr_table() aligns by display width and colours P values", {
   expect_error(pr_table(df, p_col = "p_value"), "p_value")
   expect_error(pr_table(as.list(df)), "data frame")
 })
+
+test_that("pr_tree() shows the structure of a nested result list", {
+  withr::local_options(cli.num_colors = 256)
+  res <- structure(
+    list(
+      Overall = list(table = data.frame(a = 1:3, b = 4:6),
+                     plot = structure(list(), class = c("gg", "ggplot"))),
+      method = "cox",
+      p = c(0.1, 0.2)
+    ),
+    class = c("eff_res", "list"), analysis = list(n = 10)
+  )
+  out <- utils::capture.output(lines <- pr_tree(res))
+  expect_identical(out, as.character(lines))
+  # drop the tree glyphs below the root, which depend on Unicode support
+  plain <- cli::ansi_strip(out)
+  plain[-1] <- sub("^[^A-Za-z]*", "", plain[-1])
+  expect_identical(plain, c(
+    " eff_res  <list 3>",
+    "Overall <list 2>",
+    "table <data.frame 3 x 2>",
+    "plot <gg>",
+    "method <chr> \"cox\"",
+    "p <dbl 2>",
+    "attr analysis <list 1>"
+  ))
+  expect_match(out[1], "\033[44m", fixed = TRUE)
+  expect_match(out[7], "\033[36mattr", fixed = TRUE)
+
+  expect_length(utils::capture.output(pr_tree(res, attrs = FALSE)), 6L)
+  deep <- list(a = list(b = list(c = list(d = 1))))
+  deep_out <- cli::ansi_strip(utils::capture.output(pr_tree(deep, max_depth = 2)))
+  expect_identical(sub("^[^A-Za-z]*", "", deep_out[-1]), c("a <list 1>", "b <list 1>"))
+  expect_identical(deep_out[1], " list  <list 1>")
+  many <- cli::ansi_strip(utils::capture.output(pr_tree(as.list(1:30), max_items = 5)))
+  expect_length(many, 7L)
+  expect_match(many[7], "25 more", fixed = TRUE)
+})

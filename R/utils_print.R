@@ -12,11 +12,14 @@
 #         pr_badge(key, value)         two-part badge strings (not printed)
 #         pr_table(data, p_col, ...)   console table, P values coloured
 #               +-- ._p_cells()
+#         pr_tree(x)                   structure tree of a nested result list
+#               +-- ._obj_desc()
 #
 #   L2  shared internals
 #         ._chip()       short label on a solid background (utils_display.R)
 #         ._kv_lines()   named values -> aligned "key  value" lines
 #         ._p_cells()    P values -> coloured cells (stat_pval() wording)
+#         ._obj_desc()   object -> short "<type size>" description
 #         ._pr_out()     write lines to stdout, return them invisibly
 #
 # Print methods write to stdout with cat(), as print() output is expected
@@ -312,4 +315,114 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, align = NULL,
     paste0(pad, r)
   }, character(1))
   ._pr_out(c(header, rule, body))
+}
+
+# ------------- pr_tree ------------------------------------------------------
+
+# Short description of an object: "<tibble 12 x 7>", "<chr 3>", "<ggplot>";
+# a length-1 atomic value is shown after its type, e.g. <chr> "cox".
+._obj_desc <- function(v) {
+  if (is.null(v)) return("<NULL>")
+  cls <- class(v)[1]
+  if (is.data.frame(v)) {
+    lab <- if (inherits(v, "tbl_df")) "tibble" else cls
+    return(sprintf("<%s %d x %d>", lab, nrow(v), ncol(v)))
+  }
+  if (!is.null(dim(v))) return(sprintf("<%s %s>", cls, paste(dim(v), collapse = " x ")))
+  if (is.function(v)) return("<fn>")
+  if (is.environment(v)) return("<env>")
+  if (is.list(v)) {
+    if (is.object(v) && !inherits(v, "list")) return(sprintf("<%s>", cls))
+    return(sprintf("<%s %d>", if (is.object(v)) cls else "list", length(v)))
+  }
+  if (is.atomic(v)) {
+    abbr <- if (is.factor(v)) "fct" else if (inherits(v, "Date")) "date" else
+      if (inherits(v, "POSIXct")) "dttm" else
+        switch(typeof(v), logical = "lgl", integer = "int", double = "dbl",
+               character = "chr", complex = "cpl", typeof(v))
+    if (length(v) != 1L) return(sprintf("<%s %d>", abbr, length(v)))
+    val <- if (is.character(v)) encodeString(v, quote = "\"") else format(v)
+    return(sprintf("<%s> %s", abbr, cli::ansi_strtrim(val, 30)))
+  }
+  sprintf("<%s>", cls)
+}
+
+#' Structure tree of a nested result object
+#'
+#' Print the elements of a list-based result as a tree, each with a short
+#' grey description such as \code{<tibble 12 x 7>}, \code{<chr 3>} or
+#' \code{<ggplot>}; clearer than \code{str()} for the nested lists that
+#' analysis functions return.
+#'
+#' The tree descends into plain lists and into classed objects that also
+#' inherit from \code{"list"} (as \code{c("eff_res", "list")} does). Data
+#' frames, plots and other objects are leaves. Attributes other than
+#' names, class, dimensions, row names and srcref are listed under the node
+#' that carries them, marked \code{attr}.
+#'
+#' @param x A list or list-based object.
+#' @param max_depth Integer. Levels below the root to show (default 3).
+#' @param max_items Integer. Elements shown per node before the rest are
+#'   summarised as "... n more" (default 20).
+#' @param attrs Logical. Show extra attributes (default \code{TRUE}).
+#'
+#' @return The printed lines, invisibly.
+#'
+#' @examples
+#' res <- structure(
+#'   list(Overall = list(table = data.frame(term = "Age", HR = 1.8),
+#'                       method = "cox"),
+#'        Subgroup = data.frame(term = c("Male", "Female"), HR = c(1.2, 1.4))),
+#'   class = c("eff_res", "list"),
+#'   analysis = list(n = 120, outcome = "DSS")
+#' )
+#' pr_tree(res)
+#'
+#' @export
+#' @family print helpers
+pr_tree <- function(x, max_depth = 3, max_items = 20, attrs = TRUE) {
+  drop_attr <- c("names", "class", "dim", "dimnames", "row.names", "srcref")
+  descend <- function(v) {
+    is.list(v) && !is.data.frame(v) && (!is.object(v) || inherits(v, "list"))
+  }
+  rows <- new.env(parent = emptyenv())
+  rows$id <- character(); rows$children <- list(); rows$label <- character()
+  add <- function(id, label, children = character()) {
+    rows$id       <- c(rows$id, id)
+    rows$children <- c(rows$children, list(children))
+    rows$label    <- c(rows$label, label)
+    id
+  }
+  node <- function(v, id, label, depth) {
+    kids <- character()
+    if (depth < max_depth && descend(v)) {
+      nm <- names(v) %||% rep("", length(v))
+      nm <- ifelse(is.na(nm) | !nzchar(nm), sprintf("[[%d]]", seq_along(v)), nm)
+      for (k in seq_len(min(length(v), max_items))) {
+        kids <- c(kids, node(v[[k]], paste0(id, "/", k),
+                             paste(nm[k], cli::col_grey(._obj_desc(v[[k]]))),
+                             depth + 1))
+      }
+      if (length(v) > max_items) {
+        kids <- c(kids, add(paste0(id, "/more"), cli::col_grey(sprintf(
+          "%s %d more", cli::symbol$ellipsis, length(v) - max_items))))
+      }
+      if (isTRUE(attrs)) {
+        for (a in setdiff(names(attributes(v)), drop_attr)) {
+          kids <- c(kids, add(paste0(id, "/@", a), paste(
+            cli::col_cyan("attr"), a,
+            cli::col_grey(._obj_desc(attr(v, a, exact = TRUE))))))
+        }
+      }
+    }
+    add(id, label, kids)
+  }
+
+  root_desc <- if (descend(x)) sprintf("<list %d>", length(x)) else ._obj_desc(x)
+  root <- node(x, "x", paste(._chip(class(x)[1], cli::bg_blue, cli::col_br_white),
+                             cli::col_grey(root_desc)), 0)
+  tree <- cli::tree(data.frame(id = rows$id, children = I(rows$children),
+                               label = rows$label, stringsAsFactors = FALSE),
+                    root = root)
+  ._pr_out(as.character(tree))
 }
