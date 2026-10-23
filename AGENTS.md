@@ -67,6 +67,16 @@ filesystem rather than maintaining a duplicate inventory here.
   `1 + stage(y)` nest. Test a new check with these cases (2026-10-17
   `fmt_boxplot()`: 7862e14 missed the `NULL` case, fixed in 7945bd6).
 
+## gtsummary inputs
+
+- Prepare columns before `gtsummary::tbl_summary()`: an entirely missing
+  character column fails formatting (pass it as logical; a level-less factor
+  is rejected), `difftime` and list columns fail tabulation, and rows with a
+  missing `by` value are dropped from every column, overall included, with
+  only a message. A 50,000-value identifier column took 237 s through
+  `tbl_summary()` and gt, so cap the categories passed in (2026-10-23 `lv()`
+  leaves out columns above 100 and turns missing groups into a level).
+
 ## CI and pkgdown checklist
 
 Before pushing, follow the root Git rules and stage only task-owned paths or
