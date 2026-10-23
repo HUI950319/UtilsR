@@ -16,6 +16,7 @@
 #' @param value.by Character. Column name for the numeric score used to
 #'   compute ranks. Ranks are computed as \code{rank(-score)} (descending)
 #'   within each \code{group.by} x \code{method.by} combination.
+#'   Missing scores remain missing and do not contribute to the correlation.
 #' @param group.by Character. Column name for the grouping / faceting
 #'   variable (e.g. comparison). Each level gets its own facet panel.
 #'   If \code{NULL}, all data is treated as a single group (no faceting).
@@ -171,7 +172,7 @@ PlotRankCor <- function(
       split(data, interaction(data[[group.by_internal]], data[[method.by]],
                               drop = TRUE)),
       function(d) {
-        d$.plot_val <- rank(-d[[value.by]], ties.method = "average")
+        d$.plot_val <- rank(-d[[value.by]], ties.method = "average", na.last = "keep")
         d
       }
     ))
@@ -242,7 +243,7 @@ PlotRankCor <- function(
         (x - mu) / sd_val
       },
       "log1p"  = log1p(abs(x)) * sign(x),
-      "rank"   = rank(-x, ties.method = "average"),
+      "rank"   = rank(-x, ties.method = "average", na.last = "keep"),
       x  # fallback
     )
   }

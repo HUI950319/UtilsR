@@ -6,6 +6,9 @@
 * `lv()` summarizes date and date-time columns with more than ten distinct
   values instead of failing while truncating their suggested filter.
 
+* `PlotRankCor()` keeps missing scores out of ranks and correlations, both in
+  its default rank mode and when applying a rank transform to raw scores.
+
 * `stat_ci()` formats character intervals with vectorized dynamic precision,
   retaining detected precision and warnings while avoiding per-row templates.
 

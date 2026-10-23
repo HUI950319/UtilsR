@@ -43,7 +43,8 @@ PlotRankCor(
 
 \item{value.by}{Character. Column name for the numeric score used to
 compute ranks. Ranks are computed as \code{rank(-score)} (descending)
-within each \code{group.by} x \code{method.by} combination.}
+within each \code{group.by} x \code{method.by} combination.
+Missing scores remain missing and do not contribute to the correlation.}
 
 \item{group.by}{Character. Column name for the grouping / faceting
 variable (e.g. comparison). Each level gets its own facet panel.
