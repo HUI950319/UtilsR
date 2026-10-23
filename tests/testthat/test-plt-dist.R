@@ -42,3 +42,19 @@ test_that("distribution counts ignore unrelated input grouping", {
     expect_identical(input, original)
   }
 })
+
+test_that("bar facets accept literal non-syntactic column names", {
+  data <- data.frame(x = c("A", "A", "B", "B"),
+                     group = c("F", "M", "F", "M"),
+                     panel = c("P1", "P1", "P2", "P2"))
+  reference <- ggplot2::ggplot_build(
+    dist_test_plot(data, c("x", "group"), type = "bar", facet = "panel")
+  )$data
+  for (name in c("panel group", "panel+group", "panel`group")) {
+    renamed <- data
+    names(renamed)[3L] <- name
+    p <- dist_test_plot(renamed, c("x", "group"), type = "bar", facet = name)
+    expect_equal(ggplot2::ggplot_build(p)$data, reference)
+    expect_identical(as.character(p$data[[name]]), data$panel)
+  }
+})

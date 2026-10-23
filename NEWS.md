@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `plt_dist()` treats bar facet column names literally, including spaces,
+  operators, and backticks, instead of parsing them as formula expressions.
+
 * `plt_dist()` ignores unrelated dplyr groups and rowwise grouping when
   counting categories, so input grouping cannot split bars or labels.
 

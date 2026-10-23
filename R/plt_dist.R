@@ -231,7 +231,7 @@ plt_dist <- function(data,
       if (!facet %in% names(data)) cli::cli_abort("Facet variable {.val {facet}} not found.")
       if (!is.factor(data[[facet]])) data[[facet]] <- factor(data[[facet]])
       n_facet <- nlevels(data[[facet]])
-      p <- p + ggplot2::facet_wrap(stats::as.formula(paste("~", facet)),
+      p <- p + ggplot2::facet_wrap(ggplot2::vars(!!rlang::sym(facet)),
                                    nrow = ceiling(n_facet / 3))
     }
 
