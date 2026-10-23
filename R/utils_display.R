@@ -161,6 +161,11 @@ console_width <- function() {
 #' Print a timestamped, type-coloured message. Supports multi-line messages
 #' (split on \code{"\\n"}).
 #'
+#' The message is a cli message, like those of \code{cli::cli_inform()}:
+#' \code{suppressMessages()} silences it, and it is written to standard output
+#' in interactive sessions and to standard error otherwise. The text is shown
+#' verbatim, so braces are not interpolated.
+#'
 #' @param message Character. The message text.
 #' @param type One of \code{"info"}, \code{"success"}, \code{"warning"},
 #'   \code{"error"}.
@@ -187,6 +192,7 @@ console_width <- function() {
     fg    <- ._cli_fg(cfg$type)
     ts_col <- cli::col_magenta(ts)
 
+    out <- character(length(lines))
     for (i in seq_along(lines)) {
       body <- if (i == 1L) {
         paste0(" ", cli::style_bold(fg(cfg$symbol)), " ",
@@ -195,15 +201,20 @@ console_width <- function() {
         paste0(" ", cli::style_bold(fg(lines[i])), " ")
       }
       prefix <- if (i == 1L) paste0(ts_col, " ") else strrep(" ", nchar(ts) + 3)
-      cat(prefix, bg(body), "\n", sep = "")
+      out[i] <- paste0(prefix, bg(body))
     }
+    # A cli message rather than cat(), so suppressMessages() silences it;
+    # cli_verbatim() keeps the text as is, without glue interpolation.
+    cli::cli_verbatim(out)
   }, error = function(e) {
     # ANSI fallback
+    out <- character(length(lines))
     for (i in seq_along(lines)) {
       body <- if (i == 1L) paste(cfg$symbol, lines[i]) else lines[i]
       prefix <- if (i == 1L) paste0("\033[90m", ts, "\033[0m ") else strrep(" ", nchar(ts) + 3)
-      cat(prefix, ._ansi_styled(body, cfg$ansi_bg, cfg$ansi_fg), "\n", sep = "")
+      out[i] <- paste0(prefix, ._ansi_styled(body, cfg$ansi_bg, cfg$ansi_fg))
     }
+    message(paste(out, collapse = "\n"))
   })
   invisible()
 }

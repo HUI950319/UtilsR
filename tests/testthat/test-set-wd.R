@@ -3,7 +3,7 @@
 capture_set_wd <- function(...) {
   old <- getwd()
   on.exit(setwd(old), add = TRUE)
-  cli::ansi_strip(paste(capture.output(set_wd(...)), collapse = "\n"))
+  cli::ansi_strip(paste(cli::cli_fmt(set_wd(...)), collapse = "\n"))
 }
 
 test_that("set_wd reports a freshly created directory as empty", {

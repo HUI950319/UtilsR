@@ -1,5 +1,9 @@
 # UtilsR 0.6.8
 
+* `.cat_message()` emits a cli message instead of `cat()` output, so
+  `suppressMessages()` silences it (as it does `set_wd()`'s notice). It still
+  prints to standard output in interactive sessions and shows braces as typed.
+
 * `.cat_line()`, `.cat_box()` and `.cat_message()` print `type = "warning"`
   labels in black on the yellow background; white text had too little
   contrast there.

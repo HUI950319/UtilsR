@@ -22,3 +22,17 @@ test_that("warning labels use black text on the yellow background", {
   info <- paste(capture_display(.cat_message("Loaded", type = "info")), collapse = "\n")
   expect_match(info, "\033[97m", fixed = TRUE)
 })
+
+test_that(".cat_message() emits a message that suppressMessages() silences", {
+  expect_identical(
+    utils::capture.output(suppressMessages(.cat_message("Loaded"))),
+    character()
+  )
+
+  shown <- cli::ansi_strip(cli::cli_fmt(.cat_message("Loaded {n} rows\nsecond line")))
+  expect_length(shown, 2L)
+  expect_match(shown[1], "Loaded {n} rows", fixed = TRUE)
+  expect_match(shown[2], "second line", fixed = TRUE)
+
+  expect_identical(cli::cli_fmt(.cat_message("Loaded", verbose = FALSE)), character())
+})

@@ -26,6 +26,12 @@
 Print a timestamped, type-coloured message. Supports multi-line messages
 (split on \code{"\\n"}).
 }
+\details{
+The message is a cli message, like those of \code{cli::cli_inform()}:
+\code{suppressMessages()} silences it, and it is written to standard output
+in interactive sessions and to standard error otherwise. The text is shown
+verbatim, so braces are not interpolated.
+}
 \examples{
 .cat_message("Loading simulated data", verbose = FALSE)
 
