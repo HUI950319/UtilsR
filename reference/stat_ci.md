@@ -55,7 +55,8 @@ stat_ci(
 
 ## Value
 
-Character vector of formatted strings.
+Character vector of formatted strings. Empty input returns
+`character(0)`.
 
 ## See also
 

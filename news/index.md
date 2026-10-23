@@ -3,6 +3,10 @@
 ## UtilsR 0.6.8
 
 - [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
+  returns `character(0)` for empty character input, matching its numeric
+  modes and documented return type.
+
+- [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
   rejects matrices, arrays, and unsupported numeric storage such as
   integer64 and time spans, avoiding silently flattened or misread
   values.

@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.8" id="utilsr-068">UtilsR 0.6.8<a class="anchor" aria-label="anchor" href="#utilsr-068"></a></h2>
-<ul><li><p><code><a href="../reference/stat_ci.html">stat_ci()</a></code> rejects matrices, arrays, and unsupported numeric storage such as integer64 and time spans, avoiding silently flattened or misread values.</p></li>
+<ul><li><p><code><a href="../reference/stat_ci.html">stat_ci()</a></code> returns <code>character(0)</code> for empty character input, matching its numeric modes and documented return type.</p></li>
+<li><p><code><a href="../reference/stat_ci.html">stat_ci()</a></code> rejects matrices, arrays, and unsupported numeric storage such as integer64 and time spans, avoiding silently flattened or misread values.</p></li>
 <li><p><code><a href="../reference/stat_ci.html">stat_ci()</a></code> validates scalar integer precision before coercion or formatting in every mode and reports precision that exceeds the formatted-number limit.</p></li>
 <li><p><code><a href="../reference/lv.html">lv()</a></code> retains empty cross-tabulation categories in wide tables, displaying them as <code>(blank)</code> and disambiguating an existing category with that label.</p></li>
 <li><p><code><a href="../reference/plt_dist.html">plt_dist()</a></code> uses complete required rows in every mode and reports how many rows were removed. Unrelated missing columns are ignored; no usable rows produce an explicit error instead of an empty plot.</p></li>
