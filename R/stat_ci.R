@@ -8,7 +8,9 @@
 #' with different brackets and separators. Automatically detects
 #' CI mode (3 vectors) or SD mode (2 vectors) for numeric input.
 #'
-#' @param x Numeric vector (estimate/mean) or character vector (CI strings to reformat).
+#' @param x Numeric vector (estimate/mean) or character vector (CI strings to
+#'   reformat). Trailing stars and a terminal period are ignored; other text
+#'   after a parsed interval is dropped with a warning.
 #' @param y Numeric vector: lower CI bound (CI mode) or SD (SD mode).
 #'   Ignored when \code{x} is character.
 #'   Numeric inputs must be one-dimensional; integer64, date, date-time and
@@ -111,6 +113,10 @@ stat_ci <- function(x, y = NULL, z = NULL,
     n_fail <- sum(!valid)
     if (n_fail > 0L) {
       cli::cli_warn("{n_fail} element{?s} could not be parsed as CI string{?s} and {?was/were} returned as-is.")
+    }
+    n_tail <- sum(parsed$trailing)
+    if (n_tail > 0L) {
+      cli::cli_warn("{n_tail} element{?s} had trailing text after the closing bracket, which was dropped.")
     }
 
     # Build new format template

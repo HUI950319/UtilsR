@@ -59,3 +59,12 @@ test_that("empty inputs retain the character return type in every mode", {
   expect_identical(stat_ci(numeric(), numeric()), character())
   expect_error(stat_ci(character(), digits = -1), "digits")
 })
+
+test_that("discarded trailing text is reported once for the input vector", {
+  x <- c("1.23 (0.95, 1.59), p=0.02", "1.23 (0.95, 1.59) footnote",
+         "1.23 (0.95, 1.59)**", "1.23 (0.95, 1.59)")
+  expect_warning(out <- stat_ci(x), "2 elements.*trailing text")
+  expect_identical(out, rep("1.23 (0.95\u20131.59)", 4))
+  expect_no_warning(stat_ci("1.23 (0.95, 1.59)** "))
+  expect_no_warning(stat_ci("1.23 (0.95, 1.59)."))
+})

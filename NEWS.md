@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `stat_ci()` warns when reformatting drops trailing annotations such as a
+  P-value. Ignoring trailing stars and a terminal period remains supported.
+
 * `stat_ci()` returns `character(0)` for empty character input, matching its
   numeric modes and documented return type.
 
