@@ -3,6 +3,11 @@
 ## UtilsR 0.6.8
 
 - [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
+  removes the minus sign from formatted zeros without changing other
+  rounding or unparsed text. The mean/SD example now reflects its actual
+  [`sprintf()`](https://rdrr.io/r/base/sprintf.html) rounding.
+
+- [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
   preserves the names of `x` in numeric CI, mean/SD, and character
   modes, including missing observations and empty named vectors.
 

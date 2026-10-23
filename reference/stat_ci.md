@@ -61,7 +61,8 @@ Character vector of formatted strings. Empty input returns
 `character(0)`. In numeric modes, a missing component (including `NaN`
 and SPSS user-missing codes) makes the whole string `NA_character_`.
 Entirely missing logical vectors are accepted. Output names are taken
-from `x`.
+from `x`. Rounded zeros are displayed without a minus sign; other
+rounding follows [`sprintf()`](https://rdrr.io/r/base/sprintf.html).
 
 ## See also
 
@@ -84,7 +85,7 @@ stat_ci(1.23, 0.95, 1.51, bracket = "[", sep = " to ")
 # --- Numeric: SD mode (2 arguments) ---
 stat_ci(1.23, 0.15)
 #> [1] "1.2(0.1)"
-# "1.2(0.2)"
+# "1.2(0.1)"
 
 # --- Character: reformat CI strings ---
 stat_ci("1.23 (0.95, 1.59)", bracket = "[", sep = "\u2013")
