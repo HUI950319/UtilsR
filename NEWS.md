@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `stat_ci()` rejects matrices, arrays, and unsupported numeric storage such as
+  integer64 and time spans, avoiding silently flattened or misread values.
+
 * `stat_ci()` validates scalar integer precision before coercion or formatting
   in every mode and reports precision that exceeds the formatted-number limit.
 

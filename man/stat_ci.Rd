@@ -17,7 +17,9 @@ stat_ci(
 \item{x}{Numeric vector (estimate/mean) or character vector (CI strings to reformat).}
 
 \item{y}{Numeric vector: lower CI bound (CI mode) or SD (SD mode).
-Ignored when \code{x} is character.}
+Ignored when \code{x} is character.
+Numeric inputs must be one-dimensional; integer64, date, date-time and
+time-span storage are rejected instead of formatting their internal codes.}
 
 \item{z}{Numeric vector (optional): upper CI bound. If provided, CI mode
 is used; otherwise SD mode. Ignored when \code{x} is character.}

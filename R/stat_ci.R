@@ -11,6 +11,8 @@
 #' @param x Numeric vector (estimate/mean) or character vector (CI strings to reformat).
 #' @param y Numeric vector: lower CI bound (CI mode) or SD (SD mode).
 #'   Ignored when \code{x} is character.
+#'   Numeric inputs must be one-dimensional; integer64, date, date-time and
+#'   time-span storage are rejected instead of formatting their internal codes.
 #' @param z Numeric vector (optional): upper CI bound. If provided, CI mode
 #'   is used; otherwise SD mode. Ignored when \code{x} is character.
 #' @param digits A single integer from 0 to 8190, giving the number of decimal
@@ -75,6 +77,20 @@ stat_ci <- function(x, y = NULL, z = NULL,
         if (any(widths + 1L + rep_len(d, length(values))[at] > 8192L)) {
           cli::cli_abort("{.arg digits} exceeds the 8192-byte limit for a formatted number.")
         }
+      }
+    }
+  }
+  if (!is.null(dim(x))) cli::cli_abort("{.arg x} must be a vector, not a matrix or array.")
+  if (!is.character(x)) {
+    inputs <- list(x = x, y = y, z = z)
+    for (arg in names(inputs)) {
+      value <- inputs[[arg]]
+      if (!is.null(dim(value))) {
+        cli::cli_abort("{.arg {arg}} must be a vector, not a matrix or array.")
+      }
+      if (inherits(value, c("integer64", "Date", "POSIXt", "difftime",
+                            "Duration", "Period", "Interval"))) {
+        cli::cli_abort("{.arg {arg}} must use ordinary numeric values, not integer64, date, date-time, or time-span storage.")
       }
     }
   }
