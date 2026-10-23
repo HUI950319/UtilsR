@@ -51,6 +51,7 @@
 #'   Existing dplyr groups are ignored for this table. Generated frequency,
 #'   percentage, and total column names receive numeric suffixes when needed
 #'   to preserve input columns and category labels.
+#'   Empty category labels are displayed as \code{(blank)} in wide tables.
 #'   Names must be non-missing and distinct; invalid controls are errors.
 #' @param cat_args Optional named list of extra arguments forwarded to
 #'   \code{\link[RegR:get_gt_cat]{RegR::get_gt_cat()}} for an additional
@@ -534,8 +535,11 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
           names_from = dplyr::all_of(count_vars[2]),
           values_from = dplyr::all_of(n_name),
           values_fill = 0,
+          names_prefix = ".lv_",
           names_repair = "minimal"
         )
+      names(cross_wide)[-1L] <- substring(names(cross_wide)[-1L], 5L)
+      names(cross_wide)[names(cross_wide) == ""] <- "(blank)"
       names(cross_wide) <- make.unique(names(cross_wide), sep = "_")
       total_name <- tail(make.unique(c(names(cross_wide), "Total"), sep = "_"), 1L)
 
@@ -577,8 +581,11 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
           names_from = dplyr::all_of(count_vars[2]),
           values_from = dplyr::all_of(pct_name),
           values_fill = 0,
+          names_prefix = ".lv_",
           names_repair = "minimal"
         )
+      names(cross_pct)[-1L] <- substring(names(cross_pct)[-1L], 5L)
+      names(cross_pct)[names(cross_pct) == ""] <- "(blank)"
       names(cross_pct) <- make.unique(names(cross_pct), sep = "_")
 
       if (knitting) .lv_print_report(gt::gt(cross_pct))

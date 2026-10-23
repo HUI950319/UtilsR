@@ -1,5 +1,8 @@
 # UtilsR 0.6.8
 
+* `lv()` retains empty cross-tabulation categories in wide tables, displaying
+  them as `(blank)` and disambiguating an existing category with that label.
+
 * `plt_dist()` uses complete required rows in every mode and reports how
   many rows were removed. Unrelated missing columns are ignored; no usable
   rows produce an explicit error instead of an empty plot.

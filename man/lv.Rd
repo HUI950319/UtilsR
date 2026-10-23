@@ -50,6 +50,7 @@ variable name (NSE or string), multiple variable names via
 Existing dplyr groups are ignored for this table. Generated frequency,
 percentage, and total column names receive numeric suffixes when needed
 to preserve input columns and category labels.
+Empty category labels are displayed as \code{(blank)} in wide tables.
 Names must be non-missing and distinct; invalid controls are errors.}
 
 \item{cat_args}{Optional named list of extra arguments forwarded to

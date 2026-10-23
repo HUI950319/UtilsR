@@ -269,3 +269,14 @@ test_that("suggested filters escape column names and character values", {
     expect_identical(result$value$value, data)
   }
 })
+
+test_that("blank cross-tabulation categories remain distinct and renderable", {
+  data <- data.frame(g = c("A", "A", "B"), x = c("", "", "(blank)"))
+  result <- capture_lv(lv(data, count = c(g, x)))
+  wide <- result$tables[[1L]]
+  expect_identical(names(wide), c("g", "(blank)", "(blank)_1", "Total"))
+  expect_equal(wide[["(blank)"]], c(2, 0))
+  expect_equal(wide[["(blank)_1"]], c(0, 1))
+  expect_equal(wide[["Total"]], c(2, 1))
+  expect_identical(result$value$value, data)
+})
