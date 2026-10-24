@@ -172,7 +172,7 @@ console_width <- function() {
 #'
 #' Print a timestamped, type-coloured message. Supports multi-line messages
 #' (split on \code{"\\n"}); lines longer than the console wrap, the
-#' continuation lines starting under the text.
+#' continuation lines starting under the text, unless \code{wrap = FALSE}.
 #'
 #' The message is a cli message, like those of \code{cli::cli_inform()}:
 #' \code{suppressMessages()} silences it, and it is written to standard output
@@ -188,6 +188,9 @@ console_width <- function() {
 #'   colour after a magenta timestamp. \code{"chip"} prints the timestamp in
 #'   grey and colours only a short type label (\code{INFO}, \code{DONE},
 #'   \code{WARN}, \code{FAIL}), leaving the text plain.
+#' @param wrap Logical. \code{FALSE} keeps every line whole, for a line
+#'   meant to be copied, such as a call: wrapping would break it, or a
+#'   string in it, across lines.
 #' @param verbose Logical. If \code{FALSE}, suppress output.
 #'
 #' @examples
@@ -200,6 +203,7 @@ console_width <- function() {
                          type = c("info", "success", "warning", "error"),
                          timestamp_format = "[%Y-%m-%d %H:%M:%S]",
                          style = c("full", "chip"),
+                         wrap = TRUE,
                          verbose = TRUE) {
   if (!verbose) return(invisible())
   cfg   <- ._type_cfg(match.arg(type))
@@ -209,7 +213,7 @@ console_width <- function() {
   # wrap at the console width, less the timestamp and the label or symbol
   avail <- max(20, console_width() - nchar(ts) - if (style == "chip") 10 else 6)
   lines <- unlist(lapply(if (length(lines)) lines else "", function(l) {
-    if (nzchar(l)) as.character(cli::ansi_strwrap(l, width = avail)) else ""
+    if (wrap && nzchar(l)) as.character(cli::ansi_strwrap(l, width = avail)) else l
   }))
 
   tryCatch({

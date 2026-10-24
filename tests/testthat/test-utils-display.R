@@ -105,3 +105,12 @@ test_that(".cat_saved() reports the path, size and a replaced file", {
   expect_match(saved(TRUE), "[7x5 in, replaced the existing PDF]", fixed = TRUE)
   expect_message(.cat_saved("saved to", "a.docx", "2x3 cells", FALSE, "DOCX"))
 })
+
+test_that(".cat_message(wrap = FALSE) keeps a line meant to be copied whole", {
+  withr::local_options(cli.width = 50)
+  call <- 'save = list(filename = "Figure 1. A long figure title.pdf", width = 7)'
+  out <- cli::ansi_strip(cli::cli_fmt(.cat_message(paste0("Laid out\n", call),
+                                                   wrap = FALSE)))
+  expect_length(out, 2L)
+  expect_true(endsWith(trimws(out[2]), call))
+})

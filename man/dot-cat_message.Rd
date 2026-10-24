@@ -9,6 +9,7 @@
   type = c("info", "success", "warning", "error"),
   timestamp_format = "[\%Y-\%m-\%d \%H:\%M:\%S]",
   style = c("full", "chip"),
+  wrap = TRUE,
   verbose = TRUE
 )
 }
@@ -26,12 +27,16 @@ colour after a magenta timestamp. \code{"chip"} prints the timestamp in
 grey and colours only a short type label (\code{INFO}, \code{DONE},
 \code{WARN}, \code{FAIL}), leaving the text plain.}
 
+\item{wrap}{Logical. \code{FALSE} keeps every line whole, for a line
+meant to be copied, such as a call: wrapping would break it, or a
+string in it, across lines.}
+
 \item{verbose}{Logical. If \code{FALSE}, suppress output.}
 }
 \description{
 Print a timestamped, type-coloured message. Supports multi-line messages
 (split on \code{"\\n"}); lines longer than the console wrap, the
-continuation lines starting under the text.
+continuation lines starting under the text, unless \code{wrap = FALSE}.
 }
 \details{
 The message is a cli message, like those of \code{cli::cli_inform()}:

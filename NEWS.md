@@ -1,5 +1,8 @@
 # UtilsR 0.6.11
 
+* `.cat_message(wrap = FALSE)` keeps every line whole, for a line meant to
+  be copied, such as a `save = list(...)` call.
+
 * New `.cat_saved()` announces a written file as
   `<subject>: <path> [<size>, new PDF]`, or `replaced the existing PDF` in
   red, as a `.cat_message()`; it moves here from RegR. `PlotCircleLollipop()`,
