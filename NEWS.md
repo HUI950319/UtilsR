@@ -1,5 +1,9 @@
 # UtilsR 0.6.10
 
+* `check_packages()` reports library counts with `pr_head()`, `pr_table()` and
+  `pr_note()`, highlighting the total and fitting long paths to the console.
+  It returns the same data frame invisibly, retaining full paths and counts.
+
 * The print helpers write no colour codes when standard output shows no
   colour, as when `Rscript x.R > log.txt` runs in a terminal. `pr_note()`
   and `.cat_step()` show text that cli cannot parse, such as data with

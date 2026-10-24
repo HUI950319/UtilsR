@@ -12,12 +12,14 @@
 #' @param refresh Logical scalar. If \code{TRUE}, bypass the installed-package
 #'   cache and read package metadata from disk. Defaults to \code{FALSE}.
 #'
-#' @return A data.frame with columns \code{Library_Path} and
+#' @return Invisibly, a data.frame with columns \code{Library_Path} and
 #'   \code{Package_Count}, including a total row. Failed libraries and the
 #'   total have \code{NA} counts if any library cannot be read.
 #'
 #' @details A warning identifies each library that cannot be read. Counts for
 #'   readable libraries are still returned; the total is not a partial sum.
+#'   A formatted report is written to standard output. Long library paths may
+#'   be shortened in the report; the returned data frame keeps full paths.
 #'
 #' @examples
 #' \dontrun{
@@ -54,5 +56,29 @@ check_packages <- function(refresh = FALSE) {
     stringsAsFactors = FALSE
   )
 
-  return(result)
+  total <- result[["Package_Count"]][nrow(result)]
+  pr_head("check_packages", sprintf("%d libraries", length(lib_paths)),
+          if (is.na(total)) "incomplete counts" else
+            sprintf("%s installed copies", format(total, big.mark = ",", trim = TRUE)),
+          if (refresh) "refreshed",
+          bg = if (is.na(total)) "yellow" else "blue",
+          fg = if (is.na(total)) "black" else "br_white")
+
+  display <- result[c("Package_Count", "Library_Path")]
+  names(display) <- c("Packages", "Library")
+  count_width <- max(nchar(c("Packages", format(display[["Packages"]],
+                                                scientific = FALSE, trim = TRUE)),
+                           type = "width"))
+  display[["Library"]] <- as.character(cli::ansi_strtrim(
+    display[["Library"]], max(8L, console_width() - count_width - 4L)))
+  pr_table(display, highlight = nrow(display), n = NULL)
+  pr_note("Counts are installed copies; the same package in multiple libraries is counted more than once.")
+  if (is.na(total)) {
+    pr_note("NA marks unreadable libraries; Total is unavailable.")
+  }
+  if (!identical(display[["Library"]], result[["Library_Path"]])) {
+    pr_note("Full paths remain in the returned data frame.")
+  }
+
+  invisible(result)
 }

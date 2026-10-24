@@ -11,7 +11,7 @@ check_packages(refresh = FALSE)
 cache and read package metadata from disk. Defaults to \code{FALSE}.}
 }
 \value{
-A data.frame with columns \code{Library_Path} and
+Invisibly, a data.frame with columns \code{Library_Path} and
   \code{Package_Count}, including a total row. Failed libraries and the
   total have \code{NA} counts if any library cannot be read.
 }
@@ -24,6 +24,8 @@ copies across libraries, including packages installed in more than one library.
 \details{
 A warning identifies each library that cannot be read. Counts for
 readable libraries are still returned; the total is not a partial sum.
+A formatted report is written to standard output. Long library paths may
+be shortened in the report; the returned data frame keeps full paths.
 }
 \examples{
 \dontrun{

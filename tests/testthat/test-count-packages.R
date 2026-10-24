@@ -79,9 +79,11 @@ test_that("check_packages reports libraries that disappear after path registrati
   withr::local_libpaths(c(lib, empty), action = "prefix")
   stopifnot(file.rename(lib, paste0(lib, "-moved")))
 
-  expect_warning(result <- check_packages(), lib, fixed = TRUE)
+  expect_warning(out <- capture.output(result <- check_packages()), lib, fixed = TRUE)
   expect_identical(result[["Package_Count"]][1:2], c(NA_integer_, 0L))
   expect_identical(tail(result[["Package_Count"]], 1), NA_integer_)
+  expect_match(paste(cli::ansi_strip(out), collapse = "\n"), "incomplete", fixed = TRUE)
+  expect_match(paste(cli::ansi_strip(out), collapse = "\n"), "unavailable", fixed = TRUE)
 })
 
 test_that("check_packages continues after a library metadata read fails", {
@@ -97,4 +99,48 @@ test_that("check_packages continues after a library metadata read fails", {
   expect_warning(result <- check_packages(refresh = TRUE), lib, fixed = TRUE)
   expect_identical(result[["Package_Count"]][1:2], c(NA_integer_, 0L))
   expect_identical(tail(result[["Package_Count"]], 1), NA_integer_)
+})
+
+test_that("check_packages prints a report and invisibly returns the data frame", {
+  withr::local_options(cli.num_colors = 0, cli.width = 120)
+  out <- capture.output(visible <- withVisible(suppressMessages(check_packages())))
+  plain <- cli::ansi_strip(out)
+
+  expect_identical(visible[["visible"]], FALSE)
+  expect_s3_class(visible[["value"]], "data.frame")
+  expect_named(visible[["value"]], c("Library_Path", "Package_Count"))
+  expect_match(paste(head(plain, 1), collapse = ""), "<check_packages>", fixed = TRUE)
+  expect_match(paste(plain, collapse = "\n"), "Packages", fixed = TRUE)
+  expect_match(paste(plain, collapse = "\n"), "Library", fixed = TRUE)
+  expect_length(grep("^> +.*Total", plain), 1L)
+  expect_match(paste(plain[startsWith(plain, "#")], collapse = " "),
+               "installed copies", fixed = TRUE)
+  expect_identical(any(grepl("Full paths", plain, fixed = TRUE)), FALSE)
+})
+
+test_that("check_packages fits narrow consoles without changing full paths", {
+  withr::local_options(cli.num_colors = 0, cli.width = 48)
+  root <- withr::local_tempdir()
+  lib <- file.path(root, paste(rep("long_segment", 5), collapse = "_"))
+  dir.create(lib)
+  withr::local_libpaths(lib, action = "prefix")
+
+  out <- cli::ansi_strip(capture.output(result <- check_packages()))
+  expect_identical(result[["Library_Path"]][[1]], normalizePath(lib, winslash = "/"))
+  expect_match(paste(out, collapse = "\n"), "Packages", fixed = TRUE)
+  expect_match(paste(out, collapse = "\n"), "Library", fixed = TRUE)
+  expect_lte(max(c(0L, nchar(out, type = "width"))), 48L)
+  expect_match(paste(out, collapse = "\n"), "Full paths", fixed = TRUE)
+})
+
+test_that("check_packages prints all libraries and the total beyond twenty rows", {
+  withr::local_options(cli.num_colors = 0, cli.width = 200)
+  root <- withr::local_tempdir()
+  libs <- file.path(root, sprintf("library-%02d", seq_len(21)))
+  for (lib in libs) dir.create(lib)
+  withr::local_libpaths(libs, action = "prefix")
+
+  out <- cli::ansi_strip(capture.output(check_packages()))
+  expect_match(paste(out, collapse = "\n"), "library-21", fixed = TRUE)
+  expect_length(grep("^> +.*Total", out), 1L)
 })
