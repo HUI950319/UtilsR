@@ -23,7 +23,13 @@ check_packages(refresh = FALSE)
 ## Value
 
 A data.frame with columns `Library_Path` and `Package_Count`, including
-a total row.
+a total row. Failed libraries and the total have `NA` counts if any
+library cannot be read.
+
+## Details
+
+A warning identifies each library that cannot be read. Counts for
+readable libraries are still returned; the total is not a partial sum.
 
 ## See also
 

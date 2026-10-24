@@ -2,6 +2,12 @@
 
 ## UtilsR 0.6.9
 
+- [`check_packages()`](https://hui950319.github.io/UtilsR/reference/check_packages.md)
+  warns about missing, inaccessible or unreadable libraries and
+  continues counting the others. Failed counts and the total are `NA`,
+  so incomplete results cannot be mistaken for an empty library or a
+  full total.
+
 - `check_packages(refresh = TRUE)` reads installed-package counts from
   disk instead of cached metadata. The default keeps the existing cache
   behavior.

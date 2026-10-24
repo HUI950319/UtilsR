@@ -79,7 +79,13 @@ cache and read package metadata from disk. Defaults to <code>FALSE</code>.</p></
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A data.frame with columns <code>Library_Path</code> and
-  <code>Package_Count</code>, including a total row.</p>
+  <code>Package_Count</code>, including a total row. Failed libraries and the
+  total have <code>NA</code> counts if any library cannot be read.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>A warning identifies each library that cannot be read. Counts for
+readable libraries are still returned; the total is not a partial sum.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
