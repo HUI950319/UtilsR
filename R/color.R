@@ -309,7 +309,8 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
   }
   for (nm in names(pals)) {
     tp <- attr(pals[[nm]], "type") %||% "?"
-    cat(sprintf("\n=== %s (%d colours, %s) ===\n", nm, length(pals[[nm]]), tp))
+    cat("\n")
+    pr_section(sprintf("%s (%d colours, %s)", nm, length(pals[[nm]]), tp))
     if (show) show_color(pals[[nm]])
   }
   invisible(pals)
@@ -643,7 +644,8 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
   if (output == "console") {
     for (nm in names(pals)) {
       tp <- attr(pals[[nm]], "type") %||% "?"
-      cat(sprintf("\n=== %s (%s colours, %s) ===\n", nm, n_label[[nm]], tp))
+      cat("\n")
+      pr_section(sprintf("%s (%s colours, %s)", nm, n_label[[nm]], tp))
       show_color(pals[[nm]])
     }
     return(invisible(pals))
@@ -1206,7 +1208,8 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
 
   # --- Console output ---
   if (output == "console") {
-    cat(sprintf("\n=== %d colours ===\n", n))
+    cat("\n")
+    pr_section(sprintf("%d colours", n))
     show_color(colors)
     return(invisible(colors))
   }

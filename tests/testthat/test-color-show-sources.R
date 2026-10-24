@@ -151,8 +151,11 @@ test_that("pal_show displays palettes in the console", {
     pal_show("Set1", max_colors = 3, output = "console")
   )
 
-  expect_match(paste(output, collapse = "\n"),
-               "=== Set1 \\(3 / 9 colours, discrete\\) ===")
+  # a section rule per palette, no "===" banner
+  rule <- strrep(cli::symbol$line, 2)
+  expect_true(any(startsWith(output,
+                             paste(rule, "Set1 (3 / 9 colours, discrete) "))))
+  expect_false(any(grepl("===", output, fixed = TRUE)))
 })
 
 test_that("pal_show reports drawn and available colours when it truncates", {
@@ -196,6 +199,8 @@ test_that("pal_show displays colour vectors in the console", {
   )
 
   expect_match(paste(output, collapse = "\n"), "#FF0000")
+  expect_true(any(startsWith(output,
+                             paste(strrep(cli::symbol$line, 2), "2 colours "))))
 })
 
 test_that("show_color follows the terminal's colour depth", {
@@ -238,10 +243,11 @@ test_that("palette source wrappers support console output", {
     pal_show_viridis("viridis", n = 3, output = "console")
   )
 
-  expect_match(paste(brewer_output, collapse = "\n"), "=== Set1")
-  expect_match(paste(hcl_output, collapse = "\n"), "=== Dark 3")
-  expect_match(paste(ggsci_output, collapse = "\n"), "=== ggsci_npg_nrc")
-  expect_match(paste(viridis_output, collapse = "\n"), "=== viridis")
+  rule <- strrep(cli::symbol$line, 2)
+  expect_true(any(startsWith(brewer_output, paste(rule, "Set1 ("))))
+  expect_true(any(startsWith(hcl_output, paste(rule, "Dark 3 ("))))
+  expect_true(any(startsWith(ggsci_output, paste(rule, "ggsci_npg_nrc ("))))
+  expect_true(any(startsWith(viridis_output, paste(rule, "viridis ("))))
 })
 
 test_that("pal_heat holds eleven five-colour diverging gradients", {

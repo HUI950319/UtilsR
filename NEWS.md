@@ -1,5 +1,9 @@
 # UtilsR 0.6.10
 
+* `pal_list()` and console `pal_show()` head each palette with a
+  `pr_section()` rule, `"Set1 (9 colours, discrete)"`, instead of a
+  `===` banner; so do the `pal_show_*()` wrappers.
+
 * `check_system(show_warnings = TRUE)` emits one acquisition warning when
   a memory backend fails, preserving its cause without a duplicate warning.
 
