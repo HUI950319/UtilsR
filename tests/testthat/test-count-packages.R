@@ -56,6 +56,7 @@ test_that("check_packages marks inaccessible libraries and totals as unknown", {
   dir.create(lib)
   dir.create(empty)
   stopifnot(file.copy(find.package("compiler"), lib, recursive = TRUE))
+  lib <- normalizePath(lib, winslash = "/", mustWork = TRUE)
   withr::local_libpaths(c(lib, empty), action = "prefix")
   withr::defer(Sys.chmod(lib, mode = "0700"))
   Sys.chmod(lib, mode = "0000")
@@ -74,6 +75,7 @@ test_that("check_packages reports libraries that disappear after path registrati
   empty <- file.path(root, "empty")
   dir.create(lib)
   dir.create(empty)
+  lib <- normalizePath(lib, winslash = "/", mustWork = TRUE)
   withr::local_libpaths(c(lib, empty), action = "prefix")
   stopifnot(file.rename(lib, paste0(lib, "-moved")))
 
@@ -89,6 +91,7 @@ test_that("check_packages continues after a library metadata read fails", {
   dir.create(file.path(lib, "broken", "Meta"), recursive = TRUE)
   dir.create(empty)
   saveRDS(1L, file.path(lib, "broken", "Meta", "package.rds"))
+  lib <- normalizePath(lib, winslash = "/", mustWork = TRUE)
   withr::local_libpaths(c(lib, empty), action = "prefix")
 
   expect_warning(result <- check_packages(refresh = TRUE), lib, fixed = TRUE)
