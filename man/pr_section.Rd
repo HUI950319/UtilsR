@@ -11,7 +11,7 @@ pr_section(title, width = NULL)
 
 \item{width}{Integer. Rule width in characters; \code{NULL} (default) uses
 the console width, capped at 80 so the rule does not stretch across
-wide consoles.}
+wide consoles. A title too long for the rule is cut with an ellipsis.}
 }
 \value{
 The printed line, invisibly.

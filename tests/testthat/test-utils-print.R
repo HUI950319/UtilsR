@@ -287,3 +287,13 @@ test_that("pr_note() wraps long notes with a # on every line", {
   expect_true(all(cli::ansi_nchar(out, type = "width") <= 40))
   expect_true(all(startsWith(out, "# ")))
 })
+
+test_that("pr_head() and pr_section() trim long text with an ellipsis", {
+  withr::local_options(cli.num_colors = 1, cli.width = 40, cli.unicode = TRUE)
+  h <- utils::capture.output(pr_head("get_inter_abs", strrep("abc ", 20)))
+  expect_lte(cli::ansi_nchar(h, type = "width"), 40L)
+  expect_match(h, "\u2026$")
+  s <- utils::capture.output(pr_section(strrep("long title ", 10), width = 40))
+  expect_identical(cli::ansi_nchar(s, type = "width"), 40L)
+  expect_match(s, "\u2026 \u2500+$")
+})

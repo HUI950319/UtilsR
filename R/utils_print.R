@@ -104,6 +104,8 @@
 #'   Without colour (knitted documents, log files) the label prints as
 #'   \code{<class>}.
 #'
+#' @details A line longer than the console is cut with an ellipsis.
+#'
 #' @return The printed line, invisibly.
 #'
 #' @examples
@@ -119,7 +121,7 @@ pr_head <- function(class, ..., bg = "blue", fg = "br_white") {
   if (length(parts)) {
     line <- paste(line, cli::col_grey(paste(parts, collapse = " \u00b7 ")))
   }
-  ._pr_out(line)
+  ._pr_out(cli::ansi_strtrim(line, console_width()))
 }
 
 # ------------- pr_kv --------------------------------------------------------
@@ -161,7 +163,7 @@ pr_kv <- function(x, indent = 2) {
 #' @param title Character. Section title.
 #' @param width Integer. Rule width in characters; \code{NULL} (default) uses
 #'   the console width, capped at 80 so the rule does not stretch across
-#'   wide consoles.
+#'   wide consoles. A title too long for the rule is cut with an ellipsis.
 #'
 #' @return The printed line, invisibly.
 #'
@@ -172,6 +174,8 @@ pr_kv <- function(x, indent = 2) {
 #' @family print helpers
 pr_section <- function(title, width = NULL) {
   width <- width %||% min(console_width(), 80L)
+  # keep two line characters on each side of the title
+  title <- cli::ansi_strtrim(title, max(10L, width - 6L))
   line  <- cli::rule(left = cli::style_bold(title), line_col = cli::col_grey,
                      width = width)
   ._pr_out(as.character(line))

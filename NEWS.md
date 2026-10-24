@@ -20,7 +20,9 @@
   value column, indent the lines of values with newlines the same way, and
   show at most 20 items of a vector followed by its length. `pr_note()`
   wraps long notes with a `#` on every line, and `.cat_message()` wraps long
-  lines under the message text.
+  lines under the message text. `pr_head()` cuts a line longer than the
+  console with an ellipsis, and `pr_section()` a title too long for its rule,
+  which `cli::rule()` had cut without one.
 
 # UtilsR 0.6.9
 

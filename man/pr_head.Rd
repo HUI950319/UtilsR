@@ -27,6 +27,9 @@ The printed line, invisibly.
 Print a class label on a solid background followed by a grey one-line
 summary: the first line of an S3 print method.
 }
+\details{
+A line longer than the console is cut with an ellipsis.
+}
 \examples{
 pr_head("sens_res", 'method = "cox"', "tipr 1.0.2", "n = 2,314")
 
