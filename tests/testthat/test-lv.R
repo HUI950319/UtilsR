@@ -582,3 +582,14 @@ test_that("the variable summary tints rows by variable type", {
   }
   expect_false("flag" %in% filled$var)
 })
+
+test_that("lv prints its console sections with pr_section()", {
+  data <- data.frame(age = c(40, 50, 50), sex = c("M", "F", "M"))
+  out <- cli::ansi_strip(utils::capture.output(suppressMessages(lv(data))))
+  rules <- gsub(cli::symbol$line, "-", out[grepl(cli::symbol$line, out, fixed = TRUE)],
+                fixed = TRUE)
+  expect_true(any(grepl("^-- age \\(numeric\\): count -+$", rules)))
+  expect_true(any(grepl("^-- sex \\(character\\): unique values -+$", rules)))
+  expect_true(any(grepl("^-- Variable summary \\(2 variables\\) -+$", rules)))
+  expect_false(any(grepl("----1.", out, fixed = TRUE)))
+})

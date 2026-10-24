@@ -329,15 +329,14 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     )
 
     if (!knitting) {
-      cat(sprintf("----1. %s (%s) count----------\n", var, var_class))
+      pr_section(sprintf("%s (%s): count", var, var_class))
       data %>%
         tibble::as_tibble() %>%
         dplyr::count(.data[[var]]) %>%
         print()
 
-      cat(sprintf("----2. %s (%s) %s----------\n",
-                  var, var_class,
-                  if (is.factor(col_data)) "Levels" else "unique"))
+      pr_section(sprintf("%s (%s): %s", var, var_class,
+                         if (is.factor(col_data)) "levels" else "unique values"))
     }
 
     unique_values <- .get_levels(col_data)
@@ -813,13 +812,11 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
 
   if (!knitting) {
     if (!is.null(res_count)) {
-      .cat_line(sprintf("** Variable Counts (%d variables) **", length(table_vars)),
-                type = "info")
+      pr_section(sprintf("Variable counts (%d variables)", length(table_vars)))
       print(tibble::as_tibble(res_count))
     }
 
-    .cat_line(sprintf("** Variable Summary (%d variables) **", length(vars)),
-              type = "success")
+    pr_section(sprintf("Variable summary (%d variables)", length(vars)))
     print(result)
   }
 

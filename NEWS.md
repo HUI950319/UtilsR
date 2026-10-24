@@ -7,6 +7,9 @@
   `check_size()` with nothing selected says so in a grey note. `check_na()`
   heads its table with a class label giving the variable count (green when
   nothing is missing) and reports empty input in grey notes.
+  In the console, `lv()` heads each variable's count and level listings and
+  its overall tables with grey rules instead of `----` and `** **` lines;
+  its cli headers, which knitr shows as messages, stay as they were.
 
 * `fct_cat(ref_idx = 0)` is the same as `ref_idx = NULL`: nothing collapses,
   and another mode given alongside still runs. Only a single `0` means none;
