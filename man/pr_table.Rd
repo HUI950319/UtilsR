@@ -45,6 +45,10 @@ text is kept as written, and values print bold red below 0.001, red below
 0.05 and grey otherwise. Other double columns are rounded to
 \code{digits} decimals, or none when every value is whole. Missing values
 print as a grey \code{NA}. Everything else uses \code{as.character()}.
+Without colour (knitted documents, log files), P values carry stars
+(\code{***} below 0.001, \code{**} below 0.01, \code{*} below 0.05),
+highlighted rows start with \code{>} and missing text cells read
+\code{<NA>}.
 }
 \examples{
 res <- data.frame(

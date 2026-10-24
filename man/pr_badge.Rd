@@ -14,7 +14,8 @@ lengths, or length 1). Values are converted with \code{as.character()}.}
 \code{cli::make_ansi_style()} accepts, as in \code{\link{pr_head}()}.}
 }
 \value{
-A character vector of badges, one per key.
+A character vector of badges, one per key; without colour
+  they read \code{[key: value]}.
 }
 \description{
 Build badges in the style of a status badge: the key on dark grey, the

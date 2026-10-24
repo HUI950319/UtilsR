@@ -24,6 +24,7 @@
 #         ._p_cells()    P values -> coloured cells (stat_pval() wording)
 #         ._obj_desc()   object -> short "<type size>" description
 #         ._pr_colour()  does stdout show ANSI colours?
+#         ._pr_label()   class chip, or "<class>" without colour
 #         ._pr_out()     write lines to stdout, return them invisibly
 #
 # Print methods write to stdout with cat(), as print() output is expected
@@ -34,6 +35,12 @@
 # stream, stderr outside interactive sessions, so `Rscript x.R > log.txt`
 # from a terminal would otherwise write colour codes into the file.
 ._pr_colour <- function() cli::num_ansi_colors(stdout()) > 1L
+
+# Class label: a chip where stdout shows colour, "<text>" otherwise, so the
+# label still stands out in knitted documents and log files
+._pr_label <- function(text, bg, fg) {
+  if (._pr_colour()) ._chip(text, bg, fg) else paste0("<", text, ">")
+}
 
 # Write lines to stdout and return them invisibly; no lines print nothing
 # (cat(character(), sep = "\n") would still end an empty line). Colour
@@ -79,6 +86,8 @@
 #' @param bg,fg Background and text colour of the chip: anything
 #'   \code{cli::make_ansi_style()} accepts, i.e. an ANSI colour name such as
 #'   \code{"blue"} or \code{"br_white"}, an R colour name or a hex code.
+#'   Without colour (knitted documents, log files) the label prints as
+#'   \code{<class>}.
 #'
 #' @return The printed line, invisibly.
 #'
@@ -90,8 +99,8 @@
 pr_head <- function(class, ..., bg = "blue", fg = "br_white") {
   parts <- as.character(unlist(list(...), use.names = FALSE))
   parts <- parts[!is.na(parts) & nzchar(parts)]
-  line  <- ._chip(class, cli::make_ansi_style(bg, bg = TRUE),
-                  cli::make_ansi_style(fg))
+  line  <- ._pr_label(class, cli::make_ansi_style(bg, bg = TRUE),
+                      cli::make_ansi_style(fg))
   if (length(parts)) {
     line <- paste(line, cli::col_grey(paste(parts, collapse = " \u00b7 ")))
   }
@@ -200,7 +209,8 @@ pr_note <- function(..., .envir = parent.frame()) {
 #' @param bg,fg Background and text colour of the value part: anything
 #'   \code{cli::make_ansi_style()} accepts, as in \code{\link{pr_head}()}.
 #'
-#' @return A character vector of badges, one per key.
+#' @return A character vector of badges, one per key; without colour
+#'   they read \code{[key: value]}.
 #'
 #' @examples
 #' cat(pr_badge("model", "cox"), pr_badge("n", "2,314", bg = "green"),
@@ -212,6 +222,10 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
   n <- max(length(key), length(value))
   if (!all(c(length(key), length(value)) %in% c(1L, n))) {
     cli::cli_abort("{.arg key} and {.arg value} must have the same length, or length 1.")
+  }
+  if (!._pr_colour()) {
+    return(sprintf("[%s: %s]", rep_len(as.character(key), n),
+                   rep_len(as.character(value), n)))
   }
   white <- cli::make_ansi_style("br_white")
   paste0(._chip(rep_len(as.character(key), n),
@@ -237,6 +251,12 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
   }
   strong <- !is.na(num) & (num < 0.001 | (below & num <= 0.001))
   sig    <- !is.na(num) & !strong & (num < 0.05 | (below & num <= 0.05))
+  # without colour, stars carry the significance instead
+  if (!._pr_colour()) {
+    two <- sig & (num < 0.01 | (below & num <= 0.01))
+    stars <- ifelse(strong, "***", ifelse(two, "**", ifelse(sig, "*", "")))
+    return(paste0(ifelse(is.na(txt), "NA", txt), stars))
+  }
   out <- as.character(cli::col_grey(ifelse(is.na(txt), "NA", txt)))
   out[sig]    <- cli::col_red(txt[sig])
   out[strong] <- cli::style_bold(cli::col_red(txt[strong]))
@@ -256,6 +276,10 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 #' 0.05 and grey otherwise. Other double columns are rounded to
 #' \code{digits} decimals, or none when every value is whole. Missing values
 #' print as a grey \code{NA}. Everything else uses \code{as.character()}.
+#' Without colour (knitted documents, log files), P values carry stars
+#' (\code{***} below 0.001, \code{**} below 0.01, \code{*} below 0.05),
+#' highlighted rows start with \code{>} and missing text cells read
+#' \code{<NA>}.
 #'
 #' @param data A data frame (tibbles included).
 #' @param p_col Character. Names of the P-value columns, or \code{NULL}.
@@ -292,6 +316,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, align = NULL,
   data <- as.data.frame(data)
 
   is_num <- vapply(data, is.numeric, logical(1)) | names(data) %in% p_col
+  colour <- ._pr_colour()
   cells  <- lapply(names(data), function(nm) {
     v <- data[[nm]]
     if (nm %in% p_col) return(._p_cells(v))
@@ -302,7 +327,8 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, align = NULL,
     } else {
       txt <- as.character(v)
     }
-    ifelse(is.na(v), cli::col_grey("NA"), txt)
+    ifelse(is.na(v), if (!colour && !is.numeric(v)) "<NA>" else cli::col_grey("NA"),
+           txt)
   })
 
   align <- if (is.null(align)) ifelse(is_num, "right", "left") else
@@ -325,8 +351,9 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, align = NULL,
   hl_bg  <- cli::make_ansi_style("#FFFF99", bg = TRUE)
   body   <- vapply(seq_len(nrow(data)), function(i) {
     r <- row(lapply(cells, `[`, i))
-    if (i %in% hl) r <- hl_bg(cli::col_black(cli::ansi_strip(r)))
-    paste0(pad, r)
+    if (!(i %in% hl)) return(paste0(pad, r))
+    if (colour) return(paste0(pad, hl_bg(cli::col_black(cli::ansi_strip(r)))))
+    paste0(">", strrep(" ", max(indent - 1L, 1L)), r)
   }, character(1))
   ._pr_out(c(header, rule, body))
 }
@@ -433,7 +460,7 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, attrs = TRUE) {
   }
 
   root_desc <- if (descend(x)) sprintf("<list %d>", length(x)) else ._obj_desc(x)
-  root <- node(x, "x", paste(._chip(class(x)[1], cli::bg_blue, cli::col_br_white),
+  root <- node(x, "x", paste(._pr_label(class(x)[1], cli::bg_blue, cli::col_br_white),
                              cli::col_grey(root_desc)), 0)
   tree <- cli::tree(data.frame(id = rows$id, children = I(rows$children),
                                label = rows$label, stringsAsFactors = FALSE),

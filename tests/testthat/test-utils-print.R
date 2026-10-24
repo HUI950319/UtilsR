@@ -213,3 +213,18 @@ test_that("pr_note() prints text cli cannot parse as written", {
   out <- cli::ansi_strip(utils::capture.output(pr_note("Groups: ", "levels {I, II}")))
   expect_identical(out, "# Groups: levels {I, II}")
 })
+
+test_that("print helpers stay readable without colour", {
+  withr::local_options(cli.num_colors = 1)
+  expect_identical(utils::capture.output(pr_head("eff_res", "2 effect tables")),
+                   "<eff_res> 2 effect tables")
+  expect_identical(pr_badge(c("model", "PH"), c("cox", "violated")),
+                   c("[model: cox]", "[PH: violated]"))
+  out <- utils::capture.output(pr_table(
+    data.frame(term = c("a", "b", NA), P = c(0.0001, 0.004, 0.3)),
+    p_col = "P", highlight = 1))
+  expect_match(out[3], "^> a +<0\\.001\\*\\*\\*$")
+  expect_match(out[4], "^  b +0\\.004\\*\\*$")
+  expect_match(out[5], "^  <NA> +0\\.300$")
+  expect_match(utils::capture.output(pr_tree(list(a = 1)))[1], "^<list> <list 1>$")
+})

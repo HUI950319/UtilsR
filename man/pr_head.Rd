@@ -16,7 +16,9 @@ passed as \code{if (cond) "text"}.}
 
 \item{bg, fg}{Background and text colour of the chip: anything
 \code{cli::make_ansi_style()} accepts, i.e. an ANSI colour name such as
-\code{"blue"} or \code{"br_white"}, an R colour name or a hex code.}
+\code{"blue"} or \code{"br_white"}, an R colour name or a hex code.
+Without colour (knitted documents, log files) the label prints as
+\code{<class>}.}
 }
 \value{
 The printed line, invisibly.

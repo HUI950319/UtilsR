@@ -3,7 +3,10 @@
 * The print helpers write no colour codes when standard output shows no
   colour, as when `Rscript x.R > log.txt` runs in a terminal. `pr_note()`
   and `.cat_step()` show text that cli cannot parse, such as data with
-  braces, as written instead of failing.
+  braces, as written instead of failing. Without colour (knitted documents,
+  log files) class labels read `<class>`, badges `[key: value]`, and
+  `pr_table()` marks significance with stars, highlighted rows with `>` and
+  missing text cells with `<NA>`.
 
 # UtilsR 0.6.9
 

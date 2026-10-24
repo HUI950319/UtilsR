@@ -16,7 +16,7 @@ test_that("system diagnostics retain their result schema and visibility", {
 
 test_that("check_system prints its report with the print helpers", {
   out <- cli::ansi_strip(utils::capture.output(check_system()))
-  expect_match(out[1], "^ check_system  ")
+  expect_match(out[1], "^<check_system> ")
   rules <- out[grepl(cli::symbol$line, out, fixed = TRUE)]
   expect_gte(length(rules), 5L)
   expect_true(any(grepl("^  R\u7248\u672c +[0-9]", out)))

@@ -561,12 +561,12 @@ test_that("check_na reports through the print helpers", {
   shown <- function(expr) cli::ansi_strip(utils::capture.output(expr))
   # assign the returned gt table, which capture.output() would otherwise print
   expect_identical(shown(res <- check_na(data.frame(a = c(1, NA), b = 1:2))),
-                   " check_na  1 variables with data quality issues")
+                   "<check_na> 1 variables with data quality issues")
   expect_identical(shown(res <- check_na(data.frame(a = c(1, NA), b = 1:2),
                                          show_all = TRUE)),
-                   " check_na  showing all 2 variables")
+                   "<check_na> showing all 2 variables")
   expect_identical(shown(check_na(data.frame(a = 1:3))),
-                   " check_na  no missing or special values found")
+                   "<check_na> no missing or special values found")
   expect_identical(shown(check_na(data.frame(a = 1)[0, , drop = FALSE])),
                    "# No observations available for data quality analysis.")
 })
