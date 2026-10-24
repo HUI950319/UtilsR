@@ -1,5 +1,10 @@
 # UtilsR 0.6.10
 
+* `PlotRankCor()` prints its per-group correlations as a `pr_table()`
+  with the P values coloured by significance. The coefficient column is
+  `r` for `use_rank = FALSE`, as in the subtitle; the printed lines called
+  a Pearson coefficient `rho`.
+
 * `pal_list()` and console `pal_show()` head each palette with a
   `pr_section()` rule, `"Set1 (9 colours, discrete)"`, instead of a
   `===` banner; so do the `pal_show_*()` wrappers.

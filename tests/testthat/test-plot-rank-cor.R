@@ -30,6 +30,18 @@ test_that("missing scores do not acquire ranks or enter correlations", {
   expect_true(is.na(attr(empty, "cor_results")$p.value))
 })
 
+test_that("the correlations print as a table named after the coefficient", {
+  dat <- rank_cor_data()
+  run <- function(...) utils::capture.output(p <- PlotRankCor(
+    dat, stat.by = "item", value.by = "score", method.by = "method",
+    show.label = FALSE, ...))
+  out <- run()
+  expect_true(any(grepl("^  group +rho +P$", out)))
+  expect_false(any(grepl("rho =", out, fixed = TRUE)))
+  # Pearson coefficients are r, as in the subtitle
+  expect_true(any(grepl("^  group +r +P$", run(use_rank = FALSE))))
+})
+
 test_that("minmax scaling preserves missing values and handles empty ranges", {
   dat <- rank_cor_data()
   dat$score[dat$method == "M1"] <- c(5, 5, NA, NA)

@@ -299,15 +299,12 @@ PlotRankCor <- function(
   }))
   rownames(cor_results) <- NULL
 
-  # Print correlation results
-  for (i in seq_len(nrow(cor_results))) {
-    cat(sprintf("  %s: rho = %.3f, p = %.4g\n",
-                cor_results$group[i], cor_results$rho[i],
-                cor_results$p.value[i]))
-  }
+  # Print correlation results, the coefficient named as in the subtitle
+  cor_label <- if (use_rank) "rho" else "r"
+  pr_table(stats::setNames(cor_results, c("group", cor_label, "P")),
+           p_col = "P", digits = 3)
 
   # ---- Build subtitle with correlation info ----
-  cor_label <- if (use_rank) "rho" else "r"
   sub_parts <- vapply(seq_len(nrow(cor_results)), function(i) {
     sprintf("%s: %s = %.3f (p = %.3g)",
             cor_results$group[i], cor_label, cor_results$rho[i],
