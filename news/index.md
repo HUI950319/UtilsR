@@ -3,6 +3,15 @@
 ## UtilsR 0.6.10
 
 - [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md)
+  validates memory totals and available memory on every backend,
+  preventing negative, non-finite or out-of-range usage. Missing Linux
+  cache fields use a conservative free-memory fallback.
+
+- [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md)
+  reports unavailable memory as scalar missing values when Windows
+  queries return no results, while retaining the remaining diagnostics.
+
+- [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md)
   matches complete Linux memory fields, so the fallback for missing
   `MemAvailable` does not mistake `SwapCached` for `Cached`.
 
