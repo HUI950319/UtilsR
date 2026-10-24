@@ -133,3 +133,32 @@ test_that("missing Windows memory query results do not abort diagnostics", {
     expect_identical(result$system_info$os_name, "Windows")
   }
 })
+
+test_that("invalid memory measurements cannot produce negative or undefined usage", {
+  inputs <- list(
+    c("MemTotal: 8388608 kB", "MemAvailable: 16777216 kB"),
+    c("MemTotal: 0 kB", "MemAvailable: 0 kB"),
+    c("MemTotal: 8388608 kB", "MemAvailable: unavailable"),
+    c("MemTotal: 8388608 kB", "MemAvailable: -1048576 kB")
+  )
+  for (meminfo in inputs) {
+    query <- .check_system_fixture(meminfo = meminfo)
+    expect_no_error(utils::capture.output(result <- query(return_result = TRUE)))
+    expect_true(all(is.na(unlist(result$system_memory))))
+  }
+  query <- .check_system_fixture(os = "Windows", legacy = list(
+    "wmic OS get TotalVisibleMemorySize /Value" = "TotalVisibleMemorySize=8388608",
+    "wmic OS get FreePhysicalMemory /Value" = "FreePhysicalMemory=16777216"
+  ))
+  utils::capture.output(result <- query(return_result = TRUE))
+  expect_true(all(is.na(unlist(result$system_memory))))
+})
+
+test_that("Linux missing cached memory still provides a conservative fallback", {
+  query <- .check_system_fixture(meminfo = c(
+    "MemTotal: 8388608 kB", "MemFree: 1048576 kB"
+  ))
+  expect_no_error(utils::capture.output(result <- query(return_result = TRUE)))
+  expect_identical(result$system_memory,
+                   list(total_gb = 8, used_gb = 7, free_gb = 1, usage_percent = 87.5))
+})

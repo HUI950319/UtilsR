@@ -1,5 +1,9 @@
 # UtilsR 0.6.10
 
+* `check_system()` validates memory totals and available memory on every
+  backend, preventing negative, non-finite or out-of-range usage. Missing
+  Linux cache fields use a conservative free-memory fallback.
+
 * `check_system()` reports unavailable memory as scalar missing values when
   Windows queries return no results, while retaining the remaining diagnostics.
 

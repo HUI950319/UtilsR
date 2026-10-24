@@ -102,7 +102,8 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
           get_mem_value <- function(pat) {
             line <- grep(paste0("^", pat), meminfo, value = TRUE)
             if (length(line) == 1L) {
-              as.numeric(gsub("\\D", "", line)) / 1024^2
+              value <- trimws(sub("^[^:]+:", "", line))
+              suppressWarnings(as.numeric(sub("\\s.*$", "", value))) / 1024^2
             } else {
               NA
             }
@@ -113,6 +114,7 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
           if (is.na(available_gb)) {
             free_gb <- get_mem_value("MemFree:")
             cached_gb <- get_mem_value("Cached:")
+            if (is.na(cached_gb)) cached_gb <- 0
             available_gb <- free_gb + cached_gb
           }
 
@@ -149,10 +151,16 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
     })
   }
 
+  .valid_memory <- function(memory) {
+    values <- unlist(memory, use.names = FALSE)
+    all(lengths(memory) == 1L) && is.numeric(values) &&
+      all(is.finite(values)) && memory[["total_gb"]] > 0 &&
+      memory[["free_gb"]] >= 0 && memory[["free_gb"]] <= memory[["total_gb"]]
+  }
   sys_mem <- .get_system_memory()
-  if (any(lengths(sys_mem) != 1L)) {
+  if (!.valid_memory(sys_mem)) {
     if (show_warnings)
-      warning("Incomplete system memory query result.", call. = FALSE)
+      warning("Unavailable or invalid system memory query result.", call. = FALSE)
     sys_mem <- list(total_gb = NA_real_, free_gb = NA_real_,
                     used_gb = NA_real_, usage_pct = NA_real_)
   }
