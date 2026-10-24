@@ -27,6 +27,7 @@
            "/proc/cpuinfo" = "model name : Fixture CPU",
            stop("Unexpected fixture file"))
   }
+  env$.check_system_cache <- new.env(parent = emptyenv())
   query <- check_system
   environment(query) <- env
   query
@@ -60,7 +61,14 @@ test_that("check_system prints its report with the print helpers", {
 test_that("Windows diagnostics obtain memory and CPU with PowerShell CIM", {
   skip_if(.Platform$OS.type != "windows", "Windows-specific CIM query")
   skip_if(!nzchar(Sys.which("powershell")), "PowerShell is not available")
-  result <- suppressMessages(check_system(return_result = TRUE))
+  env <- new.env(parent = environment(check_system))
+  env$requireNamespace <- function(package, ...) {
+    if (package == "ps") FALSE else base::requireNamespace(package, ...)
+  }
+  env$.check_system_cache <- new.env(parent = emptyenv())
+  query <- check_system
+  environment(query) <- env
+  utils::capture.output(result <- query(return_result = TRUE))
   memory <- unlist(result$system_memory, use.names = FALSE)
   expect_length(memory, 4L)
   expect_true(all(is.finite(memory)))
@@ -87,6 +95,10 @@ test_that("failed or malformed CIM queries retain the legacy Windows fallback", 
     env$.Platform <- .Platform
     env$.Platform$OS.type <- "windows"
     env$Sys.which <- function(...) "powershell"
+    env$requireNamespace <- function(package, ...) {
+      if (package == "ps") FALSE else base::requireNamespace(package, ...)
+    }
+    env$.check_system_cache <- new.env(parent = emptyenv())
     env$system2 <- function(...) {
       query_count <<- query_count + 1L
       response
@@ -244,4 +256,48 @@ test_that("macOS memory uses available bytes instead of Linux commands", {
                    list(total_gb = 8, used_gb = 5, free_gb = 3, usage_percent = 62.5))
   expect_identical(result$cpu$name, "Apple fixture")
   expect_true(result$system_info$is_macos)
+})
+
+test_that("Windows metadata caching never caches live memory measurements", {
+  skip_if_not_installed("ps")
+  memory_queries <- 0L
+  cim_queries <- 0L
+  local_mocked_bindings(ps_system_memory = function() {
+    memory_queries <<- memory_queries + 1L
+    list(total = 8 * 1024^3, avail = if (memory_queries == 1L) 4 * 1024^3 else 2 * 1024^3)
+  }, .package = "ps")
+  cim <- c('"TotalVisibleMemorySize","FreePhysicalMemory","Caption","Version","CpuName"',
+           '"8388608","4194304","Windows fixture","10.0","Fixture CPU"')
+  query <- .check_system_fixture(os = "Windows", cim = cim, use_ps = TRUE)
+  environment(query)$system2 <- function(...) {
+    cim_queries <<- cim_queries + 1L
+    cim
+  }
+  utils::capture.output(first <- query(return_result = TRUE))
+  utils::capture.output(second <- query(return_result = TRUE))
+  expect_identical(first$system_memory,
+                   list(total_gb = 8, used_gb = 4, free_gb = 4, usage_percent = 50))
+  expect_identical(second$system_memory,
+                   list(total_gb = 8, used_gb = 6, free_gb = 2, usage_percent = 75))
+  expect_identical(first$system_info, second$system_info)
+  expect_identical(first$cpu, second$cpu)
+  expect_identical(cim_queries, 1L)
+})
+
+test_that("failed native Windows memory queries retain fresh CIM fallback", {
+  skip_if_not_installed("ps")
+  local_mocked_bindings(ps_system_memory = function() stop("Native memory unavailable"),
+                        .package = "ps")
+  cim_queries <- 0L
+  query <- .check_system_fixture(os = "Windows", cim = "available", use_ps = TRUE)
+  environment(query)$system2 <- function(...) {
+    cim_queries <<- cim_queries + 1L
+    c('"TotalVisibleMemorySize","FreePhysicalMemory","Caption","Version","CpuName"',
+      if (cim_queries == 1L) '"8388608","4194304","Windows fixture","10.0","Fixture CPU"'
+      else '"8388608","2097152","Windows fixture","10.0","Fixture CPU"')
+  }
+  utils::capture.output(first <- query(return_result = TRUE))
+  utils::capture.output(second <- query(return_result = TRUE))
+  expect_identical(first$system_memory$free_gb, 4)
+  expect_identical(second$system_memory$free_gb, 2)
 })

@@ -1,5 +1,9 @@
 # UtilsR 0.6.10
 
+* `check_system()` avoids repeated Windows CIM startup when `ps` can query
+  live memory. Only static OS and CPU metadata are cached; memory is refreshed
+  on every call, with fresh CIM queries retained if the native backend fails.
+
 * `check_system()` obtains macOS memory through the optional `ps` backend,
   using available memory consistently instead of attempting Linux commands.
 

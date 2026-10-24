@@ -20,7 +20,9 @@ A list (invisible by default) containing system_info, r_environment,
 \description{
 Display system information including OS, R version, memory usage, and CPU
 details with colored console output.
-Windows uses PowerShell CIM when available, with WMIC as a legacy fallback.
+Windows uses the optional \code{ps} package for live memory queries and
+caches static OS and CPU details obtained with PowerShell CIM. CIM and
+legacy WMIC remain fallbacks when native memory queries are unavailable.
 Linux physical core counts use the optional \code{ps} package and are
 reported as missing when it is unavailable.
 On macOS, system memory is obtained through the optional \code{ps} package.

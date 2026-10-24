@@ -2,11 +2,16 @@
 # check_system.R -- System resource and environment diagnostics
 # =============================================================================
 
+# Cache only static Windows metadata within the current R session.
+.check_system_cache <- new.env(parent = emptyenv())
+
 #' Check System Resources and Environment
 #'
 #' Display system information including OS, R version, memory usage, and CPU
 #' details with colored console output.
-#' Windows uses PowerShell CIM when available, with WMIC as a legacy fallback.
+#' Windows uses the optional \code{ps} package for live memory queries and
+#' caches static OS and CPU details obtained with PowerShell CIM. CIM and
+#' legacy WMIC remain fallbacks when native memory queries are unavailable.
 #' Linux physical core counts use the optional \code{ps} package and are
 #' reported as missing when it is unavailable.
 #' On macOS, system memory is obtained through the optional \code{ps} package.
@@ -38,13 +43,36 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
   }
   r_mem_used_gb <- as.numeric(r_mem_used_bytes) / 1024^3
 
+  .valid_memory <- function(memory) {
+    values <- unlist(memory, use.names = FALSE)
+    all(lengths(memory) == 1L) && is.numeric(values) &&
+      all(is.finite(values)) && memory[["total_gb"]] > 0 &&
+      memory[["free_gb"]] >= 0 && memory[["free_gb"]] <= memory[["total_gb"]]
+  }
   .valid_text <- function(value) {
     length(value) == 1L && !is.na(value) && nzchar(trimws(value))
   }
 
+  native_memory <- NULL
+  if ((.Platform[["OS.type"]] == "windows" || Sys.info()[["sysname"]] == "Darwin") &&
+      requireNamespace("ps", quietly = TRUE)) {
+    native_memory <- tryCatch({
+      memory <- ps::ps_system_memory()
+      total_gb <- as.numeric(memory[["total"]]) / 1024^3
+      available_gb <- as.numeric(memory[["avail"]]) / 1024^3
+      memory <- list(total_gb = total_gb, free_gb = available_gb,
+                     used_gb = total_gb - available_gb,
+                     usage_pct = (total_gb - available_gb) / total_gb * 100)
+      if (.valid_memory(memory)) memory else NULL
+    }, error = function(e) NULL)
+  }
+
   # Query Windows once for both memory and system details.
   windows_info <- NULL
-  if (.Platform$OS.type == "windows" && nzchar(Sys.which("powershell"))) {
+  if (.Platform[["OS.type"]] == "windows" && !is.null(native_memory) &&
+      !is.null(.check_system_cache[["windows_info"]])) {
+    windows_info <- .check_system_cache[["windows_info"]]
+  } else if (.Platform$OS.type == "windows" && nzchar(Sys.which("powershell"))) {
     windows_info <- tryCatch({
       command <- paste(
         "$ErrorActionPreference = 'Stop';",
@@ -77,10 +105,15 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
       info
     }, error = function(e) NULL)
   }
+  if (.Platform[["OS.type"]] == "windows" && !is.null(windows_info) &&
+      all(vapply(windows_info[c("Caption", "Version", "CpuName")], .valid_text, logical(1)))) {
+    .check_system_cache[["windows_info"]] <- windows_info[c("Caption", "Version", "CpuName")]
+  }
 
   # Internal: get system memory info
   .get_system_memory <- function() {
     tryCatch({
+      if (!is.null(native_memory)) return(native_memory)
       if (.Platform$OS.type == "windows") {
         if (!is.null(windows_info)) {
           total_mem_kb <- as.numeric(windows_info[["TotalVisibleMemorySize"]])
@@ -106,14 +139,7 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
           usage_pct = ((total_mem_kb - free_mem_kb) / total_mem_kb) * 100
         )
       } else if (Sys.info()[["sysname"]] == "Darwin") {
-        if (!requireNamespace("ps", quietly = TRUE))
-          stop("Package 'ps' is required for macOS memory diagnostics.")
-        memory <- ps::ps_system_memory()
-        total_gb <- as.numeric(memory[["total"]]) / 1024^3
-        available_gb <- as.numeric(memory[["avail"]]) / 1024^3
-        list(total_gb = total_gb, free_gb = available_gb,
-             used_gb = total_gb - available_gb,
-             usage_pct = (total_gb - available_gb) / total_gb * 100)
+        stop("macOS memory is unavailable; check the optional 'ps' package.")
       } else {
         if (file.exists("/proc/meminfo")) {
           meminfo <- readLines("/proc/meminfo")
@@ -169,12 +195,6 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
     })
   }
 
-  .valid_memory <- function(memory) {
-    values <- unlist(memory, use.names = FALSE)
-    all(lengths(memory) == 1L) && is.numeric(values) &&
-      all(is.finite(values)) && memory[["total_gb"]] > 0 &&
-      memory[["free_gb"]] >= 0 && memory[["free_gb"]] <= memory[["total_gb"]]
-  }
   sys_mem <- .get_system_memory()
   if (!.valid_memory(sys_mem)) {
     if (show_warnings)
