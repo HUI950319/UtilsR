@@ -16,6 +16,10 @@
   value would round to zero gets enough decimals for two significant digits
   (`0.0003` printed as `0.00`).
 
+* `pr_kv()` and `pr_box()` wrap long values at the console width under the
+  value column, indent the lines of values with newlines the same way, and
+  show at most 20 items of a vector followed by its length.
+
 # UtilsR 0.6.9
 
 * `check_packages()` collects counts before constructing its result, avoiding

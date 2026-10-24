@@ -53,8 +53,10 @@
 
 # Named values -> "key  value" lines with grey keys aligned by display width,
 # so wide (CJK) keys line up. NULL values are dropped, atomic vectors joined
-# with ", ", and other objects shown by their class.
-._kv_lines <- function(x, arg = "x") {
+# with ", " (the first 20 items, then the count), and other objects shown by
+# their class. Values wrap at `width` under their own column, as do the
+# lines of a value with embedded newlines.
+._kv_lines <- function(x, arg = "x", width = Inf) {
   keys <- names(x)
   if (length(x) && (is.null(keys) || anyNA(keys) || !all(nzchar(keys)))) {
     cli::cli_abort("Every element of {.arg {arg}} must be named.")
@@ -64,11 +66,24 @@
   if (!any(keep)) return(character())
   keys <- keys[keep]
   vals <- vapply(x[keep], function(v) {
-    if (is.atomic(v)) paste(as.character(v), collapse = ", ")
-    else paste0("<", class(v)[1], ">")
+    if (!is.atomic(v)) return(paste0("<", class(v)[1], ">"))
+    v <- as.character(v)
+    if (length(v) > 20L) {
+      v <- c(v[1:20], sprintf("%s (%d)", cli::symbol$ellipsis, length(v)))
+    }
+    paste(v, collapse = ", ")
   }, character(1), USE.NAMES = FALSE)
-  width <- max(cli::ansi_nchar(keys, type = "width"))
-  paste0(cli::col_grey(cli::ansi_align(keys, width)), "  ", vals)
+  kw    <- max(cli::ansi_nchar(keys, type = "width"))
+  avail <- max(20, width - kw - 2)
+  lead  <- strrep(" ", kw + 2)
+  unlist(lapply(seq_along(keys), function(i) {
+    segs <- strsplit(vals[[i]], "\n", fixed = TRUE)[[1]]
+    body <- unlist(lapply(if (length(segs)) segs else "", function(s) {
+      if (nzchar(s)) as.character(cli::ansi_strwrap(s, width = avail)) else ""
+    }))
+    c(paste0(cli::col_grey(cli::ansi_align(keys[i], kw)), "  ", body[1]),
+      if (length(body) > 1L) paste0(lead, body[-1]))
+  }))
 }
 
 # ------------- pr_head ------------------------------------------------------
@@ -116,8 +131,10 @@ pr_head <- function(class, ..., bg = "blue", fg = "br_white") {
 #'
 #' @param x A named list or named vector. \code{NULL} elements are dropped,
 #'   so optional settings can be passed as they are; atomic values are
-#'   joined with \code{", "} and other objects are shown by their class,
-#'   e.g. \code{<lm>}.
+#'   joined with \code{", "} (the first 20 items, then the count) and
+#'   other objects are shown by their class, e.g. \code{<lm>}. Long values
+#'   wrap at the console width under the value column, as do the lines of a
+#'   value that contains newlines.
 #' @param indent Integer. Spaces before each key (default 2).
 #'
 #' @return The printed lines, invisibly.
@@ -129,7 +146,7 @@ pr_head <- function(class, ..., bg = "blue", fg = "br_white") {
 #' @export
 #' @family print helpers
 pr_kv <- function(x, indent = 2) {
-  lines <- ._kv_lines(x)
+  lines <- ._kv_lines(x, width = console_width() - indent)
   if (length(lines)) lines <- paste0(strrep(" ", indent), lines)
   ._pr_out(lines)
 }
@@ -531,7 +548,13 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, attrs = TRUE) {
 #' @export
 #' @family print helpers
 pr_box <- function(x, header = NULL, footer = NULL, col = "cyan") {
-  lines <- if (is.character(x) && is.null(names(x))) x else ._kv_lines(x)
+  # the borders and their padding take 6 columns
+  avail <- console_width() - 6
+  lines <- if (is.character(x) && is.null(names(x))) {
+    unlist(lapply(x, function(s) as.character(cli::ansi_strwrap(s, width = avail))))
+  } else {
+    ._kv_lines(x, width = avail)
+  }
   box <- cli::boxx(
     lines,
     # boxx() already pads the header and footer with a space on each side

@@ -9,8 +9,10 @@ pr_kv(x, indent = 2)
 \arguments{
 \item{x}{A named list or named vector. \code{NULL} elements are dropped,
 so optional settings can be passed as they are; atomic values are
-joined with \code{", "} and other objects are shown by their class,
-e.g. \code{<lm>}.}
+joined with \code{", "} (the first 20 items, then the count) and
+other objects are shown by their class, e.g. \code{<lm>}. Long values
+wrap at the console width under the value column, as do the lines of a
+value that contains newlines.}
 
 \item{indent}{Integer. Spaces before each key (default 2).}
 }

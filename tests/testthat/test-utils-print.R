@@ -259,3 +259,22 @@ test_that("pr_table() gives tiny values enough decimals", {
   expect_identical(trimws(out[3]), "0.00030  1.50")
   expect_identical(trimws(out[4]), "-1.23400  2.25")
 })
+
+test_that("pr_kv() and pr_box() wrap long values under the value column", {
+  withr::local_options(cli.num_colors = 1, cli.width = 40)
+  fml <- paste("y ~", paste0("x", 1:12, collapse = " + "))
+  out <- utils::capture.output(pr_kv(list(formula = fml, note = "one\ntwo",
+                                          lv = paste0("L", 1:25))))
+  expect_true(all(cli::ansi_nchar(out, type = "width") <= 40))
+  expect_match(out[1], "^  formula  y ~ x1 ")
+  expect_match(out[2], "^           x[0-9]")
+  expect_true(any(out == "  note     one"))
+  expect_true(any(out == "           two"))
+  expect_true(any(grepl("L20, ", out, fixed = TRUE)))
+  expect_false(any(grepl("L21", out, fixed = TRUE)))
+  expect_true(any(grepl("(25)", out, fixed = TRUE)))
+
+  box <- utils::capture.output(pr_box(list(formula = fml), header = "Model"))
+  expect_true(all(cli::ansi_nchar(box, type = "width") <= 40))
+  expect_gt(length(box), 3L)
+})
