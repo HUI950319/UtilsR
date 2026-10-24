@@ -1,5 +1,9 @@
 # UtilsR 0.6.11
 
+* `.cat_formula()` announces a model in one `.cat_message()` line, e.g.
+  `Cox model, unadjusted: Surv(time, DSS) ~ Sex`, instead of a box and a
+  rule, nine lines in all; `suppressMessages()` silences it.
+
 * `.cat_message(wrap = FALSE)` keeps every line whole, for a line meant to
   be copied, such as a `save = list(...)` call.
 

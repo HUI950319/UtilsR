@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils_display.R
 \name{.cat_formula}
 \alias{.cat_formula}
-\title{Print model formula with styled header}
+\title{Announce a model and its formula}
 \usage{
 .cat_formula(
   data,
@@ -27,12 +27,14 @@
 \code{"error"}.}
 }
 \value{
-Invisibly returns \code{NULL} after printing the formula.
+\code{NULL}, invisibly.
 }
 \description{
-Displays a model formula (Cox, CRR, or logistic) with a styled box and
-separator. Automatically detects model type from the number of distinct
-outcome levels and presence of a time variable.
+One \code{\link{.cat_message}()} line naming the model (Cox, CRR or
+logistic), whether it is adjusted, and its formula, e.g.
+\code{Cox model, unadjusted: Surv(time, DSS) ~ Sex}. The model type comes
+from the number of distinct outcome levels and whether there is a time
+variable. \code{suppressMessages()} silences it.
 }
 \examples{
 formula_data <- data.frame(

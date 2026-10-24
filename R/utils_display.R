@@ -13,8 +13,8 @@
 #                                          replaced
 #               +-- .cat_message()
 #         .cat_step(msg, i, n)             numbered step, timed when it ends
-#         .cat_formula(data, co_var, ...)  model formula with a header
-#               +-- .cat_line() + .cat_box()
+#         .cat_formula(data, co_var, ...)  model and formula in one notice
+#               +-- .cat_message()
 #         .cat_tb(...)                     table with pattern highlighting
 #         show_color(x, rev)               colour swatches in the console
 #
@@ -358,11 +358,13 @@ console_width <- function() {
 
 # ------------- .cat_formula -------------------------------------------------
 
-#' Print model formula with styled header
+#' Announce a model and its formula
 #'
-#' Displays a model formula (Cox, CRR, or logistic) with a styled box and
-#' separator. Automatically detects model type from the number of distinct
-#' outcome levels and presence of a time variable.
+#' One \code{\link{.cat_message}()} line naming the model (Cox, CRR or
+#' logistic), whether it is adjusted, and its formula, e.g.
+#' \code{Cox model, unadjusted: Surv(time, DSS) ~ Sex}. The model type comes
+#' from the number of distinct outcome levels and whether there is a time
+#' variable. \code{suppressMessages()} silences it.
 #'
 #' @param data A data.frame containing the outcome column.
 #' @param co_var Character vector of covariate names.
@@ -373,7 +375,7 @@ console_width <- function() {
 #' @param type One of \code{"info"}, \code{"success"}, \code{"warning"},
 #'   \code{"error"}.
 #'
-#' @return Invisibly returns \code{NULL} after printing the formula.
+#' @return \code{NULL}, invisibly.
 #'
 #' @examples
 #' formula_data <- data.frame(
@@ -388,23 +390,17 @@ console_width <- function() {
 .cat_formula <- function(data, co_var, time = "time", outcome = "DSS",
                          type = c("info", "success", "warning", "error")) {
   type <- match.arg(type)
-  adj  <- if (length(co_var) == 1L) "unadj" else "adjus"
+  adj  <- if (length(co_var) == 1L) "unadjusted" else "adjusted"
   rhs  <- paste(co_var, collapse = " + ")
-  cat("\n")
-
+  # one line in place of a box and a rule, nine lines per model (2026-10-25)
   if (is.null(time)) {
-    # Logistic model
-    .cat_box(paste(adj, "log model"), type = type)
-    .cat_line(sprintf("%s ~ %s", outcome, rhs), type = type)
+    model   <- "Logistic"
+    formula <- sprintf("%s ~ %s", outcome, rhs)
   } else {
-    # Survival model
-    n_levels <- dplyr::n_distinct(data[[outcome]])
-    model <- if (n_levels == 3L) "crr model" else "cox model"
-    .cat_box(paste(adj, model), type = type)
-    .cat_line(sprintf("Surv(%s, %s) ~ %s", time, outcome, rhs), type = type)
+    model   <- if (dplyr::n_distinct(data[[outcome]]) == 3L) "CRR" else "Cox"
+    formula <- sprintf("Surv(%s, %s) ~ %s", time, outcome, rhs)
   }
-  cat("\n\n")
-  invisible()
+  .cat_message(sprintf("%s model, %s: %s", model, adj, formula), type = type)
 }
 
 # ------------- .cat_tb ------------------------------------------------------

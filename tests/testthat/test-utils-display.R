@@ -114,3 +114,18 @@ test_that(".cat_message(wrap = FALSE) keeps a line meant to be copied whole", {
   expect_length(out, 2L)
   expect_true(endsWith(trimws(out[2]), call))
 })
+
+test_that(".cat_formula() announces a model in one notice line", {
+  d <- data.frame(time = 1:4, DSS = c(0, 1, 0, 1), event = c(0, 1, 2, 1))
+  one <- function(...) {
+    out <- trimws(cli::ansi_strip(cli::cli_fmt(.cat_formula(d, ...))))
+    expect_length(out, 1L)
+    out
+  }
+  expect_true(endsWith(one("Sex"), "Cox model, unadjusted: Surv(time, DSS) ~ Sex"))
+  expect_true(endsWith(one(c("Sex", "Age"), outcome = "event"),
+                       "CRR model, adjusted: Surv(time, event) ~ Sex + Age"))
+  expect_true(endsWith(one("Sex", time = NULL),
+                       "Logistic model, unadjusted: DSS ~ Sex"))
+  expect_message(.cat_formula(d, "Sex"))
+})
