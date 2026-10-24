@@ -2,7 +2,9 @@
 
 Display system information including OS, R version, memory usage, and
 CPU details with colored console output. Windows uses PowerShell CIM
-when available, with WMIC as a legacy fallback.
+when available, with WMIC as a legacy fallback. Linux physical core
+counts use the optional `ps` package and are reported as missing when it
+is unavailable.
 
 ## Usage
 
