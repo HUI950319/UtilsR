@@ -356,13 +356,17 @@ PlotScatter3 <- function(
 
   # ---- Save or return ----
   if (!is.null(filename)) {
+    # measured before writing, which creates the file
+    existed <- file.exists(filename)
     suppressWarnings(
       ggplot2::ggsave(
         filename, final_plot,
         height = height, width = width, dpi = dpi, bg = bg
       )
     )
-    message("Plot saved to: ", filename)
+    .cat_saved("PlotScatter3: the plot has been saved to", filename,
+               sprintf("%sx%s in", format(width), format(height)), existed,
+               toupper(tools::file_ext(filename)))
   }
 
   final_plot

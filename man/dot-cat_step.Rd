@@ -59,6 +59,7 @@ Other console display:
 \code{\link[=.cat_formula]{.cat_formula()}},
 \code{\link[=.cat_line]{.cat_line()}},
 \code{\link[=.cat_message]{.cat_message()}},
+\code{\link[=.cat_saved]{.cat_saved()}},
 \code{\link[=.cat_tb]{.cat_tb()}}
 }
 \concept{console display}

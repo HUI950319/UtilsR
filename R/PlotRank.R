@@ -229,9 +229,13 @@ PlotRank <- function(
 
   # ---- Save ----
   if (!is.null(filename)) {
+    # measured before writing, which creates the file
+    existed <- file.exists(filename)
     ggplot2::ggsave(filename, p,
                     width = width, height = height, dpi = dpi, bg = "white")
-    message(sprintf("Plot saved to: %s", filename))
+    .cat_saved("PlotRank: the plot has been saved to", filename,
+               sprintf("%sx%s in", format(width), format(height)), existed,
+               toupper(tools::file_ext(filename)))
   }
 
   # ---- Return ----

@@ -406,6 +406,8 @@ PlotCircleLollipop <- function(
 
   # ---- Save or draw ----
   if (!is.null(filename)) {
+    # measured before writing, which creates the file
+    existed <- file.exists(filename)
     ext <- tolower(tools::file_ext(filename))
     if (ext == "pdf") {
       grDevices::pdf(filename, width = width, height = height)
@@ -415,7 +417,9 @@ PlotCircleLollipop <- function(
     }
     .draw()
     grDevices::dev.off()
-    message(sprintf("Plot saved to: %s", filename))
+    .cat_saved("PlotCircleLollipop: the plot has been saved to", filename,
+               sprintf("%sx%s in", format(width), format(height)), existed,
+               toupper(tools::file_ext(filename)))
   } else {
     .draw()
   }

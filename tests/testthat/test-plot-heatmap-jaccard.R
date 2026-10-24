@@ -32,6 +32,19 @@ test_that("group order, duplicate features, and empty-set convention are retaine
   expect_equal(unname(reversed), unname(result[c("A", "B"), c("A", "B")]))
 })
 
+test_that("a saved heatmap is announced with its size and the file state", {
+  dat <- data.frame(cell_type = c("A", "A", "B"), gene = c("a", "b", "b"))
+  path <- withr::local_tempfile(fileext = ".pdf")
+  saved <- function() {
+    out <- cli::cli_fmt(PlotHeatmapJaccard(dat, filename = path))
+    gsub("\\s+", " ", paste(cli::ansi_strip(out), collapse = " "))
+  }
+  first <- saved()
+  expect_match(first, "PlotHeatmapJaccard: the plot has been saved to:", fixed = TRUE)
+  expect_match(first, "[10x9 in, new PDF]", fixed = TRUE)
+  expect_match(saved(), "[10x9 in, replaced the existing PDF]", fixed = TRUE)
+})
+
 test_that("data without non-missing groups fails clearly", {
   dat <- data.frame(cell_type = NA_character_, gene = "orphan")
   expect_error(PlotHeatmapJaccard(dat), "No non-missing groups")

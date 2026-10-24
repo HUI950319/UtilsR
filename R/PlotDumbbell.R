@@ -384,11 +384,15 @@ PlotDumbbell <- function(
 
   # ---- Save or print ----
   if (!is.null(filename)) {
+    # measured before writing, which creates the file
+    existed <- file.exists(filename)
     ggplot2::ggsave(
       filename, p,
       width = width, height = height, dpi = dpi, bg = bg
     )
-    message("Plot saved to: ", filename)
+    .cat_saved("PlotDumbbell: the plot has been saved to", filename,
+               sprintf("%sx%s in", format(width), format(height)), existed,
+               toupper(tools::file_ext(filename)))
   } else {
     print(p)
   }

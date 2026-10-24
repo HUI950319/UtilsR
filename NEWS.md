@@ -1,3 +1,12 @@
+# UtilsR 0.6.11
+
+* New `.cat_saved()` announces a written file as
+  `<subject>: <path> [<size>, new PDF]`, or `replaced the existing PDF` in
+  red, as a `.cat_message()`; it moves here from RegR. `PlotCircleLollipop()`,
+  `PlotDumbbell()`, `PlotHeatmapJaccard()`, `PlotRank()` and
+  `PlotScatter1()` to `PlotScatter3()` use it for their `filename`, with the
+  function name and the page size, instead of `message("Plot saved to: ")`.
+
 # UtilsR 0.6.10
 
 * `PlotRankCor()` prints its per-group correlations as a `pr_table()`

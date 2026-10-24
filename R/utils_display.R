@@ -8,6 +8,10 @@
 #         .cat_line(text, type, ...)       separator rule with a label
 #         .cat_box(cat_text, type, ...)    boxed notice
 #         .cat_message(message, type)      timestamped log line
+#         .cat_saved(subject, path, ...)   saved-file notice with size and
+#                                          whether an earlier copy was
+#                                          replaced
+#               +-- .cat_message()
 #         .cat_step(msg, i, n)             numbered step, timed when it ends
 #         .cat_formula(data, co_var, ...)  model formula with a header
 #               +-- .cat_line() + .cat_box()
@@ -245,6 +249,45 @@ console_width <- function() {
     message(paste(out, collapse = "\n"))
   })
   invisible()
+}
+
+# ------------- .cat_saved ---------------------------------------------------
+
+#' Announce a saved file with its size and whether it replaced one
+#'
+#' One notice for every function that writes a file, in the shape
+#' \code{<subject>: <path> [<size>, new <kind>]}, or
+#' \code{<subject>: <path> [<size>, replaced the existing <kind>]} with the
+#' replacement marker in red. Measure \code{existed} before the file is
+#' written, since writing creates it. The notice is a
+#' \code{\link{.cat_message}()}, so \code{suppressMessages()} silences it.
+#'
+#' @param subject Character. Leading clause, starting with the function name,
+#'   e.g. \code{"PlotRank: the plot has been saved to"}.
+#' @param path Character. Output file path, printed verbatim.
+#' @param size Character. Size with its unit, e.g. \code{"12x10 in"} or
+#'   \code{"12x5 cells"}.
+#' @param existed Logical. \code{TRUE} when a file already occupied
+#'   \code{path}.
+#' @param kind Character. Output format shown in the marker, e.g.
+#'   \code{"PDF"} or \code{"DOCX"}.
+#'
+#' @examples
+#' path <- tempfile(fileext = ".pdf")
+#' .cat_saved("the plot has been saved to", path, "7x5 in",
+#'            file.exists(path), "PDF")
+#'
+#' @export
+#' @family console display
+.cat_saved <- function(subject, path, size, existed, kind) {
+  # col_br_red() degrades to plain text when the console has no colour, so
+  # the marker stays readable in logs and in captured output
+  status <- if (isTRUE(existed)) {
+    cli::col_br_red(sprintf("replaced the existing %s", kind))
+  } else {
+    sprintf("new %s", kind)
+  }
+  .cat_message(sprintf("%s: %s [%s, %s]", subject, path, size, status))
 }
 
 # ------------- .cat_step ----------------------------------------------------
