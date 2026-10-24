@@ -37,6 +37,10 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
   }
   r_mem_used_gb <- as.numeric(r_mem_used_bytes) / 1024^3
 
+  .valid_text <- function(value) {
+    length(value) == 1L && !is.na(value) && nzchar(trimws(value))
+  }
+
   # Query Windows once for both memory and system details.
   windows_info <- NULL
   if (.Platform$OS.type == "windows" && nzchar(Sys.which("powershell"))) {
@@ -45,7 +49,8 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
         "$ErrorActionPreference = 'Stop';",
         "[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false);",
         "$os = Get-CimInstance Win32_OperatingSystem;",
-        "$cpu = Get-CimInstance Win32_Processor | Select-Object -First 1;",
+        "try { $cpu = Get-CimInstance Win32_Processor | Select-Object -First 1 }",
+        "catch { $cpu = $null };",
         "[pscustomobject]@{TotalVisibleMemorySize=$os.TotalVisibleMemorySize;",
         "FreePhysicalMemory=$os.FreePhysicalMemory; Caption=$os.Caption;",
         "Version=$os.Version; CpuName=$cpu.Name} | ConvertTo-Csv -NoTypeInformation"
@@ -58,11 +63,12 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
       if (!is.null(attr(lines, "status")) && attr(lines, "status") != 0L)
         stop("Windows CIM query failed.")
       info <- utils::read.csv(text = paste(lines, collapse = "\n"),
-                              stringsAsFactors = FALSE, encoding = "UTF-8")
+                              colClasses = "character", encoding = "UTF-8")
       fields <- c("TotalVisibleMemorySize", "FreePhysicalMemory", "Caption",
                   "Version", "CpuName")
-      if (nrow(info) != 1L || !all(fields %in% names(info)))
+      if (nrow(info) != 1L || !all(fields[1:2] %in% names(info)))
         stop("Incomplete Windows CIM result.")
+      for (field in setdiff(fields, names(info))) info[[field]] <- NA_character_
       memory <- suppressWarnings(as.numeric(info[1L, fields[1:2]]))
       if (any(!is.finite(memory)) || memory[1L] <= 0 ||
           memory[2L] < 0 || memory[2L] > memory[1L])
@@ -191,43 +197,33 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
             os_version = trimws(windows_info[["Version"]]),
             cpu_name = trimws(windows_info[["CpuName"]])
           )
-        } else tryCatch({
-          ver_info <- system("wmic os get Caption,Version /format:list",
-                             intern = TRUE)
-          caption_line <- ver_info[grep("Caption=", ver_info)]
-          version_line <- ver_info[grep("Version=", ver_info)]
-
-          caption <- if (length(caption_line) > 0) {
-            gsub("Caption=", "", caption_line)
-          } else {
-            "Windows"
+        } else list(os_full_name = NA_character_, os_version = NA_character_,
+                    cpu_name = NA_character_)
+        if (!.valid_text(sys_info[["os_full_name"]]) ||
+            !.valid_text(sys_info[["os_version"]])) {
+          ver_info <- tryCatch(system("wmic os get Caption,Version /format:list",
+                                      intern = TRUE),
+                               error = function(e) character())
+          for (field in c(os_full_name = "Caption", os_version = "Version")) {
+            target <- if (field == "Caption") "os_full_name" else "os_version"
+            if (!.valid_text(sys_info[[target]])) {
+              line <- grep(paste0("^", field, "="), ver_info, value = TRUE)
+              if (length(line) == 1L)
+                sys_info[[target]] <- trimws(sub("^[^=]+=", "", line))
+            }
           }
-          version <- if (length(version_line) > 0) {
-            gsub("Version=", "", version_line)
-          } else {
-            os_version
-          }
-
-          cpu_info <- system("wmic cpu get Name /format:list", intern = TRUE)
-          cpu_line <- cpu_info[grep("Name=", cpu_info)]
-          cpu_name <- if (length(cpu_line) > 0) {
-            gsub("Name=", "", cpu_line)
-          } else {
-            "Unknown"
-          }
-
-          list(
-            os_full_name = trimws(caption),
-            os_version = trimws(version),
-            cpu_name = trimws(cpu_name)
-          )
-        }, error = function(e) {
-          list(
-            os_full_name = paste("Windows", os_release),
-            os_version = os_version,
-            cpu_name = "Unknown"
-          )
-        })
+        }
+        if (!.valid_text(sys_info[["cpu_name"]])) {
+          cpu_info <- tryCatch(system("wmic cpu get Name /format:list", intern = TRUE),
+                               error = function(e) character())
+          cpu_line <- grep("^Name=", cpu_info, value = TRUE)
+          if (length(cpu_line) == 1L)
+            sys_info[["cpu_name"]] <- trimws(sub("^Name=", "", cpu_line))
+        }
+        if (!.valid_text(sys_info[["os_full_name"]]))
+          sys_info[["os_full_name"]] <- paste("Windows", os_release)
+        if (!.valid_text(sys_info[["os_version"]])) sys_info[["os_version"]] <- os_version
+        if (!.valid_text(sys_info[["cpu_name"]])) sys_info[["cpu_name"]] <- "Unknown"
 
       } else {
         sys_info <- tryCatch({

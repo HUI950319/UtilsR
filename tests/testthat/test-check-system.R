@@ -195,3 +195,32 @@ test_that("Linux physical cores are not reported as hardware threads", {
   utils::capture.output(result <- query(return_result = TRUE))
   expect_true(is.na(result$cpu$physical_cores))
 })
+
+test_that("CIM text fields fall back independently without losing valid memory", {
+  legacy <- list(
+    "wmic cpu get Name /format:list" = "Name=Legacy CPU",
+    "wmic os get Caption,Version /format:list" =
+      c("Caption=Legacy Windows", "Version=legacy-version")
+  )
+  for (cim in list(
+    c('"TotalVisibleMemorySize","FreePhysicalMemory","Caption","Version","CpuName"',
+      '"8388608","2097152","Windows fixture","10.0",""'),
+    c('"TotalVisibleMemorySize","FreePhysicalMemory","Caption","Version"',
+      '"8388608","2097152","Windows fixture","10.0"')
+  )) {
+    query <- .check_system_fixture(os = "Windows", cim = cim, legacy = legacy)
+    utils::capture.output(result <- query(return_result = TRUE))
+    expect_identical(result$cpu$name, "Legacy CPU")
+    expect_identical(result$system_info$os_full_name, "Windows fixture")
+    expect_identical(result$system_memory,
+                     list(total_gb = 8, used_gb = 6, free_gb = 2, usage_percent = 75))
+  }
+  query <- .check_system_fixture(os = "Windows", legacy = legacy, cim = c(
+    '"TotalVisibleMemorySize","FreePhysicalMemory","Caption","Version","CpuName"',
+    '"8388608","2097152","","10.0","CIM CPU"'
+  ))
+  utils::capture.output(result <- query(return_result = TRUE))
+  expect_identical(result$system_info$os_full_name, "Legacy Windows")
+  expect_identical(result$system_info$os_version, "10.0")
+  expect_identical(result$cpu$name, "CIM CPU")
+})

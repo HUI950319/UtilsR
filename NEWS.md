@@ -1,5 +1,9 @@
 # UtilsR 0.6.10
 
+* `check_system()` fills missing Windows text fields independently, preserving
+  valid CIM memory and metadata. A CPU query failure no longer discards OS
+  information, and CSV parsing preserves version strings.
+
 * `check_system()` handles unknown logical core counts while retaining known
   physical counts. On Linux, the optional `ps` backend distinguishes physical
   cores from hardware threads; without it the physical count is missing.
