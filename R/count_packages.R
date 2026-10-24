@@ -9,17 +9,25 @@
 #' directories and installation locks are excluded. The total counts installed
 #' copies across libraries, including packages installed in more than one library.
 #'
+#' @param refresh Logical scalar. If \code{TRUE}, bypass the installed-package
+#'   cache and read package metadata from disk. Defaults to \code{FALSE}.
+#'
 #' @return A data.frame with columns \code{Library_Path} and
 #'   \code{Package_Count}, including a total row.
 #'
 #' @examples
 #' \dontrun{
 #' check_packages()
+#' check_packages(refresh = TRUE)
 #' }
 #'
 #' @export
 #' @family inspect
-check_packages <- function() {
+check_packages <- function(refresh = FALSE) {
+
+  if (!is.logical(refresh) || length(refresh) != 1L || is.na(refresh)) {
+    stop("'refresh' must be TRUE or FALSE.", call. = FALSE)
+  }
 
   lib_paths <- .libPaths()
 
@@ -30,7 +38,7 @@ check_packages <- function() {
   )
 
   for (path in lib_paths) {
-    pkg_count <- nrow(utils::installed.packages(lib.loc = path))
+    pkg_count <- nrow(utils::installed.packages(lib.loc = path, noCache = refresh))
     result <- rbind(result, data.frame(
       Library_Path = path,
       Package_Count = pkg_count

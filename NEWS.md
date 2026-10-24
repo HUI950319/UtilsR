@@ -1,5 +1,8 @@
 # UtilsR 0.6.9
 
+* `check_packages(refresh = TRUE)` reads installed-package counts from disk
+  instead of cached metadata. The default keeps the existing cache behavior.
+
 * `check_packages()` replaces `count_packages_in_libpaths()` with the same
   per-library installed-package counts and total. The old name is removed.
 

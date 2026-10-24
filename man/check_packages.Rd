@@ -4,7 +4,11 @@
 \alias{check_packages}
 \title{Count Installed Packages in Each Library Path}
 \usage{
-check_packages()
+check_packages(refresh = FALSE)
+}
+\arguments{
+\item{refresh}{Logical scalar. If \code{TRUE}, bypass the installed-package
+cache and read package metadata from disk. Defaults to \code{FALSE}.}
 }
 \value{
 A data.frame with columns \code{Library_Path} and
@@ -19,6 +23,7 @@ copies across libraries, including packages installed in more than one library.
 \examples{
 \dontrun{
 check_packages()
+check_packages(refresh = TRUE)
 }
 
 }
