@@ -2,6 +2,10 @@
 
 ## UtilsR 0.6.9
 
+- [`check_packages()`](https://hui950319.github.io/UtilsR/reference/check_packages.md)
+  replaces `count_packages_in_libpaths()` with the same per-library
+  installed-package counts and total. The old name is removed.
+
 - The report of
   [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md)
   uses the print helpers: a class label with the time, one rule per
@@ -15,7 +19,11 @@
   with nothing selected says so in a grey note.
   [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
   heads its table with a class label giving the variable count (green
-  when nothing is missing) and reports empty input in grey notes.
+  when nothing is missing) and reports empty input in grey notes. In the
+  console, [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
+  heads each variable’s count and level listings and its overall tables
+  with grey rules instead of `----` and `** **` lines; its cli headers,
+  which knitr shows as messages, stay as they were.
 
 - `fct_cat(ref_idx = 0)` is the same as `ref_idx = NULL`: nothing
   collapses, and another mode given alongside still runs. Only a single
@@ -217,9 +225,9 @@
   list columns out of its frequency and grouped tables with a message;
   both previously made gtsummary fail.
 
-- [`count_packages_in_libpaths()`](https://hui950319.github.io/UtilsR/reference/count_packages_in_libpaths.md)
-  counts installed packages instead of all library subdirectories,
-  excluding installation locks and unrelated folders.
+- `count_packages_in_libpaths()` counts installed packages instead of
+  all library subdirectories, excluding installation locks and unrelated
+  folders.
 
 - `lv(count = )` warns that it ignores selections in `...`, `pattern`
   and `group`, which it previously dropped silently.

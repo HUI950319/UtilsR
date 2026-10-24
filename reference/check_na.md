@@ -89,9 +89,9 @@ special values.
 ## See also
 
 Other inspect:
+[`check_packages()`](https://hui950319.github.io/UtilsR/reference/check_packages.md),
 [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md),
 [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md),
-[`count_packages_in_libpaths()`](https://hui950319.github.io/UtilsR/reference/count_packages_in_libpaths.md),
 [`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md),
 [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md),
 [`plt_na()`](https://hui950319.github.io/UtilsR/reference/plt_na.md)

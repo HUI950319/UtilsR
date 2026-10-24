@@ -29,7 +29,7 @@ formatting, colour palettes, ggplot2 formatting, and console styling.
 
   Object memory profiling
 
-- [`count_packages_in_libpaths`](https://hui950319.github.io/UtilsR/reference/count_packages_in_libpaths.md):
+- [`check_packages`](https://hui950319.github.io/UtilsR/reference/check_packages.md):
 
   Count installed packages
 

@@ -58,7 +58,7 @@ Explore variables, missing values, and system resources.
   : Check System Resources and Environment
 - [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
   : Analyze Object Sizes in an Environment
-- [`count_packages_in_libpaths()`](https://hui950319.github.io/UtilsR/reference/count_packages_in_libpaths.md)
+- [`check_packages()`](https://hui950319.github.io/UtilsR/reference/check_packages.md)
   : Count Installed Packages in Each Library Path
 
 ## File System
