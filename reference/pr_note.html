@@ -9,7 +9,7 @@ the plotting call that suits the printed result."><meta property="og:image" cont
 
     <a class="navbar-brand me-2" href="../index.html">UtilsR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.10</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -85,7 +85,9 @@ interpolated from <code>.envir</code>, inline markup such as <code>{.code ...}</
 and <code>{.fn ...}</code> is styled, and in consoles that support hyperlinks
 (recent RStudio versions) <code>{.run pkg::fun(x)}</code> and
 <code>{.help pkg::fun}</code> become clickable links. Double literal braces, as
-in <code>"{{x}}"</code>.</p>
+in <code>"{{x}}"</code>. Text that cli cannot parse, such as data that
+contains braces, is printed as written instead of failing the print.
+Long notes wrap at the console width, every line starting with <code>#</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

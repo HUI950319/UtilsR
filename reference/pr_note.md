@@ -31,7 +31,10 @@ The text goes through
 `{x}` is interpolated from `.envir`, inline markup such as `{.code ...}`
 and `{.fn ...}` is styled, and in consoles that support hyperlinks
 (recent RStudio versions) `{.run pkg::fun(x)}` and `{.help pkg::fun}`
-become clickable links. Double literal braces, as in `"{{x}}"`.
+become clickable links. Double literal braces, as in `"{{x}}"`. Text
+that cli cannot parse, such as data that contains braces, is printed as
+written instead of failing the print. Long notes wrap at the console
+width, every line starting with `#`.
 
 ## See also
 

@@ -36,7 +36,10 @@ The printed lines, invisibly.
 ## Details
 
 Numeric columns show a histogram of `bins` equal-width bins over the
-finite values, with their mean and SD (3 significant digits). Factor,
+finite values, with their mean and SD (3 significant digits); whole
+numbers with no more distinct values than `bins` get one bar per value,
+so no empty bin falls between two values. Date and date-time columns
+show the same histogram with their first and last dates. Factor,
 character and logical columns show their level counts (in level order,
 or the `bins` most frequent levels when there are more), the number of
 levels and the most frequent one with its share of non-missing values.

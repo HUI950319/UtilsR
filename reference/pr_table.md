@@ -12,8 +12,10 @@ pr_table(
   data,
   p_col = NULL,
   highlight = NULL,
+  n = 20,
   align = NULL,
   digits = 2,
+  width = NULL,
   indent = 2
 )
 ```
@@ -33,6 +35,11 @@ pr_table(
   Rows to highlight in black on light yellow: integer row numbers or a
   logical vector. Highlighted rows drop their other colours.
 
+- n:
+
+  Integer. Rows to show (default 20); the rest are counted in a grey
+  footer. `NULL` shows every row.
+
 - align:
 
   Column alignment, recycled: `"left"`, `"right"` or `"center"`. `NULL`
@@ -42,6 +49,13 @@ pr_table(
 - digits:
 
   Integer. Decimals for double columns (default 2).
+
+- width:
+
+  Integer. Line width the table must fit; `NULL` (default) uses the
+  console width. The first column and the P-value columns always show;
+  the other columns follow in order while they fit, and the footer names
+  those left out.
 
 - indent:
 
@@ -57,9 +71,14 @@ Cells are formatted as follows. P-value columns: numbers take the
 [`stat_pval`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)`(mode = "pvalue")`
 wording (`"<0.001"`), text is kept as written, and values print bold red
 below 0.001, red below 0.05 and grey otherwise. Other double columns are
-rounded to `digits` decimals, or none when every value is whole. Missing
-values print as a grey `NA`. Everything else uses
-[`as.character()`](https://rdrr.io/r/base/character.html).
+rounded to `digits` decimals, or none when every value is whole; a
+column whose smallest non-zero value would round to zero gets enough
+decimals for two significant digits, at most six. Missing values print
+as a grey `NA`. Everything else uses
+[`as.character()`](https://rdrr.io/r/base/character.html). Without
+colour (knitted documents, log files), P values carry stars (`***` below
+0.001, `**` below 0.01, `*` below 0.05), highlighted rows start with `>`
+and missing text cells read `<NA>`.
 
 ## See also
 

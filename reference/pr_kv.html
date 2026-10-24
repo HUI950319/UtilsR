@@ -9,7 +9,7 @@ their display width, so Chinese or other wide-character keys line up."><meta pro
 
     <a class="navbar-brand me-2" href="../index.html">UtilsR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.10</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,8 +68,11 @@ their display width, so Chinese or other wide-character keys line up.</p>
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>A named list or named vector. <code>NULL</code> elements are dropped,
 so optional settings can be passed as they are; atomic values are
-joined with <code>", "</code> and other objects are shown by their class,
-e.g. <code>&lt;lm&gt;</code>.</p></dd>
+joined with <code>", "</code> (the first 20 items, then the count) and
+other objects are described by type and size, e.g.
+<code>&lt;data.frame 6 x 11&gt;</code> or <code>&lt;lm&gt;</code>. Long values
+wrap at the console width under the value column, as do the lines of a
+value that contains newlines.</p></dd>
 
 
 <dt id="arg-indent">indent<a class="anchor" aria-label="anchor" href="#arg-indent"></a></dt>

@@ -13,7 +13,7 @@ chosen rows can be highlighted."><meta property="og:image" content="https://hui9
 
     <a class="navbar-brand me-2" href="../index.html">UtilsR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.10</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,8 +68,10 @@ chosen rows can be highlighted.</p>
 <span>  <span class="va">data</span>,</span>
 <span>  p_col <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  highlight <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  n <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>  align <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  digits <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  width <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  indent <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -91,6 +93,11 @@ chosen rows can be highlighted.</p>
 numbers or a logical vector. Highlighted rows drop their other colours.</p></dd>
 
 
+<dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
+<dd><p>Integer. Rows to show (default 20); the rest are counted in a
+grey footer. <code>NULL</code> shows every row.</p></dd>
+
+
 <dt id="arg-align">align<a class="anchor" aria-label="anchor" href="#arg-align"></a></dt>
 <dd><p>Column alignment, recycled: <code>"left"</code>, <code>"right"</code>
 or <code>"center"</code>. <code>NULL</code> (default) right-aligns numeric and
@@ -99,6 +106,13 @@ P-value columns and left-aligns the rest.</p></dd>
 
 <dt id="arg-digits">digits<a class="anchor" aria-label="anchor" href="#arg-digits"></a></dt>
 <dd><p>Integer. Decimals for double columns (default 2).</p></dd>
+
+
+<dt id="arg-width">width<a class="anchor" aria-label="anchor" href="#arg-width"></a></dt>
+<dd><p>Integer. Line width the table must fit; <code>NULL</code>
+(default) uses the console width. The first column and the P-value
+columns always show; the other columns follow in order while they fit,
+and the footer names those left out.</p></dd>
 
 
 <dt id="arg-indent">indent<a class="anchor" aria-label="anchor" href="#arg-indent"></a></dt>
@@ -115,8 +129,14 @@ P-value columns and left-aligns the rest.</p></dd>
 <code><a href="stat_pval.html">stat_pval</a>(mode = "pvalue")</code> wording (<code>"&lt;0.001"</code>),
 text is kept as written, and values print bold red below 0.001, red below
 0.05 and grey otherwise. Other double columns are rounded to
-<code>digits</code> decimals, or none when every value is whole. Missing values
-print as a grey <code>NA</code>. Everything else uses <code><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character()</a></code>.</p>
+<code>digits</code> decimals, or none when every value is whole; a column whose
+smallest non-zero value would round to zero gets enough decimals for two
+significant digits, at most six. Missing values
+print as a grey <code>NA</code>. Everything else uses <code><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character()</a></code>.
+Without colour (knitted documents, log files), P values carry stars
+(<code>***</code> below 0.001, <code>**</code> below 0.01, <code>*</code> below 0.05),
+highlighted rows start with <code>&gt;</code> and missing text cells read
+<code>&lt;NA&gt;</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

@@ -26,11 +26,16 @@ pr_head(class, ..., bg = "blue", fg = "br_white")
   Background and text colour of the chip: anything
   [`cli::make_ansi_style()`](https://cli.r-lib.org/reference/make_ansi_style.html)
   accepts, i.e. an ANSI colour name such as `"blue"` or `"br_white"`, an
-  R colour name or a hex code.
+  R colour name or a hex code. Without colour (knitted documents, log
+  files) the label prints as `<class>`.
 
 ## Value
 
 The printed line, invisibly.
+
+## Details
+
+A line longer than the console is cut with an ellipsis.
 
 ## See also
 

@@ -1,7 +1,8 @@
 # Styled log message with timestamp
 
 Print a timestamped, type-coloured message. Supports multi-line messages
-(split on `"\n"`).
+(split on `"\n"`); lines longer than the console wrap, the continuation
+lines starting under the text.
 
 ## Usage
 
@@ -63,5 +64,5 @@ Other console display:
 ``` r
 .cat_message("Loading simulated data", verbose = FALSE)
 .cat_message("Saved forest.pdf", type = "success", style = "chip")
-#> [2026-10-24 01:02:11]  DONE  Saved forest.pdf
+#> [2026-10-24 01:42:10]  DONE  Saved forest.pdf
 ```

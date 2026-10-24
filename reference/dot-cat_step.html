@@ -15,7 +15,7 @@ verbose."><meta property="og:image" content="https://hui950319.github.io/UtilsR/
 
     <a class="navbar-brand me-2" href="../index.html">UtilsR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.10</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -84,7 +84,8 @@ returns; an error marks it failed. A wrapper of
 <dl><dt id="arg-msg">msg<a class="anchor" aria-label="anchor" href="#arg-msg"></a></dt>
 <dd><p>Character. Step description. cli inline markup and glue
 interpolation are evaluated in <code>.envir</code>, so <code>"Fitting {n}
-models"</code> picks up <code>n</code> from the caller.</p></dd>
+models"</code> picks up <code>n</code> from the caller. Text that cli cannot parse,
+such as data that contains braces, is shown as written.</p></dd>
 
 
 <dt id="arg-i-n">i, n<a class="anchor" aria-label="anchor" href="#arg-i-n"></a></dt>
@@ -133,7 +134,7 @@ a helper that calls <code>.cat_step()</code> for its own caller passes its
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-in"><span><span class="fu">fit_all</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> <span style="color: #555555;">[1/2]</span> Fitting models</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #555555;">[1/2]</span> Fitting models <span style="color: #B2B2B2;">[108ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #555555;">[1/2]</span> Fitting models <span style="color: #B2B2B2;">[110ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> <span style="color: #555555;">[2/2]</span> Drawing plot</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #555555;">[2/2]</span> Drew plot <span style="color: #B2B2B2;">[35ms]</span></span>

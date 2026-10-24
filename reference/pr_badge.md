@@ -28,7 +28,8 @@ pr_badge(key, value, bg = "blue", fg = "br_white")
 
 ## Value
 
-A character vector of badges, one per key.
+A character vector of badges, one per key; without colour they read
+`[key: value]`.
 
 ## See also
 

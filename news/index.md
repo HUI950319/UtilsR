@@ -1,5 +1,69 @@
 # Changelog
 
+## UtilsR 0.6.10
+
+- [`check_packages()`](https://hui950319.github.io/UtilsR/reference/check_packages.md)
+  reports library counts with
+  [`pr_head()`](https://hui950319.github.io/UtilsR/reference/pr_head.md),
+  [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  and
+  [`pr_note()`](https://hui950319.github.io/UtilsR/reference/pr_note.md),
+  highlighting the total and fitting long paths to the console. It
+  returns the same data frame invisibly, retaining full paths and
+  counts.
+
+- The print helpers write no colour codes when standard output shows no
+  colour, as when `Rscript x.R > log.txt` runs in a terminal.
+  [`pr_note()`](https://hui950319.github.io/UtilsR/reference/pr_note.md)
+  and
+  [`.cat_step()`](https://hui950319.github.io/UtilsR/reference/dot-cat_step.md)
+  show text that cli cannot parse, such as data with braces, as written
+  instead of failing. Without colour (knitted documents, log files)
+  class labels read `<class>`, badges `[key: value]`, and
+  [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  marks significance with stars, highlighted rows with `>` and missing
+  text cells with `<NA>`.
+  [`pr_spark()`](https://hui950319.github.io/UtilsR/reference/pr_spark.md)
+  shows an empty-string level as `""`.
+
+- [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  gains `n` (20 rows by default, `NULL` for all) and `width` (the
+  console width by default): it keeps the first and the P-value columns,
+  adds the others while they fit, and counts the rows and names the
+  columns left out in a grey footer. A column whose smallest non-zero
+  value would round to zero gets enough decimals for two significant
+  digits (`0.0003` printed as `0.00`).
+
+- [`pr_kv()`](https://hui950319.github.io/UtilsR/reference/pr_kv.md) and
+  [`pr_box()`](https://hui950319.github.io/UtilsR/reference/pr_box.md)
+  wrap long values at the console width under the value column, indent
+  the lines of values with newlines the same way, and show at most 20
+  items of a vector followed by its length.
+  [`pr_note()`](https://hui950319.github.io/UtilsR/reference/pr_note.md)
+  wraps long notes with a `#` on every line, and
+  [`.cat_message()`](https://hui950319.github.io/UtilsR/reference/dot-cat_message.md)
+  wraps long lines under the message text.
+  [`pr_head()`](https://hui950319.github.io/UtilsR/reference/pr_head.md)
+  cuts a line longer than the console with an ellipsis, and
+  [`pr_section()`](https://hui950319.github.io/UtilsR/reference/pr_section.md)
+  a title too long for its rule, which
+  [`cli::rule()`](https://cli.r-lib.org/reference/rule.html) had cut
+  without one.
+  [`pr_kv()`](https://hui950319.github.io/UtilsR/reference/pr_kv.md)
+  describes object values by type and size, e.g. `<data.frame 6 x 11>`
+  rather than `<data.frame>`.
+
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  previews the first values of atomic vectors
+  (`<chr 3> "Age", "Sex", "Stage"`), marks a list left unopened at
+  `max_depth` with an ellipsis, and gains `max_lines` (200 by default),
+  past which a grey footer counts the rest.
+
+- [`pr_spark()`](https://hui950319.github.io/UtilsR/reference/pr_spark.md)
+  gives few whole numbers one bar per value, so no empty bin falls
+  between two values, and shows date and date-time columns as a
+  histogram with their first and last dates instead of `<Date>`.
+
 ## UtilsR 0.6.9
 
 - [`check_packages()`](https://hui950319.github.io/UtilsR/reference/check_packages.md)

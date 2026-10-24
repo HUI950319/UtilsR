@@ -1,14 +1,16 @@
 # Structure tree of a nested result object
 
 Print the elements of a list-based result as a tree, each with a short
-grey description such as `<tibble 12 x 7>`, `<chr 3>` or `<ggplot>`;
-clearer than [`str()`](https://rdrr.io/r/utils/str.html) for the nested
-lists that analysis functions return.
+grey description such as `<tibble 12 x 7>`,
+`<chr 3> "Age", "Sex", "Stage"` or `<ggplot>`; clearer than
+[`str()`](https://rdrr.io/r/utils/str.html) for the nested lists that
+analysis functions return. Atomic vectors show their first values, and a
+list left unopened at `max_depth` is marked with an ellipsis.
 
 ## Usage
 
 ``` r
-pr_tree(x, max_depth = 3, max_items = 20, attrs = TRUE)
+pr_tree(x, max_depth = 3, max_items = 20, max_lines = 200, attrs = TRUE)
 ```
 
 ## Arguments
@@ -25,6 +27,11 @@ pr_tree(x, max_depth = 3, max_items = 20, attrs = TRUE)
 
   Integer. Elements shown per node before the rest are summarised as
   "... n more" (default 20).
+
+- max_lines:
+
+  Integer. Lines shown in all (default 200); a grey footer counts the
+  rest.
 
 - attrs:
 

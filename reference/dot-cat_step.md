@@ -25,7 +25,8 @@ that numbers steps and honours `verbose`.
 
   Character. Step description. cli inline markup and glue interpolation
   are evaluated in `.envir`, so `"Fitting {n} models"` picks up `n` from
-  the caller.
+  the caller. Text that cli cannot parse, such as data that contains
+  braces, is shown as written.
 
 - i, n:
 
@@ -72,7 +73,7 @@ fit_all <- function() {
 }
 fit_all()
 #> ℹ [1/2] Fitting models
-#> ✔ [1/2] Fitting models [108ms]
+#> ✔ [1/2] Fitting models [110ms]
 #> 
 #> ℹ [2/2] Drawing plot
 #> ✔ [2/2] Drew plot [35ms]

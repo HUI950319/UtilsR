@@ -15,7 +15,10 @@ pr_kv(x, indent = 2)
 
   A named list or named vector. `NULL` elements are dropped, so optional
   settings can be passed as they are; atomic values are joined with
-  `", "` and other objects are shown by their class, e.g. `<lm>`.
+  `", "` (the first 20 items, then the count) and other objects are
+  described by type and size, e.g. `<data.frame 6 x 11>` or `<lm>`. Long
+  values wrap at the console width under the value column, as do the
+  lines of a value that contains newlines.
 
 - indent:
 
