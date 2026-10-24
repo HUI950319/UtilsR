@@ -51,9 +51,9 @@
   [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
   and
   [`pr_note()`](https://hui950319.github.io/UtilsR/reference/pr_note.md),
-  highlighting the total and fitting long paths to the console. It
-  returns the same data frame invisibly, retaining full paths and
-  counts.
+  highlighting the total and fitting long paths to the console. Table
+  counts use comma thousands separators, matching the header. It returns
+  the same data frame invisibly, retaining full paths and counts.
 
 - The print helpers write no colour codes when standard output shows no
   colour, as when `Rscript x.R > log.txt` runs in a terminal.
