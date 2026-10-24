@@ -194,3 +194,17 @@ test_that("pr_spark() prints one distribution line per column", {
   expect_match(even, "mean 4.00  sd 2.00", fixed = TRUE)
   expect_error(pr_spark(df, vars = "stage"), "stage")
 })
+
+test_that("print helpers write no ANSI codes when stdout shows no colour", {
+  # stdout redirected to a file while stderr, cli's default stream, is a
+  # terminal: styles use colour, stdout itself does not
+  testthat::local_mocked_bindings(
+    num_ansi_colors = function(stream = "auto") if (identical(stream, "auto")) 256L else 1L,
+    .package = "cli"
+  )
+  out <- utils::capture.output(lines <- pr_section("Effect ranges", width = 30))
+  expect_false(any(grepl("\033[", out, fixed = TRUE)))
+  expect_identical(out, as.character(lines))
+  expect_false(any(grepl("\033[", utils::capture.output(pr_kv(list(a = 1))),
+                         fixed = TRUE)))
+})

@@ -1,3 +1,8 @@
+# UtilsR 0.6.10
+
+* The print helpers write no colour codes when standard output shows no
+  colour, as when `Rscript x.R > log.txt` runs in a terminal.
+
 # UtilsR 0.6.9
 
 * `check_packages()` collects counts before constructing its result, avoiding

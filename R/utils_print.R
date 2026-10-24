@@ -23,15 +23,23 @@
 #         ._kv_lines()   named values -> aligned "key  value" lines
 #         ._p_cells()    P values -> coloured cells (stat_pval() wording)
 #         ._obj_desc()   object -> short "<type size>" description
+#         ._pr_colour()  does stdout show ANSI colours?
 #         ._pr_out()     write lines to stdout, return them invisibly
 #
 # Print methods write to stdout with cat(), as print() output is expected
 # to; running notices belong to .cat_message() / .cat_step() instead.
 # =============================================================================
 
+# Does stdout show ANSI colours? cli's own styling follows its default
+# stream, stderr outside interactive sessions, so `Rscript x.R > log.txt`
+# from a terminal would otherwise write colour codes into the file.
+._pr_colour <- function() cli::num_ansi_colors(stdout()) > 1L
+
 # Write lines to stdout and return them invisibly; no lines print nothing
-# (cat(character(), sep = "\n") would still end an empty line)
+# (cat(character(), sep = "\n") would still end an empty line). Colour
+# codes are dropped when stdout shows no colour.
 ._pr_out <- function(lines) {
+  if (!._pr_colour()) lines <- cli::ansi_strip(lines)
   if (length(lines)) cat(lines, sep = "\n")
   invisible(lines)
 }
