@@ -23,6 +23,7 @@ details with colored console output.
 Windows uses PowerShell CIM when available, with WMIC as a legacy fallback.
 Linux physical core counts use the optional \code{ps} package and are
 reported as missing when it is unavailable.
+On macOS, system memory is obtained through the optional \code{ps} package.
 }
 \examples{
 \dontrun{

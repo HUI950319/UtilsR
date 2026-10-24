@@ -1,5 +1,8 @@
 # UtilsR 0.6.10
 
+* `check_system()` obtains macOS memory through the optional `ps` backend,
+  using available memory consistently instead of attempting Linux commands.
+
 * `check_system()` fills missing Windows text fields independently, preserving
   valid CIM memory and metadata. A CPU query failure no longer discards OS
   information, and CSV parsing preserves version strings.

@@ -224,3 +224,24 @@ test_that("CIM text fields fall back independently without losing valid memory",
   expect_identical(result$system_info$os_version, "10.0")
   expect_identical(result$cpu$name, "CIM CPU")
 })
+
+test_that("macOS memory uses available bytes instead of Linux commands", {
+  skip_if_not_installed("ps")
+  local_mocked_bindings(
+    ps_system_memory = function() list(total = 8 * 1024^3, avail = 3 * 1024^3,
+                                     free = 1024^3, used = 4 * 1024^3),
+    .package = "ps"
+  )
+  query <- .check_system_fixture(os = "Darwin", use_ps = TRUE)
+  environment(query)$system <- function(command, ...) {
+    if (grepl("free", command, fixed = TRUE)) stop("Linux memory command on macOS")
+    switch(command, "sw_vers -productVersion" = "15.0",
+           "sw_vers -productName" = "macOS",
+           "sysctl -n machdep.cpu.brand_string" = "Apple fixture", character())
+  }
+  utils::capture.output(result <- query(return_result = TRUE))
+  expect_identical(result$system_memory,
+                   list(total_gb = 8, used_gb = 5, free_gb = 3, usage_percent = 62.5))
+  expect_identical(result$cpu$name, "Apple fixture")
+  expect_true(result$system_info$is_macos)
+})
