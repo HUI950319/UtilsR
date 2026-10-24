@@ -2,6 +2,10 @@
 
 ## UtilsR 0.6.10
 
+- [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md)
+  matches complete Linux memory fields, so the fallback for missing
+  `MemAvailable` does not mistake `SwapCached` for `Cached`.
+
 - [`check_packages()`](https://hui950319.github.io/UtilsR/reference/check_packages.md)
   reports library counts with
   [`pr_head()`](https://hui950319.github.io/UtilsR/reference/pr_head.md),
