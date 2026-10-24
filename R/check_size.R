@@ -159,7 +159,7 @@ check_size <- function(..., pattern = NULL, envir = .GlobalEnv,
   }
 
   if (length(objects) == 0) {
-    .cat_line("No objects selected in `envir`.", type = "info")
+    pr_note("No objects selected in {.arg envir}.")
   }
 
   size_bytes <- if (method == "lobstr") {

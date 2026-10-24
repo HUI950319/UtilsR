@@ -71,7 +71,8 @@ test_that("check_size deduplicates names and never inherits objects", {
 })
 
 test_that("check_size returns a renderable empty gt table for no matches", {
-  invisible(capture.output(result <- check_size(pattern = "^no_size_match$")))
+  out <- capture.output(result <- check_size(pattern = "^no_size_match$"))
+  expect_identical(cli::ansi_strip(out), "# No objects selected in `envir`.")
   expect_s3_class(result, "gt_tbl")
   expect_named(result[["_data"]], c("Object", "Class", "Size", "Size_fmt", "Size_bar"))
   expect_equal(nrow(result[["_data"]]), 0L)
