@@ -301,3 +301,19 @@ test_that("failed native Windows memory queries retain fresh CIM fallback", {
   expect_identical(first$system_memory$free_gb, 4)
   expect_identical(second$system_memory$free_gb, 2)
 })
+
+test_that("R heap bytes use exact GC counts and display binary units", {
+  query <- .check_system_fixture(meminfo = c(
+    "MemTotal: 8388608 kB", "MemAvailable: 4194304 kB"
+  ))
+  environment(query)$gc <- function(...) matrix(
+    c(1000, 2000, 0.1, 0.1), nrow = 2L,
+    dimnames = list(c("Ncells", "Vcells"), c("used", "(Mb)"))
+  )
+  out <- utils::capture.output(result <- query(return_result = TRUE))
+  expected_bytes <- if (.Machine$sizeof.pointer == 8L) 72000 else 44000
+  expect_identical(result$r_memory$used_bytes, expected_bytes)
+  expect_identical(result$r_memory$used_gb, expected_bytes / 1024^3)
+  expect_true(any(grepl("8.00 GiB", out, fixed = TRUE)))
+  expect_false(any(grepl("8.00 GB", out, fixed = TRUE)))
+})

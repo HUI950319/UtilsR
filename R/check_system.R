@@ -24,6 +24,14 @@
 #' @return A list (invisible by default) containing system_info, r_environment,
 #'   r_memory, system_memory, cpu, warnings, and timestamp.
 #'
+#' @details R memory measures the heap managed by R, not the operating system's
+#'   resident process size (RSS). It uses \code{lobstr} when available, otherwise
+#'   exact \code{gc()} cell counts. Memory fields ending in \code{_gb} retain
+#'   their names and report gibibytes (GiB, \eqn{2^{30}} bytes).
+#'   System \code{free_gb} represents available memory; \code{used_gb} is the
+#'   difference between total and available memory. Unavailable measurements
+#'   are returned as missing values.
+#'
 #' @examples
 #' \dontrun{
 #' check_system()
@@ -35,11 +43,12 @@
 check_system <- function(return_result = FALSE, show_warnings = FALSE) {
 
   # Get R memory usage
-  r_mem_used_bytes <- if (requireNamespace("pryr", quietly = TRUE)) {
-    pryr::mem_used()
+  r_mem_used_bytes <- if (requireNamespace("lobstr", quietly = TRUE)) {
+    lobstr::mem_used()
   } else {
     gc_info <- gc()
-    sum(gc_info[, 2]) * 1024^2
+    node_size <- if (.Machine[["sizeof.pointer"]] == 8L) 56 else 28
+    sum(gc_info[, 1L] * c(node_size, 8))
   }
   r_mem_used_gb <- as.numeric(r_mem_used_bytes) / 1024^3
 
@@ -363,13 +372,13 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
     }
     if (sys_mem$free_gb < 1) {
       memory_warnings <- c(memory_warnings,
-                           "\u53ef\u7528\u5185\u5b58\u4e0d\u8db3 (<1GB)")
+                            "\u53ef\u7528\u5185\u5b58\u4e0d\u8db3 (<1GiB)")
     }
   }
 
   if (r_mem_used_gb > 4) {
     memory_warnings <- c(memory_warnings,
-                         "R\u8fdb\u7a0b\u5185\u5b58\u4f7f\u7528\u8f83\u9ad8 (>4GB)")
+                         "R\u5bf9\u8c61\u5185\u5b58\u4f7f\u7528\u8f83\u9ad8 (>4GiB)")
   }
 
   # Pretty output, written to stdout through the print helpers; the keys
@@ -390,7 +399,7 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
              "\u5e73\u53f0" = sys_info$r_platform))
 
   pr_section("\U0001f4ca R\u5185\u5b58\u4f7f\u7528")
-  pr_kv(list("\u5f53\u524d\u4f7f\u7528" = sprintf("%.2f GB", r_mem_used_gb)))
+  pr_kv(list("\u5f53\u524d\u4f7f\u7528" = sprintf("%.2f GiB", r_mem_used_gb)))
 
   pr_section("\U0001f4be \u7cfb\u7edf\u5185\u5b58")
   if (!is.na(sys_mem$total_gb)) {
@@ -402,10 +411,10 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
       status_color <- cli::col_red("\u8b66\u544a")
     }
     pr_kv(list(
-      "\u603b\u5185\u5b58" = sprintf("%.2f GB", sys_mem$total_gb),
-      "\u5df2\u4f7f\u7528" = sprintf("%.2f GB (%.1f%%)", sys_mem$used_gb,
+      "\u603b\u5185\u5b58" = sprintf("%.2f GiB", sys_mem$total_gb),
+      "\u5df2\u4f7f\u7528" = sprintf("%.2f GiB (%.1f%%)", sys_mem$used_gb,
                                  sys_mem$usage_pct),
-      "\u53ef\u7528"     = sprintf("%.2f GB", sys_mem$free_gb),
+      "\u53ef\u7528"     = sprintf("%.2f GiB", sys_mem$free_gb),
       "\u72b6\u6001"     = status_color
     ))
   } else {

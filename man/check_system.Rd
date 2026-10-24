@@ -27,6 +27,15 @@ Linux physical core counts use the optional \code{ps} package and are
 reported as missing when it is unavailable.
 On macOS, system memory is obtained through the optional \code{ps} package.
 }
+\details{
+R memory measures the heap managed by R, not the operating system's
+  resident process size (RSS). It uses \code{lobstr} when available, otherwise
+  exact \code{gc()} cell counts. Memory fields ending in \code{_gb} retain
+  their names and report gibibytes (GiB, \eqn{2^{30}} bytes).
+  System \code{free_gb} represents available memory; \code{used_gb} is the
+  difference between total and available memory. Unavailable measurements
+  are returned as missing values.
+}
 \examples{
 \dontrun{
 check_system()

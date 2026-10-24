@@ -1,5 +1,10 @@
 # UtilsR 0.6.10
 
+* `check_system()` measures R heap bytes with `lobstr` or exact GC cell
+  counts, removing the undeclared `pryr` dependency and rounded-MB fallback.
+  Reports and warnings label binary memory units as GiB; existing `_gb`
+  field names, thresholds and function arguments are retained.
+
 * `check_system()` avoids repeated Windows CIM startup when `ps` can query
   live memory. Only static OS and CPU metadata are cached; memory is refreshed
   on every call, with fresh CIM queries retained if the native backend fails.
