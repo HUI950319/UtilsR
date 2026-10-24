@@ -120,6 +120,7 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
   }
 
   # Internal: get system memory info
+  memory_error <- NULL
   .get_system_memory <- function() {
     tryCatch({
       if (!is.null(native_memory)) return(native_memory)
@@ -196,18 +197,18 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
         }
       }
     }, error = function(e) {
-      if (show_warnings) {
-        warning("\u65e0\u6cd5\u83b7\u53d6\u7cfb\u7edf\u5185\u5b58\u4fe1\u606f: ",
-                e$message, call. = FALSE)
-      }
+      memory_error <<- conditionMessage(e)
       list(total_gb = NA, free_gb = NA, used_gb = NA, usage_pct = NA)
     })
   }
 
   sys_mem <- .get_system_memory()
   if (!.valid_memory(sys_mem)) {
-    if (show_warnings)
-      warning("Unavailable or invalid system memory query result.", call. = FALSE)
+    if (show_warnings) {
+      warning(if (is.null(memory_error)) "Unavailable or invalid system memory query result."
+              else paste0("\u65e0\u6cd5\u83b7\u53d6\u7cfb\u7edf\u5185\u5b58\u4fe1\u606f: ",
+                          memory_error), call. = FALSE)
+    }
     sys_mem <- list(total_gb = NA_real_, free_gb = NA_real_,
                     used_gb = NA_real_, usage_pct = NA_real_)
   }

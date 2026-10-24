@@ -317,3 +317,17 @@ test_that("R heap bytes use exact GC counts and display binary units", {
   expect_true(any(grepl("8.00 GiB", out, fixed = TRUE)))
   expect_false(any(grepl("8.00 GB", out, fixed = TRUE)))
 })
+
+test_that("a failed memory backend emits only one acquisition warning", {
+  query <- .check_system_fixture(os = "Darwin")
+  warnings <- character()
+  utils::capture.output(result <- withCallingHandlers(
+    query(return_result = TRUE, show_warnings = TRUE),
+    warning = function(w) {
+      warnings <<- c(warnings, conditionMessage(w))
+      invokeRestart("muffleWarning")
+    }
+  ))
+  expect_length(warnings, 1L)
+  expect_true(all(is.na(unlist(result$system_memory))))
+})

@@ -1,5 +1,8 @@
 # UtilsR 0.6.10
 
+* `check_system(show_warnings = TRUE)` emits one acquisition warning when
+  a memory backend fails, preserving its cause without a duplicate warning.
+
 * `check_system()` measures R heap bytes with `lobstr` or exact GC cell
   counts, removing the undeclared `pryr` dependency and rounded-MB fallback.
   Reports and warnings label binary memory units as GiB; existing `_gb`
