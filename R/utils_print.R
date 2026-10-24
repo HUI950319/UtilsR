@@ -163,7 +163,8 @@ pr_section <- function(title, width = NULL) {
 #' and \code{{.fn ...}} is styled, and in consoles that support hyperlinks
 #' (recent RStudio versions) \code{{.run pkg::fun(x)}} and
 #' \code{{.help pkg::fun}} become clickable links. Double literal braces, as
-#' in \code{"{{x}}"}.
+#' in \code{"{{x}}"}. Text that cli cannot parse, such as data that
+#' contains braces, is printed as written instead of failing the print.
 #'
 #' @param ... Character pieces of the note, pasted together.
 #' @param .envir Environment in which \code{{}} expressions are evaluated;
@@ -179,7 +180,9 @@ pr_section <- function(title, width = NULL) {
 #' @export
 #' @family print helpers
 pr_note <- function(..., .envir = parent.frame()) {
-  text <- cli::format_inline(..., .envir = .envir)
+  raw  <- paste0(...)
+  text <- tryCatch(cli::format_inline(raw, .envir = .envir),
+                   error = function(e) raw)
   ._pr_out(cli::col_grey(cli::style_italic(paste("#", text))))
 }
 

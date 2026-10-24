@@ -208,3 +208,8 @@ test_that("print helpers write no ANSI codes when stdout shows no colour", {
   expect_false(any(grepl("\033[", utils::capture.output(pr_kv(list(a = 1))),
                          fixed = TRUE)))
 })
+
+test_that("pr_note() prints text cli cannot parse as written", {
+  out <- cli::ansi_strip(utils::capture.output(pr_note("Groups: ", "levels {I, II}")))
+  expect_identical(out, "# Groups: levels {I, II}")
+})

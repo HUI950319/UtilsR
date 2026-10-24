@@ -25,7 +25,8 @@ interpolated from \code{.envir}, inline markup such as \code{{.code ...}}
 and \code{{.fn ...}} is styled, and in consoles that support hyperlinks
 (recent RStudio versions) \code{{.run pkg::fun(x)}} and
 \code{{.help pkg::fun}} become clickable links. Double literal braces, as
-in \code{"{{x}}"}.
+in \code{"{{x}}"}. Text that cli cannot parse, such as data that
+contains braces, is printed as written instead of failing the print.
 }
 \examples{
 n_panel <- 2

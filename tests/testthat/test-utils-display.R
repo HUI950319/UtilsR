@@ -73,3 +73,10 @@ test_that(".cat_step() numbers steps and ends each in the caller's frame", {
   quiet <- function() .cat_step("Fitting", verbose = FALSE)
   expect_identical(cli::cli_fmt(quiet()), character())
 })
+
+test_that(".cat_step() shows text cli cannot parse as written", {
+  run <- function() .cat_step("Fitting {I, II} models", msg_done = "Fitted {I, II}")
+  out <- cli::ansi_strip(cli::cli_fmt(run()))
+  expect_true(any(grepl("Fitting {I, II} models", out, fixed = TRUE)))
+  expect_true(any(grepl("Fitted {I, II} [", out, fixed = TRUE)))
+})

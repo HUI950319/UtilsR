@@ -1,7 +1,9 @@
 # UtilsR 0.6.10
 
 * The print helpers write no colour codes when standard output shows no
-  colour, as when `Rscript x.R > log.txt` runs in a terminal.
+  colour, as when `Rscript x.R > log.txt` runs in a terminal. `pr_note()`
+  and `.cat_step()` show text that cli cannot parse, such as data with
+  braces, as written instead of failing.
 
 # UtilsR 0.6.9
 

@@ -16,7 +16,8 @@
 \arguments{
 \item{msg}{Character. Step description. cli inline markup and glue
 interpolation are evaluated in \code{.envir}, so \code{"Fitting {n}
-models"} picks up \code{n} from the caller.}
+models"} picks up \code{n} from the caller. Text that cli cannot parse,
+such as data that contains braces, is shown as written.}
 
 \item{i, n}{Optional step number and total, shown as a grey \code{[i/n]}
 prefix (\code{[i]} when \code{n} is \code{NULL}).}

@@ -253,7 +253,8 @@ console_width <- function() {
 #'
 #' @param msg Character. Step description. cli inline markup and glue
 #'   interpolation are evaluated in \code{.envir}, so \code{"Fitting {n}
-#'   models"} picks up \code{n} from the caller.
+#'   models"} picks up \code{n} from the caller. Text that cli cannot parse,
+#'   such as data that contains braces, is shown as written.
 #' @param i,n Optional step number and total, shown as a grey \code{[i/n]}
 #'   prefix (\code{[i]} when \code{n} is \code{NULL}).
 #' @param msg_done Character. Text shown when the step completes; defaults
@@ -283,6 +284,15 @@ console_width <- function() {
   if (!isTRUE(verbose)) return(invisible(NULL))
   # force the default before `msg` gains its prefix, or it would get two
   force(msg_done)
+  # text cli cannot parse (data with braces) is shown as written; cli would
+  # otherwise fail inside the deferred on.exit() that closes the step
+  as_written <- function(s) {
+    ok <- tryCatch({ cli::format_inline(s, .envir = .envir); TRUE },
+                   error = function(e) FALSE)
+    if (ok) s else gsub("([{}])", "\\1\\1", s)
+  }
+  msg      <- as_written(msg)
+  msg_done <- as_written(msg_done)
   if (!is.null(i)) {
     num <- if (is.null(n)) sprintf("[%d]", as.integer(i)) else
       sprintf("[%d/%d]", as.integer(i), as.integer(n))
