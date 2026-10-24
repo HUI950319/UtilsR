@@ -366,3 +366,18 @@ test_that("binary_ref, the former name of ref_idx, still works with a warning", 
                    c("x", "...", "reverse", "ref_idx", "groups",
                      "new_labels", "binary_ref"))
 })
+
+
+test_that("ref_idx = 0 is the same as NULL: nothing collapses", {
+  x <- factor(c("a", "b", "c", "b"))
+  expect_identical(fct_cat(x, ref_idx = 0), x)
+  expect_identical(fct_cat(x, ref_idx = 0L), x)
+  expect_identical(fct_cat(c("b", "a"), ref_idx = 0), factor(c("b", "a")))
+  # It is not an active mode, so another mode still runs.
+  expect_identical(fct_cat(x, "c", ref_idx = 0), fct_cat(x, "c"))
+  expect_identical(fct_cat(x, reverse = TRUE, ref_idx = 0),
+                   fct_cat(x, reverse = TRUE))
+  # Only a single 0 means "none"; a 0 among indices is still out of range.
+  expect_error(fct_cat(x, ref_idx = c(0, 1)), "between 1 and 3")
+  expect_warning(expect_identical(fct_cat(x, binary_ref = 0), x), "deprecated")
+})

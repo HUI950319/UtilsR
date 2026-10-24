@@ -31,7 +31,8 @@ Default \code{FALSE}.}
 integer indices or as level names (\code{ref_idx = "No"}). They form
 one group, named by joining them with \code{"_"}; the other levels
 collapse to \code{"Oth"}. An unknown name is an error. The reference
-label must differ from \code{"Oth"} when other levels remain.}
+label must differ from \code{"Oth"} when other levels remain. A single
+\code{0} is the same as \code{NULL}: nothing collapses.}
 
 \item{groups}{Named list of integer index vectors for custom grouping,
 e.g. \code{list(early = 1:2, late = 3:4)}. Names must be non-empty,

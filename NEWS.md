@@ -1,5 +1,9 @@
 # UtilsR 0.6.9
 
+* `fct_cat(ref_idx = 0)` is the same as `ref_idx = NULL`: nothing collapses,
+  and another mode given alongside still runs. Only a single `0` means none;
+  a `0` among indices is still out of range.
+
 * New print helpers for S3 print methods. `pr_head()` prints a class label
   on a solid background followed by a grey one-line summary. `pr_kv()` prints
   a key-value block, keys in grey and aligned by display width. `pr_section()`

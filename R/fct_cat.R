@@ -35,7 +35,8 @@
 #'   integer indices or as level names (\code{ref_idx = "No"}). They form
 #'   one group, named by joining them with \code{"_"}; the other levels
 #'   collapse to \code{"Oth"}. An unknown name is an error. The reference
-#'   label must differ from \code{"Oth"} when other levels remain.
+#'   label must differ from \code{"Oth"} when other levels remain. A single
+#'   \code{0} is the same as \code{NULL}: nothing collapses.
 #' @param groups Named list of integer index vectors for custom grouping,
 #'   e.g. \code{list(early = 1:2, late = 3:4)}. Names must be non-empty,
 #'   and indices must be finite and non-missing.
@@ -107,6 +108,11 @@ fct_cat <- function(x, ...,
     }
     cli::cli_warn("{.arg binary_ref} of {.fn fct_cat} is deprecated; use {.arg ref_idx}.")
     ref_idx <- binary_ref
+  }
+  # A single 0 is the same as NULL (no binary collapse), not an active mode.
+  if (is.numeric(ref_idx) && length(ref_idx) == 1L && !is.na(ref_idx) &&
+      ref_idx == 0) {
+    ref_idx <- NULL
   }
 
   # --- Mutual exclusivity check ---
