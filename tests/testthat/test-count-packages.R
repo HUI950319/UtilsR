@@ -47,3 +47,51 @@ test_that("check_packages rejects invalid refresh flags", {
                  "'refresh' must be TRUE or FALSE.", fixed = TRUE)
   }
 })
+
+test_that("check_packages marks inaccessible libraries and totals as unknown", {
+  skip_on_os("windows")
+  root <- withr::local_tempdir()
+  lib <- file.path(root, "restricted")
+  empty <- file.path(root, "empty")
+  dir.create(lib)
+  dir.create(empty)
+  stopifnot(file.copy(find.package("compiler"), lib, recursive = TRUE))
+  withr::local_libpaths(c(lib, empty), action = "prefix")
+  withr::defer(Sys.chmod(lib, mode = "0700"))
+  Sys.chmod(lib, mode = "0000")
+  skip_if(file.access(lib, 5L) == 0L, "User can still read restricted directories")
+
+  for (refresh in c(FALSE, TRUE)) {
+    expect_warning(result <- check_packages(refresh = refresh), lib, fixed = TRUE)
+    expect_identical(result[["Package_Count"]][1:2], c(NA_integer_, 0L))
+    expect_identical(tail(result[["Package_Count"]], 1), NA_integer_)
+  }
+})
+
+test_that("check_packages reports libraries that disappear after path registration", {
+  root <- withr::local_tempdir()
+  lib <- file.path(root, "library")
+  empty <- file.path(root, "empty")
+  dir.create(lib)
+  dir.create(empty)
+  withr::local_libpaths(c(lib, empty), action = "prefix")
+  stopifnot(file.rename(lib, paste0(lib, "-moved")))
+
+  expect_warning(result <- check_packages(), lib, fixed = TRUE)
+  expect_identical(result[["Package_Count"]][1:2], c(NA_integer_, 0L))
+  expect_identical(tail(result[["Package_Count"]], 1), NA_integer_)
+})
+
+test_that("check_packages continues after a library metadata read fails", {
+  root <- withr::local_tempdir()
+  lib <- file.path(root, "library")
+  empty <- file.path(root, "empty")
+  dir.create(file.path(lib, "broken", "Meta"), recursive = TRUE)
+  dir.create(empty)
+  saveRDS(1L, file.path(lib, "broken", "Meta", "package.rds"))
+  withr::local_libpaths(c(lib, empty), action = "prefix")
+
+  expect_warning(result <- check_packages(refresh = TRUE), lib, fixed = TRUE)
+  expect_identical(result[["Package_Count"]][1:2], c(NA_integer_, 0L))
+  expect_identical(tail(result[["Package_Count"]], 1), NA_integer_)
+})

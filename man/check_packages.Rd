@@ -12,13 +12,18 @@ cache and read package metadata from disk. Defaults to \code{FALSE}.}
 }
 \value{
 A data.frame with columns \code{Library_Path} and
-  \code{Package_Count}, including a total row.
+  \code{Package_Count}, including a total row. Failed libraries and the
+  total have \code{NA} counts if any library cannot be read.
 }
 \description{
 Enumerate all \code{.libPaths()} and count the number of installed packages
 in each directory using \code{utils::installed.packages()}. Unrelated
 directories and installation locks are excluded. The total counts installed
 copies across libraries, including packages installed in more than one library.
+}
+\details{
+A warning identifies each library that cannot be read. Counts for
+readable libraries are still returned; the total is not a partial sum.
 }
 \examples{
 \dontrun{

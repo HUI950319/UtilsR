@@ -13,7 +13,11 @@
 #'   cache and read package metadata from disk. Defaults to \code{FALSE}.
 #'
 #' @return A data.frame with columns \code{Library_Path} and
-#'   \code{Package_Count}, including a total row.
+#'   \code{Package_Count}, including a total row. Failed libraries and the
+#'   total have \code{NA} counts if any library cannot be read.
+#'
+#' @details A warning identifies each library that cannot be read. Counts for
+#'   readable libraries are still returned; the total is not a partial sum.
 #'
 #' @examples
 #' \dontrun{
@@ -38,7 +42,16 @@ check_packages <- function(refresh = FALSE) {
   )
 
   for (path in lib_paths) {
-    pkg_count <- nrow(utils::installed.packages(lib.loc = path, noCache = refresh))
+    pkg_count <- tryCatch({
+      if (!dir.exists(path) || file.access(path, 5L) != 0L) {
+        stop("directory does not exist or is not readable", call. = FALSE)
+      }
+      nrow(utils::installed.packages(lib.loc = path, noCache = refresh))
+    }, error = function(e) {
+      warning(sprintf("Cannot read package library %s: %s",
+                      sQuote(path), conditionMessage(e)), call. = FALSE)
+      NA_integer_
+    })
     result <- rbind(result, data.frame(
       Library_Path = path,
       Package_Count = pkg_count
