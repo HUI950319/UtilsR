@@ -1,5 +1,8 @@
 # UtilsR 0.6.10
 
+* `check_system()` matches complete Linux memory fields, so the fallback for
+  missing `MemAvailable` does not mistake `SwapCached` for `Cached`.
+
 * `check_packages()` reports library counts with `pr_head()`, `pr_table()` and
   `pr_note()`, highlighting the total and fitting long paths to the console.
   It returns the same data frame invisibly, retaining full paths and counts.

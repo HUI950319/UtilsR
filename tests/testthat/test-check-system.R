@@ -1,3 +1,37 @@
+.check_system_fixture <- function(os = "Linux", meminfo = character(),
+                                  cim = NULL, legacy = list(), use_ps = FALSE) {
+  env <- new.env(parent = environment(check_system))
+  env$.Platform <- .Platform
+  env$.Platform$OS.type <- if (os == "Windows") "windows" else "unix"
+  env$Sys.info <- function() {
+    info <- base::Sys.info()
+    info[c("sysname", "release", "version", "machine")] <-
+      c(os, "fixture", "fixture", "x86_64")
+    info
+  }
+  env$requireNamespace <- function(package, ...) {
+    if (package %in% c("pryr", "lobstr") || (package == "ps" && !use_ps))
+      FALSE else base::requireNamespace(package, ...)
+  }
+  env$Sys.which <- function(...) if (is.null(cim)) "" else "powershell"
+  env$system2 <- function(...) cim
+  env$system <- function(command, ...) {
+    if (command %in% names(legacy)) legacy[[command]] else character()
+  }
+  env$file.exists <- function(path) {
+    os == "Linux" && path %in% c("/proc/meminfo", "/etc/os-release", "/proc/cpuinfo")
+  }
+  env$readLines <- function(con, ...) {
+    switch(con, "/proc/meminfo" = meminfo,
+           "/etc/os-release" = 'PRETTY_NAME="Linux fixture"',
+           "/proc/cpuinfo" = "model name : Fixture CPU",
+           stop("Unexpected fixture file"))
+  }
+  query <- check_system
+  environment(query) <- env
+  query
+}
+
 test_that("system diagnostics retain their result schema and visibility", {
   utils::capture.output(result <- withVisible(check_system(return_result = TRUE)))
   expect_true(result$visible)
@@ -76,4 +110,14 @@ test_that("failed or malformed CIM queries retain the legacy Windows fallback", 
     expect_identical(result$system_info$os_full_name, "Windows fixture")
     expect_identical(result$cpu$name, "Fixture CPU")
   }
+})
+
+test_that("Linux cached memory does not include SwapCached", {
+  query <- .check_system_fixture(meminfo = c(
+    "MemTotal: 8388608 kB", "MemFree: 1048576 kB",
+    "Cached: 2097152 kB", "SwapCached: 524288 kB"
+  ))
+  expect_no_error(utils::capture.output(result <- query(return_result = TRUE)))
+  expect_identical(result$system_memory,
+                   list(total_gb = 8, used_gb = 5, free_gb = 3, usage_percent = 62.5))
 })

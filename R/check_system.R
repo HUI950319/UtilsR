@@ -100,8 +100,8 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
         if (file.exists("/proc/meminfo")) {
           meminfo <- readLines("/proc/meminfo")
           get_mem_value <- function(pat) {
-            line <- grep(pat, meminfo, value = TRUE)
-            if (length(line) > 0) {
+            line <- grep(paste0("^", pat), meminfo, value = TRUE)
+            if (length(line) == 1L) {
               as.numeric(gsub("\\D", "", line)) / 1024^2
             } else {
               NA
