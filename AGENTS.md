@@ -19,9 +19,9 @@ These rules apply to work under `UtilsR/` in addition to the repository-root
   `R/utils_display.R` holds the `.cat_*` notices, which are cli messages
   that `suppressMessages()` silences, and `R/utils_print.R` the `pr_*`
   building blocks for S3 print methods, which write to stdout. Print methods
-  in packages importing UtilsR (MLR, causalR, seerR) build on `pr_*`; RegR
-  keeps its own `.cat_*` copies in `cli-get.R` because it must not depend on
-  UtilsR.
+  in the packages importing UtilsR (RegR, MLR, causalR, seerR) build on
+  `pr_*`. RegR has imported UtilsR since 2026-10-24 (user decision) but
+  still keeps its own `cat()`-based `.cat_*` copies in `cli-get.R`.
 - Documentation generation and installation follow
   [the shared change workflow](../r-function-dev.md) §5 and
   [execution details](../.claude/docs/r-package-execution-workflow.md).
