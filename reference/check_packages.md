@@ -10,8 +10,15 @@ in more than one library.
 ## Usage
 
 ``` r
-check_packages()
+check_packages(refresh = FALSE)
 ```
+
+## Arguments
+
+- refresh:
+
+  Logical scalar. If `TRUE`, bypass the installed-package cache and read
+  package metadata from disk. Defaults to `FALSE`.
 
 ## Value
 
@@ -33,5 +40,6 @@ Other inspect:
 ``` r
 if (FALSE) { # \dontrun{
 check_packages()
+check_packages(refresh = TRUE)
 } # }
 ```
