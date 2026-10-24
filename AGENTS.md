@@ -73,7 +73,7 @@ filesystem rather than maintaining a duplicate inventory here.
   put it first in `.libPaths()` before `load_all()` (about a minute in WSL,
   2026-10-24 `plt_dist()`). 3.5.0 lacks `ggplot2::get_labs()`: tests call it
   only behind an `exists()` check and otherwise read `p$labels`
-  (`test-plt-sankey.R`, 2026-10-24).
+  (`test-plt-sankey.R`, `test-fmt-plot.R`, 2026-10-24).
 - Code that inspects mapping expressions walks the call structure:
   `rlang::call_name()` returns `NULL` for anonymous and `.env$f()` calls,
   `all.names()` also matches a column named `stage`, and calls such as

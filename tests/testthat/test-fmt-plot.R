@@ -18,8 +18,14 @@ test_that("fmt_plot() and fmt_plot_base() format each plot of a plain list", {
                        labs_list = list(x = "X"))
   expect_length(res, 2L)
   expect_s3_class(res[[2]], "patchwork")
-  expect_identical(ggplot2::get_labs(res[[1]])$x, "X")
-  expect_identical(ggplot2::get_labs(res[[2]][[1]])$x, "X")
+  # get_labs() exists only from ggplot2 4.0; 3.5.0 keeps labels in `$labels`.
+  labs_of <- if (exists("get_labs", envir = asNamespace("ggplot2"), inherits = FALSE)) {
+    ggplot2::get_labs
+  } else {
+    function(plot) plot$labels
+  }
+  expect_identical(labs_of(res[[1]])$x, "X")
+  expect_identical(labs_of(res[[2]][[1]])$x, "X")
 
   expect_error(fmt_plot(list(p, 1), plot.margin = 4), "ggplot")
   expect_error(fmt_plot_base(list(p, 1), labs_list = list(x = "X")), "ggplot")
