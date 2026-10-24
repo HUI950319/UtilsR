@@ -78,7 +78,7 @@ df <- data.frame(
   z = 1:5
 )
 check_na(df)
-#> ======   ℹ Data quality analysis: 2 variables with data quality issues ℹ   =====
+#>  check_na  2 variables with data quality issues
 ```
 
 | **Missing & Special Value Analysis** |  |  |  |

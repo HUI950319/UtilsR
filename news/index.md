@@ -2,6 +2,25 @@
 
 ## UtilsR 0.6.9
 
+- The report of
+  [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md)
+  uses the print helpers: a class label with the time, one rule per
+  group and the Chinese keys aligned by display width. It now goes to
+  standard output, so
+  [`suppressMessages()`](https://rdrr.io/r/base/message.html) no longer
+  hides it; wrap the call in
+  [`capture.output()`](https://rdrr.io/r/utils/capture.output.html) to
+  keep only the returned list.
+  [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
+  with nothing selected says so in a grey note.
+  [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
+  heads its table with a class label giving the variable count (green
+  when nothing is missing) and reports empty input in grey notes.
+
+- `fct_cat(ref_idx = 0)` is the same as `ref_idx = NULL`: nothing
+  collapses, and another mode given alongside still runs. Only a single
+  `0` means none; a `0` among indices is still out of range.
+
 - New print helpers for S3 print methods.
   [`pr_head()`](https://hui950319.github.io/UtilsR/reference/pr_head.md)
   prints a class label on a solid background followed by a grey one-line

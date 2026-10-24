@@ -102,7 +102,7 @@ Other inspect:
 # \donttest{
 # Analyze all variables
 check_na(airquality)
-#> ======   ℹ Data quality analysis: 2 variables with data quality issues ℹ   =====
+#>  check_na  2 variables with data quality issues
 
 
   

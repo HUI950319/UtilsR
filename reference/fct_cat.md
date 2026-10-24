@@ -45,7 +45,8 @@ fct_cat(
   indices or as level names (`ref_idx = "No"`). They form one group,
   named by joining them with `"_"`; the other levels collapse to
   `"Oth"`. An unknown name is an error. The reference label must differ
-  from `"Oth"` when other levels remain.
+  from `"Oth"` when other levels remain. A single `0` is the same as
+  `NULL`: nothing collapses.
 
 - groups:
 
