@@ -122,7 +122,7 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
     data <- dplyr::select(dplyr::ungroup(data), ...)
   }
   if (ncol(data) == 0L) {
-    .cat_line("No variables selected for data quality analysis.", type = "info")
+    pr_note("No variables selected for data quality analysis.")
     return(invisible(NULL))
   }
   unsupported <- vapply(data, function(x) !is.null(dim(x)), logical(1))
@@ -135,7 +135,7 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
 
   n_total <- nrow(data)
   if (n_total == 0L) {
-    .cat_line("No observations available for data quality analysis.", type = "info")
+    pr_note("No observations available for data quality analysis.")
     return(invisible(NULL))
   }
 
@@ -176,8 +176,7 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
     dplyr::arrange(dplyr::desc(missing_count), dplyr::desc(special_count))
 
   if (nrow(res_na) == 0) {
-    .cat_box("No missing values or special values found in the dataset!",
-             type = "success")
+    pr_head("check_na", "no missing or special values found", bg = "green")
     return(invisible(NULL))
   }
 
@@ -321,18 +320,11 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
       ))
     )
 
-  if (show_all) {
-    .cat_line(
-      sprintf("Data quality analysis: showing all %.0f variables", nrow(res_na)),
-      type = "info"
-    )
+  pr_head("check_na", if (show_all) {
+    sprintf("showing all %.0f variables", nrow(res_na))
   } else {
-    .cat_line(
-      sprintf("Data quality analysis: %.0f variables with data quality issues",
-              nrow(res_na)),
-      type = "info"
-    )
-  }
+    sprintf("%.0f variables with data quality issues", nrow(res_na))
+  })
 
   gt_table
 }

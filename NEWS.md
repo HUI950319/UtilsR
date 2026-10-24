@@ -4,7 +4,9 @@
   the time, one rule per group and the Chinese keys aligned by display width.
   It now goes to standard output, so `suppressMessages()` no longer hides it;
   wrap the call in `capture.output()` to keep only the returned list.
-  `check_size()` with nothing selected says so in a grey note.
+  `check_size()` with nothing selected says so in a grey note. `check_na()`
+  heads its table with a class label giving the variable count (green when
+  nothing is missing) and reports empty input in grey notes.
 
 * `fct_cat(ref_idx = 0)` is the same as `ref_idx = NULL`: nothing collapses,
   and another mode given alongside still runs. Only a single `0` means none;
