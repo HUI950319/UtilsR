@@ -8,8 +8,10 @@ pr_table(
   data,
   p_col = NULL,
   highlight = NULL,
+  n = 20,
   align = NULL,
   digits = 2,
+  width = NULL,
   indent = 2
 )
 }
@@ -21,11 +23,19 @@ pr_table(
 \item{highlight}{Rows to highlight in black on light yellow: integer row
 numbers or a logical vector. Highlighted rows drop their other colours.}
 
+\item{n}{Integer. Rows to show (default 20); the rest are counted in a
+grey footer. \code{NULL} shows every row.}
+
 \item{align}{Column alignment, recycled: \code{"left"}, \code{"right"}
 or \code{"center"}. \code{NULL} (default) right-aligns numeric and
 P-value columns and left-aligns the rest.}
 
 \item{digits}{Integer. Decimals for double columns (default 2).}
+
+\item{width}{Integer. Line width the table must fit; \code{NULL}
+(default) uses the console width. The first column and the P-value
+columns always show; the other columns follow in order while they fit,
+and the footer names those left out.}
 
 \item{indent}{Integer. Spaces before each line (default 2).}
 }

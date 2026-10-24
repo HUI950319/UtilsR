@@ -285,10 +285,16 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 #' @param p_col Character. Names of the P-value columns, or \code{NULL}.
 #' @param highlight Rows to highlight in black on light yellow: integer row
 #'   numbers or a logical vector. Highlighted rows drop their other colours.
+#' @param n Integer. Rows to show (default 20); the rest are counted in a
+#'   grey footer. \code{NULL} shows every row.
 #' @param align Column alignment, recycled: \code{"left"}, \code{"right"}
 #'   or \code{"center"}. \code{NULL} (default) right-aligns numeric and
 #'   P-value columns and left-aligns the rest.
 #' @param digits Integer. Decimals for double columns (default 2).
+#' @param width Integer. Line width the table must fit; \code{NULL}
+#'   (default) uses the console width. The first column and the P-value
+#'   columns always show; the other columns follow in order while they fit,
+#'   and the footer names those left out.
 #' @param indent Integer. Spaces before each line (default 2).
 #'
 #' @return The printed lines, invisibly.
@@ -303,8 +309,8 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 #'
 #' @export
 #' @family print helpers
-pr_table <- function(data, p_col = NULL, highlight = NULL, align = NULL,
-                     digits = 2, indent = 2) {
+pr_table <- function(data, p_col = NULL, highlight = NULL, n = 20, align = NULL,
+                     digits = 2, width = NULL, indent = 2) {
   if (!is.data.frame(data)) {
     cli::cli_abort("{.arg data} must be a data frame, not {.obj_type_friendly {data}}.")
   }
@@ -313,7 +319,9 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, align = NULL,
     cli::cli_abort("{.arg p_col} names column{?s} absent from {.arg data}: {.val {miss}}.")
   }
   if (!ncol(data)) return(._pr_out(character()))
-  data <- as.data.frame(data)
+  data   <- as.data.frame(data)
+  n_rows <- nrow(data)
+  if (!is.null(n) && n_rows > n) data <- data[seq_len(n), , drop = FALSE]
 
   is_num <- vapply(data, is.numeric, logical(1)) | names(data) %in% p_col
   colour <- ._pr_colour()
@@ -334,19 +342,28 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, align = NULL,
   align <- if (is.null(align)) ifelse(is_num, "right", "left") else
     rep_len(match.arg(align, c("left", "right", "center"), several.ok = TRUE),
             ncol(data))
-  width <- vapply(seq_along(cells), function(j) {
+  col_w <- vapply(seq_along(cells), function(j) {
     max(cli::ansi_nchar(c(names(data)[j], cells[[j]]), type = "width"))
   }, numeric(1))
+  # the first and the P-value columns always show; the others follow in
+  # order until one no longer fits the line
+  avail <- (width %||% console_width()) - indent
+  keep  <- unique(c(1L, which(names(data) %in% p_col)))
+  for (j in setdiff(seq_along(cells), keep)) {
+    if (sum(col_w[c(keep, j)]) + 2 * length(keep) > avail) break
+    keep <- c(keep, j)
+  }
+  keep <- sort(keep)
   row <- function(x) {
-    paste(vapply(seq_along(x), function(j) {
-      cli::ansi_align(x[[j]], width[j], align[j])
+    paste(vapply(keep, function(j) {
+      cli::ansi_align(x[[j]], col_w[j], align[j])
     }, character(1)), collapse = "  ")
   }
 
   pad    <- strrep(" ", indent)
   header <- paste0(pad, cli::style_bold(row(names(data))))
   rule   <- paste0(pad, cli::col_grey(strrep(cli::symbol$line,
-                                             sum(width) + 2 * (length(width) - 1))))
+                                             sum(col_w[keep]) + 2 * (length(keep) - 1))))
   hl     <- if (is.logical(highlight)) which(highlight) else as.integer(highlight)
   hl_bg  <- cli::make_ansi_style("#FFFF99", bg = TRUE)
   body   <- vapply(seq_len(nrow(data)), function(i) {
@@ -355,7 +372,19 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, align = NULL,
     if (colour) return(paste0(pad, hl_bg(cli::col_black(cli::ansi_strip(r)))))
     paste0(">", strrep(" ", max(indent - 1L, 1L)), r)
   }, character(1))
-  ._pr_out(c(header, rule, body))
+
+  more <- function(k, what) {
+    sprintf("%s %d more %s%s", cli::symbol$ellipsis, k, what, if (k == 1L) "" else "s")
+  }
+  dropped <- setdiff(seq_along(cells), keep)
+  foot <- c(if (n_rows > nrow(data)) more(n_rows - nrow(data), "row"),
+            if (length(dropped)) paste0(more(length(dropped), "column"), ": ",
+                                        toString(names(data)[dropped])))
+  if (length(foot)) {
+    foot <- paste0(pad, cli::col_grey(cli::ansi_strwrap(
+      paste("#", paste(foot, collapse = "; ")), width = avail, exdent = 2)))
+  }
+  ._pr_out(c(header, rule, body, foot))
 }
 
 # ------------- pr_tree ------------------------------------------------------

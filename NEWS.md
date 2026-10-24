@@ -9,6 +9,11 @@
   missing text cells with `<NA>`. `pr_spark()` shows an empty-string level
   as `""`.
 
+* `pr_table()` gains `n` (20 rows by default, `NULL` for all) and `width`
+  (the console width by default): it keeps the first and the P-value
+  columns, adds the others while they fit, and counts the rows and names
+  the columns left out in a grey footer.
+
 # UtilsR 0.6.9
 
 * `check_packages()` collects counts before constructing its result, avoiding

@@ -234,3 +234,20 @@ test_that("pr_spark() names an empty-string level", {
     pr_spark(data.frame(site = c("", "", "head", "tail")))))
   expect_match(out, 'top "" (50.0%)', fixed = TRUE)
 })
+
+test_that("pr_table() fits the line width and caps the rows", {
+  withr::local_options(cli.num_colors = 1)
+  wide <- as.data.frame(matrix(1:30 + 0.5, 3))
+  names(wide) <- paste0("column_", 1:10)
+  wide$P <- c(0.01, 0.2, 0.5)
+  out <- utils::capture.output(pr_table(wide, p_col = "P", width = 50))
+  expect_true(all(cli::ansi_nchar(out, type = "width") <= 50))
+  # the first and the P-value columns stay, the rest drop from the right
+  expect_match(out[1], "^  column_1  column_2 .* +P$")
+  expect_match(paste(out, collapse = " "), "more columns: column_[0-9]")
+
+  rows <- utils::capture.output(pr_table(data.frame(i = 1:30), n = 5))
+  expect_length(rows, 8L)
+  expect_match(rows[8], "^  # .* 25 more rows$")
+  expect_length(utils::capture.output(pr_table(data.frame(i = 1:30), n = NULL)), 32L)
+})
