@@ -274,7 +274,9 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 #' \code{\link{stat_pval}(mode = "pvalue")} wording (\code{"<0.001"}),
 #' text is kept as written, and values print bold red below 0.001, red below
 #' 0.05 and grey otherwise. Other double columns are rounded to
-#' \code{digits} decimals, or none when every value is whole. Missing values
+#' \code{digits} decimals, or none when every value is whole; a column whose
+#' smallest non-zero value would round to zero gets enough decimals for two
+#' significant digits, at most six. Missing values
 #' print as a grey \code{NA}. Everything else uses \code{as.character()}.
 #' Without colour (knitted documents, log files), P values carry stars
 #' (\code{***} below 0.001, \code{**} below 0.01, \code{*} below 0.05),
@@ -329,9 +331,14 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, n = 20, align = NULL,
     v <- data[[nm]]
     if (nm %in% p_col) return(._p_cells(v))
     if (is.double(v) && is.numeric(v)) {
-      fin <- v[is.finite(v)]
-      txt <- formatC(v, format = "f",
-                     digits = if (all(fin == round(fin))) 0L else digits)
+      fin  <- v[is.finite(v)]
+      d    <- if (all(fin == round(fin))) 0L else digits
+      # 0.0003 would print as 0.00: give the column two significant digits
+      tiny <- abs(fin[fin != 0])
+      if (d > 0L && length(tiny) && min(tiny) < 0.5 * 10^-d) {
+        d <- min(6L, as.integer(ceiling(-log10(min(tiny)))) + 1L)
+      }
+      txt <- formatC(v, format = "f", digits = d)
     } else {
       txt <- as.character(v)
     }

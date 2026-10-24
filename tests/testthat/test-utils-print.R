@@ -251,3 +251,11 @@ test_that("pr_table() fits the line width and caps the rows", {
   expect_match(rows[8], "^  # .* 25 more rows$")
   expect_length(utils::capture.output(pr_table(data.frame(i = 1:30), n = NULL)), 32L)
 })
+
+test_that("pr_table() gives tiny values enough decimals", {
+  withr::local_options(cli.num_colors = 1)
+  out <- utils::capture.output(pr_table(data.frame(beta = c(0.0003, -1.234),
+                                                   hr = c(1.5, 2.25))))
+  expect_identical(trimws(out[3]), "0.00030  1.50")
+  expect_identical(trimws(out[4]), "-1.23400  2.25")
+})

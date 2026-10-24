@@ -12,7 +12,9 @@
 * `pr_table()` gains `n` (20 rows by default, `NULL` for all) and `width`
   (the console width by default): it keeps the first and the P-value
   columns, adds the others while they fit, and counts the rows and names
-  the columns left out in a grey footer.
+  the columns left out in a grey footer. A column whose smallest non-zero
+  value would round to zero gets enough decimals for two significant digits
+  (`0.0003` printed as `0.00`).
 
 # UtilsR 0.6.9
 
