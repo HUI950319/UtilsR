@@ -3,6 +3,31 @@
 ## UtilsR 0.6.10
 
 - [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md)
+  avoids repeated Windows CIM startup when `ps` can query live memory.
+  Only static OS and CPU metadata are cached; memory is refreshed on
+  every call, with fresh CIM queries retained if the native backend
+  fails.
+
+- [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md)
+  obtains macOS memory through the optional `ps` backend, using
+  available memory consistently instead of attempting Linux commands.
+
+- [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md)
+  fills missing Windows text fields independently, preserving valid CIM
+  memory and metadata. A CPU query failure no longer discards OS
+  information, and CSV parsing preserves version strings.
+
+- [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md)
+  handles unknown logical core counts while retaining known physical
+  counts. On Linux, the optional `ps` backend distinguishes physical
+  cores from hardware threads; without it the physical count is missing.
+
+- [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md)
+  validates memory totals and available memory on every backend,
+  preventing negative, non-finite or out-of-range usage. Missing Linux
+  cache fields use a conservative free-memory fallback.
+
+- [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md)
   reports unavailable memory as scalar missing values when Windows
   queries return no results, while retaining the remaining diagnostics.
 
