@@ -35,14 +35,8 @@ check_packages <- function(refresh = FALSE) {
 
   lib_paths <- .libPaths()
 
-  result <- data.frame(
-    Library_Path = character(),
-    Package_Count = integer(),
-    stringsAsFactors = FALSE
-  )
-
-  for (path in lib_paths) {
-    pkg_count <- tryCatch({
+  pkg_counts <- vapply(lib_paths, function(path) {
+    tryCatch({
       if (!dir.exists(path) || file.access(path, 5L) != 0L) {
         stop("directory does not exist or is not readable", call. = FALSE)
       }
@@ -52,17 +46,13 @@ check_packages <- function(refresh = FALSE) {
                       sQuote(path), conditionMessage(e)), call. = FALSE)
       NA_integer_
     })
-    result <- rbind(result, data.frame(
-      Library_Path = path,
-      Package_Count = pkg_count
-    ))
-  }
+  }, integer(1), USE.NAMES = FALSE)
 
-  total <- data.frame(
-    Library_Path = "Total",
-    Package_Count = sum(result$Package_Count)
+  result <- data.frame(
+    Library_Path = c(lib_paths, "Total"),
+    Package_Count = c(pkg_counts, sum(pkg_counts)),
+    stringsAsFactors = FALSE
   )
-  result <- rbind(result, total)
 
   return(result)
 }

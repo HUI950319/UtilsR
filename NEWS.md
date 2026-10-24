@@ -1,5 +1,8 @@
 # UtilsR 0.6.9
 
+* `check_packages()` collects counts before constructing its result, avoiding
+  repeated data-frame copies while retaining library order and count semantics.
+
 * `check_packages()` warns about missing, inaccessible or unreadable libraries
   and continues counting the others. Failed counts and the total are `NA`,
   so incomplete results cannot be mistaken for an empty library or a full total.
