@@ -162,3 +162,36 @@ test_that("Linux missing cached memory still provides a conservative fallback", 
   expect_identical(result$system_memory,
                    list(total_gb = 8, used_gb = 7, free_gb = 1, usage_percent = 87.5))
 })
+
+test_that("known physical cores still print when logical cores are unknown", {
+  local_mocked_bindings(
+    detectCores = function(all.tests = FALSE, logical = TRUE)
+      if (logical) NA_integer_ else 2L,
+    .package = "parallel"
+  )
+  query <- .check_system_fixture(os = "Windows")
+  expect_no_error(utils::capture.output(result <- query(return_result = TRUE)))
+  expect_true(is.na(result$cpu$logical_cores))
+  expect_identical(result$cpu$physical_cores, 2L)
+})
+
+test_that("Linux physical cores are not reported as hardware threads", {
+  skip_if_not_installed("ps")
+  local_mocked_bindings(detectCores = function(...) 16L, .package = "parallel")
+  local_mocked_bindings(
+    ps_cpu_count = function(logical = TRUE) if (logical) 16L else 8L,
+    .package = "ps"
+  )
+  query <- .check_system_fixture(use_ps = TRUE, meminfo = c(
+    "MemTotal: 8388608 kB", "MemAvailable: 4194304 kB"
+  ))
+  utils::capture.output(result <- query(return_result = TRUE))
+  expect_identical(result$cpu$logical_cores, 16L)
+  expect_identical(result$cpu$physical_cores, 8L)
+
+  query <- .check_system_fixture(meminfo = c(
+    "MemTotal: 8388608 kB", "MemAvailable: 4194304 kB"
+  ))
+  utils::capture.output(result <- query(return_result = TRUE))
+  expect_true(is.na(result$cpu$physical_cores))
+})

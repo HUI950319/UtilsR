@@ -1,5 +1,9 @@
 # UtilsR 0.6.10
 
+* `check_system()` handles unknown logical core counts while retaining known
+  physical counts. On Linux, the optional `ps` backend distinguishes physical
+  cores from hardware threads; without it the physical count is missing.
+
 * `check_system()` validates memory totals and available memory on every
   backend, preventing negative, non-finite or out-of-range usage. Missing
   Linux cache fields use a conservative free-memory fallback.

@@ -7,6 +7,8 @@
 #' Display system information including OS, R version, memory usage, and CPU
 #' details with colored console output.
 #' Windows uses PowerShell CIM when available, with WMIC as a legacy fallback.
+#' Linux physical core counts use the optional \code{ps} package and are
+#' reported as missing when it is unavailable.
 #'
 #' @param return_result Logical. If \code{TRUE}, return the result list
 #'   visibly. Default \code{FALSE}.
@@ -166,7 +168,12 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
   }
 
   cores_logical <- parallel::detectCores(logical = TRUE)
-  cores_physical <- parallel::detectCores(logical = FALSE)
+  cores_physical <- if (.Platform[["OS.type"]] != "windows" &&
+                         Sys.info()[["sysname"]] == "Linux") {
+    if (requireNamespace("ps", quietly = TRUE)) {
+      tryCatch(ps::ps_cpu_count(logical = FALSE), error = function(e) NA_integer_)
+    } else NA_integer_
+  } else parallel::detectCores(logical = FALSE)
 
   # Internal: get system info
   .get_system_info <- function() {
@@ -384,7 +391,8 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
   pr_kv(list(
     CPU = sys_info$cpu_name,
     "\u903b\u8f91\u6838\u5fc3" = cores_logical,
-    "\u7269\u7406\u6838\u5fc3" = if (!is.na(cores_physical) && cores_physical != cores_logical)
+    "\u7269\u7406\u6838\u5fc3" = if (!is.na(cores_physical) &&
+      (is.na(cores_logical) || cores_physical != cores_logical))
       cores_physical
   ))
 

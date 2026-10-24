@@ -103,6 +103,7 @@ Suggests:
     ggsci,
     ggrastr,
     png,
+    ps,
     ragg,
     ggsankey,
     ggupset,
