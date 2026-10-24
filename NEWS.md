@@ -6,7 +6,8 @@
   braces, as written instead of failing. Without colour (knitted documents,
   log files) class labels read `<class>`, badges `[key: value]`, and
   `pr_table()` marks significance with stars, highlighted rows with `>` and
-  missing text cells with `<NA>`.
+  missing text cells with `<NA>`. `pr_spark()` shows an empty-string level
+  as `""`.
 
 # UtilsR 0.6.9
 

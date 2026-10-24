@@ -574,8 +574,10 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
       if (!length(tab)) return(c("", "all missing", na))
       k   <- length(tab)
       top <- which.max(tab)
+      lab <- names(tab)[top]
+      if (!nzchar(lab)) lab <- "\"\""
       info <- sprintf("%d level%s \u00b7 top %s (%.1f%%)", k, if (k == 1L) "" else "s",
-                      names(tab)[top], 100 * tab[[top]] / sum(!is.na(v)))
+                      lab, 100 * tab[[top]] / sum(!is.na(v)))
       if (k > bins) tab <- sort(tab, decreasing = TRUE)[seq_len(bins)]
       return(c(spark(tab), info, na))
     }

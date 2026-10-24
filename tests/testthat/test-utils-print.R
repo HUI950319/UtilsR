@@ -228,3 +228,9 @@ test_that("print helpers stay readable without colour", {
   expect_match(out[5], "^  <NA> +0\\.300$")
   expect_match(utils::capture.output(pr_tree(list(a = 1)))[1], "^<list> <list 1>$")
 })
+
+test_that("pr_spark() names an empty-string level", {
+  out <- cli::ansi_strip(utils::capture.output(
+    pr_spark(data.frame(site = c("", "", "head", "tail")))))
+  expect_match(out, 'top "" (50.0%)', fixed = TRUE)
+})
