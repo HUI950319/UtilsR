@@ -144,3 +144,23 @@ test_that("check_packages prints all libraries and the total beyond twenty rows"
   expect_match(paste(out, collapse = "\n"), "library-21", fixed = TRUE)
   expect_length(grep("^> +.*Total", out), 1L)
 })
+
+test_that("check_packages groups table counts without changing numeric results", {
+  withr::local_options(cli.num_colors = 0, cli.width = 120)
+  template <- utils::installed.packages(lib.loc = .Library)
+  records <- template[rep_len(seq_len(nrow(template)), 1234L), , drop = FALSE]
+  records[, "Package"] <- sprintf("pkg%04d", seq_len(nrow(records)))
+  rownames(records) <- records[, "Package"]
+  local_mocked_bindings(installed.packages = function(lib.loc, noCache) {
+    records[, "LibPath"] <- lib.loc
+    records
+  }, .package = "utils")
+
+  out <- cli::ansi_strip(capture.output(result <- check_packages()))
+  expect_length(grep("^ +1,234 +", out), length(.libPaths()))
+  total <- 1234L * length(.libPaths())
+  expect_match(paste(out[startsWith(out, ">")], collapse = "\n"),
+               paste0(format(total, big.mark = ",", trim = TRUE), " +Total"))
+  expect_type(result[["Package_Count"]], "integer")
+  expect_equal(result[["Package_Count"]], c(rep(1234L, length(.libPaths())), total))
+})

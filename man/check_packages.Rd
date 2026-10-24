@@ -26,6 +26,8 @@ A warning identifies each library that cannot be read. Counts for
 readable libraries are still returned; the total is not a partial sum.
 A formatted report is written to standard output. Long library paths may
 be shortened in the report; the returned data frame keeps full paths.
+Counts use comma thousands separators in the report; returned counts
+remain numeric.
 }
 \examples{
 \dontrun{

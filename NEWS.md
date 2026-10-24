@@ -35,6 +35,7 @@
 
 * `check_packages()` reports library counts with `pr_head()`, `pr_table()` and
   `pr_note()`, highlighting the total and fitting long paths to the console.
+  Table counts use comma thousands separators, matching the header.
   It returns the same data frame invisibly, retaining full paths and counts.
 
 * The print helpers write no colour codes when standard output shows no

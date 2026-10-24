@@ -20,6 +20,8 @@
 #'   readable libraries are still returned; the total is not a partial sum.
 #'   A formatted report is written to standard output. Long library paths may
 #'   be shortened in the report; the returned data frame keeps full paths.
+#'   Counts use comma thousands separators in the report; returned counts
+#'   remain numeric.
 #'
 #' @examples
 #' \dontrun{
@@ -66,12 +68,12 @@ check_packages <- function(refresh = FALSE) {
 
   display <- result[c("Package_Count", "Library_Path")]
   names(display) <- c("Packages", "Library")
-  count_width <- max(nchar(c("Packages", format(display[["Packages"]],
-                                                scientific = FALSE, trim = TRUE)),
-                           type = "width"))
+  display[["Packages"]] <- format(display[["Packages"]], big.mark = ",",
+                                    scientific = FALSE, trim = TRUE)
+  count_width <- max(nchar(c("Packages", display[["Packages"]]), type = "width"))
   display[["Library"]] <- as.character(cli::ansi_strtrim(
     display[["Library"]], max(8L, console_width() - count_width - 4L)))
-  pr_table(display, highlight = nrow(display), n = NULL)
+  pr_table(display, highlight = nrow(display), n = NULL, align = c("right", "left"))
   pr_note("Counts are installed copies; the same package in multiple libraries is counted more than once.")
   if (is.na(total)) {
     pr_note("NA marks unreadable libraries; Total is unavailable.")
