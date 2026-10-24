@@ -1,5 +1,5 @@
 test_that("system diagnostics retain their result schema and visibility", {
-  result <- suppressMessages(withVisible(check_system(return_result = TRUE)))
+  utils::capture.output(result <- withVisible(check_system(return_result = TRUE)))
   expect_true(result$visible)
   expect_named(result$value, c("system_info", "r_environment", "r_memory",
                                "system_memory", "cpu", "warnings", "timestamp"))
@@ -9,9 +9,18 @@ test_that("system diagnostics retain their result schema and visibility", {
   expect_s3_class(result$value$timestamp, "POSIXct")
   expect_gt(result$value$r_memory$used_bytes, 0)
   expect_type(result$value$warnings, "character")
-  invisible_result <- suppressMessages(withVisible(check_system()))
+  utils::capture.output(invisible_result <- withVisible(check_system()))
   expect_false(invisible_result$visible)
   expect_identical(names(invisible_result$value), names(result$value))
+})
+
+test_that("check_system prints its report with the print helpers", {
+  out <- cli::ansi_strip(utils::capture.output(check_system()))
+  expect_match(out[1], "^ check_system  ")
+  rules <- out[grepl(cli::symbol$line, out, fixed = TRUE)]
+  expect_gte(length(rules), 5L)
+  expect_true(any(grepl("^  R\u7248\u672c +[0-9]", out)))
+  expect_true(any(grepl("^  \u903b\u8f91\u6838\u5fc3 +[0-9]+$", out)))
 })
 
 test_that("Windows diagnostics obtain memory and CPU with PowerShell CIM", {

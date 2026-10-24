@@ -1,5 +1,10 @@
 # UtilsR 0.6.9
 
+* The report of `check_system()` uses the print helpers: a class label with
+  the time, one rule per group and the Chinese keys aligned by display width.
+  It now goes to standard output, so `suppressMessages()` no longer hides it;
+  wrap the call in `capture.output()` to keep only the returned list.
+
 * `fct_cat(ref_idx = 0)` is the same as `ref_idx = NULL`: nothing collapses,
   and another mode given alongside still runs. Only a single `0` means none;
   a `0` among indices is still out of range.

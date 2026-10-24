@@ -325,31 +325,28 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
                          "R\u8fdb\u7a0b\u5185\u5b58\u4f7f\u7528\u8f83\u9ad8 (>4GB)")
   }
 
-  # Pretty output
-  cli::cli_h1("\U0001f5a5\ufe0f  \u7cfb\u7edf\u8d44\u6e90\u4fe1\u606f")
+  # Pretty output, written to stdout through the print helpers; the keys
+  # are Chinese, which pr_kv() aligns by display width
+  pr_head("check_system", "\U0001f5a5\ufe0f \u7cfb\u7edf\u8d44\u6e90\u4fe1\u606f",
+          format(Sys.time(), "%Y-%m-%d %H:%M"))
 
-  cli::cli_h2("\U0001f310 \u64cd\u4f5c\u7cfb\u7edf")
-  cli::cli_text("\u7cfb\u7edf: {.val {sys_info$os_full_name}}")
-  cli::cli_text("\u67b6\u6784: {.val {sys_info$architecture}}")
-  if (sys_info$os_type == "windows") {
-    cli::cli_text("\u7c7b\u578b: {.val Windows}")
-  } else {
-    cli::cli_text("\u7c7b\u578b: {.val {sys_info$os_name}} (Unix-like)")
-  }
+  pr_section("\U0001f310 \u64cd\u4f5c\u7cfb\u7edf")
+  pr_kv(list(
+    "\u7cfb\u7edf" = sys_info$os_full_name,
+    "\u67b6\u6784" = sys_info$architecture,
+    "\u7c7b\u578b" = if (sys_info$os_type == "windows") "Windows"
+               else paste(sys_info$os_name, "(Unix-like)")
+  ))
 
-  cli::cli_h2("\U0001f4c8 R\u73af\u5883")
-  cli::cli_text("R\u7248\u672c: {.val {sys_info$r_version}}")
-  cli::cli_text("\u5e73\u53f0: {.val {sys_info$r_platform}}")
+  pr_section("\U0001f4c8 R\u73af\u5883")
+  pr_kv(list("R\u7248\u672c" = sys_info$r_version,
+             "\u5e73\u53f0" = sys_info$r_platform))
 
-  cli::cli_h2("\U0001f4ca R\u5185\u5b58\u4f7f\u7528")
-  cli::cli_text("\u5f53\u524d\u4f7f\u7528: {.val {sprintf('%.2f', r_mem_used_gb)}} GB")
+  pr_section("\U0001f4ca R\u5185\u5b58\u4f7f\u7528")
+  pr_kv(list("\u5f53\u524d\u4f7f\u7528" = sprintf("%.2f GB", r_mem_used_gb)))
 
-  cli::cli_h2("\U0001f4be \u7cfb\u7edf\u5185\u5b58")
+  pr_section("\U0001f4be \u7cfb\u7edf\u5185\u5b58")
   if (!is.na(sys_mem$total_gb)) {
-    cli::cli_text("\u603b\u5185\u5b58: {.val {sprintf('%.2f', sys_mem$total_gb)}} GB")
-    cli::cli_text("\u5df2\u4f7f\u7528: {.val {sprintf('%.2f', sys_mem$used_gb)}} GB ({sprintf('%.1f', sys_mem$usage_pct)}%)")
-    cli::cli_text("\u53ef\u7528: {.val {sprintf('%.2f', sys_mem$free_gb)}} GB")
-
     if (sys_mem$usage_pct < 70) {
       status_color <- cli::col_green("\u826f\u597d")
     } else if (sys_mem$usage_pct < 85) {
@@ -357,23 +354,29 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
     } else {
       status_color <- cli::col_red("\u8b66\u544a")
     }
-    cli::cli_text("\u72b6\u6001: {status_color}")
+    pr_kv(list(
+      "\u603b\u5185\u5b58" = sprintf("%.2f GB", sys_mem$total_gb),
+      "\u5df2\u4f7f\u7528" = sprintf("%.2f GB (%.1f%%)", sys_mem$used_gb,
+                                 sys_mem$usage_pct),
+      "\u53ef\u7528"     = sprintf("%.2f GB", sys_mem$free_gb),
+      "\u72b6\u6001"     = status_color
+    ))
   } else {
-    cli::cli_text("{cli::col_red('\u65e0\u6cd5\u83b7\u53d6\u7cfb\u7edf\u5185\u5b58\u4fe1\u606f')}")
+    pr_kv(list("\u72b6\u6001" =
+                 cli::col_red("\u65e0\u6cd5\u83b7\u53d6\u7cfb\u7edf\u5185\u5b58\u4fe1\u606f")))
   }
 
-  cli::cli_h2("\U0001f527 \u5904\u7406\u5668")
-  cli::cli_text("CPU: {.val {sys_info$cpu_name}}")
-  cli::cli_text("\u903b\u8f91\u6838\u5fc3: {.val {cores_logical}}")
-  if (!is.na(cores_physical) && cores_physical != cores_logical) {
-    cli::cli_text("\u7269\u7406\u6838\u5fc3: {.val {cores_physical}}")
-  }
+  pr_section("\U0001f527 \u5904\u7406\u5668")
+  pr_kv(list(
+    CPU = sys_info$cpu_name,
+    "\u903b\u8f91\u6838\u5fc3" = cores_logical,
+    "\u7269\u7406\u6838\u5fc3" = if (!is.na(cores_physical) && cores_physical != cores_logical)
+      cores_physical
+  ))
 
   if (length(memory_warnings) > 0 && show_warnings) {
-    cli::cli_h2("\u26a0\ufe0f  \u8b66\u544a")
-    for (w in memory_warnings) {
-      cli::cli_alert_warning(w)
-    }
+    pr_section("\u26a0\ufe0f \u8b66\u544a")
+    ._pr_out(paste0("  ", cli::col_yellow(cli::symbol$warning), " ", memory_warnings))
   }
 
   result <- list(
