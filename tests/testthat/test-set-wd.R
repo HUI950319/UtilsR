@@ -1,9 +1,11 @@
 # Run `set_wd()` in a sandbox and return its printed output with ANSI styling
-# removed, restoring the working directory before returning.
+# removed, restoring the working directory before returning. The notice wraps
+# at the console width, so its lines are joined with single spaces.
 capture_set_wd <- function(...) {
   old <- getwd()
   on.exit(setwd(old), add = TRUE)
-  cli::ansi_strip(paste(cli::cli_fmt(set_wd(...)), collapse = "\n"))
+  out <- cli::ansi_strip(paste(cli::cli_fmt(set_wd(...)), collapse = " "))
+  gsub("\\s+", " ", out)
 }
 
 test_that("set_wd reports a freshly created directory as empty", {

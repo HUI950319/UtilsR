@@ -278,3 +278,12 @@ test_that("pr_kv() and pr_box() wrap long values under the value column", {
   expect_true(all(cli::ansi_nchar(box, type = "width") <= 40))
   expect_gt(length(box), 3L)
 })
+
+test_that("pr_note() wraps long notes with a # on every line", {
+  withr::local_options(cli.num_colors = 1, cli.width = 40)
+  note <- paste(rep("A long caveat about the estimand.", 4), collapse = " ")
+  out <- utils::capture.output(pr_note(note))
+  expect_gt(length(out), 1L)
+  expect_true(all(cli::ansi_nchar(out, type = "width") <= 40))
+  expect_true(all(startsWith(out, "# ")))
+})

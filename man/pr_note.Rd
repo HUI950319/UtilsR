@@ -27,6 +27,7 @@ and \code{{.fn ...}} is styled, and in consoles that support hyperlinks
 \code{{.help pkg::fun}} become clickable links. Double literal braces, as
 in \code{"{{x}}"}. Text that cli cannot parse, such as data that
 contains braces, is printed as written instead of failing the print.
+Long notes wrap at the console width, every line starting with \code{#}.
 }
 \examples{
 n_panel <- 2

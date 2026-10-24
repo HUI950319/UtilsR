@@ -30,7 +30,8 @@ grey and colours only a short type label (\code{INFO}, \code{DONE},
 }
 \description{
 Print a timestamped, type-coloured message. Supports multi-line messages
-(split on \code{"\\n"}).
+(split on \code{"\\n"}); lines longer than the console wrap, the
+continuation lines starting under the text.
 }
 \details{
 The message is a cli message, like those of \code{cli::cli_inform()}:

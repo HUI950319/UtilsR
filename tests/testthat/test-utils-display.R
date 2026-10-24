@@ -80,3 +80,16 @@ test_that(".cat_step() shows text cli cannot parse as written", {
   expect_true(any(grepl("Fitting {I, II} models", out, fixed = TRUE)))
   expect_true(any(grepl("Fitted {I, II} [", out, fixed = TRUE)))
 })
+
+test_that(".cat_message() wraps long lines under the message text", {
+  withr::local_options(cli.width = 50)
+  msg <- paste(rep("Fitting the multivariable Cox model.", 4), collapse = " ")
+  out <- cli::ansi_strip(cli::cli_fmt(.cat_message(msg, timestamp_format = "%H:%M",
+                                                   style = "chip")))
+  expect_gt(length(out), 1L)
+  expect_true(all(cli::ansi_nchar(out, type = "width") <= 50))
+  expect_true(all(startsWith(out[-1], strrep(" ", 13L))))
+  full <- cli::ansi_strip(cli::cli_fmt(.cat_message(msg, timestamp_format = "%H:%M")))
+  expect_gt(length(full), 1L)
+  expect_true(all(cli::ansi_nchar(full, type = "width") <= 50))
+})

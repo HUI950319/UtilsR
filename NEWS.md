@@ -18,7 +18,9 @@
 
 * `pr_kv()` and `pr_box()` wrap long values at the console width under the
   value column, indent the lines of values with newlines the same way, and
-  show at most 20 items of a vector followed by its length.
+  show at most 20 items of a vector followed by its length. `pr_note()`
+  wraps long notes with a `#` on every line, and `.cat_message()` wraps long
+  lines under the message text.
 
 # UtilsR 0.6.9
 

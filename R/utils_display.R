@@ -167,7 +167,8 @@ console_width <- function() {
 #' Styled log message with timestamp
 #'
 #' Print a timestamped, type-coloured message. Supports multi-line messages
-#' (split on \code{"\\n"}).
+#' (split on \code{"\\n"}); lines longer than the console wrap, the
+#' continuation lines starting under the text.
 #'
 #' The message is a cli message, like those of \code{cli::cli_inform()}:
 #' \code{suppressMessages()} silences it, and it is written to standard output
@@ -201,6 +202,11 @@ console_width <- function() {
   style <- match.arg(style)
   lines <- strsplit(as.character(message), "\n")[[1]]
   ts    <- format(Sys.time(), timestamp_format)
+  # wrap at the console width, less the timestamp and the label or symbol
+  avail <- max(20, console_width() - nchar(ts) - if (style == "chip") 10 else 6)
+  lines <- unlist(lapply(if (length(lines)) lines else "", function(l) {
+    if (nzchar(l)) as.character(cli::ansi_strwrap(l, width = avail)) else ""
+  }))
 
   tryCatch({
     bg    <- ._cli_bg(cfg$type)
