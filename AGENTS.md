@@ -21,7 +21,9 @@ These rules apply to work under `UtilsR/` in addition to the repository-root
   building blocks for S3 print methods, which write to stdout. Print methods
   in the packages importing UtilsR (RegR, MLR, causalR, seerR) build on
   `pr_*`. RegR has imported UtilsR since 2026-10-24 (user decision) but
-  still keeps its own `cat()`-based `.cat_*` copies in `cli-get.R`.
+  still keeps its own `cat()`-based `.cat_*` copies in `cli-get.R`. How to
+  use them, the print-method skeleton and the house conventions are in
+  [console-print](../.claude/docs/console-print.md).
 - Documentation generation and installation follow
   [the shared change workflow](../r-function-dev.md) §5 and
   [execution details](../.claude/docs/r-package-execution-workflow.md).
