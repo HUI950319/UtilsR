@@ -460,8 +460,28 @@ Styled console output helpers.
   : Styled separator line
 - [`.cat_message()`](https://hui950319.github.io/UtilsR/reference/dot-cat_message.md)
   : Styled log message with timestamp
+- [`.cat_step()`](https://hui950319.github.io/UtilsR/reference/dot-cat_step.md)
+  : Numbered, timed progress step
 - [`.cat_tb()`](https://hui950319.github.io/UtilsR/reference/dot-cat_tb.md)
   : Enhanced Table Display with Pattern Highlighting
+- [`pr_badge()`](https://hui950319.github.io/UtilsR/reference/pr_badge.md)
+  : Two-part key-value badge
+- [`pr_box()`](https://hui950319.github.io/UtilsR/reference/pr_box.md) :
+  Boxed summary for a print method
+- [`pr_head()`](https://hui950319.github.io/UtilsR/reference/pr_head.md)
+  : Header line for a print method
+- [`pr_kv()`](https://hui950319.github.io/UtilsR/reference/pr_kv.md) :
+  Aligned key-value block for a print method
+- [`pr_note()`](https://hui950319.github.io/UtilsR/reference/pr_note.md)
+  : Grey note line for a print method
+- [`pr_section()`](https://hui950319.github.io/UtilsR/reference/pr_section.md)
+  : Section rule for a print method
+- [`pr_spark()`](https://hui950319.github.io/UtilsR/reference/pr_spark.md)
+  : One-line distribution of each column
+- [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  : Console table for a print method
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  : Structure tree of a nested result object
 - [`console_width()`](https://hui950319.github.io/UtilsR/reference/console_width.md)
   : Get console width
 

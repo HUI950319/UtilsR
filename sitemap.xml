@@ -32,6 +32,7 @@
 <url><loc>https://hui950319.github.io/UtilsR/reference/dot-cat_formula.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/dot-cat_line.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/dot-cat_message.html</loc></url>
+<url><loc>https://hui950319.github.io/UtilsR/reference/dot-cat_step.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/dot-cat_tb.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/dot-make_scatter2_legend.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/dot-pr_facet.html</loc></url>
@@ -95,6 +96,15 @@
 <url><loc>https://hui950319.github.io/UtilsR/reference/plt_na.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/plt_sankey.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/plt_upset.html</loc></url>
+<url><loc>https://hui950319.github.io/UtilsR/reference/pr_badge.html</loc></url>
+<url><loc>https://hui950319.github.io/UtilsR/reference/pr_box.html</loc></url>
+<url><loc>https://hui950319.github.io/UtilsR/reference/pr_head.html</loc></url>
+<url><loc>https://hui950319.github.io/UtilsR/reference/pr_kv.html</loc></url>
+<url><loc>https://hui950319.github.io/UtilsR/reference/pr_note.html</loc></url>
+<url><loc>https://hui950319.github.io/UtilsR/reference/pr_section.html</loc></url>
+<url><loc>https://hui950319.github.io/UtilsR/reference/pr_spark.html</loc></url>
+<url><loc>https://hui950319.github.io/UtilsR/reference/pr_table.html</loc></url>
+<url><loc>https://hui950319.github.io/UtilsR/reference/pr_tree.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/set_wd.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/show_color.html</loc></url>
 <url><loc>https://hui950319.github.io/UtilsR/reference/stat_ci.html</loc></url>

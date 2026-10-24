@@ -9,7 +9,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">UtilsR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,6 +62,7 @@
 <span>  <span class="va">message</span>,</span>
 <span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"info"</span>, <span class="st">"success"</span>, <span class="st">"warning"</span>, <span class="st">"error"</span><span class="op">)</span>,</span>
 <span>  timestamp_format <span class="op">=</span> <span class="st">"[%Y-%m-%d %H:%M:%S]"</span>,</span>
+<span>  style <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"full"</span>, <span class="st">"chip"</span><span class="op">)</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -84,22 +85,39 @@
 <code>"[%Y-%m-%d %H:%M:%S]"</code>).</p></dd>
 
 
+<dt id="arg-style">style<a class="anchor" aria-label="anchor" href="#arg-style"></a></dt>
+<dd><p><code>"full"</code> (default) shades the whole message in the type
+colour after a magenta timestamp. <code>"chip"</code> prints the timestamp in
+grey and colours only a short type label (<code>INFO</code>, <code>DONE</code>,
+<code>WARN</code>, <code>FAIL</code>), leaving the text plain.</p></dd>
+
+
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
 <dd><p>Logical. If <code>FALSE</code>, suppress output.</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>The message is a cli message, like those of <code><a href="https://cli.r-lib.org/reference/cli_abort.html" class="external-link">cli::cli_inform()</a></code>:
+<code><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressMessages()</a></code> silences it, and it is written to standard output
+in interactive sessions and to standard error otherwise. The text is shown
+verbatim, so braces are not interpolated.</p>
+    </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other console display:
 <code><a href="dot-cat_box.html">.cat_box()</a></code>,
 <code><a href="dot-cat_formula.html">.cat_formula()</a></code>,
 <code><a href="dot-cat_line.html">.cat_line()</a></code>,
+<code><a href="dot-cat_step.html">.cat_step()</a></code>,
 <code><a href="dot-cat_tb.html">.cat_tb()</a></code></p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">.cat_message</span><span class="op">(</span><span class="st">"Loading simulated data"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">.cat_message</span><span class="op">(</span><span class="st">"Saved forest.pdf"</span>, type <span class="op">=</span> <span class="st">"success"</span>, style <span class="op">=</span> <span class="st">"chip"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">[2026-10-24 00:15:48]</span> <span style="color: #FFFFFF; background-color: #00BB00; font-weight: bold;"> DONE </span> Saved forest.pdf</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

@@ -64,7 +64,8 @@ Other console display:
 [`.cat_box()`](https://hui950319.github.io/UtilsR/reference/dot-cat_box.md),
 [`.cat_formula()`](https://hui950319.github.io/UtilsR/reference/dot-cat_formula.md),
 [`.cat_line()`](https://hui950319.github.io/UtilsR/reference/dot-cat_line.md),
-[`.cat_message()`](https://hui950319.github.io/UtilsR/reference/dot-cat_message.md)
+[`.cat_message()`](https://hui950319.github.io/UtilsR/reference/dot-cat_message.md),
+[`.cat_step()`](https://hui950319.github.io/UtilsR/reference/dot-cat_step.md)
 
 ## Examples
 

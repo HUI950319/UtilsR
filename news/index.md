@@ -1,6 +1,116 @@
 # Changelog
 
+## UtilsR 0.6.9
+
+- New print helpers for S3 print methods.
+  [`pr_head()`](https://hui950319.github.io/UtilsR/reference/pr_head.md)
+  prints a class label on a solid background followed by a grey one-line
+  summary.
+  [`pr_kv()`](https://hui950319.github.io/UtilsR/reference/pr_kv.md)
+  prints a key-value block, keys in grey and aligned by display width.
+  [`pr_section()`](https://hui950319.github.io/UtilsR/reference/pr_section.md)
+  prints a grey rule led by a bold title.
+  [`pr_note()`](https://hui950319.github.io/UtilsR/reference/pr_note.md)
+  prints a grey italic `# ...` line with cli inline markup, so
+  `{.run pkg::fun(x)}` becomes a clickable link in consoles that support
+  hyperlinks.
+  [`pr_badge()`](https://hui950319.github.io/UtilsR/reference/pr_badge.md)
+  returns two-part key-value badges (key on dark grey, value on a chosen
+  colour) to combine on one line.
+  [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  prints a data frame as an aligned plain-text table: columns aligned by
+  display width, P-value columns coloured by significance (bold red
+  below 0.001, red below 0.05) and chosen rows highlighted.
+  [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  prints the structure of a nested result list as a tree with short grey
+  descriptions such as `<tibble 12 x 7>`, listing extra attributes as
+  well.
+  [`pr_box()`](https://hui950319.github.io/UtilsR/reference/pr_box.md)
+  frames key-value or plain lines in a rounded box with an optional
+  header and footer in its border.
+  [`pr_spark()`](https://hui950319.github.io/UtilsR/reference/pr_spark.md)
+  prints one line per column: a sparkline of its distribution, a short
+  summary and the missing share.
+
+- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
+  takes its plot settings as
+  [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)-style
+  lists: `label_args`, `flow_args`, `stratum_args`, `facet_args` and
+  `legend_args`. The standalone `label`, `gap` and `curve_type`
+  arguments are removed; use `label_args$style`, `stratum_args$gap` and
+  `flow_args$curve_type`. `label_args` also sets `min_pct` (leave small
+  segments unlabelled), `pct_accuracy`, `size`, `color`, `box`, `fill`
+  and `alpha`, and `style = "count_percent_wrap"` puts counts and
+  percentages on separate lines.
+
+- `plt_dist(type = "bar")` labels default to one line,
+  `count (percent)`, in white boxes (previously `count\n(percent)` in
+  boxes filled with the segment colour), and the y axis shows
+  percentages. Bar and alluvial label counts use a comma as thousands
+  separator.
+
+- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
+  bar facets count only the facet values present in the data, so unused
+  factor levels no longer stack the panels in one column. Alluvial label
+  sizes scale with the base font size of `theme_use` like the bar and
+  heatmap labels (unchanged at the default size 14).
+
+- [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
+  gains `label_args$pct_accuracy`, accepts
+  `label_args$style = "count_percent_wrap"` (group name above
+  `count (percent)`), and writes counts with a comma as thousands
+  separator.
+
+- `plt_dist(type = "bar")` stacks the first fill category on top, in the
+  order of the legend and of the alluvial strata (it was at the bottom).
+
+- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
+  converts labelled (`haven_labelled`) categories and facets with
+  [`labelled::to_factor()`](https://larmarange.github.io/labelled/reference/to_factor.html),
+  so plots, legends and named colours use the value labels instead of
+  the numeric codes.
+
+- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md),
+  [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
+  and
+  [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md)
+  share one internal helper for their list arguments, so a malformed
+  list reports the plotting function (not `merge_args()`) as the source
+  of the error, and
+  [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md)
+  words a single unknown field in the singular.
+
 ## UtilsR 0.6.8
+
+- New
+  [`.cat_step()`](https://hui950319.github.io/UtilsR/reference/dot-cat_step.md)
+  announces a numbered step (`[i/n]`) of a longer computation and marks
+  it done with its elapsed time when the next step starts or the calling
+  function returns. It wraps
+  [`cli::cli_progress_step()`](https://cli.r-lib.org/reference/cli_progress_step.html)
+  and honours `verbose`.
+
+- [`.cat_message()`](https://hui950319.github.io/UtilsR/reference/dot-cat_message.md)
+  gains `style = "chip"`, which prints the timestamp in grey and colours
+  only a short `INFO` / `DONE` / `WARN` / `FAIL` label, leaving the
+  message text plain. The default `style = "full"` keeps the shaded
+  line.
+
+- [`.cat_message()`](https://hui950319.github.io/UtilsR/reference/dot-cat_message.md)
+  emits a cli message instead of
+  [`cat()`](https://rdrr.io/r/base/cat.html) output, so
+  [`suppressMessages()`](https://rdrr.io/r/base/message.html) silences
+  it (as it does
+  [`set_wd()`](https://hui950319.github.io/UtilsR/reference/set_wd.md)’s
+  notice). It still prints to standard output in interactive sessions
+  and shows braces as typed.
+
+- [`.cat_line()`](https://hui950319.github.io/UtilsR/reference/dot-cat_line.md),
+  [`.cat_box()`](https://hui950319.github.io/UtilsR/reference/dot-cat_box.md)
+  and
+  [`.cat_message()`](https://hui950319.github.io/UtilsR/reference/dot-cat_message.md)
+  print `type = "warning"` labels in black on the yellow background;
+  white text had too little contrast there.
 
 - `plt_dist(type = "alluvial")` removes categorical missing values
   before matching named colours, following the

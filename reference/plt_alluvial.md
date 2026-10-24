@@ -17,7 +17,7 @@ plt_alluvial(
   flow_args = list(alpha = 0.4, curve_type = "linear"),
   stratum_args = list(width = 0.5, color = "gray50", linewidth = 0.3, gap = 0.01),
   label_args = list(style = "count_percent", min_pct = 0, size = 3, color = "black", box
-    = TRUE, fill = "white", alpha = 1),
+    = TRUE, fill = "white", alpha = 1, pct_accuracy = 0.1),
   facet_args = list(nrow = NULL, ncol = NULL, scales = "fixed"),
   legend_args = list(ncol = 1, position = "right"),
   theme_use = theme_alluvia(15),
@@ -104,9 +104,11 @@ plt_alluvial(
   `style`
 
   :   Character scalar selecting label content: `"count_percent"` gives
-      `name (count, percent)`, `"count"` gives `name (count)`,
-      `"percent"` gives `name percent`, `"name"` gives the group name,
-      and `"none"` hides labels. Default `"count_percent"`.
+      `name (count, percent)`, `"count_percent_wrap"` puts `name` on the
+      first line and `count (percent)` on the second, `"count"` gives
+      `name (count)`, `"percent"` gives `name percent`, `"name"` gives
+      the group name, and `"none"` hides labels. Counts use a comma as
+      thousands separator. Default `"count_percent"`.
 
   `min_pct`
 
@@ -136,6 +138,14 @@ plt_alluvial(
 
   :   Numeric scalar in \\\[0, 1\]\\ controlling label opacity. Default
       `1`.
+
+  `pct_accuracy`
+
+  :   Positive number giving the rounding accuracy of label percentages,
+      as in
+      [`scales::percent()`](https://scales.r-lib.org/reference/percent_format.html):
+      `0.1` keeps one decimal place and `1` gives whole percentages.
+      Default `0.1`.
 
 - facet_args:
 

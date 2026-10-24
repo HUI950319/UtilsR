@@ -11,7 +11,7 @@ optional facet is normalized independently."><meta property="og:image" content="
 
     <a class="navbar-brand me-2" href="../index.html">UtilsR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -71,7 +71,7 @@ optional facet is normalized independently.</p>
 <span>  flow_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">0.4</span>, curve_type <span class="op">=</span> <span class="st">"linear"</span><span class="op">)</span>,</span>
 <span>  stratum_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">0.5</span>, color <span class="op">=</span> <span class="st">"gray50"</span>, linewidth <span class="op">=</span> <span class="fl">0.3</span>, gap <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span>,</span>
 <span>  label_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>style <span class="op">=</span> <span class="st">"count_percent"</span>, min_pct <span class="op">=</span> <span class="fl">0</span>, size <span class="op">=</span> <span class="fl">3</span>, color <span class="op">=</span> <span class="st">"black"</span>, box</span>
-<span>    <span class="op">=</span> <span class="cn">TRUE</span>, fill <span class="op">=</span> <span class="st">"white"</span>, alpha <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>    <span class="op">=</span> <span class="cn">TRUE</span>, fill <span class="op">=</span> <span class="st">"white"</span>, alpha <span class="op">=</span> <span class="fl">1</span>, pct_accuracy <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>,</span>
 <span>  facet_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>nrow <span class="op">=</span> <span class="cn">NULL</span>, ncol <span class="op">=</span> <span class="cn">NULL</span>, scales <span class="op">=</span> <span class="st">"fixed"</span><span class="op">)</span>,</span>
 <span>  legend_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>ncol <span class="op">=</span> <span class="fl">1</span>, position <span class="op">=</span> <span class="st">"right"</span><span class="op">)</span>,</span>
 <span>  theme_use <span class="op">=</span> <span class="fu"><a href="theme_alluvia.html">theme_alluvia</a></span><span class="op">(</span><span class="fl">15</span><span class="op">)</span>,</span>
@@ -153,9 +153,12 @@ total in each facet. Default <code>0.01</code>.</p></dd>
 <dt id="arg-label-args">label_args<a class="anchor" aria-label="anchor" href="#arg-label-args"></a></dt>
 <dd><p>A named list controlling labels:</p><dl><dt><code>style</code></dt>
 <dd><p>Character scalar selecting label content:
-<code>"count_percent"</code> gives <code>name (count, percent)</code>, <code>"count"</code> gives
+<code>"count_percent"</code> gives <code>name (count, percent)</code>,
+<code>"count_percent_wrap"</code> puts <code>name</code> on the first line and
+<code>count (percent)</code> on the second, <code>"count"</code> gives
 <code>name (count)</code>, <code>"percent"</code> gives <code>name percent</code>, <code>"name"</code> gives the
-group name, and <code>"none"</code> hides labels. Default <code>"count_percent"</code>.</p></dd>
+group name, and <code>"none"</code> hides labels. Counts use a comma as
+thousands separator. Default <code>"count_percent"</code>.</p></dd>
 
 <dt><code>min_pct</code></dt>
 <dd><p>Numeric scalar in \([0, 1]\). Labels are shown
@@ -181,6 +184,11 @@ colour; used only when <code>box = TRUE</code>. Default <code>"white"</code>.</p
 <dt><code>alpha</code></dt>
 <dd><p>Numeric scalar in \([0, 1]\) controlling label
 opacity. Default <code>1</code>.</p></dd>
+
+<dt><code>pct_accuracy</code></dt>
+<dd><p>Positive number giving the rounding accuracy
+of label percentages, as in <code><a href="https://scales.r-lib.org/reference/percent_format.html" class="external-link">scales::percent()</a></code>: <code>0.1</code> keeps one
+decimal place and <code>1</code> gives whole percentages. Default <code>0.1</code>.</p></dd>
 
 
 </dl></dd>
