@@ -2,6 +2,10 @@
 
 ## UtilsR 0.6.10
 
+- `check_system(show_warnings = TRUE)` emits one acquisition warning
+  when a memory backend fails, preserving its cause without a duplicate
+  warning.
+
 - [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md)
   measures R heap bytes with `lobstr` or exact GC cell counts, removing
   the undeclared `pryr` dependency and rounded-MB fallback. Reports and
