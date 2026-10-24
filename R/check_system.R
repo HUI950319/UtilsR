@@ -1,6 +1,18 @@
 # =============================================================================
 # check_system.R -- System resource and environment diagnostics
 # =============================================================================
+#
+# Architecture (3 layers):
+#   L1 check_system()            collect, print and return diagnostics
+#   L2   .valid_memory()        validate scalar memory values and bounds
+#        .valid_text()          validate optional Windows metadata
+#        .get_system_memory()   native ps, CIM/WMIC or Linux memory data
+#   L3     get_mem_value()      parse exact /proc/meminfo fields
+#   L2   .get_system_info()     collect platform labels and CPU details
+#        pr_head/section/kv()   write the report to stdout
+#   Selection: Windows -> ps + static CIM cache, then CIM/WMIC fallback;
+#              Linux -> /proc/meminfo; macOS -> ps available memory.
+#
 
 # Cache only static Windows metadata within the current R session.
 .check_system_cache <- new.env(parent = emptyenv())
