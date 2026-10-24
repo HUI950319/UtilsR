@@ -121,3 +121,15 @@ test_that("Linux cached memory does not include SwapCached", {
   expect_identical(result$system_memory,
                    list(total_gb = 8, used_gb = 5, free_gb = 3, usage_percent = 62.5))
 })
+
+test_that("missing Windows memory query results do not abort diagnostics", {
+  for (legacy in list(list(), list(
+    "wmic OS get TotalVisibleMemorySize /Value" = "TotalVisibleMemorySize=8388608"
+  ))) {
+    query <- .check_system_fixture(os = "Windows", legacy = legacy)
+    expect_no_error(utils::capture.output(result <- query(return_result = TRUE)))
+    expect_true(all(is.na(unlist(result$system_memory))))
+    expect_true(all(lengths(result$system_memory) == 1L))
+    expect_identical(result$system_info$os_name, "Windows")
+  }
+})

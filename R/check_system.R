@@ -150,6 +150,12 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
   }
 
   sys_mem <- .get_system_memory()
+  if (any(lengths(sys_mem) != 1L)) {
+    if (show_warnings)
+      warning("Incomplete system memory query result.", call. = FALSE)
+    sys_mem <- list(total_gb = NA_real_, free_gb = NA_real_,
+                    used_gb = NA_real_, usage_pct = NA_real_)
+  }
 
   cores_logical <- parallel::detectCores(logical = TRUE)
   cores_physical <- parallel::detectCores(logical = FALSE)
