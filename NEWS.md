@@ -30,6 +30,10 @@
   `max_depth` with an ellipsis, and gains `max_lines` (200 by default), past
   which a grey footer counts the rest.
 
+* `pr_spark()` gives few whole numbers one bar per value, so no empty bin
+  falls between two values, and shows date and date-time columns as a
+  histogram with their first and last dates instead of `<Date>`.
+
 # UtilsR 0.6.9
 
 * `check_packages()` collects counts before constructing its result, avoiding

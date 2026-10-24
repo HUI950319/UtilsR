@@ -318,3 +318,15 @@ test_that("pr_tree() previews vectors, marks collapsed nodes and caps lines", {
   expect_length(big, 31L)
   expect_match(big[31], "more lines")
 })
+
+test_that("pr_spark() bars few whole numbers per value and spans dates", {
+  withr::local_options(cli.num_colors = 1, cli.unicode = TRUE)
+  n_bars <- function(x) lengths(regmatches(x, gregexpr("[\u2581-\u2588]", x)))
+  stage <- utils::capture.output(pr_spark(data.frame(stage = c(1, 2, 2, 3, 3, 3, 4, 4, 10))))
+  expect_identical(n_bars(stage), 5L)
+  when <- utils::capture.output(pr_spark(data.frame(
+    when = as.Date("2026-01-01") + c(0, 10, 20, 30, 200, NA))))
+  expect_identical(n_bars(when), 5L)
+  expect_match(when, "2026-01-01 to 2026-07-20", fixed = TRUE)
+  expect_match(when, "NA 16.7%", fixed = TRUE)
+})

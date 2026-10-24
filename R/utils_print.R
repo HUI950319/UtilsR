@@ -606,7 +606,10 @@ pr_box <- function(x, header = NULL, footer = NULL, col = "cyan") {
 #' data set before modelling.
 #'
 #' Numeric columns show a histogram of \code{bins} equal-width bins over the
-#' finite values, with their mean and SD (3 significant digits). Factor,
+#' finite values, with their mean and SD (3 significant digits); whole
+#' numbers with no more distinct values than \code{bins} get one bar per
+#' value, so no empty bin falls between two values. Date and date-time
+#' columns show the same histogram with their first and last dates. Factor,
 #' character and logical columns show their level counts (in level order,
 #' or the \code{bins} most frequent levels when there are more), the number
 #' of levels and the most frequent one with its share of non-missing
@@ -640,6 +643,17 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
   }
   if (!length(vars)) return(._pr_out(character()))
 
+  # equal-width bins, or one per value for few whole numbers
+  bin <- function(x) {
+    u <- sort(unique(x))
+    if (all(x == round(x)) && length(u) <= bins) {
+      return(tabulate(match(x, u), nbins = length(u)))
+    }
+    rng <- range(x)
+    if (rng[1] == rng[2]) return(length(x))
+    tabulate(findInterval(x, seq(rng[1], rng[2], length.out = bins + 1),
+                          rightmost.closed = TRUE), nbins = bins)
+  }
   spark <- function(counts) {
     if (!length(counts) || max(counts) == 0) return("")
     format(cli::spark_bar(as.numeric(counts) / max(counts)))
@@ -649,13 +663,16 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
   # one column -> c(sparkline, summary, missing share)
   one <- function(v) {
     na <- sprintf("NA %.1f%%", 100 * mean(is.na(v)))
+    if (inherits(v, c("Date", "POSIXct"))) {
+      fin <- v[is.finite(v)]
+      if (!length(fin)) return(c("", "all missing", na))
+      return(c(spark(bin(as.numeric(fin))),
+               sprintf("%s to %s", format(min(fin)), format(max(fin))), na))
+    }
     if (is.numeric(v)) {
       fin <- v[is.finite(v)]
       if (!length(fin)) return(c("", "all missing", na))
-      rng <- range(fin)
-      counts <- if (rng[1] == rng[2]) length(fin) else
-        tabulate(findInterval(fin, seq(rng[1], rng[2], length.out = bins + 1),
-                              rightmost.closed = TRUE), nbins = bins)
+      counts <- bin(fin)
       return(c(spark(counts),
                sprintf("mean %s  sd %s", sig3(mean(fin)), sig3(stats::sd(fin))), na))
     }
