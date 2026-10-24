@@ -420,8 +420,9 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, n = 20, align = NULL,
 
 # ------------- pr_tree ------------------------------------------------------
 
-# Short description of an object: "<tibble 12 x 7>", "<chr 3>", "<ggplot>";
-# a length-1 atomic value is shown after its type, e.g. <chr> "cox".
+# Short description of an object: "<tibble 12 x 7>", "<ggplot>"; atomic
+# values follow their type, e.g. <chr> "cox" or <chr 3> "Age", "Sex", "Stage"
+# (the first 10 values, cut at 40 characters).
 ._obj_desc <- function(v) {
   if (is.null(v)) return("<NULL>")
   cls <- class(v)[1]
@@ -441,9 +442,18 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, n = 20, align = NULL,
       if (inherits(v, "POSIXct")) "dttm" else
         switch(typeof(v), logical = "lgl", integer = "int", double = "dbl",
                character = "chr", complex = "cpl", typeof(v))
-    if (length(v) != 1L) return(sprintf("<%s %d>", abbr, length(v)))
-    val <- if (is.character(v)) encodeString(v, quote = "\"") else format(v)
-    return(sprintf("<%s> %s", abbr, cli::ansi_strtrim(val, 30)))
+    first <- utils::head(v, 10L)
+    vals <- if (is.character(first) || is.factor(first)) {
+      encodeString(as.character(first), quote = "\"")
+    } else if (is.numeric(first) && !is.object(first)) {
+      as.character(signif(first, 3))
+    } else {
+      vapply(seq_along(first), function(i) format(first[i]), character(1))
+    }
+    if (!length(vals)) return(sprintf("<%s 0>", abbr))
+    preview <- cli::ansi_strtrim(paste(vals, collapse = ", "), 40)
+    if (length(v) == 1L) return(sprintf("<%s> %s", abbr, preview))
+    return(sprintf("<%s %d> %s", abbr, length(v), preview))
   }
   sprintf("<%s>", cls)
 }
@@ -451,9 +461,11 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, n = 20, align = NULL,
 #' Structure tree of a nested result object
 #'
 #' Print the elements of a list-based result as a tree, each with a short
-#' grey description such as \code{<tibble 12 x 7>}, \code{<chr 3>} or
-#' \code{<ggplot>}; clearer than \code{str()} for the nested lists that
-#' analysis functions return.
+#' grey description such as \code{<tibble 12 x 7>},
+#' \code{<chr 3> "Age", "Sex", "Stage"} or \code{<ggplot>}; clearer than
+#' \code{str()} for the nested lists that analysis functions return. Atomic
+#' vectors show their first values, and a list left unopened at
+#' \code{max_depth} is marked with an ellipsis.
 #'
 #' The tree descends into plain lists and into classed objects that also
 #' inherit from \code{"list"} (as \code{c("eff_res", "list")} does). Data
@@ -465,6 +477,8 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, n = 20, align = NULL,
 #' @param max_depth Integer. Levels below the root to show (default 3).
 #' @param max_items Integer. Elements shown per node before the rest are
 #'   summarised as "... n more" (default 20).
+#' @param max_lines Integer. Lines shown in all (default 200); a grey footer
+#'   counts the rest.
 #' @param attrs Logical. Show extra attributes (default \code{TRUE}).
 #'
 #' @return The printed lines, invisibly.
@@ -481,7 +495,8 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, n = 20, align = NULL,
 #'
 #' @export
 #' @family print helpers
-pr_tree <- function(x, max_depth = 3, max_items = 20, attrs = TRUE) {
+pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
+                    attrs = TRUE) {
   drop_attr <- c("names", "class", "dim", "dimnames", "row.names", "srcref")
   descend <- function(v) {
     is.list(v) && !is.data.frame(v) && (!is.object(v) || inherits(v, "list"))
@@ -500,9 +515,13 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, attrs = TRUE) {
       nm <- names(v) %||% rep("", length(v))
       nm <- ifelse(is.na(nm) | !nzchar(nm), sprintf("[[%d]]", seq_along(v)), nm)
       for (k in seq_len(min(length(v), max_items))) {
-        kids <- c(kids, node(v[[k]], paste0(id, "/", k),
-                             paste(nm[k], cli::col_grey(._obj_desc(v[[k]]))),
-                             depth + 1))
+        child <- v[[k]]
+        child_label <- paste(nm[k], cli::col_grey(._obj_desc(child)))
+        # a list left unopened at max_depth
+        if (depth + 1 >= max_depth && descend(child) && length(child)) {
+          child_label <- paste(child_label, cli::col_grey(cli::symbol$ellipsis))
+        }
+        kids <- c(kids, node(child, paste0(id, "/", k), child_label, depth + 1))
       }
       if (length(v) > max_items) {
         kids <- c(kids, add(paste0(id, "/more"), cli::col_grey(sprintf(
@@ -522,10 +541,15 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, attrs = TRUE) {
   root_desc <- if (descend(x)) sprintf("<list %d>", length(x)) else ._obj_desc(x)
   root <- node(x, "x", paste(._pr_label(class(x)[1], cli::bg_blue, cli::col_br_white),
                              cli::col_grey(root_desc)), 0)
-  tree <- cli::tree(data.frame(id = rows$id, children = I(rows$children),
-                               label = rows$label, stringsAsFactors = FALSE),
-                    root = root)
-  ._pr_out(as.character(tree))
+  tree <- as.character(cli::tree(data.frame(id = rows$id, children = I(rows$children),
+                                            label = rows$label,
+                                            stringsAsFactors = FALSE),
+                                 root = root))
+  if (length(tree) > max_lines) {
+    tree <- c(tree[seq_len(max_lines)], cli::col_grey(sprintf(
+      "# %s %d more lines", cli::symbol$ellipsis, length(tree) - max_lines)))
+  }
+  ._pr_out(tree)
 }
 
 # ------------- pr_box -------------------------------------------------------

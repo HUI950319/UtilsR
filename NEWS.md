@@ -25,6 +25,11 @@
   which `cli::rule()` had cut without one. `pr_kv()` describes object values
   by type and size, e.g. `<data.frame 6 x 11>` rather than `<data.frame>`.
 
+* `pr_tree()` previews the first values of atomic vectors
+  (`<chr 3> "Age", "Sex", "Stage"`), marks a list left unopened at
+  `max_depth` with an ellipsis, and gains `max_lines` (200 by default), past
+  which a grey footer counts the rest.
+
 # UtilsR 0.6.9
 
 * `check_packages()` collects counts before constructing its result, avoiding

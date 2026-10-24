@@ -131,7 +131,7 @@ test_that("pr_tree() shows the structure of a nested result list", {
     "table <data.frame 3 x 2>",
     "plot <gg>",
     "method <chr> \"cox\"",
-    "p <dbl 2>",
+    "p <dbl 2> 0.1, 0.2",
     "attr analysis <list 1>"
   ))
   expect_match(out[1], "\033[44m", fixed = TRUE)
@@ -140,7 +140,8 @@ test_that("pr_tree() shows the structure of a nested result list", {
   expect_length(utils::capture.output(pr_tree(res, attrs = FALSE)), 6L)
   deep <- list(a = list(b = list(c = list(d = 1))))
   deep_out <- cli::ansi_strip(utils::capture.output(pr_tree(deep, max_depth = 2)))
-  expect_identical(sub("^[^A-Za-z]*", "", deep_out[-1]), c("a <list 1>", "b <list 1>"))
+  expect_identical(sub("^[^A-Za-z]*", "", deep_out[-1]),
+                   c("a <list 1>", paste("b <list 1>", cli::symbol$ellipsis)))
   expect_identical(deep_out[1], " list  <list 1>")
   many <- cli::ansi_strip(utils::capture.output(pr_tree(as.list(1:30), max_items = 5)))
   expect_length(many, 7L)
@@ -303,4 +304,17 @@ test_that("pr_kv() describes object values by type and size", {
   out <- utils::capture.output(pr_kv(list(data = head(datasets::mtcars),
                                           grid = list(a = 1, b = 2))))
   expect_identical(out, c("  data  <data.frame 6 x 11>", "  grid  <list 2>"))
+})
+
+test_that("pr_tree() previews vectors, marks collapsed nodes and caps lines", {
+  withr::local_options(cli.num_colors = 1, cli.unicode = TRUE)
+  x <- list(terms = c("Age", "Sex", "Stage"), p = c(0.1, 0.25),
+            deep = list(a = list(b = 1)))
+  out <- utils::capture.output(pr_tree(x, max_depth = 1))
+  expect_true(any(grepl('terms <chr 3> "Age", "Sex", "Stage"$', out)))
+  expect_true(any(grepl("p <dbl 2> 0.1, 0.25$", out)))
+  expect_true(any(grepl("deep <list 1> \u2026$", out)))
+  big <- utils::capture.output(pr_tree(rep(list(as.list(1:20)), 20), max_lines = 30))
+  expect_length(big, 31L)
+  expect_match(big[31], "more lines")
 })

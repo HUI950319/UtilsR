@@ -4,7 +4,7 @@
 \alias{pr_tree}
 \title{Structure tree of a nested result object}
 \usage{
-pr_tree(x, max_depth = 3, max_items = 20, attrs = TRUE)
+pr_tree(x, max_depth = 3, max_items = 20, max_lines = 200, attrs = TRUE)
 }
 \arguments{
 \item{x}{A list or list-based object.}
@@ -14,6 +14,9 @@ pr_tree(x, max_depth = 3, max_items = 20, attrs = TRUE)
 \item{max_items}{Integer. Elements shown per node before the rest are
 summarised as "... n more" (default 20).}
 
+\item{max_lines}{Integer. Lines shown in all (default 200); a grey footer
+counts the rest.}
+
 \item{attrs}{Logical. Show extra attributes (default \code{TRUE}).}
 }
 \value{
@@ -21,9 +24,11 @@ The printed lines, invisibly.
 }
 \description{
 Print the elements of a list-based result as a tree, each with a short
-grey description such as \code{<tibble 12 x 7>}, \code{<chr 3>} or
-\code{<ggplot>}; clearer than \code{str()} for the nested lists that
-analysis functions return.
+grey description such as \code{<tibble 12 x 7>},
+\code{<chr 3> "Age", "Sex", "Stage"} or \code{<ggplot>}; clearer than
+\code{str()} for the nested lists that analysis functions return. Atomic
+vectors show their first values, and a list left unopened at
+\code{max_depth} is marked with an ellipsis.
 }
 \details{
 The tree descends into plain lists and into classed objects that also
