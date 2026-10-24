@@ -10,7 +10,7 @@ test_that("library counts include installed copies and exclude unrelated directo
   dir.create(file.path(empty, "notes"))
   withr::local_libpaths(c(lib, empty), action = "prefix")
   paths <- .libPaths()
-  result <- count_packages_in_libpaths()
+  result <- check_packages()
   expect_s3_class(result, "data.frame")
   expect_named(result, c("Library_Path", "Package_Count"))
   expect_identical(result$Library_Path, c(paths, "Total"))

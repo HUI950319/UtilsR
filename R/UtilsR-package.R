@@ -20,7 +20,7 @@
 #'   \item{\code{\link{plt_na}}}{Missing-value matrix and percentage plots}
 #'   \item{\code{\link{check_system}}}{OS, R version, memory, CPU info}
 #'   \item{\code{\link{check_size}}}{Object memory profiling}
-#'   \item{\code{\link{count_packages_in_libpaths}}}{Count installed packages}
+#'   \item{\code{\link{check_packages}}}{Count installed packages}
 #' }
 #'
 #' @section Factor:

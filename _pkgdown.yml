@@ -48,7 +48,7 @@ reference:
       - plt_na
       - check_system
       - check_size
-      - count_packages_in_libpaths
+      - check_packages
 
   - title: File System
     desc: Working-directory and path helpers.

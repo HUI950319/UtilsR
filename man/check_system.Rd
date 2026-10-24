@@ -32,8 +32,8 @@ res <- check_system(return_result = TRUE)
 \seealso{
 Other inspect:
 \code{\link[=check_na]{check_na()}},
+\code{\link[=check_packages]{check_packages()}},
 \code{\link[=check_size]{check_size()}},
-\code{\link[=count_packages_in_libpaths]{count_packages_in_libpaths()}},
 \code{\link[=impute_na_knn]{impute_na_knn()}},
 \code{\link[=lv]{lv()}},
 \code{\link[=plt_na]{plt_na()}}

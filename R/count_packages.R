@@ -14,12 +14,12 @@
 #'
 #' @examples
 #' \dontrun{
-#' count_packages_in_libpaths()
+#' check_packages()
 #' }
 #'
 #' @export
 #' @family inspect
-count_packages_in_libpaths <- function() {
+check_packages <- function() {
 
   lib_paths <- .libPaths()
 

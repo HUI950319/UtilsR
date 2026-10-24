@@ -1,5 +1,8 @@
 # UtilsR 0.6.9
 
+* `check_packages()` replaces `count_packages_in_libpaths()` with the same
+  per-library installed-package counts and total. The old name is removed.
+
 * The report of `check_system()` uses the print helpers: a class label with
   the time, one rule per group and the Chinese keys aligned by display width.
   It now goes to standard output, so `suppressMessages()` no longer hides it;
