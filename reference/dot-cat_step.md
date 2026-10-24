@@ -73,9 +73,9 @@ fit_all <- function() {
 }
 fit_all()
 #> ℹ [1/2] Fitting models
-#> ✔ [1/2] Fitting models [106ms]
+#> ✔ [1/2] Fitting models [128ms]
 #> 
 #> ℹ [2/2] Drawing plot
-#> ✔ [2/2] Drew plot [28ms]
+#> ✔ [2/2] Drew plot [18ms]
 #> 
 ```

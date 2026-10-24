@@ -99,6 +99,16 @@ Default <code>FALSE</code>.</p></dd>
   r_memory, system_memory, cpu, warnings, and timestamp.</p>
     </div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>R memory measures the heap managed by R, not the operating system's
+  resident process size (RSS). It uses <code>lobstr</code> when available, otherwise
+  exact <code><a href="https://rdrr.io/r/base/gc.html" class="external-link">gc()</a></code> cell counts. Memory fields ending in <code>_gb</code> retain
+  their names and report gibibytes (GiB, \(2^{30}\) bytes).
+  System <code>free_gb</code> represents available memory; <code>used_gb</code> is the
+  difference between total and available memory. Unavailable measurements
+  are returned as missing values.</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other inspect:
 <code><a href="check_na.html">check_na()</a></code>,

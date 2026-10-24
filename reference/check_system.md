@@ -30,6 +30,16 @@ check_system(return_result = FALSE, show_warnings = FALSE)
 A list (invisible by default) containing system_info, r_environment,
 r_memory, system_memory, cpu, warnings, and timestamp.
 
+## Details
+
+R memory measures the heap managed by R, not the operating system's
+resident process size (RSS). It uses `lobstr` when available, otherwise
+exact [`gc()`](https://rdrr.io/r/base/gc.html) cell counts. Memory
+fields ending in `_gb` retain their names and report gibibytes (GiB,
+\\2^{30}\\ bytes). System `free_gb` represents available memory;
+`used_gb` is the difference between total and available memory.
+Unavailable measurements are returned as missing values.
+
 ## See also
 
 Other inspect:
