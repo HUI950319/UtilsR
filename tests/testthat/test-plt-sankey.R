@@ -191,7 +191,13 @@ test_that("plt_sankey grouped styles reach the rendered layers", {
   expect_equal(unique(built[[3]]$hjust), 0)
   expect_identical(unique(built[[3]]$colour), "navy")
   expect_equal(unique(built[[3]]$alpha), 0.7)
-  expect_null(ggplot2::get_labs(plot)$y)
+  # get_labs() exists only from ggplot2 4.0; 3.5.0 keeps labels in `$labels`.
+  labels <- if (exists("get_labs", envir = asNamespace("ggplot2"), inherits = FALSE)) {
+    ggplot2::get_labs(plot)
+  } else {
+    plot$labels
+  }
+  expect_null(labels$y)
 })
 
 test_that("plt_sankey controls multiline spacing for boxed and plain labels", {
