@@ -10,7 +10,8 @@ pr_kv(x, indent = 2)
 \item{x}{A named list or named vector. \code{NULL} elements are dropped,
 so optional settings can be passed as they are; atomic values are
 joined with \code{", "} (the first 20 items, then the count) and
-other objects are shown by their class, e.g. \code{<lm>}. Long values
+other objects are described by type and size, e.g.
+\code{<data.frame 6 x 11>} or \code{<lm>}. Long values
 wrap at the console width under the value column, as do the lines of a
 value that contains newlines.}
 

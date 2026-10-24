@@ -53,8 +53,8 @@
 
 # Named values -> "key  value" lines with grey keys aligned by display width,
 # so wide (CJK) keys line up. NULL values are dropped, atomic vectors joined
-# with ", " (the first 20 items, then the count), and other objects shown by
-# their class. Values wrap at `width` under their own column, as do the
+# with ", " (the first 20 items, then the count), and other objects described
+# by ._obj_desc(). Values wrap at `width` under their own column, as do the
 # lines of a value with embedded newlines.
 ._kv_lines <- function(x, arg = "x", width = Inf) {
   keys <- names(x)
@@ -66,7 +66,7 @@
   if (!any(keep)) return(character())
   keys <- keys[keep]
   vals <- vapply(x[keep], function(v) {
-    if (!is.atomic(v)) return(paste0("<", class(v)[1], ">"))
+    if (!is.atomic(v)) return(._obj_desc(v))
     v <- as.character(v)
     if (length(v) > 20L) {
       v <- c(v[1:20], sprintf("%s (%d)", cli::symbol$ellipsis, length(v)))
@@ -134,7 +134,8 @@ pr_head <- function(class, ..., bg = "blue", fg = "br_white") {
 #' @param x A named list or named vector. \code{NULL} elements are dropped,
 #'   so optional settings can be passed as they are; atomic values are
 #'   joined with \code{", "} (the first 20 items, then the count) and
-#'   other objects are shown by their class, e.g. \code{<lm>}. Long values
+#'   other objects are described by type and size, e.g.
+#'   \code{<data.frame 6 x 11>} or \code{<lm>}. Long values
 #'   wrap at the console width under the value column, as do the lines of a
 #'   value that contains newlines.
 #' @param indent Integer. Spaces before each key (default 2).

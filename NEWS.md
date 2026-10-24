@@ -22,7 +22,8 @@
   wraps long notes with a `#` on every line, and `.cat_message()` wraps long
   lines under the message text. `pr_head()` cuts a line longer than the
   console with an ellipsis, and `pr_section()` a title too long for its rule,
-  which `cli::rule()` had cut without one.
+  which `cli::rule()` had cut without one. `pr_kv()` describes object values
+  by type and size, e.g. `<data.frame 6 x 11>` rather than `<data.frame>`.
 
 # UtilsR 0.6.9
 

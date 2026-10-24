@@ -297,3 +297,10 @@ test_that("pr_head() and pr_section() trim long text with an ellipsis", {
   expect_identical(cli::ansi_nchar(s, type = "width"), 40L)
   expect_match(s, "\u2026 \u2500+$")
 })
+
+test_that("pr_kv() describes object values by type and size", {
+  withr::local_options(cli.num_colors = 1)
+  out <- utils::capture.output(pr_kv(list(data = head(datasets::mtcars),
+                                          grid = list(a = 1, b = 2))))
+  expect_identical(out, c("  data  <data.frame 6 x 11>", "  grid  <list 2>"))
+})
