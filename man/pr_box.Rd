@@ -18,7 +18,8 @@ the top and bottom border.}
 (default \code{"cyan"}).}
 }
 \value{
-The printed lines, invisibly.
+The printed lines, invisibly. Nothing prints when \code{x} has no
+  lines, e.g. when every element is \code{NULL}.
 }
 \description{
 Print a rounded box around key-value lines (as in \code{\link{pr_kv}()})

@@ -7,6 +7,10 @@
   own line; it showed only the first. A zero-length message prints nothing
   instead of failing with "subscript out of bounds".
 
+* `pr_box()` prints nothing when there is nothing to frame, such as a list
+  whose elements are all `NULL`, instead of failing with "a character
+  vector argument expected".
+
 # UtilsR 0.6.11
 
 * `plt_cat()` and `plt_con()` with `split.by` report the size of the split

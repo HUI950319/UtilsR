@@ -169,6 +169,13 @@ test_that("pr_box() frames key-value lines under a header and footer", {
   expect_match(plain2[2], "line one", fixed = TRUE)
 })
 
+test_that("pr_box() prints nothing when there is nothing to frame", {
+  expect_identical(utils::capture.output(pr_box(list())), character())
+  expect_identical(utils::capture.output(pr_box(list(a = NULL), header = "Model")),
+                   character())
+  expect_identical(utils::capture.output(pr_box(character())), character())
+})
+
 test_that("pr_spark() prints one distribution line per column", {
   withr::local_options(cli.num_colors = 256, cli.unicode = TRUE)
   df <- data.frame(age = c(40, 50, 50, 60, 60, 60, 70, NA),

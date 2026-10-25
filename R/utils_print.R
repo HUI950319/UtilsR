@@ -580,7 +580,8 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
 #' @param col Border colour: anything \code{cli::make_ansi_style()} accepts
 #'   (default \code{"cyan"}).
 #'
-#' @return The printed lines, invisibly.
+#' @return The printed lines, invisibly. Nothing prints when \code{x} has no
+#'   lines, e.g. when every element is \code{NULL}.
 #'
 #' @examples
 #' pr_box(list(Outcome = "Surv(time, DSS)", Exposure = "Surgery (Yes vs No)",
@@ -597,6 +598,8 @@ pr_box <- function(x, header = NULL, footer = NULL, col = "cyan") {
   } else {
     ._kv_lines(x, width = avail)
   }
+  # cli::boxx() fails on no lines; an empty settings list prints nothing
+  if (!length(lines)) return(._pr_out(character()))
   box <- cli::boxx(
     lines,
     # boxx() already pads the header and footer with a space on each side
