@@ -571,20 +571,20 @@ test_that("plt_alluvial and plt_dist save at the page their content is laid out 
   withr::local_pdf(withr::local_tempfile(fileext = ".pdf"))
   expect_identical(tail(names(formals(plt_dist)), 1), "save")
   f <- withr::local_tempfile(fileext = ".pdf")
-  out <- utils::capture.output(p <- plt_alluvial(alluvial_data(), "category", "group",
-                                                 save = list(filename = f)))
+  out <- cli::cli_fmt(p <- plt_alluvial(alluvial_data(), "category", "group",
+                                        save = list(filename = f)))
   expect_saved_at_plot_size(out, p)
-  out <- utils::capture.output(p <- plt_dist(alluvial_data(),
-                                             dis_vars = c("category", "group"),
-                                             save = list(filename = f)))
+  out <- cli::cli_fmt(p <- plt_dist(alluvial_data(),
+                                    dis_vars = c("category", "group"),
+                                    save = list(filename = f)))
   expect_saved_at_plot_size(out, p)
-  out <- utils::capture.output(p <- plt_dist(alluvial_data(),
-                                             dis_vars = c("category", "group"),
-                                             type = "bar", save = list(filename = f)))
+  out <- cli::cli_fmt(p <- plt_dist(alluvial_data(),
+                                    dis_vars = c("category", "group"),
+                                    type = "bar", save = list(filename = f)))
   expect_saved_at_plot_size(out, p)
   heat_data <- transform(alluvial_data(), tile = paste(category, group))
-  out <- utils::capture.output(p <- plt_dist(heat_data,
-                                             dis_vars = c("category", "group", "tile"),
-                                             save = list(filename = f)))
+  out <- cli::cli_fmt(p <- plt_dist(heat_data,
+                                    dis_vars = c("category", "group", "tile"),
+                                    save = list(filename = f)))
   expect_saved_at_plot_size(out, p)
 })

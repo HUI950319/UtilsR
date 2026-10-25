@@ -121,12 +121,12 @@ test_that("plt_upset saves its plot, the combined one for all, and nothing for d
   expect_identical(tail(names(formals(plt_upset)), 1), "save")
   f <- withr::local_tempfile(fileext = ".pdf")
   for (output in c("venn", "upset", "both")) {
-    out <- utils::capture.output(p <- suppressWarnings(plt_upset(
+    out <- cli::cli_fmt(p <- suppressWarnings(plt_upset(
       bmi_missing_data(), vars = c("BMI_1", "BMI_2", "BMI_3"), levels = NA,
       output = output, save = list(filename = f))))
     expect_saved_at_plot_size(out, p)
   }
-  out <- utils::capture.output(res <- suppressWarnings(plt_upset(
+  out <- cli::cli_fmt(res <- suppressWarnings(plt_upset(
     bmi_missing_data(), vars = c("BMI_1", "BMI_2", "BMI_3"), levels = NA,
     output = "all", save = list(filename = f))))
   expect_saved_at_plot_size(out, res$combined)

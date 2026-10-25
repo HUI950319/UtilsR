@@ -42,11 +42,11 @@ test_that("plt_na returns the standard combined plot by default", {
   expected_levels[match(names(name_map), expected_levels)] <- name_map
   expect_setequal(levels(plot[[1]]$data$label), expected_levels)
   expect_equal(
-    unique(plot[[1]]$data$.strip_label.),
+    unique(ggplot2::ggplot_build(plot[[1]])$layout$layout$.strip_label.),
     "Distribution of Missing Values"
   )
   expect_equal(
-    unique(plot[[2]]$data$.strip_label.),
+    unique(ggplot2::ggplot_build(plot[[2]])$layout$layout$.strip_label.),
     "Percentage of Missing Values"
   )
   expect_silent(render_plot(plot))
@@ -63,11 +63,11 @@ test_that("plt_na returns the reversed combined plot", {
   expect_false(inherits(plot[[1]]$theme$axis.text.y, "element_blank"))
   expect_true(inherits(plot[[2]]$theme$axis.text.y, "element_blank"))
   expect_equal(
-    unique(plot[[1]]$data$.strip_label.),
+    unique(ggplot2::ggplot_build(plot[[1]])$layout$layout$.strip_label.),
     "Percentage of Missing Values"
   )
   expect_equal(
-    unique(plot[[2]]$data$.strip_label.),
+    unique(ggplot2::ggplot_build(plot[[2]])$layout$layout$.strip_label.),
     "Distribution of Missing Values"
   )
   expect_silent(render_plot(plot))
@@ -166,8 +166,8 @@ test_that("plt_na saves at a page that grows with its variables", {
   }
   f <- withr::local_tempfile(fileext = ".pdf")
   for (output in c("both", "matrix", "percentage")) {
-    out <- utils::capture.output(p <- plt_na(make(4), output = output,
-                                             save = list(filename = f)))
+    out <- cli::cli_fmt(p <- plt_na(make(4), output = output,
+                                    save = list(filename = f)))
     expect_saved_at_plot_size(out, p)
   }
   utils::capture.output(short <- plt_na(make(4)))

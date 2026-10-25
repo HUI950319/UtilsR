@@ -12,4 +12,5 @@
       result <- plt_na(data.frame(x = 1:3, y = letters[1:3]))
     Condition
       Warning:
+      No missing values found in the dataset.
 
