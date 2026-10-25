@@ -483,6 +483,29 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   g <- if (colour) cli::col_grey else identity
   if (is.null(v)) return(g("<NULL>"))
   big <- function(n) format(n, big.mark = ",", scientific = FALSE, trim = TRUE)
+  # values as text: strings quoted, a labelled value with its label
+  # ("1 [Male]"), NA red with `colour`
+  text_of <- function(first, labs = attr(first, "labels", exact = TRUE)) {
+    vals <- if (is.character(first)) {
+      encodeString(first, quote = "\"")
+    } else if (is.factor(first)) {
+      ifelse(is.na(first), "NA", encodeString(as.character(first)))
+    } else if (is.integer(first) && !is.object(first)) {
+      as.character(first)
+    } else if (is.numeric(first) && !is.object(first)) {
+      # format() keeps the integer part, which signif() rounded (1234.5678
+      # showed as 1230, 123456L as 123000)
+      vapply(first, format, character(1), digits = 3)
+    } else {
+      vapply(seq_along(first), function(i) format(first[i]), character(1))
+    }
+    if (length(names(labs))) {
+      hit  <- names(labs)[match(unclass(first), unclass(labs))]
+      vals <- ifelse(is.na(hit), vals, sprintf("%s [%s]", vals, hit))
+    }
+    if (colour) vals[is.na(first)] <- cli::col_red(vals[is.na(first)])
+    vals
+  }
   # a POSIXlt time is a list underneath; show the time it holds
   if (inherits(v, "POSIXlt")) v <- as.POSIXct(v)
   cls <- class(v)[1]
@@ -502,32 +525,26 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
     if (is.object(v) && (!inherits(v, "list") || inherits(v, ._tree_leaf))) {
       return(g(sprintf("<%s>", cls)))
     }
-    return(g(sprintf("<%s %s>", if (is.object(v)) cls else "list", big(length(v)))))
+    head <- sprintf("<%s %s>", if (is.object(v)) cls else "list", big(length(v)))
+    nm   <- names(v)
+    if (!inside || is.null(nm) || !length(v)) return(g(head))
+    # its names, each single atomic value after its name, as far as the line goes
+    items <- vapply(utils::head(seq_along(v), 20L), function(i) {
+      key <- if (is.na(nm[i]) || !nzchar(nm[i])) sprintf("[[%d]]", i) else nm[i]
+      e   <- v[[i]]
+      if (is.atomic(e) && length(e) == 1L && is.null(dim(e))) {
+        paste(g(paste(key, "=")), text_of(e))
+      } else key
+    }, character(1))
+    room <- max(width - cli::ansi_nchar(head, type = "width") - 1L, 10L)
+    return(paste(g(head), cli::ansi_strtrim(paste(items, collapse = g(", ")), room)))
   }
   if (is.atomic(v)) {
     # vctrs names classed vectors as well: drtn, dbl+lbl, int64, ord
     abbr <- tryCatch(vctrs::vec_ptype_abbr(v), error = function(e) typeof(v))
     first <- utils::head(v, 10L)
-    vals <- if (is.character(first)) {
-      encodeString(first, quote = "\"")
-    } else if (is.factor(first)) {
-      ifelse(is.na(first), "NA", encodeString(as.character(first)))
-    } else if (is.integer(first) && !is.object(first)) {
-      as.character(first)
-    } else if (is.numeric(first) && !is.object(first)) {
-      # format() keeps the integer part, which signif() rounded (1234.5678
-      # showed as 1230, 123456L as 123000)
-      vapply(first, format, character(1), digits = 3)
-    } else {
-      vapply(seq_along(first), function(i) format(first[i]), character(1))
-    }
-    # a labelled value with its label, "1 [Male]"; a named one with its name
-    labs <- attr(v, "labels", exact = TRUE)
-    if (length(names(labs))) {
-      hit  <- names(labs)[match(unclass(first), unclass(labs))]
-      vals <- ifelse(is.na(hit), vals, sprintf("%s [%s]", vals, hit))
-    }
-    if (colour) vals[is.na(first)] <- cli::col_red(vals[is.na(first)])
+    vals  <- text_of(first, attr(v, "labels", exact = TRUE))
+    # a named value with its name
     nm <- names(first)
     if (!is.null(nm)) {
       vals <- ifelse(is.na(nm) | !nzchar(nm), vals, paste(g(paste(nm, "=")), vals))
@@ -641,8 +658,9 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
           name <- if (descend(child) && length(child)) cli::style_bold(nm[k]) else nm[k]
           child_label <- paste(name, ._obj_desc(
             child, room, colour = TRUE, inside = !(descend(child) && depth + 1 < max_depth)))
-          # a list left unopened at max_depth
-          if (depth + 1 >= max_depth && descend(child) && length(child)) {
+          # a list left unopened at max_depth; a named one previews its names
+          if (depth + 1 >= max_depth && descend(child) && length(child) &&
+              is.null(names(child))) {
             child_label <- paste(child_label, cli::col_grey(cli::symbol$ellipsis))
           }
         }

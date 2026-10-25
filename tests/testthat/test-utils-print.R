@@ -132,7 +132,7 @@ test_that("pr_tree() shows the structure of a nested result list", {
     "plot <gg>",
     "method <chr> \"cox\"",
     "p <dbl 2> 0.1, 0.2",
-    "attr analysis <list 1>"
+    "attr analysis <list 1> n = 10"
   ))
   expect_match(out[1], "\033[44m", fixed = TRUE)
   expect_match(out[7], "\033[36mattr", fixed = TRUE)
@@ -146,7 +146,7 @@ test_that("pr_tree() shows the structure of a nested result list", {
   deep <- list(a = list(b = list(c = list(d = 1))))
   deep_out <- cli::ansi_strip(utils::capture.output(pr_tree(deep, max_depth = 2)))
   expect_identical(sub("^[^A-Za-z]*", "", deep_out[-1]),
-                   c("a <list 1>", paste("b <list 1>", cli::symbol$ellipsis)))
+                   c("a <list 1>", "b <list 1> c"))
   expect_identical(deep_out[1], "<list 1>")
   # the class chip is for a classed list; other roots do not repeat the class
   expect_identical(cli::ansi_strip(utils::capture.output(pr_tree(1:3))), "<int 3> 1, 2, 3")
@@ -398,7 +398,14 @@ test_that("pr_tree() previews vectors, marks collapsed nodes and caps lines", {
   out <- utils::capture.output(pr_tree(x, max_depth = 1))
   expect_true(any(grepl('terms <chr 3> "Age", "Sex", "Stage"$', out)))
   expect_true(any(grepl("p <dbl 2> 0.1, 0.25$", out)))
-  expect_true(any(grepl("deep <list 1> \u2026$", out)))
+  expect_true(any(grepl("deep <list 1> a$", out)))
+  # a closed list previews its names and single values; unnamed, an ellipsis
+  closed <- utils::capture.output(pr_tree(structure(
+    list(inter = list(RERI = 0.42, S = NA, ci = c(1, 2)), u = list(1, 2)),
+    analysis = list(n = 1000L, outcome = "DSS")), max_depth = 1))
+  expect_true(any(grepl("inter <list 3> RERI = 0.42, S = NA, ci$", closed)))
+  expect_true(any(grepl("u <list 2> \u2026$", closed)))
+  expect_true(any(grepl('attr analysis <list 2> n = 1000, outcome = "DSS"$', closed)))
   # whole numbers as they are, decimals to three digits past the integer part
   nums <- utils::capture.output(pr_tree(list(n = 123456L, x = 1234.5678, small = 0.0000123)))
   expect_true(any(grepl("n <int> 123456$", nums)))

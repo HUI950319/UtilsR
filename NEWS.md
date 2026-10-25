@@ -8,6 +8,11 @@
 * `pr_tree()` follows a data frame with its column names, as many as fit
   the line: `<tibble 12 x 5> term, HR, lower, upper, p`.
 
+* A list `pr_tree()` leaves closed, at `max_depth` or as an attribute,
+  previews its names and the value of each single one:
+  `attr analysis <list 2> n = 1000, outcome = "DSS"` read
+  `attr analysis <list 2>`. An unnamed list keeps the ellipsis.
+
 * `pr_tree()` shows whole numbers as they are and decimals to three digits
   past their integer part: rounded to three significant digits, `123456L`
   read `123000` and `1234.5678` read `1230`.
