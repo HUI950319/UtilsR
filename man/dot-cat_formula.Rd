@@ -33,8 +33,8 @@
 One \code{\link{.cat_message}()} line naming the model (Cox, CRR or
 logistic), whether it is adjusted, and its formula, e.g.
 \code{Cox model, unadjusted: Surv(time, DSS) ~ Sex}. The model type comes
-from the number of distinct outcome levels and whether there is a time
-variable. \code{suppressMessages()} silences it.
+from the number of distinct non-missing outcome values and whether there
+is a time variable. \code{suppressMessages()} silences it.
 }
 \examples{
 formula_data <- data.frame(

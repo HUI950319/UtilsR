@@ -363,8 +363,8 @@ console_width <- function() {
 #' One \code{\link{.cat_message}()} line naming the model (Cox, CRR or
 #' logistic), whether it is adjusted, and its formula, e.g.
 #' \code{Cox model, unadjusted: Surv(time, DSS) ~ Sex}. The model type comes
-#' from the number of distinct outcome levels and whether there is a time
-#' variable. \code{suppressMessages()} silences it.
+#' from the number of distinct non-missing outcome values and whether there
+#' is a time variable. \code{suppressMessages()} silences it.
 #'
 #' @param data A data.frame containing the outcome column.
 #' @param co_var Character vector of covariate names.
@@ -397,7 +397,8 @@ console_width <- function() {
     model   <- "Logistic"
     formula <- sprintf("%s ~ %s", outcome, rhs)
   } else {
-    model   <- if (dplyr::n_distinct(data[[outcome]]) == 3L) "CRR" else "Cox"
+    # a missing outcome is not a level: 0/1 with NA is still a Cox model
+    model   <- if (dplyr::n_distinct(data[[outcome]], na.rm = TRUE) == 3L) "CRR" else "Cox"
     formula <- sprintf("Surv(%s, %s) ~ %s", time, outcome, rhs)
   }
   .cat_message(sprintf("%s model, %s: %s", model, adj, formula), type = type)

@@ -128,4 +128,8 @@ test_that(".cat_formula() announces a model in one notice line", {
   expect_true(endsWith(one("Sex", time = NULL),
                        "Logistic model, unadjusted: DSS ~ Sex"))
   expect_message(.cat_formula(d, "Sex"))
+
+  # a missing outcome is not a third level
+  d$DSS[2] <- NA
+  expect_true(endsWith(one("Sex"), "Cox model, unadjusted: Surv(time, DSS) ~ Sex"))
 })

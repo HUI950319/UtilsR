@@ -1,3 +1,8 @@
+# UtilsR 0.6.12
+
+* `.cat_formula()` no longer counts a missing outcome value as a level, so
+  a binary outcome with `NA`s is announced as a Cox model, not a CRR one.
+
 # UtilsR 0.6.11
 
 * `plt_cat()` and `plt_con()` with `split.by` report the size of the split
