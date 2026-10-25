@@ -1,5 +1,10 @@
 # UtilsR 0.6.12
 
+* `pr_tree()` says what it left out: `... 25 more` goes on with the names
+  of the elements it skipped (`... 25 more: e6, e7, e8, ...`), and the
+  footer names the argument that cut the lines
+  (`# ... 16 more lines (max_lines = 9)`).
+
 * `pr_tree()` pads the names of siblings to a common width, up to 18
   characters, so their descriptions start in one column, as `str()` and
   `pr_kv()` line them up.

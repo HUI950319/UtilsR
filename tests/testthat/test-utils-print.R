@@ -156,6 +156,10 @@ test_that("pr_tree() shows the structure of a nested result list", {
   many <- cli::ansi_strip(utils::capture.output(pr_tree(as.list(1:30), max_items = 5)))
   expect_length(many, 7L)
   expect_match(many[7], "25 more", fixed = TRUE)
+  # named elements left out are named, as far as the line goes
+  named <- cli::ansi_strip(utils::capture.output(
+    pr_tree(stats::setNames(as.list(1:30), paste0("e", 1:30)), max_items = 5)))
+  expect_match(named[7], paste(cli::symbol$ellipsis, "25 more: e6, e7, e8, "), fixed = TRUE)
   # sibling names are padded into a column, up to 18 characters
   withr::local_options(cli.num_colors = 1, cli.unicode = TRUE)
   aligned <- utils::capture.output(pr_tree(list(n = 1, outcome = "DSS")))
@@ -488,7 +492,7 @@ test_that("pr_tree() previews vectors, marks collapsed nodes and caps lines", {
   full <- utils::capture.output(pr_tree(x))
   cut  <- utils::capture.output(pr_tree(x, max_lines = 9))
   expect_identical(cut[1:9], full[1:9])
-  expect_identical(cut[10], "# … 16 more lines")
+  expect_identical(cut[10], "# … 16 more lines (max_lines = 9)")
 })
 
 test_that("pr_tree() opens the object it is given", {

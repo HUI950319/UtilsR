@@ -712,7 +712,15 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
       if (length(p) > max_items) {
         h <- slot(shown)
         if (h != "count") kids <- c(kids, add(paste0(id, "/more"), if (h == "show") {
-          cli::col_grey(sprintf("%s %d more", cli::symbol$ellipsis, length(p) - max_items))
+          rest <- sprintf("%s %s more", cli::symbol$ellipsis,
+                          format(length(p) - max_items, big.mark = ","))
+          # the names left out, as far as the line goes
+          if (!is.null(names(p))) {
+            rest <- cli::ansi_strtrim(paste0(rest, ": ", paste(
+              utils::head(nm[-seq_len(max_items)], 50L), collapse = ", ")),
+              console_width() - 2L * (depth + 1L))
+          }
+          cli::col_grey(rest)
         } else ""))
       }
       # an S4 object's attributes are its slots, listed above
@@ -753,8 +761,10 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
                                             stringsAsFactors = FALSE),
                                  root = root))
   if (rows$n > max_lines) {
+    # the argument that cut them, as rlang names what shows hidden frames
     tree <- c(tree[seq_len(max_lines)], cli::col_grey(sprintf(
-      "# %s %d more lines", cli::symbol$ellipsis, rows$n - max_lines)))
+      "# %s %s more lines (max_lines = %d)", cli::symbol$ellipsis,
+      format(rows$n - max_lines, big.mark = ","), max_lines)))
   }
   ._pr_out(tree)
 }
