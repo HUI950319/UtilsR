@@ -39,8 +39,9 @@ P-value columns and left-aligns the rest.}
 
 \item{width}{Integer. Line width the table must fit; \code{NULL}
 (default) uses the console width. The first column and the P-value
-columns always show; the other columns follow in order while they fit,
-and the footer names those left out.}
+columns always show, a first column too wide for the line cut with an
+ellipsis; the other columns follow in order while they fit, and the
+footer names those left out.}
 
 \item{indent}{Integer. Spaces before each line (default 2).}
 }

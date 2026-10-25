@@ -63,6 +63,10 @@
   frame, which are otherwise not shown. It is off by default, since
   `rbind()` of a named list also leaves row names (`cox.1`, `cox.2`).
 
+* `pr_table()` cuts a first column too wide for the line with an
+  ellipsis: long variable labels made the table overflow `width`, as the
+  first and the P-value columns always show.
+
 # UtilsR 0.6.11
 
 * `plt_cat()` and `plt_con()` with `split.by` report the size of the split

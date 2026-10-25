@@ -347,8 +347,9 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 #' @param digits Integer. Decimals for double columns (default 2).
 #' @param width Integer. Line width the table must fit; \code{NULL}
 #'   (default) uses the console width. The first column and the P-value
-#'   columns always show; the other columns follow in order while they fit,
-#'   and the footer names those left out.
+#'   columns always show, a first column too wide for the line cut with an
+#'   ellipsis; the other columns follow in order while they fit, and the
+#'   footer names those left out.
 #' @param indent Integer. Spaces before each line (default 2).
 #'
 #' @return The printed lines, invisibly.
@@ -416,9 +417,15 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
     keep <- c(keep, j)
   }
   keep <- sort(keep)
+  # the columns that always show can still be too wide: cut the first one,
+  # with an ellipsis, rather than overflow the line
+  over <- sum(col_w[keep]) + 2 * (length(keep) - 1) - avail
+  if (over > 0) col_w[1] <- max(col_w[1] - over, 8)
   row <- function(x) {
     paste(vapply(keep, function(j) {
-      cli::ansi_align(x[[j]], col_w[j], align[j])
+      s <- x[[j]]
+      if (j == 1L) s <- cli::ansi_strtrim(s, col_w[1])
+      cli::ansi_align(s, col_w[j], align[j])
     }, character(1)), collapse = "  ")
   }
 

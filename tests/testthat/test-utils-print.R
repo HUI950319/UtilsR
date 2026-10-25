@@ -288,6 +288,16 @@ test_that("pr_table(rownames = TRUE) shows the row names as the first column", {
   expect_false(any(grepl("Age", utils::capture.output(pr_table(as.data.frame(m))))))
 })
 
+test_that("pr_table() cuts a first column too wide for the line", {
+  withr::local_options(cli.num_colors = 1, cli.unicode = TRUE)
+  long <- data.frame(Variable = strrep("Very long covariate label ", 3), HR = 1.2,
+                     P = 0.03)
+  out <- utils::capture.output(pr_table(long, p_col = "P", width = 40))
+  expect_true(all(cli::ansi_nchar(out, type = "width") <= 40))
+  expect_match(out[3], "\u2026  0\\.030\\*$")
+  expect_match(out[length(out)], "1 more column: HR", fixed = TRUE)
+})
+
 test_that("pr_table() gives tiny values enough decimals", {
   withr::local_options(cli.num_colors = 1)
   out <- utils::capture.output(pr_table(data.frame(beta = c(0.0003, -1.234),
