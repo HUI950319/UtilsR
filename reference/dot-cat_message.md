@@ -21,7 +21,8 @@ lines starting under the text, unless `wrap = FALSE`.
 
 - message:
 
-  Character. The message text.
+  Character. The message text: each element starts a new line, as does
+  each `"\n"`; a zero-length message prints nothing.
 
 - type:
 
@@ -29,7 +30,8 @@ lines starting under the text, unless `wrap = FALSE`.
 
 - timestamp_format:
 
-  `strftime` format string (default `"[%Y-%m-%d %H:%M:%S]"`).
+  `strftime` format string (default `"[%Y-%m-%d %H:%M:%S]"`); `NULL` or
+  `""` leaves the timestamp out.
 
 - style:
 
@@ -72,5 +74,5 @@ Other console display:
 ``` r
 .cat_message("Loading simulated data", verbose = FALSE)
 .cat_message("Saved forest.pdf", type = "success", style = "chip")
-#> [2026-10-25 04:03:51]  DONE  Saved forest.pdf
+#> [2026-10-25 05:15:51]  DONE  Saved forest.pdf
 ```

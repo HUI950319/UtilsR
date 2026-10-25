@@ -1,5 +1,80 @@
 # Changelog
 
+## UtilsR 0.6.12
+
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  shows whole numbers as they are and decimals to three digits past
+  their integer part: rounded to three significant digits, `123456L`
+  read `123000` and `1234.5678` read `1230`.
+
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  names classed vectors as vctrs does, such as `<drtn 2>` for a
+  difftime, `<dbl+lbl 3>` for a labelled vector and `<int64>`, where
+  they read `<dbl ...>`; a POSIXlt time shows as `<dttm>` with its value
+  instead of `<POSIXlt>`.
+
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  previews show the names of a named vector (`train = 800, test = 200`),
+  the value labels of a labelled one (`1 [Male]`), factor levels without
+  quotes, and formulas, calls and symbols as written
+  (`<formula> Surv(time, DSS) ~ Age + Sex`), which read only
+  `<formula>`.
+  [`pr_kv()`](https://hui950319.github.io/UtilsR/reference/pr_kv.md)
+  describes formulas the same way.
+
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  previews fill the line up to the console width and end in an ellipsis,
+  where they stopped at 40 characters, or were cut off without one on a
+  narrow console. Lengths and dimensions carry a thousands mark,
+  `<int 1,000,000>` and `<data.frame 12,345 x 7>`, in
+  [`pr_kv()`](https://hui950319.github.io/UtilsR/reference/pr_kv.md)
+  too.
+
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  colours the parts of a line apart: the type and size stay grey, values
+  take the console’s text colour with `NA` in red, and the names of
+  elements that hold others are bold. The whole description, values
+  included, used to be grey.
+
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  starts with the class chip only for a classed list, the case it is
+  meant for; a plain list, a vector or a data frame no longer repeats
+  its class (`<list> <list 3>` now reads `<list 3>`).
+
+- [`.cat_formula()`](https://hui950319.github.io/UtilsR/reference/dot-cat_formula.md)
+  no longer counts a missing outcome value as a level, so a binary
+  outcome with `NA`s is announced as a Cox model, not a CRR one.
+
+- [`.cat_message()`](https://hui950319.github.io/UtilsR/reference/dot-cat_message.md)
+  prints every element of a character vector, each on its own line; it
+  showed only the first. A zero-length message prints nothing instead of
+  failing with “subscript out of bounds”.
+
+- [`pr_box()`](https://hui950319.github.io/UtilsR/reference/pr_box.md)
+  prints nothing when there is nothing to frame, such as a list whose
+  elements are all `NULL`, instead of failing with “a character vector
+  argument expected”.
+
+- `.cat_message(timestamp_format = NULL)` or `timestamp_format = ""`
+  leaves the timestamp out. An empty format used to fall back to R’s
+  default date-time format, so the timestamp stayed, without its
+  brackets.
+
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  stops describing nodes once it reaches `max_lines` and only counts the
+  rest, so a large nested list prints its first lines at once: a 20 x 20
+  x 20 list took 2.5 s to print 200 lines, now 0.07 s. The printed lines
+  are unchanged.
+
+- [`pr_kv()`](https://hui950319.github.io/UtilsR/reference/pr_kv.md) and
+  [`pr_head()`](https://hui950319.github.io/UtilsR/reference/pr_head.md)
+  show numbers as [`print()`](https://rdrr.io/r/base/print.html) does,
+  to `getOption("digits")` significant digits: `1/3` read
+  `0.333333333333333`.
+  [`pr_head()`](https://hui950319.github.io/UtilsR/reference/pr_head.md)
+  also shows a factor piece as its label and a date as a date, where it
+  showed the factor code and the day count.
+
 ## UtilsR 0.6.11
 
 - [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)

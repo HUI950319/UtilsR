@@ -1,11 +1,14 @@
 # Structure tree of a nested result object
 
 Print the elements of a list-based result as a tree, each with a short
-grey description such as `<tibble 12 x 7>`,
-`<chr 3> "Age", "Sex", "Stage"` or `<ggplot>`; clearer than
-[`str()`](https://rdrr.io/r/utils/str.html) for the nested lists that
-analysis functions return. Atomic vectors show their first values, and a
-list left unopened at `max_depth` is marked with an ellipsis.
+description such as `<tibble 12 x 7>`, `<chr 3> "Age", "Sex", "Stage"`
+or `<ggplot>`; clearer than [`str()`](https://rdrr.io/r/utils/str.html)
+for the nested lists that analysis functions return. Atomic vectors show
+their first values, as many as fit the console width, and a list left
+unopened at `max_depth` is marked with an ellipsis. Types and sizes are
+grey, values in the text colour with `NA` in red, and the names of
+elements that hold others bold; a classed list starts with its class as
+a chip.
 
 ## Usage
 

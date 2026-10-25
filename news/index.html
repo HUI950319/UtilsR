@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">UtilsR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.11</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.12</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,6 +48,21 @@
       <small>Source: <a href="https://github.com/HUI950319/UtilsR/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.6.12" id="utilsr-0612">UtilsR 0.6.12<a class="anchor" aria-label="anchor" href="#utilsr-0612"></a></h2>
+<ul><li><p><code><a href="../reference/pr_tree.html">pr_tree()</a></code> shows whole numbers as they are and decimals to three digits past their integer part: rounded to three significant digits, <code>123456L</code> read <code>123000</code> and <code>1234.5678</code> read <code>1230</code>.</p></li>
+<li><p><code><a href="../reference/pr_tree.html">pr_tree()</a></code> names classed vectors as vctrs does, such as <code>&lt;drtn 2&gt;</code> for a difftime, <code>&lt;dbl+lbl 3&gt;</code> for a labelled vector and <code>&lt;int64&gt;</code>, where they read <code>&lt;dbl ...&gt;</code>; a POSIXlt time shows as <code>&lt;dttm&gt;</code> with its value instead of <code>&lt;POSIXlt&gt;</code>.</p></li>
+<li><p><code><a href="../reference/pr_tree.html">pr_tree()</a></code> previews show the names of a named vector (<code>train = 800, test = 200</code>), the value labels of a labelled one (<code>1 [Male]</code>), factor levels without quotes, and formulas, calls and symbols as written (<code>&lt;formula&gt; Surv(time, DSS) ~ Age + Sex</code>), which read only <code>&lt;formula&gt;</code>. <code><a href="../reference/pr_kv.html">pr_kv()</a></code> describes formulas the same way.</p></li>
+<li><p><code><a href="../reference/pr_tree.html">pr_tree()</a></code> previews fill the line up to the console width and end in an ellipsis, where they stopped at 40 characters, or were cut off without one on a narrow console. Lengths and dimensions carry a thousands mark, <code>&lt;int 1,000,000&gt;</code> and <code>&lt;data.frame 12,345 x 7&gt;</code>, in <code><a href="../reference/pr_kv.html">pr_kv()</a></code> too.</p></li>
+<li><p><code><a href="../reference/pr_tree.html">pr_tree()</a></code> colours the parts of a line apart: the type and size stay grey, values take the console’s text colour with <code>NA</code> in red, and the names of elements that hold others are bold. The whole description, values included, used to be grey.</p></li>
+<li><p><code><a href="../reference/pr_tree.html">pr_tree()</a></code> starts with the class chip only for a classed list, the case it is meant for; a plain list, a vector or a data frame no longer repeats its class (<code>&lt;list&gt; &lt;list 3&gt;</code> now reads <code>&lt;list 3&gt;</code>).</p></li>
+<li><p><code><a href="../reference/dot-cat_formula.html">.cat_formula()</a></code> no longer counts a missing outcome value as a level, so a binary outcome with <code>NA</code>s is announced as a Cox model, not a CRR one.</p></li>
+<li><p><code><a href="../reference/dot-cat_message.html">.cat_message()</a></code> prints every element of a character vector, each on its own line; it showed only the first. A zero-length message prints nothing instead of failing with “subscript out of bounds”.</p></li>
+<li><p><code><a href="../reference/pr_box.html">pr_box()</a></code> prints nothing when there is nothing to frame, such as a list whose elements are all <code>NULL</code>, instead of failing with “a character vector argument expected”.</p></li>
+<li><p><code>.cat_message(timestamp_format = NULL)</code> or <code>timestamp_format = ""</code> leaves the timestamp out. An empty format used to fall back to R’s default date-time format, so the timestamp stayed, without its brackets.</p></li>
+<li><p><code><a href="../reference/pr_tree.html">pr_tree()</a></code> stops describing nodes once it reaches <code>max_lines</code> and only counts the rest, so a large nested list prints its first lines at once: a 20 x 20 x 20 list took 2.5 s to print 200 lines, now 0.07 s. The printed lines are unchanged.</p></li>
+<li><p><code><a href="../reference/pr_kv.html">pr_kv()</a></code> and <code><a href="../reference/pr_head.html">pr_head()</a></code> show numbers as <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> does, to <code>getOption("digits")</code> significant digits: <code>1/3</code> read <code>0.333333333333333</code>. <code><a href="../reference/pr_head.html">pr_head()</a></code> also shows a factor piece as its label and a date as a date, where it showed the factor code and the day count.</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.11" id="utilsr-0611">UtilsR 0.6.11<a class="anchor" aria-label="anchor" href="#utilsr-0611"></a></h2>
 <ul><li><p><code><a href="../reference/plt_cat.html">plt_cat()</a></code> and <code><a href="../reference/plt_con.html">plt_con()</a></code> with <code>split.by</code> report the size of the split figure once again. Each panel’s own “plot laid out for” note was captured as printed output, which a <code><a href="../reference/dot-cat_message.html">.cat_message()</a></code> no longer is since it became a cli message, so a figure of three panels showed four notes.</p></li>

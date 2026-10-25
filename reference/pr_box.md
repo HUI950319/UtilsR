@@ -33,7 +33,8 @@ pr_box(x, header = NULL, footer = NULL, col = "cyan")
 
 ## Value
 
-The printed lines, invisibly.
+The printed lines, invisibly. Nothing prints when `x` has no lines, e.g.
+when every element is `NULL`.
 
 ## See also
 

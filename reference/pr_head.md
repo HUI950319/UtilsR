@@ -19,7 +19,9 @@ pr_head(class, ..., bg = "blue", fg = "br_white")
 
   Pieces of the summary, joined by a middle dot. `NULL`, `NA` and empty
   strings are dropped, so optional pieces can be passed as
-  `if (cond) "text"`.
+  `if (cond) "text"`. Numbers show as
+  [`print()`](https://rdrr.io/r/base/print.html) shows them, factors and
+  dates as their labels.
 
 - bg, fg:
 

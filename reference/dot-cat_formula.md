@@ -4,8 +4,8 @@ One
 [`.cat_message()`](https://hui950319.github.io/UtilsR/reference/dot-cat_message.md)
 line naming the model (Cox, CRR or logistic), whether it is adjusted,
 and its formula, e.g. `Cox model, unadjusted: Surv(time, DSS) ~ Sex`.
-The model type comes from the number of distinct outcome levels and
-whether there is a time variable.
+The model type comes from the number of distinct non-missing outcome
+values and whether there is a time variable.
 [`suppressMessages()`](https://rdrr.io/r/base/message.html) silences it.
 
 ## Usage
@@ -66,5 +66,5 @@ formula_data <- data.frame(
   age = c(45, 52, 61, 39)
 )
 .cat_formula(formula_data, co_var = "age")
-#> [2026-10-25 04:03:50]  ℹ Cox model, unadjusted: Surv(time, DSS) ~ age 
+#> [2026-10-25 05:15:50]  ℹ Cox model, unadjusted: Surv(time, DSS) ~ age 
 ```
