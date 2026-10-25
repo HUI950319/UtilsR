@@ -680,6 +680,9 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
       p  <- parts(v)
       nm <- names(p) %||% rep("", length(p))
       nm <- ifelse(is.na(nm) | !nzchar(nm), sprintf("[[%d]]", seq_along(p)), nm)
+      # sibling names padded into a column, as str() lines them up, up to 18
+      wid <- cli::ansi_nchar(nm, type = "width")
+      pad <- min(max(c(0L, wid[seq_len(min(length(p), max_items))])), 18L)
       for (k in seq_len(min(length(p), max_items))) {
         child <- p[[k]]
         h <- slot(shown)
@@ -691,10 +694,10 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
           tag  <- if (length(more)) {
             cli::col_cyan(sprintf("[attr: %s]", paste(more, collapse = ", ")))
           } else ""
-          room <- console_width() - 2L * (depth + 1L) -
-            cli::ansi_nchar(nm[k], type = "width") - 1L -
+          room <- console_width() - 2L * (depth + 1L) - max(wid[k], pad) - 1L -
             (if (nzchar(tag)) cli::ansi_nchar(tag, type = "width") + 1L else 0L)
           name <- if (descend(child) && length(child)) cli::style_bold(nm[k]) else nm[k]
+          name <- paste0(name, strrep(" ", max(pad - wid[k], 0L)))
           child_label <- paste(name, ._obj_desc(child, room, colour = TRUE, inside = closed))
           if (nzchar(tag)) child_label <- paste(child_label, tag)
           # a list left unopened at max_depth; a named one previews its names

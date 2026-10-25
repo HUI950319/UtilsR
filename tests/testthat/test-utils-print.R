@@ -109,6 +109,9 @@ test_that("pr_table() aligns by display width and colours P values", {
   expect_error(pr_table(as.list(df)), "data frame")
 })
 
+# pr_tree() pads sibling names into a column; most tests read one space
+squish <- function(x) gsub("(?<=\\S) {2,}(?=\\S)", " ", x, perl = TRUE)
+
 test_that("pr_tree() shows the structure of a nested result list", {
   withr::local_options(cli.num_colors = 256)
   res <- structure(
@@ -124,7 +127,7 @@ test_that("pr_tree() shows the structure of a nested result list", {
   expect_identical(out, as.character(lines))
   # drop the tree glyphs below the root, which depend on Unicode support
   plain <- cli::ansi_strip(out)
-  plain[-1] <- sub("^[^A-Za-z]*", "", plain[-1])
+  plain[-1] <- squish(sub("^[^A-Za-z]*", "", plain[-1]))
   expect_identical(plain, c(
     " eff_res  <list 3>",
     "Overall <list 2>",
@@ -153,6 +156,13 @@ test_that("pr_tree() shows the structure of a nested result list", {
   many <- cli::ansi_strip(utils::capture.output(pr_tree(as.list(1:30), max_items = 5)))
   expect_length(many, 7L)
   expect_match(many[7], "25 more", fixed = TRUE)
+  # sibling names are padded into a column, up to 18 characters
+  withr::local_options(cli.num_colors = 1, cli.unicode = TRUE)
+  aligned <- utils::capture.output(pr_tree(list(n = 1, outcome = "DSS")))
+  expect_identical(aligned[2:3], c(paste0("\u251c\u2500n", strrep(" ", 7), "<dbl> 1"),
+                                   "\u2514\u2500outcome <chr> \"DSS\""))
+  capped <- utils::capture.output(pr_tree(list(n = 1, a_long_component_name_of_30_chr = 2)))
+  expect_identical(capped[2], paste0("\u251c\u2500n", strrep(" ", 18), "<dbl> 1"))
 })
 
 test_that("pr_box() frames key-value lines under a header and footer", {
@@ -395,14 +405,14 @@ test_that("pr_tree() previews vectors, marks collapsed nodes and caps lines", {
   withr::local_options(cli.num_colors = 1, cli.unicode = TRUE)
   x <- list(terms = c("Age", "Sex", "Stage"), p = c(0.1, 0.25),
             deep = list(a = list(b = 1)))
-  out <- utils::capture.output(pr_tree(x, max_depth = 1))
+  out <- squish(utils::capture.output(pr_tree(x, max_depth = 1)))
   expect_true(any(grepl('terms <chr 3> "Age", "Sex", "Stage"$', out)))
   expect_true(any(grepl("p <dbl 2> 0.1, 0.25$", out)))
   expect_true(any(grepl("deep <list 1> a$", out)))
   # a closed list previews its names and single values; unnamed, an ellipsis
-  closed <- utils::capture.output(pr_tree(structure(
+  closed <- squish(utils::capture.output(pr_tree(structure(
     list(inter = list(RERI = 0.42, S = NA, ci = c(1, 2)), u = list(1, 2)),
-    analysis = list(n = 1000L, outcome = "DSS")), max_depth = 1))
+    analysis = list(n = 1000L, outcome = "DSS")), max_depth = 1)))
   expect_true(any(grepl("inter <list 3> RERI = 0.42, S = NA, ci$", closed)))
   expect_true(any(grepl("u <list 2> \u2026$", closed)))
   expect_true(any(grepl('attr analysis <list 2> n = 1000, outcome = "DSS"$', closed)))
@@ -414,42 +424,43 @@ test_that("pr_tree() previews vectors, marks collapsed nodes and caps lines", {
   tagged <- list(tab = structure(data.frame(a = 1), model_info = "x"),
                  sex = structure(factor("M"), label = "Sex"),
                  when = as.POSIXct("2026-10-25", tz = "UTC"))
-  tags <- utils::capture.output(pr_tree(tagged))
+  tags <- squish(utils::capture.output(pr_tree(tagged)))
   expect_true(any(grepl("tab <data.frame 1 x 1> a \\[attr: model_info\\]$", tags)))
   expect_true(any(grepl("sex <fct, 1 level> M \\[attr: label\\]$", tags)))
   expect_false(any(grepl("[attr:", tags[grepl("when", tags)], fixed = TRUE)))
   expect_false(any(grepl("[attr:", utils::capture.output(pr_tree(tagged, attrs = FALSE)),
                          fixed = TRUE)))
   # a matrix names its element type, a function its arguments
-  kinds <- utils::capture.output(pr_tree(list(
+  kinds <- squish(utils::capture.output(pr_tree(list(
     m = matrix(1:6, 2), tab = table(c("a", "b")), f = function(data, formula, ...) NULL,
-    g = function(a, b, c, d, e) NULL, s = sum)))
+    g = function(a, b, c, d, e) NULL, s = sum))))
   expect_true(any(grepl("m <int matrix 2 x 3>$", kinds)))
   expect_true(any(grepl("tab <int table 2>$", kinds)))
   expect_true(any(endsWith(kinds, "f <fn(data, formula, ...)>")))
   expect_true(any(endsWith(kinds, "g <fn(a, b, c, d, \u2026)>")))
   expect_true(any(endsWith(kinds, "s <fn(..., na.rm)>")))
   # whole numbers as they are, decimals to three digits past the integer part
-  nums <- utils::capture.output(pr_tree(list(n = 123456L, x = 1234.5678, small = 0.0000123)))
+  nums <- squish(utils::capture.output(pr_tree(list(n = 123456L, x = 1234.5678,
+                                                     small = 0.0000123))))
   expect_true(any(grepl("n <int> 123456$", nums)))
   expect_true(any(grepl("x <dbl> 1235$", nums)))
   expect_true(any(grepl("small <dbl> 1.23e-05$", nums)))
   # classed vectors are named as vctrs names them
-  typed <- utils::capture.output(pr_tree(list(
+  typed <- squish(utils::capture.output(pr_tree(list(
     gap = as.difftime(c(1, 2), units = "days"),
     sex = labelled::labelled(c(1, 2), c(Male = 1, Female = 2)),
     when = as.POSIXlt("2026-10-25 12:00:00", tz = "UTC"),
-    grade = factor("high", levels = c("low", "high"), ordered = TRUE))))
+    grade = factor("high", levels = c("low", "high"), ordered = TRUE)))))
   expect_true(any(grepl("gap <drtn 2> 1 days, 2 days$", typed)))
   expect_true(any(grepl("sex <dbl\\+lbl 2> ", typed)))
   expect_true(any(grepl("when <dttm> 2026-10-25 12:00:00$", typed)))
   expect_true(any(grepl("grade <ord, 2 levels> ", typed)))
   # names, value labels and formulas in the preview; factor levels unquoted
-  shown <- utils::capture.output(pr_tree(list(
+  shown <- squish(utils::capture.output(pr_tree(list(
     n = c(train = 800L, test = 200L),
     sex = labelled::labelled(c(1, 2), c(Male = 1, Female = 2)),
     grade = factor(c("low", NA)),
-    model = Surv(time, DSS) ~ Age + Sex, call = quote(f(x)), var = quote(Age))))
+    model = Surv(time, DSS) ~ Age + Sex, call = quote(f(x)), var = quote(Age)))))
   expect_true(any(grepl("n <int 2> train = 800, test = 200$", shown)))
   expect_true(any(grepl("sex <dbl\\+lbl 2> 1 \\[Male\\], 2 \\[Female\\]$", shown)))
   expect_true(any(grepl("grade <fct 2, 1 level> low, NA$", shown)))
@@ -461,9 +472,9 @@ test_that("pr_tree() previews vectors, marks collapsed nodes and caps lines", {
     pr_tree(list(words = paste("word", 1:30), big = 1:1e6,
                  df = data.frame(a = seq_len(12345))))))
   expect_true(all(cli::ansi_nchar(wide, type = "width") <= 50))
-  expect_match(wide[2], 'words <chr 30> "word 1", .*\u2026$')
-  expect_true(any(grepl("big <int 1,000,000> 1, 2, 3", wide)))
-  expect_true(any(grepl("df <data.frame 12,345 x 1>", wide)))
+  expect_match(squish(wide[2]), 'words <chr 30> "word 1", .*\u2026$')
+  expect_true(any(grepl("big <int 1,000,000> 1, 2, 3", squish(wide))))
+  expect_true(any(grepl("df <data.frame 12,345 x 1>", squish(wide))))
   # a data frame left closed lists its columns; pr_kv() keeps to the size
   cols <- utils::capture.output(pr_tree(list(tab = data.frame(term = "Age", HR = 1.8, p = 0.01))))
   expect_true(any(grepl("tab <data.frame 1 x 3> term, HR, p$", cols)))
@@ -483,7 +494,7 @@ test_that("pr_tree() previews vectors, marks collapsed nodes and caps lines", {
 test_that("pr_tree() opens the object it is given", {
   withr::local_options(cli.num_colors = 1, cli.unicode = TRUE)
   fit <- lm(mpg ~ wt, mtcars)
-  out <- utils::capture.output(pr_tree(fit, max_depth = 1))
+  out <- squish(utils::capture.output(pr_tree(fit, max_depth = 1)))
   expect_identical(out[1], "<lm> <list 12>")
   expect_true(any(grepl("coefficients <dbl 2> \\(Intercept\\) = 37.3, wt = -5.34$", out)))
   df <- utils::capture.output(pr_tree(data.frame(age = c(40L, 50L), sex = c("F", "M"))))
@@ -491,7 +502,7 @@ test_that("pr_tree() opens the object it is given", {
                          "\u2514\u2500sex <chr 2> \"F\", \"M\""))
   gen <- methods::setClass("PrTreeRes", representation(table = "data.frame", n = "numeric"),
                            where = new.env())
-  s4 <- utils::capture.output(pr_tree(gen(table = data.frame(a = 1:2), n = 10)))
+  s4 <- squish(utils::capture.output(pr_tree(gen(table = data.frame(a = 1:2), n = 10))))
   expect_identical(s4[1], "<PrTreeRes> <S4 2>")
   expect_true(any(grepl("@table <data.frame 2 x 1>", s4, fixed = TRUE)))
   expect_true(any(grepl("@n <dbl> 10$", s4)))
@@ -510,7 +521,7 @@ test_that("pr_tree() keeps rendered objects closed and names R6 objects", {
   learner <- structure(new.env(), class = c("LearnerSurvRanger", "Learner", "R6"))
   out <- utils::capture.output(pr_tree(list(gt = gt, view = page, tags = tags,
                                            learner = learner, env = new.env())))
-  out <- sub("^[^A-Za-z]*", "", out[-1])
+  out <- squish(sub("^[^A-Za-z]*", "", out[-1]))
   expect_identical(out, c("gt <gt_tbl>", "view <fmt_page>", "tags <shiny.tag.list>",
                           "learner <LearnerSurvRanger>", "env <env>"))
   expect_identical(utils::capture.output(pr_kv(list(learner = learner))),

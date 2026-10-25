@@ -1,5 +1,9 @@
 # UtilsR 0.6.12
 
+* `pr_tree()` pads the names of siblings to a common width, up to 18
+  characters, so their descriptions start in one column, as `str()` and
+  `pr_kv()` line them up.
+
 * `pr_tree()` names the attributes a closed node carries at the end of its
   line, such as `[attr: model_info]` on a result table or `[attr: plot_size]`
   on a plot, leaving out those its type keeps for itself (factor levels, a
