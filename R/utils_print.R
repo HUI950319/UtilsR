@@ -273,13 +273,23 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 
 # ------------- pr_table -----------------------------------------------------
 
-# P values -> cells: numbers take stat_pval()'s "<0.001" wording, text keeps
-# its own; bold red below 0.001, red below 0.05, grey otherwise. A bound such
-# as "<0.05" counts as below its endpoint.
+# P values -> cells: numbers take stat_pval()'s "<0.001" wording, with more
+# decimals where it would round up to 0.05 or 0.01, text keeps its own; bold
+# red below 0.001, red below 0.05, grey otherwise. A bound such as "<0.05"
+# counts as below its endpoint.
 ._p_cells <- function(v) {
   if (is.numeric(v)) {
     num <- v
     txt <- stat_pval(v, mode = "pvalue")
+    # a value just under 0.05 or 0.01 rounds up to it (0.0499 -> "0.050"):
+    # more decimals, so the text agrees with its colour and stars
+    for (d in 4:6) {
+      shown <- suppressWarnings(as.numeric(txt))
+      up <- which(!is.na(shown) & ((v < 0.05 & shown >= 0.05) |
+                                     (v < 0.01 & shown >= 0.01)))
+      if (!length(up)) break
+      txt[up] <- formatC(v[up], format = "f", digits = d)
+    }
     below <- rep(FALSE, length(v))
   } else {
     txt   <- trimws(as.character(v))
@@ -309,6 +319,8 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 #'
 #' Cells are formatted as follows. P-value columns: numbers take the
 #' \code{\link{stat_pval}(mode = "pvalue")} wording (\code{"<0.001"}),
+#' a number just under 0.05 or 0.01 that this wording would round up to the
+#' cut-off taking the decimals it needs (\code{0.0499}, not \code{0.050}),
 #' text is kept as written, and values print bold red below 0.001, red below
 #' 0.05 and grey otherwise. Other double columns are rounded to
 #' \code{digits} decimals, or none when every value is whole; a column whose

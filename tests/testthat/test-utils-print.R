@@ -267,6 +267,14 @@ test_that("pr_table() fits the line width and caps the rows", {
   expect_length(utils::capture.output(pr_table(data.frame(i = 1:30), n = NULL)), 32L)
 })
 
+test_that("pr_table() shows a P value just under a cut-off with the decimals it needs", {
+  withr::local_options(cli.num_colors = 1)
+  out <- utils::capture.output(pr_table(data.frame(
+    P = c(0.0499, 0.05, 0.00999, 0.01, 0.04999, 0.21)), p_col = "P"))
+  expect_identical(trimws(out[3:8]), c("0.0499*", "0.050", "0.00999**", "0.010*",
+                                       "0.04999*", "0.210"))
+})
+
 test_that("pr_table() gives tiny values enough decimals", {
   withr::local_options(cli.num_colors = 1)
   out <- utils::capture.output(pr_table(data.frame(beta = c(0.0003, -1.234),

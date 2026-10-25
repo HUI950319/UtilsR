@@ -54,6 +54,10 @@
   `0.333333333333333`. `pr_head()` also shows a factor piece as its label
   and a date as a date, where it showed the factor code and the day count.
 
+* `pr_table()` shows a P value just under 0.05 or 0.01 with the decimals
+  it needs, `0.0499*` rather than `0.050*`: rounded to three decimals it
+  read as the cut-off, beside a `0.050` with no star.
+
 # UtilsR 0.6.11
 
 * `plt_cat()` and `plt_con()` with `split.by` report the size of the split

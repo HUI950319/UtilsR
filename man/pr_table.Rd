@@ -51,6 +51,8 @@ chosen rows can be highlighted.
 \details{
 Cells are formatted as follows. P-value columns: numbers take the
 \code{\link{stat_pval}(mode = "pvalue")} wording (\code{"<0.001"}),
+a number just under 0.05 or 0.01 that this wording would round up to the
+cut-off taking the decimals it needs (\code{0.0499}, not \code{0.050}),
 text is kept as written, and values print bold red below 0.001, red below
 0.05 and grey otherwise. Other double columns are rounded to
 \code{digits} decimals, or none when every value is whole; a column whose
