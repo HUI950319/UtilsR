@@ -136,6 +136,11 @@ test_that("pr_tree() shows the structure of a nested result list", {
   ))
   expect_match(out[1], "\033[44m", fixed = TRUE)
   expect_match(out[7], "\033[36mattr", fixed = TRUE)
+  # values in the text colour and NA in red, types grey, branches bold
+  coloured <- utils::capture.output(pr_tree(list(p = c(0.1, NA), sub = list(a = 1))))
+  expect_match(coloured[2], "\033[90m<dbl 2>\033[39m 0.1", fixed = TRUE)
+  expect_match(coloured[2], "\033[31mNA\033[39m", fixed = TRUE)
+  expect_match(coloured[3], "\033[1msub\033[22m", fixed = TRUE)
 
   expect_length(utils::capture.output(pr_tree(res, attrs = FALSE)), 6L)
   deep <- list(a = list(b = list(c = list(d = 1))))

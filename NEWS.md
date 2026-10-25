@@ -20,6 +20,11 @@
   one on a narrow console. Lengths and dimensions carry a thousands mark,
   `<int 1,000,000>` and `<data.frame 12,345 x 7>`, in `pr_kv()` too.
 
+* `pr_tree()` colours the parts of a line apart: the type and size stay
+  grey, values take the console's text colour with `NA` in red, and the
+  names of elements that hold others are bold. The whole description,
+  values included, used to be grey.
+
 * `.cat_formula()` no longer counts a missing outcome value as a level, so
   a binary outcome with `NA`s is announced as a Cox model, not a CRR one.
 
