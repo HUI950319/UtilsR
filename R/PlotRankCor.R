@@ -415,9 +415,13 @@ PlotRankCor <- function(
 
   # ---- Save ----
   if (!is.null(filename)) {
+    # measured before writing, which creates the file
+    existed <- file.exists(filename)
     ggplot2::ggsave(filename, p,
                     width = width, height = height, dpi = 300, bg = "white")
-    cli::cli_alert_success("Plot saved to {.file {filename}}")
+    .cat_saved("PlotRankCor: the plot has been saved to", filename,
+               sprintf("%sx%s in", format(width), format(height)), existed,
+               toupper(tools::file_ext(filename)))
   }
 
   attr(p, "cor_results") <- cor_results

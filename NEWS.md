@@ -77,6 +77,11 @@
   identifier, as `<n> unique values` instead of tabulating it: 1e5
   identifiers took 0.1 s to draw a flat line of single counts.
 
+* `PlotButterfly()`, `PlotButterfly2()` and `PlotRankCor()` announce a
+  saved plot with `.cat_saved()`, as the other plotting functions do:
+  `PlotRankCor: the plot has been saved to: <path> [7x5 in, new PDF]`,
+  in place of `Plot saved to <path>`.
+
 # UtilsR 0.6.11
 
 * `plt_cat()` and `plt_con()` with `split.by` report the size of the split

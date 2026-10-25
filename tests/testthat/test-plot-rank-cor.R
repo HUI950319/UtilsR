@@ -42,6 +42,23 @@ test_that("the correlations print as a table named after the coefficient", {
   expect_true(any(grepl("^  group +r +P$", run(use_rank = FALSE))))
 })
 
+test_that("a saved rank correlation plot is announced with its size and the file state", {
+  # no missing score, whose dropped point ggsave() would warn about
+  dat <- rank_cor_data()
+  dat$score[is.na(dat$score)] <- 1
+  path <- withr::local_tempfile(fileext = ".pdf")
+  saved <- function() {
+    out <- cli::cli_fmt(utils::capture.output(PlotRankCor(
+      dat, stat.by = "item", value.by = "score", method.by = "method",
+      show.label = FALSE, filename = path, width = 6, height = 4)))
+    gsub("\\s+", " ", paste(cli::ansi_strip(out), collapse = " "))
+  }
+  first <- saved()
+  expect_match(first, "PlotRankCor: the plot has been saved to:", fixed = TRUE)
+  expect_match(first, "[6x4 in, new PDF]", fixed = TRUE)
+  expect_match(saved(), "[6x4 in, replaced the existing PDF]", fixed = TRUE)
+})
+
 test_that("minmax scaling preserves missing values and handles empty ranges", {
   dat <- rank_cor_data()
   dat$score[dat$method == "M1"] <- c(5, 5, NA, NA)

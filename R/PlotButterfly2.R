@@ -478,10 +478,14 @@ PlotButterfly2 <- function(
 
   # ---- Save ----
   if (!is.null(filename)) {
+    # measured before writing, which creates the file
+    existed <- file.exists(filename)
     ggplot2::ggsave(filename, combined,
                     width = width, height = height,
                     dpi = 300, bg = "white")
-    cli::cli_alert_success("Plot saved to {.file {filename}}")
+    .cat_saved("PlotButterfly2: the plot has been saved to", filename,
+               sprintf("%sx%s in", format(width), format(height)), existed,
+               toupper(tools::file_ext(filename)))
   }
 
   combined
