@@ -21,6 +21,7 @@
 #   L2  shared internals
 #         ._chip()       short label on a solid background (utils_display.R)
 #         ._kv_lines()   named values -> aligned "key  value" lines
+#         ._as_text()    values -> text, numbers as print() shows them
 #         ._p_cells()    P values -> coloured cells (stat_pval() wording)
 #         ._obj_desc()   object -> short "<type size>" description
 #         ._pr_colour()  does stdout show ANSI colours?
@@ -51,6 +52,14 @@
   invisible(lines)
 }
 
+# Values -> text: doubles to getOption("digits") significant digits, as
+# print() shows them (as.character() writes 15: 1/3 -> 0.333333333333333);
+# factors, dates and other classed vectors through their as.character()
+._as_text <- function(v) {
+  if (is.double(v) && !is.object(v)) v <- signif(v, getOption("digits", 7L))
+  as.character(v)
+}
+
 # Named values -> "key  value" lines with grey keys aligned by display width,
 # so wide (CJK) keys line up. NULL values are dropped, atomic vectors joined
 # with ", " (the first 20 items, then the count), and other objects described
@@ -67,7 +76,7 @@
   keys <- keys[keep]
   vals <- vapply(x[keep], function(v) {
     if (!is.atomic(v)) return(._obj_desc(v))
-    v <- as.character(v)
+    v <- ._as_text(v)
     if (length(v) > 20L) {
       v <- c(v[1:20], sprintf("%s (%d)", cli::symbol$ellipsis, length(v)))
     }
@@ -97,7 +106,8 @@
 #'   \code{class(x)[1]}.
 #' @param ... Pieces of the summary, joined by a middle dot. \code{NULL},
 #'   \code{NA} and empty strings are dropped, so optional pieces can be
-#'   passed as \code{if (cond) "text"}.
+#'   passed as \code{if (cond) "text"}. Numbers show as \code{print()}
+#'   shows them, factors and dates as their labels.
 #' @param bg,fg Background and text colour of the chip: anything
 #'   \code{cli::make_ansi_style()} accepts, i.e. an ANSI colour name such as
 #'   \code{"blue"} or \code{"br_white"}, an R colour name or a hex code.
@@ -114,7 +124,9 @@
 #' @export
 #' @family print helpers
 pr_head <- function(class, ..., bg = "blue", fg = "br_white") {
-  parts <- as.character(unlist(list(...), use.names = FALSE))
+  # piece by piece: unlist() would turn a factor into its codes and a date
+  # into a day count
+  parts <- unlist(lapply(list(...), ._as_text), use.names = FALSE)
   parts <- parts[!is.na(parts) & nzchar(parts)]
   line  <- ._pr_label(class, cli::make_ansi_style(bg, bg = TRUE),
                       cli::make_ansi_style(fg))
@@ -133,7 +145,8 @@ pr_head <- function(class, ..., bg = "blue", fg = "br_white") {
 #'
 #' @param x A named list or named vector. \code{NULL} elements are dropped,
 #'   so optional settings can be passed as they are; atomic values are
-#'   joined with \code{", "} (the first 20 items, then the count) and
+#'   joined with \code{", "} (the first 20 items, then the count;
+#'   numbers as \code{print()} shows them) and
 #'   other objects are described by type and size, e.g.
 #'   \code{<data.frame 6 x 11>} or \code{<lm>}. Long values
 #'   wrap at the console width under the value column, as do the lines of a

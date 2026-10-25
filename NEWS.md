@@ -40,6 +40,11 @@
   a 20 x 20 x 20 list took 2.5 s to print 200 lines, now 0.07 s. The
   printed lines are unchanged.
 
+* `pr_kv()` and `pr_head()` show numbers as `print()` does, to
+  `getOption("digits")` significant digits: `1/3` read
+  `0.333333333333333`. `pr_head()` also shows a factor piece as its label
+  and a date as a date, where it showed the factor code and the day count.
+
 # UtilsR 0.6.11
 
 * `plt_cat()` and `plt_con()` with `split.by` report the size of the split
