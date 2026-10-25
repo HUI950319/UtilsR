@@ -1,5 +1,9 @@
 # UtilsR 0.6.12
 
+* A `pr_tree()` line still too wide for a narrow console, such as a data
+  frame with an attribute tag, ends in an ellipsis; `cli::tree()` cut it
+  off without one, leaving `term, HR [` at 40 columns.
+
 * `pr_tree()` says what it left out: `... 25 more` goes on with the names
   of the elements it skipped (`... 25 more: e6, e7, e8, ...`), and the
   footer names the argument that cut the lines

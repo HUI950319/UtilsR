@@ -710,6 +710,10 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
               is.null(names(child))) {
             child_label <- paste(child_label, cli::col_grey(cli::symbol$ellipsis))
           }
+          # what still overflows a narrow console (a type and an attribute tag
+          # wider than the line) ends in an ellipsis; cli::tree() cut it bare
+          child_label <- cli::ansi_strtrim(child_label,
+                                           max(console_width() - 2L * (depth + 1L), 10L))
         }
         kid <- node(child, paste0(id, "/", k), child_label, depth + 1, h)
         if (h != "count") kids <- c(kids, kid)

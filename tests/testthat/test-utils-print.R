@@ -420,6 +420,11 @@ test_that("pr_tree() previews vectors, marks collapsed nodes and caps lines", {
   expect_true(any(grepl("inter <list 3> RERI = 0.42, S = NA, ci$", closed)))
   expect_true(any(grepl("u <list 2> \u2026$", closed)))
   expect_true(any(grepl('attr analysis <list 2> n = 1000, outcome = "DSS"$', closed)))
+  # a line that still overflows a narrow console ends in an ellipsis
+  narrow <- withr::with_options(list(width = 30, cli.width = 30), utils::capture.output(
+    pr_tree(list(tab = structure(data.frame(term = "Age", HR = 1.8), model_info = "Cox")))))
+  expect_true(all(cli::ansi_nchar(narrow, type = "width") <= 30))
+  expect_match(narrow[2], "\u2026$")
   # a cut vector ends in an ellipsis, also when its first values fit the line
   cut <- withr::with_options(list(width = 100, cli.width = 100),
                              utils::capture.output(pr_tree(list(ids = 1:100))))
