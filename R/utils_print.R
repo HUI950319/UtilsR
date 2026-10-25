@@ -209,7 +209,8 @@ pr_section <- function(title, width = NULL) {
 #' \code{{.help pkg::fun}} become clickable links. Double literal braces, as
 #' in \code{"{{x}}"}. Text that cli cannot parse, such as data that
 #' contains braces, is printed as written instead of failing the print.
-#' Long notes wrap at the console width, every line starting with \code{#}.
+#' Long notes wrap at the console width, every line starting with \code{#};
+#' a \code{"\\n"} starts a new line.
 #'
 #' @param ... Character pieces of the note, pasted together.
 #' @param .envir Environment in which \code{{}} expressions are evaluated;
@@ -226,9 +227,14 @@ pr_section <- function(title, width = NULL) {
 #' @family print helpers
 pr_note <- function(..., .envir = parent.frame()) {
   raw  <- paste0(...)
-  text <- tryCatch(cli::format_inline(raw, .envir = .envir),
-                   error = function(e) raw)
-  body <- cli::ansi_strwrap(text, width = max(20, console_width() - 2))
+  # line by line: format_inline() and ansi_strwrap() would join the lines
+  segs <- unlist(lapply(strsplit(raw, "\n", fixed = TRUE),
+                        function(s) if (length(s)) s else ""))
+  body <- unlist(lapply(segs, function(s) {
+    text <- tryCatch(cli::format_inline(s, .envir = .envir), error = function(e) s)
+    if (nzchar(text)) as.character(cli::ansi_strwrap(text, width = max(20, console_width() - 2)))
+    else ""
+  }))
   ._pr_out(cli::col_grey(cli::style_italic(paste("#", body))))
 }
 

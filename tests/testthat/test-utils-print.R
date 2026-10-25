@@ -325,6 +325,14 @@ test_that("pr_kv() and pr_box() wrap long values under the value column", {
   expect_gt(length(box), 3L)
 })
 
+test_that("pr_note() starts a new line at each newline", {
+  withr::local_options(cli.num_colors = 1)
+  k <- 2
+  expect_identical(utils::capture.output(pr_note("first {k}\nsecond")),
+                   c("# first 2", "# second"))
+  expect_identical(utils::capture.output(pr_note("a {I}\nb")), c("# a {I}", "# b"))
+})
+
 test_that("pr_note() wraps long notes with a # on every line", {
   withr::local_options(cli.num_colors = 1, cli.width = 40)
   note <- paste(rep("A long caveat about the estimand.", 4), collapse = " ")

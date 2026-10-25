@@ -67,6 +67,9 @@
   ellipsis: long variable labels made the table overflow `width`, as the
   first and the P-value columns always show.
 
+* `pr_note()` starts a new line at each `"\n"`, as `pr_kv()` does;
+  the lines of a note were joined with a space.
+
 # UtilsR 0.6.11
 
 * `plt_cat()` and `plt_con()` with `split.by` report the size of the split
