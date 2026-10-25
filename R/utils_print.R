@@ -517,8 +517,21 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
     room <- max(width - cli::ansi_nchar(head, type = "width") - 1L, 10L)
     return(paste(g(head), cli::ansi_strtrim(paste(names(v), collapse = g(", ")), room)))
   }
-  if (!is.null(dim(v))) return(g(sprintf("<%s %s>", cls, paste(big(dim(v)), collapse = " x "))))
-  if (is.function(v)) return(g("<fn>"))
+  if (!is.null(dim(v))) {
+    # an atomic matrix or table with its element type: <int matrix 2 x 3>
+    abbr <- if (is.atomic(v)) {
+      tryCatch(vctrs::vec_ptype_abbr(as.vector(unclass(v))), error = function(e) NULL)
+    }
+    return(g(sprintf("<%s %s>", paste(c(abbr, cls), collapse = " "),
+                     paste(big(dim(v)), collapse = " x "))))
+  }
+  if (is.function(v)) {
+    # its arguments, as lobstr::tree() shows them; args() reads a primitive's
+    a <- names(formals(if (is.primitive(v)) args(v) else v))
+    if (length(a) > 4L) a <- c(a[1:4], cli::symbol$ellipsis)
+    return(g(if (is.null(a) && is.primitive(v)) "<fn>" else
+      sprintf("<fn(%s)>", paste(a, collapse = ", "))))
+  }
   # a classed environment, such as an R6 learner, is named by its class
   if (is.environment(v)) return(g(if (is.object(v)) sprintf("<%s>", cls) else "<env>"))
   if (is.list(v)) {

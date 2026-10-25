@@ -406,6 +406,15 @@ test_that("pr_tree() previews vectors, marks collapsed nodes and caps lines", {
   expect_true(any(grepl("inter <list 3> RERI = 0.42, S = NA, ci$", closed)))
   expect_true(any(grepl("u <list 2> \u2026$", closed)))
   expect_true(any(grepl('attr analysis <list 2> n = 1000, outcome = "DSS"$', closed)))
+  # a matrix names its element type, a function its arguments
+  kinds <- utils::capture.output(pr_tree(list(
+    m = matrix(1:6, 2), tab = table(c("a", "b")), f = function(data, formula, ...) NULL,
+    g = function(a, b, c, d, e) NULL, s = sum)))
+  expect_true(any(grepl("m <int matrix 2 x 3>$", kinds)))
+  expect_true(any(grepl("tab <int table 2>$", kinds)))
+  expect_true(any(endsWith(kinds, "f <fn(data, formula, ...)>")))
+  expect_true(any(endsWith(kinds, "g <fn(a, b, c, d, \u2026)>")))
+  expect_true(any(endsWith(kinds, "s <fn(..., na.rm)>")))
   # whole numbers as they are, decimals to three digits past the integer part
   nums <- utils::capture.output(pr_tree(list(n = 123456L, x = 1234.5678, small = 0.0000123)))
   expect_true(any(grepl("n <int> 123456$", nums)))

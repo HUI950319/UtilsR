@@ -13,6 +13,11 @@
   `attr analysis <list 2> n = 1000, outcome = "DSS"` read
   `attr analysis <list 2>`. An unnamed list keeps the ellipsis.
 
+* `pr_tree()` names the element type of a matrix or table
+  (`<int matrix 2 x 3>`) and the arguments of a function
+  (`<fn(data, formula, ...)>`, the first four), which read `<matrix 2 x 3>`
+  and `<fn>`.
+
 * `pr_tree()` shows whole numbers as they are and decimals to three digits
   past their integer part: rounded to three significant digits, `123456L`
   read `123000` and `1234.5678` read `1230`.
