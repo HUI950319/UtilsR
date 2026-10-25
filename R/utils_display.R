@@ -19,24 +19,23 @@
 #         show_color(x, rev)               colour swatches in the console
 #
 #   L2  shared internals
-#         ._type_cfg()     type -> symbol / colour / ANSI background
+#         ._type_cfg()     type -> symbol / colour
 #         ._cli_bg()       type -> cli background style
 #         ._cli_fg()       type -> cli text colour on that background
 #         ._chip()         short bold label on a solid background
-#         ._ansi_styled()  wrap text in an ANSI background
 #         console_width()  terminal width, with a fallback
 # =============================================================================
 
 # ------------- Shared internals ---------------------------------------------
 
-# Type configuration: symbol, border_col, line_col, ANSI bg and text codes
+# Type configuration: symbol and colour
 ._type_cfg <- function(type = c("info", "success", "warning", "error")) {
   type <- match.arg(type)
   cfg <- list(
-    info    = list(symbol = "\u2139", col = "cyan",   ansi_bg = "\033[46m", ansi_fg = "\033[97m"),
-    success = list(symbol = "\u2713", col = "green",  ansi_bg = "\033[42m", ansi_fg = "\033[97m"),
-    warning = list(symbol = "\u26A0", col = "yellow", ansi_bg = "\033[43m", ansi_fg = "\033[30m"),
-    error   = list(symbol = "\u2717", col = "red",    ansi_bg = "\033[41m", ansi_fg = "\033[97m")
+    info    = list(symbol = "\u2139", col = "cyan"),
+    success = list(symbol = "\u2713", col = "green"),
+    warning = list(symbol = "\u26A0", col = "yellow"),
+    error   = list(symbol = "\u2717", col = "red")
   )
   c(cfg[[type]], list(type = type))
 }
@@ -61,11 +60,6 @@
 # `bg` and `fg` are cli ANSI style functions.
 ._chip <- function(text, bg, fg) {
   cli::combine_ansi_styles(bg, fg, "bold")(paste0(" ", text, " "))
-}
-
-# ANSI bold + text colour + bg helper (single line)
-._ansi_styled <- function(text, ansi_bg, ansi_fg = "\033[97m") {
-  paste0(ansi_bg, " \033[1m", ansi_fg, text, " \033[0m")
 }
 
 # ------------- console_width ------------------------------------------------
@@ -101,23 +95,15 @@ console_width <- function() {
   cfg <- ._type_cfg(match.arg(type))
   label <- paste(cfg$symbol, text, cfg$symbol)
 
-  tryCatch({
-    bg <- ._cli_bg(cfg$type)
-    styled <- cli::style_bold(._cli_fg(cfg$type)(label))
-    cli::cat_rule(
-      center   = bg(paste(" ", styled, " ")),
-      line     = line_char,
-      line_col = cfg$col,
-      width    = width
-    )
-  }, error = function(e) {
-    # ANSI fallback
-    tw   <- nchar(label) + 4
-    half <- (width - tw) / 2
-    ll   <- paste(rep(line_char, max(floor(half), 0)), collapse = "")
-    rl   <- paste(rep(line_char, max(ceiling(half), 0)), collapse = "")
-    cat(ll, ._ansi_styled(label, cfg$ansi_bg, cfg$ansi_fg), rl, "\n", sep = "")
-  })
+  # no hand-written ANSI fallback: cli copes with any width (2026-10-25)
+  bg <- ._cli_bg(cfg$type)
+  styled <- cli::style_bold(._cli_fg(cfg$type)(label))
+  cli::cat_rule(
+    center   = bg(paste(" ", styled, " ")),
+    line     = line_char,
+    line_col = cfg$col,
+    width    = width
+  )
   invisible()
 }
 
@@ -141,28 +127,17 @@ console_width <- function() {
   cfg <- ._type_cfg(match.arg(type))
   label <- paste(cfg$symbol, cat_text, cfg$symbol)
 
-  tryCatch({
-    bg <- ._cli_bg(cfg$type)
-    styled <- cli::style_bold(bg(._cli_fg(cfg$type)(label)))
-    cli::cat_boxx(
-      styled,
-      padding      = 1,
-      border_style = "round",
-      float        = "center",
-      align        = "center",
-      border_col   = cfg$col,
-      background_col = paste0("bg_", cfg$col)
-    )
-  }, error = function(e) {
-    # ANSI fallback: simple bracketed box
-    w <- console_width()
-    rule <- paste(rep("\u2500", w), collapse = "")
-    cat(rule, "\n", sep = "")
-    pad <- max((w - nchar(label) - 4) %/% 2, 0)
-    cat(paste(rep(" ", pad), collapse = ""),
-        ._ansi_styled(label, cfg$ansi_bg, cfg$ansi_fg), "\n", sep = "")
-    cat(rule, "\n", sep = "")
-  })
+  bg <- ._cli_bg(cfg$type)
+  styled <- cli::style_bold(bg(._cli_fg(cfg$type)(label)))
+  cli::cat_boxx(
+    styled,
+    padding      = 1,
+    border_style = "round",
+    float        = "center",
+    align        = "center",
+    border_col   = cfg$col,
+    background_col = paste0("bg_", cfg$col)
+  )
   invisible()
 }
 
@@ -226,44 +201,32 @@ console_width <- function() {
     if (wrap && nzchar(l)) as.character(cli::ansi_strwrap(l, width = avail)) else l
   }))
 
-  tryCatch({
-    bg    <- ._cli_bg(cfg$type)
-    fg    <- ._cli_fg(cfg$type)
-    ts_col <- if (nzchar(ts)) paste0(cli::col_magenta(ts), " ") else ""
+  bg    <- ._cli_bg(cfg$type)
+  fg    <- ._cli_fg(cfg$type)
+  ts_col <- if (nzchar(ts)) paste0(cli::col_magenta(ts), " ") else ""
 
-    out <- character(length(lines))
-    if (style == "chip") {
-      label <- c(info = "INFO", success = "DONE",
-                 warning = "WARN", error = "FAIL")[[cfg$type]]
-      lead  <- paste0(if (nzchar(ts)) paste0(cli::col_grey(ts), " "),
-                      ._chip(label, bg, fg), " ")
-      # continuation lines start under the text: timestamp, space, chip, space
-      out   <- paste0(c(lead, rep(strrep(" ", ts_w + nchar(label) + 3),
-                                  length(lines) - 1L)), lines)
-    } else for (i in seq_along(lines)) {
-      body <- if (i == 1L) {
-        paste0(" ", cli::style_bold(fg(cfg$symbol)), " ",
-               cli::style_bold(fg(lines[i])), " ")
-      } else {
-        paste0(" ", cli::style_bold(fg(lines[i])), " ")
-      }
-      prefix <- if (i == 1L) ts_col else strrep(" ", ts_w + 2)
-      out[i] <- paste0(prefix, bg(body))
+  out <- character(length(lines))
+  if (style == "chip") {
+    label <- c(info = "INFO", success = "DONE",
+               warning = "WARN", error = "FAIL")[[cfg$type]]
+    lead  <- paste0(if (nzchar(ts)) paste0(cli::col_grey(ts), " "),
+                    ._chip(label, bg, fg), " ")
+    # continuation lines start under the text: timestamp, space, chip, space
+    out   <- paste0(c(lead, rep(strrep(" ", ts_w + nchar(label) + 3),
+                                length(lines) - 1L)), lines)
+  } else for (i in seq_along(lines)) {
+    body <- if (i == 1L) {
+      paste0(" ", cli::style_bold(fg(cfg$symbol)), " ",
+             cli::style_bold(fg(lines[i])), " ")
+    } else {
+      paste0(" ", cli::style_bold(fg(lines[i])), " ")
     }
-    # A cli message rather than cat(), so suppressMessages() silences it;
-    # cli_verbatim() keeps the text as is, without glue interpolation.
-    cli::cli_verbatim(out)
-  }, error = function(e) {
-    # ANSI fallback
-    out <- character(length(lines))
-    for (i in seq_along(lines)) {
-      body <- if (i == 1L) paste(cfg$symbol, lines[i]) else lines[i]
-      prefix <- if (i > 1L) strrep(" ", ts_w + 2) else
-        if (nzchar(ts)) paste0("\033[90m", ts, "\033[0m ") else ""
-      out[i] <- paste0(prefix, ._ansi_styled(body, cfg$ansi_bg, cfg$ansi_fg))
-    }
-    message(paste(out, collapse = "\n"))
-  })
+    prefix <- if (i == 1L) ts_col else strrep(" ", ts_w + 2)
+    out[i] <- paste0(prefix, bg(body))
+  }
+  # A cli message rather than cat(), so suppressMessages() silences it;
+  # cli_verbatim() keeps the text as is, without glue interpolation.
+  cli::cli_verbatim(out)
   invisible()
 }
 
