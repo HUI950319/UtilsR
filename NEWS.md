@@ -15,6 +15,11 @@
   symbols as written (`<formula> Surv(time, DSS) ~ Age + Sex`), which read
   only `<formula>`. `pr_kv()` describes formulas the same way.
 
+* `pr_tree()` previews fill the line up to the console width and end in an
+  ellipsis, where they stopped at 40 characters, or were cut off without
+  one on a narrow console. Lengths and dimensions carry a thousands mark,
+  `<int 1,000,000>` and `<data.frame 12,345 x 7>`, in `pr_kv()` too.
+
 * `.cat_formula()` no longer counts a missing outcome value as a level, so
   a binary outcome with `NA`s is announced as a Cox model, not a CRR one.
 

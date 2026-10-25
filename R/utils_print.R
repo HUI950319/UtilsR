@@ -427,17 +427,18 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, n = 20, align = NULL,
 
 # Short description of an object: "<tibble 12 x 7>", "<ggplot>"; atomic
 # values follow their type, e.g. <chr> "cox" or <chr 3> "Age", "Sex", "Stage"
-# (the first 10 values, cut at 40 characters).
-._obj_desc <- function(v) {
+# (the first 10 values, the description cut to `width` characters).
+._obj_desc <- function(v, width = 80) {
   if (is.null(v)) return("<NULL>")
+  big <- function(n) format(n, big.mark = ",", scientific = FALSE, trim = TRUE)
   # a POSIXlt time is a list underneath; show the time it holds
   if (inherits(v, "POSIXlt")) v <- as.POSIXct(v)
   cls <- class(v)[1]
   if (is.data.frame(v)) {
     lab <- if (inherits(v, "tbl_df")) "tibble" else cls
-    return(sprintf("<%s %d x %d>", lab, nrow(v), ncol(v)))
+    return(sprintf("<%s %s x %s>", lab, big(nrow(v)), big(ncol(v))))
   }
-  if (!is.null(dim(v))) return(sprintf("<%s %s>", cls, paste(dim(v), collapse = " x ")))
+  if (!is.null(dim(v))) return(sprintf("<%s %s>", cls, paste(big(dim(v)), collapse = " x ")))
   if (is.function(v)) return("<fn>")
   # a classed environment, such as an R6 learner, is named by its class
   if (is.environment(v)) return(if (is.object(v)) sprintf("<%s>", cls) else "<env>")
@@ -445,7 +446,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, n = 20, align = NULL,
     if (is.object(v) && (!inherits(v, "list") || inherits(v, ._tree_leaf))) {
       return(sprintf("<%s>", cls))
     }
-    return(sprintf("<%s %d>", if (is.object(v)) cls else "list", length(v)))
+    return(sprintf("<%s %s>", if (is.object(v)) cls else "list", big(length(v))))
   }
   if (is.atomic(v)) {
     # vctrs names classed vectors as well: drtn, dbl+lbl, int64, ord
@@ -472,16 +473,18 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, n = 20, align = NULL,
     }
     nm <- names(first)
     if (!is.null(nm)) vals <- ifelse(is.na(nm) | !nzchar(nm), vals, paste(nm, "=", vals))
-    if (!length(vals)) return(sprintf("<%s 0>", abbr))
-    preview <- cli::ansi_strtrim(paste(vals, collapse = ", "), 40)
-    if (length(v) == 1L) return(sprintf("<%s> %s", abbr, preview))
-    return(sprintf("<%s %d> %s", abbr, length(v), preview))
+    head <- if (length(v) == 1L) sprintf("<%s>", abbr) else
+      sprintf("<%s %s>", abbr, big(length(v)))
+    if (!length(vals)) return(head)
+    room <- max(width - cli::ansi_nchar(head, type = "width") - 1L, 10L)
+    return(paste(head, cli::ansi_strtrim(paste(vals, collapse = ", "), room)))
   }
   if (is.language(v)) {
     abbr <- if (inherits(v, "formula")) "formula" else if (is.name(v)) "sym" else
       if (is.expression(v)) "expr" else "call"
     text <- paste(deparse(v, width.cutoff = 500L), collapse = " ")
-    return(sprintf("<%s> %s", abbr, cli::ansi_strtrim(text, 40)))
+    return(sprintf("<%s> %s", abbr,
+                   cli::ansi_strtrim(text, max(width - nchar(abbr) - 3L, 10L))))
   }
   sprintf("<%s>", cls)
 }
@@ -561,7 +564,9 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
         h <- slot(shown)
         child_label <- ""
         if (h == "show") {
-          child_label <- paste(nm[k], cli::col_grey(._obj_desc(child)))
+          room <- console_width() - 2L * (depth + 1L) -
+            cli::ansi_nchar(nm[k], type = "width") - 1L
+          child_label <- paste(nm[k], cli::col_grey(._obj_desc(child, room)))
           # a list left unopened at max_depth
           if (depth + 1 >= max_depth && descend(child) && length(child)) {
             child_label <- paste(child_label, cli::col_grey(cli::symbol$ellipsis))
@@ -580,8 +585,9 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
         for (a in setdiff(names(attributes(v)), drop_attr)) {
           h <- slot(shown)
           if (h != "count") kids <- c(kids, add(paste0(id, "/@", a), if (h == "show") {
-            paste(cli::col_cyan("attr"), a,
-                  cli::col_grey(._obj_desc(attr(v, a, exact = TRUE))))
+            paste(cli::col_cyan("attr"), a, cli::col_grey(._obj_desc(
+              attr(v, a, exact = TRUE),
+              console_width() - 2L * (depth + 1L) - 6L - cli::ansi_nchar(a, type = "width"))))
           } else ""))
         }
       }
@@ -589,7 +595,11 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
     if (how != "count") add(id, label, kids) else id
   }
 
-  root_desc <- if (descend(x)) sprintf("<list %d>", length(x)) else ._obj_desc(x)
+  root_desc <- if (descend(x)) {
+    sprintf("<list %s>", format(length(x), big.mark = ","))
+  } else {
+    ._obj_desc(x, console_width() - cli::ansi_nchar(class(x)[1], type = "width") - 3L)
+  }
   root <- node(x, "x", paste(._pr_label(class(x)[1], cli::bg_blue, cli::col_br_white),
                              cli::col_grey(root_desc)), 0, slot(TRUE))
   tree <- as.character(cli::tree(data.frame(id = rows$id, children = I(rows$children),

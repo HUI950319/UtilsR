@@ -313,6 +313,17 @@ test_that("pr_kv() describes object values by type and size", {
   expect_identical(out, c("  data  <data.frame 6 x 11>", "  grid  <list 2>"))
 })
 
+test_that("pr_kv() and pr_head() show numbers, factors and dates as print() does", {
+  withr::local_options(cli.num_colors = 1, digits = 7)
+  out <- utils::capture.output(pr_kv(list(alpha = 1/3, hr = exp(0.6), n = 2314L,
+                                          conf = 0.95)))
+  expect_identical(out, c("  alpha  0.3333333", "  hr     1.822119", "  n      2314",
+                          "  conf   0.95"))
+  head <- utils::capture.output(pr_head("x_res", 1/3, factor("cox"),
+                                        as.Date("2026-10-25")))
+  expect_identical(head, "<x_res> 0.3333333 \u00b7 cox \u00b7 2026-10-25")
+})
+
 test_that("pr_tree() previews vectors, marks collapsed nodes and caps lines", {
   withr::local_options(cli.num_colors = 1, cli.unicode = TRUE)
   x <- list(terms = c("Age", "Sex", "Stage"), p = c(0.1, 0.25),
@@ -348,6 +359,14 @@ test_that("pr_tree() previews vectors, marks collapsed nodes and caps lines", {
   expect_true(any(grepl("model <formula> Surv\\(time, DSS\\) ~ Age \\+ Sex$", shown)))
   expect_true(any(grepl("call <call> f\\(x\\)$", shown)))
   expect_true(any(grepl("var <sym> Age$", shown)))
+  # the preview fills the line up to the console width; sizes get a thousands mark
+  wide <- withr::with_options(list(width = 50, cli.width = 50), utils::capture.output(
+    pr_tree(list(words = paste("word", 1:30), big = 1:1e6,
+                 df = data.frame(a = seq_len(12345))))))
+  expect_true(all(cli::ansi_nchar(wide, type = "width") <= 50))
+  expect_match(wide[2], 'words <chr 30> "word 1", .*\u2026$')
+  expect_true(any(grepl("big <int 1,000,000> 1, 2, 3", wide)))
+  expect_true(any(grepl("df <data.frame 12,345 x 1>", wide)))
   big <- utils::capture.output(pr_tree(rep(list(as.list(1:20)), 20), max_lines = 30))
   expect_length(big, 31L)
   expect_match(big[31], "more lines")
