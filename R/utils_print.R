@@ -332,7 +332,9 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 #' \code{digits} decimals, or none when every value is whole; a column whose
 #' smallest non-zero value would round to zero gets enough decimals for two
 #' significant digits, at most six. Missing values
-#' print as a grey \code{NA}. Everything else uses \code{as.character()}.
+#' print as a grey \code{NA}. The cells of a list column are described as in
+#' \code{\link{pr_tree}()}, e.g. \code{<dbl 2> 1.1, 2.2}. Everything else
+#' uses \code{as.character()}.
 #' Without colour (knitted documents, log files), P values carry stars
 #' (\code{***} below 0.001, \code{**} below 0.01, \code{*} below 0.05),
 #' highlighted rows start with \code{>} and missing text cells read
@@ -401,6 +403,9 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
         d <- min(6L, as.integer(ceiling(-log10(min(tiny)))) + 1L)
       }
       txt <- formatC(v, format = "f", digits = d)
+    } else if (is.list(v)) {
+      # a list column: describe each cell, rather than deparse it (c(1.1, 2.2))
+      txt <- vapply(v, ._obj_desc, character(1), width = 40)
     } else {
       txt <- as.character(v)
     }

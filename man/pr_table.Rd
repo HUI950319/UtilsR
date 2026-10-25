@@ -64,7 +64,9 @@ text is kept as written, and values print bold red below 0.001, red below
 \code{digits} decimals, or none when every value is whole; a column whose
 smallest non-zero value would round to zero gets enough decimals for two
 significant digits, at most six. Missing values
-print as a grey \code{NA}. Everything else uses \code{as.character()}.
+print as a grey \code{NA}. The cells of a list column are described as in
+\code{\link{pr_tree}()}, e.g. \code{<dbl 2> 1.1, 2.2}. Everything else
+uses \code{as.character()}.
 Without colour (knitted documents, log files), P values carry stars
 (\code{***} below 0.001, \code{**} below 0.01, \code{*} below 0.05),
 highlighted rows start with \code{>} and missing text cells read

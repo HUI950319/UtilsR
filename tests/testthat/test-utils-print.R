@@ -298,6 +298,15 @@ test_that("pr_table() cuts a first column too wide for the line", {
   expect_match(out[length(out)], "1 more column: HR", fixed = TRUE)
 })
 
+test_that("pr_table() describes the cells of a list column", {
+  withr::local_options(cli.num_colors = 1)
+  df <- data.frame(term = c("a", "b"))
+  df$ci <- list(c(1.1, 2.2), 3:5)
+  out <- sub(" +$", "", utils::capture.output(pr_table(df)))
+  expect_match(out[3], "^  a +<dbl 2> 1\\.1, 2\\.2$")
+  expect_match(out[4], "^  b +<int 3> 3, 4, 5$")
+})
+
 test_that("pr_table() gives tiny values enough decimals", {
   withr::local_options(cli.num_colors = 1)
   out <- utils::capture.output(pr_table(data.frame(beta = c(0.0003, -1.234),
