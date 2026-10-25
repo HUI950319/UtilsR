@@ -24,6 +24,11 @@
   the timestamp out. An empty format used to fall back to R's default
   date-time format, so the timestamp stayed, without its brackets.
 
+* `pr_tree()` stops describing nodes once it reaches `max_lines` and only
+  counts the rest, so a large nested list prints its first lines at once:
+  a 20 x 20 x 20 list took 2.5 s to print 200 lines, now 0.07 s. The
+  printed lines are unchanged.
+
 # UtilsR 0.6.11
 
 * `plt_cat()` and `plt_con()` with `split.by` report the size of the split

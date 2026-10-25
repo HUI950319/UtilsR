@@ -339,6 +339,14 @@ test_that("pr_tree() previews vectors, marks collapsed nodes and caps lines", {
   big <- utils::capture.output(pr_tree(rep(list(as.list(1:20)), 20), max_lines = 30))
   expect_length(big, 31L)
   expect_match(big[31], "more lines")
+
+  # the lines kept at max_lines are those of the full tree, branch glyphs
+  # included: the last kept line still shows siblings below it
+  x <- rep(list(as.list(1:5)), 4)
+  full <- utils::capture.output(pr_tree(x))
+  cut  <- utils::capture.output(pr_tree(x, max_lines = 9))
+  expect_identical(cut[1:9], full[1:9])
+  expect_identical(cut[10], "# … 16 more lines")
 })
 
 test_that("pr_tree() keeps rendered objects closed and names R6 objects", {

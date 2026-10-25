@@ -518,51 +518,71 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
   }
   rows <- new.env(parent = emptyenv())
   rows$id <- character(); rows$children <- list(); rows$label <- character()
+  rows$n  <- 0L
   add <- function(id, label, children = character()) {
     rows$id       <- c(rows$id, id)
     rows$children <- c(rows$children, list(children))
     rows$label    <- c(rows$label, label)
     id
   }
-  node <- function(v, id, label, depth) {
+  # Lines are counted in the order the tree prints them. Within max_lines a
+  # line is described ("show"); past it, it is only counted, except that a
+  # line under a shown parent stays as an empty "stub", so the shown lines
+  # keep the branch glyphs of the full tree. Describing and drawing every
+  # node first took 3 s for a 20 x 20 x 20 list cut to 200 lines (2026-10-25).
+  slot <- function(parent_shown) {
+    rows$n <- rows$n + 1L
+    if (rows$n <= max_lines) "show" else if (parent_shown) "stub" else "count"
+  }
+  node <- function(v, id, label, depth, how) {
+    shown <- how == "show"
     kids <- character()
     if (depth < max_depth && descend(v)) {
       nm <- names(v) %||% rep("", length(v))
       nm <- ifelse(is.na(nm) | !nzchar(nm), sprintf("[[%d]]", seq_along(v)), nm)
       for (k in seq_len(min(length(v), max_items))) {
         child <- v[[k]]
-        child_label <- paste(nm[k], cli::col_grey(._obj_desc(child)))
-        # a list left unopened at max_depth
-        if (depth + 1 >= max_depth && descend(child) && length(child)) {
-          child_label <- paste(child_label, cli::col_grey(cli::symbol$ellipsis))
+        h <- slot(shown)
+        child_label <- ""
+        if (h == "show") {
+          child_label <- paste(nm[k], cli::col_grey(._obj_desc(child)))
+          # a list left unopened at max_depth
+          if (depth + 1 >= max_depth && descend(child) && length(child)) {
+            child_label <- paste(child_label, cli::col_grey(cli::symbol$ellipsis))
+          }
         }
-        kids <- c(kids, node(child, paste0(id, "/", k), child_label, depth + 1))
+        kid <- node(child, paste0(id, "/", k), child_label, depth + 1, h)
+        if (h != "count") kids <- c(kids, kid)
       }
       if (length(v) > max_items) {
-        kids <- c(kids, add(paste0(id, "/more"), cli::col_grey(sprintf(
-          "%s %d more", cli::symbol$ellipsis, length(v) - max_items))))
+        h <- slot(shown)
+        if (h != "count") kids <- c(kids, add(paste0(id, "/more"), if (h == "show") {
+          cli::col_grey(sprintf("%s %d more", cli::symbol$ellipsis, length(v) - max_items))
+        } else ""))
       }
       if (isTRUE(attrs)) {
         for (a in setdiff(names(attributes(v)), drop_attr)) {
-          kids <- c(kids, add(paste0(id, "/@", a), paste(
-            cli::col_cyan("attr"), a,
-            cli::col_grey(._obj_desc(attr(v, a, exact = TRUE))))))
+          h <- slot(shown)
+          if (h != "count") kids <- c(kids, add(paste0(id, "/@", a), if (h == "show") {
+            paste(cli::col_cyan("attr"), a,
+                  cli::col_grey(._obj_desc(attr(v, a, exact = TRUE))))
+          } else ""))
         }
       }
     }
-    add(id, label, kids)
+    if (how != "count") add(id, label, kids) else id
   }
 
   root_desc <- if (descend(x)) sprintf("<list %d>", length(x)) else ._obj_desc(x)
   root <- node(x, "x", paste(._pr_label(class(x)[1], cli::bg_blue, cli::col_br_white),
-                             cli::col_grey(root_desc)), 0)
+                             cli::col_grey(root_desc)), 0, slot(TRUE))
   tree <- as.character(cli::tree(data.frame(id = rows$id, children = I(rows$children),
                                             label = rows$label,
                                             stringsAsFactors = FALSE),
                                  root = root))
-  if (length(tree) > max_lines) {
+  if (rows$n > max_lines) {
     tree <- c(tree[seq_len(max_lines)], cli::col_grey(sprintf(
-      "# %s %d more lines", cli::symbol$ellipsis, length(tree) - max_lines)))
+      "# %s %d more lines", cli::symbol$ellipsis, rows$n - max_lines)))
   }
   ._pr_out(tree)
 }
