@@ -1,5 +1,9 @@
 # UtilsR 0.6.12
 
+* `pr_tree()` shows whole numbers as they are and decimals to three digits
+  past their integer part: rounded to three significant digits, `123456L`
+  read `123000` and `1234.5678` read `1230`.
+
 * `.cat_formula()` no longer counts a missing outcome value as a level, so
   a binary outcome with `NA`s is announced as a Cox model, not a CRR one.
 

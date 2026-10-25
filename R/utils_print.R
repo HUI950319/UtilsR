@@ -453,8 +453,12 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, n = 20, align = NULL,
     first <- utils::head(v, 10L)
     vals <- if (is.character(first) || is.factor(first)) {
       encodeString(as.character(first), quote = "\"")
+    } else if (is.integer(first) && !is.object(first)) {
+      as.character(first)
     } else if (is.numeric(first) && !is.object(first)) {
-      as.character(signif(first, 3))
+      # format() keeps the integer part, which signif() rounded (1234.5678
+      # showed as 1230, 123456L as 123000)
+      vapply(first, format, character(1), digits = 3)
     } else {
       vapply(seq_along(first), function(i) format(first[i]), character(1))
     }

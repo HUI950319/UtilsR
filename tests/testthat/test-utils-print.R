@@ -321,6 +321,11 @@ test_that("pr_tree() previews vectors, marks collapsed nodes and caps lines", {
   expect_true(any(grepl('terms <chr 3> "Age", "Sex", "Stage"$', out)))
   expect_true(any(grepl("p <dbl 2> 0.1, 0.25$", out)))
   expect_true(any(grepl("deep <list 1> \u2026$", out)))
+  # whole numbers as they are, decimals to three digits past the integer part
+  nums <- utils::capture.output(pr_tree(list(n = 123456L, x = 1234.5678, small = 0.0000123)))
+  expect_true(any(grepl("n <int> 123456$", nums)))
+  expect_true(any(grepl("x <dbl> 1235$", nums)))
+  expect_true(any(grepl("small <dbl> 1.23e-05$", nums)))
   big <- utils::capture.output(pr_tree(rep(list(as.list(1:20)), 20), max_lines = 30))
   expect_length(big, 31L)
   expect_match(big[31], "more lines")
