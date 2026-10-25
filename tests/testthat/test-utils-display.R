@@ -45,6 +45,8 @@ test_that(".cat_message() prints every element of a vector and nothing for none"
   expect_match(out[1], "INFO  first$")
   expect_identical(trimws(out[2:3]), c("second", "third"))
   expect_identical(cli::cli_fmt(.cat_message(character())), character())
+  expect_match(cli::ansi_strip(cli::cli_fmt(.cat_message(c("a", NA), style = "chip")))[2],
+               "NA$")
 })
 
 test_that(".cat_message() leaves the timestamp out for NULL or an empty format", {

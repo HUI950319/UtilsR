@@ -34,7 +34,9 @@
 
 * `.cat_message()` prints every element of a character vector, each on its
   own line; it showed only the first. A zero-length message prints nothing
-  instead of failing with "subscript out of bounds".
+  instead of failing with "subscript out of bounds", and a missing one
+  prints `NA` instead of failing with "missing value where TRUE/FALSE
+  needed".
 
 * `pr_box()` prints nothing when there is nothing to frame, such as a list
   whose elements are all `NULL`, instead of failing with "a character
