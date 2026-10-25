@@ -510,11 +510,14 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, n = 20, align = NULL,
 #' Structure tree of a nested result object
 #'
 #' Print the elements of a list-based result as a tree, each with a short
-#' grey description such as \code{<tibble 12 x 7>},
+#' description such as \code{<tibble 12 x 7>},
 #' \code{<chr 3> "Age", "Sex", "Stage"} or \code{<ggplot>}; clearer than
 #' \code{str()} for the nested lists that analysis functions return. Atomic
-#' vectors show their first values, and a list left unopened at
-#' \code{max_depth} is marked with an ellipsis.
+#' vectors show their first values, as many as fit the console width, and a
+#' list left unopened at \code{max_depth} is marked with an ellipsis. Types
+#' and sizes are grey, values in the text colour with \code{NA} in red, and
+#' the names of elements that hold others bold; a classed list starts with
+#' its class as a chip.
 #'
 #' The tree descends into plain lists and into classed objects that also
 #' inherit from \code{"list"} (as \code{c("eff_res", "list")} does). Data
@@ -621,8 +624,12 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
     ._obj_desc(x, console_width() - cli::ansi_nchar(class(x)[1], type = "width") - 3L,
                colour = TRUE)
   }
-  root <- node(x, "x", paste(._pr_label(class(x)[1], cli::bg_blue, cli::col_br_white),
-                             root_desc), 0, slot(TRUE))
+  # the class as a chip for a classed list; a plain list, a vector or a data
+  # frame names its class in the description already ("<list> <list 3>")
+  if (descend(x) && is.object(x)) {
+    root_desc <- paste(._pr_label(class(x)[1], cli::bg_blue, cli::col_br_white), root_desc)
+  }
+  root <- node(x, "x", root_desc, 0, slot(TRUE))
   tree <- as.character(cli::tree(data.frame(id = rows$id, children = I(rows$children),
                                             label = rows$label,
                                             stringsAsFactors = FALSE),

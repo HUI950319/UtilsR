@@ -147,7 +147,9 @@ test_that("pr_tree() shows the structure of a nested result list", {
   deep_out <- cli::ansi_strip(utils::capture.output(pr_tree(deep, max_depth = 2)))
   expect_identical(sub("^[^A-Za-z]*", "", deep_out[-1]),
                    c("a <list 1>", paste("b <list 1>", cli::symbol$ellipsis)))
-  expect_identical(deep_out[1], " list  <list 1>")
+  expect_identical(deep_out[1], "<list 1>")
+  # the class chip is for a classed list; other roots do not repeat the class
+  expect_identical(cli::ansi_strip(utils::capture.output(pr_tree(1:3))), "<int 3> 1, 2, 3")
   many <- cli::ansi_strip(utils::capture.output(pr_tree(as.list(1:30), max_items = 5)))
   expect_length(many, 7L)
   expect_match(many[7], "25 more", fixed = TRUE)
@@ -239,7 +241,7 @@ test_that("print helpers stay readable without colour", {
   expect_match(out[3], "^> a +<0\\.001\\*\\*\\*$")
   expect_match(out[4], "^  b +0\\.004\\*\\*$")
   expect_match(out[5], "^  <NA> +0\\.300$")
-  expect_match(utils::capture.output(pr_tree(list(a = 1)))[1], "^<list> <list 1>$")
+  expect_match(utils::capture.output(pr_tree(list(a = 1)))[1], "^<list 1>$")
 })
 
 test_that("pr_spark() names an empty-string level", {

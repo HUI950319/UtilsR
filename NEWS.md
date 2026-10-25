@@ -25,6 +25,10 @@
   names of elements that hold others are bold. The whole description,
   values included, used to be grey.
 
+* `pr_tree()` starts with the class chip only for a classed list, the case
+  it is meant for; a plain list, a vector or a data frame no longer repeats
+  its class (`<list> <list 3>` now reads `<list 3>`).
+
 * `.cat_formula()` no longer counts a missing outcome value as a level, so
   a binary outcome with `NA`s is announced as a Cox model, not a CRR one.
 

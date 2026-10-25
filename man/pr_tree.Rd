@@ -24,11 +24,14 @@ The printed lines, invisibly.
 }
 \description{
 Print the elements of a list-based result as a tree, each with a short
-grey description such as \code{<tibble 12 x 7>},
+description such as \code{<tibble 12 x 7>},
 \code{<chr 3> "Age", "Sex", "Stage"} or \code{<ggplot>}; clearer than
 \code{str()} for the nested lists that analysis functions return. Atomic
-vectors show their first values, and a list left unopened at
-\code{max_depth} is marked with an ellipsis.
+vectors show their first values, as many as fit the console width, and a
+list left unopened at \code{max_depth} is marked with an ellipsis. Types
+and sizes are grey, values in the text colour with \code{NA} in red, and
+the names of elements that hold others bold; a classed list starts with
+its class as a chip.
 }
 \details{
 The tree descends into plain lists and into classed objects that also
