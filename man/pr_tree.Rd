@@ -12,7 +12,7 @@ pr_tree(x, max_depth = 3, max_items = 20, max_lines = 200, attrs = TRUE)
 \item{max_depth}{Integer. Levels below the root to show (default 3).}
 
 \item{max_items}{Integer. Elements shown per node before the rest are
-summarised as "... n more" (default 20).}
+summarised as "... n more", with their names (default 20).}
 
 \item{max_lines}{Integer. Lines shown in all (default 200); a grey footer
 counts the rest.}
@@ -27,20 +27,25 @@ Print the elements of a list-based result as a tree, each with a short
 description such as \code{<tibble 12 x 7>},
 \code{<chr 3> "Age", "Sex", "Stage"} or \code{<ggplot>}; clearer than
 \code{str()} for the nested lists that analysis functions return. Atomic
-vectors show their first values, as many as fit the console width, and a
-list left unopened at \code{max_depth} is marked with an ellipsis. Types
-and sizes are grey, values in the text colour with \code{NA} in red, and
-the names of elements that hold others bold; a classed list starts with
-its class as a chip.
+vectors show their first values, as many as fit the console width, a data
+frame its column names, and a list left closed at \code{max_depth} its
+names with the value of each single one (an unnamed list an ellipsis).
+Sibling names line up in a column. Types and sizes are grey, values in the
+text colour with \code{NA} in red, and the names of elements that hold
+others bold; a classed list starts with its class as a chip.
 }
 \details{
-The tree descends into plain lists and into classed objects that also
+The object passed in always opens: a model fit lists its components, a
+data frame its columns and an S4 object its slots (as \code{@name}). Below
+it the tree descends into plain lists and into classed objects that also
 inherit from \code{"list"} (as \code{c("eff_res", "list")} does). Data
 frames, plots and other objects are leaves, and so are gt tables, RegR
 pages and htmltools tag lists, which are lists underneath; R6 and other
-classed environments show their class. Attributes other than
-names, class, dimensions, row names and srcref are listed under the node
-that carries them, marked \code{attr}.
+classed environments show their class. Attributes other than names,
+class, dimensions, row names, srcref and those a type keeps for itself
+(factor levels, a time zone, value labels) are listed under an open node,
+marked \code{attr}, and named at the end of a closed node's line as
+\code{[attr: name]}.
 }
 \examples{
 res <- structure(
