@@ -430,6 +430,8 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, n = 20, align = NULL,
 # (the first 10 values, cut at 40 characters).
 ._obj_desc <- function(v) {
   if (is.null(v)) return("<NULL>")
+  # a POSIXlt time is a list underneath; show the time it holds
+  if (inherits(v, "POSIXlt")) v <- as.POSIXct(v)
   cls <- class(v)[1]
   if (is.data.frame(v)) {
     lab <- if (inherits(v, "tbl_df")) "tibble" else cls
@@ -446,10 +448,8 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, n = 20, align = NULL,
     return(sprintf("<%s %d>", if (is.object(v)) cls else "list", length(v)))
   }
   if (is.atomic(v)) {
-    abbr <- if (is.factor(v)) "fct" else if (inherits(v, "Date")) "date" else
-      if (inherits(v, "POSIXct")) "dttm" else
-        switch(typeof(v), logical = "lgl", integer = "int", double = "dbl",
-               character = "chr", complex = "cpl", typeof(v))
+    # vctrs names classed vectors as well: drtn, dbl+lbl, int64, ord
+    abbr <- tryCatch(vctrs::vec_ptype_abbr(v), error = function(e) typeof(v))
     first <- utils::head(v, 10L)
     vals <- if (is.character(first) || is.factor(first)) {
       encodeString(as.character(first), quote = "\"")

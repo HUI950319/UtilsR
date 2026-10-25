@@ -326,6 +326,16 @@ test_that("pr_tree() previews vectors, marks collapsed nodes and caps lines", {
   expect_true(any(grepl("n <int> 123456$", nums)))
   expect_true(any(grepl("x <dbl> 1235$", nums)))
   expect_true(any(grepl("small <dbl> 1.23e-05$", nums)))
+  # classed vectors are named as vctrs names them
+  typed <- utils::capture.output(pr_tree(list(
+    gap = as.difftime(c(1, 2), units = "days"),
+    sex = labelled::labelled(c(1, 2), c(Male = 1, Female = 2)),
+    when = as.POSIXlt("2026-10-25 12:00:00", tz = "UTC"),
+    grade = factor("high", levels = c("low", "high"), ordered = TRUE))))
+  expect_true(any(grepl("gap <drtn 2> 1 days, 2 days$", typed)))
+  expect_true(any(grepl("sex <dbl\\+lbl 2> ", typed)))
+  expect_true(any(grepl("when <dttm> 2026-10-25 12:00:00$", typed)))
+  expect_true(any(grepl("grade <ord> ", typed)))
   big <- utils::capture.output(pr_tree(rep(list(as.list(1:20)), 20), max_lines = 30))
   expect_length(big, 31L)
   expect_match(big[31], "more lines")

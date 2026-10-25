@@ -4,6 +4,11 @@
   past their integer part: rounded to three significant digits, `123456L`
   read `123000` and `1234.5678` read `1230`.
 
+* `pr_tree()` names classed vectors as vctrs does, such as `<drtn 2>` for a
+  difftime, `<dbl+lbl 3>` for a labelled vector and `<int64>`, where they
+  read `<dbl ...>`; a POSIXlt time shows as `<dttm>` with its value instead
+  of `<POSIXlt>`.
+
 * `.cat_formula()` no longer counts a missing outcome value as a level, so
   a binary outcome with `NA`s is announced as a Cox model, not a CRR one.
 
