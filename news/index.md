@@ -2,6 +2,16 @@
 
 ## UtilsR 0.6.11
 
+- [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
+  and
+  [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  with `split.by` report the size of the split figure once again. Each
+  panel’s own “plot laid out for” note was captured as printed output,
+  which a
+  [`.cat_message()`](https://hui950319.github.io/UtilsR/reference/dot-cat_message.md)
+  no longer is since it became a cli message, so a figure of three
+  panels showed four notes.
+
 - [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
   keeps gt tables, RegR pages and htmltools tag lists closed: they are
   lists underneath, and opening one listed some 20 internal fields, such
