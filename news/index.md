@@ -48,7 +48,8 @@
 - [`.cat_message()`](https://hui950319.github.io/UtilsR/reference/dot-cat_message.md)
   prints every element of a character vector, each on its own line; it
   showed only the first. A zero-length message prints nothing instead of
-  failing with “subscript out of bounds”.
+  failing with “subscript out of bounds”, and a missing one prints `NA`
+  instead of failing with “missing value where TRUE/FALSE needed”.
 
 - [`pr_box()`](https://hui950319.github.io/UtilsR/reference/pr_box.md)
   prints nothing when there is nothing to frame, such as a list whose
@@ -74,6 +75,63 @@
   [`pr_head()`](https://hui950319.github.io/UtilsR/reference/pr_head.md)
   also shows a factor piece as its label and a date as a date, where it
   showed the factor code and the day count.
+
+- [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  shows a P value just under 0.05 or 0.01 with the decimals it needs,
+  `0.0499*` rather than `0.050*`: rounded to three decimals it read as
+  the cut-off, beside a `0.050` with no star.
+
+- [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  gains `rownames`: `TRUE` shows the row names as a first, unnamed
+  column, such as the terms of a coefficient matrix turned data frame,
+  which are otherwise not shown. It is off by default, since
+  [`rbind()`](https://rdrr.io/r/base/cbind.html) of a named list also
+  leaves row names (`cox.1`, `cox.2`).
+
+- [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  cuts a first column too wide for the line with an ellipsis: long
+  variable labels made the table overflow `width`, as the first and the
+  P-value columns always show.
+
+- [`pr_note()`](https://hui950319.github.io/UtilsR/reference/pr_note.md)
+  starts a new line at each `"\n"`, as
+  [`pr_kv()`](https://hui950319.github.io/UtilsR/reference/pr_kv.md)
+  does; the lines of a note were joined with a space.
+
+- [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  describes the cells of a list column as
+  [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  does, `<dbl 2> 1.1, 2.2`, where it printed the deparsed `c(1.1, 2.2)`.
+
+- [`pr_spark()`](https://hui950319.github.io/UtilsR/reference/pr_spark.md)
+  shows a column whose values all differ, such as a patient identifier,
+  as `<n> unique values` instead of tabulating it: 1e5 identifiers took
+  0.1 s to draw a flat line of single counts.
+
+- [`PlotButterfly()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly.md),
+  [`PlotButterfly2()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly2.md)
+  and
+  [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+  announce a saved plot with
+  [`.cat_saved()`](https://hui950319.github.io/UtilsR/reference/dot-cat_saved.md),
+  as the other plotting functions do:
+  `PlotRankCor: the plot has been saved to: <path> [7x5 in, new PDF]`,
+  in place of `Plot saved to <path>`.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) prints
+  its headings and facts at the console with
+  [`pr_section()`](https://hui950319.github.io/UtilsR/reference/pr_section.md)
+  and
+  [`pr_kv()`](https://hui950319.github.io/UtilsR/reference/pr_kv.md), on
+  stdout beside the tables they head (cross-tabulation, wide and
+  row-percentage tables, grouped summary, Seurat summary and cell
+  statistics), so
+  [`capture.output()`](https://rdrr.io/r/utils/capture.output.html) and
+  Rscript logs keep them and
+  [`suppressMessages()`](https://rdrr.io/r/base/message.html) no longer
+  strips them from the report. The banner above each variable, which the
+  console listing already names, is left out there. Knitted reports keep
+  the cli headers as before.
 
 ## UtilsR 0.6.11
 

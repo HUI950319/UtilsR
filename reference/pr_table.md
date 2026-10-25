@@ -12,6 +12,7 @@ pr_table(
   data,
   p_col = NULL,
   highlight = NULL,
+  rownames = FALSE,
   n = 20,
   align = NULL,
   digits = 2,
@@ -35,6 +36,12 @@ pr_table(
   Rows to highlight in black on light yellow: integer row numbers or a
   logical vector. Highlighted rows drop their other colours.
 
+- rownames:
+
+  Logical. Show the row names as a first, unnamed column, e.g. the terms
+  of `as.data.frame(coef(summary(fit)))`, which are otherwise not shown
+  (default `FALSE`).
+
 - n:
 
   Integer. Rows to show (default 20); the rest are counted in a grey
@@ -53,9 +60,10 @@ pr_table(
 - width:
 
   Integer. Line width the table must fit; `NULL` (default) uses the
-  console width. The first column and the P-value columns always show;
-  the other columns follow in order while they fit, and the footer names
-  those left out.
+  console width. The first column and the P-value columns always show, a
+  first column too wide for the line cut with an ellipsis; the other
+  columns follow in order while they fit, and the footer names those
+  left out.
 
 - indent:
 
@@ -69,12 +77,16 @@ The printed lines, invisibly.
 
 Cells are formatted as follows. P-value columns: numbers take the
 [`stat_pval`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)`(mode = "pvalue")`
-wording (`"<0.001"`), text is kept as written, and values print bold red
-below 0.001, red below 0.05 and grey otherwise. Other double columns are
+wording (`"<0.001"`), a number just under 0.05 or 0.01 that this wording
+would round up to the cut-off taking the decimals it needs (`0.0499`,
+not `0.050`), text is kept as written, and values print bold red below
+0.001, red below 0.05 and grey otherwise. Other double columns are
 rounded to `digits` decimals, or none when every value is whole; a
 column whose smallest non-zero value would round to zero gets enough
 decimals for two significant digits, at most six. Missing values print
-as a grey `NA`. Everything else uses
+as a grey `NA`. The cells of a list column are described as in
+[`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md),
+e.g. `<dbl 2> 1.1, 2.2`. Everything else uses
 [`as.character()`](https://rdrr.io/r/base/character.html). Without
 colour (knitted documents, log files), P values carry stars (`***` below
 0.001, `**` below 0.01, `*` below 0.05), highlighted rows start with `>`

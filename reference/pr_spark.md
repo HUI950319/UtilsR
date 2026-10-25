@@ -42,8 +42,9 @@ so no empty bin falls between two values. Date and date-time columns
 show the same histogram with their first and last dates. Factor,
 character and logical columns show their level counts (in level order,
 or the `bins` most frequent levels when there are more), the number of
-levels and the most frequent one with its share of non-missing values.
-Other columns show their class only.
+levels and the most frequent one with its share of non-missing values;
+one whose values all differ, such as an identifier, shows how many there
+are. Other columns show their class only.
 
 ## See also
 

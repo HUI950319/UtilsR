@@ -66,5 +66,5 @@ formula_data <- data.frame(
   age = c(45, 52, 61, 39)
 )
 .cat_formula(formula_data, co_var = "age")
-#> [2026-10-25 05:15:50]  ℹ Cox model, unadjusted: Surv(time, DSS) ~ age 
+#> [2026-10-25 05:54:16]  ℹ Cox model, unadjusted: Surv(time, DSS) ~ age 
 ```
