@@ -420,6 +420,11 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, n = 20, align = NULL,
 
 # ------------- pr_tree ------------------------------------------------------
 
+# Rendered tables and pages that are lists underneath: opening them shows
+# their internals (a gt table has some 20 `_data`, `_styles`, ... fields),
+# not the result's parts, so they stay closed like data frames and plots.
+._tree_leaf <- c("gt_tbl", "fmt_page", "shiny.tag.list")
+
 # Short description of an object: "<tibble 12 x 7>", "<ggplot>"; atomic
 # values follow their type, e.g. <chr> "cox" or <chr 3> "Age", "Sex", "Stage"
 # (the first 10 values, cut at 40 characters).
@@ -432,9 +437,12 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, n = 20, align = NULL,
   }
   if (!is.null(dim(v))) return(sprintf("<%s %s>", cls, paste(dim(v), collapse = " x ")))
   if (is.function(v)) return("<fn>")
-  if (is.environment(v)) return("<env>")
+  # a classed environment, such as an R6 learner, is named by its class
+  if (is.environment(v)) return(if (is.object(v)) sprintf("<%s>", cls) else "<env>")
   if (is.list(v)) {
-    if (is.object(v) && !inherits(v, "list")) return(sprintf("<%s>", cls))
+    if (is.object(v) && (!inherits(v, "list") || inherits(v, ._tree_leaf))) {
+      return(sprintf("<%s>", cls))
+    }
     return(sprintf("<%s %d>", if (is.object(v)) cls else "list", length(v)))
   }
   if (is.atomic(v)) {
@@ -469,7 +477,9 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, n = 20, align = NULL,
 #'
 #' The tree descends into plain lists and into classed objects that also
 #' inherit from \code{"list"} (as \code{c("eff_res", "list")} does). Data
-#' frames, plots and other objects are leaves. Attributes other than
+#' frames, plots and other objects are leaves, and so are gt tables, RegR
+#' pages and htmltools tag lists, which are lists underneath; R6 and other
+#' classed environments show their class. Attributes other than
 #' names, class, dimensions, row names and srcref are listed under the node
 #' that carries them, marked \code{attr}.
 #'
@@ -499,7 +509,8 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
                     attrs = TRUE) {
   drop_attr <- c("names", "class", "dim", "dimnames", "row.names", "srcref")
   descend <- function(v) {
-    is.list(v) && !is.data.frame(v) && (!is.object(v) || inherits(v, "list"))
+    is.list(v) && !is.data.frame(v) && !inherits(v, ._tree_leaf) &&
+      (!is.object(v) || inherits(v, "list"))
   }
   rows <- new.env(parent = emptyenv())
   rows$id <- character(); rows$children <- list(); rows$label <- character()

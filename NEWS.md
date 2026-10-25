@@ -1,5 +1,11 @@
 # UtilsR 0.6.11
 
+* `pr_tree()` keeps gt tables, RegR pages and htmltools tag lists closed:
+  they are lists underneath, and opening one listed some 20 internal
+  fields, such as `_data` and `_styles`, in place of the result's parts.
+  R6 objects, such as mlr3 learners, show their class instead of `<env>`,
+  in `pr_tree()` and `pr_kv()` alike.
+
 * `.cat_formula()` announces a model in one `.cat_message()` line, e.g.
   `Cox model, unadjusted: Surv(time, DSS) ~ Sex`, instead of a box and a
   rule, nine lines in all; `suppressMessages()` silences it.

@@ -319,6 +319,23 @@ test_that("pr_tree() previews vectors, marks collapsed nodes and caps lines", {
   expect_match(big[31], "more lines")
 })
 
+test_that("pr_tree() keeps rendered objects closed and names R6 objects", {
+  withr::local_options(cli.num_colors = 1, cli.unicode = TRUE)
+  # a gt table, a RegR page and an htmltools tag list are lists underneath
+  gt <- structure(list(`_data` = data.frame(a = 1:2), `_boxhead` = list()),
+                  class = c("gt_tbl", "list"))
+  page <- structure(list(list(), NULL), class = c("fmt_page", "list"))
+  tags <- structure(list(list()), class = c("shiny.tag.list", "list"))
+  learner <- structure(new.env(), class = c("LearnerSurvRanger", "Learner", "R6"))
+  out <- utils::capture.output(pr_tree(list(gt = gt, view = page, tags = tags,
+                                           learner = learner, env = new.env())))
+  out <- sub("^[^A-Za-z]*", "", out[-1])
+  expect_identical(out, c("gt <gt_tbl>", "view <fmt_page>", "tags <shiny.tag.list>",
+                          "learner <LearnerSurvRanger>", "env <env>"))
+  expect_identical(utils::capture.output(pr_kv(list(learner = learner))),
+                   "  learner  <LearnerSurvRanger>")
+})
+
 test_that("pr_spark() bars few whole numbers per value and spans dates", {
   withr::local_options(cli.num_colors = 1, cli.unicode = TRUE)
   n_bars <- function(x) lengths(regmatches(x, gregexpr("[\u2581-\u2588]", x)))
