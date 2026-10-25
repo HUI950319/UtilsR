@@ -1,5 +1,8 @@
 # UtilsR 0.6.12
 
+* `pr_tree()` gives a factor's number of levels, `<fct 100, 3 levels>`, as
+  `str()` does.
+
 * `pr_tree()` takes as many values as the line could hold and ends a
   vector it cut with an ellipsis: at a width of 100, `1:100` read
   `1, 2, ..., 10`, as if that were all.

@@ -563,8 +563,12 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
     if (!is.null(nm)) {
       vals <- ifelse(is.na(nm) | !nzchar(nm), vals, paste(g(paste(nm, "=")), vals))
     }
-    head <- if (length(v) == 1L) sprintf("<%s>", abbr) else
-      sprintf("<%s %s>", abbr, big(length(v)))
+    # a factor with its number of levels, as str() gives it
+    lev  <- if (is.factor(v)) {
+      sprintf(", %s level%s", big(nlevels(v)), if (nlevels(v) == 1L) "" else "s")
+    } else ""
+    head <- if (length(v) == 1L) sprintf("<%s%s>", abbr, lev) else
+      sprintf("<%s %s%s>", abbr, big(length(v)), lev)
     if (!length(vals)) return(g(head))
     room <- max(width - cli::ansi_nchar(head, type = "width") - 1L, 10L)
     text <- paste(vals, collapse = g(", "))

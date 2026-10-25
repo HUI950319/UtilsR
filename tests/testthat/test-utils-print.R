@@ -433,7 +433,7 @@ test_that("pr_tree() previews vectors, marks collapsed nodes and caps lines", {
   expect_true(any(grepl("gap <drtn 2> 1 days, 2 days$", typed)))
   expect_true(any(grepl("sex <dbl\\+lbl 2> ", typed)))
   expect_true(any(grepl("when <dttm> 2026-10-25 12:00:00$", typed)))
-  expect_true(any(grepl("grade <ord> ", typed)))
+  expect_true(any(grepl("grade <ord, 2 levels> ", typed)))
   # names, value labels and formulas in the preview; factor levels unquoted
   shown <- utils::capture.output(pr_tree(list(
     n = c(train = 800L, test = 200L),
@@ -442,7 +442,7 @@ test_that("pr_tree() previews vectors, marks collapsed nodes and caps lines", {
     model = Surv(time, DSS) ~ Age + Sex, call = quote(f(x)), var = quote(Age))))
   expect_true(any(grepl("n <int 2> train = 800, test = 200$", shown)))
   expect_true(any(grepl("sex <dbl\\+lbl 2> 1 \\[Male\\], 2 \\[Female\\]$", shown)))
-  expect_true(any(grepl("grade <fct 2> low, NA$", shown)))
+  expect_true(any(grepl("grade <fct 2, 1 level> low, NA$", shown)))
   expect_true(any(grepl("model <formula> Surv\\(time, DSS\\) ~ Age \\+ Sex$", shown)))
   expect_true(any(grepl("call <call> f\\(x\\)$", shown)))
   expect_true(any(grepl("var <sym> Age$", shown)))
