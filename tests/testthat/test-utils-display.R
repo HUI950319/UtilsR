@@ -37,6 +37,16 @@ test_that(".cat_message() emits a message that suppressMessages() silences", {
   expect_identical(cli::cli_fmt(.cat_message("Loaded", verbose = FALSE)), character())
 })
 
+test_that(".cat_message() prints every element of a vector and nothing for none", {
+  out <- cli::ansi_strip(cli::cli_fmt(.cat_message(c("first", "second\nthird"),
+                                                   timestamp_format = "%H:%M",
+                                                   style = "chip")))
+  expect_length(out, 3L)
+  expect_match(out[1], "INFO  first$")
+  expect_identical(trimws(out[2:3]), c("second", "third"))
+  expect_identical(cli::cli_fmt(.cat_message(character())), character())
+})
+
 test_that(".cat_message(style = \"chip\") colours only a short type label", {
   out <- capture_display(.cat_message("Loading\nsecond line", type = "warning",
                                       timestamp_format = "%H:%M", style = "chip"))

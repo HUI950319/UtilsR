@@ -14,7 +14,8 @@
 )
 }
 \arguments{
-\item{message}{Character. The message text.}
+\item{message}{Character. The message text: each element starts a new
+line, as does each \code{"\\n"}; a zero-length message prints nothing.}
 
 \item{type}{One of \code{"info"}, \code{"success"}, \code{"warning"},
 \code{"error"}.}

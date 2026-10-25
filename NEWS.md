@@ -3,6 +3,10 @@
 * `.cat_formula()` no longer counts a missing outcome value as a level, so
   a binary outcome with `NA`s is announced as a Cox model, not a CRR one.
 
+* `.cat_message()` prints every element of a character vector, each on its
+  own line; it showed only the first. A zero-length message prints nothing
+  instead of failing with "subscript out of bounds".
+
 # UtilsR 0.6.11
 
 * `plt_cat()` and `plt_con()` with `split.by` report the size of the split

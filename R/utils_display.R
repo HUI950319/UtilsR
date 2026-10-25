@@ -179,7 +179,8 @@ console_width <- function() {
 #' in interactive sessions and to standard error otherwise. The text is shown
 #' verbatim, so braces are not interpolated.
 #'
-#' @param message Character. The message text.
+#' @param message Character. The message text: each element starts a new
+#'   line, as does each \code{"\\n"}; a zero-length message prints nothing.
 #' @param type One of \code{"info"}, \code{"success"}, \code{"warning"},
 #'   \code{"error"}.
 #' @param timestamp_format \code{strftime} format string (default
@@ -205,14 +206,16 @@ console_width <- function() {
                          style = c("full", "chip"),
                          wrap = TRUE,
                          verbose = TRUE) {
-  if (!verbose) return(invisible())
+  if (!verbose || !length(message)) return(invisible())
   cfg   <- ._type_cfg(match.arg(type))
   style <- match.arg(style)
-  lines <- strsplit(as.character(message), "\n")[[1]]
+  # every element on its own lines; "" is one empty line
+  lines <- unlist(lapply(strsplit(as.character(message), "\n"),
+                         function(l) if (length(l)) l else ""))
   ts    <- format(Sys.time(), timestamp_format)
   # wrap at the console width, less the timestamp and the label or symbol
   avail <- max(20, console_width() - nchar(ts) - if (style == "chip") 10 else 6)
-  lines <- unlist(lapply(if (length(lines)) lines else "", function(l) {
+  lines <- unlist(lapply(lines, function(l) {
     if (wrap && nzchar(l)) as.character(cli::ansi_strwrap(l, width = avail)) else l
   }))
 
