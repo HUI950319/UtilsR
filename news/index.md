@@ -3,6 +3,58 @@
 ## UtilsR 0.6.12
 
 - [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  says what it left out: `... 25 more` goes on with the names of the
+  elements it skipped (`... 25 more: e6, e7, e8, ...`), and the footer
+  names the argument that cut the lines
+  (`# ... 16 more lines (max_lines = 9)`).
+
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  pads the names of siblings to a common width, up to 18 characters, so
+  their descriptions start in one column, as
+  [`str()`](https://rdrr.io/r/utils/str.html) and
+  [`pr_kv()`](https://hui950319.github.io/UtilsR/reference/pr_kv.md)
+  line them up.
+
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  names the attributes a closed node carries at the end of its line,
+  such as `[attr: model_info]` on a result table or `[attr: plot_size]`
+  on a plot, leaving out those its type keeps for itself (factor levels,
+  a time zone, value labels, ggplot2’s S7 properties). Only the
+  attributes of open nodes were shown, so these went unseen.
+  `attrs = FALSE` drops them.
+
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  gives a factor’s number of levels, `<fct 100, 3 levels>`, as
+  [`str()`](https://rdrr.io/r/utils/str.html) does.
+
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  takes as many values as the line could hold and ends a vector it cut
+  with an ellipsis: at a width of 100, `1:100` read `1, 2, ..., 10`, as
+  if that were all.
+
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  opens the object it is given: a model fit lists its components, a data
+  frame its columns and an S4 object its slots (as `@name`), where each
+  printed a single line such as `<lm>`. Inside a list they stay closed,
+  as before.
+
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  follows a data frame with its column names, as many as fit the line:
+  `<tibble 12 x 5> term, HR, lower, upper, p`.
+
+- A list
+  [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  leaves closed, at `max_depth` or as an attribute, previews its names
+  and the value of each single one:
+  `attr analysis <list 2> n = 1000, outcome = "DSS"` read
+  `attr analysis <list 2>`. An unnamed list keeps the ellipsis.
+
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  names the element type of a matrix or table (`<int matrix 2 x 3>`) and
+  the arguments of a function (`<fn(data, formula, ...)>`, the first
+  four), which read `<matrix 2 x 3>` and `<fn>`.
+
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
   shows whole numbers as they are and decimals to three digits past
   their integer part: rounded to three significant digits, `123456L`
   read `123000` and `1234.5678` read `1230`.

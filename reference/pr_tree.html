@@ -3,19 +3,21 @@
 description such as &amp;lt;tibble 12 x 7&amp;gt;,
 &amp;lt;chr 3&amp;gt; "Age", "Sex", "Stage" or &amp;lt;ggplot&amp;gt;; clearer than
 str() for the nested lists that analysis functions return. Atomic
-vectors show their first values, as many as fit the console width, and a
-list left unopened at max_depth is marked with an ellipsis. Types
-and sizes are grey, values in the text colour with NA in red, and
-the names of elements that hold others bold; a classed list starts with
-its class as a chip.'><meta property="og:description" content='Print the elements of a list-based result as a tree, each with a short
+vectors show their first values, as many as fit the console width, a data
+frame its column names, and a list left closed at max_depth its
+names with the value of each single one (an unnamed list an ellipsis).
+Sibling names line up in a column. Types and sizes are grey, values in the
+text colour with NA in red, and the names of elements that hold
+others bold; a classed list starts with its class as a chip.'><meta property="og:description" content='Print the elements of a list-based result as a tree, each with a short
 description such as &amp;lt;tibble 12 x 7&amp;gt;,
 &amp;lt;chr 3&amp;gt; "Age", "Sex", "Stage" or &amp;lt;ggplot&amp;gt;; clearer than
 str() for the nested lists that analysis functions return. Atomic
-vectors show their first values, as many as fit the console width, and a
-list left unopened at max_depth is marked with an ellipsis. Types
-and sizes are grey, values in the text colour with NA in red, and
-the names of elements that hold others bold; a classed list starts with
-its class as a chip.'><meta property="og:image" content="https://hui950319.github.io/UtilsR/logo.png"></head><body>
+vectors show their first values, as many as fit the console width, a data
+frame its column names, and a list left closed at max_depth its
+names with the value of each single one (an unnamed list an ellipsis).
+Sibling names line up in a column. Types and sizes are grey, values in the
+text colour with NA in red, and the names of elements that hold
+others bold; a classed list starts with its class as a chip.'><meta property="og:image" content="https://hui950319.github.io/UtilsR/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -70,11 +72,12 @@ its class as a chip.'><meta property="og:image" content="https://hui950319.githu
 description such as <code>&lt;tibble 12 x 7&gt;</code>,
 <code>&lt;chr 3&gt; "Age", "Sex", "Stage"</code> or <code>&lt;ggplot&gt;</code>; clearer than
 <code><a href="https://rdrr.io/r/utils/str.html" class="external-link">str()</a></code> for the nested lists that analysis functions return. Atomic
-vectors show their first values, as many as fit the console width, and a
-list left unopened at <code>max_depth</code> is marked with an ellipsis. Types
-and sizes are grey, values in the text colour with <code>NA</code> in red, and
-the names of elements that hold others bold; a classed list starts with
-its class as a chip.</p>
+vectors show their first values, as many as fit the console width, a data
+frame its column names, and a list left closed at <code>max_depth</code> its
+names with the value of each single one (an unnamed list an ellipsis).
+Sibling names line up in a column. Types and sizes are grey, values in the
+text colour with <code>NA</code> in red, and the names of elements that hold
+others bold; a classed list starts with its class as a chip.</p>
     </div>
 
     <div class="section level2">
@@ -96,7 +99,7 @@ its class as a chip.</p>
 
 <dt id="arg-max-items">max_items<a class="anchor" aria-label="anchor" href="#arg-max-items"></a></dt>
 <dd><p>Integer. Elements shown per node before the rest are
-summarised as "... n more" (default 20).</p></dd>
+summarised as "... n more", with their names (default 20).</p></dd>
 
 
 <dt id="arg-max-lines">max_lines<a class="anchor" aria-label="anchor" href="#arg-max-lines"></a></dt>
@@ -114,13 +117,17 @@ counts the rest.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The tree descends into plain lists and into classed objects that also
+    <p>The object passed in always opens: a model fit lists its components, a
+data frame its columns and an S4 object its slots (as <code>@name</code>). Below
+it the tree descends into plain lists and into classed objects that also
 inherit from <code>"list"</code> (as <code>c("eff_res", "list")</code> does). Data
 frames, plots and other objects are leaves, and so are gt tables, RegR
 pages and htmltools tag lists, which are lists underneath; R6 and other
-classed environments show their class. Attributes other than
-names, class, dimensions, row names and srcref are listed under the node
-that carries them, marked <code>attr</code>.</p>
+classed environments show their class. Attributes other than names,
+class, dimensions, row names, srcref and those a type keeps for itself
+(factor levels, a time zone, value labels) are listed under an open node,
+marked <code>attr</code>, and named at the end of a closed node's line as
+<code>[attr: name]</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -146,11 +153,11 @@ that carries them, marked <code>attr</code>.</p>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">pr_tree</span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #FFFFFF; background-color: #0000BB; font-weight: bold;"> eff_res </span> <span style="color: #555555;">&lt;list 2&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ├─<span style="font-weight: bold;">Overall</span> <span style="color: #555555;">&lt;list 2&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> │ ├─table <span style="color: #555555;">&lt;data.frame 1 x 2&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ├─<span style="font-weight: bold;">Overall</span>  <span style="color: #555555;">&lt;list 2&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> │ ├─table  <span style="color: #555555;">&lt;data.frame 1 x 2&gt;</span> term<span style="color: #555555;">, </span>HR</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> │ └─method <span style="color: #555555;">&lt;chr&gt;</span> "cox"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ├─Subgroup <span style="color: #555555;">&lt;data.frame 2 x 2&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> └─<span style="color: #00BBBB;">attr</span> analysis <span style="color: #555555;">&lt;list 2&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ├─Subgroup <span style="color: #555555;">&lt;data.frame 2 x 2&gt;</span> term<span style="color: #555555;">, </span>HR</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> └─<span style="color: #00BBBB;">attr</span> analysis <span style="color: #555555;">&lt;list 2&gt;</span> <span style="color: #555555;">n =</span> 120<span style="color: #555555;">, outcome =</span> "DSS"</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
