@@ -21,7 +21,8 @@ line, as does each \code{"\\n"}; a zero-length message prints nothing.}
 \code{"error"}.}
 
 \item{timestamp_format}{\code{strftime} format string (default
-\code{"[\%Y-\%m-\%d \%H:\%M:\%S]"}).}
+\code{"[\%Y-\%m-\%d \%H:\%M:\%S]"}); \code{NULL} or \code{""} leaves
+the timestamp out.}
 
 \item{style}{\code{"full"} (default) shades the whole message in the type
 colour after a magenta timestamp. \code{"chip"} prints the timestamp in

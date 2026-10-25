@@ -47,6 +47,17 @@ test_that(".cat_message() prints every element of a vector and nothing for none"
   expect_identical(cli::cli_fmt(.cat_message(character())), character())
 })
 
+test_that(".cat_message() leaves the timestamp out for NULL or an empty format", {
+  for (fmt in list(NULL, "")) {
+    chip <- cli::ansi_strip(cli::cli_fmt(.cat_message("Loading\nsecond", style = "chip",
+                                                      timestamp_format = fmt)))
+    expect_identical(chip, c(" INFO  Loading", paste0(strrep(" ", 7L), "second")))
+    full <- sub(" +$", "", cli::ansi_strip(cli::cli_fmt(
+      .cat_message("Loading\nsecond", timestamp_format = fmt))))
+    expect_identical(full, c(" ℹ Loading", "   second"))
+  }
+})
+
 test_that(".cat_message(style = \"chip\") colours only a short type label", {
   out <- capture_display(.cat_message("Loading\nsecond line", type = "warning",
                                       timestamp_format = "%H:%M", style = "chip"))

@@ -184,7 +184,8 @@ console_width <- function() {
 #' @param type One of \code{"info"}, \code{"success"}, \code{"warning"},
 #'   \code{"error"}.
 #' @param timestamp_format \code{strftime} format string (default
-#'   \code{"[\%Y-\%m-\%d \%H:\%M:\%S]"}).
+#'   \code{"[\%Y-\%m-\%d \%H:\%M:\%S]"}); \code{NULL} or \code{""} leaves
+#'   the timestamp out.
 #' @param style \code{"full"} (default) shades the whole message in the type
 #'   colour after a magenta timestamp. \code{"chip"} prints the timestamp in
 #'   grey and colours only a short type label (\code{INFO}, \code{DONE},
@@ -212,7 +213,11 @@ console_width <- function() {
   # every element on its own lines; "" is one empty line
   lines <- unlist(lapply(strsplit(as.character(message), "\n"),
                          function(l) if (length(l)) l else ""))
-  ts    <- format(Sys.time(), timestamp_format)
+  # format(x, "") would fall back to R's default format, not drop the stamp
+  ts    <- if (is.null(timestamp_format) || !nzchar(timestamp_format)) "" else
+    format(Sys.time(), timestamp_format)
+  # columns the timestamp takes with the space after it
+  ts_w  <- if (nzchar(ts)) nchar(ts) + 1L else 0L
   # wrap at the console width, less the timestamp and the label or symbol
   avail <- max(20, console_width() - nchar(ts) - if (style == "chip") 10 else 6)
   lines <- unlist(lapply(lines, function(l) {
@@ -222,15 +227,16 @@ console_width <- function() {
   tryCatch({
     bg    <- ._cli_bg(cfg$type)
     fg    <- ._cli_fg(cfg$type)
-    ts_col <- cli::col_magenta(ts)
+    ts_col <- if (nzchar(ts)) paste0(cli::col_magenta(ts), " ") else ""
 
     out <- character(length(lines))
     if (style == "chip") {
       label <- c(info = "INFO", success = "DONE",
                  warning = "WARN", error = "FAIL")[[cfg$type]]
-      lead  <- paste0(cli::col_grey(ts), " ", ._chip(label, bg, fg), " ")
+      lead  <- paste0(if (nzchar(ts)) paste0(cli::col_grey(ts), " "),
+                      ._chip(label, bg, fg), " ")
       # continuation lines start under the text: timestamp, space, chip, space
-      out   <- paste0(c(lead, rep(strrep(" ", nchar(ts) + nchar(label) + 4),
+      out   <- paste0(c(lead, rep(strrep(" ", ts_w + nchar(label) + 3),
                                   length(lines) - 1L)), lines)
     } else for (i in seq_along(lines)) {
       body <- if (i == 1L) {
@@ -239,7 +245,7 @@ console_width <- function() {
       } else {
         paste0(" ", cli::style_bold(fg(lines[i])), " ")
       }
-      prefix <- if (i == 1L) paste0(ts_col, " ") else strrep(" ", nchar(ts) + 3)
+      prefix <- if (i == 1L) ts_col else strrep(" ", ts_w + 2)
       out[i] <- paste0(prefix, bg(body))
     }
     # A cli message rather than cat(), so suppressMessages() silences it;
@@ -250,7 +256,8 @@ console_width <- function() {
     out <- character(length(lines))
     for (i in seq_along(lines)) {
       body <- if (i == 1L) paste(cfg$symbol, lines[i]) else lines[i]
-      prefix <- if (i == 1L) paste0("\033[90m", ts, "\033[0m ") else strrep(" ", nchar(ts) + 3)
+      prefix <- if (i > 1L) strrep(" ", ts_w + 2) else
+        if (nzchar(ts)) paste0("\033[90m", ts, "\033[0m ") else ""
       out[i] <- paste0(prefix, ._ansi_styled(body, cfg$ansi_bg, cfg$ansi_fg))
     }
     message(paste(out, collapse = "\n"))

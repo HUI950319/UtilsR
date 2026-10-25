@@ -11,6 +11,10 @@
   whose elements are all `NULL`, instead of failing with "a character
   vector argument expected".
 
+* `.cat_message(timestamp_format = NULL)` or `timestamp_format = ""` leaves
+  the timestamp out. An empty format used to fall back to R's default
+  date-time format, so the timestamp stayed, without its brackets.
+
 # UtilsR 0.6.11
 
 * `plt_cat()` and `plt_con()` with `split.by` report the size of the split
