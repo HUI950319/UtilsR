@@ -82,6 +82,14 @@
   `PlotRankCor: the plot has been saved to: <path> [7x5 in, new PDF]`,
   in place of `Plot saved to <path>`.
 
+* `lv()` prints its headings and facts at the console with `pr_section()`
+  and `pr_kv()`, on stdout beside the tables they head (cross-tabulation,
+  wide and row-percentage tables, grouped summary, Seurat summary and
+  cell statistics), so `capture.output()` and Rscript logs keep them and
+  `suppressMessages()` no longer strips them from the report. The banner
+  above each variable, which the console listing already names, is left
+  out there. Knitted reports keep the cli headers as before.
+
 # UtilsR 0.6.11
 
 * `plt_cat()` and `plt_con()` with `split.by` report the size of the split

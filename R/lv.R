@@ -320,13 +320,17 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     n_na <- .count_missing_values(col_data)
     var_class <- class(col_data)[1]
 
-    cli::cli_h1(
-      cli::col_br_white(
-        cli::bg_cyan(
-          sprintf("** summary for %s (%s) **", var, var_class)
+    # at the console the sections below name the variable; the cli header,
+    # a message, heads it only while knitting
+    if (knitting) {
+      cli::cli_h1(
+        cli::col_br_white(
+          cli::bg_cyan(
+            sprintf("** summary for %s (%s) **", var, var_class)
+          )
         )
       )
-    )
+    }
 
     if (!knitting) {
       pr_section(sprintf("%s (%s): count", var, var_class))
@@ -533,7 +537,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       cli::cli_warn("{.arg data} inside {.arg cat_args} is ignored; using {.code lv()}'s data argument.")
       cat_args$data <- NULL
     }
-    cli::cli_h1(cli::col_cyan("Categorical summary (RegR::get_gt_cat)"))
+    if (knitting) cli::cli_h1(cli::col_cyan("Categorical summary (RegR::get_gt_cat)"))
+    else pr_section("Categorical summary (RegR::get_gt_cat)")
     tryCatch(
       do.call(RegR::get_gt_cat, c(list(data = data), cat_args)),
       error = function(e) {
@@ -591,8 +596,17 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       ))
     }
     count_title <- paste(count_vars, collapse = " \u00d7 ")
-    cli::cli_h1(cli::col_cyan(glue::glue("Cross-tabulation: {count_title}")))
-    cli::cli_alert_info("Variables: {.val {paste(count_vars, collapse = ', ')}}")
+    # Headings and facts print to stdout at the console, with the tables they
+    # head, so capture.output() and Rscript logs keep them and
+    # suppressMessages() leaves them; while knitting they stay cli messages,
+    # so knitted reports are as they were (57ad289 kept them for that).
+    if (knitting) {
+      cli::cli_h1(cli::col_cyan(glue::glue("Cross-tabulation: {count_title}")))
+      cli::cli_alert_info("Variables: {.val {paste(count_vars, collapse = ', ')}}")
+    } else {
+      pr_section(paste("Cross-tabulation:", count_title))
+      pr_kv(list(Variables = toString(count_vars)))
+    }
 
     # Keep generated fields separate from the variables being inspected.
     count_names <- tail(make.unique(c(count_vars, "n", "pct", "n_pct"),
@@ -630,7 +644,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       }
     }
     if (two_way) {
-      cli::cli_h2(cli::col_yellow("Wide Format Table"))
+      if (knitting) cli::cli_h2(cli::col_yellow("Wide Format Table"))
+      else pr_section("Wide Format Table")
 
       cross_wide <- count_base %>%
         tidyr::pivot_wider(
@@ -671,7 +686,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
 
       .lv_print_report(cross_gt)
 
-      cli::cli_h3(cli::col_yellow("Row Percentages (%)"))
+      if (knitting) cli::cli_h3(cli::col_yellow("Row Percentages (%)"))
+      else pr_section("Row Percentages (%)")
 
       cross_pct <- count_base %>%
         dplyr::group_by(.data[[count_vars[1]]]) %>%
@@ -694,7 +710,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       else print(tibble::as_tibble(cross_pct))
     }
 
-    cli::cli_rule()
+    if (knitting) cli::cli_rule()
     .run_cat_args()
     return(invisible(data))
   }
@@ -732,10 +748,14 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       return(invisible(data))
     }
 
-    cli::cli_h1(cli::col_magenta(glue::glue("Variable Summary by {group_var}")))
-
     n_groups <- length(unique(data[[group_var]]))
-    cli::cli_alert_info("Groups: {.val {n_groups}}")
+    if (knitting) {
+      cli::cli_h1(cli::col_magenta(glue::glue("Variable Summary by {group_var}")))
+      cli::cli_alert_info("Groups: {.val {n_groups}}")
+    } else {
+      pr_section(paste("Variable Summary by", group_var))
+      pr_kv(list(Groups = n_groups))
+    }
 
     grouped_data <- .tbl_input(tibble::as_tibble(analysis_data)[, vars, drop = FALSE])
     # Missing group values form their own last group, so the groups match the
@@ -909,21 +929,26 @@ lv.Seurat <- function(data, ...,
   count_vars <- .lv_resolve_vars(rlang::enquo(count), names(meta_data), "count",
                                   multiple = TRUE)
 
-  # Print Seurat object basic info
-  cli::cli_h1(cli::col_magenta("Seurat Object Summary"))
-
+  # Print Seurat object basic info: to stdout at the console, as cli
+  # messages while knitting (see lv.data.frame())
+  knitting <- isTRUE(getOption("knitr.in.progress")) &&
+    requireNamespace("knitr", quietly = TRUE)
   n_cells <- ncol(data)
   n_features <- nrow(data)
-
-  cli::cli_alert_info("Cells: {.val {n_cells}}")
-  cli::cli_alert_info("Features: {.val {n_features}}")
-
   assays <- SeuratObject::Assays(data)
-  cli::cli_alert_info("Assays: {.val {paste(assays, collapse = ', ')}}")
-
   reductions <- SeuratObject::Reductions(data)
-  if (length(reductions) > 0) {
-    cli::cli_alert_info("Reductions: {.val {paste(reductions, collapse = ', ')}}")
+  if (knitting) {
+    cli::cli_h1(cli::col_magenta("Seurat Object Summary"))
+    cli::cli_alert_info("Cells: {.val {n_cells}}")
+    cli::cli_alert_info("Features: {.val {n_features}}")
+    cli::cli_alert_info("Assays: {.val {paste(assays, collapse = ', ')}}")
+    if (length(reductions) > 0) {
+      cli::cli_alert_info("Reductions: {.val {paste(reductions, collapse = ', ')}}")
+    }
+  } else {
+    pr_section("Seurat Object Summary")
+    pr_kv(list(Cells = n_cells, Features = n_features, Assays = toString(assays),
+               Reductions = if (length(reductions)) toString(reductions)))
   }
 
   if (add_reductions && length(reductions) > 0) {
@@ -939,30 +964,33 @@ lv.Seurat <- function(data, ...,
   }
 
   if (add_cell_stats) {
-    cli::cli_rule(cli::col_cyan("Cell Statistics"))
-
     qc_cols <- c("nCount_RNA", "nFeature_RNA", "percent.mt", "percent.ribo",
                  "nCount_SCT", "nFeature_SCT", "S.Score", "G2M.Score", "Phase")
     available_qc <- intersect(qc_cols, names(meta_data))
 
-    if (length(available_qc) > 0) {
-      cli::cli_alert_success(
-        "Available QC metrics: {.val {paste(available_qc, collapse = ', ')}}"
-      )
-    }
-
     # orig.ident names the sample each cell came from, not a clustering.
     cluster_cols <- setdiff(grep("cluster|seurat_cluster|ident", names(meta_data),
                                  ignore.case = TRUE, value = TRUE), "orig.ident")
-    if (length(cluster_cols) > 0) {
-      for (cc in cluster_cols) {
-        n_clusters <- length(unique(meta_data[[cc]]))
-        cli::cli_alert_success("{.field {cc}}: {.val {n_clusters}} clusters")
+    n_clusters <- vapply(cluster_cols, function(cc) length(unique(meta_data[[cc]])),
+                         integer(1))
+    if (knitting) {
+      cli::cli_rule(cli::col_cyan("Cell Statistics"))
+      if (length(available_qc) > 0) {
+        cli::cli_alert_success(
+          "Available QC metrics: {.val {paste(available_qc, collapse = ', ')}}"
+        )
       }
+      for (cc in cluster_cols) {
+        cli::cli_alert_success("{.field {cc}}: {.val {n_clusters[[cc]]}} clusters")
+      }
+    } else {
+      pr_section("Cell Statistics")
+      pr_kv(c(list(`Available QC metrics` = if (length(available_qc)) toString(available_qc)),
+              as.list(stats::setNames(sprintf("%d clusters", n_clusters), cluster_cols))))
     }
   }
 
-  cli::cli_rule()
+  if (knitting) cli::cli_rule()
 
   rlang::inject(lv.data.frame(meta_data, ..., pattern = pattern,
                              group = !!group_var, count = !!count_vars,

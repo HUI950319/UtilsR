@@ -527,15 +527,9 @@ test_that("Seurat cluster statistics leave out the sample identity", {
   object <- SeuratObject::CreateSeuratObject(Matrix::Matrix(counts, sparse = TRUE))
   object[["seurat_clusters"]] <- factor(rep(0:1, 4))
   object[["score"]] <- seq_len(8)
-  seen <- character()
-  utils::capture.output(withCallingHandlers(
-    lv(object, score),
-    message = function(m) {
-      seen <<- c(seen, conditionMessage(m))
-      invokeRestart("muffleMessage")
-    }
-  ))
-  clusters <- grep("clusters", seen, value = TRUE)
+  # the cell statistics print to stdout at the console
+  out <- cli::ansi_strip(utils::capture.output(suppressMessages(lv(object, score))))
+  clusters <- grep("clusters", out, value = TRUE)
   expect_true(any(grepl("seurat_clusters", clusters)))
   expect_false(any(grepl("orig.ident", clusters)))
 })
@@ -581,6 +575,25 @@ test_that("the variable summary tints rows by variable type", {
     expect_setequal(filled$col[filled$var == v], columns)
   }
   expect_false("flag" %in% filled$var)
+})
+
+test_that("lv() prints its headings with the tables at the console, as messages when knitting", {
+  data <- data.frame(a = c("x", "y", "x"), b = c("u", "u", "v"))
+  cross <- cli::ansi_strip(utils::capture.output(suppressMessages(
+    lv(data, count = c("a", "b")))))
+  expect_true(any(grepl("Cross-tabulation: a \u00d7 b", cross, fixed = TRUE)))
+  expect_true(any(grepl("Variables  a, b", cross, fixed = TRUE)))
+  expect_true(any(grepl("Wide Format Table", cross, fixed = TRUE)))
+  expect_true(any(grepl("Row Percentages (%)", cross, fixed = TRUE)))
+  grouped <- cli::ansi_strip(utils::capture.output(suppressMessages(
+    lv(data, a, group = "b"))))
+  expect_true(any(grepl("Variable Summary by b", grouped, fixed = TRUE)))
+  expect_true(any(grepl("Groups  2", grouped, fixed = TRUE)))
+  expect_false(any(grepl("summary for", utils::capture.output(suppressMessages(lv(data))),
+                         fixed = TRUE)))
+
+  withr::local_options(knitr.in.progress = TRUE)
+  expect_message(utils::capture.output(lv(data, count = c("a", "b"))), "Cross-tabulation")
 })
 
 test_that("lv prints its console sections with pr_section()", {
