@@ -329,7 +329,7 @@ plt_con <- function(data,
     plot_list <- lapply(split_levels, function(lv) {
       sub_data <- data[data[[split.by]] == lv, , drop = FALSE]
       # each panel is reported as part of the split figure, not on its own
-      utils::capture.output(sub <- plt_con(
+      cli::cli_fmt(sub <- plt_con(
         data = sub_data, stat.by = stat.by,
         group.by = if (dummy_group) NULL else group.by,
         split.by = NULL, bg.by = bg.by,

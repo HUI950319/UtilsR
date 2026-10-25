@@ -18,11 +18,11 @@ test_that("plt_cat saves at its page size and reports a split figure once", {
   d <- cat_con_data()
   f <- withr::local_tempfile(fileext = ".pdf")
   for (type in c("bar", "pie")) {
-    out <- utils::capture.output(p <- suppressMessages(plt_cat(
+    out <- cli::cli_fmt(p <- suppressMessages(plt_cat(
       d, stat.by = "stage", group.by = "sex", type = type, save = list(filename = f))))
     expect_saved_at_plot_size(out, p)
   }
-  out <- utils::capture.output(p <- suppressMessages(plt_cat(
+  out <- cli::cli_fmt(p <- suppressMessages(plt_cat(
     d, stat.by = "stage", group.by = "sex", split.by = "site",
     save = list(filename = f))))
   expect_equal(sum(grepl("laid out for", out)), 1L)
@@ -38,10 +38,10 @@ test_that("plt_con saves at its page size and refuses a list of plots", {
   expect_identical(tail(names(formals(plt_con)), 1), "save")
   d <- cat_con_data()
   f <- withr::local_tempfile(fileext = ".pdf")
-  out <- utils::capture.output(p <- suppressMessages(suppressWarnings(plt_con(
+  out <- cli::cli_fmt(p <- suppressMessages(suppressWarnings(plt_con(
     d, stat.by = "age", group.by = "stage", save = list(filename = f)))))
   expect_saved_at_plot_size(out, p)
-  out <- utils::capture.output(p <- suppressMessages(suppressWarnings(plt_con(
+  out <- cli::cli_fmt(p <- suppressMessages(suppressWarnings(plt_con(
     d, stat.by = c("age", "bmi"), group.by = "stage", split.by = "sex",
     save = list(filename = f)))))
   expect_equal(sum(grepl("laid out for", out)), 1L)

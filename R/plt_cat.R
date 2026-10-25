@@ -391,7 +391,7 @@ plt_cat <- function(data,
     plot_list <- lapply(split_levels, function(lv) {
       sub_data <- data[data[[split.by]] == lv, , drop = FALSE]
       # each panel is reported as part of the split figure, not on its own
-      utils::capture.output(sub <- plt_cat(
+      cli::cli_fmt(sub <- plt_cat(
         data = sub_data, stat.by = stat.by, group.by = group.by,
         split.by = NULL, type = type, stat = stat, position = position,
         palette = palette, alpha = alpha, label = label,

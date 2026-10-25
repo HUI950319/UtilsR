@@ -1,5 +1,10 @@
 # UtilsR 0.6.11
 
+* `plt_cat()` and `plt_con()` with `split.by` report the size of the split
+  figure once again. Each panel's own "plot laid out for" note was captured
+  as printed output, which a `.cat_message()` no longer is since it became
+  a cli message, so a figure of three panels showed four notes.
+
 * `pr_tree()` keeps gt tables, RegR pages and htmltools tag lists closed:
   they are lists underneath, and opening one listed some 20 internal
   fields, such as `_data` and `_styles`, in place of the result's parts.
