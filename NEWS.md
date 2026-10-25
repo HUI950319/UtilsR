@@ -5,6 +5,9 @@
   `@name`), where each printed a single line such as `<lm>`. Inside a list
   they stay closed, as before.
 
+* `pr_tree()` follows a data frame with its column names, as many as fit
+  the line: `<tibble 12 x 5> term, HR, lower, upper, p`.
+
 * `pr_tree()` shows whole numbers as they are and decimals to three digits
   past their integer part: rounded to three significant digits, `123456L`
   read `123000` and `1234.5678` read `1230`.

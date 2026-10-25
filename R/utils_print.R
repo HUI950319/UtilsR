@@ -477,8 +477,9 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
 # Short description of an object: "<tibble 12 x 7>", "<ggplot>"; atomic
 # values follow their type, e.g. <chr> "cox" or <chr 3> "Age", "Sex", "Stage"
 # (the first 10 values, the description cut to `width` characters). With
-# `colour`, the type and size are grey and NA red, values in the text colour.
-._obj_desc <- function(v, width = 80, colour = FALSE) {
+# `colour`, the type and size are grey and NA red, values in the text colour;
+# with `inside`, a container that stays closed previews what it holds.
+._obj_desc <- function(v, width = 80, colour = FALSE, inside = FALSE) {
   g <- if (colour) cli::col_grey else identity
   if (is.null(v)) return(g("<NULL>"))
   big <- function(n) format(n, big.mark = ",", scientific = FALSE, trim = TRUE)
@@ -486,8 +487,12 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   if (inherits(v, "POSIXlt")) v <- as.POSIXct(v)
   cls <- class(v)[1]
   if (is.data.frame(v)) {
-    lab <- if (inherits(v, "tbl_df")) "tibble" else cls
-    return(g(sprintf("<%s %s x %s>", lab, big(nrow(v)), big(ncol(v)))))
+    lab  <- if (inherits(v, "tbl_df")) "tibble" else cls
+    head <- sprintf("<%s %s x %s>", lab, big(nrow(v)), big(ncol(v)))
+    if (!inside || !ncol(v)) return(g(head))
+    # its column names, as far as the line goes
+    room <- max(width - cli::ansi_nchar(head, type = "width") - 1L, 10L)
+    return(paste(g(head), cli::ansi_strtrim(paste(names(v), collapse = g(", ")), room)))
   }
   if (!is.null(dim(v))) return(g(sprintf("<%s %s>", cls, paste(big(dim(v)), collapse = " x "))))
   if (is.function(v)) return(g("<fn>"))
@@ -634,7 +639,8 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
           room <- console_width() - 2L * (depth + 1L) -
             cli::ansi_nchar(nm[k], type = "width") - 1L
           name <- if (descend(child) && length(child)) cli::style_bold(nm[k]) else nm[k]
-          child_label <- paste(name, ._obj_desc(child, room, colour = TRUE))
+          child_label <- paste(name, ._obj_desc(
+            child, room, colour = TRUE, inside = !(descend(child) && depth + 1 < max_depth)))
           # a list left unopened at max_depth
           if (depth + 1 >= max_depth && descend(child) && length(child)) {
             child_label <- paste(child_label, cli::col_grey(cli::symbol$ellipsis))
@@ -657,7 +663,7 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
             paste(cli::col_cyan("attr"), a, ._obj_desc(
               attr(v, a, exact = TRUE),
               console_width() - 2L * (depth + 1L) - 6L - cli::ansi_nchar(a, type = "width"),
-              colour = TRUE))
+              colour = TRUE, inside = TRUE))
           } else ""))
         }
       }

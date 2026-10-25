@@ -128,7 +128,7 @@ test_that("pr_tree() shows the structure of a nested result list", {
   expect_identical(plain, c(
     " eff_res  <list 3>",
     "Overall <list 2>",
-    "table <data.frame 3 x 2>",
+    "table <data.frame 3 x 2> a, b",
     "plot <gg>",
     "method <chr> \"cox\"",
     "p <dbl 2> 0.1, 0.2",
@@ -434,6 +434,9 @@ test_that("pr_tree() previews vectors, marks collapsed nodes and caps lines", {
   expect_match(wide[2], 'words <chr 30> "word 1", .*\u2026$')
   expect_true(any(grepl("big <int 1,000,000> 1, 2, 3", wide)))
   expect_true(any(grepl("df <data.frame 12,345 x 1>", wide)))
+  # a data frame left closed lists its columns; pr_kv() keeps to the size
+  cols <- utils::capture.output(pr_tree(list(tab = data.frame(term = "Age", HR = 1.8, p = 0.01))))
+  expect_true(any(grepl("tab <data.frame 1 x 3> term, HR, p$", cols)))
   big <- utils::capture.output(pr_tree(rep(list(as.list(1:20)), 20), max_lines = 30))
   expect_length(big, 31L)
   expect_match(big[31], "more lines")
