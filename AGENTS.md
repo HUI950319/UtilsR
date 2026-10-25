@@ -20,8 +20,9 @@ These rules apply to work under `UtilsR/` in addition to the repository-root
   that `suppressMessages()` silences, and `R/utils_print.R` the `pr_*`
   building blocks for S3 print methods, which write to stdout. Print methods
   in the packages importing UtilsR (RegR, MLR, causalR, seerR) build on
-  `pr_*`. RegR has imported UtilsR since 2026-10-24 (user decision) but
-  still keeps its own `cat()`-based `.cat_*` copies in `cli-get.R`. How to
+  `pr_*`. RegR has imported UtilsR since 2026-10-24, and since 2026-10-25
+  its `.cat_message()`, `.cat_saved()`, `.cat_formula()`, `.cat_line()` and
+  `.cat_box()` too, in place of its own `cat()` copies (user decisions). How to
   use them, the print-method skeleton and the house conventions are in
   [console-print](../.claude/docs/console-print.md).
 - Documentation generation and installation follow
