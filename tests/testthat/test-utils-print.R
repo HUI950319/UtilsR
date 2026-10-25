@@ -244,6 +244,18 @@ test_that("print helpers stay readable without colour", {
   expect_match(utils::capture.output(pr_tree(list(a = 1)))[1], "^<list 1>$")
 })
 
+test_that("pr_spark() counts an identifier column instead of tabulating it", {
+  withr::local_options(cli.num_colors = 1)
+  ids <- data.frame(id = c(sprintf("P%03d", 1:50), NA), grp = rep(c("a", "b"), length.out = 51))
+  out <- utils::capture.output(pr_spark(ids))
+  expect_match(out[1], "50 unique values", fixed = TRUE)
+  expect_match(out[1], "NA 2.0%", fixed = TRUE)
+  expect_false(grepl("levels", out[1]))
+  # a few distinct values still show their levels
+  few <- utils::capture.output(pr_spark(data.frame(x = c("a", "b", "c"))))
+  expect_match(few, "3 levels", fixed = TRUE)
+})
+
 test_that("pr_spark() names an empty-string level", {
   out <- cli::ansi_strip(utils::capture.output(
     pr_spark(data.frame(site = c("", "", "head", "tail")))))

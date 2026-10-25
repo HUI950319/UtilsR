@@ -73,6 +73,10 @@
 * `pr_table()` describes the cells of a list column as `pr_tree()` does,
   `<dbl 2> 1.1, 2.2`, where it printed the deparsed `c(1.1, 2.2)`.
 
+* `pr_spark()` shows a column whose values all differ, such as a patient
+  identifier, as `<n> unique values` instead of tabulating it: 1e5
+  identifiers took 0.1 s to draw a flat line of single counts.
+
 # UtilsR 0.6.11
 
 * `plt_cat()` and `plt_con()` with `split.by` report the size of the split

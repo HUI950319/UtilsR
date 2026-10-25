@@ -33,7 +33,8 @@ columns show the same histogram with their first and last dates. Factor,
 character and logical columns show their level counts (in level order,
 or the \code{bins} most frequent levels when there are more), the number
 of levels and the most frequent one with its share of non-missing
-values. Other columns show their class only.
+values; one whose values all differ, such as an identifier, shows how many
+there are. Other columns show their class only.
 }
 \examples{
 set.seed(1)

@@ -741,7 +741,8 @@ pr_box <- function(x, header = NULL, footer = NULL, col = "cyan") {
 #' character and logical columns show their level counts (in level order,
 #' or the \code{bins} most frequent levels when there are more), the number
 #' of levels and the most frequent one with its share of non-missing
-#' values. Other columns show their class only.
+#' values; one whose values all differ, such as an identifier, shows how many
+#' there are. Other columns show their class only.
 #'
 #' @param data A data frame (tibbles included).
 #' @param vars Character. Columns to show; \code{NULL} (default) shows all.
@@ -805,6 +806,12 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
                sprintf("mean %s  sd %s", sig3(mean(fin)), sig3(stats::sd(fin))), na))
     }
     if (is.factor(v) || is.character(v) || is.logical(v)) {
+      # an identifier, every value different: count it rather than table() it
+      # (0.1 s for 1e5 strings, drawn as a flat line of single counts)
+      ok <- v[!is.na(v)]
+      if (length(ok) > bins && !anyDuplicated(ok)) {
+        return(c("", sprintf("%d unique values", length(ok)), na))
+      }
       tab <- table(v)
       if (!length(tab)) return(c("", "all missing", na))
       k   <- length(tab)
