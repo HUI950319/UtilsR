@@ -227,11 +227,13 @@ Styled console output helpers.
 - [`.cat_box()`](https://hui950319.github.io/UtilsR/reference/dot-cat_box.md)
   : Styled info box
 - [`.cat_formula()`](https://hui950319.github.io/UtilsR/reference/dot-cat_formula.md)
-  : Print model formula with styled header
+  : Announce a model and its formula
 - [`.cat_line()`](https://hui950319.github.io/UtilsR/reference/dot-cat_line.md)
   : Styled separator line
 - [`.cat_message()`](https://hui950319.github.io/UtilsR/reference/dot-cat_message.md)
   : Styled log message with timestamp
+- [`.cat_saved()`](https://hui950319.github.io/UtilsR/reference/dot-cat_saved.md)
+  : Announce a saved file with its size and whether it replaced one
 - [`.cat_step()`](https://hui950319.github.io/UtilsR/reference/dot-cat_step.md)
   : Numbered, timed progress step
 - [`.cat_tb()`](https://hui950319.github.io/UtilsR/reference/dot-cat_tb.md)

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">UtilsR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -49,8 +49,17 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.6.11" id="utilsr-0611">UtilsR 0.6.11<a class="anchor" aria-label="anchor" href="#utilsr-0611"></a></h2>
+<ul><li><p><code><a href="../reference/pr_tree.html">pr_tree()</a></code> keeps gt tables, RegR pages and htmltools tag lists closed: they are lists underneath, and opening one listed some 20 internal fields, such as <code>_data</code> and <code>_styles</code>, in place of the result’s parts. R6 objects, such as mlr3 learners, show their class instead of <code>&lt;env&gt;</code>, in <code><a href="../reference/pr_tree.html">pr_tree()</a></code> and <code><a href="../reference/pr_kv.html">pr_kv()</a></code> alike.</p></li>
+<li><p><code><a href="../reference/dot-cat_formula.html">.cat_formula()</a></code> announces a model in one <code><a href="../reference/dot-cat_message.html">.cat_message()</a></code> line, e.g. <code>Cox model, unadjusted: Surv(time, DSS) ~ Sex</code>, instead of a box and a rule, nine lines in all; <code><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressMessages()</a></code> silences it.</p></li>
+<li><p><code>.cat_message(wrap = FALSE)</code> keeps every line whole, for a line meant to be copied, such as a <code>save = list(...)</code> call.</p></li>
+<li><p>New <code><a href="../reference/dot-cat_saved.html">.cat_saved()</a></code> announces a written file as <code>&lt;subject&gt;: &lt;path&gt; [&lt;size&gt;, new PDF]</code>, or <code>replaced the existing PDF</code> in red, as a <code><a href="../reference/dot-cat_message.html">.cat_message()</a></code>; it moves here from RegR. <code><a href="../reference/PlotCircleLollipop.html">PlotCircleLollipop()</a></code>, <code><a href="../reference/PlotDumbbell.html">PlotDumbbell()</a></code>, <code><a href="../reference/PlotHeatmapJaccard.html">PlotHeatmapJaccard()</a></code>, <code><a href="../reference/PlotRank.html">PlotRank()</a></code> and <code><a href="../reference/PlotScatter1.html">PlotScatter1()</a></code> to <code><a href="../reference/PlotScatter3.html">PlotScatter3()</a></code> use it for their <code>filename</code>, with the function name and the page size, instead of <code>message("Plot saved to: ")</code>.</p></li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.10" id="utilsr-0610">UtilsR 0.6.10<a class="anchor" aria-label="anchor" href="#utilsr-0610"></a></h2>
-<ul><li><p><code>check_system(show_warnings = TRUE)</code> emits one acquisition warning when a memory backend fails, preserving its cause without a duplicate warning.</p></li>
+<ul><li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> prints its per-group correlations as a <code><a href="../reference/pr_table.html">pr_table()</a></code> with the P values coloured by significance. The coefficient column is <code>r</code> for <code>use_rank = FALSE</code>, as in the subtitle; the printed lines called a Pearson coefficient <code>rho</code>.</p></li>
+<li><p><code><a href="../reference/pal_list.html">pal_list()</a></code> and console <code><a href="../reference/pal_show.html">pal_show()</a></code> head each palette with a <code><a href="../reference/pr_section.html">pr_section()</a></code> rule, <code>"Set1 (9 colours, discrete)"</code>, instead of a <code>===</code> banner; so do the <code>pal_show_*()</code> wrappers.</p></li>
+<li><p><code>check_system(show_warnings = TRUE)</code> emits one acquisition warning when a memory backend fails, preserving its cause without a duplicate warning.</p></li>
 <li><p><code><a href="../reference/check_system.html">check_system()</a></code> measures R heap bytes with <code>lobstr</code> or exact GC cell counts, removing the undeclared <code>pryr</code> dependency and rounded-MB fallback. Reports and warnings label binary memory units as GiB; existing <code>_gb</code> field names, thresholds and function arguments are retained.</p></li>
 <li><p><code><a href="../reference/check_system.html">check_system()</a></code> avoids repeated Windows CIM startup when <code>ps</code> can query live memory. Only static OS and CPU metadata are cached; memory is refreshed on every call, with fresh CIM queries retained if the native backend fails.</p></li>
 <li><p><code><a href="../reference/check_system.html">check_system()</a></code> obtains macOS memory through the optional <code>ps</code> backend, using available memory consistently instead of attempting Linux commands.</p></li>

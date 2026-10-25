@@ -213,24 +213,30 @@ df <- data.frame(
 # Basic usage
 PlotRankCor(df, stat.by = "cell_type", value.by = "score",
             group.by = "comparison", method.by = "method")
-#>   PHPT: rho = -0.071, p = 0.8665
-#>   SHPT: rho = 0.119, p = 0.7789
+#>   group     rho      P
+#>   ────────────────────
+#>   PHPT   -0.071  0.867
+#>   SHPT    0.119  0.779
 
 
 # With size mapping
 PlotRankCor(df, stat.by = "cell_type", value.by = "score",
             group.by = "comparison", method.by = "method",
             size_by = "score", legend.position = "right")
-#>   PHPT: rho = -0.071, p = 0.8665
-#>   SHPT: rho = 0.119, p = 0.7789
+#>   group     rho      P
+#>   ────────────────────
+#>   PHPT   -0.071  0.867
+#>   SHPT    0.119  0.779
 
 
 # With alpha depth (darker = higher score)
 PlotRankCor(df, stat.by = "cell_type", value.by = "score",
             group.by = "comparison", method.by = "method",
             alpha_by = "score")
-#>   PHPT: rho = -0.071, p = 0.8665
-#>   SHPT: rho = 0.119, p = 0.7789
+#>   group     rho      P
+#>   ────────────────────
+#>   PHPT   -0.071  0.867
+#>   SHPT    0.119  0.779
 
 
 # Combined: size + alpha depth
@@ -238,7 +244,9 @@ PlotRankCor(df, stat.by = "cell_type", value.by = "score",
             group.by = "comparison", method.by = "method",
             size_by = "score", alpha_by = "pvalue",
             legend.position = "right")
-#>   PHPT: rho = -0.071, p = 0.8665
-#>   SHPT: rho = 0.119, p = 0.7789
+#>   group     rho      P
+#>   ────────────────────
+#>   PHPT   -0.071  0.867
+#>   SHPT    0.119  0.779
 
 ```

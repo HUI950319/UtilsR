@@ -1,8 +1,12 @@
-# Print model formula with styled header
+# Announce a model and its formula
 
-Displays a model formula (Cox, CRR, or logistic) with a styled box and
-separator. Automatically detects model type from the number of distinct
-outcome levels and presence of a time variable.
+One
+[`.cat_message()`](https://hui950319.github.io/UtilsR/reference/dot-cat_message.md)
+line naming the model (Cox, CRR or logistic), whether it is adjusted,
+and its formula, e.g. `Cox model, unadjusted: Surv(time, DSS) ~ Sex`.
+The model type comes from the number of distinct outcome levels and
+whether there is a time variable.
+[`suppressMessages()`](https://rdrr.io/r/base/message.html) silences it.
 
 ## Usage
 
@@ -41,7 +45,7 @@ outcome levels and presence of a time variable.
 
 ## Value
 
-Invisibly returns `NULL` after printing the formula.
+`NULL`, invisibly.
 
 ## See also
 
@@ -49,6 +53,7 @@ Other console display:
 [`.cat_box()`](https://hui950319.github.io/UtilsR/reference/dot-cat_box.md),
 [`.cat_line()`](https://hui950319.github.io/UtilsR/reference/dot-cat_line.md),
 [`.cat_message()`](https://hui950319.github.io/UtilsR/reference/dot-cat_message.md),
+[`.cat_saved()`](https://hui950319.github.io/UtilsR/reference/dot-cat_saved.md),
 [`.cat_step()`](https://hui950319.github.io/UtilsR/reference/dot-cat_step.md),
 [`.cat_tb()`](https://hui950319.github.io/UtilsR/reference/dot-cat_tb.md)
 
@@ -61,13 +66,5 @@ formula_data <- data.frame(
   age = c(45, 52, 61, 39)
 )
 .cat_formula(formula_data, co_var = "age")
-#> 
-#>                            ╭─────────────────────────╮
-#>                            │                         │
-#>                            │   ℹ unadj cox model ℹ   │
-#>                            │                         │
-#>                            ╰─────────────────────────╯
-#> =========================   ℹ Surv(time, DSS) ~ age ℹ   ========================
-#> 
-#> 
+#> [2026-10-25 02:20:05]  ℹ Cox model, unadjusted: Surv(time, DSS) ~ age 
 ```

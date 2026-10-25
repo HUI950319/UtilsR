@@ -1,6 +1,60 @@
 # Changelog
 
+## UtilsR 0.6.11
+
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  keeps gt tables, RegR pages and htmltools tag lists closed: they are
+  lists underneath, and opening one listed some 20 internal fields, such
+  as `_data` and `_styles`, in place of the result’s parts. R6 objects,
+  such as mlr3 learners, show their class instead of `<env>`, in
+  [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  and [`pr_kv()`](https://hui950319.github.io/UtilsR/reference/pr_kv.md)
+  alike.
+
+- [`.cat_formula()`](https://hui950319.github.io/UtilsR/reference/dot-cat_formula.md)
+  announces a model in one
+  [`.cat_message()`](https://hui950319.github.io/UtilsR/reference/dot-cat_message.md)
+  line, e.g. `Cox model, unadjusted: Surv(time, DSS) ~ Sex`, instead of
+  a box and a rule, nine lines in all;
+  [`suppressMessages()`](https://rdrr.io/r/base/message.html) silences
+  it.
+
+- `.cat_message(wrap = FALSE)` keeps every line whole, for a line meant
+  to be copied, such as a `save = list(...)` call.
+
+- New
+  [`.cat_saved()`](https://hui950319.github.io/UtilsR/reference/dot-cat_saved.md)
+  announces a written file as `<subject>: <path> [<size>, new PDF]`, or
+  `replaced the existing PDF` in red, as a
+  [`.cat_message()`](https://hui950319.github.io/UtilsR/reference/dot-cat_message.md);
+  it moves here from RegR.
+  [`PlotCircleLollipop()`](https://hui950319.github.io/UtilsR/reference/PlotCircleLollipop.md),
+  [`PlotDumbbell()`](https://hui950319.github.io/UtilsR/reference/PlotDumbbell.md),
+  [`PlotHeatmapJaccard()`](https://hui950319.github.io/UtilsR/reference/PlotHeatmapJaccard.md),
+  [`PlotRank()`](https://hui950319.github.io/UtilsR/reference/PlotRank.md)
+  and
+  [`PlotScatter1()`](https://hui950319.github.io/UtilsR/reference/PlotScatter1.md)
+  to
+  [`PlotScatter3()`](https://hui950319.github.io/UtilsR/reference/PlotScatter3.md)
+  use it for their `filename`, with the function name and the page size,
+  instead of `message("Plot saved to: ")`.
+
 ## UtilsR 0.6.10
+
+- [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+  prints its per-group correlations as a
+  [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  with the P values coloured by significance. The coefficient column is
+  `r` for `use_rank = FALSE`, as in the subtitle; the printed lines
+  called a Pearson coefficient `rho`.
+
+- [`pal_list()`](https://hui950319.github.io/UtilsR/reference/pal_list.md)
+  and console
+  [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
+  head each palette with a
+  [`pr_section()`](https://hui950319.github.io/UtilsR/reference/pr_section.md)
+  rule, `"Set1 (9 colours, discrete)"`, instead of a `===` banner; so do
+  the `pal_show_*()` wrappers.
 
 - `check_system(show_warnings = TRUE)` emits one acquisition warning
   when a memory backend fails, preserving its cause without a duplicate

@@ -45,7 +45,9 @@ The printed lines, invisibly.
 
 The tree descends into plain lists and into classed objects that also
 inherit from `"list"` (as `c("eff_res", "list")` does). Data frames,
-plots and other objects are leaves. Attributes other than names, class,
+plots and other objects are leaves, and so are gt tables, RegR pages and
+htmltools tag lists, which are lists underneath; R6 and other classed
+environments show their class. Attributes other than names, class,
 dimensions, row names and srcref are listed under the node that carries
 them, marked `attr`.
 

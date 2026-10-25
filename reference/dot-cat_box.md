@@ -24,6 +24,7 @@ Other console display:
 [`.cat_formula()`](https://hui950319.github.io/UtilsR/reference/dot-cat_formula.md),
 [`.cat_line()`](https://hui950319.github.io/UtilsR/reference/dot-cat_line.md),
 [`.cat_message()`](https://hui950319.github.io/UtilsR/reference/dot-cat_message.md),
+[`.cat_saved()`](https://hui950319.github.io/UtilsR/reference/dot-cat_saved.md),
 [`.cat_step()`](https://hui950319.github.io/UtilsR/reference/dot-cat_step.md),
 [`.cat_tb()`](https://hui950319.github.io/UtilsR/reference/dot-cat_tb.md)
 

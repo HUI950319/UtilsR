@@ -17,7 +17,7 @@ max_depth is marked with an ellipsis.'><meta property="og:image" content="https:
 
     <a class="navbar-brand me-2" href="../index.html">UtilsR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -107,7 +107,9 @@ counts the rest.</p></dd>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The tree descends into plain lists and into classed objects that also
 inherit from <code>"list"</code> (as <code>c("eff_res", "list")</code> does). Data
-frames, plots and other objects are leaves. Attributes other than
+frames, plots and other objects are leaves, and so are gt tables, RegR
+pages and htmltools tag lists, which are lists underneath; R6 and other
+classed environments show their class. Attributes other than
 names, class, dimensions, row names and srcref are listed under the node
 that carries them, marked <code>attr</code>.</p>
     </div>

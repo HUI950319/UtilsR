@@ -60,6 +60,7 @@ Other console display:
 [`.cat_formula()`](https://hui950319.github.io/UtilsR/reference/dot-cat_formula.md),
 [`.cat_line()`](https://hui950319.github.io/UtilsR/reference/dot-cat_line.md),
 [`.cat_message()`](https://hui950319.github.io/UtilsR/reference/dot-cat_message.md),
+[`.cat_saved()`](https://hui950319.github.io/UtilsR/reference/dot-cat_saved.md),
 [`.cat_tb()`](https://hui950319.github.io/UtilsR/reference/dot-cat_tb.md)
 
 ## Examples
@@ -73,9 +74,9 @@ fit_all <- function() {
 }
 fit_all()
 #> ℹ [1/2] Fitting models
-#> ✔ [1/2] Fitting models [127ms]
+#> ✔ [1/2] Fitting models [107ms]
 #> 
 #> ℹ [2/2] Drawing plot
-#> ✔ [2/2] Drew plot [17ms]
+#> ✔ [2/2] Drew plot [11ms]
 #> 
 ```
