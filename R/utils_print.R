@@ -555,7 +555,8 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   if (is.atomic(v)) {
     # vctrs names classed vectors as well: drtn, dbl+lbl, int64, ord
     abbr <- tryCatch(vctrs::vec_ptype_abbr(v), error = function(e) typeof(v))
-    first <- utils::head(v, 10L)
+    # as many values as the line could hold, as vctrs takes half its width
+    first <- utils::head(v, max(10L, ceiling(width / 2)))
     vals  <- text_of(first, attr(v, "labels", exact = TRUE))
     # a named value with its name
     nm <- names(first)
@@ -566,7 +567,10 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
       sprintf("<%s %s>", abbr, big(length(v)))
     if (!length(vals)) return(g(head))
     room <- max(width - cli::ansi_nchar(head, type = "width") - 1L, 10L)
-    return(paste(g(head), cli::ansi_strtrim(paste(vals, collapse = g(", ")), room)))
+    text <- paste(vals, collapse = g(", "))
+    # values left out show even when the ones taken fit
+    if (length(v) > length(first)) text <- paste0(text, g(", "), cli::symbol$ellipsis)
+    return(paste(g(head), cli::ansi_strtrim(text, room)))
   }
   if (is.language(v)) {
     abbr <- if (inherits(v, "formula")) "formula" else if (is.name(v)) "sym" else

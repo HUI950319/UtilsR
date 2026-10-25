@@ -1,5 +1,9 @@
 # UtilsR 0.6.12
 
+* `pr_tree()` takes as many values as the line could hold and ends a
+  vector it cut with an ellipsis: at a width of 100, `1:100` read
+  `1, 2, ..., 10`, as if that were all.
+
 * `pr_tree()` opens the object it is given: a model fit lists its
   components, a data frame its columns and an S4 object its slots (as
   `@name`), where each printed a single line such as `<lm>`. Inside a list

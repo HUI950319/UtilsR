@@ -406,6 +406,10 @@ test_that("pr_tree() previews vectors, marks collapsed nodes and caps lines", {
   expect_true(any(grepl("inter <list 3> RERI = 0.42, S = NA, ci$", closed)))
   expect_true(any(grepl("u <list 2> \u2026$", closed)))
   expect_true(any(grepl('attr analysis <list 2> n = 1000, outcome = "DSS"$', closed)))
+  # a cut vector ends in an ellipsis, also when its first values fit the line
+  cut <- withr::with_options(list(width = 100, cli.width = 100),
+                             utils::capture.output(pr_tree(list(ids = 1:100))))
+  expect_match(cut[2], "ids <int 100> 1, 2, 3, .*\u2026$")
   # a matrix names its element type, a function its arguments
   kinds <- utils::capture.output(pr_tree(list(
     m = matrix(1:6, 2), tab = table(c("a", "b")), f = function(data, formula, ...) NULL,
