@@ -592,6 +592,15 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
     is.list(v) && !is.data.frame(v) && !inherits(v, ._tree_leaf) &&
       (!is.object(v) || inherits(v, "list"))
   }
+  # the object asked about always opens: a model fit shows its components, a
+  # data frame its columns and an S4 object its slots (as @name), which stay
+  # closed further down
+  opens <- function(v, depth) descend(v) || (depth == 0 && (is.list(v) || isS4(v)))
+  parts <- function(v) {
+    if (!isS4(v) || is.list(v)) return(v)
+    s <- setdiff(names(attributes(v)), "class")
+    stats::setNames(lapply(s, function(a) attr(v, a, exact = TRUE)), paste0("@", s))
+  }
   rows <- new.env(parent = emptyenv())
   rows$id <- character(); rows$children <- list(); rows$label <- character()
   rows$n  <- 0L
@@ -613,11 +622,12 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
   node <- function(v, id, label, depth, how) {
     shown <- how == "show"
     kids <- character()
-    if (depth < max_depth && descend(v)) {
-      nm <- names(v) %||% rep("", length(v))
-      nm <- ifelse(is.na(nm) | !nzchar(nm), sprintf("[[%d]]", seq_along(v)), nm)
-      for (k in seq_len(min(length(v), max_items))) {
-        child <- v[[k]]
+    if (depth < max_depth && opens(v, depth)) {
+      p  <- parts(v)
+      nm <- names(p) %||% rep("", length(p))
+      nm <- ifelse(is.na(nm) | !nzchar(nm), sprintf("[[%d]]", seq_along(p)), nm)
+      for (k in seq_len(min(length(p), max_items))) {
+        child <- p[[k]]
         h <- slot(shown)
         child_label <- ""
         if (h == "show") {
@@ -633,13 +643,14 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
         kid <- node(child, paste0(id, "/", k), child_label, depth + 1, h)
         if (h != "count") kids <- c(kids, kid)
       }
-      if (length(v) > max_items) {
+      if (length(p) > max_items) {
         h <- slot(shown)
         if (h != "count") kids <- c(kids, add(paste0(id, "/more"), if (h == "show") {
-          cli::col_grey(sprintf("%s %d more", cli::symbol$ellipsis, length(v) - max_items))
+          cli::col_grey(sprintf("%s %d more", cli::symbol$ellipsis, length(p) - max_items))
         } else ""))
       }
-      if (isTRUE(attrs)) {
+      # an S4 object's attributes are its slots, listed above
+      if (isTRUE(attrs) && !(isS4(v) && !is.list(v))) {
         for (a in setdiff(names(attributes(v)), drop_attr)) {
           h <- slot(shown)
           if (h != "count") kids <- c(kids, add(paste0(id, "/@", a), if (h == "show") {
@@ -654,15 +665,20 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
     if (how != "count") add(id, label, kids) else id
   }
 
-  root_desc <- if (descend(x)) {
-    cli::col_grey(sprintf("<list %s>", format(length(x), big.mark = ",")))
+  big <- function(n) format(n, big.mark = ",", scientific = FALSE, trim = TRUE)
+  root_desc <- if (is.data.frame(x)) {
+    cli::col_grey(sprintf("<%s %s x %s>", if (inherits(x, "tbl_df")) "tibble" else
+      class(x)[1], big(nrow(x)), big(ncol(x))))
+  } else if (opens(x, 0)) {
+    cli::col_grey(sprintf("<%s %s>", if (is.list(x)) "list" else "S4", big(length(parts(x)))))
   } else {
     ._obj_desc(x, console_width() - cli::ansi_nchar(class(x)[1], type = "width") - 3L,
                colour = TRUE)
   }
-  # the class as a chip for a classed list; a plain list, a vector or a data
-  # frame names its class in the description already ("<list> <list 3>")
-  if (descend(x) && is.object(x)) {
+  # the class as a chip for a classed list, a model fit or an S4 object; a
+  # plain list, a vector or a data frame names its class in the description
+  # already ("<list> <list 3>")
+  if (opens(x, 0) && is.object(x) && !is.data.frame(x)) {
     root_desc <- paste(._pr_label(class(x)[1], cli::bg_blue, cli::col_br_white), root_desc)
   }
   root <- node(x, "x", root_desc, 0, slot(TRUE))

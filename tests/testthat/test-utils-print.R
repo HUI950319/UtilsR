@@ -447,6 +447,26 @@ test_that("pr_tree() previews vectors, marks collapsed nodes and caps lines", {
   expect_identical(cut[10], "# … 16 more lines")
 })
 
+test_that("pr_tree() opens the object it is given", {
+  withr::local_options(cli.num_colors = 1, cli.unicode = TRUE)
+  fit <- lm(mpg ~ wt, mtcars)
+  out <- utils::capture.output(pr_tree(fit, max_depth = 1))
+  expect_identical(out[1], "<lm> <list 12>")
+  expect_true(any(grepl("coefficients <dbl 2> \\(Intercept\\) = 37.3, wt = -5.34$", out)))
+  df <- utils::capture.output(pr_tree(data.frame(age = c(40L, 50L), sex = c("F", "M"))))
+  expect_identical(df, c("<data.frame 2 x 2>", "\u251c\u2500age <int 2> 40, 50",
+                         "\u2514\u2500sex <chr 2> \"F\", \"M\""))
+  gen <- methods::setClass("PrTreeRes", representation(table = "data.frame", n = "numeric"),
+                           where = new.env())
+  s4 <- utils::capture.output(pr_tree(gen(table = data.frame(a = 1:2), n = 10)))
+  expect_identical(s4[1], "<PrTreeRes> <S4 2>")
+  expect_true(any(grepl("@table <data.frame 2 x 1>", s4, fixed = TRUE)))
+  expect_true(any(grepl("@n <dbl> 10$", s4)))
+  # inside a list, a model fit stays closed
+  inner <- utils::capture.output(pr_tree(list(fit = fit)))
+  expect_identical(sub("^[^A-Za-z]*", "", inner[2]), "fit <lm>")
+})
+
 test_that("pr_tree() keeps rendered objects closed and names R6 objects", {
   withr::local_options(cli.num_colors = 1, cli.unicode = TRUE)
   # a gt table, a RegR page and an htmltools tag list are lists underneath

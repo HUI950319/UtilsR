@@ -1,5 +1,10 @@
 # UtilsR 0.6.12
 
+* `pr_tree()` opens the object it is given: a model fit lists its
+  components, a data frame its columns and an S4 object its slots (as
+  `@name`), where each printed a single line such as `<lm>`. Inside a list
+  they stay closed, as before.
+
 * `pr_tree()` shows whole numbers as they are and decimals to three digits
   past their integer part: rounded to three significant digits, `123456L`
   read `123000` and `1234.5678` read `1230`.
