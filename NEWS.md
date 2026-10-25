@@ -9,6 +9,12 @@
   read `<dbl ...>`; a POSIXlt time shows as `<dttm>` with its value instead
   of `<POSIXlt>`.
 
+* `pr_tree()` previews show the names of a named vector
+  (`train = 800, test = 200`), the value labels of a labelled one
+  (`1 [Male]`), factor levels without quotes, and formulas, calls and
+  symbols as written (`<formula> Surv(time, DSS) ~ Age + Sex`), which read
+  only `<formula>`. `pr_kv()` describes formulas the same way.
+
 * `.cat_formula()` no longer counts a missing outcome value as a level, so
   a binary outcome with `NA`s is announced as a Cox model, not a CRR one.
 

@@ -451,8 +451,10 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, n = 20, align = NULL,
     # vctrs names classed vectors as well: drtn, dbl+lbl, int64, ord
     abbr <- tryCatch(vctrs::vec_ptype_abbr(v), error = function(e) typeof(v))
     first <- utils::head(v, 10L)
-    vals <- if (is.character(first) || is.factor(first)) {
-      encodeString(as.character(first), quote = "\"")
+    vals <- if (is.character(first)) {
+      encodeString(first, quote = "\"")
+    } else if (is.factor(first)) {
+      ifelse(is.na(first), "NA", encodeString(as.character(first)))
     } else if (is.integer(first) && !is.object(first)) {
       as.character(first)
     } else if (is.numeric(first) && !is.object(first)) {
@@ -462,10 +464,24 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, n = 20, align = NULL,
     } else {
       vapply(seq_along(first), function(i) format(first[i]), character(1))
     }
+    # a labelled value with its label, "1 [Male]"; a named one with its name
+    labs <- attr(v, "labels", exact = TRUE)
+    if (length(names(labs))) {
+      hit  <- names(labs)[match(unclass(first), unclass(labs))]
+      vals <- ifelse(is.na(hit), vals, sprintf("%s [%s]", vals, hit))
+    }
+    nm <- names(first)
+    if (!is.null(nm)) vals <- ifelse(is.na(nm) | !nzchar(nm), vals, paste(nm, "=", vals))
     if (!length(vals)) return(sprintf("<%s 0>", abbr))
     preview <- cli::ansi_strtrim(paste(vals, collapse = ", "), 40)
     if (length(v) == 1L) return(sprintf("<%s> %s", abbr, preview))
     return(sprintf("<%s %d> %s", abbr, length(v), preview))
+  }
+  if (is.language(v)) {
+    abbr <- if (inherits(v, "formula")) "formula" else if (is.name(v)) "sym" else
+      if (is.expression(v)) "expr" else "call"
+    text <- paste(deparse(v, width.cutoff = 500L), collapse = " ")
+    return(sprintf("<%s> %s", abbr, cli::ansi_strtrim(text, 40)))
   }
   sprintf("<%s>", cls)
 }
