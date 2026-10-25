@@ -275,6 +275,19 @@ test_that("pr_table() shows a P value just under a cut-off with the decimals it 
                                        "0.04999*", "0.210"))
 })
 
+test_that("pr_table(rownames = TRUE) shows the row names as the first column", {
+  withr::local_options(cli.num_colors = 1)
+  m <- matrix(c(1.85, 1.25, 0.0003, 0.012), 2,
+              dimnames = list(c("Age >= 55", "Male"), c("HR", "P")))
+  out <- sub(" +$", "", utils::capture.output(
+    pr_table(as.data.frame(m), p_col = "P", rownames = TRUE)))
+  expect_match(out[1], "^ +HR +P$")
+  expect_match(out[3], "^  Age >= 55  1\\.85 +<0\\.001\\*\\*\\*$")
+  expect_match(out[4], "^  Male +1\\.25 +0\\.012\\*$")
+  # off by default: rbind() of a named list leaves row names such as "cox.1"
+  expect_false(any(grepl("Age", utils::capture.output(pr_table(as.data.frame(m))))))
+})
+
 test_that("pr_table() gives tiny values enough decimals", {
   withr::local_options(cli.num_colors = 1)
   out <- utils::capture.output(pr_table(data.frame(beta = c(0.0003, -1.234),

@@ -58,6 +58,11 @@
   it needs, `0.0499*` rather than `0.050*`: rounded to three decimals it
   read as the cut-off, beside a `0.050` with no star.
 
+* `pr_table()` gains `rownames`: `TRUE` shows the row names as a first,
+  unnamed column, such as the terms of a coefficient matrix turned data
+  frame, which are otherwise not shown. It is off by default, since
+  `rbind()` of a named list also leaves row names (`cox.1`, `cox.2`).
+
 # UtilsR 0.6.11
 
 * `plt_cat()` and `plt_con()` with `split.by` report the size of the split

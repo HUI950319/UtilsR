@@ -8,6 +8,7 @@ pr_table(
   data,
   p_col = NULL,
   highlight = NULL,
+  rownames = FALSE,
   n = 20,
   align = NULL,
   digits = 2,
@@ -22,6 +23,10 @@ pr_table(
 
 \item{highlight}{Rows to highlight in black on light yellow: integer row
 numbers or a logical vector. Highlighted rows drop their other colours.}
+
+\item{rownames}{Logical. Show the row names as a first, unnamed column,
+e.g. the terms of \code{as.data.frame(coef(summary(fit)))}, which are
+otherwise not shown (default \code{FALSE}).}
 
 \item{n}{Integer. Rows to show (default 20); the rest are counted in a
 grey footer. \code{NULL} shows every row.}

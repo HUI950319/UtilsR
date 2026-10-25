@@ -336,6 +336,9 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 #' @param p_col Character. Names of the P-value columns, or \code{NULL}.
 #' @param highlight Rows to highlight in black on light yellow: integer row
 #'   numbers or a logical vector. Highlighted rows drop their other colours.
+#' @param rownames Logical. Show the row names as a first, unnamed column,
+#'   e.g. the terms of \code{as.data.frame(coef(summary(fit)))}, which are
+#'   otherwise not shown (default \code{FALSE}).
 #' @param n Integer. Rows to show (default 20); the rest are counted in a
 #'   grey footer. \code{NULL} shows every row.
 #' @param align Column alignment, recycled: \code{"left"}, \code{"right"}
@@ -360,8 +363,8 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 #'
 #' @export
 #' @family print helpers
-pr_table <- function(data, p_col = NULL, highlight = NULL, n = 20, align = NULL,
-                     digits = 2, width = NULL, indent = 2) {
+pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
+                     n = 20, align = NULL, digits = 2, width = NULL, indent = 2) {
   if (!is.data.frame(data)) {
     cli::cli_abort("{.arg data} must be a data frame, not {.obj_type_friendly {data}}.")
   }
@@ -371,6 +374,9 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, n = 20, align = NULL,
   }
   if (!ncol(data)) return(._pr_out(character()))
   data   <- as.data.frame(data)
+  # not automatic for character row names: rbind() of a named list leaves
+  # "cox.1", "cox.2", which would become a column of their own
+  if (isTRUE(rownames)) data <- cbind(stats::setNames(data.frame(row.names(data)), " "), data)
   n_rows <- nrow(data)
   if (!is.null(n) && n_rows > n) data <- data[seq_len(n), , drop = FALSE]
 
