@@ -410,6 +410,16 @@ test_that("pr_tree() previews vectors, marks collapsed nodes and caps lines", {
   cut <- withr::with_options(list(width = 100, cli.width = 100),
                              utils::capture.output(pr_tree(list(ids = 1:100))))
   expect_match(cut[2], "ids <int 100> 1, 2, 3, .*\u2026$")
+  # a closed node names the attributes it carries beyond its type's own
+  tagged <- list(tab = structure(data.frame(a = 1), model_info = "x"),
+                 sex = structure(factor("M"), label = "Sex"),
+                 when = as.POSIXct("2026-10-25", tz = "UTC"))
+  tags <- utils::capture.output(pr_tree(tagged))
+  expect_true(any(grepl("tab <data.frame 1 x 1> a \\[attr: model_info\\]$", tags)))
+  expect_true(any(grepl("sex <fct, 1 level> M \\[attr: label\\]$", tags)))
+  expect_false(any(grepl("[attr:", tags[grepl("when", tags)], fixed = TRUE)))
+  expect_false(any(grepl("[attr:", utils::capture.output(pr_tree(tagged, attrs = FALSE)),
+                         fixed = TRUE)))
   # a matrix names its element type, a function its arguments
   kinds <- utils::capture.output(pr_tree(list(
     m = matrix(1:6, 2), tab = table(c("a", "b")), f = function(data, formula, ...) NULL,

@@ -1,5 +1,11 @@
 # UtilsR 0.6.12
 
+* `pr_tree()` names the attributes a closed node carries at the end of its
+  line, such as `[attr: model_info]` on a result table or `[attr: plot_size]`
+  on a plot, leaving out those its type keeps for itself (factor levels, a
+  time zone, value labels, ggplot2's S7 properties). Only the attributes of
+  open nodes were shown, so these went unseen. `attrs = FALSE` drops them.
+
 * `pr_tree()` gives a factor's number of levels, `<fct 100, 3 levels>`, as
   `str()` does.
 

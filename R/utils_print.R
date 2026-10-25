@@ -644,6 +644,17 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
     s <- setdiff(names(attributes(v)), "class")
     stats::setNames(lapply(s, function(a) attr(v, a, exact = TRUE)), paste0("@", s))
   }
+  # attributes beyond those a type keeps for itself (factor levels, a time
+  # zone, value labels, a formula's environment, S7 properties), as str()
+  # lists them on every node
+  extra <- function(v) {
+    if (isS4(v) || is.environment(v) || is.function(v)) return(character())
+    own <- c(drop_attr, "levels", "contrasts", "tzone", "units", "labels", "balanced",
+             ".Environment", ".internal.selfref", "S7_class",
+             names(attr(attr(v, "S7_class", exact = TRUE), "properties", exact = TRUE)))
+    a <- setdiff(names(attributes(v)), own)
+    if (length(a) > 3L) c(a[1:3], cli::symbol$ellipsis) else a
+  }
   rows <- new.env(parent = emptyenv())
   rows$id <- character(); rows$children <- list(); rows$label <- character()
   rows$n  <- 0L
@@ -674,11 +685,18 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
         h <- slot(shown)
         child_label <- ""
         if (h == "show") {
+          closed <- !(descend(child) && depth + 1 < max_depth)
+          # a closed node's attributes, which no attr line below it lists
+          more <- if (closed && isTRUE(attrs)) extra(child) else character()
+          tag  <- if (length(more)) {
+            cli::col_cyan(sprintf("[attr: %s]", paste(more, collapse = ", ")))
+          } else ""
           room <- console_width() - 2L * (depth + 1L) -
-            cli::ansi_nchar(nm[k], type = "width") - 1L
+            cli::ansi_nchar(nm[k], type = "width") - 1L -
+            (if (nzchar(tag)) cli::ansi_nchar(tag, type = "width") + 1L else 0L)
           name <- if (descend(child) && length(child)) cli::style_bold(nm[k]) else nm[k]
-          child_label <- paste(name, ._obj_desc(
-            child, room, colour = TRUE, inside = !(descend(child) && depth + 1 < max_depth)))
+          child_label <- paste(name, ._obj_desc(child, room, colour = TRUE, inside = closed))
+          if (nzchar(tag)) child_label <- paste(child_label, tag)
           # a list left unopened at max_depth; a named one previews its names
           if (depth + 1 >= max_depth && descend(child) && length(child) &&
               is.null(names(child))) {
