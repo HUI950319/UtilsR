@@ -1,5 +1,14 @@
 # UtilsR 0.6.12
 
+* `lv()`'s count table gives each shade one meaning and names those it
+  uses in a note under the table. Shares of rare categories darken in one
+  hue, light orange for 5-10%, orange for 1-5% and dark orange below 1%;
+  labels of missing rows are light red and of Unknown/Blank/N/A values
+  light blue, as in `check_na()`. Red had marked both missing rows and
+  shares below 1%, yellow both special values and shares of 1-5%, green
+  shares of 5-10%, all without a legend. Missing rows' shares are no
+  longer shaded as rare categories.
+
 * `lv()`'s suggested `get_flt()` filters print as plain lines, without
   `print()`'s `[1] ` prefix, so they copy as code, and list the values of
   character, numeric, logical and date columns sorted as the count listing

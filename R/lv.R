@@ -383,14 +383,17 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     )
   }
 
+  # Shade the shares of rare categories, one hue darkening as they shrink;
+  # missing rows and summary statistics are not categories.
   .gt_highlight_low_percentage <- function(gt_tbl,
-                                           color_lt10 = "lightgreen",
-                                           color_lt5 = "#FFFF00",
-                                           color_lt1 = "#FF4D4D") {
+                                           color_lt10 = "#FFE0B2",
+                                           color_lt5 = "#FFB74D",
+                                           color_lt1 = "#FB8C00") {
     if (!inherits(gt_tbl, "gt_tbl") || is.null(gt_tbl$`_data`)) return(gt_tbl)
 
     df_data <- as.data.frame(gt_tbl$`_data`)
     col_names <- names(df_data)
+    level_rows <- if (is.null(df_data$row_type)) TRUE else df_data$row_type %in% "level"
 
     for (j in seq_along(df_data)) {
       col_values <- df_data[[j]]
@@ -404,6 +407,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
             sub(".*?([0-9.]+)%.*", "\\1", col_chr)
           )
           perc_num <- suppressWarnings(as.numeric(perc_str))
+          perc_num[!level_rows] <- NA
           rows_lt1 <- which(!is.na(perc_num) & perc_num < 1)
           rows_lt5 <- which(!is.na(perc_num) & perc_num >= 1 & perc_num < 5)
           rows_lt10 <- which(!is.na(perc_num) & perc_num >= 5 & perc_num < 10)
@@ -441,8 +445,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   # Highlight missing rows and the category levels that the n_special counts
   # treat as special; variable labels and statistics are left plain.
   .gt_highlight_special_values <- function(gt_tbl,
-                                           color_missing = "#FF4D4D",
-                                           color_special = "#FFFF00") {
+                                           color_missing = "#FFCDD2",
+                                           color_special = "#BBDEFB") {
     if (!inherits(gt_tbl, "gt_tbl") || is.null(gt_tbl$`_data`)) return(gt_tbl)
 
     body <- gt_tbl$`_data`
@@ -465,6 +469,25 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
         )
     }
     gt_tbl
+  }
+
+  # Name the shades a table uses, in words: knitted Word and PDF documents
+  # keep plain source notes only.
+  .gt_shading_legend <- function(gt_tbl) {
+    used <- unlist(lapply(gt_tbl[["_styles"]]$styles,
+                          function(s) s[["cell_fill"]][["color"]]))
+    shares <- c("#FB8C00" = "below 1% dark orange", "#FFB74D" = "1-5% orange",
+                "#FFE0B2" = "5-10% light orange")
+    labels <- c("#FFCDD2" = "missing rows red",
+                "#BBDEFB" = "Unknown/Blank/N/A values blue")
+    parts <- c(if (any(names(shares) %in% used)) {
+                 paste("shares", paste(shares[names(shares) %in% used], collapse = ", "))
+               },
+               if (any(names(labels) %in% used)) {
+                 paste(labels[names(labels) %in% used], collapse = ", ")
+               })
+    if (!length(parts)) return(gt_tbl)
+    gt::tab_source_note(gt_tbl, paste0("Shading: ", paste(parts, collapse = "; "), "."))
   }
 
   # gtsummary treats an entirely missing character column as continuous and
@@ -914,7 +937,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     gtsummary::as_gt(res_count) %>%
       .gt_highlight_low_percentage() %>%
       .gt_highlight_special_values() %>%
-      gt::tab_options(column_labels.background.color = "#E8F4FD")
+      gt::tab_options(column_labels.background.color = "#E8F4FD") %>%
+      .gt_shading_legend()
   }
   if (knitting) {
     .lv_print_report(res_summary)

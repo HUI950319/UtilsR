@@ -352,8 +352,33 @@ test_that("special-value highlights follow the special-value counts", {
   reports <- capture_reports(lv(data))
   summary <- reports[[1L]][["_data"]]
   expect_equal(summary$n_special, c(3, 0))
-  highlighted <- filled_labels(reports[[2L]], "#FFFF00")
+  highlighted <- filled_labels(reports[[2L]], "#BBDEFB")
   expect_setequal(highlighted, c("n/a", "Missing", "Not stated"))
+})
+
+test_that("count shades mean one thing each and are named in a legend", {
+  data <- data.frame(v = c(rep("a", 88), rep("b", 3), rep("c", 7), "Unknown", NA))
+  styled <- capture_reports(lv(data))[[2L]]
+  expect_identical(filled_labels(styled, "#FFCDD2"), "缺失")
+  expect_identical(filled_labels(styled, "#BBDEFB"), "Unknown")
+  styles <- styled[["_styles"]]
+  fill <- vapply(styles$styles, function(s) {
+    s[["cell_fill"]][["color"]] %||% NA_character_
+  }, character(1))
+  body <- styled[["_data"]]
+  shaded <- function(color) {
+    as.character(body$label[styles$rownum[styles$colname == "stat_0" & fill %in% color]])
+  }
+  expect_setequal(shaded("#FFB74D"), c("b", "Unknown"))
+  expect_identical(shaded("#FFE0B2"), "c")
+  # the missing row's share is not a category's
+  missing_row <- which(body$row_type == "missing")
+  expect_false(any(styles$rownum == missing_row & styles$colname == "stat_0" &
+                     !is.na(fill)))
+  note <- paste(unlist(styled[["_source_notes"]]), collapse = " ")
+  expect_match(note, "shares 1-5% orange, 5-10% light orange", fixed = TRUE)
+  expect_match(note, "missing rows red, Unknown/Blank/N/A values blue", fixed = TRUE)
+  expect_false(grepl("below 1%", note, fixed = TRUE))
 })
 
 test_that("columns with more than 100 categories stay out of summary tables", {
