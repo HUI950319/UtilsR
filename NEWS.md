@@ -1,5 +1,12 @@
 # UtilsR 0.6.12
 
+* `pr_table()` no longer replaces the cells of a first column one to three
+  characters wide with dots where the console has no Unicode: it cut every
+  cell to the column width, and `cli::ansi_strtrim()` gives its `...`
+  ellipsis cut to a width narrower than itself even for text that fits
+  (`"A"` became `"."`). Only cells too wide for the column are cut.
+
+
 * `lv(count = c(a, b))` gives one two-way table, as janitor's
   `adorn_totals()` + `adorn_percentages("row")` + `adorn_ns()` lay it out:
   each cell shows the count and the row percentage (`1,285 (64.8%)`), a

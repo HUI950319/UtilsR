@@ -324,6 +324,14 @@ test_that("pr_table() cuts a first column too wide for the line", {
   expect_match(out[length(out)], "1 more column: HR", fixed = TRUE)
 })
 
+test_that("pr_table() keeps a first column that fits whole without Unicode", {
+  # cli::ansi_strtrim() returns its "..." cut to the width, even for a string
+  # that fits, when the width is narrower than the ellipsis
+  withr::local_options(cli.num_colors = 1, cli.unicode = FALSE)
+  out <- utils::capture.output(pr_table(data.frame(g = c("A", "BC"), n = 1:2)))
+  expect_identical(sub(" +$", "", out[3:4]), c("  A   1", "  BC  2"))
+})
+
 test_that("pr_table() describes the cells of a list column", {
   withr::local_options(cli.num_colors = 1)
   df <- data.frame(term = c("a", "b"))

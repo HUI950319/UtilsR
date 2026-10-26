@@ -435,7 +435,11 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   row <- function(x) {
     paste(vapply(keep, function(j) {
       s <- x[[j]]
-      if (j == 1L) s <- cli::ansi_strtrim(s, col_w[1])
+      # only a cell that is too wide: below the ellipsis's width,
+      # ansi_strtrim() gives a cut ellipsis even for text that fits ("A" -> ".")
+      if (j == 1L && cli::ansi_nchar(s, type = "width") > col_w[1]) {
+        s <- cli::ansi_strtrim(s, col_w[1])
+      }
       cli::ansi_align(s, col_w[j], align[j])
     }, character(1)), collapse = "  ")
   }
