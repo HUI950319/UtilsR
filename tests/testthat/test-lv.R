@@ -763,6 +763,21 @@ test_that("each variable lists its counts, shares and filter in one block", {
   expect_true("  (6 others)  6  30.0%  100.0%" %in% ids)
 })
 
+test_that("numeric variables with many values list their distribution", {
+  data <- data.frame(age = c(seq(10, 110, by = 10), NA), dss = c(0, 1, NA, rep(1, 9)))
+  out <- sub(" +$", "", cli::ansi_strip(utils::capture.output(suppressMessages(lv(data)))))
+  head <- grep("age (numeric)", out, fixed = TRUE)
+  expect_match(out[head], "11 values · NA 1 \\(8\\.3%\\)")
+  expect_match(out[head + 1L], "^  Distribution  ")
+  expect_identical(out[head + 2:4], c("  Range            10 to 110",
+                                      "  Median [Q1, Q3]  60 [35, 85]",
+                                      "  Mean (SD)        60 (33.17)"))
+  expect_match(out[head + 5L], "^get_flt\\(age %in% c\\(10, 20, ")
+  # a code with few values keeps its frequency table
+  dss <- grep("dss (numeric)", out, fixed = TRUE)
+  expect_match(out[dss + 1L], "^  dss +n +pct +cum$")
+})
+
 test_that("the console overview gives one distribution line per variable", {
   data <- data.frame(age = c(40, 50, 60), sex = c("M", "F", "M"))
   out <- cli::ansi_strip(utils::capture.output(suppressMessages(lv(data))))

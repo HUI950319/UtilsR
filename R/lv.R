@@ -428,6 +428,24 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     pr_section(paste(facts, collapse = " \u00b7 "))
     if (is.list(col_data) && !inherits(col_data, "POSIXlt")) {
       pr_note("A list column: its values are not tabulated.")
+    } else if (is.numeric(col_data) && !is.factor(col_data) && stats$n_unique > 10L) {
+      # A measurement, not a code: its distribution, as skimr gives it, rather
+      # than counts of its first values (ages 0, 1, 2, ...). Classed numbers
+      # (integer64, labelled) as plain doubles.
+      x <- suppressWarnings(as.numeric(col_data))
+      x <- x[is.finite(x)]
+      bins <- tabulate(findInterval(x, seq(min(x), max(x), length.out = 13L),
+                                    rightmost.closed = TRUE), nbins = 12L)
+      num <- function(v) {
+        vapply(v, format, character(1), digits = 4, big.mark = ",", trim = TRUE)
+      }
+      q <- num(stats::quantile(x, c(0, 0.25, 0.5, 0.75, 1), names = FALSE))
+      pr_kv(list(
+        Distribution = format(cli::spark_bar(bins / max(bins))),
+        Range = paste(q[[1]], "to", q[[5]]),
+        `Median [Q1, Q3]` = sprintf("%s [%s, %s]", q[[3]], q[[2]], q[[4]]),
+        `Mean (SD)` = sprintf("%s (%s)", num(mean(x)), num(stats::sd(x)))
+      ))
     } else {
       pr_table(.lv_frequencies(col_data, var), n = NULL,
                align = c("left", "right", "right", "right"))

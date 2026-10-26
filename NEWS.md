@@ -1,5 +1,11 @@
 # UtilsR 0.6.12
 
+* A numeric variable with more than ten values is listed by its
+  distribution at `lv()`'s console, as skimr gives it: a sparkline, the
+  range, median [Q1, Q3] and mean (SD). Counts of its first values (ages
+  0, 1, 2, ...) said little about it. Numeric codes with up to ten values
+  keep their frequency table.
+
 * At the console, `lv()` lists each variable in one block, set off by a
   blank line: a heading with its counts (`Grade (factor) · 5 levels ·
   special 4,271 (93.9%)`), a frequency table of values with `n`, `pct` and
