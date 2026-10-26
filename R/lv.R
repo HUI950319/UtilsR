@@ -557,7 +557,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
 
   # Variable selection
   analysis_data <- dplyr::ungroup(data)
-  n_selections <- length(rlang::enquos(...))
+  selections <- rlang::enquos(...)
+  n_selections <- length(selections)
   if (!is.null(pattern)) {
     if (!is.character(pattern) || !is.null(dim(pattern)) ||
         length(pattern) != 1L || is.na(pattern)) {
@@ -573,7 +574,28 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     }
     analysis_data <- analysis_data[, matched, drop = FALSE]
   } else if (n_selections) {
-    analysis_data <- dplyr::select(analysis_data, ...)
+    # A caller's vector of names or positions, `lv(data, vars)`, is wrapped in
+    # all_of(): tidyselect 1.1.0 deprecated bare external vectors. Column
+    # names still win over caller objects of the same name.
+    wrap_external <- function(expr, env) {
+      if (is.symbol(expr)) {
+        name <- as.character(expr)
+        if (!nzchar(name) || name %in% names(analysis_data)) return(expr)
+        value <- tryCatch(eval(expr, env), error = function(e) NULL)
+        if (is.character(value) || is.numeric(value)) {
+          expr <- as.call(list(quote(dplyr::all_of), value))
+        }
+      } else if (is.call(expr) && is.symbol(expr[[1L]]) &&
+                 as.character(expr[[1L]]) %in% c("c", "-", "!", "(", "&", "|")) {
+        expr[-1L] <- lapply(as.list(expr)[-1L], wrap_external, env = env)
+      }
+      expr
+    }
+    selections <- lapply(selections, function(quo) {
+      rlang::quo_set_expr(quo, wrap_external(rlang::quo_get_expr(quo),
+                                             rlang::quo_get_env(quo)))
+    })
+    analysis_data <- dplyr::select(analysis_data, !!!selections)
   }
   vars <- names(analysis_data)
   if (!nrow(data) || !ncol(data)) {

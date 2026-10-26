@@ -1,5 +1,11 @@
 # UtilsR 0.6.12
 
+* `lv()` selects columns through a caller's vector of names or positions,
+  `lv(data, vars)` or `lv(vars)`, without tidyselect's "Using an external
+  vector in selections was deprecated" warning: such a vector, also inside
+  `c()`, `-` or `!`, is wrapped in `all_of()`. Column names still take
+  precedence over caller objects of the same name.
+
 * `fmt_tag()` no longer keeps the plots it tags inside each in-panel label.
   The label layer was built in `fmt_tag()`'s own frame, which its mapping
   and geom kept, so every tagged plot carried all the others: the first

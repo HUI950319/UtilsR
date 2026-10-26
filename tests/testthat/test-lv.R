@@ -390,6 +390,30 @@ test_that("vectors and matrices are inspected; column names still select", {
   expect_equal(by_name$n_unique, 5)
 })
 
+test_that("caller vectors select columns without tidyselect deprecation warnings", {
+  withr::local_options(lifecycle_verbosity = "warning")
+  summary_of <- function(result) {
+    Filter(function(x) "n_special" %in% names(x), result$tables)[[1L]]
+  }
+  data <- data.frame(a = 1:5, b = letters[1:5], c = 6:10)
+  rlang::local_bindings(data = data, .env = globalenv())
+  vars <- c("a", "b")
+  idx <- 3L
+  expect_no_warning(selected <- capture_lv(lv(data, vars)))
+  expect_identical(summary_of(selected)$vars, c("a", "b"))
+  expect_no_warning(combined <- capture_lv(lv(data, c(idx, vars))))
+  expect_identical(summary_of(combined)$vars, c("c", "a", "b"))
+  expect_no_warning(dropped <- capture_lv(lv(data, -vars)))
+  expect_identical(summary_of(dropped)$vars, "c")
+  expect_no_warning(renamed <- capture_lv(lv(data, first = idx)))
+  expect_identical(summary_of(renamed)$vars, "first")
+  expect_no_warning(shortcut <- capture_lv(lv(vars)))
+  expect_identical(summary_of(shortcut)$vars, c("a", "b"))
+  # Column names still win over caller objects of the same name.
+  a <- "c"
+  expect_identical(summary_of(capture_lv(lv(data, a)))$vars, "a")
+})
+
 test_that("without default data, vectors are inspected and typos are named", {
   rlang::local_bindings(data = 1, data_all = 1, .env = globalenv())
   result <- capture_lv(lv(mtcars$cyl))
