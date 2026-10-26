@@ -1,5 +1,13 @@
 # UtilsR 0.6.12
 
+* `lv()` writes counts with thousands separators and shares with one
+  decimal throughout. The cross-tabulation list printed `n`, `pct` and
+  `n_pct`, the same share twice with two decimals that dropped trailing
+  zeros (`1285 (28.25%)` beside `655 (14.4%)`); it now gives `n` and
+  `pct` (`28.2%`) in an aligned console table. The wide table's cells and
+  the subtitles of both tables (`n = 4549`, `4549 observations`) take
+  separators too.
+
 * `lv()`'s count table gives each shade one meaning and names those it
   uses in a note under the table. Shares of rare categories darken in one
   hue, light orange for 5-10%, orange for 1-5% and dark orange below 1%;

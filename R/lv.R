@@ -316,6 +316,15 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   # Internal helper functions
   # ==========================================================================
 
+  # Counts with thousands separators; shares with one decimal, as check_na()
+  # writes them, and "<0.1%" for a share that would round to zero.
+  .fmt_int <- function(x) format(x, big.mark = ",", scientific = FALSE, trim = TRUE)
+  .fmt_pct <- function(x) {
+    text <- sprintf("%.1f%%", x)
+    text[!is.na(x) & x > 0 & x < 0.1] <- "<0.1%"
+    text
+  }
+
   # Observed values; a factor keeps its level order without unused levels.
   .get_levels <- function(x) {
     if (is.factor(x)) {
@@ -656,24 +665,28 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     }
 
     # Keep generated fields separate from the variables being inspected.
-    count_names <- tail(make.unique(c(count_vars, "n", "pct", "n_pct"),
-                                    sep = "_"), 3L)
+    count_names <- tail(make.unique(c(count_vars, "n", "pct"), sep = "_"), 2L)
     n_name <- count_names[1L]
     pct_name <- count_names[2L]
-    label_name <- count_names[3L]
     count_data <- dplyr::ungroup(data)
     count_base <- count_data %>%
       dplyr::count(dplyr::across(dplyr::all_of(count_vars)), name = n_name)
 
     cross_count <- count_base %>%
       dplyr::mutate(
-        "{pct_name}" := round(.data[[n_name]] / sum(.data[[n_name]]) * 100, 2),
-        "{label_name}" := glue::glue("{.data[[n_name]]} ({.data[[pct_name]]}%)")
+        "{pct_name}" := .fmt_pct(.data[[n_name]] / sum(.data[[n_name]]) * 100)
       )
     cross_count[count_vars] <- lapply(cross_count[count_vars], .label_blank)
 
-    if (knitting) .lv_print_report(gt::gt(cross_count))
-    else print(tibble::as_tibble(cross_count))
+    if (knitting) {
+      .lv_print_report(gt::fmt_integer(gt::gt(cross_count),
+                                       columns = dplyr::all_of(n_name)))
+    } else {
+      shown <- cross_count
+      shown[[n_name]] <- .fmt_int(shown[[n_name]])
+      pr_table(shown, n = NULL,
+               align = c(rep("left", length(count_vars)), "right", "right"))
+    }
 
     # A wide table gets one column per category of the second variable and
     # one row per category of the first; beyond 100 it is unreadable and
@@ -716,8 +729,9 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
         gt::gt(rowname_col = count_vars[1]) %>%
         gt::tab_header(
           title = gt::md(glue::glue("**{count_vars[1]} \u00d7 {count_vars[2]}**")),
-          subtitle = gt::md(glue::glue("Cross-tabulation (n = {nrow(data)})"))
+          subtitle = gt::md(glue::glue("Cross-tabulation (n = {.fmt_int(nrow(data))})"))
         ) %>%
+        gt::fmt_integer(columns = where(is.numeric)) %>%
         gt::tab_stubhead(label = gt::md(glue::glue("**{count_vars[1]}**"))) %>%
         gt::grand_summary_rows(
           columns = where(is.numeric),
@@ -900,8 +914,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     gt::tab_header(
       title = gt::md("**Variable Summary**"),
       subtitle = gt::md(sprintf(
-        "Dataset: *%d* observations, *%d* variables; *%d* with missing values, *%d* with Unknown/Blank/N/A",
-        nrow(data),
+        "Dataset: *%s* observations, *%d* variables; *%d* with missing values, *%d* with Unknown/Blank/N/A",
+        .fmt_int(nrow(data)),
         nrow(result),
         sum(result$n_na > 0, na.rm = TRUE),
         sum(result$n_special > 0, na.rm = TRUE)

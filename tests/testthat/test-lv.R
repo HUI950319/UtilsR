@@ -17,10 +17,9 @@ test_that("cross-tabulation separates original columns from frequency columns", 
   data <- data.frame(n = c(10, 90, 90), category = c("a", "b", "b"))
   single <- capture_lv(lv(data, count = n))
   text <- paste(single$output, collapse = "\n")
-  expect_match(text, "33.33", fixed = TRUE)
-  expect_match(text, "66.67", fixed = TRUE)
-  expect_match(text, "1 (33.33%)", fixed = TRUE)
-  expect_match(text, "2 (66.67%)", fixed = TRUE)
+  expect_match(text, "33.3%", fixed = TRUE)
+  expect_match(text, "66.7%", fixed = TRUE)
+  expect_false(grepl("n_pct", text, fixed = TRUE))
 
   for (name in c("n", "pct", "n_pct")) {
     names(data)[1L] <- name
@@ -590,7 +589,7 @@ test_that("two-way counts with more than 100 categories skip the wide tables", {
   for (vars in list(c("g", "id"), c("id", "g"))) {
     result <- capture_lv(lv(data, count = vars))
     expect_length(result$tables, 0L)
-    expect_true(any(grepl("1 (0.67%)", result$output, fixed = TRUE)))
+    expect_true(any(grepl("0.7%", result$output, fixed = TRUE)))
     utils::capture.output(expect_message(lv(data, count = vars), "more than 100"))
   }
 })
@@ -638,6 +637,16 @@ test_that("the summary subtitle counts variables with missing or special values"
   subtitle <- as.character(reports[[1L]][["_heading"]]$subtitle)
   expect_match(subtitle, "*1* with missing values", fixed = TRUE)
   expect_match(subtitle, "*1* with Unknown/Blank/N/A", fixed = TRUE)
+})
+
+test_that("counts take thousands separators and shares one decimal", {
+  data <- data.frame(g = rep(c("A", "B"), c(1200, 300)))
+  single <- capture_lv(lv(data, count = g))
+  text <- paste(cli::ansi_strip(single$output), collapse = "\n")
+  for (shown in c("1,200", "80.0%", "20.0%")) expect_match(text, shown, fixed = TRUE)
+  reports <- capture_reports(lv(data))
+  expect_match(as.character(reports[[1L]][["_heading"]]$subtitle),
+               "*1,500* observations", fixed = TRUE)
 })
 
 test_that("missing default data errors name the global data frames", {
