@@ -1,5 +1,14 @@
 # UtilsR 0.6.12
 
+* `lv()`'s variable summary gives each count of missing and of
+  Unknown/Blank/N/A values with its share of the rows (`4,271 (93.9%)`),
+  at the console in an aligned `pr_table()` rather than a tibble. In the
+  HTML table those counts are shaded red and blue where there are any, as
+  in the count table, a note names the shades and the type tints, and the
+  suggested `get_flt()` call is left-aligned in monospace and shortened to
+  one line (the console prints it whole); it had been centred and wrapped
+  over up to four lines.
+
 * `pr_table()` no longer replaces the cells of a first column one to three
   characters wide with dots where the console has no Unicode: it cut every
   cell to the column width, and `cli::ansi_strtrim()` gives its `...`

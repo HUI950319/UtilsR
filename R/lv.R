@@ -325,6 +325,10 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     text[!is.na(x) & x > 0 & x < 0.1] <- "<0.1%"
     text
   }
+  # "n (share of `of`)", and a plain "0" for none
+  .fmt_n_pct <- function(n, of) {
+    ifelse(n == 0, "0", paste0(.fmt_int(n), " (", .fmt_pct(n / of * 100), ")"))
+  }
 
   # Observed values; a factor keeps its level order without unused levels.
   .get_levels <- function(x) {
@@ -727,16 +731,13 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       counts <- as.matrix(cross_wide[categories])
       row_n <- rowSums(counts)
       col_n <- colSums(counts)
-      cell <- function(n, of) {
-        ifelse(n == 0, "0", paste0(.fmt_int(n), " (", .fmt_pct(n / of * 100), ")"))
-      }
       cross_tab <- tibble::tibble(.rows = nrow(cross_wide) + 1L)
       cross_tab[[count_vars[1]]] <- c(as.character(.label_blank(cross_wide[[1L]])),
                                       "Total")
       for (j in seq_along(categories)) {
         # a one-row matrix names the cell it drops to
-        cross_tab[[categories[j]]] <- unname(c(cell(counts[, j], row_n),
-                                               cell(col_n[[j]], sum(counts))))
+        cross_tab[[categories[j]]] <- unname(c(.fmt_n_pct(counts[, j], row_n),
+                                               .fmt_n_pct(col_n[[j]], sum(counts))))
       }
       cross_tab[[total_name]] <- unname(.fmt_int(c(row_n, sum(counts))))
       layout <- "Cells give n (row %); the Total row gives each column's n (share of all rows)."
@@ -912,7 +913,11 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     }
 
     pr_section(sprintf("Variable summary (%d variables)", length(vars)))
-    print(result)
+    pr_table(data.frame(vars = result$vars, class = result$class,
+                        n_unique = result$n_unique,
+                        n_na = .fmt_n_pct(result$n_na, nrow(data)),
+                        n_special = .fmt_n_pct(result$n_special, nrow(data))),
+             n = NULL, align = c("left", "left", "right", "right", "right"))
   }
 
   res_summary <-
@@ -932,7 +937,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       style = gt::cell_text(weight = "bold"),
       locations = gt::cells_column_labels()
     ) %>%
-    gt::cols_align(align = "center", columns = c("n_unique", "n_na")) %>%
+    gt::cols_align(align = "center", columns = c("n_unique", "n_na", "n_special")) %>%
     # Tint whole rows by variable type: character, numeric and factor.
     gt::tab_style(
       style = gt::cell_fill(color = "#FDF0E6"),
@@ -951,6 +956,51 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       heading.background.color = "#F0F8FF",
       heading.align = "center"
     )
+
+  # Counts with their share of the rows, shaded as in the count table where
+  # they need a look; the suggested call on one line in monospace, as the
+  # console prints it whole. The data keep the numbers and the full calls.
+  count_text <- function(x) .fmt_n_pct(x, nrow(data))
+  shorten <- function(x) {
+    x <- as.character(x)
+    long <- nchar(x) > 70L
+    x[long] <- paste0(substr(x[long], 1L, 69L), "\u2026")
+    x
+  }
+  html_text <- function(x) {
+    gsub(">", "&gt;", gsub("<", "&lt;", gsub("&", "&amp;", x, fixed = TRUE),
+                           fixed = TRUE), fixed = TRUE)
+  }
+  res_summary <- res_summary %>%
+    gt::fmt(columns = c("n_na", "n_special"),
+            fns = list(latex = function(x) gt::escape_latex(count_text(x)),
+                       default = count_text)) %>%
+    gt::fmt(columns = "unique",
+            fns = list(html = function(x) html_text(shorten(x)),
+                       latex = function(x) gt::escape_latex(shorten(x)),
+                       default = shorten)) %>%
+    gt::cols_align(align = "left", columns = "unique") %>%
+    gt::tab_style(style = gt::cell_text(font = "monospace", size = "small"),
+                  locations = gt::cells_body(columns = "unique"))
+  has_na <- result$n_na > 0
+  has_special <- result$n_special > 0
+  if (any(has_na)) {
+    res_summary <- gt::tab_style(res_summary, gt::cell_fill(color = "#FFCDD2"),
+                                 gt::cells_body(columns = "n_na", rows = has_na))
+  }
+  if (any(has_special)) {
+    res_summary <- gt::tab_style(res_summary, gt::cell_fill(color = "#BBDEFB"),
+                                 gt::cells_body(columns = "n_special", rows = has_special))
+  }
+  typed <- c("character beige" = any(result$class == "character"),
+             "numeric light blue" = any(result$class %in% c("numeric", "integer")),
+             "factor green" = any(result$class %in% c("factor", "ordered")))
+  shaded <- c("missing red" = any(has_na), "Unknown/Blank/N/A blue" = any(has_special))
+  notes <- c(if (any(typed)) paste("rows tinted by type:", paste(names(typed)[typed], collapse = ", ")),
+             if (any(shaded)) paste("counts shaded:", paste(names(shaded)[shaded], collapse = ", ")))
+  if (length(notes)) {
+    res_summary <- gt::tab_source_note(res_summary, paste0("Shading: ", paste(notes, collapse = "; "), "."))
+  }
 
   # The console shows both HTML tables once, in one group, after the text.
   styled_count <- if (!is.null(res_count)) {

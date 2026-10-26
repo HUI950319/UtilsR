@@ -665,6 +665,29 @@ test_that("counts take thousands separators and shares one decimal", {
                "*1,500* observations", fixed = TRUE)
 })
 
+test_that("the variable summary gives shares, shades counts and shortens calls", {
+  data <- data.frame(x = c(1, NA, NA, 4), y = c("unknown", "a", "b", "c"),
+                     z = strrep("abcdefghij", 1:4))
+  summary <- capture_reports(lv(data))[[1L]]
+  expect_equal(summary[["_data"]]$n_na, c(2, 0, 0))
+  html <- as.character(gt::as_raw_html(summary, inline_css = FALSE))
+  for (shown in c("2 (50.0%)", "1 (25.0%)", "\u2026")) expect_match(html, shown, fixed = TRUE)
+  styles <- summary[["_styles"]]
+  fill <- vapply(styles$styles, function(s) {
+    s[["cell_fill"]][["color"]] %||% NA_character_
+  }, character(1))
+  shaded <- function(column, color) {
+    summary[["_data"]]$vars[styles$rownum[styles$colname == column & fill %in% color]]
+  }
+  expect_identical(shaded("n_na", "#FFCDD2"), "x")
+  expect_identical(shaded("n_special", "#BBDEFB"), "y")
+  expect_match(paste(unlist(summary[["_source_notes"]]), collapse = " "),
+               "counts shaded: missing red, Unknown/Blank/N/A blue", fixed = TRUE)
+  out <- sub(" +$", "", cli::ansi_strip(utils::capture.output(suppressMessages(lv(data)))))
+  at <- grep("Variable summary (3 variables)", out, fixed = TRUE)
+  expect_match(out[at + 3L], "^  x +numeric +2 +2 \\(50\\.0%\\) +0$")
+})
+
 test_that("missing default data errors name the global data frames", {
   rlang::local_bindings(data = 1, data_all = 1, lv_candidate = mtcars,
                         .env = globalenv())
