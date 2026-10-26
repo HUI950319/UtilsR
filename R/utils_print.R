@@ -904,7 +904,10 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
                sprintf("%s to %s", format(min(fin)), format(max(fin))), na))
     }
     if (is.numeric(v)) {
-      fin <- v[is.finite(v)]
+      # classed numbers (integer64, labelled) as plain doubles: mean() of an
+      # integer64 is an integer64, which formatC() writes as its raw bits
+      num <- suppressWarnings(as.numeric(v))
+      fin <- num[is.finite(num)]
       if (!length(fin)) return(c("", "all missing", na))
       counts <- bin(fin)
       return(c(spark(counts),

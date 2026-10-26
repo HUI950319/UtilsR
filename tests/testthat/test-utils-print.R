@@ -332,6 +332,16 @@ test_that("pr_table() keeps a first column that fits whole without Unicode", {
   expect_identical(sub(" +$", "", out[3:4]), c("  A   1", "  BC  2"))
 })
 
+test_that("pr_spark() summarizes classed numbers as plain numbers", {
+  skip_if_not_installed("bit64")
+  withr::local_options(cli.num_colors = 1)
+  data <- data.frame(id = 1:12)
+  data$big <- bit64::as.integer64(seq(10, 120, by = 10))
+  out <- utils::capture.output(pr_spark(data, "big"))
+  expect_match(out, "mean 65.0  sd 36.1", fixed = TRUE)
+  expect_lt(nchar(out), 60L)
+})
+
 test_that("pr_table() describes the cells of a list column", {
   withr::local_options(cli.num_colors = 1)
   df <- data.frame(term = c("a", "b"))

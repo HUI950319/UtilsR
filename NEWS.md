@@ -1,5 +1,11 @@
 # UtilsR 0.6.12
 
+* `pr_spark()` summarizes integer64 and other classed numeric columns as
+  plain numbers. The mean of an integer64 column is itself an integer64,
+  which `formatC()` wrote as its raw bits, a line of some 300 digits that
+  pushed every other line's missing share off the screen, and the
+  sparkline came out flat.
+
 * `lv()`'s console report opens with a summary of the data set, as
   skimr's Data Summary does: the number of rows and variables, the
   variables by type (`4 factor, 3 character, 3 numeric`), and those with
