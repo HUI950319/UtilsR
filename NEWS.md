@@ -1,5 +1,11 @@
 # UtilsR 0.6.12
 
+* `lv()`'s console report opens with a summary of the data set, as
+  skimr's Data Summary does: the number of rows and variables, the
+  variables by type (`4 factor, 3 character, 3 numeric`), and those with
+  missing or Unknown/Blank/N/A values. These had appeared only in the HTML
+  table's subtitle.
+
 * A numeric variable with more than ten values is listed by its
   distribution at `lv()`'s console, as skimr gives it: a sparkline, the
   range, median [Q1, Q3] and mean (SD). Counts of its first values (ages

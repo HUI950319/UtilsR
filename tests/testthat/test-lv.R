@@ -763,6 +763,21 @@ test_that("each variable lists its counts, shares and filter in one block", {
   expect_true("  (6 others)  6  30.0%  100.0%" %in% ids)
 })
 
+test_that("the console report opens with a summary of the data set", {
+  data <- data.frame(x = c(1, NA, 3), y = c("unknown", "a", "b"),
+                     z = factor(c("p", "q", "p")))
+  out <- sub(" +$", "", cli::ansi_strip(utils::capture.output(suppressMessages(lv(data)))))
+  expect_identical(out[1L], "<lv> 3 rows · 3 variables")
+  expect_match(out[2L], "^  Types +1 character, 1 factor, 1 numeric$")
+  expect_match(out[3L], "^  Missing values +x$")
+  expect_match(out[4L], "^  Unknown/Blank/N/A +y$")
+  expect_identical(out[5L], "")
+  clean <- sub(" +$", "", cli::ansi_strip(utils::capture.output(suppressMessages(
+    lv(data.frame(a = 1:3))))))
+  expect_identical(clean[1L], "<lv> 3 rows · 1 variable")
+  expect_match(clean[3L], "^  Missing values +none$")
+})
+
 test_that("numeric variables with many values list their distribution", {
   data <- data.frame(age = c(seq(10, 110, by = 10), NA), dss = c(0, 1, NA, rep(1, 9)))
   out <- sub(" +$", "", cli::ansi_strip(utils::capture.output(suppressMessages(lv(data)))))

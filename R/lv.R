@@ -925,6 +925,19 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
 
   result <- purrr::map_dfr(vars, ~ .lv_one(analysis_data, .x))
   if (!knitting) {
+    # The data set first, as skimr's Data Summary opens its report: size,
+    # variable types and the variables that need a look.
+    types <- sort(table(result$class), decreasing = TRUE)
+    with_na <- result$vars[result$n_na > 0]
+    with_special <- result$vars[result$n_special > 0]
+    pr_head("lv", sprintf("%s rows", .fmt_int(nrow(data))),
+            sprintf("%d variable%s", length(vars), if (length(vars) == 1L) "" else "s"))
+    pr_kv(list(
+      Types = paste(as.integer(types), names(types), collapse = ", "),
+      `Missing values` = if (length(with_na)) with_na else "none",
+      `Unknown/Blank/N/A` = if (length(with_special)) with_special else "none"
+    ))
+    cat("\n")
     for (i in seq_along(vars)) {
       if (i > 1L) cat("\n")
       .lv_listing(analysis_data, vars[[i]], result[i, ])
