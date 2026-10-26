@@ -86,6 +86,9 @@
 #'   are emitted through \code{knitr::knit_print()} in the document's native
 #'   format, with dependencies retained. Console frequency listings are omitted
 #'   while knitting, and each default summary table is included only once.
+#'   Outside interactive sessions, such as \code{Rscript} or a background job,
+#'   the HTML tables are not printed, as they would print as HTML source; a
+#'   message says so.
 #'
 #'   Character or factor columns with more than 100 categories, such as
 #'   identifiers, and list columns are reported in the variable summary but
@@ -271,8 +274,15 @@ lv <- function(data, ...) {
     meta <- attr(rendered, "knit_meta")
     if (length(meta)) knitr::knit_meta_add(meta)
     cat(as.character(rendered), "\n\n", sep = "")
-  } else {
+  } else if (rlang::is_interactive()) {
     print(x)
+  } else {
+    # Without a viewer an HTML table prints as its source, some 500 lines per
+    # table in an Rscript log.
+    cli::cli_inform(c("i" = paste(
+      "{.fn lv}: HTML table not shown outside interactive sessions;",
+      "run the call interactively or knit it to see the table."
+    )))
   }
   invisible(x)
 }
@@ -907,9 +917,9 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     .lv_print_report(res_summary)
     if (!is.null(styled_count)) .lv_print_report(styled_count)
   } else if (is.null(styled_count)) {
-    print(res_summary)
+    .lv_print_report(res_summary)
   } else {
-    print(gt::gt_group(res_summary, styled_count))
+    .lv_print_report(gt::gt_group(res_summary, styled_count))
   }
 
   restore_theme()

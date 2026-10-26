@@ -472,10 +472,21 @@ test_that("missing rows give their share of the rows", {
 
 test_that("console reports render each default table once", {
   data <- data.frame(x = c("a", "b", "a"), y = 1:3)
+  withr::local_options(rlang_interactive = TRUE)
   output <- utils::capture.output(suppressMessages(lv(data)))
   tables <- gregexpr("<table", paste(output, collapse = "\n"), fixed = TRUE)[[1L]]
   expect_length(tables, 2L)
   expect_true(any(grepl("# A tibble", output, fixed = TRUE)))
+})
+
+test_that("HTML tables are not printed as source outside interactive sessions", {
+  data <- data.frame(g = c("A", "A", "B"), x = c("a", "b", "a"), y = 1:3)
+  withr::local_options(rlang_interactive = FALSE)
+  for (call in list(quote(lv(data)), quote(lv(data, y, group = g)),
+                    quote(lv(data, count = c(g, x))))) {
+    expect_message(output <- utils::capture.output(eval(call)), "interactive")
+    expect_false(any(grepl("<table", output, fixed = TRUE)))
+  }
 })
 
 test_that("suggested filters keep literals runnable and count observed levels", {

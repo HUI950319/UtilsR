@@ -1,5 +1,10 @@
 # UtilsR 0.6.12
 
+* Outside interactive sessions, such as `Rscript` or an RStudio background
+  job, `lv()` no longer prints its HTML tables, which arrived as HTML
+  source (some 500 lines per table; `lv()` of a 93-column data frame wrote
+  3,903 lines instead of 1,087). A message says the tables were not shown.
+
 * `lv(group = )`'s table carries a caption naming the grouping and the
   number of rows, `Variable summary by Sex (n = 4,549)`, as the default
   summary table names its data.

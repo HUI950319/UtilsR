@@ -102,6 +102,9 @@ In R Markdown or Quarto, use a code chunk with
   are emitted through \code{knitr::knit_print()} in the document's native
   format, with dependencies retained. Console frequency listings are omitted
   while knitting, and each default summary table is included only once.
+  Outside interactive sessions, such as \code{Rscript} or a background job,
+  the HTML tables are not printed, as they would print as HTML source; a
+  message says so.
 
   Character or factor columns with more than 100 categories, such as
   identifiers, and list columns are reported in the variable summary but
