@@ -453,6 +453,13 @@ test_that("missing group values form their own group in the grouped table", {
   expect_identical(factor_data$g, factor(c("B", NA, "A"), levels = c("B", "A")))
 })
 
+test_that("the grouped table names its grouping and size", {
+  data <- data.frame(g = rep(c("A", "B"), 600), x = seq_len(1200))
+  grouped <- capture_reports(lv(data, x, group = g))
+  expect_identical(as.character(grouped[[1L]]$table_styling$caption),
+                   "**Variable summary by g** (n = 1,200)")
+})
+
 test_that("missing rows give their share of the rows", {
   data <- data.frame(g = c("A", "A", "B", "B", "B"), x = c(1, NA, NA, 4, 5))
   default <- capture_reports(lv(data, x))

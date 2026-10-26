@@ -796,7 +796,12 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
         missing_stat = "{N_miss} ({p_miss}%)"
       ) %>%
       gtsummary::bold_labels() %>%
-      gtsummary::add_overall()
+      gtsummary::add_overall() %>%
+      # the table names its grouping, as the default summary names its data
+      gtsummary::modify_caption(sprintf(
+        "**Variable summary by %s** (n = %s)", group_var,
+        format(nrow(data), big.mark = ",", scientific = FALSE)
+      ))
 
     .lv_print_report(res_grouped)
 

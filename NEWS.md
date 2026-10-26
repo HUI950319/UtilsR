@@ -1,5 +1,9 @@
 # UtilsR 0.6.12
 
+* `lv(group = )`'s table carries a caption naming the grouping and the
+  number of rows, `Variable summary by Sex (n = 4,549)`, as the default
+  summary table names its data.
+
 * Knitted `lv()` reports no longer head each variable with a
   `** summary for x (class) **` message: the console listings it headed are
   left out of knitted documents, so each heading stood over nothing.
