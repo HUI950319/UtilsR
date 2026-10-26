@@ -321,7 +321,9 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     if (is.factor(x)) {
       levels(x)[tabulate(as.integer(x), nlevels(x)) > 0L]
     } else {
-      unique(x[!is.na(x)])
+      # sorted as the count listing sorts them (C locale), not as they occur
+      values <- unique(x[!is.na(x)])
+      tryCatch(sort(values, method = "radix"), error = function(e) values)
     }
   }
 
@@ -368,7 +370,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       .get_flt_formula <- sprintf("%s  # +%d more", .get_flt_formula, n_unique - 8L)
     }
     .get_flt_formula <- noquote(.get_flt_formula)
-    if (!knitting) print(.get_flt_formula)
+    # a plain line, without print()'s "[1] ", so it copies as code
+    if (!knitting) cat(.get_flt_formula, "\n", sep = "")
 
     tibble::tibble(
       vars = var,

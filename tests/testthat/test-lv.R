@@ -277,7 +277,7 @@ test_that("suggested filters escape column names and character values", {
     expression <- parse(text = as.character(summary$unique))[[1L]]
     expect_identical(expression[[1L]], quote(get_flt))
     expect_identical(expression[[2L]][[2L]], as.name(column))
-    expect_identical(eval(expression[[2L]][[3L]]), values)
+    expect_identical(eval(expression[[2L]][[3L]]), sort(values, method = "radix"))
     expect_true(all(eval(expression[[2L]], envir = data)))
     expect_identical(result$value$value, data)
   }
@@ -498,9 +498,9 @@ test_that("suggested filters keep literals runnable and count observed levels", 
   summary <- reports[[1L]][["_data"]]
   filters <- stats::setNames(as.character(summary$unique), summary$vars)
   expect_identical(filters[["num"]],
-                   "get_flt(num %in% c(1, 2, 3, 4, 5, 6, 7, 8))  # +5 more")
+                   "get_flt(num %in% c(0.5, 1, 2, 3, 4, 5, 6, 7))  # +5 more")
   expect_identical(filters[["int"]], "get_flt(int %in% c(1, 2))")
-  expect_identical(filters[["flag"]], "get_flt(flag %in% c(TRUE, FALSE))")
+  expect_identical(filters[["flag"]], "get_flt(flag %in% c(FALSE, TRUE))")
   expect_identical(filters[["f"]], 'get_flt(f %in% c("a"))')
   expect_equal(summary$n_unique, c(13, 2, 2, 1, 2))
   for (v in c("int", "flag", "f", "float")) {
@@ -509,6 +509,14 @@ test_that("suggested filters keep literals runnable and count observed levels", 
   }
   labels <- as.character(reports[[2L]][["_data"]]$label)
   expect_true("f (factor, 1)" %in% labels)
+})
+
+test_that("suggested filters print as plain, sorted lines", {
+  data <- data.frame(s = c("b", "c", "a", "b"), n = c(3, 1, 2, 3))
+  out <- cli::ansi_strip(utils::capture.output(suppressMessages(lv(data))))
+  expect_true('get_flt(s %in% c("a", "b", "c"))' %in% out)
+  expect_true("get_flt(n %in% c(1, 2, 3))" %in% out)
+  expect_false(any(grepl("[1] get_flt", out, fixed = TRUE)))
 })
 
 test_that("count warns that it ignores selections and group", {

@@ -1,5 +1,11 @@
 # UtilsR 0.6.12
 
+* `lv()`'s suggested `get_flt()` filters print as plain lines, without
+  `print()`'s `[1] ` prefix, so they copy as code, and list the values of
+  character, numeric, logical and date columns sorted as the count listing
+  above them sorts them, rather than in the order they occur
+  (`c(66, 72, 70, ...)` for ages). Factors keep their level order.
+
 * Outside interactive sessions, such as `Rscript` or an RStudio background
   job, `lv()` no longer prints its HTML tables, which arrived as HTML
   source (some 500 lines per table; `lv()` of a 93-column data frame wrote
