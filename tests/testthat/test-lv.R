@@ -1,5 +1,8 @@
 # Observe constructed reports without replacing their statistical calculations.
+# As at an interactive console: lv() prints its HTML tables only there, and
+# gtsummary builds the grouped table's gt object only when it is printed.
 capture_lv <- function(expr) {
+  withr::local_options(rlang_interactive = TRUE)
   tables <- list()
   original_gt <- gt::gt
   testthat::local_mocked_bindings(
@@ -92,7 +95,7 @@ test_that("group and count resolve column names before caller objects", {
     all(c("stat_1", "stat_2") %in% names(x)) && !"stat_3" %in% names(x)
   }, logical(1))))
   counted <- capture_lv(lv(data, count = g))
-  expect_match(paste(counted$output, collapse = "\n"), "2 (50%)", fixed = TRUE)
+  expect_match(paste(counted$output, collapse = "\n"), "A +2 +50\\.0%")
 
   column <- "g"
   wrapper <- function(input) capture_lv(lv(input, x, group = column))
@@ -141,7 +144,8 @@ test_that("Seurat controls use the same name resolution and preserve the object"
 
   vars <- c("batch", "orig.ident")
   counted <- capture_lv(lv(object, count = vars, add_cell_stats = FALSE))
-  expect_equal(counted$tables[[1L]][["SeuratProject"]], c(4, 4))
+  expect_identical(counted$tables[[1L]][["SeuratProject"]],
+                   c("4 (100.0%)", "4 (100.0%)", "8 (100.0%)"))
   identity <- TRUE
   by_ident <- capture_lv(lv(object, score, group = identity, add_cell_stats = FALSE))
   expect_equal(by_ident$tables,
@@ -714,6 +718,7 @@ test_that("lv() prints its headings with the tables at the console, as messages 
   withr::local_options(knitr.in.progress = TRUE)
   expect_message(utils::capture.output(lv(data, count = c("a", "b"))), "Cross-tabulation")
 })
+
 
 test_that("lv prints its console sections with pr_section()", {
   data <- data.frame(age = c(40, 50, 50), sex = c("M", "F", "M"))
