@@ -260,6 +260,14 @@ test_that("knitr receives native tables once in an asis chunk", {
   expect_false(grepl("<table", latex, fixed = TRUE))
 })
 
+test_that("knitted reports carry no per-variable headings without listings", {
+  data <- data.frame(a = c("x", "y", "x"), b = 1:3)
+  withr::local_options(knitr.in.progress = TRUE)
+  testthat::local_mocked_bindings(.lv_print_report = function(x) invisible(x),
+                                  .package = "UtilsR")
+  utils::capture.output(expect_no_message(lv(data), message = "summary for"))
+})
+
 test_that("suggested filters escape column names and character values", {
   values <- c('a"b', "c\\d", "line\nbreak", "", "a'b")
   for (column in c("a b", "a`b")) {

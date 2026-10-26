@@ -320,18 +320,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     n_na <- .count_missing_values(col_data)
     var_class <- class(col_data)[1]
 
-    # at the console the sections below name the variable; the cli header,
-    # a message, heads it only while knitting
-    if (knitting) {
-      cli::cli_h1(
-        cli::col_br_white(
-          cli::bg_cyan(
-            sprintf("** summary for %s (%s) **", var, var_class)
-          )
-        )
-      )
-    }
-
+    # Knitted reports leave out these listings, and with them their headings.
     if (!knitting) {
       pr_section(sprintf("%s (%s): count", var, var_class))
       data %>%

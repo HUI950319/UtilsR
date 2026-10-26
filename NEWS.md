@@ -1,5 +1,9 @@
 # UtilsR 0.6.12
 
+* Knitted `lv()` reports no longer head each variable with a
+  `** summary for x (class) **` message: the console listings it headed are
+  left out of knitted documents, so each heading stood over nothing.
+
 * The missing rows of `lv()`'s summary tables give their share of the rows
   beside the count, `418 (9.2%)` rather than `418`, in the default and the
   grouped table.
