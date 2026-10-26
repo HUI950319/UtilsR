@@ -393,8 +393,12 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     tab <- dplyr::count(tibble::tibble(value = x), .data$value)
     missing <- is.na(tab$value)
     valid <- tab$value[!missing]
+    # spans with their units, unpadded; date-times keep the time at midnight,
+    # which as.character() drops ("2020-01-01" beside "2020-01-01 01:00:00")
     labels <- as.character(.label_blank(
-      if (inherits(valid, "difftime")) format(valid) else valid
+      if (inherits(valid, "difftime")) format(valid, trim = TRUE)
+      else if (inherits(valid, c("POSIXct", "POSIXlt"))) format(valid)
+      else valid
     ))
     n <- tab$n[!missing]
     if (length(n) > 15L) {
@@ -978,6 +982,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   }
 
   if (!knitting) {
+    # set off from the last variable's listing, as the listings are
+    cat("\n")
     # One line per variable, rather than the summary table as a tibble, whose
     # cells carried its markdown (`**Vars**`, `__Age__`) and NA headers.
     if (length(table_vars)) {

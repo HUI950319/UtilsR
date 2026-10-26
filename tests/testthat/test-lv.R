@@ -778,6 +778,16 @@ test_that("the console report opens with a summary of the data set", {
   expect_match(clean[3L], "^  Missing values +none$")
 })
 
+test_that("frequency tables give times in full and spans unpadded", {
+  data <- data.frame(span = as.difftime(c(1, 10, 10), units = "hours"))
+  data$when <- as.POSIXct("2020-01-01", tz = "UTC") + c(0, 3600, 3600)
+  out <- sub(" +$", "", cli::ansi_strip(utils::capture.output(suppressMessages(lv(data)))))
+  expect_true(any(startsWith(out, "  1 hours ")))
+  expect_true(any(startsWith(out, "  2020-01-01 00:00:00 ")))
+  at <- grep("Variable distributions", out, fixed = TRUE)
+  expect_identical(out[at - 1L], "")
+})
+
 test_that("numeric variables with many values list their distribution", {
   data <- data.frame(age = c(seq(10, 110, by = 10), NA), dss = c(0, 1, NA, rep(1, 9)))
   out <- sub(" +$", "", cli::ansi_strip(utils::capture.output(suppressMessages(lv(data)))))
