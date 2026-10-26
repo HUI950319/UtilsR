@@ -746,7 +746,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     suppressMessages(gtsummary::set_gtsummary_theme(original_theme))
   }
   on.exit(restore_theme(), add = TRUE)
-  gtsummary::theme_gtsummary_compact()
+  # gtsummary announces each theme it sets; the caller asked for no theme
+  suppressMessages(gtsummary::theme_gtsummary_compact())
 
   if (!is.null(group_var)) {
     # One table column per group (every factor level): an identifier as the

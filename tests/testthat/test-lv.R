@@ -74,6 +74,11 @@ test_that("lv preserves the caller's complete gtsummary theme", {
   capture_lv(lv(data, count = g))
   expect_identical(gtsummary::get_gtsummary_theme(), before)
 
+  # Setting the compact theme for its own tables is not announced.
+  for (call in list(quote(lv(data, x)), quote(lv(data, x, group = g)))) {
+    utils::capture.output(expect_no_message(eval(call), message = "Setting theme"))
+  }
+
   # This remains an upstream unsupported input, and must still restore state.
   invalid <- data.frame(x = factor(c("a", NA), exclude = NULL))
   expect_error(capture_lv(lv(invalid)), "Factors with NA levels")

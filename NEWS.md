@@ -1,5 +1,8 @@
 # UtilsR 0.6.12
 
+* `lv()` no longer prints `Setting theme "Compact"` on every call; the
+  compact gtsummary theme it sets for its own tables is set quietly.
+
 * `lv()` selects columns through a caller's vector of names or positions,
   `lv(data, vars)` or `lv(vars)`, without tidyselect's "Using an external
   vector in selections was deprecated" warning: such a vector, also inside
