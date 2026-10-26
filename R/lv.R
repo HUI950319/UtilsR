@@ -59,9 +59,10 @@
 #'   variable name (NSE or string), multiple variable names via
 #'   \code{c(var1, var2)} (NSE) or character vector
 #'   \code{c("var1", "var2")}. Selections in \code{...}, \code{pattern} and
-#'   \code{group} are ignored in this mode, with a warning. Two-variable
-#'   wide and row-percentage tables are skipped, with a message, when either
-#'   variable has more than 100 categories.
+#'   \code{group} are ignored in this mode, with a warning. Two variables
+#'   give one table whose cells show the count and the row percentage, with
+#'   a Total row of column counts and shares; it is skipped, with a message,
+#'   when either variable has more than 100 categories.
 #'   Existing dplyr groups are ignored for this table. Generated frequency,
 #'   percentage, and total column names receive numeric suffixes when needed
 #'   to preserve input columns and category labels.
@@ -678,19 +679,9 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       )
     cross_count[count_vars] <- lapply(cross_count[count_vars], .label_blank)
 
-    if (knitting) {
-      .lv_print_report(gt::fmt_integer(gt::gt(cross_count),
-                                       columns = dplyr::all_of(n_name)))
-    } else {
-      shown <- cross_count
-      shown[[n_name]] <- .fmt_int(shown[[n_name]])
-      pr_table(shown, n = NULL,
-               align = c(rep("left", length(count_vars)), "right", "right"))
-    }
-
-    # A wide table gets one column per category of the second variable and
+    # A two-way table gets one column per category of the second variable and
     # one row per category of the first; beyond 100 it is unreadable and
-    # slow (5,000 columns took 18 s), so only the long table is shown.
+    # slow (5,000 columns took 18 s), so only the long list is shown.
     two_way <- length(count_vars) == 2
     if (two_way) {
       n_cat <- vapply(count_vars, function(v) dplyr::n_distinct(count_base[[v]]),
@@ -698,46 +689,82 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       if (any(n_cat > 100L)) {
         cli::cli_inform(c("i" = paste(
           "{.var {count_vars[n_cat > 100L]}} ha{?s/ve} more than 100",
-          "categories; the wide and row-percentage tables are skipped."
+          "categories; the two-way table is skipped."
         )))
         two_way <- FALSE
       }
     }
-    if (two_way) {
-      if (knitting) cli::cli_h2(cli::col_yellow("Wide Format Table"))
-      else pr_section("Wide Format Table")
 
+    if (!two_way) {
+      if (knitting) {
+        .lv_print_report(gt::fmt_integer(gt::gt(cross_count),
+                                         columns = dplyr::all_of(n_name)))
+      } else {
+        shown <- cross_count
+        shown[[n_name]] <- .fmt_int(shown[[n_name]])
+        pr_table(shown, n = NULL,
+                 align = c(rep("left", length(count_vars)), "right", "right"))
+      }
+    } else {
+      # One table, as janitor's adorn_totals() + adorn_percentages("row") +
+      # adorn_ns() lay it out: each cell gives its count and its share of the
+      # row, the Total row each column's count and its share of all rows.
       cross_wide <- count_base %>%
         tidyr::pivot_wider(
           names_from = dplyr::all_of(count_vars[2]),
           values_from = dplyr::all_of(n_name),
           values_fill = 0,
           names_prefix = ".lv_",
-          names_repair = "minimal"
+          names_repair = "minimal",
+          names_sort = TRUE
         )
       names(cross_wide)[-1L] <- substring(names(cross_wide)[-1L], 5L)
       names(cross_wide)[names(cross_wide) == ""] <- "(blank)"
       names(cross_wide) <- make.unique(names(cross_wide), sep = "_")
       total_name <- tail(make.unique(c(names(cross_wide), "Total"), sep = "_"), 1L)
+      categories <- names(cross_wide)[-1L]
 
-      cross_wide <- cross_wide %>%
-        dplyr::mutate("{total_name}" := rowSums(dplyr::pick(-1)))
+      counts <- as.matrix(cross_wide[categories])
+      row_n <- rowSums(counts)
+      col_n <- colSums(counts)
+      cell <- function(n, of) {
+        ifelse(n == 0, "0", paste0(.fmt_int(n), " (", .fmt_pct(n / of * 100), ")"))
+      }
+      cross_tab <- tibble::tibble(.rows = nrow(cross_wide) + 1L)
+      cross_tab[[count_vars[1]]] <- c(as.character(.label_blank(cross_wide[[1L]])),
+                                      "Total")
+      for (j in seq_along(categories)) {
+        # a one-row matrix names the cell it drops to
+        cross_tab[[categories[j]]] <- unname(c(cell(counts[, j], row_n),
+                                               cell(col_n[[j]], sum(counts))))
+      }
+      cross_tab[[total_name]] <- unname(.fmt_int(c(row_n, sum(counts))))
+      layout <- "Cells give n (row %); the Total row gives each column's n (share of all rows)."
 
-      if (!knitting) print(tibble::as_tibble(cross_wide))
+      if (!knitting) {
+        pr_table(cross_tab, n = NULL,
+                 align = c("left", rep("right", ncol(cross_tab) - 1L)))
+        pr_note(layout)
+      }
 
-      cross_gt <- cross_wide %>%
+      last <- nrow(cross_tab)
+      cross_gt <- cross_tab %>%
         gt::gt(rowname_col = count_vars[1]) %>%
         gt::tab_header(
           title = gt::md(glue::glue("**{count_vars[1]} \u00d7 {count_vars[2]}**")),
           subtitle = gt::md(glue::glue("Cross-tabulation (n = {.fmt_int(nrow(data))})"))
         ) %>%
-        gt::fmt_integer(columns = where(is.numeric)) %>%
         gt::tab_stubhead(label = gt::md(glue::glue("**{count_vars[1]}**"))) %>%
-        gt::grand_summary_rows(
-          columns = where(is.numeric),
-          fns = list(Total = ~ sum(.)),
-          fmt = ~ gt::fmt_integer(.)
+        # an id of its own: a category may share the variable's name
+        gt::tab_spanner(label = count_vars[2], columns = dplyr::all_of(categories),
+                        id = ".lv_columns") %>%
+        gt::cols_align(align = "right", columns = dplyr::all_of(c(categories, total_name))) %>%
+        gt::tab_style(
+          style = gt::cell_text(weight = "bold"),
+          locations = list(gt::cells_body(rows = last), gt::cells_stub(rows = last),
+                           gt::cells_body(columns = dplyr::all_of(total_name)))
         ) %>%
+        gt::tab_source_note(layout) %>%
         gtExtras::gt_theme_excel() %>%
         gt::tab_options(
           column_labels.background.color = "#E8F4FD",
@@ -746,29 +773,6 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
         )
 
       .lv_print_report(cross_gt)
-
-      if (knitting) cli::cli_h3(cli::col_yellow("Row Percentages (%)"))
-      else pr_section("Row Percentages (%)")
-
-      cross_pct <- count_base %>%
-        dplyr::group_by(.data[[count_vars[1]]]) %>%
-        dplyr::mutate("{pct_name}" :=
-                        round(.data[[n_name]] / sum(.data[[n_name]]) * 100, 1)) %>%
-        dplyr::ungroup() %>%
-        dplyr::select(-dplyr::all_of(n_name)) %>%
-        tidyr::pivot_wider(
-          names_from = dplyr::all_of(count_vars[2]),
-          values_from = dplyr::all_of(pct_name),
-          values_fill = 0,
-          names_prefix = ".lv_",
-          names_repair = "minimal"
-        )
-      names(cross_pct)[-1L] <- substring(names(cross_pct)[-1L], 5L)
-      names(cross_pct)[names(cross_pct) == ""] <- "(blank)"
-      names(cross_pct) <- make.unique(names(cross_pct), sep = "_")
-
-      if (knitting) .lv_print_report(gt::gt(cross_pct))
-      else print(tibble::as_tibble(cross_pct))
     }
 
     if (knitting) cli::cli_rule()

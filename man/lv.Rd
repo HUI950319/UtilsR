@@ -55,9 +55,10 @@ values (factor levels) is an error.}
 variable name (NSE or string), multiple variable names via
 \code{c(var1, var2)} (NSE) or character vector
 \code{c("var1", "var2")}. Selections in \code{...}, \code{pattern} and
-\code{group} are ignored in this mode, with a warning. Two-variable
-wide and row-percentage tables are skipped, with a message, when either
-variable has more than 100 categories.
+\code{group} are ignored in this mode, with a warning. Two variables
+give one table whose cells show the count and the row percentage, with
+a Total row of column counts and shares; it is skipped, with a message,
+when either variable has more than 100 categories.
 Existing dplyr groups are ignored for this table. Generated frequency,
 percentage, and total column names receive numeric suffixes when needed
 to preserve input columns and category labels.

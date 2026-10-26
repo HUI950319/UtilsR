@@ -26,9 +26,9 @@ test_that("cross-tabulation separates original columns from frequency columns", 
     vars <- c(name, "category")
     result <- capture_lv(lv(data, count = vars))
     wide <- result$tables[[1L]]
-    expect_equal(wide[["a"]], c(1, 0))
-    expect_equal(wide[["b"]], c(0, 2))
-    expect_equal(wide[["Total"]], c(1, 2))
+    expect_identical(wide[["a"]], c("1 (100.0%)", "0", "1 (33.3%)"))
+    expect_identical(wide[["b"]], c("0", "2 (100.0%)", "2 (66.7%)"))
+    expect_identical(wide[["Total"]], c("1", "2", "3"))
     expect_identical(result$value$value, data)
     expect_false(result$value$visible)
   }
@@ -38,8 +38,8 @@ test_that("a Total category is retained beside the separate row total", {
   data <- data.frame(g = c("A", "A", "B"), x = c("Total", "x", "Total"))
   result <- capture_lv(lv(data, count = c(g, x)))
   wide <- result$tables[[1L]]
-  expect_equal(wide[["Total"]], c(1, 1))
-  expect_equal(wide[["Total_1"]], c(2, 1))
+  expect_identical(wide[["Total"]], c("1 (50.0%)", "1 (100.0%)", "2 (66.7%)"))
+  expect_identical(wide[["Total_1"]], c("2", "1", "3"))
   expect_identical(names(wide), c("g", "Total", "x", "Total_1"))
 })
 
@@ -48,8 +48,8 @@ test_that("cross-tabulation uses the requested variables on grouped input", {
                      a = c("A", "A", "A"), b = c("X", "X", "Y"))
   grouped <- dplyr::group_by(data, stratum)
   result <- capture_lv(lv(grouped, count = c(a, b)))
-  expect_equal(result$tables[[1L]][["X"]], 2)
-  expect_equal(result$tables[[1L]][["Y"]], 1)
+  expect_identical(result$tables[[1L]][["X"]], c("2 (66.7%)", "2 (66.7%)"))
+  expect_identical(result$tables[[1L]][["Y"]], c("1 (33.3%)", "1 (33.3%)"))
   expect_false("stratum" %in% names(result$tables[[1L]]))
   expect_identical(result$value$value, grouped)
 })
@@ -287,9 +287,9 @@ test_that("blank cross-tabulation categories remain distinct and renderable", {
   result <- capture_lv(lv(data, count = c(g, x)))
   wide <- result$tables[[1L]]
   expect_identical(names(wide), c("g", "(blank)", "(blank)_1", "Total"))
-  expect_equal(wide[["(blank)"]], c(2, 0))
-  expect_equal(wide[["(blank)_1"]], c(0, 1))
-  expect_equal(wide[["Total"]], c(2, 1))
+  expect_identical(wide[["(blank)"]], c("2 (100.0%)", "0", "2 (66.7%)"))
+  expect_identical(wide[["(blank)_1"]], c("0", "1 (100.0%)", "1 (33.3%)"))
+  expect_identical(wide[["Total"]], c("2", "1", "3"))
   expect_identical(result$value$value, data)
 })
 
@@ -482,6 +482,18 @@ test_that("the grouped table names its grouping and size", {
   grouped <- capture_reports(lv(data, x, group = g))
   expect_identical(as.character(grouped[[1L]]$table_styling$caption),
                    "**Variable summary by g** (n = 1,200)")
+})
+
+test_that("two-way counts give one table of counts with row shares", {
+  data <- data.frame(a = c("x", "x", "y", NA), b = c("u", "v", "u", "u"))
+  reports <- capture_reports(lv(data, count = c(a, b)))
+  expect_length(reports, 1L)
+  tab <- reports[[1L]][["_data"]]
+  expect_identical(tab$a, c("x", "y", NA, "Total"))
+  expect_identical(tab$u, c("1 (50.0%)", "1 (100.0%)", "1 (100.0%)", "3 (75.0%)"))
+  expect_identical(tab$v, c("1 (50.0%)", "0", "0", "1 (25.0%)"))
+  expect_identical(tab$Total, c("2", "1", "1", "4"))
+  expect_identical(reports[[1L]][["_spanners"]]$spanner_label[[1L]], "b")
 })
 
 test_that("missing rows give their share of the rows", {
@@ -690,8 +702,8 @@ test_that("lv() prints its headings with the tables at the console, as messages 
     lv(data, count = c("a", "b")))))
   expect_true(any(grepl("Cross-tabulation: a \u00d7 b", cross, fixed = TRUE)))
   expect_true(any(grepl("Variables  a, b", cross, fixed = TRUE)))
-  expect_true(any(grepl("Wide Format Table", cross, fixed = TRUE)))
-  expect_true(any(grepl("Row Percentages (%)", cross, fixed = TRUE)))
+  expect_false(any(grepl("Row Percentages", cross, fixed = TRUE)))
+  expect_true(any(grepl("Cells give n (row %)", cross, fixed = TRUE)))
   grouped <- cli::ansi_strip(utils::capture.output(suppressMessages(
     lv(data, a, group = "b"))))
   expect_true(any(grepl("Variable Summary by b", grouped, fixed = TRUE)))

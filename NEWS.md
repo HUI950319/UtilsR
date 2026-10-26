@@ -1,5 +1,14 @@
 # UtilsR 0.6.12
 
+* `lv(count = c(a, b))` gives one two-way table, as janitor's
+  `adorn_totals()` + `adorn_percentages("row")` + `adorn_ns()` lay it out:
+  each cell shows the count and the row percentage (`1,285 (64.8%)`), a
+  Total row the column counts and their shares of all rows, and a Total
+  column the row counts. It replaces the long list, the wide table and the
+  row-percentage table that two variables used to print; in the HTML table
+  the second variable names its columns as a spanner. Columns are sorted
+  as factor levels or values.
+
 * `lv()` writes counts with thousands separators and shares with one
   decimal throughout. The cross-tabulation list printed `n`, `pct` and
   `n_pct`, the same share twice with two decimals that dropped trailing
