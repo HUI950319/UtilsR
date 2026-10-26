@@ -796,7 +796,7 @@ test_that("numeric variables with many values list their distribution", {
   expect_match(out[head + 1L], "^  Distribution  ")
   expect_identical(out[head + 2:4], c("  Range            10 to 110",
                                       "  Median [Q1, Q3]  60 [35, 85]",
-                                      "  Mean (SD)        60 (33.17)"))
+                                      "  Mean (SD)        60 (33.2)"))
   expect_match(out[head + 5L], "^get_flt\\(age %in% c\\(10, 20, ")
   # a code with few values keeps its frequency table
   dss <- grep("dss (numeric)", out, fixed = TRUE)

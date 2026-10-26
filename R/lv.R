@@ -440,8 +440,9 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       x <- x[is.finite(x)]
       bins <- tabulate(findInterval(x, seq(min(x), max(x), length.out = 13L),
                                     rightmost.closed = TRUE), nbins = 12L)
+      # three significant digits, as pr_spark() gives the mean and SD
       num <- function(v) {
-        vapply(v, format, character(1), digits = 4, big.mark = ",", trim = TRUE)
+        vapply(v, format, character(1), digits = 3, big.mark = ",", trim = TRUE)
       }
       q <- num(stats::quantile(x, c(0, 0.25, 0.5, 0.75, 1), names = FALSE))
       pr_kv(list(
