@@ -1,5 +1,12 @@
 # UtilsR 0.6.12
 
+* `fmt_tag()` no longer keeps the plots it tags inside each in-panel label.
+  The label layer was built in `fmt_tag()`'s own frame, which its mapping
+  and geom kept, so every tagged plot carried all the others: the first
+  of four tagged 1e5-point plots held the data of all four, and a
+  `RegR::get_rcs_all()` composite saved with `saveRDS()` took 11.9 MB
+  instead of 9.5 MB. The labels draw as before.
+
 * A `pr_tree()` line still too wide for a narrow console, such as a data
   frame with an attribute tag, ends in an ellipsis; `cli::tree()` cut it
   off without one, leaving `term, HR [` at 40 columns.

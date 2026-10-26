@@ -696,39 +696,11 @@ fmt_tag <- function(plot,
       holder$patches$plots <- lapply(seq_along(tagged), function(j) tagged[[j]])
       plots[[i]] <- holder
     } else {
-      layer <- ggpp::geom_label_npc(
-        data = data.frame(npcx = npcx[i], npcy = npcy[i], label = labels[i]),
-        mapping = ggplot2::aes(npcx = .data[["npcx"]], npcy = .data[["npcy"]],
-                               label = .data[["label"]]),
-        inherit.aes = FALSE,
-        show.legend = FALSE,
-        size = size[i],
-        fontface = fontface,
-        color = color[i],
-        size.unit = "pt",
-        label.size = label.size,
-        label.padding = label.padding,
-        label.r = label.r,
-        ...
+      plots[[i]] <- plots[[i]] + .fmt_tag_layer(
+        npcx[i], npcy[i], labels[i], size = size[i], fontface = fontface,
+        color = color[i], theme_family = family[i], label.size = label.size,
+        label.padding = label.padding, label.r = label.r, ...
       )
-      # NPC belongs to the displayed panel, not the data coordinate system.
-      layer$geom <- ggplot2::ggproto(NULL, ggpp::GeomLabelNpc,
-        draw_panel = function(data, panel_params, coord, parse = FALSE, na.rm = FALSE,
-                              label.padding = grid::unit(0.25, "lines"),
-                              label.r = grid::unit(0.15, "lines"), label.size = 0.25,
-                              size.unit = "mm") {
-          panel_coord <- ggplot2::ggproto(NULL, coord,
-            backtransform_range = function(panel_params) list(x = c(0, 1), y = c(0, 1)),
-            transform = function(data, panel_params) data
-          )
-          ggpp::GeomLabelNpc$draw_panel(data, panel_params, panel_coord,
-            parse = parse, na.rm = na.rm, label.padding = label.padding,
-            label.r = label.r, label.size = label.size, size.unit = size.unit)
-        }
-      )
-      if (!"family" %in% ...names()) layer$aes_params$family <- family[i]
-      attr(layer, ".fmt_tag_generated") <- TRUE
-      plots[[i]] <- plots[[i]] + layer
     }
   }
 
@@ -738,6 +710,53 @@ fmt_tag <- function(plot,
     plots[[i]]
   })
   .from_plot_list(restored, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
+}
+
+# The boxed in-panel label of fmt_tag(). It is built here rather than in
+# fmt_tag(): the layer's mapping, its ggproto() geom and draw_panel() keep the
+# frame they are made in, and fmt_tag()'s frame holds every plot it tags, so
+# each tagged plot carried all of them (8 MB a panel for four 1e5-point
+# plots, 2026-10-26). The arguments are evaluated first, so that no promise
+# keeps fmt_tag()'s frame either. `theme_family` is the plot theme's font,
+# used unless `...` names a `family` of its own.
+.fmt_tag_layer <- function(npcx, npcy, label, size, fontface, color,
+                           theme_family, label.size, label.padding, label.r,
+                           ...) {
+  list(npcx, npcy, label, size, fontface, color, theme_family, label.size,
+       label.padding, label.r, ...)
+  layer <- ggpp::geom_label_npc(
+    data = data.frame(npcx = npcx, npcy = npcy, label = label),
+    mapping = ggplot2::aes(npcx = .data[["npcx"]], npcy = .data[["npcy"]],
+                           label = .data[["label"]]),
+    inherit.aes = FALSE,
+    show.legend = FALSE,
+    size = size,
+    fontface = fontface,
+    color = color,
+    size.unit = "pt",
+    label.size = label.size,
+    label.padding = label.padding,
+    label.r = label.r,
+    ...
+  )
+  # NPC belongs to the displayed panel, not the data coordinate system.
+  layer$geom <- ggplot2::ggproto(NULL, ggpp::GeomLabelNpc,
+    draw_panel = function(data, panel_params, coord, parse = FALSE, na.rm = FALSE,
+                          label.padding = grid::unit(0.25, "lines"),
+                          label.r = grid::unit(0.15, "lines"), label.size = 0.25,
+                          size.unit = "mm") {
+      panel_coord <- ggplot2::ggproto(NULL, coord,
+        backtransform_range = function(panel_params) list(x = c(0, 1), y = c(0, 1)),
+        transform = function(data, panel_params) data
+      )
+      ggpp::GeomLabelNpc$draw_panel(data, panel_params, panel_coord,
+        parse = parse, na.rm = na.rm, label.padding = label.padding,
+        label.r = label.r, label.size = label.size, size.unit = size.unit)
+    }
+  )
+  if (!"family" %in% ...names()) layer$aes_params$family <- theme_family
+  attr(layer, ".fmt_tag_generated") <- TRUE
+  layer
 }
 
 # ---- fmt_legend helpers ----

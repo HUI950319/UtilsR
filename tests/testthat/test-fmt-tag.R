@@ -443,3 +443,23 @@ test_that("tags use the font family of the plot theme", {
   plain <- fmt_tag(ggplot2::ggplot(mtcars, ggplot2::aes(mpg, disp)) + ggplot2::geom_point())
   expect_identical(ggplot2::layer_data(plain, 2L)$family, "")
 })
+
+test_that("a tagged plot does not carry the other plots fmt_tag() tagged", {
+  skip_if_not_installed("lobstr")
+  # The label layer was built in fmt_tag()'s frame, which holds every plot it
+  # tags, and its mapping and geom kept that frame, so each tagged plot
+  # carried all the others. Every panel here has data of its own (1.6 MB).
+  make <- function(i) {
+    d <- data.frame(x = seq_len(1e5) + i, y = stats::runif(1e5))
+    ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  }
+  environment(make) <- globalenv()
+  plots <- lapply(1:4, make)
+  size <- function(x) as.numeric(lobstr::obj_size(x)) / 1024^2
+  # The data of the other three panels (4.8 MB) stay out of the first; a
+  # label's own ggproto classes (about 4 MB) are shared by every panel.
+  for (position in c("tl", "tl-out")) {
+    tagged <- fmt_tag(patchwork::wrap_plots(plots), label_position = position)
+    expect_gt(size(tagged) - size(tagged[[1]]), 3)
+  }
+})
