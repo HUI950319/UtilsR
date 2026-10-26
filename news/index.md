@@ -2,6 +2,144 @@
 
 ## UtilsR 0.6.12
 
+- [`pr_spark()`](https://hui950319.github.io/UtilsR/reference/pr_spark.md)
+  summarizes integer64 and other classed numeric columns as plain
+  numbers. The mean of an integer64 column is itself an integer64, which
+  [`formatC()`](https://rdrr.io/r/base/formatc.html) wrote as its raw
+  bits, a line of some 300 digits that pushed every other line’s missing
+  share off the screen, and the sparkline came out flat.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)’s console
+  report opens with a summary of the data set, as skimr’s Data Summary
+  does: the number of rows and variables, the variables by type
+  (`4 factor, 3 character, 3 numeric`), and those with missing or
+  Unknown/Blank/N/A values. These had appeared only in the HTML table’s
+  subtitle.
+
+- A numeric variable with more than ten values is listed by its
+  distribution at
+  [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)’s
+  console, as skimr gives it: a sparkline, the range, median \[Q1, Q3\]
+  and mean (SD). Counts of its first values (ages 0, 1, 2, …) said
+  little about it. Numeric codes with up to ten values keep their
+  frequency table.
+
+- At the console,
+  [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) lists
+  each variable in one block, set off by a blank line: a heading with
+  its counts (`Grade (factor) · 5 levels · special 4,271 (93.9%)`), a
+  frequency table of values with `n`, `pct` and cumulative `cum` shares
+  of all rows, missing values last, and the suggested `get_flt()` call.
+  Beyond 15 values the rest are summed in one `(k others)` row. Each
+  variable had two headings (`count` and `unique values`) over a
+  [`dplyr::count()`](https://dplyr.tidyverse.org/reference/count.html)
+  tibble that hid missing values beyond its tenth row.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)’s
+  variable summary gives each count of missing and of Unknown/Blank/N/A
+  values with its share of the rows (`4,271 (93.9%)`), at the console in
+  an aligned
+  [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  rather than a tibble. In the HTML table those counts are shaded red
+  and blue where there are any, as in the count table, a note names the
+  shades and the type tints, and the suggested `get_flt()` call is
+  left-aligned in monospace and shortened to one line (the console
+  prints it whole); it had been centred and wrapped over up to four
+  lines.
+
+- [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  no longer replaces the cells of a first column one to three characters
+  wide with dots where the console has no Unicode: it cut every cell to
+  the column width, and
+  [`cli::ansi_strtrim()`](https://cli.r-lib.org/reference/ansi_strtrim.html)
+  gives its `...` ellipsis cut to a width narrower than itself even for
+  text that fits (`"A"` became `"."`). Only cells too wide for the
+  column are cut.
+
+- At the console,
+  [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) gives one
+  [`pr_spark()`](https://hui950319.github.io/UtilsR/reference/pr_spark.md)
+  line per variable under “Variable distributions”: a sparkline, the
+  mean and SD or the levels and the most frequent one, and the share
+  missing. It replaces the summary table printed as a tibble, whose
+  cells carried the table’s markdown (`**Vars**`,
+  `__Age (numeric, 91)__`) and `NA` for each variable row.
+
+- `lv(count = c(a, b))` gives one two-way table, as janitor’s
+  `adorn_totals()` + `adorn_percentages("row")` + `adorn_ns()` lay it
+  out: each cell shows the count and the row percentage
+  (`1,285 (64.8%)`), a Total row the column counts and their shares of
+  all rows, and a Total column the row counts. It replaces the long
+  list, the wide table and the row-percentage table that two variables
+  used to print; in the HTML table the second variable names its columns
+  as a spanner. Columns are sorted as factor levels or values.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) writes
+  counts with thousands separators and shares with one decimal
+  throughout. The cross-tabulation list printed `n`, `pct` and `n_pct`,
+  the same share twice with two decimals that dropped trailing zeros
+  (`1285 (28.25%)` beside `655 (14.4%)`); it now gives `n` and `pct`
+  (`28.2%`) in an aligned console table. The wide table’s cells and the
+  subtitles of both tables (`n = 4549`, `4549 observations`) take
+  separators too.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)‘s count
+  table gives each shade one meaning and names those it uses in a note
+  under the table. Shares of rare categories darken in one hue, light
+  orange for 5-10%, orange for 1-5% and dark orange below 1%; labels of
+  missing rows are light red and of Unknown/Blank/N/A values light blue,
+  as in
+  [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md).
+  Red had marked both missing rows and shares below 1%, yellow both
+  special values and shares of 1-5%, green shares of 5-10%, all without
+  a legend. Missing rows’ shares are no longer shaded as rare
+  categories.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)’s
+  suggested `get_flt()` filters print as plain lines, without
+  [`print()`](https://rdrr.io/r/base/print.html)’s `[1]` prefix, so they
+  copy as code, and list the values of character, numeric, logical and
+  date columns sorted as the count listing above them sorts them, rather
+  than in the order they occur (`c(66, 72, 70, ...)` for ages). Factors
+  keep their level order.
+
+- Outside interactive sessions, such as `Rscript` or an RStudio
+  background job,
+  [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) no longer
+  prints its HTML tables, which arrived as HTML source (some 500 lines
+  per table;
+  [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) of a
+  93-column data frame wrote 3,903 lines instead of 1,087). A message
+  says the tables were not shown.
+
+- `lv(group = )`’s table carries a caption naming the grouping and the
+  number of rows, `Variable summary by Sex (n = 4,549)`, as the default
+  summary table names its data.
+
+- Knitted [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
+  reports no longer head each variable with a
+  `** summary for x (class) **` message: the console listings it headed
+  are left out of knitted documents, so each heading stood over nothing.
+
+- The missing rows of
+  [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)’s summary
+  tables give their share of the rows beside the count, `418 (9.2%)`
+  rather than `418`, in the default and the grouped table.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) no longer
+  prints `Setting theme "Compact"` on every call; the compact gtsummary
+  theme it sets for its own tables is set quietly.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) selects
+  columns through a caller’s vector of names or positions,
+  `lv(data, vars)` or `lv(vars)`, without tidyselect’s “Using an
+  external vector in selections was deprecated” warning: such a vector,
+  also inside [`c()`](https://rdrr.io/r/base/c.html), `-` or `!`, is
+  wrapped in
+  [`all_of()`](https://tidyselect.r-lib.org/reference/all_of.html).
+  Column names still take precedence over caller objects of the same
+  name.
+
 - [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
   no longer keeps the plots it tags inside each in-panel label. The
   label layer was built in

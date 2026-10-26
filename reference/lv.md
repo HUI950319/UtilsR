@@ -77,14 +77,16 @@ lv(
   Optional variable(s) for cross-tabulation. Accepts a single variable
   name (NSE or string), multiple variable names via `c(var1, var2)`
   (NSE) or character vector `c("var1", "var2")`. Selections in `...`,
-  `pattern` and `group` are ignored in this mode, with a warning.
-  Two-variable wide and row-percentage tables are skipped, with a
-  message, when either variable has more than 100 categories. Existing
-  dplyr groups are ignored for this table. Generated frequency,
-  percentage, and total column names receive numeric suffixes when
-  needed to preserve input columns and category labels. Empty category
-  labels are displayed as `(blank)` in wide tables. Names must be
-  non-missing and distinct; invalid controls are errors.
+  `pattern` and `group` are ignored in this mode, with a warning. Two
+  variables give one table whose cells show the count and the row
+  percentage, with a Total row of column counts and shares; it is
+  skipped, with a message, when either variable has more than 100
+  categories. Existing dplyr groups are ignored for this table.
+  Generated frequency, percentage, and total column names receive
+  numeric suffixes when needed to preserve input columns and category
+  labels. Empty category labels are displayed as `(blank)` in wide
+  tables. Names must be non-missing and distinct; invalid controls are
+  errors.
 
 - cat_args:
 
@@ -118,7 +120,9 @@ optionally `message = FALSE`). Reports are emitted through
 [`knitr::knit_print()`](https://rdrr.io/pkg/knitr/man/knit_print.html)
 in the document's native format, with dependencies retained. Console
 frequency listings are omitted while knitting, and each default summary
-table is included only once.
+table is included only once. Outside interactive sessions, such as
+`Rscript` or a background job, the HTML tables are not printed, as they
+would print as HTML source; a message says so.
 
 Character or factor columns with more than 100 categories, such as
 identifiers, and list columns are reported in the variable summary but
