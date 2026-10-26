@@ -1,5 +1,9 @@
 # UtilsR 0.6.12
 
+* The missing rows of `lv()`'s summary tables give their share of the rows
+  beside the count, `418 (9.2%)` rather than `418`, in the default and the
+  grouped table.
+
 * `lv()` no longer prints `Setting theme "Compact"` on every call; the
   compact gtsummary theme it sets for its own tables is set quietly.
 

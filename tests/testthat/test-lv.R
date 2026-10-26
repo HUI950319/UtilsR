@@ -445,6 +445,16 @@ test_that("missing group values form their own group in the grouped table", {
   expect_identical(factor_data$g, factor(c("B", NA, "A"), levels = c("B", "A")))
 })
 
+test_that("missing rows give their share of the rows", {
+  data <- data.frame(g = c("A", "A", "B", "B", "B"), x = c(1, NA, NA, 4, 5))
+  default <- capture_reports(lv(data, x))
+  body <- default[[2L]][["_data"]]
+  expect_identical(body$stat_0[body$row_type == "missing"], "2 (40%)")
+  grouped <- capture_reports(lv(data, x, group = g))
+  shown <- gtsummary::as_tibble(grouped[[1L]], col_labels = FALSE)
+  expect_identical(shown$stat_0[shown$label == "\u7f3a\u5931"], "2 (40%)")
+})
+
 test_that("console reports render each default table once", {
   data <- data.frame(x = c("a", "b", "a"), y = 1:3)
   output <- utils::capture.output(suppressMessages(lv(data)))

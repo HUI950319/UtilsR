@@ -803,7 +803,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
           gtsummary::all_continuous() ~ c("{median} [{p25}, {p75}]"),
           gtsummary::all_categorical() ~ "{n} ({p}%)"
         ),
-        missing_text = "\u7f3a\u5931"
+        missing_text = "\u7f3a\u5931",
+        missing_stat = "{N_miss} ({p_miss}%)"
       ) %>%
       gtsummary::bold_labels() %>%
       gtsummary::add_overall()
@@ -847,7 +848,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
                                         "{mean} ({sd})"),
         gtsummary::all_categorical() ~ "{n} ({p}%)"
       ),
-      missing_text = "\u7f3a\u5931"
+      missing_text = "\u7f3a\u5931",
+      missing_stat = "{N_miss} ({p_miss}%)"
     ) %>%
     gtsummary::bold_labels() %>%
     gtsummary::modify_header(label = "**Vars**", stat_0 = "**Summary**")
