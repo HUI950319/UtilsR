@@ -904,9 +904,11 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   }
 
   if (!knitting) {
-    if (!is.null(res_count)) {
-      pr_section(sprintf("Variable counts (%d variables)", length(table_vars)))
-      print(tibble::as_tibble(res_count))
+    # One line per variable, rather than the summary table as a tibble, whose
+    # cells carried its markdown (`**Vars**`, `__Age__`) and NA headers.
+    if (length(table_vars)) {
+      pr_section(sprintf("Variable distributions (%d variables)", length(table_vars)))
+      pr_spark(.tbl_input(tibble::as_tibble(analysis_data)[, table_vars, drop = FALSE]))
     }
 
     pr_section(sprintf("Variable summary (%d variables)", length(vars)))

@@ -6,6 +6,11 @@
   ellipsis cut to a width narrower than itself even for text that fits
   (`"A"` became `"."`). Only cells too wide for the column are cut.
 
+* At the console, `lv()` gives one `pr_spark()` line per variable under
+  "Variable distributions": a sparkline, the mean and SD or the levels and
+  the most frequent one, and the share missing. It replaces the summary
+  table printed as a tibble, whose cells carried the table's markdown
+  (`**Vars**`, `__Age (numeric, 91)__`) and `NA` for each variable row.
 
 * `lv(count = c(a, b))` gives one two-way table, as janitor's
   `adorn_totals()` + `adorn_percentages("row")` + `adorn_ns()` lay it out:

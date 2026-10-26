@@ -719,6 +719,16 @@ test_that("lv() prints its headings with the tables at the console, as messages 
   expect_message(utils::capture.output(lv(data, count = c("a", "b"))), "Cross-tabulation")
 })
 
+test_that("the console overview gives one distribution line per variable", {
+  data <- data.frame(age = c(40, 50, 60), sex = c("M", "F", "M"))
+  out <- cli::ansi_strip(utils::capture.output(suppressMessages(lv(data))))
+  expect_false(any(grepl("**Vars**", out, fixed = TRUE)))
+  expect_false(any(grepl("__age", out, fixed = TRUE)))
+  at <- grep("Variable distributions (2 variables)", out, fixed = TRUE)
+  expect_length(at, 1L)
+  expect_match(out[at + 1L], "^  age .*mean 50\\.0")
+  expect_match(out[at + 2L], "^  sex .*2 levels")
+})
 
 test_that("lv prints its console sections with pr_section()", {
   data <- data.frame(age = c(40, 50, 50), sex = c("M", "F", "M"))
