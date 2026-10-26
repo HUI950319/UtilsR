@@ -2,6 +2,16 @@
 
 ## UtilsR 0.6.12
 
+- [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
+  no longer keeps the plots it tags inside each in-panel label. The
+  label layer was built in
+  [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)’s
+  own frame, which its mapping and geom kept, so every tagged plot
+  carried all the others: the first of four tagged 1e5-point plots held
+  the data of all four, and a `RegR::get_rcs_all()` composite saved with
+  [`saveRDS()`](https://rdrr.io/r/base/readRDS.html) took 11.9 MB
+  instead of 9.5 MB. The labels draw as before.
+
 - A
   [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
   line still too wide for a narrow console, such as a data frame with an
