@@ -1,5 +1,14 @@
 # UtilsR 0.6.12
 
+* At the console, `lv()` lists each variable in one block, set off by a
+  blank line: a heading with its counts (`Grade (factor) · 5 levels ·
+  special 4,271 (93.9%)`), a frequency table of values with `n`, `pct` and
+  cumulative `cum` shares of all rows, missing values last, and the
+  suggested `get_flt()` call. Beyond 15 values the rest are summed in one
+  `(k others)` row. Each variable had two headings (`count` and `unique
+  values`) over a `dplyr::count()` tibble that hid missing values beyond
+  its tenth row.
+
 * `lv()`'s variable summary gives each count of missing and of
   Unknown/Blank/N/A values with its share of the rows (`4,271 (93.9%)`),
   at the console in an aligned `pr_table()` rather than a tibble. In the

@@ -516,7 +516,7 @@ test_that("console reports render each default table once", {
   output <- utils::capture.output(suppressMessages(lv(data)))
   tables <- gregexpr("<table", paste(output, collapse = "\n"), fixed = TRUE)[[1L]]
   expect_length(tables, 2L)
-  expect_true(any(grepl("# A tibble", output, fixed = TRUE)))
+  expect_false(any(grepl("# A tibble", output, fixed = TRUE)))
 })
 
 test_that("HTML tables are not printed as source outside interactive sessions", {
@@ -742,6 +742,27 @@ test_that("lv() prints its headings with the tables at the console, as messages 
   expect_message(utils::capture.output(lv(data, count = c("a", "b"))), "Cross-tabulation")
 })
 
+test_that("each variable lists its counts, shares and filter in one block", {
+  data <- data.frame(
+    stage = factor(c("I", "II", "II", NA, "Unknown"), levels = c("I", "II", "Unknown")),
+    id = sprintf("P%02d", 1:5)
+  )
+  many <- data.frame(id = sprintf("P%02d", 1:20))
+  out <- sub(" +$", "", cli::ansi_strip(utils::capture.output(suppressMessages(lv(data)))))
+  head <- grep("stage (factor)", out, fixed = TRUE)
+  expect_length(head, 1L)
+  expect_match(out[head], "3 levels \u00b7 NA 1 \\(20\\.0%\\) \u00b7 special 1 \\(20\\.0%\\)")
+  expect_match(out[head + 1L], "^  stage +n +pct +cum$")
+  expect_identical(out[head + 3:6], c("  I        1  20.0%  20.0%",
+                                      "  II       2  40.0%  60.0%",
+                                      "  Unknown  1  20.0%  80.0%",
+                                      "  <NA>     1  20.0%"))
+  expect_identical(out[head + 7L], 'get_flt(stage %in% c("I", "II", "Unknown"))')
+  expect_identical(out[head + 8L], "")
+  ids <- sub(" +$", "", cli::ansi_strip(utils::capture.output(suppressMessages(lv(many)))))
+  expect_true("  (6 others)  6  30.0%  100.0%" %in% ids)
+})
+
 test_that("the console overview gives one distribution line per variable", {
   data <- data.frame(age = c(40, 50, 60), sex = c("M", "F", "M"))
   out <- cli::ansi_strip(utils::capture.output(suppressMessages(lv(data))))
@@ -758,8 +779,9 @@ test_that("lv prints its console sections with pr_section()", {
   out <- cli::ansi_strip(utils::capture.output(suppressMessages(lv(data))))
   rules <- gsub(cli::symbol$line, "-", out[grepl(cli::symbol$line, out, fixed = TRUE)],
                 fixed = TRUE)
-  expect_true(any(grepl("^-- age \\(numeric\\): count -+$", rules)))
-  expect_true(any(grepl("^-- sex \\(character\\): unique values -+$", rules)))
+  expect_true(any(grepl("^-- age \\(numeric\\) \u00b7 2 values -+$", rules)))
+  expect_true(any(grepl("^-- sex \\(character\\) \u00b7 2 values -+$", rules)))
+  expect_false(any(grepl("unique values", rules, fixed = TRUE)))
   expect_true(any(grepl("^-- Variable summary \\(2 variables\\) -+$", rules)))
   expect_false(any(grepl("----1.", out, fixed = TRUE)))
 })

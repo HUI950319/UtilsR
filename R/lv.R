@@ -341,22 +341,11 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     }
   }
 
+  # One variable's row of the variable summary.
   .lv_one <- function(data, var) {
     col_data <- data[[var]]
     n_na <- .count_missing_values(col_data)
     var_class <- class(col_data)[1]
-
-    # Knitted reports leave out these listings, and with them their headings.
-    if (!knitting) {
-      pr_section(sprintf("%s (%s): count", var, var_class))
-      data %>%
-        tibble::as_tibble() %>%
-        dplyr::count(.data[[var]]) %>%
-        print()
-
-      pr_section(sprintf("%s (%s): %s", var, var_class,
-                         if (is.factor(col_data)) "levels" else "unique values"))
-    }
 
     unique_values <- .get_levels(col_data)
     n_unique <- length(unique_values)
@@ -384,8 +373,6 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       .get_flt_formula <- sprintf("%s  # +%d more", .get_flt_formula, n_unique - 8L)
     }
     .get_flt_formula <- noquote(.get_flt_formula)
-    # a plain line, without print()'s "[1] ", so it copies as code
-    if (!knitting) cat(.get_flt_formula, "\n", sep = "")
 
     tibble::tibble(
       vars = var,
@@ -399,6 +386,55 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
 
   # Shade the shares of rare categories, one hue darkening as they shrink;
   # missing rows and summary statistics are not categories.
+  # Values with their counts and shares of all rows, sorted as the summary
+  # sorts them; beyond 15 values the rest are summed in one row, as
+  # summarytools' "[k others]", and missing values come last.
+  .lv_frequencies <- function(x, var) {
+    tab <- dplyr::count(tibble::tibble(value = x), .data$value)
+    missing <- is.na(tab$value)
+    valid <- tab$value[!missing]
+    labels <- as.character(.label_blank(
+      if (inherits(valid, "difftime")) format(valid) else valid
+    ))
+    n <- tab$n[!missing]
+    if (length(n) > 15L) {
+      labels <- c(labels[1:14], sprintf("(%s others)", .fmt_int(length(n) - 14L)))
+      n <- c(n[1:14], sum(n[-(1:14)]))
+    }
+    cum <- .fmt_pct(cumsum(n) / length(x) * 100)
+    if (any(missing)) {
+      labels <- c(labels, NA)
+      n <- c(n, sum(tab$n[missing]))
+      cum <- c(cum, "")
+    }
+    stats::setNames(
+      data.frame(labels, .fmt_int(n), .fmt_pct(n / length(x) * 100), cum),
+      make.unique(c(var, "n", "pct", "cum"), sep = "_")
+    )
+  }
+
+  # One variable at the console: a heading with its counts, its frequency
+  # table, and the suggested filter as a plain line that copies as code
+  # (print() would prefix "[1] "). Knitted reports leave the listing out.
+  .lv_listing <- function(data, var, stats) {
+    col_data <- data[[var]]
+    n_all <- length(col_data)
+    word <- if (is.factor(col_data)) "level" else "value"
+    facts <- c(sprintf("%s (%s)", var, stats$class),
+               sprintf("%s %s%s", .fmt_int(stats$n_unique), word,
+                       if (stats$n_unique == 1L) "" else "s"),
+               if (stats$n_na > 0) paste("NA", .fmt_n_pct(stats$n_na, n_all)),
+               if (stats$n_special > 0) paste("special", .fmt_n_pct(stats$n_special, n_all)))
+    pr_section(paste(facts, collapse = " \u00b7 "))
+    if (is.list(col_data) && !inherits(col_data, "POSIXlt")) {
+      pr_note("A list column: its values are not tabulated.")
+    } else {
+      pr_table(.lv_frequencies(col_data, var), n = NULL,
+               align = c("left", "right", "right", "right"))
+    }
+    cat(as.character(stats$unique), "\n", sep = "")
+  }
+
   .gt_highlight_low_percentage <- function(gt_tbl,
                                            color_lt10 = "#FFE0B2",
                                            color_lt5 = "#FFB74D",
@@ -870,6 +906,12 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   # ==========================================================================
 
   result <- purrr::map_dfr(vars, ~ .lv_one(analysis_data, .x))
+  if (!knitting) {
+    for (i in seq_along(vars)) {
+      if (i > 1L) cat("\n")
+      .lv_listing(analysis_data, vars[[i]], result[i, ])
+    }
+  }
 
   table_vars <- .tbl_vars(vars)
   res_count <- if (length(table_vars)) {
