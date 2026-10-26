@@ -559,6 +559,18 @@ test_that("suggested filters print as plain, sorted lines", {
   expect_false(any(grepl("[1] get_flt", out, fixed = TRUE)))
 })
 
+test_that("suggested filters print on a light ground where the console shows colour", {
+  data <- data.frame(s = c("b", "a"))
+  filter <- 'get_flt(s %in% c("a", "b"))'
+  withr::local_options(cli.num_colors = 256)
+  out <- utils::capture.output(suppressMessages(lv(data)))
+  line <- out[cli::ansi_strip(out) == filter]
+  expect_length(line, 1L)
+  expect_true(cli::ansi_has_any(line))
+  withr::local_options(cli.num_colors = 1)
+  expect_true(filter %in% utils::capture.output(suppressMessages(lv(data))))
+})
+
 test_that("count warns that it ignores selections and group", {
   data <- data.frame(g = c("A", "A", "B"), x = c("p", "q", "p"), y = 1:3)
   for (call in list(quote(lv(data, y, count = c(g, x))),

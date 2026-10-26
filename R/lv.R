@@ -455,7 +455,10 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       pr_table(.lv_frequencies(col_data, var), n = NULL,
                align = c("left", "right", "right", "right"))
     }
-    cat(as.character(stats$unique), "\n", sep = "")
+    # On a light grey ground, like inline code (user's choice, 2026-10-26):
+    # the console copies it as plain text, and without colour it prints plain.
+    code <- cli::make_ansi_style("grey90", bg = TRUE)
+    ._pr_out(code(cli::col_black(as.character(stats$unique))))
   }
 
   .gt_highlight_low_percentage <- function(gt_tbl,

@@ -1,5 +1,10 @@
 # UtilsR 0.6.12
 
+* `lv()` prints each variable's suggested `get_flt()` call on a light grey
+  ground with black text, like inline code, where the console shows colour.
+  Copied from the console it is plain text, and without colour (knitting,
+  log files, `capture.output()`) it prints plain.
+
 * `pr_spark()` summarizes integer64 and other classed numeric columns as
   plain numbers. The mean of an integer64 column is itself an integer64,
   which `formatC()` wrote as its raw bits, a line of some 300 digits that
