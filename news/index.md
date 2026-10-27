@@ -2,6 +2,14 @@
 
 ## UtilsR 0.6.12
 
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) prints
+  each variable’s suggested `get_flt()` call on a light grey ground with
+  black text, like inline code, where the console shows colour. Copied
+  from the console it is plain text, and without colour (knitting, log
+  files,
+  [`capture.output()`](https://rdrr.io/r/utils/capture.output.html)) it
+  prints plain.
+
 - [`pr_spark()`](https://hui950319.github.io/UtilsR/reference/pr_spark.md)
   summarizes integer64 and other classed numeric columns as plain
   numbers. The mean of an integer64 column is itself an integer64, which
