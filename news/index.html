@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">UtilsR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.12</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.13</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,6 +48,11 @@
       <small>Source: <a href="https://github.com/HUI950319/UtilsR/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.6.13" id="utilsr-0613">UtilsR 0.6.13<a class="anchor" aria-label="anchor" href="#utilsr-0613"></a></h2>
+<ul><li>
+<code><a href="../reference/fmt_axisTile.html">fmt_axisTile()</a></code> works with panel sizes fixed through <code>theme(panel.widths, panel.heights)</code> (ggplot2 4.0). Fixing the size along the tiled axis stopped the plot with “Cannot create zero-length unit vector”, since ggplot2 counted the colour strip as a panel; the strip now keeps its <code>tile_height</code> / <code>tile_width</code> fraction of the fixed panel size. RegR’s <code>plt_screens()</code> needs it.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.12" id="utilsr-0612">UtilsR 0.6.12<a class="anchor" aria-label="anchor" href="#utilsr-0612"></a></h2>
 <ul><li><p><code><a href="../reference/lv.html">lv()</a></code> prints each variable’s suggested <code>get_flt()</code> call on a light grey ground with black text, like inline code, where the console shows colour. Copied from the console it is plain text, and without colour (knitting, log files, <code><a href="https://rdrr.io/r/utils/capture.output.html" class="external-link">capture.output()</a></code>) it prints plain.</p></li>

@@ -27,7 +27,7 @@ Two modes are available:
 
     <a class="navbar-brand me-2" href="../index.html">UtilsR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.12</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.13</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -184,6 +184,8 @@ Other guide kinds are left unchanged; coloring adapts <code>GuideAxis</code> obj
 and the default <code>"axis"</code> guide.
 Tile positions follow each panel's trained scale and expansion, including
 free facets. Existing guide settings, axis titles and scale labels are retained.
+With panel sizes fixed through <code>theme(panel.widths, panel.heights)</code>, the
+strip keeps its fraction of the fixed panel size.
 Rich-text axis elements retain their class, markup and layout properties.
 In patchworks, color strips are collected together with matching axis guides.
 Editable leaves in nested patchworks and named lists are formatted while

@@ -1,5 +1,15 @@
 # Changelog
 
+## UtilsR 0.6.13
+
+- [`fmt_axisTile()`](https://hui950319.github.io/UtilsR/reference/fmt_axisTile.md)
+  works with panel sizes fixed through
+  `theme(panel.widths, panel.heights)` (ggplot2 4.0). Fixing the size
+  along the tiled axis stopped the plot with “Cannot create zero-length
+  unit vector”, since ggplot2 counted the colour strip as a panel; the
+  strip now keeps its `tile_height` / `tile_width` fraction of the fixed
+  panel size. RegR’s `plt_screens()` needs it.
+
 ## UtilsR 0.6.12
 
 - [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) prints
