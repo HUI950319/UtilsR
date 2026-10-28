@@ -87,6 +87,8 @@ Other guide kinds are left unchanged; coloring adapts \code{GuideAxis} objects
 and the default \code{"axis"} guide.
 Tile positions follow each panel's trained scale and expansion, including
 free facets. Existing guide settings, axis titles and scale labels are retained.
+With panel sizes fixed through \code{theme(panel.widths, panel.heights)}, the
+strip keeps its fraction of the fixed panel size.
 Rich-text axis elements retain their class, markup and layout properties.
 In patchworks, color strips are collected together with matching axis guides.
 Editable leaves in nested patchworks and named lists are formatted while

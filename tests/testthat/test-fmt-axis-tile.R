@@ -277,6 +277,42 @@ test_that("axis tile thickness retains panel proportions and independent axis mo
   expect_null(axis_tile_rects(ggplot2::ggplotGrob(text)))
 })
 
+test_that("axis tiles follow pinned panel sizes in inches", {
+  skip_if(utils::packageVersion("ggplot2") < "4.0.0")
+  inches <- function(u, f = grid::convertHeight) f(u, "in", valueOnly = TRUE)
+  pin <- ggplot2::theme(panel.widths = grid::unit(3, "in"),
+                        panel.heights = grid::unit(2, "in"))
+  g <- ggplot2::ggplotGrob(
+    fmt_axisTile(axis_tile_plot() + pin, axis_tile_colors, tile_height = 0.1))
+  strip <- g$layout$t[match("panel-axis-tile-b", g$layout$name)]
+  panel <- g$layout$t[match("panel", g$layout$name)]
+  expect_equal(inches(g$heights[panel]), 2)
+  expect_equal(inches(g$heights[strip]), 0.2)
+
+  p <- ggplot2::ggplot(data.frame(category = factor(c("A", "B", "C")),
+                                  value = c(2, 5, 3)),
+                       ggplot2::aes(value, category)) + ggplot2::geom_col()
+  g <- ggplot2::ggplotGrob(
+    fmt_axisTile(p + pin, axis_tile_colors, axis = "y", tile_width = 0.1))
+  strip <- g$layout$l[match("panel-axis-tile-l", g$layout$name)]
+  panel <- g$layout$l[match("panel", g$layout$name)]
+  expect_equal(inches(g$widths[panel], grid::convertWidth), 3)
+  expect_equal(inches(g$widths[strip], grid::convertWidth), 0.3)
+
+  # One total height shared by two facet rows: the tile follows the panel
+  # it sits under, and the panels and the gap between them fill the total.
+  d <- data.frame(category = factor(rep(c("A", "B", "C"), 2)),
+                  value = 1:6, f = rep(c("u", "v"), each = 3))
+  p <- ggplot2::ggplot(d, ggplot2::aes(category, value)) + ggplot2::geom_col() +
+    ggplot2::facet_grid(f ~ .) +
+    ggplot2::theme(panel.heights = grid::unit(4, "in"))
+  g <- ggplot2::ggplotGrob(fmt_axisTile(p, axis_tile_colors, tile_height = 0.1))
+  rows <- range(g$layout$t[grepl("^panel-[0-9]", g$layout$name)])
+  strip <- g$layout$t[match("panel-axis-tile-b", g$layout$name)]
+  expect_equal(sum(inches(g$heights[seq(rows[1], rows[2])])), 4)
+  expect_equal(inches(g$heights[strip]), 0.1 * inches(g$heights[rows[2]]))
+})
+
 test_that("later axis formatters can hide and restyle colored guides", {
   for (mode in c("tile", "text")) {
     q <- fmt_axisTile(axis_tile_plot(), axis_tile_colors, mode = mode)

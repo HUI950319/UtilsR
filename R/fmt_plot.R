@@ -3344,6 +3344,8 @@ fmt_axisText <- function(plot,
 #' and the default \code{"axis"} guide.
 #' Tile positions follow each panel's trained scale and expansion, including
 #' free facets. Existing guide settings, axis titles and scale labels are retained.
+#' With panel sizes fixed through \code{theme(panel.widths, panel.heights)}, the
+#' strip keeps its fraction of the fixed panel size.
 #' Rich-text axis elements retain their class, markup and layout properties.
 #' In patchworks, color strips are collected together with matching axis guides.
 #' Editable leaves in nested patchworks and named lists are formatted while
@@ -3775,6 +3777,36 @@ fmt_axisTile <- function(plot,
               name = paste0("panel-axis-tile-", substr(strip$settings$position, 1, 1)))
           }
         }
+      }
+      table
+    },
+    # Pinned panel sizes (theme panel.widths / panel.heights, ggplot2 4.0)
+    # are applied to every "panel" cell: the tiles leave that set, and once
+    # the panels are absolute each tile keeps its fraction of the nearest one.
+    set_panel_size = function(table, theme) {
+      tiles <- grep("^panel-axis-tile-", table$layout$name)
+      if (!length(tiles)) return(parent$set_panel_size(table, theme))
+      names <- table$layout$name[tiles]
+      before <- list(widths = table$widths, heights = table$heights)
+      table$layout$name[tiles] <- sub("^panel-", "", names)
+      table <- parent$set_panel_size(table, theme)
+      table$layout$name[tiles] <- names
+      panels <- setdiff(grep("^panel", table$layout$name), tiles)
+      for (i in tiles) {
+        cell <- table$layout[i, ]
+        vertical <- grepl("-[lr]$", cell$name)
+        candidates <- if (vertical) {
+          panels[table$layout$t[panels] <= cell$b & table$layout$b[panels] >= cell$t]
+        } else panels[table$layout$l[panels] <= cell$r & table$layout$r[panels] >= cell$l]
+        if (!length(candidates)) next
+        at <- if (vertical) table$layout$l[candidates] else table$layout$t[candidates]
+        panel <- at[which.min(abs(at - if (vertical) cell$l else cell$t))]
+        side <- if (vertical) "widths" else "heights"
+        slot <- if (vertical) cell$l else cell$t
+        if (grid::unitType(table[[side]][panel]) == "null" ||
+            grid::unitType(before[[side]][slot]) != "null") next
+        table[[side]][slot] <- as.numeric(before[[side]][slot]) /
+          as.numeric(before[[side]][panel]) * table[[side]][panel]
       }
       table
     }
