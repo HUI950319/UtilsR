@@ -17,7 +17,7 @@ pr_section(title, width = NULL)
 
 - width:
 
-  Integer. Rule width in characters; `NULL` (default) uses the console
+  Positive integer. Rule width in characters; `NULL` uses the console
   width, capped at 80 so the rule does not stretch across wide consoles.
   A title too long for the rule is cut with an ellipsis.
 

@@ -22,12 +22,12 @@ pr_spark(data, vars = NULL, bins = 12, indent = 2)
 
 - bins:
 
-  Integer. Histogram bins, and the most levels drawn for a categorical
-  column (default 12).
+  Positive integer. Histogram bins, and the most levels drawn for a
+  categorical column (default 12).
 
 - indent:
 
-  Integer. Spaces before each line (default 2).
+  Non-negative integer. Spaces before each line (default 2).
 
 ## Value
 

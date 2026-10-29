@@ -44,8 +44,8 @@ pr_table(
 
 - n:
 
-  Integer. Rows to show (default 20); the rest are counted in a grey
-  footer. `NULL` shows every row.
+  Non-negative integer. Rows to show (default 20); the rest are counted
+  in a grey footer. `NULL` or `Inf` shows every row.
 
 - align:
 
@@ -55,19 +55,19 @@ pr_table(
 
 - digits:
 
-  Integer. Decimals for double columns (default 2).
+  Non-negative integer. Decimals for double columns (default 2).
 
 - width:
 
-  Integer. Line width the table must fit; `NULL` (default) uses the
-  console width. The first column and the P-value columns always show.
-  Long required headings and, when necessary, cells are cut with an
-  ellipsis; the other columns follow while they fit, and the footer
+  Positive integer. Line width the table must fit; `NULL` (default) uses
+  the console width. The first column and the P-value columns always
+  show. Long required headings and, when necessary, cells are cut with
+  an ellipsis; the other columns follow while they fit, and the footer
   names those left out.
 
 - indent:
 
-  Integer. Spaces before each line (default 2).
+  Non-negative integer. Spaces before each line (default 2).
 
 ## Value
 

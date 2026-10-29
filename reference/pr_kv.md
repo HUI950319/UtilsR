@@ -24,7 +24,7 @@ pr_kv(x, indent = 2)
 
 - indent:
 
-  Integer. Spaces before each key (default 2).
+  Non-negative integer. Spaces before each key (default 2).
 
 ## Value
 

@@ -2,6 +2,11 @@
 
 ## UtilsR 0.6.14
 
+- Print helpers validate integer row, bin, depth, line, width, precision
+  and indentation controls before formatting, rejecting fractional or
+  missing inputs with the argument name. Unlimited row and tree limits
+  continue to accept Inf.
+
 - Print helpers respect narrow consoles: long keys and mandatory table
   headings are shortened, long unbroken text wraps by display width, and
   compact distribution lines retain the missing share when space is

@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.14" id="utilsr-0614">UtilsR 0.6.14<a class="anchor" aria-label="anchor" href="#utilsr-0614"></a></h2>
-<ul><li><p>Print helpers respect narrow consoles: long keys and mandatory table headings are shortened, long unbroken text wraps by display width, and compact distribution lines retain the missing share when space is tight.</p></li>
+<ul><li><p>Print helpers validate integer row, bin, depth, line, width, precision and indentation controls before formatting, rejecting fractional or missing inputs with the argument name. Unlimited row and tree limits continue to accept Inf.</p></li>
+<li><p>Print helpers respect narrow consoles: long keys and mandatory table headings are shortened, long unbroken text wraps by display width, and compact distribution lines retain the missing share when space is tight.</p></li>
 <li><p>Single-line table cells, headers, tree component names and distribution labels escape layout control characters such as newlines and tabs. Intentional multiline notes and key-value contents keep their line breaks.</p></li>
 <li><p><code><a href="../reference/pr_table.html">pr_table()</a></code> falls back to scientific notation for nonzero numbers that would still print as zero at six decimals and for numbers too wide for the available line.</p></li>
 <li><p><code><a href="../reference/pr_spark.html">pr_spark()</a></code> distinguishes empty, entirely missing and non-finite columns without <code>NaN</code> percentages or an arbitrary top level. An explicit missing factor level is named <code>&lt;NA&gt;</code> when it is the most frequent level.</p></li>

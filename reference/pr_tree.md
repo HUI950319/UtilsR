@@ -25,17 +25,18 @@ pr_tree(x, max_depth = 3, max_items = 20, max_lines = 200, attrs = TRUE)
 
 - max_depth:
 
-  Integer. Levels below the root to show (default 3).
+  Non-negative integer, or `Inf`. Levels below the root to show (default
+  3).
 
 - max_items:
 
-  Integer. Elements shown per node before the rest are summarised as
-  "... n more", with their names (default 20).
+  Non-negative integer, or `Inf`. Elements per node before the rest are
+  summarised as "... n more", with their names (default 20).
 
 - max_lines:
 
-  Integer. Lines shown in all (default 200); a grey footer counts the
-  rest.
+  Non-negative integer, or `Inf`. Lines shown in all (default 200); a
+  grey footer counts the rest.
 
 - attrs:
 

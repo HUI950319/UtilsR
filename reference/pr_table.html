@@ -101,8 +101,8 @@ otherwise not shown (default <code>FALSE</code>).</p></dd>
 
 
 <dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
-<dd><p>Integer. Rows to show (default 20); the rest are counted in a
-grey footer. <code>NULL</code> shows every row.</p></dd>
+<dd><p>Non-negative integer. Rows to show (default 20); the rest are
+counted in a grey footer. <code>NULL</code> or <code>Inf</code> shows every row.</p></dd>
 
 
 <dt id="arg-align">align<a class="anchor" aria-label="anchor" href="#arg-align"></a></dt>
@@ -112,11 +112,11 @@ P-value columns and left-aligns the rest.</p></dd>
 
 
 <dt id="arg-digits">digits<a class="anchor" aria-label="anchor" href="#arg-digits"></a></dt>
-<dd><p>Integer. Decimals for double columns (default 2).</p></dd>
+<dd><p>Non-negative integer. Decimals for double columns (default 2).</p></dd>
 
 
 <dt id="arg-width">width<a class="anchor" aria-label="anchor" href="#arg-width"></a></dt>
-<dd><p>Integer. Line width the table must fit; <code>NULL</code>
+<dd><p>Positive integer. Line width the table must fit; <code>NULL</code>
 (default) uses the console width. The first column and the P-value
 columns always show. Long required headings and, when necessary, cells
 are cut with an ellipsis; the other columns follow while they fit, and the
@@ -124,7 +124,7 @@ footer names those left out.</p></dd>
 
 
 <dt id="arg-indent">indent<a class="anchor" aria-label="anchor" href="#arg-indent"></a></dt>
-<dd><p>Integer. Spaces before each line (default 2).</p></dd>
+<dd><p>Non-negative integer. Spaces before each line (default 2).</p></dd>
 
 </dl></div>
     <div class="section level2">
