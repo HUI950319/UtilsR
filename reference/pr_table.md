@@ -55,7 +55,7 @@ pr_table(
 
 - digits:
 
-  Non-negative integer. Decimals for double columns (default 2).
+  Integer from 0 to 324. Decimals for double columns (default 2).
 
 - width:
 

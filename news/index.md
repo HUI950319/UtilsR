@@ -2,6 +2,9 @@
 
 ## UtilsR 0.6.15
 
+- Console-table precision is checked against the formatter’s 324-digit
+  limit instead of producing a backend warning or coercion failure.
+
 - Tree class and attribute labels escape layout controls without
   changing the original metadata. A zero item budget still lists the
   omitted names.
