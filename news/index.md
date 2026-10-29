@@ -2,6 +2,13 @@
 
 ## UtilsR 0.6.15
 
+- Extreme-scale distribution summaries use compact scientific text and
+  recover finite nonzero standard deviations through centering and
+  scaling when the ordinary variance calculation overflows or
+  underflows. Adjacent integer64 values above double precision retain
+  their histogram categories and spread through translation before
+  conversion.
+
 - Whole-number display limits no longer trigger modulus warnings for
   large finite values.
 

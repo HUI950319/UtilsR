@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.15" id="utilsr-0615">UtilsR 0.6.15<a class="anchor" aria-label="anchor" href="#utilsr-0615"></a></h2>
-<ul><li><p>Whole-number display limits no longer trigger modulus warnings for large finite values.</p></li>
+<ul><li><p>Extreme-scale distribution summaries use compact scientific text and recover finite nonzero standard deviations through centering and scaling when the ordinary variance calculation overflows or underflows. Adjacent integer64 values above double precision retain their histogram categories and spread through translation before conversion.</p></li>
+<li><p>Whole-number display limits no longer trigger modulus warnings for large finite values.</p></li>
 <li><p>Console-table precision is checked against the formatter’s 324-digit limit instead of producing a backend warning or coercion failure.</p></li>
 <li><p>Tree class and attribute labels escape layout controls without changing the original metadata. A zero item budget still lists the omitted names.</p></li>
 <li><p>Narrow output accounts for uncoloured highlight markers, box padding and tree footers. Impossible indentation now identifies its argument instead of overflowing the console.</p></li>
