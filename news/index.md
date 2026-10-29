@@ -2,6 +2,10 @@
 
 ## UtilsR 0.6.14
 
+- [`pr_badge()`](https://hui950319.github.io/UtilsR/reference/pr_badge.md)
+  also restores methods for stored classed values when a badge is the
+  first print helper called in a fresh R process.
+
 - Print helpers validate integer row, bin, depth, line, width, precision
   and indentation controls before formatting, rejecting fractional or
   missing inputs with the argument name. Unlimited row and tree limits
