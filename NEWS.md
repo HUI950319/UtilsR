@@ -1,5 +1,8 @@
 # UtilsR 0.6.14
 
+* `pr_spark()` excludes SPSS user-missing codes and ranges before computing
+  numeric summaries, using the same missing-value mask as its missing share.
+
 * `pr_table()` describes every component of a matrix or array column per
   row instead of silently showing only its first component.
 

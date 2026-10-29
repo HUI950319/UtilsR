@@ -891,6 +891,8 @@ pr_box <- function(x, header = NULL, footer = NULL, col = "cyan") {
 #' of levels and the most frequent one with its share of non-missing
 #' values; one whose values all differ, such as an identifier, shows how many
 #' there are. Other columns show their class only.
+#' SPSS user-missing values are excluded from summaries and counted in the
+#' missing share, consistently with ordinary missing values.
 #'
 #' @param data A data frame (tibbles included).
 #' @param vars Character. Columns to show; \code{NULL} (default) shows all.
@@ -940,9 +942,10 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
   # one column -> c(sparkline, summary, missing share)
   one <- function(v) {
     v <- ._pr_restore(v)
-    na <- sprintf("NA %.1f%%", 100 * mean(is.na(v)))
+    missing <- is.na(v)
+    na <- sprintf("NA %.1f%%", 100 * mean(missing))
     if (inherits(v, c("Date", "POSIXct"))) {
-      fin <- v[is.finite(v)]
+      fin <- v[!missing & is.finite(v)]
       if (!length(fin)) return(c("", "all missing", na))
       return(c(spark(bin(as.numeric(fin))),
                sprintf("%s to %s", format(min(fin)), format(max(fin))), na))
@@ -951,7 +954,7 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
       # classed numbers (integer64, labelled) as plain doubles: mean() of an
       # integer64 is an integer64, which formatC() writes as its raw bits
       num <- suppressWarnings(as.numeric(v))
-      fin <- num[is.finite(num)]
+      fin <- num[!missing & is.finite(num)]
       if (!length(fin)) return(c("", "all missing", na))
       counts <- bin(fin)
       return(c(spark(counts),
@@ -960,18 +963,18 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
     if (is.factor(v) || is.character(v) || is.logical(v)) {
       # an identifier, every value different: count it rather than table() it
       # (0.1 s for 1e5 strings, drawn as a flat line of single counts)
-      ok <- v[!is.na(v)]
+      ok <- v[!missing]
       if (length(ok) > bins && !anyDuplicated(ok)) {
         return(c("", sprintf("%d unique values", length(ok)), na))
       }
-      tab <- table(v)
+      tab <- table(ok)
       if (!length(tab)) return(c("", "all missing", na))
       k   <- length(tab)
       top <- which.max(tab)
       lab <- names(tab)[top]
       if (!nzchar(lab)) lab <- "\"\""
       info <- sprintf("%d level%s \u00b7 top %s (%.1f%%)", k, if (k == 1L) "" else "s",
-                      lab, 100 * tab[[top]] / sum(!is.na(v)))
+                      lab, 100 * tab[[top]] / sum(!missing))
       if (k > bins) tab <- sort(tab, decreasing = TRUE)[seq_len(bins)]
       return(c(spark(tab), info, na))
     }

@@ -629,3 +629,16 @@ test_that("pr_table() retains every component of matrix and array cells", {
   expect_match(out[4], "<int 4> 2, 4, 6, 8", fixed = TRUE)
   expect_length(utils::capture.output(pr_table(x[0, ])), 2L)
 })
+
+test_that("pr_spark() excludes SPSS user-missing values from numeric summaries", {
+  skip_if_not_installed("haven")
+  withr::local_options(cli.num_colors = 1)
+  x <- data.frame(v = haven::labelled_spss(c(1, 99, NA), na_values = 99))
+  out <- utils::capture.output(pr_spark(x))
+  expect_match(out, "mean 1.00  sd NA", fixed = TRUE)
+  expect_match(out, "NA 66.7%", fixed = TRUE)
+  x <- data.frame(v = haven::labelled_spss(c(1, 8, 9, NA), na_range = c(8, 9)))
+  out <- utils::capture.output(pr_spark(x))
+  expect_match(out, "mean 1.00  sd NA", fixed = TRUE)
+  expect_match(out, "NA 75.0%", fixed = TRUE)
+})
