@@ -63,3 +63,32 @@ test_that("con inputs preserve a numeric variable named like the dummy group", {
   expect_equal(ggplot2::ggplot_build(p)$data[[2L]]$y, 2)
   expect_identical(d, original)
 })
+
+test_that("con bins draw constant dot data without losing counts", {
+  d <- data.frame(x = rep(2, 6), z = rep(2, 6), g = "A")
+  for (stack in c(FALSE, TRUE)) {
+    p <- con_plot(d, if (stack) c("x", "z") else "x", type = "dot", stack = stack)
+    b <- ggplot2::ggplot_build(p)$data[[1L]]
+    expect_equal(b$y, if (stack) c(2, 2) else 2)
+    expect_equal(sum(p$layers[[1L]]$data$n), if (stack) 12L else 6L)
+  }
+})
+
+test_that("con bins use numeric boundaries at large and tiny scales", {
+  for (offset in c(0, 1e15)) {
+    d <- data.frame(x = offset + 1:10, z = offset + 21:30, g = "A")
+    for (stack in c(FALSE, TRUE)) {
+      p <- con_plot(d, if (stack) c("x", "z") else "x", type = "dot", stack = stack)
+      bins <- p$layers[[1L]]$data
+      expect_true(all(bins$bins >= min(p$data$value)))
+      expect_true(all(bins$bins <= max(p$data$value)))
+      expect_equal(sum(bins$n), nrow(d) * if (stack) 2L else 1L)
+    }
+  }
+  d <- data.frame(x = (1:10) * 1e-10, g = "A")
+  p <- con_plot(d, type = "dot")
+  expected_breaks <- seq(min(d$x), max(d$x), length.out = 15)
+  ids <- cut(d$x, expected_breaks, include.lowest = TRUE, labels = FALSE)
+  mids <- expected_breaks[-15L] + diff(expected_breaks) / 2
+  expect_equal(sort(p$layers[[1L]]$data$bins), sort(unique(mids[ids])))
+})

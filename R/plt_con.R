@@ -11,6 +11,7 @@
 #         |                            (stack = TRUE, length(stat.by) > 1)
 #         +-- L2  .resolve_y_limit()   numeric or quantile string -> limits
 #                                      (also called by both builders)
+#         +-- L2  .con_dot_bins()      numeric bin centres, including constants
 # =============================================================================
 
 #' Unified Continuous Variable Plot
@@ -534,6 +535,15 @@ plt_con <- function(data,
   }
 }
 
+.con_dot_bins <- function(values) {
+  limits <- range(values)
+  if (limits[1L] == limits[2L]) return(rep(limits[1L], length(values)))
+  breaks <- unique(seq(limits[1L], limits[2L], length.out = 15L))
+  ids <- cut(values, breaks = breaks, include.lowest = TRUE, labels = FALSE)
+  midpoints <- breaks[-length(breaks)] / 2 + breaks[-1L] / 2
+  midpoints[ids]
+}
+
 
 #' Build a single feature plot
 #' @noRd
@@ -648,16 +658,7 @@ plt_con <- function(data,
       )
     y_min_use <- min(0, y_min_use)
   } else if (type == "dot") {
-    brks <- seq(min(dat[["value"]], na.rm = TRUE),
-                max(dat[["value"]], na.rm = TRUE), length.out = 15)
-    bins <- cut(dat[["value"]], breaks = brks, include.lowest = TRUE)
-    # Compute midpoints of each bin interval
-    bin_lvls <- levels(bins)
-    bins_mid <- vapply(bin_lvls, function(lbl) {
-      nums <- regmatches(lbl, gregexpr("-?[0-9.]+[eE]?[+-]?[0-9]*", lbl))[[1]]
-      mean(as.numeric(nums), na.rm = TRUE)
-    }, numeric(1))
-    dat[["bins"]] <- bins_mid[as.character(bins)]
+    dat[["bins"]] <- .con_dot_bins(dat[["value"]])
     # Pre-aggregate counts to avoid stat_sum issues
     dot_df <- stats::aggregate(
       value ~ group.by + fill.by + bins,
@@ -907,15 +908,7 @@ plt_con <- function(data,
       )
     y_min_use <- min(0, y_min_use)
   } else if (type == "dot") {
-    brks <- seq(min(dat_long[["value"]], na.rm = TRUE),
-                max(dat_long[["value"]], na.rm = TRUE), length.out = 15)
-    bins <- cut(dat_long[["value"]], breaks = brks, include.lowest = TRUE)
-    bin_lvls <- levels(bins)
-    bins_mid <- vapply(bin_lvls, function(lbl) {
-      nums <- regmatches(lbl, gregexpr("-?[0-9.]+[eE]?[+-]?[0-9]*", lbl))[[1]]
-      mean(as.numeric(nums), na.rm = TRUE)
-    }, numeric(1))
-    dat_long[["bins"]] <- bins_mid[as.character(bins)]
+    dat_long[["bins"]] <- .con_dot_bins(dat_long[["value"]])
     dot_df <- stats::aggregate(
       value ~ group.by + fill.by + feature + bins,
       data = dat_long, FUN = length

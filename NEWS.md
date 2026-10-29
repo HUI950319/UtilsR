@@ -1,5 +1,8 @@
 # UtilsR 0.6.15
 
+* `plt_con(type = "dot")` uses numeric bin centres, including for constant
+  columns and closely spaced values at large offsets.
+
 * `plt_con()` respects SPSS user-missing codes and ranges, rejects ambiguous
   columns and unsupported numeric storage, and avoids dummy-group name clashes.
 
