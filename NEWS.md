@@ -1,5 +1,8 @@
 # UtilsR 0.6.15
 
+* Structure trees prepare names only for the visible items and omitted-name
+  preview, retaining the exact omitted-line counts and printed output.
+
 * Numeric distribution histograms skip unnecessary sorting and distinct
   value collection, retaining the same counts and printed summaries.
 

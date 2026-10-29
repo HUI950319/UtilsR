@@ -878,8 +878,10 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
     kids <- character()
     if (depth < max_depth && opens(v, depth)) {
       p  <- parts(v)
-      nm <- names(p) %||% rep("", length(p))
-      nm <- ._pr_escape(ifelse(is.na(nm) | !nzchar(nm), sprintf("[[%d]]", seq_along(p)), nm))
+      take <- min(length(p), max_items + 50L)
+      nm <- names(p)
+      nm <- if (is.null(nm)) rep("", take) else nm[seq_len(take)]
+      nm <- ._pr_escape(ifelse(is.na(nm) | !nzchar(nm), sprintf("[[%d]]", seq_len(take)), nm))
       # sibling names padded into a column, as str() lines them up, up to 18
       wid <- cli::ansi_nchar(nm, type = "width")
       pad <- min(max(c(0L, wid[seq_len(min(length(p), max_items))])), 18L)
