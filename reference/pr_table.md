@@ -60,10 +60,10 @@ pr_table(
 - width:
 
   Integer. Line width the table must fit; `NULL` (default) uses the
-  console width. The first column and the P-value columns always show, a
-  first column too wide for the line cut with an ellipsis; the other
-  columns follow in order while they fit, and the footer names those
-  left out.
+  console width. The first column and the P-value columns always show.
+  Long required headings and, when necessary, cells are cut with an
+  ellipsis; the other columns follow while they fit, and the footer
+  names those left out.
 
 - indent:
 

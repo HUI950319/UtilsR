@@ -19,7 +19,8 @@ pr_kv(x, indent = 2)
   [`print()`](https://rdrr.io/r/base/print.html) shows them) and other
   objects are described by type and size, e.g. `<data.frame 6 x 11>` or
   `<lm>`. Long values wrap at the console width under the value column,
-  as do the lines of a value that contains newlines.
+  as do the lines of a value that contains newlines. Long keys are
+  shortened to reserve space for their values.
 
 - indent:
 
