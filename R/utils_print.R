@@ -23,6 +23,7 @@
 #         ._kv_lines()   named values -> aligned "key  value" lines
 #         ._as_text()    values -> text, numbers as print() shows them
 #         ._pr_restore() load methods for supported stored vector classes
+#         ._pr_escape()  keep control characters within a single-line field
 #         ._p_cells()    P values -> coloured cells (stat_pval() wording)
 #         ._obj_desc()   object -> short "<type size>" description
 #         ._pr_colour()  does stdout show ANSI colours?
@@ -41,6 +42,7 @@
 # Class label: a chip where stdout shows colour, "<text>" otherwise, so the
 # label still stands out in knitted documents and log files
 ._pr_label <- function(text, bg, fg) {
+  text <- ._pr_escape(text)
   if (._pr_colour()) ._chip(text, bg, fg) else paste0("<", text, ">")
 }
 
@@ -65,6 +67,14 @@
   v
 }
 
+# Escape layout controls without changing literal backslashes or ANSI styles.
+._pr_escape <- function(text) {
+  from <- c("\n", "\r", "\t", "\b", "\f", "\v")
+  to <- c("\\n", "\\r", "\\t", "\\b", "\\f", "\\v")
+  for (i in seq_along(from)) text <- gsub(from[i], to[i], text, fixed = TRUE)
+  text
+}
+
 # Values -> text: doubles to getOption("digits") significant digits, as
 # print() shows them (as.character() writes 15: 1/3 -> 0.333333333333333);
 # factors, dates and other classed vectors through their as.character()
@@ -87,7 +97,7 @@
   x    <- as.list(x)
   keep <- !vapply(x, is.null, logical(1))
   if (!any(keep)) return(character())
-  keys <- keys[keep]
+  keys <- ._pr_escape(keys[keep])
   vals <- vapply(x[keep], function(v) {
     if (!is.atomic(v)) return(._obj_desc(v))
     v <- ._as_text(v)
@@ -142,6 +152,7 @@ pr_head <- function(class, ..., bg = "blue", fg = "br_white") {
   # into a day count
   parts <- unlist(lapply(list(...), ._as_text), use.names = FALSE)
   parts <- parts[!is.na(parts) & nzchar(parts)]
+  parts <- ._pr_escape(parts)
   line  <- ._pr_label(class, cli::make_ansi_style(bg, bg = TRUE),
                       cli::make_ansi_style(fg))
   if (length(parts)) {
@@ -201,6 +212,7 @@ pr_kv <- function(x, indent = 2) {
 #' @export
 #' @family print helpers
 pr_section <- function(title, width = NULL) {
+  title <- ._pr_escape(title)
   width <- width %||% min(console_width(), 80L)
   # keep two line characters on each side of the title
   title <- cli::ansi_strtrim(title, max(10L, width - 6L))
@@ -330,6 +342,7 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
   }
   strong <- below(0.001)
   sig    <- !strong & below(0.05)
+  txt <- ._pr_escape(txt)
   # without colour, stars carry the significance instead
   if (!._pr_colour()) {
     two <- sig & below(0.01)
@@ -369,6 +382,8 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 #' format methods, retaining integer64 digits and time units. The optional
 #' packages bit64, haven and lubridate are loaded by namespace when their
 #' stored types are encountered.
+#' Layout control characters in cells and column names are escaped so they
+#' cannot introduce extra table rows or misalign columns.
 #' Without colour (knitted documents, log files), P values carry stars
 #' (\code{***} below 0.001, \code{**} below 0.01, \code{*} below 0.05),
 #' highlighted rows start with \code{>} and missing text cells read
@@ -458,6 +473,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
     } else {
       txt <- as.character(v)
     }
+    txt <- ._pr_escape(txt)
     ifelse(is.na(v), if (!colour && !is.numeric(v)) "<NA>" else cli::col_grey("NA"),
            txt)
   })
@@ -465,8 +481,9 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   align <- if (is.null(align)) ifelse(is_num, "right", "left") else
     rep_len(match.arg(align, c("left", "right", "center"), several.ok = TRUE),
             ncol(data))
+  headers <- ._pr_escape(names(data))
   col_w <- vapply(seq_along(cells), function(j) {
-    max(cli::ansi_nchar(c(names(data)[j], cells[[j]]), type = "width"))
+    max(cli::ansi_nchar(c(headers[j], cells[[j]]), type = "width"))
   }, numeric(1))
   # the first and the P-value columns always show; the others follow in
   # order until one no longer fits the line
@@ -494,7 +511,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   }
 
   pad    <- strrep(" ", indent)
-  header <- paste0(pad, cli::style_bold(row(names(data))))
+  header <- paste0(pad, cli::style_bold(row(headers)))
   rule   <- paste0(pad, cli::col_grey(strrep(cli::symbol$line,
                                              sum(col_w[keep]) + 2 * (length(keep) - 1))))
   hl     <- if (is.logical(highlight)) which(highlight) else as.integer(highlight)
@@ -512,7 +529,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   dropped <- setdiff(seq_along(cells), keep)
   foot <- c(if (n_rows > nrow(data)) more(n_rows - nrow(data), "row"),
             if (length(dropped)) paste0(more(length(dropped), "column"), ": ",
-                                        toString(names(data)[dropped])))
+                                          toString(headers[dropped])))
   if (length(foot)) {
     foot <- paste0(pad, cli::col_grey(cli::ansi_strwrap(
       paste("#", paste(foot, collapse = "; ")), width = avail, exdent = 2)))
@@ -555,7 +572,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
     }
     if (length(names(labs))) {
       hit  <- names(labs)[match(unclass(first), unclass(labs))]
-      vals <- ifelse(is.na(hit), vals, sprintf("%s [%s]", vals, hit))
+      vals <- ifelse(is.na(hit), vals, sprintf("%s [%s]", vals, ._pr_escape(hit)))
     }
     if (colour) vals[is.na(first)] <- cli::col_red(vals[is.na(first)])
     vals
@@ -569,7 +586,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
     if (!inside || !ncol(v)) return(g(head))
     # its column names, as far as the line goes
     room <- max(width - cli::ansi_nchar(head, type = "width") - 1L, 10L)
-    return(paste(g(head), cli::ansi_strtrim(paste(names(v), collapse = g(", ")), room)))
+    return(paste(g(head), cli::ansi_strtrim(paste(._pr_escape(names(v)), collapse = g(", ")), room)))
   }
   if (!is.null(dim(v))) {
     # an atomic matrix or table with its element type: <int matrix 2 x 3>
@@ -597,7 +614,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
     if (!inside || is.null(nm) || !length(v)) return(g(head))
     # its names, each single atomic value after its name, as far as the line goes
     items <- vapply(utils::head(seq_along(v), 20L), function(i) {
-      key <- if (is.na(nm[i]) || !nzchar(nm[i])) sprintf("[[%d]]", i) else nm[i]
+      key <- if (is.na(nm[i]) || !nzchar(nm[i])) sprintf("[[%d]]", i) else ._pr_escape(nm[i])
       e   <- v[[i]]
       if (is.atomic(e) && length(e) == 1L && is.null(dim(e))) {
         paste(g(paste(key, "=")), text_of(e))
@@ -615,7 +632,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
     # a named value with its name
     nm <- names(first)
     if (!is.null(nm)) {
-      vals <- ifelse(is.na(nm) | !nzchar(nm), vals, paste(g(paste(nm, "=")), vals))
+      vals <- ifelse(is.na(nm) | !nzchar(nm), vals, paste(g(paste(._pr_escape(nm), "=")), vals))
     }
     # a factor with its number of levels, as str() gives it
     lev  <- if (is.factor(v)) {
@@ -739,7 +756,7 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
     if (depth < max_depth && opens(v, depth)) {
       p  <- parts(v)
       nm <- names(p) %||% rep("", length(p))
-      nm <- ifelse(is.na(nm) | !nzchar(nm), sprintf("[[%d]]", seq_along(p)), nm)
+      nm <- ._pr_escape(ifelse(is.na(nm) | !nzchar(nm), sprintf("[[%d]]", seq_along(p)), nm))
       # sibling names padded into a column, as str() lines them up, up to 18
       wid <- cli::ansi_nchar(nm, type = "width")
       pad <- min(max(c(0L, wid[seq_len(min(length(p), max_items))])), 18L)
@@ -986,6 +1003,7 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
       top <- which.max(tab)
       lab <- names(tab)[top]
       if (is.na(lab)) lab <- "<NA>" else if (!nzchar(lab)) lab <- "\"\""
+      lab <- ._pr_escape(lab)
       info <- sprintf("%d level%s \u00b7 top %s (%.1f%%)", k, if (k == 1L) "" else "s",
                       lab, 100 * tab[[top]] / sum(!missing))
       if (k > bins) tab <- sort(tab, decreasing = TRUE)[seq_len(bins)]
@@ -999,7 +1017,8 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
     x <- vapply(parts, `[`, "", j)
     cli::ansi_align(x, max(cli::ansi_nchar(x, type = "width")))
   }
-  name <- cli::ansi_align(vars, max(cli::ansi_nchar(vars, type = "width")))
+  escaped <- ._pr_escape(vars)
+  name <- cli::ansi_align(escaped, max(cli::ansi_nchar(escaped, type = "width")))
   lines <- paste0(strrep(" ", indent), cli::style_bold(name), "  ",
                   cli::col_cyan(col(1)), "  ", col(2), "  ",
                   cli::col_grey(vapply(parts, `[`, "", 3)))

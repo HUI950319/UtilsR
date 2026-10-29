@@ -1,5 +1,9 @@
 # UtilsR 0.6.14
 
+* Single-line table cells, headers, tree component names and distribution
+  labels escape layout control characters such as newlines and tabs.
+  Intentional multiline notes and key-value contents keep their line breaks.
+
 * `pr_table()` falls back to scientific notation for nonzero numbers that
   would still print as zero at six decimals and for numbers too wide for
   the available line.
