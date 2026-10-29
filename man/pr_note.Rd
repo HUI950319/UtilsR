@@ -29,6 +29,8 @@ in \code{"{{x}}"}. Text that cli cannot parse, such as data that
 contains braces, is printed as written instead of failing the print.
 Long notes wrap at the console width, every line starting with \code{#};
 a \code{"\\n"} starts a new line. Unbroken text also wraps by display width.
+No supplied pieces print nothing; an explicit empty string prints only
+the comment marker.
 }
 \examples{
 n_panel <- 2

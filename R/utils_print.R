@@ -87,6 +87,7 @@
 # cli wraps at spaces; split overlong words or CJK runs without losing text.
 ._pr_wrap <- function(text, width, exdent = 0L) {
   width <- max(1L, floor(width))
+  text[is.na(text)] <- "NA"
   lines <- as.character(cli::ansi_strwrap(text, width = width, exdent = exdent))
   unlist(lapply(lines, function(s) {
     out <- character()
@@ -292,6 +293,8 @@ pr_section <- function(title, width = NULL) {
 #' contains braces, is printed as written instead of failing the print.
 #' Long notes wrap at the console width, every line starting with \code{#};
 #' a \code{"\\n"} starts a new line. Unbroken text also wraps by display width.
+#' No supplied pieces print nothing; an explicit empty string prints only
+#' the comment marker.
 #'
 #' @param ... Character pieces of the note, pasted together.
 #' @param .envir Environment in which \code{{}} expressions are evaluated;
@@ -308,6 +311,7 @@ pr_section <- function(title, width = NULL) {
 #' @family print helpers
 pr_note <- function(..., .envir = parent.frame()) {
   raw  <- paste0(...)
+  if (!length(raw)) return(._pr_out(character()))
   # line by line: format_inline() and ansi_strwrap() would join the lines
   segs <- unlist(lapply(strsplit(raw, "\n", fixed = TRUE),
                         function(s) if (length(s)) s else ""))
@@ -331,6 +335,7 @@ pr_note <- function(..., .envir = parent.frame()) {
 #' @param key,value Keys and values, recycled to a common length (equal
 #'   lengths, or length 1). Values are converted with \code{as.character()};
 #'   SPSS user-missing values display as \code{NA}.
+#'   Layout controls in keys and values are escaped.
 #' @param bg,fg Background and text colour of the value part: anything
 #'   \code{cli::make_ansi_style()} accepts, as in \code{\link{pr_head}()}.
 #'
@@ -352,14 +357,15 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
   if (!all(c(length(key), length(value)) %in% c(1L, n))) {
     cli::cli_abort("{.arg key} and {.arg value} must have the same length, or length 1.")
   }
+  key <- ._pr_escape(as.character(key))
+  value <- ._pr_escape(as.character(value))
   if (!._pr_colour()) {
-    return(sprintf("[%s: %s]", rep_len(as.character(key), n),
-                   rep_len(as.character(value), n)))
+    return(sprintf("[%s: %s]", rep_len(key, n), rep_len(value, n)))
   }
   white <- cli::make_ansi_style("br_white")
-  paste0(._chip(rep_len(as.character(key), n),
+  paste0(._chip(rep_len(key, n),
                 cli::make_ansi_style("grey30", bg = TRUE), white),
-         ._chip(rep_len(as.character(value), n),
+         ._chip(rep_len(value, n),
                 cli::make_ansi_style(bg, bg = TRUE), cli::make_ansi_style(fg)))
 }
 
@@ -970,9 +976,9 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
 #'
 #' @param x A named list or named vector, shown as aligned key-value lines
 #'   with \code{NULL} elements dropped, or an unnamed character vector, shown
-#'   line by line.
+#'   line by line. Missing plain lines display as \code{NA}.
 #' @param header,footer Character, or \code{NULL} for none. Text set into
-#'   the top and bottom border.
+#'   the top and bottom border. Layout controls are escaped.
 #' @param col Border colour: anything \code{cli::make_ansi_style()} accepts
 #'   (default \code{"cyan"}).
 #'
@@ -996,6 +1002,8 @@ pr_box <- function(x, header = NULL, footer = NULL, col = "cyan") {
   }
   # cli::boxx() fails on no lines; an empty settings list prints nothing
   if (!length(lines)) return(._pr_out(character()))
+  if (!is.null(header)) header <- ._pr_escape(replace(header, is.na(header), "NA"))
+  if (!is.null(footer)) footer <- ._pr_escape(replace(footer, is.na(footer), "NA"))
   box <- cli::boxx(
     lines,
     # boxx() already pads the header and footer with a space on each side

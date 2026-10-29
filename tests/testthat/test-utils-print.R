@@ -735,7 +735,7 @@ test_that("pr_badge() restores integer64 methods when it is the first print call
   value_file <- tempfile(fileext = ".rds")
   script <- tempfile(fileext = ".R")
   saveRDS(bit64::as.integer64("2314"), value_file)
-  dump(c("pr_badge", "._pr_restore", "._pr_colour", "._chip"), file = script,
+  dump(c("pr_badge", "._pr_restore", "._pr_escape", "._pr_colour", "._chip"), file = script,
        envir = environment(pr_badge))
   cat('\noptions(cli.num_colors = 1)\ncat(pr_badge("n", readRDS(commandArgs(TRUE)[[1]])))\n',
       file = script, append = TRUE)
@@ -811,4 +811,24 @@ test_that("text P-value comparisons survive double underflow and rounded endpoin
   out <- utils::capture.output(pr_table(data.frame(P = c("-1e-999", "<1e-999")), p_col = "P"))
   expect_false(grepl("\033[31m", out[3], fixed = TRUE))
   expect_match(out[4], "\033[31m", fixed = TRUE)
+})
+
+test_that("empty optional notes emit no line and missing boxed text stays printable", {
+  withr::local_options(cli.num_colors = 1)
+  expect_identical(utils::capture.output(pr_note()), character())
+  expect_identical(utils::capture.output(pr_note(NULL)), character())
+  expect_identical(utils::capture.output(pr_note(character())), character())
+  expect_identical(utils::capture.output(pr_note("")), "# ")
+  out <- utils::capture.output(pr_box(c("first", NA_character_, "last")))
+  expect_length(out, 5L)
+  expect_match(out[3], "NA", fixed = TRUE)
+})
+
+test_that("badges and box borders escape single-line layout controls", {
+  withr::local_options(cli.num_colors = 1)
+  expect_identical(pr_badge("a\nb", "v\tx"), "[a\\nb: v\\tx]")
+  out <- utils::capture.output(pr_box("text", header = "a\nb", footer = "c\td"))
+  expect_length(out, 3L)
+  expect_match(out[1], "a\\nb", fixed = TRUE)
+  expect_match(out[3], "c\\td", fixed = TRUE)
 })

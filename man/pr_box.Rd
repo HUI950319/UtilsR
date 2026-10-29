@@ -9,10 +9,10 @@ pr_box(x, header = NULL, footer = NULL, col = "cyan")
 \arguments{
 \item{x}{A named list or named vector, shown as aligned key-value lines
 with \code{NULL} elements dropped, or an unnamed character vector, shown
-line by line.}
+line by line. Missing plain lines display as \code{NA}.}
 
 \item{header, footer}{Character, or \code{NULL} for none. Text set into
-the top and bottom border.}
+the top and bottom border. Layout controls are escaped.}
 
 \item{col}{Border colour: anything \code{cli::make_ansi_style()} accepts
 (default \code{"cyan"}).}
