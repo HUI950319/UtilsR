@@ -491,6 +491,8 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 #' @param p_col Character. Names of the P-value columns, or \code{NULL}.
 #' @param highlight Rows to highlight in black on light yellow: integer row
 #'   numbers or a logical vector. Highlighted rows drop their other colours.
+#'   Missing, fractional and non-finite selectors are rejected; zero and
+#'   positions outside the displayed rows are ignored.
 #' @param rownames Logical. Show the row names as a first, unnamed column,
 #'   e.g. the terms of \code{as.data.frame(coef(summary(fit)))}, which are
 #'   otherwise not shown (default \code{FALSE}).
@@ -531,6 +533,13 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   if (digits > 324L) cli::cli_abort("{.arg digits} must not exceed the formatC limit of 324.")
   ._pr_count(width, "width", lower = 1L, null = TRUE)
   ._pr_count(indent, "indent")
+  if (!is.null(highlight) &&
+      (!(is.numeric(highlight) || is.logical(highlight)) || is.object(highlight) ||
+       !is.null(dim(highlight)) || anyNA(highlight) ||
+       (is.numeric(highlight) && any(!is.finite(highlight) | highlight < 0 |
+                                     highlight != trunc(highlight))))) {
+    cli::cli_abort("{.arg highlight} must be non-negative whole row numbers or a logical vector, without missing values.")
+  }
   miss <- setdiff(p_col, names(data))
   if (length(miss)) {
     cli::cli_abort("{.arg p_col} names column{?s} absent from {.arg data}: {.val {miss}}.")
@@ -544,7 +553,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   if (!is.null(n) && n_rows > n) data <- data[seq_len(n), , drop = FALSE]
 
   colour <- ._pr_colour()
-  hl <- if (is.logical(highlight)) which(highlight) else as.integer(highlight)
+  hl <- if (is.logical(highlight)) which(highlight) else highlight
   if (!colour && any(seq_len(nrow(data)) %in% hl)) indent <- max(indent, 2L)
   is_num <- vapply(data, is.numeric, logical(1)) | names(data) %in% p_col
   cells  <- lapply(seq_along(data), function(j) {

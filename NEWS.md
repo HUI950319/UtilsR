@@ -1,5 +1,8 @@
 # UtilsR 0.6.16
 
+* `pr_table()` rejects invalid highlight selectors before formatting and
+  handles large whole-number positions without integer-overflow warnings.
+
 * Function-argument labels in `pr_tree()` and fallback class labels in
   `pr_spark()` escape layout controls instead of creating extra lines.
 

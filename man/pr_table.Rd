@@ -22,7 +22,9 @@ pr_table(
 \item{p_col}{Character. Names of the P-value columns, or \code{NULL}.}
 
 \item{highlight}{Rows to highlight in black on light yellow: integer row
-numbers or a logical vector. Highlighted rows drop their other colours.}
+numbers or a logical vector. Highlighted rows drop their other colours.
+Missing, fractional and non-finite selectors are rejected; zero and
+positions outside the displayed rows are ignored.}
 
 \item{rownames}{Logical. Show the row names as a first, unnamed column,
 e.g. the terms of \code{as.data.frame(coef(summary(fit)))}, which are

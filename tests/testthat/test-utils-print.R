@@ -980,3 +980,15 @@ test_that("function arguments and fallback spark classes stay on one physical li
   expect_length(spark, 1L)
   expect_match(spark, "<a\\nb>", fixed = TRUE)
 })
+
+test_that("table highlights validate row selectors without integer coercion", {
+  withr::local_options(cli.num_colors = 1)
+  x <- data.frame(v = 1:3)
+  for (bad in list(1.9, Inf, NaN, -1, "1", c(1, NA_real_), c(TRUE, NA), matrix(1))) {
+    expect_error(pr_table(x, highlight = bad), "highlight")
+  }
+  expect_silent(out <- utils::capture.output(pr_table(x, highlight = 2^40)))
+  expect_identical(out, utils::capture.output(pr_table(x)))
+  expect_identical(utils::capture.output(pr_table(x, highlight = c(TRUE, FALSE, TRUE))),
+                   utils::capture.output(pr_table(x, highlight = c(1, 3))))
+})
