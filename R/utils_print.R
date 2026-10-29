@@ -22,6 +22,7 @@
 #         ._chip()       short label on a solid background (utils_display.R)
 #         ._kv_lines()   named values -> aligned "key  value" lines
 #         ._as_text()    values -> text, numbers as print() shows them
+#         ._pr_restore() load methods for supported stored vector classes
 #         ._p_cells()    P values -> coloured cells (stat_pval() wording)
 #         ._obj_desc()   object -> short "<type size>" description
 #         ._pr_colour()  does stdout show ANSI colours?
@@ -52,10 +53,23 @@
   invisible(lines)
 }
 
+# Restore the methods for supported classed storage read from an RDS file.
+# In particular, integer64 is a double bit pattern, not a double value.
+._pr_restore <- function(v) {
+  pkg <- if (inherits(v, "integer64")) "bit64" else
+    if (inherits(v, "haven_labelled")) "haven" else
+      if (inherits(v, c("Duration", "Period", "Interval"))) "lubridate" else NULL
+  if (!is.null(pkg) && !requireNamespace(pkg, quietly = TRUE)) {
+    cli::cli_abort("Printing {.cls {class(v)[1]}} values requires package {.pkg {pkg}}.")
+  }
+  v
+}
+
 # Values -> text: doubles to getOption("digits") significant digits, as
 # print() shows them (as.character() writes 15: 1/3 -> 0.333333333333333);
 # factors, dates and other classed vectors through their as.character()
 ._as_text <- function(v) {
+  v <- ._pr_restore(v)
   if (is.double(v) && !is.object(v)) v <- signif(v, getOption("digits", 7L))
   as.character(v)
 }
@@ -334,7 +348,10 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 #' significant digits, at most six. Missing values
 #' print as a grey \code{NA}. The cells of a list column are described as in
 #' \code{\link{pr_tree}()}, e.g. \code{<dbl 2> 1.1, 2.2}. Everything else
-#' uses \code{as.character()}.
+#' uses \code{as.character()}. Classed numeric and time-span columns use their
+#' format methods, retaining integer64 digits and time units. The optional
+#' packages bit64, haven and lubridate are loaded by namespace when their
+#' stored types are encountered.
 #' Without colour (knitted documents, log files), P values carry stars
 #' (\code{***} below 0.001, \code{**} below 0.01, \code{*} below 0.05),
 #' highlighted rows start with \code{>} and missing text cells read
@@ -392,9 +409,9 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   is_num <- vapply(data, is.numeric, logical(1)) | names(data) %in% p_col
   colour <- ._pr_colour()
   cells  <- lapply(names(data), function(nm) {
-    v <- data[[nm]]
+    v <- ._pr_restore(data[[nm]])
     if (nm %in% p_col) return(._p_cells(v))
-    if (is.double(v) && is.numeric(v)) {
+    if (is.double(v) && is.numeric(v) && !is.object(v)) {
       fin  <- v[is.finite(v)]
       d    <- if (all(fin == round(fin))) 0L else digits
       # 0.0003 would print as 0.00: give the column two significant digits
@@ -403,6 +420,8 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
         d <- min(6L, as.integer(ceiling(-log10(min(tiny)))) + 1L)
       }
       txt <- formatC(v, format = "f", digits = d)
+    } else if (is.object(v) && (is.numeric(v) || inherits(v, "difftime"))) {
+      txt <- format(v, trim = TRUE)
     } else if (is.list(v)) {
       # a list column: describe each cell, rather than deparse it (c(1.1, 2.2))
       txt <- vapply(v, ._obj_desc, character(1), width = 40)
@@ -484,6 +503,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
 # `colour`, the type and size are grey and NA red, values in the text colour;
 # with `inside`, a container that stays closed previews what it holds.
 ._obj_desc <- function(v, width = 80, colour = FALSE, inside = FALSE) {
+  v <- ._pr_restore(v)
   g <- if (colour) cli::col_grey else identity
   if (is.null(v)) return(g("<NULL>"))
   big <- function(n) format(n, big.mark = ",", scientific = FALSE, trim = TRUE)
@@ -639,6 +659,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
 #' @family print helpers
 pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
                     attrs = TRUE) {
+  x <- ._pr_restore(x)
   drop_attr <- c("names", "class", "dim", "dimnames", "row.names", "srcref")
   descend <- function(v) {
     is.list(v) && !is.data.frame(v) && !inherits(v, ._tree_leaf) &&
@@ -896,6 +917,7 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
   sig3 <- function(z) trimws(formatC(z, digits = 3, format = "fg", flag = "#"))
   # one column -> c(sparkline, summary, missing share)
   one <- function(v) {
+    v <- ._pr_restore(v)
     na <- sprintf("NA %.1f%%", 100 * mean(is.na(v)))
     if (inherits(v, c("Date", "POSIXct"))) {
       fin <- v[is.finite(v)]

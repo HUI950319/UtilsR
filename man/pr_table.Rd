@@ -66,7 +66,10 @@ smallest non-zero value would round to zero gets enough decimals for two
 significant digits, at most six. Missing values
 print as a grey \code{NA}. The cells of a list column are described as in
 \code{\link{pr_tree}()}, e.g. \code{<dbl 2> 1.1, 2.2}. Everything else
-uses \code{as.character()}.
+uses \code{as.character()}. Classed numeric and time-span columns use their
+format methods, retaining integer64 digits and time units. The optional
+packages bit64, haven and lubridate are loaded by namespace when their
+stored types are encountered.
 Without colour (knitted documents, log files), P values carry stars
 (\code{***} below 0.001, \code{**} below 0.01, \code{*} below 0.05),
 highlighted rows start with \code{>} and missing text cells read

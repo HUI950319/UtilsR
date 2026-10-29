@@ -1,3 +1,9 @@
+# UtilsR 0.6.14
+
+* `pr_table()` preserves integer64 digits and time-span components instead
+  of formatting their underlying storage. Print helpers load the namespace
+  supporting stored integer64, labelled and lubridate values when needed.
+
 # UtilsR 0.6.13
 
 * `fmt_axisTile()` works with panel sizes fixed through

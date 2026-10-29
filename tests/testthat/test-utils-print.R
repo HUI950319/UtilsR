@@ -566,3 +566,21 @@ test_that("pr_spark() bars few whole numbers per value and spans dates", {
   expect_match(when, "2026-01-01 to 2026-07-20", fixed = TRUE)
   expect_match(when, "NA 16.7%", fixed = TRUE)
 })
+
+test_that("pr_table() preserves integer64 values without converting their storage", {
+  skip_if_not_installed("bit64")
+  withr::local_options(cli.num_colors = 1)
+  x <- data.frame(n = bit64::as.integer64(c("2314", "9007199254740993", NA)))
+  out <- trimws(utils::capture.output(pr_table(x)))
+  expect_identical(out[3:5], c("2314", "9007199254740993", "NA"))
+})
+
+test_that("pr_table() keeps the units and components of classed numbers", {
+  skip_if_not_installed("lubridate")
+  withr::local_options(cli.num_colors = 1)
+  x <- data.frame(span = lubridate::days(c(1, 2, NA)))
+  expect_identical(trimws(utils::capture.output(pr_table(x)))[3:5],
+                   c("1d 0H 0M 0S", "2d 0H 0M 0S", "NA"))
+  gap <- data.frame(span = as.difftime(c(1, 2), units = "days"))
+  expect_identical(trimws(utils::capture.output(pr_table(gap)))[3:4], c("1 days", "2 days"))
+})

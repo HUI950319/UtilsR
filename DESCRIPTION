@@ -1,7 +1,7 @@
 Package: UtilsR
 Type: Package
 Title: Utility Functions for Data Exploration and System Diagnostics
-Version: 0.6.13
+Version: 0.6.14
 Authors@R: person("Hui", "Ouyang", email = "ouyangyuhao@outlook.com",
                   role = c("aut", "cre"))
 Description: A collection of utility functions for interactive data exploration,
@@ -90,6 +90,8 @@ Imports:
     scales
 Suggests:
     bit64,
+    haven,
+    lubridate,
     data.table,
     RColorBrewer,
     cowplot,
