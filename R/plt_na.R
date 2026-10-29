@@ -262,12 +262,15 @@ plt_na <- function(
       gap_side = NULL) {
     matrix_data <- missing_data |>
       dplyr::select(dplyr::all_of(missing_vars)) |>
-      dplyr::mutate(id = dplyr::row_number()) |>
       tidyr::pivot_longer(
-        -id,
+        dplyr::everything(),
         names_to = "name",
         values_to = "value",
         values_transform = list(value = as.logical)
+      ) |>
+      tibble::add_column(
+        id = rep(seq_len(nrow(df)), each = length(missing_vars)),
+        .before = 1L
       ) |>
       dplyr::mutate(
         isna = .data[["value"]],

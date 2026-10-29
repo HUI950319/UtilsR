@@ -224,3 +224,16 @@ test_that("plt_na restores serialized integer64 missing methods", {
                     c("--vanilla", shQuote(script)), stdout = TRUE, stderr = TRUE)
   expect_null(attr(output, "status"), info = paste(output, collapse = "\n"))
 })
+
+test_that("plt_na keeps missing id columns in every matrix layout", {
+  data <- data.frame(id = c(1, NA, 3), marker = c(NA, 2, 3))
+  for (output in c("matrix", "both", "both_reverse")) {
+    plot <- suppressMessages(plt_na(data, output = output))
+    matrix <- if (output == "matrix") plot else plot[[if (output == "both") 1L else 2L]]
+    expect_setequal(unique(matrix$data$name), names(data))
+    expect_equal(nrow(matrix$data), 6L)
+    expect_identical(matrix$data$isna[matrix$data$name == "id"], c(FALSE, TRUE, FALSE))
+  }
+  plot <- suppressMessages(plt_na(data["id"], output = "matrix"))
+  expect_identical(plot$data$isna, c(FALSE, TRUE, FALSE))
+})

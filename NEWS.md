@@ -1,5 +1,8 @@
 # UtilsR 0.6.16
 
+* `plt_na()` keeps a missing variable named `id` in matrix and combined
+  layouts by adding case indices only after the variables are expanded.
+
 * `pr_tree()` restores stored vector methods inside closed previews and
   displays SPSS user-missing values as `NA`, retaining the input storage.
 
