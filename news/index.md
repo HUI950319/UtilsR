@@ -2,6 +2,41 @@
 
 ## UtilsR 0.6.16
 
+- [`pr_head()`](https://hui950319.github.io/UtilsR/reference/pr_head.md)
+  and
+  [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  detect missing expression elements without warnings or evaluating the
+  expressions.
+
+- [`plt_na()`](https://hui950319.github.io/UtilsR/reference/plt_na.md)
+  identifies an all-missing legend entry as Missing in every layout,
+  even when no Present category is observed.
+
+- Automatic `plt_con(type = "bar")` axes contain the complete mean +/-
+  SD intervals and zero baseline, while explicit zoom bounds remain
+  unchanged.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  rejects zero-row or entirely non-finite input clearly and skips empty
+  features and split panels while retaining usable plots.
+
+- [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  rejects invalid highlight selectors before formatting and handles
+  large whole-number positions without integer-overflow warnings.
+
+- Function-argument labels in
+  [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  and fallback class labels in
+  [`pr_spark()`](https://hui950319.github.io/UtilsR/reference/pr_spark.md)
+  escape layout controls instead of creating extra lines.
+
+- Split continuous panels preserve group colours through local sorting;
+  `combine = FALSE` returns a named list and rejects saving that list.
+
+- [`plt_na()`](https://hui950319.github.io/UtilsR/reference/plt_na.md)
+  keeps a missing variable named `id` in matrix and combined layouts by
+  adding case indices only after the variables are expanded.
+
 - [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
   restores stored vector methods inside closed previews and displays
   SPSS user-missing values as `NA`, retaining the input storage.

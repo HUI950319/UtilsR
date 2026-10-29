@@ -34,7 +34,9 @@ pr_table(
 - highlight:
 
   Rows to highlight in black on light yellow: integer row numbers or a
-  logical vector. Highlighted rows drop their other colours.
+  logical vector. Highlighted rows drop their other colours. Missing,
+  fractional and non-finite selectors are rejected; zero and positions
+  outside the displayed rows are ignored.
 
 - rownames:
 

@@ -69,13 +69,15 @@ plt_con(
 
 - data:
 
-  A data frame.
+  A data frame with at least one observation.
 
 - stat.by:
 
   Character vector. Column name(s) of numeric variables to plot. SPSS
   user-missing values are excluded. Matrix/array columns, integer64 and
-  date/time-span storage must be converted explicitly first.
+  date/time-span storage must be converted explicitly first. Features
+  without finite observations are skipped; an entirely empty selection
+  is an error.
 
 - group.by:
 
@@ -110,7 +112,8 @@ plt_con(
   - A single string matching a name in `palette_list`: uses
     [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md).
 
-  - A character vector of colours: used directly.
+  - A character vector of colours: used directly. A named vector is
+    matched to group or feature names.
 
 - alpha:
 
@@ -206,7 +209,8 @@ plt_con(
 - y.min:
 
   Numeric or character. Minimum y-axis limit. Character `"qN"` uses the
-  Nth percentile. Default `NULL`.
+  Nth percentile. Default `NULL`; automatic bar limits include the full
+  SD intervals and zero baseline.
 
 - y.max:
 

@@ -91,7 +91,9 @@ chosen rows can be highlighted.</p>
 
 <dt id="arg-highlight">highlight<a class="anchor" aria-label="anchor" href="#arg-highlight"></a></dt>
 <dd><p>Rows to highlight in black on light yellow: integer row
-numbers or a logical vector. Highlighted rows drop their other colours.</p></dd>
+numbers or a logical vector. Highlighted rows drop their other colours.
+Missing, fractional and non-finite selectors are rejected; zero and
+positions outside the displayed rows are ignored.</p></dd>
 
 
 <dt id="arg-rownames">rownames<a class="anchor" aria-label="anchor" href="#arg-rownames"></a></dt>

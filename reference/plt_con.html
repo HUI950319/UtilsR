@@ -128,13 +128,15 @@ trend lines), and the same split/group/bg patterns as
 
 
 <dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p>A data frame.</p></dd>
+<dd><p>A data frame with at least one observation.</p></dd>
 
 
 <dt id="arg-stat-by">stat.by<a class="anchor" aria-label="anchor" href="#arg-stat-by"></a></dt>
 <dd><p>Character vector. Column name(s) of numeric variables to
 plot. SPSS user-missing values are excluded. Matrix/array columns,
-integer64 and date/time-span storage must be converted explicitly first.</p></dd>
+integer64 and date/time-span storage must be converted explicitly first.
+Features without finite observations are skipped; an entirely empty
+selection is an error.</p></dd>
 
 
 <dt id="arg-group-by">group.by<a class="anchor" aria-label="anchor" href="#arg-group-by"></a></dt>
@@ -167,7 +169,8 @@ Must be a superset of <code>group.by</code>. Default <code>NULL</code>.</p></dd>
 <dd><p>Colour palette. One of:</p><ul><li><p><code>NULL</code> (default): uses <code>pal_lancet</code>.</p></li>
 <li><p>A single string matching a name in <code>palette_list</code>: uses
     <code><a href="pal_get.html">pal_get()</a></code>.</p></li>
-<li><p>A character vector of colours: used directly.</p></li>
+<li><p>A character vector of colours: used directly.
+A named vector is matched to group or feature names.</p></li>
 </ul></dd>
 
 
@@ -269,7 +272,8 @@ Default <code>FALSE</code>, including stacked and flipped panels. Explicit
 
 <dt id="arg-y-min">y.min<a class="anchor" aria-label="anchor" href="#arg-y-min"></a></dt>
 <dd><p>Numeric or character. Minimum y-axis limit.
-Character <code>"qN"</code> uses the Nth percentile. Default <code>NULL</code>.</p></dd>
+Character <code>"qN"</code> uses the Nth percentile. Default <code>NULL</code>;
+automatic bar limits include the full SD intervals and zero baseline.</p></dd>
 
 
 <dt id="arg-y-max">y.max<a class="anchor" aria-label="anchor" href="#arg-y-max"></a></dt>
