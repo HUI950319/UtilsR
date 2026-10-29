@@ -1,5 +1,11 @@
 # Changelog
 
+## UtilsR 0.6.16
+
+- [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  keeps explicit missing factor levels as `<NA>` without mistaking them
+  for missing storage or failing during width calculation.
+
 ## UtilsR 0.6.15
 
 - `plt_con(type = "dot")` uses numeric bin centres, including for

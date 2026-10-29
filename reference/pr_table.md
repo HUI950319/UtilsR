@@ -91,8 +91,9 @@ every value is whole; a column whose smallest non-zero value would round
 to zero gets enough decimals for two significant digits, at most six.
 Nonzero values still rounded to zero, and numbers wider than the
 available line, use scientific notation. Missing values print as a grey
-`NA`. Matrix and array columns are described one row at a time,
-retaining all components. List-column cells are described as in
+`NA`; an explicit missing factor level displays as `<NA>`. Matrix and
+array columns are described one row at a time, retaining all components.
+List-column cells are described as in
 [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md),
 e.g. `<dbl 2> 1.1, 2.2`. Everything else uses
 [`as.character()`](https://rdrr.io/r/base/character.html). Classed
