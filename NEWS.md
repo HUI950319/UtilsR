@@ -1,5 +1,8 @@
 # UtilsR 0.6.16
 
+* `pr_tree()` restores stored vector methods inside closed previews and
+  displays SPSS user-missing values as `NA`, retaining the input storage.
+
 * `plt_na()` retains each original column's missing-value mask, including
   SPSS user-missing values and explicit factor NA levels, and restores
   methods for serialized integer64 and time-span columns before inspection.

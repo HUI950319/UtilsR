@@ -941,3 +941,28 @@ test_that("tables and root trees treat POSIXlt as date-time vectors", {
   expect_identical(utils::capture.output(pr_tree(time)), utils::capture.output(pr_tree(as.POSIXct(time))))
   expect_s3_class(x$time, "POSIXlt")
 })
+
+test_that("collapsed tree previews restore stored integer64 methods before formatting", {
+  skip_if_not_installed("bit64")
+  value_file <- tempfile(fileext = ".rds")
+  script <- tempfile(fileext = ".R")
+  saveRDS(list(summary = list(n = bit64::as.integer64("9007199254740993"))), value_file)
+  dump(c("pr_tree", "._obj_desc", "._pr_restore", "._pr_escape", "._pr_trim", "._pr_wrap",
+         "._pr_count", "._pr_colour", "._pr_out", "._pr_label", "._chip", "._tree_leaf", "console_width"),
+       file = script, envir = environment(pr_tree))
+  cat('\noptions(cli.num_colors = 1, cli.width = 100)\npr_tree(readRDS(commandArgs(TRUE)[[1]]), max_depth = 1)\n',
+      file = script, append = TRUE)
+  out <- system2(file.path(R.home("bin"), "Rscript"),
+    c("--vanilla", shQuote(script), shQuote(value_file)), stdout = TRUE, stderr = TRUE)
+  expect_match(paste(out, collapse = "\n"), "n = 9007199254740993", fixed = TRUE)
+})
+
+test_that("tree previews display SPSS user-missing values as missing", {
+  skip_if_not_installed("haven")
+  withr::local_options(cli.num_colors = 1)
+  v <- haven::labelled_spss(c(1, 99, NA), labels = c(Yes = 1, Unknown = 99), na_values = 99)
+  original <- v
+  out <- utils::capture.output(pr_tree(list(v = v)))
+  expect_match(out[2], "1 [Yes], NA, NA", fixed = TRUE)
+  expect_identical(v, original)
+})

@@ -684,6 +684,8 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   # values as text: strings quoted, a labelled value with its label
   # ("1 [Male]"), NA red with `colour`
   text_of <- function(first, labs = attr(first, "labels", exact = TRUE)) {
+    first <- ._pr_restore(first)
+    missing <- is.na(first)
     vals <- if (is.character(first)) {
       encodeString(first, quote = "\"")
     } else if (is.factor(first)) {
@@ -697,11 +699,12 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
     } else {
       vapply(seq_along(first), function(i) format(first[i]), character(1))
     }
+    vals[missing] <- "NA"
     if (length(names(labs))) {
       hit  <- names(labs)[match(unclass(first), unclass(labs))]
-      vals <- ifelse(is.na(hit), vals, sprintf("%s [%s]", vals, ._pr_escape(hit)))
+      vals <- ifelse(is.na(hit) | missing, vals, sprintf("%s [%s]", vals, ._pr_escape(hit)))
     }
-    if (colour) vals[is.na(first)] <- cli::col_red(vals[is.na(first)])
+    if (colour) vals[missing] <- cli::col_red(vals[missing])
     vals
   }
   # a POSIXlt time is a list underneath; show the time it holds
@@ -797,6 +800,8 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
 #' Sibling names line up in a column. Types and sizes are grey, values in the
 #' text colour with \code{NA} in red, and the names of elements that hold
 #' others bold; a classed list starts with its class as a chip.
+#' Closed previews restore methods for stored classed values; SPSS
+#' user-missing values display as \code{NA}.
 #'
 #' The object passed in always opens: a model fit lists its components, a
 #' data frame its columns and an S4 object its slots (as \code{@name}). Below

@@ -36,6 +36,8 @@ POSIXlt date-times display as equivalent POSIXct vectors.
 Sibling names line up in a column. Types and sizes are grey, values in the
 text colour with \code{NA} in red, and the names of elements that hold
 others bold; a classed list starts with its class as a chip.
+Closed previews restore methods for stored classed values; SPSS
+user-missing values display as \code{NA}.
 }
 \details{
 The object passed in always opens: a model fit lists its components, a
