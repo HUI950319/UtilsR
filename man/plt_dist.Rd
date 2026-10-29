@@ -17,8 +17,7 @@ plt_dist(
   stratum_args = list(width = 0.5, color = "gray50", linewidth = 0.3, gap = 0.01),
   facet_args = list(nrow = NULL, ncol = NULL, scales = "fixed"),
   legend_args = list(position = NULL, ncol = 1),
-  xlab = NULL,
-  ylab = NULL,
+  fmt_text = list(),
   theme_use = theme_heat(14),
   save = list()
 )
@@ -157,13 +156,12 @@ when \code{facet} is set (bar and alluvial modes):
     columns. Default \code{1}.}
 }}
 
-\item{xlab, ylab}{\code{NULL} or a character string giving the x- or
-y-axis title. \code{NULL} (default) keeps the automatic titles: the
-first variable's name and \code{"Proportion"} on the bar chart, none on
-the heatmap; \code{""} leaves a title empty. Ignored in alluvial mode,
-whose theme hides the axis titles. Setting them here instead of adding
-\code{ggplot2::labs()} afterwards lets \code{save} write the retitled
-plot on a page sized for it.}
+\item{fmt_text}{\code{NULL}, an empty list (default), or a named list of
+\code{\link{fmt_text}()} arguments, such as \code{xlab}, \code{ylab},
+\code{title} or \code{axis_title_size}, applied to the finished plot
+before \code{save}, so the saved page carries the new text and is sized
+for it. The alluvial plot hides its axis titles, so \code{xlab} and
+\code{ylab} have no visible effect there.}
 
 \item{theme_use}{Theme specification, resolved by the internal theme
 resolver. Default \code{\link{theme_heat}(14)} (clean look). Also accepts
@@ -236,9 +234,10 @@ plt_dist(df, dis_vars = c("stage", "sex"), type = "bar", color = "Paired")
 plt_dist(df, dis_vars = c("stage", "sex"), type = "bar",
          color = c("steelblue", "tomato"))
 
-# Axis titles; `save = list(filename = "dist.pdf")` would save this plot
+# Axis titles via fmt_text(); `save = list(filename = "dist.pdf")` would
+# save this plot
 plt_dist(df, dis_vars = c("stage", "sex"), type = "bar",
-         xlab = "Stage", ylab = "Percentage")
+         fmt_text = list(xlab = "Stage", ylab = "Percentage"))
 
 # Theme + label size carried by theme_use
 plt_dist(df, dis_vars = c("stage", "sex"), type = "bar",

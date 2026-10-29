@@ -6,9 +6,9 @@
 * `plt_con()` respects SPSS user-missing codes and ranges, rejects ambiguous
   columns and unsupported numeric storage, and avoids dummy-group name clashes.
 
-* `plt_dist()` gains `xlab` and `ylab` for the bar-chart and heatmap axis
-  titles, so `save` writes a retitled plot without a separate
-  `RegR::save_plt()` call.
+* `plt_dist()` and `plt_alluvial()` gain `fmt_text`, a list of `fmt_text()`
+  arguments applied before `save`, so the saved page carries new titles and
+  is sized for them without a separate `RegR::save_plt()` call.
 
 * Structure trees prepare names only for the visible items and omitted-name
   preview, retaining the exact omitted-line counts and printed output.

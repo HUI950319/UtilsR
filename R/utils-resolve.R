@@ -154,6 +154,25 @@
   ns$.save_sized(p, save, size, lead = lead, filename = filename)
 }
 
+# Apply a plot function's `fmt_text` list to the finished plot before
+# `.save_sized()`, so the saved page and its measured size carry the new text.
+# The values themselves are checked by fmt_text().
+.apply_fmt_text <- function(p, value, call = rlang::caller_env()) {
+  if (is.null(value)) return(p)
+  if (!is.list(value)) {
+    cli::cli_abort("{.arg fmt_text} must be NULL or a named list.", call = call)
+  }
+  if (length(value) == 0L) return(p)
+  value_names <- names(value)
+  if (is.null(value_names) || anyNA(value_names) || any(!nzchar(value_names)) ||
+      anyDuplicated(value_names) || "plot" %in% value_names) {
+    cli::cli_abort(paste("{.arg fmt_text} must have unique, non-empty names",
+                         "of {.fn fmt_text} arguments other than {.arg plot}."),
+                   call = call)
+  }
+  do.call(fmt_text, c(list(p), value))
+}
+
 # Merge a partial named-list argument (e.g. `label_args`) into its documented
 # defaults, rejecting unnamed, duplicated or unknown fields. Errors name the
 # plotting function that called it.

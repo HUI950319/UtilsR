@@ -84,6 +84,11 @@
 #'       `"right"`, `"left"`, `"top"`, `"bottom"`, or `"none"`. Default
 #'       `"right"`.}
 #'   }
+#' @param fmt_text `NULL`, an empty list, or a named list of [fmt_text()]
+#'   arguments, such as `title` or `legend_title`, applied to the finished
+#'   plot before `save`, so the saved page carries the new text and is sized
+#'   for it. The axis titles are hidden, so `xlab` and `ylab` have no visible
+#'   effect.
 #' @param theme_use A ggplot2 theme specification resolved internally by
 #'   `.resolve_theme()`.
 #' @param save `NULL`, an empty list, or a named list forwarded to
@@ -164,6 +169,7 @@ plt_alluvial <- function(
   ),
   facet_args = list(nrow = NULL, ncol = NULL, scales = "fixed"),
   legend_args = list(ncol = 1, position = "right"),
+  fmt_text = list(),
   theme_use = theme_alluvia(15),
   save = list()
 ) {
@@ -629,6 +635,7 @@ plt_alluvial <- function(
     }
   }
 
+  plot <- .apply_fmt_text(plot, fmt_text)
   .save_sized(
     plot, save,
     c(max(4, 1.6 * length(unique(stat$.cat_var))),

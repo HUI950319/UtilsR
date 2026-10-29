@@ -138,13 +138,12 @@
 #'     \item{\code{ncol}}{Positive integer giving the number of legend
 #'       columns. Default \code{1}.}
 #'   }
-#' @param xlab,ylab \code{NULL} or a character string giving the x- or
-#'   y-axis title. \code{NULL} (default) keeps the automatic titles: the
-#'   first variable's name and \code{"Proportion"} on the bar chart, none on
-#'   the heatmap; \code{""} leaves a title empty. Ignored in alluvial mode,
-#'   whose theme hides the axis titles. Setting them here instead of adding
-#'   \code{ggplot2::labs()} afterwards lets \code{save} write the retitled
-#'   plot on a page sized for it.
+#' @param fmt_text \code{NULL}, an empty list (default), or a named list of
+#'   \code{\link{fmt_text}()} arguments, such as \code{xlab}, \code{ylab},
+#'   \code{title} or \code{axis_title_size}, applied to the finished plot
+#'   before \code{save}, so the saved page carries the new text and is sized
+#'   for it. The alluvial plot hides its axis titles, so \code{xlab} and
+#'   \code{ylab} have no visible effect there.
 #' @param theme_use Theme specification, resolved by the internal theme
 #'   resolver. Default \code{\link{theme_heat}(14)} (clean look). Also accepts
 #'   a \code{ggplot2::theme} object, a theme function, a function-name string
@@ -201,9 +200,10 @@
 #' plt_dist(df, dis_vars = c("stage", "sex"), type = "bar",
 #'          color = c("steelblue", "tomato"))
 #'
-#' # Axis titles; `save = list(filename = "dist.pdf")` would save this plot
+#' # Axis titles via fmt_text(); `save = list(filename = "dist.pdf")` would
+#' # save this plot
 #' plt_dist(df, dis_vars = c("stage", "sex"), type = "bar",
-#'          xlab = "Stage", ylab = "Percentage")
+#'          fmt_text = list(xlab = "Stage", ylab = "Percentage"))
 #'
 #' # Theme + label size carried by theme_use
 #' plt_dist(df, dis_vars = c("stage", "sex"), type = "bar",
@@ -245,8 +245,7 @@ plt_dist <- function(data,
                                          linewidth = 0.3, gap = 0.01),
                      facet_args = list(nrow = NULL, ncol = NULL, scales = "fixed"),
                      legend_args = list(position = NULL, ncol = 1),
-                     xlab = NULL,
-                     ylab = NULL,
+                     fmt_text = list(),
                      theme_use = theme_heat(14),
                      save = list()) {
 
@@ -335,8 +334,6 @@ plt_dist <- function(data,
                    legend_args$position %in% legend_positions),
               "legend_args$position", paste("`NULL` or", one_of(legend_positions)))
   check_field(is_count(legend_args$ncol), "legend_args$ncol", "a positive integer")
-  check_field(is.null(xlab) || is_string(xlab), "xlab", "`NULL` or one string")
-  check_field(is.null(ylab) || is_string(ylab), "ylab", "`NULL` or one string")
 
   data <- dplyr::ungroup(data)
   required <- c(dis_vars, if (length(dis_vars) == 2L) facet)
@@ -408,6 +405,7 @@ plt_dist <- function(data,
       facet_args = facet_args,
       legend_args = list(ncol = legend_args$ncol,
                          position = legend_args$position %||% "right"),
+      fmt_text = fmt_text,
       theme_use = theme_alluvia(base_size),
       save = save
     ))
@@ -466,7 +464,7 @@ plt_dist <- function(data,
       ggplot2::scale_fill_manual(values = pal_cols) +
       ggplot2::scale_y_continuous(labels = scales::label_percent()) +
       ggplot2::guides(fill = ggplot2::guide_legend(ncol = legend_args$ncol)) +
-      ggplot2::labs(x = xlab %||% x_var, y = ylab %||% "Proportion") +
+      ggplot2::labs(x = x_var, y = "Proportion") +
       thm
 
     # The stacked bar maps fill -> the second variable's levels, while the
@@ -511,6 +509,7 @@ plt_dist <- function(data,
       )
     }
 
+    p <- .apply_fmt_text(p, fmt_text)
     return(.save_sized(p, save, c(max(3, 0.9 * length(unique(data[[x_var]]))), 4),
                        lead = "bar chart laid out for",
                        filename = "Figure X. Distribution.pdf"))
@@ -543,7 +542,7 @@ plt_dist <- function(data,
     ggplot2::guides(fill = ggplot2::guide_legend(ncol = legend_args$ncol)) +
     ggplot2::scale_x_discrete(position = "top") +
     ggplot2::scale_y_discrete(limits = rev) +
-    ggplot2::labs(x = xlab, y = ylab) +
+    ggplot2::labs(x = NULL, y = NULL) +
     thm +
     ggplot2::theme(
       legend.position = heat_legend,
@@ -566,6 +565,7 @@ plt_dist <- function(data,
     }
   }
 
+  p <- .apply_fmt_text(p, fmt_text)
   .save_sized(p, save, c(max(3, 1.1 * length(unique(plotdata[[x_var]]))),
                          max(2, 0.6 * length(unique(plotdata[[y_var]])))),
               lead = "heatmap laid out for",

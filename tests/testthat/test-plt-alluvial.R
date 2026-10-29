@@ -21,6 +21,7 @@ test_that("plt_alluvial keeps the documented public argument order", {
       "label_args",
       "facet_args",
       "legend_args",
+      "fmt_text",
       "theme_use",
       "save"
     )

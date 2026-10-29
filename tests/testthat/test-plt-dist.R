@@ -34,7 +34,7 @@ test_that("plt_dist packs its plot settings into plt_alluvial-style lists", {
   expect_identical(
     names(formals(plt_dist)),
     c("data", "dis_vars", "type", "facet", "color", "alpha", "label_args",
-      "flow_args", "stratum_args", "facet_args", "legend_args", "xlab", "ylab",
+      "flow_args", "stratum_args", "facet_args", "legend_args", "fmt_text",
       "theme_use", "save")
   )
   defaults <- lapply(
@@ -404,37 +404,52 @@ test_that("numeric distribution normalization keeps missing-value rules", {
   }
 })
 
-test_that("xlab and ylab title the axes of the saved bar chart and heatmap", {
-  axis_titles <- function(p) {
-    labs <- if (exists("get_labs", envir = asNamespace("ggplot2"))) {
+test_that("fmt_text formats every mode before the plot is saved", {
+  plot_labels <- function(p) {
+    if (exists("get_labs", envir = asNamespace("ggplot2"))) {
       ggplot2::get_labs(p)
     } else {
       p$labels
     }
-    list(x = labs$x, y = labs$y)
   }
   data <- data.frame(x = c("A", "A", "B", "B"), group = c("F", "M", "F", "M"))
   bar <- dist_test_plot(data, c("x", "group"), type = "bar")
-  expect_identical(axis_titles(bar), list(x = "x", y = "Proportion"))
+  expect_identical(plot_labels(bar)[c("x", "y")], list(x = "x", y = "Proportion"))
   bar <- dist_test_plot(data, c("x", "group"), type = "bar",
-                        xlab = "Tumor size (mm)", ylab = "Percentage")
-  expect_identical(axis_titles(bar),
+                        fmt_text = list(xlab = "Tumor size (mm)",
+                                        ylab = "Percentage",
+                                        axis_title_face = "bold"))
+  expect_identical(plot_labels(bar)[c("x", "y")],
                    list(x = "Tumor size (mm)", y = "Percentage"))
+  expect_identical(bar$theme$axis.title$face, "bold")
   heat <- dist_test_plot(data.frame(x = c("A", "B"), y = c("C", "C"),
                                     fill = c("F", "M")),
-                         c("x", "y", "fill"), xlab = "Size")
-  expect_identical(axis_titles(heat)$x, "Size")
-  expect_error(dist_test_plot(data, c("x", "group"), type = "bar", xlab = 1),
-               "xlab")
-  expect_error(dist_test_plot(data, c("x", "group"), type = "bar",
-                              ylab = c("a", "b")), "ylab")
+                         c("x", "y", "fill"), fmt_text = list(xlab = "Size"))
+  expect_identical(plot_labels(heat)$x, "Size")
+  expect_identical(plot_labels(dist_test_plot(data, c("x", "group"),
+                                              type = "bar",
+                                              fmt_text = NULL))$x, "x")
+  for (bad in list("Size", list("Size"), list(xlab = "a", xlab = "b"),
+                   list(plot = 1))) {
+    expect_error(dist_test_plot(data, c("x", "group"), type = "bar",
+                                fmt_text = bad), "fmt_text")
+  }
 
   skip_if_not_installed("RegR")
   file <- tempfile(fileext = ".pdf")
   on.exit(unlink(file), add = TRUE)
+  plain <- dist_test_plot(data, c("x", "group"), type = "bar")
   saved <- dist_test_plot(data, c("x", "group"), type = "bar",
-                          xlab = "Tumor size (mm)",
+                          fmt_text = list(title = "Distribution"),
                           save = list(filename = file))
   expect_true(file.exists(file))
-  expect_identical(axis_titles(saved)$x, "Tumor size (mm)")
+  expect_identical(plot_labels(saved)$title, "Distribution")
+  expect_gt(attr(saved, "plot_size")[[2]], attr(plain, "plot_size")[[2]])
+
+  skip_if_not_installed("ggalluvial")
+  alluvial <- dist_test_plot(data, c("x", "group"),
+                             fmt_text = list(title = "Flow"))
+  expect_identical(plot_labels(alluvial)$title, "Flow")
+  expect_gt(attr(alluvial, "plot_size")[[2]],
+            attr(dist_test_plot(data, c("x", "group")), "plot_size")[[2]])
 })

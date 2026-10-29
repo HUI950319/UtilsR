@@ -17,6 +17,7 @@ plt_alluvial(
     = TRUE, fill = "white", alpha = 1, pct_accuracy = 0.1),
   facet_args = list(nrow = NULL, ncol = NULL, scales = "fixed"),
   legend_args = list(ncol = 1, position = "right"),
+  fmt_text = list(),
   theme_use = theme_alluvia(15),
   save = list()
 )
@@ -108,6 +109,12 @@ Default \code{1}.}
 \code{"right"}, \code{"left"}, \code{"top"}, \code{"bottom"}, or \code{"none"}. Default
 \code{"right"}.}
 }}
+
+\item{fmt_text}{\code{NULL}, an empty list, or a named list of \code{\link[=fmt_text]{fmt_text()}}
+arguments, such as \code{title} or \code{legend_title}, applied to the finished
+plot before \code{save}, so the saved page carries the new text and is sized
+for it. The axis titles are hidden, so \code{xlab} and \code{ylab} have no visible
+effect.}
 
 \item{theme_use}{A ggplot2 theme specification resolved internally by
 \code{.resolve_theme()}.}
