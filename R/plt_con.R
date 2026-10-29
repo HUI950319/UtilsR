@@ -13,6 +13,8 @@
 #                                      (also called by both builders)
 #         +-- L2  .con_dot_bins()      numeric bin centres, including constants
 #         +-- L2  .con_bar_range()     full mean +/- SD range and zero baseline
+#         +-- L2  .con_base_plot()     small plot and mapping environment
+#         +-- L2  .con_dot_mapping()   shared mapping without analysis data
 # =============================================================================
 
 #' Unified Continuous Variable Plot
@@ -263,7 +265,8 @@ plt_con <- function(data,
     cli::cli_abort("Numeric features and grouping/splitting/background columns must be different; their roles cannot overlap.")
   }
 
-  missing_cols <- stat.by[!stat.by %in% names(data)]
+  selected_cols <- unique(c(stat.by, grouping_cols))
+  missing_cols <- selected_cols[!selected_cols %in% names(data)]
   if (length(missing_cols) > 0) {
     cli::cli_abort("Column{?s} not found in {.arg data}: {.val {missing_cols}}")
   }
@@ -273,7 +276,7 @@ plt_con <- function(data,
       cli::cli_abort("Column {.val {col}} must be one-dimensional, not a matrix or array.")
     }
   }
-  data <- as.data.frame(data)
+  data <- as.data.frame(data[, selected_cols, drop = FALSE])
   for (col in stat.by) {
     value <- data[[col]]
     if (inherits(value, c("integer64", "Date", "POSIXt", "difftime",
@@ -601,6 +604,18 @@ plt_con <- function(data,
   range(c(0, values, intervals), finite = TRUE)
 }
 
+.con_base_plot <- function(data) {
+  force(data)
+  ggplot2::ggplot(data, ggplot2::aes(
+    x = .data[["group.by"]], y = .data[["value"]], fill = .data[["fill.by"]]
+  ))
+}
+
+.con_dot_mapping <- function() {
+  ggplot2::aes(x = .data[["group.by"]], y = .data[["bins"]],
+               fill = .data[["fill.by"]], size = .data[["n"]])
+}
+
 
 #' Build a single feature plot
 #' @noRd
@@ -647,11 +662,7 @@ plt_con <- function(data,
   y_min_use <- .resolve_y_limit(y.min, if (is.null(y.min)) auto_values else values, "min")
 
   # --- Base ggplot ------------------------------------------------------------
-  p <- ggplot2::ggplot(dat, ggplot2::aes(
-    x = .data[["group.by"]],
-    y = .data[["value"]],
-    fill = .data[["fill.by"]]
-  ))
+  p <- .con_base_plot(dat)
 
   # --- Background bands -------------------------------------------------------
   if (!is.null(bg.by)) {
@@ -714,19 +725,10 @@ plt_con <- function(data,
     )
     names(dot_df)[names(dot_df) == "value"] <- "n"
 
-    p <- ggplot2::ggplot(dat, ggplot2::aes(
-      x = .data[["group.by"]],
-      y = .data[["value"]],
-      fill = .data[["fill.by"]]
-    )) +
+    p <- .con_base_plot(dat) +
       ggplot2::geom_point(
         data = dot_df,
-        ggplot2::aes(
-          x = .data[["group.by"]],
-          y = .data[["bins"]],
-          fill = .data[["fill.by"]],
-          size = .data[["n"]]
-        ),
+        .con_dot_mapping(),
         shape = 21, alpha = alpha, inherit.aes = FALSE,
         position = ggplot2::position_dodge(width = 0.9)
       ) +
@@ -762,10 +764,6 @@ plt_con <- function(data,
   # --- Overlay: add_point -----------------------------------------------------
   if (isTRUE(add_point)) {
     p <- p + ggplot2::geom_point(
-      ggplot2::aes(
-        x = .data[["group.by"]],
-        y = .data[["value"]]
-      ),
       inherit.aes = TRUE,
       color = pt.color, size = pt.size, alpha = pt.alpha,
       position = ggplot2::position_jitterdodge(
@@ -782,12 +780,12 @@ plt_con <- function(data,
     p <- p +
       ggplot2::stat_summary(
         fun = trend_fun, geom = "line",
-        ggplot2::aes(group = 1),
+        group = 1,
         color = trend_color, linewidth = trend_linewidth
       ) +
       ggplot2::stat_summary(
         fun = trend_fun, geom = "point",
-        ggplot2::aes(group = 1),
+        group = 1,
         color = "black", fill = "white", size = trend_ptsize, shape = 21
       )
   }
@@ -795,10 +793,6 @@ plt_con <- function(data,
   # --- Statistical comparisons ------------------------------------------------
   if (!is.null(comparisons)) {
     p <- p + ggpubr::stat_compare_means(
-      ggplot2::aes(
-        x = .data[["group.by"]],
-        y = .data[["value"]]
-      ),
       comparisons = comparisons,
       ref.group = ref_group,
       method = pairwise_method,
@@ -815,10 +809,6 @@ plt_con <- function(data,
 
   if (isTRUE(multiplegroup_comparisons)) {
     p <- p + ggpubr::stat_compare_means(
-      ggplot2::aes(
-        x = .data[["group.by"]],
-        y = .data[["value"]]
-      ),
       method = multiple_method,
       label = sig_label,
       label.y = y_max_use,
@@ -919,11 +909,7 @@ plt_con <- function(data,
   y_max_use <- .resolve_y_limit(y.max, values, "max")
   y_min_use <- .resolve_y_limit(y.min, values, "min")
 
-  p <- ggplot2::ggplot(dat_long, ggplot2::aes(
-    x = .data[["group.by"]],
-    y = .data[["value"]],
-    fill = .data[["fill.by"]]
-  ))
+  p <- .con_base_plot(dat_long)
 
   # --- Type-specific geom ---
   if (type == "violin") {
@@ -968,12 +954,7 @@ plt_con <- function(data,
     p <- p +
       ggplot2::geom_point(
         data = dot_df,
-        ggplot2::aes(
-          x = .data[["group.by"]],
-          y = .data[["bins"]],
-          fill = .data[["fill.by"]],
-          size = .data[["n"]]
-        ),
+        .con_dot_mapping(),
         shape = 21, alpha = alpha, inherit.aes = FALSE,
         position = ggplot2::position_dodge(width = 0.9)
       ) +
@@ -1002,7 +983,6 @@ plt_con <- function(data,
 
   if (isTRUE(add_point)) {
     p <- p + ggplot2::geom_point(
-      ggplot2::aes(x = .data[["group.by"]], y = .data[["value"]]),
       inherit.aes = TRUE,
       color = pt.color, size = pt.size %||% 0.3, alpha = pt.alpha,
       position = ggplot2::position_jitterdodge(
@@ -1018,12 +998,12 @@ plt_con <- function(data,
     p <- p +
       ggplot2::stat_summary(
         fun = trend_fun, geom = "line",
-        ggplot2::aes(group = 1),
+        group = 1,
         color = trend_color, linewidth = trend_linewidth
       ) +
       ggplot2::stat_summary(
         fun = trend_fun, geom = "point",
-        ggplot2::aes(group = 1),
+        group = 1,
         color = "black", fill = "white", size = trend_ptsize, shape = 21
       )
   }
@@ -1050,11 +1030,13 @@ plt_con <- function(data,
   facet_scales <- if (isTRUE(same.y.lims)) "fixed" else if (isTRUE(flip)) "free_x" else "free_y"
   if (isTRUE(flip)) {
     p <- p +
-      ggplot2::facet_wrap(~feature, nrow = 1, scales = facet_scales) +
+      ggplot2::facet_wrap(stats::as.formula("~feature", env = baseenv()), nrow = 1,
+                          scales = facet_scales) +
       ggplot2::coord_flip(ylim = axis_limits)
   } else {
     p <- p +
-      ggplot2::facet_grid(feature ~ ., scales = facet_scales) +
+      ggplot2::facet_grid(stats::as.formula("feature ~ .", env = baseenv()),
+                          scales = facet_scales) +
       ggplot2::coord_cartesian(ylim = axis_limits)
   }
 

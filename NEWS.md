@@ -1,5 +1,8 @@
 # UtilsR 0.6.16
 
+* Continuous plots keep only selected input columns and use lightweight
+  plot, mapping and facet environments, avoiding unrelated data in saved plots.
+
 * `plt_na()` constructs returned plots in a separate evaluated frame,
   so unused source-data attributes do not enlarge saved plots and percentage
   plots retain only their small summaries rather than all input rows.

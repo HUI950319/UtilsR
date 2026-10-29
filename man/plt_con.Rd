@@ -90,7 +90,7 @@ Must be a superset of \code{group.by}. Default \code{NULL}.}
   \item A single string matching a name in \code{palette_list}: uses
     \code{pal_get()}.
   \item A character vector of colours: used directly.
-A named vector is matched to group or feature names.
+    A named vector is matched to group or feature names.
 }}
 
 \item{alpha}{Numeric 0--1. Fill transparency. Default 0.8.}

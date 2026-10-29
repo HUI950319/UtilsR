@@ -263,3 +263,29 @@ test_that("con dispatch builds only the requested stacked plot", {
   expect_equal(length(ggplot2::ggplot_build(p)$layout$panel_params), 2L)
   expect_equal(separate_calls, 0L)
 })
+
+test_that("con memory does not retain unused input through plot environments", {
+  skip_if_not_installed("lobstr")
+  make <- function(extra, mode) {
+    set.seed(20261030)
+    d <- data.frame(x = rnorm(40), z = rnorm(40), g = rep(c("A", "B"), each = 20))
+    if (extra) d$unused <- I(matrix(rnorm(40L * 5000L), nrow = 40L))
+    suppressMessages(UtilsR::plt_con(d, if (mode == "stack") c("x", "z") else "x", "g",
+                                   type = if (mode == "dot") "dot" else "box",
+                                   stack = mode == "stack", add_point = TRUE, add_trend = mode == "box",
+                                   combine = FALSE))[[1L]]
+  }
+  environment(make) <- globalenv()
+  for (mode in c("box", "dot", "stack")) {
+    invisible(make(FALSE, mode))
+    small <- make(FALSE, mode)
+    extra <- make(TRUE, mode)
+    expect_lt(as.numeric(lobstr::obj_size(extra)) - as.numeric(lobstr::obj_size(small)), 100000)
+    a <- withr::local_tempfile(fileext = ".rds")
+    b <- withr::local_tempfile(fileext = ".rds")
+    saveRDS(small, a)
+    saveRDS(extra, b)
+    expect_lt(file.info(b)$size - file.info(a)$size, 100000)
+    expect_equal(ggplot2::ggplot_build(small)$data, ggplot2::ggplot_build(extra)$data)
+  }
+})
