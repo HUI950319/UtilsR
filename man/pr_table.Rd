@@ -65,7 +65,9 @@ when their comparison guarantees a value below the cut-off; lower bounds
 and invalid numeric text receive none. Other double columns are rounded to
 \code{digits} decimals, or none when every value is whole; a column whose
 smallest non-zero value would round to zero gets enough decimals for two
-significant digits, at most six. Missing values
+significant digits, at most six. Nonzero values still rounded to zero,
+and numbers wider than the available line, use scientific notation.
+Missing values
 print as a grey \code{NA}. Matrix and array columns are described one row
 at a time, retaining all components. List-column cells are described as in
 \code{\link{pr_tree}()}, e.g. \code{<dbl 2> 1.1, 2.2}. Everything else

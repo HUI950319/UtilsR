@@ -359,7 +359,9 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 #' and invalid numeric text receive none. Other double columns are rounded to
 #' \code{digits} decimals, or none when every value is whole; a column whose
 #' smallest non-zero value would round to zero gets enough decimals for two
-#' significant digits, at most six. Missing values
+#' significant digits, at most six. Nonzero values still rounded to zero,
+#' and numbers wider than the available line, use scientific notation.
+#' Missing values
 #' print as a grey \code{NA}. Matrix and array columns are described one row
 #' at a time, retaining all components. List-column cells are described as in
 #' \code{\link{pr_tree}()}, e.g. \code{<dbl 2> 1.1, 2.2}. Everything else
@@ -442,6 +444,12 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
         d <- min(6L, as.integer(ceiling(-log10(min(tiny)))) + 1L)
       }
       txt <- formatC(v, format = "f", digits = d)
+      rounded <- suppressWarnings(as.numeric(txt))
+      scientific <- which(is.finite(v) &
+        ((v != 0 & rounded == 0) | nchar(txt) > max(10L, (width %||% console_width()) - indent)))
+      if (length(scientific)) {
+        txt[scientific] <- formatC(v[scientific], format = "e", digits = max(1L, min(digits, 15L)))
+      }
     } else if (is.object(v) && (is.numeric(v) || inherits(v, "difftime"))) {
       txt <- format(v, trim = TRUE)
     } else if (is.list(v)) {

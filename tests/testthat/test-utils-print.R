@@ -658,3 +658,13 @@ test_that("pr_spark() distinguishes empty, missing and non-finite columns", {
   out <- utils::capture.output(pr_spark(data.frame(v = factor(c(NA, NA, "a"), exclude = NULL))))
   expect_match(out, "top <NA> (66.7%)", fixed = TRUE)
 })
+
+test_that("pr_table() keeps tiny nonzero and oversized numbers legible", {
+  withr::local_options(cli.num_colors = 1, cli.width = 80)
+  out <- trimws(utils::capture.output(pr_table(data.frame(v = c(1e-10, -1e-10, 1e-7, 0.1)))))
+  expect_identical(out[3:5], c("1.00e-10", "-1.00e-10", "1.00e-07"))
+  expect_identical(out[6], "0.100000")
+  out <- trimws(utils::capture.output(pr_table(data.frame(v = c(1e100, -1e100, 2)))))
+  expect_identical(out[3:5], c("1.00e+100", "-1.00e+100", "2"))
+  expect_true(all(cli::ansi_nchar(out, type = "width") <= 80))
+})

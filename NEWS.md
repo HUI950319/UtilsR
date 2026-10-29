@@ -1,5 +1,9 @@
 # UtilsR 0.6.14
 
+* `pr_table()` falls back to scientific notation for nonzero numbers that
+  would still print as zero at six decimals and for numbers too wide for
+  the available line.
+
 * `pr_spark()` distinguishes empty, entirely missing and non-finite
   columns without `NaN` percentages or an arbitrary top level. An explicit
   missing factor level is named `<NA>` when it is the most frequent level.
