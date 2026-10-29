@@ -1,5 +1,8 @@
 # UtilsR 0.6.16
 
+* `plt_na()` labels positive missingness below 0.01% as <0.01% and
+  incomplete missingness above 99.99% as >99.99%, retaining exact 100%.
+
 * `plt_con()` defaults to `jitter.height = 0`, preserving the observed
   numeric values while retaining reproducible horizontal jitter.
 

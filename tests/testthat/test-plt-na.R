@@ -277,3 +277,14 @@ test_that("plt_na keeps variables distinct when displayed labels coincide", {
     expect_equal(summary$pct[summary$isna & summary$name == "b"], 200 / 3)
   }
 })
+
+test_that("plt_na preserves nonzero and incomplete percentage labels", {
+  for (i in seq_along(counts <- c(1L, 99999L, 100000L))) {
+    data <- data.frame(value = rep(1, 100000L))
+    data$value[seq_len(counts[[i]])] <- NA_real_
+    plot <- suppressMessages(plt_na(data, output = "percentage"))
+    built <- ggplot2::ggplot_build(plot)
+    expect_identical(as.character(built$data[[3L]]$label), c("<0.01%", ">99.99%", "100%")[[i]])
+    expect_equal(plot$data$pct[plot$data$isna], counts[[i]] / 1000)
+  }
+})

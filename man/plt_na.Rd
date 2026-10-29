@@ -34,7 +34,9 @@ the left and percentages on the right), `"both_reverse"` (percentages on
 the left and matrix on the right), `"matrix"`, or `"percentage"`.}
 
 \item{sort}{Variable order by missing rate: `"desc"` (default, largest to
-smallest) or `"asc"` (smallest to largest).}
+smallest) or `"asc"` (smallest to largest).
+Percentage labels below 0.01\% or above 99.99\% use bounds so positive
+missingness does not display as zero or incomplete missingness as 100\%.}
 
 \item{save}{\code{NULL}, an empty list (default), or a named list forwarded
 to \code{RegR::save_plt()} for PDF output: \code{filename} and optionally

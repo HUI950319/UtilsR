@@ -26,6 +26,8 @@
 #'   the left and matrix on the right), `"matrix"`, or `"percentage"`.
 #' @param sort Variable order by missing rate: `"desc"` (default, largest to
 #'   smallest) or `"asc"` (smallest to largest).
+#'   Percentage labels below 0.01% or above 99.99% use bounds so positive
+#'   missingness does not display as zero or incomplete missingness as 100%.
 #'
 #' @param save \code{NULL}, an empty list (default), or a named list forwarded
 #'   to \code{RegR::save_plt()} for PDF output: \code{filename} and optionally
@@ -225,7 +227,9 @@ plt_na <- function(
       ggplot2::geom_label(
         data = \(x) dplyr::filter(x, .data[["isna"]]),
         ggplot2::aes(
-          label = paste0(round(.data[["pct"]], 2), "%"),
+          label = ifelse(.data[["pct"]] > 0 & .data[["pct"]] < 0.01, "<0.01%",
+            ifelse(.data[["pct"]] < 100 & .data[["pct"]] > 99.99, ">99.99%",
+                   paste0(round(.data[["pct"]], 2), "%"))),
           x = .data[["label"]],
           y = if (reverse) {
             pmax(.data[["pct"]] - 2.8, 2.8)
