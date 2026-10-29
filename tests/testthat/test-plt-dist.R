@@ -34,7 +34,8 @@ test_that("plt_dist packs its plot settings into plt_alluvial-style lists", {
   expect_identical(
     names(formals(plt_dist)),
     c("data", "dis_vars", "type", "facet", "color", "alpha", "label_args",
-      "flow_args", "stratum_args", "facet_args", "legend_args", "theme_use", "save")
+      "flow_args", "stratum_args", "facet_args", "legend_args", "xlab", "ylab",
+      "theme_use", "save")
   )
   defaults <- lapply(
     c("label_args", "flow_args", "stratum_args", "facet_args", "legend_args"),
@@ -401,4 +402,39 @@ test_that("numeric distribution normalization keeps missing-value rules", {
       c(".cat_var", ".group", ".facet")
     expect_false(anyNA(p$data[columns]))
   }
+})
+
+test_that("xlab and ylab title the axes of the saved bar chart and heatmap", {
+  axis_titles <- function(p) {
+    labs <- if (exists("get_labs", envir = asNamespace("ggplot2"))) {
+      ggplot2::get_labs(p)
+    } else {
+      p$labels
+    }
+    list(x = labs$x, y = labs$y)
+  }
+  data <- data.frame(x = c("A", "A", "B", "B"), group = c("F", "M", "F", "M"))
+  bar <- dist_test_plot(data, c("x", "group"), type = "bar")
+  expect_identical(axis_titles(bar), list(x = "x", y = "Proportion"))
+  bar <- dist_test_plot(data, c("x", "group"), type = "bar",
+                        xlab = "Tumor size (mm)", ylab = "Percentage")
+  expect_identical(axis_titles(bar),
+                   list(x = "Tumor size (mm)", y = "Percentage"))
+  heat <- dist_test_plot(data.frame(x = c("A", "B"), y = c("C", "C"),
+                                    fill = c("F", "M")),
+                         c("x", "y", "fill"), xlab = "Size")
+  expect_identical(axis_titles(heat)$x, "Size")
+  expect_error(dist_test_plot(data, c("x", "group"), type = "bar", xlab = 1),
+               "xlab")
+  expect_error(dist_test_plot(data, c("x", "group"), type = "bar",
+                              ylab = c("a", "b")), "ylab")
+
+  skip_if_not_installed("RegR")
+  file <- tempfile(fileext = ".pdf")
+  on.exit(unlink(file), add = TRUE)
+  saved <- dist_test_plot(data, c("x", "group"), type = "bar",
+                          xlab = "Tumor size (mm)",
+                          save = list(filename = file))
+  expect_true(file.exists(file))
+  expect_identical(axis_titles(saved)$x, "Tumor size (mm)")
 })
