@@ -199,7 +199,9 @@ plt_con(
 
 - same.y.lims:
 
-  Logical. Use same y limits across features? Default `FALSE`.
+  Logical. Use same y limits across features? Default `FALSE`, including
+  stacked and flipped panels. Explicit `y.min`/`y.max` bounds apply to
+  every feature.
 
 - y.min:
 

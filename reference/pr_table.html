@@ -151,7 +151,8 @@ and numbers wider than the available line, use scientific notation.
 Missing values
 print as a grey <code>NA</code>; an explicit missing factor level displays as
 <code>&lt;NA&gt;</code>. Matrix and array columns are described one row
-at a time, retaining all components. List-column cells are described as in
+at a time, retaining all components. Packed data-frame columns show each
+row as a named list. List-column cells are described as in
 <code><a href="pr_tree.html">pr_tree()</a></code>, e.g. <code>&lt;dbl 2&gt; 1.1, 2.2</code>. Everything else
 uses <code><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character()</a></code>. Classed numeric and time-span columns use their
 format methods, retaining integer64 digits and time units. The optional

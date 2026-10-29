@@ -93,7 +93,8 @@ Nonzero values still rounded to zero, and numbers wider than the
 available line, use scientific notation. Missing values print as a grey
 `NA`; an explicit missing factor level displays as `<NA>`. Matrix and
 array columns are described one row at a time, retaining all components.
-List-column cells are described as in
+Packed data-frame columns show each row as a named list. List-column
+cells are described as in
 [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md),
 e.g. `<dbl 2> 1.1, 2.2`. Everything else uses
 [`as.character()`](https://rdrr.io/r/base/character.html). Classed

@@ -3,6 +3,20 @@
 ## UtilsR 0.6.16
 
 - [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  describes packed data-frame columns by row, keeping the values from
+  each row together instead of recycling column descriptions.
+
+- Stacked
+  [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  respects independent or shared feature axes in both orientations,
+  while retaining explicit axis bounds.
+
+- Stacked
+  [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  panels retain pairwise/global comparisons per feature and requested
+  raw-point overlays on dot plots.
+
+- [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
   keeps explicit missing factor levels as `<NA>` without mistaking them
   for missing storage or failing during width calculation.
 
