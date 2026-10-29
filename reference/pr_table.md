@@ -82,10 +82,11 @@ would round up to the cut-off taking the decimals it needs (`0.0499`,
 not `0.050`), text is kept as written, and values print bold red below
 0.001, red below 0.05 and grey otherwise. Text bounds receive
 significance styling only when their comparison guarantees a value below
-the cut-off; lower bounds and invalid numeric text receive none. Other
-double columns are rounded to `digits` decimals, or none when every
-value is whole; a column whose smallest non-zero value would round to
-zero gets enough decimals for two significant digits, at most six.
+the cut-off; lower bounds and invalid numeric text receive none. Decimal
+text is compared without rounding its endpoint to double precision.
+Other double columns are rounded to `digits` decimals, or none when
+every value is whole; a column whose smallest non-zero value would round
+to zero gets enough decimals for two significant digits, at most six.
 Nonzero values still rounded to zero, and numbers wider than the
 available line, use scientific notation. Missing values print as a grey
 `NA`. Matrix and array columns are described one row at a time,
