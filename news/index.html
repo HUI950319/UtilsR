@@ -50,7 +50,10 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.15" id="utilsr-0615">UtilsR 0.6.15<a class="anchor" aria-label="anchor" href="#utilsr-0615"></a></h2>
-<ul><li><p>Structure trees prepare names only for the visible items and omitted-name preview, retaining the exact omitted-line counts and printed output.</p></li>
+<ul><li><p><code>plt_con(type = "dot")</code> uses numeric bin centres, including for constant columns and closely spaced values at large offsets.</p></li>
+<li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> respects SPSS user-missing codes and ranges, rejects ambiguous columns and unsupported numeric storage, and avoids dummy-group name clashes.</p></li>
+<li><p><code><a href="../reference/plt_dist.html">plt_dist()</a></code> and <code><a href="../reference/plt_alluvial.html">plt_alluvial()</a></code> gain <code>fmt_text</code>, a list of <code><a href="../reference/fmt_text.html">fmt_text()</a></code> arguments applied before <code>save</code>, so the saved page carries new titles and is sized for them without a separate <code>RegR::save_plt()</code> call.</p></li>
+<li><p>Structure trees prepare names only for the visible items and omitted-name preview, retaining the exact omitted-line counts and printed output.</p></li>
 <li><p>Numeric distribution histograms skip unnecessary sorting and distinct value collection, retaining the same counts and printed summaries.</p></li>
 <li><p>Extreme-scale distribution summaries use compact scientific text and recover finite nonzero standard deviations through centering and scaling when the ordinary variance calculation overflows or underflows. Adjacent integer64 values above double precision retain their histogram categories and spread through translation before conversion.</p></li>
 <li><p>Whole-number display limits no longer trigger modulus warnings for large finite values.</p></li>

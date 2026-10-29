@@ -73,7 +73,9 @@ plt_con(
 
 - stat.by:
 
-  Character vector. Column name(s) of numeric variables to plot.
+  Character vector. Column name(s) of numeric variables to plot. SPSS
+  user-missing values are excluded. Matrix/array columns, integer64 and
+  date/time-span storage must be converted explicitly first.
 
 - group.by:
 

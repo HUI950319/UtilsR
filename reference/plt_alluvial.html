@@ -74,6 +74,7 @@ optional facet is normalized independently.</p>
 <span>    <span class="op">=</span> <span class="cn">TRUE</span>, fill <span class="op">=</span> <span class="st">"white"</span>, alpha <span class="op">=</span> <span class="fl">1</span>, pct_accuracy <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>,</span>
 <span>  facet_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>nrow <span class="op">=</span> <span class="cn">NULL</span>, ncol <span class="op">=</span> <span class="cn">NULL</span>, scales <span class="op">=</span> <span class="st">"fixed"</span><span class="op">)</span>,</span>
 <span>  legend_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>ncol <span class="op">=</span> <span class="fl">1</span>, position <span class="op">=</span> <span class="st">"right"</span><span class="op">)</span>,</span>
+<span>  fmt_text <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  theme_use <span class="op">=</span> <span class="fu"><a href="theme_alluvia.html">theme_alluvia</a></span><span class="op">(</span><span class="fl">15</span><span class="op">)</span>,</span>
 <span>  save <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -223,6 +224,14 @@ Default <code>1</code>.</p></dd>
 
 
 </dl></dd>
+
+
+<dt id="arg-fmt-text">fmt_text<a class="anchor" aria-label="anchor" href="#arg-fmt-text"></a></dt>
+<dd><p><code>NULL</code>, an empty list, or a named list of <code><a href="fmt_text.html">fmt_text()</a></code>
+arguments, such as <code>title</code> or <code>legend_title</code>, applied to the finished
+plot before <code>save</code>, so the saved page carries the new text and is sized
+for it. The axis titles are hidden, so <code>xlab</code> and <code>ylab</code> have no visible
+effect.</p></dd>
 
 
 <dt id="arg-theme-use">theme_use<a class="anchor" aria-label="anchor" href="#arg-theme-use"></a></dt>

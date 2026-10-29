@@ -83,6 +83,7 @@ requires the suggested <span class="pkg">ggalluvial</span> package.</p>
 <span>  stratum_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">0.5</span>, color <span class="op">=</span> <span class="st">"gray50"</span>, linewidth <span class="op">=</span> <span class="fl">0.3</span>, gap <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span>,</span>
 <span>  facet_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>nrow <span class="op">=</span> <span class="cn">NULL</span>, ncol <span class="op">=</span> <span class="cn">NULL</span>, scales <span class="op">=</span> <span class="st">"fixed"</span><span class="op">)</span>,</span>
 <span>  legend_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>position <span class="op">=</span> <span class="cn">NULL</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>  fmt_text <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  theme_use <span class="op">=</span> <span class="fu"><a href="theme_heat.html">theme_heat</a></span><span class="op">(</span><span class="fl">14</span><span class="op">)</span>,</span>
 <span>  save <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -275,6 +276,15 @@ when <code>facet</code> is set (bar and alluvial modes):</p><dl><dt><code>nrow</
 </dl></dd>
 
 
+<dt id="arg-fmt-text">fmt_text<a class="anchor" aria-label="anchor" href="#arg-fmt-text"></a></dt>
+<dd><p><code>NULL</code>, an empty list (default), or a named list of
+<code><a href="fmt_text.html">fmt_text()</a></code> arguments, such as <code>xlab</code>, <code>ylab</code>,
+<code>title</code> or <code>axis_title_size</code>, applied to the finished plot
+before <code>save</code>, so the saved page carries the new text and is sized
+for it. The alluvial plot hides its axis titles, so <code>xlab</code> and
+<code>ylab</code> have no visible effect there.</p></dd>
+
+
 <dt id="arg-theme-use">theme_use<a class="anchor" aria-label="anchor" href="#arg-theme-use"></a></dt>
 <dd><p>Theme specification, resolved by the internal theme
 resolver. Default <code><a href="theme_heat.html">theme_heat</a>(14)</code> (clean look). Also accepts
@@ -363,20 +373,26 @@ shown in the usage, and unknown or duplicated fields are rejected.</p>
 <span class="r-in"><span>         color <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"steelblue"</span>, <span class="st">"tomato"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plt_dist-6.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Axis titles via fmt_text(); `save = list(filename = "dist.pdf")` would</span></span></span>
+<span class="r-in"><span><span class="co"># save this plot</span></span></span>
+<span class="r-in"><span><span class="fu">plt_dist</span><span class="op">(</span><span class="va">df</span>, dis_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"stage"</span>, <span class="st">"sex"</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"bar"</span>,</span></span>
+<span class="r-in"><span>         fmt_text <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>xlab <span class="op">=</span> <span class="st">"Stage"</span>, ylab <span class="op">=</span> <span class="st">"Percentage"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="plt_dist-7.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Theme + label size carried by theme_use</span></span></span>
 <span class="r-in"><span><span class="fu">plt_dist</span><span class="op">(</span><span class="va">df</span>, dis_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"stage"</span>, <span class="st">"sex"</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"bar"</span>,</span></span>
 <span class="r-in"><span>         theme_use <span class="op">=</span> <span class="fu"><a href="theme_my.html">theme_my</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">16</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="plt_dist-7.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="plt_dist-8.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># --- Tile heatmap (3 variables; type ignored) -----------------------------</span></span></span>
 <span class="r-in"><span><span class="va">heat_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>stage <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"I"</span>, <span class="st">"II"</span>, <span class="st">"III"</span>, <span class="st">"IV"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                         grade <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Low"</span>, <span class="st">"Mid"</span>, <span class="st">"High"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">heat_data</span><span class="op">$</span><span class="va">category</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span>, <span class="fl">6</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">plt_dist</span><span class="op">(</span><span class="va">heat_data</span>, dis_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"stage"</span>, <span class="st">"grade"</span>, <span class="st">"category"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="plt_dist-8.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="plt_dist-9.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">plt_dist</span><span class="op">(</span><span class="va">heat_data</span>, dis_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"stage"</span>, <span class="st">"grade"</span>, <span class="st">"category"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>         label_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>style <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="plt_dist-9.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="plt_dist-10.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># --- Alluvial flow (default; needs ggalluvial) ----------------------------</span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"ggalluvial"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
@@ -388,7 +404,7 @@ shown in the usage, and unknown or duplicated fields are rejected.</p>
 <span class="r-in"><span>           flow_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>curve_type <span class="op">=</span> <span class="st">"sigmoid"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>           stratum_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">0.4</span>, gap <span class="op">=</span> <span class="fl">0.02</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
-<span class="r-plt img"><img src="plt_dist-10.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="plt_dist-11.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

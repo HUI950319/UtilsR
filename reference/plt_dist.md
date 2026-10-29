@@ -24,6 +24,7 @@ plt_dist(
   stratum_args = list(width = 0.5, color = "gray50", linewidth = 0.3, gap = 0.01),
   facet_args = list(nrow = NULL, ncol = NULL, scales = "fixed"),
   legend_args = list(position = NULL, ncol = 1),
+  fmt_text = list(),
   theme_use = theme_heat(14),
   save = list()
 )
@@ -228,6 +229,15 @@ plt_dist(
 
   :   Positive integer giving the number of legend columns. Default `1`.
 
+- fmt_text:
+
+  `NULL`, an empty list (default), or a named list of
+  [`fmt_text()`](https://hui950319.github.io/UtilsR/reference/fmt_text.md)
+  arguments, such as `xlab`, `ylab`, `title` or `axis_title_size`,
+  applied to the finished plot before `save`, so the saved page carries
+  the new text and is sized for it. The alluvial plot hides its axis
+  titles, so `xlab` and `ylab` have no visible effect there.
+
 - theme_use:
 
   Theme specification, resolved by the internal theme resolver. Default
@@ -319,6 +329,12 @@ plt_dist(df, dis_vars = c("stage", "sex"), type = "bar", color = "Paired")
 
 plt_dist(df, dis_vars = c("stage", "sex"), type = "bar",
          color = c("steelblue", "tomato"))
+
+
+# Axis titles via fmt_text(); `save = list(filename = "dist.pdf")` would
+# save this plot
+plt_dist(df, dis_vars = c("stage", "sex"), type = "bar",
+         fmt_text = list(xlab = "Stage", ylab = "Percentage"))
 
 
 # Theme + label size carried by theme_use

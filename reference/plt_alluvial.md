@@ -20,6 +20,7 @@ plt_alluvial(
     = TRUE, fill = "white", alpha = 1, pct_accuracy = 0.1),
   facet_args = list(nrow = NULL, ncol = NULL, scales = "fixed"),
   legend_args = list(ncol = 1, position = "right"),
+  fmt_text = list(),
   theme_use = theme_alluvia(15),
   save = list()
 )
@@ -179,6 +180,15 @@ plt_alluvial(
 
   :   Character scalar giving the legend position: `"right"`, `"left"`,
       `"top"`, `"bottom"`, or `"none"`. Default `"right"`.
+
+- fmt_text:
+
+  `NULL`, an empty list, or a named list of
+  [`fmt_text()`](https://hui950319.github.io/UtilsR/reference/fmt_text.md)
+  arguments, such as `title` or `legend_title`, applied to the finished
+  plot before `save`, so the saved page carries the new text and is
+  sized for it. The axis titles are hidden, so `xlab` and `ylab` have no
+  visible effect.
 
 - theme_use:
 

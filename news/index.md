@@ -2,6 +2,21 @@
 
 ## UtilsR 0.6.15
 
+- `plt_con(type = "dot")` uses numeric bin centres, including for
+  constant columns and closely spaced values at large offsets.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  respects SPSS user-missing codes and ranges, rejects ambiguous columns
+  and unsupported numeric storage, and avoids dummy-group name clashes.
+
+- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
+  and
+  [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
+  gain `fmt_text`, a list of
+  [`fmt_text()`](https://hui950319.github.io/UtilsR/reference/fmt_text.md)
+  arguments applied before `save`, so the saved page carries new titles
+  and is sized for them without a separate `RegR::save_plt()` call.
+
 - Structure trees prepare names only for the visible items and
   omitted-name preview, retaining the exact omitted-line counts and
   printed output.
