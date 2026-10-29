@@ -22,10 +22,12 @@
 #' trend lines), and the same split/group/bg patterns as
 #' \code{\link{plt_cat}}.
 #'
-#' @param data A data frame.
+#' @param data A data frame with at least one observation.
 #' @param stat.by Character vector. Column name(s) of numeric variables to
 #'   plot. SPSS user-missing values are excluded. Matrix/array columns,
 #'   integer64 and date/time-span storage must be converted explicitly first.
+#'   Features without finite observations are skipped; an entirely empty
+#'   selection is an error.
 #' @param group.by Character. Column name for the x-axis grouping variable.
 #'   Default \code{NULL} (all data in one group).
 #' @param split.by Character. Optional splitting variable. Splits data,
@@ -233,6 +235,7 @@ plt_con <- function(data,
   if (!is.data.frame(data)) {
     cli::cli_abort("{.arg data} must be a data frame, not {.cls {class(data)}}.")
   }
+  if (!nrow(data)) cli::cli_abort("{.arg data} must contain at least one observation.")
 
   type     <- match.arg(type)
   fill.by  <- match.arg(fill.by)
@@ -283,6 +286,12 @@ plt_con <- function(data,
       value[missing_value] <- NA_real_
       data[[col]] <- value
     }
+  }
+  finite_features <- vapply(data[stat.by], function(v) any(is.finite(v)), logical(1))
+  if (!any(finite_features)) cli::cli_abort("No finite values remain in the selected features.")
+  if (!all(finite_features)) {
+    cli::cli_warn("No finite values for {.val {stat.by[!finite_features]}}. Skipping.")
+    stat.by <- stat.by[finite_features]
   }
 
   # --- group.by handling ------------------------------------------------------
@@ -376,9 +385,17 @@ plt_con <- function(data,
       palette <- stats::setNames(.resolve_color(palette, n = length(split_color_levels)),
                                   split_color_levels)
     }
-    split_levels <- levels(data[[split.by]])
-    plot_list <- stats::setNames(lapply(split_levels, function(lv) {
-      sub_data <- data[data[[split.by]] == lv, , drop = FALSE]
+    split_codes <- as.integer(data[[split.by]])
+    split_indices <- which(tabulate(split_codes, nbins = nlevels(data[[split.by]])) > 0L)
+    split_levels <- levels(data[[split.by]])[split_indices]
+    split_levels[is.na(split_levels)] <- "<NA>"
+    plot_list <- stats::setNames(lapply(seq_along(split_indices), function(i) {
+      lv <- split_levels[i]
+      sub_data <- data[which(split_codes == split_indices[i]), , drop = FALSE]
+      if (!any(vapply(sub_data[stat.by], function(v) any(is.finite(v)), logical(1)))) {
+        cli::cli_warn("Split {.val {lv}} has no finite values. Skipping.")
+        return(NULL)
+      }
       # each panel is reported as part of the split figure, not on its own
       cli::cli_fmt(sub <- plt_con(
         data = sub_data, stat.by = stat.by,
@@ -411,6 +428,8 @@ plt_con <- function(data,
       ))
       sub
     }), split_levels)
+    plot_list <- Filter(Negate(is.null), plot_list)
+    if (!length(plot_list)) cli::cli_abort("No finite values remain in the split panels.")
     if (!isTRUE(combine)) return(plot_list)
     return(finish(
       patchwork::wrap_plots(plot_list, nrow = facet_nrow, ncol = facet_ncol) +

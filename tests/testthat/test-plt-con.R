@@ -171,3 +171,28 @@ test_that("con split combine FALSE returns named plots and rejects saving a list
   expect_error(plt_con(d, "x", "g", split.by = "batch", combine = FALSE,
                        save = list(filename = tempfile(fileext = ".pdf"))), "combine = FALSE")
 })
+
+test_that("con empty inputs fail clearly while usable features remain available", {
+  d <- con_data()
+  expect_error(con_plot(d[FALSE, ], type = "box"), "at least one observation")
+  expect_error(con_plot(d[FALSE, ], group.by = NULL), "at least one observation")
+  d$x <- NA_real_
+  expect_warning(out <- suppressMessages(plt_con(d, c("x", "z"), "g", type = "box",
+                                                 combine = FALSE)), "No finite values.*x")
+  expect_named(out, "z")
+  expect_s3_class(out[[1L]], "ggplot")
+  expect_error(con_plot(d, type = "box"), "No finite values remain")
+  d$z <- Inf
+  expect_error(con_plot(d, c("x", "z"), stack = TRUE), "No finite values remain")
+})
+
+test_that("con empty split levels are omitted without losing populated panels", {
+  d <- con_data()
+  d$batch <- factor(d$batch, levels = c("S1", "S2", "unused"))
+  out <- suppressMessages(plt_con(d, "x", "g", split.by = "batch", type = "box", combine = FALSE))
+  expect_named(out, c("S1", "S2"))
+  d$x[d$batch == "S1"] <- NA_real_
+  expect_warning(out <- suppressMessages(plt_con(d, "x", "g", split.by = "batch", type = "box",
+                                                 combine = FALSE)), "S1.*no finite|no finite.*S1")
+  expect_named(out, "S2")
+})

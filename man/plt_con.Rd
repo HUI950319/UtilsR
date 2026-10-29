@@ -60,11 +60,13 @@ plt_con(
 )
 }
 \arguments{
-\item{data}{A data frame.}
+\item{data}{A data frame with at least one observation.}
 
 \item{stat.by}{Character vector. Column name(s) of numeric variables to
 plot. SPSS user-missing values are excluded. Matrix/array columns,
-integer64 and date/time-span storage must be converted explicitly first.}
+integer64 and date/time-span storage must be converted explicitly first.
+Features without finite observations are skipped; an entirely empty
+selection is an error.}
 
 \item{group.by}{Character. Column name for the x-axis grouping variable.
 Default \code{NULL} (all data in one group).}

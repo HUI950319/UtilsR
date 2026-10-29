@@ -1,5 +1,8 @@
 # UtilsR 0.6.16
 
+* `plt_con()` rejects zero-row or entirely non-finite input clearly and
+  skips empty features and split panels while retaining usable plots.
+
 * `pr_table()` rejects invalid highlight selectors before formatting and
   handles large whole-number positions without integer-overflow warnings.
 
