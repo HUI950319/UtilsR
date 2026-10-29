@@ -2,6 +2,16 @@
 
 ## UtilsR 0.6.16
 
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  restores stored vector methods inside closed previews and displays
+  SPSS user-missing values as `NA`, retaining the input storage.
+
+- [`plt_na()`](https://hui950319.github.io/UtilsR/reference/plt_na.md)
+  retains each original column’s missing-value mask, including SPSS
+  user-missing values and explicit factor NA levels, and restores
+  methods for serialized integer64 and time-span columns before
+  inspection.
+
 - [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
   and root
   [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)

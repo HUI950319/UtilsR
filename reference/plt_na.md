@@ -22,7 +22,12 @@ plt_na(
 
 - data:
 
-  A data frame, tibble, or object inheriting from \`Task\`.
+  A data frame, tibble, or object inheriting from \`Task\`. Missing
+  values follow each original column's
+  [`is.na()`](https://rdrr.io/r/base/NA.html) method, including SPSS
+  user-missing codes and ranges. An explicit factor NA level remains a
+  category. Methods for stored integer64 and time-span columns are
+  loaded before inspection.
 
 - name.map:
 
@@ -79,6 +84,10 @@ Other inspect:
 ## Examples
 
 ``` r
+dat <- data.frame(age = c(30, NA, 50), marker = c(NA, 2, 3))
+plt_na(dat, output = "percentage")
+
+
 # \donttest{
 if (requireNamespace("ToyData", quietly = TRUE)) {
   plt_na(ToyData::oc)
