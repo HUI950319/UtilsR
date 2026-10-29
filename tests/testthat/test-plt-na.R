@@ -307,3 +307,20 @@ test_that("plt_na rejects ambiguous names and multidimensional columns clearly",
   expect_error(plt_na(data, name.map = stats::setNames("A", "")), "name.map.*non-empty")
   expect_error(plt_na(data, name.map = stats::setNames("A", NA_character_)), "name.map.*non-missing")
 })
+
+test_that("plt_na percentage summaries avoid cell-sized allocations", {
+  skip_if_not(capabilities("profmem"))
+  data <- as.data.frame(matrix(1, nrow = 10000L, ncol = 20L))
+  data[1L, ] <- NA_real_
+  suppressMessages(plt_na(data[1:3, ], output = "percentage"))
+  profile <- withr::local_tempfile()
+  threshold <- nrow(data) * ncol(data) * 2
+  utils::Rprofmem(profile, threshold = threshold)
+  withr::defer(utils::Rprofmem(NULL))
+  plot <- suppressMessages(plt_na(data, output = "percentage"))
+  utils::Rprofmem(NULL)
+  sizes <- suppressWarnings(as.numeric(sub(" .*", "", readLines(profile))))
+  expect_length(sizes[!is.na(sizes) & sizes > threshold], 0L)
+  expect_equal(nrow(plot$data), 40L)
+  expect_equal(plot$data$num[plot$data$isna], rep(1L, 20L))
+})

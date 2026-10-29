@@ -110,7 +110,7 @@ plt_na <- function(
     }
     is.na(x)
   })
-  miss_vec <- vapply(missing_data, mean, numeric(1))
+  missing_counts <- unlist(lapply(missing_data, sum), use.names = TRUE)
   missing_data <- vctrs::new_data_frame(missing_data, n = nrow(df))
 
   if (!is.null(name.map) &&
@@ -134,28 +134,21 @@ plt_na <- function(
     mapped
   }
 
-  missing_vars <- names(miss_vec[miss_vec > 0])
+  missing_vars <- names(missing_counts[missing_counts > 0])
   if (length(missing_vars) == 0L) {
     warning("No missing values found in the dataset.", call. = FALSE)
     return(NULL)
   }
 
-  missing_summary <- missing_data |>
-    dplyr::select(dplyr::all_of(missing_vars)) |>
-    tidyr::pivot_longer(
-      dplyr::everything(),
-      names_to = "name",
-      values_to = "value",
-      values_transform = list(value = as.logical)
-    ) |>
-    dplyr::mutate(isna = .data[["value"]]) |>
-    dplyr::count(.data[["name"]], .data[["isna"]], name = "num") |>
-    dplyr::group_by(.data[["name"]]) |>
-    dplyr::mutate(
-      total = sum(.data[["num"]]),
-      pct = .data[["num"]] / .data[["total"]] * 100
-    ) |>
-    dplyr::ungroup() |>
+  counts <- missing_counts[sort(missing_vars, method = "radix")]
+  missing_summary <- tibble::tibble(
+    name = rep(names(counts), each = 2L),
+    isna = rep(c(FALSE, TRUE), length(counts)),
+    num = as.vector(rbind(nrow(df) - counts, counts)),
+    total = nrow(df),
+    pct = .data[["num"]] / .data[["total"]] * 100
+  ) |>
+    dplyr::filter(.data[["num"]] > 0) |>
     dplyr::mutate(label = map_name(.data[["name"]]))
 
   variable_summary <- missing_summary |>

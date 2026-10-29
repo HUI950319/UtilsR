@@ -1,5 +1,8 @@
 # UtilsR 0.6.16
 
+* `plt_na()` computes percentage summaries directly from per-column
+  counts, avoiding a cell-sized long table while retaining the same summaries.
+
 * Stacked `plt_con()` builds the requested faceted plot directly instead of
   first constructing and discarding every separate feature plot.
 
