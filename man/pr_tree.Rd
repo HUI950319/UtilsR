@@ -9,13 +9,15 @@ pr_tree(x, max_depth = 3, max_items = 20, max_lines = 200, attrs = TRUE)
 \arguments{
 \item{x}{A list or list-based object.}
 
-\item{max_depth}{Integer. Levels below the root to show (default 3).}
+\item{max_depth}{Non-negative integer, or \code{Inf}. Levels below the
+root to show (default 3).}
 
-\item{max_items}{Integer. Elements shown per node before the rest are
+\item{max_items}{Non-negative integer, or \code{Inf}. Elements per node
+before the rest are
 summarised as "... n more", with their names (default 20).}
 
-\item{max_lines}{Integer. Lines shown in all (default 200); a grey footer
-counts the rest.}
+\item{max_lines}{Non-negative integer, or \code{Inf}. Lines shown in all
+(default 200); a grey footer counts the rest.}
 
 \item{attrs}{Logical. Show extra attributes (default \code{TRUE}).}
 }

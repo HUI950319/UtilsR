@@ -26,6 +26,7 @@
 #         ._pr_escape()  keep control characters within a single-line field
 #         ._pr_trim()    trim only fields that exceed their display budget
 #         ._pr_wrap()    wrap words and split overlong runs by display width
+#         ._pr_count()   validate whole-number display controls
 #         ._p_cells()    P values -> coloured cells (stat_pval() wording)
 #         ._obj_desc()   object -> short "<type size>" description
 #         ._pr_colour()  does stdout show ANSI colours?
@@ -101,6 +102,21 @@
     }
     c(out, s)
   }), use.names = FALSE)
+}
+
+._pr_count <- function(value, arg, lower = 0L, null = FALSE, infinite = FALSE) {
+  if (null && is.null(value)) return(invisible(value))
+  ok <- is.numeric(value) && !is.object(value) && is.null(dim(value)) &&
+    length(value) == 1L && !is.na(value)
+  if (ok) {
+    ok <- (infinite && is.infinite(value) && value > 0) ||
+      (is.finite(value) && value >= lower && value %% 1 == 0)
+  }
+  if (!ok) {
+    extra <- paste0(if (infinite) ", or Inf" else "", if (null) ", or NULL" else "")
+    cli::cli_abort("{.arg {arg}} must be a single whole number >= {lower}{extra}.")
+  }
+  invisible(value)
 }
 
 # Values -> text: doubles to getOption("digits") significant digits, as
@@ -206,7 +222,7 @@ pr_head <- function(class, ..., bg = "blue", fg = "br_white") {
 #'   wrap at the console width under the value column, as do the lines of a
 #'   value that contains newlines. Long keys are shortened to reserve space
 #'   for their values.
-#' @param indent Integer. Spaces before each key (default 2).
+#' @param indent Non-negative integer. Spaces before each key (default 2).
 #'
 #' @return The printed lines, invisibly.
 #'
@@ -217,6 +233,7 @@ pr_head <- function(class, ..., bg = "blue", fg = "br_white") {
 #' @export
 #' @family print helpers
 pr_kv <- function(x, indent = 2) {
+  ._pr_count(indent, "indent")
   lines <- ._kv_lines(x, width = console_width() - indent)
   if (length(lines)) lines <- paste0(strrep(" ", indent), lines)
   ._pr_out(lines)
@@ -230,7 +247,7 @@ pr_kv <- function(x, indent = 2) {
 #' print method.
 #'
 #' @param title Character. Section title.
-#' @param width Integer. Rule width in characters; \code{NULL} (default) uses
+#' @param width Positive integer. Rule width in characters; \code{NULL} uses
 #'   the console width, capped at 80 so the rule does not stretch across
 #'   wide consoles. A title too long for the rule is cut with an ellipsis.
 #'
@@ -242,6 +259,7 @@ pr_kv <- function(x, indent = 2) {
 #' @export
 #' @family print helpers
 pr_section <- function(title, width = NULL) {
+  ._pr_count(width, "width", lower = 1L, null = TRUE)
   title <- ._pr_escape(title)
   width <- width %||% min(console_width(), 80L)
   # keep two line characters on each side of the title
@@ -426,18 +444,18 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 #' @param rownames Logical. Show the row names as a first, unnamed column,
 #'   e.g. the terms of \code{as.data.frame(coef(summary(fit)))}, which are
 #'   otherwise not shown (default \code{FALSE}).
-#' @param n Integer. Rows to show (default 20); the rest are counted in a
-#'   grey footer. \code{NULL} shows every row.
+#' @param n Non-negative integer. Rows to show (default 20); the rest are
+#'   counted in a grey footer. \code{NULL} or \code{Inf} shows every row.
 #' @param align Column alignment, recycled: \code{"left"}, \code{"right"}
 #'   or \code{"center"}. \code{NULL} (default) right-aligns numeric and
 #'   P-value columns and left-aligns the rest.
-#' @param digits Integer. Decimals for double columns (default 2).
-#' @param width Integer. Line width the table must fit; \code{NULL}
+#' @param digits Non-negative integer. Decimals for double columns (default 2).
+#' @param width Positive integer. Line width the table must fit; \code{NULL}
 #'   (default) uses the console width. The first column and the P-value
 #'   columns always show. Long required headings and, when necessary, cells
 #'   are cut with an ellipsis; the other columns follow while they fit, and the
 #'   footer names those left out.
-#' @param indent Integer. Spaces before each line (default 2).
+#' @param indent Non-negative integer. Spaces before each line (default 2).
 #'
 #' @return The printed lines, invisibly.
 #'
@@ -456,6 +474,10 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   if (!is.data.frame(data)) {
     cli::cli_abort("{.arg data} must be a data frame, not {.obj_type_friendly {data}}.")
   }
+  ._pr_count(n, "n", null = TRUE, infinite = TRUE)
+  ._pr_count(digits, "digits")
+  ._pr_count(width, "width", lower = 1L, null = TRUE)
+  ._pr_count(indent, "indent")
   miss <- setdiff(p_col, names(data))
   if (length(miss)) {
     cli::cli_abort("{.arg p_col} names column{?s} absent from {.arg data}: {.val {miss}}.")
@@ -726,11 +748,13 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
 #' \code{[attr: name]}.
 #'
 #' @param x A list or list-based object.
-#' @param max_depth Integer. Levels below the root to show (default 3).
-#' @param max_items Integer. Elements shown per node before the rest are
+#' @param max_depth Non-negative integer, or \code{Inf}. Levels below the
+#'   root to show (default 3).
+#' @param max_items Non-negative integer, or \code{Inf}. Elements per node
+#'   before the rest are
 #'   summarised as "... n more", with their names (default 20).
-#' @param max_lines Integer. Lines shown in all (default 200); a grey footer
-#'   counts the rest.
+#' @param max_lines Non-negative integer, or \code{Inf}. Lines shown in all
+#'   (default 200); a grey footer counts the rest.
 #' @param attrs Logical. Show extra attributes (default \code{TRUE}).
 #'
 #' @return The printed lines, invisibly.
@@ -749,6 +773,9 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
 #' @family print helpers
 pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
                     attrs = TRUE) {
+  ._pr_count(max_depth, "max_depth", infinite = TRUE)
+  ._pr_count(max_items, "max_items", infinite = TRUE)
+  ._pr_count(max_lines, "max_lines", infinite = TRUE)
   x <- ._pr_restore(x)
   drop_attr <- c("names", "class", "dim", "dimnames", "row.names", "srcref")
   descend <- function(v) {
@@ -969,9 +996,9 @@ pr_box <- function(x, header = NULL, footer = NULL, col = "cyan") {
 #'
 #' @param data A data frame (tibbles included).
 #' @param vars Character. Columns to show; \code{NULL} (default) shows all.
-#' @param bins Integer. Histogram bins, and the most levels drawn for a
+#' @param bins Positive integer. Histogram bins, and the most levels drawn for a
 #'   categorical column (default 12).
-#' @param indent Integer. Spaces before each line (default 2).
+#' @param indent Non-negative integer. Spaces before each line (default 2).
 #'
 #' @return The printed lines, invisibly.
 #'
@@ -988,6 +1015,8 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
   if (!is.data.frame(data)) {
     cli::cli_abort("{.arg data} must be a data frame, not {.obj_type_friendly {data}}.")
   }
+  ._pr_count(bins, "bins", lower = 1L)
+  ._pr_count(indent, "indent")
   vars <- vars %||% names(data)
   miss <- setdiff(vars, names(data))
   if (length(miss)) {

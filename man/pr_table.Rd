@@ -28,22 +28,22 @@ numbers or a logical vector. Highlighted rows drop their other colours.}
 e.g. the terms of \code{as.data.frame(coef(summary(fit)))}, which are
 otherwise not shown (default \code{FALSE}).}
 
-\item{n}{Integer. Rows to show (default 20); the rest are counted in a
-grey footer. \code{NULL} shows every row.}
+\item{n}{Non-negative integer. Rows to show (default 20); the rest are
+counted in a grey footer. \code{NULL} or \code{Inf} shows every row.}
 
 \item{align}{Column alignment, recycled: \code{"left"}, \code{"right"}
 or \code{"center"}. \code{NULL} (default) right-aligns numeric and
 P-value columns and left-aligns the rest.}
 
-\item{digits}{Integer. Decimals for double columns (default 2).}
+\item{digits}{Non-negative integer. Decimals for double columns (default 2).}
 
-\item{width}{Integer. Line width the table must fit; \code{NULL}
+\item{width}{Positive integer. Line width the table must fit; \code{NULL}
 (default) uses the console width. The first column and the P-value
 columns always show. Long required headings and, when necessary, cells
 are cut with an ellipsis; the other columns follow while they fit, and the
 footer names those left out.}
 
-\item{indent}{Integer. Spaces before each line (default 2).}
+\item{indent}{Non-negative integer. Spaces before each line (default 2).}
 }
 \value{
 The printed lines, invisibly.

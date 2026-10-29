@@ -17,7 +17,7 @@ wrap at the console width under the value column, as do the lines of a
 value that contains newlines. Long keys are shortened to reserve space
 for their values.}
 
-\item{indent}{Integer. Spaces before each key (default 2).}
+\item{indent}{Non-negative integer. Spaces before each key (default 2).}
 }
 \value{
 The printed lines, invisibly.

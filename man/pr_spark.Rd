@@ -11,10 +11,10 @@ pr_spark(data, vars = NULL, bins = 12, indent = 2)
 
 \item{vars}{Character. Columns to show; \code{NULL} (default) shows all.}
 
-\item{bins}{Integer. Histogram bins, and the most levels drawn for a
+\item{bins}{Positive integer. Histogram bins, and the most levels drawn for a
 categorical column (default 12).}
 
-\item{indent}{Integer. Spaces before each line (default 2).}
+\item{indent}{Non-negative integer. Spaces before each line (default 2).}
 }
 \value{
 The printed lines, invisibly.

@@ -9,7 +9,7 @@ pr_section(title, width = NULL)
 \arguments{
 \item{title}{Character. Section title.}
 
-\item{width}{Integer. Rule width in characters; \code{NULL} (default) uses
+\item{width}{Positive integer. Rule width in characters; \code{NULL} uses
 the console width, capped at 80 so the rule does not stretch across
 wide consoles. A title too long for the rule is cut with an ellipsis.}
 }

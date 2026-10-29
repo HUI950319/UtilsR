@@ -706,3 +706,26 @@ test_that("print helpers keep long fields inside narrow console widths", {
     expect_match(spark, "NA 0.0%$", perl = TRUE)
   }
 })
+
+test_that("print helpers validate integer controls before formatting", {
+  withr::local_options(cli.num_colors = 1)
+  x <- data.frame(v = c(1.2, 3.4, 5.6))
+  for (bad in list(-1, NA_real_, 1.5, Inf, numeric(), c(1, 2), "2", TRUE)) {
+    expect_error(pr_spark(x, bins = bad), "bins.*whole number")
+    expect_error(pr_table(x, digits = bad), "digits.*whole number")
+    expect_error(pr_kv(list(a = 1), indent = bad), "indent.*whole number")
+  }
+  for (bad in list(0, -1, NA_real_, 1.5, Inf)) {
+    expect_error(pr_table(x, width = bad), "width.*whole number")
+    expect_error(pr_section("x", width = bad), "width.*whole number")
+  }
+  for (bad in list(-1, NA_real_, 1.5)) {
+    expect_error(pr_table(x, n = bad), "n.*whole number")
+    expect_error(pr_tree(list(a = 1), max_depth = bad), "max_depth.*whole number")
+    expect_error(pr_tree(list(a = 1), max_items = bad), "max_items.*whole number")
+    expect_error(pr_tree(list(a = 1), max_lines = bad), "max_lines.*whole number")
+  }
+  expect_error(pr_spark(x, bins = 0), "bins.*whole number")
+  expect_length(utils::capture.output(pr_table(x, n = Inf)), 5L)
+  expect_length(utils::capture.output(pr_tree(list(a = 1), max_depth = Inf, max_items = Inf, max_lines = Inf)), 2L)
+})
