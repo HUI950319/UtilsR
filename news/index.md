@@ -2,6 +2,10 @@
 
 ## UtilsR 0.6.15
 
+- Narrow output accounts for uncoloured highlight markers, box padding
+  and tree footers. Impossible indentation now identifies its argument
+  instead of overflowing the console.
+
 - Empty optional notes print nothing, while an explicit empty note
   retains its comment marker. Plain missing box contents display as NA,
   and badge fields and box borders escape layout controls.

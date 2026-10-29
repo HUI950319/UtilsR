@@ -36,6 +36,11 @@ pr_box(x, header = NULL, footer = NULL, col = "cyan")
 The printed lines, invisibly. Nothing prints when `x` has no lines, e.g.
 when every element is `NULL`.
 
+## Details
+
+Horizontal padding shrinks in very narrow consoles. A box needs at least
+three console columns, or five when border labels are supplied.
+
 ## See also
 
 Other print helpers:

@@ -67,7 +67,9 @@ pr_table(
 
 - indent:
 
-  Non-negative integer. Spaces before each line (default 2).
+  Non-negative integer. Spaces before each line (default 2). Uncoloured
+  highlighted output reserves at least two columns, including its
+  marker, even when a smaller indent is requested.
 
 ## Value
 

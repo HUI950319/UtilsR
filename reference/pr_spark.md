@@ -27,7 +27,8 @@ pr_spark(data, vars = NULL, bins = 12, indent = 2)
 
 - indent:
 
-  Non-negative integer. Spaces before each line (default 2).
+  Non-negative integer. Spaces before each line (default 2). Must leave
+  at least twelve console columns for the name and missing share.
 
 ## Value
 

@@ -77,6 +77,6 @@ fit_all()
 #> ✔ [1/2] Fitting models [129ms]
 #> 
 #> ℹ [2/2] Drawing plot
-#> ✔ [2/2] Drew plot [13ms]
+#> ✔ [2/2] Drew plot [15ms]
 #> 
 ```
