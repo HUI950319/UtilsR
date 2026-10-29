@@ -1,3 +1,9 @@
+# UtilsR 0.6.15
+
+* `pr_spark()` inspects each default column by position, retaining
+  distinct contents when names repeat or are missing. Missing table headings
+  display as `<NA>` instead of stopping the print.
+
 # UtilsR 0.6.14
 
 * `pr_badge()` also restores methods for stored classed values when a

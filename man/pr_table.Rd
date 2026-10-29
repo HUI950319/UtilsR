@@ -76,7 +76,8 @@ format methods, retaining integer64 digits and time units. The optional
 packages bit64, haven and lubridate are loaded by namespace when their
 stored types are encountered.
 Layout control characters in cells and column names are escaped so they
-cannot introduce extra table rows or misalign columns.
+cannot introduce extra table rows or misalign columns. A missing column
+name is displayed as \code{<NA>}.
 Without colour (knitted documents, log files), P values carry stars
 (\code{***} below 0.001, \code{**} below 0.01, \code{*} below 0.05),
 highlighted rows start with \code{>} and missing text cells read

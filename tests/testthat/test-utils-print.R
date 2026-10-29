@@ -743,3 +743,28 @@ test_that("pr_badge() restores integer64 methods when it is the first print call
     c("--vanilla", shQuote(script), shQuote(value_file)), stdout = TRUE, stderr = TRUE)
   expect_identical(out, "[n: 2314]")
 })
+
+test_that("pr_spark() inspects each default column despite repeated or missing names", {
+  withr::local_options(cli.num_colors = 1)
+  x <- data.frame(a = c(1, 2), b = c(10, 20))
+  names(x) <- c("x", "x")
+  out <- utils::capture.output(pr_spark(x))
+  expect_match(out[1], "mean 1.50", fixed = TRUE)
+  expect_match(out[2], "mean 15.0", fixed = TRUE)
+  names(x) <- c(NA, "")
+  out <- utils::capture.output(pr_spark(x))
+  expect_match(out[1], "<NA>", fixed = TRUE)
+  expect_match(out[1], "mean 1.50", fixed = TRUE)
+  expect_match(out[2], '""', fixed = TRUE)
+  expect_match(out[2], "mean 15.0", fixed = TRUE)
+  expect_match(utils::capture.output(pr_spark(x, vars = "")), "mean 15.0", fixed = TRUE)
+})
+
+test_that("pr_table() displays missing column headings without losing their data", {
+  withr::local_options(cli.num_colors = 1)
+  x <- data.frame(a = 1, b = 10)
+  names(x) <- c(NA, "")
+  out <- utils::capture.output(pr_table(x))
+  expect_match(out[1], "<NA>", fixed = TRUE)
+  expect_match(out[3], "^ +1 +10$")
+})

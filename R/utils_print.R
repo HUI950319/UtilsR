@@ -433,7 +433,8 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 #' packages bit64, haven and lubridate are loaded by namespace when their
 #' stored types are encountered.
 #' Layout control characters in cells and column names are escaped so they
-#' cannot introduce extra table rows or misalign columns.
+#' cannot introduce extra table rows or misalign columns. A missing column
+#' name is displayed as \code{<NA>}.
 #' Without colour (knitted documents, log files), P values carry stars
 #' (\code{***} below 0.001, \code{**} below 0.01, \code{*} below 0.05),
 #' highlighted rows start with \code{>} and missing text cells read
@@ -535,7 +536,9 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   align <- if (is.null(align)) ifelse(is_num, "right", "left") else
     rep_len(match.arg(align, c("left", "right", "center"), several.ok = TRUE),
             ncol(data))
-  headers <- ._pr_escape(names(data))
+  headers <- names(data)
+  headers[is.na(headers)] <- "<NA>"
+  headers <- ._pr_escape(headers)
   col_w <- vapply(seq_along(cells), function(j) {
     max(cli::ansi_nchar(c(headers[j], cells[[j]]), type = "width"))
   }, numeric(1))
@@ -995,6 +998,8 @@ pr_box <- function(x, header = NULL, footer = NULL, col = "cyan") {
 #' separately, without a most-frequent level or undefined percentage.
 #' Lines that do not fit the console use a compact summary that retains the
 #' missing share; long names and summary text are shortened with an ellipsis.
+#' The default includes each column by position, even when names repeat.
+#' Missing and empty column names display as \code{<NA>} and \code{""}.
 #'
 #' @param data A data frame (tibbles included).
 #' @param vars Character. Columns to show; \code{NULL} (default) shows all.
@@ -1019,12 +1024,13 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
   }
   ._pr_count(bins, "bins", lower = 1L)
   ._pr_count(indent, "indent")
-  vars <- vars %||% names(data)
-  miss <- setdiff(vars, names(data))
+  columns <- if (is.null(vars)) seq_along(data) else match(vars, names(data))
+  miss <- vars[is.na(columns)]
   if (length(miss)) {
     cli::cli_abort("{.arg vars} names column{?s} absent from {.arg data}: {.val {miss}}.")
   }
-  if (!length(vars)) return(._pr_out(character()))
+  if (!length(columns)) return(._pr_out(character()))
+  vars <- names(data)[columns]
 
   # equal-width bins, or one per value for few whole numbers
   bin <- function(x) {
@@ -1088,12 +1094,14 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
     c("", paste0("<", class(v)[1], ">"), na)
   }
 
-  parts <- lapply(vars, function(nm) one(data[[nm]]))
+  parts <- lapply(columns, function(j) one(data[[j]]))
   col   <- function(j) {
     x <- vapply(parts, `[`, "", j)
     cli::ansi_align(x, max(cli::ansi_nchar(x, type = "width")))
   }
   escaped <- ._pr_escape(vars)
+  escaped[is.na(escaped)] <- "<NA>"
+  escaped[!nzchar(escaped)] <- '""'
   name <- cli::ansi_align(escaped, max(cli::ansi_nchar(escaped, type = "width")))
   lines <- paste0(strrep(" ", indent), cli::style_bold(name), "  ",
                   cli::col_cyan(col(1)), "  ", col(2), "  ",
