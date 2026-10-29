@@ -43,7 +43,9 @@ columns always show. Long required headings and, when necessary, cells
 are cut with an ellipsis; the other columns follow while they fit, and the
 footer names those left out.}
 
-\item{indent}{Non-negative integer. Spaces before each line (default 2).}
+\item{indent}{Non-negative integer. Spaces before each line (default 2).
+Uncoloured highlighted output reserves at least two columns, including
+its marker, even when a smaller indent is requested.}
 }
 \value{
 The printed lines, invisibly.

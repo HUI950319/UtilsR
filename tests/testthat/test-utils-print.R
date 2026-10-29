@@ -832,3 +832,25 @@ test_that("badges and box borders escape single-line layout controls", {
   expect_match(out[1], "a\\nb", fixed = TRUE)
   expect_match(out[3], "c\\td", fixed = TRUE)
 })
+
+test_that("print helpers account for indentation markers borders and footers", {
+  withr::local_options(cli.num_colors = 1, cli.unicode = TRUE, cli.width = 20)
+  expect_error(pr_kv(list(a = "text"), indent = 20), "indent")
+  expect_error(pr_spark(data.frame(v = 1:3), indent = 20), "indent")
+  out <- utils::capture.output(pr_table(data.frame(v = strrep("a", 20)),
+    width = 20, indent = 0, highlight = 1))
+  expect_true(all(cli::ansi_nchar(out, type = "width") <= 20))
+  expect_match(out[3], "^> ")
+  for (w in c(5, 10, 20)) {
+    withr::local_options(cli.width = w)
+    out <- utils::capture.output(pr_box("some text"))
+    expect_true(all(cli::ansi_nchar(out, type = "width") <= w))
+    out <- utils::capture.output(pr_tree(as.list(1:30), max_lines = 2))
+    expect_true(all(cli::ansi_nchar(out, type = "width") <= w))
+    expect_match(paste(out[-c(1, 2)], collapse = " "), "20 more lines", fixed = TRUE)
+  }
+  withr::local_options(cli.width = 5)
+  out <- utils::capture.output(pr_box("a", header = "Model", footer = "done"))
+  expect_length(out, 3L)
+  expect_true(all(cli::ansi_nchar(out, type = "width") <= 5))
+})

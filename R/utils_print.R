@@ -231,6 +231,7 @@ pr_head <- function(class, ..., bg = "blue", fg = "br_white") {
 #'   SPSS user-missing values display as \code{NA}; explicit missing factor
 #'   levels display as \code{<NA>}.
 #' @param indent Non-negative integer. Spaces before each key (default 2).
+#'   Must leave at least four console columns for the key and value.
 #'
 #' @return The printed lines, invisibly.
 #'
@@ -242,6 +243,9 @@ pr_head <- function(class, ..., bg = "blue", fg = "br_white") {
 #' @family print helpers
 pr_kv <- function(x, indent = 2) {
   ._pr_count(indent, "indent")
+  if (console_width() - indent < 4L) {
+    cli::cli_abort("{.arg indent} must leave at least four columns for a key and value.")
+  }
   lines <- ._kv_lines(x, width = console_width() - indent)
   if (length(lines)) lines <- paste0(strrep(" ", indent), lines)
   ._pr_out(lines)
@@ -499,6 +503,8 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 #'   are cut with an ellipsis; the other columns follow while they fit, and the
 #'   footer names those left out.
 #' @param indent Non-negative integer. Spaces before each line (default 2).
+#'   Uncoloured highlighted output reserves at least two columns, including
+#'   its marker, even when a smaller indent is requested.
 #'
 #' @return The printed lines, invisibly.
 #'
@@ -533,8 +539,10 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   n_rows <- nrow(data)
   if (!is.null(n) && n_rows > n) data <- data[seq_len(n), , drop = FALSE]
 
-  is_num <- vapply(data, is.numeric, logical(1)) | names(data) %in% p_col
   colour <- ._pr_colour()
+  hl <- if (is.logical(highlight)) which(highlight) else as.integer(highlight)
+  if (!colour && any(seq_len(nrow(data)) %in% hl)) indent <- max(indent, 2L)
+  is_num <- vapply(data, is.numeric, logical(1)) | names(data) %in% p_col
   cells  <- lapply(seq_along(data), function(j) {
     nm <- names(data)[j]
     v <- ._pr_restore(data[[j]])
@@ -624,7 +632,6 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   header <- paste0(pad, cli::style_bold(row(headers)))
   rule   <- paste0(pad, cli::col_grey(strrep(cli::symbol$line,
                                              sum(col_w[keep]) + gap * (length(keep) - 1))))
-  hl     <- if (is.logical(highlight)) which(highlight) else as.integer(highlight)
   hl_bg  <- cli::make_ansi_style("#FFFF99", bg = TRUE)
   body   <- vapply(seq_len(nrow(data)), function(i) {
     r <- row(lapply(cells, `[`, i))
@@ -958,9 +965,9 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
                                  root = root))
   if (rows$n > max_lines) {
     # the argument that cut them, as rlang names what shows hidden frames
-    tree <- c(tree[seq_len(max_lines)], cli::col_grey(sprintf(
+    tree <- c(tree[seq_len(max_lines)], ._pr_wrap(cli::col_grey(sprintf(
       "# %s %s more lines (max_lines = %d)", cli::symbol$ellipsis,
-      format(rows$n - max_lines, big.mark = ","), max_lines)))
+      format(rows$n - max_lines, big.mark = ","), max_lines)), console_width()))
   }
   ._pr_out(tree)
 }
@@ -981,6 +988,8 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
 #'   the top and bottom border. Layout controls are escaped.
 #' @param col Border colour: anything \code{cli::make_ansi_style()} accepts
 #'   (default \code{"cyan"}).
+#' @details Horizontal padding shrinks in very narrow consoles. A box needs
+#'   at least three console columns, or five when border labels are supplied.
 #'
 #' @return The printed lines, invisibly. Nothing prints when \code{x} has no
 #'   lines, e.g. when every element is \code{NULL}.
@@ -993,8 +1002,10 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
 #' @export
 #' @family print helpers
 pr_box <- function(x, header = NULL, footer = NULL, col = "cyan") {
-  # the borders and their padding take 6 columns
-  avail <- console_width() - 6
+  # Keep the usual two-space padding while leaving room for narrow contents.
+  width <- console_width()
+  padding <- min(2L, max(0L, floor((width - 4L) / 2L)))
+  avail <- max(1L, width - 2L - 2L * padding)
   lines <- if (is.character(x) && is.null(names(x))) {
     unlist(lapply(x, function(s) ._pr_wrap(s, width = avail)))
   } else {
@@ -1002,14 +1013,19 @@ pr_box <- function(x, header = NULL, footer = NULL, col = "cyan") {
   }
   # cli::boxx() fails on no lines; an empty settings list prints nothing
   if (!length(lines)) return(._pr_out(character()))
+  if (width < 3L) cli::cli_abort("The console must be at least three columns wide for a box.")
   if (!is.null(header)) header <- ._pr_escape(replace(header, is.na(header), "NA"))
   if (!is.null(footer)) footer <- ._pr_escape(replace(footer, is.na(footer), "NA"))
+  if (any(nzchar(c(header, footer)))) {
+    if (width < 5L) cli::cli_abort("The console must be at least five columns wide for box labels.")
+    lines <- cli::ansi_align(lines, max(c(cli::ansi_nchar(lines, type = "width"), 3L - 2L * padding)))
+  }
   box <- cli::boxx(
     lines,
     # boxx() already pads the header and footer with a space on each side
     header = if (is.null(header)) "" else cli::style_bold(header),
     footer = if (is.null(footer)) "" else cli::col_grey(footer),
-    border_style = "round", border_col = col, padding = c(0, 2, 0, 2)
+    border_style = "round", border_col = col, padding = c(0, padding, 0, padding)
   )
   # a boxx is one string with embedded newlines
   ._pr_out(strsplit(as.character(box), "\n", fixed = TRUE)[[1]])
@@ -1048,6 +1064,7 @@ pr_box <- function(x, header = NULL, footer = NULL, col = "cyan") {
 #' @param bins Positive integer. Histogram bins, and the most levels drawn for a
 #'   categorical column (default 12).
 #' @param indent Non-negative integer. Spaces before each line (default 2).
+#'   Must leave at least twelve console columns for the name and missing share.
 #'
 #' @return The printed lines, invisibly.
 #'
@@ -1072,6 +1089,9 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
     cli::cli_abort("{.arg vars} names column{?s} absent from {.arg data}: {.val {miss}}.")
   }
   if (!length(columns)) return(._pr_out(character()))
+  if (console_width() - indent < 12L) {
+    cli::cli_abort("{.arg indent} must leave at least twelve columns for the name and missing share.")
+  }
   vars <- names(data)[columns]
 
   # equal-width bins, or one per value for few whole numbers

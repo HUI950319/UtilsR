@@ -19,7 +19,8 @@ for their values.
 SPSS user-missing values display as \code{NA}; explicit missing factor
 levels display as \code{<NA>}.}
 
-\item{indent}{Non-negative integer. Spaces before each key (default 2).}
+\item{indent}{Non-negative integer. Spaces before each key (default 2).
+Must leave at least four console columns for the key and value.}
 }
 \value{
 The printed lines, invisibly.

@@ -14,7 +14,8 @@ pr_spark(data, vars = NULL, bins = 12, indent = 2)
 \item{bins}{Positive integer. Histogram bins, and the most levels drawn for a
 categorical column (default 12).}
 
-\item{indent}{Non-negative integer. Spaces before each line (default 2).}
+\item{indent}{Non-negative integer. Spaces before each line (default 2).
+Must leave at least twelve console columns for the name and missing share.}
 }
 \value{
 The printed lines, invisibly.
