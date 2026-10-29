@@ -729,3 +729,17 @@ test_that("print helpers validate integer controls before formatting", {
   expect_length(utils::capture.output(pr_table(x, n = Inf)), 5L)
   expect_length(utils::capture.output(pr_tree(list(a = 1), max_depth = Inf, max_items = Inf, max_lines = Inf)), 2L)
 })
+
+test_that("pr_badge() restores integer64 methods when it is the first print call", {
+  skip_if_not_installed("bit64")
+  value_file <- tempfile(fileext = ".rds")
+  script <- tempfile(fileext = ".R")
+  saveRDS(bit64::as.integer64("2314"), value_file)
+  dump(c("pr_badge", "._pr_restore", "._pr_colour", "._chip"), file = script,
+       envir = environment(pr_badge))
+  cat('\noptions(cli.num_colors = 1)\ncat(pr_badge("n", readRDS(commandArgs(TRUE)[[1]])))\n',
+      file = script, append = TRUE)
+  out <- system2(file.path(R.home("bin"), "Rscript"),
+    c("--vanilla", shQuote(script), shQuote(value_file)), stdout = TRUE, stderr = TRUE)
+  expect_identical(out, "[n: 2314]")
+})

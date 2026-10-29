@@ -336,6 +336,8 @@ pr_note <- function(..., .envir = parent.frame()) {
 #' @export
 #' @family print helpers
 pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
+  key <- ._pr_restore(key)
+  value <- ._pr_restore(value)
   n <- max(length(key), length(value))
   if (!all(c(length(key), length(value)) %in% c(1L, n))) {
     cli::cli_abort("{.arg key} and {.arg value} must have the same length, or length 1.")
