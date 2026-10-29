@@ -3,6 +3,15 @@
 ## UtilsR 0.6.16
 
 - [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  and root
+  [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  displays treat POSIXlt date-times as vectors, consistently with
+  POSIXct, instead of list-backed storage.
+
+- Flipped stacked continuous panels free the displayed horizontal value
+  scale, matching independent axes before coordinate flipping.
+
+- [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
   describes packed data-frame columns by row, keeping the values from
   each row together instead of recycling column descriptions.
 

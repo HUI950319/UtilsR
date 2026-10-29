@@ -50,7 +50,9 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.16" id="utilsr-0616">UtilsR 0.6.16<a class="anchor" aria-label="anchor" href="#utilsr-0616"></a></h2>
-<ul><li><p><code><a href="../reference/pr_table.html">pr_table()</a></code> describes packed data-frame columns by row, keeping the values from each row together instead of recycling column descriptions.</p></li>
+<ul><li><p><code><a href="../reference/pr_table.html">pr_table()</a></code> and root <code><a href="../reference/pr_tree.html">pr_tree()</a></code> displays treat POSIXlt date-times as vectors, consistently with POSIXct, instead of list-backed storage.</p></li>
+<li><p>Flipped stacked continuous panels free the displayed horizontal value scale, matching independent axes before coordinate flipping.</p></li>
+<li><p><code><a href="../reference/pr_table.html">pr_table()</a></code> describes packed data-frame columns by row, keeping the values from each row together instead of recycling column descriptions.</p></li>
 <li><p>Stacked <code><a href="../reference/plt_con.html">plt_con()</a></code> respects independent or shared feature axes in both orientations, while retaining explicit axis bounds.</p></li>
 <li><p>Stacked <code><a href="../reference/plt_con.html">plt_con()</a></code> panels retain pairwise/global comparisons per feature and requested raw-point overlays on dot plots.</p></li>
 <li><p><code><a href="../reference/pr_table.html">pr_table()</a></code> keeps explicit missing factor levels as <code>&lt;NA&gt;</code> without mistaking them for missing storage or failing during width calculation.</p></li>
