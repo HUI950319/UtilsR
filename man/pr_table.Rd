@@ -73,7 +73,8 @@ and numbers wider than the available line, use scientific notation.
 Missing values
 print as a grey \code{NA}; an explicit missing factor level displays as
 \code{<NA>}. Matrix and array columns are described one row
-at a time, retaining all components. List-column cells are described as in
+at a time, retaining all components. Packed data-frame columns show each
+row as a named list. List-column cells are described as in
 \code{\link{pr_tree}()}, e.g. \code{<dbl 2> 1.1, 2.2}. Everything else
 uses \code{as.character()}. Classed numeric and time-span columns use their
 format methods, retaining integer64 digits and time units. The optional

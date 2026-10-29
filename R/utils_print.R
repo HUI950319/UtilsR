@@ -471,7 +471,8 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 #' Missing values
 #' print as a grey \code{NA}; an explicit missing factor level displays as
 #' \code{<NA>}. Matrix and array columns are described one row
-#' at a time, retaining all components. List-column cells are described as in
+#' at a time, retaining all components. Packed data-frame columns show each
+#' row as a named list. List-column cells are described as in
 #' \code{\link{pr_tree}()}, e.g. \code{<dbl 2> 1.1, 2.2}. Everything else
 #' uses \code{as.character()}. Classed numeric and time-span columns use their
 #' format methods, retaining integer64 digits and time units. The optional
@@ -549,6 +550,11 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
     nm <- names(data)[j]
     v <- ._pr_restore(data[[j]])
     if (nm %in% p_col) return(._p_cells(v))
+    if (is.data.frame(v)) {
+      return(vapply(seq_len(nrow(v)), function(i) {
+        ._obj_desc(as.list(v[i, , drop = FALSE]), width = 40, inside = TRUE)
+      }, character(1)))
+    }
     if (is.array(v)) {
       return(vapply(seq_len(nrow(v)), function(i) {
         at <- if (length(v)) seq.int(i, length(v), by = nrow(v)) else integer()

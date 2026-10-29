@@ -919,3 +919,15 @@ test_that("pr_table() distinguishes an explicit NA factor level from missing sto
                    c("a", "<NA>", "NA"))
   expect_identical(x$v, f)
 })
+
+test_that("pr_table() describes packed data-frame columns one row at a time", {
+  withr::local_options(cli.num_colors = 1, cli.width = 120)
+  x <- data.frame(id = letters[1:3])
+  x$packed <- data.frame(a = 1:3, b = c("first", "second", "third"))
+  out <- utils::capture.output(pr_table(x))
+  expect_match(out[3], 'a = 1, b = "first"', fixed = TRUE)
+  expect_match(out[4], 'a = 2, b = "second"', fixed = TRUE)
+  expect_match(out[5], 'a = 3, b = "third"', fixed = TRUE)
+  expect_length(out, 5L)
+  expect_length(utils::capture.output(pr_table(x[0, , drop = FALSE])), 2L)
+})
