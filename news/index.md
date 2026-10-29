@@ -3,6 +3,12 @@
 ## UtilsR 0.6.14
 
 - [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  respects the direction of text P-value bounds, including Unicode
+  comparisons and whitespace, and does not mark invalid numeric text as
+  significant. Numeric P-values keep enough decimals below a cut-off and
+  values below 0.001 print as `<0.001`.
+
+- [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
   preserves integer64 digits and time-span components instead of
   formatting their underlying storage. Print helpers load the namespace
   supporting stored integer64, labelled and lubridate values when
