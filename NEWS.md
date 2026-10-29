@@ -1,5 +1,8 @@
 # UtilsR 0.6.16
 
+* Split continuous panels preserve group colours through local sorting;
+  `combine = FALSE` returns a named list and rejects saving that list.
+
 * `plt_na()` keeps a missing variable named `id` in matrix and combined
   layouts by adding case indices only after the variables are expanded.
 

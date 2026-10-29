@@ -43,6 +43,7 @@
 #'     \item A single string matching a name in \code{palette_list}: uses
 #'       \code{pal_get()}.
 #'     \item A character vector of colours: used directly.
+#'       A named vector is matched to group or feature names.
 #'   }
 #' @param alpha Numeric 0--1. Fill transparency. Default 0.8.
 #' @param add_box Logical. Overlay boxplot on violin? Default \code{FALSE}.
@@ -367,8 +368,16 @@ plt_con <- function(data,
 
   # --- Handle split.by via recursion ------------------------------------------
   if (!is.null(split.by)) {
+    if (!isTRUE(combine) && length(save)) {
+      cli::cli_abort("{.code combine = FALSE} returns a list of plots; {.arg save} needs one plot.")
+    }
+    split_color_levels <- if (fill.by == "group") levels(data[[group.by]]) else stat.by
+    if (is.null(names(palette))) {
+      palette <- stats::setNames(.resolve_color(palette, n = length(split_color_levels)),
+                                  split_color_levels)
+    }
     split_levels <- levels(data[[split.by]])
-    plot_list <- lapply(split_levels, function(lv) {
+    plot_list <- stats::setNames(lapply(split_levels, function(lv) {
       sub_data <- data[data[[split.by]] == lv, , drop = FALSE]
       # each panel is reported as part of the split figure, not on its own
       cli::cli_fmt(sub <- plt_con(
@@ -401,7 +410,8 @@ plt_con <- function(data,
         force = force, seed = seed
       ))
       sub
-    })
+    }), split_levels)
+    if (!isTRUE(combine)) return(plot_list)
     return(finish(
       patchwork::wrap_plots(plot_list, nrow = facet_nrow, ncol = facet_ncol) +
         patchwork::plot_layout(guides = "collect")
@@ -432,7 +442,16 @@ plt_con <- function(data,
   } else {
     color_levels <- stat.by
   }
-  colors <- stats::setNames(.resolve_color(palette, n = length(color_levels)), color_levels)
+  if (!is.null(names(palette))) {
+    if (!is.character(palette) || anyNA(names(palette)) ||
+        any(!nzchar(names(palette))) || anyDuplicated(names(palette)) ||
+        !all(color_levels %in% names(palette))) {
+      cli::cli_abort("Named {.arg palette} must contain each group or feature with unique, non-empty names.")
+    }
+    colors <- palette[color_levels]
+  } else {
+    colors <- stats::setNames(.resolve_color(palette, n = length(color_levels)), color_levels)
+  }
 
   # --- Global y limits (same.y.lims) -----------------------------------------
   global_y_min <- NULL

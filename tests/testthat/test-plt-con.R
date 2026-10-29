@@ -146,3 +146,28 @@ test_that("con scales honor shared and independent stacked axes in both orientat
     expect_true(limits[[1L]][1L] <= 0 && limits[[1L]][2L] >= 200)
   }
 })
+
+test_that("con split panels retain group colours when local ordering changes", {
+  d <- con_data()
+  d$x <- c(1, 10, 2, 11, 3, 12, 13, 4, 14, 5, 15, 6)
+  out <- suppressMessages(plt_con(d, "x", "g", split.by = "batch", type = "bar",
+                                  sort = TRUE, palette = c("red", "blue")))
+  maps <- lapply(seq_len(length(out)), function(i) {
+    p <- out[[i]]
+    scale <- ggplot2::ggplot_build(p)$plot$scales$get_scales("fill")
+    scale$map(c("A", "B"))
+  })
+  expect_identical(maps[[1L]], maps[[2L]])
+  expect_setequal(maps[[1L]], c("red", "blue"))
+})
+
+test_that("con split combine FALSE returns named plots and rejects saving a list", {
+  d <- con_data()
+  out <- suppressMessages(plt_con(d, "x", "g", split.by = "batch", type = "box", combine = FALSE))
+  expect_type(out, "list")
+  expect_false(inherits(out, "patchwork"))
+  expect_named(out, c("S1", "S2"))
+  expect_true(all(vapply(out, inherits, logical(1), "ggplot")))
+  expect_error(plt_con(d, "x", "g", split.by = "batch", combine = FALSE,
+                       save = list(filename = tempfile(fileext = ".pdf"))), "combine = FALSE")
+})
