@@ -233,3 +233,20 @@ test_that("con singleton violin groups retain raw points and summary overlays", 
   expect_equal(nrow(b[[3L]]), 2L)
   expect_equal(sort(b[[4L]]$y), c(2.5, 10))
 })
+
+test_that("con jitter defaults preserve numeric values and the random state", {
+  expect_identical(formals(plt_con)$jitter.height, 0)
+  d <- con_data()
+  d$x <- d$x * 1e-10
+  d$z <- d$z * 1e-10
+  for (stack in c(FALSE, TRUE)) {
+    set.seed(73)
+    before <- .Random.seed
+    p <- con_plot(d, c("x", "z"), type = "box", stack = stack, add_point = TRUE)
+    b <- ggplot2::ggplot_build(p)$data
+    points <- b[[length(b)]]
+    expect_equal(sort(points$y), sort(if (stack) c(d$x, d$z) else d$x))
+    expect_identical(before, .Random.seed)
+    expect_identical(points$x, ggplot2::ggplot_build(p)$data[[length(b)]]$x)
+  }
+})

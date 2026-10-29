@@ -22,7 +22,7 @@ plt_con(
   pt.size = NULL,
   pt.alpha = 1,
   jitter.width = 0.4,
-  jitter.height = 0.1,
+  jitter.height = 0,
   add_trend = FALSE,
   trend_color = "black",
   trend_linewidth = 1,
@@ -111,7 +111,7 @@ A named vector is matched to group or feature names.
 
 \item{jitter.width}{Numeric. Jitter width. Default 0.4.}
 
-\item{jitter.height}{Numeric. Jitter height. Default 0.1.}
+\item{jitter.height}{Numeric. Jitter height. Default 0 (values unchanged).}
 
 \item{add_trend}{Logical. Overlay trend line connecting medians/means?
 Default \code{FALSE}.}

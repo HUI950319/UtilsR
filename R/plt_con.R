@@ -57,7 +57,7 @@
 #' @param pt.size Numeric. Point size. Default \code{NULL} (auto).
 #' @param pt.alpha Numeric. Point transparency. Default 1.
 #' @param jitter.width Numeric. Jitter width. Default 0.4.
-#' @param jitter.height Numeric. Jitter height. Default 0.1.
+#' @param jitter.height Numeric. Jitter height. Default 0 (values unchanged).
 #' @param add_trend Logical. Overlay trend line connecting medians/means?
 #'   Default \code{FALSE}.
 #' @param trend_color Character. Trend line colour. Default \code{"black"}.
@@ -191,7 +191,7 @@ plt_con <- function(data,
                     pt.size = NULL,
                     pt.alpha = 1,
                     jitter.width = 0.4,
-                    jitter.height = 0.1,
+                    jitter.height = 0,
                     add_trend = FALSE,
                     trend_color = "black",
                     trend_linewidth = 1,

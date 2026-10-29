@@ -1,5 +1,8 @@
 # UtilsR 0.6.16
 
+* `plt_con()` defaults to `jitter.height = 0`, preserving the observed
+  numeric values while retaining reproducible horizontal jitter.
+
 * `plt_na()` keeps distinct variables separate when `name.map` gives
   them the same displayed label, including a collision with an unmapped name.
 
