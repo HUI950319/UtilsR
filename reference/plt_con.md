@@ -69,15 +69,13 @@ plt_con(
 
 - data:
 
-  A data frame with at least one observation.
+  A data frame.
 
 - stat.by:
 
   Character vector. Column name(s) of numeric variables to plot. SPSS
   user-missing values are excluded. Matrix/array columns, integer64 and
-  date/time-span storage must be converted explicitly first. Features
-  without finite observations are skipped; an entirely empty selection
-  is an error.
+  date/time-span storage must be converted explicitly first.
 
 - group.by:
 
@@ -209,8 +207,7 @@ plt_con(
 - y.min:
 
   Numeric or character. Minimum y-axis limit. Character `"qN"` uses the
-  Nth percentile. Default `NULL`; automatic bar limits include the full
-  SD intervals and zero baseline.
+  Nth percentile. Default `NULL`.
 
 - y.max:
 
