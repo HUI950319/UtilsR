@@ -8,7 +8,8 @@ pr_badge(key, value, bg = "blue", fg = "br_white")
 }
 \arguments{
 \item{key, value}{Keys and values, recycled to a common length (equal
-lengths, or length 1). Values are converted with \code{as.character()}.}
+lengths, or length 1). Values are converted with \code{as.character()};
+SPSS user-missing values display as \code{NA}.}
 
 \item{bg, fg}{Background and text colour of the value part: anything
 \code{cli::make_ansi_style()} accepts, as in \code{\link{pr_head}()}.}

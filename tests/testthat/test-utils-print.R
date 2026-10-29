@@ -768,3 +768,20 @@ test_that("pr_table() displays missing column headings without losing their data
   expect_match(out[1], "<NA>", fixed = TRUE)
   expect_match(out[3], "^ +1 +10$")
 })
+
+test_that("metadata print helpers preserve SPSS missingness during text conversion", {
+  skip_if_not_installed("haven")
+  withr::local_options(cli.num_colors = 1)
+  v <- haven::labelled_spss(c(1, 99, NA), na_values = 99)
+  expect_identical(utils::capture.output(pr_head("x", v)), "<x> 1")
+  expect_identical(trimws(utils::capture.output(pr_kv(list(v = v)))), "v  1, NA, NA")
+  expect_identical(pr_badge("v", v), c("[v: 1]", "[v: NA]", "[v: NA]"))
+  expect_identical(as.numeric(v), c(1, 99, NA_real_))
+})
+
+test_that("pr_head() retains an explicit missing factor level as a category", {
+  withr::local_options(cli.num_colors = 1)
+  v <- factor(c("observed", NA), exclude = NULL)
+  expect_identical(utils::capture.output(pr_head("x", v)), "<x> observed \u00b7 <NA>")
+  expect_identical(trimws(utils::capture.output(pr_kv(list(v = v)))), "v  observed, <NA>")
+})

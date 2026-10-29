@@ -1,5 +1,9 @@
 # UtilsR 0.6.15
 
+* Metadata headers, key-value blocks and badges preserve SPSS user-missing
+  values when converting them to text. Explicit missing factor levels
+  remain visible categories in headers and key-value blocks.
+
 * `pr_spark()` inspects each default column by position, retaining
   distinct contents when names repeat or are missing. Missing table headings
   display as `<NA>` instead of stopping the print.

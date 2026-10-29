@@ -125,7 +125,11 @@
 ._as_text <- function(v) {
   v <- ._pr_restore(v)
   if (is.double(v) && !is.object(v)) v <- signif(v, getOption("digits", 7L))
-  as.character(v)
+  missing <- is.na(v)
+  text <- as.character(v)
+  text[missing] <- NA_character_
+  if (is.factor(v)) text[!missing & is.na(text)] <- "<NA>"
+  text
 }
 
 # Named values -> "key  value" lines with grey keys aligned by display width,
@@ -176,7 +180,8 @@
 #' @param ... Pieces of the summary, joined by a middle dot. \code{NULL},
 #'   \code{NA} and empty strings are dropped, so optional pieces can be
 #'   passed as \code{if (cond) "text"}. Numbers show as \code{print()}
-#'   shows them, factors and dates as their labels.
+#'   shows them, factors and dates as their labels. SPSS user-missing values
+#'   are omitted; explicit missing factor levels remain as \code{<NA>}.
 #' @param bg,fg Background and text colour of the chip: anything
 #'   \code{cli::make_ansi_style()} accepts, i.e. an ANSI colour name such as
 #'   \code{"blue"} or \code{"br_white"}, an R colour name or a hex code.
@@ -222,6 +227,8 @@ pr_head <- function(class, ..., bg = "blue", fg = "br_white") {
 #'   wrap at the console width under the value column, as do the lines of a
 #'   value that contains newlines. Long keys are shortened to reserve space
 #'   for their values.
+#'   SPSS user-missing values display as \code{NA}; explicit missing factor
+#'   levels display as \code{<NA>}.
 #' @param indent Non-negative integer. Spaces before each key (default 2).
 #'
 #' @return The printed lines, invisibly.
@@ -322,7 +329,8 @@ pr_note <- function(..., .envir = parent.frame()) {
 #' strings without printing them, so several badges can share a line.
 #'
 #' @param key,value Keys and values, recycled to a common length (equal
-#'   lengths, or length 1). Values are converted with \code{as.character()}.
+#'   lengths, or length 1). Values are converted with \code{as.character()};
+#'   SPSS user-missing values display as \code{NA}.
 #' @param bg,fg Background and text colour of the value part: anything
 #'   \code{cli::make_ansi_style()} accepts, as in \code{\link{pr_head}()}.
 #'
@@ -338,6 +346,8 @@ pr_note <- function(..., .envir = parent.frame()) {
 pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
   key <- ._pr_restore(key)
   value <- ._pr_restore(value)
+  if (inherits(key, "haven_labelled_spss")) key[is.na(key)] <- NA
+  if (inherits(value, "haven_labelled_spss")) value[is.na(value)] <- NA
   n <- max(length(key), length(value))
   if (!all(c(length(key), length(value)) %in% c(1L, n))) {
     cli::cli_abort("{.arg key} and {.arg value} must have the same length, or length 1.")

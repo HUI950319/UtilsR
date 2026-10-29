@@ -13,7 +13,8 @@ pr_head(class, ..., bg = "blue", fg = "br_white")
 \item{...}{Pieces of the summary, joined by a middle dot. \code{NULL},
 \code{NA} and empty strings are dropped, so optional pieces can be
 passed as \code{if (cond) "text"}. Numbers show as \code{print()}
-shows them, factors and dates as their labels.}
+shows them, factors and dates as their labels. SPSS user-missing values
+are omitted; explicit missing factor levels remain as \code{<NA>}.}
 
 \item{bg, fg}{Background and text colour of the chip: anything
 \code{cli::make_ansi_style()} accepts, i.e. an ANSI colour name such as
