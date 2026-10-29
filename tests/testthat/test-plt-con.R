@@ -222,6 +222,16 @@ test_that("con errorbar explicit zoom limits retain their requested bounds", {
   }
 })
 
+test_that("con shared bar quantile limits use the original observations", {
+  d <- data.frame(x = c(1, 2, 3, 100), z = c(4, 5, 6, 200), g = "A")
+  expected <- unname(stats::quantile(c(d$x, d$z), c(0.05, 0.95)))
+  for (stack in c(FALSE, TRUE)) for (flip in c(FALSE, TRUE)) {
+    p <- con_plot(d, c("x", "z"), type = "bar", stack = stack, flip = flip,
+                 same.y.lims = TRUE, y.min = "q5", y.max = "q95")
+    expect_equal(unname(p$coordinates$limits$y), expected)
+  }
+})
+
 test_that("con singleton violin groups retain raw points and summary overlays", {
   d <- data.frame(x = c(1:4, 10), g = c(rep("A", 4), "B"))
   expect_warning(p <- con_plot(d, type = "violin", add_point = TRUE, add_trend = TRUE),

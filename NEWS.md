@@ -1,5 +1,8 @@
 # UtilsR 0.6.16
 
+* Shared bar-plot quantile limits use the original finite observations,
+  while automatic limits continue to contain the full SD intervals.
+
 * Continuous plots keep only selected input columns and use lightweight
   plot, mapping and facet environments, avoiding unrelated data in saved plots.
 

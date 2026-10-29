@@ -483,11 +483,15 @@ plt_con <- function(data,
   if (isTRUE(same.y.lims)) {
     all_values <- unlist(lapply(stat.by, function(s) {
       v <- data[[s]]
-      keep <- is.finite(v)
-      if (type == "bar") .con_bar_range(v[keep], data[[group.by]][keep]) else v[keep]
+      v[is.finite(v)]
     }))
-    global_y_max <- .resolve_y_limit(y.max, all_values, side = "max")
-    global_y_min <- .resolve_y_limit(y.min, all_values, side = "min")
+    auto_values <- if (type == "bar") unlist(lapply(stat.by, function(s) {
+      v <- data[[s]]
+      keep <- is.finite(v)
+      .con_bar_range(v[keep], data[[group.by]][keep])
+    })) else all_values
+    global_y_max <- .resolve_y_limit(y.max, if (is.null(y.max)) auto_values else all_values, side = "max")
+    global_y_min <- .resolve_y_limit(y.min, if (is.null(y.min)) auto_values else all_values, side = "min")
   }
 
   # --- Build one plot per feature --------------------------------------------
