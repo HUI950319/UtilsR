@@ -29,7 +29,7 @@ exposure, covariates and sample size.
 }
 \details{
 Horizontal padding shrinks in very narrow consoles. A box needs
-at least three console columns, or five when border labels are supplied.
+  at least three console columns, or five when border labels are supplied.
 }
 \examples{
 pr_box(list(Outcome = "Surv(time, DSS)", Exposure = "Surgery (Yes vs No)",
