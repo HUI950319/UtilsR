@@ -74,5 +74,5 @@ Other console display:
 ``` r
 .cat_message("Loading simulated data", verbose = FALSE)
 .cat_message("Saved forest.pdf", type = "success", style = "chip")
-#> [2026-10-29 10:26:56]  DONE  Saved forest.pdf
+#> [2026-10-29 10:30:08]  DONE  Saved forest.pdf
 ```
