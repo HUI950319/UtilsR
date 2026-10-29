@@ -2,6 +2,9 @@
 
 ## UtilsR 0.6.15
 
+- Whole-number display limits no longer trigger modulus warnings for
+  large finite values.
+
 - Console-table precision is checked against the formatter’s 324-digit
   limit instead of producing a backend warning or coercion failure.
 
