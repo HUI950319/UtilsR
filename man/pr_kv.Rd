@@ -14,7 +14,8 @@ numbers as \code{print()} shows them) and
 other objects are described by type and size, e.g.
 \code{<data.frame 6 x 11>} or \code{<lm>}. Long values
 wrap at the console width under the value column, as do the lines of a
-value that contains newlines.}
+value that contains newlines. Long keys are shortened to reserve space
+for their values.}
 
 \item{indent}{Integer. Spaces before each key (default 2).}
 }

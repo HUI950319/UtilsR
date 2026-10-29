@@ -28,7 +28,7 @@ and \code{{.fn ...}} is styled, and in consoles that support hyperlinks
 in \code{"{{x}}"}. Text that cli cannot parse, such as data that
 contains braces, is printed as written instead of failing the print.
 Long notes wrap at the console width, every line starting with \code{#};
-a \code{"\\n"} starts a new line.
+a \code{"\\n"} starts a new line. Unbroken text also wraps by display width.
 }
 \examples{
 n_panel <- 2

@@ -24,6 +24,8 @@
 #         ._as_text()    values -> text, numbers as print() shows them
 #         ._pr_restore() load methods for supported stored vector classes
 #         ._pr_escape()  keep control characters within a single-line field
+#         ._pr_trim()    trim only fields that exceed their display budget
+#         ._pr_wrap()    wrap words and split overlong runs by display width
 #         ._p_cells()    P values -> coloured cells (stat_pval() wording)
 #         ._obj_desc()   object -> short "<type size>" description
 #         ._pr_colour()  does stdout show ANSI colours?
@@ -75,6 +77,32 @@
   text
 }
 
+._pr_trim <- function(text, width) {
+  over <- which(cli::ansi_nchar(text, type = "width") > width)
+  text[over] <- cli::ansi_strtrim(text[over], width)
+  text
+}
+
+# cli wraps at spaces; split overlong words or CJK runs without losing text.
+._pr_wrap <- function(text, width, exdent = 0L) {
+  width <- max(1L, floor(width))
+  lines <- as.character(cli::ansi_strwrap(text, width = width, exdent = exdent))
+  unlist(lapply(lines, function(s) {
+    out <- character()
+    while (cli::ansi_nchar(s, type = "width") > width) {
+      part <- cli::ansi_strtrim(s, width, ellipsis = "")
+      n <- nchar(cli::ansi_strip(part))
+      if (!n) {
+        n <- 1L
+        part <- cli::ansi_strtrim(cli::ansi_substr(s, 1L, 1L), width)
+      }
+      out <- c(out, part)
+      s <- cli::ansi_substr(s, n + 1L, nchar(cli::ansi_strip(s)))
+    }
+    c(out, s)
+  }), use.names = FALSE)
+}
+
 # Values -> text: doubles to getOption("digits") significant digits, as
 # print() shows them (as.character() writes 15: 1/3 -> 0.333333333333333);
 # factors, dates and other classed vectors through their as.character()
@@ -106,13 +134,14 @@
     }
     paste(v, collapse = ", ")
   }, character(1), USE.NAMES = FALSE)
-  kw    <- max(cli::ansi_nchar(keys, type = "width"))
-  avail <- max(20, width - kw - 2)
+  kw    <- min(max(cli::ansi_nchar(keys, type = "width")), max(1L, floor((width - 2L) / 2L)))
+  keys  <- ._pr_trim(keys, kw)
+  avail <- max(1L, width - kw - 2L)
   lead  <- strrep(" ", kw + 2)
   unlist(lapply(seq_along(keys), function(i) {
     segs <- strsplit(vals[[i]], "\n", fixed = TRUE)[[1]]
     body <- unlist(lapply(if (length(segs)) segs else "", function(s) {
-      if (nzchar(s)) as.character(cli::ansi_strwrap(s, width = avail)) else ""
+      if (nzchar(s)) ._pr_wrap(s, width = avail) else ""
     }))
     c(paste0(cli::col_grey(cli::ansi_align(keys[i], kw)), "  ", body[1]),
       if (length(body) > 1L) paste0(lead, body[-1]))
@@ -175,7 +204,8 @@ pr_head <- function(class, ..., bg = "blue", fg = "br_white") {
 #'   other objects are described by type and size, e.g.
 #'   \code{<data.frame 6 x 11>} or \code{<lm>}. Long values
 #'   wrap at the console width under the value column, as do the lines of a
-#'   value that contains newlines.
+#'   value that contains newlines. Long keys are shortened to reserve space
+#'   for their values.
 #' @param indent Integer. Spaces before each key (default 2).
 #'
 #' @return The printed lines, invisibly.
@@ -215,7 +245,7 @@ pr_section <- function(title, width = NULL) {
   title <- ._pr_escape(title)
   width <- width %||% min(console_width(), 80L)
   # keep two line characters on each side of the title
-  title <- cli::ansi_strtrim(title, max(10L, width - 6L))
+  title <- ._pr_trim(title, max(1L, width - 6L))
   line  <- cli::rule(left = cli::style_bold(title), line_col = cli::col_grey,
                      width = width)
   ._pr_out(as.character(line))
@@ -236,7 +266,7 @@ pr_section <- function(title, width = NULL) {
 #' in \code{"{{x}}"}. Text that cli cannot parse, such as data that
 #' contains braces, is printed as written instead of failing the print.
 #' Long notes wrap at the console width, every line starting with \code{#};
-#' a \code{"\\n"} starts a new line.
+#' a \code{"\\n"} starts a new line. Unbroken text also wraps by display width.
 #'
 #' @param ... Character pieces of the note, pasted together.
 #' @param .envir Environment in which \code{{}} expressions are evaluated;
@@ -258,7 +288,7 @@ pr_note <- function(..., .envir = parent.frame()) {
                         function(s) if (length(s)) s else ""))
   body <- unlist(lapply(segs, function(s) {
     text <- tryCatch(cli::format_inline(s, .envir = .envir), error = function(e) s)
-    if (nzchar(text)) as.character(cli::ansi_strwrap(text, width = max(20, console_width() - 2)))
+    if (nzchar(text)) ._pr_wrap(text, width = max(1L, console_width() - 2L))
     else ""
   }))
   ._pr_out(cli::col_grey(cli::style_italic(paste("#", body))))
@@ -404,8 +434,8 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 #' @param digits Integer. Decimals for double columns (default 2).
 #' @param width Integer. Line width the table must fit; \code{NULL}
 #'   (default) uses the console width. The first column and the P-value
-#'   columns always show, a first column too wide for the line cut with an
-#'   ellipsis; the other columns follow in order while they fit, and the
+#'   columns always show. Long required headings and, when necessary, cells
+#'   are cut with an ellipsis; the other columns follow while they fit, and the
 #'   footer names those left out.
 #' @param indent Integer. Spaces before each line (default 2).
 #'
@@ -489,31 +519,44 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   # order until one no longer fits the line
   avail <- (width %||% console_width()) - indent
   keep  <- unique(c(1L, which(names(data) %in% p_col)))
+  gap <- 2L
+  if (avail < length(keep)) {
+    cli::cli_abort("The line width must leave at least one character per required column.")
+  }
+  if (length(keep) > 1L) gap <- min(gap, max(0L, floor((avail - length(keep)) / (length(keep) - 1L))))
+  if (sum(col_w[keep]) + gap * (length(keep) - 1L) > avail) {
+    # Shorten required headings before sacrificing P-value contents.
+    for (j in setdiff(keep, 1L)) {
+      col_w[j] <- min(col_w[j], max(c(1L, cli::ansi_nchar(cells[[j]], type = "width"))))
+    }
+    col_w[1] <- min(col_w[1], max(1L, avail - sum(col_w[setdiff(keep, 1L)]) - gap * (length(keep) - 1L)))
+    over <- sum(col_w[keep]) + gap * (length(keep) - 1L) - avail
+    while (over > 0) {
+      j <- keep[which.max(col_w[keep])]
+      cut <- min(over, col_w[j] - 1L)
+      col_w[j] <- col_w[j] - cut
+      over <- over - cut
+    }
+  }
   for (j in setdiff(seq_along(cells), keep)) {
-    if (sum(col_w[c(keep, j)]) + 2 * length(keep) > avail) break
+    if (sum(col_w[c(keep, j)]) + gap * length(keep) > avail) break
     keep <- c(keep, j)
   }
   keep <- sort(keep)
-  # the columns that always show can still be too wide: cut the first one,
-  # with an ellipsis, rather than overflow the line
-  over <- sum(col_w[keep]) + 2 * (length(keep) - 1) - avail
-  if (over > 0) col_w[1] <- max(col_w[1] - over, 8)
   row <- function(x) {
     paste(vapply(keep, function(j) {
       s <- x[[j]]
       # only a cell that is too wide: below the ellipsis's width,
       # ansi_strtrim() gives a cut ellipsis even for text that fits ("A" -> ".")
-      if (j == 1L && cli::ansi_nchar(s, type = "width") > col_w[1]) {
-        s <- cli::ansi_strtrim(s, col_w[1])
-      }
+      s <- ._pr_trim(s, col_w[j])
       cli::ansi_align(s, col_w[j], align[j])
-    }, character(1)), collapse = "  ")
+    }, character(1)), collapse = strrep(" ", gap))
   }
 
   pad    <- strrep(" ", indent)
   header <- paste0(pad, cli::style_bold(row(headers)))
   rule   <- paste0(pad, cli::col_grey(strrep(cli::symbol$line,
-                                             sum(col_w[keep]) + 2 * (length(keep) - 1))))
+                                             sum(col_w[keep]) + gap * (length(keep) - 1))))
   hl     <- if (is.logical(highlight)) which(highlight) else as.integer(highlight)
   hl_bg  <- cli::make_ansi_style("#FFFF99", bg = TRUE)
   body   <- vapply(seq_len(nrow(data)), function(i) {
@@ -531,7 +574,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
             if (length(dropped)) paste0(more(length(dropped), "column"), ": ",
                                           toString(headers[dropped])))
   if (length(foot)) {
-    foot <- paste0(pad, cli::col_grey(cli::ansi_strwrap(
+    foot <- paste0(pad, cli::col_grey(._pr_wrap(
       paste("#", paste(foot, collapse = "; ")), width = avail, exdent = 2)))
   }
   ._pr_out(c(header, rule, body, foot))
@@ -881,7 +924,7 @@ pr_box <- function(x, header = NULL, footer = NULL, col = "cyan") {
   # the borders and their padding take 6 columns
   avail <- console_width() - 6
   lines <- if (is.character(x) && is.null(names(x))) {
-    unlist(lapply(x, function(s) as.character(cli::ansi_strwrap(s, width = avail))))
+    unlist(lapply(x, function(s) ._pr_wrap(s, width = avail)))
   } else {
     ._kv_lines(x, width = avail)
   }
@@ -921,6 +964,8 @@ pr_box <- function(x, header = NULL, footer = NULL, col = "cyan") {
 #' Empty columns show \code{empty} with an unavailable missing share;
 #' entirely missing columns and columns without finite values are identified
 #' separately, without a most-frequent level or undefined percentage.
+#' Lines that do not fit the console use a compact summary that retains the
+#' missing share; long names and summary text are shortened with an ellipsis.
 #'
 #' @param data A data frame (tibbles included).
 #' @param vars Character. Columns to show; \code{NULL} (default) shows all.
@@ -1022,5 +1067,13 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
   lines <- paste0(strrep(" ", indent), cli::style_bold(name), "  ",
                   cli::col_cyan(col(1)), "  ", col(2), "  ",
                   cli::col_grey(vapply(parts, `[`, "", 3)))
+  wide <- which(cli::ansi_nchar(lines, type = "width") > console_width())
+  for (i in wide) {
+    tail <- parts[[i]][3]
+    room <- max(1L, console_width() - indent - cli::ansi_nchar(tail, type = "width") - 2L)
+    key <- ._pr_trim(escaped[i], max(1L, floor((room - 2L) / 3L)))
+    prefix <- ._pr_trim(paste(cli::style_bold(key), parts[[i]][2]), room)
+    lines[i] <- paste0(strrep(" ", indent), prefix, "  ", cli::col_grey(tail))
+  }
   ._pr_out(lines)
 }

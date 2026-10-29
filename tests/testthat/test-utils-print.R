@@ -689,3 +689,20 @@ test_that("single-line print fields escape embedded control characters", {
   expect_match(out, "v\\tx", fixed = TRUE)
   expect_match(out, "top a\\nb", fixed = TRUE)
 })
+
+test_that("print helpers keep long fields inside narrow console widths", {
+  withr::local_options(cli.num_colors = 1, cli.unicode = TRUE)
+  for (w in c(20, 30, 40)) {
+    withr::local_options(cli.width = w, width = w)
+    kv <- utils::capture.output(pr_kv(list(a_long_setting_key = "some text some text")))
+    box <- utils::capture.output(pr_box(list(a_long_setting_key = "some text"), header = "Model"))
+    note <- utils::capture.output(pr_note(strrep("\u4e2d\u6587", 20)))
+    table <- utils::capture.output(pr_table(data.frame(term = "first", P_value_one = 0.03,
+      P_value_two = 0.03), p_col = c("P_value_one", "P_value_two"), width = w))
+    spark <- utils::capture.output(pr_spark(data.frame(a_long_variable_name = rep("a very long category name", 2))))
+    expect_true(all(cli::ansi_nchar(c(kv, box, note, table, spark), type = "width") <= w))
+    expect_identical(paste0(sub("^# ", "", note), collapse = ""), strrep("\u4e2d\u6587", 20))
+    expect_match(table[3], "0.030*", fixed = TRUE)
+    expect_match(spark, "NA 0.0%$", perl = TRUE)
+  }
+})

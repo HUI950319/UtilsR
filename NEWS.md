@@ -1,5 +1,9 @@
 # UtilsR 0.6.14
 
+* Print helpers respect narrow consoles: long keys and mandatory table
+  headings are shortened, long unbroken text wraps by display width, and
+  compact distribution lines retain the missing share when space is tight.
+
 * Single-line table cells, headers, tree component names and distribution
   labels escape layout control characters such as newlines and tabs.
   Intentional multiline notes and key-value contents keep their line breaks.

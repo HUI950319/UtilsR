@@ -40,6 +40,8 @@ missing share, consistently with ordinary missing values.
 Empty columns show \code{empty} with an unavailable missing share;
 entirely missing columns and columns without finite values are identified
 separately, without a most-frequent level or undefined percentage.
+Lines that do not fit the console use a compact summary that retains the
+missing share; long names and summary text are shortened with an ellipsis.
 }
 \examples{
 set.seed(1)
