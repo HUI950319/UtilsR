@@ -20,7 +20,8 @@ pr_kv(x, indent = 2)
   objects are described by type and size, e.g. `<data.frame 6 x 11>` or
   `<lm>`. Long values wrap at the console width under the value column,
   as do the lines of a value that contains newlines. Long keys are
-  shortened to reserve space for their values.
+  shortened to reserve space for their values. SPSS user-missing values
+  display as `NA`; explicit missing factor levels display as `<NA>`.
 
 - indent:
 

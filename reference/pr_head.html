@@ -74,7 +74,8 @@ summary: the first line of an S3 print method.</p>
 <dd><p>Pieces of the summary, joined by a middle dot. <code>NULL</code>,
 <code>NA</code> and empty strings are dropped, so optional pieces can be
 passed as <code>if (cond) "text"</code>. Numbers show as <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>
-shows them, factors and dates as their labels.</p></dd>
+shows them, factors and dates as their labels. SPSS user-missing values
+are omitted; explicit missing factor levels remain as <code>&lt;NA&gt;</code>.</p></dd>
 
 
 <dt id="arg-bg-fg">bg, fg<a class="anchor" aria-label="anchor" href="#arg-bg-fg"></a></dt>

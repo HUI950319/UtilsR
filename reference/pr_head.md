@@ -21,7 +21,8 @@ pr_head(class, ..., bg = "blue", fg = "br_white")
   strings are dropped, so optional pieces can be passed as
   `if (cond) "text"`. Numbers show as
   [`print()`](https://rdrr.io/r/base/print.html) shows them, factors and
-  dates as their labels.
+  dates as their labels. SPSS user-missing values are omitted; explicit
+  missing factor levels remain as `<NA>`.
 
 - bg, fg:
 
