@@ -2,6 +2,10 @@
 
 ## UtilsR 0.6.15
 
+- Tree class and attribute labels escape layout controls without
+  changing the original metadata. A zero item budget still lists the
+  omitted names.
+
 - Narrow output accounts for uncoloured highlight markers, box padding
   and tree footers. Impossible indentation now identifies its argument
   instead of overflowing the console.
