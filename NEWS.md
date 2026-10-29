@@ -1,5 +1,8 @@
 # UtilsR 0.6.16
 
+* Flipped stacked continuous panels free the displayed horizontal value
+  scale, matching independent axes before coordinate flipping.
+
 * `pr_table()` describes packed data-frame columns by row, keeping the
   values from each row together instead of recycling column descriptions.
 

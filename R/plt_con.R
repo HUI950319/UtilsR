@@ -1006,7 +1006,7 @@ plt_con <- function(data,
   axis_limits <- c(if (is.null(y.min)) NA_real_ else y_min_use,
                    if (is.null(y.max)) NA_real_ else y_max_use)
   if (all(is.na(axis_limits))) axis_limits <- NULL
-  facet_scales <- if (isTRUE(same.y.lims)) "fixed" else "free_y"
+  facet_scales <- if (isTRUE(same.y.lims)) "fixed" else if (isTRUE(flip)) "free_x" else "free_y"
   if (isTRUE(flip)) {
     p <- p +
       ggplot2::facet_wrap(~feature, nrow = 1, scales = facet_scales) +
