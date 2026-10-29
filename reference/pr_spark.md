@@ -51,7 +51,9 @@ unavailable missing share; entirely missing columns and columns without
 finite values are identified separately, without a most-frequent level
 or undefined percentage. Lines that do not fit the console use a compact
 summary that retains the missing share; long names and summary text are
-shortened with an ellipsis.
+shortened with an ellipsis. The default includes each column by
+position, even when names repeat. Missing and empty column names display
+as `<NA>` and `""`.
 
 ## See also
 

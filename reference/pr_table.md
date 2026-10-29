@@ -97,10 +97,11 @@ numeric and time-span columns use their format methods, retaining
 integer64 digits and time units. The optional packages bit64, haven and
 lubridate are loaded by namespace when their stored types are
 encountered. Layout control characters in cells and column names are
-escaped so they cannot introduce extra table rows or misalign columns.
-Without colour (knitted documents, log files), P values carry stars
-(`***` below 0.001, `**` below 0.01, `*` below 0.05), highlighted rows
-start with `>` and missing text cells read `<NA>`.
+escaped so they cannot introduce extra table rows or misalign columns. A
+missing column name is displayed as `<NA>`. Without colour (knitted
+documents, log files), P values carry stars (`***` below 0.001, `**`
+below 0.01, `*` below 0.05), highlighted rows start with `>` and missing
+text cells read `<NA>`.
 
 ## See also
 

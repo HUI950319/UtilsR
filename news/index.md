@@ -1,5 +1,12 @@
 # Changelog
 
+## UtilsR 0.6.15
+
+- [`pr_spark()`](https://hui950319.github.io/UtilsR/reference/pr_spark.md)
+  inspects each default column by position, retaining distinct contents
+  when names repeat or are missing. Missing table headings display as
+  `<NA>` instead of stopping the print.
+
 ## UtilsR 0.6.14
 
 - [`pr_badge()`](https://hui950319.github.io/UtilsR/reference/pr_badge.md)

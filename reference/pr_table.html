@@ -13,7 +13,7 @@ chosen rows can be highlighted."><meta property="og:image" content="https://hui9
 
     <a class="navbar-brand me-2" href="../index.html">UtilsR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.14</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.15</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -154,7 +154,8 @@ format methods, retaining integer64 digits and time units. The optional
 packages bit64, haven and lubridate are loaded by namespace when their
 stored types are encountered.
 Layout control characters in cells and column names are escaped so they
-cannot introduce extra table rows or misalign columns.
+cannot introduce extra table rows or misalign columns. A missing column
+name is displayed as <code>&lt;NA&gt;</code>.
 Without colour (knitted documents, log files), P values carry stars
 (<code>***</code> below 0.001, <code>**</code> below 0.01, <code>*</code> below 0.05),
 highlighted rows start with <code>&gt;</code> and missing text cells read

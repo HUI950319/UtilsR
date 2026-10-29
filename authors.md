@@ -10,13 +10,13 @@ Source:
 [`DESCRIPTION`](https://github.com/HUI950319/UtilsR/blob/master/DESCRIPTION)
 
 Ouyang H (2026). *UtilsR: Utility Functions for Data Exploration and
-System Diagnostics*. R package version 0.6.14,
+System Diagnostics*. R package version 0.6.15,
 <https://hui950319.github.io/UtilsR/>.
 
     @Manual{,
       title = {UtilsR: Utility Functions for Data Exploration and System Diagnostics},
       author = {Hui Ouyang},
       year = {2026},
-      note = {R package version 0.6.14},
+      note = {R package version 0.6.15},
       url = {https://hui950319.github.io/UtilsR/},
     }
