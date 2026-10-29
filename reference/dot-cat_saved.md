@@ -55,7 +55,7 @@ Other console display:
 path <- tempfile(fileext = ".pdf")
 .cat_saved("the plot has been saved to", path, "7x5 in",
            file.exists(path), "PDF")
-#> [2026-10-29 10:25:41]  ℹ the plot has been saved to: 
-#>                          /tmp/Rtmp9hY0ar/file1a784ea3c94f.pdf [7x5 in, new 
+#> [2026-10-29 10:28:02]  ℹ the plot has been saved to: 
+#>                          /tmp/RtmpOIIXqM/file19d73ec2cd8b.pdf [7x5 in, new 
 #>                          PDF] 
 ```
