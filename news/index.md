@@ -2,6 +2,10 @@
 
 ## UtilsR 0.6.15
 
+- POSIXlt distribution columns show their date-time range, histogram and
+  missing share, as POSIXct columns do, without changing the input
+  column.
+
 - Metadata headers, key-value blocks and badges preserve SPSS
   user-missing values when converting them to text. Explicit missing
   factor levels remain visible categories in headers and key-value
