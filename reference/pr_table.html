@@ -13,7 +13,7 @@ chosen rows can be highlighted."><meta property="og:image" content="https://hui9
 
     <a class="navbar-brand me-2" href="../index.html">UtilsR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.13</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.14</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -144,7 +144,10 @@ smallest non-zero value would round to zero gets enough decimals for two
 significant digits, at most six. Missing values
 print as a grey <code>NA</code>. The cells of a list column are described as in
 <code><a href="pr_tree.html">pr_tree()</a></code>, e.g. <code>&lt;dbl 2&gt; 1.1, 2.2</code>. Everything else
-uses <code><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character()</a></code>.
+uses <code><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character()</a></code>. Classed numeric and time-span columns use their
+format methods, retaining integer64 digits and time units. The optional
+packages bit64, haven and lubridate are loaded by namespace when their
+stored types are encountered.
 Without colour (knitted documents, log files), P values carry stars
 (<code>***</code> below 0.001, <code>**</code> below 0.01, <code>*</code> below 0.05),
 highlighted rows start with <code>&gt;</code> and missing text cells read

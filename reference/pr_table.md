@@ -87,10 +87,13 @@ decimals for two significant digits, at most six. Missing values print
 as a grey `NA`. The cells of a list column are described as in
 [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md),
 e.g. `<dbl 2> 1.1, 2.2`. Everything else uses
-[`as.character()`](https://rdrr.io/r/base/character.html). Without
-colour (knitted documents, log files), P values carry stars (`***` below
-0.001, `**` below 0.01, `*` below 0.05), highlighted rows start with `>`
-and missing text cells read `<NA>`.
+[`as.character()`](https://rdrr.io/r/base/character.html). Classed
+numeric and time-span columns use their format methods, retaining
+integer64 digits and time units. The optional packages bit64, haven and
+lubridate are loaded by namespace when their stored types are
+encountered. Without colour (knitted documents, log files), P values
+carry stars (`***` below 0.001, `**` below 0.01, `*` below 0.05),
+highlighted rows start with `>` and missing text cells read `<NA>`.
 
 ## See also
 

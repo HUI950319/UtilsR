@@ -1,5 +1,13 @@
 # Changelog
 
+## UtilsR 0.6.14
+
+- [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  preserves integer64 digits and time-span components instead of
+  formatting their underlying storage. Print helpers load the namespace
+  supporting stored integer64, labelled and lubridate values when
+  needed.
+
 ## UtilsR 0.6.13
 
 - [`fmt_axisTile()`](https://hui950319.github.io/UtilsR/reference/fmt_axisTile.md)
