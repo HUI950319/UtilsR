@@ -345,3 +345,29 @@ test_that("plt_na returned plots do not retain unused input payloads", {
   }
   expect_lt(abs(bytes(make(20000L)) - bytes(make(20L))), 20000)
 })
+
+test_that("plt_na percentage labels fit inside their panel at both endpoints", {
+  withr::defer(grid::upViewport(0))
+  for (output in c("percentage", "both_reverse")) {
+    n <- if (output == "percentage") 100000L else 400L
+    data <- data.frame(tiny = c(NA, rep(1, n - 1L)),
+                       high = c(1, rep(NA_real_, n - 1L)), full = rep(NA_real_, n))
+    plot <- suppressMessages(plt_na(data, output = output))
+    if (output == "both_reverse") plot <- plot[[1L]]
+    grob <- ggplot2::ggplotGrob(plot)
+    panel <- grob$grobs[[which(grepl("^panel", grob$layout$name))[[1L]]]]
+    labels <- panel$children[[grep("geom_label", names(panel$children))[[1L]]]]
+    grid::pushViewport(grid::viewport(width = grid::unit(3.5, "in"), height = grid::unit(3, "in")))
+    for (label in labels$children) {
+      label <- grid::forceGrob(label)
+      anchor <- grid::convertX(label$vp$x, "npc", valueOnly = TRUE)
+      grid::pushViewport(label$vp)
+      left <- grid::convertX(grid::grobX(label$children$box, 180), "in", valueOnly = TRUE)
+      right <- grid::convertX(grid::grobX(label$children$box, 0), "in", valueOnly = TRUE)
+      grid::popViewport()
+      expect_gte(anchor + left / 3.5, 0)
+      expect_lte(anchor + right / 3.5, 1)
+    }
+    grid::popViewport()
+  }
+})

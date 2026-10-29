@@ -1,5 +1,8 @@
 # UtilsR 0.6.16
 
+* `plt_na()` aligns percentage labels toward the panel interior, keeping
+  small, large and 100% labels visible in ordinary and reversed layouts.
+
 * Global comparison labels align into the panel after coordinate flipping,
   keeping their complete text visible in single and stacked plots.
 

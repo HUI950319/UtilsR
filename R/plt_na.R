@@ -268,6 +268,7 @@ plt_na <- function(
             pmin(.data[["pct"]] + 2.8, 97.2)
           }
         ),
+        hjust = "inward",
         vjust = 0.5,
         size = 3,
         color = "black"
