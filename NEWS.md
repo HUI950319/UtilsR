@@ -1,5 +1,9 @@
 # UtilsR 0.6.16
 
+* `plt_na()` retains each original column's missing-value mask, including
+  SPSS user-missing values and explicit factor NA levels, and restores
+  methods for serialized integer64 and time-span columns before inspection.
+
 * `pr_table()` and root `pr_tree()` displays treat POSIXlt date-times as
   vectors, consistently with POSIXct, instead of list-backed storage.
 

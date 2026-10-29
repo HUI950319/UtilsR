@@ -10,6 +10,10 @@
 #' patterns across selected variables.
 #'
 #' @param data A data frame, tibble, or object inheriting from `Task`.
+#'   Missing values follow each original column's \code{is.na()} method,
+#'   including SPSS user-missing codes and ranges. An explicit factor NA level
+#'   remains a category. Methods for stored integer64 and time-span columns
+#'   are loaded before inspection.
 #' @param name.map Optional named character vector used to replace variable
 #'   names in the plot. Names must be the original variable names.
 #' @param miss_palette Character vector of at least three colours. The first
@@ -37,6 +41,9 @@
 #'   `NULL` with a warning when no missing values are found.
 #'
 #' @examples
+#' dat <- data.frame(age = c(30, NA, 50), marker = c(NA, 2, 3))
+#' plt_na(dat, output = "percentage")
+#'
 #' \donttest{
 #' if (requireNamespace("ToyData", quietly = TRUE)) {
 #'   plt_na(ToyData::oc)
@@ -71,10 +78,8 @@ plt_na <- function(
 
   if (inherits(data, "Task")) {
     df <- data$data()
-    miss_vec <- data$missings()
   } else if (is.data.frame(data)) {
     df <- data
-    miss_vec <- vapply(df, \(x) mean(is.na(x)), numeric(1))
   } else {
     cli::cli_abort("{.arg data} must be a data.frame, tibble, or Task object.")
   }
@@ -84,11 +89,17 @@ plt_na <- function(
     cli::cli_abort("{.arg data} must contain at least one observation.")
   }
 
-  if (is.null(names(miss_vec))) {
-    miss_vec <- vapply(df, \(x) mean(is.na(x)), numeric(1))
-  } else {
-    miss_vec <- miss_vec[names(miss_vec) %in% names(df)]
-  }
+  missing_data <- lapply(df, function(x) {
+    pkg <- if (inherits(x, "integer64")) "bit64" else
+      if (inherits(x, "haven_labelled")) "haven" else
+        if (inherits(x, c("Duration", "Period", "Interval"))) "lubridate" else NULL
+    if (!is.null(pkg) && !requireNamespace(pkg, quietly = TRUE)) {
+      cli::cli_abort("Inspecting {.cls {class(x)[1]}} columns requires package {.pkg {pkg}}.")
+    }
+    is.na(x)
+  })
+  miss_vec <- vapply(missing_data, mean, numeric(1))
+  missing_data <- vctrs::new_data_frame(missing_data, n = nrow(df))
 
   if (!is.null(name.map) &&
       (!is.character(name.map) || is.null(names(name.map)))) {
@@ -115,15 +126,15 @@ plt_na <- function(
     return(NULL)
   }
 
-  missing_summary <- df |>
+  missing_summary <- missing_data |>
     dplyr::select(dplyr::all_of(missing_vars)) |>
     tidyr::pivot_longer(
       dplyr::everything(),
       names_to = "name",
       values_to = "value",
-      values_transform = list(value = as.character)
+      values_transform = list(value = as.logical)
     ) |>
-    dplyr::mutate(isna = is.na(.data[["value"]])) |>
+    dplyr::mutate(isna = .data[["value"]]) |>
     dplyr::count(.data[["name"]], .data[["isna"]], name = "num") |>
     dplyr::group_by(.data[["name"]]) |>
     dplyr::mutate(
@@ -249,17 +260,17 @@ plt_na <- function(
       show_legend = FALSE,
       show_y_labels = TRUE,
       gap_side = NULL) {
-    matrix_data <- df |>
+    matrix_data <- missing_data |>
       dplyr::select(dplyr::all_of(missing_vars)) |>
       dplyr::mutate(id = dplyr::row_number()) |>
       tidyr::pivot_longer(
         -id,
         names_to = "name",
         values_to = "value",
-        values_transform = list(value = as.character)
+        values_transform = list(value = as.logical)
       ) |>
       dplyr::mutate(
-        isna = is.na(.data[["value"]]),
+        isna = .data[["value"]],
         label = map_name(.data[["name"]]),
         label = factor(.data[["label"]], levels = variable_levels)
       )

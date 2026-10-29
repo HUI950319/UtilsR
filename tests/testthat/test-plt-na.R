@@ -174,3 +174,53 @@ test_that("plt_na saves at a page that grows with its variables", {
   utils::capture.output(tall <- plt_na(make(16)))
   expect_gt(attr(tall, "plot_size")[[2]], attr(short, "plot_size")[[2]])
 })
+
+test_that("plt_na preserves original missing masks across column types", {
+  skip_if_not_installed("haven")
+  columns <- list(
+    spss = haven::labelled_spss(c(1, 99, NA_real_), na_values = 99),
+    spss_range = haven::labelled_spss(c(1, 98, 99), na_range = c(98, 99)),
+    explicit_na = structure(c(1L, 2L, NA_integer_),
+                            levels = c("A", NA_character_), class = "factor"),
+    list = I(list(1, NA_real_, 3)),
+    complex = c(1 + 0i, complex(real = NA, imaginary = 1), 3 + 0i),
+    logical = c(TRUE, NA, FALSE),
+    time = as.POSIXlt(c("2026-01-01", NA, "2026-01-03"), tz = "UTC"),
+    span = as.difftime(c(1, NA, 3), units = "days")
+  )
+  for (column in columns) {
+    data <- data.frame(helper = 1:3)
+    data[["value"]] <- column
+    original <- data
+    percentage <- suppressMessages(plt_na(data, output = "percentage"))
+    missing <- percentage$data[percentage$data$isna, ]
+    expect_equal(missing$num, sum(is.na(column)))
+    expect_equal(missing$pct, mean(is.na(column)) * 100)
+    matrix <- suppressMessages(plt_na(data, output = "matrix"))
+    expect_identical(matrix$data$isna, is.na(column))
+    expect_identical(data, original)
+  }
+})
+
+test_that("plt_na restores serialized integer64 missing methods", {
+  skip_if_not_installed("bit64")
+  data <- data.frame(helper = 1:3)
+  data[["value"]] <- bit64::as.integer64(c("9007199254740993", NA, "9007199254740994"))
+  fixture <- withr::local_tempfile(fileext = ".rds")
+  script <- withr::local_tempfile(fileext = ".R")
+  saveRDS(data, fixture)
+  quote_r <- function(x) paste(deparse(x), collapse = "\n")
+  writeLines(c(
+    "options(device = function(...) grDevices::pdf(NULL, ...))",
+    paste0(".libPaths(", quote_r(.libPaths()), ")"),
+    paste0("pkgload::load_all(", quote_r(getNamespaceInfo(asNamespace("UtilsR"), "path")),
+           ", quiet = TRUE, export_all = FALSE, helpers = FALSE)"),
+    paste0("data <- readRDS(", quote_r(fixture), ")"),
+    "p <- suppressMessages(UtilsR::plt_na(data, output = 'percentage'))",
+    "stopifnot(identical(as.character(p$data$name[p$data$isna]), 'value'))",
+    "stopifnot(identical(p$data$num[p$data$isna], 1L))"
+  ), script)
+  output <- system2(file.path(R.home("bin"), "Rscript"),
+                    c("--vanilla", shQuote(script)), stdout = TRUE, stderr = TRUE)
+  expect_null(attr(output, "status"), info = paste(output, collapse = "\n"))
+})

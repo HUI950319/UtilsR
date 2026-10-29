@@ -14,7 +14,11 @@ plt_na(
 )
 }
 \arguments{
-\item{data}{A data frame, tibble, or object inheriting from `Task`.}
+\item{data}{A data frame, tibble, or object inheriting from `Task`.
+Missing values follow each original column's \code{is.na()} method,
+including SPSS user-missing codes and ranges. An explicit factor NA level
+remains a category. Methods for stored integer64 and time-span columns
+are loaded before inspection.}
 
 \item{name.map}{Optional named character vector used to replace variable
 names in the plot. Names must be the original variable names.}
@@ -53,6 +57,9 @@ Use [plt_upset()] with `levels = NA` to visualise joint missing-value
 patterns across selected variables.
 }
 \examples{
+dat <- data.frame(age = c(30, NA, 50), marker = c(NA, 2, 3))
+plt_na(dat, output = "percentage")
+
 \donttest{
 if (requireNamespace("ToyData", quietly = TRUE)) {
   plt_na(ToyData::oc)
