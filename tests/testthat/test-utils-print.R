@@ -881,3 +881,9 @@ test_that("pr_table() rejects precision beyond the formatter limit", {
   }
   expect_warning(utils::capture.output(pr_table(x, digits = 324)), NA)
 })
+
+test_that("large whole-number display limits do not warn during validation", {
+  withr::local_options(cli.num_colors = 1)
+  expect_warning(utils::capture.output(pr_table(data.frame(v = 1:3), n = 1e100)), NA)
+  expect_warning(utils::capture.output(pr_tree(list(a = 1), max_lines = 1e100)), NA)
+})

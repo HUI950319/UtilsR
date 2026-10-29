@@ -111,7 +111,7 @@
     length(value) == 1L && !is.na(value)
   if (ok) {
     ok <- (infinite && is.infinite(value) && value > 0) ||
-      (is.finite(value) && value >= lower && value %% 1 == 0)
+      (is.finite(value) && value >= lower && value == trunc(value))
   }
   if (!ok) {
     extra <- paste0(if (infinite) ", or Inf" else "", if (null) ", or NULL" else "")
