@@ -1,5 +1,8 @@
 # UtilsR 0.6.16
 
+* `plt_na()` percentage-bound documentation retains valid percent
+  escaping when its help is regenerated with non-Markdown roxygen.
+
 * Shared bar-plot quantile limits use the original finite observations,
   while automatic limits continue to contain the full SD intervals.
 

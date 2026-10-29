@@ -28,8 +28,8 @@
 #'   the left and matrix on the right), `"matrix"`, or `"percentage"`.
 #' @param sort Variable order by missing rate: `"desc"` (default, largest to
 #'   smallest) or `"asc"` (smallest to largest).
-#'   Percentage labels below 0.01% or above 99.99% use bounds so positive
-#'   missingness does not display as zero or incomplete missingness as 100%.
+#'   Percentage labels below 0.01\% or above 99.99\% use bounds so positive
+#'   missingness does not display as zero or incomplete missingness as 100\%.
 #'
 #' @param save \code{NULL}, an empty list (default), or a named list forwarded
 #'   to \code{RegR::save_plt()} for PDF output: \code{filename} and optionally
