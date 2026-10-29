@@ -19,7 +19,7 @@
 #' @param miss_palette Character vector of at least three colours. The first
 #'   colour represents present values, the second represents missing values,
 #'   and the third colours the 30% reference line. Defaults to the first three
-#'   colours of [pal_lancet()].
+#'   colours of [pal_lancet()]. Names attached to the colours are ignored.
 #' @param output Plot layout to return. One of `"both"` (missingness matrix on
 #'   the left and percentages on the right), `"both_reverse"` (percentages on
 #'   the left and matrix on the right), `"matrix"`, or `"percentage"`.
@@ -109,7 +109,7 @@ plt_na <- function(
   if (!is.character(miss_palette) || length(miss_palette) < 3L) {
     cli::cli_abort("{.arg miss_palette} must contain at least three colours.")
   }
-  miss_palette <- miss_palette[seq_len(3L)]
+  miss_palette <- unname(miss_palette[seq_len(3L)])
 
   map_name <- function(x) {
     if (is.null(name.map)) {

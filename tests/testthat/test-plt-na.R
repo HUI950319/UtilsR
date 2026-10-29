@@ -250,3 +250,14 @@ test_that("plt_na labels an all-missing legend as Missing in every layout", {
     }
   }
 })
+
+test_that("plt_na accepts named missing-value palettes", {
+  data <- data.frame(value = c(1, NA, 3))
+  palette <- c(present = "blue", missing = "red", reference = "black")
+  for (output in c("matrix", "percentage")) {
+    expect_no_warning(plot <- suppressMessages(plt_na(data, output = output, miss_palette = palette)))
+    built <- ggplot2::ggplot_build(plot)
+    expect_setequal(unique(built$data[[1L]]$fill), c("blue", "red"))
+    if (output == "percentage") expect_identical(built$data[[2L]]$colour, "black")
+  }
+})

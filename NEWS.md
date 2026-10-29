@@ -1,5 +1,8 @@
 # UtilsR 0.6.16
 
+* `plt_na()` accepts named colour vectors without changing the mapping
+  between Present and Missing or losing the manual colour scale.
+
 * `pr_head()` and `pr_table()` detect missing expression elements without
   warnings or evaluating the expressions.
 

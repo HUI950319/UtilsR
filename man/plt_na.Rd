@@ -26,7 +26,7 @@ names in the plot. Names must be the original variable names.}
 \item{miss_palette}{Character vector of at least three colours. The first
 colour represents present values, the second represents missing values,
 and the third colours the 30% reference line. Defaults to the first three
-colours of [pal_lancet()].}
+colours of [pal_lancet()]. Names attached to the colours are ignored.}
 
 \item{output}{Plot layout to return. One of `"both"` (missingness matrix on
 the left and percentages on the right), `"both_reverse"` (percentages on
