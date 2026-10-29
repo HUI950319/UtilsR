@@ -887,3 +887,24 @@ test_that("large whole-number display limits do not warn during validation", {
   expect_warning(utils::capture.output(pr_table(data.frame(v = 1:3), n = 1e100)), NA)
   expect_warning(utils::capture.output(pr_tree(list(a = 1), max_lines = 1e100)), NA)
 })
+
+test_that("pr_spark() retains finite spread and compact text at extreme scales", {
+  withr::local_options(cli.num_colors = 1, cli.width = 100)
+  out <- utils::capture.output(pr_spark(data.frame(v = c(1e155, 2e155))))
+  expect_match(out, "mean 1.50e+155  sd 7.07e+154", fixed = TRUE)
+  out <- utils::capture.output(pr_spark(data.frame(v = c(1e-200, 2e-200))))
+  expect_match(out, "mean 1.50e-200  sd 7.07e-201", fixed = TRUE)
+  out <- utils::capture.output(pr_spark(data.frame(v = c(1e308, -1e308))))
+  expect_match(out, "mean 0  sd 1.41e+308", fixed = TRUE)
+  expect_match(out, "NA 0.0%", fixed = TRUE)
+})
+
+test_that("pr_spark() retains adjacent integer64 values above double precision", {
+  skip_if_not_installed("bit64")
+  withr::local_options(cli.num_colors = 1, cli.unicode = TRUE)
+  v <- bit64::as.integer64(c("9007199254740992", "9007199254740993"))
+  out <- utils::capture.output(pr_spark(data.frame(v = v)))
+  expect_match(out, "mean 9.01e+15  sd 0.707", fixed = TRUE)
+  bars <- regmatches(out, gregexpr("[\u2581-\u2588]", out))[[1]]
+  expect_length(bars, 2L)
+})

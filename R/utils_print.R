@@ -1053,6 +1053,9 @@ pr_box <- function(x, header = NULL, footer = NULL, col = "cyan") {
 #' there are. Other columns show their class only.
 #' SPSS user-missing values are excluded from summaries and counted in the
 #' missing share, consistently with ordinary missing values.
+#' Shorter scientific notation is used for extreme numeric summaries.
+#' Centering and scaling retain finite spread at extreme magnitudes, and
+#' narrow integer64 ranges retain their differences before double conversion.
 #' Empty columns show \code{empty} with an unavailable missing share;
 #' entirely missing columns and columns without finite values are identified
 #' separately, without a most-frequent level or undefined percentage.
@@ -1112,7 +1115,11 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
     format(cli::spark_bar(as.numeric(counts) / max(counts)))
   }
   # 3 significant digits, trailing zeros kept, without formatC()'s padding
-  sig3 <- function(z) trimws(formatC(z, digits = 3, format = "fg", flag = "#"))
+  sig3 <- function(z) {
+    fixed <- trimws(formatC(z, digits = 3, format = "fg", flag = "#"))
+    scientific <- trimws(formatC(z, digits = 2, format = "e"))
+    ifelse(nchar(scientific) < nchar(fixed), scientific, fixed)
+  }
   # one column -> c(sparkline, summary, missing share)
   one <- function(v) {
     v <- ._pr_restore(v)
@@ -1133,9 +1140,21 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
       num <- suppressWarnings(as.numeric(v))
       fin <- num[!missing & is.finite(num)]
       if (!length(fin)) return(c("", "no finite values", na))
-      counts <- bin(fin)
+      shape <- fin
+      if (inherits(v, "integer64") && diff(range(fin)) <= 2^53) {
+        observed <- v[!missing]
+        shape <- suppressWarnings(as.numeric(observed - min(observed)))
+      }
+      counts <- bin(shape)
+      spread <- stats::sd(shape)
+      if (length(shape) > 1L && (!is.finite(spread) || (spread == 0 && any(shape != shape[1])))) {
+        center <- min(shape) / 2 + max(shape) / 2
+        shifted <- shape - center
+        scale <- max(abs(shifted))
+        if (scale > 0) spread <- stats::sd(shifted / scale) * scale
+      }
       return(c(spark(counts),
-               sprintf("mean %s  sd %s", sig3(mean(fin)), sig3(stats::sd(fin))), na))
+               sprintf("mean %s  sd %s", sig3(mean(fin)), sig3(spread)), na))
     }
     if (is.factor(v) || is.character(v) || is.logical(v)) {
       # an identifier, every value different: count it rather than table() it
