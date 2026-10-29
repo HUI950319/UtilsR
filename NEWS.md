@@ -1,5 +1,8 @@
 # UtilsR 0.6.16
 
+* `pr_table()` and root `pr_tree()` displays treat POSIXlt date-times as
+  vectors, consistently with POSIXct, instead of list-backed storage.
+
 * Flipped stacked continuous panels free the displayed horizontal value
   scale, matching independent axes before coordinate flipping.
 

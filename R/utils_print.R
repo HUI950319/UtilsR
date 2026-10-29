@@ -478,6 +478,7 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 #' format methods, retaining integer64 digits and time units. The optional
 #' packages bit64, haven and lubridate are loaded by namespace when their
 #' stored types are encountered.
+#' POSIXlt date-times display as equivalent POSIXct vectors.
 #' Layout control characters in cells and column names are escaped so they
 #' cannot introduce extra table rows or misalign columns. A missing column
 #' name is displayed as \code{<NA>}.
@@ -549,6 +550,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   cells  <- lapply(seq_along(data), function(j) {
     nm <- names(data)[j]
     v <- ._pr_restore(data[[j]])
+    if (inherits(v, "POSIXlt")) v <- as.POSIXct(v)
     if (nm %in% p_col) return(._p_cells(v))
     if (is.data.frame(v)) {
       return(vapply(seq_len(nrow(v)), function(i) {
@@ -791,6 +793,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
 #' vectors show their first values, as many as fit the console width, a data
 #' frame its column names, and a list left closed at \code{max_depth} its
 #' names with the value of each single one (an unnamed list an ellipsis).
+#' POSIXlt date-times display as equivalent POSIXct vectors.
 #' Sibling names line up in a column. Types and sizes are grey, values in the
 #' text colour with \code{NA} in red, and the names of elements that hold
 #' others bold; a classed list starts with its class as a chip.
@@ -837,6 +840,7 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
   ._pr_count(max_items, "max_items", infinite = TRUE)
   ._pr_count(max_lines, "max_lines", infinite = TRUE)
   x <- ._pr_restore(x)
+  if (inherits(x, "POSIXlt")) x <- as.POSIXct(x)
   drop_attr <- c("names", "class", "dim", "dimnames", "row.names", "srcref")
   descend <- function(v) {
     is.list(v) && !is.data.frame(v) && !inherits(v, ._tree_leaf) &&

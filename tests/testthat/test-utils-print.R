@@ -931,3 +931,13 @@ test_that("pr_table() describes packed data-frame columns one row at a time", {
   expect_length(out, 5L)
   expect_length(utils::capture.output(pr_table(x[0, , drop = FALSE])), 2L)
 })
+
+test_that("tables and root trees treat POSIXlt as date-time vectors", {
+  withr::local_options(cli.num_colors = 1)
+  time <- as.POSIXlt(c("2026-01-01 01:02:03", "2026-01-03 04:05:06", NA), tz = "UTC")
+  x <- structure(list(time = time), class = "data.frame", row.names = 1:3)
+  y <- structure(list(time = as.POSIXct(time)), class = "data.frame", row.names = 1:3)
+  expect_identical(utils::capture.output(pr_table(x)), utils::capture.output(pr_table(y)))
+  expect_identical(utils::capture.output(pr_tree(time)), utils::capture.output(pr_tree(as.POSIXct(time))))
+  expect_s3_class(x$time, "POSIXlt")
+})

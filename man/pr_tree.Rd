@@ -32,6 +32,7 @@ description such as \code{<tibble 12 x 7>},
 vectors show their first values, as many as fit the console width, a data
 frame its column names, and a list left closed at \code{max_depth} its
 names with the value of each single one (an unnamed list an ellipsis).
+POSIXlt date-times display as equivalent POSIXct vectors.
 Sibling names line up in a column. Types and sizes are grey, values in the
 text colour with \code{NA} in red, and the names of elements that hold
 others bold; a classed list starts with its class as a chip.

@@ -80,6 +80,7 @@ uses \code{as.character()}. Classed numeric and time-span columns use their
 format methods, retaining integer64 digits and time units. The optional
 packages bit64, haven and lubridate are loaded by namespace when their
 stored types are encountered.
+POSIXlt date-times display as equivalent POSIXct vectors.
 Layout control characters in cells and column names are escaped so they
 cannot introduce extra table rows or misalign columns. A missing column
 name is displayed as \code{<NA>}.
