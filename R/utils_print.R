@@ -1062,6 +1062,7 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
   # one column -> c(sparkline, summary, missing share)
   one <- function(v) {
     v <- ._pr_restore(v)
+    if (inherits(v, "POSIXlt")) v <- as.POSIXct(v)
     if (!length(v)) return(c("", "empty", "NA n/a"))
     missing <- is.na(v)
     na <- sprintf("NA %.1f%%", 100 * mean(missing))

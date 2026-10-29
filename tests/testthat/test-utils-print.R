@@ -785,3 +785,13 @@ test_that("pr_head() retains an explicit missing factor level as a category", {
   expect_identical(utils::capture.output(pr_head("x", v)), "<x> observed \u00b7 <NA>")
   expect_identical(trimws(utils::capture.output(pr_kv(list(v = v)))), "v  observed, <NA>")
 })
+
+test_that("pr_spark() summarizes POSIXlt columns as date-times", {
+  withr::local_options(cli.num_colors = 1, cli.width = 100)
+  v <- as.POSIXlt(c("2026-01-01", "2026-01-03", NA), tz = "UTC")
+  x <- structure(list(time = v), class = "data.frame", row.names = 1:3)
+  out <- utils::capture.output(pr_spark(x))
+  expect_match(out, "2026-01-01 to 2026-01-03", fixed = TRUE)
+  expect_match(out, "NA 33.3%", fixed = TRUE)
+  expect_s3_class(x$time, "POSIXlt")
+})
