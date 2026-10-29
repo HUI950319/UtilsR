@@ -221,3 +221,15 @@ test_that("con errorbar explicit zoom limits retain their requested bounds", {
     expect_equal(p$coordinates$limits$y, c(10, 80))
   }
 })
+
+test_that("con singleton violin groups retain raw points and summary overlays", {
+  d <- data.frame(x = c(1:4, 10), g = c(rep("A", 4), "B"))
+  expect_warning(p <- con_plot(d, type = "violin", add_point = TRUE, add_trend = TRUE),
+                 "violin|density")
+  expect_equal(nrow(p$data), 5L)
+  expect_setequal(as.character(p$data$group.by), c("A", "B"))
+  b <- ggplot2::ggplot_build(p)$data
+  expect_equal(nrow(b[[2L]]), 5L)
+  expect_equal(nrow(b[[3L]]), 2L)
+  expect_equal(sort(b[[4L]]$y), c(2.5, 10))
+})

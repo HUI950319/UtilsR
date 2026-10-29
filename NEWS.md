@@ -1,5 +1,8 @@
 # UtilsR 0.6.16
 
+* Single-observation violin groups retain their raw points and summary
+  overlays; only the unavailable density estimate is omitted.
+
 * `plt_na()` accepts named colour vectors without changing the mapping
   between Present and Missing or losing the manual colour scale.
 

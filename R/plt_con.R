@@ -663,31 +663,22 @@ plt_con <- function(data,
 
   # --- Type-specific geom -----------------------------------------------------
   if (type == "violin") {
-    # Remove groups with < 2 observations
+    # Density needs two observations; other layers keep every finite row.
+    violin_data <- dat
     grp_counts <- table(dat[["group.by"]])
-    small_groups <- names(grp_counts[grp_counts < 2])
+    small_groups <- names(grp_counts[grp_counts > 0 & grp_counts < 2])
     if (length(small_groups) > 0) {
       cli::cli_warn(
-        "Removed {length(small_groups)} group{?s} with < 2 obs for violin: {.val {small_groups}}"
+        "Omitted violin density for {length(small_groups)} group{?s} with < 2 obs: {.val {small_groups}}"
       )
-      dat <- dat[!dat[["group.by"]] %in% small_groups, , drop = FALSE]
-      dat[["group.by"]] <- droplevels(dat[["group.by"]])
-      if (fill.by == "group") dat[["fill.by"]] <- dat[["group.by"]]
-      # Rebuild the plot with filtered data
-      p <- ggplot2::ggplot(dat, ggplot2::aes(
-        x = .data[["group.by"]],
-        y = .data[["value"]],
-        fill = .data[["fill.by"]]
-      ))
-      if (!is.null(bg.by)) {
-        bg_layer <- .build_bg_layer(data, group.by, bg.by, bg_alpha, bg_palette)
-        if (!is.null(bg_layer)) p <- p + bg_layer
-      }
+      violin_data <- dat[!dat[["group.by"]] %in% small_groups, , drop = FALSE]
     }
-    p <- p + ggplot2::geom_violin(
-      scale = "width", trim = TRUE, alpha = alpha,
-      position = ggplot2::position_dodge()
-    )
+    if (nrow(violin_data)) {
+      p <- p + ggplot2::geom_violin(
+        data = violin_data, scale = "width", trim = TRUE, alpha = alpha,
+        position = ggplot2::position_dodge()
+      )
+    }
   } else if (type == "box") {
     p <- p +
       ggplot2::geom_boxplot(
