@@ -13,10 +13,12 @@
 #'   Missing values follow each original column's \code{is.na()} method,
 #'   including SPSS user-missing codes and ranges. An explicit factor NA level
 #'   remains a category. Methods for stored integer64 and time-span columns
-#'   are loaded before inspection.
+#'   are loaded before inspection. Columns must be one-dimensional and have
+#'   unique, non-missing, non-empty names; matrix and array columns are rejected.
 #' @param name.map Optional named character vector used to replace variable
 #'   names in the plot. Names must be the original variable names. Distinct
-#'   variables may share a displayed label without being merged.
+#'   variables may share a displayed label without being merged. Mapping keys
+#'   must be unique, non-missing and non-empty.
 #' @param miss_palette Character vector of at least three colours. The first
 #'   colour represents present values, the second represents missing values,
 #'   and the third colours the 30% reference line. Defaults to the first three
@@ -91,6 +93,13 @@ plt_na <- function(
   if (nrow(df) == 0L) {
     cli::cli_abort("{.arg data} must contain at least one observation.")
   }
+  if (anyNA(names(df)) || any(!nzchar(names(df))) || anyDuplicated(names(df))) {
+    cli::cli_abort("{.arg data} must have unique, non-missing, non-empty column names.")
+  }
+  unsupported <- vapply(df, function(x) !is.null(dim(x)), logical(1))
+  if (any(unsupported)) {
+    cli::cli_abort("Columns must be one-dimensional; unsupported columns: {.val {names(df)[unsupported]}}.")
+  }
 
   missing_data <- lapply(df, function(x) {
     pkg <- if (inherits(x, "integer64")) "bit64" else
@@ -105,8 +114,10 @@ plt_na <- function(
   missing_data <- vctrs::new_data_frame(missing_data, n = nrow(df))
 
   if (!is.null(name.map) &&
-      (!is.character(name.map) || is.null(names(name.map)))) {
-    cli::cli_abort("{.arg name.map} must be a named character vector or NULL.")
+      (!is.character(name.map) || !is.null(dim(name.map)) ||
+       is.null(names(name.map)) || anyNA(names(name.map)) ||
+       any(!nzchar(names(name.map))) || anyDuplicated(names(name.map)))) {
+    cli::cli_abort("{.arg name.map} must have unique, non-missing, non-empty names and be a character vector.")
   }
 
   if (!is.character(miss_palette) || length(miss_palette) < 3L) {

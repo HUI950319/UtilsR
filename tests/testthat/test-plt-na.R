@@ -288,3 +288,22 @@ test_that("plt_na preserves nonzero and incomplete percentage labels", {
     expect_equal(plot$data$pct[plot$data$isna], counts[[i]] / 1000)
   }
 })
+
+test_that("plt_na rejects ambiguous names and multidimensional columns clearly", {
+  data <- data.frame(helper = c(1, 2, NA))
+  data[["packed"]] <- matrix(1:6, nrow = 3)
+  expect_error(plt_na(data), "one-dimensional.*packed")
+  data[["packed"]] <- array(1:12, dim = c(3, 2, 2))
+  expect_error(plt_na(data), "one-dimensional.*packed")
+  data <- data.frame(a = c(1, NA, 3), b = c(NA, 2, 3))
+  names(data) <- c("x", "x")
+  expect_error(plt_na(data), "unique.*column names")
+  names(data) <- c("", "x")
+  expect_error(plt_na(data), "non-empty.*column names")
+  names(data) <- c(NA_character_, "x")
+  expect_error(plt_na(data), "non-missing.*column names")
+  data <- data.frame(x = c(1, NA, 3))
+  expect_error(plt_na(data, name.map = c(x = "A", x = "B")), "name.map.*unique")
+  expect_error(plt_na(data, name.map = stats::setNames("A", "")), "name.map.*non-empty")
+  expect_error(plt_na(data, name.map = stats::setNames("A", NA_character_)), "name.map.*non-missing")
+})

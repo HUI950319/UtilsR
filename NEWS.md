@@ -1,5 +1,8 @@
 # UtilsR 0.6.16
 
+* `plt_na()` rejects matrix/array columns, ambiguous input names and
+  invalid `name.map` keys with errors identifying the input problem.
+
 * `plt_na()` labels positive missingness below 0.01% as <0.01% and
   incomplete missingness above 99.99% as >99.99%, retaining exact 100%.
 

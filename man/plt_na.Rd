@@ -18,11 +18,13 @@ plt_na(
 Missing values follow each original column's \code{is.na()} method,
 including SPSS user-missing codes and ranges. An explicit factor NA level
 remains a category. Methods for stored integer64 and time-span columns
-are loaded before inspection.}
+are loaded before inspection. Columns must be one-dimensional and have
+unique, non-missing, non-empty names; matrix and array columns are rejected.}
 
 \item{name.map}{Optional named character vector used to replace variable
 names in the plot. Names must be the original variable names. Distinct
-variables may share a displayed label without being merged.}
+variables may share a displayed label without being merged. Mapping keys
+must be unique, non-missing and non-empty.}
 
 \item{miss_palette}{Character vector of at least three colours. The first
 colour represents present values, the second represents missing values,
