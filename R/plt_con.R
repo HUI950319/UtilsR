@@ -23,7 +23,8 @@
 #'
 #' @param data A data frame.
 #' @param stat.by Character vector. Column name(s) of numeric variables to
-#'   plot.
+#'   plot. SPSS user-missing values are excluded. Matrix/array columns,
+#'   integer64 and date/time-span storage must be converted explicitly first.
 #' @param group.by Character. Column name for the x-axis grouping variable.
 #'   Default \code{NULL} (all data in one group).
 #' @param split.by Character. Optional splitting variable. Splits data,
@@ -234,29 +235,58 @@ plt_con <- function(data,
   fill.by  <- match.arg(fill.by)
   sig_label <- match.arg(sig_label)
 
-  if (!is.character(stat.by) || length(stat.by) == 0) {
-    cli::cli_abort("{.arg stat.by} must be a non-empty character vector.")
+  if (anyNA(names(data)) || any(!nzchar(names(data))) || anyDuplicated(names(data))) {
+    cli::cli_abort("{.arg data} must have unique, non-empty column names.")
   }
-  stat.by <- unique(stat.by)
+  if (!is.character(stat.by) || !is.null(dim(stat.by)) || !length(stat.by) ||
+      anyNA(stat.by) || any(!nzchar(stat.by))) {
+    cli::cli_abort("{.arg stat.by} must be a non-empty character vector without missing names.")
+  }
+  stat.by <- unname(unique(stat.by))
+  for (arg in c("group.by", "split.by", "bg.by")) {
+    value <- get(arg)
+    if (!is.null(value) && (!is.character(value) || length(value) != 1L ||
+                           is.na(value) || !nzchar(value))) {
+      cli::cli_abort("{.arg {arg}} must be NULL or one non-empty column name.")
+    }
+  }
+  grouping_cols <- unique(c(group.by, split.by, bg.by))
+  if (length(intersect(stat.by, grouping_cols))) {
+    cli::cli_abort("Numeric features and grouping/splitting/background columns must be different; their roles cannot overlap.")
+  }
 
   missing_cols <- stat.by[!stat.by %in% names(data)]
   if (length(missing_cols) > 0) {
     cli::cli_abort("Column{?s} not found in {.arg data}: {.val {missing_cols}}")
   }
 
-  non_numeric <- stat.by[!vapply(stat.by, function(s) {
-    is.numeric(data[[s]])
-  }, logical(1))]
-  if (length(non_numeric) > 0) {
-    cli::cli_abort(
-      "Column{?s} must be numeric: {.val {non_numeric}}"
-    )
+  for (col in unique(c(stat.by, grouping_cols))) {
+    if (col %in% names(data) && !is.null(dim(data[[col]]))) {
+      cli::cli_abort("Column {.val {col}} must be one-dimensional, not a matrix or array.")
+    }
+  }
+  data <- as.data.frame(data)
+  for (col in stat.by) {
+    value <- data[[col]]
+    if (inherits(value, c("integer64", "Date", "POSIXt", "difftime",
+                          "Duration", "Period", "Interval"))) {
+      cli::cli_abort("Column {.val {col}} uses unsupported integer64, date/time, or time-span storage; convert it explicitly first.")
+    }
+    if (!is.numeric(value)) cli::cli_abort("Column {.val {col}} must be numeric.")
+    if (inherits(value, "haven_labelled")) {
+      loadNamespace("labelled")
+      missing_value <- is.na(value)
+      value <- as.numeric(value)
+      value[missing_value] <- NA_real_
+      data[[col]] <- value
+    }
   }
 
   # --- group.by handling ------------------------------------------------------
   dummy_group <- FALSE
   if (is.null(group.by)) {
     group.by <- ".all_groups"
+    while (group.by %in% names(data)) group.by <- paste0(group.by, ".")
     data[[group.by]] <- factor("All")
     xlab <- xlab %||% ""
     dummy_group <- TRUE
@@ -282,7 +312,17 @@ plt_con <- function(data,
   # --- Ensure factors ---------------------------------------------------------
   for (col in unique(c(group.by, split.by, bg.by))) {
     if (!is.null(col) && col %in% names(data) && !is.factor(data[[col]])) {
-      data[[col]] <- factor(data[[col]], levels = unique(data[[col]]))
+      value <- data[[col]]
+      if (inherits(value, "haven_labelled")) {
+        loadNamespace("labelled")
+        missing_value <- is.na(value)
+        value <- as.vector(value)
+        value[missing_value] <- NA
+      }
+      if (inherits(value, "integer64") && !requireNamespace("bit64", quietly = TRUE)) {
+        cli::cli_abort("Grouping integer64 columns requires the {.pkg bit64} package.")
+      }
+      data[[col]] <- factor(value, levels = unique(value))
     }
   }
 

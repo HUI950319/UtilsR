@@ -1,5 +1,8 @@
 # UtilsR 0.6.15
 
+* `plt_con()` respects SPSS user-missing codes and ranges, rejects ambiguous
+  columns and unsupported numeric storage, and avoids dummy-group name clashes.
+
 * `plt_dist()` gains `xlab` and `ylab` for the bar-chart and heatmap axis
   titles, so `save` writes a retitled plot without a separate
   `RegR::save_plt()` call.

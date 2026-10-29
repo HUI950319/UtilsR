@@ -63,7 +63,8 @@ plt_con(
 \item{data}{A data frame.}
 
 \item{stat.by}{Character vector. Column name(s) of numeric variables to
-plot.}
+plot. SPSS user-missing values are excluded. Matrix/array columns,
+integer64 and date/time-span storage must be converted explicitly first.}
 
 \item{group.by}{Character. Column name for the x-axis grouping variable.
 Default \code{NULL} (all data in one group).}
