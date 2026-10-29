@@ -1,5 +1,8 @@
 # UtilsR 0.6.14
 
+* `pr_table()` reads columns by position, preserving distinct contents
+  when column names repeat or are empty.
+
 * `pr_table()` respects the direction of text P-value bounds, including
   Unicode comparisons and whitespace, and does not mark invalid numeric
   text as significant. Numeric P-values keep enough decimals below a

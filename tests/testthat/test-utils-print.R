@@ -606,3 +606,12 @@ test_that("pr_table() does not round a significant P value onto its cut-off", {
   expect_identical(out[-c(1, 2)], c("0.049999999*", "0.0099999999**", "<0.001***",
                                     "0.050", "0.010*", "0.001**"))
 })
+
+test_that("pr_table() reads repeated and empty column names by position", {
+  withr::local_options(cli.num_colors = 1)
+  x <- data.frame(a = "first", b = "second", check.names = FALSE)
+  names(x) <- c("x", "x")
+  expect_match(utils::capture.output(pr_table(x))[3], "^ +first +second$")
+  names(x) <- c("", "")
+  expect_match(utils::capture.output(pr_table(x))[3], "^ +first +second$")
+})

@@ -422,8 +422,9 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
 
   is_num <- vapply(data, is.numeric, logical(1)) | names(data) %in% p_col
   colour <- ._pr_colour()
-  cells  <- lapply(names(data), function(nm) {
-    v <- ._pr_restore(data[[nm]])
+  cells  <- lapply(seq_along(data), function(j) {
+    nm <- names(data)[j]
+    v <- ._pr_restore(data[[j]])
     if (nm %in% p_col) return(._p_cells(v))
     if (is.double(v) && is.numeric(v) && !is.object(v)) {
       fin  <- v[is.finite(v)]
