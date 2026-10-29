@@ -1,5 +1,8 @@
 # UtilsR 0.6.16
 
+* Automatic `plt_con(type = "bar")` axes contain the complete mean +/- SD
+  intervals and zero baseline, while explicit zoom bounds remain unchanged.
+
 * `plt_con()` rejects zero-row or entirely non-finite input clearly and
   skips empty features and split panels while retaining usable plots.
 

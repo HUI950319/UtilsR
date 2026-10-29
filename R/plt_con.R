@@ -12,6 +12,7 @@
 #         +-- L2  .resolve_y_limit()   numeric or quantile string -> limits
 #                                      (also called by both builders)
 #         +-- L2  .con_dot_bins()      numeric bin centres, including constants
+#         +-- L2  .con_bar_range()     full mean +/- SD range and zero baseline
 # =============================================================================
 
 #' Unified Continuous Variable Plot
@@ -78,7 +79,8 @@
 #'   Default \code{FALSE}, including stacked and flipped panels. Explicit
 #'   \code{y.min}/\code{y.max} bounds apply to every feature.
 #' @param y.min Numeric or character. Minimum y-axis limit.
-#'   Character \code{"qN"} uses the Nth percentile. Default \code{NULL}.
+#'   Character \code{"qN"} uses the Nth percentile. Default \code{NULL};
+#'   automatic bar limits include the full SD intervals and zero baseline.
 #' @param y.max Numeric or character. Maximum y-axis limit.
 #'   Character \code{"qN"} uses the Nth percentile. Default \code{NULL}.
 #' @param y.nbreaks Integer. Number of y-axis breaks. Default 5.
@@ -478,7 +480,8 @@ plt_con <- function(data,
   if (isTRUE(same.y.lims)) {
     all_values <- unlist(lapply(stat.by, function(s) {
       v <- data[[s]]
-      v[is.finite(v)]
+      keep <- is.finite(v)
+      if (type == "bar") .con_bar_range(v[keep], data[[group.by]][keep]) else v[keep]
     }))
     global_y_max <- .resolve_y_limit(y.max, all_values, side = "max")
     global_y_min <- .resolve_y_limit(y.min, all_values, side = "min")
@@ -588,6 +591,16 @@ plt_con <- function(data,
   midpoints[ids]
 }
 
+.con_bar_range <- function(values, groups) {
+  ids <- match(groups, unique(groups))
+  intervals <- unlist(lapply(split(values, ids), function(v) {
+    centre <- mean(v)
+    spread <- stats::sd(v)
+    c(centre - spread, centre + spread)
+  }), use.names = FALSE)
+  range(c(0, values, intervals), finite = TRUE)
+}
+
 
 #' Build a single feature plot
 #' @noRd
@@ -629,8 +642,9 @@ plt_con <- function(data,
 
   # --- Y limits ---------------------------------------------------------------
   values <- dat[["value"]]
-  y_max_use <- .resolve_y_limit(y.max, values, "max")
-  y_min_use <- .resolve_y_limit(y.min, values, "min")
+  auto_values <- if (type == "bar") .con_bar_range(values, dat[["group.by"]]) else values
+  y_max_use <- .resolve_y_limit(y.max, if (is.null(y.max)) auto_values else values, "max")
+  y_min_use <- .resolve_y_limit(y.min, if (is.null(y.min)) auto_values else values, "min")
 
   # --- Base ggplot ------------------------------------------------------------
   p <- ggplot2::ggplot(dat, ggplot2::aes(
@@ -700,7 +714,6 @@ plt_con <- function(data,
         position = ggplot2::position_dodge(width = 0.9),
         width = 0.2, color = "black"
       )
-    y_min_use <- min(0, y_min_use)
   } else if (type == "dot") {
     dat[["bins"]] <- .con_dot_bins(dat[["value"]])
     # Pre-aggregate counts to avoid stat_sum issues
@@ -953,7 +966,6 @@ plt_con <- function(data,
         position = ggplot2::position_dodge(width = 0.9),
         width = 0.2, color = "black"
       )
-    y_min_use <- min(0, y_min_use)
   } else if (type == "dot") {
     dat_long[["bins"]] <- .con_dot_bins(dat_long[["value"]])
     dot_df <- stats::aggregate(

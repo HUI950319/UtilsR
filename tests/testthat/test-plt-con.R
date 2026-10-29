@@ -196,3 +196,28 @@ test_that("con empty split levels are omitted without losing populated panels", 
                                                  combine = FALSE)), "S1.*no finite|no finite.*S1")
   expect_named(out, "S2")
 })
+
+test_that("con errorbar limits contain full SD intervals and the zero baseline", {
+  for (sign in c(1, -1)) for (stack in c(FALSE, TRUE)) for (shared in c(FALSE, TRUE)) {
+    d <- data.frame(x = sign * c(1, 100), z = sign * c(2, 200), g = "A")
+    p <- con_plot(d, if (stack) c("x", "z") else "x", type = "bar", stack = stack,
+                 same.y.lims = shared)
+    b <- ggplot2::ggplot_build(p)
+    intervals <- b$data[[3L]]
+    for (i in seq_along(b$layout$panel_params)) {
+      at <- intervals[as.integer(intervals$PANEL) == i, ]
+      limits <- b$layout$panel_params[[i]]$y.range
+      expect_lte(limits[1L], min(c(0, at$ymin), na.rm = TRUE))
+      expect_gte(limits[2L], max(c(0, at$ymax), na.rm = TRUE))
+    }
+  }
+})
+
+test_that("con errorbar explicit zoom limits retain their requested bounds", {
+  d <- data.frame(x = c(1, 100), z = c(2, 200), g = "A")
+  for (stack in c(FALSE, TRUE)) {
+    p <- con_plot(d, if (stack) c("x", "z") else "x", type = "bar", stack = stack,
+                 y.min = 10, y.max = 80)
+    expect_equal(p$coordinates$limits$y, c(10, 80))
+  }
+})

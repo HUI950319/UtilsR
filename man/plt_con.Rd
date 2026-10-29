@@ -146,7 +146,8 @@ Default \code{FALSE}, including stacked and flipped panels. Explicit
 \code{y.min}/\code{y.max} bounds apply to every feature.}
 
 \item{y.min}{Numeric or character. Minimum y-axis limit.
-Character \code{"qN"} uses the Nth percentile. Default \code{NULL}.}
+Character \code{"qN"} uses the Nth percentile. Default \code{NULL};
+automatic bar limits include the full SD intervals and zero baseline.}
 
 \item{y.max}{Numeric or character. Maximum y-axis limit.
 Character \code{"qN"} uses the Nth percentile. Default \code{NULL}.}
