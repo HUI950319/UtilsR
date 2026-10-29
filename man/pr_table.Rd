@@ -35,7 +35,7 @@ counted in a grey footer. \code{NULL} or \code{Inf} shows every row.}
 or \code{"center"}. \code{NULL} (default) right-aligns numeric and
 P-value columns and left-aligns the rest.}
 
-\item{digits}{Non-negative integer. Decimals for double columns (default 2).}
+\item{digits}{Integer from 0 to 324. Decimals for double columns (default 2).}
 
 \item{width}{Positive integer. Line width the table must fit; \code{NULL}
 (default) uses the console width. The first column and the P-value

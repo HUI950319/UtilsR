@@ -872,3 +872,12 @@ test_that("pr_tree() keeps class and attribute names within their metadata lines
   out <- utils::capture.output(pr_tree(list(first = 1, second = 2), max_items = 0))
   expect_match(out[2], "2 more: first, second", fixed = TRUE)
 })
+
+test_that("pr_table() rejects precision beyond the formatter limit", {
+  withr::local_options(cli.num_colors = 1)
+  x <- data.frame(v = c(1.25, 2.5))
+  for (d in c(325, 8191, 1e100)) {
+    expect_error(pr_table(x, digits = d), "digits.*324")
+  }
+  expect_warning(utils::capture.output(pr_table(x, digits = 324)), NA)
+})

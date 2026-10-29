@@ -496,7 +496,7 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 #' @param align Column alignment, recycled: \code{"left"}, \code{"right"}
 #'   or \code{"center"}. \code{NULL} (default) right-aligns numeric and
 #'   P-value columns and left-aligns the rest.
-#' @param digits Non-negative integer. Decimals for double columns (default 2).
+#' @param digits Integer from 0 to 324. Decimals for double columns (default 2).
 #' @param width Positive integer. Line width the table must fit; \code{NULL}
 #'   (default) uses the console width. The first column and the P-value
 #'   columns always show. Long required headings and, when necessary, cells
@@ -525,6 +525,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   }
   ._pr_count(n, "n", null = TRUE, infinite = TRUE)
   ._pr_count(digits, "digits")
+  if (digits > 324L) cli::cli_abort("{.arg digits} must not exceed the formatC limit of 324.")
   ._pr_count(width, "width", lower = 1L, null = TRUE)
   ._pr_count(indent, "indent")
   miss <- setdiff(p_col, names(data))
