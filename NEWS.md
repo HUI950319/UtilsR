@@ -1,5 +1,9 @@
 # UtilsR 0.6.14
 
+* `pr_spark()` distinguishes empty, entirely missing and non-finite
+  columns without `NaN` percentages or an arbitrary top level. An explicit
+  missing factor level is named `<NA>` when it is the most frequent level.
+
 * `pr_spark()` excludes SPSS user-missing codes and ranges before computing
   numeric summaries, using the same missing-value mask as its missing share.
 

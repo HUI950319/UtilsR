@@ -893,6 +893,9 @@ pr_box <- function(x, header = NULL, footer = NULL, col = "cyan") {
 #' there are. Other columns show their class only.
 #' SPSS user-missing values are excluded from summaries and counted in the
 #' missing share, consistently with ordinary missing values.
+#' Empty columns show \code{empty} with an unavailable missing share;
+#' entirely missing columns and columns without finite values are identified
+#' separately, without a most-frequent level or undefined percentage.
 #'
 #' @param data A data frame (tibbles included).
 #' @param vars Character. Columns to show; \code{NULL} (default) shows all.
@@ -942,11 +945,13 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
   # one column -> c(sparkline, summary, missing share)
   one <- function(v) {
     v <- ._pr_restore(v)
+    if (!length(v)) return(c("", "empty", "NA n/a"))
     missing <- is.na(v)
     na <- sprintf("NA %.1f%%", 100 * mean(missing))
+    if (all(missing)) return(c("", "all missing", na))
     if (inherits(v, c("Date", "POSIXct"))) {
       fin <- v[!missing & is.finite(v)]
-      if (!length(fin)) return(c("", "all missing", na))
+      if (!length(fin)) return(c("", "no finite values", na))
       return(c(spark(bin(as.numeric(fin))),
                sprintf("%s to %s", format(min(fin)), format(max(fin))), na))
     }
@@ -955,7 +960,7 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
       # integer64 is an integer64, which formatC() writes as its raw bits
       num <- suppressWarnings(as.numeric(v))
       fin <- num[!missing & is.finite(num)]
-      if (!length(fin)) return(c("", "all missing", na))
+      if (!length(fin)) return(c("", "no finite values", na))
       counts <- bin(fin)
       return(c(spark(counts),
                sprintf("mean %s  sd %s", sig3(mean(fin)), sig3(stats::sd(fin))), na))
@@ -972,7 +977,7 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
       k   <- length(tab)
       top <- which.max(tab)
       lab <- names(tab)[top]
-      if (!nzchar(lab)) lab <- "\"\""
+      if (is.na(lab)) lab <- "<NA>" else if (!nzchar(lab)) lab <- "\"\""
       info <- sprintf("%d level%s \u00b7 top %s (%.1f%%)", k, if (k == 1L) "" else "s",
                       lab, 100 * tab[[top]] / sum(!missing))
       if (k > bins) tab <- sort(tab, decreasing = TRUE)[seq_len(bins)]

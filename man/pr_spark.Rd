@@ -37,6 +37,9 @@ values; one whose values all differ, such as an identifier, shows how many
 there are. Other columns show their class only.
 SPSS user-missing values are excluded from summaries and counted in the
 missing share, consistently with ordinary missing values.
+Empty columns show \code{empty} with an unavailable missing share;
+entirely missing columns and columns without finite values are identified
+separately, without a most-frequent level or undefined percentage.
 }
 \examples{
 set.seed(1)
