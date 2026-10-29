@@ -66,7 +66,8 @@ and invalid numeric text receive none. Other double columns are rounded to
 \code{digits} decimals, or none when every value is whole; a column whose
 smallest non-zero value would round to zero gets enough decimals for two
 significant digits, at most six. Missing values
-print as a grey \code{NA}. The cells of a list column are described as in
+print as a grey \code{NA}. Matrix and array columns are described one row
+at a time, retaining all components. List-column cells are described as in
 \code{\link{pr_tree}()}, e.g. \code{<dbl 2> 1.1, 2.2}. Everything else
 uses \code{as.character()}. Classed numeric and time-span columns use their
 format methods, retaining integer64 digits and time units. The optional

@@ -1,5 +1,8 @@
 # UtilsR 0.6.14
 
+* `pr_table()` describes every component of a matrix or array column per
+  row instead of silently showing only its first component.
+
 * `pr_table()` reads columns by position, preserving distinct contents
   when column names repeat or are empty.
 

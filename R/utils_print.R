@@ -360,7 +360,8 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 #' \code{digits} decimals, or none when every value is whole; a column whose
 #' smallest non-zero value would round to zero gets enough decimals for two
 #' significant digits, at most six. Missing values
-#' print as a grey \code{NA}. The cells of a list column are described as in
+#' print as a grey \code{NA}. Matrix and array columns are described one row
+#' at a time, retaining all components. List-column cells are described as in
 #' \code{\link{pr_tree}()}, e.g. \code{<dbl 2> 1.1, 2.2}. Everything else
 #' uses \code{as.character()}. Classed numeric and time-span columns use their
 #' format methods, retaining integer64 digits and time units. The optional
@@ -426,6 +427,12 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
     nm <- names(data)[j]
     v <- ._pr_restore(data[[j]])
     if (nm %in% p_col) return(._p_cells(v))
+    if (is.array(v)) {
+      return(vapply(seq_len(nrow(v)), function(i) {
+        at <- if (length(v)) seq.int(i, length(v), by = nrow(v)) else integer()
+        ._obj_desc(v[at], width = 40)
+      }, character(1)))
+    }
     if (is.double(v) && is.numeric(v) && !is.object(v)) {
       fin  <- v[is.finite(v)]
       d    <- if (all(fin == round(fin))) 0L else digits

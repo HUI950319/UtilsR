@@ -615,3 +615,17 @@ test_that("pr_table() reads repeated and empty column names by position", {
   names(x) <- c("", "")
   expect_match(utils::capture.output(pr_table(x))[3], "^ +first +second$")
 })
+
+test_that("pr_table() retains every component of matrix and array cells", {
+  withr::local_options(cli.num_colors = 1)
+  x <- data.frame(id = c("a", "b"))
+  x$values <- matrix(1:4, nrow = 2)
+  out <- utils::capture.output(pr_table(x))
+  expect_match(out[3], "<int 2> 1, 3", fixed = TRUE)
+  expect_match(out[4], "<int 2> 2, 4", fixed = TRUE)
+  x$values <- array(1:8, dim = c(2, 2, 2))
+  out <- utils::capture.output(pr_table(x))
+  expect_match(out[3], "<int 4> 1, 3, 5, 7", fixed = TRUE)
+  expect_match(out[4], "<int 4> 2, 4, 6, 8", fixed = TRUE)
+  expect_length(utils::capture.output(pr_table(x[0, ])), 2L)
+})
