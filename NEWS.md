@@ -1,5 +1,9 @@
 # UtilsR 0.6.15
 
+* Text P-value significance is compared as decimal text, so underflow
+  cannot turn a negative value into zero or erase a positive bound, and
+  long decimal endpoints keep their position relative to a cut-off.
+
 * POSIXlt distribution columns show their date-time range, histogram and
   missing share, as POSIXct columns do, without changing the input column.
 

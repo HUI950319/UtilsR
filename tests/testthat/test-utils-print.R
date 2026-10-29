@@ -795,3 +795,20 @@ test_that("pr_spark() summarizes POSIXlt columns as date-times", {
   expect_match(out, "NA 33.3%", fixed = TRUE)
   expect_s3_class(x$time, "POSIXlt")
 })
+
+test_that("text P-value comparisons survive double underflow and rounded endpoints", {
+  withr::local_options(cli.num_colors = 1, cli.width = 100)
+  p <- c("-1e-999", "1e-999", "<1e-999", "<=1e-999",
+    "0.049999999999999999999", "0.050000000000000000001",
+    "0.009999999999999999999", "0.000999999999999999999",
+    "1.000000000000000000001", "000.0000", "05e-2", "<5e-2", "<=5e-2", NA)
+  out <- trimws(utils::capture.output(pr_table(data.frame(P = p), p_col = "P")))
+  expect_identical(out[-c(1, 2)], c("-1e-999", "1e-999***", "<1e-999***", "<=1e-999***",
+    "0.049999999999999999999*", "0.050000000000000000001",
+    "0.009999999999999999999**", "0.000999999999999999999***",
+    "1.000000000000000000001", "000.0000***", "05e-2", "<5e-2*", "<=5e-2", "NA"))
+  withr::local_options(cli.num_colors = 256)
+  out <- utils::capture.output(pr_table(data.frame(P = c("-1e-999", "<1e-999")), p_col = "P"))
+  expect_false(grepl("\033[31m", out[3], fixed = TRUE))
+  expect_match(out[4], "\033[31m", fixed = TRUE)
+})

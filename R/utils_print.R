@@ -392,13 +392,36 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
     valid <- grepl(paste0("^(?:", bound, "[\\h\\v]*)?", number, "$"), txt, perl = TRUE)
     op <- ifelse(grepl(paste0("^", bound), txt, perl = TRUE),
                  sub(paste0("^(", bound, ").*$"), "\\1", txt, perl = TRUE), "")
-    num <- suppressWarnings(as.numeric(sub(paste0("^", bound, "[\\h\\v]*"), "", txt, perl = TRUE)))
-    valid <- valid & !is.na(num) & is.finite(num) & num >= 0 & num <= 1 &
-      !(op == "<" & num == 0) & !(op == ">" & num == 1)
+    decimal <- sub(paste0("^", bound, "[\\h\\v]*"), "", txt, perl = TRUE)
+    exponent <- suppressWarnings(as.numeric(ifelse(grepl("[eE]", decimal),
+      sub("^.*[eE]", "", decimal), "0")))
+    mantissa <- sub("[eE].*$", "", decimal)
+    negative <- grepl("^-", mantissa)
+    mantissa <- sub("^[+-]", "", mantissa)
+    places <- ifelse(grepl(".", mantissa, fixed = TRUE),
+                     nchar(sub("^.*[.]", "", mantissa)), 0L)
+    coefficient <- sub("^0+", "", gsub(".", "", mantissa, fixed = TRUE))
+    zero <- coefficient == ""
+    power <- exponent - places + nchar(coefficient) - 1L
+    significant <- sub("0+$", "", coefficient)
+    digit <- suppressWarnings(as.integer(substr(significant, 1L, 1L)))
+    one <- power == 0 & significant == "1"
+    valid <- valid & (!negative | zero) & (zero | power < 0 | one) &
+      !(op == "<" & zero) & !(op == ">" & one)
   }
   below <- function(cut) {
+    if (is.numeric(v)) {
+      less <- num < cut
+      equal <- num == cut
+    } else {
+      # Decimal endpoints can differ from a cut-off after parsing as doubles.
+      cut_power <- if (cut == 0.001) -3L else -2L
+      cut_digit <- if (cut == 0.05) 5L else 1L
+      less <- zero | power < cut_power | (power == cut_power & digit < cut_digit)
+      equal <- power == cut_power & significant == as.character(cut_digit)
+    }
     valid & (op %in% c("", "<", "<=", "\u2264")) &
-      (num < cut | (op == "<" & num <= cut))
+      (less | (op == "<" & equal))
   }
   strong <- below(0.001)
   sig    <- !strong & below(0.05)
@@ -429,7 +452,8 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 #' text is kept as written, and values print bold red below 0.001, red below
 #' 0.05 and grey otherwise. Text bounds receive significance styling only
 #' when their comparison guarantees a value below the cut-off; lower bounds
-#' and invalid numeric text receive none. Other double columns are rounded to
+#' and invalid numeric text receive none. Decimal text is compared without
+#' rounding its endpoint to double precision. Other double columns are rounded to
 #' \code{digits} decimals, or none when every value is whole; a column whose
 #' smallest non-zero value would round to zero gets enough decimals for two
 #' significant digits, at most six. Nonzero values still rounded to zero,
