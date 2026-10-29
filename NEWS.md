@@ -1,5 +1,8 @@
 # UtilsR 0.6.16
 
+* Stacked `plt_con()` builds the requested faceted plot directly instead of
+  first constructing and discarding every separate feature plot.
+
 * `plt_na()` rejects matrix/array columns, ambiguous input names and
   invalid `name.map` keys with errors identifying the input problem.
 

@@ -250,3 +250,16 @@ test_that("con jitter defaults preserve numeric values and the random state", {
     expect_identical(points$x, ggplot2::ggplot_build(p)$data[[length(b)]]$x)
   }
 })
+
+test_that("con dispatch builds only the requested stacked plot", {
+  original <- getFromNamespace(".plt_con_single", "UtilsR")
+  separate_calls <- 0L
+  local_mocked_bindings(.plt_con_single = function(...) {
+    separate_calls <<- separate_calls + 1L
+    original(...)
+  }, .package = "UtilsR")
+  p <- con_plot(con_data(), c("x", "z"), type = "box", stack = TRUE)
+  expect_equal(nrow(p$data), 24L)
+  expect_equal(length(ggplot2::ggplot_build(p)$layout$panel_params), 2L)
+  expect_equal(separate_calls, 0L)
+})

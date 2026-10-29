@@ -488,7 +488,7 @@ plt_con <- function(data,
   }
 
   # --- Build one plot per feature --------------------------------------------
-  plist <- stats::setNames(lapply(stat.by, function(f) {
+  plist <- if (isTRUE(stack) && length(stat.by) > 1L) list() else stats::setNames(lapply(stat.by, function(f) {
     .plt_con_single(
       data = data, feature = f, group.by = group.by, bg.by = bg.by,
       type = type, fill.by = fill.by, colors = colors, alpha = alpha,
