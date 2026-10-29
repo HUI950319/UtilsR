@@ -908,3 +908,14 @@ test_that("pr_spark() retains adjacent integer64 values above double precision",
   bars <- regmatches(out, gregexpr("[\u2581-\u2588]", out))[[1]]
   expect_length(bars, 2L)
 })
+
+test_that("pr_table() distinguishes an explicit NA factor level from missing storage", {
+  withr::local_options(cli.num_colors = 1)
+  f <- structure(c(1L, 2L, NA_integer_), levels = c("a", NA_character_), class = "factor")
+  x <- data.frame(v = f)
+  expect_identical(trimws(utils::capture.output(pr_table(x)))[3:5], c("a", "<NA>", "<NA>"))
+  withr::local_options(cli.num_colors = 256)
+  expect_identical(trimws(cli::ansi_strip(utils::capture.output(pr_table(x))))[3:5],
+                   c("a", "<NA>", "NA"))
+  expect_identical(x$v, f)
+})

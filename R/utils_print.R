@@ -469,7 +469,8 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 #' significant digits, at most six. Nonzero values still rounded to zero,
 #' and numbers wider than the available line, use scientific notation.
 #' Missing values
-#' print as a grey \code{NA}. Matrix and array columns are described one row
+#' print as a grey \code{NA}; an explicit missing factor level displays as
+#' \code{<NA>}. Matrix and array columns are described one row
 #' at a time, retaining all components. List-column cells are described as in
 #' \code{\link{pr_tree}()}, e.g. \code{<dbl 2> 1.1, 2.2}. Everything else
 #' uses \code{as.character()}. Classed numeric and time-span columns use their
@@ -575,7 +576,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
       # a list column: describe each cell, rather than deparse it (c(1.1, 2.2))
       txt <- vapply(v, ._obj_desc, character(1), width = 40)
     } else {
-      txt <- as.character(v)
+      txt <- ._as_text(v)
     }
     txt <- ._pr_escape(txt)
     ifelse(is.na(v), if (!colour && !is.numeric(v)) "<NA>" else cli::col_grey("NA"),
