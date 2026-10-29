@@ -1101,9 +1101,12 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
 
   # equal-width bins, or one per value for few whole numbers
   bin <- function(x) {
-    u <- sort(unique(x))
-    if (all(x == round(x)) && length(u) <= bins) {
-      return(tabulate(match(x, u), nbins = length(u)))
+    if (all(x == round(x))) {
+      u <- unique(x)
+      if (length(u) <= bins) {
+        u <- sort(u)
+        return(tabulate(match(x, u), nbins = length(u)))
+      }
     }
     rng <- range(x)
     if (rng[1] == rng[2]) return(length(x))

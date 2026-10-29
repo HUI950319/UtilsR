@@ -1,5 +1,8 @@
 # UtilsR 0.6.15
 
+* Numeric distribution histograms skip unnecessary sorting and distinct
+  value collection, retaining the same counts and printed summaries.
+
 * Extreme-scale distribution summaries use compact scientific text and
   recover finite nonzero standard deviations through centering and scaling
   when the ordinary variance calculation overflows or underflows.
