@@ -92,3 +92,37 @@ test_that("con bins use numeric boundaries at large and tiny scales", {
   mids <- expected_breaks[-15L] + diff(expected_breaks) / 2
   expect_equal(sort(p$layers[[1L]]$data$bins), sort(unique(mids[ids])))
 })
+
+test_that("con stacked comparisons test each feature separately", {
+  d <- con_data()
+  d$z <- c(1:6, (1:6) + 1.5)
+  p <- con_plot(d, c("x", "z"), type = "box", stack = TRUE,
+               comparisons = list(c("A", "B")), multiplegroup_comparisons = TRUE)
+  kinds <- vapply(p$layers, function(l) class(l$geom)[1L], character(1))
+  expect_true("GeomSignif" %in% kinds)
+  expect_true("GeomText" %in% kinds)
+  b <- ggplot2::ggplot_build(p)$data
+  bracket <- b[[which(kinds == "GeomSignif")]]
+  global <- b[[which(kinds == "GeomText")]]
+  expect_equal(as.character(tapply(bracket$annotation, bracket$PANEL, unique)), c("**", "ns"))
+  expect_equal(as.character(global$label), c("**", "ns"))
+})
+
+test_that("con stacked dot plots retain requested raw point overlays", {
+  d <- con_data()
+  p <- con_plot(d, c("x", "z"), type = "dot", stack = TRUE, add_point = TRUE)
+  expect_length(p$layers, 2L)
+  b <- ggplot2::ggplot_build(p)$data
+  expect_equal(nrow(b[[2L]]), 2L * nrow(d))
+})
+
+test_that("con stacked points inherit a dodge aesthetic under either fill mode", {
+  for (stack in c(FALSE, TRUE)) for (fill in c("group", "feature")) {
+    p <- con_plot(con_data(), c("x", "z"), type = "box", stack = stack,
+                 fill.by = fill, add_point = TRUE)
+    b <- ggplot2::ggplot_build(p)$data
+    points <- b[[length(b)]]
+    expect_equal(nrow(points), if (stack) 24L else 12L)
+    expect_true(all(points$x > 0.5 & points$x < 2.5))
+  }
+})

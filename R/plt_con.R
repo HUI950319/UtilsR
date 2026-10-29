@@ -485,6 +485,11 @@ plt_con <- function(data,
       jitter.height = jitter.height,
       add_trend = add_trend, trend_color = trend_color,
       trend_linewidth = trend_linewidth, trend_ptsize = trend_ptsize,
+      comparisons = comparisons, ref_group = ref_group,
+      pairwise_method = pairwise_method,
+      multiplegroup_comparisons = multiplegroup_comparisons,
+      multiple_method = multiple_method, sig_label = sig_label,
+      sig_labelsize = sig_labelsize,
       y.min = global_y_min %||% y.min, y.max = global_y_max %||% y.max,
       y.nbreaks = y.nbreaks, flip = flip,
       title = title, subtitle = subtitle,
@@ -718,7 +723,7 @@ plt_con <- function(data,
         x = .data[["group.by"]],
         y = .data[["value"]]
       ),
-      inherit.aes = FALSE,
+      inherit.aes = TRUE,
       color = pt.color, size = pt.size, alpha = pt.alpha,
       position = ggplot2::position_jitterdodge(
         jitter.width = jitter.width, jitter.height = jitter.height,
@@ -832,6 +837,9 @@ plt_con <- function(data,
                               jitter.width, jitter.height,
                               add_trend, trend_color, trend_linewidth,
                               trend_ptsize,
+                              comparisons, ref_group, pairwise_method,
+                              multiplegroup_comparisons, multiple_method,
+                              sig_label, sig_labelsize,
                               y.min, y.max, y.nbreaks, flip,
                               title, subtitle, xlab, ylab,
                               legend.position, legend.direction,
@@ -950,10 +958,10 @@ plt_con <- function(data,
       )
   }
 
-  if (isTRUE(add_point) && type != "dot") {
+  if (isTRUE(add_point)) {
     p <- p + ggplot2::geom_point(
       ggplot2::aes(x = .data[["group.by"]], y = .data[["value"]]),
-      inherit.aes = FALSE,
+      inherit.aes = TRUE,
       color = pt.color, size = pt.size %||% 0.3, alpha = pt.alpha,
       position = ggplot2::position_jitterdodge(
         jitter.width = jitter.width, jitter.height = jitter.height,
@@ -976,6 +984,21 @@ plt_con <- function(data,
         ggplot2::aes(group = 1),
         color = "black", fill = "white", size = trend_ptsize, shape = 21
       )
+  }
+
+  # Facets partition the test data, so each feature is tested independently.
+  if (!is.null(comparisons)) {
+    p <- p + ggpubr::stat_compare_means(
+      comparisons = comparisons, ref.group = ref_group,
+      method = pairwise_method, label = sig_label, size = sig_labelsize,
+      step.increase = 0.1, tip.length = 0.03, vjust = 0
+    )
+  }
+  if (isTRUE(multiplegroup_comparisons)) {
+    p <- p + ggpubr::stat_compare_means(
+      method = multiple_method, label = sig_label, size = sig_labelsize,
+      vjust = 1.2, hjust = 0
+    )
   }
 
   # --- Facet by feature ---

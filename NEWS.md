@@ -1,5 +1,8 @@
 # UtilsR 0.6.16
 
+* Stacked `plt_con()` panels retain pairwise/global comparisons per feature
+  and requested raw-point overlays on dot plots.
+
 * `pr_table()` keeps explicit missing factor levels as `<NA>` without
   mistaking them for missing storage or failing during width calculation.
 
