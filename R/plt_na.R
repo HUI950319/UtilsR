@@ -15,7 +15,8 @@
 #'   remains a category. Methods for stored integer64 and time-span columns
 #'   are loaded before inspection.
 #' @param name.map Optional named character vector used to replace variable
-#'   names in the plot. Names must be the original variable names.
+#'   names in the plot. Names must be the original variable names. Distinct
+#'   variables may share a displayed label without being merged.
 #' @param miss_palette Character vector of at least three colours. The first
 #'   colour represents present values, the second represents missing values,
 #'   and the third colours the 30% reference line. Defaults to the first three
@@ -153,10 +154,13 @@ plt_na <- function(
     variable_summary |>
       dplyr::arrange(.data[["pct"]])
   }
-  variable_levels <- dplyr::pull(variable_summary, "label")
+  display_labels <- dplyr::pull(variable_summary, "label")
+  variable_levels <- make.unique(display_labels)
+  names(display_labels) <- variable_levels
+  variable_keys <- stats::setNames(variable_levels, variable_summary$name)
 
   missing_summary$label <- factor(
-    missing_summary$label,
+    unname(variable_keys[missing_summary$name]),
     levels = variable_levels
   )
 
@@ -191,6 +195,7 @@ plt_na <- function(
       ),
       ggplot2::scale_x_discrete(
         limits = rev(variable_levels),
+        labels = display_labels,
         expand = c(0, 0)
       ),
       ggplot2::coord_flip(),
@@ -274,7 +279,7 @@ plt_na <- function(
       ) |>
       dplyr::mutate(
         isna = .data[["value"]],
-        label = map_name(.data[["name"]]),
+        label = unname(variable_keys[.data[["name"]]]),
         label = factor(.data[["label"]], levels = variable_levels)
       )
 
@@ -301,6 +306,7 @@ plt_na <- function(
       ) +
       ggplot2::scale_x_discrete(
         limits = rev(variable_levels),
+        labels = display_labels,
         expand = c(0.03, 0)
       ) +
       ggplot2::scale_y_continuous(

@@ -1,5 +1,8 @@
 # UtilsR 0.6.16
 
+* `plt_na()` keeps distinct variables separate when `name.map` gives
+  them the same displayed label, including a collision with an unmapped name.
+
 * Single-observation violin groups retain their raw points and summary
   overlays; only the unavailable density estimate is omitted.
 

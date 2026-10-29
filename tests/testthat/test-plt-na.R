@@ -261,3 +261,19 @@ test_that("plt_na accepts named missing-value palettes", {
     if (output == "percentage") expect_identical(built$data[[2L]]$colour, "black")
   }
 })
+
+test_that("plt_na keeps variables distinct when displayed labels coincide", {
+  data <- data.frame(a = c(1, NA, 3), b = c(NA, NA, 3))
+  for (map in list(c(a = "Marker", b = "Marker"), c(a = "b"))) {
+    expect_no_error(plot <- suppressMessages(plt_na(data, name.map = map)))
+    for (panel in lapply(seq_along(plot), function(i) plot[[i]])) {
+      expect_equal(nlevels(panel$data$label), 2L)
+      expect_setequal(unique(panel$data$name), names(data))
+      scale <- ggplot2::ggplot_build(panel)$plot$scales$get_scales("x")
+      expect_identical(as.character(scale$get_labels()), rep(unname(map[[1L]]), 2L))
+    }
+    summary <- plot[[2L]]$data
+    expect_equal(summary$pct[summary$isna & summary$name == "a"], 100 / 3)
+    expect_equal(summary$pct[summary$isna & summary$name == "b"], 200 / 3)
+  }
+})

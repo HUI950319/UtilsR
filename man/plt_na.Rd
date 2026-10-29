@@ -21,7 +21,8 @@ remains a category. Methods for stored integer64 and time-span columns
 are loaded before inspection.}
 
 \item{name.map}{Optional named character vector used to replace variable
-names in the plot. Names must be the original variable names.}
+names in the plot. Names must be the original variable names. Distinct
+variables may share a displayed label without being merged.}
 
 \item{miss_palette}{Character vector of at least three colours. The first
 colour represents present values, the second represents missing values,
