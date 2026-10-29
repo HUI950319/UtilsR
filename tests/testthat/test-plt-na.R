@@ -237,3 +237,16 @@ test_that("plt_na keeps missing id columns in every matrix layout", {
   plot <- suppressMessages(plt_na(data["id"], output = "matrix"))
   expect_identical(plot$data$isna, c(FALSE, TRUE, FALSE))
 })
+
+test_that("plt_na labels an all-missing legend as Missing in every layout", {
+  for (output in c("matrix", "percentage", "both", "both_reverse")) {
+    plot <- suppressMessages(plt_na(data.frame(value = rep(NA_real_, 3)), output = output))
+    panels <- if (inherits(plot, "patchwork")) lapply(seq_along(plot), function(i) plot[[i]]) else list(plot)
+    for (panel in panels) {
+      built <- ggplot2::ggplot_build(panel)
+      scale <- built$plot$scales$get_scales("fill")
+      expect_identical(as.character(scale$get_labels()), "Missing")
+      expect_identical(unique(built$data[[1L]]$fill), unname(as.character(pal_lancet[2L])))
+    }
+  }
+})

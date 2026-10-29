@@ -1,5 +1,8 @@
 # UtilsR 0.6.16
 
+* `plt_na()` identifies an all-missing legend entry as Missing in every
+  layout, even when no Present category is observed.
+
 * Automatic `plt_con(type = "bar")` axes contain the complete mean +/- SD
   intervals and zero baseline, while explicit zoom bounds remain unchanged.
 

@@ -161,7 +161,7 @@ plt_na <- function(
   )
 
   fill_values <- c("FALSE" = miss_palette[1], "TRUE" = miss_palette[2])
-  fill_labels <- c("Present", "Missing")
+  fill_labels <- c("FALSE" = "Present", "TRUE" = "Missing")
   combined_gap <- 2
 
   build_percentage_plot <- function(
