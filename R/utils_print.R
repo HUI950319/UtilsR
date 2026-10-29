@@ -731,7 +731,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
     a <- names(formals(if (is.primitive(v)) args(v) else v))
     if (length(a) > 4L) a <- c(a[1:4], cli::symbol$ellipsis)
     return(g(if (is.null(a) && is.primitive(v)) "<fn>" else
-      sprintf("<fn(%s)>", paste(a, collapse = ", "))))
+      sprintf("<fn(%s)>", paste(._pr_escape(a), collapse = ", "))))
   }
   # a classed environment, such as an R6 learner, is named by its class
   if (is.environment(v)) return(g(if (is.object(v)) sprintf("<%s>", cls) else "<env>"))
@@ -1196,7 +1196,7 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
       if (k > bins) tab <- sort(tab, decreasing = TRUE)[seq_len(bins)]
       return(c(spark(tab), info, na))
     }
-    c("", paste0("<", class(v)[1], ">"), na)
+    c("", paste0("<", ._pr_escape(class(v)[1]), ">"), na)
   }
 
   parts <- lapply(columns, function(j) one(data[[j]]))

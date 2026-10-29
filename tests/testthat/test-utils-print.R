@@ -966,3 +966,17 @@ test_that("tree previews display SPSS user-missing values as missing", {
   expect_match(out[2], "1 [Yes], NA, NA", fixed = TRUE)
   expect_identical(v, original)
 })
+
+test_that("function arguments and fallback spark classes stay on one physical line", {
+  withr::local_options(cli.num_colors = 1)
+  fn <- function(a) NULL
+  names(formals(fn)) <- "a\nb"
+  tree <- utils::capture.output(pr_tree(list(fn = fn)))
+  expect_length(tree, 2L)
+  expect_match(tree[2], "<fn(a\\nb)>", fixed = TRUE)
+  v <- structure(as.raw(1:3), class = "a\nb")
+  x <- structure(list(v = v), class = "data.frame", row.names = 1:3)
+  spark <- utils::capture.output(pr_spark(x))
+  expect_length(spark, 1L)
+  expect_match(spark, "<a\\nb>", fixed = TRUE)
+})

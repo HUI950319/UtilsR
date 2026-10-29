@@ -1,5 +1,8 @@
 # UtilsR 0.6.16
 
+* Function-argument labels in `pr_tree()` and fallback class labels in
+  `pr_spark()` escape layout controls instead of creating extra lines.
+
 * Split continuous panels preserve group colours through local sorting;
   `combine = FALSE` returns a named list and rejects saving that list.
 
