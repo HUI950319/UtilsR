@@ -817,7 +817,7 @@ plt_con <- function(data,
       label = sig_label,
       label.y = y_max_use,
       size = sig_labelsize,
-      vjust = 1.2, hjust = 0
+      vjust = 1.2, hjust = if (isTRUE(flip)) 1 else 0
     )
     y_max_use <- y_max_use + (y_max_use - y_min_use) * 0.1
   }
@@ -1023,7 +1023,7 @@ plt_con <- function(data,
   if (isTRUE(multiplegroup_comparisons)) {
     p <- p + ggpubr::stat_compare_means(
       method = multiple_method, label = sig_label, size = sig_labelsize,
-      vjust = 1.2, hjust = 0
+      vjust = 1.2, hjust = if (isTRUE(flip)) 1 else 0
     )
   }
 

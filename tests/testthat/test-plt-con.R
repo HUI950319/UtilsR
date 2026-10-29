@@ -108,6 +108,24 @@ test_that("con stacked comparisons test each feature separately", {
   expect_equal(as.character(global$label), c("**", "ns"))
 })
 
+test_that("con global test labels fit inside normal and flipped panels", {
+  for (stack in c(FALSE, TRUE)) for (flip in c(FALSE, TRUE)) {
+    p <- con_plot(con_data(), c("x", "z"), type = "box", stack = stack, flip = flip,
+                 multiplegroup_comparisons = TRUE, sig_label = "p.format")
+    g <- ggplot2::ggplotGrob(p)
+    for (i in grep("^panel", g$layout$name)) {
+      labels <- Filter(function(child) inherits(child, "text") && any(grepl("^p = ", child$label)),
+                       g$grobs[[i]]$children)
+      expect_length(labels, 1L)
+      for (label in labels) {
+        width <- grid::convertWidth(grid::grobWidth(label), "in", valueOnly = TRUE) / 3.5
+        expect_lte(as.numeric(label$x) + (1 - label$hjust) * width, 1)
+        expect_gte(as.numeric(label$x) - label$hjust * width, 0)
+      }
+    }
+  }
+})
+
 test_that("con stacked dot plots retain requested raw point overlays", {
   d <- con_data()
   p <- con_plot(d, c("x", "z"), type = "dot", stack = TRUE, add_point = TRUE)

@@ -1,5 +1,8 @@
 # UtilsR 0.6.16
 
+* Global comparison labels align into the panel after coordinate flipping,
+  keeping their complete text visible in single and stacked plots.
+
 * `plt_na()` percentage-bound documentation retains valid percent
   escaping when its help is regenerated with non-Markdown roxygen.
 
