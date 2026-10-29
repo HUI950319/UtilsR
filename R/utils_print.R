@@ -126,7 +126,7 @@
 ._as_text <- function(v) {
   v <- ._pr_restore(v)
   if (is.double(v) && !is.object(v)) v <- signif(v, getOption("digits", 7L))
-  missing <- is.na(v)
+  missing <- if (is.expression(v)) is.na(as.list(v)) else is.na(v)
   text <- as.character(v)
   text[missing] <- NA_character_
   if (is.factor(v)) text[!missing & is.na(text)] <- "<NA>"
@@ -596,7 +596,8 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
       txt <- ._as_text(v)
     }
     txt <- ._pr_escape(txt)
-    ifelse(is.na(v), if (!colour && !is.numeric(v)) "<NA>" else cli::col_grey("NA"),
+    missing <- if (is.expression(v)) is.na(as.list(v)) else is.na(v)
+    ifelse(missing, if (!colour && !is.numeric(v)) "<NA>" else cli::col_grey("NA"),
            txt)
   })
 

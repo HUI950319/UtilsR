@@ -992,3 +992,13 @@ test_that("table highlights validate row selectors without integer coercion", {
   expect_identical(utils::capture.output(pr_table(x, highlight = c(TRUE, FALSE, TRUE))),
                    utils::capture.output(pr_table(x, highlight = c(1, 3))))
 })
+
+test_that("expression fields print without missingness warnings or evaluation", {
+  withr::local_options(cli.num_colors = 1, cli.width = 120)
+  expr <- expression(a + b, NA, NULL, stop("must not evaluate"))
+  expect_silent(header <- utils::capture.output(pr_head("expr", expr)))
+  expect_identical(header, '<expr> a + b \u00b7 NULL \u00b7 stop("must not evaluate")')
+  x <- structure(list(v = expr), class = "data.frame", row.names = 1:4)
+  expect_silent(out <- utils::capture.output(pr_table(x)))
+  expect_identical(trimws(out[3:6]), c("a + b", "<NA>", "NULL", 'stop("must not evaluate")'))
+})

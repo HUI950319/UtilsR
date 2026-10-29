@@ -1,5 +1,8 @@
 # UtilsR 0.6.16
 
+* `pr_head()` and `pr_table()` detect missing expression elements without
+  warnings or evaluating the expressions.
+
 * `plt_na()` identifies an all-missing legend entry as Missing in every
   layout, even when no Present category is observed.
 
