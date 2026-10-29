@@ -139,7 +139,8 @@ Default \code{"kruskal.test"}.}
 \item{sig_labelsize}{Numeric. Label text size. Default 3.5.}
 
 \item{same.y.lims}{Logical. Use same y limits across features?
-Default \code{FALSE}.}
+Default \code{FALSE}, including stacked and flipped panels. Explicit
+\code{y.min}/\code{y.max} bounds apply to every feature.}
 
 \item{y.min}{Numeric or character. Minimum y-axis limit.
 Character \code{"qN"} uses the Nth percentile. Default \code{NULL}.}

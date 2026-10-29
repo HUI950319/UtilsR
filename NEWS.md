@@ -1,5 +1,8 @@
 # UtilsR 0.6.16
 
+* Stacked `plt_con()` respects independent or shared feature axes in both
+  orientations, while retaining explicit axis bounds.
+
 * Stacked `plt_con()` panels retain pairwise/global comparisons per feature
   and requested raw-point overlays on dot plots.
 

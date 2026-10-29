@@ -72,7 +72,8 @@
 #' @param sig_label Label type: \code{"p.signif"} or \code{"p.format"}.
 #' @param sig_labelsize Numeric. Label text size. Default 3.5.
 #' @param same.y.lims Logical. Use same y limits across features?
-#'   Default \code{FALSE}.
+#'   Default \code{FALSE}, including stacked and flipped panels. Explicit
+#'   \code{y.min}/\code{y.max} bounds apply to every feature.
 #' @param y.min Numeric or character. Minimum y-axis limit.
 #'   Character \code{"qN"} uses the Nth percentile. Default \code{NULL}.
 #' @param y.max Numeric or character. Maximum y-axis limit.
@@ -491,7 +492,7 @@ plt_con <- function(data,
       multiple_method = multiple_method, sig_label = sig_label,
       sig_labelsize = sig_labelsize,
       y.min = global_y_min %||% y.min, y.max = global_y_max %||% y.max,
-      y.nbreaks = y.nbreaks, flip = flip,
+      y.nbreaks = y.nbreaks, same.y.lims = same.y.lims, flip = flip,
       title = title, subtitle = subtitle,
       xlab = xlab %||% (if (dummy_group) "" else group.by),
       ylab = ylab %||% "Value",
@@ -840,7 +841,7 @@ plt_con <- function(data,
                               comparisons, ref_group, pairwise_method,
                               multiplegroup_comparisons, multiple_method,
                               sig_label, sig_labelsize,
-                              y.min, y.max, y.nbreaks, flip,
+                              y.min, y.max, y.nbreaks, same.y.lims, flip,
                               title, subtitle, xlab, ylab,
                               legend.position, legend.direction,
                               aspect.ratio, base_size,
@@ -1002,14 +1003,18 @@ plt_con <- function(data,
   }
 
   # --- Facet by feature ---
+  axis_limits <- c(if (is.null(y.min)) NA_real_ else y_min_use,
+                   if (is.null(y.max)) NA_real_ else y_max_use)
+  if (all(is.na(axis_limits))) axis_limits <- NULL
+  facet_scales <- if (isTRUE(same.y.lims)) "fixed" else "free_y"
   if (isTRUE(flip)) {
     p <- p +
-      ggplot2::facet_grid(. ~ feature) +
-      ggplot2::coord_flip(ylim = c(y_min_use, y_max_use))
+      ggplot2::facet_wrap(~feature, nrow = 1, scales = facet_scales) +
+      ggplot2::coord_flip(ylim = axis_limits)
   } else {
     p <- p +
-      ggplot2::facet_grid(feature ~ ., scales = "free_y") +
-      ggplot2::coord_cartesian(ylim = c(y_min_use, y_max_use))
+      ggplot2::facet_grid(feature ~ ., scales = facet_scales) +
+      ggplot2::coord_cartesian(ylim = axis_limits)
   }
 
   # --- Scales ---

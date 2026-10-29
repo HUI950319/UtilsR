@@ -126,3 +126,23 @@ test_that("con stacked points inherit a dodge aesthetic under either fill mode",
     expect_true(all(points$x > 0.5 & points$x < 2.5))
   }
 })
+
+test_that("con scales honor shared and independent stacked axes in both orientations", {
+  for (flip in c(FALSE, TRUE)) {
+    p <- con_plot(con_data(), c("x", "z"), type = "box", stack = TRUE, flip = flip)
+    b <- ggplot2::ggplot_build(p)
+    axis <- if (flip) "x.range" else "y.range"
+    independent <- lapply(b$layout$panel_params, `[[`, axis)
+    expect_lt(independent[[1L]][2L], independent[[2L]][1L])
+    q <- con_plot(con_data(), c("x", "z"), type = "box", stack = TRUE,
+                  same.y.lims = TRUE, flip = flip)
+    shared <- lapply(ggplot2::ggplot_build(q)$layout$panel_params, `[[`, axis)
+    expect_equal(shared[[1L]], shared[[2L]])
+    expect_true(shared[[1L]][1L] <= 1 && shared[[1L]][2L] >= 115)
+    explicit <- con_plot(con_data(), c("x", "z"), type = "box", stack = TRUE,
+                         y.min = 0, y.max = 200, flip = flip)
+    limits <- lapply(ggplot2::ggplot_build(explicit)$layout$panel_params, `[[`, axis)
+    expect_equal(limits[[1L]], limits[[2L]])
+    expect_true(limits[[1L]][1L] <= 0 && limits[[1L]][2L] >= 200)
+  }
+})
