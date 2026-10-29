@@ -170,6 +170,33 @@ plt_na <- function(
     levels = variable_levels
   )
 
+  .plt_na_plot(
+    missing_data = if (output == "percentage") NULL else missing_data[missing_vars],
+    missing_summary = missing_summary,
+    missing_vars = missing_vars,
+    variable_levels = variable_levels,
+    display_labels = display_labels,
+    variable_keys = variable_keys,
+    miss_palette = miss_palette,
+    output = output,
+    save = save
+  )
+}
+
+# Construct returned plots without retaining the original input frame.
+.plt_na_plot <- function(missing_data, missing_summary, missing_vars,
+                         variable_levels, display_labels, variable_keys,
+                         miss_palette, output, save) {
+  force(missing_data)
+  force(missing_summary)
+  force(missing_vars)
+  force(variable_levels)
+  force(display_labels)
+  force(variable_keys)
+  force(miss_palette)
+  force(output)
+  force(save)
+
   fill_values <- c("FALSE" = miss_palette[1], "TRUE" = miss_palette[2])
   fill_labels <- c("FALSE" = "Present", "TRUE" = "Missing")
   combined_gap <- 2
@@ -282,7 +309,7 @@ plt_na <- function(
         values_transform = list(value = as.logical)
       ) |>
       tibble::add_column(
-        id = rep(seq_len(nrow(df)), each = length(missing_vars)),
+        id = rep(seq_len(nrow(missing_data)), each = length(missing_vars)),
         .before = 1L
       ) |>
       dplyr::mutate(
@@ -318,7 +345,7 @@ plt_na <- function(
         expand = c(0.03, 0)
       ) +
       ggplot2::scale_y_continuous(
-        limits = c(0.5, nrow(df) + 0.5),
+        limits = c(0.5, nrow(missing_data) + 0.5),
         expand = c(0, 0)
       ) +
       ggplot2::coord_flip() +
@@ -363,6 +390,7 @@ plt_na <- function(
     show_y_labels = output != "both_reverse",
     gap_side = matrix_gap_side
   )
+  missing_data <- NULL
   if (output == "matrix") {
     return(finish(UtilsR::fmt_strip(
       matrix_plot,

@@ -324,3 +324,24 @@ test_that("plt_na percentage summaries avoid cell-sized allocations", {
   expect_equal(nrow(plot$data), 40L)
   expect_equal(plot$data$num[plot$data$isna], rep(1L, 20L))
 })
+
+test_that("plt_na returned plots do not retain unused input payloads", {
+  withr::local_seed(1)
+  make <- function(n = 20L, extra = FALSE, output = "percentage") {
+    data <- data.frame(value = rep(c(NA_real_, 1:19), length.out = n))
+    if (extra) attr(data, "unused_payload") <- stats::runif(50000L)
+    suppressMessages(UtilsR::plt_na(data, output = output))
+  }
+  environment(make) <- globalenv()
+  bytes <- function(plot) {
+    path <- withr::local_tempfile(fileext = ".rds")
+    saveRDS(plot, path, compress = FALSE)
+    file.info(path)$size
+  }
+  for (output in c("percentage", "matrix", "both", "both_reverse")) {
+    small <- make(output = output)
+    payload <- make(extra = TRUE, output = output)
+    expect_lt(abs(bytes(payload) - bytes(small)), 20000)
+  }
+  expect_lt(abs(bytes(make(20000L)) - bytes(make(20L))), 20000)
+})

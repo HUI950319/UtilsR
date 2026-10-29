@@ -1,5 +1,9 @@
 # UtilsR 0.6.16
 
+* `plt_na()` constructs returned plots in a separate evaluated frame,
+  so unused source-data attributes do not enlarge saved plots and percentage
+  plots retain only their small summaries rather than all input rows.
+
 * `plt_na()` computes percentage summaries directly from per-column
   counts, avoiding a cell-sized long table while retaining the same summaries.
 
