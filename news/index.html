@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.15" id="utilsr-0615">UtilsR 0.6.15<a class="anchor" aria-label="anchor" href="#utilsr-0615"></a></h2>
-<ul><li><p>Text P-value significance is compared as decimal text, so underflow cannot turn a negative value into zero or erase a positive bound, and long decimal endpoints keep their position relative to a cut-off.</p></li>
+<ul><li><p>Empty optional notes print nothing, while an explicit empty note retains its comment marker. Plain missing box contents display as NA, and badge fields and box borders escape layout controls.</p></li>
+<li><p>Text P-value significance is compared as decimal text, so underflow cannot turn a negative value into zero or erase a positive bound, and long decimal endpoints keep their position relative to a cut-off.</p></li>
 <li><p>POSIXlt distribution columns show their date-time range, histogram and missing share, as POSIXct columns do, without changing the input column.</p></li>
 <li><p>Metadata headers, key-value blocks and badges preserve SPSS user-missing values when converting them to text. Explicit missing factor levels remain visible categories in headers and key-value blocks.</p></li>
 <li><p><code><a href="../reference/pr_spark.html">pr_spark()</a></code> inspects each default column by position, retaining distinct contents when names repeat or are missing. Missing table headings display as <code>&lt;NA&gt;</code> instead of stopping the print.</p></li>
