@@ -1,5 +1,10 @@
 # UtilsR 0.6.14
 
+* `pr_table()` respects the direction of text P-value bounds, including
+  Unicode comparisons and whitespace, and does not mark invalid numeric
+  text as significant. Numeric P-values keep enough decimals below a
+  cut-off and values below 0.001 print as `<0.001`.
+
 * `pr_table()` preserves integer64 digits and time-span components instead
   of formatting their underlying storage. Print helpers load the namespace
   supporting stored integer64, labelled and lubridate values when needed.

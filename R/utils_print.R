@@ -295,32 +295,44 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 
 # P values -> cells: numbers take stat_pval()'s "<0.001" wording, with more
 # decimals where it would round up to 0.05 or 0.01, text keeps its own; bold
-# red below 0.001, red below 0.05, grey otherwise. A bound such as "<0.05"
-# counts as below its endpoint.
+# red below 0.001, red below 0.05, grey otherwise. A text bound is significant
+# only when every possible value it describes is below the relevant cut-off.
 ._p_cells <- function(v) {
   if (is.numeric(v)) {
     num <- v
     txt <- stat_pval(v, mode = "pvalue")
+    txt[which(!is.na(v) & v < 0.001)] <- "<0.001"
     # a value just under 0.05 or 0.01 rounds up to it (0.0499 -> "0.050"):
     # more decimals, so the text agrees with its colour and stars
-    for (d in 4:6) {
+    for (d in 4:18) {
       shown <- suppressWarnings(as.numeric(txt))
       up <- which(!is.na(shown) & ((v < 0.05 & shown >= 0.05) |
                                      (v < 0.01 & shown >= 0.01)))
       if (!length(up)) break
       txt[up] <- formatC(v[up], format = "f", digits = d)
     }
-    below <- rep(FALSE, length(v))
+    op <- rep("", length(v))
+    valid <- !is.na(num)
   } else {
-    txt   <- trimws(as.character(v))
-    num   <- suppressWarnings(as.numeric(sub("^[<>]=?\\s*", "", txt)))
-    below <- grepl("^<", txt)
+    txt <- trimws(as.character(v), whitespace = "[\\h\\v]")
+    number <- "[+-]?(?:[0-9]+\\.?[0-9]*|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?"
+    bound <- "(?:[<>]=?|[\u2264\u2265])"
+    valid <- grepl(paste0("^(?:", bound, "[\\h\\v]*)?", number, "$"), txt, perl = TRUE)
+    op <- ifelse(grepl(paste0("^", bound), txt, perl = TRUE),
+                 sub(paste0("^(", bound, ").*$"), "\\1", txt, perl = TRUE), "")
+    num <- suppressWarnings(as.numeric(sub(paste0("^", bound, "[\\h\\v]*"), "", txt, perl = TRUE)))
+    valid <- valid & !is.na(num) & is.finite(num) & num >= 0 & num <= 1 &
+      !(op == "<" & num == 0) & !(op == ">" & num == 1)
   }
-  strong <- !is.na(num) & (num < 0.001 | (below & num <= 0.001))
-  sig    <- !is.na(num) & !strong & (num < 0.05 | (below & num <= 0.05))
+  below <- function(cut) {
+    valid & (op %in% c("", "<", "<=", "\u2264")) &
+      (num < cut | (op == "<" & num <= cut))
+  }
+  strong <- below(0.001)
+  sig    <- !strong & below(0.05)
   # without colour, stars carry the significance instead
   if (!._pr_colour()) {
-    two <- sig & (num < 0.01 | (below & num <= 0.01))
+    two <- sig & below(0.01)
     stars <- ifelse(strong, "***", ifelse(two, "**", ifelse(sig, "*", "")))
     return(paste0(ifelse(is.na(txt), "NA", txt), stars))
   }
@@ -342,7 +354,9 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 #' a number just under 0.05 or 0.01 that this wording would round up to the
 #' cut-off taking the decimals it needs (\code{0.0499}, not \code{0.050}),
 #' text is kept as written, and values print bold red below 0.001, red below
-#' 0.05 and grey otherwise. Other double columns are rounded to
+#' 0.05 and grey otherwise. Text bounds receive significance styling only
+#' when their comparison guarantees a value below the cut-off; lower bounds
+#' and invalid numeric text receive none. Other double columns are rounded to
 #' \code{digits} decimals, or none when every value is whole; a column whose
 #' smallest non-zero value would round to zero gets enough decimals for two
 #' significant digits, at most six. Missing values

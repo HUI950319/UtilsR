@@ -60,7 +60,9 @@ Cells are formatted as follows. P-value columns: numbers take the
 a number just under 0.05 or 0.01 that this wording would round up to the
 cut-off taking the decimals it needs (\code{0.0499}, not \code{0.050}),
 text is kept as written, and values print bold red below 0.001, red below
-0.05 and grey otherwise. Other double columns are rounded to
+0.05 and grey otherwise. Text bounds receive significance styling only
+when their comparison guarantees a value below the cut-off; lower bounds
+and invalid numeric text receive none. Other double columns are rounded to
 \code{digits} decimals, or none when every value is whole; a column whose
 smallest non-zero value would round to zero gets enough decimals for two
 significant digits, at most six. Missing values

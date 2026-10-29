@@ -584,3 +584,25 @@ test_that("pr_table() keeps the units and components of classed numbers", {
   gap <- data.frame(span = as.difftime(c(1, 2), units = "days"))
   expect_identical(trimws(utils::capture.output(pr_table(gap)))[3:4], c("1 days", "2 days"))
 })
+
+test_that("pr_table() infers significance only when a text bound guarantees it", {
+  withr::local_options(cli.num_colors = 1)
+  p <- c(">0.001", ">=0.001", "<=0.05", "\u22640.05", "<0.05", "\u22640.01",
+         "0.01", "-0.1", "Inf", "0.0001", "<0", ">1", "not available",
+         "\u00a0<\u00a00.05\u00a0")
+  out <- trimws(utils::capture.output(pr_table(data.frame(P = p), p_col = "P")))
+  expect_identical(out[-c(1, 2)], c(">0.001", ">=0.001", "<=0.05", "\u22640.05", "<0.05*",
+    "\u22640.01*", "0.01*", "-0.1", "Inf", "0.0001***", "<0", ">1", "not available", "<\u00a00.05*"))
+  withr::local_options(cli.num_colors = 256)
+  colour <- utils::capture.output(pr_table(data.frame(P = c(">0.001", "<0.05")), p_col = "P"))
+  expect_false(grepl("\033[31m", colour[3], fixed = TRUE))
+  expect_match(colour[4], "\033[31m", fixed = TRUE)
+})
+
+test_that("pr_table() does not round a significant P value onto its cut-off", {
+  withr::local_options(cli.num_colors = 1)
+  p <- c(0.049999999, 0.0099999999, 0.0009999999, 0.05, 0.01, 0.001)
+  out <- trimws(utils::capture.output(pr_table(data.frame(P = p), p_col = "P")))
+  expect_identical(out[-c(1, 2)], c("0.049999999*", "0.0099999999**", "<0.001***",
+                                    "0.050", "0.010*", "0.001**"))
+})
