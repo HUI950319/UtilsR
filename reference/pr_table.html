@@ -144,7 +144,8 @@ and invalid numeric text receive none. Other double columns are rounded to
 <code>digits</code> decimals, or none when every value is whole; a column whose
 smallest non-zero value would round to zero gets enough decimals for two
 significant digits, at most six. Missing values
-print as a grey <code>NA</code>. The cells of a list column are described as in
+print as a grey <code>NA</code>. Matrix and array columns are described one row
+at a time, retaining all components. List-column cells are described as in
 <code><a href="pr_tree.html">pr_tree()</a></code>, e.g. <code>&lt;dbl 2&gt; 1.1, 2.2</code>. Everything else
 uses <code><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character()</a></code>. Classed numeric and time-span columns use their
 format methods, retaining integer64 digits and time units. The optional

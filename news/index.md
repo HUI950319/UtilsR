@@ -3,6 +3,10 @@
 ## UtilsR 0.6.14
 
 - [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  describes every component of a matrix or array column per row instead
+  of silently showing only its first component.
+
+- [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
   reads columns by position, preserving distinct contents when column
   names repeat or are empty.
 
