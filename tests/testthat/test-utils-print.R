@@ -854,3 +854,21 @@ test_that("print helpers account for indentation markers borders and footers", {
   expect_length(out, 3L)
   expect_true(all(cli::ansi_nchar(out, type = "width") <= 5))
 })
+
+test_that("pr_tree() keeps class and attribute names within their metadata lines", {
+  withr::local_options(cli.num_colors = 1, cli.unicode = TRUE)
+  x <- structure(list(a = 1), class = c("a\nb", "list"))
+  out <- utils::capture.output(pr_tree(list(x = x)))
+  expect_length(out, 3L)
+  expect_match(out[2], "<a\\nb 1>", fixed = TRUE)
+  x <- structure(list(a = 1), attr_value = 2)
+  names(attributes(x))[names(attributes(x)) == "attr_value"] <- "a\nb"
+  out <- utils::capture.output(pr_tree(x))
+  expect_length(out, 3L)
+  expect_match(out[3], "attr a\\nb", fixed = TRUE)
+  out <- utils::capture.output(pr_tree(list(x = x), max_depth = 1))
+  expect_length(out, 2L)
+  expect_match(out[2], "[attr: a\\nb]", fixed = TRUE)
+  out <- utils::capture.output(pr_tree(list(first = 1, second = 2), max_items = 0))
+  expect_match(out[2], "2 more: first, second", fixed = TRUE)
+})

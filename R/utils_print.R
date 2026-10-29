@@ -696,7 +696,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   }
   # a POSIXlt time is a list underneath; show the time it holds
   if (inherits(v, "POSIXlt")) v <- as.POSIXct(v)
-  cls <- class(v)[1]
+  cls <- ._pr_escape(class(v)[1])
   if (is.data.frame(v)) {
     lab  <- if (inherits(v, "tbl_df")) "tibble" else cls
     head <- sprintf("<%s %s x %s>", lab, big(nrow(v)), big(ncol(v)))
@@ -742,7 +742,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   }
   if (is.atomic(v)) {
     # vctrs names classed vectors as well: drtn, dbl+lbl, int64, ord
-    abbr <- tryCatch(vctrs::vec_ptype_abbr(v), error = function(e) typeof(v))
+    abbr <- ._pr_escape(tryCatch(vctrs::vec_ptype_abbr(v), error = function(e) typeof(v)))
     # as many values as the line could hold, as vctrs takes half its width
     first <- utils::head(v, max(10L, ceiling(width / 2)))
     vals  <- text_of(first, attr(v, "labels", exact = TRUE))
@@ -891,7 +891,7 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
           # a closed node's attributes, which no attr line below it lists
           more <- if (closed && isTRUE(attrs)) extra(child) else character()
           tag  <- if (length(more)) {
-            cli::col_cyan(sprintf("[attr: %s]", paste(more, collapse = ", ")))
+            cli::col_cyan(sprintf("[attr: %s]", paste(._pr_escape(more), collapse = ", ")))
           } else ""
           room <- console_width() - 2L * (depth + 1L) - max(wid[k], pad) - 1L -
             (if (nzchar(tag)) cli::ansi_nchar(tag, type = "width") + 1L else 0L)
@@ -920,7 +920,7 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
           # the names left out, as far as the line goes
           if (!is.null(names(p))) {
             rest <- cli::ansi_strtrim(paste0(rest, ": ", paste(
-              utils::head(nm[-seq_len(max_items)], 50L), collapse = ", ")),
+                utils::head(nm[seq.int(max_items + 1L, length(nm))], 50L), collapse = ", ")),
               console_width() - 2L * (depth + 1L))
           }
           cli::col_grey(rest)
@@ -931,9 +931,10 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
         for (a in setdiff(names(attributes(v)), drop_attr)) {
           h <- slot(shown)
           if (h != "count") kids <- c(kids, add(paste0(id, "/@", a), if (h == "show") {
-            paste(cli::col_cyan("attr"), a, ._obj_desc(
+            name <- ._pr_escape(a)
+            paste(cli::col_cyan("attr"), name, ._obj_desc(
               attr(v, a, exact = TRUE),
-              console_width() - 2L * (depth + 1L) - 6L - cli::ansi_nchar(a, type = "width"),
+              console_width() - 2L * (depth + 1L) - 6L - cli::ansi_nchar(name, type = "width"),
               colour = TRUE, inside = TRUE))
           } else ""))
         }
@@ -945,7 +946,7 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
   big <- function(n) format(n, big.mark = ",", scientific = FALSE, trim = TRUE)
   root_desc <- if (is.data.frame(x)) {
     cli::col_grey(sprintf("<%s %s x %s>", if (inherits(x, "tbl_df")) "tibble" else
-      class(x)[1], big(nrow(x)), big(ncol(x))))
+      ._pr_escape(class(x)[1]), big(nrow(x)), big(ncol(x))))
   } else if (opens(x, 0)) {
     cli::col_grey(sprintf("<%s %s>", if (is.list(x)) "list" else "S4", big(length(parts(x)))))
   } else {
