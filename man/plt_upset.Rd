@@ -37,6 +37,7 @@ plt_upset(
 Select at least two sets, with unique, non-missing, non-blank names.
 List members must be one-dimensional atomic vectors; factors are accepted,
 while other classed member IDs must first be converted to stable identifiers.
+In mixed factor/non-factor lists, factor labels are used as member IDs.
 Selected data-frame columns cannot be matrix or list columns.}
 
 \item{vars}{Character vector of column names to intersect.

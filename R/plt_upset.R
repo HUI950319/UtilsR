@@ -22,6 +22,7 @@
 #'   Select at least two sets, with unique, non-missing, non-blank names.
 #'   List members must be one-dimensional atomic vectors; factors are accepted,
 #'   while other classed member IDs must first be converted to stable identifiers.
+#'   In mixed factor/non-factor lists, factor labels are used as member IDs.
 #'   Selected data-frame columns cannot be matrix or list columns.
 #' @param vars Character vector of column names to intersect.
 #'   Required when \code{data} is a data.frame; ignored when \code{data}
@@ -216,6 +217,10 @@ plt_upset <- function(data,
     }
     if (output %in% c("data", "all") && "intersect_group" %in% names(data)) {
       cli::cli_abort("{.arg data} already contains {.field intersect_group}; rename it before requesting grouped data.")
+    }
+    factor_members <- vapply(data, is.factor, logical(1))
+    if (any(factor_members) && !all(factor_members)) {
+      data[factor_members] <- lapply(data[factor_members], as.character)
     }
     # Use row indices as shared member identities for both input formats.
     all_elements <- unique(unlist(data))

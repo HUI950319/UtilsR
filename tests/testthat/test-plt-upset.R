@@ -389,3 +389,39 @@ test_that("plt_upset retains data groups when an UpSet panel fails", {
   expect_null(result$upset)
   expect_identical(as.character(result$data$intersect_group), c("A", "A/B", "B"))
 })
+
+test_that("plt_upset preserves factor member labels in mixed lists", {
+  skip_if_not_installed("ggVennDiagram")
+  cases <- list(
+    list(sets = list(A = factor(c("gene1", "gene2")), B = c("gene2", "gene3")),
+         ids = c("gene1", "gene2", "gene3"), groups = c("A", "A/B", "B")),
+    list(sets = list(A = factor(c("gene1", "gene2")), B = NULL),
+         ids = c("gene1", "gene2"), groups = c("A", "A")),
+    list(sets = list(A = factor(c("gene1", "gene2")), B = character()),
+         ids = c("gene1", "gene2"), groups = c("A", "A")),
+    list(sets = list(A = factor(c("gene1", "gene2")), B = c(1, 2)),
+         ids = c("gene1", "gene2", "1", "2"), groups = c("A", "A", "B", "B")),
+    list(sets = list(A = c("gene2", "gene3"), B = factor(c("gene1", "gene2"))),
+         ids = c("gene2", "gene3", "gene1"), groups = c("A/B", "A", "B"))
+  )
+  for (case in cases) {
+    original <- case$sets
+    result <- plt_upset(case$sets, output = "data")
+    expect_identical(as.character(result$.element), case$ids)
+    expect_identical(as.character(result$intersect_group), case$groups)
+    expect_identical(case$sets, original)
+  }
+  factors <- list(A = factor(c("gene1", "gene2")), B = factor(c("gene2", "gene3")))
+  result <- plt_upset(factors, output = "data")
+  expect_s3_class(result$.element, "factor")
+  expect_identical(as.character(result$.element), c("gene1", "gene2", "gene3"))
+  expect_identical(levels(result$.element), levels(unique(unlist(factors))))
+})
+
+test_that("plt_upset plot counts retain mixed factor members", {
+  skip_if_not_installed("ggVennDiagram")
+  sets <- list(A = factor(c("gene1", "gene2")), B = c("gene2", "gene3"))
+  plot <- suppressMessages(plt_upset(sets, output = "upset"))
+  expect_equal(sort(plot$plotlist[[2]]$data$size), rep(1, 3))
+  expect_no_warning(render_upset(plot))
+})
