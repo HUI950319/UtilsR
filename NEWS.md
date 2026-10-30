@@ -1,5 +1,7 @@
 # UtilsR 0.6.18
 
+* `PlotRankCor()` retains missing grouping strata with distinct display labels and excludes missing method identifiers explicitly.
+
 * `PlotRankCor()` groups and pairs observations by column tuples rather than pasted strings, preserving names containing dots or separators.
 
 * `PlotRankCor()` allocates independent working fields and method columns, preserving category identities and aesthetic columns when names collide.

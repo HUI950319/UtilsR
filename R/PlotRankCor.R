@@ -22,6 +22,8 @@
 #' @param group.by Character. Column name for the grouping / faceting
 #'   variable (e.g. comparison). Each level gets its own facet panel.
 #'   If \code{NULL}, all data is treated as a single group (no faceting).
+#'   Missing groups are retained as \code{"<NA>"}; a suffix distinguishes this
+#'   label from existing group names.
 #' @param method.by Character. Column name identifying the two methods.
 #'   Must have exactly 2 unique levels; the first level maps to the x-axis
 #'   and the second to the y-axis.
@@ -159,6 +161,8 @@ PlotRankCor <- function(
     cli::cli_abort("Column {.val {alpha_by}} not found in {.arg data}.")
 
   methods <- unique(as.character(data[[method.by]]))
+  if (anyNA(methods))
+    cli::cli_abort("{.arg method.by} must not contain missing identifiers.")
   if (length(methods) != 2L)
     cli::cli_abort("{.arg method.by} must have exactly 2 levels, got {length(methods)}.")
 
@@ -168,6 +172,17 @@ PlotRankCor <- function(
     data[[group.by_internal]] <- "all"
   } else {
     group.by_internal <- group.by
+    group_values <- data[[group.by]]
+    group_id <- vctrs::vec_group_id(group_values)
+    group_labels <- as.character(group_values[!duplicated(group_id)])
+    missing_group <- is.na(group_labels)
+    if (any(missing_group)) {
+      group_labels[missing_group] <- tail(make.unique(c(
+        group_labels[!missing_group], rep("<NA>", sum(missing_group)))), sum(missing_group))
+      if (group.by %in% c(stat.by, value.by, method.by, size_by, alpha_by))
+        group.by_internal <- tail(make.unique(c(names(data), group.by)), 1L)
+      data[[group.by_internal]] <- group_labels[group_id]
+    }
   }
   plot_value <- tail(make.unique(c(names(data), ".plot_val")), 1L)
 

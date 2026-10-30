@@ -168,3 +168,29 @@ test_that("duplicate ranks and approximate Spearman tests retain their contract"
   data <- rank_cor_data(); data$score <- rep(4:1, 2)
   expect_equal(attr(quiet_rank_cor(data), "cor_results")$p.value, 0)
 })
+
+test_that("rank-correlation missing groups retain points and valid statistics", {
+  data <- rank_cor_data(); data$score <- rep(4:1, 2)
+  data$group <- NA_character_
+  for (ranked in c(TRUE, FALSE)) {
+    p <- quiet_rank_cor(data, group.by = "group", use_rank = ranked, scale_x = "minmax")
+    expect_equal(nrow(p$data), 4L)
+    expect_equal(attr(p, "cor_results")$rho, 1)
+    expect_identical(unique(p$data$group), "<NA>")
+  }
+  data <- rbind(data, transform(data, group = "<NA>"), transform(data, group = "G"))
+  p <- quiet_rank_cor(data, group.by = "group")
+  expect_equal(nrow(p$data), 12L)
+  expect_equal(length(unique(p$data$group)), 3L)
+  expect_equal(attr(p, "cor_results")$rho, rep(1, 3))
+  expect_s3_class(ggplot2::ggplot_build(p), "ggplot_built")
+})
+
+test_that("rank-correlation handles explicit NA factor levels and rejects missing methods", {
+  data <- rank_cor_data(); data$score <- rep(4:1, 2)
+  data$group <- factor(rep(NA_character_, nrow(data)), exclude = NULL)
+  p <- quiet_rank_cor(data, group.by = "group")
+  expect_equal(attr(p, "cor_results")$rho, 1)
+  data$method[1] <- NA_character_
+  expect_error(quiet_rank_cor(data), "method.by.*missing|missing.*method.by")
+})

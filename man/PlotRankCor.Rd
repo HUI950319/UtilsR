@@ -50,7 +50,9 @@ Spearman tests use approximate p-values (\code{exact = FALSE}).}
 
 \item{group.by}{Character. Column name for the grouping / faceting
 variable (e.g. comparison). Each level gets its own facet panel.
-If \code{NULL}, all data is treated as a single group (no faceting).}
+If \code{NULL}, all data is treated as a single group (no faceting).
+Missing groups are retained as \code{"<NA>"}; a suffix distinguishes this
+label from existing group names.}
 
 \item{method.by}{Character. Column name identifying the two methods.
 Must have exactly 2 unique levels; the first level maps to the x-axis
