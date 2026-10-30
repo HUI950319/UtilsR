@@ -29,6 +29,18 @@ cat_con_data <- function() {
   )
 }
 
+test_that("plt_cat ignores set grouping during filtering and cardinality checks", {
+  skip_if_not_installed("ggupset")
+  d <- data.frame(A = c(TRUE, TRUE, FALSE), B = c(TRUE, FALSE, TRUE),
+                  group = c(NA, "G", "G"))
+  p <- suppressWarnings(cat_test_plot(d, c("A", "B"), type = "upset"))
+  expect_warning(q <- cat_test_plot(d, c("A", "B"), "group", type = "upset"), "ignored")
+  expect_equal(nrow(q$data), nrow(p$data))
+  many <- data.frame(A = rep(TRUE, 101), B = rep(FALSE, 101), group = seq_len(101))
+  expect_warning(q <- cat_test_plot(many, c("A", "B"), "group", type = "upset"), "ignored")
+  expect_equal(nrow(q$data), 101L)
+})
+
 test_that("plt_cat includes missing split groups and preserves missing colours", {
   d <- data.frame(category = c("A", NA, "A", NA),
                   site = factor(c("one", "one", NA, NA), exclude = NULL))

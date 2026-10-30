@@ -278,6 +278,8 @@ plt_cat <- function(data,
   type     <- match.arg(type)
   stat     <- match.arg(stat)
   position <- match.arg(position)
+  set_types <- c("sankey", "chord", "venn", "upset")
+  std_types <- c("bar", "rose", "ring", "pie", "trend", "area", "dot")
 
   if (!is.character(stat.by) || length(stat.by) == 0) {
     cli::cli_abort("{.arg stat.by} must be a non-empty character vector.")
@@ -305,7 +307,7 @@ plt_cat <- function(data,
 
   # --- Safety check for high-cardinality columns ------------------------------
   if (!force) {
-    all_cols <- unique(c(stat.by, group.by, split.by))
+    all_cols <- unique(c(stat.by, if (!type %in% set_types) group.by, split.by))
     high_card <- vapply(all_cols, function(col) {
       length(unique(data[[col]]))
     }, integer(1))
@@ -319,9 +321,6 @@ plt_cat <- function(data,
   }
 
   # --- Set types vs standard types --------------------------------------------
-  set_types <- c("sankey", "chord", "venn", "upset")
-  std_types <- c("bar", "rose", "ring", "pie", "trend", "area", "dot")
-
   if (type %in% set_types) {
     if (length(stat.by) < 2) {
       cli::cli_abort(
@@ -332,6 +331,8 @@ plt_cat <- function(data,
       cli::cli_warn(
         "{.arg group.by} is ignored for set type {.val {type}}."
       )
+      group.by <- NULL
+      bg.by <- NULL
     }
   } else {
     if (length(stat.by) > 1) {
