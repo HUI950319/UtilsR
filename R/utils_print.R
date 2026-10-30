@@ -1161,7 +1161,7 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
     v <- ._pr_restore(v)
     if (inherits(v, "POSIXlt")) v <- as.POSIXct(v)
     if (!length(v)) return(c("", "empty", "NA n/a"))
-    missing <- is.na(v)
+    missing <- if (is.expression(v)) is.na(as.list(v)) else is.na(v)
     na <- sprintf("NA %.1f%%", 100 * mean(missing))
     if (all(missing)) return(c("", "all missing", na))
     if (inherits(v, c("Date", "POSIXct"))) {

@@ -1,5 +1,8 @@
 # UtilsR 0.6.17
 
+* `pr_spark()` counts missing expression elements without warnings or
+  evaluating their contents, consistently with the other print helpers.
+
 * `pr_table()` keeps displayed row names separate from P-value columns,
   even when a real P-value column uses the row-name heading.
 

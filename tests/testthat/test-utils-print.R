@@ -1025,3 +1025,14 @@ test_that("displayed row names cannot collide with a P-column name", {
   expect_match(out[4], "^term +0[.]500$")
   expect_identical(row.names(x), c("0.02", "term"))
 })
+
+test_that("pr_spark() counts missing expression elements without evaluating them", {
+  withr::local_options(cli.num_colors = 1)
+  x <- structure(list(v = expression(stop("must not evaluate"), NA, NULL)),
+    class = "data.frame", row.names = 1:3)
+  expect_silent(out <- utils::capture.output(pr_spark(x)))
+  expect_match(out, "<expression>  NA 33.3%", fixed = TRUE)
+  x <- structure(list(v = expression(NA)), class = "data.frame", row.names = 1L)
+  expect_silent(out <- utils::capture.output(pr_spark(x)))
+  expect_match(out, "all missing  NA 100.0%", fixed = TRUE)
+})
