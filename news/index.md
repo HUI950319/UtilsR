@@ -2,6 +2,55 @@
 
 ## UtilsR 0.6.17
 
+- [`plt_upset()`](https://hui950319.github.io/UtilsR/reference/plt_upset.md)
+  applies `edge.color` to set boundaries while keeping set-name text
+  independent.
+
+- `plt_upset(venn.fill = "none")` leaves set regions transparent rather
+  than covering the plot background with white.
+
+- `plt_upset(venn.fill = "category")` fills each set with its requested
+  colour and applies `venn.alpha` to the overlapping set polygons.
+
+- Split continuous figures measure only the final combined canvas,
+  preserving per-split page sizes when a named list is requested
+  instead.
+
+- [`plt_upset()`](https://hui950319.github.io/UtilsR/reference/plt_upset.md)
+  handles the Venn limit of seven sets explicitly and rejects plots
+  without members while retaining valid empty grouped data.
+
+- [`plt_upset()`](https://hui950319.github.io/UtilsR/reference/plt_upset.md)
+  converts its UpSet component through the public aplot adapter so
+  combined outputs retain both panels.
+
+- [`plt_upset()`](https://hui950319.github.io/UtilsR/reference/plt_upset.md)
+  validates set names, selected column shapes, display mappings and
+  colours before constructing plots or replacing an existing group
+  column.
+
+- Continuous axis bounds reject malformed quantile strings, missing or
+  non-finite values and non-scalar inputs before constructing plots.
+
+- Continuous group sorting excludes infinite observations, consistently
+  with the plotted data, and retains groups without a finite ranking
+  value.
+
+- [`plt_upset()`](https://hui950319.github.io/UtilsR/reference/plt_upset.md)
+  keeps set identities separate from display labels and disambiguates
+  colliding intersection names, including `None` and names containing
+  slashes.
+
+- [`plt_upset()`](https://hui950319.github.io/UtilsR/reference/plt_upset.md)
+  preserves existing row-index columns and keeps list member identifiers
+  when a set is named `.element`.
+
+- `plt_upset(levels = NA)` uses original missing-value masks, including
+  classed columns, and restores methods for serialized inputs.
+
+- Independent stacked quantile limits use each feature’s observations,
+  retaining all observations for summaries, tests and raw-point layers.
+
 - Key-value previews retain totals above the integer range without
   formatting errors, including virtual long vectors that remain bounded
   previews.

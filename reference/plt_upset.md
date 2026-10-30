@@ -48,6 +48,12 @@ plt_upset(
   :   A data.frame with binary indicator columns specified by `vars`.
       Membership is determined by `levels`.
 
+  Select at least two sets, with unique, non-missing, non-blank names.
+  List members must be one-dimensional atomic vectors; factors are
+  accepted, while other classed member IDs must first be converted to
+  stable identifiers. Selected data-frame columns cannot be matrix or
+  list columns.
+
 - vars:
 
   Character vector of column names to intersect. Required when `data` is
@@ -57,7 +63,10 @@ plt_upset(
 
   Vector of values indicating membership (e.g. `c("Yes", "yes", "1")`).
   Use `NA` to treat missing values as set members. Default
-  `c("Yes", "yes")`. Ignored when `data` is a list.
+  `c("Yes", "yes")`. Missingness follows
+  [`is.na()`](https://rdrr.io/r/base/NA.html) on the original columns,
+  including SPSS user-missing values; methods for serialized classed
+  columns are loaded. Ignored when `data` is a list.
 
 - colors:
 
@@ -80,7 +89,8 @@ plt_upset(
 
   `"both"`
 
-  :   (default) Combined Venn + UpSet side by side.
+  :   (default) Combined Venn + UpSet side by side; returns only UpSet
+      above seven sets.
 
   `"data"`
 
@@ -88,7 +98,11 @@ plt_upset(
 
   `"all"`
 
-  :   Named list with all plots and data.
+  :   Named list with all plots and data; `venn` is `NULL` above seven
+      sets.
+
+  Plot outputs require at least one selected member. Empty selections
+  remain valid for `"data"`, including zero-row inputs.
 
 - label:
 
@@ -138,8 +152,8 @@ plt_upset(
 
 - venn.alpha:
 
-  Alpha for the set regions when `venn.fill = "category"`. Default
-  `0.5`.
+  Alpha for the set regions when `venn.fill = "category"`, between 0
+  and 1. Default `0.5`.
 
 - edge.color:
 
@@ -158,7 +172,9 @@ plt_upset(
   Named character vector to rename sets in the plot. Names = original
   set names, values = display labels. e.g.
   `c(TraceGene = "Trajectory", PropCor = "Proportion Cor")`. Unmatched
-  names keep the original. Default `NULL` (no renaming).
+  names keep the original. Default `NULL` (no renaming). These labels
+  also name returned intersection groups. Colliding group names receive
+  numeric suffixes; repeated plot labels remain unchanged.
 
 - save:
 
@@ -175,13 +191,17 @@ plt_upset(
 ## Value
 
 Depends on `output`: a ggplot, a combined plot, a data frame, or a named
-list. Plots carry their page size as `attr(p, "plot_size")`, the list of
-`"all"` on its `combined` element.
+list. List-input data retain member IDs in `.element`, with a numeric
+suffix if that column name is already a set name. Existing input
+columns, including `.row_id`, are preserved. For `"data"` and `"all"`,
+an existing `intersect_group` column must be renamed first to avoid
+overwriting it. Plots carry their page size as `attr(p, "plot_size")`,
+the list of `"all"` on its `combined` element.
 
 ## Note
 
-Requires ggVennDiagram and optionally aplot (for combined layout).
-Install with `pak::pak(c("ggVennDiagram", "aplot"))`.
+Requires ggVennDiagram; UpSet and combined layouts use aplot. Install
+with `pak::pak(c("ggVennDiagram", "aplot"))`.
 
 ## See also
 

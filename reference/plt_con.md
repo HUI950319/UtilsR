@@ -212,14 +212,18 @@ plt_con(
 
 - y.min:
 
-  Numeric or character. Minimum y-axis limit. Character `"qN"` uses the
-  Nth percentile. Default `NULL`; automatic bar limits include the full
-  SD intervals and zero baseline.
+  Numeric or character scalar. Minimum y-axis limit. A finite number or
+  `"qN"` for integer N from 0 to 100. Character `"qN"` uses the Nth
+  percentile. Default `NULL`; automatic bar limits include the full SD
+  intervals and zero baseline. Quantiles use each feature separately
+  when axes are independent, and pooled observations when
+  `same.y.lims = TRUE`.
 
 - y.max:
 
-  Numeric or character. Maximum y-axis limit. Character `"qN"` uses the
-  Nth percentile. Default `NULL`. Automatic limits leave room for
+  Numeric or character scalar. Maximum y-axis limit. A finite number or
+  `"qN"` for integer N from 0 to 100. Character `"qN"` uses the Nth
+  percentile. Default `NULL`. Automatic limits leave room for
   comparisons; explicit bounds are preserved.
 
 - y.nbreaks:
@@ -228,8 +232,9 @@ plt_con(
 
 - sort:
 
-  Logical or character. Sort groups by median? `TRUE` or `"decreasing"`
-  for descending, `"increasing"` for ascending. Default `FALSE`.
+  Logical or character. Sort groups by the median of finite
+  observations? `TRUE` or `"decreasing"` for descending, `"increasing"`
+  for ascending. Default `FALSE`.
 
 - stack:
 

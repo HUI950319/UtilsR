@@ -50,7 +50,20 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.17" id="utilsr-0617">UtilsR 0.6.17<a class="anchor" aria-label="anchor" href="#utilsr-0617"></a></h2>
-<ul><li><p>Key-value previews retain totals above the integer range without formatting errors, including virtual long vectors that remain bounded previews.</p></li>
+<ul><li><p><code><a href="../reference/plt_upset.html">plt_upset()</a></code> applies <code>edge.color</code> to set boundaries while keeping set-name text independent.</p></li>
+<li><p><code>plt_upset(venn.fill = "none")</code> leaves set regions transparent rather than covering the plot background with white.</p></li>
+<li><p><code>plt_upset(venn.fill = "category")</code> fills each set with its requested colour and applies <code>venn.alpha</code> to the overlapping set polygons.</p></li>
+<li><p>Split continuous figures measure only the final combined canvas, preserving per-split page sizes when a named list is requested instead.</p></li>
+<li><p><code><a href="../reference/plt_upset.html">plt_upset()</a></code> handles the Venn limit of seven sets explicitly and rejects plots without members while retaining valid empty grouped data.</p></li>
+<li><p><code><a href="../reference/plt_upset.html">plt_upset()</a></code> converts its UpSet component through the public aplot adapter so combined outputs retain both panels.</p></li>
+<li><p><code><a href="../reference/plt_upset.html">plt_upset()</a></code> validates set names, selected column shapes, display mappings and colours before constructing plots or replacing an existing group column.</p></li>
+<li><p>Continuous axis bounds reject malformed quantile strings, missing or non-finite values and non-scalar inputs before constructing plots.</p></li>
+<li><p>Continuous group sorting excludes infinite observations, consistently with the plotted data, and retains groups without a finite ranking value.</p></li>
+<li><p><code><a href="../reference/plt_upset.html">plt_upset()</a></code> keeps set identities separate from display labels and disambiguates colliding intersection names, including <code>None</code> and names containing slashes.</p></li>
+<li><p><code><a href="../reference/plt_upset.html">plt_upset()</a></code> preserves existing row-index columns and keeps list member identifiers when a set is named <code>.element</code>.</p></li>
+<li><p><code>plt_upset(levels = NA)</code> uses original missing-value masks, including classed columns, and restores methods for serialized inputs.</p></li>
+<li><p>Independent stacked quantile limits use each feature’s observations, retaining all observations for summaries, tests and raw-point layers.</p></li>
+<li><p>Key-value previews retain totals above the integer range without formatting errors, including virtual long vectors that remain bounded previews.</p></li>
 <li><p>Stacked continuous plots retain background bands. Shared categorical and continuous bands align to displayed factor levels, including empty levels.</p></li>
 <li><p><code>plt_con(ref_group = )</code> generates comparisons against the observed reference group; explicit comparison pairs take precedence.</p></li>
 <li><p>Continuous comparison plots reserve automatic space for all brackets, including shared stacked axes, while preserving explicit zoom bounds.</p></li>

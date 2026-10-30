@@ -275,13 +275,17 @@ Default <code>FALSE</code>, including stacked and flipped panels. Explicit
 
 
 <dt id="arg-y-min">y.min<a class="anchor" aria-label="anchor" href="#arg-y-min"></a></dt>
-<dd><p>Numeric or character. Minimum y-axis limit.
+<dd><p>Numeric or character scalar. Minimum y-axis limit.
+A finite number or <code>"qN"</code> for integer N from 0 to 100.
 Character <code>"qN"</code> uses the Nth percentile. Default <code>NULL</code>;
-automatic bar limits include the full SD intervals and zero baseline.</p></dd>
+automatic bar limits include the full SD intervals and zero baseline.
+Quantiles use each feature separately when axes are independent, and
+pooled observations when <code>same.y.lims = TRUE</code>.</p></dd>
 
 
 <dt id="arg-y-max">y.max<a class="anchor" aria-label="anchor" href="#arg-y-max"></a></dt>
-<dd><p>Numeric or character. Maximum y-axis limit.
+<dd><p>Numeric or character scalar. Maximum y-axis limit.
+A finite number or <code>"qN"</code> for integer N from 0 to 100.
 Character <code>"qN"</code> uses the Nth percentile. Default <code>NULL</code>.
 Automatic limits leave room for comparisons; explicit bounds are preserved.</p></dd>
 
@@ -291,7 +295,7 @@ Automatic limits leave room for comparisons; explicit bounds are preserved.</p><
 
 
 <dt id="arg-sort">sort<a class="anchor" aria-label="anchor" href="#arg-sort"></a></dt>
-<dd><p>Logical or character. Sort groups by median?
+<dd><p>Logical or character. Sort groups by the median of finite observations?
 <code>TRUE</code> or <code>"decreasing"</code> for descending,
 <code>"increasing"</code> for ascending. Default <code>FALSE</code>.</p></dd>
 
