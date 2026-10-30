@@ -1,5 +1,7 @@
 # UtilsR 0.6.18
 
+* `plt_cat()` retains zero-frequency combinations in area and trend layers so interpolation cannot inflate proportions between groups.
+
 * `plt_con()` skips failed pairwise tests individually, retaining successful
   comparisons for each feature instead of losing the whole annotation layer.
 

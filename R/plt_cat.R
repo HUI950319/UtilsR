@@ -443,7 +443,8 @@ plt_cat <- function(data,
 
   # --- Standard types: prepare data then plot ---------------------------------
   plotdata <- .prepare_cat_data(data, stat.by, group.by, stat,
-                                NA_stat = NA_stat, keep_empty = keep_empty)
+                                NA_stat = NA_stat,
+                                keep_empty = keep_empty || type %in% c("area", "trend"))
 
   p <- switch(type,
     bar   = .plt_cat_bar(plotdata, cols = colors, alpha = alpha,
@@ -488,7 +489,8 @@ plt_cat <- function(data,
 
   # --- Labels -----------------------------------------------------------------
   if (label) {
-    p <- .add_cat_labels(p, plotdata, stat, type, position, label.size,
+    labeldata <- if (keep_empty) plotdata else plotdata[plotdata$n > 0, , drop = FALSE]
+    p <- .add_cat_labels(p, labeldata, stat, type, position, label.size,
                          label.fg, label.bg, label.bg.r)
   }
 

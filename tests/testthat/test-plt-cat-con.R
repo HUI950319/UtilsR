@@ -1,5 +1,23 @@
 # Saving of plt_cat() and plt_con(): the page each plot is laid out for.
 
+cat_test_plot <- function(...) {
+  p <- NULL
+  invisible(utils::capture.output(p <- suppressMessages(plt_cat(...))))
+  p
+}
+
+test_that("plt_cat area and trend retain zero frequencies for interpolation", {
+  d <- data.frame(category = factor(c("A", "A", "A", "A", "B", "B", "B")),
+                  group = factor(c("G1", "G1", "G3", "G3", "G1", "G2", "G3")))
+  for (type in c("area", "trend")) {
+    p <- cat_test_plot(d, "category", "group", type = type, label = TRUE)
+    b <- ggplot2::ggplot_build(p)
+    expect_lte(max(b$data[[1]]$ymax), 100 + 1e-8)
+    expect_equal(p$data$n[p$data$stat_var == "A" & p$data$group_var == "G2"], 0L)
+    expect_false("0.0%" %in% b$data[[length(b$data)]]$label)
+  }
+})
+
 cat_con_data <- function() {
   set.seed(7)
   data.frame(
