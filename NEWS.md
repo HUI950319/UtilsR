@@ -1,5 +1,7 @@
 # UtilsR 0.6.18
 
+* `plt_cat()` maps a named `palette` by level, as `plt_con()` does, instead of renaming the colours by position, and a `split.by` panel lacking a level keeps the colours of the whole figure.
+
 * `plt_cat()` retains zero-frequency combinations in area and trend layers so interpolation cannot inflate proportions between groups.
 
 * `plt_con()` skips failed pairwise tests individually, retaining successful

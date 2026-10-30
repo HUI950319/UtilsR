@@ -72,7 +72,11 @@ one plot per level, and combines with \pkg{patchwork}.}
   \item \code{NULL} (default): uses \code{pal_lancet}.
   \item A single string matching a name in \code{palette_list}: uses
     \code{pal_get()}.
-  \item A character vector of colours: used directly.
+  \item A character vector of colours: used in level order. A panel of
+    \code{split.by} keeps the colours of the whole figure.
+  \item A named character vector: mapped by level. It must cover every
+    level; the \code{"NA"} level of \code{NA_stat = TRUE} may be left out
+    and then takes \code{NA_color}.
 }}
 
 \item{alpha}{Numeric 0--1. Colour transparency. Default 0.8.}

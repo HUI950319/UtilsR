@@ -53,7 +53,11 @@
 #'     \item \code{NULL} (default): uses \code{pal_lancet}.
 #'     \item A single string matching a name in \code{palette_list}: uses
 #'       \code{pal_get()}.
-#'     \item A character vector of colours: used directly.
+#'     \item A character vector of colours: used in level order. A panel of
+#'       \code{split.by} keeps the colours of the whole figure.
+#'     \item A named character vector: mapped by level. It must cover every
+#'       level; the \code{"NA"} level of \code{NA_stat = TRUE} may be left out
+#'       and then takes \code{NA_color}.
 #'   }
 #' @param alpha Numeric 0--1. Colour transparency. Default 0.8.
 #' @param label Logical. Show value labels? Default \code{FALSE}.
@@ -369,15 +373,30 @@ plt_cat <- function(data,
   }
 
   # --- Resolve colours (NO alpha baked in -- alpha applied only in geoms) -----
+  # A named palette maps by level, as in plt_con(); an unnamed one by position.
+  level_colors <- function(lvls) {
+    if (is.null(names(palette))) {
+      return(stats::setNames(.resolve_color(palette, n = length(lvls)), lvls))
+    }
+    required <- if (NA_stat) setdiff(lvls, "NA") else lvls
+    if (!is.character(palette) || anyNA(names(palette)) ||
+        any(!nzchar(names(palette))) || anyDuplicated(names(palette)) ||
+        !all(required %in% names(palette))) {
+      cli::cli_abort("Named {.arg palette} must contain each level with unique, non-empty names.")
+    }
+    out <- stats::setNames(unname(palette[lvls]), lvls)
+    out[is.na(out) & lvls == "NA"] <- NA_color
+    out
+  }
   if (type %in% std_types) {
     stat_levels <- levels(factor(data[[stat.by[1]]]))
-    colors <- stats::setNames(.resolve_color(palette, n = length(stat_levels)), stat_levels)
+    colors <- level_colors(stat_levels)
     if (NA_stat && "NA" %in% stat_levels) {
       colors["NA"] <- NA_color
     }
   } else {
     all_levels <- unique(unlist(lapply(stat.by, function(s) levels(factor(data[[s]])))))
-    colors <- stats::setNames(.resolve_color(palette, n = length(all_levels)), all_levels)
+    colors <- level_colors(all_levels)
   }
 
   # --- Auto aspect.ratio for polar types --------------------------------------
@@ -394,7 +413,7 @@ plt_cat <- function(data,
       cli::cli_fmt(sub <- plt_cat(
         data = sub_data, stat.by = stat.by, group.by = group.by,
         split.by = NULL, type = type, stat = stat, position = position,
-        palette = palette, alpha = alpha, label = label,
+        palette = colors, alpha = alpha, label = label,
         label.size = label.size, label.fg = label.fg, label.bg = label.bg,
         label.bg.r = label.bg.r, bg.by = bg.by, bg_palette = bg_palette,
         bg_alpha = bg_alpha, flip = flip,
