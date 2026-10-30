@@ -4,10 +4,10 @@
 \alias{palette_list}
 \title{Built-in Palette Collection}
 \format{
-A named list of 256 character vectors.
+A named list of 260 character vectors.
 }
 \description{
-A named list of 256 colour palettes from RColorBrewer, ggsci, viridis,
+A named list of 260 colour palettes from RColorBrewer, ggsci, viridis,
 rcartocolor, nord, dichromat, pals, colorspace, and UtilsR built-in.
 Each element is a character vector of hex colours with a \code{"type"}
 attribute (\code{"discrete"} or \code{"continuous"}).

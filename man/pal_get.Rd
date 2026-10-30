@@ -34,7 +34,7 @@ A character vector of hex colours, or -- when \code{palette} is a
   list of palettes -- a list of such vectors under the same names.
 }
 \description{
-Retrieve colours from the built-in palette collection (256 palettes).
+Retrieve colours from the built-in palette collection (260 palettes).
 Supports discrete mapping (factor/character input) and continuous
 interpolation (numeric input or \code{n} parameter).
 }

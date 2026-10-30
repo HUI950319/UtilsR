@@ -5,7 +5,7 @@
 # Architecture (3 layers):
 #
 #   L0  palette data (plain objects, not functions)
-#         palette_list  -- 256 named palettes, each with a "type" attribute
+#         palette_list  -- 260 named palettes, each with a "type" attribute
 #         pal_lancet / pal_bar / pal_paraSC / pal_other / pal_heat
 #
 #   L1  lookup + extraction                         -- public API
@@ -25,12 +25,12 @@
 
 #' Built-in Palette Collection
 #'
-#' A named list of 256 colour palettes from RColorBrewer, ggsci, viridis,
+#' A named list of 260 colour palettes from RColorBrewer, ggsci, viridis,
 #' rcartocolor, nord, dichromat, pals, colorspace, and UtilsR built-in.
 #' Each element is a character vector of hex colours with a \code{"type"}
 #' attribute (\code{"discrete"} or \code{"continuous"}).
 #'
-#' @format A named list of 256 character vectors.
+#' @format A named list of 260 character vectors.
 #' @examples
 #' length(palette_list)
 #' names(palette_list)[1:10]
@@ -272,7 +272,7 @@ pal_heat <- list(
 
 #' List All Available Palettes
 #'
-#' Browse palettes from the built-in collection (256 palettes from
+#' Browse palettes from the built-in collection (260 palettes from
 #' RColorBrewer, ggsci, viridis, rcartocolor, nord, dichromat, pals,
 #' colorspace, and UtilsR built-in). Use \code{pattern} to filter.
 #'
@@ -318,7 +318,7 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
 
 #' Get Colours from a Named Palette
 #'
-#' Retrieve colours from the built-in palette collection (256 palettes).
+#' Retrieve colours from the built-in palette collection (260 palettes).
 #' Supports discrete mapping (factor/character input) and continuous
 #' interpolation (numeric input or \code{n} parameter).
 #'

@@ -7,7 +7,7 @@
 [![pkgdown](https://img.shields.io/badge/docs-pkgdown-blue)](https://hui950319.github.io/UtilsR/)
 <!-- badges: end -->
 
-**UtilsR** is an R utility toolkit for everyday data work: variable inspection, statistical formatting, 256 colour palettes, 11-type categorical plotting, unified continuous variable plotting, and a chainable ggplot2 formatting system.
+**UtilsR** is an R utility toolkit for everyday data work: variable inspection, statistical formatting, 260 colour palettes, 11-type categorical plotting, unified continuous variable plotting, and a chainable ggplot2 formatting system.
 
 **Documentation**: <https://hui950319.github.io/UtilsR/>
 
@@ -39,7 +39,7 @@ install.packages(c("circlize", "ggVennDiagram", "ggupset"))
 - **`plt_con()`** -- One function, 4 chart types (violin, box, bar, dot) with statistical comparisons, overlays, split/stack layout
 - **`lv()`** -- Instant variable summary for data.frame and Seurat objects with grouping and cross-tabulation
 - **`fmt_*()`** -- Chainable ggplot2 formatting: axes, tags, legends, reference lines, strips, comparisons, backgrounds, scales, and more
-- **256 built-in palettes** via `pal_get()` / `pal_list()`, plus 11 hand-picked palettes (`pal_lancet`, `pal_ditto`, `pal_igv`, ...)
+- **260 built-in palettes** via `pal_get()` / `pal_list()`, plus 11 hand-picked palettes (`pal_lancet`, `pal_ditto`, `pal_igv`, ...)
 - **`fct_cat()`** -- Recode, reorder, reverse, binarise, group, and combine factors in one call
 
 ## Functions at a Glance
@@ -50,7 +50,7 @@ install.packages(c("circlize", "ggVennDiagram", "ggupset"))
 | **Factor** | `fct_cat()`, `fct_num()` | Recode / reorder / binarise; numeric binning |
 | **Format** | `stat_ci()`, `stat_pval()`, `stat_ci_parse()` | CI strings, p-values |
 | **Plot** | `plt_cat()`, `plt_con()`, `plt_dist()`, `plt_sankey()`, `plt_upset()` | Categorical (11 types), continuous (4 types), distribution, sankey, upset |
-| **Colour** | `pal_get()`, `pal_list()`, `pal_show()`, `as_palette()`, `show_color()` | 256 palettes, custom palette creation, console swatches |
+| **Colour** | `pal_get()`, `pal_list()`, `pal_show()`, `as_palette()`, `show_color()` | 260 palettes, custom palette creation, console swatches |
 | **ggplot2** | `fmt_plot()`, `fmt_axis()`, `fmt_tag()`, `fmt_legend()`, `fmt_ref()`, `fmt_strip()`, `fmt_com()`, `fmt_bg()`, `fmt_his()`, `fmt_scale()`, `fmt_expand()`, `fmt_boxplot()`, `fmt_point()` | Chainable ggplot2 formatting |
 | **Theme** | `theme_my()`, `theme_km()`, `theme_rcs()`, `theme_legend1()` | Publication-ready themes |
 | **Operators** | `%ni%`, `%\|\|%`, `%>%`, `%<>%` | Not-in, null default, pipes |
@@ -183,7 +183,7 @@ df |> mutate(grp = fct_cat(sex, combine = "age"))        # combine columns
 pal_lancet                        # 15 colours, Lancet journal style
 pal_ditto                         # 40 colours, dittoSeq (scRNA-seq)
 pal_igv                           # 48 colours, IGV genome browser
-pal_list()                        # browse all 256 palettes
+pal_list()                        # browse all 260 palettes
 pal_get("lancet", n = 5)          # extract 5 colours
 
 ggplot(data, aes(x, y, color = group)) +
@@ -212,7 +212,7 @@ p |>
 | [Data Inspection](https://hui950319.github.io/UtilsR/articles/data_inspection.html) | `lv()`, `na()`, `check_system()`, `check_size()` |
 | [Factor Manipulation](https://hui950319.github.io/UtilsR/articles/factor_manipulation.html) | `fct_cat()` and `fct_num()` |
 | [ggplot2 Formatting](https://hui950319.github.io/UtilsR/articles/ggplot2_formatting.html) | `fmt_*()` formatting system |
-| [Colour Palettes](https://hui950319.github.io/UtilsR/articles/colour_palettes.html) | 256 palettes, custom palettes |
+| [Colour Palettes](https://hui950319.github.io/UtilsR/articles/colour_palettes.html) | 260 palettes, custom palettes |
 
 ## License
 

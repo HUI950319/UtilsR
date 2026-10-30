@@ -13,7 +13,7 @@
 #   L2  .resolve_theme(theme_use)        NULL | name | function | theme
 #                                        -> ggplot2 theme
 #       .resolve_color(palette, n, ...)  NULL | name | colour(s)
-#                                        -> hex colour vector
+#                                        -> colour vector
 #       .save_sized(p, save, panel, ...) report the page size, save through
 #                                        RegR::save_plt()
 # =============================================================================
@@ -59,24 +59,27 @@
 # ---- .resolve_color --------------------------------------------------------
 #
 # Centralises the "palette name OR colour vector" resolution. Mirrors RegR's
-# internal `.resolve_color()`; built on `pal_get()` with a literal-colour
-# fallback. Returns an UNNAMED hex vector (callers add names via setNames()).
+# internal `.resolve_color()`; registered names go through `pal_get()`, literal
+# colours are checked and returned as given, and anything R cannot draw stops
+# with an error. Returns an UNNAMED vector (callers add names via setNames()).
 #
 #   palette = NULL                          # default -> `default` (pal_lancet)
 #   palette = "lancet" / "Reds"             # registered name -> pal_get
-#   palette = "red"                         # literal single colour -> recycled
+#   palette = "red"                         # literal single colour -> repeated
 #   palette = c("#ff0000", "#0000ff", ...)  # literal colour vector  -> as-is
 
-#' Resolve a colour specification to a hex colour vector
+#' Resolve a colour specification to a colour vector
 #'
 #' @param palette NULL, a registered palette name (resolved via [pal_get()]), a
 #'   single literal colour, or a character vector of colours.
 #' @param n Optional integer size. Registered palettes use `pal_get(palette,
-#'   n = n)` (recycling / interpolation); literal vectors use [rep_len()].
-#'   `NULL` (default) returns the palette at its natural length.
+#'   n = n)` (interpolating when `n` is longer); literal vectors and `default`
+#'   use [rep_len()], with a warning when several colours have to repeat. `NULL`
+#'   (default) returns the palette at its natural length.
 #' @param default Fallback colour vector when `palette = NULL`. Default
 #'   [pal_lancet].
-#' @return A character vector of hex colours (unnamed).
+#' @return An unnamed character vector: hex colours from a registered palette,
+#'   literal colours as given.
 #' @keywords internal
 #' @noRd
 .resolve_color <- function(palette = NULL, n = NULL,
