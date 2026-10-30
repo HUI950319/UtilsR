@@ -532,3 +532,32 @@ test_that("con memory does not retain unused input through plot environments", {
     expect_equal(ggplot2::ggplot_build(small)$data, ggplot2::ggplot_build(extra)$data)
   }
 })
+
+test_that("con single plot size is independent of sibling feature plots", {
+  skip_if_not_installed("lobstr")
+  make <- function(extra, type, background) {
+    set.seed(215)
+    d <- data.frame(x = rnorm(400), g = factor(rep(c("A", "B"), 200)), bg = rep(c("R1", "R2"), 200))
+    features <- "x"
+    if (extra) {
+      for (i in 1:4) d[[paste0("z", i)]] <- rnorm(400)
+      features <- c(features, paste0("z", 1:4))
+    }
+    suppressMessages(UtilsR::plt_con(d, features, "g", type = type,
+      bg.by = if (background) "bg" else NULL, add_point = TRUE,
+      add_box = type == "violin", add_trend = type == "bar", combine = FALSE))[[1L]]
+  }
+  environment(make) <- globalenv()
+  for (type in c("violin", "box", "bar", "dot")) for (background in c(FALSE, TRUE)) {
+    invisible(make(FALSE, type, background))
+    a <- make(FALSE, type, background)
+    b <- make(TRUE, type, background)
+    expect_lt(as.numeric(lobstr::obj_size(b)) - as.numeric(lobstr::obj_size(a)), 100000)
+    first <- withr::local_tempfile(fileext = ".rds")
+    second <- withr::local_tempfile(fileext = ".rds")
+    saveRDS(a, first)
+    saveRDS(b, second)
+    expect_lt(file.info(second)$size - file.info(first)$size, 100000)
+    expect_identical(ggplot2::ggplot_build(a)$data, ggplot2::ggplot_build(b)$data)
+  }
+})

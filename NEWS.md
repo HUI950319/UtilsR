@@ -1,5 +1,8 @@
 # UtilsR 0.6.18
 
+* `plt_con()` constructs layers and guides in small environments so retaining
+  one feature plot no longer serializes its sibling plots and analysis context.
+
 * `plt_cat()` detects missing values before factor conversion, including SPSS user-defined missing values and serialized classed columns.
 
 * Plot functions warn when too few colours make groups share one, such as more than 15 groups with the default `pal_lancet`. The colours themselves do not change.

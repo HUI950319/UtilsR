@@ -18,6 +18,7 @@
 #         +-- L2  .con_bar_range()     full mean +/- SD range and zero baseline
 #         +-- L2  .con_base_plot()     small plot and mapping environment
 #         +-- L2  .con_dot_mapping()   shared mapping without analysis data
+#         +-- L2  .con_component()     isolated layer/guide construction
 # =============================================================================
 
 #' Unified Continuous Variable Plot
@@ -714,6 +715,16 @@ plt_con <- function(data,
                fill = .data[["fill.by"]], size = .data[["n"]])
 }
 
+.con_component <- function(.constructor, ...) {
+  force(.constructor)
+  params <- list(...)
+  args <- lapply(seq_along(params), function(i) call("[[", quote(params), i))
+  names(args) <- names(params)
+  # Layers keep their constructor's call environment; give it only these values.
+  eval(as.call(c(list(quote(.constructor)), args)),
+       list2env(list(.constructor = .constructor, params = params), parent = baseenv()))
+}
+
 
 #' Build a single feature plot
 #' @noRd
@@ -764,7 +775,8 @@ plt_con <- function(data,
 
   # --- Background bands -------------------------------------------------------
   if (!is.null(bg.by) && type != "dot") {
-    bg_layer <- .build_bg_layer(data, group.by, bg.by, bg_alpha, bg_palette)
+    bg_layer <- .con_component(.build_bg_layer, data[, unique(c(group.by, bg.by)), drop = FALSE],
+                               group.by, bg.by, bg_alpha, bg_palette)
     if (!is.null(bg_layer)) {
       p <- p + bg_layer
     }
@@ -783,35 +795,35 @@ plt_con <- function(data,
       violin_data <- dat[!dat[["group.by"]] %in% small_groups, , drop = FALSE]
     }
     if (nrow(violin_data)) {
-      p <- p + ggplot2::geom_violin(
+      p <- p + .con_component(ggplot2::geom_violin,
         data = violin_data, scale = "width", trim = TRUE, alpha = alpha,
-        position = ggplot2::position_dodge()
+        position = .con_component(ggplot2::position_dodge)
       )
     }
   } else if (type == "box") {
     p <- p +
-      ggplot2::geom_boxplot(
-        position = ggplot2::position_dodge(width = 0.9),
+      .con_component(ggplot2::geom_boxplot,
+        position = .con_component(ggplot2::position_dodge, width = 0.9),
         color = "black", width = 0.8, alpha = alpha,
         outlier.shape = NA
       ) +
-      ggplot2::stat_summary(
+      .con_component(ggplot2::stat_summary,
         fun = stats::median, geom = "point",
-        position = ggplot2::position_dodge(width = 0.9),
+        position = .con_component(ggplot2::position_dodge, width = 0.9),
         color = "black", fill = "white", size = 1.5, shape = 21
       )
   } else if (type == "bar") {
     p <- p +
-      ggplot2::geom_hline(yintercept = 0, linetype = 2) +
-      ggplot2::stat_summary(
+      .con_component(ggplot2::geom_hline, yintercept = 0, linetype = 2) +
+      .con_component(ggplot2::stat_summary,
         fun = mean, geom = "col",
-        position = ggplot2::position_dodge(width = 0.9),
+        position = .con_component(ggplot2::position_dodge, width = 0.9),
         width = 0.8, color = "black", alpha = alpha
       ) +
-      ggplot2::stat_summary(
+      .con_component(ggplot2::stat_summary,
         fun.data = ggplot2::mean_sdl, fun.args = list(mult = 1),
         geom = "errorbar",
-        position = ggplot2::position_dodge(width = 0.9),
+        position = .con_component(ggplot2::position_dodge, width = 0.9),
         width = 0.2, color = "black"
       )
   } else if (type == "dot") {
@@ -820,20 +832,21 @@ plt_con <- function(data,
     dot_df <- .con_dot_counts(dat, c("group.by", "fill.by", "bins"))
 
     p <- .con_base_plot(dat) +
-      ggplot2::geom_point(
+      .con_component(ggplot2::geom_point,
         data = dot_df,
         .con_dot_mapping(),
         shape = 21, alpha = alpha, inherit.aes = FALSE,
-        position = ggplot2::position_dodge(width = 0.9)
+        position = .con_component(ggplot2::position_dodge, width = 0.9)
       ) +
       ggplot2::scale_size_area(name = "Count", max_size = 6, n.breaks = 4) +
-      ggplot2::guides(
-        size = ggplot2::guide_legend(
+      .con_component(ggplot2::guides,
+        size = .con_component(ggplot2::guide_legend,
           override.aes = list(fill = "grey30", shape = 21), order = 2
         )
       )
     if (!is.null(bg.by)) {
-      bg_layer <- .build_bg_layer(data, group.by, bg.by, bg_alpha, bg_palette)
+      bg_layer <- .con_component(.build_bg_layer, data[, unique(c(group.by, bg.by)), drop = FALSE],
+                                 group.by, bg.by, bg_alpha, bg_palette)
       if (!is.null(bg_layer)) {
         p$layers <- c(list(bg_layer), p$layers)
       }
@@ -843,24 +856,24 @@ plt_con <- function(data,
   # --- Overlay: add_box -------------------------------------------------------
   if (isTRUE(add_box) && type != "box") {
     p <- p +
-      ggplot2::geom_boxplot(
-        position = ggplot2::position_dodge(width = 0.9),
+      .con_component(ggplot2::geom_boxplot,
+        position = .con_component(ggplot2::position_dodge, width = 0.9),
         color = box_color, fill = box_color,
         width = box_width, outlier.shape = NA, show.legend = FALSE
       ) +
-      ggplot2::stat_summary(
+      .con_component(ggplot2::stat_summary,
         fun = stats::median, geom = "point",
-        position = ggplot2::position_dodge(width = 0.9),
+        position = .con_component(ggplot2::position_dodge, width = 0.9),
         color = "black", fill = "white", size = 1.5, shape = 21
       )
   }
 
   # --- Overlay: add_point -----------------------------------------------------
   if (isTRUE(add_point)) {
-    p <- p + ggplot2::geom_point(
+    p <- p + .con_component(ggplot2::geom_point,
       inherit.aes = TRUE,
       color = pt.color, size = pt.size, alpha = pt.alpha,
-      position = ggplot2::position_jitterdodge(
+      position = .con_component(ggplot2::position_jitterdodge,
         jitter.width = jitter.width, jitter.height = jitter.height,
         dodge.width = 0.9, seed = seed
       ),
@@ -872,12 +885,12 @@ plt_con <- function(data,
   if (isTRUE(add_trend) && type %in% c("violin", "box", "bar")) {
     trend_fun <- if (type == "bar") mean else stats::median
     p <- p +
-      ggplot2::stat_summary(
+      .con_component(ggplot2::stat_summary,
         fun = trend_fun, geom = "line",
         group = 1,
         color = trend_color, linewidth = trend_linewidth
       ) +
-      ggplot2::stat_summary(
+      .con_component(ggplot2::stat_summary,
         fun = trend_fun, geom = "point",
         group = 1,
         color = "black", fill = "white", size = trend_ptsize, shape = 21
@@ -889,7 +902,7 @@ plt_con <- function(data,
   comparisons <- .con_comparisons(comparisons, dat[["group.by"]], feature, values, pairwise_method)
   annotation_y_max <- y_max_use
   if (length(comparisons)) {
-    p <- p + ggpubr::stat_compare_means(
+    p <- p + .con_component(ggpubr::stat_compare_means,
       comparisons = comparisons,
       ref.group = ref_group,
       method = pairwise_method,
@@ -904,7 +917,7 @@ plt_con <- function(data,
   annotation_y_max <- annotation_y_max + (annotation_y_max - y_min_use) * 0.15 * comparison_count
 
   if (isTRUE(multiplegroup_comparisons)) {
-    p <- p + ggpubr::stat_compare_means(
+    p <- p + .con_component(ggpubr::stat_compare_means,
       method = multiple_method,
       label = sig_label,
       label.y = annotation_y_max,
@@ -927,8 +940,8 @@ plt_con <- function(data,
   # --- Fill scale -------------------------------------------------------------
   p <- p +
     ggplot2::scale_fill_manual(values = colors, drop = FALSE) +
-    ggplot2::guides(
-      fill = ggplot2::guide_legend(
+    .con_component(ggplot2::guides,
+      fill = .con_component(ggplot2::guide_legend,
         title.hjust = 0, order = 1,
         override.aes = list(alpha = 1)
       )
@@ -1009,40 +1022,41 @@ plt_con <- function(data,
   p <- .con_base_plot(dat_long)
 
   if (!is.null(bg.by)) {
-    bg_layer <- .build_bg_layer(data, group.by, bg.by, bg_alpha, bg_palette)
+    bg_layer <- .con_component(.build_bg_layer, data[, unique(c(group.by, bg.by)), drop = FALSE],
+                               group.by, bg.by, bg_alpha, bg_palette)
     if (!is.null(bg_layer)) p <- p + bg_layer
   }
 
   # --- Type-specific geom ---
   if (type == "violin") {
-    p <- p + ggplot2::geom_violin(
+    p <- p + .con_component(ggplot2::geom_violin,
       scale = "width", trim = TRUE, alpha = alpha,
-      position = ggplot2::position_dodge()
+      position = .con_component(ggplot2::position_dodge)
     )
   } else if (type == "box") {
     p <- p +
-      ggplot2::geom_boxplot(
-        position = ggplot2::position_dodge(width = 0.9),
+      .con_component(ggplot2::geom_boxplot,
+        position = .con_component(ggplot2::position_dodge, width = 0.9),
         color = "black", width = 0.8, alpha = alpha,
         outlier.shape = NA
       ) +
-      ggplot2::stat_summary(
+      .con_component(ggplot2::stat_summary,
         fun = stats::median, geom = "point",
-        position = ggplot2::position_dodge(width = 0.9),
+        position = .con_component(ggplot2::position_dodge, width = 0.9),
         color = "black", fill = "white", size = 1.5, shape = 21
       )
   } else if (type == "bar") {
     p <- p +
-      ggplot2::geom_hline(yintercept = 0, linetype = 2) +
-      ggplot2::stat_summary(
+      .con_component(ggplot2::geom_hline, yintercept = 0, linetype = 2) +
+      .con_component(ggplot2::stat_summary,
         fun = mean, geom = "col",
-        position = ggplot2::position_dodge(width = 0.9),
+        position = .con_component(ggplot2::position_dodge, width = 0.9),
         width = 0.8, color = "black", alpha = alpha
       ) +
-      ggplot2::stat_summary(
+      .con_component(ggplot2::stat_summary,
         fun.data = ggplot2::mean_sdl, fun.args = list(mult = 1),
         geom = "errorbar",
-        position = ggplot2::position_dodge(width = 0.9),
+        position = .con_component(ggplot2::position_dodge, width = 0.9),
         width = 0.2, color = "black"
       )
   } else if (type == "dot") {
@@ -1050,15 +1064,15 @@ plt_con <- function(data,
     dot_df <- .con_dot_counts(dat_long, c("group.by", "fill.by", "feature", "bins"))
     dot_df[["feature"]] <- factor(dot_df[["feature"]], levels = stat.by)
     p <- p +
-      ggplot2::geom_point(
+      .con_component(ggplot2::geom_point,
         data = dot_df,
         .con_dot_mapping(),
         shape = 21, alpha = alpha, inherit.aes = FALSE,
-        position = ggplot2::position_dodge(width = 0.9)
+        position = .con_component(ggplot2::position_dodge, width = 0.9)
       ) +
       ggplot2::scale_size_area(name = "Count", max_size = 6, n.breaks = 4) +
-      ggplot2::guides(
-        size = ggplot2::guide_legend(
+      .con_component(ggplot2::guides,
+        size = .con_component(ggplot2::guide_legend,
           override.aes = list(fill = "grey30", shape = 21), order = 2
         )
       )
@@ -1067,23 +1081,23 @@ plt_con <- function(data,
   # --- Overlays ---
   if (isTRUE(add_box) && type %in% c("violin", "bar")) {
     p <- p +
-      ggplot2::geom_boxplot(
-        position = ggplot2::position_dodge(width = 0.9),
+      .con_component(ggplot2::geom_boxplot,
+        position = .con_component(ggplot2::position_dodge, width = 0.9),
         color = box_color, fill = box_color,
         width = box_width, outlier.shape = NA, show.legend = FALSE
       ) +
-      ggplot2::stat_summary(
+      .con_component(ggplot2::stat_summary,
         fun = stats::median, geom = "point",
-        position = ggplot2::position_dodge(width = 0.9),
+        position = .con_component(ggplot2::position_dodge, width = 0.9),
         color = "black", fill = "white", size = 1.5, shape = 21
       )
   }
 
   if (isTRUE(add_point)) {
-    p <- p + ggplot2::geom_point(
+    p <- p + .con_component(ggplot2::geom_point,
       inherit.aes = TRUE,
       color = pt.color, size = pt.size %||% 0.3, alpha = pt.alpha,
-      position = ggplot2::position_jitterdodge(
+      position = .con_component(ggplot2::position_jitterdodge,
         jitter.width = jitter.width, jitter.height = jitter.height,
         dodge.width = 0.9, seed = seed
       ),
@@ -1094,12 +1108,12 @@ plt_con <- function(data,
   if (isTRUE(add_trend) && type %in% c("violin", "box", "bar")) {
     trend_fun <- if (type == "bar") mean else stats::median
     p <- p +
-      ggplot2::stat_summary(
+      .con_component(ggplot2::stat_summary,
         fun = trend_fun, geom = "line",
         group = 1,
         color = trend_color, linewidth = trend_linewidth
       ) +
-      ggplot2::stat_summary(
+      .con_component(ggplot2::stat_summary,
         fun = trend_fun, geom = "point",
         group = 1,
         color = "black", fill = "white", size = trend_ptsize, shape = 21
@@ -1121,7 +1135,7 @@ plt_con <- function(data,
     }
     for (i in seq_along(comparison_sets)) {
       if (!length(comparison_sets[[i]])) next
-      p <- p + ggpubr::stat_compare_means(
+      p <- p + .con_component(ggpubr::stat_compare_means,
         data = comparison_data[[i]], comparisons = comparison_sets[[i]], ref.group = ref_group,
         method = pairwise_method, label = sig_label, size = sig_labelsize,
         step.increase = 0.1, tip.length = 0.03, vjust = 0
@@ -1129,7 +1143,7 @@ plt_con <- function(data,
     }
   }
   if (isTRUE(multiplegroup_comparisons)) {
-    p <- p + ggpubr::stat_compare_means(
+    p <- p + .con_component(ggpubr::stat_compare_means,
       method = multiple_method, label = sig_label, size = sig_labelsize,
       vjust = 1.2, hjust = if (isTRUE(flip)) 1 else 0
     )
