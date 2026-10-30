@@ -138,6 +138,25 @@ test_that("con stacked comparisons test each feature separately", {
   expect_equal(as.character(global$label), c("**", "ns"))
 })
 
+test_that("con unavailable comparisons preserve valid tests in each feature", {
+  d <- data.frame(x = 1:18, z = 51:68, g = factor(rep(c("A", "B", "C"), each = 6)))
+  d$z[d$g == "C"] <- NA_real_
+  pairs <- list(c("A", "B"), c("A", "C"))
+  for (stack in c(FALSE, TRUE)) {
+    expect_warning(out <- suppressMessages(plt_con(d, c("x", "z"), "g", type = "box",
+                       comparisons = pairs, stack = stack, combine = FALSE)), "Skipping.*z")
+    p <- out[[if (stack) 1L else 2L]]
+    expect_no_warning(b <- ggplot2::ggplot_build(p))
+    kinds <- vapply(p$layers, function(l) class(l$geom)[[1L]], "")
+    brackets <- do.call(rbind, b$data[which(kinds == "GeomSignif")])
+    if (stack) {
+      expect_equal(as.integer(table(brackets$PANEL)), c(6L, 3L))
+    } else {
+      expect_equal(nrow(brackets), 3L)
+    }
+  }
+})
+
 test_that("con global test labels fit inside normal and flipped panels", {
   for (stack in c(FALSE, TRUE)) for (flip in c(FALSE, TRUE)) {
     p <- con_plot(con_data(), c("x", "z"), type = "box", stack = stack, flip = flip,

@@ -1,5 +1,8 @@
 # UtilsR 0.6.17
 
+* Unavailable continuous-plot comparison pairs are skipped per feature
+  with a warning, retaining valid pairwise tests in that panel.
+
 * Continuous dot-plot counts retain observed missing grouping strata,
   including inputs whose grouping column is entirely missing.
 

@@ -124,7 +124,8 @@ Default \code{FALSE}.}
 \item{trend_ptsize}{Numeric. Trend point size. Default 2.}
 
 \item{comparisons}{A list of length-2 character vectors for pairwise tests.
-Default \code{NULL}.}
+Default \code{NULL}. Pairs with unavailable groups are skipped per feature
+with a warning; other requested comparisons remain available.}
 
 \item{ref_group}{Character. Reference group for comparisons.
 Default \code{NULL}.}

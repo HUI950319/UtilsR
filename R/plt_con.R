@@ -13,6 +13,7 @@
 #                                      (also called by both builders)
 #         +-- L2  .con_dot_bins()      numeric bin centres, including constants
 #         +-- L2  .con_dot_counts()    counts including observed missing groups
+#         +-- L2  .con_comparisons()   available pairs for one feature
 #         +-- L2  .con_bar_range()     full mean +/- SD range and zero baseline
 #         +-- L2  .con_base_plot()     small plot and mapping environment
 #         +-- L2  .con_dot_mapping()   shared mapping without analysis data
@@ -68,7 +69,8 @@
 #' @param trend_linewidth Numeric. Trend line width. Default 1.
 #' @param trend_ptsize Numeric. Trend point size. Default 2.
 #' @param comparisons A list of length-2 character vectors for pairwise tests.
-#'   Default \code{NULL}.
+#'   Default \code{NULL}. Pairs with unavailable groups are skipped per feature
+#'   with a warning; other requested comparisons remain available.
 #' @param ref_group Character. Reference group for comparisons.
 #'   Default \code{NULL}.
 #' @param pairwise_method Character. Pairwise test method.
@@ -608,6 +610,19 @@ plt_con <- function(data,
   counts
 }
 
+.con_comparisons <- function(comparisons, groups, feature) {
+  if (!length(comparisons)) return(comparisons)
+  available <- unique(as.character(groups[!is.na(groups)]))
+  keep <- vapply(comparisons, function(pair) {
+    if (is.numeric(pair)) pair <- levels(groups)[pair]
+    length(pair) == 2L && !anyNA(pair) && all(pair %in% available)
+  }, logical(1))
+  if (!all(keep)) {
+    cli::cli_warn("Skipping {sum(!keep)} comparison{?s} with unavailable groups for {.val {feature}}.")
+  }
+  comparisons[keep]
+}
+
 .con_bar_range <- function(values, groups) {
   ids <- match(groups, unique(groups))
   intervals <- unlist(lapply(split(values, ids), function(v) {
@@ -801,7 +816,8 @@ plt_con <- function(data,
   }
 
   # --- Statistical comparisons ------------------------------------------------
-  if (!is.null(comparisons)) {
+  comparisons <- .con_comparisons(comparisons, dat[["group.by"]], feature)
+  if (length(comparisons)) {
     p <- p + ggpubr::stat_compare_means(
       comparisons = comparisons,
       ref.group = ref_group,
@@ -1015,12 +1031,24 @@ plt_con <- function(data,
   }
 
   # Facets partition the test data, so each feature is tested independently.
-  if (!is.null(comparisons)) {
-    p <- p + ggpubr::stat_compare_means(
-      comparisons = comparisons, ref.group = ref_group,
-      method = pairwise_method, label = sig_label, size = sig_labelsize,
-      step.increase = 0.1, tip.length = 0.03, vjust = 0
-    )
+  if (length(comparisons)) {
+    comparison_sets <- lapply(stat.by, function(f) {
+      .con_comparisons(comparisons, dat_long[["group.by"]][dat_long[["feature"]] == f], f)
+    })
+    if (all(vapply(comparison_sets, identical, logical(1), comparisons))) {
+      comparison_sets <- comparison_sets[1L]
+      comparison_data <- list(NULL)
+    } else {
+      comparison_data <- split(dat_long, dat_long[["feature"]], drop = TRUE)
+    }
+    for (i in seq_along(comparison_sets)) {
+      if (!length(comparison_sets[[i]])) next
+      p <- p + ggpubr::stat_compare_means(
+        data = comparison_data[[i]], comparisons = comparison_sets[[i]], ref.group = ref_group,
+        method = pairwise_method, label = sig_label, size = sig_labelsize,
+        step.increase = 0.1, tip.length = 0.03, vjust = 0
+      )
+    }
   }
   if (isTRUE(multiplegroup_comparisons)) {
     p <- p + ggpubr::stat_compare_means(
