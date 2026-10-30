@@ -1,5 +1,8 @@
 # UtilsR 0.6.17
 
+* Independent stacked quantile limits use each feature's observations,
+  retaining all observations for summaries, tests and raw-point layers.
+
 * Key-value previews retain totals above the integer range without
   formatting errors, including virtual long vectors that remain bounded previews.
 

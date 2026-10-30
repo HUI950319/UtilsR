@@ -14,6 +14,7 @@
 #         +-- L2  .con_dot_bins()      numeric bin centres, including constants
 #         +-- L2  .con_dot_counts()    counts including observed missing groups
 #         +-- L2  .con_comparisons()   available pairs for one feature
+#         +-- L2  .con_facet_scales()  per-feature zoom without filtering stats
 #         +-- L2  .con_bar_range()     full mean +/- SD range and zero baseline
 #         +-- L2  .con_base_plot()     small plot and mapping environment
 #         +-- L2  .con_dot_mapping()   shared mapping without analysis data
@@ -89,6 +90,8 @@
 #' @param y.min Numeric or character. Minimum y-axis limit.
 #'   Character \code{"qN"} uses the Nth percentile. Default \code{NULL};
 #'   automatic bar limits include the full SD intervals and zero baseline.
+#'   Quantiles use each feature separately when axes are independent, and
+#'   pooled observations when \code{same.y.lims = TRUE}.
 #' @param y.max Numeric or character. Maximum y-axis limit.
 #'   Character \code{"qN"} uses the Nth percentile. Default \code{NULL}.
 #'   Automatic limits leave room for comparisons; explicit bounds are preserved.
@@ -638,6 +641,15 @@ plt_con <- function(data,
   comparisons[keep]
 }
 
+.con_facet_scales <- function(limits, nbreaks) {
+  force(limits)
+  force(nbreaks)
+  lapply(limits, function(bounds) {
+    force(bounds)
+    ggplot2::scale_y_continuous(limits = bounds, breaks = scales::breaks_pretty(n = nbreaks))
+  })
+}
+
 .con_bar_range <- function(values, groups) {
   ids <- match(groups, unique(groups))
   intervals <- unlist(lapply(split(values, ids), function(v) {
@@ -1083,7 +1095,17 @@ plt_con <- function(data,
   axis_limits <- c(if (is.null(y.min)) NA_real_ else y_min_use,
                    if (is.null(y.max)) NA_real_ else y_max_use)
   if (all(is.na(axis_limits))) axis_limits <- NULL
+  feature_limits <- NULL
+  if (!isTRUE(same.y.lims) && (is.character(y.min) || is.character(y.max))) {
+    feature_limits <- lapply(stat.by, function(f) {
+      v <- dat_long[["value"]][dat_long[["feature"]] == f]
+      c(if (is.null(y.min)) NA_real_ else .resolve_y_limit(y.min, v, "min"),
+        if (is.null(y.max)) NA_real_ else .resolve_y_limit(y.max, v, "max"))
+    })
+    axis_limits <- NULL
+  }
   facet_scales <- if (isTRUE(same.y.lims)) "fixed" else if (isTRUE(flip)) "free_x" else "free_y"
+  if (length(feature_limits) && isTRUE(flip)) facet_scales <- "free"
   if (isTRUE(flip)) {
     p <- p +
       ggplot2::facet_wrap(stats::as.formula("~feature", env = baseenv()), nrow = 1,
@@ -1103,6 +1125,9 @@ plt_con <- function(data,
     ) +
     ggplot2::scale_fill_manual(values = colors, drop = FALSE) +
     ggplot2::scale_x_discrete(drop = FALSE)
+  if (length(feature_limits)) {
+    p <- p + ggh4x::facetted_pos_scales(y = .con_facet_scales(feature_limits, y.nbreaks))
+  }
 
   # --- Theme ---
   p <- p +

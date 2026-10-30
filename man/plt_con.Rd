@@ -151,7 +151,9 @@ Default \code{FALSE}, including stacked and flipped panels. Explicit
 
 \item{y.min}{Numeric or character. Minimum y-axis limit.
 Character \code{"qN"} uses the Nth percentile. Default \code{NULL};
-automatic bar limits include the full SD intervals and zero baseline.}
+automatic bar limits include the full SD intervals and zero baseline.
+Quantiles use each feature separately when axes are independent, and
+pooled observations when \code{same.y.lims = TRUE}.}
 
 \item{y.max}{Numeric or character. Maximum y-axis limit.
 Character \code{"qN"} uses the Nth percentile. Default \code{NULL}.

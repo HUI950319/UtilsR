@@ -338,6 +338,30 @@ test_that("con shared bar quantile limits use the original observations", {
   }
 })
 
+test_that("con independent stacked quantile zoom uses each feature without filtering statistics", {
+  d <- data.frame(x = 1:20, z = 100 + 1:20, g = rep(c("A", "B"), each = 10))
+  for (flip in c(FALSE, TRUE)) {
+    separate <- suppressMessages(plt_con(d, c("x", "z"), "g", type = "box", flip = flip,
+                     y.min = "q5", y.max = "q95", add_point = TRUE, combine = FALSE))
+    p <- con_plot(d, c("x", "z"), type = "box", stack = TRUE, flip = flip,
+                 y.min = "q5", y.max = "q95", add_point = TRUE)
+    baseline <- con_plot(d, c("x", "z"), type = "box", stack = TRUE, flip = flip, add_point = TRUE)
+    b <- ggplot2::ggplot_build(p)
+    axis <- if (flip) "x.range" else "y.range"
+    for (i in 1:2) {
+      expect_equal(unname(b$layout$panel_params[[i]][[axis]]),
+                   unname(ggplot2::ggplot_build(separate[[i]])$layout$panel_params[[1L]][[axis]]))
+    }
+    expect_equal(b$data[[1L]][c("lower", "middle", "upper", "ymin", "ymax")],
+                 ggplot2::ggplot_build(baseline)$data[[1L]][c("lower", "middle", "upper", "ymin", "ymax")])
+    expect_equal(sort(b$data[[3L]]$y), sort(c(d$x, d$z)))
+    bar <- con_plot(d, c("x", "z"), type = "bar", stack = TRUE, flip = flip, y.max = "q95")
+    expected_bar <- con_plot(d, c("x", "z"), type = "bar", stack = TRUE, flip = flip)
+    expect_equal(ggplot2::ggplot_build(bar)$data[[2L]]$y,
+                 ggplot2::ggplot_build(expected_bar)$data[[2L]]$y)
+  }
+})
+
 test_that("con singleton violin groups retain raw points and summary overlays", {
   d <- data.frame(x = c(1:4, 10), g = c(rep("A", 4), "B"))
   expect_warning(p <- con_plot(d, type = "violin", add_point = TRUE, add_trend = TRUE),
