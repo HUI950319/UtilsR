@@ -29,6 +29,17 @@ cat_con_data <- function() {
   )
 }
 
+test_that("plt_cat respects SPSS user missing values before factor conversion", {
+  skip_if_not_installed("haven")
+  d <- data.frame(category = haven::labelled_spss(c(1, 99, 1), na_values = 99))
+  p <- cat_test_plot(d, "category", stat = "count")
+  expect_equal(as.character(p$data$stat_var), "1")
+  expect_equal(p$data$n, 2L)
+  q <- cat_test_plot(d, "category", stat = "count", NA_stat = TRUE)
+  expect_equal(sort(q$data$n), c(1L, 2L))
+  expect_false("99" %in% as.character(q$data$stat_var))
+})
+
 test_that("plt_cat pie and ring use shared radii and stable angular totals", {
   d <- data.frame(category = factor(c("A", "A", "B")))
   for (type in c("pie", "ring")) {

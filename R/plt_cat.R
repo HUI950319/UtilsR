@@ -344,7 +344,15 @@ plt_cat <- function(data,
   # --- Ensure factors ---------------------------------------------------------
   for (col in unique(c(stat.by, group.by, split.by, bg.by))) {
     if (!is.null(col) && col %in% names(data) && !is.factor(data[[col]])) {
-      data[[col]] <- factor(data[[col]], levels = unique(data[[col]]))
+      x <- data[[col]]
+      pkg <- if (inherits(x, "haven_labelled")) "haven" else
+        if (inherits(x, "integer64")) "bit64" else
+          if (inherits(x, c("Duration", "Period", "Interval"))) "lubridate" else NULL
+      if (!is.null(pkg) && !requireNamespace(pkg, quietly = TRUE)) {
+        cli::cli_abort("Inspecting {.cls {class(x)[1]}} columns requires package {.pkg {pkg}}.")
+      }
+      x[is.na(x)] <- NA
+      data[[col]] <- factor(x, levels = unique(x))
     }
   }
 
