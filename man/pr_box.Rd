@@ -9,7 +9,8 @@ pr_box(x, header = NULL, footer = NULL, col = "cyan")
 \arguments{
 \item{x}{A named list or named vector, shown as aligned key-value lines
 with \code{NULL} elements dropped, or an unnamed character vector, shown
-line by line. Missing plain lines display as \code{NA}.}
+line by line. Embedded newlines start separate lines and retain ANSI
+styles. Missing plain lines display as \code{NA}.}
 
 \item{header, footer}{Character, or \code{NULL} for none. Text set into
 the top and bottom border. Layout controls are escaped.}

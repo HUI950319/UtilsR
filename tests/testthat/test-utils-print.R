@@ -1111,3 +1111,17 @@ test_that("row names remain printable when a data frame has no value columns", {
   expect_identical(utils::capture.output(pr_table(x)), character())
   expect_length(utils::capture.output(pr_table(data.frame(), rownames = TRUE)), 2L)
 })
+
+test_that("plain boxed text keeps embedded newlines and their ANSI styles", {
+  withr::local_options(cli.num_colors = 1)
+  out <- utils::capture.output(pr_box("first\nsecond"))
+  expect_length(out, 4L)
+  expect_match(out[2], "first", fixed = TRUE)
+  expect_match(out[3], "second", fixed = TRUE)
+  expect_length(utils::capture.output(pr_box("first\n\nsecond\n")), 5L)
+  expect_length(utils::capture.output(pr_box("")), 3L)
+  withr::local_options(cli.num_colors = 256)
+  out <- utils::capture.output(pr_box(cli::col_red("first\nsecond")))
+  expect_match(out[2], "\033[31mfirst", fixed = TRUE)
+  expect_match(out[3], "\033[31msecond", fixed = TRUE)
+})

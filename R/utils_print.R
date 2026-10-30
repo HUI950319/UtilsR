@@ -1028,7 +1028,8 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
 #'
 #' @param x A named list or named vector, shown as aligned key-value lines
 #'   with \code{NULL} elements dropped, or an unnamed character vector, shown
-#'   line by line. Missing plain lines display as \code{NA}.
+#'   line by line. Embedded newlines start separate lines and retain ANSI
+#'   styles. Missing plain lines display as \code{NA}.
 #' @param header,footer Character, or \code{NULL} for none. Text set into
 #'   the top and bottom border. Layout controls are escaped.
 #' @param col Border colour: anything \code{cli::make_ansi_style()} accepts
@@ -1052,7 +1053,13 @@ pr_box <- function(x, header = NULL, footer = NULL, col = "cyan") {
   padding <- min(2L, max(0L, floor((width - 4L) / 2L)))
   avail <- max(1L, width - 2L - 2L * padding)
   lines <- if (is.character(x) && is.null(names(x))) {
-    unlist(lapply(x, function(s) ._pr_wrap(s, width = avail)))
+    unlist(lapply(x, function(s) {
+      if (is.na(s) || !grepl("\n", s, fixed = TRUE)) return(._pr_wrap(s, width = avail))
+      segs <- cli::ansi_strsplit(s, "\n", fixed = TRUE)[[1]]
+      unlist(lapply(segs, function(part) {
+        if (nzchar(cli::ansi_strip(part))) ._pr_wrap(part, width = avail) else part
+      }))
+    }))
   } else {
     ._kv_lines(x, width = avail)
   }

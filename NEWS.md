@@ -1,5 +1,8 @@
 # UtilsR 0.6.18
 
+* `pr_box()` keeps embedded newlines in plain text as separate box rows,
+  preserving blank separators and ANSI styles across the line breaks.
+
 * `pr_table(rownames = TRUE)` retains row names for zero-column data frames,
   while the default zero-column display remains empty.
 
