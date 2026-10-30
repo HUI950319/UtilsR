@@ -29,6 +29,24 @@ cat_con_data <- function() {
   )
 }
 
+test_that("plt_cat dodge labels follow bar widths and overlay values", {
+  d <- data.frame(category = c("A", "A", "B", "A", "A", "A", "B", "C"),
+                  group = rep(c("G1", "G2"), c(3, 5)))
+  for (type in c("bar", "rose", "trend", "ring")) {
+    p <- cat_test_plot(d, "category", "group", type = type, stat = "count",
+                      position = "dodge", label = TRUE)
+    b <- ggplot2::ggplot_build(p)
+    bar <- which(vapply(p$layers, function(l) inherits(l$geom, "GeomCol"), logical(1)))
+    labs <- b$data[[length(b$data)]]
+    expect_equal(as.numeric(labs$x), as.numeric(b$data[[bar]]$x))
+    expect_equal(labs$y, b$data[[bar]]$ymax)
+  }
+  p <- cat_test_plot(d, "category", "group", type = "area", stat = "count",
+                    position = "dodge", label = TRUE)
+  b <- ggplot2::ggplot_build(p)
+  expect_equal(b$data[[length(b$data)]]$y, p$data$value)
+})
+
 test_that("plt_cat counts columns with non syntactic names directly", {
   for (name in c("Tumor stage", "a+b", "x`y", ".")) {
     d <- setNames(data.frame(category = c("I", "II", "I", "III"),

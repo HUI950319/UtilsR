@@ -3,6 +3,8 @@
 * `plt_con(type = "dot")` groups count rows with vctrs, reducing aggregation
   overhead while preserving count order, factor types and missing groups.
 
+* `plt_cat()` aligns dodged value labels with bar, rose, trend and ring widths, retains zero rows for positioning, and uses unstacked labels for overlaid areas.
+
 * `plt_cat()` counts columns directly, supporting spaces and formula punctuation in column names while reducing aggregation overhead and preserving count and percentage schemas.
 
 * `plt_cat(keep_empty = TRUE)` preserves unused category and grouping levels, including zero-frequency rows and their axis and legend positions.

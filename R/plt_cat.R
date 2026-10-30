@@ -531,7 +531,8 @@ plt_cat <- function(data,
 
   # --- Labels -----------------------------------------------------------------
   if (label) {
-    labeldata <- if (keep_empty) plotdata else plotdata[plotdata$n > 0, , drop = FALSE]
+    labeldata <- plotdata
+    if (!keep_empty) labeldata$label_text[labeldata$n == 0] <- ""
     p <- .add_cat_labels(p, labeldata, stat, type, position, label.size,
                          label.fg, label.bg, label.bg.r)
   }
@@ -741,8 +742,11 @@ plt_cat <- function(data,
   x_var <- if (has_group) "group_var" else "stat_var"
 
   # Match position to what the plot uses
-  if (position == "dodge" && type %in% c("bar", "trend")) {
-    pos <- ggplot2::position_dodge2(width = 0.9, preserve = "single")
+  if (position == "dodge" && type %in% c("bar", "trend", "rose", "ring")) {
+    pos <- ggplot2::position_dodge2(width = if (type == "trend") 0.6 else 0.8,
+                                   preserve = "single")
+  } else if (position == "dodge" && type == "area") {
+    pos <- ggplot2::position_identity()
   } else {
     pos <- ggplot2::position_stack(vjust = 0.5)
   }
@@ -781,7 +785,7 @@ plt_cat <- function(data,
         y = .data[["value"]],
         label = .data[["label_text"]]
       ),
-      position = ggplot2::position_stack(vjust = 0.5),
+      position = pos,
       size = label.size, colour = label.fg,
       bg.color = label.bg, bg.r = label.bg.r,
       point.size = NA, max.overlaps = 100,
