@@ -118,7 +118,8 @@
 #' @param base_size Numeric. Base font size for \code{theme_my()}.
 #'   Default 14.
 #' @param bg_palette Character vector. Background band colours.
-#'   Default \code{NULL}.
+#'   Default \code{NULL}. Named colours are matched to background categories.
+#'   Split panels share the same category-to-colour mapping.
 #' @param bg_alpha Numeric. Background band transparency. Default 0.15.
 #' @param facet_nrow Integer. Rows when combining panels.
 #'   Default \code{NULL}.
@@ -435,6 +436,12 @@ plt_con <- function(data,
       palette <- stats::setNames(.resolve_color(palette, n = length(split_color_levels)),
                                   split_color_levels)
       palette <- palette[!is.na(names(palette))]
+    }
+    if (!is.null(bg.by) && is.null(names(bg_palette))) {
+      bg_levels <- unique(as.character(data[[bg.by]])[order(as.integer(data[[group.by]]))])
+      bg_levels <- bg_levels[!is.na(bg_levels)]
+      bg_palette <- stats::setNames(rep_len(as.character(
+        bg_palette %||% c("grey85", "transparent")), length(bg_levels)), bg_levels)
     }
     split_codes <- as.integer(data[[split.by]])
     split_indices <- which(tabulate(split_codes, nbins = nlevels(data[[split.by]])) > 0L)

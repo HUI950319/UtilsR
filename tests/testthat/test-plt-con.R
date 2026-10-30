@@ -477,6 +477,38 @@ test_that("con backgrounds align to displayed groups in single and stacked plots
   }
 })
 
+test_that("con background categories keep their colours across sorted split panels", {
+  d <- data.frame(x = c(1:3, 11:13, 11:13, 1:3), z = 101:112,
+    g = factor(rep(c("A", "B", "A", "B"), each = 3)),
+    batch = rep(c("S1", "S2"), each = 6),
+    region = rep(c("North", "South", "North", "South"), each = 3))
+  palettes <- list(c(South = "blue", North = "red"), c("red", "blue"), NULL)
+  for (stack in c(FALSE, TRUE)) for (i in seq_along(palettes)) {
+    out <- suppressMessages(plt_con(d, c("x", "z"), "g", split.by = "batch",
+      type = "box", sort = TRUE, stack = stack, bg.by = "region",
+      bg_palette = palettes[[i]], combine = FALSE))
+    expected <- if (i == 3L) c("grey85", "transparent") else c("red", "blue")
+    for (p in out) {
+      bands <- p$layers[[1L]]$data
+      expect_identical(unname(bands$fill[match(c("North", "South"), bands$bg)]), expected)
+      expect_setequal(as.character(ggplot2::ggplot_build(p)$data[[1L]]$fill), expected)
+    }
+  }
+})
+
+test_that("con shared background helper matches named colours in categorical plots", {
+  d <- data.frame(category = rep(c("Yes", "No"), 6),
+    g = factor(rep(c("A", "B"), each = 6), levels = c("B", "A")),
+    region = rep(c("North", "South"), each = 6))
+  invisible(utils::capture.output(p <- suppressMessages(plt_cat(d, "category", "g",
+    position = "dodge", bg.by = "region", bg_palette = c(North = "red", South = "blue")))))
+  bands <- p$layers[[1L]]$data
+  expect_identical(unname(bands$fill[match(c("North", "South"), bands$bg)]), c("red", "blue"))
+  expect_setequal(as.character(ggplot2::ggplot_build(p)$data[[1L]]$fill), c("red", "blue"))
+  expect_error(con_plot(transform(d, x = 1:12), type = "box", bg.by = "region",
+                       bg_palette = c(North = "red")), "bg_palette")
+})
+
 test_that("con jitter defaults preserve numeric values and the random state", {
   expect_identical(formals(plt_con)$jitter.height, 0)
   d <- con_data()

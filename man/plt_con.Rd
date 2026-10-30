@@ -193,7 +193,8 @@ Default \code{FALSE}.}
 Default 14.}
 
 \item{bg_palette}{Character vector. Background band colours.
-Default \code{NULL}.}
+Default \code{NULL}. Named colours are matched to background categories.
+Split panels share the same category-to-colour mapping.}
 
 \item{bg_alpha}{Numeric. Background band transparency. Default 0.15.}
 

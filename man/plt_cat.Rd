@@ -97,7 +97,8 @@ exactly one bg.by level). Adds alternating background colour bands.
 Default \code{NULL} (no background).}
 
 \item{bg_palette}{Character vector of background band colours.
-Default \code{NULL} uses alternating \code{c("grey85", "transparent")}.}
+Default \code{NULL} uses alternating \code{c("grey85", "transparent")}.
+A named vector is matched to background category names.}
 
 \item{bg_alpha}{Numeric 0--1. Background band transparency. Default 0.15.}
 

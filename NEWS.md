@@ -1,5 +1,8 @@
 # UtilsR 0.6.18
 
+* `plt_con()` keeps background category colours stable across sorted split
+  panels; both continuous and categorical plots match named background colours.
+
 * `plt_cat()` set plots no longer filter observations or reject high cardinality based on an ignored `group.by` column.
 
 * `plt_cat(NA_stat = TRUE)` includes missing split groups and preserves the whole figure's missing-category colours in each panel.

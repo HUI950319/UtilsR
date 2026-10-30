@@ -71,6 +71,7 @@
 #'   Default \code{NULL} (no background).
 #' @param bg_palette Character vector of background band colours.
 #'   Default \code{NULL} uses alternating \code{c("grey85", "transparent")}.
+#'   A named vector is matched to background category names.
 #' @param bg_alpha Numeric 0--1. Background band transparency. Default 0.15.
 #' @param flip Logical. Flip coordinates for bar type? Default \code{FALSE}.
 #' @param NA_color Character. Colour for NA values. Default \code{"grey80"}.
@@ -694,6 +695,13 @@ plt_cat <- function(data,
       rep(c("grey85", "transparent"), length.out = length(bg_levels)),
       bg_levels
     )
+  } else if (!is.null(names(bg_palette))) {
+    if (!is.character(bg_palette) || anyNA(names(bg_palette)) ||
+        any(!nzchar(names(bg_palette))) || anyDuplicated(names(bg_palette)) ||
+        !all(bg_levels %in% names(bg_palette))) {
+      cli::cli_abort("Named {.arg bg_palette} must contain each background category with unique, non-empty names.")
+    }
+    bg_cols <- bg_palette[bg_levels]
   } else {
     bg_cols <- stats::setNames(
       rep_len(as.character(bg_palette), length(bg_levels)),
