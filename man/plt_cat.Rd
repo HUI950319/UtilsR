@@ -56,7 +56,8 @@ vector of >= 2 column names.}
 Ignored for set types.}
 
 \item{split.by}{Character. Optional splitting variable. Splits data, creates
-one plot per level, and combines with \pkg{patchwork}.}
+one plot per level, and combines with \pkg{patchwork}. Not available for
+\code{type = "chord"}.}
 
 \item{type}{Chart type. One of \code{"bar"}, \code{"rose"}, \code{"ring"},
 \code{"pie"}, \code{"trend"}, \code{"area"}, \code{"dot"}, \code{"sankey"},
@@ -151,7 +152,7 @@ Default 14.}
 \item{force}{Logical. Force plotting when variables have > 100 levels?
 Default \code{FALSE}.}
 
-\item{...}{Additional arguments passed to the type-specific plot function.}
+\item{...}{Currently unused. Additional arguments are rejected.}
 
 \item{save}{\code{NULL}, an empty list (default), or a named list forwarded
 to \code{RegR::save_plt()} for PDF output: \code{filename} and optionally

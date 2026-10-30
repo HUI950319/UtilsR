@@ -29,6 +29,26 @@ cat_con_data <- function() {
   )
 }
 
+test_that("plt_cat rejects malformed selectors empty input and unused arguments", {
+  d <- data.frame(A = c(TRUE, FALSE), B = c(FALSE, TRUE))
+  expect_error(plt_cat(d, "A", linewidth = 5), "unused|must be empty")
+  expect_error(plt_cat(d, "A", group.by = c("A", "B")), "group.by.*single")
+  expect_error(plt_cat(d, c("A", "A"), type = "upset"), "unique")
+  expect_error(plt_cat(d[FALSE, ], "A"), "observation")
+  expect_error(plt_cat(data.frame(A = c(NA, NA)), "A"), "observation")
+  expect_error(plt_cat(d, c("A", "B"), split.by = "A", type = "chord"), "split.by.*chord")
+  expect_error(plt_cat(d, "A", NA_stat = NA), "NA_stat")
+  bad <- data.frame(A = I(list(1, 2)))
+  expect_error(plt_cat(bad, "A"), "one-dimensional")
+})
+
+test_that("plt_cat checks explicit positive level mappings", {
+  skip_if_not_installed("ggupset")
+  d <- data.frame(A = c(TRUE, FALSE), B = c(FALSE, TRUE))
+  expect_error(plt_cat(d, c("A", "B"), type = "upset", stat_level = list(A = TRUE)), "stat_level.*B")
+  expect_error(plt_cat(d, c("A", "B"), type = "upset", stat_level = c(TRUE, FALSE, TRUE)), "stat_level")
+})
+
 test_that("plt_cat dodge labels follow bar widths and overlay values", {
   d <- data.frame(category = c("A", "A", "B", "A", "A", "A", "B", "C"),
                   group = rep(c("G1", "G2"), c(3, 5)))

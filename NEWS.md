@@ -1,5 +1,7 @@
 # UtilsR 0.6.18
 
+* `plt_cat()` validates selectors, logical controls, empty data and positive-level mappings, rejects unused arguments, and reports unsupported chord splitting before drawing.
+
 * `plt_con(type = "dot")` groups count rows with vctrs, reducing aggregation
   overhead while preserving count order, factor types and missing groups.
 

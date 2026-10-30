@@ -41,7 +41,8 @@
 #' @param group.by Character. Optional grouping variable for standard types.
 #'   Ignored for set types.
 #' @param split.by Character. Optional splitting variable. Splits data, creates
-#'   one plot per level, and combines with \pkg{patchwork}.
+#'   one plot per level, and combines with \pkg{patchwork}. Not available for
+#'   \code{type = "chord"}.
 #' @param type Chart type. One of \code{"bar"}, \code{"rose"}, \code{"ring"},
 #'   \code{"pie"}, \code{"trend"}, \code{"area"}, \code{"dot"}, \code{"sankey"},
 #'   \code{"chord"}, \code{"venn"}, \code{"upset"}.
@@ -105,7 +106,7 @@
 #'   Default 14.
 #' @param force Logical. Force plotting when variables have > 100 levels?
 #'   Default \code{FALSE}.
-#' @param ... Additional arguments passed to the type-specific plot function.
+#' @param ... Currently unused. Additional arguments are rejected.
 #'
 #' @param save \code{NULL}, an empty list (default), or a named list forwarded
 #'   to \code{RegR::save_plt()} for PDF output: \code{filename} and optionally
@@ -272,8 +273,14 @@ plt_cat <- function(data,
   }
 
   # --- Input validation -------------------------------------------------------
+  rlang::check_dots_empty()
   if (!is.data.frame(data)) {
     cli::cli_abort("{.arg data} must be a data frame, not {.cls {class(data)}}.")
+  }
+  data <- as.data.frame(data)
+  if (!nrow(data)) cli::cli_abort("{.arg data} must contain at least one observation.")
+  if (anyNA(names(data)) || any(!nzchar(names(data))) || anyDuplicated(names(data))) {
+    cli::cli_abort("{.arg data} must have unique, non-empty column names.")
   }
 
   type     <- match.arg(type)
@@ -282,8 +289,28 @@ plt_cat <- function(data,
   set_types <- c("sankey", "chord", "venn", "upset")
   std_types <- c("bar", "rose", "ring", "pie", "trend", "area", "dot")
 
-  if (!is.character(stat.by) || length(stat.by) == 0) {
-    cli::cli_abort("{.arg stat.by} must be a non-empty character vector.")
+  if (!is.character(stat.by) || length(stat.by) == 0 || !is.null(dim(stat.by)) ||
+      anyNA(stat.by) || any(!nzchar(stat.by)) || anyDuplicated(stat.by)) {
+    cli::cli_abort("{.arg stat.by} must contain unique, non-empty column names.")
+  }
+  selectors <- list(group.by = group.by, split.by = split.by, bg.by = bg.by)
+  for (arg in names(selectors)) {
+    value <- selectors[[arg]]
+    if (!is.null(value) && (!is.character(value) || length(value) != 1L ||
+                           is.na(value) || !nzchar(value))) {
+      cli::cli_abort("{.arg {arg}} must be a single non-missing column name.")
+    }
+  }
+  flags <- list(label = label, flip = flip, NA_stat = NA_stat,
+                keep_empty = keep_empty, force = force, facet_byrow = facet_byrow)
+  for (arg in names(flags)) {
+    value <- flags[[arg]]
+    if (!is.logical(value) || length(value) != 1L || is.na(value)) {
+      cli::cli_abort("{.arg {arg}} must be TRUE or FALSE.")
+    }
+  }
+  if (type == "chord" && !is.null(split.by)) {
+    cli::cli_abort("{.arg split.by} is not supported for {.code type = \"chord\"}; draw each chord plot separately.")
   }
 
   missing_cols <- stat.by[!stat.by %in% names(data)]
@@ -307,6 +334,13 @@ plt_cat <- function(data,
   }
 
   # --- Safety check for high-cardinality columns ------------------------------
+  selected <- unique(c(stat.by, group.by, split.by, bg.by))
+  for (col in selected) {
+    x <- data[[col]]
+    if (!is.null(dim(x)) || (is.list(x) && !inherits(x, "POSIXlt"))) {
+      cli::cli_abort("Column {.val {col}} must be a one-dimensional vector, not a list or matrix column.")
+    }
+  }
   if (!force) {
     all_cols <- unique(c(stat.by, if (!type %in% set_types) group.by, split.by))
     high_card <- vapply(all_cols, function(col) {
@@ -392,6 +426,7 @@ plt_cat <- function(data,
   }
 
   # --- Resolve colours (NO alpha baked in -- alpha applied only in geoms) -----
+  if (!nrow(data)) cli::cli_abort("No observations remain after excluding missing values.")
   if (type %in% std_types && !keep_empty) {
     for (col in unique(c(stat.by, group.by))) {
       data[[col]] <- droplevels(data[[col]])
@@ -637,10 +672,27 @@ plt_cat <- function(data,
       }
     }), stat.by)
   } else if (is.character(stat_level) || is.numeric(stat_level) || is.logical(stat_level)) {
+    if (!length(stat_level) || !length(stat_level) %in% c(1L, length(stat.by)) ||
+        anyNA(stat_level) || !is.null(dim(stat_level))) {
+      cli::cli_abort("{.arg stat_level} must supply one non-missing value or one value per selected column.")
+    }
     stat_level <- rep_len(as.character(stat_level), length(stat.by))
     result <- stats::setNames(as.list(stat_level), stat.by)
   } else if (is.list(stat_level)) {
-    if (is.null(names(stat_level))) names(stat_level) <- stat.by
+    if (is.null(names(stat_level))) {
+      if (length(stat_level) != length(stat.by)) {
+        cli::cli_abort("An unnamed {.arg stat_level} list must have one entry per selected column.")
+      }
+      names(stat_level) <- stat.by
+    }
+    if (anyNA(names(stat_level)) || any(!nzchar(names(stat_level))) || anyDuplicated(names(stat_level))) {
+      cli::cli_abort("{.arg stat_level} must have unique, non-empty names.")
+    }
+    missing <- setdiff(stat.by, names(stat_level))
+    if (length(missing)) cli::cli_abort("{.arg stat_level} is missing column{?s}: {.val {missing}}.")
+    if (any(vapply(stat_level, anyNA, logical(1)))) {
+      cli::cli_abort("{.arg stat_level} must not contain missing values.")
+    }
     result <- lapply(stat_level, as.character)
   } else {
     cli::cli_abort("{.arg stat_level} must be NULL, a character vector, or a named list.")
