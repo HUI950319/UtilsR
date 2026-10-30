@@ -126,7 +126,8 @@
 ._as_text <- function(v) {
   v <- ._pr_restore(v)
   if (is.double(v) && !is.object(v)) v <- signif(v, getOption("digits", 7L))
-  missing <- if (is.expression(v)) is.na(as.list(v)) else is.na(v)
+  missing <- if (is.expression(v)) is.na(as.list(v)) else
+    if (is.language(v)) rep(FALSE, length(v)) else is.na(v)
   text <- as.character(v)
   text[missing] <- NA_character_
   if (is.factor(v)) text[!missing & is.na(text)] <- "<NA>"

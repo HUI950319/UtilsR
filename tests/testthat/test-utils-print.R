@@ -1059,3 +1059,13 @@ test_that("missing-share rounding distinguishes sparse and incomplete missingnes
   out <- utils::capture.output(pr_spark(high))
   expect_lte(max(cli::ansi_nchar(out, type = "width")), 14)
 })
+
+test_that("language summary pieces retain their coercion without warnings or evaluation", {
+  withr::local_options(cli.num_colors = 1)
+  expect_silent(out <- utils::capture.output(pr_head("model", y ~ x + z)))
+  expect_identical(out, "<model> ~ \u00b7 y \u00b7 x + z")
+  expect_silent(out <- utils::capture.output(pr_head("call", quote(f(NA)))))
+  expect_identical(out, "<call> f \u00b7 NA")
+  expect_silent(out <- utils::capture.output(pr_head("name", quote(x))))
+  expect_identical(out, "<name> x")
+})
