@@ -497,6 +497,7 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 #' @param rownames Logical. Show the row names as a first, unnamed column,
 #'   e.g. the terms of \code{as.data.frame(coef(summary(fit)))}, which are
 #'   otherwise not shown (default \code{FALSE}).
+#'   Displayed row names are never treated as P values.
 #' @param n Non-negative integer. Rows to show (default 20); the rest are
 #'   counted in a grey footer. \code{NULL} or \code{Inf} shows every row.
 #' @param align Column alignment, recycled: \code{"left"}, \code{"right"}
@@ -547,21 +548,24 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   }
   if (!ncol(data)) return(._pr_out(character()))
   data   <- as.data.frame(data)
+  is_p <- names(data) %in% p_col
   # not automatic for character row names: rbind() of a named list leaves
   # "cox.1", "cox.2", which would become a column of their own
-  if (isTRUE(rownames)) data <- cbind(stats::setNames(data.frame(row.names(data)), " "), data)
+  if (isTRUE(rownames)) {
+    data <- cbind(stats::setNames(data.frame(row.names(data)), " "), data)
+    is_p <- c(FALSE, is_p)
+  }
   n_rows <- nrow(data)
   if (!is.null(n) && n_rows > n) data <- data[seq_len(n), , drop = FALSE]
 
   colour <- ._pr_colour()
   hl <- if (is.logical(highlight)) which(highlight) else highlight
   if (!colour && any(seq_len(nrow(data)) %in% hl)) indent <- max(indent, 2L)
-  is_num <- vapply(data, is.numeric, logical(1)) | names(data) %in% p_col
+  is_num <- vapply(data, is.numeric, logical(1)) | is_p
   cells  <- lapply(seq_along(data), function(j) {
-    nm <- names(data)[j]
     v <- ._pr_restore(data[[j]])
     if (inherits(v, "POSIXlt")) v <- as.POSIXct(v)
-    if (nm %in% p_col) return(._p_cells(v))
+    if (is_p[j]) return(._p_cells(v))
     if (is.data.frame(v)) {
       return(vapply(seq_len(nrow(v)), function(i) {
         ._obj_desc(as.list(v[i, , drop = FALSE]), width = 40, inside = TRUE)
@@ -614,7 +618,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   # the first and the P-value columns always show; the others follow in
   # order until one no longer fits the line
   avail <- (width %||% console_width()) - indent
-  keep  <- unique(c(1L, which(names(data) %in% p_col)))
+  keep  <- unique(c(1L, which(is_p)))
   gap <- 2L
   if (avail < length(keep)) {
     cli::cli_abort("The line width must leave at least one character per required column.")

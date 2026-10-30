@@ -1,5 +1,8 @@
 # UtilsR 0.6.17
 
+* `pr_table()` keeps displayed row names separate from P-value columns,
+  even when a real P-value column uses the row-name heading.
+
 * Wrapped print text retains combining marks and multi-code-point emoji
   by using grapheme indices consistently when continuing a wrapped line.
 

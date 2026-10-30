@@ -28,7 +28,8 @@ positions outside the displayed rows are ignored.}
 
 \item{rownames}{Logical. Show the row names as a first, unnamed column,
 e.g. the terms of \code{as.data.frame(coef(summary(fit)))}, which are
-otherwise not shown (default \code{FALSE}).}
+otherwise not shown (default \code{FALSE}).
+Displayed row names are never treated as P values.}
 
 \item{n}{Non-negative integer. Rows to show (default 20); the rest are
 counted in a grey footer. \code{NULL} or \code{Inf} shows every row.}

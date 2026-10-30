@@ -1015,3 +1015,13 @@ test_that("wrapped notes retain combining characters and multi-code-point emoji"
     }
   }
 })
+
+test_that("displayed row names cannot collide with a P-column name", {
+  withr::local_options(cli.num_colors = 1)
+  x <- data.frame(p = c(.01, .5), row.names = c("0.02", "term"))
+  names(x) <- " "
+  out <- trimws(utils::capture.output(pr_table(x, p_col = " ", rownames = TRUE)))
+  expect_match(out[3], "^0[.]02 +0[.]010\\*$")
+  expect_match(out[4], "^term +0[.]500$")
+  expect_identical(row.names(x), c("0.02", "term"))
+})
