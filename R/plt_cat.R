@@ -392,6 +392,11 @@ plt_cat <- function(data,
   }
 
   # --- Resolve colours (NO alpha baked in -- alpha applied only in geoms) -----
+  if (type %in% std_types && !keep_empty) {
+    for (col in unique(c(stat.by, group.by))) {
+      data[[col]] <- droplevels(data[[col]])
+    }
+  }
   # A named palette maps by level, as in plt_con(); an unnamed one by position.
   level_colors <- function(lvls) {
     if (is.null(names(palette))) {
@@ -409,7 +414,7 @@ plt_cat <- function(data,
     out
   }
   if (type %in% std_types) {
-    stat_levels <- levels(factor(data[[stat.by[1]]]))
+    stat_levels <- levels(data[[stat.by[1]]])
     colors <- level_colors(stat_levels)
   } else {
     all_levels <- unique(unlist(lapply(stat.by, function(s) levels(factor(data[[s]])))))
@@ -567,10 +572,10 @@ plt_cat <- function(data,
 #' @noRd
 .prepare_cat_data <- function(data, stat.by, group.by, stat,
                               NA_stat = FALSE, keep_empty = FALSE) {
-  data[[stat.by]] <- factor(data[[stat.by]])
+  if (!is.factor(data[[stat.by]])) data[[stat.by]] <- factor(data[[stat.by]])
 
   if (!is.null(group.by)) {
-    data[[group.by]] <- factor(data[[group.by]])
+    if (!is.factor(data[[group.by]])) data[[group.by]] <- factor(data[[group.by]])
     fml <- stats::as.formula(paste("~", stat.by, "+", group.by))
     tbl <- stats::xtabs(fml, data = data, addNA = NA_stat)
     df <- as.data.frame(tbl, stringsAsFactors = FALSE)
@@ -717,8 +722,8 @@ plt_cat <- function(data,
   )
   bg_data[["xmin"]] <- bg_data[["x"]] - 0.5
   bg_data[["xmax"]] <- bg_data[["x"]] + 0.5
-  bg_data[["xmin"]][1] <- -Inf
-  bg_data[["xmax"]][nrow(bg_data)] <- Inf
+  bg_data[["xmin"]][bg_data[["x"]] == 1L] <- -Inf
+  bg_data[["xmax"]][bg_data[["x"]] == length(axis_levels)] <- Inf
   bg_data[["fill"]] <- bg_cols[bg_data[["bg"]]]
 
   ggplot2::geom_rect(

@@ -29,6 +29,21 @@ cat_con_data <- function() {
   )
 }
 
+test_that("plt_cat keeps unused category and group levels when requested", {
+  d <- data.frame(category = factor(c("A", "B", "A"), levels = c("A", "B", "C")),
+                  group = factor(c("G1", "G2", "G1"), levels = c("G1", "G2", "G3")))
+  for (type in c("bar", "dot", "area", "trend")) {
+    p <- cat_test_plot(d, "category", "group", type = type, stat = "count", keep_empty = TRUE)
+    b <- ggplot2::ggplot_build(p)
+    expect_equal(nrow(p$data), 9L)
+    expect_equal(b$layout$panel_params[[1]]$x$get_labels(), c("G1", "G2", "G3"))
+    expect_equal(b$plot$scales$get_scales("fill")$get_limits(), c("A", "B", "C"))
+    expect_equal(sum(p$data$n), 3L)
+  }
+  q <- cat_test_plot(d, "category", "group", keep_empty = FALSE)
+  expect_equal(ggplot2::ggplot_build(q)$layout$panel_params[[1]]$x$get_labels(), c("G1", "G2"))
+})
+
 test_that("plt_cat ignores set grouping during filtering and cardinality checks", {
   skip_if_not_installed("ggupset")
   d <- data.frame(A = c(TRUE, TRUE, FALSE), B = c(TRUE, FALSE, TRUE),
@@ -108,7 +123,7 @@ test_that("plt_cat background helper preserves displayed group order", {
   d <- data.frame(category = factor(rep(c("Yes", "No", "Yes"), 3)),
                   group = factor(rep(c("C", "B", "A"), each = 3), levels = c("C", "B", "A")),
                   region = rep(c("R3", "R2", "R1"), each = 3))
-  d$group <- factor(d$group, levels = c("C", "unused", "B", "A"))
+  d$group <- factor(d$group, levels = c("left", "C", "unused", "B", "A", "right"))
   for (keep in c(FALSE, TRUE)) {
     p <- suppressMessages(plt_cat(d, "category", "group", position = "dodge", bg.by = "region",
                                   bg_palette = c("red", "blue", "green"), keep_empty = keep))
@@ -117,7 +132,12 @@ test_that("plt_cat background helper preserves displayed group order", {
     rects <- b$data[[which(kinds == "GeomRect")]]
     position <- match("B", b$layout$panel_params[[1L]]$x$get_labels())
     expect_equal(as.character(rects$fill[rects$xmin <= position & rects$xmax >= position]), "blue")
-    expect_equal(b$layout$panel_params[[1L]]$x$get_labels(), c("C", "B", "A"))
+    expect_equal(b$layout$panel_params[[1L]]$x$get_labels(),
+                 if (keep) c("left", "C", "unused", "B", "A", "right") else c("C", "B", "A"))
+    if (keep) {
+      expect_false(any(rects$xmin <= 1 & rects$xmax >= 1))
+      expect_false(any(rects$xmin <= 6 & rects$xmax >= 6))
+    }
   }
 })
 

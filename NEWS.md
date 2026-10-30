@@ -1,5 +1,7 @@
 # UtilsR 0.6.18
 
+* `plt_cat(keep_empty = TRUE)` preserves unused category and grouping levels, including zero-frequency rows and their axis and legend positions.
+
 * `plt_con()` keeps background category colours stable across sorted split
   panels; both continuous and categorical plots match named background colours.
 
