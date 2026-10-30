@@ -1,5 +1,7 @@
 # UtilsR 0.6.17
 
+* `plt_upset()` preserves existing row-index columns and keeps list member identifiers when a set is named `.element`.
+
 * `plt_upset(levels = NA)` uses original missing-value masks, including classed columns, and restores methods for serialized inputs.
 
 * Independent stacked quantile limits use each feature's observations,

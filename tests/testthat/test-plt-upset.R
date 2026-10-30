@@ -193,3 +193,18 @@ test_that("plt_upset restores serialized set-membership methods", {
                     c("--vanilla", shQuote(script)), stdout = TRUE, stderr = TRUE)
   expect_null(attr(output, "status"), info = paste(output, collapse = "\n"))
 })
+
+test_that("plt_upset preserves input row-index columns and element identities", {
+  skip_if_not_installed("ggVennDiagram")
+  data <- data.frame(A = c("Yes", "No", "Yes"), B = c("No", "Yes", "Yes"),
+                     .row_id = c("keep1", "keep2", "keep3"))
+  original <- data
+  result <- plt_upset(data, c("A", "B"), output = "data")
+  expect_identical(result[names(data)], data)
+  expect_identical(data, original)
+  result <- plt_upset(list(.element = c("gene1", "gene2"),
+                           .element.1 = c("gene2", "gene3")), output = "data")
+  expect_identical(result$.element.2, c("gene1", "gene2", "gene3"))
+  expect_identical(result$.element, c("Yes", "Yes", "No"))
+  expect_identical(result$.element.1, c("No", "Yes", "Yes"))
+})

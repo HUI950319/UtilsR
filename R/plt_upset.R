@@ -81,7 +81,10 @@
 #'   size note, need the \pkg{RegR} package.
 #'
 #' @return Depends on \code{output}: a ggplot, a combined plot, a data frame,
-#'   or a named list. Plots carry their page size as
+#'   or a named list. List-input data retain member IDs in \code{.element},
+#'   with a numeric suffix if that column name is already a set name.
+#'   Existing input columns, including \code{.row_id}, are preserved.
+#'   Plots carry their page size as
 #'   \code{attr(p, "plot_size")}, the list of \code{"all"} on its
 #'   \code{combined} element.
 #'
@@ -180,6 +183,7 @@ plt_upset <- function(data,
     # Convert to data.frame + set_list simultaneously
     all_elements <- unique(unlist(data))
     df_bin <- data.frame(.element = all_elements, stringsAsFactors = FALSE)
+    names(df_bin) <- tail(make.unique(c(names(data), ".element")), 1L)
     for (nm in names(data)) {
       df_bin[[nm]] <- ifelse(all_elements %in% data[[nm]], "Yes", "No")
     }
@@ -344,12 +348,10 @@ plt_upset <- function(data,
       grp_rows <- stats::setNames(grp_info$item, grp_info$name)
 
       grp_data <- data
-      grp_data$.row_id <- seq_len(nrow(data))
-      grp_data$intersect_group <- vapply(grp_data$.row_id, function(rid) {
+      grp_data$intersect_group <- vapply(seq_len(nrow(data)), function(rid) {
         hit <- names(grp_rows)[vapply(grp_rows, function(rows) rid %in% rows, logical(1))]
         if (length(hit) > 0) hit[1] else "None"
       }, character(1))
-      grp_data$.row_id <- NULL
       all_levels <- c(grp_info$name, "None")
       grp_data$intersect_group <- factor(grp_data$intersect_group, levels = all_levels)
     }
