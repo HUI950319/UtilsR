@@ -1069,3 +1069,12 @@ test_that("language summary pieces retain their coercion without warnings or eva
   expect_silent(out <- utils::capture.output(pr_head("name", quote(x))))
   expect_identical(out, "<name> x")
 })
+
+test_that("bounded key-value previews retain long-vector totals", {
+  skip_if(.Machine$sizeof.pointer < 8L, "Long vectors require a 64-bit build")
+  withr::local_options(cli.num_colors = 1)
+  x <- seq_len(2^31)
+  expect_silent(out <- utils::capture.output(pr_kv(list(v = x))))
+  expect_match(paste(out, collapse = " "), "(2147483648)", fixed = TRUE)
+  expect_match(out[1], "1, 2, 3", fixed = TRUE)
+})

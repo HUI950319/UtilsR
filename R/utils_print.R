@@ -154,7 +154,8 @@
     if (size > 20L) v <- ._pr_restore(v)[seq_len(20L)]
     v <- ._as_text(v)
     if (size > 20L) {
-      v <- c(v, sprintf("%s (%d)", cli::symbol$ellipsis, size))
+      total <- format(size, scientific = FALSE, trim = TRUE)
+      v <- c(v, sprintf("%s (%s)", cli::symbol$ellipsis, total))
     }
     paste(v, collapse = ", ")
   }, character(1), USE.NAMES = FALSE)

@@ -1,5 +1,8 @@
 # UtilsR 0.6.17
 
+* Key-value previews retain totals above the integer range without
+  formatting errors, including virtual long vectors that remain bounded previews.
+
 * Stacked continuous plots retain background bands. Shared categorical
   and continuous bands align to displayed factor levels, including empty levels.
 
