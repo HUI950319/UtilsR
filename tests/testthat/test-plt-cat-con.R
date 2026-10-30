@@ -29,6 +29,26 @@ cat_con_data <- function() {
   )
 }
 
+test_that("plt_cat pie and ring use shared radii and stable angular totals", {
+  d <- data.frame(category = factor(c("A", "A", "B")))
+  for (type in c("pie", "ring")) {
+    builds <- lapply(c(FALSE, TRUE), function(label) {
+      p <- cat_test_plot(d, "category", type = type, stat = "count", label = label)
+      expect_warning(g <- ggplot2::ggplotGrob(p), NA)
+      b <- ggplot2::ggplot_build(p)
+      expect_length(unique(b$data[[1]]$x), 1L)
+      expect_equal(sort(b$data[[1]]$ymax - b$data[[1]]$ymin), c(1, 2))
+      expect_equal(b$layout$panel_params[[1]]$theta.range, c(0, 3))
+      expect_false(anyNA(b$plot$scales$get_scales("fill")$get_limits()))
+      b
+    })
+    expect_equal(builds[[1]]$data[[1]], builds[[2]]$data[[1]])
+    labels <- builds[[2]]$data[[2]]
+    expect_equal(as.numeric(labels$x), as.numeric(builds[[2]]$data[[1]]$x))
+    expect_equal(labels$y, (builds[[2]]$data[[1]]$ymin + builds[[2]]$data[[1]]$ymax) / 2)
+  }
+})
+
 test_that("plt_cat background helper preserves displayed group order", {
   d <- data.frame(category = factor(rep(c("Yes", "No", "Yes"), 3)),
                   group = factor(rep(c("C", "B", "A"), each = 3), levels = c("C", "B", "A")),

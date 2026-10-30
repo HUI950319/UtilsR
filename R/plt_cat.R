@@ -748,10 +748,13 @@ plt_cat <- function(data,
       show.legend = FALSE
     )
   } else if (type %in% c("pie", "ring")) {
+    if (type == "ring") {
+      plotdata[["radius"]] <- if (has_group) as.numeric(plotdata[["group_var"]]) + 1 else 2
+    }
     p <- p + ggrepel::geom_text_repel(
       data = plotdata,
       ggplot2::aes(
-        x = if (has_group) .data[["group_var"]] else "",
+        x = if (type == "ring") .data[["radius"]] else if (has_group) .data[["group_var"]] else "",
         y = .data[["value"]],
         label = .data[["label_text"]]
       ),

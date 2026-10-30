@@ -1,5 +1,7 @@
 # UtilsR 0.6.18
 
+* Ungrouped `plt_cat()` pies and rings stack categories at a shared radius; ring holes no longer create artificial missing levels, and labels preserve angular totals.
+
 * `plt_con()` retains explicit missing factor groups in split figures without
   rejecting its generated palette, preserving the unsplit missing-value colour.
 

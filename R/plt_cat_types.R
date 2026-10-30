@@ -102,41 +102,35 @@
 #' @noRd
 .plt_cat_ring <- function(plotdata, cols, alpha = 0.8, position = "stack",
                          keep_empty = FALSE, ...) {
-  x_var <- .cat_x_var(plotdata)
+  has_group <- !is.character(plotdata[["group_var"]])
   if (position == "stack") {
     pos <- ggplot2::position_stack(vjust = 0.5)
   } else {
     pos <- ggplot2::position_dodge2(width = 0.9, preserve = "single")
   }
 
-  # Add padding row for donut hole
-  pad <- plotdata[1, , drop = FALSE]
-  pad[[x_var]] <- "   "
-  pad[["value"]] <- NA
-  pad[["stat_var"]] <- NA
-  plotdata[[x_var]] <- factor(
-    plotdata[[x_var]],
-    levels = c("   ", levels(plotdata[[x_var]]))
-  )
-  plotdata <- rbind(pad, plotdata)
+  plotdata[["radius"]] <- if (has_group) as.numeric(plotdata[["group_var"]]) + 1 else 2
 
   ggplot2::ggplot(plotdata, ggplot2::aes(
-    x = .data[[x_var]], y = .data[["value"]], fill = .data[["stat_var"]]
+    x = .data[["radius"]], y = .data[["value"]], fill = .data[["stat_var"]]
   )) +
     ggplot2::geom_col(width = 0.8, color = "black", alpha = alpha,
                       position = pos) +
     ggplot2::scale_fill_manual(values = cols, drop = !keep_empty,
                                na.value = "transparent") +
+    ggplot2::scale_x_continuous(limits = c(0.5, max(plotdata[["radius"]]) + 0.5),
+                               breaks = NULL, expand = c(0, 0)) +
     ggplot2::coord_polar(theta = "y")
 }
 
 # ---------- 4. Pie ----------
 #' @noRd
 .plt_cat_pie <- function(plotdata, cols, alpha = 0.8, ...) {
-  x_var <- .cat_x_var(plotdata)
+  has_group <- !is.character(plotdata[["group_var"]])
   pos <- ggplot2::position_stack(vjust = 0.5)
   ggplot2::ggplot(plotdata, ggplot2::aes(
-    x = .data[[x_var]], y = .data[["value"]], fill = .data[["stat_var"]]
+    x = if (has_group) .data[["group_var"]] else "",
+    y = .data[["value"]], fill = .data[["stat_var"]]
   )) +
     ggplot2::geom_col(width = 0.8, color = "black", alpha = alpha,
                       position = pos) +
