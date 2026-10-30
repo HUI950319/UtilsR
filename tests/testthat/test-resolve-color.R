@@ -87,3 +87,22 @@ test_that(".resolve_color keeps the inputs R can draw", {
   expect_identical(.resolve_color(UtilsR::pal_heat$blue_red, n = 2),
                    UtilsR::pal_heat$blue_red[1:2])
 })
+
+test_that(".resolve_color warns when groups would share a colour", {
+  expect_warning(.resolve_color(c("red", "blue"), n = 3), "repeat")
+  expect_warning(.resolve_color(NULL, n = 16), "repeat")
+  expect_warning(.resolve_color(NULL, n = 4, default = c("red", "blue", "green")), "repeat")
+
+  # One colour for all, enough colours, or a palette that interpolates.
+  expect_no_warning(.resolve_color("red", n = 3))
+  expect_no_warning(.resolve_color(NULL, n = 3, default = "red"))
+  expect_no_warning(.resolve_color(NULL, n = 15))
+  expect_no_warning(.resolve_color(c("red", "blue"), n = 2))
+  expect_no_warning(.resolve_color(c("red", "blue", "green"), n = 2))
+  expect_no_warning(.resolve_color("lancet", n = 16))
+  expect_no_warning(.resolve_color(c("red", "blue")))
+
+  # The colours themselves stay as they were.
+  expect_identical(suppressWarnings(.resolve_color(c("red", "blue"), n = 3)),
+                   c("red", "blue", "red"))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.18
 
+* Plot functions warn when too few colours make groups share one, such as more than 15 groups with the default `pal_lancet`. The colours themselves do not change.
+
 * Plot functions stop at once on a colour they cannot draw, with a suggestion for a mistyped palette name (`"lanct"`, `"LANCET"`), instead of failing later with "Problem while converting geom to grob". An empty vector and a list of palettes are rejected the same way.
 
 * `"transparent"` and other colours missing from `colors()`, such as `"light blue"`, no longer print a "not in registry" hint.

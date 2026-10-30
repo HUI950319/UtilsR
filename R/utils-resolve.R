@@ -82,12 +82,21 @@
 .resolve_color <- function(palette = NULL, n = NULL,
                            default = pal_lancet) {
 
-  # NULL -> default (optionally sized to n)
-  if (is.null(palette)) {
-    out <- as.character(default)
-    if (!is.null(n)) out <- rep_len(out, n)
-    return(out)
+  # One colour repeated is a choice; several repeated make groups share a colour.
+  caller <- rlang::caller_env()
+  sized <- function(x) {
+    if (is.null(n)) return(x)
+    if (length(x) > 1L && length(x) < n) {
+      cli::cli_warn(c(
+        "{length(x)} colours for {n} groups, so colours repeat.",
+        "i" = "Supply more colours, or a palette name, which interpolates."
+      ), call = caller)
+    }
+    rep_len(x, n)
   }
+
+  # NULL -> default (optionally sized to n)
+  if (is.null(palette)) return(sized(as.character(default)))
 
   if (!is.atomic(palette) || length(palette) == 0L) {
     cli::cli_abort(
@@ -128,8 +137,7 @@
       "*" = browse
     ), call = rlang::caller_env())
   }
-  if (!is.null(n)) out <- rep_len(out, n)
-  out
+  sized(out)
 }
 
 
