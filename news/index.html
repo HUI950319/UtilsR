@@ -50,7 +50,10 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.17" id="utilsr-0617">UtilsR 0.6.17<a class="anchor" aria-label="anchor" href="#utilsr-0617"></a></h2>
-<ul><li><p><code><a href="../reference/pr_head.html">pr_head()</a></code> converts calls, formulas and symbols to summary text without missingness warnings or evaluation, retaining their existing text pieces.</p></li>
+<ul><li><p>Key-value previews format only the visible atomic values, preserving stored types and the original total instead of processing the full vector.</p></li>
+<li><p>Unavailable continuous-plot comparison pairs are skipped per feature with a warning, retaining valid pairwise tests in that panel.</p></li>
+<li><p>Continuous dot-plot counts retain observed missing grouping strata, including inputs whose grouping column is entirely missing.</p></li>
+<li><p><code><a href="../reference/pr_head.html">pr_head()</a></code> converts calls, formulas and symbols to summary text without missingness warnings or evaluation, retaining their existing text pieces.</p></li>
 <li><p>Stacked continuous dot plots bin each feature separately, matching separate plots when features have different scales.</p></li>
 <li><p><code><a href="../reference/pr_spark.html">pr_spark()</a></code> distinguishes small positive missing shares from zero and near-complete missing shares from complete missingness after rounding.</p></li>
 <li><p><code><a href="../reference/pr_badge.html">pr_badge()</a></code> retains explicit missing factor levels as <code>&lt;NA&gt;</code> categories, separately from missing storage, without changing numeric text precision.</p></li>

@@ -2,6 +2,16 @@
 
 ## UtilsR 0.6.17
 
+- Key-value previews format only the visible atomic values, preserving
+  stored types and the original total instead of processing the full
+  vector.
+
+- Unavailable continuous-plot comparison pairs are skipped per feature
+  with a warning, retaining valid pairwise tests in that panel.
+
+- Continuous dot-plot counts retain observed missing grouping strata,
+  including inputs whose grouping column is entirely missing.
+
 - [`pr_head()`](https://hui950319.github.io/UtilsR/reference/pr_head.md)
   converts calls, formulas and symbols to summary text without
   missingness warnings or evaluation, retaining their existing text

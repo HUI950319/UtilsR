@@ -141,7 +141,8 @@ selection is an error.</p></dd>
 
 <dt id="arg-group-by">group.by<a class="anchor" aria-label="anchor" href="#arg-group-by"></a></dt>
 <dd><p>Character. Column name for the x-axis grouping variable.
-Default <code>NULL</code> (all data in one group).</p></dd>
+Default <code>NULL</code> (all data in one group). Observed missing groups
+are retained, including in dot-plot counts.</p></dd>
 
 
 <dt id="arg-split-by">split.by<a class="anchor" aria-label="anchor" href="#arg-split-by"></a></dt>
@@ -233,7 +234,8 @@ Default <code>FALSE</code>.</p></dd>
 
 <dt id="arg-comparisons">comparisons<a class="anchor" aria-label="anchor" href="#arg-comparisons"></a></dt>
 <dd><p>A list of length-2 character vectors for pairwise tests.
-Default <code>NULL</code>.</p></dd>
+Default <code>NULL</code>. Pairs with unavailable groups are skipped per feature
+with a warning; other requested comparisons remain available.</p></dd>
 
 
 <dt id="arg-ref-group">ref_group<a class="anchor" aria-label="anchor" href="#arg-ref-group"></a></dt>
