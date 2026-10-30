@@ -75,7 +75,7 @@ one plot per level, and combines with \pkg{patchwork}.}
   \item A character vector of colours: used in level order. A panel of
     \code{split.by} keeps the colours of the whole figure.
   \item A named character vector: mapped by level. It must cover every
-    level; the \code{"NA"} level of \code{NA_stat = TRUE} may be left out
+    non-missing level; the generated missing level may be left out
     and then takes \code{NA_color}.
 }}
 
@@ -107,7 +107,7 @@ Default \code{NULL} uses alternating \code{c("grey85", "transparent")}.}
 
 \item{NA_stat}{Logical. Include NA in the frequency table? Default
 \code{FALSE} (NAs are dropped). If \code{TRUE}, NAs are kept and shown
-with \code{NA_color}.}
+with \code{NA_color}. Missing labels are distinct from literal "NA" values.}
 
 \item{keep_empty}{Logical. Keep empty factor levels in plots?
 Default \code{FALSE}.}

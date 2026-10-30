@@ -56,7 +56,7 @@
 #'     \item A character vector of colours: used in level order. A panel of
 #'       \code{split.by} keeps the colours of the whole figure.
 #'     \item A named character vector: mapped by level. It must cover every
-#'       level; the \code{"NA"} level of \code{NA_stat = TRUE} may be left out
+#'       non-missing level; the generated missing level may be left out
 #'       and then takes \code{NA_color}.
 #'   }
 #' @param alpha Numeric 0--1. Colour transparency. Default 0.8.
@@ -76,7 +76,7 @@
 #' @param NA_color Character. Colour for NA values. Default \code{"grey80"}.
 #' @param NA_stat Logical. Include NA in the frequency table? Default
 #'   \code{FALSE} (NAs are dropped). If \code{TRUE}, NAs are kept and shown
-#'   with \code{NA_color}.
+#'   with \code{NA_color}. Missing labels are distinct from literal "NA" values.
 #' @param keep_empty Logical. Keep empty factor levels in plots?
 #'   Default \code{FALSE}.
 #' @param stat_level Character or list. For venn/upset types, the value(s) in
@@ -357,11 +357,12 @@ plt_cat <- function(data,
   }
 
   # --- NA handling ------------------------------------------------------------
+  na_levels <- character()
   if (!NA_stat) {
     cols_check <- unique(c(stat.by, group.by, split.by))
     n_before <- nrow(data)
     for (col in cols_check) {
-      data <- data[!is.na(data[[col]]), , drop = FALSE]
+      data <- data[!is.na(as.character(data[[col]])), , drop = FALSE]
     }
     n_after <- nrow(data)
     if (n_after < n_before) {
@@ -371,11 +372,14 @@ plt_cat <- function(data,
     }
   } else {
     for (col in unique(c(stat.by, group.by))) {
-      if (any(is.na(data[[col]]))) {
+      values <- as.character(data[[col]])
+      if (anyNA(values)) {
         lvls <- levels(data[[col]])
-        data[[col]] <- as.character(data[[col]])
-        data[[col]][is.na(data[[col]])] <- "NA"
-        data[[col]] <- factor(data[[col]], levels = c(lvls, "NA"))
+        lvls <- lvls[!is.na(lvls)]
+        missing_level <- tail(make.unique(c(lvls, if ("NA" %in% lvls) "<NA>" else "NA")), 1L)
+        values[is.na(values)] <- missing_level
+        data[[col]] <- factor(values, levels = c(lvls, missing_level))
+        na_levels[col] <- missing_level
       }
     }
   }
@@ -386,26 +390,25 @@ plt_cat <- function(data,
     if (is.null(names(palette))) {
       return(stats::setNames(.resolve_color(palette, n = length(lvls)), lvls))
     }
-    required <- if (NA_stat) setdiff(lvls, "NA") else lvls
+    missing_levels <- unname(na_levels[intersect(names(na_levels), stat.by)])
+    required <- setdiff(lvls, missing_levels)
     if (!is.character(palette) || anyNA(names(palette)) ||
         any(!nzchar(names(palette))) || anyDuplicated(names(palette)) ||
         !all(required %in% names(palette))) {
       cli::cli_abort("Named {.arg palette} must contain each level with unique, non-empty names.")
     }
     out <- stats::setNames(unname(palette[lvls]), lvls)
-    out[is.na(out) & lvls == "NA"] <- NA_color
+    out[lvls %in% missing_levels] <- NA_color
     out
   }
   if (type %in% std_types) {
     stat_levels <- levels(factor(data[[stat.by[1]]]))
     colors <- level_colors(stat_levels)
-    if (NA_stat && "NA" %in% stat_levels) {
-      colors["NA"] <- NA_color
-    }
   } else {
     all_levels <- unique(unlist(lapply(stat.by, function(s) levels(factor(data[[s]])))))
     colors <- level_colors(all_levels)
   }
+  colors[names(colors) %in% na_levels[intersect(names(na_levels), stat.by)]] <- NA_color
 
   # --- Auto aspect.ratio for polar types --------------------------------------
   if (is.null(aspect.ratio) && type %in% c("rose", "ring", "pie")) {

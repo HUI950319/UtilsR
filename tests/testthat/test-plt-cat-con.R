@@ -29,6 +29,26 @@ cat_con_data <- function() {
   )
 }
 
+test_that("plt_cat distinguishes literal NA labels from missing observations", {
+  d <- data.frame(category = factor(c("NA", "A", NA)))
+  p <- cat_test_plot(d, "category", NA_stat = TRUE, stat = "count",
+                    palette = c(A = "red", `NA` = "blue"), NA_color = "grey80")
+  b <- ggplot2::ggplot_build(p)
+  expect_equal(p$data$n, rep(1L, 3))
+  expect_equal(length(unique(as.character(p$data$stat_var))), 3L)
+  expect_equal(b$data[[1]]$fill[p$data$stat_var == "NA"], "blue")
+  expect_equal(sum(b$data[[1]]$fill == "grey80"), 1L)
+})
+
+test_that("plt_cat handles explicit missing factor levels", {
+  d <- data.frame(category = factor(c("A", NA), exclude = NULL))
+  p <- cat_test_plot(d, "category", stat = "count")
+  expect_equal(sum(p$data$n), 1L)
+  q <- cat_test_plot(d, "category", stat = "count", NA_stat = TRUE)
+  expect_equal(sum(q$data$n), 2L)
+  expect_equal(sort(ggplot2::ggplot_build(q)$data[[1]]$fill), sort(c(pal_lancet[1], "grey80")))
+})
+
 test_that("plt_cat respects SPSS user missing values before factor conversion", {
   skip_if_not_installed("haven")
   d <- data.frame(category = haven::labelled_spss(c(1, 99, 1), na_values = 99))
