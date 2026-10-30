@@ -1,5 +1,7 @@
 # UtilsR 0.6.18
 
+* `plt_cat(NA_stat = TRUE)` includes missing split groups and preserves the whole figure's missing-category colours in each panel.
+
 * `plt_con()` assigns a unique label to explicit missing split levels when
   literal `<NA>` names already exist, preserving distinct list keys and titles.
 

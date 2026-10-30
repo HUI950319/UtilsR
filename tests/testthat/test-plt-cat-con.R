@@ -29,6 +29,18 @@ cat_con_data <- function() {
   )
 }
 
+test_that("plt_cat includes missing split groups and preserves missing colours", {
+  d <- data.frame(category = c("A", NA, "A", NA),
+                  site = factor(c("one", "one", NA, NA), exclude = NULL))
+  p <- cat_test_plot(d, "category", split.by = "site", stat = "count",
+                    NA_stat = TRUE, NA_color = "grey80", palette = "red")
+  expect_length(p, 2L)
+  expect_equal(sum(vapply(seq_len(length(p)), function(i) sum(p[[i]]$data$n), 0)), 4)
+  for (i in seq_len(length(p))) {
+    expect_equal(sum(ggplot2::ggplot_build(p[[i]])$data[[1]]$fill == "grey80"), 1L)
+  }
+})
+
 test_that("plt_cat distinguishes literal NA labels from missing observations", {
   d <- data.frame(category = factor(c("NA", "A", NA)))
   p <- cat_test_plot(d, "category", NA_stat = TRUE, stat = "count",

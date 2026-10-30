@@ -107,7 +107,8 @@ Default \code{NULL} uses alternating \code{c("grey85", "transparent")}.}
 
 \item{NA_stat}{Logical. Include NA in the frequency table? Default
 \code{FALSE} (NAs are dropped). If \code{TRUE}, NAs are kept and shown
-with \code{NA_color}. Missing labels are distinct from literal "NA" values.}
+with \code{NA_color}, including missing grouping and split values.
+Missing labels are distinct from literal "NA" values.}
 
 \item{keep_empty}{Logical. Keep empty factor levels in plots?
 Default \code{FALSE}.}

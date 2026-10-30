@@ -76,7 +76,8 @@
 #' @param NA_color Character. Colour for NA values. Default \code{"grey80"}.
 #' @param NA_stat Logical. Include NA in the frequency table? Default
 #'   \code{FALSE} (NAs are dropped). If \code{TRUE}, NAs are kept and shown
-#'   with \code{NA_color}. Missing labels are distinct from literal "NA" values.
+#'   with \code{NA_color}, including missing grouping and split values.
+#'   Missing labels are distinct from literal "NA" values.
 #' @param keep_empty Logical. Keep empty factor levels in plots?
 #'   Default \code{FALSE}.
 #' @param stat_level Character or list. For venn/upset types, the value(s) in
@@ -371,12 +372,16 @@ plt_cat <- function(data,
       )
     }
   } else {
-    for (col in unique(c(stat.by, group.by))) {
+    na_cols <- unique(c(stat.by, group.by, split.by))
+    used_levels <- unique(unlist(lapply(na_cols, function(col) levels(data[[col]]))))
+    used_levels <- used_levels[!is.na(used_levels)]
+    missing_level <- tail(make.unique(c(used_levels,
+      if ("NA" %in% used_levels) "<NA>" else "NA")), 1L)
+    for (col in na_cols) {
       values <- as.character(data[[col]])
       if (anyNA(values)) {
         lvls <- levels(data[[col]])
         lvls <- lvls[!is.na(lvls)]
-        missing_level <- tail(make.unique(c(lvls, if ("NA" %in% lvls) "<NA>" else "NA")), 1L)
         values[is.na(values)] <- missing_level
         data[[col]] <- factor(values, levels = c(lvls, missing_level))
         na_levels[col] <- missing_level
