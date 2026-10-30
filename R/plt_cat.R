@@ -46,7 +46,7 @@
 #' @param type Chart type. One of \code{"bar"}, \code{"rose"}, \code{"ring"},
 #'   \code{"pie"}, \code{"trend"}, \code{"area"}, \code{"dot"}, \code{"sankey"},
 #'   \code{"chord"}, \code{"venn"}, \code{"upset"}.
-#' @param stat Statistic to compute: \code{"percent"} (default) or
+#' @param stat Statistic for standard types: \code{"percent"} (default) or
 #'   \code{"count"}.
 #' @param position Bar position: \code{"stack"} (default) or \code{"dodge"}.
 #' @param palette Colour palette. One of:
@@ -61,7 +61,8 @@
 #'       and then takes \code{NA_color}.
 #'   }
 #' @param alpha Numeric 0--1. Colour transparency. Default 0.8.
-#' @param label Logical. Show value labels? Default \code{FALSE}.
+#' @param label Logical. Show value labels? Default \code{FALSE}. Set names
+#'   and Sankey node names are independent of value labels.
 #' @param label.size Numeric. Label text size. Default 3.5.
 #' @param label.fg Character. Label foreground colour. Default \code{"black"}.
 #' @param label.bg Character. Label background colour. Default \code{"white"}.
@@ -499,9 +500,10 @@ plt_cat <- function(data,
       chord  = .plt_cat_chord(data = data, stat.by = stat.by, cols = colors,
                                alpha = alpha),
       venn   = .plt_cat_venn(data = data, stat.by = stat.by, cols = colors,
-                              stat_level = stat_level),
+                               stat_level = stat_level, label = label,
+                               label.size = label.size, label.fg = label.fg),
       upset  = .plt_cat_upset(data = data, stat.by = stat.by, cols = colors,
-                               stat_level = stat_level,
+                                stat_level = stat_level, label = label,
                                label.fg = label.fg, label.size = label.size,
                                label.bg = label.bg, label.bg.r = label.bg.r)
     )
@@ -509,6 +511,12 @@ plt_cat <- function(data,
       if (!is.null(title) || !is.null(subtitle)) {
         p <- p + ggplot2::labs(title = title, subtitle = subtitle)
       }
+      if (!is.null(xlab)) p <- p + ggplot2::labs(x = xlab)
+      if (!is.null(ylab)) p <- p + ggplot2::labs(y = ylab)
+      p <- p + ggplot2::theme(text = ggplot2::element_text(size = base_size),
+                              legend.position = legend.position,
+                              legend.direction = legend.direction)
+      if (!is.null(aspect.ratio)) p <- p + ggplot2::theme(aspect.ratio = aspect.ratio)
     }
     return(switch(type,
       chord = finish(p, size = c(7, 7)),

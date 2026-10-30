@@ -1,5 +1,7 @@
 # UtilsR 0.6.18
 
+* Categorical set plots honour axis titles, base text size and legend controls; Venn and UpSet value labels follow `label`, `label.size` and `label.fg`.
+
 * `plt_cat()` validates selectors, logical controls, empty data and positive-level mappings, rejects unused arguments, and reports unsupported chord splitting before drawing.
 
 * `plt_con(type = "dot")` groups count rows with vctrs, reducing aggregation

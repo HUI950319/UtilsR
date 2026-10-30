@@ -63,7 +63,7 @@ one plot per level, and combines with \pkg{patchwork}. Not available for
 \code{"pie"}, \code{"trend"}, \code{"area"}, \code{"dot"}, \code{"sankey"},
 \code{"chord"}, \code{"venn"}, \code{"upset"}.}
 
-\item{stat}{Statistic to compute: \code{"percent"} (default) or
+\item{stat}{Statistic for standard types: \code{"percent"} (default) or
 \code{"count"}.}
 
 \item{position}{Bar position: \code{"stack"} (default) or \code{"dodge"}.}
@@ -82,7 +82,8 @@ one plot per level, and combines with \pkg{patchwork}. Not available for
 
 \item{alpha}{Numeric 0--1. Colour transparency. Default 0.8.}
 
-\item{label}{Logical. Show value labels? Default \code{FALSE}.}
+\item{label}{Logical. Show value labels? Default \code{FALSE}. Set names
+and Sankey node names are independent of value labels.}
 
 \item{label.size}{Numeric. Label text size. Default 3.5.}
 

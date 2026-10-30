@@ -29,6 +29,31 @@ cat_con_data <- function() {
   )
 }
 
+test_that("plt_cat set plots honour labels titles and theme controls", {
+  d <- data.frame(A = c(TRUE, TRUE, FALSE), B = c(TRUE, FALSE, TRUE))
+  for (type in c("upset", "venn", "sankey")) {
+    skip_if_not_installed(switch(type, upset = "ggupset", venn = "ggVennDiagram", sankey = "ggsankey"))
+    p <- suppressWarnings(cat_test_plot(d, c("A", "B"), type = type, label = FALSE,
+                      base_size = 20, legend.position = "none", xlab = "X", ylab = "Y"))
+    labs <- if (exists("get_labs", asNamespace("ggplot2"))) ggplot2::get_labs(p) else p$labels
+    expect_equal(labs$x, "X")
+    expect_equal(labs$y, "Y")
+    expect_equal(p$theme$text$size, 20)
+    expect_equal(p$theme$legend.position, "none")
+    if (type == "upset") {
+      expect_false(any(vapply(p$layers, function(l) inherits(l$geom, "GeomTextRepel"), logical(1))))
+      q <- cat_test_plot(d, c("A", "B"), type = type, label = TRUE, label.size = 5, label.fg = "brown")
+      layer <- ggplot2::ggplot_build(q)$data[[2]]
+      expect_equal(unique(layer$colour), "brown")
+      expect_equal(unique(layer$size), 5)
+    }
+    if (type == "venn") {
+      labels <- unlist(lapply(ggplot2::ggplot_build(p)$data, function(x) x$label))
+      expect_false(any(grepl("[0-9]", labels)))
+    }
+  }
+})
+
 test_that("plt_cat rejects malformed selectors empty input and unused arguments", {
   d <- data.frame(A = c(TRUE, FALSE), B = c(FALSE, TRUE))
   expect_error(plt_cat(d, "A", linewidth = 5), "unused|must be empty")

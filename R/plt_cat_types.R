@@ -299,7 +299,8 @@
 
 # ---------- 10. Venn ----------
 #' @noRd
-.plt_cat_venn <- function(data, stat.by, cols, stat_level = NULL, ...) {
+.plt_cat_venn <- function(data, stat.by, cols, stat_level = NULL, label = FALSE,
+                          label.size = 3.5, label.fg = "black", ...) {
   if (!requireNamespace("ggVennDiagram", quietly = TRUE)) {
     cli::cli_abort("Package {.pkg ggVennDiagram} is required. Install with: {.code install.packages('ggVennDiagram')}")
   }
@@ -307,7 +308,8 @@
 
   fill_high <- if (length(cols) > 0) cols[1] else "steelblue"
 
-  p <- ggVennDiagram::ggVennDiagram(set_list) +
+  p <- ggVennDiagram::ggVennDiagram(set_list, label = if (label) "both" else "none",
+                                   label_size = label.size, label_color = label.fg) +
     ggplot2::scale_fill_gradient(low = "white", high = fill_high) +
     ggplot2::theme(
       plot.background = ggplot2::element_blank(),
@@ -319,6 +321,7 @@
 # ---------- 11. UpSet (ggupset) ----------
 #' @noRd
 .plt_cat_upset <- function(data, stat.by, cols, stat_level = NULL,
+                           label = FALSE,
                            label.fg = "black", label.size = 3.5,
                            label.bg = "white", label.bg.r = 0.1, ...) {
   if (!requireNamespace("ggupset", quietly = TRUE)) {
@@ -351,14 +354,14 @@
       ggplot2::aes(fill = ggplot2::after_stat(.data[["count"]])),
       color = "black", width = 0.5, show.legend = FALSE
     ) +
-    ggrepel::geom_text_repel(
+    (if (label) ggrepel::geom_text_repel(
       ggplot2::aes(label = ggplot2::after_stat(.data[["count"]])),
       stat = "count",
       colour = label.fg, size = label.size,
       bg.color = label.bg, bg.r = label.bg.r,
       point.size = NA, max.overlaps = 100,
       force = 0, min.segment.length = 0
-    ) +
+    )) +
     ggplot2::labs(y = "Intersection size") +
     ggupset::scale_x_upset(sets = stat.by, n_intersections = 20) +
     ggplot2::scale_fill_gradient(low = fill_low, high = fill_high) +
