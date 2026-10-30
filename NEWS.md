@@ -1,5 +1,8 @@
 # UtilsR 0.6.18
 
+* Large expression previews avoid deparsing unseen lines while retaining
+  the same type labels and visible text.
+
 * `pr_box()` keeps embedded newlines in plain text as separate box rows,
   preserving blank separators and ANSI styles across the line breaks.
 

@@ -805,9 +805,9 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   if (is.language(v)) {
     abbr <- if (inherits(v, "formula")) "formula" else if (is.name(v)) "sym" else
       if (is.expression(v)) "expr" else "call"
-    text <- paste(deparse(v, width.cutoff = 500L), collapse = " ")
-    return(paste(g(sprintf("<%s>", abbr)),
-                 cli::ansi_strtrim(text, max(width - nchar(abbr) - 3L, 10L))))
+    room <- max(width - nchar(abbr) - 3L, 10L)
+    text <- paste(deparse(v, width.cutoff = 500L, nlines = ceiling(room)), collapse = " ")
+    return(paste(g(sprintf("<%s>", abbr)), cli::ansi_strtrim(text, room)))
   }
   g(sprintf("<%s>", cls))
 }
