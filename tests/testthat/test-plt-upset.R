@@ -267,3 +267,20 @@ test_that("plt_upset validates display maps and style values", {
   data <- data.frame(A = c("Yes", "No"), B = c("No", "Yes"))
   expect_error(plt_upset(data, c("A", "B"), levels = list("Yes"), output = "data"), "levels")
 })
+
+test_that("plt_upset combined outputs retain Venn and UpSet panels", {
+  skip_if_not_installed("ggVennDiagram")
+  sets <- list(A = 1:4, B = 3:6, C = c(2, 4, 7))
+  for (output in c("both", "all")) {
+    expect_no_warning(result <- suppressMessages(plt_upset(sets, output = output)))
+    plot <- if (output == "all") result$combined else result
+    expect_s3_class(plot, "patchwork")
+    expect_no_warning(render_upset(plot))
+    expect_gte(length(plot$patches$plots), 1L)
+    if (output == "all") {
+      expect_s3_class(result$venn, "ggplot")
+      expect_s3_class(result$upset, "upset_plot")
+      expect_equal(nrow(result$data), 7L)
+    }
+  }
+})

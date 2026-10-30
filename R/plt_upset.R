@@ -401,9 +401,10 @@ plt_upset <- function(data,
   if (output %in% c("both", "all")) {
     if (!is.null(p_upset)) {
       p_combined <- tryCatch({
-        patchwork::wrap_plots(p_venn, p_upset, ncol = 2, widths = c(0.4, 1))
+        patchwork::wrap_plots(p_venn, aplot::as.patchwork(p_upset),
+                              ncol = 2, widths = c(0.4, 1))
       }, error = function(e) {
-        cli::cli_warn("Combined layout failed: {e$message}. Returning plots separately.")
+        cli::cli_warn("Combined layout failed: {e$message}. Returning the UpSet plot.")
         p_upset
       })
     } else {
