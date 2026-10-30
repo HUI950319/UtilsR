@@ -123,6 +123,21 @@ test_that("con dot counts include observed missing grouping strata", {
   expect_equal(sum(p$layers[[1L]]$data$n), 4L)
 })
 
+test_that("con dot counts retain keyed order and ordered factor levels", {
+  d <- data.frame(x = c(2, 1, 1, 2, 2, 2, 1),
+    g = ordered(c("B", "A", NA, "B", "A", NA, "A"), levels = c("A", "B", "unused")))
+  for (fill in c("group", "feature")) {
+    p <- con_plot(d, type = "dot", fill.by = fill)
+    counts <- p$layers[[1L]]$data
+    expect_identical(names(counts), c("group.by", "fill.by", "bins", "n"))
+    expect_identical(as.character(counts$group.by), c("B", "A", NA, "A", NA))
+    expect_identical(counts$n, c(2L, 1L, 1L, 2L, 1L))
+    expect_identical(levels(counts$group.by), levels(d$g))
+    expect_s3_class(counts$group.by, "ordered")
+    expect_equal(sum(counts$n), nrow(d))
+  }
+})
+
 test_that("con stacked comparisons test each feature separately", {
   d <- con_data()
   d$z <- c(1:6, (1:6) + 1.5)

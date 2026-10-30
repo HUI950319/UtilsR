@@ -663,8 +663,12 @@ plt_con <- function(data,
 
 .con_dot_counts <- function(data, by) {
   values <- lapply(data[by], unique)
-  groups <- Map(match, data[by], values)
-  counts <- stats::aggregate(list(n = rep.int(1L, nrow(data))), by = groups, FUN = sum)
+  groups <- as.data.frame(Map(match, data[by], values))
+  located <- vctrs::vec_group_loc(groups)
+  counts <- located$key
+  counts$n <- lengths(located$loc)
+  counts <- counts[do.call(order, rev(counts[by])), , drop = FALSE]
+  rownames(counts) <- NULL
   for (name in by) counts[[name]] <- values[[name]][counts[[name]]]
   counts
 }
