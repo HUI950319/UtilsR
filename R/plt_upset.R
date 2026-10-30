@@ -25,6 +25,8 @@
 #' @param levels Vector of values indicating membership
 #'   (e.g. \code{c("Yes", "yes", "1")}). Use \code{NA} to treat missing
 #'   values as set members. Default \code{c("Yes", "yes")}.
+#'   Missingness follows \code{is.na()} on the original columns, including
+#'   SPSS user-missing values; methods for serialized classed columns are loaded.
 #'   Ignored when \code{data} is a list.
 #' @param colors Character vector. For UpSet: 3 colours for
 #'   \code{c(sets_bar, top_bar, matrix_dots)}.
@@ -202,7 +204,17 @@ plt_upset <- function(data,
       cli::cli_abort("Variable{?s} not found: {.val {missing_vars}}")
     }
     set_list <- lapply(stats::setNames(vars, vars), function(v) {
-      which(data[[v]] %in% levels)
+      values <- data[[v]]
+      pkg <- if (inherits(values, "integer64")) "bit64" else
+        if (inherits(values, "haven_labelled")) "haven" else
+          if (inherits(values, c("Duration", "Period", "Interval"))) "lubridate" else NULL
+      if (!is.null(pkg) && !requireNamespace(pkg, quietly = TRUE)) {
+        cli::cli_abort("Inspecting {.cls {class(values)[1]}} columns requires package {.pkg {pkg}}.")
+      }
+      member <- if (anyNA(levels)) is.na(values) else rep(FALSE, nrow(data))
+      value_levels <- levels[!is.na(levels)]
+      if (length(value_levels)) member <- member | (values %in% value_levels)
+      which(member)
     })
 
   } else {

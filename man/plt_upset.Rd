@@ -42,6 +42,8 @@ is a list.}
 \item{levels}{Vector of values indicating membership
 (e.g. \code{c("Yes", "yes", "1")}). Use \code{NA} to treat missing
 values as set members. Default \code{c("Yes", "yes")}.
+Missingness follows \code{is.na()} on the original columns, including
+SPSS user-missing values; methods for serialized classed columns are loaded.
 Ignored when \code{data} is a list.}
 
 \item{colors}{Character vector. For UpSet: 3 colours for

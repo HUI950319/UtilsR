@@ -1,5 +1,7 @@
 # UtilsR 0.6.17
 
+* `plt_upset(levels = NA)` uses original missing-value masks, including classed columns, and restores methods for serialized inputs.
+
 * Independent stacked quantile limits use each feature's observations,
   retaining all observations for summaries, tests and raw-point layers.
 
