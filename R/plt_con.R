@@ -72,7 +72,9 @@
 #'   Default \code{NULL}. Pairs with unavailable groups are skipped per feature
 #'   with a warning; other requested comparisons remain available.
 #' @param ref_group Character. Reference group for comparisons.
-#'   Default \code{NULL}.
+#'   Default \code{NULL}. When \code{comparisons} is \code{NULL}, compare
+#'   this observed group with every other observed group. Explicit comparison
+#'   pairs take precedence.
 #' @param pairwise_method Character. Pairwise test method.
 #'   Default \code{"wilcox.test"}.
 #' @param multiplegroup_comparisons Logical. Add global comparison?
@@ -376,13 +378,25 @@ plt_con <- function(data,
       add_box <- FALSE
       add_trend <- FALSE
     }
-    if (!is.null(comparisons) || isTRUE(multiplegroup_comparisons)) {
+    if (!is.null(comparisons) || !is.null(ref_group) || isTRUE(multiplegroup_comparisons)) {
       cli::cli_warn(
         "Statistical comparisons are not supported for {.val dot} type. Ignored."
       )
       comparisons <- NULL
+      ref_group <- NULL
       multiplegroup_comparisons <- FALSE
     }
+  }
+
+  if (!is.null(ref_group) && is.null(comparisons)) {
+    observed_groups <- levels(data[[group.by]])
+    observed_groups <- observed_groups[!is.na(observed_groups) &
+      observed_groups %in% as.character(data[[group.by]])]
+    if (!is.character(ref_group) || length(ref_group) != 1L || is.na(ref_group) ||
+        !ref_group %in% observed_groups) {
+      cli::cli_abort("{.arg ref_group} must name one observed group.")
+    }
+    comparisons <- lapply(setdiff(observed_groups, ref_group), function(other) c(ref_group, other))
   }
 
   # --- Handle split.by via recursion ------------------------------------------

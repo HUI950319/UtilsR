@@ -1,5 +1,8 @@
 # UtilsR 0.6.17
 
+* `plt_con(ref_group = )` generates comparisons against the observed
+  reference group; explicit comparison pairs take precedence.
+
 * Continuous comparison plots reserve automatic space for all brackets,
   including shared stacked axes, while preserving explicit zoom bounds.
 

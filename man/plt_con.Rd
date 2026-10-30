@@ -128,7 +128,9 @@ Default \code{NULL}. Pairs with unavailable groups are skipped per feature
 with a warning; other requested comparisons remain available.}
 
 \item{ref_group}{Character. Reference group for comparisons.
-Default \code{NULL}.}
+Default \code{NULL}. When \code{comparisons} is \code{NULL}, compare
+this observed group with every other observed group. Explicit comparison
+pairs take precedence.}
 
 \item{pairwise_method}{Character. Pairwise test method.
 Default \code{"wilcox.test"}.}

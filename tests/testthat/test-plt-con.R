@@ -157,6 +157,20 @@ test_that("con unavailable comparisons preserve valid tests in each feature", {
   }
 })
 
+test_that("con reference groups generate pairwise tests unless explicit pairs are supplied", {
+  d <- data.frame(x = 1:18, z = 21:38, g = factor(rep(c("A", "B", "C"), each = 6)))
+  for (stack in c(FALSE, TRUE)) {
+    p <- con_plot(d, c("x", "z"), type = "box", stack = stack, ref_group = "B")
+    q <- con_plot(d, c("x", "z"), type = "box", stack = stack,
+                 comparisons = list(c("B", "A"), c("B", "C")))
+    expect_equal(ggplot2::ggplot_build(p)$data, ggplot2::ggplot_build(q)$data)
+  }
+  p <- con_plot(d, type = "box", ref_group = "B", comparisons = list(c("A", "C")))
+  q <- con_plot(d, type = "box", comparisons = list(c("A", "C")))
+  expect_equal(ggplot2::ggplot_build(p)$data, ggplot2::ggplot_build(q)$data)
+  expect_error(con_plot(d, type = "box", ref_group = "absent"), "ref_group")
+})
+
 test_that("con global test labels fit inside normal and flipped panels", {
   for (stack in c(FALSE, TRUE)) for (flip in c(FALSE, TRUE)) {
     p <- con_plot(con_data(), c("x", "z"), type = "box", stack = stack, flip = flip,
