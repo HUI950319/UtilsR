@@ -284,3 +284,28 @@ test_that("plt_upset combined outputs retain Venn and UpSet panels", {
     }
   }
 })
+
+test_that("plt_upset handles the Venn dimension limit explicitly", {
+  skip_if_not_installed("ggVennDiagram")
+  sets <- setNames(rep(list(1:2), 8), LETTERS[1:8])
+  expect_error(plt_upset(sets, output = "venn"), "2 to 7")
+  expect_no_warning(plot <- suppressMessages(plt_upset(sets, output = "upset")))
+  expect_s3_class(plot, "upset_plot")
+  expect_no_warning(render_upset(plot))
+  expect_no_warning(result <- suppressMessages(plt_upset(sets, output = "all")))
+  expect_null(result$venn)
+  expect_s3_class(result$combined, "upset_plot")
+  expect_equal(nrow(result$data), 2L)
+})
+
+test_that("plt_upset rejects plots without members but retains grouped data", {
+  skip_if_not_installed("ggVennDiagram")
+  empty <- list(A = character(), B = character())
+  for (output in c("venn", "upset", "both", "all")) {
+    expect_error(plt_upset(empty, output = output), "No set members")
+  }
+  expect_equal(nrow(plt_upset(empty, output = "data")), 0L)
+  data <- data.frame(A = rep("No", 3), B = rep("No", 3))
+  result <- plt_upset(data, c("A", "B"), output = "data")
+  expect_identical(as.character(result$intersect_group), rep("None", 3))
+})

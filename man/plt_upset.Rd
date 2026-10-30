@@ -60,10 +60,15 @@ For Venn: colour(s) used in the fill gradient or as category colours
 \describe{
   \item{\code{"venn"}}{Venn diagram only (ggplot).}
   \item{\code{"upset"}}{UpSet plot only (non-zero intersections).}
-  \item{\code{"both"}}{(default) Combined Venn + UpSet side by side.}
+  \item{\code{"both"}}{(default) Combined Venn + UpSet side by side;
+    returns only UpSet above seven sets.}
   \item{\code{"data"}}{Data frame with \code{intersect_group} column.}
-  \item{\code{"all"}}{Named list with all plots and data.}
-}}
+  \item{\code{"all"}}{Named list with all plots and data;
+    \code{venn} is \code{NULL} above seven sets.}
+}
+Plot outputs require at least one selected member. Empty selections
+remain valid for \code{"data"}, including zero-row inputs.
+}
 
 \item{label}{What to show inside each region of the Venn diagram:
 \code{"both"} (count + percent, default), \code{"count"},
@@ -136,8 +141,8 @@ For data frames, set \code{levels = NA} to visualise missing-value patterns
 without modifying the input data.
 }
 \note{
-Requires \pkg{ggVennDiagram} and optionally \pkg{aplot} (for combined
-  layout). Install with \code{pak::pak(c("ggVennDiagram", "aplot"))}.
+Requires \pkg{ggVennDiagram}; UpSet and combined layouts use
+\pkg{aplot}. Install with \code{pak::pak(c("ggVennDiagram", "aplot"))}.
 }
 \examples{
 # ---- List input (most convenient) ----

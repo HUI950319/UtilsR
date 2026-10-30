@@ -40,10 +40,14 @@
 #'   \describe{
 #'     \item{\code{"venn"}}{Venn diagram only (ggplot).}
 #'     \item{\code{"upset"}}{UpSet plot only (non-zero intersections).}
-#'     \item{\code{"both"}}{(default) Combined Venn + UpSet side by side.}
+#'     \item{\code{"both"}}{(default) Combined Venn + UpSet side by side;
+#'       returns only UpSet above seven sets.}
 #'     \item{\code{"data"}}{Data frame with \code{intersect_group} column.}
-#'     \item{\code{"all"}}{Named list with all plots and data.}
+#'     \item{\code{"all"}}{Named list with all plots and data;
+#'       \code{venn} is \code{NULL} above seven sets.}
 #'   }
+#'   Plot outputs require at least one selected member. Empty selections
+#'   remain valid for \code{"data"}, including zero-row inputs.
 #' @param label What to show inside each region of the Venn diagram:
 #'   \code{"both"} (count + percent, default), \code{"count"},
 #'   \code{"percent"}, or \code{"none"}.
@@ -96,8 +100,8 @@
 #'   \code{attr(p, "plot_size")}, the list of \code{"all"} on its
 #'   \code{combined} element.
 #'
-#' @note Requires \pkg{ggVennDiagram} and optionally \pkg{aplot} (for combined
-#'   layout). Install with \code{pak::pak(c("ggVennDiagram", "aplot"))}.
+#' @note Requires \pkg{ggVennDiagram}; UpSet and combined layouts use
+#'   \pkg{aplot}. Install with \code{pak::pak(c("ggVennDiagram", "aplot"))}.
 #'
 #' @examples
 #' # ---- List input (most convenient) ----
@@ -277,6 +281,16 @@ plt_upset <- function(data,
     cli::cli_abort("{.arg data} must be a named list or a data.frame.")
   }
 
+  if (length(set_list) > 7L && output == "venn") {
+    cli::cli_abort("Venn diagrams support 2 to 7 sets; use {.code output = 'upset'} for more sets.")
+  }
+  if (output != "data" && !any(lengths(set_list) > 0L)) {
+    cli::cli_abort("No set members match the selection; use {.code output = 'data'} to return the groups.")
+  }
+  if (length(set_list) > 7L && output %in% c("both", "all")) {
+    cli::cli_inform("Venn diagrams support 2 to 7 sets; returning the UpSet plot without a Venn panel.")
+  }
+
   # Default colours
   if (is.null(colors)) colors <- as.character(pal_lancet[5:7])
   if (!is.character(colors) || !is.null(dim(colors)) || !length(colors) || anyNA(colors) ||
@@ -306,6 +320,8 @@ plt_upset <- function(data,
     none    = "none"
   )
 
+  p_venn <- NULL
+  if (length(set_list) <= 7L) {
   p_venn <- ggVennDiagram::ggVennDiagram(
     set_list,
     label           = venn_label,
@@ -339,6 +355,7 @@ plt_upset <- function(data,
     # venn.fill == "none"
     p_venn <- p_venn +
       ggplot2::scale_fill_gradient(low = "white", high = "white")
+  }
   }
 
   # ── UpSet ────────────────────────────────────────────────────────────────
@@ -399,7 +416,7 @@ plt_upset <- function(data,
   # ── Combined ─────────────────────────────────────────────────────────────
   p_combined <- NULL
   if (output %in% c("both", "all")) {
-    if (!is.null(p_upset)) {
+    if (!is.null(p_upset) && !is.null(p_venn)) {
       p_combined <- tryCatch({
         patchwork::wrap_plots(p_venn, aplot::as.patchwork(p_upset),
                               ncol = 2, widths = c(0.4, 1))
@@ -407,6 +424,8 @@ plt_upset <- function(data,
         cli::cli_warn("Combined layout failed: {e$message}. Returning the UpSet plot.")
         p_upset
       })
+    } else if (!is.null(p_upset)) {
+      p_combined <- p_upset
     } else {
       p_combined <- p_venn
     }
@@ -441,7 +460,8 @@ plt_upset <- function(data,
     return(grp_data)
   }
   finish <- function(p) {
-    panel <- switch(output, venn = c(5, 5), upset = c(6, 4.5), c(5, 4.5))
+    panel <- if (length(set_list) > 7L) c(6, 4.5) else
+      switch(output, venn = c(5, 5), upset = c(6, 4.5), c(5, 4.5))
     .save_sized(p, save, panel, lead = "set plot laid out for",
                 filename = "Figure X. Set overlaps.pdf")
   }
