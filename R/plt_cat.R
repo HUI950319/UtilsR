@@ -576,29 +576,22 @@ plt_cat <- function(data,
 
   if (!is.null(group.by)) {
     if (!is.factor(data[[group.by]])) data[[group.by]] <- factor(data[[group.by]])
-    fml <- stats::as.formula(paste("~", stat.by, "+", group.by))
-    tbl <- stats::xtabs(fml, data = data, addNA = NA_stat)
+    tbl <- table(data[[stat.by]], data[[group.by]],
+                 useNA = if (NA_stat) "ifany" else "no")
     df <- as.data.frame(tbl, stringsAsFactors = FALSE)
     names(df) <- c("stat_var", "group_var", "n")
   } else {
-    fml <- stats::as.formula(paste("~", stat.by))
-    tbl <- stats::xtabs(fml, data = data, addNA = NA_stat)
+    tbl <- table(data[[stat.by]], useNA = if (NA_stat) "ifany" else "no")
     df <- as.data.frame(tbl, stringsAsFactors = FALSE)
     names(df) <- c("stat_var", "n")
     df$group_var <- "all"
   }
 
   if (stat == "percent") {
-    df <- df |>
-      dplyr::group_by(.data[["group_var"]]) |>
-      dplyr::mutate(
-        total = sum(.data[["n"]]),
-        value = dplyr::if_else(.data[["total"]] > 0,
-                               .data[["n"]] / .data[["total"]] * 100, 0),
-        label_text = sprintf("%.1f%%", .data[["value"]])
-      ) |>
-      dplyr::select(-"total") |>
-      dplyr::ungroup()
+    total <- ave(df$n, df$group_var, FUN = sum)
+    df$value <- ifelse(total > 0, df$n / total * 100, 0)
+    df$label_text <- sprintf("%.1f%%", df$value)
+    df <- dplyr::as_tibble(df)
   } else {
     df$value <- df$n
     df$label_text <- as.character(df$n)

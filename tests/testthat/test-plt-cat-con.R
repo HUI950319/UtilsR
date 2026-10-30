@@ -29,6 +29,20 @@ cat_con_data <- function() {
   )
 }
 
+test_that("plt_cat counts columns with non syntactic names directly", {
+  for (name in c("Tumor stage", "a+b", "x`y", ".")) {
+    d <- setNames(data.frame(category = c("I", "II", "I", "III"),
+                             group = c("a", "a", "b", "b")), c(name, "Group name"))
+    p <- cat_test_plot(d, name, "Group name")
+    expect_equal(p$data$n, rep(1L, 4))
+    expect_equal(p$data$value, rep(50, 4))
+    expect_equal(names(p$data), c("stat_var", "group_var", "n", "value", "label_text"))
+    expect_s3_class(p$data, "tbl_df")
+    q <- cat_test_plot(d, name, stat = "count")
+    expect_equal(q$data$n, c(2L, 1L, 1L))
+  }
+})
+
 test_that("plt_cat keeps unused category and group levels when requested", {
   d <- data.frame(category = factor(c("A", "B", "A"), levels = c("A", "B", "C")),
                   group = factor(c("G1", "G2", "G1"), levels = c("G1", "G2", "G3")))

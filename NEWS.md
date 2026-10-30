@@ -1,5 +1,7 @@
 # UtilsR 0.6.18
 
+* `plt_cat()` counts columns directly, supporting spaces and formula punctuation in column names while reducing aggregation overhead and preserving count and percentage schemas.
+
 * `plt_cat(keep_empty = TRUE)` preserves unused category and grouping levels, including zero-frequency rows and their axis and legend positions.
 
 * `plt_con()` keeps background category colours stable across sorted split
