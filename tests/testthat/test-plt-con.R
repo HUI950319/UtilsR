@@ -109,6 +109,20 @@ test_that("con dot bins are independent of unrelated feature scales in stacked p
   }
 })
 
+test_that("con dot counts include observed missing grouping strata", {
+  d <- data.frame(x = 1:4, z = 11:14, g = c("A", NA, "B", NA))
+  for (stack in c(FALSE, TRUE)) for (fill in c("group", "feature")) {
+    p <- con_plot(d, c("x", "z"), type = "dot", stack = stack, fill.by = fill)
+    counts <- p$layers[[1L]]$data
+    expect_equal(sum(counts$n), if (stack) 8L else 4L)
+    expect_equal(sum(counts$n[is.na(counts$group.by)]), if (stack) 4L else 2L)
+    expect_length(unique(ggplot2::ggplot_build(p)$data[[1L]]$x), 3L)
+  }
+  d$g <- NA_character_
+  p <- con_plot(d, type = "dot")
+  expect_equal(sum(p$layers[[1L]]$data$n), 4L)
+})
+
 test_that("con stacked comparisons test each feature separately", {
   d <- con_data()
   d$z <- c(1:6, (1:6) + 1.5)

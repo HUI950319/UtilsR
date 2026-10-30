@@ -69,7 +69,8 @@ Features without finite observations are skipped; an entirely empty
 selection is an error.}
 
 \item{group.by}{Character. Column name for the x-axis grouping variable.
-Default \code{NULL} (all data in one group).}
+Default \code{NULL} (all data in one group). Observed missing groups
+are retained, including in dot-plot counts.}
 
 \item{split.by}{Character. Optional splitting variable. Splits data,
 creates one plot per level, and combines with \pkg{patchwork}.}

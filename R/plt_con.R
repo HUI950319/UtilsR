@@ -12,6 +12,7 @@
 #         +-- L2  .resolve_y_limit()   numeric or quantile string -> limits
 #                                      (also called by both builders)
 #         +-- L2  .con_dot_bins()      numeric bin centres, including constants
+#         +-- L2  .con_dot_counts()    counts including observed missing groups
 #         +-- L2  .con_bar_range()     full mean +/- SD range and zero baseline
 #         +-- L2  .con_base_plot()     small plot and mapping environment
 #         +-- L2  .con_dot_mapping()   shared mapping without analysis data
@@ -32,7 +33,8 @@
 #'   Features without finite observations are skipped; an entirely empty
 #'   selection is an error.
 #' @param group.by Character. Column name for the x-axis grouping variable.
-#'   Default \code{NULL} (all data in one group).
+#'   Default \code{NULL} (all data in one group). Observed missing groups
+#'   are retained, including in dot-plot counts.
 #' @param split.by Character. Optional splitting variable. Splits data,
 #'   creates one plot per level, and combines with \pkg{patchwork}.
 #' @param bg.by Character. Column name for background colour bands.
@@ -598,6 +600,14 @@ plt_con <- function(data,
   midpoints[ids]
 }
 
+.con_dot_counts <- function(data, by) {
+  values <- lapply(data[by], unique)
+  groups <- Map(match, data[by], values)
+  counts <- stats::aggregate(list(n = rep.int(1L, nrow(data))), by = groups, FUN = sum)
+  for (name in by) counts[[name]] <- values[[name]][counts[[name]]]
+  counts
+}
+
 .con_bar_range <- function(values, groups) {
   ids <- match(groups, unique(groups))
   intervals <- unlist(lapply(split(values, ids), function(v) {
@@ -723,11 +733,7 @@ plt_con <- function(data,
   } else if (type == "dot") {
     dat[["bins"]] <- .con_dot_bins(dat[["value"]])
     # Pre-aggregate counts to avoid stat_sum issues
-    dot_df <- stats::aggregate(
-      value ~ group.by + fill.by + bins,
-      data = dat, FUN = length
-    )
-    names(dot_df)[names(dot_df) == "value"] <- "n"
+    dot_df <- .con_dot_counts(dat, c("group.by", "fill.by", "bins"))
 
     p <- .con_base_plot(dat) +
       ggplot2::geom_point(
@@ -949,11 +955,7 @@ plt_con <- function(data,
       )
   } else if (type == "dot") {
     dat_long[["bins"]] <- stats::ave(dat_long[["value"]], dat_long[["feature"]], FUN = .con_dot_bins)
-    dot_df <- stats::aggregate(
-      value ~ group.by + fill.by + feature + bins,
-      data = dat_long, FUN = length
-    )
-    names(dot_df)[names(dot_df) == "value"] <- "n"
+    dot_df <- .con_dot_counts(dat_long, c("group.by", "fill.by", "feature", "bins"))
     dot_df[["feature"]] <- factor(dot_df[["feature"]], levels = stat.by)
     p <- p +
       ggplot2::geom_point(

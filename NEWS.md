@@ -1,5 +1,8 @@
 # UtilsR 0.6.17
 
+* Continuous dot-plot counts retain observed missing grouping strata,
+  including inputs whose grouping column is entirely missing.
+
 * `pr_head()` converts calls, formulas and symbols to summary text without
   missingness warnings or evaluation, retaining their existing text pieces.
 
