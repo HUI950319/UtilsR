@@ -1,5 +1,10 @@
 # Changelog
 
+## UtilsR 0.6.17
+
+- Wrapped print text retains combining marks and multi-code-point emoji
+  by using grapheme indices consistently when continuing a wrapped line.
+
 ## UtilsR 0.6.16
 
 - [`plt_na()`](https://hui950319.github.io/UtilsR/reference/plt_na.md)
