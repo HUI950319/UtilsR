@@ -87,12 +87,14 @@
 #' @param same.y.lims Logical. Use same y limits across features?
 #'   Default \code{FALSE}, including stacked and flipped panels. Explicit
 #'   \code{y.min}/\code{y.max} bounds apply to every feature.
-#' @param y.min Numeric or character. Minimum y-axis limit.
+#' @param y.min Numeric or character scalar. Minimum y-axis limit.
+#'   A finite number or \code{"qN"} for integer N from 0 to 100.
 #'   Character \code{"qN"} uses the Nth percentile. Default \code{NULL};
 #'   automatic bar limits include the full SD intervals and zero baseline.
 #'   Quantiles use each feature separately when axes are independent, and
 #'   pooled observations when \code{same.y.lims = TRUE}.
-#' @param y.max Numeric or character. Maximum y-axis limit.
+#' @param y.max Numeric or character scalar. Maximum y-axis limit.
+#'   A finite number or \code{"qN"} for integer N from 0 to 100.
 #'   Character \code{"qN"} uses the Nth percentile. Default \code{NULL}.
 #'   Automatic limits leave room for comparisons; explicit bounds are preserved.
 #' @param y.nbreaks Integer. Number of y-axis breaks. Default 5.
@@ -254,6 +256,23 @@ plt_con <- function(data,
   type     <- match.arg(type)
   fill.by  <- match.arg(fill.by)
   sig_label <- match.arg(sig_label)
+
+  for (arg in c("y.min", "y.max")) {
+    value <- get(arg)
+    if (is.null(value)) next
+    valid <- length(value) == 1L && is.null(dim(value)) && !anyNA(value)
+    if (valid) {
+      valid <- if (is.numeric(value) && !is.complex(value) &&
+        !inherits(value, c("integer64", "Date", "POSIXt", "difftime", "Duration", "Period", "Interval"))) {
+        is.finite(value)
+      } else if (is.character(value)) {
+        grepl("^q[0-9]+$", value) && as.numeric(sub("^q", "", value)) <= 100
+      } else FALSE
+    }
+    if (!isTRUE(valid)) {
+      cli::cli_abort('{.arg {arg}} must be NULL, one finite number, or a quantile string "qN" with integer N from 0 to 100.')
+    }
+  }
 
   if (anyNA(names(data)) || any(!nzchar(names(data))) || anyDuplicated(names(data))) {
     cli::cli_abort("{.arg data} must have unique, non-empty column names.")

@@ -1,5 +1,8 @@
 # UtilsR 0.6.17
 
+* Continuous axis bounds reject malformed quantile strings, missing or
+  non-finite values and non-scalar inputs before constructing plots.
+
 * Continuous group sorting excludes infinite observations, consistently
   with the plotted data, and retains groups without a finite ranking value.
 

@@ -149,13 +149,15 @@ Default \code{"kruskal.test"}.}
 Default \code{FALSE}, including stacked and flipped panels. Explicit
 \code{y.min}/\code{y.max} bounds apply to every feature.}
 
-\item{y.min}{Numeric or character. Minimum y-axis limit.
+\item{y.min}{Numeric or character scalar. Minimum y-axis limit.
+A finite number or \code{"qN"} for integer N from 0 to 100.
 Character \code{"qN"} uses the Nth percentile. Default \code{NULL};
 automatic bar limits include the full SD intervals and zero baseline.
 Quantiles use each feature separately when axes are independent, and
 pooled observations when \code{same.y.lims = TRUE}.}
 
-\item{y.max}{Numeric or character. Maximum y-axis limit.
+\item{y.max}{Numeric or character scalar. Maximum y-axis limit.
+A finite number or \code{"qN"} for integer N from 0 to 100.
 Character \code{"qN"} uses the Nth percentile. Default \code{NULL}.
 Automatic limits leave room for comparisons; explicit bounds are preserved.}
 

@@ -279,6 +279,19 @@ test_that("con group sorting uses finite observations without losing unranked gr
   expect_equal(sum(p$data$feature == "z" & p$data$group.by == "A"), 3L)
 })
 
+test_that("con axis limit validation rejects malformed or non-scalar bounds early", {
+  d <- con_data()
+  invalid <- list("95", "q-1", "q1.5", "q101", "x", NA_real_, Inf,
+                  numeric(), c(1, 2), matrix(1, 1, 1), TRUE)
+  for (arg in c("y.min", "y.max")) for (value in invalid) {
+    args <- list(data = d, type = "box")
+    args[[arg]] <- value
+    expect_error(do.call(con_plot, args), arg)
+  }
+  p <- con_plot(d, type = "box", y.min = "q0", y.max = "q100")
+  expect_equal(unname(p$coordinates$limits$y), range(d$x))
+})
+
 test_that("con split combine FALSE returns named plots and rejects saving a list", {
   d <- con_data()
   out <- suppressMessages(plt_con(d, "x", "g", split.by = "batch", type = "box", combine = FALSE))
