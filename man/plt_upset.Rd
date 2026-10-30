@@ -98,7 +98,9 @@ Default \code{4}.}
 \item{set.labels}{Named character vector to rename sets in the plot.
 Names = original set names, values = display labels.
 e.g. \code{c(TraceGene = "Trajectory", PropCor = "Proportion Cor")}.
-Unmatched names keep the original. Default \code{NULL} (no renaming).}
+Unmatched names keep the original. Default \code{NULL} (no renaming).
+These labels also name returned intersection groups. Colliding group
+names receive numeric suffixes; repeated plot labels remain unchanged.}
 
 \item{save}{\code{NULL}, an empty list (default), or a named list forwarded
 to \code{RegR::save_plt()} for PDF output: \code{filename} and optionally

@@ -69,6 +69,8 @@
 #'   Names = original set names, values = display labels.
 #'   e.g. \code{c(TraceGene = "Trajectory", PropCor = "Proportion Cor")}.
 #'   Unmatched names keep the original. Default \code{NULL} (no renaming).
+#'   These labels also name returned intersection groups. Colliding group
+#'   names receive numeric suffixes; repeated plot labels remain unchanged.
 #'
 #' @param save \code{NULL}, an empty list (default), or a named list forwarded
 #'   to \code{RegR::save_plt()} for PDF output: \code{filename} and optionally
@@ -228,13 +230,18 @@ plt_upset <- function(data,
   # Default colours
   if (is.null(colors)) colors <- as.character(pal_lancet[5:7])
 
-  # Rename sets if set.labels provided
+  # Keep unique internal set keys separate from labels used for display.
+  display_names <- names(set_list)
   if (!is.null(set.labels)) {
-    old_names <- names(set_list)
+    old_names <- display_names
     new_names <- ifelse(old_names %in% names(set.labels),
                         set.labels[old_names], old_names)
-    names(set_list) <- new_names
+    display_names <- unname(new_names)
   }
+  set_keys <- sprintf("set%0*d", nchar(length(set_list)),
+                      rank(display_names, ties.method = "first"))
+  names(set_list) <- set_keys
+  set_labels <- stats::setNames(display_names, set_keys)
 
   # ── Venn ─────────────────────────────────────────────────────────────────
   venn_label <- switch(label,
@@ -255,6 +262,7 @@ plt_upset <- function(data,
     edge_size       = edge.size,
     set_size        = set.name.size
   )
+  p_venn <- .plt_upset_labels(p_venn, set_labels)
 
   # Apply fill style
   if (venn.fill == "gradient") {
@@ -283,14 +291,17 @@ plt_upset <- function(data,
 
   .safe_upset <- function(set_list, nintersects, cols) {
     tryCatch(
-      ggVennDiagram::ggVennDiagram(
+      {
+        p <- ggVennDiagram::ggVennDiagram(
         set_list, force_upset = TRUE, nintersects = nintersects,
         relative_height = 2, relative_width = 0.3,
         sets.bar.show.numbers = TRUE,
         sets.bar.color = cols[1],
         top.bar.color = cols[2],
         intersection.matrix.color = cols[3]
-      ),
+        )
+        .plt_upset_labels(p, set_labels)
+      },
       error = function(e) {
         cli::cli_warn("ggVennDiagram force_upset failed: {e$message}. Returning Venn only.")
         NULL
@@ -312,6 +323,15 @@ plt_upset <- function(data,
         NULL
       }
     }, error = function(e) NULL)
+
+    if (!is.null(upset_data)) {
+      region_names <- vapply(strsplit(as.character(upset_data$id), "/", fixed = TRUE),
+                             function(i) paste(display_names[as.integer(i)], collapse = "/"),
+                             character(1))
+      group_names <- make.unique(c(region_names, "None"))
+      upset_data$name <- head(group_names, -1L)
+      none_group <- tail(group_names, 1L)
+    }
 
     if (!is.null(upset_data) && "size" %in% names(upset_data)) {
       n_nonzero <- sum(upset_data$size > 0)
@@ -350,9 +370,9 @@ plt_upset <- function(data,
       grp_data <- data
       grp_data$intersect_group <- vapply(seq_len(nrow(data)), function(rid) {
         hit <- names(grp_rows)[vapply(grp_rows, function(rows) rid %in% rows, logical(1))]
-        if (length(hit) > 0) hit[1] else "None"
+        if (length(hit) > 0) hit[1] else none_group
       }, character(1))
-      all_levels <- c(grp_info$name, "None")
+      all_levels <- c(grp_info$name, none_group)
       grp_data$intersect_group <- factor(grp_data$intersect_group, levels = all_levels)
     }
   }
@@ -376,4 +396,21 @@ plt_upset <- function(data,
     all = list(venn = p_venn, upset = p_upset,
                combined = finish(p_combined), data = grp_data)
   )
+}
+
+# Adapt upstream plot labels without retaining the caller's input data.
+.plt_upset_labels <- function(p, set_labels) {
+  force(p)
+  force(set_labels)
+  if (inherits(p, "aplot")) {
+    for (i in c(1L, 3L)) {
+      p$plotlist[[i]] <- suppressMessages(p$plotlist[[i]] +
+        ggplot2::scale_y_discrete(labels = set_labels,
+                                 position = if (i == 3L) "right" else "left"))
+    }
+  } else {
+    p$layers[[3]]$data$name <- unname(set_labels[
+      as.character(p$layers[[3]]$data$name)])
+  }
+  p
 }

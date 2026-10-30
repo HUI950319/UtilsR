@@ -208,3 +208,24 @@ test_that("plt_upset preserves input row-index columns and element identities", 
   expect_identical(result$.element, c("Yes", "Yes", "No"))
   expect_identical(result$.element.1, c("No", "Yes", "Yes"))
 })
+
+test_that("plt_upset distinguishes colliding set and intersection labels", {
+  skip_if_not_installed("ggVennDiagram")
+  result <- plt_upset(list(None = "x", B = "y"), output = "data")
+  expect_identical(as.character(result$intersect_group), c("None", "B"))
+  expect_identical(tail(levels(result$intersect_group), 1L), "None.1")
+  result <- plt_upset(list(A = "x", B = "y", "A/B" = "z"), output = "data")
+  expect_identical(as.character(result$intersect_group), c("A", "B", "A/B"))
+  expect_identical(anyDuplicated(levels(result$intersect_group)), 0L)
+  result <- plt_upset(list(A = "x", B = "y"), set.labels = c(A = "same", B = "same"), output = "data")
+  expect_identical(as.character(result$intersect_group), c("same", "same.1"))
+  plot <- suppressMessages(plt_upset(list(A = "x", B = "y"),
+                                    set.labels = c(A = "same", B = "same"), output = "upset"))
+  built <- ggplot2::ggplot_build(plot$plotlist[[1]])
+  expect_identical(as.character(built$layout$panel_scales_y[[1]]$get_labels()), c("same", "same"))
+  venn <- suppressMessages(plt_upset(list(A = "x", B = "y"),
+                                    set.labels = c(A = "same", B = "same"), output = "venn"))
+  expect_identical(ggplot2::ggplot_build(venn)$data[[3]]$label, c("same", "same"))
+  ordinary <- plt_upset(list(B = c("x", "y"), A = c("y", "z")), output = "data")
+  expect_identical(as.character(ordinary$intersect_group), c("B", "B/A", "A"))
+})

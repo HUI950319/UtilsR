@@ -3,6 +3,8 @@
 * Continuous group sorting excludes infinite observations, consistently
   with the plotted data, and retains groups without a finite ranking value.
 
+* `plt_upset()` keeps set identities separate from display labels and disambiguates colliding intersection names, including `None` and names containing slashes.
+
 * `plt_upset()` preserves existing row-index columns and keeps list member identifiers when a set is named `.element`.
 
 * `plt_upset(levels = NA)` uses original missing-value masks, including classed columns, and restores methods for serialized inputs.
