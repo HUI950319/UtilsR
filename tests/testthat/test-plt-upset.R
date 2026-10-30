@@ -324,3 +324,11 @@ test_that("plt_upset category fills use set colours and requested alpha", {
     expect_no_warning(render_upset(plot))
   }
 })
+
+test_that("plt_upset unfilled Venn regions are transparent", {
+  skip_if_not_installed("ggVennDiagram")
+  plot <- suppressMessages(plt_upset(list(A = 1:3, B = 2:4), output = "venn", venn.fill = "none"))
+  fill <- unique(ggplot2::ggplot_build(plot)$data[[1]]$fill)
+  expect_true(all(grDevices::col2rgb(fill, alpha = TRUE)[4, ] == 0))
+  expect_no_warning(render_upset(plot))
+})

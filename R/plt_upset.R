@@ -493,7 +493,7 @@ plt_upset <- function(data,
       values = stats::setNames(rep_len(colors, length(set_ids)), set_ids), guide = "none"
     )
   } else {
-    p <- p + ggplot2::scale_fill_gradient(low = "white", high = "white")
+    p <- p + ggplot2::scale_fill_gradient(low = "transparent", high = "transparent", guide = "none")
   }
   p
 }
