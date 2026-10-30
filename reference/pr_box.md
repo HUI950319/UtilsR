@@ -18,7 +18,8 @@ pr_box(x, header = NULL, footer = NULL, col = "cyan")
 
   A named list or named vector, shown as aligned key-value lines with
   `NULL` elements dropped, or an unnamed character vector, shown line by
-  line. Missing plain lines display as `NA`.
+  line. Embedded newlines start separate lines and retain ANSI styles.
+  Missing plain lines display as `NA`.
 
 - header, footer:
 
