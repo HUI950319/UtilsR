@@ -180,7 +180,9 @@ plt_con(
 
 - ref_group:
 
-  Character. Reference group for comparisons. Default `NULL`.
+  Character. Reference group for comparisons. Default `NULL`. When
+  `comparisons` is `NULL`, compare this observed group with every other
+  observed group. Explicit comparison pairs take precedence.
 
 - pairwise_method:
 
@@ -217,7 +219,8 @@ plt_con(
 - y.max:
 
   Numeric or character. Maximum y-axis limit. Character `"qN"` uses the
-  Nth percentile. Default `NULL`.
+  Nth percentile. Default `NULL`. Automatic limits leave room for
+  comparisons; explicit bounds are preserved.
 
 - y.nbreaks:
 
@@ -386,7 +389,7 @@ plt_con(df, "value1", "group",
 
 plt_con(df, "value1", "group",
         multiplegroup_comparisons = TRUE, sig_label = "p.format")
-#> Error in ggpubr::stat_compare_means(method = multiple_method, label = sig_label,     label.y = y_max_use, size = sig_labelsize, vjust = 1.2, hjust = if (isTRUE(flip)) 1 else 0): Problem while mapping stat to aesthetics.
+#> Error in ggpubr::stat_compare_means(method = multiple_method, label = sig_label,     label.y = annotation_y_max, size = sig_labelsize, vjust = 1.2,     hjust = if (isTRUE(flip)) 1 else 0): Problem while mapping stat to aesthetics.
 #> ℹ Error occurred in the 2nd layer.
 #> Caused by error in `create_p_label()`:
 #> ! could not find function "create_p_label"

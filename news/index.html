@@ -50,7 +50,11 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.17" id="utilsr-0617">UtilsR 0.6.17<a class="anchor" aria-label="anchor" href="#utilsr-0617"></a></h2>
-<ul><li><p>Key-value previews format only the visible atomic values, preserving stored types and the original total instead of processing the full vector.</p></li>
+<ul><li><p>Key-value previews retain totals above the integer range without formatting errors, including virtual long vectors that remain bounded previews.</p></li>
+<li><p>Stacked continuous plots retain background bands. Shared categorical and continuous bands align to displayed factor levels, including empty levels.</p></li>
+<li><p><code>plt_con(ref_group = )</code> generates comparisons against the observed reference group; explicit comparison pairs take precedence.</p></li>
+<li><p>Continuous comparison plots reserve automatic space for all brackets, including shared stacked axes, while preserving explicit zoom bounds.</p></li>
+<li><p>Key-value previews format only the visible atomic values, preserving stored types and the original total instead of processing the full vector.</p></li>
 <li><p>Unavailable continuous-plot comparison pairs are skipped per feature with a warning, retaining valid pairwise tests in that panel.</p></li>
 <li><p>Continuous dot-plot counts retain observed missing grouping strata, including inputs whose grouping column is entirely missing.</p></li>
 <li><p><code><a href="../reference/pr_head.html">pr_head()</a></code> converts calls, formulas and symbols to summary text without missingness warnings or evaluation, retaining their existing text pieces.</p></li>

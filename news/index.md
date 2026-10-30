@@ -2,6 +2,20 @@
 
 ## UtilsR 0.6.17
 
+- Key-value previews retain totals above the integer range without
+  formatting errors, including virtual long vectors that remain bounded
+  previews.
+
+- Stacked continuous plots retain background bands. Shared categorical
+  and continuous bands align to displayed factor levels, including empty
+  levels.
+
+- `plt_con(ref_group = )` generates comparisons against the observed
+  reference group; explicit comparison pairs take precedence.
+
+- Continuous comparison plots reserve automatic space for all brackets,
+  including shared stacked axes, while preserving explicit zoom bounds.
+
 - Key-value previews format only the visible atomic values, preserving
   stored types and the original total instead of processing the full
   vector.
