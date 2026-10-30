@@ -10,6 +10,7 @@ pr_badge(key, value, bg = "blue", fg = "br_white")
 \item{key, value}{Keys and values, recycled to a common length (equal
 lengths, or length 1). Values are converted with \code{as.character()};
 SPSS user-missing values display as \code{NA}.
+Explicit missing factor levels display as \code{<NA>} categories.
 Layout controls in keys and values are escaped.}
 
 \item{bg, fg}{Background and text colour of the value part: anything

@@ -1036,3 +1036,13 @@ test_that("pr_spark() counts missing expression elements without evaluating them
   expect_silent(out <- utils::capture.output(pr_spark(x)))
   expect_match(out, "all missing  NA 100.0%", fixed = TRUE)
 })
+
+test_that("badges keep explicit missing factor levels as categories", {
+  withr::local_options(cli.num_colors = 1)
+  f <- structure(c(1L, 2L, NA_integer_), levels = c("a", NA_character_), class = "factor")
+  expect_identical(pr_badge("v", f), c("[v: a]", "[v: <NA>]", "[v: NA]"))
+  expect_identical(pr_badge(f, "v"), c("[a: v]", "[<NA>: v]", "[NA: v]"))
+  expect_identical(pr_badge("v", 1/3), paste0("[v: ", as.character(1/3), "]"))
+  withr::local_options(cli.num_colors = 256)
+  expect_identical(trimws(cli::ansi_strip(pr_badge("v", f))), c("v  a", "v  <NA>", "v  NA"))
+})

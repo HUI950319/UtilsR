@@ -340,6 +340,7 @@ pr_note <- function(..., .envir = parent.frame()) {
 #' @param key,value Keys and values, recycled to a common length (equal
 #'   lengths, or length 1). Values are converted with \code{as.character()};
 #'   SPSS user-missing values display as \code{NA}.
+#'   Explicit missing factor levels display as \code{<NA>} categories.
 #'   Layout controls in keys and values are escaped.
 #' @param bg,fg Background and text colour of the value part: anything
 #'   \code{cli::make_ansi_style()} accepts, as in \code{\link{pr_head}()}.
@@ -362,8 +363,8 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
   if (!all(c(length(key), length(value)) %in% c(1L, n))) {
     cli::cli_abort("{.arg key} and {.arg value} must have the same length, or length 1.")
   }
-  key <- ._pr_escape(as.character(key))
-  value <- ._pr_escape(as.character(value))
+  key <- ._pr_escape(if (is.factor(key)) ._as_text(key) else as.character(key))
+  value <- ._pr_escape(if (is.factor(value)) ._as_text(value) else as.character(value))
   if (!._pr_colour()) {
     return(sprintf("[%s: %s]", rep_len(key, n), rep_len(value, n)))
   }

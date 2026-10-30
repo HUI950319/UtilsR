@@ -1,5 +1,8 @@
 # UtilsR 0.6.17
 
+* `pr_badge()` retains explicit missing factor levels as `<NA>` categories,
+  separately from missing storage, without changing numeric text precision.
+
 * `pr_spark()` counts missing expression elements without warnings or
   evaluating their contents, consistently with the other print helpers.
 
