@@ -39,3 +39,13 @@ test_that("plt_cat keeps a level's colour in a split panel without other levels"
   expect_identical(unname(plt_cat_fills(p[[1L]])), "blue")
   expect_identical(unname(plt_cat_fills(p[[2L]])), c("red", "blue", "green"))
 })
+
+test_that(".resolve_color repeats a single literal colour as given", {
+  expect_identical(.resolve_color("#FF000080", n = 2), rep("#FF000080", 2))
+  expect_identical(.resolve_color("red", n = 2), c("red", "red"))
+  expect_identical(.resolve_color("#FF000080"), "#FF000080")
+
+  # A registered name still goes through the palette, in full or sized.
+  expect_identical(.resolve_color("Reds", n = 2), UtilsR::pal_get("Reds", n = 2))
+  expect_identical(.resolve_color("lancet"), UtilsR::pal_get("lancet"))
+})

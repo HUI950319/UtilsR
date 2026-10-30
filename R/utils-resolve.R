@@ -89,28 +89,23 @@
     return(out)
   }
 
-  # Single string: try registered palette, fall back to literal colour.
+  # Single string: a registered palette name wins, anything else is a literal
+  # colour. That is repeated directly: pal_get() would interpolate it through
+  # colorRampPalette(), which drops an alpha channel.
   if (length(palette) == 1L && is.character(palette)) {
-    return(tryCatch(
-      suppressMessages(as.character(pal_get(palette, n = n))),
-      error = function(e) {
-        is_hex   <- grepl("^#", palette)
-        is_named <- tolower(palette) %in% tolower(grDevices::colors())
-        if (!is_hex && !is_named) {
-          pl_names <- tryCatch(names(palette_list),
-                               error = function(e2) character(0))
-          if (length(pl_names) > 0L) {
-            cli::cli_inform(c(
-              "i" = "Palette {.val {palette}} not in registry; using as literal colour.",
-              "*" = "{length(pl_names)} palettes available. Examples: {.val {head(pl_names, 8)}}",
-              "*" = "Browse with {.code UtilsR::pal_list()} or visualise with {.code UtilsR::pal_show()}."
-            ))
-          }
-        }
-        v <- as.character(palette)
-        if (!is.null(n)) rep_len(v, n) else v
-      }
-    ))
+    pl_names <- names(getExportedValue("UtilsR", "palette_list"))
+    if (palette %in% pl_names) return(as.character(pal_get(palette, n = n)))
+    is_hex   <- grepl("^#", palette)
+    is_named <- tolower(palette) %in% tolower(grDevices::colors())
+    if (!is_hex && !is_named) {
+      cli::cli_inform(c(
+        "i" = "Palette {.val {palette}} not in registry; using as literal colour.",
+        "*" = "{length(pl_names)} palettes available. Examples: {.val {head(pl_names, 8)}}",
+        "*" = "Browse with {.code UtilsR::pal_list()} or visualise with {.code UtilsR::pal_show()}."
+      ))
+    }
+    v <- as.character(palette)
+    return(if (!is.null(n)) rep_len(v, n) else v)
   }
 
   # Multi-element vector: use as-is (sized to n if requested)
