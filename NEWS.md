@@ -1,5 +1,8 @@
 # UtilsR 0.6.17
 
+* Stacked continuous dot plots bin each feature separately, matching
+  separate plots when features have different scales.
+
 * `pr_spark()` distinguishes small positive missing shares from zero and
   near-complete missing shares from complete missingness after rounding.
 

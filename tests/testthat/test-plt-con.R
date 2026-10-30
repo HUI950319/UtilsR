@@ -93,6 +93,22 @@ test_that("con bins use numeric boundaries at large and tiny scales", {
   expect_equal(sort(p$layers[[1L]]$data$bins), sort(unique(mids[ids])))
 })
 
+test_that("con dot bins are independent of unrelated feature scales in stacked plots", {
+  d <- data.frame(x = 1:8, z = 1e6 + 1:8, g = rep(c("A", "B"), 4))
+  separate <- suppressMessages(plt_con(d, c("x", "z"), "g", type = "dot", combine = FALSE))
+  for (flip in c(FALSE, TRUE)) {
+    p <- con_plot(d, c("x", "z"), type = "dot", stack = TRUE, flip = flip)
+    at <- p$layers[[1L]]$data
+    for (feature in c("x", "z")) {
+      expected <- separate[[feature]]$layers[[1L]]$data
+      actual <- at[at$feature == feature, c("group.by", "bins", "n")]
+      expect_equal(actual$bins, expected$bins)
+      expect_equal(actual$n, expected$n)
+      expect_equal(as.character(actual$group.by), as.character(expected$group.by))
+    }
+  }
+})
+
 test_that("con stacked comparisons test each feature separately", {
   d <- con_data()
   d$z <- c(1:6, (1:6) + 1.5)

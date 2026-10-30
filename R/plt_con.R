@@ -948,7 +948,7 @@ plt_con <- function(data,
         width = 0.2, color = "black"
       )
   } else if (type == "dot") {
-    dat_long[["bins"]] <- .con_dot_bins(dat_long[["value"]])
+    dat_long[["bins"]] <- stats::ave(dat_long[["value"]], dat_long[["feature"]], FUN = .con_dot_bins)
     dot_df <- stats::aggregate(
       value ~ group.by + fill.by + feature + bins,
       data = dat_long, FUN = length
