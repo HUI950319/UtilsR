@@ -177,7 +177,7 @@ test_that("plt_upset restores serialized set-membership methods", {
   writeLines(c(
     "options(device = function(...) grDevices::pdf(NULL, ...))",
     paste0(".libPaths(", quote_r(.libPaths()), ")"),
-    "env <- new.env(parent = baseenv()); env[['%>%']] <- dplyr::`%>%`",
+    "env <- new.env(parent = globalenv()); env[['%>%']] <- dplyr::`%>%`",
     paste0("sys.source(", quote_r(file.path(getNamespaceInfo(asNamespace("UtilsR"), "path"),
                                           "R/plt_upset.R")), ", envir = env)"),
     paste0("fixture <- readRDS(", quote_r(fixture), ")"),
@@ -228,4 +228,42 @@ test_that("plt_upset distinguishes colliding set and intersection labels", {
   expect_identical(ggplot2::ggplot_build(venn)$data[[3]]$label, c("same", "same"))
   ordinary <- plt_upset(list(B = c("x", "y"), A = c("y", "z")), output = "data")
   expect_identical(as.character(ordinary$intersect_group), c("B", "B/A", "A"))
+})
+
+test_that("plt_upset rejects ambiguous names and unsupported column shapes", {
+  skip_if_not_installed("ggVennDiagram")
+  data <- data.frame(A = c("Yes", "No"), B = c("No", "Yes"))
+  expect_error(plt_upset(data, "A", output = "data"), "at least two")
+  expect_error(plt_upset(data, c("A", "A"), output = "data"), "unique")
+  expect_error(plt_upset(data, c("A", NA_character_), output = "data"), "non-missing")
+  expect_error(plt_upset(setNames(list(1, 2), c("A", NA_character_))), "non-missing")
+  expect_error(plt_upset(setNames(list(1, 2), c("A", "A"))), "unique")
+  expect_error(plt_upset(setNames(list(1, 2), c("A", "\u00a0"))), "non-empty")
+  expect_error(plt_upset(list(A = list(1, 2), B = 1:2)), "member vectors")
+  expect_error(plt_upset(list(A = as.Date("2020-01-01"), B = as.Date("2020-01-02"))), "member vectors")
+  data$A <- matrix("Yes", nrow = 2, ncol = 2)
+  expect_error(plt_upset(data, c("A", "B"), output = "data"), "one-dimensional")
+  data$A <- list("Yes", c("Yes", "No"))
+  expect_error(plt_upset(data, c("A", "B"), output = "data"), "one-dimensional")
+  data$A <- c("Yes", "No"); data$intersect_group <- c("keep1", "keep2")
+  expect_error(plt_upset(data, c("A", "B"), output = "data"), "already contains.*intersect_group")
+})
+
+test_that("plt_upset validates display maps and style values", {
+  skip_if_not_installed("ggVennDiagram")
+  sets <- list(A = 1:2, B = 2:3)
+  for (mapping in list(c("x", "y"), setNames(c("x", "y"), c("A", "A")),
+                       c(A = NA_character_), c(A = "\u2003"))) {
+    expect_error(plt_upset(sets, output = "data", set.labels = mapping), "set.labels")
+  }
+  for (palette in list(character(), NA_character_, "not-a-colour")) {
+    expect_error(plt_upset(sets, output = "data", colors = palette), "colors")
+  }
+  for (alpha in list(NA_real_, -0.1, 1.1, c(0.2, 0.5))) {
+    expect_error(plt_upset(sets, output = "data", venn.alpha = alpha), "venn.alpha")
+  }
+  expect_no_error(plt_upset(sets, output = "data", set.labels = character(), colors = c(red = "red")))
+  expect_no_error(plt_upset(sets, output = "data", vars = list("ignored"), levels = list("ignored")))
+  data <- data.frame(A = c("Yes", "No"), B = c("No", "Yes"))
+  expect_error(plt_upset(data, c("A", "B"), levels = list("Yes"), output = "data"), "levels")
 })

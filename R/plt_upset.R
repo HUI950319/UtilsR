@@ -19,6 +19,10 @@
 #'     \item{\strong{Data frame}}{A data.frame with binary indicator columns
 #'       specified by \code{vars}. Membership is determined by \code{levels}.}
 #'   }
+#'   Select at least two sets, with unique, non-missing, non-blank names.
+#'   List members must be one-dimensional atomic vectors; factors are accepted,
+#'   while other classed member IDs must first be converted to stable identifiers.
+#'   Selected data-frame columns cannot be matrix or list columns.
 #' @param vars Character vector of column names to intersect.
 #'   Required when \code{data} is a data.frame; ignored when \code{data}
 #'   is a list.
@@ -60,7 +64,7 @@
 #'     \item{\code{"none"}}{No fill (transparent).}
 #'   }
 #' @param venn.alpha Alpha for the set regions when
-#'   \code{venn.fill = "category"}. Default \code{0.5}.
+#'   \code{venn.fill = "category"}, between 0 and 1. Default \code{0.5}.
 #' @param edge.color Color of the set boundary lines. Default \code{"grey30"}.
 #' @param edge.size Line width of the set boundaries. Default \code{1}.
 #' @param set.name.size Font size for set names around the Venn.
@@ -86,6 +90,8 @@
 #'   or a named list. List-input data retain member IDs in \code{.element},
 #'   with a numeric suffix if that column name is already a set name.
 #'   Existing input columns, including \code{.row_id}, are preserved.
+#'   For \code{"data"} and \code{"all"}, an existing \code{intersect_group}
+#'   column must be renamed first to avoid overwriting it.
 #'   Plots carry their page size as
 #'   \code{attr(p, "plot_size")}, the list of \code{"all"} on its
 #'   \code{combined} element.
@@ -174,13 +180,38 @@ plt_upset <- function(data,
   label_geom <- match.arg(label_geom)
   venn.fill  <- match.arg(venn.fill)
 
+  valid_names <- function(x) {
+    !is.null(x) && !anyNA(x) && !anyDuplicated(x) &&
+      all(grepl("[^\\s\\p{Z}]", x, perl = TRUE))
+  }
+  if (!is.null(set.labels) &&
+      (!is.character(set.labels) || !is.null(dim(set.labels)) ||
+       (length(set.labels) && (!valid_names(names(set.labels)) ||
+        anyNA(set.labels) || any(!grepl("[^\\s\\p{Z}]", set.labels, perl = TRUE)))))) {
+    cli::cli_abort("{.arg set.labels} must be a named character vector with unique, non-missing, non-empty keys and non-empty display labels.")
+  }
+  if (!is.numeric(venn.alpha) || length(venn.alpha) != 1L ||
+      !is.finite(venn.alpha) || venn.alpha < 0 || venn.alpha > 1) {
+    cli::cli_abort("{.arg venn.alpha} must be one finite number between 0 and 1.")
+  }
+
   # ── Dispatch: list vs data.frame ─────────────────────────────────────────
   is_list_input <- is.list(data) && !is.data.frame(data)
 
   if (is_list_input) {
     # --- List of element vectors (gene names, etc.) ---
-    if (is.null(names(data)) || any(names(data) == "")) {
-      cli::cli_abort("When {.arg data} is a list, all elements must be named.")
+    if (!valid_names(names(data))) {
+      cli::cli_abort("When {.arg data} is a list, set names must be unique, non-missing and non-empty.")
+    }
+    if (length(data) < 2L) cli::cli_abort("Select at least two sets.")
+    supported <- vapply(data, function(x) {
+      is.null(x) || (is.atomic(x) && is.null(dim(x)) && (!is.object(x) || is.factor(x)))
+    }, logical(1))
+    if (!all(supported)) {
+      cli::cli_abort("List inputs require one-dimensional atomic member vectors; convert unsupported classed members to stable identifiers.")
+    }
+    if (output %in% c("data", "all") && "intersect_group" %in% names(data)) {
+      cli::cli_abort("{.arg data} already contains {.field intersect_group}; rename it before requesting grouped data.")
     }
     # Convert to data.frame + set_list simultaneously
     all_elements <- unique(unlist(data))
@@ -202,12 +233,31 @@ plt_upset <- function(data,
 
   } else if (is.data.frame(data)) {
     # --- Data frame with binary columns ---
+    if (!is.atomic(levels) || !is.null(dim(levels))) {
+      cli::cli_abort("{.arg levels} must be a one-dimensional atomic vector.")
+    }
     if (is.null(vars)) {
       cli::cli_abort("{.arg vars} is required when {.arg data} is a data.frame.")
     }
+    if (!valid_names(names(data))) {
+      cli::cli_abort("{.arg data} must have unique, non-missing, non-empty column names.")
+    }
+    if (!is.character(vars) || !is.null(dim(vars)) || !valid_names(vars)) {
+      cli::cli_abort("{.arg vars} must contain unique, non-missing, non-empty column names.")
+    }
+    if (length(vars) < 2L) cli::cli_abort("Select at least two sets.")
     missing_vars <- vars[!vars %in% names(data)]
     if (length(missing_vars) > 0) {
       cli::cli_abort("Variable{?s} not found: {.val {missing_vars}}")
+    }
+    supported <- vapply(data[vars], function(x) {
+      is.null(dim(x)) && (!is.list(x) || inherits(x, "POSIXlt")) && !is.expression(x)
+    }, logical(1))
+    if (!all(supported)) {
+      cli::cli_abort("Selected columns must be one-dimensional vectors; unsupported columns: {.val {vars[!supported]}}.")
+    }
+    if (output %in% c("data", "all") && "intersect_group" %in% names(data)) {
+      cli::cli_abort("{.arg data} already contains {.field intersect_group}; rename it before requesting grouped data.")
     }
     set_list <- lapply(stats::setNames(vars, vars), function(v) {
       values <- data[[v]]
@@ -229,6 +279,11 @@ plt_upset <- function(data,
 
   # Default colours
   if (is.null(colors)) colors <- as.character(pal_lancet[5:7])
+  if (!is.character(colors) || !is.null(dim(colors)) || !length(colors) || anyNA(colors) ||
+      !tryCatch({ grDevices::col2rgb(colors, alpha = TRUE); TRUE }, error = function(e) FALSE)) {
+    cli::cli_abort("{.arg colors} must be a non-empty character vector of valid colours.")
+  }
+  colors <- unname(colors)
 
   # Keep unique internal set keys separate from labels used for display.
   display_names <- names(set_list)

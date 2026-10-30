@@ -1,5 +1,7 @@
 # UtilsR 0.6.17
 
+* `plt_upset()` validates set names, selected column shapes, display mappings and colours before constructing plots or replacing an existing group column.
+
 * Continuous axis bounds reject malformed quantile strings, missing or
   non-finite values and non-scalar inputs before constructing plots.
 

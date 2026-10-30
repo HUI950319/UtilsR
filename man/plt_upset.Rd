@@ -33,7 +33,12 @@ plt_upset(
     When a list is provided, \code{vars} and \code{levels} are ignored.}
   \item{\strong{Data frame}}{A data.frame with binary indicator columns
     specified by \code{vars}. Membership is determined by \code{levels}.}
-}}
+}
+Select at least two sets, with unique, non-missing, non-blank names.
+List members must be one-dimensional atomic vectors; factors are accepted,
+while other classed member IDs must first be converted to stable identifiers.
+Selected data-frame columns cannot be matrix or list columns.
+}
 
 \item{vars}{Character vector of column names to intersect.
 Required when \code{data} is a data.frame; ignored when \code{data}
@@ -86,7 +91,7 @@ default) or \code{"text"} (plain text).}
 }}
 
 \item{venn.alpha}{Alpha for the set regions when
-\code{venn.fill = "category"}. Default \code{0.5}.}
+\code{venn.fill = "category"}, between 0 and 1. Default \code{0.5}.}
 
 \item{edge.color}{Color of the set boundary lines. Default \code{"grey30"}.}
 
@@ -117,6 +122,8 @@ Depends on \code{output}: a ggplot, a combined plot, a data frame,
 or a named list. List-input data retain member IDs in \code{.element},
 with a numeric suffix if that column name is already a set name.
 Existing input columns, including \code{.row_id}, are preserved.
+For \code{"data"} and \code{"all"}, an existing \code{intersect_group}
+column must be renamed first to avoid overwriting it.
 Plots carry their page size as
   \code{attr(p, "plot_size")}, the list of \code{"all"} on its
   \code{combined} element.
