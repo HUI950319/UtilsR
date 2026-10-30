@@ -40,6 +40,8 @@
 #'   are retained, including in dot-plot counts.
 #' @param split.by Character. Optional splitting variable. Splits data,
 #'   creates one plot per level, and combines with \pkg{patchwork}.
+#'   An explicit missing factor level is labelled \code{"<NA>"}, with a unique
+#'   suffix when needed to preserve existing literal level names.
 #' @param bg.by Character. Column name for background colour bands.
 #'   Must be a superset of \code{group.by}. Default \code{NULL}.
 #' @param type Plot type: \code{"violin"} (default), \code{"box"},
@@ -437,7 +439,10 @@ plt_con <- function(data,
     split_codes <- as.integer(data[[split.by]])
     split_indices <- which(tabulate(split_codes, nbins = nlevels(data[[split.by]])) > 0L)
     split_levels <- levels(data[[split.by]])[split_indices]
-    split_levels[is.na(split_levels)] <- "<NA>"
+    missing_level <- is.na(split_levels)
+    if (any(missing_level)) {
+      split_levels[missing_level] <- utils::tail(make.unique(c(split_levels[!missing_level], "<NA>")), 1L)
+    }
     plot_list <- stats::setNames(lapply(seq_along(split_indices), function(i) {
       lv <- split_levels[i]
       sub_data <- data[which(split_codes == split_indices[i]), , drop = FALSE]

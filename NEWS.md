@@ -1,5 +1,8 @@
 # UtilsR 0.6.18
 
+* `plt_con()` assigns a unique label to explicit missing split levels when
+  literal `<NA>` names already exist, preserving distinct list keys and titles.
+
 * `plt_con()` constructs layers and guides in small environments so retaining
   one feature plot no longer serializes its sibling plots and analysis context.
 

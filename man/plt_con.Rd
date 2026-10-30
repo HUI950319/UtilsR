@@ -73,7 +73,9 @@ Default \code{NULL} (all data in one group). Observed missing groups
 are retained, including in dot-plot counts.}
 
 \item{split.by}{Character. Optional splitting variable. Splits data,
-creates one plot per level, and combines with \pkg{patchwork}.}
+creates one plot per level, and combines with \pkg{patchwork}.
+An explicit missing factor level is labelled \code{"<NA>"}, with a unique
+suffix when needed to preserve existing literal level names.}
 
 \item{bg.by}{Character. Column name for background colour bands.
 Must be a superset of \code{group.by}. Default \code{NULL}.}

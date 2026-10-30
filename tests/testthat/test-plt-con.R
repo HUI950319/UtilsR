@@ -345,6 +345,26 @@ test_that("con split combine FALSE returns named plots and rejects saving a list
                        save = list(filename = tempfile(fileext = ".pdf"))), "combine = FALSE")
 })
 
+test_that("con missing split labels remain distinct from literal level names", {
+  d <- data.frame(x = 1:18, g = rep(c("A", "B"), 9),
+    batch = factor(rep(c("<NA>", "<NA>.1", NA), each = 6), exclude = NULL))
+  for (missing_first in c(FALSE, TRUE)) {
+    if (missing_first) d$batch <- factor(d$batch, levels = c(NA, "<NA>", "<NA>.1"), exclude = NULL)
+    out <- suppressMessages(plt_con(d, "x", "g", split.by = "batch", type = "box", combine = FALSE))
+    expect_setequal(names(out), c("<NA>", "<NA>.1", "<NA>.2"))
+    expect_identical(anyDuplicated(names(out)), 0L)
+    expect_equal(out[["<NA>"]]$data$value, 1:6)
+    expect_equal(out[["<NA>.1"]]$data$value, 7:12)
+    expect_equal(out[["<NA>.2"]]$data$value, 13:18)
+    labels <- vapply(out, function(p) {
+      if (exists("get_labs", envir = asNamespace("ggplot2"), inherits = FALSE)) {
+        ggplot2::get_labs(p)$title
+      } else p$labels$title
+    }, "")
+    expect_identical(unname(labels), names(out))
+  }
+})
+
 test_that("con empty inputs fail clearly while usable features remain available", {
   d <- con_data()
   expect_error(con_plot(d[FALSE, ], type = "box"), "at least one observation")
