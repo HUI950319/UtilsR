@@ -55,3 +55,35 @@ test_that(".resolve_color takes every colour R draws without a hint", {
     expect_no_message(.resolve_color(colour, n = 2))
   }
 })
+
+test_that(".resolve_color rejects what cannot be drawn", {
+  # A near palette name is suggested, whatever the case.
+  expect_error(.resolve_color("lanct", n = 2), "Did you mean.*lancet")
+  expect_error(.resolve_color("LANCET"), "Did you mean.*lancet")
+  expect_error(.resolve_color("notacolor_xyz", n = 2), "neither a registered palette")
+  expect_error(.resolve_color("#GGGGGG", n = 2), "neither a registered palette")
+  expect_error(.resolve_color(""), "neither a registered palette")
+
+  # A vector holds colours only, and names the bad ones.
+  expect_error(.resolve_color(c("lancet", "Reds")), "Not a valid colour")
+  expect_error(.resolve_color(c("red", "#GGGGGG"), n = 2), "GGGGGG")
+
+  expect_error(.resolve_color(character(0), n = 2), "non-empty")
+  expect_error(.resolve_color(UtilsR::pal_heat, n = 2), "non-empty")
+  expect_error(.resolve_color(function(n) "red", n = 2), "non-empty")
+
+  # The error names the function the user called.
+  outer_plot <- function(color) .resolve_color(color)
+  err <- tryCatch(outer_plot("notacolor_xyz"), error = function(e) e)
+  expect_identical(deparse(conditionCall(err))[[1L]], "outer_plot(\"notacolor_xyz\")")
+})
+
+test_that(".resolve_color keeps the inputs R can draw", {
+  expect_identical(.resolve_color(c("red", "#0000FF")), c("red", "#0000FF"))
+  expect_identical(.resolve_color(c(a = "red", b = "blue")), c("red", "blue"))
+  expect_identical(.resolve_color(factor("red"), n = 2), c("red", "red"))
+  expect_identical(.resolve_color(NA, n = 2), c(NA_character_, NA_character_))
+  expect_identical(.resolve_color(2, n = 2), c("2", "2"))
+  expect_identical(.resolve_color(UtilsR::pal_heat$blue_red, n = 2),
+                   UtilsR::pal_heat$blue_red[1:2])
+})

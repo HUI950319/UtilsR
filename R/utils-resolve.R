@@ -89,29 +89,45 @@
     return(out)
   }
 
+  if (!is.atomic(palette) || length(palette) == 0L) {
+    cli::cli_abort(
+      "Colours must be a palette name or a non-empty colour vector, not {.cls {class(palette)}}.",
+      call = rlang::caller_env()
+    )
+  }
+
   # Single string: a registered palette name wins, anything else is a literal
   # colour. That is repeated directly: pal_get() would interpolate it through
   # colorRampPalette(), which drops an alpha channel.
-  if (length(palette) == 1L && is.character(palette)) {
-    pl_names <- names(getExportedValue("UtilsR", "palette_list"))
-    if (palette %in% pl_names) return(as.character(pal_get(palette, n = n)))
-    is_colour <- tryCatch({
-      grDevices::col2rgb(palette)
-      TRUE
-    }, error = function(e) FALSE)
-    if (!is_colour) {
-      cli::cli_inform(c(
-        "i" = "Palette {.val {palette}} not in registry; using as literal colour.",
-        "*" = "{length(pl_names)} palettes available. Examples: {.val {head(pl_names, 8)}}",
-        "*" = "Browse with {.code UtilsR::pal_list()} or visualise with {.code UtilsR::pal_show()}."
-      ))
-    }
-    v <- as.character(palette)
-    return(if (!is.null(n)) rep_len(v, n) else v)
+  pl_names <- names(getExportedValue("UtilsR", "palette_list"))
+  if (length(palette) == 1L && is.character(palette) && palette %in% pl_names) {
+    return(as.character(pal_get(palette, n = n)))
   }
 
-  # Multi-element vector: use as-is (sized to n if requested)
+  # Literal colour(s): checked here, as a bad one otherwise only surfaces when
+  # the plot is drawn, as "Problem while converting geom to grob".
   out <- as.character(palette)
+  drawable <- vapply(out, function(v) {
+    tryCatch({
+      grDevices::col2rgb(v)
+      TRUE
+    }, error = function(e) FALSE)
+  }, logical(1L), USE.NAMES = FALSE)
+  if (!all(drawable)) {
+    bad <- unique(out[!drawable])
+    browse <- "Browse with {.code UtilsR::pal_list()} or visualise with {.code UtilsR::pal_show()}."
+    if (length(out) > 1L) {
+      cli::cli_abort(c("Not a valid colour: {.val {bad}}.", "*" = browse),
+                     call = rlang::caller_env())
+    }
+    distance <- utils::adist(out, pl_names, ignore.case = TRUE)[1L, ]
+    near <- pl_names[order(distance)][seq_len(min(3L, sum(distance <= 2L)))]
+    cli::cli_abort(c(
+      "{.val {bad}} is neither a registered palette nor a valid colour.",
+      "i" = if (length(near) > 0L) "Did you mean {.val {near}}?",
+      "*" = browse
+    ), call = rlang::caller_env())
+  }
   if (!is.null(n)) out <- rep_len(out, n)
   out
 }

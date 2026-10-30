@@ -1,5 +1,7 @@
 # UtilsR 0.6.18
 
+* Plot functions stop at once on a colour they cannot draw, with a suggestion for a mistyped palette name (`"lanct"`, `"LANCET"`), instead of failing later with "Problem while converting geom to grob". An empty vector and a list of palettes are rejected the same way.
+
 * `"transparent"` and other colours missing from `colors()`, such as `"light blue"`, no longer print a "not in registry" hint.
 
 * A single colour with transparency, such as `plt_dist(color = "#FF000080")`, keeps its alpha when repeated across groups.
