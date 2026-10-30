@@ -93,13 +93,13 @@
     out <- character()
     while (cli::ansi_nchar(s, type = "width") > width) {
       part <- cli::ansi_strtrim(s, width, ellipsis = "")
-      n <- nchar(cli::ansi_strip(part))
+      n <- cli::ansi_nchar(part, type = "chars")
       if (!n) {
         n <- 1L
         part <- cli::ansi_strtrim(cli::ansi_substr(s, 1L, 1L), width)
       }
       out <- c(out, part)
-      s <- cli::ansi_substr(s, n + 1L, nchar(cli::ansi_strip(s)))
+      s <- cli::ansi_substr(s, n + 1L, cli::ansi_nchar(s, type = "chars"))
     }
     c(out, s)
   }), use.names = FALSE)
@@ -297,6 +297,7 @@ pr_section <- function(title, width = NULL) {
 #' contains braces, is printed as written instead of failing the print.
 #' Long notes wrap at the console width, every line starting with \code{#};
 #' a \code{"\\n"} starts a new line. Unbroken text also wraps by display width.
+#' Combining marks and multi-code-point emoji stay together during wrapping.
 #' No supplied pieces print nothing; an explicit empty string prints only
 #' the comment marker.
 #'

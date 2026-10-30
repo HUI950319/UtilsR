@@ -1002,3 +1002,16 @@ test_that("expression fields print without missingness warnings or evaluation", 
   expect_silent(out <- utils::capture.output(pr_table(x)))
   expect_identical(trimws(out[3:6]), c("a + b", "<NA>", "NULL", 'stop("must not evaluate")'))
 })
+
+test_that("wrapped notes retain combining characters and multi-code-point emoji", {
+  texts <- c(strrep("abc", 30), strrep("\u4e2d\u6587", 30), strrep("e\u0301", 60),
+             strrep("\U0001f469\u200d\U0001f4bb", 30), strrep("\U0001f1e8\U0001f1f3", 30))
+  for (colour in c(1, 256)) for (width in c(12, 19)) {
+    withr::local_options(cli.num_colors = colour, cli.width = width)
+    for (text in texts) {
+      out <- cli::ansi_strip(utils::capture.output(pr_note(text)))
+      expect_identical(paste(sub("^# ", "", out), collapse = ""), text)
+      expect_lte(max(cli::ansi_nchar(out, type = "width")), width)
+    }
+  }
+})
