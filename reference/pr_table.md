@@ -42,7 +42,7 @@ pr_table(
 
   Logical. Show the row names as a first, unnamed column, e.g. the terms
   of `as.data.frame(coef(summary(fit)))`, which are otherwise not shown
-  (default `FALSE`).
+  (default `FALSE`). Displayed row names are never treated as P values.
 
 - n:
 
