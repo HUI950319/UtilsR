@@ -1,5 +1,8 @@
 # UtilsR 0.6.17
 
+* `pr_spark()` distinguishes small positive missing shares from zero and
+  near-complete missing shares from complete missingness after rounding.
+
 * `pr_badge()` retains explicit missing factor levels as `<NA>` categories,
   separately from missing storage, without changing numeric text precision.
 

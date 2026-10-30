@@ -1087,6 +1087,8 @@ pr_box <- function(x, header = NULL, footer = NULL, col = "cyan") {
 #' there are. Other columns show their class only.
 #' SPSS user-missing values are excluded from summaries and counted in the
 #' missing share, consistently with ordinary missing values.
+#' Small positive and near-complete missing shares use bounds when rounding
+#' would hide the remaining missing or observed values.
 #' Shorter scientific notation is used for extreme numeric summaries.
 #' Centering and scaling retain finite spread at extreme magnitudes, and
 #' narrow integer64 ranges retain their differences before double conversion.
@@ -1163,7 +1165,10 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
     if (inherits(v, "POSIXlt")) v <- as.POSIXct(v)
     if (!length(v)) return(c("", "empty", "NA n/a"))
     missing <- if (is.expression(v)) is.na(as.list(v)) else is.na(v)
-    na <- sprintf("NA %.1f%%", 100 * mean(missing))
+    percentage <- 100 * mean(missing)
+    na <- sprintf("NA %.1f%%", percentage)
+    if (percentage > 0 && na == "NA 0.0%") na <- "NA <0.1%"
+    if (percentage < 100 && na == "NA 100.0%") na <- "NA >99.9%"
     if (all(missing)) return(c("", "all missing", na))
     if (inherits(v, c("Date", "POSIXct"))) {
       fin <- v[!missing & is.finite(v)]

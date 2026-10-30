@@ -1046,3 +1046,16 @@ test_that("badges keep explicit missing factor levels as categories", {
   withr::local_options(cli.num_colors = 256)
   expect_identical(trimws(cli::ansi_strip(pr_badge("v", f))), c("v  a", "v  <NA>", "v  NA"))
 })
+
+test_that("missing-share rounding distinguishes sparse and incomplete missingness", {
+  withr::local_options(cli.num_colors = 1)
+  low <- data.frame(v = c(NA_real_, rep(1, 4000)))
+  high <- data.frame(v = c(1, rep(NA_real_, 4000)))
+  expect_match(utils::capture.output(pr_spark(low)), "NA <0.1%", fixed = TRUE)
+  expect_match(utils::capture.output(pr_spark(high)), "NA >99.9%", fixed = TRUE)
+  expect_match(utils::capture.output(pr_spark(data.frame(v = 1:2))), "NA 0[.]0%$")
+  expect_match(utils::capture.output(pr_spark(data.frame(v = c(NA_real_, NA_real_)))), "NA 100[.]0%$")
+  withr::local_options(cli.width = 14)
+  out <- utils::capture.output(pr_spark(high))
+  expect_lte(max(cli::ansi_nchar(out, type = "width")), 14)
+})
