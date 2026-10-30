@@ -2,6 +2,14 @@
 
 ## UtilsR 0.6.17
 
+- [`pr_head()`](https://hui950319.github.io/UtilsR/reference/pr_head.md)
+  converts calls, formulas and symbols to summary text without
+  missingness warnings or evaluation, retaining their existing text
+  pieces.
+
+- Stacked continuous dot plots bin each feature separately, matching
+  separate plots when features have different scales.
+
 - [`pr_spark()`](https://hui950319.github.io/UtilsR/reference/pr_spark.md)
   distinguishes small positive missing shares from zero and
   near-complete missing shares from complete missingness after rounding.
