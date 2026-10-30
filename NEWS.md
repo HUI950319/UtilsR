@@ -1,5 +1,7 @@
 # UtilsR 0.6.17
 
+* `plt_upset()` applies `edge.color` to set boundaries while keeping set-name text independent.
+
 * `plt_upset(venn.fill = "none")` leaves set regions transparent rather than covering the plot background with white.
 
 * `plt_upset(venn.fill = "category")` fills each set with its requested colour and applies `venn.alpha` to the overlapping set polygons.

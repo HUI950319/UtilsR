@@ -329,12 +329,11 @@ plt_upset <- function(data,
       label_color     = label_color,
       label_size      = label_size,
       label_alpha     = label_alpha,
-      edge_color      = edge.color,
       edge_size       = edge.size,
       set_size        = set.name.size
     )
     p_venn <- .plt_upset_labels(p_venn, set_labels)
-    p_venn <- .plt_upset_venn_fill(p_venn, venn.fill, colors, venn.alpha)
+    p_venn <- .plt_upset_venn_fill(p_venn, venn.fill, colors, venn.alpha, edge.color)
   }
 
   # ── UpSet ────────────────────────────────────────────────────────────────
@@ -471,11 +470,16 @@ plt_upset <- function(data,
 }
 
 # Build Venn fill layers in a frame containing only the plot and style values.
-.plt_upset_venn_fill <- function(p, fill, colors, alpha) {
+.plt_upset_venn_fill <- function(p, fill, colors, alpha, edge_color) {
   force(p)
   force(fill)
   force(colors)
   force(alpha)
+  force(edge_color)
+  edge_layer <- p$layers[[2]]
+  p$layers[[2]] <- ggplot2::ggproto(NULL, edge_layer)
+  p$layers[[2]]$mapping$colour <- NULL
+  p$layers[[2]]$aes_params$colour <- edge_color
   if (fill == "gradient") {
     p <- p + ggplot2::scale_fill_gradient(low = "grey90", high = colors[1])
   } else if (fill == "gradient_rev") {

@@ -332,3 +332,18 @@ test_that("plt_upset unfilled Venn regions are transparent", {
   expect_true(all(grDevices::col2rgb(fill, alpha = TRUE)[4, ] == 0))
   expect_no_warning(render_upset(plot))
 })
+
+test_that("plt_upset applies boundary colours without recolouring set names", {
+  skip_if_not_installed("ggVennDiagram")
+  for (fill in c("gradient", "category", "none")) {
+    for (color in c("#FF0000", "#0000FF")) {
+      plot <- suppressMessages(plt_upset(list(A = 1:3, B = 2:4), output = "venn",
+                                        venn.fill = fill, edge.color = color, edge.size = 2))
+      built <- ggplot2::ggplot_build(plot)$data
+      expect_identical(unique(built[[2]]$colour), color)
+      expect_identical(unique(built[[2]]$linewidth), 2)
+      expect_identical(unique(built[[3]]$colour), "black")
+    }
+    expect_no_warning(render_upset(plot))
+  }
+})
