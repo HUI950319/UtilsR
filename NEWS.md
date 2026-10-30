@@ -1,5 +1,7 @@
 # UtilsR 0.6.18
 
+* `"transparent"` and other colours missing from `colors()`, such as `"light blue"`, no longer print a "not in registry" hint.
+
 * A single colour with transparency, such as `plt_dist(color = "#FF000080")`, keeps its alpha when repeated across groups.
 
 * Ungrouped `plt_cat()` pies and rings stack categories at a shared radius; ring holes no longer create artificial missing levels, and labels preserve angular totals.

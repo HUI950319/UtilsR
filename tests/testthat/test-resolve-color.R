@@ -49,3 +49,9 @@ test_that(".resolve_color repeats a single literal colour as given", {
   expect_identical(.resolve_color("Reds", n = 2), UtilsR::pal_get("Reds", n = 2))
   expect_identical(.resolve_color("lancet"), UtilsR::pal_get("lancet"))
 })
+
+test_that(".resolve_color takes every colour R draws without a hint", {
+  for (colour in c("transparent", "light blue", " red", "RED", "#F00")) {
+    expect_no_message(.resolve_color(colour, n = 2))
+  }
+})

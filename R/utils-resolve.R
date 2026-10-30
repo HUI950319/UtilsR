@@ -95,9 +95,11 @@
   if (length(palette) == 1L && is.character(palette)) {
     pl_names <- names(getExportedValue("UtilsR", "palette_list"))
     if (palette %in% pl_names) return(as.character(pal_get(palette, n = n)))
-    is_hex   <- grepl("^#", palette)
-    is_named <- tolower(palette) %in% tolower(grDevices::colors())
-    if (!is_hex && !is_named) {
+    is_colour <- tryCatch({
+      grDevices::col2rgb(palette)
+      TRUE
+    }, error = function(e) FALSE)
+    if (!is_colour) {
       cli::cli_inform(c(
         "i" = "Palette {.val {palette}} not in registry; using as literal colour.",
         "*" = "{length(pl_names)} palettes available. Examples: {.val {head(pl_names, 8)}}",
