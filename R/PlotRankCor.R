@@ -17,6 +17,8 @@
 #'   compute ranks. Ranks are computed as \code{rank(-score)} (descending)
 #'   within each \code{group.by} x \code{method.by} combination.
 #'   Missing scores remain missing and do not contribute to the correlation.
+#'   Duplicate categories are averaged after ranking individual observations.
+#'   Spearman tests use approximate p-values (\code{exact = FALSE}).
 #' @param group.by Character. Column name for the grouping / faceting
 #'   variable (e.g. comparison). Each level gets its own facet panel.
 #'   If \code{NULL}, all data is treated as a single group (no faceting).
@@ -172,8 +174,7 @@ PlotRankCor <- function(
   # Compute plot values: rank or raw value
   if (use_rank) {
     rank_long <- do.call(rbind, lapply(
-      split(data, interaction(data[[group.by_internal]], data[[method.by]],
-                              drop = TRUE)),
+      split(data, vctrs::vec_group_id(data[unique(c(group.by_internal, method.by))])),
       function(d) {
         d[[plot_value]] <- rank(-d[[value.by]], ties.method = "average", na.last = "keep")
         d
@@ -190,8 +191,7 @@ PlotRankCor <- function(
   extra_cols <- extra_cols[!is.null(extra_cols)]
 
   if (length(extra_cols) > 0) {
-    agg_key <- paste(rank_long[[stat.by]], rank_long[[group.by_internal]],
-                     sep = "|||")
+    agg_key <- vctrs::vec_group_id(rank_long[unique(c(stat.by, group.by_internal))])
     agg_df <- do.call(rbind, lapply(split(rank_long, agg_key), function(d) {
       row <- d[1, c(stat.by, group.by_internal), drop = FALSE]
       for (ec in extra_cols) {
@@ -203,11 +203,13 @@ PlotRankCor <- function(
   }
 
   # Aggregate duplicates before pivot (mean per stat.by x group x method)
-  pivot_data <- rank_long[, c(stat.by, group.by_internal, method.by, plot_value)]
-  agg_key_piv <- paste(pivot_data[[stat.by]], pivot_data[[group.by_internal]],
-                        pivot_data[[method.by]], sep = "|||")
+  pivot_keys <- unique(c(stat.by, group.by_internal, method.by))
+  pivot_data <- rank_long[, unique(c(pivot_keys, plot_value)), drop = FALSE]
+  key_order <- do.call(order, unname(lapply(pivot_data[pivot_keys], as.character)))
+  pivot_data <- pivot_data[key_order, , drop = FALSE]
+  agg_key_piv <- vctrs::vec_group_id(pivot_data[pivot_keys])
   pivot_data <- do.call(rbind, lapply(split(pivot_data, agg_key_piv), function(d) {
-    row <- d[1, c(stat.by, group.by_internal, method.by), drop = FALSE]
+    row <- d[1, pivot_keys, drop = FALSE]
     row[[plot_value]] <- mean(d[[plot_value]], na.rm = TRUE)
     row
   }))
@@ -216,21 +218,22 @@ PlotRankCor <- function(
   # Pivot to wide: one column per method
   method_cols <- tail(make.unique(c(stat.by, group.by_internal, extra_cols, methods)), 2L)
   pivot_data[[method.by]] <- method_cols[match(as.character(pivot_data[[method.by]]), methods)]
-  rank_wide <- stats::reshape(
-    pivot_data,
-    idvar     = c(stat.by, group.by_internal),
-    timevar   = method.by,
-    v.names   = plot_value,
-    direction = "wide"
-  )
-  names(rank_wide)[match(paste0(plot_value, ".", method_cols), names(rank_wide))] <- method_cols
+  id_cols <- unique(c(stat.by, group.by_internal))
+  pair_id <- vctrs::vec_group_id(pivot_data[id_cols])
+  rank_wide <- pivot_data[!duplicated(pair_id), id_cols, drop = FALSE]
+  for (i in seq_along(methods)) {
+    rows <- which(pivot_data[[method.by]] == method_cols[i])
+    rank_wide[[method_cols[i]]] <- pivot_data[[plot_value]][rows][
+      match(seq_len(nrow(rank_wide)), pair_id[rows])]
+  }
 
   # Merge extra columns back into rank_wide
   if (length(extra_cols) > 0) {
-    rank_wide <- merge(rank_wide, agg_df,
-                       by = c(stat.by, group.by_internal),
-                       all.x = TRUE)
+    rows <- vctrs::vec_match(rank_wide[id_cols], agg_df[id_cols])
+    for (ec in extra_cols) rank_wide[[ec]] <- agg_df[[ec]][rows]
+    rank_wide <- rank_wide[do.call(order, unname(lapply(rank_wide[id_cols], as.character))), , drop = FALSE]
   }
+  rownames(rank_wide) <- NULL
 
   # ---- Scale x/y values (only when use_rank = FALSE) ----
   .scale_vec <- function(x, method) {

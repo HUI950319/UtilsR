@@ -44,7 +44,9 @@ PlotRankCor(
 \item{value.by}{Character. Column name for the numeric score used to
 compute ranks. Ranks are computed as \code{rank(-score)} (descending)
 within each \code{group.by} x \code{method.by} combination.
-Missing scores remain missing and do not contribute to the correlation.}
+Missing scores remain missing and do not contribute to the correlation.
+Duplicate categories are averaged after ranking individual observations.
+Spearman tests use approximate p-values (\code{exact = FALSE}).}
 
 \item{group.by}{Character. Column name for the grouping / faceting
 variable (e.g. comparison). Each level gets its own facet panel.

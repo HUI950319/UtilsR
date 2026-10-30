@@ -1,5 +1,7 @@
 # UtilsR 0.6.18
 
+* `PlotRankCor()` groups and pairs observations by column tuples rather than pasted strings, preserving names containing dots or separators.
+
 * `PlotRankCor()` allocates independent working fields and method columns, preserving category identities and aesthetic columns when names collide.
 
 * Categorical set plots honour axis titles, base text size and legend controls; Venn and UpSet value labels follow `label`, `label.size` and `label.fg`.

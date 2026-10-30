@@ -120,3 +120,51 @@ test_that("rank-correlation method names do not collide with id or size columns"
   expect_equal(ggplot2::ggplot_build(p)$data[[1]]$x,
                ggplot2::ggplot_build(reference)$data[[1]]$x)
 })
+
+test_that("rank-correlation tuple keys keep separator-bearing identities distinct", {
+  data <- expand.grid(item = letters[1:4], group = c("G", "H"), method = c("M1", "M2"))
+  data$score <- rep(c(4, 1, 3, 2), 4)
+  data$weight <- seq_len(nrow(data))
+  reference <- quiet_rank_cor(data, group.by = "group", size_by = "weight")
+  data$item <- as.character(data$item); data$group <- as.character(data$group)
+  data$item[data$group == "G"] <- paste0("x|||", data$item[data$group == "G"])
+  data$group[data$group == "H"] <- "x|||H"
+  p <- quiet_rank_cor(data, group.by = "group", size_by = "weight")
+  expect_equal(nrow(p$data), nrow(reference$data))
+  expect_equal(sort(p$data$weight), sort(reference$data$weight))
+  expect_equal(attr(p, "cor_results")$rho, attr(reference, "cor_results")$rho)
+
+  # These two distinct tuples have identical pasted text keys.
+  data <- data.frame(item = rep(c("a|||b", "a"), 2),
+                     group = rep(c("c", "b|||c"), 2),
+                     method = rep(c("M1", "M2"), each = 2), score = 1:4, weight = 1:4)
+  p <- quiet_rank_cor(data, group.by = "group", size_by = "weight")
+  expect_equal(nrow(p$data), 2L)
+  expect_equal(sort(p$data$weight), c(2, 3))
+})
+
+test_that("rank-correlation tuple keys keep dotted ranks and pairings distinct", {
+  data <- expand.grid(item = letters[1:3], group = c("g", "g.m"), method = c("m.x", "x"))
+  data$score <- seq_len(nrow(data))
+  p <- quiet_rank_cor(data, group.by = "group")
+  expect_equal(nrow(p$data), 6L)
+  expect_equal(sort(p$data[["m.x"]]), rep(1:3, each = 2))
+  expect_equal(sort(p$data$x), rep(1:3, each = 2))
+  data <- data.frame(item = rep(c("a.b", "a"), 2), group = rep(c("c", "b.c"), 2),
+                     method = rep(c("M1", "M2"), each = 2), score = 1:4)
+  p <- quiet_rank_cor(data, group.by = "group")
+  expect_equal(nrow(p$data), 2L)
+})
+
+test_that("duplicate ranks and approximate Spearman tests retain their contract", {
+  data <- data.frame(item = c("a", "a", "b", "c", "d", letters[1:4]),
+                     method = rep(c("M1", "M2"), c(5, 4)),
+                     score = c(100, 0, 49, 48, 47, 100, 49, 48, 47))
+  p <- quiet_rank_cor(data)
+  expect_equal(p$data$M1, c(3, 2, 3, 4))
+  expected <- stats::cor.test(c(3, 2, 3, 4), 1:4, method = "spearman", exact = FALSE)
+  expect_equal(attr(p, "cor_results")$rho, unname(expected$estimate))
+  expect_equal(attr(p, "cor_results")$p.value, expected$p.value)
+  data <- rank_cor_data(); data$score <- rep(4:1, 2)
+  expect_equal(attr(quiet_rank_cor(data), "cor_results")$p.value, 0)
+})
