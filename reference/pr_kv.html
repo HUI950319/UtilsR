@@ -9,7 +9,7 @@ their display width, so Chinese or other wide-character keys line up."><meta pro
 
     <a class="navbar-brand me-2" href="../index.html">UtilsR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.17</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.18</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,7 +66,8 @@ their display width, so Chinese or other wide-character keys line up.</p>
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>A named list or named vector. <code>NULL</code> elements are dropped,
+<dd><p>A named list or named vector. Classed vector elements retain
+their types when split into fields. <code>NULL</code> elements are dropped,
 so optional settings can be passed as they are; atomic values are
 joined with <code>", "</code> (the first 20 items, then the count;
 numbers as <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> shows them) and

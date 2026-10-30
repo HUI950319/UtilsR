@@ -13,7 +13,8 @@ pr_kv(x, indent = 2)
 
 - x:
 
-  A named list or named vector. `NULL` elements are dropped, so optional
+  A named list or named vector. Classed vector elements retain their
+  types when split into fields. `NULL` elements are dropped, so optional
   settings can be passed as they are; atomic values are joined with
   `", "` (the first 20 items, then the count; numbers as
   [`print()`](https://rdrr.io/r/base/print.html) shows them) and other
