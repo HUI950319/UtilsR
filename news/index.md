@@ -2,15 +2,6 @@
 
 ## UtilsR 0.6.17
 
-- [`pr_badge()`](https://hui950319.github.io/UtilsR/reference/pr_badge.md)
-  retains explicit missing factor levels as `<NA>` categories,
-  separately from missing storage, without changing numeric text
-  precision.
-
-- [`pr_spark()`](https://hui950319.github.io/UtilsR/reference/pr_spark.md)
-  counts missing expression elements without warnings or evaluating
-  their contents, consistently with the other print helpers.
-
 - [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
   keeps displayed row names separate from P-value columns, even when a
   real P-value column uses the row-name heading.

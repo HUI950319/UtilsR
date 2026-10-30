@@ -18,9 +18,8 @@ pr_badge(key, value, bg = "blue", fg = "br_white")
   Keys and values, recycled to a common length (equal lengths, or length
   1). Values are converted with
   [`as.character()`](https://rdrr.io/r/base/character.html); SPSS
-  user-missing values display as `NA`. Explicit missing factor levels
-  display as `<NA>` categories. Layout controls in keys and values are
-  escaped.
+  user-missing values display as `NA`. Layout controls in keys and
+  values are escaped.
 
 - bg, fg:
 
