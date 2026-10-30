@@ -144,7 +144,10 @@
   if (length(x) && (is.null(keys) || anyNA(keys) || !all(nzchar(keys)))) {
     cli::cli_abort("Every element of {.arg {arg}} must be named.")
   }
-  x    <- as.list(x)
+  x <- ._pr_restore(x)
+  x <- if (is.atomic(x) && is.object(x)) {
+    lapply(seq_along(x), function(i) x[i])
+  } else as.list(x)
   keep <- !vapply(x, is.null, logical(1))
   if (!any(keep)) return(character())
   keys <- ._pr_escape(keys[keep])
@@ -223,7 +226,8 @@ pr_head <- function(class, ..., bg = "blue", fg = "br_white") {
 #' Print one \code{key  value} line per element, keys in grey and aligned by
 #' their display width, so Chinese or other wide-character keys line up.
 #'
-#' @param x A named list or named vector. \code{NULL} elements are dropped,
+#' @param x A named list or named vector. Classed vector elements retain
+#'   their types when split into fields. \code{NULL} elements are dropped,
 #'   so optional settings can be passed as they are; atomic values are
 #'   joined with \code{", "} (the first 20 items, then the count;
 #'   numbers as \code{print()} shows them) and

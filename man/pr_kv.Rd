@@ -7,7 +7,8 @@
 pr_kv(x, indent = 2)
 }
 \arguments{
-\item{x}{A named list or named vector. \code{NULL} elements are dropped,
+\item{x}{A named list or named vector. Classed vector elements retain
+their types when split into fields. \code{NULL} elements are dropped,
 so optional settings can be passed as they are; atomic values are
 joined with \code{", "} (the first 20 items, then the count;
 numbers as \code{print()} shows them) and

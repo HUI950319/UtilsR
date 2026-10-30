@@ -1078,3 +1078,26 @@ test_that("bounded key-value previews retain long-vector totals", {
   expect_match(paste(out, collapse = " "), "(2147483648)", fixed = TRUE)
   expect_match(out[1], "1, 2, 3", fixed = TRUE)
 })
+
+test_that("named time-span vectors retain their components in key-value blocks", {
+  skip_if_not_installed("lubridate")
+  withr::local_options(cli.num_colors = 1)
+  v <- stats::setNames(lubridate::days(1:2), c("one", "two"))
+  expect_identical(utils::capture.output(pr_kv(v)), c("  one  1d 0H 0M 0S", "  two  2d 0H 0M 0S"))
+  expect_match(paste(utils::capture.output(pr_box(v)), collapse = " "), "2d 0H 0M 0S", fixed = TRUE)
+})
+
+test_that("named integer64 inputs restore methods before being split into fields", {
+  skip_if_not_installed("bit64")
+  value_file <- tempfile(fileext = ".rds")
+  script <- tempfile(fileext = ".R")
+  saveRDS(stats::setNames(bit64::as.integer64(c("2314", "9007199254740993")), c("one", "two")), value_file)
+  dump(c("pr_kv", "._kv_lines", "._pr_restore", "._as_text", "._pr_escape", "._pr_trim",
+         "._pr_wrap", "._pr_count", "._pr_colour", "._pr_out", "console_width"),
+       file = script, envir = environment(pr_kv))
+  cat('\noptions(cli.num_colors = 1, cli.width = 100)\npr_kv(readRDS(commandArgs(TRUE)[[1]]))\n',
+      file = script, append = TRUE)
+  out <- system2(file.path(R.home("bin"), "Rscript"),
+    c("--vanilla", shQuote(script), shQuote(value_file)), stdout = TRUE, stderr = TRUE)
+  expect_identical(out, c("  one  2314", "  two  9007199254740993"))
+})

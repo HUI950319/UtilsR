@@ -1,3 +1,8 @@
+# UtilsR 0.6.18
+
+* Named classed-vector inputs to `pr_kv()` and `pr_box()` retain their
+  element types and methods, including stored integer64 and Period values.
+
 # UtilsR 0.6.17
 
 * `plt_upset()` applies `edge.color` to set boundaries while keeping set-name text independent.
