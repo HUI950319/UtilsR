@@ -1,5 +1,8 @@
 # UtilsR 0.6.17
 
+* Continuous comparison plots reserve automatic space for all brackets,
+  including shared stacked axes, while preserving explicit zoom bounds.
+
 * Key-value previews format only the visible atomic values, preserving
   stored types and the original total instead of processing the full vector.
 

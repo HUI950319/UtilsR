@@ -175,6 +175,31 @@ test_that("con global test labels fit inside normal and flipped panels", {
   }
 })
 
+test_that("con comparison axes reserve automatic space and retain explicit zoom bounds", {
+  d <- data.frame(x = 1:18, z = 51:68, g = factor(rep(c("A", "B", "C"), each = 6)))
+  pairs <- list(c("A", "B"), c("A", "C"), c("B", "C"))
+  for (flip in c(FALSE, TRUE)) {
+    p <- con_plot(d, c("x", "z"), type = "box", stack = TRUE, flip = flip,
+                 same.y.lims = TRUE, comparisons = pairs)
+    b <- ggplot2::ggplot_build(p)
+    axis <- if (flip) "x.range" else "y.range"
+    kinds <- vapply(p$layers, function(l) class(l$geom)[[1L]], "")
+    brackets <- do.call(rbind, b$data[which(kinds == "GeomSignif")])
+    limits <- lapply(b$layout$panel_params, `[[`, axis)
+    expect_equal(limits[[1L]], limits[[2L]])
+    expect_gt(limits[[1L]][2L], max(c(brackets$y, brackets$yend)))
+    for (stack in c(FALSE, TRUE)) {
+      q <- con_plot(d, c("x", "z"), type = "box", stack = stack, flip = flip,
+                   y.min = 0, y.max = 120, comparisons = pairs, multiplegroup_comparisons = TRUE)
+      expect_equal(q$coordinates$limits$y, c(0, 120))
+    }
+  }
+  d$z[d$g == "C"] <- NA_real_
+  expect_warning(out <- suppressMessages(plt_con(d, c("x", "z"), "g", type = "box",
+                   same.y.lims = TRUE, comparisons = pairs, combine = FALSE)), "Skipping.*z")
+  expect_equal(out[[1L]]$coordinates$limits$y, out[[2L]]$coordinates$limits$y)
+})
+
 test_that("con stacked dot plots retain requested raw point overlays", {
   d <- con_data()
   p <- con_plot(d, c("x", "z"), type = "dot", stack = TRUE, add_point = TRUE)

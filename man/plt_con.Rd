@@ -152,7 +152,8 @@ Character \code{"qN"} uses the Nth percentile. Default \code{NULL};
 automatic bar limits include the full SD intervals and zero baseline.}
 
 \item{y.max}{Numeric or character. Maximum y-axis limit.
-Character \code{"qN"} uses the Nth percentile. Default \code{NULL}.}
+Character \code{"qN"} uses the Nth percentile. Default \code{NULL}.
+Automatic limits leave room for comparisons; explicit bounds are preserved.}
 
 \item{y.nbreaks}{Integer. Number of y-axis breaks. Default 5.}
 

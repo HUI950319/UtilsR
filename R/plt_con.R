@@ -89,6 +89,7 @@
 #'   automatic bar limits include the full SD intervals and zero baseline.
 #' @param y.max Numeric or character. Maximum y-axis limit.
 #'   Character \code{"qN"} uses the Nth percentile. Default \code{NULL}.
+#'   Automatic limits leave room for comparisons; explicit bounds are preserved.
 #' @param y.nbreaks Integer. Number of y-axis breaks. Default 5.
 #' @param sort Logical or character. Sort groups by median?
 #'   \code{TRUE} or \code{"decreasing"} for descending,
@@ -484,7 +485,7 @@ plt_con <- function(data,
   # --- Global y limits (same.y.lims) -----------------------------------------
   global_y_min <- NULL
   global_y_max <- NULL
-  if (isTRUE(same.y.lims)) {
+  if (isTRUE(same.y.lims) && !(isTRUE(stack) && length(stat.by) > 1L)) {
     all_values <- unlist(lapply(stat.by, function(s) {
       v <- data[[s]]
       v[is.finite(v)]
@@ -515,7 +516,7 @@ plt_con <- function(data,
       multiple_method = multiple_method,
       sig_label = sig_label, sig_labelsize = sig_labelsize,
       y.min = global_y_min %||% y.min, y.max = global_y_max %||% y.max,
-      y.nbreaks = y.nbreaks, flip = flip,
+      auto_y_max = is.null(y.max), y.nbreaks = y.nbreaks, flip = flip,
       title = title, subtitle = subtitle,
       xlab = xlab %||% (if (dummy_group) "" else group.by),
       ylab = ylab %||% f,
@@ -658,7 +659,7 @@ plt_con <- function(data,
                              comparisons, ref_group, pairwise_method,
                              multiplegroup_comparisons, multiple_method,
                              sig_label, sig_labelsize,
-                             y.min, y.max, y.nbreaks, flip,
+                              y.min, y.max, auto_y_max, y.nbreaks, flip,
                              title, subtitle, xlab, ylab,
                              legend.position, legend.direction,
                              aspect.ratio, base_size,
@@ -816,33 +817,35 @@ plt_con <- function(data,
   }
 
   # --- Statistical comparisons ------------------------------------------------
+  comparison_count <- length(comparisons)
   comparisons <- .con_comparisons(comparisons, dat[["group.by"]], feature)
+  annotation_y_max <- y_max_use
   if (length(comparisons)) {
     p <- p + ggpubr::stat_compare_means(
       comparisons = comparisons,
       ref.group = ref_group,
       method = pairwise_method,
       label = sig_label,
-      label.y = y_max_use,
+      label.y = annotation_y_max,
       size = sig_labelsize,
       step.increase = 0.1,
       tip.length = 0.03,
       vjust = 0
     )
-    # Extend y_max to accommodate labels
-    y_max_use <- y_max_use + (y_max_use - y_min_use) * 0.15 * length(comparisons)
   }
+  annotation_y_max <- annotation_y_max + (annotation_y_max - y_min_use) * 0.15 * comparison_count
 
   if (isTRUE(multiplegroup_comparisons)) {
     p <- p + ggpubr::stat_compare_means(
       method = multiple_method,
       label = sig_label,
-      label.y = y_max_use,
+      label.y = annotation_y_max,
       size = sig_labelsize,
       vjust = 1.2, hjust = if (isTRUE(flip)) 1 else 0
     )
-    y_max_use <- y_max_use + (y_max_use - y_min_use) * 0.1
+    annotation_y_max <- annotation_y_max + (annotation_y_max - y_min_use) * 0.1
   }
+  if (isTRUE(auto_y_max)) y_max_use <- annotation_y_max
 
   # --- Coordinates & scales ---------------------------------------------------
   if (isTRUE(flip)) {
