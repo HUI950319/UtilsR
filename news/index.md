@@ -2,6 +2,13 @@
 
 ## UtilsR 0.6.18
 
+- `pr_table(rownames = TRUE)` retains row names for zero-column data
+  frames, while the default zero-column display remains empty.
+
+- [`plt_upset()`](https://hui950319.github.io/UtilsR/reference/plt_upset.md)
+  computes intersection groups directly, fills group rows in batches and
+  constructs only the plots requested by `output`.
+
 - Named classed-vector inputs to
   [`pr_kv()`](https://hui950319.github.io/UtilsR/reference/pr_kv.md) and
   [`pr_box()`](https://hui950319.github.io/UtilsR/reference/pr_box.md)
