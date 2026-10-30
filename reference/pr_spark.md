@@ -47,10 +47,12 @@ levels and the most frequent one with its share of non-missing values;
 one whose values all differ, such as an identifier, shows how many there
 are. Other columns show their class only. SPSS user-missing values are
 excluded from summaries and counted in the missing share, consistently
-with ordinary missing values. Shorter scientific notation is used for
-extreme numeric summaries. Centering and scaling retain finite spread at
-extreme magnitudes, and narrow integer64 ranges retain their differences
-before double conversion. Empty columns show `empty` with an unavailable
+with ordinary missing values. Small positive and near-complete missing
+shares use bounds when rounding would hide the remaining missing or
+observed values. Shorter scientific notation is used for extreme numeric
+summaries. Centering and scaling retain finite spread at extreme
+magnitudes, and narrow integer64 ranges retain their differences before
+double conversion. Empty columns show `empty` with an unavailable
 missing share; entirely missing columns and columns without finite
 values are identified separately, without a most-frequent level or
 undefined percentage. Lines that do not fit the console use a compact

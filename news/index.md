@@ -3,6 +3,15 @@
 ## UtilsR 0.6.17
 
 - [`pr_spark()`](https://hui950319.github.io/UtilsR/reference/pr_spark.md)
+  distinguishes small positive missing shares from zero and
+  near-complete missing shares from complete missingness after rounding.
+
+- [`pr_badge()`](https://hui950319.github.io/UtilsR/reference/pr_badge.md)
+  retains explicit missing factor levels as `<NA>` categories,
+  separately from missing storage, without changing numeric text
+  precision.
+
+- [`pr_spark()`](https://hui950319.github.io/UtilsR/reference/pr_spark.md)
   counts missing expression elements without warnings or evaluating
   their contents, consistently with the other print helpers.
 
