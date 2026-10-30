@@ -469,9 +469,13 @@ plt_con <- function(data,
         legend.direction = legend.direction,
         aspect.ratio = aspect.ratio, base_size = base_size,
         bg_palette = bg_palette, bg_alpha = bg_alpha,
-        facet_nrow = NULL, facet_ncol = NULL, combine = TRUE,
+        facet_nrow = NULL, facet_ncol = NULL, combine = FALSE,
         force = force, seed = seed
       ))
+      sub <- if (length(sub) == 1L) sub[[1L]] else {
+        patchwork::wrap_plots(sub) + patchwork::plot_layout(guides = "collect")
+      }
+      if (!isTRUE(combine)) cli::cli_fmt(sub <- finish(sub))
       sub
     }), split_levels)
     plot_list <- Filter(Negate(is.null), plot_list)

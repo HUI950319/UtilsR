@@ -445,6 +445,26 @@ test_that("con dispatch builds only the requested stacked plot", {
   expect_equal(separate_calls, 0L)
 })
 
+test_that("con split figures measure the final canvas once and retain list sizes", {
+  skip_if_not_installed("RegR")
+  original <- getFromNamespace(".save_sized", "UtilsR")
+  measured <- 0L
+  local_mocked_bindings(.save_sized = function(...) {
+    measured <<- measured + 1L
+    original(...)
+  }, .package = "UtilsR")
+  d <- con_data()
+  p <- suppressMessages(plt_con(d, c("x", "z"), "g", split.by = "batch", type = "box"))
+  expect_equal(measured, 1L)
+  expect_length(attr(p, "plot_size"), 2L)
+  measured <- 0L
+  out <- suppressMessages(plt_con(d, c("x", "z"), "g", split.by = "batch",
+                                  type = "box", combine = FALSE))
+  expect_equal(measured, 2L)
+  expect_named(out, c("S1", "S2"))
+  expect_true(all(vapply(out, function(child) length(attr(child, "plot_size")) == 2L, logical(1))))
+})
+
 test_that("con memory does not retain unused input through plot environments", {
   skip_if_not_installed("lobstr")
   make <- function(extra, mode) {

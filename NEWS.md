@@ -1,5 +1,8 @@
 # UtilsR 0.6.17
 
+* Split continuous figures measure only the final combined canvas,
+  preserving per-split page sizes when a named list is requested instead.
+
 * `plt_upset()` converts its UpSet component through the public aplot adapter so combined outputs retain both panels.
 
 * `plt_upset()` validates set names, selected column shapes, display mappings and colours before constructing plots or replacing an existing group column.
