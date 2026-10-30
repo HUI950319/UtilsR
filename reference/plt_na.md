@@ -27,18 +27,23 @@ plt_na(
   [`is.na()`](https://rdrr.io/r/base/NA.html) method, including SPSS
   user-missing codes and ranges. An explicit factor NA level remains a
   category. Methods for stored integer64 and time-span columns are
-  loaded before inspection.
+  loaded before inspection. Columns must be one-dimensional and have
+  unique, non-missing, non-empty names; matrix and array columns are
+  rejected.
 
 - name.map:
 
   Optional named character vector used to replace variable names in the
-  plot. Names must be the original variable names.
+  plot. Names must be the original variable names. Distinct variables
+  may share a displayed label without being merged. Mapping keys must be
+  unique, non-missing and non-empty.
 
 - miss_palette:
 
   Character vector of at least three colours. The first colour
   represents present values, the second represents missing values, and
-  the third colours the 30 colours of \[pal_lancet()\].
+  the third colours the 30 colours of \[pal_lancet()\]. Names attached
+  to the colours are ignored.
 
 - output:
 
@@ -49,7 +54,9 @@ plt_na(
 - sort:
 
   Variable order by missing rate: \`"desc"\` (default, largest to
-  smallest) or \`"asc"\` (smallest to largest).
+  smallest) or \`"asc"\` (smallest to largest). Percentage labels below
+  0.01% or above 99.99% use bounds so positive missingness does not
+  display as zero or incomplete missingness as 100%.
 
 - save:
 

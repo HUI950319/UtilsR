@@ -2,6 +2,80 @@
 
 ## UtilsR 0.6.16
 
+- [`plt_na()`](https://hui950319.github.io/UtilsR/reference/plt_na.md)
+  aligns percentage labels toward the panel interior, keeping small,
+  large and 100% labels visible in ordinary and reversed layouts.
+
+- Global comparison labels align into the panel after coordinate
+  flipping, keeping their complete text visible in single and stacked
+  plots.
+
+- [`plt_na()`](https://hui950319.github.io/UtilsR/reference/plt_na.md)
+  percentage-bound documentation retains valid percent escaping when its
+  help is regenerated with non-Markdown roxygen.
+
+- Shared bar-plot quantile limits use the original finite observations,
+  while automatic limits continue to contain the full SD intervals.
+
+- Continuous plots keep only selected input columns and use lightweight
+  plot, mapping and facet environments, avoiding unrelated data in saved
+  plots.
+
+- [`plt_na()`](https://hui950319.github.io/UtilsR/reference/plt_na.md)
+  constructs returned plots in a separate evaluated frame, so unused
+  source-data attributes do not enlarge saved plots and percentage plots
+  retain only their small summaries rather than all input rows.
+
+- [`plt_na()`](https://hui950319.github.io/UtilsR/reference/plt_na.md)
+  computes percentage summaries directly from per-column counts,
+  avoiding a cell-sized long table while retaining the same summaries.
+
+- Stacked
+  [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  builds the requested faceted plot directly instead of first
+  constructing and discarding every separate feature plot.
+
+- [`plt_na()`](https://hui950319.github.io/UtilsR/reference/plt_na.md)
+  rejects matrix/array columns, ambiguous input names and invalid
+  `name.map` keys with errors identifying the input problem.
+
+- [`plt_na()`](https://hui950319.github.io/UtilsR/reference/plt_na.md)
+  labels positive missingness below 0.01% as \<0.01% and incomplete
+  missingness above 99.99% as \>99.99%, retaining exact 100%.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  defaults to `jitter.height = 0`, preserving the observed numeric
+  values while retaining reproducible horizontal jitter.
+
+- [`plt_na()`](https://hui950319.github.io/UtilsR/reference/plt_na.md)
+  keeps distinct variables separate when `name.map` gives them the same
+  displayed label, including a collision with an unmapped name.
+
+- Single-observation violin groups retain their raw points and summary
+  overlays; only the unavailable density estimate is omitted.
+
+- [`plt_na()`](https://hui950319.github.io/UtilsR/reference/plt_na.md)
+  accepts named colour vectors without changing the mapping between
+  Present and Missing or losing the manual colour scale.
+
+- [`pr_head()`](https://hui950319.github.io/UtilsR/reference/pr_head.md)
+  and
+  [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  detect missing expression elements without warnings or evaluating the
+  expressions.
+
+- [`plt_na()`](https://hui950319.github.io/UtilsR/reference/plt_na.md)
+  identifies an all-missing legend entry as Missing in every layout,
+  even when no Present category is observed.
+
+- Automatic `plt_con(type = "bar")` axes contain the complete mean +/-
+  SD intervals and zero baseline, while explicit zoom bounds remain
+  unchanged.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  rejects zero-row or entirely non-finite input clearly and skips empty
+  features and split panels while retaining usable plots.
+
 - [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
   rejects invalid highlight selectors before formatting and handles
   large whole-number positions without integer-overflow warnings.

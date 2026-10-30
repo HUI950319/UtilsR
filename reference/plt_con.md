@@ -27,7 +27,7 @@ plt_con(
   pt.size = NULL,
   pt.alpha = 1,
   jitter.width = 0.4,
-  jitter.height = 0.1,
+  jitter.height = 0,
   add_trend = FALSE,
   trend_color = "black",
   trend_linewidth = 1,
@@ -69,13 +69,15 @@ plt_con(
 
 - data:
 
-  A data frame.
+  A data frame with at least one observation.
 
 - stat.by:
 
   Character vector. Column name(s) of numeric variables to plot. SPSS
   user-missing values are excluded. Matrix/array columns, integer64 and
-  date/time-span storage must be converted explicitly first.
+  date/time-span storage must be converted explicitly first. Features
+  without finite observations are skipped; an entirely empty selection
+  is an error.
 
 - group.by:
 
@@ -151,7 +153,7 @@ plt_con(
 
 - jitter.height:
 
-  Numeric. Jitter height. Default 0.1.
+  Numeric. Jitter height. Default 0 (values unchanged).
 
 - add_trend:
 
@@ -207,7 +209,8 @@ plt_con(
 - y.min:
 
   Numeric or character. Minimum y-axis limit. Character `"qN"` uses the
-  Nth percentile. Default `NULL`.
+  Nth percentile. Default `NULL`; automatic bar limits include the full
+  SD intervals and zero baseline.
 
 - y.max:
 
@@ -381,7 +384,7 @@ plt_con(df, "value1", "group",
 
 plt_con(df, "value1", "group",
         multiplegroup_comparisons = TRUE, sig_label = "p.format")
-#> Error in ggpubr::stat_compare_means(ggplot2::aes(x = .data[["group.by"]],     y = .data[["value"]]), method = multiple_method, label = sig_label,     label.y = y_max_use, size = sig_labelsize, vjust = 1.2, hjust = 0): Problem while mapping stat to aesthetics.
+#> Error in ggpubr::stat_compare_means(method = multiple_method, label = sig_label,     label.y = y_max_use, size = sig_labelsize, vjust = 1.2, hjust = if (isTRUE(flip)) 1 else 0): Problem while mapping stat to aesthetics.
 #> ℹ Error occurred in the 2nd layer.
 #> Caused by error in `create_p_label()`:
 #> ! could not find function "create_p_label"
