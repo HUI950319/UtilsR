@@ -464,7 +464,8 @@ plt_cat <- function(data,
   # --- Background bands (bg.by) -----------------------------------------------
   if (!is.null(bg.by) && !is.null(group.by) &&
       type %in% c("bar", "trend", "dot") && position == "dodge") {
-    bg_layer <- .build_bg_layer(data, group.by, bg.by, bg_alpha, bg_palette)
+    bg_layer <- .build_bg_layer(data, group.by, bg.by, bg_alpha, bg_palette,
+                                axis_levels = levels(plotdata[["group_var"]]))
     if (!is.null(bg_layer)) {
       p$layers <- c(list(bg_layer), p$layers)
     }
@@ -626,7 +627,10 @@ plt_cat <- function(data,
 #' Build background colour bands for dodge-mode plots
 #' @noRd
 .build_bg_layer <- function(data, group.by, bg.by, bg_alpha,
-                            bg_palette = NULL) {
+                            bg_palette = NULL, axis_levels = NULL) {
+  if (is.null(axis_levels)) {
+    axis_levels <- if (is.factor(data[[group.by]])) levels(data[[group.by]]) else levels(factor(data[[group.by]]))
+  }
   data[[group.by]] <- factor(data[[group.by]])
   data[[bg.by]]    <- factor(data[[bg.by]])
 
@@ -661,7 +665,7 @@ plt_cat <- function(data,
 
   bg_data <- data.frame(
     group = group_levels,
-    x = seq_along(group_levels),
+    x = match(group_levels, axis_levels),
     bg = bg_map[group_levels],
     stringsAsFactors = FALSE
   )
@@ -675,11 +679,10 @@ plt_cat <- function(data,
     data = bg_data,
     ggplot2::aes(
       xmin = .data[["xmin"]], xmax = .data[["xmax"]],
-      ymin = -Inf, ymax = Inf
+      ymin = -Inf, ymax = Inf, fill = I(.data[["fill"]])
     ),
-    fill = bg_data[["fill"]],
     alpha = bg_alpha,
-    inherit.aes = FALSE
+    inherit.aes = FALSE, show.legend = FALSE
   )
 }
 

@@ -11,6 +11,23 @@ cat_con_data <- function() {
   )
 }
 
+test_that("plt_cat background helper preserves displayed group order", {
+  d <- data.frame(category = factor(rep(c("Yes", "No", "Yes"), 3)),
+                  group = factor(rep(c("C", "B", "A"), each = 3), levels = c("C", "B", "A")),
+                  region = rep(c("R3", "R2", "R1"), each = 3))
+  d$group <- factor(d$group, levels = c("C", "unused", "B", "A"))
+  for (keep in c(FALSE, TRUE)) {
+    p <- suppressMessages(plt_cat(d, "category", "group", position = "dodge", bg.by = "region",
+                                  bg_palette = c("red", "blue", "green"), keep_empty = keep))
+    b <- ggplot2::ggplot_build(p)
+    kinds <- vapply(p$layers, function(l) class(l$geom)[[1L]], "")
+    rects <- b$data[[which(kinds == "GeomRect")]]
+    position <- match("B", b$layout$panel_params[[1L]]$x$get_labels())
+    expect_equal(as.character(rects$fill[rects$xmin <= position & rects$xmax >= position]), "blue")
+    expect_equal(b$layout$panel_params[[1L]]$x$get_labels(), c("C", "B", "A"))
+  }
+})
+
 test_that("plt_cat saves at its page size and reports a split figure once", {
   skip_if_not_installed("RegR")
   withr::local_pdf(withr::local_tempfile(fileext = ".pdf"))

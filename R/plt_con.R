@@ -709,7 +709,7 @@ plt_con <- function(data,
   p <- .con_base_plot(dat)
 
   # --- Background bands -------------------------------------------------------
-  if (!is.null(bg.by)) {
+  if (!is.null(bg.by) && type != "dot") {
     bg_layer <- .build_bg_layer(data, group.by, bg.by, bg_alpha, bg_palette)
     if (!is.null(bg_layer)) {
       p <- p + bg_layer
@@ -953,6 +953,11 @@ plt_con <- function(data,
   y_min_use <- .resolve_y_limit(y.min, values, "min")
 
   p <- .con_base_plot(dat_long)
+
+  if (!is.null(bg.by)) {
+    bg_layer <- .build_bg_layer(data, group.by, bg.by, bg_alpha, bg_palette)
+    if (!is.null(bg_layer)) p <- p + bg_layer
+  }
 
   # --- Type-specific geom ---
   if (type == "violin") {

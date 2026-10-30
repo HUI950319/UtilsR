@@ -350,6 +350,22 @@ test_that("con singleton violin groups retain raw points and summary overlays", 
   expect_equal(sort(b[[4L]]$y), c(2.5, 10))
 })
 
+test_that("con backgrounds align to displayed groups in single and stacked plots", {
+  d <- data.frame(x = 1:9, z = 11:19,
+                  g = factor(rep(c("A", "B", "C"), each = 3), levels = c("A", "unused", "B", "C")),
+                  region = rep(c("R1", "R2", "R3"), each = 3))
+  for (stack in c(FALSE, TRUE)) for (flip in c(FALSE, TRUE)) for (type in c("box", "dot")) {
+    p <- con_plot(d, c("x", "z"), type = type, stack = stack, flip = flip,
+                 bg.by = "region", bg_palette = c("red", "blue", "green"))
+    kinds <- vapply(p$layers, function(l) class(l$geom)[[1L]], "")
+    expect_true("GeomRect" %in% kinds)
+    if (!"GeomRect" %in% kinds) next
+    rects <- ggplot2::ggplot_build(p)$data[[which(kinds == "GeomRect")]]
+    at <- rects$xmin <= 3 & rects$xmax >= 3
+    expect_equal(as.character(rects$fill[at]), rep("blue", if (stack) 2L else 1L))
+  }
+})
+
 test_that("con jitter defaults preserve numeric values and the random state", {
   expect_identical(formals(plt_con)$jitter.height, 0)
   d <- con_data()

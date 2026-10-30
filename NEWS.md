@@ -1,5 +1,8 @@
 # UtilsR 0.6.17
 
+* Stacked continuous plots retain background bands. Shared categorical
+  and continuous bands align to displayed factor levels, including empty levels.
+
 * `plt_con(ref_group = )` generates comparisons against the observed
   reference group; explicit comparison pairs take precedence.
 
