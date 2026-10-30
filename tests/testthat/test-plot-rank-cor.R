@@ -93,3 +93,30 @@ test_that("ordinary scaling still uses the observed range and sample sd", {
   expect_equal(p$data$M2[match(letters[1:4], p$data$item)], as.numeric(scale(c(3, 1, 2, 4))))
   expect_s3_class(ggplot2::ggplot_build(p), "ggplot_built")
 })
+
+test_that("rank-correlation working columns do not replace user identities", {
+  data <- rank_cor_data()
+  data$score[is.na(data$score)] <- 1
+  original <- quiet_rank_cor(data)
+  for (name in c(".group", ".plot_val", ".plot_val.item")) {
+    x <- data; names(x)[names(x) == "item"] <- name
+    invisible(capture.output(p <- PlotRankCor(x, name, "score", method.by = "method", show.label = FALSE)))
+    expect_identical(sort(as.character(p$data[[name]])), letters[1:4])
+    expect_equal(attr(p, "cor_results"), attr(original, "cor_results"))
+  }
+})
+
+test_that("rank-correlation method names do not collide with id or size columns", {
+  data <- rank_cor_data(); data$score[is.na(data$score)] <- 1
+  reference <- quiet_rank_cor(data)
+  data$method[data$method == "M1"] <- "item"
+  p <- quiet_rank_cor(data)
+  expect_identical(p$data$item, reference$data$item)
+  expect_equal(attr(p, "cor_results"), attr(reference, "cor_results"))
+  data <- rank_cor_data(); data$score[is.na(data$score)] <- 1
+  data$M1 <- rep(10:13, 2)
+  p <- quiet_rank_cor(data, size_by = "M1")
+  expect_equal(attr(p, "cor_results"), attr(reference, "cor_results"))
+  expect_equal(ggplot2::ggplot_build(p)$data[[1]]$x,
+               ggplot2::ggplot_build(reference)$data[[1]]$x)
+})

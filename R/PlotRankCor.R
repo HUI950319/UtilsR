@@ -162,11 +162,12 @@ PlotRankCor <- function(
 
   # ---- Compute ranks ----
   if (is.null(group.by)) {
-    data$.group <- "all"
-    group.by_internal <- ".group"
+    group.by_internal <- tail(make.unique(c(names(data), ".group")), 1L)
+    data[[group.by_internal]] <- "all"
   } else {
     group.by_internal <- group.by
   }
+  plot_value <- tail(make.unique(c(names(data), ".plot_val")), 1L)
 
   # Compute plot values: rank or raw value
   if (use_rank) {
@@ -174,13 +175,13 @@ PlotRankCor <- function(
       split(data, interaction(data[[group.by_internal]], data[[method.by]],
                               drop = TRUE)),
       function(d) {
-        d$.plot_val <- rank(-d[[value.by]], ties.method = "average", na.last = "keep")
+        d[[plot_value]] <- rank(-d[[value.by]], ties.method = "average", na.last = "keep")
         d
       }
     ))
   } else {
     rank_long <- data
-    rank_long$.plot_val <- rank_long[[value.by]]
+    rank_long[[plot_value]] <- rank_long[[value.by]]
   }
   rownames(rank_long) <- NULL
 
@@ -202,25 +203,27 @@ PlotRankCor <- function(
   }
 
   # Aggregate duplicates before pivot (mean per stat.by x group x method)
-  pivot_data <- rank_long[, c(stat.by, group.by_internal, method.by, ".plot_val")]
+  pivot_data <- rank_long[, c(stat.by, group.by_internal, method.by, plot_value)]
   agg_key_piv <- paste(pivot_data[[stat.by]], pivot_data[[group.by_internal]],
                         pivot_data[[method.by]], sep = "|||")
   pivot_data <- do.call(rbind, lapply(split(pivot_data, agg_key_piv), function(d) {
     row <- d[1, c(stat.by, group.by_internal, method.by), drop = FALSE]
-    row$.plot_val <- mean(d$.plot_val, na.rm = TRUE)
+    row[[plot_value]] <- mean(d[[plot_value]], na.rm = TRUE)
     row
   }))
   rownames(pivot_data) <- NULL
 
   # Pivot to wide: one column per method
+  method_cols <- tail(make.unique(c(stat.by, group.by_internal, extra_cols, methods)), 2L)
+  pivot_data[[method.by]] <- method_cols[match(as.character(pivot_data[[method.by]]), methods)]
   rank_wide <- stats::reshape(
     pivot_data,
     idvar     = c(stat.by, group.by_internal),
     timevar   = method.by,
-    v.names   = ".plot_val",
+    v.names   = plot_value,
     direction = "wide"
   )
-  colnames(rank_wide) <- gsub("^\\.plot_val\\.", "", colnames(rank_wide))
+  names(rank_wide)[match(paste0(plot_value, ".", method_cols), names(rank_wide))] <- method_cols
 
   # Merge extra columns back into rank_wide
   if (length(extra_cols) > 0) {
@@ -268,15 +271,15 @@ PlotRankCor <- function(
     if (scale_x != "none") {
       for (g in unique(as.character(rank_wide[[group.by_internal]]))) {
         idx <- rank_wide[[group.by_internal]] == g
-        rank_wide[[methods[1]]][idx] <- .scale_vec(
-          rank_wide[[methods[1]]][idx], scale_x)
+        rank_wide[[method_cols[1]]][idx] <- .scale_vec(
+          rank_wide[[method_cols[1]]][idx], scale_x)
       }
     }
     if (scale_y != "none") {
       for (g in unique(as.character(rank_wide[[group.by_internal]]))) {
         idx <- rank_wide[[group.by_internal]] == g
-        rank_wide[[methods[2]]][idx] <- .scale_vec(
-          rank_wide[[methods[2]]][idx], scale_y)
+        rank_wide[[method_cols[2]]][idx] <- .scale_vec(
+          rank_wide[[method_cols[2]]][idx], scale_y)
       }
     }
   }
@@ -285,8 +288,8 @@ PlotRankCor <- function(
   groups <- unique(as.character(rank_wide[[group.by_internal]]))
   cor_results <- do.call(rbind, lapply(groups, function(g) {
     sub <- rank_wide[rank_wide[[group.by_internal]] == g, ]
-    x <- sub[[methods[1]]]
-    y <- sub[[methods[2]]]
+    x <- sub[[method_cols[1]]]
+    y <- sub[[method_cols[2]]]
     ok <- complete.cases(x, y)
     if (sum(ok) < 3) {
       return(data.frame(group = g, rho = NA_real_, p.value = NA_real_,
@@ -342,8 +345,8 @@ PlotRankCor <- function(
 
   # ---- Plot ----
   p <- ggplot2::ggplot(rank_wide,
-                       ggplot2::aes(x = .data[[methods[1]]],
-                                    y = .data[[methods[2]]]))
+                       ggplot2::aes(x = .data[[method_cols[1]]],
+                                    y = .data[[method_cols[2]]]))
 
   # Build point layer with conditional aesthetics
   point_aes <- ggplot2::aes(color = .data[[group.by_internal]])
