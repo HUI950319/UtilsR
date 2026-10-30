@@ -322,40 +322,19 @@ plt_upset <- function(data,
 
   p_venn <- NULL
   if (length(set_list) <= 7L) {
-  p_venn <- ggVennDiagram::ggVennDiagram(
-    set_list,
-    label           = venn_label,
-    label_geom      = label_geom,
-    label_color     = label_color,
-    label_size      = label_size,
-    label_alpha     = label_alpha,
-    edge_color      = edge.color,
-    edge_size       = edge.size,
-    set_size        = set.name.size
-  )
-  p_venn <- .plt_upset_labels(p_venn, set_labels)
-
-  # Apply fill style
-  if (venn.fill == "gradient") {
-    grad_high <- colors[1]
-    p_venn <- p_venn +
-      ggplot2::scale_fill_gradient(low = "grey90", high = grad_high)
-  } else if (venn.fill == "gradient_rev") {
-    grad_high <- colors[1]
-    p_venn <- p_venn +
-      ggplot2::scale_fill_gradient(low = grad_high, high = "grey90")
-  } else if (venn.fill == "category") {
-    n_sets <- length(vars)
-    cat_colors <- rep_len(colors, n_sets)
-    p_venn <- p_venn +
-      ggplot2::scale_fill_distiller(palette = "RdBu")
-    p_venn <- p_venn +
-      ggplot2::scale_color_manual(values = cat_colors, guide = "none")
-  } else {
-    # venn.fill == "none"
-    p_venn <- p_venn +
-      ggplot2::scale_fill_gradient(low = "white", high = "white")
-  }
+    p_venn <- ggVennDiagram::ggVennDiagram(
+      set_list,
+      label           = venn_label,
+      label_geom      = label_geom,
+      label_color     = label_color,
+      label_size      = label_size,
+      label_alpha     = label_alpha,
+      edge_color      = edge.color,
+      edge_size       = edge.size,
+      set_size        = set.name.size
+    )
+    p_venn <- .plt_upset_labels(p_venn, set_labels)
+    p_venn <- .plt_upset_venn_fill(p_venn, venn.fill, colors, venn.alpha)
   }
 
   # ── UpSet ────────────────────────────────────────────────────────────────
@@ -487,6 +466,34 @@ plt_upset <- function(data,
   } else {
     p$layers[[3]]$data$name <- unname(set_labels[
       as.character(p$layers[[3]]$data$name)])
+  }
+  p
+}
+
+# Build Venn fill layers in a frame containing only the plot and style values.
+.plt_upset_venn_fill <- function(p, fill, colors, alpha) {
+  force(p)
+  force(fill)
+  force(colors)
+  force(alpha)
+  if (fill == "gradient") {
+    p <- p + ggplot2::scale_fill_gradient(low = "grey90", high = colors[1])
+  } else if (fill == "gradient_rev") {
+    p <- p + ggplot2::scale_fill_gradient(low = colors[1], high = "grey90")
+  } else if (fill == "category") {
+    outline <- p$layers[[2]]$data
+    set_ids <- unique(as.character(outline$id))
+    p$layers[[1]] <- ggplot2::geom_polygon(
+      data = outline,
+      ggplot2::aes(x = .data[["X"]], y = .data[["Y"]],
+                   group = .data[["id"]], fill = .data[["id"]]),
+      alpha = alpha, colour = NA, inherit.aes = FALSE
+    )
+    p <- p + ggplot2::scale_fill_manual(
+      values = stats::setNames(rep_len(colors, length(set_ids)), set_ids), guide = "none"
+    )
+  } else {
+    p <- p + ggplot2::scale_fill_gradient(low = "white", high = "white")
   }
   p
 }

@@ -309,3 +309,18 @@ test_that("plt_upset rejects plots without members but retains grouped data", {
   result <- plt_upset(data, c("A", "B"), output = "data")
   expect_identical(as.character(result$intersect_group), rep("None", 3))
 })
+
+test_that("plt_upset category fills use set colours and requested alpha", {
+  skip_if_not_installed("ggVennDiagram")
+  sets <- list(A = 1:4, B = 3:6, C = c(2, 4, 7))
+  palette <- c("#FF0000", "#00FF00", "#0000FF")
+  for (alpha in c(0.2, 0.8)) {
+    plot <- suppressMessages(plt_upset(sets, output = "venn", venn.fill = "category",
+                                      colors = palette, venn.alpha = alpha))
+    regions <- ggplot2::ggplot_build(plot)$data[[1]]
+    expect_setequal(regions$fill, palette)
+    expect_identical(unique(regions$alpha), alpha)
+    expect_equal(length(unique(regions$group)), 3L)
+    expect_no_warning(render_upset(plot))
+  }
+})

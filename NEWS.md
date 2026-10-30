@@ -1,5 +1,7 @@
 # UtilsR 0.6.17
 
+* `plt_upset(venn.fill = "category")` fills each set with its requested colour and applies `venn.alpha` to the overlapping set polygons.
+
 * Split continuous figures measure only the final combined canvas,
   preserving per-split page sizes when a named list is requested instead.
 
