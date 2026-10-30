@@ -347,3 +347,45 @@ test_that("plt_upset applies boundary colours without recolouring set names", {
     expect_no_warning(render_upset(plot))
   }
 })
+
+test_that("plt_upset constructs only the requested plots", {
+  skip_if_not_installed("ggVennDiagram")
+  original <- ggVennDiagram::ggVennDiagram
+  calls <- character()
+  testthat::local_mocked_bindings(ggVennDiagram = function(...) {
+    args <- list(...)
+    calls <<- c(calls, if (isTRUE(args$force_upset)) "upset" else "venn")
+    do.call(original, args)
+  }, .package = "ggVennDiagram")
+  expected <- list(data = character(), venn = "venn", upset = "upset",
+                   both = c("venn", "upset"), all = c("venn", "upset"))
+  for (output in names(expected)) {
+    calls <- character()
+    suppressMessages(plt_upset(list(A = 1:3, B = 2:4), output = output))
+    expect_identical(calls, expected[[output]])
+  }
+})
+
+test_that("plt_upset data groups do not depend on rendering", {
+  skip_if_not_installed("ggVennDiagram")
+  testthat::local_mocked_bindings(ggVennDiagram = function(...) stop("plot unavailable"),
+                                 .package = "ggVennDiagram")
+  result <- plt_upset(list(A = c("x", "y"), B = c("y", "z")), output = "data")
+  expect_identical(as.character(result$intersect_group), c("A", "A/B", "B"))
+})
+
+test_that("plt_upset retains data groups when an UpSet panel fails", {
+  skip_if_not_installed("ggVennDiagram")
+  original <- ggVennDiagram::ggVennDiagram
+  testthat::local_mocked_bindings(ggVennDiagram = function(...) {
+    args <- list(...)
+    if (isTRUE(args$force_upset)) stop("upset unavailable")
+    do.call(original, args)
+  }, .package = "ggVennDiagram")
+  expect_error(plt_upset(list(A = 1:2, B = 2:3), output = "upset"), "Cannot construct")
+  expect_warning(result <- suppressMessages(plt_upset(list(A = 1:2, B = 2:3), output = "all")),
+                 "Returning the Venn plot")
+  expect_s3_class(result$combined, "ggplot")
+  expect_null(result$upset)
+  expect_identical(as.character(result$data$intersect_group), c("A", "A/B", "B"))
+})

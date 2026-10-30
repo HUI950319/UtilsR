@@ -217,23 +217,17 @@ plt_upset <- function(data,
     if (output %in% c("data", "all") && "intersect_group" %in% names(data)) {
       cli::cli_abort("{.arg data} already contains {.field intersect_group}; rename it before requesting grouped data.")
     }
-    # Convert to data.frame + set_list simultaneously
+    # Use row indices as shared member identities for both input formats.
     all_elements <- unique(unlist(data))
-    df_bin <- data.frame(.element = all_elements, stringsAsFactors = FALSE)
-    names(df_bin) <- tail(make.unique(c(names(data), ".element")), 1L)
-    for (nm in names(data)) {
-      df_bin[[nm]] <- ifelse(all_elements %in% data[[nm]], "Yes", "No")
+    set_list <- lapply(data, function(x) which(all_elements %in% x))
+    if (output %in% c("data", "all")) {
+      df_bin <- data.frame(.element = all_elements, stringsAsFactors = FALSE)
+      names(df_bin) <- tail(make.unique(c(names(data), ".element")), 1L)
+      for (nm in names(data)) {
+        df_bin[[nm]] <- ifelse(all_elements %in% data[[nm]], "Yes", "No")
+      }
+      data <- df_bin
     }
-    vars   <- names(data)
-    levels <- c("Yes", "yes")
-    # Keep df_bin for potential "data" output
-    data <- df_bin
-
-    # set_list uses element values directly (for ggVennDiagram)
-    set_list <- data[names(data)]  # named list of vectors
-    set_list <- lapply(stats::setNames(vars, vars), function(v) {
-      which(data[[v]] %in% levels)
-    })
 
   } else if (is.data.frame(data)) {
     # --- Data frame with binary columns ---
@@ -312,6 +306,32 @@ plt_upset <- function(data,
   names(set_list) <- set_keys
   set_labels <- stats::setNames(display_names, set_keys)
 
+  # Statistics do not depend on the structure or success of a rendered plot.
+  grp_info <- NULL
+  if (output != "venn") {
+    grp_info <- ggVennDiagram::process_region_data(ggVennDiagram::Venn(set_list))
+    region_names <- vapply(strsplit(as.character(grp_info$id), "/", fixed = TRUE),
+                           function(i) paste(display_names[as.integer(i)], collapse = "/"),
+                           character(1))
+    group_names <- make.unique(c(region_names, "None"))
+    grp_info$name <- head(group_names, -1L)
+    none_group <- tail(group_names, 1L)
+    grp_info <- grp_info[order(-grp_info$count), ]
+  }
+  grp_data <- NULL
+  if (output %in% c("data", "all")) {
+    row_groups <- rep(none_group, nrow(data))
+    for (i in which(grp_info$count > 0)) {
+      row_groups[grp_info$item[[i]]] <- grp_info$name[[i]]
+    }
+    grp_data <- data
+    grp_data$intersect_group <- factor(row_groups, levels = c(grp_info$name, none_group))
+    if (output == "data") {
+      if (length(save)) cli::cli_abort("{.code output = \"data\"} draws no plot to save.")
+      return(grp_data)
+    }
+  }
+
   # ── Venn ─────────────────────────────────────────────────────────────────
   venn_label <- switch(label,
     both    = "both",
@@ -321,7 +341,7 @@ plt_upset <- function(data,
   )
 
   p_venn <- NULL
-  if (length(set_list) <= 7L) {
+  if (output %in% c("venn", "both", "all") && length(set_list) <= 7L) {
     p_venn <- ggVennDiagram::ggVennDiagram(
       set_list,
       label           = venn_label,
@@ -343,52 +363,28 @@ plt_upset <- function(data,
     tryCatch(
       {
         p <- ggVennDiagram::ggVennDiagram(
-        set_list, force_upset = TRUE, nintersects = nintersects,
-        relative_height = 2, relative_width = 0.3,
-        sets.bar.show.numbers = TRUE,
-        sets.bar.color = cols[1],
-        top.bar.color = cols[2],
-        intersection.matrix.color = cols[3]
+          set_list, force_upset = TRUE, nintersects = nintersects,
+          relative_height = 2, relative_width = 0.3,
+          sets.bar.show.numbers = TRUE,
+          sets.bar.color = cols[1],
+          top.bar.color = cols[2],
+          intersection.matrix.color = cols[3]
         )
         .plt_upset_labels(p, set_labels)
       },
       error = function(e) {
-        cli::cli_warn("ggVennDiagram force_upset failed: {e$message}. Returning Venn only.")
+        if (is.null(p_venn)) {
+          cli::cli_abort("Cannot construct the requested UpSet plot.", parent = e)
+        }
+        cli::cli_warn("ggVennDiagram force_upset failed: {e$message}. Returning the Venn plot.")
         NULL
       }
     )
   }
 
-  p_upset_all <- .safe_upset(set_list, NULL, upset_colors)
-
   p_upset <- NULL
-  upset_data <- NULL
-  if (!is.null(p_upset_all)) {
-    upset_data <- tryCatch({
-      if (!is.null(p_upset_all$plotlist)) {
-        p_upset_all$plotlist[[2]]$data
-      } else if (is.list(p_upset_all) && "results" %in% names(p_upset_all)) {
-        p_upset_all$results
-      } else {
-        NULL
-      }
-    }, error = function(e) NULL)
-
-    if (!is.null(upset_data)) {
-      region_names <- vapply(strsplit(as.character(upset_data$id), "/", fixed = TRUE),
-                             function(i) paste(display_names[as.integer(i)], collapse = "/"),
-                             character(1))
-      group_names <- make.unique(c(region_names, "None"))
-      upset_data$name <- head(group_names, -1L)
-      none_group <- tail(group_names, 1L)
-    }
-
-    if (!is.null(upset_data) && "size" %in% names(upset_data)) {
-      n_nonzero <- sum(upset_data$size > 0)
-      p_upset <- .safe_upset(set_list, n_nonzero, upset_colors)
-    } else {
-      p_upset <- p_upset_all
-    }
+  if (output %in% c("upset", "both", "all")) {
+    p_upset <- .safe_upset(set_list, sum(grp_info$count > 0), upset_colors)
   }
 
   # ── Combined ─────────────────────────────────────────────────────────────
@@ -409,34 +405,7 @@ plt_upset <- function(data,
     }
   }
 
-  # ── Data with intersection groups ────────────────────────────────────────
-  grp_data <- NULL
-  if (output %in% c("data", "all")) {
-    if (is.null(upset_data) || !"item" %in% names(upset_data)) {
-      cli::cli_warn("Cannot extract intersection groups. Returning data without groups.")
-      grp_data <- data
-      grp_data$intersect_group <- NA_character_
-    } else {
-      grp_info <- upset_data %>% dplyr::arrange(dplyr::desc(.data[["size"]]))
-      grp_rows <- stats::setNames(grp_info$item, grp_info$name)
-
-      grp_data <- data
-      grp_data$intersect_group <- vapply(seq_len(nrow(data)), function(rid) {
-        hit <- names(grp_rows)[vapply(grp_rows, function(rows) rid %in% rows, logical(1))]
-        if (length(hit) > 0) hit[1] else none_group
-      }, character(1))
-      all_levels <- c(grp_info$name, none_group)
-      grp_data$intersect_group <- factor(grp_data$intersect_group, levels = all_levels)
-    }
-  }
-
   # ── Return ───────────────────────────────────────────────────────────────
-  if (identical(output, "data")) {
-    if (length(save)) {
-      cli::cli_abort("{.code output = \"data\"} draws no plot to save.")
-    }
-    return(grp_data)
-  }
   finish <- function(p) {
     panel <- if (length(set_list) > 7L) c(6, 4.5) else
       switch(output, venn = c(5, 5), upset = c(6, 4.5), c(5, 4.5))

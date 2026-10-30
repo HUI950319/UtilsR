@@ -1,5 +1,7 @@
 # UtilsR 0.6.18
 
+* `plt_upset()` computes intersection groups directly, fills group rows in batches and constructs only the plots requested by `output`.
+
 * Named classed-vector inputs to `pr_kv()` and `pr_box()` retain their
   element types and methods, including stored integer64 and Period values.
 
