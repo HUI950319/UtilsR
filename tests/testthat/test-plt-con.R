@@ -286,6 +286,29 @@ test_that("con split panels retain group colours when local ordering changes", {
   expect_setequal(maps[[1L]], c("red", "blue"))
 })
 
+test_that("con split palettes retain explicit missing factor levels", {
+  d <- data.frame(x = 1:12, z = 21:32,
+                  g = factor(rep(c("A", NA), 6), exclude = NULL),
+                  batch = rep(c("S1", "S2"), each = 6))
+  for (stack in c(FALSE, TRUE)) for (type in c("box", "bar", "dot")) {
+    baseline <- con_plot(d, c("x", "z"), type = type, stack = stack)
+    expected <- ggplot2::ggplot_build(baseline)$plot$scales$get_scales("fill")$map(c("A", NA))
+    out <- suppressMessages(plt_con(d, c("x", "z"), "g", split.by = "batch",
+                                    type = type, stack = stack, combine = FALSE))
+    expect_named(out, c("S1", "S2"))
+    for (p in out) {
+      expect_equal(nrow(p$data), if (stack) 12L else 6L)
+      expect_equal(sum(is.na(as.character(p$data$group.by))), if (stack) 6L else 3L)
+      b <- ggplot2::ggplot_build(p)
+      expect_equal(b$plot$scales$get_scales("fill")$map(c("A", NA)), expected)
+    }
+  }
+  d$g <- factor(rep(NA_character_, 12), exclude = NULL)
+  out <- suppressMessages(plt_con(d, "x", "g", split.by = "batch", type = "bar", combine = FALSE))
+  expect_equal(vapply(out, function(p) nrow(p$data), 1L), c(S1 = 6L, S2 = 6L))
+  expect_equal(ggplot2::ggplot_build(out[[1L]])$data[[2L]]$y, 3.5)
+})
+
 test_that("con group sorting uses finite observations without losing unranked groups", {
   d <- data.frame(x = c(1, Inf, Inf, 2, 3, 4), z = 11:16, g = rep(c("A", "B"), each = 3))
   p <- con_plot(d, type = "box", sort = TRUE)

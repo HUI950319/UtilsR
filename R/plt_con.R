@@ -431,6 +431,7 @@ plt_con <- function(data,
     if (is.null(names(palette))) {
       palette <- stats::setNames(.resolve_color(palette, n = length(split_color_levels)),
                                   split_color_levels)
+      palette <- palette[!is.na(names(palette))]
     }
     split_codes <- as.integer(data[[split.by]])
     split_indices <- which(tabulate(split_codes, nbins = nlevels(data[[split.by]])) > 0L)
@@ -515,12 +516,13 @@ plt_con <- function(data,
     color_levels <- stat.by
   }
   if (!is.null(names(palette))) {
+    named_levels <- color_levels[!is.na(color_levels)]
     if (!is.character(palette) || anyNA(names(palette)) ||
         any(!nzchar(names(palette))) || anyDuplicated(names(palette)) ||
-        !all(color_levels %in% names(palette))) {
+        !all(named_levels %in% names(palette))) {
       cli::cli_abort("Named {.arg palette} must contain each group or feature with unique, non-empty names.")
     }
-    colors <- palette[color_levels]
+    colors <- palette[named_levels]
   } else {
     colors <- stats::setNames(.resolve_color(palette, n = length(color_levels)), color_levels)
   }
