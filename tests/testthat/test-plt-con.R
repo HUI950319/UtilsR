@@ -171,6 +171,25 @@ test_that("con reference groups generate pairwise tests unless explicit pairs ar
   expect_error(con_plot(d, type = "box", ref_group = "absent"), "ref_group")
 })
 
+test_that("con failed pairwise tests preserve successful comparisons per feature", {
+  d <- data.frame(x = 1:18, z = 51:68, g = factor(rep(c("A", "B", "C"), each = 6)))
+  d$x[14:18] <- NA_real_
+  pairs <- list(c("A", "B"), c("A", "C"))
+  for (stack in c(FALSE, TRUE)) for (label in c("p.signif", "p.format")) {
+    expect_warning(out <- suppressMessages(plt_con(d, c("x", "z"), "g", type = "box",
+      comparisons = pairs, pairwise_method = "t.test", sig_label = label,
+      stack = stack, combine = FALSE)), "Skipping.*comparison.*x")
+    p <- out[[1L]]
+    expect_no_warning(b <- ggplot2::ggplot_build(p))
+    kinds <- vapply(p$layers, function(l) class(l$geom)[[1L]], "")
+    brackets <- do.call(rbind, b$data[which(kinds == "GeomSignif")])
+    expect_equal(as.integer(table(brackets$PANEL)), if (stack) c(3L, 6L) else 3L)
+    q <- con_plot(d, type = "box", comparisons = pairs[1L], pairwise_method = "t.test", sig_label = label)
+    expected <- tail(ggplot2::ggplot_build(q)$data, 1L)[[1L]]$annotation
+    expect_identical(brackets$annotation[brackets$PANEL == 1L], expected)
+  }
+})
+
 test_that("con global test labels fit inside normal and flipped panels", {
   for (stack in c(FALSE, TRUE)) for (flip in c(FALSE, TRUE)) {
     p <- con_plot(con_data(), c("x", "z"), type = "box", stack = stack, flip = flip,

@@ -71,7 +71,8 @@
 #' @param trend_ptsize Numeric. Trend point size. Default 2.
 #' @param comparisons A list of length-2 character vectors for pairwise tests.
 #'   Default \code{NULL}. Pairs with unavailable groups are skipped per feature
-#'   with a warning; other requested comparisons remain available.
+#'   with a warning. Tests that fail are also skipped individually; other
+#'   requested comparisons remain available.
 #' @param ref_group Character. Reference group for comparisons.
 #'   Default \code{NULL}. When \code{comparisons} is \code{NULL}, compare
 #'   this observed group with every other observed group. Explicit comparison
@@ -653,7 +654,7 @@ plt_con <- function(data,
   counts
 }
 
-.con_comparisons <- function(comparisons, groups, feature) {
+.con_comparisons <- function(comparisons, groups, feature, values, method) {
   if (!length(comparisons)) return(comparisons)
   available <- unique(as.character(groups[!is.na(groups)]))
   keep <- vapply(comparisons, function(pair) {
@@ -662,6 +663,20 @@ plt_con <- function(data,
   }, logical(1))
   if (!all(keep)) {
     cli::cli_warn("Skipping {sum(!keep)} comparison{?s} with unavailable groups for {.val {feature}}.")
+  }
+  if (any(keep)) {
+    test_params <- ggpubr::stat_compare_means(comparisons = comparisons[keep], method = method)$stat_params
+    for (i in which(keep)) {
+      pair <- comparisons[[i]]
+      if (is.numeric(pair)) pair <- levels(groups)[pair]
+      result <- tryCatch(suppressWarnings(do.call(test_params[["test"]], c(list(
+        values[which(groups == pair[1L])], values[which(groups == pair[2L])]
+      ), test_params[["test.args"]]))), error = identity)
+      if (inherits(result, "error")) {
+        keep[i] <- FALSE
+        cli::cli_warn("Skipping comparison {.val {pair}} for {.val {feature}}: {conditionMessage(result)}")
+      }
+    }
   }
   comparisons[keep]
 }
@@ -869,7 +884,7 @@ plt_con <- function(data,
 
   # --- Statistical comparisons ------------------------------------------------
   comparison_count <- length(comparisons)
-  comparisons <- .con_comparisons(comparisons, dat[["group.by"]], feature)
+  comparisons <- .con_comparisons(comparisons, dat[["group.by"]], feature, values, pairwise_method)
   annotation_y_max <- y_max_use
   if (length(comparisons)) {
     p <- p + ggpubr::stat_compare_means(
@@ -1092,7 +1107,9 @@ plt_con <- function(data,
   # Facets partition the test data, so each feature is tested independently.
   if (length(comparisons)) {
     comparison_sets <- lapply(stat.by, function(f) {
-      .con_comparisons(comparisons, dat_long[["group.by"]][dat_long[["feature"]] == f], f)
+      at <- dat_long[["feature"]] == f
+      .con_comparisons(comparisons, dat_long[["group.by"]][at], f,
+                        dat_long[["value"]][at], pairwise_method)
     })
     if (all(vapply(comparison_sets, identical, logical(1), comparisons))) {
       comparison_sets <- comparison_sets[1L]

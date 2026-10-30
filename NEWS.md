@@ -1,5 +1,8 @@
 # UtilsR 0.6.18
 
+* `plt_con()` skips failed pairwise tests individually, retaining successful
+  comparisons for each feature instead of losing the whole annotation layer.
+
 * `plt_upset()` keeps factor member labels when lists mix factors with other vector types or empty sets, preserving member identities and intersection counts.
 
 * Large expression previews avoid deparsing unseen lines while retaining
