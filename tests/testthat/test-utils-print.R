@@ -1101,3 +1101,13 @@ test_that("named integer64 inputs restore methods before being split into fields
     c("--vanilla", shQuote(script), shQuote(value_file)), stdout = TRUE, stderr = TRUE)
   expect_identical(out, c("  one  2314", "  two  9007199254740993"))
 })
+
+test_that("row names remain printable when a data frame has no value columns", {
+  withr::local_options(cli.num_colors = 1)
+  x <- data.frame(row.names = c("alpha", "beta"))
+  out <- utils::capture.output(pr_table(x, rownames = TRUE))
+  expect_identical(trimws(out[3:4]), c("alpha", "beta"))
+  expect_length(out, 4L)
+  expect_identical(utils::capture.output(pr_table(x)), character())
+  expect_length(utils::capture.output(pr_table(data.frame(), rownames = TRUE)), 2L)
+})

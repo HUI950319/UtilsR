@@ -1,5 +1,8 @@
 # UtilsR 0.6.18
 
+* `pr_table(rownames = TRUE)` retains row names for zero-column data frames,
+  while the default zero-column display remains empty.
+
 * `plt_upset()` computes intersection groups directly, fills group rows in batches and constructs only the plots requested by `output`.
 
 * Named classed-vector inputs to `pr_kv()` and `pr_box()` retain their

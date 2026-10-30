@@ -507,6 +507,7 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 #'   e.g. the terms of \code{as.data.frame(coef(summary(fit)))}, which are
 #'   otherwise not shown (default \code{FALSE}).
 #'   Displayed row names are never treated as P values.
+#'   They can be shown even when there are no value columns.
 #' @param n Non-negative integer. Rows to show (default 20); the rest are
 #'   counted in a grey footer. \code{NULL} or \code{Inf} shows every row.
 #' @param align Column alignment, recycled: \code{"left"}, \code{"right"}
@@ -555,7 +556,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   if (length(miss)) {
     cli::cli_abort("{.arg p_col} names column{?s} absent from {.arg data}: {.val {miss}}.")
   }
-  if (!ncol(data)) return(._pr_out(character()))
+  if (!ncol(data) && !isTRUE(rownames)) return(._pr_out(character()))
   data   <- as.data.frame(data)
   is_p <- names(data) %in% p_col
   # not automatic for character row names: rbind() of a named list leaves
