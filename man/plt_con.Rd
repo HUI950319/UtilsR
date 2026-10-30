@@ -161,7 +161,7 @@ Automatic limits leave room for comparisons; explicit bounds are preserved.}
 
 \item{y.nbreaks}{Integer. Number of y-axis breaks. Default 5.}
 
-\item{sort}{Logical or character. Sort groups by median?
+\item{sort}{Logical or character. Sort groups by the median of finite observations?
 \code{TRUE} or \code{"decreasing"} for descending,
 \code{"increasing"} for ascending. Default \code{FALSE}.}
 

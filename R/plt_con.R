@@ -96,7 +96,7 @@
 #'   Character \code{"qN"} uses the Nth percentile. Default \code{NULL}.
 #'   Automatic limits leave room for comparisons; explicit bounds are preserved.
 #' @param y.nbreaks Integer. Number of y-axis breaks. Default 5.
-#' @param sort Logical or character. Sort groups by median?
+#' @param sort Logical or character. Sort groups by the median of finite observations?
 #'   \code{TRUE} or \code{"decreasing"} for descending,
 #'   \code{"increasing"} for ascending. Default \code{FALSE}.
 #' @param stack Logical. Stack features vertically using facet?
@@ -471,8 +471,10 @@ plt_con <- function(data,
 
   # --- Sort group levels by median -------------------------------------------
   if (!isFALSE(sort) && !dummy_group) {
+    sort_values <- data[[stat.by[1L]]]
+    sort_values[!is.finite(sort_values)] <- NA_real_
     df_sort <- stats::aggregate(
-      data[[stat.by[1]]], by = list(data[[group.by]]), FUN = stats::median,
+      sort_values, by = list(data[[group.by]]), FUN = stats::median,
       na.rm = TRUE
     )
     decreasing <- !(is.character(sort) && sort == "increasing")

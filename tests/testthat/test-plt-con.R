@@ -267,6 +267,18 @@ test_that("con split panels retain group colours when local ordering changes", {
   expect_setequal(maps[[1L]], c("red", "blue"))
 })
 
+test_that("con group sorting uses finite observations without losing unranked groups", {
+  d <- data.frame(x = c(1, Inf, Inf, 2, 3, 4), z = 11:16, g = rep(c("A", "B"), each = 3))
+  p <- con_plot(d, type = "box", sort = TRUE)
+  expect_identical(levels(p$data$group.by), c("B", "A"))
+  p <- con_plot(d, type = "box", sort = "increasing")
+  expect_identical(levels(p$data$group.by), c("A", "B"))
+  d$x[1:3] <- Inf
+  p <- con_plot(d, c("x", "z"), type = "box", stack = TRUE, sort = TRUE)
+  expect_identical(levels(p$data$group.by), c("B", "A"))
+  expect_equal(sum(p$data$feature == "z" & p$data$group.by == "A"), 3L)
+})
+
 test_that("con split combine FALSE returns named plots and rejects saving a list", {
   d <- con_data()
   out <- suppressMessages(plt_con(d, "x", "g", split.by = "batch", type = "box", combine = FALSE))
