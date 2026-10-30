@@ -150,9 +150,11 @@
   keys <- ._pr_escape(keys[keep])
   vals <- vapply(x[keep], function(v) {
     if (!is.atomic(v)) return(._obj_desc(v))
+    size <- length(v)
+    if (size > 20L) v <- ._pr_restore(v)[seq_len(20L)]
     v <- ._as_text(v)
-    if (length(v) > 20L) {
-      v <- c(v[1:20], sprintf("%s (%d)", cli::symbol$ellipsis, length(v)))
+    if (size > 20L) {
+      v <- c(v, sprintf("%s (%d)", cli::symbol$ellipsis, size))
     }
     paste(v, collapse = ", ")
   }, character(1), USE.NAMES = FALSE)
