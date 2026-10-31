@@ -2,6 +2,32 @@
 
 ## UtilsR 0.6.19
 
+- Categorical safety checks include retained standard-plot factor levels
+  and reject frequency grids beyond the base table cell limit before
+  allocation.
+
+- Categorical positive-level mappings match named vectors by column,
+  preserve unnamed positional values and reject missing, duplicate or
+  unknown mapping keys.
+
+- Categorical Venn region transparency and value-label fill and corner
+  radius now honour alpha, label.bg and label.bg.r through independently
+  constructed layers.
+
+- Categorical Venn split panels share a count-to-fill range and one
+  colour bar while retaining each panel intersection count.
+
+- Categorical dot panels share one size range across split figures so
+  circle areas and the collected quantity legend remain comparable.
+
+- Categorical split plots resolve background colours once across the
+  complete input so each background category keeps its colour across
+  panels.
+
+- Categorical plots distinguish plain numeric values whose short labels
+  coincide, preserving precise membership selections while retaining
+  ordinary labels and classed selectors.
+
 - Categorical UpSet plots choose a collision-free separator through
   public ggupset adapters, preserving set labels, counts and the
   twenty-intersection limit.

@@ -59,7 +59,9 @@ plt_cat(
   For standard types (bar, rose, ring, pie, trend, area, dot) a single
   column name. For set types (sankey, chord, venn, upset) a character
   vector of \>= 2 column names. Venn plots support at most seven
-  columns; use `type = "upset"` for larger sets.
+  columns; use `type = "upset"` for larger sets. Distinct plain numeric
+  values with identical short text representations receive more precise
+  labels so their categories remain separate.
 
 - group.by:
 
@@ -72,7 +74,9 @@ plt_cat(
   Character. Optional splitting variable. Splits data, creates one plot
   per level, and combines with patchwork. Not available for
   `type = "chord"`. UpSet panels without matching members are retained
-  with a no-matching-members placeholder.
+  with a no-matching-members placeholder. Dot panels use one shared size
+  scale so equal quantities have equal circle areas across panels. Venn
+  panels likewise share one count-to-fill scale.
 
 - type:
 
@@ -109,7 +113,8 @@ plt_cat(
 
 - alpha:
 
-  Numeric 0–1. Colour transparency. Default 0.8.
+  Numeric 0–1. Colour transparency. Default 0.8. For Venn plots,
+  controls region fill transparency.
 
 - label:
 
@@ -126,11 +131,13 @@ plt_cat(
 
 - label.bg:
 
-  Character. Label background colour. Default `"white"`.
+  Character. Label background colour. Default `"white"`. For Venn plots,
+  the fill colour of the value-label box.
 
 - label.bg.r:
 
-  Numeric. Label background corner radius. Default 0.1.
+  Numeric. Label background corner radius. Default 0.1. For Venn plots,
+  the label-box corner radius in lines.
 
 - bg.by:
 
@@ -144,7 +151,8 @@ plt_cat(
 
   Character vector of background band colours. Default `NULL` uses
   alternating `c("grey85", "transparent")`. A named vector is matched to
-  background category names.
+  background category names. Split panels share one category-to-colour
+  mapping.
 
 - bg_alpha:
 
@@ -175,7 +183,9 @@ plt_cat(
   `stat.by` column that count as "positive". Default `NULL` auto-detects
   `TRUE`, `"Yes"`, `"yes"`, `1`, `"TRUE"`, `"1"`, or uses the first
   factor level. With `split.by`, membership values are resolved once for
-  all panels.
+  all panels. An unnamed vector supplies one shared value or one value
+  per selected column in order. Named vectors and named lists match
+  column names and must cover exactly the selected columns.
 
 - title:
 
@@ -233,7 +243,9 @@ plt_cat(
 - force:
 
   Logical. Force plotting when variables have \> 100 levels? Default
-  `FALSE`.
+  `FALSE`. With `keep_empty = TRUE`, standard types count retained
+  factor levels toward this limit. Frequency tables with `2^31` or more
+  cells are always rejected before allocation.
 
 - ...:
 

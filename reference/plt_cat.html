@@ -112,7 +112,9 @@ trend, area, dot, sankey, chord, venn, and upset.</p>
 summarise. For standard types (bar, rose, ring, pie, trend, area, dot) a
 single column name. For set types (sankey, chord, venn, upset) a character
 vector of &gt;= 2 column names. Venn plots support at most seven columns;
-use <code>type = "upset"</code> for larger sets.</p></dd>
+use <code>type = "upset"</code> for larger sets.
+Distinct plain numeric values with identical short text representations
+receive more precise labels so their categories remain separate.</p></dd>
 
 
 <dt id="arg-group-by">group.by<a class="anchor" aria-label="anchor" href="#arg-group-by"></a></dt>
@@ -125,7 +127,9 @@ levels in each panel.</p></dd>
 <dd><p>Character. Optional splitting variable. Splits data, creates
 one plot per level, and combines with <span class="pkg">patchwork</span>. Not available for
 <code>type = "chord"</code>. UpSet panels without matching members are retained
-with a no-matching-members placeholder.</p></dd>
+with a no-matching-members placeholder. Dot panels use one shared size
+scale so equal quantities have equal circle areas across panels. Venn
+panels likewise share one count-to-fill scale.</p></dd>
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
@@ -159,7 +163,8 @@ reporting how many intersections are omitted when the limit is exceeded.</p></dd
 
 
 <dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
-<dd><p>Numeric 0–1. Colour transparency. Default 0.8.</p></dd>
+<dd><p>Numeric 0–1. Colour transparency. Default 0.8. For Venn plots,
+controls region fill transparency.</p></dd>
 
 
 <dt id="arg-label">label<a class="anchor" aria-label="anchor" href="#arg-label"></a></dt>
@@ -176,11 +181,13 @@ and Sankey node names are independent of value labels.</p></dd>
 
 
 <dt id="arg-label-bg">label.bg<a class="anchor" aria-label="anchor" href="#arg-label-bg"></a></dt>
-<dd><p>Character. Label background colour. Default <code>"white"</code>.</p></dd>
+<dd><p>Character. Label background colour. Default <code>"white"</code>.
+For Venn plots, the fill colour of the value-label box.</p></dd>
 
 
 <dt id="arg-label-bg-r">label.bg.r<a class="anchor" aria-label="anchor" href="#arg-label-bg-r"></a></dt>
-<dd><p>Numeric. Label background corner radius. Default 0.1.</p></dd>
+<dd><p>Numeric. Label background corner radius. Default 0.1.
+For Venn plots, the label-box corner radius in lines.</p></dd>
 
 
 <dt id="arg-bg-by">bg.by<a class="anchor" aria-label="anchor" href="#arg-bg-by"></a></dt>
@@ -194,7 +201,8 @@ Default <code>NULL</code> (no background).</p></dd>
 <dt id="arg-bg-palette">bg_palette<a class="anchor" aria-label="anchor" href="#arg-bg-palette"></a></dt>
 <dd><p>Character vector of background band colours.
 Default <code>NULL</code> uses alternating <code>c("grey85", "transparent")</code>.
-A named vector is matched to background category names.</p></dd>
+A named vector is matched to background category names. Split panels share
+one category-to-colour mapping.</p></dd>
 
 
 <dt id="arg-bg-alpha">bg_alpha<a class="anchor" aria-label="anchor" href="#arg-bg-alpha"></a></dt>
@@ -226,7 +234,10 @@ Default <code>FALSE</code>.</p></dd>
 each <code>stat.by</code> column that count as "positive". Default <code>NULL</code>
 auto-detects <code>TRUE</code>, <code>"Yes"</code>, <code>"yes"</code>, <code>1</code>,
 <code>"TRUE"</code>, <code>"1"</code>, or uses the first factor level. With
-<code>split.by</code>, membership values are resolved once for all panels.</p></dd>
+<code>split.by</code>, membership values are resolved once for all panels.
+An unnamed vector supplies one shared value or one value per selected
+column in order. Named vectors and named lists match column names and
+must cover exactly the selected columns.</p></dd>
 
 
 <dt id="arg-title">title<a class="anchor" aria-label="anchor" href="#arg-title"></a></dt>
@@ -285,7 +296,9 @@ Default 14.</p></dd>
 
 <dt id="arg-force">force<a class="anchor" aria-label="anchor" href="#arg-force"></a></dt>
 <dd><p>Logical. Force plotting when variables have &gt; 100 levels?
-Default <code>FALSE</code>.</p></dd>
+Default <code>FALSE</code>. With <code>keep_empty = TRUE</code>, standard types count
+retained factor levels toward this limit. Frequency tables with
+<code>2^31</code> or more cells are always rejected before allocation.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
