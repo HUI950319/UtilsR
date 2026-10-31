@@ -29,6 +29,31 @@ cat_con_data <- function() {
   )
 }
 
+test_that("plt_cat area endpoint labels stay inside the rendered panel", {
+  d <- data.frame(category = factor(c("A", "A", "A", "A", "B", "B", "B")),
+                  group = factor(c("G1", "G1", "G3", "G3", "G1", "G2", "G3")))
+  withr::local_pdf(NULL, width = 4, height = 4)
+  grid::pushViewport(grid::viewport(width = grid::unit(3, "inches"),
+                                    height = grid::unit(3, "inches")))
+  withr::defer(grid::popViewport())
+  for (position in c("stack", "dodge")) {
+    p <- cat_test_plot(d, "category", "group", type = "area",
+                      position = position, label = TRUE)
+    g <- ggplot2::ggplotGrob(p)
+    panel <- g$grobs[[which(g$layout$name == "panel")]]
+    tree <- panel$children[[which(vapply(panel$children, inherits, logical(1), "textrepeltree"))]]
+    labels <- grid::makeContent(tree)$children
+    labels <- labels[grepl("^textrepelgrob", names(labels))]
+    expect_gt(length(labels), 0L)
+    bounds <- vapply(labels, function(x) {
+      c(grid::convertX(grid::grobX(x, "west"), "npc", valueOnly = TRUE),
+        grid::convertX(grid::grobX(x, "east"), "npc", valueOnly = TRUE))
+    }, numeric(2))
+    expect_gte(min(bounds[1, ]), 0)
+    expect_lte(max(bounds[2, ]), 1)
+  }
+})
+
 test_that("plt_cat measures only the final split canvas", {
   skip_if_not_installed("RegR")
   original <- getFromNamespace(".save_sized", "UtilsR")

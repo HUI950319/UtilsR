@@ -873,13 +873,19 @@ plt_cat <- function(data,
     )
   } else {
     # bar, trend, area, rose
+    plotdata[["label_hjust"]] <- 0.5
+    if (type == "area" && length(unique(plotdata[[x_aes]])) > 1L) {
+      plotdata[["label_hjust"]][plotdata[[x_aes]] == min(plotdata[[x_aes]])] <- 0
+      plotdata[["label_hjust"]][plotdata[[x_aes]] == max(plotdata[[x_aes]])] <- 1
+    }
     p <- p + ggrepel::geom_text_repel(
       data = plotdata,
       ggplot2::aes(
         x = .data[[x_aes]],
         y = .data[["value"]],
         label = .data[["label_text"]],
-        group = .data[["stat_var"]]
+        group = .data[["stat_var"]],
+        hjust = .data[["label_hjust"]]
       ),
       position = pos,
       size = label.size, colour = label.fg,
