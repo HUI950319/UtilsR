@@ -364,6 +364,7 @@ plt_cat <- function(data,
 
   # --- Safety check for high-cardinality columns ------------------------------
   selected <- unique(c(stat.by, group.by, split.by, bg.by))
+  data <- data[, selected, drop = FALSE]
   for (col in selected) {
     x <- data[[col]]
     if (!is.null(dim(x)) || (is.list(x) && !inherits(x, "POSIXlt"))) {
@@ -589,8 +590,10 @@ plt_cat <- function(data,
   # --- Y-axis formatting ------------------------------------------------------
   if (!type %in% c("dot", "pie", "ring", "rose")) {
     if (stat == "percent") {
+      percent_labels <- function(x) paste0(round(x, 1), "%")
+      environment(percent_labels) <- baseenv()
       p <- p + ggplot2::scale_y_continuous(
-        labels = function(x) paste0(round(x, 1), "%"),
+        labels = percent_labels,
         expand = ggplot2::expansion(mult = c(0, 0.05))
       )
     } else {

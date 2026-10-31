@@ -130,6 +130,37 @@ test_that("plt_cat area rejects layouts without two displayed group positions", 
                "group.by.*two displayed")
 })
 
+test_that("plt_cat serialized plots do not retain unrelated input columns", {
+  make_plot <- function(extra, split) {
+    set.seed(12)
+    d <- data.frame(category = rep(c("A", "B"), 1000),
+                    group = rep(c("one", "two"), each = 1000),
+                    site = rep(c("x", "y"), each = 1000))
+    if (extra) for (i in seq_len(25)) d[[paste0("unused", i)]] <- stats::rnorm(nrow(d))
+    p <- NULL
+    invisible(utils::capture.output(p <- suppressMessages(UtilsR::plt_cat(
+      d, "category", "group", split.by = if (split) "site" else NULL))))
+    p
+  }
+  environment(make_plot) <- globalenv()
+  files <- c(withr::local_tempfile(), withr::local_tempfile())
+  for (split in c(FALSE, TRUE)) {
+    small <- make_plot(FALSE, split)
+    large <- make_plot(TRUE, split)
+    if (split) {
+      for (i in seq_len(length(small))) {
+        expect_equal(ggplot2::ggplot_build(small[[i]])$data,
+                     ggplot2::ggplot_build(large[[i]])$data)
+      }
+    } else {
+      expect_equal(ggplot2::ggplot_build(small)$data, ggplot2::ggplot_build(large)$data)
+    }
+    saveRDS(small, files[1], compress = FALSE)
+    saveRDS(large, files[2], compress = FALSE)
+    expect_lt(diff(file.info(files)$size), 32768)
+  }
+})
+
 test_that("plt_cat area and trend retain zero frequencies for interpolation", {
   d <- data.frame(category = factor(c("A", "A", "A", "A", "B", "B", "B")),
                   group = factor(c("G1", "G1", "G3", "G3", "G1", "G2", "G3")))

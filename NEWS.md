@@ -16,6 +16,8 @@
 
 # UtilsR 0.6.18
 
+* plt_cat() drops unrelated input columns before plotting and avoids retaining panel data in percentage label closures, reducing saved plot size without changing plotted values.
+
 * Categorical area plots report unsupported layouts with fewer than two displayed group positions instead of returning empty plots; explicitly retained empty levels remain supported.
 
 * Categorical chord plots match sector colours by their names, preserving named and positional palettes when factors contain unused levels.
