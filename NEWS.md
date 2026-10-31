@@ -1,5 +1,8 @@
 # UtilsR 0.6.19
 
+* Continuous and categorical background bands follow category positions when
+  a returned plot's discrete axis is reordered, retaining missing and empty levels.
+
 * `plt_con()` displays the overall title and subtitle once on combined split
   figures while preserving the split labels on their panels.
 

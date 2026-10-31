@@ -23,6 +23,7 @@
 #               |       .plt_cat_pie   / .plt_cat_trend / .plt_cat_area /
 #               |       .plt_cat_dot
 #               +-- L4  .build_bg_layer()   alternating bands for dodge mode
+#                         .GeomBg          follow trained discrete positions
 #               +-- L4  .add_cat_labels()   ggrepel value labels
 #
 # The L4 renderers live in plt_cat_types.R; this file owns data preparation,
@@ -581,7 +582,8 @@ plt_cat <- function(data,
   if (!is.null(bg.by) && !is.null(group.by) &&
       type %in% c("bar", "trend", "dot") && position == "dodge") {
     bg_layer <- .build_bg_layer(data, group.by, bg.by, bg_alpha, bg_palette,
-                                axis_levels = levels(plotdata[["group_var"]]))
+                                axis_levels = levels(plotdata[["group_var"]]),
+                                continuous = type == "trend")
     if (!is.null(bg_layer)) {
       p$layers <- c(list(bg_layer), p$layers)
     }
@@ -754,10 +756,26 @@ plt_cat <- function(data,
 }
 
 
+.GeomBg <- ggplot2::ggproto(NULL, ggplot2::GeomRect,
+  required_aes = c("x", "ymin", "ymax"),
+  setup_data = function(data, params) {
+    data <- data[is.finite(data$x), , drop = FALSE]
+    data$xmin <- data$x - 0.5
+    data$xmax <- data$x + 0.5
+    data
+  },
+  draw_panel = function(data, panel_params, coord, ...) {
+    axis <- if (inherits(coord, "CoordFlip")) panel_params$y else panel_params$x
+    data$xmin[data$x == 1L] <- -Inf
+    data$xmax[data$x == length(axis$get_limits())] <- Inf
+    ggplot2::GeomRect$draw_panel(data, panel_params, coord, ...)
+  }
+)
+
 #' Build background colour bands for dodge-mode plots
 #' @noRd
 .build_bg_layer <- function(data, group.by, bg.by, bg_alpha,
-                            bg_palette = NULL, axis_levels = NULL) {
+                            bg_palette = NULL, axis_levels = NULL, continuous = FALSE) {
   group_values <- as.character(data[[group.by]])
   if (is.null(axis_levels)) {
     axis_levels <- if (is.factor(data[[group.by]])) levels(data[[group.by]]) else levels(factor(data[[group.by]]))
@@ -803,23 +821,31 @@ plt_cat <- function(data,
 
   bg_data <- data.frame(
     group = group_levels,
-    x = group_ids,
+    x = factor(group_levels, levels = axis_levels, exclude = NULL),
     bg = bg_map,
     stringsAsFactors = FALSE
   )
-  bg_data[["xmin"]] <- bg_data[["x"]] - 0.5
-  bg_data[["xmax"]] <- bg_data[["x"]] + 0.5
-  bg_data[["xmin"]][bg_data[["x"]] == 1L] <- -Inf
-  bg_data[["xmax"]][bg_data[["x"]] == length(axis_levels)] <- Inf
   bg_data[["fill"]] <- bg_cols[match(bg_data[["bg"]], names(bg_cols))]
 
-  ggplot2::geom_rect(
+  if (isTRUE(continuous)) {
+    bg_data[["xmin"]] <- group_ids - 0.5
+    bg_data[["xmax"]] <- group_ids + 0.5
+    bg_data[["xmin"]][group_ids == 1L] <- -Inf
+    bg_data[["xmax"]][group_ids == length(axis_levels)] <- Inf
+    return(ggplot2::geom_rect(data = bg_data,
+      mapping = ggplot2::aes(xmin = .data[["xmin"]], xmax = .data[["xmax"]],
+        ymin = -Inf, ymax = Inf, fill = I(.data[["fill"]])),
+      alpha = bg_alpha, inherit.aes = FALSE, show.legend = FALSE))
+  }
+
+  ggplot2::layer(
+    geom = .GeomBg, stat = "identity", position = "identity",
     data = bg_data,
-    ggplot2::aes(
-      xmin = .data[["xmin"]], xmax = .data[["xmax"]],
+    mapping = ggplot2::aes(
+      x = .data[["x"]],
       ymin = -Inf, ymax = Inf, fill = I(.data[["fill"]])
     ),
-    alpha = bg_alpha,
+    params = list(alpha = bg_alpha, na.rm = TRUE),
     inherit.aes = FALSE, show.legend = FALSE
   )
 }

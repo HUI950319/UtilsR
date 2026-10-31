@@ -44,7 +44,8 @@
 #'   An explicit missing factor level is labelled \code{"<NA>"}, with a unique
 #'   suffix when needed to preserve existing literal level names.
 #' @param bg.by Character. Column name for background colour bands.
-#'   Must be a superset of \code{group.by}. Default \code{NULL}.
+#'   Must be a superset of \code{group.by}. Default \code{NULL}. Bands follow
+#'   their categories when the returned plot's discrete axis is reordered.
 #' @param type Plot type: \code{"violin"} (default), \code{"box"},
 #'   \code{"bar"}, or \code{"dot"}. Bar annotations clear the SD intervals.
 #' @param fill.by What variable to map to fill colour:

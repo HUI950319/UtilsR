@@ -699,6 +699,39 @@ test_that("con shared background helper matches named colours in categorical plo
                        bg_palette = c(North = "red")), "bg_palette")
 })
 
+test_that("con background categories follow later discrete-axis reordering", {
+  d <- con_data()
+  d$region <- ifelse(d$g == "A", "North", "South")
+  d$g <- factor(d$g, levels = c("A", "unused", "B"))
+  for (stack in c(FALSE, TRUE)) for (flip in c(FALSE, TRUE)) {
+    p <- con_plot(d, c("x", "z"), type = "box", stack = stack, flip = flip,
+      bg.by = "region", bg_palette = c(North = "red", South = "blue"))
+    q <- suppressMessages(p + ggplot2::scale_x_discrete(limits = c("B", "unused", "A")))
+    b <- ggplot2::ggplot_build(q)
+    bands <- b$data[[1L]]
+    at <- match("A", b$layout$panel_scales_x[[1L]]$get_limits())
+    expect_equal(as.character(bands$fill[bands$xmin <= at & bands$xmax >= at]),
+                 rep("red", if (stack) 2L else 1L))
+    expect_equal(ggplot2::ggplot_build(p)$layout$panel_scales_x[[1L]]$get_limits(),
+                 c("A", "unused", "B"))
+    invisible(ggplot2::ggplotGrob(q))
+  }
+  d$category <- rep(c("Yes", "No"), 6)
+  invisible(utils::capture.output(p <- suppressMessages(plt_cat(d, "category", "g",
+    position = "dodge", bg.by = "region", bg_palette = c(North = "red", South = "blue")))))
+  b <- ggplot2::ggplot_build(suppressMessages(p + ggplot2::scale_x_discrete(limits = c("B", "A"))))
+  bands <- b$data[[1L]]
+  expect_equal(as.character(bands$fill[bands$xmin <= 2 & bands$xmax >= 2]), "red")
+  for (flip in c(FALSE, TRUE)) {
+    p <- suppressMessages(plt_cat(d, "category", "g", type = "trend", position = "dodge",
+      bg.by = "region", flip = flip))
+    native <- suppressMessages(plt_cat(d, "category", "g", type = "trend", position = "dodge",
+      flip = flip))
+    expect_identical(ggplot2::ggplot_build(p)$data[-1L], ggplot2::ggplot_build(native)$data)
+    invisible(ggplot2::ggplotGrob(p))
+  }
+})
+
 test_that("con legend titles describe the mapped variable and survive background layers", {
   text_labels <- function(grob) {
     c(if (inherits(grob, "text")) as.character(grob$label) else character(),
