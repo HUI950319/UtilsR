@@ -270,16 +270,15 @@ PlotRankCor <- function(
   plot_value <- tail(make.unique(c(names(data), ".plot_val")), 1L)
 
   # Compute plot values: rank or raw value
+  rank_long <- data
   if (use_rank) {
-    rank_long <- do.call(rbind, lapply(
-      split(data, vctrs::vec_group_id(data[unique(c(group.by_internal, method.by))])),
-      function(d) {
-        d[[plot_value]] <- rank(-d[[value.by]], ties.method = "average", na.last = "keep")
-        d
-      }
-    ))
+    rank_rows <- vctrs::vec_group_loc(data[unique(c(group.by_internal, method.by))])$loc
+    rank_long[[plot_value]] <- NA_real_
+    for (idx in rank_rows) {
+      rank_long[[plot_value]][idx] <- rank(-data[[value.by]][idx],
+        ties.method = "average", na.last = "keep")
+    }
   } else {
-    rank_long <- data
     rank_long[[plot_value]] <- rank_long[[value.by]]
   }
   rownames(rank_long) <- NULL
@@ -289,15 +288,12 @@ PlotRankCor <- function(
   extra_cols <- extra_cols[!is.null(extra_cols)]
 
   if (length(extra_cols) > 0) {
-    agg_key <- vctrs::vec_group_id(rank_long[unique(c(stat.by, group.by_internal))])
-    agg_df <- do.call(rbind, lapply(split(rank_long, agg_key), function(d) {
-      row <- d[1, c(stat.by, group.by_internal), drop = FALSE]
-      for (ec in extra_cols) {
-        row[[ec]] <- mean(d[[ec]], na.rm = TRUE)
-      }
-      row
-    }))
-    rownames(agg_df) <- NULL
+    agg_groups <- vctrs::vec_group_loc(rank_long[unique(c(stat.by, group.by_internal))])
+    agg_df <- agg_groups$key
+    for (ec in extra_cols) {
+      values <- rank_long[[ec]]
+      agg_df[[ec]] <- vapply(agg_groups$loc, function(idx) mean(values[idx], na.rm = TRUE), numeric(1))
+    }
     empty_aesthetics <- extra_cols[vapply(agg_df[extra_cols], function(x) !any(is.finite(x)), logical(1))]
     if (length(empty_aesthetics))
       cli::cli_warn("Mapped columns {.val {empty_aesthetics}} have no finite category/group means; points may be omitted or invisible.")
@@ -308,13 +304,10 @@ PlotRankCor <- function(
   pivot_data <- rank_long[, unique(c(pivot_keys, plot_value)), drop = FALSE]
   key_order <- do.call(order, unname(lapply(pivot_data[pivot_keys], as.character)))
   pivot_data <- pivot_data[key_order, , drop = FALSE]
-  agg_key_piv <- vctrs::vec_group_id(pivot_data[pivot_keys])
-  pivot_data <- do.call(rbind, lapply(split(pivot_data, agg_key_piv), function(d) {
-    row <- d[1, pivot_keys, drop = FALSE]
-    row[[plot_value]] <- mean(d[[plot_value]], na.rm = TRUE)
-    row
-  }))
-  rownames(pivot_data) <- NULL
+  pivot_groups <- vctrs::vec_group_loc(pivot_data[pivot_keys])
+  values <- pivot_data[[plot_value]]
+  pivot_data <- pivot_groups$key
+  pivot_data[[plot_value]] <- vapply(pivot_groups$loc, function(idx) mean(values[idx], na.rm = TRUE), numeric(1))
 
   # Pivot to wide: one column per method
   method_cols <- tail(make.unique(c(stat.by, group.by_internal, extra_cols, methods)), 2L)

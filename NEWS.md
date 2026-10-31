@@ -1,5 +1,7 @@
 # UtilsR 0.6.18
 
+* `PlotRankCor()` aggregates tuple groups in batches while retaining mean ranks, approximate Spearman tests and the existing correlation result schema.
+
 * `pal_get()` places a numeric `x` along the palette by value, one colour per element, instead of ignoring the values: `c(1, 100, 2)` and `c(3, 2, 1)` got the same colours. Missing and infinite values get `NA`, and a single distinct value takes the middle colour. Evenly spaced increasing values return what they did.
 
 * `pal_get()` names the colours it maps to a character, factor or logical `x`, as its help page says, so `scale_color_manual(values = pal_get("lancet", x = c("B", "A")))` colours each level as asked. Missing values of `x` are left out.
