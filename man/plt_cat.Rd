@@ -119,7 +119,8 @@ Default \code{FALSE}.}
 \item{stat_level}{Character or list. For venn/upset types, the value(s) in
 each \code{stat.by} column that count as "positive". Default \code{NULL}
 auto-detects \code{TRUE}, \code{"Yes"}, \code{"yes"}, \code{1},
-\code{"TRUE"}, \code{"1"}, or uses the first factor level.}
+\code{"TRUE"}, \code{"1"}, or uses the first factor level. With
+\code{split.by}, membership values are resolved once for all panels.}
 
 \item{title}{Character. Plot title. Default \code{NULL}.}
 

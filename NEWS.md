@@ -13,6 +13,8 @@
 
 # UtilsR 0.6.18
 
+* Categorical Venn and UpSet facets resolve positive membership once across the complete input so panel membership definitions stay consistent.
+
 * Categorical plots preserve time-class values and their original missingness when converting categories to factors.
 
 * `plt_con()` skips non-finite pairwise P-values instead of marking them as

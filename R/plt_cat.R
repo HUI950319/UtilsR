@@ -87,7 +87,8 @@
 #' @param stat_level Character or list. For venn/upset types, the value(s) in
 #'   each \code{stat.by} column that count as "positive". Default \code{NULL}
 #'   auto-detects \code{TRUE}, \code{"Yes"}, \code{"yes"}, \code{1},
-#'   \code{"TRUE"}, \code{"1"}, or uses the first factor level.
+#'   \code{"TRUE"}, \code{"1"}, or uses the first factor level. With
+#'   \code{split.by}, membership values are resolved once for all panels.
 #' @param title Character. Plot title. Default \code{NULL}.
 #' @param subtitle Character. Plot subtitle. Default \code{NULL}.
 #' @param xlab Character. X-axis label. Default \code{NULL}.
@@ -464,6 +465,10 @@ plt_cat <- function(data,
   # --- Auto aspect.ratio for polar types --------------------------------------
   if (is.null(aspect.ratio) && type %in% c("rose", "ring", "pie")) {
     aspect.ratio <- 1
+  }
+
+  if (type %in% c("venn", "upset")) {
+    stat_level <- .resolve_stat_level(data, stat.by, stat_level)
   }
 
   draw_one <- function(panel_data, panel_title) {

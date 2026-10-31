@@ -28,6 +28,21 @@ test_that("plt_cat preserves time values and their original missingness", {
   expect_equal(sum(vapply(seq_len(length(p)), function(i) sum(p[[i]]$data$n), 0)), 3)
 })
 
+test_that("plt_cat resolves positive membership before splitting", {
+  skip_if_not_installed("ggupset")
+  d <- data.frame(A = c(FALSE, FALSE, TRUE, TRUE), B = TRUE,
+                  site = c("negative", "negative", "positive", "positive"))
+  whole <- suppressWarnings(cat_test_plot(d, c("A", "B"), type = "upset"))
+  split <- cat_test_plot(d, c("A", "B"), type = "upset", split.by = "site")
+  expect_equal(split[[1]]$data$intersection, whole$data$intersection[1:2])
+  expect_equal(split[[1]]$data$intersection, list("B", "B"))
+  expect_equal(split[[2]]$data$intersection, whole$data$intersection[3:4])
+  explicit <- cat_test_plot(d, c("A", "B"), type = "upset", split.by = "site",
+                           stat_level = list(A = FALSE, B = TRUE))
+  expect_equal(explicit[[1]]$data$intersection, rep(list(c("A", "B")), 2))
+  expect_equal(explicit[[2]]$data$intersection, list("B", "B"))
+})
+
 test_that("plt_cat area and trend retain zero frequencies for interpolation", {
   d <- data.frame(category = factor(c("A", "A", "A", "A", "B", "B", "B")),
                   group = factor(c("G1", "G1", "G3", "G3", "G1", "G2", "G3")))
