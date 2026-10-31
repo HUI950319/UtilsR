@@ -95,11 +95,13 @@ plt_con(
 - bg.by:
 
   Character. Column name for background colour bands. Must be a superset
-  of `group.by`. Default `NULL`.
+  of `group.by`. Default `NULL`. Bands follow their categories when the
+  returned plot's discrete axis is reordered.
 
 - type:
 
-  Plot type: `"violin"` (default), `"box"`, `"bar"`, or `"dot"`.
+  Plot type: `"violin"` (default), `"box"`, `"bar"`, or `"dot"`. Bar
+  annotations clear the SD intervals.
 
 - fill.by:
 
@@ -182,6 +184,8 @@ plt_con(
   `NULL`. Pairs with unavailable groups are skipped per feature with a
   warning. Tests that fail or return a non-finite P-value are also
   skipped individually; other requested comparisons remain available.
+  Results are reused on repeated draws when the test inputs are
+  unchanged.
 
 - ref_group:
 
@@ -195,7 +199,9 @@ plt_con(
 
 - multiplegroup_comparisons:
 
-  Logical. Add global comparison? Default `FALSE`.
+  Logical. Add global comparison? Default `FALSE`. Constant features and
+  failed tests or non-finite P-values are skipped individually with a
+  warning.
 
 - multiple_method:
 
@@ -229,7 +235,8 @@ plt_con(
   Numeric or character scalar. Maximum y-axis limit. A finite number or
   `"qN"` for integer N from 0 to 100. Character `"qN"` uses the Nth
   percentile. Default `NULL`. Automatic limits leave room for
-  comparisons; explicit bounds are preserved.
+  comparisons; explicit bounds are preserved. Independent axes reserve
+  space only for valid pairwise comparisons.
 
 - y.nbreaks:
 
@@ -244,6 +251,7 @@ plt_con(
 - stack:
 
   Logical. Stack features vertically using facet? Default `FALSE`.
+  Independent vertical panels reserve space between their axis labels.
 
 - flip:
 
@@ -251,11 +259,13 @@ plt_con(
 
 - title:
 
-  Character. Plot title. Default `NULL`.
+  Character. Plot title. Default `NULL`. For a combined split figure,
+  appears once above the panels; split labels remain panel titles.
 
 - subtitle:
 
-  Character. Plot subtitle. Default `NULL`.
+  Character. Plot subtitle. Default `NULL`. Appears once on a combined
+  split figure, or on each panel when `combine = FALSE`.
 
 - xlab:
 

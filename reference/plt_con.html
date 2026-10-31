@@ -154,12 +154,13 @@ suffix when needed to preserve existing literal level names.</p></dd>
 
 <dt id="arg-bg-by">bg.by<a class="anchor" aria-label="anchor" href="#arg-bg-by"></a></dt>
 <dd><p>Character. Column name for background colour bands.
-Must be a superset of <code>group.by</code>. Default <code>NULL</code>.</p></dd>
+Must be a superset of <code>group.by</code>. Default <code>NULL</code>. Bands follow
+their categories when the returned plot's discrete axis is reordered.</p></dd>
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
 <dd><p>Plot type: <code>"violin"</code> (default), <code>"box"</code>,
-<code>"bar"</code>, or <code>"dot"</code>.</p></dd>
+<code>"bar"</code>, or <code>"dot"</code>. Bar annotations clear the SD intervals.</p></dd>
 
 
 <dt id="arg-fill-by">fill.by<a class="anchor" aria-label="anchor" href="#arg-fill-by"></a></dt>
@@ -240,7 +241,8 @@ Default <code>FALSE</code>.</p></dd>
 <dd><p>A list of length-2 character vectors for pairwise tests.
 Default <code>NULL</code>. Pairs with unavailable groups are skipped per feature
 with a warning. Tests that fail or return a non-finite P-value are also
-skipped individually; other requested comparisons remain available.</p></dd>
+skipped individually; other requested comparisons remain available.
+Results are reused on repeated draws when the test inputs are unchanged.</p></dd>
 
 
 <dt id="arg-ref-group">ref_group<a class="anchor" aria-label="anchor" href="#arg-ref-group"></a></dt>
@@ -257,7 +259,8 @@ Default <code>"wilcox.test"</code>.</p></dd>
 
 <dt id="arg-multiplegroup-comparisons">multiplegroup_comparisons<a class="anchor" aria-label="anchor" href="#arg-multiplegroup-comparisons"></a></dt>
 <dd><p>Logical. Add global comparison?
-Default <code>FALSE</code>.</p></dd>
+Default <code>FALSE</code>. Constant features and failed tests or non-finite
+P-values are skipped individually with a warning.</p></dd>
 
 
 <dt id="arg-multiple-method">multiple_method<a class="anchor" aria-label="anchor" href="#arg-multiple-method"></a></dt>
@@ -292,7 +295,8 @@ pooled observations when <code>same.y.lims = TRUE</code>.</p></dd>
 <dd><p>Numeric or character scalar. Maximum y-axis limit.
 A finite number or <code>"qN"</code> for integer N from 0 to 100.
 Character <code>"qN"</code> uses the Nth percentile. Default <code>NULL</code>.
-Automatic limits leave room for comparisons; explicit bounds are preserved.</p></dd>
+Automatic limits leave room for comparisons; explicit bounds are preserved.
+Independent axes reserve space only for valid pairwise comparisons.</p></dd>
 
 
 <dt id="arg-y-nbreaks">y.nbreaks<a class="anchor" aria-label="anchor" href="#arg-y-nbreaks"></a></dt>
@@ -307,7 +311,8 @@ Automatic limits leave room for comparisons; explicit bounds are preserved.</p><
 
 <dt id="arg-stack">stack<a class="anchor" aria-label="anchor" href="#arg-stack"></a></dt>
 <dd><p>Logical. Stack features vertically using facet?
-Default <code>FALSE</code>.</p></dd>
+Default <code>FALSE</code>. Independent vertical panels reserve space between
+their axis labels.</p></dd>
 
 
 <dt id="arg-flip">flip<a class="anchor" aria-label="anchor" href="#arg-flip"></a></dt>
@@ -315,11 +320,13 @@ Default <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg-title">title<a class="anchor" aria-label="anchor" href="#arg-title"></a></dt>
-<dd><p>Character. Plot title. Default <code>NULL</code>.</p></dd>
+<dd><p>Character. Plot title. Default <code>NULL</code>. For a combined split
+figure, appears once above the panels; split labels remain panel titles.</p></dd>
 
 
 <dt id="arg-subtitle">subtitle<a class="anchor" aria-label="anchor" href="#arg-subtitle"></a></dt>
-<dd><p>Character. Plot subtitle. Default <code>NULL</code>.</p></dd>
+<dd><p>Character. Plot subtitle. Default <code>NULL</code>. Appears once
+on a combined split figure, or on each panel when <code>combine = FALSE</code>.</p></dd>
 
 
 <dt id="arg-xlab">xlab<a class="anchor" aria-label="anchor" href="#arg-xlab"></a></dt>

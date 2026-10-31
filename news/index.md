@@ -3,6 +3,37 @@
 ## UtilsR 0.6.19
 
 - [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  reuses pairwise test results while inputs are unchanged, preserves
+  test warnings and recomputes after data transformations without
+  changing P-values.
+
+- Independent
+  [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  axes reserve annotation space for valid comparisons only; skipped
+  comparisons no longer enlarge panels, and shared axes stay aligned.
+
+- Continuous and categorical background bands follow category positions
+  when a returned plot’s discrete axis is reordered, retaining missing
+  and empty levels.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  displays the overall title and subtitle once on combined split figures
+  while preserving the split labels on their panels.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  separates independent vertical facets so boundary tick labels do not
+  overlap, while keeping the existing shared-axis layout.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  places stacked bar comparison brackets above the full SD intervals and
+  separates global labels from the brackets while preserving explicit
+  zoom.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  skips degenerate global comparisons per feature with a clear warning,
+  retaining valid annotations in other panels.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
   titles its fill legend with the group column or “Feature”, keeping
   background layers from exposing internal expressions as the legend
   title.
