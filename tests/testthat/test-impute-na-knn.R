@@ -199,3 +199,16 @@ test_that("impute_na_knn restores labelled donor values without decimal rounding
     expect_identical(dat$value, x)
   }
 })
+
+test_that("impute_na_knn keeps integer truncation explicit without assignment warnings", {
+  skip_if_not_installed("VIM")
+  for (values in list(c(0L, 10L, NA_integer_), c(0L, -10L, NA_integer_))) {
+    dat <- data.frame(value = values, helper = c(0, 10, 2.9))
+    numeric_data <- dat; numeric_data$value <- as.double(values)
+    reference <- impute_na_knn(numeric_data, k = 2, verbose = FALSE)
+    expect_no_warning(result <- impute_na_knn(dat, k = 2, verbose = FALSE))
+    expect_identical(result$value, as.integer(reference$value))
+    expect_type(result$value, "integer")
+    expect_identical(result$helper, dat$helper)
+  }
+})

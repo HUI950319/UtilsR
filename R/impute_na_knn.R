@@ -15,6 +15,8 @@
 #' their observed values must be within +/-\code{2^53} for exact numeric
 #' conversion. Imputed values are converted back to integer64 storage, with
 #' fractional parts truncated.
+#' Ordinary integer columns also retain truncation toward zero when converting
+#' their weighted means back to integer storage.
 #' VIM's distance weights and aggregation rules are retained. Degenerate
 #' weights use equal weights for the selected neighbours. Wholly missing rows
 #' are retained without imputation, and remaining missing values are reported.
@@ -169,8 +171,9 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     weights
   }
   weighted_mean <- function(x, weights = NULL, ...) {
-    if (is.null(weights)) return(mean(x, na.rm = TRUE))
-    stats::weighted.mean(x, w = distance_weights(weights), na.rm = TRUE)
+    value <- if (is.null(weights)) mean(x, na.rm = TRUE) else
+      stats::weighted.mean(x, w = distance_weights(weights), na.rm = TRUE)
+    if (is.integer(x)) as.integer(value) else value
   }
   weighted_category <- function(x, weights = NULL) {
     VIM::maxCat(x, weights = distance_weights(weights))
