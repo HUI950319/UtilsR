@@ -1,5 +1,7 @@
 # UtilsR 0.6.18
 
+* `pal_get()` keeps the transparency of its colours when it repeats or interpolates them, as in `pal_get("#FF000080", n = 2)`. Opaque colours and registered palettes return what they did.
+
 * `PlotRankCor()` retains missing grouping strata with distinct display labels and excludes missing method identifiers explicitly.
 
 * `PlotRankCor()` groups and pairs observations by column tuples rather than pasted strings, preserving names containing dots or separators.

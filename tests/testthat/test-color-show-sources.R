@@ -298,3 +298,15 @@ test_that("pal_get maps over a list of palettes", {
   expect_error(pal_get(list(c("#000000", "#ffffff"))), "named")
   expect_error(pal_get(list(a = 1:3)), "character")
 })
+
+test_that("pal_get keeps transparency when it interpolates", {
+  expect_identical(pal_get("#FF000080", n = 2), rep("#FF000080", 2))
+  expect_identical(pal_get(c("#FF000080", "#0000FF80"), n = 3),
+                   c("#FF000080", "#7F007F80", "#0000FF80"))
+  expect_identical(pal_get("#FF000080", x = c("a", "b", "c")), rep("#FF000080", 3))
+
+  # Opaque colours stay six digits, and `alpha` still overrides.
+  expect_identical(pal_get("red", n = 2), rep("#FF0000", 2))
+  expect_identical(nchar(pal_get("lancet", n = 20)), rep(7L, 20))
+  expect_identical(pal_get("#FF000080", n = 2, alpha = 0.25), rep("#FF000040", 2))
+})

@@ -338,7 +338,8 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
 #' @param x Optional vector to map colours to. If character/factor, returns
 #'   a named colour vector. If numeric, interpolates along the palette.
 #' @param reverse Logical, reverse colour order. Default \code{FALSE}.
-#' @param alpha Numeric 0-1, colour transparency. Default 1 (opaque).
+#' @param alpha Numeric 0-1, colour transparency. Default 1 leaves colours as
+#'   they are, keeping any transparency of their own.
 #'
 #' @return A character vector of hex colours, or -- when \code{palette} is a
 #'   list of palettes -- a list of such vectors under the same names.
@@ -428,11 +429,17 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #' @noRd
 .pal_apply <- function(cols, n = NULL, x = NULL, reverse = FALSE, alpha = 1) {
 
+  # colorRampPalette() drops alpha unless told; telling it for opaque colours
+  # would turn "#00468B" into "#00468BFF", so only when some colour has alpha.
+  ramp <- function(k) {
+    has_alpha <- any(grDevices::col2rgb(cols, alpha = TRUE)["alpha", ] < 255)
+    grDevices::colorRampPalette(cols, alpha = has_alpha)(k)
+  }
+
   # --- Map to x (discrete) ---
   if (!is.null(x)) {
     if (is.numeric(x)) {
       # Continuous: interpolate
-      ramp <- grDevices::colorRampPalette(cols)
       out <- ramp(length(x))
     } else {
       # Discrete: map levels
@@ -441,7 +448,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
       if (n_lvs <= length(cols)) {
         out <- stats::setNames(cols[seq_len(n_lvs)], lvs)
       } else {
-        out <- stats::setNames(grDevices::colorRampPalette(cols)(n_lvs), lvs)
+        out <- stats::setNames(ramp(n_lvs), lvs)
       }
     }
   } else if (!is.null(n)) {
@@ -449,7 +456,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     if (n <= length(cols)) {
       out <- cols[seq_len(n)]
     } else {
-      out <- grDevices::colorRampPalette(cols)(n)
+      out <- ramp(n)
     }
   } else {
     out <- cols

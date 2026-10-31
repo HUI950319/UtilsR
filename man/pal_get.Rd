@@ -27,7 +27,8 @@ a named colour vector. If numeric, interpolates along the palette.}
 
 \item{reverse}{Logical, reverse colour order. Default \code{FALSE}.}
 
-\item{alpha}{Numeric 0-1, colour transparency. Default 1 (opaque).}
+\item{alpha}{Numeric 0-1, colour transparency. Default 1 leaves colours as
+they are, keeping any transparency of their own.}
 }
 \value{
 A character vector of hex colours, or -- when \code{palette} is a
