@@ -46,7 +46,7 @@
 #' @param bg.by Character. Column name for background colour bands.
 #'   Must be a superset of \code{group.by}. Default \code{NULL}.
 #' @param type Plot type: \code{"violin"} (default), \code{"box"},
-#'   \code{"bar"}, or \code{"dot"}.
+#'   \code{"bar"}, or \code{"dot"}. Bar annotations clear the SD intervals.
 #' @param fill.by What variable to map to fill colour:
 #'   \code{"group"} (default) colours by group.by levels;
 #'   \code{"feature"} colours by stat.by name.
@@ -1199,6 +1199,22 @@ plt_con <- function(data,
       )
   }
 
+  bar_data <- bar_ranges <- NULL
+  if (type == "bar" && (length(comparisons) || isTRUE(multiplegroup_comparisons))) {
+    bar_data <- split(dat_long, dat_long[["feature"]], drop = TRUE)
+    bar_ranges <- vapply(bar_data, function(d) {
+      v <- d[["value"]]
+      bounds <- .con_bar_range(v, d[["group.by"]])
+      c(.resolve_y_limit(y.min, if (is.null(y.min)) bounds else v, "min"),
+        .resolve_y_limit(y.max, if (is.null(y.max)) bounds else v, "max"))
+    }, numeric(2))
+    if (isTRUE(same.y.lims)) {
+      bar_ranges[1L, ] <- if (is.null(y.min)) min(bar_ranges[1L, ]) else y_min_use
+      bar_ranges[2L, ] <- if (is.null(y.max)) max(bar_ranges[2L, ]) else y_max_use
+    }
+  }
+  comparison_counts <- integer(length(stat.by))
+
   # Facets partition the test data, so each feature is tested independently.
   if (length(comparisons)) {
     comparison_sets <- lapply(stat.by, function(f) {
@@ -1206,7 +1222,8 @@ plt_con <- function(data,
       .con_comparisons(comparisons, dat_long[["group.by"]][at], f,
                         dat_long[["value"]][at], pairwise_method)
     })
-    if (all(vapply(comparison_sets, identical, logical(1), comparisons))) {
+    comparison_counts <- lengths(comparison_sets)
+    if (type != "bar" && all(vapply(comparison_sets, identical, logical(1), comparisons))) {
       comparison_sets <- comparison_sets[1L]
       comparison_data <- list(NULL)
     } else {
@@ -1217,15 +1234,24 @@ plt_con <- function(data,
       p <- p + .con_component(ggpubr::stat_compare_means,
         data = comparison_data[[i]], comparisons = comparison_sets[[i]], ref.group = ref_group,
         method = pairwise_method, label = sig_label, size = sig_labelsize,
+        label.y = if (type == "bar") bar_ranges[2L, i] else NULL,
         step.increase = 0.1, tip.length = 0.03, vjust = 0
       )
     }
   }
   if (isTRUE(multiplegroup_comparisons)) {
-    p <- p + .con_component(.con_global_layer, features = stat.by,
-      method = multiple_method, label = sig_label, size = sig_labelsize,
-      vjust = 1.2, hjust = if (isTRUE(flip)) 1 else 0
-    )
+    global_data <- if (type == "bar") bar_data else list(NULL)
+    for (i in seq_along(global_data)) {
+      global_y <- if (type == "bar") {
+        bar_ranges[2L, i] + diff(bar_ranges[, i]) * 0.15 * (comparison_counts[i] + 1L)
+      } else NULL
+      p <- p + .con_component(.con_global_layer,
+        features = if (type == "bar") stat.by[i] else stat.by,
+        data = global_data[[i]], label.y = global_y,
+        method = multiple_method, label = sig_label, size = sig_labelsize,
+        vjust = 1.2, hjust = if (isTRUE(flip)) 1 else 0
+      )
+    }
   }
 
   # --- Facet by feature ---

@@ -1,5 +1,8 @@
 # UtilsR 0.6.19
 
+* `plt_con()` places stacked bar comparison brackets above the full SD intervals
+  and separates global labels from the brackets while preserving explicit zoom.
+
 * `plt_con()` skips degenerate global comparisons per feature with a clear
   warning, retaining valid annotations in other panels.
 

@@ -518,6 +518,27 @@ test_that("con errorbar explicit zoom limits retain their requested bounds", {
   }
 })
 
+test_that("con stacked bar comparisons clear the full SD intervals", {
+  d <- data.frame(x = c(1, 100, 2, 200), z = c(10, 1000, 20, 2000),
+                  g = rep(c("A", "B"), each = 2))
+  for (flip in c(FALSE, TRUE)) for (shared in c(FALSE, TRUE)) {
+    p <- con_plot(d, c("x", "z"), type = "bar", stack = TRUE, flip = flip,
+                  same.y.lims = shared, comparisons = list(c("A", "B")),
+                  multiplegroup_comparisons = TRUE)
+    b <- ggplot2::ggplot_build(p)$data
+    kinds <- vapply(p$layers, function(l) class(l$geom)[[1L]], "")
+    errors <- b[[which(kinds == "GeomErrorbar")]]
+    brackets <- do.call(rbind, b[which(kinds == "GeomSignif")])
+    labels <- do.call(rbind, b[which(kinds == "GeomText")])
+    for (panel in 1:2) {
+      upper <- max(errors$ymax[as.integer(errors$PANEL) == panel])
+      height <- max(brackets$y[as.integer(brackets$PANEL) == panel])
+      expect_gt(height, upper)
+      expect_gt(labels$y[as.integer(labels$PANEL) == panel], height)
+    }
+  }
+})
+
 test_that("con shared bar quantile limits use the original observations", {
   d <- data.frame(x = c(1, 2, 3, 100), z = c(4, 5, 6, 200), g = "A")
   expected <- unname(stats::quantile(c(d$x, d$z), c(0.05, 0.95)))

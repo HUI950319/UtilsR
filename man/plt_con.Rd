@@ -81,7 +81,7 @@ suffix when needed to preserve existing literal level names.}
 Must be a superset of \code{group.by}. Default \code{NULL}.}
 
 \item{type}{Plot type: \code{"violin"} (default), \code{"box"},
-\code{"bar"}, or \code{"dot"}.}
+\code{"bar"}, or \code{"dot"}. Bar annotations clear the SD intervals.}
 
 \item{fill.by}{What variable to map to fill colour:
 \code{"group"} (default) colours by group.by levels;
