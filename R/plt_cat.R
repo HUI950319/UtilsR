@@ -390,8 +390,10 @@ plt_cat <- function(data,
       if (!is.null(pkg) && !requireNamespace(pkg, quietly = TRUE)) {
         cli::cli_abort("Inspecting {.cls {class(x)[1]}} columns requires package {.pkg {pkg}}.")
       }
-      x[is.na(x)] <- NA
-      data[[col]] <- factor(x, levels = unique(x))
+      missing <- is.na(x)
+      values <- as.character(x)
+      values[missing] <- NA_character_
+      data[[col]] <- factor(values, levels = unique(values))
     }
   }
 

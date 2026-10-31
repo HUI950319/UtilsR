@@ -6,6 +6,28 @@ cat_test_plot <- function(...) {
   p
 }
 
+test_that("plt_cat preserves time values and their original missingness", {
+  skip_if_not_installed("lubridate")
+  dates <- as.POSIXct(c("2020-01-01", "2020-01-02", NA), tz = "UTC")
+  inputs <- list(dates, as.POSIXlt(dates), lubridate::dseconds(c(1, 2, NA)),
+                 lubridate::seconds(c(1, 2, NA)),
+                 lubridate::interval(dates, dates + c(3600, 7200, NA)))
+  for (x in inputs) {
+    d <- data.frame(group = c("one", "two", "three"))
+    d[["category"]] <- x
+    p <- cat_test_plot(d, "category", stat = "count")
+    expect_equal(sum(p$data$n), 2L)
+    expect_equal(as.character(p$data$stat_var), as.character(x[!is.na(x)]))
+    q <- cat_test_plot(d, "category", stat = "count", NA_stat = TRUE)
+    expect_equal(q$data$n, rep(1L, 3))
+    expect_equal(sum(ggplot2::ggplot_build(q)$data[[1]]$fill == "grey80"), 1L)
+  }
+  d <- data.frame(category = c("A", "A", "B"), time = dates)
+  p <- cat_test_plot(d, "category", split.by = "time", stat = "count", NA_stat = TRUE)
+  expect_length(p, 3L)
+  expect_equal(sum(vapply(seq_len(length(p)), function(i) sum(p[[i]]$data$n), 0)), 3)
+})
+
 test_that("plt_cat area and trend retain zero frequencies for interpolation", {
   d <- data.frame(category = factor(c("A", "A", "A", "A", "B", "B", "B")),
                   group = factor(c("G1", "G1", "G3", "G3", "G1", "G2", "G3")))
