@@ -529,3 +529,12 @@ test_that("plt_cat split figures collect partially overlapping fill legends", {
                  c("red", "green"))
   }
 })
+
+test_that("plt_cat rejects Venn inputs beyond seven sets clearly", {
+  d <- as.data.frame(setNames(rep(list(c(TRUE, FALSE, TRUE)), 8), LETTERS[1:8]))
+  expect_error(plt_cat(d, names(d), type = "venn"), "seven.*upset")
+  skip_if_not_installed("ggVennDiagram")
+  p <- suppressMessages(cat_test_plot(d, names(d)[1:7], type = "venn"))
+  expect_s3_class(p, "ggplot")
+  expect_s3_class(ggplot2::ggplotGrob(p), "gtable")
+})

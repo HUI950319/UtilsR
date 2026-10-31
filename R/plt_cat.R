@@ -39,7 +39,8 @@
 #' @param stat.by Character. Column name(s) for the categorical variable to
 #'   summarise. For standard types (bar, rose, ring, pie, trend, area, dot) a
 #'   single column name. For set types (sankey, chord, venn, upset) a character
-#'   vector of >= 2 column names.
+#'   vector of >= 2 column names. Venn plots support at most seven columns;
+#'   use \code{type = "upset"} for larger sets.
 #' @param group.by Character. Optional grouping variable for standard types.
 #'   Ignored for set types. Area plots require at least two displayed group
 #'   levels in each panel.
@@ -326,6 +327,9 @@ plt_cat <- function(data,
       cli::cli_abort(
         "Type {.val {type}} requires {.arg stat.by} with >= 2 column names."
       )
+    }
+    if (type == "venn" && length(stat.by) > 7L) {
+      cli::cli_abort("Venn plots support at most seven sets; use {.code type = \"upset\"} for larger inputs.")
     }
     if (!is.null(group.by)) {
       cli::cli_warn(
