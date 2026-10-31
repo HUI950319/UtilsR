@@ -279,9 +279,7 @@
   rownames(m)[is.na(rownames(m))] <- "NA"
 
   all_sectors <- unique(c(rownames(m), colnames(m)))
-  n_sectors <- length(all_sectors)
-  sector_cols <- as.character(rep_len(cols, n_sectors))
-  names(sector_cols) <- all_sectors
+  sector_cols <- stats::setNames(cols[match(all_sectors, names(cols))], all_sectors)
 
   # Note: chord returns recordPlot (base graphics), not ggplot.
   # Cannot be used with ggsave(); use png()/pdf() + replayPlot() instead.

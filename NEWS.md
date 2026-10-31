@@ -16,6 +16,8 @@
 
 # UtilsR 0.6.18
 
+* Categorical chord plots match sector colours by their names, preserving named and positional palettes when factors contain unused levels.
+
 * Categorical plots resolve their effective columns before missing-value filtering and cardinality checks, so ignored columns do not alter samples or cause errors.
 
 * Categorical UpSet plots retain a two-dimensional membership matrix for one-row inputs and singleton facets.

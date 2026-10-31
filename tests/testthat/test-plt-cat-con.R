@@ -98,6 +98,25 @@ test_that("plt_cat excludes unused selectors before checking and filtering", {
   expect_equal(sum(p$data$n), 102L)
 })
 
+test_that("plt_cat chord matches sector colours by name with unused levels", {
+  skip_if_not_installed("circlize")
+  d <- data.frame(A = factor(c("a", "b", "a"), levels = c("a", "unused", "b")),
+                  B = c("x", "y", "x"))
+  captured <- NULL
+  original <- circlize::chordDiagram
+  local_mocked_bindings(chordDiagram = function(x, grid.col, ...) {
+    captured <<- grid.col
+    original(x, grid.col = grid.col, ...)
+  }, .package = "circlize")
+  palette <- c(y = "orange", b = "blue", a = "red", x = "green")
+  p <- cat_test_plot(d, c("A", "B"), type = "chord", palette = palette)
+  expect_s3_class(p, "recordedplot")
+  expect_identical(captured[names(palette)], palette)
+  q <- cat_test_plot(d, c("A", "B"), type = "chord", palette = c("red", "blue", "green", "orange"))
+  expect_identical(captured[c("a", "b", "x", "y")],
+                   c(a = "red", b = "blue", x = "green", y = "orange"))
+})
+
 test_that("plt_cat area and trend retain zero frequencies for interpolation", {
   d <- data.frame(category = factor(c("A", "A", "A", "A", "B", "B", "B")),
                   group = factor(c("G1", "G1", "G3", "G3", "G1", "G2", "G3")))
