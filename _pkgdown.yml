@@ -80,6 +80,7 @@ reference:
       - pal_heat
       - pal_paraSC
       - pal_get
+      - .resolve_color
       - pal_list
       - pal_show
       - pal_show_brewer

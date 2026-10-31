@@ -1,3 +1,7 @@
+# UtilsR 0.6.19
+
+* `.resolve_color()`, the colour handling of the plot functions, is exported so that RegR can import it instead of keeping a copy, as it does the `.cat_*` helpers.
+
 # UtilsR 0.6.18
 
 * `plt_con()` skips non-finite pairwise P-values instead of marking them as

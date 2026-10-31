@@ -1,5 +1,11 @@
-# `.resolve_color()` and the plot functions on top of it. RegR keeps a mirrored
-# copy of the helper, tested in its own test-resolve-color.R.
+# `.resolve_color()` and the plot functions on top of it. RegR imports the helper,
+# so these tests cover its plot functions too.
+
+test_that(".resolve_color is exported for RegR", {
+  expect_true(".resolve_color" %in% getNamespaceExports("UtilsR"))
+  expect_true("export(.resolve_color)" %in%
+                readLines(system.file("NAMESPACE", package = "UtilsR")))
+})
 
 plt_cat_fills <- function(p) {
   ld <- ggplot2::layer_data(p, 1L)

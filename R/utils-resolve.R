@@ -2,13 +2,13 @@
 # utils-resolve.R -- Shared input-resolution helpers
 # =============================================================================
 #
-# Internal mirrors of RegR's `.resolve_*` family, kept here in UtilsR (the
-# theme / palette home) so UtilsR's own plot helpers can use them without a
-# circular dependency on RegR. Where RegR's versions reference `UtilsR::...`
-# (RegR being external to UtilsR), these use UtilsR's own internal objects
-# directly (`theme_km`, `pal_lancet`, `pal_get`, `palette_list`).
+# The `.resolve_*` helpers UtilsR's own plot functions need, kept here (the theme
+# / palette home) without a circular dependency on RegR. `.resolve_theme()`
+# mirrors RegR's copy, using UtilsR's own `theme_km` where RegR says
+# `UtilsR::theme_km`. `.resolve_color()` lives only here: it is exported, as the
+# `.cat_*` helpers are, and RegR imports it.
 #
-# Architecture (1 layer, no public API):
+# Architecture (1 layer; only .resolve_color is exported, for RegR):
 #
 #   L2  .resolve_theme(theme_use)        NULL | name | function | theme
 #                                        -> ggplot2 theme
@@ -58,8 +58,8 @@
 
 # ---- .resolve_color --------------------------------------------------------
 #
-# Centralises the "palette name OR colour vector" resolution. Mirrors RegR's
-# internal `.resolve_color()`; registered names go through `pal_get()`, literal
+# Centralises the "palette name OR colour vector" resolution of the plot
+# functions here and in RegR. Registered names go through `pal_get()`, literal
 # colours are checked and returned as given, and anything R cannot draw stops
 # with an error. Returns an UNNAMED vector (callers add names via setNames()).
 #
@@ -70,18 +70,28 @@
 
 #' Resolve a colour specification to a colour vector
 #'
-#' @param palette NULL, a registered palette name (resolved via [pal_get()]), a
-#'   single literal colour, or a character vector of colours.
-#' @param n Optional integer size. Registered palettes use `pal_get(palette,
-#'   n = n)` (interpolating when `n` is longer); literal vectors and `default`
-#'   use [rep_len()], with a warning when several colours have to repeat. `NULL`
-#'   (default) returns the palette at its natural length.
-#' @param default Fallback colour vector when `palette = NULL`. Default
-#'   [pal_lancet].
+#' The colour handling shared by the plot functions of UtilsR and RegR, exported
+#' for those packages. For colours in your own code use \code{\link{pal_get}()}.
+#'
+#' @param palette \code{NULL}, a registered palette name (resolved via
+#'   \code{\link{pal_get}()}), a single literal colour, or a colour vector.
+#'   Anything R cannot draw is an error naming the calling function.
+#' @param n Optional integer size. Registered palettes use
+#'   \code{pal_get(palette, n = n)} (interpolating when \code{n} is longer);
+#'   literal vectors and \code{default} use \code{\link{rep_len}()}, with a
+#'   warning when several colours have to repeat. \code{NULL} (default) returns
+#'   the palette at its natural length.
+#' @param default Fallback colour vector when \code{palette = NULL}. Default
+#'   \code{\link{pal_lancet}}.
 #' @return An unnamed character vector: hex colours from a registered palette,
 #'   literal colours as given.
-#' @keywords internal
-#' @noRd
+#'
+#' @examples
+#' .resolve_color("lancet", n = 3)
+#' .resolve_color("#FF000080", n = 2)
+#' .resolve_color(NULL, n = 2)
+#'
+#' @export
 .resolve_color <- function(palette = NULL, n = NULL,
                            default = pal_lancet) {
 
