@@ -400,3 +400,43 @@ test_that("pal_get names the colours it maps to a discrete x", {
     ggplot2::scale_colour_manual(values = pal_get(c("#111111", "#222222"), x = c("B", "A")))
   expect_identical(ggplot2::layer_data(p)$colour, c("#222222", "#111111"))
 })
+
+test_that("pal_get places a numeric x along the palette by value", {
+  # Evenly along the palette; `n` alone takes the first colours of a long one.
+  three <- grDevices::colorRampPalette(palette_list$viridis)(3)
+
+  # Evenly spaced increasing values return what they did.
+  expect_identical(pal_get("viridis", x = c(1, 2, 3)), three)
+  expect_identical(pal_get("viridis", x = 1:3), three)
+
+  # The values decide, not the positions.
+  expect_identical(pal_get("viridis", x = c(3, 2, 1)), rev(three))
+  skewed <- pal_get("viridis", x = c(1, 100, 2))
+  expect_identical(skewed[[2L]], three[[3L]])
+  expect_false(identical(skewed[[3L]], three[[2L]]))
+
+  # No place, no colour; one value takes the middle.
+  expect_identical(pal_get("viridis", x = c(1, NA, 3)), c(three[[1L]], NA, three[[3L]]))
+  expect_identical(pal_get("viridis", x = c(1, Inf, 3)), c(three[[1L]], NA, three[[3L]]))
+  expect_identical(pal_get("viridis", x = c(5, 5)), rep(three[[2L]], 2))
+  expect_identical(pal_get("viridis", x = c(NA_real_, NA_real_)), rep(NA_character_, 2))
+  expect_identical(pal_get("viridis", x = numeric(0)), character())
+
+  # `reverse` flips the scale and leaves each element in its place.
+  expect_identical(pal_get("viridis", x = c(1, NA, 3), reverse = TRUE),
+                   c(three[[3L]], NA, three[[1L]]))
+  expect_identical(pal_get("viridis", x = c(1, 2, 3), alpha = 0.5),
+                   ggplot2::alpha(three, 0.5))
+  expect_identical(pal_get(c("#FF000080", "#0000FF80"), x = c(1, 0)),
+                   c("#0000FF80", "#FF000080"))
+  expect_null(names(pal_get("viridis", x = c(a = 1, b = 2))))
+})
+
+test_that("pal_get interpolates every registered palette as colorRampPalette does", {
+  for (nm in names(palette_list)) {
+    cols <- palette_list[[nm]]
+    k <- length(cols) + 3L
+    expect_identical(pal_get(nm, n = k),
+                     as.character(grDevices::colorRampPalette(cols)(k)), info = nm)
+  }
+})

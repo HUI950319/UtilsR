@@ -28,8 +28,10 @@ the palette.}
 
 \item{x}{Optional vector to map colours to. If character, factor or logical,
 returns a colour vector named by level: factor levels in their order, other
-values in order of appearance, missing values left out. If numeric,
-interpolates along the palette.}
+values in order of appearance, missing values left out. If numeric, returns
+one colour per element, placed along the palette by its value between the
+finite extremes; missing and infinite values get \code{NA}, and a single
+distinct value takes the middle colour.}
 
 \item{reverse}{Logical, reverse colour order. Default \code{FALSE}.}
 
@@ -54,6 +56,7 @@ pal_get("lancet", x = c("A", "B", "C"))
 
 # Continuous interpolation
 pal_get("viridis", n = 20)
+pal_get("viridis", x = c(1, 100, 2))
 
 # Reverse and transparent
 pal_get("Blues", n = 5, reverse = TRUE, alpha = 0.6)

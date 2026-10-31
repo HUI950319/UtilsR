@@ -341,8 +341,10 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
 #'   the palette.
 #' @param x Optional vector to map colours to. If character, factor or logical,
 #'   returns a colour vector named by level: factor levels in their order, other
-#'   values in order of appearance, missing values left out. If numeric,
-#'   interpolates along the palette.
+#'   values in order of appearance, missing values left out. If numeric, returns
+#'   one colour per element, placed along the palette by its value between the
+#'   finite extremes; missing and infinite values get \code{NA}, and a single
+#'   distinct value takes the middle colour.
 #' @param reverse Logical, reverse colour order. Default \code{FALSE}.
 #' @param alpha Numeric 0-1, colour transparency. Default 1 leaves colours as
 #'   they are, keeping any transparency of their own.
@@ -359,6 +361,7 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
 #'
 #' # Continuous interpolation
 #' pal_get("viridis", n = 20)
+#' pal_get("viridis", x = c(1, 100, 2))
 #'
 #' # Reverse and transparent
 #' pal_get("Blues", n = 5, reverse = TRUE, alpha = 0.6)
@@ -468,18 +471,36 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #' @noRd
 .pal_apply <- function(cols, n = NULL, x = NULL, reverse = FALSE, alpha = 1) {
 
-  # colorRampPalette() drops alpha unless told; telling it for opaque colours
-  # would turn "#00468B" into "#00468BFF", so only when some colour has alpha.
-  ramp <- function(k) {
+  # colorRamp() drops alpha unless told; telling it for opaque colours would turn
+  # "#00468B" into "#00468BFF", so only when some colour has alpha.
+  ramp <- function(k, at = seq.int(0, 1, length.out = k)) {
     has_alpha <- any(grDevices::col2rgb(cols, alpha = TRUE)["alpha", ] < 255)
-    grDevices::colorRampPalette(cols, alpha = has_alpha)(k)
+    rgba <- grDevices::colorRamp(cols, alpha = has_alpha)(at)
+    if (has_alpha) {
+      grDevices::rgb(rgba[, 1L], rgba[, 2L], rgba[, 3L], rgba[, 4L], maxColorValue = 255)
+    } else {
+      grDevices::rgb(rgba[, 1L], rgba[, 2L], rgba[, 3L], maxColorValue = 255)
+    }
   }
+  numeric_x <- !is.null(x) && is.numeric(x)
 
   # --- Map to x (discrete) ---
   if (!is.null(x)) {
-    if (is.numeric(x)) {
-      # Continuous: interpolate
-      out <- ramp(length(x))
+    if (numeric_x) {
+      # Continuous: each value's place between the finite extremes. A value
+      # without a place has no colour, and one distinct value takes the middle.
+      values <- as.numeric(x)
+      placed <- is.finite(values)
+      out <- rep(NA_character_, length(values))
+      if (any(placed)) {
+        ends <- range(values[placed])
+        at <- if (ends[[1L]] == ends[[2L]]) {
+          rep(0.5, sum(placed))
+        } else {
+          (values[placed] - ends[[1L]]) / (ends[[2L]] - ends[[1L]])
+        }
+        out[placed] <- ramp(at = if (reverse) 1 - at else at)
+      }
     } else {
       # Discrete: map levels
       lvs <- if (is.factor(x)) levels(x) else unique(x[!is.na(x)])
@@ -501,15 +522,15 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     out <- cols
   }
 
-  # Reverse
-  if (reverse) {
+  # Reverse (a numeric `x` has flipped its scale above)
+  if (reverse && !numeric_x) {
     if (!is.null(names(out))) {
       out <- stats::setNames(rev(out), names(out))
     } else {
       out <- rev(out)
     }
   }
-  nms <- if (!is.null(x) && !is.numeric(x)) names(out)
+  nms <- if (!is.null(x) && !numeric_x) names(out)
 
   # Alpha
   if (alpha < 1) {
