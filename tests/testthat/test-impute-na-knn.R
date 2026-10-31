@@ -185,3 +185,17 @@ test_that("impute_na_knn rejects infinite numeric distance inputs", {
     expect_error(impute_na_knn(dat, k = 2, verbose = FALSE), "finite.*numeric|infinite")
   }
 })
+
+test_that("impute_na_knn restores labelled donor values without decimal rounding", {
+  skip_if_not_installed("VIM")
+  skip_if_not_installed("haven")
+  for (values in list(c(1, 1 + .Machine$double.eps, NA_real_),
+                      c(1.234567890123456, 2.345678901234567, NA_real_))) {
+    x <- haven::labelled(values, labels = c(First = values[1]), label = "Precise")
+    dat <- data.frame(value = x, helper = c(0, 10, 10))
+    result <- impute_na_knn(dat, k = 1, verbose = FALSE)
+    expect_identical(as.double(result$value), c(values[1:2], values[2]))
+    expect_identical(attributes(result$value), attributes(x))
+    expect_identical(dat$value, x)
+  }
+})

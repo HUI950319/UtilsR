@@ -9,6 +9,8 @@
 #' factors for distance calculation, then restored with their original storage
 #' type, variable label, value labels, and other attributes.
 #' SPSS user-missing codes are treated as missing rather than donor categories.
+#' Labelled donor values are restored through their original category values,
+#' without parsing rounded printed numbers.
 #' Stored integer64 columns require \pkg{bit64}. When imputation is needed,
 #' their observed values must be within +/-\code{2^53} for exact numeric
 #' conversion. Imputed values are converted back to integer64 storage, with
@@ -135,6 +137,23 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     sort_levels = "none",
     user_na_to_na = TRUE
   )
+  labelled_lookup <- list()
+  for (var_name in names(labelled_original)) {
+    original <- labelled_original[[var_name]]
+    raw <- vctrs::vec_data(original)
+    categories <- data_for_impute[[var_name]]
+    values <- unique(raw[!is.na(original)])
+    level_ids <- as.integer(categories)[match(values, raw)]
+    if (anyDuplicated(level_ids)) {
+      values <- values[order(level_ids)]
+      codes <- match(raw, values)
+      codes[is.na(original)] <- NA_integer_
+      labels <- if (is.double(values)) sprintf("%.17g", values) else as.character(values)
+      categories <- factor(codes, levels = seq_along(values), labels = labels)
+      data_for_impute[[var_name]] <- categories
+    }
+    labelled_lookup[[var_name]] <- raw[match(seq_len(nlevels(categories)), as.integer(categories))]
+  }
 
   non_finite <- vapply(data_for_impute, function(x) {
     is.numeric(x) && any(!is.finite(x) & !is.na(x))
@@ -199,16 +218,9 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
 
   for (var_name in names(labelled_original)) {
     values <- result[[var_name]]
-    if (is.factor(values)) {
-      values <- as.character(values)
-    }
-
-    values <- switch(
-      typeof(labelled_original[[var_name]]),
-      double = as.double(values),
-      integer = as.integer(values),
-      character = as.character(values)
-    )
+    codes <- if (is.factor(values)) as.integer(values) else
+      match(as.character(values), levels(data_for_impute[[var_name]]))
+    values <- labelled_lookup[[var_name]][codes]
     original <- labelled_original[[var_name]]
     missing <- is.na(original)
     original[missing] <- values[missing]

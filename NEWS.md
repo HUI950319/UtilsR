@@ -1,5 +1,7 @@
 # UtilsR 0.6.19
 
+* `impute_na_knn()` restores labelled donor values through lossless category mappings and distinguishes numeric codes that share a printed representation.
+
 * `impute_na_knn()` handles degenerate distance weights, rejects infinite numeric input, and reports observations that cannot be imputed without inventing predictor information.
 
 * `impute_na_knn()` gives the backend independent field names so columns such as variable, j and indexNA2s do not change values or trigger evaluation errors.
