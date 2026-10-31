@@ -145,11 +145,12 @@ figures. Default \code{NULL}.}
 \item{aspect.ratio}{Numeric. Panel aspect ratio. Default \code{NULL} (auto).
 Automatically set to 1 for rose, ring, and pie types.}
 
-\item{facet_nrow}{Integer. Number of rows when combining split panels.
+\item{facet_nrow}{Positive integer. Number of rows when combining split panels.
 Default \code{NULL} (auto).}
 
-\item{facet_ncol}{Integer. Number of columns when combining split panels.
-Default \code{NULL} (auto).}
+\item{facet_ncol}{Positive integer. Number of columns when combining split
+panels. Default \code{NULL} (auto). When both dimensions are supplied,
+their grid must accommodate all panels.}
 
 \item{facet_byrow}{Logical. Fill split panels by row? Default \code{TRUE}.}
 

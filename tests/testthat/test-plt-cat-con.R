@@ -568,3 +568,19 @@ test_that("plt_cat named palettes map empty string categories", {
   expect_equal(ggplot2::ggplot_build(q[[2]])$data[[1]]$fill, c("red", "grey80"))
   expect_error(plt_cat(d, "category", palette = setNames(c("red", "blue"), c("", ""))), "unique")
 })
+
+test_that("plt_cat validates split layout dimensions before plotting", {
+  d <- data.frame(category = c("A", "B", "A"), site = c("one", "two", "three"))
+  for (arg in c("facet_nrow", "facet_ncol")) {
+    for (value in list(0, -1, 1.5, NA_real_, Inf, TRUE, "2", c(1, 2), matrix(1))) {
+      args <- list(data = d, stat.by = "category", split.by = "site")
+      args[[arg]] <- value
+      expect_error(do.call(plt_cat, args), paste0(arg, ".*positive integer"))
+    }
+  }
+  expect_error(plt_cat(d, "category", split.by = "site", facet_nrow = 1, facet_ncol = 2),
+               "facet_nrow.*facet_ncol.*panels")
+  p <- cat_test_plot(d, "category", split.by = "site", facet_nrow = 1, facet_ncol = 3)
+  expect_length(p, 3L)
+  expect_s3_class(patchwork::patchworkGrob(p), "gtable")
+})

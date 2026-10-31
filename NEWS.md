@@ -1,5 +1,7 @@
 # UtilsR 0.6.19
 
+* Categorical split layouts validate positive integer dimensions and available panel capacity before rendering.
+
 * Categorical named palettes match empty-string categories by position while preserving distinct missing-value colours.
 
 * Categorical Sankey plots use internal stage aliases so backend-reserved column names remain valid while displayed names and flows are preserved.

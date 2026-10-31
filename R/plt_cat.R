@@ -106,10 +106,11 @@
 #'   \code{"horizontal"}.
 #' @param aspect.ratio Numeric. Panel aspect ratio. Default \code{NULL} (auto).
 #'   Automatically set to 1 for rose, ring, and pie types.
-#' @param facet_nrow Integer. Number of rows when combining split panels.
+#' @param facet_nrow Positive integer. Number of rows when combining split panels.
 #'   Default \code{NULL} (auto).
-#' @param facet_ncol Integer. Number of columns when combining split panels.
-#'   Default \code{NULL} (auto).
+#' @param facet_ncol Positive integer. Number of columns when combining split
+#'   panels. Default \code{NULL} (auto). When both dimensions are supplied,
+#'   their grid must accommodate all panels.
 #' @param facet_byrow Logical. Fill split panels by row? Default \code{TRUE}.
 #' @param base_size Numeric. Base font size for \code{theme_my()}.
 #'   Default 14.
@@ -318,6 +319,15 @@ plt_cat <- function(data,
       cli::cli_abort("{.arg {arg}} must be TRUE or FALSE.")
     }
   }
+  dimensions <- list(facet_nrow = facet_nrow, facet_ncol = facet_ncol)
+  for (arg in names(dimensions)) {
+    value <- dimensions[[arg]]
+    if (!is.null(value) &&
+        (!is.numeric(value) || is.complex(value) || length(value) != 1L ||
+         !is.null(dim(value)) || !is.finite(value) || value < 1 || value != floor(value))) {
+      cli::cli_abort("{.arg {arg}} must be a single positive integer or NULL.")
+    }
+  }
   if (type == "chord" && !is.null(split.by)) {
     cli::cli_abort("{.arg split.by} is not supported for {.code type = \"chord\"}; draw each chord plot separately.")
   }
@@ -496,6 +506,10 @@ plt_cat <- function(data,
   # --- Handle split.by --------------------------------------------------------
   if (!is.null(split.by)) {
     split_levels <- levels(factor(data[[split.by]]))
+    if (!is.null(facet_nrow) && !is.null(facet_ncol) &&
+        facet_nrow < ceiling(length(split_levels) / facet_ncol)) {
+      cli::cli_abort("{.arg facet_nrow} and {.arg facet_ncol} must accommodate all {length(split_levels)} panels.")
+    }
     plot_list <- lapply(split_levels, function(lv) {
       sub_data <- data[data[[split.by]] == lv, , drop = FALSE]
       # each panel is reported as part of the split figure, not on its own
