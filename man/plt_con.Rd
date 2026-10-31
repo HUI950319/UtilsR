@@ -131,7 +131,8 @@ Default \code{FALSE}.}
 \item{comparisons}{A list of length-2 character vectors for pairwise tests.
 Default \code{NULL}. Pairs with unavailable groups are skipped per feature
 with a warning. Tests that fail or return a non-finite P-value are also
-skipped individually; other requested comparisons remain available.}
+skipped individually; other requested comparisons remain available.
+Results are reused on repeated draws when the test inputs are unchanged.}
 
 \item{ref_group}{Character. Reference group for comparisons.
 Default \code{NULL}. When \code{comparisons} is \code{NULL}, compare

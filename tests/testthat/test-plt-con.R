@@ -223,6 +223,58 @@ test_that("con nonfinite pairwise p values are skipped without losing valid test
   }
 })
 
+test_that("con pairwise results are reused while changed plot data are retested", {
+  original <- getFromNamespace("t.test.default", "stats")
+  calls <- 0L
+  local_mocked_bindings(t.test.default = function(...) {
+    calls <<- calls + 1L
+    original(...)
+  }, .package = "stats")
+  d <- con_data()
+  for (stack in c(FALSE, TRUE)) {
+    calls <- 0L
+    p <- con_plot(d, if (stack) c("x", "z") else "x", type = "box", stack = stack,
+                 comparisons = list(c("A", "B")), pairwise_method = "t.test")
+    expected <- if (stack) 2L else 1L
+    expect_equal(calls, expected)
+    invisible(ggplot2::ggplotGrob(p))
+    invisible(ggplot2::ggplotGrob(p))
+    expect_equal(calls, expected)
+    invisible(suppressMessages(ggplot2::ggplotGrob(p + ggplot2::scale_y_log10())))
+    expect_equal(calls, 2L * expected)
+  }
+})
+
+test_that("con reused pairwise results retain test warnings on each draw", {
+  d <- data.frame(x = c(1, 1, 2, 2, 3, 3, 4, 4), g = rep(c("A", "B"), each = 4))
+  p <- con_plot(d, type = "box", comparisons = list(c("A", "B")))
+  expect_warning(ggplot2::ggplot_build(p), "cannot compute exact p-value with ties")
+  expect_warning(ggplot2::ggplot_build(p), "cannot compute exact p-value with ties")
+})
+
+test_that("con cached comparisons share equal feature values without sharing plot changes", {
+  original <- getFromNamespace("t.test.default", "stats")
+  calls <- 0L
+  local_mocked_bindings(t.test.default = function(...) {
+    calls <<- calls + 1L
+    original(...)
+  }, .package = "stats")
+  d <- con_data()
+  d$z <- d$x
+  p <- con_plot(d, c("x", "z"), type = "box", stack = TRUE,
+    comparisons = list(c("A", "B"), c("B", "A")), pairwise_method = "t.test")
+  expect_equal(calls, 4L)
+  invisible(ggplot2::ggplotGrob(p))
+  expect_equal(calls, 4L)
+  q <- p
+  q$data$value[q$data$feature == "x"] <- log10(q$data$value[q$data$feature == "x"])
+  invisible(ggplot2::ggplotGrob(q))
+  expect_equal(calls, 6L)
+  invisible(ggplot2::ggplotGrob(p))
+  expect_equal(calls, 6L)
+  expect_equal(p$data$value, rep(d$x, 2L))
+})
+
 test_that("con global test labels fit inside normal and flipped panels", {
   for (stack in c(FALSE, TRUE)) for (flip in c(FALSE, TRUE)) {
     p <- con_plot(con_data(), c("x", "z"), type = "box", stack = stack, flip = flip,
@@ -862,7 +914,8 @@ test_that("con single plot size is independent of sibling feature plots", {
     }
     suppressMessages(UtilsR::plt_con(d, features, "g", type = type,
       bg.by = if (background) "bg" else NULL, add_point = TRUE,
-      add_box = type == "violin", add_trend = type == "bar", combine = FALSE))[[1L]]
+      add_box = type == "violin", add_trend = type == "bar", combine = FALSE,
+      comparisons = if (type == "dot") NULL else list(c("A", "B"))))[[1L]]
   }
   environment(make) <- globalenv()
   for (type in c("violin", "box", "bar", "dot")) for (background in c(FALSE, TRUE)) {

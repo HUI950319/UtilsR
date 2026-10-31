@@ -13,7 +13,9 @@
 #                                      (also called by both builders)
 #         +-- L2  .con_dot_bins()      numeric bin centres, including constants
 #         +-- L2  .con_dot_counts()    counts including observed missing groups
-#         +-- L2  .con_comparisons()   available pairs for one feature
+#         +-- L2  .con_comparisons()   valid pairs and cached test results
+#         +-- L2  .con_cached_test()   reuse results for unchanged test inputs
+#         +-- L2  .con_comparison_layer()  ggpubr layer with a cached test
 #         +-- L2  .con_global_layer()  skip degenerate global annotations
 #         +-- L2  .con_facet_scales()  per-feature zoom without filtering stats
 #         +-- L2  .con_bar_range()     full mean +/- SD range and zero baseline
@@ -80,6 +82,7 @@
 #'   Default \code{NULL}. Pairs with unavailable groups are skipped per feature
 #'   with a warning. Tests that fail or return a non-finite P-value are also
 #'   skipped individually; other requested comparisons remain available.
+#'   Results are reused on repeated draws when the test inputs are unchanged.
 #' @param ref_group Character. Reference group for comparisons.
 #'   Default \code{NULL}. When \code{comparisons} is \code{NULL}, compare
 #'   this observed group with every other observed group. Explicit comparison
@@ -715,14 +718,28 @@ plt_con <- function(data,
   if (!all(keep)) {
     cli::cli_warn("Skipping {sum(!keep)} comparison{?s} with unavailable groups for {.val {feature}}.")
   }
+  test_cache <- vector("list", length(comparisons))
   if (any(keep)) {
     test_params <- ggpubr::stat_compare_means(comparisons = comparisons[keep], method = method)$stat_params
+    pairs <- lapply(comparisons, function(pair) if (is.numeric(pair)) levels(groups)[pair] else pair)
+    used_groups <- unique(unlist(pairs[keep], use.names = FALSE))
+    group_data <- lapply(used_groups, function(group) values[which(groups == group)])
+    # Shared group environments avoid serializing the same vector for every pair.
+    cache_data <- lapply(group_data, function(x) list2env(list(
+      value = if (is.object(x)) x else as.double(unname(x))
+    ), parent = emptyenv()))
     for (i in which(keep)) {
-      pair <- comparisons[[i]]
-      if (is.numeric(pair)) pair <- levels(groups)[pair]
-      result <- tryCatch(suppressWarnings(do.call(test_params[["test"]], c(list(
-        values[which(groups == pair[1L])], values[which(groups == pair[2L])]
-      ), test_params[["test.args"]]))), error = identity)
+      pair <- pairs[[i]]
+      at <- match(pair, used_groups)
+      x <- group_data[[at[1L]]]
+      y <- group_data[[at[2L]]]
+      test_warnings <- character()
+      result <- tryCatch(withCallingHandlers(do.call(test_params[["test"]], c(
+        list(quote(x), quote(y)), test_params[["test.args"]]), envir = environment()),
+        warning = function(w) {
+          test_warnings <<- c(test_warnings, conditionMessage(w))
+          invokeRestart("muffleWarning")
+        }), error = identity)
       if (inherits(result, "error")) {
         keep[i] <- FALSE
         cli::cli_warn("Skipping comparison {.val {pair}} for {.val {feature}}: {conditionMessage(result)}")
@@ -732,11 +749,74 @@ plt_con <- function(data,
             !is.finite(p_value) || p_value < 0 || p_value > 1) {
           keep[i] <- FALSE
           cli::cli_warn("Skipping comparison {.val {pair}} for {.val {feature}}: the test did not return a finite p-value between 0 and 1.")
+        } else {
+          test_cache[[i]] <- list(x = cache_data[[at[1L]]], y = cache_data[[at[2L]]],
+                                   p.value = p_value, warnings = test_warnings)
         }
       }
     }
   }
-  comparisons[keep]
+  comparisons <- comparisons[keep]
+  attr(comparisons, ".con_test_cache") <- test_cache[keep]
+  comparisons
+}
+
+.con_cached_test <- function(test, test.args, cache) {
+  test <- match.fun(test)
+  force(test.args)
+  force(cache)
+  groups <- list()
+  find_group <- function(value) {
+    for (i in seq_along(groups)) {
+      if (identical(value, groups[[i]][["value"]])) return(i)
+    }
+    NA_integer_
+  }
+  index <- new.env(hash = TRUE, parent = emptyenv())
+  for (entry in cache) {
+    ids <- integer(2L)
+    for (j in 1:2) {
+      group <- entry[[c("x", "y")[j]]]
+      at <- find_group(group[["value"]])
+      if (is.na(at)) {
+        groups[[length(groups) + 1L]] <- group
+        at <- length(groups)
+      }
+      ids[j] <- at
+    }
+    assign(paste(ids, collapse = ":"), entry[c("p.value", "warnings")], envir = index)
+  }
+  # Keep compiled loop bindings and construction data outside the returned test.
+  env <- list2env(list(test = test, test.args = test.args, groups = groups, index = index), parent = baseenv())
+  environment(find_group) <- env
+  env[["find_group"]] <- find_group
+  callback <- function(x, y, ...) {
+    args <- list(...)
+    if (identical(args, test.args)) {
+      key_x <- if (is.object(x)) x else as.double(unname(x))
+      key_y <- if (is.object(y)) y else as.double(unname(y))
+      ids <- c(find_group(key_x), find_group(key_y))
+      if (!anyNA(ids)) {
+        entry <- get0(paste(ids, collapse = ":"), envir = index, inherits = FALSE)
+        if (!is.null(entry)) {
+          for (message in entry[["warnings"]]) warning(message, call. = FALSE)
+          return(list(p.value = entry[["p.value"]]))
+        }
+      }
+    }
+    do.call(test, c(list(quote(x), quote(y)), args), envir = environment())
+  }
+  environment(callback) <- env
+  callback
+}
+
+.con_comparison_layer <- function(comparisons, ...) {
+  cache <- attr(comparisons, ".con_test_cache", exact = TRUE)
+  attr(comparisons, ".con_test_cache") <- NULL
+  layer <- .con_component(ggpubr::stat_compare_means, comparisons = comparisons, ...)
+  layer$stat_params[["test"]] <- .con_cached_test(
+    layer$stat_params[["test"]], layer$stat_params[["test.args"]], cache)
+  layer
 }
 
 .con_global_layer <- function(features, ...) {
@@ -989,7 +1069,7 @@ plt_con <- function(data,
   comparison_count <- comparison_count %||% length(comparisons)
   annotation_y_max <- y_max_use
   if (length(comparisons)) {
-    p <- p + .con_component(ggpubr::stat_compare_means,
+    p <- p + .con_comparison_layer(
       comparisons = comparisons,
       ref.group = ref_group,
       method = pairwise_method,
@@ -1232,15 +1312,21 @@ plt_con <- function(data,
                         dat_long[["value"]][at], pairwise_method)
     })
     comparison_counts <- lengths(comparison_sets)
-    if (type != "bar" && all(vapply(comparison_sets, identical, logical(1), comparisons))) {
+    if (type != "bar" && all(vapply(comparison_sets, function(pairs) {
+      attr(pairs, ".con_test_cache") <- NULL
+      identical(pairs, comparisons)
+    }, logical(1)))) {
+      cache <- unlist(lapply(comparison_sets, attr, which = ".con_test_cache", exact = TRUE),
+                        recursive = FALSE, use.names = FALSE)
       comparison_sets <- comparison_sets[1L]
+      attr(comparison_sets[[1L]], ".con_test_cache") <- cache
       comparison_data <- list(NULL)
     } else {
       comparison_data <- split(dat_long, dat_long[["feature"]], drop = TRUE)
     }
     for (i in seq_along(comparison_sets)) {
       if (!length(comparison_sets[[i]])) next
-      p <- p + .con_component(ggpubr::stat_compare_means,
+      p <- p + .con_comparison_layer(
         data = comparison_data[[i]], comparisons = comparison_sets[[i]], ref.group = ref_group,
         method = pairwise_method, label = sig_label, size = sig_labelsize,
         label.y = if (type == "bar") bar_ranges[2L, i] else NULL,

@@ -1,5 +1,8 @@
 # UtilsR 0.6.19
 
+* `plt_con()` reuses pairwise test results while inputs are unchanged, preserves
+  test warnings and recomputes after data transformations without changing P-values.
+
 * Independent `plt_con()` axes reserve annotation space for valid comparisons
   only; skipped comparisons no longer enlarge panels, and shared axes stay aligned.
 
