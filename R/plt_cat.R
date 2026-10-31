@@ -484,7 +484,7 @@ plt_cat <- function(data,
       bg.by, bg_palette, bg_alpha, flip, NA_stat, keep_empty, stat_level,
       panel_title, if (is.null(split.by)) subtitle else NULL,
       xlab, ylab, legend.position, legend.direction,
-      aspect.ratio, base_size)
+      aspect.ratio, base_size, collect_legend = !is.null(split.by))
   }
 
   # --- Handle split.by --------------------------------------------------------
@@ -524,12 +524,13 @@ plt_cat <- function(data,
                             label.bg.r, bg.by, bg_palette, bg_alpha, flip,
                             NA_stat, keep_empty, stat_level, title, subtitle,
                             xlab, ylab, legend.position, legend.direction,
-                            aspect.ratio, base_size) {
+                            aspect.ratio, base_size, collect_legend = FALSE) {
   # Returned plot environments must not retain promises to the split caller.
   invisible(list(data, stat.by, group.by, type, stat, position, colors, alpha,
     label, label.size, label.fg, label.bg, label.bg.r, bg.by, bg_palette,
     bg_alpha, flip, NA_stat, keep_empty, stat_level, title, subtitle,
-    xlab, ylab, legend.position, legend.direction, aspect.ratio, base_size))
+    xlab, ylab, legend.position, legend.direction, aspect.ratio, base_size,
+    collect_legend))
 
   # --- Dispatch to type-specific functions ------------------------------------
   if (type %in% c("sankey", "chord", "venn", "upset")) {
@@ -583,6 +584,19 @@ plt_cat <- function(data,
     dot   = .plt_cat_dot(plotdata, cols = colors, alpha = alpha,
                           keep_empty = keep_empty)
   )
+
+  if (collect_legend) {
+    # These scales and layers were independently constructed for this panel.
+    # Identical fill keys let patchwork collect one guide without adding rows.
+    fill_scale <- p$scales$get_scales("fill")
+    fill_scale$limits <- names(colors)
+    for (layer in p$layers) {
+      if (!is.null(layer$mapping[["fill"]]) ||
+          (isTRUE(layer$inherit.aes) && !is.null(p$mapping[["fill"]]))) {
+        layer$show.legend <- c(fill = TRUE)
+      }
+    }
+  }
 
   # --- Background bands (bg.by) -----------------------------------------------
   if (!is.null(bg.by) && !is.null(group.by) &&

@@ -1,5 +1,7 @@
 # UtilsR 0.6.19
 
+* Split categorical figures share a complete fill legend across partially overlapping panel categories without inserting observations or empty categories.
+
 * Split categorical figures display the overall title and subtitle once while retaining individual panel titles.
 
 * Categorical trend areas retain continuous category positions when bars are dodged, keeping areas, bars and labels aligned.

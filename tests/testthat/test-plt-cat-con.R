@@ -511,3 +511,21 @@ test_that("plt_cat split figures show overall titles once", {
   labels <- cat_test_text(ggplot2::ggplotGrob(single))
   expect_true(all(c("Single title", "Single subtitle") %in% labels))
 })
+
+test_that("plt_cat split figures collect partially overlapping fill legends", {
+  d <- data.frame(category = factor(c("A", "B", "A", "C"),
+                                   levels = c("C", "B", "A", "unused")),
+                  site = c("one", "one", "two", "two"))
+  for (type in c("bar", "pie", "ring", "trend", "dot")) {
+    p <- cat_test_plot(d, "category", split.by = "site", type = type,
+                      palette = c(C = "red", B = "blue", A = "green"))
+    g <- patchwork::patchworkGrob(p)
+    guide <- g$grobs[[which(g$layout$name == "guide-box")]]
+    labels <- cat_test_text(guide)
+    expect_equal(labels[labels %in% c("A", "B", "C", "unused")], c("C", "B", "A"))
+    expect_equal(nrow(p[[1]]$data), 2L)
+    expect_equal(as.character(p[[1]]$data$stat_var), c("B", "A"))
+    expect_equal(ggplot2::ggplot_build(p[[2]])$plot$scales$get_scales("fill")$map(c("C", "A")),
+                 c("red", "green"))
+  }
+})
