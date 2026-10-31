@@ -64,13 +64,16 @@ x-axis and the second to the y-axis.}
 
 \item{use_rank}{Logical. If \code{TRUE} (default), plot ranks and compute
 Spearman correlation. If \code{FALSE}, plot raw values and compute
-Pearson correlation.}
+Pearson correlation.
+Raw-value tests use finite pairs; fewer than three usable pairs or a
+constant vector yield missing correlation statistics.}
 
 \item{scale_x}{Character. Scaling method for x-axis values (only when
 \code{use_rank = FALSE}). One of \code{"none"} (default), \code{"minmax"},
 \code{"zscore"}, \code{"log1p"}, or \code{"rank"}. Applied per group.
 Scaling preserves missing values. Constant observed values map to zero;
-z-scores with fewer than two observed values remain missing.}
+z-scores with fewer than two observed values remain missing.
+Non-finite raw values become missing during a scaling transformation.}
 
 \item{scale_y}{Character. Scaling method for y-axis values (only when
 \code{use_rank = FALSE}). Same options as \code{scale_x}.}

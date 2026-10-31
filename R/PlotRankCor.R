@@ -34,11 +34,14 @@
 #' @param use_rank Logical. If \code{TRUE} (default), plot ranks and compute
 #'   Spearman correlation. If \code{FALSE}, plot raw values and compute
 #'   Pearson correlation.
+#'   Raw-value tests use finite pairs; fewer than three usable pairs or a
+#'   constant vector yield missing correlation statistics.
 #' @param scale_x Character. Scaling method for x-axis values (only when
 #'   \code{use_rank = FALSE}). One of \code{"none"} (default), \code{"minmax"},
 #'   \code{"zscore"}, \code{"log1p"}, or \code{"rank"}. Applied per group.
 #'   Scaling preserves missing values. Constant observed values map to zero;
 #'   z-scores with fewer than two observed values remain missing.
+#'   Non-finite raw values become missing during a scaling transformation.
 #' @param scale_y Character. Scaling method for y-axis values (only when
 #'   \code{use_rank = FALSE}). Same options as \code{scale_x}.
 #' @param size_by Character or \code{NULL}. Column name for a numeric variable
@@ -328,6 +331,11 @@ PlotRankCor <- function(
 
   # ---- Scale x/y values (only when use_rank = FALSE) ----
   .scale_vec <- function(x, method) {
+    x[!is.finite(x)] <- NA_real_
+    if (method %in% c("minmax", "zscore") && any(!is.na(x))) {
+      magnitude <- max(abs(x), na.rm = TRUE)
+      if (magnitude > 0) x <- x / magnitude
+    }
     switch(method,
       "none"   = x,
       "minmax" = {
@@ -378,13 +386,18 @@ PlotRankCor <- function(
     sub <- rank_wide[rank_wide[[group.by_internal]] == g, ]
     x <- sub[[method_cols[1]]]
     y <- sub[[method_cols[2]]]
-    ok <- complete.cases(x, y)
-    if (sum(ok) < 3) {
+    ok <- is.finite(x) & is.finite(y)
+    if (sum(ok) < 3 || length(unique(x[ok])) < 2L || length(unique(y[ok])) < 2L) {
       return(data.frame(group = g, rho = NA_real_, p.value = NA_real_,
                         stringsAsFactors = FALSE))
     }
     cor_method <- if (use_rank) "spearman" else "pearson"
-    ct <- stats::cor.test(x[ok], y[ok], method = cor_method, exact = FALSE)
+    x <- x[ok]; y <- y[ok]
+    if (!use_rank) {
+      x <- x / max(abs(x))
+      y <- y / max(abs(y))
+    }
+    ct <- stats::cor.test(x, y, method = cor_method, exact = FALSE)
     data.frame(group = g, rho = ct$estimate, p.value = ct$p.value,
                stringsAsFactors = FALSE)
   }))

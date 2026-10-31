@@ -1,5 +1,7 @@
 # UtilsR 0.6.18
 
+* `PlotRankCor()` scales extreme finite values without overflow and checks usable finite pairs and variance before correlation tests.
+
 * Categorical area plots align endpoint value labels inward so the panel border does not clip their text.
 
 * `PlotRankCor()` accepts spaces and formula punctuation in grouping column names when constructing facets.

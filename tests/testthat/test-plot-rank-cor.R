@@ -323,3 +323,27 @@ test_that("rank-correlation facets accept non-syntactic column names", {
     expect_equal(as.character(built$layout$layout[[name]]), c("G", "H"))
   }
 })
+
+test_that("rank-correlation scaling remains finite for extreme numeric values", {
+  data <- rank_cor_data(); data$score <- rep(c(-1, 0, 1, 0.5) * 1e308, 2)
+  p <- quiet_rank_cor(data, use_rank = FALSE, scale_x = "minmax", scale_y = "zscore")
+  expect_equal(p$data$M1, c(0, 0.5, 1, 0.75))
+  expect_equal(p$data$M2, as.numeric(scale(c(-1, 0, 1, 0.5))))
+  expect_equal(attr(p, "cor_results")$rho, 1)
+  data$score <- rep(c(-1, 0, 1, 0.5) * 1e-300, 2)
+  p <- quiet_rank_cor(data, use_rank = FALSE, scale_x = "zscore")
+  expect_equal(p$data$M1, as.numeric(scale(c(-1, 0, 1, 0.5))))
+  expect_equal(attr(p, "cor_results")$rho, 1)
+})
+
+test_that("rank-correlation tests use finite nonconstant pairs without warnings", {
+  data <- rank_cor_data(); data$score <- c(Inf, 4, 3, 2, 5, 4, 3, 1)
+  expect_no_warning(p <- quiet_rank_cor(data, use_rank = FALSE))
+  expected <- stats::cor.test(c(4, 3, 2), c(4, 3, 1))
+  expect_equal(attr(p, "cor_results")$rho, unname(expected$estimate))
+  expect_equal(attr(p, "cor_results")$p.value, expected$p.value)
+  data$score <- rep(1, 8)
+  expect_no_warning(p <- quiet_rank_cor(data, use_rank = FALSE))
+  expect_true(is.na(attr(p, "cor_results")$rho))
+  expect_true(is.na(attr(p, "cor_results")$p.value))
+})
