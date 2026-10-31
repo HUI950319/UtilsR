@@ -187,6 +187,9 @@
                           keep_empty = FALSE, ...) {
   x_var <- .cat_x_var(plotdata)
   group_levels <- levels(factor(plotdata[[x_var]]))
+  if (x_var != "group_var" || length(group_levels) < 2L) {
+    cli::cli_abort("{.arg group.by} must provide at least two displayed levels for {.code type = \"area\"}.")
+  }
   plotdata[["x_num"]] <- as.numeric(factor(plotdata[[x_var]], levels = group_levels))
 
   if (position == "stack") {

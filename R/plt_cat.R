@@ -40,7 +40,8 @@
 #'   single column name. For set types (sankey, chord, venn, upset) a character
 #'   vector of >= 2 column names.
 #' @param group.by Character. Optional grouping variable for standard types.
-#'   Ignored for set types.
+#'   Ignored for set types. Area plots require at least two displayed group
+#'   levels in each panel.
 #' @param split.by Character. Optional splitting variable. Splits data, creates
 #'   one plot per level, and combines with \pkg{patchwork}. Not available for
 #'   \code{type = "chord"}.

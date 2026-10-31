@@ -16,6 +16,8 @@
 
 # UtilsR 0.6.18
 
+* Categorical area plots report unsupported layouts with fewer than two displayed group positions instead of returning empty plots; explicitly retained empty levels remain supported.
+
 * Categorical chord plots match sector colours by their names, preserving named and positional palettes when factors contain unused levels.
 
 * Categorical plots resolve their effective columns before missing-value filtering and cardinality checks, so ignored columns do not alter samples or cause errors.

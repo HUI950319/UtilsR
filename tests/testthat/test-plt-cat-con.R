@@ -117,6 +117,19 @@ test_that("plt_cat chord matches sector colours by name with unused levels", {
                    c(a = "red", b = "blue", x = "green", y = "orange"))
 })
 
+test_that("plt_cat area rejects layouts without two displayed group positions", {
+  d <- data.frame(category = c("A", "B", "A"), group = "one")
+  expect_error(cat_test_plot(d, "category", type = "area"), "group.by.*two displayed")
+  expect_error(cat_test_plot(d, "category", "group", type = "area"), "group.by.*two displayed")
+  d$group <- factor(d$group, levels = c("one", "two"))
+  p <- cat_test_plot(d, "category", "group", type = "area", keep_empty = TRUE)
+  expect_gt(nrow(ggplot2::ggplot_build(p)$data[[1]]), 0L)
+  d <- data.frame(category = rep(c("A", "B"), 2),
+                  group = rep(c("one", "two"), each = 2), site = rep(c("x", "y"), each = 2))
+  expect_error(cat_test_plot(d, "category", "group", type = "area", split.by = "site"),
+               "group.by.*two displayed")
+})
+
 test_that("plt_cat area and trend retain zero frequencies for interpolation", {
   d <- data.frame(category = factor(c("A", "A", "A", "A", "B", "B", "B")),
                   group = factor(c("G1", "G1", "G3", "G3", "G1", "G2", "G3")))
