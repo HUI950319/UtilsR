@@ -538,3 +538,19 @@ test_that("plt_cat rejects Venn inputs beyond seven sets clearly", {
   expect_s3_class(p, "ggplot")
   expect_s3_class(ggplot2::ggplotGrob(p), "gtable")
 })
+
+test_that("plt_cat Sankey stages accept backend reserved column names", {
+  skip_if_not_installed("ggsankey")
+  d <- data.frame(first = c("a", "b", "a"), second = c("x", "y", "x"))
+  baseline <- suppressWarnings(cat_test_plot(d, names(d), type = "sankey"))
+  expected <- ggplot2::ggplot_build(baseline)$data
+  for (stage_names in list(c("..r", "second"), c("node", "value"), c(".stage1", "Tumor stage"))) {
+    names(d) <- stage_names
+    original <- d
+    p <- suppressWarnings(cat_test_plot(d, names(d), type = "sankey"))
+    b <- ggplot2::ggplot_build(p)
+    expect_equal(b$data, expected)
+    expect_equal(b$layout$panel_params[[1]]$x$get_labels(), stage_names)
+    expect_identical(d, original)
+  }
+})

@@ -250,7 +250,14 @@
       data[[s]] <- factor(data[[s]])
     }
   }
-  dat_long <- ggsankey::make_long(data, dplyr::all_of(stat.by))
+  # Keep backend-reserved names separate from the displayed stage names.
+  data <- data[, stat.by, drop = FALSE]
+  stage_names <- paste0(".stage", seq_along(stat.by))
+  names(data) <- stage_names
+  dat_long <- ggsankey::make_long(data, dplyr::all_of(stage_names))
+  for (axis in c("x", "next_x")) {
+    dat_long[[axis]] <- factor(dat_long[[axis]], levels = stage_names, labels = stat.by)
+  }
   dat_long[["node"]] <- factor(dat_long[["node"]], levels = rev(names(cols)))
 
   ggplot2::ggplot(dat_long, ggplot2::aes(

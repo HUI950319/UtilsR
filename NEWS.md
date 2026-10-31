@@ -1,5 +1,7 @@
 # UtilsR 0.6.19
 
+* Categorical Sankey plots use internal stage aliases so backend-reserved column names remain valid while displayed names and flows are preserved.
+
 * Categorical Venn plots reject more than seven sets with a direct suggestion to use the UpSet type instead of failing during saving.
 
 * Split categorical figures share a complete fill legend across partially overlapping panel categories without inserting observations or empty categories.
