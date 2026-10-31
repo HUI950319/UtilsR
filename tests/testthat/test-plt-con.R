@@ -223,6 +223,36 @@ test_that("con nonfinite pairwise p values are skipped without losing valid test
   }
 })
 
+test_that("con pairwise Kruskal and ANOVA use two samples in initial and repeated tests", {
+  d <- con_data()
+  for (method in c("kruskal.test", "anova")) {
+    expected <- if (method == "kruskal.test") stats::kruskal.test(x ~ g, d)$p.value else
+      summary(stats::aov(x ~ g, d))[[1L]][["Pr(>F)"]][1L]
+    p <- suppressWarnings(con_plot(d, type = "box", comparisons = list(c("A", "B")),
+      pairwise_method = method, sig_label = "p.format"))
+    labels <- tail(ggplot2::ggplot_build(p)$data, 1L)[[1L]]$annotation
+    expect_equal(as.numeric(unique(labels)), signif(expected, 2L), tolerance = 1e-10)
+    callback <- tail(p$layers, 1L)[[1L]]$stat_params[["test"]]
+    expect_type(callback, "closure")
+    if (!is.function(callback)) next
+    expect_equal(callback(d$x[d$g == "A"], d$x[d$g == "B"], paired = FALSE)$p.value, expected)
+    d_log <- d
+    d_log$x <- log10(d_log$x)
+    expected_log <- if (method == "kruskal.test") stats::kruskal.test(x ~ g, d_log)$p.value else
+      summary(stats::aov(x ~ g, d_log))[[1L]][["Pr(>F)"]][1L]
+    expect_equal(callback(d_log$x[d_log$g == "A"], d_log$x[d_log$g == "B"], paired = FALSE)$p.value,
+                 expected_log)
+  }
+})
+
+test_that("con pairwise ANOVA skips constant samples instead of showing a spurious p value", {
+  d <- con_data()
+  d$x <- 1
+  expect_warning(p <- con_plot(d, type = "box", comparisons = list(c("A", "B")),
+    pairwise_method = "anova"), "constant")
+  expect_length(p$layers[vapply(p$layers, function(l) inherits(l$geom, "GeomSignif"), logical(1))], 0L)
+})
+
 test_that("con pairwise results are reused while changed plot data are retested", {
   original <- getFromNamespace("t.test.default", "stats")
   calls <- 0L

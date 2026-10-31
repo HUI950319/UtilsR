@@ -1,5 +1,8 @@
 # UtilsR 0.6.19
 
+* `plt_con()` passes both samples correctly to pairwise Kruskal-Wallis and
+  ANOVA tests, including repeated tests after plotted values change.
+
 * `impute_na_knn()` restores custom observation names without converting automatic integer row names to character storage.
 
 * `impute_na_knn()` forwards optional ordered-aggregation and scaling arguments only when supported by the installed VIM backend.

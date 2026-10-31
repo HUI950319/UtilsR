@@ -13,6 +13,7 @@
 #                                      (also called by both builders)
 #         +-- L2  .con_dot_bins()      numeric bin centres, including constants
 #         +-- L2  .con_dot_counts()    counts including observed missing groups
+#         +-- L2  .con_pairwise_test()  adapt supported two-sample tests
 #         +-- L2  .con_comparisons()   valid pairs and cached test results
 #         +-- L2  .con_cached_test()   reuse results for unchanged test inputs
 #         +-- L2  .con_comparison_layer()  ggpubr layer with a cached test
@@ -88,7 +89,8 @@
 #'   this observed group with every other observed group. Explicit comparison
 #'   pairs take precedence.
 #' @param pairwise_method Character. Pairwise test method.
-#'   Default \code{"wilcox.test"}.
+#'   Default \code{"wilcox.test"}; also supports \code{"t.test"},
+#'   \code{"kruskal.test"}, and \code{"anova"} with two-sample inputs.
 #' @param multiplegroup_comparisons Logical. Add global comparison?
 #'   Default \code{FALSE}. Constant features and failed tests or non-finite
 #'   P-values are skipped individually with a warning.
@@ -708,6 +710,19 @@ plt_con <- function(data,
   counts
 }
 
+.con_pairwise_test <- function(test) {
+  if (!identical(test, "kruskal.test") && !identical(test, "anova")) return(match.fun(test))
+  force(test)
+  function(x, y, paired = FALSE, ...) {
+    if (isTRUE(paired)) stop("Paired comparisons are not supported by this test.", call. = FALSE)
+    if (test == "kruskal.test") return(stats::kruskal.test(list(x, y), ...))
+    dat <- data.frame(value = c(x, y), group = factor(rep(c("x", "y"), c(length(x), length(y)))))
+    if (length(unique(dat[["value"]])) < 2L) stop("Data are constant.", call. = FALSE)
+    fit <- stats::aov(value ~ group, data = dat, ...)
+    list(p.value = summary(fit)[[1L]][["Pr(>F)"]][1L])
+  }
+}
+
 .con_comparisons <- function(comparisons, groups, feature, values, method) {
   if (!length(comparisons)) return(comparisons)
   available <- unique(as.character(groups[!is.na(groups)]))
@@ -721,6 +736,7 @@ plt_con <- function(data,
   test_cache <- vector("list", length(comparisons))
   if (any(keep)) {
     test_params <- ggpubr::stat_compare_means(comparisons = comparisons[keep], method = method)$stat_params
+    test <- .con_pairwise_test(test_params[["test"]])
     pairs <- lapply(comparisons, function(pair) if (is.numeric(pair)) levels(groups)[pair] else pair)
     used_groups <- unique(unlist(pairs[keep], use.names = FALSE))
     group_data <- lapply(used_groups, function(group) values[which(groups == group)])
@@ -734,7 +750,7 @@ plt_con <- function(data,
       x <- group_data[[at[1L]]]
       y <- group_data[[at[2L]]]
       test_warnings <- character()
-      result <- tryCatch(withCallingHandlers(do.call(test_params[["test"]], c(
+      result <- tryCatch(withCallingHandlers(do.call(test, c(
         list(quote(x), quote(y)), test_params[["test.args"]]), envir = environment()),
         warning = function(w) {
           test_warnings <<- c(test_warnings, conditionMessage(w))
@@ -815,7 +831,7 @@ plt_con <- function(data,
   attr(comparisons, ".con_test_cache") <- NULL
   layer <- .con_component(ggpubr::stat_compare_means, comparisons = comparisons, ...)
   layer$stat_params[["test"]] <- .con_cached_test(
-    layer$stat_params[["test"]], layer$stat_params[["test.args"]], cache)
+    .con_pairwise_test(layer$stat_params[["test"]]), layer$stat_params[["test.args"]], cache)
   layer
 }
 

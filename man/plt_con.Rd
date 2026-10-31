@@ -140,7 +140,8 @@ this observed group with every other observed group. Explicit comparison
 pairs take precedence.}
 
 \item{pairwise_method}{Character. Pairwise test method.
-Default \code{"wilcox.test"}.}
+Default \code{"wilcox.test"}; also supports \code{"t.test"},
+\code{"kruskal.test"}, and \code{"anova"} with two-sample inputs.}
 
 \item{multiplegroup_comparisons}{Logical. Add global comparison?
 Default \code{FALSE}. Constant features and failed tests or non-finite
