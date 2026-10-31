@@ -776,3 +776,20 @@ test_that("plt_cat Venn honours region alpha and label background controls", {
     expect_false(identical(capture(p), capture(q)))
   }
 })
+
+test_that("plt_cat matches named positive vectors by column name", {
+  skip_if_not_installed("ggupset")
+  withr::local_options(lifecycle_verbosity = "quiet")
+  d <- data.frame(A = c("Yes", "No", "Yes"), B = c("No", "No", "Yes"))
+  p <- cat_test_plot(d, c("A", "B"), type = "upset", stat_level = c(A = "Yes", B = "No"))
+  q <- cat_test_plot(d, c("A", "B"), type = "upset", stat_level = c(B = "No", A = "Yes"))
+  expect_equal(q$data$intersection, p$data$intersection)
+  positional <- cat_test_plot(d, c("A", "B"), type = "upset", stat_level = c("Yes", "No"))
+  expect_equal(positional$data$intersection, p$data$intersection)
+  expect_error(plt_cat(d, c("A", "B"), type = "upset", stat_level = c(A = "Yes")), "missing.*B")
+  expect_error(plt_cat(d, c("A", "B"), type = "upset", stat_level = c(A = "Yes", A = "No")), "unique")
+  expect_error(plt_cat(d, c("A", "B"), type = "upset", stat_level = list(A = "Yes", B = "No", typo = "Yes")), "unknown.*typo")
+  d <- data.frame(A = c(1e15, 1e15 + 1, 1e15), B = c(1, 0, 0))
+  p <- cat_test_plot(d, c("A", "B"), type = "upset", stat_level = c(B = 1, A = 1e15 + 1))
+  expect_equal(p$data$intersection, list("B", "A"))
+})

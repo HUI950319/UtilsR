@@ -105,6 +105,9 @@
 #'   auto-detects \code{TRUE}, \code{"Yes"}, \code{"yes"}, \code{1},
 #'   \code{"TRUE"}, \code{"1"}, or uses the first factor level. With
 #'   \code{split.by}, membership values are resolved once for all panels.
+#'   An unnamed vector supplies one shared value or one value per selected
+#'   column in order. Named vectors and named lists match column names and
+#'   must cover exactly the selected columns.
 #' @param title Character. Plot title, or overall title for split figures.
 #'   Default \code{NULL}.
 #' @param subtitle Character. Plot subtitle, or overall subtitle for split
@@ -789,6 +792,15 @@ plt_cat <- function(data,
     }
     out
   }
+  if ((is.character(stat_level) || is.numeric(stat_level) || is.logical(stat_level)) &&
+      !is.null(names(stat_level))) {
+    if (!is.null(dim(stat_level))) {
+      cli::cli_abort("{.arg stat_level} must be a one-dimensional vector or a named list.")
+    }
+    stat_level <- stats::setNames(lapply(seq_along(stat_level), function(i) {
+      stat_level[i]
+    }), names(stat_level))
+  }
 
   if (is.null(stat_level)) {
     result <- stats::setNames(lapply(stat.by, function(s) {
@@ -825,6 +837,8 @@ plt_cat <- function(data,
     }
     missing <- setdiff(stat.by, names(stat_level))
     if (length(missing)) cli::cli_abort("{.arg stat_level} is missing column{?s}: {.val {missing}}.")
+    extra <- setdiff(names(stat_level), stat.by)
+    if (length(extra)) cli::cli_abort("{.arg stat_level} has unknown column{?s}: {.val {extra}}.")
     if (any(vapply(stat_level, anyNA, logical(1)))) {
       cli::cli_abort("{.arg stat_level} must not contain missing values.")
     }

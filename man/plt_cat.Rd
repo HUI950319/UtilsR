@@ -135,7 +135,10 @@ Default \code{FALSE}.}
 each \code{stat.by} column that count as "positive". Default \code{NULL}
 auto-detects \code{TRUE}, \code{"Yes"}, \code{"yes"}, \code{1},
 \code{"TRUE"}, \code{"1"}, or uses the first factor level. With
-\code{split.by}, membership values are resolved once for all panels.}
+\code{split.by}, membership values are resolved once for all panels.
+An unnamed vector supplies one shared value or one value per selected
+column in order. Named vectors and named lists match column names and
+must cover exactly the selected columns.}
 
 \item{title}{Character. Plot title, or overall title for split figures.
 Default \code{NULL}.}
