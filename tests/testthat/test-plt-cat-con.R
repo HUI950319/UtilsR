@@ -79,6 +79,24 @@ test_that("plt_cat upset handles one observation and singleton facets", {
   }, 0), c(1, 1))
 })
 
+test_that("plt_cat upset applies alpha without changing intersection counts", {
+  skip_if_not_installed("ggupset")
+  d <- data.frame(A = c(TRUE, FALSE, TRUE, FALSE), B = TRUE,
+                  site = rep(c("one", "two"), each = 2))
+  for (alpha in c(0, 0.35, 1)) {
+    p <- cat_test_plot(d, c("A", "B"), type = "upset", alpha = alpha)
+    bars <- ggplot2::ggplot_build(p)$data[[1]]
+    expect_equal(bars$alpha, rep(alpha, 2))
+    expect_equal(bars$count, c(2, 2))
+  }
+  p <- cat_test_plot(d, c("A", "B"), type = "upset", alpha = 0.35, split.by = "site")
+  for (i in seq_len(length(p))) {
+    bars <- ggplot2::ggplot_build(p[[i]])$data[[1]]
+    expect_equal(bars$alpha, rep(0.35, 2))
+    expect_equal(bars$count, c(1, 1))
+  }
+})
+
 test_that("plt_cat excludes unused selectors before checking and filtering", {
   skip_if_not_installed("circlize")
   original <- getFromNamespace(".plt_cat_chord", "UtilsR")

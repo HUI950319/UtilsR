@@ -535,7 +535,7 @@ plt_cat <- function(data,
                                stat_level = stat_level, label = label,
                                label.size = label.size, label.fg = label.fg),
       upset  = .plt_cat_upset(data = data, stat.by = stat.by, cols = colors,
-                                stat_level = stat_level, label = label,
+                               stat_level = stat_level, alpha = alpha, label = label,
                                label.fg = label.fg, label.size = label.size,
                                label.bg = label.bg, label.bg.r = label.bg.r)
     )

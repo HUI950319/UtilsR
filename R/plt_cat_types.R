@@ -321,7 +321,7 @@
 # ---------- 11. UpSet (ggupset) ----------
 #' @noRd
 .plt_cat_upset <- function(data, stat.by, cols, stat_level = NULL,
-                           label = FALSE,
+                           alpha = 0.8, label = FALSE,
                            label.fg = "black", label.size = 3.5,
                            label.bg = "white", label.bg.r = 0.1, ...) {
   if (!requireNamespace("ggupset", quietly = TRUE)) {
@@ -353,7 +353,7 @@
   p <- ggplot2::ggplot(data, ggplot2::aes(x = .data[["intersection"]])) +
     ggplot2::geom_bar(
       ggplot2::aes(fill = ggplot2::after_stat(.data[["count"]])),
-      color = "black", width = 0.5, show.legend = FALSE
+      color = "black", alpha = alpha, width = 0.5, show.legend = FALSE
     ) +
     (if (label) ggrepel::geom_text_repel(
       ggplot2::aes(label = ggplot2::after_stat(.data[["count"]])),
