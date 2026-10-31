@@ -544,11 +544,18 @@ test_that("plt_cat Sankey stages accept backend reserved column names", {
   d <- data.frame(first = c("a", "b", "a"), second = c("x", "y", "x"))
   baseline <- suppressWarnings(cat_test_plot(d, names(d), type = "sankey"))
   expected <- ggplot2::ggplot_build(baseline)$data
+  # Stage labels differ by design; compare next-stage positions numerically.
+  for (i in seq_along(expected)) {
+    if (is.factor(expected[[i]]$next_x)) expected[[i]]$next_x <- as.numeric(expected[[i]]$next_x)
+  }
   for (stage_names in list(c("..r", "second"), c("node", "value"), c(".stage1", "Tumor stage"))) {
     names(d) <- stage_names
     original <- d
     p <- suppressWarnings(cat_test_plot(d, names(d), type = "sankey"))
     b <- ggplot2::ggplot_build(p)
+    for (i in seq_along(b$data)) {
+      if (is.factor(b$data[[i]]$next_x)) b$data[[i]]$next_x <- as.numeric(b$data[[i]]$next_x)
+    }
     expect_equal(b$data, expected)
     expect_equal(b$layout$panel_params[[1]]$x$get_labels(), stage_names)
     expect_identical(d, original)
@@ -599,4 +606,20 @@ test_that("plt_cat excludes ignored background columns before validation", {
     expect_equal(ggplot2::ggplot_build(p)$data, ggplot2::ggplot_build(baseline)$data)
   }
   expect_error(plt_cat(d, "A", "group", position = "dodge", bg.by = "absent"), "absent.*not found")
+})
+
+test_that("plt_cat Sankey compresses repeated paths without changing flows", {
+  skip_if_not_installed("ggsankey")
+  d <- data.frame(A = factor(c("a", "b", "a", "a", NA), levels = c("b", "a", "unused")),
+                  B = c("x", "y", "x", "x", "x"), C = c("u", "v", "u", "u", "v"))
+  for (keep_na in c(FALSE, TRUE)) {
+    p <- suppressWarnings(cat_test_plot(d, names(d), type = "sankey", NA_stat = keep_na))
+    expect_equal(nrow(p$data), if (keep_na) 9L else 6L)
+    expect_equal(sum(p$data$value[p$data$x == "A"]), if (keep_na) 5 else 4)
+    expect_equal(sort(p$data$value[p$data$x == "A"]), if (keep_na) c(1, 1, 3) else c(1, 3))
+    expanded <- p
+    expanded$data <- p$data[rep(seq_len(nrow(p$data)), p$data$value), , drop = FALSE]
+    expanded$data$value <- 1L
+    expect_equal(ggplot2::ggplot_build(p)$data, ggplot2::ggplot_build(expanded)$data)
+  }
 })

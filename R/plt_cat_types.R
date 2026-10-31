@@ -254,7 +254,9 @@
   data <- data[, stat.by, drop = FALSE]
   stage_names <- paste0(".stage", seq_along(stat.by))
   names(data) <- stage_names
-  dat_long <- ggsankey::make_long(data, dplyr::all_of(stage_names))
+  data <- dplyr::count(data, dplyr::across(dplyr::all_of(stage_names)), name = ".count")
+  dat_long <- ggsankey::make_long(data, dplyr::all_of(stage_names),
+                                 value = dplyr::all_of(".count"))
   for (axis in c("x", "next_x")) {
     dat_long[[axis]] <- factor(dat_long[[axis]], levels = stage_names, labels = stat.by)
   }
@@ -263,7 +265,7 @@
   ggplot2::ggplot(dat_long, ggplot2::aes(
     x = .data[["x"]], next_x = .data[["next_x"]],
     node = .data[["node"]], next_node = .data[["next_node"]],
-    fill = .data[["node"]]
+    fill = .data[["node"]], value = .data[["value"]]
   )) +
     ggsankey::geom_sankey(
       color = "black", flow.alpha = alpha, show.legend = FALSE, na.rm = FALSE
