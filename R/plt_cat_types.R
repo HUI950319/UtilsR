@@ -168,7 +168,8 @@
       data = dat_area,
       ggplot2::aes(x = .data[["x_num"]], y = .data[["value"]],
                    fill = .data[["stat_var"]]),
-      alpha = alpha * 0.5, color = "grey50", position = pos
+      alpha = alpha * 0.5, color = "grey50",
+      position = if (position == "stack") pos else "identity"
     ) +
     ggplot2::geom_col(
       width = 0.6, color = "black", alpha = alpha, position = pos

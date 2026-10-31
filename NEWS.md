@@ -1,5 +1,7 @@
 # UtilsR 0.6.19
 
+* Categorical trend areas retain continuous category positions when bars are dodged, keeping areas, bars and labels aligned.
+
 * `plt_con()` reuses pairwise test results while inputs are unchanged, preserves
   test warnings and recomputes after data transformations without changing P-values.
 

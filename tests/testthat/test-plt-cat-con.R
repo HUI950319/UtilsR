@@ -471,3 +471,22 @@ test_that("plt_con saves at its page size and refuses a list of plots", {
     d, stat.by = c("age", "bmi"), group.by = "stage", combine = FALSE,
     save = list(filename = f)))), "list of plots")
 })
+
+test_that("plt_cat trend dodge keeps areas within the category positions", {
+  d <- data.frame(category = c("A", "B", "A", "B"),
+                  group = c("G1", "G1", "G2", "G2"),
+                  region = c("North", "North", "South", "South"))
+  for (flip in c(FALSE, TRUE)) {
+    p <- cat_test_plot(d, "category", "group", type = "trend", stat = "count",
+                      position = "dodge", label = TRUE, flip = flip)
+    b <- ggplot2::ggplot_build(p)
+    expect_true(all(b$data[[1]]$x >= 0.69 & b$data[[1]]$x <= 2.31))
+    expect_equal(range(b$data[[1]]$ymax), c(0, 1))
+    expect_equal(as.numeric(b$data[[2]]$x), as.numeric(b$data[[3]]$x))
+    q <- cat_test_plot(d, "category", "group", type = "trend", stat = "count",
+                      position = "dodge", label = TRUE, flip = flip, bg.by = "region")
+    expect_equal(ggplot2::ggplot_build(q)$data[-1], b$data)
+  }
+  stacked <- cat_test_plot(d, "category", "group", type = "trend", stat = "count")
+  expect_equal(max(ggplot2::ggplot_build(stacked)$data[[1]]$ymax), 2)
+})
