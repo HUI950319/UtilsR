@@ -1,5 +1,8 @@
 # UtilsR 0.6.19
 
+* `plt_con()` updates automatic comparison positions and axis bounds when a
+  continuous y-scale transformation is added, including bar SD intervals.
+
 * `plt_con()` keeps pairwise and global statistical groups aligned with the
   displayed groups when stacked panels are filled by feature.
 

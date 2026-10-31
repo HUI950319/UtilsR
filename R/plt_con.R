@@ -19,6 +19,7 @@
 #         +-- L2  .con_comparison_layer()  ggpubr layer with a cached test
 #         +-- L2  .con_global_layer()  skip degenerate global annotations
 #         +-- L2  .con_stat_layer()   group statistical layers by displayed x
+#         +-- L2  .con_coord()        adapt automatic bounds to added y scales
 #         +-- L2  .con_facet_scales()  per-feature zoom without filtering stats
 #         +-- L2  .con_bar_range()     full mean +/- SD range and zero baseline
 #         +-- L2  .con_base_plot()     small plot and mapping environment
@@ -114,6 +115,8 @@
 #'   Character \code{"qN"} uses the Nth percentile. Default \code{NULL}.
 #'   Automatic limits leave room for comparisons; explicit bounds are preserved.
 #'   Independent axes reserve space only for valid pairwise comparisons.
+#'   Added continuous y-scale transformations update automatic bounds and
+#'   annotation positions using the transformed observations and summaries.
 #' @param y.nbreaks Integer. Number of y-axis breaks. Default 5.
 #' @param sort Logical or character. Sort groups by the median of finite observations?
 #'   \code{TRUE} or \code{"decreasing"} for descending,
@@ -610,7 +613,7 @@ plt_con <- function(data,
       multiple_method = multiple_method,
       sig_label = sig_label, sig_labelsize = sig_labelsize,
       y.min = global_y_min %||% y.min, y.max = global_y_max %||% y.max,
-      auto_y_max = is.null(y.max), y.nbreaks = y.nbreaks, flip = flip,
+      auto_y_min = is.null(y.min), auto_y_max = is.null(y.max), y.nbreaks = y.nbreaks, flip = flip,
       comparison_count = if (isTRUE(same.y.lims)) length(comparisons) else NULL,
       title = title, subtitle = subtitle,
       xlab = xlab %||% (if (dummy_group) "" else group.by),
@@ -828,31 +831,51 @@ plt_con <- function(data,
   callback
 }
 
-.con_stat_layer <- function(stat) {
+.con_stat_layer <- function(stat, annotation) {
   force(stat)
+  force(annotation)
   ggplot2::ggproto(NULL, stat,
+    parameters = function(extra = FALSE) stat$parameters(extra),
     setup_data = function(data, params) {
       data <- stat$setup_data(data, params)
       data[["group"]] <- as.numeric(data[["x"]])
       data
+    },
+    compute_panel = function(data, scales, ...) {
+      params <- list(...)
+      if (!identical(scales$y$get_transformation()$name, "identity")) {
+        key <- if (inherits(stat, "StatSignif")) "y_position" else "label.y"
+        if (annotation[["auto"]]) {
+          bounds <- if (annotation[["type"]] == "bar") .con_bar_range(data$y, data$x) else
+            range(data$y, finite = TRUE)
+          span <- max(diff(bounds), diff(scales$y$range$range))
+          offset <- annotation[["offset"]]
+          if (length(offset) > 1L) offset <- offset[as.integer(data$PANEL[1L])]
+          params[[key]] <- bounds[2L] + span * offset
+          if (key == "y_position") params[[key]] <- rep(params[[key]], length(params[["comparisons"]]))
+        } else if (!is.null(params[[key]])) {
+          params[[key]] <- scales$y$transform(params[[key]])
+        }
+      }
+      do.call(stat$compute_panel, c(list(data = data, scales = scales), params))
     }
   )
 }
 
-.con_comparison_layer <- function(comparisons, ...) {
+.con_comparison_layer <- function(comparisons, .annotation, ...) {
   cache <- attr(comparisons, ".con_test_cache", exact = TRUE)
   attr(comparisons, ".con_test_cache") <- NULL
   layer <- .con_component(ggpubr::stat_compare_means, comparisons = comparisons, ...)
   layer$stat_params[["test"]] <- .con_cached_test(
     .con_pairwise_test(layer$stat_params[["test"]]), layer$stat_params[["test.args"]], cache)
-  layer$stat <- .con_stat_layer(layer$stat)
+  layer$stat <- .con_stat_layer(layer$stat, .annotation)
   layer
 }
 
-.con_global_layer <- function(features, ...) {
+.con_global_layer <- function(features, .annotation, ...) {
   force(features)
   layer <- .con_component(ggpubr::stat_compare_means, ...)
-  original <- .con_stat_layer(layer$stat)
+  original <- .con_stat_layer(layer$stat, .annotation)
   layer$stat <- ggplot2::ggproto(NULL, original,
     parameters = function(extra = FALSE) original$parameters(extra),
     compute_panel = function(data, scales, ...) {
@@ -886,6 +909,22 @@ plt_con <- function(data,
     force(bounds)
     ggplot2::scale_y_continuous(limits = bounds, breaks = scales::breaks_pretty(n = nbreaks))
   })
+}
+
+.con_coord <- function(flip, limits, automatic) {
+  force(automatic)
+  coord <- if (isTRUE(flip)) ggplot2::coord_flip(ylim = limits) else
+    ggplot2::coord_cartesian(ylim = limits)
+  ggplot2::ggproto(NULL, coord,
+    setup_panel_params = function(self, scale_x, scale_y, ...) {
+      bounds <- self$limits
+      if (!is.null(bounds[["y"]]) && !identical(scale_y$get_transformation()$name, "identity")) {
+        bounds[["y"]][automatic] <- NA_real_
+      }
+      adjusted <- ggplot2::ggproto(NULL, coord, limits = bounds)
+      adjusted$setup_panel_params(scale_x, scale_y, ...)
+    }
+  )
 }
 
 .con_bar_range <- function(values, groups) {
@@ -933,7 +972,7 @@ plt_con <- function(data,
                              comparisons, ref_group, pairwise_method,
                              multiplegroup_comparisons, multiple_method,
                              sig_label, sig_labelsize, comparison_count,
-                              y.min, y.max, auto_y_max, y.nbreaks, flip,
+                              y.min, y.max, auto_y_min, auto_y_max, y.nbreaks, flip,
                              title, subtitle, xlab, ylab, fill_title,
                              legend.position, legend.direction,
                              aspect.ratio, base_size,
@@ -1101,6 +1140,7 @@ plt_con <- function(data,
   if (length(comparisons)) {
     p <- p + .con_comparison_layer(
       comparisons = comparisons,
+      .annotation = list(type = type, auto = auto_y_max, offset = 0),
       ref.group = ref_group,
       method = pairwise_method,
       label = sig_label,
@@ -1115,6 +1155,7 @@ plt_con <- function(data,
 
   if (isTRUE(multiplegroup_comparisons)) {
     p <- p + .con_component(.con_global_layer, features = feature,
+      .annotation = list(type = type, auto = auto_y_max, offset = 0.15 * comparison_count),
       method = multiple_method,
       label = sig_label,
       label.y = annotation_y_max,
@@ -1126,11 +1167,7 @@ plt_con <- function(data,
   if (isTRUE(auto_y_max)) y_max_use <- annotation_y_max
 
   # --- Coordinates & scales ---------------------------------------------------
-  if (isTRUE(flip)) {
-    p <- p + ggplot2::coord_flip(ylim = c(y_min_use, y_max_use))
-  } else {
-    p <- p + ggplot2::coord_cartesian(ylim = c(y_min_use, y_max_use))
-  }
+  p <- p + .con_coord(flip, c(y_min_use, y_max_use), c(auto_y_min, auto_y_max))
 
   p <- p + ggplot2::scale_y_continuous(n.breaks = y.nbreaks)
 
@@ -1358,6 +1395,7 @@ plt_con <- function(data,
       if (!length(comparison_sets[[i]])) next
       p <- p + .con_comparison_layer(
         data = comparison_data[[i]], comparisons = comparison_sets[[i]], ref.group = ref_group,
+        .annotation = list(type = type, auto = is.null(y.max), offset = 0),
         method = pairwise_method, label = sig_label, size = sig_labelsize,
         label.y = if (type == "bar") bar_ranges[2L, i] else NULL,
         step.increase = 0.1, tip.length = 0.03, vjust = 0
@@ -1372,6 +1410,8 @@ plt_con <- function(data,
       } else NULL
       p <- p + .con_component(.con_global_layer,
         features = if (type == "bar") stat.by[i] else stat.by,
+        .annotation = list(type = type, auto = is.null(y.max),
+          offset = 0.15 * (if (type == "bar") comparison_counts[i] + 1L else comparison_counts)),
         data = global_data[[i]], label.y = global_y,
         method = multiple_method, label = sig_label, size = sig_labelsize,
         vjust = 1.2, hjust = if (isTRUE(flip)) 1 else 0
@@ -1398,12 +1438,12 @@ plt_con <- function(data,
     p <- p +
       ggplot2::facet_wrap(stats::as.formula("~feature", env = baseenv()), nrow = 1,
                           scales = facet_scales) +
-      ggplot2::coord_flip(ylim = axis_limits)
+      .con_coord(TRUE, axis_limits, c(is.null(y.min), is.null(y.max)))
   } else {
     p <- p +
       ggplot2::facet_grid(stats::as.formula("feature ~ .", env = baseenv()),
                           scales = facet_scales) +
-      ggplot2::coord_cartesian(ylim = axis_limits)
+      .con_coord(FALSE, axis_limits, c(is.null(y.min), is.null(y.max)))
   }
 
   # --- Scales ---

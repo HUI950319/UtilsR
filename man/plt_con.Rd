@@ -170,7 +170,9 @@ pooled observations when \code{same.y.lims = TRUE}.}
 A finite number or \code{"qN"} for integer N from 0 to 100.
 Character \code{"qN"} uses the Nth percentile. Default \code{NULL}.
 Automatic limits leave room for comparisons; explicit bounds are preserved.
-Independent axes reserve space only for valid pairwise comparisons.}
+Independent axes reserve space only for valid pairwise comparisons.
+Added continuous y-scale transformations update automatic bounds and
+annotation positions using the transformed observations and summaries.}
 
 \item{y.nbreaks}{Integer. Number of y-axis breaks. Default 5.}
 

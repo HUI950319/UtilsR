@@ -414,6 +414,101 @@ test_that("con comparison axes reserve automatic space and retain explicit zoom 
   expect_equal(out[[1L]]$coordinates$limits$y, out[[2L]]$coordinates$limits$y)
 })
 
+test_that("con added log scales keep single comparison annotations inside the panel", {
+  d <- con_data()
+  for (flip in c(FALSE, TRUE)) {
+    p <- con_plot(d, type = "box", comparisons = list(c("A", "B")),
+      multiplegroup_comparisons = TRUE, flip = flip)
+    q <- suppressMessages(p + ggplot2::scale_y_log10())
+    b <- ggplot2::ggplot_build(q)
+    bounds <- b$layout$panel_params[[1L]][[if (flip) "x.range" else "y.range"]]
+    bracket <- b$data[[which(vapply(q$layers, function(l) inherits(l$geom, "GeomSignif"), logical(1)))]]
+    global <- tail(b$data, 1L)[[1L]]
+    expect_equal(nrow(bracket), 3L)
+    expect_gt(min(bracket$y), max(log10(d$x)))
+    expect_gt(global$y, max(bracket$y))
+    expect_gt(bounds[2L], global$y)
+    expect_lt(bounds[2L], 2)
+    expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+    expect_identical(p$data$value, d$x)
+  }
+})
+
+test_that("con added log scales use transformed bar summaries for automatic annotations", {
+  d <- data.frame(x = c(1, 100, 2, 200), z = c(10, 1000, 20, 2000),
+                  g = factor(rep(c("A", "B"), each = 2)))
+  for (stack in c(FALSE, TRUE)) {
+    p <- con_plot(d, if (stack) c("x", "z") else "x", type = "bar", stack = stack,
+      fill.by = "feature", comparisons = list(c("A", "B")), multiplegroup_comparisons = TRUE)
+    q <- suppressMessages(p + ggplot2::scale_y_log10())
+    expect_warning(b <- ggplot2::ggplot_build(q),
+                   "(log-10 transformation introduced|Transformation introduced) infinite values")
+    kinds <- vapply(q$layers, function(l) class(l$geom)[1L], "")
+    brackets <- do.call(rbind, b$data[kinds == "GeomSignif"])
+    global <- do.call(rbind, b$data[kinds == "GeomText"])
+    bars <- b$data[[which(kinds == "GeomCol")]]
+    errors <- b$data[[which(kinds == "GeomErrorbar")]]
+    expect_equal(nrow(brackets), if (stack) 6L else 3L)
+    expect_equal(bars$y[1:2], c(1, log10(2) + 1))
+    for (i in seq_along(b$layout$panel_params)) {
+      bracket <- brackets[as.integer(brackets$PANEL) == i, ]
+      label <- global$y[as.integer(global$PANEL) == i]
+      bounds <- b$layout$panel_params[[i]]$y.range
+      expect_gt(min(bracket$y), max(errors$ymax[as.integer(errors$PANEL) == i]))
+      expect_gt(label, max(bracket$y))
+      expect_gt(bounds[2L], label)
+      expect_lt(bounds[2L], 6)
+      expect_true(all(is.finite(bounds)))
+    }
+    expect_warning(g <- ggplot2::ggplotGrob(q),
+                   "(log-10 transformation introduced|Transformation introduced) infinite values")
+    expect_s3_class(g, "gtable")
+  }
+})
+
+test_that("con transformed comparison axes retain explicit raw zoom bounds", {
+  for (stack in c(FALSE, TRUE)) {
+    p <- con_plot(con_data(), c("x", "z"), type = "bar", stack = stack,
+      comparisons = list(c("A", "B")), y.min = 1, y.max = 1000)
+    q <- suppressMessages(p + ggplot2::scale_y_log10())
+    expect_warning(b <- ggplot2::ggplot_build(q),
+                   "(log-10 transformation introduced|Transformation introduced) infinite values")
+    expect_equal(q$coordinates$limits$y, c(1, 1000))
+    for (panel in b$layout$panel_params) expect_equal(panel$y.range, c(-0.15, 3.15))
+  }
+})
+
+test_that("con transformed annotation positions support multiple pairs and other continuous scales", {
+  d <- data.frame(x = 1:18, g = factor(rep(c("A", "B", "C"), each = 6)))
+  for (scale in list(ggplot2::scale_y_sqrt(), ggplot2::scale_y_reverse())) {
+    p <- con_plot(d, type = "box", comparisons = list(c("A", "B"), c("A", "C")),
+                  multiplegroup_comparisons = TRUE)
+    q <- suppressMessages(p + scale)
+    b <- ggplot2::ggplot_build(q)
+    bracket <- b$data[[which(vapply(q$layers, function(l) inherits(l$geom, "GeomSignif"), logical(1)))]]
+    global <- tail(b$data, 1L)[[1L]]
+    expect_equal(nrow(bracket), 6L)
+    expect_gt(min(bracket$y), max(scale$transform(d$x)))
+    expect_gt(global$y, max(bracket$y))
+    expect_gt(b$layout$panel_params[[1L]]$y.range[2L], global$y)
+  }
+})
+
+test_that("con transformed shared flipped bar axes retain automatic room and a fixed lower bound", {
+  p <- con_plot(con_data(), c("x", "z"), type = "bar", stack = TRUE, flip = TRUE,
+    same.y.lims = TRUE, y.min = 1, comparisons = list(c("A", "B")),
+    multiplegroup_comparisons = TRUE)
+  q <- suppressMessages(p + ggplot2::scale_y_log10())
+  expect_warning(b <- ggplot2::ggplot_build(q),
+                 "(log-10 transformation introduced|Transformation introduced) infinite values")
+  bounds <- lapply(b$layout$panel_params, `[[`, "x.range")
+  expect_equal(bounds[[1L]], bounds[[2L]])
+  expect_true(all(is.finite(bounds[[1L]])))
+  expect_gt(bounds[[1L]][2L], max(tail(b$data, 2L)[[1L]]$y, tail(b$data, 1L)[[1L]]$y))
+  expect_lt(bounds[[1L]][2L], 4)
+  expect_equal(q$coordinates$limits$y[1L], 1)
+})
+
 test_that("con independent axes reserve space for effective comparisons only", {
   d <- con_data()
   pairs <- list(c("A", "absent"), c("B", "absent"))
