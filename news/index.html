@@ -50,14 +50,22 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.19" id="utilsr-0619">UtilsR 0.6.19<a class="anchor" aria-label="anchor" href="#utilsr-0619"></a></h2>
-<ul><li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> rejects missing or non-scalar logical switches and unknown sorting values before plotting, preventing silent changes of output type or order.</p></li>
+<ul><li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> titles its fill legend with the group column or “Feature”, keeping background layers from exposing internal expressions as the legend title.</p></li>
+<li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> rejects missing or non-scalar logical switches and unknown sorting values before plotting, preventing silent changes of output type or order.</p></li>
 <li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> retains empty-string group and background categories through splitting and named colour matching without changing their displayed labels.</p></li>
 <li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> aligns background bands with observed missing groups instead of extending a neighbouring group’s band across them, including flipped facets.</p></li>
 <li><p><code><a href="../reference/dot-resolve_color.html">.resolve_color()</a></code>, the colour handling of the plot functions, is exported so that RegR can import it instead of keeping a copy, as it does the <code>.cat_*</code> helpers.</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.18" id="utilsr-0618">UtilsR 0.6.18<a class="anchor" aria-label="anchor" href="#utilsr-0618"></a></h2>
-<ul><li><p>Categorical Venn and UpSet facets resolve positive membership once across the complete input so panel membership definitions stay consistent.</p></li>
+<ul><li><p>plt_cat(type = “upset”) now applies the existing alpha argument to intersection bars, including split panels, without changing intersection counts.</p></li>
+<li><p>plt_cat() drops unrelated input columns before plotting and avoids retaining panel data in percentage label closures, reducing saved plot size without changing plotted values.</p></li>
+<li><p>Categorical area plots report unsupported layouts with fewer than two displayed group positions instead of returning empty plots; explicitly retained empty levels remain supported.</p></li>
+<li><p>Categorical chord plots match sector colours by their names, preserving named and positional palettes when factors contain unused levels.</p></li>
+<li><p>Categorical plots resolve their effective columns before missing-value filtering and cardinality checks, so ignored columns do not alter samples or cause errors.</p></li>
+<li><p>Categorical UpSet plots retain a two-dimensional membership matrix for one-row inputs and singleton facets.</p></li>
+<li><p>Categorical chord plots enable device recording before drawing so returned plots can be replayed and saved from file devices.</p></li>
+<li><p>Categorical Venn and UpSet facets resolve positive membership once across the complete input so panel membership definitions stay consistent.</p></li>
 <li><p>Categorical plots preserve time-class values and their original missingness when converting categories to factors.</p></li>
 <li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> skips non-finite pairwise P-values instead of marking them as non-significant or losing the valid comparisons in the same annotation layer.</p></li>
 <li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> constructs returned plots in a small evaluated frame so source data and intermediate analysis objects are released.</p></li>

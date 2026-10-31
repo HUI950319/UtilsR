@@ -3,6 +3,11 @@
 ## UtilsR 0.6.19
 
 - [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  titles its fill legend with the group column or “Feature”, keeping
+  background layers from exposing internal expressions as the legend
+  title.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
   rejects missing or non-scalar logical switches and unknown sorting
   values before plotting, preventing silent changes of output type or
   order.
@@ -22,6 +27,32 @@
   helpers.
 
 ## UtilsR 0.6.18
+
+- plt_cat(type = “upset”) now applies the existing alpha argument to
+  intersection bars, including split panels, without changing
+  intersection counts.
+
+- plt_cat() drops unrelated input columns before plotting and avoids
+  retaining panel data in percentage label closures, reducing saved plot
+  size without changing plotted values.
+
+- Categorical area plots report unsupported layouts with fewer than two
+  displayed group positions instead of returning empty plots; explicitly
+  retained empty levels remain supported.
+
+- Categorical chord plots match sector colours by their names,
+  preserving named and positional palettes when factors contain unused
+  levels.
+
+- Categorical plots resolve their effective columns before missing-value
+  filtering and cardinality checks, so ignored columns do not alter
+  samples or cause errors.
+
+- Categorical UpSet plots retain a two-dimensional membership matrix for
+  one-row inputs and singleton facets.
+
+- Categorical chord plots enable device recording before drawing so
+  returned plots can be replayed and saved from file devices.
 
 - Categorical Venn and UpSet facets resolve positive membership once
   across the complete input so panel membership definitions stay

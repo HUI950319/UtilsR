@@ -104,7 +104,9 @@ plt_con(
 - fill.by:
 
   What variable to map to fill colour: `"group"` (default) colours by
-  group.by levels; `"feature"` colours by stat.by name.
+  group.by levels; `"feature"` colours by stat.by name. The legend title
+  uses `group.by` or `"Feature"`; ungrouped group-filled plots omit the
+  title. The theme controls title visibility.
 
 - palette:
 

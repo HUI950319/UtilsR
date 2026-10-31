@@ -63,7 +63,8 @@ plt_cat(
 - group.by:
 
   Character. Optional grouping variable for standard types. Ignored for
-  set types.
+  set types. Area plots require at least two displayed group levels in
+  each panel.
 
 - split.by:
 
