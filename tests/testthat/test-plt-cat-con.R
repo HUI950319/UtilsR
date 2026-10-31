@@ -653,3 +653,21 @@ test_that("plt_cat retains empty UpSet facets with a visible placeholder", {
   expect_true(all(c("All sites", "positive", "negative") %in% labels))
   expect_error(plt_cat(d[2, ], c("A", "B"), type = "upset", stat_level = TRUE), "No rows match")
 })
+
+test_that("plt_cat UpSet preserves set names containing its backend separator", {
+  skip_if_not_installed("ggupset")
+  withr::local_options(lifecycle_verbosity = "quiet")
+  d <- data.frame(A = c(TRUE, FALSE, FALSE), B = c(TRUE, FALSE, FALSE),
+                  C = c(FALSE, TRUE, TRUE))
+  names(d)[3] <- "A-__-__-_-B"
+  p <- cat_test_plot(d, names(d), type = "upset", stat_level = TRUE, label = TRUE)
+  b <- ggplot2::ggplot_build(p)
+  expect_equal(sort(b$data[[1]]$count), c(1, 2))
+  expect_equal(sum(b$data[[1]]$count), 3)
+  expect_true(all(names(d) %in% cat_test_text(ggplot2::ggplotGrob(p))))
+  many <- expand.grid(A = c(FALSE, TRUE), B = c(FALSE, TRUE), C = c(FALSE, TRUE),
+                      D = c(FALSE, TRUE), E = c(FALSE, TRUE))[-1, ]
+  names(many)[3] <- names(d)[3]
+  expect_warning(q <- cat_test_plot(many, names(many), type = "upset", stat_level = TRUE), "20.*31")
+  expect_equal(ggplot2::ggplot_build(q)$data[[1]]$count, rep(1, 20))
+})

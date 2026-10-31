@@ -371,6 +371,23 @@
     cli::cli_warn("Only the 20 most frequent of {n_intersections} UpSet intersections are shown; {n_intersections - 20L} are omitted.")
   }
 
+  separator <- "-__-__-_-"
+  if (any(grepl(separator, stat.by, fixed = TRUE))) {
+    # Use the public merge-list adapter with a separator absent from set names.
+    while (any(grepl(separator, stat.by, fixed = TRUE))) separator <- paste0(separator, "_")
+    keys <- vapply(data[["intersection"]], function(x) {
+      paste(sort(x), collapse = separator)
+    }, character(1))
+    limits <- utils::head(names(sort(table(keys), decreasing = TRUE)), 20L)
+    rm(keys)
+    x_scale <- list(
+      ggupset::scale_x_mergelist(sep = separator, limits = limits),
+      ggupset::axis_combmatrix(sep = separator, levels = stat.by)
+    )
+  } else {
+    x_scale <- ggupset::scale_x_upset(sets = stat.by, n_intersections = 20)
+  }
+
   fill_low  <- if (length(cols) > 0) cols[1] else "steelblue"
   fill_high <- if (length(cols) > 1) cols[2] else "darkblue"
 
@@ -388,7 +405,7 @@
       force = 0, min.segment.length = 0
     )) +
     ggplot2::labs(y = "Intersection size") +
-    ggupset::scale_x_upset(sets = stat.by, n_intersections = 20) +
+    x_scale +
     ggplot2::scale_fill_gradient(low = fill_low, high = fill_high) +
     theme_my() +
     ggupset::theme_combmatrix(
