@@ -111,7 +111,8 @@ trend, area, dot, sankey, chord, venn, and upset.</p>
 <dd><p>Character. Column name(s) for the categorical variable to
 summarise. For standard types (bar, rose, ring, pie, trend, area, dot) a
 single column name. For set types (sankey, chord, venn, upset) a character
-vector of &gt;= 2 column names.</p></dd>
+vector of &gt;= 2 column names. Venn plots support at most seven columns;
+use <code>type = "upset"</code> for larger sets.</p></dd>
 
 
 <dt id="arg-group-by">group.by<a class="anchor" aria-label="anchor" href="#arg-group-by"></a></dt>
@@ -123,13 +124,16 @@ levels in each panel.</p></dd>
 <dt id="arg-split-by">split.by<a class="anchor" aria-label="anchor" href="#arg-split-by"></a></dt>
 <dd><p>Character. Optional splitting variable. Splits data, creates
 one plot per level, and combines with <span class="pkg">patchwork</span>. Not available for
-<code>type = "chord"</code>.</p></dd>
+<code>type = "chord"</code>. UpSet panels without matching members are retained
+with a no-matching-members placeholder.</p></dd>
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
 <dd><p>Chart type. One of <code>"bar"</code>, <code>"rose"</code>, <code>"ring"</code>,
 <code>"pie"</code>, <code>"trend"</code>, <code>"area"</code>, <code>"dot"</code>, <code>"sankey"</code>,
-<code>"chord"</code>, <code>"venn"</code>, <code>"upset"</code>.</p></dd>
+<code>"chord"</code>, <code>"venn"</code>, <code>"upset"</code>. UpSet plots show at most
+the 20 most frequent non-empty intersections per panel, with a warning
+reporting how many intersections are omitted when the limit is exceeded.</p></dd>
 
 
 <dt id="arg-stat">stat<a class="anchor" aria-label="anchor" href="#arg-stat"></a></dt>
@@ -149,7 +153,8 @@ one plot per level, and combines with <span class="pkg">patchwork</span>. Not av
     <code>split.by</code> keeps the colours of the whole figure.</p></li>
 <li><p>A named character vector: mapped by level. It must cover every
     non-missing level; the generated missing level may be left out
-    and then takes <code>NA_color</code>.</p></li>
+    and then takes <code>NA_color</code>. An empty name matches an empty-string
+    category when that category is present.</p></li>
 </ul></dd>
 
 
@@ -179,7 +184,8 @@ and Sankey node names are independent of value labels.</p></dd>
 
 
 <dt id="arg-bg-by">bg.by<a class="anchor" aria-label="anchor" href="#arg-bg-by"></a></dt>
-<dd><p>Character. Column name for background grouping in dodge mode.
+<dd><p>Character. Column name for background grouping in dodge mode
+for bar, trend and dot plots with <code>group.by</code>; ignored otherwise.
 Must be a superset of <code>group.by</code> (each group.by level belongs to
 exactly one bg.by level). Adds alternating background colour bands.
 Default <code>NULL</code> (no background).</p></dd>
@@ -224,11 +230,13 @@ auto-detects <code>TRUE</code>, <code>"Yes"</code>, <code>"yes"</code>, <code>1<
 
 
 <dt id="arg-title">title<a class="anchor" aria-label="anchor" href="#arg-title"></a></dt>
-<dd><p>Character. Plot title. Default <code>NULL</code>.</p></dd>
+<dd><p>Character. Plot title, or overall title for split figures.
+Default <code>NULL</code>.</p></dd>
 
 
 <dt id="arg-subtitle">subtitle<a class="anchor" aria-label="anchor" href="#arg-subtitle"></a></dt>
-<dd><p>Character. Plot subtitle. Default <code>NULL</code>.</p></dd>
+<dd><p>Character. Plot subtitle, or overall subtitle for split
+figures. Default <code>NULL</code>.</p></dd>
 
 
 <dt id="arg-xlab">xlab<a class="anchor" aria-label="anchor" href="#arg-xlab"></a></dt>
@@ -256,13 +264,14 @@ Automatically set to 1 for rose, ring, and pie types.</p></dd>
 
 
 <dt id="arg-facet-nrow">facet_nrow<a class="anchor" aria-label="anchor" href="#arg-facet-nrow"></a></dt>
-<dd><p>Integer. Number of rows when combining split panels.
+<dd><p>Positive integer. Number of rows when combining split panels.
 Default <code>NULL</code> (auto).</p></dd>
 
 
 <dt id="arg-facet-ncol">facet_ncol<a class="anchor" aria-label="anchor" href="#arg-facet-ncol"></a></dt>
-<dd><p>Integer. Number of columns when combining split panels.
-Default <code>NULL</code> (auto).</p></dd>
+<dd><p>Positive integer. Number of columns when combining split
+panels. Default <code>NULL</code> (auto). When both dimensions are supplied,
+their grid must accommodate all panels.</p></dd>
 
 
 <dt id="arg-facet-byrow">facet_byrow<a class="anchor" aria-label="anchor" href="#arg-facet-byrow"></a></dt>

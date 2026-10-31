@@ -58,7 +58,8 @@ plt_cat(
   Character. Column name(s) for the categorical variable to summarise.
   For standard types (bar, rose, ring, pie, trend, area, dot) a single
   column name. For set types (sankey, chord, venn, upset) a character
-  vector of \>= 2 column names.
+  vector of \>= 2 column names. Venn plots support at most seven
+  columns; use `type = "upset"` for larger sets.
 
 - group.by:
 
@@ -70,12 +71,16 @@ plt_cat(
 
   Character. Optional splitting variable. Splits data, creates one plot
   per level, and combines with patchwork. Not available for
-  `type = "chord"`.
+  `type = "chord"`. UpSet panels without matching members are retained
+  with a no-matching-members placeholder.
 
 - type:
 
   Chart type. One of `"bar"`, `"rose"`, `"ring"`, `"pie"`, `"trend"`,
-  `"area"`, `"dot"`, `"sankey"`, `"chord"`, `"venn"`, `"upset"`.
+  `"area"`, `"dot"`, `"sankey"`, `"chord"`, `"venn"`, `"upset"`. UpSet
+  plots show at most the 20 most frequent non-empty intersections per
+  panel, with a warning reporting how many intersections are omitted
+  when the limit is exceeded.
 
 - stat:
 
@@ -99,7 +104,8 @@ plt_cat(
 
   - A named character vector: mapped by level. It must cover every
     non-missing level; the generated missing level may be left out and
-    then takes `NA_color`.
+    then takes `NA_color`. An empty name matches an empty-string
+    category when that category is present.
 
 - alpha:
 
@@ -128,8 +134,9 @@ plt_cat(
 
 - bg.by:
 
-  Character. Column name for background grouping in dodge mode. Must be
-  a superset of `group.by` (each group.by level belongs to exactly one
+  Character. Column name for background grouping in dodge mode for bar,
+  trend and dot plots with `group.by`; ignored otherwise. Must be a
+  superset of `group.by` (each group.by level belongs to exactly one
   bg.by level). Adds alternating background colour bands. Default `NULL`
   (no background).
 
@@ -172,11 +179,13 @@ plt_cat(
 
 - title:
 
-  Character. Plot title. Default `NULL`.
+  Character. Plot title, or overall title for split figures. Default
+  `NULL`.
 
 - subtitle:
 
-  Character. Plot subtitle. Default `NULL`.
+  Character. Plot subtitle, or overall subtitle for split figures.
+  Default `NULL`.
 
 - xlab:
 
@@ -202,13 +211,14 @@ plt_cat(
 
 - facet_nrow:
 
-  Integer. Number of rows when combining split panels. Default `NULL`
-  (auto).
+  Positive integer. Number of rows when combining split panels. Default
+  `NULL` (auto).
 
 - facet_ncol:
 
-  Integer. Number of columns when combining split panels. Default `NULL`
-  (auto).
+  Positive integer. Number of columns when combining split panels.
+  Default `NULL` (auto). When both dimensions are supplied, their grid
+  must accommodate all panels.
 
 - facet_byrow:
 

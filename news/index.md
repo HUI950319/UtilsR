@@ -2,6 +2,45 @@
 
 ## UtilsR 0.6.19
 
+- Categorical UpSet split figures retain panels without matching members
+  with a visible placeholder while preserving membership definitions and
+  unsplit errors.
+
+- Categorical UpSet plots keep the twenty-intersection limit and report
+  omitted intersections explicitly without generic out-of-range count
+  warnings.
+
+- Categorical Sankey plots aggregate identical paths before expansion
+  and pass frequency weights, preserving flows while reducing repeated
+  geometry work.
+
+- Categorical plots ignore inapplicable background columns before
+  existence, value-shape and missing-value checks, while validating
+  backgrounds used by dodge plots.
+
+- Categorical split layouts validate positive integer dimensions and
+  available panel capacity before rendering.
+
+- Categorical named palettes match empty-string categories by position
+  while preserving distinct missing-value colours.
+
+- Categorical Sankey plots use internal stage aliases so
+  backend-reserved column names remain valid while displayed names and
+  flows are preserved.
+
+- Categorical Venn plots reject more than seven sets with a direct
+  suggestion to use the UpSet type instead of failing during saving.
+
+- Split categorical figures share a complete fill legend across
+  partially overlapping panel categories without inserting observations
+  or empty categories.
+
+- Split categorical figures display the overall title and subtitle once
+  while retaining individual panel titles.
+
+- Categorical trend areas retain continuous category positions when bars
+  are dodged, keeping areas, bars and labels aligned.
+
 - [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
   reuses pairwise test results while inputs are unchanged, preserves
   test warnings and recomputes after data transformations without

@@ -50,7 +50,18 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.19" id="utilsr-0619">UtilsR 0.6.19<a class="anchor" aria-label="anchor" href="#utilsr-0619"></a></h2>
-<ul><li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> reuses pairwise test results while inputs are unchanged, preserves test warnings and recomputes after data transformations without changing P-values.</p></li>
+<ul><li><p>Categorical UpSet split figures retain panels without matching members with a visible placeholder while preserving membership definitions and unsplit errors.</p></li>
+<li><p>Categorical UpSet plots keep the twenty-intersection limit and report omitted intersections explicitly without generic out-of-range count warnings.</p></li>
+<li><p>Categorical Sankey plots aggregate identical paths before expansion and pass frequency weights, preserving flows while reducing repeated geometry work.</p></li>
+<li><p>Categorical plots ignore inapplicable background columns before existence, value-shape and missing-value checks, while validating backgrounds used by dodge plots.</p></li>
+<li><p>Categorical split layouts validate positive integer dimensions and available panel capacity before rendering.</p></li>
+<li><p>Categorical named palettes match empty-string categories by position while preserving distinct missing-value colours.</p></li>
+<li><p>Categorical Sankey plots use internal stage aliases so backend-reserved column names remain valid while displayed names and flows are preserved.</p></li>
+<li><p>Categorical Venn plots reject more than seven sets with a direct suggestion to use the UpSet type instead of failing during saving.</p></li>
+<li><p>Split categorical figures share a complete fill legend across partially overlapping panel categories without inserting observations or empty categories.</p></li>
+<li><p>Split categorical figures display the overall title and subtitle once while retaining individual panel titles.</p></li>
+<li><p>Categorical trend areas retain continuous category positions when bars are dodged, keeping areas, bars and labels aligned.</p></li>
+<li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> reuses pairwise test results while inputs are unchanged, preserves test warnings and recomputes after data transformations without changing P-values.</p></li>
 <li><p>Independent <code><a href="../reference/plt_con.html">plt_con()</a></code> axes reserve annotation space for valid comparisons only; skipped comparisons no longer enlarge panels, and shared axes stay aligned.</p></li>
 <li><p>Continuous and categorical background bands follow category positions when a returned plot’s discrete axis is reordered, retaining missing and empty levels.</p></li>
 <li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> displays the overall title and subtitle once on combined split figures while preserving the split labels on their panels.</p></li>
