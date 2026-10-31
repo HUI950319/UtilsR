@@ -276,3 +276,18 @@ test_that("rank-correlation validates switches and numeric aesthetic controls", 
   }
   expect_s3_class(quiet_rank_cor(data, size_by = "score", size_range = c(6, 1)), "ggplot")
 })
+
+test_that("rank-correlation factor methods keep axes stable after row reordering", {
+  data <- rank_cor_data(); data$score <- c(1, 2, 5, 10, 2, 3, 8, 9)
+  data$method <- factor(data$method, levels = c("M1", "unused", "M2"))
+  reference <- quiet_rank_cor(data, use_rank = FALSE, scale_x = "log1p")
+  data <- data[c(5:8, 1:4), ]
+  p <- quiet_rank_cor(data, use_rank = FALSE, scale_x = "log1p")
+  expect_identical(p$labels$x, "M1 (log1p)")
+  expect_identical(p$labels$y, "M2 (value)")
+  expect_equal(p$data, reference$data)
+  expect_equal(attr(p, "cor_results"), attr(reference, "cor_results"))
+  data$method <- as.character(data$method)
+  p <- quiet_rank_cor(data)
+  expect_identical(p$labels$x, "M2 (rank)")
+})

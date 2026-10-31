@@ -1,5 +1,7 @@
 # UtilsR 0.6.18
 
+* `PlotRankCor()` respects observed factor method levels for axis assignment while retaining first-appearance order for character methods.
+
 * `PlotRankCor()` validates selectors, numeric column shapes, logical switches and aesthetic ranges before computing ranks.
 
 * `PlotRankCor()` restores serialized numeric methods and respects labelled missing values while accepting ordinary data-frame subclasses.

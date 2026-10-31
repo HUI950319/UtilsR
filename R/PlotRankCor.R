@@ -28,8 +28,9 @@
 #'   Missing groups are retained as \code{"<NA>"}; a suffix distinguishes this
 #'   label from existing group names.
 #' @param method.by Character. Column name identifying the two methods.
-#'   Must have exactly 2 unique levels; the first level maps to the x-axis
-#'   and the second to the y-axis.
+#'   Must have exactly 2 observed, non-missing levels. Factor levels determine
+#'   their order; other vectors use first appearance. The first maps to the
+#'   x-axis and the second to the y-axis.
 #' @param use_rank Logical. If \code{TRUE} (default), plot ranks and compute
 #'   Spearman correlation. If \code{FALSE}, plot raw values and compute
 #'   Pearson correlation.
@@ -236,6 +237,8 @@ PlotRankCor <- function(
     cli::cli_abort("{.arg method.by} must not contain missing identifiers.")
   if (length(methods) != 2L)
     cli::cli_abort("{.arg method.by} must have exactly 2 levels, got {length(methods)}.")
+  if (is.factor(data[[method.by]]))
+    methods <- levels(data[[method.by]])[levels(data[[method.by]]) %in% methods]
 
   # ---- Compute ranks ----
   if (is.null(group.by)) {
