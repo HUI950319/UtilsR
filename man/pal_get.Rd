@@ -13,7 +13,8 @@ pal_get(palette = "Paired", n = NULL, x = NULL, reverse = FALSE, alpha = 1)
     functions;
   \item a palette name (e.g. \code{"Paired"}, \code{"viridis"},
     \code{"lancet"}); use \code{pal_list()} to see all available names;
-  \item a colour vector, or a single literal colour, used as the palette
+  \item a colour vector, or a single literal colour (whatever R can draw,
+    such as \code{"transparent"} or \code{"#F00"}), used as the palette
     itself -- a registered name always wins over a same-named colour, and
     a string that is neither still raises the usual "not found" error;
   \item a fully named list of colour vectors, such as \code{pal_heat},

@@ -1,5 +1,7 @@
 # UtilsR 0.6.18
 
+* `pal_get()` accepts every colour R can draw, such as `"transparent"`, `"light blue"` and `"#F00"`, as the plot functions do.
+
 * `pal_get(NULL)` returns `pal_lancet`, the default colours of the plot functions, so a `palette` argument can be passed straight on. `pal_get()` without arguments still returns `"Paired"`.
 
 * `pal_get()` keeps the transparency of its colours when it repeats or interpolates them, as in `pal_get("#FF000080", n = 2)`. Opaque colours and registered palettes return what they did.

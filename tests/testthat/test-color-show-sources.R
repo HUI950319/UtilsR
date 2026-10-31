@@ -318,3 +318,16 @@ test_that("pal_get takes NULL for the plot functions' default colours", {
   # Leaving the argument out keeps its own default.
   expect_identical(pal_get(n = 2), pal_get("Paired", n = 2))
 })
+
+test_that("pal_get accepts every colour R can draw", {
+  expect_identical(pal_get("#F00"), "#F00")
+  expect_identical(pal_get("transparent"), "transparent")
+  expect_identical(pal_get("light blue", n = 2), rep("#ADD8E6", 2))
+  expect_identical(pal_get(c("transparent", "#F00")), c("transparent", "#F00"))
+
+  # Not a colour: a string of digits would be a position in palette().
+  for (bad in c("2", "", "notacolor", NA_character_)) {
+    expect_error(pal_get(bad), "not found")
+  }
+  expect_error(pal_get(c("red", "2")), "Not a colour")
+})

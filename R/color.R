@@ -328,7 +328,8 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
 #'       functions;
 #'     \item a palette name (e.g. \code{"Paired"}, \code{"viridis"},
 #'       \code{"lancet"}); use \code{pal_list()} to see all available names;
-#'     \item a colour vector, or a single literal colour, used as the palette
+#'     \item a colour vector, or a single literal colour (whatever R can draw,
+#'       such as \code{"transparent"} or \code{"#F00"}), used as the palette
 #'       itself -- a registered name always wins over a same-named colour, and
 #'       a string that is neither still raises the usual "not found" error;
 #'     \item a fully named list of colour vectors, such as \code{pal_heat},
@@ -392,9 +393,16 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     cli::cli_abort(paste("{.arg palette} must be a palette name, a colour",
                          "vector, or a named list of colour vectors."))
 
+  # Whatever R can draw, except digit strings: col2rgb() reads "2" as a position
+  # in palette().
   is_colour <- function(v) {
-    grepl("^#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?$", v) |
-      tolower(v) %in% tolower(grDevices::colors())
+    drawable <- vapply(v, function(s) {
+      tryCatch({
+        grDevices::col2rgb(s)
+        TRUE
+      }, error = function(e) FALSE)
+    }, logical(1L), USE.NAMES = FALSE)
+    drawable & !is.na(v) & !grepl("^[0-9]+$", v)
   }
 
   # Explicit namespace lookup so the function works when called as
