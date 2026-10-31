@@ -78,7 +78,9 @@
 #' @param xlab Character. X-axis label. Default \code{NULL} (auto).
 #' @param ylab Character. Y-axis label. Default \code{NULL} (auto).
 #' @param base_size Numeric. Base font size. Default 13.
-#' @param legend.position Legend position. Default \code{"none"}.
+#' @param legend.position Legend position. Default \code{"none"}. When omitted,
+#'   size or alpha mapping automatically shows an inside legend. Explicit
+#'   \code{"none"} always hides the legend.
 #' @param width Numeric. Output width in inches. Default 12.
 #' @param height Numeric. Output height in inches. Default 6.
 #' @param filename Character. File path to save the plot. Default
@@ -505,7 +507,7 @@ PlotRankCor <- function(
   }
 
   # Auto-show legend when size_by or alpha_by is used
-  if (identical(legend.position, "none") &&
+  if (missing(legend.position) && identical(legend.position, "none") &&
       (!is.null(size_by) || !is.null(alpha_by))) {
     legend.position <- c(0.8, 0.2)
   }

@@ -347,3 +347,16 @@ test_that("rank-correlation tests use finite nonconstant pairs without warnings"
   expect_true(is.na(attr(p, "cor_results")$rho))
   expect_true(is.na(attr(p, "cor_results")$p.value))
 })
+
+test_that("rank-correlation distinguishes omitted and explicit legend positions", {
+  data <- rank_cor_data()
+  for (mapping in c("size_by", "alpha_by")) {
+    args <- setNames(list("score"), mapping)
+    hidden <- do.call(quiet_rank_cor, c(list(data = data, legend.position = "none"), args))
+    expect_identical(hidden$theme$legend.position, "none")
+    automatic <- do.call(quiet_rank_cor, c(list(data = data), args))
+    expect_false(identical(automatic$theme$legend.position, "none"))
+    right <- do.call(quiet_rank_cor, c(list(data = data, legend.position = "right"), args))
+    expect_identical(right$theme$legend.position, "right")
+  }
+})

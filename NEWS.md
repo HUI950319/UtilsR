@@ -1,5 +1,7 @@
 # UtilsR 0.6.18
 
+* `PlotRankCor()` respects an explicit hidden legend and retains its automatic mapping legend when the setting is omitted.
+
 * `PlotRankCor()` scales extreme finite values without overflow and checks usable finite pairs and variance before correlation tests.
 
 * Categorical area plots align endpoint value labels inward so the panel border does not clip their text.

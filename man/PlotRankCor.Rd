@@ -127,7 +127,9 @@ Default 3.}
 
 \item{base_size}{Numeric. Base font size. Default 13.}
 
-\item{legend.position}{Legend position. Default \code{"none"}.}
+\item{legend.position}{Legend position. Default \code{"none"}. When omitted,
+size or alpha mapping automatically shows an inside legend. Explicit
+\code{"none"} always hides the legend.}
 
 \item{width}{Numeric. Output width in inches. Default 12.}
 
