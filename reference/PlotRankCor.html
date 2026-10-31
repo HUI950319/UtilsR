@@ -13,7 +13,7 @@ separate facet with its own correlation statistics."><meta property="og:image" c
 
     <a class="navbar-brand me-2" href="../index.html">UtilsR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.18</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.19</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -113,25 +113,35 @@ separate facet with its own correlation statistics.</p>
 <dd><p>Character. Column name for the numeric score used to
 compute ranks. Ranks are computed as <code>rank(-score)</code> (descending)
 within each <code>group.by</code> x <code>method.by</code> combination.
-Missing scores remain missing and do not contribute to the correlation.</p></dd>
+Missing scores remain missing and do not contribute to the correlation.
+Duplicate categories are averaged after ranking individual observations.
+Spearman tests use approximate p-values (<code>exact = FALSE</code>).
+Numeric labelled scores respect their declared missing values. Stored
+integer64 scores require <span class="pkg">bit64</span>; ranks preserve integer precision,
+while raw scores and mapped aesthetics must be within +/-2^53.</p></dd>
 
 
 <dt id="arg-group-by">group.by<a class="anchor" aria-label="anchor" href="#arg-group-by"></a></dt>
 <dd><p>Character. Column name for the grouping / faceting
 variable (e.g. comparison). Each level gets its own facet panel.
-If <code>NULL</code>, all data is treated as a single group (no faceting).</p></dd>
+If <code>NULL</code>, all data is treated as a single group (no faceting).
+Missing groups are retained as <code>"&lt;NA&gt;"</code>; a suffix distinguishes this
+label from existing group names.</p></dd>
 
 
 <dt id="arg-method-by">method.by<a class="anchor" aria-label="anchor" href="#arg-method-by"></a></dt>
 <dd><p>Character. Column name identifying the two methods.
-Must have exactly 2 unique levels; the first level maps to the x-axis
-and the second to the y-axis.</p></dd>
+Must have exactly 2 observed, non-missing levels. Factor levels determine
+their order; other vectors use first appearance. The first maps to the
+x-axis and the second to the y-axis.</p></dd>
 
 
 <dt id="arg-use-rank">use_rank<a class="anchor" aria-label="anchor" href="#arg-use-rank"></a></dt>
 <dd><p>Logical. If <code>TRUE</code> (default), plot ranks and compute
 Spearman correlation. If <code>FALSE</code>, plot raw values and compute
-Pearson correlation.</p></dd>
+Pearson correlation.
+Raw-value tests use finite pairs; fewer than three usable pairs or a
+constant vector yield missing correlation statistics.</p></dd>
 
 
 <dt id="arg-scale-x">scale_x<a class="anchor" aria-label="anchor" href="#arg-scale-x"></a></dt>
@@ -139,7 +149,8 @@ Pearson correlation.</p></dd>
 <code>use_rank = FALSE</code>). One of <code>"none"</code> (default), <code>"minmax"</code>,
 <code>"zscore"</code>, <code>"log1p"</code>, or <code>"rank"</code>. Applied per group.
 Scaling preserves missing values. Constant observed values map to zero;
-z-scores with fewer than two observed values remain missing.</p></dd>
+z-scores with fewer than two observed values remain missing.
+Non-finite raw values become missing during a scaling transformation.</p></dd>
 
 
 <dt id="arg-scale-y">scale_y<a class="anchor" aria-label="anchor" href="#arg-scale-y"></a></dt>
@@ -151,7 +162,9 @@ z-scores with fewer than two observed values remain missing.</p></dd>
 <dd><p>Character or <code>NULL</code>. Column name for a numeric variable
 to map to point size. The column values are aggregated (mean) across the
 two methods per stat x group combination. A continuous size scale is added
-to the plot. Default <code>NULL</code> (all points use fixed <code>pt.size</code>).</p></dd>
+to the plot. Default <code>NULL</code> (all points use fixed <code>pt.size</code>).
+A warning reports mapped columns with no finite category/group means;
+the missing mapping is retained.</p></dd>
 
 
 <dt id="arg-size-range">size_range<a class="anchor" aria-label="anchor" href="#arg-size-range"></a></dt>
@@ -176,7 +189,9 @@ the fixed <code>alpha</code>. Similar to <code>alpha.by</code> in
 <dt id="arg-palette">palette<a class="anchor" aria-label="anchor" href="#arg-palette"></a></dt>
 <dd><p>Named or unnamed character vector of colours for
 <code>group.by</code> levels. Default <code>NULL</code> uses
-<code>c("#B2182B", "#2166AC", ...)</code> from <code>pal_lancet</code>.</p></dd>
+<code>c("#B2182B", "#2166AC", ...)</code> from <code>pal_lancet</code>.
+Named colours must cover every observed group. The default palette is
+interpolated when there are more groups than its available colours.</p></dd>
 
 
 <dt id="arg-pt-size">pt.size<a class="anchor" aria-label="anchor" href="#arg-pt-size"></a></dt>
@@ -225,7 +240,9 @@ Default 3.</p></dd>
 
 
 <dt id="arg-legend-position">legend.position<a class="anchor" aria-label="anchor" href="#arg-legend-position"></a></dt>
-<dd><p>Legend position. Default <code>"none"</code>.</p></dd>
+<dd><p>Legend position. Default <code>"none"</code>. When omitted,
+size or alpha mapping automatically shows an inside legend. Explicit
+<code>"none"</code> always hides the legend.</p></dd>
 
 
 <dt id="arg-width">width<a class="anchor" aria-label="anchor" href="#arg-width"></a></dt>

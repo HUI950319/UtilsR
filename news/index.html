@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">UtilsR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.18</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.19</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -49,8 +49,40 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.6.19" id="utilsr-0619">UtilsR 0.6.19<a class="anchor" aria-label="anchor" href="#utilsr-0619"></a></h2>
+<ul><li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> retains empty-string group and background categories through splitting and named colour matching without changing their displayed labels.</p></li>
+<li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> aligns background bands with observed missing groups instead of extending a neighbouring group’s band across them, including flipped facets.</p></li>
+<li><p><code><a href="../reference/dot-resolve_color.html">.resolve_color()</a></code>, the colour handling of the plot functions, is exported so that RegR can import it instead of keeping a copy, as it does the <code>.cat_*</code> helpers.</p></li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.18" id="utilsr-0618">UtilsR 0.6.18<a class="anchor" aria-label="anchor" href="#utilsr-0618"></a></h2>
-<ul><li><p><code>plt_con(type = "dot")</code> groups count rows with vctrs, reducing aggregation overhead while preserving count order, factor types and missing groups.</p></li>
+<ul><li><p>Categorical plots preserve time-class values and their original missingness when converting categories to factors.</p></li>
+<li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> skips non-finite pairwise P-values instead of marking them as non-significant or losing the valid comparisons in the same annotation layer.</p></li>
+<li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> constructs returned plots in a small evaluated frame so source data and intermediate analysis objects are released.</p></li>
+<li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> aggregates tuple groups in batches while retaining mean ranks, approximate Spearman tests and the existing correlation result schema.</p></li>
+<li><p><code><a href="../reference/pal_get.html">pal_get()</a></code> places a numeric <code>x</code> along the palette by value, one colour per element, instead of ignoring the values: <code>c(1, 100, 2)</code> and <code>c(3, 2, 1)</code> got the same colours. Missing and infinite values get <code>NA</code>, and a single distinct value takes the middle colour. Evenly spaced increasing values return what they did.</p></li>
+<li><p><code><a href="../reference/pal_get.html">pal_get()</a></code> names the colours it maps to a character, factor or logical <code>x</code>, as its help page says, so <code>scale_color_manual(values = pal_get("lancet", x = c("B", "A")))</code> colours each level as asked. Missing values of <code>x</code> are left out.</p></li>
+<li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> warns when mapped size or alpha columns have no finite category/group means, preserving the missing mapping and correlation statistics.</p></li>
+<li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> respects an explicit hidden legend and retains its automatic mapping legend when the setting is omitted.</p></li>
+<li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> scales extreme finite values without overflow and checks usable finite pairs and variance before correlation tests.</p></li>
+<li><p>Categorical area plots align endpoint value labels inward so the panel border does not clip their text.</p></li>
+<li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> accepts spaces and formula punctuation in grouping column names when constructing facets.</p></li>
+<li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> preserves named group-colour mappings and resolves enough default colours for all observed groups.</p></li>
+<li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> respects observed factor method levels for axis assignment while retaining first-appearance order for character methods.</p></li>
+<li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> validates selectors, numeric column shapes, logical switches and aesthetic ranges before computing ranks.</p></li>
+<li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> restores serialized numeric methods and respects labelled missing values while accepting ordinary data-frame subclasses.</p></li>
+<li><p><code><a href="../reference/pal_get.html">pal_get()</a></code> checks <code>n</code>, <code>reverse</code> and <code>alpha</code> and names the argument at fault, instead of raw errors or silently ignoring values such as <code>alpha = 2</code>, <code>alpha = "a"</code> and <code>n = 2.5</code>.</p></li>
+<li><p>An unknown <code><a href="../reference/pal_get.html">pal_get()</a></code> name stops with one error that suggests near names, including typos such as <code>"lanct"</code>, and points to <code>pal_other$kelly</code> or <code>pal_heat$blue_red</code> for the names of those lists. Names such as <code>"("</code> no longer fail as regular expressions.</p></li>
+<li><p><code><a href="../reference/pal_get.html">pal_get()</a></code> accepts every colour R can draw, such as <code>"transparent"</code>, <code>"light blue"</code> and <code>"#F00"</code>, as the plot functions do.</p></li>
+<li><p><code>pal_get(NULL)</code> returns <code>pal_lancet</code>, the default colours of the plot functions, so a <code>palette</code> argument can be passed straight on. <code><a href="../reference/pal_get.html">pal_get()</a></code> without arguments still returns <code>"Paired"</code>.</p></li>
+<li><p><code><a href="../reference/pal_get.html">pal_get()</a></code> keeps the transparency of its colours when it repeats or interpolates them, as in <code>pal_get("#FF000080", n = 2)</code>. Opaque colours and registered palettes return what they did.</p></li>
+<li><p>Split categorical figures normalize data and colours once and measure only the final combined canvas, preserving the plotted data and final page size.</p></li>
+<li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> retains missing grouping strata with distinct display labels and excludes missing method identifiers explicitly.</p></li>
+<li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> groups and pairs observations by column tuples rather than pasted strings, preserving names containing dots or separators.</p></li>
+<li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> allocates independent working fields and method columns, preserving category identities and aesthetic columns when names collide.</p></li>
+<li><p>Categorical set plots honour axis titles, base text size and legend controls; Venn and UpSet value labels follow <code>label</code>, <code>label.size</code> and <code>label.fg</code>.</p></li>
+<li><p><code><a href="../reference/plt_cat.html">plt_cat()</a></code> validates selectors, logical controls, empty data and positive-level mappings, rejects unused arguments, and reports unsupported chord splitting before drawing.</p></li>
+<li><p><code>plt_con(type = "dot")</code> groups count rows with vctrs, reducing aggregation overhead while preserving count order, factor types and missing groups.</p></li>
 <li><p><code><a href="../reference/plt_cat.html">plt_cat()</a></code> aligns dodged value labels with bar, rose, trend and ring widths, retains zero rows for positioning, and uses unstacked labels for overlaid areas.</p></li>
 <li><p><code><a href="../reference/plt_cat.html">plt_cat()</a></code> counts columns directly, supporting spaces and formula punctuation in column names while reducing aggregation overhead and preserving count and percentage schemas.</p></li>
 <li><p><code>plt_cat(keep_empty = TRUE)</code> preserves unused category and grouping levels, including zero-frequency rows and their axis and legend positions.</p></li>

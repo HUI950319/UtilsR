@@ -68,7 +68,8 @@ plt_cat(
 - split.by:
 
   Character. Optional splitting variable. Splits data, creates one plot
-  per level, and combines with patchwork.
+  per level, and combines with patchwork. Not available for
+  `type = "chord"`.
 
 - type:
 
@@ -77,7 +78,7 @@ plt_cat(
 
 - stat:
 
-  Statistic to compute: `"percent"` (default) or `"count"`.
+  Statistic for standard types: `"percent"` (default) or `"count"`.
 
 - position:
 
@@ -105,7 +106,8 @@ plt_cat(
 
 - label:
 
-  Logical. Show value labels? Default `FALSE`.
+  Logical. Show value labels? Default `FALSE`. Set names and Sankey node
+  names are independent of value labels.
 
 - label.size:
 
@@ -223,7 +225,7 @@ plt_cat(
 
 - ...:
 
-  Additional arguments passed to the type-specific plot function.
+  Currently unused. Additional arguments are rejected.
 
 - save:
 

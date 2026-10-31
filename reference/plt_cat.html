@@ -9,7 +9,7 @@ trend, area, dot, sankey, chord, venn, and upset."><meta property="og:image" con
 
     <a class="navbar-brand me-2" href="../index.html">UtilsR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.18</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.19</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -121,7 +121,8 @@ Ignored for set types.</p></dd>
 
 <dt id="arg-split-by">split.by<a class="anchor" aria-label="anchor" href="#arg-split-by"></a></dt>
 <dd><p>Character. Optional splitting variable. Splits data, creates
-one plot per level, and combines with <span class="pkg">patchwork</span>.</p></dd>
+one plot per level, and combines with <span class="pkg">patchwork</span>. Not available for
+<code>type = "chord"</code>.</p></dd>
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
@@ -131,7 +132,7 @@ one plot per level, and combines with <span class="pkg">patchwork</span>.</p></d
 
 
 <dt id="arg-stat">stat<a class="anchor" aria-label="anchor" href="#arg-stat"></a></dt>
-<dd><p>Statistic to compute: <code>"percent"</code> (default) or
+<dd><p>Statistic for standard types: <code>"percent"</code> (default) or
 <code>"count"</code>.</p></dd>
 
 
@@ -156,7 +157,8 @@ one plot per level, and combines with <span class="pkg">patchwork</span>.</p></d
 
 
 <dt id="arg-label">label<a class="anchor" aria-label="anchor" href="#arg-label"></a></dt>
-<dd><p>Logical. Show value labels? Default <code>FALSE</code>.</p></dd>
+<dd><p>Logical. Show value labels? Default <code>FALSE</code>. Set names
+and Sankey node names are independent of value labels.</p></dd>
 
 
 <dt id="arg-label-size">label.size<a class="anchor" aria-label="anchor" href="#arg-label-size"></a></dt>
@@ -276,7 +278,7 @@ Default <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments passed to the type-specific plot function.</p></dd>
+<dd><p>Currently unused. Additional arguments are rejected.</p></dd>
 
 
 <dt id="arg-save">save<a class="anchor" aria-label="anchor" href="#arg-save"></a></dt>

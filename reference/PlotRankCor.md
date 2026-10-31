@@ -56,25 +56,34 @@ PlotRankCor(
   Character. Column name for the numeric score used to compute ranks.
   Ranks are computed as `rank(-score)` (descending) within each
   `group.by` x `method.by` combination. Missing scores remain missing
-  and do not contribute to the correlation.
+  and do not contribute to the correlation. Duplicate categories are
+  averaged after ranking individual observations. Spearman tests use
+  approximate p-values (`exact = FALSE`). Numeric labelled scores
+  respect their declared missing values. Stored integer64 scores require
+  bit64; ranks preserve integer precision, while raw scores and mapped
+  aesthetics must be within +/-2^53.
 
 - group.by:
 
   Character. Column name for the grouping / faceting variable (e.g.
   comparison). Each level gets its own facet panel. If `NULL`, all data
-  is treated as a single group (no faceting).
+  is treated as a single group (no faceting). Missing groups are
+  retained as `"<NA>"`; a suffix distinguishes this label from existing
+  group names.
 
 - method.by:
 
   Character. Column name identifying the two methods. Must have exactly
-  2 unique levels; the first level maps to the x-axis and the second to
-  the y-axis.
+  2 observed, non-missing levels. Factor levels determine their order;
+  other vectors use first appearance. The first maps to the x-axis and
+  the second to the y-axis.
 
 - use_rank:
 
   Logical. If `TRUE` (default), plot ranks and compute Spearman
   correlation. If `FALSE`, plot raw values and compute Pearson
-  correlation.
+  correlation. Raw-value tests use finite pairs; fewer than three usable
+  pairs or a constant vector yield missing correlation statistics.
 
 - scale_x:
 
@@ -83,6 +92,7 @@ PlotRankCor(
   `"zscore"`, `"log1p"`, or `"rank"`. Applied per group. Scaling
   preserves missing values. Constant observed values map to zero;
   z-scores with fewer than two observed values remain missing.
+  Non-finite raw values become missing during a scaling transformation.
 
 - scale_y:
 
@@ -94,7 +104,9 @@ PlotRankCor(
   Character or `NULL`. Column name for a numeric variable to map to
   point size. The column values are aggregated (mean) across the two
   methods per stat x group combination. A continuous size scale is added
-  to the plot. Default `NULL` (all points use fixed `pt.size`).
+  to the plot. Default `NULL` (all points use fixed `pt.size`). A
+  warning reports mapped columns with no finite category/group means;
+  the missing mapping is retained.
 
 - size_range:
 
@@ -120,6 +132,8 @@ PlotRankCor(
 
   Named or unnamed character vector of colours for `group.by` levels.
   Default `NULL` uses `c("#B2182B", "#2166AC", ...)` from `pal_lancet`.
+  Named colours must cover every observed group. The default palette is
+  interpolated when there are more groups than its available colours.
 
 - pt.size:
 
@@ -167,7 +181,9 @@ PlotRankCor(
 
 - legend.position:
 
-  Legend position. Default `"none"`.
+  Legend position. Default `"none"`. When omitted, size or alpha mapping
+  automatically shows an inside legend. Explicit `"none"` always hides
+  the legend.
 
 - width:
 

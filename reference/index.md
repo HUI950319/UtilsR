@@ -110,6 +110,8 @@ Built-in colour palettes and palette utilities.
   : Parathyroid Single-Cell Colour Palette
 - [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md)
   : Get Colours from a Named Palette
+- [`.resolve_color()`](https://hui950319.github.io/UtilsR/reference/dot-resolve_color.md)
+  : Resolve a colour specification to a colour vector
 - [`pal_list()`](https://hui950319.github.io/UtilsR/reference/pal_list.md)
   : List All Available Palettes
 - [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)

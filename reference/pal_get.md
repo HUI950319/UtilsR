@@ -14,29 +14,37 @@ pal_get(palette = "Paired", n = NULL, x = NULL, reverse = FALSE, alpha = 1)
 
 - palette:
 
-  One of three things:
+  One of four things:
+
+  - `NULL`: `pal_lancet`, the default colours of the plot functions;
 
   - a palette name (e.g. `"Paired"`, `"viridis"`, `"lancet"`); use
     [`pal_list()`](https://hui950319.github.io/UtilsR/reference/pal_list.md)
     to see all available names;
 
-  - a colour vector, or a single literal colour, used as the palette
-    itself – a registered name always wins over a same-named colour, and
-    a string that is neither still raises the usual "not found" error;
+  - a colour vector, or a single literal colour (whatever R can draw,
+    such as `"transparent"` or `"#F00"`), used as the palette itself – a
+    registered name always wins over a same-named colour, and a string
+    that is neither still raises the usual "not found" error;
 
   - a fully named list of colour vectors, such as `pal_heat`, which is
     mapped over one palette at a time.
 
 - n:
 
-  Number of colours to return. For discrete palettes, colours are
-  recycled or interpolated as needed. Default `NULL` returns all colours
-  in the palette.
+  Number of colours to return, a non-negative whole number. Colours are
+  taken from the front when `n` is at most the palette length and
+  interpolated when it is longer. Default `NULL` returns all colours in
+  the palette.
 
 - x:
 
-  Optional vector to map colours to. If character/factor, returns a
-  named colour vector. If numeric, interpolates along the palette.
+  Optional vector to map colours to. If character, factor or logical,
+  returns a colour vector named by level: factor levels in their order,
+  other values in order of appearance, missing values left out. If
+  numeric, returns one colour per element, placed along the palette by
+  its value between the finite extremes; missing and infinite values get
+  `NA`, and a single distinct value takes the middle colour.
 
 - reverse:
 
@@ -44,7 +52,8 @@ pal_get(palette = "Paired", n = NULL, x = NULL, reverse = FALSE, alpha = 1)
 
 - alpha:
 
-  Numeric 0-1, colour transparency. Default 1 (opaque).
+  Numeric 0-1, colour transparency. Default 1 leaves colours as they
+  are, keeping any transparency of their own.
 
 ## Value
 
@@ -75,7 +84,8 @@ pal_get("Paired", n = 5)
 
 # Map factor levels to colours
 pal_get("lancet", x = c("A", "B", "C"))
-#> [1] "#00468BFF" "#ED0000FF" "#42B540FF"
+#>           A           B           C 
+#> "#00468BFF" "#ED0000FF" "#42B540FF" 
 
 # Continuous interpolation
 pal_get("viridis", n = 20)
@@ -83,6 +93,8 @@ pal_get("viridis", n = 20)
 #>  [7] "#460A5DFF" "#460B5EFF" "#470D60FF" "#470E61FF" "#471063FF" "#471164FF"
 #> [13] "#471365FF" "#481467FF" "#481668FF" "#481769FF" "#48186AFF" "#481A6CFF"
 #> [19] "#481B6DFF" "#481C6EFF"
+pal_get("viridis", x = c(1, 100, 2))
+#> [1] "#440154" "#FDE725" "#450458"
 
 # Reverse and transparent
 pal_get("Blues", n = 5, reverse = TRUE, alpha = 0.6)

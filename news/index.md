@@ -1,6 +1,137 @@
 # Changelog
 
+## UtilsR 0.6.19
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  retains empty-string group and background categories through splitting
+  and named colour matching without changing their displayed labels.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  aligns background bands with observed missing groups instead of
+  extending a neighbouring group’s band across them, including flipped
+  facets.
+
+- [`.resolve_color()`](https://hui950319.github.io/UtilsR/reference/dot-resolve_color.md),
+  the colour handling of the plot functions, is exported so that RegR
+  can import it instead of keeping a copy, as it does the `.cat_*`
+  helpers.
+
 ## UtilsR 0.6.18
+
+- Categorical plots preserve time-class values and their original
+  missingness when converting categories to factors.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  skips non-finite pairwise P-values instead of marking them as
+  non-significant or losing the valid comparisons in the same annotation
+  layer.
+
+- [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+  constructs returned plots in a small evaluated frame so source data
+  and intermediate analysis objects are released.
+
+- [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+  aggregates tuple groups in batches while retaining mean ranks,
+  approximate Spearman tests and the existing correlation result schema.
+
+- [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md)
+  places a numeric `x` along the palette by value, one colour per
+  element, instead of ignoring the values: `c(1, 100, 2)` and
+  `c(3, 2, 1)` got the same colours. Missing and infinite values get
+  `NA`, and a single distinct value takes the middle colour. Evenly
+  spaced increasing values return what they did.
+
+- [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md)
+  names the colours it maps to a character, factor or logical `x`, as
+  its help page says, so
+  `scale_color_manual(values = pal_get("lancet", x = c("B", "A")))`
+  colours each level as asked. Missing values of `x` are left out.
+
+- [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+  warns when mapped size or alpha columns have no finite category/group
+  means, preserving the missing mapping and correlation statistics.
+
+- [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+  respects an explicit hidden legend and retains its automatic mapping
+  legend when the setting is omitted.
+
+- [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+  scales extreme finite values without overflow and checks usable finite
+  pairs and variance before correlation tests.
+
+- Categorical area plots align endpoint value labels inward so the panel
+  border does not clip their text.
+
+- [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+  accepts spaces and formula punctuation in grouping column names when
+  constructing facets.
+
+- [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+  preserves named group-colour mappings and resolves enough default
+  colours for all observed groups.
+
+- [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+  respects observed factor method levels for axis assignment while
+  retaining first-appearance order for character methods.
+
+- [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+  validates selectors, numeric column shapes, logical switches and
+  aesthetic ranges before computing ranks.
+
+- [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+  restores serialized numeric methods and respects labelled missing
+  values while accepting ordinary data-frame subclasses.
+
+- [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md)
+  checks `n`, `reverse` and `alpha` and names the argument at fault,
+  instead of raw errors or silently ignoring values such as `alpha = 2`,
+  `alpha = "a"` and `n = 2.5`.
+
+- An unknown
+  [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md)
+  name stops with one error that suggests near names, including typos
+  such as `"lanct"`, and points to `pal_other$kelly` or
+  `pal_heat$blue_red` for the names of those lists. Names such as `"("`
+  no longer fail as regular expressions.
+
+- [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md)
+  accepts every colour R can draw, such as `"transparent"`,
+  `"light blue"` and `"#F00"`, as the plot functions do.
+
+- `pal_get(NULL)` returns `pal_lancet`, the default colours of the plot
+  functions, so a `palette` argument can be passed straight on.
+  [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md)
+  without arguments still returns `"Paired"`.
+
+- [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md)
+  keeps the transparency of its colours when it repeats or interpolates
+  them, as in `pal_get("#FF000080", n = 2)`. Opaque colours and
+  registered palettes return what they did.
+
+- Split categorical figures normalize data and colours once and measure
+  only the final combined canvas, preserving the plotted data and final
+  page size.
+
+- [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+  retains missing grouping strata with distinct display labels and
+  excludes missing method identifiers explicitly.
+
+- [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+  groups and pairs observations by column tuples rather than pasted
+  strings, preserving names containing dots or separators.
+
+- [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+  allocates independent working fields and method columns, preserving
+  category identities and aesthetic columns when names collide.
+
+- Categorical set plots honour axis titles, base text size and legend
+  controls; Venn and UpSet value labels follow `label`, `label.size` and
+  `label.fg`.
+
+- [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
+  validates selectors, logical controls, empty data and positive-level
+  mappings, rejects unused arguments, and reports unsupported chord
+  splitting before drawing.
 
 - `plt_con(type = "dot")` groups count rows with vctrs, reducing
   aggregation overhead while preserving count order, factor types and

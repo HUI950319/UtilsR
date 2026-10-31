@@ -15,7 +15,7 @@ plt_cat."><meta property="og:image" content="https://hui950319.github.io/UtilsR/
 
     <a class="navbar-brand me-2" href="../index.html">UtilsR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.18</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.19</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -141,8 +141,8 @@ selection is an error.</p></dd>
 
 <dt id="arg-group-by">group.by<a class="anchor" aria-label="anchor" href="#arg-group-by"></a></dt>
 <dd><p>Character. Column name for the x-axis grouping variable.
-Default <code>NULL</code> (all data in one group). Observed missing groups
-are retained, including in dot-plot counts.</p></dd>
+Default <code>NULL</code> (all data in one group). Observed missing and
+empty-string groups are retained, including in dot-plot counts.</p></dd>
 
 
 <dt id="arg-split-by">split.by<a class="anchor" aria-label="anchor" href="#arg-split-by"></a></dt>
@@ -237,8 +237,8 @@ Default <code>FALSE</code>.</p></dd>
 <dt id="arg-comparisons">comparisons<a class="anchor" aria-label="anchor" href="#arg-comparisons"></a></dt>
 <dd><p>A list of length-2 character vectors for pairwise tests.
 Default <code>NULL</code>. Pairs with unavailable groups are skipped per feature
-with a warning. Tests that fail are also skipped individually; other
-requested comparisons remain available.</p></dd>
+with a warning. Tests that fail or return a non-finite P-value are also
+skipped individually; other requested comparisons remain available.</p></dd>
 
 
 <dt id="arg-ref-group">ref_group<a class="anchor" aria-label="anchor" href="#arg-ref-group"></a></dt>

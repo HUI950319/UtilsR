@@ -82,8 +82,8 @@ plt_con(
 - group.by:
 
   Character. Column name for the x-axis grouping variable. Default
-  `NULL` (all data in one group). Observed missing groups are retained,
-  including in dot-plot counts.
+  `NULL` (all data in one group). Observed missing and empty-string
+  groups are retained, including in dot-plot counts.
 
 - split.by:
 
@@ -178,8 +178,8 @@ plt_con(
 
   A list of length-2 character vectors for pairwise tests. Default
   `NULL`. Pairs with unavailable groups are skipped per feature with a
-  warning. Tests that fail are also skipped individually; other
-  requested comparisons remain available.
+  warning. Tests that fail or return a non-finite P-value are also
+  skipped individually; other requested comparisons remain available.
 
 - ref_group:
 
