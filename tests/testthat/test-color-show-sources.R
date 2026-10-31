@@ -351,3 +351,22 @@ test_that("pal_get explains an unknown name in one error", {
     expect_no_match(msg, "Did you mean")
   }
 })
+
+test_that("pal_get checks n, reverse and alpha", {
+  for (bad in list(2.5, -1, NA, c(1, 2), "2", Inf, TRUE)) {
+    expect_error(pal_get("lancet", n = bad), "`n` must be")
+  }
+  for (bad in list(2, -1, NA, c(0.1, 0.2), "a")) {
+    expect_error(pal_get("lancet", n = 2, alpha = bad), "`alpha` must be")
+  }
+  for (bad in list(NA, "yes", c(TRUE, FALSE))) {
+    expect_error(pal_get("lancet", n = 2, reverse = bad), "`reverse` must be")
+  }
+  # The list form goes through the same checks.
+  expect_error(pal_get(pal_heat, n = -1), "`n` must be")
+
+  expect_identical(pal_get("lancet", n = 0), character())
+  expect_identical(pal_get("lancet", n = 2L), as.character(pal_lancet)[1:2])
+  expect_identical(pal_get("lancet", n = 1, alpha = 0), "#00468B00")
+  expect_identical(pal_get("lancet", n = 1, alpha = 1), "#00468BFF")
+})

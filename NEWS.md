@@ -1,5 +1,7 @@
 # UtilsR 0.6.18
 
+* `pal_get()` checks `n`, `reverse` and `alpha` and names the argument at fault, instead of raw errors or silently ignoring values such as `alpha = 2`, `alpha = "a"` and `n = 2.5`.
+
 * An unknown `pal_get()` name stops with one error that suggests near names, including typos such as `"lanct"`, and points to `pal_other$kelly` or `pal_heat$blue_red` for the names of those lists. Names such as `"("` no longer fail as regular expressions.
 
 * `pal_get()` accepts every colour R can draw, such as `"transparent"`, `"light blue"` and `"#F00"`, as the plot functions do.

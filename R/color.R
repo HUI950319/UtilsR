@@ -335,9 +335,10 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
 #'     \item a fully named list of colour vectors, such as \code{pal_heat},
 #'       which is mapped over one palette at a time.
 #'   }
-#' @param n Number of colours to return. For discrete palettes, colours are
-#'   recycled or interpolated as needed. Default \code{NULL} returns all
-#'   colours in the palette.
+#' @param n Number of colours to return, a non-negative whole number. Colours
+#'   are taken from the front when \code{n} is at most the palette length and
+#'   interpolated when it is longer. Default \code{NULL} returns all colours in
+#'   the palette.
 #' @param x Optional vector to map colours to. If character/factor, returns
 #'   a named colour vector. If numeric, interpolates along the palette.
 #' @param reverse Logical, reverse colour order. Default \code{FALSE}.
@@ -373,6 +374,17 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
 #' @family colour palettes
 pal_get <- function(palette = "Paired", n = NULL, x = NULL,
                     reverse = FALSE, alpha = 1) {
+  if (!is.null(n) && !(is.numeric(n) && length(n) == 1L && is.finite(n) &&
+                       n >= 0 && n == floor(n))) {
+    cli::cli_abort("{.arg n} must be a single non-negative whole number or {.code NULL}.")
+  }
+  if (!isTRUE(reverse) && !isFALSE(reverse)) {
+    cli::cli_abort("{.arg reverse} must be {.code TRUE} or {.code FALSE}.")
+  }
+  if (!(is.numeric(alpha) && length(alpha) == 1L && !is.na(alpha) &&
+        alpha >= 0 && alpha <= 1)) {
+    cli::cli_abort("{.arg alpha} must be a single number between 0 and 1.")
+  }
   if (is.null(palette)) palette <- pal_lancet
 
   # A list of palettes is mapped over, so `pal_heat` and friends get the same

@@ -21,9 +21,10 @@ pal_get(palette = "Paired", n = NULL, x = NULL, reverse = FALSE, alpha = 1)
     which is mapped over one palette at a time.
 }}
 
-\item{n}{Number of colours to return. For discrete palettes, colours are
-recycled or interpolated as needed. Default \code{NULL} returns all
-colours in the palette.}
+\item{n}{Number of colours to return, a non-negative whole number. Colours
+are taken from the front when \code{n} is at most the palette length and
+interpolated when it is longer. Default \code{NULL} returns all colours in
+the palette.}
 
 \item{x}{Optional vector to map colours to. If character/factor, returns
 a named colour vector. If numeric, interpolates along the palette.}
