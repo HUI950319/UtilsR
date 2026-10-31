@@ -64,6 +64,21 @@ test_that("plt_cat chord records drawable output on a file device", {
   expect_gt(length(unique(as.vector(pixels))), 1L)
 })
 
+test_that("plt_cat upset handles one observation and singleton facets", {
+  skip_if_not_installed("ggupset")
+  d <- data.frame(A = TRUE, B = TRUE)
+  p <- suppressWarnings(cat_test_plot(d, c("A", "B"), type = "upset", stat_level = TRUE))
+  expect_equal(p$data$intersection, list(c("A", "B")))
+  expect_equal(sum(ggplot2::ggplot_build(p)$data[[1]]$count), 1)
+  d <- data.frame(A = c(TRUE, FALSE), B = TRUE, site = c("one", "two"))
+  p <- cat_test_plot(d, c("A", "B"), type = "upset", split.by = "site", stat_level = TRUE)
+  expect_equal(p[[1]]$data$intersection, list(c("A", "B")))
+  expect_equal(p[[2]]$data$intersection, list("B"))
+  expect_equal(vapply(seq_len(length(p)), function(i) {
+    sum(ggplot2::ggplot_build(p[[i]])$data[[1]]$count)
+  }, 0), c(1, 1))
+})
+
 test_that("plt_cat area and trend retain zero frequencies for interpolation", {
   d <- data.frame(category = factor(c("A", "A", "A", "A", "B", "B", "B")),
                   group = factor(c("G1", "G1", "G3", "G3", "G1", "G2", "G3")))

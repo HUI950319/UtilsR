@@ -336,6 +336,7 @@
   bool_mat <- vapply(stat.by, function(s) {
     as.character(data[[s]]) %in% resolved[[s]]
   }, logical(nrow(data)))
+  dim(bool_mat) <- c(nrow(data), length(stat.by))
 
   data[["intersection"]] <- apply(bool_mat, 1, function(row) {
     stat.by[row]

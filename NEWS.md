@@ -13,6 +13,8 @@
 
 # UtilsR 0.6.18
 
+* Categorical UpSet plots retain a two-dimensional membership matrix for one-row inputs and singleton facets.
+
 * Categorical chord plots enable device recording before drawing so returned plots can be replayed and saved from file devices.
 
 * Categorical Venn and UpSet facets resolve positive membership once across the complete input so panel membership definitions stay consistent.
