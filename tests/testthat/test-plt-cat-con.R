@@ -737,3 +737,17 @@ test_that("plt_cat split dot sizes use a shared quantity scale", {
   scale$limits <- c(0, 100)
   expect_equal(p[[2]]$scales$get_scales("size")$limits, c(1, 20))
 })
+
+test_that("plt_cat split Venn fills use a shared quantity scale", {
+  skip_if_not_installed("ggVennDiagram")
+  d <- data.frame(A = TRUE, B = TRUE, site = rep(c("one", "two"), c(1, 10)))
+  p <- suppressMessages(cat_test_plot(d, c("A", "B"), split.by = "site", type = "venn",
+                                     stat_level = TRUE, label = TRUE))
+  b <- lapply(seq_len(length(p)), function(i) ggplot2::ggplot_build(p[[i]]))
+  for (panel in b) expect_equal(panel$plot$scales$get_scales("fill")$get_limits(), c(0, 10))
+  expect_false(identical(unique(b[[1]]$data[[1]]$fill), unique(b[[2]]$data[[1]]$fill)))
+  expect_equal(vapply(seq_len(length(p)), function(i) max(p[[i]]$layers[[1]]$data$count), 0), c(1, 10))
+  g <- patchwork::patchworkGrob(p)
+  guide <- cat_test_text(g$grobs[[which(g$layout$name == "guide-box")]])
+  expect_equal(sum(guide == "count"), 1L)
+})

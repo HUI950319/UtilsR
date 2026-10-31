@@ -1,5 +1,7 @@
 # UtilsR 0.6.19
 
+* Categorical Venn split panels share a count-to-fill range and one colour bar while retaining each panel intersection count.
+
 * Categorical dot panels share one size range across split figures so circle areas and the collected quantity legend remain comparable.
 
 * Categorical split plots resolve background colours once across the complete input so each background category keeps its colour across panels.
