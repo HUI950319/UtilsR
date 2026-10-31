@@ -149,30 +149,74 @@ PlotRankCor <- function(
 ) {
 
   # ---- Validation ----
-  for (arg in c("stat.by", "value.by", "method.by")) {
+  if (!is.data.frame(data))
+    cli::cli_abort("{.arg data} must be a data.frame.")
+  if (nrow(data) == 0L)
+    cli::cli_abort("{.arg data} must contain at least one observation.")
+  if (anyNA(names(data)) || any(!nzchar(names(data))) || anyDuplicated(names(data)))
+    cli::cli_abort("{.arg data} must have unique, non-missing, non-empty column names.")
+  for (arg in c("stat.by", "value.by", "method.by", "group.by", "size_by", "alpha_by")) {
     val <- get(arg)
-    if (is.null(val))
-      cli::cli_abort("{.arg {arg}} is required.")
+    if (is.null(val)) {
+      if (arg %in% c("stat.by", "value.by", "method.by"))
+        cli::cli_abort("{.arg {arg}} is required.")
+      next
+    }
+    if (!is.character(val) || length(val) != 1L || !is.null(dim(val)) || is.na(val) || !nzchar(val))
+      cli::cli_abort("{.arg {arg}} must be a single non-missing column name.")
     if (!val %in% names(data))
       cli::cli_abort("Column {.val {val}} not found in {.arg data}.")
   }
-  if (!is.null(group.by) && !group.by %in% names(data))
-    cli::cli_abort("Column {.val {group.by}} not found in {.arg data}.")
-  if (!is.null(size_by) && !size_by %in% names(data))
-    cli::cli_abort("Column {.val {size_by}} not found in {.arg data}.")
-  if (!is.null(alpha_by) && !alpha_by %in% names(data))
-    cli::cli_abort("Column {.val {alpha_by}} not found in {.arg data}.")
+  for (arg in c("use_rank", "show.label", "show.diag")) {
+    val <- get(arg)
+    if (!is.logical(val) || length(val) != 1L || !is.null(dim(val)) || is.na(val))
+      cli::cli_abort("{.arg {arg}} must be TRUE or FALSE.")
+  }
+  for (arg in c("pt.size", "label.size", "base_size", "width", "height", "alpha")) {
+    val <- get(arg)
+    positive <- arg %in% c("base_size", "width", "height")
+    if (!is.numeric(val) || is.complex(val) || length(val) != 1L || !is.null(dim(val)) || !is.finite(val) ||
+        val < 0 || (positive && val == 0) || (arg == "alpha" && val > 1))
+      cli::cli_abort("{.arg {arg}} must be a finite number in its allowed range.")
+  }
+  for (arg in c("size_range", "alpha_range")) {
+    val <- get(arg)
+    if (!is.numeric(val) || is.complex(val) || length(val) != 2L || !is.null(dim(val)) ||
+        any(!is.finite(val)) || any(val < 0) || (arg == "alpha_range" && any(val > 1)))
+      cli::cli_abort("{.arg {arg}} must contain two finite values in its allowed range.")
+  }
+  if (!is.numeric(max.overlaps) || is.complex(max.overlaps) || length(max.overlaps) != 1L || !is.null(dim(max.overlaps)) ||
+      is.na(max.overlaps) || max.overlaps < 0 ||
+      (is.finite(max.overlaps) && max.overlaps != floor(max.overlaps)))
+    cli::cli_abort("{.arg max.overlaps} must be a non-negative integer or Inf.")
+  if (!is.null(filename) && (!is.character(filename) || length(filename) != 1L ||
+      !is.null(dim(filename)) || is.na(filename) || !nzchar(filename)))
+    cli::cli_abort("{.arg filename} must be a single non-missing file path.")
+  if (!use_rank) {
+    valid_methods <- c("none", "minmax", "zscore", "log1p", "rank")
+    for (arg in c("scale_x", "scale_y")) {
+      val <- get(arg)
+      if (!is.character(val) || length(val) != 1L || !is.null(dim(val)) ||
+          is.na(val) || !val %in% valid_methods)
+        cli::cli_abort("{.arg {arg}} must be one of {.val {valid_methods}}.")
+    }
+  }
 
   data <- as.data.frame(data)
   numeric_cols <- unique(c(value.by, size_by, alpha_by))
   for (col in unique(c(stat.by, group.by, method.by, numeric_cols))) {
     x <- data[[col]]
+    if (!is.null(dim(x)) || is.list(x) || is.expression(x))
+      cli::cli_abort("Column {.val {col}} must be a one-dimensional vector.")
     pkg <- if (inherits(x, "integer64")) "bit64" else
       if (inherits(x, "haven_labelled")) "haven" else
         if (inherits(x, c("Duration", "Period", "Interval"))) "lubridate" else NULL
     if (!is.null(pkg) && !requireNamespace(pkg, quietly = TRUE))
       cli::cli_abort("Inspecting {.cls {class(x)[1]}} columns requires package {.pkg {pkg}}.")
     if (!col %in% numeric_cols) next
+    if ((!is.numeric(x) && !is.logical(x) && !inherits(x, c("difftime", "Duration", "Period"))) ||
+        is.complex(x) || inherits(x, c("Date", "POSIXt", "Interval")))
+      cli::cli_abort("Column {.val {col}} must contain real numeric scores or aesthetics.")
     if (inherits(x, "integer64")) {
       if (!use_rank || col %in% c(size_by, alpha_by)) {
         limit <- bit64::as.integer64("9007199254740992")
@@ -180,7 +224,7 @@ PlotRankCor <- function(
           cli::cli_abort("Column {.val {col}} contains integer64 values beyond exact double precision; use ranks without this aesthetic mapping.")
         data[[col]] <- suppressWarnings(as.numeric(x))
       }
-    } else if (inherits(x, c("haven_labelled", "difftime", "Duration", "Period"))) {
+    } else if (is.logical(x) || inherits(x, c("haven_labelled", "difftime", "Duration", "Period"))) {
       missing_values <- is.na(x)
       data[[col]] <- as.numeric(x)
       data[[col]][missing_values] <- NA_real_
@@ -307,12 +351,6 @@ PlotRankCor <- function(
   }
 
   if (!use_rank) {
-    valid_methods <- c("none", "minmax", "zscore", "log1p", "rank")
-    if (!scale_x %in% valid_methods)
-      cli::cli_abort("{.arg scale_x} must be one of {.val {valid_methods}}.")
-    if (!scale_y %in% valid_methods)
-      cli::cli_abort("{.arg scale_y} must be one of {.val {valid_methods}}.")
-
     if (scale_x != "none") {
       for (g in unique(as.character(rank_wide[[group.by_internal]]))) {
         idx <- rank_wide[[group.by_internal]] == g

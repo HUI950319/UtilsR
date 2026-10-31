@@ -232,3 +232,47 @@ test_that("rank-correlation integer64 scores keep missing values and close ranks
   expect_equal(attr(p, "cor_results")$rho, 0.5)
   expect_error(quiet_rank_cor(data, use_rank = FALSE), "integer64.*precision|precision.*integer64")
 })
+
+test_that("rank-correlation validates data and scalar column selectors", {
+  data <- rank_cor_data()
+  expect_error(quiet_rank_cor(as.list(data)), "data.*data.frame")
+  expect_error(quiet_rank_cor(data[FALSE, ]), "observation")
+  names(data)[3] <- "item"
+  expect_error(quiet_rank_cor(data), "unique.*column names")
+  data <- rank_cor_data()
+  for (arg in c("stat.by", "value.by", "method.by", "group.by", "size_by", "alpha_by")) {
+    args <- list(data = data, stat.by = "item", value.by = "score", method.by = "method")
+    for (bad in list(character(), c("item", "score"), NA_character_, "")) {
+      args[[arg]] <- bad
+      expect_error(do.call(PlotRankCor, args), paste0(arg, ".*single.*column name"))
+    }
+  }
+})
+
+test_that("rank-correlation rejects unsupported selected-column storage", {
+  data <- rank_cor_data()
+  for (bad in list(factor(data$score), as.character(data$score), as.list(data$score),
+                  matrix(seq_len(16), nrow = 8), as.POSIXct(seq_len(8), origin = "1970-01-01"),
+                  complex(real = seq_len(8)))) {
+    data$score <- bad
+    expect_error(quiet_rank_cor(data), "score.*numeric|one-dimensional")
+  }
+})
+
+test_that("rank-correlation validates switches and numeric aesthetic controls", {
+  data <- rank_cor_data()
+  for (arg in c("use_rank", "show.label", "show.diag")) {
+    for (bad in list(NA, 1, c(TRUE, FALSE))) {
+      expect_error(do.call(PlotRankCor, c(list(data = data, stat.by = "item", value.by = "score", method.by = "method"),
+                                         setNames(list(bad), arg))),
+                   paste0(arg, ".*TRUE.*FALSE"))
+    }
+  }
+  for (args in list(list(size_range = 1), list(size_range = c(-1, 2)), list(alpha_range = c(0, 2)),
+                    list(alpha = NA_real_), list(pt.size = -1), list(max.overlaps = 1.5),
+                    list(width = 0), list(filename = c("a.pdf", "b.pdf")),
+                    list(use_rank = FALSE, scale_x = c("none", "rank")))) {
+    expect_error(do.call(quiet_rank_cor, c(list(data = data), args)))
+  }
+  expect_s3_class(quiet_rank_cor(data, size_by = "score", size_range = c(6, 1)), "ggplot")
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.18
 
+* `PlotRankCor()` validates selectors, numeric column shapes, logical switches and aesthetic ranges before computing ranks.
+
 * `PlotRankCor()` restores serialized numeric methods and respects labelled missing values while accepting ordinary data-frame subclasses.
 
 * `pal_get()` checks `n`, `reverse` and `alpha` and names the argument at fault, instead of raw errors or silently ignoring values such as `alpha = 2`, `alpha = "a"` and `n = 2.5`.
