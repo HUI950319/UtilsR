@@ -1,5 +1,8 @@
 # UtilsR 0.6.19
 
+* `plt_con()` titles its fill legend with the group column or "Feature", keeping
+  background layers from exposing internal expressions as the legend title.
+
 * `plt_con()` rejects missing or non-scalar logical switches and unknown sorting
   values before plotting, preventing silent changes of output type or order.
 

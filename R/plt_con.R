@@ -49,6 +49,8 @@
 #' @param fill.by What variable to map to fill colour:
 #'   \code{"group"} (default) colours by group.by levels;
 #'   \code{"feature"} colours by stat.by name.
+#'   The legend title uses \code{group.by} or \code{"Feature"}; ungrouped
+#'   group-filled plots omit the title. The theme controls title visibility.
 #' @param palette Colour palette. One of:
 #'   \itemize{
 #'     \item \code{NULL} (default): uses \code{pal_lancet}.
@@ -574,6 +576,7 @@ plt_con <- function(data,
   }
 
   # --- Build one plot per feature --------------------------------------------
+  fill_title <- if (fill.by == "feature") "Feature" else if (dummy_group) NULL else group.by
   plist <- if (isTRUE(stack) && length(stat.by) > 1L) list() else stats::setNames(lapply(stat.by, function(f) {
     .plt_con_single(
       data = data, feature = f, group.by = group.by, bg.by = bg.by,
@@ -594,6 +597,7 @@ plt_con <- function(data,
       title = title, subtitle = subtitle,
       xlab = xlab %||% (if (dummy_group) "" else group.by),
       ylab = ylab %||% f,
+      fill_title = fill_title,
       legend.position = legend.position,
       legend.direction = legend.direction,
       aspect.ratio = aspect.ratio, base_size = base_size,
@@ -623,6 +627,7 @@ plt_con <- function(data,
       title = title, subtitle = subtitle,
       xlab = xlab %||% (if (dummy_group) "" else group.by),
       ylab = ylab %||% "Value",
+      fill_title = fill_title,
       legend.position = legend.position,
       legend.direction = legend.direction,
       aspect.ratio = aspect.ratio, base_size = base_size,
@@ -778,7 +783,7 @@ plt_con <- function(data,
                              multiplegroup_comparisons, multiple_method,
                              sig_label, sig_labelsize,
                               y.min, y.max, auto_y_max, y.nbreaks, flip,
-                             title, subtitle, xlab, ylab,
+                             title, subtitle, xlab, ylab, fill_title,
                              legend.position, legend.direction,
                              aspect.ratio, base_size,
                              bg_palette, bg_alpha, seed) {
@@ -1005,7 +1010,7 @@ plt_con <- function(data,
 
   # --- Labs -------------------------------------------------------------------
   p <- p + ggplot2::labs(
-    title = title, subtitle = subtitle, x = xlab, y = ylab
+    title = title, subtitle = subtitle, x = xlab, y = ylab, fill = fill_title
   )
 
   p
@@ -1025,7 +1030,7 @@ plt_con <- function(data,
                               multiplegroup_comparisons, multiple_method,
                               sig_label, sig_labelsize,
                               y.min, y.max, y.nbreaks, same.y.lims, flip,
-                              title, subtitle, xlab, ylab,
+                              title, subtitle, xlab, ylab, fill_title,
                               legend.position, legend.direction,
                               aspect.ratio, base_size,
                               bg_palette, bg_alpha, seed) {
@@ -1243,7 +1248,7 @@ plt_con <- function(data,
     )
 
   p <- p + ggplot2::labs(
-    title = title, subtitle = subtitle, x = xlab, y = ylab
+    title = title, subtitle = subtitle, x = xlab, y = ylab, fill = fill_title
   )
 
   p

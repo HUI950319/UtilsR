@@ -607,6 +607,31 @@ test_that("con shared background helper matches named colours in categorical plo
                        bg_palette = c(North = "red")), "bg_palette")
 })
 
+test_that("con legend titles describe the mapped variable and survive background layers", {
+  text_labels <- function(grob) {
+    c(if (inherits(grob, "text")) as.character(grob$label) else character(),
+      unlist(lapply(grob$grobs, text_labels), use.names = FALSE),
+      unlist(lapply(grob$children, text_labels), use.names = FALSE))
+  }
+  labels <- function(p) {
+    g <- ggplot2::ggplotGrob(p)
+    unlist(lapply(g$grobs[grep("guide-box", g$layout$name)], text_labels), use.names = FALSE)
+  }
+  d <- con_data()
+  d$Treatment <- d$g
+  d$region <- ifelse(d$g == "A", "North", "South")
+  for (stack in c(FALSE, TRUE)) for (background in c(FALSE, TRUE)) for (fill in c("group", "feature")) {
+    p <- con_plot(d, c("x", "z"), group.by = "Treatment", type = "box", stack = stack,
+      fill.by = fill, bg.by = if (background) "region" else NULL)
+    if (stack) p <- p + ggplot2::theme(legend.title = ggplot2::element_text())
+    expect_true((if (fill == "group") "Treatment" else "Feature") %in% labels(p))
+    expect_false("I(fill)" %in% labels(p))
+  }
+  p <- con_plot(d, group.by = NULL, type = "box")
+  expect_null(p$labels$fill)
+  expect_true("Custom" %in% labels(p + ggplot2::labs(fill = "Custom")))
+})
+
 test_that("con jitter defaults preserve numeric values and the random state", {
   expect_identical(formals(plt_con)$jitter.height, 0)
   d <- con_data()

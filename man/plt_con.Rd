@@ -85,7 +85,9 @@ Must be a superset of \code{group.by}. Default \code{NULL}.}
 
 \item{fill.by}{What variable to map to fill colour:
 \code{"group"} (default) colours by group.by levels;
-\code{"feature"} colours by stat.by name.}
+\code{"feature"} colours by stat.by name.
+The legend title uses \code{group.by} or \code{"Feature"}; ungrouped
+group-filled plots omit the title. The theme controls title visibility.}
 
 \item{palette}{Colour palette. One of:
 \itemize{
