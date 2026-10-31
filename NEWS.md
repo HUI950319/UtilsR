@@ -1,5 +1,8 @@
 # UtilsR 0.6.19
 
+* `plt_con()` retains empty-string group and background categories through
+  splitting and named colour matching without changing their displayed labels.
+
 * `plt_con()` aligns background bands with observed missing groups instead of
   extending a neighbouring group's band across them, including flipped facets.
 

@@ -342,6 +342,27 @@ test_that("con split palettes retain explicit missing factor levels", {
   expect_equal(ggplot2::ggplot_build(out[[1L]])$data[[2L]]$y, 3.5)
 })
 
+test_that("con empty string categories retain colours in split and background plots", {
+  for (role in c("group", "background")) for (split in c(FALSE, TRUE)) for (named in c(FALSE, TRUE)) {
+    d <- con_data()
+    d$region <- ifelse(d$g == "A", "North", "South")
+    if (role == "group") d$g <- factor(ifelse(d$g == "A", "", "B")) else d$region[d$region == "North"] <- ""
+    original <- d
+    palette <- if (named) stats::setNames(c("red", "blue"), levels(d$g)) else NULL
+    background <- if (named) stats::setNames(c("grey85", "transparent"), unique(d$region)) else NULL
+    out <- suppressMessages(plt_con(d, "x", "g", type = "box", bg.by = "region",
+      split.by = if (split) "batch" else NULL, palette = palette, bg_palette = background, combine = FALSE))
+    for (p in out) {
+      expect_equal(nrow(p$data), if (split) 6L else 12L)
+      b <- ggplot2::ggplot_build(p)
+      expect_identical(unname(b$plot$scales$get_scales("fill")$map(levels(d$g))),
+                       if (named) c("red", "blue") else as.character(pal_lancet)[1:2])
+      expect_identical(unname(p$layers[[1L]]$data$fill), c("grey85", "transparent"))
+    }
+    expect_identical(d, original)
+  }
+})
+
 test_that("con group sorting uses finite observations without losing unranked groups", {
   d <- data.frame(x = c(1, Inf, Inf, 2, 3, 4), z = 11:16, g = rep(c("A", "B"), each = 3))
   p <- con_plot(d, type = "box", sort = TRUE)

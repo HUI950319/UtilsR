@@ -776,11 +776,11 @@ plt_cat <- function(data,
     )
   } else if (!is.null(names(bg_palette))) {
     if (!is.character(bg_palette) || anyNA(names(bg_palette)) ||
-        any(!nzchar(names(bg_palette))) || anyDuplicated(names(bg_palette)) ||
+        any(!nzchar(names(bg_palette)) & !names(bg_palette) %in% bg_levels) || anyDuplicated(names(bg_palette)) ||
         !all(bg_levels %in% names(bg_palette))) {
-      cli::cli_abort("Named {.arg bg_palette} must contain each background category with unique, non-empty names.")
+      cli::cli_abort("Named {.arg bg_palette} must contain each background category with unique names matching their labels.")
     }
-    bg_cols <- bg_palette[bg_levels]
+    bg_cols <- bg_palette[match(bg_levels, names(bg_palette))]
   } else {
     bg_cols <- stats::setNames(
       rep_len(as.character(bg_palette), length(bg_levels)),
@@ -798,7 +798,7 @@ plt_cat <- function(data,
   bg_data[["xmax"]] <- bg_data[["x"]] + 0.5
   bg_data[["xmin"]][bg_data[["x"]] == 1L] <- -Inf
   bg_data[["xmax"]][bg_data[["x"]] == length(axis_levels)] <- Inf
-  bg_data[["fill"]] <- bg_cols[bg_data[["bg"]]]
+  bg_data[["fill"]] <- bg_cols[match(bg_data[["bg"]], names(bg_cols))]
 
   ggplot2::geom_rect(
     data = bg_data,

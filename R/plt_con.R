@@ -36,8 +36,8 @@
 #'   Features without finite observations are skipped; an entirely empty
 #'   selection is an error.
 #' @param group.by Character. Column name for the x-axis grouping variable.
-#'   Default \code{NULL} (all data in one group). Observed missing groups
-#'   are retained, including in dot-plot counts.
+#'   Default \code{NULL} (all data in one group). Observed missing and
+#'   empty-string groups are retained, including in dot-plot counts.
 #' @param split.by Character. Optional splitting variable. Splits data,
 #'   creates one plot per level, and combines with \pkg{patchwork}.
 #'   An explicit missing factor level is labelled \code{"<NA>"}, with a unique
@@ -531,11 +531,11 @@ plt_con <- function(data,
   if (!is.null(names(palette))) {
     named_levels <- color_levels[!is.na(color_levels)]
     if (!is.character(palette) || anyNA(names(palette)) ||
-        any(!nzchar(names(palette))) || anyDuplicated(names(palette)) ||
+        any(!nzchar(names(palette)) & !names(palette) %in% named_levels) || anyDuplicated(names(palette)) ||
         !all(named_levels %in% names(palette))) {
-      cli::cli_abort("Named {.arg palette} must contain each group or feature with unique, non-empty names.")
+      cli::cli_abort("Named {.arg palette} must contain each group or feature with unique names matching their labels.")
     }
-    colors <- palette[named_levels]
+    colors <- palette[match(named_levels, names(palette))]
   } else {
     colors <- stats::setNames(.resolve_color(palette, n = length(color_levels)), color_levels)
   }
