@@ -336,6 +336,25 @@ test_that("con scales honor shared and independent stacked axes in both orientat
   }
 })
 
+test_that("con independent vertical facets leave room for boundary tick labels", {
+  for (size in c(14, 20)) {
+    p <- con_plot(con_data(), c("x", "z"), type = "box", stack = TRUE, base_size = size)
+    grob <- ggplot2::ggplotGrob(p)
+    panels <- grob$layout[grepl("^panel-", grob$layout$name), , drop = FALSE]
+    panels <- panels[order(panels$t), , drop = FALSE]
+    gap <- sum(grob$heights[seq.int(panels$b[1L] + 1L, panels$t[2L] - 1L)])
+    text <- grid::textGrob("-500", gp = grid::gpar(fontsize = size, fontface = "bold"))
+    expect_gte(grid::convertHeight(gap, "pt", valueOnly = TRUE),
+               grid::convertHeight(grid::grobHeight(text), "pt", valueOnly = TRUE))
+  }
+  p <- con_plot(con_data(), c("x", "z"), type = "box", stack = TRUE, same.y.lims = TRUE)
+  grob <- ggplot2::ggplotGrob(p)
+  panels <- grob$layout[grepl("^panel-", grob$layout$name), , drop = FALSE]
+  panels <- panels[order(panels$t), , drop = FALSE]
+  gap <- sum(grob$heights[seq.int(panels$b[1L] + 1L, panels$t[2L] - 1L)])
+  expect_equal(grid::convertHeight(gap, "pt", valueOnly = TRUE), 0)
+})
+
 test_that("con split panels retain group colours when local ordering changes", {
   d <- con_data()
   d$x <- c(1, 10, 2, 11, 3, 12, 13, 4, 14, 5, 15, 6)

@@ -174,7 +174,8 @@ Automatic limits leave room for comparisons; explicit bounds are preserved.}
 \code{"increasing"} for ascending. Default \code{FALSE}.}
 
 \item{stack}{Logical. Stack features vertically using facet?
-Default \code{FALSE}.}
+Default \code{FALSE}. Independent vertical panels reserve space between
+their axis labels.}
 
 \item{flip}{Logical. Flip coordinates? Default \code{FALSE}.}
 

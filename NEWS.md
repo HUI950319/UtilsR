@@ -1,5 +1,8 @@
 # UtilsR 0.6.19
 
+* `plt_con()` separates independent vertical facets so boundary tick labels do
+  not overlap, while keeping the existing shared-axis layout.
+
 * `plt_con()` places stacked bar comparison brackets above the full SD intervals
   and separates global labels from the brackets while preserving explicit zoom.
 

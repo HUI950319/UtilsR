@@ -110,7 +110,8 @@
 #'   \code{TRUE} or \code{"decreasing"} for descending,
 #'   \code{"increasing"} for ascending. Default \code{FALSE}.
 #' @param stack Logical. Stack features vertically using facet?
-#'   Default \code{FALSE}.
+#'   Default \code{FALSE}. Independent vertical panels reserve space between
+#'   their axis labels.
 #' @param flip Logical. Flip coordinates? Default \code{FALSE}.
 #' @param title Character. Plot title. Default \code{NULL}.
 #' @param subtitle Character. Plot subtitle. Default \code{NULL}.
@@ -1300,6 +1301,7 @@ plt_con <- function(data,
       legend.direction = legend.direction,
       aspect.ratio     = aspect.ratio,
       strip.text.y     = ggplot2::element_text(angle = 0),
+      panel.spacing.y = if (!isTRUE(same.y.lims) && !isTRUE(flip)) grid::unit(base_size, "pt") else NULL,
       panel.grid.major.y = ggplot2::element_line(
         color = "grey", linetype = 2, linewidth = 0.3
       )
