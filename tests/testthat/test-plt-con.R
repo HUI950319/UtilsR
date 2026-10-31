@@ -205,6 +205,24 @@ test_that("con failed pairwise tests preserve successful comparisons per feature
   }
 })
 
+test_that("con nonfinite pairwise p values are skipped without losing valid tests", {
+  d <- data.frame(x = c(rep(1, 6), 2:7, rep(1, 6)), z = 11:28,
+                   g = factor(rep(c("A", "B", "C"), each = 6)))
+  pairs <- list(c("A", "B"), c("A", "C"))
+  for (stack in c(FALSE, TRUE)) for (label in c("p.signif", "p.format")) {
+    expect_warning(out <- suppressMessages(plt_con(d, c("x", "z"), "g", type = "box",
+      comparisons = pairs, sig_label = label, stack = stack, combine = FALSE)), "Skipping.*finite.*p-value")
+    p <- out[[1L]]
+    b <- suppressWarnings(ggplot2::ggplot_build(p))
+    kinds <- vapply(p$layers, function(l) class(l$geom)[[1L]], "")
+    brackets <- do.call(rbind, b$data[which(kinds == "GeomSignif")])
+    expect_equal(nrow(brackets), if (stack) 9L else 3L)
+    q <- con_plot(d, type = "box", comparisons = pairs[1L], sig_label = label)
+    expected <- suppressWarnings(tail(ggplot2::ggplot_build(q)$data, 1L)[[1L]]$annotation)
+    expect_identical(brackets$annotation[brackets$PANEL == 1L], expected)
+  }
+})
+
 test_that("con global test labels fit inside normal and flipped panels", {
   for (stack in c(FALSE, TRUE)) for (flip in c(FALSE, TRUE)) {
     p <- con_plot(con_data(), c("x", "z"), type = "box", stack = stack, flip = flip,

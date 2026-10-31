@@ -1,5 +1,8 @@
 # UtilsR 0.6.18
 
+* `plt_con()` skips non-finite pairwise P-values instead of marking them as
+  non-significant or losing the valid comparisons in the same annotation layer.
+
 * `PlotRankCor()` constructs returned plots in a small evaluated frame so source data and intermediate analysis objects are released.
 
 * `PlotRankCor()` aggregates tuple groups in batches while retaining mean ranks, approximate Spearman tests and the existing correlation result schema.
