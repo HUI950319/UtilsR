@@ -30,6 +30,10 @@ Stored integer64 columns require \pkg{bit64}. When imputation is needed,
 their observed values must be within +/-\code{2^53} for exact numeric
 conversion. Imputed values are converted back to integer64 storage, with
 fractional parts truncated.
+VIM's distance weights and aggregation rules are retained. Degenerate
+weights use equal weights for the selected neighbours. Wholly missing rows
+are retained without imputation, and remaining missing values are reported.
+Infinite numeric input is rejected when imputation is needed.
 }
 \examples{
 dat <- data.frame(

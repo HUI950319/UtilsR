@@ -13,6 +13,10 @@
 #' their observed values must be within +/-\code{2^53} for exact numeric
 #' conversion. Imputed values are converted back to integer64 storage, with
 #' fractional parts truncated.
+#' VIM's distance weights and aggregation rules are retained. Degenerate
+#' weights use equal weights for the selected neighbours. Wholly missing rows
+#' are retained without imputation, and remaining missing values are reported.
+#' Infinite numeric input is rejected when imputation is needed.
 #'
 #' @param data A data frame or tibble. Other data-frame subclasses are processed
 #'   as plain data frames.
@@ -132,8 +136,28 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     user_na_to_na = TRUE
   )
 
-  weighted_mean <- function(x, weights, ...) {
-    stats::weighted.mean(x, w = weights, na.rm = TRUE)
+  non_finite <- vapply(data_for_impute, function(x) {
+    is.numeric(x) && any(!is.finite(x) & !is.na(x))
+  }, logical(1))
+  if (any(non_finite)) {
+    cli::cli_abort("KNN requires finite numeric observations; infinite values found in {.val {names(data_for_impute)[non_finite]}}.")
+  }
+
+  distance_weights <- function(weights) {
+    if (!is.null(weights) && (!all(is.finite(weights)) || !any(weights > 0))) {
+      weights <- rep(1, length(weights))
+    }
+    weights
+  }
+  weighted_mean <- function(x, weights = NULL, ...) {
+    if (is.null(weights)) return(mean(x, na.rm = TRUE))
+    stats::weighted.mean(x, w = distance_weights(weights), na.rm = TRUE)
+  }
+  weighted_category <- function(x, weights = NULL) {
+    VIM::maxCat(x, weights = distance_weights(weights))
+  }
+  weighted_ordered <- function(x, weights = NULL) {
+    VIM::medianSamp(x, weights = distance_weights(weights))
   }
 
   if (verbose) {
@@ -144,18 +168,34 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
   }
 
   backend_names <- paste0(".knn_", seq_along(data_for_impute))
-  backend_data <- data_for_impute
+  observed_rows <- rowSums(is.na(data_for_impute)) < ncol(data_for_impute)
+  backend_data <- data_for_impute[observed_rows, , drop = FALSE]
   names(backend_data) <- backend_names
-  result <- VIM::kNN(
-    data = backend_data,
-    variable = backend_names[match(vars_with_missing, names(data_for_impute))],
-    k = as.integer(k),
-    numFun = weighted_mean,
-    weightDist = TRUE,
-    imp_var = FALSE,
-    trace = FALSE
-  )
+  backend_variables <- backend_names[vapply(backend_data, anyNA, logical(1))]
+  result <- if (length(backend_variables)) withCallingHandlers(
+    VIM::kNN(
+      data = backend_data,
+      variable = backend_variables,
+      k = as.integer(k),
+      numFun = weighted_mean,
+      catFun = weighted_category,
+      ordFun = weighted_ordered,
+      weightDist = TRUE,
+      useImputedDist = TRUE,
+      methodStand = "range",
+      imp_var = FALSE,
+      trace = FALSE
+    ),
+    warning = function(w) {
+      if (identical(conditionCall(w), quote(min(x[x > 0])))) invokeRestart("muffleWarning")
+    }
+  ) else backend_data
   names(result) <- names(data_for_impute)
+  if (any(!observed_rows)) {
+    expanded <- data_for_impute
+    for (var_name in names(result)) expanded[[var_name]][observed_rows] <- result[[var_name]]
+    result <- expanded
+  }
 
   for (var_name in names(labelled_original)) {
     values <- result[[var_name]]
@@ -181,6 +221,10 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     original[missing] <- bit64::as.integer64(result[[var_name]][missing])
     attributes(original) <- attributes(integer64_original[[var_name]])
     result[[var_name]] <- original
+  }
+  remaining <- vapply(result[vars_with_missing], function(x) sum(is.na(x)), numeric(1))
+  if (any(remaining > 0)) {
+    cli::cli_warn("KNN left {sum(remaining)} missing value(s) in {.val {names(remaining)[remaining > 0]}} because usable predictor information was unavailable.")
   }
 
   if (input_is_tibble) {

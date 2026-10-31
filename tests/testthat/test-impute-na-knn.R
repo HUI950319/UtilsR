@@ -160,3 +160,28 @@ test_that("impute_na_knn keeps user field names independent of backend variables
     expect_identical(x, before)
   }
 })
+
+test_that("impute_na_knn handles equal zero similarity weights", {
+  skip_if_not_installed("VIM")
+  dat <- data.frame(value = c(0, 10, NA_real_), helper = factor(c("A", "A", "B")))
+  expect_no_warning(result <- impute_na_knn(dat, k = 2, verbose = FALSE))
+  expect_identical(result$value, c(0, 10, 5))
+  expect_identical(result$helper, dat$helper)
+})
+
+test_that("impute_na_knn retains wholly missing observations without invented predictors", {
+  skip_if_not_installed("VIM")
+  dat <- data.frame(value = c(0, 10, NA_real_), helper = c(0, 10, NA_real_))
+  expect_warning(result <- impute_na_knn(dat, k = 2, verbose = FALSE), "left.*missing")
+  expect_identical(result, dat)
+  expect_false(any(vapply(result, function(x) any(is.nan(x)), logical(1))))
+})
+
+test_that("impute_na_knn rejects infinite numeric distance inputs", {
+  skip_if_not_installed("VIM")
+  for (col in c("value", "helper")) {
+    dat <- data.frame(value = c(0, 10, NA_real_), helper = c(0, 10, 2))
+    dat[[col]][2] <- Inf
+    expect_error(impute_na_knn(dat, k = 2, verbose = FALSE), "finite.*numeric|infinite")
+  }
+})
