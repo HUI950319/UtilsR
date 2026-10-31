@@ -100,3 +100,17 @@ test_that("impute_na_knn accepts data-frame subclasses as plain data frames", {
   expect_false(anyNA(result$value))
   expect_identical(attributes(result$value), attributes(value))
 })
+
+test_that("impute_na_knn fills declared SPSS missing codes and retains labels", {
+  skip_if_not_installed("VIM")
+  skip_if_not_installed("haven")
+  for (values in list(c(1, 2, 99), c(1, 2, 99, NA_real_))) {
+    x <- haven::labelled_spss(values, labels = c(Unknown = 99), na_values = 99, label = "Outcome")
+    dat <- data.frame(value = x, helper = c(0, rep(10, length(x) - 1)))
+    before <- dat
+    expect_no_warning(result <- impute_na_knn(dat, k = 1, verbose = FALSE))
+    expect_identical(as.numeric(result$value), c(1, rep(2, length(x) - 1)))
+    expect_identical(attributes(result$value), attributes(x))
+    expect_identical(dat, before)
+  }
+})

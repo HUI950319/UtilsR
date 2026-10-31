@@ -25,6 +25,7 @@ Impute missing values in mixed-type data with
 \code{\link[VIM]{kNN}}. Labelled variables are temporarily converted to
 factors for distance calculation, then restored with their original storage
 type, variable label, value labels, and other attributes.
+SPSS user-missing codes are treated as missing rather than donor categories.
 }
 \examples{
 dat <- data.frame(

@@ -8,6 +8,7 @@
 #' \code{\link[VIM]{kNN}}. Labelled variables are temporarily converted to
 #' factors for distance calculation, then restored with their original storage
 #' type, variable label, value labels, and other attributes.
+#' SPSS user-missing codes are treated as missing rather than donor categories.
 #'
 #' @param data A data frame or tibble. Other data-frame subclasses are processed
 #'   as plain data frames.
@@ -110,7 +111,8 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     data_for_impute[labelled_cols],
     labelled::to_factor,
     levels = "values",
-    sort_levels = "none"
+    sort_levels = "none",
+    user_na_to_na = TRUE
   )
 
   weighted_mean <- function(x, weights, ...) {

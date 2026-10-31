@@ -1,5 +1,7 @@
 # UtilsR 0.6.19
 
+* `impute_na_knn()` excludes SPSS user-missing codes from categorical donors while retaining their original value-label metadata.
+
 * Categorical UpSet split figures retain panels without matching members with a visible placeholder while preserving membership definitions and unsplit errors.
 
 * Categorical UpSet plots keep the twenty-intersection limit and report omitted intersections explicitly without generic out-of-range count warnings.
