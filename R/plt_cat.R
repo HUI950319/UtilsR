@@ -49,7 +49,9 @@
 #'   \code{type = "chord"}.
 #' @param type Chart type. One of \code{"bar"}, \code{"rose"}, \code{"ring"},
 #'   \code{"pie"}, \code{"trend"}, \code{"area"}, \code{"dot"}, \code{"sankey"},
-#'   \code{"chord"}, \code{"venn"}, \code{"upset"}.
+#'   \code{"chord"}, \code{"venn"}, \code{"upset"}. UpSet plots show at most
+#'   the 20 most frequent non-empty intersections per panel, with a warning
+#'   reporting how many intersections are omitted when the limit is exceeded.
 #' @param stat Statistic for standard types: \code{"percent"} (default) or
 #'   \code{"count"}.
 #' @param position Bar position: \code{"stack"} (default) or \code{"dodge"}.

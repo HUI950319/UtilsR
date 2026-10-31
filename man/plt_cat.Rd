@@ -63,7 +63,9 @@ one plot per level, and combines with \pkg{patchwork}. Not available for
 
 \item{type}{Chart type. One of \code{"bar"}, \code{"rose"}, \code{"ring"},
 \code{"pie"}, \code{"trend"}, \code{"area"}, \code{"dot"}, \code{"sankey"},
-\code{"chord"}, \code{"venn"}, \code{"upset"}.}
+\code{"chord"}, \code{"venn"}, \code{"upset"}. UpSet plots show at most
+the 20 most frequent non-empty intersections per panel, with a warning
+reporting how many intersections are omitted when the limit is exceeded.}
 
 \item{stat}{Statistic for standard types: \code{"percent"} (default) or
 \code{"count"}.}

@@ -623,3 +623,18 @@ test_that("plt_cat Sankey compresses repeated paths without changing flows", {
     expect_equal(ggplot2::ggplot_build(p)$data, ggplot2::ggplot_build(expanded)$data)
   }
 })
+
+test_that("plt_cat warns when UpSet hides intersections beyond twenty", {
+  skip_if_not_installed("ggupset")
+  withr::local_options(lifecycle_verbosity = "quiet")
+  d <- expand.grid(A = c(FALSE, TRUE), B = c(FALSE, TRUE), C = c(FALSE, TRUE),
+                   D = c(FALSE, TRUE), E = c(FALSE, TRUE))[-1, ]
+  expect_warning(p <- cat_test_plot(d, names(d), type = "upset", stat_level = TRUE,
+                                   label = TRUE), "20.*31")
+  expect_warning(b <- ggplot2::ggplot_build(p), NA)
+  expect_equal(nrow(b$data[[1]]), 20L)
+  expect_equal(sum(b$data[[1]]$count), 20L)
+  expect_equal(nrow(b$data[[2]]), 20L)
+  expect_warning(q <- cat_test_plot(d[1:4, ], names(d), type = "upset", stat_level = TRUE), NA)
+  expect_equal(sum(ggplot2::ggplot_build(q)$data[[1]]$count), 4L)
+})

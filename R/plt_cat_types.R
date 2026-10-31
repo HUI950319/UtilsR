@@ -357,17 +357,22 @@
     cli::cli_abort("No rows match {.arg stat_level}. Cannot create UpSet plot.")
   }
 
+  n_intersections <- length(unique(data[["intersection"]]))
+  if (n_intersections > 20L) {
+    cli::cli_warn("Only the 20 most frequent of {n_intersections} UpSet intersections are shown; {n_intersections - 20L} are omitted.")
+  }
+
   fill_low  <- if (length(cols) > 0) cols[1] else "steelblue"
   fill_high <- if (length(cols) > 1) cols[2] else "darkblue"
 
   p <- ggplot2::ggplot(data, ggplot2::aes(x = .data[["intersection"]])) +
     ggplot2::geom_bar(
       ggplot2::aes(fill = ggplot2::after_stat(.data[["count"]])),
-      color = "black", alpha = alpha, width = 0.5, show.legend = FALSE
+      color = "black", alpha = alpha, width = 0.5, show.legend = FALSE, na.rm = TRUE
     ) +
     (if (label) ggrepel::geom_text_repel(
       ggplot2::aes(label = ggplot2::after_stat(.data[["count"]])),
-      stat = "count",
+      stat = "count", na.rm = TRUE,
       colour = label.fg, size = label.size,
       bg.color = label.bg, bg.r = label.bg.r,
       point.size = NA, max.overlaps = 100,

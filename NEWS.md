@@ -1,5 +1,7 @@
 # UtilsR 0.6.19
 
+* Categorical UpSet plots keep the twenty-intersection limit and report omitted intersections explicitly without generic out-of-range count warnings.
+
 * Categorical Sankey plots aggregate identical paths before expansion and pass frequency weights, preserving flows while reducing repeated geometry work.
 
 * Categorical plots ignore inapplicable background columns before existence, value-shape and missing-value checks, while validating backgrounds used by dodge plots.
