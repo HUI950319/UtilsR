@@ -113,8 +113,10 @@
 #'   Default \code{FALSE}. Independent vertical panels reserve space between
 #'   their axis labels.
 #' @param flip Logical. Flip coordinates? Default \code{FALSE}.
-#' @param title Character. Plot title. Default \code{NULL}.
-#' @param subtitle Character. Plot subtitle. Default \code{NULL}.
+#' @param title Character. Plot title. Default \code{NULL}. For a combined split
+#'   figure, appears once above the panels; split labels remain panel titles.
+#' @param subtitle Character. Plot subtitle. Default \code{NULL}. Appears once
+#'   on a combined split figure, or on each panel when \code{combine = FALSE}.
 #' @param xlab Character. X-axis label. Default \code{NULL}.
 #' @param ylab Character. Y-axis label. Default \code{NULL}.
 #' @param legend.position Legend position. Default \code{"right"}.
@@ -499,7 +501,7 @@ plt_con <- function(data,
         same.y.lims = same.y.lims, y.min = y.min, y.max = y.max,
         y.nbreaks = y.nbreaks,
         sort = sort, stack = stack, flip = flip,
-        title = lv, subtitle = subtitle,
+        title = lv, subtitle = if (isTRUE(combine)) NULL else subtitle,
         xlab = xlab, ylab = ylab,
         legend.position = legend.position,
         legend.direction = legend.direction,
@@ -517,10 +519,13 @@ plt_con <- function(data,
     plot_list <- Filter(Negate(is.null), plot_list)
     if (!length(plot_list)) cli::cli_abort("No finite values remain in the split panels.")
     if (!isTRUE(combine)) return(plot_list)
-    return(finish(
-      patchwork::wrap_plots(plot_list, nrow = facet_nrow, ncol = facet_ncol) +
-        patchwork::plot_layout(guides = "collect")
-    ))
+    p <- patchwork::wrap_plots(plot_list, nrow = facet_nrow, ncol = facet_ncol) +
+      patchwork::plot_layout(guides = "collect")
+    if (!is.null(title) || !is.null(subtitle)) {
+      p <- p + patchwork::plot_annotation(title = title, subtitle = subtitle,
+        theme = theme_my(base_size = base_size))
+    }
+    return(finish(p))
   }
 
   # --- Auto pt.size -----------------------------------------------------------

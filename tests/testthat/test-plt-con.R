@@ -467,6 +467,27 @@ test_that("con split combine FALSE returns named plots and rejects saving a list
                        save = list(filename = tempfile(fileext = ".pdf"))), "combine = FALSE")
 })
 
+test_that("con split figures show overall titles once and retain panel titles", {
+  text_labels <- function(grob) {
+    c(if (inherits(grob, "text")) as.character(grob$label),
+      unlist(lapply(grob$grobs, text_labels), use.names = FALSE),
+      unlist(lapply(grob$children, text_labels), use.names = FALSE))
+  }
+  for (features in list("x", c("x", "z"))) {
+    p <- suppressMessages(plt_con(con_data(), features, "g", split.by = "batch", type = "box",
+      title = "Overall title", subtitle = "Overall subtitle"))
+    labels <- text_labels(patchwork::patchworkGrob(p))
+    expect_equal(sum(labels == "Overall title"), 1L)
+    expect_equal(sum(labels == "Overall subtitle"), 1L)
+    expect_true(all(c("S1", "S2") %in% labels))
+  }
+  out <- suppressMessages(plt_con(con_data(), "x", "g", split.by = "batch", type = "box",
+    subtitle = "Panel subtitle", combine = FALSE))
+  expect_equal(vapply(out, function(p) p$labels$title, ""), c(S1 = "S1", S2 = "S2"))
+  expect_equal(vapply(out, function(p) p$labels$subtitle, ""),
+               c(S1 = "Panel subtitle", S2 = "Panel subtitle"))
+})
+
 test_that("con missing split labels remain distinct from literal level names", {
   d <- data.frame(x = 1:18, g = rep(c("A", "B"), 9),
     batch = factor(rep(c("<NA>", "<NA>.1", NA), each = 6), exclude = NULL))

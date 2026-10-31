@@ -179,9 +179,11 @@ their axis labels.}
 
 \item{flip}{Logical. Flip coordinates? Default \code{FALSE}.}
 
-\item{title}{Character. Plot title. Default \code{NULL}.}
+\item{title}{Character. Plot title. Default \code{NULL}. For a combined split
+figure, appears once above the panels; split labels remain panel titles.}
 
-\item{subtitle}{Character. Plot subtitle. Default \code{NULL}.}
+\item{subtitle}{Character. Plot subtitle. Default \code{NULL}. Appears once
+on a combined split figure, or on each panel when \code{combine = FALSE}.}
 
 \item{xlab}{Character. X-axis label. Default \code{NULL}.}
 

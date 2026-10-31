@@ -1,5 +1,8 @@
 # UtilsR 0.6.19
 
+* `plt_con()` displays the overall title and subtitle once on combined split
+  figures while preserving the split labels on their panels.
+
 * `plt_con()` separates independent vertical facets so boundary tick labels do
   not overlap, while keeping the existing shared-axis layout.
 
