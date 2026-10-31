@@ -48,6 +48,8 @@
 #'   to map to point size. The column values are aggregated (mean) across the
 #'   two methods per stat x group combination. A continuous size scale is added
 #'   to the plot. Default \code{NULL} (all points use fixed \code{pt.size}).
+#'   A warning reports mapped columns with no finite category/group means;
+#'   the missing mapping is retained.
 #' @param size_range Numeric vector of length 2. Range of point sizes when
 #'   \code{size_by} is specified. Default \code{c(1, 6)}.
 #' @param alpha_by Character or \code{NULL}. Column name for a numeric
@@ -296,6 +298,9 @@ PlotRankCor <- function(
       row
     }))
     rownames(agg_df) <- NULL
+    empty_aesthetics <- extra_cols[vapply(agg_df[extra_cols], function(x) !any(is.finite(x)), logical(1))]
+    if (length(empty_aesthetics))
+      cli::cli_warn("Mapped columns {.val {empty_aesthetics}} have no finite category/group means; points may be omitted or invisible.")
   }
 
   # Aggregate duplicates before pivot (mean per stat.by x group x method)

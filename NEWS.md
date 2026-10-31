@@ -1,5 +1,7 @@
 # UtilsR 0.6.18
 
+* `PlotRankCor()` warns when mapped size or alpha columns have no finite category/group means, preserving the missing mapping and correlation statistics.
+
 * `PlotRankCor()` respects an explicit hidden legend and retains its automatic mapping legend when the setting is omitted.
 
 * `PlotRankCor()` scales extreme finite values without overflow and checks usable finite pairs and variance before correlation tests.

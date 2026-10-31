@@ -360,3 +360,14 @@ test_that("rank-correlation distinguishes omitted and explicit legend positions"
     expect_identical(right$theme$legend.position, "right")
   }
 })
+
+test_that("rank-correlation reports mapped aesthetics without usable means", {
+  data <- rank_cor_data(); data$weight <- NA_real_
+  reference <- quiet_rank_cor(data)
+  for (mapping in c("size_by", "alpha_by")) {
+    args <- setNames(list("weight"), mapping)
+    expect_warning(p <- do.call(quiet_rank_cor, c(list(data = data), args)), "no finite.*means")
+    expect_equal(nrow(p$data), 4L)
+    expect_equal(attr(p, "cor_results"), attr(reference, "cor_results"))
+  }
+})

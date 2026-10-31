@@ -81,7 +81,9 @@ Non-finite raw values become missing during a scaling transformation.}
 \item{size_by}{Character or \code{NULL}. Column name for a numeric variable
 to map to point size. The column values are aggregated (mean) across the
 two methods per stat x group combination. A continuous size scale is added
-to the plot. Default \code{NULL} (all points use fixed \code{pt.size}).}
+to the plot. Default \code{NULL} (all points use fixed \code{pt.size}).
+A warning reports mapped columns with no finite category/group means;
+the missing mapping is retained.}
 
 \item{size_range}{Numeric vector of length 2. Range of point sizes when
 \code{size_by} is specified. Default \code{c(1, 6)}.}
