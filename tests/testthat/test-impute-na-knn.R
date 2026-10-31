@@ -212,3 +212,27 @@ test_that("impute_na_knn keeps integer truncation explicit without assignment wa
     expect_identical(result$helper, dat$helper)
   }
 })
+
+test_that("impute_na_knn validates column identities and storage shapes", {
+  dat <- data.frame(value = c(0, 10, NA_real_), helper = c(0, 10, 2))
+  for (names in list(c("x", "x"), c("", "helper"), c(NA_character_, "helper"))) {
+    x <- dat; names(x) <- names
+    expect_error(impute_na_knn(x, k = 2, verbose = FALSE), "unique.*column names")
+  }
+  for (value in list(matrix(1:6, nrow = 3), list(0, 10, NA_real_), expression(0, 10, NA))) {
+    x <- dat; x$value <- value
+    expect_error(impute_na_knn(x, k = 2, verbose = FALSE), "one-dimensional|atomic")
+  }
+  expect_error(impute_na_knn(dat["value"], k = 2, verbose = FALSE), "predictor")
+  expect_identical(impute_na_knn(dat[FALSE, ], verbose = FALSE), dat[FALSE, ])
+})
+
+test_that("impute_na_knn requires scalar imputation controls", {
+  dat <- data.frame(value = c(0, 10, NA_real_), helper = c(0, 10, 2))
+  for (k in list(matrix(1), c(1, 2), NA_real_, 0, 1.5, Inf)) {
+    expect_error(impute_na_knn(dat, k = k, verbose = FALSE), "k.*single positive integer")
+  }
+  for (verbose in list(matrix(TRUE), c(TRUE, FALSE), NA, "TRUE")) {
+    expect_error(impute_na_knn(dat, k = 1, verbose = verbose), "verbose.*TRUE.*FALSE")
+  }
+})

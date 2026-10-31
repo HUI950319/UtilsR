@@ -23,7 +23,9 @@
 #' Infinite numeric input is rejected when imputation is needed.
 #'
 #' @param data A data frame or tibble. Other data-frame subclasses are processed
-#'   as plain data frames.
+#'   as plain data frames. Columns must have unique, non-missing, non-empty
+#'   names and one-dimensional atomic storage (date-time vectors may also
+#'   use POSIXlt storage). At least one predictor column is needed for imputation.
 #' @param k A positive integer giving the number of nearest neighbours. Defaults
 #'   to \code{5}. It must not exceed the number of observed donors in any
 #'   variable being imputed.
@@ -58,11 +60,14 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
       "{.arg data} must be a data frame, not {.cls {class(data)}}."
     )
   }
-  if (!is.numeric(k) || length(k) != 1L || is.na(k) || !is.finite(k) ||
+  if (anyNA(names(data)) || any(!nzchar(names(data))) || anyDuplicated(names(data))) {
+    cli::cli_abort("{.arg data} must have unique, non-missing, non-empty column names.")
+  }
+  if (!is.numeric(k) || length(k) != 1L || !is.null(dim(k)) || is.na(k) || !is.finite(k) ||
       k < 1 || k %% 1 != 0 || k > .Machine$integer.max) {
     cli::cli_abort("{.arg k} must be a single positive integer.")
   }
-  if (!is.logical(verbose) || length(verbose) != 1L || is.na(verbose)) {
+  if (!is.logical(verbose) || length(verbose) != 1L || !is.null(dim(verbose)) || is.na(verbose)) {
     cli::cli_abort(
       "{.arg verbose} must be either {.code TRUE} or {.code FALSE}."
     )
@@ -70,6 +75,12 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
 
   input_is_tibble <- inherits(data, "tbl_df")
   data_for_impute <- as.data.frame(data)
+  supported <- vapply(data_for_impute, function(x) {
+    is.null(dim(x)) && ((!is.list(x) && !is.expression(x)) || inherits(x, "POSIXlt"))
+  }, logical(1))
+  if (!all(supported)) {
+    cli::cli_abort("Columns must be one-dimensional atomic vectors; unsupported columns: {.val {names(data_for_impute)[!supported]}}.")
+  }
   integer64_cols <- vapply(data_for_impute, inherits, logical(1), what = "integer64")
   if (any(integer64_cols) && !requireNamespace("bit64", quietly = TRUE)) {
     cli::cli_abort("Inspecting integer64 columns requires package {.pkg bit64}.")
@@ -84,6 +95,9 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
       )
     }
     return(data)
+  }
+  if (ncol(data_for_impute) < 2L) {
+    cli::cli_abort("KNN imputation needs at least one predictor column in addition to the variable being imputed.")
   }
 
   if (!requireNamespace("VIM", quietly = TRUE)) {

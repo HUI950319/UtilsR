@@ -8,7 +8,9 @@ impute_na_knn(data, k = 5, verbose = TRUE)
 }
 \arguments{
 \item{data}{A data frame or tibble. Other data-frame subclasses are processed
-as plain data frames.}
+as plain data frames. Columns must have unique, non-missing, non-empty
+names and one-dimensional atomic storage (date-time vectors may also
+use POSIXlt storage). At least one predictor column is needed for imputation.}
 
 \item{k}{A positive integer giving the number of nearest neighbours. Defaults
 to \code{5}. It must not exceed the number of observed donors in any
