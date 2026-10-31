@@ -1,5 +1,8 @@
 # UtilsR 0.6.19
 
+* `plt_con()` skips degenerate global comparisons per feature with a clear
+  warning, retaining valid annotations in other panels.
+
 * `plt_con()` titles its fill legend with the group column or "Feature", keeping
   background layers from exposing internal expressions as the legend title.
 

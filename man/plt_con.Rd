@@ -141,7 +141,8 @@ pairs take precedence.}
 Default \code{"wilcox.test"}.}
 
 \item{multiplegroup_comparisons}{Logical. Add global comparison?
-Default \code{FALSE}.}
+Default \code{FALSE}. Constant features and failed tests or non-finite
+P-values are skipped individually with a warning.}
 
 \item{multiple_method}{Character. Global test method.
 Default \code{"kruskal.test"}.}

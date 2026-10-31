@@ -241,6 +241,37 @@ test_that("con global test labels fit inside normal and flipped panels", {
   }
 })
 
+test_that("con degenerate global tests skip only invalid feature annotations", {
+  d <- con_data()
+  d$x <- 1
+  for (method in c("anova", "kruskal.test")) for (stack in c(FALSE, TRUE)) {
+    p <- con_plot(d, if (stack) c("x", "z") else "x", type = "box", stack = stack,
+                  multiplegroup_comparisons = TRUE, multiple_method = method)
+    warnings <- character()
+    b <- withCallingHandlers(ggplot2::ggplot_build(p), warning = function(w) {
+      warnings <<- c(warnings, conditionMessage(w))
+      invokeRestart("muffleWarning")
+    })
+    expect_match(paste(warnings, collapse = "\n"), "Skipping global comparison.*x")
+    labels <- tail(b$data, 1L)[[1L]]
+    expect_equal(nrow(labels), if (stack) 1L else 0L)
+    if (stack) {
+      expected <- ggpubr::compare_means(z ~ g, data = d, method = method)$p
+      expect_equal(labels$p, expected)
+      expect_equal(as.integer(labels$PANEL), 2L)
+    }
+  }
+  d <- data.frame(x = 1:3, g = c("A", "B", "C"))
+  p <- con_plot(d, type = "box", multiplegroup_comparisons = TRUE, multiple_method = "anova")
+  warnings <- character()
+  b <- withCallingHandlers(ggplot2::ggplot_build(p), warning = function(w) {
+    warnings <<- c(warnings, conditionMessage(w))
+    invokeRestart("muffleWarning")
+  })
+  expect_match(paste(warnings, collapse = "\n"), "Skipping global comparison.*x")
+  expect_equal(nrow(tail(b$data, 1L)[[1L]]), 0L)
+})
+
 test_that("con comparison axes reserve automatic space and retain explicit zoom bounds", {
   d <- data.frame(x = 1:18, z = 51:68, g = factor(rep(c("A", "B", "C"), each = 6)))
   pairs <- list(c("A", "B"), c("A", "C"), c("B", "C"))

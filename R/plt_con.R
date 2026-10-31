@@ -14,6 +14,7 @@
 #         +-- L2  .con_dot_bins()      numeric bin centres, including constants
 #         +-- L2  .con_dot_counts()    counts including observed missing groups
 #         +-- L2  .con_comparisons()   available pairs for one feature
+#         +-- L2  .con_global_layer()  skip degenerate global annotations
 #         +-- L2  .con_facet_scales()  per-feature zoom without filtering stats
 #         +-- L2  .con_bar_range()     full mean +/- SD range and zero baseline
 #         +-- L2  .con_base_plot()     small plot and mapping environment
@@ -85,7 +86,8 @@
 #' @param pairwise_method Character. Pairwise test method.
 #'   Default \code{"wilcox.test"}.
 #' @param multiplegroup_comparisons Logical. Add global comparison?
-#'   Default \code{FALSE}.
+#'   Default \code{FALSE}. Constant features and failed tests or non-finite
+#'   P-values are skipped individually with a warning.
 #' @param multiple_method Character. Global test method.
 #'   Default \code{"kruskal.test"}.
 #' @param sig_label Label type: \code{"p.signif"} or \code{"p.format"}.
@@ -728,6 +730,36 @@ plt_con <- function(data,
   comparisons[keep]
 }
 
+.con_global_layer <- function(features, ...) {
+  force(features)
+  layer <- .con_component(ggpubr::stat_compare_means, ...)
+  original <- layer$stat
+  layer$stat <- ggplot2::ggproto(NULL, original,
+    parameters = function(extra = FALSE) original$parameters(extra),
+    compute_panel = function(data, scales, ...) {
+      feature <- features[if (length(features) > 1L) as.integer(data$PANEL[1L]) else 1L]
+      if (length(unique(data$y[is.finite(data$y)])) < 2L) {
+        cli::cli_warn("Skipping global comparison for {.val {feature}}: the feature is constant.")
+        return(data.frame())
+      }
+      result <- tryCatch(original$compute_panel(data, scales, ...), error = identity)
+      if (inherits(result, "error")) {
+        cli::cli_warn("Skipping global comparison for {.val {feature}}: {conditionMessage(result)}")
+        return(data.frame())
+      }
+      p <- result[["p"]]
+      valid <- if (is.numeric(p) && !is.complex(p) && length(p) == nrow(result)) {
+        is.finite(p) & p >= 0 & p <= 1
+      } else rep(FALSE, nrow(result))
+      if (!all(valid)) {
+        cli::cli_warn("Skipping global comparison for {.val {feature}}: the test did not return a finite p-value between 0 and 1.")
+      }
+      result[valid, , drop = FALSE]
+    }
+  )
+  layer
+}
+
 .con_facet_scales <- function(limits, nbreaks) {
   force(limits)
   force(nbreaks)
@@ -963,7 +995,7 @@ plt_con <- function(data,
   annotation_y_max <- annotation_y_max + (annotation_y_max - y_min_use) * 0.15 * comparison_count
 
   if (isTRUE(multiplegroup_comparisons)) {
-    p <- p + .con_component(ggpubr::stat_compare_means,
+    p <- p + .con_component(.con_global_layer, features = feature,
       method = multiple_method,
       label = sig_label,
       label.y = annotation_y_max,
@@ -1190,7 +1222,7 @@ plt_con <- function(data,
     }
   }
   if (isTRUE(multiplegroup_comparisons)) {
-    p <- p + .con_component(ggpubr::stat_compare_means,
+    p <- p + .con_component(.con_global_layer, features = stat.by,
       method = multiple_method, label = sig_label, size = sig_labelsize,
       vjust = 1.2, hjust = if (isTRUE(flip)) 1 else 0
     )
