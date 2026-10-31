@@ -49,7 +49,8 @@
 #' @param split.by Character. Optional splitting variable. Splits data, creates
 #'   one plot per level, and combines with \pkg{patchwork}. Not available for
 #'   \code{type = "chord"}. UpSet panels without matching members are retained
-#'   with a no-matching-members placeholder.
+#'   with a no-matching-members placeholder. Dot panels use one shared size
+#'   scale so equal quantities have equal circle areas across panels.
 #' @param type Chart type. One of \code{"bar"}, \code{"rose"}, \code{"ring"},
 #'   \code{"pie"}, \code{"trend"}, \code{"area"}, \code{"dot"}, \code{"sankey"},
 #'   \code{"chord"}, \code{"venn"}, \code{"upset"}. UpSet plots show at most
@@ -540,6 +541,16 @@ plt_cat <- function(data,
       cli::cli_fmt(sub <- draw_one(sub_data, lv))
       sub
     })
+    if (type == "dot") {
+      quantity_limits <- range(vapply(plot_list, function(panel) {
+        range(panel$data$value)
+      }, c(0, 0)))
+      # draw_one() constructs an independent scale for each panel.
+      for (panel in plot_list) {
+        scale <- panel$scales$get_scales("size")
+        scale$limits <- quantity_limits
+      }
+    }
     p <- patchwork::wrap_plots(plot_list, nrow = facet_nrow, ncol = facet_ncol,
                               byrow = facet_byrow) +
       patchwork::plot_layout(guides = "collect")

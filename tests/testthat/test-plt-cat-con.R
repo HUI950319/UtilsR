@@ -719,3 +719,21 @@ test_that("plt_cat split backgrounds keep one category colour mapping", {
     expect_equal(as.character(b[[1]]$data[[1]]$fill[2]), as.character(b[[2]]$data[[1]]$fill[1]))
   }
 })
+
+test_that("plt_cat split dot sizes use a shared quantity scale", {
+  d <- data.frame(category = rep(c("A", "B", "A", "B"), c(1, 2, 10, 20)),
+                  site = rep(c("one", "two"), c(3, 30)))
+  p <- cat_test_plot(d, "category", split.by = "site", type = "dot", stat = "count")
+  b <- lapply(seq_len(length(p)), function(i) ggplot2::ggplot_build(p[[i]]))
+  expect_equal(b[[1]]$plot$scales$get_scales("size")$get_limits(), c(1, 20))
+  expect_equal(b[[2]]$plot$scales$get_scales("size")$get_limits(), c(1, 20))
+  expect_equal(b[[2]]$data[[1]]$size / b[[1]]$data[[1]]$size, rep(sqrt(10), 2))
+  expect_equal(p[[1]]$data$n, c(1L, 2L))
+  expect_equal(p[[2]]$data$n, c(10L, 20L))
+  g <- patchwork::patchworkGrob(p)
+  guide <- cat_test_text(g$grobs[[which(g$layout$name == "guide-box")]])
+  expect_equal(sum(guide %in% c("20", "20.0")), 1L)
+  scale <- p[[1]]$scales$get_scales("size")
+  scale$limits <- c(0, 100)
+  expect_equal(p[[2]]$scales$get_scales("size")$limits, c(1, 20))
+})

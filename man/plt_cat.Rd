@@ -62,7 +62,8 @@ levels in each panel.}
 \item{split.by}{Character. Optional splitting variable. Splits data, creates
 one plot per level, and combines with \pkg{patchwork}. Not available for
 \code{type = "chord"}. UpSet panels without matching members are retained
-with a no-matching-members placeholder.}
+with a no-matching-members placeholder. Dot panels use one shared size
+scale so equal quantities have equal circle areas across panels.}
 
 \item{type}{Chart type. One of \code{"bar"}, \code{"rose"}, \code{"ring"},
 \code{"pie"}, \code{"trend"}, \code{"area"}, \code{"dot"}, \code{"sankey"},
