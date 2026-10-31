@@ -638,3 +638,18 @@ test_that("plt_cat warns when UpSet hides intersections beyond twenty", {
   expect_warning(q <- cat_test_plot(d[1:4, ], names(d), type = "upset", stat_level = TRUE), NA)
   expect_equal(sum(ggplot2::ggplot_build(q)$data[[1]]$count), 4L)
 })
+
+test_that("plt_cat retains empty UpSet facets with a visible placeholder", {
+  skip_if_not_installed("ggupset")
+  withr::local_options(lifecycle_verbosity = "quiet")
+  d <- data.frame(A = c(TRUE, FALSE), B = c(TRUE, FALSE), site = c("positive", "negative"))
+  p <- cat_test_plot(d, c("A", "B"), split.by = "site", type = "upset", title = "All sites")
+  expect_length(p, 2L)
+  expect_equal(sum(ggplot2::ggplot_build(p[[1]])$data[[1]]$count), 1L)
+  empty <- ggplot2::ggplot_build(p[[2]])$data[[1]]
+  expect_equal(empty$label, "\u65e0\u5339\u914d\u6210\u5458")
+  expect_equal(nrow(p[[2]]$data), 0L)
+  labels <- cat_test_text(patchwork::patchworkGrob(p))
+  expect_true(all(c("All sites", "positive", "negative") %in% labels))
+  expect_error(plt_cat(d[2, ], c("A", "B"), type = "upset", stat_level = TRUE), "No rows match")
+})

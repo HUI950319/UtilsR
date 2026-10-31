@@ -333,7 +333,8 @@
 .plt_cat_upset <- function(data, stat.by, cols, stat_level = NULL,
                            alpha = 0.8, label = FALSE,
                            label.fg = "black", label.size = 3.5,
-                           label.bg = "white", label.bg.r = 0.1, ...) {
+                           label.bg = "white", label.bg.r = 0.1,
+                           allow_empty = FALSE, ...) {
   if (!requireNamespace("ggupset", quietly = TRUE)) {
     cli::cli_abort("Package {.pkg ggupset} is required. Install with: {.code install.packages('ggupset')}")
   }
@@ -354,6 +355,14 @@
                drop = FALSE]
 
   if (nrow(data) == 0) {
+    if (allow_empty) {
+      return(ggplot2::ggplot(data) +
+        ggplot2::annotate("text", x = 0, y = 0,
+          label = "\u65e0\u5339\u914d\u6210\u5458", size = label.size, colour = label.fg) +
+        ggplot2::scale_x_continuous(breaks = NULL) +
+        ggplot2::scale_y_continuous(breaks = NULL) +
+        theme_my() + ggplot2::theme(panel.border = ggplot2::element_blank()))
+    }
     cli::cli_abort("No rows match {.arg stat_level}. Cannot create UpSet plot.")
   }
 

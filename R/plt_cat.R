@@ -46,7 +46,8 @@
 #'   levels in each panel.
 #' @param split.by Character. Optional splitting variable. Splits data, creates
 #'   one plot per level, and combines with \pkg{patchwork}. Not available for
-#'   \code{type = "chord"}.
+#'   \code{type = "chord"}. UpSet panels without matching members are retained
+#'   with a no-matching-members placeholder.
 #' @param type Chart type. One of \code{"bar"}, \code{"rose"}, \code{"ring"},
 #'   \code{"pie"}, \code{"trend"}, \code{"area"}, \code{"dot"}, \code{"sankey"},
 #'   \code{"chord"}, \code{"venn"}, \code{"upset"}. UpSet plots show at most
@@ -503,7 +504,7 @@ plt_cat <- function(data,
       bg.by, bg_palette, bg_alpha, flip, NA_stat, keep_empty, stat_level,
       panel_title, if (is.null(split.by)) subtitle else NULL,
       xlab, ylab, legend.position, legend.direction,
-      aspect.ratio, base_size, collect_legend = !is.null(split.by))
+      aspect.ratio, base_size, split_panel = !is.null(split.by))
   }
 
   # --- Handle split.by --------------------------------------------------------
@@ -547,13 +548,13 @@ plt_cat <- function(data,
                             label.bg.r, bg.by, bg_palette, bg_alpha, flip,
                             NA_stat, keep_empty, stat_level, title, subtitle,
                             xlab, ylab, legend.position, legend.direction,
-                            aspect.ratio, base_size, collect_legend = FALSE) {
+                            aspect.ratio, base_size, split_panel = FALSE) {
   # Returned plot environments must not retain promises to the split caller.
   invisible(list(data, stat.by, group.by, type, stat, position, colors, alpha,
     label, label.size, label.fg, label.bg, label.bg.r, bg.by, bg_palette,
     bg_alpha, flip, NA_stat, keep_empty, stat_level, title, subtitle,
     xlab, ylab, legend.position, legend.direction, aspect.ratio, base_size,
-    collect_legend))
+    split_panel))
 
   # --- Dispatch to type-specific functions ------------------------------------
   if (type %in% c("sankey", "chord", "venn", "upset")) {
@@ -566,7 +567,8 @@ plt_cat <- function(data,
                                stat_level = stat_level, label = label,
                                label.size = label.size, label.fg = label.fg),
       upset  = .plt_cat_upset(data = data, stat.by = stat.by, cols = colors,
-                               stat_level = stat_level, alpha = alpha, label = label,
+                               stat_level = stat_level, allow_empty = split_panel,
+                               alpha = alpha, label = label,
                                label.fg = label.fg, label.size = label.size,
                                label.bg = label.bg, label.bg.r = label.bg.r)
     )
@@ -608,7 +610,7 @@ plt_cat <- function(data,
                           keep_empty = keep_empty)
   )
 
-  if (collect_legend) {
+  if (split_panel) {
     # These scales and layers were independently constructed for this panel.
     # Identical fill keys let patchwork collect one guide without adding rows.
     fill_scale <- p$scales$get_scales("fill")

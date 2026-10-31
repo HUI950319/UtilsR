@@ -1,5 +1,7 @@
 # UtilsR 0.6.19
 
+* Categorical UpSet split figures retain panels without matching members with a visible placeholder while preserving membership definitions and unsplit errors.
+
 * Categorical UpSet plots keep the twenty-intersection limit and report omitted intersections explicitly without generic out-of-range count warnings.
 
 * Categorical Sankey plots aggregate identical paths before expansion and pass frequency weights, preserving flows while reducing repeated geometry work.
