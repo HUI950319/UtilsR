@@ -310,3 +310,11 @@ test_that("pal_get keeps transparency when it interpolates", {
   expect_identical(nchar(pal_get("lancet", n = 20)), rep(7L, 20))
   expect_identical(pal_get("#FF000080", n = 2, alpha = 0.25), rep("#FF000040", 2))
 })
+
+test_that("pal_get takes NULL for the plot functions' default colours", {
+  expect_identical(pal_get(NULL), as.character(pal_lancet))
+  expect_identical(pal_get(NULL, n = 3), as.character(pal_lancet)[1:3])
+  expect_identical(pal_get(NULL, n = 20), pal_get("lancet", n = 20))
+  # Leaving the argument out keeps its own default.
+  expect_identical(pal_get(n = 2), pal_get("Paired", n = 2))
+})

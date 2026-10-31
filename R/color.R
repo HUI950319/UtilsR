@@ -10,7 +10,7 @@
 #
 #   L1  lookup + extraction                         -- public API
 #         pal_list(pattern, type)   browse palette_list
-#         pal_get(palette, n, x, reverse, alpha)    name | colours -> hex
+#         pal_get(palette, n, x, reverse, alpha)    NULL | name | colours -> hex
 #               +-- L2  .pal_apply()    recycle / interpolate / alpha
 #                     +-- L3  .pal_resize()   grow or shrink a discrete set
 #
@@ -322,8 +322,10 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
 #' Supports discrete mapping (factor/character input) and continuous
 #' interpolation (numeric input or \code{n} parameter).
 #'
-#' @param palette One of three things:
+#' @param palette One of four things:
 #'   \itemize{
+#'     \item \code{NULL}: \code{pal_lancet}, the default colours of the plot
+#'       functions;
 #'     \item a palette name (e.g. \code{"Paired"}, \code{"viridis"},
 #'       \code{"lancet"}); use \code{pal_list()} to see all available names;
 #'     \item a colour vector, or a single literal colour, used as the palette
@@ -370,6 +372,8 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
 #' @family colour palettes
 pal_get <- function(palette = "Paired", n = NULL, x = NULL,
                     reverse = FALSE, alpha = 1) {
+  if (is.null(palette)) palette <- pal_lancet
+
   # A list of palettes is mapped over, so `pal_heat` and friends get the same
   # n / x / reverse / alpha handling one palette at a time.
   if (is.list(palette)) {
