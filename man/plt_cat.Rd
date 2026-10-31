@@ -90,7 +90,8 @@ reporting how many intersections are omitted when the limit is exceeded.}
     category when that category is present.
 }}
 
-\item{alpha}{Numeric 0--1. Colour transparency. Default 0.8.}
+\item{alpha}{Numeric 0--1. Colour transparency. Default 0.8. For Venn plots,
+controls region fill transparency.}
 
 \item{label}{Logical. Show value labels? Default \code{FALSE}. Set names
 and Sankey node names are independent of value labels.}
@@ -99,9 +100,11 @@ and Sankey node names are independent of value labels.}
 
 \item{label.fg}{Character. Label foreground colour. Default \code{"black"}.}
 
-\item{label.bg}{Character. Label background colour. Default \code{"white"}.}
+\item{label.bg}{Character. Label background colour. Default \code{"white"}.
+For Venn plots, the fill colour of the value-label box.}
 
-\item{label.bg.r}{Numeric. Label background corner radius. Default 0.1.}
+\item{label.bg.r}{Numeric. Label background corner radius. Default 0.1.
+For Venn plots, the label-box corner radius in lines.}
 
 \item{bg.by}{Character. Column name for background grouping in dodge mode
 for bar, trend and dot plots with \code{group.by}; ignored otherwise.

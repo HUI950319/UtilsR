@@ -310,7 +310,8 @@
 # ---------- 10. Venn ----------
 #' @noRd
 .plt_cat_venn <- function(data, stat.by, cols, stat_level = NULL, label = FALSE,
-                          label.size = 3.5, label.fg = "black", ...) {
+                          label.size = 3.5, label.fg = "black", alpha = 0.8,
+                          label.bg = "white", label.bg.r = 0.1, ...) {
   if (!requireNamespace("ggVennDiagram", quietly = TRUE)) {
     cli::cli_abort("Package {.pkg ggVennDiagram} is required. Install with: {.code install.packages('ggVennDiagram')}")
   }
@@ -325,6 +326,14 @@
       plot.background = ggplot2::element_blank(),
       panel.background = ggplot2::element_blank()
     )
+  # The backend constructs fresh region and label layers for each call.
+  for (layer in p$layers) {
+    if (inherits(layer$geom, "GeomPolygon")) layer$aes_params$alpha <- alpha
+    if (inherits(layer$geom, "GeomLabel")) {
+      layer$aes_params$fill <- label.bg
+      layer$geom_params$label.r <- grid::unit(label.bg.r, "lines")
+    }
+  }
   p
 }
 

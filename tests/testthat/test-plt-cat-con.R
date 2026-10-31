@@ -751,3 +751,28 @@ test_that("plt_cat split Venn fills use a shared quantity scale", {
   guide <- cat_test_text(g$grobs[[which(g$layout$name == "guide-box")]])
   expect_equal(sum(guide == "count"), 1L)
 })
+
+test_that("plt_cat Venn honours region alpha and label background controls", {
+  skip_if_not_installed("ggVennDiagram")
+  d <- data.frame(A = c(TRUE, TRUE, FALSE), B = c(FALSE, TRUE, TRUE))
+  p <- suppressMessages(cat_test_plot(d, c("A", "B"), type = "venn", label = TRUE,
+                                     alpha = 0.25, label.bg = "yellow", label.bg.r = 0.7))
+  b <- ggplot2::ggplot_build(p)
+  label <- which(vapply(p$layers, function(layer) inherits(layer$geom, "GeomLabel"), FALSE))
+  expect_equal(unique(b$data[[1]]$alpha), 0.25)
+  expect_equal(unique(b$data[[label]]$fill), "yellow")
+  expect_equal(as.numeric(p$layers[[label]]$geom_params$label.r), 0.7)
+  q <- suppressMessages(cat_test_plot(d, c("A", "B"), type = "venn", label = TRUE,
+                                     alpha = 1, label.bg = "white", label.bg.r = 0.1))
+  expect_equal(unique(ggplot2::ggplot_build(q)$data[[1]]$alpha), 1)
+  expect_equal(p$layers[[1]]$data$count, q$layers[[1]]$data$count)
+  if (requireNamespace("ragg", quietly = TRUE)) {
+    capture <- function(p) {
+      get <- ragg::agg_capture(width = 350, height = 300, units = "px")
+      on.exit(grDevices::dev.off())
+      print(p)
+      get()
+    }
+    expect_false(identical(capture(p), capture(q)))
+  }
+})

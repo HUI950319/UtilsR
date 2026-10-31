@@ -72,13 +72,16 @@
 #'       and then takes \code{NA_color}. An empty name matches an empty-string
 #'       category when that category is present.
 #'   }
-#' @param alpha Numeric 0--1. Colour transparency. Default 0.8.
+#' @param alpha Numeric 0--1. Colour transparency. Default 0.8. For Venn plots,
+#'   controls region fill transparency.
 #' @param label Logical. Show value labels? Default \code{FALSE}. Set names
 #'   and Sankey node names are independent of value labels.
 #' @param label.size Numeric. Label text size. Default 3.5.
 #' @param label.fg Character. Label foreground colour. Default \code{"black"}.
 #' @param label.bg Character. Label background colour. Default \code{"white"}.
+#'   For Venn plots, the fill colour of the value-label box.
 #' @param label.bg.r Numeric. Label background corner radius. Default 0.1.
+#'   For Venn plots, the label-box corner radius in lines.
 #' @param bg.by Character. Column name for background grouping in dodge mode
 #'   for bar, trend and dot plots with \code{group.by}; ignored otherwise.
 #'   Must be a superset of \code{group.by} (each group.by level belongs to
@@ -597,7 +600,8 @@ plt_cat <- function(data,
                                alpha = alpha),
       venn   = .plt_cat_venn(data = data, stat.by = stat.by, cols = colors,
                                stat_level = stat_level, label = label,
-                               label.size = label.size, label.fg = label.fg),
+                               label.size = label.size, label.fg = label.fg,
+                               alpha = alpha, label.bg = label.bg, label.bg.r = label.bg.r),
       upset  = .plt_cat_upset(data = data, stat.by = stat.by, cols = colors,
                                stat_level = stat_level, allow_empty = split_panel,
                                alpha = alpha, label = label,
