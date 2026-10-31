@@ -20,7 +20,8 @@ variable being imputed.}
 }
 \value{
 A data frame with missing values imputed where possible. A tibble is
-  returned when \code{data} is a tibble.
+  returned when \code{data} is a tibble. Observation order and data-frame row
+  names are retained.
 }
 \description{
 Impute missing values in mixed-type data with

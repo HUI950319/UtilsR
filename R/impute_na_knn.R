@@ -32,7 +32,8 @@
 #' @param verbose Logical. If \code{TRUE}, report the variables being imputed.
 #'
 #' @return A data frame with missing values imputed where possible. A tibble is
-#'   returned when \code{data} is a tibble.
+#'   returned when \code{data} is a tibble. Observation order and data-frame row
+#'   names are retained.
 #'
 #' @examples
 #' dat <- data.frame(
@@ -258,6 +259,8 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
 
   if (input_is_tibble) {
     result <- tibble::as_tibble(result)
+  } else {
+    rownames(result) <- rownames(data_for_impute)
   }
 
   result

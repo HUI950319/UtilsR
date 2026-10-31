@@ -236,3 +236,15 @@ test_that("impute_na_knn requires scalar imputation controls", {
     expect_error(impute_na_knn(dat, k = 1, verbose = verbose), "verbose.*TRUE.*FALSE")
   }
 })
+
+test_that("impute_na_knn preserves patient row identities and order", {
+  skip_if_not_installed("VIM")
+  dat <- data.frame(value = c(0, 10, NA_real_), helper = c(0, 10, 2.5),
+                    row.names = c("patient-C", "patient-A", "patient-B"))
+  before <- dat
+  result <- impute_na_knn(dat, k = 2, verbose = FALSE)
+  expect_identical(rownames(result), rownames(dat))
+  expect_identical(result$helper, dat$helper)
+  expect_identical(result$value[1:2], dat$value[1:2])
+  expect_identical(dat, before)
+})
