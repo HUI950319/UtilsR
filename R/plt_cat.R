@@ -72,7 +72,8 @@
 #' @param label.fg Character. Label foreground colour. Default \code{"black"}.
 #' @param label.bg Character. Label background colour. Default \code{"white"}.
 #' @param label.bg.r Numeric. Label background corner radius. Default 0.1.
-#' @param bg.by Character. Column name for background grouping in dodge mode.
+#' @param bg.by Character. Column name for background grouping in dodge mode
+#'   for bar, trend and dot plots with \code{group.by}; ignored otherwise.
 #'   Must be a superset of \code{group.by} (each group.by level belongs to
 #'   exactly one bg.by level). Adds alternating background colour bands.
 #'   Default \code{NULL} (no background).
@@ -360,6 +361,12 @@ plt_cat <- function(data,
     stat.by <- stat.by[1]
   }
 
+  if (!is.null(bg.by) && (is.null(group.by) ||
+      !type %in% c("bar", "trend", "dot") || position != "dodge")) {
+    cli::cli_warn("{.arg bg.by} is ignored outside grouped bar, trend or dot plots in dodge mode.")
+    bg.by <- NULL
+  }
+
   missing_cols <- stat.by[!stat.by %in% names(data)]
   if (length(missing_cols) > 0) {
     cli::cli_abort("Column{?s} not found in {.arg data}: {.val {missing_cols}}")
@@ -370,14 +377,8 @@ plt_cat <- function(data,
   if (!is.null(split.by) && !split.by %in% names(data)) {
     cli::cli_abort("Column {.val {split.by}} not found in {.arg data}.")
   }
-  if (!is.null(bg.by)) {
-    if (!bg.by %in% names(data)) {
-      cli::cli_abort("Column {.val {bg.by}} not found in {.arg data}.")
-    }
-    if (is.null(group.by)) {
-      cli::cli_warn("{.arg bg.by} requires {.arg group.by}. Ignored.")
-      bg.by <- NULL
-    }
+  if (!is.null(bg.by) && !bg.by %in% names(data)) {
+    cli::cli_abort("Column {.val {bg.by}} not found in {.arg data}.")
   }
 
   # --- Safety check for high-cardinality columns ------------------------------

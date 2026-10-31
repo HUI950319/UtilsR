@@ -1,5 +1,7 @@
 # UtilsR 0.6.19
 
+* Categorical plots ignore inapplicable background columns before existence, value-shape and missing-value checks, while validating backgrounds used by dodge plots.
+
 * Categorical split layouts validate positive integer dimensions and available panel capacity before rendering.
 
 * Categorical named palettes match empty-string categories by position while preserving distinct missing-value colours.

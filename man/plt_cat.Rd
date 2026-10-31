@@ -96,7 +96,8 @@ and Sankey node names are independent of value labels.}
 
 \item{label.bg.r}{Numeric. Label background corner radius. Default 0.1.}
 
-\item{bg.by}{Character. Column name for background grouping in dodge mode.
+\item{bg.by}{Character. Column name for background grouping in dodge mode
+for bar, trend and dot plots with \code{group.by}; ignored otherwise.
 Must be a superset of \code{group.by} (each group.by level belongs to
 exactly one bg.by level). Adds alternating background colour bands.
 Default \code{NULL} (no background).}

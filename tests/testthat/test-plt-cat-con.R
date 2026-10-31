@@ -584,3 +584,19 @@ test_that("plt_cat validates split layout dimensions before plotting", {
   expect_length(p, 3L)
   expect_s3_class(patchwork::patchworkGrob(p), "gtable")
 })
+
+test_that("plt_cat excludes ignored background columns before validation", {
+  skip_if_not_installed("ggupset")
+  d <- data.frame(A = c(TRUE, FALSE, TRUE), B = c(TRUE, TRUE, FALSE),
+                  group = c("one", "two", "one"))
+  for (args in list(list(stat.by = "A", position = "dodge"),
+                   list(stat.by = "A", group.by = "group"),
+                   list(stat.by = "A", group.by = "group", type = "pie"),
+                   list(stat.by = c("A", "B"), type = "upset"))) {
+    baseline <- do.call(cat_test_plot, c(list(data = d), args))
+    expect_warning(p <- do.call(cat_test_plot, c(list(data = d, bg.by = "absent"), args)),
+                   "bg.by.*[Ii]gnored")
+    expect_equal(ggplot2::ggplot_build(p)$data, ggplot2::ggplot_build(baseline)$data)
+  }
+  expect_error(plt_cat(d, "A", "group", position = "dodge", bg.by = "absent"), "absent.*not found")
+})
