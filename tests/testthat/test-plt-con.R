@@ -529,6 +529,32 @@ test_that("con background categories keep their colours across sorted split pane
   }
 })
 
+test_that("con background bands retain observed missing groups at their displayed positions", {
+  for (explicit in c(FALSE, TRUE)) for (stack in c(FALSE, TRUE)) for (flip in c(FALSE, TRUE)) {
+    d <- data.frame(x = 1:18, z = 101:118, g = rep(c("A", "B", NA), each = 6),
+                    region = rep(c("North", "South", "Unknown"), each = 6))
+    if (explicit) d$g <- factor(d$g, levels = c(NA, "B", "A"), exclude = NULL)
+    p <- con_plot(d, c("x", "z"), type = "box", stack = stack, flip = flip,
+      bg.by = "region", bg_palette = c(North = "red", South = "blue", Unknown = "green"))
+    b <- ggplot2::ggplot_build(p)
+    position <- which(is.na(b$layout$panel_scales_x[[1L]]$get_limits()))
+    expect_length(position, 1L)
+    rects <- b$data[[1L]]
+    expect_identical(as.character(rects$fill[rects$xmin <= position & rects$xmax >= position]),
+                     rep("green", if (stack) 2L else 1L))
+    expect_equal(nrow(p$data), if (stack) 36L else 18L)
+  }
+  d$category <- rep(c("Yes", "No"), 9)
+  invisible(utils::capture.output(q <- suppressMessages(plt_cat(d, "category", "g", NA_stat = TRUE,
+    position = "dodge", bg.by = "region", bg_palette = c(North = "red", South = "blue", Unknown = "green")))))
+  bands <- q$layers[[1L]]$data
+  expect_identical(unname(bands$fill[bands$bg == "Unknown"]), "green")
+  d$x[is.na(as.character(d$g))] <- NA_real_
+  p <- con_plot(d, type = "box", bg.by = "region")
+  expect_equal(nrow(p$layers[[1L]]$data), 2L)
+  expect_length(ggplot2::ggplot_build(p)$layout$panel_scales_x[[1L]]$get_limits(), 2L)
+})
+
 test_that("con shared background helper matches named colours in categorical plots", {
   d <- data.frame(category = rep(c("Yes", "No"), 6),
     g = factor(rep(c("A", "B"), each = 6), levels = c("B", "A")),

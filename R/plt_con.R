@@ -799,7 +799,8 @@ plt_con <- function(data,
   # --- Background bands -------------------------------------------------------
   if (!is.null(bg.by) && type != "dot") {
     bg_layer <- .con_component(.build_bg_layer, data[, unique(c(group.by, bg.by)), drop = FALSE],
-                               group.by, bg.by, bg_alpha, bg_palette)
+                               group.by, bg.by, bg_alpha, bg_palette,
+                               axis_levels = c(levels(dat[["group.by"]]), if (anyNA(dat[["group.by"]])) NA_character_))
     if (!is.null(bg_layer)) {
       p <- p + bg_layer
     }
@@ -869,7 +870,8 @@ plt_con <- function(data,
       )
     if (!is.null(bg.by)) {
       bg_layer <- .con_component(.build_bg_layer, data[, unique(c(group.by, bg.by)), drop = FALSE],
-                                 group.by, bg.by, bg_alpha, bg_palette)
+                                 group.by, bg.by, bg_alpha, bg_palette,
+                                 axis_levels = c(levels(dat[["group.by"]]), if (anyNA(dat[["group.by"]])) NA_character_))
       if (!is.null(bg_layer)) {
         p$layers <- c(list(bg_layer), p$layers)
       }
@@ -1046,7 +1048,8 @@ plt_con <- function(data,
 
   if (!is.null(bg.by)) {
     bg_layer <- .con_component(.build_bg_layer, data[, unique(c(group.by, bg.by)), drop = FALSE],
-                               group.by, bg.by, bg_alpha, bg_palette)
+                               group.by, bg.by, bg_alpha, bg_palette,
+                               axis_levels = c(levels(dat_long[["group.by"]]), if (anyNA(dat_long[["group.by"]])) NA_character_))
     if (!is.null(bg_layer)) p <- p + bg_layer
   }
 

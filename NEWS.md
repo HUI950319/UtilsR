@@ -1,5 +1,8 @@
 # UtilsR 0.6.19
 
+* `plt_con()` aligns background bands with observed missing groups instead of
+  extending a neighbouring group's band across them, including flipped facets.
+
 * `.resolve_color()`, the colour handling of the plot functions, is exported so that RegR can import it instead of keeping a copy, as it does the `.cat_*` helpers.
 
 # UtilsR 0.6.18

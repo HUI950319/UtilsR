@@ -745,18 +745,19 @@ plt_cat <- function(data,
 #' @noRd
 .build_bg_layer <- function(data, group.by, bg.by, bg_alpha,
                             bg_palette = NULL, axis_levels = NULL) {
+  group_values <- as.character(data[[group.by]])
   if (is.null(axis_levels)) {
     axis_levels <- if (is.factor(data[[group.by]])) levels(data[[group.by]]) else levels(factor(data[[group.by]]))
+    axis_levels <- axis_levels[!is.na(axis_levels)]
+    if (anyNA(group_values)) axis_levels <- c(axis_levels, NA_character_)
   }
-  data[[group.by]] <- factor(data[[group.by]])
-  data[[bg.by]]    <- factor(data[[bg.by]])
-
-  bg_map <- tapply(data[[bg.by]], data[[group.by]], function(x) {
-    ux <- unique(as.character(x))
+  group_codes <- match(group_values, axis_levels)
+  group_ids <- sort(unique(group_codes))
+  bg_map <- unname(vapply(split(as.character(data[[bg.by]]), group_codes), function(x) {
+    ux <- unique(x)
     if (length(ux) != 1) return(NA_character_)
     ux
-  })
-  bg_map <- stats::setNames(as.character(bg_map), names(bg_map))
+  }, character(1)))
 
   if (any(is.na(bg_map))) {
     cli::cli_warn(
@@ -765,8 +766,8 @@ plt_cat <- function(data,
     return(NULL)
   }
 
-  group_levels <- levels(data[[group.by]])
-  bg_levels <- unique(bg_map[group_levels])
+  group_levels <- axis_levels[group_ids]
+  bg_levels <- unique(bg_map)
 
   if (is.null(bg_palette)) {
     bg_cols <- stats::setNames(
@@ -789,8 +790,8 @@ plt_cat <- function(data,
 
   bg_data <- data.frame(
     group = group_levels,
-    x = match(group_levels, axis_levels),
-    bg = bg_map[group_levels],
+    x = group_ids,
+    bg = bg_map,
     stringsAsFactors = FALSE
   )
   bg_data[["xmin"]] <- bg_data[["x"]] - 0.5
