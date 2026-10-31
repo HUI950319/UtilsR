@@ -232,6 +232,11 @@ comparisons via \pkg{ggpubr}, overlay layers (boxplot, jitter points,
 trend lines), and the same split/group/bg patterns as
 \code{\link{plt_cat}}.
 }
+\details{
+Logical switches require one non-missing \code{TRUE} or \code{FALSE}.
+The \code{sort} argument also accepts \code{"increasing"} or
+\code{"decreasing"}; other values are rejected.
+}
 \examples{
 set.seed(1)
 grp <- factor(sample(c("A", "B", "C"), 200, TRUE))

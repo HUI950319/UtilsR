@@ -1,5 +1,8 @@
 # UtilsR 0.6.19
 
+* `plt_con()` rejects missing or non-scalar logical switches and unknown sorting
+  values before plotting, preventing silent changes of output type or order.
+
 * `plt_con()` retains empty-string group and background categories through
   splitting and named colour matching without changing their displayed labels.
 

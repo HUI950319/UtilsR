@@ -139,6 +139,10 @@
 #'   named list (\code{combine = FALSE}) has no single plot to save. Saving, and
 #'   the size note, need the \pkg{RegR} package.
 #'
+#' @details Logical switches require one non-missing \code{TRUE} or \code{FALSE}.
+#'   The \code{sort} argument also accepts \code{"increasing"} or
+#'   \code{"decreasing"}; other values are rejected.
+#'
 #' @return A ggplot/patchwork object (if \code{combine = TRUE}) carrying that
 #'   page size as \code{attr(p, "plot_size")}, \code{c(width, height)} in
 #'   inches, or a named list of ggplots.
@@ -261,6 +265,18 @@ plt_con <- function(data,
   type     <- match.arg(type)
   fill.by  <- match.arg(fill.by)
   sig_label <- match.arg(sig_label)
+
+  for (arg in c("add_box", "add_point", "add_trend", "multiplegroup_comparisons",
+                "same.y.lims", "stack", "flip", "combine", "force")) {
+    value <- get(arg)
+    if (!is.logical(value) || length(value) != 1L || !is.null(dim(value)) || is.na(value)) {
+      cli::cli_abort("{.arg {arg}} must be TRUE or FALSE.")
+    }
+  }
+  valid_sort <- (is.logical(sort) || is.character(sort)) && length(sort) == 1L &&
+    is.null(dim(sort)) && !anyNA(sort) &&
+    (is.logical(sort) || sort %in% c("increasing", "decreasing"))
+  if (!valid_sort) cli::cli_abort('{.arg sort} must be TRUE, FALSE, "increasing", or "decreasing".')
 
   for (arg in c("y.min", "y.max")) {
     value <- get(arg)

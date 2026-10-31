@@ -388,6 +388,24 @@ test_that("con axis limit validation rejects malformed or non-scalar bounds earl
   expect_equal(unname(p$coordinates$limits$y), range(d$x))
 })
 
+test_that("con logical switches and sorting reject ambiguous inputs", {
+  flags <- c("add_box", "add_point", "add_trend", "multiplegroup_comparisons", "same.y.lims",
+              "stack", "flip", "combine", "force")
+  for (arg in flags) for (value in list(NA, c(TRUE, FALSE), 1L, "TRUE", logical(), matrix(TRUE, 1, 1))) {
+    args <- list(data = con_data(), stat.by = "x", group.by = "g", type = "box")
+    args[[arg]] <- value
+    expect_error(do.call(plt_con, args), arg)
+  }
+  for (value in list("ascending", "", NA, c("increasing", "decreasing"), 1L, NULL, matrix("increasing", 1, 1))) {
+    expect_error(con_plot(con_data(), type = "box", sort = value), "sort")
+  }
+  for (value in list(FALSE, TRUE, "increasing", "decreasing")) {
+    p <- con_plot(con_data(), type = "box", sort = value)
+    expect_identical(levels(p$data$group.by),
+      if (isFALSE(value) || identical(value, "increasing")) c("A", "B") else c("B", "A"))
+  }
+})
+
 test_that("con split combine FALSE returns named plots and rejects saving a list", {
   d <- con_data()
   out <- suppressMessages(plt_con(d, "x", "g", split.by = "batch", type = "box", combine = FALSE))
