@@ -109,7 +109,8 @@ Default \code{NULL} (no background).}
 
 \item{bg_palette}{Character vector of background band colours.
 Default \code{NULL} uses alternating \code{c("grey85", "transparent")}.
-A named vector is matched to background category names.}
+A named vector is matched to background category names. Split panels share
+one category-to-colour mapping.}
 
 \item{bg_alpha}{Numeric 0--1. Background band transparency. Default 0.15.}
 

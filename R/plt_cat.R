@@ -84,7 +84,8 @@
 #'   Default \code{NULL} (no background).
 #' @param bg_palette Character vector of background band colours.
 #'   Default \code{NULL} uses alternating \code{c("grey85", "transparent")}.
-#'   A named vector is matched to background category names.
+#'   A named vector is matched to background category names. Split panels share
+#'   one category-to-colour mapping.
 #' @param bg_alpha Numeric 0--1. Background band transparency. Default 0.15.
 #' @param flip Logical. Flip coordinates for bar type? Default \code{FALSE}.
 #' @param NA_color Character. Colour for NA values. Default \code{"grey80"}.
@@ -526,6 +527,12 @@ plt_cat <- function(data,
     if (!is.null(facet_nrow) && !is.null(facet_ncol) &&
         facet_nrow < ceiling(length(split_levels) / facet_ncol)) {
       cli::cli_abort("{.arg facet_nrow} and {.arg facet_ncol} must accommodate all {length(split_levels)} panels.")
+    }
+    if (!is.null(bg.by) && is.null(names(bg_palette))) {
+      bg_levels <- unique(as.character(data[[bg.by]])[order(as.integer(data[[group.by]]))])
+      bg_levels <- bg_levels[!is.na(bg_levels)]
+      bg_palette <- stats::setNames(rep_len(as.character(
+        bg_palette %||% c("grey85", "transparent")), length(bg_levels)), bg_levels)
     }
     plot_list <- lapply(split_levels, function(lv) {
       sub_data <- data[data[[split.by]] == lv, , drop = FALSE]

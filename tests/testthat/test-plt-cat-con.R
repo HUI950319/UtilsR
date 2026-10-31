@@ -703,3 +703,19 @@ test_that("plt_cat resolves numeric membership against precise category labels",
     expect_equal(p$data$intersection, list("A", "B"))
   }
 })
+
+test_that("plt_cat split backgrounds keep one category colour mapping", {
+  d <- data.frame(category = rep(c("A", "B"), 4),
+                  group = rep(c("G1", "G2", "G2", "G3"), each = 2),
+                  region = rep(c("North", "South", "South", "East"), each = 2),
+                  site = rep(c("one", "two"), each = 4))
+  for (type in c("bar", "trend", "dot")) for (colors in list(NULL, c("red", "blue", "green"))) {
+    p <- cat_test_plot(d, "category", "group", split.by = "site", position = "dodge",
+                      type = type, bg.by = "region", bg_palette = colors)
+    backgrounds <- lapply(seq_len(length(p)), function(i) p[[i]]$layers[[1]]$data)
+    south <- vapply(backgrounds, function(x) x$fill[x$bg == "South"], "")
+    expect_equal(south[1], south[2])
+    b <- lapply(seq_len(length(p)), function(i) ggplot2::ggplot_build(p[[i]]))
+    expect_equal(as.character(b[[1]]$data[[1]]$fill[2]), as.character(b[[2]]$data[[1]]$fill[1]))
+  }
+})
