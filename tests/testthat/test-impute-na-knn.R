@@ -145,3 +145,18 @@ test_that("impute_na_knn refuses integer64 precision loss only when imputation i
   dat <- dat[1:2, ]
   expect_identical(impute_na_knn(dat, verbose = FALSE), dat)
 })
+
+test_that("impute_na_knn keeps user field names independent of backend variables", {
+  skip_if_not_installed("VIM")
+  dat <- data.frame(value = c(0, 10, NA_real_), helper = c(0, 10, 2.5), constant = rep(1L, 3))
+  reference <- impute_na_knn(dat, k = 2, verbose = FALSE)
+  for (name in c("variable", "j", "indexNA2s", "TF", ".knn_1", "group name")) {
+    x <- dat; names(x)[3] <- name
+    before <- x
+    result <- impute_na_knn(x, k = 2, verbose = FALSE)
+    expect_identical(names(result), names(x))
+    expect_identical(result$value, reference$value)
+    expect_identical(result[[name]], reference$constant)
+    expect_identical(x, before)
+  }
+})

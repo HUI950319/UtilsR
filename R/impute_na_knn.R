@@ -143,15 +143,19 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     ))
   }
 
+  backend_names <- paste0(".knn_", seq_along(data_for_impute))
+  backend_data <- data_for_impute
+  names(backend_data) <- backend_names
   result <- VIM::kNN(
-    data = as.data.frame(data_for_impute),
-    variable = vars_with_missing,
+    data = backend_data,
+    variable = backend_names[match(vars_with_missing, names(data_for_impute))],
     k = as.integer(k),
     numFun = weighted_mean,
     weightDist = TRUE,
     imp_var = FALSE,
     trace = FALSE
   )
+  names(result) <- names(data_for_impute)
 
   for (var_name in names(labelled_original)) {
     values <- result[[var_name]]

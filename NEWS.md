@@ -1,5 +1,7 @@
 # UtilsR 0.6.19
 
+* `impute_na_knn()` gives the backend independent field names so columns such as variable, j and indexNA2s do not change values or trigger evaluation errors.
+
 * `impute_na_knn()` restores methods for serialized integer64 columns, uses checked numeric storage for imputation, and restores original integer64 values and attributes.
 
 * `impute_na_knn()` excludes SPSS user-missing codes from categorical donors while retaining their original value-label metadata.
