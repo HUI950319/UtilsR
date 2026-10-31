@@ -1,5 +1,7 @@
 # UtilsR 0.6.18
 
+* `PlotRankCor()` constructs returned plots in a small evaluated frame so source data and intermediate analysis objects are released.
+
 * `PlotRankCor()` aggregates tuple groups in batches while retaining mean ranks, approximate Spearman tests and the existing correlation result schema.
 
 * `pal_get()` places a numeric `x` along the palette by value, one colour per element, instead of ignoring the values: `c(1, 100, 2)` and `c(3, 2, 1)` got the same colours. Missing and infinite values get `NA`, and a single distinct value takes the middle colour. Evenly spaced increasing values return what they did.

@@ -371,3 +371,23 @@ test_that("rank-correlation reports mapped aesthetics without usable means", {
     expect_equal(attr(p, "cor_results"), attr(reference, "cor_results"))
   }
 })
+
+test_that("rank-correlation saved plots release unrelated input payloads", {
+  make_plot <- function(bytes) {
+    data <- expand.grid(item = letters[1:4], group = c("G", "H"), method = c("M1", "M2"))
+    data$score <- seq_len(nrow(data)); data$weight <- data$score
+    attr(data, "unrelated_payload") <- raw(bytes)
+    invisible(capture.output(p <- UtilsR::PlotRankCor(data, "item", "score", "group", "method",
+      size_by = "weight", alpha_by = "weight")))
+    p
+  }
+  environment(make_plot) <- globalenv()
+  files <- c(tempfile(fileext = ".rds"), tempfile(fileext = ".rds"))
+  withr::defer(unlink(files))
+  invisible(make_plot(0L))
+  saveRDS(make_plot(0L), files[1], compress = FALSE)
+  saveRDS(make_plot(1000000L), files[2], compress = FALSE)
+  expect_lt(file.info(files[2])$size - file.info(files[1])$size, 100000)
+  restored <- readRDS(files[2])
+  expect_s3_class(ggplot2::ggplot_build(restored), "ggplot_built")
+})

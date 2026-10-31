@@ -212,9 +212,11 @@ PlotRankCor <- function(
     }
   }
 
-  data <- as.data.frame(data)
   numeric_cols <- unique(c(value.by, size_by, alpha_by))
-  for (col in unique(c(stat.by, group.by, method.by, numeric_cols))) {
+  selected_cols <- unique(c(stat.by, group.by, method.by, numeric_cols))
+  data <- vctrs::new_data_frame(stats::setNames(lapply(selected_cols, function(col) data[[col]]), selected_cols),
+                               n = nrow(data))
+  for (col in selected_cols) {
     x <- data[[col]]
     if (!is.null(dim(x)) || is.list(x) || is.expression(x))
       cli::cli_abort("Column {.val {col}} must be a one-dimensional vector.")
@@ -448,77 +450,21 @@ PlotRankCor <- function(
   if (is.null(ylab)) ylab <- sprintf("%s (%s)", methods[2], y_suffix)
 
   # ---- Plot ----
-  p <- ggplot2::ggplot(rank_wide,
-                       ggplot2::aes(x = .data[[method_cols[1]]],
-                                    y = .data[[method_cols[2]]]))
-
-  # Build point layer with conditional aesthetics
-  point_aes <- ggplot2::aes(color = .data[[group.by_internal]])
-
-  # Add size_by to aes if specified
-  if (!is.null(size_by)) {
-    point_aes <- utils::modifyList(point_aes,
-                                    ggplot2::aes(size = .data[[size_by]]))
-  }
-  # Add alpha_by to aes if specified
-  if (!is.null(alpha_by)) {
-    point_aes <- utils::modifyList(point_aes,
-                                    ggplot2::aes(alpha = .data[[alpha_by]]))
-  }
-
-  # Fixed params for geom_point
-  fixed_params <- list()
-  if (is.null(size_by))  fixed_params$size  <- pt.size
-  if (is.null(alpha_by)) fixed_params$alpha <- alpha
-
-  p <- p +
-    do.call(ggplot2::geom_point,
-            c(list(mapping = point_aes), fixed_params))
-
-  if (isTRUE(show.diag)) {
-    p <- p + ggplot2::geom_abline(slope = 1, intercept = 0,
-                                   linetype = "dashed", color = "grey50")
-  }
-
-  if (isTRUE(show.label)) {
-    p <- p + ggrepel::geom_text_repel(
-      ggplot2::aes(label = .data[[stat.by]]),
-      size = label.size, max.overlaps = max.overlaps
-    )
-  }
-
-  if (length(groups) > 1) {
-    p <- p + ggplot2::facet_wrap(ggplot2::vars(!!rlang::sym(group.by_internal)))
-  }
-
-  # ---- Scales ----
-  p <- p + ggplot2::scale_color_manual(values = cols)
-
-  if (!is.null(size_by)) {
-    p <- p + ggplot2::scale_size_continuous(range = size_range,
-                                            name  = size_by)
-  }
-
-  if (!is.null(alpha_by)) {
-    p <- p + ggplot2::scale_alpha_continuous(range = alpha_range,
-                                             name  = alpha_by)
-  }
-
   # Auto-show legend when size_by or alpha_by is used
   if (missing(legend.position) && identical(legend.position, "none") &&
       (!is.null(size_by) || !is.null(alpha_by))) {
     legend.position <- c(0.8, 0.2)
   }
-
-  p <- p +
-    ggplot2::labs(title = title, subtitle = subtitle,
-                  x = xlab, y = ylab) +
-    theme_my(base_size = base_size, legend.position = legend.position)
-
-  # Restore legend title when size_by or alpha_by is used
-  if (!is.null(size_by) || !is.null(alpha_by)) {
-    p <- p + ggplot2::theme(legend.title = ggplot2::element_text())
-  }
+  p <- .build_rank_cor_plot(
+    rank_wide,
+    columns = list(methods = method_cols, group = group.by_internal, stat = stat.by,
+                   size = size_by, alpha = alpha_by),
+    style = list(point_size = pt.size, alpha = alpha, label_size = label.size,
+                 max_overlaps = max.overlaps, show_label = show.label, show_diag = show.diag,
+                 facet = length(groups) > 1L, colors = cols, size_range = size_range,
+                 alpha_range = alpha_range, legend_position = legend.position, base_size = base_size),
+    labels = list(title = title, subtitle = subtitle, x = xlab, y = ylab)
+  )
 
   # ---- Save ----
   if (!is.null(filename)) {
@@ -532,5 +478,45 @@ PlotRankCor <- function(
   }
 
   attr(p, "cor_results") <- cor_results
+  p
+}
+
+# Construct mappings in a small frame that cannot retain analysis inputs.
+.build_rank_cor_plot <- function(data, columns, style, labels) {
+  force(data)
+  force(columns)
+  force(style)
+  force(labels)
+  p <- ggplot2::ggplot(data, ggplot2::aes(
+    x = .data[[columns$methods[1]]], y = .data[[columns$methods[2]]]))
+  point_aes <- ggplot2::aes(color = .data[[columns$group]])
+  if (!is.null(columns$size))
+    point_aes <- utils::modifyList(point_aes, ggplot2::aes(size = .data[[columns$size]]))
+  if (!is.null(columns$alpha))
+    point_aes <- utils::modifyList(point_aes, ggplot2::aes(alpha = .data[[columns$alpha]]))
+  fixed_params <- list()
+  if (is.null(columns$size)) fixed_params$size <- style$point_size
+  if (is.null(columns$alpha)) fixed_params$alpha <- style$alpha
+  p <- p + do.call(ggplot2::geom_point, c(list(mapping = point_aes), fixed_params))
+
+  if (style$show_diag)
+    p <- p + ggplot2::geom_abline(slope = 1, intercept = 0,
+                                 linetype = "dashed", color = "grey50")
+  if (style$show_label)
+    p <- p + ggrepel::geom_text_repel(ggplot2::aes(label = .data[[columns$stat]]),
+                                     size = style$label_size, max.overlaps = style$max_overlaps)
+  if (style$facet)
+    p <- p + ggplot2::facet_wrap(ggplot2::vars(!!rlang::sym(columns$group)))
+
+  p <- p + ggplot2::scale_color_manual(values = style$colors)
+  if (!is.null(columns$size))
+    p <- p + ggplot2::scale_size_continuous(range = style$size_range, name = columns$size)
+  if (!is.null(columns$alpha))
+    p <- p + ggplot2::scale_alpha_continuous(range = style$alpha_range, name = columns$alpha)
+  p <- p + ggplot2::labs(title = labels$title, subtitle = labels$subtitle,
+                        x = labels$x, y = labels$y) +
+    theme_my(base_size = style$base_size, legend.position = style$legend_position)
+  if (!is.null(columns$size) || !is.null(columns$alpha))
+    p <- p + ggplot2::theme(legend.title = ggplot2::element_text())
   p
 }
