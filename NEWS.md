@@ -1,5 +1,7 @@
 # UtilsR 0.6.18
 
+* `PlotRankCor()` preserves named group-colour mappings and resolves enough default colours for all observed groups.
+
 * `PlotRankCor()` respects observed factor method levels for axis assignment while retaining first-appearance order for character methods.
 
 * `PlotRankCor()` validates selectors, numeric column shapes, logical switches and aesthetic ranges before computing ranks.

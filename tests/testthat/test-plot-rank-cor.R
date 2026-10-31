@@ -291,3 +291,23 @@ test_that("rank-correlation factor methods keep axes stable after row reordering
   p <- quiet_rank_cor(data)
   expect_identical(p$labels$x, "M2 (rank)")
 })
+
+test_that("rank-correlation palette names determine group colours", {
+  data <- expand.grid(item = letters[1:4], group = c("G", "H"), method = c("M1", "M2"))
+  data$score <- rep(4:1, 4)
+  palette <- c(H = "blue", G = "red")
+  p <- quiet_rank_cor(data, group.by = "group", palette = palette)
+  expect_equal(ggplot2::ggplot_build(p)$data[[1]]$colour, unname(palette[as.character(p$data$group)]))
+  expect_error(quiet_rank_cor(data, group.by = "group", palette = c(G = "red")), "palette.*group|group.*palette")
+  expect_error(quiet_rank_cor(data, group.by = "group", palette = c(G = "red", G = "blue")), "palette.*unique")
+})
+
+test_that("rank-correlation default palettes cover more than fifteen groups", {
+  data <- expand.grid(item = letters[1:3], group = paste0("G", 1:16), method = c("M1", "M2"))
+  data$score <- rep(3:1, 32)
+  p <- quiet_rank_cor(data, group.by = "group")
+  built <- ggplot2::ggplot_build(p)
+  expect_length(unique(built$data[[1]]$colour), 16L)
+  p <- quiet_rank_cor(data, group.by = "group", palette = "red")
+  expect_identical(unique(ggplot2::ggplot_build(p)$data[[1]]$colour), "red")
+})

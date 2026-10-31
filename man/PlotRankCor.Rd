@@ -95,7 +95,9 @@ the fixed \code{alpha}. Similar to \code{alpha.by} in
 
 \item{palette}{Named or unnamed character vector of colours for
 \code{group.by} levels. Default \code{NULL} uses
-\code{c("#B2182B", "#2166AC", ...)} from \code{pal_lancet}.}
+\code{c("#B2182B", "#2166AC", ...)} from \code{pal_lancet}.
+Named colours must cover every observed group. The default palette is
+interpolated when there are more groups than its available colours.}
 
 \item{pt.size}{Numeric. Point size (used when \code{size_by = NULL}).
 Default 3.}

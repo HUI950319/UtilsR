@@ -58,6 +58,8 @@
 #' @param palette Named or unnamed character vector of colours for
 #'   \code{group.by} levels. Default \code{NULL} uses
 #'   \code{c("#B2182B", "#2166AC", ...)} from \code{pal_lancet}.
+#'   Named colours must cover every observed group. The default palette is
+#'   interpolated when there are more groups than its available colours.
 #' @param pt.size Numeric. Point size (used when \code{size_by = NULL}).
 #'   Default 3.
 #' @param alpha Numeric 0--1. Point transparency (used when
@@ -403,16 +405,19 @@ PlotRankCor <- function(
 
   # ---- Resolve palette ----
   n_groups <- length(groups)
-  if (is.null(palette)) {
-    cols <- as.character(pal_lancet[seq_len(min(n_groups, length(pal_lancet)))])
-  } else if (length(palette) == 1L && palette %in% names(palette_list)) {
-    cols <- as.character(pal_get(palette, n = n_groups))
+  if (!is.null(palette) && !is.null(names(palette))) {
+    if (!is.character(palette) || !is.null(dim(palette)) ||
+        anyNA(names(palette)) || any(!nzchar(names(palette))) || anyDuplicated(names(palette)))
+      cli::cli_abort("{.arg palette} must have unique, non-missing, non-empty group names.")
+    if (!all(groups %in% names(palette)))
+      cli::cli_abort("Named {.arg palette} must cover every observed group: {.val {groups}}.")
+    cols <- .resolve_color(unname(palette[groups]), n = n_groups)
+  } else if (is.null(palette) && n_groups > length(pal_lancet)) {
+    cols <- as.character(pal_get("lancet", n = n_groups))
   } else {
-    cols <- as.character(palette)
+    cols <- .resolve_color(palette, n = n_groups)
   }
-  if (is.null(names(cols)) && length(cols) >= n_groups) {
-    names(cols) <- groups
-  }
+  names(cols) <- groups
 
   # ---- Labels ----
   if (use_rank) {
