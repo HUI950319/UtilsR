@@ -1,5 +1,7 @@
 # UtilsR 0.6.18
 
+* An unknown `pal_get()` name stops with one error that suggests near names, including typos such as `"lanct"`, and points to `pal_other$kelly` or `pal_heat$blue_red` for the names of those lists. Names such as `"("` no longer fail as regular expressions.
+
 * `pal_get()` accepts every colour R can draw, such as `"transparent"`, `"light blue"` and `"#F00"`, as the plot functions do.
 
 * `pal_get(NULL)` returns `pal_lancet`, the default colours of the plot functions, so a `palette` argument can be passed straight on. `pal_get()` without arguments still returns `"Paired"`.

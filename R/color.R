@@ -424,12 +424,25 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
       "x" = "Not a colour: {.val {bad}}."
     ))
   } else {
-    # Fuzzy match
-    matches <- grep(palette, names(pals), ignore.case = TRUE, value = TRUE)
-    if (length(matches) > 0) {
-      cli::cli_inform("Palette {.val {palette}} not found. Did you mean: {.val {matches[1:min(5, length(matches))]}}")
+    # The nearest names first: small edit distance, or containing the input.
+    near <- character()
+    if (!is.na(palette) && nzchar(palette)) {
+      distance <- utils::adist(palette, names(pals), ignore.case = TRUE)[1L, ]
+      contains <- grepl(tolower(palette), tolower(names(pals)), fixed = TRUE)
+      keep <- which(distance <= 2L | contains)
+      near <- utils::head(names(pals)[keep[order(distance[keep])]], 5L)
     }
-    cli::cli_abort("Palette {.val {palette}} not found. Use {.fn pal_list} to see available palettes.")
+    home <- if (palette %in% names(pal_other)) {
+      paste0("pal_other$", palette)
+    } else if (palette %in% names(pal_heat)) {
+      paste0("pal_heat$", palette)
+    }
+    cli::cli_abort(c(
+      "Palette {.val {palette}} not found.",
+      "i" = if (!is.null(home)) "Pass {.code {home}}; that name is not in the registry.",
+      "i" = if (length(near) > 0L) "Did you mean {.val {near}}?",
+      "*" = "Use {.fn pal_list} to see available palettes."
+    ))
   }
 
   .pal_apply(cols, n = n, x = x, reverse = reverse, alpha = alpha)

@@ -331,3 +331,23 @@ test_that("pal_get accepts every colour R can draw", {
   }
   expect_error(pal_get(c("red", "2")), "Not a colour")
 })
+
+test_that("pal_get explains an unknown name in one error", {
+  expect_error(pal_get("lanct"), "Did you mean.*lancet")
+  expect_error(pal_get("LANCET"), "Did you mean.*lancet")
+  expect_error(pal_get("reds"), "Did you mean.*Reds")
+  expect_error(pal_get("kelly"), "pal_other\\$kelly")
+  expect_error(pal_get("blue_red"), "pal_heat\\$blue_red")
+
+  # No separate message, and no regular expression behind the search.
+  expect_no_message(tryCatch(pal_get("LANCET"), error = function(e) NULL))
+  expect_no_warning(tryCatch(pal_get("("), error = function(e) NULL))
+  expect_error(pal_get("("), "not found")
+
+  # Nothing to suggest for these.
+  for (bad in c("", NA_character_, "zzzzzzzzzz")) {
+    msg <- tryCatch(pal_get(bad), error = conditionMessage)
+    expect_match(msg, "not found")
+    expect_no_match(msg, "Did you mean")
+  }
+})
