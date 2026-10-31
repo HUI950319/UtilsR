@@ -316,6 +316,31 @@ plt_cat <- function(data,
     cli::cli_abort("{.arg split.by} is not supported for {.code type = \"chord\"}; draw each chord plot separately.")
   }
 
+  # Resolve the columns actually used before checking or filtering their values.
+  if (type %in% set_types) {
+    if (length(stat.by) < 2) {
+      cli::cli_abort(
+        "Type {.val {type}} requires {.arg stat.by} with >= 2 column names."
+      )
+    }
+    if (!is.null(group.by)) {
+      cli::cli_warn(
+        "{.arg group.by} is ignored for set type {.val {type}}."
+      )
+      group.by <- NULL
+      bg.by <- NULL
+    }
+    if (type == "chord" && length(stat.by) > 2) {
+      cli::cli_warn("Chord uses only the first 2 elements of {.arg stat.by}.")
+      stat.by <- stat.by[1:2]
+    }
+  } else if (length(stat.by) > 1) {
+    cli::cli_warn(
+      "Type {.val {type}} uses only the first element of {.arg stat.by}."
+    )
+    stat.by <- stat.by[1]
+  }
+
   missing_cols <- stat.by[!stat.by %in% names(data)]
   if (length(missing_cols) > 0) {
     cli::cli_abort("Column{?s} not found in {.arg data}: {.val {missing_cols}}")
@@ -355,29 +380,6 @@ plt_cat <- function(data,
         "Column{?s} with > 100 levels: {.val {names(high_card)}}.",
         "i" = "Set {.arg force = TRUE} to override."
       ))
-    }
-  }
-
-  # --- Set types vs standard types --------------------------------------------
-  if (type %in% set_types) {
-    if (length(stat.by) < 2) {
-      cli::cli_abort(
-        "Type {.val {type}} requires {.arg stat.by} with >= 2 column names."
-      )
-    }
-    if (!is.null(group.by)) {
-      cli::cli_warn(
-        "{.arg group.by} is ignored for set type {.val {type}}."
-      )
-      group.by <- NULL
-      bg.by <- NULL
-    }
-  } else {
-    if (length(stat.by) > 1) {
-      cli::cli_warn(
-        "Type {.val {type}} uses only the first element of {.arg stat.by}."
-      )
-      stat.by <- stat.by[1]
     }
   }
 

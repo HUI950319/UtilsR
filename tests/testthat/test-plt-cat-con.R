@@ -79,6 +79,25 @@ test_that("plt_cat upset handles one observation and singleton facets", {
   }, 0), c(1, 1))
 })
 
+test_that("plt_cat excludes unused selectors before checking and filtering", {
+  skip_if_not_installed("circlize")
+  original <- getFromNamespace(".plt_cat_chord", "UtilsR")
+  received <- NULL
+  local_mocked_bindings(.plt_cat_chord = function(data, stat.by, ...) {
+    received <<- list(n = nrow(data), columns = stat.by)
+    original(data, stat.by, ...)
+  }, .package = "UtilsR")
+  d <- data.frame(A = c("a", "b", "a"), B = c("x", "x", "y"), extra = c("z", NA, "z"))
+  expect_warning(p <- cat_test_plot(d, c("A", "B", "extra"), type = "chord"), "first 2")
+  expect_s3_class(p, "recordedplot")
+  expect_equal(received, list(n = 3L, columns = c("A", "B")))
+  d <- data.frame(A = rep(c("a", "b"), 51), extra = seq_len(102))
+  expect_warning(p <- cat_test_plot(d, c("A", "extra"), stat = "count"), "first element")
+  expect_equal(sum(p$data$n), 102L)
+  expect_warning(p <- cat_test_plot(d, c("A", "absent"), stat = "count"), "first element")
+  expect_equal(sum(p$data$n), 102L)
+})
+
 test_that("plt_cat area and trend retain zero frequencies for interpolation", {
   d <- data.frame(category = factor(c("A", "A", "A", "A", "B", "B", "B")),
                   group = factor(c("G1", "G1", "G3", "G3", "G1", "G2", "G3")))

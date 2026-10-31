@@ -13,6 +13,8 @@
 
 # UtilsR 0.6.18
 
+* Categorical plots resolve their effective columns before missing-value filtering and cardinality checks, so ignored columns do not alter samples or cause errors.
+
 * Categorical UpSet plots retain a two-dimensional membership matrix for one-row inputs and singleton facets.
 
 * Categorical chord plots enable device recording before drawing so returned plots can be replayed and saved from file devices.

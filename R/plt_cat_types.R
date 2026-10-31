@@ -273,9 +273,6 @@
   if (!requireNamespace("circlize", quietly = TRUE)) {
     cli::cli_abort("Package {.pkg circlize} is required. Install with: {.code install.packages('circlize')}")
   }
-  if (length(stat.by) > 2) {
-    cli::cli_warn("Chord uses only the first 2 elements of {.arg stat.by}.")
-  }
   M <- table(data[[stat.by[1]]], data[[stat.by[2]]], useNA = "ifany")
   m <- matrix(M, ncol = ncol(M), dimnames = dimnames(M))
   colnames(m)[is.na(colnames(m))] <- "NA"
