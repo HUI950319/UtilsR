@@ -1,5 +1,8 @@
 # UtilsR 0.6.19
 
+* Independent `plt_con()` axes reserve annotation space for valid comparisons
+  only; skipped comparisons no longer enlarge panels, and shared axes stay aligned.
+
 * Continuous and categorical background bands follow category positions when
   a returned plot's discrete axis is reordered, retaining missing and empty levels.
 

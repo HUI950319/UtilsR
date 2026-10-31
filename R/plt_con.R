@@ -106,6 +106,7 @@
 #'   A finite number or \code{"qN"} for integer N from 0 to 100.
 #'   Character \code{"qN"} uses the Nth percentile. Default \code{NULL}.
 #'   Automatic limits leave room for comparisons; explicit bounds are preserved.
+#'   Independent axes reserve space only for valid pairwise comparisons.
 #' @param y.nbreaks Integer. Number of y-axis breaks. Default 5.
 #' @param sort Logical or character. Sort groups by the median of finite observations?
 #'   \code{TRUE} or \code{"decreasing"} for descending,
@@ -603,6 +604,7 @@ plt_con <- function(data,
       sig_label = sig_label, sig_labelsize = sig_labelsize,
       y.min = global_y_min %||% y.min, y.max = global_y_max %||% y.max,
       auto_y_max = is.null(y.max), y.nbreaks = y.nbreaks, flip = flip,
+      comparison_count = if (isTRUE(same.y.lims)) length(comparisons) else NULL,
       title = title, subtitle = subtitle,
       xlab = xlab %||% (if (dummy_group) "" else group.by),
       ylab = ylab %||% f,
@@ -820,7 +822,7 @@ plt_con <- function(data,
                              trend_ptsize,
                              comparisons, ref_group, pairwise_method,
                              multiplegroup_comparisons, multiple_method,
-                             sig_label, sig_labelsize,
+                             sig_label, sig_labelsize, comparison_count,
                               y.min, y.max, auto_y_max, y.nbreaks, flip,
                              title, subtitle, xlab, ylab, fill_title,
                              legend.position, legend.direction,
@@ -983,8 +985,8 @@ plt_con <- function(data,
   }
 
   # --- Statistical comparisons ------------------------------------------------
-  comparison_count <- length(comparisons)
   comparisons <- .con_comparisons(comparisons, dat[["group.by"]], feature, values, pairwise_method)
+  comparison_count <- comparison_count %||% length(comparisons)
   annotation_y_max <- y_max_use
   if (length(comparisons)) {
     p <- p + .con_component(ggpubr::stat_compare_means,

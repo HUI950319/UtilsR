@@ -297,6 +297,23 @@ test_that("con comparison axes reserve automatic space and retain explicit zoom 
   expect_equal(out[[1L]]$coordinates$limits$y, out[[2L]]$coordinates$limits$y)
 })
 
+test_that("con independent axes reserve space for effective comparisons only", {
+  d <- con_data()
+  pairs <- list(c("A", "absent"), c("B", "absent"))
+  for (flip in c(FALSE, TRUE)) {
+    none <- con_plot(d, type = "box", flip = flip)
+    expect_warning(p <- con_plot(d, type = "box", flip = flip, comparisons = pairs), "Skipping")
+    expect_equal(p$coordinates$limits$y, none$coordinates$limits$y)
+    valid <- con_plot(d, type = "box", flip = flip, comparisons = list(c("A", "B")))
+    expect_warning(mixed <- con_plot(d, type = "box", flip = flip,
+      comparisons = c(list(c("A", "B")), pairs)), "Skipping")
+    expect_equal(mixed$coordinates$limits$y, valid$coordinates$limits$y)
+    expect_warning(explicit <- con_plot(d, type = "box", flip = flip, y.max = 20,
+      comparisons = pairs), "Skipping")
+    expect_equal(explicit$coordinates$limits$y, c(min(d$x), 20))
+  }
+})
+
 test_that("con stacked dot plots retain requested raw point overlays", {
   d <- con_data()
   p <- con_plot(d, c("x", "z"), type = "dot", stack = TRUE, add_point = TRUE)

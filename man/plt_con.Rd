@@ -166,7 +166,8 @@ pooled observations when \code{same.y.lims = TRUE}.}
 \item{y.max}{Numeric or character scalar. Maximum y-axis limit.
 A finite number or \code{"qN"} for integer N from 0 to 100.
 Character \code{"qN"} uses the Nth percentile. Default \code{NULL}.
-Automatic limits leave room for comparisons; explicit bounds are preserved.}
+Automatic limits leave room for comparisons; explicit bounds are preserved.
+Independent axes reserve space only for valid pairwise comparisons.}
 
 \item{y.nbreaks}{Integer. Number of y-axis breaks. Default 5.}
 
