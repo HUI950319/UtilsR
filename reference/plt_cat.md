@@ -166,7 +166,8 @@ plt_cat(
   Character or list. For venn/upset types, the value(s) in each
   `stat.by` column that count as "positive". Default `NULL` auto-detects
   `TRUE`, `"Yes"`, `"yes"`, `1`, `"TRUE"`, `"1"`, or uses the first
-  factor level.
+  factor level. With `split.by`, membership values are resolved once for
+  all panels.
 
 - title:
 

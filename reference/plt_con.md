@@ -329,6 +329,12 @@ A ggplot/patchwork object (if `combine = TRUE`) carrying that page size
 as `attr(p, "plot_size")`, `c(width, height)` in inches, or a named list
 of ggplots.
 
+## Details
+
+Logical switches require one non-missing `TRUE` or `FALSE`. The `sort`
+argument also accepts `"increasing"` or `"decreasing"`; other values are
+rejected.
+
 ## See also
 
 Other plot:

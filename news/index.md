@@ -3,6 +3,11 @@
 ## UtilsR 0.6.19
 
 - [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  rejects missing or non-scalar logical switches and unknown sorting
+  values before plotting, preventing silent changes of output type or
+  order.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
   retains empty-string group and background categories through splitting
   and named colour matching without changing their displayed labels.
 
@@ -17,6 +22,10 @@
   helpers.
 
 ## UtilsR 0.6.18
+
+- Categorical Venn and UpSet facets resolve positive membership once
+  across the complete input so panel membership definitions stay
+  consistent.
 
 - Categorical plots preserve time-class values and their original
   missingness when converting categories to factors.
