@@ -109,8 +109,7 @@
   }
 
   # Single string: a registered palette name wins, anything else is a literal
-  # colour. That is repeated directly: pal_get() would interpolate it through
-  # colorRampPalette(), which drops an alpha channel.
+  # colour, repeated as given.
   pl_names <- names(getExportedValue("UtilsR", "palette_list"))
   if (length(palette) == 1L && is.character(palette) && palette %in% pl_names) {
     return(as.character(pal_get(palette, n = n)))
