@@ -288,12 +288,14 @@
 
   # Note: chord returns recordPlot (base graphics), not ggplot.
   # Cannot be used with ggsave(); use png()/pdf() + replayPlot() instead.
+  if (grDevices::dev.cur() == 1L) grDevices::dev.new()
+  grDevices::dev.control(displaylist = "enable")
+  on.exit(circlize::circos.clear(), add = TRUE)
   circlize::chordDiagram(
     m, grid.col = sector_cols, transparency = 1 - alpha,
     link.lwd = 1, link.lty = 1, link.border = 1
   )
   p <- grDevices::recordPlot()
-  circlize::circos.clear()
   p
 }
 

@@ -43,6 +43,27 @@ test_that("plt_cat resolves positive membership before splitting", {
   expect_equal(explicit[[2]]$data$intersection, list("B", "B"))
 })
 
+test_that("plt_cat chord records drawable output on a file device", {
+  skip_if_not_installed("circlize")
+  skip_if_not_installed("ragg")
+  skip_if_not_installed("RegR")
+  withr::local_pdf(NULL, width = 7, height = 7)
+  device <- grDevices::dev.cur()
+  output <- withr::local_tempfile(fileext = ".pdf")
+  p <- cat_test_plot(data.frame(A = c("a", "b", "a"), B = c("x", "y", "y")),
+                     c("A", "B"), type = "chord", save = list(filename = output))
+  expect_s3_class(p, "recordedplot")
+  expect_identical(grDevices::dev.cur(), device)
+  expect_true(file.exists(output))
+  pixels <- local({
+    capture <- ragg::agg_capture(width = 300, height = 300, units = "px")
+    on.exit(grDevices::dev.off())
+    grDevices::replayPlot(p)
+    capture()
+  })
+  expect_gt(length(unique(as.vector(pixels))), 1L)
+})
+
 test_that("plt_cat area and trend retain zero frequencies for interpolation", {
   d <- data.frame(category = factor(c("A", "A", "A", "A", "B", "B", "B")),
                   group = factor(c("G1", "G1", "G3", "G3", "G1", "G2", "G3")))

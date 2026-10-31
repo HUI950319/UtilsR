@@ -13,6 +13,8 @@
 
 # UtilsR 0.6.18
 
+* Categorical chord plots enable device recording before drawing so returned plots can be replayed and saved from file devices.
+
 * Categorical Venn and UpSet facets resolve positive membership once across the complete input so panel membership definitions stay consistent.
 
 * Categorical plots preserve time-class values and their original missingness when converting categories to factors.
