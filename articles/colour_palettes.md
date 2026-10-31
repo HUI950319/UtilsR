@@ -8,7 +8,7 @@ library(ggplot2)
 
 ## Overview
 
-UtilsR provides a palette system with 256+ colour schemes from
+UtilsR provides a palette system with 260 colour schemes from
 RColorBrewer, ggsci, viridis, rcartocolor, nord, and more.
 
 **Core components:**
@@ -16,7 +16,7 @@ RColorBrewer, ggsci, viridis, rcartocolor, nord, and more.
 | Function | Purpose |
 |----|----|
 | `pal_lancet` | Default palette object (15 Lancet journal colours) |
-| `palette_list` | Named list of 256 palettes |
+| `palette_list` | Named list of 260 palettes |
 | [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md) | Extract colours from any palette by name |
 | [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md) | Visualise a palette as colour swatches |
 | [`pal_list()`](https://hui950319.github.io/UtilsR/reference/pal_list.md) | Browse all available palette names |
@@ -52,7 +52,7 @@ ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) +
 
 ------------------------------------------------------------------------
 
-## `palette_list` — 256 Palettes
+## `palette_list` — 260 Palettes
 
 All palettes are stored in `palette_list` (accessible via
 [`UtilsR::palette_list`](https://hui950319.github.io/UtilsR/reference/palette_list.md)

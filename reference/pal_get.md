@@ -1,6 +1,6 @@
 # Get Colours from a Named Palette
 
-Retrieve colours from the built-in palette collection (256 palettes).
+Retrieve colours from the built-in palette collection (260 palettes).
 Supports discrete mapping (factor/character input) and continuous
 interpolation (numeric input or `n` parameter).
 

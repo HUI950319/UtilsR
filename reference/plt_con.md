@@ -88,7 +88,9 @@ plt_con(
 - split.by:
 
   Character. Optional splitting variable. Splits data, creates one plot
-  per level, and combines with patchwork.
+  per level, and combines with patchwork. An explicit missing factor
+  level is labelled `"<NA>"`, with a unique suffix when needed to
+  preserve existing literal level names.
 
 - bg.by:
 
@@ -176,7 +178,8 @@ plt_con(
 
   A list of length-2 character vectors for pairwise tests. Default
   `NULL`. Pairs with unavailable groups are skipped per feature with a
-  warning; other requested comparisons remain available.
+  warning. Tests that fail are also skipped individually; other
+  requested comparisons remain available.
 
 - ref_group:
 
@@ -280,7 +283,9 @@ plt_con(
 
 - bg_palette:
 
-  Character vector. Background band colours. Default `NULL`.
+  Character vector. Background band colours. Default `NULL`. Named
+  colours are matched to background categories. Split panels share the
+  same category-to-colour mapping.
 
 - bg_alpha:
 
@@ -394,7 +399,7 @@ plt_con(df, "value1", "group",
 
 plt_con(df, "value1", "group",
         multiplegroup_comparisons = TRUE, sig_label = "p.format")
-#> Error in ggpubr::stat_compare_means(method = multiple_method, label = sig_label,     label.y = annotation_y_max, size = sig_labelsize, vjust = 1.2,     hjust = if (isTRUE(flip)) 1 else 0): Problem while mapping stat to aesthetics.
+#> Error in .constructor(method = params[[1L]], label = params[[2L]], label.y = params[[3L]],     size = params[[4L]], vjust = params[[5L]], hjust = params[[6L]]): Problem while mapping stat to aesthetics.
 #> ℹ Error occurred in the 2nd layer.
 #> Caused by error in `create_p_label()`:
 #> ! could not find function "create_p_label"

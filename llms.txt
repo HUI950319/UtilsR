@@ -1,7 +1,7 @@
 # UtilsR
 
 **UtilsR** is an R utility toolkit for everyday data work: variable
-inspection, statistical formatting, 256 colour palettes, 11-type
+inspection, statistical formatting, 260 colour palettes, 11-type
 categorical plotting, unified continuous variable plotting, and a
 chainable ggplot2 formatting system.
 
@@ -41,7 +41,7 @@ install.packages(c("circlize", "ggVennDiagram", "ggupset"))
   grouping and cross-tabulation
 - **`fmt_*()`** – Chainable ggplot2 formatting: axes, tags, legends,
   reference lines, strips, comparisons, backgrounds, scales, and more
-- **256 built-in palettes** via
+- **260 built-in palettes** via
   [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md)
   /
   [`pal_list()`](https://hui950319.github.io/UtilsR/reference/pal_list.md),
@@ -58,7 +58,7 @@ install.packages(c("circlize", "ggVennDiagram", "ggupset"))
 | **Factor** | [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md), [`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md) | Recode / reorder / binarise; numeric binning |
 | **Format** | [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md), [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md), [`stat_ci_parse()`](https://hui950319.github.io/UtilsR/reference/stat_ci_parse.md) | CI strings, p-values |
 | **Plot** | [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md), [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md), [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md), [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md), [`plt_upset()`](https://hui950319.github.io/UtilsR/reference/plt_upset.md) | Categorical (11 types), continuous (4 types), distribution, sankey, upset |
-| **Colour** | [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md), [`pal_list()`](https://hui950319.github.io/UtilsR/reference/pal_list.md), [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md), `as_palette()`, [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md) | 256 palettes, custom palette creation, console swatches |
+| **Colour** | [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md), [`pal_list()`](https://hui950319.github.io/UtilsR/reference/pal_list.md), [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md), `as_palette()`, [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md) | 260 palettes, custom palette creation, console swatches |
 | **ggplot2** | [`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md), [`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md), [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md), [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md), [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md), [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md), [`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md), [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md), [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md), [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md), [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md), [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md), [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md) | Chainable ggplot2 formatting |
 | **Theme** | [`theme_my()`](https://hui950319.github.io/UtilsR/reference/theme_my.md), [`theme_km()`](https://hui950319.github.io/UtilsR/reference/theme_km.md), [`theme_rcs()`](https://hui950319.github.io/UtilsR/reference/theme_rcs.md), [`theme_legend1()`](https://hui950319.github.io/UtilsR/reference/theme_legend1.md) | Publication-ready themes |
 | **Operators** | `%ni%`, `%\|\|%`, `%>%`, `%<>%` | Not-in, null default, pipes |
@@ -190,7 +190,7 @@ df |> mutate(grp = fct_cat(sex, combine = "age"))        # combine columns
 pal_lancet                        # 15 colours, Lancet journal style
 pal_ditto                         # 40 colours, dittoSeq (scRNA-seq)
 pal_igv                           # 48 colours, IGV genome browser
-pal_list()                        # browse all 256 palettes
+pal_list()                        # browse all 260 palettes
 pal_get("lancet", n = 5)          # extract 5 colours
 
 ggplot(data, aes(x, y, color = group)) +
@@ -220,7 +220,7 @@ p |>
 | [Data Inspection](https://hui950319.github.io/UtilsR/articles/data_inspection.html) | [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md), `na()`, [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md), [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md) |
 | [Factor Manipulation](https://hui950319.github.io/UtilsR/articles/factor_manipulation.html) | [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md) and [`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md) |
 | [ggplot2 Formatting](https://hui950319.github.io/UtilsR/articles/ggplot2_formatting.html) | `fmt_*()` formatting system |
-| [Colour Palettes](https://hui950319.github.io/UtilsR/articles/colour_palettes.html) | 256 palettes, custom palettes |
+| [Colour Palettes](https://hui950319.github.io/UtilsR/articles/colour_palettes.html) | 260 palettes, custom palettes |
 
 ## License
 

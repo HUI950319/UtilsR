@@ -50,7 +50,28 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.18" id="utilsr-0618">UtilsR 0.6.18<a class="anchor" aria-label="anchor" href="#utilsr-0618"></a></h2>
-<ul><li><p>Large expression previews avoid deparsing unseen lines while retaining the same type labels and visible text.</p></li>
+<ul><li><p><code>plt_con(type = "dot")</code> groups count rows with vctrs, reducing aggregation overhead while preserving count order, factor types and missing groups.</p></li>
+<li><p><code><a href="../reference/plt_cat.html">plt_cat()</a></code> aligns dodged value labels with bar, rose, trend and ring widths, retains zero rows for positioning, and uses unstacked labels for overlaid areas.</p></li>
+<li><p><code><a href="../reference/plt_cat.html">plt_cat()</a></code> counts columns directly, supporting spaces and formula punctuation in column names while reducing aggregation overhead and preserving count and percentage schemas.</p></li>
+<li><p><code>plt_cat(keep_empty = TRUE)</code> preserves unused category and grouping levels, including zero-frequency rows and their axis and legend positions.</p></li>
+<li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> keeps background category colours stable across sorted split panels; both continuous and categorical plots match named background colours.</p></li>
+<li><p><code><a href="../reference/plt_cat.html">plt_cat()</a></code> set plots no longer filter observations or reject high cardinality based on an ignored <code>group.by</code> column.</p></li>
+<li><p><code>plt_cat(NA_stat = TRUE)</code> includes missing split groups and preserves the whole figure’s missing-category colours in each panel.</p></li>
+<li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> assigns a unique label to explicit missing split levels when literal <code>&lt;NA&gt;</code> names already exist, preserving distinct list keys and titles.</p></li>
+<li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> constructs layers and guides in small environments so retaining one feature plot no longer serializes its sibling plots and analysis context.</p></li>
+<li><p><code><a href="../reference/plt_cat.html">plt_cat()</a></code> keeps literal “NA” categories distinct from missing observations, colours only actual missing groups, and handles explicit missing factor levels.</p></li>
+<li><p><code><a href="../reference/plt_cat.html">plt_cat()</a></code> detects missing values before factor conversion, including SPSS user-defined missing values and serialized classed columns.</p></li>
+<li><p>Plot functions warn when too few colours make groups share one, such as more than 15 groups with the default <code>pal_lancet</code>. The colours themselves do not change.</p></li>
+<li><p>Plot functions stop at once on a colour they cannot draw, with a suggestion for a mistyped palette name (<code>"lanct"</code>, <code>"LANCET"</code>), instead of failing later with “Problem while converting geom to grob”. An empty vector and a list of palettes are rejected the same way.</p></li>
+<li><p><code>"transparent"</code> and other colours missing from <code><a href="https://rdrr.io/r/grDevices/colors.html" class="external-link">colors()</a></code>, such as <code>"light blue"</code>, no longer print a “not in registry” hint.</p></li>
+<li><p>A single colour with transparency, such as <code>plt_dist(color = "#FF000080")</code>, keeps its alpha when repeated across groups.</p></li>
+<li><p>Ungrouped <code><a href="../reference/plt_cat.html">plt_cat()</a></code> pies and rings stack categories at a shared radius; ring holes no longer create artificial missing levels, and labels preserve angular totals.</p></li>
+<li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> retains explicit missing factor groups in split figures without rejecting its generated palette, preserving the unsplit missing-value colour.</p></li>
+<li><p><code><a href="../reference/plt_cat.html">plt_cat()</a></code> maps a named <code>palette</code> by level, as <code><a href="../reference/plt_con.html">plt_con()</a></code> does, instead of renaming the colours by position, and a <code>split.by</code> panel lacking a level keeps the colours of the whole figure.</p></li>
+<li><p><code><a href="../reference/plt_cat.html">plt_cat()</a></code> retains zero-frequency combinations in area and trend layers so interpolation cannot inflate proportions between groups.</p></li>
+<li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> skips failed pairwise tests individually, retaining successful comparisons for each feature instead of losing the whole annotation layer.</p></li>
+<li><p><code><a href="../reference/plt_upset.html">plt_upset()</a></code> keeps factor member labels when lists mix factors with other vector types or empty sets, preserving member identities and intersection counts.</p></li>
+<li><p>Large expression previews avoid deparsing unseen lines while retaining the same type labels and visible text.</p></li>
 <li><p><code><a href="../reference/pr_box.html">pr_box()</a></code> keeps embedded newlines in plain text as separate box rows, preserving blank separators and ANSI styles across the line breaks.</p></li>
 <li><p><code>pr_table(rownames = TRUE)</code> retains row names for zero-column data frames, while the default zero-column display remains empty.</p></li>
 <li><p><code><a href="../reference/plt_upset.html">plt_upset()</a></code> computes intersection groups directly, fills group rows in batches and constructs only the plots requested by <code>output</code>.</p></li>

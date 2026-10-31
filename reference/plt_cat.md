@@ -92,7 +92,12 @@ plt_cat(
   - A single string matching a name in `palette_list`: uses
     [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md).
 
-  - A character vector of colours: used directly.
+  - A character vector of colours: used in level order. A panel of
+    `split.by` keeps the colours of the whole figure.
+
+  - A named character vector: mapped by level. It must cover every
+    non-missing level; the generated missing level may be left out and
+    then takes `NA_color`.
 
 - alpha:
 
@@ -128,7 +133,8 @@ plt_cat(
 - bg_palette:
 
   Character vector of background band colours. Default `NULL` uses
-  alternating `c("grey85", "transparent")`.
+  alternating `c("grey85", "transparent")`. A named vector is matched to
+  background category names.
 
 - bg_alpha:
 
@@ -145,7 +151,9 @@ plt_cat(
 - NA_stat:
 
   Logical. Include NA in the frequency table? Default `FALSE` (NAs are
-  dropped). If `TRUE`, NAs are kept and shown with `NA_color`.
+  dropped). If `TRUE`, NAs are kept and shown with `NA_color`, including
+  missing grouping and split values. Missing labels are distinct from
+  literal "NA" values.
 
 - keep_empty:
 
@@ -297,18 +305,12 @@ plt_cat(df, "Type", "Group", type = "rose", stat = "count",
 
 # ===== 3. Ring (donut) =====
 plt_cat(df, "Type", type = "ring")
-#> Warning: Removed 1 row containing missing values or values outside the scale range
-#> (`geom_col()`).
 
 plt_cat(df, "Type", type = "ring", label = TRUE,
         palette = "Paired")
-#> Warning: Removed 1 row containing missing values or values outside the scale range
-#> (`geom_col()`).
 
 plt_cat(df, "Type", "Group", type = "ring", stat = "count",
         position = "dodge")
-#> Warning: Removed 1 row containing missing values or values outside the scale range
-#> (`geom_col()`).
 
 
 # ===== 4. Pie =====

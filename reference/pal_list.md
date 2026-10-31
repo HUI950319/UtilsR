@@ -1,6 +1,6 @@
 # List All Available Palettes
 
-Browse palettes from the built-in collection (256 palettes from
+Browse palettes from the built-in collection (260 palettes from
 RColorBrewer, ggsci, viridis, rcartocolor, nord, dichromat, pals,
 colorspace, and UtilsR built-in). Use `pattern` to filter.
 

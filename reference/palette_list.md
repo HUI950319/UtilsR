@@ -1,13 +1,13 @@
 # Built-in Palette Collection
 
-A named list of 256 colour palettes from RColorBrewer, ggsci, viridis,
+A named list of 260 colour palettes from RColorBrewer, ggsci, viridis,
 rcartocolor, nord, dichromat, pals, colorspace, and UtilsR built-in.
 Each element is a character vector of hex colours with a `"type"`
 attribute (`"discrete"` or `"continuous"`).
 
 ## Format
 
-A named list of 256 character vectors.
+A named list of 260 character vectors.
 
 ## Examples
 

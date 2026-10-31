@@ -2,6 +2,101 @@
 
 ## UtilsR 0.6.18
 
+- `plt_con(type = "dot")` groups count rows with vctrs, reducing
+  aggregation overhead while preserving count order, factor types and
+  missing groups.
+
+- [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
+  aligns dodged value labels with bar, rose, trend and ring widths,
+  retains zero rows for positioning, and uses unstacked labels for
+  overlaid areas.
+
+- [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
+  counts columns directly, supporting spaces and formula punctuation in
+  column names while reducing aggregation overhead and preserving count
+  and percentage schemas.
+
+- `plt_cat(keep_empty = TRUE)` preserves unused category and grouping
+  levels, including zero-frequency rows and their axis and legend
+  positions.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  keeps background category colours stable across sorted split panels;
+  both continuous and categorical plots match named background colours.
+
+- [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
+  set plots no longer filter observations or reject high cardinality
+  based on an ignored `group.by` column.
+
+- `plt_cat(NA_stat = TRUE)` includes missing split groups and preserves
+  the whole figure’s missing-category colours in each panel.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  assigns a unique label to explicit missing split levels when literal
+  `<NA>` names already exist, preserving distinct list keys and titles.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  constructs layers and guides in small environments so retaining one
+  feature plot no longer serializes its sibling plots and analysis
+  context.
+
+- [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
+  keeps literal “NA” categories distinct from missing observations,
+  colours only actual missing groups, and handles explicit missing
+  factor levels.
+
+- [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
+  detects missing values before factor conversion, including SPSS
+  user-defined missing values and serialized classed columns.
+
+- Plot functions warn when too few colours make groups share one, such
+  as more than 15 groups with the default `pal_lancet`. The colours
+  themselves do not change.
+
+- Plot functions stop at once on a colour they cannot draw, with a
+  suggestion for a mistyped palette name (`"lanct"`, `"LANCET"`),
+  instead of failing later with “Problem while converting geom to grob”.
+  An empty vector and a list of palettes are rejected the same way.
+
+- `"transparent"` and other colours missing from
+  [`colors()`](https://rdrr.io/r/grDevices/colors.html), such as
+  `"light blue"`, no longer print a “not in registry” hint.
+
+- A single colour with transparency, such as
+  `plt_dist(color = "#FF000080")`, keeps its alpha when repeated across
+  groups.
+
+- Ungrouped
+  [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
+  pies and rings stack categories at a shared radius; ring holes no
+  longer create artificial missing levels, and labels preserve angular
+  totals.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  retains explicit missing factor groups in split figures without
+  rejecting its generated palette, preserving the unsplit missing-value
+  colour.
+
+- [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
+  maps a named `palette` by level, as
+  [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  does, instead of renaming the colours by position, and a `split.by`
+  panel lacking a level keeps the colours of the whole figure.
+
+- [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
+  retains zero-frequency combinations in area and trend layers so
+  interpolation cannot inflate proportions between groups.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  skips failed pairwise tests individually, retaining successful
+  comparisons for each feature instead of losing the whole annotation
+  layer.
+
+- [`plt_upset()`](https://hui950319.github.io/UtilsR/reference/plt_upset.md)
+  keeps factor member labels when lists mix factors with other vector
+  types or empty sets, preserving member identities and intersection
+  counts.
+
 - Large expression previews avoid deparsing unseen lines while retaining
   the same type labels and visible text.
 

@@ -147,7 +147,9 @@ are retained, including in dot-plot counts.</p></dd>
 
 <dt id="arg-split-by">split.by<a class="anchor" aria-label="anchor" href="#arg-split-by"></a></dt>
 <dd><p>Character. Optional splitting variable. Splits data,
-creates one plot per level, and combines with <span class="pkg">patchwork</span>.</p></dd>
+creates one plot per level, and combines with <span class="pkg">patchwork</span>.
+An explicit missing factor level is labelled <code>"&lt;NA&gt;"</code>, with a unique
+suffix when needed to preserve existing literal level names.</p></dd>
 
 
 <dt id="arg-bg-by">bg.by<a class="anchor" aria-label="anchor" href="#arg-bg-by"></a></dt>
@@ -235,7 +237,8 @@ Default <code>FALSE</code>.</p></dd>
 <dt id="arg-comparisons">comparisons<a class="anchor" aria-label="anchor" href="#arg-comparisons"></a></dt>
 <dd><p>A list of length-2 character vectors for pairwise tests.
 Default <code>NULL</code>. Pairs with unavailable groups are skipped per feature
-with a warning; other requested comparisons remain available.</p></dd>
+with a warning. Tests that fail are also skipped individually; other
+requested comparisons remain available.</p></dd>
 
 
 <dt id="arg-ref-group">ref_group<a class="anchor" aria-label="anchor" href="#arg-ref-group"></a></dt>
@@ -344,7 +347,8 @@ Default 14.</p></dd>
 
 <dt id="arg-bg-palette">bg_palette<a class="anchor" aria-label="anchor" href="#arg-bg-palette"></a></dt>
 <dd><p>Character vector. Background band colours.
-Default <code>NULL</code>.</p></dd>
+Default <code>NULL</code>. Named colours are matched to background categories.
+Split panels share the same category-to-colour mapping.</p></dd>
 
 
 <dt id="arg-bg-alpha">bg_alpha<a class="anchor" aria-label="anchor" href="#arg-bg-alpha"></a></dt>
@@ -461,7 +465,7 @@ the size note, need the <span class="pkg">RegR</span> package.</p></dd>
 <span class="r-plt img"><img src="plt_con-12.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">plt_con</span><span class="op">(</span><span class="va">df</span>, <span class="st">"value1"</span>, <span class="st">"group"</span>,</span></span>
 <span class="r-in"><span>        multiplegroup_comparisons <span class="op">=</span> <span class="cn">TRUE</span>, sig_label <span class="op">=</span> <span class="st">"p.format"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in ggpubr::stat_compare_means(method = multiple_method, label = sig_label,     label.y = annotation_y_max, size = sig_labelsize, vjust = 1.2,     hjust = if (isTRUE(flip)) 1 else 0):</span> Problem while mapping stat to aesthetics.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in .constructor(method = params[[1L]], label = params[[2L]], label.y = params[[3L]],     size = params[[4L]], vjust = params[[5L]], hjust = params[[6L]]):</span> Problem while mapping stat to aesthetics.</span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Error occurred in the 2nd layer.</span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error in `create_p_label()`:</span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> could not find function "create_p_label"</span>
