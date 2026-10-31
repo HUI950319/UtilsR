@@ -19,6 +19,9 @@
 #'   Missing scores remain missing and do not contribute to the correlation.
 #'   Duplicate categories are averaged after ranking individual observations.
 #'   Spearman tests use approximate p-values (\code{exact = FALSE}).
+#'   Numeric labelled scores respect their declared missing values. Stored
+#'   integer64 scores require \pkg{bit64}; ranks preserve integer precision,
+#'   while raw scores and mapped aesthetics must be within +/-2^53.
 #' @param group.by Character. Column name for the grouping / faceting
 #'   variable (e.g. comparison). Each level gets its own facet panel.
 #'   If \code{NULL}, all data is treated as a single group (no faceting).
@@ -159,6 +162,30 @@ PlotRankCor <- function(
     cli::cli_abort("Column {.val {size_by}} not found in {.arg data}.")
   if (!is.null(alpha_by) && !alpha_by %in% names(data))
     cli::cli_abort("Column {.val {alpha_by}} not found in {.arg data}.")
+
+  data <- as.data.frame(data)
+  numeric_cols <- unique(c(value.by, size_by, alpha_by))
+  for (col in unique(c(stat.by, group.by, method.by, numeric_cols))) {
+    x <- data[[col]]
+    pkg <- if (inherits(x, "integer64")) "bit64" else
+      if (inherits(x, "haven_labelled")) "haven" else
+        if (inherits(x, c("Duration", "Period", "Interval"))) "lubridate" else NULL
+    if (!is.null(pkg) && !requireNamespace(pkg, quietly = TRUE))
+      cli::cli_abort("Inspecting {.cls {class(x)[1]}} columns requires package {.pkg {pkg}}.")
+    if (!col %in% numeric_cols) next
+    if (inherits(x, "integer64")) {
+      if (!use_rank || col %in% c(size_by, alpha_by)) {
+        limit <- bit64::as.integer64("9007199254740992")
+        if (any(x > limit | x < -limit, na.rm = TRUE))
+          cli::cli_abort("Column {.val {col}} contains integer64 values beyond exact double precision; use ranks without this aesthetic mapping.")
+        data[[col]] <- suppressWarnings(as.numeric(x))
+      }
+    } else if (inherits(x, c("haven_labelled", "difftime", "Duration", "Period"))) {
+      missing_values <- is.na(x)
+      data[[col]] <- as.numeric(x)
+      data[[col]][missing_values] <- NA_real_
+    }
+  }
 
   methods <- unique(as.character(data[[method.by]]))
   if (anyNA(methods))

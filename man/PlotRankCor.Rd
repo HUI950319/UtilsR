@@ -46,7 +46,10 @@ compute ranks. Ranks are computed as \code{rank(-score)} (descending)
 within each \code{group.by} x \code{method.by} combination.
 Missing scores remain missing and do not contribute to the correlation.
 Duplicate categories are averaged after ranking individual observations.
-Spearman tests use approximate p-values (\code{exact = FALSE}).}
+Spearman tests use approximate p-values (\code{exact = FALSE}).
+Numeric labelled scores respect their declared missing values. Stored
+integer64 scores require \pkg{bit64}; ranks preserve integer precision,
+while raw scores and mapped aesthetics must be within +/-2^53.}
 
 \item{group.by}{Character. Column name for the grouping / faceting
 variable (e.g. comparison). Each level gets its own facet panel.

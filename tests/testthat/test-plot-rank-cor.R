@@ -194,3 +194,41 @@ test_that("rank-correlation handles explicit NA factor levels and rejects missin
   data$method[1] <- NA_character_
   expect_error(quiet_rank_cor(data), "method.by.*missing|missing.*method.by")
 })
+
+test_that("rank-correlation labelled scores respect declared missing values", {
+  skip_if_not_installed("haven")
+  data <- rank_cor_data()
+  data$score <- c(4, 3, 2, 99, 3, 1, 2, 4)
+  data$score <- haven::labelled_spss(data$score, labels = c(missing = 99), na_values = 99)
+  p <- quiet_rank_cor(data)
+  expect_true(is.na(p$data$M1[p$data$item == "d"]))
+  expect_equal(attr(p, "cor_results")$rho, 0.5)
+  reference <- rank_cor_data()
+  expect_equal(attr(p, "cor_results"), attr(quiet_rank_cor(reference), "cor_results"))
+  p <- quiet_rank_cor(data, use_rank = FALSE)
+  expect_true(is.na(p$data$M1[p$data$item == "d"]))
+})
+
+test_that("rank-correlation normalizes data-frame subclasses without changing inputs", {
+  skip_if_not_installed("dplyr")
+  data <- rank_cor_data()
+  expected <- quiet_rank_cor(data)
+  for (x in list(dplyr::group_by(data, method), dplyr::rowwise(data))) {
+    before <- x
+    p <- quiet_rank_cor(x)
+    expect_equal(p$data, expected$data)
+    expect_identical(x, before)
+  }
+})
+
+test_that("rank-correlation integer64 scores keep missing values and close ranks", {
+  skip_if_not_installed("bit64")
+  data <- rank_cor_data()
+  data$score <- bit64::as.integer64(c("9007199254740996", "9007199254740995", "9007199254740994", NA,
+                                    "9007199254740995", "9007199254740993", "9007199254740994", "9007199254740996"))
+  p <- quiet_rank_cor(data)
+  expect_equal(p$data$M1, c(1, 2, 3, NaN))
+  expect_equal(p$data$M2, c(2, 4, 3, 1))
+  expect_equal(attr(p, "cor_results")$rho, 0.5)
+  expect_error(quiet_rank_cor(data, use_rank = FALSE), "integer64.*precision|precision.*integer64")
+})
