@@ -1,5 +1,7 @@
 # UtilsR 0.6.19
 
+* Categorical plots distinguish plain numeric values whose short labels coincide, preserving precise membership selections while retaining ordinary labels and classed selectors.
+
 * Categorical UpSet plots choose a collision-free separator through public ggupset adapters, preserving set labels, counts and the twenty-intersection limit.
 
 * `plt_con()` skips only the failed or non-finite pairwise result when plotted

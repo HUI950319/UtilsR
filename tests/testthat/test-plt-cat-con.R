@@ -671,3 +671,35 @@ test_that("plt_cat UpSet preserves set names containing its backend separator", 
   expect_warning(q <- cat_test_plot(many, names(many), type = "upset", stat_level = TRUE), "20.*31")
   expect_equal(ggplot2::ggplot_build(q)$data[[1]]$count, rep(1, 20))
 })
+
+test_that("plt_cat keeps distinct numeric values when their short labels coincide", {
+  for (x in list(c(1e15, 1e15 + 1), c(1, 1 + .Machine$double.eps))) {
+    d <- data.frame(A = c(x, NA))
+    p <- cat_test_plot(d, "A", stat = "count", NA_stat = TRUE)
+    expect_equal(p$data$n, rep(1L, 3))
+    labels <- as.character(p$data$stat_var)[1:2]
+    expect_identical(as.numeric(labels), x)
+    expect_length(unique(labels), 2L)
+    q <- cat_test_plot(data.frame(A = "x", g = x), "A", "g", stat = "count")
+    expect_equal(q$data$n, c(1L, 1L))
+  }
+  p <- cat_test_plot(data.frame(A = c(1.2, 3.4)), "A")
+  expect_equal(as.character(p$data$stat_var), c("1.2", "3.4"))
+})
+
+test_that("plt_cat resolves numeric membership against precise category labels", {
+  skip_if_not_installed("ggupset")
+  withr::local_options(lifecycle_verbosity = "quiet")
+  d <- data.frame(A = c(1e15, 1e15 + 1, 1e15), B = c(TRUE, FALSE, FALSE))
+  p <- cat_test_plot(d, c("A", "B"), type = "upset",
+                    stat_level = list(A = 1e15 + 1, B = TRUE))
+  expect_equal(p$data$intersection, list("B", "A"))
+  expect_equal(ggplot2::ggplot_build(p)$data[[1]]$count, c(1, 1))
+  if (requireNamespace("bit64", quietly = TRUE)) {
+    d <- data.frame(A = bit64::as.integer64(c("9007199254740993", "9007199254740994")),
+                    B = bit64::as.integer64(c("9007199254740994", "9007199254740993")))
+    p <- cat_test_plot(d, c("A", "B"), type = "upset",
+                      stat_level = bit64::as.integer64("9007199254740993"))
+    expect_equal(p$data$intersection, list("A", "B"))
+  }
+})

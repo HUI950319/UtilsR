@@ -41,6 +41,8 @@
 #'   single column name. For set types (sankey, chord, venn, upset) a character
 #'   vector of >= 2 column names. Venn plots support at most seven columns;
 #'   use \code{type = "upset"} for larger sets.
+#'   Distinct plain numeric values with identical short text representations
+#'   receive more precise labels so their categories remain separate.
 #' @param group.by Character. Optional grouping variable for standard types.
 #'   Ignored for set types. Area plots require at least two displayed group
 #'   levels in each panel.
@@ -408,6 +410,7 @@ plt_cat <- function(data,
   }
 
   # --- Ensure factors ---------------------------------------------------------
+  numeric_labels <- list()
   for (col in unique(c(stat.by, group.by, split.by, bg.by))) {
     if (!is.null(col) && col %in% names(data) && !is.factor(data[[col]])) {
       x <- data[[col]]
@@ -419,6 +422,16 @@ plt_cat <- function(data,
       }
       missing <- is.na(x)
       values <- as.character(x)
+      if (is.double(x) && !is.object(x)) {
+        distinct <- unique(x[!missing])
+        labels <- as.character(distinct)
+        collision <- duplicated(labels) | duplicated(labels, fromLast = TRUE)
+        if (any(collision)) {
+          labels[collision] <- sprintf("%.17g", distinct[collision])
+          values[!missing] <- labels[match(x[!missing], distinct)]
+          numeric_labels[[col]] <- list(values = distinct, labels = labels)
+        }
+      }
       values[missing] <- NA_character_
       data[[col]] <- factor(values, levels = unique(values))
     }
@@ -495,7 +508,7 @@ plt_cat <- function(data,
   }
 
   if (type %in% c("venn", "upset")) {
-    stat_level <- .resolve_stat_level(data, stat.by, stat_level)
+    stat_level <- .resolve_stat_level(data, stat.by, stat_level, numeric_labels)
   }
 
   draw_one <- function(panel_data, panel_title) {
@@ -741,8 +754,18 @@ plt_cat <- function(data,
 
 #' Resolve stat_level for venn/upset
 #' @noRd
-.resolve_stat_level <- function(data, stat.by, stat_level) {
+.resolve_stat_level <- function(data, stat.by, stat_level, numeric_labels = list()) {
   default_positive <- c(TRUE, "TRUE", "Yes", "yes", 1, "1")
+  as_label <- function(values, column) {
+    out <- as.character(values)
+    map <- numeric_labels[[column]]
+    if (!is.null(map) && is.numeric(values) && !is.object(values)) {
+      at <- match(values, map$values)
+      matched <- !is.na(at)
+      out[matched] <- map$labels[at[matched]]
+    }
+    out
+  }
 
   if (is.null(stat_level)) {
     result <- stats::setNames(lapply(stat.by, function(s) {
@@ -763,8 +786,10 @@ plt_cat <- function(data,
         anyNA(stat_level) || !is.null(dim(stat_level))) {
       cli::cli_abort("{.arg stat_level} must supply one non-missing value or one value per selected column.")
     }
-    stat_level <- rep_len(as.character(stat_level), length(stat.by))
-    result <- stats::setNames(as.list(stat_level), stat.by)
+    result <- stats::setNames(lapply(seq_along(stat.by), function(i) {
+      at <- if (length(stat_level) == 1L) 1L else i
+      as_label(stat_level[at], stat.by[[i]])
+    }), stat.by)
   } else if (is.list(stat_level)) {
     if (is.null(names(stat_level))) {
       if (length(stat_level) != length(stat.by)) {
@@ -780,7 +805,9 @@ plt_cat <- function(data,
     if (any(vapply(stat_level, anyNA, logical(1)))) {
       cli::cli_abort("{.arg stat_level} must not contain missing values.")
     }
-    result <- lapply(stat_level, as.character)
+    result <- stats::setNames(lapply(names(stat_level), function(column) {
+      as_label(stat_level[[column]], column)
+    }), names(stat_level))
   } else {
     cli::cli_abort("{.arg stat_level} must be NULL, a character vector, or a named list.")
   }
