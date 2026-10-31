@@ -475,7 +475,7 @@ PlotRankCor <- function(
   }
 
   if (length(groups) > 1) {
-    p <- p + ggplot2::facet_wrap(stats::as.formula(paste("~", group.by_internal)))
+    p <- p + ggplot2::facet_wrap(ggplot2::vars(!!rlang::sym(group.by_internal)))
   }
 
   # ---- Scales ----

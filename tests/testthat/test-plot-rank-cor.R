@@ -311,3 +311,15 @@ test_that("rank-correlation default palettes cover more than fifteen groups", {
   p <- quiet_rank_cor(data, group.by = "group", palette = "red")
   expect_identical(unique(ggplot2::ggplot_build(p)$data[[1]]$colour), "red")
 })
+
+test_that("rank-correlation facets accept non-syntactic column names", {
+  for (name in c("group name", "g+1", "g`roup")) {
+    data <- expand.grid(item = letters[1:4], group = c("G", "H"), method = c("M1", "M2"))
+    data$score <- rep(4:1, 4)
+    names(data)[names(data) == "group"] <- name
+    p <- quiet_rank_cor(data, group.by = name)
+    built <- ggplot2::ggplot_build(p)
+    expect_equal(nrow(built$layout$layout), 2L)
+    expect_equal(as.character(built$layout$layout[[name]]), c("G", "H"))
+  }
+})

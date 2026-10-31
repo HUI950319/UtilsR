@@ -1,5 +1,7 @@
 # UtilsR 0.6.18
 
+* `PlotRankCor()` accepts spaces and formula punctuation in grouping column names when constructing facets.
+
 * `PlotRankCor()` preserves named group-colour mappings and resolves enough default colours for all observed groups.
 
 * `PlotRankCor()` respects observed factor method levels for axis assignment while retaining first-appearance order for character methods.
