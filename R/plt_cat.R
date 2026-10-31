@@ -2,29 +2,30 @@
 # plt_cat.R -- Unified categorical variable plot (11 chart types)
 # =============================================================================
 #
-# Architecture (3 layers):
+# Architecture (4 layers):
 #
 #   L1  plt_cat(data, stat.by, group.by, split.by, type, ...)
 #         |                                         -- public API
 #         |   split.by splits the data and recombines the panels with
-#         |   patchwork; everything below runs once per panel.
+#         |   patchwork; only the final figure is measured and saved.
+#         +-- L2  .plt_cat_single()     draw one normalized panel, without saving
 #         |
-#         +-- L2  set types (stat.by is a vector of >= 2 columns)
+#         +-- L3  set types (stat.by is a vector of >= 2 columns)
 #         |     .resolve_stat_level()   pick the level defining membership
 #         |     .build_set_list()       data + stat_level -> list of sets
-#         |           +-- L3  .plt_cat_sankey / .plt_cat_chord /
+#         |           +-- L4  .plt_cat_sankey / .plt_cat_chord /
 #         |                   .plt_cat_venn   / .plt_cat_upset
 #         |
-#         +-- L2  standard types (stat.by is a single column)
+#         +-- L3  standard types (stat.by is a single column)
 #               .prepare_cat_data()     frequency table with the columns
 #               |                       stat_var / group_var / value
-#               +-- L3  .plt_cat_bar   / .plt_cat_rose  / .plt_cat_ring /
+#               +-- L4  .plt_cat_bar   / .plt_cat_rose  / .plt_cat_ring /
 #               |       .plt_cat_pie   / .plt_cat_trend / .plt_cat_area /
 #               |       .plt_cat_dot
-#               +-- L3  .build_bg_layer()   alternating bands for dodge mode
-#               +-- L3  .add_cat_labels()   ggrepel value labels
+#               +-- L4  .build_bg_layer()   alternating bands for dodge mode
+#               +-- L4  .add_cat_labels()   ggrepel value labels
 #
-# The L3 renderers live in plt_cat_types.R; this file owns data preparation,
+# The L4 renderers live in plt_cat_types.R; this file owns data preparation,
 # palette / theme resolution, and the two switch() dispatch tables.
 # =============================================================================
 
@@ -463,26 +464,21 @@ plt_cat <- function(data,
     aspect.ratio <- 1
   }
 
+  draw_one <- function(panel_data, panel_title) {
+    .plt_cat_single(panel_data, stat.by, group.by, type, stat, position,
+      colors, alpha, label, label.size, label.fg, label.bg, label.bg.r,
+      bg.by, bg_palette, bg_alpha, flip, NA_stat, keep_empty, stat_level,
+      panel_title, subtitle, xlab, ylab, legend.position, legend.direction,
+      aspect.ratio, base_size)
+  }
+
   # --- Handle split.by --------------------------------------------------------
   if (!is.null(split.by)) {
     split_levels <- levels(factor(data[[split.by]]))
     plot_list <- lapply(split_levels, function(lv) {
       sub_data <- data[data[[split.by]] == lv, , drop = FALSE]
       # each panel is reported as part of the split figure, not on its own
-      cli::cli_fmt(sub <- plt_cat(
-        data = sub_data, stat.by = stat.by, group.by = group.by,
-        split.by = NULL, type = type, stat = stat, position = position,
-        palette = colors, alpha = alpha, label = label,
-        label.size = label.size, label.fg = label.fg, label.bg = label.bg,
-        label.bg.r = label.bg.r, bg.by = bg.by, bg_palette = bg_palette,
-        bg_alpha = bg_alpha, flip = flip,
-        NA_color = NA_color, NA_stat = FALSE, keep_empty = keep_empty,
-        stat_level = stat_level, title = lv, subtitle = subtitle,
-        xlab = xlab, ylab = ylab, legend.position = legend.position,
-        legend.direction = legend.direction, aspect.ratio = aspect.ratio,
-        facet_nrow = NULL, facet_ncol = NULL, base_size = base_size,
-        force = TRUE, ...
-      ))
+      cli::cli_fmt(sub <- draw_one(sub_data, lv))
       sub
     })
     return(finish(
@@ -492,8 +488,33 @@ plt_cat <- function(data,
     ))
   }
 
+  p <- draw_one(data, title)
+  switch(type,
+    chord = finish(p, size = c(7, 7)),
+    venn = finish(p, c(5, 5)),
+    upset = finish(p, c(6, 4.5)),
+    sankey = finish(p, c(6, 5)),
+    finish(p)
+  )
+}
+
+
+#' Draw one normalized categorical panel without measuring or saving it
+#' @noRd
+.plt_cat_single <- function(data, stat.by, group.by, type, stat, position,
+                            colors, alpha, label, label.size, label.fg, label.bg,
+                            label.bg.r, bg.by, bg_palette, bg_alpha, flip,
+                            NA_stat, keep_empty, stat_level, title, subtitle,
+                            xlab, ylab, legend.position, legend.direction,
+                            aspect.ratio, base_size) {
+  # Returned plot environments must not retain promises to the split caller.
+  invisible(list(data, stat.by, group.by, type, stat, position, colors, alpha,
+    label, label.size, label.fg, label.bg, label.bg.r, bg.by, bg_palette,
+    bg_alpha, flip, NA_stat, keep_empty, stat_level, title, subtitle,
+    xlab, ylab, legend.position, legend.direction, aspect.ratio, base_size))
+
   # --- Dispatch to type-specific functions ------------------------------------
-  if (type %in% set_types) {
+  if (type %in% c("sankey", "chord", "venn", "upset")) {
     p <- switch(type,
       sankey = .plt_cat_sankey(data = data, stat.by = stat.by, cols = colors,
                                alpha = alpha),
@@ -518,15 +539,13 @@ plt_cat <- function(data,
                               legend.direction = legend.direction)
       if (!is.null(aspect.ratio)) p <- p + ggplot2::theme(aspect.ratio = aspect.ratio)
     }
-    return(switch(type,
-      chord = finish(p, size = c(7, 7)),
-      venn = finish(p, c(5, 5)),
-      upset = finish(p, c(6, 4.5)),
-      finish(p, c(6, 5))
-    ))
+    return(p)
   }
 
   # --- Standard types: prepare data then plot ---------------------------------
+  if (!keep_empty) {
+    for (col in unique(c(stat.by, group.by))) data[[col]] <- droplevels(data[[col]])
+  }
   plotdata <- .prepare_cat_data(data, stat.by, group.by, stat,
                                 NA_stat = NA_stat,
                                 keep_empty = keep_empty || type %in% c("area", "trend"))
@@ -604,7 +623,7 @@ plt_cat <- function(data,
     aspect.ratio = aspect.ratio
   )
 
-  finish(p)
+  p
 }
 
 

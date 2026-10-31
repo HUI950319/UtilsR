@@ -10,6 +10,8 @@
 
 * `pal_get()` keeps the transparency of its colours when it repeats or interpolates them, as in `pal_get("#FF000080", n = 2)`. Opaque colours and registered palettes return what they did.
 
+* Split categorical figures normalize data and colours once and measure only the final combined canvas, preserving the plotted data and final page size.
+
 * `PlotRankCor()` retains missing grouping strata with distinct display labels and excludes missing method identifiers explicitly.
 
 * `PlotRankCor()` groups and pairs observations by column tuples rather than pasted strings, preserving names containing dots or separators.

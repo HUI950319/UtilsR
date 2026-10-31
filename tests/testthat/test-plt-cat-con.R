@@ -29,6 +29,22 @@ cat_con_data <- function() {
   )
 }
 
+test_that("plt_cat measures only the final split canvas", {
+  skip_if_not_installed("RegR")
+  original <- getFromNamespace(".save_sized", "UtilsR")
+  calls <- 0L
+  local_mocked_bindings(.save_sized = function(...) {
+    calls <<- calls + 1L
+    original(...)
+  }, .package = "UtilsR")
+  d <- data.frame(category = rep(c("A", "B"), 3), site = rep(c("x", "y", "z"), each = 2))
+  p <- cat_test_plot(d, "category", split.by = "site")
+  expect_equal(calls, 1L)
+  expect_s3_class(p, "patchwork")
+  expect_length(attr(p, "plot_size"), 2L)
+  expect_equal(sum(vapply(seq_len(length(p)), function(i) sum(p[[i]]$data$n), 0)), 6)
+})
+
 test_that("plt_cat set plots honour labels titles and theme controls", {
   d <- data.frame(A = c(TRUE, TRUE, FALSE), B = c(TRUE, FALSE, TRUE))
   for (type in c("upset", "venn", "sankey")) {
