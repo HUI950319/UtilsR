@@ -1,5 +1,8 @@
 # UtilsR 0.6.19
 
+* `plt_con()` keeps pairwise and global statistical groups aligned with the
+  displayed groups when stacked panels are filled by feature.
+
 * `plt_con()` passes both samples correctly to pairwise Kruskal-Wallis and
   ANOVA tests, including repeated tests after plotted values change.
 

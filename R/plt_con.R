@@ -18,6 +18,7 @@
 #         +-- L2  .con_cached_test()   reuse results for unchanged test inputs
 #         +-- L2  .con_comparison_layer()  ggpubr layer with a cached test
 #         +-- L2  .con_global_layer()  skip degenerate global annotations
+#         +-- L2  .con_stat_layer()   group statistical layers by displayed x
 #         +-- L2  .con_facet_scales()  per-feature zoom without filtering stats
 #         +-- L2  .con_bar_range()     full mean +/- SD range and zero baseline
 #         +-- L2  .con_base_plot()     small plot and mapping environment
@@ -54,6 +55,7 @@
 #' @param fill.by What variable to map to fill colour:
 #'   \code{"group"} (default) colours by group.by levels;
 #'   \code{"feature"} colours by stat.by name.
+#'   Statistical comparisons always use \code{group.by} within each feature.
 #'   The legend title uses \code{group.by} or \code{"Feature"}; ungrouped
 #'   group-filled plots omit the title. The theme controls title visibility.
 #' @param palette Colour palette. One of:
@@ -826,19 +828,31 @@ plt_con <- function(data,
   callback
 }
 
+.con_stat_layer <- function(stat) {
+  force(stat)
+  ggplot2::ggproto(NULL, stat,
+    setup_data = function(data, params) {
+      data <- stat$setup_data(data, params)
+      data[["group"]] <- as.numeric(data[["x"]])
+      data
+    }
+  )
+}
+
 .con_comparison_layer <- function(comparisons, ...) {
   cache <- attr(comparisons, ".con_test_cache", exact = TRUE)
   attr(comparisons, ".con_test_cache") <- NULL
   layer <- .con_component(ggpubr::stat_compare_means, comparisons = comparisons, ...)
   layer$stat_params[["test"]] <- .con_cached_test(
     .con_pairwise_test(layer$stat_params[["test"]]), layer$stat_params[["test.args"]], cache)
+  layer$stat <- .con_stat_layer(layer$stat)
   layer
 }
 
 .con_global_layer <- function(features, ...) {
   force(features)
   layer <- .con_component(ggpubr::stat_compare_means, ...)
-  original <- layer$stat
+  original <- .con_stat_layer(layer$stat)
   layer$stat <- ggplot2::ggproto(NULL, original,
     parameters = function(extra = FALSE) original$parameters(extra),
     compute_panel = function(data, scales, ...) {

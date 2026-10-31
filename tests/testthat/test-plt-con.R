@@ -153,6 +153,41 @@ test_that("con stacked comparisons test each feature separately", {
   expect_equal(as.character(global$label), c("**", "ns"))
 })
 
+test_that("con stacked statistical groups are independent of the fill variable", {
+  d <- con_data()
+  d$z <- c(1:6, (1:6) + 1.5)
+  for (type in c("box", "bar")) for (flip in c(FALSE, TRUE)) {
+    results <- lapply(c("group", "feature"), function(fill) {
+      p <- con_plot(d, c("x", "z"), type = type, stack = TRUE, flip = flip,
+        fill.by = fill, comparisons = list(c("A", "B")), multiplegroup_comparisons = TRUE)
+      kinds <- vapply(p$layers, function(l) class(l$geom)[1L], "")
+      b <- ggplot2::ggplot_build(p)$data
+      list(bracket = do.call(rbind, b[kinds == "GeomSignif"]),
+           global = do.call(rbind, b[kinds == "GeomText"]))
+    })
+    expect_equal(results[[2L]]$bracket[, c("PANEL", "annotation", "x", "xend", "y", "yend")],
+                 results[[1L]]$bracket[, c("PANEL", "annotation", "x", "xend", "y", "yend")])
+    expect_equal(results[[2L]]$global[, c("PANEL", "p", "label", "x", "y")],
+                 results[[1L]]$global[, c("PANEL", "p", "label", "x", "y")])
+  }
+})
+
+test_that("con statistical groups follow displayed positions with unused and missing levels", {
+  d <- con_data()
+  d$g <- factor(d$g, levels = c("unused", "A", "gap", "B"))
+  d <- rbind(d, transform(d[1:3, ], g = NA, x = x + 2, z = z + 2))
+  p <- con_plot(d, c("x", "z"), type = "box", stack = TRUE, fill.by = "feature",
+               comparisons = list(c("B", "A")), multiplegroup_comparisons = TRUE)
+  b <- ggplot2::ggplot_build(p)$data
+  kinds <- vapply(p$layers, function(l) class(l$geom)[1L], "")
+  bracket <- b[[which(kinds == "GeomSignif")]]
+  global <- b[[which(kinds == "GeomText")]]
+  expect_equal(as.integer(table(bracket$PANEL)), c(3L, 3L))
+  expect_equal(sort(unique(c(bracket$x, bracket$xend))), c(2, 4))
+  expect_equal(as.integer(global$PANEL), 1:2)
+  expect_true(all(is.finite(global$p)))
+})
+
 test_that("con unavailable comparisons preserve valid tests in each feature", {
   d <- data.frame(x = 1:18, z = 51:68, g = factor(rep(c("A", "B", "C"), each = 6)))
   d$z[d$g == "C"] <- NA_real_
