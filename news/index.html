@@ -50,7 +50,22 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.19" id="utilsr-0619">UtilsR 0.6.19<a class="anchor" aria-label="anchor" href="#utilsr-0619"></a></h2>
-<ul><li><p>Categorical UpSet split figures retain panels without matching members with a visible placeholder while preserving membership definitions and unsplit errors.</p></li>
+<ul><li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> skips only the failed or non-finite pairwise result when plotted data change, retaining valid comparisons and native label formatting.</p></li>
+<li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> updates automatic comparison positions and axis bounds when a continuous y-scale transformation is added, including bar SD intervals.</p></li>
+<li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> keeps pairwise and global statistical groups aligned with the displayed groups when stacked panels are filled by feature.</p></li>
+<li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> passes both samples correctly to pairwise Kruskal-Wallis and ANOVA tests, including repeated tests after plotted values change.</p></li>
+<li><p><code><a href="../reference/impute_na_knn.html">impute_na_knn()</a></code> restores custom observation names without converting automatic integer row names to character storage.</p></li>
+<li><p><code><a href="../reference/impute_na_knn.html">impute_na_knn()</a></code> forwards optional ordered-aggregation and scaling arguments only when supported by the installed VIM backend.</p></li>
+<li><p><code><a href="../reference/impute_na_knn.html">impute_na_knn()</a></code> handles dates, date-times, elapsed times and durations consistently as targets and distance predictors, and diagnoses unsupported calendar periods explicitly.</p></li>
+<li><p><code><a href="../reference/impute_na_knn.html">impute_na_knn()</a></code> preserves custom row names and observation order when returning an imputed data frame.</p></li>
+<li><p><code><a href="../reference/impute_na_knn.html">impute_na_knn()</a></code> validates column identities, one-dimensional storage, scalar controls and the availability of distance predictors before calling the backend.</p></li>
+<li><p><code><a href="../reference/impute_na_knn.html">impute_na_knn()</a></code> explicitly preserves the existing integer truncation rule, avoiding backend precision-loss warnings without changing ordinary numeric aggregation.</p></li>
+<li><p><code><a href="../reference/impute_na_knn.html">impute_na_knn()</a></code> restores labelled donor values through lossless category mappings and distinguishes numeric codes that share a printed representation.</p></li>
+<li><p><code><a href="../reference/impute_na_knn.html">impute_na_knn()</a></code> handles degenerate distance weights, rejects infinite numeric input, and reports observations that cannot be imputed without inventing predictor information.</p></li>
+<li><p><code><a href="../reference/impute_na_knn.html">impute_na_knn()</a></code> gives the backend independent field names so columns such as variable, j and indexNA2s do not change values or trigger evaluation errors.</p></li>
+<li><p><code><a href="../reference/impute_na_knn.html">impute_na_knn()</a></code> restores methods for serialized integer64 columns, uses checked numeric storage for imputation, and restores original integer64 values and attributes.</p></li>
+<li><p><code><a href="../reference/impute_na_knn.html">impute_na_knn()</a></code> excludes SPSS user-missing codes from categorical donors while retaining their original value-label metadata.</p></li>
+<li><p>Categorical UpSet split figures retain panels without matching members with a visible placeholder while preserving membership definitions and unsplit errors.</p></li>
 <li><p>Categorical UpSet plots keep the twenty-intersection limit and report omitted intersections explicitly without generic out-of-range count warnings.</p></li>
 <li><p>Categorical Sankey plots aggregate identical paths before expansion and pass frequency weights, preserving flows while reducing repeated geometry work.</p></li>
 <li><p>Categorical plots ignore inapplicable background columns before existence, value-shape and missing-value checks, while validating backgrounds used by dodge plots.</p></li>

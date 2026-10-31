@@ -4,7 +4,22 @@ Impute missing values in mixed-type data with
 [`kNN`](https://rdrr.io/pkg/VIM/man/kNN.html). Labelled variables are
 temporarily converted to factors for distance calculation, then restored
 with their original storage type, variable label, value labels, and
-other attributes.
+other attributes. SPSS user-missing codes are treated as missing rather
+than donor categories. Labelled donor values are restored through their
+original category values, without parsing rounded printed numbers.
+Stored integer64 columns require bit64. When imputation is needed, their
+observed values must be within +/-`2^53` for exact numeric conversion.
+Imputed values are converted back to integer64 storage, with fractional
+parts truncated. Ordinary integer columns also retain truncation toward
+zero when converting their weighted means back to integer storage. VIM's
+distance weights and aggregation rules are retained. Degenerate weights
+use equal weights for the selected neighbours. Wholly missing rows are
+retained without imputation, and remaining missing values are reported.
+Infinite numeric input is rejected when imputation is needed. Dates,
+date-times, time differences and durations use numeric distances and
+retain their original classes, time zones and units. Calendar periods
+and intervals, complex vectors and raw vectors require explicit
+conversion before imputation.
 
 ## Usage
 
@@ -17,7 +32,10 @@ impute_na_knn(data, k = 5, verbose = TRUE)
 - data:
 
   A data frame or tibble. Other data-frame subclasses are processed as
-  plain data frames.
+  plain data frames. Columns must have unique, non-missing, non-empty
+  names and one-dimensional atomic storage (date-time vectors may also
+  use POSIXlt storage). At least one predictor column is needed for
+  imputation.
 
 - k:
 
@@ -32,7 +50,18 @@ impute_na_knn(data, k = 5, verbose = TRUE)
 ## Value
 
 A data frame with missing values imputed where possible. A tibble is
-returned when `data` is a tibble.
+returned when `data` is a tibble. Observation order and data-frame row
+names are retained.
+
+## Details
+
+Numeric variables use distance-weighted means. Labelled variables retain
+categorical treatment, and VIM's categorical and ordered aggregators are
+retained for ordinary finite weights. Previously imputed values
+participate in subsequent distance calculations, so column order can
+affect results. Categorical tie breaking uses R's random number
+generator; call [`set.seed()`](https://rdrr.io/r/base/Random.html)
+before imputation when needed.
 
 ## See also
 

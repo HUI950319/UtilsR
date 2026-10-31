@@ -167,6 +167,7 @@ their categories when the returned plot's discrete axis is reordered.</p></dd>
 <dd><p>What variable to map to fill colour:
 <code>"group"</code> (default) colours by group.by levels;
 <code>"feature"</code> colours by stat.by name.
+Statistical comparisons always use <code>group.by</code> within each feature.
 The legend title uses <code>group.by</code> or <code>"Feature"</code>; ungrouped
 group-filled plots omit the title. The theme controls title visibility.</p></dd>
 
@@ -242,7 +243,9 @@ Default <code>FALSE</code>.</p></dd>
 Default <code>NULL</code>. Pairs with unavailable groups are skipped per feature
 with a warning. Tests that fail or return a non-finite P-value are also
 skipped individually; other requested comparisons remain available.
-Results are reused on repeated draws when the test inputs are unchanged.</p></dd>
+Results are reused on repeated draws when the test inputs are unchanged.
+Changed inputs are retested; failed or non-finite results are skipped
+independently on repeated draws as well.</p></dd>
 
 
 <dt id="arg-ref-group">ref_group<a class="anchor" aria-label="anchor" href="#arg-ref-group"></a></dt>
@@ -254,7 +257,8 @@ pairs take precedence.</p></dd>
 
 <dt id="arg-pairwise-method">pairwise_method<a class="anchor" aria-label="anchor" href="#arg-pairwise-method"></a></dt>
 <dd><p>Character. Pairwise test method.
-Default <code>"wilcox.test"</code>.</p></dd>
+Default <code>"wilcox.test"</code>; also supports <code>"t.test"</code>,
+<code>"kruskal.test"</code>, and <code>"anova"</code> with two-sample inputs.</p></dd>
 
 
 <dt id="arg-multiplegroup-comparisons">multiplegroup_comparisons<a class="anchor" aria-label="anchor" href="#arg-multiplegroup-comparisons"></a></dt>
@@ -296,7 +300,9 @@ pooled observations when <code>same.y.lims = TRUE</code>.</p></dd>
 A finite number or <code>"qN"</code> for integer N from 0 to 100.
 Character <code>"qN"</code> uses the Nth percentile. Default <code>NULL</code>.
 Automatic limits leave room for comparisons; explicit bounds are preserved.
-Independent axes reserve space only for valid pairwise comparisons.</p></dd>
+Independent axes reserve space only for valid pairwise comparisons.
+Added continuous y-scale transformations update automatic bounds and
+annotation positions using the transformed observations and summaries.</p></dd>
 
 
 <dt id="arg-y-nbreaks">y.nbreaks<a class="anchor" aria-label="anchor" href="#arg-y-nbreaks"></a></dt>

@@ -2,6 +2,72 @@
 
 ## UtilsR 0.6.19
 
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  skips only the failed or non-finite pairwise result when plotted data
+  change, retaining valid comparisons and native label formatting.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  updates automatic comparison positions and axis bounds when a
+  continuous y-scale transformation is added, including bar SD
+  intervals.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  keeps pairwise and global statistical groups aligned with the
+  displayed groups when stacked panels are filled by feature.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  passes both samples correctly to pairwise Kruskal-Wallis and ANOVA
+  tests, including repeated tests after plotted values change.
+
+- [`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md)
+  restores custom observation names without converting automatic integer
+  row names to character storage.
+
+- [`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md)
+  forwards optional ordered-aggregation and scaling arguments only when
+  supported by the installed VIM backend.
+
+- [`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md)
+  handles dates, date-times, elapsed times and durations consistently as
+  targets and distance predictors, and diagnoses unsupported calendar
+  periods explicitly.
+
+- [`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md)
+  preserves custom row names and observation order when returning an
+  imputed data frame.
+
+- [`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md)
+  validates column identities, one-dimensional storage, scalar controls
+  and the availability of distance predictors before calling the
+  backend.
+
+- [`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md)
+  explicitly preserves the existing integer truncation rule, avoiding
+  backend precision-loss warnings without changing ordinary numeric
+  aggregation.
+
+- [`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md)
+  restores labelled donor values through lossless category mappings and
+  distinguishes numeric codes that share a printed representation.
+
+- [`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md)
+  handles degenerate distance weights, rejects infinite numeric input,
+  and reports observations that cannot be imputed without inventing
+  predictor information.
+
+- [`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md)
+  gives the backend independent field names so columns such as variable,
+  j and indexNA2s do not change values or trigger evaluation errors.
+
+- [`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md)
+  restores methods for serialized integer64 columns, uses checked
+  numeric storage for imputation, and restores original integer64 values
+  and attributes.
+
+- [`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md)
+  excludes SPSS user-missing codes from categorical donors while
+  retaining their original value-label metadata.
+
 - Categorical UpSet split figures retain panels without matching members
   with a visible placeholder while preserving membership definitions and
   unsplit errors.

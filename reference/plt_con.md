@@ -106,9 +106,10 @@ plt_con(
 - fill.by:
 
   What variable to map to fill colour: `"group"` (default) colours by
-  group.by levels; `"feature"` colours by stat.by name. The legend title
-  uses `group.by` or `"Feature"`; ungrouped group-filled plots omit the
-  title. The theme controls title visibility.
+  group.by levels; `"feature"` colours by stat.by name. Statistical
+  comparisons always use `group.by` within each feature. The legend
+  title uses `group.by` or `"Feature"`; ungrouped group-filled plots
+  omit the title. The theme controls title visibility.
 
 - palette:
 
@@ -185,7 +186,8 @@ plt_con(
   warning. Tests that fail or return a non-finite P-value are also
   skipped individually; other requested comparisons remain available.
   Results are reused on repeated draws when the test inputs are
-  unchanged.
+  unchanged. Changed inputs are retested; failed or non-finite results
+  are skipped independently on repeated draws as well.
 
 - ref_group:
 
@@ -195,7 +197,9 @@ plt_con(
 
 - pairwise_method:
 
-  Character. Pairwise test method. Default `"wilcox.test"`.
+  Character. Pairwise test method. Default `"wilcox.test"`; also
+  supports `"t.test"`, `"kruskal.test"`, and `"anova"` with two-sample
+  inputs.
 
 - multiplegroup_comparisons:
 
@@ -236,7 +240,9 @@ plt_con(
   `"qN"` for integer N from 0 to 100. Character `"qN"` uses the Nth
   percentile. Default `NULL`. Automatic limits leave room for
   comparisons; explicit bounds are preserved. Independent axes reserve
-  space only for valid pairwise comparisons.
+  space only for valid pairwise comparisons. Added continuous y-scale
+  transformations update automatic bounds and annotation positions using
+  the transformed observations and summaries.
 
 - y.nbreaks:
 
