@@ -1,5 +1,7 @@
 # UtilsR 0.6.19
 
+* `impute_na_knn()` forwards optional ordered-aggregation and scaling arguments only when supported by the installed VIM backend.
+
 * `impute_na_knn()` handles dates, date-times, elapsed times and durations consistently as targets and distance predictors, and diagnoses unsupported calendar periods explicitly.
 
 * `impute_na_knn()` preserves custom row names and observation order when returning an imputed data frame.

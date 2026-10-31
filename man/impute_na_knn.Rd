@@ -46,6 +46,14 @@ and retain their original classes, time zones and units. Calendar periods
 and intervals, complex vectors and raw vectors require explicit conversion
 before imputation.
 }
+\details{
+Numeric variables use distance-weighted means. Labelled variables
+retain categorical treatment, and VIM's categorical and ordered
+aggregators are retained for ordinary finite weights. Previously imputed
+values participate in subsequent distance calculations, so column order
+can affect results. Categorical tie breaking uses R's random number
+generator; call \code{set.seed()} before imputation when needed.
+}
 \examples{
 dat <- data.frame(
   age = c(30, 40, NA, 60),

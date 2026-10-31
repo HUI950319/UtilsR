@@ -35,6 +35,13 @@
 #'   variable being imputed.
 #' @param verbose Logical. If \code{TRUE}, report the variables being imputed.
 #'
+#' @details Numeric variables use distance-weighted means. Labelled variables
+#'   retain categorical treatment, and VIM's categorical and ordered
+#'   aggregators are retained for ordinary finite weights. Previously imputed
+#'   values participate in subsequent distance calculations, so column order
+#'   can affect results. Categorical tie breaking uses R's random number
+#'   generator; call \code{set.seed()} before imputation when needed.
+#'
 #' @return A data frame with missing values imputed where possible. A tibble is
 #'   returned when \code{data} is a tibble. Observation order and data-frame row
 #'   names are retained.
@@ -230,20 +237,16 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
   backend_data <- data_for_impute[observed_rows, , drop = FALSE]
   names(backend_data) <- backend_names
   backend_variables <- backend_names[vapply(backend_data, anyNA, logical(1))]
+  backend_args <- list(
+    data = backend_data, variable = backend_variables, k = as.integer(k),
+    numFun = weighted_mean, catFun = weighted_category, weightDist = TRUE,
+    useImputedDist = TRUE, imp_var = FALSE, trace = FALSE
+  )
+  backend_formals <- names(formals(VIM::kNN))
+  if ("ordFun" %in% backend_formals) backend_args$ordFun <- weighted_ordered
+  if ("methodStand" %in% backend_formals) backend_args$methodStand <- "range"
   result <- if (length(backend_variables)) withCallingHandlers(
-    VIM::kNN(
-      data = backend_data,
-      variable = backend_variables,
-      k = as.integer(k),
-      numFun = weighted_mean,
-      catFun = weighted_category,
-      ordFun = weighted_ordered,
-      weightDist = TRUE,
-      useImputedDist = TRUE,
-      methodStand = "range",
-      imp_var = FALSE,
-      trace = FALSE
-    ),
+    do.call(VIM::kNN, backend_args),
     warning = function(w) {
       if (identical(conditionCall(w), quote(min(x[x > 0])))) invokeRestart("muffleWarning")
     }

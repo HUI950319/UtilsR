@@ -295,3 +295,17 @@ test_that("impute_na_knn diagnoses calendar spans and unsupported atomic storage
     expect_error(impute_na_knn(dat, k = 2, verbose = FALSE), "unsupported|convert")
   }
 })
+
+test_that("impute_na_knn accepts backends with the legacy public argument set", {
+  skip_if_not_installed("VIM")
+  current <- VIM::kNN
+  legacy <- function(data, variable, k, numFun, catFun, weightDist, useImputedDist, imp_var, trace) {
+    current(data = data, variable = variable, k = k, numFun = numFun, catFun = catFun,
+            weightDist = weightDist, useImputedDist = useImputedDist, imp_var = imp_var, trace = trace)
+  }
+  testthat::local_mocked_bindings(kNN = legacy, .package = "VIM")
+  dat <- data.frame(value = c(0, 10, NA_real_), helper = c(0, 10, 2.5))
+  result <- impute_na_knn(dat, k = 2, verbose = FALSE)
+  expect_equal(result$value, c(0, 10, 2.5))
+  expect_identical(result$helper, dat$helper)
+})
