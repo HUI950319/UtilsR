@@ -793,3 +793,18 @@ test_that("plt_cat matches named positive vectors by column name", {
   p <- cat_test_plot(d, c("A", "B"), type = "upset", stat_level = c(B = 1, A = 1e15 + 1))
   expect_equal(p$data$intersection, list("B", "A"))
 })
+
+test_that("plt_cat checks retained levels and impossible frequency grids early", {
+  d <- data.frame(A = factor(c("a1", "a2"), levels = paste0("a", seq_len(101))),
+                  g = factor(c("g1", "g2")))
+  expect_error(plt_cat(d, "A", "g", keep_empty = TRUE, palette = "red"), "100 levels")
+  p <- cat_test_plot(d, "A", "g", stat = "count", keep_empty = FALSE, palette = "red")
+  expect_equal(sum(p$data$n), 2L)
+  q <- cat_test_plot(d, "A", "g", stat = "count", keep_empty = TRUE, force = TRUE, palette = "red")
+  expect_equal(nrow(q$data), 202L)
+  expect_equal(sum(q$data$n), 2L)
+  huge <- data.frame(A = factor(c("a1", "a2"), levels = paste0("a", seq_len(50000))),
+                     g = factor(c("g1", "g2"), levels = paste0("g", seq_len(50000))))
+  expect_error(plt_cat(huge, "A", "g", keep_empty = TRUE, force = TRUE, palette = "red"),
+               "frequency table.*2\\^31")
+})

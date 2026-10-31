@@ -130,7 +130,9 @@
 #' @param base_size Numeric. Base font size for \code{theme_my()}.
 #'   Default 14.
 #' @param force Logical. Force plotting when variables have > 100 levels?
-#'   Default \code{FALSE}.
+#'   Default \code{FALSE}. With \code{keep_empty = TRUE}, standard types count
+#'   retained factor levels toward this limit. Frequency tables with
+#'   \code{2^31} or more cells are always rejected before allocation.
 #' @param ... Currently unused. Additional arguments are rejected.
 #'
 #' @param save \code{NULL}, an empty list (default), or a named list forwarded
@@ -407,7 +409,12 @@ plt_cat <- function(data,
   if (!force) {
     all_cols <- unique(c(stat.by, if (!type %in% set_types) group.by, split.by))
     high_card <- vapply(all_cols, function(col) {
-      length(unique(data[[col]]))
+      x <- data[[col]]
+      if (type %in% std_types && keep_empty && col %in% c(stat.by, group.by) && is.factor(x)) {
+        nlevels(x)
+      } else {
+        length(unique(x))
+      }
     }, integer(1))
     high_card <- high_card[high_card > 100]
     if (length(high_card) > 0) {
@@ -735,9 +742,16 @@ plt_cat <- function(data,
 .prepare_cat_data <- function(data, stat.by, group.by, stat,
                               NA_stat = FALSE, keep_empty = FALSE) {
   if (!is.factor(data[[stat.by]])) data[[stat.by]] <- factor(data[[stat.by]])
-
+  dimensions <- nlevels(data[[stat.by]])
   if (!is.null(group.by)) {
     if (!is.factor(data[[group.by]])) data[[group.by]] <- factor(data[[group.by]])
+    dimensions <- c(dimensions, nlevels(data[[group.by]]))
+  }
+  if (prod(as.double(dimensions)) >= 2^31) {
+    cli::cli_abort("A categorical frequency table must contain fewer than 2^31 cells. Reduce factor levels or use {.arg keep_empty = FALSE}.")
+  }
+
+  if (!is.null(group.by)) {
     tbl <- table(data[[stat.by]], data[[group.by]],
                  useNA = if (NA_stat) "ifany" else "no")
     df <- as.data.frame(tbl, stringsAsFactors = FALSE)

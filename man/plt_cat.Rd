@@ -173,7 +173,9 @@ their grid must accommodate all panels.}
 Default 14.}
 
 \item{force}{Logical. Force plotting when variables have > 100 levels?
-Default \code{FALSE}.}
+Default \code{FALSE}. With \code{keep_empty = TRUE}, standard types count
+retained factor levels toward this limit. Frequency tables with
+\code{2^31} or more cells are always rejected before allocation.}
 
 \item{...}{Currently unused. Additional arguments are rejected.}
 

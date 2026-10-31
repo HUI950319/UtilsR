@@ -1,5 +1,7 @@
 # UtilsR 0.6.19
 
+* Categorical safety checks include retained standard-plot factor levels and reject frequency grids beyond the base table cell limit before allocation.
+
 * Categorical positive-level mappings match named vectors by column, preserve unnamed positional values and reject missing, duplicate or unknown mapping keys.
 
 * Categorical Venn region transparency and value-label fill and corner radius now honour alpha, label.bg and label.bg.r through independently constructed layers.
