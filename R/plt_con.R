@@ -16,6 +16,7 @@
 #         +-- L2  .con_pairwise_test()  adapt supported two-sample tests
 #         +-- L2  .con_comparisons()   valid pairs and cached test results
 #         +-- L2  .con_cached_test()   reuse results for unchanged test inputs
+#         +-- L2  .con_signif_mapping()  omit invalid repeated test labels
 #         +-- L2  .con_comparison_layer()  ggpubr layer with a cached test
 #         +-- L2  .con_global_layer()  skip degenerate global annotations
 #         +-- L2  .con_stat_layer()   group statistical layers by displayed x
@@ -87,6 +88,8 @@
 #'   with a warning. Tests that fail or return a non-finite P-value are also
 #'   skipped individually; other requested comparisons remain available.
 #'   Results are reused on repeated draws when the test inputs are unchanged.
+#'   Changed inputs are retested; failed or non-finite results are skipped
+#'   independently on repeated draws as well.
 #' @param ref_group Character. Reference group for comparisons.
 #'   Default \code{NULL}. When \code{comparisons} is \code{NULL}, compare
 #'   this observed group with every other observed group. Explicit comparison
@@ -825,10 +828,35 @@ plt_con <- function(data,
         }
       }
     }
-    do.call(test, c(list(quote(x), quote(y)), args), envir = environment())
+    result <- tryCatch(do.call(test, c(list(quote(x), quote(y)), args), envir = environment()),
+                       error = identity)
+    if (inherits(result, "error")) {
+      warning("Skipping pairwise comparison: ", conditionMessage(result), call. = FALSE)
+      return(list(p.value = NA_real_))
+    }
+    p <- result[["p.value"]]
+    if (!is.numeric(p) || is.complex(p) || length(p) != 1L || !is.finite(p) || p < 0 || p > 1) {
+      warning("Skipping pairwise comparison: the test did not return a finite p-value between 0 and 1.", call. = FALSE)
+      return(list(p.value = NA_real_))
+    }
+    result
   }
   environment(callback) <- env
   callback
+}
+
+.con_signif_mapping <- function(mapping) {
+  force(mapping)
+  function(p) {
+    if (!is.finite(p)) return(NA_character_)
+    if (is.numeric(mapping)) {
+      label <- names(which.min(mapping[which(mapping > p)]))
+      return(if (is.null(label)) "NS." else label)
+    }
+    if (is.function(mapping)) return(mapping(p))
+    if (p < .Machine$double.eps) sprintf("p < %.2e", .Machine$double.eps) else
+      as.character(sprintf("%.2g", p))
+  }
 }
 
 .con_stat_layer <- function(stat, annotation) {
@@ -857,7 +885,11 @@ plt_con <- function(data,
           params[[key]] <- scales$y$transform(params[[key]])
         }
       }
-      do.call(stat$compute_panel, c(list(data = data, scales = scales), params))
+      result <- do.call(stat$compute_panel, c(list(data = data, scales = scales), params))
+      if (inherits(stat, "StatSignif") && !is.null(result[["annotation"]])) {
+        result <- result[!is.na(result[["annotation"]]), , drop = FALSE]
+      }
+      result
     }
   )
 }
@@ -868,6 +900,7 @@ plt_con <- function(data,
   layer <- .con_component(ggpubr::stat_compare_means, comparisons = comparisons, ...)
   layer$stat_params[["test"]] <- .con_cached_test(
     .con_pairwise_test(layer$stat_params[["test"]]), layer$stat_params[["test.args"]], cache)
+  layer$stat_params[["map_signif_level"]] <- .con_signif_mapping(layer$stat_params[["map_signif_level"]])
   layer$stat <- .con_stat_layer(layer$stat, .annotation)
   layer
 }

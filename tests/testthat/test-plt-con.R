@@ -310,6 +310,79 @@ test_that("con pairwise results are reused while changed plot data are retested"
   }
 })
 
+test_that("con changed plot data skip a failed pair without losing valid comparisons", {
+  d <- data.frame(x = c(1:6, 10:15, 20:25), z = 51:68,
+                  g = factor(rep(c("A", "B", "C"), each = 6)))
+  pairs <- list(c("A", "B"), c("A", "C"))
+  for (stack in c(FALSE, TRUE)) for (label in c("p.signif", "p.format")) {
+    features <- if (stack) c("x", "z") else "x"
+    p <- con_plot(d, features, type = "box", stack = stack, comparisons = pairs,
+                  pairwise_method = "t.test", sig_label = label)
+    q <- p
+    at <- q$data$group.by != "B"
+    if (stack) at <- at & q$data$feature == "x"
+    q$data$value[at] <- 1
+    expect_warning(b <- ggplot2::ggplot_build(q), "Skipping pairwise comparison")
+    actual <- do.call(rbind, b$data[vapply(q$layers, function(l) inherits(l$geom, "GeomSignif"), logical(1))])
+    changed <- d
+    changed$x[changed$g != "B"] <- 1
+    expect_warning(fresh <- con_plot(changed, features, type = "box", stack = stack,
+      comparisons = pairs, pairwise_method = "t.test", sig_label = label), "Skipping comparison")
+    built <- ggplot2::ggplot_build(fresh)
+    expected <- do.call(rbind, built$data[vapply(fresh$layers, function(l) inherits(l$geom, "GeomSignif"), logical(1))])
+    expect_equal(nrow(actual), if (stack) 9L else 3L)
+    keys <- c("PANEL", "annotation", "x", "xend")
+    expect_equal(lapply(actual[keys], as.character), lapply(expected[keys], as.character))
+    expect_identical(p$data$value, if (stack) c(d$x, d$z) else d$x)
+  }
+})
+
+test_that("con changed plot data omit nonfinite pair results instead of labeling them nonsignificant", {
+  d <- data.frame(x = c(1:6, 10:15, 20:25), g = factor(rep(c("A", "B", "C"), each = 6)))
+  for (method in c("wilcox.test", "kruskal.test")) for (label in c("p.signif", "p.format")) {
+    p <- con_plot(d, type = "box", comparisons = list(c("A", "B"), c("A", "C")),
+                  pairwise_method = method, sig_label = label)
+    p$data$value[p$data$group.by != "B"] <- 1
+    warnings <- character()
+    b <- withCallingHandlers(ggplot2::ggplot_build(p), warning = function(w) {
+      warnings <<- c(warnings, conditionMessage(w))
+      invokeRestart("muffleWarning")
+    })
+    bracket <- tail(b$data, 1L)[[1L]]
+    expect_match(paste(warnings, collapse = "\n"), "Skipping pairwise comparison.*finite.*p-value")
+    expect_equal(nrow(bracket), 3L)
+    expect_equal(sort(unique(c(bracket$x, bracket$xend))), c(1, 2))
+    expect_false(anyNA(bracket$annotation))
+    expect_false(any(bracket$annotation %in% c("NS.", "ns", "NA", "NaN")))
+    expect_s3_class(suppressWarnings(ggplot2::ggplotGrob(p)), "gtable")
+  }
+})
+
+test_that("con pairwise labels retain native formatting at significance and precision boundaries", {
+  p_value <- 0
+  local_mocked_bindings(t.test.default = function(...) list(p.value = p_value), .package = "stats")
+  d <- con_data()
+  for (value in c(.Machine$double.eps / 2, 0.0001, 0.05, 1)) for (label in c("p.signif", "p.format")) {
+    p_value <- value
+    p <- con_plot(d, type = "box", comparisons = list(c("A", "B")),
+                  pairwise_method = "t.test", sig_label = label)
+    native <- ggplot2::ggplot(d, ggplot2::aes(g, x)) +
+      ggpubr::stat_compare_means(comparisons = list(c("A", "B")), method = "t.test", label = label)
+    actual <- tail(ggplot2::ggplot_build(p)$data, 1L)[[1L]]$annotation
+    expect_identical(actual, ggplot2::ggplot_build(native)$data[[1L]]$annotation)
+  }
+})
+
+test_that("con wholly invalid repeated comparisons leave a drawable plot without labels", {
+  p <- con_plot(con_data(), type = "box", comparisons = list(c("A", "B")),
+                pairwise_method = "kruskal.test")
+  p$data$value[] <- 1
+  expect_warning(b <- ggplot2::ggplot_build(p), "Skipping pairwise comparison.*finite.*p-value")
+  expect_equal(nrow(tail(b$data, 1L)[[1L]]), 0L)
+  expect_warning(g <- ggplot2::ggplotGrob(p), "Skipping pairwise comparison.*finite.*p-value")
+  expect_s3_class(g, "gtable")
+})
+
 test_that("con reused pairwise results retain test warnings on each draw", {
   d <- data.frame(x = c(1, 1, 2, 2, 3, 3, 4, 4), g = rep(c("A", "B"), each = 4))
   p <- con_plot(d, type = "box", comparisons = list(c("A", "B")))

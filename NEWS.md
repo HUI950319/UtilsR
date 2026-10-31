@@ -1,5 +1,8 @@
 # UtilsR 0.6.19
 
+* `plt_con()` skips only the failed or non-finite pairwise result when plotted
+  data change, retaining valid comparisons and native label formatting.
+
 * `plt_con()` updates automatic comparison positions and axis bounds when a
   continuous y-scale transformation is added, including bar SD intervals.
 

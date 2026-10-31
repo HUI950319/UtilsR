@@ -133,7 +133,9 @@ Default \code{FALSE}.}
 Default \code{NULL}. Pairs with unavailable groups are skipped per feature
 with a warning. Tests that fail or return a non-finite P-value are also
 skipped individually; other requested comparisons remain available.
-Results are reused on repeated draws when the test inputs are unchanged.}
+Results are reused on repeated draws when the test inputs are unchanged.
+Changed inputs are retested; failed or non-finite results are skipped
+independently on repeated draws as well.}
 
 \item{ref_group}{Character. Reference group for comparisons.
 Default \code{NULL}. When \code{comparisons} is \code{NULL}, compare
