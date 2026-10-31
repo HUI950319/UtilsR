@@ -249,6 +249,13 @@ test_that("impute_na_knn preserves patient row identities and order", {
   expect_identical(dat, before)
 })
 
+test_that("impute_na_knn retains automatic row-name storage for ordinary data frames", {
+  skip_if_not_installed("VIM")
+  dat <- data.frame(value = c(0, 10, NA_real_), helper = c(0, 10, 2.5))
+  result <- impute_na_knn(dat, k = 2, verbose = FALSE)
+  expect_identical(attr(result, "row.names"), attr(dat, "row.names"))
+})
+
 knn_time_vectors <- function(values) {
   out <- list(date = as.Date(values, origin = "1970-01-01"),
               datetime = as.POSIXct(values, origin = "1970-01-01", tz = "UTC"),

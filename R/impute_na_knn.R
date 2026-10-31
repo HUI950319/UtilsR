@@ -303,7 +303,7 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
 
   if (input_is_tibble) {
     result <- tibble::as_tibble(result)
-  } else {
+  } else if (!identical(rownames(result), rownames(data_for_impute))) {
     rownames(result) <- rownames(data_for_impute)
   }
 

@@ -1,5 +1,7 @@
 # UtilsR 0.6.19
 
+* `impute_na_knn()` restores custom observation names without converting automatic integer row names to character storage.
+
 * `impute_na_knn()` forwards optional ordered-aggregation and scaling arguments only when supported by the installed VIM backend.
 
 * `impute_na_knn()` handles dates, date-times, elapsed times and durations consistently as targets and distance predictors, and diagnoses unsupported calendar periods explicitly.
