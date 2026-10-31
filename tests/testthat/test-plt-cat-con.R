@@ -6,6 +6,12 @@ cat_test_plot <- function(...) {
   p
 }
 
+cat_test_text <- function(grob) {
+  c(if (inherits(grob, "text")) as.character(grob$label),
+    unlist(lapply(grob$grobs, cat_test_text), use.names = FALSE),
+    unlist(lapply(grob$children, cat_test_text), use.names = FALSE))
+}
+
 test_that("plt_cat preserves time values and their original missingness", {
   skip_if_not_installed("lubridate")
   dates <- as.POSIXct(c("2020-01-01", "2020-01-02", NA), tz = "UTC")
@@ -489,4 +495,19 @@ test_that("plt_cat trend dodge keeps areas within the category positions", {
   }
   stacked <- cat_test_plot(d, "category", "group", type = "trend", stat = "count")
   expect_equal(max(ggplot2::ggplot_build(stacked)$data[[1]]$ymax), 2)
+})
+
+test_that("plt_cat split figures show overall titles once", {
+  d <- data.frame(category = c("A", "B", "A", "B"),
+                  site = c("one", "one", "two", "two"))
+  p <- cat_test_plot(d, "category", split.by = "site", title = "Overall title",
+                    subtitle = "Overall subtitle", base_size = 20)
+  labels <- cat_test_text(patchwork::patchworkGrob(p))
+  expect_equal(sum(labels == "Overall title"), 1L)
+  expect_equal(sum(labels == "Overall subtitle"), 1L)
+  expect_true(all(c("one", "two") %in% labels))
+  expect_equal(p$patches$annotation$theme$text$size, 20)
+  single <- cat_test_plot(d, "category", title = "Single title", subtitle = "Single subtitle")
+  labels <- cat_test_text(ggplot2::ggplotGrob(single))
+  expect_true(all(c("Single title", "Single subtitle") %in% labels))
 })

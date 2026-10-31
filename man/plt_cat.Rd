@@ -123,9 +123,11 @@ auto-detects \code{TRUE}, \code{"Yes"}, \code{"yes"}, \code{1},
 \code{"TRUE"}, \code{"1"}, or uses the first factor level. With
 \code{split.by}, membership values are resolved once for all panels.}
 
-\item{title}{Character. Plot title. Default \code{NULL}.}
+\item{title}{Character. Plot title, or overall title for split figures.
+Default \code{NULL}.}
 
-\item{subtitle}{Character. Plot subtitle. Default \code{NULL}.}
+\item{subtitle}{Character. Plot subtitle, or overall subtitle for split
+figures. Default \code{NULL}.}
 
 \item{xlab}{Character. X-axis label. Default \code{NULL}.}
 

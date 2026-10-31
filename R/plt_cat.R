@@ -91,8 +91,10 @@
 #'   auto-detects \code{TRUE}, \code{"Yes"}, \code{"yes"}, \code{1},
 #'   \code{"TRUE"}, \code{"1"}, or uses the first factor level. With
 #'   \code{split.by}, membership values are resolved once for all panels.
-#' @param title Character. Plot title. Default \code{NULL}.
-#' @param subtitle Character. Plot subtitle. Default \code{NULL}.
+#' @param title Character. Plot title, or overall title for split figures.
+#'   Default \code{NULL}.
+#' @param subtitle Character. Plot subtitle, or overall subtitle for split
+#'   figures. Default \code{NULL}.
 #' @param xlab Character. X-axis label. Default \code{NULL}.
 #' @param ylab Character. Y-axis label. Default \code{NULL} (auto-set based on
 #'   \code{stat}).
@@ -480,7 +482,8 @@ plt_cat <- function(data,
     .plt_cat_single(panel_data, stat.by, group.by, type, stat, position,
       colors, alpha, label, label.size, label.fg, label.bg, label.bg.r,
       bg.by, bg_palette, bg_alpha, flip, NA_stat, keep_empty, stat_level,
-      panel_title, subtitle, xlab, ylab, legend.position, legend.direction,
+      panel_title, if (is.null(split.by)) subtitle else NULL,
+      xlab, ylab, legend.position, legend.direction,
       aspect.ratio, base_size)
   }
 
@@ -493,11 +496,14 @@ plt_cat <- function(data,
       cli::cli_fmt(sub <- draw_one(sub_data, lv))
       sub
     })
-    return(finish(
-      patchwork::wrap_plots(plot_list, nrow = facet_nrow, ncol = facet_ncol,
-                            byrow = facet_byrow) +
-        patchwork::plot_layout(guides = "collect")
-    ))
+    p <- patchwork::wrap_plots(plot_list, nrow = facet_nrow, ncol = facet_ncol,
+                              byrow = facet_byrow) +
+      patchwork::plot_layout(guides = "collect")
+    if (!is.null(title) || !is.null(subtitle)) {
+      p <- p + patchwork::plot_annotation(title = title, subtitle = subtitle,
+        theme = theme_my(base_size = base_size))
+    }
+    return(finish(p))
   }
 
   p <- draw_one(data, title)
