@@ -114,3 +114,34 @@ test_that("impute_na_knn fills declared SPSS missing codes and retains labels", 
     expect_identical(dat, before)
   }
 })
+
+test_that("impute_na_knn safely imputes and restores integer64 columns", {
+  skip_if_not_installed("VIM")
+  skip_if_not_installed("bit64")
+  x <- bit64::as.integer64(c(0, 10, NA_real_))
+  attr(x, "label") <- "Count"
+  dat <- data.frame(value = x, helper = c(0, 10, 2.5))
+  before <- dat
+  expect_no_warning(result <- impute_na_knn(dat, k = 2, verbose = FALSE))
+  expect_identical(as.character(result$value), c("0", "10", "2"))
+  expect_identical(attributes(result$value), attributes(x))
+  expect_identical(dat, before)
+  dat <- data.frame(value = c(0, 10, NA_real_), helper = bit64::as.integer64(c(0, 10, 2)))
+  result <- impute_na_knn(dat, k = 2, verbose = FALSE)
+  expect_equal(result$value, c(0, 10, 2))
+  expect_identical(result$helper, dat$helper)
+  dat <- data.frame(value = bit64::as.integer64(c(0, 10, NA_real_)), helper = c(0, 10, 2))
+  numeric_data <- dat; numeric_data$value <- as.double(dat$value)
+  reference <- impute_na_knn(numeric_data, k = 2, verbose = FALSE)
+  result <- impute_na_knn(dat, k = 2, verbose = FALSE)
+  expect_identical(as.character(result$value), as.character(bit64::as.integer64(reference$value)))
+})
+
+test_that("impute_na_knn refuses integer64 precision loss only when imputation is needed", {
+  skip_if_not_installed("VIM")
+  skip_if_not_installed("bit64")
+  dat <- data.frame(value = bit64::as.integer64(c("9007199254740993", "9007199254740994", NA)), helper = 1:3)
+  expect_error(impute_na_knn(dat, k = 1, verbose = FALSE), "integer64.*precision|precision.*integer64")
+  dat <- dat[1:2, ]
+  expect_identical(impute_na_knn(dat, verbose = FALSE), dat)
+})

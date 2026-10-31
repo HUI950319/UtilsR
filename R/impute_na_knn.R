@@ -9,6 +9,10 @@
 #' factors for distance calculation, then restored with their original storage
 #' type, variable label, value labels, and other attributes.
 #' SPSS user-missing codes are treated as missing rather than donor categories.
+#' Stored integer64 columns require \pkg{bit64}. When imputation is needed,
+#' their observed values must be within +/-\code{2^53} for exact numeric
+#' conversion. Imputed values are converted back to integer64 storage, with
+#' fractional parts truncated.
 #'
 #' @param data A data frame or tibble. Other data-frame subclasses are processed
 #'   as plain data frames.
@@ -58,6 +62,10 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
 
   input_is_tibble <- inherits(data, "tbl_df")
   data_for_impute <- as.data.frame(data)
+  integer64_cols <- vapply(data_for_impute, inherits, logical(1), what = "integer64")
+  if (any(integer64_cols) && !requireNamespace("bit64", quietly = TRUE)) {
+    cli::cli_abort("Inspecting integer64 columns requires package {.pkg bit64}.")
+  }
   vars_with_missing <- names(data_for_impute)[
     vapply(data_for_impute, anyNA, logical(1))
   ]
@@ -106,6 +114,15 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     what = "haven_labelled"
   )
   labelled_original <- data_for_impute[labelled_cols]
+  integer64_original <- data_for_impute[integer64_cols]
+  for (var_name in names(integer64_original)) {
+    x <- integer64_original[[var_name]]
+    limit <- bit64::as.integer64("9007199254740992")
+    if (any(x > limit | x < -limit, na.rm = TRUE)) {
+      cli::cli_abort("Column {.val {var_name}} contains integer64 values beyond exact double precision; convert it explicitly before KNN imputation.")
+    }
+    data_for_impute[[var_name]] <- suppressWarnings(as.double(x))
+  }
 
   data_for_impute[labelled_cols] <- lapply(
     data_for_impute[labelled_cols],
@@ -152,6 +169,13 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     missing <- is.na(original)
     original[missing] <- values[missing]
     attributes(original) <- attributes(labelled_original[[var_name]])
+    result[[var_name]] <- original
+  }
+  for (var_name in names(integer64_original)) {
+    original <- integer64_original[[var_name]]
+    missing <- is.na(original)
+    original[missing] <- bit64::as.integer64(result[[var_name]][missing])
+    attributes(original) <- attributes(integer64_original[[var_name]])
     result[[var_name]] <- original
   }
 
