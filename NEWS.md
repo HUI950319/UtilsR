@@ -1,5 +1,7 @@
 # UtilsR 0.6.19
 
+* Categorical named palettes match empty-string categories by position while preserving distinct missing-value colours.
+
 * Categorical Sankey plots use internal stage aliases so backend-reserved column names remain valid while displayed names and flows are preserved.
 
 * Categorical Venn plots reject more than seven sets with a direct suggestion to use the UpSet type instead of failing during saving.

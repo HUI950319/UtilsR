@@ -79,7 +79,8 @@ one plot per level, and combines with \pkg{patchwork}. Not available for
     \code{split.by} keeps the colours of the whole figure.
   \item A named character vector: mapped by level. It must cover every
     non-missing level; the generated missing level may be left out
-    and then takes \code{NA_color}.
+    and then takes \code{NA_color}. An empty name matches an empty-string
+    category when that category is present.
 }}
 
 \item{alpha}{Numeric 0--1. Colour transparency. Default 0.8.}

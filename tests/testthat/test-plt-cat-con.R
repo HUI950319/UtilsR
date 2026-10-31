@@ -554,3 +554,17 @@ test_that("plt_cat Sankey stages accept backend reserved column names", {
     expect_identical(d, original)
   }
 })
+
+test_that("plt_cat named palettes map empty string categories", {
+  d <- data.frame(category = c("", "A", "", NA), site = c("one", "one", "two", "two"))
+  colors <- setNames(c("red", "blue"), c("", "A"))
+  p <- cat_test_plot(d, "category", stat = "count", palette = colors, NA_stat = TRUE)
+  b <- ggplot2::ggplot_build(p)
+  expect_equal(b$data[[1]]$fill[as.character(p$data$stat_var) == ""], "red")
+  expect_equal(b$data[[1]]$fill[as.character(p$data$stat_var) == "A"], "blue")
+  expect_equal(sum(p$data$n), 4L)
+  expect_equal(sum(b$data[[1]]$fill == "grey80"), 1L)
+  q <- cat_test_plot(d, "category", split.by = "site", palette = colors, NA_stat = TRUE)
+  expect_equal(ggplot2::ggplot_build(q[[2]])$data[[1]]$fill, c("red", "grey80"))
+  expect_error(plt_cat(d, "category", palette = setNames(c("red", "blue"), c("", ""))), "unique")
+})

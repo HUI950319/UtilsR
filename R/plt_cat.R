@@ -62,7 +62,8 @@
 #'       \code{split.by} keeps the colours of the whole figure.
 #'     \item A named character vector: mapped by level. It must cover every
 #'       non-missing level; the generated missing level may be left out
-#'       and then takes \code{NA_color}.
+#'       and then takes \code{NA_color}. An empty name matches an empty-string
+#'       category when that category is present.
 #'   }
 #' @param alpha Numeric 0--1. Colour transparency. Default 0.8.
 #' @param label Logical. Show value labels? Default \code{FALSE}. Set names
@@ -456,11 +457,12 @@ plt_cat <- function(data,
     missing_levels <- unname(na_levels[intersect(names(na_levels), stat.by)])
     required <- setdiff(lvls, missing_levels)
     if (!is.character(palette) || anyNA(names(palette)) ||
-        any(!nzchar(names(palette))) || anyDuplicated(names(palette)) ||
+        (any(!nzchar(names(palette))) && !"" %in% lvls) ||
+        anyDuplicated(names(palette)) ||
         !all(required %in% names(palette))) {
-      cli::cli_abort("Named {.arg palette} must contain each level with unique, non-empty names.")
+      cli::cli_abort("Named {.arg palette} must contain each level with unique names matching the categories.")
     }
-    out <- stats::setNames(unname(palette[lvls]), lvls)
+    out <- stats::setNames(unname(palette[match(lvls, names(palette))]), lvls)
     out[lvls %in% missing_levels] <- NA_color
     out
   }
