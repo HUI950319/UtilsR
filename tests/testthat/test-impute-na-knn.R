@@ -248,3 +248,50 @@ test_that("impute_na_knn preserves patient row identities and order", {
   expect_identical(result$value[1:2], dat$value[1:2])
   expect_identical(dat, before)
 })
+
+knn_time_vectors <- function(values) {
+  out <- list(date = as.Date(values, origin = "1970-01-01"),
+              datetime = as.POSIXct(values, origin = "1970-01-01", tz = "UTC"),
+              datetime_list = as.POSIXlt(values, origin = "1970-01-01", tz = "UTC"),
+              elapsed = as.difftime(values, units = "days"))
+  if (requireNamespace("lubridate", quietly = TRUE)) out$duration <- lubridate::duration(values)
+  out
+}
+
+test_that("impute_na_knn uses time vectors consistently as distance predictors", {
+  skip_if_not_installed("VIM")
+  for (helper in knn_time_vectors(c(0, 10, 8))) {
+    dat <- data.frame(value = c(0, 10, NA_real_), helper = c(0, 10, 8)); dat$helper <- helper
+    before <- unserialize(serialize(dat, NULL))
+    result <- impute_na_knn(dat, k = 2, verbose = FALSE)
+    expect_equal(result$value, c(0, 10, 8))
+    expect_identical(result$helper, helper)
+    expect_identical(dat, before)
+  }
+})
+
+test_that("impute_na_knn restores time targets without changing observed values or attributes", {
+  skip_if_not_installed("VIM")
+  for (value in knn_time_vectors(c(0, 10, NA_real_))) {
+    dat <- data.frame(value = c(0, 10, NA_real_), helper = c(0, 10, 2.5)); dat$value <- value
+    before <- unserialize(serialize(dat, NULL))
+    result <- impute_na_knn(dat, k = 2, verbose = FALSE)
+    expect_equal(as.numeric(result$value), c(0, 10, 2.5))
+    expect_identical(result$value[1:2], value[1:2])
+    expect_identical(attributes(result$value), attributes(value))
+    expect_identical(dat, before)
+  }
+})
+
+test_that("impute_na_knn diagnoses calendar spans and unsupported atomic storage", {
+  skip_if_not_installed("VIM")
+  skip_if_not_installed("lubridate")
+  for (value in list(lubridate::seconds(c(0, 10, NA_real_)),
+                     lubridate::period(c(0, 10, NA_real_), units = "month"),
+                     lubridate::interval(as.POSIXct(c(0, 10, NA_real_), origin = "1970-01-01", tz = "UTC"),
+                                         as.POSIXct(c(1, 20, NA_real_), origin = "1970-01-01", tz = "UTC")),
+                     c(0+0i, 10+1i, NA_complex_), as.raw(1:3))) {
+    dat <- data.frame(value = c(0, 10, 5), helper = c(0, 10, NA_real_)); dat$value <- value
+    expect_error(impute_na_knn(dat, k = 2, verbose = FALSE), "unsupported|convert")
+  }
+})

@@ -41,6 +41,10 @@ VIM's distance weights and aggregation rules are retained. Degenerate
 weights use equal weights for the selected neighbours. Wholly missing rows
 are retained without imputation, and remaining missing values are reported.
 Infinite numeric input is rejected when imputation is needed.
+Dates, date-times, time differences and durations use numeric distances
+and retain their original classes, time zones and units. Calendar periods
+and intervals, complex vectors and raw vectors require explicit conversion
+before imputation.
 }
 \examples{
 dat <- data.frame(

@@ -1,5 +1,7 @@
 # UtilsR 0.6.19
 
+* `impute_na_knn()` handles dates, date-times, elapsed times and durations consistently as targets and distance predictors, and diagnoses unsupported calendar periods explicitly.
+
 * `impute_na_knn()` preserves custom row names and observation order when returning an imputed data frame.
 
 * `impute_na_knn()` validates column identities, one-dimensional storage, scalar controls and the availability of distance predictors before calling the backend.

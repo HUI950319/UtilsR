@@ -21,6 +21,10 @@
 #' weights use equal weights for the selected neighbours. Wholly missing rows
 #' are retained without imputation, and remaining missing values are reported.
 #' Infinite numeric input is rejected when imputation is needed.
+#' Dates, date-times, time differences and durations use numeric distances
+#' and retain their original classes, time zones and units. Calendar periods
+#' and intervals, complex vectors and raw vectors require explicit conversion
+#' before imputation.
 #'
 #' @param data A data frame or tibble. Other data-frame subclasses are processed
 #'   as plain data frames. Columns must have unique, non-missing, non-empty
@@ -86,6 +90,10 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
   if (any(integer64_cols) && !requireNamespace("bit64", quietly = TRUE)) {
     cli::cli_abort("Inspecting integer64 columns requires package {.pkg bit64}.")
   }
+  time_methods <- vapply(data_for_impute, inherits, logical(1), what = c("Duration", "Period", "Interval"))
+  if (any(time_methods) && !requireNamespace("lubridate", quietly = TRUE)) {
+    cli::cli_abort("Inspecting time-span columns requires package {.pkg lubridate}.")
+  }
   vars_with_missing <- names(data_for_impute)[
     vapply(data_for_impute, anyNA, logical(1))
   ]
@@ -99,6 +107,13 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
   }
   if (ncol(data_for_impute) < 2L) {
     cli::cli_abort("KNN imputation needs at least one predictor column in addition to the variable being imputed.")
+  }
+  unsupported <- vapply(data_for_impute, function(x) {
+    inherits(x, c("Period", "Interval")) ||
+      (!typeof(x) %in% c("logical", "integer", "double", "character") && !inherits(x, "POSIXlt"))
+  }, logical(1))
+  if (any(unsupported)) {
+    cli::cli_abort("Columns {.val {names(data_for_impute)[unsupported]}} use unsupported storage or calendar spans; convert them explicitly before KNN imputation.")
   }
 
   if (!requireNamespace("VIM", quietly = TRUE)) {
@@ -145,6 +160,12 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
       cli::cli_abort("Column {.val {var_name}} contains integer64 values beyond exact double precision; convert it explicitly before KNN imputation.")
     }
     data_for_impute[[var_name]] <- suppressWarnings(as.double(x))
+  }
+  time_cols <- vapply(data_for_impute, inherits, logical(1), what = c("Date", "POSIXt", "difftime", "Duration"))
+  time_original <- data_for_impute[time_cols]
+  for (var_name in names(time_original)) {
+    x <- time_original[[var_name]]
+    data_for_impute[[var_name]] <- if (inherits(x, "POSIXlt")) as.double(as.POSIXct(x)) else as.double(x)
   }
 
   data_for_impute[labelled_cols] <- lapply(
@@ -250,6 +271,26 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     missing <- is.na(original)
     original[missing] <- bit64::as.integer64(result[[var_name]][missing])
     attributes(original) <- attributes(integer64_original[[var_name]])
+    result[[var_name]] <- original
+  }
+  for (var_name in names(time_original)) {
+    original <- time_original[[var_name]]
+    values <- result[[var_name]]
+    if (inherits(original, "Date")) {
+      values <- as.Date(values, origin = "1970-01-01")
+    } else if (inherits(original, "POSIXt")) {
+      tz <- attr(original, "tzone")
+      tz <- if (length(tz)) tz[1] else ""
+      values <- as.POSIXct(values, origin = "1970-01-01", tz = tz)
+      if (inherits(original, "POSIXlt")) values <- as.POSIXlt(values, tz = tz)
+    } else if (inherits(original, "difftime")) {
+      values <- as.difftime(values, units = attr(original, "units"))
+    } else {
+      values <- lubridate::duration(values)
+    }
+    missing <- is.na(original)
+    original[missing] <- values[missing]
+    attributes(original) <- attributes(time_original[[var_name]])
     result[[var_name]] <- original
   }
   remaining <- vapply(result[vars_with_missing], function(x) sum(is.na(x)), numeric(1))
