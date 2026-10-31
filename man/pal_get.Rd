@@ -26,8 +26,10 @@ are taken from the front when \code{n} is at most the palette length and
 interpolated when it is longer. Default \code{NULL} returns all colours in
 the palette.}
 
-\item{x}{Optional vector to map colours to. If character/factor, returns
-a named colour vector. If numeric, interpolates along the palette.}
+\item{x}{Optional vector to map colours to. If character, factor or logical,
+returns a colour vector named by level: factor levels in their order, other
+values in order of appearance, missing values left out. If numeric,
+interpolates along the palette.}
 
 \item{reverse}{Logical, reverse colour order. Default \code{FALSE}.}
 

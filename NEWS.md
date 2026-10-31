@@ -1,5 +1,7 @@
 # UtilsR 0.6.18
 
+* `pal_get()` names the colours it maps to a character, factor or logical `x`, as its help page says, so `scale_color_manual(values = pal_get("lancet", x = c("B", "A")))` colours each level as asked. Missing values of `x` are left out.
+
 * `PlotRankCor()` warns when mapped size or alpha columns have no finite category/group means, preserving the missing mapping and correlation statistics.
 
 * `PlotRankCor()` respects an explicit hidden legend and retains its automatic mapping legend when the setting is omitted.

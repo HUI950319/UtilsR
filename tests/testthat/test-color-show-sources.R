@@ -271,9 +271,9 @@ test_that("pal_get takes a colour vector as well as a registered name", {
   # interpolation keeps the two ends (colorRampPalette upper-cases its hex)
   expect_identical(tolower(pal_get(cols, n = 7)[c(1, 7)]), cols[c(1, 3)])
   expect_identical(pal_get(cols, reverse = TRUE), rev(cols))
-  # `x` maps level by level (the names are dropped on the way out, as they
-  # already are for a registered palette)
-  expect_identical(pal_get(cols, x = c("a", "b", "c")), cols)
+  # `x` maps level by level
+  expect_identical(pal_get(cols, x = c("a", "b", "c")),
+                   stats::setNames(cols, c("a", "b", "c")))
 
   # a single literal colour is taken as such, a typo still is not
   expect_identical(pal_get("red"), "red")
@@ -303,7 +303,7 @@ test_that("pal_get keeps transparency when it interpolates", {
   expect_identical(pal_get("#FF000080", n = 2), rep("#FF000080", 2))
   expect_identical(pal_get(c("#FF000080", "#0000FF80"), n = 3),
                    c("#FF000080", "#7F007F80", "#0000FF80"))
-  expect_identical(pal_get("#FF000080", x = c("a", "b", "c")), rep("#FF000080", 3))
+  expect_identical(unname(pal_get("#FF000080", x = c("a", "b", "c"))), rep("#FF000080", 3))
 
   # Opaque colours stay six digits, and `alpha` still overrides.
   expect_identical(pal_get("red", n = 2), rep("#FF0000", 2))
@@ -369,4 +369,34 @@ test_that("pal_get checks n, reverse and alpha", {
   expect_identical(pal_get("lancet", n = 2L), as.character(pal_lancet)[1:2])
   expect_identical(pal_get("lancet", n = 1, alpha = 0), "#00468B00")
   expect_identical(pal_get("lancet", n = 1, alpha = 1), "#00468BFF")
+})
+
+test_that("pal_get names the colours it maps to a discrete x", {
+  lancet <- as.character(pal_lancet)
+  expect_identical(pal_get("lancet", x = c("A", "B", "C")),
+                   stats::setNames(lancet[1:3], c("A", "B", "C")))
+
+  # Order of appearance, factor levels with unused ones, no missing values.
+  expect_named(pal_get("lancet", x = c("B", "A", "B")), c("B", "A"))
+  expect_named(pal_get("lancet", x = c("A", NA, "B")), c("A", "B"))
+  expect_named(pal_get("lancet", x = factor(c("b", NA), levels = c("b", "a", "c"))),
+               c("b", "a", "c"))
+  expect_named(pal_get("lancet", x = c(TRUE, FALSE)), c("TRUE", "FALSE"))
+  expect_named(pal_get("lancet", x = paste0("L", 1:20)), paste0("L", 1:20))
+
+  # Names survive `reverse` and `alpha`, and the list form.
+  expect_identical(pal_get("lancet", x = c("A", "B"), reverse = TRUE),
+                   stats::setNames(lancet[2:1], c("A", "B")))
+  expect_named(pal_get("lancet", x = c("A", "B"), alpha = 0.5), c("A", "B"))
+  expect_named(pal_get(pal_heat, x = c("A", "B"))$blue_red, c("A", "B"))
+
+  # Without `x` the colours stay unnamed.
+  expect_null(names(pal_get("paraSC", n = 2)))
+
+  # The help page's use: each level gets the colour asked for.
+  d <- data.frame(v = 1:2, g = factor(c("A", "B")))
+  p <- ggplot2::ggplot(d, ggplot2::aes(v, v, colour = g)) +
+    ggplot2::geom_point() +
+    ggplot2::scale_colour_manual(values = pal_get(c("#111111", "#222222"), x = c("B", "A")))
+  expect_identical(ggplot2::layer_data(p)$colour, c("#222222", "#111111"))
 })

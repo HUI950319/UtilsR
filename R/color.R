@@ -339,8 +339,10 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
 #'   are taken from the front when \code{n} is at most the palette length and
 #'   interpolated when it is longer. Default \code{NULL} returns all colours in
 #'   the palette.
-#' @param x Optional vector to map colours to. If character/factor, returns
-#'   a named colour vector. If numeric, interpolates along the palette.
+#' @param x Optional vector to map colours to. If character, factor or logical,
+#'   returns a colour vector named by level: factor levels in their order, other
+#'   values in order of appearance, missing values left out. If numeric,
+#'   interpolates along the palette.
 #' @param reverse Logical, reverse colour order. Default \code{FALSE}.
 #' @param alpha Numeric 0-1, colour transparency. Default 1 leaves colours as
 #'   they are, keeping any transparency of their own.
@@ -480,7 +482,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
       out <- ramp(length(x))
     } else {
       # Discrete: map levels
-      lvs <- if (is.factor(x)) levels(x) else unique(x)
+      lvs <- if (is.factor(x)) levels(x) else unique(x[!is.na(x)])
       n_lvs <- length(lvs)
       if (n_lvs <= length(cols)) {
         out <- stats::setNames(cols[seq_len(n_lvs)], lvs)
@@ -507,16 +509,18 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
       out <- rev(out)
     }
   }
+  nms <- if (!is.null(x) && !is.numeric(x)) names(out)
+
   # Alpha
   if (alpha < 1) {
     out <- ggplot2::alpha(out, alpha)
   }
 
-  as.character(out)
+  stats::setNames(as.character(out), nms)
 }
 
-# `.pal_apply()` drops names and attributes on the way out, both of which a
-# display function still needs: the names label a vector such as `pal_paraSC`,
+# `.pal_apply()` keeps names only for a discrete `x` and drops attributes, both
+# of which a display function still needs: the names label a vector such as `pal_paraSC`,
 # and the "type" attribute fills the Type column.
 #' @keywords internal
 #' @noRd
