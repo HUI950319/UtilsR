@@ -1,5 +1,8 @@
 # UtilsR 0.6.19
 
+* `plt_con()` retains shared automatic axes across separate feature plots after
+  continuous scale transformations, including transformed bar SD intervals.
+
 * `plt_con()` disambiguates distinct numeric grouping, splitting, and background
   categories when their ordinary display labels collide.
 

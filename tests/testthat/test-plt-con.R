@@ -612,6 +612,81 @@ test_that("con added log scales use transformed bar summaries for automatic anno
   }
 })
 
+test_that("con transformed separate plots retain shared limits and annotation space", {
+  d <- con_data()
+  for (type in c("box", "bar")) for (flip in c(FALSE, TRUE)) {
+    out <- suppressMessages(plt_con(d, c("x", "z"), "g", type = type, flip = flip,
+      same.y.lims = TRUE, comparisons = list(c("A", "B")), multiplegroup_comparisons = TRUE,
+      combine = FALSE))
+    built <- lapply(out, function(p) {
+      q <- suppressMessages(p + ggplot2::scale_y_log10())
+      if (type == "bar") {
+        expect_warning(b <- ggplot2::ggplot_build(q),
+                       "(log-10 transformation introduced|Transformation introduced) infinite values")
+      } else b <- ggplot2::ggplot_build(q)
+      b
+    })
+    axis <- if (flip) "x.range" else "y.range"
+    expect_equal(built[[1L]]$layout$panel_params[[1L]][[axis]], built[[2L]]$layout$panel_params[[1L]][[axis]])
+    for (b in built) {
+      annotations <- tail(b$data, 2L)
+      expect_gt(b$layout$panel_params[[1L]][[axis]][2L], max(annotations[[1L]]$y, annotations[[2L]]$y))
+    }
+  }
+})
+
+test_that("con transformed shared axes follow native ranges and preserve explicit partial bounds", {
+  d <- con_data()
+  for (scale in list(ggplot2::scale_y_sqrt(), ggplot2::scale_y_reverse())) {
+    out <- suppressMessages(plt_con(d, c("x", "z"), "g", type = "box", same.y.lims = TRUE, combine = FALSE))
+    ranges <- lapply(out, function(p) ggplot2::ggplot_build(suppressMessages(p + scale))$layout$panel_params[[1L]]$y.range)
+    native <- ggplot2::ggplot(data.frame(value = c(d$x, d$z)), ggplot2::aes(x = 1, y = value)) +
+      ggplot2::geom_point() + scale
+    expect_equal(unname(ranges[[1L]]), unname(ggplot2::ggplot_build(native)$layout$panel_params[[1L]]$y.range))
+    expect_equal(ranges[[1L]], ranges[[2L]])
+  }
+  out <- suppressMessages(plt_con(d, c("x", "z"), "g", type = "box", same.y.lims = TRUE,
+                                  y.min = 1, combine = FALSE))
+  built <- lapply(out, function(p) ggplot2::ggplot_build(suppressMessages(p + ggplot2::scale_y_log10())))
+  expect_equal(built[[1L]]$layout$panel_params[[1L]]$y.range, built[[2L]]$layout$panel_params[[1L]]$y.range)
+  expect_equal(out[[1L]]$coordinates$limits$y[1L], 1)
+  out <- suppressMessages(plt_con(d, c("x", "z"), "g", type = "box", same.y.lims = TRUE,
+                                  y.min = 1, y.max = 100, combine = FALSE))
+  built <- lapply(out, function(p) ggplot2::ggplot_build(suppressMessages(p + ggplot2::scale_y_reverse())))
+  for (b in built) expect_equal(sort(unname(b$layout$panel_params[[1L]]$y.range)), c(-104.95, 3.95))
+})
+
+test_that("con shared range reuse is independent of sibling transformations", {
+  d <- con_data()
+  out <- suppressMessages(plt_con(d, c("x", "z"), "g", type = "bar", same.y.lims = TRUE, combine = FALSE))
+  p <- suppressMessages(out[[1L]] + ggplot2::scale_y_log10())
+  q <- suppressMessages(out[[2L]] + ggplot2::scale_y_sqrt())
+  first <- suppressWarnings(ggplot2::ggplot_build(p))
+  invisible(ggplot2::ggplot_build(q))
+  second <- suppressWarnings(ggplot2::ggplot_build(p))
+  expect_equal(first$layout$panel_params[[1L]]$y.range, second$layout$panel_params[[1L]]$y.range)
+  expect_equal(first$data, second$data)
+  expect_equal(ggplot2::ggplot_build(out[[1L]])$data[[2L]]$y, c(3.5, 12.5))
+  expect_identical(out[[1L]]$data$value, d$x)
+})
+
+test_that("con shared transformed bar limits contain every feature SD interval", {
+  d <- data.frame(x = c(1, 100, 2, 200), z = c(10, 1000, 20, 2000),
+                  g = rep(c("A", "B"), each = 2))
+  out <- suppressMessages(plt_con(d, c("x", "z"), "g", type = "bar", same.y.lims = TRUE,
+    comparisons = list(c("A", "B")), combine = FALSE))
+  ranges <- lapply(out, function(p) {
+    q <- suppressMessages(p + ggplot2::scale_y_log10())
+    expect_warning(b <- ggplot2::ggplot_build(q),
+                   "(log-10 transformation introduced|Transformation introduced) infinite values")
+    bracket <- tail(b$data, 1L)[[1L]]
+    expect_gt(min(bracket$y), max(b$data[[3L]]$ymax))
+    expect_gt(b$layout$panel_params[[1L]]$y.range[2L], max(bracket$y))
+    b$layout$panel_params[[1L]]$y.range
+  })
+  expect_equal(ranges[[1L]], ranges[[2L]])
+})
+
 test_that("con transformed comparison axes retain explicit raw zoom bounds", {
   for (stack in c(FALSE, TRUE)) {
     p <- con_plot(con_data(), c("x", "z"), type = "bar", stack = stack,

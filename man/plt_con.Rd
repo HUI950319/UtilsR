@@ -162,7 +162,9 @@ Default \code{"kruskal.test"}.}
 
 \item{same.y.lims}{Logical. Use same y limits across features?
 Default \code{FALSE}, including stacked and flipped panels. Explicit
-\code{y.min}/\code{y.max} bounds apply to every feature.}
+\code{y.min}/\code{y.max} bounds apply to every feature.
+Shared automatic ranges remain shared when a continuous y-scale
+transformation is added, including transformed bar SD intervals.}
 
 \item{y.min}{Numeric or character scalar. Minimum y-axis limit.
 A finite number or \code{"qN"} for integer N from 0 to 100.

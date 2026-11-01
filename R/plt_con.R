@@ -21,6 +21,7 @@
 #         +-- L2  .con_global_layer()  skip degenerate global annotations
 #         +-- L2  .con_stat_layer()   group statistical layers by displayed x
 #         +-- L2  .con_coord()        adapt automatic bounds to added y scales
+#         +-- L2  .con_shared_range() shared transformed ranges and annotation room
 #         +-- L2  .con_facet_scales()  per-feature zoom without filtering stats
 #         +-- L2  .con_bar_range()     full mean +/- SD range and zero baseline
 #         +-- L2  .con_base_plot()     small plot and mapping environment
@@ -110,6 +111,8 @@
 #' @param same.y.lims Logical. Use same y limits across features?
 #'   Default \code{FALSE}, including stacked and flipped panels. Explicit
 #'   \code{y.min}/\code{y.max} bounds apply to every feature.
+#'   Shared automatic ranges remain shared when a continuous y-scale
+#'   transformation is added, including transformed bar SD intervals.
 #' @param y.min Numeric or character scalar. Minimum y-axis limit.
 #'   A finite number or \code{"qN"} for integer N from 0 to 100.
 #'   Character \code{"qN"} uses the Nth percentile. Default \code{NULL};
@@ -603,6 +606,7 @@ plt_con <- function(data,
   # --- Global y limits (same.y.lims) -----------------------------------------
   global_y_min <- NULL
   global_y_max <- NULL
+  shared_range <- NULL
   if (isTRUE(same.y.lims) && !(isTRUE(stack) && length(stat.by) > 1L)) {
     all_values <- unlist(lapply(stat.by, function(s) {
       v <- data[[s]]
@@ -615,6 +619,19 @@ plt_con <- function(data,
     })) else all_values
     global_y_max <- .resolve_y_limit(y.max, if (is.null(y.max)) auto_values else all_values, side = "max")
     global_y_min <- .resolve_y_limit(y.min, if (is.null(y.min)) auto_values else all_values, side = "min")
+    if (is.null(y.min) || is.null(y.max)) {
+      shared_values <- range(all_values)
+      shared_groups <- NULL
+      if (type == "bar") {
+        shared_values <- all_values
+        ids <- match(data[[group.by]], unique(data[[group.by]]))
+        shared_groups <- unlist(lapply(seq_along(stat.by), function(i) {
+          (i - 1L) * max(ids) + ids[is.finite(data[[stat.by[i]]])]
+        }), use.names = FALSE)
+      }
+      shared_range <- .con_shared_range(shared_values, shared_groups, length(comparisons),
+                                        multiplegroup_comparisons)
+    }
   }
 
   # --- Build one plot per feature --------------------------------------------
@@ -635,7 +652,8 @@ plt_con <- function(data,
       multiple_method = multiple_method,
       sig_label = sig_label, sig_labelsize = sig_labelsize,
       y.min = global_y_min %||% y.min, y.max = global_y_max %||% y.max,
-      auto_y_min = is.null(y.min), auto_y_max = is.null(y.max), y.nbreaks = y.nbreaks, flip = flip,
+      auto_y_min = is.null(y.min), auto_y_max = is.null(y.max), shared_range = shared_range,
+      y.nbreaks = y.nbreaks, flip = flip,
       comparison_count = if (isTRUE(same.y.lims)) length(comparisons) else NULL,
       title = title, subtitle = subtitle,
       xlab = xlab %||% (if (dummy_group) "" else group.by),
@@ -893,8 +911,10 @@ plt_con <- function(data,
       if (!identical(scales$y$get_transformation()$name, "identity")) {
         key <- if (inherits(stat, "StatSignif")) "y_position" else "label.y"
         if (annotation[["auto"]]) {
-          bounds <- if (annotation[["type"]] == "bar") .con_bar_range(data$y, data$x) else
-            range(data$y, finite = TRUE)
+          shared <- annotation[["shared"]]
+          bounds <- if (!is.null(shared)) shared(scales$y)[["data"]] else
+            if (annotation[["type"]] == "bar") .con_bar_range(data$y, data$x) else
+              range(data$y, finite = TRUE)
           span <- max(diff(bounds), diff(scales$y$range$range))
           offset <- annotation[["offset"]]
           if (length(offset) > 1L) offset <- offset[as.integer(data$PANEL[1L])]
@@ -970,15 +990,44 @@ plt_con <- function(data,
   )
 }
 
-.con_coord <- function(flip, limits, automatic) {
+.con_shared_range <- function(values, groups, comparisons, global) {
+  force(values)
+  force(groups)
+  force(comparisons)
+  force(global)
+  previous <- cached <- NULL
+  function(scale) {
+    transformation <- scale$get_transformation()
+    if (identical(transformation, previous)) return(cached)
+    transformed <- scale$transform(values)
+    keep <- is.finite(transformed)
+    bounds <- if (is.null(groups)) range(transformed[keep]) else
+      .con_bar_range(transformed[keep], groups[keep])
+    limits <- bounds
+    limits[2L] <- limits[2L] + diff(limits) * 0.15 * comparisons
+    if (isTRUE(global)) limits[2L] <- limits[2L] + diff(limits) * 0.1
+    cached <<- list(data = bounds, limits = limits)
+    previous <<- transformation
+    cached
+  }
+}
+
+.con_coord <- function(flip, limits, automatic, shared = NULL) {
   force(automatic)
+  force(shared)
   coord <- if (isTRUE(flip)) ggplot2::coord_flip(ylim = limits) else
     ggplot2::coord_cartesian(ylim = limits)
   ggplot2::ggproto(NULL, coord,
     setup_panel_params = function(self, scale_x, scale_y, ...) {
       bounds <- self$limits
       if (!is.null(bounds[["y"]]) && !identical(scale_y$get_transformation()$name, "identity")) {
-        bounds[["y"]][automatic] <- NA_real_
+        if (is.null(shared)) {
+          bounds[["y"]][automatic] <- NA_real_
+        } else {
+          inverse <- scale_y$get_transformation()$inverse(shared(scale_y)[["limits"]])
+          bounds[["y"]][automatic] <- sort(inverse)[automatic]
+          if (inverse[1L] > inverse[2L]) bounds[["y"]] <- rev(bounds[["y"]])
+        }
       }
       adjusted <- ggplot2::ggproto(NULL, coord, limits = bounds)
       adjusted$setup_panel_params(scale_x, scale_y, ...)
@@ -1031,7 +1080,7 @@ plt_con <- function(data,
                              comparisons, ref_group, pairwise_method,
                              multiplegroup_comparisons, multiple_method,
                              sig_label, sig_labelsize, comparison_count,
-                              y.min, y.max, auto_y_min, auto_y_max, y.nbreaks, flip,
+                              y.min, y.max, auto_y_min, auto_y_max, shared_range, y.nbreaks, flip,
                              title, subtitle, xlab, ylab, fill_title,
                              legend.position, legend.direction,
                              aspect.ratio, base_size,
@@ -1199,7 +1248,7 @@ plt_con <- function(data,
   if (length(comparisons)) {
     p <- p + .con_comparison_layer(
       comparisons = comparisons,
-      .annotation = list(type = type, auto = auto_y_max, offset = 0),
+      .annotation = list(type = type, auto = auto_y_max, offset = 0, shared = shared_range),
       ref.group = ref_group,
       method = pairwise_method,
       label = sig_label,
@@ -1214,7 +1263,8 @@ plt_con <- function(data,
 
   if (isTRUE(multiplegroup_comparisons)) {
     p <- p + .con_component(.con_global_layer, features = feature,
-      .annotation = list(type = type, auto = auto_y_max, offset = 0.15 * comparison_count),
+      .annotation = list(type = type, auto = auto_y_max, offset = 0.15 * comparison_count,
+                         shared = shared_range),
       method = multiple_method,
       label = sig_label,
       label.y = annotation_y_max,
@@ -1226,7 +1276,7 @@ plt_con <- function(data,
   if (isTRUE(auto_y_max)) y_max_use <- annotation_y_max
 
   # --- Coordinates & scales ---------------------------------------------------
-  p <- p + .con_coord(flip, c(y_min_use, y_max_use), c(auto_y_min, auto_y_max))
+  p <- p + .con_coord(flip, c(y_min_use, y_max_use), c(auto_y_min, auto_y_max), shared_range)
 
   p <- p + ggplot2::scale_y_continuous(n.breaks = y.nbreaks)
 
