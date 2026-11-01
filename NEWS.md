@@ -1,5 +1,8 @@
 # UtilsR 0.6.19
 
+* `plt_con()` inherits added continuous scale transformations in independent
+  stacked quantile zooms while computing statistics from all observations.
+
 * `plt_con()` preserves date-time categories used for grouping, splitting,
   and background bands instead of converting valid groups to missing values.
 

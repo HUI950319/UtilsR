@@ -948,6 +948,48 @@ test_that("con independent stacked quantile zoom uses each feature without filte
   }
 })
 
+test_that("con stacked quantile zoom inherits added y transformations and keeps full-data statistics", {
+  d <- con_data()
+  for (flip in c(FALSE, TRUE)) {
+    p <- con_plot(d, c("x", "z"), type = "box", stack = TRUE, flip = flip,
+                  y.min = "q10", y.max = "q90")
+    q <- suppressMessages(p + ggplot2::scale_y_log10())
+    baseline <- suppressMessages(con_plot(d, c("x", "z"), type = "box", stack = TRUE,
+                                          flip = flip) + ggplot2::scale_y_log10())
+    separate <- suppressMessages(plt_con(d, c("x", "z"), "g", type = "box", flip = flip,
+                                         y.min = "q10", y.max = "q90", combine = FALSE))
+    b <- ggplot2::ggplot_build(q)
+    axis <- if (flip) "x.range" else "y.range"
+    for (i in 1:2) {
+      reference <- ggplot2::ggplot_build(suppressMessages(separate[[i]] + ggplot2::scale_y_log10()))
+      expect_equal(unname(b$layout$panel_params[[i]][[axis]]), unname(reference$layout$panel_params[[1L]][[axis]]))
+      expect_identical(b$layout$panel_scales_y[[i]]$get_transformation()$name, "log-10")
+      medians <- b$data[[2L]]$y[as.integer(b$data[[2L]]$PANEL) == i]
+      expect_true(all(medians > b$layout$panel_params[[i]][[axis]][1L]))
+      expect_true(all(medians < b$layout$panel_params[[i]][[axis]][2L]))
+    }
+    keys <- c("lower", "middle", "upper", "ymin", "ymax")
+    expect_equal(b$data[[1L]][keys], ggplot2::ggplot_build(baseline)$data[[1L]][keys])
+    expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+    expect_identical(ggplot2::ggplot_build(p)$layout$panel_scales_y[[1L]]$get_transformation()$name, "identity")
+  }
+})
+
+test_that("con stacked quantile bar statistics respect added sqrt scales and fixed partial bounds", {
+  d <- data.frame(x = c(1, 4, 9, 100), z = c(4, 16, 36, 400), g = rep(c("A", "B"), each = 2))
+  p <- con_plot(d, c("x", "z"), type = "bar", stack = TRUE, y.min = 1, y.max = "q90")
+  q <- suppressMessages(p + ggplot2::scale_y_sqrt())
+  baseline <- suppressMessages(con_plot(d, c("x", "z"), type = "bar", stack = TRUE) +
+                                 ggplot2::scale_y_sqrt())
+  b <- ggplot2::ggplot_build(q)
+  expect_equal(b$data[[2L]]$y, c(1.5, 6.5, 3, 13))
+  expect_equal(b$data[[2L]]$y, ggplot2::ggplot_build(baseline)$data[[2L]]$y)
+  for (i in 1:2) {
+    expected <- sqrt(c(1, unname(stats::quantile(d[[c("x", "z")[i]]], 0.9))))
+    expect_equal(unname(b$layout$panel_scales_y[[i]]$get_limits()), expected)
+  }
+})
+
 test_that("con singleton violin groups retain raw points and summary overlays", {
   d <- data.frame(x = c(1:4, 10), g = c(rep("A", 4), "B"))
   expect_warning(p <- con_plot(d, type = "violin", add_point = TRUE, add_trend = TRUE),

@@ -122,6 +122,8 @@
 #'   Independent axes reserve space only for valid pairwise comparisons.
 #'   Added continuous y-scale transformations update automatic bounds and
 #'   annotation positions using the transformed observations and summaries.
+#'   Independent stacked quantile bounds inherit added scale transformations
+#'   without filtering observations before statistics are calculated.
 #' @param y.nbreaks Integer. Number of y-axis breaks. Default 5.
 #' @param sort Logical or character. Sort groups by the median of finite observations?
 #'   \code{TRUE} or \code{"decreasing"} for descending,
@@ -942,13 +944,20 @@ plt_con <- function(data,
   layer
 }
 
-.con_facet_scales <- function(limits, nbreaks) {
+.con_facet_scales <- function(facet, limits) {
+  force(facet)
   force(limits)
-  force(nbreaks)
-  lapply(limits, function(bounds) {
-    force(bounds)
-    ggplot2::scale_y_continuous(limits = bounds, breaks = scales::breaks_pretty(n = nbreaks))
-  })
+  ggplot2::ggproto(NULL, facet,
+    init_scales = function(layout, x_scale = NULL, y_scale = NULL, params) {
+      result <- facet$init_scales(layout, x_scale, y_scale, params)
+      for (i in seq_along(result$y)) {
+        feature <- as.character(layout$feature[match(i, layout$SCALE_Y)])
+        result$y[[i]]$limits <- result$y[[i]]$transform(limits[[feature]])
+        result$y[[i]]$oob <- scales::oob_keep
+      }
+      result
+    }
+  )
 }
 
 .con_coord <- function(flip, limits, automatic) {
@@ -1465,11 +1474,11 @@ plt_con <- function(data,
   if (all(is.na(axis_limits))) axis_limits <- NULL
   feature_limits <- NULL
   if (!isTRUE(same.y.lims) && (is.character(y.min) || is.character(y.max))) {
-    feature_limits <- lapply(stat.by, function(f) {
+    feature_limits <- stats::setNames(lapply(stat.by, function(f) {
       v <- dat_long[["value"]][dat_long[["feature"]] == f]
       c(if (is.null(y.min)) NA_real_ else .resolve_y_limit(y.min, v, "min"),
         if (is.null(y.max)) NA_real_ else .resolve_y_limit(y.max, v, "max"))
-    })
+    }), stat.by)
     axis_limits <- NULL
   }
   facet_scales <- if (isTRUE(same.y.lims)) "fixed" else if (isTRUE(flip)) "free_x" else "free_y"
@@ -1494,7 +1503,7 @@ plt_con <- function(data,
     ggplot2::scale_fill_manual(values = colors, drop = FALSE) +
     ggplot2::scale_x_discrete(drop = FALSE)
   if (length(feature_limits)) {
-    p <- p + ggh4x::facetted_pos_scales(y = .con_facet_scales(feature_limits, y.nbreaks))
+    p$facet <- .con_facet_scales(p$facet, feature_limits)
   }
 
   # --- Theme ---

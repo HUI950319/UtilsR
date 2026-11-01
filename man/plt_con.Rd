@@ -176,7 +176,9 @@ Character \code{"qN"} uses the Nth percentile. Default \code{NULL}.
 Automatic limits leave room for comparisons; explicit bounds are preserved.
 Independent axes reserve space only for valid pairwise comparisons.
 Added continuous y-scale transformations update automatic bounds and
-annotation positions using the transformed observations and summaries.}
+annotation positions using the transformed observations and summaries.
+Independent stacked quantile bounds inherit added scale transformations
+without filtering observations before statistics are calculated.}
 
 \item{y.nbreaks}{Integer. Number of y-axis breaks. Default 5.}
 
