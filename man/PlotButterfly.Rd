@@ -110,7 +110,9 @@ for \code{alpha.by} mapping. Default \code{c(0.3, 1)}.}
 to the \code{value.by} column within each combination of
 \code{group.by} and \code{fill.by} (bar mode only). Useful when
 comparing methods that produce values on different scales.
-Default \code{FALSE}.}
+Default \code{FALSE}.
+Non-constant groups use their observed range without a fixed epsilon;
+constant groups map to zero.}
 
 \item{bar.width}{Numeric. Bar width (bar mode). Default 0.7.}
 

@@ -69,6 +69,8 @@
 #'   \code{group.by} and \code{fill.by} (bar mode only). Useful when
 #'   comparing methods that produce values on different scales.
 #'   Default \code{FALSE}.
+#'   Non-constant groups use their observed range without a fixed epsilon;
+#'   constant groups map to zero.
 #' @param add_box Logical. Overlay boxplot on violins (violin mode)?
 #'   Default \code{TRUE}.
 #' @param box.width Numeric. Box overlay width. Default 0.15.
@@ -227,8 +229,18 @@ PlotButterfly <- function(
         split(data, interaction(data[[group.by]], data[[fill.by]], drop = TRUE)),
         function(d) {
           rng <- range(d[[value.by]], na.rm = TRUE)
-          d[[value.by]] <- (d[[value.by]] - rng[1]) /
-            (rng[2] - rng[1] + 1e-12)
+          if (rng[1] == rng[2]) {
+            d[[value.by]] <- ifelse(is.na(d[[value.by]]), NA_real_, 0)
+          } else {
+            span <- rng[2] - rng[1]
+            if (is.finite(span)) {
+              d[[value.by]] <- (d[[value.by]] - rng[1]) / span
+            } else {
+              scale <- max(abs(rng))
+              d[[value.by]] <- (d[[value.by]] / scale - rng[1] / scale) /
+                (rng[2] / scale - rng[1] / scale)
+            }
+          }
           d
         }
       ))

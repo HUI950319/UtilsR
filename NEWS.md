@@ -1,5 +1,7 @@
 # UtilsR 0.6.20
 
+* `PlotButterfly(minmax = TRUE)` scales small and extreme finite ranges without a fixed epsilon and retains zero scores for constant groups.
+
 * `PlotButterfly2()` resolves category colours and continuous gradient limits across both panels, keeping identical categories and values visually comparable.
 
 * `PlotScatter3()` derives automatic histogram limits from finite paired differences, retaining translated and constant differences while honouring explicit limits.

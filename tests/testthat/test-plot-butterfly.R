@@ -27,3 +27,16 @@ test_that("PlotButterfly2 shares the gradient range across panels", {
     expect_equal(scales[[2]]$get_limits(), c(-4, 4))
   }
 })
+
+test_that("PlotButterfly minmax scaling respects small and constant ranges", {
+  for (values in list(c(1e-14, 2e-14, 3e-14), c(7, 7, 7), c(-1e308, 0, 1e308))) {
+    data <- data.frame(stat = rep(letters[1:3], 2), fill = "F",
+                       group = rep(c("L", "R"), each = 3), value = rep(values, 2))
+    original <- data
+    plot <- PlotButterfly(data, stat.by = "stat", fill.by = "fill", value.by = "value",
+                          group.by = "group", minmax = TRUE)
+    expected <- if (length(unique(values)) == 1) rep(0, 3) else c(0, 0.5, 1)
+    for (i in 1:2) expect_equal(plot[[i]]$data$value, expected)
+    expect_identical(data, original)
+  }
+})
