@@ -1143,3 +1143,21 @@ test_that("multiline key-value fields and notes retain ANSI styles", {
                    c("  value  first", "         ", "         second"))
   expect_identical(utils::capture.output(pr_note(text)), c("# first", "# ", "# second"))
 })
+
+test_that("root S4 trees retain inherited data slots", {
+  withr::local_options(cli.num_colors = 1)
+  gen <- methods::setClass("PrTreeNumber", contains = "numeric",
+                          slots = c(label = "character"), where = new.env())
+  out <- utils::capture.output(pr_tree(gen(c(3, 4), label = "time")))
+  expect_match(out[1], "<S4 2>", fixed = TRUE)
+  expect_match(paste(out, collapse = " "), "@.Data", fixed = TRUE)
+  expect_match(paste(out, collapse = " "), "<dbl 2> 3, 4", fixed = TRUE)
+  expect_match(paste(out, collapse = " "), "@label", fixed = TRUE)
+  skip_if_not_installed("lubridate")
+  out <- utils::capture.output(pr_tree(lubridate::seconds(c(15, 30))))
+  expect_match(out[1], "<S4 6>", fixed = TRUE)
+  expect_match(paste(out, collapse = " "), "<dbl 2> 15, 30", fixed = TRUE)
+  out <- utils::capture.output(pr_tree(lubridate::dseconds(c(15, 30))))
+  expect_match(out[1], "<S4 1>", fixed = TRUE)
+  expect_match(paste(out, collapse = " "), "<dbl 2> 15, 30", fixed = TRUE)
+})

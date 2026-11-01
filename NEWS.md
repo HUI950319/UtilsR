@@ -1,5 +1,8 @@
 # UtilsR 0.6.20
 
+* `pr_tree()` includes inherited `.Data` slots when opening S4 objects,
+  retaining the seconds in Period and Duration vectors.
+
 * `pr_kv()`, named `pr_box()` inputs and `pr_note()` preserve ANSI styles
   across embedded newlines, including blank separator lines.
 

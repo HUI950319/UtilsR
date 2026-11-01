@@ -41,7 +41,8 @@ user-missing values display as \code{NA}.
 }
 \details{
 The object passed in always opens: a model fit lists its components, a
-data frame its columns and an S4 object its slots (as \code{@name}). Below
+data frame its columns and an S4 object its slots (as \code{@name}),
+including inherited \code{.Data} storage. Below
 it the tree descends into plain lists and into classed objects that also
 inherit from \code{"list"} (as \code{c("eff_res", "list")} does). Data
 frames, plots and other objects are leaves, and so are gt tables, RegR

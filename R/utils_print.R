@@ -829,7 +829,8 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
 #' user-missing values display as \code{NA}.
 #'
 #' The object passed in always opens: a model fit lists its components, a
-#' data frame its columns and an S4 object its slots (as \code{@name}). Below
+#' data frame its columns and an S4 object its slots (as \code{@name}),
+#' including inherited \code{.Data} storage. Below
 #' it the tree descends into plain lists and into classed objects that also
 #' inherit from \code{"list"} (as \code{c("eff_res", "list")} does). Data
 #' frames, plots and other objects are leaves, and so are gt tables, RegR
@@ -882,8 +883,9 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
   opens <- function(v, depth) descend(v) || (depth == 0 && (is.list(v) || isS4(v)))
   parts <- function(v) {
     if (!isS4(v) || is.list(v)) return(v)
-    s <- setdiff(names(attributes(v)), "class")
-    stats::setNames(lapply(s, function(a) attr(v, a, exact = TRUE)), paste0("@", s))
+    s <- methods::slotNames(v)
+    stats::setNames(lapply(s, function(a) methods::slot(v, a)),
+                    if (length(s)) paste0("@", s) else character())
   }
   # attributes beyond those a type keeps for itself (factor levels, a time
   # zone, value labels, a formula's environment, S7 properties), as str()
