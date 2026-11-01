@@ -50,7 +50,18 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.20" id="utilsr-0620">UtilsR 0.6.20<a class="anchor" aria-label="anchor" href="#utilsr-0620"></a></h2>
-<ul><li><p><code><a href="../reference/stat_ci_parse.html">stat_ci_parse()</a></code> uses stable log ratios for scale comparisons, avoiding intermediate overflow or underflow for finite extreme intervals while retaining precision for close bounds.</p></li>
+<ul><li><p>stat_ci_parse() avoids intermediate overflow in raw-scale symmetry checks and standard errors for extreme finite confidence intervals without changing scale or rounding rules.</p></li>
+<li><p>PlotCircleLollipop() restores margins, clears chart state on errors, and closes only its own saved-file device while restoring the caller device.</p></li>
+<li><p>PlotCircleLollipop() keeps constant out-of-range scores visible at the existing minimum global height instead of producing NaN positions.</p></li>
+<li><p>PlotRank() skips unused and entirely missing groups before scaling and reports a clear error if no selected group has valid scores.</p></li>
+<li><p><code><a href="../reference/PlotButterfly2.html">PlotButterfly2()</a></code> honours box-only output and violin scaling without fill groups, and saves the completed layers through the same path as the returned plot.</p></li>
+<li><p><code><a href="../reference/PlotDumbbell.html">PlotDumbbell()</a></code> identifies automatic inset pairs by retained row rather than category label, keeping repeated labels from connecting unrelated observations.</p></li>
+<li><p><code>PlotButterfly(minmax = TRUE)</code> scales small and extreme finite ranges without a fixed epsilon and retains zero scores for constant groups.</p></li>
+<li><p><code><a href="../reference/PlotButterfly2.html">PlotButterfly2()</a></code> resolves category colours and continuous gradient limits across both panels, keeping identical categories and values visually comparable.</p></li>
+<li><p><code><a href="../reference/PlotScatter3.html">PlotScatter3()</a></code> derives automatic histogram limits from finite paired differences, retaining translated and constant differences while honouring explicit limits.</p></li>
+<li><p><code><a href="../reference/PlotDumbbell.html">PlotDumbbell()</a></code> isolates generated delta fields from existing input columns, preserving endpoints, sorting and delta labels when names collide.</p></li>
+<li><p><code><a href="../reference/PlotRank.html">PlotRank()</a></code> validates one-dimensional real score storage, rejects unsupported classes explicitly, and excludes labelled missing scores even in fresh R sessions.</p></li>
+<li><p><code><a href="../reference/stat_ci_parse.html">stat_ci_parse()</a></code> uses stable log ratios for scale comparisons, avoiding intermediate overflow or underflow for finite extreme intervals while retaining precision for close bounds.</p></li>
 <li><p><code><a href="../reference/plt_sankey.html">plt_sankey()</a></code> retains only selected input columns in its plotting frame, removing unused payload from returned and serialized plots while preserving geometry and pixels.</p></li>
 <li><p><code><a href="../reference/plt_upset.html">plt_upset()</a></code> rejects more than 16 sets before enumerating intersections; accepted inputs retain every combination factor level, including unobserved combinations and None.</p></li>
 <li><p>Factor tools load integer64 methods before validating, naming or converting serialized inputs; reference indices, automatic group names, labels and bin counts no longer depend on prior package-loading order.</p></li>

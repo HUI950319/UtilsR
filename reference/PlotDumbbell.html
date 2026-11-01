@@ -118,7 +118,8 @@ lines, delta labels, and an optional inset plot via patchwork.</p>
 
 
 <dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p>A data.frame containing category, start, and end columns.</p></dd>
+<dd><p>A data.frame containing category, start, and end columns.
+Generated delta fields are kept separate from existing column names.</p></dd>
 
 
 <dt id="arg-x-col">x_col<a class="anchor" aria-label="anchor" href="#arg-x-col"></a></dt>
@@ -292,7 +293,8 @@ or <code>"violin"</code>. Only used when <code>inset_plot = "auto"</code>.</p></
 
 <dt id="arg-inset-paired-line">inset_paired_line<a class="anchor" aria-label="anchor" href="#arg-inset-paired-line"></a></dt>
 <dd><p>Logical. Show paired connecting lines in auto
-inset? Default <code>TRUE</code>.</p></dd>
+inset? Default <code>TRUE</code>. Each retained row defines one pair, even
+when category labels repeat.</p></dd>
 
 
 <dt id="arg-inset-jitter">inset_jitter<a class="anchor" aria-label="anchor" href="#arg-inset-jitter"></a></dt>

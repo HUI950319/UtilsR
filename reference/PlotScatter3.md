@@ -158,7 +158,9 @@ PlotScatter3(
 
 - hist_x_limits:
 
-  Histogram X axis range. Default `NULL` (auto).
+  Histogram X axis range. Default `NULL` uses a symmetric range based on
+  finite paired differences, expanded by 20%. All-zero differences
+  receive a non-zero range. Explicit limits are retained.
 
 - hist_x_breaks:
 

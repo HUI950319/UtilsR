@@ -78,7 +78,8 @@ PlotCircleLollipop(
   `"none"` (default)
 
   :   No scaling; values are used as-is and normalised to `[0, 1]`
-      globally only if they fall outside that range.
+      globally only if they fall outside that range. A constant global
+      range outside `[0, 1]` uses the minimum lollipop height of `0.05`.
 
   `"group"`
 
@@ -223,7 +224,10 @@ PlotCircleLollipop(
 
 ## Value
 
-`invisible(NULL)`. The plot is drawn as a side effect.
+`invisible(NULL)`. The plot is drawn as a side effect. Plot margins are
+restored and the chart's circlize state is cleared even if drawing
+fails. Saving closes its own device and restores the caller's current
+device.
 
 ## Examples
 

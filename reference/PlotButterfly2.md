@@ -71,7 +71,8 @@ PlotButterfly2(
 - type:
 
   Chart type: `"violin_box"` (default), `"violin"`, `"box"`,
-  `"beeswarm"`, or `"beeswarm_quasirandom"`.
+  `"beeswarm"`, or `"beeswarm_quasirandom"`. Box-only output contains no
+  violin layer, including without `fill.by`.
 
 - levels:
 
@@ -81,6 +82,8 @@ PlotButterfly2(
 - palette:
 
   Colour palette for `fill.by` levels. Default `NULL` uses `pal_lancet`.
+  Category mappings are resolved across both panels; value gradients
+  share the full selected data range.
 
 - alpha:
 
@@ -105,7 +108,7 @@ PlotButterfly2(
 - violin.scale:
 
   Character. How violin widths are scaled: `"width"` (default),
-  `"area"`, or `"count"`.
+  `"area"`, or `"count"`. Applies with or without `fill.by`.
 
 - dodge.width:
 

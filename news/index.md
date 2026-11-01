@@ -2,6 +2,49 @@
 
 ## UtilsR 0.6.20
 
+- stat_ci_parse() avoids intermediate overflow in raw-scale symmetry
+  checks and standard errors for extreme finite confidence intervals
+  without changing scale or rounding rules.
+
+- PlotCircleLollipop() restores margins, clears chart state on errors,
+  and closes only its own saved-file device while restoring the caller
+  device.
+
+- PlotCircleLollipop() keeps constant out-of-range scores visible at the
+  existing minimum global height instead of producing NaN positions.
+
+- PlotRank() skips unused and entirely missing groups before scaling and
+  reports a clear error if no selected group has valid scores.
+
+- [`PlotButterfly2()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly2.md)
+  honours box-only output and violin scaling without fill groups, and
+  saves the completed layers through the same path as the returned plot.
+
+- [`PlotDumbbell()`](https://hui950319.github.io/UtilsR/reference/PlotDumbbell.md)
+  identifies automatic inset pairs by retained row rather than category
+  label, keeping repeated labels from connecting unrelated observations.
+
+- `PlotButterfly(minmax = TRUE)` scales small and extreme finite ranges
+  without a fixed epsilon and retains zero scores for constant groups.
+
+- [`PlotButterfly2()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly2.md)
+  resolves category colours and continuous gradient limits across both
+  panels, keeping identical categories and values visually comparable.
+
+- [`PlotScatter3()`](https://hui950319.github.io/UtilsR/reference/PlotScatter3.md)
+  derives automatic histogram limits from finite paired differences,
+  retaining translated and constant differences while honouring explicit
+  limits.
+
+- [`PlotDumbbell()`](https://hui950319.github.io/UtilsR/reference/PlotDumbbell.md)
+  isolates generated delta fields from existing input columns,
+  preserving endpoints, sorting and delta labels when names collide.
+
+- [`PlotRank()`](https://hui950319.github.io/UtilsR/reference/PlotRank.md)
+  validates one-dimensional real score storage, rejects unsupported
+  classes explicitly, and excludes labelled missing scores even in fresh
+  R sessions.
+
 - [`stat_ci_parse()`](https://hui950319.github.io/UtilsR/reference/stat_ci_parse.md)
   uses stable log ratios for scale comparisons, avoiding intermediate
   overflow or underflow for finite extreme intervals while retaining

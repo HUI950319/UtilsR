@@ -127,7 +127,8 @@ Default <code>NULL</code>.</p></dd>
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
 <dd><p>Chart type: <code>"violin_box"</code> (default), <code>"violin"</code>,
-<code>"box"</code>, <code>"beeswarm"</code>, or <code>"beeswarm_quasirandom"</code>.</p></dd>
+<code>"box"</code>, <code>"beeswarm"</code>, or <code>"beeswarm_quasirandom"</code>.
+Box-only output contains no violin layer, including without <code>fill.by</code>.</p></dd>
 
 
 <dt id="arg-levels">levels<a class="anchor" aria-label="anchor" href="#arg-levels"></a></dt>
@@ -138,7 +139,9 @@ Default <code>NULL</code>.</p></dd>
 
 <dt id="arg-palette">palette<a class="anchor" aria-label="anchor" href="#arg-palette"></a></dt>
 <dd><p>Colour palette for <code>fill.by</code> levels. Default
-<code>NULL</code> uses <code>pal_lancet</code>.</p></dd>
+<code>NULL</code> uses <code>pal_lancet</code>.
+Category mappings are resolved across both panels; value gradients share
+the full selected data range.</p></dd>
 
 
 <dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
@@ -164,7 +167,8 @@ Default <code>FALSE</code>.</p></dd>
 
 <dt id="arg-violin-scale">violin.scale<a class="anchor" aria-label="anchor" href="#arg-violin-scale"></a></dt>
 <dd><p>Character. How violin widths are scaled:
-<code>"width"</code> (default), <code>"area"</code>, or <code>"count"</code>.</p></dd>
+<code>"width"</code> (default), <code>"area"</code>, or <code>"count"</code>.
+Applies with or without <code>fill.by</code>.</p></dd>
 
 
 <dt id="arg-dodge-width">dodge.width<a class="anchor" aria-label="anchor" href="#arg-dodge-width"></a></dt>

@@ -154,7 +154,8 @@ PlotButterfly(
   Logical. If `TRUE`, apply min-max scaling (0–1) to the `value.by`
   column within each combination of `group.by` and `fill.by` (bar mode
   only). Useful when comparing methods that produce values on different
-  scales. Default `FALSE`.
+  scales. Default `FALSE`. Non-constant groups use their observed range
+  without a fixed epsilon; constant groups map to zero.
 
 - bar.width:
 

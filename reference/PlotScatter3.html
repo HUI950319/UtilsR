@@ -216,7 +216,9 @@ Default <code>TRUE</code>.</p></dd>
 
 
 <dt id="arg-hist-x-limits">hist_x_limits<a class="anchor" aria-label="anchor" href="#arg-hist-x-limits"></a></dt>
-<dd><p>Histogram X axis range. Default <code>NULL</code> (auto).</p></dd>
+<dd><p>Histogram X axis range. Default <code>NULL</code> uses a
+symmetric range based on finite paired differences, expanded by 20%.
+All-zero differences receive a non-zero range. Explicit limits are retained.</p></dd>
 
 
 <dt id="arg-hist-x-breaks">hist_x_breaks<a class="anchor" aria-label="anchor" href="#arg-hist-x-breaks"></a></dt>

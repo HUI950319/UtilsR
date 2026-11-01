@@ -215,7 +215,9 @@ for <code>alpha.by</code> mapping. Default <code>c(0.3, 1)</code>.</p></dd>
 to the <code>value.by</code> column within each combination of
 <code>group.by</code> and <code>fill.by</code> (bar mode only). Useful when
 comparing methods that produce values on different scales.
-Default <code>FALSE</code>.</p></dd>
+Default <code>FALSE</code>.
+Non-constant groups use their observed range without a fixed epsilon;
+constant groups map to zero.</p></dd>
 
 
 <dt id="arg-bar-width">bar.width<a class="anchor" aria-label="anchor" href="#arg-bar-width"></a></dt>

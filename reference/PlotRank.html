@@ -110,7 +110,11 @@ importance scores) but works with any named score data.</p>
     Use <code>groups</code> to select specific columns.</p></dd>
 
 
-</dl></dd>
+</dl><p>Scores must be one-dimensional real numeric values. Numeric haven
+labelled scores are supported, with class-defined missing values
+(including SPSS user missings) excluded before ranking. Matrix and list
+columns, integer64, time classes and complex scores are not supported;
+convert them explicitly after choosing units and checking precision.</p></dd>
 
 
 <dt id="arg-group-col">group_col<a class="anchor" aria-label="anchor" href="#arg-group-col"></a></dt>
@@ -130,7 +134,9 @@ Default <code>"importance"</code>.  Ignored for vector / matrix input.</p></dd>
 
 <dt id="arg-groups">groups<a class="anchor" aria-label="anchor" href="#arg-groups"></a></dt>
 <dd><p>Character vector of groups to plot (for matrix or
-data.frame input).  <code>NULL</code> (default) = all groups.</p></dd>
+data.frame input).  <code>NULL</code> (default) = all groups.
+Groups without non-missing scores are skipped. An error is raised when
+no valid scores remain after group selection.</p></dd>
 
 
 <dt id="arg-group-levels">group_levels<a class="anchor" aria-label="anchor" href="#arg-group-levels"></a></dt>

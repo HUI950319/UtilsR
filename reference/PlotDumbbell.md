@@ -64,7 +64,8 @@ PlotDumbbell(
 
 - data:
 
-  A data.frame containing category, start, and end columns.
+  A data.frame containing category, start, and end columns. Generated
+  delta fields are kept separate from existing column names.
 
 - x_col:
 
@@ -239,6 +240,7 @@ PlotDumbbell(
 - inset_paired_line:
 
   Logical. Show paired connecting lines in auto inset? Default `TRUE`.
+  Each retained row defines one pair, even when category labels repeat.
 
 - inset_jitter:
 

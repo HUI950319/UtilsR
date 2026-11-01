@@ -56,6 +56,13 @@ PlotRank(
   :   Rows = features, columns = groups (e.g. cell types). Use `groups`
       to select specific columns.
 
+  Scores must be one-dimensional real numeric values. Numeric haven
+  labelled scores are supported, with class-defined missing values
+  (including SPSS user missings) excluded before ranking. Matrix and
+  list columns, integer64, time classes and complex scores are not
+  supported; convert them explicitly after choosing units and checking
+  precision.
+
 - group_col:
 
   Column name for the grouping variable (e.g. cell type). Default
@@ -74,7 +81,9 @@ PlotRank(
 - groups:
 
   Character vector of groups to plot (for matrix or data.frame input).
-  `NULL` (default) = all groups.
+  `NULL` (default) = all groups. Groups without non-missing scores are
+  skipped. An error is raised when no valid scores remain after group
+  selection.
 
 - group_levels:
 

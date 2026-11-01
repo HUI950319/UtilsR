@@ -135,7 +135,8 @@ any plotting. <code>NULL</code> = use all rows as-is.</p></dd>
 selection. Three options:</p><dl><dt><code>"none"</code> (default)</dt>
 <dd><p>No scaling; values are used as-is and
     normalised to <code>[0, 1]</code> globally only if they fall outside that
-    range.</p></dd>
+    range. A constant global range outside <code>[0, 1]</code> uses the
+    minimum lollipop height of <code>0.05</code>.</p></dd>
 
   <dt><code>"group"</code></dt>
 <dd><p>Scale each group independently to <code>[0, 1]</code>
@@ -284,7 +285,10 @@ Three options:</p><dl><dt><code>"inside"</code> (default)</dt>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p><code>invisible(NULL)</code>. The plot is drawn as a side effect.</p>
+    <p><code>invisible(NULL)</code>. The plot is drawn as a side effect.
+Plot margins are restored and the chart's circlize state is cleared
+even if drawing fails. Saving closes its own device and restores the
+caller's current device.</p>
     </div>
 
     <div class="section level2">
