@@ -50,12 +50,13 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.20" id="utilsr-0620">UtilsR 0.6.20<a class="anchor" aria-label="anchor" href="#utilsr-0620"></a></h2>
-<ul><li>
-<code><a href="../reference/pr_kv.html">pr_kv()</a></code>, named <code><a href="../reference/pr_box.html">pr_box()</a></code> inputs and <code><a href="../reference/pr_note.html">pr_note()</a></code> preserve ANSI styles across embedded newlines, including blank separator lines.</li>
+<ul><li><p><code><a href="../reference/pr_tree.html">pr_tree()</a></code> includes inherited <code>.Data</code> slots when opening S4 objects, retaining the seconds in Period and Duration vectors.</p></li>
+<li><p><code><a href="../reference/pr_kv.html">pr_kv()</a></code>, named <code><a href="../reference/pr_box.html">pr_box()</a></code> inputs and <code><a href="../reference/pr_note.html">pr_note()</a></code> preserve ANSI styles across embedded newlines, including blank separator lines.</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.19" id="utilsr-0619">UtilsR 0.6.19<a class="anchor" aria-label="anchor" href="#utilsr-0619"></a></h2>
-<ul><li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> shares each feature’s dot-bin boundaries across split panels, retains independent bins across features, and includes bin centres in automatic limits without changing explicit raw-data zoom bounds.</p></li>
+<ul><li><p><code><a href="../reference/plt_dist.html">plt_dist()</a></code> excludes class-defined missing values in every mode, including SPSS user missings, and handles POSIXlt columns without changing explicit factor-NA rules.</p></li>
+<li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> shares each feature’s dot-bin boundaries across split panels, retains independent bins across features, and includes bin centres in automatic limits without changing explicit raw-data zoom bounds.</p></li>
 <li><p>Categorical Venn plots show zero counts without undefined percentages when no members match, including empty split panels.</p></li>
 <li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> shares dot-plot count size scales across feature and split panels, including nested patchwork outputs, before measuring the finished plots.</p></li>
 <li><p>Categorical chord plots support empty-string categories with collision-free blank sector names while preserving counts and named palette mappings.</p></li>

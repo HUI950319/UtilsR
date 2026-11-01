@@ -2,6 +2,10 @@
 
 ## UtilsR 0.6.20
 
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  includes inherited `.Data` slots when opening S4 objects, retaining
+  the seconds in Period and Duration vectors.
+
 - [`pr_kv()`](https://hui950319.github.io/UtilsR/reference/pr_kv.md),
   named
   [`pr_box()`](https://hui950319.github.io/UtilsR/reference/pr_box.md)
@@ -11,6 +15,11 @@
   separator lines.
 
 ## UtilsR 0.6.19
+
+- [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
+  excludes class-defined missing values in every mode, including SPSS
+  user missings, and handles POSIXlt columns without changing explicit
+  factor-NA rules.
 
 - [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
   shares each feature’s dot-bin boundaries across split panels, retains

@@ -129,7 +129,8 @@ summarised as "... n more", with their names (default 20).</p></dd>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The object passed in always opens: a model fit lists its components, a
-data frame its columns and an S4 object its slots (as <code>@name</code>). Below
+data frame its columns and an S4 object its slots (as <code>@name</code>),
+including inherited <code>.Data</code> storage. Below
 it the tree descends into plain lists and into classed objects that also
 inherit from <code>"list"</code> (as <code>c("eff_res", "list")</code> does). Data
 frames, plots and other objects are leaves, and so are gt tables, RegR

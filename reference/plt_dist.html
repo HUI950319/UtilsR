@@ -98,8 +98,10 @@ requires the suggested <span class="pkg">ggalluvial</span> package.</p>
 only the variables selected by <code>dis_vars</code> and <code>facet</code>. Rows
 missing any required value are removed with a message in every mode;
 unrelated columns do not affect inclusion. An error is raised if no
-complete rows remain. Alluvial mode also removes explicit NA factor levels
-and SPSS user-defined missing values. The heatmap ignores <code>facet</code>.</p></dd>
+complete rows remain. SPSS user-defined missing values are excluded in
+every mode. Alluvial mode also removes explicit NA factor levels.
+Date-time missingness respects the column class, including POSIXlt.
+The heatmap ignores <code>facet</code>.</p></dd>
 
 
 <dt id="arg-dis-vars">dis_vars<a class="anchor" aria-label="anchor" href="#arg-dis-vars"></a></dt>

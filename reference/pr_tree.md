@@ -51,15 +51,16 @@ The printed lines, invisibly.
 ## Details
 
 The object passed in always opens: a model fit lists its components, a
-data frame its columns and an S4 object its slots (as `@name`). Below it
-the tree descends into plain lists and into classed objects that also
-inherit from `"list"` (as `c("eff_res", "list")` does). Data frames,
-plots and other objects are leaves, and so are gt tables, RegR pages and
-htmltools tag lists, which are lists underneath; R6 and other classed
-environments show their class. Attributes other than names, class,
-dimensions, row names, srcref and those a type keeps for itself (factor
-levels, a time zone, value labels) are listed under an open node, marked
-`attr`, and named at the end of a closed node's line as `[attr: name]`.
+data frame its columns and an S4 object its slots (as `@name`),
+including inherited `.Data` storage. Below it the tree descends into
+plain lists and into classed objects that also inherit from `"list"` (as
+`c("eff_res", "list")` does). Data frames, plots and other objects are
+leaves, and so are gt tables, RegR pages and htmltools tag lists, which
+are lists underneath; R6 and other classed environments show their
+class. Attributes other than names, class, dimensions, row names, srcref
+and those a type keeps for itself (factor levels, a time zone, value
+labels) are listed under an open node, marked `attr`, and named at the
+end of a closed node's line as `[attr: name]`.
 
 ## See also
 
