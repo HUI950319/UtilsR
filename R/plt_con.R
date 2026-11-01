@@ -13,6 +13,7 @@
 #                                      (also called by both builders)
 #         +-- L2  .con_dot_bins()      numeric bin centres, including constants
 #         +-- L2  .con_dot_counts()    counts including observed missing groups
+#         +-- L2  .con_dot_scales()    pooled count scales across plot leaves
 #         +-- L2  .con_pairwise_test()  adapt supported two-sample tests
 #         +-- L2  .con_comparisons()   valid pairs and cached test results
 #         +-- L2  .con_cached_test()   reuse results for unchanged test inputs
@@ -58,6 +59,8 @@
 #'   their categories when the returned plot's discrete axis is reordered.
 #' @param type Plot type: \code{"violin"} (default), \code{"box"},
 #'   \code{"bar"}, or \code{"dot"}. Bar annotations clear the SD intervals.
+#'   Dot plots in one call share their count-size scale across feature and
+#'   split panels, including nested combined plots.
 #' @param fill.by What variable to map to fill colour:
 #'   \code{"group"} (default) colours by group.by levels;
 #'   \code{"feature"} colours by stat.by name.
@@ -550,12 +553,17 @@ plt_con <- function(data,
       sub <- if (length(sub) == 1L) sub[[1L]] else {
         patchwork::wrap_plots(sub) + patchwork::plot_layout(guides = "collect")
       }
-      if (!isTRUE(combine)) cli::cli_fmt(sub <- finish(sub))
       sub
     }), split_levels)
     plot_list <- Filter(Negate(is.null), plot_list)
     if (!length(plot_list)) cli::cli_abort("No finite values remain in the split panels.")
-    if (!isTRUE(combine)) return(plot_list)
+    if (type == "dot") plot_list <- .con_dot_scales(plot_list)
+    if (!isTRUE(combine)) {
+      return(lapply(plot_list, function(sub) {
+        cli::cli_fmt(sub <- finish(sub))
+        sub
+      }))
+    }
     p <- patchwork::wrap_plots(plot_list, nrow = facet_nrow, ncol = facet_ncol) +
       patchwork::plot_layout(guides = "collect")
     if (!is.null(title) || !is.null(subtitle)) {
@@ -698,6 +706,7 @@ plt_con <- function(data,
   }
 
   # --- Combine ----------------------------------------------------------------
+  if (type == "dot") plist <- .con_dot_scales(plist)
   if (isTRUE(combine)) {
     if (length(plist) == 1) {
       return(finish(plist[[1]]))
@@ -753,6 +762,25 @@ plt_con <- function(data,
   rownames(counts) <- NULL
   for (name in by) counts[[name]] <- values[[name]][counts[[name]]]
   counts
+}
+
+.con_dot_scales <- function(plots) {
+  info <- .to_plot_list(plots, recurse = TRUE)
+  if (length(info$plots) < 2L) return(plots)
+  counts <- unlist(lapply(info$plots, function(p) {
+    at <- vapply(p$layers, function(layer) {
+      inherits(layer$geom, "GeomPoint") && is.data.frame(layer$data) && "n" %in% names(layer$data)
+    }, logical(1))
+    unlist(lapply(p$layers[at], function(layer) layer$data[["n"]]), use.names = FALSE)
+  }), use.names = FALSE)
+  limits <- range(counts)
+  changed <- lapply(info$plots, function(p) {
+    p$scales <- p$scales$clone()
+    size_scale <- p$scales$get_scales("size")
+    size_scale$limits <- limits
+    p
+  })
+  .from_plot_list(changed, info$is_patchwork, info$is_single, info$pw_orig, recurse = TRUE)
 }
 
 .con_pairwise_test <- function(test) {

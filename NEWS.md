@@ -1,5 +1,8 @@
 # UtilsR 0.6.19
 
+* `plt_con()` shares dot-plot count size scales across feature and split panels,
+  including nested patchwork outputs, before measuring the finished plots.
+
 * Categorical chord plots support empty-string categories with collision-free blank sector names while preserving counts and named palette mappings.
 
 * Categorical chord plots discard unused factor levels before tabulation and reject impossible observed frequency grids before allocation.

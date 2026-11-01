@@ -196,6 +196,43 @@ test_that("con dot counts include observed missing grouping strata", {
   expect_equal(sum(p$layers[[1L]]$data$n), 4L)
 })
 
+test_that("con dot feature plots use the same pooled quantity scale as stacked panels", {
+  d <- data.frame(x = rep(1, 20), z = c(2, 2, rep(NA_real_, 18)), g = "A")
+  out <- suppressMessages(plt_con(d, c("x", "z"), "g", type = "dot", combine = FALSE))
+  sizes <- vapply(out, function(p) ggplot2::ggplot_build(p)$data[[1L]]$size, numeric(1))
+  p <- con_plot(d, c("x", "z"), type = "dot", stack = TRUE)
+  expect_equal(unname(sizes), ggplot2::ggplot_build(p)$data[[1L]]$size)
+  expect_gt(sizes[1L], sizes[2L])
+  expect_equal(out[[1L]]$scales$get_scales("size")$limits, c(2L, 20L))
+  expect_equal(out[[2L]]$scales$get_scales("size")$limits, c(2L, 20L))
+})
+
+test_that("con split dot quantity scales agree across nested feature plots", {
+  to_list <- getFromNamespace(".to_plot_list", "UtilsR")
+  d <- data.frame(x = rep(1, 22), z = rep(2, 22), g = "A", batch = rep(c("S1", "S2"), c(2, 20)))
+  d$z[2] <- NA_real_
+  out <- suppressMessages(plt_con(d, c("x", "z"), "g", type = "dot", split.by = "batch", combine = FALSE))
+  leaves <- unlist(lapply(out, function(p) to_list(p, recurse = TRUE)$plots), recursive = FALSE)
+  for (p in leaves) {
+    expect_equal(p$scales$get_scales("size")$limits, c(1L, 20L))
+    count <- p$layers[[1L]]$data$n
+    expect_equal(ggplot2::ggplot_build(p)$data[[1L]]$size, 6 * sqrt(count / 20))
+  }
+  expect_true(all(vapply(out, function(p) length(attr(p, "plot_size")) == 2L, logical(1))))
+  p <- suppressMessages(plt_con(d, c("x", "z"), "g", type = "dot", split.by = "batch"))
+  leaves <- to_list(p, recurse = TRUE)$plots
+  expect_length(leaves, 4L)
+  expect_true(all(vapply(leaves, function(p) identical(p$scales$get_scales("size")$limits, c(1L, 20L)), logical(1))))
+})
+
+test_that("con standalone dot scales retain native limits and count data", {
+  d <- data.frame(x = c(1, 1, 1, 2), g = "A")
+  p <- con_plot(d, type = "dot")
+  expect_null(p$scales$get_scales("size")$limits)
+  expect_equal(sum(p$layers[[1L]]$data$n), nrow(d))
+  expect_equal(max(ggplot2::ggplot_build(p)$data[[1L]]$size), 6)
+})
+
 test_that("con dot counts retain keyed order and ordered factor levels", {
   d <- data.frame(x = c(2, 1, 1, 2, 2, 2, 1),
     g = ordered(c("B", "A", NA, "B", "A", NA, "A"), levels = c("A", "B", "unused")))

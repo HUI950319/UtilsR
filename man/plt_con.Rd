@@ -85,7 +85,9 @@ Must be a superset of \code{group.by}. Default \code{NULL}. Bands follow
 their categories when the returned plot's discrete axis is reordered.}
 
 \item{type}{Plot type: \code{"violin"} (default), \code{"box"},
-\code{"bar"}, or \code{"dot"}. Bar annotations clear the SD intervals.}
+\code{"bar"}, or \code{"dot"}. Bar annotations clear the SD intervals.
+Dot plots in one call share their count-size scale across feature and
+split panels, including nested combined plots.}
 
 \item{fill.by}{What variable to map to fill colour:
 \code{"group"} (default) colours by group.by levels;
