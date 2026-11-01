@@ -298,6 +298,13 @@
 
   all_sectors <- unique(c(rownames(m), colnames(m)))
   sector_cols <- stats::setNames(cols[match(all_sectors, names(cols))], all_sectors)
+  if ("" %in% all_sectors) {
+    blank <- " "
+    while (blank %in% all_sectors) blank <- paste0(blank, " ")
+    rownames(m)[rownames(m) == ""] <- blank
+    colnames(m)[colnames(m) == ""] <- blank
+    names(sector_cols)[names(sector_cols) == ""] <- blank
+  }
 
   # Note: chord returns recordPlot (base graphics), not ggplot.
   # Cannot be used with ggsave(); use png()/pdf() + replayPlot() instead.

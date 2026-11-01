@@ -1,5 +1,7 @@
 # UtilsR 0.6.19
 
+* Categorical chord plots support empty-string categories with collision-free blank sector names while preserving counts and named palette mappings.
+
 * Categorical chord plots discard unused factor levels before tabulation and reject impossible observed frequency grids before allocation.
 
 * Categorical plots preserve distinct AsIs, haven labelled and complex values when short labels coincide, including precise positive-level selections and class-specific missingness.

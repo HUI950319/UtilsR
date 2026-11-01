@@ -146,6 +146,31 @@ test_that("plt_cat chord rejects impossible observed frequency grids early", {
                             palette = "red"), "chord frequency table.*2\\^31")
 })
 
+test_that("plt_cat chord preserves blank categories alongside space categories", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  d <- data.frame(A = c("", "a", " ", ""), B = c("b", "c", "b", ""))
+  palette <- stats::setNames(c("red", "blue", "green", "orange", "purple"),
+                             c("", "a", " ", "b", "c"))
+  captured <- NULL
+  original <- circlize::chordDiagram
+  local_mocked_bindings(chordDiagram = function(x, grid.col, ...) {
+    captured <<- list(counts = x, colors = grid.col)
+    original(x, grid.col = grid.col, ...)
+  }, .package = "circlize")
+  p <- cat_test_plot(d, c("A", "B"), type = "chord", palette = palette)
+  expect_s3_class(p, "recordedplot")
+  blank <- setdiff(names(captured$colors), names(palette))
+  expect_length(blank, 1L)
+  expect_match(blank, "^ +$")
+  expect_identical(unname(captured$colors[blank]), "red")
+  expect_identical(captured$colors[names(palette)[-1]], palette[-1])
+  expected <- table(factor(d$A, levels = unique(d$A)),
+                    factor(d$B, levels = unique(d$B)))
+  expect_equal(unname(captured$counts), unname(unclass(expected)))
+  expect_null(grDevices::replayPlot(p))
+})
+
 test_that("plt_cat chord matches sector colours by name with unused levels", {
   skip_if_not_installed("circlize")
   d <- data.frame(A = factor(c("a", "b", "a"), levels = c("a", "unused", "b")),

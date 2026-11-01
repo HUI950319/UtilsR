@@ -58,6 +58,7 @@
 #'   the 20 most frequent non-empty intersections per panel, with a warning
 #'   reporting how many intersections are omitted when the limit is exceeded.
 #'   Chord plots omit unused factor levels before constructing frequencies.
+#'   Empty-string chord categories remain distinct from space-only categories.
 #' @param stat Statistic for standard types: \code{"percent"} (default) or
 #'   \code{"count"}.
 #' @param position Bar position: \code{"stack"} (default) or \code{"dodge"}.
