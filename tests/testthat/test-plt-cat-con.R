@@ -835,6 +835,28 @@ test_that("plt_cat split Venn fills use a shared quantity scale", {
   expect_equal(sum(guide == "count"), 1L)
 })
 
+test_that("plt_cat Venn omits undefined percentages for empty memberships", {
+  skip_if_not_installed("ggVennDiagram")
+  labels <- function(p) {
+    unique(unlist(lapply(ggplot2::ggplot_build(p)$data, function(layer) {
+      as.character(layer$label)
+    }), use.names = FALSE))
+  }
+  d <- data.frame(A = c(FALSE, FALSE), B = c(FALSE, FALSE))
+  p <- cat_test_plot(d, c("A", "B"), type = "venn", stat_level = TRUE, label = TRUE)
+  expect_setequal(labels(p), c("A", "B", "0"))
+  expect_s3_class(ggplot2::ggplotGrob(p), "gtable")
+  hidden <- cat_test_plot(d, c("A", "B"), type = "venn", stat_level = TRUE)
+  expect_setequal(labels(hidden), c("A", "B"))
+  d <- data.frame(A = c(TRUE, FALSE), B = c(TRUE, FALSE),
+                  site = c("positive", "negative"))
+  split <- cat_test_plot(d, c("A", "B"), split.by = "site", type = "venn",
+                        stat_level = TRUE, label = TRUE)
+  expect_setequal(labels(split[[2]]), c("A", "B", "0"))
+  positive <- labels(split[[1]])
+  expect_equal(positive[grepl("100%", positive, fixed = TRUE)], "1\n(100%)")
+})
+
 test_that("plt_cat Venn honours region alpha and label background controls", {
   skip_if_not_installed("ggVennDiagram")
   d <- data.frame(A = c(TRUE, TRUE, FALSE), B = c(FALSE, TRUE, TRUE))

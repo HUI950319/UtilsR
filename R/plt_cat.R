@@ -78,6 +78,7 @@
 #'   controls region fill transparency.
 #' @param label Logical. Show value labels? Default \code{FALSE}. Set names
 #'   and Sankey node names are independent of value labels.
+#'   Venn plots without matching members show zero counts without percentages.
 #' @param label.size Numeric. Label text size. Default 3.5.
 #' @param label.fg Character. Label foreground colour. Default \code{"black"}.
 #' @param label.bg Character. Label background colour. Default \code{"white"}.

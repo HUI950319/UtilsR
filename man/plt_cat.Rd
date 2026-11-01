@@ -96,7 +96,8 @@ Empty-string chord categories remain distinct from space-only categories.}
 controls region fill transparency.}
 
 \item{label}{Logical. Show value labels? Default \code{FALSE}. Set names
-and Sankey node names are independent of value labels.}
+and Sankey node names are independent of value labels.
+Venn plots without matching members show zero counts without percentages.}
 
 \item{label.size}{Numeric. Label text size. Default 3.5.}
 

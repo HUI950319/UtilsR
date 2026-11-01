@@ -1,5 +1,7 @@
 # UtilsR 0.6.19
 
+* Categorical Venn plots show zero counts without undefined percentages when no members match, including empty split panels.
+
 * `plt_con()` shares dot-plot count size scales across feature and split panels,
   including nested patchwork outputs, before measuring the finished plots.
 

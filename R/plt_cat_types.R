@@ -328,10 +328,11 @@
     cli::cli_abort("Package {.pkg ggVennDiagram} is required. Install with: {.code install.packages('ggVennDiagram')}")
   }
   set_list <- .build_set_list(data, stat.by, stat_level)
+  value_label <- if (!label) "none" else if (any(lengths(set_list) > 0L)) "both" else "count"
 
   fill_high <- if (length(cols) > 0) cols[1] else "steelblue"
 
-  p <- ggVennDiagram::ggVennDiagram(set_list, label = if (label) "both" else "none",
+  p <- ggVennDiagram::ggVennDiagram(set_list, label = value_label,
                                    label_size = label.size, label_color = label.fg) +
     ggplot2::scale_fill_gradient(low = "white", high = fill_high) +
     ggplot2::theme(
