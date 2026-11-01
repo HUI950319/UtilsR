@@ -2,6 +2,10 @@
 
 ## UtilsR 0.6.20
 
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  formats only the column names that can reach a closed data-frame
+  preview, avoiding work proportional to all columns of wide tables.
+
 - [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
   limits displayed rows before creating the row-name column, avoiding
   full-table row-name checks for short previews of large tables.
