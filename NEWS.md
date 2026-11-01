@@ -1,5 +1,7 @@
 # UtilsR 0.6.20
 
+* PlotCircleLollipop() restores margins, clears chart state on errors, and closes only its own saved-file device while restoring the caller device.
+
 * PlotCircleLollipop() keeps constant out-of-range scores visible at the existing minimum global height instead of producing NaN positions.
 
 * PlotRank() skips unused and entirely missing groups before scaling and reports a clear error if no selected group has valid scores.

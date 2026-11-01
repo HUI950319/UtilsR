@@ -82,6 +82,9 @@
 #' @param dpi Resolution for PNG output. Default \code{300}.
 #'
 #' @return \code{invisible(NULL)}. The plot is drawn as a side effect.
+#'   Plot margins are restored and the chart's circlize state is cleared
+#'   even if drawing fails. Saving closes its own device and restores the
+#'   caller's current device.
 #'
 #' @examples
 #' \dontrun{
@@ -264,6 +267,11 @@ PlotCircleLollipop <- function(
 
   # ---- Core drawing function ----
   .draw <- function() {
+    old_mar <- graphics::par("mar")
+    on.exit({
+      circlize::circos.clear()
+      graphics::par(mar = old_mar)
+    }, add = TRUE)
     circlize::circos.clear()
     graphics::par(mar = c(1, 1, 1, 1))
     graphics::plot.new()
@@ -406,7 +414,6 @@ PlotCircleLollipop <- function(
       }
     }
 
-    circlize::circos.clear()
   }
 
   # ---- Save or draw ----
@@ -414,14 +421,20 @@ PlotCircleLollipop <- function(
     # measured before writing, which creates the file
     existed <- file.exists(filename)
     ext <- tolower(tools::file_ext(filename))
+    previous_device <- grDevices::dev.cur()
     if (ext == "pdf") {
       grDevices::pdf(filename, width = width, height = height)
     } else {
       grDevices::png(filename, width = width, height = height,
                      units = "in", res = dpi)
     }
+    owned_device <- grDevices::dev.cur()
+    on.exit({
+      if (owned_device %in% grDevices::dev.list()) grDevices::dev.off(owned_device)
+      if (previous_device %in% grDevices::dev.list()) grDevices::dev.set(previous_device)
+    }, add = TRUE)
     .draw()
-    grDevices::dev.off()
+    grDevices::dev.off(owned_device)
     .cat_saved("PlotCircleLollipop: the plot has been saved to", filename,
                sprintf("%sx%s in", format(width), format(height)), existed,
                toupper(tools::file_ext(filename)))

@@ -144,6 +144,9 @@ Three options:
 }
 \value{
 \code{invisible(NULL)}. The plot is drawn as a side effect.
+Plot margins are restored and the chart's circlize state is cleared
+even if drawing fails. Saving closes its own device and restores the
+caller's current device.
 }
 \description{
 Draws a polar (circular) lollipop chart using \pkg{circlize}, showing
