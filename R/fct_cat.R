@@ -7,6 +7,7 @@
 #   L1  fct_cat(x, ..., reverse, ref_idx, groups, new_labels, binary_ref)
 #         |                                         -- public API
 #         +-- L2  .as_factor()          coerce any vector -> factor
+#         +-- L2  .register_integer64() register serialized integer64 methods
 #         +-- L2  .recode_factor()      rename / reorder / group levels
 #         |     +-- L3  .check_integer_index()   validate / normalize indices
 #         +-- L2  .do_binary()          collapse to a two-level factor
