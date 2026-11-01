@@ -1,5 +1,9 @@
 # UtilsR 0.6.19
 
+* `plt_con()` shares each feature's dot-bin boundaries across split panels,
+  retains independent bins across features, and includes bin centres in
+  automatic limits without changing explicit raw-data zoom bounds.
+
 * Categorical Venn plots show zero counts without undefined percentages when no members match, including empty split panels.
 
 * `plt_con()` shares dot-plot count size scales across feature and split panels,

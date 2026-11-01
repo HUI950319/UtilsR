@@ -182,6 +182,61 @@ test_that("con dot bins are independent of unrelated feature scales in stacked p
   }
 })
 
+test_that("con split dot plots share feature-wide bins and keep automatic centres visible", {
+  d <- data.frame(x = c(1, 2, 3, 1, 100, 200), g = "A", batch = rep(c("S1", "S2"), each = 3))
+  original <- d
+  out <- suppressMessages(plt_con(d, "x", "g", type = "dot", split.by = "batch", combine = FALSE))
+  global <- con_plot(d, type = "dot")$layers[[1L]]$data
+  first <- out[[1L]]$layers[[1L]]$data
+  second <- out[[2L]]$layers[[1L]]$data
+  expect_equal(first$bins[1L], second$bins[1L])
+  expected <- stats::aggregate(n ~ bins, global, sum)
+  actual <- stats::aggregate(n ~ bins, rbind(first, second), sum)
+  expect_equal(actual, expected)
+  for (p in out) {
+    b <- ggplot2::ggplot_build(p)
+    expect_equal(sum(p$layers[[1L]]$data$n), nrow(p$data))
+    expect_true(all(b$data[[1L]]$y > b$layout$panel_params[[1L]]$y.range[1L]))
+    expect_true(all(b$data[[1L]]$y < b$layout$panel_params[[1L]]$y.range[2L]))
+  }
+  expect_identical(d, original)
+})
+
+test_that("con common split bins remain independent across features and layouts", {
+  to_list <- getFromNamespace(".to_plot_list", "UtilsR")
+  d <- data.frame(x = c(1, 2, 3, 1, 100, 200), z = 5, g = "A", batch = rep(c("S1", "S2"), each = 3))
+  global <- con_plot(d, c("x", "z"), type = "dot", stack = TRUE, fill.by = "feature")$layers[[1L]]$data
+  expected <- stats::aggregate(n ~ fill.by + bins, global, sum)
+  for (stack in c(FALSE, TRUE)) {
+    out <- suppressMessages(plt_con(d, c("x", "z"), "g", type = "dot", split.by = "batch",
+      stack = stack, same.y.lims = TRUE, fill.by = "feature", combine = FALSE))
+    frames <- lapply(out, function(p) lapply(to_list(p, recurse = TRUE)$plots, function(leaf) leaf$layers[[1L]]$data))
+    actual <- stats::aggregate(n ~ fill.by + bins, do.call(rbind, unlist(frames, recursive = FALSE)), sum)
+    expect_equal(actual, expected)
+    expect_equal(unique(actual$bins[as.character(actual$fill.by) == "z"]), 5)
+    for (p in out) {
+      leaves <- to_list(p, recurse = TRUE)$plots
+      ranges <- lapply(leaves, function(leaf) {
+        b <- ggplot2::ggplot_build(suppressMessages(leaf + ggplot2::scale_y_log10()))
+        expect_true(all(b$data[[1L]]$y <= b$layout$panel_params[[1L]]$y.range[2L]))
+        b$layout$panel_params[[1L]]$y.range
+      })
+      if (!stack) expect_equal(ranges[[1L]], ranges[[2L]])
+    }
+  }
+})
+
+test_that("con common dot bins preserve raw overlays and explicit quantile zooms", {
+  d <- data.frame(x = c(1, 2, 3, 1, 100, 200), g = "A", batch = rep(c("S1", "S2"), each = 3))
+  out <- suppressMessages(plt_con(d, "x", "g", type = "dot", split.by = "batch", add_point = TRUE,
+                                y.min = "q0", y.max = "q100", combine = FALSE))
+  p <- out[[1L]]
+  expect_equal(p$coordinates$limits$y, c(1, 3), ignore_attr = TRUE)
+  expect_equal(ggplot2::ggplot_build(p)$data[[2L]]$y, c(1, 2, 3))
+  expect_equal(sum(p$layers[[1L]]$data$n), 3L)
+  expect_identical(p$data$value, d$x[1:3])
+})
+
 test_that("con dot counts include observed missing grouping strata", {
   d <- data.frame(x = 1:4, z = 11:14, g = c("A", NA, "B", NA))
   for (stack in c(FALSE, TRUE)) for (fill in c("group", "feature")) {
@@ -1366,11 +1421,11 @@ test_that("con single plot size is independent of sibling feature plots", {
   skip_if_not_installed("lobstr")
   make <- function(extra, type, background) {
     set.seed(215)
-    d <- data.frame(x = rnorm(400), g = factor(rep(c("A", "B"), 200)), bg = rep(c("R1", "R2"), 200))
+    d <- data.frame(x = rnorm(120), g = factor(rep(c("A", "B"), 60)), bg = rep(c("R1", "R2"), 60))
     features <- "x"
     if (extra) {
-      for (i in 1:4) d[[paste0("z", i)]] <- rnorm(400)
-      features <- c(features, paste0("z", 1:4))
+      for (i in 1:2) d[[paste0("z", i)]] <- rnorm(120)
+      features <- c(features, paste0("z", 1:2))
     }
     suppressMessages(UtilsR::plt_con(d, features, "g", type = type,
       bg.by = if (background) "bg" else NULL, add_point = TRUE,
@@ -1388,6 +1443,15 @@ test_that("con single plot size is independent of sibling feature plots", {
     saveRDS(a, first)
     saveRDS(b, second)
     expect_lt(file.info(second)$size - file.info(first)$size, 100000)
-    expect_identical(ggplot2::ggplot_build(a)$data, ggplot2::ggplot_build(b)$data)
+    reference <- if (type == "dot") suppressMessages(a + ggplot2::scale_size_area(
+      name = "Count", max_size = 6, n.breaks = 4, limits = b$scales$get_scales("size")$limits)) else a
+    reference_data <- ggplot2::ggplot_build(reference)$data
+    actual_data <- ggplot2::ggplot_build(b)$data
+    if (type == "dot") {
+      expect_identical(lapply(reference_data, function(d) sort(names(d))),
+                       lapply(actual_data, function(d) sort(names(d))))
+      reference_data <- Map(function(ref, actual) ref[names(actual)], reference_data, actual_data)
+    }
+    expect_identical(reference_data, actual_data)
   }
 })

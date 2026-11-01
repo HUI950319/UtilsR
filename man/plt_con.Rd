@@ -87,7 +87,9 @@ their categories when the returned plot's discrete axis is reordered.}
 \item{type}{Plot type: \code{"violin"} (default), \code{"box"},
 \code{"bar"}, or \code{"dot"}. Bar annotations clear the SD intervals.
 Dot plots in one call share their count-size scale across feature and
-split panels, including nested combined plots.}
+split panels, including nested combined plots.
+Split panels use feature-wide bin boundaries; different features retain
+independent bins.}
 
 \item{fill.by}{What variable to map to fill colour:
 \code{"group"} (default) colours by group.by levels;
@@ -172,6 +174,7 @@ transformation is added, including transformed bar SD intervals.}
 A finite number or \code{"qN"} for integer N from 0 to 100.
 Character \code{"qN"} uses the Nth percentile. Default \code{NULL};
 automatic bar limits include the full SD intervals and zero baseline.
+Automatic dot limits include bin centres and observed values.
 Quantiles use each feature separately when axes are independent, and
 pooled observations when \code{same.y.lims = TRUE}.}
 

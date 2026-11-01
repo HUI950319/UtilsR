@@ -12,6 +12,7 @@
 #         +-- L2  .resolve_y_limit()   numeric or quantile string -> limits
 #                                      (also called by both builders)
 #         +-- L2  .con_dot_bins()      numeric bin centres, including constants
+#         +-- L2  .con_dot_breaks()    feature-wide breaks shared by split panels
 #         +-- L2  .con_dot_counts()    counts including observed missing groups
 #         +-- L2  .con_dot_scales()    pooled count scales across plot leaves
 #         +-- L2  .con_pairwise_test()  adapt supported two-sample tests
@@ -61,6 +62,8 @@
 #'   \code{"bar"}, or \code{"dot"}. Bar annotations clear the SD intervals.
 #'   Dot plots in one call share their count-size scale across feature and
 #'   split panels, including nested combined plots.
+#'   Split panels use feature-wide bin boundaries; different features retain
+#'   independent bins.
 #' @param fill.by What variable to map to fill colour:
 #'   \code{"group"} (default) colours by group.by levels;
 #'   \code{"feature"} colours by stat.by name.
@@ -120,6 +123,7 @@
 #'   A finite number or \code{"qN"} for integer N from 0 to 100.
 #'   Character \code{"qN"} uses the Nth percentile. Default \code{NULL};
 #'   automatic bar limits include the full SD intervals and zero baseline.
+#'   Automatic dot limits include bin centres and observed values.
 #'   Quantiles use each feature separately when axes are independent, and
 #'   pooled observations when \code{same.y.lims = TRUE}.
 #' @param y.max Numeric or character scalar. Maximum y-axis limit.
@@ -298,6 +302,7 @@ plt_con <- function(data,
   type     <- match.arg(type)
   fill.by  <- match.arg(fill.by)
   sig_label <- match.arg(sig_label)
+  dot_breaks <- if (type == "dot") attr(data, ".con_dot_breaks", exact = TRUE) else NULL
 
   for (arg in c("add_box", "add_point", "add_trend", "multiplegroup_comparisons",
                 "same.y.lims", "stack", "flip", "combine", "force")) {
@@ -489,6 +494,13 @@ plt_con <- function(data,
     comparisons <- lapply(setdiff(observed_groups, ref_group), function(other) c(ref_group, other))
   }
 
+  if (type == "dot" && is.null(dot_breaks)) {
+    dot_breaks <- stats::setNames(lapply(stat.by, function(f) {
+      values <- data[[f]]
+      .con_dot_breaks(values[is.finite(values)])
+    }), stat.by)
+  }
+
   # --- Handle split.by via recursion ------------------------------------------
   if (!is.null(split.by)) {
     if (!isTRUE(combine) && length(save)) {
@@ -516,6 +528,7 @@ plt_con <- function(data,
     plot_list <- stats::setNames(lapply(seq_along(split_indices), function(i) {
       lv <- split_levels[i]
       sub_data <- data[which(split_codes == split_indices[i]), , drop = FALSE]
+      if (type == "dot") attr(sub_data, ".con_dot_breaks") <- dot_breaks
       if (!any(vapply(sub_data[stat.by], function(v) any(is.finite(v)), logical(1)))) {
         cli::cli_warn("Split {.val {lv}} has no finite values. Skipping.")
         return(NULL)
@@ -624,11 +637,15 @@ plt_con <- function(data,
       v <- data[[s]]
       keep <- is.finite(v)
       .con_bar_range(v[keep], data[[group.by]][keep])
+    })) else if (type == "dot") unlist(lapply(stat.by, function(s) {
+      v <- data[[s]]
+      v <- v[is.finite(v)]
+      c(v, .con_dot_bins(v, dot_breaks[[s]]))
     })) else all_values
     global_y_max <- .resolve_y_limit(y.max, if (is.null(y.max)) auto_values else all_values, side = "max")
     global_y_min <- .resolve_y_limit(y.min, if (is.null(y.min)) auto_values else all_values, side = "min")
     if (is.null(y.min) || is.null(y.max)) {
-      shared_values <- range(all_values)
+      shared_values <- range(auto_values)
       shared_groups <- NULL
       if (type == "bar") {
         shared_values <- all_values
@@ -647,7 +664,7 @@ plt_con <- function(data,
   plist <- if (isTRUE(stack) && length(stat.by) > 1L) list() else stats::setNames(lapply(stat.by, function(f) {
     .plt_con_single(
       data = data, feature = f, group.by = group.by, bg.by = bg.by,
-      type = type, fill.by = fill.by, colors = colors, alpha = alpha,
+      type = type, fill.by = fill.by, colors = colors, alpha = alpha, dot_breaks = dot_breaks,
       add_box = add_box, box_color = box_color, box_width = box_width,
       add_point = add_point, pt.color = pt.color, pt.size = pt.size,
       pt.alpha = pt.alpha, jitter.width = jitter.width,
@@ -679,7 +696,7 @@ plt_con <- function(data,
   if (isTRUE(stack) && length(stat.by) > 1) {
     plist <- list(.plt_con_stacked(
       data = data, stat.by = stat.by, group.by = group.by, bg.by = bg.by,
-      type = type, fill.by = fill.by, colors = colors, alpha = alpha,
+      type = type, fill.by = fill.by, colors = colors, alpha = alpha, dot_breaks = dot_breaks,
       add_box = add_box, box_color = box_color, box_width = box_width,
       add_point = add_point, pt.color = pt.color, pt.size = pt.size,
       pt.alpha = pt.alpha, jitter.width = jitter.width,
@@ -743,10 +760,14 @@ plt_con <- function(data,
   }
 }
 
-.con_dot_bins <- function(values) {
+.con_dot_breaks <- function(values) {
   limits <- range(values)
-  if (limits[1L] == limits[2L]) return(rep(limits[1L], length(values)))
-  breaks <- unique(seq(limits[1L], limits[2L], length.out = 15L))
+  if (limits[1L] == limits[2L]) return(limits[1L])
+  unique(seq(limits[1L], limits[2L], length.out = 15L))
+}
+
+.con_dot_bins <- function(values, breaks = .con_dot_breaks(values)) {
+  if (length(breaks) == 1L) return(rep(breaks[1L], length(values)))
   ids <- cut(values, breaks = breaks, include.lowest = TRUE, labels = FALSE)
   midpoints <- breaks[-length(breaks)] / 2 + breaks[-1L] / 2
   midpoints[ids]
@@ -1099,7 +1120,7 @@ plt_con <- function(data,
 #' Build a single feature plot
 #' @noRd
 .plt_con_single <- function(data, feature, group.by, bg.by,
-                             type, fill.by, colors, alpha,
+                             type, fill.by, colors, alpha, dot_breaks,
                              add_box, box_color, box_width,
                              add_point, pt.color, pt.size, pt.alpha,
                              jitter.width, jitter.height,
@@ -1136,7 +1157,9 @@ plt_con <- function(data,
 
   # --- Y limits ---------------------------------------------------------------
   values <- dat[["value"]]
-  auto_values <- if (type == "bar") .con_bar_range(values, dat[["group.by"]]) else values
+  if (type == "dot") dat[["bins"]] <- .con_dot_bins(values, dot_breaks[[feature]])
+  auto_values <- if (type == "bar") .con_bar_range(values, dat[["group.by"]]) else
+    if (type == "dot") c(values, dat[["bins"]]) else values
   y_max_use <- .resolve_y_limit(y.max, if (is.null(y.max)) auto_values else values, "max")
   y_min_use <- .resolve_y_limit(y.min, if (is.null(y.min)) auto_values else values, "min")
 
@@ -1198,7 +1221,6 @@ plt_con <- function(data,
         width = 0.2, color = "black"
       )
   } else if (type == "dot") {
-    dat[["bins"]] <- .con_dot_bins(dat[["value"]])
     # Pre-aggregate counts to avoid stat_sum issues
     dot_df <- .con_dot_counts(dat, c("group.by", "fill.by", "bins"))
 
@@ -1345,7 +1367,7 @@ plt_con <- function(data,
 #' Build stacked (faceted) plot for multiple features
 #' @noRd
 .plt_con_stacked <- function(data, stat.by, group.by, bg.by,
-                              type, fill.by, colors, alpha,
+                              type, fill.by, colors, alpha, dot_breaks,
                               add_box, box_color, box_width,
                               add_point, pt.color, pt.size, pt.alpha,
                               jitter.width, jitter.height,
@@ -1432,7 +1454,13 @@ plt_con <- function(data,
         width = 0.2, color = "black"
       )
   } else if (type == "dot") {
-    dat_long[["bins"]] <- stats::ave(dat_long[["value"]], dat_long[["feature"]], FUN = .con_dot_bins)
+    bins <- numeric(nrow(dat_long))
+    feature_rows <- split(seq_along(bins), dat_long[["feature"]], drop = TRUE)
+    for (feature in names(feature_rows)) {
+      at <- feature_rows[[feature]]
+      bins[at] <- .con_dot_bins(dat_long[["value"]][at], dot_breaks[[feature]])
+    }
+    dat_long[["bins"]] <- bins
     dot_df <- .con_dot_counts(dat_long, c("group.by", "fill.by", "feature", "bins"))
     dot_df[["feature"]] <- factor(dot_df[["feature"]], levels = stat.by)
     p <- p +
