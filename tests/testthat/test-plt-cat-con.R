@@ -122,6 +122,30 @@ test_that("plt_cat excludes unused selectors before checking and filtering", {
   expect_equal(sum(p$data$n), 102L)
 })
 
+test_that("plt_cat chord drops unused levels before constructing frequencies", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  d <- data.frame(A = factor(c("a1", "a2"), levels = paste0("a", seq_len(50000))),
+                  B = factor(c("b1", "b2"), levels = paste0("b", seq_len(50000))))
+  captured <- NULL
+  original <- circlize::chordDiagram
+  local_mocked_bindings(chordDiagram = function(x, ...) {
+    captured <<- x
+    original(x, ...)
+  }, .package = "circlize")
+  p <- cat_test_plot(d, c("A", "B"), type = "chord", palette = "red")
+  expect_s3_class(p, "recordedplot")
+  expect_equal(dim(captured), c(2L, 2L))
+  expect_equal(unname(captured), diag(2))
+})
+
+test_that("plt_cat chord rejects impossible observed frequency grids early", {
+  skip_if_not_installed("circlize")
+  d <- data.frame(A = factor(seq_len(50000)), B = factor(seq_len(50000)))
+  expect_error(cat_test_plot(d, c("A", "B"), type = "chord", force = TRUE,
+                            palette = "red"), "chord frequency table.*2\\^31")
+})
+
 test_that("plt_cat chord matches sector colours by name with unused levels", {
   skip_if_not_installed("circlize")
   d <- data.frame(A = factor(c("a", "b", "a"), levels = c("a", "unused", "b")),

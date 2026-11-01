@@ -286,7 +286,12 @@
   if (!requireNamespace("circlize", quietly = TRUE)) {
     cli::cli_abort("Package {.pkg circlize} is required. Install with: {.code install.packages('circlize')}")
   }
-  M <- table(data[[stat.by[1]]], data[[stat.by[2]]], useNA = "ifany")
+  from <- droplevels(data[[stat.by[1]]])
+  to <- droplevels(data[[stat.by[2]]])
+  if (as.double(nlevels(from)) * nlevels(to) >= 2^31) {
+    cli::cli_abort("A chord frequency table must contain fewer than 2^31 cells. Reduce the number of categories.")
+  }
+  M <- table(from, to, useNA = "ifany")
   m <- matrix(M, ncol = ncol(M), dimnames = dimnames(M))
   colnames(m)[is.na(colnames(m))] <- "NA"
   rownames(m)[is.na(rownames(m))] <- "NA"

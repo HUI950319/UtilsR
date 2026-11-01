@@ -70,7 +70,8 @@ panels likewise share one count-to-fill scale.}
 \code{"pie"}, \code{"trend"}, \code{"area"}, \code{"dot"}, \code{"sankey"},
 \code{"chord"}, \code{"venn"}, \code{"upset"}. UpSet plots show at most
 the 20 most frequent non-empty intersections per panel, with a warning
-reporting how many intersections are omitted when the limit is exceeded.}
+reporting how many intersections are omitted when the limit is exceeded.
+Chord plots omit unused factor levels before constructing frequencies.}
 
 \item{stat}{Statistic for standard types: \code{"percent"} (default) or
 \code{"count"}.}
