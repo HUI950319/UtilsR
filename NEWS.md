@@ -1,22 +1,5 @@
 # UtilsR 0.6.20
 
-* Print helpers restore stored Period, Duration and Interval methods without
-  attaching lubridate or emitting its startup messages.
-
-* `pr_tree()` formats only the column names that can reach a closed
-  data-frame preview, avoiding work proportional to all columns of wide tables.
-
-* `pr_table()` limits displayed rows before creating the row-name column,
-  avoiding full-table row-name checks for short previews of large tables.
-
-* `pr_tree()` includes inherited `.Data` slots when opening S4 objects,
-  retaining the seconds in Period and Duration vectors.
-
-* `pr_kv()`, named `pr_box()` inputs and `pr_note()` preserve ANSI styles
-  across embedded newlines, including blank separator lines.
-
-# UtilsR 0.6.19
-
 * `stat_ci_parse()` uses stable log ratios for scale comparisons, avoiding intermediate overflow or underflow for finite extreme intervals while retaining precision for close bounds.
 
 * `plt_sankey()` retains only selected input columns in its plotting frame, removing unused payload from returned and serialized plots while preserving geometry and pixels.
@@ -36,6 +19,23 @@
 * `plt_sankey()` isolates generated counting and stage fields from input column names, preserving flows and axis labels for reserved or colliding names.
 
 * `plt_dist()` excludes class-defined missing values in every mode, including SPSS user missings, and handles POSIXlt columns without changing explicit factor-NA rules.
+
+* Print helpers restore stored Period, Duration and Interval methods without
+  attaching lubridate or emitting its startup messages.
+
+* `pr_tree()` formats only the column names that can reach a closed
+  data-frame preview, avoiding work proportional to all columns of wide tables.
+
+* `pr_table()` limits displayed rows before creating the row-name column,
+  avoiding full-table row-name checks for short previews of large tables.
+
+* `pr_tree()` includes inherited `.Data` slots when opening S4 objects,
+  retaining the seconds in Period and Duration vectors.
+
+* `pr_kv()`, named `pr_box()` inputs and `pr_note()` preserve ANSI styles
+  across embedded newlines, including blank separator lines.
+
+# UtilsR 0.6.19
 
 * `plt_con()` shares each feature's dot-bin boundaries across split panels,
   retains independent bins across features, and includes bin centres in
