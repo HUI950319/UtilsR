@@ -1,5 +1,15 @@
 # Changelog
 
+## UtilsR 0.6.20
+
+- [`pr_kv()`](https://hui950319.github.io/UtilsR/reference/pr_kv.md),
+  named
+  [`pr_box()`](https://hui950319.github.io/UtilsR/reference/pr_box.md)
+  inputs and
+  [`pr_note()`](https://hui950319.github.io/UtilsR/reference/pr_note.md)
+  preserve ANSI styles across embedded newlines, including blank
+  separator lines.
+
 ## UtilsR 0.6.19
 
 - [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
