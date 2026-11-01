@@ -1,5 +1,7 @@
 # UtilsR 0.6.20
 
+* `PlotButterfly2()` resolves category colours and continuous gradient limits across both panels, keeping identical categories and values visually comparable.
+
 * `PlotScatter3()` derives automatic histogram limits from finite paired differences, retaining translated and constant differences while honouring explicit limits.
 
 * `PlotDumbbell()` isolates generated delta fields from existing input columns, preserving endpoints, sorting and delta labels when names collide.

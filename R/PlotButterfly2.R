@@ -33,6 +33,8 @@
 #'   \code{"down"} (descending), or a character vector.
 #' @param palette Colour palette for \code{fill.by} levels. Default
 #'   \code{NULL} uses \code{pal_lancet}.
+#'   Category mappings are resolved across both panels; value gradients share
+#'   the full selected data range.
 #' @param alpha Numeric 0--1. Fill/point transparency. Default 0.85.
 #' @param box.width Numeric. Boxplot width. Default 0.15.
 #' @param add_point Logical. Overlay jittered points (violin/box modes)?
@@ -256,8 +258,15 @@ PlotButterfly2 <- function(
       cols <- as.character(palette)
     }
     if (length(cols) < n_fill) cols <- rep_len(cols, n_fill)
+    cols <- stats::setNames(cols[seq_len(n_fill)], levels(data[[fill.by]]))
   } else {
     cols <- NULL
+  }
+
+  gradient_limits <- NULL
+  if (is_beeswarm && color_by == "logFC") {
+    finite_values <- data[[value.by]][is.finite(data[[value.by]])]
+    if (length(finite_values)) gradient_limits <- range(finite_values)
   }
 
   # ---- Per-variable y-axis label colours ----
@@ -390,7 +399,8 @@ PlotButterfly2 <- function(
         ggplot2::scale_color_gradient2(
           name = xlab,
           low = gradient_colors[1], mid = gradient_colors[2],
-          high = gradient_colors[3], midpoint = gradient_midpoint
+          high = gradient_colors[3], midpoint = gradient_midpoint,
+          limits = gradient_limits
         ) +
         ggplot2::scale_shape_manual(values = c(16, 17, 15, 18)[
           seq_len(n_fill)])
@@ -404,7 +414,8 @@ PlotButterfly2 <- function(
       p <- p + ggplot2::scale_color_gradient2(
         name = xlab,
         low = gradient_colors[1], mid = gradient_colors[2],
-        high = gradient_colors[3], midpoint = gradient_midpoint
+        high = gradient_colors[3], midpoint = gradient_midpoint,
+        limits = gradient_limits
       )
     }
 

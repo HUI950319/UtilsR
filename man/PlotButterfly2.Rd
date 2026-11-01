@@ -62,7 +62,9 @@ Default \code{NULL}.}
 \code{"down"} (descending), or a character vector.}
 
 \item{palette}{Colour palette for \code{fill.by} levels. Default
-\code{NULL} uses \code{pal_lancet}.}
+\code{NULL} uses \code{pal_lancet}.
+Category mappings are resolved across both panels; value gradients share
+the full selected data range.}
 
 \item{alpha}{Numeric 0--1. Fill/point transparency. Default 0.85.}
 
