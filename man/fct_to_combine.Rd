@@ -15,6 +15,8 @@ fct_to_combine(...)
 \arguments{
 \item{...}{(vector method) One-dimensional atomic vectors of equal length
 to combine. Raw vectors must be converted explicitly before use.
+\pkg{lubridate} Duration and Period vectors must be converted explicitly
+to values in the intended time unit before combining.
 Must be empty for the data.frame method. A
 single character vector of column names (length >= 2) is resolved through
 \code{dplyr::pick(all_of(.))} when called inside a data-masking verb,

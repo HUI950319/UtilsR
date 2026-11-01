@@ -14,6 +14,8 @@
 
 # UtilsR 0.6.19
 
+* `fct_to_combine()` rejects implicit Duration and Period conversion and asks for an explicit time unit, preventing valid intervals from becoming literal NA labels.
+
 * `PlotScatter1()` and `PlotScatter2()` now fail clearly when group counts exceed the default colour or shape capacity and request explicit mappings instead of silently losing points.
 
 * `fct_to_combine()` and `fct_label()` refresh rowwise grouping keys when replacing a grouping column, so later summaries use the updated values.

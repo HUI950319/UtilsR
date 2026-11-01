@@ -72,6 +72,19 @@ test_that("combination inputs are one-dimensional atomic vectors", {
                    c("2020-01-01 & A", "2020-01-02 & B"))
 })
 
+test_that("combination inputs reject implicit Duration and Period conversion", {
+  skip_if_not_installed("lubridate")
+  for (x in list(lubridate::dseconds(c(1, 2, NA)), lubridate::seconds(c(1, 2, NA)))) {
+    original <- x
+    expect_error(fct_to_combine(x, rep("A", 3)), "Duration.*Period.*convert.*unit")
+    expect_error(fct_to_combine(data.frame(time = x, g = "A"), c("time", "g")),
+                 "Duration.*Period.*convert.*unit")
+    expect_identical(as.character(fct_to_combine(as.numeric(x), rep("A", 3))),
+                     c("1 & A", "2 & A", NA_character_))
+    expect_identical(x, original)
+  }
+})
+
 test_that("missing inputs propagate without consuming the literal NA category", {
   a <- factor(c(NA, "NA", "A", "A"), levels = c("NA", "A"))
   b <- c("X", "X", NA, "Y")

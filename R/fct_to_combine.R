@@ -50,6 +50,8 @@
 #'   writing the result; keys and indices affected by replacement are cleared.
 #' @param ... (vector method) One-dimensional atomic vectors of equal length
 #'   to combine. Raw vectors must be converted explicitly before use.
+#'   \pkg{lubridate} Duration and Period vectors must be converted explicitly
+#'   to values in the intended time unit before combining.
 #'   Must be empty for the data.frame method. A
 #'   single character vector of column names (length >= 2) is resolved through
 #'   \code{dplyr::pick(all_of(.))} when called inside a data-masking verb,
@@ -214,6 +216,9 @@ fct_to_combine.default <- function(..., sep = " & ") {
   }
 
   ensure_factor <- function(v) {
+    if (inherits(v, c("Duration", "Period"))) {
+      cli::cli_abort("Duration and Period vectors are not supported; convert them explicitly to the intended time unit before combining.")
+    }
     # Register class methods even when inputs were restored from an RDS file.
     if (inherits(v, "haven_labelled")) loadNamespace("labelled")
     if (inherits(v, "integer64") && !requireNamespace("bit64", quietly = TRUE)) {
