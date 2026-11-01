@@ -58,7 +58,8 @@ selection. Three options:
 \describe{
   \item{\code{"none"} (default)}{No scaling; values are used as-is and
     normalised to \code{[0, 1]} globally only if they fall outside that
-    range.}
+    range. A constant global range outside \code{[0, 1]} uses the
+    minimum lollipop height of \code{0.05}.}
   \item{\code{"group"}}{Scale each group independently to \code{[0, 1]}
     using the group's full value range from the \strong{original} data
     (before \code{top_n} filtering). Max value in group = 1, min = 0.

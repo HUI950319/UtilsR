@@ -23,7 +23,8 @@
 #'   \describe{
 #'     \item{\code{"none"} (default)}{No scaling; values are used as-is and
 #'       normalised to \code{[0, 1]} globally only if they fall outside that
-#'       range.}
+#'       range. A constant global range outside \code{[0, 1]} uses the
+#'       minimum lollipop height of \code{0.05}.}
 #'     \item{\code{"group"}}{Scale each group independently to \code{[0, 1]}
 #'       using the group's full value range from the \strong{original} data
 #'       (before \code{top_n} filtering). Max value in group = 1, min = 0.
@@ -223,7 +224,11 @@ PlotCircleLollipop <- function(
   # ---- Normalise values to [0, 1] if still outside range ----
   val_range <- range(df$value, na.rm = TRUE)
   if (val_range[1] < 0 || val_range[2] > 1) {
-    df$y_pos <- (df$value - val_range[1]) / (val_range[2] - val_range[1])
+    df$y_pos <- if (is.finite(val_range[1]) && val_range[1] == val_range[2]) {
+      df$value - val_range[1]
+    } else {
+      (df$value - val_range[1]) / (val_range[2] - val_range[1])
+    }
     df$y_pos <- pmax(0.05, df$y_pos)
   } else {
     df$y_pos <- df$value
