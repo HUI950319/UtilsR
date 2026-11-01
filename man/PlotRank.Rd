@@ -40,7 +40,12 @@ PlotRank(
     labels.  Produces a single-panel plot.}
   \item{Matrix}{Rows = features, columns = groups (e.g. cell types).
     Use \code{groups} to select specific columns.}
-}}
+}
+Scores must be one-dimensional real numeric values. Numeric haven
+labelled scores are supported, with class-defined missing values
+(including SPSS user missings) excluded before ranking. Matrix and list
+columns, integer64, time classes and complex scores are not supported;
+convert them explicitly after choosing units and checking precision.}
 
 \item{group_col}{Column name for the grouping variable (e.g. cell type).
 Default \code{"cell_type"}.  Ignored for vector / matrix input.}

@@ -27,6 +27,11 @@
 #'     \item{Matrix}{Rows = features, columns = groups (e.g. cell types).
 #'       Use \code{groups} to select specific columns.}
 #'   }
+#'   Scores must be one-dimensional real numeric values. Numeric haven
+#'   labelled scores are supported, with class-defined missing values
+#'   (including SPSS user missings) excluded before ranking. Matrix and list
+#'   columns, integer64, time classes and complex scores are not supported;
+#'   convert them explicitly after choosing units and checking precision.
 #' @param group_col Column name for the grouping variable (e.g. cell type).
 #'   Default \code{"cell_type"}.  Ignored for vector / matrix input.
 #' @param name_col Column name for the feature names.
@@ -254,9 +259,31 @@ PlotRank <- function(
 #' Parse diverse inputs into a named list of named numeric vectors
 #' @keywords internal
 .pr_parse <- function(data, group_col, name_col, value_col, groups) {
+  score_values <- function(x) {
+    if (inherits(x, "integer64")) {
+      stop("Scores with integer64 storage are not supported; convert explicitly after checking precision.",
+           call. = FALSE)
+    }
+    unsupported <- inherits(x, c("Date", "POSIXt", "difftime", "Duration", "Period", "Interval")) ||
+      (is.object(x) && !inherits(x, c("haven_labelled", "AsIs")))
+    if (unsupported || !is.numeric(x) || is.complex(x) || !is.null(dim(x))) {
+      stop("Scores must contain one-dimensional real numeric values; convert unsupported storage explicitly.",
+           call. = FALSE)
+    }
+    if (inherits(x, "haven_labelled")) {
+      if (!requireNamespace("haven", quietly = TRUE)) {
+        stop("Interpreting labelled scores requires package 'haven'.", call. = FALSE)
+      }
+      x[is.na(x)] <- NA
+    }
+    x
+  }
 
   ## -- Named numeric vector --
-  if (is.numeric(data) && !is.null(names(data))) {
+  if (!is.data.frame(data) && !is.matrix(data)) {
+    data <- score_values(data)
+  }
+  if (is.numeric(data) && is.null(dim(data)) && !is.null(names(data))) {
     lbl <- if (!is.null(groups)) groups[1] else "All"
     return(setNames(list(data), lbl))
   }
@@ -273,7 +300,7 @@ PlotRank <- function(
       colnames(data)
     }
     return(lapply(setNames(cols, cols), function(ct) {
-      v <- data[, ct]; names(v) <- rownames(data); v
+      v <- score_values(data[, ct]); names(v) <- rownames(data); v
     }))
   }
 
@@ -283,6 +310,7 @@ PlotRank <- function(
       if (!col %in% colnames(data))
         stop(sprintf("Column '%s' not found in data.", col), call. = FALSE)
     }
+    scores <- score_values(data[[value_col]])
 
     # Has group column -> faceted
     if (group_col %in% colnames(data)) {
@@ -291,15 +319,15 @@ PlotRank <- function(
         else unique(data[[group_col]])
       }
       return(lapply(setNames(grps, grps), function(g) {
-        sub_df <- data[data[[group_col]] == g, ]
-        v <- sub_df[[value_col]]
-        names(v) <- sub_df[[name_col]]
+        index <- data[[group_col]] == g
+        v <- scores[index]
+        names(v) <- data[[name_col]][index]
         v
       }))
     }
 
     # No group column -> single panel
-    v <- data[[value_col]]
+    v <- scores
     names(v) <- data[[name_col]]
     lbl <- if (!is.null(groups)) groups[1] else "All"
     return(setNames(list(v), lbl))

@@ -1,5 +1,7 @@
 # UtilsR 0.6.20
 
+* `PlotRank()` validates one-dimensional real score storage, rejects unsupported classes explicitly, and excludes labelled missing scores even in fresh R sessions.
+
 * `stat_ci_parse()` uses stable log ratios for scale comparisons, avoiding intermediate overflow or underflow for finite extreme intervals while retaining precision for close bounds.
 
 * `plt_sankey()` retains only selected input columns in its plotting frame, removing unused payload from returned and serialized plots while preserving geometry and pixels.
