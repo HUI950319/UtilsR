@@ -48,12 +48,13 @@ plt_upset(
   :   A data.frame with binary indicator columns specified by `vars`.
       Membership is determined by `levels`.
 
-  Select at least two sets, with unique, non-missing, non-blank names.
-  List members must be one-dimensional atomic vectors; factors are
-  accepted, while other classed member IDs must first be converted to
-  stable identifiers. In mixed factor/non-factor lists, factor labels
-  are used as member IDs. Selected data-frame columns cannot be matrix
-  or list columns.
+  Select 2 to 16 sets, with unique, non-missing, non-blank names. The
+  16-set limit bounds enumeration of all possible intersections;
+  Venn-only output supports at most 7 sets. List members must be
+  one-dimensional atomic vectors; factors are accepted, while other
+  classed member IDs must first be converted to stable identifiers. In
+  mixed factor/non-factor lists, factor labels are used as member IDs.
+  Selected data-frame columns cannot be matrix or list columns.
 
 - vars:
 
@@ -196,8 +197,10 @@ list. List-input data retain member IDs in `.element`, with a numeric
 suffix if that column name is already a set name. Existing input
 columns, including `.row_id`, are preserved. For `"data"` and `"all"`,
 an existing `intersect_group` column must be renamed first to avoid
-overwriting it. Plots carry their page size as `attr(p, "plot_size")`,
-the list of `"all"` on its `combined` element.
+overwriting it. Intersection factors retain every possible combination
+level, including unobserved combinations and the `None` level. Plots
+carry their page size as `attr(p, "plot_size")`, the list of `"all"` on
+its `combined` element.
 
 ## Note
 

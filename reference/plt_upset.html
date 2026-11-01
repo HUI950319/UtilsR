@@ -104,7 +104,9 @@ without modifying the input data.</p>
     specified by <code>vars</code>. Membership is determined by <code>levels</code>.</p></dd>
 
 
-</dl><p>Select at least two sets, with unique, non-missing, non-blank names.
+</dl><p>Select 2 to 16 sets, with unique, non-missing, non-blank names.
+The 16-set limit bounds enumeration of all possible intersections;
+Venn-only output supports at most 7 sets.
 List members must be one-dimensional atomic vectors; factors are accepted,
 while other classed member IDs must first be converted to stable identifiers.
 In mixed factor/non-factor lists, factor labels are used as member IDs.
@@ -247,6 +249,8 @@ size note, need the <span class="pkg">RegR</span> package.</p></dd>
   Existing input columns, including <code>.row_id</code>, are preserved.
   For <code>"data"</code> and <code>"all"</code>, an existing <code>intersect_group</code>
   column must be renamed first to avoid overwriting it.
+Intersection factors retain every possible combination level, including
+unobserved combinations and the <code>None</code> level.
   Plots carry their page size as
   <code>attr(p, "plot_size")</code>, the list of <code>"all"</code> on its
   <code>combined</code> element.</p>

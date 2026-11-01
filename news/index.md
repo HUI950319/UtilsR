@@ -2,30 +2,20 @@
 
 ## UtilsR 0.6.20
 
-- Print helpers restore stored Period, Duration and Interval methods
-  without attaching lubridate or emitting its startup messages.
+- [`stat_ci_parse()`](https://hui950319.github.io/UtilsR/reference/stat_ci_parse.md)
+  uses stable log ratios for scale comparisons, avoiding intermediate
+  overflow or underflow for finite extreme intervals while retaining
+  precision for close bounds.
 
-- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
-  formats only the column names that can reach a closed data-frame
-  preview, avoiding work proportional to all columns of wide tables.
+- [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md)
+  retains only selected input columns in its plotting frame, removing
+  unused payload from returned and serialized plots while preserving
+  geometry and pixels.
 
-- [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
-  limits displayed rows before creating the row-name column, avoiding
-  full-table row-name checks for short previews of large tables.
-
-- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
-  includes inherited `.Data` slots when opening S4 objects, retaining
-  the seconds in Period and Duration vectors.
-
-- [`pr_kv()`](https://hui950319.github.io/UtilsR/reference/pr_kv.md),
-  named
-  [`pr_box()`](https://hui950319.github.io/UtilsR/reference/pr_box.md)
-  inputs and
-  [`pr_note()`](https://hui950319.github.io/UtilsR/reference/pr_note.md)
-  preserve ANSI styles across embedded newlines, including blank
-  separator lines.
-
-## UtilsR 0.6.19
+- [`plt_upset()`](https://hui950319.github.io/UtilsR/reference/plt_upset.md)
+  rejects more than 16 sets before enumerating intersections; accepted
+  inputs retain every combination factor level, including unobserved
+  combinations and None.
 
 - Factor tools load integer64 methods before validating, naming or
   converting serialized inputs; reference indices, automatic group
@@ -63,6 +53,31 @@
   excludes class-defined missing values in every mode, including SPSS
   user missings, and handles POSIXlt columns without changing explicit
   factor-NA rules.
+
+- Print helpers restore stored Period, Duration and Interval methods
+  without attaching lubridate or emitting its startup messages.
+
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  formats only the column names that can reach a closed data-frame
+  preview, avoiding work proportional to all columns of wide tables.
+
+- [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  limits displayed rows before creating the row-name column, avoiding
+  full-table row-name checks for short previews of large tables.
+
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  includes inherited `.Data` slots when opening S4 objects, retaining
+  the seconds in Period and Duration vectors.
+
+- [`pr_kv()`](https://hui950319.github.io/UtilsR/reference/pr_kv.md),
+  named
+  [`pr_box()`](https://hui950319.github.io/UtilsR/reference/pr_box.md)
+  inputs and
+  [`pr_note()`](https://hui950319.github.io/UtilsR/reference/pr_note.md)
+  preserve ANSI styles across embedded newlines, including blank
+  separator lines.
+
+## UtilsR 0.6.19
 
 - [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
   shares each feature’s dot-bin boundaries across split panels, retains

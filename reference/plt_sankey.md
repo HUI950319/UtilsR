@@ -27,7 +27,8 @@ plt_sankey(
 
 - data:
 
-  A data frame.
+  A data frame. Only selected columns are retained in the plot's working
+  data; unrelated columns do not increase the returned plot size.
 
 - vars:
 

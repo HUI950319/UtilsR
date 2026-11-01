@@ -89,7 +89,9 @@ The input is read as a 95% CI and the p-value is backed out with the
 normal approximation of Altman & Bland (BMJ 2011;343:d2304): \\SE =
 (hi - lo) / (2 \times 1.96)\\ on the working scale. An interval at
 another level (e.g. a 90% CI) is still read as 95% and gives a wrong
-p-value; convert it first.
+p-value; convert it first. Log-scale comparisons use stable log ratios
+to avoid intermediate products overflowing or underflowing for finite
+positive inputs.
 
 **`exp = "auto"`.** An interval symmetric on the log scale is a ratio,
 and one symmetric on the raw scale is a difference; bounds \\\le 0\\
