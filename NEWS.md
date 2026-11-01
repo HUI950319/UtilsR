@@ -1,5 +1,8 @@
 # UtilsR 0.6.20
 
+* `pr_table()` limits displayed rows before creating the row-name column,
+  avoiding full-table row-name checks for short previews of large tables.
+
 * `pr_tree()` includes inherited `.Data` slots when opening S4 objects,
   retaining the seconds in Period and Duration vectors.
 

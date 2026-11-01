@@ -558,6 +558,8 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   }
   if (!ncol(data) && !isTRUE(rownames)) return(._pr_out(character()))
   data   <- as.data.frame(data)
+  n_rows <- nrow(data)
+  if (!is.null(n) && n_rows > n) data <- data[seq_len(n), , drop = FALSE]
   is_p <- names(data) %in% p_col
   # not automatic for character row names: rbind() of a named list leaves
   # "cox.1", "cox.2", which would become a column of their own
@@ -565,9 +567,6 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
     data <- cbind(stats::setNames(data.frame(row.names(data)), " "), data)
     is_p <- c(FALSE, is_p)
   }
-  n_rows <- nrow(data)
-  if (!is.null(n) && n_rows > n) data <- data[seq_len(n), , drop = FALSE]
-
   colour <- ._pr_colour()
   hl <- if (is.logical(highlight)) which(highlight) else highlight
   if (!colour && any(seq_len(nrow(data)) %in% hl)) indent <- max(indent, 2L)
