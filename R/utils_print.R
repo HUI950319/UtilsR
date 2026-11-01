@@ -740,7 +740,8 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
     if (!inside || !ncol(v)) return(g(head))
     # its column names, as far as the line goes
     room <- max(width - cli::ansi_nchar(head, type = "width") - 1L, 10L)
-    return(paste(g(head), cli::ansi_strtrim(paste(._pr_escape(names(v)), collapse = g(", ")), room)))
+    # Even empty names contribute a two-column separator.
+    return(paste(g(head), cli::ansi_strtrim(paste(._pr_escape(utils::head(names(v), ceiling(room / 2) + 2L)), collapse = g(", ")), room)))
   }
   if (!is.null(dim(v))) {
     # an atomic matrix or table with its element type: <int matrix 2 x 3>
