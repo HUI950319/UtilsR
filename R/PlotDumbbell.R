@@ -86,7 +86,8 @@
 #'   \code{"t.test"}, \code{"wilcox"}, or \code{"none"}. Default
 #'   \code{"t.test"}. Only used when \code{inset_plot = "auto"}.
 #' @param inset_paired_line Logical. Show paired connecting lines in auto
-#'   inset? Default \code{TRUE}.
+#'   inset? Default \code{TRUE}. Each retained row defines one pair, even
+#'   when category labels repeat.
 #' @param inset_jitter Logical. Show jitter points in auto inset? Default
 #'   \code{TRUE}.
 #' @param inset_theme_use Theme for auto inset. Default \code{NULL} (uses
@@ -356,7 +357,6 @@ PlotDumbbell <- function(
       data       = data,
       x_col      = x_col,
       xend_col   = xend_col,
-      y_col      = y_col,
       label_x    = label_x,
       label_xend = label_xend,
       color_x    = color_x,
@@ -425,7 +425,7 @@ PlotDumbbell <- function(
 
 # ---- Internal: build auto inset paired boxplot/violin ----
 .build_dumbbell_inset <- function(
-    data, x_col, xend_col, y_col,
+    data, x_col, xend_col,
     label_x, label_xend,
     color_x, color_xend,
     inset_type, inset_test,
@@ -435,13 +435,13 @@ PlotDumbbell <- function(
   # Reshape to long format
   df_long <- rbind(
     data.frame(
-      .id    = data[[y_col]],
+      .id    = seq_len(nrow(data)),
       .group = label_x,
       .value = data[[x_col]],
       stringsAsFactors = FALSE
     ),
     data.frame(
-      .id    = data[[y_col]],
+      .id    = seq_len(nrow(data)),
       .group = label_xend,
       .value = data[[xend_col]],
       stringsAsFactors = FALSE

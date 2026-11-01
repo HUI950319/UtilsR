@@ -163,7 +163,8 @@ or \code{"violin"}. Only used when \code{inset_plot = "auto"}.}
 \code{"t.test"}. Only used when \code{inset_plot = "auto"}.}
 
 \item{inset_paired_line}{Logical. Show paired connecting lines in auto
-inset? Default \code{TRUE}.}
+inset? Default \code{TRUE}. Each retained row defines one pair, even
+when category labels repeat.}
 
 \item{inset_jitter}{Logical. Show jitter points in auto inset? Default
 \code{TRUE}.}

@@ -26,3 +26,23 @@ test_that("PlotDumbbell isolates generated delta fields from input columns", {
   plot <- dumbbell_plot(data)
   expect_identical(plot$data$.delta, data$.delta)
 })
+
+test_that("PlotDumbbell inset keeps row pairs when category labels repeat", {
+  inset <- NULL
+  original <- get(".build_dumbbell_inset", asNamespace("UtilsR"))
+  testthat::local_mocked_bindings(.build_dumbbell_inset = function(...) {
+    inset <<- original(...)
+    inset
+  }, .package = "UtilsR")
+  data <- data.frame(start = 1:4, end = c(2, 4, 5, 7), category = c("A", "A", "B", "B"))
+  before <- data
+  dumbbell_plot(data, inset_plot = "auto", inset_test = "none")
+  lines <- ggplot2::ggplot_build(inset)$data[[2]]
+  expect_equal(length(unique(lines$group)), 4L)
+  expect_equal(unname(split(lines$y, lines$group)), lapply(1:4, function(i) c(data$start[i], data$end[i])))
+  expect_identical(data, before)
+  data$category <- letters[1:4]
+  dumbbell_plot(data, inset_plot = "auto", inset_test = "none")
+  control <- ggplot2::ggplot_build(inset)$data[[2]]
+  expect_equal(control[c("group", "x", "y")], lines[c("group", "x", "y")])
+})
