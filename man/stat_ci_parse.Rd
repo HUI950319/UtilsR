@@ -67,6 +67,8 @@ at another level (e.g. a 90\% CI) is still read as 95\% and gives a wrong
 p-value; convert it first.
 Log-scale comparisons use stable log ratios to avoid intermediate products
 overflowing or underflowing for finite positive inputs.
+Raw-scale comparisons and interval widths avoid intermediate overflow
+for extreme finite values by rescaling before subtraction when needed.
 
 \strong{\code{exp = "auto"}.} An interval symmetric on the log scale is a
 ratio, and one symmetric on the raw scale is a difference; bounds

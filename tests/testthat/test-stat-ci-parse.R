@@ -153,6 +153,24 @@ test_that("finite extreme ratio intervals avoid intermediate overflow", {
   }
 })
 
+test_that("finite extreme difference intervals avoid intermediate overflow", {
+  x <- c("1e308 (8e307, 1.2e308)", "-1e308 (-1.2e308, -8e307)",
+         "1.00e307 (-1.00e308, 1.20e308)")
+  reference <- c("1 (0.8, 1.2)", "-1 (-1.2, -0.8)", "0.10 (-1.00, 1.20)")
+  expect_no_warning(p <- stat_ci_parse(x, output = "p", exp = FALSE))
+  expect_equal(log(p), log(stat_ci_parse(reference, output = "p", exp = FALSE)), tolerance = 1e-12)
+  expect_true(all(is.finite(p)))
+  expect_warning(auto <- stat_ci_parse(x[1], output = "p"), "treated as ratio")
+  expect_identical(auto, stat_ci_parse(x[1], output = "p", exp = TRUE))
+  expect_no_warning(auto <- stat_ci_parse("1.00e308 (8.00e307, 1.20e308)", output = "p"))
+  expect_equal(log(auto), log(p[1]), tolerance = 1e-12)
+  expect_warning(asymmetric <- stat_ci_parse("1.00e308 (-1.00e308, 1.20e308)",
+    output = "p", exp = FALSE), "not symmetric")
+  expect_warning(control <- stat_ci_parse("1.00 (-1.00, 1.20)", output = "p", exp = FALSE),
+    "not symmetric")
+  expect_equal(asymmetric, control, tolerance = 1e-12)
+})
+
 test_that("ci_p writes p<0.001, not p=<0.001", {
   expect_identical(stat_ci_parse("2.00 (1.50, 2.67)", output = "ci_p"),
                    "2.00 (1.50, 2.67), p<0.001")

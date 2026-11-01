@@ -1,5 +1,7 @@
 # UtilsR 0.6.20
 
+* stat_ci_parse() avoids intermediate overflow in raw-scale symmetry checks and standard errors for extreme finite confidence intervals without changing scale or rounding rules.
+
 * PlotCircleLollipop() restores margins, clears chart state on errors, and closes only its own saved-file device while restoring the caller device.
 
 * PlotCircleLollipop() keeps constant out-of-range scores visible at the existing minimum global height instead of producing NaN positions.

@@ -58,6 +58,8 @@
 #' p-value; convert it first.
 #' Log-scale comparisons use stable log ratios to avoid intermediate products
 #' overflowing or underflowing for finite positive inputs.
+#' Raw-scale comparisons and interval widths avoid intermediate overflow
+#' for extreme finite values by rescaling before subtraction when needed.
 #'
 #' \strong{\code{exp = "auto"}.} An interval symmetric on the log scale is a
 #' ratio, and one symmetric on the raw scale is a difference; bounds
@@ -180,7 +182,14 @@ stat_ci_parse <- function(x,
   # Full width for symmetric intervals; for asymmetric ones the half facing
   # the null, so that p < 0.05 exactly when the interval excludes the null
   se_of <- function(l, h) {
-    ifelse(asym, ifelse(e_s > 0, e_s - l, h - e_s) / z95, (h - l) / (2 * z95))
+    full <- (h - l) / (2 * z95)
+    half <- ifelse(e_s > 0, e_s - l, h - e_s) / z95
+    wide <- is.finite(l) & is.finite(h) & !is.finite(full)
+    full[wide] <- h[wide] / (2 * z95) - l[wide] / (2 * z95)
+    wide <- is.finite(e_s) & is.finite(l) & is.finite(h) & !is.finite(half)
+    half[wide] <- ifelse(e_s[wide] > 0, e_s[wide] / z95 - l[wide] / z95,
+                         h[wide] / z95 - e_s[wide] / z95)
+    ifelse(asym, half, full)
   }
   se <- se_of(l_s, h_s)
 
@@ -288,8 +297,8 @@ stat_ci_parse <- function(x,
 .ci_scale <- function(est, lo, hi, unit, exp, valid) {
   ue <- unit[, 1]; ul <- unit[, 2]; uh <- unit[, 3]
   # Rounding moves each printed number by up to half its unit, no further
-  invalid <- valid & (lo >= hi | est < lo - (ue + ul) / 2 |
-                        est > hi + (ue + uh) / 2)
+  invalid <- valid & (lo >= hi | est < lo - (ue / 2 + ul / 2) |
+                        est > hi + (ue / 2 + uh / 2))
   ok <- valid & !invalid
   pos <- ok & lo > 0 & est > 0
   if (isTRUE(exp)) {
@@ -301,6 +310,15 @@ stat_ci_parse <- function(x,
   # part of it that rounding alone can produce
   a_lin <- abs(hi + lo - 2 * est) / (hi - lo)
   r_lin <- ((ul + uh) / 2 + ue) / (hi - lo)
+  wide <- which(ok & is.finite(est) & is.finite(lo) & is.finite(hi) &
+                  (!is.finite(a_lin) | !is.finite(r_lin)))
+  if (length(wide)) {
+    magnitude <- pmax(abs(est[wide]), abs(lo[wide]), abs(hi[wide]))
+    e <- est[wide] / magnitude; l <- lo[wide] / magnitude; h <- hi[wide] / magnitude
+    a_lin[wide] <- abs(h + l - 2 * e) / (h - l)
+    r_lin[wide] <- (ul[wide] / magnitude / 2 + uh[wide] / magnitude / 2 +
+                     ue[wide] / magnitude) / (h - l)
+  }
   a_log <- rep(Inf, length(est)); r_log <- rep(0, length(est))
   log_ratio <- function(a, b) {
     relative <- (a - b) / b
