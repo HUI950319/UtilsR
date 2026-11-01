@@ -404,6 +404,46 @@ test_that("numeric distribution normalization keeps missing-value rules", {
   }
 })
 
+test_that("distribution class-aware missingness agrees across modes", {
+  skip_if_not_installed("haven")
+  skip_if_not_installed("ggalluvial")
+  data <- data.frame(x = rep("A", 4), cell = letters[1:4])
+  data$group <- haven::labelled_spss(c(1, 99, 2, NA),
+                                    labels = c(No = 1, Yes = 2, Missing = 99),
+                                    na_values = 99)
+  original <- data
+  for (type in c("bar", "alluvial")) {
+    expect_message(p <- dist_test_plot(data, c("x", "group"), type = type),
+                   "Removed 2 rows")
+    counts <- p$data[[if (type == "bar") "n" else "count"]]
+    groups <- p$data[[if (type == "bar") "group" else ".group"]]
+    proportions <- p$data[[if (type == "bar") "prop" else "percent"]]
+    expect_equal(sum(counts), 2)
+    expect_setequal(as.character(groups[counts > 0]), c("No", "Yes"))
+    expect_equal(proportions[counts > 0], c(0.5, 0.5))
+  }
+  heat <- dist_test_plot(data, c("x", "cell", "group"))
+  expect_equal(sum(heat$data$n), 2)
+  expect_setequal(as.character(heat$data$group), c("No", "Yes"))
+  expect_identical(data, original)
+})
+
+test_that("distribution missingness accepts POSIXlt columns", {
+  skip_if_not_installed("ggalluvial")
+  data <- data.frame(group = c("F", "M", "F"), cell = "A")
+  data$x <- as.POSIXlt(as.POSIXct(c("2020-01-01", "2020-01-02", NA), tz = "UTC"))
+  original <- data
+  for (type in c("bar", "alluvial")) {
+    p <- dist_test_plot(data, c("x", "group"), type = type)
+    expect_equal(sum(p$data[[if (type == "bar") "n" else "count"]]), 2)
+    axis <- ggplot2::ggplot_build(p)$layout$panel_scales_x[[1]]
+    expect_identical(axis$get_labels(), c("2020-01-01", "2020-01-02"))
+  }
+  heat <- dist_test_plot(data, c("x", "cell", "group"))
+  expect_equal(sum(heat$data$n), 2)
+  expect_identical(data, original)
+})
+
 test_that("fmt_text formats every mode before the plot is saved", {
   plot_labels <- function(p) {
     if (exists("get_labs", envir = asNamespace("ggplot2"))) {

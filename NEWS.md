@@ -5,6 +5,8 @@
 
 # UtilsR 0.6.19
 
+* `plt_dist()` excludes class-defined missing values in every mode, including SPSS user missings, and handles POSIXlt columns without changing explicit factor-NA rules.
+
 * `plt_con()` shares each feature's dot-bin boundaries across split panels,
   retains independent bins across features, and includes bin centres in
   automatic limits without changing explicit raw-data zoom bounds.

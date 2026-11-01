@@ -20,8 +20,10 @@
 #'   only the variables selected by \code{dis_vars} and \code{facet}. Rows
 #'   missing any required value are removed with a message in every mode;
 #'   unrelated columns do not affect inclusion. An error is raised if no
-#'   complete rows remain. Alluvial mode also removes explicit NA factor levels
-#'   and SPSS user-defined missing values. The heatmap ignores \code{facet}.
+#'   complete rows remain. SPSS user-defined missing values are excluded in
+#'   every mode. Alluvial mode also removes explicit NA factor levels.
+#'   Date-time missingness respects the column class, including POSIXlt.
+#'   The heatmap ignores \code{facet}.
 #' @param dis_vars Character vector of 2 or 3 distinct, non-empty column names.
 #'   Plain integer and double columns are treated as categories in numeric
 #'   ascending order in every mode; values are not binned. Labelled columns
@@ -337,10 +339,21 @@ plt_dist <- function(data,
 
   data <- dplyr::ungroup(data)
   required <- c(dis_vars, if (length(dis_vars) == 2L) facet)
-  keep <- stats::complete.cases(data[required])
-  if (length(dis_vars) == 2L && type == "alluvial") {
-    for (v in required) {
-      keep <- keep & !is.na(data[[v]]) & !is.na(as.character(data[[v]]))
+  keep <- rep(TRUE, nrow(data))
+  for (v in required) {
+    value <- data[[v]]
+    if (!is.null(dim(value)) || (is.list(value) && !inherits(value, "POSIXlt"))) {
+      cli::cli_abort("Column {.val {v}} must be a one-dimensional vector.")
+    }
+    pkg <- if (inherits(value, "integer64")) "bit64" else
+      if (inherits(value, "haven_labelled")) "haven" else
+        if (inherits(value, c("Duration", "Period", "Interval"))) "lubridate" else NULL
+    if (!is.null(pkg) && !requireNamespace(pkg, quietly = TRUE)) {
+      cli::cli_abort("Inspecting {.cls {class(value)[1]}} columns requires package {.pkg {pkg}}.")
+    }
+    keep <- keep & !is.na(value)
+    if (length(dis_vars) == 2L && type == "alluvial") {
+      keep <- keep & !is.na(as.character(value))
     }
   }
   removed <- sum(!keep)
