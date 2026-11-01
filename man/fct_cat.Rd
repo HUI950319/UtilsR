@@ -64,6 +64,8 @@ auto-named groups (e.g. `g1/3`), see [fct_to_group()].
 \details{
 Numeric indices are converted to native integers after their
   values and bounds have been checked, including classed numeric vectors.
+Integer64 values require \pkg{bit64}; its methods are loaded when needed,
+including for objects restored from serialized files.
 }
 \examples{
 x <- factor(letters[1:6])

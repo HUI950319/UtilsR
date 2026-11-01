@@ -14,7 +14,8 @@ fct_to_group(x, g_lis, name_prefix = "g", name_sep = "/")
 level positions to merge into one new group. Either fully named (user
 names used as new level names) or unnamed (auto-named via
 `name_prefix` + `name_sep`). Indices must be between 1 and `nlevels(x)`.
-Values must be finite and non-missing. Empty groups add no levels.}
+Values must be finite and non-missing. Empty groups add no levels.
+Integer64 indices require \pkg{bit64}, which is loaded when needed.}
 
 \item{name_prefix}{Prefix for auto-generated group names. Default `"g"`.}
 

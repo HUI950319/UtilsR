@@ -31,6 +31,7 @@
 #'   Logical labels, including \code{FALSE}, are not supported; the result is always a factor.
 #' @param nbins Single finite integer number of bins, at least 2 and less than
 #'   \code{.Machine$integer.max}. Mutually exclusive with \code{breaks}.
+#'   Integer64 bin counts require \pkg{bit64}, which is loaded when needed.
 #'   Time-span classes are not supported; supply a dimensionless bin count.
 #' @param type Binning method when using \code{nbins}: \code{"quantile"}
 #'   (default) or \code{"equal"} width. Constant non-missing data cannot be
@@ -166,6 +167,7 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
   }
 
   # --- Mode 2: automatic binning ---
+  .register_integer64(nbins)
   if (inherits(nbins, c("Duration", "Period", "Interval"))) {
     cli::cli_abort("{.arg nbins} with a time-span class is not supported. Supply a dimensionless bin count.")
   }

@@ -18,6 +18,7 @@
 #'   names used as new level names) or unnamed (auto-named via
 #'   `name_prefix` + `name_sep`). Indices must be between 1 and `nlevels(x)`.
 #'   Values must be finite and non-missing. Empty groups add no levels.
+#'   Integer64 indices require \pkg{bit64}, which is loaded when needed.
 #' @param name_prefix Prefix for auto-generated group names. Default `"g"`.
 #' @param name_sep Separator for auto-generated group names. Default `"/"`.
 #'
@@ -56,7 +57,8 @@ fct_to_group <- function(x, g_lis,
     cli::cli_abort("{.arg g_lis} must be a non-empty list of integer index vectors.")
   }
 
-  if (!is.factor(x)) x <- factor(x)
+  x <- .as_factor(x)
+  g_lis <- lapply(g_lis, .check_integer_index, arg_name = "g_lis", n_levels = nlevels(x))
 
   # Auto-name unnamed elements; user names take precedence
   cur_names <- names(g_lis)

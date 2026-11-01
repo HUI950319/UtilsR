@@ -248,6 +248,61 @@ test_that("integer64 indices use their values in every factor mode", {
   expect_identical(as.character(x), c("a", "b", "c", NA_character_))
 })
 
+test_that("serialized integer64 factor arguments work in fresh R processes", {
+  skip_if_not_installed("bit64")
+  functions <- c("fct_cat", "fct_to_group", "fct_num", ".as_factor",
+                 ".check_integer_index", ".recode_factor", ".do_binary",
+                 ".relevel_factor", ".factor_attributes", ".register_integer64",
+                 ".fct_num_cut", ".make_default_bin_labels", ".make_break_labels")
+  ns <- environment(fct_cat)
+  isolated <- new.env(parent = baseenv())
+  for (name in functions[vapply(functions, exists, logical(1L), envir = ns)]) {
+    fn <- get(name, envir = ns)
+    environment(fn) <- isolated
+    assign(name, fn, envir = isolated)
+  }
+  directory <- withr::local_tempdir()
+  fixture <- file.path(directory, "fixture.rds")
+  script <- file.path(directory, "cold.R")
+  output <- file.path(directory, "result.rds")
+  saveRDS(list(functions = as.list(isolated), libs = .libPaths(),
+               scalar = bit64::as.integer64(3), vector = bit64::as.integer64(c(3, 1)),
+               labels = bit64::as.integer64(c(3, 1, 2))), fixture)
+  writeLines(c(
+    "args <- commandArgs(TRUE)",
+    "fixture <- readRDS(args[[1]])",
+    ".libPaths(fixture[['libs']])",
+    "stopifnot(!'bit64' %in% loadedNamespaces())",
+    "list2env(fixture[['functions']], .GlobalEnv)",
+    "x <- factor(c('a', 'b', 'c', NA))",
+    "result <- switch(args[[2]],",
+    " ref = fct_cat(x, ref_idx = fixture[['scalar']]),",
+    " reorder = fct_cat(x, fixture[['vector']]),",
+    " named = fct_to_group(x, list(A = fixture[['vector']])),",
+    " auto = fct_to_group(x, list(fixture[['vector']])),",
+    " factor = fct_cat(fixture[['labels']], reverse = TRUE),",
+    " labels = fct_cat(x, new_labels = fixture[['labels']]),",
+    " quantile = fct_num(1:12, nbins = fixture[['scalar']]),",
+    " equal = fct_num(1:12, nbins = fixture[['scalar']], type = 'equal'))",
+    "saveRDS(result, args[[3]])"
+  ), script)
+  x <- factor(c("a", "b", "c", NA))
+  expected <- list(ref = fct_cat(x, ref_idx = 3L), reorder = fct_cat(x, c(3L, 1L)),
+                    named = fct_to_group(x, list(A = c(3L, 1L))),
+                    auto = fct_to_group(x, list(c(3L, 1L))),
+                    factor = factor(c("3", "1", "2"), levels = c("3", "2", "1")),
+                    labels = fct_cat(x, new_labels = c("3", "1", "2")),
+                    quantile = fct_num(1:12, nbins = 3),
+                    equal = fct_num(1:12, nbins = 3, type = "equal"))
+  for (mode in names(expected)) {
+    status <- system2(file.path(R.home("bin"), "Rscript"),
+                       c("--vanilla", shQuote(script), shQuote(fixture), mode, shQuote(output)),
+                       stdout = TRUE, stderr = TRUE)
+    expect_null(attr(status, "status"), info = paste(mode, paste(status, collapse = "\n")))
+    if (is.null(attr(status, "status"))) expect_identical(readRDS(output), expected[[mode]])
+  }
+})
+
 test_that("reorder vector names do not change levels or contrasts", {
   x <- factor(rep(letters[1:3], each = 2))
   contrasts(x) <- contr.sum(3)

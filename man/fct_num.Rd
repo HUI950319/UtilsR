@@ -32,6 +32,7 @@ Logical labels, including \code{FALSE}, are not supported; the result is always 
 
 \item{nbins}{Single finite integer number of bins, at least 2 and less than
 \code{.Machine$integer.max}. Mutually exclusive with \code{breaks}.
+Integer64 bin counts require \pkg{bit64}, which is loaded when needed.
 Time-span classes are not supported; supply a dimensionless bin count.}
 
 \item{type}{Binning method when using \code{nbins}: \code{"quantile"}

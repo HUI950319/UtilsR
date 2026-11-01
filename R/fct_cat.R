@@ -57,6 +57,8 @@
 #'
 #' @details Numeric indices are converted to native integers after their
 #'   values and bounds have been checked, including classed numeric vectors.
+#'   Integer64 values require \pkg{bit64}; its methods are loaded when needed,
+#'   including for objects restored from serialized files.
 #'
 #' @examples
 #' x <- factor(letters[1:6])
@@ -110,6 +112,7 @@ fct_cat <- function(x, ...,
     ref_idx <- binary_ref
   }
   # A single 0 is the same as NULL (no binary collapse), not an active mode.
+  .register_integer64(ref_idx)
   if (is.numeric(ref_idx) && length(ref_idx) == 1L && !is.na(ref_idx) &&
       ref_idx == 0) {
     ref_idx <- NULL
@@ -162,6 +165,7 @@ fct_cat <- function(x, ...,
     if (length(new_labels) != n_lvl) {
       cli::cli_abort("{.arg new_labels} must have length {n_lvl} (same as number of levels), got {length(new_labels)}.")
     }
+    .register_integer64(new_labels)
     new_labels <- as.character(new_labels)
     if (!is.character(new_labels) || length(new_labels) != n_lvl) {
       cli::cli_abort("After conversion to character, {.arg new_labels} must be a character vector of length {n_lvl}.")
@@ -304,10 +308,18 @@ fct_cat <- function(x, ...,
 }
 
 .as_factor <- function(x) {
+  .register_integer64(x)
   if (is.factor(x)) x else factor(x)
 }
 
+.register_integer64 <- function(x) {
+  if (inherits(x, "integer64") && !requireNamespace("bit64", quietly = TRUE)) {
+    cli::cli_abort("Interpreting integer64 values requires the {.pkg bit64} package.")
+  }
+}
+
 .check_integer_index <- function(x, arg_name, n_levels) {
+  .register_integer64(x)
   if (!is.numeric(x) || is.complex(x) || !is.null(dim(x)) || anyNA(x) ||
       any(!is.finite(x)) || any(x != trunc(x))) {
     cli::cli_abort("{.arg {arg_name}} must contain finite integer values, got: {.val {x}}.")

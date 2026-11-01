@@ -14,6 +14,8 @@
 
 # UtilsR 0.6.19
 
+* Factor tools load integer64 methods before validating, naming or converting serialized inputs; reference indices, automatic group names, labels and bin counts no longer depend on prior package-loading order.
+
 * `plt_sankey()` sizes default stage palettes to actual displayed nodes, fixing missing-value nodes and unused factor levels without shifting later stage colours.
 
 * `fct_to_combine()` rejects implicit Duration and Period conversion and asks for an explicit time unit, preventing valid intervals from becoming literal NA labels.
