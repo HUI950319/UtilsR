@@ -2,6 +2,9 @@
 
 ## UtilsR 0.6.20
 
+- Print helpers restore stored Period, Duration and Interval methods
+  without attaching lubridate or emitting its startup messages.
+
 - [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
   formats only the column names that can reach a closed data-frame
   preview, avoiding work proportional to all columns of wide tables.
@@ -23,6 +26,38 @@
   separator lines.
 
 ## UtilsR 0.6.19
+
+- Factor tools load integer64 methods before validating, naming or
+  converting serialized inputs; reference indices, automatic group
+  names, labels and bin counts no longer depend on prior package-loading
+  order.
+
+- [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md)
+  sizes default stage palettes to actual displayed nodes, fixing
+  missing-value nodes and unused factor levels without shifting later
+  stage colours.
+
+- [`fct_to_combine()`](https://hui950319.github.io/UtilsR/reference/fct_to_combine.md)
+  rejects implicit Duration and Period conversion and asks for an
+  explicit time unit, preventing valid intervals from becoming literal
+  NA labels.
+
+- [`PlotScatter1()`](https://hui950319.github.io/UtilsR/reference/PlotScatter1.md)
+  and
+  [`PlotScatter2()`](https://hui950319.github.io/UtilsR/reference/PlotScatter2.md)
+  now fail clearly when group counts exceed the default colour or shape
+  capacity and request explicit mappings instead of silently losing
+  points.
+
+- [`fct_to_combine()`](https://hui950319.github.io/UtilsR/reference/fct_to_combine.md)
+  and
+  [`fct_label()`](https://hui950319.github.io/UtilsR/reference/fct_label.md)
+  refresh rowwise grouping keys when replacing a grouping column, so
+  later summaries use the updated values.
+
+- [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md)
+  isolates generated counting and stage fields from input column names,
+  preserving flows and axis labels for reserved or colliding names.
 
 - [`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md)
   excludes class-defined missing values in every mode, including SPSS

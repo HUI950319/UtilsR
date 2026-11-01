@@ -24,7 +24,8 @@ fct_to_group(x, g_lis, name_prefix = "g", name_sep = "/")
   positions to merge into one new group. Either fully named (user names
   used as new level names) or unnamed (auto-named via \`name_prefix\` +
   \`name_sep\`). Indices must be between 1 and \`nlevels(x)\`. Values
-  must be finite and non-missing. Empty groups add no levels.
+  must be finite and non-missing. Empty groups add no levels. Integer64
+  indices require bit64, which is loaded when needed.
 
 - name_prefix:
 

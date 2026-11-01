@@ -69,15 +69,18 @@ PlotScatter2(
 
 - colors:
 
-  Named colour vector for `group` levels. NULL = auto palette.
+  Named colour vector for `group` levels. NULL = auto palette (up to 12
+  groups); supply a complete mapping above this limit.
 
 - shapes:
 
-  Named shape vector for `group2` levels. NULL = auto.
+  Named shape vector for `group2` levels. NULL = auto (up to 6 groups).
+  Above 6 groups, supply both `shapes` and `fill_colors_shape` mappings.
 
 - fill_colors_shape:
 
-  Fill colours for `group2` in marginal boxplots. NULL = auto.
+  Fill colours for `group2` in marginal boxplots. NULL = auto (up to 6
+  groups).
 
 - point_size:
 

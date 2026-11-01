@@ -92,13 +92,16 @@ column names and retains the existing axis labels. A named vector maps
 column names to display labels, e.g. <code>c(sex = "Sex", stage = "Stage")</code>.
 All names must be non-empty, unique column names; partially named vectors
 are not supported. Labels must be non-missing strings. Empty strings hide
-individual labels, and line breaks are preserved.</p></dd>
+individual labels, and line breaks are preserved.
+Input names such as <code>.n</code>, <code>.pct</code>, and names ending in
+<code>_label</code> are kept separate from generated fields.</p></dd>
 
 
 <dt id="arg-palette">palette<a class="anchor" aria-label="anchor" href="#arg-palette"></a></dt>
 <dd><p>Colour palette name from <code><a href="pal_get.html">pal_get()</a></code>, or a character
 vector of colours. Default <code>NULL</code> auto-generates colours per variable
-using sequential HCL palettes.</p></dd>
+using sequential HCL palettes sized to the displayed nodes, including
+displayed missing-value nodes and excluding unused factor levels.</p></dd>
 
 
 <dt id="arg-reverse-levels">reverse_levels<a class="anchor" aria-label="anchor" href="#arg-reverse-levels"></a></dt>

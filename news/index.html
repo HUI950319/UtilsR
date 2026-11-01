@@ -50,14 +50,21 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.20" id="utilsr-0620">UtilsR 0.6.20<a class="anchor" aria-label="anchor" href="#utilsr-0620"></a></h2>
-<ul><li><p><code><a href="../reference/pr_tree.html">pr_tree()</a></code> formats only the column names that can reach a closed data-frame preview, avoiding work proportional to all columns of wide tables.</p></li>
+<ul><li><p>Print helpers restore stored Period, Duration and Interval methods without attaching lubridate or emitting its startup messages.</p></li>
+<li><p><code><a href="../reference/pr_tree.html">pr_tree()</a></code> formats only the column names that can reach a closed data-frame preview, avoiding work proportional to all columns of wide tables.</p></li>
 <li><p><code><a href="../reference/pr_table.html">pr_table()</a></code> limits displayed rows before creating the row-name column, avoiding full-table row-name checks for short previews of large tables.</p></li>
 <li><p><code><a href="../reference/pr_tree.html">pr_tree()</a></code> includes inherited <code>.Data</code> slots when opening S4 objects, retaining the seconds in Period and Duration vectors.</p></li>
 <li><p><code><a href="../reference/pr_kv.html">pr_kv()</a></code>, named <code><a href="../reference/pr_box.html">pr_box()</a></code> inputs and <code><a href="../reference/pr_note.html">pr_note()</a></code> preserve ANSI styles across embedded newlines, including blank separator lines.</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.19" id="utilsr-0619">UtilsR 0.6.19<a class="anchor" aria-label="anchor" href="#utilsr-0619"></a></h2>
-<ul><li><p><code><a href="../reference/plt_dist.html">plt_dist()</a></code> excludes class-defined missing values in every mode, including SPSS user missings, and handles POSIXlt columns without changing explicit factor-NA rules.</p></li>
+<ul><li><p>Factor tools load integer64 methods before validating, naming or converting serialized inputs; reference indices, automatic group names, labels and bin counts no longer depend on prior package-loading order.</p></li>
+<li><p><code><a href="../reference/plt_sankey.html">plt_sankey()</a></code> sizes default stage palettes to actual displayed nodes, fixing missing-value nodes and unused factor levels without shifting later stage colours.</p></li>
+<li><p><code><a href="../reference/fct_to_combine.html">fct_to_combine()</a></code> rejects implicit Duration and Period conversion and asks for an explicit time unit, preventing valid intervals from becoming literal NA labels.</p></li>
+<li><p><code><a href="../reference/PlotScatter1.html">PlotScatter1()</a></code> and <code><a href="../reference/PlotScatter2.html">PlotScatter2()</a></code> now fail clearly when group counts exceed the default colour or shape capacity and request explicit mappings instead of silently losing points.</p></li>
+<li><p><code><a href="../reference/fct_to_combine.html">fct_to_combine()</a></code> and <code><a href="../reference/fct_label.html">fct_label()</a></code> refresh rowwise grouping keys when replacing a grouping column, so later summaries use the updated values.</p></li>
+<li><p><code><a href="../reference/plt_sankey.html">plt_sankey()</a></code> isolates generated counting and stage fields from input column names, preserving flows and axis labels for reserved or colliding names.</p></li>
+<li><p><code><a href="../reference/plt_dist.html">plt_dist()</a></code> excludes class-defined missing values in every mode, including SPSS user missings, and handles POSIXlt columns without changing explicit factor-NA rules.</p></li>
 <li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> shares each feature’s dot-bin boundaries across split panels, retains independent bins across features, and includes bin centres in automatic limits without changing explicit raw-data zoom bounds.</p></li>
 <li><p>Categorical Venn plots show zero counts without undefined percentages when no members match, including empty split panels.</p></li>
 <li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> shares dot-plot count size scales across feature and split panels, including nested patchwork outputs, before measuring the finished plots.</p></li>

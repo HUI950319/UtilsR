@@ -128,15 +128,19 @@ two-factor gene correlation plots.</p>
 
 
 <dt id="arg-colors">colors<a class="anchor" aria-label="anchor" href="#arg-colors"></a></dt>
-<dd><p>Named colour vector for <code>group</code> levels. NULL = auto palette.</p></dd>
+<dd><p>Named colour vector for <code>group</code> levels. NULL = auto palette
+(up to 12 groups); supply a complete mapping above this limit.</p></dd>
 
 
 <dt id="arg-shapes">shapes<a class="anchor" aria-label="anchor" href="#arg-shapes"></a></dt>
-<dd><p>Named shape vector for <code>group2</code> levels. NULL = auto.</p></dd>
+<dd><p>Named shape vector for <code>group2</code> levels. NULL = auto
+(up to 6 groups). Above 6 groups, supply both <code>shapes</code> and
+<code>fill_colors_shape</code> mappings.</p></dd>
 
 
 <dt id="arg-fill-colors-shape">fill_colors_shape<a class="anchor" aria-label="anchor" href="#arg-fill-colors-shape"></a></dt>
-<dd><p>Fill colours for <code>group2</code> in marginal boxplots. NULL = auto.</p></dd>
+<dd><p>Fill colours for <code>group2</code> in marginal boxplots.
+NULL = auto (up to 6 groups).</p></dd>
 
 
 <dt id="arg-point-size">point_size<a class="anchor" aria-label="anchor" href="#arg-point-size"></a></dt>

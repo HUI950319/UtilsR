@@ -78,7 +78,8 @@ columns row-wise, `fct_to_group()` regroups levels of a single factor.</p>
 level positions to merge into one new group. Either fully named (user
 names used as new level names) or unnamed (auto-named via
 `name_prefix` + `name_sep`). Indices must be between 1 and `nlevels(x)`.
-Values must be finite and non-missing. Empty groups add no levels.</p></dd>
+Values must be finite and non-missing. Empty groups add no levels.
+Integer64 indices require <span class="pkg">bit64</span>, which is loaded when needed.</p></dd>
 
 
 <dt id="arg-name-prefix">name_prefix<a class="anchor" aria-label="anchor" href="#arg-name-prefix"></a></dt>

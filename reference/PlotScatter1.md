@@ -72,11 +72,12 @@ PlotScatter1(
 
 - colors:
 
-  Colour vector for groups. NULL = auto palette.
+  Colour vector for groups. NULL = auto palette (up to 12 groups). Above
+  12 groups, supply both `colors` and `shapes`.
 
 - shapes:
 
-  Shape vector for groups. NULL = auto.
+  Shape vector for groups. NULL = auto (up to 12 groups).
 
 - point_size:
 

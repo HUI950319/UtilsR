@@ -31,9 +31,11 @@ fct_to_combine(..., sep = " & ")
 - ...:
 
   (vector method) One-dimensional atomic vectors of equal length to
-  combine. Raw vectors must be converted explicitly before use. Must be
-  empty for the data.frame method. A single character vector of column
-  names (length \>= 2) is resolved through `dplyr::pick(all_of(.))` when
+  combine. Raw vectors must be converted explicitly before use.
+  lubridate Duration and Period vectors must be converted explicitly to
+  values in the intended time unit before combining. Must be empty for
+  the data.frame method. A single character vector of column names
+  (length \>= 2) is resolved through `dplyr::pick(all_of(.))` when
   called inside a data-masking verb, enabling
   `mutate(g = fct_to_combine(c("sex", "age")))`. This shortcut always
   interprets a character vector of length \>= 2 as column names; use
@@ -100,7 +102,8 @@ combinations are computed separately for each group. When dplyr combines
 the results, their level order may differ from whole-data ordering and
 change the first level used as a model reference. To use one level order
 across the data, use the data.frame method on the whole data frame; its
-grouping is retained.
+grouping is retained. Replacing a rowwise grouping column also updates
+its grouping keys.
 
 ## See also
 

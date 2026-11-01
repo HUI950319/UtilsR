@@ -46,7 +46,8 @@ fct_label(x, labels, ...)
 ## Value
 
 Same type as `x`: a factor for the vector method, or the input data
-frame (with `var` relabelled) for the data.frame method.
+frame (with `var` relabelled) for the data.frame method. Rowwise
+grouping keys are updated when their column is relabelled.
 
 ## Details
 

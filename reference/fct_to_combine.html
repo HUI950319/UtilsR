@@ -104,6 +104,8 @@ otherwise on the first argument:</p><ul><li><p><strong>vectors</strong> – <cod
 <dl><dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>(vector method) One-dimensional atomic vectors of equal length
 to combine. Raw vectors must be converted explicitly before use.
+<span class="pkg">lubridate</span> Duration and Period vectors must be converted explicitly
+to values in the intended time unit before combining.
 Must be empty for the data.frame method. A
 single character vector of column names (length &gt;= 2) is resolved through
 <code>dplyr::pick(all_of(.))</code> when called inside a data-masking verb,
@@ -163,7 +165,8 @@ choose a different <code>sep</code> or relabel the inputs to disambiguate them.<
 separately for each group. When dplyr combines the results, their level
 order may differ from whole-data ordering and change the first level used
 as a model reference. To use one level order across the data, use the
-data.frame method on the whole data frame; its grouping is retained.</p>
+data.frame method on the whole data frame; its grouping is retained.
+Replacing a rowwise grouping column also updates its grouping keys.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

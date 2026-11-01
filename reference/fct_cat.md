@@ -80,7 +80,9 @@ is cleared when levels or their mapping change.
 ## Details
 
 Numeric indices are converted to native integers after their values and
-bounds have been checked, including classed numeric vectors.
+bounds have been checked, including classed numeric vectors. Integer64
+values require bit64; its methods are loaded when needed, including for
+objects restored from serialized files.
 
 ## See also
 

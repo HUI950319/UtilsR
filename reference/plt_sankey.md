@@ -38,14 +38,17 @@ plt_sankey(
   `c(sex = "Sex", stage = "Stage")`. All names must be non-empty, unique
   column names; partially named vectors are not supported. Labels must
   be non-missing strings. Empty strings hide individual labels, and line
-  breaks are preserved.
+  breaks are preserved. Input names such as `.n`, `.pct`, and names
+  ending in `_label` are kept separate from generated fields.
 
 - palette:
 
   Colour palette name from
   [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md),
   or a character vector of colours. Default `NULL` auto-generates
-  colours per variable using sequential HCL palettes.
+  colours per variable using sequential HCL palettes sized to the
+  displayed nodes, including displayed missing-value nodes and excluding
+  unused factor levels.
 
 - reverse_levels:
 
