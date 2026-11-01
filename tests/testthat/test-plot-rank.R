@@ -94,3 +94,30 @@ test_that("PlotRank restores labelled missingness in a fresh process", {
     expect_identical(readRDS(output), list(labels = c("c", "a"), top = "c"))
   }
 })
+
+test_that("PlotRank skips empty factor levels and entirely missing groups", {
+  data <- data.frame(cell_type = factor(rep(c("A", "B"), each = 3), levels = c("A", "B", "unused")),
+                     gene = letters[1:6], importance = c(3, 1, 2, NA, NA, NA))
+  original <- data
+  for (scale in c("none", "group", "top_n")) {
+    result <- PlotRank(data, value_scale = scale, return_type = "data")
+    control <- PlotRank(droplevels(data[1:3, ]), value_scale = scale, return_type = "data")
+    expect_identical(result, control)
+    expect_identical(levels(result$Group), "A")
+  }
+  matrix <- matrix(c(3, 1, 2, NA, NA, NA), 3, dimnames = list(letters[1:3], c("A", "B")))
+  result <- PlotRank(matrix, return_type = "data")
+  expect_equal(nrow(result), 3L)
+  expect_identical(levels(result$Group), "A")
+  expect_identical(data, original)
+})
+
+test_that("PlotRank reports a clear error when no valid scores remain", {
+  inputs <- list(stats::setNames(numeric(), character()),
+                 stats::setNames(c(NA_real_, NaN), c("a", "b")),
+                 data.frame(gene = character(), importance = numeric()),
+                 data.frame(gene = c("a", "b"), importance = c(NA, NA)))
+  for (data in inputs) expect_error(PlotRank(data, return_type = "data"), "No valid scores")
+  data <- data.frame(cell_type = c("A", "B"), gene = c("a", "b"), importance = c(1, NA))
+  expect_error(PlotRank(data, group_levels = "B", return_type = "data"), "No valid scores")
+})

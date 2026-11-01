@@ -40,6 +40,8 @@
 #'   Default \code{"importance"}.  Ignored for vector / matrix input.
 #' @param groups Character vector of groups to plot (for matrix or
 #'   data.frame input).  \code{NULL} (default) = all groups.
+#'   Groups without non-missing scores are skipped. An error is raised when
+#'   no valid scores remain after group selection.
 #' @param group_levels Character vector specifying display order.
 #'   \code{NULL} = data appearance order or factor levels.
 #' @param top_n Integer. Number of top-ranked features to highlight
@@ -143,14 +145,17 @@ PlotRank <- function(
   # ---- Parse input into named list of named numeric vectors ----
   score_list <- .pr_parse(data, group_col, name_col, value_col, groups)
 
-  # ---- Keep original full ranges for "group" scaling ----
-  if (value_scale == "group") {
-    orig_ranges <- lapply(score_list, function(v) range(v, na.rm = TRUE))
-  }
-
   # ---- Group order ----
   if (!is.null(group_levels)) {
     score_list <- score_list[intersect(group_levels, names(score_list))]
+  }
+  score_list <- lapply(score_list, function(v) v[!is.na(v)])
+  score_list <- score_list[lengths(score_list) > 0L]
+  if (!length(score_list)) stop("No valid scores remain after group selection.", call. = FALSE)
+
+  # ---- Keep original full ranges for "group" scaling ----
+  if (value_scale == "group") {
+    orig_ranges <- lapply(score_list, function(v) range(v, na.rm = TRUE))
   }
 
   # ---- Clean feature names ----
@@ -260,6 +265,7 @@ PlotRank <- function(
 #' @keywords internal
 .pr_parse <- function(data, group_col, name_col, value_col, groups) {
   score_values <- function(x) {
+    if (!is.object(x) && is.null(dim(x)) && is.logical(x) && all(is.na(x))) x <- as.double(x)
     if (inherits(x, "integer64")) {
       stop("Scores with integer64 storage are not supported; convert explicitly after checking precision.",
            call. = FALSE)

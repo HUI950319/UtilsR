@@ -57,7 +57,9 @@ Default \code{"gene"}.  Ignored for vector / matrix input.}
 Default \code{"importance"}.  Ignored for vector / matrix input.}
 
 \item{groups}{Character vector of groups to plot (for matrix or
-data.frame input).  \code{NULL} (default) = all groups.}
+data.frame input).  \code{NULL} (default) = all groups.
+Groups without non-missing scores are skipped. An error is raised when
+no valid scores remain after group selection.}
 
 \item{group_levels}{Character vector specifying display order.
 \code{NULL} = data appearance order or factor levels.}
