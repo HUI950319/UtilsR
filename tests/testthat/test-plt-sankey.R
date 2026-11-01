@@ -146,6 +146,25 @@ test_that("plt_sankey isolates counting and stage fields from input names", {
                    c("First", "Second"))
 })
 
+test_that("plt_sankey sizes default palettes to displayed nodes", {
+  skip_if_not_installed("ggsankey")
+  data <- data.frame(A = factor(c("a", NA, "a", NA), levels = c("a", "unused", "other")),
+                     B = factor(c("x", "y", "x", "y")))
+  original <- data
+  for (reverse in c(FALSE, TRUE)) {
+    p <- sankey_plot(data, reverse_levels = reverse)
+    built <- ggplot2::ggplot_build(p)$data
+    reference <- ggplot2::ggplot_build(sankey_plot(droplevels(data),
+                                                   reverse_levels = reverse))$data
+    expect_equal(built, reference)
+    expect_setequal(as.character(built[[3]]$label),
+                     c("a (2, 50.0%)", "NA (2, 50.0%)", "x (2, 50.0%)", "y (2, 50.0%)"))
+    expect_equal(length(unique(built[[2]]$fill)), 4L)
+  }
+  expect_no_error(ggplot2::ggplot_build(sankey_plot(droplevels(data))))
+  expect_identical(data, original)
+})
+
 test_that("plt_sankey keeps identical category labels distinct across variables", {
   skip_if_not_installed("ggsankey")
 

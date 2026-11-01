@@ -20,7 +20,8 @@
 #'   \code{_label} are kept separate from generated fields.
 #' @param palette Colour palette name from \code{pal_get()}, or a character
 #'   vector of colours. Default \code{NULL} auto-generates colours per variable
-#'   using sequential HCL palettes.
+#'   using sequential HCL palettes sized to the displayed nodes, including
+#'   displayed missing-value nodes and excluding unused factor levels.
 #' @param reverse_levels Logical, reverse factor levels for display.
 #'   Default \code{TRUE}.
 #' @param show_text Single character string. Controls node label content:
@@ -299,7 +300,7 @@ plt_sankey <- function(data,
     hcl_pals <- c("Blues", "Oranges", "Greens", "Purples", "Reds", "Grays")
     col_list <- lapply(seq_along(vars), function(i) {
       pal_name <- hcl_pals[((i - 1) %% length(hcl_pals)) + 1]
-      n_lvs <- nlevels(data[[vars[i]]])
+      n_lvs <- nlevels(data[[label_vars[i]]])
       grDevices::colorRampPalette(
         as.character(pal_get(paste0("hcl_", pal_name), n = 5))[2:4]
       )(n_lvs)

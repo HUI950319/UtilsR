@@ -34,7 +34,8 @@ Input names such as \code{.n}, \code{.pct}, and names ending in
 
 \item{palette}{Colour palette name from \code{pal_get()}, or a character
 vector of colours. Default \code{NULL} auto-generates colours per variable
-using sequential HCL palettes.}
+using sequential HCL palettes sized to the displayed nodes, including
+displayed missing-value nodes and excluding unused factor levels.}
 
 \item{reverse_levels}{Logical, reverse factor levels for display.
 Default \code{TRUE}.}

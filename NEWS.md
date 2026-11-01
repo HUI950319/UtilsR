@@ -14,6 +14,8 @@
 
 # UtilsR 0.6.19
 
+* `plt_sankey()` sizes default stage palettes to actual displayed nodes, fixing missing-value nodes and unused factor levels without shifting later stage colours.
+
 * `fct_to_combine()` rejects implicit Duration and Period conversion and asks for an explicit time unit, preventing valid intervals from becoming literal NA labels.
 
 * `PlotScatter1()` and `PlotScatter2()` now fail clearly when group counts exceed the default colour or shape capacity and request explicit mappings instead of silently losing points.
