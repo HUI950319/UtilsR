@@ -2,6 +2,47 @@
 
 ## UtilsR 0.6.19
 
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  shares each feature’s dot-bin boundaries across split panels, retains
+  independent bins across features, and includes bin centres in
+  automatic limits without changing explicit raw-data zoom bounds.
+
+- Categorical Venn plots show zero counts without undefined percentages
+  when no members match, including empty split panels.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  shares dot-plot count size scales across feature and split panels,
+  including nested patchwork outputs, before measuring the finished
+  plots.
+
+- Categorical chord plots support empty-string categories with
+  collision-free blank sector names while preserving counts and named
+  palette mappings.
+
+- Categorical chord plots discard unused factor levels before tabulation
+  and reject impossible observed frequency grids before allocation.
+
+- Categorical plots preserve distinct AsIs, haven labelled and complex
+  values when short labels coincide, including precise positive-level
+  selections and class-specific missingness.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  retains shared automatic axes across separate feature plots after
+  continuous scale transformations, including transformed bar SD
+  intervals.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  disambiguates distinct numeric grouping, splitting, and background
+  categories when their ordinary display labels collide.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  inherits added continuous scale transformations in independent stacked
+  quantile zooms while computing statistics from all observations.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  preserves date-time categories used for grouping, splitting, and
+  background bands instead of converting valid groups to missing values.
+
 - Categorical safety checks include retained standard-plot factor levels
   and reject frequency grids beyond the base table cell limit before
   allocation.

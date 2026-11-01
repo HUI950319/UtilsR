@@ -59,9 +59,9 @@ plt_cat(
   For standard types (bar, rose, ring, pie, trend, area, dot) a single
   column name. For set types (sankey, chord, venn, upset) a character
   vector of \>= 2 column names. Venn plots support at most seven
-  columns; use `type = "upset"` for larger sets. Distinct plain numeric
-  values with identical short text representations receive more precise
-  labels so their categories remain separate.
+  columns; use `type = "upset"` for larger sets. Distinct numeric values
+  with identical short text representations receive more precise labels,
+  including AsIs, haven labelled, and complex values.
 
 - group.by:
 
@@ -84,7 +84,9 @@ plt_cat(
   `"area"`, `"dot"`, `"sankey"`, `"chord"`, `"venn"`, `"upset"`. UpSet
   plots show at most the 20 most frequent non-empty intersections per
   panel, with a warning reporting how many intersections are omitted
-  when the limit is exceeded.
+  when the limit is exceeded. Chord plots omit unused factor levels
+  before constructing frequencies. Empty-string chord categories remain
+  distinct from space-only categories.
 
 - stat:
 
@@ -119,7 +121,8 @@ plt_cat(
 - label:
 
   Logical. Show value labels? Default `FALSE`. Set names and Sankey node
-  names are independent of value labels.
+  names are independent of value labels. Venn plots without matching
+  members show zero counts without percentages.
 
 - label.size:
 

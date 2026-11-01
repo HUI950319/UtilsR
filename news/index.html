@@ -50,7 +50,17 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.19" id="utilsr-0619">UtilsR 0.6.19<a class="anchor" aria-label="anchor" href="#utilsr-0619"></a></h2>
-<ul><li><p>Categorical safety checks include retained standard-plot factor levels and reject frequency grids beyond the base table cell limit before allocation.</p></li>
+<ul><li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> shares each feature’s dot-bin boundaries across split panels, retains independent bins across features, and includes bin centres in automatic limits without changing explicit raw-data zoom bounds.</p></li>
+<li><p>Categorical Venn plots show zero counts without undefined percentages when no members match, including empty split panels.</p></li>
+<li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> shares dot-plot count size scales across feature and split panels, including nested patchwork outputs, before measuring the finished plots.</p></li>
+<li><p>Categorical chord plots support empty-string categories with collision-free blank sector names while preserving counts and named palette mappings.</p></li>
+<li><p>Categorical chord plots discard unused factor levels before tabulation and reject impossible observed frequency grids before allocation.</p></li>
+<li><p>Categorical plots preserve distinct AsIs, haven labelled and complex values when short labels coincide, including precise positive-level selections and class-specific missingness.</p></li>
+<li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> retains shared automatic axes across separate feature plots after continuous scale transformations, including transformed bar SD intervals.</p></li>
+<li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> disambiguates distinct numeric grouping, splitting, and background categories when their ordinary display labels collide.</p></li>
+<li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> inherits added continuous scale transformations in independent stacked quantile zooms while computing statistics from all observations.</p></li>
+<li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> preserves date-time categories used for grouping, splitting, and background bands instead of converting valid groups to missing values.</p></li>
+<li><p>Categorical safety checks include retained standard-plot factor levels and reject frequency grids beyond the base table cell limit before allocation.</p></li>
 <li><p>Categorical positive-level mappings match named vectors by column, preserve unnamed positional values and reject missing, duplicate or unknown mapping keys.</p></li>
 <li><p>Categorical Venn region transparency and value-label fill and corner radius now honour alpha, label.bg and label.bg.r through independently constructed layers.</p></li>
 <li><p>Categorical Venn split panels share a count-to-fill range and one colour bar while retaining each panel intersection count.</p></li>

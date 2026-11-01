@@ -113,8 +113,8 @@ summarise. For standard types (bar, rose, ring, pie, trend, area, dot) a
 single column name. For set types (sankey, chord, venn, upset) a character
 vector of &gt;= 2 column names. Venn plots support at most seven columns;
 use <code>type = "upset"</code> for larger sets.
-Distinct plain numeric values with identical short text representations
-receive more precise labels so their categories remain separate.</p></dd>
+Distinct numeric values with identical short text representations receive
+more precise labels, including AsIs, haven labelled, and complex values.</p></dd>
 
 
 <dt id="arg-group-by">group.by<a class="anchor" aria-label="anchor" href="#arg-group-by"></a></dt>
@@ -137,7 +137,9 @@ panels likewise share one count-to-fill scale.</p></dd>
 <code>"pie"</code>, <code>"trend"</code>, <code>"area"</code>, <code>"dot"</code>, <code>"sankey"</code>,
 <code>"chord"</code>, <code>"venn"</code>, <code>"upset"</code>. UpSet plots show at most
 the 20 most frequent non-empty intersections per panel, with a warning
-reporting how many intersections are omitted when the limit is exceeded.</p></dd>
+reporting how many intersections are omitted when the limit is exceeded.
+Chord plots omit unused factor levels before constructing frequencies.
+Empty-string chord categories remain distinct from space-only categories.</p></dd>
 
 
 <dt id="arg-stat">stat<a class="anchor" aria-label="anchor" href="#arg-stat"></a></dt>
@@ -169,7 +171,8 @@ controls region fill transparency.</p></dd>
 
 <dt id="arg-label">label<a class="anchor" aria-label="anchor" href="#arg-label"></a></dt>
 <dd><p>Logical. Show value labels? Default <code>FALSE</code>. Set names
-and Sankey node names are independent of value labels.</p></dd>
+and Sankey node names are independent of value labels.
+Venn plots without matching members show zero counts without percentages.</p></dd>
 
 
 <dt id="arg-label-size">label.size<a class="anchor" aria-label="anchor" href="#arg-label-size"></a></dt>

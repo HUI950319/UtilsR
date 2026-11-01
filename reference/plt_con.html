@@ -142,7 +142,10 @@ selection is an error.</p></dd>
 <dt id="arg-group-by">group.by<a class="anchor" aria-label="anchor" href="#arg-group-by"></a></dt>
 <dd><p>Character. Column name for the x-axis grouping variable.
 Default <code>NULL</code> (all data in one group). Observed missing and
-empty-string groups are retained, including in dot-plot counts.</p></dd>
+empty-string groups are retained, including in dot-plot counts.
+Date-time grouping, splitting, and background categories retain their
+observed labels and first-appearance order.
+Distinct numeric categories use extra label precision when needed.</p></dd>
 
 
 <dt id="arg-split-by">split.by<a class="anchor" aria-label="anchor" href="#arg-split-by"></a></dt>
@@ -160,7 +163,11 @@ their categories when the returned plot's discrete axis is reordered.</p></dd>
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
 <dd><p>Plot type: <code>"violin"</code> (default), <code>"box"</code>,
-<code>"bar"</code>, or <code>"dot"</code>. Bar annotations clear the SD intervals.</p></dd>
+<code>"bar"</code>, or <code>"dot"</code>. Bar annotations clear the SD intervals.
+Dot plots in one call share their count-size scale across feature and
+split panels, including nested combined plots.
+Split panels use feature-wide bin boundaries; different features retain
+independent bins.</p></dd>
 
 
 <dt id="arg-fill-by">fill.by<a class="anchor" aria-label="anchor" href="#arg-fill-by"></a></dt>
@@ -283,7 +290,9 @@ Default <code>"kruskal.test"</code>.</p></dd>
 <dt id="arg-same-y-lims">same.y.lims<a class="anchor" aria-label="anchor" href="#arg-same-y-lims"></a></dt>
 <dd><p>Logical. Use same y limits across features?
 Default <code>FALSE</code>, including stacked and flipped panels. Explicit
-<code>y.min</code>/<code>y.max</code> bounds apply to every feature.</p></dd>
+<code>y.min</code>/<code>y.max</code> bounds apply to every feature.
+Shared automatic ranges remain shared when a continuous y-scale
+transformation is added, including transformed bar SD intervals.</p></dd>
 
 
 <dt id="arg-y-min">y.min<a class="anchor" aria-label="anchor" href="#arg-y-min"></a></dt>
@@ -291,6 +300,7 @@ Default <code>FALSE</code>, including stacked and flipped panels. Explicit
 A finite number or <code>"qN"</code> for integer N from 0 to 100.
 Character <code>"qN"</code> uses the Nth percentile. Default <code>NULL</code>;
 automatic bar limits include the full SD intervals and zero baseline.
+Automatic dot limits include bin centres and observed values.
 Quantiles use each feature separately when axes are independent, and
 pooled observations when <code>same.y.lims = TRUE</code>.</p></dd>
 
@@ -302,7 +312,9 @@ Character <code>"qN"</code> uses the Nth percentile. Default <code>NULL</code>.
 Automatic limits leave room for comparisons; explicit bounds are preserved.
 Independent axes reserve space only for valid pairwise comparisons.
 Added continuous y-scale transformations update automatic bounds and
-annotation positions using the transformed observations and summaries.</p></dd>
+annotation positions using the transformed observations and summaries.
+Independent stacked quantile bounds inherit added scale transformations
+without filtering observations before statistics are calculated.</p></dd>
 
 
 <dt id="arg-y-nbreaks">y.nbreaks<a class="anchor" aria-label="anchor" href="#arg-y-nbreaks"></a></dt>

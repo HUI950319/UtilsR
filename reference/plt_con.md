@@ -83,7 +83,10 @@ plt_con(
 
   Character. Column name for the x-axis grouping variable. Default
   `NULL` (all data in one group). Observed missing and empty-string
-  groups are retained, including in dot-plot counts.
+  groups are retained, including in dot-plot counts. Date-time grouping,
+  splitting, and background categories retain their observed labels and
+  first-appearance order. Distinct numeric categories use extra label
+  precision when needed.
 
 - split.by:
 
@@ -101,7 +104,10 @@ plt_con(
 - type:
 
   Plot type: `"violin"` (default), `"box"`, `"bar"`, or `"dot"`. Bar
-  annotations clear the SD intervals.
+  annotations clear the SD intervals. Dot plots in one call share their
+  count-size scale across feature and split panels, including nested
+  combined plots. Split panels use feature-wide bin boundaries;
+  different features retain independent bins.
 
 - fill.by:
 
@@ -223,16 +229,18 @@ plt_con(
 
   Logical. Use same y limits across features? Default `FALSE`, including
   stacked and flipped panels. Explicit `y.min`/`y.max` bounds apply to
-  every feature.
+  every feature. Shared automatic ranges remain shared when a continuous
+  y-scale transformation is added, including transformed bar SD
+  intervals.
 
 - y.min:
 
   Numeric or character scalar. Minimum y-axis limit. A finite number or
   `"qN"` for integer N from 0 to 100. Character `"qN"` uses the Nth
   percentile. Default `NULL`; automatic bar limits include the full SD
-  intervals and zero baseline. Quantiles use each feature separately
-  when axes are independent, and pooled observations when
-  `same.y.lims = TRUE`.
+  intervals and zero baseline. Automatic dot limits include bin centres
+  and observed values. Quantiles use each feature separately when axes
+  are independent, and pooled observations when `same.y.lims = TRUE`.
 
 - y.max:
 
@@ -242,7 +250,9 @@ plt_con(
   comparisons; explicit bounds are preserved. Independent axes reserve
   space only for valid pairwise comparisons. Added continuous y-scale
   transformations update automatic bounds and annotation positions using
-  the transformed observations and summaries.
+  the transformed observations and summaries. Independent stacked
+  quantile bounds inherit added scale transformations without filtering
+  observations before statistics are calculated.
 
 - y.nbreaks:
 
