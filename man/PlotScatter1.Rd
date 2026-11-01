@@ -55,9 +55,10 @@ PlotScatter1(
 
 \item{group_levels}{Group order. NULL = data order.}
 
-\item{colors}{Colour vector for groups. NULL = auto palette.}
+\item{colors}{Colour vector for groups. NULL = auto palette (up to 12 groups).
+Above 12 groups, supply both \code{colors} and \code{shapes}.}
 
-\item{shapes}{Shape vector for groups. NULL = auto.}
+\item{shapes}{Shape vector for groups. NULL = auto (up to 12 groups).}
 
 \item{point_size}{Point size. Default 4.}
 

@@ -24,9 +24,13 @@
 #' @param y Column name for the Y axis.
 #' @param group Column name for colour grouping (e.g. Study).
 #' @param group2 Column name for shape grouping (e.g. Group). NULL = no shape grouping.
-#' @param colors Named colour vector for \code{group} levels. NULL = auto palette.
-#' @param shapes Named shape vector for \code{group2} levels. NULL = auto.
-#' @param fill_colors_shape Fill colours for \code{group2} in marginal boxplots. NULL = auto.
+#' @param colors Named colour vector for \code{group} levels. NULL = auto palette
+#'   (up to 12 groups); supply a complete mapping above this limit.
+#' @param shapes Named shape vector for \code{group2} levels. NULL = auto
+#'   (up to 6 groups). Above 6 groups, supply both \code{shapes} and
+#'   \code{fill_colors_shape} mappings.
+#' @param fill_colors_shape Fill colours for \code{group2} in marginal boxplots.
+#'   NULL = auto (up to 6 groups).
 #' @param point_size Point size. Default 2.
 #' @param point_alpha Point transparency. Default 0.8.
 #' @param show_ellipse Whether to draw group ellipses (based on \code{group}). Default FALSE.
@@ -142,6 +146,9 @@ PlotScatter2 <- function(
   n_color <- length(color_lvls)
 
   if (is.null(colors)) {
+    if (n_color > 12L) {
+      stop("More than 12 colour groups require an explicit colors mapping.", call. = FALSE)
+    }
     default_cols <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3",
                       "#FF7F00", "#A65628", "#F781BF", "#999999",
                       "#66C2A5", "#FC8D62", "#8DA0CB", "#E78AC3")
@@ -154,6 +161,12 @@ PlotScatter2 <- function(
   if (!is.null(group2)) {
     shape_lvls <- levels(df[[group2]])
     n_shape <- length(shape_lvls)
+    if (n_shape > 6L && (is.null(shapes) || is.null(fill_colors_shape))) {
+      needed <- c(if (is.null(shapes)) "shapes",
+                  if (is.null(fill_colors_shape)) "fill_colors_shape")
+      stop(sprintf("More than 6 shape groups require explicit %s mappings.",
+                   paste(needed, collapse = " and ")), call. = FALSE)
+    }
     if (is.null(shapes)) {
       shapes <- stats::setNames(c(16, 17, 15, 18, 8, 7)[seq_len(n_shape)],
                                  shape_lvls)

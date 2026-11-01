@@ -50,11 +50,15 @@ PlotScatter2(
 
 \item{group2}{Column name for shape grouping (e.g. Group). NULL = no shape grouping.}
 
-\item{colors}{Named colour vector for \code{group} levels. NULL = auto palette.}
+\item{colors}{Named colour vector for \code{group} levels. NULL = auto palette
+(up to 12 groups); supply a complete mapping above this limit.}
 
-\item{shapes}{Named shape vector for \code{group2} levels. NULL = auto.}
+\item{shapes}{Named shape vector for \code{group2} levels. NULL = auto
+(up to 6 groups). Above 6 groups, supply both \code{shapes} and
+\code{fill_colors_shape} mappings.}
 
-\item{fill_colors_shape}{Fill colours for \code{group2} in marginal boxplots. NULL = auto.}
+\item{fill_colors_shape}{Fill colours for \code{group2} in marginal boxplots.
+NULL = auto (up to 6 groups).}
 
 \item{point_size}{Point size. Default 2.}
 

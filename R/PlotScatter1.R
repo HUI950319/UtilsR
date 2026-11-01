@@ -16,8 +16,9 @@
 #' @param y Column name for the Y axis.
 #' @param group Column name for the grouping variable.
 #' @param group_levels Group order. NULL = data order.
-#' @param colors Colour vector for groups. NULL = auto palette.
-#' @param shapes Shape vector for groups. NULL = auto.
+#' @param colors Colour vector for groups. NULL = auto palette (up to 12 groups).
+#'   Above 12 groups, supply both \code{colors} and \code{shapes}.
+#' @param shapes Shape vector for groups. NULL = auto (up to 12 groups).
 #' @param point_size Point size. Default 4.
 #' @param point_alpha Point transparency. Default 0.8.
 #' @param show_ellipse Whether to draw group ellipses. Default TRUE.
@@ -145,6 +146,12 @@ PlotScatter1 <- function(
 
   grp_lvls <- levels(df[[group]])
   n_grp <- length(grp_lvls)
+
+  if (n_grp > 12L && (is.null(colors) || is.null(shapes))) {
+    needed <- c(if (is.null(colors)) "colors", if (is.null(shapes)) "shapes")
+    stop(sprintf("More than 12 groups require explicit %s mappings.",
+                 paste(needed, collapse = " and ")), call. = FALSE)
+  }
 
   # ---- Default colours ----
   if (is.null(colors)) {

@@ -14,6 +14,8 @@
 
 # UtilsR 0.6.19
 
+* `PlotScatter1()` and `PlotScatter2()` now fail clearly when group counts exceed the default colour or shape capacity and request explicit mappings instead of silently losing points.
+
 * `fct_to_combine()` and `fct_label()` refresh rowwise grouping keys when replacing a grouping column, so later summaries use the updated values.
 
 * `plt_sankey()` isolates generated counting and stage fields from input column names, preserving flows and axis labels for reserved or colliding names.
