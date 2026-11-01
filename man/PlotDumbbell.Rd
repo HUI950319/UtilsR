@@ -56,7 +56,8 @@ PlotDumbbell(
 )
 }
 \arguments{
-\item{data}{A data.frame containing category, start, and end columns.}
+\item{data}{A data.frame containing category, start, and end columns.
+Generated delta fields are kept separate from existing column names.}
 
 \item{x_col}{Column name for the start (left) values. Default
 \code{"start"}.}

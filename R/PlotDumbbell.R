@@ -16,6 +16,7 @@
 #' lines, delta labels, and an optional inset plot via patchwork.
 #'
 #' @param data A data.frame containing category, start, and end columns.
+#'   Generated delta fields are kept separate from existing column names.
 #' @param x_col Column name for the start (left) values. Default
 #'   \code{"start"}.
 #' @param xend_col Column name for the end (right) values. Default
@@ -191,7 +192,11 @@ PlotDumbbell <- function(
   if (is.null(label_xend)) label_xend <- xend_col
 
   # ---- Compute delta ----
-  data$.delta <- data[[xend_col]] - data[[x_col]]
+  delta_fields <- utils::tail(make.unique(c(names(data), ".delta", ".delta_label", ".delta_x")), 3L)
+  delta_var <- delta_fields[1L]
+  delta_label_var <- delta_fields[2L]
+  delta_x_var <- delta_fields[3L]
+  data[[delta_var]] <- data[[xend_col]] - data[[x_col]]
 
   # ---- Sort ----
   sort_by <- match.arg(sort_by, c("end", "start", "delta", "none"))
@@ -199,7 +204,7 @@ PlotDumbbell <- function(
     sort_vals <- switch(sort_by,
       "end"   = data[[xend_col]],
       "start" = data[[x_col]],
-      "delta" = data$.delta
+      "delta" = data[[delta_var]]
     )
     ord <- order(sort_vals, decreasing = sort_descending)
     data <- data[ord, , drop = FALSE]
@@ -290,14 +295,14 @@ PlotDumbbell <- function(
 
   # ---- Delta labels ----
   if (show_delta) {
-    data$.delta_label <- round(data$.delta, delta_digits)
-    data$.delta_x <- pmax(data[[x_col]], data[[xend_col]])
+    data[[delta_label_var]] <- round(data[[delta_var]], delta_digits)
+    data[[delta_x_var]] <- pmax(data[[x_col]], data[[xend_col]])
     p <- p +
       ggplot2::geom_text(
         data = data,
         ggplot2::aes(
-          x = .data$.delta_x, y = .data[[y_col]],
-          label = .data$.delta_label
+          x = .data[[delta_x_var]], y = .data[[y_col]],
+          label = .data[[delta_label_var]]
         ),
         hjust = -0.3, size = delta_size, color = delta_color
       )

@@ -1,5 +1,7 @@
 # UtilsR 0.6.20
 
+* `PlotDumbbell()` isolates generated delta fields from existing input columns, preserving endpoints, sorting and delta labels when names collide.
+
 * `PlotRank()` validates one-dimensional real score storage, rejects unsupported classes explicitly, and excludes labelled missing scores even in fresh R sessions.
 
 * `stat_ci_parse()` uses stable log ratios for scale comparisons, avoiding intermediate overflow or underflow for finite extreme intervals while retaining precision for close bounds.
