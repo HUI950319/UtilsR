@@ -44,7 +44,9 @@
 #' @param cor_x,cor_y Coordinates for correlation label. Default \code{NULL}
 #'   (auto).
 #' @param hist_bins Number of histogram bins. Default 30.
-#' @param hist_x_limits Histogram X axis range. Default \code{NULL} (auto).
+#' @param hist_x_limits Histogram X axis range. Default \code{NULL} uses a
+#'   symmetric range based on finite paired differences, expanded by 20\%.
+#'   All-zero differences receive a non-zero range. Explicit limits are retained.
 #' @param hist_x_breaks Histogram X axis ticks. Default \code{NULL} (auto).
 #' @param hist_border Histogram bar border colour. Default \code{NULL} (auto).
 #' @param median_label_size Text size for median label. Default 5.
@@ -282,7 +284,13 @@ PlotScatter3 <- function(
     ggplot2::coord_cartesian(clip = "off")
 
   # ---- Histogram ----
-  if (is.null(hist_x_limits)) hist_x_limits <- axis_limits * 1.2
+  if (is.null(hist_x_limits)) {
+    finite_diff <- diff_values[is.finite(diff_values)]
+    if (!length(finite_diff)) stop("No finite paired differences to plot.", call. = FALSE)
+    hist_extent <- max(abs(finite_diff))
+    if (hist_extent == 0) hist_extent <- 1
+    hist_x_limits <- c(-hist_extent, hist_extent) * 1.2
+  }
   if (is.null(hist_x_breaks)) {
     hist_x_breaks <- pretty(hist_x_limits, n = 4)
     hist_x_breaks <- hist_x_breaks[hist_x_breaks != 0]

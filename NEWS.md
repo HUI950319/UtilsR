@@ -1,5 +1,7 @@
 # UtilsR 0.6.20
 
+* `PlotScatter3()` derives automatic histogram limits from finite paired differences, retaining translated and constant differences while honouring explicit limits.
+
 * `PlotDumbbell()` isolates generated delta fields from existing input columns, preserving endpoints, sorting and delta labels when names collide.
 
 * `PlotRank()` validates one-dimensional real score storage, rejects unsupported classes explicitly, and excludes labelled missing scores even in fresh R sessions.

@@ -6,6 +6,35 @@ scatter_main_points <- function(grob) {
   sum(vapply(children, scatter_main_points, numeric(1L)))
 }
 
+test_that("PlotScatter3 derives automatic histogram limits from paired differences", {
+  withr::local_options(lifecycle_verbosity = "quiet")
+  inset <- NULL
+  testthat::local_mocked_bindings(ggplotGrob = function(x, ...) {
+    inset <<- x
+    grid::nullGrob()
+  }, .package = "ggplot2")
+  for (offset in c(10, -20)) {
+    data <- data.frame(Control = offset + 0:5,
+                       Treat = offset + c(1, 3, 4, 4, 6, 8),
+                       group = rep(c("NS", "S"), 3))
+    PlotScatter3(data, test_method = "none", cor_method = "none")
+    histogram <- ggplot2::ggplot_build(inset)$data[[1]]
+    expect_equal(sum(histogram$count), 6)
+    expect_lte(inset$scales$get_scales("x")$limits[1], 1)
+    expect_gte(inset$scales$get_scales("x")$limits[2], 3)
+  }
+  data$Treat <- data$Control + 2
+  PlotScatter3(data, test_method = "none", cor_method = "none")
+  expect_equal(sum(ggplot2::ggplot_build(inset)$data[[1]]$count), 6)
+  expect_gt(diff(inset$scales$get_scales("x")$limits), 0)
+  data$Treat <- data$Control
+  PlotScatter3(data, test_method = "none", cor_method = "none")
+  expect_equal(sum(ggplot2::ggplot_build(inset)$data[[1]]$count), 6)
+  expect_gt(diff(inset$scales$get_scales("x")$limits), 0)
+  PlotScatter3(data, test_method = "none", cor_method = "none", hist_x_limits = c(-2, 4))
+  expect_identical(inset$scales$get_scales("x")$limits, c(-2, 4))
+})
+
 test_that("PlotScatter1 requires explicit mappings beyond twelve groups", {
   data <- data.frame(x = 1:26, y = rep(1:2, 13), g = rep(letters[1:13], each = 2))
   draw <- function(...) PlotScatter1(data, "x", "y", "g", show_ellipse = FALSE,
