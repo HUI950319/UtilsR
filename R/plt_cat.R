@@ -41,8 +41,8 @@
 #'   single column name. For set types (sankey, chord, venn, upset) a character
 #'   vector of >= 2 column names. Venn plots support at most seven columns;
 #'   use \code{type = "upset"} for larger sets.
-#'   Distinct plain numeric values with identical short text representations
-#'   receive more precise labels so their categories remain separate.
+#'   Distinct numeric values with identical short text representations receive
+#'   more precise labels, including AsIs, haven labelled, and complex values.
 #' @param group.by Character. Optional grouping variable for standard types.
 #'   Ignored for set types. Area plots require at least two displayed group
 #'   levels in each panel.
@@ -438,13 +438,17 @@ plt_cat <- function(data,
       }
       missing <- is.na(x)
       values <- as.character(x)
-      if (is.double(x) && !is.object(x)) {
-        distinct <- unique(x[!missing])
+      if ((is.double(x) || is.complex(x)) &&
+          (!is.object(x) || identical(class(x), "AsIs") || inherits(x, "haven_labelled"))) {
+        raw <- unclass(x)
+        distinct <- unique(raw[!missing])
         labels <- as.character(distinct)
         collision <- duplicated(labels) | duplicated(labels, fromLast = TRUE)
         if (any(collision)) {
-          labels[collision] <- sprintf("%.17g", distinct[collision])
-          values[!missing] <- labels[match(x[!missing], distinct)]
+          labels[collision] <- if (is.complex(distinct)) {
+            sprintf("%.17g%+.17gi", Re(distinct[collision]), Im(distinct[collision]))
+          } else sprintf("%.17g", distinct[collision])
+          values[!missing] <- labels[match(raw[!missing], distinct)]
           numeric_labels[[col]] <- list(values = distinct, labels = labels)
         }
       }
@@ -799,8 +803,9 @@ plt_cat <- function(data,
   as_label <- function(values, column) {
     out <- as.character(values)
     map <- numeric_labels[[column]]
-    if (!is.null(map) && is.numeric(values) && !is.object(values)) {
-      at <- match(values, map$values)
+    if (!is.null(map) && (is.numeric(values) || is.complex(values)) &&
+        (!is.object(values) || identical(class(values), "AsIs") || inherits(values, "haven_labelled"))) {
+      at <- match(unclass(values), map$values)
       matched <- !is.na(at)
       out[matched] <- map$labels[at[matched]]
     }

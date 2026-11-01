@@ -52,8 +52,8 @@ summarise. For standard types (bar, rose, ring, pie, trend, area, dot) a
 single column name. For set types (sankey, chord, venn, upset) a character
 vector of >= 2 column names. Venn plots support at most seven columns;
 use \code{type = "upset"} for larger sets.
-Distinct plain numeric values with identical short text representations
-receive more precise labels so their categories remain separate.}
+Distinct numeric values with identical short text representations receive
+more precise labels, including AsIs, haven labelled, and complex values.}
 
 \item{group.by}{Character. Optional grouping variable for standard types.
 Ignored for set types. Area plots require at least two displayed group

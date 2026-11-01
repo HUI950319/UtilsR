@@ -687,6 +687,40 @@ test_that("plt_cat keeps distinct numeric values when their short labels coincid
   expect_equal(as.character(p$data$stat_var), c("1.2", "3.4"))
 })
 
+test_that("plt_cat keeps precise classed numeric and complex categories distinct", {
+  skip_if_not_installed("haven")
+  x <- c(1e15, 1e15 + 1, NA_real_)
+  inputs <- list(I(x), haven::labelled(x),
+                 haven::labelled_spss(c(x[1:2], 99), na_values = 99),
+                 c(1 + 1i, (1 + .Machine$double.eps) + 1i, NA_complex_))
+  for (values in inputs) {
+    d <- data.frame(row = seq_along(values))
+    d[["A"]] <- values
+    p <- cat_test_plot(d, "A", stat = "count", NA_stat = TRUE)
+    expect_equal(p$data$n, rep(1L, 3))
+    expect_length(unique(as.character(p$data$stat_var)), 3L)
+    q <- cat_test_plot(d, "A", stat = "count")
+    expect_equal(q$data$n, c(1L, 1L))
+  }
+})
+
+test_that("plt_cat resolves precise classed and complex positive values", {
+  skip_if_not_installed("haven")
+  skip_if_not_installed("ggupset")
+  withr::local_options(lifecycle_verbosity = "quiet")
+  x <- c(1e15, 1e15 + 1, 1e15)
+  inputs <- list(I(x), haven::labelled(x), haven::labelled_spss(x, na_values = 99),
+                 c(1 + 1i, (1 + .Machine$double.eps) + 1i, 1 + 1i))
+  for (values in inputs) {
+    d <- data.frame(B = c(TRUE, FALSE, FALSE))
+    d[["A"]] <- values
+    p <- cat_test_plot(d, c("A", "B"), type = "upset",
+                      stat_level = list(A = values[2], B = TRUE))
+    expect_equal(p$data$intersection, list("B", "A"))
+    expect_equal(ggplot2::ggplot_build(p)$data[[1]]$count, c(1, 1))
+  }
+})
+
 test_that("plt_cat resolves numeric membership against precise category labels", {
   skip_if_not_installed("ggupset")
   withr::local_options(lifecycle_verbosity = "quiet")
