@@ -40,3 +40,41 @@ test_that("PlotButterfly minmax scaling respects small and constant ranges", {
     expect_identical(data, original)
   }
 })
+
+test_that("PlotButterfly2 honours ungrouped chart type and violin scaling", {
+  data <- data.frame(stat = "A", value = seq_len(12), group = rep(c("L", "R"), each = 6))
+  expected <- list(box = "GeomBoxplot", violin = "GeomViolin",
+                    violin_box = c("GeomViolin", "GeomBoxplot"))
+  for (type in names(expected)) {
+    plot <- PlotButterfly2(data, stat.by = "stat", value.by = "value", group.by = "group",
+                           type = type, violin.scale = "count")
+    for (i in 1:2) {
+      layers <- plot[[i]]$layers
+      expect_identical(unname(vapply(layers, function(layer) class(layer$geom)[1], "")), expected[[type]])
+      for (layer in layers) {
+        if (inherits(layer$geom, "GeomViolin")) expect_identical(layer$stat_params$scale, "count")
+      }
+    }
+  }
+})
+
+test_that("PlotButterfly2 saves the requested ungrouped chart type", {
+  data <- data.frame(stat = "A", value = seq_len(12), group = rep(c("L", "R"), each = 6))
+  saved <- NULL
+  calls <- 0L
+  original <- ggplot2::ggsave
+  testthat::local_mocked_bindings(ggsave = function(filename, plot, ...) {
+    saved <<- plot
+    calls <<- calls + 1L
+    original(filename, plot, ...)
+  }, .package = "ggplot2")
+  file <- withr::local_tempfile(fileext = ".pdf")
+  plot <- suppressMessages(PlotButterfly2(data, stat.by = "stat", value.by = "value",
+    group.by = "group", type = "box", filename = file, width = 5, height = 4))
+  expect_identical(calls, 1L)
+  expect_gt(file.info(file)$size, 0)
+  for (i in 1:2) {
+    expect_identical(class(saved[[i]]$layers[[1]]$geom)[1], "GeomBoxplot")
+    expect_identical(length(saved[[i]]$layers), length(plot[[i]]$layers))
+  }
+})

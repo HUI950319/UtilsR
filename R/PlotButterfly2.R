@@ -28,6 +28,7 @@
 #'   Default \code{NULL}.
 #' @param type Chart type: \code{"violin_box"} (default), \code{"violin"},
 #'   \code{"box"}, \code{"beeswarm"}, or \code{"beeswarm_quasirandom"}.
+#'   Box-only output contains no violin layer, including without \code{fill.by}.
 #' @param levels Display order for y-axis categories. One of:
 #'   \code{NULL} (default), \code{"up"} (ascending by mean),
 #'   \code{"down"} (descending), or a character vector.
@@ -43,6 +44,7 @@
 #' @param pt.alpha Numeric. Point alpha. Default 0.5.
 #' @param violin.scale Character. How violin widths are scaled:
 #'   \code{"width"} (default), \code{"area"}, or \code{"count"}.
+#'   Applies with or without \code{fill.by}.
 #' @param dodge.width Numeric. Dodge width. Default 0.8.
 #' @param color_by Character. Beeswarm colouring mode when
 #'   \code{fill.by = NULL}: \code{"fixed"} (default, single colour) or
@@ -153,6 +155,17 @@ PlotButterfly2 <- function(
   color_by <- match.arg(color_by)
   is_beeswarm <- type %in% c("beeswarm", "beeswarm_quasirandom")
 
+  .save_result <- function(plot) {
+    if (!is.null(filename)) {
+      existed <- file.exists(filename)
+      ggplot2::ggsave(filename, plot, width = width, height = height, dpi = 300, bg = "white")
+      .cat_saved("PlotButterfly2: the plot has been saved to", filename,
+                 sprintf("%sx%s in", format(width), format(height)), existed,
+                 toupper(tools::file_ext(filename)))
+    }
+    plot
+  }
+
   for (arg in c("stat.by", "value.by", "group.by")) {
     val <- get(arg)
     if (is.null(val))
@@ -215,9 +228,24 @@ PlotButterfly2 <- function(
       right.title.color = right.title.color,
       title = title, xlab = xlab, base_size = base_size,
       legend.position = legend.position, legend_theme = legend_theme,
-      width = width, height = height, filename = filename
+      width = width, height = height, filename = NULL
     )
-    return(combined)
+    for (i in seq_len(length(combined))) {
+      panel <- combined[[i]]
+      violin <- which(vapply(panel$layers, function(layer) {
+        inherits(layer$geom, "GeomViolin")
+      }, logical(1L)))
+      if (type == "box") {
+        panel$layers <- panel$layers[-violin]
+      } else {
+        for (j in violin) {
+          panel$layers[[j]] <- ggplot2::geom_violin(
+            mapping = panel$layers[[j]]$mapping, trim = FALSE, alpha = alpha, scale = violin.scale)
+        }
+      }
+      combined[[i]] <- panel
+    }
+    return(.save_result(combined))
   }
 
   # ==================================================================
@@ -487,17 +515,5 @@ PlotButterfly2 <- function(
       )
   }
 
-  # ---- Save ----
-  if (!is.null(filename)) {
-    # measured before writing, which creates the file
-    existed <- file.exists(filename)
-    ggplot2::ggsave(filename, combined,
-                    width = width, height = height,
-                    dpi = 300, bg = "white")
-    .cat_saved("PlotButterfly2: the plot has been saved to", filename,
-               sprintf("%sx%s in", format(width), format(height)), existed,
-               toupper(tools::file_ext(filename)))
-  }
-
-  combined
+  .save_result(combined)
 }

@@ -55,7 +55,8 @@ PlotButterfly2(
 Default \code{NULL}.}
 
 \item{type}{Chart type: \code{"violin_box"} (default), \code{"violin"},
-\code{"box"}, \code{"beeswarm"}, or \code{"beeswarm_quasirandom"}.}
+\code{"box"}, \code{"beeswarm"}, or \code{"beeswarm_quasirandom"}.
+Box-only output contains no violin layer, including without \code{fill.by}.}
 
 \item{levels}{Display order for y-axis categories. One of:
 \code{NULL} (default), \code{"up"} (ascending by mean),
@@ -78,7 +79,8 @@ Default \code{FALSE}.}
 \item{pt.alpha}{Numeric. Point alpha. Default 0.5.}
 
 \item{violin.scale}{Character. How violin widths are scaled:
-\code{"width"} (default), \code{"area"}, or \code{"count"}.}
+\code{"width"} (default), \code{"area"}, or \code{"count"}.
+Applies with or without \code{fill.by}.}
 
 \item{dodge.width}{Numeric. Dodge width. Default 0.8.}
 

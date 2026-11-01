@@ -1,5 +1,7 @@
 # UtilsR 0.6.20
 
+* `PlotButterfly2()` honours box-only output and violin scaling without fill groups, and saves the completed layers through the same path as the returned plot.
+
 * `PlotDumbbell()` identifies automatic inset pairs by retained row rather than category label, keeping repeated labels from connecting unrelated observations.
 
 * `PlotButterfly(minmax = TRUE)` scales small and extreme finite ranges without a fixed epsilon and retains zero scores for constant groups.
