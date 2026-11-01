@@ -1,5 +1,8 @@
 # UtilsR 0.6.20
 
+* Print helpers restore stored Period, Duration and Interval methods without
+  attaching lubridate or emitting its startup messages.
+
 * `pr_tree()` formats only the column names that can reach a closed
   data-frame preview, avoiding work proportional to all columns of wide tables.
 

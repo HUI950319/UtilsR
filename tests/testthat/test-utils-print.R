@@ -1161,3 +1161,25 @@ test_that("root S4 trees retain inherited data slots", {
   expect_match(out[1], "<S4 1>", fixed = TRUE)
   expect_match(paste(out, collapse = " "), "<dbl 2> 15, 30", fixed = TRUE)
 })
+
+test_that("stored S4 values restore methods without attaching their package", {
+  skip_if_not_installed("lubridate")
+  value_file <- tempfile(fileext = ".rds")
+  script <- tempfile(fileext = ".R")
+  saveRDS(stats::setNames(lubridate::seconds(c(15, 30)), c("one", "two")), value_file)
+  dump(c("pr_kv", "._kv_lines", "._pr_restore", "._as_text", "._pr_escape", "._pr_trim",
+         "._pr_wrap", "._pr_count", "._pr_colour", "._pr_out", "console_width"),
+       file = script, envir = environment(pr_kv))
+  cat('\noptions(device = function(...) grDevices::pdf(NULL, ...), cli.num_colors = 1, cli.width = 80)\n',
+      'x <- readRDS(commandArgs(TRUE)[[1]])\nbefore <- search()\nmessages <- character()\n',
+      'if (commandArgs(TRUE)[[2]] == "field") x <- list(span = x)\n',
+      'withCallingHandlers(invisible(capture.output(pr_kv(x))), message = function(m) {\n',
+      '  messages <<- c(messages, conditionMessage(m)); invokeRestart("muffleMessage")\n})\n',
+      'cat(sprintf("messages=%d;attached=%s\\n", length(messages), paste(setdiff(search(), before), collapse = ",")))\n',
+      file = script, append = TRUE, sep = "")
+  for (input in c("vector", "field")) {
+    out <- system2(file.path(R.home("bin"), "Rscript"),
+      c("--vanilla", shQuote(script), shQuote(value_file), input), stdout = TRUE, stderr = TRUE)
+    expect_identical(out, "messages=0;attached=")
+  }
+})

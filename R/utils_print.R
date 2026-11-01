@@ -61,7 +61,9 @@
 # Restore the methods for supported classed storage read from an RDS file.
 # In particular, integer64 is a double bit pattern, not a double value.
 ._pr_restore <- function(v) {
-  pkg <- if (inherits(v, "integer64")) "bit64" else
+  # inherits() can attach the class package while resolving an unloaded S4 class.
+  pkg <- if (isS4(v) && any(class(v) %in% c("Duration", "Period", "Interval"))) "lubridate" else
+    if (inherits(v, "integer64")) "bit64" else
     if (inherits(v, "haven_labelled")) "haven" else
       if (inherits(v, c("Duration", "Period", "Interval"))) "lubridate" else NULL
   if (!is.null(pkg) && !requireNamespace(pkg, quietly = TRUE)) {
@@ -140,11 +142,11 @@
 # by ._obj_desc(). Values wrap at `width` under their own column, as do the
 # lines of a value with embedded newlines.
 ._kv_lines <- function(x, arg = "x", width = Inf) {
+  x <- ._pr_restore(x)
   keys <- names(x)
   if (length(x) && (is.null(keys) || anyNA(keys) || !all(nzchar(keys)))) {
     cli::cli_abort("Every element of {.arg {arg}} must be named.")
   }
-  x <- ._pr_restore(x)
   x <- if (is.atomic(x) && is.object(x)) {
     lapply(seq_along(x), function(i) x[i])
   } else as.list(x)
@@ -152,9 +154,10 @@
   if (!any(keep)) return(character())
   keys <- ._pr_escape(keys[keep])
   vals <- vapply(x[keep], function(v) {
+    v <- ._pr_restore(v)
     if (!is.atomic(v)) return(._obj_desc(v))
     size <- length(v)
-    if (size > 20L) v <- ._pr_restore(v)[seq_len(20L)]
+    if (size > 20L) v <- v[seq_len(20L)]
     v <- ._as_text(v)
     if (size > 20L) {
       total <- format(size, scientific = FALSE, trim = TRUE)
