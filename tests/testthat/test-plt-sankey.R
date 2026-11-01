@@ -6,6 +6,13 @@ sankey_data <- function() {
   )
 }
 
+sankey_payload_plot <- function(include_payload) {
+  data <- data.frame(A = c("a", "a", "b", "b"), B = c("x", "y", "x", "y"))
+  data$unused <- I(lapply(seq_len(4), function(i) as.raw((seq_len(250000) + i) %% 256)))
+  sankey_plot(if (include_payload) data else data[c("A", "B")],
+               vars = c("A", "B"), show_text = "name")
+}
+
 sankey_plot <- function(data = sankey_data(), vars = names(data), ...) {
   withr::local_options(lifecycle_verbosity = "quiet")
   withCallingHandlers(
@@ -163,6 +170,27 @@ test_that("plt_sankey sizes default palettes to displayed nodes", {
   }
   expect_no_error(ggplot2::ggplot_build(sankey_plot(droplevels(data))))
   expect_identical(data, original)
+})
+
+test_that("plt_sankey does not retain unused payload in the returned plot", {
+  skip_if_not_installed("ggsankey")
+  skip_if_not_installed("lobstr")
+  skip_if_not_installed("ragg")
+  full <- sankey_payload_plot(TRUE)
+  selected <- sankey_payload_plot(FALSE)
+  expect_lt(as.numeric(lobstr::obj_size(full)) - as.numeric(lobstr::obj_size(selected)), 50000)
+  files <- c(withr::local_tempfile(), withr::local_tempfile())
+  saveRDS(full, files[1], compress = FALSE)
+  saveRDS(selected, files[2], compress = FALSE)
+  expect_lt(abs(diff(file.info(files)$size)), 50000)
+  expect_equal(ggplot2::ggplot_build(full)$data, ggplot2::ggplot_build(selected)$data)
+  capture <- function(plot) {
+    pixels <- ragg::agg_capture(width = 650, height = 450, units = "px")
+    on.exit(grDevices::dev.off())
+    print(plot)
+    pixels()
+  }
+  expect_identical(capture(full), capture(selected))
 })
 
 test_that("plt_sankey keeps identical category labels distinct across variables", {

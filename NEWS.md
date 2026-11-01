@@ -17,6 +17,8 @@
 
 # UtilsR 0.6.19
 
+* `plt_sankey()` retains only selected input columns in its plotting frame, removing unused payload from returned and serialized plots while preserving geometry and pixels.
+
 * `plt_upset()` rejects more than 16 sets before enumerating intersections; accepted inputs retain every combination factor level, including unobserved combinations and None.
 
 * Factor tools load integer64 methods before validating, naming or converting serialized inputs; reference indices, automatic group names, labels and bin counts no longer depend on prior package-loading order.

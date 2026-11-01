@@ -8,7 +8,8 @@
 #' using a Sankey (alluvial) diagram. Each node label shows the level name,
 #' count, and percentage.
 #'
-#' @param data A data frame.
+#' @param data A data frame. Only selected columns are retained in the plot's
+#'   working data; unrelated columns do not increase the returned plot size.
 #' @param vars Character vector selecting at least two categorical variables,
 #'   displayed left-to-right in the given order. An unnamed vector contains
 #'   column names and retains the existing axis labels. A named vector maps
@@ -224,6 +225,7 @@ plt_sankey <- function(data,
   }
   missing_vars <- vars[!vars %in% names(data)]
   if (length(missing_vars) > 0) cli::cli_abort("Variable{?s} not found: {.val {missing_vars}}")
+  data <- as.data.frame(data)[vars]
 
   # Ensure factors
   for (v in vars) {

@@ -20,7 +20,8 @@ plt_sankey(
 )
 }
 \arguments{
-\item{data}{A data frame.}
+\item{data}{A data frame. Only selected columns are retained in the plot's
+working data; unrelated columns do not increase the returned plot size.}
 
 \item{vars}{Character vector selecting at least two categorical variables,
 displayed left-to-right in the given order. An unnamed vector contains
