@@ -66,6 +66,46 @@ test_that("con time splitting and background categories retain valid observation
   expect_equal(nrow(ggplot2::ggplot_build(p)$data[[2L]]), 3L)
 })
 
+test_that("con numeric categories preserve distinctions beyond ordinary label precision", {
+  d <- con_data()
+  values <- c(1, 1 + 1e-15)
+  labels <- sprintf("%.17g", values)
+  d$g <- rep(values, each = 6)
+  for (stack in c(FALSE, TRUE)) {
+    p <- con_plot(d, c("x", "z"), type = "box", stack = stack,
+                  comparisons = list(c(1L, 2L)), palette = stats::setNames(c("red", "blue"), labels))
+    expect_identical(levels(p$data$group.by), labels)
+    expect_equal(as.integer(table(p$data$group.by)), rep(if (stack) 12L else 6L, 2L))
+    b <- ggplot2::ggplot_build(p)$data
+    expect_equal(nrow(b[[1L]]), if (stack) 4L else 2L)
+    expect_equal(unique(tail(b, 1L)[[1L]]$annotation), "**")
+  }
+})
+
+test_that("con numeric splitting and background categories avoid formatted label collisions", {
+  d <- con_data()
+  values <- c(1, 1 + 1e-15)
+  labels <- sprintf("%.17g", values)
+  d$batch <- rep(values, each = 6)
+  out <- suppressMessages(plt_con(d, "x", "g", type = "box", split.by = "batch", combine = FALSE))
+  expect_named(out, labels)
+  expect_equal(vapply(out, function(p) nrow(p$data), integer(1)), rep(6L, 2L), ignore_attr = TRUE)
+  d$g <- factor(rep(c("A", "B", "C"), each = 4))
+  d$region <- rep(values, c(8, 4))
+  p <- con_plot(d, type = "box", bg.by = "region", bg_palette = stats::setNames(c("red", "blue"), labels))
+  expect_equal(as.character(ggplot2::ggplot_build(p)$data[[1L]]$fill), c("red", "red", "blue"))
+})
+
+test_that("con ordinary numeric and pre-existing factor labels retain their contracts", {
+  d <- con_data()
+  for (groups in list(rep(c(2, 1), each = 6), rep(c(1.25, 2.5), each = 6),
+                     factor(rep(c("B", "A"), each = 6), levels = c("B", "unused", "A")))) {
+    d$g <- groups
+    p <- con_plot(d, type = "box")
+    expect_identical(p$data$group.by, if (is.factor(groups)) groups else factor(groups, levels = unique(groups)))
+  }
+})
+
 test_that("con inputs reject unsupported numeric storage and matrix columns", {
   skip_if_not_installed("bit64")
   d <- data.frame(x = bit64::as.integer64(c("9007199254740993", NA, "9007199254740994")), g = "A")

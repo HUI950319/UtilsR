@@ -47,6 +47,7 @@
 #'   empty-string groups are retained, including in dot-plot counts.
 #'   Date-time grouping, splitting, and background categories retain their
 #'   observed labels and first-appearance order.
+#'   Distinct numeric categories use extra label precision when needed.
 #' @param split.by Character. Optional splitting variable. Splits data,
 #'   creates one plot per level, and combines with \pkg{patchwork}.
 #'   An explicit missing factor level is labelled \code{"<NA>"}, with a unique
@@ -419,6 +420,15 @@ plt_con <- function(data,
         missing_value <- is.na(value)
         value <- as.character(value)
         value[missing_value] <- NA_character_
+      }
+      if (is.double(value) && !is.object(value)) {
+        distinct <- unique(value)
+        labels <- as.character(distinct)
+        collision <- duplicated(labels) | duplicated(labels, fromLast = TRUE)
+        if (any(collision)) {
+          labels[collision] <- sprintf("%.17g", distinct[collision])
+          value <- labels[match(value, distinct)]
+        }
       }
       data[[col]] <- factor(value, levels = unique(value))
     }

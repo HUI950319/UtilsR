@@ -72,7 +72,8 @@ selection is an error.}
 Default \code{NULL} (all data in one group). Observed missing and
 empty-string groups are retained, including in dot-plot counts.
 Date-time grouping, splitting, and background categories retain their
-observed labels and first-appearance order.}
+observed labels and first-appearance order.
+Distinct numeric categories use extra label precision when needed.}
 
 \item{split.by}{Character. Optional splitting variable. Splits data,
 creates one plot per level, and combines with \pkg{patchwork}.

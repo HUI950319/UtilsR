@@ -1,5 +1,8 @@
 # UtilsR 0.6.19
 
+* `plt_con()` disambiguates distinct numeric grouping, splitting, and background
+  categories when their ordinary display labels collide.
+
 * `plt_con()` inherits added continuous scale transformations in independent
   stacked quantile zooms while computing statistics from all observations.
 
