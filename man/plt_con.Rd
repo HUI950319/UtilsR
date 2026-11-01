@@ -70,7 +70,9 @@ selection is an error.}
 
 \item{group.by}{Character. Column name for the x-axis grouping variable.
 Default \code{NULL} (all data in one group). Observed missing and
-empty-string groups are retained, including in dot-plot counts.}
+empty-string groups are retained, including in dot-plot counts.
+Date-time grouping, splitting, and background categories retain their
+observed labels and first-appearance order.}
 
 \item{split.by}{Character. Optional splitting variable. Splits data,
 creates one plot per level, and combines with \pkg{patchwork}.

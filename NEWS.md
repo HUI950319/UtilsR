@@ -1,5 +1,8 @@
 # UtilsR 0.6.19
 
+* `plt_con()` preserves date-time categories used for grouping, splitting,
+  and background bands instead of converting valid groups to missing values.
+
 * Categorical safety checks include retained standard-plot factor levels and reject frequency grids beyond the base table cell limit before allocation.
 
 * Categorical positive-level mappings match named vectors by column, preserve unnamed positional values and reject missing, duplicate or unknown mapping keys.

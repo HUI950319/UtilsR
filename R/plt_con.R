@@ -45,6 +45,8 @@
 #' @param group.by Character. Column name for the x-axis grouping variable.
 #'   Default \code{NULL} (all data in one group). Observed missing and
 #'   empty-string groups are retained, including in dot-plot counts.
+#'   Date-time grouping, splitting, and background categories retain their
+#'   observed labels and first-appearance order.
 #' @param split.by Character. Optional splitting variable. Splits data,
 #'   creates one plot per level, and combines with \pkg{patchwork}.
 #'   An explicit missing factor level is labelled \code{"<NA>"}, with a unique
@@ -410,6 +412,11 @@ plt_con <- function(data,
       }
       if (inherits(value, "integer64") && !requireNamespace("bit64", quietly = TRUE)) {
         cli::cli_abort("Grouping integer64 columns requires the {.pkg bit64} package.")
+      }
+      if (inherits(value, "POSIXt")) {
+        missing_value <- is.na(value)
+        value <- as.character(value)
+        value[missing_value] <- NA_character_
       }
       data[[col]] <- factor(value, levels = unique(value))
     }

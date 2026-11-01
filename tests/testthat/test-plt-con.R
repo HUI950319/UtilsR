@@ -33,6 +33,39 @@ test_that("con inputs recognize SPSS missing grouping and splitting codes", {
   expect_length(out, 2L)
 })
 
+test_that("con time categories retain observed groups and their first appearance order", {
+  for (kind in c("POSIXct", "POSIXlt")) {
+    d <- con_data()
+    times <- as.POSIXct("2026-01-01", tz = "UTC") + rep(c(1, 0), each = 6)
+    d$g <- if (kind == "POSIXlt") as.POSIXlt(times) else times
+    for (stack in c(FALSE, TRUE)) {
+      p <- con_plot(d, c("x", "z"), type = "box", stack = stack)
+      expect_identical(levels(p$data$group.by), unique(as.character(times)))
+      expect_equal(sum(is.na(p$data$group.by)), 0L)
+      expect_equal(nrow(ggplot2::ggplot_build(p)$data[[2L]]), if (stack) 4L else 2L)
+    }
+  }
+})
+
+test_that("con time splitting and background categories retain valid observations", {
+  d <- con_data()
+  d$batch <- as.POSIXct("2026-01-01", tz = "UTC") + rep(c(1, 0), each = 6)
+  out <- suppressMessages(plt_con(d, "x", "g", type = "box", split.by = "batch", combine = FALSE))
+  expect_named(out, unique(as.character(d$batch)))
+  expect_equal(vapply(out, function(p) nrow(p$data), integer(1)), rep(6L, 2L), ignore_attr = TRUE)
+  d$g <- factor(rep(c("A", "B", "C"), each = 4))
+  d$region <- as.POSIXct("2026-01-01", tz = "UTC") + rep(c(0, 0, 1), each = 4)
+  expect_no_warning(p <- con_plot(d, type = "box", bg.by = "region"))
+  expect_true(inherits(p$layers[[1L]]$geom, "GeomRect"))
+  bands <- ggplot2::ggplot_build(p)$data[[1L]]
+  expect_equal(nrow(bands), 3L)
+  expect_length(unique(bands$fill), 2L)
+  d$g <- as.POSIXct("2026-01-01", tz = "UTC") + c(rep(0, 5), NA, rep(1, 6))
+  p <- con_plot(d, type = "bar")
+  expect_equal(sum(is.na(p$data$group.by)), 1L)
+  expect_equal(nrow(ggplot2::ggplot_build(p)$data[[2L]]), 3L)
+})
+
 test_that("con inputs reject unsupported numeric storage and matrix columns", {
   skip_if_not_installed("bit64")
   d <- data.frame(x = bit64::as.integer64(c("9007199254740993", NA, "9007199254740994")), g = "A")
