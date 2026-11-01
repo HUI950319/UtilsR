@@ -13,6 +13,28 @@ render_upset <- function(plot) {
   print(plot)
 }
 
+test_that("plt_upset rejects more than sixteen sets before enumerating regions", {
+  skip_if_not_installed("ggVennDiagram")
+  testthat::local_mocked_bindings(
+    process_region_data = function(...) stop("region backend reached"),
+    .package = "ggVennDiagram")
+  sets <- stats::setNames(rep(list(1:2), 17), paste0("S", 1:17))
+  for (output in c("data", "upset", "both", "all")) {
+    expect_error(suppressMessages(plt_upset(sets, output = output)), "at most 16 sets")
+  }
+  frame <- as.data.frame(stats::setNames(rep(list(c("Yes", "No")), 17), names(sets)))
+  expect_error(plt_upset(frame, vars = names(frame), output = "data"), "at most 16 sets")
+  expect_error(plt_upset(sets[1:16], output = "data"), "region backend reached")
+  expect_error(plt_upset(sets, output = "venn"), "2 to 7 sets")
+})
+
+test_that("plt_upset retains unobserved combination levels below the set limit", {
+  skip_if_not_installed("ggVennDiagram")
+  result <- plt_upset(list(A = 1:2, B = 1:2), output = "data")
+  expect_setequal(levels(result$intersect_group), c("A", "B", "A/B", "None"))
+  expect_identical(as.character(result$intersect_group), c("A/B", "A/B"))
+})
+
 test_that("plt_upset plots missing-value membership", {
   skip_if_not_installed("ggVennDiagram")
 

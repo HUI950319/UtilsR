@@ -34,7 +34,9 @@ plt_upset(
   \item{\strong{Data frame}}{A data.frame with binary indicator columns
     specified by \code{vars}. Membership is determined by \code{levels}.}
 }
-Select at least two sets, with unique, non-missing, non-blank names.
+Select 2 to 16 sets, with unique, non-missing, non-blank names.
+The 16-set limit bounds enumeration of all possible intersections;
+Venn-only output supports at most 7 sets.
 List members must be one-dimensional atomic vectors; factors are accepted,
 while other classed member IDs must first be converted to stable identifiers.
 In mixed factor/non-factor lists, factor labels are used as member IDs.
@@ -128,6 +130,8 @@ Depends on \code{output}: a ggplot, a combined plot, a data frame,
   Existing input columns, including \code{.row_id}, are preserved.
   For \code{"data"} and \code{"all"}, an existing \code{intersect_group}
   column must be renamed first to avoid overwriting it.
+Intersection factors retain every possible combination level, including
+unobserved combinations and the \code{None} level.
   Plots carry their page size as
   \code{attr(p, "plot_size")}, the list of \code{"all"} on its
   \code{combined} element.

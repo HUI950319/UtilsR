@@ -19,7 +19,9 @@
 #'     \item{\strong{Data frame}}{A data.frame with binary indicator columns
 #'       specified by \code{vars}. Membership is determined by \code{levels}.}
 #'   }
-#'   Select at least two sets, with unique, non-missing, non-blank names.
+#'   Select 2 to 16 sets, with unique, non-missing, non-blank names.
+#'   The 16-set limit bounds enumeration of all possible intersections;
+#'   Venn-only output supports at most 7 sets.
 #'   List members must be one-dimensional atomic vectors; factors are accepted,
 #'   while other classed member IDs must first be converted to stable identifiers.
 #'   In mixed factor/non-factor lists, factor labels are used as member IDs.
@@ -97,6 +99,8 @@
 #'   Existing input columns, including \code{.row_id}, are preserved.
 #'   For \code{"data"} and \code{"all"}, an existing \code{intersect_group}
 #'   column must be renamed first to avoid overwriting it.
+#'   Intersection factors retain every possible combination level, including
+#'   unobserved combinations and the \code{None} level.
 #'   Plots carry their page size as
 #'   \code{attr(p, "plot_size")}, the list of \code{"all"} on its
 #'   \code{combined} element.
@@ -282,6 +286,9 @@ plt_upset <- function(data,
 
   if (length(set_list) > 7L && output == "venn") {
     cli::cli_abort("Venn diagrams support 2 to 7 sets; use {.code output = 'upset'} for more sets.")
+  }
+  if (length(set_list) > 16L) {
+    cli::cli_abort("UpSet and intersection data support at most 16 sets to bound enumeration of all combinations.")
   }
   if (output != "data" && !any(lengths(set_list) > 0L)) {
     cli::cli_abort("No set members match the selection; use {.code output = 'data'} to return the groups.")
