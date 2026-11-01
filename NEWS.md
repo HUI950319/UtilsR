@@ -1,3 +1,8 @@
+# UtilsR 0.6.20
+
+* `pr_kv()`, named `pr_box()` inputs and `pr_note()` preserve ANSI styles
+  across embedded newlines, including blank separator lines.
+
 # UtilsR 0.6.19
 
 * `plt_con()` shares each feature's dot-bin boundaries across split panels,

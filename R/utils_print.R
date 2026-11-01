@@ -167,9 +167,9 @@
   avail <- max(1L, width - kw - 2L)
   lead  <- strrep(" ", kw + 2)
   unlist(lapply(seq_along(keys), function(i) {
-    segs <- strsplit(vals[[i]], "\n", fixed = TRUE)[[1]]
+    segs <- cli::ansi_strsplit(vals[[i]], "\n", fixed = TRUE)[[1]]
     body <- unlist(lapply(if (length(segs)) segs else "", function(s) {
-      if (nzchar(s)) ._pr_wrap(s, width = avail) else ""
+      if (nzchar(cli::ansi_strip(s))) ._pr_wrap(s, width = avail) else ""
     }))
     c(paste0(cli::col_grey(cli::ansi_align(keys[i], kw)), "  ", body[1]),
       if (length(body) > 1L) paste0(lead, body[-1]))
@@ -234,8 +234,8 @@ pr_head <- function(class, ..., bg = "blue", fg = "br_white") {
 #'   other objects are described by type and size, e.g.
 #'   \code{<data.frame 6 x 11>} or \code{<lm>}. Long values
 #'   wrap at the console width under the value column, as do the lines of a
-#'   value that contains newlines. Long keys are shortened to reserve space
-#'   for their values.
+#'   value that contains newlines, preserving ANSI styles. Long keys are
+#'   shortened to reserve space for their values.
 #'   SPSS user-missing values display as \code{NA}; explicit missing factor
 #'   levels display as \code{<NA>}.
 #' @param indent Non-negative integer. Spaces before each key (default 2).
@@ -326,11 +326,11 @@ pr_note <- function(..., .envir = parent.frame()) {
   raw  <- paste0(...)
   if (!length(raw)) return(._pr_out(character()))
   # line by line: format_inline() and ansi_strwrap() would join the lines
-  segs <- unlist(lapply(strsplit(raw, "\n", fixed = TRUE),
+  segs <- unlist(lapply(cli::ansi_strsplit(raw, "\n", fixed = TRUE),
                         function(s) if (length(s)) s else ""))
   body <- unlist(lapply(segs, function(s) {
     text <- tryCatch(cli::format_inline(s, .envir = .envir), error = function(e) s)
-    if (nzchar(text)) ._pr_wrap(text, width = max(1L, console_width() - 2L))
+    if (nzchar(cli::ansi_strip(text))) ._pr_wrap(text, width = max(1L, console_width() - 2L))
     else ""
   }))
   ._pr_out(cli::col_grey(cli::style_italic(paste("#", body))))

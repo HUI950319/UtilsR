@@ -1125,3 +1125,21 @@ test_that("plain boxed text keeps embedded newlines and their ANSI styles", {
   expect_match(out[2], "\033[31mfirst", fixed = TRUE)
   expect_match(out[3], "\033[31msecond", fixed = TRUE)
 })
+
+test_that("multiline key-value fields and notes retain ANSI styles", {
+  withr::local_options(cli.num_colors = 256)
+  text <- cli::col_red("first\n\nsecond")
+  out <- utils::capture.output(pr_kv(list(value = text)))
+  expect_length(out, 3L)
+  expect_match(out[1], "\033[31mfirst", fixed = TRUE)
+  expect_match(out[3], "\033[31msecond", fixed = TRUE)
+  expect_match(utils::capture.output(pr_box(list(value = text)))[4],
+               "\033[31msecond", fixed = TRUE)
+  out <- utils::capture.output(pr_note(text))
+  expect_length(out, 3L)
+  expect_match(out[3], "\033[31msecond", fixed = TRUE)
+  withr::local_options(cli.num_colors = 1)
+  expect_identical(utils::capture.output(pr_kv(list(value = text))),
+                   c("  value  first", "         ", "         second"))
+  expect_identical(utils::capture.output(pr_note(text)), c("# first", "# ", "# second"))
+})

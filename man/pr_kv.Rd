@@ -15,8 +15,8 @@ numbers as \code{print()} shows them) and
 other objects are described by type and size, e.g.
 \code{<data.frame 6 x 11>} or \code{<lm>}. Long values
 wrap at the console width under the value column, as do the lines of a
-value that contains newlines. Long keys are shortened to reserve space
-for their values.
+value that contains newlines, preserving ANSI styles. Long keys are
+shortened to reserve space for their values.
 SPSS user-missing values display as \code{NA}; explicit missing factor
 levels display as \code{<NA>}.}
 
