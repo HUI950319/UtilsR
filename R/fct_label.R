@@ -35,6 +35,7 @@
 #'
 #' @return Same type as \code{x}: a factor for the vector method, or the input
 #'   data frame (with \code{var} relabelled) for the data.frame method.
+#'   Rowwise grouping keys are updated when their column is relabelled.
 #'
 #' @examples
 #' # ---- vector method ----
@@ -75,7 +76,12 @@ fct_label.data.frame <- function(x, var, labels, ...) {
   if (!v %in% names(x)) {
     cli::cli_abort("Column {.val {v}} not found in the data frame.")
   }
-  x[[v]] <- fct_cat(x[[v]], new_labels = labels)
+  relabelled <- fct_cat(x[[v]], new_labels = labels)
+  if (inherits(x, "rowwise_df")) {
+    x <- dplyr::dplyr_col_modify(x, stats::setNames(list(relabelled), v))
+  } else {
+    x[[v]] <- relabelled
+  }
   x
 }
 

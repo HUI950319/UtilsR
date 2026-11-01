@@ -17,6 +17,22 @@ test_that("named vectors cannot change paste or order controls", {
   expect_identical(fct_to_combine(data, c("a", "sep"))[["a_sep"]], expected)
 })
 
+test_that("rowwise combinations rebuild replaced grouping keys", {
+  data <- dplyr::rowwise(tibble::tibble(g = c("a", "a", "b"),
+                                       b = c("x", "y", "x"), value = 1:3), g)
+  original <- data
+  result <- fct_to_combine(data, c("g", "b"), var_name = "g")
+  expect_s3_class(result, "rowwise_df")
+  expect_identical(dplyr::group_vars(result), "g")
+  expect_identical(as.character(dplyr::group_keys(result)$g), as.character(result$g))
+  summary <- dplyr::summarise(result, total = sum(value), .groups = "drop")
+  expect_identical(as.character(summary$g), as.character(result$g))
+  expect_identical(summary$total, 1:3)
+  added <- fct_to_combine(data, c("g", "b"), var_name = "combined")
+  expect_identical(dplyr::group_keys(added), dplyr::group_keys(data))
+  expect_identical(data, original)
+})
+
 test_that("combination controls are validated before changing data", {
   data <- data.frame(a = c("M", "F"), b = c("old", "young"))
   for (sep in list(NA_character_, c("/", "|"), character(), 1, list("/"))) {

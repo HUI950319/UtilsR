@@ -26,6 +26,7 @@ and the same length as the existing levels.}
 \value{
 Same type as \code{x}: a factor for the vector method, or the input
   data frame (with \code{var} relabelled) for the data.frame method.
+  Rowwise grouping keys are updated when their column is relabelled.
 }
 \description{
 S3 generic that renames the levels of a factor. Dispatches on the first

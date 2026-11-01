@@ -81,6 +81,7 @@ separately for each group. When dplyr combines the results, their level
 order may differ from whole-data ordering and change the first level used
 as a model reference. To use one level order across the data, use the
 data.frame method on the whole data frame; its grouping is retained.
+Replacing a rowwise grouping column also updates its grouping keys.
 }
 \examples{
 df <- data.frame(

@@ -14,6 +14,8 @@
 
 # UtilsR 0.6.19
 
+* `fct_to_combine()` and `fct_label()` refresh rowwise grouping keys when replacing a grouping column, so later summaries use the updated values.
+
 * `plt_sankey()` isolates generated counting and stage fields from input column names, preserving flows and axis labels for reserved or colliding names.
 
 * `plt_dist()` excludes class-defined missing values in every mode, including SPSS user missings, and handles POSIXlt columns without changing explicit factor-NA rules.

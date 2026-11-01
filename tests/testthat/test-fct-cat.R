@@ -111,6 +111,19 @@ test_that("relabelling preserves metadata and base merging semantics", {
   }
 })
 
+test_that("rowwise relabelling rebuilds grouping keys", {
+  data <- dplyr::rowwise(tibble::tibble(g = factor(c("a", "a", "b")), value = 1:3), g)
+  original <- data
+  result <- fct_label(data, g, c("A", "B"))
+  expect_s3_class(result, "rowwise_df")
+  expect_identical(dplyr::group_vars(result), "g")
+  expect_identical(as.character(dplyr::group_keys(result)$g), c("A", "A", "B"))
+  summary <- dplyr::summarise(result, total = sum(value), .groups = "drop")
+  expect_identical(as.character(summary$g), c("A", "A", "B"))
+  expect_identical(summary$total, 1:3)
+  expect_identical(data, original)
+})
+
 test_that("empty and entirely missing factors keep valid levels", {
   empty <- factor(character())
   expect_identical(fct_cat(empty, reverse = TRUE), empty)

@@ -43,6 +43,7 @@
 #' order may differ from whole-data ordering and change the first level used
 #' as a model reference. To use one level order across the data, use the
 #' data.frame method on the whole data frame; its grouping is retained.
+#' Replacing a rowwise grouping column also updates its grouping keys.
 #'
 #' @param x First input. A factor / character / vector (vector method), OR a
 #'   data.frame (data.frame method). A \pkg{data.table} input is copied before
@@ -156,6 +157,8 @@ fct_to_combine.data.frame <- function(x, vars, var_name = NULL, sep = " & ", ...
     }
     x <- data.table::copy(x)
     data.table::set(x, j = new_var, value = combined)
+  } else if (inherits(x, "rowwise_df")) {
+    x <- dplyr::dplyr_col_modify(x, stats::setNames(list(combined), new_var))
   } else {
     x[[new_var]] <- combined
   }
