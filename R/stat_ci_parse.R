@@ -56,6 +56,8 @@
 #' \eqn{SE = (hi - lo) / (2 \times 1.96)} on the working scale. An interval
 #' at another level (e.g. a 90\% CI) is still read as 95\% and gives a wrong
 #' p-value; convert it first.
+#' Log-scale comparisons use stable log ratios to avoid intermediate products
+#' overflowing or underflowing for finite positive inputs.
 #'
 #' \strong{\code{exp = "auto"}.} An interval symmetric on the log scale is a
 #' ratio, and one symmetric on the raw scale is a difference; bounds
@@ -300,8 +302,15 @@ stat_ci_parse <- function(x,
   a_lin <- abs(hi + lo - 2 * est) / (hi - lo)
   r_lin <- ((ul + uh) / 2 + ue) / (hi - lo)
   a_log <- rep(Inf, length(est)); r_log <- rep(0, length(est))
-  w <- log(hi[pos] / lo[pos])
-  a_log[pos] <- abs(log(hi[pos] * lo[pos] / est[pos]^2)) / w
+  log_ratio <- function(a, b) {
+    relative <- (a - b) / b
+    out <- log(a) - log(b)
+    close <- is.finite(relative) & abs(relative) < 0.5
+    out[close] <- log1p(relative[close])
+    out
+  }
+  w <- log_ratio(hi[pos], lo[pos])
+  a_log[pos] <- abs(log_ratio(hi[pos], est[pos]) - log_ratio(est[pos], lo[pos])) / w
   r_log[pos] <- (ul[pos] / (2 * lo[pos]) + uh[pos] / (2 * hi[pos]) +
                    ue[pos] / est[pos]) / w
 

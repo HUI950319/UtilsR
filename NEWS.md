@@ -17,6 +17,8 @@
 
 # UtilsR 0.6.19
 
+* `stat_ci_parse()` uses stable log ratios for scale comparisons, avoiding intermediate overflow or underflow for finite extreme intervals while retaining precision for close bounds.
+
 * `plt_sankey()` retains only selected input columns in its plotting frame, removing unused payload from returned and serialized plots while preserving geometry and pixels.
 
 * `plt_upset()` rejects more than 16 sets before enumerating intersections; accepted inputs retain every combination factor level, including unobserved combinations and None.

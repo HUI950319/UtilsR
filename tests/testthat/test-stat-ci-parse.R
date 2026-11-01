@@ -135,6 +135,24 @@ test_that("very small p-values do not underflow to 0", {
   expect_equal(p, 2 * pnorm(-log(5) / se))
 })
 
+test_that("finite extreme ratio intervals avoid intermediate overflow", {
+  x <- c("1e200 (5e199, 2e200)", "1e-200 (5e-201, 2e-200)",
+         "1 (1e-200, 1e200)")
+  expect_no_warning(p <- stat_ci_parse(x, output = "p", exp = TRUE))
+  expected <- 2 * pnorm(-abs(log(c(1e200, 1e-200, 1))) /
+                         (c(log(4), log(4), 400 * log(10)) / (2 * z95)))
+  expect_equal(p, expected)
+  expect_true(all(is.finite(p)))
+
+  values <- c(1, 1 - 1e-14, 1 + 3e-14)
+  for (scale in c(1, 1e200)) {
+    interval <- sprintf("%.17e (%.17e, %.17e)",
+                         values[1] * scale, values[2] * scale, values[3] * scale)
+    expect_warning(p <- stat_ci_parse(interval, output = "p", exp = TRUE), "not symmetric")
+    expect_true(is.finite(p))
+  }
+})
+
 test_that("ci_p writes p<0.001, not p=<0.001", {
   expect_identical(stat_ci_parse("2.00 (1.50, 2.67)", output = "ci_p"),
                    "2.00 (1.50, 2.67), p<0.001")
