@@ -28,7 +28,9 @@ column names and retains the existing axis labels. A named vector maps
 column names to display labels, e.g. \code{c(sex = "Sex", stage = "Stage")}.
 All names must be non-empty, unique column names; partially named vectors
 are not supported. Labels must be non-missing strings. Empty strings hide
-individual labels, and line breaks are preserved.}
+individual labels, and line breaks are preserved.
+Input names such as \code{.n}, \code{.pct}, and names ending in
+\code{_label} are kept separate from generated fields.}
 
 \item{palette}{Colour palette name from \code{pal_get()}, or a character
 vector of colours. Default \code{NULL} auto-generates colours per variable

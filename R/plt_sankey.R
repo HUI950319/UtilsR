@@ -16,6 +16,8 @@
 #'   All names must be non-empty, unique column names; partially named vectors
 #'   are not supported. Labels must be non-missing strings. Empty strings hide
 #'   individual labels, and line breaks are preserved.
+#'   Input names such as \code{.n}, \code{.pct}, and names ending in
+#'   \code{_label} are kept separate from generated fields.
 #' @param palette Colour palette name from \code{pal_get()}, or a character
 #'   vector of colours. Default \code{NULL} auto-generates colours per variable
 #'   using sequential HCL palettes.
@@ -233,42 +235,49 @@ plt_sankey <- function(data,
   }
 
   # Add count + percentage labels to each variable
-  label_vars <- character(length(vars))
+  label_vars <- utils::tail(make.unique(c(names(data), paste0(vars, "_label"))), length(vars))
+  if (!is.null(var_labels)) {
+    names(var_labels) <- label_vars
+  } else if (any(label_vars != paste0(vars, "_label"))) {
+    var_labels <- stats::setNames(paste0(vars, "_label"), label_vars)
+  }
+  temporary <- utils::tail(make.unique(c(names(data), label_vars, ".n", ".pct")), 2L)
+  count_name <- temporary[1L]
+  pct_name <- temporary[2L]
   node_labels <- character()
   node_pct <- numeric()
   for (i in seq_along(vars)) {
     v <- vars[i]
-    lv <- paste0(v, "_label")
-    label_vars[i] <- lv
+    lv <- label_vars[i]
     total <- nrow(data)
     data <- data %>%
       dplyr::group_by(.data[[v]]) %>%
       dplyr::mutate(
-        .n = dplyr::n(),
-        .pct = scales::percent(.data[[".n"]] / total, accuracy = label_args$pct_accuracy)
+        !!count_name := dplyr::n(),
+        !!pct_name := scales::percent(.data[[count_name]] / total, accuracy = label_args$pct_accuracy)
       ) %>%
       dplyr::ungroup()
     data[[lv]] <- switch(if (show_text == "none") "all" else show_text,
-      "all"  = sprintf("%s (%s, %s)", data[[v]], data$.n, data$.pct),
-      "all_wrap" = sprintf("%s\n(%s, %s)", data[[v]], data$.n, data$.pct),
-      "n"    = sprintf("%s (%s)", data[[v]], data$.n),
-      "pct"  = sprintf("%s (%s)", data[[v]], data$.pct),
+      "all"  = sprintf("%s (%s, %s)", data[[v]], data[[count_name]], data[[pct_name]]),
+      "all_wrap" = sprintf("%s\n(%s, %s)", data[[v]], data[[count_name]], data[[pct_name]]),
+      "n"    = sprintf("%s (%s)", data[[v]], data[[count_name]]),
+      "pct"  = sprintf("%s (%s)", data[[v]], data[[pct_name]]),
       "name" = as.character(data[[v]])
     )
     # Preserve factor order
-    lvl_df <- dplyr::distinct(data[, c(v, lv, ".n")])
+    lvl_df <- dplyr::distinct(data[, c(v, lv, count_name)])
     lvl_df <- lvl_df[order(lvl_df[[v]]), ]
     node_levels <- paste0(".sankey_", i, "_", seq_len(nrow(lvl_df)))
     keep_label <- !is.na(lvl_df[[lv]])
     node_labels <- c(node_labels, stats::setNames(
       as.character(lvl_df[[lv]][keep_label]), node_levels[keep_label]
     ))
-    node_pct <- c(node_pct, stats::setNames(lvl_df$.n[keep_label] / total,
+    node_pct <- c(node_pct, stats::setNames(lvl_df[[count_name]][keep_label] / total,
                                            node_levels[keep_label]))
     data[[lv]] <- factor(node_levels[match(data[[v]], lvl_df[[v]])],
                          levels = node_levels[keep_label])
-    data$.n <- NULL
-    data$.pct <- NULL
+    data[[count_name]] <- NULL
+    data[[pct_name]] <- NULL
   }
 
   # Strip palette class from label columns before make_long (tidyr compatibility)
@@ -277,7 +286,7 @@ plt_sankey <- function(data,
   }
 
   # Build sankey data
-  plot_data <- ggsankey::make_long(data, dplyr::all_of(label_vars))
+  plot_data <- ggsankey::make_long(data[, label_vars, drop = FALSE], dplyr::all_of(label_vars))
 
   # Set node factor levels
   all_levels <- unlist(lapply(label_vars, function(lv) levels(data[[lv]])))

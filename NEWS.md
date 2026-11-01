@@ -14,6 +14,8 @@
 
 # UtilsR 0.6.19
 
+* `plt_sankey()` isolates generated counting and stage fields from input column names, preserving flows and axis labels for reserved or colliding names.
+
 * `plt_dist()` excludes class-defined missing values in every mode, including SPSS user missings, and handles POSIXlt columns without changing explicit factor-NA rules.
 
 * `plt_con()` shares each feature's dot-bin boundaries across split panels,

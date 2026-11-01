@@ -119,6 +119,33 @@ test_that("plt_sankey validates named variable maps", {
                "not found.*missing")
 })
 
+test_that("plt_sankey isolates counting and stage fields from input names", {
+  skip_if_not_installed("ggsankey")
+  data <- data.frame(A = c("a", "a", "b", "b"), B = c("x", "y", "x", "y"))
+  reference <- ggplot2::ggplot_build(sankey_plot(data, reverse_levels = FALSE,
+                                               show_text = "name"))$data
+  for (columns in list(c("A", "A_label"), c(".n", "B"), c(".pct", "B"), c("..r", "B"))) {
+    renamed <- data
+    names(renamed) <- columns
+    original <- renamed
+    p <- sankey_plot(renamed, reverse_levels = FALSE, show_text = "name")
+    paths <- paste(p$data$node[!is.na(p$data$next_x)],
+                   p$data$next_node[!is.na(p$data$next_x)])
+    expect_equal(length(unique(paths)), 4L)
+    expect_equal(ggplot2::ggplot_build(p)$data, reference)
+    expect_identical(as.character(ggplot2::ggplot_build(p)$layout$panel_scales_x[[1]]$get_labels()),
+                     paste0(columns, "_label"))
+    expect_identical(renamed, original)
+  }
+  data$..r <- seq_len(nrow(data))
+  p <- sankey_plot(data, vars = c("A", "B"), reverse_levels = FALSE, show_text = "name")
+  expect_equal(ggplot2::ggplot_build(p)$data, reference)
+  named <- sankey_plot(stats::setNames(data[c("A", "B")], c("A", "A_label")),
+                       vars = c(A = "First", A_label = "Second"), show_text = "name")
+  expect_identical(as.character(ggplot2::ggplot_build(named)$layout$panel_scales_x[[1]]$get_labels()),
+                   c("First", "Second"))
+})
+
 test_that("plt_sankey keeps identical category labels distinct across variables", {
   skip_if_not_installed("ggsankey")
 
