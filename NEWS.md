@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* `show_color()` renders each repeated normalised colour once per call, preserving every swatch, its order and the original copyable vector without retaining a global cache.
+
 * `show_color()` passes parsed RGB matrices to ANSI background styles, avoiding repeated colour-name searches while preserving displayed output.
 
 * Source palette viewers reject classed or dimensional opacity, interval, direction and reversal controls before colour generation.

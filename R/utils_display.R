@@ -675,7 +675,8 @@ show_color <- function(x, rev = FALSE) {
       names(foreground) <- c("#000000", "#FFFFFF")
       fg_luminance <- vapply(foreground, .displayed_luminance, numeric(1))
     }
-    styled <- vapply(seq_along(hex), function(i) {
+    ids <- if (anyDuplicated(hex)) match(unique(hex), hex) else seq_along(hex)
+    styled <- vapply(ids, function(i) {
       h <- preview[[i]]
       bg_style <- cli::make_ansi_style(preview_rgb[, i, drop = FALSE], bg = TRUE, grey = FALSE)
       fg_col <- if (num_colors < 16777216L) {
@@ -690,6 +691,7 @@ show_color <- function(x, rev = FALSE) {
       fg_style <- foreground[[fg_col]]
       cli::combine_ansi_styles(fg_style, bg_style)(paste0(" ", hex[[i]], " "))
     }, character(1), USE.NAMES = FALSE)
+    if (length(ids) < length(hex)) styled <- styled[match(hex, hex[ids])]
   } else {
     styled <- if (length(hex)) paste0(" ", hex, " ") else character()
   }

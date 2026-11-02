@@ -256,3 +256,21 @@ test_that("show_color retains an empty character vector and its public signature
   expect_identical(names(formals(show_color)), c("x", "rev"))
   expect_identical(formals(show_color)[["rev"]], FALSE)
 })
+
+test_that("show_color retains duplicate order and original colour spellings", {
+  withr::local_options(cli.num_colors = 0, cli.width = 40, width = 40)
+  cols <- setNames(c("red", "#F00", "blue", "red", "#F008", "#FF000088",
+                     NA_character_, "transparent"), letters[1:8])
+  expected <- c("#FF0000", "#FF0000", "#0000FF", "#FF0000", "#FF000088",
+                "#FF000088", "#FFFFFF00", "#FFFFFF00")
+  for (depth in c(0, 8, 256, 16777216)) for (reverse in c(FALSE, TRUE)) {
+    options(cli.num_colors = depth)
+    out <- capture.output(value <- withVisible(show_color(cols, rev = reverse)))
+    plain <- cli::ansi_strip(out)
+    swatches <- grepl("^ #", plain)
+    labels <- unlist(regmatches(plain[swatches], gregexpr("#[0-9A-F]{8}|#[0-9A-F]{6}", plain[swatches])))
+    expect_identical(unname(labels), if (reverse) rev(expected) else expected)
+    expect_identical(value$value, if (reverse) rev(cols) else cols)
+    expect_identical(eval(parse(text = plain[!swatches])), value$value)
+  }
+})
