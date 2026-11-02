@@ -473,12 +473,14 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
       rep(TRUE, length(v))
     }, error = function(e) {
       # Locate each bad colour only when the vector cannot be parsed together.
-      vapply(v, function(s) {
+      to_check <- if (is.object(v)) v else unique(v)
+      valid <- vapply(to_check, function(s) {
         tryCatch({
           grDevices::col2rgb(s)
           TRUE
         }, error = function(e) FALSE)
       }, logical(1L), USE.NAMES = FALSE)
+      if (is.object(v)) valid else valid[match(v, to_check)]
     })
     drawable & !is.na(v) & !grepl("^[0-9]", v)
   }

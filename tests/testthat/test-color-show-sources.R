@@ -686,6 +686,17 @@ test_that("pal_get retains numeric positions when repeated values share interpol
                      "#0000FF80", NA, "#FF000080"))
 })
 
+test_that("pal_get reports every invalid repeated colour in input order", {
+  cols <- c("badfirst", "red", "badlast", "red", "badfirst")
+  for (palette in list(cols, list(custom = cols), structure(cols, class = "AsIs"))) {
+    error <- tryCatch(pal_get(palette), error = identity)
+    expect_s3_class(error, "error")
+    text <- conditionMessage(error)
+    bad <- regmatches(text, gregexpr("badfirst|badlast", text))[[1L]]
+    expect_identical(bad, c("badfirst", "badlast", "badfirst"))
+  }
+})
+
 test_that("pal_show preserves transparency in colour-vector previews", {
   cols <- c("#FF000080", "transparent", "#00000010")
   invisible(capture.output(p <- pal_show(cols, output = "gg")))

@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* pal_get() validates unique ordinary colour strings after a failed bulk parse, restoring every invalid value in its original order and retaining classed-vector diagnostics.
+
 * pal_get() interpolates repeated numeric positions once when repeats occur in a bounded prefix, preserving observation order, non-finite values, reversal and alpha while keeping all-unique inputs on the direct path.
 
 * pal_get() rejects distinct discrete values whose character labels collide, keeping named colour mappings unambiguous without renaming valid levels.
