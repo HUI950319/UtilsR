@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* Palette data rebuilds reject dimensional and classed colour vectors before saving, matching console preview input requirements and preserving existing registries.
+
 * `pal_show_ggsci()` documents its fixed-palette catalogue, excluding iTerm themes and Gephi generators and linking their native ggsci interfaces.
 
 * Palette data rebuilds write to a temporary sibling file, verify its contents and check replacement success, preserving existing data when writing or replacement fails.

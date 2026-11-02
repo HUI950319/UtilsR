@@ -17,7 +17,8 @@ validate_palettes <- function(palettes, label) {
     stop(label, " must have unique, non-empty names.", call. = FALSE)
   }
   valid <- vapply(palettes, function(cols) {
-    is.character(cols) && length(cols) > 0L && !anyNA(cols) &&
+    is.character(cols) && !is.object(cols) && is.null(dim(cols)) &&
+      length(cols) > 0L && !anyNA(cols) &&
       identical(length(attr(cols, "type")), 1L) &&
       attr(cols, "type") %in% c("discrete", "continuous") &&
       tryCatch({ grDevices::col2rgb(cols); TRUE }, error = function(e) FALSE)

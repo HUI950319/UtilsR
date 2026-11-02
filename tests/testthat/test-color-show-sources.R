@@ -1026,6 +1026,12 @@ test_that("palette rebuilds reject invalid existing data before generating palet
     list(palette_list = list(c("red", "blue"))),
     list(palette_list = setNames(list("red", "blue"), c("same", "same"))),
     list(palette_list = list(Set1 = c("red", "blue"))),
+    list(palette_list = list(Set1 = structure(matrix(c("red", "blue"), nrow = 1L),
+                                             type = "discrete"))),
+    list(palette_list = list(Set1 = structure(array(c("red", "blue"), c(1L, 1L, 2L)),
+                                             type = "discrete"))),
+    list(palette_list = list(Set1 = structure(c("red", "blue"), class = "AsIs",
+                                             type = "discrete"))),
     list(palette_list = list(Set1 = structure("invalid-colour", type = "discrete")))
   )
   for (objects in malformed) {
@@ -1128,6 +1134,50 @@ test_that("palette rebuilds preserve old data when writing or replacing fails", 
       }
       expect_identical(list.files("data", all.files = TRUE, no.. = TRUE), "palette_list.rda")
     })
+  }
+})
+
+test_that("palette rebuilds reject dimensional or classed source colours", {
+  script <- normalizePath(test_path("..", "..", "data-raw", "build_palette_list.R"),
+                          mustWork = FALSE)
+  skip_if_not(file.exists(script))
+  packages <- c("RColorBrewer", "ggsci", "viridis", "rcartocolor", "nord",
+                "dichromat", "pals", "colorspace")
+  for (pkg in packages) skip_if_not_installed(pkg)
+  original <- utils::getFromNamespace
+  native <- original("ggsci_db", "ggsci")[["npg"]][["nrc"]]
+  malformed <- list(matrix(native, nrow = 1L), array(native, c(1L, 1L, length(native))),
+                    structure(native, class = "AsIs"))
+  for (cols in malformed) {
+    for (existing in c(FALSE, TRUE)) {
+      local({
+        work <- withr::local_tempdir()
+        writeLines("Package: UtilsR", file.path(work, "DESCRIPTION"))
+        dir.create(file.path(work, "data"))
+        withr::local_dir(work)
+        target <- "data/palette_list.rda"
+        if (existing) {
+          palette_list <- list(Set1 = structure(c("red", "blue"), type = "discrete"))
+          save(palette_list, file = target)
+        }
+        before <- if (existing) readBin(target, "raw", file.info(target)$size) else NULL
+        database <- original("ggsci_db", "ggsci")
+        database[["npg"]][["nrc"]] <- cols
+        testthat::local_mocked_bindings(getFromNamespace = function(x, ns, ...) {
+          if (x == "ggsci_db" && ns == "ggsci") return(database)
+          original(x, ns, ...)
+        }, .package = "utils")
+        expect_error(suppressMessages(sys.source(script, envir = new.env())),
+                     "Invalid generated palettes: ggsci_npg_nrc")
+        if (existing) {
+          expect_identical(readBin(target, "raw", file.info(target)$size), before)
+        } else {
+          expect_false(file.exists(target))
+        }
+        expect_identical(list.files("data", all.files = TRUE, no.. = TRUE),
+                         if (existing) "palette_list.rda" else character())
+      })
+    }
   }
 })
 
