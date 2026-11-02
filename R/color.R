@@ -684,13 +684,23 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   stats::setNames(as.character(out), nms)
 }
 
-# A spread-out probe avoids a full hash pass for sparse repetitions.
+# Bounded, spread-out probes avoid a full hash pass for sparse repetitions.
 #' @keywords internal
 #' @noRd
 .pal_use_unique <- function(values) {
   n <- length(values)
   probe <- if (n <= 1024L) values else {
     values[round(seq.int(1, n, length.out = 1024L))]
+  }
+  unique_probe <- unique(probe)
+  if (length(unique_probe) * 2L < length(probe)) return(TRUE)
+  if (n <= 1024L || length(unique_probe) == length(probe)) return(FALSE)
+
+  # A few common values alone do not justify a larger probe.
+  repeated <- tabulate(match(probe, unique_probe), nbins = length(unique_probe)) > 1L
+  if (sum(repeated) < 8L) return(FALSE)
+  probe <- if (n <= 16384L) values else {
+    values[round(seq.int(1, n, length.out = 16384L))]
   }
   length(unique(probe)) * 2L < length(probe)
 }

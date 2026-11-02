@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* Improve `pal_get()` performance for moderately repeated numeric data with bounded sampling, while retaining direct paths for unique and sparsely repeated inputs.
+
 * `show_color()` prepares distinct colours before RGB conversion, opacity compositing and luminance calculation, then restores the original display order.
 
 * `pal_show()` wraps long catalogue names within their fixed-width gt cells, keeping complete names visible without changing swatch widths.

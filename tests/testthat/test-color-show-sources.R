@@ -782,6 +782,32 @@ test_that("pal_get adjusts interpolated alpha before restoring repeated observat
                    rep(c("#FFFFFF80", "#FFFFFF80", NA), 32))
 })
 
+test_that("pal_get keeps medium-cardinality numeric mappings in observation order", {
+  palettes <- list(opaque = c("black", "white"),
+                   translucent = c("#FF000080", "#0000FF40"))
+  grid <- seq(0, 1, length.out = 1000L)
+  positions <- (seq_len(64000L) * 37L) %% length(grid) + 1L
+  x <- stats::setNames(grid[positions], paste0("row", seq_along(positions)))
+  missing <- c(7L, 32000L, 63999L)
+  x[missing] <- c(NA_real_, Inf, NaN)
+  positions[missing] <- NA_integer_
+  before <- x
+
+  for (settings in list(list(reverse = FALSE, alpha = 1),
+                       list(reverse = TRUE, alpha = 0.5),
+                       list(reverse = FALSE, alpha = 0))) {
+    reference <- do.call(pal_get, c(list(palette = palettes, x = grid), settings))
+    expected <- lapply(reference, function(cols) cols[positions])
+    actual <- do.call(pal_get, c(list(palette = palettes, n = 0, x = x), settings))
+    expect_identical(actual, expected)
+    expect_identical(do.call(pal_get, c(list(palette = palettes[[1L]], x = x), settings)),
+                     expected[[1L]])
+    expect_identical(do.call(pal_get, c(list(palette = palettes[[2L]], x = x), settings)),
+                     expected[[2L]])
+  }
+  expect_identical(x, before)
+})
+
 test_that("pal_show preserves transparency in colour-vector previews", {
   cols <- c("#FF000080", "transparent", "#00000010")
   invisible(capture.output(p <- pal_show(cols, output = "gg")))
