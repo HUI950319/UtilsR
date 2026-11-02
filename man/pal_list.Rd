@@ -11,8 +11,8 @@ pal_list(
 )
 }
 \arguments{
-\item{pattern}{Single non-missing regex string to filter palette names. Default \code{NULL}
-shows all.}
+\item{pattern}{Single non-missing regex string to filter palette names,
+ignoring case. Default \code{NULL} shows all.}
 
 \item{type}{Filter by type: \code{"all"} (default), \code{"discrete"},
 or \code{"continuous"}.}
@@ -21,7 +21,8 @@ or \code{"continuous"}.}
 colour swatches. \code{FALSE} prints palette headings only.}
 }
 \value{
-Invisibly returns a named list of matching palettes.
+Invisibly returns a named list of matching palettes. If no palettes
+  match, the function emits a message and returns an empty list invisibly.
 }
 \description{
 Browse palettes from the built-in collection (260 palettes from

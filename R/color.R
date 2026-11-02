@@ -295,13 +295,14 @@ pal_heat <- list(
 #'   Palette names are kept in full on narrow consoles. Colour counts and types
 #'   move to a separate line when they do not fit in a heading.
 #'
-#' @param pattern Single non-missing regex string to filter palette names. Default \code{NULL}
-#'   shows all.
+#' @param pattern Single non-missing regex string to filter palette names,
+#'   ignoring case. Default \code{NULL} shows all.
 #' @param type Filter by type: \code{"all"} (default), \code{"discrete"},
 #'   or \code{"continuous"}.
 #' @param show Single non-missing logical; if \code{TRUE} (default) display
 #'   colour swatches. \code{FALSE} prints palette headings only.
-#' @return Invisibly returns a named list of matching palettes.
+#' @return Invisibly returns a named list of matching palettes. If no palettes
+#'   match, the function emits a message and returns an empty list invisibly.
 #'
 #' @examples
 #' pal_list(pattern = "^Blues", show = FALSE)
