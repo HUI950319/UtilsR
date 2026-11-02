@@ -11,6 +11,7 @@ if (length(missing_sources)) {
 }
 
 palette_list <- list()
+source_counts <- stats::setNames(integer(length(source_packages)), source_packages)
 
 # --- 1. RColorBrewer ---
 if (requireNamespace("RColorBrewer", quietly = TRUE)) {
@@ -21,6 +22,7 @@ if (requireNamespace("RColorBrewer", quietly = TRUE)) {
     attr(cols, "type") <- tp
     palette_list[[nm]] <- cols
   }
+  source_counts[["RColorBrewer"]] <- length(palette_list)
   message("RColorBrewer: ", sum(grepl("^", names(palette_list))), " palettes")
 }
 
@@ -43,6 +45,7 @@ if (requireNamespace("ggsci", quietly = TRUE)) {
         palette_list[[full_name]] <- cols
       }
     }
+    source_counts[["ggsci"]] <- length(palette_list) - n_before
     message("ggsci: ", length(palette_list) - n_before, " palettes")
   }
 }
@@ -56,6 +59,7 @@ if (requireNamespace("viridis", quietly = TRUE)) {
     attr(cols, "type") <- "continuous"
     palette_list[[vn]] <- cols
   }
+  source_counts[["viridis"]] <- length(viridis_names)
   message("viridis: 8 palettes")
 }
 
@@ -78,6 +82,7 @@ if (requireNamespace("rcartocolor", quietly = TRUE)) {
       palette_list[[full_name]] <- cols
     }
   }
+  source_counts[["rcartocolor"]] <- length(palette_list) - n_before
   message("rcartocolor: ", length(palette_list) - n_before, " palettes")
 }
 
@@ -90,6 +95,7 @@ if (requireNamespace("nord", quietly = TRUE)) {
     attr(cols, "type") <- "discrete"
     palette_list[[full_name]] <- cols
   }
+  source_counts[["nord"]] <- length(palette_list) - n_before
   message("nord: ", length(palette_list) - n_before, " palettes")
 }
 
@@ -102,6 +108,7 @@ if (requireNamespace("dichromat", quietly = TRUE)) {
     attr(cols, "type") <- if (nm == "Categorical.12") "discrete" else "continuous"
     palette_list[[full_name]] <- cols
   }
+  source_counts[["dichromat"]] <- length(palette_list) - n_before
   message("dichromat: ", length(palette_list) - n_before, " palettes")
 }
 
@@ -121,6 +128,7 @@ if (requireNamespace("pals", quietly = TRUE)) {
       palette_list[[full_name]] <- cols
     }
   }
+  source_counts[["pals"]] <- length(palette_list) - n_before
   message("pals: ", length(palette_list) - n_before, " palettes")
 }
 
@@ -159,6 +167,7 @@ if (requireNamespace("colorspace", quietly = TRUE)) {
       palette_list[[full_name]] <- cols
     }
   }
+  source_counts[["colorspace"]] <- length(palette_list) - n_before
   message("colorspace: ", length(palette_list) - n_before, " palettes")
 }
 
@@ -230,6 +239,11 @@ for (nm in names(builtin)) {
 }
 
 # --- Summary ---
+missing_collections <- names(source_counts)[source_counts == 0L]
+if (length(missing_collections)) {
+  stop("Missing palette source collections: ",
+       paste(missing_collections, collapse = ", "), call. = FALSE)
+}
 message("\nTotal palettes: ", length(palette_list))
 message("Discrete: ", sum(sapply(palette_list, function(x) attr(x, "type") == "discrete")))
 message("Continuous: ", sum(sapply(palette_list, function(x) attr(x, "type") == "continuous")))

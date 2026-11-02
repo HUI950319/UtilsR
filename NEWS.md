@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* Palette data generation checks that every required source contributes palettes even when no previous registry exists, preventing silent first-build omissions.
+
 * `pal_show()` samples continuous palettes evenly across the full range in all outputs, including capped previews; a one-colour preview uses the midpoint.
 
 * Console swatches consistently use stdout colour depth when stderr is redirected and restore colour options after normal completion or errors.

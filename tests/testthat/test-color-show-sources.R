@@ -939,3 +939,38 @@ test_that("console palettes follow stdout when stderr is not coloured", {
   expect_error(show_color("#2166AC"), "style failure")
   expect_null(getOption("cli.num_colors"))
 })
+
+test_that("palette rebuilds reject unreadable or empty source collections", {
+  script <- normalizePath(test_path("..", "..", "data-raw", "build_palette_list.R"),
+                          mustWork = FALSE)
+  skip_if_not(file.exists(script))
+  packages <- c("RColorBrewer", "ggsci", "viridis", "rcartocolor", "nord",
+                "dichromat", "pals", "colorspace")
+  for (pkg in packages) skip_if_not_installed(pkg)
+  work <- withr::local_tempdir()
+  withr::local_dir(work)
+  original <- utils::getFromNamespace
+  for (source in c("ggsci", "pals")) {
+    for (database in list(NULL, list(), list(unrelated = character()))) {
+      local({
+        testthat::local_mocked_bindings(getFromNamespace = function(x, ns, ...) {
+          if ((source == "ggsci" && ns == "ggsci" && x == "ggsci_db") ||
+              (source == "pals" && ns == "pals" && x == "syspals")) return(database)
+          original(x, ns, ...)
+        }, .package = "utils")
+        isolated <- new.env(parent = globalenv())
+        isolated$save <- function(...) stop("Unexpected save of incomplete palettes")
+        expect_error(suppressMessages(sys.source(script, envir = isolated)),
+                     paste0("Missing palette source collections: ", source))
+      })
+    }
+  }
+  expect_false(file.exists("data/palette_list.rda"))
+  dir.create("data")
+  suppressMessages(sys.source(script, envir = new.env(parent = globalenv())))
+  rebuilt <- new.env(parent = emptyenv())
+  load("data/palette_list.rda", envir = rebuilt)
+  expect_named(rebuilt$palette_list, names(palette_list))
+  expect_identical(vapply(rebuilt$palette_list, attr, character(1), "type"),
+                   vapply(palette_list, attr, character(1), "type"))
+})
