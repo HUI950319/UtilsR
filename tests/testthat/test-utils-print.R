@@ -1020,6 +1020,19 @@ test_that("wrapped notes retain combining characters and multi-code-point emoji"
   }
 })
 
+test_that("overwide graphemes do not add trailing blank continuation lines", {
+  for (colour in c(1, 256)) {
+    withr::local_options(cli.num_colors = colour, cli.width = 3, cli.unicode = TRUE)
+    out <- utils::capture.output(pr_note("\u4e2d\u6587"))
+    expect_identical(cli::ansi_strip(out), c("# \u2026", "# \u2026"))
+    expect_length(utils::capture.output(pr_box("\u4e2d\u6587")), 4L)
+    out <- utils::capture.output(pr_note("\u4e2d\n\n\u6587"))
+    expect_identical(cli::ansi_strip(out), c("# \u2026", "# ", "# \u2026"))
+    withr::local_options(cli.width = 4)
+    expect_length(utils::capture.output(pr_kv(list(v = "\u4e2d\u6587"), indent = 0)), 2L)
+  }
+})
+
 test_that("displayed row names cannot collide with a P-column name", {
   withr::local_options(cli.num_colors = 1)
   x <- data.frame(p = c(.01, .5), row.names = c("0.02", "term"))

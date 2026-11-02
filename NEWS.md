@@ -1,5 +1,8 @@
 # UtilsR 0.6.21
 
+* Wrapped notes, key-value blocks and boxes no longer add an empty
+  continuation after the last overwide grapheme in a very narrow console.
+
 * `pr_tree()` accepts integer `max_items` near the integer limit without
   overflowing while preparing sibling-name previews.
 

@@ -103,7 +103,7 @@
       out <- c(out, part)
       s <- cli::ansi_substr(s, n + 1L, cli::ansi_nchar(s, type = "chars"))
     }
-    c(out, s)
+    if (nzchar(cli::ansi_strip(s)) || !length(out)) c(out, s) else out
   }), use.names = FALSE)
 }
 
