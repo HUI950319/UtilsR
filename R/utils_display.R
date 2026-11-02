@@ -569,7 +569,8 @@ console_width <- function() {
 #' 24-bit output in a terminal that renders it without advertising it.
 #' Colour depth is detected for stdout, including when stderr is redirected.
 #'
-#' @param x Character vector of colours (hex codes or named R colours).
+#' @param x Character vector without a class or dimensions, containing hex codes
+#'   or named R colours. Numeric palette indices are not accepted.
 #' @param rev Logical. Reverse the order before display (default \code{FALSE}).
 #' @return Invisibly returns \code{x}.
 #'
@@ -580,10 +581,28 @@ console_width <- function() {
 #'
 #' @export
 show_color <- function(x, rev = FALSE) {
-  if (rev) x <- rev(x)
-
-  # Labels retain alpha; ANSI backgrounds composite it onto white.
-  hex <- .pal_hex(x)
+  if (!is.character(x) || is.object(x) || !is.null(dim(x))) {
+    cli::cli_abort("{.arg x} must be a character vector without a class or dimensions.")
+  }
+  numeric_index <- !is.na(suppressWarnings(as.numeric(x)))
+  # Parse labels together, retaining alpha; inspect values only after failure.
+  hex <- if (any(numeric_index)) NULL else {
+    tryCatch(.pal_hex(x), error = function(e) NULL)
+  }
+  if (is.null(hex)) {
+    valid <- vapply(x, function(col) {
+      tryCatch({
+        grDevices::col2rgb(col)
+        TRUE
+      }, error = function(e) FALSE)
+    }, logical(1))
+    invalid <- which(numeric_index | !valid)
+    cli::cli_abort("Invalid colours in {.arg x} at positions {.val {invalid}}: {.val {x[invalid]}}. Use R colour names or hex codes, not numeric palette indices.")
+  }
+  if (rev) {
+    x <- rev(x)
+    hex <- rev(hex)
+  }
 
   # Compute relative luminance (WCAG formula) for contrast
   .luminance <- function(hex_col) {

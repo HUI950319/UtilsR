@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* `show_color()` rejects unsupported storage and numeric palette indices before printing and identifies every invalid colour by its input position.
+
 * pal_get() rejects classed or dimensioned control values and unsupported counts before dispatch, and documents x precedence, literal colour returns and existing alpha behavior.
 
 * `pal_show()` documents input and label handling and ggplot-only layout controls; console alpha rendering is documented and newly added test line endings are normalized.

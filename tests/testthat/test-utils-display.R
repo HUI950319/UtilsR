@@ -156,3 +156,35 @@ test_that(".cat_formula() announces a model in one notice line", {
   d$DSS[2] <- NA
   expect_true(endsWith(one("Sex"), "Cox model, unadjusted: Surv(time, DSS) ~ Sex"))
 })
+
+test_that("show_color rejects unsupported colour storage before output", {
+  withr::local_options(cli.num_colors = 0)
+  bad <- list(NULL, NA, TRUE, 1:2, factor(c("red", "blue")),
+              matrix("red"), array("red", c(1, 1, 1)), list("red"),
+              data.frame(x = "red"), as.Date("2026-11-02"),
+              as.POSIXct("2026-11-02", tz = "UTC"),
+              as.difftime(1, units = "days"), 1 + 1i,
+              structure(c(1, 2), class = "integer64"),
+              structure("red", class = "haven_labelled"))
+  for (x in bad) {
+    out <- capture.output(error <- tryCatch(show_color(x), error = identity))
+    expect_s3_class(error, "error")
+    if (inherits(error, "error")) expect_match(conditionMessage(error), "`x`", fixed = TRUE)
+    expect_identical(out, character())
+  }
+})
+
+test_that("show_color identifies all invalid colours and numeric palette indices", {
+  withr::local_options(cli.num_colors = 0)
+  for (bad in c("2", "2.0", "2e0", "+2", " 2", "02", "0x2")) {
+    out <- capture.output(error <- tryCatch(show_color(c("red", bad)), error = identity))
+    expect_s3_class(error, "error")
+    if (inherits(error, "error")) expect_match(conditionMessage(error), "2", fixed = TRUE)
+    expect_identical(out, character())
+  }
+  error <- tryCatch(show_color(c("red", "notacolor", "blue", "2e0")), error = identity)
+  expect_s3_class(error, "error")
+  for (value in c("`x`", "2", "4", "notacolor", "2e0")) {
+    expect_match(conditionMessage(error), value, fixed = TRUE)
+  }
+})

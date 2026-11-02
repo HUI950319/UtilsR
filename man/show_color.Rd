@@ -7,7 +7,8 @@
 show_color(x, rev = FALSE)
 }
 \arguments{
-\item{x}{Character vector of colours (hex codes or named R colours).}
+\item{x}{Character vector without a class or dimensions, containing hex codes
+or named R colours. Numeric palette indices are not accepted.}
 
 \item{rev}{Logical. Reverse the order before display (default \code{FALSE}).}
 }
