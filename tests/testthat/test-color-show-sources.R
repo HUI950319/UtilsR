@@ -440,3 +440,20 @@ test_that("pal_get interpolates every registered palette as colorRampPalette doe
                      as.character(grDevices::colorRampPalette(cols)(k)), info = nm)
   }
 })
+
+test_that("pal_show preserves transparency in colour-vector previews", {
+  cols <- c("#FF000080", "transparent", "#00000010")
+  invisible(capture.output(p <- pal_show(cols, output = "gg")))
+  layers <- ggplot2::ggplot_build(p)$data
+  expect_identical(as.character(layers[[1]]$fill),
+                   c("#FF000080", "#FFFFFF00", "#00000010"))
+  expect_identical(as.character(layers[[2]]$label),
+                   c("#FF000080", "#FFFFFF00", "#00000010"))
+  expect_identical(layers[[2]]$colour, rep("#000000", 3L))
+
+  invisible(capture.output(tbl <- pal_show(cols, output = "gt")))
+  html <- gt::as_raw_html(tbl)
+  expect_match(html, "background:\\s*#FF000080;")
+  expect_match(html, "background:\\s*#FFFFFF00;")
+  expect_match(html, "background:\\s*#00000010;\\s*color:\\s*#000000;")
+})

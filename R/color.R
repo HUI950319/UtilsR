@@ -1198,8 +1198,13 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
   # Get labels: use names if available, otherwise hex codes
   color_names <- names(colors)
   hex <- vapply(colors, function(cc) {
-    rgb_mat <- grDevices::col2rgb(cc)
-    grDevices::rgb(rgb_mat[1], rgb_mat[2], rgb_mat[3], maxColorValue = 255)
+    rgb_mat <- grDevices::col2rgb(cc, alpha = TRUE)
+    if (rgb_mat[4L] < 255) {
+      grDevices::rgb(rgb_mat[1L], rgb_mat[2L], rgb_mat[3L], rgb_mat[4L],
+                     maxColorValue = 255)
+    } else {
+      grDevices::rgb(rgb_mat[1L], rgb_mat[2L], rgb_mat[3L], maxColorValue = 255)
+    }
   }, character(1), USE.NAMES = FALSE)
 
   if (!is.null(color_names) && all(nzchar(color_names))) {
@@ -1213,6 +1218,13 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
     r <- strtoi(substr(hex_col, 2, 3), 16L) / 255
     g <- strtoi(substr(hex_col, 4, 5), 16L) / 255
     b <- strtoi(substr(hex_col, 6, 7), 16L) / 255
+    # Preview tiles are drawn on white; contrast uses the composited colour.
+    if (nchar(hex_col) == 9L) {
+      a <- strtoi(substr(hex_col, 8, 9), 16L) / 255
+      r <- r * a + 1 - a
+      g <- g * a + 1 - a
+      b <- b * a + 1 - a
+    }
     lin <- function(v) ifelse(v <= 0.03928, v / 12.92, ((v + 0.055) / 1.055)^2.4)
     0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b)
   }

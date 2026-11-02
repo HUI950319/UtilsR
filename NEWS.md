@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* pal_show() preserves alpha channels in colour-vector previews and chooses label contrast against the composited colour.
+
 * PlotHeatmapJaccard() caches unique feature sets and skips plot construction for matrix-only output without a requested file, preserving empty-set and overlap definitions.
 
 * PlotButterfly2() retains only the selected plotting columns in grouped, ungrouped and beeswarm paths, avoiding serialized copies of unused input payloads.
