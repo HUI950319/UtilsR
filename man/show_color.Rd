@@ -11,7 +11,8 @@ show_color(x, rev = FALSE)
 or named R colours. Numeric palette indices are not accepted.}
 
 \item{rev}{Single non-missing logical value without a class or dimensions.
-Reverse the order before display (default \code{FALSE}).}
+Reverse colours and their names before display, retaining other attributes
+(default \code{FALSE}).}
 }
 \value{
 Invisibly returns \code{x}.

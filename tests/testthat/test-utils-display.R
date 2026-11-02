@@ -274,3 +274,28 @@ test_that("show_color retains duplicate order and original colour spellings", {
     expect_identical(eval(parse(text = plain[!swatches])), value$value)
   }
 })
+
+test_that("show_color reverses names while retaining custom vector attributes", {
+  withr::local_options(cli.num_colors = 0, cli.width = 40, width = 40)
+  for (named in c(FALSE, TRUE)) {
+    cols <- structure(c(A = "red", B = "blue", C = NA_character_, D = "#FF000080"),
+                      type = "discrete", note = "metadata")
+    expected <- structure(c(D = "#FF000080", C = NA_character_, B = "blue", A = "red"),
+                          type = "discrete", note = "metadata")
+    if (!named) {
+      names(cols) <- NULL
+      names(expected) <- NULL
+    }
+    for (depth in c(0, 1, 8, 16, 256, 16777216)) {
+      options(cli.num_colors = depth)
+      out <- capture.output(value <- withVisible(show_color(cols, rev = TRUE)))
+      plain <- cli::ansi_strip(out)
+      expect_identical(value$value, expected)
+      expect_identical(value$visible, FALSE)
+      expect_identical(eval(parse(text = plain[!grepl("^ #", plain)])), expected)
+    }
+  }
+  empty <- structure(character(), type = "discrete")
+  out <- capture.output(value <- show_color(empty, rev = TRUE))
+  expect_identical(value, empty)
+})

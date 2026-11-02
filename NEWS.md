@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* `show_color(rev = TRUE)` retains custom vector attributes while reversing colours and their names, including the copyable expression.
+
 * Palette data rebuilds reject dimensional and classed colour vectors before saving, matching console preview input requirements and preserving existing registries.
 
 * `pal_show_ggsci()` documents its fixed-palette catalogue, excluding iTerm themes and Gephi generators and linking their native ggsci interfaces.

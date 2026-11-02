@@ -580,7 +580,8 @@ console_width <- function() {
 #' @param x Character vector without a class or dimensions, containing hex codes
 #'   or named R colours. Numeric palette indices are not accepted.
 #' @param rev Single non-missing logical value without a class or dimensions.
-#'   Reverse the order before display (default \code{FALSE}).
+#'   Reverse colours and their names before display, retaining other attributes
+#'   (default \code{FALSE}).
 #' @return Invisibly returns \code{x}.
 #'
 #' @examples
@@ -613,7 +614,12 @@ show_color <- function(x, rev = FALSE) {
     cli::cli_abort("Invalid colours in {.arg x} at positions {.val {invalid}}: {.val {x[invalid]}}. Use R colour names or hex codes, not numeric palette indices.")
   }
   if (rev) {
+    x_attributes <- attributes(x)
     x <- rev(x)
+    if (length(x_attributes)) {
+      x_attributes[["names"]] <- names(x)
+      attributes(x) <- x_attributes
+    }
     hex <- rev(hex)
   }
 
