@@ -50,7 +50,12 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.21" id="utilsr-0621">UtilsR 0.6.21<a class="anchor" aria-label="anchor" href="#utilsr-0621"></a></h2>
-<ul><li><p>Palette data rebuilds stop on individual CARTO generation errors and identify the source palette and original error, preventing incomplete first-build registries.</p></li>
+<ul><li><p>pal_get() rejects expressions, functions, environments and other non-mapping containers before missing-value operations, and documents existing discrete time, complex and raw mapping with explicit continuous-time examples.</p></li>
+<li><p><code><a href="../reference/pal_show_hcl.html">pal_show_hcl()</a></code> and <code><a href="../reference/pal_show_viridis.html">pal_show_viridis()</a></code> evaluate only displayed positions for capped previews, preserving native colours and requested totals while bounding large-palette allocation.</p></li>
+<li><p>pal_get() validates unique ordinary colour strings after a failed bulk parse, restoring every invalid value in its original order and retaining classed-vector diagnostics.</p></li>
+<li><p>pal_get() interpolates repeated numeric positions once when repeats occur in a bounded prefix, preserving observation order, non-finite values, reversal and alpha while keeping all-unique inputs on the direct path.</p></li>
+<li><p>pal_get() rejects distinct discrete values whose character labels collide, keeping named colour mappings unambiguous without renaming valid levels.</p></li>
+<li><p>Palette data rebuilds stop on individual CARTO generation errors and identify the source palette and original error, preventing incomplete first-build registries.</p></li>
 <li><p><code><a href="../reference/pal_show.html">pal_show()</a></code> constructs catalogue plots in a small rendering frame and evaluates colour-vector controls before returning, so capped plots no longer retain oversized original inputs.</p></li>
 <li><p>Palette data rebuilds validate the UtilsR package root and existing registry before generation, using a fixed absolute output path to prevent replacing unrelated data.</p></li>
 <li><p><code><a href="../reference/pal_show.html">pal_show()</a></code> keeps colour-vector text contrast, name labels and label positions aligned when returned ggplot data are reordered or filtered.</p></li>

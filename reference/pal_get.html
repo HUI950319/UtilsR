@@ -100,11 +100,17 @@ values in order of appearance, missing values left out. If numeric, returns
 one colour per element, placed along the palette by its value between the
 finite extremes; missing and infinite values get <code>NA</code>, and a single
 distinct value takes the middle colour.
+<code>Date</code>, <code>POSIXct</code>, <code>POSIXlt</code> and <code>difftime</code> inputs
+use discrete character labels. For continuous time mapping, convert time
+values to a plain numeric vector explicitly. Other atomic types, such as
+complex and raw vectors, also use discrete labels.
+Distinct discrete values must produce unique character names; otherwise,
+convert them to explicit unique labels before mapping.
 Labelled vectors require <span class="pkg">haven</span> to retain their missing values.
 <code>integer64</code> input is rejected to avoid loss of precision; recode it
 explicitly before mapping.
-Matrices, arrays, data frames and list containers other than
-<code>POSIXlt</code> timestamps are rejected.</p></dd>
+Matrices, arrays, data frames, expressions, functions, environments and
+list containers other than <code>POSIXlt</code> timestamps are rejected.</p></dd>
 
 
 <dt id="arg-reverse">reverse<a class="anchor" aria-label="anchor" href="#arg-reverse"></a></dt>
@@ -160,6 +166,14 @@ they are, keeping any transparency of their own.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [19] "#481B6DFF" "#481C6EFF"</span>
 <span class="r-in"><span><span class="fu">pal_get</span><span class="op">(</span><span class="st">"viridis"</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">100</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "#440154" "#FDE725" "#450458"</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Dates are discrete unless converted to numeric values explicitly</span></span></span>
+<span class="r-in"><span><span class="va">dates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2020-01-01"</span>, <span class="st">"2020-01-02"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">pal_get</span><span class="op">(</span><span class="st">"lancet"</span>, x <span class="op">=</span> <span class="va">dates</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2020-01-01  2020-01-02 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> "#00468BFF" "#ED0000FF" </span>
+<span class="r-in"><span><span class="fu">pal_get</span><span class="op">(</span><span class="st">"viridis"</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">dates</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "#440154" "#FDE725"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Reverse and transparent</span></span></span>
 <span class="r-in"><span><span class="fu">pal_get</span><span class="op">(</span><span class="st">"Blues"</span>, n <span class="op">=</span> <span class="fl">5</span>, reverse <span class="op">=</span> <span class="cn">TRUE</span>, alpha <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span></span></span>

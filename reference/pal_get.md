@@ -49,11 +49,17 @@ pal_get(palette = "Paired", n = NULL, x = NULL, reverse = FALSE, alpha = 1)
   other values in order of appearance, missing values left out. If
   numeric, returns one colour per element, placed along the palette by
   its value between the finite extremes; missing and infinite values get
-  `NA`, and a single distinct value takes the middle colour. Labelled
-  vectors require haven to retain their missing values. `integer64`
-  input is rejected to avoid loss of precision; recode it explicitly
-  before mapping. Matrices, arrays, data frames and list containers
-  other than `POSIXlt` timestamps are rejected.
+  `NA`, and a single distinct value takes the middle colour. `Date`,
+  `POSIXct`, `POSIXlt` and `difftime` inputs use discrete character
+  labels. For continuous time mapping, convert time values to a plain
+  numeric vector explicitly. Other atomic types, such as complex and raw
+  vectors, also use discrete labels. Distinct discrete values must
+  produce unique character names; otherwise, convert them to explicit
+  unique labels before mapping. Labelled vectors require haven to retain
+  their missing values. `integer64` input is rejected to avoid loss of
+  precision; recode it explicitly before mapping. Matrices, arrays, data
+  frames, expressions, functions, environments and list containers other
+  than `POSIXlt` timestamps are rejected.
 
 - reverse:
 
@@ -108,6 +114,14 @@ pal_get("viridis", n = 20)
 #> [19] "#481B6DFF" "#481C6EFF"
 pal_get("viridis", x = c(1, 100, 2))
 #> [1] "#440154" "#FDE725" "#450458"
+
+# Dates are discrete unless converted to numeric values explicitly
+dates <- as.Date(c("2020-01-01", "2020-01-02"))
+pal_get("lancet", x = dates)
+#>  2020-01-01  2020-01-02 
+#> "#00468BFF" "#ED0000FF" 
+pal_get("viridis", x = as.numeric(dates))
+#> [1] "#440154" "#FDE725"
 
 # Reverse and transparent
 pal_get("Blues", n = 5, reverse = TRUE, alpha = 0.6)

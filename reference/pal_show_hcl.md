@@ -32,7 +32,9 @@ pal_show_hcl(
 
 - n:
 
-  Number of colours to generate for each palette. Default 8.
+  Number of colours in each requested palette. Default 8. Capped
+  previews evaluate only the displayed positions and retain the
+  requested total in the colour-count label.
 
 - type:
 
