@@ -1617,3 +1617,31 @@ test_that("HTML palette previews bypass repeated Markdown conversion", {
     }
   }
 })
+
+test_that("ggsci transforms only selected source palettes", {
+  skip_if_not_installed("ggsci")
+  source_alpha <- scales::alpha
+  calls <- 0L
+  testthat::local_mocked_bindings(alpha = function(...) {
+    calls <<- calls + 1L
+    source_alpha(...)
+  }, .package = "scales")
+  choices <- list(list(palette = "npg_nrc"), list(pattern = "^ggsci_npg_nrc$"), list(index = 1L))
+  for (args in choices) {
+    calls <- 0L
+    p <- do.call(pal_show_ggsci, c(args, list(n = 3, alpha = 0.5, output = "gg")))
+    expect_identical(calls, 1L)
+    expect_equal(nrow(p$data), 3L)
+    expect_identical(unname(grDevices::col2rgb(p$data$color, alpha = TRUE)[4, ]), rep(128L, 3))
+  }
+  for (args in list(list(palette = "__typo__"), list(pattern = "["),
+                    list(palette = "npg_nrc", index = 99))) {
+    calls <- 0L
+    expect_error(do.call(pal_show_ggsci, c(args, list(n = 3, alpha = 0.5, output = "gg"))))
+    expect_identical(calls, 0L)
+  }
+  calls <- 0L
+  p <- pal_show_ggsci(c("gsea_default", "npg_nrc"), n = 3, alpha = 0.5, output = "gg")
+  expect_identical(calls, 2L)
+  expect_equal(nrow(p$data), 6L)
+})

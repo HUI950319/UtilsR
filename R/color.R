@@ -1404,22 +1404,12 @@ pal_show_ggsci <- function(palette = NULL, n = NULL, alpha = 1,
   }
 
   pals <- list()
-  preview_total <- integer()
   for (pkg_name in names(ggsci_db)) {
     sub_pals <- ggsci_db[[pkg_name]]
     for (sub_name in names(sub_pals)) {
       full_name <- paste0("ggsci_", pkg_name, "_", sub_name)
       cols <- unname(sub_pals[[sub_name]])
-      continuous <- pkg_name %in% c("gsea", "bs5", "material", "tw3")
-      attr(cols, "type") <- if (continuous) "continuous" else "discrete"
-      if (!is.null(n)) {
-        cols <- .pal_resize(cols, min(n, length(cols)))
-      }
-      preview_total[[full_name]] <- length(cols)
-      cols <- .pal_resize(cols, min(length(cols), max_colors))
-      if (isTRUE(reverse)) cols <- rev(cols)
-      if (alpha < 1) cols <- scales::alpha(cols, alpha)
-      attr(cols, "type") <- if (continuous) {
+      attr(cols, "type") <- if (pkg_name %in% c("gsea", "bs5", "material", "tw3")) {
         "continuous"
       } else "discrete"
       pals[[full_name]] <- cols
@@ -1456,6 +1446,17 @@ pal_show_ggsci <- function(palette = NULL, n = NULL, alpha = 1,
     pals <- pals[keep]
   }
 
+  preview_total <- lengths(pals)
+  if (!is.null(n)) preview_total <- pmin(preview_total, as.integer(n))
+  pals <- lapply(pals, function(cols) {
+    type <- attr(cols, "type")
+    if (!is.null(n)) cols <- .pal_resize(cols, min(n, length(cols)))
+    cols <- .pal_resize(cols, min(length(cols), max_colors))
+    if (isTRUE(reverse)) cols <- rev(cols)
+    if (alpha < 1) cols <- scales::alpha(cols, alpha)
+    attr(cols, "type") <- type
+    cols
+  })
   attr(pals, "n_total") <- preview_total[names(pals)]
   pal_show(pals, max_colors = max_colors, output = output)
 }
