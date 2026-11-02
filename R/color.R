@@ -518,12 +518,12 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 
   if (length(palette) == 1L && palette %in% names(pals)) {
     cols <- pals[[palette]]
-  } else if (all(is_colour(palette))) {
+  } else if (all(valid_colours <- is_colour(palette))) {
     # Literal colours. The registry is checked first, so a palette name is
     # never shadowed by an R colour name that happens to match.
     cols <- palette
   } else if (length(palette) > 1L) {
-    bad <- palette[!is_colour(palette)]
+    bad <- palette[!valid_colours]
     cli::cli_abort(c(
       "{.arg palette} is neither a palette name nor a vector of colours.",
       "x" = "Not a colour: {.val {bad}}."
