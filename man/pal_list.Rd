@@ -2,7 +2,7 @@
 % Please edit documentation in R/color.R
 \name{pal_list}
 \alias{pal_list}
-\title{List All Available Palettes}
+\title{List Registered Palettes}
 \usage{
 pal_list(
   pattern = NULL,
@@ -27,9 +27,16 @@ Invisibly returns a named list of matching palettes.
 Browse palettes from the built-in collection (260 palettes from
 RColorBrewer, ggsci, viridis, rcartocolor, nord, dichromat, pals,
 colorspace, and UtilsR built-in). Use \code{pattern} to filter.
+Prints palette headings and optional swatches in the console. For a gt table
+or ggplot preview, use \code{\link{pal_show}()}.
+}
+\details{
+Only palettes in \code{\link{palette_list}} are listed. Separate
+  collections such as \code{\link{pal_heat}} and unregistered entries of
+  \code{\link{pal_other}} are accessed directly rather than by registry name.
 }
 \examples{
-pal_list(show = FALSE)
+pal_list(pattern = "^Blues", show = FALSE)
 pal_list(pattern = "^Blues")
 pal_list(type = "discrete", pattern = "nord")
 
