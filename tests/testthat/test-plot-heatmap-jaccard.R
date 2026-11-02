@@ -1,3 +1,39 @@
+test_that("Jaccard interprets SPSS missingness before cold set construction", {
+  skip_if_not_installed("haven")
+  fn <- PlotHeatmapJaccard
+  environment(fn) <- new.env(parent = asNamespace("stats"))
+  directory <- withr::local_tempdir()
+  fixture <- file.path(directory, "fixture.rds")
+  script <- file.path(directory, "cold.R")
+  output <- file.path(directory, "result.rds")
+  data <- list(
+    features = data.frame(cell_type = c("A", "A", "B", "B"),
+      gene = haven::labelled_spss(c(1, 99, 2, 99), na_values = 99)),
+    groups = data.frame(cell_type = haven::labelled_spss(c(1, 2, 99), na_values = 99),
+      gene = c("a", "b", "orphan")))
+  saveRDS(list(fn = fn, data = data, libs = .libPaths()), fixture)
+  writeLines(c(
+    "args <- commandArgs(TRUE)", "fixture <- readRDS(args[[1]])", ".libPaths(fixture[['libs']])",
+    "stopifnot(!'haven' %in% loadedNamespaces())",
+    "data <- fixture[['data']][[args[[3]]]]", "before <- data",
+    "out <- fixture[['fn']](data, return_type = 'data')",
+    "saveRDS(list(value = out, unchanged = identical(data, before)), args[[2]])"
+  ), script)
+  for (mode in names(data)) {
+    status <- system2(file.path(R.home("bin"), "Rscript"),
+      c("--vanilla", shQuote(script), shQuote(fixture), shQuote(output), mode), stdout = TRUE, stderr = TRUE)
+    expect_null(attr(status, "status"), info = paste(status, collapse = "\n"))
+    if (is.null(attr(status, "status"))) {
+      out <- readRDS(output)
+      expected <- diag(2)
+      dimnames(expected) <- if (mode == "features") list(c("A", "B"), c("A", "B")) else
+        list(c("1", "2"), c("1", "2"))
+      expect_identical(out$value, expected)
+      expect_identical(out$unchanged, TRUE)
+    }
+  }
+})
+
 test_that("missing group labels do not create groups or shared features", {
   dat <- data.frame(cell_type = c("A", "B", NA), gene = c("a", "b", "orphan"))
   result <- PlotHeatmapJaccard(dat, return_type = "both")

@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* PlotHeatmapJaccard() excludes labelled user-missing groups and features consistently, including before haven is loaded.
+
 * impute_na_knn() interprets labelled missing values before missing-variable and donor checks, including in a fresh R session.
 
 * Long unstyled ASCII runs in notes, key-value blocks and boxes split into

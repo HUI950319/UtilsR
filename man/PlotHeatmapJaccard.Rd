@@ -27,7 +27,9 @@ PlotHeatmapJaccard(
 }
 \arguments{
 \item{data}{A data.frame containing at least a group column and a name column.
-Rows with missing group labels or feature names do not contribute to sets.}
+Rows with missing group labels or feature names do not contribute to sets.
+Labelled columns use their class-defined missing values, including SPSS
+user-missing codes, even in a fresh R session.}
 
 \item{group_col}{Column name for the grouping variable (e.g. cell type).
 Default \code{"cell_type"}.}

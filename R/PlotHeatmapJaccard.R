@@ -10,6 +10,8 @@
 #'
 #' @param data A data.frame containing at least a group column and a name column.
 #'   Rows with missing group labels or feature names do not contribute to sets.
+#'   Labelled columns use their class-defined missing values, including SPSS
+#'   user-missing codes, even in a fresh R session.
 #' @param group_col Column name for the grouping variable (e.g. cell type).
 #'   Default \code{"cell_type"}.
 #' @param name_col Column name for the feature/gene names used to compute
@@ -96,6 +98,11 @@ PlotHeatmapJaccard <- function(
     if (!col %in% colnames(data))
       stop(sprintf("Column '%s' not found in data.", col), call. = FALSE)
   }
+  labelled <- vapply(unique(c(group_col, name_col)), function(col) {
+    inherits(data[[col]], "haven_labelled")
+  }, logical(1))
+  if (any(labelled) && !requireNamespace("haven", quietly = TRUE))
+    stop("Interpreting labelled columns requires package 'haven'.", call. = FALSE)
 
   # ---- 1. Group order (priority: group_levels > factor levels > data order) ----
   ct_names <- if (!is.null(group_levels)) {
