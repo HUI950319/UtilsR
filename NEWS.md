@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* `pal_show_ggsci()` documents its fixed-palette catalogue, excluding iTerm themes and Gephi generators and linking their native ggsci interfaces.
+
 * Palette data rebuilds write to a temporary sibling file, verify its contents and check replacement success, preserving existing data when writing or replacement fails.
 
 * `pal_show_ggsci()` and palette data rebuilds exclude Gephi generator presets from fixed colour catalogues, preserving ordinary palettes with ggsci 5.x and explaining explicitly requested generators without consuming random numbers.

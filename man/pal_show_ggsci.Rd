@@ -16,9 +16,9 @@ pal_show_ggsci(
 )
 }
 \arguments{
-\item{palette}{Character vector of palette names. Names use the form
+\item{palette}{Character vector of fixed palette names. Names use the form
 \code{"ggsci_npg_nrc"}; the \code{ggsci_} prefix may be omitted.
-\code{NULL} shows all palettes.}
+\code{NULL} shows all fixed palettes matching \code{pattern}.}
 
 \item{n}{Number of colours to retain, capped at each palette's native size.
 Continuous GSEA, Bootstrap 5, Material and Tailwind 3 palettes are sampled
@@ -50,14 +50,25 @@ A ggplot or gt object returned visibly for automatic display.
   Console output prints and invisibly returns the displayed palette list.
 }
 \description{
-Display the palettes provided by \code{ggsci} using the same ggplot or gt
-layout as \code{\link{pal_show}()}.
+Display the fixed colour palettes in the standard \code{ggsci} catalogue
+using the same ggplot or gt layout as \code{\link{pal_show}()}.
 }
 \details{
 Explicit \code{palette} names take precedence over \code{pattern}
   and \code{type} (where available). These filters are applied only when
   \code{palette = NULL}. Unknown names are reported and skipped when at
   least one valid palette remains.
+
+  This catalogue excludes iTerm terminal themes and Gephi generative
+  palettes. Use \code{ggsci::iterm_palettes()} and \code{ggsci::pal_iterm()}
+  for iTerm themes, or \code{ggsci::pal_gephi()} for Gephi generators, in
+  versions of \code{ggsci} that provide these interfaces.
+
+  Gephi presets in newer \code{ggsci} databases are excluded before
+  indexing and colour processing. Explicitly selecting only Gephi presets
+  is an error; mixed selections warn and retain the fixed palettes.
+  Generators are never evaluated, so previews do not change the random
+  number state.
 }
 \examples{
 if (requireNamespace("ggsci", quietly = TRUE)) {
