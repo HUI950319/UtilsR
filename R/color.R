@@ -21,6 +21,7 @@
 #               |   pal_show_viridis
 #               +-- L2  .is_color_vector()   colours vs palette names
 #               +-- L2  .pal_show_colors()   render swatches (ggplot | gt)
+#               +-- L2  .pal_hex()           normalize R colours for display
 # =============================================================================
 
 #' Built-in Palette Collection
@@ -760,7 +761,7 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
     type = vapply(pals, function(x) attr(x, "type") %||% "?", character(1)),
     n_colors = n_label,
     preview = vapply(pals, function(cols) {
-      spans <- vapply(cols, function(c) {
+      spans <- vapply(.pal_hex(cols), function(c) {
         sprintf(paste0('<span style="display:inline-block;width:%dpx;',
                        'background:%s;color:%s;">&nbsp;</span>'),
                 swatch_px, c, c)
@@ -1181,6 +1182,16 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
   all(valid) && n_palette_match == 0
 }
 
+# R colour names need conversion before use in CSS; keep non-opaque alpha.
+.pal_hex <- function(colors) {
+  rgba <- grDevices::col2rgb(colors, alpha = TRUE)
+  out <- grDevices::rgb(rgba[1L, ], rgba[2L, ], rgba[3L, ], rgba[4L, ],
+                       maxColorValue = 255)
+  opaque <- rgba[4L, ] == 255
+  out[opaque] <- substr(out[opaque], 1L, 7L)
+  out
+}
+
 #' Display a colour vector as ggplot or gt (internal)
 #' @keywords internal
 #' @noRd
@@ -1197,15 +1208,7 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
 
   # Get labels: use names if available, otherwise hex codes
   color_names <- names(colors)
-  hex <- vapply(colors, function(cc) {
-    rgb_mat <- grDevices::col2rgb(cc, alpha = TRUE)
-    if (rgb_mat[4L] < 255) {
-      grDevices::rgb(rgb_mat[1L], rgb_mat[2L], rgb_mat[3L], rgb_mat[4L],
-                     maxColorValue = 255)
-    } else {
-      grDevices::rgb(rgb_mat[1L], rgb_mat[2L], rgb_mat[3L], maxColorValue = 255)
-    }
-  }, character(1), USE.NAMES = FALSE)
+  hex <- .pal_hex(colors)
 
   if (!is.null(color_names) && all(nzchar(color_names))) {
     labels <- color_names

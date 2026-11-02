@@ -457,3 +457,17 @@ test_that("pal_show preserves transparency in colour-vector previews", {
   expect_match(html, "background:\\s*#FFFFFF00;")
   expect_match(html, "background:\\s*#00000010;\\s*color:\\s*#000000;")
 })
+
+test_that("palette gt previews normalize R colours for CSS", {
+  invisible(capture.output(tbl <- pal_show("GdRd", output = "gt")))
+  previews <- tbl[["_data"]][["preview"]]
+  expect_match(previews, "background:#FFD700;", fixed = TRUE)
+  expect_match(previews, "background:#CD0000;", fixed = TRUE)
+
+  invisible(capture.output(custom <- pal_show(
+    list(custom = c("light blue", "#F00", "#00000080")), output = "gt")))
+  preview <- custom[["_data"]][["preview"]]
+  expect_match(preview, "background:#ADD8E6;", fixed = TRUE)
+  expect_match(preview, "background:#FF0000;", fixed = TRUE)
+  expect_match(preview, "background:#00000080;", fixed = TRUE)
+})
