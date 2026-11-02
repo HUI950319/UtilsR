@@ -654,9 +654,12 @@ show_color <- function(x, rev = FALSE) {
                        "#0000EE", "#CD00CD", "#00CDCD", "#E5E5E5",
                        "#7F7F7F", "#FF0000", "#00FF00", "#FFFF00",
                        "#5C5CFF", "#FF00FF", "#00FFFF", "#FFFFFF")
-      # Decode the emitted SGR rather than duplicating cli's quantisation.
+      # Decode each emitted SGR once rather than duplicating quantisation.
+      luminance_cache <- new.env(parent = emptyenv())
       .displayed_luminance <- function(style) {
         shown <- style(" ")
+        cached <- luminance_cache[[shown]]
+        if (!is.null(cached)) return(cached)
         tag <- regmatches(shown, regexpr("\\[[0-9;]+m", shown))
         code <- as.integer(strsplit(substr(tag, 2L, nchar(tag) - 1L),
                                     ";", fixed = TRUE)[[1L]])
@@ -672,8 +675,8 @@ show_color <- function(x, rev = FALSE) {
           c(0, 95, 135, 175, 215, 255)[
             c(index %/% 36L, index %/% 6L %% 6L, index %% 6L) + 1L]
         }
-        .luminance(grDevices::rgb(rgb[[1L]], rgb[[2L]], rgb[[3L]],
-                                 maxColorValue = 255))
+        luminance_cache[[shown]] <- .luminance(grDevices::rgb(
+          rgb[[1L]], rgb[[2L]], rgb[[3L]], maxColorValue = 255))
       }
       foreground <- lapply(c("#000000", "#FFFFFF"), function(col) {
         cli::make_ansi_style(col, bg = FALSE)

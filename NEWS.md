@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* `show_color()` caches luminance for identical emitted ANSI colours within each display, avoiding repeated decoding when distinct inputs share an indexed background.
+
 * pal_get() applies opacity to the interpolated unique numeric positions before restoring repeated observations, preserving original alpha at the default setting and leaving missing or infinite observations unmapped.
 
 * `show_color()` computes true-colour luminance in one vectorised pass, preserving colours, contrast, wrapping and returned values.
