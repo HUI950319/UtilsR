@@ -598,12 +598,16 @@ show_color <- function(x, rev = FALSE) {
   # 256 quantised every swatch onto the xterm palette, so the preview and the
   # hex codes underneath it disagreed: a diverging palette's pale midpoint
   # collapsed to grey and #B2182B was drawn as magenta.
-  styled <- vapply(hex, function(h) {
-    fg_col <- if (.luminance(h) > 0.179) "#000000" else "#FFFFFF"
-    fg_style <- cli::make_ansi_style(fg_col, bg = FALSE)
-    bg_style <- cli::make_ansi_style(h, bg = TRUE, grey = FALSE)
-    cli::combine_ansi_styles(fg_style, bg_style)(paste0(" ", h, " "))
-  }, character(1), USE.NAMES = FALSE)
+  if (._pr_colour()) {
+    styled <- vapply(hex, function(h) {
+      fg_col <- if (.luminance(h) > 0.179) "#000000" else "#FFFFFF"
+      fg_style <- cli::make_ansi_style(fg_col, bg = FALSE)
+      bg_style <- cli::make_ansi_style(h, bg = TRUE, grey = FALSE)
+      cli::combine_ansi_styles(fg_style, bg_style)(paste0(" ", h, " "))
+    }, character(1), USE.NAMES = FALSE)
+  } else {
+    styled <- if (length(hex)) paste0(" ", hex, " ") else character()
+  }
 
   per_line <- max(1L, console_width() %/% 10L)
   rows <- split(styled, ceiling(seq_along(styled) / per_line))

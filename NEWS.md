@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* Console palette previews bypass ANSI style construction for uncoloured stdout, retaining the same wrapped text and returned colour vectors.
+
 * Palette data rebuilds stop before replacement when required sources are missing, generated entries are invalid or previously registered names would disappear.
 
 * Palette catalogue documentation distinguishes console listings from gt Viewer previews and explains access to unregistered palette collections.
