@@ -80,7 +80,8 @@ Default \code{200}.}
   \item{\code{"top_n"}}{Scale each group to \code{[0, 1]} using only the
     displayed (post-\code{max_show}) values. Stretches the visible range
     within each panel to maximise visual separation.}
-}}
+}
+Extreme finite ranges are rescaled before subtraction to avoid overflow.}
 
 \item{highlight_color}{Colour for top-ranked points.
 Default \code{"#007D9B"}.}

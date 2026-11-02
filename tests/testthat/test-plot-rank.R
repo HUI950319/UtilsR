@@ -1,3 +1,23 @@
+test_that("PlotRank scales extreme finite ranges without losing the middle score", {
+  for (values in list(c(-1e308, 0, 1e308), c(-1.5e308, .5e308, 1.5e308))) {
+    data <- stats::setNames(c(values, NA_real_), letters[1:4])
+    before <- data
+    control <- stats::setNames(c(values / 1e308, NA_real_), letters[1:4])
+    for (mode in c("group", "top_n")) {
+      actual <- PlotRank(data, value_scale = mode, return_type = "data")
+      expected <- PlotRank(control, value_scale = mode, return_type = "data")
+      expect_equal(actual, expected)
+      expect_true(all(is.finite(actual$Score)))
+    }
+    expect_identical(data, before)
+  }
+  data <- stats::setNames(c(-1e308, 0, 1e308), letters[1:3])
+  full_range <- PlotRank(data, value_scale = "group", max_show = 2, return_type = "data")
+  shown_range <- PlotRank(data, value_scale = "top_n", max_show = 2, return_type = "data")
+  expect_equal(unname(full_range$Score), c(1, .5))
+  expect_equal(unname(shown_range$Score), c(1, 0))
+})
+
 test_that("PlotRank rejects non-vector and non-real score storage", {
   for (value in list(matrix(1:6, 3), array(1:6, c(3, 2, 1)), list(1, 2, 3),
                      c(1 + 1i, 2 + 2i, 3 + 3i), factor(1:3), as.raw(1:3))) {

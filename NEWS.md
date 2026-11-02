@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* PlotRank() scales extreme finite ranges without overflowing while retaining full-range versus displayed-range semantics.
+
 * stat_ci_parse() retains valid normal-approximation p-values when a finite difference interval has an SE beyond floating-point range, including confidence-level adjustments.
 
 * PlotCircleLollipop() omits unused group levels and diagnoses missing or excluded groups before drawing or opening an output device.

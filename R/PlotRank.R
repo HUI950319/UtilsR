@@ -59,6 +59,7 @@
 #'       displayed (post-\code{max_show}) values. Stretches the visible range
 #'       within each panel to maximise visual separation.}
 #'   }
+#'   Extreme finite ranges are rescaled before subtraction to avoid overflow.
 #' @param highlight_color Colour for top-ranked points.
 #'   Default \code{"#007D9B"}.
 #' @param base_color Colour for remaining points.
@@ -197,21 +198,27 @@ PlotRank <- function(
   plot_df <- do.call(rbind, all_df)
 
   # ---- Per-group value scaling (value_scale) ----
+  scale_scores <- function(x, rng) {
+    if (rng[2] == rng[1]) return(rep(0, length(x)))
+    span <- rng[2] - rng[1]
+    if (!is.finite(span) && all(is.finite(rng))) {
+      magnitude <- max(abs(rng))
+      return((x / magnitude - rng[1] / magnitude) /
+               (rng[2] / magnitude - rng[1] / magnitude))
+    }
+    (x - rng[1]) / span
+  }
   if (value_scale == "group") {
     # Scale using the FULL group range from original data (before max_show)
     plot_df$Score <- mapply(function(s, g) {
-      rng <- orig_ranges[[as.character(g)]]
-      mn <- rng[1]; mx <- rng[2]
-      if (mx == mn) 0 else (s - mn) / (mx - mn)
+      scale_scores(s, orig_ranges[[as.character(g)]])
     }, plot_df$Score, as.character(plot_df$Group))
   } else if (value_scale == "top_n") {
     # Scale using only the displayed values within each group
     for (grp in unique(plot_df$Group)) {
       idx <- plot_df$Group == grp
       vals <- plot_df$Score[idx]
-      mn <- min(vals, na.rm = TRUE)
-      mx <- max(vals, na.rm = TRUE)
-      plot_df$Score[idx] <- if (mx == mn) 0 else (vals - mn) / (mx - mn)
+      plot_df$Score[idx] <- scale_scores(vals, range(vals, na.rm = TRUE))
     }
   }
 
