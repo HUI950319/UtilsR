@@ -533,6 +533,21 @@ test_that("pal_get handles stored labelled and integer64 inputs in a fresh proce
   }
 })
 
+test_that("pal_get excludes explicit missing factor levels", {
+  x <- factor(c("b", NA, "a"), levels = c("b", "a", "unused", NA), exclude = NULL)
+  expected <- c(b = "#00468BFF", a = "#ED0000FF", unused = "#42B540FF")
+  before <- x
+  expect_identical(pal_get("lancet", x = x), expected)
+  expect_identical(pal_get("lancet", x = x, reverse = TRUE),
+                   stats::setNames(rev(unname(expected)), names(expected)))
+  expect_identical(pal_get(list(custom = pal_lancet), x = x), list(custom = expected))
+  only_missing <- factor(NA, levels = NA_character_, exclude = NULL)
+  expect_length(pal_get("lancet", x = only_missing), 0L)
+  expect_identical(x, before)
+  literal_na <- factor(c("NA", NA), levels = c("NA", NA), exclude = NULL)
+  expect_named(pal_get("lancet", x = literal_na), "NA")
+})
+
 test_that("pal_show preserves transparency in colour-vector previews", {
   cols <- c("#FF000080", "transparent", "#00000010")
   invisible(capture.output(p <- pal_show(cols, output = "gg")))

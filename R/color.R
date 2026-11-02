@@ -551,6 +551,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     } else {
       # Discrete: map levels
       lvs <- if (is.factor(x)) levels(x) else unique(x[!is.na(x)])
+      lvs <- lvs[!is.na(lvs)]
       n_lvs <- length(lvs)
       if (n_lvs <= length(cols)) {
         out <- stats::setNames(cols[seq_len(n_lvs)], lvs)
