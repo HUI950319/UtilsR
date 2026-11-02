@@ -828,16 +828,19 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     )
 }
 
-# Preserve gt's non-HTML conversions while passing generated swatches through.
+# Keep generated HTML swatches and expose their HEX values in other formats.
 .pal_format_preview <- function(data) {
-  data <- gt::fmt_markdown(data, columns = "preview")
-  formats <- data[["_formats"]]
-  last <- length(formats)
-  if (last > 0L && is.function(formats[[last]][["func"]][["html"]])) {
-    formats[[last]][["func"]][["html"]] <- identity
-    data[["_formats"]] <- formats
+  force(data)
+  hex <- function(x) {
+    vapply(regmatches(x, gregexpr("background:#[A-Fa-f0-9]+", x)), function(cols) {
+      paste(sub("background:", "", cols, fixed = TRUE), collapse = " ")
+    }, character(1), USE.NAMES = FALSE)
   }
-  data
+  gt::fmt(data, columns = "preview", fns = list(
+    html = identity,
+    latex = function(x) gsub("#", "\\#", hex(x), fixed = TRUE),
+    rtf = hex, word = hex, default = hex
+  ))
 }
 
 # Numeric strings refer to the mutable base palette rather than literal colours.
@@ -952,6 +955,9 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #'   filtering. Out-of-range values are ignored; an empty selection is an error.
 #' @param output Output format: \code{"gt"} (default) for a gt table,
 #'   \code{"gg"} for a ggplot, or \code{"console"} for terminal output.
+#'   gt colour swatches use HTML. LaTeX, Word, RTF and other non-HTML
+#'   tables show HEX text instead. Use \code{output = "gg"} for coloured
+#'   figures in PDF or Word documents.
 #' @param label Logical. For \code{output = "gg"} in colour vector mode,
 #'   whether to show hex/name labels on tiles. Default \code{TRUE}. Does not
 #'   change gt tables or console output.
@@ -1185,6 +1191,9 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
 #'   or \code{Inf} for no display cap. Default 20.
 #' @param output Output format: \code{"gt"} (default) for a gt table,
 #'   \code{"gg"} for a ggplot, or \code{"console"} for terminal output.
+#'   gt colour swatches use HTML. LaTeX, Word, RTF and other non-HTML
+#'   tables show HEX text instead. Use \code{output = "gg"} for coloured
+#'   figures in PDF or Word documents.
 #'
 #' @return A ggplot or gt object returned visibly for automatic display.
 #'   Console output prints and invisibly returns the displayed palette list.
@@ -1290,6 +1299,9 @@ pal_show_brewer <- function(palette = NULL, n = NULL,
 #'   or \code{Inf} for no display cap. Default 20.
 #' @param output Output format: \code{"gt"} (default) for a gt table,
 #'   \code{"gg"} for a ggplot, or \code{"console"} for terminal output.
+#'   gt colour swatches use HTML. LaTeX, Word, RTF and other non-HTML
+#'   tables show HEX text instead. Use \code{output = "gg"} for coloured
+#'   figures in PDF or Word documents.
 #'
 #' @return A ggplot or gt object returned visibly for automatic display.
 #'   Console output prints and invisibly returns the displayed palette list.
@@ -1422,6 +1434,9 @@ pal_show_hcl <- function(palette = NULL, n = 8,
 #'   or \code{Inf} for no display cap. Default 20.
 #' @param output Output format: \code{"gt"} (default) for a gt table,
 #'   \code{"gg"} for a ggplot, or \code{"console"} for terminal output.
+#'   gt colour swatches use HTML. LaTeX, Word, RTF and other non-HTML
+#'   tables show HEX text instead. Use \code{output = "gg"} for coloured
+#'   figures in PDF or Word documents.
 #'
 #' @return A ggplot or gt object returned visibly for automatic display.
 #'   Console output prints and invisibly returns the displayed palette list.
@@ -1561,6 +1576,9 @@ pal_show_ggsci <- function(palette = NULL, n = NULL, alpha = 1,
 #'   or \code{Inf} for no display cap. Default 20.
 #' @param output Output format: \code{"gt"} (default) for a gt table,
 #'   \code{"gg"} for a ggplot, or \code{"console"} for terminal output.
+#'   gt colour swatches use HTML. LaTeX, Word, RTF and other non-HTML
+#'   tables show HEX text instead. Use \code{output = "gg"} for coloured
+#'   figures in PDF or Word documents.
 #'
 #' @return A ggplot or gt object returned visibly for automatic display.
 #'   Console output prints and invisibly returns the displayed palette list.

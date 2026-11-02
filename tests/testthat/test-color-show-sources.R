@@ -1916,13 +1916,6 @@ test_that("HTML palette previews bypass repeated Markdown conversion", {
     for (preview in tbl[["_data"]]$preview) {
       expect_identical(grepl(preview, html, fixed = TRUE), TRUE)
     }
-    legacy <- gt::fmt_markdown(tbl, columns = "preview")
-    for (format in c("as_latex", "as_rtf", "as_word")) {
-      if (!format %in% getNamespaceExports("gt")) next
-      render <- getExportedValue("gt", format)
-      expect_identical(suppressWarnings(as.character(render(tbl))),
-                       suppressWarnings(as.character(render(legacy))), info = format)
-    }
   }
 })
 
@@ -2066,6 +2059,87 @@ test_that("palette catalogue names wrap without changing swatch widths", {
     ))[[1L]]
     expect_length(cells, 1L)
     expect_identical(grepl("overflow-wrap:\\s*anywhere", cells), TRUE)
+  }
+})
+
+expect_palette_preview_no_warning <- function(code) {
+  warnings <- character()
+  value <- withCallingHandlers(force(code), warning = function(w) {
+    warnings <<- c(warnings, conditionMessage(w))
+    invokeRestart("muffleWarning")
+  })
+  expect_identical(warnings, character())
+  value
+}
+
+test_that("palette HEX fallbacks retain source colours across document formats", {
+  viewers <- list(
+    list(fun = pal_show, args = list(palette = "Set1")),
+    list(fun = pal_show_brewer, args = list(palette = "Set1")),
+    list(fun = pal_show_hcl, args = list(palette = "Viridis")),
+    list(fun = pal_show_viridis, args = list(palette = "viridis", alpha = 0.5))
+  )
+  if (requireNamespace("ggsci", quietly = TRUE)) {
+    viewers <- c(viewers, list(list(fun = pal_show_ggsci,
+      args = list(palette = "npg_nrc", alpha = 0.5, reverse = TRUE))))
+  }
+  for (viewer in viewers) {
+    args <- c(viewer[["args"]], list(n = 3, max_colors = 2))
+    plot <- do.call(viewer[["fun"]], c(args, list(output = "gg")))
+    expected <- toupper(plot[["data"]][["color"]])
+    opaque <- nchar(expected) == 9L & substr(expected, 8L, 9L) == "FF"
+    expected[opaque] <- substr(expected[opaque], 1L, 7L)
+    table <- do.call(viewer[["fun"]], c(args, list(output = "gt")))
+    expect_identical(table[["_data"]][["n_colors"]], "2 / 3")
+    html <- expect_palette_preview_no_warning(gt::as_raw_html(table))
+    expect_true(all(vapply(table[["_data"]][["preview"]], grepl,
+                           logical(1), x = html, fixed = TRUE)))
+    for (output in c("latex", "rtf", "word", "plain", "grid")) {
+      cells <- expect_palette_preview_no_warning(gt::extract_cells(table, columns = "preview", output = output))
+      text <- paste(expected, collapse = " ")
+      if (output == "latex") text <- gsub("#", "\\#", text, fixed = TRUE)
+      expect_identical(unname(cells), text, info = output)
+    }
+    latex <- expect_palette_preview_no_warning(as.character(gt::as_latex(table)))
+    expect_true(all(vapply(expected, function(x) grepl(paste0("\\", x), latex, fixed = TRUE), logical(1))))
+    if ("as_word" %in% getNamespaceExports("gt")) {
+      word <- expect_palette_preview_no_warning(as.character(gt::as_word(table)))
+      xml <- paste0('<root xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">',
+                    word, "</root>")
+      expect_s3_class(xml2::read_xml(xml), "xml_document")
+      expect_true(all(vapply(expected, grepl, logical(1), x = word, fixed = TRUE)))
+    }
+  }
+})
+
+test_that("colour vector HEX fallbacks retain alpha and row boundaries", {
+  colours <- c(Clear = "#FFFFFF00", Half = "#11223380", Opaque = "#AABBCC")
+  expected <- unname(colours)
+  table <- pal_show(colours, output = "gt")
+  for (output in c("latex", "rtf", "word", "plain", "grid")) {
+    cells <- expect_palette_preview_no_warning(gt::extract_cells(table, columns = "preview", output = output))
+    reference <- if (output == "latex") gsub("#", "\\#", expected, fixed = TRUE) else expected
+    expect_identical(unname(cells), reference, info = output)
+  }
+  expect_identical(table[["_data"]][["hex"]], expected)
+  expect_identical(table[["_data"]][["name"]], names(colours))
+  html <- expect_palette_preview_no_warning(gt::as_raw_html(table))
+  expect_true(all(vapply(table[["_data"]][["preview"]], grepl,
+                         logical(1), x = html, fixed = TRUE)))
+})
+
+test_that("palette HEX fallbacks are used during document knitting", {
+  table <- pal_show_viridis("viridis", n = 3, output = "gt")
+  original <- knitr::opts_knit$get("rmarkdown.pandoc.to")
+  withr::defer(knitr::opts_knit$set(rmarkdown.pandoc.to = original))
+  for (format in c("latex", "docx", "rtf")) {
+    knitr::opts_knit$set(rmarkdown.pandoc.to = format)
+    printed <- capture.output(value <- expect_palette_preview_no_warning(knitr::knit_print(table)))
+    document <- paste(c(as.character(value), printed), collapse = "\n")
+    for (colour in c("#440154", "#21908C", "#FDE725")) {
+      reference <- if (format == "latex") paste0("\\", colour) else colour
+      expect_match(document, reference, fixed = TRUE)
+    }
   }
 })
 

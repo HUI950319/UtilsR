@@ -46,7 +46,10 @@ or \code{Inf} for no display cap. Default 20.}
 filtering. Out-of-range values are ignored; an empty selection is an error.}
 
 \item{output}{Output format: \code{"gt"} (default) for a gt table,
-\code{"gg"} for a ggplot, or \code{"console"} for terminal output.}
+\code{"gg"} for a ggplot, or \code{"console"} for terminal output.
+gt colour swatches use HTML. LaTeX, Word, RTF and other non-HTML
+tables show HEX text instead. Use \code{output = "gg"} for coloured
+figures in PDF or Word documents.}
 
 \item{label}{Logical. For \code{output = "gg"} in colour vector mode,
 whether to show hex/name labels on tiles. Default \code{TRUE}. Does not

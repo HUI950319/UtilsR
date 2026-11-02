@@ -35,7 +35,10 @@ the argument and matched count before any palettes are drawn.}
 or \code{Inf} for no display cap. Default 20.}
 
 \item{output}{Output format: \code{"gt"} (default) for a gt table,
-\code{"gg"} for a ggplot, or \code{"console"} for terminal output.}
+\code{"gg"} for a ggplot, or \code{"console"} for terminal output.
+gt colour swatches use HTML. LaTeX, Word, RTF and other non-HTML
+tables show HEX text instead. Use \code{output = "gg"} for coloured
+figures in PDF or Word documents.}
 }
 \value{
 A ggplot or gt object returned visibly for automatic display.

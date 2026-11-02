@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* Palette gt previews retain HTML colour swatches and show ordered HEX text in LaTeX, Word, RTF and other non-HTML formats, preserving alpha values without HTML-removal warnings.
+
 * `pal_show()` catalogue swatches provide hexadecimal hover titles and readable image labels, including alpha, without changing their colour values or dimensions.
 
 * `pal_show()` validates large repeated colour inputs through their distinct values while preserving complete validation, colour order and duplicate entries.
