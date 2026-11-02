@@ -1679,3 +1679,89 @@ test_that("ggsci transforms only selected source palettes", {
   expect_identical(calls, 2L)
   expect_equal(nrow(p$data), 6L)
 })
+
+test_that("ggsci viewers exclude Gephi generator presets", {
+  skip_if_not_installed("ggsci")
+  original <- utils::getFromNamespace
+  native <- original("ggsci_db", "ggsci")
+  fixed <- list(npg = native[["npg"]], gsea = native[["gsea"]])
+  generators <- list(default = c(hmin = 0, hmax = 360, cmin = 0, cmax = 3,
+                                lmin = 0, lmax = 1.5))
+  database <- fixed
+  testthat::local_mocked_bindings(getFromNamespace = function(x, ns, ...) {
+    if (identical(x, "ggsci_db") && identical(ns, "ggsci")) return(database)
+    original(x, ns, ...)
+  }, .package = "utils")
+  withr::local_seed(42)
+  before_rng <- .Random.seed
+  collect <- function(output) {
+    printed <- capture.output(value <- pal_show_ggsci(
+      n = 3, max_colors = 2, alpha = 0.5, reverse = TRUE, output = output
+    ))
+    list(data = switch(output, gg = value[["data"]], gt = value[["_data"]],
+                       console = value), printed = printed)
+  }
+  for (output in c("gg", "gt", "console")) {
+    database <- fixed
+    expected <- collect(output)
+    database <- list(npg = fixed[["npg"]], gephi = generators, gsea = fixed[["gsea"]])
+    expect_no_warning(actual <- collect(output))
+    expect_identical(actual, expected)
+  }
+  full <- pal_show_ggsci(output = "gg")
+  expect_setequal(as.character(full[["data"]][["palette"]]),
+                  c("ggsci_npg_nrc", "ggsci_gsea_default"))
+  selected <- pal_show_ggsci(index = 2, n = 3, output = "gg")
+  expect_identical(unique(as.character(selected[["data"]][["palette"]])),
+                   "ggsci_gsea_default")
+  filtered <- pal_show_ggsci(pattern = "^ggsci_(npg|gsea)_", n = 3, output = "gg")
+  expect_setequal(as.character(filtered[["data"]][["palette"]]),
+                  c("ggsci_npg_nrc", "ggsci_gsea_default"))
+  for (name in c("gephi_default", "ggsci_gephi_default")) {
+    expect_error(pal_show_ggsci(name, output = "gg"), "Gephi.*generator")
+  }
+  expect_warning(mixed <- pal_show_ggsci(c("npg_nrc", "gephi_default"), output = "gg"),
+                 "Gephi.*generator")
+  expect_identical(unique(as.character(mixed[["data"]][["palette"]])), "ggsci_npg_nrc")
+  database[["npg"]][["nrc"]] <- "invalid-colour"
+  expect_error(pal_show_ggsci("npg_nrc", output = "gg"), "invalid colours")
+  database <- fixed
+  expect_error(pal_show_ggsci("gephi_", output = "gg"), "No matching ggsci palettes")
+  expect_identical(.Random.seed, before_rng)
+})
+
+test_that("palette rebuilds exclude Gephi generator presets", {
+  script <- normalizePath(test_path("..", "..", "data-raw", "build_palette_list.R"),
+                          mustWork = FALSE)
+  skip_if_not(file.exists(script))
+  packages <- c("RColorBrewer", "ggsci", "viridis", "rcartocolor", "nord",
+                "dichromat", "pals", "colorspace")
+  for (pkg in packages) skip_if_not_installed(pkg)
+  original <- utils::getFromNamespace
+  database <- original("ggsci_db", "ggsci")
+  database[["gephi"]] <- list(default = c(hmin = 0, hmax = 360, cmin = 0,
+                                         cmax = 3, lmin = 0, lmax = 1.5))
+  testthat::local_mocked_bindings(getFromNamespace = function(x, ns, ...) {
+    if (identical(x, "ggsci_db") && identical(ns, "ggsci")) return(database)
+    original(x, ns, ...)
+  }, .package = "utils")
+  work <- withr::local_tempdir()
+  writeLines("Package: UtilsR", file.path(work, "DESCRIPTION"))
+  dir.create(file.path(work, "data"))
+  withr::local_dir(work)
+  palette_list <- list(ggsci_npg_nrc = structure(unname(database[["npg"]][["nrc"]]),
+                                               type = "discrete"))
+  save(palette_list, file = "data/palette_list.rda")
+  messages <- capture.output(sys.source(script, envir = new.env()), type = "message")
+  expect_true(any(grepl("Gephi.*generator", messages)))
+  rebuilt <- new.env(parent = emptyenv())
+  load("data/palette_list.rda", envir = rebuilt)
+  expect_true(all(c("ggsci_npg_nrc", "ggsci_gsea_default") %in% names(rebuilt[["palette_list"]])))
+  expect_false(any(grepl("^ggsci_gephi_", names(rebuilt[["palette_list"]]))))
+  expect_identical(rebuilt[["palette_list"]][["ggsci_npg_nrc"]], palette_list[["ggsci_npg_nrc"]])
+  before <- readBin("data/palette_list.rda", "raw", file.info("data/palette_list.rda")[["size"]])
+  database[["npg"]][["nrc"]] <- "invalid-colour"
+  expect_error(suppressMessages(sys.source(script, envir = new.env())),
+               "Invalid generated palettes: ggsci_npg_nrc")
+  expect_identical(readBin("data/palette_list.rda", "raw", file.info("data/palette_list.rda")[["size"]]), before)
+})

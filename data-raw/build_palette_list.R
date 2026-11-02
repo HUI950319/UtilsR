@@ -71,7 +71,10 @@ if (requireNamespace("ggsci", quietly = TRUE)) {
   )
   if (!is.null(ggsci_db)) {
     n_before <- length(palette_list)
-    for (pkg_name in names(ggsci_db)) {
+    if ("gephi" %in% names(ggsci_db)) {
+      message("ggsci: excluding Gephi generators (not fixed colour palettes)")
+    }
+    for (pkg_name in setdiff(names(ggsci_db), "gephi")) {
       sub_pals <- ggsci_db[[pkg_name]]
       for (sub_name in names(sub_pals)) {
         full_name <- paste0("ggsci_", pkg_name, "_", sub_name)

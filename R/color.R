@@ -1412,8 +1412,10 @@ pal_show_ggsci <- function(palette = NULL, n = NULL, alpha = 1,
     cli::cli_abort("Could not read the palette database from {.pkg ggsci}.")
   }
 
+  generator_names <- names(ggsci_db[["gephi"]])
+  if (length(generator_names)) generator_names <- paste0("ggsci_gephi_", generator_names)
   pals <- list()
-  for (pkg_name in names(ggsci_db)) {
+  for (pkg_name in setdiff(names(ggsci_db), "gephi")) {
     sub_pals <- ggsci_db[[pkg_name]]
     for (sub_name in names(sub_pals)) {
       full_name <- paste0("ggsci_", pkg_name, "_", sub_name)
@@ -1427,13 +1429,20 @@ pal_show_ggsci <- function(palette = NULL, n = NULL, alpha = 1,
 
   if (!is.null(palette)) {
     requested <- ifelse(
-      palette %in% names(pals), palette, paste0("ggsci_", palette)
+      palette %in% c(names(pals), generator_names), palette, paste0("ggsci_", palette)
     )
     valid <- unique(requested[requested %in% names(pals)])
+    generators <- unique(palette[requested %in% generator_names])
     if (length(valid) == 0L) {
+      if (length(generators)) {
+        cli::cli_abort("Gephi generator{?s} {.val {generators}} cannot be previewed as fixed colours. Use {.fn ggsci::pal_gephi} to generate them.")
+      }
       cli::cli_abort("No matching ggsci palettes found.")
     }
-    unknown <- unique(palette[!requested %in% names(pals)])
+    if (length(generators)) {
+      cli::cli_warn("Skipping Gephi generator{?s}: {.val {generators}}. Use {.fn ggsci::pal_gephi} to generate them.")
+    }
+    unknown <- unique(palette[!requested %in% c(names(pals), generator_names)])
     if (length(unknown)) {
       cli::cli_warn("Skipping unknown ggsci palette{?s}: {.val {unknown}}.")
     }

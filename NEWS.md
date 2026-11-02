@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* `pal_show_ggsci()` and palette data rebuilds exclude Gephi generator presets from fixed colour catalogues, preserving ordinary palettes with ggsci 5.x and explaining explicitly requested generators without consuming random numbers.
+
 * pal_get() estimates repetition across numeric positions before deduplicating, avoiding full unique/match work for sparse repeats and detecting dense repeats beyond the original prefix without changing colours.
 
 * pal_get() treats the literal NA colour as transparent before alpha replacement, consistently across selection and interpolation, while retaining true missing mapping values and unchanged default-alpha spelling.
