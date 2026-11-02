@@ -429,12 +429,18 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 
   # Digit-leading strings (including decimals and exponents) can index palette().
   is_colour <- function(v) {
-    drawable <- vapply(v, function(s) {
-      tryCatch({
-        grDevices::col2rgb(s)
-        TRUE
-      }, error = function(e) FALSE)
-    }, logical(1L), USE.NAMES = FALSE)
+    drawable <- tryCatch({
+      grDevices::col2rgb(v)
+      rep(TRUE, length(v))
+    }, error = function(e) {
+      # Locate each bad colour only when the vector cannot be parsed together.
+      vapply(v, function(s) {
+        tryCatch({
+          grDevices::col2rgb(s)
+          TRUE
+        }, error = function(e) FALSE)
+      }, logical(1L), USE.NAMES = FALSE)
+    })
     drawable & !is.na(v) & !grepl("^[0-9]", v)
   }
 

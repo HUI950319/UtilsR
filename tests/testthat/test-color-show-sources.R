@@ -548,6 +548,20 @@ test_that("pal_get excludes explicit missing factor levels", {
   expect_named(pal_get("lancet", x = literal_na), "NA")
 })
 
+test_that("pal_get validates long colour vectors without changing diagnostics", {
+  cols <- rep(c("ReD", "light blue", "#F00", "#00F8", "transparent"), 200L)
+  expect_identical(pal_get(cols, n = 3), c("ReD", "light blue", "#F00"))
+  expect_identical(pal_get(list(custom = cols), n = 3),
+                   list(custom = c("ReD", "light blue", "#F00")))
+  cols[c(2L, 1000L)] <- c("badfirst", "badlast")
+  for (palette in list(cols, list(custom = cols))) {
+    error <- tryCatch(pal_get(palette, n = 1), error = identity)
+    expect_s3_class(error, "error")
+    expect_match(conditionMessage(error), "badfirst")
+    expect_match(conditionMessage(error), "badlast")
+  }
+})
+
 test_that("pal_show preserves transparency in colour-vector previews", {
   cols <- c("#FF000080", "transparent", "#00000010")
   invisible(capture.output(p <- pal_show(cols, output = "gg")))
