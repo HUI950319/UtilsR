@@ -16,7 +16,9 @@ pal_show_hcl(
 }
 \arguments{
 \item{palette}{Character vector of HCL palette names. \code{NULL} shows all
-palettes matching \code{type} and \code{pattern}.}
+palettes matching \code{type} and \code{pattern}. Matching follows native HCL
+rules: case and separators are ignored, unique abbreviations are accepted,
+and ambiguous names are rejected. Returned names use canonical spelling.}
 
 \item{n}{Number of colours to generate for each palette. Default 8.}
 

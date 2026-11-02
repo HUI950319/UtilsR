@@ -1226,3 +1226,18 @@ test_that("source palette filters preserve explicit name precedence", {
     }
   }
 })
+
+test_that("source palette names follow native HCL matching", {
+  requested <- c("viridis", "dark3", "Dark-3", "Dark 3")
+  expected <- c("Viridis", "Dark 3")
+  p <- pal_show_hcl(requested, n = 3, output = "gg")
+  expect_identical(unique(as.character(p$data$palette)), expected)
+  expect_identical(p$data$color[1:3], grDevices::hcl.colors(3, "viridis"))
+  expect_identical(p$data$color[4:6], grDevices::hcl.colors(3, "Dark-3"))
+  expect_no_warning(pal_show_hcl(requested, n = 3, output = "gt"))
+  invisible(capture.output(value <- pal_show_hcl(requested, n = 3, output = "console")))
+  expect_named(value, expected)
+  expect_error(pal_show_hcl(c("Viridis", "Dark"), output = "gg"), "ambiguous.*Dark")
+  expect_warning(known <- pal_show_hcl(c("viridis", "__typo__"), output = "gg"), "__typo__")
+  expect_identical(unique(as.character(known$data$palette)), "Viridis")
+})

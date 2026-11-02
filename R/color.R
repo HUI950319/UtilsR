@@ -1090,7 +1090,9 @@ pal_show_brewer <- function(palette = NULL, n = NULL,
 #'   least one valid palette remains.
 #'
 #' @param palette Character vector of HCL palette names. \code{NULL} shows all
-#'   palettes matching \code{type} and \code{pattern}.
+#'   palettes matching \code{type} and \code{pattern}. Matching follows native HCL
+#'   rules: case and separators are ignored, unique abbreviations are accepted,
+#'   and ambiguous names are rejected. Returned names use canonical spelling.
 #' @param n Number of colours to generate for each palette. Default 8.
 #' @param type HCL palette category: \code{"all"}, \code{"qualitative"},
 #'   \code{"sequential"}, \code{"diverging"}, or \code{"divergingx"}.
@@ -1137,11 +1139,17 @@ pal_show_hcl <- function(palette = NULL, n = 8,
 
   pal_names <- all_names
   if (!is.null(palette)) {
-    valid <- unique(palette[palette %in% pal_names])
+    normalise <- function(x) tolower(gsub("[-_,(). ]", "", x))
+    matched <- charmatch(normalise(palette), normalise(pal_names))
+    if (any(matched == 0L, na.rm = TRUE)) {
+      ambiguous <- unique(palette[which(matched == 0L)])
+      cli::cli_abort("{.arg palette} contains ambiguous HCL names: {.val {ambiguous}}.")
+    }
+    valid <- unique(pal_names[matched[!is.na(matched)]])
     if (length(valid) == 0L) {
       cli::cli_abort("No matching HCL palettes found.")
     }
-    unknown <- setdiff(palette, pal_names)
+    unknown <- unique(palette[is.na(matched)])
     if (length(unknown)) {
       cli::cli_warn("Skipping unknown HCL palette{?s}: {.val {unknown}}.")
     }

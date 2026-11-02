@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* `pal_show_hcl()` follows native HCL name matching, preserves canonical names and reports ambiguous abbreviations explicitly.
+
 * Source palette viewers document explicit-name precedence over type and pattern filters, including the handling of unknown names.
 
 * Source palette viewers warn about unknown names while preserving valid selections, and still reject selections with no matching palettes.
