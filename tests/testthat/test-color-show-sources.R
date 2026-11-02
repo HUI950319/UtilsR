@@ -1073,6 +1073,64 @@ test_that("palette rebuilds stop when an individual CARTO palette fails", {
   }
 })
 
+test_that("palette rebuilds preserve old data when writing or replacing fails", {
+  script <- normalizePath(test_path("..", "..", "data-raw", "build_palette_list.R"),
+                          mustWork = FALSE)
+  skip_if_not(file.exists(script))
+  packages <- c("RColorBrewer", "ggsci", "viridis", "rcartocolor", "nord",
+                "dichromat", "pals", "colorspace")
+  for (pkg in packages) skip_if_not_installed(pkg)
+  for (failure in c("write", "objects", "values", "replace", "none")) {
+    local({
+      work <- withr::local_tempdir()
+      writeLines("Package: UtilsR", file.path(work, "DESCRIPTION"))
+      dir.create(file.path(work, "data"))
+      withr::local_dir(work)
+      target <- "data/palette_list.rda"
+      palette_list <- list(Set1 = structure(c("red", "blue"), type = "discrete"))
+      save(palette_list, file = target)
+      before <- readBin(target, "raw", file.info(target)$size)
+      isolated <- new.env(parent = globalenv())
+      if (failure == "write") {
+        isolated$save <- function(..., file, compress) {
+          connection <- base::file(file, open = "wb")
+          writeBin(charToRaw("incomplete palette data"), connection)
+          close(connection)
+          stop("simulated write failure")
+        }
+      } else if (failure == "objects") {
+        isolated$save <- function(..., file, compress) {
+          foreign_payload <- "unrelated data"
+          base::save(foreign_payload, file = file, compress = compress)
+        }
+      } else if (failure == "values") {
+        isolated$save <- function(..., file, compress) {
+          palette_list <- list(wrong = structure("red", type = "discrete"))
+          base::save(palette_list, file = file, compress = compress)
+        }
+      } else if (failure == "replace") {
+        isolated$file.rename <- function(...) FALSE
+      }
+      if (failure == "none") {
+        expect_no_error(suppressMessages(sys.source(script, envir = isolated)))
+        rebuilt <- new.env(parent = emptyenv())
+        expect_identical(load(target, envir = rebuilt), "palette_list")
+        expect_identical(rebuilt$palette_list, isolated$palette_list)
+        expect_false(identical(readBin(target, "raw", file.info(target)$size), before))
+      } else {
+        pattern <- switch(failure,
+                          write = "simulated write failure",
+                          objects = "Saved palette data do not match generated palettes",
+                          values = "Saved palette data do not match generated palettes",
+                          replace = "Failed to replace palette data")
+        expect_error(suppressMessages(sys.source(script, envir = isolated)), pattern)
+        expect_identical(readBin(target, "raw", file.info(target)$size), before)
+      }
+      expect_identical(list.files("data", all.files = TRUE, no.. = TRUE), "palette_list.rda")
+    })
+  }
+})
+
 test_that("palette preview allocation is bounded by the display cap", {
   skip_if_not(capabilities("profmem"))
   invisible(pal_show("Set1", n = 20, output = "gg"))

@@ -298,5 +298,18 @@ if (length(missing_names)) {
   stop("Rebuild would remove registered palettes: ",
        paste(missing_names, collapse = ", "), call. = FALSE)
 }
-save(palette_list, file = output_file, compress = "xz")
+(function() {
+  temporary <- tempfile(pattern = "palette_list-", tmpdir = dirname(output_file),
+                        fileext = ".rda")
+  on.exit(unlink(temporary), add = TRUE)
+  save(palette_list, file = temporary, compress = "xz")
+  saved <- new.env(parent = emptyenv())
+  if (!identical(load(temporary, envir = saved), "palette_list") ||
+      !identical(saved[["palette_list"]], palette_list)) {
+    stop("Saved palette data do not match generated palettes.", call. = FALSE)
+  }
+  if (!file.rename(temporary, output_file)) {
+    stop("Failed to replace palette data: ", output_file, call. = FALSE)
+  }
+})()
 message("Saved to ", output_file)
