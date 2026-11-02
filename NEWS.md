@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* Console palette catalogues retain full palette names in narrow terminals, moving counts and types to wrapped notes while keeping fitting headings unchanged.
+
 * Palette data generation checks that every required source contributes palettes even when no previous registry exists, preventing silent first-build omissions.
 
 * `pal_show()` samples continuous palettes evenly across the full range in all outputs, including capped previews; a one-colour preview uses the midpoint.

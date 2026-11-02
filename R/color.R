@@ -11,6 +11,7 @@
 #   L1  lookup + extraction                         -- public API
 #         pal_list(pattern, type)   browse palette_list
 #               +-- L2  .pal_match_pattern() validate and match name filters
+#               +-- L2  .pal_print_heading() retain full console palette names
 #         pal_get(palette, n, x, reverse, alpha)    NULL | name | colours -> hex
 #               +-- L2  .pal_apply()    recycle / interpolate / alpha
 #                     +-- L3  .pal_resize()   grow or shrink a discrete set
@@ -285,6 +286,9 @@ pal_heat <- list(
 #'   collections such as \code{\link{pal_heat}} and unregistered entries of
 #'   \code{\link{pal_other}} are accessed directly rather than by registry name.
 #'
+#'   Palette names are kept in full on narrow consoles. Colour counts and types
+#'   move to a separate line when they do not fit in a heading.
+#'
 #' @param pattern Single non-missing regex string to filter palette names. Default \code{NULL}
 #'   shows all.
 #' @param type Filter by type: \code{"all"} (default), \code{"discrete"},
@@ -323,10 +327,21 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
   for (nm in names(pals)) {
     tp <- attr(pals[[nm]], "type") %||% "?"
     cat("\n")
-    pr_section(sprintf("%s (%d colours, %s)", nm, length(pals[[nm]]), tp))
+    .pal_print_heading(nm, length(pals[[nm]]), tp)
     if (show) show_color(pals[[nm]])
   }
   invisible(pals)
+}
+
+.pal_print_heading <- function(name, n, type) {
+  title <- sprintf("%s (%s colours, %s)", name, n, type)
+  if (nchar(._pr_escape(title), type = "width") <= min(console_width(), 80L) - 6L) {
+    pr_section(title)
+  } else {
+    ._pr_out(._pr_escape(name))
+    metadata <- sprintf("%s colours, %s", n, type)
+    pr_note("{metadata}")
+  }
 }
 
 .pal_match_pattern <- function(pattern, choices) {
@@ -851,7 +866,7 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
     for (nm in names(pals)) {
       tp <- attr(pals[[nm]], "type") %||% "?"
       cat("\n")
-      pr_section(sprintf("%s (%s colours, %s)", nm, n_label[[nm]], tp))
+      .pal_print_heading(nm, n_label[[nm]], tp)
       show_color(pals[[nm]])
     }
     return(invisible(pals))

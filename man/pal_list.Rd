@@ -34,6 +34,9 @@ or ggplot preview, use \code{\link{pal_show}()}.
 Only palettes in \code{\link{palette_list}} are listed. Separate
   collections such as \code{\link{pal_heat}} and unregistered entries of
   \code{\link{pal_other}} are accessed directly rather than by registry name.
+
+  Palette names are kept in full on narrow consoles. Colour counts and types
+  move to a separate line when they do not fit in a heading.
 }
 \examples{
 pal_list(pattern = "^Blues", show = FALSE)

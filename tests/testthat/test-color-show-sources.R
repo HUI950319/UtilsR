@@ -974,3 +974,31 @@ test_that("palette rebuilds reject unreadable or empty source collections", {
   expect_identical(vapply(rebuilt$palette_list, attr, character(1), "type"),
                    vapply(palette_list, attr, character(1), "type"))
 })
+
+test_that("palette console headings retain complete names in narrow terminals", {
+  withr::local_options(list(cli.num_colors = 0, cli.width = 80, width = 80))
+  keys <- c("ggsci_material_deep-purple", "ggsci_material_deep-orange",
+            "ggsci_cosmic_signature_substitutions")
+  pattern <- "^ggsci_(material_deep-(purple|orange)|cosmic_signature_substitutions)$"
+  viewers <- list(
+    function() pal_list(pattern = pattern, show = FALSE),
+    function() pal_show(keys, output = "console", max_colors = 1)
+  )
+  for (width in c(20L, 40L)) {
+    options(cli.width = width, width = width)
+    for (viewer in viewers) {
+      output <- capture.output(result <- withVisible(viewer()))
+      for (key in keys) expect_true(any(grepl(key, output, fixed = TRUE)))
+      expect_true(any(grepl("colours", output)))
+      expect_true(any(grepl("continuous|discrete", output)))
+      expect_setequal(names(result$value), keys)
+      expect_false(result$visible)
+    }
+  }
+  options(cli.width = 80, width = 80)
+  output <- capture.output(result <- pal_list("^ggsci_material_deep-purple$", show = FALSE))
+  expect_length(output[nzchar(output)], 1L)
+  expect_match(paste(output, collapse = ""),
+               "ggsci_material_deep-purple (10 colours, continuous)", fixed = TRUE)
+  expect_identical(result, palette_list["ggsci_material_deep-purple"])
+})
