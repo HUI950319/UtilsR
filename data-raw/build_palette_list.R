@@ -1,6 +1,43 @@
 # Build palette_list.rda from all available palette sources
 # Run this script to regenerate: Rscript data-raw/build_palette_list.R
 
+package_name <- if (file.exists("DESCRIPTION")) {
+  tryCatch(unname(read.dcf("DESCRIPTION", fields = "Package")[, 1L]),
+           error = function(e) NA_character_)
+} else NA_character_
+if (!identical(package_name, "UtilsR")) {
+  stop("Run this script from the UtilsR package root.", call. = FALSE)
+}
+output_file <- file.path(getwd(), "data", "palette_list.rda")
+
+validate_palettes <- function(palettes, label) {
+  if (!is.list(palettes) || !length(palettes) || is.null(names(palettes)) ||
+      anyNA(names(palettes)) || any(!nzchar(names(palettes))) ||
+      anyDuplicated(names(palettes))) {
+    stop(label, " must have unique, non-empty names.", call. = FALSE)
+  }
+  valid <- vapply(palettes, function(cols) {
+    is.character(cols) && length(cols) > 0L && !anyNA(cols) &&
+      identical(length(attr(cols, "type")), 1L) &&
+      attr(cols, "type") %in% c("discrete", "continuous") &&
+      tryCatch({ grDevices::col2rgb(cols); TRUE }, error = function(e) FALSE)
+  }, logical(1))
+  if (!all(valid)) {
+    stop("Invalid ", tolower(label), ": ",
+         paste(names(palettes)[!valid], collapse = ", "), call. = FALSE)
+  }
+}
+
+previous_names <- character()
+if (file.exists(output_file)) {
+  previous <- new.env(parent = emptyenv())
+  if (!identical(load(output_file, envir = previous), "palette_list")) {
+    stop("Existing palette data must contain only palette_list.", call. = FALSE)
+  }
+  validate_palettes(previous[["palette_list"]], "Existing palette data")
+  previous_names <- names(previous[["palette_list"]])
+}
+
 source_packages <- c("RColorBrewer", "ggsci", "viridis", "rcartocolor", "nord",
                      "dichromat", "pals", "colorspace")
 missing_sources <- source_packages[!vapply(source_packages, requireNamespace,
@@ -249,29 +286,11 @@ message("Discrete: ", sum(sapply(palette_list, function(x) attr(x, "type") == "d
 message("Continuous: ", sum(sapply(palette_list, function(x) attr(x, "type") == "continuous")))
 
 # --- Save ---
-if (!length(palette_list) || is.null(names(palette_list)) ||
-    anyNA(names(palette_list)) || any(!nzchar(names(palette_list))) ||
-    anyDuplicated(names(palette_list))) {
-  stop("Generated palettes must have unique, non-empty names.", call. = FALSE)
+validate_palettes(palette_list, "Generated palettes")
+missing_names <- setdiff(previous_names, names(palette_list))
+if (length(missing_names)) {
+  stop("Rebuild would remove registered palettes: ",
+       paste(missing_names, collapse = ", "), call. = FALSE)
 }
-valid <- vapply(palette_list, function(cols) {
-  is.character(cols) && length(cols) > 0L && !anyNA(cols) &&
-    identical(length(attr(cols, "type")), 1L) &&
-    attr(cols, "type") %in% c("discrete", "continuous") &&
-    tryCatch({ grDevices::col2rgb(cols); TRUE }, error = function(e) FALSE)
-}, logical(1))
-if (!all(valid)) {
-  stop("Invalid generated palettes: ", paste(names(palette_list)[!valid], collapse = ", "),
-       call. = FALSE)
-}
-if (file.exists("data/palette_list.rda")) {
-  previous <- new.env(parent = emptyenv())
-  load("data/palette_list.rda", envir = previous)
-  missing_names <- setdiff(names(previous[["palette_list"]]), names(palette_list))
-  if (length(missing_names)) {
-    stop("Rebuild would remove registered palettes: ",
-         paste(missing_names, collapse = ", "), call. = FALSE)
-  }
-}
-save(palette_list, file = "data/palette_list.rda", compress = "xz")
-message("Saved to data/palette_list.rda")
+save(palette_list, file = output_file, compress = "xz")
+message("Saved to ", output_file)

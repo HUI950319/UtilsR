@@ -863,8 +863,12 @@ test_that("console swatches wrap without losing colours or copyable values", {
 })
 
 test_that("palette rebuilds stop before saving when source packages are absent", {
-  script <- test_path("..", "..", "data-raw", "build_palette_list.R")
+  script <- normalizePath(test_path("..", "..", "data-raw", "build_palette_list.R"),
+                          mustWork = FALSE)
   skip_if_not(file.exists(script))
+  work <- withr::local_tempdir()
+  writeLines("Package: UtilsR", file.path(work, "DESCRIPTION"))
+  withr::local_dir(work)
   isolated <- new.env(parent = globalenv())
   isolated$requireNamespace <- function(...) FALSE
   isolated$save <- function(...) stop("Unexpected attempt to replace palette data")
@@ -880,15 +884,71 @@ test_that("palette rebuilds preserve existing data if registered names disappear
                 "dichromat", "pals", "colorspace")
   for (pkg in packages) skip_if_not_installed(pkg)
   work <- withr::local_tempdir()
+  writeLines("Package: UtilsR", file.path(work, "DESCRIPTION"))
   dir.create(file.path(work, "data"))
   withr::local_dir(work)
-  palette_list <- list(required_but_missing = c("red", "blue"))
+  palette_list <- list(required_but_missing = structure(c("red", "blue"),
+                                                        type = "discrete"))
   save(palette_list, file = "data/palette_list.rda")
   before <- readBin("data/palette_list.rda", "raw", file.info("data/palette_list.rda")$size)
   expect_error(suppressMessages(sys.source(script, envir = new.env())),
                "Rebuild would remove registered palettes")
   after <- readBin("data/palette_list.rda", "raw", file.info("data/palette_list.rda")$size)
   expect_identical(after, before)
+})
+
+test_that("palette rebuilds validate the package root before touching data", {
+  script <- normalizePath(test_path("..", "..", "data-raw", "build_palette_list.R"),
+                          mustWork = FALSE)
+  skip_if_not(file.exists(script))
+  work <- withr::local_tempdir()
+  dir.create(file.path(work, "data"))
+  withr::local_dir(work)
+  foreign_payload <- "unrelated existing data"
+  target <- "data/palette_list.rda"
+  save(foreign_payload, file = target)
+  before <- readBin(target, "raw", file.info(target)$size)
+  for (description in list(NULL, "Package: AnotherPackage", "Title: No package name",
+                            "malformed description")) {
+    if (!is.null(description)) writeLines(description, "DESCRIPTION")
+    isolated <- new.env(parent = globalenv())
+    isolated$requireNamespace <- function(...) stop("Palette generation started")
+    expect_error(suppressMessages(sys.source(script, envir = isolated)),
+                 "Run this script from the UtilsR package root", fixed = TRUE)
+    expect_identical(readBin(target, "raw", file.info(target)$size), before)
+  }
+})
+
+test_that("palette rebuilds reject invalid existing data before generating palettes", {
+  script <- normalizePath(test_path("..", "..", "data-raw", "build_palette_list.R"),
+                          mustWork = FALSE)
+  skip_if_not(file.exists(script))
+  work <- withr::local_tempdir()
+  writeLines("Package: UtilsR", file.path(work, "DESCRIPTION"))
+  dir.create(file.path(work, "data"))
+  withr::local_dir(work)
+  target <- "data/palette_list.rda"
+  malformed <- list(
+    list(foreign_payload = "unrelated existing data"),
+    list(foreign_payload = "unrelated existing data",
+         palette_list = list(Set1 = structure("red", type = "discrete"))),
+    list(palette_list = c("red", "blue")),
+    list(palette_list = list()),
+    list(palette_list = list(c("red", "blue"))),
+    list(palette_list = setNames(list("red", "blue"), c("same", "same"))),
+    list(palette_list = list(Set1 = c("red", "blue"))),
+    list(palette_list = list(Set1 = structure("invalid-colour", type = "discrete")))
+  )
+  for (objects in malformed) {
+    save(list = names(objects), envir = list2env(objects, parent = emptyenv()),
+         file = target)
+    before <- readBin(target, "raw", file.info(target)$size)
+    isolated <- new.env(parent = globalenv())
+    isolated$requireNamespace <- function(...) stop("Palette generation started")
+    expect_error(suppressMessages(sys.source(script, envir = isolated)),
+                 "[Ee]xisting palette data")
+    expect_identical(readBin(target, "raw", file.info(target)$size), before)
+  }
 })
 
 test_that("palette preview allocation is bounded by the display cap", {
@@ -1061,6 +1121,7 @@ test_that("palette rebuilds reject unreadable or empty source collections", {
                 "dichromat", "pals", "colorspace")
   for (pkg in packages) skip_if_not_installed(pkg)
   work <- withr::local_tempdir()
+  writeLines("Package: UtilsR", file.path(work, "DESCRIPTION"))
   withr::local_dir(work)
   original <- utils::getFromNamespace
   for (source in c("ggsci", "pals")) {
