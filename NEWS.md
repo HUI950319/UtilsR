@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* `pal_show()` constructs catalogue plots in a small rendering frame and evaluates colour-vector controls before returning, so capped plots no longer retain oversized original inputs.
+
 * Palette data rebuilds validate the UtilsR package root and existing registry before generation, using a fixed absolute output path to prevent replacing unrelated data.
 
 * `pal_show()` keeps colour-vector text contrast, name labels and label positions aligned when returned ggplot data are reordered or filtered.

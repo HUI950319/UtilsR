@@ -1375,3 +1375,25 @@ test_that("colour vector plot labels follow replaced data", {
     if (named) expect_identical(layers[[3L]]$label, "#000000")
   }
 })
+
+test_that("palette plot objects do not retain hidden input vectors", {
+  make <- function(n, registry, label) {
+    cols <- if (registry) rep("Set1", n) else sprintf("#%06X", seq_len(n))
+    suppressMessages(UtilsR::pal_show(cols, output = "gg", label = label))
+  }
+  environment(make) <- globalenv()
+  target <- withr::local_tempfile(fileext = ".rds")
+  size <- function(p) {
+    saveRDS(p, target, compress = FALSE)
+    file.info(target)$size
+  }
+  for (registry in c(FALSE, TRUE)) {
+    for (label in c(FALSE, TRUE)) {
+      invisible(make(20L, registry, label))
+      small <- make(20L, registry, label)
+      large <- make(20000L, registry, label)
+      expect_equal(nrow(large$data), if (registry) 9L else 20L)
+      expect_lt(size(large) - size(small), 50000)
+    }
+  }
+})

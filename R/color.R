@@ -23,6 +23,7 @@
 #               +-- L2  .is_color_vector()   colours vs palette names
 #                     +-- L3  .pal_are_colors() validate literal colours in bulk
 #               +-- L2  .pal_resize()       sample only the displayed colours
+#               +-- L2  .pal_show_gg()      render catalogue in a small frame
 #               +-- L2  .pal_show_colors()   render swatches (ggplot | gt)
 #               +-- L2  .pal_hex()           normalize R colours for display
 # =============================================================================
@@ -665,6 +666,30 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   out
 }
 
+# Keep returned plot environments separate from the original palette input.
+.pal_show_gg <- function(pals) {
+  force(pals)
+  plot_data <- do.call(rbind, lapply(seq_along(pals), function(i) {
+    cols <- as.character(pals[[i]])
+    data.frame(palette = names(pals)[i], color = cols,
+               x = seq_along(cols), stringsAsFactors = FALSE)
+  }))
+  plot_data$palette <- factor(plot_data$palette, levels = rev(names(pals)))
+
+  ggplot2::ggplot(plot_data, ggplot2::aes(
+    x = .data[["x"]], y = .data[["palette"]], fill = I(.data[["color"]]))) +
+    ggplot2::geom_tile(width = 1, height = 0.8) +
+    ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult = 0)) +
+    ggplot2::labs(x = NULL, y = NULL, title = sprintf("%d palettes", length(pals))) +
+    ggplot2::theme_minimal(base_size = 10) +
+    ggplot2::theme(
+      axis.text.x = ggplot2::element_blank(),
+      axis.ticks = ggplot2::element_blank(),
+      panel.grid = ggplot2::element_blank(),
+      plot.title = ggplot2::element_text(hjust = 0.5, size = 12)
+    )
+}
+
 # Numeric strings refer to the mutable base palette rather than literal colours.
 .pal_are_colors <- function(x) {
   if (anyNA(x) || any(grepl("^[0-9]", x))) return(FALSE)
@@ -911,26 +936,7 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
 
   # --- ggplot output ---
   if (output == "gg") {
-    plot_data <- do.call(rbind, lapply(seq_along(pals), function(i) {
-      cols <- as.character(pals[[i]])
-      data.frame(palette = names(pals)[i], color = cols,
-                 x = seq_along(cols), stringsAsFactors = FALSE)
-    }))
-    plot_data$palette <- factor(plot_data$palette, levels = rev(names(pals)))
-
-    p <- ggplot2::ggplot(plot_data, ggplot2::aes(
-      x = .data[["x"]], y = .data[["palette"]], fill = I(.data[["color"]]))) +
-      ggplot2::geom_tile(width = 1, height = 0.8) +
-      ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult = 0)) +
-      ggplot2::labs(x = NULL, y = NULL, title = sprintf("%d palettes", length(pals))) +
-      ggplot2::theme_minimal(base_size = 10) +
-      ggplot2::theme(
-        axis.text.x = ggplot2::element_blank(),
-        axis.ticks = ggplot2::element_blank(),
-        panel.grid = ggplot2::element_blank(),
-        plot.title = ggplot2::element_text(hjust = 0.5, size = 12)
-      )
-    return(p)
+    return(.pal_show_gg(pals))
   }
 
   # --- gt table output ---
@@ -1442,6 +1448,13 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
 .pal_show_colors <- function(colors, label = TRUE, label_size = 3,
                              ncol = NULL, output = "gg",
                              max_colors, n = NULL) {
+  force(colors)
+  force(label)
+  force(label_size)
+  force(ncol)
+  force(output)
+  force(max_colors)
+  force(n)
   n_total <- if (is.null(n)) length(colors) else n
   n <- min(n_total, max_colors)
   if (n < n_total) {
