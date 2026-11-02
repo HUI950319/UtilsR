@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* pal_get() shares distinct ordinary numeric values and observation indices across palette lists, using the same repetition estimate as interpolation and preserving missing values, output order and class-specific mapping.
+
 * `show_color(rev = TRUE)` retains custom vector attributes while reversing colours and their names, including the copyable expression.
 
 * Palette data rebuilds reject dimensional and classed colour vectors before saving, matching console preview input requirements and preserving existing registries.

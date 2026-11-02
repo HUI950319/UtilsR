@@ -504,10 +504,13 @@ test_that("pal_get handles stored labelled and integer64 inputs in a fresh proce
   output <- file.path(directory, "result.rds")
   fn <- pal_get
   apply <- .pal_apply
+  use_unique <- .pal_use_unique
   env <- new.env(parent = asNamespace("stats"))
   environment(fn) <- env
   environment(apply) <- env
+  environment(use_unique) <- env
   env$.pal_apply <- apply
+  env$.pal_use_unique <- use_unique
   saveRDS(list(fn = fn, libs = .libPaths(),
                x = haven::labelled_spss(c(1, 2, 99, NA), na_values = 99),
                integer64 = structure(c(0, 0), class = "integer64")), fixture)
@@ -742,6 +745,24 @@ test_that("pal_get retains numeric colours across uneven repetition patterns", {
   reversed <- pal_get(c("black", "white"), x = x, reverse = TRUE, alpha = 0.5)
   expect_identical(reversed[-seq_along(prefix)],
                    rep(c("#FFFFFF80", "#00000080", "#7F7F7F80", NA), 1024))
+})
+
+test_that("pal_get restores shared numeric list mappings in observation order", {
+  palettes <- list(a = c("black", "white"), b = c("#FF000080", "#0000FF40"))
+  x <- stats::setNames(rep(c(2, 0, NA, 1, 2, Inf, 0, NaN), 5), paste0("row", 1:40))
+  before <- x
+  expect_identical(pal_get(palettes, x = x), list(
+    a = rep(c("#FFFFFF", "#000000", NA, "#7F7F7F", "#FFFFFF", NA, "#000000", NA), 5),
+    b = rep(c("#0000FF40", "#FF000080", NA, "#7F007F60", "#0000FF40", NA, "#FF000080", NA), 5)
+  ))
+  expect_identical(pal_get(palettes, n = 0, x = x, reverse = TRUE, alpha = 0.5), list(
+    a = rep(c("#00000080", "#FFFFFF80", NA, "#7F7F7F80", "#00000080", NA, "#FFFFFF80", NA), 5),
+    b = rep(c("#FF000080", "#0000FF80", NA, "#7F007F80", "#FF000080", NA, "#0000FF80", NA), 5)
+  ))
+  expect_identical(x, before)
+  missing <- rep(c(NA_real_, Inf, -Inf, NaN), 4)
+  expect_identical(pal_get(palettes, x = missing),
+                   list(a = rep(NA_character_, 16), b = rep(NA_character_, 16)))
 })
 
 test_that("pal_show preserves transparency in colour-vector previews", {

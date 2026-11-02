@@ -14,6 +14,7 @@
 #               +-- L2  .pal_print_heading() retain full console palette names
 #         pal_get(palette, n, x, reverse, alpha)    NULL | name | colours -> hex
 #               +-- L2  .pal_apply()    recycle / interpolate / alpha
+#               +-- L2  .pal_use_unique()    estimate useful numeric repetition
 #
 #   L1  visual catalogues                           -- public API
 #         pal_show_brewer / pal_show_hcl / pal_show_ggsci / pal_show_viridis
@@ -524,6 +525,13 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
       lvs <- unique(x[!is.na(x)])
       x <- factor(lvs, levels = lvs)
     }
+    if (!is.object(x) && is.numeric(x) && .pal_use_unique(x)) {
+      unique_x <- unique(x)
+      positions <- match(x, unique_x)
+      return(lapply(palette, function(cols) {
+        .pal_apply(cols, n = n, x = unique_x, reverse = reverse, alpha = alpha)[positions]
+      }))
+    }
     return(lapply(palette, .pal_apply,
                   n = n, x = x, reverse = reverse, alpha = alpha))
   }
@@ -614,12 +622,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
           (values[placed] - ends[[1L]]) / (ends[[2L]] - ends[[1L]])
         }
         if (reverse) at <- 1 - at
-        # A spread-out probe avoids a full hash pass for sparse repetitions.
-        n_at <- length(at)
-        probe <- if (n_at <= 1024L) at else {
-          at[round(seq.int(1, n_at, length.out = 1024L))]
-        }
-        if (length(unique(probe)) * 2L < length(probe)) {
+        if (.pal_use_unique(at)) {
           unique_at <- unique(at)
           out[placed] <- ramp(at = unique_at)[match(at, unique_at)]
         } else {
@@ -673,6 +676,17 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   }
 
   stats::setNames(as.character(out), nms)
+}
+
+# A spread-out probe avoids a full hash pass for sparse repetitions.
+#' @keywords internal
+#' @noRd
+.pal_use_unique <- function(values) {
+  n <- length(values)
+  probe <- if (n <= 1024L) values else {
+    values[round(seq.int(1, n, length.out = 1024L))]
+  }
+  length(unique(probe)) * 2L < length(probe)
 }
 
 # `.pal_apply()` keeps names only for a discrete `x` and drops attributes, both
