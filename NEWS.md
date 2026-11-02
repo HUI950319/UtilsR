@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* pal_get() restores labelled missing-value methods before mapping, retains SPSS user-missing values and rejects integer64 inputs before precision can be lost.
+
 * pal_get() maps extreme finite numeric spans without overflow while retaining ordinary interpolation and missing-value handling.
 
 * Coloured palette previews create each black or white foreground style once per call while preserving terminal depth and colour contrast.

@@ -31,7 +31,10 @@ returns a colour vector named by level: factor levels in their order, other
 values in order of appearance, missing values left out. If numeric, returns
 one colour per element, placed along the palette by its value between the
 finite extremes; missing and infinite values get \code{NA}, and a single
-distinct value takes the middle colour.}
+distinct value takes the middle colour.
+Labelled vectors require \pkg{haven} to retain their missing values.
+\code{integer64} input is rejected to avoid loss of precision; recode it
+explicitly before mapping.}
 
 \item{reverse}{Logical, reverse colour order. Default \code{FALSE}.}
 

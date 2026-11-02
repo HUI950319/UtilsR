@@ -371,6 +371,9 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
 #'   one colour per element, placed along the palette by its value between the
 #'   finite extremes; missing and infinite values get \code{NA}, and a single
 #'   distinct value takes the middle colour.
+#'   Labelled vectors require \pkg{haven} to retain their missing values.
+#'   \code{integer64} input is rejected to avoid loss of precision; recode it
+#'   explicitly before mapping.
 #' @param reverse Logical, reverse colour order. Default \code{FALSE}.
 #' @param alpha Numeric 0-1, colour transparency. Default 1 leaves colours as
 #'   they are, keeping any transparency of their own.
@@ -415,6 +418,12 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   if (!(is.numeric(alpha) && length(alpha) == 1L && !is.na(alpha) &&
         alpha >= 0 && alpha <= 1)) {
     cli::cli_abort("{.arg alpha} must be a single number between 0 and 1.")
+  }
+  if (inherits(x, "integer64")) {
+    cli::cli_abort("{.arg x} cannot be {.cls integer64}; recode it explicitly before mapping to avoid loss of precision.")
+  }
+  if (inherits(x, "haven_labelled") && !requireNamespace("haven", quietly = TRUE)) {
+    cli::cli_abort("Interpreting labelled {.arg x} requires package {.pkg haven}.")
   }
   if (is.null(palette)) palette <- pal_lancet
 
@@ -523,6 +532,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
       # Continuous: each value's place between the finite extremes. A value
       # without a place has no colour, and one distinct value takes the middle.
       values <- as.numeric(x)
+      values[is.na(x)] <- NA_real_
       placed <- is.finite(values)
       out <- rep(NA_character_, length(values))
       if (any(placed)) {

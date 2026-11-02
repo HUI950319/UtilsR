@@ -470,6 +470,69 @@ test_that("pal_get maps extreme finite numeric ranges without overflow", {
   expect_identical(pal_get(cols, x = c(0, 5e-324, 1e-323)), expected)
 })
 
+test_that("pal_get preserves labelled numeric missing values", {
+  skip_if_not_installed("haven")
+  x <- haven::labelled_spss(c(1, 2, 90, 95, 99, NA),
+                            na_values = 99, na_range = c(90, 95))
+  expected <- c("#000000", "#FFFFFF", rep(NA_character_, 4))
+  expect_identical(pal_get(c("black", "white"), x = x), expected)
+  expect_identical(pal_get(list(custom = c("black", "white")), x = x),
+                   list(custom = expected))
+  tagged <- haven::labelled(c(1, haven::tagged_na("a"), 2),
+                            labels = c(no = 1, yes = 2))
+  expect_identical(pal_get(c("black", "white"), x = tagged),
+                   c("#000000", NA, "#FFFFFF"))
+  expect_identical(pal_get("red", x = haven::labelled_spss(c(99, NA), na_values = 99)),
+                   c(NA_character_, NA_character_))
+})
+
+test_that("pal_get rejects integer64 mapping before double conversion", {
+  # A stored object must be rejected even before bit64 registers its methods.
+  stored <- structure(c(0, 0), class = "integer64")
+  expect_error(pal_get("viridis", x = stored), "integer64")
+  expect_error(pal_get(list(custom = c("black", "white")), x = stored), "integer64")
+  skip_if_not_installed("bit64")
+  x <- bit64::as.integer64(c("9007199254740992", "9007199254740993", NA))
+  expect_error(pal_get("viridis", x = x), "integer64")
+})
+
+test_that("pal_get handles stored labelled and integer64 inputs in a fresh process", {
+  skip_if_not_installed("haven")
+  directory <- withr::local_tempdir()
+  fixture <- file.path(directory, "fixture.rds")
+  script <- file.path(directory, "cold.R")
+  output <- file.path(directory, "result.rds")
+  fn <- pal_get
+  apply <- .pal_apply
+  env <- new.env(parent = asNamespace("stats"))
+  environment(fn) <- env
+  environment(apply) <- env
+  env$.pal_apply <- apply
+  saveRDS(list(fn = fn, libs = .libPaths(),
+               x = haven::labelled_spss(c(1, 2, 99, NA), na_values = 99),
+               integer64 = structure(c(0, 0), class = "integer64")), fixture)
+  writeLines(c(
+    "args <- commandArgs(TRUE)",
+    "fixture <- readRDS(args[[1]])",
+    ".libPaths(fixture[['libs']])",
+    "stopifnot(!'haven' %in% loadedNamespaces(), !'bit64' %in% loadedNamespaces())",
+    "before <- fixture[['x']]",
+    "out <- fixture[['fn']](c('black', 'white'), x = before)",
+    "integer64 <- tryCatch(fixture[['fn']]('red', x = fixture[['integer64']]), error = conditionMessage)",
+    "saveRDS(list(out = out, unchanged = identical(before, fixture[['x']]), integer64 = integer64), args[[2]])"
+  ), script)
+  status <- system2(file.path(R.home("bin"), "Rscript"),
+    c("--vanilla", shQuote(script), shQuote(fixture), shQuote(output)),
+    stdout = TRUE, stderr = TRUE)
+  expect_null(attr(status, "status"), info = paste(status, collapse = "\n"))
+  if (is.null(attr(status, "status"))) {
+    out <- readRDS(output)
+    expect_identical(out$out, c("#000000", "#FFFFFF", NA, NA))
+    expect_true(out$unchanged)
+    expect_match(out$integer64, "integer64")
+  }
+})
+
 test_that("pal_show preserves transparency in colour-vector previews", {
   cols <- c("#FF000080", "transparent", "#00000010")
   invisible(capture.output(p <- pal_show(cols, output = "gg")))
