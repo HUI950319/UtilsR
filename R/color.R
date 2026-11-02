@@ -383,6 +383,8 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
 #'   }
 #'   Matrices, arrays and data frames are not supported. Colour vectors must
 #'   have no dimensions.
+#'   The literal string \code{"NA"} denotes R's transparent colour; actual
+#'   missing colour values are not supported.
 #' @param n Number of colours to return, a plain integer or double scalar with
 #'   a whole-number value from zero to \code{.Machine$integer.max}, with no class
 #'   or dimensions. Colours
@@ -436,6 +438,7 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
 #'
 #' # Reverse and transparent
 #' pal_get("Blues", n = 5, reverse = TRUE, alpha = 0.6)
+#' pal_get("NA", alpha = 0.5)
 #'
 #' # Colours of your own, and a whole list of palettes at once
 #' pal_get(c("#2166ac", "#ffffff", "#b2182b"), n = 7)
@@ -660,6 +663,8 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 
   # Alpha
   if (alpha < 1) {
+    # Unlike col2rgb(), farver interprets the literal "NA" as a missing value.
+    out[out %in% "NA"] <- "#FFFFFF00"
     out <- ggplot2::alpha(out, alpha)
   }
 

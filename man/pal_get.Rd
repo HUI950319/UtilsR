@@ -21,7 +21,9 @@ pal_get(palette = "Paired", n = NULL, x = NULL, reverse = FALSE, alpha = 1)
     \code{pal_heat}, mapped over one palette at a time.
 }
 Matrices, arrays and data frames are not supported. Colour vectors must
-have no dimensions.}
+have no dimensions.
+The literal string \code{"NA"} denotes R's transparent colour; actual
+missing colour values are not supported.}
 
 \item{n}{Number of colours to return, a plain integer or double scalar with
 a whole-number value from zero to \code{.Machine$integer.max}, with no class
@@ -85,6 +87,7 @@ pal_get("viridis", x = as.numeric(dates))
 
 # Reverse and transparent
 pal_get("Blues", n = 5, reverse = TRUE, alpha = 0.6)
+pal_get("NA", alpha = 0.5)
 
 # Colours of your own, and a whole list of palettes at once
 pal_get(c("#2166ac", "#ffffff", "#b2182b"), n = 7)

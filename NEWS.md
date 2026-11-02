@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* pal_get() treats the literal NA colour as transparent before alpha replacement, consistently across selection and interpolation, while retaining true missing mapping values and unchanged default-alpha spelling.
+
 * `pal_show_ggsci()` transforms only selected palettes after filtering names and indices, avoiding unused resizing, reversal and opacity work.
 
 * `pal_show()` passes generated swatches directly to the gt HTML renderer, avoiding repeated Markdown parsing while preserving existing non-HTML formatters.

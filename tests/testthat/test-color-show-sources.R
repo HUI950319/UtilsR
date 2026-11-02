@@ -710,6 +710,23 @@ test_that("pal_get rejects non-mapping objects without preliminary warnings", {
                    c("1+1i" = "red", "1+2i" = "blue"))
 })
 
+test_that("pal_get treats the literal NA colour as transparent when alpha changes", {
+  expect_identical(pal_get("NA", alpha = 0.5), "#FFFFFF80")
+  expect_identical(pal_get("NA", n = 1, alpha = 0.5), "#FFFFFF80")
+  expect_identical(pal_get("NA", n = 2, alpha = 0.5), rep("#FFFFFF80", 2))
+  expect_identical(pal_get(c("NA", "red"), alpha = 0.5),
+                   c("#FFFFFF80", "#FF000080"))
+  expect_identical(pal_get("NA", x = c("A", "B"), alpha = 0.5),
+                   c(A = "#FFFFFF80", B = "#FFFFFF80"))
+  expect_identical(pal_get(list(custom = c("NA", "red")), n = 1, alpha = 0.5),
+                   list(custom = "#FFFFFF80"))
+  expect_identical(pal_get("NA", x = c(0, NA, 1), alpha = 0.5),
+                   c("#FFFFFF80", NA, "#FFFFFF80"))
+  expect_identical(pal_get("NA", alpha = 0), "#FFFFFF00")
+  expect_identical(pal_get("NA", alpha = 1), "NA")
+  expect_error(pal_get(NA_character_, alpha = 0.5), "not found")
+})
+
 test_that("pal_show preserves transparency in colour-vector previews", {
   cols <- c("#FF000080", "transparent", "#00000010")
   invisible(capture.output(p <- pal_show(cols, output = "gg")))
