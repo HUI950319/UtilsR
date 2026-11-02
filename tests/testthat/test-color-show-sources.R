@@ -765,6 +765,22 @@ test_that("pal_get restores shared numeric list mappings in observation order", 
                    list(a = rep(NA_character_, 16), b = rep(NA_character_, 16)))
 })
 
+test_that("pal_get adjusts interpolated alpha before restoring repeated observations", {
+  cols <- c("#FF000080", "#0000FF40")
+  x <- rep(c(0, 2, 1, NA, Inf, 0, 1, 2), 32)
+  expect_identical(pal_get(cols, x = x, alpha = 0.5),
+                   rep(c("#FF000080", "#0000FF80", "#7F007F80", NA, NA,
+                         "#FF000080", "#7F007F80", "#0000FF80"), 32))
+  expect_identical(pal_get(cols, x = x, reverse = TRUE, alpha = 0.25),
+                   rep(c("#0000FF40", "#FF000040", "#7F007F40", NA, NA,
+                         "#0000FF40", "#7F007F40", "#FF000040"), 32))
+  expect_identical(pal_get(cols, x = x),
+                   rep(c("#FF000080", "#0000FF40", "#7F007F60", NA, NA,
+                         "#FF000080", "#7F007F60", "#0000FF40"), 32))
+  expect_identical(pal_get("NA", x = rep(c(0, 1, NA), 32), alpha = 0.5),
+                   rep(c("#FFFFFF80", "#FFFFFF80", NA), 32))
+})
+
 test_that("pal_show preserves transparency in colour-vector previews", {
   cols <- c("#FF000080", "transparent", "#00000010")
   invisible(capture.output(p <- pal_show(cols, output = "gg")))

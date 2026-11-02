@@ -624,7 +624,12 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
         if (reverse) at <- 1 - at
         if (.pal_use_unique(at)) {
           unique_at <- unique(at)
-          out[placed] <- ramp(at = unique_at)[match(at, unique_at)]
+          colours <- ramp(at = unique_at)
+          if (alpha < 1) {
+            colours <- ggplot2::alpha(colours, alpha)
+            alpha <- 1
+          }
+          out[placed] <- colours[match(at, unique_at)]
         } else {
           out[placed] <- ramp(at = at)
         }

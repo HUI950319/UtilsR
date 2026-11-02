@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* pal_get() applies opacity to the interpolated unique numeric positions before restoring repeated observations, preserving original alpha at the default setting and leaving missing or infinite observations unmapped.
+
 * `show_color()` computes true-colour luminance in one vectorised pass, preserving colours, contrast, wrapping and returned values.
 
 * Palette data rebuilds skip unsupported legacy HCL candidates using the native catalogue while stopping on generation failures for supported names and abbreviations.
