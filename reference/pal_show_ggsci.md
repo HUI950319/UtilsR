@@ -29,16 +29,21 @@ pal_show_ggsci(
 
 - n:
 
-  Number of colours to retain from each palette. `NULL` uses each
+  Number of colours to retain, capped at each palette's native size.
+  Continuous GSEA, Bootstrap 5, Material and Tailwind 3 palettes are
+  sampled evenly across their full range; a single colour uses the
+  middle. Discrete palettes retain their first colours. `NULL` uses each
   palette's native number of colours.
 
 - alpha:
 
-  Opacity of the colours, a number between 0 and 1.
+  Opacity of the colours, a plain numeric scalar between 0 and 1 without
+  a class or dimensions.
 
 - reverse:
 
-  Logical; if `TRUE`, reverse the colour order.
+  Logical scalar without a class or dimensions; if `TRUE`, reverse the
+  colour order.
 
 - pattern:
 
@@ -64,6 +69,13 @@ pal_show_ggsci(
 
 A ggplot or gt object returned visibly for automatic display. Console
 output prints and invisibly returns the displayed palette list.
+
+## Details
+
+Explicit `palette` names take precedence over `pattern` and `type`
+(where available). These filters are applied only when `palette = NULL`.
+Unknown names are reported and skipped when at least one valid palette
+remains.
 
 ## See also
 

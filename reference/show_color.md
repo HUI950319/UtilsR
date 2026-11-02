@@ -19,11 +19,13 @@ show_color(x, rev = FALSE)
 
 - x:
 
-  Character vector of colours (hex codes or named R colours).
+  Character vector without a class or dimensions, containing hex codes
+  or named R colours. Numeric palette indices are not accepted.
 
 - rev:
 
-  Logical. Reverse the order before display (default `FALSE`).
+  Single non-missing logical value without a class or dimensions.
+  Reverse the order before display (default `FALSE`).
 
 ## Value
 
@@ -37,7 +39,15 @@ A terminal limited to 256 colours draws the nearest palette entry
 instead of the exact hex, so a swatch can differ from the code printed
 beside it. `options(cli.num_colors = 16777216)` forces 24-bit output in
 a terminal that renders it without advertising it. Colour depth is
-detected for stdout, including when stderr is redirected.
+detected for stdout, including when stderr is redirected. On indexed
+terminals, text contrast uses the emitted ANSI colours and the standard
+xterm palette. Custom terminal colour themes can change the result.
+
+Missing character values (`NA_character_`) and the literal colour `"NA"`
+follow R's transparent-colour convention, so their swatches have the
+same `#FFFFFF00` label as `"transparent"`. Their original values, names
+and attributes are retained in the returned vector and its copyable
+expression. An empty character vector is also accepted.
 
 ## Examples
 

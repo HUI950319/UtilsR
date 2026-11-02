@@ -30,7 +30,8 @@ pal_show_brewer(
 
   Number of colours to generate for each palette. `NULL` uses each
   palette's maximum supported size; other values are clamped to the
-  supported range of each palette.
+  supported range of each palette. A single message reports adjusted
+  sizes.
 
 - type:
 
@@ -60,6 +61,13 @@ pal_show_brewer(
 
 A ggplot or gt object returned visibly for automatic display. Console
 output prints and invisibly returns the displayed palette list.
+
+## Details
+
+Explicit `palette` names take precedence over `pattern` and `type`
+(where available). These filters are applied only when `palette = NULL`.
+Unknown names are reported and skipped when at least one valid palette
+remains.
 
 ## See also
 

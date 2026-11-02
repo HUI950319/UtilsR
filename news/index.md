@@ -2,6 +2,74 @@
 
 ## UtilsR 0.6.21
 
+- [`pal_show_brewer()`](https://hui950319.github.io/UtilsR/reference/pal_show_brewer.md)
+  reports requested colour counts adjusted to native palette limits in
+  one message per call.
+
+- [`pal_show_hcl()`](https://hui950319.github.io/UtilsR/reference/pal_show_hcl.md)
+  follows native HCL name matching, preserves canonical names and
+  reports ambiguous abbreviations explicitly.
+
+- Source palette viewers document explicit-name precedence over type and
+  pattern filters, including the handling of unknown names.
+
+- Source palette viewers warn about unknown names while preserving valid
+  selections, and still reject selections with no matching palettes.
+
+- [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
+  renders each repeated normalised colour once per call, preserving
+  every swatch, its order and the original copyable vector without
+  retaining a global cache.
+
+- [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
+  passes parsed RGB matrices to ANSI background styles, avoiding
+  repeated colour-name searches while preserving displayed output.
+
+- Source palette viewers reject classed or dimensional opacity,
+  interval, direction and reversal controls before colour generation.
+
+- [`pal_show_ggsci()`](https://hui950319.github.io/UtilsR/reference/pal_show_ggsci.md)
+  samples continuous palettes over their full native range while
+  retaining discrete prefixes and native size limits.
+
+- [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
+  documents missing character colours, empty vectors and
+  indexed-terminal contrast, with regression coverage for copyable
+  names, attributes and transparency at every supported colour depth.
+
+- pal_get() reuses the first literal-colour validation result when
+  reporting invalid colours, avoiding a repeated full scan without
+  changing diagnostics.
+
+- [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
+  selects text contrast from emitted indexed ANSI colours, improving
+  legibility on standard xterm 8-, 16- and 256-colour palettes without
+  changing true-colour output.
+
+- [`pal_show_hcl()`](https://hui950319.github.io/UtilsR/reference/pal_show_hcl.md)
+  preserves the native divergingx category and previews its full colour
+  range when the display is capped.
+
+- pal_get() extracts ordinary character and logical mapping levels once
+  per palette list, preserving appearance order, missing values and
+  existing factor behavior.
+
+- [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
+  validates `rev` as one non-missing logical value before printing,
+  retaining reversed colours, names and copyable values.
+
+- pal_get() rejects dimensional palettes and matrix, data-frame or
+  ordinary list mappings while retaining supported colour vectors and
+  date/time mapping classes.
+
+- [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
+  rejects unsupported storage and numeric palette indices before
+  printing and identifies every invalid colour by its input position.
+
+- pal_get() rejects classed or dimensioned control values and
+  unsupported counts before dispatch, and documents x precedence,
+  literal colour returns and existing alpha behavior.
+
 - [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
   documents input and label handling and ggplot-only layout controls;
   console alpha rendering is documented and newly added test line

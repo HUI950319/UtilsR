@@ -79,14 +79,18 @@ interpolation (numeric input or <code>n</code> parameter).</p>
     a string that is neither still raises the usual "not found" error;</p></li>
 <li><p>a fully named list of colour vectors with unique names, such as
     <code>pal_heat</code>, mapped over one palette at a time.</p></li>
-</ul></dd>
+</ul><p>Matrices, arrays and data frames are not supported. Colour vectors must
+have no dimensions.</p></dd>
 
 
 <dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
-<dd><p>Number of colours to return, a non-negative whole number. Colours
+<dd><p>Number of colours to return, a plain integer or double scalar with
+a whole-number value from zero to <code>.Machine$integer.max</code>, with no class
+or dimensions. Colours
 are taken from the front when <code>n</code> is at most the palette length and
 interpolated when it is longer. Default <code>NULL</code> returns all colours in
-the palette.</p></dd>
+the palette. When <code>x</code> is supplied, it determines the output and
+<code>n</code> is ignored after validation.</p></dd>
 
 
 <dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
@@ -98,22 +102,28 @@ finite extremes; missing and infinite values get <code>NA</code>, and a single
 distinct value takes the middle colour.
 Labelled vectors require <span class="pkg">haven</span> to retain their missing values.
 <code>integer64</code> input is rejected to avoid loss of precision; recode it
-explicitly before mapping.</p></dd>
+explicitly before mapping.
+Matrices, arrays, data frames and list containers other than
+<code>POSIXlt</code> timestamps are rejected.</p></dd>
 
 
 <dt id="arg-reverse">reverse<a class="anchor" aria-label="anchor" href="#arg-reverse"></a></dt>
-<dd><p>Logical, reverse colour order. Default <code>FALSE</code>.</p></dd>
+<dd><p>A logical scalar without a class or dimensions, reverse colour
+order. Default <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
-<dd><p>Numeric 0-1, colour transparency. Default 1 leaves colours as
+<dd><p>A plain numeric scalar from 0 to 1 without a class or dimensions.
+Values below 1 replace existing transparency. Default 1 leaves colours as
 they are, keeping any transparency of their own.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A character vector of hex colours, or – when <code>palette</code> is a
-  list of palettes – a list of such vectors under the same names.</p>
+    <p>A character vector of R colours (hex codes or colour names), or –
+  when <code>palette</code> is a list of palettes – a list of such vectors under
+  the same names. Literal colours retain their original spelling when no
+  interpolation or alpha adjustment is needed.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

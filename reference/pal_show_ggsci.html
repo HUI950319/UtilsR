@@ -81,16 +81,21 @@ layout as <code><a href="pal_show.html">pal_show()</a></code>.</p>
 
 
 <dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
-<dd><p>Number of colours to retain from each palette. <code>NULL</code> uses
-each palette's native number of colours.</p></dd>
+<dd><p>Number of colours to retain, capped at each palette's native size.
+Continuous GSEA, Bootstrap 5, Material and Tailwind 3 palettes are sampled
+evenly across their full range; a single colour uses the middle. Discrete
+palettes retain their first colours. <code>NULL</code> uses each palette's native
+number of colours.</p></dd>
 
 
 <dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
-<dd><p>Opacity of the colours, a number between 0 and 1.</p></dd>
+<dd><p>Opacity of the colours, a plain numeric scalar between 0 and 1
+without a class or dimensions.</p></dd>
 
 
 <dt id="arg-reverse">reverse<a class="anchor" aria-label="anchor" href="#arg-reverse"></a></dt>
-<dd><p>Logical; if <code>TRUE</code>, reverse the colour order.</p></dd>
+<dd><p>Logical scalar without a class or dimensions; if <code>TRUE</code>,
+reverse the colour order.</p></dd>
 
 
 <dt id="arg-pattern">pattern<a class="anchor" aria-label="anchor" href="#arg-pattern"></a></dt>
@@ -116,6 +121,13 @@ or <code>Inf</code> for no display cap. Default 20.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A ggplot or gt object returned visibly for automatic display.
   Console output prints and invisibly returns the displayed palette list.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Explicit <code>palette</code> names take precedence over <code>pattern</code>
+  and <code>type</code> (where available). These filters are applied only when
+  <code>palette = NULL</code>. Unknown names are reported and skipped when at
+  least one valid palette remains.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

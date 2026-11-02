@@ -88,16 +88,18 @@ pal_show()."><meta property="og:image" content="https://hui950319.github.io/Util
 
 
 <dt id="arg-begin-end">begin, end<a class="anchor" aria-label="anchor" href="#arg-begin-end"></a></dt>
-<dd><p>Numeric values between 0 and 1 defining the portion of
-each colour map to use.</p></dd>
+<dd><p>Plain numeric scalars between 0 and 1, without classes or
+dimensions, defining the portion of each colour map to use.</p></dd>
 
 
 <dt id="arg-direction">direction<a class="anchor" aria-label="anchor" href="#arg-direction"></a></dt>
-<dd><p>Direction of the colour map, either 1 or -1.</p></dd>
+<dd><p>Direction of the colour map, a plain numeric scalar equal
+to 1 or -1, without a class or dimensions.</p></dd>
 
 
 <dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
-<dd><p>Opacity of the colours, a number between 0 and 1.</p></dd>
+<dd><p>Opacity of the colours, a plain numeric scalar between 0 and 1
+without a class or dimensions.</p></dd>
 
 
 <dt id="arg-pattern">pattern<a class="anchor" aria-label="anchor" href="#arg-pattern"></a></dt>
@@ -123,6 +125,13 @@ or <code>Inf</code> for no display cap. Default 20.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A ggplot or gt object returned visibly for automatic display.
   Console output prints and invisibly returns the displayed palette list.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Explicit <code>palette</code> names take precedence over <code>pattern</code>
+  and <code>type</code> (where available). These filters are applied only when
+  <code>palette = NULL</code>. Unknown names are reported and skipped when at
+  least one valid palette remains.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

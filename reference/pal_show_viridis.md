@@ -35,16 +35,18 @@ pal_show_viridis(
 
 - begin, end:
 
-  Numeric values between 0 and 1 defining the portion of each colour map
-  to use.
+  Plain numeric scalars between 0 and 1, without classes or dimensions,
+  defining the portion of each colour map to use.
 
 - direction:
 
-  Direction of the colour map, either 1 or -1.
+  Direction of the colour map, a plain numeric scalar equal to 1 or -1,
+  without a class or dimensions.
 
 - alpha:
 
-  Opacity of the colours, a number between 0 and 1.
+  Opacity of the colours, a plain numeric scalar between 0 and 1 without
+  a class or dimensions.
 
 - pattern:
 
@@ -70,6 +72,13 @@ pal_show_viridis(
 
 A ggplot or gt object returned visibly for automatic display. Console
 output prints and invisibly returns the displayed palette list.
+
+## Details
+
+Explicit `palette` names take precedence over `pattern` and `type`
+(where available). These filters are applied only when `palette = NULL`.
+Unknown names are reported and skipped when at least one valid palette
+remains.
 
 ## See also
 

@@ -30,12 +30,17 @@ pal_get(palette = "Paired", n = NULL, x = NULL, reverse = FALSE, alpha = 1)
   - a fully named list of colour vectors with unique names, such as
     `pal_heat`, mapped over one palette at a time.
 
+  Matrices, arrays and data frames are not supported. Colour vectors
+  must have no dimensions.
+
 - n:
 
-  Number of colours to return, a non-negative whole number. Colours are
-  taken from the front when `n` is at most the palette length and
-  interpolated when it is longer. Default `NULL` returns all colours in
-  the palette.
+  Number of colours to return, a plain integer or double scalar with a
+  whole-number value from zero to `.Machine$integer.max`, with no class
+  or dimensions. Colours are taken from the front when `n` is at most
+  the palette length and interpolated when it is longer. Default `NULL`
+  returns all colours in the palette. When `x` is supplied, it
+  determines the output and `n` is ignored after validation.
 
 - x:
 
@@ -47,21 +52,26 @@ pal_get(palette = "Paired", n = NULL, x = NULL, reverse = FALSE, alpha = 1)
   `NA`, and a single distinct value takes the middle colour. Labelled
   vectors require haven to retain their missing values. `integer64`
   input is rejected to avoid loss of precision; recode it explicitly
-  before mapping.
+  before mapping. Matrices, arrays, data frames and list containers
+  other than `POSIXlt` timestamps are rejected.
 
 - reverse:
 
-  Logical, reverse colour order. Default `FALSE`.
+  A logical scalar without a class or dimensions, reverse colour order.
+  Default `FALSE`.
 
 - alpha:
 
-  Numeric 0-1, colour transparency. Default 1 leaves colours as they
-  are, keeping any transparency of their own.
+  A plain numeric scalar from 0 to 1 without a class or dimensions.
+  Values below 1 replace existing transparency. Default 1 leaves colours
+  as they are, keeping any transparency of their own.
 
 ## Value
 
-A character vector of hex colours, or – when `palette` is a list of
-palettes – a list of such vectors under the same names.
+A character vector of R colours (hex codes or colour names), or – when
+`palette` is a list of palettes – a list of such vectors under the same
+names. Literal colours retain their original spelling when no
+interpolation or alpha adjustment is needed.
 
 ## See also
 

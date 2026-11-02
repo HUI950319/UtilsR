@@ -81,11 +81,13 @@ cannot carry alpha. Their printed hex codes retain the original alpha.</p>
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>Character vector of colours (hex codes or named R colours).</p></dd>
+<dd><p>Character vector without a class or dimensions, containing hex codes
+or named R colours. Numeric palette indices are not accepted.</p></dd>
 
 
 <dt id="arg-rev">rev<a class="anchor" aria-label="anchor" href="#arg-rev"></a></dt>
-<dd><p>Logical. Reverse the order before display (default <code>FALSE</code>).</p></dd>
+<dd><p>Single non-missing logical value without a class or dimensions.
+Reverse the order before display (default <code>FALSE</code>).</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -99,7 +101,14 @@ cannot carry alpha. Their printed hex codes retain the original alpha.</p>
 nearest palette entry instead of the exact hex, so a swatch can differ from
 the code printed beside it. <code>options(cli.num_colors = 16777216)</code> forces
 24-bit output in a terminal that renders it without advertising it.
-Colour depth is detected for stdout, including when stderr is redirected.</p>
+Colour depth is detected for stdout, including when stderr is redirected.
+On indexed terminals, text contrast uses the emitted ANSI colours and the
+standard xterm palette. Custom terminal colour themes can change the result.</p>
+<p>Missing character values (<code>NA_character_</code>) and the literal colour
+<code>"NA"</code> follow R's transparent-colour convention, so their swatches have
+the same <code>#FFFFFF00</code> label as <code>"transparent"</code>. Their original
+values, names and attributes are retained in the returned vector and its
+copyable expression. An empty character vector is also accepted.</p>
     </div>
 
     <div class="section level2">
@@ -108,7 +117,7 @@ Colour depth is detected for stdout, including when stderr is redirected.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #080808; background-color: #FF0000;"> #FF0000 </span> <span style="color: #080808; background-color: #00FF00;"> #00FF00 </span> <span style="color: #EEEEEE; background-color: #0000FF;"> #0000FF </span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> c("#FF0000", "#00FF00", "#0000FF")</span>
 <span class="r-in"><span><span class="fu">show_color</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">rainbow</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #080808; background-color: #FF0000;"> #FF0000 </span> <span style="color: #080808; background-color: #FFAF00;"> #FF9900 </span> <span style="color: #080808; background-color: #D7FF00;"> #CCFF00 </span> <span style="color: #080808; background-color: #5FFF00;"> #33FF00 </span> <span style="color: #080808; background-color: #00FF87;"> #00FF66 </span> <span style="color: #080808; background-color: #00FFFF;"> #00FFFF </span> <span style="color: #EEEEEE; background-color: #0087FF;"> #0066FF </span> <span style="color: #EEEEEE; background-color: #5F00FF;"> #3300FF </span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #080808; background-color: #FF0000;"> #FF0000 </span> <span style="color: #080808; background-color: #FFAF00;"> #FF9900 </span> <span style="color: #080808; background-color: #D7FF00;"> #CCFF00 </span> <span style="color: #080808; background-color: #5FFF00;"> #33FF00 </span> <span style="color: #080808; background-color: #00FF87;"> #00FF66 </span> <span style="color: #080808; background-color: #00FFFF;"> #00FFFF </span> <span style="color: #080808; background-color: #0087FF;"> #0066FF </span> <span style="color: #EEEEEE; background-color: #5F00FF;"> #3300FF </span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #080808; background-color: #D700FF;"> #CC00FF </span> <span style="color: #080808; background-color: #FF00AF;"> #FF0099 </span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> c("#FF0000", "#FF9900", "#CCFF00", "#33FF00", "#00FF66", "#00FFFF", </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> "#0066FF", "#3300FF", "#CC00FF", "#FF0099")</span>

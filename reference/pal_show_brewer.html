@@ -81,7 +81,7 @@ shows all palettes matching <code>type</code> and <code>pattern</code>.</p></dd>
 <dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
 <dd><p>Number of colours to generate for each palette. <code>NULL</code> uses
 each palette's maximum supported size; other values are clamped to the
-supported range of each palette.</p></dd>
+supported range of each palette. A single message reports adjusted sizes.</p></dd>
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
@@ -112,6 +112,13 @@ or <code>Inf</code> for no display cap. Default 20.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A ggplot or gt object returned visibly for automatic display.
   Console output prints and invisibly returns the displayed palette list.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Explicit <code>palette</code> names take precedence over <code>pattern</code>
+  and <code>type</code> (where available). These filters are applied only when
+  <code>palette = NULL</code>. Unknown names are reported and skipped when at
+  least one valid palette remains.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

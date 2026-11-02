@@ -64,7 +64,7 @@ gt layout as <code><a href="pal_show.html">pal_show()</a></code>.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">pal_show_hcl</span><span class="op">(</span></span>
 <span>  palette <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  n <span class="op">=</span> <span class="fl">8</span>,</span>
-<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"all"</span>, <span class="st">"qualitative"</span>, <span class="st">"sequential"</span>, <span class="st">"diverging"</span><span class="op">)</span>,</span>
+<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"all"</span>, <span class="st">"qualitative"</span>, <span class="st">"sequential"</span>, <span class="st">"diverging"</span>, <span class="st">"divergingx"</span><span class="op">)</span>,</span>
 <span>  pattern <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  index <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  max_colors <span class="op">=</span> <span class="fl">20</span>,</span>
@@ -78,7 +78,9 @@ gt layout as <code><a href="pal_show.html">pal_show()</a></code>.</p>
 
 <dl><dt id="arg-palette">palette<a class="anchor" aria-label="anchor" href="#arg-palette"></a></dt>
 <dd><p>Character vector of HCL palette names. <code>NULL</code> shows all
-palettes matching <code>type</code> and <code>pattern</code>.</p></dd>
+palettes matching <code>type</code> and <code>pattern</code>. Matching follows native HCL
+rules: case and separators are ignored, unique abbreviations are accepted,
+and ambiguous names are rejected. Returned names use canonical spelling.</p></dd>
 
 
 <dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
@@ -87,7 +89,7 @@ palettes matching <code>type</code> and <code>pattern</code>.</p></dd>
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
 <dd><p>HCL palette category: <code>"all"</code>, <code>"qualitative"</code>,
-<code>"sequential"</code>, or <code>"diverging"</code>.</p></dd>
+<code>"sequential"</code>, <code>"diverging"</code>, or <code>"divergingx"</code>.</p></dd>
 
 
 <dt id="arg-pattern">pattern<a class="anchor" aria-label="anchor" href="#arg-pattern"></a></dt>
@@ -113,6 +115,13 @@ or <code>Inf</code> for no display cap. Default 20.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A ggplot or gt object returned visibly for automatic display.
   Console output prints and invisibly returns the displayed palette list.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Explicit <code>palette</code> names take precedence over <code>pattern</code>
+  and <code>type</code> (where available). These filters are applied only when
+  <code>palette = NULL</code>. Unknown names are reported and skipped when at
+  least one valid palette remains.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

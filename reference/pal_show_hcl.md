@@ -13,7 +13,7 @@ using the same ggplot or gt layout as
 pal_show_hcl(
   palette = NULL,
   n = 8,
-  type = c("all", "qualitative", "sequential", "diverging"),
+  type = c("all", "qualitative", "sequential", "diverging", "divergingx"),
   pattern = NULL,
   index = NULL,
   max_colors = 20,
@@ -26,7 +26,9 @@ pal_show_hcl(
 - palette:
 
   Character vector of HCL palette names. `NULL` shows all palettes
-  matching `type` and `pattern`.
+  matching `type` and `pattern`. Matching follows native HCL rules: case
+  and separators are ignored, unique abbreviations are accepted, and
+  ambiguous names are rejected. Returned names use canonical spelling.
 
 - n:
 
@@ -34,8 +36,8 @@ pal_show_hcl(
 
 - type:
 
-  HCL palette category: `"all"`, `"qualitative"`, `"sequential"`, or
-  `"diverging"`.
+  HCL palette category: `"all"`, `"qualitative"`, `"sequential"`,
+  `"diverging"`, or `"divergingx"`.
 
 - pattern:
 
@@ -61,6 +63,13 @@ pal_show_hcl(
 
 A ggplot or gt object returned visibly for automatic display. Console
 output prints and invisibly returns the displayed palette list.
+
+## Details
+
+Explicit `palette` names take precedence over `pattern` and `type`
+(where available). These filters are applied only when `palette = NULL`.
+Unknown names are reported and skipped when at least one valid palette
+remains.
 
 ## See also
 
