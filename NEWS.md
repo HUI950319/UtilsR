@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* `pal_show()` keeps colour-vector text contrast, name labels and label positions aligned when returned ggplot data are reordered or filtered.
+
 * `pal_show()` preserves the exact final colour of complete interpolated previews without allocating hidden colours beyond the display cap.
 
 * `pal_show_brewer()` reports requested colour counts adjusted to native palette limits in one message per call.

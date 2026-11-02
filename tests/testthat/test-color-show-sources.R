@@ -1289,3 +1289,28 @@ test_that("palette interpolation preserves exact endpoints in complete previews"
   tbl <- pal_show("Set1", n = 50, max_colors = Inf, output = "gt")
   expect_match(tbl[["_data"]]$preview, "background:#999999;", fixed = TRUE)
 })
+
+test_that("colour vector plot labels follow replaced data", {
+  replace_data <- if (utils::packageVersion("ggplot2") < "4.0.0") {
+    ggplot2::`%+%`
+  } else function(p, data) p + data
+  for (named in c(FALSE, TRUE)) {
+    cols <- c("#000000", "#FFFFFF")
+    if (named) names(cols) <- c("Dark", "")
+    p <- pal_show(cols, output = "gg")
+    replacement <- p$data[2:1, ]
+    layers <- ggplot2::ggplot_build(replace_data(p, replacement))$data
+    expect_identical(as.character(layers[[2L]]$colour), replacement$fg)
+    expect_identical(layers[[2L]]$label, replacement$label)
+    if (named) {
+      expect_identical(layers[[2L]]$vjust, c(0.5, -0.3))
+      expect_identical(layers[[3L]]$label, c("", "#000000"))
+      expect_identical(as.character(layers[[3L]]$colour), replacement$fg)
+    }
+    selected <- p$data[1L, , drop = FALSE]
+    layers <- ggplot2::ggplot_build(replace_data(p, selected))$data
+    expect_identical(as.character(layers[[2L]]$colour), selected$fg)
+    expect_identical(layers[[2L]]$label, selected$label)
+    if (named) expect_identical(layers[[3L]]$label, "#000000")
+  }
+})

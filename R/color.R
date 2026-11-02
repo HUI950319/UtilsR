@@ -1490,6 +1490,7 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
       hex = hex,
       label = labels,
       fg = fg_colors,
+      has_name = has_name,
       col_idx = ((seq_len(n) - 1) %% ncol) + 1,
       row_idx = -((seq_len(n) - 1) %/% ncol),
       stringsAsFactors = FALSE
@@ -1514,19 +1515,22 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
       )
 
     if (label) {
+      p <- p + ggplot2::scale_colour_identity()
       # Show name/hex on top, hex on bottom (if named)
       if (any(has_name)) {
         p <- p +
-          ggplot2::geom_text(ggplot2::aes(label = .data[["label"]]),
-                             color = fg_colors, size = label_size,
-                             fontface = "bold", vjust = ifelse(has_name, -0.3, 0.5)) +
-          ggplot2::geom_text(ggplot2::aes(label = ifelse(has_name, .data[["hex"]], "")),
-                             color = fg_colors, size = label_size * 0.75,
+          ggplot2::geom_text(ggplot2::aes(label = .data[["label"]],
+                             color = .data[["fg"]],
+                             vjust = ifelse(.data[["has_name"]], -0.3, 0.5)),
+                             size = label_size, fontface = "bold") +
+          ggplot2::geom_text(ggplot2::aes(
+                             label = ifelse(.data[["has_name"]], .data[["hex"]], ""),
+                             color = .data[["fg"]]), size = label_size * 0.75,
                              vjust = 1.2)
       } else {
         p <- p +
-          ggplot2::geom_text(ggplot2::aes(label = .data[["label"]]),
-                             color = fg_colors, size = label_size,
+          ggplot2::geom_text(ggplot2::aes(label = .data[["label"]],
+                             color = .data[["fg"]]), size = label_size,
                              fontface = "bold")
       }
     }
