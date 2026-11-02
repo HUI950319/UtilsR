@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* PlotCircleLollipop() omits unused group levels and diagnoses missing or excluded groups before drawing or opening an output device.
+
 * PlotButterfly2() shares observed-category shape mappings across gradient beeswarm panels and rejects more than four observed categories before points can be omitted.
 
 * PlotHeatmapJaccard() excludes labelled user-missing groups and features consistently, including before haven is loaded.

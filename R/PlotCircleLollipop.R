@@ -12,6 +12,8 @@
 #'
 #' @param data A data.frame with at least three columns: group, feature name,
 #'   and numeric value.
+#'   Missing group labels are rejected before drawing. Unused group levels
+#'   are omitted from the chart.
 #' @param group_col Column name for the grouping variable. Default \code{"group"}.
 #' @param name_col Column name for the feature names. Default \code{"name"}.
 #' @param value_col Column name for the numeric scores. Default \code{"value"}.
@@ -37,6 +39,7 @@
 #'   }
 #' @param group_levels Character vector controlling the display order of groups.
 #'   \code{NULL} = data appearance order (or factor levels if already a factor).
+#'   Must include every observed group; unobserved levels are omitted.
 #' @param common_color Colour for features shared across \eqn{\geq 2} groups.
 #'   Default \code{"#4682B4"}.
 #' @param unique_color Colour for group-unique features. Default \code{"#FF7F50"}.
@@ -178,6 +181,7 @@ PlotCircleLollipop <- function(
     value = as.numeric(data[[value_col]]),
     stringsAsFactors = FALSE
   )
+  if (!nrow(df)) stop("No observations to plot.", call. = FALSE)
 
   # ---- Group order ----
   if (!is.null(group_levels)) {
@@ -187,6 +191,9 @@ PlotCircleLollipop <- function(
   } else {
     df$group <- factor(df$group, levels = unique(df$group))
   }
+  if (anyNA(df$group))
+    stop("Group labels must not be missing or excluded by group_levels.", call. = FALSE)
+  df$group <- droplevels(df$group)
 
   # ---- Per-group x positions (uniform spacing within each sector) ----
   df <- df |>

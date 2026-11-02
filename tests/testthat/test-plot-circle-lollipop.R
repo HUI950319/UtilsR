@@ -1,3 +1,36 @@
+test_that("PlotCircleLollipop omits unused sectors while preserving observed order", {
+  skip_if_not_installed("circlize")
+  grDevices::pdf(NULL)
+  device <- grDevices::dev.cur()
+  withr::defer(grDevices::dev.off(device))
+  observed <- character()
+  original <- circlize::circos.points
+  testthat::local_mocked_bindings(circos.points = function(x, y, ...) {
+    observed <<- c(observed, circlize::CELL_META$sector.index)
+    original(x, y, ...)
+  }, .package = "circlize")
+  data <- data.frame(group = factor(rep(c("A", "B"), each = 2), levels = c("B", "unused", "A")),
+                     name = letters[1:4], value = c(.2, .4, .6, .8))
+  before <- data
+  PlotCircleLollipop(data, show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
+  expect_identical(observed, c("B", "B", "A", "A"))
+  observed <- character()
+  PlotCircleLollipop(data, group_levels = c("A", "unused", "B"), show_labels = FALSE,
+    show_links = FALSE, show_yaxis = FALSE)
+  expect_identical(observed, c("A", "A", "B", "B"))
+  expect_identical(data, before)
+})
+
+test_that("PlotCircleLollipop diagnoses missing groups before opening a device", {
+  data <- data.frame(group = c("A", NA_character_, "B"), name = letters[1:3], value = c(.2, .4, .6))
+  before <- grDevices::dev.cur()
+  expect_error(PlotCircleLollipop(data), "Group labels.*missing")
+  data$group <- c("A", "A", "B")
+  expect_error(PlotCircleLollipop(data, group_levels = "A"), "Group labels.*excluded")
+  expect_error(PlotCircleLollipop(data[FALSE, ]), "No observations")
+  expect_identical(grDevices::dev.cur(), before)
+})
+
 test_that("PlotCircleLollipop draws constant global ranges at a finite height", {
   skip_if_not_installed("circlize")
   grDevices::pdf(NULL)
