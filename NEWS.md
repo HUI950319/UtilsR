@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* `pal_show_ggsci()` samples continuous palettes over their full native range while retaining discrete prefixes and native size limits.
+
 * `show_color()` documents missing character colours, empty vectors and indexed-terminal contrast, with regression coverage for copyable names, attributes and transparency at every supported colour depth.
 
 * pal_get() reuses the first literal-colour validation result when reporting invalid colours, avoiding a repeated full scan without changing diagnostics.

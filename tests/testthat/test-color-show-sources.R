@@ -1131,3 +1131,29 @@ test_that("HCL viewers preserve divergingx categories and both colour ends", {
   )))
   expect_identical(as.character(console[[1L]]), native[c(1L, 20L, 40L)])
 })
+
+test_that("ggsci continuous previews sample the entire native colour range", {
+  skip_if_not_installed("ggsci")
+  db <- utils::getFromNamespace("ggsci_db", "ggsci")
+  for (family in c("gsea", "material", "bs5", "tw3")) {
+    sub <- names(db[[family]])[[1L]]
+    name <- paste0(family, "_", sub)
+    native <- unname(db[[family]][[sub]])
+    expected <- native[round(seq.int(1, length(native), length.out = 3))]
+    p <- pal_show_ggsci(name, n = 3, output = "gg")
+    expect_identical(p$data$color, expected)
+    invisible(capture.output(console <- pal_show_ggsci(name, n = 3, output = "console")))
+    expect_identical(as.character(console[[1L]]), expected)
+    tbl <- pal_show_ggsci(name, n = 3, output = "gt")
+    for (colour in expected) {
+      expect_match(tbl[["_data"]]$preview, toupper(colour), fixed = TRUE)
+    }
+    capped <- pal_show_ggsci(name, n = length(native), max_colors = 3, output = "gg")
+    expect_identical(capped$data$color, expected)
+    reversed <- pal_show_ggsci(name, n = 3, reverse = TRUE, output = "gg")
+    expect_identical(reversed$data$color[c(1L, 3L)], rev(native)[c(1L, length(native))])
+  }
+  discrete <- unname(db$npg$nrc)
+  expect_identical(pal_show_ggsci("npg_nrc", n = 3, output = "gg")$data$color,
+                   discrete[1:3])
+})

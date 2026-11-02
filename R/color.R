@@ -1162,8 +1162,11 @@ pal_show_hcl <- function(palette = NULL, n = 8,
 #' @param palette Character vector of palette names. Names use the form
 #'   \code{"ggsci_npg_nrc"}; the \code{ggsci_} prefix may be omitted.
 #'   \code{NULL} shows all palettes.
-#' @param n Number of colours to retain from each palette. \code{NULL} uses
-#'   each palette's native number of colours.
+#' @param n Number of colours to retain, capped at each palette's native size.
+#'   Continuous GSEA, Bootstrap 5, Material and Tailwind 3 palettes are sampled
+#'   evenly across their full range; a single colour uses the middle. Discrete
+#'   palettes retain their first colours. \code{NULL} uses each palette's native
+#'   number of colours.
 #' @param alpha Opacity of the colours, a number between 0 and 1.
 #' @param reverse Logical; if \code{TRUE}, reverse the colour order.
 #' @param pattern Single non-missing regex string used to filter palette names.
@@ -1219,9 +1222,13 @@ pal_show_ggsci <- function(palette = NULL, n = NULL, alpha = 1,
       full_name <- paste0("ggsci_", pkg_name, "_", sub_name)
       cols <- unname(sub_pals[[sub_name]])
       if (isTRUE(reverse)) cols <- rev(cols)
-      if (!is.null(n)) cols <- cols[seq_len(min(n, length(cols)))]
+      continuous <- pkg_name %in% c("gsea", "bs5", "material", "tw3")
+      if (!is.null(n)) {
+        if (continuous) attr(cols, "type") <- "continuous"
+        cols <- .pal_resize(cols, min(n, length(cols)))
+      }
       if (alpha < 1) cols <- scales::alpha(cols, alpha)
-      attr(cols, "type") <- if (pkg_name %in% c("gsea", "bs5", "material", "tw3")) {
+      attr(cols, "type") <- if (continuous) {
         "continuous"
       } else "discrete"
       pals[[full_name]] <- cols

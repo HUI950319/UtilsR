@@ -20,8 +20,11 @@ pal_show_ggsci(
 \code{"ggsci_npg_nrc"}; the \code{ggsci_} prefix may be omitted.
 \code{NULL} shows all palettes.}
 
-\item{n}{Number of colours to retain from each palette. \code{NULL} uses
-each palette's native number of colours.}
+\item{n}{Number of colours to retain, capped at each palette's native size.
+Continuous GSEA, Bootstrap 5, Material and Tailwind 3 palettes are sampled
+evenly across their full range; a single colour uses the middle. Discrete
+palettes retain their first colours. \code{NULL} uses each palette's native
+number of colours.}
 
 \item{alpha}{Opacity of the colours, a number between 0 and 1.}
 
