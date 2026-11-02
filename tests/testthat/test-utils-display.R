@@ -299,3 +299,18 @@ test_that("show_color reverses names while retaining custom vector attributes", 
   out <- capture.output(value <- show_color(empty, rev = TRUE))
   expect_identical(value, empty)
 })
+
+test_that("show_color respects the loaded cli renderer when true colour is requested", {
+  withr::local_options(cli.num_colors = 16777216)
+  out <- capture.output(value <- withVisible(show_color("#008833")))
+  if (getNamespaceVersion("cli") < "3.1.0") {
+    expect_match(out[[1]], "38;5;232", fixed = TRUE)
+    expect_match(out[[1]], "48;5;35", fixed = TRUE)
+  } else {
+    expect_match(out[[1]], "38;2;255;255;255", fixed = TRUE)
+    expect_match(out[[1]], "48;2;0;136;51", fixed = TRUE)
+  }
+  expect_identical(value$value, "#008833")
+  expect_identical(value$visible, FALSE)
+  expect_identical(getOption("cli.num_colors"), 16777216)
+})

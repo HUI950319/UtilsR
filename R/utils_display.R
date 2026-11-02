@@ -568,6 +568,8 @@ console_width <- function() {
 #' the code printed beside it. \code{options(cli.num_colors = 16777216)} forces
 #' 24-bit output in a terminal that renders it without advertising it.
 #' Colour depth is detected for stdout, including when stderr is redirected.
+#' Versions of \pkg{cli} before 3.1.0 support at most 256 colours, including
+#' when 24-bit output is requested.
 #' On indexed terminals, text contrast uses the emitted ANSI colours and the
 #' standard xterm palette. Custom terminal colour themes can change the result.
 #'
@@ -637,6 +639,10 @@ show_color <- function(x, rev = FALSE) {
   # hex codes underneath it disagreed: a diverging palette's pale midpoint
   # collapsed to grey and #B2182B was drawn as magenta.
   num_colors <- cli::num_ansi_colors(stdout())
+  # cli 3.0.x cannot emit true colour even when it is explicitly requested.
+  if (num_colors >= 16777216L && getNamespaceVersion("cli") < "3.1.0") {
+    num_colors <- 256L
+  }
   if (num_colors > 1L) {
     old_colors <- options(cli.num_colors = num_colors)
     on.exit(options(old_colors), add = TRUE)

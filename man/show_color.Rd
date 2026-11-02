@@ -33,6 +33,8 @@ nearest palette entry instead of the exact hex, so a swatch can differ from
 the code printed beside it. \code{options(cli.num_colors = 16777216)} forces
 24-bit output in a terminal that renders it without advertising it.
 Colour depth is detected for stdout, including when stderr is redirected.
+Versions of \pkg{cli} before 3.1.0 support at most 256 colours, including
+when 24-bit output is requested.
 On indexed terminals, text contrast uses the emitted ANSI colours and the
 standard xterm palette. Custom terminal colour themes can change the result.
 
