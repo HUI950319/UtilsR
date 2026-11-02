@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* Coloured palette previews create each black or white foreground style once per call while preserving terminal depth and colour contrast.
+
 * pal_get() rejects decimal and exponent colour indices consistently in literal and list palettes.
 
 * Console palette previews bypass ANSI style construction for uncoloured stdout, retaining the same wrapped text and returned colour vectors.
