@@ -392,6 +392,8 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
 #'   one colour per element, placed along the palette by its value between the
 #'   finite extremes; missing and infinite values get \code{NA}, and a single
 #'   distinct value takes the middle colour.
+#'   Distinct discrete values must produce unique character names; otherwise,
+#'   convert them to explicit unique labels before mapping.
 #'   Labelled vectors require \pkg{haven} to retain their missing values.
 #'   \code{integer64} input is rejected to avoid loss of precision; recode it
 #'   explicitly before mapping.
@@ -599,6 +601,13 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
       # Discrete: map levels
       lvs <- if (is.factor(x)) levels(x) else unique(x[!is.na(x)])
       lvs <- lvs[!is.na(lvs)]
+      lvs <- as.character(lvs)
+      if (anyDuplicated(lvs)) {
+        cli::cli_abort(c(
+          "Distinct values of {.arg x} produce the same discrete colour name.",
+          "i" = "Convert {.arg x} to explicit unique labels before mapping."
+        ))
+      }
       n_lvs <- length(lvs)
       if (n_lvs <= length(cols)) {
         out <- stats::setNames(cols[seq_len(n_lvs)], lvs)

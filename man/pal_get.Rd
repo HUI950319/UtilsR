@@ -37,6 +37,8 @@ values in order of appearance, missing values left out. If numeric, returns
 one colour per element, placed along the palette by its value between the
 finite extremes; missing and infinite values get \code{NA}, and a single
 distinct value takes the middle colour.
+Distinct discrete values must produce unique character names; otherwise,
+convert them to explicit unique labels before mapping.
 Labelled vectors require \pkg{haven} to retain their missing values.
 \code{integer64} input is rejected to avoid loss of precision; recode it
 explicitly before mapping.

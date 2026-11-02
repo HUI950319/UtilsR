@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* pal_get() rejects distinct discrete values whose character labels collide, keeping named colour mappings unambiguous without renaming valid levels.
+
 * Palette data rebuilds stop on individual CARTO generation errors and identify the source palette and original error, preventing incomplete first-build registries.
 
 * `pal_show()` constructs catalogue plots in a small rendering frame and evaluates colour-vector controls before returning, so capped plots no longer retain oversized original inputs.

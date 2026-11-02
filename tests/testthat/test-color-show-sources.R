@@ -655,6 +655,22 @@ test_that("pal_get shares discrete list mappings without changing level order", 
                         cool = c(A = "#000000", B = "#7F7F7F", unused = "#FFFFFF")))
 })
 
+test_that("pal_get rejects distinct discrete values with colliding names", {
+  xs <- list(
+    structure(c(0.1, 0.2), class = "Date"),
+    as.POSIXct("2020-01-01", tz = "UTC") + c(1, 1.00000025),
+    as.difftime(c(1, 1 + .Machine$double.eps), units = "days")
+  )
+  for (x in xs) {
+    for (palette in list(c("red", "blue"), list(custom = c("red", "blue")))) {
+      expect_error(pal_get(palette, x = x), "same discrete colour name")
+    }
+  }
+  date <- as.Date("2020-01-01")
+  expect_identical(pal_get(c("red", "blue"), x = rep(date, 2)),
+                   c("2020-01-01" = "red"))
+})
+
 test_that("pal_show preserves transparency in colour-vector previews", {
   cols <- c("#FF000080", "transparent", "#00000010")
   invisible(capture.output(p <- pal_show(cols, output = "gg")))
