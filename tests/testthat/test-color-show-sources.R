@@ -798,6 +798,19 @@ test_that("palette rebuilds preserve existing data if registered names disappear
   expect_identical(after, before)
 })
 
+test_that("palette previews reject numeric colour indices in vectors and lists", {
+  for (bad in c("2", "2.0", "2e0")) {
+    for (output in c("gg", "gt", "console")) {
+      expect_error(pal_show(c("red", bad), output = output))
+      expect_error(pal_show(list(custom = c("red", bad)), output = output), "custom")
+    }
+  }
+  for (output in c("gg", "gt", "console")) {
+    expect_error(pal_show(list(custom = c("red", "notacolor")), output = output), "custom")
+  }
+  expect_equal(nrow(pal_show(c("transparent", "#F00", "light blue"), output = "gg")$data), 3L)
+})
+
 test_that("palette viewers deduplicate palette names without removing colour repeats", {
   viewers <- list(
     list(fun = pal_show, palette = "Set1"),

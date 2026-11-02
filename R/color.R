@@ -606,6 +606,15 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   out
 }
 
+# Numeric strings refer to the mutable base palette rather than literal colours.
+.pal_are_colors <- function(x) {
+  if (anyNA(x) || any(grepl("^[0-9]", x))) return(FALSE)
+  tryCatch({
+    grDevices::col2rgb(x)
+    TRUE
+  }, error = function(e) FALSE)
+}
+
 # Validate palette storage before list indexing can interpret factors as integers.
 .pal_validate_palette <- function(palette, allow_list = FALSE) {
   if (is.null(palette)) return(invisible(NULL))
@@ -619,6 +628,11 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
         any(!nzchar(nms)) || anyDuplicated(nms) ||
         !all(vapply(palette, plain_vector, logical(1)))) {
       cli::cli_abort("{.arg palette} lists must be non-empty, uniquely named lists of non-missing character vectors.")
+    }
+    for (i in seq_along(palette)) {
+      if (!.pal_are_colors(palette[[i]])) {
+        cli::cli_abort("Palette {.val {nms[[i]]}} in {.arg palette} contains invalid colours.")
+      }
     }
   } else if (!plain_vector(palette)) {
     cli::cli_abort("{.arg palette} must be a non-empty, non-missing character vector without a class or dimensions.")
@@ -1276,22 +1290,9 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
 #' @noRd
 .is_color_vector <- function(x) {
   if (length(x) == 0) return(FALSE)
-  # Check: are these valid R colours? (hex codes or named colours)
-  # First check if ANY of them are palette names. Explicit namespace lookup
-  # (LazyData not auto-loaded under `::`).
+  # Registered names take priority over literal colours.
   pl <- getExportedValue("UtilsR", "palette_list")
-  n_palette_match <- sum(x %in% names(pl))
-  # If most entries match palette names, treat as palette name mode
-  if (n_palette_match > length(x) / 2) return(FALSE)
-  # Try to parse as colours
-  valid <- vapply(x, function(cc) {
-    tryCatch({
-      grDevices::col2rgb(cc)
-      TRUE
-    }, error = function(e) FALSE)
-  }, logical(1), USE.NAMES = FALSE)
-  # If all are valid colours and none are palette names, it's a colour vector
-  all(valid) && n_palette_match == 0
+  !any(x %in% names(pl)) && .pal_are_colors(x)
 }
 
 # R colour names need conversion before use in CSS; keep non-opaque alpha.
