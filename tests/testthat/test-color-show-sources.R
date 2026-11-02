@@ -798,6 +798,22 @@ test_that("palette rebuilds preserve existing data if registered names disappear
   expect_identical(after, before)
 })
 
+test_that("console palette previews preserve alpha labels and the original vector", {
+  withr::local_options(cli.num_colors = 0)
+  cols <- c("#FF000080", "transparent", "blue")
+  out <- capture.output(value <- pal_show(cols, output = "console"))
+  swatches <- out[grepl("^ #", out)]
+  expect_match(swatches[[1]], "#FF000080", fixed = TRUE)
+  expect_match(swatches[[1]], "#FFFFFF00", fixed = TRUE)
+  expect_identical(value, cols)
+  out <- capture.output(pal_list(pattern = "^Set1$", show = TRUE))
+  expect_match(paste(out, collapse = "\n"), "#E41A1C", fixed = TRUE)
+  withr::local_options(cli.num_colors = 16777216)
+  out <- capture.output(show_color("#FF000080"))
+  expect_match(out[[1]], "48;2;255;127;127", fixed = TRUE)
+  expect_match(cli::ansi_strip(out[[1]]), "#FF000080", fixed = TRUE)
+})
+
 test_that("palette previews retain partial names and replace missing labels individually", {
   cols <- stats::setNames(c("red", "blue", "black"), c("A", "", NA_character_))
   expected <- c("A", "#0000FF", "#000000")

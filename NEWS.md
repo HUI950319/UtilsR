@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* `show_color()` retains RGBA labels and composites transparent ANSI swatches onto white, keeping the original copyable vector unchanged.
+
 * `pal_show()` preserves valid colour names and replaces missing or whitespace-only labels individually with their hex codes.
 
 * `pal_show()` rejects numeric-string colour indices and validates every custom palette colour before rendering, using vectorized colour parsing.

@@ -579,11 +579,8 @@ console_width <- function() {
 show_color <- function(x, rev = FALSE) {
   if (rev) x <- rev(x)
 
-  # Convert any colour specification to hex "#RRGGBB"
-  hex <- vapply(x, function(cc) {
-    rgb_mat <- grDevices::col2rgb(cc)
-    grDevices::rgb(rgb_mat[1], rgb_mat[2], rgb_mat[3], maxColorValue = 255)
-  }, character(1), USE.NAMES = FALSE)
+  # Labels retain alpha; ANSI backgrounds composite it onto white.
+  hex <- .pal_hex(x)
 
   # Compute relative luminance (WCAG formula) for contrast
   .luminance <- function(hex_col) {
@@ -599,21 +596,28 @@ show_color <- function(x, rev = FALSE) {
   # hex codes underneath it disagreed: a diverging palette's pale midpoint
   # collapsed to grey and #B2182B was drawn as magenta.
   if (._pr_colour()) {
+    rgba <- grDevices::col2rgb(x, alpha = TRUE)
+    a <- rgba[4L, ] / 255
+    preview <- grDevices::rgb(rgba[1L, ] * a + 255 * (1 - a),
+                             rgba[2L, ] * a + 255 * (1 - a),
+                             rgba[3L, ] * a + 255 * (1 - a),
+                             maxColorValue = 255)
     foreground <- list()
-    styled <- vapply(hex, function(h) {
+    styled <- vapply(seq_along(hex), function(i) {
+      h <- preview[[i]]
       fg_col <- if (.luminance(h) > 0.179) "#000000" else "#FFFFFF"
       if (is.null(foreground[[fg_col]])) {
         foreground[[fg_col]] <<- cli::make_ansi_style(fg_col, bg = FALSE)
       }
       fg_style <- foreground[[fg_col]]
       bg_style <- cli::make_ansi_style(h, bg = TRUE, grey = FALSE)
-      cli::combine_ansi_styles(fg_style, bg_style)(paste0(" ", h, " "))
+      cli::combine_ansi_styles(fg_style, bg_style)(paste0(" ", hex[[i]], " "))
     }, character(1), USE.NAMES = FALSE)
   } else {
     styled <- if (length(hex)) paste0(" ", hex, " ") else character()
   }
 
-  per_line <- max(1L, console_width() %/% 10L)
+  per_line <- max(1L, console_width() %/% (max(nchar(hex), 7L) + 3L))
   rows <- split(styled, ceiling(seq_along(styled) / per_line))
   if (!length(rows)) rows <- list(character())
   for (row in rows) cat(paste(row, collapse = " "), "\n")
