@@ -376,10 +376,13 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
 #'     \item a fully named list of colour vectors with unique names, such as
 #'       \code{pal_heat}, mapped over one palette at a time.
 #'   }
-#' @param n Number of colours to return, a non-negative whole number. Colours
+#' @param n Number of colours to return, a plain integer or double scalar with
+#'   a whole-number value from zero to \code{.Machine$integer.max}, with no class
+#'   or dimensions. Colours
 #'   are taken from the front when \code{n} is at most the palette length and
 #'   interpolated when it is longer. Default \code{NULL} returns all colours in
-#'   the palette.
+#'   the palette. When \code{x} is supplied, it determines the output and
+#'   \code{n} is ignored after validation.
 #' @param x Optional vector to map colours to. If character, factor or logical,
 #'   returns a colour vector named by level: factor levels in their order, other
 #'   values in order of appearance, missing values left out. If numeric, returns
@@ -389,12 +392,16 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
 #'   Labelled vectors require \pkg{haven} to retain their missing values.
 #'   \code{integer64} input is rejected to avoid loss of precision; recode it
 #'   explicitly before mapping.
-#' @param reverse Logical, reverse colour order. Default \code{FALSE}.
-#' @param alpha Numeric 0-1, colour transparency. Default 1 leaves colours as
+#' @param reverse A logical scalar without a class or dimensions, reverse colour
+#'   order. Default \code{FALSE}.
+#' @param alpha A plain numeric scalar from 0 to 1 without a class or dimensions.
+#'   Values below 1 replace existing transparency. Default 1 leaves colours as
 #'   they are, keeping any transparency of their own.
 #'
-#' @return A character vector of hex colours, or -- when \code{palette} is a
-#'   list of palettes -- a list of such vectors under the same names.
+#' @return A character vector of R colours (hex codes or colour names), or --
+#'   when \code{palette} is a list of palettes -- a list of such vectors under
+#'   the same names. Literal colours retain their original spelling when no
+#'   interpolation or alpha adjustment is needed.
 #'
 #' @examples
 #' # Get 5 colours from Paired palette
@@ -423,14 +430,17 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
 #' @family colour palettes
 pal_get <- function(palette = "Paired", n = NULL, x = NULL,
                     reverse = FALSE, alpha = 1) {
-  if (!is.null(n) && !(is.numeric(n) && length(n) == 1L && is.finite(n) &&
-                       n >= 0 && n == floor(n))) {
-    cli::cli_abort("{.arg n} must be a single non-negative whole number or {.code NULL}.")
+  if (!is.null(n) && !(is.numeric(n) && !is.complex(n) && !is.object(n) &&
+                       is.null(dim(n)) && length(n) == 1L && is.finite(n) &&
+                       n >= 0 && n <= .Machine$integer.max && n == floor(n))) {
+    cli::cli_abort("{.arg n} must be a plain non-negative whole number in the supported integer range, or {.code NULL}.")
   }
-  if (!isTRUE(reverse) && !isFALSE(reverse)) {
+  if (is.object(reverse) || !is.null(dim(reverse)) ||
+      (!isTRUE(reverse) && !isFALSE(reverse))) {
     cli::cli_abort("{.arg reverse} must be {.code TRUE} or {.code FALSE}.")
   }
-  if (!(is.numeric(alpha) && length(alpha) == 1L && !is.na(alpha) &&
+  if (!(is.numeric(alpha) && !is.complex(alpha) && !is.object(alpha) &&
+        is.null(dim(alpha)) && length(alpha) == 1L && is.finite(alpha) &&
         alpha >= 0 && alpha <= 1)) {
     cli::cli_abort("{.arg alpha} must be a single number between 0 and 1.")
   }

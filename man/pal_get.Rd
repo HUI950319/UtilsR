@@ -21,10 +21,13 @@ pal_get(palette = "Paired", n = NULL, x = NULL, reverse = FALSE, alpha = 1)
     \code{pal_heat}, mapped over one palette at a time.
 }}
 
-\item{n}{Number of colours to return, a non-negative whole number. Colours
+\item{n}{Number of colours to return, a plain integer or double scalar with
+a whole-number value from zero to \code{.Machine$integer.max}, with no class
+or dimensions. Colours
 are taken from the front when \code{n} is at most the palette length and
 interpolated when it is longer. Default \code{NULL} returns all colours in
-the palette.}
+the palette. When \code{x} is supplied, it determines the output and
+\code{n} is ignored after validation.}
 
 \item{x}{Optional vector to map colours to. If character, factor or logical,
 returns a colour vector named by level: factor levels in their order, other
@@ -36,14 +39,18 @@ Labelled vectors require \pkg{haven} to retain their missing values.
 \code{integer64} input is rejected to avoid loss of precision; recode it
 explicitly before mapping.}
 
-\item{reverse}{Logical, reverse colour order. Default \code{FALSE}.}
+\item{reverse}{A logical scalar without a class or dimensions, reverse colour
+order. Default \code{FALSE}.}
 
-\item{alpha}{Numeric 0-1, colour transparency. Default 1 leaves colours as
+\item{alpha}{A plain numeric scalar from 0 to 1 without a class or dimensions.
+Values below 1 replace existing transparency. Default 1 leaves colours as
 they are, keeping any transparency of their own.}
 }
 \value{
-A character vector of hex colours, or -- when \code{palette} is a
-  list of palettes -- a list of such vectors under the same names.
+A character vector of R colours (hex codes or colour names), or --
+  when \code{palette} is a list of palettes -- a list of such vectors under
+  the same names. Literal colours retain their original spelling when no
+  interpolation or alpha adjustment is needed.
 }
 \description{
 Retrieve colours from the built-in palette collection (260 palettes).

@@ -562,6 +562,54 @@ test_that("pal_get validates long colour vectors without changing diagnostics", 
   }
 })
 
+test_that("pal_get accepts only plain scalar control values", {
+  for (bad in list(matrix(2), array(2, c(1, 1, 1)), structure(2, class = "AsIs"),
+                   structure(2, class = "integer64"), .Machine$integer.max + 1, 1e100)) {
+    expect_error(pal_get("red", n = bad, x = "A"), "`n` must be")
+  }
+  for (bad in list(matrix(0.5), structure(0.5, class = "AsIs"),
+                   structure(0.5, class = "integer64"))) {
+    expect_error(pal_get("red", alpha = bad), "`alpha` must be")
+  }
+  for (bad in list(matrix(TRUE), structure(TRUE, class = "AsIs"))) {
+    expect_error(pal_get(c("red", "blue"), reverse = bad), "`reverse` must be")
+  }
+  expect_identical(pal_get("red", n = c(count = 2)), c("#FF0000", "#FF0000"))
+  expect_identical(pal_get("red", alpha = c(opacity = 0.5)), "#FF000080")
+  expect_identical(pal_get(c("red", "blue"), reverse = c(flip = TRUE)), c("blue", "red"))
+})
+
+test_that("pal_get rejects stored scalar classes before their methods are loaded", {
+  directory <- withr::local_tempdir()
+  fixture <- file.path(directory, "fixture.rds")
+  script <- file.path(directory, "cold.R")
+  output <- file.path(directory, "result.rds")
+  fn <- pal_get
+  apply <- .pal_apply
+  env <- new.env(parent = asNamespace("stats"))
+  environment(fn) <- env
+  environment(apply) <- env
+  env$.pal_apply <- apply
+  saveRDS(list(fn = fn, n = structure(2, class = "integer64"),
+               alpha = structure(0.5, class = "integer64")), fixture)
+  writeLines(c(
+    "args <- commandArgs(TRUE)",
+    "fixture <- readRDS(args[[1]])",
+    "stopifnot(!'bit64' %in% loadedNamespaces())",
+    "n <- tryCatch(fixture[['fn']]('red', n = fixture[['n']]), error = conditionMessage)",
+    "alpha <- tryCatch(fixture[['fn']]('red', alpha = fixture[['alpha']]), error = conditionMessage)",
+    "saveRDS(list(n = n, alpha = alpha), args[[2]])"
+  ), script)
+  status <- system2(file.path(R.home("bin"), "Rscript"),
+    c("--vanilla", shQuote(script), shQuote(fixture), shQuote(output)), stdout = TRUE, stderr = TRUE)
+  expect_null(attr(status, "status"), info = paste(status, collapse = "\n"))
+  if (is.null(attr(status, "status"))) {
+    out <- readRDS(output)
+    expect_match(out$n, "`n` must be")
+    expect_match(out$alpha, "`alpha` must be")
+  }
+})
+
 test_that("pal_show preserves transparency in colour-vector previews", {
   cols <- c("#FF000080", "transparent", "#00000010")
   invisible(capture.output(p <- pal_show(cols, output = "gg")))
