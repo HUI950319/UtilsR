@@ -291,6 +291,25 @@ test_that("show_color retains duplicate order and original colour spellings", {
   }
 })
 
+test_that("show_color keeps complete labels within narrow console widths", {
+  withr::local_options(cli.num_colors = 0, cli.width = 40, width = 40)
+  cols <- c("red", "blue", "#FF000080", NA_character_)
+  expected <- c("#FF0000", "#0000FF", "#FF000080", "#FFFFFF00")
+  for (depth in c(0, 8, 256, 16777216)) for (width in c(1, 7, 8, 9, 10, 11, 12, 19)) {
+    options(cli.num_colors = depth, cli.width = width)
+    out <- capture.output(value <- withVisible(show_color(cols)))
+    plain <- cli::ansi_strip(out)
+    swatches <- plain[grepl("^ *#", plain)]
+    labels <- unlist(regmatches(swatches, gregexpr("#[0-9A-F]{8}|#[0-9A-F]{6}", swatches)))
+    expect_identical(unname(labels), expected)
+    expect_lte(max(nchar(swatches, type = "width")), max(width, 9))
+    expect_identical(value$value, cols)
+  }
+  options(cli.num_colors = 0, cli.width = 19)
+  out <- capture.output(show_color(c("red", "blue")))
+  expect_identical(out[[1]], " #FF0000   #0000FF ")
+})
+
 test_that("show_color reverses names while retaining custom vector attributes", {
   withr::local_options(cli.num_colors = 0, cli.width = 40, width = 40)
   for (named in c(FALSE, TRUE)) {

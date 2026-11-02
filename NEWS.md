@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* `show_color()` reduces decorative padding in narrow consoles while retaining complete colour labels, and packs swatches using their visible widths.
+
 * `pal_list()` filters names before inspecting palette types, reducing work for selective queries while preserving catalogue order, console output and invisible results.
 
 * `show_color()` prints numeric attributes with full double precision so copied expressions reconstruct them exactly, and documents special attribute limitations.

@@ -559,6 +559,8 @@ console_width <- function() {
 #' (24-bit) escape sequences. The displayed colour vector is also printed with
 #' \code{dput()} so it can be copied back into R for assignment.
 #' Swatches wrap to the console width without truncating the colour vector.
+#' Decorative padding is reduced in narrow consoles. Labels wider than the
+#' console remain intact on their own line.
 #' Translucent swatches are composited onto white because ANSI backgrounds
 #' cannot carry alpha. Their printed hex codes retain the original alpha.
 #'
@@ -626,6 +628,12 @@ show_color <- function(x, rev = FALSE) {
     }
     hex <- rev(hex)
   }
+
+  width <- console_width()
+  label_width <- max(nchar(hex, type = "width"), 7L)
+  padding <- max(0L, min(2L, width - label_width))
+  left_pad <- if (padding >= 1L) " " else ""
+  right_pad <- if (padding == 2L) " " else ""
 
   # Compute relative luminance (WCAG formula) for contrast
   .luminance <- function(hex_col) {
@@ -706,17 +714,17 @@ show_color <- function(x, rev = FALSE) {
         foreground[[fg_col]] <<- cli::make_ansi_style(fg_col, bg = FALSE)
       }
       fg_style <- foreground[[fg_col]]
-      cli::combine_ansi_styles(fg_style, bg_style)(paste0(" ", hex[[i]], " "))
+      cli::combine_ansi_styles(fg_style, bg_style)(paste0(left_pad, hex[[i]], right_pad))
     }, character(1), USE.NAMES = FALSE)
     if (length(ids) < length(hex)) styled <- styled[match(hex, hex[ids])]
   } else {
-    styled <- if (length(hex)) paste0(" ", hex, " ") else character()
+    styled <- if (length(hex)) paste0(left_pad, hex, right_pad) else character()
   }
 
-  per_line <- max(1L, console_width() %/% (max(nchar(hex), 7L) + 3L))
+  per_line <- max(1L, (width + 1L) %/% (label_width + padding + 1L))
   rows <- split(styled, ceiling(seq_along(styled) / per_line))
   if (!length(rows)) rows <- list(character())
-  for (row in rows) cat(paste(row, collapse = " "), "\n")
+  for (row in rows) cat(paste(row, collapse = " "), "\n", sep = "")
   dput(x, control = c("keepNA", "keepInteger", "niceNames", "showAttributes", "digits17"))
   invisible(x)
 }
