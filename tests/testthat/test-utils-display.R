@@ -205,3 +205,25 @@ test_that("show_color requires one non-missing logical reverse control", {
   swatches <- out[grepl("^ #", out)]
   expect_match(swatches[[1]], "#FF000088   #0000FF   #FF0000", fixed = TRUE)
 })
+
+test_that("show_color contrasts text against quantised terminal backgrounds", {
+  withr::local_options(cli.num_colors = 256)
+  out <- capture.output(value <- show_color("#008833"))
+  expect_match(out[[1]], "\033[38;5;232m", fixed = TRUE)
+  expect_match(out[[1]], "\033[48;5;35m", fixed = TRUE)
+  expect_identical(value, "#008833")
+  # xterm colour 35 is #00AF5F, where the dark text has higher contrast.
+  contrast <- colorspace::contrast_ratio("#00AF5F", c("#080808", "#EEEEEE"))
+  expect_gt(contrast[[1]], contrast[[2]])
+  expect_gt(contrast[[1]], 4.5)
+  for (depth in c(8, 16)) {
+    options(cli.num_colors = depth)
+    out <- capture.output(show_color("#008833"))
+    expect_match(out[[1]], "\033[30m", fixed = TRUE)
+    expect_match(out[[1]], "\033[42m", fixed = TRUE)
+  }
+  options(cli.num_colors = 16777216)
+  out <- capture.output(show_color("#008833"))
+  expect_match(out[[1]], "\033[38;2;255;255;255m", fixed = TRUE)
+  expect_match(out[[1]], "\033[48;2;0;136;51m", fixed = TRUE)
+})

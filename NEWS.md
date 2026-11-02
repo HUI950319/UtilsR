@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* `show_color()` selects text contrast from emitted indexed ANSI colours, improving legibility on standard xterm 8-, 16- and 256-colour palettes without changing true-colour output.
+
 * pal_get() extracts ordinary character and logical mapping levels once per palette list, preserving appearance order, missing values and existing factor behavior.
 
 * `show_color()` validates `rev` as one non-missing logical value before printing, retaining reversed colours, names and copyable values.

@@ -633,14 +633,52 @@ show_color <- function(x, rev = FALSE) {
                              rgba[3L, ] * a + 255 * (1 - a),
                              maxColorValue = 255)
     foreground <- list()
+    if (num_colors < 16777216L) {
+      # Standard xterm entries; terminal themes may override these colours.
+      base_colors <- c("#000000", "#CD0000", "#00CD00", "#CDCD00",
+                       "#0000EE", "#CD00CD", "#00CDCD", "#E5E5E5",
+                       "#7F7F7F", "#FF0000", "#00FF00", "#FFFF00",
+                       "#5C5CFF", "#FF00FF", "#00FFFF", "#FFFFFF")
+      # Decode the emitted SGR rather than duplicating cli's quantisation.
+      .displayed_luminance <- function(style) {
+        shown <- style(" ")
+        tag <- regmatches(shown, regexpr("\\[[0-9;]+m", shown))
+        code <- as.integer(strsplit(substr(tag, 2L, nchar(tag) - 1L),
+                                    ";", fixed = TRUE)[[1L]])
+        index <- if (length(code) == 3L) code[[3L]] else {
+          code[[1L]] %% 10L + if (code[[1L]] >= 90L) 8L else 0L
+        }
+        rgb <- if (index < 16L) {
+          grDevices::col2rgb(base_colors[[index + 1L]])[, 1L]
+        } else if (index >= 232L) {
+          rep(8L + 10L * (index - 232L), 3L)
+        } else {
+          index <- index - 16L
+          c(0, 95, 135, 175, 215, 255)[
+            c(index %/% 36L, index %/% 6L %% 6L, index %% 6L) + 1L]
+        }
+        .luminance(grDevices::rgb(rgb[[1L]], rgb[[2L]], rgb[[3L]],
+                                 maxColorValue = 255))
+      }
+      foreground <- lapply(c("#000000", "#FFFFFF"), function(col) {
+        cli::make_ansi_style(col, bg = FALSE)
+      })
+      names(foreground) <- c("#000000", "#FFFFFF")
+      fg_luminance <- vapply(foreground, .displayed_luminance, numeric(1))
+    }
     styled <- vapply(seq_along(hex), function(i) {
       h <- preview[[i]]
-      fg_col <- if (.luminance(h) > 0.179) "#000000" else "#FFFFFF"
+      bg_style <- cli::make_ansi_style(h, bg = TRUE, grey = FALSE)
+      fg_col <- if (num_colors < 16777216L) {
+        bg_luminance <- .displayed_luminance(bg_style)
+        contrast <- (pmax(fg_luminance, bg_luminance) + 0.05) /
+          (pmin(fg_luminance, bg_luminance) + 0.05)
+        names(foreground)[[which.max(contrast)]]
+      } else if (.luminance(h) > 0.179) "#000000" else "#FFFFFF"
       if (is.null(foreground[[fg_col]])) {
         foreground[[fg_col]] <<- cli::make_ansi_style(fg_col, bg = FALSE)
       }
       fg_style <- foreground[[fg_col]]
-      bg_style <- cli::make_ansi_style(h, bg = TRUE, grey = FALSE)
       cli::combine_ansi_styles(fg_style, bg_style)(paste0(" ", hex[[i]], " "))
     }, character(1), USE.NAMES = FALSE)
   } else {
