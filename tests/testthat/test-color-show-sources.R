@@ -1185,3 +1185,25 @@ test_that("source palette controls reject classed and dimensional scalars", {
   transparent <- pal_show_viridis("viridis", n = 3, alpha = 0, output = "gg")
   expect_identical(unname(grDevices::col2rgb(transparent$data$color, alpha = TRUE)[4, ]), rep(0L, 3))
 })
+
+test_that("source palette viewers report unknown names without losing valid selections", {
+  viewers <- list(
+    list(fun = pal_show_brewer, palette = "Set1"),
+    list(fun = pal_show_hcl, palette = "Viridis"),
+    list(fun = pal_show_viridis, palette = "viridis")
+  )
+  if (requireNamespace("ggsci", quietly = TRUE)) {
+    viewers <- c(viewers, list(list(fun = pal_show_ggsci, palette = "npg_nrc")))
+  }
+  for (viewer in viewers) {
+    for (output in c("gg", "gt", "console")) {
+      args <- list(palette = c(viewer$palette, "__typo__", "__typo__"), output = output)
+      invisible(capture.output(expect_warning(value <- do.call(viewer$fun, args), "__typo__")))
+      count <- if (output == "gg") length(unique(value$data$palette)) else if (output == "gt") {
+        nrow(value[["_data"]])
+      } else length(value)
+      expect_equal(count, 1L)
+    }
+    expect_error(viewer$fun("__typo__", output = "gg"), "No matching")
+  }
+})
