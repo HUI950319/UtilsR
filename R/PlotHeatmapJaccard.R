@@ -37,6 +37,8 @@
 #' @param return_type What to return: \code{"plot"} (default, the ggplot object),
 #'   \code{"data"} (the Jaccard similarity matrix), or \code{"both"}
 #'   (a list with elements \code{plot} and \code{matrix}).
+#'   Matrix-only output skips plotting when \code{filename = NULL}; a requested
+#'   file is still drawn and saved.
 #' @param filename Output file path. \code{NULL} = no save.
 #' @param width Output width in inches. Default \code{10}.
 #' @param height Output height in inches. Default \code{9}.
@@ -121,9 +123,10 @@ PlotHeatmapJaccard <- function(
   # ---- 2. Build per-group feature sets ----
   top_sets <- lapply(
     stats::setNames(ct_names, ct_names),
-    function(ct) data[[name_col]][which(data[[group_col]] == ct &
-                                        !is.na(data[[name_col]]))]
+    function(ct) unique(as.vector(data[[name_col]][which(data[[group_col]] == ct &
+                                        !is.na(data[[name_col]]))]))
   )
+  set_sizes <- as.double(lengths(top_sets))
 
   # ---- 3. Compute pairwise Jaccard similarity ----
   jmat <- matrix(0, nrow = n_ct, ncol = n_ct,
@@ -132,12 +135,14 @@ PlotHeatmapJaccard <- function(
     for (j in seq_len(i)) {
       gi <- top_sets[[i]]
       gj <- top_sets[[j]]
-      n_union <- length(union(gi, gj))
-      jmat[i, j] <- if (n_union > 0) length(intersect(gi, gj)) / n_union else 0
+      n_intersect <- sum(gi %in% gj)
+      n_union <- set_sizes[i] + set_sizes[j] - n_intersect
+      jmat[i, j] <- if (n_union > 0) n_intersect / n_union else 0
       jmat[j, i] <- jmat[i, j]
     }
   }
 
+  if (return_type == "data" && is.null(filename)) return(jmat)
   p <- .build_jaccard_plot(jmat, ct_names, list(title = title, midpoint = midpoint,
     text_size = text_size, show_diag = show_diag, low_color = low_color, high_color = high_color,
     show_strip = show_strip, strip_colors = strip_colors, strip_size = strip_size))

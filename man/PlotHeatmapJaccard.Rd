@@ -67,7 +67,9 @@ Default \code{0.45}.}
 
 \item{return_type}{What to return: \code{"plot"} (default, the ggplot object),
 \code{"data"} (the Jaccard similarity matrix), or \code{"both"}
-(a list with elements \code{plot} and \code{matrix}).}
+(a list with elements \code{plot} and \code{matrix}).
+Matrix-only output skips plotting when \code{filename = NULL}; a requested
+file is still drawn and saved.}
 
 \item{filename}{Output file path. \code{NULL} = no save.}
 

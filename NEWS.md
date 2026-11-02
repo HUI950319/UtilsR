@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* PlotHeatmapJaccard() caches unique feature sets and skips plot construction for matrix-only output without a requested file, preserving empty-set and overlap definitions.
+
 * PlotButterfly2() retains only the selected plotting columns in grouped, ungrouped and beeswarm paths, avoiding serialized copies of unused input payloads.
 
 * PlotHeatmapJaccard() constructs mappings in a bounded plotting frame so returned plots no longer retain unused input columns.

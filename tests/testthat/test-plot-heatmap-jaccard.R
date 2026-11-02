@@ -4,6 +4,48 @@ jaccard_payload_plot <- function(include_payload) {
   PlotHeatmapJaccard(data, return_type = "both")
 }
 
+test_that("Jaccard pure data returns avoid plotting while requested files are saved", {
+  data <- data.frame(cell_type = c("A", "A", "B", "B"), gene = c("a", "b", "b", "c"))
+  calls <- 0L
+  original <- get(".build_jaccard_plot", environment(PlotHeatmapJaccard))
+  testthat::local_mocked_bindings(.build_jaccard_plot = function(...) {
+    calls <<- calls + 1L
+    original(...)
+  }, .package = "UtilsR")
+  matrix <- PlotHeatmapJaccard(data, return_type = "data")
+  expect_identical(calls, 0L)
+  file <- withr::local_tempfile(fileext = ".pdf")
+  saved <- suppressMessages(PlotHeatmapJaccard(data, return_type = "data", filename = file))
+  expect_identical(saved, matrix)
+  expect_identical(calls, 1L)
+  expect_gt(file.info(file)$size, 0)
+})
+
+test_that("cached Jaccard sets retain original overlap and empty-set definitions", {
+  reference <- function(data, groups) {
+    sets <- lapply(groups, function(g) data$gene[which(data$cell_type == g & !is.na(data$gene))])
+    result <- matrix(0, length(groups), length(groups), dimnames = list(groups, groups))
+    for (i in seq_along(groups)) for (j in seq_len(i)) {
+      n_union <- length(union(sets[[i]], sets[[j]]))
+      result[i, j] <- if (n_union > 0) length(intersect(sets[[i]], sets[[j]])) / n_union else 0
+      result[j, i] <- result[i, j]
+    }
+    result
+  }
+  for (features in list(c("x", "x", "y", "y", NA), c(1, 1, 2, 2, NA_real_),
+                         factor(c("x", "x", "y", "y", NA), levels = c("x", "y", "unused")),
+                         as.Date(c(1, 1, 2, 2, NA_real_), origin = "1970-01-01"))) {
+    data <- data.frame(cell_type = factor(c("A", "A", "A", "B", "B"), levels = c("B", "A", "empty")),
+                       gene = features)
+    before <- data
+    for (groups in list(levels(data$cell_type), c("A", "empty", "B"))) {
+      actual <- PlotHeatmapJaccard(data, group_levels = groups, return_type = "data")
+      expect_identical(actual, reference(data, groups))
+    }
+    expect_identical(data, before)
+  }
+})
+
 test_that("Jaccard plots do not retain unselected input payloads", {
   full <- jaccard_payload_plot(TRUE)
   selected <- jaccard_payload_plot(FALSE)
