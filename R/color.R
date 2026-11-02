@@ -418,8 +418,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   }
   if (is.null(palette)) palette <- pal_lancet
 
-  # Whatever R can draw, except digit strings: col2rgb() reads "2" as a position
-  # in palette().
+  # Digit-leading strings (including decimals and exponents) can index palette().
   is_colour <- function(v) {
     drawable <- vapply(v, function(s) {
       tryCatch({
@@ -427,7 +426,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
         TRUE
       }, error = function(e) FALSE)
     }, logical(1L), USE.NAMES = FALSE)
-    drawable & !is.na(v) & !grepl("^[0-9]+$", v)
+    drawable & !is.na(v) & !grepl("^[0-9]", v)
   }
 
   # A list of palettes is mapped over, so `pal_heat` and friends get the same

@@ -441,6 +441,20 @@ test_that("pal_get interpolates every registered palette as colorRampPalette doe
   }
 })
 
+test_that("pal_get rejects all numeric-string palette indices", {
+  indices <- c("2", "02", "2.0", "2e0", "2.5", "1e+0")
+  for (n in list(NULL, 0, 1, 3)) {
+    for (s in indices) {
+      expect_error(pal_get(s, n = n), "not found", info = s)
+      expect_error(pal_get(c("red", s), n = n), "Not a colour", info = s)
+      expect_error(pal_get(list(custom = c("red", s)), n = n),
+                   "custom.*invalid colour", info = s)
+    }
+  }
+  expect_identical(pal_get(c("#F00", "light blue", "transparent")),
+                   c("#F00", "light blue", "transparent"))
+})
+
 test_that("pal_show preserves transparency in colour-vector previews", {
   cols <- c("#FF000080", "transparent", "#00000010")
   invisible(capture.output(p <- pal_show(cols, output = "gg")))

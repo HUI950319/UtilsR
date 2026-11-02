@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* pal_get() rejects decimal and exponent colour indices consistently in literal and list palettes.
+
 * Console palette previews bypass ANSI style construction for uncoloured stdout, retaining the same wrapped text and returned colour vectors.
 
 * Palette data rebuilds stop before replacement when required sources are missing, generated entries are invalid or previously registered names would disappear.
