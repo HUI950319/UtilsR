@@ -2,6 +2,10 @@
 
 ## UtilsR 0.6.21
 
+- Long unstyled ASCII runs in notes, key-value blocks and boxes split
+  into fixed-width pieces without repeatedly scanning their remaining
+  suffixes.
+
 - Notes, key-value blocks and boxes preserve styled zero-width graphemes
   without passing them to a failing ANSI wrapping path.
 

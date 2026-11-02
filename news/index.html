@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.21" id="utilsr-0621">UtilsR 0.6.21<a class="anchor" aria-label="anchor" href="#utilsr-0621"></a></h2>
-<ul><li><p>Notes, key-value blocks and boxes preserve styled zero-width graphemes without passing them to a failing ANSI wrapping path.</p></li>
+<ul><li><p>Long unstyled ASCII runs in notes, key-value blocks and boxes split into fixed-width pieces without repeatedly scanning their remaining suffixes.</p></li>
+<li><p>Notes, key-value blocks and boxes preserve styled zero-width graphemes without passing them to a failing ANSI wrapping path.</p></li>
 <li><p>Wrapped notes, key-value blocks and boxes no longer add an empty continuation after the last overwide grapheme in a very narrow console.</p></li>
 <li><p><code><a href="../reference/pr_tree.html">pr_tree()</a></code> accepts integer <code>max_items</code> near the integer limit without overflowing while preparing sibling-name previews.</p></li>
 </ul></div>
