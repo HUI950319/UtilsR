@@ -499,6 +499,10 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
         cli::cli_abort("Palette {.val {nms[[i]]}} contains invalid colour{?s}: {.val {bad}}.")
       }
     }
+    if (!is.object(x) && (is.character(x) || is.logical(x))) {
+      lvs <- unique(x[!is.na(x)])
+      x <- factor(lvs, levels = lvs)
+    }
     return(lapply(palette, .pal_apply,
                   n = n, x = x, reverse = reverse, alpha = alpha))
   }

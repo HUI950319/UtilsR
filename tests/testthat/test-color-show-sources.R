@@ -635,6 +635,26 @@ test_that("pal_get retains existing date and duration mapping classes", {
                    c("1" = "red", "2" = "blue"))
 })
 
+test_that("pal_get shares discrete list mappings without changing level order", {
+  palettes <- list(warm = c("red", "blue"), cool = c("black", "white"))
+  x <- rep(c("B", NA, "A", "B"), 2500L)
+  before <- x
+  expect_identical(pal_get(palettes, n = 0, x = x, reverse = TRUE, alpha = 0.5),
+                   list(warm = c(B = "#0000FF80", A = "#FF000080"),
+                        cool = c(B = "#FFFFFF80", A = "#00000080")))
+  expect_identical(x, before)
+  empty <- stats::setNames(character(), character())
+  expect_identical(pal_get(palettes, x = character()), list(warm = empty, cool = empty))
+  expect_identical(pal_get(palettes, x = c(NA, NA)), list(warm = empty, cool = empty))
+  expect_identical(pal_get(palettes, x = c(FALSE, TRUE, FALSE, NA)),
+                   list(warm = c("FALSE" = "red", "TRUE" = "blue"),
+                        cool = c("FALSE" = "black", "TRUE" = "white")))
+  factor_x <- factor("B", levels = c("A", "B", "unused", NA), exclude = NULL)
+  expect_identical(pal_get(palettes, x = factor_x),
+                   list(warm = c(A = "#FF0000", B = "#7F007F", unused = "#0000FF"),
+                        cool = c(A = "#000000", B = "#7F7F7F", unused = "#FFFFFF")))
+})
+
 test_that("pal_show preserves transparency in colour-vector previews", {
   cols <- c("#FF000080", "transparent", "#00000010")
   invisible(capture.output(p <- pal_show(cols, output = "gg")))
