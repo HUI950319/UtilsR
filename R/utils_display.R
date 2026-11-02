@@ -659,7 +659,8 @@ show_color <- function(x, rev = FALSE) {
   if (num_colors > 1L) {
     old_colors <- options(cli.num_colors = num_colors)
     on.exit(options(old_colors), add = TRUE)
-    rgba <- grDevices::col2rgb(x, alpha = TRUE)
+    ids <- if (anyDuplicated(hex)) match(unique(hex), hex) else seq_along(hex)
+    rgba <- grDevices::col2rgb(if (length(ids) < length(hex)) x[ids] else x, alpha = TRUE)
     a <- rgba[4L, ] / 255
     preview <- grDevices::rgb(rgba[1L, ] * a + 255 * (1 - a),
                              rgba[2L, ] * a + 255 * (1 - a),
@@ -704,15 +705,15 @@ show_color <- function(x, rev = FALSE) {
       fg_luminance <- vapply(foreground, .displayed_luminance, numeric(1))
     }
     if (num_colors >= 16777216L) luminance <- .luminance(preview)
-    ids <- if (anyDuplicated(hex)) match(unique(hex), hex) else seq_along(hex)
-    styled <- vapply(ids, function(i) {
-      bg_style <- cli::make_ansi_style(preview_rgb[, i, drop = FALSE], bg = TRUE, grey = FALSE)
+    styled <- vapply(seq_along(ids), function(j) {
+      i <- ids[[j]]
+      bg_style <- cli::make_ansi_style(preview_rgb[, j, drop = FALSE], bg = TRUE, grey = FALSE)
       fg_col <- if (num_colors < 16777216L) {
         bg_luminance <- .displayed_luminance(bg_style)
         contrast <- (pmax(fg_luminance, bg_luminance) + 0.05) /
           (pmin(fg_luminance, bg_luminance) + 0.05)
         names(foreground)[[which.max(contrast)]]
-      } else if (luminance[[i]] > 0.179) "#000000" else "#FFFFFF"
+      } else if (luminance[[j]] > 0.179) "#000000" else "#FFFFFF"
       if (is.null(foreground[[fg_col]])) {
         foreground[[fg_col]] <<- cli::make_ansi_style(fg_col, bg = FALSE)
       }
