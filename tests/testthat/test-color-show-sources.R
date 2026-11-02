@@ -1534,3 +1534,34 @@ test_that("source palette generation is bounded by the preview cap", {
     expect_equal(nrow(p$data), 20L)
   }
 })
+
+test_that("ggsci reverses the final preview without changing selected colours", {
+  skip_if_not_installed("ggsci")
+  settings <- list(list(n = 3, max_colors = 20), list(max_colors = 3),
+                   list(n = 8, max_colors = 3), list(n = 1, max_colors = 1))
+  native_sizes <- c(npg_nrc = 10L, gsea_default = 12L, material_red = 10L)
+  extract <- function(result, output) {
+    cols <- switch(output, gg = result$data$color, console = as.character(result[[1L]]),
+      gt = sub("background:", "", regmatches(result[["_data"]]$preview,
+        gregexpr("background:#[A-Fa-f0-9]+", result[["_data"]]$preview))[[1L]]))
+    grDevices::col2rgb(cols, alpha = TRUE)
+  }
+  for (name in names(native_sizes)) {
+    for (args in settings) {
+      total <- if (is.null(args$n)) native_sizes[[name]] else min(args$n, native_sizes[[name]])
+      shown <- min(total, args$max_colors)
+      count <- if (shown < total) sprintf("%d / %d", shown, total) else as.character(total)
+      for (output in c("gg", "gt", "console")) {
+        call <- c(list(palette = name, alpha = 0.5, output = output), args)
+        invisible(capture.output(forward <- do.call(pal_show_ggsci, call)))
+        invisible(capture.output(backward <- do.call(pal_show_ggsci, c(call, list(reverse = TRUE)))))
+        expected <- extract(forward, output)
+        expect_identical(extract(backward, output), expected[, rev(seq_len(ncol(expected))), drop = FALSE])
+        if (output == "gt") {
+          expect_identical(forward[["_data"]]$n_colors, count)
+          expect_identical(backward[["_data"]]$n_colors, count)
+        }
+      }
+    }
+  }
+})

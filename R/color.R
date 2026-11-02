@@ -1325,7 +1325,8 @@ pal_show_hcl <- function(palette = NULL, n = 8,
 #' @param alpha Opacity of the colours, a plain numeric scalar between 0 and 1
 #'   without a class or dimensions.
 #' @param reverse Logical scalar without a class or dimensions; if \code{TRUE},
-#'   reverse the colour order.
+#'   reverse the final preview colours after applying \code{n} and
+#'   \code{max_colors}, preserving the selected colour set.
 #' @param pattern Single non-missing regex string used to filter palette names.
 #' @param index Non-empty vector of unique positive whole-number indices after
 #'   filtering. Out-of-range values are ignored; an empty selection is an error.
@@ -1375,17 +1376,20 @@ pal_show_ggsci <- function(palette = NULL, n = NULL, alpha = 1,
   }
 
   pals <- list()
+  preview_total <- integer()
   for (pkg_name in names(ggsci_db)) {
     sub_pals <- ggsci_db[[pkg_name]]
     for (sub_name in names(sub_pals)) {
       full_name <- paste0("ggsci_", pkg_name, "_", sub_name)
       cols <- unname(sub_pals[[sub_name]])
-      if (isTRUE(reverse)) cols <- rev(cols)
       continuous <- pkg_name %in% c("gsea", "bs5", "material", "tw3")
+      attr(cols, "type") <- if (continuous) "continuous" else "discrete"
       if (!is.null(n)) {
-        if (continuous) attr(cols, "type") <- "continuous"
         cols <- .pal_resize(cols, min(n, length(cols)))
       }
+      preview_total[[full_name]] <- length(cols)
+      cols <- .pal_resize(cols, min(length(cols), max_colors))
+      if (isTRUE(reverse)) cols <- rev(cols)
       if (alpha < 1) cols <- scales::alpha(cols, alpha)
       attr(cols, "type") <- if (continuous) {
         "continuous"
@@ -1418,6 +1422,7 @@ pal_show_ggsci <- function(palette = NULL, n = NULL, alpha = 1,
     cli::cli_abort("No ggsci palettes matched the filters.")
   }
 
+  attr(pals, "n_total") <- preview_total[names(pals)]
   pal_show(pals, max_colors = max_colors, output = output)
 }
 

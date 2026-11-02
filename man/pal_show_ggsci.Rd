@@ -30,7 +30,8 @@ number of colours.}
 without a class or dimensions.}
 
 \item{reverse}{Logical scalar without a class or dimensions; if \code{TRUE},
-reverse the colour order.}
+reverse the final preview colours after applying \code{n} and
+\code{max_colors}, preserving the selected colour set.}
 
 \item{pattern}{Single non-missing regex string used to filter palette names.}
 
