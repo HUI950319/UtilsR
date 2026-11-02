@@ -71,7 +71,8 @@ selection. Three options:
     using only the displayed (post-\code{top_n}) values. Top displayed
     feature = 1, bottom displayed feature = 0. Maximises visual spread
     within each sector.}
-}}
+}
+Extreme finite ranges are rescaled before subtraction to avoid overflow.}
 
 \item{group_levels}{Character vector controlling the display order of groups.
 \code{NULL} = data appearance order (or factor levels if already a factor).

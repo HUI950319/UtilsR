@@ -37,6 +37,7 @@
 #'       feature = 1, bottom displayed feature = 0. Maximises visual spread
 #'       within each sector.}
 #'   }
+#'   Extreme finite ranges are rescaled before subtraction to avoid overflow.
 #' @param group_levels Character vector controlling the display order of groups.
 #'   \code{NULL} = data appearance order (or factor levels if already a factor).
 #'   Must include every observed group; unobserved levels are omitted.
@@ -206,6 +207,15 @@ PlotCircleLollipop <- function(
     dplyr::ungroup()
 
   # ---- Per-group value scaling (value_scale) ----
+  scale_values <- function(x, mn, mx) {
+    if (mx == mn) return(rep(0, length(x)))
+    span <- mx - mn
+    if (!is.finite(span) && all(is.finite(c(mn, mx)))) {
+      magnitude <- max(abs(c(mn, mx)))
+      return((x / magnitude - mn / magnitude) / (mx / magnitude - mn / magnitude))
+    }
+    (x - mn) / span
+  }
   if (value_scale == "group") {
     # Scale using the FULL group range from original data (before top_n)
     orig_grp <- as.character(data_orig[[group_col]])
@@ -215,7 +225,7 @@ PlotCircleLollipop <- function(
     df$value <- mapply(function(v, g) {
       mn <- grp_min[[as.character(g)]]
       mx <- grp_max[[as.character(g)]]
-      if (mx == mn) 0 else (v - mn) / (mx - mn)
+      scale_values(v, mn, mx)
     }, df$value, as.character(df$group))
 
   } else if (value_scale == "top_n") {
@@ -225,7 +235,7 @@ PlotCircleLollipop <- function(
       dplyr::mutate(value = {
         mn <- min(value, na.rm = TRUE)
         mx <- max(value, na.rm = TRUE)
-        if (mx == mn) rep(0, dplyr::n()) else (value - mn) / (mx - mn)
+        scale_values(value, mn, mx)
       }) |>
       dplyr::ungroup() |>
       as.data.frame()
@@ -237,7 +247,7 @@ PlotCircleLollipop <- function(
     df$y_pos <- if (is.finite(val_range[1]) && val_range[1] == val_range[2]) {
       df$value - val_range[1]
     } else {
-      (df$value - val_range[1]) / (val_range[2] - val_range[1])
+      scale_values(df$value, val_range[1], val_range[2])
     }
     df$y_pos <- pmax(0.05, df$y_pos)
   } else {

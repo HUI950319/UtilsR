@@ -1,3 +1,32 @@
+test_that("PlotCircleLollipop keeps extreme scaled heights finite in every mode", {
+  skip_if_not_installed("circlize")
+  grDevices::pdf(NULL)
+  device <- grDevices::dev.cur()
+  withr::defer(grDevices::dev.off(device))
+  observed <- numeric()
+  original <- circlize::circos.points
+  testthat::local_mocked_bindings(circos.points = function(x, y, ...) {
+    observed <<- c(observed, y)
+    original(x, y, ...)
+  }, .package = "circlize")
+  data <- data.frame(group = c(rep("A", 3), rep("B", 4)), name = letters[1:7],
+                     value = c(rep(c(-1e308, 0, 1e308), 2), NA_real_))
+  before <- data
+  for (mode in c("none", "group", "top_n")) {
+    observed <- numeric()
+    PlotCircleLollipop(data, value_scale = mode, show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
+    low <- if (mode == "none") .05 else 0
+    expect_equal(observed, c(rep(c(low, .5, 1), 2), NA_real_))
+  }
+  for (mode in c("group", "top_n")) {
+    observed <- numeric()
+    PlotCircleLollipop(data[1:6, ], top_n = 2, value_scale = mode,
+      show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
+    expect_equal(observed, rep(c(1, if (mode == "group") .5 else 0), 2))
+  }
+  expect_identical(data, before)
+})
+
 test_that("PlotCircleLollipop omits unused sectors while preserving observed order", {
   skip_if_not_installed("circlize")
   grDevices::pdf(NULL)
