@@ -2,6 +2,65 @@
 
 ## UtilsR 0.6.21
 
+- [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
+  uses indexed colour and contrast with cli 3.0.x even when true-colour
+  output is requested, while retaining true-colour output with newer
+  renderers.
+
+- [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
+  caches luminance for identical emitted ANSI colours within each
+  display, avoiding repeated decoding when distinct inputs share an
+  indexed background.
+
+- pal_get() applies opacity to the interpolated unique numeric positions
+  before restoring repeated observations, preserving original alpha at
+  the default setting and leaving missing or infinite observations
+  unmapped.
+
+- [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
+  computes true-colour luminance in one vectorised pass, preserving
+  colours, contrast, wrapping and returned values.
+
+- Palette data rebuilds skip unsupported legacy HCL candidates using the
+  native catalogue while stopping on generation failures for supported
+  names and abbreviations.
+
+- pal_get() shares distinct ordinary numeric values and observation
+  indices across palette lists, using the same repetition estimate as
+  interpolation and preserving missing values, output order and
+  class-specific mapping.
+
+- `show_color(rev = TRUE)` retains custom vector attributes while
+  reversing colours and their names, including the copyable expression.
+
+- Palette data rebuilds reject dimensional and classed colour vectors
+  before saving, matching console preview input requirements and
+  preserving existing registries.
+
+- [`pal_show_ggsci()`](https://hui950319.github.io/UtilsR/reference/pal_show_ggsci.md)
+  documents its fixed-palette catalogue, excluding iTerm themes and
+  Gephi generators and linking their native ggsci interfaces.
+
+- Palette data rebuilds write to a temporary sibling file, verify its
+  contents and check replacement success, preserving existing data when
+  writing or replacement fails.
+
+- [`pal_show_ggsci()`](https://hui950319.github.io/UtilsR/reference/pal_show_ggsci.md)
+  and palette data rebuilds exclude Gephi generator presets from fixed
+  colour catalogues, preserving ordinary palettes with ggsci 5.x and
+  explaining explicitly requested generators without consuming random
+  numbers.
+
+- pal_get() estimates repetition across numeric positions before
+  deduplicating, avoiding full unique/match work for sparse repeats and
+  detecting dense repeats beyond the original prefix without changing
+  colours.
+
+- pal_get() treats the literal NA colour as transparent before alpha
+  replacement, consistently across selection and interpolation, while
+  retaining true missing mapping values and unchanged default-alpha
+  spelling.
+
 - [`pal_show_ggsci()`](https://hui950319.github.io/UtilsR/reference/pal_show_ggsci.md)
   transforms only selected palettes after filtering names and indices,
   avoiding unused resizing, reversal and opacity work.

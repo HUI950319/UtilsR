@@ -1,7 +1,7 @@
 # Visualise ggsci Palettes
 
-Display the palettes provided by `ggsci` using the same ggplot or gt
-layout as
+Display the fixed colour palettes in the standard `ggsci` catalogue
+using the same ggplot or gt layout as
 [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md).
 
 ## Usage
@@ -23,9 +23,9 @@ pal_show_ggsci(
 
 - palette:
 
-  Character vector of palette names. Names use the form
+  Character vector of fixed palette names. Names use the form
   `"ggsci_npg_nrc"`; the `ggsci_` prefix may be omitted. `NULL` shows
-  all palettes.
+  all fixed palettes matching `pattern`.
 
 - n:
 
@@ -77,6 +77,21 @@ Explicit `palette` names take precedence over `pattern` and `type`
 (where available). These filters are applied only when `palette = NULL`.
 Unknown names are reported and skipped when at least one valid palette
 remains.
+
+This catalogue excludes iTerm terminal themes and Gephi generative
+palettes. Use
+[`ggsci::iterm_palettes()`](https://nanx.me/ggsci/reference/iterm_palettes.html)
+and
+[`ggsci::pal_iterm()`](https://nanx.me/ggsci/reference/pal_iterm.html)
+for iTerm themes, or
+[`ggsci::pal_gephi()`](https://nanx.me/ggsci/reference/pal_gephi.html)
+for Gephi generators, in versions of `ggsci` that provide these
+interfaces.
+
+Gephi presets in newer `ggsci` databases are excluded before indexing
+and colour processing. Explicitly selecting only Gephi presets is an
+error; mixed selections warn and retain the fixed palettes. Generators
+are never evaluated, so previews do not change the random number state.
 
 ## See also
 

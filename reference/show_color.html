@@ -87,7 +87,8 @@ or named R colours. Numeric palette indices are not accepted.</p></dd>
 
 <dt id="arg-rev">rev<a class="anchor" aria-label="anchor" href="#arg-rev"></a></dt>
 <dd><p>Single non-missing logical value without a class or dimensions.
-Reverse the order before display (default <code>FALSE</code>).</p></dd>
+Reverse colours and their names before display, retaining other attributes
+(default <code>FALSE</code>).</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -102,6 +103,8 @@ nearest palette entry instead of the exact hex, so a swatch can differ from
 the code printed beside it. <code>options(cli.num_colors = 16777216)</code> forces
 24-bit output in a terminal that renders it without advertising it.
 Colour depth is detected for stdout, including when stderr is redirected.
+Versions of <span class="pkg">cli</span> before 3.1.0 support at most 256 colours, including
+when 24-bit output is requested.
 On indexed terminals, text contrast uses the emitted ANSI colours and the
 standard xterm palette. Custom terminal colour themes can change the result.</p>
 <p>Missing character values (<code>NA_character_</code>) and the literal colour

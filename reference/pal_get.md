@@ -31,7 +31,8 @@ pal_get(palette = "Paired", n = NULL, x = NULL, reverse = FALSE, alpha = 1)
     `pal_heat`, mapped over one palette at a time.
 
   Matrices, arrays and data frames are not supported. Colour vectors
-  must have no dimensions.
+  must have no dimensions. The literal string `"NA"` denotes R's
+  transparent colour; actual missing colour values are not supported.
 
 - n:
 
@@ -126,6 +127,8 @@ pal_get("viridis", x = as.numeric(dates))
 # Reverse and transparent
 pal_get("Blues", n = 5, reverse = TRUE, alpha = 0.6)
 #> [1] "#6BAED699" "#9ECAE199" "#C6DBEF99" "#DEEBF799" "#F7FBFF99"
+pal_get("NA", alpha = 0.5)
+#> [1] "#FFFFFF80"
 
 # Colours of your own, and a whole list of palettes at once
 pal_get(c("#2166ac", "#ffffff", "#b2182b"), n = 7)

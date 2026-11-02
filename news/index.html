@@ -50,7 +50,20 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.21" id="utilsr-0621">UtilsR 0.6.21<a class="anchor" aria-label="anchor" href="#utilsr-0621"></a></h2>
-<ul><li><p><code><a href="../reference/pal_show_ggsci.html">pal_show_ggsci()</a></code> transforms only selected palettes after filtering names and indices, avoiding unused resizing, reversal and opacity work.</p></li>
+<ul><li><p><code><a href="../reference/show_color.html">show_color()</a></code> uses indexed colour and contrast with cli 3.0.x even when true-colour output is requested, while retaining true-colour output with newer renderers.</p></li>
+<li><p><code><a href="../reference/show_color.html">show_color()</a></code> caches luminance for identical emitted ANSI colours within each display, avoiding repeated decoding when distinct inputs share an indexed background.</p></li>
+<li><p>pal_get() applies opacity to the interpolated unique numeric positions before restoring repeated observations, preserving original alpha at the default setting and leaving missing or infinite observations unmapped.</p></li>
+<li><p><code><a href="../reference/show_color.html">show_color()</a></code> computes true-colour luminance in one vectorised pass, preserving colours, contrast, wrapping and returned values.</p></li>
+<li><p>Palette data rebuilds skip unsupported legacy HCL candidates using the native catalogue while stopping on generation failures for supported names and abbreviations.</p></li>
+<li><p>pal_get() shares distinct ordinary numeric values and observation indices across palette lists, using the same repetition estimate as interpolation and preserving missing values, output order and class-specific mapping.</p></li>
+<li><p><code>show_color(rev = TRUE)</code> retains custom vector attributes while reversing colours and their names, including the copyable expression.</p></li>
+<li><p>Palette data rebuilds reject dimensional and classed colour vectors before saving, matching console preview input requirements and preserving existing registries.</p></li>
+<li><p><code><a href="../reference/pal_show_ggsci.html">pal_show_ggsci()</a></code> documents its fixed-palette catalogue, excluding iTerm themes and Gephi generators and linking their native ggsci interfaces.</p></li>
+<li><p>Palette data rebuilds write to a temporary sibling file, verify its contents and check replacement success, preserving existing data when writing or replacement fails.</p></li>
+<li><p><code><a href="../reference/pal_show_ggsci.html">pal_show_ggsci()</a></code> and palette data rebuilds exclude Gephi generator presets from fixed colour catalogues, preserving ordinary palettes with ggsci 5.x and explaining explicitly requested generators without consuming random numbers.</p></li>
+<li><p>pal_get() estimates repetition across numeric positions before deduplicating, avoiding full unique/match work for sparse repeats and detecting dense repeats beyond the original prefix without changing colours.</p></li>
+<li><p>pal_get() treats the literal NA colour as transparent before alpha replacement, consistently across selection and interpolation, while retaining true missing mapping values and unchanged default-alpha spelling.</p></li>
+<li><p><code><a href="../reference/pal_show_ggsci.html">pal_show_ggsci()</a></code> transforms only selected palettes after filtering names and indices, avoiding unused resizing, reversal and opacity work.</p></li>
 <li><p><code><a href="../reference/pal_show.html">pal_show()</a></code> passes generated swatches directly to the gt HTML renderer, avoiding repeated Markdown parsing while preserving existing non-HTML formatters.</p></li>
 <li><p>Source palette viewers identify empty index selections with the filtered palette count while preserving partial in-range selections.</p></li>
 <li><p><code><a href="../reference/pal_show_ggsci.html">pal_show_ggsci()</a></code> reverses the final preview after colour selection and display capping, retaining the selected colours and original count labels.</p></li>

@@ -25,7 +25,8 @@ show_color(x, rev = FALSE)
 - rev:
 
   Single non-missing logical value without a class or dimensions.
-  Reverse the order before display (default `FALSE`).
+  Reverse colours and their names before display, retaining other
+  attributes (default `FALSE`).
 
 ## Value
 
@@ -39,9 +40,11 @@ A terminal limited to 256 colours draws the nearest palette entry
 instead of the exact hex, so a swatch can differ from the code printed
 beside it. `options(cli.num_colors = 16777216)` forces 24-bit output in
 a terminal that renders it without advertising it. Colour depth is
-detected for stdout, including when stderr is redirected. On indexed
-terminals, text contrast uses the emitted ANSI colours and the standard
-xterm palette. Custom terminal colour themes can change the result.
+detected for stdout, including when stderr is redirected. Versions of
+cli before 3.1.0 support at most 256 colours, including when 24-bit
+output is requested. On indexed terminals, text contrast uses the
+emitted ANSI colours and the standard xterm palette. Custom terminal
+colour themes can change the result.
 
 Missing character values (`NA_character_`) and the literal colour `"NA"`
 follow R's transparent-colour convention, so their swatches have the
