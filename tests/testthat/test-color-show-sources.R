@@ -897,3 +897,22 @@ test_that("palette catalogue types match sequential and categorical sources", {
                      c("continuous", "continuous"))
   }
 })
+
+test_that("console palettes follow stdout when stderr is not coloured", {
+  withr::local_options(cli.num_colors = NULL)
+  testthat::local_mocked_bindings(num_ansi_colors = function(stream = "auto") {
+    forced <- getOption("cli.num_colors")
+    if (!is.null(forced)) return(as.integer(forced))
+    if (identical(stream, stdout())) 16777216L else 1L
+  }, .package = "cli")
+  output <- capture.output(result <- withVisible(show_color("#2166AC")))
+  expect_match(paste(output, collapse = ""), "48;2;33;102;172", fixed = TRUE)
+  expect_identical(result$value, "#2166AC")
+  expect_false(result$visible)
+  expect_null(getOption("cli.num_colors"))
+  testthat::local_mocked_bindings(make_ansi_style = function(...) {
+    stop("style failure")
+  }, .package = "cli")
+  expect_error(show_color("#2166AC"), "style failure")
+  expect_null(getOption("cli.num_colors"))
+})

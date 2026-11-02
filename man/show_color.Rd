@@ -27,6 +27,7 @@ Swatches follow whatever colour depth the terminal reports through
 nearest palette entry instead of the exact hex, so a swatch can differ from
 the code printed beside it. \code{options(cli.num_colors = 16777216)} forces
 24-bit output in a terminal that renders it without advertising it.
+Colour depth is detected for stdout, including when stderr is redirected.
 }
 \examples{
 show_color(c("#FF0000", "#00FF00", "#0000FF"))

@@ -565,6 +565,7 @@ console_width <- function() {
 #' nearest palette entry instead of the exact hex, so a swatch can differ from
 #' the code printed beside it. \code{options(cli.num_colors = 16777216)} forces
 #' 24-bit output in a terminal that renders it without advertising it.
+#' Colour depth is detected for stdout, including when stderr is redirected.
 #'
 #' @param x Character vector of colours (hex codes or named R colours).
 #' @param rev Logical. Reverse the order before display (default \code{FALSE}).
@@ -595,7 +596,10 @@ show_color <- function(x, rev = FALSE) {
   # 256 quantised every swatch onto the xterm palette, so the preview and the
   # hex codes underneath it disagreed: a diverging palette's pale midpoint
   # collapsed to grey and #B2182B was drawn as magenta.
-  if (._pr_colour()) {
+  num_colors <- cli::num_ansi_colors(stdout())
+  if (num_colors > 1L) {
+    old_colors <- options(cli.num_colors = num_colors)
+    on.exit(options(old_colors), add = TRUE)
     rgba <- grDevices::col2rgb(x, alpha = TRUE)
     a <- rgba[4L, ] / 255
     preview <- grDevices::rgb(rgba[1L, ] * a + 255 * (1 - a),
