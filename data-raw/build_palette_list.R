@@ -37,7 +37,7 @@ if (requireNamespace("ggsci", quietly = TRUE)) {
       for (sub_name in names(sub_pals)) {
         full_name <- paste0("ggsci_", pkg_name, "_", sub_name)
         cols <- unname(sub_pals[[sub_name]])
-        attr(cols, "type") <- if (pkg_name %in% c("gsea", "material")) {
+        attr(cols, "type") <- if (pkg_name %in% c("gsea", "bs5", "material", "tw3")) {
           "continuous"
         } else "discrete"
         palette_list[[full_name]] <- cols
@@ -99,7 +99,7 @@ if (requireNamespace("dichromat", quietly = TRUE)) {
   for (nm in names(dichromat::colorschemes)) {
     cols <- dichromat::colorschemes[[nm]]
     full_name <- paste0("dichromat_", nm)
-    attr(cols, "type") <- "continuous"
+    attr(cols, "type") <- if (nm == "Categorical.12") "discrete" else "continuous"
     palette_list[[full_name]] <- cols
   }
   message("dichromat: ", length(palette_list) - n_before, " palettes")

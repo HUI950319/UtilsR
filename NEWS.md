@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* Palette catalogues classify Bootstrap 5 and Tailwind gradients as continuous and dichromat Categorical.12 as discrete without changing colour values.
+
 * `show_color()` retains RGBA labels and composites transparent ANSI swatches onto white, keeping the original copyable vector unchanged.
 
 * `pal_show()` preserves valid colour names and replaces missing or whitespace-only labels individually with their hex codes.

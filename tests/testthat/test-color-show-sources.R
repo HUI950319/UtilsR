@@ -874,3 +874,26 @@ test_that("palette viewers reject unsupported palette input types", {
     expect_error(pal_show(bad, output = "gg"), "`palette`")
   }
 })
+
+test_that("palette catalogue types match sequential and categorical sources", {
+  wanted <- names(palette_list)[grepl("^ggsci_(bs5|tw3)_", names(palette_list))]
+  expect_length(wanted, 33L)
+  invisible(capture.output(found <- pal_list(
+    pattern = "^ggsci_(bs5|tw3)_", type = "continuous", show = FALSE
+  )))
+  expect_named(found, wanted)
+  expect_true(all(vapply(found, function(p) identical(attr(p, "type"),
+                                                     "continuous"), logical(1))))
+  invisible(capture.output(categorical <- pal_list(
+    pattern = "^dichromat_Categorical[.]12$", type = "discrete", show = FALSE
+  )))
+  expect_named(categorical, "dichromat_Categorical.12")
+  if (requireNamespace("ggsci", quietly = TRUE)) {
+    invisible(capture.output(source <- pal_show_ggsci(
+      pattern = "^ggsci_(bs5_blue|tw3_slate)$", output = "console"
+    )))
+    expect_named(source, c("ggsci_bs5_blue", "ggsci_tw3_slate"))
+    expect_identical(unname(vapply(source, attr, character(1), "type")),
+                     c("continuous", "continuous"))
+  }
+})
