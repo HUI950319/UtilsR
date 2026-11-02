@@ -797,3 +797,17 @@ test_that("palette rebuilds preserve existing data if registered names disappear
   after <- readBin("data/palette_list.rda", "raw", file.info("data/palette_list.rda")$size)
   expect_identical(after, before)
 })
+
+test_that("palette viewers reject unsupported palette input types", {
+  viewers <- list(pal_show, pal_show_brewer, pal_show_hcl, pal_show_viridis)
+  if (requireNamespace("ggsci", quietly = TRUE)) viewers <- c(viewers, list(pal_show_ggsci))
+  for (viewer in viewers) {
+    for (bad in list(factor("viridis"), matrix("Set1"), data.frame(a = "red"),
+                     as.Date("2026-11-02"), 1, character(), NA_character_)) {
+      expect_error(viewer(palette = bad, output = "gg"), "`palette`")
+    }
+  }
+  for (bad in list(list(a = character()), list(a = 1:2), list(a = matrix("red")))) {
+    expect_error(pal_show(bad, output = "gg"), "`palette`")
+  }
+})

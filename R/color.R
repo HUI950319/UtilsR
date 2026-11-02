@@ -606,6 +606,26 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   out
 }
 
+# Validate palette storage before list indexing can interpret factors as integers.
+.pal_validate_palette <- function(palette, allow_list = FALSE) {
+  if (is.null(palette)) return(invisible(NULL))
+  plain_vector <- function(x) {
+    is.character(x) && !is.object(x) && is.null(dim(x)) &&
+      length(x) > 0L && !anyNA(x)
+  }
+  if (allow_list && is.list(palette) && !is.object(palette) && is.null(dim(palette))) {
+    nms <- names(palette)
+    if (!length(palette) || is.null(nms) || anyNA(nms) ||
+        any(!nzchar(nms)) || anyDuplicated(nms) ||
+        !all(vapply(palette, plain_vector, logical(1)))) {
+      cli::cli_abort("{.arg palette} lists must be non-empty, uniquely named lists of non-missing character vectors.")
+    }
+  } else if (!plain_vector(palette)) {
+    cli::cli_abort("{.arg palette} must be a non-empty, non-missing character vector without a class or dimensions.")
+  }
+  invisible(NULL)
+}
+
 # Validate viewers before source palettes are generated or any output is drawn.
 .pal_validate_show <- function(n, max_colors, index, label = TRUE,
                                label_size = 3, ncol = NULL, n_required = FALSE) {
@@ -736,6 +756,7 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
   type <- match.arg(type)
   output <- match.arg(output)
   .pal_validate_show(n, max_colors, index, label, label_size, ncol)
+  .pal_validate_palette(palette, allow_list = TRUE)
 
   # --- Detect colour vector mode ---
   # If palette is a character vector and looks like colours (not palette
@@ -753,10 +774,6 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
   # A named list is accepted internally by the source-specific wrappers below.
   if (!is.null(palette) && is.list(palette)) {
     pals <- palette
-    if (is.null(names(pals)) || anyNA(names(pals)) ||
-        any(!nzchar(names(pals))) || anyDuplicated(names(pals))) {
-      cli::cli_abort("Internal palette lists must have non-missing, non-empty, unique names.")
-    }
     palette <- NULL
   } else {
     # Explicit namespace lookup (LazyData not auto-loaded under `::`).
@@ -939,6 +956,7 @@ pal_show_brewer <- function(palette = NULL, n = NULL,
   type <- match.arg(type)
   output <- match.arg(output)
   .pal_validate_show(n, max_colors, index)
+  .pal_validate_palette(palette)
 
   info <- RColorBrewer::brewer.pal.info
   pal_names <- rownames(info)
@@ -1011,6 +1029,7 @@ pal_show_hcl <- function(palette = NULL, n = 8,
   type <- match.arg(type)
   output <- match.arg(output)
   .pal_validate_show(n, max_colors, index, n_required = TRUE)
+  .pal_validate_palette(palette)
 
   hcl_types <- c("qualitative", "sequential", "diverging")
   all_names <- grDevices::hcl.pals()
@@ -1101,6 +1120,7 @@ pal_show_ggsci <- function(palette = NULL, n = NULL, alpha = 1,
 
   output <- match.arg(output)
   .pal_validate_show(n, max_colors, index)
+  .pal_validate_palette(palette)
   if (!is.numeric(alpha) || length(alpha) != 1L || !is.finite(alpha) ||
       alpha < 0 || alpha > 1) {
     cli::cli_abort("Argument {.arg alpha} must be a number between 0 and 1.")
@@ -1193,6 +1213,7 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
                              output = c("gt", "gg", "console")) {
   output <- match.arg(output)
   .pal_validate_show(n, max_colors, index, n_required = TRUE)
+  .pal_validate_palette(palette)
   if (!is.numeric(begin) || length(begin) != 1L || !is.finite(begin) ||
       begin < 0 || begin > 1) {
     cli::cli_abort("Argument {.arg begin} must be a number between 0 and 1.")

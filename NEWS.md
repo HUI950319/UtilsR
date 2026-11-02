@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* `pal_show()` and source viewers reject unsupported palette storage and malformed palette lists before selection.
+
 * pal_get() validates colour vectors in one batch, falling back to per-colour diagnostics only for invalid input without changing colour, interpolation or alpha rules.
 
 * pal_get() omits explicit NA factor levels while preserving ordinary unused levels, their order and literal NA labels.
