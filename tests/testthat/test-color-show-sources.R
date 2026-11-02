@@ -927,6 +927,28 @@ test_that("pal_list preserves filtered palettes and invisible results", {
 })
 
 
+test_that("pal_list combines name and type filters in catalogue order", {
+  withr::local_options(list(cli.num_colors = 0, cli.width = 80, width = 80))
+  selections <- list(all = c("Set1", "ggsci_bs5_blue", "viridis"),
+                      continuous = c("ggsci_bs5_blue", "viridis"),
+                      discrete = "Set1")
+  for (type in names(selections)) {
+    expected <- names(palette_list)[names(palette_list) %in% selections[[type]]]
+    output <- capture.output(result <- withVisible(pal_list(
+      pattern = "^(SET1|VIRIDIS|GGSCI_BS5_BLUE)$", type = type, show = FALSE
+    )))
+    expect_identical(result$value, palette_list[expected])
+    expect_false(result$visible)
+    for (key in expected) expect_match(paste(output, collapse = "\n"), key, fixed = TRUE)
+  }
+  output <- capture.output(expect_message(empty <- withVisible(
+    pal_list(pattern = "^Set1$", type = "continuous", show = FALSE)
+  ), "No palettes matched"))
+  expect_identical(output, character())
+  expect_identical(empty$value, list())
+  expect_false(empty$visible)
+})
+
 test_that("pal_list validates show before matching or printing", {
   for (pattern in c("^Blues$", "^__none__$")) {
     for (bad in list(NA, NULL, logical(), c(TRUE, FALSE), 1, "TRUE",

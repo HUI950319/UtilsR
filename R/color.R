@@ -318,13 +318,13 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
   type <- match.arg(type)
   # Explicit namespace lookup (LazyData not auto-loaded under `::`).
   pals <- getExportedValue("UtilsR", "palette_list")
-  # Filter by type
-  if (type != "all") {
-    pals <- pals[vapply(pals, function(x) identical(attr(x, "type"), type), logical(1))]
-  }
   # Filter by pattern
   if (!is.null(pattern)) {
     pals <- pals[.pal_match_pattern(pattern, names(pals))]
+  }
+  # Filter by type
+  if (type != "all") {
+    pals <- pals[vapply(pals, function(x) identical(attr(x, "type"), type), logical(1))]
   }
   if (length(pals) == 0) {
     cli::cli_inform("No palettes matched.")

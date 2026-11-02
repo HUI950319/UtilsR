@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* `pal_list()` filters names before inspecting palette types, reducing work for selective queries while preserving catalogue order, console output and invisible results.
+
 * `show_color()` prints numeric attributes with full double precision so copied expressions reconstruct them exactly, and documents special attribute limitations.
 
 * `show_color()` uses indexed colour and contrast with cli 3.0.x even when true-colour output is requested, while retaining true-colour output with newer renderers.
