@@ -595,7 +595,14 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
         } else {
           (values[placed] - ends[[1L]]) / (ends[[2L]] - ends[[1L]])
         }
-        out[placed] <- ramp(at = if (reverse) 1 - at else at)
+        if (reverse) at <- 1 - at
+        # Keep all-unique inputs on the direct path with a bounded prefix check.
+        if (anyDuplicated(at[seq_len(min(length(at), 1024L))])) {
+          unique_at <- unique(at)
+          out[placed] <- ramp(at = unique_at)[match(at, unique_at)]
+        } else {
+          out[placed] <- ramp(at = at)
+        }
       }
     } else {
       # Discrete: map levels

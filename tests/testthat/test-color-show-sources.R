@@ -671,6 +671,21 @@ test_that("pal_get rejects distinct discrete values with colliding names", {
                    c("2020-01-01" = "red"))
 })
 
+test_that("pal_get retains numeric positions when repeated values share interpolation", {
+  cols <- c("#FF000080", "#0000FF40")
+  x <- c(2, 0, NA, 1, 2, Inf, 0)
+  expected <- c("#0000FF40", "#FF000080", NA, "#7F007F60",
+                "#0000FF40", NA, "#FF000080")
+  expect_identical(pal_get(cols, x = x), expected)
+  expect_identical(pal_get(list(custom = cols), x = x), list(custom = expected))
+  expect_identical(pal_get(cols, x = x, reverse = TRUE),
+                   c("#FF000080", "#0000FF40", NA, "#7F007F60",
+                     "#FF000080", NA, "#0000FF40"))
+  expect_identical(pal_get(cols, x = x, alpha = 0.5),
+                   c("#0000FF80", "#FF000080", NA, "#7F007F80",
+                     "#0000FF80", NA, "#FF000080"))
+})
+
 test_that("pal_show preserves transparency in colour-vector previews", {
   cols <- c("#FF000080", "transparent", "#00000010")
   invisible(capture.output(p <- pal_show(cols, output = "gg")))
