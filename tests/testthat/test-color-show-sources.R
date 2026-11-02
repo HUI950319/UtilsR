@@ -549,3 +549,38 @@ test_that("palette viewers reject invalid indices consistently", {
   invisible(capture.output(one <- pal_show(c("Set1", "Set2"), index = c(1L, 99L), output = "console")))
   expect_named(one, "Set1")
 })
+
+test_that("palette name filters reject missing or ambiguous patterns", {
+  viewers <- list(
+    function(pattern) pal_list(pattern = pattern, show = FALSE),
+    function(pattern) pal_show(pattern = pattern, output = "console"),
+    function(pattern) pal_show_brewer(pattern = pattern, output = "console"),
+    function(pattern) pal_show_hcl(pattern = pattern, output = "console"),
+    function(pattern) pal_show_viridis(pattern = pattern, output = "console")
+  )
+  if (requireNamespace("ggsci", quietly = TRUE)) {
+    viewers <- c(viewers, list(function(pattern) {
+      pal_show_ggsci(pattern = pattern, output = "console")
+    }))
+  }
+  for (viewer in viewers) {
+    for (bad in list(NA, NA_character_, character(), c("Blues", "Reds"),
+                     2, list("Blues"), factor("Blues"), matrix("Blues"), "[")) {
+      output <- capture.output(expect_error(viewer(bad), "`pattern`"))
+      expect_identical(output, character())
+    }
+  }
+})
+
+test_that("pal_list preserves filtered palettes and invisible results", {
+  output <- capture.output(result <- withVisible(
+    pal_list(pattern = "^blues$", type = "continuous", show = FALSE)
+  ))
+  expect_identical(result$value, palette_list["Blues"])
+  expect_false(result$visible)
+  expect_match(paste(output, collapse = "\n"), "Blues")
+  expect_message(empty <- withVisible(pal_list("^__none__$", show = FALSE)),
+                 "No palettes matched")
+  expect_identical(empty$value, list())
+  expect_false(empty$visible)
+})

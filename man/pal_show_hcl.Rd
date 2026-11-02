@@ -23,7 +23,7 @@ palettes matching \code{type} and \code{pattern}.}
 \item{type}{HCL palette category: \code{"all"}, \code{"qualitative"},
 \code{"sequential"}, or \code{"diverging"}.}
 
-\item{pattern}{Regex pattern used to filter palette names.}
+\item{pattern}{Single non-missing regex string used to filter palette names.}
 
 \item{index}{Non-empty vector of unique positive whole-number indices after
 filtering. Out-of-range values are ignored; an empty selection is an error.}

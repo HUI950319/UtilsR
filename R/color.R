@@ -10,6 +10,7 @@
 #
 #   L1  lookup + extraction                         -- public API
 #         pal_list(pattern, type)   browse palette_list
+#               +-- L2  .pal_match_pattern() validate and match name filters
 #         pal_get(palette, n, x, reverse, alpha)    NULL | name | colours -> hex
 #               +-- L2  .pal_apply()    recycle / interpolate / alpha
 #                     +-- L3  .pal_resize()   grow or shrink a discrete set
@@ -278,7 +279,7 @@ pal_heat <- list(
 #' RColorBrewer, ggsci, viridis, rcartocolor, nord, dichromat, pals,
 #' colorspace, and UtilsR built-in). Use \code{pattern} to filter.
 #'
-#' @param pattern Regex pattern to filter palette names. Default \code{NULL}
+#' @param pattern Single non-missing regex string to filter palette names. Default \code{NULL}
 #'   shows all.
 #' @param type Filter by type: \code{"all"} (default), \code{"discrete"},
 #'   or \code{"continuous"}.
@@ -303,7 +304,7 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
   }
   # Filter by pattern
   if (!is.null(pattern)) {
-    pals <- pals[grep(pattern, names(pals), ignore.case = TRUE)]
+    pals <- pals[.pal_match_pattern(pattern, names(pals))]
   }
   if (length(pals) == 0) {
     cli::cli_inform("No palettes matched.")
@@ -316,6 +317,19 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
     if (show) show_color(pals[[nm]])
   }
   invisible(pals)
+}
+
+.pal_match_pattern <- function(pattern, choices) {
+  if (!is.character(pattern) || length(pattern) != 1L ||
+      !is.null(dim(pattern)) || is.na(pattern)) {
+    cli::cli_abort("{.arg pattern} must be a single non-missing regex string or {.code NULL}.")
+  }
+  tryCatch(
+    suppressWarnings(grep(pattern, choices, ignore.case = TRUE)),
+    error = function(err) {
+      cli::cli_abort("{.arg pattern} must be a valid regular expression.", parent = err)
+    }
+  )
 }
 
 #' Get Colours from a Named Palette
@@ -621,7 +635,8 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #'   front when \code{n} is at most the palette length and interpolated when it is
 #'   longer. \code{max_colors} still caps how many of them are drawn.
 #'   Default \code{NULL} shows each palette as it is.
-#' @param pattern Regex pattern to filter palette names (e.g. \code{"^nord"}).
+#' @param pattern Single non-missing regex string to filter palette names
+#'   (e.g. \code{"^nord"}). Default \code{NULL} does not filter by name.
 #' @param type Filter by type: \code{"all"}, \code{"discrete"}, or
 #'   \code{"continuous"}.
 #' @param max_colors Positive whole number limiting displayed colours per palette,
@@ -732,7 +747,7 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
       pals <- pals[vapply(pals, function(x) identical(attr(x, "type"), type), logical(1))]
     }
     if (!is.null(pattern)) {
-      pals <- pals[grep(pattern, names(pals), ignore.case = TRUE)]
+      pals <- pals[.pal_match_pattern(pattern, names(pals))]
     }
   }
   if (length(pals) == 0) cli::cli_abort("No palettes matched the filters.")
@@ -866,7 +881,7 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
 #'   supported range of each palette.
 #' @param type Brewer palette category: \code{"all"}, \code{"qual"},
 #'   \code{"seq"}, or \code{"div"}.
-#' @param pattern Regex pattern used to filter palette names.
+#' @param pattern Single non-missing regex string used to filter palette names.
 #' @param index Non-empty vector of unique positive whole-number indices after
 #'   filtering. Out-of-range values are ignored; an empty selection is an error.
 #' @param max_colors Positive whole number limiting displayed colours per palette,
@@ -908,7 +923,7 @@ pal_show_brewer <- function(palette = NULL, n = NULL,
       pal_names <- pal_names[info[pal_names, "category"] == type]
     }
     if (!is.null(pattern)) {
-      pal_names <- pal_names[grep(pattern, pal_names, ignore.case = TRUE)]
+      pal_names <- pal_names[.pal_match_pattern(pattern, pal_names)]
     }
   }
   if (!is.null(index)) {
@@ -942,7 +957,7 @@ pal_show_brewer <- function(palette = NULL, n = NULL,
 #' @param n Number of colours to generate for each palette. Default 8.
 #' @param type HCL palette category: \code{"all"}, \code{"qualitative"},
 #'   \code{"sequential"}, or \code{"diverging"}.
-#' @param pattern Regex pattern used to filter palette names.
+#' @param pattern Single non-missing regex string used to filter palette names.
 #' @param index Non-empty vector of unique positive whole-number indices after
 #'   filtering. Out-of-range values are ignored; an empty selection is an error.
 #' @param max_colors Positive whole number limiting displayed colours per palette,
@@ -994,7 +1009,7 @@ pal_show_hcl <- function(palette = NULL, n = 8,
       pal_names <- type_names[[type]]
     }
     if (!is.null(pattern)) {
-      pal_names <- pal_names[grep(pattern, pal_names, ignore.case = TRUE)]
+      pal_names <- pal_names[.pal_match_pattern(pattern, pal_names)]
     }
   }
   if (!is.null(index)) {
@@ -1027,7 +1042,7 @@ pal_show_hcl <- function(palette = NULL, n = 8,
 #'   each palette's native number of colours.
 #' @param alpha Opacity of the colours, a number between 0 and 1.
 #' @param reverse Logical; if \code{TRUE}, reverse the colour order.
-#' @param pattern Regex pattern used to filter palette names.
+#' @param pattern Single non-missing regex string used to filter palette names.
 #' @param index Non-empty vector of unique positive whole-number indices after
 #'   filtering. Out-of-range values are ignored; an empty selection is an error.
 #' @param max_colors Positive whole number limiting displayed colours per palette,
@@ -1096,7 +1111,7 @@ pal_show_ggsci <- function(palette = NULL, n = NULL, alpha = 1,
     }
     pals <- pals[valid]
   } else if (!is.null(pattern)) {
-    pals <- pals[grep(pattern, names(pals), ignore.case = TRUE)]
+    pals <- pals[.pal_match_pattern(pattern, names(pals))]
   }
   if (!is.null(index)) {
     index <- index[index <= length(pals) & index >= 1]
@@ -1123,7 +1138,7 @@ pal_show_ggsci <- function(palette = NULL, n = NULL, alpha = 1,
 #'   each colour map to use.
 #' @param direction Direction of the colour map, either 1 or -1.
 #' @param alpha Opacity of the colours, a number between 0 and 1.
-#' @param pattern Regex pattern used to filter palette names.
+#' @param pattern Single non-missing regex string used to filter palette names.
 #' @param index Non-empty vector of unique positive whole-number indices after
 #'   filtering. Out-of-range values are ignored; an empty selection is an error.
 #' @param max_colors Positive whole number limiting displayed colours per palette,
@@ -1175,7 +1190,7 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
     }
     pal_names <- valid
   } else if (!is.null(pattern)) {
-    pal_names <- pal_names[grep(pattern, pal_names, ignore.case = TRUE)]
+    pal_names <- pal_names[.pal_match_pattern(pattern, pal_names)]
   }
   if (!is.null(index)) {
     index <- index[index <= length(pal_names) & index >= 1]

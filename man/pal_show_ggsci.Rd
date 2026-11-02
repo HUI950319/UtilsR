@@ -27,7 +27,7 @@ each palette's native number of colours.}
 
 \item{reverse}{Logical; if \code{TRUE}, reverse the colour order.}
 
-\item{pattern}{Regex pattern used to filter palette names.}
+\item{pattern}{Single non-missing regex string used to filter palette names.}
 
 \item{index}{Non-empty vector of unique positive whole-number indices after
 filtering. Out-of-range values are ignored; an empty selection is an error.}

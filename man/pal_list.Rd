@@ -11,7 +11,7 @@ pal_list(
 )
 }
 \arguments{
-\item{pattern}{Regex pattern to filter palette names. Default \code{NULL}
+\item{pattern}{Single non-missing regex string to filter palette names. Default \code{NULL}
 shows all.}
 
 \item{type}{Filter by type: \code{"all"} (default), \code{"discrete"},

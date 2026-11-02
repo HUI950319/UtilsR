@@ -25,7 +25,7 @@ supported range of each palette.}
 \item{type}{Brewer palette category: \code{"all"}, \code{"qual"},
 \code{"seq"}, or \code{"div"}.}
 
-\item{pattern}{Regex pattern used to filter palette names.}
+\item{pattern}{Single non-missing regex string used to filter palette names.}
 
 \item{index}{Non-empty vector of unique positive whole-number indices after
 filtering. Out-of-range values are ignored; an empty selection is an error.}

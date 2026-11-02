@@ -32,7 +32,7 @@ each colour map to use.}
 
 \item{alpha}{Opacity of the colours, a number between 0 and 1.}
 
-\item{pattern}{Regex pattern used to filter palette names.}
+\item{pattern}{Single non-missing regex string used to filter palette names.}
 
 \item{index}{Non-empty vector of unique positive whole-number indices after
 filtering. Out-of-range values are ignored; an empty selection is an error.}
