@@ -798,6 +798,29 @@ test_that("palette rebuilds preserve existing data if registered names disappear
   expect_identical(after, before)
 })
 
+test_that("continuous palette previews cover the full range in every output", {
+  full <- palette_list[["viridis"]]
+  ends <- grDevices::col2rgb(full[c(1L, length(full))], alpha = TRUE)
+  for (settings in list(list(n = NULL, cap = 20), list(n = 8, cap = 20),
+                       list(n = 40, cap = 6))) {
+    for (output in c("gg", "console")) {
+      invisible(capture.output(value <- pal_show("viridis", n = settings$n,
+                                                 max_colors = settings$cap, output = output)))
+      cols <- if (output == "gg") value$data$color else value[[1L]]
+      expect_identical(grDevices::col2rgb(cols[c(1L, length(cols))], alpha = TRUE), ends)
+    }
+    tbl <- pal_show("viridis", n = settings$n, max_colors = settings$cap)
+    expect_match(tbl[["_data"]]$preview, "background:#440154;", fixed = TRUE)
+    expect_match(tbl[["_data"]]$preview, "background:#FDE725;", fixed = TRUE)
+  }
+  p <- pal_show(full, max_colors = 6, output = "gg")
+  expect_identical(grDevices::col2rgb(p$data$hex[c(1L, 6L)], alpha = TRUE), ends)
+  one <- pal_show("viridis", n = 1, output = "gg")
+  expect_identical(one$data$color, as.character(full[ceiling(length(full) / 2)]))
+  brewer <- pal_show_brewer("Blues", max_colors = 3, output = "gg")
+  expect_identical(brewer$data$color, RColorBrewer::brewer.pal(9, "Blues")[c(1, 5, 9)])
+})
+
 test_that("console palette previews preserve alpha labels and the original vector", {
   withr::local_options(cli.num_colors = 0)
   cols <- c("#FF000080", "transparent", "blue")

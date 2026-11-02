@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* `pal_show()` samples continuous palettes evenly across the full range in all outputs, including capped previews; a one-colour preview uses the midpoint.
+
 * Console swatches consistently use stdout colour depth when stderr is redirected and restore colour options after normal completion or errors.
 
 * Palette catalogues classify Bootstrap 5 and Tailwind gradients as continuous and dichromat Categorical.12 as discrete without changing colour values.

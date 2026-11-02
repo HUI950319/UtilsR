@@ -600,8 +600,17 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #' @keywords internal
 #' @noRd
 .pal_resize <- function(cols, n) {
-  out <- .pal_apply(cols, n = n)
-  if (n <= length(cols)) names(out) <- names(cols)[seq_len(n)]
+  if (n <= length(cols)) {
+    continuous <- isTRUE(attr(cols, "type") %in%
+      c("continuous", "seq", "div", "sequential", "diverging"))
+    indices <- if (continuous) {
+      if (n == 1L) ceiling(length(cols) / 2) else round(seq.int(1, length(cols), length.out = n))
+    } else seq_len(n)
+    out <- as.character(cols[indices])
+    names(out) <- names(cols)[indices]
+  } else {
+    out <- .pal_apply(cols, n = n)
+  }
   attr(out, "type") <- attr(cols, "type")
   out
 }
@@ -694,11 +703,12 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #'   a colour vector (hex codes or named colours), or \code{NULL} to show
 #'   all palettes matching \code{pattern}/\code{type}. Named colour vectors
 #'   (e.g. \code{pal_paraSC}) will use the names as labels.
-#' @param n Positive whole number of colours to take from each palette,
-#'   following the rules of \code{\link{pal_get}()}: colours are taken from the
-#'   front when \code{n} is at most the palette length and interpolated when it is
-#'   longer. \code{max_colors} still caps how many of them are drawn.
-#'   Default \code{NULL} shows each palette as it is.
+#' @param n Positive whole number of colours to preview from each palette.
+#'   Continuous palettes are sampled evenly across their full range; a single
+#'   colour uses the middle of the palette. Discrete palettes and untyped colour
+#'   vectors take colours from the front and interpolate when more are requested
+#'   than are available. \code{max_colors} caps how many are drawn.
+#'   Default \code{NULL} uses the native colour count before the display cap.
 #' @param pattern Single non-missing regex string to filter palette names
 #'   (e.g. \code{"^nord"}). Default \code{NULL} does not filter by name.
 #' @param type Filter by type: \code{"all"}, \code{"discrete"}, or
@@ -1314,8 +1324,8 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
   n <- length(colors)
   # Truncate if too many
   if (n > max_colors) {
-    cli::cli_inform("Showing first {max_colors} of {n} colours.")
-    colors <- colors[seq_len(max_colors)]
+    cli::cli_inform("Showing {max_colors} of {n} colours.")
+    colors <- .pal_resize(colors, max_colors)
     n <- max_colors
   }
 

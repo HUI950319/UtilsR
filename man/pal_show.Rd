@@ -23,11 +23,12 @@ a colour vector (hex codes or named colours), or \code{NULL} to show
 all palettes matching \code{pattern}/\code{type}. Named colour vectors
 (e.g. \code{pal_paraSC}) will use the names as labels.}
 
-\item{n}{Positive whole number of colours to take from each palette,
-following the rules of \code{\link{pal_get}()}: colours are taken from the
-front when \code{n} is at most the palette length and interpolated when it is
-longer. \code{max_colors} still caps how many of them are drawn.
-Default \code{NULL} shows each palette as it is.}
+\item{n}{Positive whole number of colours to preview from each palette.
+Continuous palettes are sampled evenly across their full range; a single
+colour uses the middle of the palette. Discrete palettes and untyped colour
+vectors take colours from the front and interpolate when more are requested
+than are available. \code{max_colors} caps how many are drawn.
+Default \code{NULL} uses the native colour count before the display cap.}
 
 \item{pattern}{Single non-missing regex string to filter palette names
 (e.g. \code{"^nord"}). Default \code{NULL} does not filter by name.}
