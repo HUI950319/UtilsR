@@ -7,7 +7,7 @@
 pal_show_hcl(
   palette = NULL,
   n = 8,
-  type = c("all", "qualitative", "sequential", "diverging"),
+  type = c("all", "qualitative", "sequential", "diverging", "divergingx"),
   pattern = NULL,
   index = NULL,
   max_colors = 20,
@@ -21,7 +21,7 @@ palettes matching \code{type} and \code{pattern}.}
 \item{n}{Number of colours to generate for each palette. Default 8.}
 
 \item{type}{HCL palette category: \code{"all"}, \code{"qualitative"},
-\code{"sequential"}, or \code{"diverging"}.}
+\code{"sequential"}, \code{"diverging"}, or \code{"divergingx"}.}
 
 \item{pattern}{Single non-missing regex string used to filter palette names.}
 

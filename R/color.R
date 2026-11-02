@@ -641,7 +641,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #' @noRd
 .pal_resize <- function(cols, n, total = n) {
   continuous <- isTRUE(attr(cols, "type") %in%
-    c("continuous", "seq", "div", "sequential", "diverging"))
+    c("continuous", "seq", "div", "sequential", "diverging", "divergingx"))
   if (continuous && total > length(cols)) {
     at <- if (n == 1L) 0.5 else seq.int(0, 1, length.out = n)
     out <- .pal_apply(cols, x = at)
@@ -1079,7 +1079,7 @@ pal_show_brewer <- function(palette = NULL, n = NULL,
 #'   palettes matching \code{type} and \code{pattern}.
 #' @param n Number of colours to generate for each palette. Default 8.
 #' @param type HCL palette category: \code{"all"}, \code{"qualitative"},
-#'   \code{"sequential"}, or \code{"diverging"}.
+#'   \code{"sequential"}, \code{"diverging"}, or \code{"divergingx"}.
 #' @param pattern Single non-missing regex string used to filter palette names.
 #' @param index Non-empty vector of unique positive whole-number indices after
 #'   filtering. Out-of-range values are ignored; an empty selection is an error.
@@ -1098,7 +1098,7 @@ pal_show_brewer <- function(palette = NULL, n = NULL,
 #' @export
 #' @family colour palettes
 pal_show_hcl <- function(palette = NULL, n = 8,
-                         type = c("all", "qualitative", "sequential", "diverging"),
+                         type = c("all", "qualitative", "sequential", "diverging", "divergingx"),
                          pattern = NULL, index = NULL, max_colors = 20,
                          output = c("gt", "gg", "console")) {
   type <- match.arg(type)
@@ -1106,7 +1106,7 @@ pal_show_hcl <- function(palette = NULL, n = 8,
   .pal_validate_show(n, max_colors, index, n_required = TRUE)
   .pal_validate_palette(palette)
 
-  hcl_types <- c("qualitative", "sequential", "diverging")
+  hcl_types <- c("qualitative", "sequential", "diverging", "divergingx")
   all_names <- grDevices::hcl.pals()
   type_names <- stats::setNames(
     lapply(hcl_types, grDevices::hcl.pals),

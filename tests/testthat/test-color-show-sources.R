@@ -1116,3 +1116,18 @@ test_that("palette console headings retain complete names in narrow terminals", 
                "ggsci_material_deep-purple (10 colours, continuous)", fixed = TRUE)
   expect_identical(result, palette_list["ggsci_material_deep-purple"])
 })
+
+test_that("HCL viewers preserve divergingx categories and both colour ends", {
+  choices <- grDevices::hcl.pals("divergingx")
+  p <- pal_show_hcl(type = "divergingx", n = 3, output = "gg")
+  expect_identical(unique(as.character(p$data$palette)), choices)
+  native <- grDevices::hcl.colors(40, "RdBu")
+  shown <- pal_show_hcl("RdBu", n = 40, max_colors = 3, output = "gg")
+  expect_identical(shown$data$color, native[c(1L, 20L, 40L)])
+  tbl <- pal_show_hcl("RdBu", output = "gt")
+  expect_identical(tbl[["_data"]]$type, "divergingx")
+  invisible(capture.output(console <- pal_show_hcl(
+    "RdBu", n = 40, max_colors = 3, output = "console"
+  )))
+  expect_identical(as.character(console[[1L]]), native[c(1L, 20L, 40L)])
+})
