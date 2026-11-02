@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* `pal_show()` passes generated swatches directly to the gt HTML renderer, avoiding repeated Markdown parsing while preserving existing non-HTML formatters.
+
 * Source palette viewers identify empty index selections with the filtered palette count while preserving partial in-range selections.
 
 * `pal_show_ggsci()` reverses the final preview after colour selection and display capping, retaining the selected colours and original count labels.

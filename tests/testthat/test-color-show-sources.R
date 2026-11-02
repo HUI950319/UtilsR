@@ -1590,3 +1590,30 @@ test_that("source palette viewers identify an empty index selection", {
     expect_identical(unique(as.character(selected$data$palette)), viewer$second)
   }
 })
+
+test_that("HTML palette previews bypass repeated Markdown conversion", {
+  original <- utils::getFromNamespace("process_text", "gt")
+  html_calls <- 0L
+  testthat::local_mocked_bindings(process_text = function(text, context = "html") {
+    if (context == "html" && inherits(text, "from_markdown") &&
+        any(grepl("background:", text, fixed = TRUE))) {
+      html_calls <<- html_calls + 1L
+    }
+    original(text, context)
+  }, .package = "gt")
+  for (palette in list("Set1", c(Dark = "#000000", Clear = "#FFFFFF00"))) {
+    tbl <- pal_show(palette, output = "gt")
+    html <- gt::as_raw_html(tbl, inline_css = FALSE)
+    expect_equal(html_calls, 0L)
+    for (preview in tbl[["_data"]]$preview) {
+      expect_identical(grepl(preview, html, fixed = TRUE), TRUE)
+    }
+    legacy <- gt::fmt_markdown(tbl, columns = "preview")
+    for (format in c("as_latex", "as_rtf", "as_word")) {
+      if (!format %in% getNamespaceExports("gt")) next
+      render <- getExportedValue("gt", format)
+      expect_identical(suppressWarnings(as.character(render(tbl))),
+                       suppressWarnings(as.character(render(legacy))), info = format)
+    }
+  }
+})

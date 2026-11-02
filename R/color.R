@@ -27,6 +27,7 @@
 #               +-- L2  .pal_hcl_preview()  evaluate native HCL parameters
 #               +-- L2  .pal_viridis_preview() evaluate the native colour spline
 #               +-- L2  .pal_show_gg()      render catalogue in a small frame
+#               +-- L2  .pal_format_preview() pass generated HTML through gt
 #               +-- L2  .pal_show_colors()   render swatches (ggplot | gt)
 #               +-- L2  .pal_hex()           normalize R colours for display
 # =============================================================================
@@ -788,6 +789,18 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     )
 }
 
+# Preserve gt's non-HTML conversions while passing generated swatches through.
+.pal_format_preview <- function(data) {
+  data <- gt::fmt_markdown(data, columns = "preview")
+  formats <- data[["_formats"]]
+  last <- length(formats)
+  if (last > 0L && is.function(formats[[last]][["func"]][["html"]])) {
+    formats[[last]][["func"]][["html"]] <- identity
+    data[["_formats"]] <- formats
+  }
+  data
+}
+
 # Numeric strings refer to the mutable base palette rather than literal colours.
 .pal_are_colors <- function(x) {
   if (anyNA(x) || any(grepl("^[0-9]", x))) return(FALSE)
@@ -1071,7 +1084,7 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
       n_colors = "N",
       preview = "Colours"
     ) %>%
-    gt::fmt_markdown(columns = "preview") %>%
+    .pal_format_preview() %>%
     gt::tab_header(
       title = gt::md(sprintf("**%d Palettes**", length(pals)))
     ) %>%
@@ -1731,7 +1744,7 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
   }
 
   tbl <- tbl %>%
-    gt::fmt_markdown(columns = "preview") %>%
+    .pal_format_preview() %>%
     gt::tab_header(title = gt::md(sprintf("**%d Colours**", n))) %>%
     gt::tab_style(
       style = gt::cell_text(weight = "bold"),
