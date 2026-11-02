@@ -99,6 +99,10 @@ mode**: it displays the colours directly as a single-row colour bar
 [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
 but as a publication-ready plot.
 
+In gt catalogue output, long palette names wrap within the name column.
+Each swatch exposes its hexadecimal colour value as a hover title and an
+accessible label.
+
 ## See also
 
 Other colour palettes:

@@ -2,6 +2,48 @@
 
 ## UtilsR 0.6.21
 
+- [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
+  catalogue swatches provide hexadecimal hover titles and readable image
+  labels, including alpha, without changing their colour values or
+  dimensions.
+
+- [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
+  validates large repeated colour inputs through their distinct values
+  while preserving complete validation, colour order and duplicate
+  entries.
+
+- Improve
+  [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md)
+  performance for moderately repeated numeric data with bounded
+  sampling, while retaining direct paths for unique and sparsely
+  repeated inputs.
+
+- [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
+  prepares distinct colours before RGB conversion, opacity compositing
+  and luminance calculation, then restores the original display order.
+
+- [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
+  wraps long catalogue names within their fixed-width gt cells, keeping
+  complete names visible without changing swatch widths.
+
+- [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
+  validates repeated invalid colour strings once while preserving
+  original error positions, values and names.
+
+- [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
+  reduces decorative padding in narrow consoles while retaining complete
+  colour labels, and packs swatches using their visible widths.
+
+- [`pal_list()`](https://hui950319.github.io/UtilsR/reference/pal_list.md)
+  filters names before inspecting palette types, reducing work for
+  selective queries while preserving catalogue order, console output and
+  invisible results.
+
+- [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
+  prints numeric attributes with full double precision so copied
+  expressions reconstruct them exactly, and documents special attribute
+  limitations.
+
 - [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
   uses indexed colour and contrast with cli 3.0.x even when true-colour
   output is requested, while retaining true-colour output with newer

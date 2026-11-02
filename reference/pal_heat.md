@@ -96,7 +96,7 @@ names(pal_heat)
 pal_heat$blue_red
 #> [1] "#2166ac" "#67a9cf" "#ffffff" "#ef8a62" "#b2182b"
 show_color(pal_heat$purple_teal)
-#>  #4A148C   #8E25AA   #FFFFFF   #27A69A   #004C3F  
+#>  #4A148C   #8E25AA   #FFFFFF   #27A69A   #004C3F 
 #> c("#4a148c", "#8e25aa", "#ffffff", "#27a69a", "#004c3f")
 
 # interpolated over a continuous fill scale

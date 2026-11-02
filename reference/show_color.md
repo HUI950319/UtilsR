@@ -5,9 +5,10 @@ foreground text. Works in any terminal that supports ANSI true-colour
 (24-bit) escape sequences. The displayed colour vector is also printed
 with [`dput()`](https://rdrr.io/r/base/dput.html) so it can be copied
 back into R for assignment. Swatches wrap to the console width without
-truncating the colour vector. Translucent swatches are composited onto
-white because ANSI backgrounds cannot carry alpha. Their printed hex
-codes retain the original alpha.
+truncating the colour vector. Decorative padding is reduced in narrow
+consoles. Labels wider than the console remain intact on their own line.
+Translucent swatches are composited onto white because ANSI backgrounds
+cannot carry alpha. Their printed hex codes retain the original alpha.
 
 ## Usage
 
@@ -50,20 +51,23 @@ Missing character values (`NA_character_`) and the literal colour `"NA"`
 follow R's transparent-colour convention, so their swatches have the
 same `#FFFFFF00` label as `"transparent"`. Their original values, names
 and attributes are retained in the returned vector and its copyable
-expression. An empty character vector is also accepted.
+expression. Numeric attributes use 17-digit precision. Special
+attributes such as environments cannot be reconstructed by
+[`dput()`](https://rdrr.io/r/base/dput.html). An empty character vector
+is also accepted.
 
 ## Examples
 
 ``` r
 show_color(c("#FF0000", "#00FF00", "#0000FF"))
-#>  #FF0000   #00FF00   #0000FF  
+#>  #FF0000   #00FF00   #0000FF 
 #> c("#FF0000", "#00FF00", "#0000FF")
 show_color(rainbow(10))
-#>  #FF0000   #FF9900   #CCFF00   #33FF00   #00FF66   #00FFFF   #0066FF   #3300FF  
-#>  #CC00FF   #FF0099  
+#>  #FF0000   #FF9900   #CCFF00   #33FF00   #00FF66   #00FFFF   #0066FF   #3300FF 
+#>  #CC00FF   #FF0099 
 #> c("#FF0000", "#FF9900", "#CCFF00", "#33FF00", "#00FF66", "#00FFFF", 
 #> "#0066FF", "#3300FF", "#CC00FF", "#FF0099")
 show_color(c("steelblue", "tomato", "gold"), rev = TRUE)
-#>  #FFD700   #FF6347   #4682B4  
+#>  #FFD700   #FF6347   #4682B4 
 #> c("gold", "tomato", "steelblue")
 ```

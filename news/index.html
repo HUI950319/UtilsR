@@ -50,7 +50,16 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.21" id="utilsr-0621">UtilsR 0.6.21<a class="anchor" aria-label="anchor" href="#utilsr-0621"></a></h2>
-<ul><li><p><code><a href="../reference/show_color.html">show_color()</a></code> uses indexed colour and contrast with cli 3.0.x even when true-colour output is requested, while retaining true-colour output with newer renderers.</p></li>
+<ul><li><p><code><a href="../reference/pal_show.html">pal_show()</a></code> catalogue swatches provide hexadecimal hover titles and readable image labels, including alpha, without changing their colour values or dimensions.</p></li>
+<li><p><code><a href="../reference/pal_show.html">pal_show()</a></code> validates large repeated colour inputs through their distinct values while preserving complete validation, colour order and duplicate entries.</p></li>
+<li><p>Improve <code><a href="../reference/pal_get.html">pal_get()</a></code> performance for moderately repeated numeric data with bounded sampling, while retaining direct paths for unique and sparsely repeated inputs.</p></li>
+<li><p><code><a href="../reference/show_color.html">show_color()</a></code> prepares distinct colours before RGB conversion, opacity compositing and luminance calculation, then restores the original display order.</p></li>
+<li><p><code><a href="../reference/pal_show.html">pal_show()</a></code> wraps long catalogue names within their fixed-width gt cells, keeping complete names visible without changing swatch widths.</p></li>
+<li><p><code><a href="../reference/show_color.html">show_color()</a></code> validates repeated invalid colour strings once while preserving original error positions, values and names.</p></li>
+<li><p><code><a href="../reference/show_color.html">show_color()</a></code> reduces decorative padding in narrow consoles while retaining complete colour labels, and packs swatches using their visible widths.</p></li>
+<li><p><code><a href="../reference/pal_list.html">pal_list()</a></code> filters names before inspecting palette types, reducing work for selective queries while preserving catalogue order, console output and invisible results.</p></li>
+<li><p><code><a href="../reference/show_color.html">show_color()</a></code> prints numeric attributes with full double precision so copied expressions reconstruct them exactly, and documents special attribute limitations.</p></li>
+<li><p><code><a href="../reference/show_color.html">show_color()</a></code> uses indexed colour and contrast with cli 3.0.x even when true-colour output is requested, while retaining true-colour output with newer renderers.</p></li>
 <li><p><code><a href="../reference/show_color.html">show_color()</a></code> caches luminance for identical emitted ANSI colours within each display, avoiding repeated decoding when distinct inputs share an indexed background.</p></li>
 <li><p>pal_get() applies opacity to the interpolated unique numeric positions before restoring repeated observations, preserving original alpha at the default setting and leaving missing or infinite observations unmapped.</p></li>
 <li><p><code><a href="../reference/show_color.html">show_color()</a></code> computes true-colour luminance in one vectorised pass, preserving colours, contrast, wrapping and returned values.</p></li>

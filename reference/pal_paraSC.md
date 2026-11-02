@@ -45,8 +45,8 @@ pal_paraSC
 #>             Venous ECs 
 #>              "#8AAAC8" 
 show_color(pal_paraSC)
-#>  #8B1A1A   #56B4E9   #8B5E3C   #2E8B45   #1A7B7B   #7B68AA   #D4919A   #F0C8A0  
-#>  #C0C0C0   #282828   #F0E442   #9AB83C   #E07B1A   #6B3FA0   #D4C8E8   #8AAAC8  
+#>  #8B1A1A   #56B4E9   #8B5E3C   #2E8B45   #1A7B7B   #7B68AA   #D4919A   #F0C8A0 
+#>  #C0C0C0   #282828   #F0E442   #9AB83C   #E07B1A   #6B3FA0   #D4C8E8   #8AAAC8 
 #> c(`Parathyroid cells` = "#8B1A1A", `T cells` = "#56B4E9FF", `Cycling T cells` = "#8B5E3C", 
 #> `NK cells` = "#2E8B45", `B cells` = "#1A7B7B", Monocytes = "#7B68AA", 
 #> `M1-like Macrophages` = "#D4919A", `M2/M3-like Macrophages` = "#F0C8A0", 
