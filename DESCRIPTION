@@ -120,7 +120,8 @@ Suggests:
     ToyData,
     VIM (>= 4.5.0),
     knitr,
-    rmarkdown
+    rmarkdown,
+    xml2
 Remotes:
     davidsjoberg/ggsankey
 Config/testthat/edition: 3
