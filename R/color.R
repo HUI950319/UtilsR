@@ -1005,7 +1005,7 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
 #'   shows all palettes matching \code{type} and \code{pattern}.
 #' @param n Number of colours to generate for each palette. \code{NULL} uses
 #'   each palette's maximum supported size; other values are clamped to the
-#'   supported range of each palette.
+#'   supported range of each palette. A single message reports adjusted sizes.
 #' @param type Brewer palette category: \code{"all"}, \code{"qual"},
 #'   \code{"seq"}, or \code{"div"}.
 #' @param pattern Single non-missing regex string used to filter palette names.
@@ -1066,10 +1066,18 @@ pal_show_brewer <- function(palette = NULL, n = NULL,
     cli::cli_abort("No RColorBrewer palettes matched the filters.")
   }
 
+  max_n <- info[pal_names, "maxcolors"]
+  n_use <- stats::setNames(
+    if (is.null(n)) max_n else pmin(pmax(3L, as.integer(n)), max_n),
+    pal_names
+  )
+  adjusted <- if (is.null(n)) character() else pal_names[n_use != n]
+  if (length(adjusted)) {
+    sizes <- paste0(adjusted, "=", n_use[adjusted])
+    cli::cli_inform("Adjusting {.arg n} = {n} to supported palette sizes: {.val {sizes}}.")
+  }
   pals <- lapply(pal_names, function(nm) {
-    max_n <- info[nm, "maxcolors"]
-    n_use <- if (is.null(n)) max_n else min(max(3L, as.integer(n)), max_n)
-    cols <- RColorBrewer::brewer.pal(n_use, nm)
+    cols <- RColorBrewer::brewer.pal(n_use[[nm]], nm)
     attr(cols, "type") <- info[nm, "category"]
     cols
   })

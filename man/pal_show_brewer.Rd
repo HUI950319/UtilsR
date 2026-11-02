@@ -20,7 +20,7 @@ shows all palettes matching \code{type} and \code{pattern}.}
 
 \item{n}{Number of colours to generate for each palette. \code{NULL} uses
 each palette's maximum supported size; other values are clamped to the
-supported range of each palette.}
+supported range of each palette. A single message reports adjusted sizes.}
 
 \item{type}{Brewer palette category: \code{"all"}, \code{"qual"},
 \code{"seq"}, or \code{"div"}.}

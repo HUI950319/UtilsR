@@ -1241,3 +1241,29 @@ test_that("source palette names follow native HCL matching", {
   expect_warning(known <- pal_show_hcl(c("viridis", "__typo__"), output = "gg"), "__typo__")
   expect_identical(unique(as.character(known$data$palette)), "Viridis")
 })
+
+test_that("Brewer previews report adjusted colour counts once per call", {
+  messages <- character()
+  p <- withCallingHandlers(pal_show_brewer(c("Set1", "Paired"), n = 30, output = "gg"),
+    message = function(m) {
+      messages <<- c(messages, conditionMessage(m))
+      invokeRestart("muffleMessage")
+    }
+  )
+  expect_length(messages, 1L)
+  expect_match(paste(messages, collapse = "\n"), "Set1=9", fixed = TRUE)
+  expect_match(paste(messages, collapse = "\n"), "Paired=12", fixed = TRUE)
+  expect_identical(as.integer(table(as.character(p$data$palette))), c(12L, 9L))
+  expect_message(small <- pal_show_brewer("Set1", n = 1, output = "gt"), "Set1=3")
+  expect_identical(small[["_data"]]$n_colors, "3")
+  messages <- character()
+  for (n in list(NULL, 3, 8)) {
+    withCallingHandlers(pal_show_brewer("Set1", n = n, output = "gg"),
+      message = function(m) {
+        messages <<- c(messages, conditionMessage(m))
+        invokeRestart("muffleMessage")
+      }
+    )
+  }
+  expect_length(messages, 0L)
+})
