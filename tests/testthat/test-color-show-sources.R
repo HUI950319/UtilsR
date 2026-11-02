@@ -1565,3 +1565,28 @@ test_that("ggsci reverses the final preview without changing selected colours", 
     }
   }
 })
+
+test_that("source palette viewers identify an empty index selection", {
+  viewers <- list(
+    list(fun = pal_show_brewer, palettes = c("Set1", "Set2"), second = "Set2"),
+    list(fun = pal_show_hcl, palettes = c("Viridis", "Dark 3"), second = "Dark 3"),
+    list(fun = pal_show_viridis, palettes = c("viridis", "plasma"), second = "plasma")
+  )
+  if (requireNamespace("ggsci", quietly = TRUE)) {
+    viewers <- c(viewers, list(list(fun = pal_show_ggsci,
+      palettes = c("npg_nrc", "gsea_default"), second = "ggsci_gsea_default")))
+  }
+  for (viewer in viewers) {
+    for (output in c("gg", "gt", "console")) {
+      error <- tryCatch(viewer$fun(viewer$palettes[[1L]], index = 99, output = output),
+                        error = identity)
+      expect_s3_class(error, "error")
+      expect_match(conditionMessage(error), "`index`")
+      expect_match(conditionMessage(error), "Only 1 palette")
+    }
+    expect_error(viewer$fun(pattern = "^__none__$", index = 99, output = "gg"),
+                 "^No .* palettes matched the filters")
+    selected <- viewer$fun(viewer$palettes, index = c(2L, 99L), output = "gg")
+    expect_identical(unique(as.character(selected$data$palette)), viewer$second)
+  }
+})

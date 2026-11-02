@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* Source palette viewers identify empty index selections with the filtered palette count while preserving partial in-range selections.
+
 * `pal_show_ggsci()` reverses the final preview after colour selection and display capping, retaining the selected colours and original count labels.
 
 * pal_get() rejects expressions, functions, environments and other non-mapping containers before missing-value operations, and documents existing discrete time, complex and raw mapping with explicit continuous-time examples.

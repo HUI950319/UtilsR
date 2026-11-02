@@ -1117,7 +1117,8 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
 #'   \code{"seq"}, or \code{"div"}.
 #' @param pattern Single non-missing regex string used to filter palette names.
 #' @param index Non-empty vector of unique positive whole-number indices after
-#'   filtering. Out-of-range values are ignored; an empty selection is an error.
+#'   filtering. Out-of-range values are ignored. An empty selection reports
+#'   the argument and matched count before any palettes are drawn.
 #' @param max_colors Positive whole number limiting displayed colours per palette,
 #'   or \code{Inf} for no display cap. Default 20.
 #' @param output Output format: \code{"gt"} (default) for a gt table,
@@ -1165,12 +1166,18 @@ pal_show_brewer <- function(palette = NULL, n = NULL,
       pal_names <- pal_names[.pal_match_pattern(pattern, pal_names)]
     }
   }
-  if (!is.null(index)) {
-    index <- index[index <= length(pal_names) & index >= 1]
-    pal_names <- pal_names[index]
-  }
   if (length(pal_names) == 0L) {
     cli::cli_abort("No RColorBrewer palettes matched the filters.")
+  }
+  if (!is.null(index)) {
+    keep <- index[index <= length(pal_names) & index >= 1]
+    if (!length(keep)) {
+      cli::cli_abort(c(
+        "{.arg index} selected no palettes.",
+        "i" = "Only {length(pal_names)} palette{?s} matched the filters."
+      ))
+    }
+    pal_names <- pal_names[keep]
   }
 
   max_n <- info[pal_names, "maxcolors"]
@@ -1215,7 +1222,8 @@ pal_show_brewer <- function(palette = NULL, n = NULL,
 #'   \code{"sequential"}, \code{"diverging"}, or \code{"divergingx"}.
 #' @param pattern Single non-missing regex string used to filter palette names.
 #' @param index Non-empty vector of unique positive whole-number indices after
-#'   filtering. Out-of-range values are ignored; an empty selection is an error.
+#'   filtering. Out-of-range values are ignored. An empty selection reports
+#'   the argument and matched count before any palettes are drawn.
 #' @param max_colors Positive whole number limiting displayed colours per palette,
 #'   or \code{Inf} for no display cap. Default 20.
 #' @param output Output format: \code{"gt"} (default) for a gt table,
@@ -1279,12 +1287,18 @@ pal_show_hcl <- function(palette = NULL, n = 8,
       pal_names <- pal_names[.pal_match_pattern(pattern, pal_names)]
     }
   }
-  if (!is.null(index)) {
-    index <- index[index <= length(pal_names) & index >= 1]
-    pal_names <- pal_names[index]
-  }
   if (length(pal_names) == 0L) {
     cli::cli_abort("No HCL palettes matched the filters.")
+  }
+  if (!is.null(index)) {
+    keep <- index[index <= length(pal_names) & index >= 1]
+    if (!length(keep)) {
+      cli::cli_abort(c(
+        "{.arg index} selected no palettes.",
+        "i" = "Only {length(pal_names)} palette{?s} matched the filters."
+      ))
+    }
+    pal_names <- pal_names[keep]
   }
 
   parameters <- if (n > max_colors) {
@@ -1329,7 +1343,8 @@ pal_show_hcl <- function(palette = NULL, n = 8,
 #'   \code{max_colors}, preserving the selected colour set.
 #' @param pattern Single non-missing regex string used to filter palette names.
 #' @param index Non-empty vector of unique positive whole-number indices after
-#'   filtering. Out-of-range values are ignored; an empty selection is an error.
+#'   filtering. Out-of-range values are ignored. An empty selection reports
+#'   the argument and matched count before any palettes are drawn.
 #' @param max_colors Positive whole number limiting displayed colours per palette,
 #'   or \code{Inf} for no display cap. Default 20.
 #' @param output Output format: \code{"gt"} (default) for a gt table,
@@ -1414,12 +1429,18 @@ pal_show_ggsci <- function(palette = NULL, n = NULL, alpha = 1,
   } else if (!is.null(pattern)) {
     pals <- pals[.pal_match_pattern(pattern, names(pals))]
   }
-  if (!is.null(index)) {
-    index <- index[index <= length(pals) & index >= 1]
-    pals <- pals[index]
-  }
   if (length(pals) == 0L) {
     cli::cli_abort("No ggsci palettes matched the filters.")
+  }
+  if (!is.null(index)) {
+    keep <- index[index <= length(pals) & index >= 1]
+    if (!length(keep)) {
+      cli::cli_abort(c(
+        "{.arg index} selected no palettes.",
+        "i" = "Only {length(pals)} palette{?s} matched the filters."
+      ))
+    }
+    pals <- pals[keep]
   }
 
   attr(pals, "n_total") <- preview_total[names(pals)]
@@ -1451,7 +1472,8 @@ pal_show_ggsci <- function(palette = NULL, n = NULL, alpha = 1,
 #'   without a class or dimensions.
 #' @param pattern Single non-missing regex string used to filter palette names.
 #' @param index Non-empty vector of unique positive whole-number indices after
-#'   filtering. Out-of-range values are ignored; an empty selection is an error.
+#'   filtering. Out-of-range values are ignored. An empty selection reports
+#'   the argument and matched count before any palettes are drawn.
 #' @param max_colors Positive whole number limiting displayed colours per palette,
 #'   or \code{Inf} for no display cap. Default 20.
 #' @param output Output format: \code{"gt"} (default) for a gt table,
@@ -1512,12 +1534,18 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
   } else if (!is.null(pattern)) {
     pal_names <- pal_names[.pal_match_pattern(pattern, pal_names)]
   }
-  if (!is.null(index)) {
-    index <- index[index <= length(pal_names) & index >= 1]
-    pal_names <- pal_names[index]
-  }
   if (length(pal_names) == 0L) {
     cli::cli_abort("No viridis palettes matched the filters.")
+  }
+  if (!is.null(index)) {
+    keep <- index[index <= length(pal_names) & index >= 1]
+    if (!length(keep)) {
+      cli::cli_abort(c(
+        "{.arg index} selected no palettes.",
+        "i" = "Only {length(pal_names)} palette{?s} matched the filters."
+      ))
+    }
+    pal_names <- pal_names[keep]
   }
 
   pals <- lapply(pal_names, function(nm) {
