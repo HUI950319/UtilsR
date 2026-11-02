@@ -584,3 +584,20 @@ test_that("pal_list preserves filtered palettes and invisible results", {
   expect_identical(empty$value, list())
   expect_false(empty$visible)
 })
+
+
+test_that("pal_list validates show before matching or printing", {
+  for (pattern in c("^Blues$", "^__none__$")) {
+    for (bad in list(NA, NULL, logical(), c(TRUE, FALSE), 1, "TRUE",
+                     factor("FALSE"), matrix(TRUE))) {
+      output <- capture.output(expect_error(
+        pal_list(pattern = pattern, show = bad), "`show`"
+      ))
+      expect_identical(output, character())
+    }
+  }
+  output <- capture.output(result <- withVisible(pal_list("^Blues$", show = TRUE)))
+  expect_identical(result$value, palette_list["Blues"])
+  expect_false(result$visible)
+  expect_match(paste(output, collapse = "\n"), "#F7FBFF", fixed = TRUE)
+})

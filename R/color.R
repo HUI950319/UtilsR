@@ -283,7 +283,8 @@ pal_heat <- list(
 #'   shows all.
 #' @param type Filter by type: \code{"all"} (default), \code{"discrete"},
 #'   or \code{"continuous"}.
-#' @param show Logical, if \code{TRUE} (default) display colour swatches.
+#' @param show Single non-missing logical; if \code{TRUE} (default) display
+#'   colour swatches. \code{FALSE} prints palette headings only.
 #' @return Invisibly returns a named list of matching palettes.
 #'
 #' @examples
@@ -295,6 +296,9 @@ pal_heat <- list(
 #' @family colour palettes
 pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
                      show = TRUE) {
+  if ((!isTRUE(show) && !isFALSE(show)) || !is.null(dim(show))) {
+    cli::cli_abort("{.arg show} must be a single non-missing logical value.")
+  }
   type <- match.arg(type)
   # Explicit namespace lookup (LazyData not auto-loaded under `::`).
   pals <- getExportedValue("UtilsR", "palette_list")

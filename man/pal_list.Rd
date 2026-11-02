@@ -17,7 +17,8 @@ shows all.}
 \item{type}{Filter by type: \code{"all"} (default), \code{"discrete"},
 or \code{"continuous"}.}
 
-\item{show}{Logical, if \code{TRUE} (default) display colour swatches.}
+\item{show}{Single non-missing logical; if \code{TRUE} (default) display
+colour swatches. \code{FALSE} prints palette headings only.}
 }
 \value{
 Invisibly returns a named list of matching palettes.

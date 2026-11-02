@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* pal_list() rejects missing, non-scalar and non-logical show controls before filtering or printing, including empty matches.
+
 * Palette name filters reject missing, ambiguous and malformed regex patterns consistently across catalogue viewers before output.
 
 * Palette viewers validate positive counts, unique indices and layout controls before generation or drawing, retaining Inf as an unlimited display cap.
