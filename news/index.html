@@ -50,7 +50,12 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.21" id="utilsr-0621">UtilsR 0.6.21<a class="anchor" aria-label="anchor" href="#utilsr-0621"></a></h2>
-<ul><li><p><code><a href="../reference/pal_show_brewer.html">pal_show_brewer()</a></code> reports requested colour counts adjusted to native palette limits in one message per call.</p></li>
+<ul><li><p>Palette data rebuilds stop on individual CARTO generation errors and identify the source palette and original error, preventing incomplete first-build registries.</p></li>
+<li><p><code><a href="../reference/pal_show.html">pal_show()</a></code> constructs catalogue plots in a small rendering frame and evaluates colour-vector controls before returning, so capped plots no longer retain oversized original inputs.</p></li>
+<li><p>Palette data rebuilds validate the UtilsR package root and existing registry before generation, using a fixed absolute output path to prevent replacing unrelated data.</p></li>
+<li><p><code><a href="../reference/pal_show.html">pal_show()</a></code> keeps colour-vector text contrast, name labels and label positions aligned when returned ggplot data are reordered or filtered.</p></li>
+<li><p><code><a href="../reference/pal_show.html">pal_show()</a></code> preserves the exact final colour of complete interpolated previews without allocating hidden colours beyond the display cap.</p></li>
+<li><p><code><a href="../reference/pal_show_brewer.html">pal_show_brewer()</a></code> reports requested colour counts adjusted to native palette limits in one message per call.</p></li>
 <li><p><code><a href="../reference/pal_show_hcl.html">pal_show_hcl()</a></code> follows native HCL name matching, preserves canonical names and reports ambiguous abbreviations explicitly.</p></li>
 <li><p>Source palette viewers document explicit-name precedence over type and pattern filters, including the handling of unknown names.</p></li>
 <li><p>Source palette viewers warn about unknown names while preserving valid selections, and still reject selections with no matching palettes.</p></li>

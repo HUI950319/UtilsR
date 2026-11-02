@@ -2,6 +2,27 @@
 
 ## UtilsR 0.6.21
 
+- Palette data rebuilds stop on individual CARTO generation errors and
+  identify the source palette and original error, preventing incomplete
+  first-build registries.
+
+- [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
+  constructs catalogue plots in a small rendering frame and evaluates
+  colour-vector controls before returning, so capped plots no longer
+  retain oversized original inputs.
+
+- Palette data rebuilds validate the UtilsR package root and existing
+  registry before generation, using a fixed absolute output path to
+  prevent replacing unrelated data.
+
+- [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
+  keeps colour-vector text contrast, name labels and label positions
+  aligned when returned ggplot data are reordered or filtered.
+
+- [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
+  preserves the exact final colour of complete interpolated previews
+  without allocating hidden colours beyond the display cap.
+
 - [`pal_show_brewer()`](https://hui950319.github.io/UtilsR/reference/pal_show_brewer.md)
   reports requested colour counts adjusted to native palette limits in
   one message per call.
