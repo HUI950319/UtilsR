@@ -681,16 +681,16 @@ show_color <- function(x, rev = FALSE) {
       names(foreground) <- c("#000000", "#FFFFFF")
       fg_luminance <- vapply(foreground, .displayed_luminance, numeric(1))
     }
+    if (num_colors >= 16777216L) luminance <- .luminance(preview)
     ids <- if (anyDuplicated(hex)) match(unique(hex), hex) else seq_along(hex)
     styled <- vapply(ids, function(i) {
-      h <- preview[[i]]
       bg_style <- cli::make_ansi_style(preview_rgb[, i, drop = FALSE], bg = TRUE, grey = FALSE)
       fg_col <- if (num_colors < 16777216L) {
         bg_luminance <- .displayed_luminance(bg_style)
         contrast <- (pmax(fg_luminance, bg_luminance) + 0.05) /
           (pmin(fg_luminance, bg_luminance) + 0.05)
         names(foreground)[[which.max(contrast)]]
-      } else if (.luminance(h) > 0.179) "#000000" else "#FFFFFF"
+      } else if (luminance[[i]] > 0.179) "#000000" else "#FFFFFF"
       if (is.null(foreground[[fg_col]])) {
         foreground[[fg_col]] <<- cli::make_ansi_style(fg_col, bg = FALSE)
       }

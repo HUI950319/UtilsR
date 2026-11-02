@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* `show_color()` computes true-colour luminance in one vectorised pass, preserving colours, contrast, wrapping and returned values.
+
 * Palette data rebuilds skip unsupported legacy HCL candidates using the native catalogue while stopping on generation failures for supported names and abbreviations.
 
 * pal_get() shares distinct ordinary numeric values and observation indices across palette lists, using the same repetition estimate as interpolation and preserving missing values, output order and class-specific mapping.
