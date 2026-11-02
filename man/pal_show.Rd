@@ -75,6 +75,9 @@ rather than palette names, the function automatically switches to
 \strong{colour vector mode}: it displays the colours directly as a
 single-row colour bar (ggplot) with hex labels, similar to
 \code{show_color()} but as a publication-ready plot.
+
+In gt catalogue output, long palette names wrap within the name
+  column.
 }
 \examples{
 # Show specific palettes (gt table, default)

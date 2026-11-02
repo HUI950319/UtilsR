@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* `pal_show()` wraps long catalogue names within their fixed-width gt cells, keeping complete names visible without changing swatch widths.
+
 * `show_color()` validates repeated invalid colour strings once while preserving original error positions, values and names.
 
 * `show_color()` reduces decorative padding in narrow consoles while retaining complete colour labels, and packs swatches using their visible widths.

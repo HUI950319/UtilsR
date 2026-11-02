@@ -2013,3 +2013,32 @@ test_that("palette rebuilds exclude Gephi generator presets", {
                "Invalid generated palettes: ggsci_npg_nrc")
   expect_identical(readBin("data/palette_list.rda", "raw", file.info("data/palette_list.rda")[["size"]]), before)
 })
+
+test_that("palette catalogue names wrap without changing swatch widths", {
+  keys <- c("ggsci_cosmic_signature_substitutions", "dichromat_BluetoDarkOrange.12")
+  tbl <- pal_show(keys, max_colors = 3, output = "gt")
+  expect_identical(tbl[["_data"]]$palette, keys)
+  html <- gt::as_raw_html(tbl)
+  cells <- regmatches(html, gregexpr(
+    '(?s)<td\\b[^>]*headers="palette"[^>]*>.*?</td>', html, perl = TRUE
+  ))[[1L]]
+  expect_length(cells, 2L)
+  expect_identical(grepl("overflow-wrap:\\s*anywhere", cells), c(TRUE, TRUE))
+  expect_length(regmatches(html, gregexpr("width:\\s*20px", html))[[1L]], 6L)
+  viewers <- list(
+    function() pal_show_brewer("Set1", n = 3, output = "gt"),
+    function() pal_show_hcl("Viridis", n = 3, output = "gt"),
+    function() pal_show_viridis("viridis", n = 3, output = "gt")
+  )
+  if (requireNamespace("ggsci", quietly = TRUE)) {
+    viewers <- c(viewers, list(function() pal_show_ggsci("npg_nrc", n = 3, output = "gt")))
+  }
+  for (viewer in viewers) {
+    html <- gt::as_raw_html(viewer())
+    cells <- regmatches(html, gregexpr(
+      '(?s)<td\\b[^>]*headers="palette"[^>]*>.*?</td>', html, perl = TRUE
+    ))[[1L]]
+    expect_length(cells, 1L)
+    expect_identical(grepl("overflow-wrap:\\s*anywhere", cells), TRUE)
+  }
+})

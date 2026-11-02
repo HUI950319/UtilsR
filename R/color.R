@@ -914,6 +914,9 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #' single-row colour bar (ggplot) with hex labels, similar to
 #' \code{show_color()} but as a publication-ready plot.
 #'
+#' @details In gt catalogue output, long palette names wrap within the name
+#'   column.
+#'
 #' @param palette Character vector of palette names (e.g. \code{"lancet"}),
 #'   a colour vector (hex codes or named colours), or \code{NULL} to show
 #'   all palettes matching \code{pattern}/\code{type}. Named colour vectors
@@ -1124,6 +1127,10 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
     gt::tab_style(
       style = gt::cell_fill(color = "#E8F4FD"),
       locations = gt::cells_column_labels()
+    ) %>%
+    gt::tab_style(
+      style = gt::css("overflow-wrap" = "anywhere"),
+      locations = gt::cells_body(columns = "palette")
     ) %>%
     gt::tab_options(
       table.font.size = gt::px(13),
