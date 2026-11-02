@@ -97,6 +97,12 @@
   }
   lines <- as.character(cli::ansi_strwrap(text, width = width, exdent = exdent))
   unlist(lapply(lines, function(s) {
+    if (cli::ansi_nchar(s, type = "width") <= width) return(s)
+    # Printable ASCII has one console column per character.
+    if (!grepl("[^ -~]", s)) {
+      first <- seq.int(1L, nchar(s), by = width)
+      return(substring(s, first, first + (width - 1)))
+    }
     out <- character()
     while (cli::ansi_nchar(s, type = "width") > width) {
       part <- cli::ansi_strtrim(s, width, ellipsis = "")
