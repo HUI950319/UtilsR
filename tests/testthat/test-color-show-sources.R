@@ -798,6 +798,26 @@ test_that("palette rebuilds preserve existing data if registered names disappear
   expect_identical(after, before)
 })
 
+test_that("palette preview allocation is bounded by the display cap", {
+  skip_if_not(capabilities("profmem"))
+  invisible(pal_show("Set1", n = 20, output = "gg"))
+  profile <- withr::local_tempfile()
+  Rprofmem(profile)
+  value <- tryCatch(pal_show("Set1", n = 200000, max_colors = 20, output = "gg"),
+                    finally = Rprofmem(NULL))
+  allocations <- suppressWarnings(as.numeric(sub(" .*", "", readLines(profile, warn = FALSE))))
+  expect_lt(sum(allocations, na.rm = TRUE), 5 * 1024^2)
+  expect_equal(nrow(value$data), 20L)
+  for (cols in list(palette_list$Set1, c("#FF000080", "#0000FF80"))) {
+    original <- grDevices::colorRampPalette(cols, alpha = any(grDevices::col2rgb(cols, alpha = TRUE)[4L, ] < 255))(1003)
+    invisible(capture.output(actual <- pal_show(cols, n = 1003, max_colors = 6, output = "console")))
+    expect_identical(as.character(actual), original[1:6])
+  }
+  continuous <- pal_show("viridis", n = 200000, max_colors = 6, output = "gg")
+  expect_identical(grDevices::col2rgb(continuous$data$color[c(1, 6)]),
+                   grDevices::col2rgb(palette_list$viridis[c(1, 256)]))
+})
+
 test_that("continuous palette previews cover the full range in every output", {
   full <- palette_list[["viridis"]]
   ends <- grDevices::col2rgb(full[c(1L, length(full))], alpha = TRUE)

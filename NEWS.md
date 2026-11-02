@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* `pal_show()` computes only displayed colours even for a large n, retaining discrete interpolation prefixes, transparency and requested colour counts.
+
 * Console palette catalogues retain full palette names in narrow terminals, moving counts and types to wrapped notes while keeping fitting headings unchanged.
 
 * Palette data generation checks that every required source contributes palettes even when no previous registry exists, preventing silent first-build omissions.

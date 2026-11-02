@@ -614,17 +614,26 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 # and the "type" attribute fills the Type column.
 #' @keywords internal
 #' @noRd
-.pal_resize <- function(cols, n) {
-  if (n <= length(cols)) {
-    continuous <- isTRUE(attr(cols, "type") %in%
-      c("continuous", "seq", "div", "sequential", "diverging"))
+.pal_resize <- function(cols, n, total = n) {
+  continuous <- isTRUE(attr(cols, "type") %in%
+    c("continuous", "seq", "div", "sequential", "diverging"))
+  if (continuous && total > length(cols)) {
+    at <- if (n == 1L) 0.5 else seq.int(0, 1, length.out = n)
+    out <- .pal_apply(cols, x = at)
+  } else if (total <= length(cols)) {
     indices <- if (continuous) {
       if (n == 1L) ceiling(length(cols) / 2) else round(seq.int(1, length(cols), length.out = n))
     } else seq_len(n)
     out <- as.character(cols[indices])
     names(out) <- names(cols)[indices]
   } else {
-    out <- .pal_apply(cols, n = n)
+    # Evaluate only the displayed prefix of the originally requested ramp.
+    has_alpha <- any(grDevices::col2rgb(cols, alpha = TRUE)[4L, ] < 255)
+    at <- (seq_len(n) - 1) * (1 / (total - 1))
+    rgba <- grDevices::colorRamp(cols, alpha = has_alpha)(at)
+    out <- grDevices::rgb(rgba[, 1L], rgba[, 2L], rgba[, 3L],
+                         alpha = if (has_alpha) rgba[, 4L] else NULL,
+                         maxColorValue = 255)
   }
   attr(out, "type") <- attr(cols, "type")
   out
@@ -803,10 +812,9 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
   if (!is.null(palette) && is.character(palette) && length(palette) > 0) {
     is_color_vec <- .is_color_vector(palette)
     if (is_color_vec) {
-      if (!is.null(n)) palette <- .pal_resize(palette, n)
       return(.pal_show_colors(palette, label = label,
                               label_size = label_size, ncol = ncol,
-                              output = output, max_colors = max_colors))
+                              output = output, max_colors = max_colors, n = n))
     }
   }
 
@@ -850,12 +858,10 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
     pals <- pals[keep]
   }
 
-  # Resample first, then cap at `max_colors`, once for every output. A
-  # truncated palette reports both numbers so the count always matches the
-  # swatches on screen without hiding the palette's real size.
-  if (!is.null(n)) pals <- lapply(pals, .pal_resize, n = n)
+  # Generate only the drawn colours, retaining the requested total for labels.
   n_total <- lengths(pals)
-  pals <- Map(.pal_resize, pals, pmin(n_total, max_colors))
+  if (!is.null(n)) n_total[] <- n
+  pals <- Map(.pal_resize, pals, pmin(n_total, max_colors), n_total)
   n_shown <- lengths(pals)
   n_label <- ifelse(n_shown < n_total,
                     sprintf("%d / %d", n_shown, n_total),
@@ -1335,14 +1341,13 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
 #' @noRd
 .pal_show_colors <- function(colors, label = TRUE, label_size = 3,
                              ncol = NULL, output = "gg",
-                             max_colors) {
-  n <- length(colors)
-  # Truncate if too many
-  if (n > max_colors) {
-    cli::cli_inform("Showing {max_colors} of {n} colours.")
-    colors <- .pal_resize(colors, max_colors)
-    n <- max_colors
+                             max_colors, n = NULL) {
+  n_total <- if (is.null(n)) length(colors) else n
+  n <- min(n_total, max_colors)
+  if (n < n_total) {
+    cli::cli_inform("Showing {n} of {n_total} colours.")
   }
+  colors <- .pal_resize(colors, n, total = n_total)
 
   # Get labels: use names if available, otherwise hex codes
   color_names <- names(colors)
