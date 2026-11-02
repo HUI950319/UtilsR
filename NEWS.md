@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* Palette data rebuilds stop before replacement when required sources are missing, generated entries are invalid or previously registered names would disappear.
+
 * Palette catalogue documentation distinguishes console listings from gt Viewer previews and explains access to unregistered palette collections.
 
 * Console palette swatches wrap at colour boundaries to the terminal width while retaining every colour, names, attributes and the copyable R expression.

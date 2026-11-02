@@ -647,3 +647,32 @@ test_that("console swatches wrap without losing colours or copyable values", {
     expect_false(result$visible)
   }
 })
+
+test_that("palette rebuilds stop before saving when source packages are absent", {
+  script <- test_path("..", "..", "data-raw", "build_palette_list.R")
+  skip_if_not(file.exists(script))
+  isolated <- new.env(parent = globalenv())
+  isolated$requireNamespace <- function(...) FALSE
+  isolated$save <- function(...) stop("Unexpected attempt to replace palette data")
+  expect_error(suppressMessages(sys.source(script, envir = isolated)),
+               "Missing palette source packages")
+})
+
+test_that("palette rebuilds preserve existing data if registered names disappear", {
+  script <- normalizePath(test_path("..", "..", "data-raw", "build_palette_list.R"),
+                          mustWork = FALSE)
+  skip_if_not(file.exists(script))
+  packages <- c("RColorBrewer", "ggsci", "viridis", "rcartocolor", "nord",
+                "dichromat", "pals", "colorspace")
+  for (pkg in packages) skip_if_not_installed(pkg)
+  work <- withr::local_tempdir()
+  dir.create(file.path(work, "data"))
+  withr::local_dir(work)
+  palette_list <- list(required_but_missing = c("red", "blue"))
+  save(palette_list, file = "data/palette_list.rda")
+  before <- readBin("data/palette_list.rda", "raw", file.info("data/palette_list.rda")$size)
+  expect_error(suppressMessages(sys.source(script, envir = new.env())),
+               "Rebuild would remove registered palettes")
+  after <- readBin("data/palette_list.rda", "raw", file.info("data/palette_list.rda")$size)
+  expect_identical(after, before)
+})

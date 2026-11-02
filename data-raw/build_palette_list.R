@@ -1,6 +1,15 @@
 # Build palette_list.rda from all available palette sources
 # Run this script to regenerate: Rscript data-raw/build_palette_list.R
 
+source_packages <- c("RColorBrewer", "ggsci", "viridis", "rcartocolor", "nord",
+                     "dichromat", "pals", "colorspace")
+missing_sources <- source_packages[!vapply(source_packages, requireNamespace,
+                                          logical(1), quietly = TRUE)]
+if (length(missing_sources)) {
+  stop("Missing palette source packages: ", paste(missing_sources, collapse = ", "),
+       call. = FALSE)
+}
+
 palette_list <- list()
 
 # --- 1. RColorBrewer ---
@@ -226,5 +235,29 @@ message("Discrete: ", sum(sapply(palette_list, function(x) attr(x, "type") == "d
 message("Continuous: ", sum(sapply(palette_list, function(x) attr(x, "type") == "continuous")))
 
 # --- Save ---
+if (!length(palette_list) || is.null(names(palette_list)) ||
+    anyNA(names(palette_list)) || any(!nzchar(names(palette_list))) ||
+    anyDuplicated(names(palette_list))) {
+  stop("Generated palettes must have unique, non-empty names.", call. = FALSE)
+}
+valid <- vapply(palette_list, function(cols) {
+  is.character(cols) && length(cols) > 0L && !anyNA(cols) &&
+    identical(length(attr(cols, "type")), 1L) &&
+    attr(cols, "type") %in% c("discrete", "continuous") &&
+    tryCatch({ grDevices::col2rgb(cols); TRUE }, error = function(e) FALSE)
+}, logical(1))
+if (!all(valid)) {
+  stop("Invalid generated palettes: ", paste(names(palette_list)[!valid], collapse = ", "),
+       call. = FALSE)
+}
+if (file.exists("data/palette_list.rda")) {
+  previous <- new.env(parent = emptyenv())
+  load("data/palette_list.rda", envir = previous)
+  missing_names <- setdiff(names(previous[["palette_list"]]), names(palette_list))
+  if (length(missing_names)) {
+    stop("Rebuild would remove registered palettes: ",
+         paste(missing_names, collapse = ", "), call. = FALSE)
+  }
+}
 save(palette_list, file = "data/palette_list.rda", compress = "xz")
 message("Saved to data/palette_list.rda")
