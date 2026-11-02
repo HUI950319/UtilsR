@@ -559,6 +559,8 @@ console_width <- function() {
 #' (24-bit) escape sequences. The displayed colour vector is also printed with
 #' \code{dput()} so it can be copied back into R for assignment.
 #' Swatches wrap to the console width without truncating the colour vector.
+#' Translucent swatches are composited onto white because ANSI backgrounds
+#' cannot carry alpha. Their printed hex codes retain the original alpha.
 #'
 #' Swatches follow whatever colour depth the terminal reports through
 #' \code{cli::num_ansi_colors()}. A terminal limited to 256 colours draws the

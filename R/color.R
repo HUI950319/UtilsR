@@ -14,15 +14,15 @@
 #               +-- L2  .pal_print_heading() retain full console palette names
 #         pal_get(palette, n, x, reverse, alpha)    NULL | name | colours -> hex
 #               +-- L2  .pal_apply()    recycle / interpolate / alpha
-#                     +-- L3  .pal_resize()   grow or shrink a discrete set
 #
 #   L1  visual catalogues                           -- public API
-#         pal_show(palette, n, pattern)   dispatches to the source-specific
-#               |                         viewers when given a source name
-#               +-- pal_show_brewer / pal_show_hcl / pal_show_ggsci /
-#               |   pal_show_viridis
+#         pal_show_brewer / pal_show_hcl / pal_show_ggsci / pal_show_viridis
+#               +-- pal_show(palette, n, pattern)   shared display backend
+#               +-- L2  .pal_validate_palette() validate input storage/colours
 #               +-- L2  .pal_validate_show() validate counts, indices and layout
 #               +-- L2  .is_color_vector()   colours vs palette names
+#                     +-- L3  .pal_are_colors() validate literal colours in bulk
+#               +-- L2  .pal_resize()       sample only the displayed colours
 #               +-- L2  .pal_show_colors()   render swatches (ggplot | gt)
 #               +-- L2  .pal_hex()           normalize R colours for display
 # =============================================================================
@@ -712,7 +712,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 
 #' Visualise Palettes or Colour Vectors
 #'
-#' Display palettes as horizontal colour bars (ggplot) or an interactive
+#' Display palettes as horizontal colour bars (ggplot) or a
 #' gt table with colour swatches. Use \code{output = "gg"} for the Plots
 #' pane or \code{output = "gt"} for the Viewer pane.
 #'
@@ -726,7 +726,10 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #' @param palette Character vector of palette names (e.g. \code{"lancet"}),
 #'   a colour vector (hex codes or named colours), or \code{NULL} to show
 #'   all palettes matching \code{pattern}/\code{type}. Named colour vectors
-#'   (e.g. \code{pal_paraSC}) will use the names as labels.
+#'   (e.g. \code{pal_paraSC}) use valid names as labels and hex codes for missing
+#'   or whitespace-only names. Repeated palette names are displayed once, in
+#'   first-occurrence order; repeated literal colours are preserved. Factors,
+#'   classed vectors, matrices and data frames are not supported.
 #' @param n Positive whole number of colours to preview from each palette.
 #'   Continuous palettes are sampled evenly across their full range; a single
 #'   colour uses the middle of the palette. Discrete palettes and untyped colour
@@ -743,12 +746,14 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #'   filtering. Out-of-range values are ignored; an empty selection is an error.
 #' @param output Output format: \code{"gt"} (default) for a gt table,
 #'   \code{"gg"} for a ggplot, or \code{"console"} for terminal output.
-#' @param label Logical. In colour vector mode, whether to show hex/name
-#'   labels on tiles. Default \code{TRUE}.
-#' @param label_size Positive finite number. Text size in colour vector mode.
-#'   Default 3.
-#' @param ncol Positive whole number of columns for colour vector mode. Default
-#'   \code{NULL} puts every displayed colour on a single row.
+#' @param label Logical. For \code{output = "gg"} in colour vector mode,
+#'   whether to show hex/name labels on tiles. Default \code{TRUE}. Does not
+#'   change gt tables or console output.
+#' @param label_size Positive finite number. Tile-label text size for
+#'   \code{output = "gg"} in colour vector mode. Default 3.
+#' @param ncol Positive whole number of columns for \code{output = "gg"} in
+#'   colour vector mode. Default \code{NULL} puts every displayed colour on a
+#'   single row.
 #'
 #' @return A ggplot or gt object returned visibly for automatic display.
 #'   Console output prints and invisibly returns the displayed data.

@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* `pal_show()` documents input and label handling and ggplot-only layout controls; console alpha rendering is documented and newly added test line endings are normalized.
+
 * Palette rebuild regression tests check stable source palettes and their types without assuming identical source package versions on Windows and Linux.
 
 * `pal_show()` computes only displayed colours even for a large n, retaining discrete interpolation prefixes, transparency and requested colour counts.
