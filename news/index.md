@@ -2,6 +2,9 @@
 
 ## UtilsR 0.6.21
 
+- Notes, key-value blocks and boxes preserve styled zero-width graphemes
+  without passing them to a failing ANSI wrapping path.
+
 - Wrapped notes, key-value blocks and boxes no longer add an empty
   continuation after the last overwide grapheme in a very narrow
   console.
