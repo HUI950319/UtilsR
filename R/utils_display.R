@@ -640,6 +640,7 @@ show_color <- function(x, rev = FALSE) {
                              rgba[2L, ] * a + 255 * (1 - a),
                              rgba[3L, ] * a + 255 * (1 - a),
                              maxColorValue = 255)
+    preview_rgb <- grDevices::col2rgb(preview)
     foreground <- list()
     if (num_colors < 16777216L) {
       # Standard xterm entries; terminal themes may override these colours.
@@ -676,7 +677,7 @@ show_color <- function(x, rev = FALSE) {
     }
     styled <- vapply(seq_along(hex), function(i) {
       h <- preview[[i]]
-      bg_style <- cli::make_ansi_style(h, bg = TRUE, grey = FALSE)
+      bg_style <- cli::make_ansi_style(preview_rgb[, i, drop = FALSE], bg = TRUE, grey = FALSE)
       fg_col <- if (num_colors < 16777216L) {
         bg_luminance <- .displayed_luminance(bg_style)
         contrast <- (pmax(fg_luminance, bg_luminance) + 0.05) /
