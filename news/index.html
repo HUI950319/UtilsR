@@ -50,7 +50,22 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.21" id="utilsr-0621">UtilsR 0.6.21<a class="anchor" aria-label="anchor" href="#utilsr-0621"></a></h2>
-<ul><li><p>PlotHeatmapJaccard() caches unique feature sets and skips plot construction for matrix-only output without a requested file, preserving empty-set and overlap definitions.</p></li>
+<ul><li><p>pal_get() maps extreme finite numeric spans without overflow while retaining ordinary interpolation and missing-value handling.</p></li>
+<li><p>Coloured palette previews create each black or white foreground style once per call while preserving terminal depth and colour contrast.</p></li>
+<li><p>pal_get() rejects decimal and exponent colour indices consistently in literal and list palettes.</p></li>
+<li><p>Console palette previews bypass ANSI style construction for uncoloured stdout, retaining the same wrapped text and returned colour vectors.</p></li>
+<li><p>Palette data rebuilds stop before replacement when required sources are missing, generated entries are invalid or previously registered names would disappear.</p></li>
+<li><p>Palette catalogue documentation distinguishes console listings from gt Viewer previews and explains access to unregistered palette collections.</p></li>
+<li><p>Console palette swatches wrap at colour boundaries to the terminal width while retaining every colour, names, attributes and the copyable R expression.</p></li>
+<li><p>GSEA and Material palettes carry continuous metadata in the built-in registry and ggsci viewer, making all 20 gradients discoverable by type.</p></li>
+<li><p>pal_list() rejects missing, non-scalar and non-logical show controls before filtering or printing, including empty matches.</p></li>
+<li><p>Palette name filters reject missing, ambiguous and malformed regex patterns consistently across catalogue viewers before output.</p></li>
+<li><p>Palette viewers validate positive counts, unique indices and layout controls before generation or drawing, retaining Inf as an unlimited display cap.</p></li>
+<li><p>pal_get() validates all colours and unique non-missing names in palette lists before sizing or interpolation, and identifies the invalid palette and colour.</p></li>
+<li><p>pal_show() and its source viewers return graphics visibly without printing internally, allowing gt tables to render correctly in knitted documents.</p></li>
+<li><p>pal_show() converts R colour names to CSS-compatible hex values for gt palette swatches while preserving transparency.</p></li>
+<li><p>pal_show() preserves alpha channels in colour-vector previews and chooses label contrast against the composited colour.</p></li>
+<li><p>PlotHeatmapJaccard() caches unique feature sets and skips plot construction for matrix-only output without a requested file, preserving empty-set and overlap definitions.</p></li>
 <li><p>PlotButterfly2() retains only the selected plotting columns in grouped, ungrouped and beeswarm paths, avoiding serialized copies of unused input payloads.</p></li>
 <li><p>PlotHeatmapJaccard() constructs mappings in a bounded plotting frame so returned plots no longer retain unused input columns.</p></li>
 <li><p>PlotCircleLollipop() avoids overflow in global and per-group min-max scaling while preserving constant heights, missing values and top_n range definitions.</p></li>

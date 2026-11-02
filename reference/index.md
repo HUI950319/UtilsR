@@ -113,7 +113,7 @@ Built-in colour palettes and palette utilities.
 - [`.resolve_color()`](https://hui950319.github.io/UtilsR/reference/dot-resolve_color.md)
   : Resolve a colour specification to a colour vector
 - [`pal_list()`](https://hui950319.github.io/UtilsR/reference/pal_list.md)
-  : List All Available Palettes
+  : List Registered Palettes
 - [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
   : Visualise Palettes or Colour Vectors
 - [`pal_show_brewer()`](https://hui950319.github.io/UtilsR/reference/pal_show_brewer.md)

@@ -90,15 +90,17 @@ supported range of each palette.</p></dd>
 
 
 <dt id="arg-pattern">pattern<a class="anchor" aria-label="anchor" href="#arg-pattern"></a></dt>
-<dd><p>Regex pattern used to filter palette names.</p></dd>
+<dd><p>Single non-missing regex string used to filter palette names.</p></dd>
 
 
 <dt id="arg-index">index<a class="anchor" aria-label="anchor" href="#arg-index"></a></dt>
-<dd><p>Integer vector of palette indices to display after filtering.</p></dd>
+<dd><p>Non-empty vector of unique positive whole-number indices after
+filtering. Out-of-range values are ignored; an empty selection is an error.</p></dd>
 
 
 <dt id="arg-max-colors">max_colors<a class="anchor" aria-label="anchor" href="#arg-max-colors"></a></dt>
-<dd><p>Maximum colours to display per palette. Default 20.</p></dd>
+<dd><p>Positive whole number limiting displayed colours per palette,
+or <code>Inf</code> for no display cap. Default 20.</p></dd>
 
 
 <dt id="arg-output">output<a class="anchor" aria-label="anchor" href="#arg-output"></a></dt>
@@ -108,8 +110,8 @@ supported range of each palette.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A ggplot or gt object, or invisibly the displayed palette list for
-  console output (all outputs also print).</p>
+    <p>A ggplot or gt object returned visibly for automatic display.
+  Console output prints and invisibly returns the displayed palette list.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

@@ -140,9 +140,21 @@ pal_show(pal_paraSC, n = 6)
 
 ``` r
 
-# Interactive palette browser (opens viewer)
-pal_list()
+# List matching registered palettes in the console
+pal_list(pattern = "^Blues", show = FALSE)
+
+# Show console swatches
+pal_list(pattern = "^Blues")
+
+# Browse the same selection as a gt table in the Viewer
+pal_show(pattern = "^Blues")
 ```
+
+[`pal_list()`](https://hui950319.github.io/UtilsR/reference/pal_list.md)
+invisibly returns the matching entries of `palette_list` with their
+names and type attributes. It does not open the Viewer. Separate
+collections such as `pal_heat` are accessed directly, for example
+`pal_show(pal_heat$blue_red)`.
 
 ------------------------------------------------------------------------
 

@@ -4,7 +4,8 @@ Print colour hex codes as ANSI-coloured swatches with auto-contrasting
 foreground text. Works in any terminal that supports ANSI true-colour
 (24-bit) escape sequences. The displayed colour vector is also printed
 with [`dput()`](https://rdrr.io/r/base/dput.html) so it can be copied
-back into R for assignment.
+back into R for assignment. Swatches wrap to the console width without
+truncating the colour vector.
 
 ## Usage
 
@@ -42,7 +43,8 @@ show_color(c("#FF0000", "#00FF00", "#0000FF"))
 #>  #FF0000   #00FF00   #0000FF  
 #> c("#FF0000", "#00FF00", "#0000FF")
 show_color(rainbow(10))
-#>  #FF0000   #FF9900   #CCFF00   #33FF00   #00FF66   #00FFFF   #0066FF   #3300FF   #CC00FF   #FF0099  
+#>  #FF0000   #FF9900   #CCFF00   #33FF00   #00FF66   #00FFFF   #0066FF   #3300FF  
+#>  #CC00FF   #FF0099  
 #> c("#FF0000", "#FF9900", "#CCFF00", "#33FF00", "#00FF66", "#00FFFF", 
 #> "#0066FF", "#3300FF", "#CC00FF", "#FF0099")
 show_color(c("steelblue", "tomato", "gold"), rev = TRUE)

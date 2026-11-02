@@ -27,8 +27,8 @@ pal_get(palette = "Paired", n = NULL, x = NULL, reverse = FALSE, alpha = 1)
     registered name always wins over a same-named colour, and a string
     that is neither still raises the usual "not found" error;
 
-  - a fully named list of colour vectors, such as `pal_heat`, which is
-    mapped over one palette at a time.
+  - a fully named list of colour vectors with unique names, such as
+    `pal_heat`, mapped over one palette at a time.
 
 - n:
 

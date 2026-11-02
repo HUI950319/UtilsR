@@ -217,8 +217,19 @@ following the same rules as <code><a href="../reference/pal_get.html">pal_get()<
 <code>pal_list()</code> — Browse All Palettes<a class="anchor" aria-label="anchor" href="#pal_list-browse-all-palettes"></a>
 </h2>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Interactive palette browser (opens viewer)</span></span>
-<span><span class="fu"><a href="../reference/pal_list.html">pal_list</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># List matching registered palettes in the console</span></span>
+<span><span class="fu"><a href="../reference/pal_list.html">pal_list</a></span><span class="op">(</span>pattern <span class="op">=</span> <span class="st">"^Blues"</span>, show <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Show console swatches</span></span>
+<span><span class="fu"><a href="../reference/pal_list.html">pal_list</a></span><span class="op">(</span>pattern <span class="op">=</span> <span class="st">"^Blues"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Browse the same selection as a gt table in the Viewer</span></span>
+<span><span class="fu"><a href="../reference/pal_show.html">pal_show</a></span><span class="op">(</span>pattern <span class="op">=</span> <span class="st">"^Blues"</span><span class="op">)</span></span></code></pre></div>
+<p><code><a href="../reference/pal_list.html">pal_list()</a></code> invisibly returns the matching entries of
+<code>palette_list</code> with their names and type attributes. It does
+not open the Viewer. Separate collections such as <code>pal_heat</code>
+are accessed directly, for example
+<code>pal_show(pal_heat$blue_red)</code>.</p>
 <hr>
 </div>
 <div class="section level2">

@@ -39,15 +39,18 @@ pal_show_hcl(
 
 - pattern:
 
-  Regex pattern used to filter palette names.
+  Single non-missing regex string used to filter palette names.
 
 - index:
 
-  Integer vector of palette indices to display after filtering.
+  Non-empty vector of unique positive whole-number indices after
+  filtering. Out-of-range values are ignored; an empty selection is an
+  error.
 
 - max_colors:
 
-  Maximum colours to display per palette. Default 20.
+  Positive whole number limiting displayed colours per palette, or `Inf`
+  for no display cap. Default 20.
 
 - output:
 
@@ -56,8 +59,8 @@ pal_show_hcl(
 
 ## Value
 
-A ggplot or gt object, or invisibly the displayed palette list for
-console output (all outputs also print).
+A ggplot or gt object returned visibly for automatic display. Console
+output prints and invisibly returns the displayed palette list.
 
 ## See also
 

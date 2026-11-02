@@ -2,6 +2,58 @@
 
 ## UtilsR 0.6.21
 
+- pal_get() maps extreme finite numeric spans without overflow while
+  retaining ordinary interpolation and missing-value handling.
+
+- Coloured palette previews create each black or white foreground style
+  once per call while preserving terminal depth and colour contrast.
+
+- pal_get() rejects decimal and exponent colour indices consistently in
+  literal and list palettes.
+
+- Console palette previews bypass ANSI style construction for uncoloured
+  stdout, retaining the same wrapped text and returned colour vectors.
+
+- Palette data rebuilds stop before replacement when required sources
+  are missing, generated entries are invalid or previously registered
+  names would disappear.
+
+- Palette catalogue documentation distinguishes console listings from gt
+  Viewer previews and explains access to unregistered palette
+  collections.
+
+- Console palette swatches wrap at colour boundaries to the terminal
+  width while retaining every colour, names, attributes and the copyable
+  R expression.
+
+- GSEA and Material palettes carry continuous metadata in the built-in
+  registry and ggsci viewer, making all 20 gradients discoverable by
+  type.
+
+- pal_list() rejects missing, non-scalar and non-logical show controls
+  before filtering or printing, including empty matches.
+
+- Palette name filters reject missing, ambiguous and malformed regex
+  patterns consistently across catalogue viewers before output.
+
+- Palette viewers validate positive counts, unique indices and layout
+  controls before generation or drawing, retaining Inf as an unlimited
+  display cap.
+
+- pal_get() validates all colours and unique non-missing names in
+  palette lists before sizing or interpolation, and identifies the
+  invalid palette and colour.
+
+- pal_show() and its source viewers return graphics visibly without
+  printing internally, allowing gt tables to render correctly in knitted
+  documents.
+
+- pal_show() converts R colour names to CSS-compatible hex values for gt
+  palette swatches while preserving transparency.
+
+- pal_show() preserves alpha channels in colour-vector previews and
+  chooses label contrast against the composited colour.
+
 - PlotHeatmapJaccard() caches unique feature sets and skips plot
   construction for matrix-only output without a requested file,
   preserving empty-set and overlap definitions.
