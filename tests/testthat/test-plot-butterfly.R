@@ -1,3 +1,26 @@
+butterfly_payload_plot <- function(include_payload, fill, type) {
+  data <- data.frame(stat = "A", value = seq_len(12), group = rep(c("L", "R"), each = 6),
+                     fill = rep(c("A", "B", "B", "C"), each = 3))
+  if (include_payload) data$unused <- I(lapply(1:12, function(i) as.raw((seq_len(83334) + i) %% 256)))
+  PlotButterfly2(data, stat.by = "stat", value.by = "value", group.by = "group", fill.by = fill, type = type)
+}
+
+test_that("PlotButterfly2 plots release unselected input payloads in both paths", {
+  skip_if_not_installed("ggbeeswarm")
+  files <- c(withr::local_tempfile(), withr::local_tempfile())
+  for (settings in list(list(fill = "fill", type = "box"), list(fill = NULL, type = "box"),
+                        list(fill = "fill", type = "beeswarm_quasirandom"))) {
+    full <- suppressMessages(butterfly_payload_plot(TRUE, settings$fill, settings$type))
+    selected <- suppressMessages(butterfly_payload_plot(FALSE, settings$fill, settings$type))
+    for (i in 1:2) {
+      expect_identical(ggplot2::ggplot_build(full[[i]])$data, ggplot2::ggplot_build(selected[[i]])$data)
+    }
+    saveRDS(full, files[1], compress = FALSE)
+    saveRDS(selected, files[2], compress = FALSE)
+    expect_lt(abs(diff(file.info(files)$size)), 65536)
+  }
+})
+
 test_that("PlotButterfly2 shares observed shape mappings across beeswarm panels", {
   skip_if_not_installed("ggbeeswarm")
   data <- data.frame(stat = "S", value = seq_len(12) / 10, group = rep(c("L", "R"), each = 6),

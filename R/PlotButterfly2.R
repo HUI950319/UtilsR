@@ -78,6 +78,7 @@
 #'   \code{NULL}.
 #'
 #' @return A \code{patchwork} object.
+#'   Only columns used for plotting are retained in the returned object.
 #'
 #' @examples
 #' set.seed(1)
@@ -177,6 +178,7 @@ PlotButterfly2 <- function(
   }
   if (!is.null(fill.by) && !fill.by %in% names(data))
     cli::cli_abort("Column {.val {fill.by}} not found in {.arg data}.")
+  data <- as.data.frame(data)[, unique(c(stat.by, value.by, group.by, fill.by)), drop = FALSE]
 
   if (is_beeswarm && !requireNamespace("ggbeeswarm", quietly = TRUE))
     cli::cli_abort("Package {.pkg ggbeeswarm} is required for beeswarm types.")

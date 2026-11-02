@@ -132,6 +132,7 @@ Default \code{"#f04625"} / \code{"#00a8ee"}.}
 }
 \value{
 A \code{patchwork} object.
+Only columns used for plotting are retained in the returned object.
 }
 \description{
 Create a butterfly (back-to-back) plot from a single long-format data frame.

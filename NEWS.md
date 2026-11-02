@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* PlotButterfly2() retains only the selected plotting columns in grouped, ungrouped and beeswarm paths, avoiding serialized copies of unused input payloads.
+
 * PlotHeatmapJaccard() constructs mappings in a bounded plotting frame so returned plots no longer retain unused input columns.
 
 * PlotCircleLollipop() avoids overflow in global and per-group min-max scaling while preserving constant heights, missing values and top_n range definitions.
