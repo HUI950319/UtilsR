@@ -1,5 +1,11 @@
 # Changelog
 
+## UtilsR 0.6.21
+
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  accepts integer `max_items` near the integer limit without overflowing
+  while preparing sibling-name previews.
+
 ## UtilsR 0.6.20
 
 - stat_ci_parse() avoids intermediate overflow in raw-scale symmetry
