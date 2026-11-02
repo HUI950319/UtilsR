@@ -189,6 +189,22 @@ test_that("show_color identifies all invalid colours and numeric palette indices
   }
 })
 
+test_that("show_color reports repeated invalid colours at their original positions", {
+  withr::local_options(cli.num_colors = 0, cli.width = 80)
+  cols <- setNames(c("red", "notacolor", "red", "notacolor", "2e0", NA_character_),
+                   letters[1:6])
+  for (named in c(FALSE, TRUE)) {
+    x <- if (named) cols else unname(cols)
+    out <- capture.output(error <- tryCatch(show_color(x), error = identity))
+    expect_s3_class(error, "error")
+    text <- conditionMessage(error)
+    for (value in c("2", "4", "5", "notacolor", "2e0")) {
+      expect_match(text, value, fixed = TRUE)
+    }
+    expect_identical(out, character())
+  }
+})
+
 test_that("show_color requires one non-missing logical reverse control", {
   withr::local_options(cli.num_colors = 0)
   for (bad in list(NULL, logical(), NA, 1, 0, "TRUE", c(TRUE, FALSE),

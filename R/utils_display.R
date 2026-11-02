@@ -610,12 +610,15 @@ show_color <- function(x, rev = FALSE) {
     tryCatch(.pal_hex(x), error = function(e) NULL)
   }
   if (is.null(hex)) {
-    valid <- vapply(x, function(col) {
+    to_check <- unique(x)
+    valid <- vapply(to_check, function(col) {
       tryCatch({
         grDevices::col2rgb(col)
         TRUE
       }, error = function(e) FALSE)
-    }, logical(1))
+    }, logical(1), USE.NAMES = FALSE)
+    valid <- valid[match(x, to_check)]
+    names(valid) <- if (is.null(names(x))) x else names(x)
     invalid <- which(numeric_index | !valid)
     cli::cli_abort("Invalid colours in {.arg x} at positions {.val {invalid}}: {.val {x[invalid]}}. Use R colour names or hex codes, not numeric palette indices.")
   }
