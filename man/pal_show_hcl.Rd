@@ -20,7 +20,9 @@ palettes matching \code{type} and \code{pattern}. Matching follows native HCL
 rules: case and separators are ignored, unique abbreviations are accepted,
 and ambiguous names are rejected. Returned names use canonical spelling.}
 
-\item{n}{Number of colours to generate for each palette. Default 8.}
+\item{n}{Number of colours in each requested palette. Default 8. Capped
+previews evaluate only the displayed positions and retain the requested
+total in the colour-count label.}
 
 \item{type}{HCL palette category: \code{"all"}, \code{"qualitative"},
 \code{"sequential"}, \code{"diverging"}, or \code{"divergingx"}.}

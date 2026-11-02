@@ -87,7 +87,8 @@ Imports:
     pbapply,
     grid,
     ggprism,
-    scales
+    scales,
+    viridisLite
 Suggests:
     bit64,
     haven,

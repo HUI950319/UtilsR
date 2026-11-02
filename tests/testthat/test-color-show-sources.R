@@ -1473,3 +1473,51 @@ test_that("palette plot objects do not retain hidden input vectors", {
     }
   }
 })
+
+test_that("source palette generation is bounded by the preview cap", {
+  for (n in c(40L, 41L)) {
+    for (cap in c(1L, 3L)) {
+      invisible(capture.output(shown <- pal_show_hcl(
+        n = n, max_colors = cap, output = "console"
+      )))
+      for (nm in grDevices::hcl.pals()) {
+        index <- if (nm %in% grDevices::hcl.pals("qualitative")) {
+          seq_len(cap)
+        } else if (cap == 1L) ceiling(n / 2) else c(1L, ceiling(n / 2), n)
+        expect_identical(as.character(shown[[nm]]),
+                         grDevices::hcl.colors(n, nm)[index], info = nm)
+      }
+    }
+  }
+  choices <- c("magma", "inferno", "plasma", "viridis",
+               "cividis", "rocket", "mako", "turbo")
+  settings <- list(list(), list(begin = 0.2, end = 0.9, direction = -1, alpha = 0.35),
+                   list(begin = 0.9, end = 0.2, alpha = 0),
+                   list(begin = 0.4, end = 0.4, direction = -1))
+  for (args in settings) {
+    for (cap in c(1L, 3L)) {
+      invisible(capture.output(shown <- do.call(pal_show_viridis,
+        c(list(n = 40, max_colors = cap, output = "console"), args)
+      )))
+      index <- if (cap == 1L) 20L else c(1L, 20L, 40L)
+      for (nm in choices) {
+        expected <- do.call(scales::viridis_pal, c(list(option = nm), args))(40)
+        expect_identical(as.character(shown[[nm]]), expected[index], info = nm)
+      }
+    }
+  }
+  for (viewer in list(pal_show_hcl, pal_show_viridis)) {
+    palette <- if (identical(viewer, pal_show_hcl)) "Viridis" else "viridis"
+    tbl <- viewer(palette, n = 40, max_colors = 3, output = "gt")
+    expect_identical(tbl[["_data"]]$n_colors, "3 / 40")
+    invisible(viewer(palette, n = 20, output = "gg"))
+    if (!capabilities("profmem")) next
+    profile <- withr::local_tempfile()
+    Rprofmem(profile)
+    p <- tryCatch(viewer(palette, n = 200000, max_colors = 20, output = "gg"),
+                  finally = Rprofmem(NULL))
+    bytes <- suppressWarnings(as.numeric(sub(" .*", "", readLines(profile))))
+    expect_lt(sum(bytes, na.rm = TRUE), 5 * 1024^2)
+    expect_equal(nrow(p$data), 20L)
+  }
+})

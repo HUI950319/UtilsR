@@ -23,7 +23,9 @@ pal_show_viridis(
 \code{"cividis"}, \code{"rocket"}, \code{"mako"}, or \code{"turbo"}.
 \code{NULL} shows all palettes.}
 
-\item{n}{Number of colours to generate for each palette. Default 8.}
+\item{n}{Number of colours in each requested palette. Default 8. Capped
+previews evaluate only the displayed positions and retain the requested
+total in the colour-count label.}
 
 \item{begin, end}{Plain numeric scalars between 0 and 1, without classes or
 dimensions, defining the portion of each colour map to use.}

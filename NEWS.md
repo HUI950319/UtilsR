@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* `pal_show_hcl()` and `pal_show_viridis()` evaluate only displayed positions for capped previews, preserving native colours and requested totals while bounding large-palette allocation.
+
 * pal_get() validates unique ordinary colour strings after a failed bulk parse, restoring every invalid value in its original order and retaining classed-vector diagnostics.
 
 * pal_get() interpolates repeated numeric positions once when repeats occur in a bounded prefix, preserving observation order, non-finite values, reversal and alpha while keeping all-unique inputs on the direct path.

@@ -23,6 +23,9 @@
 #               +-- L2  .is_color_vector()   colours vs palette names
 #                     +-- L3  .pal_are_colors() validate literal colours in bulk
 #               +-- L2  .pal_resize()       sample only the displayed colours
+#               +-- L2  .pal_preview_indices() select native preview positions
+#               +-- L2  .pal_hcl_preview()  evaluate native HCL parameters
+#               +-- L2  .pal_viridis_preview() evaluate the native colour spline
 #               +-- L2  .pal_show_gg()      render catalogue in a small frame
 #               +-- L2  .pal_show_colors()   render swatches (ggplot | gt)
 #               +-- L2  .pal_hex()           normalize R colours for display
@@ -684,6 +687,74 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   out
 }
 
+.pal_preview_indices <- function(n, max_colors, continuous) {
+  shown <- min(n, max_colors)
+  if (!continuous) return(seq_len(shown))
+  if (shown == 1L) ceiling(n / 2) else round(seq.int(1, n, length.out = shown))
+}
+
+# Evaluate the same HCL trajectories as grDevices::hcl.colors() at selected rows.
+.pal_hcl_preview <- function(n, palette, index, parameters) {
+  type <- as.character(parameters[palette, "type"])
+  p <- unlist(parameters[palette, -1L, drop = TRUE])
+  i <- 1 + (index - 1) * (-1 / (n - 1))
+  i[index == n] <- 0
+  if (type == "qualitative") {
+    last <- p[["h2"]]
+    if (is.na(last)) last <- p[["h1"]] + 360 * (n - 1L) / n
+    return(grDevices::hcl(h = last - (last - p[["h1"]]) * i,
+                          c = p[["c1"]], l = p[["l1"]], alpha = NULL))
+  }
+  if (is.na(p[["p2"]])) p[["p2"]] <- p[["p1"]]
+  if (is.na(p[["p4"]])) p[["p4"]] <- p[["p2"]]
+  if (type == "sequential") {
+    h1 <- p[["h1"]]
+    h2 <- if (is.na(p[["h2"]])) h1 else p[["h2"]]
+    c1 <- p[["c1"]]
+    c2 <- if (is.na(p[["c2"]])) 0 else p[["c2"]]
+    l1 <- p[["l1"]]
+    power_c <- p[["p1"]]
+    power_l <- p[["p2"]]
+    peak <- p[["cmax1"]]
+  } else {
+    right <- index > n %/% 2
+    i <- 1 + ifelse(right, n - index, index - 1) * (-2 / (n - 1))
+    extended <- type == "divergingx"
+    h1 <- ifelse(right, p[[if (extended) "h3" else "h2"]], p[["h1"]])
+    h2 <- if (extended && !is.na(p[["h2"]])) p[["h2"]] else h1
+    c1 <- if (extended) ifelse(right, p[["c3"]], p[["c1"]]) else p[["c1"]]
+    c2 <- if (extended) p[["c2"]] else 0
+    l1 <- if (extended) ifelse(right, p[["l3"]], p[["l1"]]) else p[["l1"]]
+    power_c <- if (extended) ifelse(right, p[["p3"]], p[["p1"]]) else p[["p1"]]
+    power_l <- if (extended) ifelse(right, p[["p4"]], p[["p2"]]) else p[["p2"]]
+    peak <- if (extended) ifelse(right, p[["cmax2"]], p[["cmax1"]]) else p[["cmax1"]]
+  }
+  fraction <- i^power_c
+  cross <- rep_len(1 / (1 + abs(peak - c1) / abs(peak - c2)), length(i))
+  chroma <- ifelse(is.na(cross) | cross <= 0 | cross >= 1,
+    c2 - (c2 - c1) * fraction,
+    ifelse(fraction <= cross, c2 - (c2 - peak) * fraction / cross,
+           peak - (peak - c1) * abs((fraction - cross) / (1 - cross))))
+  grDevices::hcl(h = h2 - (h2 - h1) * i, c = chroma,
+                 l = p[["l2"]] - (p[["l2"]] - l1) * i^power_l, alpha = NULL)
+}
+
+.pal_viridis_preview <- function(n, palette, index, alpha, begin, end, direction) {
+  option_codes <- c(magma = "A", inferno = "B", plasma = "C", viridis = "D",
+               cividis = "E", rocket = "F", mako = "G", turbo = "H")
+  map <- viridisLite::viridis.map
+  map <- map[map$opt == option_codes[[palette]], ]
+  ramp <- grDevices::colorRamp(grDevices::rgb(map$R, map$G, map$B),
+                               space = "Lab", interpolate = "spline")
+  from <- if (direction == 1) begin else end
+  to <- if (direction == 1) end else begin
+  at <- from + (index - 1) * ((to - from) / (n - 1))
+  at[index == 1] <- from
+  at[index == n] <- to
+  rgb <- ramp(at) / 255
+  grDevices::rgb(rgb[, 1L], rgb[, 2L], rgb[, 3L], alpha = alpha)
+}
+
 # Keep returned plot environments separate from the original palette input.
 .pal_show_gg <- function(pals) {
   force(pals)
@@ -933,9 +1004,11 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
   }
 
   # Generate only the drawn colours, retaining the requested total for labels.
+  requested_total <- attr(pals, "n_total", exact = TRUE)
   n_total <- lengths(pals)
   if (!is.null(n)) n_total[] <- n
   pals <- Map(.pal_resize, pals, pmin(n_total, max_colors), n_total)
+  if (is.null(n) && !is.null(requested_total)) n_total[] <- requested_total
   n_shown <- lengths(pals)
   n_label <- ifelse(n_shown < n_total,
                     sprintf("%d / %d", n_shown, n_total),
@@ -1126,7 +1199,9 @@ pal_show_brewer <- function(palette = NULL, n = NULL,
 #'   palettes matching \code{type} and \code{pattern}. Matching follows native HCL
 #'   rules: case and separators are ignored, unique abbreviations are accepted,
 #'   and ambiguous names are rejected. Returned names use canonical spelling.
-#' @param n Number of colours to generate for each palette. Default 8.
+#' @param n Number of colours in each requested palette. Default 8. Capped
+#'   previews evaluate only the displayed positions and retain the requested
+#'   total in the colour-count label.
 #' @param type HCL palette category: \code{"all"}, \code{"qualitative"},
 #'   \code{"sequential"}, \code{"diverging"}, or \code{"divergingx"}.
 #' @param pattern Single non-missing regex string used to filter palette names.
@@ -1203,12 +1278,19 @@ pal_show_hcl <- function(palette = NULL, n = 8,
     cli::cli_abort("No HCL palettes matched the filters.")
   }
 
+  parameters <- if (n > max_colors) {
+    utils::getFromNamespace(".hcl_colors_parameters", "grDevices")
+  }
   pals <- lapply(pal_names, function(nm) {
-    cols <- grDevices::hcl.colors(as.integer(n), palette = nm)
+    cols <- if (n > max_colors) {
+      index <- .pal_preview_indices(n, max_colors, type_lookup[[nm]] != "qualitative")
+      .pal_hcl_preview(n, nm, index, parameters)
+    } else grDevices::hcl.colors(as.integer(n), palette = nm)
     attr(cols, "type") <- unname(type_lookup[[nm]])
     cols
   })
   names(pals) <- pal_names
+  attr(pals, "n_total") <- n
 
   pal_show(pals, max_colors = max_colors, output = output)
 }
@@ -1344,7 +1426,9 @@ pal_show_ggsci <- function(palette = NULL, n = NULL, alpha = 1,
 #'   \code{"inferno"}, \code{"plasma"}, \code{"viridis"},
 #'   \code{"cividis"}, \code{"rocket"}, \code{"mako"}, or \code{"turbo"}.
 #'   \code{NULL} shows all palettes.
-#' @param n Number of colours to generate for each palette. Default 8.
+#' @param n Number of colours in each requested palette. Default 8. Capped
+#'   previews evaluate only the displayed positions and retain the requested
+#'   total in the colour-count label.
 #' @param begin,end Plain numeric scalars between 0 and 1, without classes or
 #'   dimensions, defining the portion of each colour map to use.
 #' @param direction Direction of the colour map, a plain numeric scalar equal
@@ -1423,7 +1507,10 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
   }
 
   pals <- lapply(pal_names, function(nm) {
-    cols <- scales::viridis_pal(
+    cols <- if (n > max_colors) {
+      index <- .pal_preview_indices(n, max_colors, TRUE)
+      .pal_viridis_preview(n, nm, index, alpha, begin, end, direction)
+    } else scales::viridis_pal(
       alpha = alpha,
       begin = begin,
       end = end,
@@ -1434,6 +1521,7 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
     cols
   })
   names(pals) <- pal_names
+  attr(pals, "n_total") <- n
 
   pal_show(pals, max_colors = max_colors, output = output)
 }
