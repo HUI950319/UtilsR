@@ -842,6 +842,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 
 # Numeric strings refer to the mutable base palette rather than literal colours.
 .pal_are_colors <- function(x) {
+  if (length(x) > 1024L && .pal_use_unique(x)) x <- unique(x)
   if (anyNA(x) || any(grepl("^[0-9]", x))) return(FALSE)
   tryCatch({
     grDevices::col2rgb(x)

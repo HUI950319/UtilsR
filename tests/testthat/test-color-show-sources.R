@@ -2068,3 +2068,44 @@ test_that("palette catalogue names wrap without changing swatch widths", {
     expect_identical(grepl("overflow-wrap:\\s*anywhere", cells), TRUE)
   }
 })
+
+test_that("palette validation reuses large repeated colour inputs", {
+  native <- grDevices::col2rgb
+  parsed <- integer()
+  testthat::local_mocked_bindings(col2rgb = function(col, ...) {
+    parsed <<- c(parsed, length(col))
+    native(col, ...)
+  }, .package = "grDevices")
+
+  cols <- rep(c("royalblue4", "#0000FF80"), 10000L)
+  before <- cols
+  expect_true(.pal_are_colors(cols))
+  expect_identical(parsed, 2L)
+  parsed <- integer()
+  expect_true(.pal_are_colors(c("red", "blue", "red")))
+  expect_identical(parsed, 3L)
+  parsed <- integer()
+  distinct <- sprintf("#%06X", seq_len(2000L))
+  expect_true(.pal_are_colors(distinct))
+  expect_identical(parsed, length(distinct))
+
+  p <- suppressMessages(pal_show(cols, max_colors = 20, output = "gg"))
+  expect_identical(p$data$hex, rep(c("#27408B", "#0000FF80"), 10L))
+  tbl <- suppressMessages(pal_show(list(repeated = cols), max_colors = 20, output = "gt"))
+  expect_identical(tbl[["_data"]]$n_colors, "20 / 20000")
+  expect_length(regmatches(tbl[["_data"]]$preview, gregexpr("<span ", tbl[["_data"]]$preview))[[1L]], 20L)
+  invisible(capture.output(console <- suppressMessages(pal_show(cols, max_colors = 20, output = "console"))))
+  expect_identical(as.character(console), cols[seq_len(20L)])
+  expect_true(.pal_are_colors(c(cols, "NA")))
+  for (bad in c("not-a-colour", "1")) {
+    invalid <- cols
+    invalid[length(invalid)] <- bad
+    expect_false(.pal_are_colors(invalid))
+    expect_error(pal_show(invalid, max_colors = 2, output = "gg"), "No matching palettes")
+    expect_error(pal_show(list(invalid = invalid), max_colors = 2, output = "gt"), "invalid colours")
+  }
+  missing <- cols
+  missing[length(missing)] <- NA_character_
+  expect_false(.pal_are_colors(missing))
+  expect_identical(cols, before)
+})
