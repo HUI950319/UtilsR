@@ -187,9 +187,15 @@ if (requireNamespace("colorspace", quietly = TRUE)) {
                   "YlOrRd", "YlOrBr", "YlGnBu", "BuGn", "BuPu",
                   "PuRd", "RdPu", "OrRd", "GnBu", "PuBu", "PuBuGn")
   for (nm in hcl_names) {
+    supported <- tryCatch(colorspace::hcl_palettes(type = "Sequential", palette = nm),
+                          error = function(e) NULL)
+    if (is.null(supported)) next
     cols <- tryCatch(
       colorspace::sequential_hcl(100, palette = nm),
-      error = function(e) NULL
+      error = function(e) {
+        stop("Failed to generate colorspace sequential palette '", nm, "': ",
+             conditionMessage(e), call. = FALSE)
+      }
     )
     if (!is.null(cols)) {
       full_name <- paste0("hcl_", gsub(" ", "_", nm))
@@ -201,9 +207,15 @@ if (requireNamespace("colorspace", quietly = TRUE)) {
   div_names <- c("Blue-Red", "Blue-Yellow", "Green-Brown", "Purple-Green",
                  "Tropic", "Tofino", "Berlin", "Lisbon", "Cork")
   for (nm in div_names) {
+    supported <- tryCatch(colorspace::hcl_palettes(type = "Diverging", palette = nm),
+                          error = function(e) NULL)
+    if (is.null(supported)) next
     cols <- tryCatch(
       colorspace::diverging_hcl(100, palette = nm),
-      error = function(e) NULL
+      error = function(e) {
+        stop("Failed to generate colorspace diverging palette '", nm, "': ",
+             conditionMessage(e), call. = FALSE)
+      }
     )
     if (!is.null(cols)) {
       full_name <- paste0("hcl_", gsub("[- ]", "_", nm))

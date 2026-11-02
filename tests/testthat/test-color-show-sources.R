@@ -1202,6 +1202,85 @@ test_that("palette rebuilds reject dimensional or classed source colours", {
   }
 })
 
+test_that("palette rebuilds stop on valid HCL generation errors", {
+  script <- normalizePath(test_path("..", "..", "data-raw", "build_palette_list.R"),
+                          mustWork = FALSE)
+  skip_if_not(file.exists(script))
+  packages <- c("RColorBrewer", "ggsci", "viridis", "rcartocolor", "nord",
+                "dichromat", "pals", "colorspace")
+  for (pkg in packages) skip_if_not_installed(pkg)
+  for (family in c("sequential", "diverging")) {
+    native <- getExportedValue("colorspace", paste0(family, "_hcl"))
+    key <- if (family == "sequential") "Reds" else "Blue-Red"
+    expect_length(native(100, palette = key), 100L)
+    for (existing in c(FALSE, TRUE)) {
+      local({
+        work <- withr::local_tempdir()
+        writeLines("Package: UtilsR", file.path(work, "DESCRIPTION"))
+        dir.create(file.path(work, "data"))
+        withr::local_dir(work)
+        target <- "data/palette_list.rda"
+        if (existing) {
+          palette_list <- list(Set1 = structure(c("red", "blue"), type = "discrete"))
+          save(palette_list, file = target)
+        }
+        before <- if (existing) readBin(target, "raw", file.info(target)$size) else NULL
+        generate <- function(n, ..., palette = NULL) {
+          if (identical(palette, key)) stop("simulated HCL failure")
+          native(n, ..., palette = palette)
+        }
+        if (family == "sequential") {
+          testthat::local_mocked_bindings(sequential_hcl = generate, .package = "colorspace")
+        } else {
+          testthat::local_mocked_bindings(diverging_hcl = generate, .package = "colorspace")
+        }
+        expect_error(suppressMessages(sys.source(script, envir = new.env())),
+                     paste0("Failed to generate colorspace ", family, " palette '", key,
+                            "': simulated HCL failure"))
+        if (existing) {
+          expect_identical(readBin(target, "raw", file.info(target)$size), before)
+        } else {
+          expect_false(file.exists(target))
+        }
+        expect_identical(list.files("data", all.files = TRUE, no.. = TRUE),
+                         if (existing) "palette_list.rda" else character())
+      })
+    }
+  }
+})
+
+test_that("palette rebuilds preserve native HCL matching and legacy omissions", {
+  script <- normalizePath(test_path("..", "..", "data-raw", "build_palette_list.R"),
+                          mustWork = FALSE)
+  skip_if_not(file.exists(script))
+  packages <- c("RColorBrewer", "ggsci", "viridis", "rcartocolor", "nord",
+                "dichromat", "pals", "colorspace")
+  for (pkg in packages) skip_if_not_installed(pkg)
+  work <- withr::local_tempdir()
+  writeLines("Package: UtilsR", file.path(work, "DESCRIPTION"))
+  dir.create(file.path(work, "data"))
+  withr::local_dir(work)
+  suppressMessages(sys.source(script, envir = new.env()))
+  rebuilt <- new.env(parent = emptyenv())
+  load("data/palette_list.rda", envir = rebuilt)
+  cases <- list(sequential = c(hcl_Reds = "Reds", hcl_Reds_3 = "Reds 3", hcl_YlOrRd = "YlOrRd"),
+                diverging = c(hcl_Blue_Yellow = "Blue-Yellow", hcl_Tofino = "Tofino",
+                               hcl_Cork = "Cork"))
+  for (family in names(cases)) {
+    native <- getExportedValue("colorspace", paste0(family, "_hcl"))
+    for (key in names(cases[[family]])) {
+      cols <- tryCatch(native(100, palette = cases[[family]][[key]]),
+                       error = function(e) NULL)
+      if (is.null(cols)) {
+        expect_false(key %in% names(rebuilt$palette_list))
+      } else {
+        attr(cols, "type") <- "continuous"
+        expect_identical(rebuilt$palette_list[[key]], cols)
+      }
+    }
+  }
+})
+
 test_that("palette preview allocation is bounded by the display cap", {
   skip_if_not(capabilities("profmem"))
   invisible(pal_show("Set1", n = 20, output = "gg"))
