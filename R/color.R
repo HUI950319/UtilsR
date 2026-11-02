@@ -333,8 +333,8 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
 #'       such as \code{"transparent"} or \code{"#F00"}), used as the palette
 #'       itself -- a registered name always wins over a same-named colour, and
 #'       a string that is neither still raises the usual "not found" error;
-#'     \item a fully named list of colour vectors, such as \code{pal_heat},
-#'       which is mapped over one palette at a time.
+#'     \item a fully named list of colour vectors with unique names, such as
+#'       \code{pal_heat}, mapped over one palette at a time.
 #'   }
 #' @param n Number of colours to return, a non-negative whole number. Colours
 #'   are taken from the front when \code{n} is at most the palette length and
@@ -393,24 +393,6 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   }
   if (is.null(palette)) palette <- pal_lancet
 
-  # A list of palettes is mapped over, so `pal_heat` and friends get the same
-  # n / x / reverse / alpha handling one palette at a time.
-  if (is.list(palette)) {
-    nms <- names(palette)
-    if (length(palette) == 0L || is.null(nms) || any(!nzchar(nms)))
-      cli::cli_abort("A list of palettes must be non-empty and fully named.")
-    if (!all(vapply(palette,
-                    function(p) is.character(p) && length(p) > 0L,
-                    logical(1))))
-      cli::cli_abort(paste("Every element of a palette list must be a",
-                           "non-empty character vector of colours."))
-    return(lapply(palette, .pal_apply,
-                  n = n, x = x, reverse = reverse, alpha = alpha))
-  }
-  if (!is.character(palette) || length(palette) == 0L)
-    cli::cli_abort(paste("{.arg palette} must be a palette name, a colour",
-                         "vector, or a named list of colour vectors."))
-
   # Whatever R can draw, except digit strings: col2rgb() reads "2" as a position
   # in palette().
   is_colour <- function(v) {
@@ -422,6 +404,32 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     }, logical(1L), USE.NAMES = FALSE)
     drawable & !is.na(v) & !grepl("^[0-9]+$", v)
   }
+
+  # A list of palettes is mapped over, so `pal_heat` and friends get the same
+  # n / x / reverse / alpha handling one palette at a time.
+  if (is.list(palette)) {
+    nms <- names(palette)
+    if (length(palette) == 0L || is.null(nms) || anyNA(nms) ||
+        any(!nzchar(nms)) || anyDuplicated(nms))
+      cli::cli_abort(paste("A list of palettes must be non-empty and fully named,",
+                           "with unique names."))
+    if (!all(vapply(palette,
+                    function(p) is.character(p) && length(p) > 0L,
+                    logical(1))))
+      cli::cli_abort(paste("Every element of a palette list must be a",
+                           "non-empty character vector of colours."))
+    for (i in seq_along(palette)) {
+      bad <- palette[[i]][!is_colour(palette[[i]])]
+      if (length(bad)) {
+        cli::cli_abort("Palette {.val {nms[[i]]}} contains invalid colour{?s}: {.val {bad}}.")
+      }
+    }
+    return(lapply(palette, .pal_apply,
+                  n = n, x = x, reverse = reverse, alpha = alpha))
+  }
+  if (!is.character(palette) || length(palette) == 0L)
+    cli::cli_abort(paste("{.arg palette} must be a palette name, a colour",
+                         "vector, or a named list of colour vectors."))
 
   # Explicit namespace lookup so the function works when called as
   # `UtilsR::pal_get(...)` from another package without `library(UtilsR)`.

@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* pal_get() validates all colours and unique non-missing names in palette lists before sizing or interpolation, and identifies the invalid palette and colour.
+
 * pal_show() and its source viewers return graphics visibly without printing internally, allowing gt tables to render correctly in knitted documents.
 
 * pal_show() converts R colour names to CSS-compatible hex values for gt palette swatches while preserving transparency.

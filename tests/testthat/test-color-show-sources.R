@@ -497,3 +497,16 @@ test_that("pal_show renders gt objects in knitted documents", {
     expect_match(markdown, "<table", fixed = TRUE)
   }
 })
+
+test_that("pal_get validates every colour in a palette list", {
+  for (n in list(NULL, 0, 1, 3)) {
+    expect_error(pal_get(list(bad = c("red", "notacolor")), n = n),
+                 "bad.*notacolor")
+    expect_error(pal_get(list(bad = c("red", "2")), n = n), "bad.*2")
+    expect_error(pal_get(list(bad = c("red", NA_character_)), n = n), "bad.*NA")
+  }
+  expect_error(pal_get(stats::setNames(list("red"), NA_character_)), "named")
+  expect_error(pal_get(list(a = "red", a = "blue")), "unique")
+  expect_identical(pal_get(list(a = c("transparent", "#F00", "light blue"))),
+                   list(a = c("transparent", "#F00", "light blue")))
+})

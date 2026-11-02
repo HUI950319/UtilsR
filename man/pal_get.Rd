@@ -17,8 +17,8 @@ pal_get(palette = "Paired", n = NULL, x = NULL, reverse = FALSE, alpha = 1)
     such as \code{"transparent"} or \code{"#F00"}), used as the palette
     itself -- a registered name always wins over a same-named colour, and
     a string that is neither still raises the usual "not found" error;
-  \item a fully named list of colour vectors, such as \code{pal_heat},
-    which is mapped over one palette at a time.
+  \item a fully named list of colour vectors with unique names, such as
+    \code{pal_heat}, mapped over one palette at a time.
 }}
 
 \item{n}{Number of colours to return, a non-negative whole number. Colours
