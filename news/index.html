@@ -50,7 +50,17 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.21" id="utilsr-0621">UtilsR 0.6.21<a class="anchor" aria-label="anchor" href="#utilsr-0621"></a></h2>
-<ul><li><p>Long unstyled ASCII runs in notes, key-value blocks and boxes split into fixed-width pieces without repeatedly scanning their remaining suffixes.</p></li>
+<ul><li><p>PlotHeatmapJaccard() caches unique feature sets and skips plot construction for matrix-only output without a requested file, preserving empty-set and overlap definitions.</p></li>
+<li><p>PlotButterfly2() retains only the selected plotting columns in grouped, ungrouped and beeswarm paths, avoiding serialized copies of unused input payloads.</p></li>
+<li><p>PlotHeatmapJaccard() constructs mappings in a bounded plotting frame so returned plots no longer retain unused input columns.</p></li>
+<li><p>PlotCircleLollipop() avoids overflow in global and per-group min-max scaling while preserving constant heights, missing values and top_n range definitions.</p></li>
+<li><p>PlotRank() scales extreme finite ranges without overflowing while retaining full-range versus displayed-range semantics.</p></li>
+<li><p>stat_ci_parse() retains valid normal-approximation p-values when a finite difference interval has an SE beyond floating-point range, including confidence-level adjustments.</p></li>
+<li><p>PlotCircleLollipop() omits unused group levels and diagnoses missing or excluded groups before drawing or opening an output device.</p></li>
+<li><p>PlotButterfly2() shares observed-category shape mappings across gradient beeswarm panels and rejects more than four observed categories before points can be omitted.</p></li>
+<li><p>PlotHeatmapJaccard() excludes labelled user-missing groups and features consistently, including before haven is loaded.</p></li>
+<li><p>impute_na_knn() interprets labelled missing values before missing-variable and donor checks, including in a fresh R session.</p></li>
+<li><p>Long unstyled ASCII runs in notes, key-value blocks and boxes split into fixed-width pieces without repeatedly scanning their remaining suffixes.</p></li>
 <li><p>Notes, key-value blocks and boxes preserve styled zero-width graphemes without passing them to a failing ANSI wrapping path.</p></li>
 <li><p>Wrapped notes, key-value blocks and boxes no longer add an empty continuation after the last overwide grapheme in a very narrow console.</p></li>
 <li><p><code><a href="../reference/pr_tree.html">pr_tree()</a></code> accepts integer <code>max_items</code> near the integer limit without overflowing while preparing sibling-name previews.</p></li>

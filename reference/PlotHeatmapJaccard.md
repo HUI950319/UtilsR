@@ -36,7 +36,8 @@ PlotHeatmapJaccard(
 
   A data.frame containing at least a group column and a name column.
   Rows with missing group labels or feature names do not contribute to
-  sets.
+  sets. Labelled columns use their class-defined missing values,
+  including SPSS user-missing codes, even in a fresh R session.
 
 - group_col:
 
@@ -100,7 +101,8 @@ PlotHeatmapJaccard(
 
   What to return: `"plot"` (default, the ggplot object), `"data"` (the
   Jaccard similarity matrix), or `"both"` (a list with elements `plot`
-  and `matrix`).
+  and `matrix`). Matrix-only output skips plotting when
+  `filename = NULL`; a requested file is still drawn and saved.
 
 - filename:
 
@@ -133,6 +135,9 @@ Depends on `return_type`:
 - "both":
 
   A list with elements `plot` and `matrix`.
+
+Returned plots retain heatmap inputs rather than the original data
+frame.
 
 ## Examples
 

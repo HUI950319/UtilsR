@@ -120,6 +120,9 @@ PlotRank(
       (post-`max_show`) values. Stretches the visible range within each
       panel to maximise visual separation.
 
+  Extreme finite ranges are rescaled before subtraction to avoid
+  overflow.
+
 - highlight_color:
 
   Colour for top-ranked points. Default `"#007D9B"`.

@@ -2,6 +2,41 @@
 
 ## UtilsR 0.6.21
 
+- PlotHeatmapJaccard() caches unique feature sets and skips plot
+  construction for matrix-only output without a requested file,
+  preserving empty-set and overlap definitions.
+
+- PlotButterfly2() retains only the selected plotting columns in
+  grouped, ungrouped and beeswarm paths, avoiding serialized copies of
+  unused input payloads.
+
+- PlotHeatmapJaccard() constructs mappings in a bounded plotting frame
+  so returned plots no longer retain unused input columns.
+
+- PlotCircleLollipop() avoids overflow in global and per-group min-max
+  scaling while preserving constant heights, missing values and top_n
+  range definitions.
+
+- PlotRank() scales extreme finite ranges without overflowing while
+  retaining full-range versus displayed-range semantics.
+
+- stat_ci_parse() retains valid normal-approximation p-values when a
+  finite difference interval has an SE beyond floating-point range,
+  including confidence-level adjustments.
+
+- PlotCircleLollipop() omits unused group levels and diagnoses missing
+  or excluded groups before drawing or opening an output device.
+
+- PlotButterfly2() shares observed-category shape mappings across
+  gradient beeswarm panels and rejects more than four observed
+  categories before points can be omitted.
+
+- PlotHeatmapJaccard() excludes labelled user-missing groups and
+  features consistently, including before haven is loaded.
+
+- impute_na_knn() interprets labelled missing values before
+  missing-variable and donor checks, including in a fresh R session.
+
 - Long unstyled ASCII runs in notes, key-value blocks and boxes split
   into fixed-width pieces without repeatedly scanning their remaining
   suffixes.

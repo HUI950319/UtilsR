@@ -89,7 +89,9 @@ optional numeric labels per cell and optional coloured axis strips.</p>
 
 <dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
 <dd><p>A data.frame containing at least a group column and a name column.
-Rows with missing group labels or feature names do not contribute to sets.</p></dd>
+Rows with missing group labels or feature names do not contribute to sets.
+Labelled columns use their class-defined missing values, including SPSS
+user-missing codes, even in a fresh R session.</p></dd>
 
 
 <dt id="arg-group-col">group_col<a class="anchor" aria-label="anchor" href="#arg-group-col"></a></dt>
@@ -153,7 +155,9 @@ Default <code>0.45</code>.</p></dd>
 <dt id="arg-return-type">return_type<a class="anchor" aria-label="anchor" href="#arg-return-type"></a></dt>
 <dd><p>What to return: <code>"plot"</code> (default, the ggplot object),
 <code>"data"</code> (the Jaccard similarity matrix), or <code>"both"</code>
-(a list with elements <code>plot</code> and <code>matrix</code>).</p></dd>
+(a list with elements <code>plot</code> and <code>matrix</code>).
+Matrix-only output skips plotting when <code>filename = NULL</code>; a requested
+file is still drawn and saved.</p></dd>
 
 
 <dt id="arg-filename">filename<a class="anchor" aria-label="anchor" href="#arg-filename"></a></dt>
@@ -184,7 +188,8 @@ Default <code>0.45</code>.</p></dd>
 <dd><p>A list with elements <code>plot</code> and <code>matrix</code>.</p></dd>
 
 
-</dl></div>
+</dl><p>Returned plots retain heatmap inputs rather than the original data frame.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>

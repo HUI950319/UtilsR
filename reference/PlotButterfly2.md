@@ -67,6 +67,9 @@ PlotButterfly2(
 - fill.by:
 
   Character or `NULL`. Column for dodge grouping. Default `NULL`.
+  Gradient-coloured beeswarm modes share shapes across panels and
+  support at most four observed, non-missing categories; additional
+  categories error.
 
 - type:
 
@@ -183,7 +186,8 @@ PlotButterfly2(
 
 ## Value
 
-A `patchwork` object.
+A `patchwork` object. Only columns used for plotting are retained in the
+returned object.
 
 ## Details
 

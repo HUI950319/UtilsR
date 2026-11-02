@@ -5,8 +5,9 @@ Impute missing values in mixed-type data with
 temporarily converted to factors for distance calculation, then restored
 with their original storage type, variable label, value labels, and
 other attributes. SPSS user-missing codes are treated as missing rather
-than donor categories. Labelled donor values are restored through their
-original category values, without parsing rounded printed numbers.
+than donor categories. Labelled missingness is interpreted even when
+haven has not been loaded. Labelled donor values are restored through
+their original category values, without parsing rounded printed numbers.
 Stored integer64 columns require bit64. When imputation is needed, their
 observed values must be within +/-`2^53` for exact numeric conversion.
 Imputed values are converted back to integer64 storage, with fractional

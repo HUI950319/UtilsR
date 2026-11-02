@@ -50,7 +50,8 @@ PlotCircleLollipop(
 - data:
 
   A data.frame with at least three columns: group, feature name, and
-  numeric value.
+  numeric value. Missing group labels are rejected before drawing.
+  Unused group levels are omitted from the chart.
 
 - group_col:
 
@@ -94,10 +95,14 @@ PlotCircleLollipop(
       displayed (post-`top_n`) values. Top displayed feature = 1, bottom
       displayed feature = 0. Maximises visual spread within each sector.
 
+  Extreme finite ranges are rescaled before subtraction to avoid
+  overflow.
+
 - group_levels:
 
   Character vector controlling the display order of groups. `NULL` =
-  data appearance order (or factor levels if already a factor).
+  data appearance order (or factor levels if already a factor). Must
+  include every observed group; unobserved levels are omitted.
 
 - common_color:
 

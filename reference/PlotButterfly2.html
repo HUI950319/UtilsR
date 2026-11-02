@@ -122,7 +122,9 @@ An optional <code>fill.by</code> column adds a dodge dimension.</p>
 
 <dt id="arg-fill-by">fill.by<a class="anchor" aria-label="anchor" href="#arg-fill-by"></a></dt>
 <dd><p>Character or <code>NULL</code>. Column for dodge grouping.
-Default <code>NULL</code>.</p></dd>
+Default <code>NULL</code>.
+Gradient-coloured beeswarm modes share shapes across panels and support
+at most four observed, non-missing categories; additional categories error.</p></dd>
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
@@ -253,7 +255,8 @@ Default <code>"#f04625"</code> / <code>"#00a8ee"</code>.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code>patchwork</code> object.</p>
+    <p>A <code>patchwork</code> object.
+Only columns used for plotting are retained in the returned object.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
