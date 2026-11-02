@@ -2,6 +2,17 @@
 
 ## UtilsR 0.6.21
 
+- pal_get() validates colour vectors in one batch, falling back to
+  per-colour diagnostics only for invalid input without changing colour,
+  interpolation or alpha rules.
+
+- pal_get() omits explicit NA factor levels while preserving ordinary
+  unused levels, their order and literal NA labels.
+
+- pal_get() restores labelled missing-value methods before mapping,
+  retains SPSS user-missing values and rejects integer64 inputs before
+  precision can be lost.
+
 - pal_get() maps extreme finite numeric spans without overflow while
   retaining ordinary interpolation and missing-value handling.
 

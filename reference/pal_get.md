@@ -44,7 +44,10 @@ pal_get(palette = "Paired", n = NULL, x = NULL, reverse = FALSE, alpha = 1)
   other values in order of appearance, missing values left out. If
   numeric, returns one colour per element, placed along the palette by
   its value between the finite extremes; missing and infinite values get
-  `NA`, and a single distinct value takes the middle colour.
+  `NA`, and a single distinct value takes the middle colour. Labelled
+  vectors require haven to retain their missing values. `integer64`
+  input is rejected to avoid loss of precision; recode it explicitly
+  before mapping.
 
 - reverse:
 
