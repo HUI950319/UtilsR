@@ -614,8 +614,12 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
           (values[placed] - ends[[1L]]) / (ends[[2L]] - ends[[1L]])
         }
         if (reverse) at <- 1 - at
-        # Keep all-unique inputs on the direct path with a bounded prefix check.
-        if (anyDuplicated(at[seq_len(min(length(at), 1024L))])) {
+        # A spread-out probe avoids a full hash pass for sparse repetitions.
+        n_at <- length(at)
+        probe <- if (n_at <= 1024L) at else {
+          at[round(seq.int(1, n_at, length.out = 1024L))]
+        }
+        if (length(unique(probe)) * 2L < length(probe)) {
           unique_at <- unique(at)
           out[placed] <- ramp(at = unique_at)[match(at, unique_at)]
         } else {

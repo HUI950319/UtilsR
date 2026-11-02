@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* pal_get() estimates repetition across numeric positions before deduplicating, avoiding full unique/match work for sparse repeats and detecting dense repeats beyond the original prefix without changing colours.
+
 * pal_get() treats the literal NA colour as transparent before alpha replacement, consistently across selection and interpolation, while retaining true missing mapping values and unchanged default-alpha spelling.
 
 * `pal_show_ggsci()` transforms only selected palettes after filtering names and indices, avoiding unused resizing, reversal and opacity work.

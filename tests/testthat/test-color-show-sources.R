@@ -727,6 +727,23 @@ test_that("pal_get treats the literal NA colour as transparent when alpha change
   expect_error(pal_get(NA_character_, alpha = 0.5), "not found")
 })
 
+test_that("pal_get retains numeric colours across uneven repetition patterns", {
+  sparse <- c(0, 0, seq(0, 2, length.out = 4097))
+  out <- pal_get(c("black", "white"), x = sparse)
+  expect_identical(out[c(1, 2, 2051, length(out))],
+                   c("#000000", "#000000", "#7F7F7F", "#FFFFFF"))
+
+  prefix <- seq(0, 2, length.out = 2048)
+  x <- c(prefix, rep(c(0, 2, 1, NA), 1024))
+  expected <- rep(c("#000000", "#FFFFFF", "#7F7F7F", NA), 1024)
+  out <- pal_get(c("black", "white"), x = x)
+  expect_identical(out[c(1, length(prefix))], c("#000000", "#FFFFFF"))
+  expect_identical(out[-seq_along(prefix)], expected)
+  reversed <- pal_get(c("black", "white"), x = x, reverse = TRUE, alpha = 0.5)
+  expect_identical(reversed[-seq_along(prefix)],
+                   rep(c("#FFFFFF80", "#00000080", "#7F7F7F80", NA), 1024))
+})
+
 test_that("pal_show preserves transparency in colour-vector previews", {
   cols <- c("#FF000080", "transparent", "#00000010")
   invisible(capture.output(p <- pal_show(cols, output = "gg")))
