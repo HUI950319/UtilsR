@@ -558,6 +558,7 @@ console_width <- function() {
 #' foreground text. Works in any terminal that supports ANSI true-colour
 #' (24-bit) escape sequences. The displayed colour vector is also printed with
 #' \code{dput()} so it can be copied back into R for assignment.
+#' Swatches wrap to the console width without truncating the colour vector.
 #'
 #' Swatches follow whatever colour depth the terminal reports through
 #' \code{cli::num_ansi_colors()}. A terminal limited to 256 colours draws the
@@ -604,7 +605,10 @@ show_color <- function(x, rev = FALSE) {
     cli::combine_ansi_styles(fg_style, bg_style)(paste0(" ", h, " "))
   }, character(1), USE.NAMES = FALSE)
 
-  cat(paste(styled, collapse = " "), "\n")
+  per_line <- max(1L, console_width() %/% 10L)
+  rows <- split(styled, ceiling(seq_along(styled) / per_line))
+  if (!length(rows)) rows <- list(character())
+  for (row in rows) cat(paste(row, collapse = " "), "\n")
   dput(x)
   invisible(x)
 }

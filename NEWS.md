@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* Console palette swatches wrap at colour boundaries to the terminal width while retaining every colour, names, attributes and the copyable R expression.
+
 * GSEA and Material palettes carry continuous metadata in the built-in registry and ggsci viewer, making all 20 gradients discoverable by type.
 
 * pal_list() rejects missing, non-scalar and non-logical show controls before filtering or printing, including empty matches.

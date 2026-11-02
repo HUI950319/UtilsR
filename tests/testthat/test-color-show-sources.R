@@ -627,3 +627,23 @@ test_that("gradient palettes are discoverable through continuous filters", {
                                                        "continuous"), logical(1))))
   }
 })
+
+test_that("console swatches wrap without losing colours or copyable values", {
+  cols <- stats::setNames(grDevices::rainbow(11), letters[1:11])
+  attr(cols, "type") <- "discrete"
+  withr::local_options(list(width = 40, cli.width = 40, cli.num_colors = 0))
+  for (depth in c(0, 256, 16777216)) {
+    options(cli.num_colors = depth)
+    output <- capture.output(result <- withVisible(show_color(cols)))
+    plain <- cli::ansi_strip(output)
+    swatches <- grepl("^ #[0-9A-F]{6}", plain)
+    expect_true(sum(swatches) > 1L)
+    expect_true(all(nchar(plain[swatches], type = "width") <= 40L))
+    displayed <- unlist(regmatches(plain[swatches],
+                                   gregexpr("#[0-9A-F]{6}", plain[swatches])))
+    expect_identical(unname(displayed), toupper(unname(as.character(cols))))
+    expect_identical(eval(parse(text = plain[!swatches])), cols)
+    expect_identical(result$value, cols)
+    expect_false(result$visible)
+  }
+})

@@ -19,6 +19,7 @@ Print colour hex codes as ANSI-coloured swatches with auto-contrasting
 foreground text. Works in any terminal that supports ANSI true-colour
 (24-bit) escape sequences. The displayed colour vector is also printed with
 \code{dput()} so it can be copied back into R for assignment.
+Swatches wrap to the console width without truncating the colour vector.
 }
 \details{
 Swatches follow whatever colour depth the terminal reports through
