@@ -951,6 +951,39 @@ test_that("palette rebuilds reject invalid existing data before generating palet
   }
 })
 
+test_that("palette rebuilds stop when an individual CARTO palette fails", {
+  script <- normalizePath(test_path("..", "..", "data-raw", "build_palette_list.R"),
+                          mustWork = FALSE)
+  skip_if_not(file.exists(script))
+  registry <- normalizePath(test_path("..", "..", "data", "palette_list.rda"))
+  packages <- c("RColorBrewer", "ggsci", "viridis", "rcartocolor", "nord",
+                "dichromat", "pals", "colorspace")
+  for (pkg in packages) skip_if_not_installed(pkg)
+  original <- rcartocolor::carto_pal
+  testthat::local_mocked_bindings(carto_pal = function(n, name, ...) {
+    if (name == "Bold") stop("simulated CARTO failure")
+    original(n, name, ...)
+  }, .package = "rcartocolor")
+  for (existing in c(FALSE, TRUE)) {
+    local({
+      work <- withr::local_tempdir()
+      writeLines("Package: UtilsR", file.path(work, "DESCRIPTION"))
+      dir.create(file.path(work, "data"))
+      withr::local_dir(work)
+      target <- "data/palette_list.rda"
+      if (existing) file.copy(registry, target)
+      before <- if (existing) readBin(target, "raw", file.info(target)$size) else NULL
+      expect_error(suppressMessages(sys.source(script, envir = new.env())),
+                   "Failed to generate rcartocolor palette 'Bold': simulated CARTO failure")
+      if (existing) {
+        expect_identical(readBin(target, "raw", file.info(target)$size), before)
+      } else {
+        expect_false(file.exists(target))
+      }
+    })
+  }
+})
+
 test_that("palette preview allocation is bounded by the display cap", {
   skip_if_not(capabilities("profmem"))
   invisible(pal_show("Set1", n = 20, output = "gg"))
@@ -1144,10 +1177,11 @@ test_that("palette rebuilds reject unreadable or empty source collections", {
   suppressMessages(sys.source(script, envir = new.env(parent = globalenv())))
   rebuilt <- new.env(parent = emptyenv())
   load("data/palette_list.rda", envir = rebuilt)
-  keys <- c("viridis", "ggsci_bs5_blue", "ggsci_tw3_slate", "dichromat_Categorical.12")
+  keys <- c("viridis", "ggsci_bs5_blue", "ggsci_tw3_slate", "dichromat_Categorical.12",
+             "carto_Bold")
   expect_true(all(keys %in% names(rebuilt$palette_list)))
   expect_identical(unname(vapply(rebuilt$palette_list[keys], attr, character(1), "type")),
-                   c("continuous", "continuous", "continuous", "discrete"))
+                   c("continuous", "continuous", "continuous", "discrete", "discrete"))
 })
 
 test_that("palette console headings retain complete names in narrow terminals", {

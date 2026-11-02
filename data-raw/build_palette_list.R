@@ -110,7 +110,10 @@ if (requireNamespace("rcartocolor", quietly = TRUE)) {
     if (is.na(n_max) || n_max < 2) next
     cols <- tryCatch(
       rcartocolor::carto_pal(n_max, nm),
-      error = function(e) NULL
+      error = function(e) {
+        stop("Failed to generate rcartocolor palette '", nm, "': ",
+             conditionMessage(e), call. = FALSE)
+      }
     )
     if (!is.null(cols)) {
       full_name <- paste0("carto_", nm)
