@@ -376,6 +376,8 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
 #'     \item a fully named list of colour vectors with unique names, such as
 #'       \code{pal_heat}, mapped over one palette at a time.
 #'   }
+#'   Matrices, arrays and data frames are not supported. Colour vectors must
+#'   have no dimensions.
 #' @param n Number of colours to return, a plain integer or double scalar with
 #'   a whole-number value from zero to \code{.Machine$integer.max}, with no class
 #'   or dimensions. Colours
@@ -392,6 +394,8 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
 #'   Labelled vectors require \pkg{haven} to retain their missing values.
 #'   \code{integer64} input is rejected to avoid loss of precision; recode it
 #'   explicitly before mapping.
+#'   Matrices, arrays, data frames and list containers other than
+#'   \code{POSIXlt} timestamps are rejected.
 #' @param reverse A logical scalar without a class or dimensions, reverse colour
 #'   order. Default \code{FALSE}.
 #' @param alpha A plain numeric scalar from 0 to 1 without a class or dimensions.
@@ -444,6 +448,13 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
         alpha >= 0 && alpha <= 1)) {
     cli::cli_abort("{.arg alpha} must be a single number between 0 and 1.")
   }
+  if (!is.null(x) && (!is.null(dim(x)) ||
+      (is.list(x) && !inherits(x, "POSIXlt")))) {
+    cli::cli_abort("{.arg x} must be a vector without dimensions, not a matrix, array, data frame or list container.")
+  }
+  if (!is.null(dim(palette))) {
+    cli::cli_abort("{.arg palette} must be a colour vector or a named list of colour vectors without dimensions.")
+  }
   if (inherits(x, "integer64")) {
     cli::cli_abort("{.arg x} cannot be {.cls integer64}; recode it explicitly before mapping to avoid loss of precision.")
   }
@@ -478,10 +489,10 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
       cli::cli_abort(paste("A list of palettes must be non-empty and fully named,",
                            "with unique names."))
     if (!all(vapply(palette,
-                    function(p) is.character(p) && length(p) > 0L,
+                    function(p) is.character(p) && is.null(dim(p)) && length(p) > 0L,
                     logical(1))))
       cli::cli_abort(paste("Every element of a palette list must be a",
-                           "non-empty character vector of colours."))
+                           "non-empty character vector of colours without dimensions."))
     for (i in seq_along(palette)) {
       bad <- palette[[i]][!is_colour(palette[[i]])]
       if (length(bad)) {

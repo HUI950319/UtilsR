@@ -19,7 +19,9 @@ pal_get(palette = "Paired", n = NULL, x = NULL, reverse = FALSE, alpha = 1)
     a string that is neither still raises the usual "not found" error;
   \item a fully named list of colour vectors with unique names, such as
     \code{pal_heat}, mapped over one palette at a time.
-}}
+}
+Matrices, arrays and data frames are not supported. Colour vectors must
+have no dimensions.}
 
 \item{n}{Number of colours to return, a plain integer or double scalar with
 a whole-number value from zero to \code{.Machine$integer.max}, with no class
@@ -37,7 +39,9 @@ finite extremes; missing and infinite values get \code{NA}, and a single
 distinct value takes the middle colour.
 Labelled vectors require \pkg{haven} to retain their missing values.
 \code{integer64} input is rejected to avoid loss of precision; recode it
-explicitly before mapping.}
+explicitly before mapping.
+Matrices, arrays, data frames and list containers other than
+\code{POSIXlt} timestamps are rejected.}
 
 \item{reverse}{A logical scalar without a class or dimensions, reverse colour
 order. Default \code{FALSE}.}

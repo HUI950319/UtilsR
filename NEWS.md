@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* pal_get() rejects dimensional palettes and matrix, data-frame or ordinary list mappings while retaining supported colour vectors and date/time mapping classes.
+
 * `show_color()` rejects unsupported storage and numeric palette indices before printing and identifies every invalid colour by its input position.
 
 * pal_get() rejects classed or dimensioned control values and unsupported counts before dispatch, and documents x precedence, literal colour returns and existing alpha behavior.

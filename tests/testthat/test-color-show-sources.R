@@ -610,6 +610,31 @@ test_that("pal_get rejects stored scalar classes before their methods are loaded
   }
 })
 
+test_that("pal_get rejects dimensional and list mapping containers", {
+  bad_x <- list(matrix(1:4, 2), array(1:4, c(2, 1, 2)), data.frame(a = 1:3),
+                 list("A", "B"), list(c("A", "B"), "C"))
+  for (x in bad_x) {
+    expect_error(pal_get("lancet", x = x), "`x` must be")
+    expect_error(pal_get(pal_heat, x = x), "`x` must be")
+  }
+  for (palette in list(matrix(c("red", "blue"), 1), data.frame(a = c("red", "blue")),
+                        array(list("red", "blue"), c(1, 2)))) {
+    expect_error(pal_get(palette), "`palette` must be")
+  }
+  expect_error(pal_get(list(custom = matrix(c("red", "blue"), 1))), "without dimensions")
+  expect_identical(pal_get(structure(c("red", "blue"), class = "AsIs")), c("red", "blue"))
+})
+
+test_that("pal_get retains existing date and duration mapping classes", {
+  date <- as.Date(c("2020-01-01", "2020-01-02"))
+  time <- as.POSIXlt(c("2020-01-01", "2020-01-02"), tz = "UTC")
+  expected <- c("2020-01-01" = "red", "2020-01-02" = "blue")
+  expect_identical(pal_get(c("red", "blue"), x = date), expected)
+  expect_identical(pal_get(c("red", "blue"), x = time), expected)
+  expect_identical(pal_get(c("red", "blue"), x = as.difftime(c(1, 2), units = "days")),
+                   c("1" = "red", "2" = "blue"))
+})
+
 test_that("pal_show preserves transparency in colour-vector previews", {
   cols <- c("#FF000080", "transparent", "#00000010")
   invisible(capture.output(p <- pal_show(cols, output = "gg")))
