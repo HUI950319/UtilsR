@@ -23,9 +23,11 @@ pal_show_viridis(
 \code{"cividis"}, \code{"rocket"}, \code{"mako"}, or \code{"turbo"}.
 \code{NULL} shows all palettes.}
 
-\item{n}{Number of colours in each requested palette. Default 8. Capped
-previews evaluate only the displayed positions and retain the requested
-total in the colour-count label.}
+\item{n}{Number of colours in each requested palette. Default 8. With
+\code{n = 1}, the native generator uses \code{begin} when
+\code{direction = 1}, or \code{end} when \code{direction = -1}.
+Capped previews evaluate only the displayed positions and retain the
+requested total in the colour-count label.}
 
 \item{begin, end}{Plain numeric scalars between 0 and 1, without classes or
 dimensions, defining the portion of each colour map to use.}
@@ -43,7 +45,9 @@ filtering. Out-of-range values are ignored. An empty selection reports
 the argument and matched count before any palettes are drawn.}
 
 \item{max_colors}{Positive whole number limiting displayed colours per palette,
-or \code{Inf} for no display cap. Default 20.}
+or \code{Inf} for no display cap. Default 20. With \code{max_colors = 1},
+the middle of the \code{n} generated colours is shown (the lower middle
+for even \code{n}). This can differ from native \code{n = 1} generation.}
 
 \item{output}{Output format: \code{"gt"} (default) for a gt table,
 \code{"gg"} for a ggplot, or \code{"console"} for terminal output.
@@ -68,6 +72,10 @@ Explicit \code{palette} names take precedence over \code{pattern}
 \examples{
 pal_show_viridis(c("viridis", "plasma"), n = 8, output = "gg")
 pal_show_viridis(direction = -1, output = "gg")
+
+# Native single-colour generation versus a capped preview
+pal_show_viridis("viridis", n = 1, output = "gg")
+pal_show_viridis("viridis", n = 8, max_colors = 1, output = "gg")
 
 }
 \seealso{

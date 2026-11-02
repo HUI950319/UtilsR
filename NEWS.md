@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* Source palette viewers explain native single-colour generation and distinguish n = 1 from max_colors = 1, with examples preserving each source palette rule.
+
 * Palette gt previews retain HTML colour swatches and show ordered HEX text in LaTeX, Word, RTF and other non-HTML formats, preserving alpha values without HTML-removal warnings.
 
 * `pal_show()` catalogue swatches provide hexadecimal hover titles and readable image labels, including alpha, without changing their colour values or dimensions.

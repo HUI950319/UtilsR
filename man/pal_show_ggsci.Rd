@@ -22,9 +22,9 @@ pal_show_ggsci(
 
 \item{n}{Number of colours to retain, capped at each palette's native size.
 Continuous GSEA, Bootstrap 5, Material and Tailwind 3 palettes are sampled
-evenly across their full range; a single colour uses the middle. Discrete
-palettes retain their first colours. \code{NULL} uses each palette's native
-number of colours.}
+evenly across their full range; \code{n = 1} uses the native middle colour
+(the lower middle for an even native size). Discrete palettes retain their
+first colours. \code{NULL} uses each palette's native number of colours.}
 
 \item{alpha}{Opacity of the colours, a plain numeric scalar between 0 and 1
 without a class or dimensions.}
@@ -40,7 +40,10 @@ filtering. Out-of-range values are ignored. An empty selection reports
 the argument and matched count before any palettes are drawn.}
 
 \item{max_colors}{Positive whole number limiting displayed colours per palette,
-or \code{Inf} for no display cap. Default 20.}
+or \code{Inf} for no display cap. Default 20. Applied after \code{n}
+selection. With \code{max_colors = 1}, continuous palettes show the middle
+of the retained colours (the lower middle for an even retained size),
+and discrete palettes show the first retained colour.}
 
 \item{output}{Output format: \code{"gt"} (default) for a gt table,
 \code{"gg"} for a ggplot, or \code{"console"} for terminal output.
@@ -77,6 +80,10 @@ Explicit \code{palette} names take precedence over \code{pattern}
 if (requireNamespace("ggsci", quietly = TRUE)) {
   pal_show_ggsci(c("ggsci_npg_nrc", "ggsci_aaas_default"),
                  n = 5, output = "gg")
+
+  # The display cap follows native colour selection
+  pal_show_ggsci("gsea_default", n = 1, output = "gg")
+  pal_show_ggsci("gsea_default", n = 4, max_colors = 1, output = "gg")
 }
 
 }

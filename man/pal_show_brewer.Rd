@@ -20,7 +20,8 @@ shows all palettes matching \code{type} and \code{pattern}.}
 
 \item{n}{Number of colours to generate for each palette. \code{NULL} uses
 each palette's maximum supported size; other values are clamped to the
-supported range of each palette. A single message reports adjusted sizes.}
+supported range, with a minimum of 3. Thus \code{n = 1} still generates
+3 colours. A single message reports adjusted sizes.}
 
 \item{type}{Brewer palette category: \code{"all"}, \code{"qual"},
 \code{"seq"}, or \code{"div"}.}
@@ -32,7 +33,8 @@ filtering. Out-of-range values are ignored. An empty selection reports
 the argument and matched count before any palettes are drawn.}
 
 \item{max_colors}{Positive whole number limiting displayed colours per palette,
-or \code{Inf} for no display cap. Default 20.}
+or \code{Inf} for no display cap. Default 20. Applied after native size
+adjustment; use \code{max_colors = 1} to display a single colour.}
 
 \item{output}{Output format: \code{"gt"} (default) for a gt table,
 \code{"gg"} for a ggplot, or \code{"console"} for terminal output.
@@ -57,6 +59,9 @@ Explicit \code{palette} names take precedence over \code{pattern}
 \examples{
 pal_show_brewer(c("Set1", "Blues"), n = 8, output = "gg")
 pal_show_brewer(type = "qual", output = "gg")
+
+# Display one colour from the native palette
+pal_show_brewer("Blues", max_colors = 1, output = "gg")
 
 }
 \seealso{

@@ -20,9 +20,11 @@ palettes matching \code{type} and \code{pattern}. Matching follows native HCL
 rules: case and separators are ignored, unique abbreviations are accepted,
 and ambiguous names are rejected. Returned names use canonical spelling.}
 
-\item{n}{Number of colours in each requested palette. Default 8. Capped
-previews evaluate only the displayed positions and retain the requested
-total in the colour-count label.}
+\item{n}{Number of colours in each requested palette. Default 8. With
+\code{n = 1}, native HCL rules use the starting colour for qualitative
+and sequential palettes, and the central colour for diverging and
+divergingx palettes. Capped previews evaluate only the displayed positions
+and retain the requested total in the colour-count label.}
 
 \item{type}{HCL palette category: \code{"all"}, \code{"qualitative"},
 \code{"sequential"}, \code{"diverging"}, or \code{"divergingx"}.}
@@ -34,7 +36,10 @@ filtering. Out-of-range values are ignored. An empty selection reports
 the argument and matched count before any palettes are drawn.}
 
 \item{max_colors}{Positive whole number limiting displayed colours per palette,
-or \code{Inf} for no display cap. Default 20.}
+or \code{Inf} for no display cap. Default 20. With \code{max_colors = 1},
+qualitative palettes show the first colour; continuous HCL palettes show
+the middle of the \code{n} generated colours (the lower middle for even
+\code{n}). This can differ from native \code{n = 1} generation.}
 
 \item{output}{Output format: \code{"gt"} (default) for a gt table,
 \code{"gg"} for a ggplot, or \code{"console"} for terminal output.
@@ -60,6 +65,10 @@ Explicit \code{palette} names take precedence over \code{pattern}
 \examples{
 pal_show_hcl(c("Dark 3", "Viridis"), n = 8, output = "gg")
 pal_show_hcl(type = "qualitative", output = "gg")
+
+# Native single-colour generation versus a capped preview
+pal_show_hcl("Viridis", n = 1, output = "gg")
+pal_show_hcl("Viridis", n = 8, max_colors = 1, output = "gg")
 
 }
 \seealso{

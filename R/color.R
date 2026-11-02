@@ -1180,7 +1180,8 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
 #'   shows all palettes matching \code{type} and \code{pattern}.
 #' @param n Number of colours to generate for each palette. \code{NULL} uses
 #'   each palette's maximum supported size; other values are clamped to the
-#'   supported range of each palette. A single message reports adjusted sizes.
+#'   supported range, with a minimum of 3. Thus \code{n = 1} still generates
+#'   3 colours. A single message reports adjusted sizes.
 #' @param type Brewer palette category: \code{"all"}, \code{"qual"},
 #'   \code{"seq"}, or \code{"div"}.
 #' @param pattern Single non-missing regex string used to filter palette names.
@@ -1188,7 +1189,8 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
 #'   filtering. Out-of-range values are ignored. An empty selection reports
 #'   the argument and matched count before any palettes are drawn.
 #' @param max_colors Positive whole number limiting displayed colours per palette,
-#'   or \code{Inf} for no display cap. Default 20.
+#'   or \code{Inf} for no display cap. Default 20. Applied after native size
+#'   adjustment; use \code{max_colors = 1} to display a single colour.
 #' @param output Output format: \code{"gt"} (default) for a gt table,
 #'   \code{"gg"} for a ggplot, or \code{"console"} for terminal output.
 #'   gt colour swatches use HTML. LaTeX, Word, RTF and other non-HTML
@@ -1201,6 +1203,9 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
 #' @examples
 #' pal_show_brewer(c("Set1", "Blues"), n = 8, output = "gg")
 #' pal_show_brewer(type = "qual", output = "gg")
+#'
+#' # Display one colour from the native palette
+#' pal_show_brewer("Blues", max_colors = 1, output = "gg")
 #'
 #' @export
 #' @family colour palettes
@@ -1286,9 +1291,11 @@ pal_show_brewer <- function(palette = NULL, n = NULL,
 #'   palettes matching \code{type} and \code{pattern}. Matching follows native HCL
 #'   rules: case and separators are ignored, unique abbreviations are accepted,
 #'   and ambiguous names are rejected. Returned names use canonical spelling.
-#' @param n Number of colours in each requested palette. Default 8. Capped
-#'   previews evaluate only the displayed positions and retain the requested
-#'   total in the colour-count label.
+#' @param n Number of colours in each requested palette. Default 8. With
+#'   \code{n = 1}, native HCL rules use the starting colour for qualitative
+#'   and sequential palettes, and the central colour for diverging and
+#'   divergingx palettes. Capped previews evaluate only the displayed positions
+#'   and retain the requested total in the colour-count label.
 #' @param type HCL palette category: \code{"all"}, \code{"qualitative"},
 #'   \code{"sequential"}, \code{"diverging"}, or \code{"divergingx"}.
 #' @param pattern Single non-missing regex string used to filter palette names.
@@ -1296,7 +1303,10 @@ pal_show_brewer <- function(palette = NULL, n = NULL,
 #'   filtering. Out-of-range values are ignored. An empty selection reports
 #'   the argument and matched count before any palettes are drawn.
 #' @param max_colors Positive whole number limiting displayed colours per palette,
-#'   or \code{Inf} for no display cap. Default 20.
+#'   or \code{Inf} for no display cap. Default 20. With \code{max_colors = 1},
+#'   qualitative palettes show the first colour; continuous HCL palettes show
+#'   the middle of the \code{n} generated colours (the lower middle for even
+#'   \code{n}). This can differ from native \code{n = 1} generation.
 #' @param output Output format: \code{"gt"} (default) for a gt table,
 #'   \code{"gg"} for a ggplot, or \code{"console"} for terminal output.
 #'   gt colour swatches use HTML. LaTeX, Word, RTF and other non-HTML
@@ -1309,6 +1319,10 @@ pal_show_brewer <- function(palette = NULL, n = NULL,
 #' @examples
 #' pal_show_hcl(c("Dark 3", "Viridis"), n = 8, output = "gg")
 #' pal_show_hcl(type = "qualitative", output = "gg")
+#'
+#' # Native single-colour generation versus a capped preview
+#' pal_show_hcl("Viridis", n = 1, output = "gg")
+#' pal_show_hcl("Viridis", n = 8, max_colors = 1, output = "gg")
 #'
 #' @export
 #' @family colour palettes
@@ -1418,9 +1432,9 @@ pal_show_hcl <- function(palette = NULL, n = 8,
 #'   \code{NULL} shows all fixed palettes matching \code{pattern}.
 #' @param n Number of colours to retain, capped at each palette's native size.
 #'   Continuous GSEA, Bootstrap 5, Material and Tailwind 3 palettes are sampled
-#'   evenly across their full range; a single colour uses the middle. Discrete
-#'   palettes retain their first colours. \code{NULL} uses each palette's native
-#'   number of colours.
+#'   evenly across their full range; \code{n = 1} uses the native middle colour
+#'   (the lower middle for an even native size). Discrete palettes retain their
+#'   first colours. \code{NULL} uses each palette's native number of colours.
 #' @param alpha Opacity of the colours, a plain numeric scalar between 0 and 1
 #'   without a class or dimensions.
 #' @param reverse Logical scalar without a class or dimensions; if \code{TRUE},
@@ -1431,7 +1445,10 @@ pal_show_hcl <- function(palette = NULL, n = 8,
 #'   filtering. Out-of-range values are ignored. An empty selection reports
 #'   the argument and matched count before any palettes are drawn.
 #' @param max_colors Positive whole number limiting displayed colours per palette,
-#'   or \code{Inf} for no display cap. Default 20.
+#'   or \code{Inf} for no display cap. Default 20. Applied after \code{n}
+#'   selection. With \code{max_colors = 1}, continuous palettes show the middle
+#'   of the retained colours (the lower middle for an even retained size),
+#'   and discrete palettes show the first retained colour.
 #' @param output Output format: \code{"gt"} (default) for a gt table,
 #'   \code{"gg"} for a ggplot, or \code{"console"} for terminal output.
 #'   gt colour swatches use HTML. LaTeX, Word, RTF and other non-HTML
@@ -1445,6 +1462,10 @@ pal_show_hcl <- function(palette = NULL, n = 8,
 #' if (requireNamespace("ggsci", quietly = TRUE)) {
 #'   pal_show_ggsci(c("ggsci_npg_nrc", "ggsci_aaas_default"),
 #'                  n = 5, output = "gg")
+#'
+#'   # The display cap follows native colour selection
+#'   pal_show_ggsci("gsea_default", n = 1, output = "gg")
+#'   pal_show_ggsci("gsea_default", n = 4, max_colors = 1, output = "gg")
 #' }
 #'
 #' @export
@@ -1559,9 +1580,11 @@ pal_show_ggsci <- function(palette = NULL, n = NULL, alpha = 1,
 #'   \code{"inferno"}, \code{"plasma"}, \code{"viridis"},
 #'   \code{"cividis"}, \code{"rocket"}, \code{"mako"}, or \code{"turbo"}.
 #'   \code{NULL} shows all palettes.
-#' @param n Number of colours in each requested palette. Default 8. Capped
-#'   previews evaluate only the displayed positions and retain the requested
-#'   total in the colour-count label.
+#' @param n Number of colours in each requested palette. Default 8. With
+#'   \code{n = 1}, the native generator uses \code{begin} when
+#'   \code{direction = 1}, or \code{end} when \code{direction = -1}.
+#'   Capped previews evaluate only the displayed positions and retain the
+#'   requested total in the colour-count label.
 #' @param begin,end Plain numeric scalars between 0 and 1, without classes or
 #'   dimensions, defining the portion of each colour map to use.
 #' @param direction Direction of the colour map, a plain numeric scalar equal
@@ -1573,7 +1596,9 @@ pal_show_ggsci <- function(palette = NULL, n = NULL, alpha = 1,
 #'   filtering. Out-of-range values are ignored. An empty selection reports
 #'   the argument and matched count before any palettes are drawn.
 #' @param max_colors Positive whole number limiting displayed colours per palette,
-#'   or \code{Inf} for no display cap. Default 20.
+#'   or \code{Inf} for no display cap. Default 20. With \code{max_colors = 1},
+#'   the middle of the \code{n} generated colours is shown (the lower middle
+#'   for even \code{n}). This can differ from native \code{n = 1} generation.
 #' @param output Output format: \code{"gt"} (default) for a gt table,
 #'   \code{"gg"} for a ggplot, or \code{"console"} for terminal output.
 #'   gt colour swatches use HTML. LaTeX, Word, RTF and other non-HTML
@@ -1586,6 +1611,10 @@ pal_show_ggsci <- function(palette = NULL, n = NULL, alpha = 1,
 #' @examples
 #' pal_show_viridis(c("viridis", "plasma"), n = 8, output = "gg")
 #' pal_show_viridis(direction = -1, output = "gg")
+#'
+#' # Native single-colour generation versus a capped preview
+#' pal_show_viridis("viridis", n = 1, output = "gg")
+#' pal_show_viridis("viridis", n = 8, max_colors = 1, output = "gg")
 #'
 #' @export
 #' @family colour palettes
