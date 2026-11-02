@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* GSEA and Material palettes carry continuous metadata in the built-in registry and ggsci viewer, making all 20 gradients discoverable by type.
+
 * pal_list() rejects missing, non-scalar and non-logical show controls before filtering or printing, including empty matches.
 
 * Palette name filters reject missing, ambiguous and malformed regex patterns consistently across catalogue viewers before output.

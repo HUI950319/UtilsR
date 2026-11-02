@@ -601,3 +601,29 @@ test_that("pal_list validates show before matching or printing", {
   expect_false(result$visible)
   expect_match(paste(output, collapse = "\n"), "#F7FBFF", fixed = TRUE)
 })
+
+test_that("gradient palettes are discoverable through continuous filters", {
+  wanted <- c("ggsci_gsea_default", paste0("ggsci_material_", c(
+    "red", "pink", "purple", "deep-purple", "indigo", "blue", "light-blue",
+    "cyan", "teal", "green", "light-green", "lime", "yellow", "amber",
+    "orange", "deep-orange", "brown", "grey", "blue-grey"
+  )))
+  invisible(capture.output(pals <- pal_list(
+    pattern = "^ggsci_(gsea|material)_", type = "continuous", show = FALSE
+  )))
+  expect_named(pals, wanted)
+  expect_identical(unname(vapply(pals, attr, character(1), "type")),
+                   rep("continuous", 20L))
+  invisible(capture.output(shown <- pal_show(
+    pattern = "^ggsci_(gsea|material)_", type = "continuous",
+    output = "console", max_colors = 1
+  )))
+  expect_named(shown, wanted)
+  if (requireNamespace("ggsci", quietly = TRUE)) {
+    invisible(capture.output(source <- pal_show_ggsci(
+      pattern = "^ggsci_(gsea|material)_", output = "console", max_colors = 1
+    )))
+    expect_true(all(vapply(source, function(p) identical(attr(p, "type"),
+                                                       "continuous"), logical(1))))
+  }
+})

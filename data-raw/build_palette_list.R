@@ -28,7 +28,9 @@ if (requireNamespace("ggsci", quietly = TRUE)) {
       for (sub_name in names(sub_pals)) {
         full_name <- paste0("ggsci_", pkg_name, "_", sub_name)
         cols <- unname(sub_pals[[sub_name]])
-        attr(cols, "type") <- "discrete"
+        attr(cols, "type") <- if (pkg_name %in% c("gsea", "material")) {
+          "continuous"
+        } else "discrete"
         palette_list[[full_name]] <- cols
       }
     }

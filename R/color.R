@@ -1100,7 +1100,9 @@ pal_show_ggsci <- function(palette = NULL, n = NULL, alpha = 1,
       if (isTRUE(reverse)) cols <- rev(cols)
       if (!is.null(n)) cols <- cols[seq_len(min(n, length(cols)))]
       if (alpha < 1) cols <- scales::alpha(cols, alpha)
-      attr(cols, "type") <- "discrete"
+      attr(cols, "type") <- if (pkg_name %in% c("gsea", "material")) {
+        "continuous"
+      } else "discrete"
       pals[[full_name]] <- cols
     }
   }
