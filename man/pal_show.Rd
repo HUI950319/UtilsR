@@ -51,8 +51,8 @@ Default 3.}
 \code{NULL} puts every displayed colour on a single row.}
 }
 \value{
-A ggplot or gt object, or invisibly the displayed data for console
-  output (all outputs also print).
+A ggplot or gt object returned visibly for automatic display.
+  Console output prints and invisibly returns the displayed data.
 }
 \description{
 Display palettes as horizontal colour bars (ggplot) or an interactive

@@ -589,8 +589,8 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #' @param ncol Integer. Number of columns for colour vector mode. Default
 #'   \code{NULL} puts every displayed colour on a single row.
 #'
-#' @return A ggplot or gt object, or invisibly the displayed data for console
-#'   output (all outputs also print).
+#' @return A ggplot or gt object returned visibly for automatic display.
+#'   Console output prints and invisibly returns the displayed data.
 #'
 #' @examples
 #' # Show specific palettes (gt table, default)
@@ -742,8 +742,7 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
         panel.grid = ggplot2::element_blank(),
         plot.title = ggplot2::element_text(hjust = 0.5, size = 12)
       )
-    print(p)
-    return(invisible(p))
+    return(p)
   }
 
   # --- gt table output ---
@@ -802,8 +801,7 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
       preview_width
     )
 
-  print(tbl)
-  invisible(tbl)
+  tbl
 }
 
 #' Visualise RColorBrewer Palettes
@@ -824,8 +822,8 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
 #' @param output Output format: \code{"gt"} (default) for a gt table,
 #'   \code{"gg"} for a ggplot, or \code{"console"} for terminal output.
 #'
-#' @return A ggplot or gt object, or invisibly the displayed palette list for
-#'   console output (all outputs also print).
+#' @return A ggplot or gt object returned visibly for automatic display.
+#'   Console output prints and invisibly returns the displayed palette list.
 #'
 #' @examples
 #' pal_show_brewer(c("Set1", "Blues"), n = 8, output = "gg")
@@ -902,8 +900,8 @@ pal_show_brewer <- function(palette = NULL, n = NULL,
 #' @param output Output format: \code{"gt"} (default) for a gt table,
 #'   \code{"gg"} for a ggplot, or \code{"console"} for terminal output.
 #'
-#' @return A ggplot or gt object, or invisibly the displayed palette list for
-#'   console output (all outputs also print).
+#' @return A ggplot or gt object returned visibly for automatic display.
+#'   Console output prints and invisibly returns the displayed palette list.
 #'
 #' @examples
 #' pal_show_hcl(c("Dark 3", "Viridis"), n = 8, output = "gg")
@@ -988,7 +986,8 @@ pal_show_hcl <- function(palette = NULL, n = 8,
 #' @param output Output format: \code{"gt"} (default) for a gt table,
 #'   \code{"gg"} for a ggplot, or \code{"console"} for terminal output.
 #'
-#' @return A ggplot or gt object (also prints).
+#' @return A ggplot or gt object returned visibly for automatic display.
+#'   Console output prints and invisibly returns the displayed palette list.
 #'
 #' @examples
 #' if (requireNamespace("ggsci", quietly = TRUE)) {
@@ -1085,7 +1084,8 @@ pal_show_ggsci <- function(palette = NULL, n = NULL, alpha = 1,
 #' @param output Output format: \code{"gt"} (default) for a gt table,
 #'   \code{"gg"} for a ggplot, or \code{"console"} for terminal output.
 #'
-#' @return A ggplot or gt object (also prints).
+#' @return A ggplot or gt object returned visibly for automatic display.
+#'   Console output prints and invisibly returns the displayed palette list.
 #'
 #' @examples
 #' pal_show_viridis(c("viridis", "plasma"), n = 8, output = "gg")
@@ -1286,8 +1286,7 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
       }
     }
 
-    print(p)
-    return(invisible(p))
+    return(p)
   }
 
   # --- Console output ---
@@ -1338,6 +1337,5 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
       column_labels.padding = gt::px(6)
     )
 
-  print(tbl)
-  invisible(tbl)
+  tbl
 }

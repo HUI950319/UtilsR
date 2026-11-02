@@ -37,7 +37,8 @@ each palette's native number of colours.}
 \code{"gg"} for a ggplot, or \code{"console"} for terminal output.}
 }
 \value{
-A ggplot or gt object (also prints).
+A ggplot or gt object returned visibly for automatic display.
+  Console output prints and invisibly returns the displayed palette list.
 }
 \description{
 Display the palettes provided by \code{ggsci} using the same ggplot or gt

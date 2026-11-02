@@ -471,3 +471,29 @@ test_that("palette gt previews normalize R colours for CSS", {
   expect_match(preview, "background:#FF0000;", fixed = TRUE)
   expect_match(preview, "background:#00000080;", fixed = TRUE)
 })
+
+test_that("pal_show returns visible graphics without printing internally", {
+  for (output in c("gt", "gg")) {
+    printed <- capture.output(value <- withVisible(pal_show("Set1", output = output)))
+    expect_identical(printed, character())
+    expect_true(value$visible)
+    printed <- capture.output(value <- withVisible(pal_show(c("red", "blue"), output = output)))
+    expect_identical(printed, character())
+    expect_true(value$visible)
+  }
+  printed <- capture.output(value <- withVisible(pal_show("Set1", output = "console")))
+  expect_gt(length(printed), 0L)
+  expect_false(value$visible)
+})
+
+test_that("pal_show renders gt objects in knitted documents", {
+  skip_if_not_installed("knitr")
+  for (palette in c('"Set1"', 'c("red", "#00000080")')) {
+    markdown <- knitr::knit(text = c(
+      "```{r, echo=FALSE}",
+      sprintf('UtilsR::pal_show(%s, output = "gt")', palette),
+      "```"), quiet = TRUE, envir = new.env(parent = globalenv()))
+    expect_no_match(markdown, "## <(div|style)")
+    expect_match(markdown, "<table", fixed = TRUE)
+  }
+})

@@ -42,7 +42,8 @@ each colour map to use.}
 \code{"gg"} for a ggplot, or \code{"console"} for terminal output.}
 }
 \value{
-A ggplot or gt object (also prints).
+A ggplot or gt object returned visibly for automatic display.
+  Console output prints and invisibly returns the displayed palette list.
 }
 \description{
 Display the eight viridis colour maps using the same ggplot or gt layout as
