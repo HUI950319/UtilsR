@@ -25,9 +25,11 @@ palettes matching \code{type} and \code{pattern}.}
 
 \item{pattern}{Regex pattern used to filter palette names.}
 
-\item{index}{Integer vector of palette indices to display after filtering.}
+\item{index}{Non-empty vector of unique positive whole-number indices after
+filtering. Out-of-range values are ignored; an empty selection is an error.}
 
-\item{max_colors}{Maximum colours to display per palette. Default 20.}
+\item{max_colors}{Positive whole number limiting displayed colours per palette,
+or \code{Inf} for no display cap. Default 20.}
 
 \item{output}{Output format: \code{"gt"} (default) for a gt table,
 \code{"gg"} for a ggplot, or \code{"console"} for terminal output.}

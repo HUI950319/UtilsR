@@ -19,6 +19,7 @@
 #               |                         viewers when given a source name
 #               +-- pal_show_brewer / pal_show_hcl / pal_show_ggsci /
 #               |   pal_show_viridis
+#               +-- L2  .pal_validate_show() validate counts, indices and layout
 #               +-- L2  .is_color_vector()   colours vs palette names
 #               +-- L2  .pal_show_colors()   render swatches (ggplot | gt)
 #               +-- L2  .pal_hex()           normalize R colours for display
@@ -561,6 +562,43 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   out
 }
 
+# Validate viewers before source palettes are generated or any output is drawn.
+.pal_validate_show <- function(n, max_colors, index, label = TRUE,
+                               label_size = 3, ncol = NULL, n_required = FALSE) {
+  size_ok <- function(x, nullable = FALSE, unlimited = FALSE) {
+    if (is.null(x)) return(nullable)
+    is.numeric(x) && !is.complex(x) && !is.object(x) &&
+      length(x) == 1L && is.null(dim(x)) && !is.na(x) &&
+      ((unlimited && x == Inf) ||
+       (is.finite(x) && x >= 1 && x <= .Machine$integer.max && x == floor(x)))
+  }
+  if (!size_ok(n, nullable = !n_required)) {
+    cli::cli_abort("{.arg n} must be a positive whole number in the supported integer range.")
+  }
+  if (!size_ok(max_colors, unlimited = TRUE)) {
+    cli::cli_abort("{.arg max_colors} must be a positive whole number or {.code Inf}.")
+  }
+  if (!size_ok(ncol, nullable = TRUE)) {
+    cli::cli_abort("{.arg ncol} must be a positive whole number or {.code NULL}.")
+  }
+  if (!isTRUE(label) && !isFALSE(label)) {
+    cli::cli_abort("{.arg label} must be {.code TRUE} or {.code FALSE}.")
+  }
+  if (!(is.numeric(label_size) && !is.complex(label_size) &&
+        !is.object(label_size) && length(label_size) == 1L &&
+        is.null(dim(label_size)) && is.finite(label_size) && label_size > 0)) {
+    cli::cli_abort("{.arg label_size} must be a single positive finite number.")
+  }
+  if (!is.null(index) &&
+      !(is.numeric(index) && !is.complex(index) && !is.object(index) &&
+        is.null(dim(index)) && length(index) > 0L && all(is.finite(index)) &&
+        all(index >= 1 & index <= .Machine$integer.max & index == floor(index)) &&
+        !anyDuplicated(index))) {
+    cli::cli_abort("{.arg index} must contain unique positive whole numbers without missing values.")
+  }
+  invisible(NULL)
+}
+
 #' Visualise Palettes or Colour Vectors
 #'
 #' Display palettes as horizontal colour bars (ggplot) or an interactive
@@ -578,23 +616,25 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #'   a colour vector (hex codes or named colours), or \code{NULL} to show
 #'   all palettes matching \code{pattern}/\code{type}. Named colour vectors
 #'   (e.g. \code{pal_paraSC}) will use the names as labels.
-#' @param n Number of colours to take from each palette, following the rules
-#'   of \code{\link{pal_get}()}: colours are taken from the front when
-#'   \code{n} is at most the palette length and interpolated when it is
+#' @param n Positive whole number of colours to take from each palette,
+#'   following the rules of \code{\link{pal_get}()}: colours are taken from the
+#'   front when \code{n} is at most the palette length and interpolated when it is
 #'   longer. \code{max_colors} still caps how many of them are drawn.
 #'   Default \code{NULL} shows each palette as it is.
 #' @param pattern Regex pattern to filter palette names (e.g. \code{"^nord"}).
 #' @param type Filter by type: \code{"all"}, \code{"discrete"}, or
 #'   \code{"continuous"}.
-#' @param max_colors Maximum colours to display per palette. Default 20.
-#' @param index Integer vector of palette indices to show (after filtering).
+#' @param max_colors Positive whole number limiting displayed colours per palette,
+#'   or \code{Inf} for no display cap. Default 20.
+#' @param index Non-empty vector of unique positive whole-number indices after
+#'   filtering. Out-of-range values are ignored; an empty selection is an error.
 #' @param output Output format: \code{"gt"} (default) for a gt table,
 #'   \code{"gg"} for a ggplot, or \code{"console"} for terminal output.
 #' @param label Logical. In colour vector mode, whether to show hex/name
 #'   labels on tiles. Default \code{TRUE}.
-#' @param label_size Numeric. Text size for labels in colour vector mode.
+#' @param label_size Positive finite number. Text size in colour vector mode.
 #'   Default 3.
-#' @param ncol Integer. Number of columns for colour vector mode. Default
+#' @param ncol Positive whole number of columns for colour vector mode. Default
 #'   \code{NULL} puts every displayed colour on a single row.
 #'
 #' @return A ggplot or gt object returned visibly for automatic display.
@@ -650,6 +690,7 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
                      label = TRUE, label_size = 3, ncol = NULL) {
   type <- match.arg(type)
   output <- match.arg(output)
+  .pal_validate_show(n, max_colors, index, label, label_size, ncol)
 
   # --- Detect colour vector mode ---
   # If palette is a character vector and looks like colours (not palette
@@ -667,8 +708,9 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
   # A named list is accepted internally by the source-specific wrappers below.
   if (!is.null(palette) && is.list(palette)) {
     pals <- palette
-    if (is.null(names(pals)) || any(!nzchar(names(pals)))) {
-      cli::cli_abort("Internal palette lists must be named.")
+    if (is.null(names(pals)) || anyNA(names(pals)) ||
+        any(!nzchar(names(pals))) || anyDuplicated(names(pals))) {
+      cli::cli_abort("Internal palette lists must have non-missing, non-empty, unique names.")
     }
     palette <- NULL
   } else {
@@ -825,8 +867,10 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
 #' @param type Brewer palette category: \code{"all"}, \code{"qual"},
 #'   \code{"seq"}, or \code{"div"}.
 #' @param pattern Regex pattern used to filter palette names.
-#' @param index Integer vector of palette indices to display after filtering.
-#' @param max_colors Maximum colours to display per palette. Default 20.
+#' @param index Non-empty vector of unique positive whole-number indices after
+#'   filtering. Out-of-range values are ignored; an empty selection is an error.
+#' @param max_colors Positive whole number limiting displayed colours per palette,
+#'   or \code{Inf} for no display cap. Default 20.
 #' @param output Output format: \code{"gt"} (default) for a gt table,
 #'   \code{"gg"} for a ggplot, or \code{"console"} for terminal output.
 #'
@@ -849,11 +893,7 @@ pal_show_brewer <- function(palette = NULL, n = NULL,
 
   type <- match.arg(type)
   output <- match.arg(output)
-  if (!is.null(n) &&
-      (!is.numeric(n) || length(n) != 1L || !is.finite(n) ||
-       n < 1 || n != as.integer(n))) {
-    cli::cli_abort("Argument {.arg n} must be a positive integer or {.val NULL}.")
-  }
+  .pal_validate_show(n, max_colors, index)
 
   info <- RColorBrewer::brewer.pal.info
   pal_names <- rownames(info)
@@ -903,8 +943,10 @@ pal_show_brewer <- function(palette = NULL, n = NULL,
 #' @param type HCL palette category: \code{"all"}, \code{"qualitative"},
 #'   \code{"sequential"}, or \code{"diverging"}.
 #' @param pattern Regex pattern used to filter palette names.
-#' @param index Integer vector of palette indices to display after filtering.
-#' @param max_colors Maximum colours to display per palette. Default 20.
+#' @param index Non-empty vector of unique positive whole-number indices after
+#'   filtering. Out-of-range values are ignored; an empty selection is an error.
+#' @param max_colors Positive whole number limiting displayed colours per palette,
+#'   or \code{Inf} for no display cap. Default 20.
 #' @param output Output format: \code{"gt"} (default) for a gt table,
 #'   \code{"gg"} for a ggplot, or \code{"console"} for terminal output.
 #'
@@ -923,10 +965,7 @@ pal_show_hcl <- function(palette = NULL, n = 8,
                          output = c("gt", "gg", "console")) {
   type <- match.arg(type)
   output <- match.arg(output)
-  if (!is.numeric(n) || length(n) != 1L || !is.finite(n) ||
-      n < 1 || n != as.integer(n)) {
-    cli::cli_abort("Argument {.arg n} must be a positive integer.")
-  }
+  .pal_validate_show(n, max_colors, index, n_required = TRUE)
 
   hcl_types <- c("qualitative", "sequential", "diverging")
   all_names <- grDevices::hcl.pals()
@@ -989,8 +1028,10 @@ pal_show_hcl <- function(palette = NULL, n = 8,
 #' @param alpha Opacity of the colours, a number between 0 and 1.
 #' @param reverse Logical; if \code{TRUE}, reverse the colour order.
 #' @param pattern Regex pattern used to filter palette names.
-#' @param index Integer vector of palette indices to display after filtering.
-#' @param max_colors Maximum colours to display per palette. Default 20.
+#' @param index Non-empty vector of unique positive whole-number indices after
+#'   filtering. Out-of-range values are ignored; an empty selection is an error.
+#' @param max_colors Positive whole number limiting displayed colours per palette,
+#'   or \code{Inf} for no display cap. Default 20.
 #' @param output Output format: \code{"gt"} (default) for a gt table,
 #'   \code{"gg"} for a ggplot, or \code{"console"} for terminal output.
 #'
@@ -1014,11 +1055,7 @@ pal_show_ggsci <- function(palette = NULL, n = NULL, alpha = 1,
   }
 
   output <- match.arg(output)
-  if (!is.null(n) &&
-      (!is.numeric(n) || length(n) != 1L || !is.finite(n) ||
-       n < 1 || n != as.integer(n))) {
-    cli::cli_abort("Argument {.arg n} must be a positive integer or {.val NULL}.")
-  }
+  .pal_validate_show(n, max_colors, index)
   if (!is.numeric(alpha) || length(alpha) != 1L || !is.finite(alpha) ||
       alpha < 0 || alpha > 1) {
     cli::cli_abort("Argument {.arg alpha} must be a number between 0 and 1.")
@@ -1087,8 +1124,10 @@ pal_show_ggsci <- function(palette = NULL, n = NULL, alpha = 1,
 #' @param direction Direction of the colour map, either 1 or -1.
 #' @param alpha Opacity of the colours, a number between 0 and 1.
 #' @param pattern Regex pattern used to filter palette names.
-#' @param index Integer vector of palette indices to display after filtering.
-#' @param max_colors Maximum colours to display per palette. Default 20.
+#' @param index Non-empty vector of unique positive whole-number indices after
+#'   filtering. Out-of-range values are ignored; an empty selection is an error.
+#' @param max_colors Positive whole number limiting displayed colours per palette,
+#'   or \code{Inf} for no display cap. Default 20.
 #' @param output Output format: \code{"gt"} (default) for a gt table,
 #'   \code{"gg"} for a ggplot, or \code{"console"} for terminal output.
 #'
@@ -1106,10 +1145,7 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
                              index = NULL, max_colors = 20,
                              output = c("gt", "gg", "console")) {
   output <- match.arg(output)
-  if (!is.numeric(n) || length(n) != 1L || !is.finite(n) ||
-      n < 1 || n != as.integer(n)) {
-    cli::cli_abort("Argument {.arg n} must be a positive integer.")
-  }
+  .pal_validate_show(n, max_colors, index, n_required = TRUE)
   if (!is.numeric(begin) || length(begin) != 1L || !is.finite(begin) ||
       begin < 0 || begin > 1) {
     cli::cli_abort("Argument {.arg begin} must be a number between 0 and 1.")

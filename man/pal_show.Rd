@@ -23,9 +23,9 @@ a colour vector (hex codes or named colours), or \code{NULL} to show
 all palettes matching \code{pattern}/\code{type}. Named colour vectors
 (e.g. \code{pal_paraSC}) will use the names as labels.}
 
-\item{n}{Number of colours to take from each palette, following the rules
-of \code{\link{pal_get}()}: colours are taken from the front when
-\code{n} is at most the palette length and interpolated when it is
+\item{n}{Positive whole number of colours to take from each palette,
+following the rules of \code{\link{pal_get}()}: colours are taken from the
+front when \code{n} is at most the palette length and interpolated when it is
 longer. \code{max_colors} still caps how many of them are drawn.
 Default \code{NULL} shows each palette as it is.}
 
@@ -34,9 +34,11 @@ Default \code{NULL} shows each palette as it is.}
 \item{type}{Filter by type: \code{"all"}, \code{"discrete"}, or
 \code{"continuous"}.}
 
-\item{max_colors}{Maximum colours to display per palette. Default 20.}
+\item{max_colors}{Positive whole number limiting displayed colours per palette,
+or \code{Inf} for no display cap. Default 20.}
 
-\item{index}{Integer vector of palette indices to show (after filtering).}
+\item{index}{Non-empty vector of unique positive whole-number indices after
+filtering. Out-of-range values are ignored; an empty selection is an error.}
 
 \item{output}{Output format: \code{"gt"} (default) for a gt table,
 \code{"gg"} for a ggplot, or \code{"console"} for terminal output.}
@@ -44,10 +46,10 @@ Default \code{NULL} shows each palette as it is.}
 \item{label}{Logical. In colour vector mode, whether to show hex/name
 labels on tiles. Default \code{TRUE}.}
 
-\item{label_size}{Numeric. Text size for labels in colour vector mode.
+\item{label_size}{Positive finite number. Text size in colour vector mode.
 Default 3.}
 
-\item{ncol}{Integer. Number of columns for colour vector mode. Default
+\item{ncol}{Positive whole number of columns for colour vector mode. Default
 \code{NULL} puts every displayed colour on a single row.}
 }
 \value{

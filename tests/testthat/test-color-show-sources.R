@@ -510,3 +510,42 @@ test_that("pal_get validates every colour in a palette list", {
   expect_identical(pal_get(list(a = c("transparent", "#F00", "light blue"))),
                    list(a = c("transparent", "#F00", "light blue")))
 })
+
+test_that("pal_show checks colour counts and layout sizes", {
+  for (arg in c("n", "max_colors", "ncol")) {
+    bad_values <- list(0, -1, 1.5, NA_real_, TRUE, "2", c(1, 2), matrix(1))
+    if (arg != "max_colors") bad_values <- c(bad_values, list(Inf))
+    for (bad in bad_values) {
+      args <- c(list(palette = c("red", "blue"), output = "console"),
+                stats::setNames(list(bad), arg))
+      expect_error(do.call(pal_show, args), paste0("`", arg, "`"))
+    }
+  }
+  for (bad in list(NA, NULL, 1, "yes", c(TRUE, FALSE))) {
+    expect_error(pal_show("Set1", label = bad, output = "console"), "`label`")
+  }
+  for (bad in list(0, -1, NA_real_, Inf, "3", TRUE, c(2, 3))) {
+    expect_error(pal_show("Set1", label_size = bad, output = "console"), "`label_size`")
+  }
+  invisible(capture.output(all <- pal_show("Set1", max_colors = Inf, output = "console")))
+  expect_length(all[[1]], 9L)
+})
+
+test_that("palette viewers reject invalid indices consistently", {
+  viewers <- list(
+    function(index) pal_show(c("Set1", "Set2"), index = index, output = "console"),
+    function(index) pal_show_brewer("Set1", index = index, output = "console"),
+    function(index) pal_show_hcl("Dark 3", index = index, output = "console"),
+    function(index) pal_show_viridis("viridis", index = index, output = "console")
+  )
+  if (requireNamespace("ggsci", quietly = TRUE)) {
+    viewers <- c(viewers, list(function(index) pal_show_ggsci("npg_nrc", index = index, output = "console")))
+  }
+  for (viewer in viewers) {
+    for (bad in list(NA_real_, 1.5, c(1, 1), "1", TRUE, integer(), 0, -1, Inf)) {
+      expect_error(viewer(bad), "`index`")
+    }
+  }
+  invisible(capture.output(one <- pal_show(c("Set1", "Set2"), index = c(1L, 99L), output = "console")))
+  expect_named(one, "Set1")
+})

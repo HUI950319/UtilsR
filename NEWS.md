@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* Palette viewers validate positive counts, unique indices and layout controls before generation or drawing, retaining Inf as an unlimited display cap.
+
 * pal_get() validates all colours and unique non-missing names in palette lists before sizing or interpolation, and identifies the invalid palette and colour.
 
 * pal_show() and its source viewers return graphics visibly without printing internally, allowing gt tables to render correctly in knitted documents.
