@@ -1,7 +1,30 @@
+jaccard_payload_plot <- function(include_payload) {
+  data <- data.frame(cell_type = c("A", "A", "B", "B"), gene = c("a", "b", "b", "c"))
+  if (include_payload) data$unused <- I(lapply(1:4, function(i) as.raw((seq_len(250000) + i) %% 256)))
+  PlotHeatmapJaccard(data, return_type = "both")
+}
+
+test_that("Jaccard plots do not retain unselected input payloads", {
+  full <- jaccard_payload_plot(TRUE)
+  selected <- jaccard_payload_plot(FALSE)
+  expect_identical(full$matrix, selected$matrix)
+  expect_identical(ggplot2::ggplot_build(full$plot)$data, ggplot2::ggplot_build(selected$plot)$data)
+  files <- c(withr::local_tempfile(), withr::local_tempfile())
+  saveRDS(full$plot, files[1], compress = FALSE)
+  saveRDS(selected$plot, files[2], compress = FALSE)
+  expect_lt(abs(diff(file.info(files)$size)), 65536)
+  skip_if_not_installed("lobstr")
+  expect_lt(abs(as.numeric(lobstr::obj_size(full$plot)) - as.numeric(lobstr::obj_size(selected$plot))), 65536)
+})
+
 test_that("Jaccard interprets SPSS missingness before cold set construction", {
   skip_if_not_installed("haven")
   fn <- PlotHeatmapJaccard
-  environment(fn) <- new.env(parent = asNamespace("stats"))
+  isolated <- new.env(parent = asNamespace("stats"))
+  builder <- get(".build_jaccard_plot", environment(PlotHeatmapJaccard))
+  environment(builder) <- isolated
+  isolated$.build_jaccard_plot <- builder
+  environment(fn) <- isolated
   directory <- withr::local_tempdir()
   fixture <- file.path(directory, "fixture.rds")
   script <- file.path(directory, "cold.R")

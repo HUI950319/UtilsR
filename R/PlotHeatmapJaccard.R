@@ -48,6 +48,7 @@
 #'     \item{"data"}{A numeric matrix of pairwise Jaccard similarities.}
 #'     \item{"both"}{A list with elements \code{plot} and \code{matrix}.}
 #'   }
+#'   Returned plots retain heatmap inputs rather than the original data frame.
 #'
 #' @examples
 #' \dontrun{
@@ -136,6 +137,37 @@ PlotHeatmapJaccard <- function(
       jmat[j, i] <- jmat[i, j]
     }
   }
+
+  p <- .build_jaccard_plot(jmat, ct_names, list(title = title, midpoint = midpoint,
+    text_size = text_size, show_diag = show_diag, low_color = low_color, high_color = high_color,
+    show_strip = show_strip, strip_colors = strip_colors, strip_size = strip_size))
+
+  # ---- Save ----
+  if (!is.null(filename)) {
+    existed <- file.exists(filename)
+    ggplot2::ggsave(filename, p, width = width, height = height, dpi = dpi, bg = "white")
+    .cat_saved("PlotHeatmapJaccard: the plot has been saved to", filename,
+               sprintf("%sx%s in", format(width), format(height)), existed,
+               toupper(tools::file_ext(filename)))
+  }
+  switch(return_type, plot = p, data = jmat, both = list(plot = p, matrix = jmat))
+}
+
+# Construct plot mappings outside the analysis frame to release input data.
+.build_jaccard_plot <- function(jmat, ct_names, style) {
+  force(jmat)
+  force(ct_names)
+  force(style)
+  n_ct <- length(ct_names)
+  title <- style$title
+  midpoint <- style$midpoint
+  text_size <- style$text_size
+  show_diag <- style$show_diag
+  low_color <- style$low_color
+  high_color <- style$high_color
+  show_strip <- style$show_strip
+  strip_colors <- style$strip_colors
+  strip_size <- style$strip_size
 
   # ---- 4. Prepare long data.frame ----
   plot_mat <- jmat
@@ -239,21 +271,5 @@ PlotHeatmapJaccard <- function(
     p <- p + ggplot2::coord_fixed()
   }
 
-  # ---- 9. Save ----
-  if (!is.null(filename)) {
-    # measured before writing, which creates the file
-    existed <- file.exists(filename)
-    ggplot2::ggsave(filename, p,
-                    width = width, height = height, dpi = dpi, bg = "white")
-    .cat_saved("PlotHeatmapJaccard: the plot has been saved to", filename,
-               sprintf("%sx%s in", format(width), format(height)), existed,
-               toupper(tools::file_ext(filename)))
-  }
-
-  # ---- 10. Return ----
-  switch(return_type,
-    plot   = p,
-    data   = jmat,
-    both   = list(plot = p, matrix = jmat)
-  )
+  p
 }

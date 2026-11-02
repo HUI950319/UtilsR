@@ -84,6 +84,7 @@ Depends on \code{return_type}:
     \item{"data"}{A numeric matrix of pairwise Jaccard similarities.}
     \item{"both"}{A list with elements \code{plot} and \code{matrix}.}
   }
+Returned plots retain heatmap inputs rather than the original data frame.
 }
 \description{
 Computes pairwise Jaccard similarity between groups based on a set of named

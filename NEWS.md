@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* PlotHeatmapJaccard() constructs mappings in a bounded plotting frame so returned plots no longer retain unused input columns.
+
 * PlotCircleLollipop() avoids overflow in global and per-group min-max scaling while preserving constant heights, missing values and top_n range definitions.
 
 * PlotRank() scales extreme finite ranges without overflowing while retaining full-range versus displayed-range semantics.
