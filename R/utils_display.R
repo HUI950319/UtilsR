@@ -577,7 +577,9 @@ console_width <- function() {
 #' \code{"NA"} follow R's transparent-colour convention, so their swatches have
 #' the same \code{#FFFFFF00} label as \code{"transparent"}. Their original
 #' values, names and attributes are retained in the returned vector and its
-#' copyable expression. An empty character vector is also accepted.
+#' copyable expression. Numeric attributes use 17-digit precision. Special
+#' attributes such as environments cannot be reconstructed by \code{dput()}.
+#' An empty character vector is also accepted.
 #'
 #' @param x Character vector without a class or dimensions, containing hex codes
 #'   or named R colours. Numeric palette indices are not accepted.
@@ -715,6 +717,6 @@ show_color <- function(x, rev = FALSE) {
   rows <- split(styled, ceiling(seq_along(styled) / per_line))
   if (!length(rows)) rows <- list(character())
   for (row in rows) cat(paste(row, collapse = " "), "\n")
-  dput(x)
+  dput(x, control = c("keepNA", "keepInteger", "niceNames", "showAttributes", "digits17"))
   invisible(x)
 }

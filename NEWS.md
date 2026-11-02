@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* `show_color()` prints numeric attributes with full double precision so copied expressions reconstruct them exactly, and documents special attribute limitations.
+
 * `show_color()` uses indexed colour and contrast with cli 3.0.x even when true-colour output is requested, while retaining true-colour output with newer renderers.
 
 * `show_color()` caches luminance for identical emitted ANSI colours within each display, avoiding repeated decoding when distinct inputs share an indexed background.

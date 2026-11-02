@@ -257,6 +257,22 @@ test_that("show_color retains an empty character vector and its public signature
   expect_identical(formals(show_color)[["rev"]], FALSE)
 })
 
+test_that("show_color round-trips numeric attributes without losing precision", {
+  withr::local_options(cli.num_colors = 0, cli.width = 40, width = 40)
+  cols <- structure(c(A = "red", B = "#FF000080"),
+                    breaks = c(1 / 3, pi, 1e-100),
+                    note = list(value = 1 / 3 + pi * 1i, count = 2L))
+  for (depth in c(0, 1, 8, 16, 256, 16777216)) for (reverse in c(FALSE, TRUE)) {
+    options(cli.num_colors = depth)
+    out <- capture.output(value <- withVisible(show_color(cols, rev = reverse)))
+    plain <- cli::ansi_strip(out)
+    copy <- eval(parse(text = plain[!grepl("^ #", plain)]))
+    expect_identical(copy, value$value)
+    expect_identical(attributes(value$value)[-1], attributes(cols)[-1])
+    expect_identical(value$visible, FALSE)
+  }
+})
+
 test_that("show_color retains duplicate order and original colour spellings", {
   withr::local_options(cli.num_colors = 0, cli.width = 40, width = 40)
   cols <- setNames(c("red", "#F00", "blue", "red", "#F008", "#FF000088",

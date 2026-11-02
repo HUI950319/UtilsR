@@ -42,7 +42,9 @@ Missing character values (\code{NA_character_}) and the literal colour
 \code{"NA"} follow R's transparent-colour convention, so their swatches have
 the same \code{#FFFFFF00} label as \code{"transparent"}. Their original
 values, names and attributes are retained in the returned vector and its
-copyable expression. An empty character vector is also accepted.
+copyable expression. Numeric attributes use 17-digit precision. Special
+attributes such as environments cannot be reconstructed by \code{dput()}.
+An empty character vector is also accepted.
 }
 \examples{
 show_color(c("#FF0000", "#00FF00", "#0000FF"))
