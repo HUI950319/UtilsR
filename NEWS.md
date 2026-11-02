@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* Palette rebuild regression tests check stable source palettes and their types without assuming identical source package versions on Windows and Linux.
+
 * `pal_show()` computes only displayed colours even for a large n, retaining discrete interpolation prefixes, transparency and requested colour counts.
 
 * Console palette catalogues retain full palette names in narrow terminals, moving counts and types to wrapped notes while keeping fitting headings unchanged.

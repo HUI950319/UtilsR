@@ -990,9 +990,10 @@ test_that("palette rebuilds reject unreadable or empty source collections", {
   suppressMessages(sys.source(script, envir = new.env(parent = globalenv())))
   rebuilt <- new.env(parent = emptyenv())
   load("data/palette_list.rda", envir = rebuilt)
-  expect_named(rebuilt$palette_list, names(palette_list))
-  expect_identical(vapply(rebuilt$palette_list, attr, character(1), "type"),
-                   vapply(palette_list, attr, character(1), "type"))
+  keys <- c("viridis", "ggsci_bs5_blue", "ggsci_tw3_slate", "dichromat_Categorical.12")
+  expect_true(all(keys %in% names(rebuilt$palette_list)))
+  expect_identical(unname(vapply(rebuilt$palette_list[keys], attr, character(1), "type")),
+                   c("continuous", "continuous", "continuous", "discrete"))
 })
 
 test_that("palette console headings retain complete names in narrow terminals", {
