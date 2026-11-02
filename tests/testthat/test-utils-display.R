@@ -188,3 +188,20 @@ test_that("show_color identifies all invalid colours and numeric palette indices
     expect_match(conditionMessage(error), value, fixed = TRUE)
   }
 })
+
+test_that("show_color requires one non-missing logical reverse control", {
+  withr::local_options(cli.num_colors = 0)
+  for (bad in list(NULL, logical(), NA, 1, 0, "TRUE", c(TRUE, FALSE),
+                   matrix(TRUE), structure(TRUE, class = "AsIs"))) {
+    out <- capture.output(error <- tryCatch(show_color("red", rev = bad), error = identity))
+    expect_s3_class(error, "error")
+    if (inherits(error, "error")) expect_match(conditionMessage(error), "`rev`", fixed = TRUE)
+    expect_identical(out, character())
+  }
+  cols <- c(first = "red", second = "blue", third = "#F008")
+  out <- capture.output(value <- withVisible(show_color(cols, rev = TRUE)))
+  expect_identical(value$value, rev(cols))
+  expect_identical(value$visible, FALSE)
+  swatches <- out[grepl("^ #", out)]
+  expect_match(swatches[[1]], "#FF000088   #0000FF   #FF0000", fixed = TRUE)
+})

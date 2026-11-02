@@ -10,7 +10,8 @@ show_color(x, rev = FALSE)
 \item{x}{Character vector without a class or dimensions, containing hex codes
 or named R colours. Numeric palette indices are not accepted.}
 
-\item{rev}{Logical. Reverse the order before display (default \code{FALSE}).}
+\item{rev}{Single non-missing logical value without a class or dimensions.
+Reverse the order before display (default \code{FALSE}).}
 }
 \value{
 Invisibly returns \code{x}.

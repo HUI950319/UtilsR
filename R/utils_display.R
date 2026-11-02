@@ -571,7 +571,8 @@ console_width <- function() {
 #'
 #' @param x Character vector without a class or dimensions, containing hex codes
 #'   or named R colours. Numeric palette indices are not accepted.
-#' @param rev Logical. Reverse the order before display (default \code{FALSE}).
+#' @param rev Single non-missing logical value without a class or dimensions.
+#'   Reverse the order before display (default \code{FALSE}).
 #' @return Invisibly returns \code{x}.
 #'
 #' @examples
@@ -581,6 +582,10 @@ console_width <- function() {
 #'
 #' @export
 show_color <- function(x, rev = FALSE) {
+  if (!is.logical(rev) || is.object(rev) || length(rev) != 1L ||
+      !is.null(dim(rev)) || is.na(rev)) {
+    cli::cli_abort("{.arg rev} must be a single non-missing logical value without a class or dimensions.")
+  }
   if (!is.character(x) || is.object(x) || !is.null(dim(x))) {
     cli::cli_abort("{.arg x} must be a character vector without a class or dimensions.")
   }

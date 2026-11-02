@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* `show_color()` validates `rev` as one non-missing logical value before printing, retaining reversed colours, names and copyable values.
+
 * pal_get() rejects dimensional palettes and matrix, data-frame or ordinary list mappings while retaining supported colour vectors and date/time mapping classes.
 
 * `show_color()` rejects unsupported storage and numeric palette indices before printing and identifies every invalid colour by its input position.
