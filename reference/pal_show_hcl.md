@@ -48,8 +48,8 @@ pal_show_hcl(
 - index:
 
   Non-empty vector of unique positive whole-number indices after
-  filtering. Out-of-range values are ignored; an empty selection is an
-  error.
+  filtering. Out-of-range values are ignored. An empty selection reports
+  the argument and matched count before any palettes are drawn.
 
 - max_colors:
 

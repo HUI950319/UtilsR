@@ -2,6 +2,22 @@
 
 ## UtilsR 0.6.21
 
+- [`pal_show_ggsci()`](https://hui950319.github.io/UtilsR/reference/pal_show_ggsci.md)
+  transforms only selected palettes after filtering names and indices,
+  avoiding unused resizing, reversal and opacity work.
+
+- [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
+  passes generated swatches directly to the gt HTML renderer, avoiding
+  repeated Markdown parsing while preserving existing non-HTML
+  formatters.
+
+- Source palette viewers identify empty index selections with the
+  filtered palette count while preserving partial in-range selections.
+
+- [`pal_show_ggsci()`](https://hui950319.github.io/UtilsR/reference/pal_show_ggsci.md)
+  reverses the final preview after colour selection and display capping,
+  retaining the selected colours and original count labels.
+
 - pal_get() rejects expressions, functions, environments and other
   non-mapping containers before missing-value operations, and documents
   existing discrete time, complex and raw mapping with explicit

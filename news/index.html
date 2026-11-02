@@ -50,7 +50,11 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.21" id="utilsr-0621">UtilsR 0.6.21<a class="anchor" aria-label="anchor" href="#utilsr-0621"></a></h2>
-<ul><li><p>pal_get() rejects expressions, functions, environments and other non-mapping containers before missing-value operations, and documents existing discrete time, complex and raw mapping with explicit continuous-time examples.</p></li>
+<ul><li><p><code><a href="../reference/pal_show_ggsci.html">pal_show_ggsci()</a></code> transforms only selected palettes after filtering names and indices, avoiding unused resizing, reversal and opacity work.</p></li>
+<li><p><code><a href="../reference/pal_show.html">pal_show()</a></code> passes generated swatches directly to the gt HTML renderer, avoiding repeated Markdown parsing while preserving existing non-HTML formatters.</p></li>
+<li><p>Source palette viewers identify empty index selections with the filtered palette count while preserving partial in-range selections.</p></li>
+<li><p><code><a href="../reference/pal_show_ggsci.html">pal_show_ggsci()</a></code> reverses the final preview after colour selection and display capping, retaining the selected colours and original count labels.</p></li>
+<li><p>pal_get() rejects expressions, functions, environments and other non-mapping containers before missing-value operations, and documents existing discrete time, complex and raw mapping with explicit continuous-time examples.</p></li>
 <li><p><code><a href="../reference/pal_show_hcl.html">pal_show_hcl()</a></code> and <code><a href="../reference/pal_show_viridis.html">pal_show_viridis()</a></code> evaluate only displayed positions for capped previews, preserving native colours and requested totals while bounding large-palette allocation.</p></li>
 <li><p>pal_get() validates unique ordinary colour strings after a failed bulk parse, restoring every invalid value in its original order and retaining classed-vector diagnostics.</p></li>
 <li><p>pal_get() interpolates repeated numeric positions once when repeats occur in a bounded prefix, preserving observation order, non-finite values, reversal and alpha while keeping all-unique inputs on the direct path.</p></li>
