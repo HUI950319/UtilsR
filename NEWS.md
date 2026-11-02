@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* pal_get() maps extreme finite numeric spans without overflow while retaining ordinary interpolation and missing-value handling.
+
 * Coloured palette previews create each black or white foreground style once per call while preserving terminal depth and colour contrast.
 
 * pal_get() rejects decimal and exponent colour indices consistently in literal and list palettes.

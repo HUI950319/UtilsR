@@ -455,6 +455,21 @@ test_that("pal_get rejects all numeric-string palette indices", {
                    c("#F00", "light blue", "transparent"))
 })
 
+test_that("pal_get maps extreme finite numeric ranges without overflow", {
+  cols <- c("black", "white")
+  expected <- c("#000000", "#7F7F7F", "#FFFFFF")
+  for (limit in c(1e308, .Machine$double.xmax)) {
+    x <- c(-limit, 0, limit)
+    expect_identical(pal_get(cols, x = x), expected)
+    expect_identical(pal_get(cols, x = x, reverse = TRUE), rev(expected))
+    expect_identical(pal_get(cols, x = c(limit, NA, -limit, Inf)),
+                     c("#FFFFFF", NA, "#000000", NA))
+    expect_identical(pal_get(list(custom = cols), x = x, alpha = 0.5),
+                     list(custom = c("#00000080", "#7F7F7F80", "#FFFFFF80")))
+  }
+  expect_identical(pal_get(cols, x = c(0, 5e-324, 1e-323)), expected)
+})
+
 test_that("pal_show preserves transparency in colour-vector previews", {
   cols <- c("#FF000080", "transparent", "#00000010")
   invisible(capture.output(p <- pal_show(cols, output = "gg")))

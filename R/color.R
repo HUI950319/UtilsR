@@ -529,6 +529,10 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
         ends <- range(values[placed])
         at <- if (ends[[1L]] == ends[[2L]]) {
           rep(0.5, sum(placed))
+        } else if (!is.finite(ends[[2L]] - ends[[1L]])) {
+          # Halving finite endpoints keeps their span representable.
+          (values[placed] / 2 - ends[[1L]] / 2) /
+            (ends[[2L]] / 2 - ends[[1L]] / 2)
         } else {
           (values[placed] - ends[[1L]]) / (ends[[2L]] - ends[[1L]])
         }
