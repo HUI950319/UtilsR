@@ -395,13 +395,17 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
 #'   one colour per element, placed along the palette by its value between the
 #'   finite extremes; missing and infinite values get \code{NA}, and a single
 #'   distinct value takes the middle colour.
+#'   \code{Date}, \code{POSIXct}, \code{POSIXlt} and \code{difftime} inputs
+#'   use discrete character labels. For continuous time mapping, convert time
+#'   values to a plain numeric vector explicitly. Other atomic types, such as
+#'   complex and raw vectors, also use discrete labels.
 #'   Distinct discrete values must produce unique character names; otherwise,
 #'   convert them to explicit unique labels before mapping.
 #'   Labelled vectors require \pkg{haven} to retain their missing values.
 #'   \code{integer64} input is rejected to avoid loss of precision; recode it
 #'   explicitly before mapping.
-#'   Matrices, arrays, data frames and list containers other than
-#'   \code{POSIXlt} timestamps are rejected.
+#'   Matrices, arrays, data frames, expressions, functions, environments and
+#'   list containers other than \code{POSIXlt} timestamps are rejected.
 #' @param reverse A logical scalar without a class or dimensions, reverse colour
 #'   order. Default \code{FALSE}.
 #' @param alpha A plain numeric scalar from 0 to 1 without a class or dimensions.
@@ -423,6 +427,11 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
 #' # Continuous interpolation
 #' pal_get("viridis", n = 20)
 #' pal_get("viridis", x = c(1, 100, 2))
+#'
+#' # Dates are discrete unless converted to numeric values explicitly
+#' dates <- as.Date(c("2020-01-01", "2020-01-02"))
+#' pal_get("lancet", x = dates)
+#' pal_get("viridis", x = as.numeric(dates))
 #'
 #' # Reverse and transparent
 #' pal_get("Blues", n = 5, reverse = TRUE, alpha = 0.6)
@@ -454,9 +463,9 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
         alpha >= 0 && alpha <= 1)) {
     cli::cli_abort("{.arg alpha} must be a single number between 0 and 1.")
   }
-  if (!is.null(x) && (!is.null(dim(x)) ||
-      (is.list(x) && !inherits(x, "POSIXlt")))) {
-    cli::cli_abort("{.arg x} must be a vector without dimensions, not a matrix, array, data frame or list container.")
+  if (!is.null(x) && (!is.null(dim(x)) || is.expression(x) ||
+      (!is.atomic(x) && !inherits(x, "POSIXlt")))) {
+    cli::cli_abort("{.arg x} must be an atomic vector without dimensions or {.cls POSIXlt} timestamps; expressions and other containers are not supported.")
   }
   if (!is.null(dim(palette))) {
     cli::cli_abort("{.arg palette} must be a colour vector or a named list of colour vectors without dimensions.")

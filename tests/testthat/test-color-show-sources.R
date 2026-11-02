@@ -697,6 +697,19 @@ test_that("pal_get reports every invalid repeated colour in input order", {
   }
 })
 
+test_that("pal_get rejects non-mapping objects without preliminary warnings", {
+  for (x in list(identity, new.env(parent = emptyenv()), expression(A, B),
+                 quote(A + B), as.name("A"))) {
+    for (palette in list(c("red", "blue"), list(custom = c("red", "blue")))) {
+      expect_no_warning(expect_error(pal_get(palette, x = x), "`x` must be"))
+    }
+  }
+  expect_identical(pal_get(c("red", "blue"), x = as.raw(c(1, 2, 1))),
+                   c("01" = "red", "02" = "blue"))
+  expect_identical(pal_get(c("red", "blue"), x = c(1 + 1i, 1 + 2i)),
+                   c("1+1i" = "red", "1+2i" = "blue"))
+})
+
 test_that("pal_show preserves transparency in colour-vector previews", {
   cols <- c("#FF000080", "transparent", "#00000010")
   invisible(capture.output(p <- pal_show(cols, output = "gg")))

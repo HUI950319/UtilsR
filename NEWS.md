@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* pal_get() rejects expressions, functions, environments and other non-mapping containers before missing-value operations, and documents existing discrete time, complex and raw mapping with explicit continuous-time examples.
+
 * `pal_show_hcl()` and `pal_show_viridis()` evaluate only displayed positions for capped previews, preserving native colours and requested totals while bounding large-palette allocation.
 
 * pal_get() validates unique ordinary colour strings after a failed bulk parse, restoring every invalid value in its original order and retaining classed-vector diagnostics.
