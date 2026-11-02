@@ -1207,3 +1207,22 @@ test_that("source palette viewers report unknown names without losing valid sele
     expect_error(viewer$fun("__typo__", output = "gg"), "No matching")
   }
 })
+
+test_that("source palette filters preserve explicit name precedence", {
+  viewers <- list(
+    list(fun = pal_show_brewer, palette = "Set1", type = "seq", name = "Set1"),
+    list(fun = pal_show_hcl, palette = "Viridis", type = "qualitative", name = "Viridis"),
+    list(fun = pal_show_viridis, palette = "viridis", name = "viridis")
+  )
+  if (requireNamespace("ggsci", quietly = TRUE)) {
+    viewers <- c(viewers, list(list(fun = pal_show_ggsci, palette = "npg_nrc", name = "ggsci_npg_nrc")))
+  }
+  for (viewer in viewers) {
+    for (pattern in c("__none__", "[")) {
+      args <- list(palette = viewer$palette, pattern = pattern, output = "gg")
+      if (!is.null(viewer$type)) args$type <- viewer$type
+      p <- do.call(viewer$fun, args)
+      expect_identical(unique(as.character(p$data$palette)), viewer$name)
+    }
+  }
+})

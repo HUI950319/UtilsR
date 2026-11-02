@@ -51,6 +51,12 @@ A ggplot or gt object returned visibly for automatic display.
 Display the palettes provided by \code{ggsci} using the same ggplot or gt
 layout as \code{\link{pal_show}()}.
 }
+\details{
+Explicit \code{palette} names take precedence over \code{pattern}
+  and \code{type} (where available). These filters are applied only when
+  \code{palette = NULL}. Unknown names are reported and skipped when at
+  least one valid palette remains.
+}
 \examples{
 if (requireNamespace("ggsci", quietly = TRUE)) {
   pal_show_ggsci(c("ggsci_npg_nrc", "ggsci_aaas_default"),

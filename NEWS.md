@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* Source palette viewers document explicit-name precedence over type and pattern filters, including the handling of unknown names.
+
 * Source palette viewers warn about unknown names while preserving valid selections, and still reject selections with no matching palettes.
 
 * `show_color()` renders each repeated normalised colour once per call, preserving every swatch, its order and the original copyable vector without retaining a global cache.

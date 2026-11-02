@@ -53,6 +53,12 @@ A ggplot or gt object returned visibly for automatic display.
 Display the eight viridis colour maps using the same ggplot or gt layout as
 \code{\link{pal_show}()}.
 }
+\details{
+Explicit \code{palette} names take precedence over \code{pattern}
+  and \code{type} (where available). These filters are applied only when
+  \code{palette = NULL}. Unknown names are reported and skipped when at
+  least one valid palette remains.
+}
 \examples{
 pal_show_viridis(c("viridis", "plasma"), n = 8, output = "gg")
 pal_show_viridis(direction = -1, output = "gg")
