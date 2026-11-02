@@ -26,6 +26,8 @@
 #'   (must have exactly 2 unique levels).
 #' @param fill.by Character or \code{NULL}. Column for dodge grouping.
 #'   Default \code{NULL}.
+#'   Gradient-coloured beeswarm modes share shapes across panels and support
+#'   at most four observed, non-missing categories; additional categories error.
 #' @param type Chart type: \code{"violin_box"} (default), \code{"violin"},
 #'   \code{"box"}, \code{"beeswarm"}, or \code{"beeswarm_quasirandom"}.
 #'   Box-only output contains no violin layer, including without \code{fill.by}.
@@ -291,6 +293,15 @@ PlotButterfly2 <- function(
     cols <- NULL
   }
 
+  shape_values <- NULL
+  if (has_fill && is_beeswarm && color_by == "logFC") {
+    shape_levels <- levels(data[[fill.by]])
+    shape_levels <- shape_levels[!is.na(shape_levels) & shape_levels %in% as.character(data[[fill.by]])]
+    if (length(shape_levels) > 4L)
+      cli::cli_abort("Gradient-coloured beeswarm plots support at most 4 observed {.arg fill.by} categories.")
+    shape_values <- stats::setNames(c(16, 17, 15, 18)[seq_along(shape_levels)], shape_levels)
+  }
+
   gradient_limits <- NULL
   if (is_beeswarm && color_by == "logFC") {
     finite_values <- data[[value.by]][is.finite(data[[value.by]])]
@@ -430,8 +441,7 @@ PlotButterfly2 <- function(
           high = gradient_colors[3], midpoint = gradient_midpoint,
           limits = gradient_limits
         ) +
-        ggplot2::scale_shape_manual(values = c(16, 17, 15, 18)[
-          seq_len(n_fill)])
+        ggplot2::scale_shape_manual(values = shape_values)
     } else if (has_fill) {
       if (is_beeswarm) {
         p <- p + ggplot2::scale_color_manual(values = cols)

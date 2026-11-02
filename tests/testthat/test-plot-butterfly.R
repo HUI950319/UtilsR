@@ -1,3 +1,34 @@
+test_that("PlotButterfly2 shares observed shape mappings across beeswarm panels", {
+  skip_if_not_installed("ggbeeswarm")
+  data <- data.frame(stat = "S", value = seq_len(12) / 10, group = rep(c("L", "R"), each = 6),
+                     fill = factor(rep(c("A", "B", "B", "C"), each = 3), levels = c("A", "unused", "B", "C")))
+  for (type in c("beeswarm", "beeswarm_quasirandom")) {
+    plot <- suppressMessages(PlotButterfly2(data, stat.by = "stat", value.by = "value", group.by = "group",
+      fill.by = "fill", type = type, color_by = "logFC"))
+    for (i in 1:2) {
+      built <- ggplot2::ggplot_build(plot[[i]])
+      expect_identical(built$plot$scales$get_scales("shape")$map("B"), 17)
+      expect_equal(sum(!is.na(built$data[[1]]$shape)), 6)
+    }
+  }
+})
+
+test_that("PlotButterfly2 diagnoses shape capacity using observed categories", {
+  skip_if_not_installed("ggbeeswarm")
+  data <- data.frame(stat = "S", value = seq_len(30) / 10, group = rep(c("L", "R"), each = 15),
+                     fill = factor(rep(rep(LETTERS[1:5], each = 3), 2)))
+  expect_error(PlotButterfly2(data, stat.by = "stat", value.by = "value", group.by = "group",
+    fill.by = "fill", type = "beeswarm_quasirandom", color_by = "logFC"), "at most 4 observed")
+  data <- data[data$fill != "D", ]
+  plot <- suppressMessages(PlotButterfly2(data, stat.by = "stat", value.by = "value", group.by = "group",
+    fill.by = "fill", type = "beeswarm_quasirandom", color_by = "logFC"))
+  for (i in 1:2) {
+    built <- ggplot2::ggplot_build(plot[[i]])
+    expect_identical(built$plot$scales$get_scales("shape")$map("E"), 18)
+    expect_equal(sum(!is.na(built$data[[1]]$shape)), 12)
+  }
+})
+
 test_that("PlotButterfly2 keeps category colours consistent across panels", {
   data <- data.frame(stat = "A", value = seq_len(12), group = rep(c("L", "R"), each = 6),
                      fill = rep(c("A", "B", "B", "C"), each = 3))

@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* PlotButterfly2() shares observed-category shape mappings across gradient beeswarm panels and rejects more than four observed categories before points can be omitted.
+
 * PlotHeatmapJaccard() excludes labelled user-missing groups and features consistently, including before haven is loaded.
 
 * impute_na_knn() interprets labelled missing values before missing-variable and donor checks, including in a fresh R session.

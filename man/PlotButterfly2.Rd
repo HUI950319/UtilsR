@@ -52,7 +52,9 @@ PlotButterfly2(
 (must have exactly 2 unique levels).}
 
 \item{fill.by}{Character or \code{NULL}. Column for dodge grouping.
-Default \code{NULL}.}
+Default \code{NULL}.
+Gradient-coloured beeswarm modes share shapes across panels and support
+at most four observed, non-missing categories; additional categories error.}
 
 \item{type}{Chart type: \code{"violin_box"} (default), \code{"violin"},
 \code{"box"}, \code{"beeswarm"}, or \code{"beeswarm_quasirandom"}.
