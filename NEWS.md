@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* `show_color()` documents missing character colours, empty vectors and indexed-terminal contrast, with regression coverage for copyable names, attributes and transparency at every supported colour depth.
+
 * pal_get() reuses the first literal-colour validation result when reporting invalid colours, avoiding a repeated full scan without changing diagnostics.
 
 * `show_color()` selects text contrast from emitted indexed ANSI colours, improving legibility on standard xterm 8-, 16- and 256-colour palettes without changing true-colour output.

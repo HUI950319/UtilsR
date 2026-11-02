@@ -568,6 +568,14 @@ console_width <- function() {
 #' the code printed beside it. \code{options(cli.num_colors = 16777216)} forces
 #' 24-bit output in a terminal that renders it without advertising it.
 #' Colour depth is detected for stdout, including when stderr is redirected.
+#' On indexed terminals, text contrast uses the emitted ANSI colours and the
+#' standard xterm palette. Custom terminal colour themes can change the result.
+#'
+#' Missing character values (\code{NA_character_}) and the literal colour
+#' \code{"NA"} follow R's transparent-colour convention, so their swatches have
+#' the same \code{#FFFFFF00} label as \code{"transparent"}. Their original
+#' values, names and attributes are retained in the returned vector and its
+#' copyable expression. An empty character vector is also accepted.
 #'
 #' @param x Character vector without a class or dimensions, containing hex codes
 #'   or named R colours. Numeric palette indices are not accepted.

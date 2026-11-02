@@ -227,3 +227,32 @@ test_that("show_color contrasts text against quantised terminal backgrounds", {
   expect_match(out[[1]], "\033[38;2;255;255;255m", fixed = TRUE)
   expect_match(out[[1]], "\033[48;2;0;136;51m", fixed = TRUE)
 })
+
+test_that("show_color preserves missing values, transparency and copyable attributes", {
+  withr::local_options(cli.num_colors = 0, cli.width = 40, width = 40)
+  cols <- c(missing = NA_character_, literal = "NA", transparent = "transparent",
+            alpha = "#FF000080", short = "#00F8", named = "light blue")
+  attr(cols, "type") <- "custom"
+  for (depth in c(0, 1, 8, 16, 256, 16777216)) {
+    options(cli.num_colors = depth)
+    out <- capture.output(value <- withVisible(show_color(cols)))
+    plain <- cli::ansi_strip(out)
+    swatches <- grepl("^ #", plain)
+    labels <- unlist(regmatches(plain[swatches], gregexpr("#[0-9A-F]{8}|#[0-9A-F]{6}", plain[swatches])))
+    expect_identical(unname(labels), c(rep("#FFFFFF00", 3), "#FF000080", "#0000FF88", "#ADD8E6"))
+    expect_identical(value$value, cols)
+    expect_identical(value$visible, FALSE)
+    expect_identical(eval(parse(text = plain[!swatches])), cols)
+    expect_lte(max(nchar(plain[swatches], type = "width")), 40L)
+  }
+})
+
+test_that("show_color retains an empty character vector and its public signature", {
+  withr::local_options(cli.num_colors = 0)
+  out <- capture.output(value <- withVisible(show_color(character())))
+  expect_identical(value$value, character())
+  expect_identical(value$visible, FALSE)
+  expect_identical(tail(out, 1), "character(0)")
+  expect_identical(names(formals(show_color)), c("x", "rev"))
+  expect_identical(formals(show_color)[["rev"]], FALSE)
+})
