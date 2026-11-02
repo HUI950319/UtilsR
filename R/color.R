@@ -1323,11 +1323,13 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
   color_names <- names(colors)
   hex <- .pal_hex(colors)
 
-  if (!is.null(color_names) && all(nzchar(color_names))) {
-    labels <- color_names
-  } else {
-    labels <- hex
+  has_name <- rep(FALSE, n)
+  if (!is.null(color_names)) {
+    has_name <- !is.na(color_names) &
+      nzchar(trimws(color_names, whitespace = "[\\h\\v]"))
   }
+  labels <- hex
+  labels[has_name] <- color_names[has_name]
 
   # Compute luminance for text contrast
   .luminance <- function(hex_col) {
@@ -1383,12 +1385,12 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
 
     if (label) {
       # Show name/hex on top, hex on bottom (if named)
-      if (!is.null(color_names) && all(nzchar(color_names))) {
+      if (any(has_name)) {
         p <- p +
           ggplot2::geom_text(ggplot2::aes(label = .data[["label"]]),
                              color = fg_colors, size = label_size,
-                             fontface = "bold", vjust = -0.3) +
-          ggplot2::geom_text(ggplot2::aes(label = .data[["hex"]]),
+                             fontface = "bold", vjust = ifelse(has_name, -0.3, 0.5)) +
+          ggplot2::geom_text(ggplot2::aes(label = ifelse(has_name, .data[["hex"]], "")),
                              color = fg_colors, size = label_size * 0.75,
                              vjust = 1.2)
       } else {
@@ -1424,7 +1426,7 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
   )
 
   # If no names, drop the name column
-  if (is.null(color_names) || !all(nzchar(color_names))) {
+  if (!any(has_name)) {
     tbl_data$name <- NULL
     tbl <- gt::gt(tbl_data) %>%
       gt::cols_label(index = "#", hex = "Hex", preview = "Preview")

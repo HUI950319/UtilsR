@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* `pal_show()` preserves valid colour names and replaces missing or whitespace-only labels individually with their hex codes.
+
 * `pal_show()` rejects numeric-string colour indices and validates every custom palette colour before rendering, using vectorized colour parsing.
 
 * `pal_show()` and source viewers retain the first occurrence of each selected palette while preserving repeated colours in literal vectors.

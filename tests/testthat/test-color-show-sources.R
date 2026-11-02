@@ -798,6 +798,18 @@ test_that("palette rebuilds preserve existing data if registered names disappear
   expect_identical(after, before)
 })
 
+test_that("palette previews retain partial names and replace missing labels individually", {
+  cols <- stats::setNames(c("red", "blue", "black"), c("A", "", NA_character_))
+  expected <- c("A", "#0000FF", "#000000")
+  p <- pal_show(cols, output = "gg")
+  expect_identical(p$data$label, expected)
+  expect_no_warning(ggplot2::ggplotGrob(p))
+  expect_identical(pal_show(cols, output = "gt")[["_data"]]$name, expected)
+  blank <- stats::setNames(c("red", "blue", "black"), c("A", "\t", "\u3000"))
+  expect_identical(pal_show(blank, output = "gg")$data$label, expected)
+  expect_equal(length(pal_show(cols, label = FALSE, output = "gg")$layers), 1L)
+})
+
 test_that("palette previews reject numeric colour indices in vectors and lists", {
   for (bad in c("2", "2.0", "2e0")) {
     for (output in c("gg", "gt", "console")) {
