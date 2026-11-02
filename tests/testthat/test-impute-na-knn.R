@@ -1,3 +1,44 @@
+test_that("impute_na_knn restores SPSS missingness before cold donor checks", {
+  skip_if_not_installed("haven")
+  skip_if_not_installed("VIM")
+  fn <- impute_na_knn
+  environment(fn) <- new.env(parent = asNamespace("stats"))
+  directory <- withr::local_tempdir()
+  fixture <- file.path(directory, "fixture.rds")
+  script <- file.path(directory, "cold.R")
+  output <- file.path(directory, "result.rds")
+  data <- data.frame(target = haven::labelled_spss(c(1, 3, 99), labels = c(Unknown = 99), na_values = 99),
+                     predictor = c(0, 1, 0))
+  saveRDS(list(fn = fn, data = data, libs = .libPaths()), fixture)
+  writeLines(c(
+    "args <- commandArgs(TRUE)",
+    "fixture <- readRDS(args[[1]])",
+    ".libPaths(fixture[['libs']])",
+    "stopifnot(!'haven' %in% loadedNamespaces())",
+    "data <- fixture[['data']]",
+    "if (args[[3]] == 'donors') { data[['target']][c(2, 3)] <- 99; data[['predictor']][2] <- NA_real_ }",
+    "before <- data",
+    "out <- tryCatch(fixture[['fn']](data, k = if (args[[3]] == 'donors') 2 else 1, verbose = FALSE), error = conditionMessage)",
+    "saveRDS(list(value = if (is.data.frame(out)) vctrs::vec_data(out[['target']]) else out, unchanged = identical(data, before), attrs = if (is.data.frame(out)) attributes(out[['target']]) else NULL), args[[2]])"
+  ), script)
+  for (mode in c("impute", "donors")) {
+    status <- system2(file.path(R.home("bin"), "Rscript"),
+      c("--vanilla", shQuote(script), shQuote(fixture), shQuote(output), mode), stdout = TRUE, stderr = TRUE)
+    expect_null(attr(status, "status"), info = paste(status, collapse = "\n"))
+    if (is.null(attr(status, "status"))) {
+      out <- readRDS(output)
+      expect_identical(out$unchanged, TRUE)
+      if (mode == "impute") {
+        expect_identical(out$value, c(1, 3, 1))
+        expect_identical(out$attrs, attributes(data$target))
+      } else {
+        expect_type(out$value, "character")
+        if (is.character(out$value)) expect_match(out$value, "Not enough observed donors")
+      }
+    }
+  }
+})
+
 test_that("impute_na_knn performs weighted numeric imputation", {
   skip_if_not_installed("VIM")
 

@@ -9,6 +9,7 @@
 #' factors for distance calculation, then restored with their original storage
 #' type, variable label, value labels, and other attributes.
 #' SPSS user-missing codes are treated as missing rather than donor categories.
+#' Labelled missingness is interpreted even when \pkg{haven} has not been loaded.
 #' Labelled donor values are restored through their original category values,
 #' without parsing rounded printed numbers.
 #' Stored integer64 columns require \pkg{bit64}. When imputation is needed,
@@ -101,6 +102,10 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
   if (any(time_methods) && !requireNamespace("lubridate", quietly = TRUE)) {
     cli::cli_abort("Inspecting time-span columns requires package {.pkg lubridate}.")
   }
+  labelled_cols <- vapply(data_for_impute, inherits, logical(1), what = "haven_labelled")
+  if (any(labelled_cols) && !requireNamespace("haven", quietly = TRUE)) {
+    cli::cli_abort("Inspecting labelled columns requires package {.pkg haven}.")
+  }
   vars_with_missing <- names(data_for_impute)[
     vapply(data_for_impute, anyNA, logical(1))
   ]
@@ -152,12 +157,6 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     ))
   }
 
-  labelled_cols <- vapply(
-    data_for_impute,
-    inherits,
-    logical(1),
-    what = "haven_labelled"
-  )
   labelled_original <- data_for_impute[labelled_cols]
   integer64_original <- data_for_impute[integer64_cols]
   for (var_name in names(integer64_original)) {
