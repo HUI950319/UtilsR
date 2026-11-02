@@ -26,9 +26,11 @@ evenly across their full range; a single colour uses the middle. Discrete
 palettes retain their first colours. \code{NULL} uses each palette's native
 number of colours.}
 
-\item{alpha}{Opacity of the colours, a number between 0 and 1.}
+\item{alpha}{Opacity of the colours, a plain numeric scalar between 0 and 1
+without a class or dimensions.}
 
-\item{reverse}{Logical; if \code{TRUE}, reverse the colour order.}
+\item{reverse}{Logical scalar without a class or dimensions; if \code{TRUE},
+reverse the colour order.}
 
 \item{pattern}{Single non-missing regex string used to filter palette names.}
 

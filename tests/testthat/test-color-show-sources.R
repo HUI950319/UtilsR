@@ -1157,3 +1157,31 @@ test_that("ggsci continuous previews sample the entire native colour range", {
   expect_identical(pal_show_ggsci("npg_nrc", n = 3, output = "gg")$data$color,
                    discrete[1:3])
 })
+
+test_that("source palette controls reject classed and dimensional scalars", {
+  viewers <- list(
+    list(fun = pal_show_viridis, palette = "viridis", args = c("alpha", "begin", "end", "direction"))
+  )
+  if (requireNamespace("ggsci", quietly = TRUE)) {
+    viewers <- c(viewers, list(list(fun = pal_show_ggsci, palette = "npg_nrc", args = "alpha")))
+  }
+  for (viewer in viewers) {
+    for (arg in viewer$args) {
+      value <- if (arg == "direction") 1 else 0.5
+      for (bad in list(matrix(value), array(value, c(1, 1, 1)),
+                       structure(value, class = "stored_numeric"),
+                       structure(value, class = "integer64"))) {
+        args <- list(palette = viewer$palette, output = "gg")
+        args[arg] <- list(bad)
+        expect_error(do.call(viewer$fun, args), paste0("`", arg, "`"))
+      }
+    }
+  }
+  if (requireNamespace("ggsci", quietly = TRUE)) {
+    for (bad in list(matrix(TRUE), array(FALSE, c(1, 1, 1)), structure(TRUE, class = "flag"))) {
+      expect_error(pal_show_ggsci("npg_nrc", reverse = bad, output = "gg"), "`reverse`")
+    }
+  }
+  transparent <- pal_show_viridis("viridis", n = 3, alpha = 0, output = "gg")
+  expect_identical(unname(grDevices::col2rgb(transparent$data$color, alpha = TRUE)[4, ]), rep(0L, 3))
+})

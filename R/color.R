@@ -1167,8 +1167,10 @@ pal_show_hcl <- function(palette = NULL, n = 8,
 #'   evenly across their full range; a single colour uses the middle. Discrete
 #'   palettes retain their first colours. \code{NULL} uses each palette's native
 #'   number of colours.
-#' @param alpha Opacity of the colours, a number between 0 and 1.
-#' @param reverse Logical; if \code{TRUE}, reverse the colour order.
+#' @param alpha Opacity of the colours, a plain numeric scalar between 0 and 1
+#'   without a class or dimensions.
+#' @param reverse Logical scalar without a class or dimensions; if \code{TRUE},
+#'   reverse the colour order.
 #' @param pattern Single non-missing regex string used to filter palette names.
 #' @param index Non-empty vector of unique positive whole-number indices after
 #'   filtering. Out-of-range values are ignored; an empty selection is an error.
@@ -1199,11 +1201,13 @@ pal_show_ggsci <- function(palette = NULL, n = NULL, alpha = 1,
   output <- match.arg(output)
   .pal_validate_show(n, max_colors, index)
   .pal_validate_palette(palette)
-  if (!is.numeric(alpha) || length(alpha) != 1L || !is.finite(alpha) ||
+  if (!is.numeric(alpha) || is.complex(alpha) || is.object(alpha) ||
+      !is.null(dim(alpha)) || length(alpha) != 1L || !is.finite(alpha) ||
       alpha < 0 || alpha > 1) {
     cli::cli_abort("Argument {.arg alpha} must be a number between 0 and 1.")
   }
-  if (!is.logical(reverse) || length(reverse) != 1L || is.na(reverse)) {
+  if (!is.logical(reverse) || is.object(reverse) || !is.null(dim(reverse)) ||
+      length(reverse) != 1L || is.na(reverse)) {
     cli::cli_abort("Argument {.arg reverse} must be a single TRUE or FALSE.")
   }
 
@@ -1268,10 +1272,12 @@ pal_show_ggsci <- function(palette = NULL, n = NULL, alpha = 1,
 #'   \code{"cividis"}, \code{"rocket"}, \code{"mako"}, or \code{"turbo"}.
 #'   \code{NULL} shows all palettes.
 #' @param n Number of colours to generate for each palette. Default 8.
-#' @param begin,end Numeric values between 0 and 1 defining the portion of
-#'   each colour map to use.
-#' @param direction Direction of the colour map, either 1 or -1.
-#' @param alpha Opacity of the colours, a number between 0 and 1.
+#' @param begin,end Plain numeric scalars between 0 and 1, without classes or
+#'   dimensions, defining the portion of each colour map to use.
+#' @param direction Direction of the colour map, a plain numeric scalar equal
+#'   to 1 or -1, without a class or dimensions.
+#' @param alpha Opacity of the colours, a plain numeric scalar between 0 and 1
+#'   without a class or dimensions.
 #' @param pattern Single non-missing regex string used to filter palette names.
 #' @param index Non-empty vector of unique positive whole-number indices after
 #'   filtering. Out-of-range values are ignored; an empty selection is an error.
@@ -1296,19 +1302,23 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
   output <- match.arg(output)
   .pal_validate_show(n, max_colors, index, n_required = TRUE)
   .pal_validate_palette(palette)
-  if (!is.numeric(begin) || length(begin) != 1L || !is.finite(begin) ||
+  if (!is.numeric(begin) || is.complex(begin) || is.object(begin) ||
+      !is.null(dim(begin)) || length(begin) != 1L || !is.finite(begin) ||
       begin < 0 || begin > 1) {
     cli::cli_abort("Argument {.arg begin} must be a number between 0 and 1.")
   }
-  if (!is.numeric(end) || length(end) != 1L || !is.finite(end) ||
+  if (!is.numeric(end) || is.complex(end) || is.object(end) ||
+      !is.null(dim(end)) || length(end) != 1L || !is.finite(end) ||
       end < 0 || end > 1) {
     cli::cli_abort("Argument {.arg end} must be a number between 0 and 1.")
   }
-  if (!is.numeric(direction) || length(direction) != 1L ||
+  if (!is.numeric(direction) || is.complex(direction) || is.object(direction) ||
+      !is.null(dim(direction)) || length(direction) != 1L ||
       !is.finite(direction) || !direction %in% c(-1, 1)) {
     cli::cli_abort("Argument {.arg direction} must be either 1 or -1.")
   }
-  if (!is.numeric(alpha) || length(alpha) != 1L || !is.finite(alpha) ||
+  if (!is.numeric(alpha) || is.complex(alpha) || is.object(alpha) ||
+      !is.null(dim(alpha)) || length(alpha) != 1L || !is.finite(alpha) ||
       alpha < 0 || alpha > 1) {
     cli::cli_abort("Argument {.arg alpha} must be a number between 0 and 1.")
   }

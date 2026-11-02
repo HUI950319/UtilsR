@@ -25,12 +25,14 @@ pal_show_viridis(
 
 \item{n}{Number of colours to generate for each palette. Default 8.}
 
-\item{begin, end}{Numeric values between 0 and 1 defining the portion of
-each colour map to use.}
+\item{begin, end}{Plain numeric scalars between 0 and 1, without classes or
+dimensions, defining the portion of each colour map to use.}
 
-\item{direction}{Direction of the colour map, either 1 or -1.}
+\item{direction}{Direction of the colour map, a plain numeric scalar equal
+to 1 or -1, without a class or dimensions.}
 
-\item{alpha}{Opacity of the colours, a number between 0 and 1.}
+\item{alpha}{Opacity of the colours, a plain numeric scalar between 0 and 1
+without a class or dimensions.}
 
 \item{pattern}{Single non-missing regex string used to filter palette names.}
 

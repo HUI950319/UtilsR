@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* Source palette viewers reject classed or dimensional opacity, interval, direction and reversal controls before colour generation.
+
 * `pal_show_ggsci()` samples continuous palettes over their full native range while retaining discrete prefixes and native size limits.
 
 * `show_color()` documents missing character colours, empty vectors and indexed-terminal contrast, with regression coverage for copyable names, attributes and transparency at every supported colour depth.
