@@ -655,6 +655,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     # Evaluate only the displayed prefix of the originally requested ramp.
     has_alpha <- any(grDevices::col2rgb(cols, alpha = TRUE)[4L, ] < 255)
     at <- (seq_len(n) - 1) * (1 / (total - 1))
+    if (n == total) at[n] <- 1
     rgba <- grDevices::colorRamp(cols, alpha = has_alpha)(at)
     out <- grDevices::rgb(rgba[, 1L], rgba[, 2L], rgba[, 3L],
                          alpha = if (has_alpha) rgba[, 4L] else NULL,

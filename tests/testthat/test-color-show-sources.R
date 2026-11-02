@@ -1267,3 +1267,25 @@ test_that("Brewer previews report adjusted colour counts once per call", {
   }
   expect_length(messages, 0L)
 })
+
+test_that("palette interpolation preserves exact endpoints in complete previews", {
+  for (cols in list(palette_list[["Set1"]], c("#FF000080", "#0000FF40"))) {
+    alpha <- any(grDevices::col2rgb(cols, alpha = TRUE)[4L, ] < 255)
+    for (n in c(50L, 99L, 104L, 108L, 1003L)) {
+      expected <- grDevices::colorRampPalette(cols, alpha = alpha)(n)
+      invisible(capture.output(actual <- pal_show(
+        cols, n = n, max_colors = Inf, output = "console"
+      )))
+      expect_identical(as.character(actual), expected)
+      invisible(capture.output(prefix <- pal_show(
+        cols, n = n, max_colors = 6, output = "console"
+      )))
+      expect_identical(as.character(prefix), expected[1:6])
+    }
+  }
+  expected <- grDevices::colorRampPalette(palette_list[["Set1"]])(50)
+  p <- pal_show("Set1", n = 50, max_colors = Inf, output = "gg")
+  expect_identical(p$data$color, expected)
+  tbl <- pal_show("Set1", n = 50, max_colors = Inf, output = "gt")
+  expect_match(tbl[["_data"]]$preview, "background:#999999;", fixed = TRUE)
+})
