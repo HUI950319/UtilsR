@@ -60,6 +60,8 @@
 #' overflowing or underflowing for finite positive inputs.
 #' Raw-scale comparisons and interval widths avoid intermediate overflow
 #' for extreme finite values by rescaling before subtraction when needed.
+#' If a difference-scale SE exceeds floating-point range, calculations use
+#' rescaled values while retaining the same normal approximation.
 #'
 #' \strong{\code{exp = "auto"}.} An interval symmetric on the log scale is a
 #' ratio, and one symmetric on the raw scale is a difference; bounds
@@ -192,6 +194,15 @@ stat_ci_parse <- function(x,
     ifelse(asym, half, full)
   }
   se <- se_of(l_s, h_s)
+  work_scale <- rep(1, length(est))
+  rescale <- valid & !is_exp & !is.finite(se) & is.finite(e_s) & is.finite(l_s) & is.finite(h_s)
+  if (any(rescale)) {
+    work_scale[rescale] <- pmax(abs(e_s[rescale]), abs(l_s[rescale]), abs(h_s[rescale]))
+    e_s[rescale] <- e_s[rescale] / work_scale[rescale]
+    l_s[rescale] <- l_s[rescale] / work_scale[rescale]
+    h_s[rescale] <- h_s[rescale] / work_scale[rescale]
+    se <- se_of(l_s, h_s)
+  }
 
   # --- Adjust CI level; p is then read off the adjusted CI as a 95% CI ---
   if (!is.null(level)) {
@@ -199,8 +210,8 @@ stat_ci_parse <- function(x,
     z_new <- qnorm(1 - (1 - level) / 2)
     l_s <- ifelse(asym, e_s - (e_s - l_s) * z_new / z95, e_s - z_new * se)
     h_s <- ifelse(asym, e_s + (h_s - e_s) * z_new / z95, e_s + z_new * se)
-    lo <- ifelse(valid, ifelse(is_exp, exp(l_s), l_s), lo)
-    hi <- ifelse(valid, ifelse(is_exp, exp(h_s), h_s), hi)
+    lo <- ifelse(valid, ifelse(is_exp, exp(l_s), l_s * work_scale), lo)
+    hi <- ifelse(valid, ifelse(is_exp, exp(h_s), h_s * work_scale), hi)
     se <- se_of(l_s, h_s)
   }
   # An estimate on the null has z = 0 even when its null-side half has

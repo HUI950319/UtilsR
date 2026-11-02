@@ -1,6 +1,17 @@
 z95 <- qnorm(0.975)
 p_of <- function(z) 2 * (1 - pnorm(abs(z)))
 
+test_that("difference intervals retain valid p-values when their SE exceeds double range", {
+  large <- c("1.790e308 (-1.790e308, 1.797e308)", "-1.790e308 (-1.797e308, 1.790e308)")
+  control <- c("1.790 (-1.790, 1.797)", "-1.790 (-1.797, 1.790)")
+  for (level in list(NULL, .95, .9, .99)) {
+    expect_warning(actual <- stat_ci_parse(large, output = "p", exp = FALSE, level = level), "not symmetric")
+    expect_warning(expected <- stat_ci_parse(control, output = "p", exp = FALSE, level = level), "not symmetric")
+    expect_equal(actual, expected, tolerance = 1e-12)
+    expect_true(all(is.finite(actual) & actual > 0 & actual < 1))
+  }
+})
+
 test_that("auto does not read a narrow ratio near 1 as a difference", {
   for (x in c("0.98 (0.95, 1.01)", "1.00 (0.99, 1.01)", "0.95 (0.90, 1.00)")) {
     expect_warning(p <- stat_ci_parse(x, output = "p"), "ratio")

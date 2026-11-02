@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* stat_ci_parse() retains valid normal-approximation p-values when a finite difference interval has an SE beyond floating-point range, including confidence-level adjustments.
+
 * PlotCircleLollipop() omits unused group levels and diagnoses missing or excluded groups before drawing or opening an output device.
 
 * PlotButterfly2() shares observed-category shape mappings across gradient beeswarm panels and rejects more than four observed categories before points can be omitted.
