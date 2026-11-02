@@ -1,7 +1,7 @@
 # Visualise Palettes or Colour Vectors
 
-Display palettes as horizontal colour bars (ggplot) or an interactive gt
-table with colour swatches. Use `output = "gg"` for the Plots pane or
+Display palettes as horizontal colour bars (ggplot) or a gt table with
+colour swatches. Use `output = "gg"` for the Plots pane or
 `output = "gt"` for the Viewer pane.
 
 ## Usage
@@ -27,17 +27,21 @@ pal_show(
 
   Character vector of palette names (e.g. `"lancet"`), a colour vector
   (hex codes or named colours), or `NULL` to show all palettes matching
-  `pattern`/`type`. Named colour vectors (e.g. `pal_paraSC`) will use
-  the names as labels.
+  `pattern`/`type`. Named colour vectors (e.g. `pal_paraSC`) use valid
+  names as labels and hex codes for missing or whitespace-only names.
+  Repeated palette names are displayed once, in first-occurrence order;
+  repeated literal colours are preserved. Factors, classed vectors,
+  matrices and data frames are not supported.
 
 - n:
 
-  Positive whole number of colours to take from each palette, following
-  the rules of
-  [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md):
-  colours are taken from the front when `n` is at most the palette
-  length and interpolated when it is longer. `max_colors` still caps how
-  many of them are drawn. Default `NULL` shows each palette as it is.
+  Positive whole number of colours to preview from each palette.
+  Continuous palettes are sampled evenly across their full range; a
+  single colour uses the middle of the palette. Discrete palettes and
+  untyped colour vectors take colours from the front and interpolate
+  when more are requested than are available. `max_colors` caps how many
+  are drawn. Default `NULL` uses the native colour count before the
+  display cap.
 
 - pattern:
 
@@ -66,17 +70,19 @@ pal_show(
 
 - label:
 
-  Logical. In colour vector mode, whether to show hex/name labels on
-  tiles. Default `TRUE`.
+  Logical. For `output = "gg"` in colour vector mode, whether to show
+  hex/name labels on tiles. Default `TRUE`. Does not change gt tables or
+  console output.
 
 - label_size:
 
-  Positive finite number. Text size in colour vector mode. Default 3.
+  Positive finite number. Tile-label text size for `output = "gg"` in
+  colour vector mode. Default 3.
 
 - ncol:
 
-  Positive whole number of columns for colour vector mode. Default
-  `NULL` puts every displayed colour on a single row.
+  Positive whole number of columns for `output = "gg"` in colour vector
+  mode. Default `NULL` puts every displayed colour on a single row.
 
 ## Value
 

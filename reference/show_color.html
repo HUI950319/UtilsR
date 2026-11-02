@@ -3,11 +3,15 @@
 foreground text. Works in any terminal that supports ANSI true-colour
 (24-bit) escape sequences. The displayed colour vector is also printed with
 dput() so it can be copied back into R for assignment.
-Swatches wrap to the console width without truncating the colour vector."><meta property="og:description" content="Print colour hex codes as ANSI-coloured swatches with auto-contrasting
+Swatches wrap to the console width without truncating the colour vector.
+Translucent swatches are composited onto white because ANSI backgrounds
+cannot carry alpha. Their printed hex codes retain the original alpha."><meta property="og:description" content="Print colour hex codes as ANSI-coloured swatches with auto-contrasting
 foreground text. Works in any terminal that supports ANSI true-colour
 (24-bit) escape sequences. The displayed colour vector is also printed with
 dput() so it can be copied back into R for assignment.
-Swatches wrap to the console width without truncating the colour vector."><meta property="og:image" content="https://hui950319.github.io/UtilsR/logo.png"></head><body>
+Swatches wrap to the console width without truncating the colour vector.
+Translucent swatches are composited onto white because ANSI backgrounds
+cannot carry alpha. Their printed hex codes retain the original alpha."><meta property="og:image" content="https://hui950319.github.io/UtilsR/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -62,7 +66,9 @@ Swatches wrap to the console width without truncating the colour vector."><meta 
 foreground text. Works in any terminal that supports ANSI true-colour
 (24-bit) escape sequences. The displayed colour vector is also printed with
 <code><a href="https://rdrr.io/r/base/dput.html" class="external-link">dput()</a></code> so it can be copied back into R for assignment.
-Swatches wrap to the console width without truncating the colour vector.</p>
+Swatches wrap to the console width without truncating the colour vector.
+Translucent swatches are composited onto white because ANSI backgrounds
+cannot carry alpha. Their printed hex codes retain the original alpha.</p>
     </div>
 
     <div class="section level2">
@@ -92,7 +98,8 @@ Swatches wrap to the console width without truncating the colour vector.</p>
 <code><a href="https://cli.r-lib.org/reference/num_ansi_colors.html" class="external-link">cli::num_ansi_colors()</a></code>. A terminal limited to 256 colours draws the
 nearest palette entry instead of the exact hex, so a swatch can differ from
 the code printed beside it. <code>options(cli.num_colors = 16777216)</code> forces
-24-bit output in a terminal that renders it without advertising it.</p>
+24-bit output in a terminal that renders it without advertising it.
+Colour depth is detected for stdout, including when stderr is redirected.</p>
     </div>
 
     <div class="section level2">

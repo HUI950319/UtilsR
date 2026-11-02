@@ -50,7 +50,20 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.21" id="utilsr-0621">UtilsR 0.6.21<a class="anchor" aria-label="anchor" href="#utilsr-0621"></a></h2>
-<ul><li><p>pal_get() validates colour vectors in one batch, falling back to per-colour diagnostics only for invalid input without changing colour, interpolation or alpha rules.</p></li>
+<ul><li><p><code><a href="../reference/pal_show.html">pal_show()</a></code> documents input and label handling and ggplot-only layout controls; console alpha rendering is documented and newly added test line endings are normalized.</p></li>
+<li><p>Palette rebuild regression tests check stable source palettes and their types without assuming identical source package versions on Windows and Linux.</p></li>
+<li><p><code><a href="../reference/pal_show.html">pal_show()</a></code> computes only displayed colours even for a large n, retaining discrete interpolation prefixes, transparency and requested colour counts.</p></li>
+<li><p>Console palette catalogues retain full palette names in narrow terminals, moving counts and types to wrapped notes while keeping fitting headings unchanged.</p></li>
+<li><p>Palette data generation checks that every required source contributes palettes even when no previous registry exists, preventing silent first-build omissions.</p></li>
+<li><p><code><a href="../reference/pal_show.html">pal_show()</a></code> samples continuous palettes evenly across the full range in all outputs, including capped previews; a one-colour preview uses the midpoint.</p></li>
+<li><p>Console swatches consistently use stdout colour depth when stderr is redirected and restore colour options after normal completion or errors.</p></li>
+<li><p>Palette catalogues classify Bootstrap 5 and Tailwind gradients as continuous and dichromat Categorical.12 as discrete without changing colour values.</p></li>
+<li><p><code><a href="../reference/show_color.html">show_color()</a></code> retains RGBA labels and composites transparent ANSI swatches onto white, keeping the original copyable vector unchanged.</p></li>
+<li><p><code><a href="../reference/pal_show.html">pal_show()</a></code> preserves valid colour names and replaces missing or whitespace-only labels individually with their hex codes.</p></li>
+<li><p><code><a href="../reference/pal_show.html">pal_show()</a></code> rejects numeric-string colour indices and validates every custom palette colour before rendering, using vectorized colour parsing.</p></li>
+<li><p><code><a href="../reference/pal_show.html">pal_show()</a></code> and source viewers retain the first occurrence of each selected palette while preserving repeated colours in literal vectors.</p></li>
+<li><p><code><a href="../reference/pal_show.html">pal_show()</a></code> and source viewers reject unsupported palette storage and malformed palette lists before selection.</p></li>
+<li><p>pal_get() validates colour vectors in one batch, falling back to per-colour diagnostics only for invalid input without changing colour, interpolation or alpha rules.</p></li>
 <li><p>pal_get() omits explicit NA factor levels while preserving ordinary unused levels, their order and literal NA labels.</p></li>
 <li><p>pal_get() restores labelled missing-value methods before mapping, retains SPSS user-missing values and rejects integer64 inputs before precision can be lost.</p></li>
 <li><p>pal_get() maps extreme finite numeric spans without overflow while retaining ordinary interpolation and missing-value handling.</p></li>

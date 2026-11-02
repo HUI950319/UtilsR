@@ -5,7 +5,9 @@ foreground text. Works in any terminal that supports ANSI true-colour
 (24-bit) escape sequences. The displayed colour vector is also printed
 with [`dput()`](https://rdrr.io/r/base/dput.html) so it can be copied
 back into R for assignment. Swatches wrap to the console width without
-truncating the colour vector.
+truncating the colour vector. Translucent swatches are composited onto
+white because ANSI backgrounds cannot carry alpha. Their printed hex
+codes retain the original alpha.
 
 ## Usage
 
@@ -34,7 +36,8 @@ Swatches follow whatever colour depth the terminal reports through
 A terminal limited to 256 colours draws the nearest palette entry
 instead of the exact hex, so a swatch can differ from the code printed
 beside it. `options(cli.num_colors = 16777216)` forces 24-bit output in
-a terminal that renders it without advertising it.
+a terminal that renders it without advertising it. Colour depth is
+detected for stdout, including when stderr is redirected.
 
 ## Examples
 

@@ -47,6 +47,9 @@ and unregistered entries of
 [`pal_other`](https://hui950319.github.io/UtilsR/reference/pal_other.md)
 are accessed directly rather than by registry name.
 
+Palette names are kept in full on narrow consoles. Colour counts and
+types move to a separate line when they do not fit in a heading.
+
 ## See also
 
 Other colour palettes:

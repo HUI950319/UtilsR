@@ -2,6 +2,60 @@
 
 ## UtilsR 0.6.21
 
+- [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
+  documents input and label handling and ggplot-only layout controls;
+  console alpha rendering is documented and newly added test line
+  endings are normalized.
+
+- Palette rebuild regression tests check stable source palettes and
+  their types without assuming identical source package versions on
+  Windows and Linux.
+
+- [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
+  computes only displayed colours even for a large n, retaining discrete
+  interpolation prefixes, transparency and requested colour counts.
+
+- Console palette catalogues retain full palette names in narrow
+  terminals, moving counts and types to wrapped notes while keeping
+  fitting headings unchanged.
+
+- Palette data generation checks that every required source contributes
+  palettes even when no previous registry exists, preventing silent
+  first-build omissions.
+
+- [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
+  samples continuous palettes evenly across the full range in all
+  outputs, including capped previews; a one-colour preview uses the
+  midpoint.
+
+- Console swatches consistently use stdout colour depth when stderr is
+  redirected and restore colour options after normal completion or
+  errors.
+
+- Palette catalogues classify Bootstrap 5 and Tailwind gradients as
+  continuous and dichromat Categorical.12 as discrete without changing
+  colour values.
+
+- [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
+  retains RGBA labels and composites transparent ANSI swatches onto
+  white, keeping the original copyable vector unchanged.
+
+- [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
+  preserves valid colour names and replaces missing or whitespace-only
+  labels individually with their hex codes.
+
+- [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
+  rejects numeric-string colour indices and validates every custom
+  palette colour before rendering, using vectorized colour parsing.
+
+- [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
+  and source viewers retain the first occurrence of each selected
+  palette while preserving repeated colours in literal vectors.
+
+- [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
+  and source viewers reject unsupported palette storage and malformed
+  palette lists before selection.
+
 - pal_get() validates colour vectors in one batch, falling back to
   per-colour diagnostics only for invalid input without changing colour,
   interpolation or alpha rules.
