@@ -798,6 +798,28 @@ test_that("palette rebuilds preserve existing data if registered names disappear
   expect_identical(after, before)
 })
 
+test_that("palette viewers deduplicate palette names without removing colour repeats", {
+  viewers <- list(
+    list(fun = pal_show, palette = "Set1"),
+    list(fun = pal_show_brewer, palette = "Set1"),
+    list(fun = pal_show_hcl, palette = "Viridis"),
+    list(fun = pal_show_viridis, palette = "viridis")
+  )
+  if (requireNamespace("ggsci", quietly = TRUE)) {
+    viewers <- c(viewers, list(list(fun = pal_show_ggsci, palette = "ggsci_npg_nrc")))
+  }
+  for (viewer in viewers) {
+    for (output in c("gg", "gt", "console")) {
+      invisible(capture.output(value <- viewer$fun(rep(viewer$palette, 2), output = output)))
+      count <- if (output == "gg") length(unique(value$data$palette)) else if (output == "gt") {
+        nrow(value[["_data"]])
+      } else length(value)
+      expect_equal(count, 1L)
+    }
+  }
+  expect_equal(nrow(pal_show(c("red", "red", "blue"), output = "gg")$data), 3L)
+})
+
 test_that("palette viewers reject unsupported palette input types", {
   viewers <- list(pal_show, pal_show_brewer, pal_show_hcl, pal_show_viridis)
   if (requireNamespace("ggsci", quietly = TRUE)) viewers <- c(viewers, list(pal_show_ggsci))

@@ -782,7 +782,7 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
 
   # --- Filter palettes ---
   if (!is.null(palette)) {
-    valid <- palette[palette %in% names(pals)]
+    valid <- unique(palette[palette %in% names(pals)])
     if (length(valid) == 0) cli::cli_abort("No matching palettes found.")
     unknown <- setdiff(palette, names(pals))
     if (length(unknown) > 0) {
@@ -961,7 +961,7 @@ pal_show_brewer <- function(palette = NULL, n = NULL,
   info <- RColorBrewer::brewer.pal.info
   pal_names <- rownames(info)
   if (!is.null(palette)) {
-    valid <- palette[palette %in% pal_names]
+    valid <- unique(palette[palette %in% pal_names])
     if (length(valid) == 0L) {
       cli::cli_abort("No matching RColorBrewer palettes found.")
     }
@@ -1048,7 +1048,7 @@ pal_show_hcl <- function(palette = NULL, n = 8,
 
   pal_names <- all_names
   if (!is.null(palette)) {
-    valid <- palette[palette %in% pal_names]
+    valid <- unique(palette[palette %in% pal_names])
     if (length(valid) == 0L) {
       cli::cli_abort("No matching HCL palettes found.")
     }
@@ -1157,7 +1157,7 @@ pal_show_ggsci <- function(palette = NULL, n = NULL, alpha = 1,
     requested <- ifelse(
       palette %in% names(pals), palette, paste0("ggsci_", palette)
     )
-    valid <- requested[requested %in% names(pals)]
+    valid <- unique(requested[requested %in% names(pals)])
     if (length(valid) == 0L) {
       cli::cli_abort("No matching ggsci palettes found.")
     }
@@ -1237,7 +1237,7 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
   )
   pal_names <- viridis_names
   if (!is.null(palette)) {
-    valid <- palette[palette %in% pal_names]
+    valid <- unique(palette[palette %in% pal_names])
     if (length(valid) == 0L) {
       cli::cli_abort("No matching viridis palettes found.")
     }

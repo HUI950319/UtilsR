@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* `pal_show()` and source viewers retain the first occurrence of each selected palette while preserving repeated colours in literal vectors.
+
 * `pal_show()` and source viewers reject unsupported palette storage and malformed palette lists before selection.
 
 * pal_get() validates colour vectors in one batch, falling back to per-colour diagnostics only for invalid input without changing colour, interpolation or alpha rules.
