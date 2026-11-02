@@ -1033,6 +1033,18 @@ test_that("overwide graphemes do not add trailing blank continuation lines", {
   }
 })
 
+test_that("styled zero-width graphemes remain printable without wrapping errors", {
+  withr::local_options(cli.num_colors = 256, cli.width = 12)
+  text <- cli::col_red("\u0301")
+  expect_silent(out <- utils::capture.output(pr_note(text)))
+  expect_identical(cli::ansi_strip(out), "# \u0301")
+  expect_silent(out <- utils::capture.output(pr_kv(list(v = text))))
+  expect_identical(cli::ansi_strip(out), "  v  \u0301")
+  expect_silent(out <- utils::capture.output(pr_box(text)))
+  expect_length(out, 3L)
+  expect_match(out[2], text, fixed = TRUE)
+})
+
 test_that("displayed row names cannot collide with a P-column name", {
   withr::local_options(cli.num_colors = 1)
   x <- data.frame(p = c(.01, .5), row.names = c("0.02", "term"))

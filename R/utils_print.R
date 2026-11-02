@@ -90,6 +90,11 @@
 ._pr_wrap <- function(text, width, exdent = 0L) {
   width <- max(1L, floor(width))
   text[is.na(text)] <- "NA"
+  if (length(text) == 1L && grepl("\033", text, fixed = TRUE) &&
+      cli::ansi_nchar(text, type = "width") == 0L) {
+    plain <- cli::ansi_strip(text)
+    if (nzchar(plain) && !grepl("[[:cntrl:]]", plain)) return(text)
+  }
   lines <- as.character(cli::ansi_strwrap(text, width = width, exdent = exdent))
   unlist(lapply(lines, function(s) {
     out <- character()
