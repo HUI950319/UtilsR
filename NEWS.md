@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* `pal_show()` catalogue swatches provide hexadecimal hover titles and readable image labels, including alpha, without changing their colour values or dimensions.
+
 * `pal_show()` validates large repeated colour inputs through their distinct values while preserving complete validation, colour order and duplicate entries.
 
 * Improve `pal_get()` performance for moderately repeated numeric data with bounded sampling, while retaining direct paths for unique and sparsely repeated inputs.

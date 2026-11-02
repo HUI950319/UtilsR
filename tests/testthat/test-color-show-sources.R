@@ -2109,3 +2109,43 @@ test_that("palette validation reuses large repeated colour inputs", {
   expect_false(.pal_are_colors(missing))
   expect_identical(cols, before)
 })
+
+test_that("catalogue swatches expose their hexadecimal values", {
+  check_swatches <- function(tbl, expected) {
+    html <- gt::as_raw_html(tbl)
+    spans <- regmatches(html, gregexpr(
+      '<span\\b[^>]*style="display:inline-block;width:20px;[^>]*>', html, perl = TRUE
+    ))[[1L]]
+    expect_length(spans, length(expected))
+    attribute <- function(name) {
+      pattern <- paste0('.*\\b', name, '="([^"]*)".*')
+      ifelse(grepl(pattern, spans), sub(pattern, "\\1", spans), NA_character_)
+    }
+    expect_identical(attribute("title"), expected)
+    expect_identical(attribute("aria-label"), expected)
+    expect_identical(attribute("role"), rep("img", length(expected)))
+    for (i in seq_along(expected)) {
+      expect_match(spans[[i]], paste0("background:", expected[[i]], ";"), fixed = TRUE)
+    }
+  }
+  tbl <- pal_show("Set1", n = 3, output = "gt")
+  expect_identical(tbl[["_data"]]$palette, "Set1")
+  expect_identical(tbl[["_data"]]$n_colors, "3")
+  check_swatches(tbl, c("#E41A1C", "#377EB8", "#4DAF4A"))
+  cols <- c("red", "#0000FF80", "transparent", "red")
+  tbl <- pal_show(list(custom = cols), output = "gt")
+  check_swatches(tbl, c("#FF0000", "#0000FF80", "#FFFFFF00", "#FF0000"))
+  viewers <- list(
+    list(fun = pal_show_brewer, palette = "Set1"),
+    list(fun = pal_show_hcl, palette = "Viridis"),
+    list(fun = pal_show_viridis, palette = "viridis")
+  )
+  if (requireNamespace("ggsci", quietly = TRUE)) {
+    viewers <- c(viewers, list(list(fun = pal_show_ggsci, palette = "npg_nrc")))
+  }
+  for (viewer in viewers) {
+    tbl <- viewer$fun(viewer$palette, n = 3, output = "gt")
+    p <- viewer$fun(viewer$palette, n = 3, output = "gg")
+    check_swatches(tbl, .pal_hex(p$data$color))
+  }
+})

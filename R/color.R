@@ -926,7 +926,8 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #' \code{show_color()} but as a publication-ready plot.
 #'
 #' @details In gt catalogue output, long palette names wrap within the name
-#'   column.
+#'   column. Each swatch exposes its hexadecimal colour value as a hover title
+#'   and an accessible label.
 #'
 #' @param palette Character vector of palette names (e.g. \code{"lancet"}),
 #'   a colour vector (hex codes or named colours), or \code{NULL} to show
@@ -1111,9 +1112,10 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
     n_colors = n_label,
     preview = vapply(pals, function(cols) {
       spans <- vapply(.pal_hex(cols), function(c) {
-        sprintf(paste0('<span style="display:inline-block;width:%dpx;',
+        sprintf(paste0('<span role="img" title="%s" aria-label="%s" ',
+                       'style="display:inline-block;width:%dpx;',
                        'background:%s;color:%s;">&nbsp;</span>'),
-                swatch_px, c, c)
+                c, c, swatch_px, c, c)
       }, character(1))
       paste(spans, collapse = "")
     }, character(1)),
