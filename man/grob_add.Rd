@@ -40,6 +40,8 @@ right additions span its full height, including all facets. The main gtable
 must contain a panel area unless \code{position = "none"} or \code{grob}
 is \code{NULL}.
 
+Successive additions remain aligned to the main panel area.
+
 Fixed aspect ratio constraints in the main gtable are retained when margin
 rows or columns are added.
 }

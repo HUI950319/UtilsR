@@ -108,3 +108,29 @@ test_that("grob_add() preserves fixed-aspect patchwork constraints", {
     expect_no_error(grid::grid.draw(result))
   }
 })
+
+test_that("grob_add() keeps added margins out of subsequent panel alignment", {
+  withr::local_pdf(NULL)
+  sequences <- list(c("top", "left"), c("left", "top"),
+                     c("bottom", "right"), c("right", "bottom"))
+  expected <- list(c(3, 1, 5, 1), c(1, 3, 1, 6),
+                    c(2, 7, 4, 7), c(6, 2, 6, 5))
+
+  for (name in c("layout", "panel", "main-panel")) {
+    table <- gtable::gtable(widths = grid::unit(rep(1, 6), "cm"),
+                            heights = grid::unit(rep(1, 5), "cm"), name = name)
+    table <- gtable::gtable_add_grob(table, grid::rectGrob(),
+      t = 2, b = 4, l = 2, r = 5, name = "panel-1")
+    for (i in seq_along(sequences)) {
+      result <- table
+      for (position in sequences[[i]]) {
+        result <- grob_add(result, grid::rectGrob(), position = position,
+                            space = grid::unit(2, "mm"))
+      }
+      added <- result$layout[nrow(result$layout), , drop = FALSE]
+
+      expect_equal(unname(unlist(added[c("t", "l", "b", "r")])), expected[[i]])
+      expect_no_error(grid::grid.draw(result))
+    }
+  }
+})

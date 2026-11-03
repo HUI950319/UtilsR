@@ -126,6 +126,8 @@ grob_as <- function(plot, ...) {
 #' must contain a panel area unless \code{position = "none"} or \code{grob}
 #' is \code{NULL}.
 #'
+#' Successive additions remain aligned to the main panel area.
+#'
 #' Fixed aspect ratio constraints in the main gtable are retained when margin
 #' rows or columns are added.
 #'
@@ -198,7 +200,8 @@ grob_add <- function(
       t = 1,
       l = panel_cols[1],
       r = panel_cols[2],
-      clip = clip
+      clip = clip,
+      name = "grob_add_top"
     )
   }
   if (position == "bottom") {
@@ -208,7 +211,8 @@ grob_add <- function(
       t = dim(gt)[1],
       l = panel_cols[1],
       r = panel_cols[2],
-      clip = clip
+      clip = clip,
+      name = "grob_add_bottom"
     )
   }
   if (position == "left") {
@@ -218,7 +222,8 @@ grob_add <- function(
       t = panel_rows[1],
       b = panel_rows[2],
       l = 1,
-      clip = clip
+      clip = clip,
+      name = "grob_add_left"
     )
   }
   if (position == "right") {
@@ -228,7 +233,8 @@ grob_add <- function(
       t = panel_rows[1],
       b = panel_rows[2],
       l = dim(gt)[2],
-      clip = clip
+      clip = clip,
+      name = "grob_add_right"
     )
   }
   if (is.matrix(gt$respect)) {
