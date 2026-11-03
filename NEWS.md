@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* Theme names fall back to ggplot2 exports without requiring library(ggplot2), while retaining visible custom factories and UtilsR theme names.
+
 * Theme resolution rejects factories returning plot layers, scales or other non-theme objects before they can alter a plot, and rejects names resolving to non-theme data.
 
 * Palette catalogue previews outline each swatch in ggplot and HTML output, keeping pale and fully transparent colour positions visible without changing fill colours, opacity or swatch widths.

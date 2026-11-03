@@ -35,3 +35,21 @@ test_that(".resolve_theme preserves a factory's original error", {
   expect_error(.resolve_theme(function() stop("theme factory failed")),
                "theme factory failed")
 })
+
+test_that(".resolve_theme finds exported themes without attached packages", {
+  resolve <- function(name) UtilsR:::.resolve_theme(name)
+  environment(resolve) <- baseenv()
+  thm <- resolve("theme_bw")
+  expect_s3_class(thm, "theme")
+  expect_equal(thm$text$size, 11)
+  expect_identical(resolve("theme_km"), theme_km)
+  expect_equal(resolve("theme_my")$text$size, 14)
+})
+
+test_that(".resolve_theme keeps visible custom factories and validates them", {
+  custom_theme <- function() ggplot2::theme(text = ggplot2::element_text(size = 23))
+  expect_equal(.resolve_theme("custom_theme")$text$size, 23)
+  custom_bad_theme <- function() ggplot2::geom_point()
+  expect_error(.resolve_theme("custom_bad_theme"), "return.*theme")
+  expect_error(.resolve_theme("unknown_theme_for_test"), "not found")
+})

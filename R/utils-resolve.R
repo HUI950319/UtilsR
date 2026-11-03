@@ -25,6 +25,9 @@
 #' Accepts a theme object / theme function / function-name string and returns a
 #' concrete `ggplot2::theme`. `NULL` -> UtilsR's default [theme_km] (falls back
 #' to [ggplot2::theme_bw()]). Mirrors RegR's internal `.resolve_theme()`.
+#' Names are looked up as functions visible to the immediate caller, then as
+#' UtilsR exports, then as ggplot2 exports. Pass a function or theme object for
+#' a local custom theme used through a plotting wrapper.
 #'
 #' @param theme_use NULL / character / function / theme object.
 #' @return A `ggplot2::theme` object.
@@ -40,6 +43,9 @@
     fn <- tryCatch(match.fun(theme_use), error = function(e) NULL)
     if (is.null(fn))
       fn <- tryCatch(getExportedValue("UtilsR", theme_use),
+                     error = function(e) NULL)
+    if (is.null(fn))
+      fn <- tryCatch(getExportedValue("ggplot2", theme_use),
                      error = function(e) NULL)
     if (is.null(fn))
       stop(sprintf("Theme '%s' not found", theme_use), call. = FALSE)
