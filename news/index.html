@@ -50,7 +50,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.22" id="utilsr-0622">UtilsR 0.6.22<a class="anchor" aria-label="anchor" href="#utilsr-0622"></a></h2>
-<ul><li><p>.resolve_theme() reports the name and returned class of invalid theme factories, and documents calling factories without arguments with a configured-theme example.</p></li>
+<ul><li><p>plt_dist() completes missing base text settings from the current and default ggplot2 themes before sizing labels, including when the global theme is incomplete.</p></li>
+<li><p>.resolve_theme() reports the name and returned class of invalid theme factories, and documents calling factories without arguments with a configured-theme example.</p></li>
 <li><p>plt_dist() inherits bar and heatmap label sizes from the current ggplot2 theme when a partial theme leaves the base font size unspecified, preserving complete themes, explicit label sizes and alluvial defaults.</p></li>
 <li><p>UtilsR now declares R &gt;= 4.1.0, matching the native pipes and shorthand functions already used in its source.</p></li>
 <li><p>.resolve_theme() preserves errors while evaluating custom theme bindings instead of silently falling back to another theme or reporting a missing name.</p></li>

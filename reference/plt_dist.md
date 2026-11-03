@@ -252,8 +252,9 @@ plt_dist(
   Unless `label_args$size` is set, label sizes follow the theme's base
   font size, e.g. `theme_use = theme_my(base_size = 16)`. On bars and
   heatmaps, partial themes inherit an unspecified base font size from
-  the current ggplot2 theme. In alluvial mode only the base font size is
-  taken from `theme_use`;
+  the current ggplot2 theme. If both omit the base text element, the
+  ggplot2 default supplies it. In alluvial mode only the base font size
+  is taken from `theme_use`;
   [`theme_alluvia()`](https://hui950319.github.io/UtilsR/reference/theme_alluvia.md)
   supplies the remaining theme settings.
 
