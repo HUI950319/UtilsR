@@ -3,12 +3,11 @@
 # =============================================================================
 #
 # The `.resolve_*` helpers UtilsR's own plot functions need, kept here (the theme
-# / palette home) without a circular dependency on RegR. `.resolve_theme()`
-# mirrors RegR's copy, using UtilsR's own `theme_km` where RegR says
-# `UtilsR::theme_km`. `.resolve_color()` lives only here: it is exported, as the
-# `.cat_*` helpers are, and RegR imports it.
+# / palette home) without a circular dependency on RegR. `.resolve_theme()` and
+# `.resolve_color()` live only here: they are exported, as the `.cat_*` helpers
+# are, and RegR imports them.
 #
-# Architecture (1 layer; only .resolve_color is exported, for RegR):
+# Architecture (1 layer; the two resolvers are exported for RegR):
 #
 #   L2  .resolve_theme(theme_use)        NULL | name | function | theme
 #                                        -> ggplot2 theme
@@ -22,18 +21,26 @@
 
 #' Resolve `theme_use` input to a ggplot2 theme object
 #'
-#' Accepts a theme object / theme function / function-name string and returns a
-#' concrete `ggplot2::theme`. `NULL` -> UtilsR's default [theme_km] (falls back
-#' to [ggplot2::theme_bw()]). Mirrors RegR's internal `.resolve_theme()`.
+#' The theme resolver shared by plotting functions in UtilsR and RegR. Accepts
+#' a theme object, a function returning a theme, or a function-name string.
+#' \code{NULL} uses \code{\link{theme_km}}, with \code{ggplot2::theme_bw()}
+#' as the fallback.
 #' Names are looked up as functions visible to the immediate caller, then as
 #' UtilsR exports, then as ggplot2 exports. Pass a function or theme object for
 #' a local custom theme used through a plotting wrapper.
 #'
-#' @param theme_use NULL, a single non-missing, non-empty theme name, a function
+#' @param theme_use \code{NULL}, a single non-missing, non-empty theme name, a function
 #'   returning a theme, or a theme object.
-#' @return A `ggplot2::theme` object.
+#' @return A ggplot2 theme object.
+#'
+#' @examples
+#' .resolve_theme("theme_bw")
+#' .resolve_theme("theme_km")
+#' .resolve_theme(ggplot2::theme_bw(base_size = 12))
+#'
+#' @family ggplot2 themes
 #' @keywords internal
-#' @noRd
+#' @export
 .resolve_theme <- function(theme_use) {
   if (is.null(theme_use)) {
     thm <- tryCatch(theme_km, error = function(e) NULL)

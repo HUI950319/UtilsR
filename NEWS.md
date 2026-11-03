@@ -1,3 +1,13 @@
+# UtilsR 0.6.22
+
+* Export the shared theme resolver for importing plotting packages; RegR uses this implementation instead of maintaining a copy.
+
+* Theme resolution checks scalar names before lookup and clearly rejects empty, missing, multiple, dimensional or whitespace-only inputs, including Unicode whitespace.
+
+* Theme names fall back to ggplot2 exports without requiring library(ggplot2), while retaining visible custom factories and UtilsR theme names.
+
+* Theme resolution rejects factories returning plot layers, scales or other non-theme objects before they can alter a plot, and rejects names resolving to non-theme data.
+
 # UtilsR 0.6.21
 
 * .resolve_color() normalises factors before palette lookup and rejects dimensions and unsupported classes before coercion, making colour resolution independent of optional package loading.
@@ -7,12 +17,6 @@
 * .resolve_color() validates fallback colours before resizing, rejecting invalid or empty defaults instead of returning undrawable values or silently filling with NA.
 
 * .resolve_color() validates n consistently before palette dispatch, rejecting coercible, classed, dimensional and non-whole sizes with errors naming the caller.
-
-* Theme resolution checks scalar names before lookup and clearly rejects empty, missing, multiple, dimensional or whitespace-only inputs, including Unicode whitespace.
-
-* Theme names fall back to ggplot2 exports without requiring library(ggplot2), while retaining visible custom factories and UtilsR theme names.
-
-* Theme resolution rejects factories returning plot layers, scales or other non-theme objects before they can alter a plot, and rejects names resolving to non-theme data.
 
 * Palette catalogue previews outline each swatch in ggplot and HTML output, keeping pale and fully transparent colour positions visible without changing fill colours, opacity or swatch widths.
 

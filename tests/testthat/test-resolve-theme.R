@@ -37,7 +37,7 @@ test_that(".resolve_theme preserves a factory's original error", {
 })
 
 test_that(".resolve_theme finds exported themes without attached packages", {
-  resolve <- function(name) UtilsR:::.resolve_theme(name)
+  resolve <- function(name) UtilsR::.resolve_theme(name)
   environment(resolve) <- baseenv()
   thm <- resolve("theme_bw")
   expect_s3_class(thm, "theme")
@@ -74,4 +74,8 @@ test_that("fmt_plot_base reports malformed theme names clearly", {
 test_that(".resolve_theme accepts named scalar theme names", {
   expect_equal(.resolve_theme(c(chosen = "theme_bw"))$text$size, 11)
   expect_identical(.resolve_theme(c(chosen = "theme_km")), theme_km)
+})
+
+test_that(".resolve_theme is available to importing packages", {
+  expect_identical(getExportedValue("UtilsR", ".resolve_theme"), .resolve_theme)
 })

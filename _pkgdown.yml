@@ -119,6 +119,7 @@ reference:
   - title: Themes
     desc: ggplot2 themes.
     contents:
+      - .resolve_theme
       - theme_my
       - theme_heat
       - theme_km
