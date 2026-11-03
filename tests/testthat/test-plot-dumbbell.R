@@ -5,6 +5,68 @@ dumbbell_plot <- function(data, ...) {
   result
 }
 
+test_that("PlotDumbbell keeps endpoints distinct when their display labels match", {
+  data <- data.frame(start = 1:4, end = c(4, 6, 8, 9), category = letters[1:4])
+  plot <- dumbbell_plot(data, label_x = "Value", label_xend = "Value")
+  built <- ggplot2::ggplot_build(plot)
+  expect_identical(built$data[[2]]$colour, rep("#00468BFF", 4))
+  expect_identical(built$data[[3]]$colour, rep("#ED0000FF", 4))
+  expect_identical(as.character(built$plot$scales$get_scales("colour")$get_labels()),
+                   c("Value", "Value"))
+  inset <- NULL
+  original <- get(".build_dumbbell_inset", asNamespace("UtilsR"))
+  testthat::local_mocked_bindings(.build_dumbbell_inset = function(...) {
+    inset <<- original(...)
+    inset
+  }, .package = "UtilsR")
+  dumbbell_plot(data, label_x = "Value", label_xend = "Value",
+                 inset_plot = "auto", inset_test = "t.test")
+  expect_equal(length(unique(inset$data$.group)), 2L)
+  inset_built <- ggplot2::ggplot_build(inset)
+  expect_identical(as.character(inset_built$layout$panel_params[[1]]$x$get_labels()),
+                   c("Value", "Value"))
+  expect_equal(unname(split(inset_built$data[[2]]$y, inset_built$data[[2]]$group)),
+               lapply(1:4, function(i) c(data$start[i], data$end[i])))
+  expect_identical(inset_built$data[[5]]$label,
+                   sprintf("p = %.3f", stats::t.test(data$start, data$end, paired = TRUE)$p.value))
+})
+
+test_that("PlotDumbbell labels and guide origins ignore unrelated input columns", {
+  data <- data.frame(
+    start = 1:4, end = c(4, 6, 8, 9), category = letters[1:4],
+    label_x = "metadata", label_xend = "other_metadata", x_min = 91:94
+  )
+  original <- data
+  expect_no_warning(plot <- dumbbell_plot(data, dot_guide = TRUE,
+                                          label_x = "Before", label_xend = "After"))
+  expect_no_warning(built <- ggplot2::ggplot_build(plot))
+  expect_equal(built$data[[1]]$x, rep(1, 4))
+  expect_identical(built$data[[3]]$colour, rep("#00468BFF", 4))
+  expect_identical(built$data[[4]]$colour, rep("#ED0000FF", 4))
+  expect_identical(data, original)
+})
+
+test_that("PlotDumbbell accepts selected columns named after aesthetic constants", {
+  data <- data.frame(start = 1:4, end = c(4, 6, 8, 9), category = letters[1:4])
+  reference <- ggplot2::ggplot_build(dumbbell_plot(
+    data, dot_guide = TRUE, label_x = "Before", label_xend = "After"
+  ))$data
+  for (role in names(data)) {
+    for (field in c("label_x", "label_xend", "x_min")) {
+      renamed <- data
+      columns <- stats::setNames(names(data), names(data))
+      columns[[role]] <- field
+      names(renamed) <- unname(columns)
+      original <- renamed
+      plot <- dumbbell_plot(renamed, x_col = columns[["start"]],
+                             xend_col = columns[["end"]], y_col = columns[["category"]],
+                             dot_guide = TRUE, label_x = "Before", label_xend = "After")
+      expect_equal(ggplot2::ggplot_build(plot)$data, reference)
+      expect_identical(renamed, original)
+    }
+  }
+})
+
 test_that("PlotDumbbell rejects invalid top_n values", {
   data <- data.frame(start = 1:4, end = 2:5, category = letters[1:4])
   invalid <- list(

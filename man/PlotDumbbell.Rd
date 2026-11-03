@@ -57,7 +57,8 @@ PlotDumbbell(
 }
 \arguments{
 \item{data}{A data.frame containing category, start, and end columns.
-Generated delta fields are kept separate from existing column names.}
+Generated delta fields are kept separate from existing column names.
+Input columns do not override legend labels or dot-guide origins.}
 
 \item{x_col}{Column name for the start (left) values. Default
 \code{"start"}.}
@@ -84,7 +85,8 @@ values and values at least as large as the row count also show all.}
 \item{color_xend}{Colour for end (xend) points. Default \code{"#ED0000FF"}.}
 
 \item{label_x}{Label for start points (used in legend and auto inset).
-Default \code{NULL} (column name).}
+Default \code{NULL} (column name). Endpoints remain distinct even when
+both display labels are identical.}
 
 \item{label_xend}{Label for end points (used in legend and auto inset).
 Default \code{NULL} (column name).}

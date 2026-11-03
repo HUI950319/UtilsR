@@ -17,6 +17,7 @@
 #'
 #' @param data A data.frame containing category, start, and end columns.
 #'   Generated delta fields are kept separate from existing column names.
+#'   Input columns do not override legend labels or dot-guide origins.
 #' @param x_col Column name for the start (left) values. Default
 #'   \code{"start"}.
 #' @param xend_col Column name for the end (right) values. Default
@@ -34,7 +35,8 @@
 #' @param color_x Colour for start (x) points. Default \code{"#00468BFF"}.
 #' @param color_xend Colour for end (xend) points. Default \code{"#ED0000FF"}.
 #' @param label_x Label for start points (used in legend and auto inset).
-#'   Default \code{NULL} (column name).
+#'   Default \code{NULL} (column name). Endpoints remain distinct even when
+#'   both display labels are identical.
 #' @param label_xend Label for end points (used in legend and auto inset).
 #'   Default \code{NULL} (column name).
 #' @param seg_color Segment line colour. Default \code{"grey60"}.
@@ -198,6 +200,8 @@ PlotDumbbell <- function(
   # ---- Labels ----
   if (is.null(label_x))    label_x    <- x_col
   if (is.null(label_xend)) label_xend <- xend_col
+  display_labels <- as.character(c(label_x, label_xend))
+  label_keys <- make.unique(display_labels)
 
   # ---- Compute delta ----
   delta_fields <- utils::tail(make.unique(c(names(data), ".delta", ".delta_label", ".delta_x")), 3L)
@@ -235,7 +239,7 @@ PlotDumbbell <- function(
     p <- p +
       ggplot2::geom_segment(
         ggplot2::aes(
-          x = x_min, xend = pmax(.data[[x_col]], .data[[xend_col]]),
+          x = !!x_min, xend = pmax(.data[[x_col]], .data[[xend_col]]),
           y = .data[[y_col]], yend = .data[[y_col]]
         ),
         color = dot_guide_color, linewidth = dot_guide_size,
@@ -257,7 +261,7 @@ PlotDumbbell <- function(
   p <- p +
     ggplot2::geom_point(
       ggplot2::aes(x = .data[[x_col]], y = .data[[y_col]],
-                   color = label_x),
+                   color = !!label_keys[1L]),
       size = point_size, shape = point_shape
     )
 
@@ -265,15 +269,18 @@ PlotDumbbell <- function(
   p <- p +
     ggplot2::geom_point(
       ggplot2::aes(x = .data[[xend_col]], y = .data[[y_col]],
-                   color = label_xend),
+                   color = !!label_keys[2L]),
       size = point_size, shape = point_shape
     )
 
   # Colour scale for legend
-  color_vals <- stats::setNames(c(color_x, color_xend), c(label_x, label_xend))
+  color_vals <- stats::setNames(c(color_x, color_xend), label_keys)
   p <- p +
     ggplot2::scale_color_manual(
+      # Preserve the title inferred from the original colour mapping.
+      name = "label_x",
       values = color_vals,
+      labels = stats::setNames(display_labels, label_keys),
       guide  = ggplot2::guide_legend(
         override.aes = list(size = point_size * 0.8)
       )
@@ -439,25 +446,29 @@ PlotDumbbell <- function(
     paired_line, jitter,
     theme_fn
 ) {
+  group_labels <- as.character(c(label_x, label_xend))
+  group_keys <- make.unique(group_labels)
+  group_labels <- stats::setNames(group_labels, group_keys)
+
   # Reshape to long format
   df_long <- rbind(
     data.frame(
       .id    = seq_len(nrow(data)),
-      .group = label_x,
+      .group = group_keys[1L],
       .value = data[[x_col]],
       stringsAsFactors = FALSE
     ),
     data.frame(
       .id    = seq_len(nrow(data)),
-      .group = label_xend,
+      .group = group_keys[2L],
       .value = data[[xend_col]],
       stringsAsFactors = FALSE
     )
   )
-  df_long$.group <- factor(df_long$.group, levels = c(label_x, label_xend))
+  df_long$.group <- factor(df_long$.group, levels = group_keys)
 
   # Colour mapping
-  fill_vals  <- stats::setNames(c(color_x, color_xend), c(label_x, label_xend))
+  fill_vals  <- stats::setNames(c(color_x, color_xend), group_keys)
   color_vals <- fill_vals
 
   # Build inset
@@ -493,8 +504,9 @@ PlotDumbbell <- function(
   }
 
   pi <- pi +
-    ggplot2::scale_fill_manual(values = fill_vals) +
-    ggplot2::scale_color_manual(values = color_vals)
+    ggplot2::scale_x_discrete(labels = group_labels) +
+    ggplot2::scale_fill_manual(values = fill_vals, labels = group_labels) +
+    ggplot2::scale_color_manual(values = color_vals, labels = group_labels)
 
   # Significance bracket
   if (inset_test != "none") {
