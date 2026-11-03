@@ -22,6 +22,8 @@
 #' and must supply at least one value per observed level. Extra entries are
 #' accepted.
 #'
+#' The bottom-right panel contains a fill legend for each grouping variable.
+#'
 #' For single-group scatter with marginal boxplots, see
 #' \code{\link{PlotScatter1}()}.
 #' For paired scatter with rotated histogram inset, see
@@ -559,7 +561,10 @@ PlotScatter2 <- function(
       grobs = legend_grobs, ncol = length(legend_grobs)
     )
   } else {
-    combined_legend <- legend_grobs[[1]]
+    combined_legend <- gtable::gtable_row(
+      "scatter2-legends", legend_grobs, height = grid::unit(1, "null"),
+      clip = "off"
+    )
   }
 
   p_leg <- ggplot2::ggplot() +

@@ -156,7 +156,6 @@ test_that("PlotScatter2 matches unnamed mappings in order of first appearance", 
 })
 
 test_that("PlotScatter2 labels shape fills from unnamed mappings", {
-  skip_if_not_installed("gridExtra")
   data <- data.frame(x = 1:9, y = 9:1,
                      g = rep(c("b", "a", "c"), each = 3),
                      h = rep(c("Y", "X", "Z"), each = 3))
@@ -197,4 +196,23 @@ test_that("PlotScatter2 honors colour legend positions with and without shapes",
       expect_equal(sum(scatter_grob_labels(grob) == "h"), 0L)
     }
   }
+})
+
+test_that("PlotScatter2 retains both fill legends without gridExtra", {
+  no_grid_env <- new.env(parent = environment(PlotScatter2))
+  no_grid_env$requireNamespace <- function(package, ...) {
+    if (identical(package, "gridExtra")) FALSE else base::requireNamespace(package, ...)
+  }
+  draw <- PlotScatter2
+  environment(draw) <- no_grid_env
+  legend <- .make_scatter2_legend
+  environment(legend) <- no_grid_env
+  no_grid_env$.make_scatter2_legend <- legend
+  data <- data.frame(x = 1:12, y = 12:1, g = rep(c("a", "b"), 6),
+                     h = rep(c("X", "Y"), each = 6))
+  p <- draw(data, "x", "y", "g", group2 = "h")
+  legend_grob <- ggplot2::ggplotGrob(p[[6]])
+  expected <- c("g", "h", "a", "b", "X", "Y")
+  expect_setequal(intersect(scatter_grob_labels(legend_grob), expected), expected)
+  grid::grid.draw(legend_grob)
 })

@@ -128,6 +128,8 @@ Unnamed vectors are matched in order of first appearance in \code{data}
 and must supply at least one value per observed level. Extra entries are
 accepted.
 
+The bottom-right panel contains a fill legend for each grouping variable.
+
 For single-group scatter with marginal boxplots, see
 \code{\link{PlotScatter1}()}.
 For paired scatter with rotated histogram inset, see
