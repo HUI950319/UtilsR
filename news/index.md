@@ -2,6 +2,13 @@
 
 ## UtilsR 0.6.22
 
+- UtilsR now declares R \>= 4.1.0, matching the native pipes and
+  shorthand functions already used in its source.
+
+- .resolve_theme() preserves errors while evaluating custom theme
+  bindings instead of silently falling back to another theme or
+  reporting a missing name.
+
 - .resolve_color() recognises already-validated numeric colour tokens
   without coercing ordinary colour names or constructing suppressed
   conversion warnings.
