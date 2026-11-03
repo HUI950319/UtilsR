@@ -20,7 +20,8 @@ warning when several colours have to repeat. \code{NULL} (default) returns
 the palette at its natural length.}
 
 \item{default}{Fallback colour vector when \code{palette = NULL}. Default
-\code{\link{pal_lancet}}.}
+\code{\link{pal_lancet}}. Must be non-empty and contain valid literal
+colours; registered palette names are not expanded here.}
 }
 \value{
 An unnamed character vector: hex colours from a registered palette,

@@ -96,7 +96,8 @@
 #'   warning when several colours have to repeat. \code{NULL} (default) returns
 #'   the palette at its natural length.
 #' @param default Fallback colour vector when \code{palette = NULL}. Default
-#'   \code{\link{pal_lancet}}.
+#'   \code{\link{pal_lancet}}. Must be non-empty and contain valid literal
+#'   colours; registered palette names are not expanded here.
 #' @return An unnamed character vector: hex colours from a registered palette,
 #'   literal colours as given.
 #'
@@ -128,12 +129,14 @@
     rep_len(x, n)
   }
 
-  # NULL -> default (optionally sized to n)
-  if (is.null(palette)) return(sized(as.character(default)))
+  # Defaults follow the literal-colour checks, without palette-name dispatch.
+  using_default <- is.null(palette)
+  if (using_default) palette <- default
+  color_arg <- if (using_default) "default" else "palette"
 
   if (!is.atomic(palette) || length(palette) == 0L) {
     cli::cli_abort(
-      "Colours must be a palette name or a non-empty colour vector, not {.cls {class(palette)}}.",
+      "Colours in {.arg {color_arg}} must be a palette name or a non-empty colour vector, not {.cls {class(palette)}}.",
       call = rlang::caller_env()
     )
   }
@@ -141,7 +144,7 @@
   # Single string: a registered palette name wins, anything else is a literal
   # colour, repeated as given.
   pl_names <- names(getExportedValue("UtilsR", "palette_list"))
-  if (length(palette) == 1L && is.character(palette) && palette %in% pl_names) {
+  if (!using_default && length(palette) == 1L && is.character(palette) && palette %in% pl_names) {
     return(as.character(pal_get(palette, n = n)))
   }
 
@@ -157,8 +160,8 @@
   if (!all(drawable)) {
     bad <- unique(out[!drawable])
     browse <- "Browse with {.code UtilsR::pal_list()} or visualise with {.code UtilsR::pal_show()}."
-    if (length(out) > 1L) {
-      cli::cli_abort(c("Not a valid colour: {.val {bad}}.", "*" = browse),
+    if (using_default || length(out) > 1L) {
+      cli::cli_abort(c("Not a valid colour in {.arg {color_arg}}: {.val {bad}}.", "*" = browse),
                      call = rlang::caller_env())
     }
     distance <- utils::adist(out, pl_names, ignore.case = TRUE)[1L, ]

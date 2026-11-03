@@ -127,3 +127,16 @@ test_that(".resolve_color validates n before choosing a colour branch", {
   err <- tryCatch(outer_plot("2"), error = identity)
   expect_identical(conditionCall(err), quote(outer_plot("2")))
 })
+
+test_that(".resolve_color validates defaults as literal colour vectors", {
+  for (bad in list("bad_colour_xyz", c("red", "bad_colour_xyz"),
+                   character(), NULL, list("red"), "lancet")) {
+    expect_error(.resolve_color(NULL, n = 2L, default = bad), "default")
+  }
+  expect_identical(.resolve_color(NULL, default = c(A = "red", B = "blue")),
+                   c("red", "blue"))
+  expect_identical(.resolve_color(NULL, n = 2L, default = NA),
+                   c(NA_character_, NA_character_))
+  expect_identical(.resolve_color("red", default = stop("unused")), "red")
+  expect_error(.resolve_color(NULL, n = 0L, default = "bad_colour_xyz"), "default")
+})

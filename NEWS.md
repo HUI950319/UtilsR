@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* .resolve_color() validates fallback colours before resizing, rejecting invalid or empty defaults instead of returning undrawable values or silently filling with NA.
+
 * .resolve_color() validates n consistently before palette dispatch, rejecting coercible, classed, dimensional and non-whole sizes with errors naming the caller.
 
 * Theme resolution checks scalar names before lookup and clearly rejects empty, missing, multiple, dimensional or whitespace-only inputs, including Unicode whitespace.
