@@ -151,12 +151,20 @@
   # Literal colour(s): checked here, as a bad one otherwise only surfaces when
   # the plot is drawn, as "Problem while converting geom to grob".
   out <- as.character(palette)
-  drawable <- vapply(out, function(v) {
-    tryCatch({
-      grDevices::col2rgb(v)
-      TRUE
-    }, error = function(e) FALSE)
-  }, logical(1L), USE.NAMES = FALSE)
+  drawable <- tryCatch({
+    grDevices::col2rgb(out)
+    rep(TRUE, length(out))
+  }, error = function(e) {
+    # Find every bad value only when parsing the whole vector fails.
+    candidates <- unique(out)
+    valid <- vapply(candidates, function(v) {
+      tryCatch({
+        grDevices::col2rgb(v)
+        TRUE
+      }, error = function(e) FALSE)
+    }, logical(1L), USE.NAMES = FALSE)
+    valid[match(out, candidates)]
+  })
   if (!all(drawable)) {
     bad <- unique(out[!drawable])
     browse <- "Browse with {.code UtilsR::pal_list()} or visualise with {.code UtilsR::pal_show()}."

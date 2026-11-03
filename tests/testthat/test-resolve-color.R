@@ -140,3 +140,13 @@ test_that(".resolve_color validates defaults as literal colour vectors", {
   expect_identical(.resolve_color("red", default = stop("unused")), "red")
   expect_error(.resolve_color(NULL, n = 0L, default = "bad_colour_xyz"), "default")
 })
+
+test_that(".resolve_color handles long colour vectors and identifies all bad values", {
+  colours <- rep(c("#F00", "RED", "light blue", "transparent", NA_character_), 300L)
+  expect_identical(.resolve_color(colours, n = length(colours)), colours)
+  bad <- rep(c("red", "bad_colour_one", "bad_colour_two", NA_character_), 300L)
+  err <- tryCatch(.resolve_color(bad), error = identity)
+  expect_match(conditionMessage(err), "bad_colour_one")
+  expect_match(conditionMessage(err), "bad_colour_two")
+  expect_length(gregexpr("bad_colour_one", conditionMessage(err), fixed = TRUE)[[1L]], 1L)
+})

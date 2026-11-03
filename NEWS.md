@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* .resolve_color() parses literal colours in one vectorised pass and checks distinct entries individually only on failure, preserving all invalid-colour diagnostics.
+
 * .resolve_color() validates fallback colours before resizing, rejecting invalid or empty defaults instead of returning undrawable values or silently filling with NA.
 
 * .resolve_color() validates n consistently before palette dispatch, rejecting coercible, classed, dimensional and non-whole sizes with errors naming the caller.
