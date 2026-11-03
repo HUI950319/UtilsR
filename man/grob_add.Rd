@@ -39,6 +39,9 @@ Top and bottom additions span the full width of the panel area; left and
 right additions span its full height, including all facets. The main gtable
 must contain a panel area unless \code{position = "none"} or \code{grob}
 is \code{NULL}.
+
+Fixed aspect ratio constraints in the main gtable are retained when margin
+rows or columns are added.
 }
 \examples{
 library(ggplot2)

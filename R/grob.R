@@ -121,6 +121,9 @@ grob_as <- function(plot, ...) {
 #' must contain a panel area unless \code{position = "none"} or \code{grob}
 #' is \code{NULL}.
 #'
+#' Fixed aspect ratio constraints in the main gtable are retained when margin
+#' rows or columns are added.
+#'
 #' @examples
 #' library(ggplot2)
 #' data <- data.frame(x = 1:12, y = rep(c(2, 4, 1, 6, 3, 5), 2),
@@ -222,6 +225,14 @@ grob_add <- function(
       l = dim(gt)[2],
       clip = clip
     )
+  }
+  if (is.matrix(gt$respect)) {
+    respect <- gt$respect
+    row_offset <- if (position == "top") nrow(gt) - nrow(respect) else 0L
+    col_offset <- if (position == "left") ncol(gt) - ncol(respect) else 0L
+    gt$respect <- matrix(0, nrow = nrow(gt), ncol = ncol(gt))
+    gt$respect[seq_len(nrow(respect)) + row_offset,
+               seq_len(ncol(respect)) + col_offset] <- respect
   }
   return(gt)
 }

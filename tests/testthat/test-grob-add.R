@@ -88,3 +88,23 @@ test_that("grob_add() reports missing panels only when adding a grob", {
   expect_identical(grob_add(table, grid::rectGrob(), position = "none"), table)
   expect_error(grob_add(table, grid::rectGrob()), "panel area")
 })
+
+test_that("grob_add() preserves fixed-aspect patchwork constraints", {
+  withr::local_pdf(NULL, width = 7, height = 7)
+  data <- data.frame(x = 1:3, y = c(2, 1, 3))
+  plot <- ggplot2::ggplot(data, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  table <- grob_as(patchwork::wrap_plots(plot + ggplot2::coord_fixed(), plot))
+  expect_true(is.matrix(table$respect))
+
+  for (position in c("top", "bottom", "left", "right")) {
+    result <- grob_add(table, grid::rectGrob(), position = position,
+                        space = grid::unit(3, "mm"))
+    expected <- switch(position, top = rbind(0, table$respect),
+      bottom = rbind(table$respect, 0), left = cbind(0, table$respect),
+      right = cbind(table$respect, 0))
+
+    expect_equal(dim(result$respect), dim(result))
+    expect_equal(result$respect, expected)
+    expect_no_error(grid::grid.draw(result))
+  }
+})
