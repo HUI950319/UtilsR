@@ -193,7 +193,7 @@ plt_alluvial(
 - theme_use:
 
   A ggplot2 theme specification resolved internally by
-  `.resolve_theme()`.
+  [`.resolve_theme()`](https://hui950319.github.io/UtilsR/reference/dot-resolve_theme.md).
 
 - save:
 

@@ -9,7 +9,7 @@ for those packages. For colours in your own code use pal_get()."><meta property=
 
     <a class="navbar-brand me-2" href="../index.html">UtilsR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.21</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.22</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,11 +68,20 @@ for those packages. For colours in your own code use <code><a href="pal_get.html
 <dl><dt id="arg-palette">palette<a class="anchor" aria-label="anchor" href="#arg-palette"></a></dt>
 <dd><p><code>NULL</code>, a registered palette name (resolved via
 <code><a href="pal_get.html">pal_get()</a></code>), a single literal colour, or a colour vector.
+Vectors must have no dimensions and contain plain character or numeric
+values, logical missing values, or factors (converted to character).
+Other classes, including labelled, integer64 and date-time vectors, are
+not supported; convert these explicitly before choosing colours.
+Numeric colour indices, including numeric strings, are resolved against
+the current <code><a href="https://rdrr.io/r/grDevices/palette.html" class="external-link">grDevices::palette()</a></code> and returned as fixed RGBA hex
+colours. Other literal strings and missing colours are kept as given.
 Anything R cannot draw is an error naming the calling function.</p></dd>
 
 
 <dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
-<dd><p>Optional integer size. Registered palettes use
+<dd><p>Optional plain integer or double scalar with a whole-number value
+from zero to <code>.Machine$integer.max</code>, without a class or dimensions.
+Registered palettes use
 <code>pal_get(palette, n = n)</code> (interpolating when <code>n</code> is longer);
 literal vectors and <code>default</code> use <code><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep_len()</a></code>, with a
 warning when several colours have to repeat. <code>NULL</code> (default) returns
@@ -81,13 +90,15 @@ the palette at its natural length.</p></dd>
 
 <dt id="arg-default">default<a class="anchor" aria-label="anchor" href="#arg-default"></a></dt>
 <dd><p>Fallback colour vector when <code>palette = NULL</code>. Default
-<code><a href="pal_lancet.html">pal_lancet</a></code>.</p></dd>
+<code><a href="pal_lancet.html">pal_lancet</a></code>. Must be non-empty and contain valid literal
+colours; registered palette names are not expanded here.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An unnamed character vector: hex colours from a registered palette,
-  literal colours as given.</p>
+  fixed RGBA hex colours for numeric indices, and other literal colours as
+  given.</p>
     </div>
 
     <div class="section level2">

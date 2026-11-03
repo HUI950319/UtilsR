@@ -1,6 +1,51 @@
 # Changelog
 
+## UtilsR 0.6.22
+
+- .resolve_color() recognises already-validated numeric colour tokens
+  without coercing ordinary colour names or constructing suppressed
+  conversion warnings.
+
+- Named colours in plt_cat(), plt_con() and plt_dist() share
+  literal-colour validation and numeric-index normalisation, so invalid
+  values fail before grob conversion and cannot expand as palette names.
+
+- .resolve_color() resolves numeric colour indices and numeric strings
+  against the current base palette into fixed RGBA hex colours,
+  preserving their appearance across plotting backends.
+
+- Export the shared theme resolver for importing plotting packages; RegR
+  uses this implementation instead of maintaining a copy.
+
+- Theme resolution checks scalar names before lookup and clearly rejects
+  empty, missing, multiple, dimensional or whitespace-only inputs,
+  including Unicode whitespace.
+
+- Theme names fall back to ggplot2 exports without requiring
+  library(ggplot2), while retaining visible custom factories and UtilsR
+  theme names.
+
+- Theme resolution rejects factories returning plot layers, scales or
+  other non-theme objects before they can alter a plot, and rejects
+  names resolving to non-theme data.
+
 ## UtilsR 0.6.21
+
+- .resolve_color() normalises factors before palette lookup and rejects
+  dimensions and unsupported classes before coercion, making colour
+  resolution independent of optional package loading.
+
+- .resolve_color() parses literal colours in one vectorised pass and
+  checks distinct entries individually only on failure, preserving all
+  invalid-colour diagnostics.
+
+- .resolve_color() validates fallback colours before resizing, rejecting
+  invalid or empty defaults instead of returning undrawable values or
+  silently filling with NA.
+
+- .resolve_color() validates n consistently before palette dispatch,
+  rejecting coercible, classed, dimensional and non-whole sizes with
+  errors naming the caller.
 
 - Palette catalogue previews outline each swatch in ggplot and HTML
   output, keeping pale and fully transparent colour positions visible

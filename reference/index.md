@@ -182,6 +182,8 @@ Chain-able ggplot2 formatting helpers.
 
 ggplot2 themes.
 
+- [`.resolve_theme()`](https://hui950319.github.io/UtilsR/reference/dot-resolve_theme.md)
+  : Resolve \`theme_use\` input to a ggplot2 theme object
 - [`theme_my()`](https://hui950319.github.io/UtilsR/reference/theme_my.md)
   : Custom ggplot2 Theme Based on ggprism
 - [`theme_heat()`](https://hui950319.github.io/UtilsR/reference/theme_heat.md)

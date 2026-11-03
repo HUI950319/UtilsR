@@ -176,8 +176,9 @@ plt_sankey(
 - theme_use:
 
   `NULL` for `ggsankey::theme_sankey(base_size)`, or a theme
-  specification accepted by the internal `.resolve_theme()` resolver
-  (theme object, function, or function name). Default `NULL`.
+  specification accepted by the internal
+  [`.resolve_theme()`](https://hui950319.github.io/UtilsR/reference/dot-resolve_theme.md)
+  resolver (theme object, function, or function name). Default `NULL`.
 
 - save:
 
