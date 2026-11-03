@@ -29,7 +29,8 @@
 #' UtilsR exports, then as ggplot2 exports. Pass a function or theme object for
 #' a local custom theme used through a plotting wrapper.
 #'
-#' @param theme_use NULL / character / function / theme object.
+#' @param theme_use NULL, a single non-missing, non-empty theme name, a function
+#'   returning a theme, or a theme object.
 #' @return A `ggplot2::theme` object.
 #' @keywords internal
 #' @noRd
@@ -40,6 +41,10 @@
                  else ggplot2::theme_bw()
   }
   if (is.character(theme_use)) {
+    if (length(theme_use) != 1L || !is.null(dim(theme_use)) ||
+        anyNA(theme_use) || !nzchar(trimws(theme_use, whitespace = "[\\h\\v]")))
+      stop("'theme_use' must be a single non-missing, non-empty theme name",
+           call. = FALSE)
     fn <- tryCatch(match.fun(theme_use), error = function(e) NULL)
     if (is.null(fn))
       fn <- tryCatch(getExportedValue("UtilsR", theme_use),

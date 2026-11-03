@@ -53,3 +53,25 @@ test_that(".resolve_theme keeps visible custom factories and validates them", {
   expect_error(.resolve_theme("custom_bad_theme"), "return.*theme")
   expect_error(.resolve_theme("unknown_theme_for_test"), "not found")
 })
+
+test_that(".resolve_theme rejects malformed theme names before lookup", {
+  invalid <- list(character(), c("theme_bw", "theme_minimal"), NA_character_,
+                  "", " \t\n", "\u00a0", "\u2003", matrix("theme_bw", 1L))
+  for (value in invalid) {
+    expect_error(.resolve_theme(value), "single.*non-missing.*non-empty")
+  }
+})
+
+test_that("fmt_plot_base reports malformed theme names clearly", {
+  d <- data.frame(x = 1:3, y = 1:3)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  expect_error(fmt_plot_base(p, ggtheme = character()),
+               "single.*non-missing.*non-empty")
+  expect_error(fmt_plot_base(p, ggtheme = NA_character_),
+               "single.*non-missing.*non-empty")
+})
+
+test_that(".resolve_theme accepts named scalar theme names", {
+  expect_equal(.resolve_theme(c(chosen = "theme_bw"))$text$size, 11)
+  expect_identical(.resolve_theme(c(chosen = "theme_km")), theme_km)
+})
