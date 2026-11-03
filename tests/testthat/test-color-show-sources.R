@@ -1843,6 +1843,78 @@ test_that("source palette generation is bounded by the preview cap", {
   }
 })
 
+expect_source_single_preview <- function(viewer, palette, args, expected, count) {
+  for (output in c("gg", "gt", "console")) {
+    invisible(capture.output(result <- suppressMessages(do.call(
+      viewer, c(list(palette = palette, output = output), args)
+    ))))
+    colours <- switch(output,
+      gg = result$data$color,
+      gt = sub("background:", "", regmatches(result[["_data"]]$preview,
+        gregexpr("background:#[A-Fa-f0-9]+", result[["_data"]]$preview))[[1L]]),
+      console = as.character(result[[1L]])
+    )
+    expect_identical(unname(grDevices::col2rgb(colours, alpha = TRUE)),
+                     unname(grDevices::col2rgb(expected, alpha = TRUE)),
+                     info = paste(palette, output))
+    if (output == "gt") expect_identical(result[["_data"]]$n_colors, count)
+  }
+}
+
+test_that("Brewer single-colour previews retain native size adjustment", {
+  skip_if_not_installed("RColorBrewer")
+  for (name in c("Set1", "Blues", "RdBu")) {
+    expect_source_single_preview(pal_show_brewer, name, list(n = 1),
+      RColorBrewer::brewer.pal(3, name), "3")
+    at <- if (RColorBrewer::brewer.pal.info[name, "category"] == "qual") 1L else 4L
+    expect_source_single_preview(pal_show_brewer, name,
+      list(n = 8, max_colors = 1), RColorBrewer::brewer.pal(8, name)[at], "1 / 8")
+  }
+})
+
+test_that("HCL single-colour previews follow every native category", {
+  for (type in c("qualitative", "sequential", "diverging", "divergingx")) {
+    name <- grDevices::hcl.pals(type)[[1L]]
+    expect_source_single_preview(pal_show_hcl, name, list(n = 1),
+      grDevices::hcl.colors(1, name), "1")
+    at <- if (type == "qualitative") 1L else 4L
+    expect_source_single_preview(pal_show_hcl, name,
+      list(n = 8, max_colors = 1), grDevices::hcl.colors(8, name)[at], "1 / 8")
+  }
+})
+
+test_that("viridis single-colour previews distinguish generation and display capping", {
+  for (range in list(c(0, 1), c(0.2, 0.8), c(0.8, 0.2))) {
+    for (direction in c(1, -1)) {
+      args <- list(begin = range[[1L]], end = range[[2L]], direction = direction)
+      expected <- do.call(viridisLite::viridis, c(list(n = 1), args))
+      expect_source_single_preview(pal_show_viridis, "viridis",
+        c(list(n = 1), args), expected, "1")
+      expected <- do.call(viridisLite::viridis, c(list(n = 8), args))[4L]
+      expect_source_single_preview(pal_show_viridis, "viridis",
+        c(list(n = 8, max_colors = 1), args), expected, "1 / 8")
+    }
+  }
+})
+
+test_that("ggsci single-colour previews select native colours before display capping", {
+  skip_if_not_installed("ggsci")
+  db <- utils::getFromNamespace("ggsci_db", "ggsci")
+  for (family in c("npg", "gsea", "bs5", "material", "tw3")) {
+    sub <- names(db[[family]])[[1L]]
+    name <- paste0(family, "_", sub)
+    native <- unname(db[[family]][[sub]])
+    at <- if (family == "npg") 1L else ceiling(length(native) / 2)
+    expect_source_single_preview(pal_show_ggsci, name, list(n = 1), native[at], "1")
+    retained <- native[if (family == "npg") 1:4 else {
+      round(seq.int(1, length(native), length.out = 4))
+    }]
+    at <- if (family == "npg") 1L else 2L
+    expect_source_single_preview(pal_show_ggsci, name,
+      list(n = 4, max_colors = 1), retained[at], "1 / 4")
+  }
+})
+
 test_that("ggsci reverses the final preview without changing selected colours", {
   skip_if_not_installed("ggsci")
   settings <- list(list(n = 3, max_colors = 20), list(max_colors = 3),
