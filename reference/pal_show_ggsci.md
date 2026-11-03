@@ -31,9 +31,10 @@ pal_show_ggsci(
 
   Number of colours to retain, capped at each palette's native size.
   Continuous GSEA, Bootstrap 5, Material and Tailwind 3 palettes are
-  sampled evenly across their full range; a single colour uses the
-  middle. Discrete palettes retain their first colours. `NULL` uses each
-  palette's native number of colours.
+  sampled evenly across their full range; `n = 1` uses the native middle
+  colour (the lower middle for an even native size). Discrete palettes
+  retain their first colours. `NULL` uses each palette's native number
+  of colours.
 
 - alpha:
 
@@ -59,12 +60,17 @@ pal_show_ggsci(
 - max_colors:
 
   Positive whole number limiting displayed colours per palette, or `Inf`
-  for no display cap. Default 20.
+  for no display cap. Default 20. Applied after `n` selection. With
+  `max_colors = 1`, continuous palettes show the middle of the retained
+  colours (the lower middle for an even retained size), and discrete
+  palettes show the first retained colour.
 
 - output:
 
   Output format: `"gt"` (default) for a gt table, `"gg"` for a ggplot,
-  or `"console"` for terminal output.
+  or `"console"` for terminal output. gt colour swatches use HTML.
+  LaTeX, Word, RTF and other non-HTML tables show HEX text instead. Use
+  `output = "gg"` for coloured figures in PDF or Word documents.
 
 ## Value
 
@@ -114,6 +120,10 @@ Other colour palettes:
 if (requireNamespace("ggsci", quietly = TRUE)) {
   pal_show_ggsci(c("ggsci_npg_nrc", "ggsci_aaas_default"),
                  n = 5, output = "gg")
+
+  # The display cap follows native colour selection
+  pal_show_ggsci("gsea_default", n = 1, output = "gg")
+  pal_show_ggsci("gsea_default", n = 4, max_colors = 1, output = "gg")
 }
 
 ```

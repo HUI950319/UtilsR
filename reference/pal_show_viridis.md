@@ -31,9 +31,10 @@ pal_show_viridis(
 
 - n:
 
-  Number of colours in each requested palette. Default 8. Capped
-  previews evaluate only the displayed positions and retain the
-  requested total in the colour-count label.
+  Number of colours in each requested palette. Default 8. With `n = 1`,
+  the native generator uses `begin` when `direction = 1`, or `end` when
+  `direction = -1`. Capped previews evaluate only the displayed
+  positions and retain the requested total in the colour-count label.
 
 - begin, end:
 
@@ -63,12 +64,16 @@ pal_show_viridis(
 - max_colors:
 
   Positive whole number limiting displayed colours per palette, or `Inf`
-  for no display cap. Default 20.
+  for no display cap. Default 20. With `max_colors = 1`, the middle of
+  the `n` generated colours is shown (the lower middle for even `n`).
+  This can differ from native `n = 1` generation.
 
 - output:
 
   Output format: `"gt"` (default) for a gt table, `"gg"` for a ggplot,
-  or `"console"` for terminal output.
+  or `"console"` for terminal output. gt colour swatches use HTML.
+  LaTeX, Word, RTF and other non-HTML tables show HEX text instead. Use
+  `output = "gg"` for coloured figures in PDF or Word documents.
 
 ## Value
 
@@ -103,5 +108,11 @@ Other colour palettes:
 pal_show_viridis(c("viridis", "plasma"), n = 8, output = "gg")
 
 pal_show_viridis(direction = -1, output = "gg")
+
+
+# Native single-colour generation versus a capped preview
+pal_show_viridis("viridis", n = 1, output = "gg")
+
+pal_show_viridis("viridis", n = 8, max_colors = 1, output = "gg")
 
 ```

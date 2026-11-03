@@ -66,7 +66,9 @@ pal_show(
 - output:
 
   Output format: `"gt"` (default) for a gt table, `"gg"` for a ggplot,
-  or `"console"` for terminal output.
+  or `"console"` for terminal output. gt colour swatches use HTML.
+  LaTeX, Word, RTF and other non-HTML tables show HEX text instead. Use
+  `output = "gg"` for coloured figures in PDF or Word documents.
 
 - label:
 

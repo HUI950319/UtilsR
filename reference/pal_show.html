@@ -120,7 +120,10 @@ filtering. Out-of-range values are ignored; an empty selection is an error.</p><
 
 <dt id="arg-output">output<a class="anchor" aria-label="anchor" href="#arg-output"></a></dt>
 <dd><p>Output format: <code>"gt"</code> (default) for a gt table,
-<code>"gg"</code> for a ggplot, or <code>"console"</code> for terminal output.</p></dd>
+<code>"gg"</code> for a ggplot, or <code>"console"</code> for terminal output.
+gt colour swatches use HTML. LaTeX, Word, RTF and other non-HTML
+tables show HEX text instead. Use <code>output = "gg"</code> for coloured
+figures in PDF or Word documents.</p></dd>
 
 
 <dt id="arg-label">label<a class="anchor" aria-label="anchor" href="#arg-label"></a></dt>

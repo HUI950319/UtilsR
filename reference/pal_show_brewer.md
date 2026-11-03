@@ -30,8 +30,8 @@ pal_show_brewer(
 
   Number of colours to generate for each palette. `NULL` uses each
   palette's maximum supported size; other values are clamped to the
-  supported range of each palette. A single message reports adjusted
-  sizes.
+  supported range, with a minimum of 3. Thus `n = 1` still generates 3
+  colours. A single message reports adjusted sizes.
 
 - type:
 
@@ -50,12 +50,15 @@ pal_show_brewer(
 - max_colors:
 
   Positive whole number limiting displayed colours per palette, or `Inf`
-  for no display cap. Default 20.
+  for no display cap. Default 20. Applied after native size adjustment;
+  use `max_colors = 1` to display a single colour.
 
 - output:
 
   Output format: `"gt"` (default) for a gt table, `"gg"` for a ggplot,
-  or `"console"` for terminal output.
+  or `"console"` for terminal output. gt colour swatches use HTML.
+  LaTeX, Word, RTF and other non-HTML tables show HEX text instead. Use
+  `output = "gg"` for coloured figures in PDF or Word documents.
 
 ## Value
 
@@ -90,5 +93,9 @@ Other colour palettes:
 pal_show_brewer(c("Set1", "Blues"), n = 8, output = "gg")
 
 pal_show_brewer(type = "qual", output = "gg")
+
+
+# Display one colour from the native palette
+pal_show_brewer("Blues", max_colors = 1, output = "gg")
 
 ```

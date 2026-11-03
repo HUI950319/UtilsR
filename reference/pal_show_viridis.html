@@ -84,9 +84,11 @@ pal_show()."><meta property="og:image" content="https://hui950319.github.io/Util
 
 
 <dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
-<dd><p>Number of colours in each requested palette. Default 8. Capped
-previews evaluate only the displayed positions and retain the requested
-total in the colour-count label.</p></dd>
+<dd><p>Number of colours in each requested palette. Default 8. With
+<code>n = 1</code>, the native generator uses <code>begin</code> when
+<code>direction = 1</code>, or <code>end</code> when <code>direction = -1</code>.
+Capped previews evaluate only the displayed positions and retain the
+requested total in the colour-count label.</p></dd>
 
 
 <dt id="arg-begin-end">begin, end<a class="anchor" aria-label="anchor" href="#arg-begin-end"></a></dt>
@@ -116,12 +118,17 @@ the argument and matched count before any palettes are drawn.</p></dd>
 
 <dt id="arg-max-colors">max_colors<a class="anchor" aria-label="anchor" href="#arg-max-colors"></a></dt>
 <dd><p>Positive whole number limiting displayed colours per palette,
-or <code>Inf</code> for no display cap. Default 20.</p></dd>
+or <code>Inf</code> for no display cap. Default 20. With <code>max_colors = 1</code>,
+the middle of the <code>n</code> generated colours is shown (the lower middle
+for even <code>n</code>). This can differ from native <code>n = 1</code> generation.</p></dd>
 
 
 <dt id="arg-output">output<a class="anchor" aria-label="anchor" href="#arg-output"></a></dt>
 <dd><p>Output format: <code>"gt"</code> (default) for a gt table,
-<code>"gg"</code> for a ggplot, or <code>"console"</code> for terminal output.</p></dd>
+<code>"gg"</code> for a ggplot, or <code>"console"</code> for terminal output.
+gt colour swatches use HTML. LaTeX, Word, RTF and other non-HTML
+tables show HEX text instead. Use <code>output = "gg"</code> for coloured
+figures in PDF or Word documents.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -158,6 +165,12 @@ or <code>Inf</code> for no display cap. Default 20.</p></dd>
 <span class="r-plt img"><img src="pal_show_viridis-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">pal_show_viridis</span><span class="op">(</span>direction <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, output <span class="op">=</span> <span class="st">"gg"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="pal_show_viridis-2.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Native single-colour generation versus a capped preview</span></span></span>
+<span class="r-in"><span><span class="fu">pal_show_viridis</span><span class="op">(</span><span class="st">"viridis"</span>, n <span class="op">=</span> <span class="fl">1</span>, output <span class="op">=</span> <span class="st">"gg"</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="pal_show_viridis-3.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">pal_show_viridis</span><span class="op">(</span><span class="st">"viridis"</span>, n <span class="op">=</span> <span class="fl">8</span>, max_colors <span class="op">=</span> <span class="fl">1</span>, output <span class="op">=</span> <span class="st">"gg"</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="pal_show_viridis-4.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
