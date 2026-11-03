@@ -93,9 +93,11 @@ Manual input overrides \code{show_cor} auto text.}
 
 \item{base_size}{Base font size. Default 16.}
 
-\item{legend_color_pos}{Colour legend position. Default "none" (shown via marginal boxes).}
+\item{legend_color_pos}{Colour legend position in the main plot, independent
+of the shape legend. Default "none" (shown via marginal boxes).}
 
-\item{legend_shape_pos}{Shape legend position. Default c(0.15, 0.15).}
+\item{legend_shape_pos}{Shape legend position in the main plot. Default
+c(0.15, 0.15), inside the panel.}
 
 \item{layout_main}{Main plot grid size (rows/cols). Default 10.}
 

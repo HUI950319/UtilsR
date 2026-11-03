@@ -56,8 +56,10 @@
 #' @param marginal_type Marginal plot type: "boxplot", "violin", or "violin_box".
 #' @param box_width Box/violin width in marginal plots. Default 0.7.
 #' @param base_size Base font size. Default 16.
-#' @param legend_color_pos Colour legend position. Default "none" (shown via marginal boxes).
-#' @param legend_shape_pos Shape legend position. Default c(0.15, 0.15).
+#' @param legend_color_pos Colour legend position in the main plot, independent
+#'   of the shape legend. Default "none" (shown via marginal boxes).
+#' @param legend_shape_pos Shape legend position in the main plot. Default
+#'   c(0.15, 0.15), inside the panel.
 #' @param layout_main Main plot grid size (rows/cols). Default 10.
 #' @param layout_margin Marginal plot grid size (rows/cols). Default 3.
 #' @param filename Output file path. NULL = no save.
@@ -235,11 +237,13 @@ PlotScatter2 <- function(
   p_main <- p_main +
     ggplot2::geom_point(size = point_size, alpha = point_alpha) +
     ggplot2::scale_color_manual(values = colors, name = group,
-                                 guide = if (legend_color_pos == "none") "none" else "legend")
+      guide = if (legend_color_pos == "none") "none" else
+        ggplot2::guide_legend(position = legend_color_pos))
 
   if (!is.null(group2)) {
     p_main <- p_main +
-      ggplot2::scale_shape_manual(values = shapes, name = group2)
+      ggplot2::scale_shape_manual(values = shapes, name = group2,
+        guide = if (identical(legend_shape_pos, "none")) "none" else "legend")
   }
 
   p_main <- p_main +
@@ -307,14 +311,15 @@ PlotScatter2 <- function(
   if (!is.null(group2)) {
     p_main <- p_main +
       ggplot2::theme(
-        legend.position = legend_shape_pos,
+        legend.position = if (identical(legend_shape_pos, "none"))
+          legend_color_pos else legend_shape_pos,
         legend.background = ggplot2::element_blank(),
         legend.title = ggplot2::element_text(size = base_size * 0.7),
         legend.text = ggplot2::element_text(size = base_size * 0.7)
       )
   } else {
     p_main <- p_main +
-      ggplot2::theme(legend.position = "none")
+      ggplot2::theme(legend.position = legend_color_pos)
   }
 
   # ---- Helper: add marginal geom ----

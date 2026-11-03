@@ -6,6 +6,12 @@ scatter_main_points <- function(grob) {
   sum(vapply(children, scatter_main_points, numeric(1L)))
 }
 
+scatter_grob_labels <- function(grob) {
+  labels <- if (inherits(grob, "text")) as.character(grob$label) else character()
+  children <- c(grob$grobs, as.list(grob$children))
+  c(labels, unlist(lapply(children, scatter_grob_labels), use.names = FALSE))
+}
+
 test_that("PlotScatter3 derives automatic histogram limits from paired differences", {
   withr::local_options(lifecycle_verbosity = "quiet")
   inset <- NULL
@@ -156,11 +162,39 @@ test_that("PlotScatter2 labels shape fills from unnamed mappings", {
                      h = rep(c("Y", "X", "Z"), each = 3))
   p <- PlotScatter2(data, "x", "y", "g", group2 = "h",
                     fill_colors_shape = c("gold", "green", "blue"))
-  grob_labels <- function(grob) {
-    labels <- if (inherits(grob, "text")) as.character(grob$label) else character()
-    children <- c(grob$grobs, as.list(grob$children))
-    c(labels, unlist(lapply(children, grob_labels), use.names = FALSE))
-  }
-  labels <- grob_labels(ggplot2::ggplotGrob(p[[6]]))
+  labels <- scatter_grob_labels(ggplot2::ggplotGrob(p[[6]]))
   expect_setequal(intersect(labels, c("Y", "X", "Z")), c("Y", "X", "Z"))
+})
+
+test_that("PlotScatter2 honors colour legend positions with and without shapes", {
+  data <- data.frame(x = 1:12, y = 12:1, g = rep(c("a", "b"), 6),
+                     h = rep(c("X", "Y"), each = 6))
+  cases <- list(
+    list(group2 = NULL, color = "right", shape = "none"),
+    list(group2 = NULL, color = "bottom", shape = "none"),
+    list(group2 = "h", color = "right", shape = c(0.15, 0.15)),
+    list(group2 = "h", color = "left", shape = "none"),
+    list(group2 = "h", color = "top", shape = "bottom"),
+    list(group2 = "h", color = "none", shape = "right")
+  )
+  for (case in cases) {
+    p <- PlotScatter2(data, "x", "y", "g", group2 = case$group2,
+                      legend_color_pos = case$color, legend_shape_pos = case$shape)
+    grob <- ggplot2::ggplotGrob(p[[1]])
+    if (case$color != "none") {
+      color_box <- grob$grobs[[which(grob$layout$name ==
+                                      paste0("guide-box-", case$color))]]
+      expect_setequal(intersect(scatter_grob_labels(color_box), c("g", "h")), "g")
+    } else {
+      expect_equal(sum(scatter_grob_labels(grob) == "g"), 0L)
+    }
+    if (!is.null(case$group2) && !identical(case$shape, "none")) {
+      shape_position <- if (is.numeric(case$shape)) "inside" else case$shape
+      shape_box <- grob$grobs[[which(grob$layout$name ==
+                                      paste0("guide-box-", shape_position))]]
+      expect_setequal(intersect(scatter_grob_labels(shape_box), c("g", "h")), "h")
+    } else {
+      expect_equal(sum(scatter_grob_labels(grob) == "h"), 0L)
+    }
+  }
 })
