@@ -18,6 +18,7 @@
 #' @param data A data.frame containing category, start, and end columns.
 #'   Generated delta fields are kept separate from existing column names.
 #'   Input columns do not override legend labels or dot-guide origins.
+#'   Integer differences outside R's integer range are retained as doubles.
 #' @param x_col Column name for the start (left) values. Default
 #'   \code{"start"}.
 #' @param xend_col Column name for the end (right) values. Default
@@ -209,7 +210,18 @@ PlotDumbbell <- function(
   delta_var <- delta_fields[1L]
   delta_label_var <- delta_fields[2L]
   delta_x_var <- delta_fields[3L]
-  data[[delta_var]] <- data[[xend_col]] - data[[x_col]]
+  start_values <- data[[x_col]]
+  end_values <- data[[xend_col]]
+  if (is.integer(start_values) && is.integer(end_values) &&
+      !is.object(start_values) && !is.object(end_values)) {
+    delta_values <- as.double(end_values) - as.double(start_values)
+    if (all(abs(delta_values) <= .Machine$integer.max, na.rm = TRUE)) {
+      delta_values <- as.integer(delta_values)
+    }
+  } else {
+    delta_values <- end_values - start_values
+  }
+  data[[delta_var]] <- delta_values
 
   # ---- Sort ----
   sort_by <- match.arg(sort_by, c("end", "start", "delta", "none"))
@@ -522,7 +534,11 @@ PlotDumbbell <- function(
       "wilcox" = stats::wilcox.test,
       stop("inset_test must be 't.test', 'wilcox', or 'none'.", call. = FALSE)
     )
-    test_res <- test_fn(data[[x_col]], data[[xend_col]],
+    test_x <- data[[x_col]]
+    test_xend <- data[[xend_col]]
+    if (is.integer(test_x) && !is.object(test_x)) test_x <- as.double(test_x)
+    if (is.integer(test_xend) && !is.object(test_xend)) test_xend <- as.double(test_xend)
+    test_res <- test_fn(test_x, test_xend,
                         paired = TRUE, alternative = "two.sided")
     p_val <- test_res$p.value
     p_fmt <- if (p_val < 0.001) {
@@ -532,7 +548,9 @@ PlotDumbbell <- function(
     }
 
     y_max <- max(df_long$.value, na.rm = TRUE)
-    y_span <- diff(range(df_long$.value, na.rm = TRUE))
+    y_range <- range(df_long$.value, na.rm = TRUE)
+    if (is.integer(y_range) && !is.object(y_range)) y_range <- as.double(y_range)
+    y_span <- diff(y_range)
     bracket_y <- y_max + y_span * 0.05
 
     pi <- pi +

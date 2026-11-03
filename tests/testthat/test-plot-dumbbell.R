@@ -5,6 +5,90 @@ dumbbell_plot <- function(data, ...) {
   result
 }
 
+test_that("PlotDumbbell retains integer differences beyond the integer range", {
+  data <- data.frame(start = as.integer(c(2e9, -1.8e9, 0, 10)),
+                      end = as.integer(c(-2e9, 1.8e9, 3, 11)), category = letters[1:4])
+  original <- data
+  expect_no_warning(plot <- dumbbell_plot(data, sort_by = "delta", show_delta = TRUE))
+  expect_identical(as.character(plot$data$category), c("a", "d", "c", "b"))
+  expect_equal(plot$data$.delta, c(-4e9, 1, 3, 3.6e9))
+  expect_equal(ggplot2::ggplot_build(plot)$data[[5]]$label, c(-4e9, 1, 3, 3.6e9))
+  expect_identical(plot$data$start, data$start[c(1, 4, 3, 2)])
+  expect_identical(plot$data$end, data$end[c(1, 4, 3, 2)])
+  for (descending in c(FALSE, TRUE)) {
+    plot <- dumbbell_plot(data, sort_by = "delta", sort_descending = descending, top_n = 2)
+    want <- if (descending) c("d", "a") else c("c", "b")
+    expect_identical(as.character(plot$data$category), want)
+  }
+  boundary <- data.frame(start = c(0L, -1L, 0L, 1L),
+                          end = as.integer(c(2147483647, 2147483647, -2147483647, -2147483647)),
+                          category = letters[1:4])
+  expect_no_warning(plot <- dumbbell_plot(boundary, sort_by = "none", show_delta = TRUE))
+  expect_equal(plot$data$.delta, c(2147483647, 2147483648, -2147483647, -2147483648))
+  expect_identical(data, original)
+})
+
+test_that("PlotDumbbell preserves ordinary integer and classed differences", {
+  data <- data.frame(start = 1:4, end = c(4L, 6L, 8L, 9L), category = letters[1:4])
+  plot <- dumbbell_plot(data, sort_by = "none", show_delta = TRUE)
+  expect_identical(plot$data$.delta, c(3L, 4L, 5L, 5L))
+  for (kind in c("Date", "difftime")) {
+    classed <- data
+    if (kind == "Date") {
+      classed$start <- as.Date("2026-01-01") + data$start
+      classed$end <- as.Date("2026-01-01") + data$end
+    } else {
+      classed$start <- as.difftime(data$start, units = "hours")
+      classed$end <- as.difftime(data$end, units = "hours")
+    }
+    original <- classed
+    plot <- dumbbell_plot(classed, sort_by = "none", show_delta = TRUE,
+                           show_zero_line = FALSE)
+    expect_s3_class(plot$data$.delta, "difftime")
+    expect_equal(as.double(plot$data$.delta), c(3, 4, 5, 5))
+    expect_identical(attr(plot$data$.delta, "units"), if (kind == "Date") "days" else "hours")
+    expect_identical(plot$data$start, classed$start)
+    expect_identical(plot$data$end, classed$end)
+    expect_identical(classed, original)
+  }
+})
+
+test_that("PlotDumbbell paired t-test and bracket avoid integer overflow", {
+  data <- data.frame(start = as.integer(c(2e9, -1.8e9, 0, 10)),
+                      end = as.integer(c(-2e9, 1.8e9, 3, 11)), category = letters[1:4])
+  inset <- NULL
+  original <- get(".build_dumbbell_inset", asNamespace("UtilsR"))
+  testthat::local_mocked_bindings(.build_dumbbell_inset = function(...) {
+    inset <<- original(...)
+    inset
+  }, .package = "UtilsR")
+  expect_no_warning(dumbbell_plot(data, inset_plot = "auto", inset_test = "t.test",
+                                  inset_jitter = FALSE))
+  built <- ggplot2::ggplot_build(inset)
+  expect_equal(built$data[[3]]$y, 2.2e9)
+  expect_equal(built$data[[4]]$y, 2.36e9)
+  expect_identical(built$data[[4]]$label, "p = 0.953")
+  expect_type(inset$data$.value, "integer")
+})
+
+test_that("PlotDumbbell paired Wilcoxon and bracket avoid integer overflow", {
+  data <- data.frame(start = as.integer(c(2e9, -1.8e9, 0, 10)),
+                      end = as.integer(c(-2e9, 1.8e9, 3, 11)), category = letters[1:4])
+  inset <- NULL
+  original <- get(".build_dumbbell_inset", asNamespace("UtilsR"))
+  testthat::local_mocked_bindings(.build_dumbbell_inset = function(...) {
+    inset <<- original(...)
+    inset
+  }, .package = "UtilsR")
+  expect_no_warning(dumbbell_plot(data, inset_plot = "auto", inset_test = "wilcox",
+                                  inset_jitter = FALSE))
+  built <- ggplot2::ggplot_build(inset)
+  expect_equal(built$data[[3]]$y, 2.2e9)
+  expect_equal(built$data[[4]]$y, 2.36e9)
+  expect_identical(built$data[[4]]$label, "p = 0.875")
+  expect_type(inset$data$.value, "integer")
+})
+
 test_that("PlotDumbbell keeps endpoints distinct when their display labels match", {
   data <- data.frame(start = 1:4, end = c(4, 6, 8, 9), category = letters[1:4])
   plot <- dumbbell_plot(data, label_x = "Value", label_xend = "Value")

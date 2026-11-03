@@ -58,7 +58,8 @@ PlotDumbbell(
 \arguments{
 \item{data}{A data.frame containing category, start, and end columns.
 Generated delta fields are kept separate from existing column names.
-Input columns do not override legend labels or dot-guide origins.}
+Input columns do not override legend labels or dot-guide origins.
+Integer differences outside R's integer range are retained as doubles.}
 
 \item{x_col}{Column name for the start (left) values. Default
 \code{"start"}.}
