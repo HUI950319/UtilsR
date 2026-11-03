@@ -5,6 +5,57 @@ dumbbell_plot <- function(data, ...) {
   result
 }
 
+test_that("PlotDumbbell rejects invalid top_n values", {
+  data <- data.frame(start = 1:4, end = 2:5, category = letters[1:4])
+  invalid <- list(
+    0.5, 1.5, -0.5, 6.5, 1 + .Machine$double.eps,
+    NA, NA_real_, NaN, Inf, -Inf, numeric(), c(1, 2),
+    "2", TRUE, list(2), factor("2"), 2 + 0i
+  )
+  for (top_n in invalid) {
+    expect_error(dumbbell_plot(data, top_n = top_n),
+                 "top_n.*single finite integer")
+  }
+})
+
+test_that("PlotDumbbell accepts integer-valued top_n and uncapped inputs", {
+  data <- data.frame(start = 1:4, end = 2:5, category = letters[1:4])
+  original <- data
+  for (top_n in list(2L, 2)) {
+    plot <- dumbbell_plot(data, sort_by = "none", top_n = top_n)
+    expect_identical(as.character(plot$data$category), c("c", "d"))
+  }
+  plot <- dumbbell_plot(data, sort_by = "none", top_n = 1L)
+  expect_identical(as.character(plot$data$category), "d")
+  for (top_n in list(NULL, 0, -2L, 4L, .Machine$integer.max + 1)) {
+    plot <- dumbbell_plot(data, sort_by = "none", top_n = top_n)
+    expect_identical(as.character(plot$data$category), letters[1:4])
+  }
+  expect_identical(data, original)
+})
+
+test_that("PlotDumbbell keeps the last top_n rows in each sort order", {
+  data <- data.frame(
+    start = c(3, 1, 5, 2, 4), end = c(8, 6, 7, 6, 5),
+    category = letters[1:5]
+  )
+  expected <- list(
+    end = list(c("d", "c", "a"), c("b", "d", "e")),
+    start = list(c("a", "e", "c"), c("a", "d", "b")),
+    delta = list(c("d", "a", "b"), c("d", "c", "e")),
+    none = list(c("c", "d", "e"), c("c", "d", "e"))
+  )
+  for (sort_by in names(expected)) {
+    for (descending in c(FALSE, TRUE)) {
+      plot <- dumbbell_plot(data, sort_by = sort_by,
+                             sort_descending = descending, top_n = 3)
+      want <- expected[[sort_by]][[if (descending) 2L else 1L]]
+      expect_identical(as.character(plot$data$category), want)
+      expect_identical(levels(plot$data$category), want)
+    }
+  }
+})
+
 test_that("PlotDumbbell isolates generated delta fields from input columns", {
   data <- data.frame(start = c(1, 2, 3), end = c(4, 6, 8), category = letters[1:3])
   reference <- ggplot2::ggplot_build(dumbbell_plot(data, show_delta = TRUE))$data

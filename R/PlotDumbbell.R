@@ -28,8 +28,9 @@
 #'   \code{"none"} (original order). Default \code{"end"}.
 #' @param sort_descending Logical. Sort in descending order? Default
 #'   \code{FALSE} (ascending, smallest at bottom).
-#' @param top_n Integer. Show only top N categories after sorting. Default
-#'   \code{NULL} (show all).
+#' @param top_n A single finite integer-valued number. Retain the last N
+#'   categories after sorting. Default \code{NULL} (show all). Non-positive
+#'   values and values at least as large as the row count also show all.
 #' @param color_x Colour for start (x) points. Default \code{"#00468BFF"}.
 #' @param color_xend Colour for end (xend) points. Default \code{"#ED0000FF"}.
 #' @param label_x Label for start points (used in legend and auto inset).
@@ -186,6 +187,12 @@ PlotDumbbell <- function(
     if (!col %in% colnames(data)) {
       stop("Column '", col, "' not found in data.", call. = FALSE)
     }
+  }
+  if (!is.null(top_n) &&
+      (!is.numeric(top_n) || is.complex(top_n) || length(top_n) != 1L ||
+       !is.finite(top_n) || top_n != trunc(top_n))) {
+    stop("'top_n' must be NULL or a single finite integer-valued number.",
+         call. = FALSE)
   }
 
   # ---- Labels ----

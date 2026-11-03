@@ -75,8 +75,9 @@ Generated delta fields are kept separate from existing column names.}
 \item{sort_descending}{Logical. Sort in descending order? Default
 \code{FALSE} (ascending, smallest at bottom).}
 
-\item{top_n}{Integer. Show only top N categories after sorting. Default
-\code{NULL} (show all).}
+\item{top_n}{A single finite integer-valued number. Retain the last N
+categories after sorting. Default \code{NULL} (show all). Non-positive
+values and values at least as large as the row count also show all.}
 
 \item{color_x}{Colour for start (x) points. Default \code{"#00468BFF"}.}
 
