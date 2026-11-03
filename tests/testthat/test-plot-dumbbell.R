@@ -31,6 +31,14 @@ test_that("PlotDumbbell keeps endpoints distinct when their display labels match
                    sprintf("p = %.3f", stats::t.test(data$start, data$end, paired = TRUE)$p.value))
 })
 
+test_that("PlotDumbbell automatic inset works without jitter points", {
+  data <- data.frame(start = 1:4, end = c(4, 6, 8, 9), category = letters[1:4])
+  for (inset_type in c("boxplot", "violin")) {
+    expect_no_warning(dumbbell_plot(data, inset_plot = "auto", inset_type = inset_type,
+                                    inset_test = "none", inset_jitter = FALSE))
+  }
+})
+
 test_that("PlotDumbbell labels and guide origins ignore unrelated input columns", {
   data <- data.frame(
     start = 1:4, end = c(4, 6, 8, 9), category = letters[1:4],

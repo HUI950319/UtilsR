@@ -505,8 +505,10 @@ PlotDumbbell <- function(
 
   pi <- pi +
     ggplot2::scale_x_discrete(labels = group_labels) +
-    ggplot2::scale_fill_manual(values = fill_vals, labels = group_labels) +
-    ggplot2::scale_color_manual(values = color_vals, labels = group_labels)
+    ggplot2::scale_fill_manual(values = fill_vals, labels = group_labels)
+  if (jitter) {
+    pi <- pi + ggplot2::scale_color_manual(values = color_vals, labels = group_labels)
+  }
 
   # Significance bracket
   if (inset_test != "none") {
