@@ -134,3 +134,34 @@ test_that("grob_add() keeps added margins out of subsequent panel alignment", {
     }
   }
 })
+
+test_that("grob_add() prefers panel prefixes over unrelated panel mentions", {
+  withr::local_pdf(NULL)
+  table <- gtable::gtable(widths = grid::unit(rep(1, 6), "cm"),
+                          heights = grid::unit(rep(1, 5), "cm"))
+  table <- gtable::gtable_add_grob(table, grid::rectGrob(),
+    t = 2, b = 4, l = 2, r = 5, name = "panel-1")
+  expected <- list(top = c(1, 2, 1, 5), bottom = c(6, 2, 6, 5),
+                    left = c(2, 1, 4, 1), right = c(2, 7, 4, 7))
+
+  for (name in c("annotation-for-panel", "side-panel-note", "main_panel_label")) {
+    annotated <- gtable::gtable_add_grob(table, grid::textGrob("Panel note"),
+      t = 1, b = 5, l = 1, r = 6, name = name)
+    for (position in names(expected)) {
+      result <- grob_add(annotated, grid::rectGrob(), position = position,
+                          space = grid::unit(2, "mm"))
+      added <- result$layout[nrow(result$layout), , drop = FALSE]
+
+      expect_equal(unname(unlist(added[c("t", "l", "b", "r")])), expected[[position]])
+      expect_no_error(grid::grid.draw(result))
+    }
+  }
+
+  table$layout$name <- "central-panel"
+  for (position in names(expected)) {
+    result <- grob_add(table, grid::rectGrob(), position = position,
+                        space = grid::unit(2, "mm"))
+    added <- result$layout[nrow(result$layout), , drop = FALSE]
+    expect_equal(unname(unlist(added[c("t", "l", "b", "r")])), expected[[position]])
+  }
+})
