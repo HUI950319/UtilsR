@@ -103,7 +103,10 @@ the argument and matched count before any palettes are drawn.</p></dd>
 <dt id="arg-max-colors">max_colors<a class="anchor" aria-label="anchor" href="#arg-max-colors"></a></dt>
 <dd><p>Positive whole number limiting displayed colours per palette,
 or <code>Inf</code> for no display cap. Default 20. Applied after native size
-adjustment; use <code>max_colors = 1</code> to display a single colour.</p></dd>
+adjustment. With <code>max_colors = 1</code>, <code>"qual"</code> palettes show
+their first colour; <code>"seq"</code> and <code>"div"</code> palettes show the
+middle colour of the adjusted native sequence (the lower middle for an
+even sequence size).</p></dd>
 
 
 <dt id="arg-output">output<a class="anchor" aria-label="anchor" href="#arg-output"></a></dt>
@@ -149,9 +152,11 @@ figures in PDF or Word documents.</p></dd>
 <span class="r-in"><span><span class="fu">pal_show_brewer</span><span class="op">(</span>type <span class="op">=</span> <span class="st">"qual"</span>, output <span class="op">=</span> <span class="st">"gg"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="pal_show_brewer-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Display one colour from the native palette</span></span></span>
-<span class="r-in"><span><span class="fu">pal_show_brewer</span><span class="op">(</span><span class="st">"Blues"</span>, max_colors <span class="op">=</span> <span class="fl">1</span>, output <span class="op">=</span> <span class="st">"gg"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># First qualitative colour versus the lower middle of eight sequential colours</span></span></span>
+<span class="r-in"><span><span class="fu">pal_show_brewer</span><span class="op">(</span><span class="st">"Set1"</span>, n <span class="op">=</span> <span class="fl">8</span>, max_colors <span class="op">=</span> <span class="fl">1</span>, output <span class="op">=</span> <span class="st">"gg"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="pal_show_brewer-3.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">pal_show_brewer</span><span class="op">(</span><span class="st">"Blues"</span>, n <span class="op">=</span> <span class="fl">8</span>, max_colors <span class="op">=</span> <span class="fl">1</span>, output <span class="op">=</span> <span class="st">"gg"</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="pal_show_brewer-4.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

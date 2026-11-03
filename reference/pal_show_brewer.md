@@ -50,8 +50,10 @@ pal_show_brewer(
 - max_colors:
 
   Positive whole number limiting displayed colours per palette, or `Inf`
-  for no display cap. Default 20. Applied after native size adjustment;
-  use `max_colors = 1` to display a single colour.
+  for no display cap. Default 20. Applied after native size adjustment.
+  With `max_colors = 1`, `"qual"` palettes show their first colour;
+  `"seq"` and `"div"` palettes show the middle colour of the adjusted
+  native sequence (the lower middle for an even sequence size).
 
 - output:
 
@@ -95,7 +97,9 @@ pal_show_brewer(c("Set1", "Blues"), n = 8, output = "gg")
 pal_show_brewer(type = "qual", output = "gg")
 
 
-# Display one colour from the native palette
-pal_show_brewer("Blues", max_colors = 1, output = "gg")
+# First qualitative colour versus the lower middle of eight sequential colours
+pal_show_brewer("Set1", n = 8, max_colors = 1, output = "gg")
+
+pal_show_brewer("Blues", n = 8, max_colors = 1, output = "gg")
 
 ```
