@@ -36,6 +36,34 @@ test_that(".resolve_theme preserves a factory's original error", {
                "theme factory failed")
 })
 
+test_that(".resolve_theme identifies a named factory and its invalid return", {
+  calls <- 0L
+  bad_theme <- function() {
+    calls <<- calls + 1L
+    ggplot2::geom_point()
+  }
+  failure <- tryCatch(.resolve_theme("bad_theme"), error = identity)
+  expect_s3_class(failure, "error")
+  expect_match(conditionMessage(failure), "'bad_theme'", fixed = TRUE)
+  expect_match(conditionMessage(failure), "got <LayerInstance>", fixed = TRUE)
+  expect_identical(calls, 1L)
+})
+
+test_that(".resolve_theme identifies invalid unnamed factory return types", {
+  failure_message <- function(factory) {
+    conditionMessage(tryCatch(.resolve_theme(factory), error = identity))
+  }
+  expect_match(failure_message(function() NULL), "got <NULL>", fixed = TRUE)
+  expect_match(failure_message(function() list()), "got <list>", fixed = TRUE)
+  expect_match(failure_message(function() 1), "got <numeric>", fixed = TRUE)
+})
+
+test_that(".resolve_theme preserves a named factory's original condition", {
+  failure <- simpleError("named theme factory failed", call = NULL)
+  bad_theme <- function() stop(failure)
+  expect_identical(tryCatch(.resolve_theme("bad_theme"), error = identity), failure)
+})
+
 test_that(".resolve_theme finds exported themes without attached packages", {
   resolve <- function(name) UtilsR::.resolve_theme(name)
   environment(resolve) <- baseenv()

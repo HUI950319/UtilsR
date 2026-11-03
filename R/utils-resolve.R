@@ -29,20 +29,24 @@
 #' UtilsR exports, then as ggplot2 exports. Pass a function or theme object for
 #' a local custom theme used through a plotting wrapper.
 #' Errors evaluating a visible binding or calling a theme function are preserved.
+#' Theme functions are called without arguments. Wrap a configured theme call in
+#' a function to supply settings.
 #'
 #' @param theme_use \code{NULL}, a single non-missing, non-empty theme name, a function
-#'   returning a theme, or a theme object.
+#'   called without arguments and returning a theme, or a theme object.
 #' @return A ggplot2 theme object.
 #'
 #' @examples
 #' .resolve_theme("theme_bw")
 #' .resolve_theme("theme_km")
 #' .resolve_theme(ggplot2::theme_bw(base_size = 12))
+#' .resolve_theme(function() ggplot2::theme_bw(base_size = 16))
 #'
 #' @family ggplot2 themes
 #' @keywords internal
 #' @export
 .resolve_theme <- function(theme_use) {
+  theme_name <- NULL
   if (is.null(theme_use)) {
     thm <- tryCatch(theme_km, error = function(e) NULL)
     theme_use <- if (inherits(thm, "theme") || is.function(thm)) thm
@@ -53,6 +57,7 @@
         anyNA(theme_use) || !nzchar(trimws(theme_use, whitespace = "[\\h\\v]")))
       stop("'theme_use' must be a single non-missing, non-empty theme name",
            call. = FALSE)
+    theme_name <- theme_use
     fn <- get0(theme_use, envir = parent.frame(), mode = "function")
     if (is.null(fn) && theme_use %in% getNamespaceExports("UtilsR"))
       fn <- getExportedValue("UtilsR", theme_use)
@@ -66,7 +71,9 @@
   if (is.function(theme_use)) {
     thm <- theme_use()
     if (!inherits(thm, "theme"))
-      stop("'theme_use' must return a ggplot2 theme object", call. = FALSE)
+      stop(sprintf("'theme_use'%s must return a ggplot2 theme object; got <%s>",
+                   if (is.null(theme_name)) "" else sprintf(" (factory '%s')", theme_name),
+                   class(thm)[1L]), call. = FALSE)
     return(thm)
   }
   stop("'theme_use' must be NULL, character, function, or theme object",
