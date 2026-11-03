@@ -9,6 +9,10 @@
 \arguments{
 \item{palette}{\code{NULL}, a registered palette name (resolved via
 \code{\link{pal_get}()}), a single literal colour, or a colour vector.
+Vectors must have no dimensions and contain plain character or numeric
+values, logical missing values, or factors (converted to character).
+Other classes, including labelled, integer64 and date-time vectors, are
+not supported; convert these explicitly before choosing colours.
 Anything R cannot draw is an error naming the calling function.}
 
 \item{n}{Optional plain integer or double scalar with a whole-number value

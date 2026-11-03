@@ -87,6 +87,10 @@
 #'
 #' @param palette \code{NULL}, a registered palette name (resolved via
 #'   \code{\link{pal_get}()}), a single literal colour, or a colour vector.
+#'   Vectors must have no dimensions and contain plain character or numeric
+#'   values, logical missing values, or factors (converted to character).
+#'   Other classes, including labelled, integer64 and date-time vectors, are
+#'   not supported; convert these explicitly before choosing colours.
 #'   Anything R cannot draw is an error naming the calling function.
 #' @param n Optional plain integer or double scalar with a whole-number value
 #'   from zero to \code{.Machine$integer.max}, without a class or dimensions.
@@ -138,6 +142,15 @@
     cli::cli_abort(
       "Colours in {.arg {color_arg}} must be a palette name or a non-empty colour vector, not {.cls {class(palette)}}.",
       call = rlang::caller_env()
+    )
+  }
+  if (is.factor(palette) && is.null(dim(palette))) palette <- as.character(palette)
+  if (!is.null(dim(palette)) || is.object(palette) ||
+      !(is.character(palette) || (is.numeric(palette) && !is.complex(palette)) ||
+        (is.logical(palette) && all(is.na(palette))))) {
+    cli::cli_abort(
+      "{.arg {color_arg}} must be a one-dimensional, plain colour vector (character, numeric, logical NA, or factor), not {.cls {class(palette)}}.",
+      call = caller
     )
   }
 

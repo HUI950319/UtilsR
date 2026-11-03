@@ -150,3 +150,17 @@ test_that(".resolve_color handles long colour vectors and identifies all bad val
   expect_match(conditionMessage(err), "bad_colour_two")
   expect_length(gregexpr("bad_colour_one", conditionMessage(err), fixed = TRUE)[[1L]], 1L)
 })
+
+test_that(".resolve_color handles factors and rejects ambiguous storage", {
+  expect_identical(.resolve_color(factor("lancet"), n = 2L), pal_get("lancet", n = 2L))
+  expect_identical(.resolve_color(ordered(c("red", "blue"))), c("red", "blue"))
+  bad <- list(matrix(c("red", "blue"), 1L), array("red", c(1L, 1L, 1L)),
+              as.raw(1:2), 1 + 2i, TRUE,
+              structure(c(1, 2), class = "integer64"),
+              structure(c(1, 2), class = "haven_labelled_spss"),
+              as.Date("2026-01-01"), as.difftime(2, units = "days"))
+  for (value in bad) {
+    expect_error(.resolve_color(value), "plain.*colour.*vector|one-dimensional")
+    expect_error(.resolve_color(NULL, default = value), "plain.*colour.*vector|one-dimensional")
+  }
+})
