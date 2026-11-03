@@ -118,6 +118,69 @@ test_that("bar labels, axis and label boxes follow label_args", {
   expect_equal(unique(ggplot2::layer_data(tiles, 2L)$size), (14 - 2) / ggplot2::.pt)
 })
 
+test_that("distribution labels inherit base font size from partial themes", {
+  previous <- ggplot2::theme_set(ggplot2::theme_bw(base_size = 30))
+  withr::defer(ggplot2::theme_set(previous))
+  local_mocked_bindings(.save_sized = function(plot, ...) plot)
+  data <- data.frame(x = rep(c("A", "B"), each = 2),
+                     y = rep(c("C", "D"), 2), group = rep(c("F", "M"), 2))
+  partials <- list(ggplot2::theme(),
+                   ggplot2::theme(axis.text = ggplot2::element_text(colour = "red")),
+                   ggplot2::theme(text = ggplot2::element_text(colour = "red")))
+  label_fonts <- function(grob, labels) {
+    if (inherits(grob, "text") && any(as.character(grob$label) %in% labels))
+      return(grob$gp$fontsize)
+    children <- c(grob$grobs, as.list(grob$children))
+    unlist(lapply(children, label_fonts, labels = labels), use.names = FALSE)
+  }
+  for (thm in partials) {
+    for (heatmap in c(FALSE, TRUE)) {
+      variables <- if (heatmap) c("x", "y", "group") else c("x", "group")
+      p <- dist_test_plot(data, variables, type = "bar", theme_use = thm,
+                         label_args = list(style = "count", box = FALSE))
+      built <- ggplot2::ggplot_build(p)
+      expect_equal(unique(built$data[[2L]]$size) * ggplot2::.pt,
+                   if (heatmap) 28 else 26)
+      expect_equal(unique(label_fonts(ggplot2::ggplotGrob(p),
+                                      built$data[[2L]]$label)),
+                   if (heatmap) 28 else 26)
+    }
+  }
+})
+
+test_that("distribution label font inheritance respects complete and explicit sizes", {
+  previous <- ggplot2::theme_set(ggplot2::theme_bw(base_size = 30))
+  withr::defer(ggplot2::theme_set(previous))
+  local_mocked_bindings(.save_sized = function(plot, ...) plot)
+  data <- data.frame(x = rep(c("A", "B"), each = 2),
+                     y = rep(c("C", "D"), 2), group = rep(c("F", "M"), 2))
+  for (heatmap in c(FALSE, TRUE)) {
+    variables <- if (heatmap) c("x", "y", "group") else c("x", "group")
+    complete <- dist_test_plot(data, variables, type = "bar",
+                              theme_use = ggplot2::theme_bw(base_size = 18))
+    expect_equal(unique(ggplot2::layer_data(complete, 2L)$size) * ggplot2::.pt,
+                 if (heatmap) 16 else 14)
+    explicit <- dist_test_plot(data, variables, type = "bar",
+                              theme_use = ggplot2::theme(),
+                              label_args = list(size = 4.5))
+    expect_equal(unique(ggplot2::layer_data(explicit, 2L)$size), 4.5)
+    default <- dist_test_plot(data, variables, type = "bar")
+    expect_equal(unique(ggplot2::layer_data(default, 2L)$size) * ggplot2::.pt,
+                 if (heatmap) 12 else 10)
+  }
+})
+
+test_that("alluvial partial themes retain their own base font fallback", {
+  skip_if_not_installed("ggalluvial")
+  previous <- ggplot2::theme_set(ggplot2::theme_bw(base_size = 30))
+  withr::defer(ggplot2::theme_set(previous))
+  local_mocked_bindings(.save_sized = function(plot, ...) plot)
+  data <- data.frame(x = rep(c("A", "B"), each = 2), group = rep(c("F", "M"), 2))
+  p <- dist_test_plot(data, c("x", "group"), theme_use = ggplot2::theme())
+  expect_equal(ggplot2::calc_element("text", ggplot2::ggplot_build(p)$plot$theme)$size, 14)
+  expect_equal(unique(ggplot2::layer_data(p, 3L)$size), 3)
+})
+
 test_that("bar segments stack in legend order, like the alluvial strata", {
   data <- data.frame(x = rep(c("A", "B"), each = 6),
                      g = factor(rep(c("g1", "g2", "g3"), 4)))

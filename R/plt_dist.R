@@ -152,7 +152,9 @@
 #'   (e.g. \code{"theme_my"}), or \code{NULL} (\eqn{\rightarrow}
 #'   \code{\link{theme_km}()}). Unless \code{label_args$size} is set, label
 #'   sizes follow the theme's base font size, e.g.
-#'   \code{theme_use = theme_my(base_size = 16)}. In alluvial mode only the
+#'   \code{theme_use = theme_my(base_size = 16)}. On bars and heatmaps, partial
+#'   themes inherit an unspecified base font size from the current ggplot2 theme.
+#'   In alluvial mode only the
 #'   base font size is taken from \code{theme_use};
 #'   \code{\link{theme_alluvia}()} supplies the remaining theme settings.
 #'
@@ -401,6 +403,9 @@ plt_dist <- function(data,
   # base font size (so it is carried by `theme_use`).
   thm <- .resolve_theme(theme_use)
   base_size <- tryCatch(thm$text$size, error = function(e) NULL)
+  if (is.null(base_size) && !(length(dis_vars) == 2L && type == "alluvial")) {
+    base_size <- ggplot2::calc_element("text", ggplot2::theme_get() + thm)$size
+  }
   if (is.null(base_size) || !is.numeric(base_size)) base_size <- 14
 
   # --- Alluvial mode (2 variables only) -------------------------------------

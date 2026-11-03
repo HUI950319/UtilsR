@@ -1,5 +1,7 @@
 # UtilsR 0.6.22
 
+* plt_dist() inherits bar and heatmap label sizes from the current ggplot2 theme when a partial theme leaves the base font size unspecified, preserving complete themes, explicit label sizes and alluvial defaults.
+
 * UtilsR now declares R >= 4.1.0, matching the native pipes and shorthand functions already used in its source.
 
 * .resolve_theme() preserves errors while evaluating custom theme bindings instead of silently falling back to another theme or reporting a missing name.
