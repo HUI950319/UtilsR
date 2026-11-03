@@ -119,32 +119,40 @@ test_that("bar labels, axis and label boxes follow label_args", {
 })
 
 test_that("distribution labels inherit base font size from partial themes", {
-  previous <- ggplot2::theme_set(ggplot2::theme_bw(base_size = 30))
+  previous <- ggplot2::theme_get()
   withr::defer(ggplot2::theme_set(previous))
   local_mocked_bindings(.save_sized = function(plot, ...) plot)
   data <- data.frame(x = rep(c("A", "B"), each = 2),
                      y = rep(c("C", "D"), 2), group = rep(c("F", "M"), 2))
   partials <- list(ggplot2::theme(),
                    ggplot2::theme(axis.text = ggplot2::element_text(colour = "red")),
-                   ggplot2::theme(text = ggplot2::element_text(colour = "red")))
+                   ggplot2::theme(text = ggplot2::element_text(colour = "red")),
+                   ggplot2::theme(complete = TRUE))
+  defaults <- list(ggplot2::theme_bw(base_size = 30), ggplot2::theme(),
+                   ggplot2::theme(axis.text = ggplot2::element_text(colour = "red")))
   label_fonts <- function(grob, labels) {
     if (inherits(grob, "text") && any(as.character(grob$label) %in% labels))
       return(grob$gp$fontsize)
     children <- c(grob$grobs, as.list(grob$children))
     unlist(lapply(children, label_fonts, labels = labels), use.names = FALSE)
   }
-  for (thm in partials) {
-    for (heatmap in c(FALSE, TRUE)) {
-      variables <- if (heatmap) c("x", "y", "group") else c("x", "group")
-      p <- dist_test_plot(data, variables, type = "bar", theme_use = thm,
-                         label_args = list(style = "count", box = FALSE))
-      built <- ggplot2::ggplot_build(p)
-      expect_equal(unique(built$data[[2L]]$size) * ggplot2::.pt,
-                   if (heatmap) 28 else 26)
-      expect_equal(unique(label_fonts(ggplot2::ggplotGrob(p),
-                                      built$data[[2L]]$label)),
-                   if (heatmap) 28 else 26)
+  for (i in seq_along(defaults)) {
+    ggplot2::theme_set(defaults[[i]])
+    themes <- if (i == 1L) partials else partials[1:2]
+    expected_sizes <- if (i == 1L) c(26, 28) else c(7, 9)
+    for (thm in themes) {
+      for (heatmap in c(FALSE, TRUE)) {
+        variables <- if (heatmap) c("x", "y", "group") else c("x", "group")
+        expected <- expected_sizes[if (heatmap) 2L else 1L]
+        p <- dist_test_plot(data, variables, type = "bar", theme_use = thm,
+                           label_args = list(style = "count", box = FALSE))
+        built <- ggplot2::ggplot_build(p)
+        expect_equal(unique(built$data[[2L]]$size) * ggplot2::.pt, expected)
+        expect_equal(unique(label_fonts(ggplot2::ggplotGrob(p),
+                                        built$data[[2L]]$label)), expected)
+      }
     }
+    expect_identical(ggplot2::theme_get(), defaults[[i]])
   }
 })
 

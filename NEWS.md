@@ -1,5 +1,7 @@
 # UtilsR 0.6.22
 
+* plt_dist() completes missing base text settings from the current and default ggplot2 themes before sizing labels, including when the global theme is incomplete.
+
 * .resolve_theme() reports the name and returned class of invalid theme factories, and documents calling factories without arguments with a configured-theme example.
 
 * plt_dist() inherits bar and heatmap label sizes from the current ggplot2 theme when a partial theme leaves the base font size unspecified, preserving complete themes, explicit label sizes and alluvial defaults.

@@ -154,6 +154,7 @@
 #'   sizes follow the theme's base font size, e.g.
 #'   \code{theme_use = theme_my(base_size = 16)}. On bars and heatmaps, partial
 #'   themes inherit an unspecified base font size from the current ggplot2 theme.
+#'   If both omit the base text element, the ggplot2 default supplies it.
 #'   In alluvial mode only the
 #'   base font size is taken from \code{theme_use};
 #'   \code{\link{theme_alluvia}()} supplies the remaining theme settings.
@@ -404,7 +405,11 @@ plt_dist <- function(data,
   thm <- .resolve_theme(theme_use)
   base_size <- tryCatch(thm$text$size, error = function(e) NULL)
   if (is.null(base_size) && !(length(dis_vars) == 2L && type == "alluvial")) {
-    base_size <- ggplot2::calc_element("text", ggplot2::theme_get() + thm)$size
+    current_theme <- ggplot2::theme_get()
+    font_theme <- current_theme + thm
+    if (is.null(font_theme$text))
+      font_theme$text <- current_theme$text %||% ggplot2::theme_grey()$text
+    base_size <- ggplot2::calc_element("text", font_theme)$size
   }
   if (is.null(base_size) || !is.numeric(base_size)) base_size <- 14
 
