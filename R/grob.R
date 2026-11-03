@@ -35,11 +35,19 @@ NULL
 #' @return A grob or gtable object, or \code{NULL} with a warning if conversion
 #'   is not supported.
 #'
+#' @details
+#' Patchwork objects are converted with \code{patchwork::patchworkGrob()},
+#' preserving the complete layout, annotations, and collected guides.
+#'
 #' @examples
 #' library(ggplot2)
-#' p <- ggplot(mtcars, aes(wt, mpg)) + geom_point()
+#' data <- data.frame(x = 1:6, y = c(2, 4, 1, 6, 3, 5))
+#' p <- ggplot(data, aes(x, y)) + geom_point()
 #' g <- grob_as(p)
 #' class(g)
+#' combined <- patchwork::wrap_plots(p, p, ncol = 2) +
+#'   patchwork::plot_annotation(title = "Combined plots")
+#' grid::grid.draw(grob_as(combined))
 #'
 #' @export
 #' @family grob utilities
@@ -52,7 +60,7 @@ grob_as <- function(plot, ...) {
   }
   if (inherits(plot, "patchwork")) {
     if (requireNamespace("patchwork", quietly = TRUE)) {
-      return(ggplot2::ggplotGrob(plot))
+      return(patchwork::patchworkGrob(plot))
     } else {
       warning(
         "Package 'patchwork' is needed to convert patchwork objects.",

@@ -21,11 +21,19 @@ Convert various plot objects (ggplot, patchwork, gList, gtable) to a grob
 (grid graphical object). This is a unified dispatcher that handles different
 input types automatically.
 }
+\details{
+Patchwork objects are converted with \code{patchwork::patchworkGrob()},
+preserving the complete layout, annotations, and collected guides.
+}
 \examples{
 library(ggplot2)
-p <- ggplot(mtcars, aes(wt, mpg)) + geom_point()
+data <- data.frame(x = 1:6, y = c(2, 4, 1, 6, 3, 5))
+p <- ggplot(data, aes(x, y)) + geom_point()
 g <- grob_as(p)
 class(g)
+combined <- patchwork::wrap_plots(p, p, ncol = 2) +
+  patchwork::plot_annotation(title = "Combined plots")
+grid::grid.draw(grob_as(combined))
 
 }
 \seealso{
