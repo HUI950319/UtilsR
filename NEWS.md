@@ -1,5 +1,7 @@
 # UtilsR 0.6.22
 
+* Named colours in plt_cat(), plt_con() and plt_dist() share literal-colour validation and numeric-index normalisation, so invalid values fail before grob conversion and cannot expand as palette names.
+
 * .resolve_color() resolves numeric colour indices and numeric strings against the current base palette into fixed RGBA hex colours, preserving their appearance across plotting backends.
 
 * Export the shared theme resolver for importing plotting packages; RegR uses this implementation instead of maintaining a copy.

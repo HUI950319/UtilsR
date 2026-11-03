@@ -182,3 +182,31 @@ test_that(".resolve_color fixes numeric indices to the current base palette", {
   expect_identical(ggplot2::alpha(resolved, 1), "#123456FF")
   expect_identical(.resolve_color(2), "#ABCDEFFF")
 })
+
+test_that("named plot colours are validated as literals before drawing", {
+  d <- data.frame(g = factor(rep(c("A", "B"), each = 3)),
+                  h = factor(rep(c("x", "y"), 3)), y = 1:6)
+  expect_error(plt_cat(d, "g", palette = c(A = "bad_colour_xyz", B = "blue")),
+               "palette.*invalid colours")
+  expect_error(plt_con(d, "y", group.by = "g", palette = c(A = "bad_colour_xyz", B = "blue")),
+               "palette.*invalid colours")
+  expect_error(plt_dist(d, c("g", "h"), type = "bar", color = c(x = "bad_colour_xyz", y = "blue")),
+               "color.*invalid colours")
+  single <- droplevels(d[d$g == "A", ])
+  expect_error(plt_cat(single, "g", palette = c(A = "lancet")), "palette.*invalid colours")
+  old_palette <- grDevices::palette()
+  withr::defer(grDevices::palette(old_palette))
+  grDevices::palette(c("black", "#123456"))
+  p <- suppressMessages(plt_cat(d, "g", palette = c(B = "blue", A = "2")))
+  expect_identical(unname(plt_cat_fills(p)), c("#123456FF", "blue"))
+})
+
+test_that("internal empty named colours preserve missing-only split groups", {
+  d <- data.frame(value = 1:6, group = factor(rep(NA_character_, 6L), exclude = NULL),
+                  batch = rep(c("S1", "S2"), each = 3L))
+  out <- suppressMessages(plt_con(d, "value", "group", split.by = "batch",
+                                  type = "bar", combine = FALSE))
+  expect_named(out, c("S1", "S2"))
+  expect_equal(vapply(out, function(p) nrow(p$data), 1L), c(S1 = 3L, S2 = 3L))
+  expect_equal(ggplot2::ggplot_build(out[[1L]])$data[[2L]]$y, 2)
+})

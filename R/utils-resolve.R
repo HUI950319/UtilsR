@@ -213,6 +213,18 @@
   sized(out)
 }
 
+# Resolve already-matched named values as literals, including a single value.
+.resolve_color_values <- function(colors, arg) {
+  if (!length(colors)) return(colors)
+  caller <- rlang::caller_env()
+  resolved <- tryCatch(.resolve_color(NULL, default = unname(colors)),
+    error = function(e) {
+      cli::cli_abort("{.arg {arg}} contains invalid colours.", parent = e,
+                     call = caller)
+    })
+  stats::setNames(resolved, names(colors))
+}
+
 
 # ---- .save_sized -------------------------------------------------------------
 

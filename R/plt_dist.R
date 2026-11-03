@@ -392,7 +392,7 @@ plt_dist <- function(data,
     if (length(missing_colors)) {
       cli::cli_abort("Named {.arg color} must include every observed fill category; missing {.val {missing_colors}}.")
     }
-    named_palette <- color[needed_levels]
+    named_palette <- .resolve_color_values(color[needed_levels], "color")
   }
 
   # --- Resolve theme + fill colours ---

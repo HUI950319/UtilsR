@@ -514,7 +514,7 @@ plt_cat <- function(data,
     }
     out <- stats::setNames(unname(palette[match(lvls, names(palette))]), lvls)
     out[lvls %in% missing_levels] <- NA_color
-    out
+    .resolve_color_values(out, "palette")
   }
   if (type %in% std_types) {
     stat_levels <- levels(data[[stat.by[1]]])

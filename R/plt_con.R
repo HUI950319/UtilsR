@@ -619,7 +619,7 @@ plt_con <- function(data,
         !all(named_levels %in% names(palette))) {
       cli::cli_abort("Named {.arg palette} must contain each group or feature with unique names matching their labels.")
     }
-    colors <- palette[match(named_levels, names(palette))]
+    colors <- .resolve_color_values(palette[match(named_levels, names(palette))], "palette")
   } else {
     colors <- stats::setNames(.resolve_color(palette, n = length(color_levels)), color_levels)
   }
