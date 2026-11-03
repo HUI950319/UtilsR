@@ -229,3 +229,46 @@ test_that("PlotScatter2 groups ellipses by colour independently of point shapes"
   expect_equal(dual_ellipse[c("x", "y", "colour")],
                single_ellipse[c("x", "y", "colour")])
 })
+
+test_that("PlotScatter2 aligns marginal numeric ranges with the main panel", {
+  set.seed(42)
+  data <- data.frame(x = rnorm(40), y = rnorm(40),
+                     g = rep(c("a", "b"), each = 20), h = rep(c("X", "Y"), 20))
+  cases <- list(
+    list(),
+    list(group2 = "h", show_ellipse = TRUE, x_top = FALSE),
+    list(group2 = "h", annot_text = "Note", annot_pos = c(8, -8))
+  )
+  for (mtype in c("boxplot", "violin", "violin_box")) {
+    for (case in cases) {
+      p <- do.call(PlotScatter2, c(list(data, "x", "y", "g", marginal_type = mtype),
+                                  case))
+      main <- ggplot2::ggplot_build(p[[1]])$layout$panel_params[[1]]
+      n_groups <- if (is.null(case$group2)) 1L else 2L
+      for (i in seq_len(n_groups)) {
+        right <- ggplot2::ggplot_build(p[[i + 1L]])$layout$panel_params[[1]]
+        bottom <- ggplot2::ggplot_build(p[[i + n_groups + 1L]])$layout$panel_params[[1]]
+        expect_equal(right$y.range, main$y.range)
+        expect_equal(bottom$x.range, main$x.range)
+      }
+    }
+  }
+})
+
+test_that("PlotScatter2 defers ellipse notices until the main plot is drawn", {
+  data <- data.frame(x = 1:6, y = c(3, 1, 4, 1, 5, 9),
+                     g = rep(c("a", "b"), each = 3))
+  get_messages <- function(code) {
+    messages <- character()
+    withCallingHandlers(force(code), message = function(m) {
+      messages <<- c(messages, conditionMessage(m))
+      invokeRestart("muffleMessage")
+    })
+    messages
+  }
+  expect_length(get_messages(
+    p <- PlotScatter2(data, "x", "y", "g", show_ellipse = TRUE)
+  ), 0L)
+  draw_messages <- get_messages(ggplot2::ggplot_build(p[[1]]))
+  expect_match(paste(draw_messages, collapse = " "), "Too few points")
+})

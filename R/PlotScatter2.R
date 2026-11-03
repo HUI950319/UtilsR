@@ -23,6 +23,9 @@
 #' accepted.
 #'
 #' The bottom-right panel contains a fill legend for each grouping variable.
+#' Marginal numeric axes use the main plot's displayed ranges, including
+#' ellipses and annotations. Density estimates use the original observations;
+#' only their displayed ranges are zoomed.
 #'
 #' For single-group scatter with marginal boxplots, see
 #' \code{\link{PlotScatter1}()}.
@@ -327,6 +330,11 @@ PlotScatter2 <- function(
       ggplot2::theme(legend.position = legend_color_pos)
   }
 
+  # Train shared display ranges; the main draw still reports its notices.
+  main_ranges <- suppressMessages(suppressWarnings(
+    ggplot2::ggplot_build(p_main)$layout$panel_params[[1]][c("x.range", "y.range")]
+  ))
+
   # ---- Helper: add marginal geom ----
   .add_mg <- function(p, mtype, w) {
     if (mtype == "violin") {
@@ -350,7 +358,8 @@ PlotScatter2 <- function(
       ))
       p <- .add_mg(p, marginal_type, box_width)
       p <- p +
-        ggplot2::coord_flip() +
+        ggplot2::coord_flip(ylim = main_ranges$x.range) +
+        ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult = 0)) +
         ggplot2::scale_fill_manual(values = fill_vals) +
         ggplot2::theme_test(base_size = base_size) +
         ggplot2::theme(
@@ -386,15 +395,18 @@ PlotScatter2 <- function(
       ))
       p <- .add_mg(p, marginal_type, box_width)
       p <- p +
+        ggplot2::coord_cartesian(ylim = main_ranges$y.range) +
         ggplot2::scale_fill_manual(values = fill_vals)
 
       # Last right panel shows y-axis ticks
       if (show_axis_text) {
         p <- p +
-          ggplot2::scale_y_continuous(position = "right") +
+          ggplot2::scale_y_continuous(position = "right",
+                                     expand = ggplot2::expansion(mult = 0)) +
           ggplot2::scale_x_discrete(position = "top")
       } else {
         p <- p +
+          ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult = 0)) +
           ggplot2::scale_x_discrete(position = "top")
       }
 

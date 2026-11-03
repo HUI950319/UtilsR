@@ -130,6 +130,9 @@ and must supply at least one value per observed level. Extra entries are
 accepted.
 
 The bottom-right panel contains a fill legend for each grouping variable.
+Marginal numeric axes use the main plot's displayed ranges, including
+ellipses and annotations. Density estimates use the original observations;
+only their displayed ranges are zoomed.
 
 For single-group scatter with marginal boxplots, see
 \code{\link{PlotScatter1}()}.
