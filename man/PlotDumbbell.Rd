@@ -159,7 +159,8 @@ point to the Y axis? Default \code{FALSE}.}
 }}
 
 \item{inset_type}{Type of auto-generated inset: \code{"boxplot"} (default)
-or \code{"violin"}. Only used when \code{inset_plot = "auto"}.}
+or \code{"violin"}. Only used when \code{inset_plot = "auto"};
+unsupported values are rejected in that mode.}
 
 \item{inset_test}{Paired test for auto inset significance bracket:
 \code{"t.test"}, \code{"wilcox"}, or \code{"none"}. Default

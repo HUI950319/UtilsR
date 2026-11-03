@@ -39,6 +39,18 @@ test_that("PlotDumbbell automatic inset works without jitter points", {
   }
 })
 
+test_that("PlotDumbbell validates inset types only for automatic insets", {
+  data <- data.frame(start = 1:4, end = c(4, 6, 8, 9), category = letters[1:4])
+  for (inset_type in list("typo", "box", NA_character_, character(),
+                         c("boxplot", "violin"), TRUE)) {
+    expect_error(dumbbell_plot(data, inset_plot = "auto", inset_type = inset_type,
+                               inset_test = "none"), "inset_type.*boxplot.*violin")
+  }
+  expect_no_warning(dumbbell_plot(data, inset_type = "unused"))
+  custom <- ggplot2::ggplot(data, ggplot2::aes(start, end)) + ggplot2::geom_point()
+  expect_no_warning(dumbbell_plot(data, inset_plot = custom, inset_type = "unused"))
+})
+
 test_that("PlotDumbbell labels and guide origins ignore unrelated input columns", {
   data <- data.frame(
     start = 1:4, end = c(4, 6, 8, 9), category = letters[1:4],

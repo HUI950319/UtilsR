@@ -84,7 +84,8 @@
 #'     \item A \code{ggplot} object — embed a custom inset plot.
 #'   }
 #' @param inset_type Type of auto-generated inset: \code{"boxplot"} (default)
-#'   or \code{"violin"}. Only used when \code{inset_plot = "auto"}.
+#'   or \code{"violin"}. Only used when \code{inset_plot = "auto"};
+#'   unsupported values are rejected in that mode.
 #' @param inset_test Paired test for auto inset significance bracket:
 #'   \code{"t.test"}, \code{"wilcox"}, or \code{"none"}. Default
 #'   \code{"t.test"}. Only used when \code{inset_plot = "auto"}.
@@ -446,6 +447,10 @@ PlotDumbbell <- function(
     paired_line, jitter,
     theme_fn
 ) {
+  if (!is.character(inset_type) || length(inset_type) != 1L ||
+      is.na(inset_type) || !inset_type %in% c("boxplot", "violin")) {
+    stop("inset_type must be 'boxplot' or 'violin'.", call. = FALSE)
+  }
   group_labels <- as.character(c(label_x, label_xend))
   group_keys <- make.unique(group_labels)
   group_labels <- stats::setNames(group_labels, group_keys)
