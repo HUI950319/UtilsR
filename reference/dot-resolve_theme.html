@@ -6,14 +6,18 @@ as the fallback.
 Names are looked up as functions visible to the immediate caller, then as
 UtilsR exports, then as ggplot2 exports. Pass a function or theme object for
 a local custom theme used through a plotting wrapper.
-Errors evaluating a visible binding or calling a theme function are preserved."><meta property="og:description" content="The theme resolver shared by plotting functions in UtilsR and RegR. Accepts
+Errors evaluating a visible binding or calling a theme function are preserved.
+Theme functions are called without arguments. Wrap a configured theme call in
+a function to supply settings."><meta property="og:description" content="The theme resolver shared by plotting functions in UtilsR and RegR. Accepts
 a theme object, a function returning a theme, or a function-name string.
 NULL uses theme_km, with ggplot2::theme_bw()
 as the fallback.
 Names are looked up as functions visible to the immediate caller, then as
 UtilsR exports, then as ggplot2 exports. Pass a function or theme object for
 a local custom theme used through a plotting wrapper.
-Errors evaluating a visible binding or calling a theme function are preserved."><meta property="og:image" content="https://hui950319.github.io/UtilsR/logo.png"></head><body>
+Errors evaluating a visible binding or calling a theme function are preserved.
+Theme functions are called without arguments. Wrap a configured theme call in
+a function to supply settings."><meta property="og:image" content="https://hui950319.github.io/UtilsR/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -71,7 +75,9 @@ as the fallback.
 Names are looked up as functions visible to the immediate caller, then as
 UtilsR exports, then as ggplot2 exports. Pass a function or theme object for
 a local custom theme used through a plotting wrapper.
-Errors evaluating a visible binding or calling a theme function are preserved.</p>
+Errors evaluating a visible binding or calling a theme function are preserved.
+Theme functions are called without arguments. Wrap a configured theme call in
+a function to supply settings.</p>
     </div>
 
     <div class="section level2">
@@ -85,7 +91,7 @@ Errors evaluating a visible binding or calling a theme function are preserved.</
 
 <dl><dt id="arg-theme-use">theme_use<a class="anchor" aria-label="anchor" href="#arg-theme-use"></a></dt>
 <dd><p><code>NULL</code>, a single non-missing, non-empty theme name, a function
-returning a theme, or a theme object.</p></dd>
+called without arguments and returning a theme, or a theme object.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -1138,6 +1144,361 @@ returning a theme, or a theme object.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 2.4 0 2.4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.ticks                      : &lt;ggplot2::element_line&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ colour       : chr "#333333FF"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ linewidth    : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ linetype     : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineend      : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ linejoin     : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ arrow        : logi FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ arrow.fill   : chr "#333333FF"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.ticks.x                    : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.ticks.x.top                : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.ticks.x.bottom             : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.ticks.y                    : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.ticks.y.left               : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.ticks.y.right              : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.ticks.theta                : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.ticks.r                    : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.minor.ticks.x.top          : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.minor.ticks.x.bottom       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.minor.ticks.y.left         : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.minor.ticks.y.right        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.minor.ticks.theta          : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.minor.ticks.r              : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.ticks.length               : 'rel' num 0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.ticks.length.x             : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.ticks.length.x.top         : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.ticks.length.x.bottom      : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.ticks.length.y             : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.ticks.length.y.left        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.ticks.length.y.right       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.ticks.length.theta         : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.ticks.length.r             : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.minor.ticks.length         : 'rel' num 0.75</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.minor.ticks.length.x       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.minor.ticks.length.x.top   : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.minor.ticks.length.x.bottom: NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.minor.ticks.length.y       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.minor.ticks.length.y.left  : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.minor.ticks.length.y.right : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.minor.ticks.length.theta   : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.minor.ticks.length.r       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.line                       : &lt;ggplot2::element_blank&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.line.x                     : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.line.x.top                 : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.line.x.bottom              : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.line.y                     : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.line.y.left                : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.line.y.right               : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.line.theta                 : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.line.r                     : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.background               : &lt;ggplot2::element_rect&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fill         : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ colour       : logi NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ linewidth    : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ linetype     : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ linejoin     : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.margin                   : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.spacing                  : 'rel' num 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.spacing.x                : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.spacing.y                : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.key                      : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.key.size                 : 'simpleUnit' num 1.2lines</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "unit")= int 3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.key.height               : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.key.width                : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.key.spacing              : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.key.spacing.x            : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.key.spacing.y            : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.key.justification        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.frame                    : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.ticks                    : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.ticks.length             : 'rel' num 0.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.axis.line                : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.text                     : &lt;ggplot2::element_text&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ family       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ face         : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ italic       : chr NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fontweight   : num NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fontwidth    : num NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ colour       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ size         : 'rel' num 0.8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ hjust        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.text.position            : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.title                    : &lt;ggplot2::element_text&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ family       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ face         : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ italic       : chr NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fontweight   : num NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fontwidth    : num NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ colour       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ size         : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ hjust        : num 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.title.position           : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.position                 : chr "right"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.position.inside          : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.direction                : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.byrow                    : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.justification            : chr "center"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.justification.top        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.justification.bottom     : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.justification.left       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.justification.right      : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ legend.justification.inside     : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [list output truncated]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  @ complete: logi TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  @ validate: logi TRUE</span>
+<span class="r-in"><span><span class="fu">.resolve_theme</span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">16</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;theme&gt; List of 144</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ line                            : &lt;ggplot2::element_line&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ colour       : chr "black"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ linewidth    : num 0.727</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ linetype     : num 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineend      : chr "butt"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ linejoin     : chr "round"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ arrow        : logi FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ arrow.fill   : chr "black"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ rect                            : &lt;ggplot2::element_rect&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fill         : chr "white"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ colour       : chr "black"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ linewidth    : num 0.727</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ linetype     : num 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ linejoin     : chr "round"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ text                            : &lt;ggplot2::element_text&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ family       : chr ""</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ face         : chr "plain"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ italic       : chr NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fontweight   : num NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fontwidth    : num NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ colour       : chr "black"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ size         : num 16</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ hjust        : num 0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : num 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : num 0.9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 0 0 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : logi FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ title                           : &lt;ggplot2::element_text&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ family       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ face         : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ italic       : chr NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fontweight   : num NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fontwidth    : num NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ colour       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ size         : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ hjust        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ point                           : &lt;ggplot2::element_point&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ colour       : chr "black"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ shape        : num 19</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ size         : num 2.18</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fill         : chr "white"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ stroke       : num 0.727</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ polygon                         : &lt;ggplot2::element_polygon&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fill         : chr "white"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ colour       : chr "black"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ linewidth    : num 0.727</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ linetype     : num 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ linejoin     : chr "round"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ geom                            : &lt;ggplot2::element_geom&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ ink        : chr "black"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ paper      : chr "white"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ accent     : chr "#3366FF"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ linewidth  : num 0.727</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ borderwidth: num 0.727</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ linetype   : int 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ bordertype : int 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ family     : chr ""</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fontsize   : num 5.62</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ pointsize  : num 2.18</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ pointshape : num 19</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ colour     : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fill       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ spacing                         : 'simpleUnit' num 8points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "unit")= int 8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ margins                         : &lt;ggplot2::margin&gt; num [1:4] 8 8 8 8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ aspect.ratio                    : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.title                      : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.title.x                    : &lt;ggplot2::element_text&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ family       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ face         : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ italic       : chr NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fontweight   : num NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fontwidth    : num NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ colour       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ size         : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ hjust        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 4 0 0 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.title.x.top                : &lt;ggplot2::element_text&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ family       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ face         : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ italic       : chr NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fontweight   : num NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fontwidth    : num NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ colour       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ size         : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ hjust        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 0 4 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.title.x.bottom             : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.title.y                    : &lt;ggplot2::element_text&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ family       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ face         : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ italic       : chr NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fontweight   : num NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fontwidth    : num NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ colour       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ size         : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ hjust        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : num 90</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 4 0 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.title.y.left               : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.title.y.right              : &lt;ggplot2::element_text&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ family       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ face         : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ italic       : chr NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fontweight   : num NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fontwidth    : num NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ colour       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ size         : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ hjust        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : num -90</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 0 0 4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.text                       : &lt;ggplot2::element_text&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ family       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ face         : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ italic       : chr NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fontweight   : num NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fontwidth    : num NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ colour       : chr "#4D4D4DFF"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ size         : 'rel' num 0.8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ hjust        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.text.x                     : &lt;ggplot2::element_text&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ family       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ face         : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ italic       : chr NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fontweight   : num NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fontwidth    : num NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ colour       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ size         : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ hjust        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 3.2 0 0 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.text.x.top                 : &lt;ggplot2::element_text&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ family       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ face         : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ italic       : chr NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fontweight   : num NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fontwidth    : num NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ colour       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ size         : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ hjust        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : num 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 0 3.2 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.text.x.bottom              : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.text.y                     : &lt;ggplot2::element_text&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ family       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ face         : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ italic       : chr NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fontweight   : num NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fontwidth    : num NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ colour       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ size         : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ hjust        : num 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 3.2 0 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.text.y.left                : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.text.y.right               : &lt;ggplot2::element_text&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ family       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ face         : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ italic       : chr NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fontweight   : num NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fontwidth    : num NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ colour       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ size         : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ hjust        : num 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 0 0 3.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.text.theta                 : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.text.r                     : &lt;ggplot2::element_text&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ family       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ face         : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ italic       : chr NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fontweight   : num NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ fontwidth    : num NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ colour       : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ size         : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ hjust        : num 0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ vjust        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ angle        : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ lineheight   : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ margin       : &lt;ggplot2::margin&gt; num [1:4] 0 3.2 0 3.2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ debug        : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..@ inherit.blank: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ axis.ticks                      : &lt;ggplot2::element_line&gt;</span>
