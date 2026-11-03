@@ -1,5 +1,7 @@
 # UtilsR 0.6.21
 
+* Theme resolution rejects factories returning plot layers, scales or other non-theme objects before they can alter a plot, and rejects names resolving to non-theme data.
+
 * Palette catalogue previews outline each swatch in ggplot and HTML output, keeping pale and fully transparent colour positions visible without changing fill colours, opacity or swatch widths.
 
 * Source palette viewers explain native single-colour generation and distinguish n = 1 from max_colors = 1, with examples preserving each source palette rule.

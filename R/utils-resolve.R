@@ -33,11 +33,8 @@
 .resolve_theme <- function(theme_use) {
   if (is.null(theme_use)) {
     thm <- tryCatch(theme_km, error = function(e) NULL)
-    if (!is.null(thm)) {
-      if (inherits(thm, "theme")) return(thm)
-      if (is.function(thm))       return(thm())
-    }
-    return(ggplot2::theme_bw())
+    theme_use <- if (inherits(thm, "theme") || is.function(thm)) thm
+                 else ggplot2::theme_bw()
   }
   if (is.character(theme_use)) {
     fn <- tryCatch(match.fun(theme_use), error = function(e) NULL)
@@ -46,11 +43,15 @@
                      error = function(e) NULL)
     if (is.null(fn))
       stop(sprintf("Theme '%s' not found", theme_use), call. = FALSE)
-    if (inherits(fn, "theme")) return(fn)
-    return(fn())
+    theme_use <- fn
   }
   if (inherits(theme_use, "theme")) return(theme_use)
-  if (is.function(theme_use))       return(theme_use())
+  if (is.function(theme_use)) {
+    thm <- theme_use()
+    if (!inherits(thm, "theme"))
+      stop("'theme_use' must return a ggplot2 theme object", call. = FALSE)
+    return(thm)
+  }
   stop("'theme_use' must be NULL, character, function, or theme object",
        call. = FALSE)
 }
