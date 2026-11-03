@@ -50,10 +50,10 @@ PlotScatter2(
 
 \item{group2}{Column name for shape grouping (e.g. Group). NULL = no shape grouping.}
 
-\item{colors}{Named colour vector for \code{group} levels. NULL = auto palette
+\item{colors}{Colour vector for \code{group} levels. NULL = auto palette
 (up to 12 groups); supply a complete mapping above this limit.}
 
-\item{shapes}{Named shape vector for \code{group2} levels. NULL = auto
+\item{shapes}{Shape vector for \code{group2} levels. NULL = auto
 (up to 6 groups). Above 6 groups, supply both \code{shapes} and
 \code{fill_colors_shape} mappings.}
 
@@ -120,8 +120,16 @@ via patchwork area layout. Suitable for multi-cohort PCoA/NMDS analysis or
 two-factor gene correlation plots.
 }
 \details{
-For single-group scatter with marginal boxplots, see [PlotScatter1()].
-For paired scatter with rotated histogram inset, see [PlotScatter3()].
+Named \code{colors}, \code{shapes}, and \code{fill_colors_shape} vectors
+must cover every observed, non-missing level of their grouping variable.
+Unnamed vectors are matched in order of first appearance in \code{data}
+and must supply at least one value per observed level. Extra entries are
+accepted.
+
+For single-group scatter with marginal boxplots, see
+\code{\link{PlotScatter1}()}.
+For paired scatter with rotated histogram inset, see
+\code{\link{PlotScatter3}()}.
 }
 \examples{
 library(ggplot2)

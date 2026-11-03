@@ -16,17 +16,25 @@
 #' via patchwork area layout. Suitable for multi-cohort PCoA/NMDS analysis or
 #' two-factor gene correlation plots.
 #'
-#' For single-group scatter with marginal boxplots, see [PlotScatter1()].
-#' For paired scatter with rotated histogram inset, see [PlotScatter3()].
+#' Named \code{colors}, \code{shapes}, and \code{fill_colors_shape} vectors
+#' must cover every observed, non-missing level of their grouping variable.
+#' Unnamed vectors are matched in order of first appearance in \code{data}
+#' and must supply at least one value per observed level. Extra entries are
+#' accepted.
+#'
+#' For single-group scatter with marginal boxplots, see
+#' \code{\link{PlotScatter1}()}.
+#' For paired scatter with rotated histogram inset, see
+#' \code{\link{PlotScatter3}()}.
 #'
 #' @param data A data.frame.
 #' @param x Column name for the X axis.
 #' @param y Column name for the Y axis.
 #' @param group Column name for colour grouping (e.g. Study).
 #' @param group2 Column name for shape grouping (e.g. Group). NULL = no shape grouping.
-#' @param colors Named colour vector for \code{group} levels. NULL = auto palette
+#' @param colors Colour vector for \code{group} levels. NULL = auto palette
 #'   (up to 12 groups); supply a complete mapping above this limit.
-#' @param shapes Named shape vector for \code{group2} levels. NULL = auto
+#' @param shapes Shape vector for \code{group2} levels. NULL = auto
 #'   (up to 6 groups). Above 6 groups, supply both \code{shapes} and
 #'   \code{fill_colors_shape} mappings.
 #' @param fill_colors_shape Fill colours for \code{group2} in marginal boxplots.
@@ -142,6 +150,24 @@ PlotScatter2 <- function(
   }
 
   # ---- Colours / shapes ----
+  match_mapping <- function(values, lvls, arg) {
+    if (is.null(names(values))) {
+      if (length(values) < length(lvls)) {
+        stop(sprintf(
+          "'%s' must supply at least %d values, one for each observed group level.",
+          arg, length(lvls)
+        ), call. = FALSE)
+      }
+      return(stats::setNames(values[seq_along(lvls)], lvls))
+    }
+    missing_lvls <- setdiff(lvls, names(values))
+    if (length(missing_lvls)) {
+      stop(sprintf("'%s' is missing mappings for: %s.",
+                   arg, paste(missing_lvls, collapse = ", ")), call. = FALSE)
+    }
+    values
+  }
+
   color_lvls <- levels(df[[group]])
   n_color <- length(color_lvls)
 
@@ -154,9 +180,7 @@ PlotScatter2 <- function(
                       "#66C2A5", "#FC8D62", "#8DA0CB", "#E78AC3")
     colors <- stats::setNames(default_cols[seq_len(n_color)], color_lvls)
   }
-  if (is.null(names(colors))) {
-    colors <- stats::setNames(colors[seq_len(n_color)], color_lvls)
-  }
+  colors <- match_mapping(colors, color_lvls, "colors")
 
   if (!is.null(group2)) {
     shape_lvls <- levels(df[[group2]])
@@ -176,6 +200,9 @@ PlotScatter2 <- function(
                      "#9467BD", "#8C564B")
       fill_colors_shape <- stats::setNames(shape_pal[seq_len(n_shape)], shape_lvls)
     }
+    shapes <- match_mapping(shapes, shape_lvls, "shapes")
+    fill_colors_shape <- match_mapping(fill_colors_shape, shape_lvls,
+                                       "fill_colors_shape")
   }
 
   if (is.null(xlab)) xlab <- x

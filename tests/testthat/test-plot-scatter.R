@@ -74,3 +74,93 @@ test_that("PlotScatter2 requires explicit mappings beyond its default capacities
   boundary <- PlotScatter2(data[1:12, ], "x", "y", "g", group2 = "h")
   expect_false(anyNA(ggplot2::ggplot_build(boundary[[1]])$data[[1]]$shape))
 })
+
+test_that("PlotScatter2 rejects incomplete explicit mappings", {
+  data <- data.frame(x = 1:9, y = 9:1,
+                     g = rep(c("b", "a", "c"), each = 3),
+                     h = rep(c("Y", "X", "Z"), each = 3))
+  draw <- function(...) PlotScatter2(data, "x", "y", "g", group2 = "h", ...)
+  mappings <- list(
+    colors = c(b = "red", c = "blue", unused = "black"),
+    shapes = c(Y = 17, Z = 15, unused = 16),
+    fill_colors_shape = c(Y = "gold", Z = "green", unused = "black")
+  )
+  missing <- c(colors = "a", shapes = "X", fill_colors_shape = "X")
+  for (arg in names(mappings)) {
+    message <- tryCatch({
+      do.call(draw, stats::setNames(list(mappings[[arg]]), arg))
+      NULL
+    }, error = conditionMessage)
+    expect_identical(message, sprintf("'%s' is missing mappings for: %s.",
+                                      arg, missing[[arg]]))
+
+    message <- tryCatch({
+      do.call(draw, stats::setNames(list(unname(mappings[[arg]][1:2])), arg))
+      NULL
+    }, error = conditionMessage)
+    expect_identical(message, sprintf(
+      "'%s' must supply at least 3 values, one for each observed group level.", arg
+    ))
+  }
+})
+
+test_that("PlotScatter2 matches complete named mappings by level", {
+  data <- data.frame(x = 1:9, y = 9:1,
+                     g = factor(rep(c("b", "a", "c"), each = 3),
+                                levels = c("unused", "c", "a", "b")),
+                     h = rep(c("Y", "X", "Z"), each = 3))
+  colors <- c(c = "#336699", a = "#993333", b = "#339933", extra = "black")
+  shapes <- c(Z = 15, X = 18, Y = 17, extra = 16)
+  fills <- c(X = "#999933", Z = "#993399", Y = "#339999", extra = "white")
+  p <- PlotScatter2(data, "x", "y", "g", group2 = "h", colors = colors,
+                    shapes = shapes, fill_colors_shape = fills)
+  points <- ggplot2::ggplot_build(p[[1]])$data[[1]]
+  expect_identical(points$colour, unname(colors[as.character(data$g)]))
+  expect_identical(points$shape, unname(shapes[data$h]))
+  for (panel in c(2, 4)) {
+    boxes <- ggplot2::ggplot_build(p[[panel]])$data[[1]]
+    expect_identical(boxes$fill, unname(colors[c("b", "a", "c")]))
+  }
+  for (panel in c(3, 5)) {
+    boxes <- ggplot2::ggplot_build(p[[panel]])$data[[1]]
+    expect_identical(boxes$fill, unname(fills[c("Y", "X", "Z")]))
+  }
+})
+
+test_that("PlotScatter2 matches unnamed mappings in order of first appearance", {
+  data <- data.frame(x = 1:9, y = 9:1,
+                     g = rep(c("b", "a", "c"), each = 3),
+                     h = rep(c("Y", "X", "Z"), each = 3))
+  colors <- c("#336699", "#993333", "#339933", "black")
+  shapes <- c(17, 18, 15, 16)
+  fills <- c("#999933", "#993399", "#339999", "white")
+  p <- PlotScatter2(data, "x", "y", "g", group2 = "h", colors = colors,
+                    shapes = shapes, fill_colors_shape = fills)
+  points <- ggplot2::ggplot_build(p[[1]])$data[[1]]
+  expect_identical(points$colour, rep(colors[1:3], each = 3))
+  expect_identical(points$shape, rep(shapes[1:3], each = 3))
+  for (panel in c(2, 4)) {
+    boxes <- ggplot2::ggplot_build(p[[panel]])$data[[1]]
+    expect_identical(boxes$fill, colors[1:3])
+  }
+  for (panel in c(3, 5)) {
+    boxes <- ggplot2::ggplot_build(p[[panel]])$data[[1]]
+    expect_identical(boxes$fill, fills[1:3])
+  }
+})
+
+test_that("PlotScatter2 labels shape fills from unnamed mappings", {
+  skip_if_not_installed("gridExtra")
+  data <- data.frame(x = 1:9, y = 9:1,
+                     g = rep(c("b", "a", "c"), each = 3),
+                     h = rep(c("Y", "X", "Z"), each = 3))
+  p <- PlotScatter2(data, "x", "y", "g", group2 = "h",
+                    fill_colors_shape = c("gold", "green", "blue"))
+  grob_labels <- function(grob) {
+    labels <- if (inherits(grob, "text")) as.character(grob$label) else character()
+    children <- c(grob$grobs, as.list(grob$children))
+    c(labels, unlist(lapply(children, grob_labels), use.names = FALSE))
+  }
+  labels <- grob_labels(ggplot2::ggplotGrob(p[[6]]))
+  expect_setequal(intersect(labels, c("Y", "X", "Z")), c("Y", "X", "Z"))
+})
