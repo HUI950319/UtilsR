@@ -10,7 +10,7 @@ grob_as(plot, ...)
 \item{plot}{A plot object. Supported types: \code{gtable}, \code{grob},
 \code{gList}, \code{patchwork}, or \code{ggplot}.}
 
-\item{...}{Additional arguments passed to conversion functions.}
+\item{...}{Currently unused; reserved for future extensions.}
 }
 \value{
 A grob or gtable object, or \code{NULL} with a warning if conversion
@@ -24,6 +24,9 @@ input types automatically.
 \details{
 Patchwork objects are converted with \code{patchwork::patchworkGrob()},
 preserving the complete layout, annotations, and collected guides.
+
+When no graphics device is open, conversion uses a temporary null PDF
+device that is closed before returning. An already open device is reused.
 }
 \examples{
 library(ggplot2)

@@ -70,3 +70,59 @@ test_that("grob_as() preserves the other supported input conversions", {
   expect_warning(result <- grob_as(42), "Cannot convert object")
   expect_null(result)
 })
+
+test_that("grob_as() does not leave devices or files when converting headlessly", {
+  directory <- withr::local_tempdir()
+  script <- file.path(directory, "headless.R")
+  child_code <- c(
+    paste0(".libPaths(", paste(capture.output(dput(.libPaths())), collapse = "\n"), ")"),
+    paste0("grob_as <- ", paste(deparse(grob_as), collapse = "\n")),
+    "options(device = 'pdf')",
+    paste0("setwd(", encodeString(directory, quote = '"'), ")"),
+    "data <- data.frame(x = 1:3, y = c(2, 1, 3))",
+    "plot <- ggplot2::ggplot(data, ggplot2::aes(x, y)) + ggplot2::geom_point()",
+    "objects <- list(plot = plot, patchwork = patchwork::wrap_plots(plot, plot),",
+    "  grob = grid::textGrob('Raw grob'), gList = grid::gList(),",
+    "  failure = ggplot2::ggplot(data, ggplot2::aes(unknown, y)) + ggplot2::geom_point())",
+    "state <- list()",
+    "for (name in names(objects)) {",
+    "  before <- unname(grDevices::dev.cur())",
+    "  result <- tryCatch(grob_as(objects[[name]]), error = identity)",
+    "  state[[name]] <- list(before = before, after = unname(grDevices::dev.cur()),",
+    "    error = inherits(result, 'error'), grob = grid::is.grob(result))",
+    "  if (grDevices::dev.cur() > 1L) grDevices::dev.off()",
+    "}",
+    "saveRDS(list(state = state, files = list.files(pattern = '^Rplots')), 'state.rds')"
+  )
+  writeLines(child_code, script)
+  rscript <- file.path(R.home("bin"),
+                       if (.Platform$OS.type == "windows") "Rscript.exe" else "Rscript")
+  stdout <- file.path(directory, "stdout.log")
+  stderr <- file.path(directory, "stderr.log")
+  status <- system2(rscript, c("--vanilla", shQuote(script)),
+                    stdout = stdout, stderr = stderr)
+  expect_equal(status, 0L, info = paste(readLines(stderr, warn = FALSE), collapse = "\n"))
+  result <- readRDS(file.path(directory, "state.rds"))
+
+  expect_length(result$files, 0L)
+  for (name in names(result$state)) {
+    state <- result$state[[name]]
+    expect_equal(state$before, 1L)
+    expect_equal(state$after, 1L)
+    expect_identical(state$error, name == "failure")
+    expect_identical(state$grob, name != "failure")
+  }
+})
+
+test_that("grob_as() reuses an already open graphics device", {
+  withr::local_pdf(NULL, width = 5, height = 4)
+  device <- grDevices::dev.cur()
+  data <- data.frame(x = 1:3, y = c(2, 1, 3))
+  plot <- ggplot2::ggplot(data, ggplot2::aes(x, y)) + ggplot2::geom_point()
+
+  result <- grob_as(plot)
+
+  expect_identical(grDevices::dev.cur(), device)
+  expect_equal(grDevices::dev.size("in"), c(5, 4))
+  expect_no_error(grid::grid.draw(result))
+})

@@ -30,7 +30,7 @@ NULL
 #'
 #' @param plot A plot object. Supported types: \code{gtable}, \code{grob},
 #'   \code{gList}, \code{patchwork}, or \code{ggplot}.
-#' @param ... Additional arguments passed to conversion functions.
+#' @param ... Currently unused; reserved for future extensions.
 #'
 #' @return A grob or gtable object, or \code{NULL} with a warning if conversion
 #'   is not supported.
@@ -38,6 +38,9 @@ NULL
 #' @details
 #' Patchwork objects are converted with \code{patchwork::patchworkGrob()},
 #' preserving the complete layout, annotations, and collected guides.
+#'
+#' When no graphics device is open, conversion uses a temporary null PDF
+#' device that is closed before returning. An already open device is reused.
 #'
 #' @examples
 #' library(ggplot2)
@@ -57,6 +60,13 @@ grob_as <- function(plot, ...) {
   }
   if (inherits(plot, "gList")) {
     return(grid::grobTree(plot))
+  }
+  if (inherits(plot, c("patchwork", "ggplot")) && grDevices::dev.cur() == 1L) {
+    grDevices::pdf(NULL)
+    null_device <- grDevices::dev.cur()
+    on.exit({
+      if (null_device %in% grDevices::dev.list()) grDevices::dev.off(null_device)
+    }, add = TRUE)
   }
   if (inherits(plot, "patchwork")) {
     if (requireNamespace("patchwork", quietly = TRUE)) {
