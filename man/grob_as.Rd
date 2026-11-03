@@ -25,6 +25,9 @@ input types automatically.
 Patchwork objects are converted with \code{patchwork::patchworkGrob()},
 preserving the complete layout, annotations, and collected guides.
 
+Standalone patchwork wrappers created by \code{patchwork::wrap_elements()}
+or \code{patchwork::wrap_ggplot_grob()} retain their wrapped graphics.
+
 When no graphics device is open, conversion uses a temporary null PDF
 device that is closed before returning. An already open device is reused.
 }

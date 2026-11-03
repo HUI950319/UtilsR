@@ -39,6 +39,9 @@ NULL
 #' Patchwork objects are converted with \code{patchwork::patchworkGrob()},
 #' preserving the complete layout, annotations, and collected guides.
 #'
+#' Standalone patchwork wrappers created by \code{patchwork::wrap_elements()}
+#' or \code{patchwork::wrap_ggplot_grob()} retain their wrapped graphics.
+#'
 #' When no graphics device is open, conversion uses a temporary null PDF
 #' device that is closed before returning. An already open device is reused.
 #'
@@ -68,8 +71,10 @@ grob_as <- function(plot, ...) {
       if (null_device %in% grDevices::dev.list()) grDevices::dev.off(null_device)
     }, add = TRUE)
   }
-  if (inherits(plot, "patchwork")) {
+  if (inherits(plot, "patchwork") ||
+      (inherits(plot, "ggplot") && inherits(plot, "patch"))) {
     if (requireNamespace("patchwork", quietly = TRUE)) {
+      if (!inherits(plot, "patchwork")) plot <- patchwork::wrap_plots(plot)
       return(patchwork::patchworkGrob(plot))
     } else {
       warning(

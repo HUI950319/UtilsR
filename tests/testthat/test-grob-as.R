@@ -126,3 +126,29 @@ test_that("grob_as() reuses an already open graphics device", {
   expect_equal(grDevices::dev.size("in"), c(5, 4))
   expect_no_error(grid::grid.draw(result))
 })
+
+test_that("grob_as() retains standalone patchwork wrappers", {
+  withr::local_pdf(NULL)
+  data <- data.frame(x = 1:3, y = c(2, 1, 3))
+  plot <- ggplot2::ggplot(data, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  table <- ggplot2::ggplotGrob(plot + ggplot2::labs(title = "Table payload"))
+  plots <- list(
+    full = patchwork::wrap_elements(full = grid::textGrob("Full payload")),
+    panel = patchwork::wrap_elements(panel = grid::textGrob("Panel payload")),
+    table = patchwork::wrap_ggplot_grob(table)
+  )
+  payloads <- c(full = "Full payload", panel = "Panel payload", table = "Table payload")
+
+  for (name in names(plots)) {
+    native <- patchwork::patchworkGrob(patchwork::wrap_plots(plots[[name]]))
+    result <- grob_as(plots[[name]])
+
+    expect_equal(sum(grob_as_test_labels(result) == payloads[[name]]), 1L)
+    expect_equal(grob_as_test_labels(result), grob_as_test_labels(native))
+    expect_equal(result$layout, native$layout)
+    expect_no_error(grid::grid.draw(result))
+
+    side <- grob_add(plot, plots[[name]], position = "top", space = grid::unit(5, "mm"))
+    expect_equal(sum(grob_as_test_labels(side) == payloads[[name]]), 1L)
+  }
+})
