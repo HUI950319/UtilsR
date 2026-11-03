@@ -11,7 +11,9 @@
 \code{\link{pal_get}()}), a single literal colour, or a colour vector.
 Anything R cannot draw is an error naming the calling function.}
 
-\item{n}{Optional integer size. Registered palettes use
+\item{n}{Optional plain integer or double scalar with a whole-number value
+from zero to \code{.Machine$integer.max}, without a class or dimensions.
+Registered palettes use
 \code{pal_get(palette, n = n)} (interpolating when \code{n} is longer);
 literal vectors and \code{default} use \code{\link{rep_len}()}, with a
 warning when several colours have to repeat. \code{NULL} (default) returns

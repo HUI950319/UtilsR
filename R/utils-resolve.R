@@ -88,7 +88,9 @@
 #' @param palette \code{NULL}, a registered palette name (resolved via
 #'   \code{\link{pal_get}()}), a single literal colour, or a colour vector.
 #'   Anything R cannot draw is an error naming the calling function.
-#' @param n Optional integer size. Registered palettes use
+#' @param n Optional plain integer or double scalar with a whole-number value
+#'   from zero to \code{.Machine$integer.max}, without a class or dimensions.
+#'   Registered palettes use
 #'   \code{pal_get(palette, n = n)} (interpolating when \code{n} is longer);
 #'   literal vectors and \code{default} use \code{\link{rep_len}()}, with a
 #'   warning when several colours have to repeat. \code{NULL} (default) returns
@@ -109,6 +111,12 @@
 
   # One colour repeated is a choice; several repeated make groups share a colour.
   caller <- rlang::caller_env()
+  if (!is.null(n) && !(is.numeric(n) && !is.complex(n) && !is.object(n) &&
+                       is.null(dim(n)) && length(n) == 1L && is.finite(n) &&
+                       n >= 0 && n <= .Machine$integer.max && n == floor(n))) {
+    cli::cli_abort("{.arg n} must be a plain non-negative whole number in the supported integer range, or {.code NULL}.",
+                   call = caller)
+  }
   sized <- function(x) {
     if (is.null(n)) return(x)
     if (length(x) > 1L && length(x) < n) {

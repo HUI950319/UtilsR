@@ -112,3 +112,18 @@ test_that(".resolve_color warns when groups would share a colour", {
   expect_identical(suppressWarnings(.resolve_color(c("red", "blue"), n = 3)),
                    c("red", "blue", "red"))
 })
+
+test_that(".resolve_color validates n before choosing a colour branch", {
+  bad_n <- list(1.8, "2", TRUE, NA_real_, numeric(), c(1L, 2L),
+                factor("2"), matrix(2L), 2 + 0i, Inf, -1)
+  for (palette in list(NULL, "red", "lancet")) {
+    for (n in bad_n) {
+      expect_error(.resolve_color(palette, n = n), "n.*plain.*whole number")
+    }
+    expect_identical(.resolve_color(palette, n = 0L), character())
+    expect_length(.resolve_color(palette, n = 2), 2L)
+  }
+  outer_plot <- function(n) .resolve_color("lancet", n = n)
+  err <- tryCatch(outer_plot("2"), error = identity)
+  expect_identical(conditionCall(err), quote(outer_plot("2")))
+})
