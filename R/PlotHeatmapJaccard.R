@@ -18,7 +18,9 @@
 #'   Jaccard similarity. Default \code{"gene"}.
 #' @param title Plot title. Default \code{"Jaccard Similarity"}.
 #' @param group_levels Character vector specifying the display order of groups on
-#'   both axes. \code{NULL} = factor levels (if factor) or data appearance order.
+#'   both axes. Non-missing entries must be unique; missing entries are ignored.
+#'   Unobserved groups are retained as empty sets. \code{NULL} = factor levels
+#'   (if factor) or data appearance order.
 #' @param midpoint Midpoint of the colour gradient. Default \code{0.1}.
 #' @param text_size Size of the numeric labels inside each cell. Default \code{2.5}.
 #'   Set to \code{0} to hide labels.
@@ -50,6 +52,7 @@
 #'     \item{"data"}{A numeric matrix of pairwise Jaccard similarities.}
 #'     \item{"both"}{A list with elements \code{plot} and \code{matrix}.}
 #'   }
+#'   Empty sets have similarity \code{0} to every group, including themselves.
 #'   Returned plots retain heatmap inputs rather than the original data frame.
 #'
 #' @examples
@@ -116,6 +119,8 @@ PlotHeatmapJaccard <- function(
     unique(data[[group_col]])
   }
   ct_names <- ct_names[!is.na(ct_names)]
+  if (anyDuplicated(ct_names))
+    stop("'group_levels' must not contain duplicate non-missing groups.", call. = FALSE)
   n_ct <- length(ct_names)
   if (n_ct == 0L)
     stop("No non-missing groups available.", call. = FALSE)

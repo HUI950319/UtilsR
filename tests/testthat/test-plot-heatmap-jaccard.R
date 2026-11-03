@@ -133,6 +133,41 @@ test_that("group order, duplicate features, and empty-set convention are retaine
   expect_equal(unname(reversed), unname(result[c("A", "B"), c("A", "B")]))
 })
 
+test_that("duplicate group levels fail consistently across return and save paths", {
+  dat <- data.frame(cell_type = c("A", "B"), gene = c("a", "b"))
+  for (groups in list(c("A", "A"), c("A", NA, "B", "A"),
+                      c("A", "unobserved", "unobserved"))) {
+    for (type in c("plot", "data", "both")) {
+      path <- withr::local_tempfile(fileext = ".pdf")
+      for (filename in list(NULL, path)) {
+        expect_error(
+          PlotHeatmapJaccard(dat, group_levels = groups, return_type = type,
+                             filename = filename),
+          "group_levels.*duplicate"
+        )
+      }
+      expect_identical(file.exists(path), FALSE)
+    }
+  }
+})
+
+test_that("explicit group levels ignore missing labels and retain empty groups", {
+  dat <- data.frame(cell_type = c("A", "A", "B", NA),
+                    gene = c("a", "b", NA, "orphan"))
+  groups <- c("unobserved", "B", "A")
+  expected <- rbind(c(0, 0, 0), c(0, 0, 0), c(0, 0, 1))
+  dimnames(expected) <- list(groups, groups)
+  for (order in list(groups, c(NA, "unobserved", "B", NA, "A", NA))) {
+    result <- PlotHeatmapJaccard(dat, group_levels = order, return_type = "both")
+    expect_identical(result$matrix, expected)
+    expect_identical(levels(result$plot$data$Group1), groups)
+    expect_identical(levels(result$plot$data$Group2), groups)
+    expect_s3_class(ggplot2::ggplot_build(result$plot), "ggplot_built")
+  }
+  empty <- PlotHeatmapJaccard(dat[FALSE, ], group_levels = groups, return_type = "data")
+  expect_identical(empty, matrix(0, 3, 3, dimnames = list(groups, groups)))
+})
+
 test_that("a saved heatmap is announced with its size and the file state", {
   dat <- data.frame(cell_type = c("A", "A", "B"), gene = c("a", "b", "b"))
   path <- withr::local_tempfile(fileext = ".pdf")

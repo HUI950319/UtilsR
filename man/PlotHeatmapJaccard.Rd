@@ -40,7 +40,9 @@ Jaccard similarity. Default \code{"gene"}.}
 \item{title}{Plot title. Default \code{"Jaccard Similarity"}.}
 
 \item{group_levels}{Character vector specifying the display order of groups on
-both axes. \code{NULL} = factor levels (if factor) or data appearance order.}
+both axes. Non-missing entries must be unique; missing entries are ignored.
+Unobserved groups are retained as empty sets. \code{NULL} = factor levels
+(if factor) or data appearance order.}
 
 \item{midpoint}{Midpoint of the colour gradient. Default \code{0.1}.}
 
@@ -86,6 +88,7 @@ Depends on \code{return_type}:
     \item{"data"}{A numeric matrix of pairwise Jaccard similarities.}
     \item{"both"}{A list with elements \code{plot} and \code{matrix}.}
   }
+Empty sets have similarity \code{0} to every group, including themselves.
 Returned plots retain heatmap inputs rather than the original data frame.
 }
 \description{
