@@ -78,7 +78,9 @@ independently of \code{group2}. Default FALSE.}
 \item{annot_text}{Annotation text in main plot (e.g. PERMANOVA). NULL = none.
 Manual input overrides \code{show_cor} auto text.}
 
-\item{annot_pos}{Annotation position c(x, y). NULL = auto top-left.}
+\item{annot_pos}{Annotation position c(x, y). NULL = auto top-left using
+finite observations. An axis with no finite observations uses c(0, 1)
+as the reference range for automatic positioning.}
 
 \item{annot_size}{Annotation text size. Default 5.}
 

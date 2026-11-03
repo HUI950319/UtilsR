@@ -284,3 +284,24 @@ test_that("PlotScatter2 builds fill legends independently of global legend visib
   expected <- c("g", "h", "a", "b", "X", "Y")
   expect_setequal(intersect(labels, expected), expected)
 })
+
+test_that("PlotScatter2 keeps automatic annotation coordinates finite", {
+  data <- data.frame(x = 1:12, y = 12:1, g = rep(c("a", "b"), 6))
+  cases <- list(
+    list(data = data, want = c(1.22, 11.78)),
+    list(data = transform(data, x = replace(x, 1, Inf)), want = c(2.2, 11.78)),
+    list(data = transform(data, y = replace(y, 1, Inf)), want = c(1.22, 10.8)),
+    list(data = transform(data, y = NA_real_), want = c(1.22, 0.98)),
+    list(data = data[FALSE, ], want = c(0.02, 0.98)),
+    list(data = transform(data, y = replace(y, 1, Inf)),
+         pos = c(-2, 5), want = c(-2, 5))
+  )
+  for (case in cases) {
+    p <- suppressWarnings(PlotScatter2(case$data, "x", "y", "g",
+                                       annot_text = "Annotation", annot_pos = case$pos))
+    text <- ggplot2::ggplot_build(p[[1]])$data[[2]]
+    expect_equal(c(text$x, text$y), case$want)
+    grob <- suppressWarnings(ggplot2::ggplotGrob(p[[1]]))
+    expect_equal(sum(scatter_grob_labels(grob) == "Annotation"), 1L)
+  }
+})

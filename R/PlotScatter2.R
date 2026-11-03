@@ -55,7 +55,9 @@
 #' @param reg_method Regression method: "lm" or "loess". Default "lm".
 #' @param annot_text Annotation text in main plot (e.g. PERMANOVA). NULL = none.
 #'   Manual input overrides \code{show_cor} auto text.
-#' @param annot_pos Annotation position c(x, y). NULL = auto top-left.
+#' @param annot_pos Annotation position c(x, y). NULL = auto top-left using
+#'   finite observations. An axis with no finite observations uses c(0, 1)
+#'   as the reference range for automatic positioning.
 #' @param annot_size Annotation text size. Default 5.
 #' @param xlab X axis label. NULL = column name.
 #' @param ylab Y axis label. NULL = column name.
@@ -296,8 +298,12 @@ PlotScatter2 <- function(
   # Annotation text
   if (!is.null(annot_text)) {
     if (is.null(annot_pos)) {
-      x_rng <- range(df[[x]], na.rm = TRUE)
-      y_rng <- range(df[[y]], na.rm = TRUE)
+      finite_range <- function(z) {
+        z <- z[is.finite(z)]
+        if (length(z)) range(z) else c(0, 1)
+      }
+      x_rng <- finite_range(df[[x]])
+      y_rng <- finite_range(df[[y]])
       annot_pos <- c(x_rng[1] + diff(x_rng) * 0.02,
                      y_rng[2] - diff(y_rng) * 0.02)
     }
