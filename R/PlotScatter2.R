@@ -43,7 +43,8 @@
 #'   NULL = auto (up to 6 groups).
 #' @param point_size Point size. Default 2.
 #' @param point_alpha Point transparency. Default 0.8.
-#' @param show_ellipse Whether to draw group ellipses (based on \code{group}). Default FALSE.
+#' @param show_ellipse Whether to draw ellipses based on \code{group},
+#'   independently of \code{group2}. Default FALSE.
 #' @param show_cor Whether to auto-compute and display correlation. Default FALSE.
 #' @param cor_method Correlation method: "pearson" or "spearman". Default "pearson".
 #' @param show_regression Whether to show a regression line. Default FALSE.
@@ -260,8 +261,10 @@ PlotScatter2 <- function(
   # Ellipses
   if (show_ellipse) {
     p_main <- p_main +
-      ggplot2::stat_ellipse(ggplot2::aes(color = .data[[group]]),
-                             show.legend = FALSE)
+      ggplot2::stat_ellipse(ggplot2::aes(
+        x = .data[[x]], y = .data[[y]],
+        color = .data[[group]], group = .data[[group]]
+      ), inherit.aes = FALSE, show.legend = FALSE)
   }
 
   # Regression line

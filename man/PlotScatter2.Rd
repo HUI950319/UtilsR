@@ -64,7 +64,8 @@ NULL = auto (up to 6 groups).}
 
 \item{point_alpha}{Point transparency. Default 0.8.}
 
-\item{show_ellipse}{Whether to draw group ellipses (based on \code{group}). Default FALSE.}
+\item{show_ellipse}{Whether to draw ellipses based on \code{group},
+independently of \code{group2}. Default FALSE.}
 
 \item{show_cor}{Whether to auto-compute and display correlation. Default FALSE.}
 

@@ -216,3 +216,16 @@ test_that("PlotScatter2 retains both fill legends without gridExtra", {
   expect_setequal(intersect(scatter_grob_labels(legend_grob), expected), expected)
   grid::grid.draw(legend_grob)
 })
+
+test_that("PlotScatter2 groups ellipses by colour independently of point shapes", {
+  set.seed(42)
+  data <- data.frame(x = rnorm(40), y = rnorm(40),
+                     g = rep(c("a", "b"), each = 20), h = rep(c("X", "Y"), 20))
+  single <- PlotScatter2(data, "x", "y", "g", show_ellipse = TRUE)
+  dual <- PlotScatter2(data, "x", "y", "g", group2 = "h", show_ellipse = TRUE)
+  single_ellipse <- ggplot2::ggplot_build(single[[1]])$data[[2]]
+  dual_ellipse <- ggplot2::ggplot_build(dual[[1]])$data[[2]]
+  expect_length(unique(dual_ellipse$group), 2L)
+  expect_equal(dual_ellipse[c("x", "y", "colour")],
+               single_ellipse[c("x", "y", "colour")])
+})
