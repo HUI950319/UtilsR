@@ -272,3 +272,15 @@ test_that("PlotScatter2 defers ellipse notices until the main plot is drawn", {
   draw_messages <- get_messages(ggplot2::ggplot_build(p[[1]]))
   expect_match(paste(draw_messages, collapse = " "), "Too few points")
 })
+
+test_that("PlotScatter2 builds fill legends independently of global legend visibility", {
+  original_theme <- ggplot2::theme_get()
+  withr::defer(ggplot2::theme_set(original_theme))
+  ggplot2::theme_set(ggplot2::theme_void() + ggplot2::theme(legend.position = "none"))
+  data <- data.frame(x = 1:12, y = 12:1, g = rep(c("a", "b"), 6),
+                     h = rep(c("X", "Y"), each = 6))
+  p <- PlotScatter2(data, "x", "y", "g", group2 = "h")
+  labels <- scatter_grob_labels(ggplot2::ggplotGrob(p[[6]]))
+  expected <- c("g", "h", "a", "b", "X", "Y")
+  expect_setequal(intersect(labels, expected), expected)
+})

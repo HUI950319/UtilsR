@@ -23,6 +23,7 @@
 #' accepted.
 #'
 #' The bottom-right panel contains a fill legend for each grouping variable.
+#' These fill legends are independent of the global theme's legend visibility.
 #' Marginal numeric axes use the main plot's displayed ranges, including
 #' ellipses and annotations. Density estimates use the original observations;
 #' only their displayed ranges are zoomed.
@@ -553,6 +554,7 @@ PlotScatter2 <- function(
         )
       ) +
       ggplot2::theme(
+        legend.position = "right",
         legend.title = ggplot2::element_text(
           size = base_size * 0.75, face = "bold"
         ),
