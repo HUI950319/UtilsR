@@ -816,7 +816,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 
   ggplot2::ggplot(plot_data, ggplot2::aes(
     x = .data[["x"]], y = .data[["palette"]], fill = I(.data[["color"]]))) +
-    ggplot2::geom_tile(width = 1, height = 0.8) +
+    ggplot2::geom_tile(width = 1, height = 0.8, colour = "grey80", linewidth = 0.3) +
     ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult = 0)) +
     ggplot2::labs(x = NULL, y = NULL, title = sprintf("%d palettes", length(pals))) +
     ggplot2::theme_minimal(base_size = 10) +
@@ -928,9 +928,12 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #' single-row colour bar (ggplot) with hex labels, similar to
 #' \code{show_color()} but as a publication-ready plot.
 #'
-#' @details In gt catalogue output, long palette names wrap within the name
-#'   column. Each swatch exposes its hexadecimal colour value as a hover title
-#'   and an accessible label.
+#' @details Catalogue swatches use thin grey outlines in ggplot and HTML output.
+#'   The outlines remain visible for fully transparent fills.
+#'
+#'   In gt catalogue output, long palette names wrap within the name column.
+#'   Each swatch exposes its hexadecimal colour value as a hover title and an
+#'   accessible label.
 #'
 #' @param palette Character vector of palette names (e.g. \code{"lancet"}),
 #'   a colour vector (hex codes or named colours), or \code{NULL} to show
@@ -1120,7 +1123,7 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
       spans <- vapply(.pal_hex(cols), function(c) {
         sprintf(paste0('<span role="img" title="%s" aria-label="%s" ',
                        'style="display:inline-block;width:%dpx;',
-                       'background:%s;color:%s;">&nbsp;</span>'),
+                       'background:%s;color:%s;box-shadow:inset 0 0 0 1px #CCCCCC;">&nbsp;</span>'),
                 c, c, swatch_px, c, c)
       }, character(1))
       paste(spans, collapse = "")

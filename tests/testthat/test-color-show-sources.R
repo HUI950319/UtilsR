@@ -1915,6 +1915,65 @@ test_that("ggsci single-colour previews select native colours before display cap
   }
 })
 
+source_palette_border_cases <- function() {
+  cases <- list(
+    hcl = list(fun = pal_show_hcl, palette = "Grays", args = list(n = 3),
+      expected = grDevices::hcl.colors(3, "Grays")),
+    viridis = list(fun = pal_show_viridis, palette = "viridis",
+      args = list(n = 3, alpha = 0, begin = 0.2, end = 0.8, direction = -1),
+      expected = viridisLite::viridis(3, alpha = 0, begin = 0.2, end = 0.8, direction = -1))
+  )
+  if (requireNamespace("RColorBrewer", quietly = TRUE)) {
+    cases$brewer <- list(fun = pal_show_brewer, palette = "Blues", args = list(n = 3),
+      expected = RColorBrewer::brewer.pal(3, "Blues"))
+  }
+  if (requireNamespace("ggsci", quietly = TRUE)) {
+    native <- unname(utils::getFromNamespace("ggsci_db", "ggsci")$gsea$default)
+    at <- round(seq.int(1, length(native), length.out = 3))
+    cases$ggsci <- list(fun = pal_show_ggsci, palette = "gsea_default",
+      args = list(n = 3, alpha = 0),
+      expected = grDevices::adjustcolor(native[at], alpha.f = 0))
+  }
+  cases
+}
+
+test_that("source palette plots outline swatches without changing fills or positions", {
+  for (case in source_palette_border_cases()) {
+    p <- do.call(case$fun, c(list(palette = case$palette, output = "gg"), case$args))
+    layer <- ggplot2::ggplot_build(p)$data[[1L]]
+    expect_identical(unname(grDevices::col2rgb(layer$fill, alpha = TRUE)),
+                     unname(grDevices::col2rgb(case$expected, alpha = TRUE)))
+    expect_identical(unname(grDevices::col2rgb(layer$colour, alpha = TRUE)),
+                     unname(grDevices::col2rgb(rep("grey80", 3), alpha = TRUE)))
+    expect_equal(layer$linewidth, rep(0.3, 3))
+    expect_equal(as.numeric(layer$xmax - layer$xmin), rep(1, 3))
+    expect_equal(as.numeric(layer$ymax - layer$ymin), rep(0.8, 3))
+  }
+})
+
+test_that("source palette HTML outlines preserve swatch widths and HEX fallbacks", {
+  skip_if_not_installed("xml2")
+  for (case in source_palette_border_cases()) {
+    table <- do.call(case$fun, c(list(palette = case$palette, output = "gt"), case$args))
+    html <- xml2::read_html(gt::as_raw_html(table))
+    swatches <- xml2::xml_find_all(html, "//span[@role='img']")
+    expect_length(swatches, 3L)
+    styles <- xml2::xml_attr(swatches, "style")
+    for (style in styles) {
+      expect_match(style, "width:20px;", fixed = TRUE)
+      expect_match(style, "box-shadow:inset 0 0 0 1px #CCCCCC;", fixed = TRUE)
+    }
+    colours <- sub("background:", "", regmatches(styles,
+      regexpr("background:#[A-Fa-f0-9]+", styles)))
+    expect_identical(unname(grDevices::col2rgb(colours, alpha = TRUE)),
+                     unname(grDevices::col2rgb(case$expected, alpha = TRUE)))
+    expect_identical(xml2::xml_attr(swatches, "aria-label"), colours)
+    expect_identical(xml2::xml_attr(swatches, "title"), colours)
+    expect_identical(gt::extract_cells(table, columns = "preview", output = "plain"),
+                     paste(colours, collapse = " "))
+  }
+})
+
 test_that("ggsci reverses the final preview without changing selected colours", {
   skip_if_not_installed("ggsci")
   settings <- list(list(n = 3, max_colors = 20), list(max_colors = 3),

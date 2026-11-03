@@ -79,9 +79,12 @@ rather than palette names, the function automatically switches to
 single-row colour bar (ggplot) with hex labels, similar to
 \code{show_color()} but as a publication-ready plot.
 
-In gt catalogue output, long palette names wrap within the name
-  column. Each swatch exposes its hexadecimal colour value as a hover title
-  and an accessible label.
+Catalogue swatches use thin grey outlines in ggplot and HTML output.
+  The outlines remain visible for fully transparent fills.
+
+  In gt catalogue output, long palette names wrap within the name column.
+  Each swatch exposes its hexadecimal colour value as a hover title and an
+  accessible label.
 }
 \examples{
 # Show specific palettes (gt table, default)
