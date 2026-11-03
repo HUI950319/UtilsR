@@ -1190,7 +1190,10 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
 #'   the argument and matched count before any palettes are drawn.
 #' @param max_colors Positive whole number limiting displayed colours per palette,
 #'   or \code{Inf} for no display cap. Default 20. Applied after native size
-#'   adjustment; use \code{max_colors = 1} to display a single colour.
+#'   adjustment. With \code{max_colors = 1}, \code{"qual"} palettes show
+#'   their first colour; \code{"seq"} and \code{"div"} palettes show the
+#'   middle colour of the adjusted native sequence (the lower middle for an
+#'   even sequence size).
 #' @param output Output format: \code{"gt"} (default) for a gt table,
 #'   \code{"gg"} for a ggplot, or \code{"console"} for terminal output.
 #'   gt colour swatches use HTML. LaTeX, Word, RTF and other non-HTML
@@ -1204,8 +1207,9 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
 #' pal_show_brewer(c("Set1", "Blues"), n = 8, output = "gg")
 #' pal_show_brewer(type = "qual", output = "gg")
 #'
-#' # Display one colour from the native palette
-#' pal_show_brewer("Blues", max_colors = 1, output = "gg")
+#' # First qualitative colour versus the lower middle of eight sequential colours
+#' pal_show_brewer("Set1", n = 8, max_colors = 1, output = "gg")
+#' pal_show_brewer("Blues", n = 8, max_colors = 1, output = "gg")
 #'
 #' @export
 #' @family colour palettes
