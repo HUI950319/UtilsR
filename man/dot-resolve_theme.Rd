@@ -21,6 +21,7 @@ as the fallback.
 Names are looked up as functions visible to the immediate caller, then as
 UtilsR exports, then as ggplot2 exports. Pass a function or theme object for
 a local custom theme used through a plotting wrapper.
+Errors evaluating a visible binding or calling a theme function are preserved.
 }
 \examples{
 .resolve_theme("theme_bw")

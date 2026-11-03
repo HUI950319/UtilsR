@@ -28,6 +28,7 @@
 #' Names are looked up as functions visible to the immediate caller, then as
 #' UtilsR exports, then as ggplot2 exports. Pass a function or theme object for
 #' a local custom theme used through a plotting wrapper.
+#' Errors evaluating a visible binding or calling a theme function are preserved.
 #'
 #' @param theme_use \code{NULL}, a single non-missing, non-empty theme name, a function
 #'   returning a theme, or a theme object.
@@ -52,13 +53,11 @@
         anyNA(theme_use) || !nzchar(trimws(theme_use, whitespace = "[\\h\\v]")))
       stop("'theme_use' must be a single non-missing, non-empty theme name",
            call. = FALSE)
-    fn <- tryCatch(match.fun(theme_use), error = function(e) NULL)
-    if (is.null(fn))
-      fn <- tryCatch(getExportedValue("UtilsR", theme_use),
-                     error = function(e) NULL)
-    if (is.null(fn))
-      fn <- tryCatch(getExportedValue("ggplot2", theme_use),
-                     error = function(e) NULL)
+    fn <- get0(theme_use, envir = parent.frame(), mode = "function")
+    if (is.null(fn) && theme_use %in% getNamespaceExports("UtilsR"))
+      fn <- getExportedValue("UtilsR", theme_use)
+    if (is.null(fn) && theme_use %in% getNamespaceExports("ggplot2"))
+      fn <- getExportedValue("ggplot2", theme_use)
     if (is.null(fn))
       stop(sprintf("Theme '%s' not found", theme_use), call. = FALSE)
     theme_use <- fn

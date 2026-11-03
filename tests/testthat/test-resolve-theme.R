@@ -54,6 +54,37 @@ test_that(".resolve_theme keeps visible custom factories and validates them", {
   expect_error(.resolve_theme("unknown_theme_for_test"), "not found")
 })
 
+test_that(".resolve_theme preserves active binding errors before export fallback", {
+  failure <- simpleError("custom theme font configuration failed")
+  calls <- 0L
+  env <- new.env(parent = environment())
+  makeActiveBinding("theme_bw", function() {
+    calls <<- calls + 1L
+    stop(failure)
+  }, env)
+  resolve <- function(name) .resolve_theme(name)
+  environment(resolve) <- env
+
+  expect_identical(tryCatch(resolve("theme_bw"), error = identity), failure)
+  expect_identical(calls, 1L)
+})
+
+test_that(".resolve_theme preserves delayed binding errors before export fallback", {
+  failure <- simpleError("custom theme initialization failed")
+  env <- new.env(parent = environment())
+  delayedAssign("theme_km", stop(failure), eval.env = environment(),
+                assign.env = env)
+  resolve <- function(name) .resolve_theme(name)
+  environment(resolve) <- env
+
+  expect_identical(tryCatch(resolve("theme_km"), error = identity), failure)
+})
+
+test_that(".resolve_theme skips non-functions when resolving visible names", {
+  theme_bw <- 42
+  expect_equal(.resolve_theme("theme_bw")$text$size, 11)
+})
+
 test_that(".resolve_theme rejects malformed theme names before lookup", {
   invalid <- list(character(), c("theme_bw", "theme_minimal"), NA_character_,
                   "", " \t\n", "\u00a0", "\u2003", matrix("theme_bw", 1L))

@@ -1,5 +1,7 @@
 # UtilsR 0.6.22
 
+* .resolve_theme() preserves errors while evaluating custom theme bindings instead of silently falling back to another theme or reporting a missing name.
+
 * .resolve_color() recognises already-validated numeric colour tokens without coercing ordinary colour names or constructing suppressed conversion warnings.
 
 * Named colours in plt_cat(), plt_con() and plt_dist() share literal-colour validation and numeric-index normalisation, so invalid values fail before grob conversion and cannot expand as palette names.
