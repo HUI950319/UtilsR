@@ -204,7 +204,7 @@
       "*" = browse
     ), call = rlang::caller_env())
   }
-  numeric_colour <- !is.na(suppressWarnings(as.numeric(out)))
+  numeric_colour <- grepl("^[[:space:]]*[+-]?([0-9]|\\.[0-9])", out)
   if (any(numeric_colour)) {
     rgba <- grDevices::col2rgb(out[numeric_colour], alpha = TRUE)
     out[numeric_colour] <- grDevices::rgb(rgba[1L, ], rgba[2L, ], rgba[3L, ],
