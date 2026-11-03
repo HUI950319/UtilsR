@@ -34,14 +34,20 @@ Add a grob or gtable to the margin of an existing gtable, aligned to the
 panel area. Useful for appending side plots (e.g., density plots, bar charts)
 around a main plot panel.
 }
+\details{
+Top and bottom additions span the full width of the panel area; left and
+right additions span its full height, including all facets. The main gtable
+must contain a panel area unless \code{position = "none"} or \code{grob}
+is \code{NULL}.
+}
 \examples{
-\dontrun{
 library(ggplot2)
-main <- ggplot(mtcars, aes(wt, mpg)) + geom_point()
-side <- ggplot(mtcars, aes(x = wt)) + geom_density()
+data <- data.frame(x = 1:12, y = rep(c(2, 4, 1, 6, 3, 5), 2),
+                   group = rep(c("A", "B"), each = 6))
+main <- ggplot(data, aes(x, y)) + geom_point() + facet_wrap(~group)
+side <- ggplot(data, aes(x)) + geom_density()
 gt <- grob_add(main, grob_as(side), position = "top")
 grid::grid.draw(gt)
-}
 
 }
 \seealso{

@@ -105,14 +105,20 @@ grob_as <- function(plot, ...) {
 #'
 #' @return A gtable object with the grob added at the specified position.
 #'
+#' @details
+#' Top and bottom additions span the full width of the panel area; left and
+#' right additions span its full height, including all facets. The main gtable
+#' must contain a panel area unless \code{position = "none"} or \code{grob}
+#' is \code{NULL}.
+#'
 #' @examples
-#' \dontrun{
 #' library(ggplot2)
-#' main <- ggplot(mtcars, aes(wt, mpg)) + geom_point()
-#' side <- ggplot(mtcars, aes(x = wt)) + geom_density()
+#' data <- data.frame(x = 1:12, y = rep(c(2, 4, 1, 6, 3, 5), 2),
+#'                    group = rep(c("A", "B"), each = 6))
+#' main <- ggplot(data, aes(x, y)) + geom_point() + facet_wrap(~group)
+#' side <- ggplot(data, aes(x)) + geom_density()
 #' gt <- grob_add(main, grob_as(side), position = "top")
 #' grid::grid.draw(gt)
-#' }
 #'
 #' @export
 #' @family grob utilities
@@ -160,15 +166,20 @@ grob_add <- function(
     }
   }
 
-  panel_rows <- gt$layout[grepl("panel", gt$layout$name), "t"]
-  panel_cols <- gt$layout[grepl("panel", gt$layout$name), "l"]
+  panel_layout <- gt$layout[grepl("panel", gt$layout$name), , drop = FALSE]
+  if (nrow(panel_layout) == 0L) {
+    stop("Cannot find the panel area in 'plot'.", call. = FALSE)
+  }
+  panel_rows <- range(panel_layout$t, panel_layout$b)
+  panel_cols <- range(panel_layout$l, panel_layout$r)
 
   if (position == "top") {
     gt <- gtable::gtable_add_rows(gt, space, 0)
     gt <- gtable::gtable_add_grob(
       gt, grob,
       t = 1,
-      l = mean(panel_cols),
+      l = panel_cols[1],
+      r = panel_cols[2],
       clip = clip
     )
   }
@@ -177,7 +188,8 @@ grob_add <- function(
     gt <- gtable::gtable_add_grob(
       gt, grob,
       t = dim(gt)[1],
-      l = mean(panel_cols),
+      l = panel_cols[1],
+      r = panel_cols[2],
       clip = clip
     )
   }
@@ -185,7 +197,8 @@ grob_add <- function(
     gt <- gtable::gtable_add_cols(gt, space, 0)
     gt <- gtable::gtable_add_grob(
       gt, grob,
-      t = mean(panel_rows),
+      t = panel_rows[1],
+      b = panel_rows[2],
       l = 1,
       clip = clip
     )
@@ -194,7 +207,8 @@ grob_add <- function(
     gt <- gtable::gtable_add_cols(gt, space, -1)
     gt <- gtable::gtable_add_grob(
       gt, grob,
-      t = mean(panel_rows),
+      t = panel_rows[1],
+      b = panel_rows[2],
       l = dim(gt)[2],
       clip = clip
     )
