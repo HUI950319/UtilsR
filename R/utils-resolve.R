@@ -79,7 +79,7 @@
 #
 # Centralises the "palette name OR colour vector" resolution of the plot
 # functions here and in RegR. Registered names go through `pal_get()`, literal
-# colours are checked and returned as given, and anything R cannot draw stops
+# colours are checked (numeric indices are fixed to hex), and invalid input stops
 # with an error. Returns an UNNAMED vector (callers add names via setNames()).
 #
 #   palette = NULL                          # default -> `default` (pal_lancet)
@@ -98,6 +98,9 @@
 #'   values, logical missing values, or factors (converted to character).
 #'   Other classes, including labelled, integer64 and date-time vectors, are
 #'   not supported; convert these explicitly before choosing colours.
+#'   Numeric colour indices, including numeric strings, are resolved against
+#'   the current \code{grDevices::palette()} and returned as fixed RGBA hex
+#'   colours. Other literal strings and missing colours are kept as given.
 #'   Anything R cannot draw is an error naming the calling function.
 #' @param n Optional plain integer or double scalar with a whole-number value
 #'   from zero to \code{.Machine$integer.max}, without a class or dimensions.
@@ -110,7 +113,8 @@
 #'   \code{\link{pal_lancet}}. Must be non-empty and contain valid literal
 #'   colours; registered palette names are not expanded here.
 #' @return An unnamed character vector: hex colours from a registered palette,
-#'   literal colours as given.
+#'   fixed RGBA hex colours for numeric indices, and other literal colours as
+#'   given.
 #'
 #' @examples
 #' .resolve_color("lancet", n = 3)
@@ -199,6 +203,12 @@
       "i" = if (length(near) > 0L) "Did you mean {.val {near}}?",
       "*" = browse
     ), call = rlang::caller_env())
+  }
+  numeric_colour <- !is.na(suppressWarnings(as.numeric(out)))
+  if (any(numeric_colour)) {
+    rgba <- grDevices::col2rgb(out[numeric_colour], alpha = TRUE)
+    out[numeric_colour] <- grDevices::rgb(rgba[1L, ], rgba[2L, ], rgba[3L, ],
+                                        rgba[4L, ], maxColorValue = 255)
   }
   sized(out)
 }

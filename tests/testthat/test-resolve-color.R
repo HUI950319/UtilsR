@@ -89,7 +89,8 @@ test_that(".resolve_color keeps the inputs R can draw", {
   expect_identical(.resolve_color(c(a = "red", b = "blue")), c("red", "blue"))
   expect_identical(.resolve_color(factor("red"), n = 2), c("red", "red"))
   expect_identical(.resolve_color(NA, n = 2), c(NA_character_, NA_character_))
-  expect_identical(.resolve_color(2, n = 2), c("2", "2"))
+  expect_identical(grDevices::col2rgb(.resolve_color(2, n = 2)),
+                   grDevices::col2rgb(rep(2, 2)))
   expect_identical(.resolve_color(UtilsR::pal_heat$blue_red, n = 2),
                    UtilsR::pal_heat$blue_red[1:2])
 })
@@ -163,4 +164,21 @@ test_that(".resolve_color handles factors and rejects ambiguous storage", {
     expect_error(.resolve_color(value), "plain.*colour.*vector|one-dimensional")
     expect_error(.resolve_color(NULL, default = value), "plain.*colour.*vector|one-dimensional")
   }
+})
+
+test_that(".resolve_color fixes numeric indices to the current base palette", {
+  old_palette <- grDevices::palette()
+  withr::defer(grDevices::palette(old_palette))
+  grDevices::palette(c("black", "#123456"))
+  for (value in list(2, 2.8, "2", "2.8", "1e2", factor("2"))) {
+    expect_identical(.resolve_color(value, n = 2L), rep("#123456FF", 2L))
+  }
+  mixed <- c("red", "2", NA_character_, "transparent", "#FF000080")
+  expect_identical(.resolve_color(mixed),
+                   c("red", "#123456FF", NA_character_, "transparent", "#FF000080"))
+  expect_identical(.resolve_color(NULL, default = 2), "#123456FF")
+  resolved <- .resolve_color(2)
+  grDevices::palette(c("black", "#ABCDEF"))
+  expect_identical(ggplot2::alpha(resolved, 1), "#123456FF")
+  expect_identical(.resolve_color(2), "#ABCDEFFF")
 })

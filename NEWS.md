@@ -1,5 +1,7 @@
 # UtilsR 0.6.22
 
+* .resolve_color() resolves numeric colour indices and numeric strings against the current base palette into fixed RGBA hex colours, preserving their appearance across plotting backends.
+
 * Export the shared theme resolver for importing plotting packages; RegR uses this implementation instead of maintaining a copy.
 
 * Theme resolution checks scalar names before lookup and clearly rejects empty, missing, multiple, dimensional or whitespace-only inputs, including Unicode whitespace.
