@@ -32,9 +32,11 @@
 #'   \code{"<NA>"}, with suffixes as needed to avoid existing labels. These
 #'   labels also identify rows in \code{cor_results} and named palette entries.
 #' @param method.by Character. Column name identifying the two methods.
-#'   Must have exactly 2 observed, non-missing levels. Factor levels determine
-#'   their order; other vectors use first appearance. The first maps to the
-#'   x-axis and the second to the y-axis.
+#'   Must have exactly 2 observed, non-missing values. Methods are identified
+#'   by their original values before conversion to text labels; suffixes
+#'   distinguish identical labels. Factor levels determine their order;
+#'   other vectors use first appearance. The first maps to the x-axis and
+#'   the second to the y-axis.
 #' @param use_rank Logical. If \code{TRUE} (default), plot ranks and compute
 #'   Spearman correlation. If \code{FALSE}, plot raw values and compute
 #'   Pearson correlation.
@@ -247,13 +249,18 @@ PlotRankCor <- function(
     }
   }
 
-  methods <- unique(as.character(data[[method.by]]))
-  if (anyNA(methods))
+  method_values <- data[[method.by]]
+  method_keys <- vctrs::vec_unique(method_values)
+  if (is.factor(method_values))
+    method_keys <- method_keys[order(as.integer(method_keys))]
+  methods <- as.character(method_keys)
+  if (anyNA(method_values) || anyNA(methods))
     cli::cli_abort("{.arg method.by} must not contain missing identifiers.")
   if (length(methods) != 2L)
     cli::cli_abort("{.arg method.by} must have exactly 2 levels, got {length(methods)}.")
-  if (is.factor(data[[method.by]]))
-    methods <- levels(data[[method.by]])[levels(data[[method.by]]) %in% methods]
+  methods <- make.unique(methods)
+  method.by_internal <- tail(make.unique(c(names(data), ".method")), 1L)
+  data[[method.by_internal]] <- vctrs::vec_match(method_values, method_keys)
 
   # ---- Compute ranks ----
   if (is.null(group.by)) {
@@ -282,7 +289,7 @@ PlotRankCor <- function(
   # Compute plot values: rank or raw value
   rank_long <- data
   if (use_rank) {
-    rank_rows <- vctrs::vec_group_loc(data[unique(c(group.by_internal, method.by))])$loc
+    rank_rows <- vctrs::vec_group_loc(data[unique(c(group.by_internal, method.by_internal))])$loc
     rank_long[[plot_value]] <- NA_real_
     for (idx in rank_rows) {
       rank_long[[plot_value]][idx] <- rank(-data[[value.by]][idx],
@@ -310,7 +317,7 @@ PlotRankCor <- function(
   }
 
   # Aggregate duplicates before pivot (mean per stat.by x group x method)
-  pivot_keys <- unique(c(stat.by, group.by_internal, method.by))
+  pivot_keys <- unique(c(stat.by, group.by_internal, method.by_internal))
   pivot_data <- rank_long[, unique(c(pivot_keys, plot_value)), drop = FALSE]
   key_order <- do.call(order, unname(lapply(pivot_data[pivot_keys], as.character)))
   pivot_data <- pivot_data[key_order, , drop = FALSE]
@@ -321,12 +328,11 @@ PlotRankCor <- function(
 
   # Pivot to wide: one column per method
   method_cols <- tail(make.unique(c(stat.by, group.by_internal, extra_cols, methods)), 2L)
-  pivot_data[[method.by]] <- method_cols[match(as.character(pivot_data[[method.by]]), methods)]
   id_cols <- unique(c(stat.by, group.by_internal))
   pair_id <- vctrs::vec_group_id(pivot_data[id_cols])
   rank_wide <- pivot_data[!duplicated(pair_id), id_cols, drop = FALSE]
   for (i in seq_along(methods)) {
-    rows <- which(pivot_data[[method.by]] == method_cols[i])
+    rows <- which(pivot_data[[method.by_internal]] == i)
     rank_wide[[method_cols[i]]] <- pivot_data[[plot_value]][rows][
       match(seq_len(nrow(rank_wide)), pair_id[rows])]
   }

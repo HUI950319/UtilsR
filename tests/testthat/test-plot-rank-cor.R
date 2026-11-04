@@ -245,7 +245,7 @@ test_that("rank-correlation working columns do not replace user identities", {
   data <- rank_cor_data()
   data$score[is.na(data$score)] <- 1
   original <- quiet_rank_cor(data)
-  for (name in c(".group", ".plot_val", ".plot_val.item")) {
+  for (name in c(".group", ".plot_val", ".plot_val.item", ".method", ".method.1")) {
     x <- data; names(x)[names(x) == "item"] <- name
     invisible(capture.output(p <- PlotRankCor(x, name, "score", method.by = "method", show.label = FALSE)))
     expect_identical(sort(as.character(p$data[[name]])), letters[1:4])
@@ -437,6 +437,145 @@ test_that("rank-correlation factor methods keep axes stable after row reordering
   data$method <- as.character(data$method)
   p <- quiet_rank_cor(data)
   expect_identical(p$labels$x, "M2 (rank)")
+})
+
+test_that("rank-correlation methods retain exact identities before labelling", {
+  method_types <- list(c(1, 1 + .Machine$double.eps),
+                       as.POSIXct("2026-01-01", tz = "UTC") + c(0, 0.25),
+                       as.difftime(c(1, 1 + .Machine$double.eps), units = "days"),
+                       c(20L, 10L), c(TRUE, FALSE),
+                       as.Date(c("2026-01-02", "2026-01-01")))
+  if (requireNamespace("bit64", quietly = TRUE))
+    method_types[["integer64"]] <- bit64::as.integer64(c("9007199254740992", "9007199254740993"))
+  if (requireNamespace("haven", quietly = TRUE))
+    method_types[["labelled"]] <- haven::labelled(c(1, 1 + .Machine$double.eps))
+  if (requireNamespace("lubridate", quietly = TRUE))
+    method_types[["duration"]] <- lubridate::ddays(c(1, 1 + .Machine$double.eps))
+  expect_identical(as.character(method_types[[1L]]), c("1", "1"))
+  for (methods in method_types) {
+    for (ranked in c(TRUE, FALSE)) {
+      data <- rank_cor_data(); data$score <- c(40, 30, 20, 10, 8, 2, 6, 4)
+      reference <- quiet_rank_cor(data, use_rank = ranked,
+                                  scale_x = "minmax", scale_y = "zscore")
+      data$method <- methods[rep(1:2, each = 4)]
+      before <- data
+      p <- quiet_rank_cor(data, use_rank = ranked, scale_x = "minmax", scale_y = "zscore")
+      labels <- make.unique(as.character(methods))
+      expect_equal(p$data[[labels[1]]], reference$data$M1)
+      expect_equal(p$data[[labels[2]]], reference$data$M2)
+      expect_equal(attr(p, "cor_results"), attr(reference, "cor_results"))
+      built <- ggplot2::ggplot_build(p)$data[[1L]]
+      expected <- ggplot2::ggplot_build(reference)$data[[1L]]
+      expect_equal(built$x, expected$x)
+      expect_equal(built$y, expected$y)
+      expect_identical(p$labels$x, paste0(labels[1], if (ranked) " (rank)" else " (minmax)"))
+      expect_identical(p$labels$y, paste0(labels[2], if (ranked) " (rank)" else " (zscore)"))
+      expect_identical(data, before)
+    }
+  }
+})
+
+test_that("rank-correlation counts exact methods when their text labels overlap", {
+  for (methods in list(c(1, 1 + .Machine$double.eps, 2),
+                       c(1, 1 + .Machine$double.eps, 1.1))) {
+    data <- data.frame(item = rep(letters[1:3], 3),
+                       method = methods[rep(1:3, each = 3)], score = seq_len(9))
+    expect_error(quiet_rank_cor(data), "exactly 2 levels, got 3")
+  }
+})
+
+test_that("missing method identifiers are rejected before label conversion", {
+  method_types <- list(c(NA_real_, 1), c(NaN, 1),
+                       factor(c(NA_character_, "M2"), exclude = NULL))
+  if (requireNamespace("haven", quietly = TRUE)) {
+    method_types[["spss_value"]] <- haven::labelled_spss(c(1, 99), na_values = 99)
+    method_types[["spss_range"]] <- haven::labelled_spss(c(1, 99), na_range = c(90, 100))
+  }
+  if (requireNamespace("bit64", quietly = TRUE))
+    method_types[["integer64"]] <- bit64::as.integer64(c("1", NA))
+  for (methods in method_types) {
+    data <- rank_cor_data()
+    data$method <- methods[rep(1:2, each = 4)]
+    expect_error(quiet_rank_cor(data), "method.by.*missing identifiers")
+  }
+})
+
+test_that("ordered method factors retain level order with unused levels", {
+  data <- rank_cor_data(); data$score <- c(40, 30, 20, 10, 8, 2, 6, 4)
+  data$method <- ordered(data$method, levels = c("M2", "unused", "M1"))
+  before <- data
+  p <- quiet_rank_cor(data)
+  expect_identical(p$labels$x, "M2 (rank)")
+  expect_identical(p$labels$y, "M1 (rank)")
+  points <- ggplot2::ggplot_build(p)$data[[1L]]
+  expect_equal(points$x, rank(-data$score[5:8]))
+  expect_equal(points$y, rank(-data$score[1:4]))
+  expect_identical(data, before)
+})
+
+test_that("colliding method labels retain first-appearance axis order", {
+  data <- rank_cor_data(); data$score <- c(40, 30, 20, 10, 8, 2, 6, 4)
+  data$method <- rep(c(1, 1 + .Machine$double.eps), each = 4)
+  reference <- quiet_rank_cor(data)
+  data <- data[c(5:8, 1:4), ]
+  p <- quiet_rank_cor(data)
+  points <- ggplot2::ggplot_build(p)$data[[1L]]
+  expected <- ggplot2::ggplot_build(reference)$data[[1L]]
+  expect_equal(points$x, expected$y)
+  expect_equal(points$y, expected$x)
+  expect_equal(attr(p, "cor_results"), attr(reference, "cor_results"))
+  expect_identical(p$labels$x, "1 (rank)")
+  expect_identical(p$labels$y, "1.1 (rank)")
+
+  p <- quiet_rank_cor(data, title = "Comparison", xlab = "First", ylab = "Second")
+  expect_identical(p$labels$title, "Comparison")
+  expect_identical(p$labels$x, "First")
+  expect_identical(p$labels$y, "Second")
+})
+
+test_that("method label suffixes do not replace category or aesthetic columns", {
+  data <- rank_cor_data(); data$score <- c(40, 30, 20, 10, 8, 2, 6, 4)
+  reference <- quiet_rank_cor(data, size_by = "score", alpha_by = "score")
+  data$method <- rep(c(1, 1 + .Machine$double.eps), each = 4)
+  names(data)[names(data) == "item"] <- "1"
+  names(data)[names(data) == "score"] <- "1.1"
+  before <- data
+  invisible(capture.output(p <- PlotRankCor(data, "1", "1.1", method.by = "method",
+    size_by = "1.1", alpha_by = "1.1", show.label = FALSE)))
+  expect_identical(p$data[["1"]], reference$data$item)
+  expect_identical(p$data[["1.1"]], reference$data$score)
+  expect_equal(attr(p, "cor_results"), attr(reference, "cor_results"))
+  points <- ggplot2::ggplot_build(p)$data[[1L]]
+  expected <- ggplot2::ggplot_build(reference)$data[[1L]]
+  expect_equal(points[c("x", "y", "size", "alpha")], expected[c("x", "y", "size", "alpha")])
+  expect_identical(p$labels$x, "1 (rank)")
+  expect_identical(p$labels$y, "1.1 (rank)")
+  expect_identical(data, before)
+})
+
+test_that("exact method identifiers survive shared column roles", {
+  methods <- c(1, 1 + .Machine$double.eps)
+  data <- rank_cor_data(); data$score <- c(40, 30, 20, 10, 8, 2, 6, 4)
+  data$method <- methods[rep(1:2, each = 4)]
+  before <- data
+  p <- quiet_rank_cor(data, group.by = "method", size_by = "method")
+  expect_identical(sort(p$data$method), rep(methods, each = 4))
+  expect_identical(sort(attr(p, "cor_results")$group), c("1", "1.1"))
+  points <- ggplot2::ggplot_build(p)
+  expect_equal(nrow(points$layout$layout), 2L)
+  expect_equal(sum(stats::complete.cases(points$data[[1L]][c("x", "y")])), 0L)
+
+  invisible(capture.output(p <- PlotRankCor(data, "method", "score", method.by = "method")))
+  expect_identical(p$data$method, methods)
+  expect_identical(ggplot2::ggplot_build(p)$data[[3L]]$label, methods)
+
+  invisible(capture.output(p <- PlotRankCor(data, "item", "method", method.by = "method",
+    use_rank = FALSE, size_by = "method", alpha_by = "method", show.label = FALSE)))
+  points <- ggplot2::ggplot_build(p)$data[[1L]]
+  expect_identical(points$x, rep(methods[1], 4))
+  expect_identical(points$y, rep(methods[2], 4))
+  expect_identical(p$data$method, rep(mean(methods), 4))
+  expect_identical(data, before)
 })
 
 test_that("rank-correlation palette names determine group colours", {

@@ -62,9 +62,11 @@ labels. Non-missing factors retain their level order. Missing groups use
 labels also identify rows in \code{cor_results} and named palette entries.}
 
 \item{method.by}{Character. Column name identifying the two methods.
-Must have exactly 2 observed, non-missing levels. Factor levels determine
-their order; other vectors use first appearance. The first maps to the
-x-axis and the second to the y-axis.}
+Must have exactly 2 observed, non-missing values. Methods are identified
+by their original values before conversion to text labels; suffixes
+distinguish identical labels. Factor levels determine their order;
+other vectors use first appearance. The first maps to the x-axis and
+the second to the y-axis.}
 
 \item{use_rank}{Logical. If \code{TRUE} (default), plot ranks and compute
 Spearman correlation. If \code{FALSE}, plot raw values and compute
