@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pal_show()` respects later gt column width and visibility settings while keeping the default HTML swatch dimensions and relative LaTeX widths.
+
 * Reuse measured layout cells for automatic `fmt_raster()` panel dimensions.
 
 * Compute pooled quantile bounds once for stacked `plt_con()` plots with shared axes and reuse them for comparison labels.

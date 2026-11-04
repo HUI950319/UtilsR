@@ -89,8 +89,8 @@ test_that("pal_show sizes the Colours column from the longest palette", {
   invisible(capture.output(one <- pal_show("Set1", output = "gt")))
   invisible(capture.output(two <- pal_show(c("Set1", "Paired"), output = "gt")))
 
-  expect_match(gt::as_raw_html(one), '<th[^>]*min-width:\\s*180px;[^>]*id="preview"')
-  expect_match(gt::as_raw_html(two), '<th[^>]*min-width:\\s*240px;[^>]*id="preview"')
+  expect_match(gt::as_raw_html(one), '<col[^>]*width:\\s*190px;')
+  expect_match(gt::as_raw_html(two), '<col[^>]*width:\\s*250px;')
 })
 
 test_that("pal_show sizes the Colours column from the drawn swatches", {
@@ -99,7 +99,7 @@ test_that("pal_show sizes the Colours column from the drawn swatches", {
   invisible(capture.output(
     tbl <- pal_show("Paired", max_colors = 6, output = "gt")))
 
-  expect_match(gt::as_raw_html(tbl), '<th[^>]*min-width:\\s*120px;[^>]*id="preview"')
+  expect_match(gt::as_raw_html(tbl), '<col[^>]*width:\\s*130px;')
 })
 
 test_that("pal_show keeps a fixed Colours swatch width", {
@@ -109,6 +109,22 @@ test_that("pal_show keeps a fixed Colours swatch width", {
   html <- gt::as_raw_html(tbl)
 
   expect_match(html, "display:inline-block;width:20px;")
+})
+
+test_that("palette catalogue HTML respects changed and hidden column widths", {
+  skip_if_not_installed("xml2")
+  widths <- function(tbl) {
+    doc <- xml2::read_html(gt::as_raw_html(tbl))
+    styles <- xml2::xml_attr(xml2::xml_find_all(doc, "//colgroup/col"), "style")
+    sub("^width:\\s*([^;]+);$", "\\1", styles)
+  }
+  tbl <- pal_show("Set1", max_colors = 3)
+  expect_identical(widths(tbl), c("180px", "80px", "70px", "90px"))
+  resized <- gt::cols_width(tbl, palette ~ gt::px(90))
+  expect_identical(widths(resized), c("90px", "80px", "70px", "90px"))
+  expect_identical(widths(gt::cols_width(tbl, palette ~ gt::pct(28)))[[1L]], "28%")
+  hidden <- gt::cols_hide(tbl, columns = "preview")
+  expect_identical(widths(hidden), c("180px", "80px", "70px"))
 })
 
 test_that("palette catalogue LaTeX wraps columns and repeats headers across pages", {
@@ -156,7 +172,7 @@ test_that("pal_show keeps max_colors as a display cap on top of n", {
   html <- gt::as_raw_html(tbl)
 
   # six swatches drawn out of the thirty the resampling produced
-  expect_match(html, '<th[^>]*min-width:\\s*120px;[^>]*id="preview"')
+  expect_match(html, '<col[^>]*width:\\s*130px;')
   expect_match(html, ">6 / 30</td>")
   # resampling must not lose the registry's palette type
   expect_match(html, ">discrete</td>")

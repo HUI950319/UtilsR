@@ -928,6 +928,23 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   default = function(x) rep(NA_character_, length(x))
 ), envir = new.env(parent = baseenv()))
 
+# Use equivalent percent spellings to distinguish our widths from later gt overrides.
+.pal_gt_widths <- function(tbl, latex_widths, html_widths = NULL) {
+  widths <- paste0(latex_widths, ".", strrep("0", seq_along(latex_widths)), "%")
+  rules <- Map(function(column, width) {
+    stats::as.formula(bquote(.(as.name(column)) ~ .(width)))
+  }, names(latex_widths), widths)
+  tbl <- gt::tab_options(tbl, table.width = "100.0%")
+  tbl <- gt::cols_width(tbl, .list = rules)
+  table_width <- if (is.null(html_widths)) "auto" else "0px"
+  column_widths <- if (is.null(html_widths)) "auto" else paste0(html_widths, "px")
+  # gt supplies a fresh table ID when it compiles the extra HTML styles.
+  gt::opt_css(tbl, css = c(
+    sprintf('##{$element_id} .gt_table[style*="width:100.0%%;"] {width:%s !important;}', table_width),
+    sprintf('##{$element_id} col[style="width:%s;"] {width:%s !important;}', widths, column_widths)
+  ))
+}
+
 # Numeric strings refer to the mutable base palette rather than literal colours.
 .pal_are_colors <- function(x) {
   if (length(x) > 1024L && .pal_use_unique(x)) x <- unique(x)
@@ -1258,36 +1275,20 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
       style = gt::cell_fill(color = "#E8F4FD"),
       locations = gt::cells_column_labels()
     ) %>%
+    gt::tab_style(
+      style = gt::css("overflow-wrap" = "anywhere"),
+      locations = gt::cells_body(columns = c("palette", "n_colors"))
+    ) %>%
     gt::tab_options(
       table.font.size = gt::px(13),
       data_row.padding = gt::px(4),
       column_labels.padding = gt::px(6),
-      table.layout = "auto",
-      container.width = sprintf("min(100%%, %dpx)", sum(html_widths)),
       latex.use_longtable = TRUE,
       latex.header_repeat = TRUE
-    ) %>%
-    gt::cols_width(
-      palette ~ gt::pct(28),
-      type ~ gt::pct(18),
-      n_colors ~ gt::pct(18),
-      preview ~ gt::pct(36)
     )
 
-  # HTML uses pixel widths, including the 5px padding on each side of a cell.
-  for (column in names(html_widths)) {
-    width <- gt::px(html_widths[[column]] - 10)
-    wrap <- column %in% c("palette", "n_colors")
-    tbl <- gt::tab_style(
-      tbl, gt::css("min-width" = width, "width" = width,
-                  "overflow-wrap" = if (wrap) "anywhere"),
-      locations = list(gt::cells_column_labels(columns = column),
-                       gt::cells_body(columns = column,
-                                      rows = if (wrap) seq_len(nrow(tbl_data)) else 1L))
-    )
-  }
-
-  tbl
+  .pal_gt_widths(tbl, c(palette = 28, type = 18, n_colors = 18, preview = 36),
+                 html_widths)
 }
 
 #' Visualise RColorBrewer Palettes
