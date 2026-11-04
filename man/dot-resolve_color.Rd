@@ -16,6 +16,7 @@ not supported; convert these explicitly before choosing colours.
 Numeric colour indices, including numeric strings, are resolved against
 the current \code{grDevices::palette()} and returned as fixed RGBA hex
 colours. Indices must be finite and fit in an R integer after truncation.
+Numeric strings are parsed as R numbers before truncation.
 Other literal strings and missing colours are kept as given.
 Anything R cannot draw is an error naming the calling function.}
 

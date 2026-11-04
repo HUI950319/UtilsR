@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Parse numeric colour strings once before integer colour lookup, avoiding native overflow on rounding boundaries.
+
 * PlotScatter1() validates themes with the shared resolver, which can forward arguments to theme factories used by plotting callers.
 
 # UtilsR 0.6.22

@@ -201,6 +201,24 @@ test_that("numeric colours keep their precision and cannot overflow the native i
   expect_error(.resolve_color("2 "), "valid colour")
 })
 
+test_that("numeric colour strings are parsed before reaching the native colour lookup", {
+  col2rgb <- grDevices::col2rgb
+  token <- "2147483647999.99988080000e-3"
+  testthat::local_mocked_bindings(
+    col2rgb = function(col, ...) {
+      if (any(col == token, na.rm = TRUE)) stop("Unchecked numeric string reached col2rgb")
+      col2rgb(col, ...)
+    },
+    .package = "grDevices"
+  )
+
+  expect_identical(.resolve_color(token), .resolve_color(as.numeric(token)))
+  expect_identical(.resolve_color(c("2e0", "0x1p1", "0x.8p2", "00", "0.5")),
+                   .resolve_color(c(2, 2, 2, 0.5, 0.5)))
+  expect_error(.resolve_color("0"), "valid colour")
+  expect_error(.resolve_color("2\n"), "valid colour")
+})
+
 test_that("named plot colours are validated as literals before drawing", {
   d <- data.frame(g = factor(rep(c("A", "B"), each = 3)),
                   h = factor(rep(c("x", "y"), 3)), y = 1:6)

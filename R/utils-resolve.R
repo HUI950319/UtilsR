@@ -109,6 +109,7 @@
 #'   Numeric colour indices, including numeric strings, are resolved against
 #'   the current \code{grDevices::palette()} and returned as fixed RGBA hex
 #'   colours. Indices must be finite and fit in an R integer after truncation.
+#'   Numeric strings are parsed as R numbers before truncation.
 #'   Other literal strings and missing colours are kept as given.
 #'   Anything R cannot draw is an error naming the calling function.
 #' @param n Optional plain integer or double scalar with a whole-number value
@@ -189,12 +190,25 @@
   numeric_colour <- if (numeric_input) !is.na(palette) | is.nan(palette) else grepl("^[0-9]", out)
   bad_index <- integer()
   if (any(numeric_colour)) {
+    positions <- which(numeric_colour)
     index <- if (numeric_input) draw_input[numeric_colour] else {
       suppressWarnings(as.numeric(out[numeric_colour]))
     }
     safe <- is.finite(index) & index >= 0 & trunc(index) <= .Machine$integer.max
-    if (numeric_input) safe <- safe & index > 0
-    bad_index <- which(numeric_colour)[!safe]
+    if (numeric_input) {
+      safe <- safe & index > 0
+    } else {
+      tokens <- out[numeric_colour]
+      decimal <- "[0-9]+(?:\\.[0-9]*)?(?:[eE][+-]?[0-9]+)?"
+      hex <- "0[xX](?:[0-9a-fA-F]+(?:\\.[0-9a-fA-F]*)?|\\.[0-9a-fA-F]+)(?:[pP][+-]?[0-9]+)?"
+      safe <- safe & tokens != "0" &
+        grepl(paste0("^(?:", decimal, "|", hex, ")\\z"), tokens, perl = TRUE)
+      # Pass the checked integer to the colour parser. Its C strtod can
+      # round the original token differently, including across INT_MAX.
+      indices <- as.integer(index[safe])
+      draw_input[positions[safe]] <- ifelse(indices == 0L, "#FFFFFF00", as.character(indices))
+    }
+    bad_index <- positions[!safe]
     # Keep bad tokens for diagnostics, but never pass them to the native cast.
     if (length(bad_index)) draw_input[bad_index] <- NA
   }
