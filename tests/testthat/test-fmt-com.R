@@ -226,6 +226,156 @@ test_that("statistical sources resolve layer mappings and explicit overrides", {
   expect_error(fmt_com(root, data = function(d) d), "data.frame")
 })
 
+test_that("SPSS user-missing outcomes are omitted before statistical mapping", {
+  skip_if_not_installed("haven")
+  d <- data.frame(x = rep(c("A", "B"), each = 7),
+                  y = c(1, 2, 3, 4, 5, 95, 99, 2, 3, 4, 7, 8, 9, 10))
+  expected <- signif(stats::t.test(1:5, c(2, 3, 4, 7, 8, 9, 10))$p.value, 3)
+  missing <- list(list(na_values = c(95, 99)), list(na_range = c(95, 99)),
+                  list(na_values = 99, na_range = c(95, 98)))
+  for (spec in missing) {
+    data <- d
+    data$y <- do.call(haven::labelled_spss, c(list(x = d$y), spec))
+    p <- ggplot2::ggplot(data, ggplot2::aes(x, y * 2)) + ggplot2::geom_point()
+    q <- fmt_com(p, method = "t_test", na.rm = TRUE)
+    s <- unique(ggplot2::ggplot_build(q)$data[[2]][, c("n1", "n2", "p")])
+    expect_equal(s$n1, 5L)
+    expect_equal(s$n2, 7L)
+    expect_equal(s$p, expected)
+    expect_identical(p$data, data)
+  }
+})
+
+test_that("SPSS omissions apply to plot, layer and explicit statistical sources", {
+  skip_if_not_installed("haven")
+  d <- data.frame(x = rep(c("A", "B", "missing"), each = 6),
+                  y = c(1, 2, 3, 5, 7, 9, 2, 3, 4, 7, 8, 10, rep(99, 6)))
+  d$x <- haven::labelled_spss(d$x, na_values = "missing")
+  d$y <- haven::labelled_spss(d$y, na_values = 99)
+  p <- ggplot2::ggplot(d, ggplot2::aes(factor(x), y * 2)) + ggplot2::geom_point()
+  layer <- ggplot2::ggplot() +
+    ggplot2::geom_point(data = d, ggplot2::aes(factor(x), y * 2))
+  expected <- signif(stats::t.test(c(1, 2, 3, 5, 7, 9), c(2, 3, 4, 7, 8, 10))$p.value, 3)
+  plots <- list(fmt_com(p, method = "t_test", na.rm = TRUE),
+                 fmt_com(layer, method = "t_test", na.rm = TRUE),
+                 fmt_com(ggplot2::ggplot(), data = d,
+                         mapping = ggplot2::aes(factor(x), y * 2),
+                         method = "t_test", na.rm = TRUE))
+  for (plot in plots) {
+    s <- com_stat(plot)
+    expect_equal(nrow(s), 1L)
+    expect_equal(s$p, expected)
+  }
+  expect_identical(p$data, d)
+  expect_identical(layer$layers[[1]]$data, d)
+  expect_error(fmt_com(p, com_method = list(c("A", "missing"))), "observed")
+
+  only_missing <- data.frame(x = rep(c("A", "B", "C"), each = 6), y = d$y)
+  p <- ggplot2::ggplot(only_missing, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  expect_error(fmt_com(p, com_method = list(c("A", "C"))), "observed")
+  only_missing$y <- haven::labelled_spss(rep(99, nrow(only_missing)), na_values = 99)
+  p$data <- only_missing
+  expect_error(fmt_com(p), "finite numeric observations")
+})
+
+test_that("SPSS omissions retain row alignment for paired tests", {
+  skip_if_not_installed("haven")
+  d <- data.frame(id = rep(1:5, 2), x = rep(c("A", "B"), each = 5),
+                  y = c(1, 2, 4, 8, 99, 99, 5, 5, 9, 16))
+  d$y <- haven::labelled_spss(d$y, na_values = 99)
+  expected <- signif(stats::t.test(c(2, 4, 8), c(5, 5, 9), paired = TRUE)$p.value, 3)
+  for (id in list(NULL, "id")) {
+    data <- if (is.null(id)) d else d[c(1:5, 10:6), ]
+    p <- ggplot2::ggplot(data, ggplot2::aes(x, y)) + ggplot2::geom_point()
+    q <- fmt_com(p, method = "t_test", method.args = list(paired = TRUE, id = id),
+                 na.rm = TRUE)
+    s <- unique(ggplot2::ggplot_build(q)$data[[2]][, c("n1", "n2", "p")])
+    expect_equal(s$n1, 3L)
+    expect_equal(s$n2, 3L)
+    expect_equal(s$p, expected)
+    expect_identical(p$data, data)
+  }
+})
+
+test_that("SPSS outcome omissions preserve the original facet values", {
+  skip_if_not_installed("haven")
+  d <- data.frame(x = rep(rep(c("A", "B"), each = 6), 2),
+                  y = rep(c(1, 2, 3, 4, 5, 99, 2, 3, 4, 7, 8, 9), 2),
+                  panel = rep(c(1, 99), each = 12))
+  d$y <- haven::labelled_spss(d$y, na_values = 99)
+  d$panel <- haven::labelled_spss(d$panel, na_values = 99)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    ggplot2::facet_wrap(~panel)
+  before <- ggplot2::ggplot_build(p)$layout$layout
+  q <- fmt_com(p, method = "t_test", na.rm = TRUE)
+  built <- ggplot2::ggplot_build(q)
+  expect_identical(built$layout$layout, before)
+  s <- unique(built$data[[2]][, c("PANEL", "n1", "n2", "p")])
+  expected <- signif(stats::t.test(1:5, c(2, 3, 4, 7, 8, 9))$p.value, 3)
+  expect_equal(s$n1, rep(5L, 2))
+  expect_equal(s$n2, rep(6L, 2))
+  expect_equal(s$p, rep(expected, 2))
+  expect_identical(p$data, d)
+})
+
+test_that("SPSS outcomes mapped from an environment omit user-missing values", {
+  skip_if_not_installed("haven")
+  d <- data.frame(x = rep(c("A", "B"), each = 6),
+                  .fmt_com_x = 1:12, .fmt_com_y = 12:1)
+  outcome <- haven::labelled_spss(c(1, 2, 3, 4, 5, 99, 2, 3, 4, 7, 8, 9),
+                                 na_values = 99)
+  original <- outcome
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, .env$outcome)) + ggplot2::geom_point()
+  q <- fmt_com(p, method = "t_test", na.rm = TRUE)
+  s <- unique(ggplot2::ggplot_build(q)$data[[2]][, c("n1", "n2", "p")])
+  expected <- signif(stats::t.test(1:5, c(2, 3, 4, 7, 8, 9))$p.value, 3)
+  expect_equal(s$n1, 5L)
+  expect_equal(s$n2, 6L)
+  expect_equal(s$p, expected)
+  expect_identical(p$data, d)
+  expect_identical(outcome, original)
+})
+
+test_that("SPSS missing comparison groups are omitted within grouped subsets", {
+  skip_if_not_installed("haven")
+  d <- expand.grid(subject = 1:6, g = c("A", "B", "missing"),
+                    x = c("left", "right"), panel = c(1, 99),
+                    KEEP.OUT.ATTRS = FALSE, stringsAsFactors = FALSE)
+  d$y <- d$subject + ifelse(d$g == "B", c(1, 2, 1, 3, 2, 5)[d$subject], 0)
+  d$y[d$g == "A" & d$subject == 6 | d$g == "B" & d$subject == 1] <- 99
+  d$g <- haven::labelled_spss(d$g, na_values = "missing")
+  d$y <- haven::labelled_spss(d$y, na_values = 99)
+  d$panel <- haven::labelled_spss(d$panel, na_values = 99)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, fill = factor(g))) +
+    ggplot2::geom_point() + ggplot2::facet_wrap(~panel)
+  external_group <- d$g
+  plain <- data.frame(x = d$x, y = as.numeric(haven::zap_missing(d$y)),
+                       panel = as.numeric(d$panel))
+  external <- ggplot2::ggplot(plain, ggplot2::aes(x, y)) +
+    ggplot2::geom_point(na.rm = TRUE) + ggplot2::facet_wrap(~panel)
+  plots <- list(fmt_com(p, group.by = "legend.var", method = "t_test", na.rm = TRUE),
+                 fmt_com(external, group.by = "legend.var", method = "t_test",
+                         mapping = ggplot2::aes(group = .env$external_group), na.rm = TRUE))
+  for (plot in plots) {
+    built <- ggplot2::ggplot_build(plot)$data[[2]]
+    s <- unique(built[, c("PANEL", "xmin", "xmax", "n1", "n2")])
+    expect_equal(nrow(s), 4L)
+    expect_equal(s$n1, rep(5L, 4))
+    expect_equal(s$n2, rep(5L, 4))
+  }
+  q <- fmt_com(p, group.by = "x.var", method = "t_test", na.rm = TRUE,
+               method.args = list(paired = TRUE, id = "subject"), label.y = c(20, 30))
+  built <- ggplot2::ggplot_build(q)
+  expect_identical(built$layout$layout, ggplot2::ggplot_build(p)$layout$layout)
+  s <- unique(built$data[[2]][, c("PANEL", "xmin", "xmax", "n1", "n2", "p")])
+  expected <- signif(stats::t.test(2:5, c(4, 4, 7, 7), paired = TRUE)$p.value, 3)
+  expect_equal(nrow(s), 4L)
+  expect_equal(s$n1, rep(4L, 4))
+  expect_equal(s$n2, rep(4L, 4))
+  expect_equal(s$p, rep(expected, 4))
+  expect_identical(p$data, d)
+})
+
 test_that("missing panel pairs are skipped and retained scale gaps stay aligned", {
   p <- com_plot(subset(iris, Species != "versicolor")) +
     ggplot2::scale_x_discrete(drop = FALSE)

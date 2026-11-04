@@ -3891,8 +3891,12 @@ drawDetails.axis_tile_strip <- function(x, recording) {
 #' complete plot-level source is used, then an unambiguous layer-level source.
 #' Multiple different layer sources require explicit \code{data} and
 #' \code{mapping}. Statistical data must be a data frame; callbacks and
-#' after-stat mappings are not supported. Missing panel-specific pairs are
-#' skipped. The backend evaluates tests on the layer data during plot building;
+#' after-stat mappings are not supported. SPSS user-missing codes in mapped
+#' variables are treated as \code{NA}, including transformations of data columns.
+#' Missing comparison/subset groups are omitted from these statistics; rows with
+#' missing outcomes retain their positions for paired-test alignment. Original
+#' facet values are preserved. Missing panel-specific pairs are skipped.
+#' The backend evaluates tests on the layer data during plot building;
 #' scale transformations and scale limits affect the observations it receives.
 #'
 #' @return Same type as input.
@@ -4066,7 +4070,6 @@ fmt_com <- function(plot,
       source_data <- first$data
       source_mapping <- first$mapping
     }
-    source <- list(data = source_data, mapping = source_mapping)
     grouped <- !is.null(dots$group.by) || !is.null(dots$mapping$group)
     group_quo <- dots$mapping$group
     if (grouped && is.null(group_quo)) group_quo <- source_mapping$group
@@ -4074,6 +4077,38 @@ fmt_com <- function(plot,
     if (grouped && is.null(group_quo)) group_quo <- source_mapping$colour
     if (grouped && is.null(group_quo))
       cli::cli_abort("Grouped comparisons require a group, fill or colour mapping.")
+    spss_columns <- vapply(source_data, inherits, logical(1), "haven_labelled_spss")
+    zap_spss <- function(value) {
+      if (!inherits(value, "haven_labelled_spss")) return(value)
+      if (!requireNamespace("haven", quietly = TRUE))
+        cli::cli_abort("Interpreting SPSS user-missing values requires package {.pkg haven}.")
+      haven::zap_missing(value)
+    }
+    mapped_data <- source_data
+    for (column in names(mapped_data)[spss_columns])
+      mapped_data[[column]] <- zap_spss(mapped_data[[column]])
+    stat_mapping <- list(x = source_mapping$x, y = source_mapping$y)
+    if (grouped) stat_mapping$group <- group_quo
+    mapped_values <- lapply(stat_mapping, function(quo) {
+      tryCatch(rlang::eval_tidy(quo, data = mapped_data),
+        error = function(e) cli::cli_abort("Cannot resolve the comparison mapping.", parent = e))
+    })
+    if (any(spss_columns) || any(vapply(mapped_values, inherits, logical(1), "haven_labelled_spss"))) {
+      for (name in names(mapped_values)) {
+        value <- zap_spss(mapped_values[[name]])
+        if (!length(value) %in% c(1L, nrow(source_data)))
+          cli::cli_abort("Comparison mappings must have length one or match the statistical data rows.")
+        # Preserve raw facet columns while mapping normalized statistical values.
+        column <- utils::tail(make.unique(c(names(source_data), paste0(".fmt_com_", name))), 1L)
+        source_data[[column]] <- rep(value, length.out = nrow(source_data))
+        quo <- rlang::new_quosure(rlang::sym(column), rlang::base_env())
+        if (name == "group") group_quo <- quo else source_mapping[[name]] <- quo
+      }
+      keep <- !is.na(rlang::eval_tidy(source_mapping$x, data = source_data))
+      if (grouped) keep <- keep & !is.na(rlang::eval_tidy(group_quo, data = source_data))
+      if (any(!keep)) source_data <- source_data[keep, , drop = FALSE]
+    }
+    source <- list(data = source_data, mapping = source_mapping)
     compare_group <- grouped && !identical(dots$group.by, "legend.var")
     comparisons <- get_comparisons(source, com_method, if (compare_group) group_quo else NULL)
     group_labels <- NULL
