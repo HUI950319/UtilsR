@@ -141,6 +141,9 @@ Only columns used for plotting are retained in the returned object.
 Create a butterfly (back-to-back) plot from a single long-format data frame.
 The \code{group.by} column (exactly 2 levels) defines the left/right panels.
 An optional \code{fill.by} column adds a dodge dimension.
+Plain numeric categories use extra label precision when their usual
+character representations coincide. Use the displayed labels for custom
+category orders and named palettes.
 }
 \details{
 Five plot types are available:

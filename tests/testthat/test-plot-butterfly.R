@@ -330,7 +330,7 @@ test_that("butterfly panels distinguish nearby numeric group values", {
   data <- data.frame(stat = "S", fill = "F", value = 1:8,
                      group = rep(values, each = 4))
   original <- data
-  for (fun in list(PlotButterfly)) {
+  for (fun in list(PlotButterfly, PlotButterfly2)) {
     plot <- fun(data, stat.by = "stat", value.by = "value",
                 group.by = "group", fill.by = "fill")
     for (i in 1:2) {
@@ -341,7 +341,6 @@ test_that("butterfly panels distinguish nearby numeric group values", {
   }
   expect_identical(data, original)
 })
-
 
 test_that("PlotButterfly completes bars using precise numeric category keys", {
   values <- c(1, 1 + 1e-15)
@@ -369,6 +368,44 @@ test_that("PlotButterfly completes bars using precise numeric category keys", {
   }
 })
 
+test_that("PlotButterfly2 preserves precise categories in direct plot types", {
+  values <- c(1, 1 + 1e-15)
+  data <- expand.grid(value = seq_len(4), stat = values, fill = values,
+                       group = c("L", "R"))
+  original <- data
+  for (type in c("violin", "violin_box", "box")) {
+    plot <- butterfly_without_text_warning(suppressMessages(PlotButterfly2(data,
+      stat.by = "stat", value.by = "value", group.by = "group",
+      fill.by = "fill", type = type)))
+    for (i in 1:2) {
+      expect_identical(as.double(levels(plot[[i]]$data$stat)), values)
+      expect_identical(as.double(levels(plot[[i]]$data$fill)), values)
+      expect_equal(nrow(plot[[i]]$data), 16)
+      built <- ggplot2::ggplot_build(plot[[i]])
+      expect_equal(length(unique(built$data[[1]]$group)), 4)
+      expect_equal(length(unique(built$data[[1]]$fill)), 2)
+    }
+  }
+  expect_identical(data, original)
+})
+
+test_that("PlotButterfly2 keeps precise categories when converting to wide data", {
+  values <- c(1, 1 + 1e-15)
+  data <- expand.grid(value = seq_len(4), stat = values, group = c("L", "R"))
+  data$value <- data$value + rep(c(0, 10), each = 4, times = 2)
+  original <- data
+  for (type in c("violin", "violin_box", "box")) {
+    plot <- butterfly_without_text_warning(PlotButterfly2(data,
+      stat.by = "stat", value.by = "value", group.by = "group", type = type))
+    for (i in 1:2) {
+      expect_identical(as.double(levels(plot[[i]]$data$Variable)), values)
+      expect_equal(sort(plot[[i]]$data$Value), c(1:4, 11:14))
+      built <- ggplot2::ggplot_build(plot[[i]])
+      expect_equal(length(unique(built$data[[1]]$group)), 2)
+    }
+  }
+  expect_identical(data, original)
+})
 
 test_that("PlotButterfly minmax scaling separates precise numeric groups and fills", {
   values <- c(1, 1 + 1e-15)
@@ -390,7 +427,6 @@ test_that("PlotButterfly minmax scaling separates precise numeric groups and fil
   expect_identical(data, original)
 })
 
-
 test_that("butterfly sorting and named palettes retain precise numeric categories", {
   values <- c(1, 1 + 1e-15)
   labels <- c("1", "1.0000000000000011")
@@ -398,7 +434,7 @@ test_that("butterfly sorting and named palettes retain precise numeric categorie
                        group = c("L", "R"))
   data$value <- data$value + ifelse(data$stat == values[2], 10, 0)
   palette <- stats::setNames(c("red", "blue"), labels)
-  for (fun in list(PlotButterfly)) {
+  for (fun in list(PlotButterfly, PlotButterfly2)) {
     for (rows in list(seq_len(nrow(data)), rev(seq_len(nrow(data))))) {
       for (order in list("up", "down", rev(labels))) {
         plot <- butterfly_without_text_warning(fun(data[rows, ],
@@ -416,16 +452,67 @@ test_that("butterfly sorting and named palettes retain precise numeric categorie
   }
 })
 
+test_that("PlotButterfly2 maps precise numeric beeswarm categories in both panels", {
+  skip_if_not_installed("ggbeeswarm")
+  values <- 1 + c(0, 1e-15, 2e-15, 3e-15)
+  labels <- c("1", "1.0000000000000011", "1.000000000000002", "1.0000000000000031")
+  data <- expand.grid(value = seq_len(3), stat = values[1:2],
+                       fill = values, group = 2 + c(0, 1e-15))
+  palette <- stats::setNames(c("red", "blue", "green", "orange"), labels)
+  for (type in c("beeswarm", "beeswarm_quasirandom")) {
+    for (color_by in c("fixed", "logFC")) {
+      plot <- butterfly_without_text_warning(suppressMessages(PlotButterfly2(data,
+        stat.by = "stat", value.by = "value", group.by = "group",
+        fill.by = "fill", type = type, color_by = color_by, palette = palette)))
+      for (i in 1:2) {
+        expect_equal(nrow(plot[[i]]$data), 24)
+        built <- ggplot2::ggplot_build(plot[[i]])
+        expect_equal(length(unique(built$data[[1]]$group)), 8)
+        if (color_by == "logFC") {
+          expect_identical(built$plot$scales$get_scales("shape")$map(labels), c(16, 17, 15, 18))
+          expect_setequal(built$data[[1]]$shape, c(16, 17, 15, 18))
+        } else {
+          expect_identical(built$plot$scales$get_scales("colour")$map(labels), unname(palette))
+          expect_setequal(built$data[[1]]$colour, unname(palette))
+        }
+      }
+    }
+  }
+  data <- expand.grid(value = seq_len(3), stat = "S", fill = 1 + (0:4) * 1e-15,
+                       group = c("L", "R"))
+  expect_error(PlotButterfly2(data, stat.by = "stat", value.by = "value",
+    group.by = "group", fill.by = "fill", type = "beeswarm_quasirandom",
+    color_by = "logFC"), "at most 4 observed")
+})
 
 test_that("butterfly group validation counts original numeric identities", {
   data <- data.frame(stat = "S", fill = "F", value = 1:12,
                      group = rep(1 + c(0, 1e-15, 2e-15), each = 4))
-  for (fun in list(PlotButterfly)) {
+  for (fun in list(PlotButterfly, PlotButterfly2)) {
     expect_error(fun(data, stat.by = "stat", value.by = "value",
       group.by = "group", fill.by = "fill"), "exactly 2 levels, got 3")
   }
 })
 
+test_that("PlotButterfly2 intersects numeric categories before rounding", {
+  values <- 1 + c(0, 1e-15, 2e-15)
+  disjoint <- data.frame(stat = rep(values[1:2], each = 4), value = 1:8,
+                         group = rep(c("L", "R"), each = 4))
+  expect_error(PlotButterfly2(disjoint, stat.by = "stat", value.by = "value",
+    group.by = "group", type = "box"), "No common")
+  data <- data.frame(stat = rep(values[c(1, 2, 2, 3)], each = 4),
+                     value = c(1:4, 11:14, 21:24, 31:34),
+                     group = rep(c("L", "R"), each = 8))
+  original <- data
+  plot <- PlotButterfly2(data, stat.by = "stat", value.by = "value",
+                         group.by = "group", type = "box")
+  for (i in 1:2) {
+    expect_identical(as.double(levels(plot[[i]]$data$Variable)), values[2])
+    expect_equal(plot[[i]]$data$Value, (1:4) + i * 10)
+    expect_equal(nrow(ggplot2::ggplot_build(plot[[i]])$data[[1]]), 1)
+  }
+  expect_identical(data, original)
+})
 
 test_that("butterfly numeric identities survive magnitude and display options", {
   withr::local_options(list(digits = 3, scipen = 999, OutDec = ","))
@@ -435,7 +522,7 @@ test_that("butterfly numeric identities survive magnitude and display options", 
     data <- expand.grid(value = seq_len(4), stat = values, fill = values,
                          group = values)
     original <- data
-    for (fun in list(PlotButterfly)) {
+    for (fun in list(PlotButterfly, PlotButterfly2)) {
       plot <- butterfly_without_text_warning(fun(data, stat.by = "stat",
         value.by = "value", group.by = "group", fill.by = "fill"))
       for (i in 1:2) {

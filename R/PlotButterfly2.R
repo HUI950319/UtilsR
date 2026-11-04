@@ -7,6 +7,9 @@
 #' Create a butterfly (back-to-back) plot from a single long-format data frame.
 #' The \code{group.by} column (exactly 2 levels) defines the left/right panels.
 #' An optional \code{fill.by} column adds a dodge dimension.
+#' Plain numeric categories use extra label precision when their usual
+#' character representations coincide. Use the displayed labels for custom
+#' category orders and named palettes.
 #'
 #' Five plot types are available:
 #' \itemize{
@@ -189,6 +192,10 @@ PlotButterfly2 <- function(
   # ---- Filter NA / "Mixed" ----
   keep <- !is.na(data[[stat.by]]) & data[[stat.by]] != "Mixed"
   data <- data[keep, ]
+
+  for (col in unique(c(stat.by, fill.by, group.by))) {
+    data[[col]] <- .butterfly_category_labels(data[[col]])
+  }
 
   # ---- Two groups ----
   groups <- unique(as.character(data[[group.by]]))
