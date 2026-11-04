@@ -544,16 +544,19 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
       lvs <- unique(x[!is.na(x)])
       x <- factor(lvs, levels = lvs)
     }
-    if (!is.object(x) && is.numeric(x) && .pal_use_unique(x)) {
-      unique_x <- unique(x)
-      positions <- match(x, unique_x)
-      # Keep vector-sized alpha encoding when the mapping has only one key.
-      if (alpha < 1 && length(unique_x) == 1L) {
-        unique_x <- c(unique_x, NA_real_)
+    if (!is.object(x) && is.numeric(x)) {
+      if (.pal_use_unique(x)) {
+        unique_x <- unique(x)
+        positions <- match(x, unique_x)
+        mapping <- .pal_numeric_positions(unique_x, reverse)
+        return(lapply(palette, function(cols) {
+          .pal_apply_positions(cols, mapping, alpha, size = length(x))[positions]
+        }))
       }
-      return(lapply(palette, function(cols) {
-        .pal_apply(cols, n = n, x = unique_x, reverse = reverse, alpha = alpha)[positions]
-      }))
+      if (length(palette) > 1L) {
+        mapping <- .pal_numeric_positions(x, reverse)
+        return(lapply(palette, .pal_apply_positions, mapping = mapping, alpha = alpha))
+      }
     }
     return(lapply(palette, .pal_apply,
                   n = n, x = x, reverse = reverse, alpha = alpha))
@@ -626,63 +629,76 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   }
 }
 
+# Prepare the finite positions and optional lookup once for every palette.
+#' @keywords internal
+#' @noRd
+.pal_numeric_positions <- function(x, reverse) {
+  values <- as.numeric(x)
+  values[is.na(x)] <- NA_real_
+  placed <- is.finite(values)
+  values <- values[placed]
+  if (!length(values)) {
+    return(list(placed = placed, at = numeric(), index = NULL))
+  }
+
+  ends <- range(values)
+  at <- if (ends[[1L]] == ends[[2L]]) {
+    rep(0.5, length(values))
+  } else if (!is.finite(ends[[2L]] - ends[[1L]])) {
+    # Halving finite endpoints keeps their span representable.
+    (values / 2 - ends[[1L]] / 2) / (ends[[2L]] / 2 - ends[[1L]] / 2)
+  } else {
+    (values - ends[[1L]]) / (ends[[2L]] - ends[[1L]])
+  }
+  if (reverse) at <- 1 - at
+  index <- NULL
+  if (.pal_use_unique(at)) {
+    unique_at <- unique(at)
+    index <- match(at, unique_at)
+    at <- unique_at
+  }
+  list(placed = placed, at = at, index = index)
+}
+
+#' @keywords internal
+#' @noRd
+.pal_apply_positions <- function(cols, mapping, alpha, size = length(mapping$placed)) {
+  out <- rep(NA_character_, length(mapping$placed))
+  if (length(mapping$at)) {
+    colours <- .pal_ramp(cols, mapping$at, alpha, size)
+    if (!is.null(mapping$index)) colours <- colours[mapping$index]
+    out[mapping$placed] <- colours
+  }
+  out
+}
+
 # The n / x / reverse / alpha handling of `pal_get()`, split out so a list of
 # palettes can be mapped over one element at a time.
 #' @keywords internal
 #' @noRd
 .pal_apply <- function(cols, n = NULL, x = NULL, reverse = FALSE, alpha = 1) {
-
+  if (!is.null(x) && is.numeric(x)) {
+    return(.pal_apply_positions(cols, .pal_numeric_positions(x, reverse), alpha))
+  }
   ramp <- function(k) .pal_ramp(cols, seq.int(0, 1, length.out = k), alpha)
-  numeric_x <- !is.null(x) && is.numeric(x)
 
   # --- Map to x (discrete) ---
   if (!is.null(x)) {
-    if (numeric_x) {
-      # Continuous: each value's place between the finite extremes. A value
-      # without a place has no colour, and one distinct value takes the middle.
-      values <- as.numeric(x)
-      values[is.na(x)] <- NA_real_
-      placed <- is.finite(values)
-      out <- rep(NA_character_, length(values))
-      if (any(placed)) {
-        ends <- range(values[placed])
-        at <- if (ends[[1L]] == ends[[2L]]) {
-          rep(0.5, sum(placed))
-        } else if (!is.finite(ends[[2L]] - ends[[1L]])) {
-          # Halving finite endpoints keeps their span representable.
-          (values[placed] / 2 - ends[[1L]] / 2) /
-            (ends[[2L]] / 2 - ends[[1L]] / 2)
-        } else {
-          (values[placed] - ends[[1L]]) / (ends[[2L]] - ends[[1L]])
-        }
-        if (reverse) at <- 1 - at
-        if (.pal_use_unique(at)) {
-          unique_at <- unique(at)
-          colours <- .pal_ramp(cols, unique_at, alpha, size = length(out))
-          out[placed] <- colours[match(at, unique_at)]
-        } else {
-          out[placed] <- .pal_ramp(cols, at, alpha, size = length(out))
-        }
-        alpha <- 1
-      }
+    lvs <- if (is.factor(x)) levels(x) else unique(x[!is.na(x)])
+    lvs <- lvs[!is.na(lvs)]
+    lvs <- as.character(lvs)
+    if (anyDuplicated(lvs)) {
+      cli::cli_abort(c(
+        "Distinct values of {.arg x} produce the same discrete colour name.",
+        "i" = "Convert {.arg x} to explicit unique labels before mapping."
+      ))
+    }
+    n_lvs <- length(lvs)
+    if (n_lvs <= length(cols)) {
+      out <- stats::setNames(cols[seq_len(n_lvs)], lvs)
     } else {
-      # Discrete: map levels
-      lvs <- if (is.factor(x)) levels(x) else unique(x[!is.na(x)])
-      lvs <- lvs[!is.na(lvs)]
-      lvs <- as.character(lvs)
-      if (anyDuplicated(lvs)) {
-        cli::cli_abort(c(
-          "Distinct values of {.arg x} produce the same discrete colour name.",
-          "i" = "Convert {.arg x} to explicit unique labels before mapping."
-        ))
-      }
-      n_lvs <- length(lvs)
-      if (n_lvs <= length(cols)) {
-        out <- stats::setNames(cols[seq_len(n_lvs)], lvs)
-      } else {
-        out <- stats::setNames(ramp(n_lvs), lvs)
-        alpha <- 1
-      }
+      out <- stats::setNames(ramp(n_lvs), lvs)
+      alpha <- 1
     }
   } else if (!is.null(n)) {
     # --- Return n colours ---
@@ -696,15 +712,14 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     out <- cols
   }
 
-  # Reverse (a numeric `x` has flipped its scale above)
-  if (reverse && !numeric_x) {
+  if (reverse) {
     if (!is.null(names(out))) {
       out <- stats::setNames(rev(out), names(out))
     } else {
       out <- rev(out)
     }
   }
-  nms <- if (!is.null(x) && !numeric_x) names(out)
+  nms <- if (!is.null(x)) names(out)
 
   # Alpha
   if (alpha < 1) {

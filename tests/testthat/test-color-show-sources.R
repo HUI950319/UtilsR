@@ -506,14 +506,20 @@ test_that("pal_get handles stored labelled and integer64 inputs in a fresh proce
   fn <- pal_get
   apply <- .pal_apply
   ramp <- .pal_ramp
+  positions <- .pal_numeric_positions
+  apply_positions <- .pal_apply_positions
   use_unique <- .pal_use_unique
   env <- new.env(parent = asNamespace("stats"))
   environment(fn) <- env
   environment(apply) <- env
   environment(ramp) <- env
+  environment(positions) <- env
+  environment(apply_positions) <- env
   environment(use_unique) <- env
   env$.pal_apply <- apply
   env$.pal_ramp <- ramp
+  env$.pal_numeric_positions <- positions
+  env$.pal_apply_positions <- apply_positions
   env$.pal_use_unique <- use_unique
   saveRDS(list(fn = fn, libs = .libPaths(),
                x = haven::labelled_spss(c(1, 2, 99, NA), na_values = 99),
@@ -819,6 +825,22 @@ test_that("pal_get encodes interpolated alpha with existing rounding and spellin
                      ggplot2::alpha(pal_get(cols, n = 5), alpha))
     expect_identical(pal_get(cols, x = x, alpha = alpha, reverse = TRUE),
                      ggplot2::alpha(pal_get(cols, x = x, reverse = TRUE), alpha))
+  }
+})
+
+test_that("pal_get shares numeric positions without changing per-palette mappings", {
+  palettes <- list(opaque = c("black", "white"),
+                   translucent = c("#FF000080", "#0000FF40"))
+  ordinary <- seq(-1, 1, length.out = 4096L)
+  cases <- list(ordinary, c(ordinary, ordinary[1L], NA, Inf),
+                c(-1e308, ordinary, 1e308, NA, Inf), c(NA_real_, Inf, NaN))
+  for (x in cases) {
+    x <- stats::setNames(x, paste0("row", seq_along(x)))
+    for (alpha in c(1, 0.5, 0.9999)) {
+      expected <- lapply(palettes, pal_get, x = x, reverse = TRUE, alpha = alpha)
+      expect_identical(pal_get(palettes, x = x, reverse = TRUE, alpha = alpha),
+                       expected)
+    }
   }
 })
 
