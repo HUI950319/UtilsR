@@ -22,6 +22,9 @@
 #' and must supply at least one value per observed level. Extra entries are
 #' accepted.
 #'
+#' Numeric axis values are preserved when a grouping column is also used
+#' on an axis.
+#'
 #' The bottom-right panel contains a fill legend for each grouping variable.
 #' These fill legends are independent of the global theme's legend visibility.
 #' Marginal numeric axes use the main plot's displayed ranges, including
@@ -154,7 +157,16 @@ PlotScatter2 <- function(
     if (!col %in% colnames(data)) stop(sprintf("Column '%s' not found in data.", col))
   }
 
+  if (is.null(xlab)) xlab <- x
+  if (is.null(ylab)) ylab <- y
+
   df <- data
+  for (col in intersect(c(x, y), c(group, group2))) {
+    axis_col <- make.unique(c(names(df), ".scatter2_axis"))[ncol(df) + 1L]
+    df[[axis_col]] <- df[[col]]
+    if (x == col) x <- axis_col
+    if (y == col) y <- axis_col
+  }
   df[[group]] <- factor(df[[group]], levels = unique(df[[group]]))
   if (!is.null(group2)) {
     df[[group2]] <- factor(df[[group2]], levels = unique(df[[group2]]))
@@ -215,9 +227,6 @@ PlotScatter2 <- function(
     fill_colors_shape <- match_mapping(fill_colors_shape, shape_lvls,
                                        "fill_colors_shape")
   }
-
-  if (is.null(xlab)) xlab <- x
-  if (is.null(ylab)) ylab <- y
 
   # ---- Collect margin variables (for marginal boxplots) ----
   margin_vars <- list()

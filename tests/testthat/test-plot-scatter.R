@@ -305,3 +305,35 @@ test_that("PlotScatter2 keeps automatic annotation coordinates finite", {
     expect_equal(sum(scatter_grob_labels(grob) == "Annotation"), 1L)
   }
 })
+
+test_that("PlotScatter2 preserves numeric axes that are also grouping columns", {
+  data <- data.frame(x = rep(c(10, 30), 6), y = rep(c(100, 200), each = 6),
+                     g = rep(c("b", "a"), 6), h = rep(c("Y", "X"), each = 6),
+                     .scatter2_axis = -seq_len(12), .scatter2_axis.1 = seq_len(12))
+  before <- serialize(data, NULL)
+  cases <- list(
+    list(x = "x", y = "y", group = "x"),
+    list(x = "x", y = "y", group = "x", group2 = "h", x_top = FALSE,
+         show_cor = TRUE, show_regression = TRUE),
+    list(x = "x", y = "y", group = "y"),
+    list(x = "x", y = "y", group = "g", group2 = "x"),
+    list(x = "x", y = "y", group = "g", group2 = "y"),
+    list(x = "x", y = "y", group = "x", group2 = "y"),
+    list(x = "x", y = "x", group = "x"),
+    list(x = c(axis = "x"), y = "y", group = "x", x_top = FALSE)
+  )
+  for (case in cases) {
+    p <- do.call(PlotScatter2, c(list(data = data), case))
+    built <- ggplot2::ggplot_build(p[[1]])
+    expect_equal(built$data[[1]]$x, data[[case$x]])
+    expect_equal(built$data[[1]]$y, data[[case$y]])
+    expect_equal(unname(p[[1]]$labels$x), unname(case$x))
+    expect_equal(unname(p[[1]]$labels$y), unname(case$y))
+    expect_identical(serialize(data, NULL), before)
+    if (isTRUE(case$show_cor)) {
+      expect_match(built$data[[3]]$label, "r = 0.000", fixed = TRUE)
+      expect_equal(built$data[[2]]$y, rep(150, nrow(built$data[[2]])))
+    }
+    grid::grid.draw(patchwork::patchworkGrob(p))
+  }
+})

@@ -131,6 +131,9 @@ Unnamed vectors are matched in order of first appearance in \code{data}
 and must supply at least one value per observed level. Extra entries are
 accepted.
 
+Numeric axis values are preserved when a grouping column is also used
+on an axis.
+
 The bottom-right panel contains a fill legend for each grouping variable.
 These fill legends are independent of the global theme's legend visibility.
 Marginal numeric axes use the main plot's displayed ranges, including
