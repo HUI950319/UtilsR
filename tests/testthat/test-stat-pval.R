@@ -53,6 +53,55 @@ test_that("P-value paths reject nonfinite and out-of-range observations", {
                    c("-0.10", "1.20", "Inf", "-Inf"))
 })
 
+test_that("numeric P-value text is checked before double rounding", {
+  invalid <- c("-1e-999", "-.1E-9999999999", "-0.0000000001e-999",
+                "1.00000000000000001", "100000000000000001e-17",
+                ".100000000000000001E+1")
+  for (x in invalid) {
+    for (mode in c("stars", "pvalue")) {
+      expect_error(stat_pval(c(NA_character_, "0.05", x), mode = mode),
+                   "between 0 and 1")
+    }
+  }
+})
+
+test_that("all bound operators validate the original P-value endpoint", {
+  for (endpoint in c("-1e-999", "1.00000000000000001", ".100000000000000001E+1")) {
+    for (operator in c("<", "<=", ">", ">=", "\u2264", "\u2265")) {
+      x <- paste0("\u2009", operator, "\u00a0", endpoint, "\u202f")
+      for (mode in c("stars", "pvalue")) {
+        expect_error(stat_pval(x, mode = mode), "between 0 and 1")
+      }
+      expect_identical(stat_pval(x, mode = "plain"),
+                       paste0(operator, "\u00a0", endpoint))
+    }
+  }
+})
+
+test_that("extreme exponents preserve valid tiny values and exact endpoints", {
+  huge <- strrep("9", 400)
+  zeros <- strrep("0", 400)
+  tiny <- c(paste0("1e-", huge), paste0("+000.1E-", zeros, "999"))
+  bounds <- c(paste0("<", tiny), paste0(">", tiny),
+              paste0("<=-0e", huge), paste0("\u22650E-", huge),
+              paste0(">=1e+", zeros), ">0.99999999999999999")
+  x <- c(missing = NA_character_, first = tiny[[1]], second = tiny[[2]],
+         setNames(bounds, paste0("bound", seq_along(bounds))), absent = "NaN")
+  for (mode in c("stars", "pvalue", "plain")) {
+    small <- switch(mode, stars = "<0.001***", pvalue = "<0.001", plain = "0.00")
+    expected <- c(NA_character_, small, small, bounds, NA_character_)
+    expect_identical(stat_pval(x, mode = mode), setNames(expected, names(x)))
+  }
+  impossible <- c(paste0("<0e", huge), paste0("<-0E-", huge),
+                  paste0(">1e-", zeros), paste0(">.1e+", zeros, "1"))
+  for (x in impossible) {
+    for (mode in c("stars", "pvalue")) {
+      expect_error(stat_pval(x, mode = mode), "possible P-value")
+    }
+    expect_identical(stat_pval(x, mode = "plain"), x)
+  }
+})
+
 test_that("special numeric storage cannot be mistaken for P-values", {
   values <- list(as.difftime(.01, units = "secs"), as.Date("1970-01-01"),
                  as.POSIXct("1970-01-01", tz = "UTC"))

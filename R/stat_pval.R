@@ -17,7 +17,10 @@
 #'   a bound operator; whitespace within a number is not accepted.
 #'   Other non-numeric strings are rejected.
 #'   In P-value modes, observed values and numeric bound endpoints must be
-#'   finite and between 0 and 1. Strict bounds \code{<0} and \code{>1}
+#'   finite and between 0 and 1. Numeric text is checked against these endpoints
+#'   before double-precision rounding; negative values that underflow to zero
+#'   are still rejected. Positive values below the numeric range remain valid.
+#'   Strict bounds \code{<0} and \code{>1}
 #'   are rejected because they cannot describe a possible P-value.
 #'   Ordinary numbers in \code{plain} mode are
 #'   not restricted to that range.
@@ -160,23 +163,28 @@ stat_pval <- function(x,
   }
 
   if (mode != "plain") .validate_p(x_num, "x")
-  if (mode != "plain" && any(bounded)) {
-    edge <- which(bounded & x_num %in% c(0, 1))
-    edge <- edge[grepl("^[<>](?!=)", text[edge], perl = TRUE)]
+  if (mode != "plain" && is.character(x)) {
+    edge <- which(x_num %in% c(0, 1))
     if (length(edge)) {
-      # Check the decimal text exactly: tiny positives can round to zero,
-      # and values just below one can round to one when parsed as doubles.
+      # Inspect the decimal text where double rounding can hide invalid values.
       endpoint <- values[edge]
       mantissa <- sub("[eE].*$", "", endpoint)
       exponent <- as.numeric(ifelse(grepl("[eE]", endpoint),
                                     sub("^.*[eE]", "", endpoint), "0"))
       decimals <- nchar(sub("^[^.]*[.]?", "", mantissa))
-      coefficient <- gsub("[.+-]", "", mantissa)
-      zero <- grepl("^0+$", coefficient)
-      one <- grepl("^0*10*$", coefficient) &
-        exponent == decimals - nchar(sub("^0*1", "", coefficient))
-      if (any((startsWith(text[edge], "<") & zero) |
-              (startsWith(text[edge], ">") & one))) {
+      coefficient <- sub("^0+", "", gsub("[.+-]", "", mantissa))
+      zero <- coefficient == ""
+      unit_exponent <- decimals - nchar(coefficient) + 1L
+      one <- grepl("^10*$", coefficient) & exponent == unit_exponent
+      negative <- startsWith(mantissa, "-") & !zero
+      above_one <- !zero & (exponent > unit_exponent |
+                              (exponent == unit_exponent & !one))
+      if (any(negative | above_one)) {
+        cli::cli_abort("{.arg x} must contain finite P-values between 0 and 1, or missing values.")
+      }
+      strict <- bounded[edge] & grepl("^[<>](?!=)", text[edge], perl = TRUE)
+      if (any(strict & ((startsWith(text[edge], "<") & zero) |
+                        (startsWith(text[edge], ">") & one)))) {
         cli::cli_abort("{.arg x} contains a strict bound that cannot describe a possible P-value (<0 or >1).")
       }
     }
