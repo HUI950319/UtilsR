@@ -26,6 +26,8 @@
 #' on an axis.
 #' A column named \code{.data} may be used for an axis or grouping variable;
 #' displayed labels retain the requested column names.
+#' Grouping columns of class \code{integer64} require \pkg{bit64} so their
+#' identifier labels remain exact.
 #'
 #' The bottom-right panel contains a fill legend for each grouping variable.
 #' These fill legends are independent of the global theme's legend visibility.
@@ -157,6 +159,13 @@ PlotScatter2 <- function(
   if (!is.null(group2)) need_cols <- c(need_cols, group2)
   for (col in need_cols) {
     if (!col %in% colnames(data)) stop(sprintf("Column '%s' not found in data.", col))
+  }
+
+  integer64_groups <- vapply(unique(c(group, group2)), function(col) {
+    inherits(data[[col]], "integer64")
+  }, logical(1L))
+  if (any(integer64_groups) && !requireNamespace("bit64", quietly = TRUE)) {
+    stop("Package 'bit64' is required for integer64 grouping columns.", call. = FALSE)
   }
 
   if (is.null(xlab)) xlab <- x

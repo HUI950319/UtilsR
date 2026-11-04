@@ -371,3 +371,55 @@ test_that("PlotScatter2 supports a column named .data in each plotting role", {
   expect_equal(points$y, data$y)
   grid::grid.draw(patchwork::patchworkGrob(p))
 })
+
+test_that("PlotScatter2 preserves integer64 group identifiers in a fresh process", {
+  skip_if_not_installed("bit64")
+  scratch <- withr::local_tempdir()
+  source_file <- file.path(scratch, "scatter2.R")
+  input_file <- file.path(scratch, "groups.rds")
+  script_file <- file.path(scratch, "verify.R")
+  dump(c("PlotScatter2", ".make_scatter2_legend"), file = source_file,
+       envir = environment(PlotScatter2))
+  data <- data.frame(x = 1:12, y = 12:1)
+  data$g <- bit64::as.integer64(rep(c("9007199254740993", "9007199254740995"), 6))
+  data$h <- bit64::as.integer64(rep(c("9007199254741001", "9007199254741003"), each = 6))
+  saveRDS(data, input_file)
+  writeLines(c(
+    "options(device = function(...) grDevices::pdf(NULL, ...), lifecycle_verbosity = 'quiet')",
+    sprintf("sys.source(%s, envir = globalenv())", deparse(source_file)),
+    sprintf("data <- readRDS(%s)", deparse(input_file)),
+    "stopifnot(!('bit64' %in% loadedNamespaces()))",
+    "colors <- c('9007199254740993' = '#112233', '9007199254740995' = '#445566')",
+    "shapes <- c('9007199254741001' = 16, '9007199254741003' = 17)",
+    "fills <- c('9007199254741001' = '#3377AA', '9007199254741003' = '#AA7733')",
+    "p <- PlotScatter2(data, 'x', 'y', 'g', group2 = 'h', colors = colors,",
+    "                  shapes = shapes, fill_colors_shape = fills)",
+    "stopifnot(identical(levels(p[[1]]$data$g), names(colors)),",
+    "          identical(levels(p[[1]]$data$h), names(shapes)))",
+    "grid::grid.draw(patchwork::patchworkGrob(p))",
+    "cat('INTEGER64_GROUPS_OK\\n')"
+  ), script_file)
+  output <- suppressWarnings(system2(file.path(R.home("bin"), "Rscript"),
+    c("--vanilla", shQuote(script_file)), stdout = TRUE, stderr = TRUE))
+  status <- attr(output, "status")
+  if (is.null(status)) status <- 0L
+  expect_identical(status, 0L, info = paste(output, collapse = "\n"))
+  expect_identical(tail(output, 1L), "INTEGER64_GROUPS_OK")
+})
+
+test_that("PlotScatter2 reports the missing integer64 grouping dependency", {
+  skip_if_not_installed("bit64")
+  no_bit64_env <- new.env(parent = environment(PlotScatter2))
+  no_bit64_env$requireNamespace <- function(package, ...) {
+    if (identical(package, "bit64")) FALSE else base::requireNamespace(package, ...)
+  }
+  draw <- PlotScatter2
+  environment(draw) <- no_bit64_env
+  data <- data.frame(x = 1:4, y = 4:1)
+  data$g <- bit64::as.integer64(c("9007199254740993", "9007199254740995", NA, NA))
+  message <- tryCatch({
+    draw(data, "x", "y", "g")
+    NULL
+  }, error = conditionMessage)
+  expect_identical(message, "Package 'bit64' is required for integer64 grouping columns.")
+})
