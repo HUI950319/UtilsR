@@ -39,8 +39,9 @@ null = 1, normal approximation on the log scale), \code{FALSE} for
 differences (null = 0), or \code{"auto"} (default) to infer it. Set it
 explicitly whenever the effect measure is known. See Details.}
 
-\item{digits}{Integer, decimal places for output. Default: the most
-decimals among the estimate and its bounds, so \code{output = "ci"}
+\item{digits}{A single finite integer from 0 to 8190, giving the decimal
+places for output. Default: the most decimals among the estimate and its
+bounds, so \code{output = "ci"}
 without \code{level} does not round the input; at least one with
 \code{level}.}
 

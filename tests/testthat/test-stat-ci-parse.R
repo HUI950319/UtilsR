@@ -202,6 +202,14 @@ test_that("arguments are validated up front", {
                "map_signif")
 })
 
+test_that("non-finite and excessive digits fail before coercion or empty returns", {
+  for (dg in list(Inf, -Inf, NaN, 8191, .Machine$integer.max + 1, 1e100)) {
+    for (x in list("1.23 (0.95, 1.59)", character())) {
+      expect_no_warning(expect_error(stat_ci_parse(x, digits = dg), "digits"))
+    }
+  }
+})
+
 test_that("star outputs share the stat_pval significance map contract", {
   x <- c(a = "2.00 (1.00, 3.00)", b = "0.00 (-1.00, 1.00)")
   p <- stat_ci_parse(x, output = "p", exp = FALSE)
