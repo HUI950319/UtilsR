@@ -6,6 +6,13 @@ cat_test_plot <- function(...) {
   p
 }
 
+# Installed RegR versions report saving through either stdout or cli messages.
+cat_test_output <- function(code) {
+  messages <- character()
+  output <- utils::capture.output(messages <- testthat::capture_messages(code))
+  c(output, messages)
+}
+
 cat_test_text <- function(grob) {
   c(if (inherits(grob, "text")) as.character(grob$label),
     unlist(lapply(grob$grobs, cat_test_text), use.names = FALSE),
@@ -494,13 +501,13 @@ test_that("plt_cat saves at its page size and reports a split figure once", {
   d <- cat_con_data()
   f <- withr::local_tempfile(fileext = ".pdf")
   for (type in c("bar", "pie")) {
-    out <- cli::cli_fmt(p <- suppressMessages(plt_cat(
-      d, stat.by = "stage", group.by = "sex", type = type, save = list(filename = f))))
+    out <- cat_test_output(p <- plt_cat(
+      d, stat.by = "stage", group.by = "sex", type = type, save = list(filename = f)))
     expect_saved_at_plot_size(out, p)
   }
-  out <- cli::cli_fmt(p <- suppressMessages(plt_cat(
+  out <- cat_test_output(p <- plt_cat(
     d, stat.by = "stage", group.by = "sex", split.by = "site",
-    save = list(filename = f))))
+    save = list(filename = f)))
   expect_equal(sum(grepl("laid out for", out)), 1L)
   expect_saved_at_plot_size(out, p)
   utils::capture.output(one <- suppressMessages(plt_cat(d, stat.by = "stage",
