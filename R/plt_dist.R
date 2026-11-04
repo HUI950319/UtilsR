@@ -26,7 +26,9 @@
 #'   The heatmap ignores \code{facet}.
 #' @param dis_vars Character vector of 2 or 3 distinct, non-empty column names.
 #'   Plain integer and double columns are treated as categories in numeric
-#'   ascending order in every mode; values are not binned. Labelled columns
+#'   ascending order in every mode; values are not binned. Distinct numeric values
+#'   remain separate; labels use up to 17 significant digits if their default
+#'   representations coincide (also for \code{facet}). Labelled columns
 #'   (\code{haven_labelled}, also as \code{facet}) are converted with
 #'   \code{labelled::to_factor()}, so they show their value labels. Existing factors
 #'   keep their level order. Character columns retain their existing ordering:
@@ -374,7 +376,12 @@ plt_dist <- function(data,
     if (inherits(data[[v]], "haven_labelled")) {
       data[[v]] <- labelled::to_factor(data[[v]])
     } else if ((is.integer(data[[v]]) || is.double(data[[v]])) && !is.object(data[[v]])) {
-      data[[v]] <- factor(data[[v]])
+      values <- sort(unique(data[[v]]))
+      value_labels <- as.character(values)
+      if (anyDuplicated(value_labels)) value_labels <- sprintf("%.17g", values)
+      # Match numeric values before factor() can round them to character labels.
+      data[[v]] <- factor(match(data[[v]], values), levels = seq_along(values),
+                           labels = value_labels)
     }
   }
 

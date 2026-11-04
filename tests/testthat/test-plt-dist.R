@@ -312,6 +312,28 @@ test_that("heatmaps reject cells containing more than one fill category", {
   expect_equal(nrow(unique(tiles[c("x", "y")])), nrow(tiles))
 })
 
+test_that("heatmaps preserve nearby numeric cells and reject distinct fill conflicts", {
+  values <- c(1, 1 + 1e-15)
+  for (axis in c("x", "y")) {
+    data <- data.frame(x = "A", y = "B", group = c("F", "M", "M"))
+    data[[axis]] <- values[c(1, 2, 2)]
+    p <- dist_test_plot(data, c("x", "y", "group"))
+    expect_identical(as.double(levels(p$data[[axis]])), values)
+    expect_equal(p$data$n, c(1L, 2L))
+    built <- ggplot2::ggplot_build(p)
+    tiles <- built$data[[1L]]
+    expect_equal(nrow(tiles), 2L)
+    expect_equal(nrow(unique(tiles[c("x", "y")])), 2L)
+  }
+
+  conflicting <- data.frame(x = "A", y = "B", group = values)
+  for (style in c("count_percent", "none")) {
+    expect_error(plt_dist(conflicting, c("x", "y", "group"),
+                          label_args = list(style = style)),
+                 "more than one.*category")
+  }
+})
+
 test_that("distribution palettes keep category names and unused-level positions", {
   data <- data.frame(x = c("A", "B"), y = "C", group = c("F", "M"))
   for (mode in c("bar", "alluvial", "heatmap")) {
@@ -432,6 +454,87 @@ test_that("numeric distribution categories and facets use numeric order", {
     expect_identical(built$layout$panel_params[[1]]$y$get_labels(), rev(expected))
     expect_equal(as.character(built$plot$scales$get_scales("fill")$get_breaks()),
                  expected)
+  }
+})
+
+test_that("numeric distribution categories remain distinct beyond display precision", {
+  for (values in list(c(1, 1 + 1e-15), 1e15 + c(0, 1),
+                      -rev(1e15 + c(0, 1)))) {
+    data <- data.frame(x = "A", group = values[c(2, 1, 2, 2)])
+    original <- data
+    p <- dist_test_plot(data, c("x", "group"), type = "bar")
+    expect_identical(as.double(levels(p$data$group)), values)
+    expect_equal(p$data$n, c(1L, 3L))
+    expect_equal(p$data$prop, c(0.25, 0.75))
+    built <- ggplot2::ggplot_build(p)
+    expect_equal(built$data[[1L]]$ymax - built$data[[1L]]$ymin,
+                 c(0.25, 0.75))
+    expect_identical(as.double(built$plot$scales$get_scales("fill")$get_breaks()),
+                     values)
+    expect_identical(data, original)
+
+    axes <- dist_test_plot(data, c("group", "x"), type = "bar")
+    built_axes <- ggplot2::ggplot_build(axes)
+    expect_identical(as.double(built_axes$layout$panel_scales_x[[1]]$get_labels()),
+                     values)
+    expect_equal(as.double(built_axes$data[[1L]]$x), c(1, 2))
+  }
+})
+
+test_that("nearby numeric categories keep facet and palette identities in every mode", {
+  values <- c(1, 1 + 1e-15)
+  labels <- c("1", "1.0000000000000011")
+  colors <- stats::setNames(c("red", "blue"), rev(labels))
+  for (mode in c("bar", "alluvial", "heatmap")) {
+    if (mode == "alluvial" && !requireNamespace("ggalluvial", quietly = TRUE)) next
+    data <- if (mode == "heatmap") {
+      heat <- expand.grid(x = rev(values), y = rev(values))
+      heat$group <- rep(rev(values), 2)
+      heat
+    } else {
+      expand.grid(x = rev(values), group = rev(values), panel = rev(values))
+    }
+    original <- data
+    p <- if (mode == "heatmap") {
+      dist_test_plot(data, c("x", "y", "group"), color = colors)
+    } else {
+      dist_test_plot(data, c("x", "group"), type = mode, facet = "panel",
+                     color = colors)
+    }
+    built <- ggplot2::ggplot_build(p)
+    expect_identical(built$layout$panel_scales_x[[1]]$get_labels(), labels)
+    fill <- built$plot$scales$get_scales("fill")
+    expect_identical(as.character(fill$get_breaks()), labels)
+    expect_equal(unname(grDevices::col2rgb(fill$map(labels))),
+                 unname(grDevices::col2rgb(colors[labels])))
+    if (mode == "heatmap") {
+      expect_identical(built$layout$panel_scales_y[[1]]$get_labels(), rev(labels))
+      expect_equal(nrow(built$data[[1L]]), 4L)
+    } else {
+      facet_column <- if (mode == "bar") "panel" else ".facet"
+      expect_identical(as.character(built$layout$layout[[facet_column]]), labels)
+      counts <- p$data[[if (mode == "bar") "n" else "count"]]
+      expect_equal(sum(counts), nrow(data))
+    }
+    expect_identical(data, original)
+  }
+})
+
+test_that("numeric category precision preserves missingness under display options", {
+  withr::local_options(list(digits = 3, scipen = 999, OutDec = ","))
+  values <- c(-Inf, -rev(1e15 + c(0, 1)), 0, 1, 1 + 1e-15, Inf)
+  data <- data.frame(x = "A", group = c(rev(values), NA, NaN, 1))
+  original <- data
+  for (type in c("bar", "alluvial")) {
+    if (type == "alluvial" && !requireNamespace("ggalluvial", quietly = TRUE)) next
+    expect_message(p <- dist_test_plot(data, c("x", "group"), type = type),
+                   "Removed 2 rows")
+    counts <- p$data[[if (type == "bar") "n" else "count"]]
+    groups <- p$data[[if (type == "bar") "group" else ".group"]]
+    expect_identical(as.double(as.character(groups[counts > 0])), values)
+    expect_equal(sum(counts), length(values) + 1L)
+    expect_equal(counts[as.character(groups) == "1"], 2)
+    expect_identical(data, original)
   }
 })
 
