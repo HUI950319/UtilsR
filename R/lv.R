@@ -53,8 +53,9 @@
 #'   Bare column names take precedence over caller objects;
 #'   character names can also be supplied through variables or expressions.
 #'   Missing group values form their own last group, labelled as missing, and
-#'   are included in the overall column. A group with more than 100 distinct
-#'   values (factor levels) is an error.
+#'   are included in the overall column. Their label receives a numeric suffix
+#'   when it conflicts with an existing category or unused factor level.
+#'   A group with more than 100 distinct values (factor levels) is an error.
 #' @param count Optional variable(s) for cross-tabulation. Accepts a single
 #'   variable name (NSE or string), multiple variable names via
 #'   \code{c(var1, var2)} (NSE) or character vector
@@ -893,8 +894,11 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     by <- data[[group_var]]
     if (anyNA(by)) {
       by <- as.factor(by)
-      if (!"\u7f3a\u5931" %in% levels(by)) levels(by) <- c(levels(by), "\u7f3a\u5931")
-      by[is.na(by)] <- "\u7f3a\u5931"
+      missing_labels <- c("\u7f3a\u5931",
+                          paste0("\u7f3a\u5931", "_", seq_len(nlevels(by))))
+      missing_label <- missing_labels[!missing_labels %in% levels(by)][1L]
+      levels(by) <- c(levels(by), missing_label)
+      by[is.na(by)] <- missing_label
     }
     grouped_data[[group_var]] <- .label_blank(by)
     res_grouped <-

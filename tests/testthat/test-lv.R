@@ -481,6 +481,51 @@ test_that("missing group values form their own group in the grouped table", {
   expect_identical(factor_data$g, factor(c("B", NA, "A"), levels = c("B", "A")))
 })
 
+test_that("missing groups stay separate from a literal missing label", {
+  missing_label <- "\u7f3a\u5931"
+  data <- data.frame(g = c(missing_label, missing_label, NA, "A"),
+                     x = c("known", "known", "unrecorded", "known"))
+  before <- data
+  reports <- capture_reports(value <- withVisible(lv(data, x, group = g)))
+  header <- reports[[1L]]$table_styling$header
+  groups <- header[grepl("^stat_[1-9]", header$column), ]
+  expect_identical(groups$modify_stat_level,
+                   c("A", missing_label, paste0(missing_label, "_1")))
+  expect_equal(groups$modify_stat_n, c(1, 2, 1))
+  body <- reports[[1L]]$table_body
+  expect_identical(unname(unlist(body[body$label == "unrecorded", groups$column])),
+                   c("0 (0%)", "0 (0%)", "1 (100%)"))
+  expect_identical(value$value, before)
+  expect_identical(value$visible, FALSE)
+  expect_identical(data, before)
+})
+
+test_that("missing-group labels avoid occupied suffixes and unused factor levels", {
+  missing_label <- "\u7f3a\u5931"
+  group_levels <- c("B", paste0(missing_label, "_1"), missing_label,
+                    paste0(missing_label, "_2"), "A")
+  for (make_factor in list(factor, ordered)) {
+    data <- data.frame(
+      g = make_factor(c("B", missing_label, NA, "A", NA), levels = group_levels),
+      x = c("known", "known", "unrecorded", "known", "unrecorded")
+    )
+    before <- data
+    reports <- capture_reports(lv(data, x, group = g))
+    header <- reports[[1L]]$table_styling$header
+    groups <- header[grepl("^stat_[1-9]", header$column), ]
+    observed <- groups$modify_stat_n > 0
+    expect_identical(groups$modify_stat_level[observed],
+                     c("B", missing_label, "A", paste0(missing_label, "_3")))
+    expect_equal(groups$modify_stat_n[observed], c(1, 1, 1, 2))
+    expect_equal(sum(groups$modify_stat_n), nrow(data))
+    missing_column <- groups$column[groups$modify_stat_level == paste0(missing_label, "_3")]
+    body <- reports[[1L]]$table_body
+    expect_identical(unname(unlist(body[body$label == "unrecorded", missing_column])),
+                     "2 (100%)")
+    expect_identical(data, before)
+  }
+})
+
 test_that("the grouped table names its grouping and size", {
   data <- data.frame(g = rep(c("A", "B"), 600), x = seq_len(1200))
   grouped <- capture_reports(lv(data, x, group = g))
