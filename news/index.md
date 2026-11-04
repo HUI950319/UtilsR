@@ -2,19 +2,9 @@
 
 ## UtilsR 0.6.22
 
-- Use a repetition probe to avoid revalidating the same colour in long,
-  highly repetitive input vectors.
-
-- Reject dimensional named colours before subsetting and match observed
-  empty categories exactly in distribution and alluvial plots.
-
 - PlotDumbbell() and PlotScatter3() validate themes with the shared
   resolver. Automatic dumbbell insets reuse the main theme unless a
   separate theme is supplied.
-
-- [`PlotButterfly()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly.md)
-  uses the shared colour resolver, checks duplicate palette names, and
-  warns about categories that use the grey fallback.
 
 - plt_dist() follows ggplot2’s registered default text size when the
   plot and current themes omit base text.

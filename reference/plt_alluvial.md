@@ -54,8 +54,7 @@ plt_alluvial(
 
   A registered UtilsR palette name, a single colour, or a colour vector.
   Named vectors match observed group names and must cover every observed
-  group; extra names are ignored. A blank name is allowed for an
-  observed empty string group. Unnamed vectors match group order.
+  group; extra names are ignored. Unnamed vectors match group order.
 
 - flow_args:
 
