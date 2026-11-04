@@ -623,6 +623,10 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #' @keywords internal
 #' @noRd
 .pal_ramp <- function(cols, at, alpha, size = length(at)) {
+  if (length(cols) == 1L && length(at) > 1L) {
+    colour <- .pal_ramp(cols, at[1L], alpha, size)
+    return(rep.int(colour, length(at)))
+  }
   # Keep the RGB spelling for opaque ramps and the source alpha when requested.
   has_alpha <- alpha == 1 && any(grDevices::col2rgb(cols, alpha = TRUE)["alpha", ] < 255)
   rgba <- grDevices::colorRamp(cols, alpha = has_alpha)(at)

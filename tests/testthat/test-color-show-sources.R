@@ -895,6 +895,26 @@ test_that("pal_get diagnoses malformed colour encodings without warnings", {
   }
 })
 
+test_that("pal_get keeps native spelling and alpha for one-colour ramps", {
+  x <- c(1, NA, 0, 0.4, Inf, 0.7)
+  for (colour in c("red", "NA", "transparent", "#FF000080")) {
+    translucent <- grDevices::col2rgb(colour, alpha = TRUE)[4L, 1L] < 255
+    native <- grDevices::colorRampPalette(colour, alpha = translucent)(1L)
+    for (alpha in c(1, 0.5, 0.9999)) {
+      expected_n <- rep(native, 257L)
+      expected_x <- rep(native, length(x))
+      expected_x[!is.finite(x)] <- NA_character_
+      if (alpha < 1) {
+        expected_n <- ggplot2::alpha(expected_n, alpha)
+        expected_x <- ggplot2::alpha(expected_x, alpha)
+      }
+      expect_identical(pal_get(colour, n = 257L, alpha = alpha), expected_n)
+      expect_identical(pal_get(colour, x = x, alpha = alpha, reverse = TRUE),
+                       expected_x)
+    }
+  }
+})
+
 test_that("pal_get keeps medium-cardinality numeric mappings in observation order", {
   palettes <- list(opaque = c("black", "white"),
                    translucent = c("#FF000080", "#0000FF40"))
