@@ -9,8 +9,10 @@
 #' CI mode (3 vectors) or SD mode (2 vectors) for numeric input.
 #'
 #' @param x Numeric vector (estimate/mean) or character vector (CI strings to
-#'   reformat). Trailing stars and a terminal period are ignored; other text
-#'   after a parsed interval is dropped with a warning. Missing and
+#'   reformat). Whitespace, including non-breaking spaces, is ignored around
+#'   brackets and separators and at either end of the string. Trailing stars
+#'   and a terminal period are ignored; other text after a parsed interval
+#'   is dropped with a warning. Missing and
 #'   whitespace-only strings pass through unchanged without a warning.
 #' @param y Numeric vector: lower CI bound (CI mode) or SD (SD mode).
 #'   Ignored when \code{x} is character.
@@ -51,6 +53,9 @@
 #'
 #' stat_ci("1.23 [0.95\u20131.59]", sep = " to ", bracket = "(")
 #' # "1.23 (0.95 to 1.59)"
+#'
+#' # Whitespace pasted from manuscripts
+#' stat_ci("\u00a01.23 ( 0.95, 1.59 )\u00a0")
 #'
 #' # --- In mutate() ---
 #' # df %>% mutate(ci = stat_ci(est, ci_low, ci_high))

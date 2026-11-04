@@ -8,6 +8,68 @@ test_that("default CI and SD formatting stays unchanged", {
   expect_identical(stat_ci(12, 10, 15, digits = 0), "12 (10\u201315)")
 })
 
+test_that("character intervals allow whitespace inside both bracket types", {
+  x <- c(open = "1.00 ( 0.50, 1.50)", close = "1.00 (0.50, 1.50 )",
+         square = "1.00 [ 0.50; 1.50 ]", multiline = "1.00 (\t0.50,\n1.50\r\n)")
+  expected <- stats::setNames(rep("1.00 (0.50\u20131.50)", length(x)), names(x))
+  expect_no_warning(actual <- stat_ci(x))
+  expect_identical(actual, expected)
+  expect_no_warning(actual <- stat_ci(x, bracket = "[", sep = " to "))
+  expect_identical(actual, stats::setNames(rep("1.00 [0.50 to 1.50]", length(x)), names(x)))
+})
+
+test_that("surrounding NBSP is ignored when character intervals are reformatted", {
+  x <- c(leading = "\u00a01.00 (0.50, 1.50)",
+         trailing = "1.00 (0.50, 1.50)\u00a0",
+         mixed = " \t\u00a01.00 (0.50, 1.50)\u00a0\n",
+         stars = "\u00a01.00 (0.50, 1.50)\u00a0**\u00a0")
+  expected <- stats::setNames(rep("1.00 (0.50\u20131.50)", length(x)), names(x))
+  expect_no_warning(actual <- stat_ci(x))
+  expect_identical(actual, expected)
+  expect_no_warning(actual <- stat_ci(x, bracket = "[", sep = ", "))
+  expect_identical(actual, stats::setNames(rep("1.00 [0.50, 1.50]", length(x)), names(x)))
+})
+
+test_that("Unicode bracket gaps preserve signs and detected scientific precision", {
+  x <- c(comma = "\u20130.25\u00a0(\u00a0\u20130.40\u00a0,\u00a0\u20130.10\u00a0)\u00a0*\u00a0*",
+         semicolon = "\u22120.25\uff08\u2003\u20140.40\u00a0;\u00a0\u20140.10\u2003\uff09",
+         words = "2.5e-1\u00a0[\u202f1.0e-1\u00a0to\u20034.0e-1\u202f]")
+  expected <- c(comma = "-0.25 [-0.40 to -0.10]",
+                semicolon = "-0.25 [-0.40 to -0.10]",
+                words = "0.25 [0.10 to 0.40]")
+  expect_no_warning(actual <- stat_ci(x, bracket = "[", sep = " to "))
+  expect_identical(actual, expected)
+})
+
+test_that("Unicode whitespace does not hide malformed strings or trailing text", {
+  x <- c(brackets = "1.00 (\u00a00.50,\u00a01.50 ]",
+         estimate = "1.\u00a000 (0.50, 1.50)",
+         sign = "1.00 (-\u00a00.50, 1.50)",
+         exponent = "1.00 (0.50e\u00a0-1, 1.50)")
+  expect_warning(actual <- stat_ci(x), "4 elements could not")
+  expect_identical(actual, x)
+  expect_warning(actual <- stat_ci(
+    "\u00a01.00 (\u00a00.50, 1.50\u00a0)\u00a0footnote\u00a0"),
+    "1 element had trailing text")
+  expect_identical(actual, "1.00 (0.50\u20131.50)")
+})
+
+test_that("whitespace preserves precision overrides and output separators", {
+  x <- c(decimal = "1.230 (0.950, 1.590)",
+         scientific = "-1.2e-3 (-1.7e-3, -0.7e-3)")
+  spaced <- gsub("(", "(\u00a0", x, fixed = TRUE)
+  spaced <- gsub(")", "\u00a0)", spaced, fixed = TRUE)
+  spaced <- stats::setNames(paste0("\u00a0", spaced, "\u00a0"), names(x))
+  for (digits in list(NULL, 0L, 4L)) {
+    for (sep in c(", ", " to ")) {
+      expected <- stat_ci(x, digits = digits, bracket = "[", sep = sep)
+      expect_no_warning(actual <- stat_ci(
+        spaced, digits = digits, bracket = "[", sep = sep))
+      expect_identical(actual, expected)
+    }
+  }
+})
+
 test_that("digits is validated before coercion and formatting in every mode", {
   invalid <- list(-1, 1.9, NA_real_, Inf, numeric(), c(1, 2), "2", TRUE,
                   8191, .Machine$integer.max + 1, matrix(2),

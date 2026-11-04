@@ -96,6 +96,95 @@ test_that("common manuscript spellings parse to the same interval", {
   expect_identical(stat_ci_parse("1.23 (0.95；1.59)"), "1.23 (0.95; 1.59)")
 })
 
+test_that("whitespace inside brackets preserves interval values and style", {
+  x <- c(open = "1.00 ( 0.50, 1.50)", close = "1.00 (0.50, 1.50 )",
+         square = "1.00 [ 0.50; 1.50 ]", multiline = "1.00 (\t0.50,\n1.50\r\n)")
+  expected <- c(open = "1.00 (0.50, 1.50)", close = "1.00 (0.50, 1.50)",
+                square = "1.00 [0.50; 1.50]", multiline = "1.00 (0.50, 1.50)")
+  expect_no_warning(actual <- stat_ci_parse(x, exp = FALSE))
+  expect_identical(actual, expected)
+  expect_no_warning(p <- stat_ci_parse(x, output = "p", exp = FALSE))
+  expect_identical(p, stat_ci_parse(expected, output = "p", exp = FALSE))
+})
+
+test_that("surrounding Unicode whitespace is ignored without trailing-text warnings", {
+  x <- c(leading = "\u00a01.00 (0.50, 1.50)",
+         trailing = "1.00 (0.50, 1.50)\u00a0",
+         mixed = " \t\u00a01.00 (0.50, 1.50)\u00a0\n",
+         stars = "\u00a01.00 (0.50, 1.50)\u00a0**\u00a0")
+  expected <- stats::setNames(rep("1.00 (0.50, 1.50)", length(x)), names(x))
+  expect_no_warning(actual <- stat_ci_parse(x, exp = FALSE))
+  expect_identical(actual, expected)
+  expect_no_warning(p <- stat_ci_parse(x, output = "p", exp = FALSE))
+  expect_identical(p, stat_ci_parse(expected, output = "p", exp = FALSE))
+})
+
+test_that("Unicode gaps retain signed numbers, scientific notation and separators", {
+  x <- c(comma = "\u20130.25\u00a0(\u00a0\u20130.40\u00a0,\u00a0\u20130.10\u00a0)\u00a0*\u00a0*",
+         semicolon = "\u22120.25\uff08\u2003\u20140.40\u00a0;\u00a0\u20140.10\u2003\uff09",
+         words = "2.5e-1\u00a0[\u202f1.0e-1\u00a0to\u20034.0e-1\u202f]")
+  expected <- c(comma = "-0.25 (-0.40, -0.10)",
+                semicolon = "-0.25 (-0.40; -0.10)",
+                words = "0.25 [0.10 to 0.40]")
+  expect_no_warning(actual <- stat_ci_parse(x, exp = FALSE))
+  expect_identical(actual, expected)
+  expect_no_warning(p <- stat_ci_parse(x, output = "p", exp = FALSE))
+  expect_identical(p, stat_ci_parse(expected, output = "p", exp = FALSE))
+})
+
+test_that("whitespace never joins broken numeric tokens or mismatched brackets", {
+  x <- c(brackets = "1.00 (\u00a00.50,\u00a01.50 ]",
+         estimate = "1.\u00a000 (0.50, 1.50)",
+         sign = "1.00 (-\u00a00.50, 1.50)",
+         exponent = "1.00 (0.50e\u00a0-1, 1.50)")
+  expect_warning(actual <- stat_ci_parse(x, exp = FALSE), "4 elements could not")
+  expect_identical(actual, x)
+  expect_warning(p <- stat_ci_parse(x, output = "p", exp = FALSE),
+                 "4 elements could not")
+  expect_identical(p, stats::setNames(rep(NA_real_, length(x)), names(x)))
+  expect_warning(actual <- stat_ci_parse(
+    "\u00a01.00 (\u00a00.50, 1.50\u00a0)\u00a0footnote\u00a0", exp = FALSE),
+    "1 element had trailing text")
+  expect_identical(actual, "1.00 (0.50, 1.50)")
+})
+
+test_that("whitespace leaves every output and confidence-level calculation unchanged", {
+  for (exp in c(TRUE, FALSE)) {
+    x <- if (exp) {
+      c(effect = "2.00 (1.00, 4.00)", null = "1.00 (0.50, 2.00)")
+    } else {
+      c(effect = "-0.50 (-0.90, -0.10)", null = "0.00 (-1.00, 1.00)")
+    }
+    spaced <- gsub("(", "(\u00a0", x, fixed = TRUE)
+    spaced <- gsub(")", "\u00a0)", spaced, fixed = TRUE)
+    spaced <- stats::setNames(paste0("\u00a0", spaced, "\u00a0"), names(x))
+    for (level in list(NULL, .9, .95)) {
+      for (output in c("ci", "p", "ci_p", "ci_star", "p_star")) {
+        expected <- stat_ci_parse(x, output = output, level = level, exp = exp)
+        expect_no_warning(actual <- stat_ci_parse(
+          spaced, output = output, level = level, exp = exp))
+        expect_identical(actual, expected)
+      }
+    }
+  }
+})
+
+test_that("Unicode blanks pass through silently in every output mode", {
+  x <- c(missing = NA_character_, empty = "", ascii = " \t\n",
+         nbsp = "\u00a0", unicode = "\u00a0\u2003")
+  for (output in c("ci", "ci_p", "ci_star", "p", "p_star")) {
+    expected <- switch(output,
+      p = stats::setNames(rep(NA_real_, length(x)), names(x)),
+      p_star = stats::setNames(rep(NA_character_, length(x)), names(x)),
+      x)
+    expect_no_warning(actual <- stat_ci_parse(x, output = output))
+    expect_identical(actual, expected)
+  }
+  expect_warning(actual <- stat_ci_parse(c(x, reference = "Reference")),
+                 "1 element could not")
+  expect_identical(actual, c(x, reference = "Reference"))
+})
+
 test_that("NA and empty strings pass through silently; other text warns", {
   x <- c("1.23 (0.95, 1.59)", NA, "", "Reference")
   w <- capture_warnings(out <- stat_ci_parse(x, output = "ci"))

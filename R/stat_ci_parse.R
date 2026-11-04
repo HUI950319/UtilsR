@@ -23,8 +23,10 @@
 #'   \code{-} \code{~} en/em dash or \code{to}; numbers may carry a sign or
 #'   an exponent. Full-width punctuation, the Unicode minus and an en or em
 #'   dash written as a minus sign before a number are accepted.
+#'   Whitespace, including non-breaking spaces, is allowed around brackets
+#'   and separators and at either end of the string.
 #'   Trailing stars are ignored, other trailing text is dropped with a
-#'   warning, and \code{NA} / \code{""} pass through silently.
+#'   warning, and \code{NA} / whitespace-only strings pass through silently.
 #' @param output What to return:
 #'   \describe{
 #'     \item{\code{"ci"}}{(default) CI string (adjusted if \code{level} is set).}
@@ -97,6 +99,9 @@
 #' # Basic: return CI as-is
 #' stat_ci_parse("1.23 (0.95, 1.59)")
 #'
+#' # Whitespace pasted from manuscripts
+#' stat_ci_parse("\u00a01.23 ( 0.95, 1.59 )\u00a0", exp = TRUE)
+#'
 #' # Extract p-value
 #' stat_ci_parse("2.45 (1.20, 4.80)", output = "p")
 #'
@@ -155,7 +160,8 @@ stat_ci_parse <- function(x,
   if (!is.null(digits)) d[] <- as.integer(digits)
 
   # Warn about unparseable elements (NA and "" pass through silently)
-  n_fail <- sum(!valid & !is.na(x) & nzchar(trimws(x)))
+  n_fail <- sum(!valid & !is.na(x) &
+                  nzchar(trimws(x, whitespace = "[\\h\\v]")))
   if (n_fail > 0L) {
     cli::cli_warn("{n_fail} element{?s} could not be parsed as CI string{?s} and {?was/were} returned as-is.")
   }
@@ -278,21 +284,25 @@ stat_ci_parse <- function(x,
   open <- close <- sep <- rep(NA_character_, n)
   unit <- matrix(NA_real_, n, 3L)   # rounding unit of est, lower, upper
 
-  # Full-width punctuation and the Unicode minus sign (pasted from Word/PDF)
-  xs <- chartr("\u2212\uff08\uff09\uff0c\uff1b\uff5e", "-(),;~", trimws(x))
+  # Full-width punctuation and Unicode spacing/minus (pasted from Word/PDF)
+  space <- "[\\h\\v]"
+  xs <- chartr("\u2212\uff08\uff09\uff0c\uff1b\uff5e", "-(),;~",
+                trimws(x, whitespace = space))
   # An en or em dash right before a number is a minus sign, as Word and PDF
   # tables print negatives, when it opens the string or follows the bracket
   # or a separator; between two numbers it stays the separator
-  xs <- gsub("(^|[[(,;~\u2013\u2014-]\\s*|\\sto\\s+)[\u2013\u2014](?=\\.?\\d)",
+  xs <- gsub(paste0("(^|[[(,;~\u2013\u2014-]", space, "*|", space,
+                    "to", space, "+)[\u2013\u2014](?=\\.?\\d)"),
              "\\1-", xs, perl = TRUE)
-  xs <- gsub("[* ]+$", "", xs)       # strip trailing stars/spaces
+  xs <- gsub("[*\\h\\v]+$", "", xs, perl = TRUE) # strip trailing stars/spaces
   xs <- gsub("\\.$", "", xs)          # strip single trailing dot
 
   # est (lower sep upper) -- one pattern for every bracket and separator;
   # groups: 1 est, 2 open, 3 lower, 4 sep, 5 upper, 6 close, 7 trailing text
   num <- "([-+]?(?:\\d+\\.?\\d*|\\.\\d+)(?:[eE][-+]?\\d+)?)"
-  re <- paste0("^", num, "\\s*([[(])", num,
-               "(\\s*[,;~\u2013\u2014-]\\s*|\\s+to\\s+)", num, "([])])")
+  re <- paste0("^", num, space, "*([[(])", space, "*", num,
+               "(", space, "*[,;~\u2013\u2014-]", space, "*|",
+               space, "+to", space, "+)", num, space, "*([])])")
   hit <- which(grepl(re, xs, perl = TRUE))
   grab <- function(k) {
     sub(paste0("(?s)", re, "(.*)$"), paste0("\\", k), xs[hit], perl = TRUE)
@@ -306,7 +316,7 @@ stat_ci_parse <- function(x,
   hi[hit] <- as.numeric(g[[5]])
   open[hit] <- g[[2]]; close[hit] <- g[[6]]
   sep[hit] <- c("," = ", ", ";" = "; ", "~" = "~", "\u2013" = "\u2013",
-                "\u2014" = "\u2014", "-" = "-", "to" = " to ")[trimws(g[[4]])]
+                "\u2014" = "\u2014", "-" = "-", "to" = " to ")[trimws(g[[4]], whitespace = space)]
   # decimals shown = mantissa decimals - exponent ("1.2e-3" -> 4)
   dec <- lapply(g[c(1, 3, 5)], function(s) {
     ex <- ifelse(grepl("[eE]", s), sub("^.*[eE]", "", s), "0")
@@ -319,7 +329,7 @@ stat_ci_parse <- function(x,
   list(estimate = est, lower = lo, upper = hi, digits = d,
        open = open, sep = sep, close = close, valid = !is.na(open),
        unit = unit, trailing = !is.na(open) & nzchar(trimws(
-         replace(rep("", n), hit, g[[7]]))))
+         replace(rep("", n), hit, g[[7]]), whitespace = space)))
 }
 
 #' @noRd

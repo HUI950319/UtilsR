@@ -19,8 +19,10 @@ Brackets \code{()} or \code{[]}; separators \code{,} \code{;}
 \code{-} \code{~} en/em dash or \code{to}; numbers may carry a sign or
 an exponent. Full-width punctuation, the Unicode minus and an en or em
 dash written as a minus sign before a number are accepted.
+Whitespace, including non-breaking spaces, is allowed around brackets
+and separators and at either end of the string.
 Trailing stars are ignored, other trailing text is dropped with a
-warning, and \code{NA} / \code{""} pass through silently.}
+warning, and \code{NA} / whitespace-only strings pass through silently.}
 
 \item{output}{What to return:
 \describe{
@@ -102,6 +104,9 @@ are not the p-value of the original test.
 \examples{
 # Basic: return CI as-is
 stat_ci_parse("1.23 (0.95, 1.59)")
+
+# Whitespace pasted from manuscripts
+stat_ci_parse("\u00a01.23 ( 0.95, 1.59 )\u00a0", exp = TRUE)
 
 # Extract p-value
 stat_ci_parse("2.45 (1.20, 4.80)", output = "p")
