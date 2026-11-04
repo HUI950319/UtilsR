@@ -75,8 +75,12 @@ single factor (the dual operation), see \code{\link{fct_to_group}()}.
 A row is missing if any input is missing according to its \code{is.na()}
 method, including \code{NaN} and SPSS user-missing values and ranges.
 The literal string \code{"NA"} remains an ordinary category.
+Non-factor inputs are grouped by their original values before conversion
+to text, so numeric formatting cannot silently merge distinct combinations.
 If distinct combinations produce the same label, the function errors;
 choose a different \code{sep} or relabel the inputs to disambiguate them.
+For numeric formatting collisions, format the values explicitly with enough
+precision before combining, for example using \code{sprintf("\%.17g", x)}.
 
 Inside grouped or rowwise \code{dplyr::mutate()}, combinations are computed
 separately for each group. When dplyr combines the results, their level

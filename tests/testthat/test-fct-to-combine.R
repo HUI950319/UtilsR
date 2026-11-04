@@ -130,6 +130,65 @@ test_that("distinct tuples cannot silently share a label", {
                    factor(rep("A & B & C", 3)))
 })
 
+test_that("numeric formatting cannot collapse distinct combinations", {
+  inputs <- list(
+    c(1, 1 + 1e-15),
+    c(1e15, 1e15 + 1),
+    c(1 + 1i, 1 + (1 + 1e-15) * 1i),
+    as.difftime(c(1, 1 + 1e-15), units = "secs"),
+    as.Date(c(0, 0.001), origin = "1970-01-01"),
+    as.POSIXct(c(1, 1 + 1e-7), origin = "1970-01-01", tz = "UTC")
+  )
+  for (x in inputs) {
+    expect_error(fct_to_combine(x, rep("X", 2)),
+                 "Distinct combinations.*same label")
+    expect_error(fct_to_combine(x), "Distinct combinations.*same label")
+    data <- data.frame(value = x, group = "X")
+    before <- data
+    expect_error(fct_to_combine(data, c("value", "group"), var_name = "value"),
+                 "Distinct combinations.*same label")
+    expect_identical(data, before)
+
+    labels <- paste(as.character(x), c("B", "A"), sep = " & ")
+    expected <- factor(labels, levels = labels)
+    expect_identical(fct_to_combine(x, c("B", "A")), expected)
+    rows <- c(2, 1, 2)
+    expect_identical(fct_to_combine(x[rows], c("A", "B", "A")), expected[rows])
+  }
+})
+
+test_that("rounded labels respect complete observed tuples in all call paths", {
+  x <- c(1 + 1e-15, 1, 1 + 1e-15, NA_real_, NaN)
+  data <- data.frame(value = x, group = c("A", "B", "A", "X", "X"))
+  expected <- factor(c("1 & A", "1 & B", "1 & A", NA, NA),
+                     levels = c("1 & B", "1 & A"))
+  expect_identical(fct_to_combine(data$value, data$group), expected)
+  expect_identical(fct_to_combine(data, c("value", "group"))$value_group, expected)
+  expect_identical(dplyr::mutate(data, g = fct_to_combine(value, group))$g, expected)
+  expect_identical(dplyr::mutate(data, g = fct_to_combine(c("value", "group")))$g,
+                   expected)
+  expect_identical(fct_to_combine(x, c(NA, "X", NA, "X", "X")),
+                   factor(c(NA, "1 & X", NA, NA, NA)))
+  expect_identical(fct_to_combine(x[c(1, 3)], rep("X", 2)),
+                   factor(rep("1 & X", 2)))
+  expect_error(fct_to_combine(x[1:3], rep("X", 3)),
+               "Distinct combinations.*same label")
+  expect_identical(as.character(fct_to_combine(sprintf("%.17g", x[1:3]),
+                                              rep("X", 3))),
+                   paste(sprintf("%.17g", x[1:3]), "X", sep = " & "))
+})
+
+test_that("labelled numeric values retain identity before formatting", {
+  skip_if_not_installed("haven")
+  for (x in list(haven::labelled(c(1, 1 + 1e-15)),
+                 haven::labelled_spss(c(1, 1 + 1e-15), na_values = 99))) {
+    expect_error(fct_to_combine(x, rep("X", 2)),
+                 "Distinct combinations.*same label")
+    expect_identical(fct_to_combine(x, c("B", "A")),
+                     factor(c("1 & B", "1 & A"), levels = c("1 & B", "1 & A")))
+  }
+})
+
 test_that("observed combinations follow input level priority", {
   a <- ordered(c("B", "A", "B", "B"), levels = c("B", "unused", "A"))
   b <- factor(c("X", "Y", "Y", "X"), levels = c("Y", "unused", "X"))

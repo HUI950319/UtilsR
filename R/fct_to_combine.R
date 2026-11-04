@@ -35,8 +35,12 @@
 #' A row is missing if any input is missing according to its \code{is.na()}
 #' method, including \code{NaN} and SPSS user-missing values and ranges.
 #' The literal string \code{"NA"} remains an ordinary category.
+#' Non-factor inputs are grouped by their original values before conversion
+#' to text, so numeric formatting cannot silently merge distinct combinations.
 #' If distinct combinations produce the same label, the function errors;
 #' choose a different \code{sep} or relabel the inputs to disambiguate them.
+#' For numeric formatting collisions, format the values explicitly with enough
+#' precision before combining, for example using \code{sprintf("\%.17g", x)}.
 #'
 #' Inside grouped or rowwise \code{dplyr::mutate()}, combinations are computed
 #' separately for each group. When dplyr combines the results, their level
@@ -215,7 +219,7 @@ fct_to_combine.default <- function(..., sep = " & ") {
     ))
   }
 
-  ensure_factor <- function(v) {
+  encode_input <- function(v) {
     if (inherits(v, c("Duration", "Period"))) {
       cli::cli_abort("Duration and Period vectors are not supported; convert them explicitly to the intended time unit before combining.")
     }
@@ -224,9 +228,15 @@ fct_to_combine.default <- function(..., sep = " & ") {
     if (inherits(v, "integer64") && !requireNamespace("bit64", quietly = TRUE)) {
       cli::cli_abort("Combining integer64 vectors requires the {.pkg bit64} package.")
     }
-    if (is.factor(v)) v else factor(v)
+    if (is.factor(v)) {
+      return(list(codes = as.integer(v), labels = levels(v)))
+    }
+    # Keep value identity separate from potentially rounded display labels.
+    values <- vctrs::vec_unique(v)
+    values <- values[order(values)]
+    list(codes = vctrs::vec_match(v, values), labels = as.character(values))
   }
-  fct_list <- unname(lapply(args, ensure_factor))
+  inputs <- unname(lapply(args, encode_input))
   missing_rows <- Reduce(`|`, lapply(args, is.na))
 
   complete_rows <- NULL
@@ -239,7 +249,7 @@ fct_to_combine.default <- function(..., sep = " & ") {
   }
 
   # Group integer codes before building labels; repeated rows need no strings.
-  codes <- lapply(fct_list, as.integer)
+  codes <- lapply(inputs, `[[`, "codes")
   if (!is.null(complete_rows)) {
     codes <- lapply(codes, function(v) v[complete_rows])
   }
@@ -249,9 +259,9 @@ fct_to_combine.default <- function(..., sep = " & ") {
   first <- match(seq_len(attr(ids, "n")), ids)
   ord <- do.call(order, unname(lapply(codes, function(v) v[first])))
   first <- first[ord]
-  label_rows <- if (is.null(complete_rows)) first else complete_rows[first]
-  lvls <- do.call(paste, c(lapply(fct_list, function(f) as.character(f[label_rows])),
-                           list(sep = sep)))
+  lvls <- do.call(paste, c(lapply(seq_along(inputs), function(i) {
+    inputs[[i]]$labels[codes[[i]][first]]
+  }), list(sep = sep)))
   if (anyDuplicated(lvls)) {
     cli::cli_abort(c(
       "Distinct combinations produce the same label.",
