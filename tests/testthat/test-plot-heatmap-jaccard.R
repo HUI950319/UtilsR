@@ -27,6 +27,15 @@ jaccard_cold_call <- function(data, group_levels = NULL, namespace) {
        result = if (is.null(attr(status, "status"))) readRDS(output) else NULL)
 }
 
+jaccard_timespans <- function(values) {
+  start <- as.POSIXct("2000-01-01", tz = "UTC") + values * 60
+  list(period = lubridate::period(month = values),
+       calendar_period = lubridate::period(year = ifelse(values == 1, 1, 0),
+         month = ifelse(values == 2, 12, 0), day = ifelse(values == 3, 1, 0)),
+       duration = lubridate::duration(values),
+       interval = lubridate::interval(start, start + 30))
+}
+
 test_that("Jaccard pure data returns avoid plotting while requested files are saved", {
   data <- data.frame(cell_type = c("A", "A", "B", "B"), gene = c("a", "b", "b", "c"))
   calls <- 0L
@@ -240,6 +249,99 @@ test_that("integer64 group_levels load their namespace in a cold session", {
     dimnames(expected) <- list(rev(values), rev(values))
     expect_identical(out$result$value, expected)
     expect_identical(out$result$unchanged, TRUE)
+  }
+})
+
+test_that("time span group_levels load their namespace in a cold session", {
+  skip_if_not_installed("lubridate")
+  for (groups in jaccard_timespans(c(1, 2))) {
+    labels <- as.character(groups)
+    dat <- data.frame(cell_type = labels, gene = c("a", "b"))
+    out <- jaccard_cold_call(dat, groups[c(2L, NA_integer_, 1L)], "lubridate")
+    expect_null(out$status, info = paste(out$output, collapse = "\n"))
+    if (is.null(out$status)) {
+      expected <- diag(2)
+      dimnames(expected) <- list(rev(labels), rev(labels))
+      expect_identical(out$result$value, expected)
+      expect_identical(out$result$unchanged, TRUE)
+    }
+  }
+})
+
+test_that("time span features retain all value components and ignore names", {
+  skip_if_not_installed("lubridate")
+  for (features in jaccard_timespans(c(1, 2, 2, 2, 3, NA))) {
+    names(features) <- paste0("row", seq_along(features))
+    dat <- data.frame(cell_type = c("A", "A", "A", "B", "B", "B"))
+    dat$gene <- features
+    before <- dat
+    expected <- rbind(c(1, 1/3), c(1/3, 1))
+    dimnames(expected) <- list(c("A", "B"), c("A", "B"))
+    result <- PlotHeatmapJaccard(dat, return_type = "both")
+    expect_identical(result$matrix, expected)
+    expect_s3_class(ggplot2::ggplot_build(result$plot), "ggplot_built")
+    expect_identical(dat, before)
+    with_empty <- rbind(c(0, 0, 0), c(0, 1, 1/3), c(0, 1/3, 1))
+    dimnames(with_empty) <- list(c("empty", "B", "A"), c("empty", "B", "A"))
+    expect_identical(PlotHeatmapJaccard(dat, group_levels = c("empty", "B", "A"),
+                                      return_type = "data"), with_empty)
+    all_missing <- dat
+    all_missing$gene <- features[rep(NA_integer_, length(features))]
+    expect_identical(PlotHeatmapJaccard(all_missing, return_type = "data"),
+                     matrix(0, 2, 2, dimnames = list(c("A", "B"), c("A", "B"))))
+    expect_identical(PlotHeatmapJaccard(dat[FALSE, ], group_levels = c("A", "B"),
+                                      return_type = "data"),
+                     matrix(0, 2, 2, dimnames = list(c("A", "B"), c("A", "B"))))
+  }
+})
+
+test_that("time span groups retain full keys with typed and character orders", {
+  skip_if_not_installed("lubridate")
+  for (groups in jaccard_timespans(c(1, 2, 1, NA))) {
+    dat <- data.frame(gene = c("a", "b", "b", "orphan"))
+    dat$cell_type <- groups
+    before <- dat
+    labels <- as.character(groups[1:2])
+    expected <- rbind(c(1, 0.5), c(0.5, 1))
+    dimnames(expected) <- list(labels, labels)
+    expect_identical(PlotHeatmapJaccard(dat, return_type = "data"), expected)
+    for (order in list(groups[2:1], rev(labels))) {
+      result <- PlotHeatmapJaccard(dat, group_levels = order, return_type = "both")
+      expect_identical(result$matrix, expected[2:1, 2:1])
+      tiles <- ggplot2::ggplot_build(result$plot)$data[[1L]]
+      expect_identical(as.numeric(tiles$x), c(1, 2, 1, 2))
+    }
+    with_empty <- rbind(c(1, 0, 0.5), c(0, 0, 0), c(0.5, 0, 1))
+    order <- c(labels[2L], "empty", labels[1L])
+    dimnames(with_empty) <- list(order, order)
+    expect_identical(PlotHeatmapJaccard(dat, group_levels = order, return_type = "data"),
+                     with_empty)
+    expect_identical(dat, before)
+    expect_identical(PlotHeatmapJaccard(dat[FALSE, ], group_levels = groups[1:2],
+                                      return_type = "data"),
+                     matrix(0, 2, 2, dimnames = list(labels, labels)))
+  }
+})
+
+test_that("time span records retain their identity in a cold session", {
+  skip_if_not_installed("lubridate")
+  for (values in jaccard_timespans(c(1, 2))) {
+    labels <- as.character(values)
+    data <- list(features = data.frame(cell_type = c("A", "B")),
+                 groups = data.frame(gene = c("a", "b")))
+    data$features$gene <- values
+    data$groups$cell_type <- values
+    for (mode in names(data)) {
+      out <- jaccard_cold_call(data[[mode]], namespace = "lubridate")
+      expect_null(out$status, info = paste(out$output, collapse = "\n"))
+      if (is.null(out$status)) {
+        expected <- diag(2)
+        axis <- if (mode == "features") c("A", "B") else labels
+        dimnames(expected) <- list(axis, axis)
+        expect_identical(out$result$value, expected)
+        expect_identical(out$result$unchanged, TRUE)
+      }
+    }
   }
 })
 

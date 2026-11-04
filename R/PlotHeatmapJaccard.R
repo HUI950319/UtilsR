@@ -13,6 +13,9 @@
 #'   Labelled and \code{integer64} columns use their class-defined missing values,
 #'   including SPSS user-missing codes, even in a fresh R session. Interpreting
 #'   these classes requires \pkg{haven} and \pkg{bit64}, respectively.
+#'   \code{Duration}, \code{Period} and \code{Interval} inputs require
+#'   \pkg{lubridate}. Their complete value components are retained for grouping
+#'   and feature matching.
 #' @param group_col A single non-missing, non-empty grouping column name
 #'   (e.g. cell type). Default \code{"cell_type"}. Its character representation
 #'   supplies matrix and axis labels; the original values are retained for
@@ -125,11 +128,18 @@ PlotHeatmapJaccard <- function(
   integer64 <- vapply(class_inputs, inherits, logical(1), what = "integer64")
   if (any(integer64) && !requireNamespace("bit64", quietly = TRUE))
     stop("Interpreting integer64 inputs requires package 'bit64'.", call. = FALSE)
+  time_classes <- c("Duration", "Period", "Interval")
+  timespan <- vapply(class_inputs, inherits, logical(1), what = time_classes)
+  if (any(timespan) && !requireNamespace("lubridate", quietly = TRUE))
+    stop("Interpreting time span inputs requires package 'lubridate'.", call. = FALSE)
+
   # ---- 1. Group order (priority: group_levels > factor levels > data order) ----
   ct_names <- if (!is.null(group_levels)) {
     group_levels
   } else if (is.factor(data[[group_col]])) {
     levels(data[[group_col]])
+  } else if (timespan[1L]) {
+    vctrs::vec_unique(data[[group_col]])
   } else {
     unique(data[[group_col]])
   }
@@ -147,15 +157,44 @@ PlotHeatmapJaccard <- function(
   non_missing <- !is.na(group_values) & !is.na(data[[name_col]])
   if (inherits(group_values, "haven_labelled"))
     group_values <- as.vector(group_values)
-  ct_keys <- as.list(ct_names)
+  # Cache equality proxies without repeatedly restoring S4 time span objects.
+  feature_values <- if (timespan[2L]) {
+    vctrs::vec_proxy_equal(data[[name_col]])
+  } else {
+    data[[name_col]]
+  }
+  ct_keys <- if (inherits(ct_names, time_classes)) {
+    lapply(seq_len(n_ct), function(i) ct_names[i])
+  } else {
+    as.list(ct_names)
+  }
+  group_labels <- if (timespan[1L] && any(vapply(ct_keys, is.character, logical(1)))) {
+    as.character(group_values)
+  } else {
+    NULL
+  }
   top_sets <- lapply(
     stats::setNames(ct_keys, ct_labels),
     function(ct) {
-      rows <- which(group_values == ct & non_missing)
-      unique(as.vector(data[[name_col]][rows]))
+      group_match <- if (timespan[1L] && is.character(ct)) {
+        group_labels == ct
+      } else if (is.character(group_values) && inherits(ct, time_classes)) {
+        group_values == as.character(ct)
+      } else if (timespan[1L] && inherits(ct, time_classes)) {
+        vctrs::vec_equal(group_values, ct, na_equal = FALSE)
+      } else {
+        group_values == ct
+      }
+      rows <- which(group_match & non_missing)
+      values <- if (timespan[2L]) vctrs::vec_slice(feature_values, rows) else feature_values[rows]
+      if (timespan[2L]) vctrs::vec_unique(values) else unique(as.vector(values))
     }
   )
-  set_sizes <- as.double(lengths(top_sets))
+  set_sizes <- if (timespan[2L]) {
+    as.double(vapply(top_sets, vctrs::vec_size, numeric(1)))
+  } else {
+    as.double(lengths(top_sets))
+  }
 
   # ---- 3. Compute pairwise Jaccard similarity ----
   jmat <- matrix(0, nrow = n_ct, ncol = n_ct,
@@ -164,7 +203,7 @@ PlotHeatmapJaccard <- function(
     for (j in seq_len(i)) {
       gi <- top_sets[[i]]
       gj <- top_sets[[j]]
-      n_intersect <- sum(gi %in% gj)
+      n_intersect <- if (timespan[2L]) sum(vctrs::vec_in(gi, gj)) else sum(gi %in% gj)
       n_union <- set_sizes[i] + set_sizes[j] - n_intersect
       jmat[i, j] <- if (n_union > 0) n_intersect / n_union else 0
       jmat[j, i] <- jmat[i, j]

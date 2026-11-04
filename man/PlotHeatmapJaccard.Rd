@@ -30,7 +30,10 @@ PlotHeatmapJaccard(
 Rows with missing group labels or feature names do not contribute to sets.
 Labelled and \code{integer64} columns use their class-defined missing values,
 including SPSS user-missing codes, even in a fresh R session. Interpreting
-these classes requires \pkg{haven} and \pkg{bit64}, respectively.}
+these classes requires \pkg{haven} and \pkg{bit64}, respectively.
+\code{Duration}, \code{Period} and \code{Interval} inputs require
+\pkg{lubridate}. Their complete value components are retained for grouping
+and feature matching.}
 
 \item{group_col}{A single non-missing, non-empty grouping column name
 (e.g. cell type). Default \code{"cell_type"}. Its character representation
