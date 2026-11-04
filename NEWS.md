@@ -4,6 +4,8 @@
 
 * Map constant finite values from one midpoint, recycling the encoded colour into the original positions.
 
+* `PlotButterfly()` rejects empty named palettes and reports unmatched categories once before drawing them in grey.
+
 * Reuse alpha-encoded values for long repeated colour vectors and restore their original order and names.
 
 * Let `PlotRankCor()` match an observed empty-string group by name in a custom palette.

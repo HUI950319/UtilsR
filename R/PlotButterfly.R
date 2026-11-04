@@ -58,9 +58,9 @@
 #'   In bar mode, colours map to \code{fill.by} levels.
 #'   In violin mode, colours map to each variable.
 #'   Named vectors match categories by name in both panels. Duplicate names
-#'   are rejected. Missing categories use the grey fill and trigger a warning.
-#'   Supplied colours are validated. Unnamed vectors follow category order
-#'   and are recycled when needed.
+#'   are rejected. Missing categories use the grey fill and trigger one warning.
+#'   Supplied palettes must be non-empty and contain valid colours. Unnamed
+#'   vectors follow category order and are recycled when needed.
 #' @param alpha Numeric 0--1. Fill transparency. Default 0.85.
 #' @param bar.width Numeric. Bar width (bar mode). Default 0.7.
 #' @param bar.border Character. Bar border colour. Default \code{"black"}.
@@ -203,10 +203,10 @@ PlotButterfly <- function(
   type <- match.arg(type)
 
   # ---- Resolve palette helper ----
-  .resolve_cols <- function(categories) {
+  .resolve_fill <- function(categories) {
     palette_names <- names(palette)
-    if (is.null(palette_names)) {
-      return(.resolve_color(palette, n = length(categories)))
+    if (is.null(palette_names) || !length(palette)) {
+      return(list(values = .resolve_color(palette, n = length(categories)), limits = NULL))
     }
     if (anyNA(palette_names) || (any(!nzchar(palette_names)) && !"" %in% categories)) {
       cli::cli_abort("Named {.arg palette} must use non-missing category names.")
@@ -220,7 +220,10 @@ PlotButterfly <- function(
     if (length(missing)) {
       cli::cli_warn("Named {.arg palette} is missing colours for {.val {missing}}. These categories use grey.")
     }
-    cols
+    # An explicit empty scale domain maps unmatched groups to grey without
+    # repeating ggplot2's no-shared-level warning during scale training.
+    limits <- if (!any(categories %in% palette_names)) character() else NULL
+    list(values = cols, limits = limits)
   }
 
   # ========================================================================
@@ -293,7 +296,7 @@ PlotButterfly <- function(
       data[[fill.by]] <- factor(data[[fill.by]], levels = unique(data[[fill.by]]))
     }
 
-    cols <- .resolve_cols(base::levels(data[[fill.by]]))
+    fill_args <- .resolve_fill(base::levels(data[[fill.by]]))
     if (is.null(xlab)) xlab <- value.by
 
     # Titles from group levels
@@ -338,7 +341,7 @@ PlotButterfly <- function(
     }
     p_right <- p_right +
       ggplot2::scale_x_continuous(expand = c(0, 0), position = "top") +
-      scale_fill_manual(values = cols) +
+      scale_fill_manual(values = fill_args$values, limits = fill_args$limits) +
       labs(subtitle = right.title) +
       bar_theme +
       ggplot2::theme(
@@ -369,7 +372,7 @@ PlotButterfly <- function(
       scale_x_continuous(labels = function(x) format(abs(x)),
                          expand = c(0, 0), position = "top") +
       scale_y_discrete(position = "right") +
-      scale_fill_manual(values = cols) +
+      scale_fill_manual(values = fill_args$values, limits = fill_args$limits) +
       labs(subtitle = left.title) +
       bar_theme +
       ggplot2::theme(
@@ -438,7 +441,7 @@ PlotButterfly <- function(
     long_right$Variable <- factor(long_right$Variable, levels = var_order)
 
     nvar <- length(var_order)
-    cols <- .resolve_cols(var_order)
+    fill_args <- .resolve_fill(var_order)
 
     # Per-variable y-axis label colours
     if (is.null(text.colors)) text.colors <- rep("black", nvar)
@@ -499,7 +502,7 @@ PlotButterfly <- function(
       }
 
       p <- p +
-        scale_fill_manual(values = cols) +
+        scale_fill_manual(values = fill_args$values, limits = fill_args$limits) +
         labs(title = panel_title, x = if (!negate) xlab else NULL) +
         violin_theme +
         ggplot2::theme(

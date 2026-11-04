@@ -274,6 +274,20 @@ test_that("PlotButterfly rejects ambiguous palette names and invalid colours", {
                    pal_get("lancet", n = 2L))
 })
 
+test_that("PlotButterfly checks empty named palettes and reports no matches once", {
+  data <- expand.grid(stat = "S", fill = c("A", "B"), group = c("L", "R"))
+  data$value <- seq_len(nrow(data))
+  draw <- function(palette) PlotButterfly(data, stat.by = "stat", fill.by = "fill",
+    value.by = "value", group.by = "group", palette = palette)
+  expect_error(draw(setNames(character(), character())), "non-empty")
+  expect_error(draw(setNames(list(), character())), "non-empty")
+  expect_warning(plot <- draw(c(Z = "red")), "palette.*missing.*A.*B")
+  for (i in 1:2) {
+    expect_warning(built <- ggplot2::ggplot_build(plot[[i]]), NA)
+    expect_identical(built$data[[1]]$fill, rep("grey50", 2))
+  }
+})
+
 test_that("PlotButterfly2 matches named point palettes in both beeswarm types", {
   skip_if_not_installed("ggbeeswarm")
   data <- expand.grid(value = seq_len(4), fill = c("A", "B", "C"), group = c("L", "R"))
