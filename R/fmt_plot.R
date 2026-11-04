@@ -3893,10 +3893,10 @@ drawDetails.axis_tile_strip <- function(x, recording) {
 #' \code{mapping}. Statistical data must be a data frame; callbacks and
 #' after-stat mappings are not supported. SPSS user-missing codes in mapped
 #' variables are treated as \code{NA} before transformations of data columns or
-#' environment vectors. Missing comparison/subset groups are omitted from these
-#' statistics; rows with missing outcomes retain their positions for paired-test
-#' alignment. Original facet values are preserved. Missing panel-specific pairs
-#' are skipped.
+#' environment vectors. Missing comparison/subset groups are omitted, including
+#' ordinary \code{NA} groups; rows with missing outcomes retain their positions
+#' for paired-test alignment. Original facet values are preserved. Missing
+#' panel-specific pairs are skipped.
 #' The backend evaluates tests on the layer data during plot building;
 #' scale transformations and scale limits affect the observations it receives.
 #'
@@ -4142,7 +4142,8 @@ fmt_com <- function(plot,
       tryCatch(rlang::eval_tidy(clean_quosure(quo), data = mapped_data),
         error = function(e) cli::cli_abort("Cannot resolve the comparison mapping.", parent = e))
     })
-    if (any(spss_columns) || spss_env ||
+    missing_groups <- anyNA(mapped_values$x) || (grouped && anyNA(mapped_values$group))
+    if (any(spss_columns) || spss_env || missing_groups ||
         any(vapply(mapped_values, inherits, logical(1), "haven_labelled_spss"))) {
       for (name in names(mapped_values)) {
         value <- zap_spss(mapped_values[[name]])

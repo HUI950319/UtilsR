@@ -386,6 +386,27 @@ test_that("SPSS environment vectors are normalized before mapping transformation
   expect_identical(external, original_external)
 })
 
+test_that("ordinary missing comparison subsets do not depend on SPSS columns", {
+  d <- expand.grid(id = 1:5, g = c("A", "B", NA_character_),
+                    x = c("left", "right"), KEEP.OUT.ATTRS = FALSE,
+                    stringsAsFactors = FALSE)
+  d$y <- d$id + ifelse(is.na(d$g), 3, ifelse(d$g == "B", 1, 0))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, fill = g)) + ggplot2::geom_point()
+  actual <- com_stat(fmt_com(p, group.by = "legend.var", method = "t_test"))
+  expected_data <- d[!is.na(d$g), ]
+  clean <- ggplot2::ggplot(expected_data, ggplot2::aes(x, y, fill = g)) +
+    ggplot2::geom_point()
+  expected <- com_stat(fmt_com(clean, group.by = "legend.var", method = "t_test"))
+  expect_equal(actual, expected)
+  expect_identical(p$data, d)
+  if (requireNamespace("haven", quietly = TRUE)) {
+    unrelated <- p
+    unrelated$data$unused <- haven::labelled_spss(rep(1, nrow(d)), na_values = 99)
+    expect_equal(com_stat(fmt_com(unrelated, group.by = "legend.var", method = "t_test")),
+                 expected)
+  }
+})
+
 test_that("SPSS missing comparison groups are omitted within grouped subsets", {
   skip_if_not_installed("haven")
   d <- expand.grid(subject = 1:6, g = c("A", "B", "missing"),
