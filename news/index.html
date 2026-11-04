@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">UtilsR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.22</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.23</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -49,8 +49,33 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.6.23" id="utilsr-0623">UtilsR 0.6.23<a class="anchor" aria-label="anchor" href="#utilsr-0623"></a></h2>
+<ul><li><p><code><a href="../reference/pal_show.html">pal_show()</a></code> builds the ggplot catalogue data in one pass, reducing allocations for large catalogues.</p></li>
+<li><p><code><a href="../reference/pal_show.html">pal_show()</a></code> gives colour-vector names room to wrap in LaTeX tables while preserving compact HTML previews.</p></li>
+<li><p><code><a href="../reference/pal_show.html">pal_show()</a></code> respects later gt column width and visibility settings while keeping the default HTML swatch dimensions and relative LaTeX widths.</p></li>
+<li><p>Reuse measured layout cells for automatic <code><a href="../reference/fmt_raster.html">fmt_raster()</a></code> panel dimensions.</p></li>
+<li><p>Compute pooled quantile bounds once for stacked <code><a href="../reference/plt_con.html">plt_con()</a></code> plots with shared axes and reuse them for comparison labels.</p></li>
+<li><p>Identify invalid matrix and grid unit inputs in raster dimensions and tag positions before drawing.</p></li>
+<li><p>Locate invalid values in large colour vectors by checking blocks before retrying individual colours.</p></li>
+<li><p>Map constant finite values from one midpoint, recycling the encoded colour into the original positions.</p></li>
+<li><p><code><a href="../reference/PlotButterfly.html">PlotButterfly()</a></code> rejects empty named palettes and reports unmatched categories once before drawing them in grey.</p></li>
+<li><p>Reuse alpha-encoded values for long repeated colour vectors and restore their original order and names.</p></li>
+<li><p>Let <code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> match an observed empty-string group by name in a custom palette.</p></li>
+<li><p>Interpolate and encode a single source colour once for repeated ramp output, preserving native HEX spelling and alpha.</p></li>
+<li><p>Resolve the missing-level colour once in <code><a href="../reference/plt_cat.html">plt_cat()</a></code> and identify invalid <code>NA_color</code> values before drawing.</p></li>
+<li><p>Escape malformed colour text in <code><a href="../reference/pal_get.html">pal_get()</a></code> diagnostics and avoid edit-distance warnings on invalid input.</p></li>
+<li><p><code><a href="../reference/plt_cat.html">plt_cat()</a></code> matches numeric and integer64 selectors across storage types only when conversion preserves the exact value.</p></li>
+<li><p><code><a href="../reference/plt_cat.html">plt_cat()</a></code> retains the positive level of logical and No/Yes sets when only negative observations are present.</p></li>
+<li><p>Parse numeric colour strings once before integer colour lookup, avoiding native overflow on rounding boundaries.</p></li>
+<li><p>PlotScatter1() validates themes with the shared resolver, which can forward arguments to theme factories used by plotting callers.</p></li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.22" id="utilsr-0622">UtilsR 0.6.22<a class="anchor" aria-label="anchor" href="#utilsr-0622"></a></h2>
-<ul><li><p>Share finite positions, normalisation and repeated-value indices across numeric palette lists.</p></li>
+<ul><li><p><code><a href="../reference/pal_show.html">pal_show()</a></code> wraps large requested colour counts within the HTML catalogue count column.</p></li>
+<li><p><code><a href="../reference/pal_show.html">pal_show()</a></code> serializes smaller gt objects by keeping preview formatters independent of their input tables.</p></li>
+<li><p><code><a href="../reference/pal_show.html">pal_show()</a></code> uses page-relative LaTeX columns, wraps compound palette names and repeats headers across pages while retaining 20px HTML swatches.</p></li>
+<li><p>Share finite positions, normalisation and repeated-value indices across numeric palette lists.</p></li>
+<li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> computes independent facet quantiles once per feature and reuses the limits for bar comparisons.</p></li>
 <li><p>Encode the final alpha channel during palette interpolation, preserving alpha byte rounding and scalar or vector HEX formatting.</p></li>
 <li><p><code><a href="../reference/plt_cat.html">plt_cat()</a></code> resolves exact set membership for <code><a href="https://rdrr.io/r/base/AsIs.html" class="external-link">I()</a></code>-wrapped dates and elapsed times.</p></li>
 <li><p>Locate invalid colours in long literal vectors by checking blocks before falling back to individual colours.</p></li>

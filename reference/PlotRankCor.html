@@ -15,7 +15,7 @@ Long subtitles wrap between group summaries, keeping each summary intact."><meta
 
     <a class="navbar-brand me-2" href="../index.html">UtilsR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.22</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.23</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -203,8 +203,9 @@ the fixed <code>alpha</code>. Similar to <code>alpha.by</code> in
 <dd><p>Named or unnamed character vector of colours for
 <code>group.by</code> levels. Default <code>NULL</code> uses
 <code>c("#B2182B", "#2166AC", ...)</code> from <code>pal_lancet</code>.
-Named colours must cover every observed group. The default palette is
-interpolated when there are more groups than its available colours.</p></dd>
+Named colours must cover every observed group. An empty name matches an
+observed empty-string group. The default palette is interpolated when
+there are more groups than its available colours.</p></dd>
 
 
 <dt id="arg-pt-size">pt.size<a class="anchor" aria-label="anchor" href="#arg-pt-size"></a></dt>

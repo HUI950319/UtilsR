@@ -1,9 +1,92 @@
 # Changelog
 
+## UtilsR 0.6.23
+
+- [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
+  builds the ggplot catalogue data in one pass, reducing allocations for
+  large catalogues.
+
+- [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
+  gives colour-vector names room to wrap in LaTeX tables while
+  preserving compact HTML previews.
+
+- [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
+  respects later gt column width and visibility settings while keeping
+  the default HTML swatch dimensions and relative LaTeX widths.
+
+- Reuse measured layout cells for automatic
+  [`fmt_raster()`](https://hui950319.github.io/UtilsR/reference/fmt_raster.md)
+  panel dimensions.
+
+- Compute pooled quantile bounds once for stacked
+  [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  plots with shared axes and reuse them for comparison labels.
+
+- Identify invalid matrix and grid unit inputs in raster dimensions and
+  tag positions before drawing.
+
+- Locate invalid values in large colour vectors by checking blocks
+  before retrying individual colours.
+
+- Map constant finite values from one midpoint, recycling the encoded
+  colour into the original positions.
+
+- [`PlotButterfly()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly.md)
+  rejects empty named palettes and reports unmatched categories once
+  before drawing them in grey.
+
+- Reuse alpha-encoded values for long repeated colour vectors and
+  restore their original order and names.
+
+- Let
+  [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+  match an observed empty-string group by name in a custom palette.
+
+- Interpolate and encode a single source colour once for repeated ramp
+  output, preserving native HEX spelling and alpha.
+
+- Resolve the missing-level colour once in
+  [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
+  and identify invalid `NA_color` values before drawing.
+
+- Escape malformed colour text in
+  [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md)
+  diagnostics and avoid edit-distance warnings on invalid input.
+
+- [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
+  matches numeric and integer64 selectors across storage types only when
+  conversion preserves the exact value.
+
+- [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
+  retains the positive level of logical and No/Yes sets when only
+  negative observations are present.
+
+- Parse numeric colour strings once before integer colour lookup,
+  avoiding native overflow on rounding boundaries.
+
+- PlotScatter1() validates themes with the shared resolver, which can
+  forward arguments to theme factories used by plotting callers.
+
 ## UtilsR 0.6.22
+
+- [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
+  wraps large requested colour counts within the HTML catalogue count
+  column.
+
+- [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
+  serializes smaller gt objects by keeping preview formatters
+  independent of their input tables.
+
+- [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
+  uses page-relative LaTeX columns, wraps compound palette names and
+  repeats headers across pages while retaining 20px HTML swatches.
 
 - Share finite positions, normalisation and repeated-value indices
   across numeric palette lists.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  computes independent facet quantiles once per feature and reuses the
+  limits for bar comparisons.
 
 - Encode the final alpha channel during palette interpolation,
   preserving alpha byte rounding and scalar or vector HEX formatting.

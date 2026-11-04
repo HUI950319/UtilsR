@@ -137,8 +137,9 @@ PlotButterfly(
   In bar mode, colours map to `fill.by` levels. In violin mode, colours
   map to each variable. Named vectors match categories by name in both
   panels. Duplicate names are rejected. Missing categories use the grey
-  fill and trigger a warning. Supplied colours are validated. Unnamed
-  vectors follow category order and are recycled when needed.
+  fill and trigger one warning. Supplied palettes must be non-empty and
+  contain valid colours. Unnamed vectors follow category order and are
+  recycled when needed.
 
 - alpha:
 

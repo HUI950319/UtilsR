@@ -175,7 +175,8 @@ PlotScatter1(
 
 - theme_use:
 
-  Theme for the main scatter panel. Default NULL (built-in theme).
+  A theme object, theme name, or zero-argument function returning a
+  theme for the main scatter panel. `NULL` keeps the built-in styling.
 
 - raster:
 

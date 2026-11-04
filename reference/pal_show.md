@@ -28,10 +28,12 @@ pal_show(
   Character vector of palette names (e.g. `"lancet"`), a colour vector
   (hex codes or named colours), or `NULL` to show all palettes matching
   `pattern`/`type`. Named colour vectors (e.g. `pal_paraSC`) use valid
-  names as labels and hex codes for missing or whitespace-only names.
-  Repeated palette names are displayed once, in first-occurrence order;
-  repeated literal colours are preserved. Factors, classed vectors,
-  matrices and data frames are not supported.
+  names as labels and hex codes for missing or whitespace-only names
+  when selecting existing colours. When `n` exceeds the vector length,
+  the generated preview uses HEX labels. Repeated palette names are
+  displayed once, in first-occurrence order; repeated literal colours
+  are preserved. Factors, classed vectors, matrices and data frames are
+  not supported.
 
 - n:
 
@@ -45,12 +47,12 @@ pal_show(
 
 - pattern:
 
-  Single non-missing regex string to filter palette names (e.g.
+  Single non-missing regex string to filter catalogue names (e.g.
   `"^nord"`). Default `NULL` does not filter by name.
 
 - type:
 
-  Filter by type: `"all"`, `"discrete"`, or `"continuous"`.
+  Catalogue type filter: `"all"`, `"discrete"`, or `"continuous"`.
 
 - max_colors:
 
@@ -59,9 +61,9 @@ pal_show(
 
 - index:
 
-  Non-empty vector of unique positive whole-number indices after
-  filtering. Out-of-range values are ignored; an empty selection is an
-  error.
+  Non-empty vector of unique positive whole-number catalogue indices
+  after name selection or filtering. Out-of-range indices are ignored.
+  An empty catalogue selection is an error.
 
 - output:
 
@@ -74,7 +76,8 @@ pal_show(
 
   Logical. For `output = "gg"` in colour vector mode, whether to show
   hex/name labels on tiles. Default `TRUE`. Does not change gt tables or
-  console output.
+  console output. Label contrast is calculated on white. Use a white
+  plot panel when showing translucent swatches on a dark page.
 
 - label_size:
 
@@ -96,17 +99,30 @@ output prints and invisibly returns the displayed data.
 When `palette` is a character vector of valid colour specifications (hex
 codes like `"#FF0000"` or named R colours like `"red"`) rather than
 palette names, the function automatically switches to **colour vector
-mode**: it displays the colours directly as a single-row colour bar
-(ggplot) with hex labels, similar to
-[`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
-but as a publication-ready plot.
+mode**: it displays the colours directly as tiles (ggplot), a table, or
+console swatches.
 
 Catalogue swatches use thin grey outlines in ggplot and HTML output. The
 outlines remain visible for fully transparent fills.
 
 In gt catalogue output, long palette names wrap within the name column.
 Each swatch exposes its hexadecimal colour value as a hover title and an
-accessible label.
+accessible label. LaTeX catalogue tables use the available text width
+and repeat column headings when the table spans pages in a single-column
+document. For a short table in a two-column LaTeX document, turn off
+both `latex.use_longtable` and `latex.header_repeat` on the returned
+table with
+[`gt::tab_options()`](https://gt.rstudio.com/reference/tab_options.html).
+Adjust the column proportions to fit the document's column width.
+
+For readable ggplot labels on a small figure, use `ncol` to place a
+colour vector in several rows. Use `pattern` or `index` to limit how
+many palettes appear in a catalogue plot.
+
+Explicit palette names take precedence over `pattern` and `type`. These
+filters apply when browsing with `palette = NULL`. In colour vector
+mode, `pattern`, `type` and `index` do not select colours. Subset the
+colour vector before calling the function to select individual colours.
 
 ## See also
 
