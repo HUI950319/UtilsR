@@ -3880,8 +3880,11 @@ drawDetails.axis_tile_strip <- function(x, recording) {
 #'   comparison variable, with consecutive pairs resolved within each subset.
 #'   When \code{ref.group} is supplied, it selects reference comparisons instead
 #'   of automatic consecutive/all pairs; it cannot be combined with a custom
-#'   \code{com_method} list. Names and displayed ranks are accepted, and
-#'   \code{ref.group = "all"} compares each group against the pooled observations.
+#'   \code{com_method} list. Names and displayed ranks are accepted. Numeric ranks
+#'   must select an observed group in at least one panel; empty or out-of-range
+#'   ranks are rejected before drawing. X-axis ranks are panel-local with free
+#'   x scales. \code{ref.group = "all"} compares each group against the pooled
+#'   observations.
 #'   Dunn, Tukey and Games-Howell methods compute their full comparison family
 #'   before display filtering, retaining that family's adjustment. Methods
 #'   returning only adjusted P values use adjusted significance stars.
@@ -3962,7 +3965,7 @@ fmt_com <- function(plot,
       !identical(dots$ref.group, dots$method.args$ref.group))
     cli::cli_abort("Set ref.group only once, in ... or method.args.")
   if (!is.null(ref_group)) {
-    valid_ref <- length(ref_group) == 1L && !anyNA(ref_group) &&
+    valid_ref <- length(ref_group) == 1L && is.null(dim(ref_group)) && !anyNA(ref_group) &&
       ((is.character(ref_group) && nzchar(ref_group)) ||
        (is.numeric(ref_group) && is.finite(ref_group) && ref_group >= 1 && ref_group == floor(ref_group)))
     if (!valid_ref) cli::cli_abort("ref.group must be a group name, a positive integer rank, or 'all'.")
@@ -4166,6 +4169,27 @@ fmt_com <- function(plot,
     if (grouped) {
       values <- rlang::eval_tidy(group_quo, data = source_data)
       group_labels <- levels(droplevels(factor(values)))
+    }
+    if (is.numeric(ref_group)) {
+      if (compare_group) {
+        reference <- group_labels[ref_group]
+        outcomes <- rlang::eval_tidy(source_mapping$y, data = source_data)
+        observed <- as.character(rep(values, length.out = nrow(source_data))[
+          is.finite(rep(outcomes, length.out = nrow(source_data)))])
+        valid_rank <- !is.na(reference) && reference %in% observed
+      } else {
+        reference_mapping <- ggplot2::aes()
+        reference_mapping$x <- source_mapping$x
+        reference_mapping$y <- source_mapping$y
+        reference_plot <- p + ggplot2::geom_blank(
+          data = source_data, mapping = reference_mapping, inherit.aes = FALSE, na.rm = TRUE)
+        reference_build <- ggplot2::ggplot_build(reference_plot)
+        reference_data <- reference_build$data[[length(reference_build$data)]]
+        valid_rank <- any(!is.na(reference_data$x) & is.finite(reference_data$y) &
+                            reference_data$x == ref_group)
+      }
+      if (!valid_rank)
+        cli::cli_abort("ref.group rank must select an observed comparison group in at least one panel.")
     }
     comparison_order <- if (compare_group) group_labels else
       levels(droplevels(factor(rlang::eval_tidy(source_mapping$x, data = source_data))))

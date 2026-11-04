@@ -490,6 +490,55 @@ test_that("reference groups control the comparison family", {
                "ref.group")
 })
 
+test_that("numeric reference ranks must select observed displayed groups", {
+  p <- com_plot()
+  for (rank in c(4, 2^31)) expect_error(fmt_com(p, ref.group = rank), "ref.group.*rank")
+  expect_error(fmt_com(p, ref.group = matrix(1)), "ref.group")
+  shifted <- p + ggplot2::scale_x_discrete(limits = c("missing", levels(iris$Species)))
+  expect_error(fmt_com(shifted, ref.group = 1), "ref.group.*rank")
+  expect_equal(com_stat(fmt_com(shifted, ref.group = 4)),
+               com_stat(fmt_com(shifted, ref.group = "virginica")))
+  sparse <- com_plot(subset(iris, Species != "versicolor")) +
+    ggplot2::scale_x_discrete(drop = FALSE)
+  expect_error(fmt_com(sparse, ref.group = 2), "ref.group.*rank")
+  expect_equal(com_stat(fmt_com(sparse, ref.group = 3)),
+               com_stat(fmt_com(sparse, ref.group = "virginica")))
+  source <- subset(iris, Species != "versicolor")
+  expect_error(fmt_com(p, data = source, ref.group = 2), "ref.group.*rank")
+  expect_equal(com_stat(fmt_com(p, data = source, ref.group = 3)),
+               com_stat(fmt_com(p, data = source, ref.group = "virginica")))
+  missing <- iris
+  missing$Sepal.Length[missing$Species == "versicolor"] <- NA_real_
+  points <- ggplot2::ggplot(missing, ggplot2::aes(Species, Sepal.Length)) +
+    ggplot2::geom_point()
+  expect_error(fmt_com(points, ref.group = 2), "ref.group.*rank")
+  explicit <- fmt_com(ggplot2::ggplot(), data = iris,
+                       mapping = ggplot2::aes(Species, Sepal.Length), ref.group = 2)
+  expect_equal(com_stat(explicit), com_stat(fmt_com(p, ref.group = 2)))
+
+  d <- transform(ToothGrowth, dose = factor(dose))
+  d$len[d$dose == "1"] <- NA_real_
+  grouped <- ggplot2::ggplot(d, ggplot2::aes(supp, len, fill = dose)) +
+    ggplot2::geom_point()
+  expect_error(fmt_com(grouped, group.by = "x.var", ref.group = 2), "ref.group.*rank")
+  expect_error(fmt_com(grouped, group.by = "x.var", ref.group = 4), "ref.group.*rank")
+})
+
+test_that("numeric reference ranks retain panel-local free-axis ordering", {
+  d <- rbind(transform(subset(iris, Species != "setosa"), panel = "A"),
+               transform(subset(iris, Species != "versicolor"), panel = "B"))
+  p <- com_plot(d) + ggplot2::facet_wrap(~panel, scales = "free_x")
+  expect_equal(com_stat(fmt_com(p, ref.group = 2)),
+               com_stat(fmt_com(p, ref.group = "virginica")))
+  expect_error(fmt_com(p, ref.group = 3), "ref.group.*rank")
+  d <- rbind(transform(iris, panel = "A"),
+               transform(subset(iris, Species != "versicolor"), panel = "B"))
+  p <- com_plot(d) + ggplot2::facet_wrap(~panel, scales = "free_x")
+  actual <- com_stat(fmt_com(p, ref.group = 3))
+  expect_equal(nrow(actual), 2L)
+  expect_equal(as.character(actual$PANEL), rep("1", 2))
+})
+
 test_that("mixed subgroup sizes retain adjusted values and labels", {
   set.seed(201)
   d <- data.frame(x = c(rep("A", 30), rep("B", 20)),
