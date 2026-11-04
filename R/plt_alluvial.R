@@ -525,7 +525,7 @@ plt_alluvial <- function(
   stat$.cat_var <- factor(stat$.cat_var, levels = cat_levels)
   stat$.group <- factor(stat$.group, levels = all_group_levels)
 
-  if (!is.null(names(color))) {
+  real_colors <- if (!is.null(names(color))) {
     color_names <- names(color)
     if (anyNA(color_names) || any(!nzchar(color_names)) || anyDuplicated(color_names)) {
       cli::cli_abort("Named {.arg color} must have unique, non-empty names.")
@@ -533,10 +533,10 @@ plt_alluvial <- function(
     if (!all(group_levels %in% color_names)) {
       cli::cli_abort("Named {.arg color} must cover every observed group.")
     }
-    color <- unname(color[group_levels])
+    .resolve_color_values(color[group_levels], "color")
+  } else {
+    stats::setNames(.resolve_color(color, n = length(group_levels)), group_levels)
   }
-  colors <- .resolve_color(color, n = length(group_levels))
-  real_colors <- stats::setNames(as.character(colors), group_levels)
   gap_colors <- stats::setNames(
     rep("transparent", length(gap_names)),
     gap_names

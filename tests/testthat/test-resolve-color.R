@@ -228,3 +228,21 @@ test_that("internal empty named colours preserve missing-only split groups", {
   expect_equal(vapply(out, function(p) nrow(p$data), 1L), c(S1 = 3L, S2 = 3L))
   expect_equal(ggplot2::ggplot_build(out[[1L]])$data[[2L]]$y, 2)
 })
+
+test_that("a single named rank colour is a literal after subsetting groups", {
+  d <- data.frame(id = rep(letters[1:3], 2L), value = c(1:3, 2:4),
+                  group = "A", method = rep(c("M1", "M2"), each = 3L))
+  invisible(capture.output(expect_error(
+    PlotRankCor(d, "id", "value", "group", "method", palette = c(A = "lancet", B = "red")),
+    "palette.*invalid colours"
+  )))
+})
+
+test_that("a single named alluvial colour is a literal after subsetting groups", {
+  skip_if_not_installed("ggalluvial")
+  d <- data.frame(x = rep(c("X", "Y"), each = 2L), g = "A")
+  expect_error(plt_alluvial(d, "x", "g", color = c(A = "lancet", B = "red")),
+               "color.*invalid colours")
+  p <- suppressMessages(plt_alluvial(d, "x", "g", color = c(B = "red", A = "blue")))
+  expect_identical(ggplot2::ggplot_build(p)$plot$scales$get_scales("fill")$map("A"), "blue")
+})

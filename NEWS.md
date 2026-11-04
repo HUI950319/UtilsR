@@ -1,5 +1,7 @@
 # UtilsR 0.6.22
 
+* Interpret single named colours as literals in plt_alluvial() and PlotRankCor(), including when a subset retains one group.
+
 * Validate numeric colour indices before native parsing and preserve double precision through palette lookup.
 
 * `plt_cat()` matches numeric and time values for Venn and UpSet membership before formatting labels.

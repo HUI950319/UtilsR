@@ -469,7 +469,7 @@ PlotRankCor <- function(
       cli::cli_abort("{.arg palette} must have unique, non-missing, non-empty group names.")
     if (!all(groups %in% names(palette)))
       cli::cli_abort("Named {.arg palette} must cover every observed group: {.val {groups}}.")
-    cols <- .resolve_color(unname(palette[groups]), n = n_groups)
+    cols <- .resolve_color_values(palette[groups], "palette")
   } else if (is.null(palette) && n_groups > length(pal_lancet)) {
     cols <- as.character(pal_get("lancet", n = n_groups))
   } else {
