@@ -22,10 +22,10 @@ pal_get(palette = "Paired", n = NULL, x = NULL, reverse = FALSE, alpha = 1)
     [`pal_list()`](https://hui950319.github.io/UtilsR/reference/pal_list.md)
     to see all available names;
 
-  - a colour vector, or a single literal colour (whatever R can draw,
-    such as `"transparent"` or `"#F00"`), used as the palette itself – a
-    registered name always wins over a same-named colour, and a string
-    that is neither still raises the usual "not found" error;
+  - a colour vector, or a single literal colour (an R colour name or hex
+    code such as `"transparent"` or `"#F00"`), used as the palette
+    itself – a registered name always wins over a same-named colour, and
+    a string that is neither still raises the usual "not found" error;
 
   - a fully named list of colour vectors with unique names, such as
     `pal_heat`, mapped over one palette at a time.
@@ -33,6 +33,8 @@ pal_get(palette = "Paired", n = NULL, x = NULL, reverse = FALSE, alpha = 1)
   Matrices, arrays and data frames are not supported. Colour vectors
   must have no dimensions. The literal string `"NA"` denotes R's
   transparent colour; actual missing colour values are not supported.
+  Numeric colour indices are not supported, including strings such as
+  `"2"`.
 
 - n:
 

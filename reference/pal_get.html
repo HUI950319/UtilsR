@@ -73,8 +73,8 @@ interpolation (numeric input or <code>n</code> parameter).</p>
     functions;</p></li>
 <li><p>a palette name (e.g. <code>"Paired"</code>, <code>"viridis"</code>,
     <code>"lancet"</code>); use <code><a href="pal_list.html">pal_list()</a></code> to see all available names;</p></li>
-<li><p>a colour vector, or a single literal colour (whatever R can draw,
-    such as <code>"transparent"</code> or <code>"#F00"</code>), used as the palette
+<li><p>a colour vector, or a single literal colour (an R colour name
+    or hex code such as <code>"transparent"</code> or <code>"#F00"</code>), used as the palette
     itself – a registered name always wins over a same-named colour, and
     a string that is neither still raises the usual "not found" error;</p></li>
 <li><p>a fully named list of colour vectors with unique names, such as
@@ -82,7 +82,9 @@ interpolation (numeric input or <code>n</code> parameter).</p>
 </ul><p>Matrices, arrays and data frames are not supported. Colour vectors must
 have no dimensions.
 The literal string <code>"NA"</code> denotes R's transparent colour; actual
-missing colour values are not supported.</p></dd>
+missing colour values are not supported.
+Numeric colour indices are not supported, including strings such as
+<code>"2"</code>.</p></dd>
 
 
 <dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
