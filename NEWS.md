@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Resolve background band colours in categorical and continuous plots, including split panels.
+
 * Skip position sequences and numeric normalisation for single-colour output while preserving missing positions and HEX formatting.
 
 * Reject digit-leading palette strings before calling the native colour parser, and document literal colour inputs.

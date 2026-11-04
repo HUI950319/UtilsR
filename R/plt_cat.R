@@ -1005,6 +1005,24 @@ plt_cat <- function(data,
 
 #' Build background colour bands for dodge-mode plots
 #' @noRd
+.resolve_bg_palette <- function(bg_palette, bg_levels) {
+  bg_palette <- bg_palette %||% c("grey85", "transparent")
+  if (!is.null(dim(bg_palette))) {
+    cli::cli_abort("{.arg bg_palette} must be one-dimensional.")
+  }
+  nm <- names(bg_palette)
+  if (is.null(nm)) {
+    idx <- rep_len(seq_along(bg_palette), length(bg_levels))
+  } else {
+    idx <- match(bg_levels, nm)
+    if (!is.character(bg_palette) || anyNA(nm) || anyDuplicated(nm) ||
+        any(!nzchar(nm) & !nm %in% bg_levels) || anyNA(idx)) {
+      cli::cli_abort("Named {.arg bg_palette} must contain each background category with unique names matching their labels.")
+    }
+  }
+  .resolve_color_values(stats::setNames(bg_palette[idx], bg_levels), "bg_palette")
+}
+
 .build_bg_layer <- function(data, group.by, bg.by, bg_alpha,
                             bg_palette = NULL, axis_levels = NULL, continuous = FALSE) {
   group_values <- as.character(data[[group.by]])
@@ -1031,24 +1049,7 @@ plt_cat <- function(data,
   group_levels <- axis_levels[group_ids]
   bg_levels <- unique(bg_map)
 
-  if (is.null(bg_palette)) {
-    bg_cols <- stats::setNames(
-      rep(c("grey85", "transparent"), length.out = length(bg_levels)),
-      bg_levels
-    )
-  } else if (!is.null(names(bg_palette))) {
-    if (!is.character(bg_palette) || anyNA(names(bg_palette)) ||
-        any(!nzchar(names(bg_palette)) & !names(bg_palette) %in% bg_levels) || anyDuplicated(names(bg_palette)) ||
-        !all(bg_levels %in% names(bg_palette))) {
-      cli::cli_abort("Named {.arg bg_palette} must contain each background category with unique names matching their labels.")
-    }
-    bg_cols <- bg_palette[match(bg_levels, names(bg_palette))]
-  } else {
-    bg_cols <- stats::setNames(
-      rep_len(as.character(bg_palette), length(bg_levels)),
-      bg_levels
-    )
-  }
+  bg_cols <- .resolve_bg_palette(bg_palette, bg_levels)
 
   bg_data <- data.frame(
     group = group_levels,

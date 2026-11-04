@@ -61,6 +61,28 @@ test_that("plt_cat keeps a level's colour in a split panel without other levels"
   expect_identical(unname(plt_cat_fills(p[[2L]])), c("red", "blue", "green"))
 })
 
+test_that("background bands resolve the colours used in each panel", {
+  old_palette <- grDevices::palette()
+  withr::defer(grDevices::palette(old_palette))
+  grDevices::palette(c("black", "#123456"))
+  d <- data.frame(y = 1:8, category = rep(c("c1", "c2"), each = 2L),
+                  g = factor(rep(c("A", "B"), 4L)), bg = rep(c("X", "Y"), 4L),
+                  panel = rep(c("P1", "P2"), each = 4L))
+  fills <- function(p) as.character(ggplot2::ggplot_build(p)$data[[1L]]$fill)
+  p <- suppressMessages(plt_cat(d, "category", group.by = "g", bg.by = "bg",
+                                position = "dodge", bg_palette = c("2", "transparent")))
+  expect_identical(fills(p), c("#123456FF", "transparent"))
+  p <- suppressMessages(plt_con(d, "y", "g", bg.by = "bg", type = "bar",
+                                bg_palette = c(Y = "blue", unused = "bogus_colour", X = "2")))
+  expect_identical(fills(p), c("#123456FF", "blue"))
+  p <- suppressMessages(plt_con(d, "y", "g", bg.by = "bg", type = "bar",
+                                split.by = "panel", combine = FALSE,
+                                bg_palette = c(2 - .Machine$double.eps, 2)))
+  for (panel in p) expect_identical(fills(panel), c("#000000FF", "#123456FF"))
+  expect_error(plt_con(d, "y", "g", bg.by = "bg", type = "bar",
+                       bg_palette = c("bogus_colour", "blue")), "bg_palette.*invalid colours")
+})
+
 test_that(".resolve_color repeats a single literal colour as given", {
   expect_identical(.resolve_color("#FF000080", n = 2), rep("#FF000080", 2))
   expect_identical(.resolve_color("red", n = 2), c("red", "red"))

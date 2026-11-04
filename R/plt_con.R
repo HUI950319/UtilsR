@@ -530,8 +530,7 @@ plt_con <- function(data,
     if (!is.null(bg.by) && is.null(names(bg_palette))) {
       bg_levels <- unique(as.character(data[[bg.by]])[order(as.integer(data[[group.by]]))])
       bg_levels <- bg_levels[!is.na(bg_levels)]
-      bg_palette <- stats::setNames(rep_len(as.character(
-        bg_palette %||% c("grey85", "transparent")), length(bg_levels)), bg_levels)
+      bg_palette <- .resolve_bg_palette(bg_palette, bg_levels)
     }
     split_codes <- as.integer(data[[split.by]])
     split_indices <- which(tabulate(split_codes, nbins = nlevels(data[[split.by]])) > 0L)
