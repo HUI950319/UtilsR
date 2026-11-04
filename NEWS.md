@@ -2,6 +2,8 @@
 
 * Share finite positions, normalisation and repeated-value indices across numeric palette lists.
 
+* `plt_con()` computes independent facet quantiles once per feature and reuses the limits for bar comparisons.
+
 * Encode the final alpha channel during palette interpolation, preserving alpha byte rounding and scalar or vector HEX formatting.
 
 * `plt_cat()` resolves exact set membership for `I()`-wrapped dates and elapsed times.

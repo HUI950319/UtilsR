@@ -1423,10 +1423,26 @@ plt_con <- function(data,
 
   dat_long <- dat_long[is.finite(dat_long[["value"]]), , drop = FALSE]
 
-  # Y limits
+  # Resolve independent facet bounds once, for both scales and annotations.
   values <- dat_long[["value"]]
-  y_max_use <- .resolve_y_limit(y.max, values, "max")
-  y_min_use <- .resolve_y_limit(y.min, values, "min")
+  auto_bounds <- c(is.null(y.min), is.null(y.max))
+  axis_limits <- feature_limits <- NULL
+  if (!isTRUE(same.y.lims) && (is.character(y.min) || is.character(y.max))) {
+    requested <- list(y.min, y.max)
+    is_quantile <- vapply(requested, is.character, logical(1L))
+    probs <- as.numeric(sub("^q", "", unlist(requested[is_quantile]))) / 100
+    fixed <- vapply(requested, function(bound) {
+      if (is.numeric(bound)) bound else NA_real_
+    }, numeric(1L))
+    feature_limits <- lapply(split(values, dat_long[["feature"]]), function(v) {
+      limits <- fixed
+      limits[is_quantile] <- stats::quantile(v, probs, na.rm = TRUE, names = FALSE)
+      limits
+    })
+  } else if (!all(auto_bounds)) {
+    axis_limits <- c(if (auto_bounds[1L]) NA_real_ else .resolve_y_limit(y.min, values, "min"),
+                     if (auto_bounds[2L]) NA_real_ else .resolve_y_limit(y.max, values, "max"))
+  }
 
   p <- .con_base_plot(dat_long)
 
@@ -1539,15 +1555,23 @@ plt_con <- function(data,
   bar_data <- bar_ranges <- NULL
   if (type == "bar" && (length(comparisons) || isTRUE(multiplegroup_comparisons))) {
     bar_data <- split(dat_long, dat_long[["feature"]], drop = TRUE)
-    bar_ranges <- vapply(bar_data, function(d) {
+    bar_ranges <- vapply(names(bar_data), function(feature) {
+      d <- bar_data[[feature]]
       v <- d[["value"]]
+      limits <- feature_limits[[feature]]
+      if (!is.null(limits)) {
+        if (any(auto_bounds)) {
+          limits[auto_bounds] <- .con_bar_range(v, d[["group.by"]])[auto_bounds]
+        }
+        return(limits)
+      }
       bounds <- .con_bar_range(v, d[["group.by"]])
       c(.resolve_y_limit(y.min, if (is.null(y.min)) bounds else v, "min"),
         .resolve_y_limit(y.max, if (is.null(y.max)) bounds else v, "max"))
     }, numeric(2))
     if (isTRUE(same.y.lims)) {
-      bar_ranges[1L, ] <- if (is.null(y.min)) min(bar_ranges[1L, ]) else y_min_use
-      bar_ranges[2L, ] <- if (is.null(y.max)) max(bar_ranges[2L, ]) else y_max_use
+      bar_ranges[1L, ] <- if (auto_bounds[1L]) min(bar_ranges[1L, ]) else axis_limits[1L]
+      bar_ranges[2L, ] <- if (auto_bounds[2L]) max(bar_ranges[2L, ]) else axis_limits[2L]
     }
   }
   comparison_counts <- integer(length(stat.by))
@@ -1601,30 +1625,18 @@ plt_con <- function(data,
   }
 
   # --- Facet by feature ---
-  axis_limits <- c(if (is.null(y.min)) NA_real_ else y_min_use,
-                   if (is.null(y.max)) NA_real_ else y_max_use)
-  if (all(is.na(axis_limits))) axis_limits <- NULL
-  feature_limits <- NULL
-  if (!isTRUE(same.y.lims) && (is.character(y.min) || is.character(y.max))) {
-    feature_limits <- stats::setNames(lapply(stat.by, function(f) {
-      v <- dat_long[["value"]][dat_long[["feature"]] == f]
-      c(if (is.null(y.min)) NA_real_ else .resolve_y_limit(y.min, v, "min"),
-        if (is.null(y.max)) NA_real_ else .resolve_y_limit(y.max, v, "max"))
-    }), stat.by)
-    axis_limits <- NULL
-  }
   facet_scales <- if (isTRUE(same.y.lims)) "fixed" else if (isTRUE(flip)) "free_x" else "free_y"
   if (length(feature_limits) && isTRUE(flip)) facet_scales <- "free"
   if (isTRUE(flip)) {
     p <- p +
       ggplot2::facet_wrap(stats::as.formula("~feature", env = baseenv()), nrow = 1,
                           scales = facet_scales) +
-      .con_coord(TRUE, axis_limits, c(is.null(y.min), is.null(y.max)))
+      .con_coord(TRUE, axis_limits, auto_bounds)
   } else {
     p <- p +
       ggplot2::facet_grid(stats::as.formula("feature ~ .", env = baseenv()),
                           scales = facet_scales) +
-      .con_coord(FALSE, axis_limits, c(is.null(y.min), is.null(y.max)))
+      .con_coord(FALSE, axis_limits, auto_bounds)
   }
 
   # --- Scales ---
