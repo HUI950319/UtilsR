@@ -4,6 +4,8 @@
 
 # UtilsR 0.6.22
 
+* `plt_cat()` retains the positive level of logical and No/Yes sets when only negative observations are present.
+
 * `pal_show()` wraps large requested colour counts within the HTML catalogue count column.
 
 * `pal_show()` serializes smaller gt objects by keeping preview formatters independent of their input tables.

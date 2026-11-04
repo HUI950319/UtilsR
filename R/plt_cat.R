@@ -109,6 +109,8 @@
 #'   Default \code{FALSE}.
 #' @param stat_level Vector or list. For venn/upset types, the value(s) in
 #'   each \code{stat.by} column that count as "positive". Default \code{NULL}
+#'   uses \code{TRUE} for logical columns and the declared positive level of
+#'   No/Yes factors, even when no positive values occur. For other columns it
 #'   auto-detects \code{TRUE}, \code{"Yes"}, \code{"yes"}, \code{1},
 #'   \code{"TRUE"}, \code{"1"}, or uses the first factor level. An
 #'   entirely missing column has no automatic positive level, even with
@@ -436,6 +438,19 @@ plt_cat <- function(data,
   }
 
   # --- Ensure factors ---------------------------------------------------------
+  auto_levels <- list()
+  if (is.null(stat_level) && type %in% c("venn", "upset")) {
+    auto_levels <- lapply(data[stat.by], function(x) {
+      if (is.logical(x)) return("TRUE")
+      if (is.factor(x)) {
+        labels <- levels(x)
+        if (length(labels) == 2L && setequal(tolower(labels), c("no", "yes"))) {
+          return(labels[tolower(labels) == "yes"])
+        }
+      }
+      NULL
+    })
+  }
   numeric_labels <- list()
   for (col in unique(c(stat.by, group.by, split.by, bg.by))) {
     if (!is.null(col) && col %in% names(data) && !is.factor(data[[col]])) {
@@ -558,7 +573,8 @@ plt_cat <- function(data,
   }
 
   if (type %in% c("venn", "upset")) {
-    stat_level <- .resolve_stat_level(data, stat.by, stat_level, numeric_labels, na_levels)
+    stat_level <- .resolve_stat_level(data, stat.by, stat_level, numeric_labels,
+                                      na_levels, auto_levels)
   }
 
   draw_one <- function(panel_data, panel_title) {
@@ -849,7 +865,7 @@ plt_cat <- function(data,
 #' Resolve stat_level for venn/upset
 #' @noRd
 .resolve_stat_level <- function(data, stat.by, stat_level, numeric_labels = list(),
-                                na_levels = character()) {
+                                na_levels = character(), auto_levels = list()) {
   default_positive <- c(TRUE, "TRUE", "Yes", "yes", 1, "1")
   as_label <- function(values, column) {
     map <- numeric_labels[[column]]
@@ -879,6 +895,7 @@ plt_cat <- function(data,
     result <- stats::setNames(lapply(stat.by, function(s) {
       vals <- unique(data[[s]])
       if (!any(!is.na(vals) & !vals %in% na_levels[s])) return(character())
+      if (!is.null(auto_levels[[s]])) return(auto_levels[[s]])
       map <- numeric_labels[[s]]
       positives <- if (!is.null(map) && !isTRUE(map$time)) {
         map$labels[map$values %in% 1]

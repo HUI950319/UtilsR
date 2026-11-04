@@ -140,6 +140,8 @@ Default \code{FALSE}.}
 
 \item{stat_level}{Vector or list. For venn/upset types, the value(s) in
 each \code{stat.by} column that count as "positive". Default \code{NULL}
+uses \code{TRUE} for logical columns and the declared positive level of
+No/Yes factors, even when no positive values occur. For other columns it
 auto-detects \code{TRUE}, \code{"Yes"}, \code{"yes"}, \code{1},
 \code{"TRUE"}, \code{"1"}, or uses the first factor level. An
 entirely missing column has no automatic positive level, even with

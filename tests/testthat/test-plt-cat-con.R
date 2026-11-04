@@ -982,6 +982,20 @@ test_that("plt_cat matches exact timestamps across time zones without label coll
   expect_equal(p$data$intersection, list("A", "B"))
 })
 
+test_that("plt_cat does not switch binary sets to observed negatives", {
+  skip_if_not_installed("ggupset")
+  withr::local_options(lifecycle_verbosity = "quiet")
+  for (negative in list(rep(FALSE, 3), factor(rep("No", 3), levels = c("No", "Yes")))) {
+    d <- data.frame(A = negative, B = c(FALSE, TRUE, FALSE))
+    p <- cat_test_plot(d, c("A", "B"), type = "upset")
+    expect_equal(p$data$intersection, list("B"))
+  }
+  d <- data.frame(A = rep(FALSE, 3), B = c(FALSE, TRUE, FALSE))
+  p <- cat_test_plot(d, c("A", "B"), type = "upset",
+                     stat_level = list(A = FALSE, B = TRUE))
+  expect_equal(p$data$intersection, list("A", c("A", "B"), "A"))
+})
+
 test_that("plt_cat UpSet excludes all-missing columns from automatic membership", {
   skip_if_not_installed("ggupset")
   withr::local_options(lifecycle_verbosity = "quiet")
