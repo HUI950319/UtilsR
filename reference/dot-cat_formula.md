@@ -8,6 +8,13 @@ The model type comes from the number of distinct non-missing outcome
 values and whether there is a time variable.
 [`suppressMessages()`](https://rdrr.io/r/base/message.html) silences it.
 
+For survival models, SPSS user-missing codes and ranges in
+`haven_labelled_spss` outcomes are excluded before counting values. This
+requires the optional haven package, including for outcomes restored
+from serialized files. Non-syntactic column names are quoted and escaped
+as R names. The notice is not wrapped, preserving whitespace within
+column names even on a narrow console.
+
 ## Usage
 
 ``` r
@@ -66,5 +73,9 @@ formula_data <- data.frame(
   age = c(45, 52, 61, 39)
 )
 .cat_formula(formula_data, co_var = "age")
-#> [2026-11-04 08:49:31]  ℹ Cox model, unadjusted: Surv(time, DSS) ~ age 
+#> [2026-11-04 09:10:24]  ℹ Cox model, unadjusted: Surv(time, DSS) ~ age 
+names(formula_data)[1:2] <- c("event status", "follow up")
+.cat_formula(formula_data, co_var = "age", time = "follow up",
+             outcome = "event status")
+#> [2026-11-04 09:10:24]  ℹ Cox model, unadjusted: Surv(`follow up`, `event status`) ~ age 
 ```

@@ -99,8 +99,10 @@ are rejected. Values select categories rather than numeric axis indices.</p></dd
 scale transformation. A scalar sets the first bracket; a vector sets
 individual positions in comparison-family order. Custom vectors follow
 <code>com_method</code> order within each mapped subset; automatic vectors follow
-displayed global pairs, appending extra sparse-panel pairs. Filtering a
-panel retains the matching entries. Default <code>NULL</code> uses automatic positions.</p></dd>
+displayed global pairs, appending extra sparse-panel pairs. Numeric references
+on free x scales instead follow unique panel pairs in panel order within
+each mapped subset. Filtering a panel retains the matching entries.
+Default <code>NULL</code> uses automatic positions.</p></dd>
 
 
 <dt id="arg-label-y-prop">label.y.prop<a class="anchor" aria-label="anchor" href="#arg-label-y-prop"></a></dt>

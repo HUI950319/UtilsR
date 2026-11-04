@@ -44,9 +44,10 @@ fmt_com(
   transformation. A scalar sets the first bracket; a vector sets
   individual positions in comparison-family order. Custom vectors follow
   `com_method` order within each mapped subset; automatic vectors follow
-  displayed global pairs, appending extra sparse-panel pairs. Filtering
-  a panel retains the matching entries. Default `NULL` uses automatic
-  positions.
+  displayed global pairs, appending extra sparse-panel pairs. Numeric
+  references on free x scales instead follow unique panel pairs in panel
+  order within each mapped subset. Filtering a panel retains the
+  matching entries. Default `NULL` uses automatic positions.
 
 - label.y.prop:
 

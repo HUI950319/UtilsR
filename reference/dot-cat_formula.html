@@ -3,11 +3,23 @@
 logistic), whether it is adjusted, and its formula, e.g.
 Cox model, unadjusted: Surv(time, DSS) ~ Sex. The model type comes
 from the number of distinct non-missing outcome values and whether there
-is a time variable. suppressMessages() silences it."><meta property="og:description" content="One .cat_message() line naming the model (Cox, CRR or
+is a time variable. suppressMessages() silences it.
+For survival models, SPSS user-missing codes and ranges in
+haven_labelled_spss outcomes are excluded before counting values.
+This requires the optional haven package, including for outcomes
+restored from serialized files. Non-syntactic column names are quoted and
+escaped as R names. The notice is not wrapped, preserving whitespace
+within column names even on a narrow console."><meta property="og:description" content="One .cat_message() line naming the model (Cox, CRR or
 logistic), whether it is adjusted, and its formula, e.g.
 Cox model, unadjusted: Surv(time, DSS) ~ Sex. The model type comes
 from the number of distinct non-missing outcome values and whether there
-is a time variable. suppressMessages() silences it."><meta property="og:image" content="https://hui950319.github.io/UtilsR/logo.png"></head><body>
+is a time variable. suppressMessages() silences it.
+For survival models, SPSS user-missing codes and ranges in
+haven_labelled_spss outcomes are excluded before counting values.
+This requires the optional haven package, including for outcomes
+restored from serialized files. Non-syntactic column names are quoted and
+escaped as R names. The notice is not wrapped, preserving whitespace
+within column names even on a narrow console."><meta property="og:image" content="https://hui950319.github.io/UtilsR/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -63,6 +75,12 @@ logistic), whether it is adjusted, and its formula, e.g.
 <code>Cox model, unadjusted: Surv(time, DSS) ~ Sex</code>. The model type comes
 from the number of distinct non-missing outcome values and whether there
 is a time variable. <code><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressMessages()</a></code> silences it.</p>
+<p>For survival models, SPSS user-missing codes and ranges in
+<code>haven_labelled_spss</code> outcomes are excluded before counting values.
+This requires the optional <span class="pkg">haven</span> package, including for outcomes
+restored from serialized files. Non-syntactic column names are quoted and
+escaped as R names. The notice is not wrapped, preserving whitespace
+within column names even on a narrow console.</p>
     </div>
 
     <div class="section level2">
@@ -126,7 +144,11 @@ is a time variable. <code><a href="https://rdrr.io/r/base/message.html" class="e
 <span class="r-in"><span>  age <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">45</span>, <span class="fl">52</span>, <span class="fl">61</span>, <span class="fl">39</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">.cat_formula</span><span class="op">(</span><span class="va">formula_data</span>, co_var <span class="op">=</span> <span class="st">"age"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB00BB;">[2026-11-04 08:49:31]</span> <span style="background-color: #00BBBB;"> </span><span style="color: #FFFFFF; background-color: #00BBBB; font-weight: bold;">ℹ</span><span style="background-color: #00BBBB;"> </span><span style="color: #FFFFFF; background-color: #00BBBB; font-weight: bold;">Cox model, unadjusted: Surv(time, DSS) ~ age</span><span style="background-color: #00BBBB;"> </span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB00BB;">[2026-11-04 09:10:24]</span> <span style="background-color: #00BBBB;"> </span><span style="color: #FFFFFF; background-color: #00BBBB; font-weight: bold;">ℹ</span><span style="background-color: #00BBBB;"> </span><span style="color: #FFFFFF; background-color: #00BBBB; font-weight: bold;">Cox model, unadjusted: Surv(time, DSS) ~ age</span><span style="background-color: #00BBBB;"> </span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">formula_data</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"event status"</span>, <span class="st">"follow up"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">.cat_formula</span><span class="op">(</span><span class="va">formula_data</span>, co_var <span class="op">=</span> <span class="st">"age"</span>, time <span class="op">=</span> <span class="st">"follow up"</span>,</span></span>
+<span class="r-in"><span>             outcome <span class="op">=</span> <span class="st">"event status"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB00BB;">[2026-11-04 09:10:24]</span> <span style="background-color: #00BBBB;"> </span><span style="color: #FFFFFF; background-color: #00BBBB; font-weight: bold;">ℹ</span><span style="background-color: #00BBBB;"> </span><span style="color: #FFFFFF; background-color: #00BBBB; font-weight: bold;">Cox model, unadjusted: Surv(`follow up`, `event status`) ~ age</span><span style="background-color: #00BBBB;"> </span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
