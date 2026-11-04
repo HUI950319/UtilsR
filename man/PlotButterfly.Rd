@@ -182,6 +182,9 @@ with three modes:
   \item \code{"violin"}: mirrored violin plots comparing continuous
     distributions between two conditions.
 }
+Plain numeric categories in bar mode use extra label precision when their
+usual character representations coincide. Use the displayed labels for
+custom category orders and named palettes.
 }
 \examples{
 # --- Bar mode (stacked) ---

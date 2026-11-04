@@ -324,3 +324,128 @@ test_that("PlotButterfly2 retains positional fill palettes across factor levels"
     }
   }
 })
+
+test_that("butterfly panels distinguish nearby numeric group values", {
+  values <- c(1, 1 + 1e-15)
+  data <- data.frame(stat = "S", fill = "F", value = 1:8,
+                     group = rep(values, each = 4))
+  original <- data
+  for (fun in list(PlotButterfly)) {
+    plot <- fun(data, stat.by = "stat", value.by = "value",
+                group.by = "group", fill.by = "fill")
+    for (i in 1:2) {
+      expect_identical(as.double(unique(as.character(plot[[i]]$data$group))), values[i])
+      expect_equal(sort(plot[[i]]$data$value), (1:4) + (i - 1) * 4)
+      expect_equal(length(unique(ggplot2::ggplot_build(plot[[i]])$data[[1]]$group)), 1)
+    }
+  }
+  expect_identical(data, original)
+})
+
+
+test_that("PlotButterfly completes bars using precise numeric category keys", {
+  values <- c(1, 1 + 1e-15)
+  for (axis in c("stat", "fill")) {
+    data <- expand.grid(stat = c("A", "B"), fill = c("F", "G"),
+                         group = c("L", "R"), stringsAsFactors = FALSE)
+    data[[axis]] <- values[match(data[[axis]], unique(data[[axis]]))]
+    data$value <- seq_len(nrow(data))
+    data <- data[-nrow(data), ]
+    original <- data
+    for (type in c("bar", "bar_dodge")) {
+      plot <- PlotButterfly(data, stat.by = "stat", value.by = "value",
+                            group.by = "group", fill.by = "fill", type = type)
+      for (i in 1:2) {
+        expect_identical(as.double(levels(plot[[i]]$data[[axis]])), values)
+        expect_equal(nrow(plot[[i]]$data), 4)
+        expected <- if (i == 1) 1:4 else c(0, 5:7)
+        expect_equal(sort(plot[[i]]$data$value), expected)
+        built <- ggplot2::ggplot_build(plot[[i]])
+        expect_equal(length(unique(round(built$data[[1]]$y))), 2)
+        expect_equal(length(unique(built$data[[1]]$fill)), 2)
+      }
+    }
+    expect_identical(data, original)
+  }
+})
+
+
+test_that("PlotButterfly minmax scaling separates precise numeric groups and fills", {
+  values <- c(1, 1 + 1e-15)
+  data <- expand.grid(stat = LETTERS[1:3], fill = values, group = values)
+  data$value <- c(10, 20, 30, 7, 7, 7, 30, 60, 90, 1e-14, 2e-14, 3e-14)
+  original <- data
+  plot <- PlotButterfly(data, stat.by = "stat", value.by = "value",
+                        group.by = "group", fill.by = "fill", minmax = TRUE)
+  for (i in 1:2) {
+    panel <- plot[[i]]$data
+    expect_identical(as.double(unique(panel$group)), values[i])
+    for (j in 1:2) {
+      selected <- panel[as.double(as.character(panel$fill)) == values[j], ]
+      expected <- if (i == 1 && j == 2) c(0, 0, 0) else c(0, 0.5, 1)
+      expect_equal(selected$value[order(selected$stat)], expected)
+    }
+    expect_equal(nrow(ggplot2::ggplot_build(plot[[i]])$data[[1]]), 6)
+  }
+  expect_identical(data, original)
+})
+
+
+test_that("butterfly sorting and named palettes retain precise numeric categories", {
+  values <- c(1, 1 + 1e-15)
+  labels <- c("1", "1.0000000000000011")
+  data <- expand.grid(value = seq_len(4), stat = values, fill = values,
+                       group = c("L", "R"))
+  data$value <- data$value + ifelse(data$stat == values[2], 10, 0)
+  palette <- stats::setNames(c("red", "blue"), labels)
+  for (fun in list(PlotButterfly)) {
+    for (rows in list(seq_len(nrow(data)), rev(seq_len(nrow(data))))) {
+      for (order in list("up", "down", rev(labels))) {
+        plot <- butterfly_without_text_warning(fun(data[rows, ],
+          stat.by = "stat", value.by = "value", group.by = "group",
+          fill.by = "fill", levels = order, palette = palette))
+        expected <- if (identical(order, "up")) values else rev(values)
+        for (i in 1:2) {
+          expect_identical(as.double(levels(plot[[i]]$data$stat)), expected)
+          built <- ggplot2::ggplot_build(plot[[i]])
+          expect_identical(built$plot$scales$get_scales("fill")$map(labels), c("red", "blue"))
+          expect_setequal(built$data[[1]]$fill, c("red", "blue"))
+        }
+      }
+    }
+  }
+})
+
+
+test_that("butterfly group validation counts original numeric identities", {
+  data <- data.frame(stat = "S", fill = "F", value = 1:12,
+                     group = rep(1 + c(0, 1e-15, 2e-15), each = 4))
+  for (fun in list(PlotButterfly)) {
+    expect_error(fun(data, stat.by = "stat", value.by = "value",
+      group.by = "group", fill.by = "fill"), "exactly 2 levels, got 3")
+  }
+})
+
+
+test_that("butterfly numeric identities survive magnitude and display options", {
+  withr::local_options(list(digits = 3, scipen = 999, OutDec = ","))
+  categories <- list(1e15 + c(0, 1), -rev(1e15 + c(0, 1)),
+                      1e-300 + c(0, 1e-315), 1e308 + c(0, 2e292))
+  for (values in categories) {
+    data <- expand.grid(value = seq_len(4), stat = values, fill = values,
+                         group = values)
+    original <- data
+    for (fun in list(PlotButterfly)) {
+      plot <- butterfly_without_text_warning(fun(data, stat.by = "stat",
+        value.by = "value", group.by = "group", fill.by = "fill"))
+      for (i in 1:2) {
+        expect_identical(as.double(unique(as.character(plot[[i]]$data$group))), values[i])
+        expect_setequal(as.double(levels(plot[[i]]$data$stat)), values)
+        expect_setequal(as.double(levels(plot[[i]]$data$fill)), values)
+        expect_equal(nrow(plot[[i]]$data), 16)
+        expect_equal(length(unique(ggplot2::ggplot_build(plot[[i]])$data[[1]]$group)), 4)
+      }
+    }
+    expect_identical(data, original)
+  }
+})

@@ -14,6 +14,9 @@
 #'   \item \code{"violin"}: mirrored violin plots comparing continuous
 #'     distributions between two conditions.
 #' }
+#' Plain numeric categories in bar mode use extra label precision when their
+#' usual character representations coincide. Use the displayed labels for
+#' custom category orders and named palettes.
 #'
 #' @param data Data frame in long format (bar mode). Must contain columns
 #'   specified by \code{stat.by}, \code{fill.by}, \code{value.by}, and
@@ -219,6 +222,10 @@ PlotButterfly <- function(
       if (is.null(col)) cli::cli_abort("All of {.arg stat.by}, {.arg fill.by}, {.arg value.by}, {.arg group.by} are required for bar mode.")
       if (!col %in% names(data))
         cli::cli_abort("Column {.val {col}} not found in {.arg data}.")
+    }
+
+    for (col in unique(c(stat.by, fill.by, group.by))) {
+      data[[col]] <- .butterfly_category_labels(data[[col]])
     }
 
     groups <- unique(as.character(data[[group.by]]))
@@ -537,4 +544,15 @@ PlotButterfly <- function(
   }
 
   combined
+}
+
+# Keep numeric category identities before character-based matching or pivoting.
+.butterfly_category_labels <- function(value) {
+  if (!(is.integer(value) || is.double(value)) || is.object(value)) return(value)
+  values <- unique(value)
+  labels <- as.character(values)
+  if (!anyDuplicated(labels)) return(value)
+  labels <- sprintf("%.17g", values)
+  labels[is.na(values)] <- NA_character_
+  labels[match(value, values)]
 }
