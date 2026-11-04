@@ -46,6 +46,50 @@ test_that("sampling retains missing groups and leaves small groups complete", {
   expect_equal(sum(is.na(sampled$g)), 2L)
 })
 
+test_that("sampling keeps numeric groups with identical printed labels separate", {
+  values <- c(1, 1 + 1e-15, 1 + 2e-15)
+  d <- data.frame(x = 1:12, y = 12:1, g = rep(values, each = 4))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, group = g))
+  for (data in list(NULL, ~ .x, identity)) {
+    out <- fmt_point(p, data = data, sample_n = 2, dodge.width = 0)
+    built <- ggplot2::ggplot_build(out)$data[[1]]
+    expect_equal(nrow(built), 6L)
+    expect_equal(tabulate(match(d$g[built$x], values), nbins = 3), rep(2L, 3))
+  }
+  expect_identical(p$data, d)
+})
+
+test_that("numeric sampling strata retain infinities and distinct missing values", {
+  values <- c(-Inf, 1, 1 + 1e-15, Inf)
+  d <- data.frame(x = 1:24, y = 24:1,
+                  g = rep(c(values, NA_real_, NaN), each = 4))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, group = g))
+  withr::local_seed(321)
+  before <- .Random.seed
+  for (k in c(0L, 2L, 10L)) {
+    sampled <- fmt_point(p, sample_n = k)$layers[[1]]$data
+    counts <- vapply(values, function(value) sum(sampled$g == value, na.rm = TRUE),
+                     integer(1))
+    expect_equal(counts, rep(min(4L, k), 4))
+    expect_equal(sum(is.nan(sampled$g)), min(4L, k))
+    expect_equal(sum(is.na(sampled$g) & !is.nan(sampled$g)), min(4L, k))
+    expect_equal(nrow(sampled), 6L * min(4L, k))
+    expect_identical(.Random.seed, before)
+  }
+  expect_identical(p$data, d)
+})
+
+test_that("numeric sampling preserves existing factor group ordering", {
+  d <- data.frame(x = 1:28, y = 28:1,
+                  g = rep(c(7, -Inf, 0, Inf, -3, NA_real_, NaN), each = 4))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, group = g))
+  reference <- ggplot2::ggplot(d, ggplot2::aes(x, y, group = factor(g)))
+  for (k in c(0L, 2L, 7L)) {
+    expect_identical(fmt_point(p, sample_n = k)$layers[[1]]$data,
+                     fmt_point(reference, sample_n = k)$layers[[1]]$data)
+  }
+})
+
 test_that("continuous colour does not partition sampling into singleton groups", {
   p <- ggplot2::ggplot(data.frame(x = 1:12, y = 12:1),
                        ggplot2::aes(x, y, colour = y))
@@ -489,6 +533,27 @@ test_that("sampling preserves joint aesthetic and existing facet strata", {
   layer_data <- d[c("x", "y")]
   out <- fmt_point(p, data = layer_data, sample_n = 2)
   expect_equal(nrow(ggplot2::ggplot_build(out)$data[[1]]), 6L)
+})
+
+test_that("sampling keeps exact numeric facet values in joint strata", {
+  values <- c(1, 1 + 1e-15, 1 + 2e-15)
+  d <- expand.grid(g = c("a", "b"), panel = values, replicate = 1:4)
+  d$x <- seq_len(nrow(d))
+  d$y <- rev(d$x)
+  for (mapping in list(ggplot2::aes(x, y), ggplot2::aes(x, y, colour = g))) {
+    p <- ggplot2::ggplot(d, mapping) + ggplot2::facet_wrap(~ panel)
+    expected <- if (is.null(mapping$colour)) rep(2L, 3) else rep(4L, 3)
+    for (data in list(NULL, ~ .x, identity)) {
+      out <- fmt_point(p, data = data, sample_n = 2, dodge.width = 0)
+      built <- ggplot2::ggplot_build(out)$data[[1]]
+      panel_ids <- match(d$panel[built$x], values)
+      expect_equal(tabulate(panel_ids, nbins = 3), expected)
+      if (!is.null(mapping$colour)) {
+        expect_equal(as.integer(table(built$colour, panel_ids)), rep(2L, 6))
+      }
+    }
+    expect_identical(p$data, d)
+  }
 })
 
 test_that("returned point layers do not retain unrelated plot leaves", {

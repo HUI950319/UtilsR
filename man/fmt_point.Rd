@@ -65,7 +65,9 @@ takes priority; otherwise discrete color/fill mappings form joint strata,
 including expressions. Existing facet variables add separate strata.
 Sampling takes at most \code{sample_n} points \strong{per group}; missing
 group values form a separate group. Continuous color/fill mappings do not
-define sampling groups. Sampling requires scalar fixed aesthetics; put
+define sampling groups. Numeric group and facet values remain distinct
+even when their printed labels coincide.
+Sampling requires scalar fixed aesthetics; put
 external row vectors into \code{data} and map its columns instead.
 Default \code{NULL} (no sampling).}
 

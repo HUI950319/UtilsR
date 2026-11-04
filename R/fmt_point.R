@@ -56,7 +56,9 @@
 #'   including expressions. Existing facet variables add separate strata.
 #'   Sampling takes at most \code{sample_n} points \strong{per group}; missing
 #'   group values form a separate group. Continuous color/fill mappings do not
-#'   define sampling groups. Sampling requires scalar fixed aesthetics; put
+#'   define sampling groups. Numeric group and facet values remain distinct
+#'   even when their printed labels coincide.
+#'   Sampling requires scalar fixed aesthetics; put
 #'   external row vectors into \code{data} and map its columns instead.
 #'   Default \code{NULL} (no sampling).
 #' @param seed Random seed for reproducible sampling. Default 42. Sampling
@@ -459,7 +461,15 @@ fmt_point <- function(plot,
     group_values <- c(group_values, list(rep_len(values, nrow(data))))
   }
   if (!is.null(group_values)) {
-    strata <- lapply(group_values, function(x) addNA(as.factor(x), ifany = TRUE))
+    strata <- lapply(group_values, function(x) {
+      if (is.numeric(x)) {
+        # Keep exact values in legacy factor order, including NaN and NA.
+        values <- sort(unique(x), na.last = TRUE)
+        values <- values[order(as.factor(values), na.last = TRUE)]
+        x <- match(x, values)
+      }
+      addNA(as.factor(x), ifany = TRUE)
+    })
     groups <- if (length(strata) == 1L) strata[[1L]] else
       factor(do.call(paste, c(lapply(strata, as.integer), sep = ":")))
     groups <- droplevels(groups, exclude = NULL)
