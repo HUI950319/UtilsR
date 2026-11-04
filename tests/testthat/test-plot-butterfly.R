@@ -5,6 +5,14 @@ butterfly_payload_plot <- function(include_payload, fill, type) {
   PlotButterfly2(data, stat.by = "stat", value.by = "value", group.by = "group", fill.by = fill, type = type)
 }
 
+butterfly_without_text_warning <- function(expr) {
+  withCallingHandlers(expr, warning = function(warning) {
+    if (startsWith(conditionMessage(warning), "Vectorized input to `element_text()`")) {
+      invokeRestart("muffleWarning")
+    }
+  })
+}
+
 test_that("PlotButterfly2 plots release unselected input payloads in both paths", {
   skip_if_not_installed("ggbeeswarm")
   files <- c(withr::local_tempfile(), withr::local_tempfile())
@@ -130,5 +138,95 @@ test_that("PlotButterfly2 saves the requested ungrouped chart type", {
   for (i in 1:2) {
     expect_identical(class(saved[[i]]$layers[[1]]$geom)[1], "GeomBoxplot")
     expect_identical(length(saved[[i]]$layers), length(plot[[i]]$layers))
+  }
+})
+
+test_that("PlotButterfly preserves named bar palettes in both panels", {
+  data <- expand.grid(stat = "S", fill = c("A", "B"), group = c("L", "R"))
+  data$value <- seq_len(nrow(data))
+  plot <- PlotButterfly(data, stat.by = "stat", fill.by = "fill",
+    value.by = "value", group.by = "group", palette = c(B = "blue", A = "red"))
+  for (i in 1:2) {
+    built <- ggplot2::ggplot_build(plot[[i]])
+    expect_identical(built$plot$scales$get_scales("fill")$map(c("A", "B")), c("red", "blue"))
+    expect_identical(built$data[[1]]$fill, c("red", "blue"))
+  }
+})
+
+test_that("PlotButterfly keeps named violin colours when variables are reordered", {
+  left <- data.frame(A = seq_len(6), B = 11:16)
+  right <- left[, c("B", "A")]
+  for (order in list(c("B", "A"), "up", "down")) {
+    plot <- butterfly_without_text_warning(PlotButterfly(type = "violin",
+      data.left = left, data.right = right, levels = order,
+      palette = c(B = "blue", A = "red"), add_box = FALSE))
+    for (i in 1:2) {
+      built <- ggplot2::ggplot_build(plot[[i]])
+      expect_identical(built$plot$scales$get_scales("fill")$map(c("A", "B")), c("red", "blue"))
+      expected <- c(A = "red", B = "blue")[levels(plot[[i]]$data$Variable)]
+      expect_identical(built$data[[1]]$fill, unname(expected[as.integer(built$data[[1]]$y)]))
+    }
+  }
+})
+
+test_that("PlotButterfly keeps named bar colours after row and factor reordering", {
+  data <- expand.grid(stat = "S", fill = c("A", "B", "C"), group = c("L", "R"))
+  data$value <- seq_len(nrow(data))
+  data$fill <- factor(data$fill, levels = c("C", "unused", "B", "A"))
+  original <- data
+  for (type in c("bar", "bar_dodge")) {
+    for (rows in list(seq_len(nrow(data)), rev(seq_len(nrow(data))))) {
+      plot <- PlotButterfly(data[rows, ], stat.by = "stat", fill.by = "fill",
+        value.by = "value", group.by = "group", type = type,
+        palette = c(C = "green", B = "blue", A = "red"))
+      for (i in 1:2) {
+        built <- ggplot2::ggplot_build(plot[[i]])
+        expect_identical(built$plot$scales$get_scales("fill")$map(c("A", "B", "C")), c("red", "blue", "green"))
+        expect_setequal(built$data[[1]]$fill, c("red", "blue", "green"))
+      }
+    }
+  }
+  expect_identical(data, original)
+})
+
+test_that("PlotButterfly matches partial and extended palettes by name", {
+  data <- expand.grid(stat = "S", fill = c("A", "B"), group = c("L", "R"))
+  data$value <- seq_len(nrow(data))
+  wide <- data.frame(A = seq_len(6), B = 11:16)
+  palettes <- list(c(unused = "orange", B = "blue", A = "red"), c(A = "red"))
+  expected <- list(c("red", "blue"), c("red", "grey50"))
+  for (type in c("bar", "bar_dodge", "violin")) {
+    for (j in seq_along(palettes)) {
+      plot <- butterfly_without_text_warning(PlotButterfly(data,
+        stat.by = "stat", fill.by = "fill", value.by = "value", group.by = "group",
+        type = type, data.left = wide, data.right = wide, palette = palettes[[j]],
+        add_box = FALSE))
+      for (i in 1:2) {
+        built <- ggplot2::ggplot_build(plot[[i]])
+        expect_identical(built$plot$scales$get_scales("fill")$map(c("A", "B")), expected[[j]])
+        expect_setequal(built$data[[1]]$fill, expected[[j]])
+      }
+    }
+  }
+})
+
+test_that("PlotButterfly retains positional palette recycling and truncation", {
+  data <- expand.grid(stat = "S", fill = c("A", "B"), group = c("L", "R"))
+  data$value <- seq_len(nrow(data))
+  wide <- data.frame(A = seq_len(6), B = 11:16)
+  palettes <- list("red", c("red", "blue", "green"))
+  expected <- list(c("red", "red"), c("red", "blue"))
+  for (type in c("bar", "bar_dodge", "violin")) {
+    for (j in seq_along(palettes)) {
+      plot <- butterfly_without_text_warning(PlotButterfly(data,
+        stat.by = "stat", fill.by = "fill", value.by = "value", group.by = "group",
+        type = type, data.left = wide, data.right = wide, palette = palettes[[j]],
+        add_box = FALSE))
+      for (i in 1:2) {
+        built <- ggplot2::ggplot_build(plot[[i]])
+        expect_identical(built$plot$scales$get_scales("fill")$map(c("A", "B")), expected[[j]])
+        expect_setequal(built$data[[1]]$fill, expected[[j]])
+      }
+    }
   }
 })

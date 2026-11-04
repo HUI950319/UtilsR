@@ -54,6 +54,8 @@
 #'   }
 #'   In bar mode, colours map to \code{fill.by} levels.
 #'   In violin mode, colours map to each variable.
+#'   Named vectors match categories by name in both panels. Unnamed vectors
+#'   follow the category order and are recycled when needed.
 #' @param alpha Numeric 0--1. Fill transparency. Default 0.85.
 #' @param bar.width Numeric. Bar width (bar mode). Default 0.7.
 #' @param bar.border Character. Bar border colour. Default \code{"black"}.
@@ -202,9 +204,9 @@ PlotButterfly <- function(
     } else if (length(palette) == 1L && palette %in% names(palette_list)) {
       cols <- as.character(pal_get(palette, n = n))
     } else {
-      cols <- as.character(palette)
+      cols <- stats::setNames(as.character(palette), names(palette))
     }
-    if (length(cols) < n) cols <- rep_len(cols, n)
+    if (is.null(names(cols)) && length(cols) < n) cols <- rep_len(cols, n)
     cols
   }
 

@@ -93,7 +93,9 @@ as \code{data.left}.}
   \item A character vector of colours: used directly.
 }
 In bar mode, colours map to \code{fill.by} levels.
-In violin mode, colours map to each variable.}
+In violin mode, colours map to each variable.
+Named vectors match categories by name in both panels. Unnamed vectors
+follow the category order and are recycled when needed.}
 
 \item{alpha}{Numeric 0--1. Fill transparency. Default 0.85.}
 
