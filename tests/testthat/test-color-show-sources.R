@@ -961,6 +961,27 @@ test_that("pal_get recycles the midpoint over constant finite values", {
   }
 })
 
+test_that("pal_get rejects digit-leading tokens before native colour decoding", {
+  native <- grDevices::col2rgb
+  seen <- character()
+  testthat::local_mocked_bindings(col2rgb = function(col, ...) {
+    digits <- !is.na(col) & grepl("^[0-9]", col, useBytes = TRUE)
+    if (any(digits)) {
+      seen <<- c(seen, col[digits])
+      stop("Digit-leading token reached col2rgb()")
+    }
+    native(col, ...)
+  }, .package = "grDevices")
+
+  overflow <- "2147483647999.99988080000e-3"
+  expect_error(pal_get(overflow), "not found")
+  expect_error(pal_get(c("red", "2147483648", "0x2", overflow)), "Not a colour")
+  expect_error(pal_get(list(custom = c("blue", "2", overflow))), "contains invalid")
+  expect_error(pal_get(I(c("red", overflow))), "Not a colour")
+  expect_identical(pal_get(c("red", "NA")), c("red", "NA"))
+  expect_length(seen, 0L)
+})
+
 test_that("pal_get keeps medium-cardinality numeric mappings in observation order", {
   palettes <- list(opaque = c("black", "white"),
                    translucent = c("#FF000080", "#0000FF40"))

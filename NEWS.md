@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Reject digit-leading palette strings before calling the native colour parser, and document literal colour inputs.
+
 * Preserve user-supplied text elements in scatter and alluvial plot themes, including ggtext elements, while retaining the plot layout controls.
 
 * `pal_show()` builds the ggplot catalogue data in one pass, reducing allocations for large catalogues.

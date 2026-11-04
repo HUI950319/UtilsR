@@ -376,8 +376,8 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
 #'       functions;
 #'     \item a palette name (e.g. \code{"Paired"}, \code{"viridis"},
 #'       \code{"lancet"}); use \code{pal_list()} to see all available names;
-#'     \item a colour vector, or a single literal colour (whatever R can draw,
-#'       such as \code{"transparent"} or \code{"#F00"}), used as the palette
+#'     \item a colour vector, or a single literal colour (an R colour name
+#'       or hex code such as \code{"transparent"} or \code{"#F00"}), used as the palette
 #'       itself -- a registered name always wins over a same-named colour, and
 #'       a string that is neither still raises the usual "not found" error;
 #'     \item a fully named list of colour vectors with unique names, such as
@@ -387,6 +387,8 @@ pal_list <- function(pattern = NULL, type = c("all", "discrete", "continuous"),
 #'   have no dimensions.
 #'   The literal string \code{"NA"} denotes R's transparent colour; actual
 #'   missing colour values are not supported.
+#'   Numeric colour indices are not supported, including strings such as
+#'   \code{"2"}.
 #' @param n Number of colours to return, a plain integer or double scalar with
 #'   a whole-number value from zero to \code{.Machine$integer.max}, with no class
 #'   or dimensions. Colours
@@ -502,10 +504,13 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     if (!is.object(v) && length(v) > 1024L && .pal_use_unique(v)) {
       v <- unique(v)
     }
-    drawable <- if (can_draw(v)) {
+    # Exclude numeric indices before col2rgb() can parse them as integers.
+    rejected <- is.na(v) | grepl("^[0-9]", v, useBytes = TRUE)
+    draw <- if (any(rejected)) replace(v, rejected, NA_character_) else v
+    drawable <- if (can_draw(draw)) {
       rep(TRUE, length(v))
     } else {
-      to_check <- if (is.object(v)) v else unique(v)
+      to_check <- if (is.object(draw)) draw else unique(draw)
       if (is.object(to_check) || length(to_check) <= 256L) {
         valid <- vapply(to_check, can_draw, logical(1L), USE.NAMES = FALSE)
       } else {
@@ -519,10 +524,9 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
           }
         }
       }
-      if (is.object(v)) valid else valid[match(v, to_check)]
+      if (is.object(draw)) valid else valid[match(draw, to_check)]
     }
-    # Digit-leading ASCII strings can index palette().
-    valid <- drawable & !is.na(v) & !grepl("^[0-9]", v, useBytes = TRUE)
+    valid <- drawable & !rejected
     if (length(v) == length(input)) return(valid)
     if (all(valid)) return(rep(TRUE, length(input)))
     valid[match(input, v)]
