@@ -29,7 +29,9 @@
 #' cross-tabulation. Special-value matching uses Unicode-aware whole-word
 #' markers and normalizes whitespace, including Unicode whitespace-only blanks.
 #' Values recognized by \code{is.na()}, including SPSS user-missing codes,
-#' are excluded from special-value counts.
+#' are excluded from special-value counts. SPSS user-missing codes also count
+#' as missing in numeric summaries, grouping and cross-tabulation, without
+#' changing the input object.
 #' Methods for serialized haven-labelled and integer64 columns are loaded
 #' before inspection; integer64 columns require the optional \pkg{bit64} package.
 #'
@@ -98,6 +100,11 @@
 #'   (\code{difftime}) are summarized as numbers in their own units.
 #'   Variable-summary rows are tinted by type: character, numeric or
 #'   integer, and factor (including ordered) variables.
+#'
+#'   Suggested numeric filters retain double precision, including truncated
+#'   value lists. Labelled numeric columns are matched by their underlying
+#'   numbers. Standard deviations in the console listing and default summary
+#'   table use rescaling when intermediate calculations overflow or underflow.
 #'
 #' @examples
 #' \dontrun{
@@ -331,6 +338,22 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     ifelse(n == 0, "0", paste0(.fmt_int(n), " (", .fmt_pct(n / of * 100), ")"))
   }
 
+  # tbl_summary() resolves statistic functions in the formula's environment,
+  # so its table and the console listing share this overflow-safe SD.
+  sd <- function(x, na.rm = FALSE) {
+    x <- as.numeric(x)
+    if (na.rm) x <- x[!is.na(x)]
+    spread <- stats::sd(x)
+    if (length(x) > 1L && all(is.finite(x)) &&
+        (!is.finite(spread) || (spread == 0 && any(x != x[1L])))) {
+      center <- min(x) / 2 + max(x) / 2
+      shifted <- x - center
+      scale <- max(abs(shifted))
+      if (scale > 0) spread <- stats::sd(shifted / scale) * scale
+    }
+    spread
+  }
+
   # Observed values; a factor keeps its level order without unused levels.
   .get_levels <- function(x) {
     if (is.factor(x)) {
@@ -353,22 +376,30 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
 
     display_values <- if (n_unique > 10) head(unique_values, 8) else unique_values
 
-    # Numbers stay literal when their text reads back exactly, logicals stay
-    # logical; other values (dates, imprecise doubles) match through text.
-    display_text <- as.character(display_values)
+    # Numeric literals retain the stored double values, including labelled
+    # numbers; other classed values (dates, integer64) match through text.
     values <- if (is.logical(display_values)) {
       as.list(display_values)
-    } else if (is.numeric(display_values) && !is.object(display_values) &&
-               identical(as.numeric(display_text), as.numeric(display_values))) {
-      as.list(as.numeric(display_text))
+    } else if (is.numeric(display_values) &&
+               (!is.object(display_values) || inherits(display_values, "haven_labelled"))) {
+      as.list(as.numeric(display_values))
     } else {
-      as.list(display_text)
+      as.list(as.character(display_values))
     }
     values_expr <- as.call(c(list(quote(c)), values))
+    filter_var <- as.name(var)
+    # match() otherwise compares labelled vectors through rounded text.
+    if (is.numeric(display_values) && inherits(display_values, "haven_labelled")) {
+      filter_var <- as.call(list(quote(as.numeric), filter_var))
+    }
     filter_expr <- substitute(get_flt(VAR %in% VALUES),
-                              list(VAR = as.name(var), VALUES = values_expr))
-    .get_flt_formula <- paste(deparse(filter_expr, width.cutoff = 500L),
-                              collapse = " ")
+                              list(VAR = filter_var, VALUES = values_expr))
+    .get_flt_formula <- paste(
+      deparse(filter_expr, width.cutoff = 500L,
+              control = c("keepNA", "keepInteger", "niceNames",
+                          "showAttributes", "digits17")),
+      collapse = " "
+    )
     # A comment marks truncation, so the code still runs as written.
     if (n_unique > 10) {
       .get_flt_formula <- sprintf("%s  # +%d more", .get_flt_formula, n_unique - 8L)
@@ -437,7 +468,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       # A measurement, not a code: its distribution, as skimr gives it, rather
       # than counts of its first values (ages 0, 1, 2, ...). Classed numbers
       # (integer64, labelled) as plain doubles.
-      x <- suppressWarnings(as.numeric(col_data))
+      x <- suppressWarnings(as.numeric(col_data[!is.na(col_data)]))
       x <- x[is.finite(x)]
       bins <- tabulate(findInterval(x, seq(min(x), max(x), length.out = 13L),
                                     rightmost.closed = TRUE), nbins = 12L)
@@ -450,7 +481,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
         Distribution = format(cli::spark_bar(bins / max(bins))),
         Range = paste(q[[1]], "to", q[[5]]),
         `Median [Q1, Q3]` = sprintf("%s [%s, %s]", q[[3]], q[[2]], q[[4]]),
-        `Mean (SD)` = sprintf("%s (%s)", num(mean(x)), num(stats::sd(x)))
+        `Mean (SD)` = sprintf("%s (%s)", num(mean(x)), num(sd(x)))
       ))
     } else {
       pr_table(.lv_frequencies(col_data, var), n = NULL,
@@ -567,14 +598,21 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     gt::tab_source_note(gt_tbl, paste0("Shading: ", paste(parts, collapse = "; "), "."))
   }
 
+  # Normalize user-missing codes before statistical methods or factor
+  # conversion can treat their stored values as observations.
+  .spss_missing_to_na <- function(x) {
+    if (inherits(x, "haven_labelled_spss")) labelled::user_na_to_na(x) else x
+  }
+
   # gtsummary treats an entirely missing character column as continuous and
   # fails formatting it (and rejects a level-less factor); a missing logical
   # reports the same missing count. It cannot tabulate time spans either, so
   # they are summarized as numbers in their own units.
   .tbl_input <- function(df) {
+    df[] <- lapply(df, .spss_missing_to_na)
     empty_chr <- vapply(df, function(x) is.character(x) && all(is.na(x)),
                         logical(1))
-    df[empty_chr] <- lapply(df[empty_chr], as.logical)
+    df[empty_chr] <- lapply(df[empty_chr], function(x) rep(NA, length(x)))
     spans <- vapply(df, inherits, logical(1), what = "difftime")
     df[spans] <- lapply(df[spans], as.numeric)
     lt <- vapply(df, inherits, logical(1), what = "POSIXlt")
@@ -737,6 +775,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     n_name <- count_names[1L]
     pct_name <- count_names[2L]
     count_data <- dplyr::ungroup(data)
+    count_data[count_vars] <- lapply(count_data[count_vars], .spss_missing_to_na)
     count_base <- count_data %>%
       dplyr::count(dplyr::across(dplyr::all_of(count_vars)), name = n_name)
 
@@ -859,7 +898,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   if (!is.null(group_var)) {
     # One table column per group (every factor level): an identifier as the
     # group took over a minute for 5,000 values.
-    by_values <- data[[group_var]]
+    by_values <- .spss_missing_to_na(data[[group_var]])
     n_by <- if (is.factor(by_values)) nlevels(by_values) else
       length(unique(by_values[!is.na(by_values)]))
     if (n_by > 100L) {
@@ -878,7 +917,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       return(invisible(data))
     }
 
-    n_groups <- length(unique(data[[group_var]]))
+    n_groups <- length(unique(by_values))
     if (knitting) {
       cli::cli_h1(cli::col_magenta(glue::glue("Variable Summary by {group_var}")))
       cli::cli_alert_info("Groups: {.val {n_groups}}")
@@ -891,7 +930,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     # Missing group values form their own last group, so the groups match the
     # count above and the overall column covers every row; tbl_summary()
     # would otherwise drop those rows.
-    by <- data[[group_var]]
+    by <- by_values
     if (anyNA(by)) {
       by <- as.factor(by)
       missing_labels <- c("\u7f3a\u5931",

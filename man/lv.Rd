@@ -94,7 +94,9 @@ counts, unique values, missing values and special values (e.g. "unknown",
 cross-tabulation. Special-value matching uses Unicode-aware whole-word
 markers and normalizes whitespace, including Unicode whitespace-only blanks.
 Values recognized by \code{is.na()}, including SPSS user-missing codes,
-are excluded from special-value counts.
+are excluded from special-value counts. SPSS user-missing codes also count
+as missing in numeric summaries, grouping and cross-tabulation, without
+changing the input object.
 Methods for serialized haven-labelled and integer64 columns are loaded
 before inspection; integer64 columns require the optional \pkg{bit64} package.
 }
@@ -114,6 +116,11 @@ In R Markdown or Quarto, use a code chunk with
   (\code{difftime}) are summarized as numbers in their own units.
   Variable-summary rows are tinted by type: character, numeric or
   integer, and factor (including ordered) variables.
+
+  Suggested numeric filters retain double precision, including truncated
+  value lists. Labelled numeric columns are matched by their underlying
+  numbers. Standard deviations in the console listing and default summary
+  table use rescaling when intermediate calculations overflow or underflow.
 }
 \examples{
 \dontrun{

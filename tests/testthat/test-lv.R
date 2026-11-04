@@ -882,3 +882,116 @@ test_that("lv prints its console sections with pr_section()", {
   expect_true(any(grepl("^-- Variable summary \\(2 variables\\) -+$", rules)))
   expect_false(any(grepl("----1.", out, fixed = TRUE)))
 })
+
+test_that("SPSS user-missing codes stay out of continuous statistics", {
+  skip_if_not_installed("haven")
+  data <- data.frame(x = haven::labelled_spss(c(1:11, 98, 99, 100, NA),
+                                             na_values = 100, na_range = c(98, 99)))
+  before <- data
+  clean <- data.frame(x = as.numeric(data$x))
+  clean$x[is.na(data$x)] <- NA
+  reports <- capture_reports(lv(data))
+  summary <- reports[[1L]][["_data"]]
+  expect_equal(summary$n_na, 4)
+  expect_equal(summary$n_unique, 11)
+  body <- reports[[2L]][["_data"]]
+  expected <- capture_reports(lv(clean))[[2L]][["_data"]]
+  expect_identical(body$stat_0, expected$stat_0)
+
+  output <- cli::ansi_strip(utils::capture.output(suppressMessages(lv(data))))
+  expect_match(paste(output, collapse = "\n"), "Range +1 to 11")
+  expect_match(paste(output, collapse = "\n"), "Mean \\(SD\\) +6 \\(3\\.32\\)")
+  expect_identical(data, before)
+})
+
+test_that("SPSS user-missing character values stay out of category totals", {
+  skip_if_not_installed("haven")
+  data <- data.frame(g = c("A", "A", "B", "B"),
+                     x = haven::labelled_spss(c("known", "known", "missing", NA),
+                                              na_values = "missing"))
+  before <- data
+  reports <- capture_reports(lv(data, x))
+  expect_equal(reports[[1L]][["_data"]]$n_na, 2)
+  body <- reports[[2L]][["_data"]]
+  expect_identical(body$label[body$row_type == "level"], "known")
+  expect_identical(body$stat_0[body$row_type == "level"], "2 (100%)")
+  grouped <- capture_reports(lv(data, x, group = g))[[1L]]$table_body
+  expect_identical(grouped$stat_0[grouped$row_type == "level"], "2 (100%)")
+  expect_identical(grouped$stat_2[grouped$row_type == "missing"], "2 (100%)")
+  empty <- data[3:4, , drop = FALSE]
+  empty_body <- capture_reports(lv(empty, x))[[2L]][["_data"]]
+  expect_identical(empty_body$stat_0[empty_body$row_type == "missing"], "2 (100%)")
+  expect_identical(data, before)
+})
+
+test_that("SPSS user-missing groups and count categories are consolidated", {
+  skip_if_not_installed("haven")
+  for (group in list(
+    haven::labelled_spss(c(1, 1, 98, 99, NA), na_range = c(98, 99)),
+    haven::labelled_spss(c("A", "A", "missing", "missing", NA), na_values = "missing")
+  )) {
+    data <- data.frame(g = group, x = c("known", "known", rep("unrecorded", 3)))
+    before <- data
+    reports <- capture_reports(value <- withVisible(lv(data, x, group = g)))
+    header <- reports[[1L]]$table_styling$header
+    groups <- header[grepl("^stat_[1-9]", header$column), ]
+    expect_equal(groups$modify_stat_n, c(2, 3))
+    expect_identical(tail(groups$modify_stat_level, 1L), "\u7f3a\u5931")
+    expect_identical(value$value, before)
+    expect_identical(value$visible, FALSE)
+
+    counts <- capture_reports(lv(data, count = g))[[1L]][["_data"]]
+    expect_identical(counts$n, c(2L, 3L))
+    expect_identical(counts$pct, c("40.0%", "60.0%"))
+    expect_equal(sum(is.na(counts$g)), 1)
+    wide <- capture_reports(lv(data, count = c(x, g)))[[1L]][["_data"]]
+    expect_identical(wide[["NA"]], c("0", "3 (100.0%)", "3 (60.0%)"))
+    expect_identical(data, before)
+  }
+})
+
+test_that("suggested filters retain exact double values after truncation", {
+  skip_if_not_installed("haven")
+  data <- data.frame(
+    close = c(0.123456789012345 + seq(0, 1e-15, length.out = 11), NA),
+    large = c(1e20 + seq(0, 2e5, length.out = 11), NA),
+    tiny = c(1e-200 * seq(1, 2, length.out = 11), NA)
+  )
+  data$labelled <- haven::labelled_spss(replace(data$close, 12L, 99), na_values = 99)
+  before <- data
+  summary <- capture_reports(lv(data))[[1L]][["_data"]]
+  expect_equal(summary$n_unique, rep(11, 4))
+  for (i in seq_len(nrow(summary))) {
+    values <- data[[summary$vars[i]]]
+    expected <- head(sort(as.numeric(values[!is.na(values)])), 8)
+    code <- as.character(summary$unique[i])
+    call <- parse(text = code)[[1L]]
+    expect_identical(eval(call[[2L]][[3L]]), expected)
+    expect_identical(eval(call[[2L]], envir = data), as.numeric(values) %in% expected)
+    expect_equal(sum(eval(call[[2L]], envir = data)), 8)
+    expect_match(code, "# +3 more", fixed = TRUE)
+  }
+  expect_identical(data, before)
+})
+
+test_that("standard deviations stay finite across finite numeric scales", {
+  read_sd <- function(text) {
+    as.numeric(gsub(",", "", sub(".*\\(([^()]*)\\)$", "\\1", trimws(text)), fixed = TRUE))
+  }
+  expected <- stats::sd(seq(-1, 1, length.out = 11))
+  for (scale in c(1e200, 1e308, 1e-200)) {
+    data <- data.frame(x = c(seq(-1, 1, length.out = 11) * scale, NA))
+    before <- data
+    output <- cli::ansi_strip(utils::capture.output(suppressMessages(lv(data))))
+    line <- grep("^  Mean \\(SD\\)", output, value = TRUE)
+    expect_length(line, 1L)
+    expect_equal(read_sd(line) / scale, expected, tolerance = 0.001)
+    if (scale > 1) {
+      body <- capture_reports(lv(data))[[2L]][["_data"]]
+      mean_sd <- body$stat_0[body$label == "Mean (SD)"]
+      expect_length(mean_sd, 1L)
+      expect_equal(read_sd(mean_sd) / scale, expected, tolerance = 1e-12)
+    }
+    expect_identical(data, before)
+  }
+})
