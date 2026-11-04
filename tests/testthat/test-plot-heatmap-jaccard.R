@@ -4,6 +4,29 @@ jaccard_payload_plot <- function(include_payload) {
   PlotHeatmapJaccard(data, return_type = "both")
 }
 
+jaccard_cold_call <- function(data, group_levels = NULL, namespace) {
+  fn <- PlotHeatmapJaccard
+  environment(fn) <- new.env(parent = asNamespace("stats"))
+  directory <- withr::local_tempdir()
+  fixture <- file.path(directory, "fixture.rds")
+  script <- file.path(directory, "cold.R")
+  output <- file.path(directory, "result.rds")
+  saveRDS(list(fn = fn, data = data, group_levels = group_levels,
+               namespace = namespace, libs = .libPaths()), fixture)
+  writeLines(c(
+    "args <- commandArgs(TRUE)", "fixture <- readRDS(args[[1]])", ".libPaths(fixture[['libs']])",
+    "stopifnot(!fixture[['namespace']] %in% loadedNamespaces())",
+    "data <- fixture[['data']]; groups <- fixture[['group_levels']]",
+    "before <- data; groups_before <- groups",
+    "value <- fixture[['fn']](data, group_levels = groups, return_type = 'data')",
+    "saveRDS(list(value = value, unchanged = identical(data, before) && identical(groups, groups_before)), args[[2]])"
+  ), script)
+  status <- system2(file.path(R.home("bin"), "Rscript"),
+    c("--vanilla", shQuote(script), shQuote(fixture), shQuote(output)), stdout = TRUE, stderr = TRUE)
+  list(status = attr(status, "status"), output = status,
+       result = if (is.null(attr(status, "status"))) readRDS(output) else NULL)
+}
+
 test_that("Jaccard pure data returns avoid plotting while requested files are saved", {
   data <- data.frame(cell_type = c("A", "A", "B", "B"), gene = c("a", "b", "b", "c"))
   calls <- 0L
@@ -82,7 +105,8 @@ test_that("Jaccard interprets SPSS missingness before cold set construction", {
     "stopifnot(!'haven' %in% loadedNamespaces())",
     "data <- fixture[['data']][[args[[3]]]]", "before <- data",
     "out <- fixture[['fn']](data, return_type = 'data')",
-    "saveRDS(list(value = out, unchanged = identical(data, before)), args[[2]])"
+    "explicit <- if (args[[3]] == 'groups') fixture[['fn']](data, group_levels = c('1', '99', '2'), return_type = 'data') else NULL",
+    "saveRDS(list(value = out, explicit = explicit, unchanged = identical(data, before)), args[[2]])"
   ), script)
   for (mode in names(data)) {
     status <- system2(file.path(R.home("bin"), "Rscript"),
@@ -95,7 +119,127 @@ test_that("Jaccard interprets SPSS missingness before cold set construction", {
         list(c("1", "2"), c("1", "2"))
       expect_identical(out$value, expected)
       expect_identical(out$unchanged, TRUE)
+      if (mode == "groups") {
+        expected_explicit <- diag(c(1, 0, 1))
+        dimnames(expected_explicit) <- list(c("1", "99", "2"), c("1", "99", "2"))
+        expect_identical(out$explicit, expected_explicit)
+      }
     }
+  }
+})
+
+test_that("explicit labelled group levels exclude SPSS missing codes", {
+  skip_if_not_installed("haven")
+  for (groups in list(
+    haven::labelled_spss(c(1, 2, 99, 98), na_values = c(98, 99)),
+    haven::labelled_spss(c(1, 2, 99, 98), na_range = c(98, 99))
+  )) {
+    dat <- data.frame(cell_type = groups, gene = c("a", "b", "orphan1", "orphan2"))
+    before <- dat
+    order <- c(1, 99, 2, 98)
+    expected <- diag(c(1, 0, 1, 0))
+    dimnames(expected) <- list(as.character(order), as.character(order))
+    for (levels in list(order, as.character(order))) {
+      result <- PlotHeatmapJaccard(dat, group_levels = levels, return_type = "both")
+      expect_identical(result$matrix, expected)
+      expect_s3_class(ggplot2::ggplot_build(result$plot), "ggplot_built")
+    }
+    expect_identical(dat, before)
+  }
+})
+
+test_that("classed group labels preserve matrix names and tile positions", {
+  for (groups in list(
+    as.Date(c(1, 2, 1), origin = "1970-01-01"),
+    as.POSIXct(c(1, 2, 1), origin = "1970-01-01", tz = "UTC"),
+    as.POSIXlt(as.POSIXct(c(1, 2, 1), origin = "1970-01-01", tz = "UTC")),
+    as.difftime(c(1, 2, 1), units = "hours"),
+    c(0.1234567890123456, 0.2345678901234567, 0.1234567890123456)
+  )) {
+    dat <- data.frame(gene = c("a", "b", "b"))
+    dat$cell_type <- groups
+    before <- dat
+    labels <- as.character(groups[1:2])
+    expected <- rbind(c(1, 0.5), c(0.5, 1))
+    dimnames(expected) <- list(labels, labels)
+    result <- PlotHeatmapJaccard(dat, return_type = "both")
+    expect_identical(result$matrix, expected)
+    tiles <- ggplot2::ggplot_build(result$plot)$data[[1L]]
+    expect_identical(as.numeric(tiles$x), c(1, 2, 1, 2))
+    expect_identical(as.numeric(tiles$y), c(1, 1, 2, 2))
+    expect_identical(dat, before)
+  }
+})
+
+test_that("group labels that become duplicates fail before every return path", {
+  dat <- data.frame(cell_type = c(1, 1 + 1e-15), gene = c("a", "b"))
+  for (type in c("data", "plot", "both")) {
+    expect_error(PlotHeatmapJaccard(dat, return_type = type), "group_levels.*duplicate")
+  }
+})
+
+test_that("integer64 groups and features retain missingness in a cold session", {
+  skip_if_not_installed("bit64")
+  fn <- PlotHeatmapJaccard
+  environment(fn) <- new.env(parent = asNamespace("stats"))
+  directory <- withr::local_tempdir()
+  fixture <- file.path(directory, "fixture.rds")
+  script <- file.path(directory, "cold.R")
+  output <- file.path(directory, "result.rds")
+  values <- c("9007199254740992", "9007199254740993")
+  data <- list(
+    features = data.frame(cell_type = c("A", "A", "B", "B"),
+      gene = bit64::as.integer64(c(values[1L], NA, values[2L], NA))),
+    groups = data.frame(cell_type = bit64::as.integer64(c(values, NA)),
+      gene = c("a", "b", "orphan")))
+  saveRDS(list(fn = fn, data = data, libs = .libPaths()), fixture)
+  writeLines(c(
+    "args <- commandArgs(TRUE)", "fixture <- readRDS(args[[1]])", ".libPaths(fixture[['libs']])",
+    "stopifnot(!'bit64' %in% loadedNamespaces())",
+    "data <- fixture[['data']][[args[[3]]]]", "before <- data",
+    "out <- fixture[['fn']](data, return_type = 'data')",
+    "saveRDS(list(value = out, unchanged = identical(data, before)), args[[2]])"
+  ), script)
+  for (mode in names(data)) {
+    status <- system2(file.path(R.home("bin"), "Rscript"),
+      c("--vanilla", shQuote(script), shQuote(fixture), shQuote(output), mode), stdout = TRUE, stderr = TRUE)
+    expect_null(attr(status, "status"), info = paste(status, collapse = "\n"))
+    if (is.null(attr(status, "status"))) {
+      out <- readRDS(output)
+      labels <- if (mode == "features") c("A", "B") else values
+      expected <- diag(2)
+      dimnames(expected) <- list(labels, labels)
+      expect_identical(out$value, expected)
+      expect_identical(out$unchanged, TRUE)
+    }
+  }
+})
+
+test_that("labelled group_levels load their namespace in a cold session", {
+  skip_if_not_installed("haven")
+  dat <- data.frame(cell_type = c(1, 2), gene = c("a", "b"))
+  groups <- haven::labelled_spss(c(1, 99, 2), na_values = 99)
+  out <- jaccard_cold_call(dat, groups, "haven")
+  expect_null(out$status, info = paste(out$output, collapse = "\n"))
+  if (is.null(out$status)) {
+    expected <- diag(2)
+    dimnames(expected) <- list(c("1", "2"), c("1", "2"))
+    expect_identical(out$result$value, expected)
+    expect_identical(out$result$unchanged, TRUE)
+  }
+})
+
+test_that("integer64 group_levels load their namespace in a cold session", {
+  skip_if_not_installed("bit64")
+  values <- c("9007199254740992", "9007199254740993")
+  dat <- data.frame(cell_type = values, gene = c("a", "b"))
+  out <- jaccard_cold_call(dat, bit64::as.integer64(c(values[2L], NA, values[1L])), "bit64")
+  expect_null(out$status, info = paste(out$output, collapse = "\n"))
+  if (is.null(out$status)) {
+    expected <- diag(2)
+    dimnames(expected) <- list(rev(values), rev(values))
+    expect_identical(out$result$value, expected)
+    expect_identical(out$result$unchanged, TRUE)
   }
 })
 

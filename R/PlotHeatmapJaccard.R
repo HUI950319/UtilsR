@@ -10,17 +10,22 @@
 #'
 #' @param data A data.frame containing at least a group column and a name column.
 #'   Rows with missing group labels or feature names do not contribute to sets.
-#'   Labelled columns use their class-defined missing values, including SPSS
-#'   user-missing codes, even in a fresh R session.
+#'   Labelled and \code{integer64} columns use their class-defined missing values,
+#'   including SPSS user-missing codes, even in a fresh R session. Interpreting
+#'   these classes requires \pkg{haven} and \pkg{bit64}, respectively.
 #' @param group_col A single non-missing, non-empty grouping column name
-#'   (e.g. cell type). Default \code{"cell_type"}.
+#'   (e.g. cell type). Default \code{"cell_type"}. Its character representation
+#'   supplies matrix and axis labels; the original values are retained for
+#'   matching.
 #' @param name_col A single non-missing, non-empty feature/gene column name used
 #'   to compute Jaccard similarity. Default \code{"gene"}.
 #' @param title Plot title. Default \code{"Jaccard Similarity"}.
 #' @param group_levels Character vector specifying the display order of groups on
-#'   both axes. Non-missing entries must be unique; missing entries are ignored.
-#'   Unobserved groups are retained as empty sets. \code{NULL} = factor levels
-#'   (if factor) or data appearance order.
+#'   both axes. Non-missing entries must have unique character representations;
+#'   missing entries are ignored. Unobserved groups are retained as empty sets.
+#'   \code{NULL} = factor levels (if factor) or data appearance order.
+#'   Typed level vectors use class-defined missing values and the same package
+#'   requirements as \code{data}.
 #' @param midpoint Midpoint of the colour gradient. Default \code{0.1}.
 #' @param text_size Size of the numeric labels inside each cell. Default \code{2.5}.
 #'   Set to \code{0} to hide labels.
@@ -29,7 +34,7 @@
 #' @param low_color Low end of the fill gradient. Default \code{"white"}.
 #' @param high_color High end of the fill gradient. Default \code{"#B2182B"}.
 #' @param show_strip Logical. Whether to draw coloured annotation strips along
-#'   the top (X axis) and left (Y axis) of the heatmap. Default \code{FALSE}.
+#'   the bottom (X axis) and left (Y axis) of the heatmap. Default \code{FALSE}.
 #' @param strip_colors Character vector of colours for each group strip.
 #'   \code{NULL} = auto palette (same order as \code{group_levels} / \code{ct_names}).
 #'   The 16-colour auto palette repeats for additional groups, as do shorter
@@ -113,12 +118,13 @@ PlotHeatmapJaccard <- function(
     if (!col %in% colnames(data))
       stop(sprintf("Column '%s' not found in data.", col), call. = FALSE)
   }
-  labelled <- vapply(unique(c(group_col, name_col)), function(col) {
-    inherits(data[[col]], "haven_labelled")
-  }, logical(1))
+  class_inputs <- list(data[[group_col]], data[[name_col]], group_levels)
+  labelled <- vapply(class_inputs, inherits, logical(1), what = "haven_labelled")
   if (any(labelled) && !requireNamespace("haven", quietly = TRUE))
-    stop("Interpreting labelled columns requires package 'haven'.", call. = FALSE)
-
+    stop("Interpreting labelled inputs requires package 'haven'.", call. = FALSE)
+  integer64 <- vapply(class_inputs, inherits, logical(1), what = "integer64")
+  if (any(integer64) && !requireNamespace("bit64", quietly = TRUE))
+    stop("Interpreting integer64 inputs requires package 'bit64'.", call. = FALSE)
   # ---- 1. Group order (priority: group_levels > factor levels > data order) ----
   ct_names <- if (!is.null(group_levels)) {
     group_levels
@@ -128,23 +134,32 @@ PlotHeatmapJaccard <- function(
     unique(data[[group_col]])
   }
   ct_names <- ct_names[!is.na(ct_names)]
-  if (anyDuplicated(ct_names))
+  # Keep typed group keys separate from their display labels.
+  ct_labels <- as.character(ct_names)
+  if (anyDuplicated(ct_labels))
     stop("'group_levels' must not contain duplicate non-missing groups.", call. = FALSE)
   n_ct <- length(ct_names)
   if (n_ct == 0L)
     stop("No non-missing groups available.", call. = FALSE)
 
   # ---- 2. Build per-group feature sets ----
+  group_values <- data[[group_col]]
+  non_missing <- !is.na(group_values) & !is.na(data[[name_col]])
+  if (inherits(group_values, "haven_labelled"))
+    group_values <- as.vector(group_values)
+  ct_keys <- as.list(ct_names)
   top_sets <- lapply(
-    stats::setNames(ct_names, ct_names),
-    function(ct) unique(as.vector(data[[name_col]][which(data[[group_col]] == ct &
-                                        !is.na(data[[name_col]]))]))
+    stats::setNames(ct_keys, ct_labels),
+    function(ct) {
+      rows <- which(group_values == ct & non_missing)
+      unique(as.vector(data[[name_col]][rows]))
+    }
   )
   set_sizes <- as.double(lengths(top_sets))
 
   # ---- 3. Compute pairwise Jaccard similarity ----
   jmat <- matrix(0, nrow = n_ct, ncol = n_ct,
-                 dimnames = list(ct_names, ct_names))
+                 dimnames = list(ct_labels, ct_labels))
   for (i in seq_len(n_ct)) {
     for (j in seq_len(i)) {
       gi <- top_sets[[i]]
@@ -157,7 +172,7 @@ PlotHeatmapJaccard <- function(
   }
 
   if (return_type == "data" && is.null(filename)) return(jmat)
-  p <- .build_jaccard_plot(jmat, ct_names, list(title = title, midpoint = midpoint,
+  p <- .build_jaccard_plot(jmat, ct_labels, list(title = title, midpoint = midpoint,
     text_size = text_size, show_diag = show_diag, low_color = low_color, high_color = high_color,
     show_strip = show_strip, strip_colors = strip_colors, strip_size = strip_size))
 

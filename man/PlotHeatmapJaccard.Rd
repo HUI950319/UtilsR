@@ -28,11 +28,14 @@ PlotHeatmapJaccard(
 \arguments{
 \item{data}{A data.frame containing at least a group column and a name column.
 Rows with missing group labels or feature names do not contribute to sets.
-Labelled columns use their class-defined missing values, including SPSS
-user-missing codes, even in a fresh R session.}
+Labelled and \code{integer64} columns use their class-defined missing values,
+including SPSS user-missing codes, even in a fresh R session. Interpreting
+these classes requires \pkg{haven} and \pkg{bit64}, respectively.}
 
 \item{group_col}{A single non-missing, non-empty grouping column name
-(e.g. cell type). Default \code{"cell_type"}.}
+(e.g. cell type). Default \code{"cell_type"}. Its character representation
+supplies matrix and axis labels; the original values are retained for
+matching.}
 
 \item{name_col}{A single non-missing, non-empty feature/gene column name used
 to compute Jaccard similarity. Default \code{"gene"}.}
@@ -40,9 +43,11 @@ to compute Jaccard similarity. Default \code{"gene"}.}
 \item{title}{Plot title. Default \code{"Jaccard Similarity"}.}
 
 \item{group_levels}{Character vector specifying the display order of groups on
-both axes. Non-missing entries must be unique; missing entries are ignored.
-Unobserved groups are retained as empty sets. \code{NULL} = factor levels
-(if factor) or data appearance order.}
+both axes. Non-missing entries must have unique character representations;
+missing entries are ignored. Unobserved groups are retained as empty sets.
+\code{NULL} = factor levels (if factor) or data appearance order.
+Typed level vectors use class-defined missing values and the same package
+requirements as \code{data}.}
 
 \item{midpoint}{Midpoint of the colour gradient. Default \code{0.1}.}
 
@@ -57,7 +62,7 @@ Set to \code{0} to hide labels.}
 \item{high_color}{High end of the fill gradient. Default \code{"#B2182B"}.}
 
 \item{show_strip}{Logical. Whether to draw coloured annotation strips along
-the top (X axis) and left (Y axis) of the heatmap. Default \code{FALSE}.}
+the bottom (X axis) and left (Y axis) of the heatmap. Default \code{FALSE}.}
 
 \item{strip_colors}{Character vector of colours for each group strip.
 \code{NULL} = auto palette (same order as \code{group_levels} / \code{ct_names}).
