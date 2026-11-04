@@ -136,25 +136,39 @@ Designed for DNN model interpretation outputs (Integrated Gradients
 importance scores) but works with any named score data.
 }
 \examples{
-\dontrun{
-library(ToyData)
-data(Toy_gene_importance)
+set.seed(42)
+scores <- setNames(runif(12), paste0("Gene", seq_len(12)))
 
-# Faceted rank scatter (all cell types)
-PlotRank(Toy_gene_importance, top_n = 10, ncol = 4, ylab = "Gene Importance (IG)")
+# Highlight three of the eight displayed features
+rank_plot <- PlotRank(scores, top_n = 3, max_show = 8)
+rank_plot
 
-# Single cell type
-PlotRank(Toy_gene_importance, groups = "Parathyroid cells", top_n = 15)
+# Return ranked data without highlighting features
+ranked_data <- PlotRank(scores, top_n = 0, max_show = 5, return_type = "data")
+ranked_data
 
-# With value scaling
-PlotRank(Toy_gene_importance, top_n = 10, value_scale = "group")
+# Rank two groups with automatic faceting and full-range scaling
+score_matrix <- matrix(runif(24), nrow = 12,
+                       dimnames = list(names(scores), c("Group A", "Group B")))
+ranked_groups <- PlotRank(score_matrix, top_n = 3, max_show = 8,
+                         value_scale = "group", ncol = NULL,
+                         return_type = "both")
+ranked_groups$plot
+head(ranked_groups$data)
 
-# Pathway scores matrix
-PlotRank(pred$pathway_scores, top_n = 10, ylab = "Pathway Score")
-
-# Named numeric vector
-scores <- setNames(runif(100), paste0("Gene", 1:100))
-PlotRank(scores, top_n = 10)
 }
+\seealso{
+\code{\link{PlotRankCor}()} for comparing ranks from two methods.
 
+Other plot:
+\code{\link[=PlotButterfly]{PlotButterfly()}},
+\code{\link[=PlotButterfly2]{PlotButterfly2()}},
+\code{\link[=PlotCircleLollipop]{PlotCircleLollipop()}},
+\code{\link[=PlotRankCor]{PlotRankCor()}},
+\code{\link[=plt_cat]{plt_cat()}},
+\code{\link[=plt_con]{plt_con()}},
+\code{\link[=plt_dist]{plt_dist()}},
+\code{\link[=plt_sankey]{plt_sankey()}},
+\code{\link[=plt_upset]{plt_upset()}}
 }
+\concept{plot}
