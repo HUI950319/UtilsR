@@ -3,7 +3,8 @@
 Compare two methods by plotting their ranks against each other. Spearman
 correlation and p-value are computed internally and displayed as
 subtitles. When multiple groups exist (e.g. PHPT vs SHPT), each group is
-shown as a separate facet with its own correlation statistics.
+shown as a separate facet with its own correlation statistics. Long
+subtitles wrap between group summaries, keeping each summary intact.
 
 ## Usage
 
@@ -82,7 +83,8 @@ PlotRankCor(
   original values before conversion to text labels; suffixes distinguish
   identical labels. Factor levels determine their order; other vectors
   use first appearance. The first maps to the x-axis and the second to
-  the y-axis.
+  the y-axis. Empty strings are valid method labels and are distinct
+  from missing values.
 
 - use_rank:
 
@@ -90,6 +92,8 @@ PlotRankCor(
   correlation. If `FALSE`, plot raw values and compute Pearson
   correlation. Raw-value tests use finite pairs; fewer than three usable
   pairs or a constant vector yield missing correlation statistics.
+  Finite pairs are centered before internal rescaling to limit overflow
+  and roundoff when scores have a large common offset.
 
 - scale_x:
 
@@ -112,7 +116,8 @@ PlotRankCor(
   methods per stat x group combination. A continuous size scale is added
   to the plot. Default `NULL` (all points use fixed `pt.size`). A
   warning reports mapped columns with no finite category/group means;
-  the missing mapping is retained.
+  the missing mapping is retained. Summaries are computed without
+  changing the category/group keys.
 
 - size_range:
 

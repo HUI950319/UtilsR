@@ -121,6 +121,11 @@ and the same length as the existing levels.</p></dd>
     <p>This is the packaged form of the legacy FeatureAnalysis helper
 <code>.fct_label()</code>. For other single-vector factor operations (reorder,
 binary, group), see [fct_cat()]; for numeric binning see [fct_num()].</p>
+<p>For data frames, a bare <code>var</code> always refers to a column name,
+even when an object of the same name exists in the caller. Other expressions
+are evaluated in the caller and must return a single non-missing, non-empty
+character string without dimensions. The selected column name must occur
+exactly once in the data frame.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

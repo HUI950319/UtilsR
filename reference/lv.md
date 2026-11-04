@@ -7,9 +7,11 @@ multi-variable cross-tabulation. Special-value matching uses
 Unicode-aware whole-word markers and normalizes whitespace, including
 Unicode whitespace-only blanks. Values recognized by
 [`is.na()`](https://rdrr.io/r/base/NA.html), including SPSS user-missing
-codes, are excluded from special-value counts. Methods for serialized
-haven-labelled and integer64 columns are loaded before inspection;
-integer64 columns require the optional bit64 package.
+codes, are excluded from special-value counts. SPSS user-missing codes
+also count as missing in numeric summaries, grouping and
+cross-tabulation, without changing the input object. Methods for
+serialized haven-labelled and integer64 columns are loaded before
+inspection; integer64 columns require the optional bit64 package.
 
 ## Usage
 
@@ -131,6 +133,12 @@ left out of the frequency and grouped tables, with a message. Time spans
 (`difftime`) are summarized as numbers in their own units.
 Variable-summary rows are tinted by type: character, numeric or integer,
 and factor (including ordered) variables.
+
+Suggested numeric filters retain double precision, including truncated
+value lists. Labelled numeric columns are matched by their underlying
+numbers. Standard deviations in the console listing and default summary
+table use rescaling when intermediate calculations overflow or
+underflow.
 
 ## See also
 

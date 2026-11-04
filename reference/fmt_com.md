@@ -101,12 +101,14 @@ fmt_com(
   consecutive pairs resolved within each subset. When `ref.group` is
   supplied, it selects reference comparisons instead of automatic
   consecutive/all pairs; it cannot be combined with a custom
-  `com_method` list. Names and displayed ranks are accepted, and
-  `ref.group = "all"` compares each group against the pooled
-  observations. Dunn, Tukey and Games-Howell methods compute their full
-  comparison family before display filtering, retaining that family's
-  adjustment. Methods returning only adjusted P values use adjusted
-  significance stars.
+  `com_method` list. Names and displayed ranks are accepted. Numeric
+  ranks must select an observed group in at least one panel; empty or
+  out-of-range ranks are rejected before drawing. X-axis ranks are
+  panel-local with free x scales. `ref.group = "all"` compares each
+  group against the pooled observations. Dunn, Tukey and Games-Howell
+  methods compute their full comparison family before display filtering,
+  retaining that family's adjustment. Methods returning only adjusted P
+  values use adjusted significance stars.
 
 ## Value
 

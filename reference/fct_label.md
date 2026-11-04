@@ -56,6 +56,12 @@ This is the packaged form of the legacy FeatureAnalysis helper
 binary, group), see \[fct_cat()\]; for numeric binning see
 \[fct_num()\].
 
+For data frames, a bare `var` always refers to a column name, even when
+an object of the same name exists in the caller. Other expressions are
+evaluated in the caller and must return a single non-missing, non-empty
+character string without dimensions. The selected column name must occur
+exactly once in the data frame.
+
 ## See also
 
 \[fct_cat()\], \[fct_num()\], \[fct_to_combine()\]
