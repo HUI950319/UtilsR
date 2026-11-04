@@ -677,3 +677,27 @@ test_that("rank-correlation saved plots release unrelated input payloads", {
   restored <- readRDS(files[2])
   expect_s3_class(ggplot2::ggplot_build(restored), "ggplot_built")
 })
+
+test_that("raw correlations and scaling preserve small differences around an offset", {
+  for (base in c(1e16, 1e308, -1e308, 1e-300)) {
+    step <- 2^(floor(log2(abs(base))) - 52)
+    data <- data.frame(item = rep(letters[1:6], 2),
+                       method = rep(c("M1", "M2"), each = 6),
+                       score = c(base + (0:5) * step, 0:5))
+    before <- data
+    p <- quiet_rank_cor(data, use_rank = FALSE)
+    expect_equal(attr(p, "cor_results")$rho, 1, tolerance = 1e-14)
+    expect_equal(attr(p, "cor_results")$p.value, 0, tolerance = 1e-14)
+    for (scaling in c("minmax", "zscore")) {
+      expected <- if (scaling == "minmax") (0:5) / 5 else as.numeric(scale(0:5))
+      p <- quiet_rank_cor(data, use_rank = FALSE, scale_x = scaling, scale_y = scaling)
+      expect_equal(p$data$M1, expected, tolerance = 1e-14)
+      expect_equal(p$data$M2, expected, tolerance = 1e-14)
+      expect_equal(attr(p, "cor_results")$rho, 1, tolerance = 1e-14)
+      points <- ggplot2::ggplot_build(p)$data[[1L]]
+      expect_equal(points$x, expected, tolerance = 1e-14)
+      expect_equal(points$y, expected, tolerance = 1e-14)
+    }
+    expect_identical(data, before)
+  }
+})

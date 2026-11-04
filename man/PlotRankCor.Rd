@@ -72,7 +72,9 @@ the second to the y-axis.}
 Spearman correlation. If \code{FALSE}, plot raw values and compute
 Pearson correlation.
 Raw-value tests use finite pairs; fewer than three usable pairs or a
-constant vector yield missing correlation statistics.}
+constant vector yield missing correlation statistics.
+Finite pairs are centered before internal rescaling to limit overflow
+and roundoff when scores have a large common offset.}
 
 \item{scale_x}{Character. Scaling method for x-axis values (only when
 \code{use_rank = FALSE}). One of \code{"none"} (default), \code{"minmax"},

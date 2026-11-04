@@ -42,6 +42,8 @@
 #'   Pearson correlation.
 #'   Raw-value tests use finite pairs; fewer than three usable pairs or a
 #'   constant vector yield missing correlation statistics.
+#'   Finite pairs are centered before internal rescaling to limit overflow
+#'   and roundoff when scores have a large common offset.
 #' @param scale_x Character. Scaling method for x-axis values (only when
 #'   \code{use_rank = FALSE}). One of \code{"none"} (default), \code{"minmax"},
 #'   \code{"zscore"}, \code{"log1p"}, or \code{"rank"}. Applied per group.
@@ -346,12 +348,23 @@ PlotRankCor <- function(
   rownames(rank_wide) <- NULL
 
   # ---- Scale x/y values (only when use_rank = FALSE) ----
+  .center_scale_vec <- function(x) {
+    observed <- which(is.finite(x))
+    if (!length(observed)) return(x)
+    origin <- x[observed[1L]]
+    centered <- x - origin
+    if (any(!is.finite(centered[observed]))) {
+      magnitude <- max(abs(x[observed]))
+      centered <- x / magnitude - origin / magnitude
+    }
+    magnitude <- max(abs(centered[observed]))
+    if (magnitude > 0) centered <- centered / magnitude
+    centered
+  }
+
   .scale_vec <- function(x, method) {
     x[!is.finite(x)] <- NA_real_
-    if (method %in% c("minmax", "zscore") && any(!is.na(x))) {
-      magnitude <- max(abs(x), na.rm = TRUE)
-      if (magnitude > 0) x <- x / magnitude
-    }
+    if (method %in% c("minmax", "zscore")) x <- .center_scale_vec(x)
     switch(method,
       "none"   = x,
       "minmax" = {
@@ -410,8 +423,8 @@ PlotRankCor <- function(
     cor_method <- if (use_rank) "spearman" else "pearson"
     x <- x[ok]; y <- y[ok]
     if (!use_rank) {
-      x <- x / max(abs(x))
-      y <- y / max(abs(y))
+      x <- .center_scale_vec(x)
+      y <- .center_scale_vec(y)
     }
     ct <- stats::cor.test(x, y, method = cor_method, exact = FALSE)
     data.frame(group = g, rho = ct$estimate, p.value = ct$p.value,
