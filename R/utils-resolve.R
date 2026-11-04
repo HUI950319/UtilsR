@@ -106,7 +106,8 @@
 #'   not supported; convert these explicitly before choosing colours.
 #'   Numeric colour indices, including numeric strings, are resolved against
 #'   the current \code{grDevices::palette()} and returned as fixed RGBA hex
-#'   colours. Other literal strings and missing colours are kept as given.
+#'   colours. Indices must be finite and fit in an R integer after truncation.
+#'   Other literal strings and missing colours are kept as given.
 #'   Anything R cannot draw is an error naming the calling function.
 #' @param n Optional plain integer or double scalar with a whole-number value
 #'   from zero to \code{.Machine$integer.max}, without a class or dimensions.
@@ -181,25 +182,42 @@
   # Literal colour(s): checked here, as a bad one otherwise only surfaces when
   # the plot is drawn, as "Problem while converting geom to grob".
   out <- as.character(palette)
+  numeric_input <- is.numeric(palette)
+  draw_input <- if (numeric_input) unname(palette) else out
+  numeric_colour <- if (numeric_input) !is.na(palette) | is.nan(palette) else grepl("^[0-9]", out)
+  bad_index <- integer()
+  if (any(numeric_colour)) {
+    index <- if (numeric_input) draw_input[numeric_colour] else {
+      suppressWarnings(as.numeric(out[numeric_colour]))
+    }
+    safe <- is.finite(index) & index >= 0 & trunc(index) <= .Machine$integer.max
+    if (numeric_input) safe <- safe & index > 0
+    bad_index <- which(numeric_colour)[!safe]
+    # Keep bad tokens for diagnostics, but never pass them to the native cast.
+    if (length(bad_index)) draw_input[bad_index] <- NA
+  }
   drawable <- tryCatch({
-    grDevices::col2rgb(out)
+    grDevices::col2rgb(draw_input)
     rep(TRUE, length(out))
   }, error = function(e) {
     # Find every bad value only when parsing the whole vector fails.
-    candidates <- unique(out)
+    candidates <- unique(draw_input)
     valid <- vapply(candidates, function(v) {
       tryCatch({
         grDevices::col2rgb(v)
         TRUE
       }, error = function(e) FALSE)
     }, logical(1L), USE.NAMES = FALSE)
-    valid[match(out, candidates)]
+    valid[match(draw_input, candidates)]
   })
+  drawable[bad_index] <- FALSE
   if (!all(drawable)) {
     bad <- unique(out[!drawable])
     browse <- "Browse with {.code UtilsR::pal_list()} or visualise with {.code UtilsR::pal_show()}."
-    if (using_default || length(out) > 1L) {
-      cli::cli_abort(c("Not a valid colour in {.arg {color_arg}}: {.val {bad}}.", "*" = browse),
+    if (using_default || length(out) > 1L || length(bad_index)) {
+      cli::cli_abort(c("Not a valid colour in {.arg {color_arg}}: {.val {bad}}.",
+                       "i" = if (length(bad_index)) "A numeric colour index must be finite and in the supported integer range after truncation.",
+                       "*" = browse),
                      call = rlang::caller_env())
     }
     distance <- utils::adist(out, pl_names, ignore.case = TRUE)[1L, ]
@@ -210,9 +228,8 @@
       "*" = browse
     ), call = rlang::caller_env())
   }
-  numeric_colour <- grepl("^[[:space:]]*[+-]?([0-9]|\\.[0-9])", out)
   if (any(numeric_colour)) {
-    rgba <- grDevices::col2rgb(out[numeric_colour], alpha = TRUE)
+    rgba <- grDevices::col2rgb(draw_input[numeric_colour], alpha = TRUE)
     out[numeric_colour] <- grDevices::rgb(rgba[1L, ], rgba[2L, ], rgba[3L, ],
                                         rgba[4L, ], maxColorValue = 255)
   }

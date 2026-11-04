@@ -183,6 +183,24 @@ test_that(".resolve_color fixes numeric indices to the current base palette", {
   expect_identical(.resolve_color(2), "#ABCDEFFF")
 })
 
+test_that("numeric colours keep their precision and cannot overflow the native index", {
+  old_palette <- grDevices::palette()
+  withr::defer(grDevices::palette(old_palette))
+  grDevices::palette(c("black", "red", "blue", "green"))
+
+  expect_identical(.resolve_color(c(2 - .Machine$double.eps, 2.8, 0.5, NA_real_)),
+                   c("#000000FF", "#FF0000FF", "#FFFFFF00", NA_character_))
+  expect_identical(.resolve_color(c("0x2", "2e0", "2147483647")),
+                   c("#FF0000FF", "#FF0000FF", "#0000FFFF"))
+  for (value in list(2147483648, Inf, NaN, "2147483648", "1e309")) {
+    expect_error(.resolve_color(value), "numeric colour index")
+  }
+  err <- tryCatch(.resolve_color(c("1e309", "bad_colour_xyz")), error = identity)
+  expect_match(conditionMessage(err), "1e309")
+  expect_match(conditionMessage(err), "bad_colour_xyz")
+  expect_error(.resolve_color("2 "), "valid colour")
+})
+
 test_that("named plot colours are validated as literals before drawing", {
   d <- data.frame(g = factor(rep(c("A", "B"), each = 3)),
                   h = factor(rep(c("x", "y"), 3)), y = 1:6)
