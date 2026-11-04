@@ -326,6 +326,47 @@ test_that("plt_alluvial removes incomplete required rows", {
   expect_equal(sum(plot$data$count[!plot$data$.is_gap]), 7)
 })
 
+test_that("plt_alluvial rejects matrix columns before counting rows", {
+  skip_if_not_installed("ggalluvial")
+
+  for (as_input in list(identity, tibble::as_tibble)) {
+    for (column in c("category", "group", "panel")) {
+      data <- alluvial_data()
+      data[[column]] <- I(matrix(rep(c("A", "B"), 8), nrow = 8))
+      result <- tryCatch(
+        plt_alluvial(as_input(data), "category", "group", facet = "panel"),
+        error = identity
+      )
+      expect_s3_class(result, "rlang_error")
+      if (inherits(result, "error")) {
+        expect_match(conditionMessage(result), "one-dimensional column")
+      }
+    }
+  }
+})
+
+test_that("plt_alluvial rejects other dimensional columns", {
+  skip_if_not_installed("ggalluvial")
+
+  values <- list(
+    matrix("A", nrow = 8, ncol = 1),
+    matrix(character(), nrow = 8, ncol = 0),
+    array("A", dim = c(8, 1, 2)),
+    data.frame(value = rep("A", 8))
+  )
+  for (value in values) {
+    data <- alluvial_data()
+    data$category <- value
+    result <- tryCatch(
+      plt_alluvial(data, "category", "group"), error = identity
+    )
+    expect_s3_class(result, "rlang_error")
+    if (inherits(result, "error")) {
+      expect_match(conditionMessage(result), "one-dimensional column")
+    }
+  }
+})
+
 test_that("plt_alluvial matches named colours to observed groups", {
   skip_if_not_installed("ggalluvial")
 

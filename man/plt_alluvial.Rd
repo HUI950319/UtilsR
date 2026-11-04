@@ -23,7 +23,8 @@ plt_alluvial(
 )
 }
 \arguments{
-\item{data}{A data frame.}
+\item{data}{A data frame. Selected columns must be one-dimensional; matrix,
+array, and data-frame columns are not supported.}
 
 \item{cat_var}{A single column name defining the horizontal categories.}
 

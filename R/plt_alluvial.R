@@ -8,7 +8,8 @@
 #' of `cat_var`. Transparent strata create visible gaps between groups, and an
 #' optional facet is normalized independently.
 #'
-#' @param data A data frame.
+#' @param data A data frame. Selected columns must be one-dimensional; matrix,
+#'   array, and data-frame columns are not supported.
 #' @param cat_var A single column name defining the horizontal categories.
 #' @param group A single column name defining strata, flows, and fill colours.
 #' @param facet An optional single column name used with
@@ -195,6 +196,9 @@ plt_alluvial <- function(
       cli::cli_abort(
         "Column {.val {value}} supplied to {.arg {arg}} was not found."
       )
+    }
+    if (!is.null(dim(data[[value]]))) {
+      cli::cli_abort("{.arg {arg}} must select a one-dimensional column.")
     }
   }
 
