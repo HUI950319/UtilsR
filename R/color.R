@@ -648,12 +648,20 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   }
 }
 
+# Preserve class-specific missing values before computing numeric positions.
+#' @keywords internal
+#' @noRd
+.pal_numeric_values <- function(x) {
+  values <- as.numeric(x)
+  values[is.na(x)] <- NA_real_
+  values
+}
+
 # Prepare the finite positions and optional lookup once for every palette.
 #' @keywords internal
 #' @noRd
 .pal_numeric_positions <- function(x, reverse) {
-  values <- as.numeric(x)
-  values[is.na(x)] <- NA_real_
+  values <- .pal_numeric_values(x)
   placed <- is.finite(values)
   values <- values[placed]
   if (!length(values)) {
@@ -699,9 +707,19 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #' @noRd
 .pal_apply <- function(cols, n = NULL, x = NULL, reverse = FALSE, alpha = 1) {
   if (!is.null(x) && is.numeric(x)) {
+    if (length(cols) == 1L) {
+      placed <- is.finite(.pal_numeric_values(x))
+      at <- if (any(placed)) 0 else numeric()
+      return(.pal_apply_positions(cols, list(placed = placed, at = at, index = NULL), alpha))
+    }
     return(.pal_apply_positions(cols, .pal_numeric_positions(x, reverse), alpha))
   }
-  ramp <- function(k) .pal_ramp(cols, seq.int(0, 1, length.out = k), alpha)
+  ramp <- function(k) {
+    if (length(cols) == 1L) {
+      return(rep.int(.pal_ramp(cols, 0, alpha, size = k), k))
+    }
+    .pal_ramp(cols, seq.int(0, 1, length.out = k), alpha)
+  }
 
   # --- Map to x (discrete) ---
   if (!is.null(x)) {

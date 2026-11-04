@@ -547,6 +547,7 @@ test_that("pal_get handles stored labelled and integer64 inputs in a fresh proce
   fn <- pal_get
   apply <- .pal_apply
   ramp <- .pal_ramp
+  numeric_values <- .pal_numeric_values
   positions <- .pal_numeric_positions
   apply_positions <- .pal_apply_positions
   use_unique <- .pal_use_unique
@@ -554,11 +555,13 @@ test_that("pal_get handles stored labelled and integer64 inputs in a fresh proce
   environment(fn) <- env
   environment(apply) <- env
   environment(ramp) <- env
+  environment(numeric_values) <- env
   environment(positions) <- env
   environment(apply_positions) <- env
   environment(use_unique) <- env
   env$.pal_apply <- apply
   env$.pal_ramp <- ramp
+  env$.pal_numeric_values <- numeric_values
   env$.pal_numeric_positions <- positions
   env$.pal_apply_positions <- apply_positions
   env$.pal_use_unique <- use_unique
@@ -980,6 +983,18 @@ test_that("pal_get rejects digit-leading tokens before native colour decoding", 
   expect_error(pal_get(I(c("red", overflow))), "Not a colour")
   expect_identical(pal_get(c("red", "NA")), c("red", "NA"))
   expect_length(seen, 0L)
+})
+
+test_that("pal_get keeps labelled and non-finite gaps in one-colour maps", {
+  skip_if_not_installed("haven")
+  x <- haven::labelled_spss(c(1, 2, 9, NA_real_, Inf), na_values = 9)
+  expected <- c("#FF000080", "#FF000080", NA, NA, NA)
+  expect_identical(pal_get("#FF000080", x = x), expected)
+  expect_identical(pal_get("#FF000080", x = x, reverse = TRUE, alpha = 0.9999),
+                   ggplot2::alpha(expected, 0.9999))
+  expect_identical(pal_get("#FF000080", x = x[c(3L, 4L, 5L)]),
+                   rep(NA_character_, 3L))
+  expect_identical(pal_get("#FF000080", x = x[FALSE]), character())
 })
 
 test_that("pal_get keeps medium-cardinality numeric mappings in observation order", {

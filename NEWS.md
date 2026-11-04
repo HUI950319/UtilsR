@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Skip position sequences and numeric normalisation for single-colour output while preserving missing positions and HEX formatting.
+
 * Reject digit-leading palette strings before calling the native colour parser, and document literal colour inputs.
 
 * Preserve user-supplied text elements in scatter and alluvial plot themes, including ggtext elements, while retaining the plot layout controls.
