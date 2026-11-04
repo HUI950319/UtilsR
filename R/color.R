@@ -999,6 +999,12 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #'   a colour vector in several rows. Use \code{pattern} or \code{index} to
 #'   limit how many palettes appear in a catalogue plot.
 #'
+#'   Explicit palette names take precedence over \code{pattern} and
+#'   \code{type}. These filters apply when browsing with \code{palette = NULL}.
+#'   In colour vector mode, \code{pattern}, \code{type} and \code{index} do
+#'   not select colours. Subset the colour vector before calling the function
+#'   to select individual colours.
+#'
 #' @param palette Character vector of palette names (e.g. \code{"lancet"}),
 #'   a colour vector (hex codes or named colours), or \code{NULL} to show
 #'   all palettes matching \code{pattern}/\code{type}. Named colour vectors
@@ -1012,14 +1018,15 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #'   vectors take colours from the front and interpolate when more are requested
 #'   than are available. \code{max_colors} caps how many are drawn.
 #'   Default \code{NULL} uses the native colour count before the display cap.
-#' @param pattern Single non-missing regex string to filter palette names
+#' @param pattern Single non-missing regex string to filter catalogue names
 #'   (e.g. \code{"^nord"}). Default \code{NULL} does not filter by name.
-#' @param type Filter by type: \code{"all"}, \code{"discrete"}, or
+#' @param type Catalogue type filter: \code{"all"}, \code{"discrete"}, or
 #'   \code{"continuous"}.
 #' @param max_colors Positive whole number limiting displayed colours per palette,
 #'   or \code{Inf} for no display cap. Default 20.
-#' @param index Non-empty vector of unique positive whole-number indices after
-#'   filtering. Out-of-range values are ignored; an empty selection is an error.
+#' @param index Non-empty vector of unique positive whole-number catalogue
+#'   indices after name selection or filtering. Out-of-range indices are
+#'   ignored. An empty catalogue selection is an error.
 #' @param output Output format: \code{"gt"} (default) for a gt table,
 #'   \code{"gg"} for a ggplot, or \code{"console"} for terminal output.
 #'   gt colour swatches use HTML. LaTeX, Word, RTF and other non-HTML
