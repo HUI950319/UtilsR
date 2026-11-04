@@ -59,6 +59,7 @@
 #'   to the plot. Default \code{NULL} (all points use fixed \code{pt.size}).
 #'   A warning reports mapped columns with no finite category/group means;
 #'   the missing mapping is retained.
+#'   Summaries are computed without changing the category/group keys.
 #' @param size_range Numeric vector of length 2. Range of point sizes when
 #'   \code{size_by} is specified. Default \code{c(1, 6)}.
 #' @param alpha_by Character or \code{NULL}. Column name for a numeric
@@ -309,12 +310,12 @@ PlotRankCor <- function(
 
   if (length(extra_cols) > 0) {
     agg_groups <- vctrs::vec_group_loc(rank_long[unique(c(stat.by, group.by_internal))])
-    agg_df <- agg_groups$key
+    agg_values <- list()
     for (ec in extra_cols) {
       values <- rank_long[[ec]]
-      agg_df[[ec]] <- vapply(agg_groups$loc, function(idx) mean(values[idx], na.rm = TRUE), numeric(1))
+      agg_values[[ec]] <- vapply(agg_groups$loc, function(idx) mean(values[idx], na.rm = TRUE), numeric(1))
     }
-    empty_aesthetics <- extra_cols[vapply(agg_df[extra_cols], function(x) !any(is.finite(x)), logical(1))]
+    empty_aesthetics <- extra_cols[vapply(agg_values, function(x) !any(is.finite(x)), logical(1))]
     if (length(empty_aesthetics))
       cli::cli_warn("Mapped columns {.val {empty_aesthetics}} have no finite category/group means; points may be omitted or invisible.")
   }
@@ -344,8 +345,8 @@ PlotRankCor <- function(
 
   # Merge extra columns back into rank_wide
   if (length(extra_cols) > 0) {
-    rows <- vctrs::vec_match(rank_wide[id_cols], agg_df[id_cols])
-    for (ec in extra_cols) rank_wide[[ec]] <- agg_df[[ec]][rows]
+    rows <- vctrs::vec_match(rank_wide[id_cols], agg_groups$key[id_cols])
+    for (ec in setdiff(extra_cols, id_cols)) rank_wide[[ec]] <- agg_values[[ec]][rows]
     rank_wide <- rank_wide[do.call(order, unname(lapply(rank_wide[id_cols], as.character))), , drop = FALSE]
   }
   rownames(rank_wide) <- NULL

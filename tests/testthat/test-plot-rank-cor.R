@@ -725,3 +725,29 @@ test_that("empty method labels keep valid plot columns and exact pairings", {
     }
   }
 })
+
+test_that("aesthetic summaries preserve missing category keys and other mapped values", {
+  data <- data.frame(item = rep(c(1, 2, NA_real_, NaN), 2),
+                     method = rep(c("M1", "M2"), each = 4),
+                     score = c(4, 3, 2, 1, 4, 2, 3, 1),
+                     weight = rep(c(2, 4, 6, 8), 2))
+  before <- data
+  keys <- data[1:4, c("item", "weight")]
+  for (ranked in c(TRUE, FALSE)) {
+    reference <- quiet_rank_cor(data, use_rank = ranked)
+    for (mapping in list(list(size_by = "item", alpha_by = "weight"),
+                         list(size_by = "weight", alpha_by = "item"))) {
+      p <- do.call(quiet_rank_cor, c(list(data = data, use_rank = ranked), mapping))
+      rows <- vctrs::vec_match(p$data["item"], keys["item"])
+      expect_identical(sort(rows), 1:4)
+      expect_identical(p$data$item, reference$data$item)
+      expect_equal(p$data$weight, keys$weight[rows])
+      expect_equal(p$data[c("M1", "M2")], reference$data[c("M1", "M2")])
+      expect_equal(attr(p, "cor_results"), attr(reference, "cor_results"))
+      points <- ggplot2::ggplot_build(p)$data[[1L]]
+      aesthetic <- if (mapping$size_by == "weight") "size" else "alpha"
+      expect_equal(sum(is.finite(points[[aesthetic]])), 4L)
+      expect_identical(data, before)
+    }
+  }
+})
