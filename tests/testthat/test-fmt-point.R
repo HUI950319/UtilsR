@@ -535,6 +535,27 @@ test_that("sampling preserves joint aesthetic and existing facet strata", {
   expect_equal(nrow(ggplot2::ggplot_build(out)$data[[1]]), 6L)
 })
 
+test_that("joint sampling retains lexical group order and matrix columns", {
+  d <- expand.grid(g = letters[1:12], h = c("u", "v"), replicate = 1:3)
+  d$g <- factor(d$g, levels = c("unused", letters[1:12], "last"))
+  d$x <- seq_len(nrow(d))
+  d$y <- rev(d$x)
+  d$matrix <- I(matrix(seq_len(nrow(d) * 2), ncol = 2,
+    dimnames = list(paste0("r", d$x), c("one", "two"))))
+  expected <- c(9L, 21L, 10L, 22L, 35L, 47L, 36L, 24L, 49L, 61L, 2L, 14L,
+                27L, 39L, 28L, 64L, 53L, 17L, 6L, 66L, 7L, 67L, 8L, 20L)
+  for (input in list(d, tibble::as_tibble(d))) {
+    p <- ggplot2::ggplot(input, ggplot2::aes(x, y, colour = g, fill = h))
+    sampled <- fmt_point(p, sample_n = 1)$layers[[1L]]$data
+    expect_identical(sampled$x, expected)
+    expect_identical(levels(sampled$g), levels(input$g))
+    expect_identical(class(sampled), class(input))
+    expect_equal(as.vector(sampled$matrix),
+                 as.vector(input$matrix[expected, , drop = FALSE]))
+    expect_identical(p$data, input)
+  }
+})
+
 test_that("sampling keeps exact numeric facet values in joint strata", {
   values <- c(1, 1 + 1e-15, 1 + 2e-15)
   d <- expand.grid(g = c("a", "b"), panel = values, replicate = 1:4)

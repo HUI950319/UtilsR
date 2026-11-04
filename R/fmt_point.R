@@ -473,10 +473,19 @@ fmt_point <- function(plot,
       }
       addNA(as.factor(x), ifany = TRUE)
     })
-    groups <- if (length(strata) == 1L) strata[[1L]] else
-      factor(do.call(paste, c(lapply(strata, as.integer), sep = ":")))
-    groups <- droplevels(groups, exclude = NULL)
-    rows <- lapply(split(seq_len(nrow(data)), groups), function(indices) {
+    if (length(strata) == 1L) {
+      groups <- droplevels(strata[[1L]], exclude = NULL)
+      rows <- split(seq_len(nrow(data)), groups)
+    } else {
+      codes <- lapply(strata, as.integer)
+      names(codes) <- paste0("s", seq_along(codes))
+      groups <- vctrs::vec_group_loc(vctrs::new_data_frame(codes))
+      # Format only distinct keys, retaining legacy lexical group order.
+      keys <- do.call(paste, c(unname(groups$key), sep = ":"))
+      index <- order(keys)
+      rows <- stats::setNames(groups$loc[index], keys[index])
+    }
+    rows <- lapply(rows, function(indices) {
       if (length(indices) <= sample_n) indices else
         indices[sample.int(length(indices), sample_n)]
     })
