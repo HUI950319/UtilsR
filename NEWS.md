@@ -1,5 +1,7 @@
 # UtilsR 0.6.22
 
+* Use a repetition probe to avoid revalidating the same colour in long, highly repetitive input vectors.
+
 * Reject dimensional named colours before subsetting and match observed empty categories exactly in distribution and alluvial plots.
 
 * PlotDumbbell() and PlotScatter3() validate themes with the shared resolver. Automatic dumbbell insets reuse the main theme unless a separate theme is supplied.

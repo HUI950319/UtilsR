@@ -197,7 +197,12 @@
     if (length(bad_index)) draw_input[bad_index] <- NA
   }
   drawable <- tryCatch({
-    grDevices::col2rgb(draw_input)
+    check <- if (length(draw_input) > 1024L && .pal_use_unique(draw_input)) {
+      unique(draw_input)
+    } else {
+      draw_input
+    }
+    grDevices::col2rgb(check)
     rep(TRUE, length(out))
   }, error = function(e) {
     # Find every bad value only when parsing the whole vector fails.
