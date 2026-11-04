@@ -102,6 +102,18 @@ test_that("extreme exponents preserve valid tiny values and exact endpoints", {
   }
 })
 
+test_that("numeric parser overflow cannot hide invalid P-value text", {
+  zeros <- strrep("0", 5000)
+  above <- paste0("1", zeros, "1e-5001")
+  negative <- paste0("-1", zeros, "e-9999999999")
+  for (x in c(above, negative, paste0("<=", above), paste0("\u2265", negative))) {
+    for (mode in c("stars", "pvalue")) {
+      expect_error(stat_pval(x, mode = mode), "between 0 and 1")
+    }
+  }
+  expect_error(stat_pval(paste0(">1", zeros, "e-5000")), "possible P-value")
+})
+
 test_that("special numeric storage cannot be mistaken for P-values", {
   values <- list(as.difftime(.01, units = "secs"), as.Date("1970-01-01"),
                  as.POSIXct("1970-01-01", tz = "UTC"))

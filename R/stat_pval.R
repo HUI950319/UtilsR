@@ -164,9 +164,9 @@ stat_pval <- function(x,
 
   if (mode != "plain") .validate_p(x_num, "x")
   if (mode != "plain" && is.character(x)) {
-    edge <- which(x_num %in% c(0, 1))
+    edge <- which(!is.na(values) & (is.na(x_num) | x_num %in% c(0, 1)))
     if (length(edge)) {
-      # Inspect the decimal text where double rounding can hide invalid values.
+      # Inspect decimal text where rounding or parser overflow can hide values.
       endpoint <- values[edge]
       mantissa <- sub("[eE].*$", "", endpoint)
       exponent <- as.numeric(ifelse(grepl("[eE]", endpoint),
