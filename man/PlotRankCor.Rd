@@ -54,8 +54,12 @@ while raw scores and mapped aesthetics must be within +/-2^53.}
 \item{group.by}{Character. Column name for the grouping / faceting
 variable (e.g. comparison). Each level gets its own facet panel.
 If \code{NULL}, all data is treated as a single group (no faceting).
-Missing groups are retained as \code{"<NA>"}; a suffix distinguishes this
-label from existing group names.}
+Groups are identified by their original values before conversion to
+discrete text labels, so close numeric values remain separate. Suffixes
+distinguish groups with identical text labels while preserving existing
+labels. Non-missing factors retain their level order. Missing groups use
+\code{"<NA>"}, with suffixes as needed to avoid existing labels. These
+labels also identify rows in \code{cor_results} and named palette entries.}
 
 \item{method.by}{Character. Column name identifying the two methods.
 Must have exactly 2 observed, non-missing levels. Factor levels determine

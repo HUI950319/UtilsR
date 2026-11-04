@@ -10,6 +10,153 @@ quiet_rank_cor <- function(data, ...) {
   p
 }
 
+rank_cor_group_data <- function(groups = c(1, 2)) {
+  data <- expand.grid(item = letters[1:4], group = groups, method = c("M1", "M2"))
+  data$score <- c(40, 30, 20, 10, 1, 2, 3, 4, 4, 3, 2, 1, 8, 6, 4, 2)
+  data
+}
+
+test_that("rank-correlation renders numeric and logical groups as discrete colours", {
+  for (groups in list(c(1, 2), c(10L, 20L), c(FALSE, TRUE))) {
+    data <- rank_cor_group_data(groups)
+    before <- data
+    palette <- stats::setNames(c("red", "blue"), as.character(groups))
+    p <- quiet_rank_cor(data, group.by = "group", palette = palette)
+    built <- ggplot2::ggplot_build(p)
+    expect_equal(nrow(built$layout$layout), 2L)
+    expect_identical(built$data[[1L]]$colour, unname(palette[as.character(p$data$group)]))
+    results <- attr(p, "cor_results")
+    expect_equal(results$rho[match(as.character(groups), results$group)], c(1, -1))
+    expect_identical(data, before)
+  }
+})
+
+test_that("rank-correlation keeps close numeric groups separate for statistics and scaling", {
+  groups <- c(1, 1 + .Machine$double.eps)
+  data <- rank_cor_group_data(groups)
+  expect_identical(as.character(groups), c("1", "1"))
+  labels <- c("1", "1.1")
+  for (ranked in c(TRUE, FALSE)) {
+    p <- quiet_rank_cor(data, group.by = "group", use_rank = ranked,
+                        scale_x = "minmax", scale_y = "zscore")
+    results <- attr(p, "cor_results")
+    expect_equal(nrow(results), 2L)
+    expect_equal(results$rho[match(labels, results$group)], c(1, -1))
+    expect_equal(results$p.value[match(labels, results$group)], c(0, 0))
+    for (i in seq_along(groups)) {
+      observed <- p$data[as.character(p$data$group) == labels[i], ]
+      observed <- observed[match(letters[1:4], observed$item), ]
+      x <- data$score[data$group == groups[i] & data$method == "M1"]
+      y <- data$score[data$group == groups[i] & data$method == "M2"]
+      expected_x <- if (ranked) rank(-x) else (x - min(x)) / diff(range(x))
+      expected_y <- if (ranked) rank(-y) else as.numeric(scale(y))
+      expect_equal(observed$M1, expected_x)
+      expect_equal(observed$M2, expected_y)
+    }
+  }
+})
+
+test_that("rank-correlation group suffixes preserve existing labels and palette keys", {
+  data <- rank_cor_group_data(c(1, 1 + .Machine$double.eps))
+  extra <- data[data$group == 1, ]
+  extra$group <- 1.1
+  data <- rbind(data, extra)
+  palette <- c("1" = "red", "1.1" = "green", "1.2" = "blue")
+  p <- quiet_rank_cor(data, group.by = "group", palette = palette)
+  results <- attr(p, "cor_results")
+  expect_equal(results$rho[match(c("1", "1.2", "1.1"), results$group)], c(1, -1, 1))
+  expect_equal(table(p$data$group), table(rep(names(palette), each = 4L)))
+  built <- ggplot2::ggplot_build(p)
+  expect_equal(nrow(built$layout$layout), 3L)
+  expect_identical(built$data[[1L]]$colour, unname(palette[p$data$group]))
+
+  data <- expand.grid(item = letters[1:4], group = c(NA, "<NA>", "<NA>.1", "<NA>.2"),
+                      method = c("M1", "M2"), stringsAsFactors = FALSE)
+  data$score <- rep(4:1, 8)
+  palette <- c("<NA>" = "red", "<NA>.1" = "blue", "<NA>.2" = "green", "<NA>.3" = "purple")
+  p <- quiet_rank_cor(data, group.by = "group", palette = palette)
+  expect_identical(sort(unique(p$data$group)), sort(names(palette)))
+  expect_equal(attr(p, "cor_results")$rho, rep(1, 4))
+  expect_identical(ggplot2::ggplot_build(p)$data[[1L]]$colour, unname(palette[p$data$group]))
+})
+
+test_that("rank-correlation shared grouping columns retain numeric values and labels", {
+  groups <- c(1, 1 + .Machine$double.eps)
+  data <- rank_cor_group_data(groups)
+  before <- data
+  palette <- c("1" = "red", "1.1" = "blue")
+  p <- quiet_rank_cor(data, group.by = "group", size_by = "group", alpha_by = "group",
+                      palette = palette)
+  expect_identical(sort(p$data$group), rep(groups, each = 4L))
+  results <- attr(p, "cor_results")
+  expect_equal(results$rho[match(names(palette), results$group)], c(1, -1))
+  built <- ggplot2::ggplot_build(p)
+  expect_equal(nrow(built$layout$layout), 2L)
+  expect_equal(sort(unique(built$data[[1L]]$colour)), sort(unname(palette)))
+  expect_equal(sum(is.finite(built$data[[1L]]$size)), 8L)
+  expect_equal(sum(is.finite(built$data[[1L]]$alpha)), 8L)
+  expect_identical(data, before)
+
+  data$item <- data$group
+  data$method <- as.character(data$method)
+  data$method[data$method == "M1"] <- "item.1"
+  before <- data
+  invisible(capture.output(p <- PlotRankCor(data, "item", "score", "item", "method",
+                                           palette = palette)))
+  expect_identical(p$data$item, groups)
+  expect_equal(nrow(attr(p, "cor_results")), 2L)
+  built <- ggplot2::ggplot_build(p)
+  expect_equal(nrow(built$layout$layout), 2L)
+  expect_identical(built$data[[3L]]$label, groups)
+  expect_identical(data, before)
+})
+
+test_that("rank-correlation group classes keep exact identities and factor order", {
+  group_types <- list(as.Date(c("2026-01-01", "2026-01-02")),
+                      as.POSIXct("2026-01-01", tz = "UTC") + c(0, 0.25),
+                      as.difftime(c(1, 2), units = "days"),
+                      ordered(c("z", "a"), levels = c("a", "z", "unused")))
+  for (groups in group_types) {
+    data <- rank_cor_group_data()
+    data$group <- groups[match(data$group, c(1, 2))]
+    before <- data
+    labels <- make.unique(as.character(groups))
+    p <- quiet_rank_cor(data, group.by = "group")
+    results <- attr(p, "cor_results")
+    expect_equal(results$rho[match(labels, results$group)], c(1, -1))
+    built <- ggplot2::ggplot_build(p)
+    expect_equal(nrow(built$layout$layout), 2L)
+    if (is.factor(groups)) {
+      expect_identical(levels(p$data$group), levels(groups))
+      expect_s3_class(p$data$group, "ordered")
+      expect_identical(as.character(built$layout$layout$group), c("a", "z"))
+    } else {
+      expect_identical(sort(unique(p$data$group)), sort(labels))
+    }
+    expect_identical(data, before)
+  }
+
+  data <- rank_cor_group_data()
+  data$group <- c(NA_real_, NaN)[match(data$group, c(1, 2))]
+  p <- quiet_rank_cor(data, group.by = "group")
+  results <- attr(p, "cor_results")
+  expect_identical(sort(results$group), c("<NA>", "<NA>.1"))
+  expect_equal(results$rho[match(c("<NA>", "<NA>.1"), results$group)], c(1, -1))
+  expect_equal(nrow(ggplot2::ggplot_build(p)$layout$layout), 2L)
+})
+
+test_that("rank-correlation integer64 groups retain their exact labels", {
+  skip_if_not_installed("bit64")
+  groups <- bit64::as.integer64(c("9007199254740992", "9007199254740993"))
+  data <- rank_cor_group_data()
+  data$group <- groups[match(data$group, c(1, 2))]
+  p <- quiet_rank_cor(data, group.by = "group")
+  results <- attr(p, "cor_results")
+  expect_equal(results$rho[match(as.character(groups), results$group)], c(1, -1))
+  expect_identical(sort(unique(p$data$group)), as.character(groups))
+  expect_equal(nrow(ggplot2::ggplot_build(p)$layout$layout), 2L)
+})
+
 test_that("missing scores do not acquire ranks or enter correlations", {
   dat <- rank_cor_data()
   p <- quiet_rank_cor(dat)

@@ -25,8 +25,12 @@
 #' @param group.by Character. Column name for the grouping / faceting
 #'   variable (e.g. comparison). Each level gets its own facet panel.
 #'   If \code{NULL}, all data is treated as a single group (no faceting).
-#'   Missing groups are retained as \code{"<NA>"}; a suffix distinguishes this
-#'   label from existing group names.
+#'   Groups are identified by their original values before conversion to
+#'   discrete text labels, so close numeric values remain separate. Suffixes
+#'   distinguish groups with identical text labels while preserving existing
+#'   labels. Non-missing factors retain their level order. Missing groups use
+#'   \code{"<NA>"}, with suffixes as needed to avoid existing labels. These
+#'   labels also identify rows in \code{cor_results} and named palette entries.
 #' @param method.by Character. Column name identifying the two methods.
 #'   Must have exactly 2 observed, non-missing levels. Factor levels determine
 #'   their order; other vectors use first appearance. The first maps to the
@@ -259,11 +263,15 @@ PlotRankCor <- function(
     group.by_internal <- group.by
     group_values <- data[[group.by]]
     group_id <- vctrs::vec_group_id(group_values)
-    group_labels <- as.character(group_values[!duplicated(group_id)])
-    missing_group <- is.na(group_labels)
-    if (any(missing_group)) {
-      group_labels[missing_group] <- tail(make.unique(c(
-        group_labels[!missing_group], rep("<NA>", sum(missing_group)))), sum(missing_group))
+    group_keys <- group_values[!duplicated(group_id)]
+    group_labels <- as.character(group_keys)
+    missing_group <- is.na(group_keys) | is.na(group_labels)
+    group_labels[missing_group] <- "<NA>"
+    # Resolve labels only after identifying exact groups. Reserve existing
+    # labels before generating suffixes for missing groups.
+    label_order <- order(missing_group)
+    group_labels[label_order] <- make.unique(group_labels[label_order])
+    if (!is.factor(group_values) || any(missing_group)) {
       if (group.by %in% c(stat.by, value.by, method.by, size_by, alpha_by))
         group.by_internal <- tail(make.unique(c(names(data), group.by)), 1L)
       data[[group.by_internal]] <- group_labels[group_id]
