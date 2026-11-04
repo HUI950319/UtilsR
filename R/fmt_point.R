@@ -60,6 +60,8 @@
 #'   even when their printed labels coincide.
 #'   Sampling requires scalar fixed aesthetics; put
 #'   external row vectors into \code{data} and map its columns instead.
+#'   Configuration vectors in base \code{factor()}, \code{ordered()}, and
+#'   \code{cut()} calls are allowed.
 #'   Default \code{NULL} (no sampling).
 #' @param seed Random seed for reproducible sampling. Default 42. Sampling
 #'   preserves the caller's random-number state.
@@ -415,9 +417,10 @@ fmt_point <- function(plot,
       }
       if (is.null(value)) {
         args <- as.list(expr)[-1L]
-        if (isTRUE(rlang::call_name(expr) %in% c("factor", "ordered"))) {
+        if (isTRUE(rlang::call_name(expr) %in% c("factor", "ordered", "cut"))) {
           fun <- eval(expr[[1L]], env)
-          if (identical(fun, base::factor) || identical(fun, base::ordered))
+          if (identical(fun, base::factor) || identical(fun, base::ordered) ||
+              identical(fun, base::cut))
             args <- as.list(match.call(fun, expr))["x"]
         }
         return(any(vapply(args, external_vector, logical(1), env = env)))

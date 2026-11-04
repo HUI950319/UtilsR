@@ -606,6 +606,40 @@ test_that("factor configuration vectors do not count as external rows", {
   expect_error(fmt_point(p, sample_n = 2), "Sampling.*external")
 })
 
+test_that("cut configuration vectors do not count as external rows", {
+  d <- data.frame(x = 1:6, y = 6:1)
+  breaks <- c(0, 2, 4, 6, 8, 10)
+  labels <- letters[1:6]
+  mappings <- list(
+    ggplot2::aes(x, y, colour = cut(y, breaks = breaks)),
+    ggplot2::aes(x, y, colour = base::cut(y, .env$breaks)),
+    ggplot2::aes(x, y, colour = cut(y, 0:6, labels = .env$labels)))
+  for (i in seq_along(mappings)) for (data in list(NULL, ~ .x, identity)) {
+    p <- ggplot2::ggplot(d, mappings[[i]])
+    out <- fmt_point(p, sample_n = 1, data = data, dodge.width = 0)
+    built <- ggplot2::ggplot_build(out)$data[[1L]]
+    expect_equal(nrow(built), c(3L, 3L, 6L)[[i]])
+    expect_equal(as.integer(table(built$colour)), rep(1L, nrow(built)))
+  }
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) +
+    ggplot2::facet_wrap(ggplot2::vars(cut(y, breaks = .env$breaks)))
+  out <- fmt_point(p, sample_n = 1)
+  expect_equal(as.integer(table(ggplot2::ggplot_build(out)$data[[1L]]$PANEL)),
+               c(1L, 1L, 1L))
+})
+
+test_that("cut configuration handling still rejects external row inputs", {
+  d <- data.frame(x = 1:6, y = 6:1)
+  external <- d$y
+  breaks <- c(0, 2, 4, 6, 8, 10)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y,
+    colour = base::cut(.env$external, breaks = breaks)))
+  expect_error(fmt_point(p, sample_n = 1), "Sampling.*external")
+  cut <- function(x, breaks) ifelse(x > breaks, "high", "low")
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, colour = cut(y, breaks)))
+  expect_error(fmt_point(p, sample_n = 1), "Sampling.*external")
+})
+
 test_that("sampling accepts anonymous and dynamically selected functions", {
   d <- data.frame(x = 1:12, y = 12:1, g = rep(c("a", "b"), 6))
   transform <- factor

@@ -69,6 +69,8 @@ define sampling groups. Numeric group and facet values remain distinct
 even when their printed labels coincide.
 Sampling requires scalar fixed aesthetics; put
 external row vectors into \code{data} and map its columns instead.
+Configuration vectors in base \code{factor()}, \code{ordered()}, and
+\code{cut()} calls are allowed.
 Default \code{NULL} (no sampling).}
 
 \item{seed}{Random seed for reproducible sampling. Default 42. Sampling
