@@ -224,9 +224,6 @@ PlotScatter1 <- function(
     ggplot2::scale_shape_manual(values = shapes) +
     ggplot2::labs(x = xlab, y = ylab, title = title, colour = group, shape = group)
 
-  # Apply user theme
-  if (!is.null(theme_use)) p_main <- p_main + .resolve_theme(theme_use)
-
   # Panel and legend theme
   panel_theme <- list(
     panel.background = ggplot2::element_rect(fill = "white", colour = "black"),
@@ -237,10 +234,11 @@ PlotScatter1 <- function(
     legend.title = ggplot2::element_blank(),
     legend.text = ggplot2::element_text(size = 12),
     legend.key = ggplot2::element_blank(),
-    legend.position = legend_pos,
     legend.background = ggplot2::element_rect(colour = "grey70", linewidth = 0.3)
   )
   p_main <- p_main + do.call(ggplot2::theme, panel_theme)
+  if (!is.null(theme_use)) p_main <- p_main + .resolve_theme(theme_use)
+  p_main <- p_main + ggplot2::theme(legend.position = legend_pos)
 
   # Custom legend theme
   if (!is.null(legend_theme) && inherits(legend_theme, "theme")) {

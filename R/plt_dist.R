@@ -439,7 +439,8 @@ plt_dist <- function(data,
       legend_args = list(ncol = legend_args$ncol,
                          position = legend_args$position %||% "right"),
       fmt_text = fmt_text,
-      theme_use = theme_alluvia(base_size),
+      theme_use = theme_alluvia(base_size) +
+        ggplot2::theme(axis.text = ggplot2::element_text(colour = "black")),
       save = save
     ))
   }

@@ -742,3 +742,17 @@ test_that("plt_alluvial and plt_dist save at the page their content is laid out 
   ))
   expect_saved_at_plot_size(out, p)
 })
+
+test_that("plt_alluvial preserves the supplied axis element and keeps default styling", {
+  skip_if_not_installed("ggtext")
+  skip_if_not_installed("ggalluvial")
+  data <- data.frame(x = rep(c("A", "B"), 4), y = rep(c("C", "D"), each = 4))
+  thm <- ggplot2::theme(axis.text = ggtext::element_markdown(size = 16, colour = "red"))
+  p <- suppressMessages(plt_alluvial(data, "x", "y", theme_use = thm))
+  expect_s3_class(ggplot2::ggplotGrob(p), "gtable")
+  expect_s3_class(p$theme$axis.text, "element_markdown")
+  expect_identical(p$theme$axis.text$colour, "red")
+  expect_s3_class(p$theme$axis.title, "element_blank")
+  default <- suppressMessages(plt_alluvial(data, "x", "y"))
+  expect_identical(default$theme$axis.text$colour, "black")
+})

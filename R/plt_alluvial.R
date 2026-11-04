@@ -601,6 +601,7 @@ plt_alluvial <- function(
     }
   }
 
+  thm <- .resolve_theme(theme_use)
   plot <- plot +
     ggplot2::scale_fill_manual(
       values = c(real_colors, gap_colors),
@@ -610,11 +611,12 @@ plt_alluvial <- function(
     ggplot2::guides(
       fill = ggplot2::guide_legend(ncol = as.integer(legend_args$ncol))
     ) +
-    .resolve_theme(theme_use) +
+    thm +
+    (if (missing(theme_use) || is.null(theme_use) || !"axis.text" %in% names(thm))
+      ggplot2::theme(axis.text = ggplot2::element_text(colour = "black"))) +
     ggplot2::theme(
       legend.position = legend_args$position,
       legend.title = ggplot2::element_blank(),
-      axis.text = ggplot2::element_text(color = "black"),
       axis.title = ggplot2::element_blank(),
       axis.ticks.y = ggplot2::element_blank(),
       axis.line.y = ggplot2::element_blank()

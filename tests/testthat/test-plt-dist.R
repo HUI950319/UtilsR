@@ -187,6 +187,7 @@ test_that("alluvial partial themes retain their own base font fallback", {
   p <- dist_test_plot(data, c("x", "group"), theme_use = ggplot2::theme())
   expect_equal(ggplot2::calc_element("text", ggplot2::ggplot_build(p)$plot$theme)$size, 14)
   expect_equal(unique(ggplot2::layer_data(p, 3L)$size), 3)
+  expect_identical(p$theme$axis.text$colour, "black")
 })
 
 test_that("bar segments stack in legend order, like the alluvial strata", {

@@ -898,3 +898,28 @@ test_that("PlotScatter1 resolves the main theme without accepting plot component
   expect_error(draw(function() ggplot2::geom_point()), "must return a ggplot2 theme")
   expect_length(draw(NULL)$layers, 1L)
 })
+
+test_that("PlotScatter1 honours the supplied main-panel styles and keeps layout", {
+  skip_if_not_installed("ggtext")
+  data <- data.frame(x = 1:8, y = c(1, 5, 2, 6, 3, 7, 4, 8),
+                     g = rep(c("A", "B"), each = 4))
+  draw <- function(th) scatter1_capture_panels(
+    data, "x", "y", "g", show_ellipse = FALSE, show_refline = FALSE,
+    box_jitter = FALSE, legend_pos = "none", theme_use = th
+  )$panels$main
+
+  styled <- draw(ggplot2::theme_bw() + ggplot2::theme(
+    axis.title = ggplot2::element_text(size = 24, colour = "red"),
+    panel.background = ggplot2::element_rect(fill = "#DDDABC"),
+    legend.position = "right"
+  ))
+  expect_equal(styled$theme$axis.title$size, 24)
+  expect_identical(styled$theme$axis.title$colour, "red")
+  expect_identical(styled$theme$panel.background$fill, "#DDDABC")
+  expect_identical(styled$theme$legend.position, "none")
+  expect_s3_class(draw(ggplot2::theme(axis.title = ggplot2::element_blank()))$theme$axis.title,
+                  "element_blank")
+  md <- draw(ggplot2::theme(axis.title = ggtext::element_markdown(size = 21)))
+  expect_s3_class(md$theme$axis.title, "element_markdown")
+  expect_equal(draw(NULL)$theme$axis.title$size, 14)
+})
