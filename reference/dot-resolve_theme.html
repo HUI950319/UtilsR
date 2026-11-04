@@ -7,8 +7,8 @@ Names are looked up as functions visible to the immediate caller, then as
 UtilsR exports, then as ggplot2 exports. Pass a function or theme object for
 a local custom theme used through a plotting wrapper.
 Errors evaluating a visible binding or calling a theme function are preserved.
-Theme functions are called without arguments by default. Supply settings in
-a closure or pass them through ...."><meta property="og:description" content="The theme resolver shared by plotting functions in UtilsR and RegR. Accepts
+Theme functions are called without arguments. Wrap a configured theme call in
+a function to supply settings."><meta property="og:description" content="The theme resolver shared by plotting functions in UtilsR and RegR. Accepts
 a theme object, a function returning a theme, or a function-name string.
 NULL uses theme_km, with ggplot2::theme_bw()
 as the fallback.
@@ -16,8 +16,8 @@ Names are looked up as functions visible to the immediate caller, then as
 UtilsR exports, then as ggplot2 exports. Pass a function or theme object for
 a local custom theme used through a plotting wrapper.
 Errors evaluating a visible binding or calling a theme function are preserved.
-Theme functions are called without arguments by default. Supply settings in
-a closure or pass them through ...."><meta property="og:image" content="https://hui950319.github.io/UtilsR/logo.png"></head><body>
+Theme functions are called without arguments. Wrap a configured theme call in
+a function to supply settings."><meta property="og:image" content="https://hui950319.github.io/UtilsR/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -25,7 +25,7 @@ a closure or pass them through ...."><meta property="og:image" content="https://
 
     <a class="navbar-brand me-2" href="../index.html">UtilsR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.23</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.22</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,13 +76,13 @@ Names are looked up as functions visible to the immediate caller, then as
 UtilsR exports, then as ggplot2 exports. Pass a function or theme object for
 a local custom theme used through a plotting wrapper.
 Errors evaluating a visible binding or calling a theme function are preserved.
-Theme functions are called without arguments by default. Supply settings in
-a closure or pass them through <code>...</code>.</p>
+Theme functions are called without arguments. Wrap a configured theme call in
+a function to supply settings.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">.resolve_theme</span><span class="op">(</span><span class="va">theme_use</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">.resolve_theme</span><span class="op">(</span><span class="va">theme_use</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -91,12 +91,7 @@ a closure or pass them through <code>...</code>.</p>
 
 <dl><dt id="arg-theme-use">theme_use<a class="anchor" aria-label="anchor" href="#arg-theme-use"></a></dt>
 <dd><p><code>NULL</code>, a single non-missing, non-empty theme name, a function
-returning a theme, or a theme object.</p></dd>
-
-
-<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Arguments forwarded to the theme function when one is used.
-Ignored when the specification resolves to a theme object.</p></dd>
+called without arguments and returning a theme, or a theme object.</p></dd>
 
 </dl></div>
     <div class="section level2">

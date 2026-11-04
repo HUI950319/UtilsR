@@ -143,9 +143,8 @@ PlotRankCor(
 
   Named or unnamed character vector of colours for `group.by` levels.
   Default `NULL` uses `c("#B2182B", "#2166AC", ...)` from `pal_lancet`.
-  Named colours must cover every observed group. An empty name matches
-  an observed empty-string group. The default palette is interpolated
-  when there are more groups than its available colours.
+  Named colours must cover every observed group. The default palette is
+  interpolated when there are more groups than its available colours.
 
 - pt.size:
 

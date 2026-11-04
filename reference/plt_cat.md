@@ -187,17 +187,14 @@ plt_cat(
 - stat_level:
 
   Vector or list. For venn/upset types, the value(s) in each `stat.by`
-  column that count as "positive". Default `NULL` uses `TRUE` for
-  logical columns and the declared positive level of No/Yes factors,
-  even when no positive values occur. For other columns it auto-detects
-  `TRUE`, `"Yes"`, `"yes"`, `1`, `"TRUE"`, `"1"`, or uses the first
-  factor level. An entirely missing column has no automatic positive
-  level, even with `NA_stat = TRUE`. With `split.by`, membership values
-  are resolved once for all panels. An unnamed vector supplies one
-  shared value or one value per selected column in order. Named vectors
-  and named lists match column names and must cover exactly the selected
+  column that count as "positive". Default `NULL` auto-detects `TRUE`,
+  `"Yes"`, `"yes"`, `1`, `"TRUE"`, `"1"`, or uses the first factor
+  level. An entirely missing column has no automatic positive level,
+  even with `NA_stat = TRUE`. With `split.by`, membership values are
+  resolved once for all panels. An unnamed vector supplies one shared
+  value or one value per selected column in order. Named vectors and
+  named lists match column names and must cover exactly the selected
   columns. Numeric and time values are matched before label formatting.
-  Mixed `integer64` and numeric selections require lossless conversion.
   Supply time values in a list.
 
 - title:

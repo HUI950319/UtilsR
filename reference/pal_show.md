@@ -45,12 +45,12 @@ pal_show(
 
 - pattern:
 
-  Single non-missing regex string to filter catalogue names (e.g.
+  Single non-missing regex string to filter palette names (e.g.
   `"^nord"`). Default `NULL` does not filter by name.
 
 - type:
 
-  Catalogue type filter: `"all"`, `"discrete"`, or `"continuous"`.
+  Filter by type: `"all"`, `"discrete"`, or `"continuous"`.
 
 - max_colors:
 
@@ -59,9 +59,9 @@ pal_show(
 
 - index:
 
-  Non-empty vector of unique positive whole-number catalogue indices
-  after name selection or filtering. Out-of-range indices are ignored.
-  An empty catalogue selection is an error.
+  Non-empty vector of unique positive whole-number indices after
+  filtering. Out-of-range values are ignored; an empty selection is an
+  error.
 
 - output:
 
@@ -96,25 +96,17 @@ output prints and invisibly returns the displayed data.
 When `palette` is a character vector of valid colour specifications (hex
 codes like `"#FF0000"` or named R colours like `"red"`) rather than
 palette names, the function automatically switches to **colour vector
-mode**: it displays the colours directly as tiles (ggplot), a table, or
-console swatches.
+mode**: it displays the colours directly as a single-row colour bar
+(ggplot) with hex labels, similar to
+[`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
+but as a publication-ready plot.
 
 Catalogue swatches use thin grey outlines in ggplot and HTML output. The
 outlines remain visible for fully transparent fills.
 
 In gt catalogue output, long palette names wrap within the name column.
 Each swatch exposes its hexadecimal colour value as a hover title and an
-accessible label. LaTeX catalogue tables use the available text width
-and repeat column headings when the table spans pages.
-
-For readable ggplot labels on a small figure, use `ncol` to place a
-colour vector in several rows. Use `pattern` or `index` to limit how
-many palettes appear in a catalogue plot.
-
-Explicit palette names take precedence over `pattern` and `type`. These
-filters apply when browsing with `palette = NULL`. In colour vector
-mode, `pattern`, `type` and `index` do not select colours. Subset the
-colour vector before calling the function to select individual colours.
+accessible label.
 
 ## See also
 
