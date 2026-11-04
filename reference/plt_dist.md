@@ -84,6 +84,7 @@ plt_dist(
   (default `pal_lancet`), a registered palette name (e.g. `"Paired"`), a
   single literal colour, or a vector of colours. In a named vector,
   names must be unique category labels and include every observed fill
+  category. A blank name is allowed for an observed empty string
   category. Unnamed vectors follow factor-level order (data order for
   character alluvial groups). Unused bar/heatmap factor levels retain
   their positions in an unnamed palette.
@@ -254,9 +255,9 @@ plt_dist(
   Unless `label_args$size` is set, label sizes follow the theme's base
   font size, e.g. `theme_use = theme_my(base_size = 16)`. On bars and
   heatmaps, partial themes inherit an unspecified base font size from
-  the current ggplot2 theme. If both omit the base text element, the
-  ggplot2 default supplies it. In alluvial mode only the base font size
-  is taken from `theme_use`;
+  the current ggplot2 theme. If both omit the base text element,
+  ggplot2's registered default supplies it. In alluvial mode only the
+  base font size is taken from `theme_use`;
   [`theme_alluvia()`](https://hui950319.github.io/UtilsR/reference/theme_alluvia.md)
   supplies the remaining theme settings.
 

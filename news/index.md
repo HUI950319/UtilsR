@@ -2,6 +2,36 @@
 
 ## UtilsR 0.6.22
 
+- Use a repetition probe to avoid revalidating the same colour in long,
+  highly repetitive input vectors.
+
+- Reject dimensional named colours before subsetting and match observed
+  empty categories exactly in distribution and alluvial plots.
+
+- PlotDumbbell() and PlotScatter3() validate themes with the shared
+  resolver. Automatic dumbbell insets reuse the main theme unless a
+  separate theme is supplied.
+
+- [`PlotButterfly()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly.md)
+  uses the shared colour resolver, checks duplicate palette names, and
+  warns about categories that use the grey fallback.
+
+- plt_dist() follows ggplot2’s registered default text size when the
+  plot and current themes omit base text.
+
+- Interpret single named colours as literals in plt_alluvial() and
+  PlotRankCor(), including when a subset retains one group.
+
+- [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
+  leaves entirely missing sets empty when inferring positive membership.
+
+- Validate numeric colour indices before native parsing and preserve
+  double precision through palette lookup.
+
+- [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
+  matches numeric and time values for Venn and UpSet membership before
+  formatting labels.
+
 - plt_dist() completes missing base text settings from the current and
   default ggplot2 themes before sizing labels, including when the global
   theme is incomplete.

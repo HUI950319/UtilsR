@@ -254,8 +254,10 @@ All-zero differences receive a non-zero range. Explicit limits are retained.</p>
 
 
 <dt id="arg-theme-use">theme_use<a class="anchor" aria-label="anchor" href="#arg-theme-use"></a></dt>
-<dd><p>Theme function, string, or theme object. Default
-<code>theme_my(border = FALSE, panel.grid = element_blank())</code>.</p></dd>
+<dd><p>Theme object, zero-argument theme function, or theme name.
+Unknown names produce an error. Default
+<code>theme_my(border = FALSE, panel.grid = element_blank())</code>; explicit
+<code>NULL</code> uses <code><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">ggplot2::theme_classic()</a></code>.</p></dd>
 
 
 <dt id="arg-plot-margin">plot_margin<a class="anchor" aria-label="anchor" href="#arg-plot-margin"></a></dt>

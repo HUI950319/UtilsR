@@ -193,8 +193,11 @@ PlotScatter3(
 
 - theme_use:
 
-  Theme function, string, or theme object. Default
-  `theme_my(border = FALSE, panel.grid = element_blank())`.
+  Theme object, zero-argument theme function, or theme name. Unknown
+  names produce an error. Default
+  `theme_my(border = FALSE, panel.grid = element_blank())`; explicit
+  `NULL` uses
+  [`ggplot2::theme_classic()`](https://ggplot2.tidyverse.org/reference/ggtheme.html).
 
 - plot_margin:
 

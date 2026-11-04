@@ -272,8 +272,9 @@ point to the Y axis? Default <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg-theme-use">theme_use<a class="anchor" aria-label="anchor" href="#arg-theme-use"></a></dt>
-<dd><p>Theme function, string, or theme object. Default
-<code>theme_my</code>. Controls axis text/title/line styling.</p></dd>
+<dd><p>Theme object, zero-argument theme function, or theme name.
+Unknown names produce an error. Default <code>theme_my</code>; explicit
+<code>NULL</code> uses <code><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">ggplot2::theme_classic()</a></code>.</p></dd>
 
 
 <dt id="arg-inset-plot">inset_plot<a class="anchor" aria-label="anchor" href="#arg-inset-plot"></a></dt>
@@ -308,8 +309,9 @@ when category labels repeat.</p></dd>
 
 
 <dt id="arg-inset-theme-use">inset_theme_use<a class="anchor" aria-label="anchor" href="#arg-inset-theme-use"></a></dt>
-<dd><p>Theme for auto inset. Default <code>NULL</code> (uses
-the same <code>theme_use</code> as the main plot with compact styling).</p></dd>
+<dd><p>Theme for the automatic inset, with the same inputs as
+<code>theme_use</code>. Default <code>NULL</code> reuses the resolved main theme
+with compact styling.</p></dd>
 
 
 <dt id="arg-inset-left-inset-bottom-inset-right-inset-top">inset_left, inset_bottom, inset_right, inset_top<a class="anchor" aria-label="anchor" href="#arg-inset-left-inset-bottom-inset-right-inset-top"></a></dt>

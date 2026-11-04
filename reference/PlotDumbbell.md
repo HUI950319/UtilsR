@@ -216,8 +216,9 @@ PlotDumbbell(
 
 - theme_use:
 
-  Theme function, string, or theme object. Default `theme_my`. Controls
-  axis text/title/line styling.
+  Theme object, zero-argument theme function, or theme name. Unknown
+  names produce an error. Default `theme_my`; explicit `NULL` uses
+  [`ggplot2::theme_classic()`](https://ggplot2.tidyverse.org/reference/ggtheme.html).
 
 - inset_plot:
 
@@ -253,8 +254,8 @@ PlotDumbbell(
 
 - inset_theme_use:
 
-  Theme for auto inset. Default `NULL` (uses the same `theme_use` as the
-  main plot with compact styling).
+  Theme for the automatic inset, with the same inputs as `theme_use`.
+  Default `NULL` reuses the resolved main theme with compact styling.
 
 - inset_left, inset_bottom, inset_right, inset_top:
 
