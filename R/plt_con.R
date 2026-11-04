@@ -48,8 +48,10 @@
 #' @param group.by Character. Column name for the x-axis grouping variable.
 #'   Default \code{NULL} (all data in one group). Observed missing and
 #'   empty-string groups are retained, including in dot-plot counts.
-#'   Date-time grouping, splitting, and background categories retain their
-#'   observed labels and first-appearance order.
+#'   Date/time and time-span grouping, splitting, and background categories
+#'   retain their observed labels and first-appearance order. Distinct stored
+#'   time values with identical display labels receive precise storage keys
+#'   in brackets.
 #'   Distinct numeric categories use extra label precision when needed.
 #' @param split.by Character. Optional splitting variable. Splits data,
 #'   creates one plot per level, and combines with \pkg{patchwork}.
@@ -427,9 +429,22 @@ plt_con <- function(data,
       if (inherits(value, "integer64") && !requireNamespace("bit64", quietly = TRUE)) {
         cli::cli_abort("Grouping integer64 columns requires the {.pkg bit64} package.")
       }
-      if (inherits(value, "POSIXt")) {
+      if (inherits(value, c("Date", "POSIXt", "difftime", "Duration", "Period", "Interval"))) {
+        if (inherits(value, c("Duration", "Period", "Interval")) &&
+            !requireNamespace("lubridate", quietly = TRUE)) {
+          cli::cli_abort("Grouping time-span columns requires the {.pkg lubridate} package.")
+        }
         missing_value <- is.na(value)
-        value <- as.character(value)
+        time_key <- .cat_time_key(value)
+        distinct <- unique(time_key[!missing_value])
+        labels <- as.character(value)
+        labels <- labels[match(distinct, time_key)]
+        collision <- duplicated(labels) | duplicated(labels, fromLast = TRUE)
+        if (any(collision)) {
+          labels[collision] <- paste0(labels[collision], " [", distinct[collision], "]")
+        }
+        # Match time identities before formatting, including S4 components.
+        value <- labels[match(time_key, distinct)]
         value[missing_value] <- NA_character_
       }
       if (is.double(value) && !is.object(value)) {

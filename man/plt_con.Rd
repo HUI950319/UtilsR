@@ -71,8 +71,10 @@ selection is an error.}
 \item{group.by}{Character. Column name for the x-axis grouping variable.
 Default \code{NULL} (all data in one group). Observed missing and
 empty-string groups are retained, including in dot-plot counts.
-Date-time grouping, splitting, and background categories retain their
-observed labels and first-appearance order.
+Date/time and time-span grouping, splitting, and background categories
+retain their observed labels and first-appearance order. Distinct stored
+time values with identical display labels receive precise storage keys
+in brackets.
 Distinct numeric categories use extra label precision when needed.}
 
 \item{split.by}{Character. Optional splitting variable. Splits data,

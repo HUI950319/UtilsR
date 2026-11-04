@@ -10,6 +10,17 @@ con_plot <- function(data, stat.by = "x", group.by = "g", ...) {
   suppressMessages(plt_con(data, stat.by, group.by, combine = FALSE, ...))[[1L]]
 }
 
+con_time_categories <- function() {
+  times <- as.POSIXct("2026-11-01 05:30:00", tz = "UTC") + c(3600, 0)
+  attr(times, "tzone") <- "America/New_York"
+  list(
+    Date = as.Date("2026-01-01") + c(0.5, 0),
+    POSIXct = times,
+    POSIXlt = as.POSIXlt(times),
+    difftime = as.difftime(c(1 + 1e-15, 1), units = "secs")
+  )
+}
+
 test_that("con inputs exclude SPSS user missing values from each numeric feature", {
   skip_if_not_installed("haven")
   d <- data.frame(x = haven::labelled_spss(c(1, 99, 2), na_values = 99), g = "A")
@@ -52,7 +63,7 @@ test_that("con time splitting and background categories retain valid observation
   d$batch <- as.POSIXct("2026-01-01", tz = "UTC") + rep(c(1, 0), each = 6)
   out <- suppressMessages(plt_con(d, "x", "g", type = "box", split.by = "batch", combine = FALSE))
   expect_named(out, unique(as.character(d$batch)))
-  expect_equal(vapply(out, function(p) nrow(p$data), integer(1)), rep(6L, 2L), ignore_attr = TRUE)
+  expect_equal(unname(vapply(out, function(p) nrow(p$data), integer(1))), rep(6L, 2L))
   d$g <- factor(rep(c("A", "B", "C"), each = 4))
   d$region <- as.POSIXct("2026-01-01", tz = "UTC") + rep(c(0, 0, 1), each = 4)
   expect_no_warning(p <- con_plot(d, type = "box", bg.by = "region"))
@@ -64,6 +75,95 @@ test_that("con time splitting and background categories retain valid observation
   p <- con_plot(d, type = "bar")
   expect_equal(sum(is.na(p$data$group.by)), 1L)
   expect_equal(nrow(ggplot2::ggplot_build(p)$data[[2L]]), 3L)
+})
+
+test_that("con time categories preserve identities when displayed labels collide", {
+  for (values in con_time_categories()) {
+    expect_length(unique(as.character(values)), 1L)
+    d <- con_data()
+    d$g <- rep(values, each = 6)
+    for (stack in c(FALSE, TRUE)) {
+      p <- con_plot(d, c("x", "z"), type = "box", stack = stack)
+      expect_identical(sub(" \\[[^]]*\\]$", "", levels(p$data$group.by)), as.character(values))
+      expect_identical(as.integer(p$data$group.by), rep(rep(1:2, each = 6), if (stack) 2L else 1L))
+      expect_equal(nrow(ggplot2::ggplot_build(p)$data[[2L]]), if (stack) 4L else 2L)
+    }
+  }
+})
+
+test_that("con time splits and backgrounds preserve distinct category membership", {
+  for (values in con_time_categories()) {
+    d <- con_data()
+    d$g <- rep(values, each = 6)
+    labels <- levels(con_plot(d, type = "box")$data$group.by)
+    d$g <- con_data()$g
+    d$batch <- rep(values, each = 6)
+    out <- suppressMessages(plt_con(d, "x", "g", type = "box", split.by = "batch", combine = FALSE))
+    expect_named(out, labels)
+    expect_equal(unname(lapply(out, function(p) p$data$value)), list(1:6, 10:15))
+    expect_equal(unname(vapply(out, function(p) nrow(ggplot2::ggplot_build(p)$data[[2L]]), integer(1))), c(1L, 1L))
+    d$g <- factor(rep(c("A", "B", "C"), each = 4))
+    d$region <- rep(values, c(8, 4))
+    p <- con_plot(d, type = "box", bg.by = "region", bg_palette = stats::setNames(c("red", "blue"), labels))
+    expect_identical(as.character(ggplot2::ggplot_build(p)$data[[1L]]$fill), c("red", "red", "blue"))
+  }
+})
+
+test_that("con time categories retain missing observations and dot counts", {
+  indices <- c(rep(1L, 5), NA_integer_, rep(2L, 6))
+  for (values in con_time_categories()) {
+    d <- con_data()
+    d$g <- values[indices]
+    p <- con_plot(d, c("x", "z"), type = "dot", stack = TRUE)
+    expect_identical(is.na(p$data$group.by), rep(is.na(indices), 2L))
+    expect_identical(sub(" \\[[^]]*\\]$", "", levels(p$data$group.by)), as.character(values))
+    points <- ggplot2::ggplot_build(p)$data[[1L]]
+    expect_equal(sum(p$layers[[1L]]$data$n), 24L)
+    expect_equal(sort(unique(as.numeric(points$x))), c(1, 2, 3))
+  }
+})
+
+test_that("con time spans preserve S4 labels and distinct stored categories", {
+  skip_if_not_installed("lubridate")
+  origin <- as.POSIXct("2026-01-01", tz = "UTC")
+  cases <- list(
+    lubridate::dseconds(c(1 + 1e-15, 1)),
+    lubridate::seconds(c(1 + 1e-15, 1)),
+    c(lubridate::period(month = 1), lubridate::days(30)),
+    lubridate::interval(origin, origin + c(1 + 1e-5, 1)),
+    lubridate::interval(origin + c(1, 0), origin + c(11, 10))
+  )
+  for (values in cases) {
+    d <- con_data()
+    d$g <- rep(values, each = 6)
+    p <- con_plot(d, type = "box")
+    labels <- levels(p$data$group.by)
+    expect_identical(sub(" \\[[^]]*\\]$", "", labels), as.character(values))
+    expect_identical(as.integer(p$data$group.by), rep(1:2, each = 6))
+    expect_equal(nrow(ggplot2::ggplot_build(p)$data[[2L]]), 2L)
+    d$batch <- d$g
+    out <- suppressMessages(plt_con(d, "x", "g", type = "box", split.by = "batch", combine = FALSE))
+    expect_named(out, labels)
+    expect_equal(unname(vapply(out, function(p) nrow(p$data), integer(1))), c(6L, 6L))
+  }
+})
+
+test_that("con time grouping keeps signed-zero instants together", {
+  inputs <- list(
+    Date = structure(c(-0, 0), class = "Date"),
+    POSIXct = structure(c(-0, 0), class = c("POSIXct", "POSIXt"), tzone = "UTC"),
+    difftime = structure(c(-0, 0), class = "difftime", units = "secs")
+  )
+  if (requireNamespace("lubridate", quietly = TRUE)) {
+    inputs$Duration <- lubridate::dseconds(c(-0, 0))
+  }
+  for (values in inputs) {
+    data <- data.frame(value = 1:4)
+    data$g <- values[c(1, 1, 2, 2)]
+    invisible(capture.output(p <- con_plot(data, stat.by = "value", type = "box")))
+    expect_length(levels(p$data$group.by), 1L)
+    expect_identical(as.integer(p$data$group.by), rep(1L, 4))
+  }
 })
 
 test_that("con numeric categories preserve distinctions beyond ordinary label precision", {
@@ -89,7 +189,7 @@ test_that("con numeric splitting and background categories avoid formatted label
   d$batch <- rep(values, each = 6)
   out <- suppressMessages(plt_con(d, "x", "g", type = "box", split.by = "batch", combine = FALSE))
   expect_named(out, labels)
-  expect_equal(vapply(out, function(p) nrow(p$data), integer(1)), rep(6L, 2L), ignore_attr = TRUE)
+  expect_equal(unname(vapply(out, function(p) nrow(p$data), integer(1))), rep(6L, 2L))
   d$g <- factor(rep(c("A", "B", "C"), each = 4))
   d$region <- rep(values, c(8, 4))
   p <- con_plot(d, type = "box", bg.by = "region", bg_palette = stats::setNames(c("red", "blue"), labels))
