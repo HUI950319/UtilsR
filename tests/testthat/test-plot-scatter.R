@@ -190,6 +190,41 @@ test_that("PlotScatter3 derives automatic histogram limits from paired differenc
   expect_identical(inset$scales$get_scales("x")$limits, c(-2, 4))
 })
 
+test_that("PlotScatter3 preserves axes and statistics when grouping uses an axis", {
+  data <- data.frame(Control = rep(c(10, 30), 6),
+                     Treat = rep(c(100, 200), each = 6),
+                     .scatter3_group = -seq_len(12), .scatter3_group.1 = seq_len(12))
+  before <- serialize(data, NULL)
+  cases <- list(
+    list(x = "Control", y = "Treat", group = "Control"),
+    list(x = "Control", y = "Treat", group = "Treat"),
+    list(x = c(axis = "Control"), y = "Treat", group = "Control",
+         group_levels = c(30, 10))
+  )
+  for (case in cases) {
+    p <- do.call(scatter3_capture_inset, c(list(data = data), case,
+      list(test_method = "t.test", show_refline = FALSE)))
+    main <- ggplot2::ggplot_build(p$main)$data
+    inset <- ggplot2::ggplot_build(p$inset)$data
+    differences <- data$Treat - data$Control
+    expected_test <- stats::t.test(data$Control, data$Treat, paired = TRUE)
+    expected_cor <- stats::cor.test(data$Control, data$Treat)
+    levels <- if (is.null(case$group_levels)) unique(data[[case$group]]) else case$group_levels
+    expect_equal(main[[1]]$x, data$Control)
+    expect_equal(main[[1]]$y, data$Treat)
+    expect_identical(main[[1]]$fill,
+                     c("#FFFFFF10", "#f71d53")[match(data[[case$group]], levels)])
+    expect_equal(main[[2]]$label,
+                 paste0("p = ", format.pval(expected_test$p.value, digits = 2)))
+    expect_match(main[[3]]$label,
+                 paste0("r = ", round(expected_cor$estimate, 3), ","), fixed = TRUE)
+    expect_equal(rlang::eval_tidy(p$inset$mapping$x, data = p$inset$data), differences)
+    expect_equal(sum(inset[[1]]$count), nrow(data))
+    expect_equal(inset[[2]]$x, stats::median(differences))
+    expect_identical(serialize(data, NULL), before)
+  }
+})
+
 scatter1_capture_panels <- function(...) {
   panels <- list()
   ggplot_grob <- ggplot2::ggplotGrob

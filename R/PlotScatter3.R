@@ -18,6 +18,8 @@
 #' uses all non-missing differences. Explicit axis limits trim displayed data
 #' without changing the paired test or median. ggplot2 can warn when limits
 #' exclude observations or the median annotation.
+#' Numeric coordinates and statistics are preserved when \code{group} also
+#' names an axis column.
 #'
 #' @param data A data.frame containing x (control), y (treatment), and group columns.
 #' @param x Column name for control values (X axis). Default \code{"Control"}.
@@ -177,6 +179,13 @@ PlotScatter3 <- function(
     if (!col %in% colnames(data)) {
       stop("Column '", col, "' not found in data.", call. = FALSE)
     }
+  }
+
+  # Factor grouping separately when it shares a column with either axis.
+  if (group %in% c(x, y)) {
+    group_col <- make.unique(c(names(data), ".scatter3_group"))[ncol(data) + 1L]
+    data[[group_col]] <- data[[group]]
+    group <- group_col
   }
 
   if (is.null(group_levels)) {

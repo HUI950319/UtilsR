@@ -165,6 +165,8 @@ differences and paired tests. The histogram shows \code{y - x}; its median
 uses all non-missing differences. Explicit axis limits trim displayed data
 without changing the paired test or median. ggplot2 can warn when limits
 exclude observations or the median annotation.
+Numeric coordinates and statistics are preserved when \code{group} also
+names an axis column.
 }
 \examples{
 library(ggplot2)
