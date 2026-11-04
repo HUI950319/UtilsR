@@ -1,3 +1,76 @@
+test_that("PlotRank rejects distinct groups with colliding character labels", {
+  groups <- c(1, 1 + 1e-15)
+  expect_length(unique(groups), 2L)
+  expect_length(unique(as.character(groups)), 1L)
+  data <- data.frame(cell_type = rep(groups, each = 3), gene = letters[1:6],
+                     importance = c(9, 6, 3, 20, 10, 0))
+  original <- data
+  filename <- withr::local_tempfile(fileext = ".pdf")
+  selections <- list(list(), list(groups = "1"), list(groups = groups[2]),
+                     list(group_levels = "1"))
+  for (selection in selections) {
+    for (scale in c("none", "group", "top_n")) {
+      for (type in c("plot", "data", "both")) {
+        args <- c(list(data = data, value_scale = scale, return_type = type,
+                       filename = filename), selection)
+        error <- tryCatch(do.call(PlotRank, args), error = identity)
+        expect_s3_class(error, "error")
+        if (inherits(error, "error")) {
+          expect_match(conditionMessage(error), "Distinct grouping values.*identical character labels")
+          expect_match(conditionMessage(error), "unique character labels")
+          expect_null(conditionCall(error))
+        }
+        expect_length(Sys.glob(filename), 0L)
+      }
+    }
+  }
+  expect_identical(data, original)
+})
+
+test_that("PlotRank ranks close numeric groups after explicit unique labelling", {
+  data <- data.frame(cell_type = rep(c(1, 1 + 1e-15), each = 3),
+                     gene = letters[1:6], importance = c(9, 6, 3, 20, 10, 0))
+  data$cell_type <- sprintf("%.17g", data$cell_type)
+  groups <- unique(data$cell_type)
+  expected <- list(none = c(9, 6, 20, 10), group = c(1, .5, 1, .5),
+                    top_n = c(1, 0, 1, 0))
+  for (scale in names(expected)) {
+    result <- PlotRank(data, max_show = 2, top_n = 1, value_scale = scale,
+                         return_type = "both")
+    expect_identical(levels(result$data$Group), groups)
+    expect_identical(result$data$Label, c("a", "b", "d", "e"))
+    expect_equal(unname(result$data$Score), expected[[scale]])
+    built <- ggplot2::ggplot_build(result$plot)
+    expect_identical(as.character(built$layout$layout$Group), groups)
+    expect_equal(built$data[[1]]$y, expected[[scale]])
+    expect_identical(built$data[[2]]$label, c("a", "d"))
+  }
+  selected <- PlotRank(data, groups = groups[2], return_type = "data")
+  expect_identical(selected$Label, c("d", "e", "f"))
+  expect_equal(unname(selected$Score), c(20, 10, 0))
+})
+
+test_that("PlotRank keeps numeric groups with distinct character labels", {
+  data <- data.frame(cell_type = rep(c(2, 1, 1.00001), each = 3),
+                     gene = letters[1:9], importance = c(8, 4, 0, 9, 6, 3, 20, 10, NA))
+  original <- data
+  control <- data
+  control$cell_type <- as.character(control$cell_type)
+  for (scale in c("none", "group", "top_n")) {
+    result <- PlotRank(data, max_show = 2, value_scale = scale, return_type = "data")
+    expected <- PlotRank(control, max_show = 2, value_scale = scale, return_type = "data")
+    expect_identical(result, expected)
+    expect_identical(levels(result$Group), c("2", "1", "1.00001"))
+  }
+  selected <- PlotRank(data, groups = "1.00001", return_type = "data")
+  expect_identical(selected$Label, c("g", "h"))
+  expect_equal(unname(selected$Score), c(20, 10))
+  ordered <- PlotRank(data, group_levels = c("1.00001", "2"), return_type = "data")
+  expect_identical(levels(ordered$Group), c("1.00001", "2"))
+  expect_identical(ordered$Label, c("g", "h", "a", "b", "c"))
+  expect_identical(data, original)
+})
+
 test_that("PlotRank scales extreme finite ranges without losing the middle score", {
   for (values in list(c(-1e308, 0, 1e308), c(-1.5e308, .5e308, 1.5e308))) {
     data <- stats::setNames(c(values, NA_real_), letters[1:4])

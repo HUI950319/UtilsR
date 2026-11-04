@@ -34,6 +34,9 @@
 #'   convert them explicitly after choosing units and checking precision.
 #' @param group_col Column name for the grouping variable (e.g. cell type).
 #'   Default \code{"cell_type"}.  Ignored for vector / matrix input.
+#'   Distinct grouping values must have unique character labels. Values with
+#'   identical labels (for example, very close numeric values) are rejected;
+#'   explicitly assign unique character labels before plotting.
 #' @param name_col Column name for the feature names.
 #'   Default \code{"gene"}.  Ignored for vector / matrix input.
 #' @param value_col Column name for the numeric scores.
@@ -352,10 +355,14 @@ PlotRank <- function(
 
     # Has group column -> faceted
     if (group_col %in% colnames(data)) {
-      grps <- if (!is.null(groups)) groups else {
-        if (is.factor(data[[group_col]])) levels(data[[group_col]])
+      grps <- if (is.factor(data[[group_col]])) levels(data[[group_col]])
         else unique(data[[group_col]])
+      if (anyDuplicated(as.character(grps))) {
+        stop("Distinct grouping values have identical character labels. ",
+             "Convert the grouping column to unique character labels before plotting.",
+             call. = FALSE)
       }
+      if (!is.null(groups)) grps <- groups
       return(lapply(setNames(grps, grps), function(g) {
         index <- data[[group_col]] == g
         v <- scores[index]

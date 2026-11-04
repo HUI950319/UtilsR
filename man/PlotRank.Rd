@@ -48,7 +48,10 @@ columns, integer64, time classes and complex scores are not supported;
 convert them explicitly after choosing units and checking precision.}
 
 \item{group_col}{Column name for the grouping variable (e.g. cell type).
-Default \code{"cell_type"}.  Ignored for vector / matrix input.}
+Default \code{"cell_type"}.  Ignored for vector / matrix input.
+Distinct grouping values must have unique character labels. Values with
+identical labels (for example, very close numeric values) are rejected;
+explicitly assign unique character labels before plotting.}
 
 \item{name_col}{Column name for the feature names.
 Default \code{"gene"}.  Ignored for vector / matrix input.}
