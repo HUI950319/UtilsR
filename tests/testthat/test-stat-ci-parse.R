@@ -123,6 +123,17 @@ test_that("output keeps the printed precision, sign of zero and names", {
   expect_identical(stat_ci_parse(character(0), output = "p"), numeric(0))
 })
 
+test_that("empty outputs preserve both named and unnamed vector contracts", {
+  for (x in list(character(), setNames(character(), character()))) {
+    for (output in c("ci", "p", "ci_p", "ci_star", "p_star")) {
+      expected <- if (output == "p") setNames(numeric(), names(x)) else x
+      expect_no_warning(actual <- stat_ci_parse(x, output = output,
+        level = .9, digits = 0, map_signif = numeric()))
+      expect_identical(actual, expected)
+    }
+  }
+})
+
 test_that("level keeps at least one decimal for integer input", {
   expect_identical(stat_ci_parse("2 (1, 3)", level = 0.9, exp = FALSE),
                    "2.0 (1.2, 2.8)")

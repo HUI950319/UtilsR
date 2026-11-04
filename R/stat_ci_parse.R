@@ -91,7 +91,7 @@
 #' are not the p-value of the original test.
 #'
 #' @return Character vector (for ci/ci_p/ci_star/p_star) or numeric vector
-#'   (for p), with the names of \code{x}.
+#'   (for p), with the names of \code{x}, including for empty vectors.
 #'
 #' @examples
 #' # Basic: return CI as-is
@@ -137,7 +137,11 @@ stat_ci_parse <- function(x,
     cli::cli_abort("{.arg digits} must be a single integer between 0 and 8190.")
   }
   if (output %in% c("ci_star", "p_star")) .validate_signif_map(map_signif)
-  if (!length(x)) return(if (output == "p") numeric(0) else character(0))
+  if (!length(x)) {
+    out <- if (output == "p") numeric(0) else character(0)
+    names(out) <- names(x)
+    return(out)
+  }
 
   # --- Parse CI strings ---
   parsed <- .ci_extract(x)

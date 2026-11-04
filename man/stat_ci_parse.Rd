@@ -56,7 +56,7 @@ Only used when \code{output} is \code{"ci_star"} or \code{"p_star"}.}
 }
 \value{
 Character vector (for ci/ci_p/ci_star/p_star) or numeric vector
-  (for p), with the names of \code{x}.
+  (for p), with the names of \code{x}, including for empty vectors.
 }
 \description{
 Extract components from CI strings like \code{"1.23 (0.95, 1.59)"},
