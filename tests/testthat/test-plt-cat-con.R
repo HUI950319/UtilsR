@@ -147,6 +147,20 @@ test_that("plt_cat Venn keeps exact membership for colliding time labels", {
   expect_s3_class(ggplot2::ggplotGrob(p), "gtable")
 })
 
+test_that("plt_cat resolves exact membership for AsIs dates and elapsed times", {
+  skip_if_not_installed("ggupset")
+  withr::local_options(lifecycle_verbosity = "quiet")
+  dates <- as.Date("2026-11-05") + c(0, 0.25, 1)
+  delays <- as.difftime(c(1, 2, 3), units = "hours")
+  inputs <- list(list(dates, dates[2]), list(delays, as.difftime(120, units = "mins")))
+  for (input in inputs) {
+    d <- data.frame(A = I(input[[1]]), B = c(FALSE, FALSE, TRUE))
+    p <- cat_test_plot(d, c("A", "B"), type = "upset",
+                      stat_level = list(A = input[[2]], B = TRUE))
+    expect_equal(p$data$intersection, list("A", "B"))
+  }
+})
+
 test_that("plt_cat treats signed-zero time values as one category", {
   inputs <- list(
     Date = structure(c(-0, 0), class = "Date"),

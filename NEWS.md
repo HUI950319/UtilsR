@@ -1,5 +1,7 @@
 # UtilsR 0.6.22
 
+* `plt_cat()` resolves exact set membership for `I()`-wrapped dates and elapsed times.
+
 * Locate invalid colours in long literal vectors by checking blocks before falling back to individual colours.
 
 * Validate long, highly repetitive literal colour vectors in `pal_get()` once per distinct value and retain the original order of invalid entries.

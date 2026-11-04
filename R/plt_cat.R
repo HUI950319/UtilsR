@@ -459,7 +459,8 @@ plt_cat <- function(data,
           values[!missing] <- labels[match(time_key[!missing], distinct)]
         }
         if (track_identity) {
-          time_class <- if (inherits(x, "POSIXt")) "POSIXt" else class(x)[1L]
+          time_classes <- c("Period", "Interval", "difftime", "Date", "POSIXt", "Duration")
+          time_class <- time_classes[inherits(x, time_classes, which = TRUE) > 0L][1L]
           numeric_labels[[col]] <- list(values = distinct, labels = labels,
                                         time = TRUE, class = time_class,
                                         units = attr(x, "units"))
