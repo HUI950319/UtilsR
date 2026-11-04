@@ -54,7 +54,9 @@ figures in PDF or Word documents.}
 
 \item{label}{Logical. For \code{output = "gg"} in colour vector mode,
 whether to show hex/name labels on tiles. Default \code{TRUE}. Does not
-change gt tables or console output.}
+change gt tables or console output.
+Label contrast is calculated on white. Use a white plot panel when
+showing translucent swatches on a dark page.}
 
 \item{label_size}{Positive finite number. Tile-label text size for
 \code{output = "gg"} in colour vector mode. Default 3.}
@@ -143,6 +145,11 @@ pal_show(pal_paraSC, ncol = 3, output = "gg")
 # Show any colour vector
 pal_show(c("#FF0000", "#00FF00", "#0000FF"))
 pal_show(rainbow(12), ncol = 4, output = "gg")
+
+# Give translucent swatches a white panel on a dark page
+pal_show(c(Clear = "transparent", Half = "#33669980"), output = "gg") +
+  ggplot2::theme(panel.background = ggplot2::element_rect(
+    fill = "white", colour = NA))
 
 # Without labels
 pal_show(pal_lancet, label = FALSE, output = "gg")
