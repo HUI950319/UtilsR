@@ -782,6 +782,19 @@ test_that("pal_get adjusts interpolated alpha before restoring repeated observat
                    rep(c("#FFFFFF80", "#FFFFFF80", NA), 32))
 })
 
+test_that("pal_get preserves near-opaque HEX formatting after expanding repeats", {
+  cols <- c("black", "white")
+  palettes <- list(gray = cols)
+  for (x in list(2, c(2, 2), c(2, 2, 2), c(2, 2, 2, NA), c(2, NA))) {
+    midpoint <- rep("#7F7F7F", length(x))
+    midpoint[is.na(x)] <- NA_character_
+    expected <- ggplot2::alpha(midpoint, 0.9999)
+    expect_identical(pal_get(cols, x = x, alpha = 0.9999), expected)
+    expect_identical(pal_get(palettes, x = x, alpha = 0.9999),
+                     list(gray = expected))
+  }
+})
+
 test_that("pal_get keeps medium-cardinality numeric mappings in observation order", {
   palettes <- list(opaque = c("black", "white"),
                    translucent = c("#FF000080", "#0000FF40"))

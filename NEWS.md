@@ -1,5 +1,7 @@
 # UtilsR 0.6.22
 
+* Preserve vector HEX formatting in `pal_get()` when a near-opaque alpha rounds to fully opaque and repeated numeric values share a colour.
+
 * Use a repetition probe to avoid revalidating the same colour in long, highly repetitive input vectors.
 
 * Reject dimensional named colours before subsetting and match observed empty categories exactly in distribution and alluvial plots.

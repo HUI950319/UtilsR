@@ -529,6 +529,10 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     if (!is.object(x) && is.numeric(x) && .pal_use_unique(x)) {
       unique_x <- unique(x)
       positions <- match(x, unique_x)
+      # Keep vector-sized alpha encoding when the mapping has only one key.
+      if (alpha < 1 && length(unique_x) == 1L) {
+        unique_x <- c(unique_x, NA_real_)
+      }
       return(lapply(palette, function(cols) {
         .pal_apply(cols, n = n, x = unique_x, reverse = reverse, alpha = alpha)[positions]
       }))
@@ -627,7 +631,12 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
           unique_at <- unique(at)
           colours <- ramp(at = unique_at)
           if (alpha < 1) {
-            colours <- ggplot2::alpha(colours, alpha)
+            # A scalar and a vector can encode opaque alpha differently.
+            if (length(colours) == 1L && length(out) > 1L) {
+              colours <- ggplot2::alpha(rep(colours, 2L), alpha)[1L]
+            } else {
+              colours <- ggplot2::alpha(colours, alpha)
+            }
             alpha <- 1
           }
           out[placed] <- colours[match(at, unique_at)]
