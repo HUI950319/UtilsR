@@ -10,7 +10,9 @@
 #'
 #' @param x Numeric/character vector of p-values (when \code{add_star_p} is NULL),
 #'   or any value to annotate with stars (when \code{add_star_p} is provided).
-#'   Numeric strings may use scientific notation. Strings beginning with
+#'   Numeric strings may use scientific notation. Decimal strings equal to 1
+#'   exactly remain formattable even when their mantissa is too long for the
+#'   numeric parser. Strings beginning with
 #'   \code{<}, \code{<=}, \code{>}, \code{>=}, or their Unicode equivalents
 #'   are returned with outer whitespace removed, without inferring stars.
 #'   ASCII and Unicode whitespace is accepted around numbers and after
@@ -162,8 +164,7 @@ stat_pval <- function(x,
     cli::cli_abort("{.arg x} must be numeric or character.")
   }
 
-  if (mode != "plain") .validate_p(x_num, "x")
-  if (mode != "plain" && is.character(x)) {
+  if (is.character(x)) {
     edge <- which(!is.na(values) & (is.na(x_num) | x_num %in% c(0, 1)))
     if (length(edge)) {
       # Inspect decimal text where rounding or parser overflow can hide values.
@@ -179,16 +180,21 @@ stat_pval <- function(x,
       negative <- startsWith(mantissa, "-") & !zero
       above_one <- !zero & (exponent > unit_exponent |
                               (exponent == unit_exponent & !one))
-      if (any(negative | above_one)) {
-        cli::cli_abort("{.arg x} must contain finite P-values between 0 and 1, or missing values.")
+      if (mode != "plain") {
+        if (any(negative | above_one)) {
+          cli::cli_abort("{.arg x} must contain finite P-values between 0 and 1, or missing values.")
+        }
+        strict <- bounded[edge] & grepl("^[<>](?!=)", text[edge], perl = TRUE)
+        if (any(strict & ((startsWith(text[edge], "<") & zero) |
+                          (startsWith(text[edge], ">") & one)))) {
+          cli::cli_abort("{.arg x} contains a strict bound that cannot describe a possible P-value (<0 or >1).")
+        }
       }
-      strict <- bounded[edge] & grepl("^[<>](?!=)", text[edge], perl = TRUE)
-      if (any(strict & ((startsWith(text[edge], "<") & zero) |
-                        (startsWith(text[edge], ">") & one)))) {
-        cli::cli_abort("{.arg x} contains a strict bound that cannot describe a possible P-value (<0 or >1).")
-      }
+      # Long mantissas can parse as NaN even when the decimal value is exactly one.
+      x_num[edge[one & !negative]] <- 1
     }
   }
+  if (mode != "plain") .validate_p(x_num, "x")
   if (!length(x_num)) {
     if (mode == "stars") .add_stars(x_num, map_signif)
     return(stats::setNames(character(), input_names))

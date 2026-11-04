@@ -15,7 +15,9 @@ stat_pval(
 \arguments{
 \item{x}{Numeric/character vector of p-values (when \code{add_star_p} is NULL),
 or any value to annotate with stars (when \code{add_star_p} is provided).
-Numeric strings may use scientific notation. Strings beginning with
+Numeric strings may use scientific notation. Decimal strings equal to 1
+exactly remain formattable even when their mantissa is too long for the
+numeric parser. Strings beginning with
 \code{<}, \code{<=}, \code{>}, \code{>=}, or their Unicode equivalents
 are returned with outer whitespace removed, without inferring stars.
 ASCII and Unicode whitespace is accepted around numbers and after

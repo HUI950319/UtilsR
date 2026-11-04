@@ -114,6 +114,62 @@ test_that("numeric parser overflow cannot hide invalid P-value text", {
   expect_error(stat_pval(paste0(">1", zeros, "e-5000")), "possible P-value")
 })
 
+test_that("long decimal strings equal to one retain their numeric value", {
+  zeros <- strrep("0", 5000)
+  one <- c(integer = paste0("1", zeros, "e-5000"),
+           decimal = paste0("1", zeros, ".0e-5000"),
+           trailing = paste0("1.", zeros),
+           signed = paste0("+0001", zeros, ".000e-5000"),
+           fractional = paste0("0.", zeros, "1e5001"),
+           shifted = paste0(".1", zeros, "E+1"),
+           exponent = paste0("1", zeros, "E-", strrep("0", 400), "5000"))
+  for (mode in c("stars", "pvalue", "plain")) {
+    expected <- if (mode == "plain") "1.00" else "1.000"
+    expect_identical(stat_pval(one, mode = mode),
+                     setNames(rep(expected, length(one)), names(one)))
+  }
+})
+
+test_that("recovered unit values keep their positions and significance symbols", {
+  one <- paste0("1", strrep("0", 5000), "e-5000")
+  x <- c(absent = NA_character_, unit = one, ordinary = "0.05",
+         bound = paste0("<=", one), nan = "NaN", other_unit = "1")
+  expected <- c(absent = NA_character_, unit = "1.000unit", ordinary = "0.050small",
+                bound = paste0("<=", one), nan = NA_character_, other_unit = "1.000unit")
+  expect_identical(stat_pval(x, map_signif = c(small = .05, unit = 1)), expected)
+  expect_identical(stat_pval(one, map_signif = c(small = .05)), "1.000")
+  expect_identical(stat_pval(one, map_signif = numeric()), "1.000")
+  for (mode in c("stars", "pvalue", "plain")) {
+    expect_identical(stat_pval(x, mode = mode, digits = 4),
+                     c(absent = NA_character_, unit = "1.0000",
+                       ordinary = if (mode == "stars") "0.0500*" else "0.0500",
+                       bound = paste0("<=", one), nan = NA_character_, other_unit = "1.0000"))
+  }
+})
+
+test_that("long unit endpoints keep bound and range validation", {
+  zeros <- strrep("0", 5000)
+  one <- c(paste0("1", zeros, "e-5000"), paste0("1.", zeros))
+  for (endpoint in one) {
+    bounds <- paste0(c("<", "<=", ">=", "\u2264", "\u2265"), "\u00a0", endpoint)
+    for (mode in c("stars", "pvalue", "plain")) {
+      expect_identical(stat_pval(paste0("\u2009", bounds, "\u202f"), mode = mode), bounds)
+    }
+    impossible <- paste0(">\u00a0", endpoint)
+    for (mode in c("stars", "pvalue")) {
+      expect_error(stat_pval(impossible, mode = mode), "possible P-value")
+      expect_error(stat_pval(paste0("-", endpoint), mode = mode), "between 0 and 1")
+      expect_error(stat_pval(paste0("<=-", endpoint), mode = mode), "between 0 and 1")
+    }
+    expect_identical(stat_pval(impossible, mode = "plain"), impossible)
+  }
+  above_one <- paste0("1", zeros, "1e-5001")
+  for (mode in c("stars", "pvalue")) {
+    expect_error(stat_pval(above_one, mode = mode), "between 0 and 1")
+    expect_error(stat_pval(paste0("<=", above_one), mode = mode), "between 0 and 1")
+  }
+})
+
 test_that("special numeric storage cannot be mistaken for P-values", {
   values <- list(as.difftime(.01, units = "secs"), as.Date("1970-01-01"),
                  as.POSIXct("1970-01-01", tz = "UTC"))
