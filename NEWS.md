@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Compute pooled quantile bounds once for stacked `plt_con()` plots with shared axes and reuse them for comparison labels.
+
 * Identify invalid matrix and grid unit inputs in raster dimensions and tag positions before drawing.
 
 * Locate invalid values in large colour vectors by checking blocks before retrying individual colours.

@@ -1423,7 +1423,7 @@ plt_con <- function(data,
 
   dat_long <- dat_long[is.finite(dat_long[["value"]]), , drop = FALSE]
 
-  # Resolve independent facet bounds once, for both scales and annotations.
+  # Resolve quantile bounds once, for both scales and annotations.
   values <- dat_long[["value"]]
   auto_bounds <- c(is.null(y.min), is.null(y.max))
   axis_limits <- feature_limits <- NULL
@@ -1439,6 +1439,9 @@ plt_con <- function(data,
       limits[is_quantile] <- stats::quantile(v, probs, na.rm = TRUE, names = FALSE)
       limits
     })
+  } else if (isTRUE(same.y.lims) && is.character(y.min) && is.character(y.max)) {
+    probs <- as.numeric(sub("^q", "", c(y.min, y.max))) / 100
+    axis_limits <- stats::quantile(values, probs, na.rm = TRUE)
   } else if (!all(auto_bounds)) {
     axis_limits <- c(if (auto_bounds[1L]) NA_real_ else .resolve_y_limit(y.min, values, "min"),
                      if (auto_bounds[2L]) NA_real_ else .resolve_y_limit(y.max, values, "max"))
@@ -1558,7 +1561,7 @@ plt_con <- function(data,
     bar_ranges <- vapply(names(bar_data), function(feature) {
       d <- bar_data[[feature]]
       v <- d[["value"]]
-      limits <- feature_limits[[feature]]
+      limits <- if (isTRUE(same.y.lims)) axis_limits else feature_limits[[feature]]
       if (!is.null(limits)) {
         if (any(auto_bounds)) {
           limits[auto_bounds] <- .con_bar_range(v, d[["group.by"]])[auto_bounds]
