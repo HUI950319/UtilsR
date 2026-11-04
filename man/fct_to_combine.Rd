@@ -75,8 +75,10 @@ single factor (the dual operation), see \code{\link{fct_to_group}()}.
 A row is missing if any input is missing according to its \code{is.na()}
 method, including \code{NaN} and SPSS user-missing values and ranges.
 The literal string \code{"NA"} remains an ordinary category.
-Non-factor inputs are grouped by their original values before conversion
-to text, so numeric formatting cannot silently merge distinct combinations.
+Non-factor inputs are sorted by value, with exact 64-bit integer ordering
+for \code{integer64} vectors from \pkg{bit64}. They are grouped by their
+original values before conversion to text, so numeric formatting cannot
+silently merge distinct combinations.
 If distinct combinations produce the same label, the function errors;
 choose a different \code{sep} or relabel the inputs to disambiguate them.
 For numeric formatting collisions, format the values explicitly with enough

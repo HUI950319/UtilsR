@@ -116,6 +116,67 @@ test_that("integer64 labels and missing values retain their meaning", {
                    c("9007199254740993 & X", "9007199254740994 & X", NA))
 })
 
+test_that("integer64 combinations use exact ordering across the supported range", {
+  skip_if_not_installed("bit64")
+  sorted <- c("-9223372036854775807", "-9223372036854775806",
+              "-9223372036854775805", "-4611686018427387904",
+              "-9007199254740994", "-9007199254740993", "-1", "0", "1",
+              "9007199254740993", "9223372036854775806", "9223372036854775807")
+  rows <- c(12L, 2L, 8L, 1L, 4L, 5L, 6L, 10L, 11L, 3L, 7L, 9L, 2L, NA, 1L)
+  labels <- sorted[rows]
+  x <- bit64::as.integer64(labels)
+  before <- x
+  expected <- factor(ifelse(is.na(labels), NA_character_, paste(labels, "X", sep = " & ")),
+                     levels = paste(sorted, "X", sep = " & "))
+
+  expect_identical(fct_to_combine(x), factor(labels, levels = sorted))
+  expect_identical(fct_to_combine(x, rep("X", length(x))), expected)
+  reverse_rows <- rev(seq_along(x))
+  expect_identical(fct_to_combine(x[reverse_rows], rep("X", length(x))),
+                   expected[reverse_rows])
+  expect_identical(fct_to_combine(x[0], character()), factor(character()))
+  expect_identical(fct_to_combine(x[is.na(x)], "X"), factor(NA_character_))
+  expect_identical(x, before)
+})
+
+test_that("integer64 ordering reaches data-frame and data-mask call paths", {
+  skip_if_not_installed("bit64")
+  labels <- c("-1", "-9223372036854775806", "-9223372036854775807",
+              "-9223372036854775806", "-9223372036854775807", NA,
+              "9223372036854775807", "0")
+  data <- data.frame(value = bit64::as.integer64(labels),
+                     group = factor(c("A", "A", "A", "B", "B", "A", "B", NA),
+                                    levels = c("B", "A")))
+  before <- data
+  expected <- factor(c("-1 & A", "-9223372036854775806 & A",
+                       "-9223372036854775807 & A", "-9223372036854775806 & B",
+                       "-9223372036854775807 & B", NA, "9223372036854775807 & B", NA),
+                     levels = c("-9223372036854775807 & B", "-9223372036854775807 & A",
+                                "-9223372036854775806 & B", "-9223372036854775806 & A",
+                                "-1 & A", "9223372036854775807 & B"))
+
+  expect_identical(fct_to_combine(data$value, data$group), expected)
+  expect_identical(fct_to_combine(data, c("value", "group"))$value_group, expected)
+  expect_identical(fct_to_combine(data, c("value", "group"), var_name = "value")$value,
+                   expected)
+  expect_identical(dplyr::mutate(data, g = fct_to_combine(value, group))$g, expected)
+  expect_identical(dplyr::mutate(data, g = fct_to_combine(c("value", "group")))$g,
+                   expected)
+  grouped <- dplyr::group_by(data, group)
+  combined <- fct_to_combine(grouped, c("value", "group"), var_name = "g")
+  expect_identical(combined$g, expected)
+  expect_identical(dplyr::group_data(combined), dplyr::group_data(grouped))
+  expect_identical(data, before)
+
+  reversed <- factor(c("A & -1", "A & -9223372036854775806",
+                      "A & -9223372036854775807", "B & -9223372036854775806",
+                      "B & -9223372036854775807", NA, "B & 9223372036854775807", NA),
+                    levels = c("B & -9223372036854775807", "B & -9223372036854775806",
+                               "B & 9223372036854775807", "A & -9223372036854775807",
+                               "A & -9223372036854775806", "A & -1"))
+  expect_identical(fct_to_combine(data$group, data$value), reversed)
+})
+
 test_that("distinct tuples cannot silently share a label", {
   a <- c("A & B", "A")
   b <- c("C", "B & C")
