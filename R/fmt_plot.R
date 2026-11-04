@@ -365,7 +365,8 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
     "br-out" = list(x = 1,    y = 0,    outside = TRUE)
   )
 
-  if (is.character(label_position) && length(label_position) == 1L) {
+  if (is.character(label_position) && is.null(dim(label_position)) &&
+      length(label_position) == 1L) {
     key <- gsub("_", "-", tolower(label_position))
     if (key %in% names(map)) return(map[[key]])
     cli::cli_abort(c(
@@ -374,7 +375,8 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
     ))
   }
 
-  if (is.numeric(label_position) && length(label_position) == 2L &&
+  if (is.numeric(label_position) && is.null(dim(label_position)) &&
+      !inherits(label_position, "unit") && length(label_position) == 2L &&
       all(is.finite(label_position)) && all(label_position >= 0 & label_position <= 1)) {
     return(list(x = label_position[1], y = label_position[2], outside = FALSE))
   }

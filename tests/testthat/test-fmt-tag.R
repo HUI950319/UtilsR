@@ -202,7 +202,8 @@ test_that("tag arguments fail early with the responsible argument", {
   invalid <- list(
     labels = list(character(), "", "  ", NA_character_, 1),
     label_position = list(c(NA_real_, 0.5), c(Inf, 0.5), c(-0.1, 1), c(0, 1.1),
-                            0.5, "unknown", character()),
+                            0.5, "unknown", character(), matrix("tl"),
+                            matrix(c(0, 1), nrow = 1), grid::unit(c(0, 1), "npc")),
     size = list(numeric(), 0, -1, Inf, NA_real_, "large"),
     color = list(character(), "not-a-colour", list("black")),
     fontface = list("unknown", NA_character_, 0),

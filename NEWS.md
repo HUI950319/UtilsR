@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Identify invalid matrix and grid unit inputs in raster dimensions and tag positions before drawing.
+
 * Locate invalid values in large colour vectors by checking blocks before retrying individual colours.
 
 * Map constant finite values from one midpoint, recycling the encoded colour into the original positions.

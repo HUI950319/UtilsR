@@ -339,13 +339,19 @@ test_that("invalid resolutions and panel dimensions fail before the backend", {
     .package = "UtilsR"
   )
   for (method in c("ragg", "ggrastr")) {
-    for (value in list(0, -1, NA_real_, Inf, numeric(), c(72, 100), "300")) {
+    for (value in list(0, -1, NA_real_, Inf, numeric(), c(72, 100), "300",
+                       matrix(72), grid::unit(72, "pt"))) {
       expect_error(fmt_raster(NULL, method = method, dpi = value), "dpi.*positive")
     }
   }
   for (argument in c("width", "height")) {
-    for (value in list(0, -1, NA_real_, Inf, numeric(), "2")) {
+    for (value in list(0, -1, NA_real_, Inf, numeric(), "2", matrix(2))) {
       args <- c(list(plot = NULL, method = "ragg"), setNames(list(value), argument))
+      expect_error(do.call(fmt_raster, args), paste0(argument, ".*positive"))
+    }
+    for (method in c("ragg", "image")) {
+      args <- c(list(plot = NULL, method = method),
+                setNames(list(grid::unit(2, "cm")), argument))
       expect_error(do.call(fmt_raster, args), paste0(argument, ".*positive"))
     }
   }
