@@ -17,7 +17,7 @@ requires the suggested ggalluvial package."><meta property="og:image" content="h
 
     <a class="navbar-brand me-2" href="../index.html">UtilsR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.22</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.23</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -142,7 +142,8 @@ follows <code>facet_args</code>.</p></dd>
 <code>NULL</code> (default <code>pal_lancet</code>), a registered palette name (e.g.
 <code>"Paired"</code>), a single literal colour, or a vector of colours. In
 a named vector, names must be unique category labels and include every
-observed fill category. Unnamed vectors follow factor-level order (data
+observed fill category. A blank name is allowed for an observed empty
+string category. Unnamed vectors follow factor-level order (data
 order for character alluvial groups). Unused bar/heatmap factor levels
 retain their positions in an unnamed palette.</p></dd>
 

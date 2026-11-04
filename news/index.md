@@ -1,10 +1,65 @@
 # Changelog
 
+## UtilsR 0.6.23
+
+- PlotScatter1() validates themes with the shared resolver, which can
+  forward arguments to theme factories used by plotting callers.
+
 ## UtilsR 0.6.22
+
+- [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
+  wraps large requested colour counts within the HTML catalogue count
+  column.
+
+- [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
+  serializes smaller gt objects by keeping preview formatters
+  independent of their input tables.
+
+- [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
+  uses page-relative LaTeX columns, wraps compound palette names and
+  repeats headers across pages while retaining 20px HTML swatches.
+
+- Share finite positions, normalisation and repeated-value indices
+  across numeric palette lists.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  computes independent facet quantiles once per feature and reuses the
+  limits for bar comparisons.
+
+- Encode the final alpha channel during palette interpolation,
+  preserving alpha byte rounding and scalar or vector HEX formatting.
+
+- [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
+  resolves exact set membership for
+  [`I()`](https://rdrr.io/r/base/AsIs.html)-wrapped dates and elapsed
+  times.
+
+- Locate invalid colours in long literal vectors by checking blocks
+  before falling back to individual colours.
+
+- Validate long, highly repetitive literal colour vectors in
+  [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md)
+  once per distinct value and retain the original order of invalid
+  entries.
+
+- Preserve vector HEX formatting in
+  [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md)
+  when a near-opaque alpha rounds to fully opaque and repeated numeric
+  values share a colour.
+
+- Use a repetition probe to avoid revalidating the same colour in long,
+  highly repetitive input vectors.
+
+- Reject dimensional named colours before subsetting and match observed
+  empty categories exactly in distribution and alluvial plots.
 
 - PlotDumbbell() and PlotScatter3() validate themes with the shared
   resolver. Automatic dumbbell insets reuse the main theme unless a
   separate theme is supplied.
+
+- [`PlotButterfly()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly.md)
+  uses the shared colour resolver, checks duplicate palette names, and
+  warns about categories that use the grey fallback.
 
 - plt_dist() follows ggplot2’s registered default text size when the
   plot and current themes omit base text.

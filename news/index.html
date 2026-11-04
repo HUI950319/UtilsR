@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">UtilsR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.22</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.23</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -49,8 +49,25 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.6.23" id="utilsr-0623">UtilsR 0.6.23<a class="anchor" aria-label="anchor" href="#utilsr-0623"></a></h2>
+<ul><li>PlotScatter1() validates themes with the shared resolver, which can forward arguments to theme factories used by plotting callers.</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.22" id="utilsr-0622">UtilsR 0.6.22<a class="anchor" aria-label="anchor" href="#utilsr-0622"></a></h2>
-<ul><li><p>PlotDumbbell() and PlotScatter3() validate themes with the shared resolver. Automatic dumbbell insets reuse the main theme unless a separate theme is supplied.</p></li>
+<ul><li><p><code><a href="../reference/pal_show.html">pal_show()</a></code> wraps large requested colour counts within the HTML catalogue count column.</p></li>
+<li><p><code><a href="../reference/pal_show.html">pal_show()</a></code> serializes smaller gt objects by keeping preview formatters independent of their input tables.</p></li>
+<li><p><code><a href="../reference/pal_show.html">pal_show()</a></code> uses page-relative LaTeX columns, wraps compound palette names and repeats headers across pages while retaining 20px HTML swatches.</p></li>
+<li><p>Share finite positions, normalisation and repeated-value indices across numeric palette lists.</p></li>
+<li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> computes independent facet quantiles once per feature and reuses the limits for bar comparisons.</p></li>
+<li><p>Encode the final alpha channel during palette interpolation, preserving alpha byte rounding and scalar or vector HEX formatting.</p></li>
+<li><p><code><a href="../reference/plt_cat.html">plt_cat()</a></code> resolves exact set membership for <code><a href="https://rdrr.io/r/base/AsIs.html" class="external-link">I()</a></code>-wrapped dates and elapsed times.</p></li>
+<li><p>Locate invalid colours in long literal vectors by checking blocks before falling back to individual colours.</p></li>
+<li><p>Validate long, highly repetitive literal colour vectors in <code><a href="../reference/pal_get.html">pal_get()</a></code> once per distinct value and retain the original order of invalid entries.</p></li>
+<li><p>Preserve vector HEX formatting in <code><a href="../reference/pal_get.html">pal_get()</a></code> when a near-opaque alpha rounds to fully opaque and repeated numeric values share a colour.</p></li>
+<li><p>Use a repetition probe to avoid revalidating the same colour in long, highly repetitive input vectors.</p></li>
+<li><p>Reject dimensional named colours before subsetting and match observed empty categories exactly in distribution and alluvial plots.</p></li>
+<li><p>PlotDumbbell() and PlotScatter3() validate themes with the shared resolver. Automatic dumbbell insets reuse the main theme unless a separate theme is supplied.</p></li>
+<li><p><code><a href="../reference/PlotButterfly.html">PlotButterfly()</a></code> uses the shared colour resolver, checks duplicate palette names, and warns about categories that use the grey fallback.</p></li>
 <li><p>plt_dist() follows ggplot2’s registered default text size when the plot and current themes omit base text.</p></li>
 <li><p>Interpret single named colours as literals in plt_alluvial() and PlotRankCor(), including when a subset retains one group.</p></li>
 <li><p><code><a href="../reference/plt_cat.html">plt_cat()</a></code> leaves entirely missing sets empty when inferring positive membership.</p></li>

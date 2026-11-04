@@ -73,9 +73,9 @@ formula_data <- data.frame(
   age = c(45, 52, 61, 39)
 )
 .cat_formula(formula_data, co_var = "age")
-#> [2026-11-04 23:20:35]  ℹ Cox model, unadjusted: Surv(time, DSS) ~ age 
+#> [2026-11-04 23:21:44]  ℹ Cox model, unadjusted: Surv(time, DSS) ~ age 
 names(formula_data)[1:2] <- c("event status", "follow up")
 .cat_formula(formula_data, co_var = "age", time = "follow up",
              outcome = "event status")
-#> [2026-11-04 23:20:35]  ℹ Cox model, unadjusted: Surv(`follow up`, `event status`) ~ age 
+#> [2026-11-04 23:21:44]  ℹ Cox model, unadjusted: Surv(`follow up`, `event status`) ~ age 
 ```

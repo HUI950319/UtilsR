@@ -10,21 +10,26 @@ as the fallback. Names are looked up as functions visible to the
 immediate caller, then as UtilsR exports, then as ggplot2 exports. Pass
 a function or theme object for a local custom theme used through a
 plotting wrapper. Errors evaluating a visible binding or calling a theme
-function are preserved. Theme functions are called without arguments.
-Wrap a configured theme call in a function to supply settings.
+function are preserved. Theme functions are called without arguments by
+default. Supply settings in a closure or pass them through `...`.
 
 ## Usage
 
 ``` r
-.resolve_theme(theme_use)
+.resolve_theme(theme_use, ...)
 ```
 
 ## Arguments
 
 - theme_use:
 
-  `NULL`, a single non-missing, non-empty theme name, a function called
-  without arguments and returning a theme, or a theme object.
+  `NULL`, a single non-missing, non-empty theme name, a function
+  returning a theme, or a theme object.
+
+- ...:
+
+  Arguments forwarded to the theme function when one is used. Ignored
+  when the specification resolves to a theme object.
 
 ## Value
 

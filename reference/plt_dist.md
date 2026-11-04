@@ -84,6 +84,7 @@ plt_dist(
   (default `pal_lancet`), a registered palette name (e.g. `"Paired"`), a
   single literal colour, or a vector of colours. In a named vector,
   names must be unique category labels and include every observed fill
+  category. A blank name is allowed for an observed empty string
   category. Unnamed vectors follow factor-level order (data order for
   character alluvial groups). Unused bar/heatmap factor levels retain
   their positions in an unnamed palette.
