@@ -106,7 +106,8 @@ Default \code{TRUE}.}
 \item{cor_x, cor_y}{Coordinates for correlation label. Default \code{NULL}
 (auto).}
 
-\item{hist_bins}{Number of histogram bins. Default 30.}
+\item{hist_bins}{Number of equally spaced histogram bins across
+\code{hist_x_limits}. Default 30.}
 
 \item{hist_x_limits}{Histogram X axis range. Default \code{NULL} uses a
 symmetric range based on finite paired differences, expanded by 20\%.

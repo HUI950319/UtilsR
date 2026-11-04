@@ -89,6 +89,27 @@ test_that("PlotScatter3 paired tests omit missing observations pairwise", {
   }
 })
 
+test_that("PlotScatter3 draws every paired difference with coarse histogram bins", {
+  data <- data.frame(
+    Control = seq_len(8),
+    Treat = seq_len(8) + c(-3, -2, -1, 0, 1, 2, 2.5, 4),
+    group = rep(c("NS", "S"), 4)
+  )
+  for (bins in c(1L, 2L, 5L, 30L)) {
+    p <- scatter3_capture_inset(data, test_method = "none", cor_method = "none",
+                                hist_bins = bins)
+    built <- ggplot2::ggplot_build(p$inset)
+    histogram <- built$data[[1]]
+    visible <- is.finite(histogram$xmin) & is.finite(histogram$xmax)
+    expect_equal(sum(histogram$count[visible]), nrow(data))
+    expect_equal(as.vector(tapply(histogram$count[visible], histogram$group[visible], sum)),
+                 rep(4, 2))
+    expect_equal(built$data[[2]]$x, 0.5)
+    expect_equal(built$data[[3]]$label, 0.5)
+    expect_no_warning(ggplot2::ggplotGrob(p$inset))
+  }
+})
+
 test_that("PlotScatter3 derives automatic histogram limits from paired differences", {
   withr::local_options(lifecycle_verbosity = "quiet")
   inset <- NULL

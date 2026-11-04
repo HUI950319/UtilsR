@@ -51,7 +51,8 @@
 #' @param cor_size Text size for correlation label. Default 4.
 #' @param cor_x,cor_y Coordinates for correlation label. Default \code{NULL}
 #'   (auto).
-#' @param hist_bins Number of histogram bins. Default 30.
+#' @param hist_bins Number of equally spaced histogram bins across
+#'   \code{hist_x_limits}. Default 30.
 #' @param hist_x_limits Histogram X axis range. Default \code{NULL} uses a
 #'   symmetric range based on finite paired differences, expanded by 20\%.
 #'   All-zero differences receive a non-zero range. Explicit limits are retained.
@@ -305,6 +306,8 @@ PlotScatter3 <- function(
     hist_x_breaks <- pretty(hist_x_limits, n = 4)
     hist_x_breaks <- hist_x_breaks[hist_x_breaks != 0]
   }
+  hist_bin_breaks <- seq(min(hist_x_limits), max(hist_x_limits),
+                         length.out = hist_bins + 1)
 
   if (is.null(median_line_yend)) {
     hdata <- graphics::hist(diff_values, breaks = hist_bins, plot = FALSE)
@@ -325,7 +328,7 @@ PlotScatter3 <- function(
     color = .data[[group]]
   )) +
     ggplot2::geom_histogram(
-      bins = hist_bins, position = "identity", linewidth = 1
+      breaks = hist_bin_breaks, position = "identity", linewidth = 1
     ) +
     ggplot2::scale_fill_manual(values = fill_vals) +
     ggplot2::scale_color_manual(values = hist_color_vals) +
