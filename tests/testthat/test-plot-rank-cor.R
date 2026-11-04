@@ -751,3 +751,22 @@ test_that("aesthetic summaries preserve missing category keys and other mapped v
     }
   }
 })
+
+test_that("many-group subtitles wrap without changing individual summaries", {
+  data <- expand.grid(item = letters[1:4], group = sprintf("G%02d", 1:12),
+                      method = c("M1", "M2"))
+  data$score <- rep(c(4, 1, 3, 2), 24)
+  p <- quiet_rank_cor(data, group.by = "group")
+  results <- attr(p, "cor_results")
+  parts <- sprintf("%s: rho = %.3f (p = %.3g)", results$group, results$rho, results$p.value)
+  expect_match(p$labels$subtitle, "\n", fixed = TRUE)
+  expect_identical(gsub("\n", "    ", p$labels$subtitle, fixed = TRUE), paste(parts, collapse = "    "))
+  expect_equal(results$rho, rep(1, 12))
+  expect_equal(results$p.value, rep(0, 12))
+  grob <- ggplot2::ggplotGrob(p)
+  subtitle <- grob$grobs[[match("subtitle", grob$layout$name)]]
+  expect_lt(grid::convertWidth(grid::grobWidth(subtitle), "in", valueOnly = TRUE), 12)
+
+  short <- quiet_rank_cor(data[data$group %in% c("G01", "G02"), ], group.by = "group")
+  expect_identical(short$labels$subtitle, paste(parts[1:2], collapse = "    "))
+})

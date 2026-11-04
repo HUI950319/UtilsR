@@ -160,6 +160,7 @@ Compare two methods by plotting their ranks against each other. Spearman
 correlation and p-value are computed internally and displayed as subtitles.
 When multiple groups exist (e.g. PHPT vs SHPT), each group is shown as a
 separate facet with its own correlation statistics.
+Long subtitles wrap between group summaries, keeping each summary intact.
 }
 \examples{
 set.seed(42)

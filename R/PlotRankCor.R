@@ -8,6 +8,7 @@
 #' correlation and p-value are computed internally and displayed as subtitles.
 #' When multiple groups exist (e.g. PHPT vs SHPT), each group is shown as a
 #' separate facet with its own correlation statistics.
+#' Long subtitles wrap between group summaries, keeping each summary intact.
 #'
 #' @param data Data frame in long format. Must contain columns specified by
 #'   \code{stat.by}, \code{value.by}, \code{group.by}, and \code{method.by}.
@@ -447,7 +448,18 @@ PlotRankCor <- function(
             cor_results$group[i], cor_label, cor_results$rho[i],
             cor_results$p.value[i])
   }, character(1))
-  subtitle <- paste(sub_parts, collapse = "    ")
+  subtitle_lines <- character()
+  subtitle_line <- ""
+  for (sub_part in sub_parts) {
+    combined <- if (nzchar(subtitle_line)) paste(subtitle_line, sub_part, sep = "    ") else sub_part
+    if (nzchar(subtitle_line) && nchar(combined, type = "width") > 80L) {
+      subtitle_lines <- c(subtitle_lines, subtitle_line)
+      subtitle_line <- sub_part
+    } else {
+      subtitle_line <- combined
+    }
+  }
+  subtitle <- paste(c(subtitle_lines, subtitle_line), collapse = "\n")
 
   # ---- Resolve palette ----
   n_groups <- length(groups)
