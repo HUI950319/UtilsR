@@ -1058,7 +1058,9 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #'   a colour vector (hex codes or named colours), or \code{NULL} to show
 #'   all palettes matching \code{pattern}/\code{type}. Named colour vectors
 #'   (e.g. \code{pal_paraSC}) use valid names as labels and hex codes for missing
-#'   or whitespace-only names. Repeated palette names are displayed once, in
+#'   or whitespace-only names when selecting existing colours. When \code{n}
+#'   exceeds the vector length, the generated preview uses HEX labels.
+#'   Repeated palette names are displayed once, in
 #'   first-occurrence order; repeated literal colours are preserved. Factors,
 #'   classed vectors, matrices and data frames are not supported.
 #' @param n Positive whole number of colours to preview from each palette.
