@@ -24,6 +24,8 @@
 #'
 #' Numeric axis values are preserved when a grouping column is also used
 #' on an axis.
+#' A column named \code{.data} may be used for an axis or grouping variable;
+#' displayed labels retain the requested column names.
 #'
 #' The bottom-right panel contains a fill legend for each grouping variable.
 #' These fill legends are independent of the global theme's legend visibility.
@@ -159,8 +161,18 @@ PlotScatter2 <- function(
 
   if (is.null(xlab)) xlab <- x
   if (is.null(ylab)) ylab <- y
+  group_label <- group
+  group2_label <- group2
 
   df <- data
+  if (".data" %in% c(x, y, group, group2)) {
+    data_col <- make.unique(c(names(df), ".scatter2_data"))[ncol(df) + 1L]
+    df[[data_col]] <- df[[".data"]]
+    if (x == ".data") x <- data_col
+    if (y == ".data") y <- data_col
+    if (group == ".data") group <- data_col
+    if (!is.null(group2) && group2 == ".data") group2 <- data_col
+  }
   for (col in intersect(c(x, y), c(group, group2))) {
     axis_col <- make.unique(c(names(df), ".scatter2_axis"))[ncol(df) + 1L]
     df[[axis_col]] <- df[[col]]
@@ -231,11 +243,11 @@ PlotScatter2 <- function(
   # ---- Collect margin variables (for marginal boxplots) ----
   margin_vars <- list()
   margin_vars[[group]] <- list(
-    col = group, fill = colors, label = group
+    col = group, fill = colors, label = group_label
   )
   if (!is.null(group2)) {
     margin_vars[[group2]] <- list(
-      col = group2, fill = fill_colors_shape, label = group2
+      col = group2, fill = fill_colors_shape, label = group2_label
     )
   }
 
@@ -254,13 +266,13 @@ PlotScatter2 <- function(
 
   p_main <- p_main +
     ggplot2::geom_point(size = point_size, alpha = point_alpha) +
-    ggplot2::scale_color_manual(values = colors, name = group,
+    ggplot2::scale_color_manual(values = colors, name = group_label,
       guide = if (legend_color_pos == "none") "none" else
         ggplot2::guide_legend(position = legend_color_pos))
 
   if (!is.null(group2)) {
     p_main <- p_main +
-      ggplot2::scale_shape_manual(values = shapes, name = group2,
+      ggplot2::scale_shape_manual(values = shapes, name = group2_label,
         guide = if (identical(legend_shape_pos, "none")) "none" else "legend")
   }
 

@@ -133,6 +133,8 @@ accepted.
 
 Numeric axis values are preserved when a grouping column is also used
 on an axis.
+A column named \code{.data} may be used for an axis or grouping variable;
+displayed labels retain the requested column names.
 
 The bottom-right panel contains a fill legend for each grouping variable.
 These fill legends are independent of the global theme's legend visibility.

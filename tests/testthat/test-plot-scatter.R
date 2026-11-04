@@ -337,3 +337,37 @@ test_that("PlotScatter2 preserves numeric axes that are also grouping columns", 
     grid::grid.draw(patchwork::patchworkGrob(p))
   }
 })
+
+test_that("PlotScatter2 supports a column named .data in each plotting role", {
+  data <- data.frame(x = rep(c(10, 30), 6), y = rep(c(100, 200), each = 6),
+                     g = rep(c("b", "a"), 6), h = rep(c("Y", "X"), each = 6),
+                     .scatter2_data = -seq_len(12), .scatter2_data.1 = seq_len(12))
+  for (role in c("x", "y", "group", "group2")) {
+    columns <- c(x = "x", y = "y", group = "g", group2 = "h")
+    renamed <- data
+    names(renamed)[match(columns[[role]], names(renamed))] <- ".data"
+    columns[[role]] <- ".data"
+    before <- serialize(renamed, NULL)
+    p <- do.call(PlotScatter2, c(list(data = renamed), as.list(columns),
+      list(colors = c(b = "#112233", a = "#445566"),
+           shapes = c(Y = 16, X = 17))))
+    points <- ggplot2::ggplot_build(p[[1]])$data[[1]]
+    expect_equal(points$x, data$x)
+    expect_equal(points$y, data$y)
+    expect_identical(points$colour, rep(c("#112233", "#445566"), 6))
+    expect_identical(points$shape, rep(c(16, 17), each = 6))
+    expect_equal(p[[1]]$labels$x, columns[["x"]])
+    expect_equal(p[[1]]$labels$y, columns[["y"]])
+    labels <- scatter_grob_labels(ggplot2::ggplotGrob(p[[6]]))
+    expected <- unname(columns[c("group", "group2")])
+    expect_setequal(intersect(labels, expected), expected)
+    expect_identical(serialize(renamed, NULL), before)
+    grid::grid.draw(patchwork::patchworkGrob(p))
+  }
+  names(data)[1] <- ".data"
+  p <- PlotScatter2(data, ".data", "y", ".data", group2 = "h")
+  points <- ggplot2::ggplot_build(p[[1]])$data[[1]]
+  expect_equal(points$x, data[[".data"]])
+  expect_equal(points$y, data$y)
+  grid::grid.draw(patchwork::patchworkGrob(p))
+})
