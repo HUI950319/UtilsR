@@ -12,6 +12,54 @@ scatter_grob_labels <- function(grob) {
   c(labels, unlist(lapply(children, scatter_grob_labels), use.names = FALSE))
 }
 
+scatter3_capture_inset <- function(...) {
+  inset <- NULL
+  plot <- testthat::with_mocked_bindings(
+    PlotScatter3(..., theme_use = ggplot2::theme_classic),
+    ggplotGrob = function(x, ...) {
+      inset <<- x
+      grid::nullGrob()
+    }, .package = "ggplot2"
+  )
+  list(main = plot[[1]], inset = inset)
+}
+
+scatter3_integer_pairs <- function() {
+  data.frame(
+    Control = c(-2000000000L, -1999999998L, 2000000000L, 1999999998L,
+                10L, 20L, 30L, 40L),
+    Treat = c(2000000000L, 1999999995L, -1999999991L, -1999999990L,
+              12L, 25L, 37L, 51L),
+    group = rep(c("NS", "S"), 4)
+  )
+}
+
+test_that("PlotScatter3 retains differences beyond the integer range", {
+  data <- scatter3_integer_pairs()
+  before <- serialize(data, NULL)
+  differences <- as.double(data$Treat) - as.double(data$Control)
+  expect_no_warning(p <- scatter3_capture_inset(
+    data, test_method = "none", cor_method = "none"
+  ))
+  built <- ggplot2::ggplot_build(p$inset)
+  expect_equal(sum(built$data[[1]]$count), nrow(data))
+  expect_equal(built$data[[2]]$x, stats::median(differences))
+  expect_equal(rlang::eval_tidy(p$inset$mapping$x, data = p$inset$data), differences)
+  expect_identical(serialize(data, NULL), before)
+
+  for (direction in c(-1L, 1L)) {
+    data$Control <- direction * (-2000000000L + 0:7)
+    data$Treat <- direction * (2000000000L - 0:7)
+    expect_no_warning(p <- scatter3_capture_inset(
+      data, test_method = "none", cor_method = "none"
+    ))
+    built <- ggplot2::ggplot_build(p$inset)
+    expect_equal(sum(built$data[[1]]$count), nrow(data))
+    expect_equal(built$data[[2]]$x,
+                 stats::median(as.double(data$Treat) - as.double(data$Control)))
+  }
+})
+
 test_that("PlotScatter3 derives automatic histogram limits from paired differences", {
   withr::local_options(lifecycle_verbosity = "quiet")
   inset <- NULL

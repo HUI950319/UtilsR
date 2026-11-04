@@ -8,8 +8,16 @@
 #' inset in the upper-right corner. Suitable for Control vs Treatment paired
 #' comparisons. Inspired by Cell journal figure style.
 #'
-#' For single-group scatter with marginal boxplots, see [PlotScatter1()].
-#' For dual-group scatter with marginal boxplots, see [PlotScatter2()].
+#' For single-group scatter with marginal boxplots, see
+#' \code{\link{PlotScatter1}()}.
+#' For dual-group scatter with marginal boxplots, see
+#' \code{\link{PlotScatter2}()}.
+#'
+#' Integer measurements are promoted to double precision before calculating
+#' differences. The histogram shows \code{y - x}; its median
+#' uses all non-missing differences. Explicit axis limits trim displayed data
+#' without changing the paired test or median. ggplot2 can warn when limits
+#' exclude observations or the median annotation.
 #'
 #' @param data A data.frame containing x (control), y (treatment), and group columns.
 #' @param x Column name for control values (X axis). Default \code{"Control"}.
@@ -207,7 +215,9 @@ PlotScatter3 <- function(
   }
 
   # ---- Difference statistics ----
-  diff_values <- data[[y]] - data[[x]]
+  x_values <- as.double(data[[x]])
+  y_values <- as.double(data[[y]])
+  diff_values <- y_values - x_values
   median_diff <- stats::median(diff_values, na.rm = TRUE)
 
   # ---- Paired test ----
@@ -310,7 +320,7 @@ PlotScatter3 <- function(
   }
 
   p2 <- ggplot2::ggplot(data, ggplot2::aes(
-    x     = .data[[y]] - .data[[x]],
+    x     = .env$diff_values,
     fill  = .data[[group]],
     color = .data[[group]]
   )) +
