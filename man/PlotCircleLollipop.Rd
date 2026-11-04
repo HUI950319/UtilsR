@@ -54,9 +54,13 @@ Numeric character strings and factor labels (including ordered factors)
 are parsed before ranking or scaling. Invalid non-missing labels are
 rejected; existing missing scores are retained.}
 
-\item{top_n}{Integer. If not \code{NULL}, keep only the top \code{top_n}
-features per group ranked by \code{value_col} (descending). Applied before
-any plotting. \code{NULL} = use all rows as-is.}
+\item{top_n}{A single non-negative whole number no greater than
+\code{.Machine$integer.max}, or \code{NULL}. Keep this many features per
+group ranked by the parsed numeric scores (descending), before plotting.
+Integers and whole-valued doubles are accepted; character, logical and
+factor counts, fractions, missing values and infinite values are rejected.
+\code{NULL} uses all rows as-is. Zero selects no rows and raises
+\code{"No observations to plot."}.}
 
 \item{value_scale}{Per-group value scaling applied after \code{top_n}
 selection. Three options:

@@ -20,9 +20,13 @@
 #'   Numeric character strings and factor labels (including ordered factors)
 #'   are parsed before ranking or scaling. Invalid non-missing labels are
 #'   rejected; existing missing scores are retained.
-#' @param top_n Integer. If not \code{NULL}, keep only the top \code{top_n}
-#'   features per group ranked by \code{value_col} (descending). Applied before
-#'   any plotting. \code{NULL} = use all rows as-is.
+#' @param top_n A single non-negative whole number no greater than
+#'   \code{.Machine$integer.max}, or \code{NULL}. Keep this many features per
+#'   group ranked by the parsed numeric scores (descending), before plotting.
+#'   Integers and whole-valued doubles are accepted; character, logical and
+#'   factor counts, fractions, missing values and infinite values are rejected.
+#'   \code{NULL} uses all rows as-is. Zero selects no rows and raises
+#'   \code{"No observations to plot."}.
 #' @param value_scale Per-group value scaling applied after \code{top_n}
 #'   selection. Three options:
 #'   \describe{
@@ -180,6 +184,12 @@ PlotCircleLollipop <- function(
 
   # ---- top_n: keep top-N rows per group by value (descending) ----
   if (!is.null(top_n)) {
+    if (length(top_n) != 1L || !is.numeric(top_n) || is.complex(top_n) ||
+        !is.finite(top_n) || top_n < 0 || top_n > .Machine$integer.max ||
+        top_n != floor(top_n)) {
+      stop("'top_n' must be NULL or a single non-negative integer no greater than .Machine$integer.max.",
+           call. = FALSE)
+    }
     top_n <- as.integer(top_n)
     data <- data |>
       dplyr::group_by(.data[[group_col]]) |>

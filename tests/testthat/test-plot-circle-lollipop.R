@@ -180,6 +180,27 @@ test_that("PlotCircleLollipop ranks and scales factor scores by their labels", {
   }
 })
 
+test_that("PlotCircleLollipop rejects fractional top_n before creating output", {
+  skip_if_not_installed("circlize")
+  data <- data.frame(group = rep(c("A", "B"), each = 3),
+                     name = letters[1:6], value = seq(.1, .6, by = .1))
+  devices <- grDevices::dev.list()
+  for (n in c(.5, 1.5, 2.999, -1)) {
+    file <- withr::local_tempfile(fileext = ".pdf")
+    error <- tryCatch(
+      suppressMessages(PlotCircleLollipop(data, top_n = n, filename = file,
+        show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)),
+      error = identity
+    )
+    expect_s3_class(error, "error")
+    if (inherits(error, "error")) {
+      expect_match(conditionMessage(error), "top_n.*non-negative integer")
+    }
+    expect_identical(file.exists(file), FALSE)
+    expect_identical(grDevices::dev.list(), devices)
+  }
+})
+
 test_that("PlotCircleLollipop rejects nonnumeric score labels before creating output", {
   skip_if_not_installed("circlize")
   devices <- grDevices::dev.list()
@@ -242,6 +263,55 @@ test_that("PlotCircleLollipop preserves missing scores and ranks numeric text nu
     }
     expect_identical(data, before)
   }
+})
+
+test_that("PlotCircleLollipop validates top_n scalar type and integer range", {
+  skip_if_not_installed("circlize")
+  data <- data.frame(group = rep(c("A", "B"), each = 2),
+                     name = letters[1:4], value = c(.2, .4, .6, .8))
+  devices <- grDevices::dev.list()
+  invalid <- list(numeric(), c(1, 2), NA_real_, NaN, Inf, -Inf,
+                  .Machine$integer.max + 1, "2", TRUE, factor("2"), 1 + 1i)
+  for (n in invalid) {
+    file <- withr::local_tempfile(fileext = ".pdf")
+    error <- tryCatch(
+      PlotCircleLollipop(data, top_n = n, filename = file),
+      error = identity
+    )
+    expect_s3_class(error, "error")
+    if (inherits(error, "error")) {
+      expect_match(conditionMessage(error), "top_n.*non-negative integer")
+    }
+    expect_identical(file.exists(file), FALSE)
+    expect_identical(grDevices::dev.list(), devices)
+  }
+})
+
+test_that("PlotCircleLollipop preserves valid whole-number and NULL top_n behavior", {
+  skip_if_not_installed("circlize")
+  grDevices::pdf(NULL)
+  device <- grDevices::dev.cur()
+  withr::defer(grDevices::dev.off(device))
+  observed <- numeric()
+  original <- circlize::circos.points
+  testthat::local_mocked_bindings(circos.points = function(x, y, ...) {
+    observed <<- c(observed, y)
+    original(x, y, ...)
+  }, .package = "circlize")
+  data <- data.frame(group = rep(c("A", "B"), each = 2),
+                     name = letters[1:4], value = c(.2, .4, .6, .8))
+  counts <- list(NULL, 1L, 1, 2, 10, .Machine$integer.max)
+  expected <- list(c(.2, .4, .6, .8), c(.4, .8), c(.4, .8),
+                   c(.4, .2, .8, .6), c(.4, .2, .8, .6), c(.4, .2, .8, .6))
+  for (i in seq_along(counts)) {
+    observed <- numeric()
+    PlotCircleLollipop(data, top_n = counts[[i]], show_labels = FALSE,
+                       show_links = FALSE, show_yaxis = FALSE)
+    expect_equal(observed, expected[[i]])
+  }
+  error <- tryCatch(PlotCircleLollipop(data, top_n = 0), error = identity)
+  expect_s3_class(error, "error")
+  expect_match(conditionMessage(error), "No observations")
 })
 
 test_that("PlotCircleLollipop preserves labels when one column supplies groups and scores", {
