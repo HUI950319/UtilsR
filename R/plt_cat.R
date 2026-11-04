@@ -107,14 +107,15 @@
 #'   Missing labels are distinct from literal "NA" values.
 #' @param keep_empty Logical. Keep empty factor levels in plots?
 #'   Default \code{FALSE}.
-#' @param stat_level Character or list. For venn/upset types, the value(s) in
+#' @param stat_level Vector or list. For venn/upset types, the value(s) in
 #'   each \code{stat.by} column that count as "positive". Default \code{NULL}
 #'   auto-detects \code{TRUE}, \code{"Yes"}, \code{"yes"}, \code{1},
 #'   \code{"TRUE"}, \code{"1"}, or uses the first factor level. With
 #'   \code{split.by}, membership values are resolved once for all panels.
 #'   An unnamed vector supplies one shared value or one value per selected
 #'   column in order. Named vectors and named lists match column names and
-#'   must cover exactly the selected columns.
+#'   must cover exactly the selected columns. Numeric and time values are
+#'   matched before label formatting. Supply time values in a list.
 #' @param title Character. Plot title, or overall title for split figures.
 #'   Default \code{NULL}.
 #' @param subtitle Character. Plot subtitle, or overall subtitle for split
@@ -437,6 +438,7 @@ plt_cat <- function(data,
   for (col in unique(c(stat.by, group.by, split.by, bg.by))) {
     if (!is.null(col) && col %in% names(data) && !is.factor(data[[col]])) {
       x <- data[[col]]
+      track_identity <- type %in% c("venn", "upset") && col %in% stat.by
       pkg <- if (inherits(x, "haven_labelled")) "haven" else
         if (inherits(x, "integer64")) "bit64" else
           if (inherits(x, c("Duration", "Period", "Interval"))) "lubridate" else NULL
@@ -453,10 +455,14 @@ plt_cat <- function(data,
         if (any(collision)) {
           labels[collision] <- paste0(labels[collision], " [", distinct[collision], "]")
           values[!missing] <- labels[match(time_key[!missing], distinct)]
-          numeric_labels[[col]] <- list(values = distinct, labels = labels,
-                                        time = TRUE, units = attr(x, "units"))
         }
-      } else if ((is.double(x) || is.complex(x)) &&
+        if (track_identity) {
+          time_class <- if (inherits(x, "POSIXt")) "POSIXt" else class(x)[1L]
+          numeric_labels[[col]] <- list(values = distinct, labels = labels,
+                                        time = TRUE, class = time_class,
+                                        units = attr(x, "units"))
+        }
+      } else if ((is.double(x) || is.complex(x) || (track_identity && is.integer(x))) &&
           (!is.object(x) || identical(class(x), "AsIs") || inherits(x, "haven_labelled"))) {
         raw <- unclass(x)
         distinct <- unique(raw[!missing])
@@ -467,6 +473,8 @@ plt_cat <- function(data,
             sprintf("%.17g%+.17gi", Re(distinct[collision]), Im(distinct[collision]))
           } else sprintf("%.17g", distinct[collision])
           values[!missing] <- labels[match(raw[!missing], distinct)]
+        }
+        if (track_identity) {
           numeric_labels[[col]] <- list(values = distinct, labels = labels)
         }
       }
@@ -839,19 +847,18 @@ plt_cat <- function(data,
 .resolve_stat_level <- function(data, stat.by, stat_level, numeric_labels = list()) {
   default_positive <- c(TRUE, "TRUE", "Yes", "yes", 1, "1")
   as_label <- function(values, column) {
-    out <- as.character(values)
     map <- numeric_labels[[column]]
-    key <- if (isTRUE(map$time)) .cat_time_key(values, units = map$units) else
-      if (!is.null(map) && (is.numeric(values) || is.complex(values)) &&
-        (!is.object(values) || identical(class(values), "AsIs") || inherits(values, "haven_labelled"))) {
-        unclass(values)
-      } else NULL
-    if (!is.null(key)) {
-      at <- match(key, map$values)
-      matched <- !is.na(at)
-      out[matched] <- map$labels[at[matched]]
+    if (is.null(map)) return(as.character(values))
+    if (isTRUE(map$time) && inherits(values, map$class)) {
+      key <- .cat_time_key(values, units = map$units)
+    } else if (!isTRUE(map$time) && (is.numeric(values) || is.complex(values)) &&
+               (!is.object(values) || identical(class(values), "AsIs") ||
+                inherits(values, "haven_labelled"))) {
+      key <- unclass(values)
+    } else {
+      return(as.character(values))
     }
-    out
+    map$labels[match(key, map$values, nomatch = 0L)]
   }
   if ((is.character(stat_level) || is.numeric(stat_level) || is.logical(stat_level)) &&
       !is.null(names(stat_level))) {
@@ -866,7 +873,11 @@ plt_cat <- function(data,
   if (is.null(stat_level)) {
     result <- stats::setNames(lapply(stat.by, function(s) {
       vals <- unique(data[[s]])
-      hits <- vals[vals %in% default_positive]
+      map <- numeric_labels[[s]]
+      positives <- if (!is.null(map) && !isTRUE(map$time)) {
+        map$labels[map$values %in% 1]
+      } else default_positive
+      hits <- vals[vals %in% positives]
       if (length(hits) > 0) {
         as.character(hits)
       } else {

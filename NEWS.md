@@ -2,6 +2,8 @@
 
 * Validate numeric colour indices before native parsing and preserve double precision through palette lookup.
 
+* `plt_cat()` matches numeric and time values for Venn and UpSet membership before formatting labels.
+
 * plt_dist() completes missing base text settings from the current and default ggplot2 themes before sizing labels, including when the global theme is incomplete.
 
 * .resolve_theme() reports the name and returned class of invalid theme factories, and documents calling factories without arguments with a configured-theme example.

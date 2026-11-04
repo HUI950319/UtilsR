@@ -138,14 +138,15 @@ Missing labels are distinct from literal "NA" values.}
 \item{keep_empty}{Logical. Keep empty factor levels in plots?
 Default \code{FALSE}.}
 
-\item{stat_level}{Character or list. For venn/upset types, the value(s) in
+\item{stat_level}{Vector or list. For venn/upset types, the value(s) in
 each \code{stat.by} column that count as "positive". Default \code{NULL}
 auto-detects \code{TRUE}, \code{"Yes"}, \code{"yes"}, \code{1},
 \code{"TRUE"}, \code{"1"}, or uses the first factor level. With
 \code{split.by}, membership values are resolved once for all panels.
 An unnamed vector supplies one shared value or one value per selected
 column in order. Named vectors and named lists match column names and
-must cover exactly the selected columns.}
+must cover exactly the selected columns. Numeric and time values are
+matched before label formatting. Supply time values in a list.}
 
 \item{title}{Character. Plot title, or overall title for split figures.
 Default \code{NULL}.}

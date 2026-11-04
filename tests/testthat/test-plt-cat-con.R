@@ -940,6 +940,34 @@ test_that("plt_cat resolves numeric membership against precise category labels",
   }
 })
 
+test_that("plt_cat does not match a rounded numeric label as an exact value", {
+  skip_if_not_installed("ggupset")
+  withr::local_options(lifecycle_verbosity = "quiet")
+  near_one <- 1 + .Machine$double.eps
+  d <- data.frame(A = c(near_one, 2, 2), B = c(FALSE, TRUE, FALSE))
+  p <- cat_test_plot(d, c("A", "B"), type = "upset",
+                    stat_level = list(A = 1, B = TRUE))
+  expect_equal(p$data$intersection, list("B"))
+  q <- cat_test_plot(d, c("A", "B"), type = "upset",
+                    stat_level = list(A = near_one, B = TRUE))
+  expect_equal(q$data$intersection, list("A", "B"))
+
+  d <- data.frame(A = c(2, near_one, near_one), B = c(FALSE, FALSE, TRUE))
+  p <- cat_test_plot(d, c("A", "B"), type = "upset")
+  expect_equal(p$data$intersection, list("A", "B"))
+})
+
+test_that("plt_cat matches exact timestamps across time zones without label collisions", {
+  skip_if_not_installed("ggupset")
+  withr::local_options(lifecycle_verbosity = "quiet")
+  start <- as.POSIXct("2026-11-05 12:00:00", tz = "UTC")
+  local_time <- as.POSIXct("2026-11-05 20:00:00", tz = "Asia/Shanghai")
+  d <- data.frame(A = start + 0:2, B = c(FALSE, TRUE, FALSE))
+  p <- cat_test_plot(d, c("A", "B"), type = "upset",
+                    stat_level = list(A = local_time, B = TRUE))
+  expect_equal(p$data$intersection, list("A", "B"))
+})
+
 test_that("plt_cat split backgrounds keep one category colour mapping", {
   d <- data.frame(category = rep(c("A", "B"), 4),
                   group = rep(c("G1", "G2", "G2", "G3"), each = 2),
