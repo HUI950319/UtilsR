@@ -357,8 +357,11 @@ PlotScatter3 <- function(
     ggplot2::coord_cartesian(clip = "off")
 
   # ---- Rotate and combine ----
+  p2_grob <- ggplot2::ggplotGrob(p2)
+  # Grid cannot clip grobs inside a rotated viewport.
+  p2_grob$layout$clip <- "off"
   p2_rotated <- grid::grobTree(
-    ggplot2::ggplotGrob(p2),
+    p2_grob,
     vp = grid::viewport(
       width = inset_vp_width, height = inset_vp_height, angle = inset_angle
     )

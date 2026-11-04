@@ -110,6 +110,57 @@ test_that("PlotScatter3 draws every paired difference with coarse histogram bins
   }
 })
 
+test_that("PlotScatter3 draws rotated insets without clipping warnings", {
+  grDevices::pdf(NULL)
+  withr::defer(grDevices::dev.off())
+  data <- data.frame(Control = -3:4, Treat = c(-2, 0, -0.5, 2, 4, 2.5, 6, 8),
+                     group = rep(c("NS", "S"), 4))
+  for (angle in c(0, -45, 30)) {
+    expect_no_warning(p <- PlotScatter3(
+      data, test_method = "none", cor_method = "none", inset_angle = angle,
+      theme_use = ggplot2::theme_classic
+    ))
+    expect_no_warning(grid::grid.draw(patchwork::patchworkGrob(p)))
+  }
+})
+
+test_that("PlotScatter3 preserves scale warnings and statistics when ranges exclude data", {
+  grDevices::pdf(NULL)
+  withr::defer(grDevices::dev.off())
+  data <- data.frame(Control = -3:4, Treat = c(-2, 0, -0.5, 2, 4, 2.5, 6, 8),
+                     group = rep(c("NS", "S"), 4))
+  warnings <- character()
+  withCallingHandlers({
+    p <- PlotScatter3(data, test_method = "t.test", cor_method = "none",
+                      show_refline = FALSE, axis_limits = c(-1, 1),
+                      hist_x_limits = c(-1, 1), theme_use = ggplot2::theme_classic)
+    grob <- patchwork::patchworkGrob(p)
+    grid::grid.draw(grob)
+  }, warning = function(w) {
+    warnings <<- c(warnings, conditionMessage(w))
+    invokeRestart("muffleWarning")
+  })
+  for (layer in c("stat_bin", "geom_point", "geom_segment", "geom_text")) {
+    expect_match(paste(warnings, collapse = " "), layer)
+  }
+  expect_length(grep("cannot clip", warnings), 0L)
+  expect_equal(scatter_main_points(grob), 1)
+  expected <- stats::t.test(data$Control, data$Treat, paired = TRUE)
+  label <- ggplot2::ggplot_build(p[[1]])$data[[2]]$label
+  expect_equal(label, paste0("p = ", format.pval(expected$p.value, digits = 2)))
+})
+
+test_that("PlotScatter3 computed differences are independent of similarly named columns", {
+  data <- scatter3_integer_pairs()
+  data$diff_values <- NA_real_
+  data$x_values <- 0
+  data$y_values <- 1
+  p <- scatter3_capture_inset(data, test_method = "none", cor_method = "none")
+  differences <- as.double(data$Treat) - as.double(data$Control)
+  expect_equal(rlang::eval_tidy(p$inset$mapping$x, data = p$inset$data), differences)
+  expect_equal(sum(ggplot2::ggplot_build(p$inset)$data[[1]]$count), nrow(data))
+})
+
 test_that("PlotScatter3 derives automatic histogram limits from paired differences", {
   withr::local_options(lifecycle_verbosity = "quiet")
   inset <- NULL
