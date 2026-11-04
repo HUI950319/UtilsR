@@ -1019,7 +1019,11 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #'   Each swatch exposes its hexadecimal colour value as a hover title and an
 #'   accessible label.
 #'   LaTeX catalogue tables use the available text width and repeat column
-#'   headings when the table spans pages.
+#'   headings when the table spans pages in a single-column document. For a
+#'   short table in a two-column LaTeX document, turn off both
+#'   \code{latex.use_longtable} and \code{latex.header_repeat} on the returned
+#'   table with \code{gt::tab_options()}. Adjust the column proportions to
+#'   fit the document's column width.
 #'
 #'   For readable ggplot labels on a small figure, use \code{ncol} to place
 #'   a colour vector in several rows. Use \code{pattern} or \code{index} to
@@ -1073,6 +1077,12 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #' @examples
 #' # Show specific palettes (gt table, default)
 #' pal_show(c("lancet", "Paired", "viridis"))
+#'
+#' # A short table for a two-column LaTeX document
+#' tbl <- gt::tab_options(pal_show("Set1", max_colors = 3),
+#'                        latex.use_longtable = FALSE, latex.header_repeat = FALSE)
+#' gt::cols_width(tbl, palette ~ gt::pct(24), type ~ gt::pct(25),
+#'                n_colors ~ gt::pct(16), preview ~ gt::pct(35))
 #'
 #' # Filter by pattern
 #' pal_show(pattern = "^nord")
