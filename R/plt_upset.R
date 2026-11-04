@@ -34,6 +34,12 @@
 #'   values as set members. Default \code{c("Yes", "yes")}.
 #'   Missingness follows \code{is.na()} on the original columns, including
 #'   SPSS user-missing values; methods for serialized classed columns are loaded.
+#'   For exact time membership, supply \code{levels} of the same time class as
+#'   the column. Date and time values retain fractional precision;
+#'   \code{POSIXct} and \code{POSIXlt} can be mixed across time zones, and
+#'   \code{difftime} units are normalized to seconds. Lubridate periods use
+#'   calendar components, and intervals use their start and length.
+#'   Character \code{levels} retain their usual matching behavior.
 #'   Ignored when \code{data} is a list.
 #' @param colors Character vector. For UpSet: 3 colours for
 #'   \code{c(sets_bar, top_bar, matrix_dots)}.
@@ -240,8 +246,8 @@ plt_upset <- function(data,
 
   } else if (is.data.frame(data)) {
     # --- Data frame with binary columns ---
-    if (!is.atomic(levels) || !is.null(dim(levels))) {
-      cli::cli_abort("{.arg levels} must be a one-dimensional atomic vector.")
+    if ((!is.atomic(levels) && !inherits(levels, "POSIXlt")) || !is.null(dim(levels))) {
+      cli::cli_abort("{.arg levels} must be a one-dimensional atomic or POSIXlt vector.")
     }
     if (is.null(vars)) {
       cli::cli_abort("{.arg vars} is required when {.arg data} is a data.frame.")
@@ -266,17 +272,28 @@ plt_upset <- function(data,
     if (output %in% c("data", "all") && "intersect_group" %in% names(data)) {
       cli::cli_abort("{.arg data} already contains {.field intersect_group}; rename it before requesting grouped data.")
     }
-    set_list <- lapply(stats::setNames(vars, vars), function(v) {
-      values <- data[[v]]
+    for (values in c(list(levels), unname(data[vars]))) {
       pkg <- if (inherits(values, "integer64")) "bit64" else
         if (inherits(values, "haven_labelled")) "haven" else
           if (inherits(values, c("Duration", "Period", "Interval"))) "lubridate" else NULL
       if (!is.null(pkg) && !requireNamespace(pkg, quietly = TRUE)) {
         cli::cli_abort("Inspecting {.cls {class(values)[1]}} columns requires package {.pkg {pkg}}.")
       }
-      member <- if (anyNA(levels)) is.na(values) else rep(FALSE, nrow(data))
-      value_levels <- levels[!is.na(levels)]
-      if (length(value_levels)) member <- member | (values %in% value_levels)
+    }
+    missing_levels <- anyNA(levels)
+    value_levels <- levels[!is.na(levels)]
+    set_list <- lapply(stats::setNames(vars, vars), function(v) {
+      values <- data[[v]]
+      member <- if (missing_levels) is.na(values) else rep(FALSE, nrow(data))
+      if (length(value_levels)) {
+        same_time <- any(vapply(c("Date", "POSIXt", "difftime", "Duration", "Period", "Interval"),
+                                function(cls) inherits(values, cls) && inherits(value_levels, cls),
+                                logical(1)))
+        selected <- if (same_time) {
+          .cat_time_key(values, units = "secs") %in% .cat_time_key(value_levels, units = "secs")
+        } else values %in% value_levels
+        member <- member | selected
+      }
       which(member)
     })
 

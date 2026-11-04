@@ -189,6 +189,153 @@ test_that("plt_upset recognizes original missing values without coercion", {
   expect_identical(as.character(result$intersect_group), c("A", "A/B", "B"))
 })
 
+test_that("plt_upset matches temporal members without rounding their values", {
+  skip_if_not_installed("ggVennDiagram")
+  skip_if_not_installed("lubridate")
+  numbers <- c(1, 1 + .Machine$double.eps, NA_real_)
+  instants <- as.POSIXct(numbers, origin = "1970-01-01", tz = "UTC")
+  columns <- list(
+    Date = structure(numbers, class = "Date"),
+    POSIXct = instants,
+    POSIXlt = as.POSIXlt(instants),
+    difftime = as.difftime(numbers, units = "secs"),
+    Duration = lubridate::dseconds(numbers),
+    Period = lubridate::seconds(numbers),
+    Interval = lubridate::interval(instants, instants + 1)
+  )
+  for (key in names(columns)) {
+    values <- columns[[key]]
+    data <- data.frame(B = rep("No", 3))
+    data[["A"]] <- values
+    original <- data
+    selected <- if (key == "POSIXlt") as.POSIXct(values) else values
+    for (include_na in c(FALSE, TRUE)) {
+      result <- plt_upset(data, c("A", "B"),
+                          levels = selected[if (include_na) c(1, 3) else 1],
+                          output = "data")
+      expect_identical(as.character(result$intersect_group),
+                       c("A", "None", if (include_na) "A" else "None"),
+                       info = key)
+      expect_identical(result$A, values)
+      expect_identical(data, original)
+    }
+  }
+})
+
+test_that("plt_upset matches temporal members across time zones and units", {
+  skip_if_not_installed("ggVennDiagram")
+  instants <- as.POSIXct(c(1, 2, NA), origin = "1970-01-01", tz = "UTC")
+  other_zone <- instants[1]
+  attr(other_zone, "tzone") <- "America/New_York"
+  cases <- list(
+    list(values = instants, selected = other_zone),
+    list(values = as.POSIXlt(instants), selected = other_zone),
+    list(values = instants, selected = as.POSIXlt(other_zone)),
+    list(values = as.difftime(c(1, 60, NA), units = "mins"),
+         selected = as.difftime(60, units = "secs"))
+  )
+  for (case in cases) {
+    data <- data.frame(B = rep("No", 3))
+    data[["A"]] <- case$values
+    result <- plt_upset(data, c("A", "B"), levels = case$selected, output = "data")
+    expect_identical(as.character(result$intersect_group), c("A", "None", "None"))
+    expect_identical(result$A, case$values)
+  }
+})
+
+test_that("plt_upset plot counts retain exact temporal membership", {
+  skip_if_not_installed("ggVennDiagram")
+  data <- data.frame(
+    A = as.difftime(c(1, 1 + .Machine$double.eps, 1), units = "secs"),
+    B = as.difftime(c(1 + .Machine$double.eps, 1, 1), units = "secs")
+  )
+  result <- suppressMessages(plt_upset(data, c("A", "B"),
+                                      levels = as.difftime(1, units = "secs"),
+                                      output = "all"))
+  expect_identical(as.character(result$data$intersect_group), c("A", "B", "A/B"))
+  intersections <- unique(result$upset$plotlist[[2]]$data[c("name", "size")])
+  expect_equal(nrow(intersections), 3L)
+  expect_equal(sort(intersections$size), rep(1, 3))
+  expect_no_warning(render_upset(result$combined))
+})
+
+test_that("plt_upset retains calendar components and explicit text membership", {
+  skip_if_not_installed("ggVennDiagram")
+  skip_if_not_installed("lubridate")
+  periods <- lubridate::period(months = c(1, 0, NA), days = c(0, 30, NA))
+  data <- data.frame(B = rep("No", 3))
+  data[["A"]] <- periods
+  result <- plt_upset(data, c("A", "B"), levels = periods[1], output = "data")
+  expect_identical(as.character(result$intersect_group), c("A", "None", "None"))
+  dates <- structure(c(1, 1 + .Machine$double.eps, NA_real_), class = "Date")
+  data[["A"]] <- dates
+  result <- plt_upset(data, c("A", "B"), levels = as.character(dates[1]), output = "data")
+  expect_identical(as.character(result$intersect_group), c("A", "A", "None"))
+})
+
+test_that("plt_upset handles zero and empty temporal membership selections", {
+  skip_if_not_installed("ggVennDiagram")
+  numbers <- c(-0, 0, .Machine$double.eps, NA_real_)
+  columns <- list(
+    structure(numbers, class = "Date"),
+    as.POSIXct(numbers, origin = "1970-01-01", tz = "UTC"),
+    as.difftime(numbers, units = "secs")
+  )
+  for (values in columns) {
+    data <- data.frame(B = rep("No", 4))
+    data[["A"]] <- values
+    selections <- list(values[1], values[4], values[FALSE])
+    expected <- list(c("A", "A", "None", "None"), c("None", "None", "None", "A"),
+                     rep("None", 4))
+    for (i in seq_along(selections)) {
+      result <- plt_upset(data, c("A", "B"), levels = selections[[i]], output = "data")
+      expect_identical(as.character(result$intersect_group), expected[[i]])
+      expect_identical(result[names(data)], data)
+    }
+    data <- data[FALSE, , drop = FALSE]
+    result <- plt_upset(data, c("A", "B"), levels = values[1], output = "data")
+    expect_equal(nrow(result), 0L)
+    expect_identical(result[names(data)], data)
+  }
+})
+
+test_that("plt_upset restores serialized temporal membership methods", {
+  skip_if_not_installed("ggVennDiagram")
+  skip_if_not_installed("lubridate")
+  numbers <- c(1, 1 + .Machine$double.eps, NA_real_)
+  instants <- as.POSIXct(numbers, origin = "1970-01-01", tz = "UTC")
+  fixture <- withr::local_tempfile(fileext = ".rds")
+  script <- withr::local_tempfile(fileext = ".R")
+  columns <- list(
+    lubridate::dseconds(numbers), lubridate::seconds(numbers),
+    lubridate::interval(instants, instants + 1)
+  )
+  saveRDS(lapply(columns, function(values) {
+    list(values = values, selected = values[c(1, 3)])
+  }), fixture)
+  quote_r <- function(x) paste(deparse(x), collapse = "\n")
+  writeLines(c(
+    "options(device = function(...) grDevices::pdf(NULL, ...))",
+    paste0(".libPaths(", quote_r(.libPaths()), ")"),
+    "env <- new.env(parent = globalenv()); env[['%||%']] <- rlang::`%||%`",
+    paste0("sys.source(", quote_r(file.path(getNamespaceInfo(asNamespace("UtilsR"), "path"),
+                                          "R/plt_cat.R")), ", envir = env)"),
+    paste0("sys.source(", quote_r(file.path(getNamespaceInfo(asNamespace("UtilsR"), "path"),
+                                          "R/plt_upset.R")), ", envir = env)"),
+    paste0("fixture <- readRDS(", quote_r(fixture), ")"),
+    "stopifnot(!'lubridate' %in% loadedNamespaces())",
+    "for (case in fixture) {",
+    "  data <- data.frame(B = rep('No', 3)); data[['A']] <- case[['values']]",
+    "  res <- env[['plt_upset']](data, c('A', 'B'), levels = case[['selected']], output = 'data', colors = 'red')",
+    "  stopifnot(identical(as.character(res[['intersect_group']]), c('A', 'None', 'A')))",
+    "  stopifnot(identical(res[['A']], case[['values']]))",
+    "}"
+  ), script)
+  output <- system2(file.path(R.home("bin"), "Rscript"),
+                    c("--vanilla", shQuote(script)), stdout = TRUE, stderr = TRUE)
+  expect_null(attr(output, "status"), info = paste(output, collapse = "\n"))
+})
+
 test_that("plt_upset restores serialized set-membership methods", {
   skip_if_not_installed("ggVennDiagram")
   skip_if_not_installed("bit64")

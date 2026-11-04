@@ -51,6 +51,12 @@ is a list.}
 values as set members. Default \code{c("Yes", "yes")}.
 Missingness follows \code{is.na()} on the original columns, including
 SPSS user-missing values; methods for serialized classed columns are loaded.
+For exact time membership, supply \code{levels} of the same time class as
+the column. Date and time values retain fractional precision;
+\code{POSIXct} and \code{POSIXlt} can be mixed across time zones, and
+\code{difftime} units are normalized to seconds. Lubridate periods use
+calendar components, and intervals use their start and length.
+Character \code{levels} retain their usual matching behavior.
 Ignored when \code{data} is a list.}
 
 \item{colors}{Character vector. For UpSet: 3 colours for
