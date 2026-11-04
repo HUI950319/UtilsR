@@ -65,16 +65,30 @@ fct_label <- function(x, ...) {
 }
 
 #' @rdname fct_label
+#' @details For data frames, a bare \code{var} always refers to a column name,
+#'   even when an object of the same name exists in the caller. Other expressions
+#'   are evaluated in the caller and must return a single non-missing, non-empty
+#'   character string without dimensions. The selected column name must occur
+#'   exactly once in the data frame.
 #' @export
 fct_label.data.frame <- function(x, var, labels, ...) {
   q <- rlang::enquo(var)
-  v <- if (rlang::quo_is_symbol(q)) {
+  v <- if (rlang::quo_is_missing(q)) {
+    NULL
+  } else if (rlang::quo_is_symbol(q)) {
     rlang::as_name(rlang::quo_get_expr(q))
   } else {
     rlang::eval_tidy(q)
   }
+  if (!is.character(v) || length(v) != 1L || !is.null(dim(v)) ||
+      is.na(v) || !nzchar(v)) {
+    cli::cli_abort("{.arg var} must be a bare column name or a single non-empty string.")
+  }
   if (!v %in% names(x)) {
     cli::cli_abort("Column {.val {v}} not found in the data frame.")
+  }
+  if (sum(names(x) == v, na.rm = TRUE) > 1L) {
+    cli::cli_abort("Column {.val {v}} occurs more than once in the data frame.")
   }
   relabelled <- fct_cat(x[[v]], new_labels = labels)
   if (inherits(x, "rowwise_df")) {

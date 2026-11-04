@@ -124,6 +124,152 @@ test_that("rowwise relabelling rebuilds grouping keys", {
   expect_identical(data, original)
 })
 
+test_that("fct_label rejects selectors that are not single column names", {
+  data <- data.frame(first = factor(c("a", "b")),
+                     grade = factor(c("a", "b")))
+  original <- data
+  for (selector in list(NULL, character(), NA_character_, "",
+                        c("first", "grade"), c(grade = "grade", first = "first"),
+                        2, TRUE, factor("grade"), list("grade"),
+                        matrix("grade"), array("grade", c(1, 1, 1)))) {
+    expect_error(fct_label(data, identity(selector), c("A", "B")),
+                 "var.*single.*string", class = "rlang_error")
+    expect_identical(data, original)
+  }
+  expect_error(fct_label(data, labels = c("A", "B")),
+               "var.*single.*string", class = "rlang_error")
+})
+
+test_that("fct_label cannot use typed selectors as positional indices", {
+  data <- data.frame(first = factor(c("a", "b")),
+                     second = factor(c("a", "b")))
+  for (case in list(list(names = c("2", "other"), selector = 2),
+                    list(names = c("other", "TRUE"), selector = TRUE),
+                    list(names = c("other", "grade"), selector = factor("grade")))) {
+    names(data) <- case[["names"]]
+    original <- data
+    expect_error(fct_label(data, case[["selector"]], c("A", "B")),
+                 "var.*single.*string", class = "rlang_error")
+    expect_identical(data, original)
+  }
+})
+
+test_that("fct_label rejects ambiguous duplicated column names", {
+  data <- data.frame(first = factor(c("a", "b")),
+                     second = factor(c("a", "b")))
+  names(data) <- c("grade", "grade")
+  original <- data
+  expect_error(fct_label(data, grade, stop("labels must not be evaluated")),
+               "grade.*more than once", class = "rlang_error")
+  expect_error(fct_label(data, "grade", c("A", "B")),
+               "grade.*more than once", class = "rlang_error")
+  expect_identical(data, original)
+})
+
+test_that("fct_label keeps bare names separate from caller expressions", {
+  data <- data.frame(first = factor(c("a", "b")),
+                     grade = factor(c("a", "b")))
+  expected <- data
+  levels(expected[["grade"]]) <- c("A", "B")
+  grade <- "first"
+  selected <- "grade"
+  expect_identical(fct_label(data, grade, c("A", "B")), expected)
+  expect_identical(fct_label(data, "grade", c("A", "B")), expected)
+  expect_identical(fct_label(data, identity(selected), c("A", "B")), expected)
+  expect_identical(fct_label(data, !!selected, c("A", "B")), expected)
+  column <- rlang::quo(grade)
+  expect_identical(fct_label(data, !!column, c("A", "B")), expected)
+  expect_identical(fct_label(data, setNames("grade", "ignored"), c("A", "B")),
+                   expected)
+  expect_error(fct_label(data, selected, stop("labels must not be evaluated")),
+               "selected.*not found", class = "rlang_error")
+  expect_error(fct_label(data, "gra", stop("labels must not be evaluated")),
+               "gra.*not found", class = "rlang_error")
+})
+
+test_that("fct_label evaluates a selector expression only once", {
+  data <- data.frame(grade = factor(c("a", "b")))
+  calls <- 0L
+  select_column <- function() {
+    calls <<- calls + 1L
+    "grade"
+  }
+  result <- fct_label(data, select_column(), c("A", "B"))
+  expect_identical(calls, 1L)
+  expect_identical(as.character(result[["grade"]]), c("A", "B"))
+})
+
+test_that("fct_label accepts exact nonstandard column names", {
+  data <- data.frame(first = factor(c("a", "b")),
+                     second = factor(c("a", "b")))
+  for (name in c("2", "TRUE", "NA", "clinical grade", " grade ", " ",
+                 "\u7b49\u7ea7")) {
+    names(data) <- c("other", name)
+    expected <- data
+    levels(expected[[name]]) <- c("A", "B")
+    expect_identical(fct_label(data, identity(name), c("A", "B")), expected)
+    expect_identical(fct_label(data, !!rlang::sym(name), c("A", "B")), expected)
+  }
+  data <- data.frame(grade = factor(c("a", "b")), first = 1:2, second = 3:4)
+  names(data) <- c("grade", "other", "other")
+  expected <- data
+  levels(expected[["grade"]]) <- c("A", "B")
+  expect_identical(fct_label(data, grade, c("A", "B")), expected)
+})
+
+test_that("fct_label preserves frame classes and grouping metadata", {
+  data <- tibble::tibble(grade = ordered(c("a", "b", "a")), value = 1:3)
+  attr(data[["grade"]], "label") <- "Grade"
+  expected <- data
+  levels(expected[["grade"]]) <- c("A", "B")
+  constructors <- list(as.data.frame, identity,
+                       function(x) dplyr::group_by(x, grade, .drop = FALSE),
+                       function(x) dplyr::rowwise(x, grade))
+  for (construct in constructors) {
+    frame <- construct(data)
+    original <- frame
+    result <- fct_label(frame, grade, c("A", "B"))
+    expect_identical(result, construct(expected))
+    expect_identical(fct_label(frame, "grade", c("A", "B")), result)
+    expect_error(fct_label(frame, c("grade", "value"),
+                           stop("labels must not be evaluated")),
+                 "var.*single.*string", class = "rlang_error")
+    expect_identical(frame, original)
+  }
+})
+
+test_that("fct_label preserves empty and missing columns after selection", {
+  for (values in list(factor(character()),
+                      factor(character(), levels = c("a", "b")),
+                      factor(rep(NA_character_, 3)),
+                      factor(rep(NA_character_, 3), levels = c("a", "b")),
+                      factor(c("a", NA), levels = c("a", NA), exclude = NULL))) {
+    data <- data.frame(grade = values, id = seq_along(values))
+    labels <- LETTERS[seq_len(nlevels(values))]
+    expected <- data
+    levels(expected[["grade"]]) <- labels
+    expect_identical(fct_label(data, grade, labels), expected)
+    expect_identical(fct_label(data, "grade", labels), expected)
+  }
+  expect_error(fct_label(data.frame(), "grade", c("A", "B")),
+               "grade.*not found", class = "rlang_error")
+})
+
+test_that("fct_label does not mutate a data.table through selection", {
+  skip_if_not_installed("data.table")
+  data <- data.table::data.table(first = factor(c("a", "b")),
+                                  grade = factor(c("a", "b")))
+  original <- data.table::copy(data)
+  expect_error(fct_label(data, factor("grade"),
+                         stop("labels must not be evaluated")),
+               "var.*single.*string", class = "rlang_error")
+  result <- fct_label(data, grade, c("A", "B"))
+  expect_identical(as.character(result[["grade"]]), c("A", "B"))
+  expect_identical(result[["first"]], original[["first"]])
+  expect_identical(class(result), class(data))
+  expect_identical(data, original)
+})
+
 test_that("empty and entirely missing factors keep valid levels", {
   empty <- factor(character())
   expect_identical(fct_cat(empty, reverse = TRUE), empty)
