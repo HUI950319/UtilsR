@@ -869,6 +869,32 @@ test_that("pal_get shares numeric positions without changing per-palette mapping
   }
 })
 
+test_that("pal_get diagnoses malformed colour encodings without warnings", {
+  bad <- rawToChar(as.raw(c(0xC3, 0x28)))
+  Encoding(bad) <- "UTF-8"
+  inputs <- list(bad, c("red", bad, "badlast", bad), list(custom = c("red", bad)))
+  messages <- c("not found", "Not a colour", "contains invalid colour")
+  for (i in seq_along(inputs)) {
+    warnings <- character()
+    error <- withCallingHandlers(
+      tryCatch(pal_get(inputs[[i]]), error = identity),
+      warning = function(w) {
+        warnings <<- c(warnings, conditionMessage(w))
+        invokeRestart("muffleWarning")
+      }
+    )
+    expect_length(warnings, 0L)
+    expect_s3_class(error, "rlang_error")
+    expect_match(conditionMessage(error), messages[[i]], fixed = TRUE)
+    expect_match(conditionMessage(error), "xc3(", fixed = TRUE)
+    if (i == 2L) {
+      bad_items <- regmatches(conditionMessage(error),
+                              gregexpr("xc3|badlast", conditionMessage(error)))[[1L]]
+      expect_identical(bad_items, c("xc3", "badlast", "xc3"))
+    }
+  }
+})
+
 test_that("pal_get keeps medium-cardinality numeric mappings in observation order", {
   palettes <- list(opaque = c("black", "white"),
                    translucent = c("#FF000080", "#0000FF40"))

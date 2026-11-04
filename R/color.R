@@ -484,7 +484,13 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   }
   if (is.null(palette)) palette <- pal_lancet
 
-  # Digit-leading strings (including decimals and exponents) can index palette().
+  # Escape malformed text before formatting it in colour diagnostics.
+  show_bad <- function(v) {
+    invalid <- !validEnc(v) | Encoding(v) == "bytes"
+    if (any(invalid)) v[invalid] <- encodeString(v[invalid])
+    v
+  }
+
   can_draw <- function(v) {
     tryCatch({
       grDevices::col2rgb(v)
@@ -515,7 +521,8 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
       }
       if (is.object(v)) valid else valid[match(v, to_check)]
     }
-    valid <- drawable & !is.na(v) & !grepl("^[0-9]", v)
+    # Digit-leading ASCII strings can index palette().
+    valid <- drawable & !is.na(v) & !grepl("^[0-9]", v, useBytes = TRUE)
     if (length(v) == length(input)) return(valid)
     if (all(valid)) return(rep(TRUE, length(input)))
     valid[match(input, v)]
@@ -537,7 +544,9 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     for (i in seq_along(palette)) {
       bad <- palette[[i]][!is_colour(palette[[i]])]
       if (length(bad)) {
-        cli::cli_abort("Palette {.val {nms[[i]]}} contains invalid colour{?s}: {.val {bad}}.")
+        bad <- show_bad(bad)
+        label <- show_bad(nms[[i]])
+        cli::cli_abort("Palette {.val {label}} contains invalid colour{?s}: {.val {bad}}.")
       }
     }
     if (!is.object(x) && (is.character(x) || is.logical(x))) {
@@ -578,7 +587,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     # never shadowed by an R colour name that happens to match.
     cols <- palette
   } else if (length(palette) > 1L) {
-    bad <- palette[!valid_colours]
+    bad <- show_bad(palette[!valid_colours])
     cli::cli_abort(c(
       "{.arg palette} is neither a palette name nor a vector of colours.",
       "x" = "Not a colour: {.val {bad}}."
@@ -586,7 +595,8 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   } else {
     # The nearest names first: small edit distance, or containing the input.
     near <- character()
-    if (!is.na(palette) && nzchar(palette)) {
+    if (!is.na(palette) && nzchar(palette) && validEnc(palette) &&
+        Encoding(palette) != "bytes") {
       distance <- utils::adist(palette, names(pals), ignore.case = TRUE)[1L, ]
       contains <- grepl(tolower(palette), tolower(names(pals)), fixed = TRUE)
       keep <- which(distance <= 2L | contains)
@@ -597,8 +607,9 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     } else if (palette %in% names(pal_heat)) {
       paste0("pal_heat$", palette)
     }
+    label <- show_bad(palette)
     cli::cli_abort(c(
-      "Palette {.val {palette}} not found.",
+      "Palette {.val {label}} not found.",
       "i" = if (!is.null(home)) "Pass {.code {home}}; that name is not in the registry.",
       "i" = if (length(near) > 0L) "Did you mean {.val {near}}?",
       "*" = "Use {.fn pal_list} to see available palettes."
