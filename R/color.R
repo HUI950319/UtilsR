@@ -485,25 +485,36 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   if (is.null(palette)) palette <- pal_lancet
 
   # Digit-leading strings (including decimals and exponents) can index palette().
+  can_draw <- function(v) {
+    tryCatch({
+      grDevices::col2rgb(v)
+      TRUE
+    }, error = function(e) FALSE)
+  }
   is_colour <- function(v) {
     input <- v
     if (!is.object(v) && length(v) > 1024L && .pal_use_unique(v)) {
       v <- unique(v)
     }
-    drawable <- tryCatch({
-      grDevices::col2rgb(v)
+    drawable <- if (can_draw(v)) {
       rep(TRUE, length(v))
-    }, error = function(e) {
-      # Locate each bad colour only when the vector cannot be parsed together.
+    } else {
       to_check <- if (is.object(v)) v else unique(v)
-      valid <- vapply(to_check, function(s) {
-        tryCatch({
-          grDevices::col2rgb(s)
-          TRUE
-        }, error = function(e) FALSE)
-      }, logical(1L), USE.NAMES = FALSE)
+      if (is.object(to_check) || length(to_check) <= 256L) {
+        valid <- vapply(to_check, can_draw, logical(1L), USE.NAMES = FALSE)
+      } else {
+        # Check individual colours only in blocks that fail to parse.
+        valid <- logical(length(to_check))
+        for (start in seq.int(1, length(to_check), by = 256L)) {
+          indices <- seq.int(start, min(start + 255, length(to_check)))
+          block <- to_check[indices]
+          valid[indices] <- if (can_draw(block)) TRUE else {
+            vapply(block, can_draw, logical(1L), USE.NAMES = FALSE)
+          }
+        }
+      }
       if (is.object(v)) valid else valid[match(v, to_check)]
-    })
+    }
     valid <- drawable & !is.na(v) & !grepl("^[0-9]", v)
     if (length(v) == length(input)) return(valid)
     if (all(valid)) return(rep(TRUE, length(input)))

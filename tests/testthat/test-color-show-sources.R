@@ -567,6 +567,18 @@ test_that("pal_get validates long repeated colour vectors without changing diagn
   }
 })
 
+test_that("pal_get reports invalid colours across blocks in original order", {
+  cols <- sprintf("#%06X", seq_len(800L))
+  cols[c(1L, 330L, length(cols))] <- c("badfirst", "badlast", "badfirst")
+  for (palette in list(cols, list(custom = cols))) {
+    error <- tryCatch(pal_get(palette, n = 1), error = identity)
+    expect_s3_class(error, "error")
+    bad <- regmatches(conditionMessage(error),
+                      gregexpr("badfirst|badlast", conditionMessage(error)))[[1L]]
+    expect_identical(bad, c("badfirst", "badlast", "badfirst"))
+  }
+})
+
 test_that("pal_get accepts only plain scalar control values", {
   for (bad in list(matrix(2), array(2, c(1, 1, 1)), structure(2, class = "AsIs"),
                    structure(2, class = "integer64"), .Machine$integer.max + 1, 1e100)) {
