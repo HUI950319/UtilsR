@@ -38,6 +38,9 @@
 #'   \code{NULL} uses \code{pal_lancet}.
 #'   Category mappings are resolved across both panels; value gradients share
 #'   the full selected data range.
+#'   Named vectors match categories by name in both panels. Without
+#'   \code{fill.by}, non-beeswarm types match names to \code{stat.by} categories.
+#'   Unnamed vectors follow the category order and are recycled when needed.
 #' @param alpha Numeric 0--1. Fill/point transparency. Default 0.85.
 #' @param box.width Numeric. Boxplot width. Default 0.15.
 #' @param add_point Logical. Overlay jittered points (violin/box modes)?
@@ -241,6 +244,8 @@ PlotButterfly2 <- function(
       }, logical(1L)))
       if (type == "box") {
         panel$layers <- panel$layers[-violin]
+        # Standalone boxes use category fills instead of white overlay fills.
+        panel$layers[[1]]$aes_params$fill <- NULL
       } else {
         for (j in violin) {
           panel$layers[[j]] <- ggplot2::geom_violin(
@@ -287,10 +292,12 @@ PlotButterfly2 <- function(
     } else if (length(palette) == 1L && palette %in% names(palette_list)) {
       cols <- as.character(pal_get(palette, n = n_fill))
     } else {
-      cols <- as.character(palette)
+      cols <- stats::setNames(as.character(palette), names(palette))
     }
-    if (length(cols) < n_fill) cols <- rep_len(cols, n_fill)
-    cols <- stats::setNames(cols[seq_len(n_fill)], levels(data[[fill.by]]))
+    if (is.null(names(cols))) {
+      if (length(cols) < n_fill) cols <- rep_len(cols, n_fill)
+      cols <- stats::setNames(cols[seq_len(n_fill)], levels(data[[fill.by]]))
+    }
   } else {
     cols <- NULL
   }

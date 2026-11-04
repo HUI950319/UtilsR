@@ -153,6 +153,19 @@ test_that("PlotButterfly preserves named bar palettes in both panels", {
   }
 })
 
+test_that("PlotButterfly2 preserves named fill palettes in both panels", {
+  data <- expand.grid(value = seq_len(4), fill = c("A", "B"), group = c("L", "R"))
+  data$stat <- "S"
+  plot <- PlotButterfly2(data, stat.by = "stat", fill.by = "fill",
+    value.by = "value", group.by = "group", type = "box",
+    palette = c(B = "blue", A = "red"))
+  for (i in 1:2) {
+    built <- ggplot2::ggplot_build(plot[[i]])
+    expect_identical(built$plot$scales$get_scales("fill")$map(c("A", "B")), c("red", "blue"))
+    expect_identical(built$data[[1]]$fill, c("red", "blue"))
+  }
+})
+
 test_that("PlotButterfly keeps named violin colours when variables are reordered", {
   left <- data.frame(A = seq_len(6), B = 11:16)
   right <- left[, c("B", "A")]
@@ -165,6 +178,22 @@ test_that("PlotButterfly keeps named violin colours when variables are reordered
       expect_identical(built$plot$scales$get_scales("fill")$map(c("A", "B")), c("red", "blue"))
       expected <- c(A = "red", B = "blue")[levels(plot[[i]]$data$Variable)]
       expect_identical(built$data[[1]]$fill, unname(expected[as.integer(built$data[[1]]$y)]))
+    }
+  }
+})
+
+test_that("PlotButterfly2 keeps named category colours in delegated chart types", {
+  data <- expand.grid(value = seq_len(6), stat = c("A", "B"), group = c("L", "R"))
+  data$value <- data$value + ifelse(data$stat == "B", 10, 0)
+  for (type in c("violin", "violin_box", "box")) {
+    plot <- butterfly_without_text_warning(PlotButterfly2(data, stat.by = "stat",
+      value.by = "value", group.by = "group", type = type, levels = c("B", "A"),
+      palette = c(B = "blue", A = "red")))
+    for (i in 1:2) {
+      built <- ggplot2::ggplot_build(plot[[i]])
+      expect_identical(built$plot$scales$get_scales("fill")$map(c("A", "B")), c("red", "blue"))
+      expected <- c("blue", "red")[as.integer(built$data[[1]]$y)]
+      expect_identical(built$data[[1]]$fill, expected)
     }
   }
 })
@@ -183,6 +212,29 @@ test_that("PlotButterfly keeps named bar colours after row and factor reordering
         built <- ggplot2::ggplot_build(plot[[i]])
         expect_identical(built$plot$scales$get_scales("fill")$map(c("A", "B", "C")), c("red", "blue", "green"))
         expect_setequal(built$data[[1]]$fill, c("red", "blue", "green"))
+      }
+    }
+  }
+  expect_identical(data, original)
+})
+
+test_that("PlotButterfly2 keeps named fills stable with reordered and absent groups", {
+  data <- expand.grid(value = seq_len(4), fill = c("A", "B", "C"), group = c("L", "R"))
+  data$stat <- "S"
+  data <- data[!(data$group == "L" & data$fill == "C") &
+    !(data$group == "R" & data$fill == "A"), ]
+  data$fill <- factor(data$fill, levels = c("C", "unused", "B", "A"))
+  original <- data
+  for (type in c("violin", "violin_box", "box")) {
+    for (rows in list(seq_len(nrow(data)), rev(seq_len(nrow(data))))) {
+      plot <- PlotButterfly2(data[rows, ], stat.by = "stat", fill.by = "fill",
+        value.by = "value", group.by = "group", type = type,
+        palette = c(C = "green", B = "blue", A = "red"))
+      for (i in 1:2) {
+        built <- ggplot2::ggplot_build(plot[[i]])
+        expect_identical(built$plot$scales$get_scales("fill")$map("B"), "blue")
+        expected <- if (plot[[i]]$data$group[1] == "L") c("red", "blue") else c("blue", "green")
+        expect_setequal(built$data[[1]]$fill, expected)
       }
     }
   }
@@ -210,6 +262,29 @@ test_that("PlotButterfly matches partial and extended palettes by name", {
   }
 })
 
+test_that("PlotButterfly2 matches named point palettes in both beeswarm types", {
+  skip_if_not_installed("ggbeeswarm")
+  data <- expand.grid(value = seq_len(4), fill = c("A", "B", "C"), group = c("L", "R"))
+  data$stat <- "S"
+  data <- data[!(data$group == "L" & data$fill == "C") &
+    !(data$group == "R" & data$fill == "A"), ]
+  data <- data[rev(seq_len(nrow(data))), ]
+  data$fill <- factor(data$fill, levels = c("C", "unused", "B", "A"))
+  palettes <- list(c(unused = "orange", C = "green", B = "blue", A = "red"), c(B = "blue"))
+  for (type in c("beeswarm", "beeswarm_quasirandom")) {
+    for (j in seq_along(palettes)) {
+      plot <- suppressMessages(PlotButterfly2(data, stat.by = "stat", fill.by = "fill",
+        value.by = "value", group.by = "group", type = type, palette = palettes[[j]]))
+      for (i in 1:2) {
+        built <- ggplot2::ggplot_build(plot[[i]])
+        expect_identical(built$plot$scales$get_scales("colour")$map("B"), "blue")
+        expected <- if (j == 2L) c("grey50", "blue") else if (plot[[i]]$data$group[1] == "L") c("red", "blue") else c("blue", "green")
+        expect_setequal(built$data[[1]]$colour, expected)
+      }
+    }
+  }
+})
+
 test_that("PlotButterfly retains positional palette recycling and truncation", {
   data <- expand.grid(stat = "S", fill = c("A", "B"), group = c("L", "R"))
   data$value <- seq_len(nrow(data))
@@ -225,6 +300,25 @@ test_that("PlotButterfly retains positional palette recycling and truncation", {
       for (i in 1:2) {
         built <- ggplot2::ggplot_build(plot[[i]])
         expect_identical(built$plot$scales$get_scales("fill")$map(c("A", "B")), expected[[j]])
+        expect_setequal(built$data[[1]]$fill, expected[[j]])
+      }
+    }
+  }
+})
+
+test_that("PlotButterfly2 retains positional fill palettes across factor levels", {
+  data <- expand.grid(value = seq_len(4), fill = c("A", "B", "C"), group = c("L", "R"))
+  data$stat <- "S"
+  data$fill <- factor(data$fill, levels = c("C", "B", "A"))
+  palettes <- list(c("red", "blue"), c("red", "blue", "green", "orange"))
+  expected <- list(c("red", "blue", "red"), c("red", "blue", "green"))
+  for (type in c("violin", "violin_box", "box")) {
+    for (j in seq_along(palettes)) {
+      plot <- PlotButterfly2(data, stat.by = "stat", fill.by = "fill",
+        value.by = "value", group.by = "group", type = type, palette = palettes[[j]])
+      for (i in 1:2) {
+        built <- ggplot2::ggplot_build(plot[[i]])
+        expect_identical(built$plot$scales$get_scales("fill")$map(c("C", "B", "A")), expected[[j]])
         expect_setequal(built$data[[1]]$fill, expected[[j]])
       }
     }

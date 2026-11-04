@@ -67,7 +67,10 @@ Box-only output contains no violin layer, including without \code{fill.by}.}
 \item{palette}{Colour palette for \code{fill.by} levels. Default
 \code{NULL} uses \code{pal_lancet}.
 Category mappings are resolved across both panels; value gradients share
-the full selected data range.}
+the full selected data range.
+Named vectors match categories by name in both panels. Without
+\code{fill.by}, non-beeswarm types match names to \code{stat.by} categories.
+Unnamed vectors follow the category order and are recycled when needed.}
 
 \item{alpha}{Numeric 0--1. Fill/point transparency. Default 0.85.}
 
