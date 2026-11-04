@@ -246,6 +246,27 @@ test_that("PlotScatter1 avoids collisions with internal grouping columns", {
   }
 })
 
+test_that("PlotScatter1 supports a shared axis and group named .data", {
+  data <- data.frame(x = rep(c(10, 30), 6), y = rep(c(100, 200), each = 6),
+                     .scatter1_group = -seq_len(12), .scatter1_group.1 = seq_len(12),
+                     .scatter1_data = seq_len(12), .scatter1_data.1 = -seq_len(12))
+  for (axis in c("x", "y")) {
+    input <- data
+    names(input)[match(axis, names(input))] <- ".data"
+    axes <- c(x = "x", y = "y")
+    axes[[axis]] <- ".data"
+    before <- serialize(input, NULL)
+    p <- scatter1_capture_panels(input, axes[["x"]], axes[["y"]], ".data",
+      show_ellipse = FALSE, show_refline = FALSE, box_jitter = FALSE)
+    points <- ggplot2::ggplot_build(p$panels$main)$data[[1]]
+    expect_equal(points$x, data$x)
+    expect_equal(points$y, data$y)
+    expect_equal(p$panels$main$labels$x, axes[["x"]])
+    expect_equal(p$panels$main$labels$y, axes[["y"]])
+    expect_identical(serialize(input, NULL), before)
+  }
+})
+
 test_that("PlotScatter1 respects group order and mappings on shared numeric axes", {
   data <- data.frame(x = rep(c(30, 10), 6), y = rep(c(100, 200), each = 6))
   cases <- list(

@@ -147,6 +147,14 @@ PlotScatter1 <- function(
 
   df <- data
   group_col <- group
+  # The .data column name is reserved by the ggplot2 data mask.
+  if (".data" %in% c(x, y, group)) {
+    data_col <- make.unique(c(names(df), ".scatter1_data"))[ncol(df) + 1L]
+    df[[data_col]] <- df[[".data"]]
+    if (x == ".data") x <- data_col
+    if (y == ".data") y <- data_col
+    if (group_col == ".data") group_col <- data_col
+  }
   # Factor grouping separately when it shares a column with either axis.
   if (group_col %in% c(x, y)) {
     group_col <- make.unique(c(names(df), ".scatter1_group"))[ncol(df) + 1L]
