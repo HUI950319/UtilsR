@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Let `PlotRankCor()` match an observed empty-string group by name in a custom palette.
+
 * Interpolate and encode a single source colour once for repeated ramp output, preserving native HEX spelling and alpha.
 
 * Resolve the missing-level colour once in `plt_cat()` and identify invalid `NA_color` values before drawing.

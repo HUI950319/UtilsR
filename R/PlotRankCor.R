@@ -74,8 +74,9 @@
 #' @param palette Named or unnamed character vector of colours for
 #'   \code{group.by} levels. Default \code{NULL} uses
 #'   \code{c("#B2182B", "#2166AC", ...)} from \code{pal_lancet}.
-#'   Named colours must cover every observed group. The default palette is
-#'   interpolated when there are more groups than its available colours.
+#'   Named colours must cover every observed group. An empty name matches an
+#'   observed empty-string group. The default palette is interpolated when
+#'   there are more groups than its available colours.
 #' @param pt.size Numeric. Point size (used when \code{size_by = NULL}).
 #'   Default 3.
 #' @param alpha Numeric 0--1. Point transparency (used when
@@ -463,13 +464,16 @@ PlotRankCor <- function(
 
   # ---- Resolve palette ----
   n_groups <- length(groups)
-  if (!is.null(palette) && !is.null(names(palette))) {
+  palette_names <- names(palette)
+  if (!is.null(palette_names)) {
     if (!is.character(palette) || !is.null(dim(palette)) ||
-        anyNA(names(palette)) || any(!nzchar(names(palette))) || anyDuplicated(names(palette)))
-      cli::cli_abort("{.arg palette} must have unique, non-missing, non-empty group names.")
-    if (!all(groups %in% names(palette)))
+        anyNA(palette_names) || anyDuplicated(palette_names) ||
+        (any(!nzchar(palette_names)) && !"" %in% groups))
+      cli::cli_abort("{.arg palette} must have unique, non-missing, non-empty group names, except for an observed empty group.")
+    idx <- match(groups, palette_names)
+    if (anyNA(idx))
       cli::cli_abort("Named {.arg palette} must cover every observed group: {.val {groups}}.")
-    cols <- .resolve_color_values(palette[groups], "palette")
+    cols <- .resolve_color_values(palette[idx], "palette")
   } else if (is.null(palette) && n_groups > length(pal_lancet)) {
     cols <- as.character(pal_get("lancet", n = n_groups))
   } else {

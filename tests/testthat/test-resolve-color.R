@@ -271,6 +271,18 @@ test_that("a single named rank colour is a literal after subsetting groups", {
   )))
 })
 
+test_that("rank colours match an observed empty group by its label", {
+  d <- data.frame(id = rep(letters[1:6], 2L), value = c(1:6, 6:1),
+                  method = rep(c("M1", "M2"), each = 6L),
+                  group = rep(rep(c("", "A"), each = 3L), 2L))
+  colours <- setNames(c("blue", "red"), c("A", ""))
+  invisible(capture.output(
+    p <- PlotRankCor(d, "id", "value", "group", "method", palette = colours)
+  ))
+  scale <- ggplot2::ggplot_build(p)$plot$scales$get_scales("colour")
+  expect_identical(scale$map(c("", "A")), c("red", "blue"))
+})
+
 test_that("a single named alluvial colour is a literal after subsetting groups", {
   skip_if_not_installed("ggalluvial")
   d <- data.frame(x = rep(c("X", "Y"), each = 2L), g = "A")
