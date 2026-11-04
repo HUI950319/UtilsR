@@ -880,11 +880,13 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 # Keep returned plot environments separate from the original palette input.
 .pal_show_gg <- function(pals) {
   force(pals)
-  plot_data <- do.call(rbind, lapply(seq_along(pals), function(i) {
-    cols <- as.character(pals[[i]])
-    data.frame(palette = names(pals)[i], color = cols,
-               x = seq_along(cols), stringsAsFactors = FALSE)
-  }))
+  counts <- lengths(pals)
+  plot_data <- data.frame(
+    palette = rep(names(pals), counts),
+    color = as.character(unlist(pals, use.names = FALSE)),
+    x = sequence(counts),
+    stringsAsFactors = FALSE
+  )
   plot_data$palette <- factor(plot_data$palette, levels = rev(names(pals)))
 
   ggplot2::ggplot(plot_data, ggplot2::aes(
