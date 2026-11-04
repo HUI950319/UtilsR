@@ -43,6 +43,10 @@
 #'   use \code{type = "upset"} for larger sets.
 #'   Distinct numeric values with identical short text representations receive
 #'   more precise labels, including AsIs, haven labelled, and complex values.
+#'   Date, date-time, difftime, and lubridate values with identical display
+#'   labels receive exact-value suffixes (calendar components for periods;
+#'   start and length for intervals). This also applies to grouping, splitting,
+#'   and background columns; other time labels retain their original text.
 #' @param group.by Character. Optional grouping variable for standard types.
 #'   Ignored for set types. Area plots require at least two displayed group
 #'   levels in each panel.
@@ -441,7 +445,18 @@ plt_cat <- function(data,
       }
       missing <- is.na(x)
       values <- as.character(x)
-      if ((is.double(x) || is.complex(x)) &&
+      time_key <- .cat_time_key(x)
+      if (!is.null(time_key)) {
+        distinct <- unique(time_key[!missing])
+        labels <- values[match(distinct, time_key)]
+        collision <- duplicated(labels) | duplicated(labels, fromLast = TRUE)
+        if (any(collision)) {
+          labels[collision] <- paste0(labels[collision], " [", distinct[collision], "]")
+          values[!missing] <- labels[match(time_key[!missing], distinct)]
+          numeric_labels[[col]] <- list(values = distinct, labels = labels,
+                                        time = TRUE, units = attr(x, "units"))
+        }
+      } else if ((is.double(x) || is.complex(x)) &&
           (!is.object(x) || identical(class(x), "AsIs") || inherits(x, "haven_labelled"))) {
         raw <- unclass(x)
         distinct <- unique(raw[!missing])
@@ -799,6 +814,26 @@ plt_cat <- function(data,
 # wrap it in `setNames(.resolve_color(palette, n = length(levels)), levels)`.
 
 
+#' Exact keys for time values whose display labels can coincide
+#' @noRd
+.cat_time_key <- function(x, units = NULL) {
+  if (inherits(x, "Period")) {
+    parts <- list(lubridate::year(x), lubridate::month(x), lubridate::day(x),
+                  lubridate::hour(x), lubridate::minute(x), lubridate::second(x))
+  } else if (inherits(x, "Interval")) {
+    parts <- list(as.numeric(lubridate::int_start(x)), as.numeric(x))
+  } else if (inherits(x, "difftime")) {
+    parts <- list(as.numeric(x, units = units %||% attr(x, "units")))
+  } else if (inherits(x, c("Date", "POSIXt", "Duration"))) {
+    parts <- list(as.numeric(x))
+  } else {
+    return(NULL)
+  }
+  # Positive and negative zero represent the same time value.
+  do.call(paste, c(lapply(parts, function(value) sprintf("%.17g", value + 0)), sep = "/"))
+}
+
+
 #' Resolve stat_level for venn/upset
 #' @noRd
 .resolve_stat_level <- function(data, stat.by, stat_level, numeric_labels = list()) {
@@ -806,9 +841,13 @@ plt_cat <- function(data,
   as_label <- function(values, column) {
     out <- as.character(values)
     map <- numeric_labels[[column]]
-    if (!is.null(map) && (is.numeric(values) || is.complex(values)) &&
+    key <- if (isTRUE(map$time)) .cat_time_key(values, units = map$units) else
+      if (!is.null(map) && (is.numeric(values) || is.complex(values)) &&
         (!is.object(values) || identical(class(values), "AsIs") || inherits(values, "haven_labelled"))) {
-      at <- match(unclass(values), map$values)
+        unclass(values)
+      } else NULL
+    if (!is.null(key)) {
+      at <- match(key, map$values)
       matched <- !is.na(at)
       out[matched] <- map$labels[at[matched]]
     }

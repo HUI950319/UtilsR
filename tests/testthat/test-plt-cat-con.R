@@ -19,6 +19,152 @@ cat_test_text <- function(grob) {
     unlist(lapply(grob$children, cat_test_text), use.names = FALSE))
 }
 
+cat_test_time_collisions <- function() {
+  instant <- as.POSIXct(0.1 + c(0, .Machine$double.eps),
+                        origin = "1970-01-01", tz = "UTC")
+  clock <- as.POSIXct(c("2020-11-01 05:30:00", "2020-11-01 06:30:00"), tz = "UTC")
+  attr(clock, "tzone") <- "America/New_York"
+  list(Date = as.Date(c(0.1, 0.2), origin = "2020-01-01"),
+       POSIXct = instant, POSIXlt = as.POSIXlt(instant),
+       clock_ct = clock, clock_lt = as.POSIXlt(clock),
+       difftime = as.difftime(c(1e15, 1e15 + 1), units = "secs"))
+}
+
+cat_test_lubridate_collisions <- function() {
+  starts <- as.POSIXct(c(0.1, 0.2), origin = "1970-01-01", tz = "UTC")
+  list(Duration = lubridate::dseconds(c(1e15, 1e15 + 1)),
+       Period = lubridate::seconds(1 + c(0, .Machine$double.eps)),
+       calendar = lubridate::period(month = c(1e15, 1e15 + 1)),
+       Interval = lubridate::interval(starts, starts + 3600),
+       length = lubridate::interval(starts[1], starts[1] + 1 + c(0, .Machine$double.eps)))
+}
+
+test_that("plt_cat keeps colliding base time categories distinct", {
+  for (values in cat_test_time_collisions()) {
+    d <- data.frame(row = seq_len(4))
+    d[["A"]] <- values[c(1, 2, 1, NA)]
+    p <- cat_test_plot(d, "A", stat = "count", NA_stat = TRUE)
+    expect_equal(p$data$n, c(2L, 1L, 1L))
+    expect_length(unique(as.character(p$data$stat_var)), 3L)
+    expect_equal(sum(ggplot2::ggplot_build(p)$data[[1]]$fill == "grey80"), 1L)
+    q <- cat_test_plot(d, "A", stat = "count")
+    expect_equal(q$data$n, c(2L, 1L))
+  }
+})
+
+test_that("plt_cat keeps colliding lubridate categories distinct", {
+  skip_if_not_installed("lubridate")
+  for (values in cat_test_lubridate_collisions()) {
+    d <- data.frame(row = seq_len(4))
+    d[["A"]] <- values[c(1, 2, 1, NA)]
+    p <- cat_test_plot(d, "A", stat = "count", NA_stat = TRUE)
+    expect_equal(p$data$n, c(2L, 1L, 1L))
+    expect_length(unique(as.character(p$data$stat_var)), 3L)
+    expect_equal(sum(ggplot2::ggplot_build(p)$data[[1]]$fill == "grey80"), 1L)
+    q <- cat_test_plot(d, "A", stat = "count")
+    expect_equal(q$data$n, c(2L, 1L))
+  }
+})
+
+test_that("plt_cat separates colliding time groups, splits and backgrounds", {
+  for (values in cat_test_time_collisions()) {
+    d <- data.frame(A = "a", group = c("one", "two", "one"))
+    d[["time"]] <- values[c(1, 2, 1)]
+    grouped <- cat_test_plot(d, "A", "time", stat = "count")
+    expect_equal(grouped$data$n, c(2L, 1L))
+    split <- cat_test_plot(d, "A", split.by = "time", stat = "count")
+    expect_length(split, 2L)
+    expect_equal(vapply(seq_len(length(split)), function(i) sum(split[[i]]$data$n), 0), c(2, 1))
+    background <- cat_test_plot(d, "A", "group", bg.by = "time", position = "dodge")
+    expect_length(unique(background$layers[[1]]$data$bg), 2L)
+    expect_equal(as.character(ggplot2::ggplot_build(background)$data[[1]]$fill),
+                 c("grey85", "transparent"))
+  }
+})
+
+test_that("plt_cat resolves colliding base time membership exactly", {
+  skip_if_not_installed("ggupset")
+  withr::local_options(lifecycle_verbosity = "quiet")
+  for (values in cat_test_time_collisions()) {
+    d <- data.frame(B = c(TRUE, FALSE, FALSE))
+    d[["A"]] <- values[c(1, 2, 1)]
+    p <- cat_test_plot(d, c("A", "B"), type = "upset",
+                      stat_level = list(A = values[2], B = TRUE))
+    expect_equal(p$data$intersection, list("B", "A"))
+    expect_equal(ggplot2::ggplot_build(p)$data[[1]]$count, c(1, 1))
+  }
+})
+
+test_that("plt_cat resolves colliding lubridate membership exactly", {
+  skip_if_not_installed("lubridate")
+  skip_if_not_installed("ggupset")
+  withr::local_options(lifecycle_verbosity = "quiet")
+  for (values in cat_test_lubridate_collisions()) {
+    d <- data.frame(B = c(TRUE, FALSE, FALSE))
+    d[["A"]] <- values[c(1, 2, 1)]
+    p <- cat_test_plot(d, c("A", "B"), type = "upset",
+                      stat_level = list(A = values[2], B = TRUE))
+    expect_equal(p$data$intersection, list("B", "A"))
+    expect_equal(ggplot2::ggplot_build(p)$data[[1]]$count, c(1, 1))
+  }
+})
+
+test_that("plt_cat preserves other time labels and named colours after disambiguation", {
+  d <- data.frame(A = as.Date(c(0.1, 0.2, 2, 0.1, NA), origin = "2020-01-01"))
+  p <- cat_test_plot(d, "A", stat = "count", NA_stat = TRUE)
+  labels <- as.character(p$data$stat_var)
+  expect_equal(p$data$n, c(2L, 1L, 1L, 1L))
+  expect_equal(labels[3], "2020-01-03")
+  expect_true(all(startsWith(labels[1:2], "2020-01-01")))
+  palette <- stats::setNames(c("red", "blue", "green"), labels[1:3])
+  q <- cat_test_plot(d[5:1, , drop = FALSE], "A", stat = "count", NA_stat = TRUE,
+                    palette = palette)
+  fills <- stats::setNames(as.character(ggplot2::ggplot_build(q)$data[[1]]$fill),
+                           as.character(q$data$stat_var))
+  expect_equal(unname(fills[labels]), c("red", "blue", "green", "grey80"))
+})
+
+test_that("plt_cat matches colliding difftime membership across units", {
+  skip_if_not_installed("ggupset")
+  withr::local_options(lifecycle_verbosity = "quiet")
+  d <- data.frame(A = as.difftime(c(1e15, 1e15 + 1, 1e15), units = "secs"),
+                  B = c(TRUE, FALSE, FALSE))
+  positive <- as.difftime((1e15 + 1) / 60, units = "mins")
+  p <- cat_test_plot(d, c("A", "B"), type = "upset",
+                    stat_level = list(A = positive, B = TRUE))
+  expect_equal(p$data$intersection, list("B", "A"))
+})
+
+test_that("plt_cat Venn keeps exact membership for colliding time labels", {
+  skip_if_not_installed("ggVennDiagram")
+  withr::local_pdf(NULL)
+  values <- cat_test_time_collisions()$Date
+  d <- data.frame(A = values[c(1, 2, 1)], B = c(TRUE, FALSE, FALSE))
+  p <- cat_test_plot(d, c("A", "B"), type = "venn",
+                    stat_level = list(A = values[2], B = TRUE))
+  regions <- unique(p$layers[[1]]$data[c("id", "count")])
+  expect_equal(sort(regions$count), c(0, 1, 1))
+  expect_s3_class(ggplot2::ggplotGrob(p), "gtable")
+})
+
+test_that("plt_cat treats signed-zero time values as one category", {
+  inputs <- list(
+    Date = structure(c(-0, 0), class = "Date"),
+    POSIXct = structure(c(-0, 0), class = c("POSIXct", "POSIXt"), tzone = "UTC"),
+    difftime = structure(c(-0, 0), class = "difftime", units = "secs")
+  )
+  if (requireNamespace("lubridate", quietly = TRUE)) {
+    inputs$Duration <- lubridate::dseconds(c(-0, 0))
+  }
+  for (values in inputs) {
+    data <- data.frame(value = 1:4)
+    data$group <- values[c(1, 1, 2, 2)]
+    invisible(capture.output(p <- suppressMessages(plt_cat(data, "group", stat = "count"))))
+    expect_identical(p$data$n, 4L)
+    expect_length(levels(p$data$stat_var), 1L)
+  }
+})
+
 test_that("plt_cat preserves time values and their original missingness", {
   skip_if_not_installed("lubridate")
   dates <- as.POSIXct(c("2020-01-01", "2020-01-02", NA), tz = "UTC")
