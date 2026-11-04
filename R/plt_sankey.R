@@ -10,8 +10,9 @@
 #'
 #' @param data A data frame. Only selected columns are retained in the plot's
 #'   working data; unrelated columns do not increase the returned plot size.
-#'   SPSS user-missing codes and ranges are converted to \code{NA} before
-#'   categorization, requiring \pkg{haven}.
+#'   Missing values form separate nodes; all input rows contribute to flows
+#'   and percentage denominators. SPSS user-missing codes and ranges are
+#'   converted to \code{NA} before categorization, requiring \pkg{haven}.
 #' @param vars Character vector selecting at least two categorical variables,
 #'   displayed left-to-right in the given order. An unnamed vector contains
 #'   column names and retains the existing axis labels. A named vector maps
@@ -273,7 +274,7 @@ plt_sankey <- function(data,
       "all_wrap" = sprintf("%s\n(%s, %s)", data[[v]], data[[count_name]], data[[pct_name]]),
       "n"    = sprintf("%s (%s)", data[[v]], data[[count_name]]),
       "pct"  = sprintf("%s (%s)", data[[v]], data[[pct_name]]),
-      "name" = as.character(data[[v]])
+      "name" = sprintf("%s", data[[v]])
     )
     # Preserve factor order
     lvl_df <- dplyr::distinct(data[, c(v, lv, count_name)])

@@ -218,6 +218,24 @@ test_that("plt_sankey normalizes SPSS ranges and character missing codes", {
   }
 })
 
+test_that("plt_sankey preserves missing nodes across label styles", {
+  skip_if_not_installed("ggsankey")
+  skip_if_not_installed("haven")
+
+  data <- data.frame(a = haven::labelled_spss(c(1, 99, NA, 1), na_values = 99),
+                     b = c("x", "x", "y", "y"))
+  baseline <- ggplot2::ggplot_build(sankey_plot(data))$data
+  expect_equal(baseline[[2]]$ymax - baseline[[2]]$ymin, rep(2, 4))
+  for (style in c("all_wrap", "n", "pct", "name", "none")) {
+    built <- ggplot2::ggplot_build(sankey_plot(data, show_text = style))$data
+    for (i in 1:2) {
+      fields <- setdiff(names(baseline[[i]]), "label")
+      expect_equal(built[[i]][fields], baseline[[i]][fields], info = style)
+    }
+    if (style == "name") expect_true("NA" %in% built[[3]]$label)
+  }
+})
+
 test_that("plt_sankey conserves SPSS flows and input-row denominators", {
   skip_if_not_installed("ggsankey")
   skip_if_not_installed("haven")
