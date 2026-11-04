@@ -1,5 +1,7 @@
 # UtilsR 0.6.22
 
+* plt_dist() follows ggplot2's registered default text size when the plot and current themes omit base text.
+
 * Interpret single named colours as literals in plt_alluvial() and PlotRankCor(), including when a subset retains one group.
 
 * Validate numeric colour indices before native parsing and preserve double precision through palette lookup.

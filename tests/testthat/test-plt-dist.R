@@ -667,3 +667,27 @@ test_that("fmt_text formats every mode before the plot is saved", {
   expect_gt(attr(alluvial, "plot_size")[[2]],
             attr(dist_test_plot(data, c("x", "group")), "plot_size")[[2]])
 })
+
+test_that("distribution labels use registered default text settings", {
+  previous_theme <- ggplot2::theme_get()
+  previous_text <- ggplot2::calc_element(
+    "text", ggplot2::theme(text = ggplot2::element_text())
+  )
+  withr::defer({
+    ggplot2::register_theme_elements(text = previous_text, element_tree = list())
+    ggplot2::theme_set(previous_theme)
+  })
+  local_mocked_bindings(.save_sized = function(plot, ...) plot)
+  ggplot2::register_theme_elements(
+    text = ggplot2::theme_bw(base_size = 23)$text, element_tree = list()
+  )
+  ggplot2::theme_set(ggplot2::theme())
+  data <- data.frame(x = c("A", "A", "B", "B"), y = c("C", "D", "C", "D"),
+                     group = c("F", "M", "F", "M"))
+  for (vars in list(c("x", "group"), c("x", "y", "group"))) {
+    p <- dist_test_plot(data, vars, type = "bar", theme_use = ggplot2::theme(),
+                        label_args = list(style = "count", box = FALSE))
+    expected <- if (length(vars) == 2L) 19 else 21
+    expect_equal(unique(ggplot2::layer_data(p, 2L)$size) * ggplot2::.pt, expected)
+  }
+})
