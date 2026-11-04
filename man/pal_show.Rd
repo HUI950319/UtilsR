@@ -85,6 +85,8 @@ Catalogue swatches use thin grey outlines in ggplot and HTML output.
   In gt catalogue output, long palette names wrap within the name column.
   Each swatch exposes its hexadecimal colour value as a hover title and an
   accessible label.
+  LaTeX catalogue tables use the available text width and repeat column
+  headings when the table spans pages.
 }
 \examples{
 # Show specific palettes (gt table, default)

@@ -890,6 +890,17 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   ))
 }
 
+# Let LaTeX break compound names while gt handles escaping in other formats.
+.pal_name_formats <- list(
+  latex = function(x) {
+    parts <- strsplit(x, "(?<=[_.-])|(?<=[a-z])(?=[A-Z])", perl = TRUE)
+    vapply(parts, function(word) {
+      paste(gt::escape_latex(word), collapse = "\\allowbreak{}")
+    }, character(1), USE.NAMES = FALSE)
+  },
+  default = function(x) rep(NA_character_, length(x))
+)
+
 # Numeric strings refer to the mutable base palette rather than literal colours.
 .pal_are_colors <- function(x) {
   if (length(x) > 1024L && .pal_use_unique(x)) x <- unique(x)
@@ -981,6 +992,8 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #'   In gt catalogue output, long palette names wrap within the name column.
 #'   Each swatch exposes its hexadecimal colour value as a hover title and an
 #'   accessible label.
+#'   LaTeX catalogue tables use the available text width and repeat column
+#'   headings when the table spans pages.
 #'
 #' @param palette Character vector of palette names (e.g. \code{"lancet"}),
 #'   a colour vector (hex codes or named colours), or \code{NULL} to show
@@ -1158,9 +1171,7 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
   # padding), floored so the column label still fits.
   swatch_px <- 20
   preview_px <- max(swatch_px * max(n_shown) + 10, 90)
-  # gt::cols_width() evaluates a formula RHS in its own frame, so the computed
-  # width has to be inlined into the formula rather than referenced by name.
-  preview_width <- stats::as.formula(bquote(preview ~ .(gt::px(preview_px))))
+  html_widths <- c(palette = 180, type = 80, n_colors = 70, preview = preview_px)
 
   tbl_data <- data.frame(
     palette = names(pals),
@@ -1186,6 +1197,7 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
       preview = "Colours"
     ) %>%
     .pal_format_preview() %>%
+    gt::fmt(columns = "palette", fns = .pal_name_formats) %>%
     gt::tab_header(
       title = gt::md(sprintf("**%d Palettes**", length(pals)))
     ) %>%
@@ -1197,21 +1209,34 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
       style = gt::cell_fill(color = "#E8F4FD"),
       locations = gt::cells_column_labels()
     ) %>%
-    gt::tab_style(
-      style = gt::css("overflow-wrap" = "anywhere"),
-      locations = gt::cells_body(columns = "palette")
-    ) %>%
     gt::tab_options(
       table.font.size = gt::px(13),
       data_row.padding = gt::px(4),
-      column_labels.padding = gt::px(6)
+      column_labels.padding = gt::px(6),
+      table.layout = "auto",
+      container.width = sprintf("min(100%%, %dpx)", sum(html_widths)),
+      latex.use_longtable = TRUE,
+      latex.header_repeat = TRUE
     ) %>%
     gt::cols_width(
-      palette ~ gt::px(180),
-      type ~ gt::px(80),
-      n_colors ~ gt::px(70),
-      preview_width
+      palette ~ gt::pct(28),
+      type ~ gt::pct(18),
+      n_colors ~ gt::pct(18),
+      preview ~ gt::pct(36)
     )
+
+  # HTML uses pixel widths, including the 5px padding on each side of a cell.
+  for (column in names(html_widths)) {
+    width <- gt::px(html_widths[[column]] - 10)
+    wrap <- column == "palette"
+    tbl <- gt::tab_style(
+      tbl, gt::css("min-width" = width, "width" = width,
+                  "overflow-wrap" = if (wrap) "anywhere"),
+      locations = list(gt::cells_column_labels(columns = column),
+                       gt::cells_body(columns = column,
+                                      rows = if (wrap) seq_len(nrow(tbl_data)) else 1L))
+    )
+  }
 
   tbl
 }

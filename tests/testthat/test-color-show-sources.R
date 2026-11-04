@@ -89,8 +89,8 @@ test_that("pal_show sizes the Colours column from the longest palette", {
   invisible(capture.output(one <- pal_show("Set1", output = "gt")))
   invisible(capture.output(two <- pal_show(c("Set1", "Paired"), output = "gt")))
 
-  expect_match(gt::as_raw_html(one), "width:190px")
-  expect_match(gt::as_raw_html(two), "width:250px")
+  expect_match(gt::as_raw_html(one), '<th[^>]*min-width:\\s*180px;[^>]*id="preview"')
+  expect_match(gt::as_raw_html(two), '<th[^>]*min-width:\\s*240px;[^>]*id="preview"')
 })
 
 test_that("pal_show sizes the Colours column from the drawn swatches", {
@@ -99,7 +99,7 @@ test_that("pal_show sizes the Colours column from the drawn swatches", {
   invisible(capture.output(
     tbl <- pal_show("Paired", max_colors = 6, output = "gt")))
 
-  expect_match(gt::as_raw_html(tbl), "width:130px")
+  expect_match(gt::as_raw_html(tbl), '<th[^>]*min-width:\\s*120px;[^>]*id="preview"')
 })
 
 test_that("pal_show keeps a fixed Colours swatch width", {
@@ -109,6 +109,19 @@ test_that("pal_show keeps a fixed Colours swatch width", {
   html <- gt::as_raw_html(tbl)
 
   expect_match(html, "display:inline-block;width:20px;")
+})
+
+test_that("palette catalogue LaTeX wraps columns and repeats headers across pages", {
+  name <- "R&D%_long-name"
+  tbl <- pal_show(stats::setNames(list(c("#11223380", "#FFFFFF00")), name))
+  latex <- as.character(gt::as_latex(tbl))
+  expect_match(latex, "\\begin{longtable}", fixed = TRUE)
+  expect_match(latex, "0.28\\linewidth", fixed = TRUE)
+  expect_match(latex, "\\endhead", fixed = TRUE)
+  expect_match(latex, "R\\&D\\%\\_\\allowbreak{}long-\\allowbreak{}name", fixed = TRUE)
+  expect_match(latex, "\\#11223380 \\#FFFFFF00", fixed = TRUE)
+  expect_identical(tbl[["_data"]][["palette"]], name)
+  expect_match(gt::as_raw_html(tbl), "R&amp;D%_long-name", fixed = TRUE)
 })
 
 test_that("pal_show resamples each palette to n colours", {

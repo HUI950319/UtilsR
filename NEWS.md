@@ -1,5 +1,7 @@
 # UtilsR 0.6.22
 
+* `pal_show()` uses page-relative LaTeX columns, wraps compound palette names and repeats headers across pages while retaining 20px HTML swatches.
+
 * Share finite positions, normalisation and repeated-value indices across numeric palette lists.
 
 * `plt_con()` computes independent facet quantiles once per feature and reuses the limits for bar comparisons.
