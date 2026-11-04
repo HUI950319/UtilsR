@@ -541,11 +541,11 @@ plt_cat <- function(data,
     }
   }
   # A named palette maps by level, as in plt_con(); an unnamed one by position.
+  missing_levels <- unname(na_levels[intersect(names(na_levels), stat.by)])
   level_colors <- function(lvls) {
     if (is.null(names(palette))) {
       return(stats::setNames(.resolve_color(palette, n = length(lvls)), lvls))
     }
-    missing_levels <- unname(na_levels[intersect(names(na_levels), stat.by)])
     required <- setdiff(lvls, missing_levels)
     if (!is.null(dim(palette))) cli::cli_abort("Named {.arg palette} must be one-dimensional.")
     if (!is.character(palette) || anyNA(names(palette)) ||
@@ -555,7 +555,7 @@ plt_cat <- function(data,
       cli::cli_abort("Named {.arg palette} must contain each level with unique names matching the categories.")
     }
     out <- stats::setNames(unname(palette[match(lvls, names(palette))]), lvls)
-    out[lvls %in% missing_levels] <- NA_color
+    out[lvls %in% missing_levels] <- NA_character_
     .resolve_color_values(out, "palette")
   }
   if (type %in% std_types) {
@@ -565,7 +565,8 @@ plt_cat <- function(data,
     all_levels <- unique(unlist(lapply(stat.by, function(s) levels(factor(data[[s]])))))
     colors <- level_colors(all_levels)
   }
-  colors[names(colors) %in% na_levels[intersect(names(na_levels), stat.by)]] <- NA_color
+  missing <- names(colors) %in% missing_levels
+  if (any(missing)) colors[missing] <- .resolve_color_values(NA_color, "NA_color")
 
   # --- Auto aspect.ratio for polar types --------------------------------------
   if (is.null(aspect.ratio) && type %in% c("rose", "ring", "pie")) {

@@ -36,6 +36,21 @@ test_that("plt_cat gives a named palette's missing NA level the NA colour", {
   expect_identical(unname(plt_cat_fills(p)), c("red", "blue", "grey50"))
 })
 
+test_that("plt_cat keeps the resolved NA colour for either palette path", {
+  old_palette <- grDevices::palette()
+  withr::defer(grDevices::palette(old_palette))
+  grDevices::palette(c("black", "#123456"))
+  d <- data.frame(g = c("A", NA_character_, "B", "A"))
+
+  for (palette in list(NULL, c(A = "red", B = "blue"))) {
+    p <- suppressMessages(plt_cat(d, "g", palette = palette, NA_stat = TRUE, NA_color = "2"))
+    expect_true("#123456FF" %in% plt_cat_fills(p))
+    expect_error(plt_cat(d, "g", palette = palette, NA_stat = TRUE, NA_color = "bogus_colour"),
+                 "NA_color.*invalid colours")
+  }
+  expect_no_error(suppressMessages(plt_cat(d, "g", NA_stat = FALSE, NA_color = "bogus_colour")))
+})
+
 test_that("plt_cat keeps a level's colour in a split panel without other levels", {
   d <- data.frame(g = factor(c("B", "A", "B", "C")),
                   s = factor(c("x", "y", "y", "y")))

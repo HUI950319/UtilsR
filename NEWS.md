@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Resolve the missing-level colour once in `plt_cat()` and identify invalid `NA_color` values before drawing.
+
 * Escape malformed colour text in `pal_get()` diagnostics and avoid edit-distance warnings on invalid input.
 
 * Parse numeric colour strings once before integer colour lookup, avoiding native overflow on rounding boundaries.
