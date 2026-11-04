@@ -8,14 +8,18 @@
 #' and optional annotation panel (PERMANOVA / correlation). Suitable for
 #' PCoA/NMDS ordination or gene correlation visualisation.
 #'
-#' For dual-group scatter with separate marginal panels, see [PlotScatter2()].
-#' For paired scatter with rotated histogram inset, see [PlotScatter3()].
+#' For dual-group scatter with separate marginal panels, see
+#' \code{\link{PlotScatter2}()}.
+#' For paired scatter with rotated histogram inset, see
+#' \code{\link{PlotScatter3}()}.
 #'
 #' @param data A data.frame.
 #' @param x Column name for the X axis.
 #' @param y Column name for the Y axis.
-#' @param group Column name for the grouping variable.
-#' @param group_levels Group order. NULL = data order.
+#' @param group Column name for the grouping variable. May also be \code{x} or
+#'   \code{y}; grouping uses a separate factor without changing axis values.
+#' @param group_levels Group order. NULL preserves existing factor levels or
+#'   uses data order for other grouping variables.
 #' @param colors Colour vector for groups. NULL = auto palette (up to 12 groups).
 #'   Above 12 groups, supply both \code{colors} and \code{shapes}.
 #' @param shapes Shape vector for groups. NULL = auto (up to 12 groups).
@@ -137,14 +141,24 @@ PlotScatter1 <- function(
     if (!col %in% colnames(data)) stop(sprintf("Column '%s' not found in data.", col))
   }
 
+  # Preserve public labels before assigning private plotting columns.
+  if (is.null(xlab)) xlab <- x
+  if (is.null(ylab)) ylab <- y
+
   df <- data
+  group_col <- group
+  # Factor grouping separately when it shares a column with either axis.
+  if (group_col %in% c(x, y)) {
+    group_col <- make.unique(c(names(df), ".scatter1_group"))[ncol(df) + 1L]
+    df[[group_col]] <- df[[group]]
+  }
   if (!is.null(group_levels)) {
-    df[[group]] <- factor(df[[group]], levels = group_levels)
-  } else if (!is.factor(df[[group]])) {
-    df[[group]] <- factor(df[[group]], levels = unique(df[[group]]))
+    df[[group_col]] <- factor(df[[group_col]], levels = group_levels)
+  } else if (!is.factor(df[[group_col]])) {
+    df[[group_col]] <- factor(df[[group_col]], levels = unique(df[[group_col]]))
   }
 
-  grp_lvls <- levels(df[[group]])
+  grp_lvls <- levels(df[[group_col]])
   n_grp <- length(grp_lvls)
 
   if (n_grp > 12L && (is.null(colors) || is.null(shapes))) {
@@ -167,10 +181,6 @@ PlotScatter1 <- function(
     shapes <- c(16, 17, 15, 18, 8, 7, 9, 10, 11, 12, 13, 14)[seq_len(n_grp)]
   }
   if (length(shapes) < n_grp) shapes <- rep_len(shapes, n_grp)
-
-  # ---- Labels ----
-  if (is.null(xlab)) xlab <- x
-  if (is.null(ylab)) ylab <- y
 
   # ---- Point layer helper: vector / scattermore / ggrastr ----
   .pt_layer <- function(size_val, alpha_val) {
@@ -197,12 +207,12 @@ PlotScatter1 <- function(
   # ---- Main scatter plot ----
   p_main <- ggplot2::ggplot(df, ggplot2::aes(
     x = .data[[x]], y = .data[[y]],
-    colour = .data[[group]], shape = .data[[group]]
+    colour = .data[[group_col]], shape = .data[[group_col]]
   )) +
     .pt_layer(point_size, point_alpha) +
     ggplot2::scale_colour_manual(values = colors) +
     ggplot2::scale_shape_manual(values = shapes) +
-    ggplot2::labs(x = xlab, y = ylab, title = title)
+    ggplot2::labs(x = xlab, y = ylab, title = title, colour = group, shape = group)
 
   # Apply user theme
   if (!is.null(theme_use)) {
@@ -249,7 +259,7 @@ PlotScatter1 <- function(
   if (show_ellipse) {
     p_main <- p_main +
       ggplot2::stat_ellipse(
-        ggplot2::aes(colour = .data[[group]]),
+        ggplot2::aes(colour = .data[[group_col]]),
         level = ellipse_level, show.legend = FALSE
       )
   }
@@ -328,7 +338,8 @@ PlotScatter1 <- function(
   # After coord_flip: horizontal = X variable (hidden, shown on p_main bottom)
   #                   vertical   = group names (kept on left)
   p_top <- ggplot2::ggplot(
-    df, ggplot2::aes(x = .data[[group]], y = .data[[x]], fill = .data[[group]])
+    df, ggplot2::aes(x = .data[[group_col]], y = .data[[x]],
+                     fill = .data[[group_col]])
   )
   p_top <- .add_marginal_geom(p_top, marginal_type, box_jitter)
   # coord_flip: original y-axis = x variable values; ylim sets its limits.
@@ -356,7 +367,8 @@ PlotScatter1 <- function(
   # ---- Right marginal (y variable by group) --------------------------------
   # Y scale values are on p_main left; only group names remain at bottom.
   p_right <- ggplot2::ggplot(
-    df, ggplot2::aes(x = .data[[group]], y = .data[[y]], fill = .data[[group]])
+    df, ggplot2::aes(x = .data[[group_col]], y = .data[[y]],
+                     fill = .data[[group_col]])
   )
   p_right <- .add_marginal_geom(p_right, marginal_type, box_jitter)
   # coord_cartesian on the right marginal: ylim aligns its y-extent with p_main.

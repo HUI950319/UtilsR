@@ -190,6 +190,200 @@ test_that("PlotScatter3 derives automatic histogram limits from paired differenc
   expect_identical(inset$scales$get_scales("x")$limits, c(-2, 4))
 })
 
+scatter1_capture_panels <- function(...) {
+  panels <- list()
+  ggplot_grob <- ggplot2::ggplotGrob
+  plot <- testthat::with_mocked_bindings(
+    PlotScatter1(...),
+    ggplotGrob = function(x, ...) {
+      panels[[length(panels) + 1L]] <<- x
+      ggplot_grob(x, ...)
+    }, .package = "ggplot2"
+  )
+  names(panels) <- c("top", "annotation", "main", "right")
+  list(plot = plot, panels = panels)
+}
+
+test_that("PlotScatter1 preserves numeric axes that are also grouping columns", {
+  data <- data.frame(x = rep(c(10, 30), 6), y = rep(c(100, 200), each = 6))
+  before <- serialize(data, NULL)
+  cases <- list(
+    list(x = "x", y = "y", group = "x"),
+    list(x = "x", y = "y", group = "y"),
+    list(x = "x", y = "x", group = "x"),
+    list(x = c(axis = "x"), y = "y", group = "x")
+  )
+  for (case in cases) {
+    p <- do.call(scatter1_capture_panels, c(list(data = data), case,
+      list(show_ellipse = FALSE, show_refline = FALSE, box_jitter = FALSE)))
+    points <- ggplot2::ggplot_build(p$panels$main)$data[[1]]
+    expect_equal(points$x, data[[case$x]])
+    expect_equal(points$y, data[[case$y]])
+    expect_equal(unname(p$panels$main$labels$x), unname(case$x))
+    expect_equal(unname(p$panels$main$labels$y), unname(case$y))
+    expect_identical(serialize(data, NULL), before)
+    expect_s3_class(p$plot, "ggplot")
+  }
+})
+
+test_that("PlotScatter1 avoids collisions with internal grouping columns", {
+  data <- data.frame(x = rep(c(10, 30), 6), y = rep(c(100, 200), each = 6),
+                     .scatter1_group = -seq_len(12), .scatter1_group.1 = seq_len(12),
+                     .scatter1_data = seq_len(12), .scatter1_data.1 = -seq_len(12))
+  for (input in list(data, tibble::as_tibble(data))) {
+    before <- serialize(input, NULL)
+    for (group in c("x", "y")) {
+      p <- scatter1_capture_panels(input, "x", "y", group,
+        show_ellipse = FALSE, show_refline = FALSE, box_jitter = FALSE)
+      points <- ggplot2::ggplot_build(p$panels$main)$data[[1]]
+      expect_equal(points$x, input$x)
+      expect_equal(points$y, input$y)
+      for (panel in p$panels[c("top", "main", "right")]) {
+        for (col in names(input)) expect_identical(panel$data[[col]], input[[col]])
+      }
+      expect_identical(serialize(input, NULL), before)
+    }
+  }
+})
+
+test_that("PlotScatter1 respects group order and mappings on shared numeric axes", {
+  data <- data.frame(x = rep(c(30, 10), 6), y = rep(c(100, 200), each = 6))
+  cases <- list(
+    list(group = "x", levels = NULL, order = c("30", "10")),
+    list(group = "x", levels = c(10, 30), order = c("10", "30")),
+    list(group = "y", levels = c(200, 100), order = c("200", "100")),
+    list(group = "x", levels = c(10, 30), order = c("10", "30"), named = TRUE)
+  )
+  for (case in cases) {
+    colors <- c("#112233", "#445566")
+    shapes <- c(16, 17)
+    if (isTRUE(case$named)) {
+      names(colors) <- names(shapes) <- rev(case$order)
+    }
+    p <- scatter1_capture_panels(data, "x", "y", case$group,
+      group_levels = case$levels, colors = colors, shapes = shapes,
+      show_ellipse = FALSE, show_refline = FALSE, box_jitter = FALSE,
+      legend_theme = ggplot2::theme(legend.title = ggplot2::element_text()))
+    main <- ggplot2::ggplot_build(p$panels$main)
+    groups <- factor(data[[case$group]], levels = case$order)
+    indices <- if (isTRUE(case$named)) match(as.character(groups), names(colors)) else
+      as.integer(groups)
+    expect_identical(main$data[[1]]$colour, unname(colors[indices]))
+    expect_identical(main$data[[1]]$shape, unname(shapes[indices]))
+    expect_equal(main$data[[1]]$x, data$x)
+    expect_equal(main$data[[1]]$y, data$y)
+    expect_equal(main$plot$scales$get_scales("colour")$get_labels(), case$order)
+    expect_equal(p$panels$main$labels$colour, case$group)
+    expect_equal(p$panels$main$labels$shape, case$group)
+    for (panel in c("top", "right")) {
+      boxes <- ggplot2::ggplot_build(p$panels[[panel]])$data[[1]]
+      values <- if (panel == "top") data$x else data$y
+      medians <- vapply(split(values, groups), stats::median, numeric(1L))
+      expect_equal(boxes$middle, unname(medians))
+      expect_identical(boxes$fill, unname(if (isTRUE(case$named))
+        colors[match(case$order, names(colors))] else colors))
+    }
+  }
+})
+
+test_that("PlotScatter1 preserves factor ordering when grouping a separate column", {
+  data <- data.frame(x = 1:12, y = 12:1,
+                     g = factor(rep(c("a", "b"), 6), levels = c("b", "a")))
+  before <- serialize(data, NULL)
+  for (levels in list(NULL, c("a", "b"))) {
+    p <- scatter1_capture_panels(data, "x", "y", "g", group_levels = levels,
+      show_ellipse = FALSE, show_refline = FALSE, box_jitter = FALSE)
+    main <- ggplot2::ggplot_build(p$panels$main)
+    expected <- if (is.null(levels)) c("b", "a") else levels
+    expect_equal(main$plot$scales$get_scales("colour")$get_labels(), expected)
+    expect_equal(main$data[[1]]$x, data$x)
+    expect_equal(main$data[[1]]$y, data$y)
+    expect_identical(serialize(data, NULL), before)
+  }
+})
+
+test_that("PlotScatter1 uses original shared axis values for regression and correlation", {
+  data <- data.frame(x = c(10, 11, 14, 17, 19, 21, 26, 31, 34, 38, 42, 50))
+  data$y <- 3 * data$x + c(5, -4, 3, -2, 7, -1, 0, -5, 4, 2, 6, -3)
+  before <- serialize(data, NULL)
+  cases <- list(
+    list(y = "y", group = "x", method = "pearson", regression = "lm"),
+    list(y = "y", group = "y", method = "spearman", regression = "loess"),
+    list(y = "x", group = "x", method = "pearson", regression = "lm")
+  )
+  for (case in cases) {
+    p <- scatter1_capture_panels(data, "x", case$y, case$group,
+      show_ellipse = FALSE, show_refline = FALSE, box_jitter = FALSE,
+      show_cor = TRUE, cor_method = case$method,
+      show_regression = TRUE, reg_method = case$regression)
+    main <- ggplot2::ggplot_build(p$panels$main)
+    reference_data <- data.frame(x = data$x, y = data[[case$y]])
+    reference <- ggplot2::ggplot_build(
+      ggplot2::ggplot(reference_data, ggplot2::aes(x = x, y = y)) +
+        ggplot2::geom_smooth(method = case$regression, formula = y ~ x, se = FALSE)
+    )$data[[1]]
+    expect_equal(main$data[[2]][c("x", "y")], reference[c("x", "y")])
+    correlation <- stats::cor.test(data$x, data[[case$y]], method = case$method)
+    expected <- sprintf("%s:\nr = %.3f\np = %s", tools::toTitleCase(case$method),
+      correlation$estimate, format(correlation$p.value, digits = 3, scientific = TRUE))
+    annotation <- ggplot2::ggplot_build(p$panels$annotation)$data[[1]]$label
+    expect_equal(annotation, expected)
+    expect_identical(serialize(data, NULL), before)
+  }
+})
+
+test_that("PlotScatter1 uses numeric shared axes in every marginal geometry", {
+  data <- data.frame(x = rep(c(10, 30), 6), y = rep(c(100, 200), each = 6))
+  for (group in c("x", "y")) {
+    reference_data <- data
+    reference_data$g <- factor(data[[group]], levels = unique(data[[group]]))
+    for (mtype in c("boxplot", "violin", "violin_box")) {
+      p <- scatter1_capture_panels(data, "x", "y", group, marginal_type = mtype,
+        show_ellipse = FALSE, show_refline = FALSE,
+        xlim = c(5, 35), ylim = c(90, 210))
+      main <- ggplot2::ggplot_build(p$panels$main)$layout$panel_params[[1]]
+      top <- ggplot2::ggplot_build(p$panels$top)
+      right <- ggplot2::ggplot_build(p$panels$right)
+      expect_equal(main$x.range, c(5, 35))
+      expect_equal(main$y.range, c(90, 210))
+      expect_equal(top$layout$panel_params[[1]]$x.range, main$x.range)
+      expect_equal(right$layout$panel_params[[1]]$y.range, main$y.range)
+      for (panel in c("top", "right")) {
+        values <- if (panel == "top") "x" else "y"
+        reference <- ggplot2::ggplot(reference_data,
+          ggplot2::aes(x = g, y = .data[[values]], fill = g))
+        if (mtype == "boxplot") {
+          reference <- reference + ggplot2::geom_boxplot()
+          columns <- c("lower", "middle", "upper", "ymin", "ymax")
+        } else {
+          reference <- reference + ggplot2::geom_violin(trim = FALSE, scale = "width")
+          columns <- c("y", "density", "scaled", "count")
+        }
+        expected <- ggplot2::ggplot_build(reference)$data[[1]]
+        actual <- ggplot2::ggplot_build(p$panels[[panel]])$data[[1]]
+        expect_equal(actual[columns], expected[columns])
+      }
+      expect_equal(scatter_main_points(attr(p$plot, "grobs")$full), 3 * nrow(data))
+      expect_no_warning(grid::grid.draw(attr(p$plot, "grobs")$full))
+    }
+  }
+})
+
+test_that("PlotScatter1 raster backends preserve shared axis coordinates", {
+  skip_if_not_installed("scattermore")
+  skip_if_not_installed("ggrastr")
+  data <- data.frame(x = rep(c(10, 30), 6), y = rep(c(100, 200), each = 6))
+  for (method in c("scattermore", "ggrastr")) {
+    p <- scatter1_capture_panels(data, "x", "y", "x", raster = TRUE,
+      raster_method = method, raster.dpi = 64,
+      show_ellipse = FALSE, show_refline = FALSE, box_jitter = FALSE)
+    points <- ggplot2::ggplot_build(p$panels$main)$data[[1]]
+    expect_equal(points$x, data$x)
+    expect_equal(points$y, data$y)
+    expect_no_warning(grid::grid.draw(attr(p$plot, "grobs")$full))
+  }
+})
+
 test_that("PlotScatter1 requires explicit mappings beyond twelve groups", {
   data <- data.frame(x = 1:26, y = rep(1:2, 13), g = rep(letters[1:13], each = 2))
   draw <- function(...) PlotScatter1(data, "x", "y", "g", show_ellipse = FALSE,

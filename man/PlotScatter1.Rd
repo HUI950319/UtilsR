@@ -51,9 +51,11 @@ PlotScatter1(
 
 \item{y}{Column name for the Y axis.}
 
-\item{group}{Column name for the grouping variable.}
+\item{group}{Column name for the grouping variable. May also be \code{x} or
+\code{y}; grouping uses a separate factor without changing axis values.}
 
-\item{group_levels}{Group order. NULL = data order.}
+\item{group_levels}{Group order. NULL preserves existing factor levels or
+uses data order for other grouping variables.}
 
 \item{colors}{Colour vector for groups. NULL = auto palette (up to 12 groups).
 Above 12 groups, supply both \code{colors} and \code{shapes}.}
@@ -136,8 +138,10 @@ and optional annotation panel (PERMANOVA / correlation). Suitable for
 PCoA/NMDS ordination or gene correlation visualisation.
 }
 \details{
-For dual-group scatter with separate marginal panels, see [PlotScatter2()].
-For paired scatter with rotated histogram inset, see [PlotScatter3()].
+For dual-group scatter with separate marginal panels, see
+\code{\link{PlotScatter2}()}.
+For paired scatter with rotated histogram inset, see
+\code{\link{PlotScatter3}()}.
 }
 \examples{
 library(ggplot2)
