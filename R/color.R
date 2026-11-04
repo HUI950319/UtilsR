@@ -1241,7 +1241,7 @@ pal_show <- function(palette = NULL, n = NULL, pattern = NULL,
   # HTML uses pixel widths, including the 5px padding on each side of a cell.
   for (column in names(html_widths)) {
     width <- gt::px(html_widths[[column]] - 10)
-    wrap <- column == "palette"
+    wrap <- column %in% c("palette", "n_colors")
     tbl <- gt::tab_style(
       tbl, gt::css("min-width" = width, "width" = width,
                   "overflow-wrap" = if (wrap) "anywhere"),

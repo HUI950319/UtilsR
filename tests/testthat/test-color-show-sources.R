@@ -124,6 +124,18 @@ test_that("palette catalogue LaTeX wraps columns and repeats headers across page
   expect_match(gt::as_raw_html(tbl), "R&amp;D%_long-name", fixed = TRUE)
 })
 
+test_that("palette catalogue wraps large requested counts in HTML", {
+  tbl <- pal_show(c("Set1", "viridis"), n = .Machine$integer.max)
+  expect_identical(tbl[["_data"]][["n_colors"]], rep("20 / 2147483647", 2L))
+  html <- gt::as_raw_html(tbl)
+  cells <- regmatches(html, gregexpr(
+    '<td[^>]*headers="n_colors"[^>]*>[^<]*</td>', html
+  ))[[1L]]
+  expect_length(cells, 2L)
+  expect_identical(grepl("overflow-wrap:\\s*anywhere", cells), c(TRUE, TRUE))
+  expect_identical(grepl("20 / 2147483647", cells, fixed = TRUE), c(TRUE, TRUE))
+})
+
 test_that("pal_show resamples each palette to n colours", {
   # truncation and interpolation both follow pal_get()'s rules
   p3 <- pal_show(c("Set1", "lancet"), n = 3, output = "gg")

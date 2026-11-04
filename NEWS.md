@@ -1,5 +1,7 @@
 # UtilsR 0.6.22
 
+* `pal_show()` wraps large requested colour counts within the HTML catalogue count column.
+
 * `pal_show()` serializes smaller gt objects by keeping preview formatters independent of their input tables.
 
 * `pal_show()` uses page-relative LaTeX columns, wraps compound palette names and repeats headers across pages while retaining 20px HTML swatches.
