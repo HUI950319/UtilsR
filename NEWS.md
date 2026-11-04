@@ -1,5 +1,7 @@
 # UtilsR 0.6.22
 
+* Encode the final alpha channel during palette interpolation, preserving alpha byte rounding and scalar or vector HEX formatting.
+
 * `plt_cat()` resolves exact set membership for `I()`-wrapped dates and elapsed times.
 
 * Locate invalid colours in long literal vectors by checking blocks before falling back to individual colours.

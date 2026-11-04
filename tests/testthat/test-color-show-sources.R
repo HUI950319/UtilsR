@@ -505,12 +505,15 @@ test_that("pal_get handles stored labelled and integer64 inputs in a fresh proce
   output <- file.path(directory, "result.rds")
   fn <- pal_get
   apply <- .pal_apply
+  ramp <- .pal_ramp
   use_unique <- .pal_use_unique
   env <- new.env(parent = asNamespace("stats"))
   environment(fn) <- env
   environment(apply) <- env
+  environment(ramp) <- env
   environment(use_unique) <- env
   env$.pal_apply <- apply
+  env$.pal_ramp <- ramp
   env$.pal_use_unique <- use_unique
   saveRDS(list(fn = fn, libs = .libPaths(),
                x = haven::labelled_spss(c(1, 2, 99, NA), na_values = 99),
@@ -805,6 +808,17 @@ test_that("pal_get preserves near-opaque HEX formatting after expanding repeats"
     expect_identical(pal_get(cols, x = x, alpha = 0.9999), expected)
     expect_identical(pal_get(palettes, x = x, alpha = 0.9999),
                      list(gray = expected))
+  }
+})
+
+test_that("pal_get encodes interpolated alpha with existing rounding and spelling", {
+  cols <- c("#FF000000", "#002AFFC0")
+  x <- c(-1, NA, 0, 1, 0, 1)
+  for (alpha in c(0, 0.5 / 255, 0.5, 254.5 / 255, 0.9999)) {
+    expect_identical(pal_get(cols, n = 5, alpha = alpha),
+                     ggplot2::alpha(pal_get(cols, n = 5), alpha))
+    expect_identical(pal_get(cols, x = x, alpha = alpha, reverse = TRUE),
+                     ggplot2::alpha(pal_get(cols, x = x, reverse = TRUE), alpha))
   }
 })
 

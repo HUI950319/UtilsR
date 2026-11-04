@@ -605,23 +605,34 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   .pal_apply(cols, n = n, x = x, reverse = reverse, alpha = alpha)
 }
 
+# Encode interpolated RGB and the final alpha channel in one pass.
+#' @keywords internal
+#' @noRd
+.pal_ramp <- function(cols, at, alpha, size = length(at)) {
+  # Keep the RGB spelling for opaque ramps and the source alpha when requested.
+  has_alpha <- alpha == 1 && any(grDevices::col2rgb(cols, alpha = TRUE)["alpha", ] < 255)
+  rgba <- grDevices::colorRamp(cols, alpha = has_alpha)(at)
+  opacity <- if (has_alpha) {
+    rgba[, 4L]
+  } else if (alpha < 1) {
+    # The template keeps the existing byte rounding and scalar/vector spelling.
+    code <- ggplot2::alpha(rep.int("#000000", min(size, 2L)), alpha)[[1L]]
+    if (nchar(code) == 9L) strtoi(substr(code, 8L, 9L), base = 16L)
+  }
+  if (is.null(opacity)) {
+    grDevices::rgb(rgba[, 1L], rgba[, 2L], rgba[, 3L], maxColorValue = 255)
+  } else {
+    grDevices::rgb(rgba[, 1L], rgba[, 2L], rgba[, 3L], opacity, maxColorValue = 255)
+  }
+}
+
 # The n / x / reverse / alpha handling of `pal_get()`, split out so a list of
 # palettes can be mapped over one element at a time.
 #' @keywords internal
 #' @noRd
 .pal_apply <- function(cols, n = NULL, x = NULL, reverse = FALSE, alpha = 1) {
 
-  # colorRamp() drops alpha unless told; telling it for opaque colours would turn
-  # "#00468B" into "#00468BFF", so only when some colour has alpha.
-  ramp <- function(k, at = seq.int(0, 1, length.out = k)) {
-    has_alpha <- any(grDevices::col2rgb(cols, alpha = TRUE)["alpha", ] < 255)
-    rgba <- grDevices::colorRamp(cols, alpha = has_alpha)(at)
-    if (has_alpha) {
-      grDevices::rgb(rgba[, 1L], rgba[, 2L], rgba[, 3L], rgba[, 4L], maxColorValue = 255)
-    } else {
-      grDevices::rgb(rgba[, 1L], rgba[, 2L], rgba[, 3L], maxColorValue = 255)
-    }
-  }
+  ramp <- function(k) .pal_ramp(cols, seq.int(0, 1, length.out = k), alpha)
   numeric_x <- !is.null(x) && is.numeric(x)
 
   # --- Map to x (discrete) ---
@@ -647,20 +658,12 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
         if (reverse) at <- 1 - at
         if (.pal_use_unique(at)) {
           unique_at <- unique(at)
-          colours <- ramp(at = unique_at)
-          if (alpha < 1) {
-            # A scalar and a vector can encode opaque alpha differently.
-            if (length(colours) == 1L && length(out) > 1L) {
-              colours <- ggplot2::alpha(rep(colours, 2L), alpha)[1L]
-            } else {
-              colours <- ggplot2::alpha(colours, alpha)
-            }
-            alpha <- 1
-          }
+          colours <- .pal_ramp(cols, unique_at, alpha, size = length(out))
           out[placed] <- colours[match(at, unique_at)]
         } else {
-          out[placed] <- ramp(at = at)
+          out[placed] <- .pal_ramp(cols, at, alpha, size = length(out))
         }
+        alpha <- 1
       }
     } else {
       # Discrete: map levels
@@ -678,6 +681,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
         out <- stats::setNames(cols[seq_len(n_lvs)], lvs)
       } else {
         out <- stats::setNames(ramp(n_lvs), lvs)
+        alpha <- 1
       }
     }
   } else if (!is.null(n)) {
@@ -686,6 +690,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
       out <- cols[seq_len(n)]
     } else {
       out <- ramp(n)
+      alpha <- 1
     }
   } else {
     out <- cols
