@@ -49,7 +49,10 @@ are omitted from the chart.}
 
 \item{name_col}{Column name for the feature names. Default \code{"name"}.}
 
-\item{value_col}{Column name for the numeric scores. Default \code{"value"}.}
+\item{value_col}{Column name for the numeric scores. Default \code{"value"}.
+Numeric character strings and factor labels (including ordered factors)
+are parsed before ranking or scaling. Invalid non-missing labels are
+rejected; existing missing scores are retained.}
 
 \item{top_n}{Integer. If not \code{NULL}, keep only the top \code{top_n}
 features per group ranked by \code{value_col} (descending). Applied before
@@ -148,9 +151,9 @@ Three options:
 }
 \value{
 \code{invisible(NULL)}. The plot is drawn as a side effect.
-Plot margins are restored and the chart's circlize state is cleared
-even if drawing fails. Saving closes its own device and restores the
-caller's current device.
+  Plot margins are restored and the chart's circlize state is cleared
+  even if drawing fails. Saving closes its own device and restores the
+  caller's current device.
 }
 \description{
 Draws a polar (circular) lollipop chart using \pkg{circlize}, showing
@@ -160,24 +163,24 @@ connected by inner arcs, reproducing the style of Fig. 4 in
 \emph{The Lancet Digital Health}.
 }
 \examples{
-\dontrun{
-library(ToyData)
-data(Toy_gene_importance)
+if (requireNamespace("circlize", quietly = TRUE)) {
+  set.seed(42)
+  example_data <- data.frame(
+    group = rep(c("Group A", "Group B"), each = 5),
+    name = rep(paste0("Feature", 1:5), 2),
+    value = runif(10)
+  )
+  PlotCircleLollipop(example_data, top_n = 3, show_labels = FALSE,
+                     show_yaxis = FALSE)
 
-# Basic circular lollipop (top 5 genes per cell type)
-PlotCircleLollipop(Toy_gene_importance,
-  group_col = "cell_type", name_col = "gene", value_col = "importance",
-  top_n = 5, yaxis_label = "Gene Importance (IG)")
-
-# Adjust inner circle and label size
-PlotCircleLollipop(Toy_gene_importance,
-  group_col = "cell_type", name_col = "gene", value_col = "importance",
-  top_n = 5, track_height = 0.25, label_cex = 0.45, label_height = 7)
-
-# Save to PDF
-PlotCircleLollipop(Toy_gene_importance,
-  group_col = "cell_type", name_col = "gene", value_col = "importance",
-  top_n = 10, filename = "circle_lollipop.pdf", width = 14, height = 14)
+  # Factor labels are interpreted as scores, regardless of level order.
+  example_data$value <- factor(format(example_data$value, digits = 3))
+  PlotCircleLollipop(example_data, top_n = 3, value_scale = "group",
+                     show_labels = FALSE, show_yaxis = FALSE)
 }
 
 }
+\seealso{
+\code{\link{PlotRank}()}, \code{\link{PlotButterfly}()}
+}
+\concept{plot}

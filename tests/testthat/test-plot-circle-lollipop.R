@@ -139,3 +139,139 @@ test_that("PlotCircleLollipop closes only its own device when saving fails", {
   expect_identical(graphics::par("mar"), margins)
   expect_length(circlize::get.all.sector.index(), 0L)
 })
+
+test_that("PlotCircleLollipop ranks and scales factor scores by their labels", {
+  skip_if_not_installed("circlize")
+  grDevices::pdf(NULL)
+  device <- grDevices::dev.cur()
+  withr::defer(grDevices::dev.off(device))
+  observed <- numeric()
+  observed_colors <- character()
+  original <- circlize::circos.points
+  testthat::local_mocked_bindings(circos.points = function(x, y, col, ...) {
+    observed <<- c(observed, y)
+    observed_colors <<- c(observed_colors, col)
+    original(x, y, col = col, ...)
+  }, .package = "circlize")
+  for (ordered in c(FALSE, TRUE)) {
+    data <- data.frame(
+      group = rep(c("A", "B"), each = 3), name = letters[1:6],
+      value = factor(c("0.1", "0.4", "0.9", "0.2", "0.8", "0.6"),
+                     levels = c("0.9", "0.1", "0.8", "0.6", "0.4", "0.2", "unused"),
+                     ordered = ordered),
+      color = c("red", "blue", "green", "black", "purple", "orange")
+    )
+    before <- data
+    observed <- numeric()
+    PlotCircleLollipop(data, color_col = "color", show_labels = FALSE,
+                       show_links = FALSE, show_yaxis = FALSE)
+    expect_equal(observed, c(.1, .4, .9, .2, .8, .6))
+    expected <- list(none = c(.9, .4, .8, .6), group = c(1, .375, 1, 2 / 3),
+                     top_n = c(1, 0, 1, 0))
+    for (mode in names(expected)) {
+      observed <- numeric()
+      observed_colors <- character()
+      PlotCircleLollipop(data, top_n = 2, value_scale = mode, color_col = "color",
+                         show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
+      expect_equal(observed, expected[[mode]])
+      expect_identical(observed_colors, c("green", "blue", "purple", "orange"))
+    }
+    expect_identical(data, before)
+  }
+})
+
+test_that("PlotCircleLollipop rejects nonnumeric score labels before creating output", {
+  skip_if_not_installed("circlize")
+  devices <- grDevices::dev.list()
+  for (scores in list(c("0.2", "high", "0.6", "0.8"),
+                     factor(c("0.2", "high", "0.6", "0.8")))) {
+    data <- data.frame(group = rep(c("A", "B"), each = 2),
+                       name = letters[1:4], score = scores)
+    before <- data
+    file <- withr::local_tempfile(fileext = ".pdf")
+    warnings <- character()
+    error <- withCallingHandlers(
+      tryCatch(
+        suppressMessages(PlotCircleLollipop(data, value_col = "score", filename = file,
+          show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)),
+        error = identity
+      ),
+      warning = function(w) {
+        warnings <<- c(warnings, conditionMessage(w))
+        invokeRestart("muffleWarning")
+      }
+    )
+    expect_s3_class(error, "error")
+    if (inherits(error, "error")) {
+      expect_match(conditionMessage(error), "score.*numeric")
+    }
+    expect_length(warnings, 0L)
+    expect_identical(file.exists(file), FALSE)
+    expect_identical(grDevices::dev.list(), devices)
+    expect_identical(data, before)
+  }
+})
+
+test_that("PlotCircleLollipop preserves missing scores and ranks numeric text numerically", {
+  skip_if_not_installed("circlize")
+  grDevices::pdf(NULL)
+  device <- grDevices::dev.cur()
+  withr::defer(grDevices::dev.off(device))
+  observed <- numeric()
+  original <- circlize::circos.points
+  testthat::local_mocked_bindings(circos.points = function(x, y, ...) {
+    observed <<- c(observed, y)
+    original(x, y, ...)
+  }, .package = "circlize")
+  scores <- c(NA, "2", "6", "10", NA, "3", "7", "11")
+  for (values in list(scores, factor(scores))) {
+    data <- data.frame(group = rep(c("A", "B"), each = 4),
+                       name = letters[1:8], value = values)
+    before <- data
+    observed <- numeric()
+    PlotCircleLollipop(data, value_scale = "group", show_labels = FALSE,
+                       show_links = FALSE, show_yaxis = FALSE)
+    expect_equal(observed, c(NA, 0, .5, 1, NA, 0, .5, 1))
+    expected <- list(none = c(.8, .05, 1, .2), group = c(1, .5, 1, .5),
+                     top_n = c(1, 0, 1, 0))
+    for (mode in names(expected)) {
+      observed <- numeric()
+      PlotCircleLollipop(data, top_n = 2, value_scale = mode, show_labels = FALSE,
+                         show_links = FALSE, show_yaxis = FALSE)
+      expect_equal(observed, expected[[mode]])
+    }
+    expect_identical(data, before)
+  }
+})
+
+test_that("PlotCircleLollipop preserves labels when one column supplies groups and scores", {
+  skip_if_not_installed("circlize")
+  grDevices::pdf(NULL)
+  device <- grDevices::dev.cur()
+  withr::defer(grDevices::dev.off(device))
+  observed <- numeric()
+  sectors <- character()
+  original <- circlize::circos.points
+  testthat::local_mocked_bindings(circos.points = function(x, y, ...) {
+    observed <<- c(observed, y)
+    sectors <<- c(sectors, circlize::CELL_META$sector.index)
+    original(x, y, ...)
+  }, .package = "circlize")
+  scores <- c("0.20", "0.20", "0.80", "0.80")
+  for (values in list(scores, factor(scores, levels = c("0.80", "0.20")))) {
+    data <- data.frame(score = values, name = letters[1:4])
+    before <- data
+    observed <- numeric()
+    sectors <- character()
+    error <- tryCatch(
+      PlotCircleLollipop(data, group_col = "score", value_col = "score", top_n = 1,
+        group_levels = c("0.20", "0.80"), show_labels = FALSE, show_links = FALSE,
+        show_yaxis = FALSE),
+      error = identity
+    )
+    expect_null(error)
+    expect_equal(observed, c(.2, .8))
+    expect_identical(sectors, c("0.20", "0.80"))
+    expect_identical(data, before)
+  }
+})

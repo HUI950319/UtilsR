@@ -17,6 +17,9 @@
 #' @param group_col Column name for the grouping variable. Default \code{"group"}.
 #' @param name_col Column name for the feature names. Default \code{"name"}.
 #' @param value_col Column name for the numeric scores. Default \code{"value"}.
+#'   Numeric character strings and factor labels (including ordered factors)
+#'   are parsed before ranking or scaling. Invalid non-missing labels are
+#'   rejected; existing missing scores are retained.
 #' @param top_n Integer. If not \code{NULL}, keep only the top \code{top_n}
 #'   features per group ranked by \code{value_col} (descending). Applied before
 #'   any plotting. \code{NULL} = use all rows as-is.
@@ -90,25 +93,24 @@
 #'   even if drawing fails. Saving closes its own device and restores the
 #'   caller's current device.
 #'
+#' @family plot
+#' @seealso \code{\link{PlotRank}()}, \code{\link{PlotButterfly}()}
+#'
 #' @examples
-#' \dontrun{
-#' library(ToyData)
-#' data(Toy_gene_importance)
+#' if (requireNamespace("circlize", quietly = TRUE)) {
+#'   set.seed(42)
+#'   example_data <- data.frame(
+#'     group = rep(c("Group A", "Group B"), each = 5),
+#'     name = rep(paste0("Feature", 1:5), 2),
+#'     value = runif(10)
+#'   )
+#'   PlotCircleLollipop(example_data, top_n = 3, show_labels = FALSE,
+#'                      show_yaxis = FALSE)
 #'
-#' # Basic circular lollipop (top 5 genes per cell type)
-#' PlotCircleLollipop(Toy_gene_importance,
-#'   group_col = "cell_type", name_col = "gene", value_col = "importance",
-#'   top_n = 5, yaxis_label = "Gene Importance (IG)")
-#'
-#' # Adjust inner circle and label size
-#' PlotCircleLollipop(Toy_gene_importance,
-#'   group_col = "cell_type", name_col = "gene", value_col = "importance",
-#'   top_n = 5, track_height = 0.25, label_cex = 0.45, label_height = 7)
-#'
-#' # Save to PDF
-#' PlotCircleLollipop(Toy_gene_importance,
-#'   group_col = "cell_type", name_col = "gene", value_col = "importance",
-#'   top_n = 10, filename = "circle_lollipop.pdf", width = 14, height = 14)
+#'   # Factor labels are interpreted as scores, regardless of level order.
+#'   example_data$value <- factor(format(example_data$value, digits = 3))
+#'   PlotCircleLollipop(example_data, top_n = 3, value_scale = "group",
+#'                      show_labels = FALSE, show_yaxis = FALSE)
 #' }
 #'
 #' @export
@@ -161,6 +163,18 @@ PlotCircleLollipop <- function(
       stop(sprintf("Column '%s' not found in data.", col), call. = FALSE)
   }
 
+  # ---- Parse scores before ranking or scaling ----
+  parse_scores <- function(values) {
+    if (is.factor(values)) values <- as.character(values)
+    numeric_values <- suppressWarnings(as.numeric(values))
+    if (any(!is.na(values) & is.na(numeric_values))) {
+      stop(sprintf("Column '%s' must contain numeric scores or missing values.", value_col),
+           call. = FALSE)
+    }
+    numeric_values
+  }
+  numeric_values <- parse_scores(data[[value_col]])
+
   # ---- Keep original data for group-level scaling (before top_n) ----
   data_orig <- data
 
@@ -169,7 +183,7 @@ PlotCircleLollipop <- function(
     top_n <- as.integer(top_n)
     data <- data |>
       dplyr::group_by(.data[[group_col]]) |>
-      dplyr::slice_max(order_by = .data[[value_col]], n = top_n,
+      dplyr::slice_max(order_by = parse_scores(.data[[value_col]]), n = top_n,
                        with_ties = FALSE) |>
       dplyr::ungroup() |>
       as.data.frame()
@@ -179,7 +193,7 @@ PlotCircleLollipop <- function(
   df <- data.frame(
     group = as.character(data[[group_col]]),
     name  = as.character(data[[name_col]]),
-    value = as.numeric(data[[value_col]]),
+    value = parse_scores(data[[value_col]]),
     stringsAsFactors = FALSE
   )
   if (!nrow(df)) stop("No observations to plot.", call. = FALSE)
@@ -219,7 +233,7 @@ PlotCircleLollipop <- function(
   if (value_scale == "group") {
     # Scale using the FULL group range from original data (before top_n)
     orig_grp <- as.character(data_orig[[group_col]])
-    orig_val <- as.numeric(data_orig[[value_col]])
+    orig_val <- numeric_values
     grp_min  <- tapply(orig_val, orig_grp, min, na.rm = TRUE)
     grp_max  <- tapply(orig_val, orig_grp, max, na.rm = TRUE)
     df$value <- mapply(function(v, g) {
