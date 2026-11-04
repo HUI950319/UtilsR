@@ -78,9 +78,11 @@ PlotRankCor(
 - method.by:
 
   Character. Column name identifying the two methods. Must have exactly
-  2 observed, non-missing levels. Factor levels determine their order;
-  other vectors use first appearance. The first maps to the x-axis and
-  the second to the y-axis.
+  2 observed, non-missing values. Methods are identified by their
+  original values before conversion to text labels; suffixes distinguish
+  identical labels. Factor levels determine their order; other vectors
+  use first appearance. The first maps to the x-axis and the second to
+  the y-axis.
 
 - use_rank:
 
