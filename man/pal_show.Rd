@@ -75,9 +75,8 @@ pane or \code{output = "gt"} for the Viewer pane.
 When \code{palette} is a character vector of valid colour specifications
 (hex codes like \code{"#FF0000"} or named R colours like \code{"red"})
 rather than palette names, the function automatically switches to
-\strong{colour vector mode}: it displays the colours directly as a
-single-row colour bar (ggplot) with hex labels, similar to
-\code{show_color()} but as a publication-ready plot.
+\strong{colour vector mode}: it displays the colours directly as tiles
+(ggplot), a table, or console swatches.
 
 Catalogue swatches use thin grey outlines in ggplot and HTML output.
   The outlines remain visible for fully transparent fills.
@@ -87,6 +86,10 @@ Catalogue swatches use thin grey outlines in ggplot and HTML output.
   accessible label.
   LaTeX catalogue tables use the available text width and repeat column
   headings when the table spans pages.
+
+  For readable ggplot labels on a small figure, use \code{ncol} to place
+  a colour vector in several rows. Use \code{pattern} or \code{index} to
+  limit how many palettes appear in a catalogue plot.
 }
 \examples{
 # Show specific palettes (gt table, default)
@@ -112,18 +115,20 @@ pal_show("Set1", n = 12)  # only 9 colours, so interpolated
 # ggplot output (colour bars in Plots pane)
 pal_show(c("lancet", "ditto", "polychrome", "igv"), output = "gg")
 pal_show(pattern = "^viridis|^magma|^plasma", output = "gg")
+pal_show(type = "continuous", index = 1:10, output = "gg")
 
 # --- Colour vector mode ---
 # Show a named colour vector (e.g. pal_paraSC)
 pal_show(pal_paraSC)
 pal_show(pal_paraSC, n = 6)
+pal_show(pal_paraSC, ncol = 3, output = "gg")
 
 # Show any colour vector
 pal_show(c("#FF0000", "#00FF00", "#0000FF"))
-pal_show(rainbow(12))
+pal_show(rainbow(12), ncol = 4, output = "gg")
 
 # Without labels
-pal_show(pal_lancet, label = FALSE)
+pal_show(pal_lancet, label = FALSE, output = "gg")
 
 # Browse all palettes from a source
 pal_show(pattern = "^dichromat")
