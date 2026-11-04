@@ -1982,11 +1982,14 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
   # If no names, drop the name column
   if (!any(has_name)) {
     tbl_data$name <- NULL
+    latex_widths <- c(index = 10, hex = 45, preview = 45)
     tbl <- gt::gt(tbl_data) %>%
       gt::cols_label(index = "#", hex = "Hex", preview = "Preview")
   } else {
+    latex_widths <- c(index = 9, name = 41, hex = 25, preview = 25)
     tbl <- gt::gt(tbl_data) %>%
-      gt::cols_label(index = "#", name = "Name", hex = "Hex", preview = "Preview")
+      gt::cols_label(index = "#", name = "Name", hex = "Hex", preview = "Preview") %>%
+      gt::fmt(columns = "name", fns = .pal_name_formats)
   }
 
   tbl <- tbl %>%
@@ -2006,5 +2009,5 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
       column_labels.padding = gt::px(6)
     )
 
-  tbl
+  .pal_gt_widths(tbl, latex_widths)
 }

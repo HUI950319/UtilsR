@@ -2438,6 +2438,18 @@ test_that("colour vector HEX fallbacks retain alpha and row boundaries", {
                          logical(1), x = html, fixed = TRUE)))
 })
 
+test_that("colour vector LaTeX tables give long names room to wrap", {
+  name <- "Tumour-associated macrophages with high interferon response"
+  tbl <- pal_show(stats::setNames(c("#11223380", "#CC6600"), c(name, "Dendritic cells")))
+  latex <- as.character(gt::as_latex(tbl))
+  expect_match(latex, "0.41\\linewidth", fixed = TRUE)
+  expect_match(latex, "Tumour-\\allowbreak{}associated", fixed = TRUE)
+  expect_match(latex, "\\#11223380", fixed = TRUE)
+  expect_match(gt::as_raw_html(tbl), name, fixed = TRUE)
+  plain <- as.character(gt::as_latex(pal_show(c("#11223380", "#CC6600"))))
+  expect_match(plain, "0.45\\linewidth", fixed = TRUE)
+})
+
 test_that("palette preview formatters do not retain their source tables", {
   for (palette in list("Set1", c(Clear = "#FFFFFF00", Half = "#11223380"))) {
     table <- pal_show(palette, output = "gt")
