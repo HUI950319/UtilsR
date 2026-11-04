@@ -539,6 +539,69 @@ test_that("numeric reference ranks retain panel-local free-axis ordering", {
   expect_equal(as.character(actual$PANEL), rep("1", 2))
 })
 
+test_that("numeric reference layout vectors retain unobserved scale positions", {
+  d <- data.frame(x = rep(LETTERS[1:4], each = 6),
+                  y = c(1, 2, 3, 4, 5, 6, 2, 3, 5, 7, 9, 10,
+                        3, 4, 5, 8, 10, 12, 4, 6, 8, 10, 13, 15))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  source <- d[d$x != "B", ]
+  q <- fmt_com(p, data = source, ref.group = 3, method = "t_test",
+               label.y = c(20, 30), tip.length = c(.01, .02))
+  built <- ggplot2::ggplot_build(q)$data[[2]]
+  expect_equal(nrow(built), 6L)
+  if (nrow(built)) {
+    horizontal <- unique(built[built$y == built$yend, c("group1", "group2", "y")])
+    expect_equal(horizontal$y, c(20, 30))
+    expected <- com_stat(fmt_com(p, data = source, ref.group = "C", method = "t_test"))
+    expect_equal(com_stat(q), expected)
+    expected_p <- vapply(c("A", "D"), function(group) {
+      signif(stats::t.test(source$y[source$x == "C"], source$y[source$x == group])$p.value, 3)
+    }, numeric(1))
+    # Match the backend's reported precision after the independent tests.
+    expect_equal(com_stat(q)$p, rstatix::p_round(unname(expected_p)))
+    expect_equal(as.numeric(expected$xmin), rep(3, 2))
+    expect_equal(as.numeric(expected$xmax), c(1, 4))
+    expect_equal(built$yend[1:2] - built$y[1:2], c(.14, .28))
+  }
+  expect_identical(p$data, d)
+})
+
+test_that("numeric reference layout vectors follow unique free-panel pairs", {
+  d <- rbind(transform(subset(iris, Species != "setosa"), panel = "A"),
+               transform(subset(iris, Species != "versicolor"), panel = "B"))
+  p <- com_plot(d) + ggplot2::facet_wrap(~panel, scales = "free_x")
+  q <- fmt_com(p, ref.group = 2, method = "t_test", label.y = c(8, 9))
+  built <- ggplot2::ggplot_build(q)$data[[2]]
+  expect_equal(nrow(built), 6L)
+  horizontal <- unique(built[built$y == built$yend, c("PANEL", "y")])
+  expect_equal(horizontal$y, c(8, 9))
+  expect_equal(com_stat(q), com_stat(fmt_com(p, ref.group = "virginica", method = "t_test")))
+  expected_p <- vapply(c("versicolor", "setosa"), function(group) {
+    signif(stats::t.test(iris$Sepal.Length[iris$Species == "virginica"],
+                        iris$Sepal.Length[iris$Species == group])$p.value, 3)
+  }, numeric(1))
+  expect_equal(com_stat(q)$p, unname(expected_p))
+
+  repeated <- rbind(d, transform(subset(d, panel == "A"), panel = "C"))
+  p <- com_plot(repeated[rev(seq_len(nrow(repeated))), ]) +
+    ggplot2::facet_wrap(~panel, scales = "free_x")
+  q <- fmt_com(p, ref.group = 2, label.y = c(8, 9))
+  built <- ggplot2::ggplot_build(q)$data[[2]]
+  expect_equal(nrow(built), 9L)
+  horizontal <- unique(built[built$y == built$yend, c("PANEL", "y")])
+  expect_equal(horizontal$y, c(8, 9, 8))
+
+  grouped <- rbind(transform(d, g = "G1"), transform(d, g = "G2"))
+  p <- ggplot2::ggplot(grouped, ggplot2::aes(Species, Sepal.Length, fill = g)) +
+    ggplot2::geom_boxplot() + ggplot2::facet_wrap(~panel, scales = "free_x")
+  q <- fmt_com(p, group.by = "legend.var", ref.group = 2, label.y = c(8, 9, 10, 11))
+  built <- ggplot2::ggplot_build(q)$data[[2]]
+  expect_equal(nrow(built), 12L)
+  horizontal <- unique(built[built$y == built$yend, c("PANEL", "xmin", "y")])
+  expect_equal(horizontal$y, c(8, 10, 9, 11))
+  expect_identical(p$data, grouped)
+})
+
 test_that("mixed subgroup sizes retain adjusted values and labels", {
   set.seed(201)
   d <- data.frame(x = c(rep("A", 30), rep("B", 20)),

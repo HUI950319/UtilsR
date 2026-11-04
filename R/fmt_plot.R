@@ -3844,8 +3844,10 @@ drawDetails.axis_tile_strip <- function(x, recording) {
 #'   scale transformation. A scalar sets the first bracket; a vector sets
 #'   individual positions in comparison-family order. Custom vectors follow
 #'   \code{com_method} order within each mapped subset; automatic vectors follow
-#'   displayed global pairs, appending extra sparse-panel pairs. Filtering a
-#'   panel retains the matching entries. Default \code{NULL} uses automatic positions.
+#'   displayed global pairs, appending extra sparse-panel pairs. Numeric references
+#'   on free x scales instead follow unique panel pairs in panel order within
+#'   each mapped subset. Filtering a panel retains the matching entries.
+#'   Default \code{NULL} uses automatic positions.
 #' @param label.y.prop Numeric proportion (0-1) of each panel's transformed
 #'   y-axis data range for the first bracket. E.g., \code{0.9} is 90\% along
 #'   the displayed range, including log scales and free-y facets. Ignored when
@@ -4181,6 +4183,7 @@ fmt_com <- function(plot,
         reference_mapping <- ggplot2::aes()
         reference_mapping$x <- source_mapping$x
         reference_mapping$y <- source_mapping$y
+        if (grouped) reference_mapping$group <- group_quo
         reference_plot <- p + ggplot2::geom_blank(
           data = source_data, mapping = reference_mapping, inherit.aes = FALSE, na.rm = TRUE)
         reference_build <- ggplot2::ggplot_build(reference_plot)
@@ -4214,17 +4217,16 @@ fmt_com <- function(plot,
       axis_scale <- if (is.null(axis_scale)) ggplot2::scale_x_discrete() else axis_scale$clone()
       axis_scale$train(axis_values)
       axis_order <- as.character(axis_scale$get_limits())
+      panel_reference <- is.numeric(ref_group) && !compare_group && isTRUE(p$facet$params$free$x)
+      if (is.numeric(ref_group) && !compare_group && !panel_reference)
+        axis_order <- as.character(reference_build$layout$panel_scales_x[[1L]]$get_limits())
       layout_order <- if (compare_group) group_labels else axis_order
       context <- as.character(if (!grouped) rep("", n) else if (compare_group) axis_values else group_values)
       contexts <- if (!grouped) "" else if (compare_group) axis_order else group_labels
       values <- as.character(if (compare_group) group_values else axis_values)
-      facet_values <- lapply(c(p$facet$params$facets, p$facet$params$rows, p$facet$params$cols),
-                             rlang::eval_tidy, data = source_data)
-      panels <- if (length(facet_values)) do.call(interaction,
-        c(lapply(facet_values, function(value) factor(rep(value, length.out = n), exclude = NULL)), list(drop = TRUE))) else rep(1L, n)
-      add_pairs <- function(value, subset, declared = FALSE) {
-        available <- layout_order[!is.na(layout_order) & layout_order %in% value]
-        reference <- if (is.numeric(ref_group)) layout_order[ref_group] else ref_group
+      add_pairs <- function(value, subset, declared = FALSE, pair_order = layout_order) {
+        available <- pair_order[!is.na(pair_order) & pair_order %in% value]
+        reference <- if (is.numeric(ref_group)) pair_order[ref_group] else ref_group
         pairs <- if (ref_all) lapply(available, function(value) c(value, value)) else
           if (!is.null(reference)) lapply(setdiff(available, reference), function(value) c(reference, value)) else
           if (is.list(comparisons)) comparisons else
@@ -4235,11 +4237,31 @@ fmt_com <- function(plot,
         keys <- vapply(pairs, function(pair) pair_key(pair[1L], pair[2L], subset), character(1))
         layout_keys <<- unique(c(layout_keys, keys))
       }
-      for (subset in contexts) {
-        rows <- which(finite & !is.na(context) & context == subset)
-        if (!length(rows)) next
-        add_pairs(values[rows], subset, declared = is.list(comparisons))
-        for (panel in unique(panels[rows])) add_pairs(values[rows[panels[rows] == panel]], subset)
+      if (panel_reference) {
+        # Numeric ranks select reference categories within each trained panel.
+        panel_layout <- reference_build$layout$layout
+        valid_rows <- which(!is.na(reference_data$x) & is.finite(reference_data$y))
+        panel_rows <- split(valid_rows, reference_data$PANEL[valid_rows])
+        for (subset in contexts) {
+          for (i in seq_len(nrow(panel_layout))) {
+            rows <- panel_rows[[as.character(panel_layout$PANEL[i])]]
+            if (grouped) rows <- rows[reference_data$group[rows] == match(subset, group_labels)]
+            if (!length(rows)) next
+            pair_order <- as.character(reference_build$layout$panel_scales_x[[panel_layout$SCALE_X[i]]]$get_limits())
+            add_pairs(pair_order[as.integer(reference_data$x[rows])], subset, pair_order = pair_order)
+          }
+        }
+      } else {
+        facet_values <- lapply(c(p$facet$params$facets, p$facet$params$rows, p$facet$params$cols),
+                               rlang::eval_tidy, data = source_data)
+        panels <- if (length(facet_values)) do.call(interaction,
+          c(lapply(facet_values, function(value) factor(rep(value, length.out = n), exclude = NULL)), list(drop = TRUE))) else rep(1L, n)
+        for (subset in contexts) {
+          rows <- which(finite & !is.na(context) & context == subset)
+          if (!length(rows)) next
+          add_pairs(values[rows], subset, declared = is.list(comparisons))
+          for (panel in unique(panels[rows])) add_pairs(values[rows[panels[rows] == panel]], subset)
+        }
       }
       count <- length(layout_keys)
       for (name in c("y", "step", "nudge")) {

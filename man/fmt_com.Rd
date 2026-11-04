@@ -30,8 +30,10 @@ are rejected. Values select categories rather than numeric axis indices.}
 scale transformation. A scalar sets the first bracket; a vector sets
 individual positions in comparison-family order. Custom vectors follow
 \code{com_method} order within each mapped subset; automatic vectors follow
-displayed global pairs, appending extra sparse-panel pairs. Filtering a
-panel retains the matching entries. Default \code{NULL} uses automatic positions.}
+displayed global pairs, appending extra sparse-panel pairs. Numeric references
+on free x scales instead follow unique panel pairs in panel order within
+each mapped subset. Filtering a panel retains the matching entries.
+Default \code{NULL} uses automatic positions.}
 
 \item{label.y.prop}{Numeric proportion (0-1) of each panel's transformed
 y-axis data range for the first bracket. E.g., \code{0.9} is 90\% along
