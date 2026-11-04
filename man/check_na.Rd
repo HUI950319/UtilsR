@@ -23,10 +23,11 @@ unmatched pattern or selection inspects no columns and returns
 
 \item{special}{\code{NULL} (default) for the built-in special-value markers,
 or a character vector of regular expressions that replaces them. Patterns
-are matched case-insensitively, with a Unicode-aware \code{\\b}, anywhere
-in each whitespace-normalized value; anchor them with \code{^...$} or
-\code{\\b} as needed. \code{character(0)} counts no special values, and
-empty strings count only when a pattern matches them.}
+are matched independently and case-insensitively, with a Unicode-aware
+\code{\\b}, anywhere in each whitespace-normalized value; anchor them with
+\code{^...$} or \code{\\b} as needed. A value matching multiple patterns
+counts once. \code{character(0)} counts no special values, and empty strings
+count only when a pattern matches them.}
 
 \item{show_all}{A single non-missing logical. If \code{FALSE} (default),
 only variables with issues are shown.}

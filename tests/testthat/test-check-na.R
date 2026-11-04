@@ -557,6 +557,48 @@ test_that("check_na special replaces the built-in markers", {
   expect_identical(count("^$"), "1 (14.3%)")
 })
 
+test_that("check_na matches custom regular expressions independently", {
+  cases <- list(
+    list(values = c("aa", "abab", "AA", "ab", "ok", NA_character_),
+         special = c("^(a)\\1$", "^(ab)\\1$"), count = "3 (50.0%)"),
+    list(values = c("aa", "bb", "AA", "ab", "ok", NA_character_),
+         special = c("^(?<same>a)\\k<same>$", "^(?<same>b)\\k<same>$"),
+         count = "3 (50.0%)"),
+    list(values = c("beta", "BETA", "ok", "no", NA_character_),
+         special = c("(*UTF)^beta$", "^ok$"), count = "3 (60.0%)"),
+    list(values = c("aa", "AA", "beta", "no", NA_character_),
+         special = c("(?x)^aa$ # trailing comment", "^beta$"),
+         count = "3 (60.0%)"),
+    list(values = c("aa", "AA", "b b", "bb", "ok", NA_character_),
+         special = c("(?x-i)^a a$", "^b b$"), count = "2 (33.3%)"),
+    list(values = c("na", "NA", "\u00e9na", "\u4e2dna", "ok", NA_character_),
+         special = c("\\bna\\b", "^ok$"), count = "3 (50.0%)")
+  )
+  for (case in cases) {
+    data <- data.frame(text = case$values, factor = factor(case$values))
+    before <- data
+    seen <- capture_gt_data(result <- check_na(
+      data, special = case$special, show_all = TRUE
+    ))
+
+    expect_identical(seen[[1L]]$special_combined, rep(case$count, 2L))
+    expect_s3_class(result, "gt_tbl")
+    expect_identical(data, before)
+  }
+})
+
+test_that("check_na counts overlapping custom matches once after normalization", {
+  values <- c("Unknown / N/A", "Unknown / N/A", "not\tstated", "", "ok", NA)
+  data <- data.frame(text = values, factor = factor(values))
+  seen <- capture_gt_data(check_na(
+    data, special = c("\\bunknown\\b", "\\bn/a\\b", "^not stated$", "^$"),
+    show_all = TRUE
+  ))
+
+  expect_identical(seen[[1L]]$special_combined, rep("4 (66.7%)", 2L))
+  expect_identical(seen[[1L]]$missing_combined, rep("1 (16.7%)", 2L))
+})
+
 test_that("check_na reports through the print helpers", {
   shown <- function(expr) cli::ansi_strip(utils::capture.output(expr))
   # assign the returned gt table, which capture.output() would otherwise print

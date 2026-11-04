@@ -21,10 +21,11 @@
 #'   \code{NULL} with an informational message.
 #' @param special \code{NULL} (default) for the built-in special-value markers,
 #'   or a character vector of regular expressions that replaces them. Patterns
-#'   are matched case-insensitively, with a Unicode-aware \code{\\b}, anywhere
-#'   in each whitespace-normalized value; anchor them with \code{^...$} or
-#'   \code{\\b} as needed. \code{character(0)} counts no special values, and
-#'   empty strings count only when a pattern matches them.
+#'   are matched independently and case-insensitively, with a Unicode-aware
+#'   \code{\\b}, anywhere in each whitespace-normalized value; anchor them with
+#'   \code{^...$} or \code{\\b} as needed. A value matching multiple patterns
+#'   counts once. \code{character(0)} counts no special values, and empty strings
+#'   count only when a pattern matches them.
 #' @param show_all A single non-missing logical. If \code{FALSE} (default),
 #'   only variables with issues are shown.
 #'
@@ -380,7 +381,12 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
                  "not (available|applicable|stated|reported)|null)\\b|^[?.-]+$"),
           u, ignore.case = TRUE, perl = TRUE) | u %in% ""
   } else {
-    grepl(paste0("(*UCP)(?:", paste(special, collapse = ")|(?:"), ")"),
-          u, ignore.case = TRUE, perl = TRUE)
+    # Keep capture groups, leading directives and comments local to each pattern.
+    hit <- rep(FALSE, length(u))
+    for (p in special) {
+      hit <- hit | grepl(paste0("(*UCP)", p), u,
+                         ignore.case = TRUE, perl = TRUE)
+    }
+    hit
   }
 }
