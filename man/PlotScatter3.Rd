@@ -160,7 +160,7 @@ For dual-group scatter with marginal boxplots, see
 \code{\link{PlotScatter2}()}.
 
 Integer measurements are promoted to double precision before calculating
-differences. The histogram shows \code{y - x}; its median
+differences and paired tests. The histogram shows \code{y - x}; its median
 uses all non-missing differences. Explicit axis limits trim displayed data
 without changing the paired test or median. ggplot2 can warn when limits
 exclude observations or the median annotation.

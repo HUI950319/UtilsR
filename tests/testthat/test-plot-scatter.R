@@ -60,6 +60,35 @@ test_that("PlotScatter3 retains differences beyond the integer range", {
   }
 })
 
+test_that("PlotScatter3 paired tests agree with double precision reference tests", {
+  data <- scatter3_integer_pairs()
+  for (method in c("wilcox", "t.test")) {
+    test_fn <- if (method == "wilcox") stats::wilcox.test else stats::t.test
+    expected <- test_fn(as.double(data$Control), as.double(data$Treat),
+                        paired = TRUE, alternative = "two.sided")
+    expect_no_warning(p <- scatter3_capture_inset(
+      data, test_method = method, cor_method = "none", show_refline = FALSE
+    ))
+    label <- ggplot2::ggplot_build(p$main)$data[[2]]$label
+    expect_equal(label, paste0("p = ", format.pval(expected$p.value, digits = 2)))
+  }
+})
+
+test_that("PlotScatter3 paired tests omit missing observations pairwise", {
+  data <- data.frame(Control = c(1L, 2L, NA_integer_, 4L, 5L, 6L, 7L),
+                     Treat = c(2L, 6L, 10L, NA_integer_, 10L, 12L, 20L),
+                     group = rep(c("NS", "S"), length.out = 7))
+  complete <- stats::complete.cases(data[c("Control", "Treat")])
+  for (method in c("wilcox", "t.test")) {
+    test_fn <- if (method == "wilcox") stats::wilcox.test else stats::t.test
+    expected <- test_fn(data$Control[complete], data$Treat[complete], paired = TRUE)
+    p <- scatter3_capture_inset(data, test_method = method, cor_method = "none",
+                                show_refline = FALSE)
+    label <- ggplot2::ggplot_build(p$main)$data[[2]]$label
+    expect_equal(label, paste0("p = ", format.pval(expected$p.value, digits = 2)))
+  }
+})
+
 test_that("PlotScatter3 derives automatic histogram limits from paired differences", {
   withr::local_options(lifecycle_verbosity = "quiet")
   inset <- NULL

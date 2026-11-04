@@ -14,7 +14,7 @@
 #' \code{\link{PlotScatter2}()}.
 #'
 #' Integer measurements are promoted to double precision before calculating
-#' differences. The histogram shows \code{y - x}; its median
+#' differences and paired tests. The histogram shows \code{y - x}; its median
 #' uses all non-missing differences. Explicit axis limits trim displayed data
 #' without changing the paired test or median. ggplot2 can warn when limits
 #' exclude observations or the median annotation.
@@ -228,7 +228,7 @@ PlotScatter3 <- function(
       "t.test" = stats::t.test,
       stop("test_method must be 'wilcox', 't.test', or 'none'.", call. = FALSE)
     )
-    test_res <- test_fn(data[[x]], data[[y]],
+    test_res <- test_fn(x_values, y_values,
                         paired = TRUE, alternative = "two.sided")
     p_label <- paste0("p = ", format.pval(test_res$p.value, digits = p_digits))
   }
