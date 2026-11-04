@@ -374,6 +374,11 @@ test_that("plt_sankey saves at the page its variables and levels are laid out fo
   skip_if_not_installed("RegR")
   withr::local_pdf(withr::local_tempfile(fileext = ".pdf"))
   f <- withr::local_tempfile(fileext = ".pdf")
-  out <- cli::cli_fmt(p <- sankey_plot(save = list(filename = f)))
-  expect_saved_at_plot_size(out, p)
+  # Older RegR builds write to stdout; current builds emit cli messages.
+  out <- utils::capture.output(
+    cli_out <- cli::cli_fmt(p <- sankey_plot(save = list(filename = f)))
+  )
+  expect_saved_at_plot_size(c(out, cli_out), p)
+  expect_true(file.exists(f))
+  expect_gt(file.info(f)$size, 0)
 })
