@@ -44,10 +44,12 @@
 #'   no valid scores remain after group selection.
 #' @param group_levels Character vector specifying display order.
 #'   \code{NULL} = data appearance order or factor levels.
-#' @param top_n Integer. Number of top-ranked features to highlight
-#'   per group. Default \code{5}.
-#' @param max_show Integer. Maximum features to display per panel.
-#'   Default \code{200}.
+#' @param top_n Single finite non-negative integer. Number of top-ranked
+#'   features to highlight per group. Default \code{5}; \code{0} highlights
+#'   no features. Fractional values are rejected instead of truncated.
+#' @param max_show Single finite positive integer. Maximum features to display
+#'   per panel. Default \code{200}. Fractional values are rejected instead
+#'   of truncated.
 #' @param value_scale Per-group score scaling strategy. Three options:
 #'   \describe{
 #'     \item{\code{"none"} (default)}{No scaling; raw scores are plotted as-is.}
@@ -143,6 +145,17 @@ PlotRank <- function(
   return_type  <- match.arg(return_type)
   value_scale  <- match.arg(value_scale)
 
+  validate_count <- function(value, name, minimum) {
+    if (length(value) != 1L || !is.numeric(value) || is.object(value) ||
+        is.complex(value) || !is.null(dim(value)) || !is.finite(value) ||
+        value < minimum || value != trunc(value)) {
+      requirement <- if (minimum == 0) "non-negative" else "positive"
+      stop(sprintf("`%s` must be a single finite %s integer.", name, requirement),
+           call. = FALSE)
+    }
+  }
+  validate_count(top_n, "top_n", 0)
+  validate_count(max_show, "max_show", 1)
   # ---- Parse input into named list of named numeric vectors ----
   score_list <- .pr_parse(data, group_col, name_col, value_col, groups)
 

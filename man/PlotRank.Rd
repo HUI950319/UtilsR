@@ -64,11 +64,13 @@ no valid scores remain after group selection.}
 \item{group_levels}{Character vector specifying display order.
 \code{NULL} = data appearance order or factor levels.}
 
-\item{top_n}{Integer. Number of top-ranked features to highlight
-per group. Default \code{5}.}
+\item{top_n}{Single finite non-negative integer. Number of top-ranked
+features to highlight per group. Default \code{5}; \code{0} highlights
+no features. Fractional values are rejected instead of truncated.}
 
-\item{max_show}{Integer. Maximum features to display per panel.
-Default \code{200}.}
+\item{max_show}{Single finite positive integer. Maximum features to display
+per panel. Default \code{200}. Fractional values are rejected instead
+of truncated.}
 
 \item{value_scale}{Per-group score scaling strategy. Three options:
 \describe{

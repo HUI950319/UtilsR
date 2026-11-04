@@ -141,3 +141,97 @@ test_that("PlotRank reports a clear error when no valid scores remain", {
   data <- data.frame(cell_type = c("A", "B"), gene = c("a", "b"), importance = c(1, NA))
   expect_error(PlotRank(data, group_levels = "B", return_type = "data"), "No valid scores")
 })
+
+test_that("PlotRank validates top_n before ranking", {
+  scores <- stats::setNames(c(5, 3, 1), letters[1:3])
+  invalid <- list(1.5, -1, NA_real_, NaN, Inf, -Inf, numeric(), c(1, 2),
+                  NULL, "2", TRUE, 1 + 1i, list(1), as.raw(1), factor(1),
+                  matrix(1, 1, 1), array(1, 1), structure(1, class = "count"))
+  for (value in invalid) {
+    error <- tryCatch(PlotRank(scores, top_n = value, return_type = "data"),
+                       error = identity)
+    expect_s3_class(error, "error")
+    if (inherits(error, "error")) {
+      expect_match(conditionMessage(error), "`top_n`.*finite.*non-negative integer")
+      expect_null(conditionCall(error))
+    }
+  }
+})
+
+test_that("PlotRank validates max_show before selecting rows", {
+  scores <- stats::setNames(c(5, 3, 1), letters[1:3])
+  invalid <- list(2.5, .5, 0, -1, NA_real_, NaN, Inf, -Inf, numeric(), c(1, 2),
+                  NULL, "2", TRUE, 1 + 1i, list(1), as.raw(1), factor(1),
+                  matrix(1, 1, 1), array(1, 1), structure(1, class = "count"))
+  for (value in invalid) {
+    error <- tryCatch(PlotRank(scores, max_show = value, return_type = "data"),
+                       error = identity)
+    expect_s3_class(error, "error")
+    if (inherits(error, "error")) {
+      expect_match(conditionMessage(error), "`max_show`.*finite.*positive integer")
+      expect_null(conditionCall(error))
+    }
+  }
+})
+
+test_that("PlotRank keeps valid count boundaries without integer overflow", {
+  scores <- stats::setNames(c(5, 3, 1), letters[1:3])
+  all <- PlotRank(scores, top_n = .Machine$double.xmax,
+                   max_show = .Machine$double.xmax, return_type = "data")
+  expect_identical(all$Rank, 1:3)
+  expect_identical(all$Label, letters[1:3])
+  expect_identical(all$IsTop, rep(TRUE, 3))
+
+  grouped <- matrix(c(5, 3, 1, 6, 4, 2), 3,
+                     dimnames = list(letters[1:3], c("A", "B")))
+  first <- PlotRank(grouped, top_n = 0, max_show = 1, return_type = "both")
+  expect_identical(first$data$Rank, c(1L, 1L))
+  expect_identical(first$data$Label, c("a", "a"))
+  expect_identical(first$data$Score, c(5, 6))
+  expect_identical(first$data$IsTop, c(FALSE, FALSE))
+  expect_equal(nrow(ggplot2::ggplot_build(first$plot)$data[[2]]), 0L)
+  for (value in c(2^31, 2^52)) {
+    plot <- PlotRank(grouped, ncol = value)
+    expect_identical(ggplot2::ggplot_build(plot)$layout$layout$COL, c(1L, 2L))
+  }
+})
+
+test_that("PlotRank keeps count semantics across every return path", {
+  scores <- stats::setNames(c(5, 3, 1), letters[1:3])
+  grouped <- matrix(c(5, 3, 1, 6, 4, 2), 3,
+                     dimnames = list(letters[1:3], c("A", "B")))
+  long <- data.frame(cell_type = rep(c("A", "B"), each = 3),
+                      gene = rep(letters[1:3], 2), importance = c(5, 3, 1, 6, 4, 2))
+  for (data in list(scores, grouped, long)) {
+    original <- data
+    single <- is.numeric(data) && is.null(dim(data))
+    groups <- if (single) "All" else c("A", "B")
+    expected_scores <- if (single) c(5, 3) else c(5, 3, 6, 4)
+    for (top in 0:1) {
+      ranked <- PlotRank(data, top_n = top, max_show = 2, ncol = NULL,
+                          return_type = "data")
+      expect_identical(names(ranked), c("Group", "Rank", "Score", "Label", "IsTop"))
+      expect_identical(ranked$Group, factor(rep(groups, each = 2), levels = groups))
+      expect_identical(ranked$Rank, rep(1:2, length(groups)))
+      expect_identical(ranked$Score, expected_scores)
+      expect_identical(ranked$Label, rep(c("a", "b"), length(groups)))
+      expect_identical(ranked$IsTop, rep(c(top == 1L, FALSE), length(groups)))
+      plot <- PlotRank(data, top_n = top, max_show = 2, ncol = NULL)
+      both <- PlotRank(data, top_n = top, max_show = 2, ncol = NULL,
+                        return_type = "both")
+      expect_identical(names(both), c("plot", "data"))
+      expect_identical(both$data, ranked)
+      for (p in list(plot, both$plot)) {
+        expect_s3_class(p, "ggplot")
+        built <- ggplot2::ggplot_build(p)
+        expect_identical(built$data[[1]]$y, expected_scores)
+        expect_equal(built$data[[1]]$x, rep(1:2, length(groups)))
+        expected_colors <- if (top == 0L) rep("#BECEE3", 2) else c("#007D9B", "#BECEE3")
+        expect_identical(built$data[[1]]$colour, rep(expected_colors, length(groups)))
+        expect_equal(nrow(built$data[[2]]), top * length(groups))
+        if (top == 1L) expect_identical(built$data[[2]]$label, rep("a", length(groups)))
+      }
+    }
+    expect_identical(data, original)
+  }
+})
