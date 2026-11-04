@@ -531,6 +531,7 @@ plt_cat <- function(data,
     }
     missing_levels <- unname(na_levels[intersect(names(na_levels), stat.by)])
     required <- setdiff(lvls, missing_levels)
+    if (!is.null(dim(palette))) cli::cli_abort("Named {.arg palette} must be one-dimensional.")
     if (!is.character(palette) || anyNA(names(palette)) ||
         (any(!nzchar(names(palette))) && !"" %in% lvls) ||
         anyDuplicated(names(palette)) ||

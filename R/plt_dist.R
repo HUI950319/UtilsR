@@ -54,7 +54,8 @@
 #'   \code{NULL} (default \code{pal_lancet}), a registered palette name (e.g.
 #'   \code{"Paired"}), a single literal colour, or a vector of colours. In
 #'   a named vector, names must be unique category labels and include every
-#'   observed fill category. Unnamed vectors follow factor-level order (data
+#'   observed fill category. A blank name is allowed for an observed empty
+#'   string category. Unnamed vectors follow factor-level order (data
 #'   order for character alluvial groups). Unused bar/heatmap factor levels
 #'   retain their positions in an unnamed palette.
 #' @param alpha One finite number between 0 and 1 giving the opacity of the
@@ -387,22 +388,24 @@ plt_dist <- function(data,
 
   named_palette <- NULL
   if (!is.null(names(color))) {
+    if (!is.null(dim(color))) cli::cli_abort("Named {.arg color} must be one-dimensional.")
     color_names <- names(color)
-    if (!is.character(color) || anyNA(color_names) ||
-        any(!nzchar(color_names)) || anyDuplicated(color_names)) {
-      cli::cli_abort("Named {.arg color} values must have unique, non-empty category names.")
-    }
     fill_values <- data[[dis_vars[length(dis_vars)]]]
     needed_levels <- if (is.factor(fill_values)) {
       levels(fill_values)[levels(fill_values) %in% as.character(fill_values)]
     } else {
       unique(as.character(fill_values[!is.na(fill_values)]))
     }
-    missing_colors <- setdiff(needed_levels, color_names)
+    if (!is.character(color) || anyNA(color_names) || anyDuplicated(color_names) ||
+        (any(!nzchar(color_names)) && !"" %in% needed_levels)) {
+      cli::cli_abort("Named {.arg color} values must have unique, non-empty category names, except for an observed empty category.")
+    }
+    idx <- match(needed_levels, color_names)
+    missing_colors <- needed_levels[is.na(idx)]
     if (length(missing_colors)) {
       cli::cli_abort("Named {.arg color} must include every observed fill category; missing {.val {missing_colors}}.")
     }
-    named_palette <- .resolve_color_values(color[needed_levels], "color")
+    named_palette <- .resolve_color_values(color[idx], "color")
   }
 
   # --- Resolve theme + fill colours ---
@@ -428,7 +431,7 @@ plt_dist <- function(data,
       cat_var = dis_vars[1L],
       group = dis_vars[2L],
       facet = facet,
-      color = if (is.null(named_palette)) color else unname(named_palette),
+      color = if (is.null(named_palette)) color else named_palette,
       flow_args = list(alpha = alpha, curve_type = flow_args$curve_type),
       stratum_args = stratum_args,
       label_args = label_args,

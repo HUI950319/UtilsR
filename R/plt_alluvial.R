@@ -17,7 +17,8 @@
 #' @param y_type Display within-category percentages or raw counts.
 #' @param color A registered UtilsR palette name, a single colour, or a colour
 #'   vector. Named vectors match observed group names and must cover every
-#'   observed group; extra names are ignored. Unnamed vectors match group order.
+#'   observed group; extra names are ignored. A blank name is allowed for an
+#'   observed empty string group. Unnamed vectors match group order.
 #' @param flow_args A named list controlling the alluvial flows:
 #'   \describe{
 #'     \item{\code{alpha}}{Numeric scalar in \eqn{[0, 1]}. Opacity of the flow
@@ -526,14 +527,17 @@ plt_alluvial <- function(
   stat$.group <- factor(stat$.group, levels = all_group_levels)
 
   real_colors <- if (!is.null(names(color))) {
+    if (!is.null(dim(color))) cli::cli_abort("Named {.arg color} must be one-dimensional.")
     color_names <- names(color)
-    if (anyNA(color_names) || any(!nzchar(color_names)) || anyDuplicated(color_names)) {
-      cli::cli_abort("Named {.arg color} must have unique, non-empty names.")
+    if (anyNA(color_names) || anyDuplicated(color_names) ||
+        (any(!nzchar(color_names)) && !"" %in% group_levels)) {
+      cli::cli_abort("Named {.arg color} must have unique, non-empty names, except for an observed empty group.")
     }
-    if (!all(group_levels %in% color_names)) {
+    idx <- match(group_levels, color_names)
+    if (anyNA(idx)) {
       cli::cli_abort("Named {.arg color} must cover every observed group.")
     }
-    .resolve_color_values(color[group_levels], "color")
+    .resolve_color_values(color[idx], "color")
   } else {
     stats::setNames(.resolve_color(color, n = length(group_levels)), group_levels)
   }

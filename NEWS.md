@@ -1,5 +1,7 @@
 # UtilsR 0.6.22
 
+* Reject dimensional named colours before subsetting and match observed empty categories exactly in distribution and alluvial plots.
+
 * PlotDumbbell() and PlotScatter3() validate themes with the shared resolver. Automatic dumbbell insets reuse the main theme unless a separate theme is supplied.
 
 * `PlotButterfly()` uses the shared colour resolver, checks duplicate palette names, and warns about categories that use the grey fallback.

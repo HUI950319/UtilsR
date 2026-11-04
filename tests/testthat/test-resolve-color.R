@@ -246,3 +246,29 @@ test_that("a single named alluvial colour is a literal after subsetting groups",
   p <- suppressMessages(plt_alluvial(d, "x", "g", color = c(B = "red", A = "blue")))
   expect_identical(ggplot2::ggplot_build(p)$plot$scales$get_scales("fill")$map("A"), "blue")
 })
+
+test_that("named plot colours reject matrices before matching categories", {
+  d <- data.frame(x = rep(c("X", "Y"), each = 2L), g = factor(rep(c("A", "B"), 2L)), y = 1:4)
+  colours <- matrix(c("red", "blue"), nrow = 1L)
+  names(colours) <- c("A", "B")
+  expect_error(plt_cat(d, "g", palette = colours), "one-dimensional")
+  expect_error(plt_con(d, "y", "g", type = "bar", palette = colours), "one-dimensional")
+  expect_error(plt_dist(d, c("x", "g"), type = "bar", color = colours), "one-dimensional")
+})
+
+test_that("distribution and alluvial colours match an observed empty category", {
+  skip_if_not_installed("ggalluvial")
+  d <- data.frame(x = rep(c("X", "Y"), each = 2L), g = factor(rep(c("", "A"), 2L)))
+  colours <- setNames(c("blue", "red"), c("A", ""))
+  plots <- suppressMessages(list(
+    plt_alluvial(d, "x", "g", color = colours),
+    plt_dist(d, c("x", "g"), type = "alluvial", color = colours),
+    plt_dist(d, c("x", "g"), type = "bar", color = colours)
+  ))
+  for (p in plots) {
+    scale <- ggplot2::ggplot_build(p)$plot$scales$get_scales("fill")
+    expect_identical(grDevices::col2rgb(scale$map(c("", "A"))),
+                     grDevices::col2rgb(c("red", "blue")))
+  }
+  expect_error(plt_alluvial(d, "x", "g", color = c(A = "blue")), "cover every observed group")
+})

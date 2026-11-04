@@ -629,6 +629,7 @@ plt_con <- function(data,
   }
   if (!is.null(names(palette))) {
     named_levels <- color_levels[!is.na(color_levels)]
+    if (!is.null(dim(palette))) cli::cli_abort("Named {.arg palette} must be one-dimensional.")
     if (!is.character(palette) || anyNA(names(palette)) ||
         any(!nzchar(names(palette)) & !names(palette) %in% named_levels) || anyDuplicated(names(palette)) ||
         !all(named_levels %in% names(palette))) {
