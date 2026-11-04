@@ -915,6 +915,22 @@ test_that("pal_get keeps native spelling and alpha for one-colour ramps", {
   }
 })
 
+test_that("pal_get preserves direct alpha spelling and names for repeated colours", {
+  cols <- rep(c("ReD", "NA", "#00F8", "transparent"), 400L)
+  levels <- paste0("group", seq_along(cols))
+  x <- factor(levels, levels = levels)
+  rgba <- cols
+  rgba[rgba == "NA"] <- "#FFFFFF00"
+  one <- rep("red", length(cols))
+  for (alpha in c(0, 0.5, 0.9999)) {
+    expected <- ggplot2::alpha(rgba, alpha)
+    expect_identical(pal_get(cols, alpha = alpha), expected)
+    expect_identical(pal_get(list(custom = cols), x = x, reverse = TRUE, alpha = alpha),
+                     list(custom = stats::setNames(rev(expected), levels)))
+    expect_identical(pal_get(one, alpha = alpha), ggplot2::alpha(one, alpha))
+  }
+})
+
 test_that("pal_get keeps medium-cardinality numeric mappings in observation order", {
   palettes <- list(opaque = c("black", "white"),
                    translucent = c("#FF000080", "#0000FF40"))

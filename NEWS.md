@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Reuse alpha-encoded values for long repeated colour vectors and restore their original order and names.
+
 * Let `PlotRankCor()` match an observed empty-string group by name in a custom palette.
 
 * Interpolate and encode a single source colour once for repeated ramp output, preserving native HEX spelling and alpha.

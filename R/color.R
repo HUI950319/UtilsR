@@ -738,9 +738,18 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 
   # Alpha
   if (alpha < 1) {
+    input <- keys <- NULL
+    if (!is.object(out) && length(out) > 1024L && .pal_use_unique(out)) {
+      input <- out
+      keys <- unique(out)
+      out <- keys
+    }
     # Unlike col2rgb(), farver interprets the literal "NA" as a missing value.
     out[out %in% "NA"] <- "#FFFFFF00"
+    # Use vector-sized encoding when deduplication leaves a single colour.
+    if (!is.null(keys) && length(keys) == 1L) out <- rep.int(out, 2L)
     out <- ggplot2::alpha(out, alpha)
+    if (!is.null(keys)) out <- out[match(input, keys)]
   }
 
   stats::setNames(as.character(out), nms)
