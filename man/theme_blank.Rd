@@ -28,7 +28,9 @@ theme_blank(
 
 \item{lab_size}{Numeric. Font size of the axis labels.}
 
-\item{...}{Arguments passed to \code{\link[ggplot2]{theme}}.}
+\item{...}{Arguments passed to \code{\link[ggplot2]{theme}}, including
+registered extension theme elements. Named elements override the defaults
+supplied by this function. Arguments in \code{...} support dynamic dots.}
 }
 \value{
 A list of ggplot2 theme and annotation objects that can be added
@@ -41,10 +43,17 @@ embedding plots. Ported from \code{thisplot::theme_blank}.
 }
 \examples{
 library(ggplot2)
-p <- ggplot(mtcars, aes(x = wt, y = mpg, colour = factor(cyl))) +
+set.seed(1)
+d <- data.frame(x = rnorm(40), y = rnorm(40),
+                batch = rep(c("A", "B"), each = 20),
+                group = rep(c("C", "D"), 20))
+p <- ggplot(d, aes(x, y, colour = group)) +
   geom_point()
 p + theme_blank()
 p + theme_blank(xlab = "UMAP1", ylab = "UMAP2", lab_size = 14)
+p + ggh4x::facet_nested(~ batch + group, nest_line = TRUE) +
+  theme_blank(add_coord = FALSE,
+              ggh4x.facet.nestline = element_line(colour = "steelblue"))
 
 }
 \seealso{

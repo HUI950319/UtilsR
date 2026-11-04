@@ -746,17 +746,26 @@ theme_sc <- function(
 #' @param xlab Character. Label for the x-axis arrow.
 #' @param ylab Character. Label for the y-axis arrow.
 #' @param lab_size Numeric. Font size of the axis labels.
-#' @param ... Arguments passed to \code{\link[ggplot2]{theme}}.
+#' @param ... Arguments passed to \code{\link[ggplot2]{theme}}, including
+#'   registered extension theme elements. Named elements override the defaults
+#'   supplied by this function. Arguments in \code{...} support dynamic dots.
 #'
 #' @return A list of ggplot2 theme and annotation objects that can be added
 #'   to a ggplot with \code{+}.
 #'
 #' @examples
 #' library(ggplot2)
-#' p <- ggplot(mtcars, aes(x = wt, y = mpg, colour = factor(cyl))) +
+#' set.seed(1)
+#' d <- data.frame(x = rnorm(40), y = rnorm(40),
+#'                 batch = rep(c("A", "B"), each = 20),
+#'                 group = rep(c("C", "D"), 20))
+#' p <- ggplot(d, aes(x, y, colour = group)) +
 #'   geom_point()
 #' p + theme_blank()
 #' p + theme_blank(xlab = "UMAP1", ylab = "UMAP2", lab_size = 14)
+#' p + ggh4x::facet_nested(~ batch + group, nest_line = TRUE) +
+#'   theme_blank(add_coord = FALSE,
+#'               ggh4x.facet.nestline = element_line(colour = "steelblue"))
 #'
 #' @export
 #' @family ggplot2 themes
@@ -784,22 +793,11 @@ theme_blank <- function(
       unit = "points"
     )
   )
-  args2 <- as.list(match.call())[-1]
-  call_envir <- parent.frame(1)
-  args2 <- lapply(args2, function(arg) {
-    if (is.symbol(arg)) {
-      eval(arg, envir = call_envir)
-    } else if (is.call(arg)) {
-      eval(arg, envir = call_envir)
-    } else {
-      arg
-    }
-  })
+  args2 <- rlang::dots_list(..., .ignore_empty = "all")
   for (n in names(args2)) {
     args1[[n]] <- args2[[n]]
   }
-  args <- args1[names(args1) %in% methods::formalArgs(theme)]
-  out <- do.call(what = theme, args = args)
+  out <- do.call(what = theme, args = args1)
   if (isTRUE(add_coord)) {
     g <- grid::grobTree(
       grid::gList(
