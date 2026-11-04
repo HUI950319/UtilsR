@@ -11,7 +11,9 @@ theme_sc(aspect.ratio = NULL, base_size = 12, ...)
 
 \item{base_size}{Numeric. Base font size (default 12).}
 
-\item{...}{Arguments passed to \code{\link[ggplot2]{theme}}.}
+\item{...}{Arguments passed to \code{\link[ggplot2]{theme}}, including
+registered extension theme elements. Named elements override the defaults
+supplied by this function. Arguments in \code{...} support dynamic dots.}
 }
 \value{
 A ggplot2 theme object.
@@ -23,9 +25,15 @@ A clean ggplot2 theme designed for single-cell analysis plots. Based on
 }
 \examples{
 library(ggplot2)
-p <- ggplot(mtcars, aes(x = wt, y = mpg, colour = factor(cyl))) +
+set.seed(1)
+d <- data.frame(x = rnorm(40), y = rnorm(40),
+                batch = rep(c("A", "B"), each = 20),
+                group = rep(c("C", "D"), 20))
+p <- ggplot(d, aes(x, y, colour = group)) +
   geom_point()
 p + theme_sc()
+p + ggh4x::facet_nested(~ batch + group, nest_line = TRUE) +
+  theme_sc(ggh4x.facet.nestline = element_line(colour = "steelblue"))
 
 }
 \seealso{
