@@ -968,6 +968,25 @@ test_that("plt_cat matches exact timestamps across time zones without label coll
   expect_equal(p$data$intersection, list("A", "B"))
 })
 
+test_that("plt_cat UpSet excludes all-missing columns from automatic membership", {
+  skip_if_not_installed("ggupset")
+  withr::local_options(lifecycle_verbosity = "quiet")
+  d <- data.frame(A = rep(NA_character_, 3), B = c(FALSE, TRUE, FALSE))
+  p <- cat_test_plot(d, c("A", "B"), type = "upset", NA_stat = TRUE)
+  expect_equal(p$data$intersection, list("B"))
+  q <- cat_test_plot(d, c("A", "B"), type = "upset", NA_stat = TRUE,
+                    stat_level = list(A = "NA", B = TRUE))
+  expect_equal(q$data$intersection, list("A", c("A", "B"), "A"))
+})
+
+test_that("plt_cat Venn keeps all-missing columns empty under automatic membership", {
+  skip_if_not_installed("ggVennDiagram")
+  d <- data.frame(A = rep(NA_real_, 3), B = c(FALSE, TRUE, FALSE))
+  p <- cat_test_plot(d, c("A", "B"), type = "venn", NA_stat = TRUE)
+  regions <- unique(p$layers[[1]]$data[c("id", "count")])
+  expect_equal(sort(regions$count), c(0, 0, 1))
+})
+
 test_that("plt_cat split backgrounds keep one category colour mapping", {
   d <- data.frame(category = rep(c("A", "B"), 4),
                   group = rep(c("G1", "G2", "G2", "G3"), each = 2),

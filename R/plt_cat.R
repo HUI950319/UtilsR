@@ -110,8 +110,10 @@
 #' @param stat_level Vector or list. For venn/upset types, the value(s) in
 #'   each \code{stat.by} column that count as "positive". Default \code{NULL}
 #'   auto-detects \code{TRUE}, \code{"Yes"}, \code{"yes"}, \code{1},
-#'   \code{"TRUE"}, \code{"1"}, or uses the first factor level. With
-#'   \code{split.by}, membership values are resolved once for all panels.
+#'   \code{"TRUE"}, \code{"1"}, or uses the first factor level. An
+#'   entirely missing column has no automatic positive level, even with
+#'   \code{NA_stat = TRUE}. With \code{split.by}, membership values are
+#'   resolved once for all panels.
 #'   An unnamed vector supplies one shared value or one value per selected
 #'   column in order. Named vectors and named lists match column names and
 #'   must cover exactly the selected columns. Numeric and time values are
@@ -554,7 +556,7 @@ plt_cat <- function(data,
   }
 
   if (type %in% c("venn", "upset")) {
-    stat_level <- .resolve_stat_level(data, stat.by, stat_level, numeric_labels)
+    stat_level <- .resolve_stat_level(data, stat.by, stat_level, numeric_labels, na_levels)
   }
 
   draw_one <- function(panel_data, panel_title) {
@@ -844,7 +846,8 @@ plt_cat <- function(data,
 
 #' Resolve stat_level for venn/upset
 #' @noRd
-.resolve_stat_level <- function(data, stat.by, stat_level, numeric_labels = list()) {
+.resolve_stat_level <- function(data, stat.by, stat_level, numeric_labels = list(),
+                                na_levels = character()) {
   default_positive <- c(TRUE, "TRUE", "Yes", "yes", 1, "1")
   as_label <- function(values, column) {
     map <- numeric_labels[[column]]
@@ -873,6 +876,7 @@ plt_cat <- function(data,
   if (is.null(stat_level)) {
     result <- stats::setNames(lapply(stat.by, function(s) {
       vals <- unique(data[[s]])
+      if (!any(!is.na(vals) & !vals %in% na_levels[s])) return(character())
       map <- numeric_labels[[s]]
       positives <- if (!is.null(map) && !isTRUE(map$time)) {
         map$labels[map$values %in% 1]

@@ -4,6 +4,8 @@
 
 * Interpret single named colours as literals in plt_alluvial() and PlotRankCor(), including when a subset retains one group.
 
+* `plt_cat()` leaves entirely missing sets empty when inferring positive membership.
+
 * Validate numeric colour indices before native parsing and preserve double precision through palette lookup.
 
 * `plt_cat()` matches numeric and time values for Venn and UpSet membership before formatting labels.
