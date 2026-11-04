@@ -4,11 +4,14 @@
 \alias{.resolve_theme}
 \title{Resolve `theme_use` input to a ggplot2 theme object}
 \usage{
-.resolve_theme(theme_use)
+.resolve_theme(theme_use, ...)
 }
 \arguments{
 \item{theme_use}{\code{NULL}, a single non-missing, non-empty theme name, a function
-called without arguments and returning a theme, or a theme object.}
+returning a theme, or a theme object.}
+
+\item{...}{Arguments forwarded to the theme function when one is used.
+Ignored when the specification resolves to a theme object.}
 }
 \value{
 A ggplot2 theme object.
@@ -22,8 +25,8 @@ Names are looked up as functions visible to the immediate caller, then as
 UtilsR exports, then as ggplot2 exports. Pass a function or theme object for
 a local custom theme used through a plotting wrapper.
 Errors evaluating a visible binding or calling a theme function are preserved.
-Theme functions are called without arguments. Wrap a configured theme call in
-a function to supply settings.
+Theme functions are called without arguments by default. Supply settings in
+a closure or pass them through \code{...}.
 }
 \examples{
 .resolve_theme("theme_bw")

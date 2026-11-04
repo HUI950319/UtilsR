@@ -48,7 +48,9 @@
 #' @param layout_ratio Size ratio c(marginal, main). Default c(1, 4).
 #' @param legend_pos Legend position. Default c(0.85, 0.15).
 #' @param legend_theme Legend theme object (e.g. \code{theme_legend1()}). Default NULL.
-#' @param theme_use Theme for the main scatter panel. Default NULL (built-in theme).
+#' @param theme_use A theme object, theme name, or zero-argument function
+#'   returning a theme for the main scatter panel. \code{NULL} keeps the
+#'   built-in styling.
 #' @param raster Logical. Rasterise scatter points to reduce file size.
 #'   \code{FALSE} = vector (default). \code{TRUE} = raster.
 #' @param raster_method Character. Rasterisation backend when \code{raster = TRUE}:
@@ -223,13 +225,7 @@ PlotScatter1 <- function(
     ggplot2::labs(x = xlab, y = ylab, title = title, colour = group, shape = group)
 
   # Apply user theme
-  if (!is.null(theme_use)) {
-    if (is.function(theme_use)) {
-      p_main <- p_main + theme_use()
-    } else if (inherits(theme_use, "theme")) {
-      p_main <- p_main + theme_use
-    }
-  }
+  if (!is.null(theme_use)) p_main <- p_main + .resolve_theme(theme_use)
 
   # Panel and legend theme
   panel_theme <- list(

@@ -138,3 +138,11 @@ test_that(".resolve_theme accepts named scalar theme names", {
 test_that(".resolve_theme is available to importing packages", {
   expect_identical(getExportedValue("UtilsR", ".resolve_theme"), .resolve_theme)
 })
+
+test_that(".resolve_theme forwards options to factories only", {
+  expect_equal(.resolve_theme("theme_bw", base_size = 23)$text$size, 23)
+  factory <- function(base_size) ggplot2::theme_bw(base_size = base_size)
+  expect_equal(.resolve_theme(factory, base_size = 19)$text$size, 19)
+  thm <- ggplot2::theme_bw(base_size = 17)
+  expect_identical(.resolve_theme(thm, base_size = stop("unused size")), thm)
+})

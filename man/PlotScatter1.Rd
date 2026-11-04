@@ -109,7 +109,9 @@ normalises max-width so both marginals look visually consistent),
 
 \item{legend_theme}{Legend theme object (e.g. \code{theme_legend1()}). Default NULL.}
 
-\item{theme_use}{Theme for the main scatter panel. Default NULL (built-in theme).}
+\item{theme_use}{A theme object, theme name, or zero-argument function
+returning a theme for the main scatter panel. \code{NULL} keeps the
+built-in styling.}
 
 \item{raster}{Logical. Rasterise scatter points to reduce file size.
 \code{FALSE} = vector (default). \code{TRUE} = raster.}

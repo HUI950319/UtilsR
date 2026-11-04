@@ -1,3 +1,7 @@
+# UtilsR 0.6.23
+
+* PlotScatter1() validates themes with the shared resolver, which can forward arguments to theme factories used by plotting callers.
+
 # UtilsR 0.6.22
 
 * `pal_show()` wraps large requested colour counts within the HTML catalogue count column.

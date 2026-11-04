@@ -29,11 +29,13 @@
 #' UtilsR exports, then as ggplot2 exports. Pass a function or theme object for
 #' a local custom theme used through a plotting wrapper.
 #' Errors evaluating a visible binding or calling a theme function are preserved.
-#' Theme functions are called without arguments. Wrap a configured theme call in
-#' a function to supply settings.
+#' Theme functions are called without arguments by default. Supply settings in
+#' a closure or pass them through \code{...}.
 #'
 #' @param theme_use \code{NULL}, a single non-missing, non-empty theme name, a function
-#'   called without arguments and returning a theme, or a theme object.
+#'   returning a theme, or a theme object.
+#' @param ... Arguments forwarded to the theme function when one is used.
+#'   Ignored when the specification resolves to a theme object.
 #' @return A ggplot2 theme object.
 #'
 #' @examples
@@ -45,7 +47,7 @@
 #' @family ggplot2 themes
 #' @keywords internal
 #' @export
-.resolve_theme <- function(theme_use) {
+.resolve_theme <- function(theme_use, ...) {
   theme_name <- NULL
   if (is.null(theme_use)) {
     thm <- tryCatch(theme_km, error = function(e) NULL)
@@ -69,7 +71,7 @@
   }
   if (inherits(theme_use, "theme")) return(theme_use)
   if (is.function(theme_use)) {
-    thm <- theme_use()
+    thm <- theme_use(...)
     if (!inherits(thm, "theme"))
       stop(sprintf("'theme_use'%s must return a ggplot2 theme object; got <%s>",
                    if (is.null(theme_name)) "" else sprintf(" (factory '%s')", theme_name),

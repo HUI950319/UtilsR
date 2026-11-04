@@ -882,3 +882,19 @@ test_that("PlotScatter3 shares theme validation and keeps its NULL theme", {
   expect_equal(plot("theme_minimal")[[1L]]$theme, plot(ggplot2::theme_minimal())[[1L]]$theme)
   expect_equal(plot(NULL)[[1L]]$theme, plot(ggplot2::theme_classic())[[1L]]$theme)
 })
+
+test_that("PlotScatter1 resolves the main theme without accepting plot components", {
+  data <- data.frame(x = 1:8, y = c(1, 5, 2, 6, 3, 7, 4, 8),
+                     g = rep(c("A", "B"), each = 4))
+  draw <- function(theme_use) {
+    scatter1_capture_panels(
+      data, "x", "y", "g", show_ellipse = FALSE, show_refline = FALSE,
+      box_jitter = FALSE, legend_pos = "none", theme_use = theme_use
+    )$panels$main
+  }
+
+  expect_equal(draw("theme_minimal")$theme$text$size, 11)
+  expect_equal(draw(function() ggplot2::theme_bw(base_size = 23))$theme$text$size, 23)
+  expect_error(draw(function() ggplot2::geom_point()), "must return a ggplot2 theme")
+  expect_length(draw(NULL)$layers, 1L)
+})
