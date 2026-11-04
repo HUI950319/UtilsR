@@ -223,12 +223,25 @@
   }, error = function(e) {
     # Find every bad value only when parsing the whole vector fails.
     candidates <- unique(draw_input)
-    valid <- vapply(candidates, function(v) {
+    can_draw <- function(v) {
       tryCatch({
         grDevices::col2rgb(v)
         TRUE
       }, error = function(e) FALSE)
-    }, logical(1L), USE.NAMES = FALSE)
+    }
+    if (length(candidates) <= 256L) {
+      valid <- vapply(candidates, can_draw, logical(1L), USE.NAMES = FALSE)
+    } else {
+      # Check individual colours only in blocks that fail to parse.
+      valid <- logical(length(candidates))
+      for (start in seq.int(1, length(candidates), by = 256L)) {
+        idx <- seq.int(start, min(start + 255, length(candidates)))
+        block <- candidates[idx]
+        valid[idx] <- if (can_draw(block)) TRUE else {
+          vapply(block, can_draw, logical(1L), USE.NAMES = FALSE)
+        }
+      }
+    }
     valid[match(draw_input, candidates)]
   })
   drawable[bad_index] <- FALSE

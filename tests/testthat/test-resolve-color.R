@@ -167,6 +167,23 @@ test_that(".resolve_color handles long colour vectors and identifies all bad val
   expect_length(gregexpr("bad_colour_one", conditionMessage(err), fixed = TRUE)[[1L]], 1L)
 })
 
+test_that("long colour vectors only retry individual values in failing blocks", {
+  col2rgb <- grDevices::col2rgb
+  calls <- integer()
+  testthat::local_mocked_bindings(
+    col2rgb = function(col, ...) {
+      calls <<- c(calls, length(col))
+      col2rgb(col, ...)
+    },
+    .package = "grDevices"
+  )
+  colours <- sprintf("#%06X", seq_len(1536L))
+  colours[c(256L, 257L)] <- c("bad_colour_one", "bad_colour_two")
+  err <- tryCatch(.resolve_color(colours), error = identity)
+  expect_match(conditionMessage(err), "bad_colour_one.*bad_colour_two")
+  expect_lt(sum(calls == 1L), length(colours) / 2L)
+})
+
 test_that(".resolve_color handles factors and rejects ambiguous storage", {
   expect_identical(.resolve_color(factor("lancet"), n = 2L), pal_get("lancet", n = 2L))
   expect_identical(.resolve_color(ordered(c("red", "blue"))), c("red", "blue"))

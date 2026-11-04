@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Locate invalid values in large colour vectors by checking blocks before retrying individual colours.
+
 * Map constant finite values from one midpoint, recycling the encoded colour into the original positions.
 
 * Reuse alpha-encoded values for long repeated colour vectors and restore their original order and names.
