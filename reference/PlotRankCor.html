@@ -125,8 +125,12 @@ while raw scores and mapped aesthetics must be within +/-2^53.</p></dd>
 <dd><p>Character. Column name for the grouping / faceting
 variable (e.g. comparison). Each level gets its own facet panel.
 If <code>NULL</code>, all data is treated as a single group (no faceting).
-Missing groups are retained as <code>"&lt;NA&gt;"</code>; a suffix distinguishes this
-label from existing group names.</p></dd>
+Groups are identified by their original values before conversion to
+discrete text labels, so close numeric values remain separate. Suffixes
+distinguish groups with identical text labels while preserving existing
+labels. Non-missing factors retain their level order. Missing groups use
+<code>"&lt;NA&gt;"</code>, with suffixes as needed to avoid existing labels. These
+labels also identify rows in <code>cor_results</code> and named palette entries.</p></dd>
 
 
 <dt id="arg-method-by">method.by<a class="anchor" aria-label="anchor" href="#arg-method-by"></a></dt>

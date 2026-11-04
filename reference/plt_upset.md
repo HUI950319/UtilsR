@@ -68,7 +68,13 @@ plt_upset(
   `c("Yes", "yes")`. Missingness follows
   [`is.na()`](https://rdrr.io/r/base/NA.html) on the original columns,
   including SPSS user-missing values; methods for serialized classed
-  columns are loaded. Ignored when `data` is a list.
+  columns are loaded. For exact time membership, supply `levels` of the
+  same time class as the column. Date and time values retain fractional
+  precision; `POSIXct` and `POSIXlt` can be mixed across time zones, and
+  `difftime` units are normalized to seconds. Lubridate periods use
+  calendar components, and intervals use their start and length.
+  Character `levels` retain their usual matching behavior. Ignored when
+  `data` is a list.
 
 - colors:
 

@@ -64,11 +64,13 @@ PlotScatter1(
 
 - group:
 
-  Column name for the grouping variable.
+  Column name for the grouping variable. May also be `x` or `y`;
+  grouping uses a separate factor without changing axis values.
 
 - group_levels:
 
-  Group order. NULL = data order.
+  Group order. NULL preserves existing factor levels or uses data order
+  for other grouping variables.
 
 - colors:
 
@@ -214,8 +216,9 @@ A patchwork object (combined plot).
 ## Details
 
 For dual-group scatter with separate marginal panels, see
-\[PlotScatter2()\]. For paired scatter with rotated histogram inset, see
-\[PlotScatter3()\].
+[`PlotScatter2()`](https://hui950319.github.io/UtilsR/reference/PlotScatter2.md).
+For paired scatter with rotated histogram inset, see
+[`PlotScatter3()`](https://hui950319.github.io/UtilsR/reference/PlotScatter3.md).
 
 ## See also
 

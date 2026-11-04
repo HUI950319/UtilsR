@@ -119,7 +119,9 @@ lines, delta labels, and an optional inset plot via patchwork.</p>
 
 <dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
 <dd><p>A data.frame containing category, start, and end columns.
-Generated delta fields are kept separate from existing column names.</p></dd>
+Generated delta fields are kept separate from existing column names.
+Input columns do not override legend labels or dot-guide origins.
+Integer differences outside R's integer range are retained as doubles.</p></dd>
 
 
 <dt id="arg-x-col">x_col<a class="anchor" aria-label="anchor" href="#arg-x-col"></a></dt>
@@ -149,8 +151,9 @@ Generated delta fields are kept separate from existing column names.</p></dd>
 
 
 <dt id="arg-top-n">top_n<a class="anchor" aria-label="anchor" href="#arg-top-n"></a></dt>
-<dd><p>Integer. Show only top N categories after sorting. Default
-<code>NULL</code> (show all).</p></dd>
+<dd><p>A single finite integer-valued number. Retain the last N
+categories after sorting. Default <code>NULL</code> (show all). Non-positive
+values and values at least as large as the row count also show all.</p></dd>
 
 
 <dt id="arg-color-x">color_x<a class="anchor" aria-label="anchor" href="#arg-color-x"></a></dt>
@@ -163,7 +166,8 @@ Generated delta fields are kept separate from existing column names.</p></dd>
 
 <dt id="arg-label-x">label_x<a class="anchor" aria-label="anchor" href="#arg-label-x"></a></dt>
 <dd><p>Label for start points (used in legend and auto inset).
-Default <code>NULL</code> (column name).</p></dd>
+Default <code>NULL</code> (column name). Endpoints remain distinct even when
+both display labels are identical.</p></dd>
 
 
 <dt id="arg-label-xend">label_xend<a class="anchor" aria-label="anchor" href="#arg-label-xend"></a></dt>
@@ -282,7 +286,8 @@ point to the Y axis? Default <code>FALSE</code>.</p></dd>
 
 <dt id="arg-inset-type">inset_type<a class="anchor" aria-label="anchor" href="#arg-inset-type"></a></dt>
 <dd><p>Type of auto-generated inset: <code>"boxplot"</code> (default)
-or <code>"violin"</code>. Only used when <code>inset_plot = "auto"</code>.</p></dd>
+or <code>"violin"</code>. Only used when <code>inset_plot = "auto"</code>;
+unsupported values are rejected in that mode.</p></dd>
 
 
 <dt id="arg-inset-test">inset_test<a class="anchor" aria-label="anchor" href="#arg-inset-test"></a></dt>

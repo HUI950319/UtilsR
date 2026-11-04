@@ -83,7 +83,10 @@ count, and percentage.</p>
 
 <dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
 <dd><p>A data frame. Only selected columns are retained in the plot's
-working data; unrelated columns do not increase the returned plot size.</p></dd>
+working data; unrelated columns do not increase the returned plot size.
+Missing values form separate nodes; all input rows contribute to flows
+and percentage denominators. SPSS user-missing codes and ranges are
+converted to <code>NA</code> before categorization, requiring <span class="pkg">haven</span>.</p></dd>
 
 
 <dt id="arg-vars">vars<a class="anchor" aria-label="anchor" href="#arg-vars"></a></dt>

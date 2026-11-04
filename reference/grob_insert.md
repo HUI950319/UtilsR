@@ -25,7 +25,7 @@ grob_insert(
 
 - plot:
 
-  A `ggplot` or `patchwork` object serving as the main plot.
+  A `ggplot`, `patchwork`, or `gtable` object serving as the main plot.
 
 - inset:
 
@@ -77,6 +77,14 @@ this function returns a ready-to-draw `gtable` object (use
 It does not require patchwork and works with any grob-convertible plot
 object.
 
+With `align_to = "panel"`, the reference area spans all panels,
+including facets. Standard names (`"panel"`, `"panel-1"`, `"panel-1-1"`,
+and other numeric suffixes) and patchwork's `"panel-area"` take
+precedence over annotation names containing `"panel"`. If no standard
+panel names exist, names containing `"panel"` are used as a fallback for
+custom gtables. An error is raised when neither kind is present;
+`align_to = "plot"` and `align_to = "full"` do not require panels.
+
 ## See also
 
 Other grob utilities:
@@ -87,14 +95,15 @@ Other grob utilities:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
 library(ggplot2)
-main <- ggplot(mtcars, aes(wt, mpg)) + geom_point()
-inset <- ggplot(mtcars, aes(factor(cyl))) + geom_bar() +
+data <- data.frame(x = 1:12, y = rep(c(2, 4, 1, 6, 3, 5), 2),
+                   group = rep(c("A", "B"), each = 6))
+main <- ggplot(data, aes(x, y)) + geom_point() + facet_wrap(~group)
+inset <- ggplot(data, aes(group)) + geom_bar() +
   theme_void() + theme(plot.background = element_rect(fill = "white"))
 gt <- grob_insert(main, inset,
   left = 0.6, bottom = 0.6, right = 1, top = 1
 )
 grid::grid.draw(gt)
-} # }
+
 ```

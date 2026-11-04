@@ -22,19 +22,24 @@ stat_pval(
 
   Numeric/character vector of p-values (when `add_star_p` is NULL), or
   any value to annotate with stars (when `add_star_p` is provided).
-  Numeric strings may use scientific notation. Strings beginning with
-  `<`, `<=`, `>`, `>=`, or their Unicode equivalents are returned with
-  outer whitespace removed, without inferring stars. ASCII and Unicode
-  whitespace is accepted around numbers and after a bound operator;
-  whitespace within a number is not accepted. Other non-numeric strings
-  are rejected. In P-value modes, observed values and numeric bound
-  endpoints must be finite and between 0 and 1. Strict bounds `<0` and
-  `>1` are rejected because they cannot describe a possible P-value.
-  Ordinary numbers in `plain` mode are not restricted to that range.
-  Numeric input must not use `integer64`, date, date-time, or time-span
-  storage; convert such values explicitly before formatting. Matrix and
-  array inputs are not supported. A logical vector is accepted only when
-  all its elements are missing.
+  Numeric strings may use scientific notation. Decimal strings equal to
+  1 exactly remain formattable even when their mantissa is too long for
+  the numeric parser. Strings beginning with `<`, `<=`, `>`, `>=`, or
+  their Unicode equivalents are returned with outer whitespace removed,
+  without inferring stars. ASCII and Unicode whitespace is accepted
+  around numbers and after a bound operator; whitespace within a number
+  is not accepted. Other non-numeric strings are rejected. In P-value
+  modes, observed values and numeric bound endpoints must be finite and
+  between 0 and 1. Numeric text is checked against these endpoints
+  before double-precision rounding; negative values that underflow to
+  zero are still rejected. Positive values below the numeric range
+  remain valid. Strict bounds `<0` and `>1` are rejected because they
+  cannot describe a possible P-value. Ordinary numbers in `plain` mode
+  are not restricted to that range. Numeric input must not use
+  `integer64`, date, date-time, or time-span storage; convert such
+  values explicitly before formatting. Matrix and array inputs are not
+  supported. A logical vector is accepted only when all its elements are
+  missing.
 
 - add_star_p:
 

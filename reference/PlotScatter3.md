@@ -154,7 +154,8 @@ PlotScatter3(
 
 - hist_bins:
 
-  Number of histogram bins. Default 30.
+  Number of equally spaced histogram bins across `hist_x_limits`.
+  Default 30.
 
 - hist_x_limits:
 
@@ -226,8 +227,18 @@ A patchwork object (combined plot).
 
 ## Details
 
-For single-group scatter with marginal boxplots, see \[PlotScatter1()\].
-For dual-group scatter with marginal boxplots, see \[PlotScatter2()\].
+For single-group scatter with marginal boxplots, see
+[`PlotScatter1()`](https://hui950319.github.io/UtilsR/reference/PlotScatter1.md).
+For dual-group scatter with marginal boxplots, see
+[`PlotScatter2()`](https://hui950319.github.io/UtilsR/reference/PlotScatter2.md).
+
+Integer measurements are promoted to double precision before calculating
+differences and paired tests. The histogram shows `y - x`; its median
+uses all non-missing differences. Explicit axis limits trim displayed
+data without changing the paired test or median. ggplot2 can warn when
+limits exclude observations or the median annotation. Numeric
+coordinates and statistics are preserved when `group` also names an axis
+column. A column named `.data` is supported in any role.
 
 ## See also
 
@@ -254,22 +265,13 @@ df <- data.frame(
 
 # Basic usage (auto axis, wilcoxon test, pearson correlation)
 PlotScatter3(df)
-#> Warning: Removed 4 rows containing missing values or values outside the scale range
-#> (`geom_bar()`).
-#> Warning: cannot clip to rotated viewport
 
 
 # Custom highlight colour and t-test
 PlotScatter3(df, highlight_color = "#2a5acb", test_method = "t.test")
-#> Warning: Removed 4 rows containing missing values or values outside the scale range
-#> (`geom_bar()`).
-#> Warning: cannot clip to rotated viewport
 
 
 # Spearman correlation, no reference lines
 PlotScatter3(df, cor_method = "spearman", show_refline = FALSE)
-#> Warning: Removed 4 rows containing missing values or values outside the scale range
-#> (`geom_bar()`).
-#> Warning: cannot clip to rotated viewport
 
 ```

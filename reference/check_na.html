@@ -91,10 +91,11 @@ unmatched pattern or selection inspects no columns and returns
 <dt id="arg-special">special<a class="anchor" aria-label="anchor" href="#arg-special"></a></dt>
 <dd><p><code>NULL</code> (default) for the built-in special-value markers,
 or a character vector of regular expressions that replaces them. Patterns
-are matched case-insensitively, with a Unicode-aware <code>\b</code>, anywhere
-in each whitespace-normalized value; anchor them with <code>^...$</code> or
-<code>\b</code> as needed. <code>character(0)</code> counts no special values, and
-empty strings count only when a pattern matches them.</p></dd>
+are matched independently and case-insensitively, with a Unicode-aware
+<code>\b</code>, anywhere in each whitespace-normalized value; anchor them with
+<code>^...$</code> or <code>\b</code> as needed. A value matching multiple patterns
+counts once. <code>character(0)</code> counts no special values, and empty strings
+count only when a pattern matches them.</p></dd>
 
 
 <dt id="arg-show-all">show_all<a class="anchor" aria-label="anchor" href="#arg-show-all"></a></dt>

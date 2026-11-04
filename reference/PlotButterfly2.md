@@ -2,7 +2,10 @@
 
 Create a butterfly (back-to-back) plot from a single long-format data
 frame. The `group.by` column (exactly 2 levels) defines the left/right
-panels. An optional `fill.by` column adds a dodge dimension.
+panels. An optional `fill.by` column adds a dodge dimension. Plain
+numeric categories use extra label precision when their usual character
+representations coincide. Use the displayed labels for custom category
+orders and named palettes.
 
 ## Usage
 
@@ -86,7 +89,10 @@ PlotButterfly2(
 
   Colour palette for `fill.by` levels. Default `NULL` uses `pal_lancet`.
   Category mappings are resolved across both panels; value gradients
-  share the full selected data range.
+  share the full selected data range. Named vectors match categories by
+  name in both panels. Without `fill.by`, non-beeswarm types match names
+  to `stat.by` categories. Unnamed vectors follow the category order and
+  are recycled when needed.
 
 - alpha:
 

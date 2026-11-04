@@ -212,7 +212,8 @@ Default <code>TRUE</code>.</p></dd>
 
 
 <dt id="arg-hist-bins">hist_bins<a class="anchor" aria-label="anchor" href="#arg-hist-bins"></a></dt>
-<dd><p>Number of histogram bins. Default 30.</p></dd>
+<dd><p>Number of equally spaced histogram bins across
+<code>hist_x_limits</code>. Default 30.</p></dd>
 
 
 <dt id="arg-hist-x-limits">hist_x_limits<a class="anchor" aria-label="anchor" href="#arg-hist-x-limits"></a></dt>
@@ -288,8 +289,17 @@ for main plot margin. Default <code>c(80, 60, 5, 5)</code>.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>For single-group scatter with marginal boxplots, see [PlotScatter1()].
-For dual-group scatter with marginal boxplots, see [PlotScatter2()].</p>
+    <p>For single-group scatter with marginal boxplots, see
+<code><a href="PlotScatter1.html">PlotScatter1()</a></code>.
+For dual-group scatter with marginal boxplots, see
+<code><a href="PlotScatter2.html">PlotScatter2()</a></code>.</p>
+<p>Integer measurements are promoted to double precision before calculating
+differences and paired tests. The histogram shows <code>y - x</code>; its median
+uses all non-missing differences. Explicit axis limits trim displayed data
+without changing the paired test or median. ggplot2 can warn when limits
+exclude observations or the median annotation.
+Numeric coordinates and statistics are preserved when <code>group</code> also
+names an axis column. A column named <code>.data</code> is supported in any role.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -316,23 +326,14 @@ For dual-group scatter with marginal boxplots, see [PlotScatter2()].</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Basic usage (auto axis, wilcoxon test, pearson correlation)</span></span></span>
 <span class="r-in"><span><span class="fu">PlotScatter3</span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 4 rows containing missing values or values outside the scale range</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> (`geom_bar()`).</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>cannot clip to rotated viewport</span>
 <span class="r-plt img"><img src="PlotScatter3-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Custom highlight colour and t-test</span></span></span>
 <span class="r-in"><span><span class="fu">PlotScatter3</span><span class="op">(</span><span class="va">df</span>, highlight_color <span class="op">=</span> <span class="st">"#2a5acb"</span>, test_method <span class="op">=</span> <span class="st">"t.test"</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 4 rows containing missing values or values outside the scale range</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> (`geom_bar()`).</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>cannot clip to rotated viewport</span>
 <span class="r-plt img"><img src="PlotScatter3-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Spearman correlation, no reference lines</span></span></span>
 <span class="r-in"><span><span class="fu">PlotScatter3</span><span class="op">(</span><span class="va">df</span>, cor_method <span class="op">=</span> <span class="st">"spearman"</span>, show_refline <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 4 rows containing missing values or values outside the scale range</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> (`geom_bar()`).</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>cannot clip to rotated viewport</span>
 <span class="r-plt img"><img src="PlotScatter3-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

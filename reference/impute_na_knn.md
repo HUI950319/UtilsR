@@ -56,13 +56,15 @@ names are retained.
 
 ## Details
 
-Numeric variables use distance-weighted means. Labelled variables retain
-categorical treatment, and VIM's categorical and ordered aggregators are
-retained for ordinary finite weights. Previously imputed values
-participate in subsequent distance calculations, so column order can
-affect results. Categorical tie breaking uses R's random number
-generator; call [`set.seed()`](https://rdrr.io/r/base/Random.html)
-before imputation when needed.
+Numeric variables use distance-weighted means. If a weighted sum
+overflows, finite donor values are rescaled before averaging to keep the
+imputed mean finite. Labelled variables retain categorical treatment,
+and VIM's categorical and ordered aggregators are retained for ordinary
+finite weights. Previously imputed values participate in subsequent
+distance calculations, so column order can affect results. Categorical
+tie breaking uses R's random number generator; call
+[`set.seed()`](https://rdrr.io/r/base/Random.html) before imputation
+when needed.
 
 ## See also
 

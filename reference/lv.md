@@ -69,8 +69,9 @@ lv(
   column names take precedence over caller objects; character names can
   also be supplied through variables or expressions. Missing group
   values form their own last group, labelled as missing, and are
-  included in the overall column. A group with more than 100 distinct
-  values (factor levels) is an error.
+  included in the overall column. Their label receives a numeric suffix
+  when it conflicts with an existing category or unused factor level. A
+  group with more than 100 distinct values (factor levels) is an error.
 
 - count:
 

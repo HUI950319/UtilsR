@@ -22,7 +22,10 @@ theme_sc(aspect.ratio = NULL, base_size = 12, ...)
 - ...:
 
   Arguments passed to
-  [`theme`](https://ggplot2.tidyverse.org/reference/theme.html).
+  [`theme`](https://ggplot2.tidyverse.org/reference/theme.html),
+  including registered extension theme elements. Named elements override
+  the defaults supplied by this function. Arguments in `...` support
+  dynamic dots.
 
 ## Value
 
@@ -48,8 +51,15 @@ Other ggplot2 themes:
 
 ``` r
 library(ggplot2)
-p <- ggplot(mtcars, aes(x = wt, y = mpg, colour = factor(cyl))) +
+set.seed(1)
+d <- data.frame(x = rnorm(40), y = rnorm(40),
+                batch = rep(c("A", "B"), each = 20),
+                group = rep(c("C", "D"), 20))
+p <- ggplot(d, aes(x, y, colour = group)) +
   geom_point()
 p + theme_sc()
+
+p + ggh4x::facet_nested(~ batch + group, nest_line = TRUE) +
+  theme_sc(ggh4x.facet.nestline = element_line(colour = "steelblue"))
 
 ```

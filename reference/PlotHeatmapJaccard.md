@@ -36,18 +36,23 @@ PlotHeatmapJaccard(
 
   A data.frame containing at least a group column and a name column.
   Rows with missing group labels or feature names do not contribute to
-  sets. Labelled columns use their class-defined missing values,
-  including SPSS user-missing codes, even in a fresh R session.
+  sets. Labelled and `integer64` columns use their class-defined missing
+  values, including SPSS user-missing codes, even in a fresh R session.
+  Interpreting these classes requires haven and bit64, respectively.
+  `Duration`, `Period` and `Interval` inputs require lubridate. Their
+  complete value components are retained for grouping and feature
+  matching.
 
 - group_col:
 
-  Column name for the grouping variable (e.g. cell type). Default
-  `"cell_type"`.
+  A single non-missing, non-empty grouping column name (e.g. cell type).
+  Default `"cell_type"`. Its character representation supplies matrix
+  and axis labels; the original values are retained for matching.
 
 - name_col:
 
-  Column name for the feature/gene names used to compute Jaccard
-  similarity. Default `"gene"`.
+  A single non-missing, non-empty feature/gene column name used to
+  compute Jaccard similarity. Default `"gene"`.
 
 - title:
 
@@ -56,7 +61,11 @@ PlotHeatmapJaccard(
 - group_levels:
 
   Character vector specifying the display order of groups on both axes.
-  `NULL` = factor levels (if factor) or data appearance order.
+  Non-missing entries must have unique character representations;
+  missing entries are ignored. Unobserved groups are retained as empty
+  sets. `NULL` = factor levels (if factor) or data appearance order.
+  Typed level vectors use class-defined missing values and the same
+  package requirements as `data`.
 
 - midpoint:
 
@@ -82,8 +91,8 @@ PlotHeatmapJaccard(
 
 - show_strip:
 
-  Logical. Whether to draw coloured annotation strips along the top (X
-  axis) and left (Y axis) of the heatmap. Default `FALSE`.
+  Logical. Whether to draw coloured annotation strips along the bottom
+  (X axis) and left (Y axis) of the heatmap. Default `FALSE`.
 
 - strip_colors:
 
@@ -136,6 +145,7 @@ Depends on `return_type`:
 
   A list with elements `plot` and `matrix`.
 
+Empty sets have similarity `0` to every group, including themselves.
 Returned plots retain heatmap inputs rather than the original data
 frame.
 

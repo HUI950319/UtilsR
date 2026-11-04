@@ -29,6 +29,9 @@ plt_sankey(
 
   A data frame. Only selected columns are retained in the plot's working
   data; unrelated columns do not increase the returned plot size.
+  Missing values form separate nodes; all input rows contribute to flows
+  and percentage denominators. SPSS user-missing codes and ranges are
+  converted to `NA` before categorization, requiring haven.
 
 - vars:
 

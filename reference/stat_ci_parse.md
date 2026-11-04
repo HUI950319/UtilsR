@@ -24,8 +24,10 @@ stat_ci_parse(
   `()` or `[]`; separators `,` `;` `-` `~` en/em dash or `to`; numbers
   may carry a sign or an exponent. Full-width punctuation, the Unicode
   minus and an en or em dash written as a minus sign before a number are
-  accepted. Trailing stars are ignored, other trailing text is dropped
-  with a warning, and `NA` / `""` pass through silently.
+  accepted. Whitespace, including non-breaking spaces, is allowed around
+  brackets and separators and at either end of the string. Trailing
+  stars are ignored, other trailing text is dropped with a warning, and
+  `NA` / whitespace-only strings pass through silently.
 
 - output:
 
@@ -65,9 +67,14 @@ stat_ci_parse(
 
 - digits:
 
-  Integer, decimal places for output. Default: the most decimals among
-  the estimate and its bounds, so `output = "ci"` without `level` does
-  not round the input; at least one with `level`.
+  A single finite integer from 0 to 8190, giving the decimal places for
+  output. Default: the most decimals among the estimate and its bounds,
+  so `output = "ci"` without `level` does not round the input; at least
+  one with `level`. Detected precision has the same upper limit. Each
+  formatted number must also fit within
+  [`sprintf()`](https://rdrr.io/r/base/sprintf.html)'s 8192-byte limit,
+  including the sign, integer part and decimal point; otherwise an error
+  is raised.
 
 - map_signif:
 
@@ -81,7 +88,7 @@ stat_ci_parse(
 ## Value
 
 Character vector (for ci/ci_p/ci_star/p_star) or numeric vector (for p),
-with the names of `x`.
+with the names of `x`, including for empty vectors.
 
 ## Details
 
@@ -132,6 +139,10 @@ Other stat formatting:
 ``` r
 # Basic: return CI as-is
 stat_ci_parse("1.23 (0.95, 1.59)")
+#> [1] "1.23 (0.95, 1.59)"
+
+# Whitespace pasted from manuscripts
+stat_ci_parse("\u00a01.23 ( 0.95, 1.59 )\u00a0", exp = TRUE)
 #> [1] "1.23 (0.95, 1.59)"
 
 # Extract p-value

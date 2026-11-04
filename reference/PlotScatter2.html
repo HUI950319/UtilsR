@@ -128,12 +128,12 @@ two-factor gene correlation plots.</p>
 
 
 <dt id="arg-colors">colors<a class="anchor" aria-label="anchor" href="#arg-colors"></a></dt>
-<dd><p>Named colour vector for <code>group</code> levels. NULL = auto palette
+<dd><p>Colour vector for <code>group</code> levels. NULL = auto palette
 (up to 12 groups); supply a complete mapping above this limit.</p></dd>
 
 
 <dt id="arg-shapes">shapes<a class="anchor" aria-label="anchor" href="#arg-shapes"></a></dt>
-<dd><p>Named shape vector for <code>group2</code> levels. NULL = auto
+<dd><p>Shape vector for <code>group2</code> levels. NULL = auto
 (up to 6 groups). Above 6 groups, supply both <code>shapes</code> and
 <code>fill_colors_shape</code> mappings.</p></dd>
 
@@ -152,7 +152,8 @@ NULL = auto (up to 6 groups).</p></dd>
 
 
 <dt id="arg-show-ellipse">show_ellipse<a class="anchor" aria-label="anchor" href="#arg-show-ellipse"></a></dt>
-<dd><p>Whether to draw group ellipses (based on <code>group</code>). Default FALSE.</p></dd>
+<dd><p>Whether to draw ellipses based on <code>group</code>,
+independently of <code>group2</code>. Default FALSE.</p></dd>
 
 
 <dt id="arg-show-cor">show_cor<a class="anchor" aria-label="anchor" href="#arg-show-cor"></a></dt>
@@ -177,7 +178,9 @@ Manual input overrides <code>show_cor</code> auto text.</p></dd>
 
 
 <dt id="arg-annot-pos">annot_pos<a class="anchor" aria-label="anchor" href="#arg-annot-pos"></a></dt>
-<dd><p>Annotation position c(x, y). NULL = auto top-left.</p></dd>
+<dd><p>Annotation position c(x, y). NULL = auto top-left using
+finite observations. An axis with no finite observations uses c(0, 1)
+as the reference range for automatic positioning.</p></dd>
 
 
 <dt id="arg-annot-size">annot_size<a class="anchor" aria-label="anchor" href="#arg-annot-size"></a></dt>
@@ -209,11 +212,13 @@ Manual input overrides <code>show_cor</code> auto text.</p></dd>
 
 
 <dt id="arg-legend-color-pos">legend_color_pos<a class="anchor" aria-label="anchor" href="#arg-legend-color-pos"></a></dt>
-<dd><p>Colour legend position. Default "none" (shown via marginal boxes).</p></dd>
+<dd><p>Colour legend position in the main plot, independent
+of the shape legend. Default "none" (shown via marginal boxes).</p></dd>
 
 
 <dt id="arg-legend-shape-pos">legend_shape_pos<a class="anchor" aria-label="anchor" href="#arg-legend-shape-pos"></a></dt>
-<dd><p>Shape legend position. Default c(0.15, 0.15).</p></dd>
+<dd><p>Shape legend position in the main plot. Default
+c(0.15, 0.15), inside the panel.</p></dd>
 
 
 <dt id="arg-layout-main">layout_main<a class="anchor" aria-label="anchor" href="#arg-layout-main"></a></dt>
@@ -246,8 +251,26 @@ Manual input overrides <code>show_cor</code> auto text.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>For single-group scatter with marginal boxplots, see [PlotScatter1()].
-For paired scatter with rotated histogram inset, see [PlotScatter3()].</p>
+    <p>Named <code>colors</code>, <code>shapes</code>, and <code>fill_colors_shape</code> vectors
+must cover every observed, non-missing level of their grouping variable.
+Unnamed vectors are matched in order of first appearance in <code>data</code>
+and must supply at least one value per observed level. Extra entries are
+accepted.</p>
+<p>Numeric axis values are preserved when a grouping column is also used
+on an axis.
+A column named <code>.data</code> may be used for an axis or grouping variable;
+displayed labels retain the requested column names.
+Grouping columns of class <code>integer64</code> require <span class="pkg">bit64</span> so their
+identifier labels remain exact.</p>
+<p>The bottom-right panel contains a fill legend for each grouping variable.
+These fill legends are independent of the global theme's legend visibility.
+Marginal numeric axes use the main plot's displayed ranges, including
+ellipses and annotations. Density estimates use the original observations;
+only their displayed ranges are zoomed.</p>
+<p>For single-group scatter with marginal boxplots, see
+<code><a href="PlotScatter1.html">PlotScatter1()</a></code>.
+For paired scatter with rotated histogram inset, see
+<code><a href="PlotScatter3.html">PlotScatter3()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

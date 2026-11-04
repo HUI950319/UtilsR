@@ -12,6 +12,10 @@ with three modes:
 - `"violin"`: mirrored violin plots comparing continuous distributions
   between two conditions.
 
+Plain numeric categories in bar mode use extra label precision when
+their usual character representations coincide. Use the displayed labels
+for custom category orders and named palettes.
+
 ## Usage
 
 ``` r
@@ -131,7 +135,9 @@ PlotButterfly(
   - A character vector of colours: used directly.
 
   In bar mode, colours map to `fill.by` levels. In violin mode, colours
-  map to each variable.
+  map to each variable. Named vectors match categories by name in both
+  panels. Unnamed vectors follow the category order and are recycled
+  when needed.
 
 - alpha:
 

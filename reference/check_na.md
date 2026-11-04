@@ -37,10 +37,11 @@ check_na(data, ..., pattern = NULL, special = NULL, show_all = FALSE)
 
   `NULL` (default) for the built-in special-value markers, or a
   character vector of regular expressions that replaces them. Patterns
-  are matched case-insensitively, with a Unicode-aware `\b`, anywhere in
-  each whitespace-normalized value; anchor them with `^...$` or `\b` as
-  needed. `character(0)` counts no special values, and empty strings
-  count only when a pattern matches them.
+  are matched independently and case-insensitively, with a Unicode-aware
+  `\b`, anywhere in each whitespace-normalized value; anchor them with
+  `^...$` or `\b` as needed. A value matching multiple patterns counts
+  once. `character(0)` counts no special values, and empty strings count
+  only when a pattern matches them.
 
 - show_all:
 

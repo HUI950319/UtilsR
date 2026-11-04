@@ -92,9 +92,14 @@ epidemiological group labels. For regrouping levels of a single factor
 A row is missing if any input is missing according to its
 [`is.na()`](https://rdrr.io/r/base/NA.html) method, including `NaN` and
 SPSS user-missing values and ranges. The literal string `"NA"` remains
-an ordinary category. If distinct combinations produce the same label,
-the function errors; choose a different `sep` or relabel the inputs to
-disambiguate them.
+an ordinary category. Non-factor inputs are sorted by value, with exact
+64-bit integer ordering for `integer64` vectors from bit64. They are
+grouped by their original values before conversion to text, so numeric
+formatting cannot silently merge distinct combinations. If distinct
+combinations produce the same label, the function errors; choose a
+different `sep` or relabel the inputs to disambiguate them. For numeric
+formatting collisions, format the values explicitly with enough
+precision before combining, for example using `sprintf("%.17g", x)`.
 
 Inside grouped or rowwise
 [`dplyr::mutate()`](https://dplyr.tidyverse.org/reference/mutate.html),

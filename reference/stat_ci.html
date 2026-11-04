@@ -77,8 +77,10 @@ CI mode (3 vectors) or SD mode (2 vectors) for numeric input.</p>
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>Numeric vector (estimate/mean) or character vector (CI strings to
-reformat). Trailing stars and a terminal period are ignored; other text
-after a parsed interval is dropped with a warning. Missing and
+reformat). Whitespace, including non-breaking spaces, is ignored around
+brackets and separators and at either end of the string. Trailing stars
+and a terminal period are ignored; other text after a parsed interval
+is dropped with a warning. Missing and
 whitespace-only strings pass through unchanged without a warning.</p></dd>
 
 
@@ -150,6 +152,10 @@ Only used in CI mode. Common choices: <code>"\u2013"</code>, <code>", "</code>, 
 <span class="r-in"><span><span class="fu">stat_ci</span><span class="op">(</span><span class="st">"1.23 [0.95\u20131.59]"</span>, sep <span class="op">=</span> <span class="st">" to "</span>, bracket <span class="op">=</span> <span class="st">"("</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "1.23 (0.95 to 1.59)"</span>
 <span class="r-in"><span><span class="co"># "1.23 (0.95 to 1.59)"</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Whitespace pasted from manuscripts</span></span></span>
+<span class="r-in"><span><span class="fu">stat_ci</span><span class="op">(</span><span class="st">"\u00a01.23 ( 0.95, 1.59 )\u00a0"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "1.23 (0.95–1.59)"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># --- In mutate() ---</span></span></span>
 <span class="r-in"><span><span class="co"># df %&gt;% mutate(ci = stat_ci(est, ci_low, ci_high))</span></span></span>

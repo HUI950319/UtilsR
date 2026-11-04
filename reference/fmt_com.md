@@ -119,10 +119,14 @@ data and mapping can be supplied explicitly through `...`; otherwise a
 complete plot-level source is used, then an unambiguous layer-level
 source. Multiple different layer sources require explicit `data` and
 `mapping`. Statistical data must be a data frame; callbacks and
-after-stat mappings are not supported. Missing panel-specific pairs are
-skipped. The backend evaluates tests on the layer data during plot
-building; scale transformations and scale limits affect the observations
-it receives.
+after-stat mappings are not supported. SPSS user-missing codes in mapped
+variables are treated as `NA`, including transformations of data
+columns. Missing comparison/subset groups are omitted from these
+statistics; rows with missing outcomes retain their positions for
+paired-test alignment. Original facet values are preserved. Missing
+panel-specific pairs are skipped. The backend evaluates tests on the
+layer data during plot building; scale transformations and scale limits
+affect the observations it receives.
 
 ## See also
 

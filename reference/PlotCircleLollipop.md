@@ -55,7 +55,9 @@ PlotCircleLollipop(
 
 - group_col:
 
-  Column name for the grouping variable. Default `"group"`.
+  Column name for the grouping variable. Default `"group"`. Distinct
+  values with coinciding character labels use higher precision and, if
+  needed, numeric suffixes to keep sectors and scaling separate.
 
 - name_col:
 
@@ -63,13 +65,20 @@ PlotCircleLollipop(
 
 - value_col:
 
-  Column name for the numeric scores. Default `"value"`.
+  Column name for the numeric scores. Default `"value"`. Numeric
+  character strings and factor labels (including ordered factors) are
+  parsed before ranking or scaling. Invalid non-missing labels are
+  rejected; existing missing scores are retained.
 
 - top_n:
 
-  Integer. If not `NULL`, keep only the top `top_n` features per group
-  ranked by `value_col` (descending). Applied before any plotting.
-  `NULL` = use all rows as-is.
+  A single non-negative whole number no greater than
+  `.Machine$integer.max`, or `NULL`. Keep this many features per group
+  ranked by the parsed numeric scores (descending), before plotting.
+  Integers and whole-valued doubles are accepted; character, logical and
+  factor counts, fractions, missing values and infinite values are
+  rejected. `NULL` uses all rows as-is. Zero selects no rows and raises
+  `"No observations to plot."`.
 
 - value_scale:
 
@@ -102,7 +111,8 @@ PlotCircleLollipop(
 
   Character vector controlling the display order of groups. `NULL` =
   data appearance order (or factor levels if already a factor). Must
-  include every observed group; unobserved levels are omitted.
+  include every observed group; unobserved levels are omitted. Use the
+  displayed labels when group labels require higher precision.
 
 - common_color:
 
@@ -234,26 +244,29 @@ restored and the chart's circlize state is cleared even if drawing
 fails. Saving closes its own device and restores the caller's current
 device.
 
+## See also
+
+[`PlotRank()`](https://hui950319.github.io/UtilsR/reference/PlotRank.md),
+[`PlotButterfly()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly.md)
+
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-library(ToyData)
-data(Toy_gene_importance)
+if (requireNamespace("circlize", quietly = TRUE)) {
+  set.seed(42)
+  example_data <- data.frame(
+    group = rep(c("Group A", "Group B"), each = 5),
+    name = rep(paste0("Feature", 1:5), 2),
+    value = runif(10)
+  )
+  PlotCircleLollipop(example_data, top_n = 3, show_labels = FALSE,
+                     show_yaxis = FALSE)
 
-# Basic circular lollipop (top 5 genes per cell type)
-PlotCircleLollipop(Toy_gene_importance,
-  group_col = "cell_type", name_col = "gene", value_col = "importance",
-  top_n = 5, yaxis_label = "Gene Importance (IG)")
+  # Factor labels are interpreted as scores, regardless of level order.
+  example_data$value <- factor(format(example_data$value, digits = 3))
+  PlotCircleLollipop(example_data, top_n = 3, value_scale = "group",
+                     show_labels = FALSE, show_yaxis = FALSE)
+}
 
-# Adjust inner circle and label size
-PlotCircleLollipop(Toy_gene_importance,
-  group_col = "cell_type", name_col = "gene", value_col = "importance",
-  top_n = 5, track_height = 0.25, label_cex = 0.45, label_height = 7)
 
-# Save to PDF
-PlotCircleLollipop(Toy_gene_importance,
-  group_col = "cell_type", name_col = "gene", value_col = "importance",
-  top_n = 10, filename = "circle_lollipop.pdf", width = 14, height = 14)
-} # }
 ```

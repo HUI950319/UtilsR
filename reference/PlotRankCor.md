@@ -67,9 +67,13 @@ PlotRankCor(
 
   Character. Column name for the grouping / faceting variable (e.g.
   comparison). Each level gets its own facet panel. If `NULL`, all data
-  is treated as a single group (no faceting). Missing groups are
-  retained as `"<NA>"`; a suffix distinguishes this label from existing
-  group names.
+  is treated as a single group (no faceting). Groups are identified by
+  their original values before conversion to discrete text labels, so
+  close numeric values remain separate. Suffixes distinguish groups with
+  identical text labels while preserving existing labels. Non-missing
+  factors retain their level order. Missing groups use `"<NA>"`, with
+  suffixes as needed to avoid existing labels. These labels also
+  identify rows in `cor_results` and named palette entries.
 
 - method.by:
 

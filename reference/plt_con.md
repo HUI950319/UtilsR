@@ -83,10 +83,12 @@ plt_con(
 
   Character. Column name for the x-axis grouping variable. Default
   `NULL` (all data in one group). Observed missing and empty-string
-  groups are retained, including in dot-plot counts. Date-time grouping,
-  splitting, and background categories retain their observed labels and
-  first-appearance order. Distinct numeric categories use extra label
-  precision when needed.
+  groups are retained, including in dot-plot counts. Date/time and
+  time-span grouping, splitting, and background categories retain their
+  observed labels and first-appearance order. Distinct stored time
+  values with identical display labels receive precise storage keys in
+  brackets. Distinct numeric categories use extra label precision when
+  needed.
 
 - split.by:
 

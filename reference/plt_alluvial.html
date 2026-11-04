@@ -85,7 +85,8 @@ optional facet is normalized independently.</p>
 
 
 <dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p>A data frame.</p></dd>
+<dd><p>A data frame. Selected columns must be one-dimensional; matrix,
+array, and data-frame columns are not supported.</p></dd>
 
 
 <dt id="arg-cat-var">cat_var<a class="anchor" aria-label="anchor" href="#arg-cat-var"></a></dt>
@@ -262,7 +263,9 @@ plot to PDF.</p>
 With <code>y_type = "count"</code>, gaps are scaled by the largest category total in
 each facet. Rows with missing values in required columns are removed with an
 informational message. Explicit NA factor levels and SPSS user-defined
-missing values are also treated as missing.</p>
+missing values are also treated as missing.
+Distinct non-factor values are kept separate when their character labels
+coincide: labels use higher precision and, if needed, numeric suffixes.</p>
     </div>
 
     <div class="section level2">

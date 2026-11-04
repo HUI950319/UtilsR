@@ -47,8 +47,10 @@ plt_dist(
 
   Character vector of 2 or 3 distinct, non-empty column names. Plain
   integer and double columns are treated as categories in numeric
-  ascending order in every mode; values are not binned. Labelled columns
-  (`haven_labelled`, also as `facet`) are converted with
+  ascending order in every mode; values are not binned. Distinct numeric
+  values remain separate; labels use up to 17 significant digits if
+  their default representations coincide (also for `facet`). Labelled
+  columns (`haven_labelled`, also as `facet`) are converted with
   [`labelled::to_factor()`](https://larmarange.github.io/labelled/reference/to_factor.html),
   so they show their value labels. Existing factors keep their level
   order. Character columns retain their existing ordering: first

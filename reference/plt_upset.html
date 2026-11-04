@@ -125,6 +125,12 @@ is a list.</p></dd>
 values as set members. Default <code>c("Yes", "yes")</code>.
 Missingness follows <code><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na()</a></code> on the original columns, including
 SPSS user-missing values; methods for serialized classed columns are loaded.
+For exact time membership, supply <code>levels</code> of the same time class as
+the column. Date and time values retain fractional precision;
+<code>POSIXct</code> and <code>POSIXlt</code> can be mixed across time zones, and
+<code>difftime</code> units are normalized to seconds. Lubridate periods use
+calendar components, and intervals use their start and length.
+Character <code>levels</code> retain their usual matching behavior.
 Ignored when <code>data</code> is a list.</p></dd>
 
 

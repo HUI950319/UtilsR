@@ -86,9 +86,10 @@ fmt_point(
   including expressions. Existing facet variables add separate strata.
   Sampling takes at most `sample_n` points **per group**; missing group
   values form a separate group. Continuous color/fill mappings do not
-  define sampling groups. Sampling requires scalar fixed aesthetics; put
-  external row vectors into `data` and map its columns instead. Default
-  `NULL` (no sampling).
+  define sampling groups. Numeric group and facet values remain distinct
+  even when their printed labels coincide. Sampling requires scalar
+  fixed aesthetics; put external row vectors into `data` and map its
+  columns instead. Default `NULL` (no sampling).
 
 - seed:
 

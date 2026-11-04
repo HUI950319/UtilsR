@@ -7,8 +7,9 @@ with three modes:
     Each fill.by level is drawn as a separate bar instead of stacked.
 "violin": mirrored violin plots comparing continuous
     distributions between two conditions.
-
-'><meta property="og:description" content='Create a butterfly chart (also known as a tornado or back-to-back chart)
+Plain numeric categories in bar mode use extra label precision when their
+usual character representations coincide. Use the displayed labels for
+custom category orders and named palettes.'><meta property="og:description" content='Create a butterfly chart (also known as a tornado or back-to-back chart)
 with three modes:
 "bar": stacked horizontal bar chart (e.g. Risk vs Protective
     counts across two groups).
@@ -16,8 +17,9 @@ with three modes:
     Each fill.by level is drawn as a separate bar instead of stacked.
 "violin": mirrored violin plots comparing continuous
     distributions between two conditions.
-
-'><meta property="og:image" content="https://hui950319.github.io/UtilsR/logo.png"></head><body>
+Plain numeric categories in bar mode use extra label precision when their
+usual character representations coincide. Use the displayed labels for
+custom category orders and named palettes.'><meta property="og:image" content="https://hui950319.github.io/UtilsR/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -75,7 +77,10 @@ with three modes:</p><ul><li><p><code>"bar"</code>: stacked horizontal bar chart
     Each <code>fill.by</code> level is drawn as a separate bar instead of stacked.</p></li>
 <li><p><code>"violin"</code>: mirrored violin plots comparing continuous
     distributions between two conditions.</p></li>
-</ul></div>
+</ul><p>Plain numeric categories in bar mode use extra label precision when their
+usual character representations coincide. Use the displayed labels for
+custom category orders and named palettes.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
@@ -190,7 +195,9 @@ as <code>data.left</code>.</p></dd>
     <code><a href="pal_get.html">pal_get()</a></code>.</p></li>
 <li><p>A character vector of colours: used directly.</p></li>
 </ul><p>In bar mode, colours map to <code>fill.by</code> levels.
-In violin mode, colours map to each variable.</p></dd>
+In violin mode, colours map to each variable.
+Named vectors match categories by name in both panels. Unnamed vectors
+follow the category order and are recycled when needed.</p></dd>
 
 
 <dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>

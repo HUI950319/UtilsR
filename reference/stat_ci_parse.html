@@ -78,8 +78,10 @@ Brackets <code>()</code> or <code>[]</code>; separators <code>,</code> <code>;</
 <code>-</code> <code>~</code> en/em dash or <code>to</code>; numbers may carry a sign or
 an exponent. Full-width punctuation, the Unicode minus and an en or em
 dash written as a minus sign before a number are accepted.
+Whitespace, including non-breaking spaces, is allowed around brackets
+and separators and at either end of the string.
 Trailing stars are ignored, other trailing text is dropped with a
-warning, and <code>NA</code> / <code>""</code> pass through silently.</p></dd>
+warning, and <code>NA</code> / whitespace-only strings pass through silently.</p></dd>
 
 
 <dt id="arg-output">output<a class="anchor" aria-label="anchor" href="#arg-output"></a></dt>
@@ -115,10 +117,13 @@ explicitly whenever the effect measure is known. See Details.</p></dd>
 
 
 <dt id="arg-digits">digits<a class="anchor" aria-label="anchor" href="#arg-digits"></a></dt>
-<dd><p>Integer, decimal places for output. Default: the most
-decimals among the estimate and its bounds, so <code>output = "ci"</code>
+<dd><p>A single finite integer from 0 to 8190, giving the decimal
+places for output. Default: the most decimals among the estimate and its
+bounds, so <code>output = "ci"</code>
 without <code>level</code> does not round the input; at least one with
-<code>level</code>.</p></dd>
+<code>level</code>. Detected precision has the same upper limit. Each formatted
+number must also fit within <code><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf()</a></code>'s 8192-byte limit, including
+the sign, integer part and decimal point; otherwise an error is raised.</p></dd>
 
 
 <dt id="arg-map-signif">map_signif<a class="anchor" aria-label="anchor" href="#arg-map-signif"></a></dt>
@@ -133,7 +138,7 @@ Only used when <code>output</code> is <code>"ci_star"</code> or <code>"p_star"</
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Character vector (for ci/ci_p/ci_star/p_star) or numeric vector
-  (for p), with the names of <code>x</code>.</p>
+  (for p), with the names of <code>x</code>, including for empty vectors.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -180,6 +185,10 @@ are not the p-value of the original test.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Basic: return CI as-is</span></span></span>
 <span class="r-in"><span><span class="fu">stat_ci_parse</span><span class="op">(</span><span class="st">"1.23 (0.95, 1.59)"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "1.23 (0.95, 1.59)"</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Whitespace pasted from manuscripts</span></span></span>
+<span class="r-in"><span><span class="fu">stat_ci_parse</span><span class="op">(</span><span class="st">"\u00a01.23 ( 0.95, 1.59 )\u00a0"</span>, exp <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "1.23 (0.95, 1.59)"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Extract p-value</span></span></span>

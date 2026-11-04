@@ -30,7 +30,8 @@ plt_alluvial(
 
 - data:
 
-  A data frame.
+  A data frame. Selected columns must be one-dimensional; matrix, array,
+  and data-frame columns are not supported.
 
 - cat_var:
 
@@ -219,6 +220,8 @@ inserted. With `y_type = "count"`, gaps are scaled by the largest
 category total in each facet. Rows with missing values in required
 columns are removed with an informational message. Explicit NA factor
 levels and SPSS user-defined missing values are also treated as missing.
+Distinct non-factor values are kept separate when their character labels
+coincide: labels use higher precision and, if needed, numeric suffixes.
 
 ## Examples
 

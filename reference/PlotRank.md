@@ -66,7 +66,10 @@ PlotRank(
 - group_col:
 
   Column name for the grouping variable (e.g. cell type). Default
-  `"cell_type"`. Ignored for vector / matrix input.
+  `"cell_type"`. Ignored for vector / matrix input. Distinct grouping
+  values must have unique character labels. Values with identical labels
+  (for example, very close numeric values) are rejected; explicitly
+  assign unique character labels before plotting.
 
 - name_col:
 
@@ -92,12 +95,14 @@ PlotRank(
 
 - top_n:
 
-  Integer. Number of top-ranked features to highlight per group. Default
-  `5`.
+  Single finite non-negative integer. Number of top-ranked features to
+  highlight per group. Default `5`; `0` highlights no features.
+  Fractional values are rejected instead of truncated.
 
 - max_show:
 
-  Integer. Maximum features to display per panel. Default `200`.
+  Single finite positive integer. Maximum features to display per panel.
+  Default `200`. Fractional values are rejected instead of truncated.
 
 - value_scale:
 
@@ -153,7 +158,10 @@ PlotRank(
 
 - ncol:
 
-  Integer. Number of columns in faceted layout. Default `4`.
+  Single finite positive integer. Number of columns in faceted layout.
+  Default `4`; `NULL` uses an automatic layout. Invalid values are
+  rejected for both single-panel and faceted inputs. Must be within the
+  faceting backend's supported whole-number range.
 
 - clean_names:
 
@@ -197,27 +205,57 @@ Depends on `return_type`:
 
   A list with elements `plot` and `data`.
 
+## See also
+
+[`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+for comparing ranks from two methods.
+
+Other plot:
+[`PlotButterfly()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly.md),
+[`PlotButterfly2()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly2.md),
+[`PlotCircleLollipop()`](https://hui950319.github.io/UtilsR/reference/PlotCircleLollipop.md),
+[`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md),
+[`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md),
+[`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md),
+[`plt_dist()`](https://hui950319.github.io/UtilsR/reference/plt_dist.md),
+[`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md),
+[`plt_upset()`](https://hui950319.github.io/UtilsR/reference/plt_upset.md)
+
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-library(ToyData)
-data(Toy_gene_importance)
+set.seed(42)
+scores <- setNames(runif(12), paste0("Gene", seq_len(12)))
 
-# Faceted rank scatter (all cell types)
-PlotRank(Toy_gene_importance, top_n = 10, ncol = 4, ylab = "Gene Importance (IG)")
+# Highlight three of the eight displayed features
+rank_plot <- PlotRank(scores, top_n = 3, max_show = 8)
+rank_plot
 
-# Single cell type
-PlotRank(Toy_gene_importance, groups = "Parathyroid cells", top_n = 15)
 
-# With value scaling
-PlotRank(Toy_gene_importance, top_n = 10, value_scale = "group")
+# Return ranked data without highlighting features
+ranked_data <- PlotRank(scores, top_n = 0, max_show = 5, return_type = "data")
+ranked_data
+#>        Group Rank     Score  Label IsTop
+#> Gene2    All    1 0.9370754  Gene2 FALSE
+#> Gene1    All    2 0.9148060  Gene1 FALSE
+#> Gene4    All    3 0.8304476  Gene4 FALSE
+#> Gene7    All    4 0.7365883  Gene7 FALSE
+#> Gene12   All    5 0.7191123 Gene12 FALSE
 
-# Pathway scores matrix
-PlotRank(pred$pathway_scores, top_n = 10, ylab = "Pathway Score")
+# Rank two groups with automatic faceting and full-range scaling
+score_matrix <- matrix(runif(24), nrow = 12,
+                       dimnames = list(names(scores), c("Group A", "Group B")))
+ranked_groups <- PlotRank(score_matrix, top_n = 3, max_show = 8,
+                         value_scale = "group", ncol = NULL,
+                         return_type = "both")
+ranked_groups$plot
 
-# Named numeric vector
-scores <- setNames(runif(100), paste0("Gene", 1:100))
-PlotRank(scores, top_n = 10)
-} # }
+head(ranked_groups$data)
+#>          Group Rank     Score  Label IsTop
+#> Gene9  Group A    1 1.0000000  Gene9  TRUE
+#> Gene3  Group A    2 0.9882340  Gene3  TRUE
+#> Gene10 Group A    3 0.9534191 Gene10  TRUE
+#> Gene2  Group A    4 0.9460787  Gene2 FALSE
+#> Gene7  Group A    5 0.9063821  Gene7 FALSE
+#> Gene6  Group A    6 0.5272138  Gene6 FALSE
 ```

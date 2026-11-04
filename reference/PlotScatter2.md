@@ -69,13 +69,13 @@ PlotScatter2(
 
 - colors:
 
-  Named colour vector for `group` levels. NULL = auto palette (up to 12
+  Colour vector for `group` levels. NULL = auto palette (up to 12
   groups); supply a complete mapping above this limit.
 
 - shapes:
 
-  Named shape vector for `group2` levels. NULL = auto (up to 6 groups).
-  Above 6 groups, supply both `shapes` and `fill_colors_shape` mappings.
+  Shape vector for `group2` levels. NULL = auto (up to 6 groups). Above
+  6 groups, supply both `shapes` and `fill_colors_shape` mappings.
 
 - fill_colors_shape:
 
@@ -92,7 +92,8 @@ PlotScatter2(
 
 - show_ellipse:
 
-  Whether to draw group ellipses (based on `group`). Default FALSE.
+  Whether to draw ellipses based on `group`, independently of `group2`.
+  Default FALSE.
 
 - show_cor:
 
@@ -117,7 +118,9 @@ PlotScatter2(
 
 - annot_pos:
 
-  Annotation position c(x, y). NULL = auto top-left.
+  Annotation position c(x, y). NULL = auto top-left using finite
+  observations. An axis with no finite observations uses c(0, 1) as the
+  reference range for automatic positioning.
 
 - annot_size:
 
@@ -149,11 +152,13 @@ PlotScatter2(
 
 - legend_color_pos:
 
-  Colour legend position. Default "none" (shown via marginal boxes).
+  Colour legend position in the main plot, independent of the shape
+  legend. Default "none" (shown via marginal boxes).
 
 - legend_shape_pos:
 
-  Shape legend position. Default c(0.15, 0.15).
+  Shape legend position in the main plot. Default c(0.15, 0.15), inside
+  the panel.
 
 - layout_main:
 
@@ -185,8 +190,28 @@ A patchwork object (combined plot).
 
 ## Details
 
-For single-group scatter with marginal boxplots, see \[PlotScatter1()\].
-For paired scatter with rotated histogram inset, see \[PlotScatter3()\].
+Named `colors`, `shapes`, and `fill_colors_shape` vectors must cover
+every observed, non-missing level of their grouping variable. Unnamed
+vectors are matched in order of first appearance in `data` and must
+supply at least one value per observed level. Extra entries are
+accepted.
+
+Numeric axis values are preserved when a grouping column is also used on
+an axis. A column named `.data` may be used for an axis or grouping
+variable; displayed labels retain the requested column names. Grouping
+columns of class `integer64` require bit64 so their identifier labels
+remain exact.
+
+The bottom-right panel contains a fill legend for each grouping
+variable. These fill legends are independent of the global theme's
+legend visibility. Marginal numeric axes use the main plot's displayed
+ranges, including ellipses and annotations. Density estimates use the
+original observations; only their displayed ranges are zoomed.
+
+For single-group scatter with marginal boxplots, see
+[`PlotScatter1()`](https://hui950319.github.io/UtilsR/reference/PlotScatter1.md).
+For paired scatter with rotated histogram inset, see
+[`PlotScatter3()`](https://hui950319.github.io/UtilsR/reference/PlotScatter3.md).
 
 ## See also
 

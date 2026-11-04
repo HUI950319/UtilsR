@@ -119,11 +119,13 @@ PCoA/NMDS ordination or gene correlation visualisation.</p>
 
 
 <dt id="arg-group">group<a class="anchor" aria-label="anchor" href="#arg-group"></a></dt>
-<dd><p>Column name for the grouping variable.</p></dd>
+<dd><p>Column name for the grouping variable. May also be <code>x</code> or
+<code>y</code>; grouping uses a separate factor without changing axis values.</p></dd>
 
 
 <dt id="arg-group-levels">group_levels<a class="anchor" aria-label="anchor" href="#arg-group-levels"></a></dt>
-<dd><p>Group order. NULL = data order.</p></dd>
+<dd><p>Group order. NULL preserves existing factor levels or
+uses data order for other grouping variables.</p></dd>
 
 
 <dt id="arg-colors">colors<a class="anchor" aria-label="anchor" href="#arg-colors"></a></dt>
@@ -268,8 +270,10 @@ DPI (for ggrastr). Default <code>512</code>.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>For dual-group scatter with separate marginal panels, see [PlotScatter2()].
-For paired scatter with rotated histogram inset, see [PlotScatter3()].</p>
+    <p>For dual-group scatter with separate marginal panels, see
+<code><a href="PlotScatter2.html">PlotScatter2()</a></code>.
+For paired scatter with rotated histogram inset, see
+<code><a href="PlotScatter3.html">PlotScatter3()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

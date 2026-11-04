@@ -65,7 +65,9 @@ PlotDumbbell(
 - data:
 
   A data.frame containing category, start, and end columns. Generated
-  delta fields are kept separate from existing column names.
+  delta fields are kept separate from existing column names. Input
+  columns do not override legend labels or dot-guide origins. Integer
+  differences outside R's integer range are retained as doubles.
 
 - x_col:
 
@@ -91,8 +93,9 @@ PlotDumbbell(
 
 - top_n:
 
-  Integer. Show only top N categories after sorting. Default `NULL`
-  (show all).
+  A single finite integer-valued number. Retain the last N categories
+  after sorting. Default `NULL` (show all). Non-positive values and
+  values at least as large as the row count also show all.
 
 - color_x:
 
@@ -105,7 +108,8 @@ PlotDumbbell(
 - label_x:
 
   Label for start points (used in legend and auto inset). Default `NULL`
-  (column name).
+  (column name). Endpoints remain distinct even when both display labels
+  are identical.
 
 - label_xend:
 
@@ -229,7 +233,8 @@ PlotDumbbell(
 - inset_type:
 
   Type of auto-generated inset: `"boxplot"` (default) or `"violin"`.
-  Only used when `inset_plot = "auto"`.
+  Only used when `inset_plot = "auto"`; unsupported values are rejected
+  in that mode.
 
 - inset_test:
 

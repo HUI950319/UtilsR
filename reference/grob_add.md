@@ -44,6 +44,21 @@ grob_add(
 
 A gtable object with the grob added at the specified position.
 
+## Details
+
+Top and bottom additions span the full width of the panel area; left and
+right additions span its full height, including all facets. The main
+gtable must contain a panel area unless `position = "none"` or `grob` is
+`NULL`.
+
+Successive additions remain aligned to the main panel area.
+
+Panel names beginning with `"panel"` are preferred. For custom gtables
+without this prefix, names containing `"panel"` are used.
+
+Fixed aspect ratio constraints in the main gtable are retained when
+margin rows or columns are added.
+
 ## See also
 
 Other grob utilities:
@@ -54,11 +69,12 @@ Other grob utilities:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
 library(ggplot2)
-main <- ggplot(mtcars, aes(wt, mpg)) + geom_point()
-side <- ggplot(mtcars, aes(x = wt)) + geom_density()
+data <- data.frame(x = 1:12, y = rep(c(2, 4, 1, 6, 3, 5), 2),
+                   group = rep(c("A", "B"), each = 6))
+main <- ggplot(data, aes(x, y)) + geom_point() + facet_wrap(~group)
+side <- ggplot(data, aes(x)) + geom_density()
 gt <- grob_add(main, grob_as(side), position = "top")
 grid::grid.draw(gt)
-} # }
+
 ```

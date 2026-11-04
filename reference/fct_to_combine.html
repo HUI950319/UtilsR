@@ -159,8 +159,14 @@ single factor (the dual operation), see <code><a href="fct_to_group.html">fct_to
 <p>A row is missing if any input is missing according to its <code><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na()</a></code>
 method, including <code>NaN</code> and SPSS user-missing values and ranges.
 The literal string <code>"NA"</code> remains an ordinary category.
+Non-factor inputs are sorted by value, with exact 64-bit integer ordering
+for <code>integer64</code> vectors from <span class="pkg">bit64</span>. They are grouped by their
+original values before conversion to text, so numeric formatting cannot
+silently merge distinct combinations.
 If distinct combinations produce the same label, the function errors;
-choose a different <code>sep</code> or relabel the inputs to disambiguate them.</p>
+choose a different <code>sep</code> or relabel the inputs to disambiguate them.
+For numeric formatting collisions, format the values explicitly with enough
+precision before combining, for example using <code>sprintf("%.17g", x)</code>.</p>
 <p>Inside grouped or rowwise <code><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">dplyr::mutate()</a></code>, combinations are computed
 separately for each group. When dplyr combines the results, their level
 order may differ from whole-data ordering and change the first level used
