@@ -701,3 +701,27 @@ test_that("raw correlations and scaling preserve small differences around an off
     expect_identical(data, before)
   }
 })
+
+test_that("empty method labels keep valid plot columns and exact pairings", {
+  method_types <- list(c("", "M2"), c("M2", ""), c("", ".method"),
+                       ordered(c("", ".method"), levels = c("", "unused", ".method")))
+  for (ranked in c(TRUE, FALSE)) {
+    data <- rank_cor_data(); data$score <- c(4, 3, 2, 1, 4, 2, 3, 1)
+    reference <- quiet_rank_cor(data, use_rank = ranked)
+    expected <- ggplot2::ggplot_build(reference)$data[[1L]]
+    for (methods in method_types) {
+      data$method <- methods[rep(1:2, each = 4)]
+      before <- data
+      p <- quiet_rank_cor(data, use_rank = ranked)
+      points <- ggplot2::ggplot_build(p)$data[[1L]]
+      expect_equal(points$x, expected$x)
+      expect_equal(points$y, expected$y)
+      expect_equal(attr(p, "cor_results"), attr(reference, "cor_results"))
+      expect_equal(sum(nzchar(names(p$data))), ncol(p$data))
+      suffix <- if (ranked) " (rank)" else " (value)"
+      expect_identical(p$labels$x, paste0(as.character(methods[1]), suffix))
+      expect_identical(p$labels$y, paste0(as.character(methods[2]), suffix))
+      expect_identical(data, before)
+    }
+  }
+})

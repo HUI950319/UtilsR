@@ -66,7 +66,8 @@ Must have exactly 2 observed, non-missing values. Methods are identified
 by their original values before conversion to text labels; suffixes
 distinguish identical labels. Factor levels determine their order;
 other vectors use first appearance. The first maps to the x-axis and
-the second to the y-axis.}
+the second to the y-axis.
+Empty strings are valid method labels and are distinct from missing values.}
 
 \item{use_rank}{Logical. If \code{TRUE} (default), plot ranks and compute
 Spearman correlation. If \code{FALSE}, plot raw values and compute

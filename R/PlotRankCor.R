@@ -37,6 +37,7 @@
 #'   distinguish identical labels. Factor levels determine their order;
 #'   other vectors use first appearance. The first maps to the x-axis and
 #'   the second to the y-axis.
+#'   Empty strings are valid method labels and are distinct from missing values.
 #' @param use_rank Logical. If \code{TRUE} (default), plot ranks and compute
 #'   Spearman correlation. If \code{FALSE}, plot raw values and compute
 #'   Pearson correlation.
@@ -329,7 +330,9 @@ PlotRankCor <- function(
   pivot_data[[plot_value]] <- vapply(pivot_groups$loc, function(idx) mean(values[idx], na.rm = TRUE), numeric(1))
 
   # Pivot to wide: one column per method
-  method_cols <- tail(make.unique(c(stat.by, group.by_internal, extra_cols, methods)), 2L)
+  method_names <- methods
+  method_names[!nzchar(method_names)] <- ".method"
+  method_cols <- tail(make.unique(c(stat.by, group.by_internal, extra_cols, method_names)), 2L)
   id_cols <- unique(c(stat.by, group.by_internal))
   pair_id <- vctrs::vec_group_id(pivot_data[id_cols])
   rank_wide <- pivot_data[!duplicated(pair_id), id_cols, drop = FALSE]
