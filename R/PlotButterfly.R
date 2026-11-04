@@ -57,8 +57,10 @@
 #'   }
 #'   In bar mode, colours map to \code{fill.by} levels.
 #'   In violin mode, colours map to each variable.
-#'   Named vectors match categories by name in both panels. Unnamed vectors
-#'   follow the category order and are recycled when needed.
+#'   Named vectors match categories by name in both panels. Duplicate names
+#'   are rejected. Missing categories use the grey fill and trigger a warning.
+#'   Supplied colours are validated. Unnamed vectors follow category order
+#'   and are recycled when needed.
 #' @param alpha Numeric 0--1. Fill transparency. Default 0.85.
 #' @param bar.width Numeric. Bar width (bar mode). Default 0.7.
 #' @param bar.border Character. Bar border colour. Default \code{"black"}.
@@ -201,15 +203,23 @@ PlotButterfly <- function(
   type <- match.arg(type)
 
   # ---- Resolve palette helper ----
-  .resolve_cols <- function(n) {
-    if (is.null(palette)) {
-      cols <- as.character(pal_lancet[seq_len(min(n, length(pal_lancet)))])
-    } else if (length(palette) == 1L && palette %in% names(palette_list)) {
-      cols <- as.character(pal_get(palette, n = n))
-    } else {
-      cols <- stats::setNames(as.character(palette), names(palette))
+  .resolve_cols <- function(categories) {
+    palette_names <- names(palette)
+    if (is.null(palette_names)) {
+      return(.resolve_color(palette, n = length(categories)))
     }
-    if (is.null(names(cols)) && length(cols) < n) cols <- rep_len(cols, n)
+    if (anyNA(palette_names) || (any(!nzchar(palette_names)) && !"" %in% categories)) {
+      cli::cli_abort("Named {.arg palette} must use non-missing category names.")
+    }
+    duplicates <- unique(palette_names[duplicated(palette_names)])
+    if (length(duplicates)) {
+      cli::cli_abort("Named {.arg palette} has duplicate names: {.val {duplicates}}.")
+    }
+    cols <- .resolve_color_values(palette, "palette")
+    missing <- setdiff(categories, palette_names)
+    if (length(missing)) {
+      cli::cli_warn("Named {.arg palette} is missing colours for {.val {missing}}. These categories use grey.")
+    }
     cols
   }
 
@@ -283,8 +293,7 @@ PlotButterfly <- function(
       data[[fill.by]] <- factor(data[[fill.by]], levels = unique(data[[fill.by]]))
     }
 
-    n_fill <- nlevels(data[[fill.by]])
-    cols <- .resolve_cols(n_fill)
+    cols <- .resolve_cols(base::levels(data[[fill.by]]))
     if (is.null(xlab)) xlab <- value.by
 
     # Titles from group levels
@@ -429,7 +438,7 @@ PlotButterfly <- function(
     long_right$Variable <- factor(long_right$Variable, levels = var_order)
 
     nvar <- length(var_order)
-    cols <- .resolve_cols(nvar)
+    cols <- .resolve_cols(var_order)
 
     # Per-variable y-axis label colours
     if (is.null(text.colors)) text.colors <- rep("black", nvar)

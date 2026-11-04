@@ -94,8 +94,10 @@ as \code{data.left}.}
 }
 In bar mode, colours map to \code{fill.by} levels.
 In violin mode, colours map to each variable.
-Named vectors match categories by name in both panels. Unnamed vectors
-follow the category order and are recycled when needed.}
+Named vectors match categories by name in both panels. Duplicate names
+are rejected. Missing categories use the grey fill and trigger a warning.
+Supplied colours are validated. Unnamed vectors follow category order
+and are recycled when needed.}
 
 \item{alpha}{Numeric 0--1. Fill transparency. Default 0.85.}
 

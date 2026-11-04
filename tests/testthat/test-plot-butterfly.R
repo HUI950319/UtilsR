@@ -249,10 +249,10 @@ test_that("PlotButterfly matches partial and extended palettes by name", {
   expected <- list(c("red", "blue"), c("red", "grey50"))
   for (type in c("bar", "bar_dodge", "violin")) {
     for (j in seq_along(palettes)) {
-      plot <- butterfly_without_text_warning(PlotButterfly(data,
+      expect_warning(plot <- butterfly_without_text_warning(PlotButterfly(data,
         stat.by = "stat", fill.by = "fill", value.by = "value", group.by = "group",
         type = type, data.left = wide, data.right = wide, palette = palettes[[j]],
-        add_box = FALSE))
+        add_box = FALSE)), if (j == 2L) "palette.*missing.*B" else NA)
       for (i in 1:2) {
         built <- ggplot2::ggplot_build(plot[[i]])
         expect_identical(built$plot$scales$get_scales("fill")$map(c("A", "B")), expected[[j]])
@@ -260,6 +260,18 @@ test_that("PlotButterfly matches partial and extended palettes by name", {
       }
     }
   }
+})
+
+test_that("PlotButterfly rejects ambiguous palette names and invalid colours", {
+  data <- expand.grid(stat = "S", fill = c("A", "B"), group = c("L", "R"))
+  data$value <- seq_len(nrow(data))
+  draw <- function(palette) PlotButterfly(data, stat.by = "stat", fill.by = "fill",
+    value.by = "value", group.by = "group", palette = palette)
+  expect_error(draw(c(A = "red", A = "green", B = "blue")), "duplicate.*A")
+  expect_error(draw(c(A = "lancet")), "palette.*invalid colours")
+  expect_error(draw(character()), "non-empty[[:space:]]+colour[[:space:]]+vector")
+  expect_identical(ggplot2::ggplot_build(draw("lancet")[[1]])$data[[1]]$fill,
+                   pal_get("lancet", n = 2L))
 })
 
 test_that("PlotButterfly2 matches named point palettes in both beeswarm types", {

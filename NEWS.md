@@ -2,6 +2,8 @@
 
 * PlotDumbbell() and PlotScatter3() validate themes with the shared resolver. Automatic dumbbell insets reuse the main theme unless a separate theme is supplied.
 
+* `PlotButterfly()` uses the shared colour resolver, checks duplicate palette names, and warns about categories that use the grey fallback.
+
 * plt_dist() follows ggplot2's registered default text size when the plot and current themes omit base text.
 
 * Interpret single named colours as literals in plt_alluvial() and PlotRankCor(), including when a subset retains one group.
