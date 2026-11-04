@@ -43,7 +43,9 @@
 #'   places for output. Default: the most decimals among the estimate and its
 #'   bounds, so \code{output = "ci"}
 #'   without \code{level} does not round the input; at least one with
-#'   \code{level}.
+#'   \code{level}. Detected precision has the same upper limit. Each formatted
+#'   number must also fit within \code{sprintf()}'s 8192-byte limit, including
+#'   the sign, integer part and decimal point; otherwise an error is raised.
 #' @param map_signif Named numeric vector for star thresholds.
 #'   Default: \code{c("***" = 0.001, "**" = 0.01, "*" = 0.05)}.
 #'   Thresholds must be finite, non-missing values between 0 and 1, with
@@ -221,9 +223,20 @@ stat_ci_parse <- function(x,
   pval <- ifelse(valid, 2 * pnorm(-abs(z)), NA_real_)   # no underflow to 0
 
   # --- Rebuild the CI string in its original bracket/separator style ---
+  d[!valid] <- 0L
+  if (any(!is.finite(d) | d < 0 | d > 8190L)) {
+    cli::cli_abort("The detected {.arg digits} must be between 0 and 8190.")
+  }
   fmt <- function(v) {
     v <- round(v, d)
     v[which(v == 0)] <- 0             # -0 would print as "-0.00"
+    if (any(d > 7881L)) {
+      at <- which(is.finite(v) & d > 7881L)
+      widths <- nchar(sprintf("%.0f", trunc(v[at])))
+      if (any(widths + 1L + d[at] > 8192L)) {
+        cli::cli_abort("{.arg digits} exceeds the 8192-byte limit for a formatted number.")
+      }
+    }
     sprintf("%.*f", d, v)
   }
   ci_str <- ifelse(valid,
@@ -294,7 +307,7 @@ stat_ci_parse <- function(x,
   dec <- lapply(g[c(1, 3, 5)], function(s) {
     ex <- ifelse(grepl("[eE]", s), sub("^.*[eE]", "", s), "0")
     nchar(sub("^[-+]?\\d*\\.?", "", sub("[eE].*$", "", s), perl = TRUE)) -
-      as.integer(ex)
+      as.numeric(ex)
   })
   d[hit] <- pmax(dec[[1]], dec[[2]], dec[[3]], 0L)   # most precise number
   unit[hit, ] <- 10^-do.call(cbind, dec)

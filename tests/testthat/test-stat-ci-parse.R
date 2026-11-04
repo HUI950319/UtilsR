@@ -210,6 +210,35 @@ test_that("non-finite and excessive digits fail before coercion or empty returns
   }
 })
 
+test_that("precision respects the formatted-number byte limit", {
+  expect_no_warning(positive <- stat_ci_parse("1 (0, 2)", digits = 8190, exp = FALSE))
+  expect_identical(nchar(positive), 24581L)
+  expect_match(positive, "^1\\.0+ \\(0\\.0+, 2\\.0+\\)$")
+  expect_no_warning(negative <- stat_ci_parse("-1 (-2, 0)", digits = 8189, exp = FALSE))
+  expect_identical(nchar(negative), 24580L)
+  expect_match(negative, "^-1\\.0+ \\(-2\\.0+, 0\\.0+\\)$")
+  expect_no_warning(large <- stat_ci_parse("1e308 (8e307, 1.2e308)",
+    digits = 7882, exp = FALSE))
+  expect_identical(nchar(large), 24580L)
+
+  for (case in list(list("-1 (-2, 0)", 8190),
+                   list("1e308 (8e307, 1.2e308)", 7883),
+                   list("-1e308 (-1.2e308, -8e307)", 7882))) {
+    expect_no_warning(expect_error(stat_ci_parse(case[[1]], digits = case[[2]],
+      exp = FALSE), "digits.*8192-byte"))
+  }
+})
+
+test_that("excessive detected precision fails without integer coercion warnings", {
+  for (x in c("1 (0e-8191, 2)", "1 (0e-2147483648, 2)")) {
+    expect_no_warning(expect_error(stat_ci_parse(x, exp = FALSE), "detected.*digits"))
+  }
+  expect_no_warning(out <- stat_ci_parse("1 (0e-8190, 2)", exp = FALSE))
+  expect_identical(nchar(out), 24581L)
+  expect_warning(invalid <- stat_ci_parse("9 (0e-8191, 2)", exp = FALSE), "invalid")
+  expect_identical(invalid, "9 (0e-8191, 2)")
+})
+
 test_that("star outputs share the stat_pval significance map contract", {
   x <- c(a = "2.00 (1.00, 3.00)", b = "0.00 (-1.00, 1.00)")
   p <- stat_ci_parse(x, output = "p", exp = FALSE)

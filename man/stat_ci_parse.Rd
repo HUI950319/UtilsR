@@ -43,7 +43,9 @@ explicitly whenever the effect measure is known. See Details.}
 places for output. Default: the most decimals among the estimate and its
 bounds, so \code{output = "ci"}
 without \code{level} does not round the input; at least one with
-\code{level}.}
+\code{level}. Detected precision has the same upper limit. Each formatted
+number must also fit within \code{sprintf()}'s 8192-byte limit, including
+the sign, integer part and decimal point; otherwise an error is raised.}
 
 \item{map_signif}{Named numeric vector for star thresholds.
 Default: \code{c("***" = 0.001, "**" = 0.01, "*" = 0.05)}.
