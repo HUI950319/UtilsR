@@ -36,7 +36,9 @@
 #'   variable being imputed.
 #' @param verbose Logical. If \code{TRUE}, report the variables being imputed.
 #'
-#' @details Numeric variables use distance-weighted means. Labelled variables
+#' @details Numeric variables use distance-weighted means. If a weighted sum
+#'   overflows, finite donor values are rescaled before averaging to keep the
+#'   imputed mean finite. Labelled variables
 #'   retain categorical treatment, and VIM's categorical and ordered
 #'   aggregators are retained for ordinary finite weights. Previously imputed
 #'   values participate in subsequent distance calculations, so column order
@@ -213,8 +215,17 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     weights
   }
   weighted_mean <- function(x, weights = NULL, ...) {
+    weights <- distance_weights(weights)
     value <- if (is.null(weights)) mean(x, na.rm = TRUE) else
-      stats::weighted.mean(x, w = distance_weights(weights), na.rm = TRUE)
+      stats::weighted.mean(x, w = weights, na.rm = TRUE)
+    if (!is.finite(value) && length(x) > 0L && all(is.finite(x))) {
+      # Preserve ordinary means and integer truncation unless a sum overflows.
+      scale <- max(abs(x))
+      scaled <- if (is.null(weights)) mean(x / scale, na.rm = TRUE) else
+        stats::weighted.mean(x / scale, w = weights, na.rm = TRUE)
+      # Roundoff must not push the scaled mean beyond the finite donor bound.
+      value <- max(-1, min(1, scaled)) * scale
+    }
     if (is.integer(x)) as.integer(value) else value
   }
   weighted_category <- function(x, weights = NULL) {

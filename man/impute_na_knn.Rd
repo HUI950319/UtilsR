@@ -48,7 +48,9 @@ and intervals, complex vectors and raw vectors require explicit conversion
 before imputation.
 }
 \details{
-Numeric variables use distance-weighted means. Labelled variables
+Numeric variables use distance-weighted means. If a weighted sum
+overflows, finite donor values are rescaled before averaging to keep the
+imputed mean finite. Labelled variables
 retain categorical treatment, and VIM's categorical and ordered
 aggregators are retained for ordinary finite weights. Previously imputed
 values participate in subsequent distance calculations, so column order

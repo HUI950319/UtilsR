@@ -57,6 +57,52 @@ test_that("impute_na_knn performs weighted numeric imputation", {
   expect_identical(result$helper, dat$helper)
 })
 
+test_that("impute_na_knn keeps weighted means of finite large donors finite", {
+  skip_if_not_installed("VIM")
+  bound <- .Machine$double.xmax
+  cases <- list(
+    list(values = rep(bound, 3), expected = bound),
+    list(values = rep(-bound, 3), expected = -bound),
+    list(values = c(bound, bound / 2, bound), expected = 0.75 * bound)
+  )
+  for (case in cases) {
+    dat <- data.frame(value = c(case$values, NA_real_), helper = c(0, 1, 2, 1))
+    before <- dat
+    expect_no_warning(result <- impute_na_knn(dat, k = 3, verbose = FALSE))
+    expect_equal(result$value[4], case$expected)
+    expect_identical(is.finite(result$value), rep(TRUE, 4))
+    expect_identical(result$value[1:3], dat$value[1:3])
+    expect_identical(result$helper, dat$helper)
+    expect_identical(dat, before)
+  }
+})
+
+test_that("impute_na_knn keeps equal-weight means of finite large donors finite", {
+  skip_if_not_installed("VIM")
+  for (sign in c(1, -1)) {
+    dat <- data.frame(value = sign * c(1.2e308, 1.6e308, NA_real_),
+                      helper = factor(c("A", "A", "B")))
+    expect_no_warning(result <- impute_na_knn(dat, k = 2, verbose = FALSE))
+    expect_equal(result$value[3], sign * 1.4e308)
+    expect_identical(is.finite(result$value), rep(TRUE, 3))
+    expect_identical(result$value[1:2], dat$value[1:2])
+    expect_identical(result$helper, dat$helper)
+  }
+})
+
+test_that("impute_na_knn handles overflowing mixed-sign donor sums", {
+  skip_if_not_installed("VIM")
+  for (sign in c(1, -1)) {
+    bound <- .Machine$double.xmax
+    dat <- data.frame(value = sign * c(bound, bound, bound, -bound, NA_real_),
+                      helper = c(0, 1, 2, 3, 1))
+    expect_no_warning(result <- impute_na_knn(dat, k = 4, verbose = FALSE))
+    expect_equal(result$value[5], sign * (0.75 * bound))
+    expect_identical(is.finite(result$value), rep(TRUE, 5))
+    expect_identical(result$value[1:4], dat$value[1:4])
+  }
+})
+
 test_that("impute_na_knn preserves numeric and character value labels", {
   skip_if_not_installed("VIM")
 
