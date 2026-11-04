@@ -30,10 +30,15 @@
 #'   time-span storage; convert such values explicitly before formatting.
 #'   Matrix and array inputs are not supported.
 #'   A logical vector is accepted only when all its elements are missing.
+#'   For SPSS vectors of class \code{haven_labelled_spss}, user-missing codes
+#'   and defined missing ranges are treated as missing before formatting or
+#'   star annotation. This requires the optional \pkg{haven} package, including
+#'   for vectors restored from a serialized file.
 #' @param add_star_p Numeric vector of p-values for star annotation. When provided,
 #'   stars are appended to \code{x} based on these p-values.
 #'   Missing values in \code{x} remain missing; a missing P-value leaves
 #'   non-missing text unchanged.
+#'   SPSS user-missing values are treated as missing, as described for \code{x}.
 #'   Observed P-values must be finite and between 0 and 1.
 #'   Matrix and array inputs are not supported.
 #'   An entirely missing logical vector is also accepted.
@@ -95,6 +100,17 @@ stat_pval <- function(x,
     arg <- if (is.null(add_star_p)) "x" else "add_star_p"
     cli::cli_abort("{.arg {arg}} must use ordinary numeric values, not integer64, date, date-time, or time-span storage.")
   }
+
+  .normalize_spss <- function(value) {
+    if (!inherits(value, "haven_labelled_spss")) return(value)
+    if (!requireNamespace("haven", quietly = TRUE)) {
+      cli::cli_abort("Interpreting SPSS user-missing values requires package {.pkg haven}.")
+    }
+    # Normalize missing codes before comparisons or character conversion.
+    vctrs::vec_data(haven::zap_missing(value))
+  }
+  x <- .normalize_spss(x)
+  add_star_p <- .normalize_spss(add_star_p)
 
   .validate_p <- function(p, arg) {
     if (any(!is.na(p) & (!is.finite(p) | p < 0 | p > 1))) {

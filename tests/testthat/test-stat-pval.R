@@ -363,3 +363,195 @@ test_that("P-value bounds must describe a possible value", {
   }
   expect_identical(stat_pval("<0", add_star_p = .01), "<0**")
 })
+
+test_that("SPSS numeric formatting handles discrete and ranged missing values", {
+  skip_if_not_installed("haven")
+  x <- haven::labelled_spss(
+    c(small = .0003, lower = .02, middle = .03, upper = .04, large = .5,
+      code = 99, missing = NA_real_, nan = NaN, tagged = haven::tagged_na("a")),
+    labels = c(Small = .0003, Missing = 99),
+    na_values = 99, na_range = c(.02, .04)
+  )
+  before <- serialize(x, NULL)
+  for (mode in c("stars", "pvalue", "plain")) {
+    small <- switch(mode, stars = "<0.001***", pvalue = "<0.001", plain = "0.00")
+    large <- if (mode == "plain") "0.50" else "0.500"
+    expect_identical(stat_pval(x, mode = mode),
+                     c(small = small, lower = NA_character_, middle = NA_character_,
+                       upper = NA_character_, large = large, code = NA_character_,
+                       missing = NA_character_, nan = NA_character_, tagged = NA_character_))
+  }
+  expect_identical(serialize(x, NULL), before)
+})
+
+test_that("SPSS P-values leave observed text unchanged when user-missing", {
+  skip_if_not_installed("haven")
+  p <- haven::labelled_spss(c(.01, .02, .03, .04, .5, 99, NA_real_,
+                            haven::tagged_na("a")),
+                          na_values = 99, na_range = c(.02, .04))
+  x <- setNames(c("HR", "RR", "OR", "MD", NA, "SD", "AUC", "C"),
+                paste0("effect", seq_along(p)))
+  before <- serialize(list(x, p), NULL)
+  expect_identical(stat_pval(x, add_star_p = p),
+                   setNames(c("HR**", "RR", "OR", "MD", NA, "SD", "AUC", "C"), names(x)))
+  expect_identical(serialize(list(x, p), NULL), before)
+})
+
+test_that("SPSS display values stay missing when ordinary P-values add stars", {
+  skip_if_not_installed("haven")
+  x <- haven::labelled_spss(c(a = 1.5, b = .02, c = .03, d = .04, e = 99,
+                            f = NA_real_, g = NaN, h = haven::tagged_na("a")),
+                          na_values = 99, na_range = c(.02, .04))
+  before <- serialize(x, NULL)
+  expect_identical(stat_pval(x, add_star_p = rep(.01, length(x))),
+                   c(a = "1.5**", b = NA_character_, c = NA_character_,
+                     d = NA_character_, e = NA_character_, f = NA_character_,
+                     g = NA_character_, h = NA_character_))
+  expect_identical(serialize(x, NULL), before)
+})
+
+test_that("SPSS character missing codes are removed before parsing or annotation", {
+  skip_if_not_installed("haven")
+  x <- haven::labelled_spss(
+    c(exact = "0.05", code = "missing", bound = "<0.001", absent = NA_character_,
+      nan = "NaN", empty = ""), na_values = c("missing", "")
+  )
+  before <- serialize(x, NULL)
+  for (mode in c("stars", "pvalue", "plain")) {
+    exact <- switch(mode, stars = "0.050*", pvalue = "0.050", plain = "0.05")
+    expect_identical(stat_pval(x, mode = mode),
+                     c(exact = exact, code = NA_character_, bound = "<0.001",
+                       absent = NA_character_, nan = NA_character_, empty = NA_character_))
+  }
+  expect_identical(stat_pval(x, add_star_p = rep(.01, length(x))),
+                   c(exact = "0.05**", code = NA_character_, bound = "<0.001**",
+                     absent = NA_character_, nan = "NaN**", empty = NA_character_))
+  expect_identical(serialize(x, NULL), before)
+})
+
+test_that("empty and entirely missing SPSS vectors retain their return contract", {
+  skip_if_not_installed("haven")
+  for (x in list(haven::labelled_spss(numeric(), na_values = 99),
+                 haven::labelled_spss(character(), na_values = "missing"))) {
+    for (mode in c("stars", "pvalue", "plain")) {
+      expect_identical(stat_pval(x, mode = mode), character())
+    }
+    expect_identical(stat_pval(x, add_star_p = numeric()), character())
+  }
+  x <- haven::labelled_spss(c(a = .01, b = .02, c = 99, d = NA_real_),
+                          na_values = c(.01, 99), na_range = c(.02, .04))
+  for (mode in c("stars", "pvalue", "plain")) {
+    expect_identical(stat_pval(x, mode = mode), setNames(rep(NA_character_, 4), names(x)))
+  }
+  expect_identical(stat_pval(rep("HR", 4), add_star_p = x), rep("HR", 4))
+  expect_identical(stat_pval(x, add_star_p = x), setNames(rep(NA_character_, 4), names(x)))
+})
+
+test_that("SPSS metadata does not hide invalid observed P-values or controls", {
+  skip_if_not_installed("haven")
+  x <- haven::labelled_spss(c(.02, 1.2), na_values = .02)
+  for (mode in c("stars", "pvalue")) {
+    expect_error(stat_pval(x, mode = mode), "between 0 and 1")
+  }
+  expect_identical(stat_pval(x, mode = "plain"), c(NA_character_, "1.20"))
+  expect_error(stat_pval(c("HR", "RR"), add_star_p = x), "between 0 and 1")
+  expect_error(stat_pval(.01, digits = haven::labelled_spss(3)), "digits")
+  expect_error(stat_pval(.01, map_signif = haven::labelled_spss(c("*" = .05))), "map_signif")
+  expect_error(stat_pval("HR", add_star_p = haven::labelled_spss("missing", na_values = "missing")),
+               "numeric")
+})
+
+test_that("SPSS normalization reports an unavailable optional dependency", {
+  x <- structure(c(.01, 99), class = c("haven_labelled_spss", "haven_labelled"), na_values = 99)
+  fn <- stat_pval
+  isolated <- new.env(parent = environment(fn))
+  isolated$requireNamespace <- function(package, quietly = FALSE) FALSE
+  environment(fn) <- isolated
+  expect_error(fn(x), "requires package.*haven")
+  expect_error(fn(c("HR", "RR"), add_star_p = x), "requires package.*haven")
+  expect_identical(fn(.01), "0.010**")
+  expect_identical(fn("HR", add_star_p = .01), "HR**")
+})
+
+# Avoid preloading UtilsR's Imports, which would register haven's S3 methods.
+stat_pval_in_fresh_r <- function(args) {
+  files <- c(script = tempfile(fileext = ".R"), input = tempfile(fileext = ".rds"),
+             output = tempfile(fileext = ".rds"))
+  on.exit(unlink(files), add = TRUE)
+  isolated <- new.env(parent = baseenv())
+  isolated$stat_pval <- stat_pval
+  isolated$.validate_signif_map <- get(".validate_signif_map", envir = environment(stat_pval))
+  isolated$`%||%` <- function(x, y) if (is.null(x)) y else x
+  for (name in ls(isolated, all.names = TRUE)) environment(isolated[[name]]) <- isolated
+  saveRDS(list(fn = isolated$stat_pval, args = args, libs = .libPaths()), files[["input"]])
+  writeLines(c(
+    "local({",
+    "  args <- commandArgs(TRUE)",
+    "  fixture <- readRDS(args[[1L]])",
+    "  .libPaths(fixture[['libs']])",
+    "  loaded_before <- 'haven' %in% loadedNamespaces()",
+    "  before <- serialize(fixture[['args']], NULL)",
+    "  error <- NULL",
+    "  value <- tryCatch(do.call(fixture[['fn']], fixture[['args']]),",
+    "                    error = function(e) { error <<- conditionMessage(e); NULL })",
+    "  saveRDS(list(loaded_before = loaded_before, error = error, value = value,",
+    "               unchanged = identical(before, serialize(fixture[['args']], NULL))),",
+    "          args[[2L]])",
+    "})"
+  ), files[["script"]])
+  executable <- file.path(R.home("bin"), if (.Platform$OS.type == "windows") "Rscript.exe" else "Rscript")
+  previous_tests <- Sys.getenv("R_TESTS", unset = NA_character_)
+  Sys.unsetenv("R_TESTS")
+  on.exit(if (is.na(previous_tests)) Sys.unsetenv("R_TESTS") else
+    Sys.setenv(R_TESTS = previous_tests), add = TRUE)
+  output <- system2(executable, c("--vanilla", shQuote(files[["script"]]),
+                                 shQuote(files[["input"]]), shQuote(files[["output"]])),
+                    stdout = TRUE, stderr = TRUE)
+  if (!is.null(attr(output, "status")) || !file.exists(files[["output"]])) {
+    stop(paste(output, collapse = "\n"))
+  }
+  readRDS(files[["output"]])
+}
+
+test_that("serialized SPSS annotation P-values work before haven is loaded", {
+  skip_if_not_installed("haven")
+  p <- haven::labelled_spss(c(.01, .02, 99, NA_real_), na_values = c(.02, 99))
+  result <- stat_pval_in_fresh_r(list(x = c(a = "HR", b = "RR", c = "OR", d = "MD"),
+                                     add_star_p = p))
+  expect_identical(result$loaded_before, FALSE)
+  expect_null(result$error)
+  expect_identical(result$value, c(a = "HR**", b = "RR", c = "OR", d = "MD"))
+  expect_identical(result$unchanged, TRUE)
+})
+
+test_that("serialized SPSS numeric inputs work in every mode before haven is loaded", {
+  skip_if_not_installed("haven")
+  x <- haven::labelled_spss(
+    c(small = .0003, lower = .02, middle = .03, upper = .04, large = .5,
+      code = 99, missing = NA_real_, nan = NaN, tagged = haven::tagged_na("a")),
+    na_values = 99, na_range = c(.02, .04)
+  )
+  for (mode in c("stars", "pvalue", "plain")) {
+    result <- stat_pval_in_fresh_r(list(x = x, mode = mode))
+    small <- switch(mode, stars = "<0.001***", pvalue = "<0.001", plain = "0.00")
+    large <- if (mode == "plain") "0.50" else "0.500"
+    expect_identical(result$loaded_before, FALSE)
+    expect_null(result$error)
+    expect_identical(result$value,
+                     c(small = small, lower = NA_character_, middle = NA_character_,
+                       upper = NA_character_, large = large, code = NA_character_,
+                       missing = NA_character_, nan = NA_character_, tagged = NA_character_))
+    expect_identical(result$unchanged, TRUE)
+  }
+})
+
+test_that("serialized SPSS display text keeps user-missing values missing", {
+  skip_if_not_installed("haven")
+  x <- haven::labelled_spss(c(a = "HR", b = "missing", c = NA_character_, d = "RR"),
+                          na_values = "missing")
+  result <- stat_pval_in_fresh_r(list(x = x, add_star_p = c(.01, .01, .01, NA)))
+  expect_identical(result$loaded_before, FALSE)
+  expect_null(result$error)
+  expect_identical(result$value, c(a = "HR**", b = NA_character_, c = NA_character_, d = "RR"))
+  expect_identical(result$unchanged, TRUE)
+})

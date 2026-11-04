@@ -34,12 +34,17 @@ not restricted to that range.
 Numeric input must not use \code{integer64}, date, date-time, or
 time-span storage; convert such values explicitly before formatting.
 Matrix and array inputs are not supported.
-A logical vector is accepted only when all its elements are missing.}
+A logical vector is accepted only when all its elements are missing.
+For SPSS vectors of class \code{haven_labelled_spss}, user-missing codes
+and defined missing ranges are treated as missing before formatting or
+star annotation. This requires the optional \pkg{haven} package, including
+for vectors restored from a serialized file.}
 
 \item{add_star_p}{Numeric vector of p-values for star annotation. When provided,
 stars are appended to \code{x} based on these p-values.
 Missing values in \code{x} remain missing; a missing P-value leaves
 non-missing text unchanged.
+SPSS user-missing values are treated as missing, as described for \code{x}.
 Observed P-values must be finite and between 0 and 1.
 Matrix and array inputs are not supported.
 An entirely missing logical vector is also accepted.}
