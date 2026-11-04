@@ -954,6 +954,23 @@ test_that("plt_cat resolves numeric membership against precise category labels",
   }
 })
 
+test_that("plt_cat matches mixed integer64 selectors without lossy conversion", {
+  skip_if_not_installed("ggupset")
+  skip_if_not_installed("bit64")
+  withr::local_options(lifecycle_verbosity = "quiet")
+  ids <- bit64::as.integer64(c("1000000000000000", "1000000000000001", "1000000000000001"))
+  draw <- function(a, target) {
+    d <- data.frame(A = a, B = c(FALSE, TRUE, FALSE))
+    cat_test_plot(d, c("A", "B"), type = "upset",
+                  stat_level = list(A = target, B = TRUE))
+  }
+  expect_equal(draw(ids, 1e15)$data$intersection, list("A", "B"))
+  expect_equal(draw(c(1e15, 2, 2), ids[1])$data$intersection, list("A", "B"))
+  expect_error(draw(ids, 1.9), "stat_level.*integer64.*loss")
+  expect_error(draw(c(2^53, 2, 2), bit64::as.integer64("9007199254740993")),
+               "stat_level.*integer64.*loss")
+})
+
 test_that("plt_cat does not match a rounded numeric label as an exact value", {
   skip_if_not_installed("ggupset")
   withr::local_options(lifecycle_verbosity = "quiet")

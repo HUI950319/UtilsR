@@ -10,13 +10,15 @@
 
 * Escape malformed colour text in `pal_get()` diagnostics and avoid edit-distance warnings on invalid input.
 
+* `plt_cat()` matches numeric and integer64 selectors across storage types only when conversion preserves the exact value.
+
+* `plt_cat()` retains the positive level of logical and No/Yes sets when only negative observations are present.
+
 * Parse numeric colour strings once before integer colour lookup, avoiding native overflow on rounding boundaries.
 
 * PlotScatter1() validates themes with the shared resolver, which can forward arguments to theme factories used by plotting callers.
 
 # UtilsR 0.6.22
-
-* `plt_cat()` retains the positive level of logical and No/Yes sets when only negative observations are present.
 
 * `pal_show()` wraps large requested colour counts within the HTML catalogue count column.
 

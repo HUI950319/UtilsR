@@ -119,7 +119,8 @@
 #'   An unnamed vector supplies one shared value or one value per selected
 #'   column in order. Named vectors and named lists match column names and
 #'   must cover exactly the selected columns. Numeric and time values are
-#'   matched before label formatting. Supply time values in a list.
+#'   matched before label formatting. Mixed \code{integer64} and numeric
+#'   selections require lossless conversion. Supply time values in a list.
 #' @param title Character. Plot title, or overall title for split figures.
 #'   Default \code{NULL}.
 #' @param subtitle Character. Plot subtitle, or overall subtitle for split
@@ -480,6 +481,8 @@ plt_cat <- function(data,
                                         time = TRUE, class = time_class,
                                         units = attr(x, "units"))
         }
+      } else if (track_identity && inherits(x, "integer64")) {
+        numeric_labels[[col]] <- list(integer64 = TRUE)
       } else if ((is.double(x) || is.complex(x) || (track_identity && is.integer(x))) &&
           (!is.object(x) || identical(class(x), "AsIs") || inherits(x, "haven_labelled"))) {
         raw <- unclass(x)
@@ -868,14 +871,37 @@ plt_cat <- function(data,
 .resolve_stat_level <- function(data, stat.by, stat_level, numeric_labels = list(),
                                 na_levels = character(), auto_levels = list()) {
   default_positive <- c(TRUE, "TRUE", "Yes", "yes", 1, "1")
+  selectors <- if (is.list(stat_level)) stat_level else list(stat_level)
+  if (any(vapply(selectors, inherits, logical(1L), "integer64")) &&
+      !requireNamespace("bit64", quietly = TRUE)) {
+    cli::cli_abort("Matching {.cls integer64} values in {.arg stat_level} requires package {.pkg bit64}.")
+  }
+  lossy_integer64 <- function(column) {
+    cli::cli_abort("{.arg stat_level} for {.val {column}} cannot match {.cls integer64} without loss of precision.")
+  }
   as_label <- function(values, column) {
     map <- numeric_labels[[column]]
     if (is.null(map)) return(as.character(values))
+    numeric_selector <- (is.numeric(values) || is.complex(values)) &&
+      (!is.object(values) || identical(class(values), "AsIs") || inherits(values, "haven_labelled"))
+    if (isTRUE(map$integer64)) {
+      if (!numeric_selector) return(as.character(values))
+      if (is.complex(values)) lossy_integer64(column)
+      key <- as.double(values)
+      if (any(!is.finite(key) | key != trunc(key) | key <= -2^63 | key >= 2^63)) {
+        lossy_integer64(column)
+      }
+      return(as.character(bit64::as.integer64(key)))
+    }
     if (isTRUE(map$time) && inherits(values, map$class)) {
       key <- .cat_time_key(values, units = map$units)
-    } else if (!isTRUE(map$time) && (is.numeric(values) || is.complex(values)) &&
-               (!is.object(values) || identical(class(values), "AsIs") ||
-                inherits(values, "haven_labelled"))) {
+    } else if (!isTRUE(map$time) && inherits(values, "integer64")) {
+      key <- suppressWarnings(as.double(values))
+      if (any(!is.finite(key) | key <= -2^63 | key >= 2^63) ||
+          !identical(as.character(bit64::as.integer64(key)), as.character(values))) {
+        lossy_integer64(column)
+      }
+    } else if (!isTRUE(map$time) && numeric_selector) {
       key <- unclass(values)
     } else {
       return(as.character(values))
@@ -898,7 +924,7 @@ plt_cat <- function(data,
       if (!any(!is.na(vals) & !vals %in% na_levels[s])) return(character())
       if (!is.null(auto_levels[[s]])) return(auto_levels[[s]])
       map <- numeric_labels[[s]]
-      positives <- if (!is.null(map) && !isTRUE(map$time)) {
+      positives <- if (!is.null(map) && !isTRUE(map$time) && !isTRUE(map$integer64)) {
         map$labels[map$values %in% 1]
       } else default_positive
       hits <- vals[vals %in% positives]
