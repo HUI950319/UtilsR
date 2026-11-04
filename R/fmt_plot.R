@@ -3892,10 +3892,11 @@ drawDetails.axis_tile_strip <- function(x, recording) {
 #' Multiple different layer sources require explicit \code{data} and
 #' \code{mapping}. Statistical data must be a data frame; callbacks and
 #' after-stat mappings are not supported. SPSS user-missing codes in mapped
-#' variables are treated as \code{NA}, including transformations of data columns.
-#' Missing comparison/subset groups are omitted from these statistics; rows with
-#' missing outcomes retain their positions for paired-test alignment. Original
-#' facet values are preserved. Missing panel-specific pairs are skipped.
+#' variables are treated as \code{NA} before transformations of data columns or
+#' environment vectors. Missing comparison/subset groups are omitted from these
+#' statistics; rows with missing outcomes retain their positions for paired-test
+#' alignment. Original facet values are preserved. Missing panel-specific pairs
+#' are skipped.
 #' The backend evaluates tests on the layer data during plot building;
 #' scale transformations and scale limits affect the observations it receives.
 #'
@@ -4087,13 +4088,62 @@ fmt_com <- function(plot,
     mapped_data <- source_data
     for (column in names(mapped_data)[spss_columns])
       mapped_data[[column]] <- zap_spss(mapped_data[[column]])
+    spss_env <- FALSE
+    clean_binding <- function(name, env) {
+      if (!exists(name, envir = parent.env(env), inherits = TRUE)) return(invisible(NULL))
+      value <- get(name, envir = parent.env(env), inherits = TRUE)
+      if (inherits(value, "haven_labelled_spss")) {
+        value <- zap_spss(value)
+      } else if (is.data.frame(value)) {
+        columns <- vapply(value, inherits, logical(1), "haven_labelled_spss")
+        if (!any(columns)) return(invisible(NULL))
+        for (column in names(value)[columns]) value[[column]] <- zap_spss(value[[column]])
+      } else return(invisible(NULL))
+      env[[name]] <- value
+      spss_env <<- TRUE
+    }
+    clean_expr <- function(expr, env) {
+      if (rlang::is_quosure(expr)) return(clean_quosure(expr))
+      if (inherits(expr, "haven_labelled_spss")) {
+        spss_env <<- TRUE
+        return(zap_spss(expr))
+      }
+      if (rlang::is_symbol(expr)) {
+        name <- rlang::as_string(expr)
+        if (!name %in% c(".data", ".env", names(mapped_data))) clean_binding(name, env)
+        return(expr)
+      }
+      if (!is.call(expr)) return(expr)
+      if (rlang::is_call(expr, c("$", "@"))) {
+        if (rlang::is_symbol(expr[[2L]], ".env")) {
+          clean_binding(rlang::as_string(expr[[3L]]), env)
+        } else expr[[2L]] <- clean_expr(expr[[2L]], env)
+        return(expr)
+      }
+      if (rlang::is_call(expr, "[[") && rlang::is_symbol(expr[[2L]], ".env")) {
+        name <- rlang::eval_tidy(expr[[3L]], data = mapped_data, env = parent.env(env))
+        if (rlang::is_string(name)) clean_binding(name, env)
+        return(expr)
+      }
+      if (is.call(expr[[1L]])) expr[[1L]] <- clean_expr(expr[[1L]], env)
+      for (i in seq_along(expr)[-1L]) {
+        if (!rlang::is_missing(expr[[i]])) expr[[i]] <- clean_expr(expr[[i]], env)
+      }
+      expr
+    }
+    clean_quosure <- function(quo) {
+      if (!rlang::is_quosure(quo)) return(quo)
+      env <- rlang::child_env(rlang::get_env(quo))
+      rlang::new_quosure(clean_expr(rlang::get_expr(quo), env), env)
+    }
     stat_mapping <- list(x = source_mapping$x, y = source_mapping$y)
     if (grouped) stat_mapping$group <- group_quo
     mapped_values <- lapply(stat_mapping, function(quo) {
-      tryCatch(rlang::eval_tidy(quo, data = mapped_data),
+      tryCatch(rlang::eval_tidy(clean_quosure(quo), data = mapped_data),
         error = function(e) cli::cli_abort("Cannot resolve the comparison mapping.", parent = e))
     })
-    if (any(spss_columns) || any(vapply(mapped_values, inherits, logical(1), "haven_labelled_spss"))) {
+    if (any(spss_columns) || spss_env ||
+        any(vapply(mapped_values, inherits, logical(1), "haven_labelled_spss"))) {
       for (name in names(mapped_values)) {
         value <- zap_spss(mapped_values[[name]])
         if (!length(value) %in% c(1L, nrow(source_data)))

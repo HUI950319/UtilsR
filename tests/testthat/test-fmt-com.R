@@ -336,6 +336,56 @@ test_that("SPSS outcomes mapped from an environment omit user-missing values", {
   expect_identical(outcome, original)
 })
 
+test_that("SPSS environment vectors are normalized before mapping transformations", {
+  skip_if_not_installed("haven")
+  d <- data.frame(x = rep(c("A", "B"), each = 6))
+  outcome <- haven::labelled_spss(c(1, 2, 3, 4, 5, 99, 2, 3, 4, 7, 8, 9),
+                                 na_values = 99)
+  external <- data.frame(outcome = outcome)
+  original <- outcome
+  original_external <- external
+  twice <- function(z) z * 2
+  stage <- function(z) z * 2
+  key <- "outcome"
+  nested <- rlang::quo(.env$outcome)
+  mappings <- list(ggplot2::aes(x, .env$outcome * 2),
+                    ggplot2::aes(x, outcome * 2),
+                    ggplot2::aes(x, .env[[key]] * 2),
+                    ggplot2::aes(x, .env$external$outcome * 2),
+                    ggplot2::aes(x, .env$external[, "outcome"] * 2),
+                    ggplot2::aes(x, .env$twice(.env$outcome)),
+                    ggplot2::aes(x, (function(z) z * 2)(.env$outcome)),
+                    ggplot2::aes(x, 1 + stage(.env$outcome)),
+                    ggplot2::aes(x, (!!nested) * 2),
+                    ggplot2::aes(x, (!!outcome) * 2))
+  expected <- signif(stats::t.test(1:5, c(2, 3, 4, 7, 8, 9))$p.value, 3)
+  for (mapping in mappings) {
+    p <- ggplot2::ggplot(d, mapping) + ggplot2::geom_point()
+    q <- fmt_com(p, method = "t_test", na.rm = TRUE)
+    s <- unique(ggplot2::ggplot_build(q)$data[[2]][, c("n1", "n2", "p")])
+    expect_equal(s$n1, 5L)
+    expect_equal(s$n2, 6L)
+    expect_equal(s$p, expected)
+    expect_identical(p$data, d)
+  }
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, log(.env$outcome))) + ggplot2::geom_point()
+  expected_log <- signif(stats::t.test(log(1:5), log(c(2, 3, 4, 7, 8, 9)))$p.value, 3)
+  expect_equal(com_stat(fmt_com(p, method = "t_test", na.rm = TRUE))$p, expected_log)
+  with_stage <- d
+  with_stage$stage <- outcome
+  p <- ggplot2::ggplot(with_stage, ggplot2::aes(x, 1 + stage * 2)) +
+    ggplot2::geom_point()
+  expect_equal(com_stat(fmt_com(p, method = "t_test", na.rm = TRUE))$p, expected)
+  expect_identical(p$data, with_stage)
+  shadowed <- d
+  shadowed$outcome <- as.numeric(outcome)
+  p <- ggplot2::ggplot(shadowed, ggplot2::aes(x, outcome * 2)) + ggplot2::geom_point()
+  expected_plain <- signif(stats::t.test(outcome ~ x, data = shadowed)$p.value, 3)
+  expect_equal(com_stat(fmt_com(p, method = "t_test", na.rm = TRUE))$p, expected_plain)
+  expect_identical(outcome, original)
+  expect_identical(external, original_external)
+})
+
 test_that("SPSS missing comparison groups are omitted within grouped subsets", {
   skip_if_not_installed("haven")
   d <- expand.grid(subject = 1:6, g = c("A", "B", "missing"),
