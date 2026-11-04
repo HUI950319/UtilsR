@@ -1,5 +1,7 @@
 # UtilsR 0.6.22
 
+* Validate long, highly repetitive literal colour vectors in `pal_get()` once per distinct value and retain the original order of invalid entries.
+
 * Preserve vector HEX formatting in `pal_get()` when a near-opaque alpha rounds to fully opaque and repeated numeric values share a colour.
 
 * Use a repetition probe to avoid revalidating the same colour in long, highly repetitive input vectors.

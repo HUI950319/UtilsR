@@ -552,17 +552,18 @@ test_that("pal_get excludes explicit missing factor levels", {
   expect_named(pal_get("lancet", x = literal_na), "NA")
 })
 
-test_that("pal_get validates long colour vectors without changing diagnostics", {
-  cols <- rep(c("ReD", "light blue", "#F00", "#00F8", "transparent"), 200L)
+test_that("pal_get validates long repeated colour vectors without changing diagnostics", {
+  cols <- rep(c("ReD", "light blue", "#F00", "#00F8", "transparent"), 300L)
   expect_identical(pal_get(cols, n = 3), c("ReD", "light blue", "#F00"))
   expect_identical(pal_get(list(custom = cols), n = 3),
                    list(custom = c("ReD", "light blue", "#F00")))
-  cols[c(2L, 1000L)] <- c("badfirst", "badlast")
+  cols[c(2L, 1000L, length(cols))] <- c("badfirst", "badlast", "badfirst")
   for (palette in list(cols, list(custom = cols))) {
     error <- tryCatch(pal_get(palette, n = 1), error = identity)
     expect_s3_class(error, "error")
-    expect_match(conditionMessage(error), "badfirst")
-    expect_match(conditionMessage(error), "badlast")
+    bad <- regmatches(conditionMessage(error),
+                      gregexpr("badfirst|badlast", conditionMessage(error)))[[1L]]
+    expect_identical(bad, c("badfirst", "badlast", "badfirst"))
   }
 })
 

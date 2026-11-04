@@ -486,6 +486,10 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 
   # Digit-leading strings (including decimals and exponents) can index palette().
   is_colour <- function(v) {
+    input <- v
+    if (!is.object(v) && length(v) > 1024L && .pal_use_unique(v)) {
+      v <- unique(v)
+    }
     drawable <- tryCatch({
       grDevices::col2rgb(v)
       rep(TRUE, length(v))
@@ -500,7 +504,10 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
       }, logical(1L), USE.NAMES = FALSE)
       if (is.object(v)) valid else valid[match(v, to_check)]
     })
-    drawable & !is.na(v) & !grepl("^[0-9]", v)
+    valid <- drawable & !is.na(v) & !grepl("^[0-9]", v)
+    if (length(v) == length(input)) return(valid)
+    if (all(valid)) return(rep(TRUE, length(input)))
+    valid[match(input, v)]
   }
 
   # A list of palettes is mapped over, so `pal_heat` and friends get the same
