@@ -68,8 +68,10 @@
 #' @param inset_angle Rotation angle for inset. Default -45.
 #' @param inset_vp_width,inset_vp_height Viewport size for inset. Default
 #'   0.85, 0.75.
-#' @param theme_use Theme function, string, or theme object. Default
-#'   \code{theme_my(border = FALSE, panel.grid = element_blank())}.
+#' @param theme_use Theme object, zero-argument theme function, or theme name.
+#'   Unknown names produce an error. Default
+#'   \code{theme_my(border = FALSE, panel.grid = element_blank())}; explicit
+#'   \code{NULL} uses \code{ggplot2::theme_classic()}.
 #' @param plot_margin Numeric vector of length 4 (top, right, bottom, left)
 #'   for main plot margin. Default \code{c(80, 60, 5, 5)}.
 #' @param filename Output file path. Default \code{NULL} (no save).
@@ -157,20 +159,6 @@ PlotScatter3 <- function(
   if (grDevices::dev.cur() == 1L) {
     grDevices::pdf(NULL)
     on.exit(grDevices::dev.off(), add = TRUE)
-  }
-
-  # ---- Parse theme ----
-  if (is.character(theme_use)) {
-    theme_fn <- tryCatch(match.fun(theme_use), error = function(e) {
-      ggplot2::theme_classic
-    })
-  } else if (is.function(theme_use)) {
-    theme_fn <- theme_use
-  } else if (inherits(theme_use, "theme")) {
-    theme_obj <- theme_use
-    theme_fn  <- function(...) theme_obj
-  } else {
-    theme_fn <- ggplot2::theme_classic
   }
 
   # ---- Validate inputs ----
@@ -301,7 +289,7 @@ PlotScatter3 <- function(
     ggplot2::scale_x_continuous(limits = axis_limits, breaks = axis_breaks) +
     ggplot2::scale_y_continuous(limits = axis_limits, breaks = axis_breaks) +
     ggplot2::labs(x = xlab, y = ylab) +
-    theme_fn() +
+    .resolve_theme(theme_use %||% ggplot2::theme_classic) +
     ggplot2::theme(
       legend.position = "none",
       plot.margin     = ggplot2::margin(

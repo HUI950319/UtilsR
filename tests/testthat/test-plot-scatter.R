@@ -870,3 +870,15 @@ test_that("PlotScatter2 reports the missing integer64 grouping dependency", {
   }, error = conditionMessage)
   expect_identical(message, "Package 'bit64' is required for integer64 grouping columns.")
 })
+
+test_that("PlotScatter3 shares theme validation and keeps its NULL theme", {
+  data <- data.frame(Control = 1:8, Treat = c(1.2, 1.8, 3.5, 4.2, 5, 7, 7.3, 8),
+                     group = rep(c("NS", "S"), 4))
+  plot <- function(theme_use) {
+    PlotScatter3(data, test_method = "none", cor_method = "none", theme_use = theme_use)
+  }
+  expect_error(plot("theme_mimimal"), "Theme 'theme_mimimal' not found")
+  expect_error(plot(function() ggplot2::geom_point()), "must return a ggplot2 theme")
+  expect_equal(plot("theme_minimal")[[1L]]$theme, plot(ggplot2::theme_minimal())[[1L]]$theme)
+  expect_equal(plot(NULL)[[1L]]$theme, plot(ggplot2::theme_classic())[[1L]]$theme)
+})

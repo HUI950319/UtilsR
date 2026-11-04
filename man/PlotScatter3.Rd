@@ -130,8 +130,10 @@ All-zero differences receive a non-zero range. Explicit limits are retained.}
 \item{inset_vp_width, inset_vp_height}{Viewport size for inset. Default
 0.85, 0.75.}
 
-\item{theme_use}{Theme function, string, or theme object. Default
-\code{theme_my(border = FALSE, panel.grid = element_blank())}.}
+\item{theme_use}{Theme object, zero-argument theme function, or theme name.
+Unknown names produce an error. Default
+\code{theme_my(border = FALSE, panel.grid = element_blank())}; explicit
+\code{NULL} uses \code{ggplot2::theme_classic()}.}
 
 \item{plot_margin}{Numeric vector of length 4 (top, right, bottom, left)
 for main plot margin. Default \code{c(80, 60, 5, 5)}.}

@@ -148,8 +148,9 @@ point to the Y axis? Default \code{FALSE}.}
 \item{legend_theme}{A ggplot2 theme object for legend styling, e.g.,
 \code{theme_legend1()}. Default \code{NULL} (no extra legend styling).}
 
-\item{theme_use}{Theme function, string, or theme object. Default
-\code{theme_my}. Controls axis text/title/line styling.}
+\item{theme_use}{Theme object, zero-argument theme function, or theme name.
+Unknown names produce an error. Default \code{theme_my}; explicit
+\code{NULL} uses \code{ggplot2::theme_classic()}.}
 
 \item{inset_plot}{Inset plot specification. One of:
 \itemize{
@@ -174,8 +175,9 @@ when category labels repeat.}
 \item{inset_jitter}{Logical. Show jitter points in auto inset? Default
 \code{TRUE}.}
 
-\item{inset_theme_use}{Theme for auto inset. Default \code{NULL} (uses
-the same \code{theme_use} as the main plot with compact styling).}
+\item{inset_theme_use}{Theme for the automatic inset, with the same inputs as
+\code{theme_use}. Default \code{NULL} reuses the resolved main theme
+with compact styling.}
 
 \item{inset_left, inset_bottom, inset_right, inset_top}{Inset boundaries
 (patchwork panel coordinates). Default 0.04, 0.68, 0.35, 0.94.}

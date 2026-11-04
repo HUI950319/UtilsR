@@ -5,7 +5,7 @@
 # Architecture (2 layers):
 #
 #   L1  PlotDumbbell(data, x_col, xend_col, y_col, ...)   -- public API
-#         +-- L2  .parse_theme()             theme_use -> ggplot2 theme
+#         +-- L2  .resolve_theme()           theme_use -> ggplot2 theme
 #         +-- L2  .build_dumbbell_inset()    paired box / violin inset panel
 # =============================================================================
 
@@ -75,8 +75,9 @@
 #'   }
 #' @param legend_theme A ggplot2 theme object for legend styling, e.g.,
 #'   \code{theme_legend1()}. Default \code{NULL} (no extra legend styling).
-#' @param theme_use Theme function, string, or theme object. Default
-#'   \code{theme_my}. Controls axis text/title/line styling.
+#' @param theme_use Theme object, zero-argument theme function, or theme name.
+#'   Unknown names produce an error. Default \code{theme_my}; explicit
+#'   \code{NULL} uses \code{ggplot2::theme_classic()}.
 #' @param inset_plot Inset plot specification. One of:
 #'   \itemize{
 #'     \item \code{NULL} — no inset (default).
@@ -95,8 +96,9 @@
 #'   when category labels repeat.
 #' @param inset_jitter Logical. Show jitter points in auto inset? Default
 #'   \code{TRUE}.
-#' @param inset_theme_use Theme for auto inset. Default \code{NULL} (uses
-#'   the same \code{theme_use} as the main plot with compact styling).
+#' @param inset_theme_use Theme for the automatic inset, with the same inputs as
+#'   \code{theme_use}. Default \code{NULL} reuses the resolved main theme
+#'   with compact styling.
 #' @param inset_left,inset_bottom,inset_right,inset_top Inset boundaries
 #'   (patchwork panel coordinates). Default 0.04, 0.68, 0.35, 0.94.
 #' @param filename Output file path. Default \code{NULL} (no save, print
@@ -181,9 +183,6 @@ PlotDumbbell <- function(
     dpi              = 300,              # output resolution
     bg               = "white"           # output background colour
 ) {
-
-  # ---- Parse theme ----
-  theme_fn <- .parse_theme(theme_use)
 
   # ---- Validate inputs ----
   data <- as.data.frame(data)
@@ -356,9 +355,10 @@ PlotDumbbell <- function(
   }
 
   # ---- Labels and theme ----
+  thm <- .resolve_theme(theme_use %||% ggplot2::theme_classic)
   p <- p +
     ggplot2::labs(x = x_label, y = y_label, title = title) +
-    theme_fn() +
+    thm +
     ggplot2::theme(legend.position = leg_position)
 
   # Inside-plot legends need justification
@@ -392,7 +392,7 @@ PlotDumbbell <- function(
       inset_test = inset_test,
       paired_line = inset_paired_line,
       jitter     = inset_jitter,
-      theme_fn   = if (!is.null(inset_theme_use)) .parse_theme(inset_theme_use) else theme_fn
+      theme_obj  = if (is.null(inset_theme_use)) thm else .resolve_theme(inset_theme_use)
     )
   } else if (inherits(inset_plot, "ggplot") || inherits(inset_plot, "grob") ||
              inherits(inset_plot, "gList") || inherits(inset_plot, "gtable")) {
@@ -433,23 +433,6 @@ PlotDumbbell <- function(
 }
 
 
-# ---- Internal: parse theme argument ----
-.parse_theme <- function(theme_use) {
-  if (is.character(theme_use)) {
-    tryCatch(match.fun(theme_use), error = function(e) ggplot2::theme_classic)
-  } else if (is.function(theme_use)) {
-    theme_use
-  } else if (inherits(theme_use, "theme")) {
-    local({
-      obj <- theme_use
-      function(...) obj
-    })
-  } else {
-    ggplot2::theme_classic
-  }
-}
-
-
 # ---- Internal: build auto inset paired boxplot/violin ----
 .build_dumbbell_inset <- function(
     data, x_col, xend_col,
@@ -457,7 +440,7 @@ PlotDumbbell <- function(
     color_x, color_xend,
     inset_type, inset_test,
     paired_line, jitter,
-    theme_fn
+    theme_obj
 ) {
   if (!is.character(inset_type) || length(inset_type) != 1L ||
       is.na(inset_type) || !inset_type %in% c("boxplot", "violin")) {
@@ -564,7 +547,7 @@ PlotDumbbell <- function(
   # Theme: compact inset styling
   pi <- pi +
     ggplot2::labs(x = NULL, y = NULL) +
-    theme_fn() +
+    theme_obj +
     ggplot2::theme(
       legend.position  = "none",
       axis.text.x      = ggplot2::element_text(color = "black", size = 7,

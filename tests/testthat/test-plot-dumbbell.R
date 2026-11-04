@@ -263,3 +263,47 @@ test_that("PlotDumbbell inset keeps row pairs when category labels repeat", {
   control <- ggplot2::ggplot_build(inset)$data[[2]]
   expect_equal(control[c("group", "x", "y")], lines[c("group", "x", "y")])
 })
+
+test_that("PlotDumbbell validates theme specifications", {
+  data <- data.frame(start = 1:4, end = c(2, 3, 3, 5), category = letters[1:4])
+  expect_error(dumbbell_plot(data, theme_use = "theme_mimimal"), "Theme 'theme_mimimal' not found")
+  expect_error(dumbbell_plot(data, theme_use = function() ggplot2::geom_point()),
+               "must return a ggplot2 theme")
+  expect_error(dumbbell_plot(data, inset_plot = "auto", inset_test = "none",
+                              inset_theme_use = "theme_mimimal"), "Theme 'theme_mimimal' not found")
+  named <- dumbbell_plot(data, theme_use = "theme_minimal")
+  expect_equal(named$theme, dumbbell_plot(data, theme_use = ggplot2::theme_minimal())$theme)
+  expect_equal(dumbbell_plot(data, theme_use = NULL)$theme,
+               dumbbell_plot(data, theme_use = ggplot2::theme_classic())$theme)
+})
+
+test_that("PlotDumbbell reuses the resolved main theme in automatic insets", {
+  data <- data.frame(start = 1:4, end = c(2, 3, 3, 5), category = letters[1:4])
+  inset <- NULL
+  original <- get(".build_dumbbell_inset", asNamespace("UtilsR"))
+  testthat::local_mocked_bindings(.build_dumbbell_inset = function(...) {
+    inset <<- original(...)
+    inset
+  }, .package = "UtilsR")
+  calls <- 0L
+  factory <- function() {
+    calls <<- calls + 1L
+    ggplot2::theme_bw(base_size = 16 + calls)
+  }
+  plot <- dumbbell_plot(data, theme_use = factory, inset_plot = "auto", inset_test = "none")
+  expect_identical(calls, 1L)
+  expect_equal(plot[[1L]]$theme$text$size, 17)
+  expect_equal(inset$theme$text$size, 17)
+
+  calls <- 0L
+  inset_calls <- 0L
+  inset_factory <- function() {
+    inset_calls <<- inset_calls + 1L
+    ggplot2::theme_bw(base_size = 23)
+  }
+  plot <- dumbbell_plot(data, theme_use = factory, inset_plot = "auto", inset_test = "none",
+                        inset_theme_use = inset_factory)
+  expect_identical(c(calls, inset_calls), c(1L, 1L))
+  expect_equal(plot[[1L]]$theme$text$size, 17)
+  expect_equal(inset$theme$text$size, 23)
+})

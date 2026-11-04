@@ -1,5 +1,7 @@
 # UtilsR 0.6.22
 
+* PlotDumbbell() and PlotScatter3() validate themes with the shared resolver. Automatic dumbbell insets reuse the main theme unless a separate theme is supplied.
+
 * plt_dist() follows ggplot2's registered default text size when the plot and current themes omit base text.
 
 * Interpret single named colours as literals in plt_alluvial() and PlotRankCor(), including when a subset retains one group.
