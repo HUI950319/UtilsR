@@ -304,6 +304,7 @@ fmt_raster <- function(
     )))
     on.exit(grid::popViewport(), add = TRUE)
     # Freeze every cell so nested tables contribute to the complete plot size.
+    cell_sizes <- list()
     for (dim in c("width", "height")) {
       cells <- if (dim == "width") seq_along(gtable$widths) else seq_along(gtable$heights)
       convert_fn <- if (dim == "width") grid::convertWidth else grid::convertHeight
@@ -315,6 +316,7 @@ fmt_raster <- function(
         grid::popViewport()
         value
       }, numeric(1))
+      cell_sizes[[dim]] <- sizes
       gtable[[paste0(dim, "s")]] <- grid::unit(sizes, units)
     }
     nested <- which(vapply(gtable$grobs, function(g) {
@@ -334,8 +336,10 @@ fmt_raster <- function(
       panels_found <<- panels_found + length(indices)
       widths <- if (length(width) > 1L) width[positions] else width
       heights <- if (length(height) > 1L) height[positions] else height
-      panel_w <- .resolve_panel_size(gtable, indices, "width", widths, units)
-      panel_h <- .resolve_panel_size(gtable, indices, "height", heights, units)
+      panel_w <- .resolve_panel_size(gtable, indices, "width", widths, units,
+                                     cell_sizes = cell_sizes[["width"]])
+      panel_h <- .resolve_panel_size(gtable, indices, "height", heights, units,
+                                     cell_sizes = cell_sizes[["height"]])
 
       # Shared columns/rows must have one consistent physical dimension.
       for (dim in c("width", "height")) {
@@ -470,7 +474,8 @@ fmt_raster <- function(
 
 # --- Resolve panel size: user-specified or from current gtable ---
 #' @noRd
-.resolve_panel_size <- function(gtable, panel_index, dim, user_val, units) {
+.resolve_panel_size <- function(gtable, panel_index, dim, user_val, units,
+                                cell_sizes = NULL) {
   n <- length(panel_index)
 
   if (!is.null(user_val)) {
@@ -481,23 +486,33 @@ fmt_raster <- function(
     )
   }
 
-  # Resolve null units through the complete grid layout, including respect.
-  grid::pushViewport(grid::viewport(layout = grid::grid.layout(
-    nrow = length(gtable$heights), ncol = length(gtable$widths),
-    widths = gtable$widths, heights = gtable$heights, respect = gtable$respect
-  )))
-  on.exit(grid::popViewport(), add = TRUE)
-  convert_fn <- if (dim == "width") grid::convertWidth else grid::convertHeight
-  vapply(panel_index, function(idx) {
-    grid::pushViewport(grid::viewport(layout.pos.row = gtable$layout$t[idx]:gtable$layout$b[idx],
-                                      layout.pos.col = gtable$layout$l[idx]:gtable$layout$r[idx]))
-    val <- convert_fn(grid::unit(1, "npc"), units, valueOnly = TRUE)
-    grid::popViewport()
-    if (!is.finite(val) || val <= 0) {
-      cli::cli_abort("Cannot resolve a positive panel {.arg {dim}}; supply it explicitly.")
-    }
-    val
-  }, numeric(1))
+  layout <- gtable[["layout"]]
+  if (!is.null(cell_sizes)) {
+    # Each cell was measured in the parent layout, including aspect constraints.
+    from <- if (dim == "width") layout[["l"]] else layout[["t"]]
+    to <- if (dim == "width") layout[["r"]] else layout[["b"]]
+    sizes <- vapply(panel_index, function(idx) {
+      sum(cell_sizes[from[idx]:to[idx]])
+    }, numeric(1))
+  } else {
+    grid::pushViewport(grid::viewport(layout = grid::grid.layout(
+      nrow = length(gtable$heights), ncol = length(gtable$widths),
+      widths = gtable$widths, heights = gtable$heights, respect = gtable$respect
+    )))
+    on.exit(grid::popViewport(), add = TRUE)
+    convert_fn <- if (dim == "width") grid::convertWidth else grid::convertHeight
+    sizes <- vapply(panel_index, function(idx) {
+      grid::pushViewport(grid::viewport(layout.pos.row = layout$t[idx]:layout$b[idx],
+                                        layout.pos.col = layout$l[idx]:layout$r[idx]))
+      val <- convert_fn(grid::unit(1, "npc"), units, valueOnly = TRUE)
+      grid::popViewport()
+      val
+    }, numeric(1))
+  }
+  if (any(!is.finite(sizes) | sizes <= 0)) {
+    cli::cli_abort("Cannot resolve a positive panel {.arg {dim}}; supply it explicitly.")
+  }
+  sizes
 }
 
 

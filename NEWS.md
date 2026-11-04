@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Reuse measured layout cells for automatic `fmt_raster()` panel dimensions.
+
 * Compute pooled quantile bounds once for stacked `plt_con()` plots with shared axes and reuse them for comparison labels.
 
 * Identify invalid matrix and grid unit inputs in raster dimensions and tag positions before drawing.
