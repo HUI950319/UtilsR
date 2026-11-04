@@ -931,6 +931,20 @@ test_that("pal_get preserves direct alpha spelling and names for repeated colour
   }
 })
 
+test_that("pal_get recycles the midpoint over constant finite values", {
+  cols <- c("#FF000080", "#0000FF40")
+  x <- rep(c(17, NA, Inf, 17, NaN), 400L)
+  expected <- rep(NA_character_, length(x))
+  expected[is.finite(x)] <- "#7F007F60"
+  for (alpha in c(1, 0.5, 0.9999)) {
+    colours <- if (alpha < 1) ggplot2::alpha(expected, alpha) else expected
+    expect_identical(pal_get(cols, x = x, alpha = alpha), colours)
+    expect_identical(pal_get(cols, x = I(x), reverse = TRUE, alpha = alpha), colours)
+    expect_identical(pal_get(list(custom = cols), x = x, reverse = TRUE, alpha = alpha),
+                     list(custom = colours))
+  }
+})
+
 test_that("pal_get keeps medium-cardinality numeric mappings in observation order", {
   palettes <- list(opaque = c("black", "white"),
                    translucent = c("#FF000080", "#0000FF40"))

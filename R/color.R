@@ -657,9 +657,11 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   }
 
   ends <- range(values)
-  at <- if (ends[[1L]] == ends[[2L]]) {
-    rep(0.5, length(values))
-  } else if (!is.finite(ends[[2L]] - ends[[1L]])) {
+  if (ends[[1L]] == ends[[2L]]) {
+    # A single midpoint colour recycles across the finite positions.
+    return(list(placed = placed, at = 0.5, index = NULL))
+  }
+  at <- if (!is.finite(ends[[2L]] - ends[[1L]])) {
     # Halving finite endpoints keeps their span representable.
     (values / 2 - ends[[1L]] / 2) / (ends[[2L]] / 2 - ends[[1L]] / 2)
   } else {
