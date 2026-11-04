@@ -156,7 +156,7 @@ test_that("pal_show keeps max_colors as a display cap on top of n", {
   html <- gt::as_raw_html(tbl)
 
   # six swatches drawn out of the thirty the resampling produced
-  expect_match(html, "width:130px")
+  expect_match(html, '<th[^>]*min-width:\\s*120px;[^>]*id="preview"')
   expect_match(html, ">6 / 30</td>")
   # resampling must not lose the registry's palette type
   expect_match(html, ">discrete</td>")
