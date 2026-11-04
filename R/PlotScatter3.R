@@ -19,7 +19,7 @@
 #' without changing the paired test or median. ggplot2 can warn when limits
 #' exclude observations or the median annotation.
 #' Numeric coordinates and statistics are preserved when \code{group} also
-#' names an axis column.
+#' names an axis column. A column named \code{.data} is supported in any role.
 #'
 #' @param data A data.frame containing x (control), y (treatment), and group columns.
 #' @param x Column name for control values (X axis). Default \code{"Control"}.
@@ -181,6 +181,14 @@ PlotScatter3 <- function(
     }
   }
 
+  # The .data column name is reserved by the ggplot2 data mask.
+  if (".data" %in% c(x, y, group)) {
+    data_col <- make.unique(c(names(data), ".scatter3_data"))[ncol(data) + 1L]
+    data[[data_col]] <- data[[".data"]]
+    if (x == ".data") x <- data_col
+    if (y == ".data") y <- data_col
+    if (group == ".data") group <- data_col
+  }
   # Factor grouping separately when it shares a column with either axis.
   if (group %in% c(x, y)) {
     group_col <- make.unique(c(names(data), ".scatter3_group"))[ncol(data) + 1L]

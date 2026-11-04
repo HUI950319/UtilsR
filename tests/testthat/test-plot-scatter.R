@@ -225,6 +225,54 @@ test_that("PlotScatter3 preserves axes and statistics when grouping uses an axis
   }
 })
 
+test_that("PlotScatter3 supports a column named .data in every plotting role", {
+  data <- data.frame(Control = rep(c(10, 30), 6),
+                     Treat = rep(c(100, 200), each = 6),
+                     group = rep(c("NS", "S"), 6),
+                     .scatter3_data = -seq_len(12), .scatter3_data.1 = seq_len(12))
+  for (role in c("x", "y", "group")) {
+    columns <- c(x = "Control", y = "Treat", group = "group")
+    renamed <- data
+    names(renamed)[match(columns[[role]], names(renamed))] <- ".data"
+    columns[[role]] <- ".data"
+    before <- serialize(renamed, NULL)
+    p <- do.call(scatter3_capture_inset, c(list(data = renamed), as.list(columns),
+      list(test_method = "t.test", show_refline = FALSE)))
+    main <- ggplot2::ggplot_build(p$main)$data
+    inset <- ggplot2::ggplot_build(p$inset)$data
+    expected_test <- stats::t.test(data$Control, data$Treat, paired = TRUE)
+    expect_equal(main[[1]]$x, data$Control)
+    expect_equal(main[[1]]$y, data$Treat)
+    expect_identical(main[[1]]$fill, rep(c("#FFFFFF10", "#f71d53"), 6))
+    expect_equal(main[[2]]$label,
+                 paste0("p = ", format.pval(expected_test$p.value, digits = 2)))
+    expect_match(main[[3]]$label, "r = 0,", fixed = TRUE)
+    expect_equal(sum(inset[[1]]$count), nrow(data))
+    expect_equal(inset[[2]]$x, stats::median(data$Treat - data$Control))
+    expect_identical(serialize(renamed, NULL), before)
+  }
+})
+
+test_that("PlotScatter3 preserves a .data axis that is also its grouping column", {
+  data <- data.frame(.data = rep(c(10, 30), 6),
+                     Treat = rep(c(100, 200), each = 6),
+                     .scatter3_data = -seq_len(12), .scatter3_data.1 = seq_len(12),
+                     .scatter3_group = seq_len(12), .scatter3_group.1 = -seq_len(12))
+  before <- serialize(data, NULL)
+  for (y in c("Treat", ".data")) {
+    p <- scatter3_capture_inset(data, ".data", y, ".data",
+                                test_method = "none", show_refline = FALSE)
+    main <- ggplot2::ggplot_build(p$main)$data
+    inset <- ggplot2::ggplot_build(p$inset)$data
+    expect_equal(main[[1]]$x, data[[".data"]])
+    expect_equal(main[[1]]$y, data[[y]])
+    expect_match(main[[2]]$label, if (y == ".data") "r = 1," else "r = 0,", fixed = TRUE)
+    expect_equal(sum(inset[[1]]$count), nrow(data))
+    expect_equal(inset[[2]]$x, stats::median(data[[y]] - data[[".data"]]))
+    expect_identical(serialize(data, NULL), before)
+  }
+})
+
 scatter1_capture_panels <- function(...) {
   panels <- list()
   ggplot_grob <- ggplot2::ggplotGrob

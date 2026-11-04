@@ -166,7 +166,7 @@ uses all non-missing differences. Explicit axis limits trim displayed data
 without changing the paired test or median. ggplot2 can warn when limits
 exclude observations or the median annotation.
 Numeric coordinates and statistics are preserved when \code{group} also
-names an axis column.
+names an axis column. A column named \code{.data} is supported in any role.
 }
 \examples{
 library(ggplot2)
