@@ -106,6 +106,8 @@
 #' each facet. Rows with missing values in required columns are removed with an
 #' informational message. Explicit NA factor levels and SPSS user-defined
 #' missing values are also treated as missing.
+#' Distinct non-factor values are kept separate when their character labels
+#' coincide: labels use higher precision and, if needed, numeric suffixes.
 #'
 #' @return A ggplot object carrying its page size as `attr(p, "plot_size")`,
 #'   `c(width, height)` in inches. A non-empty `save` also writes the same
@@ -412,7 +414,12 @@ plt_alluvial <- function(
       value_levels <- levels(value)
       value_levels <- value_levels[value_levels %in% value_chr]
     } else {
-      value_levels <- unique(value_chr)
+      values <- vctrs::vec_unique(value)
+      value_levels <- as.character(values)
+      if (anyDuplicated(value_levels)) {
+        value_levels <- make.unique(format(values, digits = 17, trim = TRUE))
+        value_chr <- value_levels[vctrs::vec_match(value, values)]
+      }
     }
     factor(value_chr, levels = value_levels, ordered = is.ordered(value))
   }

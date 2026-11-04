@@ -367,6 +367,112 @@ test_that("plt_alluvial rejects other dimensional columns", {
   }
 })
 
+test_that("plt_alluvial keeps adjacent numeric values in separate categories", {
+  skip_if_not_installed("ggalluvial")
+
+  values <- c(1, 1 + .Machine$double.eps)
+  columns <- c(category = ".cat_var", group = ".group", panel = ".facet")
+  for (column in names(columns)) {
+    data <- alluvial_data()
+    index <- match(data[[column]], unique(data[[column]]))
+    data[[column]] <- values[index]
+    plot <- plt_alluvial(
+      data, "category", "group", facet = "panel",
+      stratum_args = list(gap = 0)
+    )
+    field <- columns[[column]]
+    expect_equal(as.numeric(levels(plot$data[[field]])), values, tolerance = 0)
+    totals <- tapply(plot$data$count, plot$data[[field]], sum)
+    expect_equal(as.numeric(totals), tabulate(index, nbins = 2))
+  }
+})
+
+test_that("plt_alluvial preserves distinct typed values with colliding labels", {
+  skip_if_not_installed("ggalluvial")
+
+  close <- c(1, 1 + .Machine$double.eps)
+  values <- list(
+    complex = complex(real = 1, imaginary = close),
+    date = as.Date(close, origin = "1970-01-01"),
+    time = as.POSIXct(c(0, 1e-9), origin = "1970-01-01", tz = "UTC"),
+    duration = as.difftime(close, units = "secs")
+  )
+  for (value in values) {
+    data <- alluvial_data()
+    data$group <- value[c(1, 1, 2, 1, 2, 1, 1, 2)]
+    plot <- plt_alluvial(data, "category", "group")
+    real <- plot$data[!plot$data$.is_gap, ]
+    expect_length(levels(droplevels(real$.group)), 2)
+    expect_equal(
+      as.numeric(tapply(real$count, droplevels(real$.group), sum)), c(5, 3)
+    )
+    built <- ggplot2::ggplot_build(plot)
+    expect_setequal(
+      built$data[[3]]$label[!is.na(built$data[[3]]$label)],
+      real$.label[!is.na(real$.label)]
+    )
+  }
+})
+
+test_that("plt_alluvial removes labelled missing values before resolving precision", {
+  skip_if_not_installed("ggalluvial")
+  skip_if_not_installed("haven")
+
+  data <- alluvial_data()
+  data$group <- haven::labelled_spss(
+    c(1, 1 + .Machine$double.eps, 99, NA, 1 + .Machine$double.eps, 1, 99, NaN),
+    na_values = 99
+  )
+  expect_message(capture.output(plot <- plt_alluvial(
+    data, "category", "group"
+  )), "Removed 4 rows")
+  real <- plot$data[!plot$data$.is_gap, ]
+  expect_equal(
+    as.numeric(levels(droplevels(real$.group))),
+    c(1, 1 + .Machine$double.eps), tolerance = 0
+  )
+  expect_equal(as.numeric(tapply(real$count, droplevels(real$.group), sum)), c(2, 2))
+})
+
+test_that("plt_alluvial preserves integer64 and explicit factor labels", {
+  skip_if_not_installed("ggalluvial")
+
+  data <- alluvial_data()
+  labels <- c("1.0000000000000002", "1")
+  data$group <- factor(
+    data$group, levels = c("G1", "G2", "unused"),
+    labels = c(labels, "unused"), ordered = TRUE
+  )
+  plot <- plt_alluvial(data, "category", "group")
+  real <- plot$data[!plot$data$.is_gap, ]
+  expect_identical(levels(droplevels(real$.group)), labels)
+  expect_equal(as.numeric(tapply(real$count, droplevels(real$.group), sum)), c(3, 5))
+
+  skip_if_not_installed("bit64")
+  labels <- c("9007199254740992", "9007199254740993")
+  data$group <- bit64::as.integer64(labels)[c(1, 1, 2, 1, 2, 1, 1, 2)]
+  plot <- plt_alluvial(data, "category", "group")
+  real <- plot$data[!plot$data$.is_gap, ]
+  expect_identical(levels(droplevels(real$.group)), labels)
+  expect_equal(as.numeric(tapply(real$count, droplevels(real$.group), sum)), c(5, 3))
+})
+
+test_that("plt_alluvial renders precise group labels with named colours", {
+  skip_if_not_installed("ggalluvial")
+
+  data <- alluvial_data()
+  values <- c(1, 1 + .Machine$double.eps)
+  data$group <- values[match(data$group, unique(data$group))]
+  colors <- stats::setNames(c("#112233", "#445566"), format(values, digits = 17))
+  plot <- plt_alluvial(data, "category", "group", facet = "panel", color = colors) +
+    ggplot2::scale_x_discrete(limits = rev)
+  built <- ggplot2::ggplot_build(plot)
+  scale <- built$plot$scales$get_scales("fill")
+  expect_identical(as.character(scale$get_breaks()), names(colors))
+  expect_identical(unname(scale$map(names(colors))), unname(colors))
+  expect_no_warning(ggplot2::ggplotGrob(plot))
+})
+
 test_that("plt_alluvial matches named colours to observed groups", {
   skip_if_not_installed("ggalluvial")
 
