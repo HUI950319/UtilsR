@@ -12,10 +12,10 @@
 #'   Rows with missing group labels or feature names do not contribute to sets.
 #'   Labelled columns use their class-defined missing values, including SPSS
 #'   user-missing codes, even in a fresh R session.
-#' @param group_col Column name for the grouping variable (e.g. cell type).
-#'   Default \code{"cell_type"}.
-#' @param name_col Column name for the feature/gene names used to compute
-#'   Jaccard similarity. Default \code{"gene"}.
+#' @param group_col A single non-missing, non-empty grouping column name
+#'   (e.g. cell type). Default \code{"cell_type"}.
+#' @param name_col A single non-missing, non-empty feature/gene column name used
+#'   to compute Jaccard similarity. Default \code{"gene"}.
 #' @param title Plot title. Default \code{"Jaccard Similarity"}.
 #' @param group_levels Character vector specifying the display order of groups on
 #'   both axes. Non-missing entries must be unique; missing entries are ignored.
@@ -100,6 +100,15 @@ PlotHeatmapJaccard <- function(
   return_type <- match.arg(return_type)
 
   # ---- Validate columns ----
+  column_selectors <- list(group_col = group_col, name_col = name_col)
+  for (argument in names(column_selectors)) {
+    selector <- column_selectors[[argument]]
+    if (!is.atomic(selector) || length(selector) != 1L || anyNA(selector) ||
+        (is.character(selector) && !nzchar(selector))) {
+      stop(sprintf("'%s' must be a single non-missing, non-empty column selector.", argument),
+           call. = FALSE)
+    }
+  }
   for (col in c(group_col, name_col)) {
     if (!col %in% colnames(data))
       stop(sprintf("Column '%s' not found in data.", col), call. = FALSE)

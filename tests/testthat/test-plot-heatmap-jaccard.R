@@ -181,6 +181,41 @@ test_that("a saved heatmap is announced with its size and the file state", {
   expect_match(saved(), "[10x9 in, replaced the existing PDF]", fixed = TRUE)
 })
 
+test_that("empty column selectors cannot silently create empty feature sets", {
+  dat <- data.frame(cell_type = c("A", "A", "B"), gene = c("a", "b", "b"))
+  for (argument in c("group_col", "name_col")) {
+    input <- dat
+    names(input)[if (argument == "group_col") 1L else 2L] <- ""
+    for (type in c("data", "plot", "both")) {
+      args <- list(data = input, group_levels = c("A", "B"), return_type = type)
+      args[argument] <- list("")
+      expect_error(do.call(PlotHeatmapJaccard, args), paste0(argument, ".*single"))
+    }
+  }
+})
+
+test_that("column selectors reject missing and non-scalar specifications", {
+  dat <- data.frame(cell_type = c("A", "A", "B"), gene = c("a", "b", "b"))
+  for (argument in c("group_col", "name_col")) {
+    for (value in list(NULL, character(), NA_character_, c("cell_type", "gene"),
+                        list("cell_type"), quote(cell_type))) {
+      args <- list(data = dat, return_type = "data")
+      args[argument] <- list(value)
+      expect_error(do.call(PlotHeatmapJaccard, args, quote = TRUE), paste0(argument, ".*single"))
+    }
+  }
+})
+
+test_that("valid scalar column selectors retain numeric index compatibility", {
+  dat <- data.frame("1" = c("A", "A", "B"), "2" = c("a", "b", "b"), check.names = FALSE)
+  expected <- rbind(c(1, 0.5), c(0.5, 1))
+  dimnames(expected) <- list(c("A", "B"), c("A", "B"))
+  expect_identical(PlotHeatmapJaccard(dat, group_col = c(input = "1"),
+                                    name_col = c(input = "2"), return_type = "data"), expected)
+  expect_identical(PlotHeatmapJaccard(dat, group_col = 1L, name_col = 2L,
+                                    return_type = "data"), expected)
+})
+
 test_that("data without non-missing groups fails clearly", {
   dat <- data.frame(cell_type = NA_character_, gene = "orphan")
   expect_error(PlotHeatmapJaccard(dat), "No non-missing groups")

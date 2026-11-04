@@ -31,11 +31,11 @@ Rows with missing group labels or feature names do not contribute to sets.
 Labelled columns use their class-defined missing values, including SPSS
 user-missing codes, even in a fresh R session.}
 
-\item{group_col}{Column name for the grouping variable (e.g. cell type).
-Default \code{"cell_type"}.}
+\item{group_col}{A single non-missing, non-empty grouping column name
+(e.g. cell type). Default \code{"cell_type"}.}
 
-\item{name_col}{Column name for the feature/gene names used to compute
-Jaccard similarity. Default \code{"gene"}.}
+\item{name_col}{A single non-missing, non-empty feature/gene column name used
+to compute Jaccard similarity. Default \code{"gene"}.}
 
 \item{title}{Plot title. Default \code{"Jaccard Similarity"}.}
 
