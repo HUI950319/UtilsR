@@ -15,6 +15,8 @@
 #'   Missing group labels are rejected before drawing. Unused group levels
 #'   are omitted from the chart.
 #' @param group_col Column name for the grouping variable. Default \code{"group"}.
+#'   Distinct values with coinciding character labels use higher precision
+#'   and, if needed, numeric suffixes to keep sectors and scaling separate.
 #' @param name_col Column name for the feature names. Default \code{"name"}.
 #' @param value_col Column name for the numeric scores. Default \code{"value"}.
 #'   Numeric character strings and factor labels (including ordered factors)
@@ -48,6 +50,7 @@
 #' @param group_levels Character vector controlling the display order of groups.
 #'   \code{NULL} = data appearance order (or factor levels if already a factor).
 #'   Must include every observed group; unobserved levels are omitted.
+#'   Use the displayed labels when group labels require higher precision.
 #' @param common_color Colour for features shared across \eqn{\geq 2} groups.
 #'   Default \code{"#4682B4"}.
 #' @param unique_color Colour for group-unique features. Default \code{"#FF7F50"}.
@@ -179,6 +182,15 @@ PlotCircleLollipop <- function(
   }
   numeric_values <- parse_scores(data[[value_col]])
 
+  # ---- Preserve group identity when character labels coincide ----
+  group_values <- vctrs::vec_unique(data[[group_col]])
+  group_labels <- as.character(group_values)
+  collision <- duplicated(group_labels) | duplicated(group_labels, fromLast = TRUE)
+  if (any(collision)) {
+    group_labels[collision] <- format(group_values[collision], digits = 17, trim = TRUE)
+    group_labels <- make.unique(group_labels)
+  }
+
   # ---- Keep original data for group-level scaling (before top_n) ----
   data_orig <- data
 
@@ -201,7 +213,7 @@ PlotCircleLollipop <- function(
 
   # ---- Normalise to standard column names ----
   df <- data.frame(
-    group = as.character(data[[group_col]]),
+    group = group_labels[vctrs::vec_match(data[[group_col]], group_values)],
     name  = as.character(data[[name_col]]),
     value = parse_scores(data[[value_col]]),
     stringsAsFactors = FALSE
@@ -242,7 +254,7 @@ PlotCircleLollipop <- function(
   }
   if (value_scale == "group") {
     # Scale using the FULL group range from original data (before top_n)
-    orig_grp <- as.character(data_orig[[group_col]])
+    orig_grp <- group_labels[vctrs::vec_match(data_orig[[group_col]], group_values)]
     orig_val <- numeric_values
     grp_min  <- tapply(orig_val, orig_grp, min, na.rm = TRUE)
     grp_max  <- tapply(orig_val, orig_grp, max, na.rm = TRUE)

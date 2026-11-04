@@ -45,7 +45,9 @@ and numeric value.
 Missing group labels are rejected before drawing. Unused group levels
 are omitted from the chart.}
 
-\item{group_col}{Column name for the grouping variable. Default \code{"group"}.}
+\item{group_col}{Column name for the grouping variable. Default \code{"group"}.
+Distinct values with coinciding character labels use higher precision
+and, if needed, numeric suffixes to keep sectors and scaling separate.}
 
 \item{name_col}{Column name for the feature names. Default \code{"name"}.}
 
@@ -83,7 +85,8 @@ Extreme finite ranges are rescaled before subtraction to avoid overflow.}
 
 \item{group_levels}{Character vector controlling the display order of groups.
 \code{NULL} = data appearance order (or factor levels if already a factor).
-Must include every observed group; unobserved levels are omitted.}
+Must include every observed group; unobserved levels are omitted.
+Use the displayed labels when group labels require higher precision.}
 
 \item{common_color}{Colour for features shared across \eqn{\geq 2} groups.
 Default \code{"#4682B4"}.}

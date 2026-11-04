@@ -345,3 +345,123 @@ test_that("PlotCircleLollipop preserves labels when one column supplies groups a
     expect_identical(data, before)
   }
 })
+
+test_that("PlotCircleLollipop keeps close numeric groups separate while scaling", {
+  skip_if_not_installed("circlize")
+  grDevices::pdf(NULL)
+  device <- grDevices::dev.cur()
+  withr::defer(grDevices::dev.off(device))
+  observed <- numeric()
+  sectors <- character()
+  original <- circlize::circos.points
+  testthat::local_mocked_bindings(circos.points = function(x, y, ...) {
+    observed <<- c(observed, y)
+    sectors <<- c(sectors, circlize::CELL_META$sector.index)
+    original(x, y, ...)
+  }, .package = "circlize")
+  groups <- c(1, 1 + 1e-15)
+  data <- data.frame(group = rep(groups, each = 3), name = letters[1:6],
+                     value = c(0, 5, 10, 100, 150, 200))
+  before <- data
+  for (mode in c("group", "top_n")) {
+    observed <- numeric()
+    sectors <- character()
+    PlotCircleLollipop(data, value_scale = mode, show_labels = FALSE,
+                       show_links = FALSE, show_yaxis = FALSE)
+    expect_equal(observed, rep(c(0, .5, 1), 2))
+    expect_identical(as.numeric(unique(sectors)), groups)
+    observed <- numeric()
+    sectors <- character()
+    PlotCircleLollipop(data, top_n = 2, value_scale = mode, show_labels = FALSE,
+                       show_links = FALSE, show_yaxis = FALSE)
+    expect_equal(observed, rep(c(1, if (mode == "group") .5 else 0), 2))
+    expect_identical(as.numeric(unique(sectors)), groups)
+    expect_identical(as.numeric(sectors), rep(groups, each = 2))
+  }
+  expect_identical(data, before)
+})
+
+test_that("PlotCircleLollipop retains other group labels and ranked row colours", {
+  skip_if_not_installed("circlize")
+  grDevices::pdf(NULL)
+  device <- grDevices::dev.cur()
+  withr::defer(grDevices::dev.off(device))
+  observed <- numeric()
+  sectors <- character()
+  colors <- character()
+  positions <- numeric()
+  original <- circlize::circos.points
+  testthat::local_mocked_bindings(circos.points = function(x, y, col, ...) {
+    observed <<- c(observed, y)
+    sectors <<- c(sectors, circlize::CELL_META$sector.index)
+    colors <<- c(colors, col)
+    positions <<- c(positions, x)
+    original(x, y, col = col, ...)
+  }, .package = "circlize")
+  groups <- c(1, 1 + 1e-15, 2)
+  data <- data.frame(group = rep(groups, each = 3), name = letters[1:9],
+                     value = c(.1, .4, .9, .2, .8, .6, .3, .7, .5),
+                     color = c("red", "blue", "green", "black", "purple", "orange",
+                               "pink", "gold", "cyan"))
+  before <- data
+  expected <- list(none = c(.9, .4, .8, .6, .7, .5),
+                   group = c(1, .375, 1, 2 / 3, 1, .5),
+                   top_n = rep(c(1, 0), 3))
+  for (mode in names(expected)) {
+    observed <- numeric()
+    sectors <- character()
+    colors <- character()
+    positions <- numeric()
+    PlotCircleLollipop(data, top_n = 2, value_scale = mode, color_col = "color",
+                       show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
+    expect_equal(observed, expected[[mode]])
+    expect_identical(as.numeric(sectors), rep(groups, each = 2))
+    expect_identical(tail(sectors, 2), c("2", "2"))
+    expect_identical(colors, c("green", "blue", "purple", "orange", "gold", "cyan"))
+    expect_equal(positions, rep(c(.25, .75), 3))
+  }
+  labels <- unique(sectors)
+  observed <- numeric()
+  sectors <- character()
+  PlotCircleLollipop(data, top_n = 2, value_scale = "group",
+                     group_levels = c(rev(labels), "unused"), show_labels = FALSE,
+                     show_links = FALSE, show_yaxis = FALSE)
+  expect_identical(sectors, rep(rev(labels), each = 2))
+  expect_equal(observed, c(1, .5, 1, 2 / 3, 1, .375))
+  expect_identical(data, before)
+})
+
+test_that("PlotCircleLollipop links and colours shared features across close groups", {
+  skip_if_not_installed("circlize")
+  grDevices::pdf(NULL)
+  device <- grDevices::dev.cur()
+  withr::defer(grDevices::dev.off(device))
+  sectors <- character()
+  colors <- character()
+  linked <- character()
+  original_points <- circlize::circos.points
+  original_link <- circlize::circos.link
+  testthat::local_mocked_bindings(
+    circos.points = function(x, y, col, ...) {
+      sectors <<- c(sectors, circlize::CELL_META$sector.index)
+      colors <<- c(colors, col)
+      original_points(x, y, col = col, ...)
+    },
+    circos.link = function(sector.index1, point1, sector.index2, point2, ...) {
+      linked <<- c(linked, sector.index1, sector.index2)
+      original_link(sector.index1, point1, sector.index2, point2, ...)
+    },
+    .package = "circlize"
+  )
+  groups <- c(1, 1 + 1e-15)
+  data <- data.frame(group = rep(groups, each = 2),
+                     name = c("shared", "A-only", "shared", "B-only"),
+                     value = c(.2, .4, .6, .8))
+  before <- data
+  PlotCircleLollipop(data, value_scale = "group", show_yaxis = FALSE)
+  expect_identical(as.numeric(sectors), rep(groups, each = 2))
+  expect_identical(colors, rep(c("#4682B4", "#FF7F50"), 2))
+  expect_identical(linked, unique(sectors))
+  expect_length(circlize::get.all.sector.index(), 0L)
+  expect_identical(data, before)
+})
