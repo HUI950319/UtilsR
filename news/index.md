@@ -2,6 +2,41 @@
 
 ## UtilsR 0.6.23
 
+- Locate invalid values in large colour vectors by checking blocks
+  before retrying individual colours.
+
+- Map constant finite values from one midpoint, recycling the encoded
+  colour into the original positions.
+
+- Reuse alpha-encoded values for long repeated colour vectors and
+  restore their original order and names.
+
+- Let
+  [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+  match an observed empty-string group by name in a custom palette.
+
+- Interpolate and encode a single source colour once for repeated ramp
+  output, preserving native HEX spelling and alpha.
+
+- Resolve the missing-level colour once in
+  [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
+  and identify invalid `NA_color` values before drawing.
+
+- Escape malformed colour text in
+  [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md)
+  diagnostics and avoid edit-distance warnings on invalid input.
+
+- [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
+  matches numeric and integer64 selectors across storage types only when
+  conversion preserves the exact value.
+
+- [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
+  retains the positive level of logical and No/Yes sets when only
+  negative observations are present.
+
+- Parse numeric colour strings once before integer colour lookup,
+  avoiding native overflow on rounding boundaries.
+
 - PlotScatter1() validates themes with the shared resolver, which can
   forward arguments to theme factories used by plotting callers.
 

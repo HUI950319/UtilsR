@@ -25,9 +25,10 @@ exported for those packages. For colours in your own code use
   current
   [`grDevices::palette()`](https://rdrr.io/r/grDevices/palette.html) and
   returned as fixed RGBA hex colours. Indices must be finite and fit in
-  an R integer after truncation. Other literal strings and missing
-  colours are kept as given. Anything R cannot draw is an error naming
-  the calling function.
+  an R integer after truncation. Numeric strings are parsed as R numbers
+  before truncation. Other literal strings and missing colours are kept
+  as given. Anything R cannot draw is an error naming the calling
+  function.
 
 - n:
 

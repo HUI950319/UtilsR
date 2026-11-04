@@ -203,8 +203,9 @@ the fixed <code>alpha</code>. Similar to <code>alpha.by</code> in
 <dd><p>Named or unnamed character vector of colours for
 <code>group.by</code> levels. Default <code>NULL</code> uses
 <code>c("#B2182B", "#2166AC", ...)</code> from <code>pal_lancet</code>.
-Named colours must cover every observed group. The default palette is
-interpolated when there are more groups than its available colours.</p></dd>
+Named colours must cover every observed group. An empty name matches an
+observed empty-string group. The default palette is interpolated when
+there are more groups than its available colours.</p></dd>
 
 
 <dt id="arg-pt-size">pt.size<a class="anchor" aria-label="anchor" href="#arg-pt-size"></a></dt>
