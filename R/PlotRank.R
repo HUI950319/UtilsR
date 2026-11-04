@@ -71,7 +71,10 @@
 #' @param title Character. Plot title. \code{NULL} = auto.
 #' @param ylab Character. Y-axis label. Default \code{"Importance"}.
 #' @param base_size Numeric. Base font size. Default \code{12}.
-#' @param ncol Integer. Number of columns in faceted layout. Default \code{4}.
+#' @param ncol Single finite positive integer. Number of columns in faceted
+#'   layout. Default \code{4}; \code{NULL} uses an automatic layout.
+#'   Invalid values are rejected for both single-panel and faceted inputs.
+#'   Must be within the faceting backend's supported whole-number range.
 #' @param clean_names Logical. Strip common prefixes (\code{HALLMARK_},
 #'   \code{KEGG_}, etc.) and replace underscores with spaces.
 #'   Default \code{TRUE}.
@@ -156,6 +159,13 @@ PlotRank <- function(
   }
   validate_count(top_n, "top_n", 0)
   validate_count(max_show, "max_show", 1)
+  if (!is.null(ncol)) {
+    validate_count(ncol, "ncol", 1)
+    if (!rlang::is_scalar_integerish(ncol)) {
+      stop("`ncol` is outside the supported whole-number range.", call. = FALSE)
+    }
+  }
+
   # ---- Parse input into named list of named numeric vectors ----
   score_list <- .pr_parse(data, group_col, name_col, value_col, groups)
 

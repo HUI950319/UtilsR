@@ -174,6 +174,41 @@ test_that("PlotRank validates max_show before selecting rows", {
   }
 })
 
+test_that("PlotRank validates ncol for single and faceted inputs", {
+  scores <- stats::setNames(c(5, 3, 1), letters[1:3])
+  grouped <- matrix(1:6, 3, dimnames = list(letters[1:3], c("A", "B")))
+  invalid <- list(1.5, 0, -1, NA_real_, NaN, Inf, -Inf, numeric(), c(1, 2),
+                  "2", TRUE, 1 + 1i, list(1), as.raw(1), factor(1),
+                  matrix(1, 1, 1), array(1, 1), structure(1, class = "count"))
+  for (data in list(scores, grouped)) {
+    for (value in invalid) {
+      error <- tryCatch(PlotRank(data, ncol = value, return_type = "data"),
+                         error = identity)
+      expect_s3_class(error, "error")
+      if (inherits(error, "error")) {
+        expect_match(conditionMessage(error), "`ncol`.*finite.*positive integer")
+        expect_null(conditionCall(error))
+      }
+    }
+  }
+})
+
+test_that("PlotRank rejects ncol beyond the facet whole-number range", {
+  scores <- stats::setNames(c(5, 3, 1), letters[1:3])
+  grouped <- matrix(1:6, 3, dimnames = list(letters[1:3], c("A", "B")))
+  for (data in list(scores, grouped)) {
+    for (value in c(2^53, .Machine$double.xmax)) {
+      error <- tryCatch(PlotRank(data, ncol = value, return_type = "data"),
+                         error = identity)
+      expect_s3_class(error, "error")
+      if (inherits(error, "error")) {
+        expect_match(conditionMessage(error), "`ncol`.*supported whole-number range")
+        expect_null(conditionCall(error))
+      }
+    }
+  }
+})
+
 test_that("PlotRank keeps valid count boundaries without integer overflow", {
   scores <- stats::setNames(c(5, 3, 1), letters[1:3])
   all <- PlotRank(scores, top_n = .Machine$double.xmax,
@@ -233,5 +268,26 @@ test_that("PlotRank keeps count semantics across every return path", {
       }
     }
     expect_identical(data, original)
+  }
+})
+
+test_that("PlotRank rejects invalid counts before saving on every return path", {
+  scores <- stats::setNames(c(5, 3, 1), letters[1:3])
+  grouped <- matrix(1:6, 3, dimnames = list(letters[1:3], c("A", "B")))
+  filename <- withr::local_tempfile(fileext = ".pdf")
+  for (data in list(scores, grouped)) {
+    for (return_type in c("plot", "data", "both")) {
+      for (argument in c("top_n", "max_show", "ncol")) {
+        args <- list(data = data, return_type = return_type, filename = filename)
+        args[[argument]] <- 1.5
+        error <- tryCatch(do.call(PlotRank, args), error = identity)
+        expect_s3_class(error, "error")
+        if (inherits(error, "error")) {
+          expect_match(conditionMessage(error), paste0("`", argument, "`.*integer"))
+          expect_null(conditionCall(error))
+        }
+        expect_length(Sys.glob(filename), 0L)
+      }
+    }
   }
 })
