@@ -172,6 +172,101 @@ test_that("plt_sankey sizes default palettes to displayed nodes", {
   expect_identical(data, original)
 })
 
+test_that("plt_sankey treats SPSS user-missing codes as missing nodes", {
+  skip_if_not_installed("ggsankey")
+  skip_if_not_installed("haven")
+
+  data <- data.frame(
+    a = haven::labelled_spss(c(1, 99, 2, 99, NA, 1),
+                            labels = c(No = 1, Yes = 2, Missing = 99), na_values = 99),
+    b = c("x", "x", "y", "y", "x", "y")
+  )
+  original <- data
+  plot <- sankey_plot(data, reverse_levels = FALSE)
+  built <- ggplot2::ggplot_build(plot)$data
+  expect_setequal(as.character(built[[3]]$label),
+                   c("1 (2, 33.3%)", "2 (1, 16.7%)", "NA (3, 50.0%)",
+                     "x (3, 50.0%)", "y (3, 50.0%)"))
+  expect_equal(built[[2]]$ymax - built[[2]]$ymin, c(2, 1, 3, 3, 3))
+  expect_identical(data, original)
+})
+
+test_that("plt_sankey normalizes SPSS ranges and character missing codes", {
+  skip_if_not_installed("ggsankey")
+  skip_if_not_installed("haven")
+
+  values <- list(
+    haven::labelled_spss(c(89, 90, 95, 99, 100, 777, NA, 89),
+                         na_range = c(90, 99), na_values = 777),
+    haven::labelled_spss(c("low", "missing", "high", "missing", NA, "low"),
+                         na_values = "missing")
+  )
+  normalized <- list(c(89, NA, NA, NA, 100, NA, NA, 89),
+                     c("low", NA, "high", NA, NA, "low"))
+  for (i in seq_along(values)) {
+    data <- data.frame(a = values[[i]], b = rep(c("x", "y"), length.out = length(values[[i]])))
+    original <- data
+    reference <- data
+    reference$a <- normalized[[i]]
+    for (reverse in c(FALSE, TRUE)) {
+      plot <- sankey_plot(data, reverse_levels = reverse)
+      expected <- sankey_plot(reference, reverse_levels = reverse)
+      expect_equal(ggplot2::ggplot_build(plot)$data,
+                   ggplot2::ggplot_build(expected)$data)
+    }
+    expect_identical(data, original)
+  }
+})
+
+test_that("plt_sankey conserves SPSS flows and input-row denominators", {
+  skip_if_not_installed("ggsankey")
+  skip_if_not_installed("haven")
+
+  data <- data.frame(
+    a = haven::labelled_spss(c(1, 1, 99, 99, 2, NA, 2, 99), na_values = 99),
+    b = haven::labelled_spss(c(1, 99, 2, NA, 2, 2, 99, 1), na_values = 99),
+    c = haven::labelled_spss(c(999, NA, 999, NA, 999, NA, 999, NA), na_values = 999)
+  )
+  built <- ggplot2::ggplot_build(sankey_plot(data))$data
+  nodes <- built[[2]]
+  expect_equal(as.numeric(tapply(nodes$ymax - nodes$ymin, nodes$x, sum)), rep(8, 3))
+  expect_setequal(as.character(built[[3]]$label),
+                   c("1 (2, 25.0%)", "2 (2, 25.0%)", "NA (4, 50.0%)",
+                     "2 (3, 37.5%)", "NA (3, 37.5%)", "NA (8, 100.0%)"))
+  flows <- unique(built[[1]][c("group", "xmax", "flow_start_ymin", "flow_start_ymax",
+                                "flow_end_ymin", "flow_end_ymax")])
+  counts <- flows$flow_start_ymax - flows$flow_start_ymin
+  expect_equal(sort(counts), c(rep(1, 6), 2, 2, 3, 3))
+  expect_equal(counts, flows$flow_end_ymax - flows$flow_end_ymin)
+  expect_equal(as.numeric(tapply(counts, flows$xmax, sum)), c(8, 8))
+
+  filtered <- ggplot2::ggplot_build(sankey_plot(data, label_args = list(min_pct = 0.5)))$data
+  expect_equal(filtered[1:2], built[1:2])
+  expect_setequal(as.character(filtered[[3]]$label), c("NA (4, 50.0%)", "NA (8, 100.0%)"))
+})
+
+test_that("plt_sankey keeps serialized SPSS missingness and valid labelled codes", {
+  skip_if_not_installed("ggsankey")
+  skip_if_not_installed("haven")
+
+  data <- data.frame(
+    a = haven::labelled_spss(c(1, 99, haven::tagged_na("a"), NA, 2, 1),
+                            labels = c(No = 1, Yes = 2, Missing = 99), na_values = 99),
+    b = haven::labelled(c(1, 1, 99, NA, 2, 2), labels = c(No = 1, Yes = 2, Valid = 99))
+  )
+  path <- withr::local_tempfile(fileext = ".rds")
+  saveRDS(data, path)
+  restored <- readRDS(path)
+  reference <- data.frame(a = c(1, NA, NA, NA, 2, 1), b = c(1, 1, 99, NA, 2, 2))
+  for (style in c("all", "name")) {
+    plot <- sankey_plot(restored, show_text = style)
+    expected <- sankey_plot(reference, show_text = style)
+    expect_equal(ggplot2::ggplot_build(plot)$data,
+                 ggplot2::ggplot_build(expected)$data)
+  }
+  expect_identical(restored, data)
+})
+
 test_that("plt_sankey does not retain unused payload in the returned plot", {
   skip_if_not_installed("ggsankey")
   skip_if_not_installed("lobstr")

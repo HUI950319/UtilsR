@@ -21,7 +21,9 @@ plt_sankey(
 }
 \arguments{
 \item{data}{A data frame. Only selected columns are retained in the plot's
-working data; unrelated columns do not increase the returned plot size.}
+working data; unrelated columns do not increase the returned plot size.
+SPSS user-missing codes and ranges are converted to \code{NA} before
+categorization, requiring \pkg{haven}.}
 
 \item{vars}{Character vector selecting at least two categorical variables,
 displayed left-to-right in the given order. An unnamed vector contains

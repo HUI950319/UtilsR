@@ -10,6 +10,8 @@
 #'
 #' @param data A data frame. Only selected columns are retained in the plot's
 #'   working data; unrelated columns do not increase the returned plot size.
+#'   SPSS user-missing codes and ranges are converted to \code{NA} before
+#'   categorization, requiring \pkg{haven}.
 #' @param vars Character vector selecting at least two categorical variables,
 #'   displayed left-to-right in the given order. An unnamed vector contains
 #'   column names and retains the existing axis labels. A named vector maps
@@ -229,6 +231,12 @@ plt_sankey <- function(data,
 
   # Ensure factors
   for (v in vars) {
+    if (inherits(data[[v]], "haven_labelled_spss")) {
+      if (!requireNamespace("haven", quietly = TRUE)) {
+        cli::cli_abort("Interpreting SPSS user-missing values requires package {.pkg haven}.")
+      }
+      data[[v]] <- haven::zap_missing(data[[v]])
+    }
     if (!is.factor(data[[v]])) data[[v]] <- factor(data[[v]])
   }
 
