@@ -2334,6 +2334,21 @@ test_that("colour vector HEX fallbacks retain alpha and row boundaries", {
                          logical(1), x = html, fixed = TRUE)))
 })
 
+test_that("palette preview formatters do not retain their source tables", {
+  for (palette in list("Set1", c(Clear = "#FFFFFF00", Half = "#11223380"))) {
+    table <- pal_show(palette, output = "gt")
+    formats <- table[["_formats"]]
+    preview <- Filter(function(x) identical(x[["cols"]], "preview"), formats)[[1L]]
+    for (output in c("latex", "word", "rtf", "default")) {
+      fn <- preview[["func"]][[output]]
+      expect_false(exists("data", envir = environment(fn), inherits = FALSE))
+    }
+    restored <- unserialize(serialize(table, NULL))
+    expect_identical(gt::extract_cells(restored, columns = "preview", output = "latex"),
+                     gt::extract_cells(table, columns = "preview", output = "latex"))
+  }
+})
+
 test_that("palette HEX fallbacks are used during document knitting", {
   table <- pal_show_viridis("viridis", n = 3, output = "gt")
   original <- knitr::opts_knit$get("rmarkdown.pandoc.to")

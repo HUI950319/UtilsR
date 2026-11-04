@@ -875,23 +875,24 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     )
 }
 
-# Keep generated HTML swatches and expose their HEX values in other formats.
-.pal_format_preview <- function(data) {
-  force(data)
+# Keep the callbacks outside the table's environment for serialization.
+.pal_preview_formats <- local({
   hex <- function(x) {
     vapply(regmatches(x, gregexpr("background:#[A-Fa-f0-9]+", x)), function(cols) {
       paste(sub("background:", "", cols, fixed = TRUE), collapse = " ")
     }, character(1), USE.NAMES = FALSE)
   }
-  gt::fmt(data, columns = "preview", fns = list(
-    html = identity,
-    latex = function(x) gsub("#", "\\#", hex(x), fixed = TRUE),
-    rtf = hex, word = hex, default = hex
-  ))
+  list(html = identity,
+       latex = function(x) gsub("#", "\\#", hex(x), fixed = TRUE),
+       rtf = hex, word = hex, default = hex)
+}, envir = new.env(parent = baseenv()))
+
+.pal_format_preview <- function(data) {
+  gt::fmt(data, columns = "preview", fns = .pal_preview_formats)
 }
 
 # Let LaTeX break compound names while gt handles escaping in other formats.
-.pal_name_formats <- list(
+.pal_name_formats <- local(list(
   latex = function(x) {
     parts <- strsplit(x, "(?<=[_.-])|(?<=[a-z])(?=[A-Z])", perl = TRUE)
     vapply(parts, function(word) {
@@ -899,7 +900,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     }, character(1), USE.NAMES = FALSE)
   },
   default = function(x) rep(NA_character_, length(x))
-)
+), envir = new.env(parent = baseenv()))
 
 # Numeric strings refer to the mutable base palette rather than literal colours.
 .pal_are_colors <- function(x) {
