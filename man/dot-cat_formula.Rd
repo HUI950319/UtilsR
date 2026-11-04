@@ -35,6 +35,13 @@ logistic), whether it is adjusted, and its formula, e.g.
 \code{Cox model, unadjusted: Surv(time, DSS) ~ Sex}. The model type comes
 from the number of distinct non-missing outcome values and whether there
 is a time variable. \code{suppressMessages()} silences it.
+
+For survival models, SPSS user-missing codes and ranges in
+\code{haven_labelled_spss} outcomes are excluded before counting values.
+This requires the optional \pkg{haven} package, including for outcomes
+restored from serialized files. Non-syntactic column names are quoted and
+escaped as R names. The notice is not wrapped, preserving whitespace
+within column names even on a narrow console.
 }
 \examples{
 formula_data <- data.frame(
@@ -43,6 +50,9 @@ formula_data <- data.frame(
   age = c(45, 52, 61, 39)
 )
 .cat_formula(formula_data, co_var = "age")
+names(formula_data)[1:2] <- c("event status", "follow up")
+.cat_formula(formula_data, co_var = "age", time = "follow up",
+             outcome = "event status")
 
 }
 \seealso{

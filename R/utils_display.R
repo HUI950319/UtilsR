@@ -341,6 +341,13 @@ console_width <- function() {
 #' from the number of distinct non-missing outcome values and whether there
 #' is a time variable. \code{suppressMessages()} silences it.
 #'
+#' For survival models, SPSS user-missing codes and ranges in
+#' \code{haven_labelled_spss} outcomes are excluded before counting values.
+#' This requires the optional \pkg{haven} package, including for outcomes
+#' restored from serialized files. Non-syntactic column names are quoted and
+#' escaped as R names. The notice is not wrapped, preserving whitespace
+#' within column names even on a narrow console.
+#'
 #' @param data A data.frame containing the outcome column.
 #' @param co_var Character vector of covariate names.
 #' @param time Character or \code{NULL}. Name of the time variable
@@ -359,6 +366,9 @@ console_width <- function() {
 #'   age = c(45, 52, 61, 39)
 #' )
 #' .cat_formula(formula_data, co_var = "age")
+#' names(formula_data)[1:2] <- c("event status", "follow up")
+#' .cat_formula(formula_data, co_var = "age", time = "follow up",
+#'              outcome = "event status")
 #'
 #' @export
 #' @family console display
@@ -366,17 +376,30 @@ console_width <- function() {
                          type = c("info", "success", "warning", "error")) {
   type <- match.arg(type)
   adj  <- if (length(co_var) == 1L) "unadjusted" else "adjusted"
-  rhs  <- paste(co_var, collapse = " + ")
+  quote_names <- function(x) {
+    vapply(x, function(nm) deparse1(as.name(nm), backtick = TRUE),
+           character(1L), USE.NAMES = FALSE)
+  }
+  rhs  <- paste(quote_names(co_var), collapse = " + ")
   # one line in place of a box and a rule, nine lines per model (2026-10-25)
   if (is.null(time)) {
     model   <- "Logistic"
-    formula <- sprintf("%s ~ %s", outcome, rhs)
+    formula <- sprintf("%s ~ %s", quote_names(outcome), rhs)
   } else {
     # a missing outcome is not a level: 0/1 with NA is still a Cox model
-    model   <- if (dplyr::n_distinct(data[[outcome]], na.rm = TRUE) == 3L) "CRR" else "Cox"
-    formula <- sprintf("Surv(%s, %s) ~ %s", time, outcome, rhs)
+    values <- data[[outcome]]
+    if (inherits(values, "haven_labelled_spss")) {
+      if (!requireNamespace("haven", quietly = TRUE)) {
+        cli::cli_abort("Interpreting SPSS user-missing values requires package {.pkg haven}.")
+      }
+      values <- haven::zap_missing(values)
+    }
+    model   <- if (dplyr::n_distinct(values, na.rm = TRUE) == 3L) "CRR" else "Cox"
+    formula <- sprintf("Surv(%s, %s) ~ %s", quote_names(time),
+                       quote_names(outcome), rhs)
   }
-  .cat_message(sprintf("%s model, %s: %s", model, adj, formula), type = type)
+  .cat_message(sprintf("%s model, %s: %s", model, adj, formula),
+               type = type, wrap = FALSE)
 }
 
 # ------------- .cat_tb ------------------------------------------------------
