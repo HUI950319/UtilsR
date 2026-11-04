@@ -89,7 +89,11 @@ fmt_point(
   define sampling groups. Numeric group and facet values remain distinct
   even when their printed labels coincide. Sampling requires scalar
   fixed aesthetics; put external row vectors into `data` and map its
-  columns instead. Default `NULL` (no sampling).
+  columns instead. Configuration vectors in base
+  [`factor()`](https://rdrr.io/r/base/factor.html),
+  [`ordered()`](https://rdrr.io/r/base/factor.html), and
+  [`cut()`](https://rdrr.io/r/base/cut.html) calls are allowed. Default
+  `NULL` (no sampling).
 
 - seed:
 
