@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Palette catalogue HTML retains fixed swatch widths and horizontal scrolling in narrow containers while preserving user width overrides.
+
 * `show_color()` prepares shared composited backgrounds once while retaining distinct HEX labels, transparency, attributes and colour order.
 
 * `show_color()` applies true-colour foregrounds in batches while retaining indexed-terminal contrast and the original ANSI output.

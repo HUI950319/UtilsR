@@ -2659,7 +2659,7 @@ test_that("palette percentage widths remain usable in a browser", {
     tbl <- do.call(case$fun, c(list(palette = case$palette, output = "gt"), case$args))
     plain <- gt::cols_width(tbl, palette ~ "28%", type ~ "18%", n_colors ~ "18%", preview ~ "36%")
     decimal <- gt::cols_width(tbl, palette ~ "28.0%", type ~ "18.00%", n_colors ~ "18.000%", preview ~ "36.0000%")
-    variants <- list(default = tbl, columns_only = plain,
+    variants <- list(default = tbl, narrow = tbl, columns_only = plain,
       pixels = gt::cols_width(tbl, palette ~ gt::px(90)),
       hidden = gt::cols_hide(tbl, preview),
       raw_plain = pal_show(c("#112233", "#445566")),
@@ -2668,7 +2668,8 @@ test_that("palette percentage widths remain usable in a browser", {
       percent_decimal = gt::tab_options(decimal, table.width = "100%", container.width = gt::pct(100)),
       table_decimal = gt::tab_options(plain, table.width = "100.0%", container.width = gt::pct(100)))
     for (kind in names(variants)) for (inline in c(TRUE, FALSE)) {
-      sections <- c(sections, paste0('<section data-kind="', kind, '" style="width:1000px">',
+      container_width <- if (kind == "narrow") 350 else 1000
+      sections <- c(sections, paste0('<section data-kind="', kind, '" style="width:', container_width, 'px">',
         gt::as_raw_html(variants[[kind]], inline_css = inline), '</section>'))
     }
   }
@@ -2676,6 +2677,7 @@ test_that("palette percentage widths remain usable in a browser", {
     'document.querySelectorAll("section").forEach(s=>{const t=s.querySelector("table"),',
     'r=t.tBodies[0].rows[0],sp=[...r.querySelectorAll("span[role=img]")];',
     's.dataset.actualWidth=t.getBoundingClientRect().width;',
+    's.dataset.containerWidth=t.parentElement.clientWidth;s.dataset.scrollWidth=t.parentElement.scrollWidth;',
     's.dataset.columns=[...r.children].map(c=>c.getBoundingClientRect().width).join(",");',
     's.dataset.swatches=sp.map(x=>x.getBoundingClientRect().width).join(",");',
     's.dataset.lines=new Set(sp.map(x=>Math.round(x.getBoundingClientRect().top))).size;',
@@ -2708,7 +2710,13 @@ test_that("palette percentage widths remain usable in a browser", {
     if (kind == "hidden") next
     spans <- as.numeric(strsplit(xml2::xml_attr(node, "data-swatches"), ",", fixed = TRUE)[[1L]])
     expect_equal(spans, rep(20, 20), tolerance = 0.1)
-    if (kind == "default") expect_identical(xml2::xml_attr(node, "data-lines"), "1")
+    if (kind %in% c("default", "narrow")) expect_identical(xml2::xml_attr(node, "data-lines"), "1")
+    if (kind == "narrow") {
+      expect_equal(columns, c(180, 80, 70, 410), tolerance = 0.1)
+      expect_equal(width, 740, tolerance = 0.1)
+      expect_equal(as.numeric(xml2::xml_attr(node, "data-container-width")), 350)
+      expect_gte(as.numeric(xml2::xml_attr(node, "data-scroll-width")), 740)
+    }
     if (kind %in% c("percent_plain", "percent_decimal", "table_decimal")) {
       expect_equal(width, 1000, tolerance = 0.1)
       columns <- as.numeric(strsplit(xml2::xml_attr(node, "data-columns"), ",", fixed = TRUE)[[1L]])

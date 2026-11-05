@@ -962,10 +962,11 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   }, names(latex_widths), widths)
   tbl <- gt::tab_options(tbl, table.width = table_marker)
   tbl <- gt::cols_width(tbl, .list = rules)
+  table_width <- if (is.null(html_widths)) "auto" else "max-content"
   column_widths <- if (is.null(html_widths)) "auto" else paste0(html_widths, "px")
   # gt supplies a fresh table ID when it compiles the extra HTML styles.
   gt::opt_css(tbl, css = c(
-    sprintf('##{$element_id} .gt_table[style*="width:%s;"] {width:auto !important;}', table_marker),
+    sprintf('##{$element_id} .gt_table[style*="width:%s;"] {width:%s !important;}', table_marker, table_width),
     sprintf('##{$element_id} col[style="width:%s;"] {width:%s !important;}', widths, column_widths)
   ))
 }
