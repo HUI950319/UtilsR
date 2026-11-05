@@ -2,6 +2,29 @@
 
 ## UtilsR 0.6.23
 
+- Palette catalogue HTML retains fixed swatch widths and horizontal
+  scrolling in narrow containers while preserving user width overrides.
+
+- [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
+  prepares shared composited backgrounds once while retaining distinct
+  HEX labels, transparency, attributes and colour order.
+
+- [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
+  applies true-colour foregrounds in batches while retaining
+  indexed-terminal contrast and the original ANSI output.
+
+- pal_show_hcl() accepts backslash-separated palette names using the
+  same normalization as native HCL matching.
+
+- Palette HTML tables keep usable automatic widths when all columns use
+  percentages and isolate internal format markers from ordinary
+  percentage overrides, preserving compact colour-vector tables and
+  LaTeX widths.
+
+- [`pal_show()`](https://hui950319.github.io/UtilsR/reference/pal_show.md)
+  colour-vector LaTeX tables can span pages and repeat headings,
+  retaining all colours in long previews.
+
 - [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
   checks large distinct colour vectors in batches when locating invalid
   values, while retaining the small-input path and original error
