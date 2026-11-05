@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `show_color()` retains complete swatches at the maximum supported console width without integer overflow, including when warnings are treated as errors.
+
 * Resolve background band colours in categorical and continuous plots, including split panels.
 
 * Skip position sequences and numeric normalisation for single-colour output while preserving missing positions and HEX formatting.

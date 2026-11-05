@@ -748,7 +748,7 @@ show_color <- function(x, rev = FALSE) {
     styled <- if (length(hex)) paste0(left_pad, hex, right_pad) else character()
   }
 
-  per_line <- max(1L, (width + 1L) %/% (label_width + padding + 1L))
+  per_line <- max(1L, (width + 1) %/% (label_width + padding + 1L))
   rows <- split(styled, ceiling(seq_along(styled) / per_line))
   if (!length(rows)) rows <- list(character())
   for (row in rows) cat(paste(row, collapse = " "), "\n", sep = "")

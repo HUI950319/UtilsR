@@ -551,6 +551,24 @@ test_that("show_color keeps complete labels within narrow console widths", {
   expect_identical(out[[1]], " #FF0000   #0000FF ")
 })
 
+test_that("show_color retains swatches at the maximum console width", {
+  withr::local_options(cli.num_colors = 0, cli.width = .Machine$integer.max,
+                      width = 80, warn = 2)
+  cols <- c(A = "red", B = "#F008", C = NA_character_, D = "blue")
+  expected <- c("#FF0000", "#FF000088", "#FFFFFF00", "#0000FF")
+  for (depth in c(0, 1, 8, 16, 256, 16777216)) for (reverse in c(FALSE, TRUE)) {
+    options(cli.num_colors = depth)
+    out <- capture.output(value <- withVisible(show_color(cols, rev = reverse)))
+    plain <- cli::ansi_strip(out)
+    swatches <- grepl("^ *#", plain)
+    labels <- unlist(regmatches(plain[swatches], gregexpr("#[0-9A-F]{8}|#[0-9A-F]{6}", plain[swatches])))
+    expect_identical(unname(labels), if (reverse) rev(expected) else expected)
+    expect_identical(value$value, if (reverse) rev(cols) else cols)
+    expect_identical(eval(parse(text = plain[!swatches])), value$value)
+    expect_identical(value$visible, FALSE)
+  }
+})
+
 test_that("show_color reverses names while retaining custom vector attributes", {
   withr::local_options(cli.num_colors = 0, cli.width = 40, width = 40)
   for (named in c(FALSE, TRUE)) {
