@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Palette HTML tables keep usable automatic widths when all columns use percentages and isolate internal format markers from ordinary percentage overrides, preserving compact colour-vector tables and LaTeX widths.
+
 * `pal_show()` colour-vector LaTeX tables can span pages and repeat headings, retaining all colours in long previews.
 
 * `show_color()` checks large distinct colour vectors in batches when locating invalid values, while retaining the small-input path and original error positions and values.

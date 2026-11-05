@@ -952,19 +952,20 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   default = function(x) rep(NA_character_, length(x))
 ), envir = new.env(parent = baseenv()))
 
-# Use equivalent percent spellings to distinguish our widths from later gt overrides.
+# Keep internal format markers beyond the precision emitted by gt::pct().
 .pal_gt_widths <- function(tbl, latex_widths, html_widths = NULL) {
-  widths <- paste0(latex_widths, ".", strrep("0", seq_along(latex_widths)), "%")
+  suffix <- paste0(".", strrep("0", 30), seq_along(latex_widths), "%")
+  widths <- paste0(latex_widths, suffix)
+  table_marker <- paste0("100", suffix[[1L]])
   rules <- Map(function(column, width) {
     stats::as.formula(bquote(.(as.name(column)) ~ .(width)))
   }, names(latex_widths), widths)
-  tbl <- gt::tab_options(tbl, table.width = "100.0%")
+  tbl <- gt::tab_options(tbl, table.width = table_marker)
   tbl <- gt::cols_width(tbl, .list = rules)
-  table_width <- if (is.null(html_widths)) "auto" else "0px"
   column_widths <- if (is.null(html_widths)) "auto" else paste0(html_widths, "px")
   # gt supplies a fresh table ID when it compiles the extra HTML styles.
   gt::opt_css(tbl, css = c(
-    sprintf('##{$element_id} .gt_table[style*="width:100.0%%;"] {width:%s !important;}', table_width),
+    sprintf('##{$element_id} .gt_table[style*="width:%s;"] {width:auto !important;}', table_marker),
     sprintf('##{$element_id} col[style="width:%s;"] {width:%s !important;}', widths, column_widths)
   ))
 }

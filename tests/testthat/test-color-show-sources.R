@@ -2620,3 +2620,99 @@ test_that("catalogue swatches expose their hexadecimal values", {
     check_swatches(tbl, .pal_hex(p$data$color))
   }
 })
+
+test_that("palette percentage widths keep equivalent user values", {
+  skip_if_not_installed("xml2")
+  for (case in source_palette_border_cases()) {
+    tbl <- do.call(case$fun, c(list(palette = case$palette, output = "gt"), case$args))
+    variants <- list(
+      gt::cols_width(tbl, palette ~ "28%", type ~ "18%", n_colors ~ "18%", preview ~ "36%"),
+      gt::cols_width(tbl, palette ~ "28.0%", type ~ "18.00%", n_colors ~ "18.000%", preview ~ "36.0000%")
+    )
+    for (changed in variants) {
+      changed <- gt::tab_options(changed, table.width = "100.0%", container.width = gt::pct(100))
+      for (inline in c(TRUE, FALSE)) {
+        doc <- xml2::read_html(gt::as_raw_html(changed, inline_css = inline))
+        styles <- xml2::xml_attr(xml2::xml_find_all(doc, "//colgroup/col"), "style")
+        expect_identical(grepl("%", styles, fixed = TRUE), rep(TRUE, 4))
+        expect_equal(as.numeric(gsub("[^0-9.]", "", styles)), c(28, 18, 18, 36))
+        expect_match(xml2::xml_attr(xml2::xml_find_first(doc, "//table"), "style"),
+                     "width:\\s*100(?:\\.0+)?%;")
+      }
+    }
+  }
+})
+
+test_that("palette percentage widths remain usable in a browser", {
+  skip_if_not_installed("xml2")
+  chrome <- unname(Sys.which(c("google-chrome", "chromium", "chromium-browser", "chrome")))
+  chrome <- chrome[nzchar(chrome)]
+  if (.Platform$OS.type == "windows") {
+    candidates <- c(file.path(Sys.getenv("PROGRAMFILES"), "Google/Chrome/Application/chrome.exe"),
+      file.path(Sys.getenv("PROGRAMFILES(X86)"), "Microsoft/Edge/Application/msedge.exe"))
+    chrome <- c(chrome, candidates[file.exists(candidates)])
+  }
+  skip_if(length(chrome) == 0L, "A Chromium browser is required for rendered width checks")
+  path <- withr::local_tempdir()
+  sections <- character()
+  for (case in list(list(fun = pal_show, palette = "viridis", args = list(n = 20)))) {
+    tbl <- do.call(case$fun, c(list(palette = case$palette, output = "gt"), case$args))
+    plain <- gt::cols_width(tbl, palette ~ "28%", type ~ "18%", n_colors ~ "18%", preview ~ "36%")
+    decimal <- gt::cols_width(tbl, palette ~ "28.0%", type ~ "18.00%", n_colors ~ "18.000%", preview ~ "36.0000%")
+    variants <- list(default = tbl, columns_only = plain,
+      pixels = gt::cols_width(tbl, palette ~ gt::px(90)),
+      hidden = gt::cols_hide(tbl, preview),
+      raw_plain = pal_show(c("#112233", "#445566")),
+      raw_named = pal_show(c(A = "#112233", B = "#445566")),
+      percent_plain = gt::tab_options(plain, table.width = "100%", container.width = gt::pct(100)),
+      percent_decimal = gt::tab_options(decimal, table.width = "100%", container.width = gt::pct(100)),
+      table_decimal = gt::tab_options(plain, table.width = "100.0%", container.width = gt::pct(100)))
+    for (kind in names(variants)) for (inline in c(TRUE, FALSE)) {
+      sections <- c(sections, paste0('<section data-kind="', kind, '" style="width:1000px">',
+        gt::as_raw_html(variants[[kind]], inline_css = inline), '</section>'))
+    }
+  }
+  script <- paste0('<script>window.addEventListener("load",()=>{',
+    'document.querySelectorAll("section").forEach(s=>{const t=s.querySelector("table"),',
+    'r=t.tBodies[0].rows[0],sp=[...r.querySelectorAll("span[role=img]")];',
+    's.dataset.actualWidth=t.getBoundingClientRect().width;',
+    's.dataset.columns=[...r.children].map(c=>c.getBoundingClientRect().width).join(",");',
+    's.dataset.swatches=sp.map(x=>x.getBoundingClientRect().width).join(",");',
+    's.dataset.lines=new Set(sp.map(x=>Math.round(x.getBoundingClientRect().top))).size;',
+    '});});</script>')
+  input <- file.path(path, "widths.html")
+  output <- file.path(path, "widths-dom.html")
+  writeLines(paste0('<!doctype html><html><head><meta charset="utf-8"></head><body>',
+    paste(sections, collapse = "\n"), script, '</body></html>'), input, useBytes = TRUE)
+  profile <- file.path(path, "profile")
+  status <- system2(chrome[[1L]], c("--headless", "--disable-gpu", "--no-first-run",
+    "--no-default-browser-check", "--virtual-time-budget=1000", "--dump-dom",
+    shQuote(paste0("--user-data-dir=", profile)),
+    shQuote(paste0("file:///", normalizePath(input, winslash = "/")))),
+    stdout = output, stderr = file.path(path, "browser.log"), timeout = 25)
+  expect_identical(status, 0L)
+  doc <- xml2::read_html(output)
+  nodes <- xml2::xml_find_all(doc, "//section[@data-kind]")
+  expect_length(nodes, length(sections))
+  for (node in nodes) {
+    kind <- xml2::xml_attr(node, "data-kind")
+    width <- as.numeric(xml2::xml_attr(node, "data-actual-width"))
+    expect_gt(width, 1, label = paste("table width", kind))
+    if (grepl("^raw_", kind)) {
+      expect_lt(width, 500)
+      next
+    }
+    columns <- as.numeric(strsplit(xml2::xml_attr(node, "data-columns"), ",", fixed = TRUE)[[1L]])
+    if (kind == "pixels") expect_equal(columns, c(90, 80, 70, 410), tolerance = 0.1)
+    if (kind == "hidden") expect_equal(columns, c(180, 80, 70), tolerance = 0.1)
+    if (kind == "hidden") next
+    spans <- as.numeric(strsplit(xml2::xml_attr(node, "data-swatches"), ",", fixed = TRUE)[[1L]])
+    expect_equal(spans, rep(20, 20), tolerance = 0.1)
+    if (kind == "default") expect_identical(xml2::xml_attr(node, "data-lines"), "1")
+    if (kind %in% c("percent_plain", "percent_decimal", "table_decimal")) {
+      expect_equal(width, 1000, tolerance = 0.1)
+      columns <- as.numeric(strsplit(xml2::xml_attr(node, "data-columns"), ",", fixed = TRUE)[[1L]])
+      expect_equal(columns, c(280, 180, 180, 360), tolerance = 0.1)
+    }
+  }
+})
