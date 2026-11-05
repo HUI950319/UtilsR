@@ -51,6 +51,18 @@ For new or changed saving interfaces, follow the shared
 [save contract](../r-function-dev.md) §6. Retain existing `filename`, `width`,
 `height` and `dpi` interfaces unless their migration is explicitly authorized.
 
+`pal_get()` accepts literal colour names and hex codes and rejects numeric
+indices, including digit-leading strings, before native decoding. Keep the
+existing numeric-index support of `.resolve_color()` when reusing its
+validation machinery (2026-11-05, `26610ea6`).
+
+When rebuilding `data/palette_list.rda`, validate the package root and the
+existing catalogue. An error generating a supported palette stops the rebuild.
+Save in a temporary file beside the target, read it back and compare it with the
+generated catalogue before replacing the target. Test write and replace failures
+against a scratch copy and check that the old file's bytes survive (2026-11-02–03,
+`a9649719`, `b50b7efc`, `217e6079`).
+
 ## PlotXxx workflow
 
 Use the seven-step workflow and templates:
