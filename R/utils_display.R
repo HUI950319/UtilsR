@@ -634,12 +634,25 @@ show_color <- function(x, rev = FALSE) {
   }
   if (is.null(hex)) {
     to_check <- unique(x)
-    valid <- vapply(to_check, function(col) {
-      tryCatch({
-        grDevices::col2rgb(col)
-        TRUE
-      }, error = function(e) FALSE)
-    }, logical(1), USE.NAMES = FALSE)
+    if (length(to_check) <= 256L) {
+      valid <- vapply(to_check, function(col) {
+        tryCatch({
+          grDevices::col2rgb(col)
+          TRUE
+        }, error = function(e) FALSE)
+      }, logical(1), USE.NAMES = FALSE)
+    } else {
+      can_draw <- function(col) {
+        tryCatch({ grDevices::col2rgb(col); TRUE }, error = function(e) FALSE)
+      }
+      valid <- rep(TRUE, length(to_check))
+      for (start in seq.int(1L, length(to_check), by = 256L)) {
+        at <- seq.int(start, min(start + 255, length(to_check)))
+        if (!can_draw(to_check[at])) {
+          valid[at] <- vapply(to_check[at], can_draw, logical(1), USE.NAMES = FALSE)
+        }
+      }
+    }
     valid <- valid[match(x, to_check)]
     names(valid) <- if (is.null(names(x))) x else names(x)
     invalid <- which(numeric_index | !valid)

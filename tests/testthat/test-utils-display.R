@@ -430,6 +430,28 @@ test_that("show_color reports repeated invalid colours at their original positio
   }
 })
 
+test_that("show_color batches large colour diagnostics and retains duplicate positions", {
+  withr::local_options(cli.num_colors = 0, cli.width = 80)
+  native_col2rgb <- grDevices::col2rgb
+  calls <- integer()
+  testthat::local_mocked_bindings(
+    col2rgb = function(col, ...) {
+      calls <<- c(calls, length(col))
+      native_col2rgb(col, ...)
+    },
+    .package = "grDevices"
+  )
+  cols <- setNames(sprintf("#%06X", seq_len(2048L)), paste0("c", seq_len(2048L)))
+  cols[c(256L, 257L, 513L, 2048L)] <- c("not_a_colour", "not_a_colour", "2e0", "unknown_colour")
+  out <- capture.output(error <- tryCatch(show_color(cols), error = identity))
+  expect_s3_class(error, "error")
+  for (value in c("256", "257", "513", "2048", "not_a_colour", "2e0", "unknown_colour")) {
+    expect_match(conditionMessage(error), value, fixed = TRUE)
+  }
+  expect_identical(out, character())
+  expect_lt(sum(calls == 1L), length(cols) * 3 / 4)
+})
+
 test_that("show_color requires one non-missing logical reverse control", {
   withr::local_options(cli.num_colors = 0)
   for (bad in list(NULL, logical(), NA, 1, 0, "TRUE", c(TRUE, FALSE),
