@@ -656,3 +656,38 @@ test_that("show_color preserves interleaved foreground and background styles", {
     expect_identical(eval(parse(text = output[-1L])), cols)
   }
 })
+
+test_that("show_color preserves distinct labels on shared composited backgrounds", {
+  withr::local_options(cli.num_colors = 0, cli.width = 80, width = 80)
+  cols <- structure(c(A = "#00000000", B = "#FF000000", C = "#00FF0000",
+                      D = "#0000FF00", E = "#000000", F = "#FFFFFF",
+                      G = "#00000000", H = "#FF000001"),
+                    note = list(precision = pi))
+  backgrounds <- c(rep("#FFFFFF", 4L), "#000000", "#FFFFFF", "#FFFFFF", "#FFFEFE")
+  foregrounds <- c(rep("#000000", 4L), "#FFFFFF", rep("#000000", 3L))
+  for (depth in c(0, 8, 256, 16777216)) for (reverse in c(FALSE, TRUE)) {
+    options(cli.num_colors = depth)
+    order <- if (reverse) rev(seq_along(cols)) else seq_along(cols)
+    expected <- cols
+    expected[] <- cols[order]
+    names(expected) <- names(cols)[order]
+    reference <- vapply(order, function(i) {
+      label <- paste0(" ", cols[[i]], " ")
+      if (depth == 0) return(label)
+      cli::combine_ansi_styles(cli::make_ansi_style(foregrounds[[i]]),
+        cli::make_ansi_style(backgrounds[[i]], bg = TRUE, grey = FALSE))(label)
+    }, character(1))
+    for (width in c(20, 80)) {
+      options(cli.width = width)
+      output <- capture.output(value <- withVisible(show_color(cols, rev = reverse)))
+      swatches <- grepl("^ *#", cli::ansi_strip(output))
+      rows <- if (width == 20) reference else c(paste(reference[1:6], collapse = " "),
+                                                paste(reference[7:8], collapse = " "))
+      expect_identical(output[swatches], unname(rows))
+      expect_identical(value$value, expected)
+      expect_false(value$visible)
+      expect_identical(eval(parse(text = output[!swatches])), expected)
+      expect_identical(getOption("cli.num_colors"), depth)
+    }
+  }
+})

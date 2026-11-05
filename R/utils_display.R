@@ -745,8 +745,9 @@ show_color <- function(x, rev = FALSE) {
     }
     if (num_colors >= 16777216L) luminance <- .luminance(preview)
     foreground_cols <- if (num_colors >= 16777216L) character(length(ids)) else NULL
-    styled <- vapply(seq_along(ids), function(j) {
-      i <- ids[[j]]
+    style_group <- function(position) {
+      j <- position[[1L]]
+      i <- ids[position]
       bg_style <- cli::make_ansi_style(preview_rgb[, j, drop = FALSE], bg = TRUE, grey = FALSE)
       fg_col <- if (num_colors < 16777216L) {
         bg_luminance <- .displayed_luminance(bg_style)
@@ -759,12 +760,20 @@ show_color <- function(x, rev = FALSE) {
       }
       fg_style <- foreground[[fg_col]]
       if (num_colors < 16777216L) {
-        cli::combine_ansi_styles(fg_style, bg_style)(paste0(left_pad, hex[[i]], right_pad))
+        cli::combine_ansi_styles(fg_style, bg_style)(paste0(left_pad, hex[i], right_pad))
       } else {
-        foreground_cols[[j]] <<- fg_col
-        bg_style(paste0(left_pad, hex[[i]], right_pad))
+        foreground_cols[position] <<- fg_col
+        bg_style(paste0(left_pad, hex[i], right_pad))
       }
-    }, character(1), USE.NAMES = FALSE)
+    }
+    if (anyDuplicated(preview)) {
+      # Share backgrounds after compositing, retaining every original HEX label.
+      groups <- split(seq_along(ids), match(preview, unique(preview)))
+      styled <- character(length(ids))
+      for (position in groups) styled[position] <- style_group(position)
+    } else {
+      styled <- vapply(seq_along(ids), style_group, character(1), USE.NAMES = FALSE)
+    }
     # Apply each true-colour foreground to its labels in one call.
     if (num_colors >= 16777216L) {
       for (fg_col in unique(foreground_cols)) {
