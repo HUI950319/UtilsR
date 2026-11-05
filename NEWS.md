@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pal_show()` colour-vector LaTeX tables can span pages and repeat headings, retaining all colours in long previews.
+
 * `show_color()` checks large distinct colour vectors in batches when locating invalid values, while retaining the small-input path and original error positions and values.
 
 * `show_color()` retains complete swatches at the maximum supported console width without integer overflow, including when warnings are treated as errors.

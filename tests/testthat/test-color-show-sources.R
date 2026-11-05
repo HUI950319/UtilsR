@@ -2486,6 +2486,30 @@ test_that("colour vector LaTeX tables give long names room to wrap", {
   expect_match(plain, "0.45\\linewidth", fixed = TRUE)
 })
 
+test_that("colour vector LaTeX tables repeat headings and allow page breaks", {
+  colours <- list(
+    unname(grDevices::rainbow(60)),
+    stats::setNames(grDevices::rainbow(20),
+      paste("Tumour-associated macrophages with high interferon response", seq_len(20)))
+  )
+  for (cols in colours) {
+    table <- pal_show(cols, max_colors = Inf)
+    latex <- as.character(gt::as_latex(table))
+    expect_match(latex, "\\begin{longtable}", fixed = TRUE)
+    expect_match(latex, "\\endhead", fixed = TRUE)
+    expect_match(latex, "\\end{longtable}", fixed = TRUE)
+    expect_identical(unname(gt::extract_cells(table, columns = "preview", output = "latex")),
+                     paste0("\\", unname(cols)))
+  }
+
+  short <- gt::tab_options(pal_show(c("#11223380", "#CC6600")),
+    latex.use_longtable = FALSE, latex.header_repeat = FALSE)
+  latex <- as.character(gt::as_latex(short))
+  expect_match(latex, "\\begin{tabular*}", fixed = TRUE)
+  expect_match(latex, "\\end{tabular*}", fixed = TRUE)
+  expect_identical(grepl("\\endhead", latex, fixed = TRUE), FALSE)
+})
+
 test_that("palette preview formatters do not retain their source tables", {
   for (palette in list("Set1", c(Clear = "#FFFFFF00", Half = "#11223380"))) {
     table <- pal_show(palette, output = "gt")

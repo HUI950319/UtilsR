@@ -1059,7 +1059,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #'   In gt catalogue output, long palette names wrap within the name column.
 #'   Each swatch exposes its hexadecimal colour value as a hover title and an
 #'   accessible label.
-#'   LaTeX catalogue tables use the available text width and repeat column
+#'   LaTeX tables use the available text width and repeat column
 #'   headings when the table spans pages in a single-column document. For a
 #'   short table in a two-column LaTeX document, turn off both
 #'   \code{latex.use_longtable} and \code{latex.header_repeat} on the returned
@@ -2039,7 +2039,9 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
     gt::tab_options(
       table.font.size = gt::px(13),
       data_row.padding = gt::px(3),
-      column_labels.padding = gt::px(6)
+      column_labels.padding = gt::px(6),
+      latex.use_longtable = TRUE,
+      latex.header_repeat = TRUE
     )
 
   .pal_gt_widths(tbl, latex_widths)
