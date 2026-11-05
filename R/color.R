@@ -1515,7 +1515,7 @@ pal_show_hcl <- function(palette = NULL, n = 8,
 
   pal_names <- all_names
   if (!is.null(palette)) {
-    normalise <- function(x) tolower(gsub("[-_,(). ]", "", x))
+    normalise <- function(x) tolower(gsub("[-_,(). \\\\]", "", x))
     matched <- charmatch(normalise(palette), normalise(pal_names))
     if (any(matched == 0L, na.rm = TRUE)) {
       ambiguous <- unique(palette[which(matched == 0L)])

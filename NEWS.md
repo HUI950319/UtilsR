@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* pal_show_hcl() accepts backslash-separated palette names using the same normalization as native HCL matching.
+
 * Palette HTML tables keep usable automatic widths when all columns use percentages and isolate internal format markers from ordinary percentage overrides, preserving compact colour-vector tables and LaTeX widths.
 
 * `pal_show()` colour-vector LaTeX tables can span pages and repeat headings, retaining all colours in long previews.

@@ -2716,3 +2716,18 @@ test_that("palette percentage widths remain usable in a browser", {
     }
   }
 })
+
+test_that("HCL palette viewers normalize backslash separators like base R", {
+  aliases <- c("Dark\\3", "dA\\rK_-(3).", "Vi\\r")
+  canonical <- c("Dark 3", "Dark 3", "Viridis")
+  for (i in seq_along(aliases)) {
+    expected <- grDevices::hcl.colors(3, aliases[[i]])
+    expect_identical(expected, grDevices::hcl.colors(3, canonical[[i]]))
+    expect_source_single_preview(pal_show_hcl, aliases[[i]], list(n = 3), expected, "3")
+    tbl <- pal_show_hcl(aliases[[i]], n = 3, output = "gt")
+    expect_identical(tbl[["_data"]]$palette, canonical[[i]])
+  }
+  tbl <- pal_show_hcl(c("Dark\\3", "Dark_3", "Dark 3"), n = 3, output = "gt")
+  expect_identical(tbl[["_data"]]$palette, "Dark 3")
+  expect_error(pal_show_hcl("D\\a", n = 3), "ambiguous HCL names")
+})
