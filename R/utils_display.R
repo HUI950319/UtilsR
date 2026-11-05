@@ -744,6 +744,7 @@ show_color <- function(x, rev = FALSE) {
       fg_luminance <- vapply(foreground, .displayed_luminance, numeric(1))
     }
     if (num_colors >= 16777216L) luminance <- .luminance(preview)
+    foreground_cols <- if (num_colors >= 16777216L) character(length(ids)) else NULL
     styled <- vapply(seq_along(ids), function(j) {
       i <- ids[[j]]
       bg_style <- cli::make_ansi_style(preview_rgb[, j, drop = FALSE], bg = TRUE, grey = FALSE)
@@ -757,8 +758,20 @@ show_color <- function(x, rev = FALSE) {
         foreground[[fg_col]] <<- cli::make_ansi_style(fg_col, bg = FALSE)
       }
       fg_style <- foreground[[fg_col]]
-      cli::combine_ansi_styles(fg_style, bg_style)(paste0(left_pad, hex[[i]], right_pad))
+      if (num_colors < 16777216L) {
+        cli::combine_ansi_styles(fg_style, bg_style)(paste0(left_pad, hex[[i]], right_pad))
+      } else {
+        foreground_cols[[j]] <<- fg_col
+        bg_style(paste0(left_pad, hex[[i]], right_pad))
+      }
     }, character(1), USE.NAMES = FALSE)
+    # Apply each true-colour foreground to its labels in one call.
+    if (num_colors >= 16777216L) {
+      for (fg_col in unique(foreground_cols)) {
+        selection <- foreground_cols == fg_col
+        styled[selection] <- foreground[[fg_col]](styled[selection])
+      }
+    }
     if (length(ids) < length(hex)) styled <- styled[match(hex, hex[ids])]
   } else {
     styled <- if (length(hex)) paste0(left_pad, hex, right_pad) else character()

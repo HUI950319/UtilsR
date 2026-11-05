@@ -630,3 +630,29 @@ test_that("show_color respects the loaded cli renderer when true colour is reque
   expect_identical(value$visible, FALSE)
   expect_identical(getOption("cli.num_colors"), 16777216)
 })
+
+test_that("show_color preserves interleaved foreground and background styles", {
+  withr::local_options(cli.num_colors = 16777216, cli.width = 80, width = 80)
+  cols <- structure(c(dark = "#000001", light = "#FFFFFE", again = "#000001",
+                      alpha = "#00000080", cyan = "#00FFFF"),
+                    note = list(precision = 1 / 3))
+  backgrounds <- c("#000001", "#FFFFFE", "#000001", "#7F7F7F", "#00FFFF")
+  foregrounds <- c("#FFFFFF", "#000000", "#FFFFFF", "#000000", "#000000")
+  for (depth in c(8, 256, 16777216)) {
+    options(cli.num_colors = depth)
+    expected_foregrounds <- foregrounds
+    if (depth < 256) expected_foregrounds[[4L]] <- "#FFFFFF"
+    reference <- vapply(seq_along(cols), function(i) {
+      cli::combine_ansi_styles(cli::make_ansi_style(expected_foregrounds[[i]]),
+        cli::make_ansi_style(backgrounds[[i]], bg = TRUE, grey = FALSE))(
+          paste0(" ", cols[[i]], " "))
+    }, character(1))
+    before <- getOption("cli.num_colors")
+    output <- capture.output(value <- withVisible(show_color(cols)))
+    expect_identical(output[[1L]], paste(reference, collapse = " "))
+    expect_identical(value$value, cols)
+    expect_false(value$visible)
+    expect_identical(getOption("cli.num_colors"), before)
+    expect_identical(eval(parse(text = output[-1L])), cols)
+  }
+})
