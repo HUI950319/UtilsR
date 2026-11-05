@@ -50,11 +50,14 @@ colour themes can change the result.
 Missing character values (`NA_character_`) and the literal colour `"NA"`
 follow R's transparent-colour convention, so their swatches have the
 same `#FFFFFF00` label as `"transparent"`. Their original values, names
-and attributes are retained in the returned vector and its copyable
-expression. Numeric attributes use 17-digit precision. Special
-attributes such as environments cannot be reconstructed by
-[`dput()`](https://rdrr.io/r/base/dput.html). An empty character vector
-is also accepted.
+and attributes are retained in the returned vector. The copyable
+expression uses 17-digit precision for numeric attributes.
+[`dput()`](https://rdrr.io/r/base/dput.html) cannot reconstruct every
+object exactly, including environment attributes and names marked with
+the `"bytes"` encoding. Use
+[`saveRDS()`](https://rdrr.io/r/base/readRDS.html) on the returned
+vector when exact object preservation is required. An empty character
+vector is also accepted.
 
 ## Examples
 

@@ -50,7 +50,9 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.23" id="utilsr-0623">UtilsR 0.6.23<a class="anchor" aria-label="anchor" href="#utilsr-0623"></a></h2>
-<ul><li><p>Resolve background band colours in categorical and continuous plots, including split panels.</p></li>
+<ul><li><p><code><a href="../reference/show_color.html">show_color()</a></code> checks large distinct colour vectors in batches when locating invalid values, while retaining the small-input path and original error positions and values.</p></li>
+<li><p><code><a href="../reference/show_color.html">show_color()</a></code> retains complete swatches at the maximum supported console width without integer overflow, including when warnings are treated as errors.</p></li>
+<li><p>Resolve background band colours in categorical and continuous plots, including split panels.</p></li>
 <li><p>Skip position sequences and numeric normalisation for single-colour output while preserving missing positions and HEX formatting.</p></li>
 <li><p>Reject digit-leading palette strings before calling the native colour parser, and document literal colour inputs.</p></li>
 <li><p>Preserve user-supplied text elements in scatter and alluvial plot themes, including ggtext elements, while retaining the plot layout controls.</p></li>

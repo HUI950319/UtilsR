@@ -2,6 +2,16 @@
 
 ## UtilsR 0.6.23
 
+- [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
+  checks large distinct colour vectors in batches when locating invalid
+  values, while retaining the small-input path and original error
+  positions and values.
+
+- [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
+  retains complete swatches at the maximum supported console width
+  without integer overflow, including when warnings are treated as
+  errors.
+
 - Resolve background band colours in categorical and continuous plots,
   including split panels.
 

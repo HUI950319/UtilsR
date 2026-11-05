@@ -116,9 +116,12 @@ standard xterm palette. Custom terminal colour themes can change the result.</p>
 <p>Missing character values (<code>NA_character_</code>) and the literal colour
 <code>"NA"</code> follow R's transparent-colour convention, so their swatches have
 the same <code>#FFFFFF00</code> label as <code>"transparent"</code>. Their original
-values, names and attributes are retained in the returned vector and its
-copyable expression. Numeric attributes use 17-digit precision. Special
-attributes such as environments cannot be reconstructed by <code><a href="https://rdrr.io/r/base/dput.html" class="external-link">dput()</a></code>.
+values, names and attributes are retained in the returned vector. The
+copyable expression uses 17-digit precision for numeric attributes.
+<code><a href="https://rdrr.io/r/base/dput.html" class="external-link">dput()</a></code> cannot reconstruct every object exactly, including environment
+attributes and names marked with the <code>"bytes"</code> encoding. Use
+<code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS()</a></code> on the returned vector when exact object preservation is
+required.
 An empty character vector is also accepted.</p>
     </div>
 
