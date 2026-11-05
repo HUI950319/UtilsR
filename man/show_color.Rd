@@ -43,9 +43,12 @@ standard xterm palette. Custom terminal colour themes can change the result.
 Missing character values (\code{NA_character_}) and the literal colour
 \code{"NA"} follow R's transparent-colour convention, so their swatches have
 the same \code{#FFFFFF00} label as \code{"transparent"}. Their original
-values, names and attributes are retained in the returned vector and its
-copyable expression. Numeric attributes use 17-digit precision. Special
-attributes such as environments cannot be reconstructed by \code{dput()}.
+values, names and attributes are retained in the returned vector. The
+copyable expression uses 17-digit precision for numeric attributes.
+\code{dput()} cannot reconstruct every object exactly, including environment
+attributes and names marked with the \code{"bytes"} encoding. Use
+\code{saveRDS()} on the returned vector when exact object preservation is
+required.
 An empty character vector is also accepted.
 }
 \examples{
