@@ -56,6 +56,11 @@ indices, including digit-leading strings, before native decoding. Keep the
 existing numeric-index support of `.resolve_color()` when reusing its
 validation machinery (2026-11-05, `26610ea6`).
 
+Deferred by the user: keep the `plt_dist()` label font-size strategy as it is,
+and do not list it again in evaluations until the user brings it up (said in
+six prompts from 2026-11-04 to 11-06 during `.resolve_theme()` reviews:
+"`plt_dist()` 的字号策略先不改").
+
 When rebuilding `data/palette_list.rda`, validate the package root and the
 existing catalogue. An error generating a supported palette stops the rebuild.
 Save in a temporary file beside the target, read it back and compare it with the
