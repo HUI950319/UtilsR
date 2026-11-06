@@ -691,3 +691,40 @@ test_that("show_color preserves distinct labels on shared composited backgrounds
     }
   }
 })
+
+test_that("show_color retains indexed contrast across the standard xterm palette", {
+  withr::local_options(cli.num_colors = 256, cli.width = 4096, width = 80)
+  base <- c("#000000", "#CD0000", "#00CD00", "#CDCD00", "#0000EE", "#CD00CD", "#00CDCD", "#E5E5E5",
+            "#7F7F7F", "#FF0000", "#00FF00", "#FFFF00", "#5C5CFF", "#FF00FF", "#00FFFF", "#FFFFFF")
+  index <- 0:215
+  levels <- c(0, 95, 135, 175, 215, 255)
+  cube <- rbind(levels[index %/% 36L + 1L], levels[index %/% 6L %% 6L + 1L],
+                levels[index %% 6L + 1L])
+  rgb <- cbind(grDevices::col2rgb(base), cube,
+               matrix(rep(8L + 10L * (0:23), each = 3L), 3L))
+  cols <- grDevices::rgb(rgb[1L, ], rgb[2L, ], rgb[3L, ], maxColorValue = 255)
+  emitted_colour <- function(style) {
+    shown <- style(" ")
+    tag <- regmatches(shown, regexpr("\\[[0-9;]+m", shown))
+    code <- as.integer(strsplit(substr(tag, 2L, nchar(tag) - 1L), ";", fixed = TRUE)[[1L]])
+    index <- if (length(code) == 3L) code[[3L]] else {
+      code[[1L]] %% 10L + if (code[[1L]] >= 90L) 8L else 0L
+    }
+    cols[[index + 1L]]
+  }
+  for (depth in c(8, 16, 256)) {
+    options(cli.num_colors = depth)
+    foreground <- lapply(c("#000000", "#FFFFFF"), cli::make_ansi_style)
+    actual_foreground <- vapply(foreground, emitted_colour, character(1))
+    reference <- vapply(cols, function(col) {
+      background <- cli::make_ansi_style(col, bg = TRUE, grey = FALSE)
+      ratios <- colorspace::contrast_ratio(emitted_colour(background), actual_foreground)
+      cli::combine_ansi_styles(foreground[[which.max(ratios)]], background)(paste0(" ", col, " "))
+    }, character(1), USE.NAMES = FALSE)
+    output <- capture.output(value <- withVisible(show_color(cols)))
+    expect_identical(output[[1L]], paste(reference, collapse = " "))
+    expect_identical(value$value, cols)
+    expect_false(value$visible)
+    expect_identical(getOption("cli.num_colors"), depth)
+  }
+})

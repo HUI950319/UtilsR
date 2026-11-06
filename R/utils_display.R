@@ -742,6 +742,8 @@ show_color <- function(x, rev = FALSE) {
       })
       names(foreground) <- c("#000000", "#FFFFFF")
       fg_luminance <- vapply(foreground, .displayed_luminance, numeric(1))
+      # Equal contrast occurs at the geometric mean of the offset luminances.
+      foreground_cutoff <- sqrt(prod(fg_luminance + 0.05)) - 0.05
     }
     if (num_colors >= 16777216L) luminance <- .luminance(preview)
     foreground_cols <- if (num_colors >= 16777216L) character(length(ids)) else NULL
@@ -751,9 +753,7 @@ show_color <- function(x, rev = FALSE) {
       bg_style <- cli::make_ansi_style(preview_rgb[, j, drop = FALSE], bg = TRUE, grey = FALSE)
       fg_col <- if (num_colors < 16777216L) {
         bg_luminance <- .displayed_luminance(bg_style)
-        contrast <- (pmax(fg_luminance, bg_luminance) + 0.05) /
-          (pmin(fg_luminance, bg_luminance) + 0.05)
-        names(foreground)[[which.max(contrast)]]
+        names(foreground)[[if (bg_luminance >= foreground_cutoff) 1L else 2L]]
       } else if (luminance[[j]] > 0.179) "#000000" else "#FFFFFF"
       if (is.null(foreground[[fg_col]])) {
         foreground[[fg_col]] <<- cli::make_ansi_style(fg_col, bg = FALSE)

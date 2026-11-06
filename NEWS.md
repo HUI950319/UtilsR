@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `show_color()` precomputes the contrast switchpoint of emitted indexed foreground colours while retaining the original ANSI output.
+
 * Palette catalogue HTML retains fixed swatch widths and horizontal scrolling in narrow containers while preserving user width overrides.
 
 * `show_color()` prepares shared composited backgrounds once while retaining distinct HEX labels, transparency, attributes and colour order.
