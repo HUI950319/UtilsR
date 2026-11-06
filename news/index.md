@@ -2,6 +2,14 @@
 
 ## UtilsR 0.6.23
 
+- [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
+  skips ANSI preparation for empty colour vectors while retaining
+  copyable expressions, attributes and input validation.
+
+- [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
+  precomputes the contrast switchpoint of emitted indexed foreground
+  colours while retaining the original ANSI output.
+
 - Palette catalogue HTML retains fixed swatch widths and horizontal
   scrolling in narrow containers while preserving user width overrides.
 
