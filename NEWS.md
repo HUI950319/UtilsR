@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+- Rebuild legacy S3 plot backgrounds with the active ggplot2 rectangle constructor so their fill and border are drawn after theme conversion.
+
 * `show_color()` skips ANSI preparation for empty colour vectors while retaining copyable expressions, attributes and input validation.
 
 * `show_color()` precomputes the contrast switchpoint of emitted indexed foreground colours while retaining the original ANSI output.

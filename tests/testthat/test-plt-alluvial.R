@@ -756,3 +756,25 @@ test_that("plt_alluvial preserves the supplied axis element and keeps default st
   default <- suppressMessages(plt_alluvial(data, "x", "y"))
   expect_identical(default$theme$axis.text$colour, "black")
 })
+
+test_that("plt_alluvial draws legacy plot backgrounds", {
+  skip_if_not_installed("ggalluvial")
+  rect <- structure(list(fill = "gold", colour = "blue", linewidth = 2,
+                         linetype = 3, inherit.blank = FALSE),
+                    class = c("element_rect", "element"))
+  legacy <- structure(list(plot.background = rect), class = c("theme", "gg"),
+                      complete = FALSE, validate = TRUE)
+  for (thm in list(legacy, suppressWarnings((ggplot2::theme() + legacy)))) {
+    plot <- suppressWarnings(plt_alluvial(alluvial_data(), cat_var = "category",
+                                          group = "group", theme_use = thm))
+    g <- suppressWarnings(ggplot2::ggplotGrob(plot))
+    i <- which(g$layout$name == "background")
+    expect_length(i, 1L)
+    if (length(i)) {
+      expect_identical(g$grobs[[i]]$gp$fill, "gold")
+      expect_identical(g$grobs[[i]]$gp$col, "blue")
+      expect_equal(g$grobs[[i]]$gp$lwd, 2 * 72.27 / 25.4)
+      expect_equal(g$grobs[[i]]$gp$lty, 3)
+    }
+  }
+})

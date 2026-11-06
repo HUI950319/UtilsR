@@ -27,6 +27,9 @@ a local custom theme used through a plotting wrapper.
 Errors evaluating a visible binding or calling a theme function are preserved.
 Theme functions are called without arguments by default. Supply settings in
 a closure or pass them through \code{...}.
+Legacy S3 \code{plot.background} rectangles are rebuilt with the active
+ggplot2 constructor so their fill and border remain drawable. Other legacy
+elements retain the compatibility requirements of the plotting function.
 }
 \examples{
 .resolve_theme("theme_bw")

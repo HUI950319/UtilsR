@@ -146,3 +146,31 @@ test_that(".resolve_theme forwards options to factories only", {
   thm <- ggplot2::theme_bw(base_size = 17)
   expect_identical(.resolve_theme(thm, base_size = stop("unused size")), thm)
 })
+
+test_that(".resolve_theme draws legacy plot backgrounds from objects and factories", {
+  rect <- structure(list(fill = "gold", colour = "blue", linewidth = 2,
+                         linetype = 3, inherit.blank = FALSE),
+                    class = c("element_rect", "element"))
+  legacy <- structure(list(plot.background = rect), class = c("theme", "gg"),
+                      complete = FALSE, validate = TRUE)
+  current <- suppressWarnings((ggplot2::theme() + legacy))
+  calls <- 0L
+  factory <- function() { calls <<- calls + 1L; legacy }
+  for (spec in list(legacy, current, factory, "factory")) {
+    thm <- .resolve_theme(spec)
+    plot <- suppressWarnings(ggplot2::ggplot(data.frame(x = 1:3, y = 1:3),
+                                           ggplot2::aes(x, y)) + ggplot2::geom_point() + thm)
+    g <- suppressWarnings(ggplot2::ggplotGrob(plot))
+    i <- which(g$layout$name == "background")
+    expect_length(i, 1L)
+    if (length(i)) {
+      expect_identical(g$grobs[[i]]$gp$fill, "gold")
+      expect_identical(g$grobs[[i]]$gp$col, "blue")
+      expect_equal(g$grobs[[i]]$gp$lwd, 2 * 72.27 / 25.4)
+      expect_equal(g$grobs[[i]]$gp$lty, 3)
+    }
+  }
+  expect_identical(calls, 2L)
+  expect_identical(legacy$plot.background, rect)
+  expect_identical(current$plot.background, rect)
+})

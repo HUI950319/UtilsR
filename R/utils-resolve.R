@@ -31,6 +31,9 @@
 #' Errors evaluating a visible binding or calling a theme function are preserved.
 #' Theme functions are called without arguments by default. Supply settings in
 #' a closure or pass them through \code{...}.
+#' Legacy S3 \code{plot.background} rectangles are rebuilt with the active
+#' ggplot2 constructor so their fill and border remain drawable. Other legacy
+#' elements retain the compatibility requirements of the plotting function.
 #'
 #' @param theme_use \code{NULL}, a single non-missing, non-empty theme name, a function
 #'   returning a theme, or a theme object.
@@ -69,17 +72,25 @@
       stop(sprintf("Theme '%s' not found", theme_use), call. = FALSE)
     theme_use <- fn
   }
-  if (inherits(theme_use, "theme")) return(theme_use)
-  if (is.function(theme_use)) {
+  if (inherits(theme_use, "theme")) {
+    thm <- theme_use
+  } else if (is.function(theme_use)) {
     thm <- theme_use(...)
     if (!inherits(thm, "theme"))
       stop(sprintf("'theme_use'%s must return a ggplot2 theme object; got <%s>",
                    if (is.null(theme_name)) "" else sprintf(" (factory '%s')", theme_name),
                    class(thm)[1L]), call. = FALSE)
-    return(thm)
+  } else {
+    stop("'theme_use' must be NULL, character, function, or theme object",
+         call. = FALSE)
   }
-  stop("'theme_use' must be NULL, character, function, or theme object",
-       call. = FALSE)
+  # ggplot2 4 converts legacy theme shells but silently skips their S3 plot
+  # background. Rebuild only that supported payload with the active constructor.
+  background <- thm[["plot.background"]]
+  if (identical(class(background)[1L], "element_rect")) {
+    thm[["plot.background"]] <- do.call(ggplot2::element_rect, as.list(background))
+  }
+  thm
 }
 
 
