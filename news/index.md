@@ -2,6 +2,9 @@
 
 ## UtilsR 0.6.23
 
+- Rebuild legacy S3 plot backgrounds with the active ggplot2 rectangle
+  constructor so their fill and border are drawn after theme conversion.
+
 - [`show_color()`](https://hui950319.github.io/UtilsR/reference/show_color.md)
   skips ANSI preparation for empty colour vectors while retaining
   copyable expressions, attributes and input validation.
