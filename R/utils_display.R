@@ -695,7 +695,8 @@ show_color <- function(x, rev = FALSE) {
   if (num_colors >= 16777216L && getNamespaceVersion("cli") < "3.1.0") {
     num_colors <- 256L
   }
-  if (num_colors > 1L) {
+  use_ansi <- if (num_colors > 1L) length(hex) > 0L else FALSE
+  if (use_ansi) {
     old_colors <- options(cli.num_colors = num_colors)
     on.exit(options(old_colors), add = TRUE)
     ids <- if (anyDuplicated(hex)) match(unique(hex), hex) else seq_along(hex)

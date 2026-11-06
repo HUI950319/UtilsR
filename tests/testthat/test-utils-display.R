@@ -728,3 +728,30 @@ test_that("show_color retains indexed contrast across the standard xterm palette
     expect_identical(getOption("cli.num_colors"), depth)
   }
 })
+
+test_that("show_color retains empty expressions and validation at every colour depth", {
+  withr::local_options(cli.num_colors = 0, cli.width = 80, width = 80)
+  inputs <- list(character(), structure(character(), type = "discrete",
+                                       note = list(precision = c(pi, 1 / 3))))
+  for (cols in inputs) {
+    expected <- c("", capture.output(dput(cols, control = c(
+      "keepNA", "keepInteger", "niceNames", "showAttributes", "digits17"))))
+    for (depth in c(0, 1, 8, 16, 256, 16777216)) for (reverse in c(FALSE, TRUE)) {
+      options(cli.num_colors = depth)
+      output <- capture.output(value <- withVisible(show_color(cols, rev = reverse)))
+      expect_identical(output, expected)
+      expect_identical(value$value, cols)
+      expect_false(value$visible)
+      expect_identical(eval(parse(text = output[-1L])), cols)
+      expect_identical(getOption("cli.num_colors"), depth)
+    }
+  }
+  for (bad in list(NULL, NA, 1, matrix(TRUE))) {
+    output <- capture.output(expect_error(show_color(character(), rev = bad), "`rev`"))
+    expect_identical(output, character())
+  }
+  for (bad in list(NULL, logical(), list(), matrix(character(), nrow = 0L))) {
+    output <- capture.output(expect_error(show_color(bad), "`x`"))
+    expect_identical(output, character())
+  }
+})
