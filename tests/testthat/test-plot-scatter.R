@@ -34,6 +34,19 @@ scatter3_integer_pairs <- function() {
   )
 }
 
+test_that("grouped scatter styles fail before data and unused ellipse settings stay lazy", {
+  for (arg in c("point_size", "point_alpha", "layout_ratio")) {
+    args <- list(data = quote(stop("data evaluated")), x = "x", y = "y", group = "g")
+    args[[arg]] <- if (arg == "layout_ratio") c(1, NA) else NA_real_
+    expect_error(do.call("PlotScatter1", args), arg)
+  }
+  expect_error(PlotScatter1(stop("data evaluated"), "x", "y", "g", ellipse_level = 1), "ellipse_level")
+  d <- data.frame(x = 1:6, y = 6:1, g = rep(c("a", "b"), 3))
+  withr::local_options(lifecycle_verbosity = "quiet")
+  expect_no_warning(PlotScatter1(d, "x", "y", "g", show_ellipse = FALSE,
+    ellipse_level = stop("unused ellipse"), box_jitter = FALSE))
+})
+
 test_that("PlotScatter1 rejects ambiguous data-frame column names", {
   d <- data.frame(x = 1:4, y = 4:1, g = rep(c("a", "b"), 2), x = 5:8, check.names = FALSE)
   expect_error(PlotScatter1(d, "x", "y", "g", show_ellipse = FALSE,

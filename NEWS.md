@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* PlotScatter1() validates point styles, ellipse confidence and panel ratios before reading data.
+
 * PlotDumbbell() validates display switches before data processing while keeping inactive inset settings lazy.
 
 * PlotRank() validates data-frame selectors and unique matrix group names instead of silently reusing the first match.

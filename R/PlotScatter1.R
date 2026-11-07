@@ -151,6 +151,16 @@ PlotScatter1 <- function(
     if (!is.logical(value) || !is.null(dim(value)) || length(value) != 1L || is.na(value))
       stop("'", arg, "' must be TRUE or FALSE.", call. = FALSE)
   }
+  for (arg in c("point_size", "point_alpha", if (show_ellipse) "ellipse_level")) {
+    value <- get(arg)
+    if (!is.numeric(value) || is.object(value) || !is.null(dim(value)) || length(value) != 1L ||
+        !is.finite(value) || value < 0 || (arg == "point_alpha" && value > 1) ||
+        (arg == "ellipse_level" && (value <= 0 || value >= 1)))
+      stop("'", arg, "' must be a finite scalar in its allowed range.", call. = FALSE)
+  }
+  if (!is.numeric(layout_ratio) || is.object(layout_ratio) || !is.null(dim(layout_ratio)) ||
+      length(layout_ratio) != 2L || any(!is.finite(layout_ratio)) || any(layout_ratio <= 0))
+    stop("'layout_ratio' must contain two finite positive numbers.", call. = FALSE)
   if (!is.data.frame(data)) stop("'data' must be a data.frame.", call. = FALSE)
   if (anyNA(names(data)) || any(!nzchar(names(data))) || anyDuplicated(names(data)))
     stop("'data' must have unique, non-missing, non-empty column names.", call. = FALSE)
