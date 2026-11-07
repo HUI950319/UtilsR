@@ -61,6 +61,15 @@ test_that("PlotScatter1 validates selectors and logical controls before reading 
   }
 })
 
+test_that("PlotScatter2 rejects non-vector axes before theme evaluation", {
+  for (col in c("x", "y")) for (bad in list(1:4 + 1i, as.list(1:4), matrix(1:4, 4))) {
+    d <- data.frame(x = 1:4, y = 4:1, g = rep(c("a", "b"), 2))
+    d[[col]] <- bad
+    expect_error(PlotScatter2(d, "x", "y", "g", base_size = stop("theme evaluated")),
+      "must contain a real vector")
+  }
+})
+
 test_that("PlotScatter2 validates selectors and logical controls before reading data", {
   for (arg in c("x", "y", "group", "group2")) {
     for (bad in list(character(), c("x", "y"), NA_character_, matrix("x"))) {

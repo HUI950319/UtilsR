@@ -172,6 +172,11 @@ PlotScatter2 <- function(
   for (col in need_cols) {
     if (!col %in% colnames(data)) stop(sprintf("Column '%s' not found in data.", col))
   }
+  for (col in unique(c(x, y))) {
+    value <- data[[col]]
+    if (is.complex(value) || is.list(value) || !is.null(dim(value)))
+      stop("Column '", col, "' must contain a real vector.", call. = FALSE)
+  }
 
   integer64_groups <- vapply(unique(c(group, group2)), function(col) {
     inherits(data[[col]], "integer64")
