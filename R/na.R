@@ -85,14 +85,14 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
   if (!is.data.frame(data)) {
     cli::cli_abort("{.arg data} must be a data.frame, not {.cls {class(data)}}.")
   }
-  if (!is.logical(show_all) || length(show_all) != 1L || is.na(show_all)) {
+  if (!is.logical(show_all) || !is.null(dim(show_all)) || length(show_all) != 1L || is.na(show_all)) {
     cli::cli_abort("{.arg show_all} must be a single non-missing logical.")
   }
   if (!is.null(pattern) &&
-      (!is.character(pattern) || length(pattern) != 1L || is.na(pattern))) {
+      (!is.character(pattern) || !is.null(dim(pattern)) || length(pattern) != 1L || is.na(pattern))) {
     cli::cli_abort("{.arg pattern} must be NULL or a single non-missing character string.")
   }
-  if (!is.null(special) && (!is.character(special) || anyNA(special))) {
+  if (!is.null(special) && (!is.character(special) || !is.null(dim(special)) || anyNA(special))) {
     cli::cli_abort("{.arg special} must be NULL or a character vector without missing values.")
   }
   invalid <- special[vapply(special, function(p) inherits(tryCatch(

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* check_na() rejects dimensional report flags and regular-expression controls before inspecting selected columns.
+
 * check_packages() requires a scalar refresh flag before reading installed-package metadata.
 
 * fmt_axisText() rejects class-encoded angles and adjustments while retaining relative font sizes.

@@ -622,3 +622,10 @@ test_that("check_na validates special", {
   expect_error(capture_gt_data(check_na(data, special = c("^none$", "("))),
                "valid regular expressions")
 })
+
+test_that("missing-value report controls reject arrays before column inspection", {
+  d <- data.frame(x = c(1, NA))
+  expect_error(check_na(d, show_all = matrix(TRUE)), "show_all")
+  expect_error(check_na(d, pattern = matrix("x")), "pattern")
+  expect_error(check_na(d, special = matrix("unknown")), "special")
+})
