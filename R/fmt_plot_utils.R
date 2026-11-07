@@ -23,7 +23,11 @@
       match("inset_patch", class(plot)) < match("patchwork", class(plot)))) return(plot)
   if (inherits(plot, "patchwork")) {
     free_settings <- attr(plot, "patchwork_free_settings")
-    for (i in seq_along(plot)) plot[[i]] <- .map_plot_leaves(plot[[i]], fun)
+    for (i in seq_along(plot)) {
+      child <- plot[[i]]
+      updated <- .map_plot_leaves(child, fun)
+      if (!identical(updated, child)) plot[[i]] <- updated
+    }
     if (!is.null(free_settings)) {
       attr(plot, "patchwork_free_settings") <- free_settings
       class(plot) <- unique(c("free_plot", class(plot)))

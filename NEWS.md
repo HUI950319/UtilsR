@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Shared formatter traversal avoids replacing unchanged patchwork children, reducing container reconstruction while retaining leaf order and annotations.
+
 * `fmt_text()` returns validated plot containers directly when no text edits are requested, avoiding unnecessary reconstruction of nested layouts.
 
 * `plt_na()` validates the three displayed colours before inspecting input data, retaining transparent missing colours and ignored extra entries.

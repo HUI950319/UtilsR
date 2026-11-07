@@ -86,3 +86,20 @@ test_that("fmt_plot_base preflights named option lists before theme factories", 
   p <- plot_fixture()
   expect_identical(fmt_plot_base(p, labs_list = list()), p)
 })
+
+test_that("plot-leaf traversal retains unchanged siblings and edits each data leaf once", {
+  p <- plot_fixture()
+  pw <- patchwork::wrap_plots(p, p + p, patchwork::plot_spacer()) +
+    patchwork::plot_annotation(title = "Container")
+  expect_identical(UtilsR:::.map_plot_leaves(pw, identity), pw)
+  seen <- 0L
+  out <- UtilsR:::.map_plot_leaves(pw, function(p) {
+    seen <<- seen + 1L
+    if (seen == 2L) p + ggplot2::labs(title = "Edited") else p
+  })
+  expect_identical(seen, 3L)
+  expect_identical(out[[1]], pw[[1]])
+  expect_identical(out[[2]][[1]]$labels$title, "Edited")
+  expect_identical(out$patches$annotation, pw$patches$annotation)
+  expect_identical(out$patches$layout, pw$patches$layout)
+})
