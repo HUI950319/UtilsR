@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Raster capture validates background colours before device and plot work; backends that do not use backgrounds continue to ignore the argument.
+
 * `fmt_com()` rejects class-encoded numeric layout controls and reference ranks before resolving comparison mappings.
 
 * `PlotRankCor()` distinguishes classed score data from ordinary numeric styling controls, preventing encoded storage from setting sizes, opacity or overlap counts.

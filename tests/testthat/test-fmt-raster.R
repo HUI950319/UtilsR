@@ -344,6 +344,14 @@ test_that("raster dimensions reject class-encoded storage before selecting a dev
   }
 })
 
+test_that("raster background colours are diagnosed before device and plot work", {
+  for (method in c("ragg", "image")) {
+    for (bad in list("invalid-background", c("red", "blue"), matrix("white"))) {
+      expect_error(fmt_raster(stop("plot evaluated"), method = method, bg = bad), "bg")
+    }
+  }
+})
+
 test_that("invalid resolutions and panel dimensions fail before the backend", {
   local_mocked_bindings(
     .fmt_raster_ragg = function(...) stop("backend was called"),

@@ -179,6 +179,12 @@ fmt_raster <- function(
         cli::cli_abort("{.arg {arg}} must be a single value for {.code method = \"image\"}.")
       }
     }
+    if (length(bg) != 1L || !is.null(dim(bg)) ||
+        !(is.character(bg) || (is.numeric(bg) && !is.object(bg)) || identical(bg, NA)) ||
+        !tryCatch({ grDevices::col2rgb(bg, alpha = TRUE); TRUE },
+                    error = function(e) FALSE, warning = function(w) FALSE)) {
+      cli::cli_abort("{.arg bg} must be one valid R colour or NA.")
+    }
   }
 
   if (method == "ggrastr") {
