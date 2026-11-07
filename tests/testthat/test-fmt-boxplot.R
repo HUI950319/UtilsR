@@ -1,3 +1,9 @@
+test_that("boxplot controls reject dimensional flags and option lists", {
+  expect_error(fmt_boxplot(stop("plot evaluated"), inherit.aes = matrix(TRUE)), "inherit.aes")
+  args <- structure(list(0.2), dim = c(1L, 1L), names = "width")
+  expect_error(fmt_boxplot(stop("plot evaluated"), boxplot.args = args), "boxplot.args")
+})
+
 test_that("default boxplots match native layers without changing the caller", {
   d <- data.frame(x = rep(c("a", "b"), each = 10), y = 1:20)
   p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()

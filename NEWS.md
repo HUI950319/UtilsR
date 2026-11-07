@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_boxplot()` rejects dimensional inheritance flags and option arrays before inspecting plot data or mappings.
+
 * `fmt_strip()` rejects dimensional display switches, labels and colour specifications with argument-specific diagnostics.
 
 * `fmt_axisTile()` validates scalar dimensions, text faces and display flags before processing plots.

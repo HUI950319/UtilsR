@@ -5640,12 +5640,12 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
 fmt_boxplot <- function(plot,
                         boxplot.args = list(),
                         inherit.aes = TRUE) {
-  if (!is.logical(inherit.aes) || length(inherit.aes) != 1L || is.na(inherit.aes)) {
+  if (!is.logical(inherit.aes) || !is.null(dim(inherit.aes)) || length(inherit.aes) != 1L || is.na(inherit.aes)) {
     cli::cli_abort("{.arg inherit.aes} must be a single TRUE or FALSE.")
   }
   boxplot.args <- boxplot.args %||% list()
   arg_names <- names(boxplot.args)
-  if (!is.list(boxplot.args) || is.object(boxplot.args) ||
+  if (!is.list(boxplot.args) || is.object(boxplot.args) || !is.null(dim(boxplot.args)) ||
       length(boxplot.args) > 0L && (is.null(arg_names) || anyNA(arg_names) ||
         any(!nzchar(trimws(arg_names))) || anyDuplicated(arg_names) != 0L)) {
     cli::cli_abort(paste("{.arg boxplot.args} must be NULL or a named list",
