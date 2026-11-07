@@ -160,6 +160,17 @@ test_that(".cat_message(wrap = FALSE) keeps a line meant to be copied whole", {
   expect_true(endsWith(trimws(out[2]), call))
 })
 
+test_that("intercept-only model notices contain a usable unadjusted formula", {
+  data <- data.frame(time = 1:3, DSS = c(0, 1, 0))
+  for (co_var in list(NULL, character())) for (time in list(NULL, "time")) {
+    shown <- cli::ansi_strip(cli::cli_fmt(.cat_formula(data, co_var, time = time)))
+    expect_true(any(grepl("unadjusted:", shown, fixed = TRUE)))
+    formula <- sub("^.*: ", "", shown)
+    parsed <- parse(text = formula)[[1L]]
+    expect_identical(parsed[[3L]], 1)
+  }
+})
+
 test_that(".cat_formula() announces a model in one notice line", {
   d <- data.frame(time = 1:4, DSS = c(0, 1, 0, 1), event = c(0, 1, 2, 1))
   one <- function(...) {

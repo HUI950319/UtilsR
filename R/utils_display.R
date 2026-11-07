@@ -382,12 +382,12 @@ console_width <- function() {
 .cat_formula <- function(data, co_var, time = "time", outcome = "DSS",
                          type = c("info", "success", "warning", "error")) {
   type <- match.arg(type)
-  adj  <- if (length(co_var) == 1L) "unadjusted" else "adjusted"
+  adj  <- if (length(co_var) <= 1L) "unadjusted" else "adjusted"
   quote_names <- function(x) {
     vapply(x, function(nm) deparse1(as.name(nm), backtick = TRUE),
            character(1L), USE.NAMES = FALSE)
   }
-  rhs  <- paste(quote_names(co_var), collapse = " + ")
+  rhs  <- if (length(co_var)) paste(quote_names(co_var), collapse = " + ") else "1"
   # one line in place of a box and a rule, nine lines per model (2026-10-25)
   if (is.null(time)) {
     model   <- "Logistic"
