@@ -309,8 +309,9 @@ fmt_point <- function(plot,
           }
           args$after_scale <- "#FFFFFF"
           params[["mapping"]]$colour <- rlang::new_quosure(
-            rlang::call2("stage", !!!args, .ns = "ggplot2"),
-            rlang::get_env(colour_mapping, default = baseenv())
+            rlang::call2("stage", !!!args),
+            rlang::env(rlang::get_env(colour_mapping, default = baseenv()),
+                       stage = ggplot2::stage)
           )
         } else {
           if (is.null(params[["fill"]]) && is.null(border_mapping[["fill"]])) {
@@ -325,9 +326,9 @@ fmt_point <- function(plot,
             ".fmt_point_shape", args$after_scale %||% quote(shape)
           )
           params[["mapping"]]$shape <- rlang::new_quosure(
-            rlang::call2("stage", !!!args, .ns = "ggplot2"),
+            rlang::call2("stage", !!!args),
             rlang::env(rlang::get_env(shape_mapping, default = baseenv()),
-                       .fmt_point_shape = .shape_convert)
+                       stage = ggplot2::stage, .fmt_point_shape = .shape_convert)
           )
           params[["shape"]] <- NULL
         }

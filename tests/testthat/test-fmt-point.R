@@ -1,3 +1,17 @@
+test_that("white borders resolve stage masks in isolated mapping environments", {
+  d <- data.frame(x = 1:4, y = 4:1, g = rep(c("a", "b"), 2))
+  mapping <- ggplot2::aes(x, y, colour = g, shape = g)
+  mapping[] <- lapply(mapping, function(x)
+    rlang::new_quosure(rlang::get_expr(x), baseenv()))
+  p <- ggplot2::ggplot(d, mapping) +
+    ggplot2::scale_shape_manual(values = c(a = 16, b = 17))
+  native <- ggplot2::ggplot_build(p + ggplot2::geom_point())$data[[1L]]
+  built <- ggplot2::ggplot_build(fmt_point(p, white_border = TRUE))$data[[1L]]
+  expect_identical(built$colour, rep("#FFFFFF", 4))
+  expect_identical(built$fill, native$colour)
+  expect_equal(built$shape, c(21, 24, 21, 24))
+})
+
 test_that("sampling preserves the caller's random stream", {
   p <- ggplot2::ggplot(data.frame(x = 1:12, y = 12:1), ggplot2::aes(x, y))
   withr::local_seed(123)
@@ -168,13 +182,14 @@ test_that("white borders normalize colour aliases and include shape 25", {
 })
 
 test_that("white borders retain mapped shapes and after-scale colours", {
+  stage <- ggplot2::stage
   d <- data.frame(x = 1:4, y = 4:1, g = rep(c("a", "b"), 2))
   p <- ggplot2::ggplot(d, ggplot2::aes(x, y, colour = g, shape = g)) +
     ggplot2::scale_shape_manual(values = c(a = 16, b = 17))
   result <- ggplot2::ggplot_build(fmt_point(p, white_border = TRUE))$data[[1]]
   expect_equal(result$shape, c(21, 24, 21, 24))
   p <- ggplot2::ggplot(d, ggplot2::aes(x, y,
-    colour = ggplot2::stage(start = g, after_scale = scales::alpha(colour, 0.5))))
+    colour = stage(start = g, after_scale = scales::alpha(colour, 0.5))))
   native <- ggplot2::ggplot_build(p + ggplot2::geom_point())$data[[1]]
   result <- ggplot2::ggplot_build(fmt_point(p, white_border = TRUE))$data[[1]]
   expect_equal(result$fill, native$colour)
