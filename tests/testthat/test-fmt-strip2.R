@@ -11,6 +11,14 @@
   unname(unlist(lapply(strips, text_nodes), recursive = FALSE))
 }
 
+test_that("strip formatting rejects dimensional labels and switches", {
+  expect_error(fmt_strip(stop("plot evaluated"), strip = matrix(TRUE)), "strip")
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  expect_error(fmt_strip(p, label = matrix("A")), "label")
+  expect_error(fmt_strip(p, label_color = matrix("red")), "label_color")
+  expect_error(fmt_strip(p, label_fill = matrix("red")), "label_fill")
+})
+
 test_that("fmt_strip centers strip text", {
   testthat::skip_if_not_installed("ggh4x")
 
@@ -19,17 +27,17 @@ test_that("fmt_strip centers strip text", {
   out <- fmt_strip(p, label = "Centered", label_fill = "grey90")
   strip_text <- out$facet$strip$given_elements$text_x[[1]]
 
-  expect_equal(strip_text@hjust, 0.5)
-  expect_equal(strip_text@vjust, 0.5)
-  expect_equal(as.numeric(strip_text@margin)[c(1, 3)], c(3, 3))
+  expect_equal(strip_text[["hjust"]], 0.5)
+  expect_equal(strip_text[["vjust"]], 0.5)
+  expect_equal(as.numeric(strip_text[["margin"]])[c(1, 3)], c(3, 3))
 
   p_facet <- p + ggplot2::facet_wrap(ggplot2::vars(cyl))
   out_facet <- fmt_strip(p_facet, label = "Centered")
 
-  expect_equal(out_facet$theme$strip.text@hjust, 0.5)
-  expect_equal(out_facet$theme$strip.text@vjust, 0.5)
+  expect_equal(out_facet$theme$strip.text[["hjust"]], 0.5)
+  expect_equal(out_facet$theme$strip.text[["vjust"]], 0.5)
   expect_equal(
-    as.numeric(out_facet$theme$strip.text@margin)[c(1, 3)],
+    as.numeric(out_facet$theme$strip.text[["margin"]])[c(1, 3)],
     c(3, 3)
   )
 })

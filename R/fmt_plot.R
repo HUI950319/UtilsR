@@ -1882,7 +1882,7 @@ fmt_plot_base <- function(plot, ggtheme = NULL, labs_list = NULL,
 #' @family plot formatting
 fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NULL,
                       strip = TRUE) {
-  if (!is.logical(strip) || length(strip) != 1L || is.na(strip)) {
+  if (!is.logical(strip) || !is.null(dim(strip)) || length(strip) != 1L || is.na(strip)) {
     cli::cli_abort("{.arg strip} must be a single TRUE or FALSE.")
   }
   info <- .to_plot_list(plot)
@@ -1956,7 +1956,7 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
     return(restore(plots))
   }
 
-  if (!is.null(label) && (!is.character(label) || length(label) == 0L || anyNA(label))) {
+  if (!is.null(label) && (!is.character(label) || !is.null(dim(label)) || length(label) == 0L || anyNA(label))) {
     cli::cli_abort("{.arg label} must be NULL or a non-empty character vector without missing values.")
   }
   if (!is.null(names(label)) &&
@@ -1967,7 +1967,7 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
   for (arg in names(colours)) {
     value <- colours[[arg]]
     if (is.null(value)) next
-    if (length(value) == 0L ||
+    if (length(value) == 0L || !is.null(dim(value)) ||
         !(is.character(value) || is.numeric(value) || (is.logical(value) && all(is.na(value)))) ||
         (is.numeric(value) && any(!is.finite(value) & !is.na(value)))) {
       cli::cli_abort("{.arg {arg}} must be NULL or a non-empty vector of valid R colours.")
