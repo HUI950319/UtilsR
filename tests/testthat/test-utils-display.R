@@ -7,6 +7,15 @@ capture_display <- function(expr) {
   c(out, msg)
 }
 
+test_that(".cat_line validates width and rule patterns before evaluating text", {
+  for (bad in list(NULL, NA_real_, Inf, 0, -1, 1.5, matrix(40))) {
+    expect_error(.cat_line(stop("text evaluated"), width = bad), "width")
+  }
+  for (bad in list(NULL, NA_character_, character(), c("-", "="), "", "\u0301")) {
+    expect_error(.cat_line(stop("text evaluated"), line_char = bad), "line_char")
+  }
+})
+
 test_that("warning labels use black text on the yellow background", {
   shown <- list(
     line    = function() .cat_line("Sparse levels", type = "warning", width = 40),

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `.cat_line()` validates rule width and visible rule patterns before evaluating text, replacing downstream repetition errors with named argument errors.
+
 * `plt_na(output = "percentage")` reduces each missingness mask immediately instead of retaining a full logical copy of the selected data.
 
 * `fmt_plot_base()` validates named option lists before calling theme factories and skips empty label updates.

@@ -92,6 +92,10 @@ console_width <- function() {
                       type = c("info", "success", "warning", "error"),
                       line_char = "=",
                       width = console_width()) {
+  ._pr_count(width, "width", lower = 1L)
+  if (!is.character(line_char) || !is.null(dim(line_char)) || length(line_char) != 1L ||
+      is.na(line_char) || !nzchar(line_char) || cli::ansi_nchar(line_char, type = "width") < 1L)
+    cli::cli_abort("{.arg line_char} must be a single non-empty visible string.")
   cfg <- ._type_cfg(match.arg(type))
   label <- paste(cfg$symbol, text, cfg$symbol)
 
