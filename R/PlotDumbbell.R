@@ -185,10 +185,25 @@ PlotDumbbell <- function(
 ) {
 
   # ---- Validate inputs ----
+  selectors <- list(x_col = x_col, xend_col = xend_col, y_col = y_col)
+  for (arg in names(selectors)) {
+    value <- selectors[[arg]]
+    if (!is.character(value) || !is.null(dim(value)) || length(value) != 1L ||
+        is.na(value) || !nzchar(value)) {
+      stop("'", arg, "' must be a single non-missing column name.", call. = FALSE)
+    }
+  }
   data <- as.data.frame(data)
   for (col in c(x_col, xend_col, y_col)) {
     if (!col %in% colnames(data)) {
       stop("Column '", col, "' not found in data.", call. = FALSE)
+    }
+  }
+  for (col in c(x_col, xend_col)) {
+    value <- data[[col]]
+    if (is.complex(value) || !is.null(dim(value)) ||
+        !(is.numeric(value) || inherits(value, c("Date", "POSIXt", "difftime")))) {
+      stop("Column '", col, "' must contain a numeric or time vector.", call. = FALSE)
     }
   }
   if (!is.null(top_n) &&

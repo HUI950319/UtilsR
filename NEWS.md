@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotDumbbell()` diagnoses malformed column selectors and unsupported endpoint storage before plotting, while retaining date and time differences.
+
 * `stat_ci_parse()` preserves ratio-scale rounding allowances near the floating-point limit, avoiding overflow when doubling finite bounds.
 
 * `PlotCircleLollipop()` rejects lossy score storage and unplottable ranges before drawing, and retains entirely missing groups without range warnings.

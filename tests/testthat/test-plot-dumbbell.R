@@ -5,6 +5,24 @@ dumbbell_plot <- function(data, ...) {
   result
 }
 
+test_that("PlotDumbbell diagnoses selectors and non-vector endpoints before drawing", {
+  for (arg in c("x_col", "xend_col", "y_col")) {
+    for (bad in list(NULL, character(), c("start", "end"), NA_character_,
+                     matrix("start"), 1)) {
+      args <- list(data = quote(stop("data evaluated")))
+      args[arg] <- list(bad)
+      expect_error(do.call(PlotDumbbell, args), arg)
+    }
+  }
+  for (col in c("start", "end")) {
+    for (bad in list(1:3 + 1i, matrix(1:3, 3), as.list(1:3))) {
+      data <- data.frame(start = 1:3, end = 2:4, category = letters[1:3])
+      data[[col]] <- bad
+      expect_no_warning(expect_error(dumbbell_plot(data), col))
+    }
+  }
+})
+
 test_that("PlotDumbbell retains integer differences beyond the integer range", {
   data <- data.frame(start = as.integer(c(2e9, -1.8e9, 0, 10)),
                       end = as.integer(c(-2e9, 1.8e9, 3, 11)), category = letters[1:4])
