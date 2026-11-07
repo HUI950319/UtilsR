@@ -416,3 +416,13 @@ test_that("axis text additional rich text themes retain their rendered class", {
                     "element_markdown")
   expect_no_error(ggplot2::ggplotGrob(q))
 })
+
+test_that("axis text controls reject encoded numbers while retaining relative sizes", {
+  for (arg in c("x", "y", "x_hjust", "x_vjust", "y_hjust", "y_vjust", "size")) {
+    args <- list(plot = quote(stop("plot evaluated")))
+    args[[arg]] <- structure(1, class = "encoded_number")
+    expect_error(do.call("fmt_axisText", args), arg)
+  }
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  expect_s3_class(ggplot2::ggplotGrob(fmt_axisText(p, size = ggplot2::rel(1.2))), "gtable")
+})

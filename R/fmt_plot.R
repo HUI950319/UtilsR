@@ -3182,6 +3182,7 @@ fmt_axisText <- function(plot,
   for (name in names(values)) {
     value <- values[[name]]
     if (!is.null(value) && (!is.numeric(value) || length(value) != 1L ||
+        (is.object(value) && !(name == "size" && inherits(value, "rel"))) ||
         !is.null(dim(value)) || !is.finite(value))) {
       stop(sprintf("`%s` must be NULL or a finite numeric scalar.", name), call. = FALSE)
     }

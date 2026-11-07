@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* fmt_axisText() rejects class-encoded angles and adjustments while retaining relative font sizes.
+
 * grob_add() checks active clipping and margin-unit controls before converting plots.
 
 * Table display validates numeric column selectors, caption vector shapes and active highlight colours before collecting inputs.
