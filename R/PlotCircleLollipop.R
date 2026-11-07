@@ -172,15 +172,28 @@ PlotCircleLollipop <- function(
 
   # ---- Parse scores before ranking or scaling ----
   parse_scores <- function(values) {
+    if (is.complex(values) || is.list(values) || is.expression(values) ||
+        !is.null(dim(values))) {
+      stop(sprintf("Column '%s' must contain one-dimensional real numeric scores.", value_col),
+           call. = FALSE)
+    }
     if (is.factor(values)) values <- as.character(values)
     numeric_values <- suppressWarnings(as.numeric(values))
     if (any(!is.na(values) & is.na(numeric_values))) {
       stop(sprintf("Column '%s' must contain numeric scores or missing values.", value_col),
            call. = FALSE)
     }
+    if (any(is.infinite(numeric_values))) {
+      stop(sprintf("Column '%s' must contain finite scores or missing values.", value_col),
+           call. = FALSE)
+    }
     numeric_values
   }
   numeric_values <- parse_scores(data[[value_col]])
+  if (nrow(data) > 0L && !any(is.finite(numeric_values))) {
+    stop(sprintf("Column '%s' must contain at least one finite score.", value_col),
+         call. = FALSE)
+  }
 
   # ---- Preserve group identity when character labels coincide ----
   group_values <- vctrs::vec_unique(data[[group_col]])
@@ -244,6 +257,7 @@ PlotCircleLollipop <- function(
 
   # ---- Per-group value scaling (value_scale) ----
   scale_values <- function(x, mn, mx) {
+    if (anyNA(c(mn, mx))) return(rep(NA_real_, length(x)))
     if (mx == mn) return(rep(0, length(x)))
     span <- mx - mn
     if (!is.finite(span) && all(is.finite(c(mn, mx)))) {
@@ -252,12 +266,15 @@ PlotCircleLollipop <- function(
     }
     (x - mn) / span
   }
+  score_extreme <- function(x, fun) {
+    if (all(is.na(x))) NA_real_ else fun(x, na.rm = TRUE)
+  }
   if (value_scale == "group") {
     # Scale using the FULL group range from original data (before top_n)
     orig_grp <- group_labels[vctrs::vec_match(data_orig[[group_col]], group_values)]
     orig_val <- numeric_values
-    grp_min  <- tapply(orig_val, orig_grp, min, na.rm = TRUE)
-    grp_max  <- tapply(orig_val, orig_grp, max, na.rm = TRUE)
+    grp_min  <- tapply(orig_val, orig_grp, score_extreme, fun = min)
+    grp_max  <- tapply(orig_val, orig_grp, score_extreme, fun = max)
     df$value <- mapply(function(v, g) {
       mn <- grp_min[[as.character(g)]]
       mx <- grp_max[[as.character(g)]]
@@ -269,8 +286,8 @@ PlotCircleLollipop <- function(
     df <- df |>
       dplyr::group_by(group) |>
       dplyr::mutate(value = {
-        mn <- min(value, na.rm = TRUE)
-        mx <- max(value, na.rm = TRUE)
+        mn <- score_extreme(value, min)
+        mx <- score_extreme(value, max)
         scale_values(value, mn, mx)
       }) |>
       dplyr::ungroup() |>

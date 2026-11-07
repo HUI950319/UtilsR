@@ -1,3 +1,29 @@
+test_that("circular scores reject lossy storage and unplottable ranges before drawing", {
+  skip_if_not_installed("circlize")
+  data <- data.frame(group = rep(c("A", "B"), each = 3), name = letters[1:6])
+  before <- grDevices::dev.cur()
+  for (values in list(complex(real = 1:6, imaginary = 1),
+                      I(matrix(1:12, 6)), c(1:5, Inf),
+                      rep(NA_real_, 6), rep(NaN, 6))) {
+    data[["value"]] <- values
+    expect_error(PlotCircleLollipop(data, show_labels = FALSE,
+                                    show_links = FALSE, show_yaxis = FALSE),
+                 "value")
+    expect_identical(grDevices::dev.cur(), before)
+  }
+})
+
+test_that("circular scaling retains entirely missing groups without range warnings", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  data <- data.frame(group = rep(c("A", "B"), each = 3), name = letters[1:6],
+                     value = c(.2, .4, .6, NA_real_, NA_real_, NA_real_))
+  for (mode in c("none", "group", "top_n")) {
+    expect_no_warning(PlotCircleLollipop(data, value_scale = mode,
+      show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE))
+  }
+})
+
 test_that("PlotCircleLollipop keeps extreme scaled heights finite in every mode", {
   skip_if_not_installed("circlize")
   grDevices::pdf(NULL)

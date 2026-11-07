@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotCircleLollipop()` rejects lossy score storage and unplottable ranges before drawing, and retains entirely missing groups without range warnings.
+
 * `.cat_tb()` validates highlight patterns before evaluating input tables, reporting malformed regular expressions without secondary warnings.
 
 * `.cat_message()` uses the timestamp's visible width for continuation indentation and wraps messages within the space available in narrow consoles.
