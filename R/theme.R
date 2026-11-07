@@ -524,6 +524,20 @@ theme_legend <- function(bg_fill = "white",
                          show_title = TRUE,
                          spacing = 0.2,
                          margin = c(4, 4, 4, 4)) {
+  if (!is.logical(show_title) || !is.null(dim(show_title)) ||
+      length(show_title) != 1L || is.na(show_title))
+    stop("'show_title' must be TRUE or FALSE.", call. = FALSE)
+  for (arg in c("bg_linewidth", "key_linewidth", "key_size", "text_size",
+                if (show_title) "title_size", "spacing")) {
+    value <- get(arg)
+    relative <- arg %in% c("bg_linewidth", "key_linewidth", "text_size", "title_size")
+    if (!is.numeric(value) || !is.null(dim(value)) || length(value) != 1L ||
+        !is.finite(value) || (is.object(value) && !(relative && inherits(value, "rel"))))
+      stop("'", arg, "' must be a single finite number.", call. = FALSE)
+  }
+  if (!is.numeric(margin) || is.object(margin) || !is.null(dim(margin)) ||
+      length(margin) != 4L || any(!is.finite(margin)))
+    stop("'margin' must contain four finite numeric values.", call. = FALSE)
 
   title_el <- if (show_title) {
     ggplot2::element_text(size = title_size, colour = title_color, face = title_face)

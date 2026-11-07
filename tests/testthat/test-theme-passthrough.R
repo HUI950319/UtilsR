@@ -29,6 +29,19 @@ test_that("ROC themes validate scalar dimensions and retain relative text sizes"
   expect_s3_class(ggplot2::ggplotGrob(p + theme_ROC(axis_text_size = ggplot2::rel(1.1))), "gtable")
 })
 
+test_that("legend themes validate dimensions and keep hidden titles lazy", {
+  for (arg in c("bg_linewidth", "key_linewidth", "key_size", "text_size", "title_size", "spacing"))
+    for (bad in list(NA_real_, Inf, numeric(), c(1, 2), matrix(1),
+                     structure(1, class = "encoded_number")))
+      expect_error(do.call("theme_legend", stats::setNames(list(bad), arg)), arg)
+  for (bad in list(NA, 1, c(TRUE, FALSE), matrix(TRUE)))
+    expect_error(theme_legend(show_title = bad), "show_title")
+  for (bad in list(1, rep(NA_real_, 4), matrix(1, 4), rep(Inf, 4)))
+    expect_error(theme_legend(margin = bad), "margin")
+  expect_s3_class(theme_legend(show_title = FALSE, title_size = stop("title evaluated"),
+    text_size = ggplot2::rel(1.2), margin = c(-1, 0, 1, 2)), "theme")
+})
+
 test_that("theme_sc preserves registered extension theme elements", {
   nest_line <- ggplot2::element_line(colour = "firebrick", linewidth = 2)
   thm <- theme_sc(ggh4x.facet.nestline = nest_line)
