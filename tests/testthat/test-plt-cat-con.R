@@ -39,6 +39,23 @@ cat_test_lubridate_collisions <- function() {
        length = lubridate::interval(starts[1], starts[1] + 1 + c(0, .Machine$double.eps)))
 }
 
+test_that("categorical plot controls reject dimensional and encoded settings", {
+  d <- data.frame(a = rep(c("a", "b"), 3), g = rep(c("L", "R"), each = 3))
+  for (arg in c("group.by", "split.by", "bg.by", "label", "flip", "NA_stat",
+                "keep_empty", "force", "facet_byrow", "facet_nrow", "facet_ncol")) {
+    value <- if (arg %in% c("group.by", "split.by", "bg.by")) "g" else
+      if (arg %in% c("facet_nrow", "facet_ncol")) 1 else TRUE
+    args <- list(data = d, stat.by = "a", group.by = "g", base_size = quote(stop("theme evaluated")))
+    args[[arg]] <- matrix(value)
+    expect_error(do.call("plt_cat", args), arg)
+  }
+  for (arg in c("facet_nrow", "facet_ncol")) for (bad in list(structure(1, class = "encoded_count"), 2^31)) {
+    args <- list(data = d, stat.by = "a", base_size = quote(stop("theme evaluated")))
+    args[[arg]] <- bad
+    expect_error(do.call("plt_cat", args), arg)
+  }
+})
+
 test_that("plt_cat keeps colliding base time categories distinct", {
   for (values in cat_test_time_collisions()) {
     d <- data.frame(row = seq_len(4))

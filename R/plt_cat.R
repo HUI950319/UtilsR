@@ -336,7 +336,7 @@ plt_cat <- function(data,
   selectors <- list(group.by = group.by, split.by = split.by, bg.by = bg.by)
   for (arg in names(selectors)) {
     value <- selectors[[arg]]
-    if (!is.null(value) && (!is.character(value) || length(value) != 1L ||
+    if (!is.null(value) && (!is.character(value) || !is.null(dim(value)) || length(value) != 1L ||
                            is.na(value) || !nzchar(value))) {
       cli::cli_abort("{.arg {arg}} must be a single non-missing column name.")
     }
@@ -345,7 +345,7 @@ plt_cat <- function(data,
                 keep_empty = keep_empty, force = force, facet_byrow = facet_byrow)
   for (arg in names(flags)) {
     value <- flags[[arg]]
-    if (!is.logical(value) || length(value) != 1L || is.na(value)) {
+    if (!is.logical(value) || !is.null(dim(value)) || length(value) != 1L || is.na(value)) {
       cli::cli_abort("{.arg {arg}} must be TRUE or FALSE.")
     }
   }
@@ -353,8 +353,9 @@ plt_cat <- function(data,
   for (arg in names(dimensions)) {
     value <- dimensions[[arg]]
     if (!is.null(value) &&
-        (!is.numeric(value) || is.complex(value) || length(value) != 1L ||
-         !is.null(dim(value)) || !is.finite(value) || value < 1 || value != floor(value))) {
+        (!is.numeric(value) || is.object(value) || length(value) != 1L ||
+         !is.null(dim(value)) || !is.finite(value) || value < 1 ||
+         value > .Machine$integer.max || value != floor(value))) {
       cli::cli_abort("{.arg {arg}} must be a single positive integer or NULL.")
     }
   }
