@@ -1661,8 +1661,16 @@ fmt_plot <- function(plot,
 #' @seealso [fmt_plot()]
 fmt_plot_base <- function(plot, ggtheme = NULL, labs_list = NULL,
                           scale_y_list = NULL, scale_x_list = NULL) {
+  for (arg in c("labs_list", "scale_y_list", "scale_x_list")) {
+    value <- get(arg)
+    if (is.null(value)) next
+    nms <- names(value)
+    if (!is.list(value) || !is.null(dim(value)) ||
+        (length(value) && (is.null(nms) || anyNA(nms) || any(!nzchar(nms)) || anyDuplicated(nms))))
+      cli::cli_abort("{.arg {arg}} must be a list with unique, non-empty argument names.")
+  }
   if (!is.null(ggtheme))      plot <- .broadcast_plot(plot, .resolve_theme(ggtheme))
-  if (!is.null(labs_list))    plot <- .broadcast_plot(plot, do.call(ggplot2::labs, labs_list))
+  if (length(labs_list))     plot <- .broadcast_plot(plot, do.call(ggplot2::labs, labs_list))
   if (!is.null(scale_y_list) || !is.null(scale_x_list))
     plot <- fmt_scale(plot, x = scale_x_list, y = scale_y_list)
   plot

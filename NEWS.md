@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_plot_base()` validates named option lists before calling theme factories and skips empty label updates.
+
 * `fmt_plot()` validates all formatter option lists and numeric margins before applying changes, rejecting ambiguous or duplicate argument names.
 
 * `stat_ci_parse(output = "p")` skips rebuilding unused interval strings at ordinary precision, retaining names and high-precision formatting-limit checks.

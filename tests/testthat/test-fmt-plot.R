@@ -74,3 +74,15 @@ test_that("fmt_plot validates option lists and numeric margins before applying f
     expect_error(fmt_plot(stop("plot evaluated"), plot.margin = bad), "plot.margin")
   }
 })
+
+test_that("fmt_plot_base preflights named option lists before theme factories", {
+  for (arg in c("labs_list", "scale_y_list", "scale_x_list")) {
+    for (bad in list(1, list("x"), setNames(list(1, 2), c("x", "x")))) {
+      args <- list(plot = plot_fixture(), ggtheme = function() stop("theme evaluated"))
+      args[arg] <- list(bad)
+      expect_error(do.call(fmt_plot_base, args), arg)
+    }
+  }
+  p <- plot_fixture()
+  expect_identical(fmt_plot_base(p, labs_list = list()), p)
+})
