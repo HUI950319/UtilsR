@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_bg()` rejects encoded and dimensional opacity controls before plot processing, preserving the zero-opacity fast path for ordinary numbers.
+
 * `fmt_panel()` enforces plain scalar widths in millimetres, rejecting encoded or dimensional values before traversing plot layouts.
 
 * `fmt_raster()` rejects class-encoded numeric resolutions and dimensions before allocating graphics devices, preserving explicit measurement-unit diagnostics.

@@ -4622,7 +4622,7 @@ fmt_bg <- function(plot,
                    bg_axis = c("x", "y")) {
   bg_axis <- match.arg(bg_axis)
 
-  if (!is.numeric(alpha) || is.complex(alpha) || length(alpha) != 1L ||
+  if (!is.numeric(alpha) || is.object(alpha) || !is.null(dim(alpha)) || length(alpha) != 1L ||
       !is.finite(alpha) || alpha < 0 || alpha > 1) {
     cli::cli_abort("{.arg alpha} must be a finite number between 0 and 1.")
   }

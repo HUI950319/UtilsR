@@ -208,6 +208,12 @@ test_that("repeated background formatting retains rendered opacity", {
   expect_equal(sum(capture(twice) != capture(once)), 0L)
 })
 
+test_that("background opacity rejects encoded and dimensional scalars", {
+  for (bad in list(matrix(.5), structure(.5, class = "integer64"))) {
+    expect_error(fmt_bg(stop("plot evaluated"), alpha = bad), "alpha")
+  }
+})
+
 test_that("background opacity is validated and zero opacity skips evaluation", {
   p <- bg_plot()
   for (alpha in list(NULL, numeric(), c(0.2, 0.3), NA_real_, NaN, Inf,
