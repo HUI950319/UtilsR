@@ -33,6 +33,13 @@ test_that("rowwise combinations rebuild replaced grouping keys", {
   expect_identical(data, original)
 })
 
+test_that("factor combination string controls reject arrays", {
+  d <- data.frame(a = c("M", "F"), b = c("old", "young"))
+  expect_error(fct_to_combine(d$a, d$b, sep = matrix("/")), "sep")
+  expect_error(fct_to_combine(d, c("a", "b"), var_name = matrix("combined")), "var_name")
+  expect_identical(names(d), c("a", "b"))
+})
+
 test_that("combination controls are validated before changing data", {
   data <- data.frame(a = c("M", "F"), b = c("old", "young"))
   for (sep in list(NA_character_, c("/", "|"), character(), 1, list("/"))) {

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fct_to_combine()` diagnoses dimensional separators and output names before constructing or assigning combined factors.
+
 * `.cat_formula()` validates outcome, time and covariate names before inspecting data, retaining intercept-only notices.
 
 * Full-range scaling in `PlotRank()` processes ordinary numeric scores by group while preserving classed-score dispatch.

@@ -142,7 +142,7 @@ fct_to_combine.data.frame <- function(x, vars, var_name = NULL, sep = " & ", ...
   }
   vars <- unname(vars)
   if (!is.null(var_name) &&
-      (!is.character(var_name) || length(var_name) != 1L ||
+      (!is.character(var_name) || !is.null(dim(var_name)) || length(var_name) != 1L ||
        is.na(var_name) || !nzchar(var_name))) {
     cli::cli_abort("{.arg var_name} must be NULL or a single non-missing, non-empty string.")
   }
@@ -176,7 +176,7 @@ fct_to_combine.data.frame <- function(x, vars, var_name = NULL, sep = " & ", ...
 #' @rdname fct_to_combine
 #' @export
 fct_to_combine.default <- function(..., sep = " & ") {
-  if (!is.character(sep) || length(sep) != 1L || is.na(sep)) {
+  if (!is.character(sep) || !is.null(dim(sep)) || length(sep) != 1L || is.na(sep)) {
     cli::cli_abort("{.arg sep} must be a single non-missing string.")
   }
   args <- list(...)
