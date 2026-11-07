@@ -114,6 +114,8 @@ In R Markdown or Quarto, use a code chunk with
   identifiers, and list columns are reported in the variable summary but
   left out of the frequency and grouped tables, with a message. Time spans
   (\code{difftime}) are summarized as numbers in their own units.
+  An explicit \code{NA} factor level is displayed as \code{<NA>}, with a
+  suffix if needed, and remains distinct from missing factor values.
   Variable-summary rows are tinted by type: character, numeric or
   integer, and factor (including ordered) variables.
 

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `lv()` keeps explicit NA factor levels distinct from missing values in summaries, grouped tables, filters and cross-tabulations.
+
 - Rebuild legacy S3 plot backgrounds with the active ggplot2 rectangle constructor so their fill and border are drawn after theme conversion.
 
 * `show_color()` skips ANSI preparation for empty colour vectors while retaining copyable expressions, attributes and input validation.

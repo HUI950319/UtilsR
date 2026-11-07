@@ -98,6 +98,8 @@
 #'   identifiers, and list columns are reported in the variable summary but
 #'   left out of the frequency and grouped tables, with a message. Time spans
 #'   (\code{difftime}) are summarized as numbers in their own units.
+#'   An explicit \code{NA} factor level is displayed as \code{<NA>}, with a
+#'   suffix if needed, and remains distinct from missing factor values.
 #'   Variable-summary rows are tinted by type: character, numeric or
 #'   integer, and factor (including ordered) variables.
 #'
@@ -378,13 +380,15 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
 
     # Numeric literals retain the stored double values, including labelled
     # numbers; other classed values (dates, integer64) match through text.
-    values <- if (is.logical(display_values)) {
-      as.list(display_values)
-    } else if (is.numeric(display_values) &&
-               (!is.object(display_values) || inherits(display_values, "haven_labelled"))) {
-      as.list(as.numeric(display_values))
+    explicit_na <- is.factor(col_data) && anyNA(display_values)
+    matching_values <- if (explicit_na) display_values[!is.na(display_values)] else display_values
+    values <- if (is.logical(matching_values)) {
+      as.list(matching_values)
+    } else if (is.numeric(matching_values) &&
+               (!is.object(matching_values) || inherits(matching_values, "haven_labelled"))) {
+      as.list(as.numeric(matching_values))
     } else {
-      as.list(as.character(display_values))
+      as.list(as.character(matching_values))
     }
     values_expr <- as.call(c(list(quote(c)), values))
     filter_var <- as.name(var)
@@ -392,8 +396,13 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     if (is.numeric(display_values) && inherits(display_values, "haven_labelled")) {
       filter_var <- as.call(list(quote(as.numeric), filter_var))
     }
-    filter_expr <- substitute(get_flt(VAR %in% VALUES),
-                              list(VAR = filter_var, VALUES = values_expr))
+    filter_expr <- if (explicit_na) {
+      substitute(get_flt(VAR %in% VALUES | (!is.na(VAR) & is.na(as.character(VAR)))),
+                 list(VAR = filter_var, VALUES = values_expr))
+    } else {
+      substitute(get_flt(VAR %in% VALUES),
+                 list(VAR = filter_var, VALUES = values_expr))
+    }
     .get_flt_formula <- paste(
       deparse(filter_expr, width.cutoff = 500L,
               control = c("keepNA", "keepInteger", "niceNames",
@@ -422,6 +431,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   # sorts them; beyond 15 values the rest are summed in one row, as
   # summarytools' "[k others]", and missing values come last.
   .lv_frequencies <- function(x, var) {
+    x <- .label_na_level(x)
     tab <- dplyr::count(tibble::tibble(value = x), .data$value)
     missing <- is.na(tab$value)
     valid <- tab$value[!missing]
@@ -559,8 +569,15 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
 
     body <- gt_tbl$`_data`
     rows_missing <- which(body$row_type == "missing")
-    rows_special <- which(body$row_type == "level" &
-                            .is_special_value(as.character(body$label)))
+    special <- body$row_type == "level" & .is_special_value(as.character(body$label))
+    for (var in unique(body$variable[which(special)])) {
+      original <- analysis_data[[var]]
+      if (is.factor(original) && anyNA(levels(original))) {
+        label <- levels(.label_na_level(original))[is.na(levels(original))]
+        special[body$variable == var & body$label %in% label] <- FALSE
+      }
+    }
+    rows_special <- which(special)
 
     if (length(rows_missing) > 0) {
       gt_tbl <- gt_tbl %>%
@@ -604,12 +621,27 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     if (inherits(x, "haven_labelled_spss")) labelled::user_na_to_na(x) else x
   }
 
+  # Give an explicit NA level a display label without merging missing values.
+  .label_na_level <- function(x, missing_as_level = FALSE) {
+    if (!is.factor(x) || !anyNA(levels(x))) return(x)
+    old <- levels(x)
+    label <- tail(make.unique(c(old[!is.na(old)], "<NA>"), sep = "_"), 1L)
+    old[is.na(old)] <- label
+    attr(x, "levels") <- old
+    if (missing_as_level && anyNA(x)) {
+      missing <- tail(make.unique(c(old, "\u7f3a\u5931"), sep = "_"), 1L)
+      attr(x, "levels") <- c(old, missing)
+      x[is.na(x)] <- missing
+    }
+    x
+  }
+
   # gtsummary treats an entirely missing character column as continuous and
   # fails formatting it (and rejects a level-less factor); a missing logical
   # reports the same missing count. It cannot tabulate time spans either, so
   # they are summarized as numbers in their own units.
   .tbl_input <- function(df) {
-    df[] <- lapply(df, .spss_missing_to_na)
+    df[] <- lapply(df, function(x) .label_na_level(.spss_missing_to_na(x)))
     empty_chr <- vapply(df, function(x) is.character(x) && all(is.na(x)),
                         logical(1))
     df[empty_chr] <- lapply(df[empty_chr], function(x) rep(NA, length(x)))
@@ -775,7 +807,9 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     n_name <- count_names[1L]
     pct_name <- count_names[2L]
     count_data <- dplyr::ungroup(data)
-    count_data[count_vars] <- lapply(count_data[count_vars], .spss_missing_to_na)
+    count_data[count_vars] <- lapply(count_data[count_vars], function(x) {
+      .label_na_level(.spss_missing_to_na(x), missing_as_level = TRUE)
+    })
     count_base <- count_data %>%
       dplyr::count(dplyr::across(dplyr::all_of(count_vars)), name = n_name)
 
@@ -898,7 +932,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   if (!is.null(group_var)) {
     # One table column per group (every factor level): an identifier as the
     # group took over a minute for 5,000 values.
-    by_values <- .spss_missing_to_na(data[[group_var]])
+    by_values <- .label_na_level(.spss_missing_to_na(data[[group_var]]))
     n_by <- if (is.factor(by_values)) nlevels(by_values) else
       length(unique(by_values[!is.na(by_values)]))
     if (n_by > 100L) {

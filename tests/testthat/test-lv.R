@@ -81,9 +81,9 @@ test_that("lv preserves the caller's complete gtsummary theme", {
     utils::capture.output(expect_no_message(eval(call), message = "Setting theme"))
   }
 
-  # This remains an upstream unsupported input, and must still restore state.
+  # Explicit missing levels are adapted before reaching the table backend.
   invalid <- data.frame(x = factor(c("a", NA), exclude = NULL))
-  expect_error(capture_lv(lv(invalid)), "Factors with NA levels")
+  capture_lv(lv(invalid))
   expect_identical(gtsummary::get_gtsummary_theme(), before)
 })
 
@@ -337,6 +337,107 @@ capture_reports <- function(expr) {
   reports
 }
 
+test_that("explicit factor NA levels stay distinct from missing groups", {
+  missing_label <- "\u7f3a\u5931"
+  for (classes in list("factor", c("ordered", "factor"))) {
+    data <- data.frame(value = c("usual", "explicit", "missing", "literal",
+                                 "literal_missing", "suffix", "usual"))
+    data$group <- structure(c(1L, 2L, NA_integer_, 3L, 4L, 5L, 1L),
+      levels = c("x", NA_character_, "<NA>", missing_label, "<NA>_1"),
+      class = classes)
+    before <- data
+    reports <- capture_reports(lv(data, value, group = group))
+    header <- reports[[1L]]$table_styling$header
+    groups <- header[grepl("^stat_[1-9]", header$column), ]
+    expect_identical(groups$modify_stat_level,
+      c("x", "<NA>_2", "<NA>", missing_label, "<NA>_1",
+        paste0(missing_label, "_1")))
+    expect_equal(groups$modify_stat_n, c(2, 1, 1, 1, 1, 1))
+    body <- reports[[1L]]$table_body
+    expect_identical(body$stat_2[body$label == "explicit"], "1 (100%)")
+    expect_identical(body$stat_6[body$label == "missing"], "1 (100%)")
+    expect_identical(data, before)
+
+    without_missing <- data[-3L, , drop = FALSE]
+    reports <- capture_reports(lv(without_missing, value, group = group))
+    header <- reports[[1L]]$table_styling$header
+    groups <- header[grepl("^stat_[1-9]", header$column), ]
+    expect_equal(sum(groups$modify_stat_n), 6)
+    expect_equal(groups$modify_stat_n[groups$modify_stat_level == "<NA>_2"], 1)
+  }
+})
+
+test_that("explicit factor NA levels remain distinct in summaries and filters", {
+  data <- data.frame(group = structure(c(1L, 2L, NA_integer_, 1L),
+    levels = c("x", NA_character_), class = "factor"))
+  before <- data
+  reports <- capture_reports(lv(data, group))
+  summary <- reports[[1L]][["_data"]]
+  expect_equal(summary$n_unique, 2)
+  expect_equal(summary$n_na, 1)
+  expr <- parse(text = as.character(summary$unique))[[1L]]
+  expect_identical(eval(expr[[2L]], envir = data), c(TRUE, TRUE, FALSE, TRUE))
+  body <- reports[[2L]][["_data"]]
+  expect_true(any(body$label == "<NA>" & body$row_type == "level", na.rm = TRUE))
+  expect_true(any(body$row_type == "missing"))
+  expect_identical(data, before)
+})
+
+test_that("cross-tabulations separate explicit factor NA levels and missing values", {
+  missing_label <- "\u7f3a\u5931"
+  data <- data.frame(value = c("usual", "explicit", "missing", "literal",
+                               "literal_missing", "suffix", "usual"))
+  data$group <- structure(c(1L, 2L, NA_integer_, 3L, 4L, 5L, 1L),
+    levels = c("x", NA_character_, "<NA>", missing_label, "<NA>_1"),
+    class = "factor")
+  before <- data
+
+  one <- capture_reports(lv(data, count = group))[[1L]][["_data"]]
+  expect_equal(one$n[as.character(one$group) == "<NA>_2"], 1)
+  expect_equal(one$n[as.character(one$group) == paste0(missing_label, "_1")], 1)
+
+  wide <- capture_reports(lv(data, count = c(value, group)))[[1L]][["_data"]]
+  expect_identical(wide[["<NA>_2"]][wide$value == "explicit"], "1 (100.0%)")
+  expect_identical(wide[[paste0(missing_label, "_1")]][wide$value == "missing"],
+                   "1 (100.0%)")
+  reverse <- capture_reports(lv(data, count = c(group, value)))[[1L]][["_data"]]
+  expect_identical(reverse$explicit[reverse$group == "<NA>_2"], "1 (100.0%)")
+  expect_identical(reverse$missing[reverse$group == paste0(missing_label, "_1")],
+                   "1 (100.0%)")
+  expect_identical(data, before)
+})
+
+test_that("explicit factor NA levels preserve grouped input objects", {
+  data <- data.frame(value = c("usual", "level", "missing", "usual"))
+  data$group <- structure(c(1L, 2L, NA_integer_, 1L),
+                          levels = c("x", NA_character_), class = "factor")
+  inputs <- list(dplyr::group_by(data, value), dplyr::rowwise(data))
+  if (requireNamespace("data.table", quietly = TRUE)) {
+    inputs[[3L]] <- data.table::as.data.table(data)
+  }
+  for (input in inputs) {
+    before <- if (inherits(input, "data.table")) data.table::copy(input) else input
+    report <- capture_reports(lv(input, value, group = group))[[1L]]
+    header <- report$table_styling$header
+    groups <- header[grepl("^stat_[1-9]", header$column), ]
+    expect_equal(groups$modify_stat_n, c(2, 1, 1))
+    wide <- capture_reports(lv(input, count = c(value, group)))[[1L]][["_data"]]
+    expect_identical(wide[["<NA>"]][wide$value == "level"], "1 (100.0%)")
+    expect_identical(wide[["\u7f3a\u5931"]][wide$value == "missing"], "1 (100.0%)")
+    expect_identical(input, before)
+  }
+})
+
+test_that("a sole explicit NA level produces a usable filter", {
+  data <- data.frame(group = structure(c(1L, NA_integer_, 1L),
+    levels = NA_character_, class = "factor"))
+  summary <- capture_reports(lv(data))[[1L]][["_data"]]
+  expect_equal(summary$n_unique, 1)
+  expect_equal(summary$n_na, 1)
+  expr <- parse(text = as.character(summary$unique))[[1L]]
+  expect_identical(eval(expr[[2L]], envir = data), c(TRUE, FALSE, TRUE))
+})
+
 filled_labels <- function(gt_tbl, color) {
   styles <- gt_tbl[["_styles"]]
   fill <- vapply(styles$styles, function(s) {
@@ -346,6 +447,14 @@ filled_labels <- function(gt_tbl, color) {
   rows <- styles$rownum[styles$colname == "label" & fill %in% color]
   as.character(gt_tbl[["_data"]]$label[sort(unique(rows))])
 }
+
+test_that("explicit factor NA levels do not acquire special-value highlighting", {
+  data <- data.frame(group = structure(c(1L, 2L, 3L, NA_integer_),
+    levels = c("x", NA_character_, "<NA>"), class = "factor"))
+  reports <- capture_reports(lv(data))
+  expect_equal(reports[[1L]][["_data"]]$n_special, 1)
+  expect_identical(filled_labels(reports[[2L]], "#BBDEFB"), "<NA>")
+})
 
 test_that("special-value highlights follow the special-value counts", {
   data <- data.frame(
