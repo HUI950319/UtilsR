@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* PlotCircleLollipop() computes full-range scaling by group instead of invoking the scaler once per observation.
+
 * PlotCircleLollipop() checks applicable track, gap, point, link and label dimensions before graphics initialization.
 
 * PlotButterfly2() checks applicable opacity, width and swarm-size controls before accessing data.

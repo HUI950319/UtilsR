@@ -298,11 +298,13 @@ PlotCircleLollipop <- function(
     orig_val <- numeric_values
     grp_min  <- tapply(orig_val, orig_grp, score_extreme, fun = min)
     grp_max  <- tapply(orig_val, orig_grp, score_extreme, fun = max)
-    df$value <- mapply(function(v, g) {
-      mn <- grp_min[[as.character(g)]]
-      mx <- grp_max[[as.character(g)]]
-      scale_values(v, mn, mx)
-    }, df$value, as.character(df$group))
+    scaled <- numeric(nrow(df))
+    indices <- split(seq_len(nrow(df)), df$group)
+    for (g in names(indices)) {
+      idx <- indices[[g]]
+      scaled[idx] <- scale_values(df$value[idx], grp_min[[g]], grp_max[[g]])
+    }
+    df$value <- scaled
 
   } else if (value_scale == "top_n") {
     # Scale using only the displayed (post-top_n) values within each group
