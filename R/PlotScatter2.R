@@ -167,6 +167,16 @@ PlotScatter2 <- function(
     if (!is.logical(value) || !is.null(dim(value)) || length(value) != 1L || is.na(value))
       stop("'", arg, "' must be TRUE or FALSE.", call. = FALSE)
   }
+  for (arg in c("point_size", "point_alpha", "box_width", "base_size", "layout_main", "layout_margin")) {
+    value <- get(arg)
+    positive <- arg %in% c("box_width", "base_size", "layout_main", "layout_margin")
+    layout <- arg %in% c("layout_main", "layout_margin")
+    if (!is.numeric(value) || is.object(value) || !is.null(dim(value)) || length(value) != 1L ||
+        !is.finite(value) || value < 0 || (positive && value == 0) ||
+        (arg == "point_alpha" && value > 1) ||
+        (layout && (value != trunc(value) || value > .Machine$integer.max)))
+      stop("'", arg, "' must be a finite scalar in its allowed range.", call. = FALSE)
+  }
   if (!is.data.frame(data)) stop("'data' must be a data.frame.", call. = FALSE)
   if (anyNA(names(data)) || any(!nzchar(names(data))) || anyDuplicated(names(data)))
     stop("'data' must have unique, non-missing, non-empty column names.", call. = FALSE)

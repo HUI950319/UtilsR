@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* PlotScatter2() validates point styles and supported whole-number panel layout sizes before processing data.
+
 * PlotScatter1() validates point styles, ellipse confidence and panel ratios before reading data.
 
 * PlotDumbbell() validates display switches before data processing while keeping inactive inset settings lazy.

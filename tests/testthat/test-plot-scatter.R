@@ -82,6 +82,18 @@ test_that("PlotScatter1 validates selectors and logical controls before reading 
   }
 })
 
+test_that("dual-group scatter styles reject invalid scalar and layout controls", {
+  for (arg in c("point_size", "point_alpha", "box_width", "base_size", "layout_main", "layout_margin"))
+    for (bad in list(NA_real_, Inf, matrix(1))) {
+      args <- list(data = quote(stop("data evaluated")), x = "x", y = "y", group = "g")
+      args[[arg]] <- bad
+      expect_error(do.call("PlotScatter2", args), arg)
+    }
+  d <- data.frame(x = 1:6, y = 6:1, g = rep(c("a", "b"), 3))
+  withr::local_options(lifecycle_verbosity = "quiet")
+  expect_s3_class(PlotScatter2(d, "x", "y", "g"), "patchwork")
+})
+
 test_that("PlotScatter2 rejects ambiguous data-frame column names", {
   d <- data.frame(x = 1:4, y = 4:1, g = rep(c("a", "b"), 2), x = 5:8, check.names = FALSE)
   expect_error(PlotScatter2(d, "x", "y", "g", base_size = stop("theme evaluated")),
