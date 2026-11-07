@@ -35,6 +35,22 @@ test_that("PlotButterfly minmax retains entirely missing blocks without range wa
   expect_equal(sort(right$x), c(0, 1))
 })
 
+test_that("PlotButterfly2 rejects malformed selectors and score storage before plotting", {
+  for (arg in c("stat.by", "value.by", "group.by", "fill.by")) {
+    for (bad in list(character(), c("stat", "fill"), NA_character_, matrix("stat"))) {
+      args <- list(data = data.frame(stat = "A", value = 1:2, group = c("L", "R"), fill = "F"),
+                   stat.by = "stat", value.by = "value", group.by = "group")
+      args[arg] <- list(bad)
+      expect_error(do.call(PlotButterfly2, args), arg)
+    }
+  }
+  for (bad in list(matrix(1:4, 4), 1:4 + 1i, as.list(1:4))) {
+    data <- data.frame(stat = "A", value = 1:4, group = rep(c("L", "R"), each = 2))
+    data$value <- bad
+    expect_error(PlotButterfly2(data, stat.by = "stat", value.by = "value", group.by = "group"), "value")
+  }
+})
+
 test_that("PlotButterfly2 plots release unselected input payloads in both paths", {
   skip_if_not_installed("ggbeeswarm")
   files <- c(withr::local_tempfile(), withr::local_tempfile())

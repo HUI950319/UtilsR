@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotButterfly2()` reports malformed column selectors and unsupported score storage consistently across direct and delegated plotting paths.
+
 * `PlotButterfly()` validates each required bar column selector and avoids range warnings when scaling entirely missing blocks.
 
 * `PlotScatter3()` checks selectors, histogram counts and endpoint shapes before opening graphics devices, preventing lossy complex paired differences.

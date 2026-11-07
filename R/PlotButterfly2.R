@@ -175,16 +175,21 @@ PlotButterfly2 <- function(
     plot
   }
 
-  for (arg in c("stat.by", "value.by", "group.by")) {
+  for (arg in c("stat.by", "value.by", "group.by", "fill.by")) {
     val <- get(arg)
-    if (is.null(val))
-      cli::cli_abort("{.arg {arg}} is required.")
+    if (arg == "fill.by" && is.null(val)) next
+    if (!is.character(val) || !is.null(dim(val)) || length(val) != 1L ||
+        is.na(val) || !nzchar(val))
+      cli::cli_abort("{.arg {arg}} must be a single non-missing column name.")
     if (!val %in% names(data))
       cli::cli_abort("Column {.val {val}} not found in {.arg data}.")
   }
-  if (!is.null(fill.by) && !fill.by %in% names(data))
-    cli::cli_abort("Column {.val {fill.by}} not found in {.arg data}.")
   data <- as.data.frame(data)[, unique(c(stat.by, value.by, group.by, fill.by)), drop = FALSE]
+  unsupported <- vapply(data, function(value) !is.null(dim(value)), logical(1))
+  if (any(unsupported))
+    cli::cli_abort("Columns must be one-dimensional: {.val {names(data)[unsupported]}}.")
+  if (is.complex(data[[value.by]]) || is.list(data[[value.by]]))
+    cli::cli_abort("Column {.val {value.by}} must contain a real vector.")
 
   if (is_beeswarm && !requireNamespace("ggbeeswarm", quietly = TRUE))
     cli::cli_abort("Package {.pkg ggbeeswarm} is required for beeswarm types.")
