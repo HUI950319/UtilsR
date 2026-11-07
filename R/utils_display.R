@@ -519,12 +519,14 @@ console_width <- function() {
     if (!is.null(cols)) {
       for (col in intersect(cols, names(df))) {
         v <- df[[col]]
-        if (is.numeric(v) && sum(!is.na(v)) > 0L) {
+        finite <- if (is.numeric(v)) is.finite(v) else FALSE
+        if (any(finite)) {
           tb <- gt::data_color(tb,
             columns = col,
+            rows = which(!is.infinite(v)),
             fn = scales::col_numeric(
               palette = palette,
-              domain  = range(v, na.rm = TRUE)
+              domain  = range(v[finite])
             )
           )
         }

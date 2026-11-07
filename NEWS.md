@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `.cat_tb()` derives numeric colour domains from finite values, retaining infinite values in tables and preserving missing-value colours without range errors.
+
 * `fmt_point()` rejects encoded or dimensional sampling and positioning controls before plot processing, retaining lazy controls for disabled features.
 
 * White-border point shapes resolve valid names even when missing shapes appear first or between them, retaining the missing entries.

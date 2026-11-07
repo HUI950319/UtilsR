@@ -16,6 +16,17 @@ test_that(".cat_line validates width and rule patterns before evaluating text", 
   }
 })
 
+test_that("numeric table colours use finite domains and preserve infinite values", {
+  data <- data.frame(value = c(1, Inf, NA_real_, -Inf, 2))
+  expect_no_warning(table <- .cat_tb(data, numeric_columns = "value", theme = "none"))
+  expect_identical(table[["_data"]][["value"]], data$value)
+  rows <- table[["_styles"]][["rownum"]]
+  expect_setequal(rows[!is.na(rows)], c(1L, 3L, 5L))
+  expect_no_warning(infinite <- .cat_tb(data.frame(value = c(Inf, -Inf)),
+                                        numeric_columns = "value", theme = "none"))
+  expect_identical(infinite[["_data"]][["value"]], c(Inf, -Inf))
+})
+
 test_that("warning labels use black text on the yellow background", {
   shown <- list(
     line    = function() .cat_line("Sparse levels", type = "warning", width = 40),
