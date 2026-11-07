@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `theme_ROC()` validates scalar text and line sizes while retaining supported relative text sizing.
+
 * `theme_sc()` diagnoses invalid base sizes and aspect ratios before evaluating extension overrides.
 
 * `theme_alluvia()` validates finite plain base sizes before constructing theme elements.

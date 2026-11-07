@@ -16,6 +16,19 @@ test_that("single-cell themes validate sizes and aspect ratios before overrides"
   expect_equal(theme_sc(aspect.ratio = 1.5)$aspect.ratio, 1.5)
 })
 
+test_that("ROC themes validate scalar dimensions and retain relative text sizes", {
+  withr::local_options(lifecycle_verbosity = "quiet")
+  for (arg in c("base_size", "axis_text_size", "axis_title_size", "title_size",
+                "subtitle_size", "strip_size", "legend_text_size", "legend_title_size", "axis_linewidth"))
+    for (bad in list(NA_real_, Inf, numeric(), c(1, 2), matrix(1),
+                     structure(1, class = "encoded_number"))) {
+      args <- stats::setNames(list(bad), arg)
+      expect_error(do.call("theme_ROC", args), arg)
+    }
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  expect_s3_class(ggplot2::ggplotGrob(p + theme_ROC(axis_text_size = ggplot2::rel(1.1))), "gtable")
+})
+
 test_that("theme_sc preserves registered extension theme elements", {
   nest_line <- ggplot2::element_line(colour = "firebrick", linewidth = 2)
   thm <- theme_sc(ggh4x.facet.nestline = nest_line)

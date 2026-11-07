@@ -931,6 +931,14 @@ theme_ROC <- function(
     axis_linewidth    = 0.8,
     plot_margin       = ggplot2::margin(10, 10, 10, 10)
 ) {
+  for (arg in c("base_size", "axis_text_size", "axis_title_size", "title_size",
+                "subtitle_size", "strip_size", "legend_text_size", "legend_title_size", "axis_linewidth")) {
+    value <- get(arg)
+    if (!is.numeric(value) || !is.null(dim(value)) || length(value) != 1L ||
+        !is.finite(value) || (is.object(value) &&
+          (arg == "base_size" || !inherits(value, "rel"))))
+      stop("'", arg, "' must be a single finite number.", call. = FALSE)
+  }
   ggplot2::theme_classic(base_size = base_size) +
     ggplot2::theme(
       # Axis
