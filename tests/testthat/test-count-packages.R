@@ -1,3 +1,8 @@
+test_that("library refresh rejects arrays before reading package metadata", {
+  local_mocked_bindings(installed.packages = function(...) stop("metadata evaluated"), .package = "utils")
+  expect_error(check_packages(refresh = matrix(TRUE)), "refresh")
+})
+
 test_that("library counts include installed copies and exclude unrelated directories", {
   root <- withr::local_tempdir()
   lib <- file.path(root, "library")

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* check_packages() requires a scalar refresh flag before reading installed-package metadata.
+
 * fmt_axisText() rejects class-encoded angles and adjustments while retaining relative font sizes.
 
 * grob_add() checks active clipping and margin-unit controls before converting plots.

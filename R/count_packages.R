@@ -33,7 +33,7 @@
 #' @family inspect
 check_packages <- function(refresh = FALSE) {
 
-  if (!is.logical(refresh) || length(refresh) != 1L || is.na(refresh)) {
+  if (!is.logical(refresh) || !is.null(dim(refresh)) || length(refresh) != 1L || is.na(refresh)) {
     stop("'refresh' must be TRUE or FALSE.", call. = FALSE)
   }
 
