@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* PlotDumbbell() validates display switches before data processing while keeping inactive inset settings lazy.
+
 * PlotRank() validates data-frame selectors and unique matrix group names instead of silently reusing the first match.
 
 * PlotHeatmapJaccard() validates input containers and source names even for matrix-only returns.

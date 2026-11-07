@@ -185,6 +185,11 @@ PlotDumbbell <- function(
 ) {
 
   # ---- Validate inputs ----
+  for (arg in c("sort_descending", "show_delta", "show_zero_line", "show_mean_lines", "dot_guide")) {
+    value <- get(arg)
+    if (!is.logical(value) || !is.null(dim(value)) || length(value) != 1L || is.na(value))
+      stop("'", arg, "' must be TRUE or FALSE.", call. = FALSE)
+  }
   if (!(is.character(legend_pos) && is.null(dim(legend_pos)) &&
         length(legend_pos) == 1L && !is.na(legend_pos)) &&
       !(is.numeric(legend_pos) && !is.object(legend_pos) && is.null(dim(legend_pos)) &&

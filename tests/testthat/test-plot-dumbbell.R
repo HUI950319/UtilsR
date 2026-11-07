@@ -5,6 +5,18 @@ dumbbell_plot <- function(data, ...) {
   result
 }
 
+test_that("dumbbell display switches fail before data and keep inactive insets lazy", {
+  for (arg in c("sort_descending", "show_delta", "show_zero_line", "show_mean_lines", "dot_guide"))
+    for (bad in list(NA, 1, c(TRUE, FALSE), matrix(TRUE))) {
+      args <- list(data = quote(stop("data evaluated")))
+      args[[arg]] <- bad
+      expect_error(do.call("PlotDumbbell", args), arg)
+    }
+  d <- data.frame(start = 1:3, end = 2:4, category = letters[1:3])
+  expect_no_warning(dumbbell_plot(d, inset_paired_line = stop("unused inset"),
+    inset_jitter = stop("unused inset")))
+})
+
 test_that("dumbbell plots reject ambiguous input names before drawing", {
   d <- data.frame(start = 1:3, end = 2:4, category = letters[1:3], start = 10:12, check.names = FALSE)
   expect_error(PlotDumbbell(d, theme_use = function() stop("theme evaluated")), "unique.*column names")
