@@ -1,6 +1,18 @@
 z95 <- qnorm(0.975)
 p_of <- function(z) 2 * (1 - pnorm(abs(z)))
 
+test_that("overflowing CI tokens remain unparsed without aborting other intervals", {
+  x <- c(estimate = "1e309 (1e308, 1e310)",
+         lower = "0 (-1e999, 1)", upper = "0 (-1, 1e999)",
+         valid = "2.00 (1.00, 3.00)")
+  expect_warning(formatted <- stat_ci(x), "could not be parsed")
+  expect_identical(formatted[1:3], x[1:3])
+  expect_warning(p <- stat_ci_parse(x, output = "p", exp = FALSE),
+                 "could not be parsed")
+  expect_identical(unname(p[1:3]), rep(NA_real_, 3))
+  expect_equal(unname(p[[4L]]), 2 * stats::pnorm(-2 * stats::qnorm(.975)))
+})
+
 test_that("difference intervals retain valid p-values when their SE exceeds double range", {
   large <- c("1.790e308 (-1.790e308, 1.797e308)", "-1.790e308 (-1.797e308, 1.790e308)")
   control <- c("1.790 (-1.790, 1.797)", "-1.790 (-1.797, 1.790)")

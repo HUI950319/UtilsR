@@ -308,12 +308,14 @@ stat_ci_parse <- function(x,
     sub(paste0("(?s)", re, "(.*)$"), paste0("\\", k), xs[hit], perl = TRUE)
   }
   g <- lapply(1:7, grab)
-  ok <- paste0(g[[2]], g[[6]]) %in% c("()", "[]")
+  values <- lapply(g[c(1, 3, 5)], as.numeric)
+  ok <- paste0(g[[2]], g[[6]]) %in% c("()", "[]") &
+    Reduce(`&`, lapply(values, is.finite))
   hit <- hit[ok]
   g <- lapply(g, `[`, ok)
 
-  est[hit] <- as.numeric(g[[1]]); lo[hit] <- as.numeric(g[[3]])
-  hi[hit] <- as.numeric(g[[5]])
+  est[hit] <- values[[1]][ok]; lo[hit] <- values[[2]][ok]
+  hi[hit] <- values[[3]][ok]
   open[hit] <- g[[2]]; close[hit] <- g[[6]]
   sep[hit] <- c("," = ", ", ";" = "; ", "~" = "~", "\u2013" = "\u2013",
                 "\u2014" = "\u2014", "-" = "-", "to" = " to ")[trimws(g[[4]], whitespace = space)]

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* CI formatters leave overflowing numeric text unchanged with a parse warning instead of producing infinite estimates or aborting other intervals.
+
 * `check_system()` validates both logical flags before collecting resources or printing its report.
 
 * `plt_upset(output = "data")` counts observed membership patterns without repeated set intersections while preserving every combination level and its order.
