@@ -1,6 +1,8 @@
 # Styled info box
 
-Print a rounded box with type-coloured border and background.
+Print a rounded box with type-coloured border and background. The box is
+a cli message and is silenced by
+[`suppressMessages()`](https://rdrr.io/r/base/message.html).
 
 ## Usage
 

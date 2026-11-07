@@ -2,6 +2,64 @@
 
 ## UtilsR 0.6.23
 
+- [`.cat_box()`](https://hui950319.github.io/UtilsR/reference/dot-cat_box.md)
+  emits suppressible cli messages while preserving box styling and
+  literal message text.
+
+- [`fmt_tag()`](https://hui950319.github.io/UtilsR/reference/fmt_tag.md)
+  rejects shaped labels and encoded numeric tag sizes or positions while
+  retaining per-panel size vectors.
+
+- [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
+  rejects class-encoded or dimensional numeric flow, stratum, label and
+  layout controls before theme evaluation.
+
+- [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md)
+  validates plain scalar storage for flow, node and label numeric
+  controls before reading data.
+
+- [`PlotCircleLollipop()`](https://hui950319.github.io/UtilsR/reference/PlotCircleLollipop.md)
+  rejects invalid display switches before accessing data or initializing
+  graphics.
+
+- [`PlotButterfly()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly.md)
+  diagnoses invalid scaling and overlay switches before reading data or
+  constructing panels.
+
+- [`.cat_message()`](https://hui950319.github.io/UtilsR/reference/dot-cat_message.md)
+  validates logical controls and timestamp formats before text
+  evaluation, keeping disabled messages lazy.
+
+- [`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md)
+  validates that layout counts and plot indices are vectors rather than
+  silently flattening arrays.
+
+- [`fmt_strip2()`](https://hui950319.github.io/UtilsR/reference/fmt_strip2.md)
+  rejects encoded or dimensional grid counts and matrix labels before
+  processing plots.
+
+- [`PlotDumbbell()`](https://hui950319.github.io/UtilsR/reference/PlotDumbbell.md)
+  accepts two-coordinate legend positions and rejects malformed
+  positions before processing data.
+
+- [`PlotScatter2()`](https://hui950319.github.io/UtilsR/reference/PlotScatter2.md)
+  diagnoses complex, nested and matrix axes before building main and
+  marginal panels.
+
+- [`PlotScatter1()`](https://hui950319.github.io/UtilsR/reference/PlotScatter1.md)
+  rejects complex, nested and matrix axis columns before evaluating
+  themes.
+
+- `PlotRank(return_type = "data")` avoids constructing a plot when no
+  output file was requested.
+
+- Numeric table gradients retain midpoint and endpoint colours when a
+  finite range overflows during subtraction.
+
+- [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
+  respects ggplot2 3.5 stage masks when drawing mapped white-border
+  points.
+
 - [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md)
   diagnoses dimensional and nested reference positions before plot
   processing, retaining vector, date-time, missing and infinite
