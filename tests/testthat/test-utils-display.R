@@ -16,6 +16,16 @@ test_that(".cat_line validates width and rule patterns before evaluating text", 
   }
 })
 
+test_that("numeric table gradients preserve positions across overflowing finite ranges", {
+  values <- c(-1e308, 0, 1e308, NA_real_)
+  expect_no_warning(actual <- .cat_tb(data.frame(value = values),
+    numeric_columns = "value", theme = "none"))
+  reference <- .cat_tb(data.frame(value = c(-1, 0, 1, NA_real_)),
+    numeric_columns = "value", theme = "none")
+  expect_identical(actual[["_styles"]], reference[["_styles"]])
+  expect_identical(actual[["_data"]][["value"]], values)
+})
+
 test_that("numeric table colours use finite domains and preserve infinite values", {
   data <- data.frame(value = c(1, Inf, NA_real_, -Inf, 2))
   expect_no_warning(table <- .cat_tb(data, numeric_columns = "value", theme = "none"))

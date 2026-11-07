@@ -521,13 +521,13 @@ console_width <- function() {
         v <- df[[col]]
         finite <- if (is.numeric(v)) is.finite(v) else FALSE
         if (any(finite)) {
+          domain <- range(v[finite])
+          magnitude <- if (is.finite(diff(domain))) 1 else max(abs(domain))
+          colour_fn <- scales::col_numeric(palette = palette, domain = domain / magnitude)
           tb <- gt::data_color(tb,
             columns = col,
             rows = which(!is.infinite(v)),
-            fn = scales::col_numeric(
-              palette = palette,
-              domain  = range(v[finite])
-            )
+            fn = function(x) colour_fn(x / magnitude)
           )
         }
       }

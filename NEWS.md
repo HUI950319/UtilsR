@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Numeric table gradients retain midpoint and endpoint colours when a finite range overflows during subtraction.
+
 * `fmt_point()` respects ggplot2 3.5 stage masks when drawing mapped white-border points.
 
 * `fmt_ref()` diagnoses dimensional and nested reference positions before plot processing, retaining vector, date-time, missing and infinite positions.
