@@ -1,3 +1,12 @@
+test_that("circular geometry controls fail before graphics initialization", {
+  for (arg in c("track_height", "gap_after", "gap_between", "start_degree", "point_cex",
+                "line_lwd", "sector_cex", "link_lwd", "link_h", "label_cex", "label_height")) {
+    args <- list(data = quote(stop("data evaluated")))
+    args[[arg]] <- Inf
+    expect_error(do.call("PlotCircleLollipop", args), arg)
+  }
+})
+
 test_that("circular plots validate selectors and ambiguous input names", {
   for (arg in c("group_col", "name_col", "value_col"))
     for (bad in list(NULL, NA_character_, c("a", "b"), matrix("a"))) {

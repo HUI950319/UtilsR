@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* PlotCircleLollipop() checks applicable track, gap, point, link and label dimensions before graphics initialization.
+
 * PlotButterfly2() checks applicable opacity, width and swarm-size controls before accessing data.
 
 * PlotButterfly() rejects complex, nested and matrix bar scores before scaling or category completion.

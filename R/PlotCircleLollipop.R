@@ -164,6 +164,15 @@ PlotCircleLollipop <- function(
   }
 
   # ---- Check dependencies ----
+  for (arg in c("track_height", "gap_after", "gap_between", "start_degree", "point_cex",
+                "line_lwd", "sector_cex", if (show_links) c("link_lwd", "link_h"),
+                if (show_labels) c("label_cex", "label_height"))) {
+    value <- get(arg)
+    if (!is.numeric(value) || is.object(value) || !is.null(dim(value)) || length(value) != 1L ||
+        !is.finite(value) || (arg != "start_degree" && value < 0) ||
+        (arg == "track_height" && (value <= 0 || value >= 1)) || (arg == "link_h" && value > 1))
+      stop("'", arg, "' must be a finite scalar in its allowed range.", call. = FALSE)
+  }
   for (pkg in c("circlize", "dplyr")) {
     if (!requireNamespace(pkg, quietly = TRUE))
       stop(sprintf("Package '%s' is required.", pkg), call. = FALSE)
