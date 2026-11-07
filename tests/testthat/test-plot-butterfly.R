@@ -13,6 +13,15 @@ butterfly_without_text_warning <- function(expr) {
   })
 }
 
+test_that("bar butterflies diagnose unsupported score-column storage", {
+  for (bad in list(matrix(1:4, 4), as.list(1:4), 1:4 + 1i)) {
+    d <- data.frame(stat = "A", fill = "F", group = rep(c("L", "R"), each = 2))
+    d$value <- bad
+    expect_error(PlotButterfly(d, stat.by = "stat", fill.by = "fill", value.by = "value",
+      group.by = "group", base_size = stop("theme evaluated")), "value.*real vector")
+  }
+})
+
 test_that("bar butterflies reject ambiguous data-frame columns", {
   d <- data.frame(stat = "A", fill = "F", value = 1:2, group = c("L", "R"),
     value = 3:4, check.names = FALSE)

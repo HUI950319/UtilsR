@@ -248,6 +248,9 @@ PlotButterfly <- function(
         cli::cli_abort("Column {.val {col}} not found in {.arg data}.")
     }
 
+    values <- data[[value.by]]
+    if (is.complex(values) || is.list(values) || !is.null(dim(values)))
+      cli::cli_abort("Column {.val {value.by}} must contain a real vector.")
     for (col in unique(c(stat.by, fill.by, group.by))) {
       data[[col]] <- .butterfly_category_labels(data[[col]])
     }
