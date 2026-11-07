@@ -273,6 +273,8 @@ console_width <- function() {
 #' @export
 #' @family console display
 .cat_saved <- function(subject, path, size, existed, kind) {
+  if (!is.logical(existed) || !is.null(dim(existed)) || length(existed) != 1L || is.na(existed))
+    cli::cli_abort("{.arg existed} must be TRUE or FALSE.")
   # col_br_red() degrades to plain text when the console has no colour, so
   # the marker stays readable in logs and in captured output
   status <- if (isTRUE(existed)) {

@@ -203,6 +203,11 @@ test_that(".cat_message() wraps long lines under the message text", {
   expect_true(all(cli::ansi_nchar(full, type = "width") <= 50))
 })
 
+test_that("save notices reject unknown replacement status before emitting text", {
+  for (bad in list(NA, 1, logical(), c(TRUE, FALSE), matrix(TRUE)))
+    expect_error(.cat_saved(stop("subject evaluated"), "x.pdf", "1x1 in", bad, "PDF"), "existed")
+})
+
 test_that(".cat_saved() reports the path, size and a replaced file", {
   saved <- function(existed) {
     out <- cli::cli_fmt(.cat_saved("the plot has been saved to", "fig.pdf",
