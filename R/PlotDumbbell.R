@@ -185,6 +185,12 @@ PlotDumbbell <- function(
 ) {
 
   # ---- Validate inputs ----
+  if (!(is.character(legend_pos) && is.null(dim(legend_pos)) &&
+        length(legend_pos) == 1L && !is.na(legend_pos)) &&
+      !(is.numeric(legend_pos) && !is.object(legend_pos) && is.null(dim(legend_pos)) &&
+        length(legend_pos) == 2L && all(is.finite(legend_pos)))) {
+    stop("'legend_pos' must be a position string or two finite coordinates.", call. = FALSE)
+  }
   selectors <- list(x_col = x_col, xend_col = xend_col, y_col = y_col)
   for (arg in names(selectors)) {
     value <- selectors[[arg]]
@@ -358,11 +364,11 @@ PlotDumbbell <- function(
     tr = c(0.85, 0.85),
     tl = c(0.15, 0.85)
   )
-  if (legend_pos == "auto") legend_pos <- "br"
+  if (identical(legend_pos, "auto")) legend_pos <- "br"
 
-  if (legend_pos == "none") {
+  if (identical(legend_pos, "none")) {
     leg_position <- "none"
-  } else if (legend_pos %in% names(corner_map)) {
+  } else if (is.character(legend_pos) && legend_pos %in% names(corner_map)) {
     leg_position <- corner_map[[legend_pos]]
   } else {
     # Standard ggplot2 positions: "bottom", "top", "left", "right"

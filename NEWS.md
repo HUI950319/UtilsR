@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotDumbbell()` accepts two-coordinate legend positions and rejects malformed positions before processing data.
+
 * `PlotScatter2()` diagnoses complex, nested and matrix axes before building main and marginal panels.
 
 * `PlotScatter1()` rejects complex, nested and matrix axis columns before evaluating themes.

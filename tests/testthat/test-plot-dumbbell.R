@@ -5,6 +5,15 @@ dumbbell_plot <- function(data, ...) {
   result
 }
 
+test_that("PlotDumbbell accepts numeric legend coordinates", {
+  d <- data.frame(start = 1:3, end = 2:4, category = letters[1:3])
+  expect_no_warning(p <- dumbbell_plot(d, legend_pos = c(0.2, 0.8)))
+  expect_equal(p$theme$legend.position.inside %||% p$theme$legend.position, c(0.2, 0.8))
+  expect_equal(p$theme$legend.justification, c(0, 1))
+  for (bad in list(NULL, NA_character_, c("left", "right"), 1, c(NA, 1), matrix(c(0, 1))))
+    expect_error(PlotDumbbell(stop("data evaluated"), legend_pos = bad), "legend_pos")
+})
+
 test_that("PlotDumbbell diagnoses selectors and non-vector endpoints before drawing", {
   for (arg in c("x_col", "xend_col", "y_col")) {
     for (bad in list(NULL, character(), c("start", "end"), NA_character_,
