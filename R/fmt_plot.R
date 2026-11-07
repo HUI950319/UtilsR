@@ -2948,6 +2948,12 @@ fmt_text <- function(plot,
   if (!is.null(axis_titles)) {
     axis_titles <- rlang::arg_match0(axis_titles, c("keep", "collect", "collect_x", "collect_y"))
   }
+  unchanged <- list(xlab, ylab, title, subtitle, caption, legend_title,
+                    title_size, title_face, title_color, title_hjust,
+                    subtitle_size, subtitle_face, subtitle_color,
+                    caption_size, caption_face, caption_color,
+                    axis_title_size, axis_title_face, axis_title_color)
+  if (...length() == 0L && all(vapply(unchanged, is.null, logical(1)))) return(plot)
 
   # ---- Vectorize label params (recycle to n plots) ----
   vec_or_null <- function(x) {

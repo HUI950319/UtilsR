@@ -1,3 +1,11 @@
+test_that("fmt_text without requested edits retains exact nested containers", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  nested <- list(a = patchwork::wrap_plots(p, p + p), b = patchwork::plot_spacer())
+  expect_identical(fmt_text(nested), nested)
+  expect_error(fmt_text(nested, axis_titles = "invalid"), "axis_titles")
+  expect_error(fmt_text(list(p, 1)), "ggplot")
+})
+
 test_that("fmt_text() collects identical axis titles of a patchwork by default", {
   skip_if_not_installed("patchwork")
   d <- data.frame(x = 1:3, y = c(2, 1, 3))
