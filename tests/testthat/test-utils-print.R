@@ -359,6 +359,12 @@ test_that("pr_table() gives tiny values enough decimals", {
   expect_identical(trimws(out[4]), "-1.23400  2.25")
 })
 
+test_that("pr_tree validates its attribute switch before inspecting objects", {
+  for (bad in list(NULL, NA, 1, c(TRUE, FALSE), matrix(TRUE))) {
+    expect_error(pr_tree(stop("object evaluated"), attrs = bad), "attrs")
+  }
+})
+
 test_that("pr_kv() and pr_box() wrap long values under the value column", {
   withr::local_options(cli.num_colors = 1, cli.width = 40)
   fml <- paste("y ~", paste0("x", 1:12, collapse = " + "))

@@ -881,6 +881,8 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
 #' @family print helpers
 pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
                     attrs = TRUE) {
+  if (!is.logical(attrs) || !is.null(dim(attrs)) || length(attrs) != 1L || is.na(attrs))
+    cli::cli_abort("{.arg attrs} must be TRUE or FALSE.")
   ._pr_count(max_depth, "max_depth", infinite = TRUE)
   ._pr_count(max_items, "max_items", infinite = TRUE)
   ._pr_count(max_lines, "max_lines", infinite = TRUE)
