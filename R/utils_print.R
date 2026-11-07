@@ -551,6 +551,11 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 #' @family print helpers
 pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
                      n = 20, align = NULL, digits = 2, width = NULL, indent = 2) {
+  if (!is.logical(rownames) || !is.null(dim(rownames)) ||
+      length(rownames) != 1L || is.na(rownames))
+    cli::cli_abort("{.arg rownames} must be TRUE or FALSE.")
+  if (!is.null(p_col) && (!is.character(p_col) || !is.null(dim(p_col)) || anyNA(p_col)))
+    cli::cli_abort("{.arg p_col} must be NULL or a character vector without missing values.")
   if (!is.data.frame(data)) {
     cli::cli_abort("{.arg data} must be a data frame, not {.obj_type_friendly {data}}.")
   }

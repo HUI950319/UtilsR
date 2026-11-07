@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_table()` diagnoses invalid row-name switches and P-column selectors before printing, including for empty tables.
+
 * `pr_tree()` validates its attribute switch before evaluating the inspected object, preventing partial output from invalid controls.
 
 * `theme_blank()` validates its coordinate switch, arrow lengths and label size, avoiding silent arrow removal and vector truncation.

@@ -365,6 +365,15 @@ test_that("pr_tree validates its attribute switch before inspecting objects", {
   }
 })
 
+test_that("pr_table validates row-name and P-column controls before empty returns", {
+  for (bad in list(NULL, NA, 1, c(TRUE, FALSE), matrix(TRUE))) {
+    expect_error(pr_table(data.frame(), rownames = bad), "rownames")
+  }
+  for (bad in list(NA_character_, matrix("P"), list("P"), 1)) {
+    expect_error(pr_table(data.frame(P = .05), p_col = bad), "p_col")
+  }
+})
+
 test_that("pr_kv() and pr_box() wrap long values under the value column", {
   withr::local_options(cli.num_colors = 1, cli.width = 40)
   fml <- paste("y ~", paste0("x", 1:12, collapse = " + "))
