@@ -223,7 +223,7 @@ stat_ci_parse <- function(x,
   # --- Adjust CI level; p is then read off the adjusted CI as a 95% CI ---
   if (!is.null(level)) {
     if (is.null(digits)) d <- pmax(d, 1L)   # "2 (1, 3)" -> "2.0 (1.2, 2.8)"
-    z_new <- qnorm(1 - (1 - level) / 2)
+    z_new <- qnorm((1 - level) / 2, lower.tail = FALSE)
     l_s <- ifelse(asym, e_s - (e_s - l_s) * z_new / z95, e_s - z_new * se)
     h_s <- ifelse(asym, e_s + (h_s - e_s) * z_new / z95, e_s + z_new * se)
     lo <- ifelse(valid, ifelse(is_exp, exp(l_s), l_s * work_scale), lo)

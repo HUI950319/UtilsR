@@ -240,6 +240,18 @@ test_that("level keeps at least one decimal for integer input", {
                    "2.0 (1.2, 2.8)")
 })
 
+test_that("confidence levels below one retain finite normal quantiles", {
+  level <- 1 - .Machine$double.eps / 2
+  z <- stats::qnorm((1 - level) / 2, lower.tail = FALSE)
+  expected <- sprintf("1.00 (%.2f, %.2f)", 1 - z / z95, 1 + z / z95)
+  expect_no_warning(actual <- stat_ci_parse("1.00 (0.00, 2.00)",
+                                            level = level, exp = FALSE))
+  expect_identical(actual, expected)
+  p <- stat_ci_parse("1.00 (0.00, 2.00)", level = level, exp = FALSE, output = "p")
+  expect_equal(p, 2 * pnorm(-z95^2 / z))
+  expect_true(is.finite(p) && p > .05 && p < 1)
+})
+
 test_that("an estimate on a printed bound still gets a finite p-value", {
   expect_identical(suppressWarnings(
     stat_ci_parse("1.0 (0.6, 1.0)", output = "p", exp = TRUE)), 1)

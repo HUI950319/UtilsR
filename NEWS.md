@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci_parse()` computes normal quantiles from the upper tail so confidence levels immediately below one retain finite adjusted bounds and p-values.
+
 * `fmt_his()` rejects encoded and dimensional overlay controls while retaining function bin widths and missing axis-limit endpoints.
 
 * `fmt_legend()` checks controls before inspecting plots and prevents encoded or dimensional numeric storage from becoming legend sizes and layout counts.
