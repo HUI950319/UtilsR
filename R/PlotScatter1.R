@@ -151,6 +151,9 @@ PlotScatter1 <- function(
     if (!is.logical(value) || !is.null(dim(value)) || length(value) != 1L || is.na(value))
       stop("'", arg, "' must be TRUE or FALSE.", call. = FALSE)
   }
+  if (!is.data.frame(data)) stop("'data' must be a data.frame.", call. = FALSE)
+  if (anyNA(names(data)) || any(!nzchar(names(data))) || anyDuplicated(names(data)))
+    stop("'data' must have unique, non-missing, non-empty column names.", call. = FALSE)
   for (col in c(x, y, group)) {
     if (!col %in% colnames(data)) stop(sprintf("Column '%s' not found in data.", col))
   }

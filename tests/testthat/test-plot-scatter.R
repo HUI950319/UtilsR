@@ -34,6 +34,14 @@ scatter3_integer_pairs <- function() {
   )
 }
 
+test_that("PlotScatter1 rejects ambiguous data-frame column names", {
+  d <- data.frame(x = 1:4, y = 4:1, g = rep(c("a", "b"), 2), x = 5:8, check.names = FALSE)
+  expect_error(PlotScatter1(d, "x", "y", "g", show_ellipse = FALSE,
+    theme_use = function() stop("theme evaluated")), "unique.*column names")
+  for (bad in list(matrix(1:4, 2), list(x = 1:4, y = 4:1, g = letters[1:4])))
+    expect_error(PlotScatter1(bad, "x", "y", "g"), "data.frame")
+})
+
 test_that("PlotScatter1 rejects non-vector axes before theme evaluation", {
   for (col in c("x", "y")) for (bad in list(1:4 + 1i, as.list(1:4), matrix(1:4, 4))) {
     d <- data.frame(x = 1:4, y = 4:1, g = rep(c("a", "b"), 2))
