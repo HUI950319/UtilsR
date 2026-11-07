@@ -153,6 +153,14 @@ grob_add <- function(
     space = NULL,
     clip = "on") {
   position <- match.arg(position)
+  if (position != "none" && !is.null(grob)) {
+    if (!is.character(clip) || !is.null(dim(clip)) || length(clip) != 1L ||
+        is.na(clip) || !clip %in% c("on", "off", "inherit"))
+      stop("'clip' must be one of 'on', 'off' or 'inherit'.", call. = FALSE)
+    if (!is.null(space) && (!grid::is.unit(space) ||
+        (inherits(space, "simpleUnit") && any(!is.finite(as.numeric(space))))))
+      stop("'space' must be NULL or a finite grid unit.", call. = FALSE)
+  }
 
   if (!requireNamespace("gtable", quietly = TRUE)) {
     stop("Package 'gtable' is required for grob_add().", call. = FALSE)

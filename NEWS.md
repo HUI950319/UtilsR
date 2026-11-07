@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* grob_add() checks active clipping and margin-unit controls before converting plots.
+
 * Table display validates numeric column selectors, caption vector shapes and active highlight colours before collecting inputs.
 
 * PlotCircleLollipop() computes full-range scaling by group instead of invoking the scaler once per observation.

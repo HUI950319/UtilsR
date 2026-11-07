@@ -201,3 +201,10 @@ test_that("grob_add() prefers panel prefixes over unrelated panel mentions", {
     expect_equal(unname(unlist(added[c("t", "l", "b", "r")])), expected[[position]])
   }
 })
+
+test_that("grob margins diagnose invalid controls before converting plots", {
+  for (bad in list(NA_character_, "bad", c("on", "off"), matrix("on")))
+    expect_error(grob_add(stop("plot evaluated"), grid::nullGrob(), clip = bad), "clip")
+  for (bad in list(1, matrix(1), grid::unit(NA_real_, "mm")))
+    expect_error(grob_add(stop("plot evaluated"), grid::nullGrob(), space = bad), "space")
+})
