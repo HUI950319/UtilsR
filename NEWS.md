@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotScatter2()` diagnoses invalid selectors and logical controls before building grouped marginals, retaining an optional `NULL` second group.
+
 * `PlotScatter1()` rejects malformed selectors and logical controls before reading data or assembling marginal panels.
 
 * `PlotDumbbell()` diagnoses malformed column selectors and unsupported endpoint storage before plotting, while retaining date and time differences.

@@ -155,6 +155,18 @@ PlotScatter2 <- function(
   }
 
   # ---- Validate columns ----
+  for (arg in c("x", "y", "group", "group2")) {
+    value <- get(arg)
+    if (arg == "group2" && is.null(value)) next
+    if (!is.character(value) || !is.null(dim(value)) || length(value) != 1L ||
+        is.na(value) || !nzchar(value))
+      stop("'", arg, "' must be a single non-missing column name.", call. = FALSE)
+  }
+  for (arg in c("show_ellipse", "show_regression", "show_cor", "x_top")) {
+    value <- get(arg)
+    if (!is.logical(value) || !is.null(dim(value)) || length(value) != 1L || is.na(value))
+      stop("'", arg, "' must be TRUE or FALSE.", call. = FALSE)
+  }
   need_cols <- c(x, y, group)
   if (!is.null(group2)) need_cols <- c(need_cols, group2)
   for (col in need_cols) {
