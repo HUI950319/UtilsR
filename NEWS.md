@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `check_system()` validates both logical flags before collecting resources or printing its report.
+
 * `plt_upset(output = "data")` counts observed membership patterns without repeated set intersections while preserving every combination level and its order.
 
 * Plot saving rejects invalid named-list fields, PDF filenames, dimensions and devices before evaluating or measuring the plot.

@@ -28,10 +28,10 @@
 #' reported as missing when it is unavailable.
 #' On macOS, system memory is obtained through the optional \code{ps} package.
 #'
-#' @param return_result Logical. If \code{TRUE}, return the result list
-#'   visibly. Default \code{FALSE}.
-#' @param show_warnings Logical. If \code{TRUE}, display memory warnings.
-#'   Default \code{FALSE}.
+#' @param return_result Single non-missing logical value. If \code{TRUE},
+#'   return the result list visibly. Default \code{FALSE}.
+#' @param show_warnings Single non-missing logical value. If \code{TRUE},
+#'   display memory warnings. Default \code{FALSE}.
 #'
 #' @return A list (invisible by default) containing system_info, r_environment,
 #'   r_memory, system_memory, cpu, warnings, and timestamp.
@@ -53,6 +53,15 @@
 #' @export
 #' @family inspect
 check_system <- function(return_result = FALSE, show_warnings = FALSE) {
+
+  flags <- list(return_result = return_result, show_warnings = show_warnings)
+  for (arg in names(flags)) {
+    value <- flags[[arg]]
+    if (!is.logical(value) || length(value) != 1L ||
+        !is.null(dim(value)) || is.na(value)) {
+      stop("`", arg, "` must be TRUE or FALSE.", call. = FALSE)
+    }
+  }
 
   # Get R memory usage
   r_mem_used_bytes <- if (requireNamespace("lobstr", quietly = TRUE)) {

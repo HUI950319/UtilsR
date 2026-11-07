@@ -7,11 +7,11 @@
 check_system(return_result = FALSE, show_warnings = FALSE)
 }
 \arguments{
-\item{return_result}{Logical. If \code{TRUE}, return the result list
-visibly. Default \code{FALSE}.}
+\item{return_result}{Single non-missing logical value. If \code{TRUE},
+return the result list visibly. Default \code{FALSE}.}
 
-\item{show_warnings}{Logical. If \code{TRUE}, display memory warnings.
-Default \code{FALSE}.}
+\item{show_warnings}{Single non-missing logical value. If \code{TRUE},
+display memory warnings. Default \code{FALSE}.}
 }
 \value{
 A list (invisible by default) containing system_info, r_environment,

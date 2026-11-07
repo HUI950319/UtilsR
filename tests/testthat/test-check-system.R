@@ -33,6 +33,33 @@
   query
 }
 
+test_that("diagnostic flags are validated before collecting or printing resources", {
+  query <- .check_system_fixture(meminfo = c(
+    "MemTotal: 8388608 kB", "MemAvailable: 4194304 kB"
+  ))
+  collections <- 0L
+  environment(query)$gc <- function(...) {
+    collections <<- collections + 1L
+    base::gc(...)
+  }
+  bad <- list(NULL, logical(), NA, c(TRUE, FALSE), matrix(TRUE),
+              array(FALSE, c(1, 1, 1)), 1, "TRUE", list(TRUE))
+  for (arg in c("return_result", "show_warnings")) {
+    for (value in bad) {
+      args <- list(return_result = TRUE)
+      args[arg] <- list(value)
+      collections <- 0L
+      output <- utils::capture.output(error <- tryCatch(
+        do.call(query, args), error = identity
+      ))
+      expect_s3_class(error, "error")
+      if (inherits(error, "error")) expect_match(conditionMessage(error), arg)
+      expect_identical(collections, 0L)
+      expect_identical(output, character())
+    }
+  }
+})
+
 test_that("system diagnostics retain their result schema and visibility", {
   utils::capture.output(result <- withVisible(check_system(return_result = TRUE)))
   expect_true(result$visible)
