@@ -156,7 +156,7 @@ fmt_raster <- function(
 ) {
   method <- match.arg(method)
   units  <- match.arg(units)
-  if (!is.numeric(dpi) || !is.null(dim(dpi)) || inherits(dpi, "unit") ||
+  if (!is.numeric(dpi) || is.object(dpi) || !is.null(dim(dpi)) ||
       length(dpi) != 1L || !is.finite(dpi) || dpi <= 0) {
     cli::cli_abort("{.arg dpi} must be a positive finite numeric scalar.")
   }
@@ -170,7 +170,7 @@ fmt_raster <- function(
           i = "Specify the measurement unit with {.arg units}."
         ))
       }
-      if (!is.null(value) && (!is.numeric(value) || !is.null(dim(value)) ||
+      if (!is.null(value) && (!is.numeric(value) || is.object(value) || !is.null(dim(value)) ||
                               length(value) == 0L ||
                               any(!is.finite(value)) || any(value <= 0))) {
         cli::cli_abort("{.arg {arg}} must be a vector of positive finite numeric values.")

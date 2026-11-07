@@ -332,6 +332,18 @@ test_that("ragg restores graphics devices after success and draw errors", {
   expect_identical(grDevices::dev.list(), devices)
 })
 
+test_that("raster dimensions reject class-encoded storage before selecting a device", {
+  encoded <- structure(300, class = "integer64")
+  expect_error(fmt_raster(stop("plot evaluated"), dpi = encoded), "dpi")
+  for (method in c("ragg", "image")) {
+    for (arg in c("width", "height")) {
+      args <- list(plot = quote(stop("plot evaluated")), method = method)
+      args[arg] <- list(encoded)
+      expect_error(do.call(fmt_raster, args), arg)
+    }
+  }
+})
+
 test_that("invalid resolutions and panel dimensions fail before the backend", {
   local_mocked_bindings(
     .fmt_raster_ragg = function(...) stop("backend was called"),
