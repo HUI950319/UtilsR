@@ -139,6 +139,18 @@ PlotScatter1 <- function(
   raster_method <- match.arg(raster_method)
 
   # ---- Validate columns ----
+  for (arg in c("x", "y", "group")) {
+    value <- get(arg)
+    if (!is.character(value) || !is.null(dim(value)) || length(value) != 1L ||
+        is.na(value) || !nzchar(value))
+      stop("'", arg, "' must be a single non-missing column name.", call. = FALSE)
+  }
+  for (arg in c("show_ellipse", "show_refline", "show_regression", "show_cor",
+                "box_jitter", "raster")) {
+    value <- get(arg)
+    if (!is.logical(value) || !is.null(dim(value)) || length(value) != 1L || is.na(value))
+      stop("'", arg, "' must be TRUE or FALSE.", call. = FALSE)
+  }
   for (col in c(x, y, group)) {
     if (!col %in% colnames(data)) stop(sprintf("Column '%s' not found in data.", col))
   }

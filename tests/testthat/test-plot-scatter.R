@@ -34,6 +34,24 @@ scatter3_integer_pairs <- function() {
   )
 }
 
+test_that("PlotScatter1 validates selectors and logical controls before reading data", {
+  for (arg in c("x", "y", "group")) {
+    for (bad in list(NULL, character(), c("x", "y"), NA_character_, matrix("x"))) {
+      args <- list(data = quote(stop("data evaluated")), x = "x", y = "y", group = "g")
+      args[arg] <- list(bad)
+      expect_error(do.call(PlotScatter1, args), arg)
+    }
+  }
+  for (arg in c("show_ellipse", "show_refline", "show_regression", "show_cor",
+                "box_jitter", "raster")) {
+    for (bad in list(NA, 1, c(TRUE, FALSE), matrix(TRUE))) {
+      args <- list(data = quote(stop("data evaluated")), x = "x", y = "y", group = "g")
+      args[arg] <- list(bad)
+      expect_error(do.call(PlotScatter1, args), arg)
+    }
+  }
+})
+
 test_that("PlotScatter3 retains differences beyond the integer range", {
   data <- scatter3_integer_pairs()
   before <- serialize(data, NULL)
