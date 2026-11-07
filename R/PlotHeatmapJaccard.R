@@ -106,6 +106,9 @@ PlotHeatmapJaccard <- function(
   if (!requireNamespace("ggplot2", quietly = TRUE))
     stop("Package 'ggplot2' is required.", call. = FALSE)
   return_type <- match.arg(return_type)
+  if (!is.data.frame(data)) stop("'data' must be a data.frame.", call. = FALSE)
+  if (anyNA(names(data)) || any(!nzchar(names(data))) || anyDuplicated(names(data)))
+    stop("'data' must have unique, non-missing, non-empty column names.", call. = FALSE)
 
   # ---- Validate columns ----
   column_selectors <- list(group_col = group_col, name_col = name_col)

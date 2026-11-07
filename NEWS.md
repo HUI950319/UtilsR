@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* PlotHeatmapJaccard() validates input containers and source names even for matrix-only returns.
+
 * PlotButterfly2() diagnoses ambiguous source names before projecting its plotting columns.
 
 * PlotButterfly() validates bar-mode input containers and column names before completing category combinations.

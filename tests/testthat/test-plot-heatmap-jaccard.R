@@ -36,6 +36,12 @@ jaccard_timespans <- function(values) {
        interval = lubridate::interval(start, start + 30))
 }
 
+test_that("Jaccard matrices reject ambiguous source columns", {
+  d <- data.frame(cell_type = c("A", "B"), gene = c("x", "y"),
+    gene = c("y", "z"), check.names = FALSE)
+  expect_error(PlotHeatmapJaccard(d, return_type = "data"), "unique.*column names")
+})
+
 test_that("Jaccard plot controls fail clearly without affecting pure matrix returns", {
   data <- data.frame(cell_type = c("A", "B"), gene = c("g1", "g2"))
   for (arg in c("show_diag", "show_strip")) {
