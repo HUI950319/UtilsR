@@ -608,6 +608,9 @@ leg2 <- function() {
 #' @export
 #' @family ggplot2 themes
 theme_alluvia <- function(base_size = 14, base_family = "") {
+  if (!is.numeric(base_size) || is.object(base_size) || !is.null(dim(base_size)) ||
+      length(base_size) != 1L || !is.finite(base_size))
+    stop("'base_size' must be a single finite number.", call. = FALSE)
   ggplot2::theme_bw(
     base_size = base_size, base_family = base_family,
     base_line_size = base_size / 22,

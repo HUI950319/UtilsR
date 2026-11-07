@@ -1,3 +1,11 @@
+test_that("alluvial themes reject invalid base sizes before family evaluation", {
+  for (bad in list(NA_real_, Inf, numeric(), c(10, 12), matrix(12),
+                   structure(12, class = "encoded_number")))
+    expect_error(theme_alluvia(base_size = bad, base_family = stop("family evaluated")), "base_size")
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  expect_s3_class(ggplot2::ggplotGrob(p + theme_alluvia(12)), "gtable")
+})
+
 test_that("theme_sc preserves registered extension theme elements", {
   nest_line <- ggplot2::element_line(colour = "firebrick", linewidth = 2)
   thm <- theme_sc(ggh4x.facet.nestline = nest_line)
