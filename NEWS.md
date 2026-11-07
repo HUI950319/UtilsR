@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `grob_add()` aligns margin grobs to canonical panels instead of including annotations with panel-prefixed names.
+
 * `grob_insert()` validates inset coordinates and logical controls before building either plot.
 
 * `stat_ci_parse()` rejects dimensional text and classed or dimensional confidence-level and precision controls before parsing or returning empty output.

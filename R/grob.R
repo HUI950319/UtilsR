@@ -128,8 +128,9 @@ grob_as <- function(plot, ...) {
 #'
 #' Successive additions remain aligned to the main panel area.
 #'
-#' Panel names beginning with \code{"panel"} are preferred. For custom
-#' gtables without this prefix, names containing \code{"panel"} are used.
+#' Standard panel names (\code{"panel"} and numeric suffixes) and
+#' \code{"panel-area"} are preferred. For custom gtables without these names,
+#' names containing \code{"panel"} are used.
 #'
 #' Fixed aspect ratio constraints in the main gtable are retained when margin
 #' rows or columns are added.
@@ -189,7 +190,8 @@ grob_add <- function(
     }
   }
 
-  panel_index <- grepl("^panel", gt$layout$name)
+  panel_index <- grepl("^panel(-[0-9]+)*$", gt$layout$name) |
+    gt$layout$name %in% "panel-area"
   if (!any(panel_index)) panel_index <- grepl("panel", gt$layout$name)
   panel_layout <- gt$layout[panel_index, , drop = FALSE]
   if (nrow(panel_layout) == 0L) {

@@ -1,3 +1,24 @@
+test_that("margin additions prefer canonical panels to panel-named annotations", {
+  table <- gtable::gtable(widths = grid::unit(rep(1, 6), "cm"),
+                          heights = grid::unit(rep(1, 5), "cm"))
+  table <- gtable::gtable_add_grob(table, grid::rectGrob(),
+    t = 2, b = 4, l = 2, r = 5, name = "panel")
+  table <- gtable::gtable_add_grob(table, grid::textGrob("Note"),
+    t = 1, b = 5, l = 1, r = 6, name = "panel-note")
+  before <- table
+  for (position in c("top", "bottom", "left", "right")) {
+    result <- grob_add(table, grid::rectGrob(), position = position,
+                        space = grid::unit(1, "cm"))
+    added <- result$layout[nrow(result$layout), , drop = FALSE]
+    if (position %in% c("top", "bottom")) {
+      expect_equal(unname(unlist(added[c("l", "r")])), c(2, 5))
+    } else {
+      expect_equal(unname(unlist(added[c("t", "b")])), c(2, 4))
+    }
+    expect_identical(table, before)
+  }
+})
+
 test_that("grob_add() uses full panel extents in all four directions", {
   withr::local_pdf(NULL)
   table <- gtable::gtable(widths = grid::unit(rep(1, 8), "cm"),

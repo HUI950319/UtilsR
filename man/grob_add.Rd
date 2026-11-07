@@ -42,8 +42,9 @@ is \code{NULL}.
 
 Successive additions remain aligned to the main panel area.
 
-Panel names beginning with \code{"panel"} are preferred. For custom
-gtables without this prefix, names containing \code{"panel"} are used.
+Standard panel names (\code{"panel"} and numeric suffixes) and
+\code{"panel-area"} are preferred. For custom gtables without these names,
+names containing \code{"panel"} are used.
 
 Fixed aspect ratio constraints in the main gtable are retained when margin
 rows or columns are added.
