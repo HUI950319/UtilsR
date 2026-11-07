@@ -308,6 +308,13 @@
   if (!is.null(save) && !is.list(save)) {
     cli::cli_abort("{.arg save} must be NULL or a named list.")
   }
+  if (length(save)) {
+    fields <- names(save)
+    if (is.null(fields) || anyNA(fields) || any(!nzchar(fields)) ||
+        anyDuplicated(fields)) {
+      cli::cli_abort("{.arg save} must have unique, non-empty field names.")
+    }
+  }
   regr <- requireNamespace("RegR", quietly = TRUE) &&
     exists(".save_sized", envir = asNamespace("RegR"), inherits = FALSE)
   if (!regr) {
@@ -318,6 +325,30 @@
     return(p)
   }
   ns <- asNamespace("RegR")
+  if (length(save)) {
+    allowed <- setdiff(names(formals(getExportedValue("RegR", "save_plt"))),
+                       c("plot", "..."))
+    unknown <- setdiff(fields, allowed)
+    if (length(unknown)) {
+      cli::cli_abort("Unknown field{?s} in {.arg save}: {.val {unknown}}.")
+    }
+    file <- save[["filename"]]
+    if (!is.character(file) || length(file) != 1L || is.na(file) || !nzchar(file)) {
+      cli::cli_abort("{.arg save} must include a single non-empty {.field filename}.")
+    }
+    ext <- tools::file_ext(file)
+    if (nzchar(ext) && tolower(ext) != "pdf") {
+      cli::cli_abort("The {.field filename} in {.arg save} must have a PDF extension or no extension.")
+    }
+    for (field in intersect(c("width", "height"), fields)) {
+      value <- save[[field]]
+      if (!is.null(value) && !(is.numeric(value) && length(value) == 1L &&
+                               is.finite(value) && value > 0)) {
+        cli::cli_abort("The {.field {field}} in {.arg save} must be a positive finite numeric scalar or NULL.")
+      }
+    }
+    if ("device" %in% fields) match.arg(save[["device"]], c("cairo", "pdf"))
+  }
   if (is.null(size)) {
     size <- if (inherits(p, c("ggplot", "patchwork", "gtable"))) {
       ns$.plot_canvas_size(p, panel)

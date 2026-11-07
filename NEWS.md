@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Plot saving rejects invalid named-list fields, PDF filenames, dimensions and devices before evaluating or measuring the plot.
+
 * `.cat_tb()` applies pattern highlighting in batches while preserving matched cells, missing values and rendered table output.
 
 * `lv()` generates precision-preserving date-time filters and summarizes entirely missing POSIXct and POSIXlt columns.
