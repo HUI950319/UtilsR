@@ -2,6 +2,66 @@
 
 ## UtilsR 0.6.23
 
+- [`PlotButterfly2()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly2.md)
+  validates applicable point-overlay switches early and leaves unused
+  overlay controls unevaluated in beeswarm modes.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  diagnoses dimensional grouping selectors and invalid facet counts
+  before statistics or theme evaluation.
+
+- [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
+  validates selector shapes, scalar switches and supported plain facet
+  counts before constructing panels.
+
+- [`fmt_boxplot()`](https://hui950319.github.io/UtilsR/reference/fmt_boxplot.md)
+  rejects dimensional inheritance flags and option arrays before
+  inspecting plot data or mappings.
+
+- [`fmt_strip()`](https://hui950319.github.io/UtilsR/reference/fmt_strip.md)
+  rejects dimensional display switches, labels and colour specifications
+  with argument-specific diagnostics.
+
+- [`fmt_axisTile()`](https://hui950319.github.io/UtilsR/reference/fmt_axisTile.md)
+  validates scalar dimensions, text faces and display flags before
+  processing plots.
+
+- [`fct_to_combine()`](https://hui950319.github.io/UtilsR/reference/fct_to_combine.md)
+  diagnoses dimensional separators and output names before constructing
+  or assigning combined factors.
+
+- [`.cat_formula()`](https://hui950319.github.io/UtilsR/reference/dot-cat_formula.md)
+  validates outcome, time and covariate names before inspecting data,
+  retaining intercept-only notices.
+
+- Full-range scaling in
+  [`PlotRank()`](https://hui950319.github.io/UtilsR/reference/PlotRank.md)
+  processes ordinary numeric scores by group while preserving
+  classed-score dispatch.
+
+- [`theme_legend()`](https://hui950319.github.io/UtilsR/reference/theme_legend.md)
+  validates dimensions, margins and title switches, retaining relative
+  text sizes, negative margins and lazy hidden-title styling.
+
+- [`theme_ROC()`](https://hui950319.github.io/UtilsR/reference/theme_ROC.md)
+  validates scalar text and line sizes while retaining supported
+  relative text sizing.
+
+- [`theme_sc()`](https://hui950319.github.io/UtilsR/reference/theme_sc.md)
+  diagnoses invalid base sizes and aspect ratios before evaluating
+  extension overrides.
+
+- [`theme_alluvia()`](https://hui950319.github.io/UtilsR/reference/theme_alluvia.md)
+  validates finite plain base sizes before constructing theme elements.
+
+- [`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md)
+  validates plain neighbour counts even when no missing values require
+  imputation.
+
+- [`.cat_saved()`](https://hui950319.github.io/UtilsR/reference/dot-cat_saved.md)
+  rejects unknown or malformed replacement status instead of reporting a
+  file as new.
+
 - [`.cat_box()`](https://hui950319.github.io/UtilsR/reference/dot-cat_box.md)
   emits suppressible cli messages while preserving box styling and
   literal message text.

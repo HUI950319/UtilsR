@@ -50,7 +50,22 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.23" id="utilsr-0623">UtilsR 0.6.23<a class="anchor" aria-label="anchor" href="#utilsr-0623"></a></h2>
-<ul><li><p><code><a href="../reference/dot-cat_box.html">.cat_box()</a></code> emits suppressible cli messages while preserving box styling and literal message text.</p></li>
+<ul><li><p><code><a href="../reference/PlotButterfly2.html">PlotButterfly2()</a></code> validates applicable point-overlay switches early and leaves unused overlay controls unevaluated in beeswarm modes.</p></li>
+<li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> diagnoses dimensional grouping selectors and invalid facet counts before statistics or theme evaluation.</p></li>
+<li><p><code><a href="../reference/plt_cat.html">plt_cat()</a></code> validates selector shapes, scalar switches and supported plain facet counts before constructing panels.</p></li>
+<li><p><code><a href="../reference/fmt_boxplot.html">fmt_boxplot()</a></code> rejects dimensional inheritance flags and option arrays before inspecting plot data or mappings.</p></li>
+<li><p><code><a href="../reference/fmt_strip.html">fmt_strip()</a></code> rejects dimensional display switches, labels and colour specifications with argument-specific diagnostics.</p></li>
+<li><p><code><a href="../reference/fmt_axisTile.html">fmt_axisTile()</a></code> validates scalar dimensions, text faces and display flags before processing plots.</p></li>
+<li><p><code><a href="../reference/fct_to_combine.html">fct_to_combine()</a></code> diagnoses dimensional separators and output names before constructing or assigning combined factors.</p></li>
+<li><p><code><a href="../reference/dot-cat_formula.html">.cat_formula()</a></code> validates outcome, time and covariate names before inspecting data, retaining intercept-only notices.</p></li>
+<li><p>Full-range scaling in <code><a href="../reference/PlotRank.html">PlotRank()</a></code> processes ordinary numeric scores by group while preserving classed-score dispatch.</p></li>
+<li><p><code><a href="../reference/theme_legend.html">theme_legend()</a></code> validates dimensions, margins and title switches, retaining relative text sizes, negative margins and lazy hidden-title styling.</p></li>
+<li><p><code><a href="../reference/theme_ROC.html">theme_ROC()</a></code> validates scalar text and line sizes while retaining supported relative text sizing.</p></li>
+<li><p><code><a href="../reference/theme_sc.html">theme_sc()</a></code> diagnoses invalid base sizes and aspect ratios before evaluating extension overrides.</p></li>
+<li><p><code><a href="../reference/theme_alluvia.html">theme_alluvia()</a></code> validates finite plain base sizes before constructing theme elements.</p></li>
+<li><p><code><a href="../reference/impute_na_knn.html">impute_na_knn()</a></code> validates plain neighbour counts even when no missing values require imputation.</p></li>
+<li><p><code><a href="../reference/dot-cat_saved.html">.cat_saved()</a></code> rejects unknown or malformed replacement status instead of reporting a file as new.</p></li>
+<li><p><code><a href="../reference/dot-cat_box.html">.cat_box()</a></code> emits suppressible cli messages while preserving box styling and literal message text.</p></li>
 <li><p><code><a href="../reference/fmt_tag.html">fmt_tag()</a></code> rejects shaped labels and encoded numeric tag sizes or positions while retaining per-panel size vectors.</p></li>
 <li><p><code><a href="../reference/plt_alluvial.html">plt_alluvial()</a></code> rejects class-encoded or dimensional numeric flow, stratum, label and layout controls before theme evaluation.</p></li>
 <li><p><code><a href="../reference/plt_sankey.html">plt_sankey()</a></code> validates plain scalar storage for flow, node and label numeric controls before reading data.</p></li>
