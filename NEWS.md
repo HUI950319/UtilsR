@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fct_label()` refreshes affected data.table keys and secondary indices after relabelling, retaining unrelated indices and the original input.
+
 * Jaccard heatmaps diagnose malformed rendering controls while pure similarity-matrix returns continue to skip plot styling.
 
 * `PlotButterfly2()` reports malformed column selectors and unsupported score storage consistently across direct and delegated plotting paths.

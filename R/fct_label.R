@@ -91,7 +91,12 @@ fct_label.data.frame <- function(x, var, labels, ...) {
     cli::cli_abort("Column {.val {v}} occurs more than once in the data frame.")
   }
   relabelled <- fct_cat(x[[v]], new_labels = labels)
-  if (inherits(x, "rowwise_df")) {
+  if (inherits(x, "data.table")) {
+    if (!requireNamespace("data.table", quietly = TRUE))
+      cli::cli_abort("Relabelling data.table columns requires the {.pkg data.table} package.")
+    x <- data.table::copy(x)
+    data.table::set(x, j = v, value = relabelled)
+  } else if (inherits(x, "rowwise_df")) {
     x <- dplyr::dplyr_col_modify(x, stats::setNames(list(relabelled), v))
   } else {
     x[[v]] <- relabelled

@@ -270,6 +270,20 @@ test_that("fct_label does not mutate a data.table through selection", {
   expect_identical(data, original)
 })
 
+test_that("fct_label refreshes affected data.table keys and indices", {
+  skip_if_not_installed("data.table")
+  data <- data.table::data.table(grade = factor(letters[1:4]), value = 1:4)
+  data.table::setkeyv(data, "grade")
+  data.table::setindexv(data, c("grade", "value"))
+  data.table::setindexv(data, "value")
+  original <- data.table::copy(data)
+  result <- fct_label(data, grade, c("A", "B", "A", "B"))
+  expect_null(data.table::key(result))
+  expect_identical(data.table::indices(result), "value")
+  expect_identical(as.character(result[["grade"]]), c("A", "B", "A", "B"))
+  expect_identical(data, original)
+})
+
 test_that("empty and entirely missing factors keep valid levels", {
   empty <- factor(character())
   expect_identical(fct_cat(empty, reverse = TRUE), empty)
