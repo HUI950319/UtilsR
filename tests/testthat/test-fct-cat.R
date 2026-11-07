@@ -284,6 +284,23 @@ test_that("fct_label refreshes affected data.table keys and indices", {
   expect_identical(data, original)
 })
 
+test_that("fct_to_group only evaluates naming controls for unnamed groups", {
+  x <- factor(letters[1:3])
+  expect_identical(fct_to_group(x, list(AB = 1:2, C = 3),
+                                name_prefix = stop("prefix evaluated"),
+                                name_sep = stop("separator evaluated")),
+                   factor(c("AB", "AB", "C")))
+  for (arg in c("name_prefix", "name_sep")) {
+    for (bad in list(NULL, NA_character_, c("a", "b"), matrix("g"), 1)) {
+      args <- list(x = x, g_lis = list(1:2))
+      args[arg] <- list(bad)
+      expect_error(do.call(fct_to_group, args), arg)
+    }
+  }
+  result <- fct_to_group(x, list(AB = 1:2, 3), name_prefix = "G", name_sep = "+")
+  expect_identical(as.character(result), c("AB", "AB", "G3"))
+})
+
 test_that("empty and entirely missing factors keep valid levels", {
   empty <- factor(character())
   expect_identical(fct_cat(empty, reverse = TRUE), empty)

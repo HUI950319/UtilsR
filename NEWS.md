@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fct_to_group()` builds automatic labels only for unnamed groups and validates naming controls when they are used.
+
 * `fct_label()` refreshes affected data.table keys and secondary indices after relabelling, retaining unrelated indices and the original input.
 
 * Jaccard heatmaps diagnose malformed rendering controls while pure similarity-matrix returns continue to skip plot styling.

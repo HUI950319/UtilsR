@@ -63,11 +63,17 @@ fct_to_group <- function(x, g_lis,
   # Auto-name unnamed elements; user names take precedence
   cur_names <- names(g_lis)
   if (is.null(cur_names)) cur_names <- rep("", length(g_lis))
-  auto <- vapply(g_lis, function(idx)
-    paste0(name_prefix, paste(idx, collapse = name_sep)),
-    character(1L))
-  final_names <- ifelse(is.na(cur_names) | cur_names == "", auto, cur_names)
-  names(g_lis) <- final_names
+  unnamed <- which(is.na(cur_names) | cur_names == "")
+  if (length(unnamed)) {
+    for (arg in c("name_prefix", "name_sep")) {
+      value <- get(arg)
+      if (!is.character(value) || !is.null(dim(value)) || length(value) != 1L || is.na(value))
+        cli::cli_abort("{.arg {arg}} must be a single non-missing string.")
+    }
+    cur_names[unnamed] <- vapply(g_lis[unnamed], function(idx)
+      paste0(name_prefix, paste(idx, collapse = name_sep)), character(1L))
+  }
+  names(g_lis) <- cur_names
 
   fct_cat(x, groups = g_lis)
 }
