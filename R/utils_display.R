@@ -398,6 +398,16 @@ console_width <- function() {
 .cat_formula <- function(data, co_var, time = "time", outcome = "DSS",
                          type = c("info", "success", "warning", "error")) {
   type <- match.arg(type)
+  for (arg in c("time", "outcome")) {
+    value <- get(arg)
+    if (arg == "time" && is.null(value)) next
+    if (!is.character(value) || !is.null(dim(value)) || length(value) != 1L ||
+        is.na(value) || !nzchar(value))
+      cli::cli_abort("{.arg {arg}} must be one non-missing, non-empty column name.")
+  }
+  if (!is.null(co_var) && (!is.character(co_var) || !is.null(dim(co_var)) ||
+      anyNA(co_var) || any(!nzchar(co_var))))
+    cli::cli_abort("{.arg co_var} must be a character vector of non-missing, non-empty column names.")
   adj  <- if (length(co_var) <= 1L) "unadjusted" else "adjusted"
   quote_names <- function(x) {
     vapply(x, function(nm) deparse1(as.name(nm), backtick = TRUE),

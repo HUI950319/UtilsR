@@ -229,6 +229,17 @@ test_that(".cat_message(wrap = FALSE) keeps a line meant to be copied whole", {
   expect_true(endsWith(trimws(out[2]), call))
 })
 
+test_that("formula notices validate column names before accessing outcomes", {
+  for (arg in c("time", "outcome"))
+    for (bad in list(NA_character_, character(), c("a", "b"), "", matrix("x"), 1)) {
+      args <- list(data = quote(stop("data evaluated")), co_var = "x")
+      args[[arg]] <- bad
+      expect_error(do.call(".cat_formula", args), arg)
+    }
+  for (bad in list(NA_character_, matrix("x"), c("x", ""), 1))
+    expect_error(.cat_formula(stop("data evaluated"), bad), "co_var")
+})
+
 test_that("intercept-only model notices contain a usable unadjusted formula", {
   data <- data.frame(time = 1:3, DSS = c(0, 1, 0))
   for (co_var in list(NULL, character())) for (time in list(NULL, "time")) {
