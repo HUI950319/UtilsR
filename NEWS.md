@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `.cat_box()` emits suppressible cli messages while preserving box styling and literal message text.
+
 * `fmt_tag()` rejects shaped labels and encoded numeric tag sizes or positions while retaining per-panel size vectors.
 
 * `plt_alluvial()` rejects class-encoded or dimensional numeric flow, stratum, label and layout controls before theme evaluation.

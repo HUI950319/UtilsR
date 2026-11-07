@@ -14,6 +14,7 @@
 }
 \description{
 Print a rounded box with type-coloured border and background.
+The box is a cli message and is silenced by \code{suppressMessages()}.
 }
 \examples{
 .cat_box("Completed", type = "success")

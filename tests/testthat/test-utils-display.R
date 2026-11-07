@@ -53,6 +53,14 @@ test_that("warning labels use black text on the yellow background", {
   expect_match(info, "\033[97m", fixed = TRUE)
 })
 
+test_that("boxed notices follow the suppressible message channel", {
+  expect_identical(capture.output(suppressMessages(.cat_box("literal {x}"))), character())
+  shown <- cli::cli_fmt(value <- withVisible(.cat_box("literal {x}")))
+  expect_match(paste(cli::ansi_strip(shown), collapse = "\n"), "literal \\{x\\}")
+  expect_false(value$visible)
+  expect_message(.cat_box("boxed notice"), "boxed notice")
+})
+
 test_that("message controls fail before forcing message text", {
   for (arg in c("verbose", "wrap")) for (bad in list(NA, 1, c(TRUE, FALSE), matrix(TRUE))) {
     args <- list(message = quote(stop("text evaluated")))

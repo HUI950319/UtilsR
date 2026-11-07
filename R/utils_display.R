@@ -116,6 +116,7 @@ console_width <- function() {
 #' Styled info box
 #'
 #' Print a rounded box with type-coloured border and background.
+#' The box is a cli message and is silenced by \code{suppressMessages()}.
 #'
 #' @param cat_text Character. Text to display.
 #' @param type One of \code{"info"}, \code{"success"}, \code{"warning"},
@@ -133,7 +134,7 @@ console_width <- function() {
 
   bg <- ._cli_bg(cfg$type)
   styled <- cli::style_bold(bg(._cli_fg(cfg$type)(label)))
-  cli::cat_boxx(
+  cli::cli_verbatim(cli::boxx(
     styled,
     padding      = 1,
     border_style = "round",
@@ -141,7 +142,7 @@ console_width <- function() {
     align        = "center",
     border_col   = cfg$col,
     background_col = paste0("bg_", cfg$col)
-  )
+  ))
   invisible()
 }
 
