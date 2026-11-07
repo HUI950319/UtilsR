@@ -131,7 +131,7 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
     }, logical(1)))
   }
   valid_dims <- function(x, lengths) {
-    typeof(x) %in% c("integer", "double") && !is.object(x) &&
+    typeof(x) %in% c("integer", "double") && !is.object(x) && is.null(dim(x)) &&
       length(x) %in% lengths && !anyNA(x) && all(is.finite(x)) &&
       all(x > 0 & x == floor(x) & x <= .Machine$integer.max)
   }
@@ -143,7 +143,7 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
   }
   check_axis <- function(x, arg) {
     if (is.null(x) || isTRUE(x) || isFALSE(x)) return(invisible(NULL))
-    if (!(typeof(x) %in% c("integer", "double")) || is.object(x) ||
+    if (!(typeof(x) %in% c("integer", "double")) || is.object(x) || !is.null(dim(x)) ||
         anyNA(x) || any(!is.finite(x)) || any(x < 1 | x != floor(x))) {
       cli::cli_abort("{.arg {arg}} must be TRUE, FALSE, NULL or finite positive integer plot indices.")
     }

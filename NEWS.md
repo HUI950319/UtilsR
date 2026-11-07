@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_axis()` validates that layout counts and plot indices are vectors rather than silently flattening arrays.
+
 * `fmt_strip2()` rejects encoded or dimensional grid counts and matrix labels before processing plots.
 
 * `PlotDumbbell()` accepts two-coordinate legend positions and rejects malformed positions before processing data.
