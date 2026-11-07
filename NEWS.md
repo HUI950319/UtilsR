@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `theme_sc()` diagnoses invalid base sizes and aspect ratios before evaluating extension overrides.
+
 * `theme_alluvia()` validates finite plain base sizes before constructing theme elements.
 
 * `impute_na_knn()` validates plain neighbour counts even when no missing values require imputation.

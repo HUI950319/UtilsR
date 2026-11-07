@@ -6,6 +6,16 @@ test_that("alluvial themes reject invalid base sizes before family evaluation", 
   expect_s3_class(ggplot2::ggplotGrob(p + theme_alluvia(12)), "gtable")
 })
 
+test_that("single-cell themes validate sizes and aspect ratios before overrides", {
+  for (bad in list(NA_real_, Inf, numeric(), c(10, 12), matrix(12),
+                   structure(12, class = "encoded_number")))
+    expect_error(theme_sc(base_size = bad, plot.title = stop("override evaluated")), "base_size")
+  for (bad in list(NA_real_, Inf, 0, -1, c(1, 2), matrix(1),
+                   structure(1, class = "encoded_number")))
+    expect_error(theme_sc(aspect.ratio = bad, plot.title = stop("override evaluated")), "aspect.ratio")
+  expect_equal(theme_sc(aspect.ratio = 1.5)$aspect.ratio, 1.5)
+})
+
 test_that("theme_sc preserves registered extension theme elements", {
   nest_line <- ggplot2::element_line(colour = "firebrick", linewidth = 2)
   thm <- theme_sc(ggh4x.facet.nestline = nest_line)

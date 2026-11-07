@@ -673,6 +673,13 @@ theme_sc <- function(
     aspect.ratio = NULL,
     base_size = 12,
     ...) {
+  if (!is.numeric(base_size) || is.object(base_size) || !is.null(dim(base_size)) ||
+      length(base_size) != 1L || !is.finite(base_size))
+    stop("'base_size' must be a single finite number.", call. = FALSE)
+  if (!is.null(aspect.ratio) && (!is.numeric(aspect.ratio) || is.object(aspect.ratio) ||
+      !is.null(dim(aspect.ratio)) || length(aspect.ratio) != 1L ||
+      !is.finite(aspect.ratio) || aspect.ratio <= 0))
+    stop("'aspect.ratio' must be NULL or a single finite positive number.", call. = FALSE)
   text_size_scale <- base_size / 12
   args1 <- list(
     aspect.ratio = aspect.ratio,
