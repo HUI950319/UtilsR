@@ -333,7 +333,7 @@
       cli::cli_abort("Unknown field{?s} in {.arg save}: {.val {unknown}}.")
     }
     file <- save[["filename"]]
-    if (!is.character(file) || length(file) != 1L || is.na(file) || !nzchar(file)) {
+    if (!is.character(file) || !is.null(dim(file)) || length(file) != 1L || is.na(file) || !nzchar(file)) {
       cli::cli_abort("{.arg save} must include a single non-empty {.field filename}.")
     }
     ext <- tools::file_ext(file)
@@ -342,7 +342,8 @@
     }
     for (field in intersect(c("width", "height"), fields)) {
       value <- save[[field]]
-      if (!is.null(value) && !(is.numeric(value) && length(value) == 1L &&
+      if (!is.null(value) && !(is.numeric(value) && !is.object(value) &&
+                               is.null(dim(value)) && length(value) == 1L &&
                                is.finite(value) && value > 0)) {
         cli::cli_abort("The {.field {field}} in {.arg save} must be a positive finite numeric scalar or NULL.")
       }
