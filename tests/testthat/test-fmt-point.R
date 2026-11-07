@@ -760,3 +760,14 @@ test_that("unused sampling strata retain factor levels and matrix attributes", {
     expect_identical(.Random.seed, before)
   }
 })
+
+test_that("white-border shape names retain missing entries in either order", {
+  data <- data.frame(x = 1:3, y = 3:1)
+  p <- ggplot2::ggplot(data, ggplot2::aes(x, y))
+  for (shape in list(c(NA_character_, "circle open", "square open"),
+                     c("circle open", NA_character_, "square open"))) {
+    out <- fmt_point(p, shape = shape, white_border = TRUE)
+    expected <- ifelse(is.na(shape), NA_real_, ifelse(shape == "circle open", 21, 22))
+    expect_identical(ggplot2::ggplot_build(out)$data[[1]]$shape, expected)
+  }
+})
