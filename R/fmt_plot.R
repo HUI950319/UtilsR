@@ -4898,7 +4898,8 @@ fmt_his <- function(plot,
   y_rescale <- dots$y_rescale
   ylim      <- dots$ylim
 
-  scalar <- function(x) is.numeric(x) && length(x) == 1L && is.finite(x)
+  scalar <- function(x) is.numeric(x) && !is.object(x) && is.null(dim(x)) &&
+    length(x) == 1L && is.finite(x)
   if (!scalar(height_ratio) || height_ratio < 0 || height_ratio > 1)
     cli::cli_abort("{.arg height_ratio} must be a finite number from 0 to 1.")
   if (type == "histogram" && !is.function(binwidth) && (!scalar(binwidth) || binwidth <= 0))
@@ -4912,9 +4913,11 @@ fmt_his <- function(plot,
   tryCatch(grDevices::col2rgb(his_color), error = function(e) {
     cli::cli_abort("Invalid {.arg his_color}.", parent = e)
   })
-  if (!is.null(y_rescale) && (!is.numeric(y_rescale) || length(y_rescale) != 2L || any(!is.finite(y_rescale))))
+  if (!is.null(y_rescale) && (!is.numeric(y_rescale) || is.object(y_rescale) ||
+      !is.null(dim(y_rescale)) || length(y_rescale) != 2L || any(!is.finite(y_rescale))))
     cli::cli_abort("{.arg y_rescale} must contain two finite numbers.")
-  if (!is.null(ylim) && (!is.numeric(ylim) || length(ylim) != 2L || any(is.infinite(ylim)) || any(is.nan(ylim))))
+  if (!is.null(ylim) && (!is.numeric(ylim) || is.object(ylim) || !is.null(dim(ylim)) ||
+      length(ylim) != 2L || any(is.infinite(ylim)) || any(is.nan(ylim))))
     cli::cli_abort("{.arg ylim} must contain two finite numbers or NA endpoints.")
   if (!is.null(con_var) && (!is.character(con_var) || length(con_var) != 1L || is.na(con_var) || !nzchar(con_var)))
     cli::cli_abort("{.arg con_var} must be a single non-empty column name.")

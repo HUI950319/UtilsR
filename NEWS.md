@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_his()` rejects encoded and dimensional overlay controls while retaining function bin widths and missing axis-limit endpoints.
+
 * `fmt_legend()` checks controls before inspecting plots and prevents encoded or dimensional numeric storage from becoming legend sizes and layout counts.
 
 * `pr_table()` diagnoses invalid row-name switches and P-column selectors before printing, including for empty tables.

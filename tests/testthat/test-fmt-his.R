@@ -230,6 +230,24 @@ test_that("annotation fallback keeps function and formula data lazy", {
   }
 })
 
+test_that("overlay controls reject encoded and dimensional numeric storage", {
+  for (arg in c("height_ratio", "binwidth", "adjust", "his_alpha")) {
+    for (bad in list(matrix(.3), structure(.3, class = "integer64"))) {
+      args <- list(plot = quote(stop("plot evaluated")),
+                   type = if (arg == "adjust") "density" else "histogram")
+      args[arg] <- list(bad)
+      expect_error(do.call(fmt_his, args), arg)
+    }
+  }
+  for (arg in c("y_rescale", "ylim")) {
+    for (bad in list(matrix(c(0, 1)), structure(c(0, 1), class = "integer64"))) {
+      args <- list(plot = quote(stop("plot evaluated")))
+      args[arg] <- list(bad)
+      expect_error(do.call(fmt_his, args), arg)
+    }
+  }
+})
+
 test_that("overlay controls reject unknown names and invalid numeric values", {
   p <- his_test_plot()
   expect_error(fmt_his(p, binwdith = 1), "binwdith")
