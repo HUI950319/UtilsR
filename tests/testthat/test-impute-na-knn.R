@@ -1,3 +1,12 @@
+test_that("KNN neighbour counts reject encoded scalar storage on the fast path", {
+  d <- data.frame(value = 1:3)
+  bad_values <- list(structure(1, class = "encoded_count"))
+  if (requireNamespace("lubridate", quietly = TRUE)) bad_values[[2L]] <- lubridate::duration(1)
+  for (bad in bad_values)
+    expect_error(impute_na_knn(d, k = bad, verbose = FALSE), "k.*positive integer")
+  expect_identical(impute_na_knn(d, k = 1L, verbose = FALSE), d)
+})
+
 test_that("impute_na_knn restores SPSS missingness before cold donor checks", {
   skip_if_not_installed("haven")
   skip_if_not_installed("VIM")

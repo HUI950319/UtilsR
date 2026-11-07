@@ -78,7 +78,7 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
   if (anyNA(names(data)) || any(!nzchar(names(data))) || anyDuplicated(names(data))) {
     cli::cli_abort("{.arg data} must have unique, non-missing, non-empty column names.")
   }
-  if (!is.numeric(k) || length(k) != 1L || !is.null(dim(k)) || is.na(k) || !is.finite(k) ||
+  if (!is.numeric(k) || is.object(k) || length(k) != 1L || !is.null(dim(k)) || is.na(k) || !is.finite(k) ||
       k < 1 || k %% 1 != 0 || k > .Machine$integer.max) {
     cli::cli_abort("{.arg k} must be a single positive integer.")
   }

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `impute_na_knn()` validates plain neighbour counts even when no missing values require imputation.
+
 * `.cat_saved()` rejects unknown or malformed replacement status instead of reporting a file as new.
 
 * `.cat_box()` emits suppressible cli messages while preserving box styling and literal message text.
