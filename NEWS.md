@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRank(return_type = "data")` avoids constructing a plot when no output file was requested.
+
 * Numeric table gradients retain midpoint and endpoint colours when a finite range overflows during subtraction.
 
 * `fmt_point()` respects ggplot2 3.5 stage masks when drawing mapped white-border points.

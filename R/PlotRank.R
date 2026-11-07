@@ -257,6 +257,7 @@ PlotRank <- function(
     unique(plot_df$Group)
   }
   plot_df$Group <- factor(plot_df$Group, levels = grp_order)
+  if (return_type == "data" && is.null(filename)) return(plot_df)
 
   # ---- Build plot ----
   is_single <- length(score_list) == 1L

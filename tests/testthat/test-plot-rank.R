@@ -364,3 +364,15 @@ test_that("PlotRank rejects invalid counts before saving on every return path", 
     }
   }
 })
+
+test_that("rank data returns avoid constructing unused plots", {
+  local_mocked_bindings(
+    .pr_single = function(...) stop("unused plot constructed"),
+    .pr_facet = function(...) stop("unused plot constructed"))
+  scores <- c(a = 3, b = 1, c = 2)
+  for (data in list(scores, cbind(A = scores, B = scores * 2))) {
+    result <- PlotRank(data, return_type = "data", clean_names = FALSE)
+    expect_equal(result$Rank, rep(1:3, length.out = nrow(result)))
+    expect_equal(result$Label, rep(c("a", "c", "b"), length.out = nrow(result)))
+  }
+})
