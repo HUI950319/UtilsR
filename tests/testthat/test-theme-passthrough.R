@@ -131,3 +131,22 @@ test_that("theme_blank extension elements control nested facet drawing", {
     expect_gt(sum(colours == "#AE12F4", na.rm = TRUE), 0)
   }
 })
+
+test_that("theme_my diagnoses invalid numeric sizing and angle controls", {
+  for (arg in c("base_size", "base_line_size", "base_rect_size")) {
+    for (bad in list(NA_real_, Inf, c(1, 2), matrix(1), structure(1, class = "integer64"))) {
+      args <- list(palette = quote(stop("palette evaluated")))
+      args[arg] <- list(bad)
+      expect_error(do.call(theme_my, args), arg)
+    }
+  }
+  for (bad in list(NULL, c(0, 45), NA_real_, matrix(0))) {
+    expect_error(theme_my(axis_text_angle = bad), "axis_text_angle")
+  }
+  for (bad in list(c(1, NA, 2, 3), Inf, matrix(1))) {
+    expect_error(theme_my(plot.margin = bad), "plot.margin")
+  }
+  for (angle in c(0, 45, 90, 270)) {
+    expect_s3_class(theme_my(axis_text_angle = angle, plot.margin = c(-1, 0, 1, 2)), "theme")
+  }
+})

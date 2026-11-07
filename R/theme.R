@@ -86,6 +86,17 @@ theme_my <- function(palette = "black_and_white", base_size = 14,
                      panel.spacing = unit(0, "pt"),
                      plot.margin = NULL) {
 
+  for (arg in c("base_size", "base_line_size", "base_rect_size")) {
+    value <- get(arg)
+    if (!is.numeric(value) || is.object(value) || !is.null(dim(value)) ||
+        length(value) != 1L || !is.finite(value))
+      stop("'", arg, "' must be a single finite number.", call. = FALSE)
+  }
+  if (!is.null(plot.margin) &&
+      (!is.numeric(plot.margin) || is.object(plot.margin) || !is.null(dim(plot.margin)) ||
+       !length(plot.margin) %in% c(1L, 4L) || any(!is.finite(plot.margin))))
+    stop("'plot.margin' must contain one or four finite numeric values.", call. = FALSE)
+
   # Process plot.margin
   if (is.null(plot.margin)) {
     margin_val <- rep(base_size / 2, 4)
@@ -115,8 +126,9 @@ theme_my <- function(palette = "black_and_white", base_size = 14,
   }
 
   # Validate axis_text_angle
-  angle <- axis_text_angle[1]
-  if (!angle %in% c(0, 45, 90, 270))
+  angle <- axis_text_angle
+  if (!is.numeric(angle) || is.object(angle) || !is.null(dim(angle)) ||
+      length(angle) != 1L || !angle %in% c(0, 45, 90, 270))
     stop(sprintf("'axis_text_angle' must be one of [%s]",
                  paste(c(0, 45, 90, 270), collapse = ", ")),
          ".\nFor other angles, use the guide_axis() function in ggplot2 instead",

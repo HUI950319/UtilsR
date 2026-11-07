@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `theme_my()` diagnoses malformed numeric sizes, margins and rotation angles before constructing theme elements, retaining finite negative plot margins.
+
 * `fmt_expand()` rejects class-encoded and dimensional expansion controls before inspecting plots, preventing storage bits from becoming axis padding.
 
 * `fct_to_group()` builds automatic labels only for unnamed groups and validates naming controls when they are used.
