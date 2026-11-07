@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotButterfly2()` validates applicable point-overlay switches early and leaves unused overlay controls unevaluated in beeswarm modes.
+
 * `plt_con()` diagnoses dimensional grouping selectors and invalid facet counts before statistics or theme evaluation.
 
 * `plt_cat()` validates selector shapes, scalar switches and supported plain facet counts before constructing panels.

@@ -163,6 +163,9 @@ PlotButterfly2 <- function(
   type <- match.arg(type)
   color_by <- match.arg(color_by)
   is_beeswarm <- type %in% c("beeswarm", "beeswarm_quasirandom")
+  if (!is_beeswarm && (!is.logical(add_point) || !is.null(dim(add_point)) ||
+      length(add_point) != 1L || is.na(add_point)))
+    cli::cli_abort("{.arg add_point} must be TRUE or FALSE.")
 
   .save_result <- function(plot) {
     if (!is.null(filename)) {
@@ -424,7 +427,7 @@ PlotButterfly2 <- function(
     }
 
     # ---- Jittered points (violin/box modes only) ----
-    if (add_point && !is_beeswarm) {
+    if (!is_beeswarm && add_point) {
       p <- p + ggplot2::geom_jitter(
         position = ggplot2::position_jitterdodge(
           jitter.width = 0, dodge.width = dodge.width),

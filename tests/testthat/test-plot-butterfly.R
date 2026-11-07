@@ -44,6 +44,22 @@ test_that("PlotButterfly minmax retains entirely missing blocks without range wa
   expect_equal(sort(right$x), c(0, 1))
 })
 
+test_that("PlotButterfly2 validates used point overlays before reading data", {
+  for (bad in list(NA, 1, c(TRUE, FALSE), matrix(TRUE)))
+    expect_error(PlotButterfly2(stop("data evaluated"), stat.by = "stat", value.by = "value",
+      group.by = "group", add_point = bad), "add_point")
+})
+
+test_that("beeswarm butterflies do not force unused overlay controls", {
+  skip_if_not_installed("ggbeeswarm")
+  d <- data.frame(stat = "A", value = 1:12, group = rep(c("L", "R"), each = 6), fill = "F")
+  butterfly_without_text_warning(p <- PlotButterfly2(d, stat.by = "stat", value.by = "value",
+    group.by = "group", fill.by = "fill", type = "beeswarm_quasirandom",
+    add_point = stop("unused overlay evaluated")))
+  expect_s3_class(p, "patchwork")
+  expect_length(p, 2L)
+})
+
 test_that("PlotButterfly2 rejects malformed selectors and score storage before plotting", {
   for (arg in c("stat.by", "value.by", "group.by", "fill.by")) {
     for (bad in list(character(), c("stat", "fill"), NA_character_, matrix("stat"))) {
