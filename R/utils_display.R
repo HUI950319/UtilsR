@@ -186,7 +186,15 @@ console_width <- function() {
                          style = c("full", "chip"),
                          wrap = TRUE,
                          verbose = TRUE) {
-  if (!verbose || !length(message)) return(invisible())
+  if (!is.logical(verbose) || !is.null(dim(verbose)) || length(verbose) != 1L || is.na(verbose))
+    cli::cli_abort("{.arg verbose} must be TRUE or FALSE.")
+  if (!verbose) return(invisible())
+  if (!is.logical(wrap) || !is.null(dim(wrap)) || length(wrap) != 1L || is.na(wrap))
+    cli::cli_abort("{.arg wrap} must be TRUE or FALSE.")
+  if (!is.null(timestamp_format) && (!is.character(timestamp_format) ||
+      !is.null(dim(timestamp_format)) || length(timestamp_format) != 1L || is.na(timestamp_format)))
+    cli::cli_abort("{.arg timestamp_format} must be NULL or one non-missing format string.")
+  if (!length(message)) return(invisible())
   cfg   <- ._type_cfg(match.arg(type))
   style <- match.arg(style)
   # every element on its own lines; "" is one empty line

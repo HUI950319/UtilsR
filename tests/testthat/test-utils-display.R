@@ -53,6 +53,18 @@ test_that("warning labels use black text on the yellow background", {
   expect_match(info, "\033[97m", fixed = TRUE)
 })
 
+test_that("message controls fail before forcing message text", {
+  for (arg in c("verbose", "wrap")) for (bad in list(NA, 1, c(TRUE, FALSE), matrix(TRUE))) {
+    args <- list(message = quote(stop("text evaluated")))
+    args[[arg]] <- bad
+    expect_error(do.call(.cat_message, args), arg)
+  }
+  for (bad in list(NA_character_, character(), c("a", "b"), matrix(""), 1))
+    expect_error(.cat_message(stop("text evaluated"), timestamp_format = bad), "timestamp_format")
+  expect_invisible(.cat_message(stop("text evaluated"), verbose = FALSE,
+    wrap = stop("wrap evaluated"), timestamp_format = stop("stamp evaluated")))
+})
+
 test_that(".cat_message() emits a message that suppressMessages() silences", {
   expect_identical(
     utils::capture.output(suppressMessages(.cat_message("Loaded"))),
