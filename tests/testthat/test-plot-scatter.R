@@ -367,6 +367,16 @@ scatter1_capture_panels <- function(...) {
   list(plot = plot, panels = panels)
 }
 
+test_that("custom scatter annotations skip unused correlation tests", {
+  local_mocked_bindings(cor.test = function(...) stop("unused correlation"), .package = "stats")
+  d <- data.frame(x = 1:8, y = (1:8)^2, g = rep(c("A", "B"), 4))
+  withr::local_options(lifecycle_verbosity = "quiet")
+  p <- scatter1_capture_panels(d, "x", "y", "g", show_cor = TRUE,
+    annot_text = "Custom result", show_ellipse = FALSE, box_jitter = FALSE)
+  expect_true(any(vapply(p$panels, function(x) any(vapply(x$layers, function(l)
+    identical(l$aes_params$label, "Custom result"), logical(1))), logical(1))))
+})
+
 test_that("PlotScatter1 preserves numeric axes that are also grouping columns", {
   data <- data.frame(x = rep(c(10, 30), 6), y = rep(c(100, 200), each = 6))
   before <- serialize(data, NULL)

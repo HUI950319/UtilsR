@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotScatter1()` skips correlation computation when custom annotation text already supplies the result.
+
 * `PlotButterfly2()` validates applicable point-overlay switches early and leaves unused overlay controls unevaluated in beeswarm modes.
 
 * `plt_con()` diagnoses dimensional grouping selectors and invalid facet counts before statistics or theme evaluation.

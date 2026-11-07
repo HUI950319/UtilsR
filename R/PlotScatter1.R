@@ -295,7 +295,7 @@ PlotScatter1 <- function(
   }
 
   # Correlation annotation — only assigned to annot_text (rendered in p_annot)
-  if (show_cor) {
+  if (show_cor && is.null(annot_text)) {
     cor_res <- stats::cor.test(df[[x]], df[[y]], method = cor_method)
     cor_label <- sprintf(
       "%s:\nr = %.3f\np = %s",
