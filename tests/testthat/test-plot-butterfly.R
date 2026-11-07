@@ -51,6 +51,13 @@ test_that("PlotButterfly minmax retains entirely missing blocks without range wa
   expect_equal(sort(right$x), c(0, 1))
 })
 
+test_that("split butterflies reject ambiguous source column names", {
+  d <- data.frame(stat = "A", value = 1:4, group = rep(c("L", "R"), each = 2),
+    value = 5:8, check.names = FALSE)
+  expect_error(PlotButterfly2(d, stat.by = "stat", value.by = "value", group.by = "group"),
+    "unique.*column names")
+})
+
 test_that("PlotButterfly2 validates used point overlays before reading data", {
   for (bad in list(NA, 1, c(TRUE, FALSE), matrix(TRUE)))
     expect_error(PlotButterfly2(stop("data evaluated"), stat.by = "stat", value.by = "value",

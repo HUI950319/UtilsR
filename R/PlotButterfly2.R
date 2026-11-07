@@ -187,6 +187,8 @@ PlotButterfly2 <- function(
     if (!val %in% names(data))
       cli::cli_abort("Column {.val {val}} not found in {.arg data}.")
   }
+  if (anyNA(names(data)) || any(!nzchar(names(data))) || anyDuplicated(names(data)))
+    cli::cli_abort("{.arg data} must have unique, non-missing, non-empty column names.")
   data <- as.data.frame(data)[, unique(c(stat.by, value.by, group.by, fill.by)), drop = FALSE]
   unsupported <- vapply(data, function(value) !is.null(dim(value)), logical(1))
   if (any(unsupported))
