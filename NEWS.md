@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `.cat_tb()` applies pattern highlighting in batches while preserving matched cells, missing values and rendered table output.
+
 * `lv()` generates precision-preserving date-time filters and summarizes entirely missing POSIXct and POSIXlt columns.
 
 * `lv()` keeps explicit NA factor levels distinct from missing values in summaries, grouped tables, filters and cross-tabulations.

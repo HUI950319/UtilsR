@@ -755,3 +755,36 @@ test_that("show_color retains empty expressions and validation at every colour d
     expect_identical(output, character())
   }
 })
+
+test_that("table highlighting keeps style updates bounded as matching rows grow", {
+  original <- gt::tab_style
+  calls <- 0L
+  local_mocked_bindings(tab_style = function(...) {
+    calls <<- calls + 1L
+    original(...)
+  }, .package = "gt")
+  counts <- vapply(c(4L, 20L), function(n) {
+    calls <<- 0L
+    .cat_tb(data.frame(a = rep("hit", n), b = factor(rep("HIT", n))),
+            highlight_pattern = "hit", theme = "none")
+    calls
+  }, integer(1))
+  expect_equal(counts[[2L]], counts[[1L]])
+})
+
+test_that("table highlighting preserves matched cells and missing values", {
+  data <- data.frame(text = c("hit", NA, "other", "HIT"),
+                     category = factor(c("other", "hit", NA, "hit")),
+                     value = c(1, 2, 3, NA))
+  result <- .cat_tb(data, highlight_pattern = "hit", theme = "none")
+  styles <- result[["_styles"]]
+  body <- styles[!is.na(styles[["rownum"]]), , drop = FALSE]
+  expect_identical(sort(paste(body[["colname"]], body[["rownum"]], sep = ":")),
+                   c("category:2", "category:4", "text:1", "text:4"))
+  expect_identical(result[["_data"]], tibble::as_tibble(data))
+  expect_error(.cat_tb(data, highlight_pattern = NA, theme = "none"),
+               "missing value")
+
+  empty <- .cat_tb(data[FALSE, ], highlight_pattern = "hit", theme = "none")
+  expect_equal(sum(!is.na(empty[["_styles"]][["rownum"]])), 0L)
+})
