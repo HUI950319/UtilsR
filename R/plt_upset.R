@@ -335,6 +335,34 @@ plt_upset <- function(data,
   names(set_list) <- set_keys
   set_labels <- stats::setNames(display_names, set_keys)
 
+  if (output == "data") {
+    if (length(save)) cli::cli_abort("{.code output = \"data\"} draws no plot to save.")
+
+    # Preserve every combination label while counting only observed row patterns.
+    n_sets <- length(set_list)
+    bits <- bitwShiftL(1L, seq_len(n_sets) - 1L)
+    combinations <- unlist(lapply(seq_len(n_sets), function(size) {
+      utils::combn(seq_len(n_sets), size, simplify = FALSE)
+    }), recursive = FALSE)
+    codes <- vapply(combinations, function(i) sum(bits[i]), integer(1))
+    region_names <- vapply(combinations, function(i) {
+      paste(display_names[i], collapse = "/")
+    }, character(1))
+    group_names <- make.unique(c(region_names, "None"))
+    row_codes <- integer(nrow(data))
+    for (i in seq_len(n_sets)) {
+      rows <- set_list[[i]]
+      row_codes[rows] <- bitwOr(row_codes[rows], bits[i])
+    }
+    counts <- tabulate(row_codes + 1L, nbins = bitwShiftL(1L, n_sets))
+    region_order <- order(-counts[codes + 1L])
+    row_ids <- match(row_codes, codes, nomatch = length(group_names))
+    grp_data <- data
+    grp_data$intersect_group <- factor(group_names[row_ids],
+                                       levels = c(group_names[region_order], tail(group_names, 1L)))
+    return(grp_data)
+  }
+
   # Statistics do not depend on the structure or success of a rendered plot.
   grp_info <- NULL
   if (output != "venn") {
@@ -348,17 +376,13 @@ plt_upset <- function(data,
     grp_info <- grp_info[order(-grp_info$count), ]
   }
   grp_data <- NULL
-  if (output %in% c("data", "all")) {
+  if (output == "all") {
     row_groups <- rep(none_group, nrow(data))
     for (i in which(grp_info$count > 0)) {
       row_groups[grp_info$item[[i]]] <- grp_info$name[[i]]
     }
     grp_data <- data
     grp_data$intersect_group <- factor(row_groups, levels = c(grp_info$name, none_group))
-    if (output == "data") {
-      if (length(save)) cli::cli_abort("{.code output = \"data\"} draws no plot to save.")
-      return(grp_data)
-    }
   }
 
   # ── Venn ─────────────────────────────────────────────────────────────────

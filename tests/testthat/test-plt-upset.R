@@ -24,7 +24,10 @@ test_that("plt_upset rejects more than sixteen sets before enumerating regions",
   }
   frame <- as.data.frame(stats::setNames(rep(list(c("Yes", "No")), 17), names(sets)))
   expect_error(plt_upset(frame, vars = names(frame), output = "data"), "at most 16 sets")
-  expect_error(plt_upset(sets[1:16], output = "data"), "region backend reached")
+  result <- plt_upset(sets[1:16], output = "data")
+  expect_length(levels(result$intersect_group), 2^16)
+  expect_identical(as.character(result$intersect_group),
+                   rep(paste0("S", 1:16, collapse = "/"), 2))
   expect_error(plt_upset(sets, output = "venn"), "2 to 7 sets")
 })
 
@@ -33,6 +36,45 @@ test_that("plt_upset retains unobserved combination levels below the set limit",
   result <- plt_upset(list(A = 1:2, B = 1:2), output = "data")
   expect_setequal(levels(result$intersect_group), c("A", "B", "A/B", "None"))
   expect_identical(as.character(result$intersect_group), c("A/B", "A/B"))
+})
+
+test_that("data-only intersection levels retain count order and colliding labels", {
+  skip_if_not_installed("ggVennDiagram")
+  data <- data.frame(A = c("Yes", "Yes", "Yes", "No", "No", "No"),
+                     B = c("Yes", "Yes", "No", "Yes", "No", "No"),
+                     C = c("No", "No", "No", "No", "Yes", "No"))
+  result <- plt_upset(data, vars = names(data), output = "data",
+                      set.labels = c(A = "None", B = "None", C = "None/None"))
+  expect_identical(as.character(result$intersect_group),
+                   c("None/None.1", "None/None.1", "None", "None.1", "None/None", "None.2"))
+  expect_identical(levels(result$intersect_group),
+                   c("None/None.1", "None", "None.1", "None/None", "None/None/None",
+                     "None/None/None.1", "None/None/None/None", "None.2"))
+  expect_identical(result[names(data)], data)
+})
+
+test_that("data-only grouping preserves every observed membership pattern", {
+  skip_if_not_installed("ggVennDiagram")
+  states <- expand.grid(rep(list(c(FALSE, TRUE)), 8L))
+  names(states) <- paste0("S", seq_len(ncol(states)))
+  data <- as.data.frame(lapply(states, function(x) ifelse(x, "Yes", "No")))
+  result <- plt_upset(data, vars = names(data), output = "data")
+  expected <- apply(states, 1L, function(row) {
+    if (any(row)) paste(names(states)[row], collapse = "/") else "None"
+  })
+  expect_identical(as.character(result$intersect_group), unname(expected))
+  expect_length(levels(result$intersect_group), 2^8)
+  expect_true(all(table(result$intersect_group) == 1L))
+  expect_identical(result[names(data)], data)
+})
+
+test_that("data-only output rejects saving before region calculations", {
+  skip_if_not_installed("ggVennDiagram")
+  testthat::local_mocked_bindings(
+    process_region_data = function(...) stop("region backend reached"),
+    .package = "ggVennDiagram")
+  expect_error(plt_upset(list(A = 1:2, B = 2:3), output = "data",
+                         save = list(filename = "unused.pdf")), "no plot")
 })
 
 test_that("plt_upset plots missing-value membership", {

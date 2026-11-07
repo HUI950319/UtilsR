@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_upset(output = "data")` counts observed membership patterns without repeated set intersections while preserving every combination level and its order.
+
 * Plot saving rejects invalid named-list fields, PDF filenames, dimensions and devices before evaluating or measuring the plot.
 
 * `.cat_tb()` applies pattern highlighting in batches while preserving matched cells, missing values and rendered table output.
