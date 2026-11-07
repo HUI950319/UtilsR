@@ -32,6 +32,19 @@ axis_tile_rects <- function(g) {
   do.call(rbind, c(list(result), lapply(children, axis_tile_rects)))
 }
 
+test_that("axis tile scalar styles reject dimensional storage before plots", {
+  for (arg in c("tile_height", "tile_width", "tile_border_width", "text_size", "text_angle")) {
+    args <- list(plot = quote(stop("plot evaluated")), colors = axis_tile_colors)
+    args[[arg]] <- matrix(1)
+    expect_error(do.call("fmt_axisTile", args), arg)
+  }
+  expect_error(fmt_axisTile(stop("plot evaluated"), colors = axis_tile_colors,
+    show_text = matrix(TRUE)), "show_text")
+  expect_error(fmt_axisTile(stop("plot evaluated"), colors = axis_tile_colors,
+    text_face = matrix("bold")), "text_face")
+  expect_s3_class(ggplot2::ggplotGrob(fmt_axisTile(axis_tile_plot(), colors = axis_tile_colors)), "gtable")
+})
+
 test_that("axis tiles validate color keys and scalar styling arguments", {
   p <- axis_tile_plot()
   bad_colors <- list(character(), unname(axis_tile_colors),

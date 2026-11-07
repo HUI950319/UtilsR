@@ -3510,15 +3510,15 @@ fmt_axisTile <- function(plot,
     if (arg %in% c("text_size", "text_angle") && is.null(value)) next
     positive <- arg %in% c("tile_height", "tile_width", "text_size")
     if (length(value) != 1L || !is.numeric(value) || is.complex(value) ||
-        is.object(value) || !is.finite(value) ||
+        is.object(value) || !is.null(dim(value)) || !is.finite(value) ||
         (arg != "text_angle" && if (positive) value <= 0 else value < 0)) {
       cli::cli_abort("{.arg {arg}} must be one finite numeric value{if (positive) ' greater than zero' else if (arg != 'text_angle') ' at least zero' else ''}.")
     }
   }
-  if (length(show_text) != 1L || !is.logical(show_text) || is.na(show_text)) {
+  if (length(show_text) != 1L || !is.logical(show_text) || !is.null(dim(show_text)) || is.na(show_text)) {
     cli::cli_abort("{.arg show_text} must be TRUE or FALSE.")
   }
-  if (!is.null(text_face) && (length(text_face) != 1L || is.na(text_face) ||
+  if (!is.null(text_face) && (length(text_face) != 1L || !is.null(dim(text_face)) || is.na(text_face) ||
       !(is.character(text_face) && text_face %in% c("plain", "bold", "italic", "bold.italic", "symbol") ||
         is.numeric(text_face) && !is.complex(text_face) && text_face %in% 1:5))) {
     cli::cli_abort("{.arg text_face} must be one valid font face name or number from 1 to 5.")
