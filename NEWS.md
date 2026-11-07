@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* PlotScatter2() validates data-frame containers and unique input names before constructing panels.
+
 * PlotScatter1() rejects unsupported containers and ambiguous data-frame column names before plotting.
 
 * `PlotScatter1()` skips correlation computation when custom annotation text already supplies the result.
