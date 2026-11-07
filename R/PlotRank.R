@@ -238,9 +238,19 @@ PlotRank <- function(
   }
   if (value_scale == "group") {
     # Scale using the FULL group range from original data (before max_show)
-    plot_df$Score <- mapply(function(s, g) {
-      scale_scores(s, orig_ranges[[as.character(g)]])
-    }, plot_df$Score, as.character(plot_df$Group))
+    if (is.object(plot_df$Score)) {
+      plot_df$Score <- mapply(function(s, g) {
+        scale_scores(s, orig_ranges[[as.character(g)]])
+      }, plot_df$Score, as.character(plot_df$Group))
+    } else {
+      scaled <- numeric(nrow(plot_df))
+      indices <- split(seq_len(nrow(plot_df)), plot_df$Group)
+      for (grp in names(indices)) {
+        idx <- indices[[grp]]
+        scaled[idx] <- scale_scores(plot_df$Score[idx], orig_ranges[[as.character(grp)]])
+      }
+      plot_df$Score <- scaled
+    }
   } else if (value_scale == "top_n") {
     # Scale using only the displayed values within each group
     for (grp in unique(plot_df$Group)) {

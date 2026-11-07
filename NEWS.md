@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Full-range scaling in `PlotRank()` processes ordinary numeric scores by group while preserving classed-score dispatch.
+
 * `theme_legend()` validates dimensions, margins and title switches, retaining relative text sizes, negative margins and lazy hidden-title styling.
 
 * `theme_ROC()` validates scalar text and line sizes while retaining supported relative text sizing.

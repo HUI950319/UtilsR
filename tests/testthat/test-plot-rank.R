@@ -71,6 +71,15 @@ test_that("PlotRank keeps numeric groups with distinct character labels", {
   expect_identical(data, original)
 })
 
+test_that("full-range rank scaling keeps interleaved and constant groups aligned", {
+  d <- data.frame(cell_type = rep(c("A", "B", "C"), 3), gene = rep(letters[1:3], each = 3),
+    importance = c(3, 1e308, 5, 1, -1e308, 5, 2, 0, 5))
+  result <- PlotRank(d, max_show = 2, value_scale = "group", return_type = "data")
+  expect_equal(result$Score, c(1, 0.5, 1, 0.5, 0, 0))
+  expect_identical(as.character(result$Group), rep(c("A", "B", "C"), each = 2))
+  expect_identical(result$Label, c("a", "c", "a", "c", "a", "b"))
+})
+
 test_that("PlotRank scales extreme finite ranges without losing the middle score", {
   for (values in list(c(-1e308, 0, 1e308), c(-1.5e308, .5e308, 1.5e308))) {
     data <- stats::setNames(c(values, NA_real_), letters[1:4])
