@@ -975,3 +975,15 @@ test_that("fmt_legend() keeps a justification passed through ...", {
   out <- fmt_legend(p, legend.position = "br", legend.justification.inside = c(1, 1))
   expect_identical(out$theme$legend.justification.inside, c(1, 1))
 })
+
+test_that("legend controls reject encoded scalars before inspecting plots", {
+  for (arg in c("scale", "scale_width", "scale_height", "ncol", "nrow")) {
+    for (bad in list(matrix(1), structure(2, class = "integer64"))) {
+      args <- list(plot = quote(stop("plot evaluated")))
+      args[arg] <- list(bad)
+      expect_error(do.call(fmt_legend, args), arg)
+    }
+  }
+  expect_error(fmt_legend(stop("plot evaluated"), collect = NA), "collect")
+  expect_error(fmt_legend(stop("plot evaluated"), legend.position = "invalid"), "legend.position")
+})

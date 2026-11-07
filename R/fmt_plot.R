@@ -935,6 +935,11 @@ fmt_legend <- function(plot,
                        ncol = NULL,
                        nrow = NULL,
                        ...) {
+  for (nm in c("scale", "scale_width", "scale_height", "ncol", "nrow")) {
+    value <- get(nm)
+    if (!is.null(value) && (is.object(value) || !is.null(dim(value))))
+      cli::cli_abort("{.arg {nm}} must be a plain numeric scalar or NULL.")
+  }
   for (nm in c("scale", "scale_width", "scale_height")) {
     value <- get(nm)
     if (is.numeric(value) && !is.complex(value) && length(value) == 1L &&
@@ -947,10 +952,6 @@ fmt_legend <- function(plot,
     invisible(.to_plot_list(plot))
     return(plot)
   }
-  info <- .to_plot_list(plot, recurse = TRUE)
-  plots <- info$plots
-  n <- length(plots)
-
   if (!is.null(legend.position)) {
     valid <- (is.character(legend.position) && length(legend.position) == 1L &&
       !is.na(legend.position) && legend.position %in%
@@ -986,6 +987,9 @@ fmt_legend <- function(plot,
       cli::cli_abort("{.arg {nm}} must be {requirement} or NULL.")
     }
   }
+  info <- .to_plot_list(plot, recurse = TRUE)
+  plots <- info$plots
+  n <- length(plots)
   if (collect && !info$is_patchwork && !info$is_single) {
     cli::cli_warn("{.arg collect} requires a patchwork input; the formatted list retains its list type.")
   }
