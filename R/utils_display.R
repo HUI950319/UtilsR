@@ -481,6 +481,14 @@ console_width <- function() {
                     footnotes = NULL) {
 
   theme <- match.arg(theme)
+  if (!is.null(numeric_columns) && (!is.character(numeric_columns) ||
+      !is.null(dim(numeric_columns)) || anyNA(numeric_columns)))
+    cli::cli_abort("{.arg numeric_columns} must be NULL or a character vector without missing values.")
+  for (arg in c("titles", "subtitles", "captions", "footnotes")) {
+    value <- get(arg)
+    if (!is.null(value) && (!is.character(value) || !is.null(dim(value))))
+      cli::cli_abort("{.arg {arg}} must be NULL or a character vector.")
+  }
   if (!is.null(highlight_pattern)) {
     if (!is.character(highlight_pattern) || length(highlight_pattern) != 1L ||
         !is.null(dim(highlight_pattern)) || is.na(highlight_pattern)) {
@@ -491,6 +499,11 @@ console_width <- function() {
       error = function(e) cli::cli_abort("{.arg highlight_pattern} must be a valid regular expression.",
                                          parent = e)
     ))
+    if (nzchar(highlight_pattern) &&
+        (length(highlight_color) != 1L || !is.null(dim(highlight_color)) ||
+         !is.character(highlight_color) ||
+         !tryCatch({grDevices::col2rgb(highlight_color); TRUE}, error = function(e) FALSE)))
+      cli::cli_abort("{.arg highlight_color} must be one valid colour string.")
   }
 
   # Collect inputs; unwrap single-list arg

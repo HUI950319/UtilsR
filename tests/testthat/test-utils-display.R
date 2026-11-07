@@ -7,6 +7,18 @@ capture_display <- function(expr) {
   c(out, msg)
 }
 
+test_that("table style selectors and captions fail before forcing input tables", {
+  for (bad in list(1, NA_character_, matrix("x")))
+    expect_error(.cat_tb(stop("table evaluated"), numeric_columns = bad), "numeric_columns")
+  for (arg in c("titles", "subtitles", "captions", "footnotes")) {
+    args <- list(quote(stop("table evaluated")))
+    args[[arg]] <- matrix("text")
+    expect_error(do.call(".cat_tb", args), arg)
+  }
+  expect_error(.cat_tb(stop("table evaluated"), highlight_pattern = "x", highlight_color = "bad-color"),
+    "highlight_color")
+})
+
 test_that(".cat_line validates width and rule patterns before evaluating text", {
   for (bad in list(NULL, NA_real_, Inf, 0, -1, 1.5, matrix(40))) {
     expect_error(.cat_line(stop("text evaluated"), width = bad), "width")
