@@ -150,3 +150,18 @@ test_that("theme_my diagnoses invalid numeric sizing and angle controls", {
     expect_s3_class(theme_my(axis_text_angle = angle, plot.margin = c(-1, 0, 1, 2)), "theme")
   }
 })
+
+test_that("theme_blank validates arrow controls and preserves disabled-arrow laziness", {
+  for (bad in list(NULL, NA, 1, c(TRUE, FALSE), matrix(TRUE))) {
+    expect_error(theme_blank(add_coord = bad), "add_coord")
+  }
+  for (arg in c("xlen_npc", "ylen_npc", "lab_size")) {
+    for (bad in list(NA_real_, Inf, c(1, 2), matrix(1), structure(1, class = "integer64"))) {
+      args <- list()
+      args[arg] <- list(bad)
+      expect_error(do.call(theme_blank, args), arg)
+    }
+  }
+  expect_type(theme_blank(add_coord = FALSE, xlen_npc = stop("length evaluated"),
+                           ylen_npc = stop("length evaluated")), "list")
+})

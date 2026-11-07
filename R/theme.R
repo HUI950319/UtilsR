@@ -789,6 +789,15 @@ theme_blank <- function(
     ylab = "",
     lab_size = 12,
     ...) {
+  if (!is.logical(add_coord) || !is.null(dim(add_coord)) ||
+      length(add_coord) != 1L || is.na(add_coord))
+    stop("'add_coord' must be TRUE or FALSE.", call. = FALSE)
+  for (arg in c("lab_size", if (add_coord) c("xlen_npc", "ylen_npc"))) {
+    value <- get(arg)
+    if (!is.numeric(value) || is.object(value) || !is.null(dim(value)) ||
+        length(value) != 1L || !is.finite(value))
+      stop("'", arg, "' must be a single finite number.", call. = FALSE)
+  }
   args1 <- list(
     panel.border = element_blank(),
     panel.grid = element_blank(),
