@@ -2,6 +2,10 @@
 
 ## UtilsR 0.6.23
 
+- [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md)
+  validates both logical flags before collecting resources or printing
+  its report.
+
 - `plt_upset(output = "data")` counts observed membership patterns
   without repeated set intersections while preserving every combination
   level and its order.

@@ -19,11 +19,13 @@ check_system(return_result = FALSE, show_warnings = FALSE)
 
 - return_result:
 
-  Logical. If `TRUE`, return the result list visibly. Default `FALSE`.
+  Single non-missing logical value. If `TRUE`, return the result list
+  visibly. Default `FALSE`.
 
 - show_warnings:
 
-  Logical. If `TRUE`, display memory warnings. Default `FALSE`.
+  Single non-missing logical value. If `TRUE`, display memory warnings.
+  Default `FALSE`.
 
 ## Value
 
