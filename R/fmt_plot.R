@@ -5432,6 +5432,11 @@ fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
       is.na(axis) || !axis %in% c("x", "y")))
     cli::cli_abort("`axis` must be 'x', 'y', or NULL.")
 
+  for (arg in c("mult", "add")) {
+    value <- get(arg)
+    if (!is.numeric(value) || is.object(value) || !is.null(dim(value)))
+      cli::cli_abort("{.arg {arg}} must be a plain numeric vector.")
+  }
   expansion_setting <- ggplot2::expansion(add = add, mult = mult)
   if (any(!is.finite(expansion_setting)))
     cli::cli_abort("`mult` and `add` must contain only finite values.")

@@ -721,3 +721,14 @@ test_that("coordinate systems that disable expansion warn once per call", {
                                  mult = 0.5))
   }
 })
+
+test_that("fmt_expand rejects encoded and dimensional expansion controls", {
+  for (arg in c("mult", "add")) {
+    for (bad in list(matrix(c(.1, .2)), array(.1, c(1, 1, 1)),
+                     structure(.1, class = "integer64"))) {
+      args <- list(plot = quote(stop("plot evaluated")))
+      args[arg] <- list(bad)
+      expect_error(do.call(fmt_expand, args), arg)
+    }
+  }
+})

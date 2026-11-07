@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_expand()` rejects class-encoded and dimensional expansion controls before inspecting plots, preventing storage bits from becoming axis padding.
+
 * `fct_to_group()` builds automatic labels only for unnamed groups and validates naming controls when they are used.
 
 * `fct_label()` refreshes affected data.table keys and secondary indices after relabelling, retaining unrelated indices and the original input.
