@@ -1524,6 +1524,19 @@ fmt_plot <- function(plot,
                      plot.margin = NULL,
                      tag_levels = NULL,
                      axis_titles = NULL) {
+  for (arg in c("fmt_axis_list", "fmt_tag_list", "fmt_legend_list", "fmt_ref_list")) {
+    value <- get(arg)
+    if (is.null(value)) next
+    nms <- names(value)
+    if (!is.list(value) || !is.null(dim(value)) ||
+        (length(value) && (is.null(nms) || anyNA(nms) || any(!nzchar(nms)) ||
+                           anyDuplicated(nms) || "plot" %in% nms)))
+      cli::cli_abort("{.arg {arg}} must be a list with unique argument names other than {.arg plot}.")
+  }
+  if (!is.null(plot.margin) && !inherits(plot.margin, "margin") &&
+      (!is.numeric(plot.margin) || is.object(plot.margin) || !is.null(dim(plot.margin)) ||
+       !length(plot.margin) %in% c(1L, 4L) || any(!is.finite(plot.margin))))
+    cli::cli_abort("{.arg plot.margin} must be a margin object or one or four finite numeric values.")
 
   if (!is.null(fmt_tag_list) && !is.null(tag_levels)) {
     cli::cli_warn("{.arg tag_levels} is ignored when {.arg fmt_tag_list} supplies explicit tags.")

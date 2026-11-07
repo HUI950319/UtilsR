@@ -61,3 +61,16 @@ test_that("fmt_plot_base() applies scale settings through fmt_scale()", {
   expect_length(res, 2L)
   expect_equal(res[[2]]$scales$get_scales("y")$limits, c(0, 5))
 })
+
+test_that("fmt_plot validates option lists and numeric margins before applying formatters", {
+  for (arg in c("fmt_axis_list", "fmt_tag_list", "fmt_legend_list", "fmt_ref_list")) {
+    for (bad in list(1, list(TRUE), list(plot = 1), setNames(list(1, 2), c("x", "x")))) {
+      args <- list(plot = quote(stop("plot evaluated")))
+      args[arg] <- list(bad)
+      expect_error(do.call(fmt_plot, args), arg)
+    }
+  }
+  for (bad in list(NA_real_, Inf, matrix(1), structure(1, class = "integer64"))) {
+    expect_error(fmt_plot(stop("plot evaluated"), plot.margin = bad), "plot.margin")
+  }
+})

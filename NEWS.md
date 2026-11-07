@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_plot()` validates all formatter option lists and numeric margins before applying changes, rejecting ambiguous or duplicate argument names.
+
 * `stat_ci_parse(output = "p")` skips rebuilding unused interval strings at ordinary precision, retaining names and high-precision formatting-limit checks.
 
 * `stat_ci_parse()` computes normal quantiles from the upper tail so confidence levels immediately below one retain finite adjusted bounds and p-values.
