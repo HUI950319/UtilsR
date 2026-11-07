@@ -5,6 +5,11 @@ dumbbell_plot <- function(data, ...) {
   result
 }
 
+test_that("dumbbell plots reject ambiguous input names before drawing", {
+  d <- data.frame(start = 1:3, end = 2:4, category = letters[1:3], start = 10:12, check.names = FALSE)
+  expect_error(PlotDumbbell(d, theme_use = function() stop("theme evaluated")), "unique.*column names")
+})
+
 test_that("PlotDumbbell accepts numeric legend coordinates", {
   d <- data.frame(start = 1:3, end = 2:4, category = letters[1:3])
   expect_no_warning(p <- dumbbell_plot(d, legend_pos = c(0.2, 0.8)))

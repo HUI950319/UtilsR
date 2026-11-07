@@ -200,6 +200,8 @@ PlotDumbbell <- function(
     }
   }
   data <- as.data.frame(data)
+  if (anyNA(names(data)) || any(!nzchar(names(data))) || anyDuplicated(names(data)))
+    stop("'data' must have unique, non-missing, non-empty column names.", call. = FALSE)
   for (col in c(x_col, xend_col, y_col)) {
     if (!col %in% colnames(data)) {
       stop("Column '", col, "' not found in data.", call. = FALSE)

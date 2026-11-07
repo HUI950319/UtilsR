@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* PlotDumbbell() diagnoses repeated or missing column names before selecting endpoints.
+
 * PlotScatter3() rejects ambiguous input names before paired tests or graphics setup.
 
 * PlotScatter2() validates data-frame containers and unique input names before constructing panels.
