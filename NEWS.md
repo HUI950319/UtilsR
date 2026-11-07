@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `.cat_message()` uses the timestamp's visible width for continuation indentation and wraps messages within the space available in narrow consoles.
+
 * `.cat_formula()` prints an unadjusted intercept-only formula when no covariates are supplied instead of leaving the right-hand side empty.
 
 * `.cat_step()` validates controls before evaluating messages and retains whole step counts beyond the integer range without overflow warnings.

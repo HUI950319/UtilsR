@@ -126,6 +126,20 @@ test_that(".cat_step() shows text cli cannot parse as written", {
   expect_true(any(grepl("Fitted {I, II} [", out, fixed = TRUE)))
 })
 
+test_that("message wrapping uses timestamp display width on narrow consoles", {
+  withr::local_options(cli.width = 25)
+  for (style in c("chip", "full")) {
+    out <- cli::ansi_strip(cli::cli_fmt(.cat_message(
+      "alpha beta gamma delta epsilon zeta eta theta",
+      timestamp_format = "\u65f6\u95f4", style = style
+    )))
+    expect_gt(length(out), 1L)
+    expect_true(all(cli::ansi_nchar(out, type = "width") <= 25))
+    indent <- if (style == "chip") 12L else 8L
+    expect_true(all(startsWith(out[-1L], strrep(" ", indent))))
+  }
+})
+
 test_that(".cat_message() wraps long lines under the message text", {
   withr::local_options(cli.width = 50)
   msg <- paste(rep("Fitting the multivariable Cox model.", 4), collapse = " ")

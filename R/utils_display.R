@@ -194,9 +194,10 @@ console_width <- function() {
   ts    <- if (is.null(timestamp_format) || !nzchar(timestamp_format)) "" else
     format(Sys.time(), timestamp_format)
   # columns the timestamp takes with the space after it
-  ts_w  <- if (nzchar(ts)) nchar(ts) + 1L else 0L
+  ts_width <- cli::ansi_nchar(ts, type = "width")
+  ts_w  <- if (nzchar(ts)) ts_width + 1L else 0L
   # wrap at the console width, less the timestamp and the label or symbol
-  avail <- max(20, console_width() - nchar(ts) - if (style == "chip") 10 else 6)
+  avail <- max(1, console_width() - ts_width - if (style == "chip") 10 else 6)
   lines <- unlist(lapply(lines, function(l) {
     if (wrap && nzchar(l)) as.character(cli::ansi_strwrap(l, width = avail)) else l
   }))
