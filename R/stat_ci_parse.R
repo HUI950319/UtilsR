@@ -373,7 +373,7 @@ stat_ci_parse <- function(x,
   }
   w <- log_ratio(hi[pos], lo[pos])
   a_log[pos] <- abs(log_ratio(hi[pos], est[pos]) - log_ratio(est[pos], lo[pos])) / w
-  r_log[pos] <- (ul[pos] / (2 * lo[pos]) + uh[pos] / (2 * hi[pos]) +
+  r_log[pos] <- (ul[pos] / lo[pos] / 2 + uh[pos] / hi[pos] / 2 +
                    ue[pos] / est[pos]) / w
 
   if (identical(exp, "auto")) {

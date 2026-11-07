@@ -294,6 +294,20 @@ test_that("finite extreme difference intervals avoid intermediate overflow", {
   expect_equal(asymmetric, control, tolerance = 1e-12)
 })
 
+test_that("ratio rounding allowances remain stable near floating-point limits", {
+  est <- c(1.40, 1.67, 1.38, 1.37)
+  lo <- c(.9, .95, 1.1, .99)
+  hi <- c(1.75, 1.74, 1.79, 1.7)
+  unit <- rbind(c(.01, .1, .01), c(.01, .01, .01),
+                c(.01, .1, .01), c(.01, .01, .1))
+  reference <- UtilsR:::.ci_scale(est, lo, hi, unit, "auto", rep(TRUE, 4))
+  large <- UtilsR:::.ci_scale(est * 1e308, lo * 1e308, hi * 1e308,
+                             unit * 1e308, "auto", rep(TRUE, 4))
+  expect_identical(large, reference)
+  expect_warning(stat_ci_parse("1.38e308 (1.1e308, 1.79e308)", output = "p"),
+                 "treated as ratio")
+})
+
 test_that("ci_p writes p<0.001, not p=<0.001", {
   expect_identical(stat_ci_parse("2.00 (1.50, 2.67)", output = "ci_p"),
                    "2.00 (1.50, 2.67), p<0.001")

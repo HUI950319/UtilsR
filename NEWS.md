@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci_parse()` preserves ratio-scale rounding allowances near the floating-point limit, avoiding overflow when doubling finite bounds.
+
 * `PlotCircleLollipop()` rejects lossy score storage and unplottable ranges before drawing, and retains entirely missing groups without range warnings.
 
 * `.cat_tb()` validates highlight patterns before evaluating input tables, reporting malformed regular expressions without secondary warnings.
