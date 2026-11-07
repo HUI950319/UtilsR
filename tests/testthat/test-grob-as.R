@@ -152,3 +152,27 @@ test_that("grob_as() retains standalone patchwork wrappers", {
     expect_equal(sum(grob_as_test_labels(side) == payloads[[name]]), 1L)
   }
 })
+
+test_that("grob-to-ggplot conversion does not retain unused analysis payloads", {
+  withr::local_pdf(NULL)
+  make_plot <- function(n) {
+    unused <- raw(n)
+    plot <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3), ggplot2::aes(x, y)) +
+      ggplot2::geom_point()
+    UtilsR::grob_to_gg(plot)
+  }
+  environment(make_plot) <- globalenv()
+  small <- make_plot(0L)
+  large <- make_plot(50000L)
+  sizes <- vapply(list(small, large), function(plot) {
+    file <- withr::local_tempfile(fileext = ".rds")
+    saveRDS(plot, file, compress = FALSE)
+    file.size(file)
+  }, numeric(1))
+  expect_lte(sizes[[2L]], sizes[[1L]] + 2048)
+
+  wrapped <- grob_to_gg(grid::textGrob("Wrapped payload"))
+  table <- ggplot2::ggplotGrob(wrapped)
+  expect_equal(sum(grob_as_test_labels(table) == "Wrapped payload"), 1L)
+  expect_no_error(grid::grid.draw(table))
+})

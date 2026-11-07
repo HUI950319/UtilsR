@@ -486,8 +486,8 @@ grob_to_gg <- function(grob, ...) {
     stop("Cannot convert object to a grob.", call. = FALSE)
   }
 
-  # Build an empty ggplot canvas and use annotation_custom to place the grob
-  ggplot2::ggplot() +
-    ggplot2::annotation_custom(g) +
-    ggplot2::theme_void()
+  # Keep the original plot and its analysis environment out of the wrapper.
+  eval(quote(ggplot2::ggplot() + ggplot2::annotation_custom(g) +
+               ggplot2::theme_void()),
+       envir = list2env(list(g = g), parent = baseenv()))
 }

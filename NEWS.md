@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `grob_to_gg()` keeps the rendered grob without retaining unused data from the original plot's analysis environment.
+
 * `grob_add()` aligns margin grobs to canonical panels instead of including annotations with panel-prefixed names.
 
 * `grob_insert()` validates inset coordinates and logical controls before building either plot.
