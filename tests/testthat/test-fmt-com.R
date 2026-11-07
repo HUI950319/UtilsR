@@ -712,3 +712,12 @@ test_that("extracted plots do not retain unrelated container data", {
   expect_equal(com_stat(extracted), com_stat(single))
   expect_identical(p$data, iris)
 })
+
+test_that("comparison layout controls reject encoded numeric storage", {
+  for (arg in c("label.y", "label.y.prop", "tip.length", "step.increase", "size",
+                "bracket.nudge.y", "ref.group")) {
+    args <- list(plot = quote(stop("plot evaluated")))
+    args[arg] <- list(structure(1, class = "integer64"))
+    expect_error(do.call(fmt_com, args), arg)
+  }
+})

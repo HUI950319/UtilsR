@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_com()` rejects class-encoded numeric layout controls and reference ranks before resolving comparison mappings.
+
 * `PlotRankCor()` distinguishes classed score data from ordinary numeric styling controls, preventing encoded storage from setting sizes, opacity or overlap counts.
 
 * `fmt_bg()` rejects encoded and dimensional opacity controls before plot processing, preserving the zero-opacity fast path for ordinary numbers.

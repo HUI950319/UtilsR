@@ -4002,7 +4002,8 @@ fmt_com <- function(plot,
   if (!is.null(ref_group)) {
     valid_ref <- length(ref_group) == 1L && is.null(dim(ref_group)) && !anyNA(ref_group) &&
       ((is.character(ref_group) && nzchar(ref_group)) ||
-       (is.numeric(ref_group) && is.finite(ref_group) && ref_group >= 1 && ref_group == floor(ref_group)))
+       (is.numeric(ref_group) && !is.object(ref_group) && is.finite(ref_group) &&
+        ref_group >= 1 && ref_group == floor(ref_group)))
     if (!valid_ref) cli::cli_abort("ref.group must be a group name, a positive integer rank, or 'all'.")
     if (is.list(com_method)) cli::cli_abort("Use ref.group or a custom com_method list, not both.")
     dots$ref.group <- ref_group
@@ -4019,7 +4020,7 @@ fmt_com <- function(plot,
     cli::cli_abort("group.by must be 'x.var' or 'legend.var'.")
 
   check_numeric <- function(value, name, lower = -Inf, upper = Inf, scalar = FALSE) {
-    if (!is.null(value) && (!is.numeric(value) || is.complex(value) ||
+    if (!is.null(value) && (!is.numeric(value) || is.object(value) ||
         !is.null(dim(value)) || !length(value) || (scalar && length(value) != 1L) ||
         any(!is.finite(value)) || any(value < lower | value > upper)))
       cli::cli_abort("{name} must contain finite numeric values in [{lower}, {upper}]{if (scalar) ' with length one' else ''}.")
