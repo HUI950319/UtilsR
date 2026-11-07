@@ -2231,6 +2231,7 @@ fmt_strip2 <- function(plot,
 
   check_dimension <- function(value, arg) {
     if (!is.null(value) && (length(value) != 1L || !is.numeric(value) ||
+        is.object(value) || !is.null(dim(value)) ||
         is.na(value) || !is.finite(value) || value <= 0 ||
         value > .Machine$integer.max || value != floor(value))) {
       cli::cli_abort("{.arg {arg}} must be a single positive integer or NULL.")
@@ -2240,7 +2241,8 @@ fmt_strip2 <- function(plot,
   labels <- list(top_label = top_label, right_label = right_label)
   for (arg in names(labels)) {
     value <- labels[[arg]]
-    if (!is.null(value) && (!is.character(value) || !length(value) || anyNA(value))) {
+    if (!is.null(value) && (!is.character(value) || !is.null(dim(value)) ||
+        !length(value) || anyNA(value))) {
       cli::cli_abort("{.arg {arg}} must be NULL or a non-empty character vector without missing values.")
     }
   }

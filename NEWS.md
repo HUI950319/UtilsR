@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_strip2()` rejects encoded or dimensional grid counts and matrix labels before processing plots.
+
 * `PlotDumbbell()` accepts two-coordinate legend positions and rejects malformed positions before processing data.
 
 * `PlotScatter2()` diagnoses complex, nested and matrix axes before building main and marginal panels.

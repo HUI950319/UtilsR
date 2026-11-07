@@ -1006,3 +1006,13 @@ test_that("repeated strip formatting adds no copies of the plot data", {
   for (i in 1:2) out <- fmt_strip2(out, top_label = c("L", "R"), right_label = "Row")
   expect_lt(grown(out, first), copy)
 })
+
+test_that("strip grids reject shaped and encoded dimensions before plots", {
+  for (bad in list(matrix(1), structure(1, class = "encoded_count")))
+    expect_error(fmt_strip2(stop("plot evaluated"), top_label = "T", ncol = bad), "ncol")
+  for (arg in c("top_label", "right_label")) {
+    args <- list(plot = quote(stop("plot evaluated")))
+    args[[arg]] <- matrix("T")
+    expect_error(do.call(fmt_strip2, args), arg)
+  }
+})
