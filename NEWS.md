@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `set_wd()` rejects invalid logical controls before creating directories or changing the working directory.
+
 * CI formatters leave overflowing numeric text unchanged with a parse warning instead of producing infinite estimates or aborting other intervals.
 
 * `check_system()` validates both logical flags before collecting resources or printing its report.

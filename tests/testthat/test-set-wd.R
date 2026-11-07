@@ -8,6 +8,24 @@ capture_set_wd <- function(...) {
   gsub("\\s+", " ", out)
 }
 
+test_that("working-directory flags fail before creating or entering a directory", {
+  old <- getwd()
+  on.exit(setwd(old), add = TRUE)
+  bad <- list(NULL, logical(), NA, c(TRUE, FALSE), matrix(TRUE), 1, "TRUE", list(TRUE))
+  for (arg in c("create", "verbose")) for (value in bad) {
+    path <- tempfile("invalid_set_wd_")
+    args <- list(path = path)
+    args[arg] <- list(value)
+    error <- tryCatch(do.call(set_wd, args), error = identity)
+    expect_s3_class(error, "error")
+    if (inherits(error, "error")) expect_match(conditionMessage(error), arg)
+    expect_identical(getwd(), old)
+    expect_false(dir.exists(path))
+    setwd(old)
+    unlink(path, recursive = TRUE)
+  }
+})
+
 test_that("set_wd reports a freshly created directory as empty", {
   target <- tempfile("set_wd_new_")
   on.exit(unlink(target, recursive = TRUE), add = TRUE)

@@ -62,6 +62,14 @@ set_wd <- function(path, create = TRUE, verbose = TRUE) {
   if (!is.character(path) || length(path) != 1L || is.na(path) || !nzchar(path)) {
     stop("`path` must be a single non-empty character string.", call. = FALSE)
   }
+  flags <- list(create = create, verbose = verbose)
+  for (arg in names(flags)) {
+    value <- flags[[arg]]
+    if (!is.logical(value) || length(value) != 1L ||
+        !is.null(dim(value)) || is.na(value)) {
+      stop("`", arg, "` must be TRUE or FALSE.", call. = FALSE)
+    }
+  }
 
   created <- FALSE
   if (!dir.exists(path)) {
