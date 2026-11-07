@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotScatter3()` checks selectors, histogram counts and endpoint shapes before opening graphics devices, preventing lossy complex paired differences.
+
 * `PlotScatter2()` diagnoses invalid selectors and logical controls before building grouped marginals, retaining an optional `NULL` second group.
 
 * `PlotScatter1()` rejects malformed selectors and logical controls before reading data or assembling marginal panels.

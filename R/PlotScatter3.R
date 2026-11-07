@@ -155,18 +155,30 @@ PlotScatter3 <- function(
     bg              = "white"          # output background colour
 ) {
 
-  # ---- Ensure graphics device is available (needed for ggplotGrob) ----
-  if (grDevices::dev.cur() == 1L) {
-    grDevices::pdf(NULL)
-    on.exit(grDevices::dev.off(), add = TRUE)
-  }
-
   # ---- Validate inputs ----
+  for (arg in c("x", "y", "group")) {
+    value <- get(arg)
+    if (!is.character(value) || !is.null(dim(value)) || length(value) != 1L ||
+        is.na(value) || !nzchar(value))
+      stop("'", arg, "' must be a single non-missing column name.", call. = FALSE)
+  }
+  if (!is.logical(show_refline) || !is.null(dim(show_refline)) ||
+      length(show_refline) != 1L || is.na(show_refline))
+    stop("'show_refline' must be TRUE or FALSE.", call. = FALSE)
+  if (!is.numeric(hist_bins) || is.object(hist_bins) || !is.null(dim(hist_bins)) ||
+      length(hist_bins) != 1L || !is.finite(hist_bins) || hist_bins < 1 ||
+      hist_bins != trunc(hist_bins))
+    stop("'hist_bins' must be a single positive integer.", call. = FALSE)
   data <- as.data.frame(data)
   for (col in c(x, y, group)) {
     if (!col %in% colnames(data)) {
       stop("Column '", col, "' not found in data.", call. = FALSE)
     }
+  }
+  for (col in unique(c(x, y))) {
+    value <- data[[col]]
+    if (is.complex(value) || is.list(value) || !is.null(dim(value)))
+      stop("Column '", col, "' must contain a real vector.", call. = FALSE)
   }
 
   # The .data column name is reserved by the ggplot2 data mask.
@@ -240,6 +252,10 @@ PlotScatter3 <- function(
   }
 
   # ---- Main scatter plot ----
+  if (grDevices::dev.cur() == 1L) {
+    grDevices::pdf(NULL)
+    on.exit(grDevices::dev.off(), add = TRUE)
+  }
   p1 <- ggplot2::ggplot(data, ggplot2::aes(
     x     = .data[[x]],
     y     = .data[[y]],

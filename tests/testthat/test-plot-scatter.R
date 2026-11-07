@@ -69,6 +69,33 @@ test_that("PlotScatter2 validates selectors and logical controls before reading 
   }
 })
 
+test_that("PlotScatter3 validates paired controls before evaluating data or devices", {
+  for (arg in c("x", "y", "group")) {
+    for (bad in list(NULL, character(), c("x", "y"), NA_character_, matrix("x"))) {
+      args <- list(data = quote(stop("data evaluated")))
+      args[arg] <- list(bad)
+      expect_error(do.call(PlotScatter3, args), arg)
+    }
+  }
+  for (bad in list(NA, 1, c(TRUE, FALSE), matrix(TRUE))) {
+    expect_error(PlotScatter3(stop("data evaluated"), show_refline = bad), "show_refline")
+  }
+  for (bad in list(0, -1, 1.5, Inf, NA_real_, matrix(2))) {
+    expect_error(PlotScatter3(stop("data evaluated"), hist_bins = bad), "hist_bins")
+  }
+  calls <- 0L
+  testthat::local_mocked_bindings(pdf = function(...) {
+    calls <<- calls + 1L
+    stop("device opened")
+  }, .package = "grDevices")
+  for (bad in list(matrix(1:8, 8), 1:8 + 1i, as.list(1:8))) {
+    data <- scatter3_integer_pairs()
+    data$Control <- bad
+    expect_no_warning(expect_error(PlotScatter3(data), "Control"))
+  }
+  expect_identical(calls, 0L)
+})
+
 test_that("PlotScatter3 retains differences beyond the integer range", {
   data <- scatter3_integer_pairs()
   before <- serialize(data, NULL)
