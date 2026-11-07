@@ -771,3 +771,22 @@ test_that("white-border shape names retain missing entries in either order", {
     expect_identical(ggplot2::ggplot_build(out)$data[[1]]$shape, expected)
   }
 })
+
+test_that("point sampling and positioning controls reject encoded or dimensional scalars", {
+  for (arg in c("sample_n", "seed", "dodge.width", "rasterize.dpi")) {
+    for (bad in list(matrix(1), structure(1, class = "integer64"))) {
+      args <- list(plot = quote(stop("plot evaluated")))
+      if (arg == "seed") args$sample_n <- 1
+      if (arg == "rasterize.dpi") args$rasterize <- TRUE
+      args[arg] <- list(bad)
+      expect_error(do.call(fmt_point, args), arg)
+    }
+  }
+  for (arg in c("white_border", "rasterize")) {
+    args <- list(plot = quote(stop("plot evaluated")))
+    args[arg] <- list(matrix(TRUE))
+    expect_error(do.call(fmt_point, args), arg)
+  }
+  expect_error(fmt_point(stop("plot evaluated"), type = "jitter",
+                          jitter.args = list(width = matrix(.2))), "jitter.args")
+})

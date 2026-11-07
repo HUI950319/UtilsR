@@ -128,26 +128,29 @@ fmt_point <- function(plot,
   shape_missing <- missing(shape)
   size_missing <- missing(size)
   if (!is.null(sample_n) &&
-      (!is.numeric(sample_n) || length(sample_n) != 1L || !is.finite(sample_n) ||
+      (!is.numeric(sample_n) || is.object(sample_n) || !is.null(dim(sample_n)) ||
+       length(sample_n) != 1L || !is.finite(sample_n) ||
        sample_n < 0 || sample_n != floor(sample_n))) {
     cli::cli_abort("{.arg sample_n} must be a non-negative integer or NULL.")
   }
   if (!is.null(sample_n) && !is.null(seed) &&
-      (!is.numeric(seed) || length(seed) != 1L || !is.finite(seed) ||
+      (!is.numeric(seed) || is.object(seed) || !is.null(dim(seed)) ||
+       length(seed) != 1L || !is.finite(seed) ||
        seed != floor(seed) || abs(seed) > .Machine$integer.max)) {
     cli::cli_abort("{.arg seed} must be a finite integer or NULL.")
   }
   for (name in c("white_border", "rasterize")) {
     value <- get(name)
-    if (!is.logical(value) || length(value) != 1L || is.na(value)) {
+    if (!is.logical(value) || !is.null(dim(value)) || length(value) != 1L || is.na(value)) {
       cli::cli_abort("{.arg {name}} must be TRUE or FALSE.")
     }
   }
-  if (!is.numeric(dodge.width) || length(dodge.width) != 1L ||
-      !is.finite(dodge.width) || dodge.width < 0) {
+  if (!is.numeric(dodge.width) || is.object(dodge.width) || !is.null(dim(dodge.width)) ||
+      length(dodge.width) != 1L || !is.finite(dodge.width) || dodge.width < 0) {
     cli::cli_abort("{.arg dodge.width} must be one finite non-negative number.")
   }
-  if (rasterize && (!is.numeric(rasterize.dpi) || length(rasterize.dpi) != 1L ||
+  if (rasterize && (!is.numeric(rasterize.dpi) || is.object(rasterize.dpi) ||
+      !is.null(dim(rasterize.dpi)) || length(rasterize.dpi) != 1L ||
       !is.finite(rasterize.dpi) || rasterize.dpi <= 0)) {
     cli::cli_abort("{.arg rasterize.dpi} must be one finite positive number.")
   }
@@ -167,7 +170,8 @@ fmt_point <- function(plot,
     jit <- utils::modifyList(jit, jitter.args, keep.null = TRUE)
     for (name in names(jit)) {
       value <- jit[[name]]
-      if (!is.null(value) && (!is.numeric(value) || length(value) != 1L ||
+      if (!is.null(value) && (!is.numeric(value) || is.object(value) ||
+          !is.null(dim(value)) || length(value) != 1L ||
           !is.finite(value) || value < 0)) {
         cli::cli_abort("{.arg jitter.args} {.val {name}} must be non-negative or NULL.")
       }
