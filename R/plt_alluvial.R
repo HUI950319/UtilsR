@@ -256,6 +256,7 @@ plt_alluvial <- function(
   is_number <- function(value, lower = -Inf, upper = Inf, lower_open = FALSE) {
     if (
       !is.numeric(value) ||
+        is.object(value) || !is.null(dim(value)) ||
         length(value) != 1L ||
         is.na(value) ||
         !is.finite(value)

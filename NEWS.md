@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_alluvial()` rejects class-encoded or dimensional numeric flow, stratum, label and layout controls before theme evaluation.
+
 * `plt_sankey()` validates plain scalar storage for flow, node and label numeric controls before reading data.
 
 * `PlotCircleLollipop()` rejects invalid display switches before accessing data or initializing graphics.

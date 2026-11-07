@@ -6,6 +6,23 @@ alluvial_data <- function() {
   )
 }
 
+test_that("alluvial controls reject encoded and dimensional numeric settings", {
+  skip_if_not_installed("ggalluvial")
+  d <- data.frame(x = c("a", "b"), y = c("c", "d"))
+  settings <- list(flow_args = list(alpha = 0.5),
+    stratum_args = list(width = 0.5, linewidth = 0.3, gap = 0.01),
+    label_args = list(min_pct = 0.1, size = 3, alpha = 1, pct_accuracy = 0.1),
+    facet_args = list(nrow = 1, ncol = 1), legend_args = list(ncol = 1))
+  for (arg in names(settings)) for (field in names(settings[[arg]]))
+    for (shape in c("matrix", "encoded")) {
+      value <- settings[[arg]][[field]]
+      bad <- if (shape == "matrix") matrix(value) else structure(value, class = "encoded_number")
+      args <- list(data = d, cat_var = "x", group = "y", theme_use = quote(stop("theme evaluated")))
+      args[[arg]] <- stats::setNames(list(bad), field)
+      expect_error(do.call("plt_alluvial", args), arg)
+    }
+})
+
 test_that("plt_alluvial keeps the documented public argument order", {
   expect_identical(
     names(formals(plt_alluvial)),
