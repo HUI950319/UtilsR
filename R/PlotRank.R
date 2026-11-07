@@ -342,6 +342,9 @@ PlotRank <- function(
 
   ## -- Matrix (rows = features, columns = groups) --
   if (is.matrix(data)) {
+    if (is.null(colnames(data)) || anyNA(colnames(data)) ||
+        any(!nzchar(colnames(data))) || anyDuplicated(colnames(data)))
+      stop("Matrix columns must have unique, non-missing, non-empty group names.", call. = FALSE)
     cols <- if (!is.null(groups)) {
       bad <- setdiff(groups, colnames(data))
       if (length(bad))
@@ -358,6 +361,14 @@ PlotRank <- function(
 
   ## -- data.frame --
   if (is.data.frame(data)) {
+    if (anyNA(names(data)) || any(!nzchar(names(data))) || anyDuplicated(names(data)))
+      stop("'data' must have unique, non-missing, non-empty column names.", call. = FALSE)
+    for (arg in c("group_col", "name_col", "value_col")) {
+      value <- get(arg)
+      if (!is.character(value) || !is.null(dim(value)) || length(value) != 1L ||
+          is.na(value) || !nzchar(value))
+        stop("'", arg, "' must be one non-missing column name.", call. = FALSE)
+    }
     for (col in c(name_col, value_col)) {
       if (!col %in% colnames(data))
         stop(sprintf("Column '%s' not found in data.", col), call. = FALSE)

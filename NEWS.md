@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* PlotRank() validates data-frame selectors and unique matrix group names instead of silently reusing the first match.
+
 * PlotHeatmapJaccard() validates input containers and source names even for matrix-only returns.
 
 * PlotButterfly2() diagnoses ambiguous source names before projecting its plotting columns.

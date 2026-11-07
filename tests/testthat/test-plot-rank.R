@@ -1,3 +1,16 @@
+test_that("rank inputs reject ambiguous source and matrix group names", {
+  d <- data.frame(gene = letters[1:3], importance = 1:3, importance = 4:6, check.names = FALSE)
+  expect_error(PlotRank(d, return_type = "data"), "unique.*column names")
+  m <- matrix(1:6, 3, dimnames = list(letters[1:3], c("A", "A")))
+  expect_error(PlotRank(m, return_type = "data"), "unique.*group names")
+  d <- data.frame(gene = letters[1:3], importance = 1:3)
+  for (arg in c("group_col", "name_col", "value_col")) {
+    args <- list(data = d, return_type = "data")
+    args[[arg]] <- matrix("gene")
+    expect_error(do.call("PlotRank", args), arg)
+  }
+})
+
 test_that("PlotRank rejects distinct groups with colliding character labels", {
   groups <- c(1, 1 + 1e-15)
   expect_length(unique(groups), 2L)
