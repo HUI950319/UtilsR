@@ -231,8 +231,11 @@ PlotButterfly <- function(
   # ========================================================================
   if (type %in% c("bar", "bar_dodge")) {
     if (is.null(data)) cli::cli_abort("{.arg data} is required for bar mode.")
-    for (col in c(stat.by, fill.by, value.by, group.by)) {
-      if (is.null(col)) cli::cli_abort("All of {.arg stat.by}, {.arg fill.by}, {.arg value.by}, {.arg group.by} are required for bar mode.")
+    for (arg in c("stat.by", "fill.by", "value.by", "group.by")) {
+      col <- get(arg)
+      if (!is.character(col) || !is.null(dim(col)) || length(col) != 1L ||
+          is.na(col) || !nzchar(col))
+        cli::cli_abort("{.arg {arg}} must be a single non-missing column name for bar mode.")
       if (!col %in% names(data))
         cli::cli_abort("Column {.val {col}} not found in {.arg data}.")
     }
@@ -250,6 +253,7 @@ PlotButterfly <- function(
       data <- do.call(rbind, lapply(
         split(data, interaction(data[[group.by]], data[[fill.by]], drop = TRUE)),
         function(d) {
+          if (all(is.na(d[[value.by]]))) return(d)
           rng <- range(d[[value.by]], na.rm = TRUE)
           if (rng[1] == rng[2]) {
             d[[value.by]] <- ifelse(is.na(d[[value.by]]), NA_real_, 0)

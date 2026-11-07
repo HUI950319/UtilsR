@@ -13,6 +13,28 @@ butterfly_without_text_warning <- function(expr) {
   })
 }
 
+test_that("PlotButterfly validates required bar selectors individually", {
+  data <- data.frame(stat = c("A", "A"), fill = "F", value = 1:2, group = c("L", "R"))
+  for (arg in c("stat.by", "fill.by", "value.by", "group.by")) {
+    for (bad in list(NULL, character(), c("stat", "fill"), NA_character_, matrix("stat"))) {
+      args <- list(data = data, stat.by = "stat", fill.by = "fill", value.by = "value", group.by = "group")
+      args[arg] <- list(bad)
+      expect_error(do.call(PlotButterfly, args), arg)
+    }
+  }
+})
+
+test_that("PlotButterfly minmax retains entirely missing blocks without range warnings", {
+  data <- data.frame(stat = rep(c("A", "B"), 2), fill = "F",
+                     value = c(NA_real_, NA_real_, 1, 2), group = rep(c("L", "R"), each = 2))
+  expect_no_warning(plot <- butterfly_without_text_warning(PlotButterfly(
+    data, stat.by = "stat", fill.by = "fill", value.by = "value", group.by = "group", minmax = TRUE)))
+  left <- ggplot2::ggplot_build(plot[[1]])$data[[1]]
+  right <- ggplot2::ggplot_build(plot[[2]])$data[[1]]
+  expect_equal(left$x, c(0, 0))
+  expect_equal(sort(right$x), c(0, 1))
+})
+
 test_that("PlotButterfly2 plots release unselected input payloads in both paths", {
   skip_if_not_installed("ggbeeswarm")
   files <- c(withr::local_tempfile(), withr::local_tempfile())
