@@ -101,6 +101,7 @@ plt_na <- function(
     cli::cli_abort("Columns must be one-dimensional; unsupported columns: {.val {names(df)[unsupported]}}.")
   }
 
+  keep_masks <- output != "percentage"
   missing_data <- lapply(df, function(x) {
     pkg <- if (inherits(x, "integer64")) "bit64" else
       if (inherits(x, "haven_labelled")) "haven" else
@@ -108,10 +109,12 @@ plt_na <- function(
     if (!is.null(pkg) && !requireNamespace(pkg, quietly = TRUE)) {
       cli::cli_abort("Inspecting {.cls {class(x)[1]}} columns requires package {.pkg {pkg}}.")
     }
-    is.na(x)
+    mask <- is.na(x)
+    if (keep_masks) mask else sum(mask)
   })
-  missing_counts <- unlist(lapply(missing_data, sum), use.names = TRUE)
-  missing_data <- vctrs::new_data_frame(missing_data, n = nrow(df))
+  missing_counts <- if (keep_masks) unlist(lapply(missing_data, sum), use.names = TRUE) else
+    unlist(missing_data, use.names = TRUE)
+  if (keep_masks) missing_data <- vctrs::new_data_frame(missing_data, n = nrow(df))
 
   if (!is.null(name.map) &&
       (!is.character(name.map) || !is.null(dim(name.map)) ||

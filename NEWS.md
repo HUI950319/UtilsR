@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_na(output = "percentage")` reduces each missingness mask immediately instead of retaining a full logical copy of the selected data.
+
 * `fmt_plot_base()` validates named option lists before calling theme factories and skips empty label updates.
 
 * `fmt_plot()` validates all formatter option lists and numeric margins before applying changes, rejecting ambiguous or duplicate argument names.
