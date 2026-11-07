@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `.cat_tb()` validates highlight patterns before evaluating input tables, reporting malformed regular expressions without secondary warnings.
+
 * `.cat_message()` uses the timestamp's visible width for continuation indentation and wraps messages within the space available in narrow consoles.
 
 * `.cat_formula()` prints an unadjusted intercept-only formula when no covariates are supplied instead of leaving the right-hand side empty.

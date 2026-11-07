@@ -456,6 +456,17 @@ console_width <- function() {
                     footnotes = NULL) {
 
   theme <- match.arg(theme)
+  if (!is.null(highlight_pattern)) {
+    if (!is.character(highlight_pattern) || length(highlight_pattern) != 1L ||
+        !is.null(dim(highlight_pattern)) || is.na(highlight_pattern)) {
+      cli::cli_abort("{.arg highlight_pattern} must be NULL or a single non-missing string.")
+    }
+    suppressWarnings(tryCatch(
+      grepl(highlight_pattern, "", ignore.case = TRUE),
+      error = function(e) cli::cli_abort("{.arg highlight_pattern} must be a valid regular expression.",
+                                         parent = e)
+    ))
+  }
 
   # Collect inputs; unwrap single-list arg
   data_list <- list(...)

@@ -803,6 +803,15 @@ test_that("show_color retains empty expressions and validation at every colour d
   }
 })
 
+test_that("table highlight patterns are validated before forcing table inputs", {
+  for (pattern in list(NA_character_, character(), c("a", "b"),
+                        matrix("a"), 1, "[")) {
+    expect_error(.cat_tb(stop("table input was evaluated"),
+                         highlight_pattern = pattern, theme = "none"),
+                 "highlight_pattern")
+  }
+})
+
 test_that("table highlighting keeps style updates bounded as matching rows grow", {
   original <- gt::tab_style
   calls <- 0L
@@ -830,7 +839,7 @@ test_that("table highlighting preserves matched cells and missing values", {
                    c("category:2", "category:4", "text:1", "text:4"))
   expect_identical(result[["_data"]], tibble::as_tibble(data))
   expect_error(.cat_tb(data, highlight_pattern = NA, theme = "none"),
-               "missing value")
+               "highlight_pattern")
 
   empty <- .cat_tb(data[FALSE, ], highlight_pattern = "hit", theme = "none")
   expect_equal(sum(!is.na(empty[["_styles"]][["rownum"]])), 0L)
