@@ -170,6 +170,8 @@ PlotScatter3 <- function(
       hist_bins != trunc(hist_bins))
     stop("'hist_bins' must be a single positive integer.", call. = FALSE)
   data <- as.data.frame(data)
+  if (anyNA(names(data)) || any(!nzchar(names(data))) || anyDuplicated(names(data)))
+    stop("'data' must have unique, non-missing, non-empty column names.", call. = FALSE)
   for (col in c(x, y, group)) {
     if (!col %in% colnames(data)) {
       stop("Column '", col, "' not found in data.", call. = FALSE)

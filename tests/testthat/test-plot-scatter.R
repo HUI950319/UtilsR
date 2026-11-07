@@ -102,6 +102,12 @@ test_that("PlotScatter2 validates selectors and logical controls before reading 
   }
 })
 
+test_that("paired scatter rejects ambiguous input column names before tests", {
+  d <- data.frame(Control = 1:8, Treat = 2:9, group = rep(c("NS", "S"), 4),
+    Control = 11:18, check.names = FALSE)
+  expect_error(PlotScatter3(d, theme_use = function() stop("theme evaluated")), "unique.*column names")
+})
+
 test_that("PlotScatter3 validates paired controls before evaluating data or devices", {
   for (arg in c("x", "y", "group")) {
     for (bad in list(NULL, character(), c("x", "y"), NA_character_, matrix("x"))) {

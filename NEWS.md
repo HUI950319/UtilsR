@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* PlotScatter3() rejects ambiguous input names before paired tests or graphics setup.
+
 * PlotScatter2() validates data-frame containers and unique input names before constructing panels.
 
 * PlotScatter1() rejects unsupported containers and ambiguous data-frame column names before plotting.
