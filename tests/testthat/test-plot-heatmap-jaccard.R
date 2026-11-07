@@ -36,6 +36,26 @@ jaccard_timespans <- function(values) {
        interval = lubridate::interval(start, start + 30))
 }
 
+test_that("Jaccard plot controls fail clearly without affecting pure matrix returns", {
+  data <- data.frame(cell_type = c("A", "B"), gene = c("g1", "g2"))
+  for (arg in c("show_diag", "show_strip")) {
+    for (bad in list(NA, 1, c(TRUE, FALSE), matrix(TRUE))) {
+      args <- list(data = data)
+      args[arg] <- list(bad)
+      expect_error(do.call(PlotHeatmapJaccard, args), arg)
+    }
+  }
+  for (arg in c("midpoint", "text_size", "strip_size")) {
+    for (bad in list(NA_real_, Inf, numeric(), matrix(1))) {
+      args <- list(data = data, show_strip = TRUE)
+      args[arg] <- list(bad)
+      expect_error(do.call(PlotHeatmapJaccard, args), arg)
+    }
+  }
+  expect_identical(PlotHeatmapJaccard(data, return_type = "data", show_diag = stop("style evaluated")),
+                   matrix(c(1, 0, 0, 1), 2L, dimnames = list(c("A", "B"), c("A", "B"))))
+})
+
 test_that("Jaccard pure data returns avoid plotting while requested files are saved", {
   data <- data.frame(cell_type = c("A", "A", "B", "B"), gene = c("a", "b", "b", "c"))
   calls <- 0L

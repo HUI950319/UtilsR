@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Jaccard heatmaps diagnose malformed rendering controls while pure similarity-matrix returns continue to skip plot styling.
+
 * `PlotButterfly2()` reports malformed column selectors and unsupported score storage consistently across direct and delegated plotting paths.
 
 * `PlotButterfly()` validates each required bar column selector and avoids range warnings when scaling entirely missing blocks.

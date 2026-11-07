@@ -241,6 +241,17 @@ PlotHeatmapJaccard <- function(
   show_strip <- style$show_strip
   strip_colors <- style$strip_colors
   strip_size <- style$strip_size
+  for (arg in c("show_diag", "show_strip")) {
+    value <- get(arg)
+    if (!is.logical(value) || !is.null(dim(value)) || length(value) != 1L || is.na(value))
+      stop("'", arg, "' must be TRUE or FALSE.", call. = FALSE)
+  }
+  for (arg in c("midpoint", "text_size", if (show_strip) "strip_size")) {
+    value <- get(arg)
+    if (!is.numeric(value) || is.object(value) || !is.null(dim(value)) ||
+        length(value) != 1L || !is.finite(value))
+      stop("'", arg, "' must be a single finite number.", call. = FALSE)
+  }
 
   # ---- 4. Prepare long data.frame ----
   plot_mat <- jmat
