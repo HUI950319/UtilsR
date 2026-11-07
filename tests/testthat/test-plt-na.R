@@ -143,6 +143,16 @@ test_that("plt_na applies the missing-value palette", {
   expect_setequal(fills, c("#111111", "#222222"))
 })
 
+test_that("plt_na diagnoses invalid palettes before scanning data", {
+  for (bad in list(c("red", "blue", "bad-colour"), matrix(c("red", "blue", "black")),
+                   character(), 1:3)) {
+    expect_error(plt_na(stop("data evaluated"), miss_palette = bad), "miss_palette")
+  }
+  data <- data.frame(a = c(NA_real_, 1))
+  expect_no_warning(suppressMessages(plt_na(data, output = "percentage",
+                                            miss_palette = c(NA, "blue", "black", "ignored-invalid-colour"))))
+})
+
 test_that("plt_na rejects an unsupported output", {
   expect_snapshot(error = TRUE, plt_na(oc_data(), output = "unsupported"))
 })

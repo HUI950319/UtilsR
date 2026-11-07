@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_na()` validates the three displayed colours before inspecting input data, retaining transparent missing colours and ignored extra entries.
+
 * `.cat_line()` validates rule width and visible rule patterns before evaluating text, replacing downstream repetition errors with named argument errors.
 
 * `plt_na(output = "percentage")` reduces each missingness mask immediately instead of retaining a full logical copy of the selected data.

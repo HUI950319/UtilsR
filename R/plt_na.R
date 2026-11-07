@@ -80,6 +80,12 @@ plt_na <- function(
     save = list()) {
   output <- match.arg(output)
   sort <- match.arg(sort)
+  if (!is.character(miss_palette) || !is.null(dim(miss_palette)) || length(miss_palette) < 3L)
+    cli::cli_abort("{.arg miss_palette} must contain at least three colours in a vector.")
+  miss_palette <- unname(miss_palette[seq_len(3L)])
+  tryCatch(grDevices::col2rgb(miss_palette, alpha = TRUE), error = function(e) {
+    cli::cli_abort("{.arg miss_palette} must contain valid R colours.", parent = e)
+  })
 
   if (inherits(data, "Task")) {
     df <- data$data()
@@ -122,11 +128,6 @@ plt_na <- function(
        any(!nzchar(names(name.map))) || anyDuplicated(names(name.map)))) {
     cli::cli_abort("{.arg name.map} must have unique, non-missing, non-empty names and be a character vector.")
   }
-
-  if (!is.character(miss_palette) || length(miss_palette) < 3L) {
-    cli::cli_abort("{.arg miss_palette} must contain at least three colours.")
-  }
-  miss_palette <- unname(miss_palette[seq_len(3L)])
 
   map_name <- function(x) {
     if (is.null(name.map)) {
