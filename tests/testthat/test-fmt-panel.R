@@ -97,6 +97,16 @@ test_that("panel formatting retains the shape of nested lists", {
   expect_error(fmt_panel(list(p, "invalid")), "ggplot")
 })
 
+test_that("panel line widths reject encoded values and dimensions", {
+  for (arg in c("grid_linewidth", "border_linewidth")) {
+    for (bad in list(matrix(.5), structure(.5, class = "integer64"))) {
+      args <- list(plot = quote(stop("plot evaluated")))
+      args[arg] <- list(bad)
+      expect_error(do.call(fmt_panel, args), arg)
+    }
+  }
+})
+
 test_that("panel arguments reject malformed borders, widths and colours immediately", {
   p <- panel_test_plot()
   for (border in list(1, NA, c(TRUE, FALSE), logical(), character(),

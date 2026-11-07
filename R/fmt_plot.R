@@ -2647,7 +2647,7 @@ fmt_panel <- function(plot,
   for (nm in names(widths)) {
     value <- widths[[nm]]
     if (is.null(value) && nm == "grid_linewidth") next
-    if (!is.numeric(value) || is.complex(value) || inherits(value, "rel") || length(value) != 1L ||
+    if (!is.numeric(value) || is.object(value) || !is.null(dim(value)) || length(value) != 1L ||
         !is.finite(value) || value < 0) {
       cli::cli_abort("{.arg {nm}} must be a finite, non-negative absolute width in millimetres.")
     }

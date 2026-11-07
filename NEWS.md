@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_panel()` enforces plain scalar widths in millimetres, rejecting encoded or dimensional values before traversing plot layouts.
+
 * `fmt_raster()` rejects class-encoded numeric resolutions and dimensions before allocating graphics devices, preserving explicit measurement-unit diagnostics.
 
 * `.cat_tb()` derives numeric colour domains from finite values, retaining infinite values in tables and preserving missing-value colours without range errors.
