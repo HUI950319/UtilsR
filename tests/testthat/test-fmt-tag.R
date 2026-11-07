@@ -4,6 +4,18 @@ find_grobs <- function(g, cls) {
     unlist(lapply(kids, find_grobs, cls = cls), recursive = FALSE))
 }
 
+test_that("tag numeric and label settings retain vector contracts", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  for (arg in c("size", "label.size")) for (bad in list(matrix(1), structure(1, class = "encoded_number"))) {
+    args <- list(plot = p)
+    args[[arg]] <- bad
+    expect_error(do.call("fmt_tag", args), arg)
+  }
+  expect_error(fmt_tag(p, labels = matrix("A")), "labels")
+  expect_error(fmt_tag(p, label_position = structure(c(0.2, 0.8), class = "encoded_number")),
+    "label_position")
+})
+
 test_that("inside tags draw one label with four-sided padding", {
   p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, disp)) + ggplot2::geom_point()
   original <- ggplot2::ggplot_build(p)

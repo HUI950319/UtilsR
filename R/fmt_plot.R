@@ -376,7 +376,7 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
   }
 
   if (is.numeric(label_position) && is.null(dim(label_position)) &&
-      !inherits(label_position, "unit") && length(label_position) == 2L &&
+      !is.object(label_position) && length(label_position) == 2L &&
       all(is.finite(label_position)) && all(label_position >= 0 & label_position <= 1)) {
     return(list(x = label_position[1], y = label_position[2], outside = FALSE))
   }
@@ -570,13 +570,14 @@ fmt_tag <- function(plot,
       label
     }, character(1))
   }
-  if (!is.character(labels) || length(labels) == 0L ||
+  if (!is.character(labels) || !is.null(dim(labels)) || length(labels) == 0L ||
       anyNA(labels) || any(!nzchar(trimws(labels)))) {
     cli::cli_abort("{.arg labels} must be a non-empty character vector without missing or blank labels.")
   }
   for (nm in c("size", "label.size")) {
     value <- get(nm)
-    if (!is.numeric(value) || length(value) == 0L || any(!is.finite(value)) ||
+    if (!is.numeric(value) || is.object(value) || !is.null(dim(value)) ||
+        length(value) == 0L || any(!is.finite(value)) ||
         (nm == "size" && any(value <= 0)) ||
         (nm == "label.size" && (length(value) != 1L || any(value < 0)))) {
       requirement <- if (nm == "size") "a non-empty vector of finite positive numbers"
