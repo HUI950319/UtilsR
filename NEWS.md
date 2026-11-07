@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* PlotCircleLollipop() validates selectors and unique data-frame column names before graphics setup.
+
 * PlotDumbbell() diagnoses repeated or missing column names before selecting endpoints.
 
 * PlotScatter3() rejects ambiguous input names before paired tests or graphics setup.

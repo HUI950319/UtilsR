@@ -1,3 +1,15 @@
+test_that("circular plots validate selectors and ambiguous input names", {
+  for (arg in c("group_col", "name_col", "value_col"))
+    for (bad in list(NULL, NA_character_, c("a", "b"), matrix("a"))) {
+      args <- list(data = quote(stop("data evaluated")))
+      args[arg] <- list(bad)
+      expect_error(do.call("PlotCircleLollipop", args), arg)
+    }
+  d <- data.frame(group = c("A", "B"), name = c("x", "y"), value = 1:2,
+    value = 3:4, check.names = FALSE)
+  expect_error(PlotCircleLollipop(d), "unique.*column names")
+})
+
 test_that("circular switches are validated before accessing data or graphics", {
   for (arg in c("show_links", "show_labels", "show_yaxis"))
     for (bad in list(NA, 1, c(TRUE, FALSE), matrix(TRUE))) {
