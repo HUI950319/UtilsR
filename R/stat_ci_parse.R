@@ -129,14 +129,17 @@ stat_ci_parse <- function(x,
 
   output <- match.arg(output)
   if (!is.character(x)) cli::cli_abort("{.arg x} must be a character vector.")
+  if (!is.null(dim(x))) cli::cli_abort("{.arg x} must be a vector without dimensions.")
   if (!(identical(exp, "auto") || isTRUE(exp) || isFALSE(exp))) {
     cli::cli_abort("{.arg exp} must be {.val auto}, {.code TRUE} or {.code FALSE}.")
   }
-  if (!is.null(level) && !(is.numeric(level) && length(level) == 1L &&
+  if (!is.null(level) && !(is.numeric(level) && !is.object(level) &&
+                           is.null(dim(level)) && length(level) == 1L &&
                            !is.na(level) && level > 0 && level < 1)) {
     cli::cli_abort("{.arg level} must be a single number between 0 and 1.")
   }
-  if (!is.null(digits) && !(is.numeric(digits) && length(digits) == 1L &&
+  if (!is.null(digits) && !(is.numeric(digits) && !is.object(digits) &&
+                            is.null(dim(digits)) && length(digits) == 1L &&
                             is.finite(digits) && digits >= 0 &&
                             digits <= 8190L && digits == round(digits))) {
     cli::cli_abort("{.arg digits} must be a single integer between 0 and 8190.")

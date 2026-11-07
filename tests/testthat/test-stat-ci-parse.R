@@ -301,6 +301,21 @@ test_that("ci_p writes p<0.001, not p=<0.001", {
                    "1.23 (0.95, 1.59), p=0.115")
 })
 
+test_that("CI parser rejects dimensional strings and non-scalar controls before empty returns", {
+  for (x in list(matrix("2 (1, 3)"), array(character(), c(0, 1, 1)))) {
+    expect_error(stat_ci_parse(x), "x")
+  }
+  for (arg in c("level", "digits")) {
+    value <- if (arg == "level") .95 else 2
+    for (bad in list(matrix(value), array(value, c(1, 1, 1)),
+                     structure(value, class = "unit_count"))) {
+      args <- list(x = character())
+      args[arg] <- list(bad)
+      expect_error(do.call(stat_ci_parse, args), arg)
+    }
+  }
+})
+
 test_that("arguments are validated up front", {
   x <- "1.23 (0.95, 1.59)"
   expect_error(stat_ci_parse(x, exp = "yes"), "exp")

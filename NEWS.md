@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci_parse()` rejects dimensional text and classed or dimensional confidence-level and precision controls before parsing or returning empty output.
+
 * `set_wd()` rejects invalid logical controls before creating directories or changing the working directory.
 
 * CI formatters leave overflowing numeric text unchanged with a parse warning instead of producing infinite estimates or aborting other intervals.
