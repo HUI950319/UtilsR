@@ -26,6 +26,22 @@ sankey_plot <- function(data = sankey_data(), vars = names(data), ...) {
   )
 }
 
+test_that("sankey controls reject encoded and dimensional scalar storage", {
+  skip_if_not_installed("ggsankey")
+  defaults <- list(flow_args = list(alpha = 0.5, smooth = 8),
+    node_args = list(width = 0.4, space = 0.1, linewidth = 0.2),
+    label_args = list(size = 3, lineheight = 1.2, hjust = 0.5, alpha = 1,
+                      min_pct = 0.1, pct_accuracy = 0.1))
+  for (arg in names(defaults)) for (field in names(defaults[[arg]]))
+    for (shape in c("matrix", "encoded")) {
+      value <- defaults[[arg]][[field]]
+      bad <- if (shape == "matrix") matrix(value) else structure(value, class = "encoded_number")
+      args <- list(data = quote(stop("data evaluated")), vars = c("x", "y"))
+      args[[arg]] <- stats::setNames(list(bad), field)
+      expect_error(do.call("plt_sankey", args), arg)
+    }
+})
+
 test_that("plt_sankey retains the default and existing label styles", {
   skip_if_not_installed("ggsankey")
 

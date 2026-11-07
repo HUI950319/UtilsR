@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_sankey()` validates plain scalar storage for flow, node and label numeric controls before reading data.
+
 * `PlotCircleLollipop()` rejects invalid display switches before accessing data or initializing graphics.
 
 * `PlotButterfly()` diagnoses invalid scaling and overlay switches before reading data or constructing panels.

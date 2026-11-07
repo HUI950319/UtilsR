@@ -169,7 +169,8 @@ plt_sankey <- function(data,
          fill = "white", alpha = 1, min_pct = 0, pct_accuracy = 0.1), "label_args")
 
   is_number <- function(value, lower = -Inf, upper = Inf, positive = FALSE) {
-    is.numeric(value) && length(value) == 1L && !is.na(value) &&
+    is.numeric(value) && !is.object(value) && is.null(dim(value)) &&
+      length(value) == 1L && !is.na(value) &&
       is.finite(value) && value >= lower && value <= upper && (!positive || value > 0)
   }
   if (!is_number(flow_args$alpha, 0, 1)) cli::cli_abort("{.arg flow_args$alpha} must be in [0, 1].")
