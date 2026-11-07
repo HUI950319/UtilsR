@@ -252,6 +252,18 @@ test_that("confidence levels below one retain finite normal quantiles", {
   expect_true(is.finite(p) && p > .05 && p < 1)
 })
 
+test_that("numeric-only CI results preserve names and formatting-limit errors", {
+  x <- c(positive = "2.00 (1.00, 3.00)", zero = "0.00 (-1.00, 1.00)", missing = NA_character_)
+  expected <- c(positive = 2 * pnorm(-2 * z95), zero = 1, missing = NA_real_)
+  reference <- stat_ci_parse(x, output = "p", exp = FALSE, digits = 2)
+  expect_equal(reference, expected)
+  for (digits in c(7881, 8189)) {
+    expect_identical(stat_ci_parse(x, output = "p", exp = FALSE, digits = digits), reference)
+  }
+  expect_error(stat_ci_parse("-1 (-2, 0)", output = "p", exp = FALSE, digits = 8190),
+               "digits.*8192-byte")
+})
+
 test_that("an estimate on a printed bound still gets a finite p-value", {
   expect_identical(suppressWarnings(
     stat_ci_parse("1.0 (0.6, 1.0)", output = "p", exp = TRUE)), 1)

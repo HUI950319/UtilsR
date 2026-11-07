@@ -240,6 +240,11 @@ stat_ci_parse <- function(x,
   if (any(!is.finite(d) | d < 0 | d > 8190L)) {
     cli::cli_abort("The detected {.arg digits} must be between 0 and 8190.")
   }
+  # Only very high precision can require the formatted-number byte checks below.
+  if (output == "p" && !any(d > 7881L)) {
+    names(pval) <- names(x)
+    return(pval)
+  }
   fmt <- function(v) {
     v <- round(v, d)
     v[which(v == 0)] <- 0             # -0 would print as "-0.00"
