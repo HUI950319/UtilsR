@@ -121,8 +121,10 @@ In R Markdown or Quarto, use a code chunk with
 
   Suggested numeric filters retain double precision, including truncated
   value lists. Labelled numeric columns are matched by their underlying
-  numbers. Standard deviations in the console listing and default summary
-  table use rescaling when intermediate calculations overflow or underflow.
+  numbers. Date-time filters match exact instants and retain their time zone,
+  including for \code{POSIXlt} columns. Standard deviations in the console
+  listing and default summary table use rescaling when intermediate
+  calculations overflow or underflow.
 }
 \examples{
 \dontrun{

@@ -1083,6 +1083,84 @@ test_that("suggested filters retain exact double values after truncation", {
   expect_identical(data, before)
 })
 
+test_that("suggested date-time filters preserve exact instants and time zones", {
+  withr::local_options(digits.secs = 0)
+  origin <- as.POSIXct("2020-11-01 04:59:59", tz = "UTC")
+  offsets <- c(0, 0.1, 0.2, 1:8, NA_real_)
+  for (zone in c("UTC", "Asia/Shanghai", "America/New_York")) {
+    time <- structure(as.numeric(origin + offsets),
+                      class = c("POSIXct", "POSIXt"), tzone = zone)
+    data <- data.frame(instant = time)
+    data$broken_down <- as.POSIXlt(time)
+    before <- data
+    summary <- capture_reports(lv(data))[[1L]][["_data"]]
+    expect_equal(summary$n_unique, c(11, 11))
+    for (i in seq_len(nrow(summary))) {
+      expr <- parse(text = as.character(summary$unique[i]))[[1L]]
+      condition <- expr[[2L]]
+      expect_identical(eval(condition, envir = data), c(rep(TRUE, 8), rep(FALSE, 4)))
+      values <- eval(condition[[3L]])
+      expect_s3_class(values, "POSIXct")
+      expect_identical(as.numeric(values), as.numeric(time[1:8]))
+      expect_identical(attr(values, "tzone"), zone)
+      expect_match(as.character(summary$unique[i]), "# +3 more", fixed = TRUE)
+    }
+    expect_identical(data, before)
+  }
+})
+
+test_that("all-missing date-time columns produce empty usable filters", {
+  time <- as.POSIXct(c(NA, NA), origin = "1970-01-01", tz = "UTC")
+  data <- data.frame(instant = time)
+  data$broken_down <- as.POSIXlt(time)
+  before <- data
+  summary <- capture_reports(lv(data))[[1L]][["_data"]]
+  expect_equal(summary$n_unique, c(0, 0))
+  expect_equal(summary$n_na, c(2, 2))
+  for (i in seq_len(nrow(summary))) {
+    expr <- parse(text = as.character(summary$unique[i]))[[1L]]
+    expect_identical(eval(expr[[2L]], envir = data), c(FALSE, FALSE))
+  }
+  expect_identical(data, before)
+})
+
+test_that("date-time filters distinguish repeated daylight-saving clock times", {
+  origin <- as.POSIXct("2020-11-01 05:30:00", tz = "UTC")
+  time <- structure(as.numeric(origin + c(0:7, 3600:3602)),
+                    class = c("POSIXct", "POSIXt"), tzone = "America/New_York")
+  data <- data.frame(instant = time)
+  data$broken_down <- as.POSIXlt(time)
+  summary <- capture_reports(lv(data))[[1L]][["_data"]]
+  for (i in seq_len(nrow(summary))) {
+    expr <- parse(text = as.character(summary$unique[i]))[[1L]]
+    expect_identical(eval(expr[[2L]], envir = data), c(rep(TRUE, 8), rep(FALSE, 3)))
+  }
+})
+
+test_that("date-time filters retain an absent or local time zone", {
+  for (zone in list(NULL, "")) {
+    time <- structure(c(0, 0.1, NA_real_),
+                      class = c("POSIXct", "POSIXt"), tzone = zone)
+    data <- data.frame(instant = time)
+    summary <- capture_reports(lv(data))[[1L]][["_data"]]
+    expr <- parse(text = as.character(summary$unique))[[1L]]
+    expect_identical(eval(expr[[2L]], envir = data), c(TRUE, TRUE, FALSE))
+    expect_identical(attr(eval(expr[[2L]][[3L]]), "tzone"), zone)
+  }
+})
+
+test_that("date-time filters work with the real RegR filtering entry point", {
+  skip_if_not_installed("RegR")
+  time <- as.POSIXct("2020-01-01 12:00:00", tz = "UTC") + c(0, 0.1, 0.2, NA)
+  data <- data.frame(id = 1:4)
+  data[["time value"]] <- as.POSIXlt(time)
+  summary <- capture_reports(lv(data, `time value`))[[1L]][["_data"]]
+  expr <- parse(text = as.character(summary$unique))[[1L]]
+  call <- as.call(list(quote(RegR::get_flt), quote(data), expr[[2L]]))
+  invisible(utils::capture.output(result <- eval(call)))
+  expect_identical(result$id, 1:3)
+})
+
 test_that("standard deviations stay finite across finite numeric scales", {
   read_sd <- function(text) {
     as.numeric(gsub(",", "", sub(".*\\(([^()]*)\\)$", "\\1", trimws(text)), fixed = TRUE))

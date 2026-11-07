@@ -105,8 +105,10 @@
 #'
 #'   Suggested numeric filters retain double precision, including truncated
 #'   value lists. Labelled numeric columns are matched by their underlying
-#'   numbers. Standard deviations in the console listing and default summary
-#'   table use rescaling when intermediate calculations overflow or underflow.
+#'   numbers. Date-time filters match exact instants and retain their time zone,
+#'   including for \code{POSIXlt} columns. Standard deviations in the console
+#'   listing and default summary table use rescaling when intermediate
+#'   calculations overflow or underflow.
 #'
 #' @examples
 #' \dontrun{
@@ -379,10 +381,14 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     display_values <- if (n_unique > 10) head(unique_values, 8) else unique_values
 
     # Numeric literals retain the stored double values, including labelled
-    # numbers; other classed values (dates, integer64) match through text.
+    # numbers; dates and integer64 values match through text.
     explicit_na <- is.factor(col_data) && anyNA(display_values)
     matching_values <- if (explicit_na) display_values[!is.na(display_values)] else display_values
-    values <- if (is.logical(matching_values)) {
+    date_time <- inherits(col_data, "POSIXt")
+    instants <- if (date_time) as.POSIXct(matching_values) else NULL
+    values <- if (date_time) {
+      as.list(as.numeric(instants))
+    } else if (is.logical(matching_values)) {
       as.list(matching_values)
     } else if (is.numeric(matching_values) &&
                (!is.object(matching_values) || inherits(matching_values, "haven_labelled"))) {
@@ -395,6 +401,13 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     # match() otherwise compares labelled vectors through rounded text.
     if (is.numeric(display_values) && inherits(display_values, "haven_labelled")) {
       filter_var <- as.call(list(quote(as.numeric), filter_var))
+    }
+    if (date_time) {
+      seconds_expr <- if (length(values)) values_expr else quote(numeric())
+      values_expr <- substitute(structure(SECONDS, class = c("POSIXct", "POSIXt"),
+                                          tzone = TZ),
+                                list(SECONDS = seconds_expr, TZ = attr(instants, "tzone")))
+      filter_var <- as.call(list(quote(as.POSIXct), filter_var))
     }
     filter_expr <- if (explicit_na) {
       substitute(get_flt(VAR %in% VALUES | (!is.na(VAR) & is.na(as.character(VAR)))),
@@ -636,15 +649,15 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     x
   }
 
-  # gtsummary treats an entirely missing character column as continuous and
-  # fails formatting it (and rejects a level-less factor); a missing logical
-  # reports the same missing count. It cannot tabulate time spans either, so
-  # they are summarized as numbers in their own units.
+  # gtsummary cannot format an entirely missing character or date-time column
+  # (and rejects a level-less factor); a missing logical reports the same
+  # missing count. Time spans are summarized as numbers in their own units.
   .tbl_input <- function(df) {
     df[] <- lapply(df, function(x) .label_na_level(.spss_missing_to_na(x)))
-    empty_chr <- vapply(df, function(x) is.character(x) && all(is.na(x)),
-                        logical(1))
-    df[empty_chr] <- lapply(df[empty_chr], function(x) rep(NA, length(x)))
+    empty_values <- vapply(df, function(x) {
+      (is.character(x) || inherits(x, "POSIXt")) && all(is.na(x))
+    }, logical(1))
+    df[empty_values] <- lapply(df[empty_values], function(x) rep(NA, length(x)))
     spans <- vapply(df, inherits, logical(1), what = "difftime")
     df[spans] <- lapply(df[spans], as.numeric)
     lt <- vapply(df, inherits, logical(1), what = "POSIXlt")
