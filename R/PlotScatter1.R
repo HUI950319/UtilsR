@@ -154,6 +154,11 @@ PlotScatter1 <- function(
   for (col in c(x, y, group)) {
     if (!col %in% colnames(data)) stop(sprintf("Column '%s' not found in data.", col))
   }
+  for (col in unique(c(x, y))) {
+    value <- data[[col]]
+    if (is.complex(value) || is.list(value) || !is.null(dim(value)))
+      stop("Column '", col, "' must contain a real vector.", call. = FALSE)
+  }
 
   # Preserve public labels before assigning private plotting columns.
   if (is.null(xlab)) xlab <- x

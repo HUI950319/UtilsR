@@ -34,6 +34,15 @@ scatter3_integer_pairs <- function() {
   )
 }
 
+test_that("PlotScatter1 rejects non-vector axes before theme evaluation", {
+  for (col in c("x", "y")) for (bad in list(1:4 + 1i, as.list(1:4), matrix(1:4, 4))) {
+    d <- data.frame(x = 1:4, y = 4:1, g = rep(c("a", "b"), 2))
+    d[[col]] <- bad
+    expect_error(PlotScatter1(d, "x", "y", "g", show_ellipse = FALSE,
+      theme_use = function() stop("theme evaluated")), "must contain a real vector")
+  }
+})
+
 test_that("PlotScatter1 validates selectors and logical controls before reading data", {
   for (arg in c("x", "y", "group")) {
     for (bad in list(NULL, character(), c("x", "y"), NA_character_, matrix("x"))) {

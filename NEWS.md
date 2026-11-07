@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotScatter1()` rejects complex, nested and matrix axis columns before evaluating themes.
+
 * `PlotRank(return_type = "data")` avoids constructing a plot when no output file was requested.
 
 * Numeric table gradients retain midpoint and endpoint colours when a finite range overflows during subtraction.
