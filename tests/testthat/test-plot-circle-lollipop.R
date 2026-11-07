@@ -1,3 +1,12 @@
+test_that("circular switches are validated before accessing data or graphics", {
+  for (arg in c("show_links", "show_labels", "show_yaxis"))
+    for (bad in list(NA, 1, c(TRUE, FALSE), matrix(TRUE))) {
+      args <- list(data = quote(stop("data evaluated")))
+      args[[arg]] <- bad
+      expect_error(do.call("PlotCircleLollipop", args), arg)
+    }
+})
+
 test_that("circular scores reject lossy storage and unplottable ranges before drawing", {
   skip_if_not_installed("circlize")
   data <- data.frame(group = rep(c("A", "B"), each = 3), name = letters[1:6])

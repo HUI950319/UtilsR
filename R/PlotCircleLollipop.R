@@ -157,6 +157,11 @@ PlotCircleLollipop <- function(
 ) {
   label_side  <- match.arg(label_side)
   value_scale <- match.arg(value_scale)
+  for (arg in c("show_links", "show_labels", "show_yaxis")) {
+    value <- get(arg)
+    if (!is.logical(value) || !is.null(dim(value)) || length(value) != 1L || is.na(value))
+      stop("'", arg, "' must be TRUE or FALSE.", call. = FALSE)
+  }
 
   # ---- Check dependencies ----
   for (pkg in c("circlize", "dplyr")) {
