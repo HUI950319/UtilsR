@@ -2,6 +2,25 @@
 
 ## UtilsR 0.6.23
 
+- `plt_upset(output = "data")` counts observed membership patterns
+  without repeated set intersections while preserving every combination
+  level and its order.
+
+- Plot saving rejects invalid named-list fields, PDF filenames,
+  dimensions and devices before evaluating or measuring the plot.
+
+- [`.cat_tb()`](https://hui950319.github.io/UtilsR/reference/dot-cat_tb.md)
+  applies pattern highlighting in batches while preserving matched
+  cells, missing values and rendered table output.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) generates
+  precision-preserving date-time filters and summarizes entirely missing
+  POSIXct and POSIXlt columns.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) keeps
+  explicit NA factor levels distinct from missing values in summaries,
+  grouped tables, filters and cross-tabulations.
+
 - Rebuild legacy S3 plot backgrounds with the active ggplot2 rectangle
   constructor so their fill and border are drawn after theme conversion.
 

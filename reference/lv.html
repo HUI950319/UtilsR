@@ -203,12 +203,16 @@ Requires <span class="pkg">RegR</span> (declared in Suggests).</p></dd>
   identifiers, and list columns are reported in the variable summary but
   left out of the frequency and grouped tables, with a message. Time spans
   (<code>difftime</code>) are summarized as numbers in their own units.
+  An explicit <code>NA</code> factor level is displayed as <code>&lt;NA&gt;</code>, with a
+  suffix if needed, and remains distinct from missing factor values.
   Variable-summary rows are tinted by type: character, numeric or
   integer, and factor (including ordered) variables.</p>
 <p>Suggested numeric filters retain double precision, including truncated
   value lists. Labelled numeric columns are matched by their underlying
-  numbers. Standard deviations in the console listing and default summary
-  table use rescaling when intermediate calculations overflow or underflow.</p>
+  numbers. Date-time filters match exact instants and retain their time zone,
+  including for <code>POSIXlt</code> columns. Standard deviations in the console
+  listing and default summary table use rescaling when intermediate
+  calculations overflow or underflow.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
