@@ -13,6 +13,13 @@ butterfly_without_text_warning <- function(expr) {
   })
 }
 
+test_that("bar butterflies reject ambiguous data-frame columns", {
+  d <- data.frame(stat = "A", fill = "F", value = 1:2, group = c("L", "R"),
+    value = 3:4, check.names = FALSE)
+  expect_error(PlotButterfly(d, stat.by = "stat", fill.by = "fill", value.by = "value",
+    group.by = "group"), "unique.*column names")
+})
+
 test_that("PlotButterfly validates switches before reading input data", {
   for (arg in c("minmax", "add_box", "add_point"))
     for (bad in list(NA, 1, c(TRUE, FALSE), matrix(TRUE))) {

@@ -236,6 +236,9 @@ PlotButterfly <- function(
   # ========================================================================
   if (type %in% c("bar", "bar_dodge")) {
     if (is.null(data)) cli::cli_abort("{.arg data} is required for bar mode.")
+    if (!is.data.frame(data)) cli::cli_abort("{.arg data} must be a data.frame.")
+    if (anyNA(names(data)) || any(!nzchar(names(data))) || anyDuplicated(names(data)))
+      cli::cli_abort("{.arg data} must have unique, non-missing, non-empty column names.")
     for (arg in c("stat.by", "fill.by", "value.by", "group.by")) {
       col <- get(arg)
       if (!is.character(col) || !is.null(dim(col)) || length(col) != 1L ||

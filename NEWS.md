@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* PlotButterfly() validates bar-mode input containers and column names before completing category combinations.
+
 * PlotCircleLollipop() validates selectors and unique data-frame column names before graphics setup.
 
 * PlotDumbbell() diagnoses repeated or missing column names before selecting endpoints.
