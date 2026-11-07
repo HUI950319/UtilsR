@@ -24,7 +24,7 @@ grob_add(
 
 - grob:
 
-  A grob, gtable, or ggplot object to add.
+  A grob, gtable, gList, ggplot, or patchwork object to add.
 
 - position:
 
@@ -53,8 +53,9 @@ gtable must contain a panel area unless `position = "none"` or `grob` is
 
 Successive additions remain aligned to the main panel area.
 
-Panel names beginning with `"panel"` are preferred. For custom gtables
-without this prefix, names containing `"panel"` are used.
+Standard panel names (`"panel"` and numeric suffixes) and `"panel-area"`
+are preferred. For custom gtables without these names, names containing
+`"panel"` are used.
 
 Fixed aspect ratio constraints in the main gtable are retained when
 margin rows or columns are added.

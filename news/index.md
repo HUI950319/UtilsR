@@ -2,6 +2,209 @@
 
 ## UtilsR 0.6.23
 
+- [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md)
+  diagnoses dimensional and nested reference positions before plot
+  processing, retaining vector, date-time, missing and infinite
+  positions.
+
+- Sized plot saving rejects class-encoded dimensions and dimensional
+  filenames before evaluating plots or creating output files.
+
+- Raster capture validates background colours before device and plot
+  work; backends that do not use backgrounds continue to ignore the
+  argument.
+
+- [`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md)
+  rejects class-encoded numeric layout controls and reference ranks
+  before resolving comparison mappings.
+
+- [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+  distinguishes classed score data from ordinary numeric styling
+  controls, preventing encoded storage from setting sizes, opacity or
+  overlap counts.
+
+- [`fmt_bg()`](https://hui950319.github.io/UtilsR/reference/fmt_bg.md)
+  rejects encoded and dimensional opacity controls before plot
+  processing, preserving the zero-opacity fast path for ordinary
+  numbers.
+
+- [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md)
+  enforces plain scalar widths in millimetres, rejecting encoded or
+  dimensional values before traversing plot layouts.
+
+- [`fmt_raster()`](https://hui950319.github.io/UtilsR/reference/fmt_raster.md)
+  rejects class-encoded numeric resolutions and dimensions before
+  allocating graphics devices, preserving explicit measurement-unit
+  diagnostics.
+
+- [`.cat_tb()`](https://hui950319.github.io/UtilsR/reference/dot-cat_tb.md)
+  derives numeric colour domains from finite values, retaining infinite
+  values in tables and preserving missing-value colours without range
+  errors.
+
+- [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
+  rejects encoded or dimensional sampling and positioning controls
+  before plot processing, retaining lazy controls for disabled features.
+
+- White-border point shapes resolve valid names even when missing shapes
+  appear first or between them, retaining the missing entries.
+
+- [`grob_add()`](https://hui950319.github.io/UtilsR/reference/grob_add.md)
+  normalizes grob lists into one margin graphic, matching the other grob
+  helpers instead of adding their children as separate table entries.
+
+- [`fmt_scale()`](https://hui950319.github.io/UtilsR/reference/fmt_scale.md)
+  skips leaf traversal and reconstruction when both axis-setting lists
+  are empty, while still validating options and plot containers.
+
+- Shared formatter traversal avoids replacing unchanged patchwork
+  children, reducing container reconstruction while retaining leaf order
+  and annotations.
+
+- [`fmt_text()`](https://hui950319.github.io/UtilsR/reference/fmt_text.md)
+  returns validated plot containers directly when no text edits are
+  requested, avoiding unnecessary reconstruction of nested layouts.
+
+- [`plt_na()`](https://hui950319.github.io/UtilsR/reference/plt_na.md)
+  validates the three displayed colours before inspecting input data,
+  retaining transparent missing colours and ignored extra entries.
+
+- [`.cat_line()`](https://hui950319.github.io/UtilsR/reference/dot-cat_line.md)
+  validates rule width and visible rule patterns before evaluating text,
+  replacing downstream repetition errors with named argument errors.
+
+- `plt_na(output = "percentage")` reduces each missingness mask
+  immediately instead of retaining a full logical copy of the selected
+  data.
+
+- [`fmt_plot_base()`](https://hui950319.github.io/UtilsR/reference/fmt_plot_base.md)
+  validates named option lists before calling theme factories and skips
+  empty label updates.
+
+- [`fmt_plot()`](https://hui950319.github.io/UtilsR/reference/fmt_plot.md)
+  validates all formatter option lists and numeric margins before
+  applying changes, rejecting ambiguous or duplicate argument names.
+
+- `stat_ci_parse(output = "p")` skips rebuilding unused interval strings
+  at ordinary precision, retaining names and high-precision
+  formatting-limit checks.
+
+- [`stat_ci_parse()`](https://hui950319.github.io/UtilsR/reference/stat_ci_parse.md)
+  computes normal quantiles from the upper tail so confidence levels
+  immediately below one retain finite adjusted bounds and p-values.
+
+- [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
+  rejects encoded and dimensional overlay controls while retaining
+  function bin widths and missing axis-limit endpoints.
+
+- [`fmt_legend()`](https://hui950319.github.io/UtilsR/reference/fmt_legend.md)
+  checks controls before inspecting plots and prevents encoded or
+  dimensional numeric storage from becoming legend sizes and layout
+  counts.
+
+- [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  diagnoses invalid row-name switches and P-column selectors before
+  printing, including for empty tables.
+
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  validates its attribute switch before evaluating the inspected object,
+  preventing partial output from invalid controls.
+
+- [`theme_blank()`](https://hui950319.github.io/UtilsR/reference/theme_blank.md)
+  validates its coordinate switch, arrow lengths and label size,
+  avoiding silent arrow removal and vector truncation.
+
+- [`theme_my()`](https://hui950319.github.io/UtilsR/reference/theme_my.md)
+  diagnoses malformed numeric sizes, margins and rotation angles before
+  constructing theme elements, retaining finite negative plot margins.
+
+- [`fmt_expand()`](https://hui950319.github.io/UtilsR/reference/fmt_expand.md)
+  rejects class-encoded and dimensional expansion controls before
+  inspecting plots, preventing storage bits from becoming axis padding.
+
+- [`fct_to_group()`](https://hui950319.github.io/UtilsR/reference/fct_to_group.md)
+  builds automatic labels only for unnamed groups and validates naming
+  controls when they are used.
+
+- [`fct_label()`](https://hui950319.github.io/UtilsR/reference/fct_label.md)
+  refreshes affected data.table keys and secondary indices after
+  relabelling, retaining unrelated indices and the original input.
+
+- Jaccard heatmaps diagnose malformed rendering controls while pure
+  similarity-matrix returns continue to skip plot styling.
+
+- [`PlotButterfly2()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly2.md)
+  reports malformed column selectors and unsupported score storage
+  consistently across direct and delegated plotting paths.
+
+- [`PlotButterfly()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly.md)
+  validates each required bar column selector and avoids range warnings
+  when scaling entirely missing blocks.
+
+- [`PlotScatter3()`](https://hui950319.github.io/UtilsR/reference/PlotScatter3.md)
+  checks selectors, histogram counts and endpoint shapes before opening
+  graphics devices, preventing lossy complex paired differences.
+
+- [`PlotScatter2()`](https://hui950319.github.io/UtilsR/reference/PlotScatter2.md)
+  diagnoses invalid selectors and logical controls before building
+  grouped marginals, retaining an optional `NULL` second group.
+
+- [`PlotScatter1()`](https://hui950319.github.io/UtilsR/reference/PlotScatter1.md)
+  rejects malformed selectors and logical controls before reading data
+  or assembling marginal panels.
+
+- [`PlotDumbbell()`](https://hui950319.github.io/UtilsR/reference/PlotDumbbell.md)
+  diagnoses malformed column selectors and unsupported endpoint storage
+  before plotting, while retaining date and time differences.
+
+- [`stat_ci_parse()`](https://hui950319.github.io/UtilsR/reference/stat_ci_parse.md)
+  preserves ratio-scale rounding allowances near the floating-point
+  limit, avoiding overflow when doubling finite bounds.
+
+- [`PlotCircleLollipop()`](https://hui950319.github.io/UtilsR/reference/PlotCircleLollipop.md)
+  rejects lossy score storage and unplottable ranges before drawing, and
+  retains entirely missing groups without range warnings.
+
+- [`.cat_tb()`](https://hui950319.github.io/UtilsR/reference/dot-cat_tb.md)
+  validates highlight patterns before evaluating input tables, reporting
+  malformed regular expressions without secondary warnings.
+
+- [`.cat_message()`](https://hui950319.github.io/UtilsR/reference/dot-cat_message.md)
+  uses the timestamp’s visible width for continuation indentation and
+  wraps messages within the space available in narrow consoles.
+
+- [`.cat_formula()`](https://hui950319.github.io/UtilsR/reference/dot-cat_formula.md)
+  prints an unadjusted intercept-only formula when no covariates are
+  supplied instead of leaving the right-hand side empty.
+
+- [`.cat_step()`](https://hui950319.github.io/UtilsR/reference/dot-cat_step.md)
+  validates controls before evaluating messages and retains whole step
+  counts beyond the integer range without overflow warnings.
+
+- [`grob_to_gg()`](https://hui950319.github.io/UtilsR/reference/grob_to_gg.md)
+  keeps the rendered grob without retaining unused data from the
+  original plot’s analysis environment.
+
+- [`grob_add()`](https://hui950319.github.io/UtilsR/reference/grob_add.md)
+  aligns margin grobs to canonical panels instead of including
+  annotations with panel-prefixed names.
+
+- [`grob_insert()`](https://hui950319.github.io/UtilsR/reference/grob_insert.md)
+  validates inset coordinates and logical controls before building
+  either plot.
+
+- [`stat_ci_parse()`](https://hui950319.github.io/UtilsR/reference/stat_ci_parse.md)
+  rejects dimensional text and classed or dimensional confidence-level
+  and precision controls before parsing or returning empty output.
+
+- [`set_wd()`](https://hui950319.github.io/UtilsR/reference/set_wd.md)
+  rejects invalid logical controls before creating directories or
+  changing the working directory.
+
+- CI formatters leave overflowing numeric text unchanged with a parse
+  warning instead of producing infinite estimates or aborting other
+  intervals.
+
 - [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md)
   validates both logical flags before collecting resources or printing
   its report.

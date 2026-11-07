@@ -50,7 +50,57 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.23" id="utilsr-0623">UtilsR 0.6.23<a class="anchor" aria-label="anchor" href="#utilsr-0623"></a></h2>
-<ul><li><p><code><a href="../reference/check_system.html">check_system()</a></code> validates both logical flags before collecting resources or printing its report.</p></li>
+<ul><li><p><code><a href="../reference/fmt_ref.html">fmt_ref()</a></code> diagnoses dimensional and nested reference positions before plot processing, retaining vector, date-time, missing and infinite positions.</p></li>
+<li><p>Sized plot saving rejects class-encoded dimensions and dimensional filenames before evaluating plots or creating output files.</p></li>
+<li><p>Raster capture validates background colours before device and plot work; backends that do not use backgrounds continue to ignore the argument.</p></li>
+<li><p><code><a href="../reference/fmt_com.html">fmt_com()</a></code> rejects class-encoded numeric layout controls and reference ranks before resolving comparison mappings.</p></li>
+<li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> distinguishes classed score data from ordinary numeric styling controls, preventing encoded storage from setting sizes, opacity or overlap counts.</p></li>
+<li><p><code><a href="../reference/fmt_bg.html">fmt_bg()</a></code> rejects encoded and dimensional opacity controls before plot processing, preserving the zero-opacity fast path for ordinary numbers.</p></li>
+<li><p><code><a href="../reference/fmt_panel.html">fmt_panel()</a></code> enforces plain scalar widths in millimetres, rejecting encoded or dimensional values before traversing plot layouts.</p></li>
+<li><p><code><a href="../reference/fmt_raster.html">fmt_raster()</a></code> rejects class-encoded numeric resolutions and dimensions before allocating graphics devices, preserving explicit measurement-unit diagnostics.</p></li>
+<li><p><code><a href="../reference/dot-cat_tb.html">.cat_tb()</a></code> derives numeric colour domains from finite values, retaining infinite values in tables and preserving missing-value colours without range errors.</p></li>
+<li><p><code><a href="../reference/fmt_point.html">fmt_point()</a></code> rejects encoded or dimensional sampling and positioning controls before plot processing, retaining lazy controls for disabled features.</p></li>
+<li><p>White-border point shapes resolve valid names even when missing shapes appear first or between them, retaining the missing entries.</p></li>
+<li><p><code><a href="../reference/grob_add.html">grob_add()</a></code> normalizes grob lists into one margin graphic, matching the other grob helpers instead of adding their children as separate table entries.</p></li>
+<li><p><code><a href="../reference/fmt_scale.html">fmt_scale()</a></code> skips leaf traversal and reconstruction when both axis-setting lists are empty, while still validating options and plot containers.</p></li>
+<li><p>Shared formatter traversal avoids replacing unchanged patchwork children, reducing container reconstruction while retaining leaf order and annotations.</p></li>
+<li><p><code><a href="../reference/fmt_text.html">fmt_text()</a></code> returns validated plot containers directly when no text edits are requested, avoiding unnecessary reconstruction of nested layouts.</p></li>
+<li><p><code><a href="../reference/plt_na.html">plt_na()</a></code> validates the three displayed colours before inspecting input data, retaining transparent missing colours and ignored extra entries.</p></li>
+<li><p><code><a href="../reference/dot-cat_line.html">.cat_line()</a></code> validates rule width and visible rule patterns before evaluating text, replacing downstream repetition errors with named argument errors.</p></li>
+<li><p><code>plt_na(output = "percentage")</code> reduces each missingness mask immediately instead of retaining a full logical copy of the selected data.</p></li>
+<li><p><code><a href="../reference/fmt_plot_base.html">fmt_plot_base()</a></code> validates named option lists before calling theme factories and skips empty label updates.</p></li>
+<li><p><code><a href="../reference/fmt_plot.html">fmt_plot()</a></code> validates all formatter option lists and numeric margins before applying changes, rejecting ambiguous or duplicate argument names.</p></li>
+<li><p><code>stat_ci_parse(output = "p")</code> skips rebuilding unused interval strings at ordinary precision, retaining names and high-precision formatting-limit checks.</p></li>
+<li><p><code><a href="../reference/stat_ci_parse.html">stat_ci_parse()</a></code> computes normal quantiles from the upper tail so confidence levels immediately below one retain finite adjusted bounds and p-values.</p></li>
+<li><p><code><a href="../reference/fmt_his.html">fmt_his()</a></code> rejects encoded and dimensional overlay controls while retaining function bin widths and missing axis-limit endpoints.</p></li>
+<li><p><code><a href="../reference/fmt_legend.html">fmt_legend()</a></code> checks controls before inspecting plots and prevents encoded or dimensional numeric storage from becoming legend sizes and layout counts.</p></li>
+<li><p><code><a href="../reference/pr_table.html">pr_table()</a></code> diagnoses invalid row-name switches and P-column selectors before printing, including for empty tables.</p></li>
+<li><p><code><a href="../reference/pr_tree.html">pr_tree()</a></code> validates its attribute switch before evaluating the inspected object, preventing partial output from invalid controls.</p></li>
+<li><p><code><a href="../reference/theme_blank.html">theme_blank()</a></code> validates its coordinate switch, arrow lengths and label size, avoiding silent arrow removal and vector truncation.</p></li>
+<li><p><code><a href="../reference/theme_my.html">theme_my()</a></code> diagnoses malformed numeric sizes, margins and rotation angles before constructing theme elements, retaining finite negative plot margins.</p></li>
+<li><p><code><a href="../reference/fmt_expand.html">fmt_expand()</a></code> rejects class-encoded and dimensional expansion controls before inspecting plots, preventing storage bits from becoming axis padding.</p></li>
+<li><p><code><a href="../reference/fct_to_group.html">fct_to_group()</a></code> builds automatic labels only for unnamed groups and validates naming controls when they are used.</p></li>
+<li><p><code><a href="../reference/fct_label.html">fct_label()</a></code> refreshes affected data.table keys and secondary indices after relabelling, retaining unrelated indices and the original input.</p></li>
+<li><p>Jaccard heatmaps diagnose malformed rendering controls while pure similarity-matrix returns continue to skip plot styling.</p></li>
+<li><p><code><a href="../reference/PlotButterfly2.html">PlotButterfly2()</a></code> reports malformed column selectors and unsupported score storage consistently across direct and delegated plotting paths.</p></li>
+<li><p><code><a href="../reference/PlotButterfly.html">PlotButterfly()</a></code> validates each required bar column selector and avoids range warnings when scaling entirely missing blocks.</p></li>
+<li><p><code><a href="../reference/PlotScatter3.html">PlotScatter3()</a></code> checks selectors, histogram counts and endpoint shapes before opening graphics devices, preventing lossy complex paired differences.</p></li>
+<li><p><code><a href="../reference/PlotScatter2.html">PlotScatter2()</a></code> diagnoses invalid selectors and logical controls before building grouped marginals, retaining an optional <code>NULL</code> second group.</p></li>
+<li><p><code><a href="../reference/PlotScatter1.html">PlotScatter1()</a></code> rejects malformed selectors and logical controls before reading data or assembling marginal panels.</p></li>
+<li><p><code><a href="../reference/PlotDumbbell.html">PlotDumbbell()</a></code> diagnoses malformed column selectors and unsupported endpoint storage before plotting, while retaining date and time differences.</p></li>
+<li><p><code><a href="../reference/stat_ci_parse.html">stat_ci_parse()</a></code> preserves ratio-scale rounding allowances near the floating-point limit, avoiding overflow when doubling finite bounds.</p></li>
+<li><p><code><a href="../reference/PlotCircleLollipop.html">PlotCircleLollipop()</a></code> rejects lossy score storage and unplottable ranges before drawing, and retains entirely missing groups without range warnings.</p></li>
+<li><p><code><a href="../reference/dot-cat_tb.html">.cat_tb()</a></code> validates highlight patterns before evaluating input tables, reporting malformed regular expressions without secondary warnings.</p></li>
+<li><p><code><a href="../reference/dot-cat_message.html">.cat_message()</a></code> uses the timestamp’s visible width for continuation indentation and wraps messages within the space available in narrow consoles.</p></li>
+<li><p><code><a href="../reference/dot-cat_formula.html">.cat_formula()</a></code> prints an unadjusted intercept-only formula when no covariates are supplied instead of leaving the right-hand side empty.</p></li>
+<li><p><code><a href="../reference/dot-cat_step.html">.cat_step()</a></code> validates controls before evaluating messages and retains whole step counts beyond the integer range without overflow warnings.</p></li>
+<li><p><code><a href="../reference/grob_to_gg.html">grob_to_gg()</a></code> keeps the rendered grob without retaining unused data from the original plot’s analysis environment.</p></li>
+<li><p><code><a href="../reference/grob_add.html">grob_add()</a></code> aligns margin grobs to canonical panels instead of including annotations with panel-prefixed names.</p></li>
+<li><p><code><a href="../reference/grob_insert.html">grob_insert()</a></code> validates inset coordinates and logical controls before building either plot.</p></li>
+<li><p><code><a href="../reference/stat_ci_parse.html">stat_ci_parse()</a></code> rejects dimensional text and classed or dimensional confidence-level and precision controls before parsing or returning empty output.</p></li>
+<li><p><code><a href="../reference/set_wd.html">set_wd()</a></code> rejects invalid logical controls before creating directories or changing the working directory.</p></li>
+<li><p>CI formatters leave overflowing numeric text unchanged with a parse warning instead of producing infinite estimates or aborting other intervals.</p></li>
+<li><p><code><a href="../reference/check_system.html">check_system()</a></code> validates both logical flags before collecting resources or printing its report.</p></li>
 <li><p><code>plt_upset(output = "data")</code> counts observed membership patterns without repeated set intersections while preserving every combination level and its order.</p></li>
 <li><p>Plot saving rejects invalid named-list fields, PDF filenames, dimensions and devices before evaluating or measuring the plot.</p></li>
 <li><p><code><a href="../reference/dot-cat_tb.html">.cat_tb()</a></code> applies pattern highlighting in batches while preserving matched cells, missing values and rendered table output.</p></li>
