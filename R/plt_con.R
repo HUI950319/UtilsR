@@ -345,10 +345,17 @@ plt_con <- function(data,
   stat.by <- unname(unique(stat.by))
   for (arg in c("group.by", "split.by", "bg.by")) {
     value <- get(arg)
-    if (!is.null(value) && (!is.character(value) || length(value) != 1L ||
+    if (!is.null(value) && (!is.character(value) || !is.null(dim(value)) || length(value) != 1L ||
                            is.na(value) || !nzchar(value))) {
       cli::cli_abort("{.arg {arg}} must be NULL or one non-empty column name.")
     }
+  }
+  for (arg in c("facet_nrow", "facet_ncol")) {
+    value <- get(arg)
+    if (!is.null(value) && (!is.numeric(value) || is.object(value) ||
+        !is.null(dim(value)) || length(value) != 1L || !is.finite(value) ||
+        value < 1 || value > .Machine$integer.max || value != floor(value)))
+      cli::cli_abort("{.arg {arg}} must be NULL or a single supported positive integer.")
   }
   grouping_cols <- unique(c(group.by, split.by, bg.by))
   if (length(intersect(stat.by, grouping_cols))) {

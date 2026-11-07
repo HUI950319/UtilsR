@@ -39,6 +39,23 @@ cat_test_lubridate_collisions <- function() {
        length = lubridate::interval(starts[1], starts[1] + 1 + c(0, .Machine$double.eps)))
 }
 
+test_that("continuous plot controls validate selectors and panel counts", {
+  d <- data.frame(value = 1:6, g = rep(c("L", "R"), each = 3))
+  for (arg in c("group.by", "split.by", "bg.by")) {
+    args <- list(data = d, stat.by = "value", group.by = "g", type = "box",
+      base_size = quote(stop("theme evaluated")))
+    args[[arg]] <- matrix("g")
+    expect_error(do.call("plt_con", args), arg)
+  }
+  for (arg in c("facet_nrow", "facet_ncol"))
+    for (bad in list(0, -1, 1.5, Inf, NA_real_, matrix(1),
+                     structure(1, class = "encoded_count"), 2^31)) {
+      args <- list(data = d, stat.by = "value", type = "box", base_size = quote(stop("theme evaluated")))
+      args[[arg]] <- bad
+      expect_error(do.call("plt_con", args), arg)
+    }
+})
+
 test_that("categorical plot controls reject dimensional and encoded settings", {
   d <- data.frame(a = rep(c("a", "b"), 3), g = rep(c("L", "R"), each = 3))
   for (arg in c("group.by", "split.by", "bg.by", "label", "flip", "NA_stat",

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_con()` diagnoses dimensional grouping selectors and invalid facet counts before statistics or theme evaluation.
+
 * `plt_cat()` validates selector shapes, scalar switches and supported plain facet counts before constructing panels.
 
 * `fmt_boxplot()` rejects dimensional inheritance flags and option arrays before inspecting plot data or mappings.
