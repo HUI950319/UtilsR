@@ -201,6 +201,11 @@ PlotButterfly <- function(
 ) {
 
   type <- match.arg(type)
+  for (arg in c("minmax", "add_box", "add_point")) {
+    value <- get(arg)
+    if (!is.logical(value) || !is.null(dim(value)) || length(value) != 1L || is.na(value))
+      cli::cli_abort("{.arg {arg}} must be TRUE or FALSE.")
+  }
 
   # ---- Resolve palette helper ----
   .resolve_fill <- function(categories) {

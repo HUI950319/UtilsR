@@ -13,6 +13,15 @@ butterfly_without_text_warning <- function(expr) {
   })
 }
 
+test_that("PlotButterfly validates switches before reading input data", {
+  for (arg in c("minmax", "add_box", "add_point"))
+    for (bad in list(NA, 1, c(TRUE, FALSE), matrix(TRUE))) {
+      args <- list(data = quote(stop("data evaluated")))
+      args[[arg]] <- bad
+      expect_error(do.call("PlotButterfly", args), arg)
+    }
+})
+
 test_that("PlotButterfly validates required bar selectors individually", {
   data <- data.frame(stat = c("A", "A"), fill = "F", value = 1:2, group = c("L", "R"))
   for (arg in c("stat.by", "fill.by", "value.by", "group.by")) {

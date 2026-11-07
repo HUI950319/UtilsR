@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotButterfly()` diagnoses invalid scaling and overlay switches before reading data or constructing panels.
+
 * `.cat_message()` validates logical controls and timestamp formats before text evaluation, keeping disabled messages lazy.
 
 * `fmt_axis()` validates that layout counts and plot indices are vectors rather than silently flattening arrays.
