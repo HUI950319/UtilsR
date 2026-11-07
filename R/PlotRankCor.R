@@ -197,17 +197,17 @@ PlotRankCor <- function(
   for (arg in c("pt.size", "label.size", "base_size", "width", "height", "alpha")) {
     val <- get(arg)
     positive <- arg %in% c("base_size", "width", "height")
-    if (!is.numeric(val) || is.complex(val) || length(val) != 1L || !is.null(dim(val)) || !is.finite(val) ||
+    if (!is.numeric(val) || is.object(val) || length(val) != 1L || !is.null(dim(val)) || !is.finite(val) ||
         val < 0 || (positive && val == 0) || (arg == "alpha" && val > 1))
       cli::cli_abort("{.arg {arg}} must be a finite number in its allowed range.")
   }
   for (arg in c("size_range", "alpha_range")) {
     val <- get(arg)
-    if (!is.numeric(val) || is.complex(val) || length(val) != 2L || !is.null(dim(val)) ||
+    if (!is.numeric(val) || is.object(val) || length(val) != 2L || !is.null(dim(val)) ||
         any(!is.finite(val)) || any(val < 0) || (arg == "alpha_range" && any(val > 1)))
       cli::cli_abort("{.arg {arg}} must contain two finite values in its allowed range.")
   }
-  if (!is.numeric(max.overlaps) || is.complex(max.overlaps) || length(max.overlaps) != 1L || !is.null(dim(max.overlaps)) ||
+  if (!is.numeric(max.overlaps) || is.object(max.overlaps) || length(max.overlaps) != 1L || !is.null(dim(max.overlaps)) ||
       is.na(max.overlaps) || max.overlaps < 0 ||
       (is.finite(max.overlaps) && max.overlaps != floor(max.overlaps)))
     cli::cli_abort("{.arg max.overlaps} must be a non-negative integer or Inf.")

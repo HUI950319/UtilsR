@@ -406,6 +406,21 @@ test_that("rank-correlation rejects unsupported selected-column storage", {
   }
 })
 
+test_that("rank-correlation rejects encoded aesthetic controls while retaining typed scores", {
+  for (arg in c("pt.size", "label.size", "base_size", "width", "height", "alpha", "max.overlaps")) {
+    args <- list(data = rank_cor_data(), stat.by = "item", value.by = "score", method.by = "method",
+                 palette = quote(stop("palette evaluated")))
+    args[arg] <- list(structure(1, class = "integer64"))
+    expect_error(do.call(PlotRankCor, args), arg)
+  }
+  for (arg in c("size_range", "alpha_range")) {
+    args <- list(data = rank_cor_data(), stat.by = "item", value.by = "score", method.by = "method",
+                 palette = quote(stop("palette evaluated")))
+    args[arg] <- list(structure(c(.3, .8), class = "integer64"))
+    expect_error(do.call(PlotRankCor, args), arg)
+  }
+})
+
 test_that("rank-correlation validates switches and numeric aesthetic controls", {
   data <- rank_cor_data()
   for (arg in c("use_rank", "show.label", "show.diag")) {
