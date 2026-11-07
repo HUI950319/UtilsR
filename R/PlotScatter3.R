@@ -165,9 +165,18 @@ PlotScatter3 <- function(
   if (!is.logical(show_refline) || !is.null(dim(show_refline)) ||
       length(show_refline) != 1L || is.na(show_refline))
     stop("'show_refline' must be TRUE or FALSE.", call. = FALSE)
+  for (arg in c("point_size", "point_stroke", "median_label_size", "inset_angle",
+                "inset_vp_width", "inset_vp_height", if (test_method != "none") "p_size",
+                if (cor_method != "none") "cor_size")) {
+    value <- get(arg)
+    positive <- arg %in% c("inset_vp_width", "inset_vp_height")
+    if (!is.numeric(value) || is.object(value) || !is.null(dim(value)) || length(value) != 1L ||
+        !is.finite(value) || (arg != "inset_angle" && (value < 0 || (positive && value == 0))))
+      stop("'", arg, "' must be a finite scalar in its allowed range.", call. = FALSE)
+  }
   if (!is.numeric(hist_bins) || is.object(hist_bins) || !is.null(dim(hist_bins)) ||
       length(hist_bins) != 1L || !is.finite(hist_bins) || hist_bins < 1 ||
-      hist_bins != trunc(hist_bins))
+      hist_bins != trunc(hist_bins) || hist_bins > .Machine$integer.max)
     stop("'hist_bins' must be a single positive integer.", call. = FALSE)
   data <- as.data.frame(data)
   if (anyNA(names(data)) || any(!nzchar(names(data))) || anyDuplicated(names(data)))

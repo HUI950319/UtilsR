@@ -127,6 +127,17 @@ test_that("PlotScatter2 validates selectors and logical controls before reading 
   }
 })
 
+test_that("paired scatter validates rendered dimensions before statistics", {
+  for (arg in c("point_size", "point_stroke", "p_size", "cor_size", "median_label_size",
+                "inset_angle", "inset_vp_width", "inset_vp_height")) {
+    args <- list(data = quote(stop("data evaluated")))
+    args[[arg]] <- NA_real_
+    expect_error(do.call("PlotScatter3", args), arg)
+  }
+  for (bad in list(structure(30, class = "encoded_number"), 2^31))
+    expect_error(PlotScatter3(stop("data evaluated"), hist_bins = bad), "hist_bins")
+})
+
 test_that("paired scatter rejects ambiguous input column names before tests", {
   d <- data.frame(Control = 1:8, Treat = 2:9, group = rep(c("NS", "S"), 4),
     Control = 11:18, check.names = FALSE)
