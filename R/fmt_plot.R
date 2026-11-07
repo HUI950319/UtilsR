@@ -5361,6 +5361,10 @@ fmt_scale <- function(plot, x = NULL, y = NULL) {
     if (is.null(arg_names) || anyNA(arg_names) || any(arg_names == "") || anyDuplicated(arg_names))
       cli::cli_abort("{.arg {axis}} must be a list with unique, non-empty names.")
   }
+  if (!length(x) && !length(y)) {
+    invisible(.to_plot_list(plot))
+    return(plot)
+  }
   fmt_scale_one <- function(p) {
     scales_cloned <- FALSE
     defer_scale <- any(vapply(p$layers, function(layer) is.function(layer$data), logical(1)))

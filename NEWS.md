@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_scale()` skips leaf traversal and reconstruction when both axis-setting lists are empty, while still validating options and plot containers.
+
 * Shared formatter traversal avoids replacing unchanged patchwork children, reducing container reconstruction while retaining leaf order and annotations.
 
 * `fmt_text()` returns validated plot containers directly when no text edits are requested, avoiding unnecessary reconstruction of nested layouts.

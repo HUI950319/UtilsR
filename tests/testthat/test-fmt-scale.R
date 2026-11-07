@@ -413,3 +413,12 @@ test_that("updated scales do not share secondary axes with the input plot", {
   expect_identical(right_labels(labelled), c("2%", "4%", "6%", "8%"))
   expect_identical(right_labels(p), c("2", "4", "6", "8"))
 })
+
+test_that("empty scale settings retain exact containers and validate inputs", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  plots <- list(a = patchwork::wrap_plots(p, p + p), b = patchwork::plot_spacer())
+  expect_identical(fmt_scale(plots), plots)
+  expect_identical(fmt_scale(plots, x = list(), y = list()), plots)
+  expect_error(fmt_scale(list(p, 1)), "ggplot")
+  expect_error(fmt_scale(plots, x = list(1)), "x")
+})
