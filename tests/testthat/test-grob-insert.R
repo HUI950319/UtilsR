@@ -1,3 +1,26 @@
+test_that("inset controls fail before evaluating the main plot", {
+  calls <- 0L
+  plot <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3), ggplot2::aes(x, y)) +
+    ggplot2::geom_point(data = function(data) {
+      calls <<- calls + 1L
+      data
+    })
+  for (arg in c("left", "right", "bottom", "top", "on_top", "clip")) {
+    bad <- if (arg %in% c("on_top", "clip")) {
+      list(NULL, NA, c(TRUE, FALSE), 1)
+    } else list(NULL, c(.1, .2), matrix(.1), Inf, grid::unit(c(.1, .2), "npc"))
+    for (value in bad) {
+      calls <- 0L
+      args <- list(plot = plot, inset = grid::rectGrob())
+      args[arg] <- list(value)
+      error <- tryCatch(do.call(grob_insert, args), error = identity)
+      expect_s3_class(error, "error")
+      if (inherits(error, "error")) expect_match(conditionMessage(error), arg)
+      expect_identical(calls, 0L)
+    }
+  }
+})
+
 test_that("grob_insert() excludes panel annotations when standard panels exist", {
   withr::local_pdf(NULL)
   table <- gtable::gtable(widths = grid::unit(rep(1, 6), "cm"),

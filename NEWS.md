@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `grob_insert()` validates inset coordinates and logical controls before building either plot.
+
 * `stat_ci_parse()` rejects dimensional text and classed or dimensional confidence-level and precision controls before parsing or returning empty output.
 
 * `set_wd()` rejects invalid logical controls before creating directories or changing the working directory.

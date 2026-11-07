@@ -323,6 +323,25 @@ grob_insert <- function(
     clip = TRUE) {
   align_to <- match.arg(align_to)
 
+  coordinates <- list(left = left, bottom = bottom, right = right, top = top)
+  for (arg in names(coordinates)) {
+    value <- coordinates[[arg]]
+    if (!(is.numeric(value) || inherits(value, "unit")) ||
+        length(value) != 1L || !is.null(dim(value)) ||
+        !is.finite(as.numeric(value))) {
+      stop("'", arg, "' must be a finite numeric scalar or a scalar grid unit.",
+           call. = FALSE)
+    }
+  }
+  flags <- list(on_top = on_top, clip = clip)
+  for (arg in names(flags)) {
+    value <- flags[[arg]]
+    if (!is.logical(value) || length(value) != 1L ||
+        !is.null(dim(value)) || is.na(value)) {
+      stop("'", arg, "' must be TRUE or FALSE.", call. = FALSE)
+    }
+  }
+
   if (!requireNamespace("gtable", quietly = TRUE)) {
     stop("Package 'gtable' is required for grob_insert().", call. = FALSE)
   }
