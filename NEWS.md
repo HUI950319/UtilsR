@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `.cat_step()` validates controls before evaluating messages and retains whole step counts beyond the integer range without overflow warnings.
+
 * `grob_to_gg()` keeps the rendered grob without retaining unused data from the original plot's analysis environment.
 
 * `grob_add()` aligns margin grobs to canonical panels instead of including annotations with panel-prefixed names.

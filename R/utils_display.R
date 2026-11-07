@@ -309,7 +309,14 @@ console_width <- function() {
 #' @family console display
 .cat_step <- function(msg, i = NULL, n = NULL, msg_done = msg,
                       verbose = TRUE, .envir = parent.frame()) {
-  if (!isTRUE(verbose)) return(invisible(NULL))
+  if (!is.logical(verbose) || length(verbose) != 1L ||
+      !is.null(dim(verbose)) || is.na(verbose)) {
+    cli::cli_abort("{.arg verbose} must be TRUE or FALSE.")
+  }
+  if (!verbose) return(invisible(NULL))
+  if (!is.environment(.envir)) cli::cli_abort("{.arg .envir} must be an environment.")
+  ._pr_count(i, "i", null = TRUE)
+  ._pr_count(n, "n", null = TRUE)
   # force the default before `msg` gains its prefix, or it would get two
   force(msg_done)
   # text cli cannot parse (data with braces) is shown as written; cli would
@@ -322,8 +329,8 @@ console_width <- function() {
   msg      <- as_written(msg)
   msg_done <- as_written(msg_done)
   if (!is.null(i)) {
-    num <- if (is.null(n)) sprintf("[%d]", as.integer(i)) else
-      sprintf("[%d/%d]", as.integer(i), as.integer(n))
+    num <- if (is.null(n)) sprintf("[%.0f]", i) else
+      sprintf("[%.0f/%.0f]", i, n)
     msg      <- paste(cli::col_grey(num), msg)
     msg_done <- paste(cli::col_grey(num), msg_done)
   }

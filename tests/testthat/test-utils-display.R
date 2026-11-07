@@ -76,6 +76,28 @@ test_that(".cat_message(style = \"chip\") colours only a short type label", {
   }
 })
 
+test_that("progress step counts retain whole values beyond integer range", {
+  run <- function() .cat_step("Large step", i = 3e9, n = 4e9)
+  expect_no_warning(out <- cli::ansi_strip(cli::cli_fmt(run())))
+  expect_true(any(grepl("[3000000000/4000000000]", out, fixed = TRUE)))
+})
+
+test_that("progress controls fail before evaluating message promises", {
+  for (arg in c("i", "n", "verbose", ".envir")) {
+    bad <- switch(arg,
+      i = list(NA, 1.5, Inf, c(1, 2), matrix(1)),
+      n = list(NA, 1.5, Inf, c(1, 2), matrix(1)),
+      verbose = list(NA, 1, c(TRUE, FALSE), matrix(TRUE)),
+      .envir = list(NULL, "globalenv", list()))
+    for (value in bad) {
+      args <- list(msg = quote(stop("message was evaluated")),
+                   msg_done = quote(stop("done message was evaluated")))
+      args[arg] <- list(value)
+      expect_error(do.call(.cat_step, args), arg, fixed = TRUE)
+    }
+  }
+})
+
 test_that(".cat_step() numbers steps and ends each in the caller's frame", {
   run <- function() {
     nm <- "Cox"
