@@ -16,7 +16,7 @@ grob_add(
 \item{plot}{A \code{ggplot}, \code{patchwork}, or \code{gtable} object to
 serve as the main plot.}
 
-\item{grob}{A grob, gtable, or ggplot object to add.}
+\item{grob}{A grob, gtable, gList, ggplot, or patchwork object to add.}
 
 \item{position}{Where to place the grob. One of \code{"top"},
 \code{"bottom"}, \code{"left"}, \code{"right"}, or \code{"none"}.}

@@ -111,7 +111,7 @@ grob_as <- function(plot, ...) {
 #'
 #' @param plot A \code{ggplot}, \code{patchwork}, or \code{gtable} object to
 #'   serve as the main plot.
-#' @param grob A grob, gtable, or ggplot object to add.
+#' @param grob A grob, gtable, gList, ggplot, or patchwork object to add.
 #' @param position Where to place the grob. One of \code{"top"},
 #'   \code{"bottom"}, \code{"left"}, \code{"right"}, or \code{"none"}.
 #' @param space Space to allocate for the added grob. If \code{NULL}
@@ -168,8 +168,8 @@ grob_add <- function(
     return(gt)
   }
 
-  # Convert grob input if it's a ggplot
-  if (inherits(grob, "ggplot") || inherits(grob, "patchwork")) {
+  # Normalize plot and grob-list inputs to one margin graphic.
+  if (inherits(grob, c("ggplot", "patchwork", "gList"))) {
     grob <- grob_as(grob)
   }
 

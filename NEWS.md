@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `grob_add()` normalizes grob lists into one margin graphic, matching the other grob helpers instead of adding their children as separate table entries.
+
 * `fmt_scale()` skips leaf traversal and reconstruction when both axis-setting lists are empty, while still validating options and plot containers.
 
 * Shared formatter traversal avoids replacing unchanged patchwork children, reducing container reconstruction while retaining leaf order and annotations.

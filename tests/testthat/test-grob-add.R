@@ -1,3 +1,18 @@
+test_that("grob_add treats a grob list as one grouped margin graphic", {
+  withr::local_pdf(NULL)
+  table <- gtable::gtable(widths = grid::unit(1, "cm"), heights = grid::unit(1, "cm"))
+  table <- gtable::gtable_add_grob(table, grid::rectGrob(), t = 1, l = 1, name = "panel")
+  graphics <- grid::gList(grid::rectGrob(), grid::textGrob("Margin"))
+  for (position in c("top", "bottom", "left", "right")) {
+    result <- grob_add(table, graphics, position = position, space = grid::unit(1, "cm"))
+    expect_length(result$grobs, length(table$grobs) + 1L)
+    added <- tail(result$grobs, 1L)[[1L]]
+    expect_s3_class(added, "gTree")
+    expect_length(added$children, 2L)
+    expect_no_error(grid::grid.draw(result))
+  }
+})
+
 test_that("margin additions prefer canonical panels to panel-named annotations", {
   table <- gtable::gtable(widths = grid::unit(rep(1, 6), "cm"),
                           heights = grid::unit(rep(1, 5), "cm"))
