@@ -60,6 +60,16 @@ test_that("PlotButterfly minmax retains entirely missing blocks without range wa
   expect_equal(sort(right$x), c(0, 1))
 })
 
+test_that("split butterfly geometry controls fail before data", {
+  for (arg in c("alpha", "box.width", "dodge.width")) {
+    args <- list(data = quote(stop("data evaluated")), stat.by = "stat", value.by = "value", group.by = "group")
+    args[[arg]] <- NA_real_
+    expect_error(do.call("PlotButterfly2", args), arg)
+  }
+  expect_error(PlotButterfly2(stop("data evaluated"), type = "beeswarm", cex = Inf,
+    stat.by = "stat", value.by = "value", group.by = "group"), "cex")
+})
+
 test_that("split butterflies reject ambiguous source column names", {
   d <- data.frame(stat = "A", value = 1:4, group = rep(c("L", "R"), each = 2),
     value = 5:8, check.names = FALSE)

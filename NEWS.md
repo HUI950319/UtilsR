@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* PlotButterfly2() checks applicable opacity, width and swarm-size controls before accessing data.
+
 * PlotButterfly() rejects complex, nested and matrix bar scores before scaling or category completion.
 
 * PlotScatter3() checks rendered dimensions and supported histogram bin counts before statistics and device allocation.
