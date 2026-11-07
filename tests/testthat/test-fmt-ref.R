@@ -418,3 +418,13 @@ test_that("repeated reference calls append lines without changing earlier plots"
   expect_equal(as.character(data[[2]]$colour), rep("red", 2))
   expect_equal(as.character(data[[3]]$colour), rep("blue", 2))
 })
+
+test_that("reference positions reject multidimensional and nested inputs before plot work", {
+  for (arg in c("x", "y")) {
+    for (bad in list(matrix(1:4, 2), array(1, c(1, 1, 1)), list(1, 2), expression(1, 2))) {
+      args <- list(plot = quote(stop("plot evaluated")))
+      args[arg] <- list(bad)
+      expect_error(do.call(fmt_ref, args), arg)
+    }
+  }
+})

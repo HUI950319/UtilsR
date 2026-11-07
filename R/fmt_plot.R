@@ -1398,6 +1398,13 @@ fmt_ref <- function(plot,
   if ("colour" %in% names(dots)) {
     cli::cli_abort("Use {.arg color} instead of {.arg colour}.")
   }
+  for (axis in c("x", "y")) {
+    value <- if (axis == "x") x else y
+    if (is.null(value)) next
+    if (!is.null(dim(value)) || is.expression(value) ||
+        !(is.atomic(value) || inherits(value, "POSIXlt")))
+      cli::cli_abort("{.arg {axis}} must contain one-dimensional reference positions.")
+  }
   batch_dots <- length(names(dots)) == length(dots) &&
     !anyDuplicated(names(dots)) && all(names(dots) %in% c("na.rm", "lineend")) &&
     all(lengths(dots) == 1L) && all(vapply(dots, is.atomic, logical(1)))

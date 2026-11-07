@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_ref()` diagnoses dimensional and nested reference positions before plot processing, retaining vector, date-time, missing and infinite positions.
+
 * Sized plot saving rejects class-encoded dimensions and dimensional filenames before evaluating plots or creating output files.
 
 * Raster capture validates background colours before device and plot work; backends that do not use backgrounds continue to ignore the argument.
