@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* PlotHeatmapJaccard() rejects matrix-valued membership columns and dimensional group orders before computing feature sets.
+
 * PlotCircleLollipop() rejects non-vector group-order containers while retaining unused-level removal.
 
 * grob_insert() diagnoses unsupported inset objects before building the main plot.

@@ -36,6 +36,18 @@ jaccard_timespans <- function(values) {
        interval = lubridate::interval(start, start + 30))
 }
 
+test_that("Jaccard memberships reject dimensional columns and group orders", {
+  d <- data.frame(cell_type = rep(c("A", "B"), each = 2), gene = c("x", "y", "x", "z"))
+  for (col in names(d)) {
+    bad <- d
+    bad[[col]] <- cbind(d[[col]], rev(d[[col]]))
+    expect_error(PlotHeatmapJaccard(bad, return_type = "data"), paste0(col, ".*one-dimensional"))
+  }
+  expect_error(PlotHeatmapJaccard(d, group_levels = matrix(c("A", "B")), return_type = "data"), "group_levels")
+  expected <- matrix(c(1, 1/3, 1/3, 1), 2, dimnames = list(c("A", "B"), c("A", "B")))
+  expect_identical(PlotHeatmapJaccard(d, return_type = "data"), expected)
+})
+
 test_that("Jaccard strips use only the colours needed for displayed groups", {
   d <- data.frame(cell_type = c("A", "B"), gene = c("x", "y"))
   result <- PlotHeatmapJaccard(d, show_strip = TRUE,

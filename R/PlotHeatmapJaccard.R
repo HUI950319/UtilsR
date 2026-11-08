@@ -123,7 +123,11 @@ PlotHeatmapJaccard <- function(
   for (col in c(group_col, name_col)) {
     if (!col %in% colnames(data))
       stop(sprintf("Column '%s' not found in data.", col), call. = FALSE)
+    if (!is.null(dim(data[[col]])))
+      stop(sprintf("Column '%s' must be one-dimensional.", col), call. = FALSE)
   }
+  if (!is.null(dim(group_levels)))
+    stop("'group_levels' must be a one-dimensional vector.", call. = FALSE)
   class_inputs <- list(data[[group_col]], data[[name_col]], group_levels)
   labelled <- vapply(class_inputs, inherits, logical(1), what = "haven_labelled")
   if (any(labelled) && !requireNamespace("haven", quietly = TRUE))
