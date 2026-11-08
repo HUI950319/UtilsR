@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* theme_my() diagnoses malformed or non-finite panel spacing and preserves explicit grid units.
+
 * fmt_com() rejects malformed pairing and aesthetic-inheritance flags before selecting statistical data.
 
 * fmt_axisTile() rejects dimensional colours and encoded numeric font faces before storing guide settings.

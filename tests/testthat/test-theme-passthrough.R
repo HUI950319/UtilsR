@@ -1,3 +1,14 @@
+test_that("prism themes validate panel spacing and preserve explicit units", {
+  for (bad in list(matrix(1), numeric(), Inf, NA_real_,
+                   structure(2, class = "encoded"), grid::unit(Inf, "pt")))
+    expect_error(theme_my(panel.spacing = bad), "panel.spacing")
+  spacing <- grid::unit(2, "cm")
+  expect_identical(theme_my(panel.spacing = spacing)[["panel.spacing"]], spacing)
+  relative <- grid::unit(0.5, "lines")
+  expect_identical(theme_my(panel.spacing = relative)[["panel.spacing"]], relative)
+  expect_equal(as.numeric(theme_my(panel.spacing = 2)[["panel.spacing"]]), 2)
+})
+
 test_that("alluvial themes reject invalid base sizes before family evaluation", {
   for (bad in list(NA_real_, Inf, numeric(), c(10, 12), matrix(12),
                    structure(12, class = "encoded_number")))
