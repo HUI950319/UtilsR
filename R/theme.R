@@ -141,6 +141,8 @@ theme_my <- function(palette = "black_and_white", base_size = 14,
          call. = FALSE)
 
   # Get element colours from palette
+  if (!is.character(palette) || !is.null(dim(palette)) || length(palette) != 1L || is.na(palette))
+    stop("'palette' must be a single non-missing palette name.", call. = FALSE)
   if (!palette %in% names(ggprism::ggprism_data$themes)) {
     stop("The palette ", paste(palette), " does not exist.
          See names(ggprism_data$themes) for valid palette names")

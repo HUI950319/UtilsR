@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* theme_my() rejects factor-coded and dimensional palette selectors before looking up theme colours.
+
 * .cat_saved() diagnoses repeated and dimensional fields before constructing a single saved-file notice.
 
 * Plot formatters diagnose array containers instead of silently discarding their dimensions during list traversal.

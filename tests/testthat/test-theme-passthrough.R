@@ -1,3 +1,11 @@
+test_that("prism palette selectors reject positional factor codes and arrays", {
+  for (bad in list(factor("black_and_white"), NULL, NA_character_,
+                   matrix("black_and_white"), c("black_and_white", "office")))
+    expect_error(theme_my(palette = bad), "palette")
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  expect_s3_class(ggplot2::ggplotGrob(p + theme_my(palette = "black_and_white")), "gtable")
+})
+
 test_that("prism themes validate panel spacing and preserve explicit units", {
   for (bad in list(matrix(1), numeric(), Inf, NA_real_,
                    structure(2, class = "encoded"), grid::unit(Inf, "pt")))
