@@ -422,3 +422,12 @@ test_that("empty scale settings retain exact containers and validate inputs", {
   expect_error(fmt_scale(list(p, 1)), "ggplot")
   expect_error(fmt_scale(plots, x = list(1)), "x")
 })
+
+test_that("axis scale options reject table and array containers before plots", {
+  for (bad in list(data.frame(limits = c(0, 4)),
+                   structure(list(c(0, 4)), dim = c(1L, 1L), names = "limits")))
+    expect_error(fmt_scale(stop("plot evaluated"), x = bad), "x")
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  built <- ggplot2::ggplot_build(fmt_scale(p, x = list(limits = c(0, 4))))
+  expect_equal(built$layout$panel_scales_x[[1]]$get_limits(), c(0, 4))
+})

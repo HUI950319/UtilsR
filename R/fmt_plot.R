@@ -5391,7 +5391,8 @@ fmt_scale <- function(plot, x = NULL, y = NULL) {
   for (axis in c("x", "y")) {
     args <- if (axis == "x") x else y
     if (is.null(args)) next
-    if (!is.list(args)) cli::cli_abort("{.arg {axis}} must be NULL or a named list.")
+    if (!is.list(args) || is.object(args) || !is.null(dim(args)))
+      cli::cli_abort("{.arg {axis}} must be NULL or a named list.")
     if (!length(args)) next
     arg_names <- names(args)
     if (is.null(arg_names) || anyNA(arg_names) || any(arg_names == "") || anyDuplicated(arg_names))

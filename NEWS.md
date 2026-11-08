@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* fmt_scale() rejects table and array option containers before inspecting plot inputs.
+
 * Shared plot option merging rejects table and array containers before combining partial settings.
 
 * Plot text options must use a plain named list rather than a table or array container.
