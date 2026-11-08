@@ -355,6 +355,8 @@ grob_insert <- function(
     }
   }
 
+  if (!grid::is.grob(inset) && !inherits(inset, c("ggplot", "patchwork", "gList")))
+    stop("'inset' must be a grob, gList or plot object.", call. = FALSE)
   if (!requireNamespace("gtable", quietly = TRUE)) {
     stop("Package 'gtable' is required for grob_insert().", call. = FALSE)
   }

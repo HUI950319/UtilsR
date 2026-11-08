@@ -1,3 +1,11 @@
+test_that("inset graphics validate before building the main plot", {
+  for (bad in list(NULL, 1, "text", list(1)))
+    expect_error(grob_insert(stop("plot evaluated"), bad), "inset")
+  table <- gtable::gtable(widths = grid::unit(1, "cm"), heights = grid::unit(1, "cm"))
+  table <- gtable::gtable_add_grob(table, grid::rectGrob(), t = 1, l = 1, name = "panel")
+  expect_s3_class(grob_insert(table, grid::textGrob("Inset")), "gtable")
+})
+
 test_that("inset controls fail before evaluating the main plot", {
   calls <- 0L
   plot <- ggplot2::ggplot(data.frame(x = 1:3, y = 1:3), ggplot2::aes(x, y)) +

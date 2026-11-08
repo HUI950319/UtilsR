@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* grob_insert() diagnoses unsupported inset objects before building the main plot.
+
 * PlotScatter1() rejects dimensional and list-valued group orders before reading the data.
 
 * fmt_raster() rejects non-scalar device selectors on rasterized layers while leaving non-target layers unchanged.
