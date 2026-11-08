@@ -412,3 +412,16 @@ test_that("impute_na_knn accepts backends with the legacy public argument set", 
   expect_equal(result$value, c(0, 10, 2.5))
   expect_identical(result$helper, dat$helper)
 })
+
+test_that("weighted KNN means preserve subnormal donor scales", {
+  skip_if_not_installed("VIM")
+  d <- data.frame(value = c(1, 2, NA_real_), helper = c(1 - .Machine$double.eps, 1, 0))
+  reference <- impute_na_knn(d, k = 2, verbose = FALSE)[["value"]]
+  for (scale in c(1e-320, -1e-320)) {
+    tiny <- d
+    tiny[["value"]] <- tiny[["value"]] * scale
+    result <- impute_na_knn(tiny, k = 2, verbose = FALSE)[["value"]]
+    expect_equal(result / scale, reference, tolerance = .001)
+    expect_identical(result[1:2], tiny[["value"]][1:2])
+  }
+})
