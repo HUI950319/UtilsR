@@ -189,3 +189,11 @@ test_that("plot text styles diagnose invalid sizes before inspecting plots", {
   p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
   expect_s3_class(ggplot2::ggplotGrob(fmt_text(p, title = "Title", title_size = ggplot2::rel(1.2))), "gtable")
 })
+
+test_that("shared text options reject table and array containers", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  expect_error(UtilsR:::.apply_fmt_text(p, data.frame(title = "Title")), "fmt_text")
+  config <- structure(list("Title"), dim = c(1L, 1L), names = "title")
+  expect_error(UtilsR:::.apply_fmt_text(p, config), "fmt_text")
+  expect_identical(UtilsR:::.apply_fmt_text(p, list(title = "Title"))$labels$title, "Title")
+})

@@ -365,7 +365,7 @@
 # The values themselves are checked by fmt_text().
 .apply_fmt_text <- function(p, value, call = rlang::caller_env()) {
   if (is.null(value)) return(p)
-  if (!is.list(value)) {
+  if (!is.list(value) || is.object(value) || !is.null(dim(value))) {
     cli::cli_abort("{.arg fmt_text} must be NULL or a named list.", call = call)
   }
   if (length(value) == 0L) return(p)
