@@ -102,6 +102,14 @@ test_that("pr_badge() returns two-part badges without printing", {
   expect_error(pr_badge(c("a", "b", "c"), c("x", "y")), "same length")
 })
 
+test_that("table alignment is checked before converting cells", {
+  testthat::with_mocked_bindings({
+    for (bad in list("diagonal", matrix("left"), character(), NA_character_, 1))
+      expect_error(pr_table(data.frame(x = 1:3), align = bad), "align")
+  }, ._pr_restore = function(x) stop("cell conversion evaluated"), .package = "UtilsR")
+  expect_type(utils::capture.output(pr_table(data.frame(x = 1:3), align = "r")), "character")
+})
+
 test_that("pr_table() aligns by display width and colours P values", {
   withr::local_options(cli.num_colors = 256, cli.unicode = TRUE)
   df <- data.frame(Variable = c("Age >= 55", "Male", "\u591a\u7076"),

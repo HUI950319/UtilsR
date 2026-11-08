@@ -563,6 +563,12 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
     cli::cli_abort("{.arg rownames} must be TRUE or FALSE.")
   if (!is.null(p_col) && (!is.character(p_col) || !is.null(dim(p_col)) || anyNA(p_col)))
     cli::cli_abort("{.arg p_col} must be NULL or a character vector without missing values.")
+  if (!is.null(align)) {
+    if (!is.character(align) || !is.null(dim(align)) || !length(align) || anyNA(align))
+      cli::cli_abort("{.arg align} must be NULL or a character vector of alignment choices.")
+    align <- tryCatch(match.arg(align, c("left", "right", "center"), several.ok = TRUE),
+      error = function(e) cli::cli_abort("{.arg align} must use left, right or center.", parent = e))
+  }
   if (!is.data.frame(data)) {
     cli::cli_abort("{.arg data} must be a data frame, not {.obj_type_friendly {data}}.")
   }
@@ -641,9 +647,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
            txt)
   })
 
-  align <- if (is.null(align)) ifelse(is_num, "right", "left") else
-    rep_len(match.arg(align, c("left", "right", "center"), several.ok = TRUE),
-            ncol(data))
+  align <- if (is.null(align)) ifelse(is_num, "right", "left") else rep_len(align, ncol(data))
   headers <- names(data)
   headers[is.na(headers)] <- "<NA>"
   headers <- ._pr_escape(headers)
