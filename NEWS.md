@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* plt_alluvial() validates dimensions on scalar style selectors, colours and label switches before theme resolution.
+
 * plt_alluvial() rejects dimensional column selectors and duplicated input column names before factor preparation.
 
 * plt_upset() validates active Venn dimensions and opacities before invoking the plotting backend and leaves inactive labels lazy.

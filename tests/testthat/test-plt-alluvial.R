@@ -6,6 +6,18 @@ alluvial_data <- function() {
   )
 }
 
+test_that("alluvial style selectors reject scalar arrays before theme resolution", {
+  skip_if_not_installed("ggalluvial")
+  settings <- list(flow_args = list(curve_type = "linear"),
+    stratum_args = list(color = "red"), label_args = list(style = "name", color = "black", fill = "white", box = TRUE),
+    facet_args = list(scales = "fixed"), legend_args = list(position = "right"))
+  for (arg in names(settings)) for (field in names(settings[[arg]])) {
+    args <- list(data = alluvial_data(), cat_var = "category", group = "group", theme_use = quote(stop("theme evaluated")))
+    args[[arg]] <- stats::setNames(list(matrix(settings[[arg]][[field]])), field)
+    expect_error(do.call("plt_alluvial", args), arg)
+  }
+})
+
 test_that("alluvial column selectors reject dimensions and ambiguous input names", {
   skip_if_not_installed("ggalluvial")
   d <- alluvial_data()

@@ -289,6 +289,7 @@ plt_alluvial <- function(
   )
   if (
     !is.character(flow_args$curve_type) ||
+      !is.null(dim(flow_args$curve_type)) ||
       length(flow_args$curve_type) != 1L ||
       !flow_args$curve_type %in% curve_types
   ) {
@@ -303,6 +304,7 @@ plt_alluvial <- function(
   }
   if (
     !is.character(stratum_args$color) ||
+      !is.null(dim(stratum_args$color)) ||
       length(stratum_args$color) != 1L ||
       is.na(stratum_args$color)
   ) {
@@ -322,6 +324,7 @@ plt_alluvial <- function(
   )
   if (
     !is.character(label_args$style) ||
+      !is.null(dim(label_args$style)) ||
       length(label_args$style) != 1L ||
       !label_args$style %in% label_styles
   ) {
@@ -337,6 +340,7 @@ plt_alluvial <- function(
   }
   if (
     !is.character(label_args$color) ||
+      !is.null(dim(label_args$color)) ||
       length(label_args$color) != 1L ||
       is.na(label_args$color)
   ) {
@@ -344,6 +348,7 @@ plt_alluvial <- function(
   }
   if (
     !is.logical(label_args$box) ||
+      !is.null(dim(label_args$box)) ||
       length(label_args$box) != 1L ||
       is.na(label_args$box)
   ) {
@@ -351,6 +356,7 @@ plt_alluvial <- function(
   }
   if (
     !is.character(label_args$fill) ||
+      !is.null(dim(label_args$fill)) ||
       length(label_args$fill) != 1L ||
       is.na(label_args$fill)
   ) {
@@ -376,6 +382,7 @@ plt_alluvial <- function(
   facet_scales <- c("fixed", "free", "free_x", "free_y")
   if (
     !is.character(facet_args$scales) ||
+      !is.null(dim(facet_args$scales)) ||
       length(facet_args$scales) != 1L ||
       !facet_args$scales %in% facet_scales
   ) {
@@ -389,6 +396,7 @@ plt_alluvial <- function(
   legend_positions <- c("right", "left", "top", "bottom", "none")
   if (
     !is.character(legend_args$position) ||
+      !is.null(dim(legend_args$position)) ||
       length(legend_args$position) != 1L ||
       !legend_args$position %in% legend_positions
   ) {
