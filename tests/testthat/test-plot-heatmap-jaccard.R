@@ -36,6 +36,16 @@ jaccard_timespans <- function(values) {
        interval = lubridate::interval(start, start + 30))
 }
 
+test_that("Jaccard strips use only the colours needed for displayed groups", {
+  d <- data.frame(cell_type = c("A", "B"), gene = c("x", "y"))
+  result <- PlotHeatmapJaccard(d, show_strip = TRUE,
+    strip_colors = c("red", "blue", "green"), return_type = "both")
+  built <- ggplot2::ggplot_build(result$plot)
+  expect_identical(built$data[[3]]$fill, c("red", "blue"))
+  expect_identical(built$data[[4]]$fill, c("red", "blue"))
+  expect_identical(result$matrix, PlotHeatmapJaccard(d, return_type = "data"))
+})
+
 test_that("Jaccard strips reject empty and malformed active palettes", {
   d <- data.frame(cell_type = c("A", "B"), gene = c("x", "y"))
   for (bad in list(character(), matrix("red"), "not-a-colour"))

@@ -287,7 +287,7 @@ PlotHeatmapJaccard <- function(
     )
     strip_colors <- rep_len(default_cols, n_ct)
   }
-  if (show_strip && length(strip_colors) < n_ct)
+  if (show_strip && length(strip_colors) != n_ct)
     strip_colors <- rep_len(strip_colors, n_ct)
 
   # ---- 6. Build heatmap ----
