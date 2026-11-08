@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_point(sample_n = ...)` preserves serialized integer64 strata in fresh R sessions.
+
 * `fmt_his()` keeps overlay positions finite when automatic or explicit finite y ranges span extreme values.
 
 * `grob_insert(clip = TRUE)` clips oversized content to the requested inset rectangle.

@@ -816,3 +816,26 @@ test_that("point sampling and positioning controls reject encoded or dimensional
   expect_error(fmt_point(stop("plot evaluated"), type = "jitter",
                           jitter.args = list(width = matrix(.2))), "jitter.args")
 })
+
+test_that("point sampling retains cold integer64 strata", {
+  skip_if_not_installed("bit64")
+  directory <- withr::local_tempdir()
+  functions <- file.path(directory, "sample.R")
+  fixture <- file.path(directory, "input.rds")
+  script <- file.path(directory, "verify.R")
+  dump(c(".fmt_point_sample", ".fmt_point_stage_args"), functions, envir = environment(fmt_point))
+  d <- data.frame(x = 1:8, y = 8:1)
+  d[["id"]] <- bit64::as.integer64(rep(c("-1", "-2", "-3", "-4"), each = 2L))
+  saveRDS(d, fixture)
+  writeLines(c(sprintf("source(%s)", deparse(functions)),
+    sprintf("d <- readRDS(%s)", deparse(fixture)),
+    "stopifnot(!('bit64' %in% loadedNamespaces()))",
+    "result <- .fmt_point_sample(d, ggplot2::aes(x, y, group = id), sample_n = 1, seed = 42)",
+    "stopifnot(nrow(result) == 4L, identical(sort(as.character(result$id)), c('-1', '-2', '-3', '-4')))",
+    "cat('COLD_SAMPLE_OK\n')"), script)
+  output <- suppressWarnings(system2(file.path(R.home('bin'), 'Rscript'), c('--vanilla', shQuote(script)), stdout = TRUE, stderr = TRUE))
+  expect_null(attr(output, 'status'), info = paste(output, collapse = '\n'))
+  expect_identical(tail(output, 1L), 'COLD_SAMPLE_OK')
+  p <- fmt_point(ggplot2::ggplot(d, ggplot2::aes(x, y, group = id)), sample_n = 1)
+  expect_equal(nrow(p$layers[[1L]]$data), 4L)
+})

@@ -450,6 +450,8 @@ fmt_point <- function(plot,
     }
     if (is_late(expr)) next
     values <- rlang::eval_tidy(aesthetic, data = data)
+    if (inherits(values, "integer64") && !requireNamespace("bit64", quietly = TRUE))
+      cli::cli_abort("Interpreting integer64 sampling strata requires package {.pkg bit64}.")
     if (!is.null(values) &&
         (aes_name == "group" || is.factor(values) ||
          is.character(values) || is.logical(values))) {
@@ -464,6 +466,8 @@ fmt_point <- function(plot,
     # Absent facet variables replicate the layer; ggplot2 diagnoses invalid facets.
     values <- tryCatch(rlang::eval_tidy(facet, data = data), error = function(e) NULL)
     if (is.null(values)) next
+    if (inherits(values, "integer64") && !requireNamespace("bit64", quietly = TRUE))
+      cli::cli_abort("Interpreting integer64 sampling strata requires package {.pkg bit64}.")
     if (!length(values) %in% c(1L, nrow(data)))
       cli::cli_abort("Sampling facet values must have length 1 or nrow(data).")
     group_values <- c(group_values, list(rep_len(values, nrow(data))))
