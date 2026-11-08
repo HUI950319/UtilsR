@@ -1,3 +1,10 @@
+test_that("single scatter group orders require one-dimensional level vectors", {
+  for (bad in list(matrix(c("a", "b")), list("a", "b")))
+    expect_error(PlotScatter1(stop("data evaluated"), "x", "y", "g", group_levels = bad), "group_levels")
+  d <- data.frame(x = 1:6, y = 6:1, g = rep(c("a", "b"), 3))
+  expect_s3_class(PlotScatter1(d, "x", "y", "g", group_levels = c("b", "a"), show_ellipse = FALSE), "wrapped_patch")
+})
+
 test_that("marginal scatter annotations expand native correlation method names", {
   d <- data.frame(x = 1:6, y = c(1, 3, 2, 4, 6, 5), g = rep(c("a", "b"), 3))
   text_labels <- function(g) {
