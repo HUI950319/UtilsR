@@ -89,8 +89,8 @@ theme_my <- function(palette = "black_and_white", base_size = 14,
   for (arg in c("base_size", "base_line_size", "base_rect_size")) {
     value <- get(arg)
     if (!is.numeric(value) || is.object(value) || !is.null(dim(value)) ||
-        length(value) != 1L || !is.finite(value))
-      stop("'", arg, "' must be a single finite number.", call. = FALSE)
+        length(value) != 1L || !is.finite(value) || value < 0)
+      stop("'", arg, "' must be a single finite non-negative number.", call. = FALSE)
   }
   if (!is.null(plot.margin) &&
       (!is.numeric(plot.margin) || is.object(plot.margin) || !is.null(dim(plot.margin)) ||
@@ -646,8 +646,8 @@ leg2 <- function() {
 #' @family ggplot2 themes
 theme_alluvia <- function(base_size = 14, base_family = "") {
   if (!is.numeric(base_size) || is.object(base_size) || !is.null(dim(base_size)) ||
-      length(base_size) != 1L || !is.finite(base_size))
-    stop("'base_size' must be a single finite number.", call. = FALSE)
+      length(base_size) != 1L || !is.finite(base_size) || base_size < 0)
+    stop("'base_size' must be a single finite non-negative number.", call. = FALSE)
   ggplot2::theme_bw(
     base_size = base_size, base_family = base_family,
     base_line_size = base_size / 22,
@@ -711,8 +711,8 @@ theme_sc <- function(
     base_size = 12,
     ...) {
   if (!is.numeric(base_size) || is.object(base_size) || !is.null(dim(base_size)) ||
-      length(base_size) != 1L || !is.finite(base_size))
-    stop("'base_size' must be a single finite number.", call. = FALSE)
+      length(base_size) != 1L || !is.finite(base_size) || base_size < 0)
+    stop("'base_size' must be a single finite non-negative number.", call. = FALSE)
   if (!is.null(aspect.ratio) && (!is.numeric(aspect.ratio) || is.object(aspect.ratio) ||
       !is.null(dim(aspect.ratio)) || length(aspect.ratio) != 1L ||
       !is.finite(aspect.ratio) || aspect.ratio <= 0))
@@ -842,7 +842,7 @@ theme_blank <- function(
   for (arg in c("lab_size", if (add_coord) c("xlen_npc", "ylen_npc"))) {
     value <- get(arg)
     if (!is.numeric(value) || is.object(value) || !is.null(dim(value)) ||
-        length(value) != 1L || !is.finite(value))
+        length(value) != 1L || !is.finite(value) || (arg == "lab_size" && value < 0))
       stop("'", arg, "' must be a single finite number.", call. = FALSE)
   }
   args1 <- list(

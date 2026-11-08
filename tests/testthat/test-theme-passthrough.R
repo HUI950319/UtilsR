@@ -1,3 +1,15 @@
+test_that("base theme constructors reject negative font and line dimensions", {
+  for (arg in c("base_size", "base_line_size", "base_rect_size"))
+    expect_error(do.call("theme_my", stats::setNames(list(-1), arg)), arg)
+  expect_error(theme_alluvia(-1), "base_size")
+  expect_error(theme_sc(base_size = -1), "base_size")
+  expect_error(theme_blank(lab_size = -1), "lab_size")
+  expect_s3_class(theme_my(base_size = 0), "theme")
+  expect_s3_class(theme_alluvia(0), "theme")
+  expect_s3_class(theme_sc(base_size = 0), "theme")
+  expect_type(theme_blank(lab_size = 0, xlen_npc = -.1), "list")
+})
+
 test_that("ROC themes validate nonnegative sizes and layout settings", {
   for (arg in c("base_size", "axis_text_size", "axis_title_size", "title_size",
                 "subtitle_size", "strip_size", "legend_text_size", "legend_title_size", "axis_linewidth"))
