@@ -425,3 +425,16 @@ test_that("weighted KNN means preserve subnormal donor scales", {
     expect_identical(result[1:2], tiny[["value"]][1:2])
   }
 })
+
+test_that("KNN donor selection preserves extreme finite predictor ranges", {
+  skip_if_not_installed("VIM")
+  d <- data.frame(value = c(1, 9, NA_real_), helper = c(-1, 1, .5))
+  expected <- impute_na_knn(d, k = 1, verbose = FALSE)
+  d[["helper"]] <- d[["helper"]] * 1e308
+  actual <- impute_na_knn(d, k = 1, verbose = FALSE)
+  expect_identical(actual[["value"]], expected[["value"]])
+  expect_identical(actual[["helper"]], d[["helper"]])
+  d[["value"]] <- c(-1e308, 1e308, NA_real_)
+  actual <- impute_na_knn(d, k = 1, verbose = FALSE)
+  expect_identical(actual[["value"]], c(-1e308, 1e308, 1e308))
+})

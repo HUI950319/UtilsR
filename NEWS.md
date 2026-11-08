@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `impute_na_knn()` rescales overflowing finite numeric ranges for distance calculation and restores original units and observations.
+
 * `impute_na_knn()` preserves subnormal numeric donor means instead of underflowing weighted products to zero.
 
 * `fmt_point(sample_n = ...)` preserves serialized integer64 strata in fresh R sessions.
