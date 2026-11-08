@@ -251,11 +251,17 @@ PlotScatter3 <- function(
   }
 
   # ---- Auto-calculate p-value label position ----
+  annotation_at <- function(anchor, offset) {
+    span <- diff(axis_limits)
+    if (is.finite(span)) return(axis_limits[anchor] + span * offset)
+    fraction <- if (anchor == 1L) offset else 1 + offset
+    (1 - fraction) * axis_limits[1] + fraction * axis_limits[2]
+  }
   if (is.null(p_x)) {
-    p_x <- axis_limits[1] + diff(axis_limits) * 0.05
+    p_x <- annotation_at(1L, 0.05)
   }
   if (is.null(p_y)) {
-    p_y <- axis_limits[2] - diff(axis_limits) * 0.02
+    p_y <- annotation_at(2L, -0.02)
   }
 
   # ---- Difference statistics ----
@@ -318,8 +324,8 @@ PlotScatter3 <- function(
     cor_p_fmt <- if (cor_p < 0.001) "p < 0.001" else paste0("p = ", signif(cor_p, 2))
     cor_label <- paste0(r_prefix, " = ", r_val, ", ", cor_p_fmt)
 
-    if (is.null(cor_x)) cor_x <- axis_limits[2] - diff(axis_limits) * 0.05
-    if (is.null(cor_y)) cor_y <- axis_limits[1] + diff(axis_limits) * 0.08
+    if (is.null(cor_x)) cor_x <- annotation_at(2L, -0.05)
+    if (is.null(cor_y)) cor_y <- annotation_at(1L, 0.08)
 
     p1 <- p1 +
       ggplot2::annotate("text", x = cor_x, y = cor_y, label = cor_label,

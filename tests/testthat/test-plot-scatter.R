@@ -1219,3 +1219,12 @@ test_that("scatter statistics exclude SPSS user missing axis values", {
   expect_identical(is.na(as.double(p2[[1L]]$data$Treat)), c(rep(FALSE, 7L), TRUE))
   expect_identical(serialize(d, NULL), before)
 })
+
+test_that("paired scatter annotation coordinates remain finite on wide axes", {
+  d <- data.frame(Control = 1:8, Treat = c(2, 4, 3, 5, 7, 6, 9, 8), group = rep(c("a", "b"), 4L))
+  p <- PlotScatter3(d, test_method = "t.test", cor_method = "pearson", axis_limits = c(-1e308, 1e308), axis_breaks = 0, hist_x_limits = c(-5, 5), hist_x_breaks = c(-5, 0, 5), theme_use = ggplot2::theme_classic)
+  layers <- Filter(function(layer) inherits(layer$geom, "GeomText"), p[[1L]]$layers)
+  expect_length(layers, 2L)
+  expect_equal(vapply(layers, function(layer) layer$data$x / 1e308, numeric(1)), c(-.9, .9), ignore_attr = TRUE)
+  expect_equal(vapply(layers, function(layer) layer$data$y / 1e308, numeric(1)), c(.96, -.84), ignore_attr = TRUE)
+})

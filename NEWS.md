@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotScatter3()` places automatic annotations using stable interpolation when the finite axis span overflows.
+
 * Scatter plots normalize SPSS user-missing axis values before ranges, marginal summaries and statistical annotations.
 
 * `PlotScatter1()`, `PlotScatter3()` and `PlotRank()` preserve serialized integer64 grouping labels in fresh R sessions.
