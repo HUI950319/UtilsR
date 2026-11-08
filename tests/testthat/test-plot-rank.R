@@ -442,3 +442,14 @@ test_that("numeric rank selectors use matrix column labels", {
   expect_identical(actual, expected)
   expect_identical(actual[["Score"]], c(3, 2, 1))
 })
+
+test_that("rank groups retain explicit NA levels without label collisions", {
+  grouping <- structure(c(2L, 3L, 1L, 2L, NA_integer_),
+                        levels = c("<NA>", "a", NA_character_), class = "factor")
+  d <- data.frame(cell_type = grouping, gene = letters[1:5], importance = c(3, 8, 7, 1, 4))
+  out <- PlotRank(d, return_type = "data", clean_names = FALSE)
+  expect_equal(nrow(out), 4L)
+  expect_identical(sort(out[["Score"]]), c(1, 3, 7, 8))
+  expect_identical(as.character(out[["Group"]][out[["Label"]] == "b"]), "<NA>.1")
+  expect_identical(as.character(out[["Group"]][out[["Label"]] == "c"]), "<NA>")
+})

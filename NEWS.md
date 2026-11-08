@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRank()` retains explicit NA factor categories, distinguishes literal <NA> labels, and continues excluding missing grouping codes.
+
 * `PlotScatter3()` places automatic annotations using stable interpolation when the finite axis span overflows.
 
 * Scatter plots normalize SPSS user-missing axis values before ranges, marginal summaries and statistical annotations.

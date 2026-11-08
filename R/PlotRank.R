@@ -394,6 +394,13 @@ PlotRank <- function(
 
     # Has group column -> faceted
     if (group_col %in% colnames(data)) {
+      grouping <- data[[group_col]]
+      if (is.factor(grouping) && anyNA(levels(grouping))) {
+        labels <- levels(grouping)
+        labels[is.na(labels)] <- tail(make.unique(c(labels[!is.na(labels)], "<NA>")), 1L)
+        levels(grouping) <- labels
+        data[[group_col]] <- grouping
+      }
       if (inherits(data[[group_col]], "integer64") && !requireNamespace("bit64", quietly = TRUE))
         stop("Package 'bit64' is required for integer64 grouping columns.", call. = FALSE)
       grps <- if (is.factor(data[[group_col]])) levels(data[[group_col]])
@@ -405,7 +412,7 @@ PlotRank <- function(
       }
       if (!is.null(groups)) grps <- groups
       return(lapply(setNames(grps, grps), function(g) {
-        index <- data[[group_col]] == g
+        index <- !is.na(data[[group_col]]) & data[[group_col]] == g
         v <- scores[index]
         names(v) <- data[[name_col]][index]
         v
