@@ -4016,6 +4016,13 @@ fmt_com <- function(plot,
     cli::cli_abort("method.args must be a list with unique, non-empty option names.")
   if (!is.null(dots$method.args$comparisons))
     cli::cli_abort("Select comparisons with com_method, not method.args$comparisons.")
+  flags <- list(paired = dots$method.args$paired, inherit.aes = dots$inherit.aes)
+  for (arg in names(flags)) {
+    value <- flags[[arg]]
+    if (!is.null(value) && (!is.logical(value) || !is.null(dim(value)) ||
+        length(value) != 1L || is.na(value)))
+      cli::cli_abort("{.arg {arg}} must be TRUE or FALSE.")
+  }
   paired <- isTRUE(dots$method.args$paired) || identical(dots$method, "sign_test")
   pair_id <- dots$method.args$id
   if (!is.null(pair_id) && (!paired || !is.character(pair_id) || length(pair_id) != 1L ||

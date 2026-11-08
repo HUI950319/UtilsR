@@ -8,6 +8,13 @@ com_stat <- function(plot) {
   unique(built$data[[length(built$data)]][, c("PANEL", "group1", "group2", "p", "p.adj", "label", "xmin", "xmax")])
 }
 
+test_that("comparison flags fail before resolving statistical data", {
+  for (bad in list(1, NA, matrix(TRUE), c(TRUE, FALSE))) {
+    expect_error(fmt_com(stop("plot evaluated"), method.args = list(paired = bad)), "paired")
+    expect_error(fmt_com(stop("plot evaluated"), inherit.aes = bad), "inherit.aes")
+  }
+})
+
 test_that("comparisons resolve observed groups in displayed scale order", {
   p <- com_plot(subset(iris, Species != "versicolor"))
   expect_error(fmt_com(p, com_method = list(c("setosa", "versicolor"))),
