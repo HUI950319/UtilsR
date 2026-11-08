@@ -13,6 +13,21 @@ render_upset <- function(plot) {
   print(plot)
 }
 
+test_that("Venn style controls fail before invoking the plotting backend", {
+  skip_if_not_installed("ggVennDiagram")
+  sets <- list(A = 1:2, B = 2:3)
+  testthat::local_mocked_bindings(ggVennDiagram = function(...) stop("plot backend reached"), .package = "ggVennDiagram")
+  for (arg in c("label_size", "label_alpha", "edge.size", "set.name.size", "venn.alpha")) {
+    for (bad in list(-1, matrix(.5), structure(.5, class = "encoded"))) {
+      args <- c(list(data = sets, output = "venn"), stats::setNames(list(bad), arg))
+      expect_error(do.call("plt_upset", args), arg, fixed = TRUE)
+    }
+  }
+  expect_error(plt_upset(sets, output = "venn", label = "none", label_size = stop("inactive"),
+    label_alpha = stop("inactive")), "plot backend reached")
+  expect_s3_class(plt_upset(sets, output = "data", label_size = stop("inactive")), "data.frame")
+})
+
 test_that("plt_upset rejects more than sixteen sets before enumerating regions", {
   skip_if_not_installed("ggVennDiagram")
   testthat::local_mocked_bindings(

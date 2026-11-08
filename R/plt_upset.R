@@ -205,7 +205,7 @@ plt_upset <- function(data,
         anyNA(set.labels) || any(!grepl("[^\\s\\p{Z}]", set.labels, perl = TRUE)))))) {
     cli::cli_abort("{.arg set.labels} must be a named character vector with unique, non-missing, non-empty keys and non-empty display labels.")
   }
-  if (!is.numeric(venn.alpha) || length(venn.alpha) != 1L ||
+  if (!is.numeric(venn.alpha) || is.object(venn.alpha) || !is.null(dim(venn.alpha)) || length(venn.alpha) != 1L ||
       !is.finite(venn.alpha) || venn.alpha < 0 || venn.alpha > 1) {
     cli::cli_abort("{.arg venn.alpha} must be one finite number between 0 and 1.")
   }
@@ -395,6 +395,13 @@ plt_upset <- function(data,
 
   p_venn <- NULL
   if (output %in% c("venn", "both", "all") && length(set_list) <= 7L) {
+    for (arg in c("edge.size", "set.name.size", if (label != "none") "label_size",
+                  if (label != "none" && label_geom == "label") "label_alpha")) {
+      value <- get(arg)
+      if (!is.numeric(value) || is.object(value) || !is.null(dim(value)) || length(value) != 1L ||
+          !is.finite(value) || value < 0 || (arg == "label_alpha" && value > 1))
+        cli::cli_abort("{.arg {arg}} must be a finite scalar in its allowed range.")
+    }
     p_venn <- ggVennDiagram::ggVennDiagram(
       set_list,
       label           = venn_label,

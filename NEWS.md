@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* plt_upset() validates active Venn dimensions and opacities before invoking the plotting backend and leaves inactive labels lazy.
+
 * plt_sankey() checks dimensions on logical switches and fixed colours before data preparation.
 
 * plt_sankey() rejects positional or repeated variable selectors and ambiguous data names while retaining repeated display labels.
