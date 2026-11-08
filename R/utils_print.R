@@ -381,6 +381,9 @@ pr_note <- function(..., .envir = parent.frame()) {
 #' @export
 #' @family print helpers
 pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
+  for (arg in c("key", "value")) {
+    if (!is.null(dim(get(arg)))) cli::cli_abort("{.arg {arg}} must be a vector without dimensions.")
+  }
   key <- ._pr_restore(key)
   value <- ._pr_restore(value)
   if (inherits(key, "haven_labelled_spss")) key[is.na(key)] <- NA

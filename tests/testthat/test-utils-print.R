@@ -83,6 +83,13 @@ test_that("pr_note() prints a grey note with cli markup and caller values", {
   expect_match(link, "x-r-run:RegR::plt_eff(res)", fixed = TRUE)
 })
 
+test_that("badge inputs reject dimensions without changing vector recycling", {
+  withr::local_options(cli.num_colors = 1)
+  expect_error(pr_badge(matrix("key"), "value"), "key")
+  expect_error(pr_badge("key", matrix("value")), "value")
+  expect_identical(pr_badge("key", c("a", "b")), c("[key: a]", "[key: b]"))
+})
+
 test_that("pr_badge() returns two-part badges without printing", {
   withr::local_options(cli.num_colors = 256)
   expect_silent(b <- pr_badge(c("model", "n"), c("cox", "2,314")))

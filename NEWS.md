@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* pr_badge() rejects dimensional inputs while retaining scalar-to-vector recycling and typed labels.
+
 * PlotHeatmapJaccard() uses the required prefix of longer strip palettes instead of failing on unequal annotation lengths.
 
 * PlotCircleLollipop() diagnoses excessive total sector gaps before creating an output file or opening a graphics device.
