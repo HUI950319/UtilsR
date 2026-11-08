@@ -4004,13 +4004,14 @@ fmt_com <- function(plot,
                     size = 0.8,
                     ...) {
   if (missing(label)) label <- label[1L]
-  if (!is.character(label) || length(label) != 1L || is.na(label) || !nzchar(label))
+  if (!is.character(label) || !is.null(dim(label)) || length(label) != 1L || is.na(label) || !nzchar(label))
     cli::cli_abort("label must be a single non-empty result column or template.")
   dots <- list(...)
   if (length(dots) && (is.null(names(dots)) || any(!nzchar(names(dots))) ||
                        anyDuplicated(names(dots))))
     cli::cli_abort("Arguments in ... must have unique, non-empty names.")
   if (!is.null(dots$method.args) && (!is.list(dots$method.args) ||
+      is.object(dots$method.args) || !is.null(dim(dots$method.args)) ||
       (length(dots$method.args) && (is.null(names(dots$method.args)) ||
        any(!nzchar(names(dots$method.args))) || anyDuplicated(names(dots$method.args))))))
     cli::cli_abort("method.args must be a list with unique, non-empty option names.")
@@ -4025,7 +4026,7 @@ fmt_com <- function(plot,
   }
   paired <- isTRUE(dots$method.args$paired) || identical(dots$method, "sign_test")
   pair_id <- dots$method.args$id
-  if (!is.null(pair_id) && (!paired || !is.character(pair_id) || length(pair_id) != 1L ||
+  if (!is.null(pair_id) && (!paired || !is.character(pair_id) || !is.null(dim(pair_id)) || length(pair_id) != 1L ||
       is.na(pair_id) || !nzchar(pair_id)))
     cli::cli_abort("method.args$id must name a subject column for a paired test.")
   ref_group <- if (is.null(dots$ref.group)) dots$method.args$ref.group else dots$ref.group
@@ -4047,7 +4048,7 @@ fmt_com <- function(plot,
     cli::cli_abort("Set bracket positions with label.y, not y.position.")
   if (!is.null(dots$mapping) && !inherits(dots$mapping, "uneval"))
     cli::cli_abort("mapping must be created with ggplot2::aes().")
-  if (!is.null(dots$group.by) && (!is.character(dots$group.by) ||
+  if (!is.null(dots$group.by) && (!is.character(dots$group.by) || !is.null(dim(dots$group.by)) ||
       length(dots$group.by) != 1L || is.na(dots$group.by) ||
       !dots$group.by %in% c("x.var", "legend.var")))
     cli::cli_abort("group.by must be 'x.var' or 'legend.var'.")

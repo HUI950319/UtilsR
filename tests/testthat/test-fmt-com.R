@@ -8,6 +8,13 @@ com_stat <- function(plot) {
   unique(built$data[[length(built$data)]][, c("PANEL", "group1", "group2", "p", "p.adj", "label", "xmin", "xmax")])
 }
 
+test_that("comparison option containers and scalar selectors validate before plots", {
+  expect_error(fmt_com(stop("plot evaluated"), method.args = data.frame(paired = FALSE)), "method.args")
+  expect_error(fmt_com(stop("plot evaluated"), label = matrix("p.signif")), "label")
+  expect_error(fmt_com(stop("plot evaluated"), method.args = list(paired = TRUE, id = matrix("id"))), "id")
+  expect_error(fmt_com(stop("plot evaluated"), group.by = matrix("x.var")), "group.by")
+})
+
 test_that("comparison flags fail before resolving statistical data", {
   for (bad in list(1, NA, matrix(TRUE), c(TRUE, FALSE))) {
     expect_error(fmt_com(stop("plot evaluated"), method.args = list(paired = bad)), "paired")

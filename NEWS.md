@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* fmt_com() validates plain method option lists and scalar label, subject and grouping selectors before statistical mapping.
+
 * fmt_point() requires plain named lists for active jitter and beeswarm options while leaving unused options lazy.
 
 * fmt_scale() rejects table and array option containers before inspecting plot inputs.
