@@ -255,6 +255,15 @@ PlotHeatmapJaccard <- function(
         length(value) != 1L || !is.finite(value))
       stop("'", arg, "' must be a single finite number.", call. = FALSE)
   }
+  for (arg in c("low_color", "high_color", if (show_strip && !is.null(strip_colors)) "strip_colors")) {
+    value <- get(arg)
+    if (!is.atomic(value) || !is.null(dim(value)) || !length(value) ||
+        (arg != "strip_colors" && length(value) != 1L))
+      stop("'", arg, "' must contain valid R colours.", call. = FALSE)
+    tryCatch(grDevices::col2rgb(value, alpha = TRUE), error = function(e) {
+      stop("'", arg, "' must contain valid R colours.", call. = FALSE)
+    })
+  }
 
   # ---- 4. Prepare long data.frame ----
   plot_mat <- jmat

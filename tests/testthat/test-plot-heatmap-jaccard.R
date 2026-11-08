@@ -36,6 +36,23 @@ jaccard_timespans <- function(values) {
        interval = lubridate::interval(start, start + 30))
 }
 
+test_that("Jaccard strips reject empty and malformed active palettes", {
+  d <- data.frame(cell_type = c("A", "B"), gene = c("x", "y"))
+  for (bad in list(character(), matrix("red"), "not-a-colour"))
+    expect_error(PlotHeatmapJaccard(d, show_strip = TRUE, strip_colors = bad), "strip_colors")
+  for (arg in c("low_color", "high_color")) {
+    args <- list(data = d)
+    args[[arg]] <- matrix("red")
+    expect_error(do.call("PlotHeatmapJaccard", args), arg)
+  }
+  p <- PlotHeatmapJaccard(d, show_strip = TRUE, strip_colors = "red")
+  built <- ggplot2::ggplot_build(p)
+  expect_identical(built$data[[3]]$fill, rep("red", 2))
+  expect_s3_class(ggplot2::ggplotGrob(p), "gtable")
+  expect_type(PlotHeatmapJaccard(d, return_type = "data",
+    strip_colors = stop("unused")), "double")
+})
+
 test_that("Jaccard matrices reject ambiguous source columns", {
   d <- data.frame(cell_type = c("A", "B"), gene = c("x", "y"),
     gene = c("y", "z"), check.names = FALSE)

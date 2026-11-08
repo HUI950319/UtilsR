@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* PlotHeatmapJaccard() diagnoses empty or malformed active palettes and retains short-palette repetition.
+
 * PlotRank() validates name-cleaning flags and active rendering dimensions while keeping data-only styles lazy.
 
 * set_wd() rejects dimensional paths before creating directories or changing the working directory.
