@@ -5,6 +5,17 @@ dumbbell_plot <- function(data, ...) {
   result
 }
 
+test_that("dumbbell endpoint labels require scalar inputs before data evaluation", {
+  for (arg in c("label_x", "label_xend"))
+    for (bad in list(character(), c("a", "b"), matrix("a"))) {
+      args <- c(list(data = quote(stop("data evaluated"))), stats::setNames(list(bad), arg))
+      expect_error(do.call("PlotDumbbell", args), arg)
+    }
+  d <- data.frame(start = 1:3, end = 2:4, category = letters[1:3])
+  p <- dumbbell_plot(d, label_x = 1, label_xend = 2)
+  expect_identical(unname(p$scales$get_scales("colour")$labels), c("1", "2"))
+})
+
 test_that("dumbbell dimensions validate active layers and leave hidden styles lazy", {
   for (arg in c("seg_size", "point_size", "delta_size", "zero_line_width", "mean_line_width", "dot_guide_size"))
     for (bad in list(-1, Inf, matrix(1), structure(1, class = "encoded"))) {

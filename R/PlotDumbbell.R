@@ -204,6 +204,11 @@ PlotDumbbell <- function(
         length(legend_pos) == 2L && all(is.finite(legend_pos)))) {
     stop("'legend_pos' must be a position string or two finite coordinates.", call. = FALSE)
   }
+  for (arg in c("label_x", "label_xend")) {
+    value <- get(arg)
+    if (!is.null(value) && (length(value) != 1L || !is.null(dim(value))))
+      stop("'", arg, "' must be NULL or a single label.", call. = FALSE)
+  }
   selectors <- list(x_col = x_col, xend_col = xend_col, y_col = y_col)
   for (arg in names(selectors)) {
     value <- selectors[[arg]]

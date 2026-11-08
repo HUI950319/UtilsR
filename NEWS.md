@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* PlotDumbbell() validates scalar endpoint labels before legend construction and retains numeric-label conversion.
+
 * lv() dataset hints skip bindings that fail to load instead of masking the original diagnostic.
 
 * PlotRank() rejects dimensional, missing or repeated group selectors before selecting and ordering score panels.
