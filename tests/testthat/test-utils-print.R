@@ -44,6 +44,12 @@ test_that("pr_kv() aligns grey keys by display width and drops NULL values", {
   expect_identical(utils::capture.output(pr_kv(list(a = NULL))), character())
 })
 
+test_that("section titles reject non-scalar text before writing a rule", {
+  for (bad in list(NULL, NA_character_, c("a", "b"), matrix("a"), 1))
+    expect_error(pr_section(bad), "title")
+  expect_length(utils::capture.output(pr_section("", width = 20)), 1L)
+})
+
 test_that("pr_section() prints a grey rule with a bold title", {
   withr::local_options(cli.num_colors = 256, cli.unicode = TRUE)
   out <- utils::capture.output(pr_section("Effect ranges", width = 40))

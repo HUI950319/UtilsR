@@ -294,6 +294,8 @@ pr_kv <- function(x, indent = 2) {
 #' @family print helpers
 pr_section <- function(title, width = NULL) {
   ._pr_count(width, "width", lower = 1L, null = TRUE)
+  if (!is.character(title) || !is.null(dim(title)) || length(title) != 1L || is.na(title))
+    cli::cli_abort("{.arg title} must be a single non-missing character string.")
   title <- ._pr_escape(title)
   width <- width %||% min(console_width(), 80L)
   # keep two line characters on each side of the title
