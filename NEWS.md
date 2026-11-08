@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Shared plot option merging rejects table and array containers before combining partial settings.
+
 * Plot text options must use a plain named list rather than a table or array container.
 
 * fmt_flatten() rejects encoded selection and row-order indices instead of treating class storage as plot positions.

@@ -795,3 +795,11 @@ test_that("plt_alluvial draws legacy plot backgrounds", {
     }
   }
 })
+
+test_that("alluvial option merging rejects table and array containers", {
+  d <- data.frame(cat = c("A", "B"), group = c("X", "Y"))
+  for (bad in list(data.frame(alpha = .5),
+                   structure(list(.5), dim = c(1L, 1L), names = "alpha")))
+    expect_error(plt_alluvial(d, cat_var = "cat", group = "group", flow_args = bad), "flow_args")
+  expect_identical(UtilsR:::.merge_args(list(alpha = .5), list(alpha = 1), "flow_args"), list(alpha = .5))
+})

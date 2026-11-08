@@ -383,7 +383,7 @@
 # defaults, rejecting unnamed, duplicated or unknown fields. Errors name the
 # plotting function that called it.
 .merge_args <- function(value, defaults, arg, call = rlang::caller_env()) {
-  if (!is.list(value)) {
+  if (!is.list(value) || is.object(value) || !is.null(dim(value))) {
     cli::cli_abort("{.arg {arg}} must be a named list.", call = call)
   }
   if (length(value) == 0L) return(defaults)
