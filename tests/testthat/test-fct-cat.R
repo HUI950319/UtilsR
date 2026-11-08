@@ -1,3 +1,11 @@
+test_that("factor dot selectors never flatten dimensional level arrays", {
+  x <- factor(letters[1:3])
+  expect_error(fct_cat(x, matrix(c("c", "a"))), "dimensions")
+  expect_error(fct_cat(x, AB = matrix(c("a", "b"))), "dimensions")
+  expect_identical(levels(fct_cat(x, c("c", "a"))), c("c", "a", "b"))
+  expect_identical(as.character(fct_cat(x, AB = c("a", "b"))), c("AB", "AB", "c"))
+})
+
 test_that("factor modes reject dimensional switches references and labels", {
   x <- factor(c("a", "b", "c"))
   for (flag in c(TRUE, FALSE)) expect_error(fct_cat(x, reverse = matrix(flag)), "reverse")

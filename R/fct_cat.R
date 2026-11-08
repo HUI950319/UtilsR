@@ -191,6 +191,8 @@ fct_cat <- function(x, ...,
   # 5. ... — named = recode, unnamed = reorder
   dots <- list(...)
   if (length(dots) == 0) return(x)
+  if (any(vapply(dots, function(value) !is.null(dim(value)), logical(1))))
+    cli::cli_abort("Factor dot arguments must be vectors without dimensions.")
 
   nms <- names(dots)
   # NB: for all-unnamed dots, names() is NULL -> use a length-matched FALSE

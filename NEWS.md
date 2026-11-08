@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* fct_cat() rejects dimensional recode and reorder arguments instead of silently flattening character arrays.
+
 * PlotScatter2() rejects duplicated mapping keys and dimensional mapping containers while keeping unused shape settings lazy.
 
 * theme_sc() and theme_blank() diagnose unnamed or repeated dynamic theme elements instead of silently ignoring them.
