@@ -438,3 +438,19 @@ test_that("KNN donor selection preserves extreme finite predictor ranges", {
   actual <- impute_na_knn(d, k = 1, verbose = FALSE)
   expect_identical(actual[["value"]], c(-1e308, 1e308, 1e308))
 })
+
+test_that("KNN distances preserve large common numeric offsets", {
+  skip_if_not_installed("VIM")
+  d <- data.frame(value = c(0, 10, NA_real_), helper = c(0, 6, 2))
+  reference <- impute_na_knn(d, k = 2, verbose = FALSE)[["value"]]
+  for (offset in c(1e16, -1e16)) {
+    shifted <- d
+    shifted[["helper"]] <- shifted[["helper"]] + offset
+    result <- impute_na_knn(shifted, k = 2, verbose = FALSE)
+    expect_equal(result[["value"]], reference, tolerance = 1e-12)
+    expect_identical(result[["helper"]], shifted[["helper"]])
+  }
+  d[["value"]] <- c(0, 6, NA_real_) + 1e16
+  result <- impute_na_knn(d, k = 2, verbose = FALSE)
+  expect_identical(result[["value"]], c(0, 6, 2) + 1e16)
+})

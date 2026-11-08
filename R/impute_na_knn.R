@@ -248,6 +248,7 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
   backend_data <- data_for_impute[observed_rows, , drop = FALSE]
   names(backend_data) <- backend_names
   backend_scales <- rep(1, ncol(backend_data))
+  backend_centers <- rep(0, ncol(backend_data))
   for (j in seq_along(backend_data)) {
     values <- backend_data[[j]]
     if (!is.numeric(values)) next
@@ -255,6 +256,11 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     if (all(is.finite(bounds)) && !is.finite(diff(bounds))) {
       backend_scales[j] <- max(abs(bounds))
       backend_data[[j]] <- values / backend_scales[j]
+    } else if (is.double(values) && !is.object(values) && all(is.finite(bounds)) &&
+               diff(bounds) > 0 && max(abs(bounds)) / diff(bounds) > 1 / sqrt(.Machine$double.eps)) {
+      # Center before the backend divides by range and subtracts distances.
+      backend_centers[j] <- bounds[1L]
+      backend_data[[j]] <- values - backend_centers[j]
     }
   }
   backend_variables <- backend_names[vapply(backend_data, anyNA, logical(1))]
@@ -272,10 +278,10 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
       if (identical(conditionCall(w), quote(min(x[x > 0])))) invokeRestart("muffleWarning")
     }
   ) else backend_data
-  for (j in which(backend_scales != 1)) {
+  for (j in which(backend_scales != 1 | backend_centers != 0)) {
     original <- data_for_impute[[j]][observed_rows]
     missing <- is.na(original)
-    original[missing] <- result[[j]][missing] * backend_scales[j]
+    original[missing] <- result[[j]][missing] * backend_scales[j] + backend_centers[j]
     result[[j]] <- original
   }
   names(result) <- names(data_for_impute)

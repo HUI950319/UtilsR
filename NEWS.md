@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `impute_na_knn()` preserves donor distances under large common numeric offsets and restores imputed values to their original origin.
+
 * `lv(group = ...)` decodes serialized integer64 groups before calculating levels and missing-group counts.
 
 * `lv()` generates exact numeric filters when Date or difftime text would merge distinct stored values.
