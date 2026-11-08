@@ -3501,7 +3501,7 @@ fmt_axisTile <- function(plot,
   mode <- match.arg(mode)
   axis <- match.arg(axis)
 
-  if (!is.character(colors) || !length(colors) || is.null(names(colors)) ||
+  if (!is.character(colors) || !is.null(dim(colors)) || !length(colors) || is.null(names(colors)) ||
       anyNA(names(colors)) || any(!nzchar(trimws(names(colors)))) ||
       anyDuplicated(names(colors))) {
     cli::cli_abort("{.arg colors} must be a non-empty character vector with unique, non-empty names.")
@@ -3510,7 +3510,7 @@ fmt_axisTile <- function(plot,
   for (arg in names(colour_args)) {
     value <- colour_args[[arg]]
     if (arg == "text_color" && is.null(value)) next
-    if (arg != "colors" && (length(value) != 1L ||
+    if (arg != "colors" && (!is.null(dim(value)) || length(value) != 1L ||
         !(is.character(value) || identical(value, NA)))) {
       cli::cli_abort("{.arg {arg}} must be one valid R colour or NA.")
     }
@@ -3536,7 +3536,7 @@ fmt_axisTile <- function(plot,
   }
   if (!is.null(text_face) && (length(text_face) != 1L || !is.null(dim(text_face)) || is.na(text_face) ||
       !(is.character(text_face) && text_face %in% c("plain", "bold", "italic", "bold.italic", "symbol") ||
-        is.numeric(text_face) && !is.complex(text_face) && text_face %in% 1:5))) {
+        is.numeric(text_face) && !is.object(text_face) && !is.complex(text_face) && text_face %in% 1:5))) {
     cli::cli_abort("{.arg text_face} must be one valid font face name or number from 1 to 5.")
   }
 

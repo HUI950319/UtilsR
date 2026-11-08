@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* fmt_axisTile() rejects dimensional colours and encoded numeric font faces before storing guide settings.
+
 * PlotHeatmapJaccard() diagnoses empty or malformed active palettes and retains short-palette repetition.
 
 * PlotRank() validates name-cleaning flags and active rendering dimensions while keeping data-only styles lazy.

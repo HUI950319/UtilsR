@@ -32,6 +32,19 @@ axis_tile_rects <- function(g) {
   do.call(rbind, c(list(result), lapply(children, axis_tile_rects)))
 }
 
+test_that("axis tile colours and font faces reject array and encoded storage", {
+  p <- axis_tile_plot()
+  colors <- axis_tile_colors
+  dim(colors) <- c(3L, 1L)
+  names(colors) <- names(axis_tile_colors)
+  expect_error(fmt_axisTile(p, colors), "colors")
+  expect_error(fmt_axisTile(p, axis_tile_colors, tile_border = matrix("red")), "tile_border")
+  expect_error(fmt_axisTile(p, axis_tile_colors, text_color = matrix("red")), "text_color")
+  expect_error(fmt_axisTile(p, axis_tile_colors, text_face = structure(2, class = "encoded")), "text_face")
+  expect_s3_class(ggplot2::ggplotGrob(fmt_axisTile(p, axis_tile_colors,
+    text_face = 2, tile_border = NA_character_)), "gtable")
+})
+
 test_that("axis tile scalar styles reject dimensional storage before plots", {
   for (arg in c("tile_height", "tile_width", "tile_border_width", "text_size", "text_angle")) {
     args <- list(plot = quote(stop("plot evaluated")), colors = axis_tile_colors)
