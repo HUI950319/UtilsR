@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* PlotScatter3() normalizes native correlation method names so partial Spearman and Kendall calls receive rho and tau annotations.
+
 * fmt_ref() checks active style vectors and colour values before traversing plots and retains native missing-style behavior.
 
 * fmt_text() rejects dimensional style inputs and invalid colours before traversing plots while retaining native numeric colours and font faces.

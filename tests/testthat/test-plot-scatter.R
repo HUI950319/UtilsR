@@ -1,3 +1,14 @@
+test_that("paired scatter correlation labels match canonical native methods", {
+  d <- data.frame(Control = 1:6, Treat = c(1, 3, 2, 4, 6, 5), group = rep(c("a", "b"), 3))
+  for (method in c("spea", "kendall")) {
+    p <- PlotScatter3(d, test_method = "none", cor_method = method, theme_use = ggplot2::theme_classic)
+    labels <- unlist(lapply(ggplot2::ggplot_build(p[[1]])$data, function(x) x$label))
+    expect_match(labels, if (method == "spea") "^rho =" else "^tau =")
+  }
+  for (bad in list(NA_character_, character(), matrix("pearson"), c("pearson", "spearman")))
+    expect_error(PlotScatter3(stop("data evaluated"), cor_method = bad), "cor_method")
+})
+
 test_that("dual scatter mappings reject ambiguous keys and dimensional containers", {
   d <- data.frame(x = 1:6, y = 6:1, g = rep(c("a", "b"), 3), h = rep(c("a", "b"), 3))
   for (arg in c("colors", "shapes", "fill_colors_shape")) {

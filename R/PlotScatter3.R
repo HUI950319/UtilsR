@@ -156,6 +156,11 @@ PlotScatter3 <- function(
 ) {
 
   # ---- Validate inputs ----
+  if (!is.character(cor_method) || !is.null(dim(cor_method)) ||
+      length(cor_method) != 1L || is.na(cor_method))
+    stop("'cor_method' must be a single correlation method or 'none'.", call. = FALSE)
+  if (cor_method != "none")
+    cor_method <- match.arg(cor_method, c("pearson", "kendall", "spearman"))
   for (arg in c("x", "y", "group")) {
     value <- get(arg)
     if (!is.character(value) || !is.null(dim(value)) || length(value) != 1L ||
@@ -302,7 +307,7 @@ PlotScatter3 <- function(
     cor_res <- stats::cor.test(data[[x]], data[[y]],
                                method = cor_method)
     r_val <- round(cor_res$estimate, 3)
-    r_prefix <- if (cor_method == "spearman") "rho" else "r"
+    r_prefix <- switch(cor_method, spearman = "rho", kendall = "tau", "r")
     cor_p <- cor_res$p.value
     cor_p_fmt <- if (cor_p < 0.001) "p < 0.001" else paste0("p = ", signif(cor_p, 2))
     cor_label <- paste0(r_prefix, " = ", r_val, ", ", cor_p_fmt)
