@@ -179,6 +179,16 @@ test_that("pr_tree() shows the structure of a nested result list", {
   expect_identical(capped[2], paste0("\u251c\u2500n", strrep(" ", 18), "<dbl> 1"))
 })
 
+test_that("boxed border labels diagnose non-scalar text and keep empty bodies lazy", {
+  for (arg in c("header", "footer")) for (bad in list(c("a", "b"), matrix("a"), character(), 1)) {
+    args <- list(x = "body")
+    args[[arg]] <- bad
+    expect_error(do.call("pr_box", args), arg)
+  }
+  expect_output(pr_box(list(), header = stop("unused")), NA)
+  expect_output(pr_box("body", header = NA_character_), "NA")
+})
+
 test_that("pr_box() frames key-value lines under a header and footer", {
   withr::local_options(cli.num_colors = 256, cli.unicode = TRUE)
   x <- list(Outcome = "Surv(time, DSS)", N = "2,314", time = NULL)

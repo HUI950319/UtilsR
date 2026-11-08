@@ -1088,6 +1088,11 @@ pr_box <- function(x, header = NULL, footer = NULL, col = "cyan") {
   }
   # cli::boxx() fails on no lines; an empty settings list prints nothing
   if (!length(lines)) return(._pr_out(character()))
+  for (arg in c("header", "footer")) {
+    value <- get(arg)
+    if (!is.null(value) && (!is.character(value) || !is.null(dim(value)) || length(value) != 1L))
+      cli::cli_abort("{.arg {arg}} must be NULL or a single character string.")
+  }
   if (width < 3L) cli::cli_abort("The console must be at least three columns wide for a box.")
   if (!is.null(header)) header <- ._pr_escape(replace(header, is.na(header), "NA"))
   if (!is.null(footer)) footer <- ._pr_escape(replace(footer, is.na(footer), "NA"))
