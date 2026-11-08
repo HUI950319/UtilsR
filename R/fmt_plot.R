@@ -5030,6 +5030,11 @@ fmt_his <- function(plot,
           panel_params
         },
         finish_data = function(self, data, layout, x_scales, y_scales, params) {
+          interpolate <- function(bounds, fraction) {
+            span <- diff(bounds)
+            if (is.finite(span)) return(bounds[[1L]] + span * fraction)
+            (1 - fraction) * bounds[[1L]] + fraction * bounds[[2L]]
+          }
           layer <- attr(data, "fmt_his_layer", exact = TRUE)
           attr(data, "fmt_his_layer") <- NULL
           data <- ggplot2::ggproto_parent(parent_facet, self)$finish_data(data, layout, x_scales, y_scales, params)
@@ -5056,14 +5061,14 @@ fmt_his <- function(plot,
               bounds <- if (is.null(spec$y_rescale)) {
                 axis <- if (inherits(self$his_coord, "CoordFlip")) "x" else "y"
                 if (grepl(axis, self$his_coord$reverse %||% "none", fixed = TRUE)) range <- rev(range)
-                c(range[[1L]], range[[1L]] + diff(range) * spec$height_ratio)
+                c(range[[1L]], interpolate(range, spec$height_ratio))
               } else y_scales[[layout$SCALE_Y[[index]]]]$transform(spec$y_rescale)
               if (any(!is.finite(bounds))) cli::cli_abort("{.arg y_rescale} must be finite on the plot's y scale.")
               values <- data[[if (spec$type == "histogram") "count" else "density"]][rows]
               if (!any(is.finite(values))) next
               peak <- max(values[is.finite(values)])
               height <- if (peak > 0) values / peak else numeric(length(values))
-              data$y[rows] <- bounds[[1L]] + diff(bounds) * height
+              data$y[rows] <- interpolate(bounds, height)
               data$ymin[rows] <- bounds[[1L]]
               data$ymax[rows] <- data$y[rows]
             }

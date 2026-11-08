@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_his()` keeps overlay positions finite when automatic or explicit finite y ranges span extreme values.
+
 * `grob_insert(clip = TRUE)` clips oversized content to the requested inset rectangle.
 
 * `fmt_com()` keeps facet tuples distinct when category labels contain separator characters.

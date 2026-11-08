@@ -773,3 +773,14 @@ test_that("histogram overlays retain native discrete-x validation", {
     expect_error(ggplot2::ggplot_build(fmt_his(p, binwidth = 1)), "requires a continuous")
   }
 })
+
+test_that("distribution overlays interpolate extreme finite ranges", {
+  d <- data.frame(x = rep(1:3, c(2L, 3L, 4L)), y = 1:9)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  explicit <- ggplot2::ggplot_build(fmt_his(p, type = "h", binwidth = 1, y_rescale = c(-1e308, 1e308)))$data[[2L]]
+  expect_equal(explicit$y / 1e308, c(0, .5, 1))
+  p <- p + ggplot2::coord_cartesian(ylim = c(-1e308, 1e308), expand = FALSE)
+  automatic <- ggplot2::ggplot_build(fmt_his(p, type = "h", binwidth = 1))$data[[2L]]
+  expect_equal(automatic$y / 1e308, c(-.7, -.55, -.4))
+  expect_equal(automatic$ymin / 1e308, rep(-1, 3L))
+})
