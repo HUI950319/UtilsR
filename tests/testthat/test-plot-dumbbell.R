@@ -5,6 +5,20 @@ dumbbell_plot <- function(data, ...) {
   result
 }
 
+test_that("dumbbell dimensions validate active layers and leave hidden styles lazy", {
+  for (arg in c("seg_size", "point_size", "delta_size", "zero_line_width", "mean_line_width", "dot_guide_size"))
+    for (bad in list(-1, Inf, matrix(1), structure(1, class = "encoded"))) {
+      args <- list(data = quote(stop("data evaluated")), show_delta = TRUE,
+                   show_mean_lines = TRUE, dot_guide = TRUE)
+      args[[arg]] <- bad
+      expect_error(do.call("PlotDumbbell", args), arg)
+    }
+  d <- data.frame(start = 1:3, end = 2:4, category = letters[1:3])
+  p <- dumbbell_plot(d, show_zero_line = FALSE, delta_size = stop("unused"),
+    zero_line_width = stop("unused"), mean_line_width = stop("unused"), dot_guide_size = stop("unused"))
+  expect_s3_class(ggplot2::ggplotGrob(p), "gtable")
+})
+
 test_that("dumbbell display switches fail before data and keep inactive insets lazy", {
   for (arg in c("sort_descending", "show_delta", "show_zero_line", "show_mean_lines", "dot_guide"))
     for (bad in list(NA, 1, c(TRUE, FALSE), matrix(TRUE))) {

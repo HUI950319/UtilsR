@@ -190,6 +190,14 @@ PlotDumbbell <- function(
     if (!is.logical(value) || !is.null(dim(value)) || length(value) != 1L || is.na(value))
       stop("'", arg, "' must be TRUE or FALSE.", call. = FALSE)
   }
+  for (arg in c("seg_size", "point_size", if (show_delta) "delta_size",
+                if (show_zero_line) "zero_line_width", if (show_mean_lines) "mean_line_width",
+                if (dot_guide) "dot_guide_size")) {
+    value <- get(arg)
+    if (!is.numeric(value) || is.object(value) || !is.null(dim(value)) ||
+        length(value) != 1L || !is.finite(value) || value < 0)
+      stop("'", arg, "' must be a single finite non-negative number.", call. = FALSE)
+  }
   if (!(is.character(legend_pos) && is.null(dim(legend_pos)) &&
         length(legend_pos) == 1L && !is.na(legend_pos)) &&
       !(is.numeric(legend_pos) && !is.object(legend_pos) && is.null(dim(legend_pos)) &&

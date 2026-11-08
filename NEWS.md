@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* PlotDumbbell() validates active layer dimensions before data work while keeping hidden-layer styles lazy.
+
 * PlotScatter2() validates active annotation coordinates and sizes while leaving unused annotation settings lazy.
 
 * PlotScatter1() validates active raster resolution, including whole-pixel limits for scattermore, while keeping disabled raster settings lazy.
