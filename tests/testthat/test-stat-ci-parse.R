@@ -472,3 +472,20 @@ test_that("CI stars followed by a terminal period are harmless suffixes", {
   expect_equal(p, rep(.05, 2L))
   expect_warning(stat_ci("1 (0, 2) note."), "trailing text")
 })
+
+test_that("narrow ratio intervals retain their widths around extreme estimates", {
+  for (estimate in c(1e200, 1e-200)) {
+    lower <- estimate * (1 - 1e-14)
+    upper <- estimate * (1 + 1e-14)
+    x <- sprintf("%.17g (%.17g, %.17g)", estimate, lower, upper)
+    for (level in c(.8, .9, .99)) {
+      result <- stat_ci_parse(x, exp = TRUE, level = level, digits = 230)
+      parsed <- .ci_extract(result)
+      bounds <- c(parsed$lower, parsed$upper)
+      ratio <- stats::qnorm((1 - level) / 2, lower.tail = FALSE) / stats::qnorm(.975)
+      expect_lt(bounds[[1L]], estimate)
+      expect_gt(bounds[[2L]], estimate)
+      expect_equal((bounds - estimate) / (upper - lower), c(-ratio / 2, ratio / 2), tolerance = .03)
+    }
+  }
+})

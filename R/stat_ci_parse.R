@@ -197,6 +197,12 @@ stat_ci_parse <- function(x,
   e_s[is_exp] <- log(est[is_exp])
   l_s[is_exp] <- log(lo[is_exp])
   h_s[is_exp] <- log(hi[is_exp])
+  tight <- which(is_exp & pmax(abs(l_s - e_s), abs(h_s - e_s)) <
+                   sqrt(.Machine$double.eps) * pmax(1, abs(e_s)))
+  tight_lower <- log1p((est[tight] - lo[tight]) / lo[tight])
+  tight_upper <- log1p((hi[tight] - est[tight]) / est[tight])
+  tight_se <- ifelse(asym[tight], ifelse(e_s[tight] > 0, tight_lower, tight_upper),
+                     (tight_lower + tight_upper) / 2) / z95
   # Full width for symmetric intervals; for asymmetric ones the half facing
   # the null, so that p < 0.05 exactly when the interval excludes the null
   se_of <- function(l, h) {
@@ -207,7 +213,9 @@ stat_ci_parse <- function(x,
     wide <- is.finite(e_s) & is.finite(l) & is.finite(h) & !is.finite(half)
     half[wide] <- ifelse(e_s[wide] > 0, e_s[wide] / z95 - l[wide] / z95,
                          h[wide] / z95 - e_s[wide] / z95)
-    ifelse(asym, half, full)
+    out <- ifelse(asym, half, full)
+    out[tight] <- tight_se
+    out
   }
   se <- se_of(l_s, h_s)
   work_scale <- rep(1, length(est))
@@ -236,6 +244,13 @@ stat_ci_parse <- function(x,
       h_s <- ifelse(asym, e_s + (h_s - e_s) * ratio, e_s + z_new * se)
       lo <- ifelse(valid, ifelse(is_exp, exp(l_s), l_s * work_scale), lo)
       hi <- ifelse(valid, ifelse(is_exp, exp(h_s), h_s * work_scale), hi)
+      if (length(tight)) {
+        down <- ifelse(asym[tight], tight_lower * ratio, z_new * tight_se)
+        up <- ifelse(asym[tight], tight_upper * ratio, z_new * tight_se)
+        lo[tight] <- est[tight] * exp(-down)
+        hi[tight] <- est[tight] * exp(up)
+        tight_se <- tight_se * ratio
+      }
       se <- se_of(l_s, h_s)
     }
   }

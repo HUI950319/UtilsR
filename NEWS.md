@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci_parse()` uses relative log widths when narrow ratio intervals would lose precision around extreme estimates.
+
 * `fmt_text()` applies factor colour labels correctly to titles, subtitles, captions and axis titles.
 
 * `theme_legend()` draws factor colour labels correctly while preserving numeric palette indices.
