@@ -213,6 +213,10 @@ PlotScatter3 <- function(
     group <- group_col
   }
 
+  for (value in list(data[[group]], group_levels)) {
+    if (inherits(value, "integer64") && !requireNamespace("bit64", quietly = TRUE))
+      stop("Package 'bit64' is required for integer64 grouping columns.", call. = FALSE)
+  }
   if (is.null(group_levels)) {
     group_levels <- unique(data[[group]])
     if (length(group_levels) != 2) {

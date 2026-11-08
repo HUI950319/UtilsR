@@ -201,6 +201,10 @@ PlotScatter1 <- function(
     group_col <- make.unique(c(names(df), ".scatter1_group"))[ncol(df) + 1L]
     df[[group_col]] <- df[[group]]
   }
+  for (value in list(df[[group_col]], group_levels)) {
+    if (inherits(value, "integer64") && !requireNamespace("bit64", quietly = TRUE))
+      stop("Package 'bit64' is required for integer64 grouping columns.", call. = FALSE)
+  }
   if (!is.null(group_levels)) {
     df[[group_col]] <- factor(df[[group_col]], levels = group_levels)
   } else if (!is.factor(df[[group_col]])) {

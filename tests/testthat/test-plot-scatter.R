@@ -1165,3 +1165,33 @@ test_that("PlotScatter1 honours the supplied main-panel styles and keeps layout"
   expect_s3_class(md$theme$axis.title, "element_markdown")
   expect_equal(draw(NULL)$theme$axis.title$size, 14)
 })
+
+test_that("scatter and rank groups decode integer64 storage in cold processes", {
+  skip_if_not_installed("bit64")
+  scratch <- withr::local_tempdir()
+  source_file <- file.path(scratch, "functions.R")
+  input_file <- file.path(scratch, "input.rds")
+  script_file <- file.path(scratch, "verify.R")
+  dump(c("PlotScatter1", "PlotScatter3", "PlotRank", ".pr_parse", ".resolve_theme"), source_file, envir = environment(PlotScatter1))
+  labels <- c("9007199254740993", "9007199254740995")
+  d <- data.frame(x = 1:8, y = c(2, 4, 3, 5, 7, 6, 9, 8), gene = letters[1:8])
+  d[["g"]] <- bit64::as.integer64(rep(labels, 4L))
+  saveRDS(d, input_file)
+  calls <- c(
+    "p <- PlotScatter1(d, 'x', 'y', 'g', show_ellipse = FALSE, box_jitter = FALSE); walk <- function(g) {if (inherits(g, 'text')) return(as.character(g$label)); unlist(lapply(c(g$grobs, as.list(g$children)), walk), use.names = FALSE)}; result <- walk(attr(p, 'grobs')$full)",
+    "p <- PlotScatter3(d, 'x', 'y', 'g', test_method = 'none', cor_method = 'none', theme_use = ggplot2::theme_classic); result <- levels(p[[1]]$data$g)",
+    "p <- PlotRank(d, group_col = 'g', name_col = 'gene', value_col = 'y', return_type = 'data'); result <- levels(p$Group)")
+  for (call in calls) {
+    writeLines(c(
+      "options(device = function(...) grDevices::pdf(NULL, ...), lifecycle_verbosity = 'quiet')",
+      sprintf("source(%s)", deparse(source_file)),
+      "`%||%` <- rlang::`%||%`",
+      sprintf("d <- readRDS(%s)", deparse(input_file)),
+      "stopifnot(!('bit64' %in% loadedNamespaces()))", call,
+      "stopifnot(all(c('9007199254740993', '9007199254740995') %in% result))",
+      "cat('COLD_GROUPS_OK\n')"), script_file)
+    output <- suppressWarnings(system2(file.path(R.home('bin'), 'Rscript'), c('--vanilla', shQuote(script_file)), stdout = TRUE, stderr = TRUE))
+    expect_null(attr(output, 'status'), info = paste(output, collapse = '\n'))
+    expect_identical(tail(output, 1L), 'COLD_GROUPS_OK')
+  }
+})

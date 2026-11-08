@@ -394,6 +394,8 @@ PlotRank <- function(
 
     # Has group column -> faceted
     if (group_col %in% colnames(data)) {
+      if (inherits(data[[group_col]], "integer64") && !requireNamespace("bit64", quietly = TRUE))
+        stop("Package 'bit64' is required for integer64 grouping columns.", call. = FALSE)
       grps <- if (is.factor(data[[group_col]])) levels(data[[group_col]])
         else unique(data[[group_col]])
       if (anyDuplicated(as.character(grps))) {
