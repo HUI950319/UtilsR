@@ -7,6 +7,14 @@ with_size_objects <- function(objects, code) {
   code(object_names)
 }
 
+test_that("size inspection rejects dimensional patterns before reading bindings", {
+  envir <- new.env(parent = emptyenv())
+  reads <- 0L
+  makeActiveBinding("x", function() { reads <<- reads + 1L; raw(16) }, envir)
+  expect_error(check_size(pattern = matrix("x"), envir = envir), "pattern")
+  expect_identical(reads, 0L)
+})
+
 test_that("check_size renders lightweight bars without changing sizes", {
   with_size_objects(list(small = raw(16), large = raw(64)), function(nms) {
     result <- check_size(nms)

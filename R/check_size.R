@@ -92,7 +92,7 @@ check_size <- function(..., pattern = NULL, envir = .GlobalEnv,
   all_objects <- NULL
 
   if (!is.null(pattern)) {
-    if (!is.character(pattern) || length(pattern) != 1L || is.na(pattern)) {
+    if (!is.character(pattern) || !is.null(dim(pattern)) || length(pattern) != 1L || is.na(pattern)) {
       stop("`pattern` must be a single, non-missing character string.", call. = FALSE)
     }
     # Count the dots without evaluating them.
