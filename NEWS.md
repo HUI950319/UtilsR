@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* PlotScatter1() rejects empty or malformed manual mappings before empty palettes can silently remove points.
+
 * PlotDumbbell() rejects dimensional and encoded ranking counts while retaining signed whole-number selection.
 
 * PlotDumbbell() validates active layer dimensions before data work while keeping hidden-layer styles lazy.

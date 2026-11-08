@@ -34,6 +34,17 @@ scatter3_integer_pairs <- function() {
   )
 }
 
+test_that("grouped scatter diagnoses empty and dimensional manual mappings", {
+  d <- data.frame(x = 1:6, y = c(2, 1, 4, 3, 6, 5), g = rep(c("A", "B"), 3))
+  for (bad in list(character(), matrix("red"), "not-a-colour"))
+    expect_error(PlotScatter1(d, "x", "y", "g", show_ellipse = FALSE, colors = bad), "colors")
+  for (bad in list(numeric(), matrix(16)))
+    expect_error(PlotScatter1(d, "x", "y", "g", show_ellipse = FALSE, shapes = bad), "shapes")
+  p <- PlotScatter1(d, "x", "y", "g", show_ellipse = FALSE, box_jitter = FALSE,
+                    colors = "red", shapes = 16)
+  expect_equal(scatter_main_points(attr(p, "grobs")$full), nrow(d))
+})
+
 test_that("grouped scatter validates active raster resolution before reading data", {
   for (bad in list(0, Inf, NA_real_, matrix(100), structure(100, class = "encoded"), 1.5))
     expect_error(PlotScatter1(stop("data evaluated"), "x", "y", "g",

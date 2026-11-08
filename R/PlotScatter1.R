@@ -206,6 +206,15 @@ PlotScatter1 <- function(
   grp_lvls <- levels(df[[group_col]])
   n_grp <- length(grp_lvls)
 
+  for (arg in c("colors", "shapes")) {
+    value <- get(arg)
+    if (is.null(value)) next
+    if (!is.atomic(value) || !is.null(dim(value)) || !length(value))
+      stop("'", arg, "' must be a non-empty vector.", call. = FALSE)
+    if (arg == "colors") tryCatch(grDevices::col2rgb(value, alpha = TRUE), error = function(e) {
+      stop("'colors' must contain valid R colours.", call. = FALSE)
+    })
+  }
   if (n_grp > 12L && (is.null(colors) || is.null(shapes))) {
     needed <- c(if (is.null(colors)) "colors", if (is.null(shapes)) "shapes")
     stop(sprintf("More than 12 groups require explicit %s mappings.",
