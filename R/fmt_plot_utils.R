@@ -80,6 +80,7 @@
   }
 
   if (is.list(plot)) {
+    if (!is.null(dim(plot))) cli::cli_abort("Plot lists must be one-dimensional.")
     ok <- vapply(plot, inherits, logical(1), "gg")
     if (!all(ok)) cli::cli_abort("All elements in the list must be ggplot objects.")
     return(list(plots = plot, is_patchwork = FALSE, is_single = FALSE,

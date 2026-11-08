@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Plot formatters diagnose array containers instead of silently discarding their dimensions during list traversal.
+
 * fmt_com() validates plain method option lists and scalar label, subject and grouping selectors before statistical mapping.
 
 * fmt_point() requires plain named lists for active jitter and beeswarm options while leaving unused options lazy.

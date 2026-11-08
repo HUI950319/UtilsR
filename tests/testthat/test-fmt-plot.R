@@ -103,3 +103,11 @@ test_that("plot-leaf traversal retains unchanged siblings and edits each data le
   expect_identical(out$patches$annotation, pw$patches$annotation)
   expect_identical(out$patches$layout, pw$patches$layout)
 })
+
+test_that("plot containers reject arrays before flattening away dimensions", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  plots <- structure(list(p, p), dim = c(1L, 2L))
+  expect_error(fmt_text(plots, title = "Title"), "one-dimensional")
+  expect_error(fmt_scale(plots), "one-dimensional")
+  expect_identical(fmt_text(list(a = p, b = p)), list(a = p, b = p))
+})
