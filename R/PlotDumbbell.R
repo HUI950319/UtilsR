@@ -183,6 +183,7 @@ PlotDumbbell <- function(
     dpi              = 300,              # output resolution
     bg               = "white"           # output background colour
 ) {
+  if (!is.null(filename)) .check_plot_filename(filename)
 
   # ---- Validate inputs ----
   for (arg in c("sort_descending", "show_delta", "show_zero_line", "show_mean_lines", "dot_guide")) {

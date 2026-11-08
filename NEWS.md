@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Legacy Plot functions validate filename scalars before data processing or device creation while retaining NULL no-save behavior.
+
 * PlotButterfly2() validates active fill palette structure, mapping names and colour literals before rendering.
 
 * PlotHeatmapJaccard() rejects matrix-valued membership columns and dimensional group orders before computing feature sets.

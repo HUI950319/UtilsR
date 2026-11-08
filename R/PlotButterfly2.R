@@ -158,6 +158,7 @@ PlotButterfly2 <- function(
     height      = 8,
     filename    = NULL
 ) {
+  if (!is.null(filename)) .check_plot_filename(filename)
 
   # ---- Validation ----
   type <- match.arg(type)

@@ -145,6 +145,7 @@ PlotRank <- function(
     height          = 10,
     dpi             = 300
 ) {
+  if (!is.null(filename)) .check_plot_filename(filename)
   # ---- Check dependencies ----
   for (pkg in c("ggplot2", "ggrepel")) {
     if (!requireNamespace(pkg, quietly = TRUE))

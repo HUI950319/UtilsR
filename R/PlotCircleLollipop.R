@@ -155,6 +155,7 @@ PlotCircleLollipop <- function(
     height       = 10,
     dpi          = 300
 ) {
+  if (!is.null(filename)) .check_plot_filename(filename)
   label_side  <- match.arg(label_side)
   value_scale <- match.arg(value_scale)
   for (arg in c("show_links", "show_labels", "show_yaxis")) {

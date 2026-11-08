@@ -102,6 +102,7 @@ PlotHeatmapJaccard <- function(
     height       = 9,
     dpi          = 300
 ) {
+  if (!is.null(filename)) .check_plot_filename(filename)
   # ---- Check dependencies ----
   if (!requireNamespace("ggplot2", quietly = TRUE))
     stop("Package 'ggplot2' is required.", call. = FALSE)

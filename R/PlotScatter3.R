@@ -154,6 +154,7 @@ PlotScatter3 <- function(
     dpi             = 300,             # output resolution
     bg              = "white"          # output background colour
 ) {
+  if (!is.null(filename)) .check_plot_filename(filename)
 
   # ---- Validate inputs ----
   if (!is.character(cor_method) || !is.null(dim(cor_method)) ||

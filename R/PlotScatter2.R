@@ -145,6 +145,7 @@ PlotScatter2 <- function(
     height = 12,               # output height
     dpi = 300                  # output resolution
 ) {
+  if (!is.null(filename)) .check_plot_filename(filename)
 
   marginal_type <- match.arg(marginal_type)
 

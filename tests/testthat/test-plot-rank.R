@@ -415,6 +415,14 @@ test_that("rank data returns avoid constructing unused plots", {
   }
 })
 
+test_that("legacy plot filenames validate before data and graphics side effects", {
+  functions <- list(PlotRank, PlotDumbbell, PlotScatter1, PlotScatter2, PlotScatter3,
+    PlotCircleLollipop, PlotHeatmapJaccard, PlotButterfly, PlotButterfly2)
+  for (fun in functions) for (bad in list(character(), NA_character_, c("a.pdf", "b.pdf"), matrix("a.pdf"), 1))
+    expect_error(fun(data = stop("data evaluated"), filename = bad), "filename")
+  expect_invisible(.check_plot_filename("relative path.pdf"))
+})
+
 test_that("rank group selections reject dimensional and duplicated identifiers", {
   d <- matrix(1:6, 3, dimnames = list(letters[1:3], c("A", "B")))
   for (arg in c("groups", "group_levels"))

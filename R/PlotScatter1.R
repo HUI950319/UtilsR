@@ -128,6 +128,7 @@ PlotScatter1 <- function(
     height = 8,                # output height
     dpi = 300                  # output resolution
 ) {
+  if (!is.null(filename)) .check_plot_filename(filename)
 
   # ---- Check dependencies ----
   for (pkg in c("ggplot2", "patchwork")) {

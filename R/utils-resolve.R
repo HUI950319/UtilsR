@@ -294,6 +294,14 @@
 }
 
 
+# Validate legacy filename interfaces before analysis or graphics side effects.
+.check_plot_filename <- function(filename) {
+  if (!is.character(filename) || !is.null(dim(filename)) || length(filename) != 1L ||
+      is.na(filename) || !nzchar(filename))
+    cli::cli_abort("{.arg filename} must be a single non-missing file path.")
+  invisible(NULL)
+}
+
 # ---- .save_sized -------------------------------------------------------------
 
 # The save side effect of the plot functions: the page the plot is laid out

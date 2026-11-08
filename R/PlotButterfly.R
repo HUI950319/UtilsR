@@ -199,6 +199,7 @@ PlotButterfly <- function(
     height      = 8,
     filename    = NULL
 ) {
+  if (!is.null(filename)) .check_plot_filename(filename)
 
   type <- match.arg(type)
   for (arg in c("minmax", "add_box", "add_point")) {
