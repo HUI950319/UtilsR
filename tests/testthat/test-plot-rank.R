@@ -434,3 +434,11 @@ test_that("rank group selections reject dimensional and duplicated identifiers",
   expect_identical(levels(out[["Group"]]), c("B", "A"))
   expect_equal(nrow(out), 6L)
 })
+
+test_that("numeric rank selectors use matrix column labels", {
+  m <- matrix(c(10, 9, 8, 3, 2, 1), 3L, dimnames = list(letters[1:3], c("2", "1")))
+  actual <- PlotRank(m, groups = 1, return_type = "data")
+  expected <- PlotRank(m, groups = "1", return_type = "data")
+  expect_identical(actual, expected)
+  expect_identical(actual[["Score"]], c(3, 2, 1))
+})

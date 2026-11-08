@@ -372,7 +372,7 @@ PlotRank <- function(
       colnames(data)
     }
     return(lapply(setNames(cols, cols), function(ct) {
-      v <- score_values(data[, ct]); names(v) <- rownames(data); v
+      v <- score_values(data[, as.character(ct)]); names(v) <- rownames(data); v
     }))
   }
 
