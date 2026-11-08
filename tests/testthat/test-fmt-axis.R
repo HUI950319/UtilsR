@@ -431,6 +431,16 @@ test_that("patchwork dimensions that differ from the layout warn", {
   expect_no_warning(fmt_axis(list(p, p, p, p), plot_dims = c(4, 1)))
 })
 
+test_that("axis flags cannot bypass shape checks through the no-edit path", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  for (arg in c("x.axis", "y.axis")) for (value in c(TRUE, FALSE)) {
+    args <- list(plot = p)
+    args[[arg]] <- matrix(value)
+    expect_error(do.call("fmt_axis", args), arg)
+  }
+  expect_identical(fmt_axis(p, x.axis = FALSE, y.axis = FALSE), p)
+})
+
 test_that("axis grids reject dimensional counts and index arrays", {
   p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
   expect_error(fmt_axis(p, plot_dims = matrix(1)), "plot_dims")

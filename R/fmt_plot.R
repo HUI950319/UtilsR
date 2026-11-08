@@ -115,6 +115,11 @@
 #' @export
 #' @family plot formatting
 fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
+  for (arg in c("x.axis", "y.axis")) {
+    value <- get(arg)
+    if (is.logical(value) && !is.null(dim(value)))
+      cli::cli_abort("{.arg {arg}} must be a scalar logical or a vector of plot indices.")
+  }
   empty_axis <- function(x) {
     is.null(x) || isFALSE(x) ||
       (typeof(x) %in% c("integer", "double") && !is.object(x) && !length(x))

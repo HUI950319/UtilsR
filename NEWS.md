@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* fmt_axis() prevents logical arrays from bypassing validation through the no-edit shortcut.
+
 * fmt_tag() diagnoses dimensional colours and encoded font faces while retaining valid per-panel colours.
 
 * fmt_strip2() validates active strip colour vectors before processing plot grids.
