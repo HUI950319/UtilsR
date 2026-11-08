@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* fmt_legend() rejects dimensional collection flags, positions and titles before traversing plot containers.
+
 * fmt_panel() rejects dimensional colours, borders and line types before plot traversal.
 
 * fmt_text() checks font sizes and title alignment before plot traversal while retaining relative font sizes.

@@ -987,3 +987,12 @@ test_that("legend controls reject encoded scalars before inspecting plots", {
   expect_error(fmt_legend(stop("plot evaluated"), collect = NA), "collect")
   expect_error(fmt_legend(stop("plot evaluated"), legend.position = "invalid"), "legend.position")
 })
+
+test_that("legend controls reject shaped switches and positions before plots", {
+  for (arg in c("collect", "legend.position", "legend.direction")) {
+    args <- list(plot = quote(stop("plot evaluated")))
+    args[[arg]] <- matrix(switch(arg, collect = TRUE, legend.position = "right", legend.direction = "horizontal"))
+    expect_error(do.call("fmt_legend", args), arg)
+  }
+  expect_error(fmt_legend(stop("plot evaluated"), title = matrix("Title")), "title")
+})

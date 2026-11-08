@@ -954,6 +954,8 @@ fmt_legend <- function(plot,
     return(plot)
   }
   if (!is.null(legend.position)) {
+    if (!is.null(dim(legend.position)) || is.object(legend.position))
+      cli::cli_abort("{.arg legend.position} must be a plain position string or coordinate pair.")
     valid <- (is.character(legend.position) && length(legend.position) == 1L &&
       !is.na(legend.position) && legend.position %in%
         c("top", "bottom", "left", "right", "none", "inside", "br", "bl", "tr", "tl")) ||
@@ -963,17 +965,17 @@ fmt_legend <- function(plot,
     if (!valid) cli::cli_abort("{.arg legend.position} must be one supported position or two finite coordinates in [0, 1].")
   }
   if (!is.null(legend.direction) &&
-      !(is.character(legend.direction) && length(legend.direction) == 1L &&
+      !(is.character(legend.direction) && is.null(dim(legend.direction)) && length(legend.direction) == 1L &&
         !is.na(legend.direction) && legend.direction %in% c("horizontal", "vertical"))) {
     cli::cli_abort("{.arg legend.direction} must be 'horizontal' or 'vertical'.")
   }
   if (!is.null(legend_theme) && !inherits(legend_theme, "theme")) {
     cli::cli_abort("{.arg legend_theme} must be a ggplot2 theme object or NULL.")
   }
-  if (!is.logical(collect) || length(collect) != 1L || is.na(collect)) {
+  if (!is.logical(collect) || !is.null(dim(collect)) || length(collect) != 1L || is.na(collect)) {
     cli::cli_abort("{.arg collect} must be TRUE or FALSE.")
   }
-  if (!is.null(title) && (!is.character(title) || !length(title) || anyNA(title))) {
+  if (!is.null(title) && (!is.character(title) || !is.null(dim(title)) || !length(title) || anyNA(title))) {
     cli::cli_abort("{.arg title} must be a non-empty character vector without missing values.")
   }
   for (nm in c("scale", "scale_width", "scale_height", "ncol", "nrow")) {
