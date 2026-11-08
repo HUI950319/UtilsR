@@ -463,3 +463,12 @@ test_that("original confidence level preserves exact stored ratio bounds", {
   expect_equal(stat_ci_parse(x, exp = TRUE, level = .95, output = "p"),
                stat_ci_parse(x, exp = TRUE, output = "p"))
 })
+
+test_that("CI stars followed by a terminal period are harmless suffixes", {
+  x <- c("1 (0, 2)***.", "1 (0, 2) * . ")
+  expect_warning(formatted <- stat_ci(x), NA)
+  expect_identical(formatted, rep(stat_ci("1 (0, 2)"), 2L))
+  expect_warning(p <- stat_ci_parse(x, exp = FALSE, output = "p"), NA)
+  expect_equal(p, rep(.05, 2L))
+  expect_warning(stat_ci("1 (0, 2) note."), "trailing text")
+})
