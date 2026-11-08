@@ -208,3 +208,12 @@ test_that("grob margins diagnose invalid controls before converting plots", {
   for (bad in list(1, matrix(1), grid::unit(NA_real_, "mm")))
     expect_error(grob_add(stop("plot evaluated"), grid::nullGrob(), space = bad), "space")
 })
+
+test_that("margin additions reject non-graphics before building the main plot", {
+  for (bad in list(1, "text", list(1)))
+    expect_error(grob_add(stop("plot evaluated"), bad), "grob")
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  expect_s3_class(grob_add(p, stop("inactive"), position = "none"), "gtable")
+  additions <- list(grid::rectGrob(), grid::textGrob("Note"))
+  expect_s3_class(grob_add(p, additions, space = grid::unit(1, "cm")), "gtable")
+})

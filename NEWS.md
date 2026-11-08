@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* grob_add() rejects non-graphics before building the main plot while retaining native grob-list additions and disabled-addition laziness.
+
 * fmt_strip2() validates palette selector vectors before traversing the plot grid.
 
 * pal_show() rejects dimensional label switches through its shared viewer validator.

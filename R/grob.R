@@ -154,6 +154,9 @@ grob_add <- function(
     clip = "on") {
   position <- match.arg(position)
   if (position != "none" && !is.null(grob)) {
+    if (!grid::is.grob(grob) && !inherits(grob, c("ggplot", "patchwork", "gList")) &&
+        !(is.list(grob) && all(vapply(grob, grid::is.grob, logical(1)))))
+      stop("'grob' must be a graphic or a list of grobs.", call. = FALSE)
     if (!is.character(clip) || !is.null(dim(clip)) || length(clip) != 1L ||
         is.na(clip) || !clip %in% c("on", "off", "inherit"))
       stop("'clip' must be one of 'on', 'off' or 'inherit'.", call. = FALSE)
