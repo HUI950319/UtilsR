@@ -1,3 +1,16 @@
+test_that("ROC themes validate nonnegative sizes and layout settings", {
+  for (arg in c("base_size", "axis_text_size", "axis_title_size", "title_size",
+                "subtitle_size", "strip_size", "legend_text_size", "legend_title_size", "axis_linewidth"))
+    expect_error(do.call("theme_ROC", stats::setNames(list(-1), arg)), arg)
+  expect_error(theme_ROC(legend.position = matrix(c(.2, .8))), "legend.position")
+  expect_error(theme_ROC(legend.position = "unknown"), "legend.position")
+  expect_error(theme_ROC(plot_margin = c(1, 2, 3, 4)), "plot_margin")
+  expect_error(theme_ROC(plot_margin = grid::unit(Inf, "pt")), "plot_margin")
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  expect_s3_class(ggplot2::ggplotGrob(p + theme_ROC(legend.position = "none",
+    plot_margin = ggplot2::margin(-1, 0, 1, 2), axis_text_size = ggplot2::rel(.9))), "gtable")
+})
+
 test_that("legend themes validate active colour and face inputs", {
   for (arg in c("bg_linewidth", "key_linewidth", "key_size", "text_size", "title_size"))
     expect_error(do.call("theme_legend", stats::setNames(list(-1), arg)), arg)

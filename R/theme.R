@@ -972,10 +972,20 @@ theme_ROC <- function(
                 "subtitle_size", "strip_size", "legend_text_size", "legend_title_size", "axis_linewidth")) {
     value <- get(arg)
     if (!is.numeric(value) || !is.null(dim(value)) || length(value) != 1L ||
-        !is.finite(value) || (is.object(value) &&
+        !is.finite(value) || value < 0 || (is.object(value) &&
           (arg == "base_size" || !inherits(value, "rel"))))
       stop("'", arg, "' must be a single finite number.", call. = FALSE)
   }
+  if (!is.null(legend.position) &&
+      !(is.character(legend.position) && is.null(dim(legend.position)) &&
+        length(legend.position) == 1L && !is.na(legend.position) &&
+        legend.position %in% c("top", "bottom", "left", "right", "inside", "none")) &&
+      !(is.numeric(legend.position) && !is.object(legend.position) &&
+        is.null(dim(legend.position)) && length(legend.position) == 2L && all(is.finite(legend.position))))
+    stop("'legend.position' must be NULL, a legend position name or two finite coordinates.", call. = FALSE)
+  if (!is.null(plot_margin) && (!grid::is.unit(plot_margin) || !is.null(dim(plot_margin)) ||
+      any(is.infinite(as.numeric(plot_margin)))))
+    stop("'plot_margin' must be NULL or finite grid units.", call. = FALSE)
   ggplot2::theme_classic(base_size = base_size) +
     ggplot2::theme(
       # Axis
