@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* PlotScatter3() rejects ambiguous group level mappings before constructing scales.
+
 * theme_ROC() validates non-negative sizes, legend positions and margin units while retaining relative sizes and negative margins.
 
 * theme_legend() diagnoses invalid active colours, font-face arrays and negative text or key sizes while retaining inherited values and hidden-title laziness.

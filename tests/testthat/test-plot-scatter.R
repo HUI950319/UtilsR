@@ -1,3 +1,12 @@
+test_that("paired scatter group levels require two distinct vector entries", {
+  d <- data.frame(Control = 1:6, Treat = c(2, 2, 4, 5, 4, 7), group = rep(c("a", "b"), 3))
+  for (bad in list(c("a", "b", "c"), c("a", "a"), c("a", NA),
+                   matrix(c("a", "b")), list("a", "b")))
+    expect_error(PlotScatter3(d, group_levels = bad, test_method = "none", cor_method = "none"), "group_levels")
+  p <- PlotScatter3(d, group_levels = c("b", "a"), test_method = "none", cor_method = "none")
+  expect_identical(levels(p[[1]][["data"]][["group"]]), c("b", "a"))
+})
+
 scatter_main_points <- function(grob) {
   if (inherits(grob, "points") && grepl("geom_point", grob$name)) {
     return(length(grob$x))

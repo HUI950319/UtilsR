@@ -214,6 +214,10 @@ PlotScatter3 <- function(
            call. = FALSE)
     }
   }
+  if (!is.atomic(group_levels) || is.complex(group_levels) ||
+      !is.null(dim(group_levels)) || length(group_levels) != 2L ||
+      anyNA(group_levels) || anyDuplicated(as.character(group_levels)))
+    stop("'group_levels' must contain two distinct, non-missing values.", call. = FALSE)
   data[[group]] <- factor(data[[group]], levels = group_levels)
 
   # Colour scheme
