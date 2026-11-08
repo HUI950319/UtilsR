@@ -938,3 +938,12 @@ test_that("table highlighting preserves matched cells and missing values", {
   empty <- .cat_tb(data[FALSE, ], highlight_pattern = "hit", theme = "none")
   expect_equal(sum(!is.na(empty[["_styles"]][["rownum"]])), 0L)
 })
+
+test_that("messages retain explicit trailing blank lines", {
+  for (style in c("full", "chip")) {
+    out <- cli::ansi_strip(cli::cli_fmt(.cat_message(c("first\n", "second\n\n"), style = style, timestamp_format = NULL)))
+    expect_length(out, 5L)
+    expect_identical(trimws(out[c(2L, 4L, 5L)]), rep("", 3L))
+    expect_match(out[[3L]], "second", fixed = TRUE)
+  }
+})

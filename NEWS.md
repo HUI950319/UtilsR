@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `.cat_message()` retains trailing empty lines in each message element.
+
 * `fct_to_group()` diagnoses matrix-shaped group lists before regrouping levels.
 
 * Legacy Plot functions validate filename scalars before data processing or device creation while retaining NULL no-save behavior.

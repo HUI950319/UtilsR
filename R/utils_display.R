@@ -203,7 +203,7 @@ console_width <- function() {
   # every element on its own lines; "" is one empty line
   message <- as.character(message)
   message[is.na(message)] <- "NA"
-  lines <- unlist(lapply(strsplit(message, "\n"),
+  lines <- unlist(lapply(strsplit(paste0(message, "\n"), "\n", fixed = TRUE),
                          function(l) if (length(l)) l else ""))
   # format(x, "") would fall back to R's default format, not drop the stamp
   ts    <- if (is.null(timestamp_format) || !nzchar(timestamp_format)) "" else
