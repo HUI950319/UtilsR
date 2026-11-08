@@ -2968,6 +2968,16 @@ fmt_text <- function(plot,
         (is.object(value) && (arg == "title_hjust" || !inherits(value, "rel")))))
       cli::cli_abort("{.arg {arg}} must be NULL or a finite scalar in its allowed range.")
   }
+  for (arg in c("title_face", "title_color", "subtitle_face", "subtitle_color",
+                "caption_face", "caption_color", "axis_title_face", "axis_title_color")) {
+    value <- get(arg)
+    if (is.null(value)) next
+    if (!is.atomic(value) || !length(value) || !is.null(dim(value)))
+      cli::cli_abort("{.arg {arg}} must be NULL or a non-empty vector.")
+    if (endsWith(arg, "_color") && !tryCatch({ grDevices::col2rgb(value); TRUE },
+        error = function(e) FALSE, warning = function(w) FALSE))
+      cli::cli_abort("{.arg {arg}} must contain valid R colours.")
+  }
   info <- .to_plot_list(plot, recurse = TRUE)
   n <- length(info$plots)
   if (!is.null(axis_titles)) {

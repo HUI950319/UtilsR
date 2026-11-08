@@ -197,3 +197,20 @@ test_that("shared text options reject table and array containers", {
   expect_error(UtilsR:::.apply_fmt_text(p, config), "fmt_text")
   expect_identical(UtilsR:::.apply_fmt_text(p, list(title = "Title"))$labels$title, "Title")
 })
+
+test_that("text styles reject arrays and invalid colours before evaluating plots", {
+  for (prefix in c("title", "subtitle", "caption", "axis_title")) {
+    for (field in c("face", "color")) {
+      arg <- paste0(prefix, "_", field)
+      value <- if (field == "face") "bold" else "red"
+      args <- c(list(plot = quote(stop("plot evaluated"))), stats::setNames(list(matrix(value)), arg))
+      expect_error(do.call("fmt_text", args), arg)
+    }
+    arg <- paste0(prefix, "_color")
+    args <- c(list(plot = quote(stop("plot evaluated"))), stats::setNames(list("invalid-colour"), arg))
+    expect_error(do.call("fmt_text", args), arg)
+  }
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  q <- fmt_text(p, title = "Title", title_face = 2, title_color = 1, title_size = ggplot2::rel(.9))
+  expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
+})

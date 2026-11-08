@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* fmt_text() rejects dimensional style inputs and invalid colours before traversing plots while retaining native numeric colours and font faces.
+
 * fmt_expand() validates axis selector dimensions before evaluating or changing the plot.
 
 * PlotDumbbell() validates scalar endpoint labels before legend construction and retains numeric-label conversion.
