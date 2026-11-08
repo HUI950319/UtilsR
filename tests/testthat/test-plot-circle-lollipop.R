@@ -1,3 +1,11 @@
+test_that("circular group orders reject non-vector level containers", {
+  for (bad in list(matrix(c("A", "B")), list("A", "B")))
+    expect_error(PlotCircleLollipop(stop("data evaluated"), group_levels = bad), "group_levels")
+  testthat::local_mocked_bindings(circos.initialize = function(...) stop("drawing started"), .package = "circlize")
+  d <- data.frame(group = rep(c("A", "B"), each = 2), name = letters[1:4], value = 1:4)
+  expect_error(PlotCircleLollipop(d, group_levels = c("B", "A", "unused"), show_labels = FALSE), "drawing started")
+})
+
 test_that("circular optional colour selectors validate before reading data", {
   for (bad in list(NA_character_, character(), c("a", "b"), matrix("colour")))
     expect_error(PlotCircleLollipop(stop("data evaluated"), color_col = bad), "color_col")

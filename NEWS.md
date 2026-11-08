@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* PlotCircleLollipop() rejects non-vector group-order containers while retaining unused-level removal.
+
 * grob_insert() diagnoses unsupported inset objects before building the main plot.
 
 * PlotScatter1() rejects dimensional and list-valued group orders before reading the data.
