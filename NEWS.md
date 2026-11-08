@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* theme_sc() and theme_blank() diagnose unnamed or repeated dynamic theme elements instead of silently ignoring them.
+
 * Base theme constructors reject negative font and line sizes while retaining zero sizes and reversed coordinate arrows.
 
 * PlotCircleLollipop() validates optional colour column selectors before reading data while retaining its absent-column fallback.

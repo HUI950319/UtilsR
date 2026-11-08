@@ -1,3 +1,13 @@
+test_that("theme overrides require unambiguous element names", {
+  for (fun in list(function(...) theme_sc(NULL, 12, ...),
+                   function(...) theme_blank(FALSE, .15, .15, "", "", 12, ...))) {
+    expect_error(fun(!!!list(ggplot2::element_blank())), "named")
+    args <- list(panel.grid = ggplot2::element_blank(), panel.grid = ggplot2::element_line())
+    expect_error(fun(!!!args), "unique")
+  }
+  expect_null(theme_sc(panel.grid = NULL)[["panel.grid"]])
+})
+
 test_that("base theme constructors reject negative font and line dimensions", {
   for (arg in c("base_size", "base_line_size", "base_rect_size"))
     expect_error(do.call("theme_my", stats::setNames(list(-1), arg)), arg)

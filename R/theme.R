@@ -783,7 +783,9 @@ theme_sc <- function(
       linewidth = 1
     )
   )
-  args2 <- rlang::dots_list(..., .ignore_empty = "all")
+  args2 <- rlang::dots_list(..., .ignore_empty = "all", .homonyms = "error")
+  if (length(args2) && (is.null(names(args2)) || anyNA(names(args2)) || any(!nzchar(names(args2)))))
+    stop("Theme elements in '...' must be named.", call. = FALSE)
   for (n in names(args2)) {
     args1[[n]] <- args2[[n]]
   }
@@ -861,7 +863,9 @@ theme_blank <- function(
       unit = "points"
     )
   )
-  args2 <- rlang::dots_list(..., .ignore_empty = "all")
+  args2 <- rlang::dots_list(..., .ignore_empty = "all", .homonyms = "error")
+  if (length(args2) && (is.null(names(args2)) || anyNA(names(args2)) || any(!nzchar(names(args2)))))
+    stop("Theme elements in '...' must be named.", call. = FALSE)
   for (n in names(args2)) {
     args1[[n]] <- args2[[n]]
   }
