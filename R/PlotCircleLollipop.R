@@ -268,6 +268,9 @@ PlotCircleLollipop <- function(
   if (anyNA(df$group))
     stop("Group labels must not be missing or excluded by group_levels.", call. = FALSE)
   df$group <- droplevels(df$group)
+  total_gap <- (nlevels(df$group) - 1L) * gap_between + gap_after
+  if (!is.finite(total_gap) || total_gap >= 360)
+    stop("'gap_after' and 'gap_between' must leave a positive angular span for sectors.", call. = FALSE)
 
   # ---- Per-group x positions (uniform spacing within each sector) ----
   df <- df |>

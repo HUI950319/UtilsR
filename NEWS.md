@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* PlotCircleLollipop() diagnoses excessive total sector gaps before creating an output file or opening a graphics device.
+
 * fct_num() rejects dimensional replacement labels instead of silently flattening them into factor levels.
 
 * stat_ci_parse() rejects dimensional logical scale flags before interpreting confidence intervals.

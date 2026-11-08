@@ -1,3 +1,15 @@
+test_that("circular sector gaps are checked before output devices are opened", {
+  d <- data.frame(group = rep(c("A", "B", "C"), each = 2), name = letters[1:6], value = 1:6)
+  before <- grDevices::dev.cur()
+  file <- withr::local_tempfile(fileext = ".pdf")
+  for (gap in list(c(360, 2), c(20, 170), c(1e308, 1e308))) {
+    expect_error(PlotCircleLollipop(d, gap_after = gap[1], gap_between = gap[2],
+      show_labels = FALSE, show_links = FALSE, filename = file), "gap")
+    expect_identical(file.exists(file), FALSE)
+    expect_identical(grDevices::dev.cur(), before)
+  }
+})
+
 test_that("circular top counts reject dimensional and encoded storage before drawing", {
   testthat::local_mocked_bindings(circos.initialize = function(...) stop("drawing started"),
                                   .package = "circlize")
