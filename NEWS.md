@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* fmt_bg() diagnoses matrix colour specifications before evaluating plots and retains named colour mappings.
+
 * fmt_legend() rejects dimensional collection flags, positions and titles before traversing plot containers.
 
 * fmt_panel() rejects dimensional colours, borders and line types before plot traversal.

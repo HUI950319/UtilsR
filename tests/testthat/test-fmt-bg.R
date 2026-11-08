@@ -522,3 +522,9 @@ test_that("backgrounds stay inside panels while foreground clipping remains off"
     }
   }
 })
+
+test_that("background colours reject arrays before inspecting plots", {
+  expect_error(fmt_bg(stop("plot evaluated"), palcolor = matrix("red")), "palcolor")
+  p <- ggplot2::ggplot(data.frame(x = c("A", "B"), y = 1:2), ggplot2::aes(x, y)) + ggplot2::geom_point()
+  expect_s3_class(ggplot2::ggplotGrob(fmt_bg(p, palcolor = c(A = "red", B = "blue"))), "gtable")
+})

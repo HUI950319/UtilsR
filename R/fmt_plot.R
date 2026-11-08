@@ -4650,7 +4650,7 @@ fmt_bg <- function(plot,
   }
 
   if (!is.null(palcolor)) {
-    if (!is.character(palcolor) || !length(palcolor) || anyNA(palcolor)) {
+    if (!is.character(palcolor) || !is.null(dim(palcolor)) || !length(palcolor) || anyNA(palcolor)) {
       cli::cli_abort("{.arg palcolor} must be a non-empty character colour vector.")
     }
     color_names <- names(palcolor)
