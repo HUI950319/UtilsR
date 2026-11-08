@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* fmt_strip2() validates palette selector vectors before traversing the plot grid.
+
 * pal_show() rejects dimensional label switches through its shared viewer validator.
 
 * PlotScatter1() and PlotScatter2() share canonical correlation annotation formatting without changing computed estimates or p-values.

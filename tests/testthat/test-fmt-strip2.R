@@ -11,6 +11,13 @@
   unname(unlist(lapply(strips, text_nodes), recursive = FALSE))
 }
 
+test_that("grid strip palette selectors reject arrays before plot traversal", {
+  for (bad in list(matrix("Grays"), matrix(c("Grays", "Greens"))))
+    expect_error(fmt_strip2(stop("plot evaluated"), top_label = "A", top_right_fill = bad), "top_right_fill")
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  expect_s3_class(ggplot2::ggplotGrob(fmt_strip2(p, top_label = "A", top_right_fill = "Grays")), "gtable")
+})
+
 test_that("strip formatting rejects dimensional labels and switches", {
   expect_error(fmt_strip(stop("plot evaluated"), strip = matrix(TRUE)), "strip")
   p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()

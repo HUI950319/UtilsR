@@ -2257,6 +2257,11 @@ fmt_strip2 <- function(plot,
     }
   }
   if (is.null(top_label) && is.null(right_label)) return(fmt_strip(plot, strip = FALSE))
+  if (!is.null(top_right_fill) &&
+      (!is.character(top_right_fill) || !is.null(dim(top_right_fill)) ||
+       !length(top_right_fill) || length(top_right_fill) > 2L ||
+       anyNA(top_right_fill) || any(!nzchar(top_right_fill))))
+    cli::cli_abort("`top_right_fill` must contain one or two non-empty palette names.")
   colours <- list(
     top_fill = if (!is.null(top_label)) top_fill,
     right_fill = if (!is.null(right_label)) right_fill,
@@ -2375,12 +2380,6 @@ fmt_strip2 <- function(plot,
   rightmost <- grid_cols == stats::ave(grid_cols, grid_rows, FUN = max)
 
   if (!is.null(top_right_fill)) {
-    if (!is.character(top_right_fill) || !length(top_right_fill) || length(top_right_fill) > 2L ||
-        anyNA(top_right_fill) || any(!nzchar(top_right_fill))) {
-      cli::cli_abort(
-        "`top_right_fill` must contain one or two non-empty palette names."
-      )
-    }
     top_right_fill <- rep_len(top_right_fill, 2L)
     make_hcl_fill <- function(palette, n) {
       ramp <- tryCatch(colorspace::sequential_hcl(n = 100L, palette = palette),
