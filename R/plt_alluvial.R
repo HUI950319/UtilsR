@@ -185,10 +185,14 @@ plt_alluvial <- function(
   if (!is.data.frame(data)) {
     cli::cli_abort("{.arg data} must be a data frame.")
   }
+  if (anyNA(names(data)) || any(!nzchar(names(data))) || anyDuplicated(names(data))) {
+    cli::cli_abort("{.arg data} must have unique, non-missing, non-empty column names.")
+  }
 
   check_column <- function(value, arg) {
     if (
       !is.character(value) ||
+        !is.null(dim(value)) ||
         length(value) != 1L ||
         is.na(value) ||
         !nzchar(value)

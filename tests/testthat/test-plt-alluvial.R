@@ -6,6 +6,20 @@ alluvial_data <- function() {
   )
 }
 
+test_that("alluvial column selectors reject dimensions and ambiguous input names", {
+  skip_if_not_installed("ggalluvial")
+  d <- alluvial_data()
+  for (arg in c("cat_var", "group", "facet")) {
+    value <- c(cat_var = "category", group = "group", facet = "panel")[[arg]]
+    args <- list(data = d, cat_var = "category", group = "group", theme_use = quote(stop("theme evaluated")))
+    args[[arg]] <- matrix(value)
+    expect_error(do.call("plt_alluvial", args), arg)
+  }
+  d[["duplicate"]] <- d[["group"]]
+  names(d)[4] <- "group"
+  expect_error(plt_alluvial(d, "category", "group"), "unique.*column names")
+})
+
 test_that("alluvial controls reject encoded and dimensional numeric settings", {
   skip_if_not_installed("ggalluvial")
   d <- data.frame(x = c("a", "b"), y = c("c", "d"))
