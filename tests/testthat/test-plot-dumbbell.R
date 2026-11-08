@@ -382,3 +382,11 @@ test_that("PlotDumbbell reuses the resolved main theme in automatic insets", {
   expect_equal(plot[[1L]]$theme$text$size, 17)
   expect_equal(inset$theme$text$size, 23)
 })
+
+test_that("dumbbell category columns retain vector boundaries", {
+  d <- data.frame(start = 1:2, end = 3:4)
+  d[["category"]] <- I(matrix(c("a", "b"), ncol = 1L))
+  expect_error(PlotDumbbell(d), "category.*vector")
+  d[["category"]] <- c("a", "b")
+  expect_s3_class(PlotDumbbell(d, legend_pos = "none"), "ggplot")
+})

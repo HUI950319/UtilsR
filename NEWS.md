@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotDumbbell()` rejects matrix-shaped category columns instead of flattening labels.
+
 * `.cat_message()` retains trailing empty lines in each message element.
 
 * `fct_to_group()` diagnoses matrix-shaped group lists before regrouping levels.

@@ -226,6 +226,8 @@ PlotDumbbell <- function(
       stop("Column '", col, "' not found in data.", call. = FALSE)
     }
   }
+  if (!is.null(dim(data[[y_col]])))
+    stop("Column '", y_col, "' must contain a category vector without dimensions.", call. = FALSE)
   for (col in c(x_col, xend_col)) {
     value <- data[[col]]
     if (is.complex(value) || !is.null(dim(value)) ||
