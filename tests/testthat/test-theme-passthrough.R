@@ -277,3 +277,22 @@ test_that("theme_blank validates arrow controls and preserves disabled-arrow laz
   expect_type(theme_blank(add_coord = FALSE, xlen_npc = stop("length evaluated"),
                            ylen_npc = stop("length evaluated")), "list")
 })
+
+test_that("legend factor colours draw their labels rather than palette indices", {
+  color <- factor("red", levels = c("blue", "red"))
+  fields <- list(bg_fill = c("legend.background", "fill"), bg_color = c("legend.background", "colour"), key_fill = c("legend.key", "fill"), key_color = c("legend.key", "colour"), text_color = c("legend.text", "colour"), title_color = c("legend.title", "colour"))
+  for (arg in names(fields)) {
+    theme <- do.call(theme_legend, stats::setNames(list(color), arg))
+    expect_identical(theme[[fields[[arg]][1L]]][[fields[[arg]][2L]]], "red")
+  }
+  expect_identical(theme_legend(bg_fill = 2)$legend.background$fill, 2)
+  skip_if_not_installed("ragg")
+  draw <- function(fill) {
+    capture <- ragg::agg_capture(width = 20, height = 20, units = "px", background = "white")
+    on.exit(grDevices::dev.off())
+    theme <- theme_legend(bg_fill = fill)
+    grid::grid.draw(ggplot2::element_grob(theme$legend.background))
+    capture()[10L, 10L]
+  }
+  expect_identical(draw(color), draw("red"))
+})

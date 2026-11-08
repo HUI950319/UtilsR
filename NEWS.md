@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `theme_legend()` draws factor colour labels correctly while preserving numeric palette indices.
+
 * `impute_na_knn()` preserves donor distances under large common numeric offsets and restores imputed values to their original origin.
 
 * `lv(group = ...)` decodes serialized integer64 groups before calculating levels and missing-group counts.

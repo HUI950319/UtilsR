@@ -557,6 +557,7 @@ theme_legend <- function(bg_fill = "white",
     tryCatch(grDevices::col2rgb(value, alpha = TRUE), error = function(e) {
       stop("'", arg, "' must contain valid R colours.", call. = FALSE)
     })
+    if (is.factor(value)) assign(arg, as.character(value))
   }
   for (arg in c("text_face", if (show_title) "title_face")) {
     if (!is.null(dim(get(arg))))
