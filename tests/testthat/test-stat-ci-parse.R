@@ -455,3 +455,11 @@ test_that("subnormal difference intervals preserve scale invariant P values", {
     expect_equal(stat_ci_parse(tiny, exp = FALSE, level = level, output = "p"),
                  stat_ci_parse(control, exp = FALSE, level = level, output = "p"), tolerance = 1e-12)
 })
+
+test_that("original confidence level preserves exact stored ratio bounds", {
+  x <- c("1e200 (5e199, 2e200)", "1e-200 (5e-201, 2e-200)")
+  expect_identical(stat_ci_parse(x, exp = TRUE, level = .95, digits = 1),
+                   stat_ci_parse(x, exp = TRUE, digits = 1))
+  expect_equal(stat_ci_parse(x, exp = TRUE, level = .95, output = "p"),
+               stat_ci_parse(x, exp = TRUE, output = "p"))
+})

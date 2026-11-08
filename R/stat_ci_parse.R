@@ -231,11 +231,13 @@ stat_ci_parse <- function(x,
   # --- Adjust CI level; p is then read off the adjusted CI as a 95% CI ---
   if (!is.null(level)) {
     if (is.null(digits)) d <- pmax(d, 1L)   # "2 (1, 3)" -> "2.0 (1.2, 2.8)"
-    l_s <- ifelse(asym, e_s - (e_s - l_s) * ratio, e_s - z_new * se)
-    h_s <- ifelse(asym, e_s + (h_s - e_s) * ratio, e_s + z_new * se)
-    lo <- ifelse(valid, ifelse(is_exp, exp(l_s), l_s * work_scale), lo)
-    hi <- ifelse(valid, ifelse(is_exp, exp(h_s), h_s * work_scale), hi)
-    se <- se_of(l_s, h_s)
+    if (level != .95) {
+      l_s <- ifelse(asym, e_s - (e_s - l_s) * ratio, e_s - z_new * se)
+      h_s <- ifelse(asym, e_s + (h_s - e_s) * ratio, e_s + z_new * se)
+      lo <- ifelse(valid, ifelse(is_exp, exp(l_s), l_s * work_scale), lo)
+      hi <- ifelse(valid, ifelse(is_exp, exp(h_s), h_s * work_scale), hi)
+      se <- se_of(l_s, h_s)
+    }
   }
   # An estimate on the null has z = 0 even when its null-side half has
   # rounded to zero width (0 / 0)
