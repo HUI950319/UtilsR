@@ -2953,6 +2953,13 @@ fmt_text <- function(plot,
                      axis_titles = "collect",
                      ...) {
 
+  for (arg in c("title_size", "subtitle_size", "caption_size", "axis_title_size", "title_hjust")) {
+    value <- get(arg)
+    if (!is.null(value) && (!is.numeric(value) || !is.null(dim(value)) || length(value) != 1L ||
+        !is.finite(value) || (arg != "title_hjust" && value < 0) ||
+        (is.object(value) && (arg == "title_hjust" || !inherits(value, "rel")))))
+      cli::cli_abort("{.arg {arg}} must be NULL or a finite scalar in its allowed range.")
+  }
   info <- .to_plot_list(plot, recurse = TRUE)
   n <- length(info$plots)
   if (!is.null(axis_titles)) {

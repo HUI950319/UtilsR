@@ -178,3 +178,14 @@ test_that("fmt_text() changes axis_titles only when an axis title is set", {
   expect_identical(fmt_text(pw, ylab = "Y")$patches$layout$axis_titles, "collect")
   expect_error(fmt_text(pw, title_size = 14, axis_titles = "colect"), "axis_titles")
 })
+
+test_that("plot text styles diagnose invalid sizes before inspecting plots", {
+  for (arg in c("title_size", "subtitle_size", "caption_size", "axis_title_size", "title_hjust"))
+    for (bad in list(NA_real_, Inf, matrix(1), structure(1, class = "encoded_number"))) {
+      args <- list(plot = quote(stop("plot evaluated")))
+      args[[arg]] <- bad
+      expect_error(do.call("fmt_text", args), arg)
+    }
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  expect_s3_class(ggplot2::ggplotGrob(fmt_text(p, title = "Title", title_size = ggplot2::rel(1.2))), "gtable")
+})
