@@ -1,3 +1,16 @@
+test_that("dual scatter mappings reject ambiguous keys and dimensional containers", {
+  d <- data.frame(x = 1:6, y = 6:1, g = rep(c("a", "b"), 3), h = rep(c("a", "b"), 3))
+  for (arg in c("colors", "shapes", "fill_colors_shape")) {
+    values <- if (arg == "shapes") c(16, 17, 15) else c("red", "blue", "green")
+    for (bad in list(stats::setNames(values, c("a", "a", "b")), matrix(values))) {
+      args <- c(list(data = d, x = "x", y = "y", group = "g", group2 = "h"), stats::setNames(list(bad), arg))
+      expect_error(do.call("PlotScatter2", args), arg)
+    }
+  }
+  expect_s3_class(PlotScatter2(d, "x", "y", "g", shapes = stop("inactive"),
+                              fill_colors_shape = stop("inactive")), "patchwork")
+})
+
 test_that("paired scatter group levels require two distinct vector entries", {
   d <- data.frame(Control = 1:6, Treat = c(2, 2, 4, 5, 4, 7), group = rep(c("a", "b"), 3))
   for (bad in list(c("a", "b", "c"), c("a", "a"), c("a", NA),
