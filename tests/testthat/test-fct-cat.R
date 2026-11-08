@@ -644,3 +644,10 @@ test_that("ref_idx = 0 is the same as NULL: nothing collapses", {
   expect_error(fct_cat(x, ref_idx = c(0, 1)), "between 1 and 3")
   expect_warning(expect_identical(fct_cat(x, binary_ref = 0), x), "deprecated")
 })
+
+test_that("group wrappers reject dimensional list containers", {
+  x <- factor(c("a", "b", "c"))
+  groups <- structure(list(1:2, 3L), dim = c(2L, 1L))
+  expect_error(fct_to_group(x, groups), "g_lis.*list")
+  expect_identical(levels(fct_to_group(x, list(1:2, 3L))), c("g1/2", "g3"))
+})

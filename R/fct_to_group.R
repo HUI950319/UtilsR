@@ -53,7 +53,7 @@ fct_to_group <- function(x, g_lis,
                          name_prefix = "g",
                          name_sep    = "/") {
 
-  if (!is.list(g_lis) || length(g_lis) == 0L) {
+  if (!is.list(g_lis) || !is.null(dim(g_lis)) || length(g_lis) == 0L) {
     cli::cli_abort("{.arg g_lis} must be a non-empty list of integer index vectors.")
   }
 

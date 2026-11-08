@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fct_to_group()` diagnoses matrix-shaped group lists before regrouping levels.
+
 * Legacy Plot functions validate filename scalars before data processing or device creation while retaining NULL no-save behavior.
 
 * PlotButterfly2() validates active fill palette structure, mapping names and colour literals before rendering.
