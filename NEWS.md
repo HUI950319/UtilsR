@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* fmt_his() rejects dimensional colours and column selectors while retaining native bin counts.
+
 * pr_head() validates class labels before evaluating optional summary expressions.
 
 * pr_section() diagnoses malformed titles before constructing a console rule.

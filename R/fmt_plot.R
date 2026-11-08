@@ -4969,7 +4969,8 @@ fmt_his <- function(plot,
     cli::cli_abort("{.arg adjust} must be a positive finite number.")
   if (!scalar(his_alpha) || his_alpha < 0 || his_alpha > 1)
     cli::cli_abort("{.arg his_alpha} must be a finite number from 0 to 1.")
-  if (length(his_color) != 1L || (!is.character(his_color) && !is.na(his_color)))
+  if (!is.null(dim(his_color)) || length(his_color) != 1L ||
+      (!is.character(his_color) && !is.na(his_color)))
     cli::cli_abort("{.arg his_color} must be a single colour or NA.")
   tryCatch(grDevices::col2rgb(his_color), error = function(e) {
     cli::cli_abort("Invalid {.arg his_color}.", parent = e)
@@ -4980,7 +4981,8 @@ fmt_his <- function(plot,
   if (!is.null(ylim) && (!is.numeric(ylim) || is.object(ylim) || !is.null(dim(ylim)) ||
       length(ylim) != 2L || any(is.infinite(ylim)) || any(is.nan(ylim))))
     cli::cli_abort("{.arg ylim} must contain two finite numbers or NA endpoints.")
-  if (!is.null(con_var) && (!is.character(con_var) || length(con_var) != 1L || is.na(con_var) || !nzchar(con_var)))
+  if (!is.null(con_var) && (!is.character(con_var) || !is.null(dim(con_var)) ||
+      length(con_var) != 1L || is.na(con_var) || !nzchar(con_var)))
     cli::cli_abort("{.arg con_var} must be a single non-empty column name.")
   if (!is.null(data) && !is.data.frame(data) && !is.function(data) && !inherits(data, "formula"))
     cli::cli_abort("{.arg data} must be a data frame, function, formula or NULL.")

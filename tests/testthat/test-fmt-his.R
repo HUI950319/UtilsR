@@ -8,6 +8,15 @@ his_test_build <- function(plot, ...) {
   ggplot2::ggplot_build(suppressMessages(fmt_his(plot, ...)))
 }
 
+test_that("distribution overlays reject dimensional colours and selectors", {
+  p <- his_test_plot()
+  expect_error(fmt_his(p, his_color = matrix("red")), "his_color")
+  expect_error(fmt_his(p, con_var = matrix("x")), "con_var")
+  built <- his_test_build(p, his_color = "red", con_var = "x", binwidth = 1)
+  expect_identical(built$data[[2]]$fill, rep("red", 3))
+  expect_equal(built$data[[2]]$count, c(10, 20, 30))
+})
+
 test_that("histogram overlays preserve nonzero and equal bin frequencies", {
   p <- his_test_plot()
   bars <- his_test_build(p, binwidth = 1)$data[[2L]]
