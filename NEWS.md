@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* fmt_point() requires plain named lists for active jitter and beeswarm options while leaving unused options lazy.
+
 * fmt_scale() rejects table and array option containers before inspecting plot inputs.
 
 * Shared plot option merging rejects table and array containers before combining partial settings.

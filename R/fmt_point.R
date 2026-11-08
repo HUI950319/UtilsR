@@ -158,7 +158,7 @@ fmt_point <- function(plot,
   # Jitter defaults
   jit <- list(width = 0.2, height = 0)
   if (type == "jitter") {
-    if (!is.list(jitter.args) ||
+    if (!is.list(jitter.args) || is.object(jitter.args) || !is.null(dim(jitter.args)) ||
         (length(jitter.args) && (is.null(names(jitter.args)) ||
          anyNA(names(jitter.args)) || any(!nzchar(names(jitter.args))) ||
          anyDuplicated(names(jitter.args))))) {
@@ -185,7 +185,7 @@ fmt_point <- function(plot,
     if (!requireNamespace("ggbeeswarm", quietly = TRUE)) {
       cli::cli_abort("Package {.pkg ggbeeswarm} is required for type='beeswarm'.")
     }
-    if (!is.list(beeswarm.args) ||
+    if (!is.list(beeswarm.args) || is.object(beeswarm.args) || !is.null(dim(beeswarm.args)) ||
         (length(beeswarm.args) && (is.null(names(beeswarm.args)) ||
          anyNA(names(beeswarm.args)) || any(!nzchar(names(beeswarm.args))) ||
          anyDuplicated(names(beeswarm.args))))) {

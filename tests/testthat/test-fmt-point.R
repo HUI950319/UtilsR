@@ -1,3 +1,14 @@
+test_that("point position options reject table containers only on active paths", {
+  expect_error(fmt_point(stop("plot evaluated"), type = "jitter",
+    jitter.args = data.frame(width = .2)), "jitter.args")
+  expect_error(fmt_point(stop("plot evaluated"), type = "beeswarm",
+    beeswarm.args = data.frame(cex = 3)), "beeswarm.args")
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x))
+  built <- ggplot2::ggplot_build(fmt_point(p, jitter.args = stop("unused"),
+    beeswarm.args = stop("unused")))
+  expect_equal(built$data[[1]]$x, 1:3)
+})
+
 test_that("white borders resolve stage masks in isolated mapping environments", {
   d <- data.frame(x = 1:4, y = 4:1, g = rep(c("a", "b"), 2))
   mapping <- ggplot2::aes(x, y, colour = g, shape = g)
