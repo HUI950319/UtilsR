@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* theme_legend() diagnoses invalid active colours, font-face arrays and negative text or key sizes while retaining inherited values and hidden-title laziness.
+
 * theme_my() rejects factor-coded and dimensional palette selectors before looking up theme colours.
 
 * .cat_saved() diagnoses repeated and dimensional fields before constructing a single saved-file notice.

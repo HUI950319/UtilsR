@@ -540,13 +540,28 @@ theme_legend <- function(bg_fill = "white",
     value <- get(arg)
     relative <- arg %in% c("bg_linewidth", "key_linewidth", "text_size", "title_size")
     if (!is.numeric(value) || !is.null(dim(value)) || length(value) != 1L ||
-        !is.finite(value) || (is.object(value) && !(relative && inherits(value, "rel"))))
+        !is.finite(value) || (arg != "spacing" && value < 0) ||
+        (is.object(value) && !(relative && inherits(value, "rel"))))
       stop("'", arg, "' must be a single finite number.", call. = FALSE)
   }
   if (!is.numeric(margin) || is.object(margin) || !is.null(dim(margin)) ||
       length(margin) != 4L || any(!is.finite(margin)))
     stop("'margin' must contain four finite numeric values.", call. = FALSE)
 
+  for (arg in c("bg_fill", "bg_color", "key_fill", "key_color", "text_color",
+                if (show_title) "title_color")) {
+    value <- get(arg)
+    if (is.null(value)) next
+    if (!is.null(dim(value)) || !length(value))
+      stop("'", arg, "' must contain valid R colours without dimensions.", call. = FALSE)
+    tryCatch(grDevices::col2rgb(value, alpha = TRUE), error = function(e) {
+      stop("'", arg, "' must contain valid R colours.", call. = FALSE)
+    })
+  }
+  for (arg in c("text_face", if (show_title) "title_face")) {
+    if (!is.null(dim(get(arg))))
+      stop("'", arg, "' must not have dimensions.", call. = FALSE)
+  }
   title_el <- if (show_title) {
     ggplot2::element_text(size = title_size, colour = title_color, face = title_face)
   } else {

@@ -1,3 +1,17 @@
+test_that("legend themes validate active colour and face inputs", {
+  for (arg in c("bg_linewidth", "key_linewidth", "key_size", "text_size", "title_size"))
+    expect_error(do.call("theme_legend", stats::setNames(list(-1), arg)), arg)
+  for (arg in c("bg_fill", "bg_color", "key_fill", "key_color", "text_color", "title_color"))
+    for (bad in list(matrix("red"), "not-a-colour"))
+      expect_error(do.call("theme_legend", stats::setNames(list(bad), arg)), arg)
+  expect_error(theme_legend(text_face = matrix("bold")), "text_face")
+  expect_error(theme_legend(title_face = matrix("bold")), "title_face")
+  expect_s3_class(theme_legend(show_title = FALSE, title_color = stop("unused"),
+    title_face = stop("unused"), bg_fill = NULL), "theme")
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x, colour = factor(x))) + ggplot2::geom_point()
+  expect_s3_class(ggplot2::ggplotGrob(p + theme_legend(bg_fill = NA, text_color = "red")), "gtable")
+})
+
 test_that("prism palette selectors reject positional factor codes and arrays", {
   for (bad in list(factor("black_and_white"), NULL, NA_character_,
                    matrix("black_and_white"), c("black_and_white", "office")))
