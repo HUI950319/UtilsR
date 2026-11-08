@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* PlotScatter1() validates active raster resolution, including whole-pixel limits for scattermore, while keeping disabled raster settings lazy.
+
 * fmt_his() rejects dimensional colours and column selectors while retaining native bin counts.
 
 * pr_head() validates class labels before evaluating optional summary expressions.

@@ -161,6 +161,11 @@ PlotScatter1 <- function(
   if (!is.numeric(layout_ratio) || is.object(layout_ratio) || !is.null(dim(layout_ratio)) ||
       length(layout_ratio) != 2L || any(!is.finite(layout_ratio)) || any(layout_ratio <= 0))
     stop("'layout_ratio' must contain two finite positive numbers.", call. = FALSE)
+  if (raster && (!is.numeric(raster.dpi) || is.object(raster.dpi) ||
+      !is.null(dim(raster.dpi)) || length(raster.dpi) != 1L || !is.finite(raster.dpi) ||
+      raster.dpi <= 0 || (raster_method == "scattermore" &&
+        (raster.dpi != trunc(raster.dpi) || raster.dpi > .Machine$integer.max))))
+    stop("'raster.dpi' must be positive and finite, with whole pixels for scattermore.", call. = FALSE)
   if (!is.data.frame(data)) stop("'data' must be a data.frame.", call. = FALSE)
   if (anyNA(names(data)) || any(!nzchar(names(data))) || anyDuplicated(names(data)))
     stop("'data' must have unique, non-missing, non-empty column names.", call. = FALSE)

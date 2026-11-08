@@ -34,6 +34,15 @@ scatter3_integer_pairs <- function() {
   )
 }
 
+test_that("grouped scatter validates active raster resolution before reading data", {
+  for (bad in list(0, Inf, NA_real_, matrix(100), structure(100, class = "encoded"), 1.5))
+    expect_error(PlotScatter1(stop("data evaluated"), "x", "y", "g",
+      raster = TRUE, raster.dpi = bad), "raster.dpi")
+  d <- data.frame(x = 1:8, y = c(3, 1, 2, 4, 8, 6, 7, 5), g = rep(c("A", "B"), 4))
+  expect_s3_class(PlotScatter1(d, "x", "y", "g", show_ellipse = FALSE,
+    raster = FALSE, raster.dpi = stop("unused")), "ggplot")
+})
+
 test_that("grouped scatter styles fail before data and unused ellipse settings stay lazy", {
   for (arg in c("point_size", "point_alpha", "layout_ratio")) {
     args <- list(data = quote(stop("data evaluated")), x = "x", y = "y", group = "g")
