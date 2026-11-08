@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* fmt_tag() diagnoses dimensional colours and encoded font faces while retaining valid per-panel colours.
+
 * fmt_strip2() validates active strip colour vectors before processing plot grids.
 
 * fmt_bg() diagnoses matrix colour specifications before evaluating plots and retains named colour mappings.

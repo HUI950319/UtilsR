@@ -586,7 +586,7 @@ fmt_tag <- function(plot,
     }
   }
   if (!(is.character(color) || is.numeric(color) || (is.logical(color) && all(is.na(color)))) ||
-      length(color) == 0L ||
+      length(color) == 0L || !is.null(dim(color)) || (is.numeric(color) && is.object(color)) ||
       (is.numeric(color) && any(!is.finite(color) & !is.na(color)))) {
     cli::cli_abort("{.arg color} must contain valid R colour specifications.")
   }
@@ -600,7 +600,7 @@ fmt_tag <- function(plot,
     } else as.character(color)
     color[missing] <- "transparent"
   }
-  if (!(length(fontface) == 1L &&
+  if (!(length(fontface) == 1L && is.null(dim(fontface)) && !is.object(fontface) &&
         ((is.character(fontface) && fontface %in% c("plain", "bold", "italic", "bold.italic", "symbol")) ||
          (is.numeric(fontface) && fontface %in% 1:5)))) {
     cli::cli_abort("{.arg fontface} must be one valid font face name or number from 1 to 5.")

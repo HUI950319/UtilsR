@@ -4,6 +4,13 @@ find_grobs <- function(g, cls) {
     unlist(lapply(kids, find_grobs, cls = cls), recursive = FALSE))
 }
 
+test_that("tag colours and font faces reject dimensional storage", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  expect_error(fmt_tag(p, color = matrix("red")), "color")
+  expect_error(fmt_tag(p, fontface = matrix("bold")), "fontface")
+  expect_error(fmt_tag(p, fontface = structure(2, class = "encoded_number")), "fontface")
+})
+
 test_that("tag numeric and label settings retain vector contracts", {
   p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
   for (arg in c("size", "label.size")) for (bad in list(matrix(1), structure(1, class = "encoded_number"))) {
