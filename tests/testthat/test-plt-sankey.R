@@ -26,6 +26,17 @@ sankey_plot <- function(data = sankey_data(), vars = names(data), ...) {
   )
 }
 
+test_that("sankey selections reject positional selectors and ambiguous columns", {
+  skip_if_not_installed("ggsankey")
+  d <- data.frame("1" = c("a", "b"), "2" = c("x", "y"), check.names = FALSE)
+  for (bad in list(1:2, factor(c("1", "2")), matrix(c("1", "2")), c("1", "1")))
+    expect_error(plt_sankey(d, vars = bad), "vars")
+  names(d) <- c("a", "a")
+  expect_error(plt_sankey(d, vars = c("a", "b")), "unique.*column names")
+  p <- sankey_plot(vars = c(sex = "Same label", stage = "Same label"))
+  expect_s3_class(p, "ggplot")
+})
+
 test_that("sankey controls reject encoded and dimensional scalar storage", {
   skip_if_not_installed("ggsankey")
   defaults <- list(flow_args = list(alpha = 0.5, smooth = 8),

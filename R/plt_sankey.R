@@ -215,7 +215,13 @@ plt_sankey <- function(data,
   }
 
   if (!is.data.frame(data)) cli::cli_abort("{.arg data} must be a data frame.")
+  if (anyNA(names(data)) || any(!nzchar(names(data))) || anyDuplicated(names(data)))
+    cli::cli_abort("{.arg data} must have unique, non-missing, non-empty column names.")
+  if (!is.character(vars) || !is.null(dim(vars)) || anyNA(vars))
+    cli::cli_abort("{.arg vars} must be a character vector of non-missing values.")
   if (length(vars) < 2) cli::cli_abort("{.arg vars} must have at least 2 variables.")
+  if (is.null(names(vars)) && (any(!nzchar(vars)) || anyDuplicated(vars)))
+    cli::cli_abort("{.arg vars} must contain unique, non-empty column names.")
   var_labels <- NULL
   if (!is.null(names(vars))) {
     if (!is.character(vars) || anyNA(vars)) {
