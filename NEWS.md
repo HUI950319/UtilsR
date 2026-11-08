@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci_parse()` rescales subnormal difference intervals to retain P-value precision.
+
 * `PlotDumbbell()` rejects matrix-shaped category columns instead of flattening labels.
 
 * `.cat_message()` retains trailing empty lines in each message element.

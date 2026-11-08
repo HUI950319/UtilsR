@@ -211,7 +211,7 @@ stat_ci_parse <- function(x,
   }
   se <- se_of(l_s, h_s)
   work_scale <- rep(1, length(est))
-  unstable <- !is.finite(se)
+  unstable <- !is.finite(se) | (abs(se) < .Machine$double.xmin & l_s != h_s)
   if (!is.null(level)) {
     z_new <- qnorm((1 - level) / 2, lower.tail = FALSE)
     ratio <- z_new / z95

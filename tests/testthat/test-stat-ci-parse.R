@@ -447,3 +447,11 @@ test_that("star outputs share the stat_pval significance map contract", {
   expect_identical(eval(formals(stat_ci_parse)$map_signif),
                    c("***" = .001, "**" = .01, "*" = .05))
 })
+
+test_that("subnormal difference intervals preserve scale invariant P values", {
+  tiny <- c("5e-324 (0, 1e-323)", "1e-320 (0, 2e-320)")
+  control <- c(".5 (0, 1)", "1 (0, 2)")
+  for (level in list(NULL, .9, .95, .99))
+    expect_equal(stat_ci_parse(tiny, exp = FALSE, level = level, output = "p"),
+                 stat_ci_parse(control, exp = FALSE, level = level, output = "p"), tolerance = 1e-12)
+})
