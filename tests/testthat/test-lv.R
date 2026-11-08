@@ -1204,3 +1204,26 @@ test_that("time filter suggestions distinguish values with identical printed lab
     expect_identical(d[["x"]], x)
   }
 })
+
+test_that("grouped inspection restores cold integer64 grouping labels", {
+  skip_if_not_installed("bit64")
+  directory <- withr::local_tempdir()
+  fixture <- file.path(directory, "input.rds")
+  script <- file.path(directory, "verify.R")
+  d <- data.frame(y = 1:6)
+  d[["g"]] <- bit64::as.integer64(c("-1", "-1", "-2", "-2", NA, NA))
+  saveRDS(list(fn = lv.data.frame, data = d, libs = .libPaths()), fixture)
+  writeLines(c(sprintf("fixture <- readRDS(%s)", deparse(fixture)),
+    ".libPaths(fixture[['libs']])",
+    "stopifnot(!('bit64' %in% loadedNamespaces()))",
+    "fn <- fixture[['fn']]; e <- new.env(parent = environment(fn)); environment(fn) <- e",
+    "reports <- list(); e$.lv_print_report <- function(x) reports[[length(reports) + 1L]] <<- x",
+    "invisible(capture.output(suppressMessages(fn(fixture[['data']], pattern = '^y$', group = 'g'))))",
+    "header <- reports[[1L]]$table_styling$header",
+    "labels <- header$label[grepl('^stat_[1-3]$', header$column)]",
+    "stopifnot(length(labels) == 3L, any(grepl('-1', labels, fixed = TRUE)), any(grepl('-2', labels, fixed = TRUE)), all(grepl('N = 2', labels, fixed = TRUE)))",
+    "cat('COLD_INSPECTION_OK\n')"), script)
+  output <- suppressWarnings(system2(file.path(R.home('bin'), 'Rscript'), c('--vanilla', shQuote(script)), stdout = TRUE, stderr = TRUE))
+  expect_null(attr(output, 'status'), info = paste(output, collapse = '\n'))
+  expect_identical(tail(output, 1L), 'COLD_INSPECTION_OK')
+})

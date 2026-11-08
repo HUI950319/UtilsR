@@ -947,6 +947,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   if (!is.null(group_var)) {
     # One table column per group (every factor level): an identifier as the
     # group took over a minute for 5,000 values.
+    if (inherits(data[[group_var]], "integer64") && !requireNamespace("bit64", quietly = TRUE))
+      cli::cli_abort("Inspecting integer64 groups requires the {.pkg bit64} package.")
     by_values <- .label_na_level(.spss_missing_to_na(data[[group_var]]))
     n_by <- if (is.factor(by_values)) nlevels(by_values) else
       length(unique(by_values[!is.na(by_values)]))

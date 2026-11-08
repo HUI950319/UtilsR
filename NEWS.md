@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `lv(group = ...)` decodes serialized integer64 groups before calculating levels and missing-group counts.
+
 * `lv()` generates exact numeric filters when Date or difftime text would merge distinct stored values.
 
 * `impute_na_knn()` rescales overflowing finite numeric ranges for distance calculation and restores original units and observations.
