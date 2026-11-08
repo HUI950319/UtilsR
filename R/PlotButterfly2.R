@@ -167,10 +167,11 @@ PlotButterfly2 <- function(
       length(add_point) != 1L || is.na(add_point)))
     cli::cli_abort("{.arg add_point} must be TRUE or FALSE.")
   for (arg in c("alpha", "dodge.width", if (is_beeswarm) "cex",
-                if (type %in% c("violin_box", "box")) "box.width")) {
+                if (type %in% c("violin_box", "box")) "box.width",
+                if (is_beeswarm || add_point) c("pt.size", "pt.alpha"))) {
     value <- get(arg)
     if (!is.numeric(value) || is.object(value) || !is.null(dim(value)) || length(value) != 1L ||
-        !is.finite(value) || value < 0 || (arg == "alpha" && value > 1))
+        !is.finite(value) || value < 0 || (arg %in% c("alpha", "pt.alpha") && value > 1))
       cli::cli_abort("{.arg {arg}} must be a finite scalar in its allowed range.")
   }
 

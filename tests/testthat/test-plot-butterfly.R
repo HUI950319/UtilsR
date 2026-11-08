@@ -13,6 +13,20 @@ butterfly_without_text_warning <- function(expr) {
   })
 }
 
+test_that("split butterfly point sizes and opacities validate only when drawn", {
+  for (type in c("violin_box", "beeswarm_quasirandom"))
+    for (arg in c("pt.size", "pt.alpha"))
+      for (bad in list(-1, Inf, matrix(.5), structure(.5, class = "encoded"))) {
+        args <- list(data = quote(stop("data evaluated")), type = type, add_point = TRUE,
+                     stat.by = "stat", value.by = "value", group.by = "group")
+        args[[arg]] <- bad
+        expect_error(do.call("PlotButterfly2", args), arg, fixed = TRUE)
+      }
+  expect_error(PlotButterfly2(stop("data evaluated"), type = "violin", add_point = FALSE,
+    stat.by = "stat", value.by = "value", group.by = "group",
+    pt.size = stop("inactive"), pt.alpha = stop("inactive")), "data evaluated")
+})
+
 test_that("bar butterflies diagnose unsupported score-column storage", {
   for (bad in list(matrix(1:4, 4), as.list(1:4), 1:4 + 1i)) {
     d <- data.frame(stat = "A", fill = "F", group = rep(c("L", "R"), each = 2))
