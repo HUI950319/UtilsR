@@ -2258,7 +2258,7 @@ fmt_strip2 <- function(plot,
   for (arg in names(colours)) {
     value <- colours[[arg]]
     if (is.null(value)) next
-    if (!length(value) ||
+    if (!length(value) || !is.null(dim(value)) || (is.numeric(value) && is.object(value)) ||
         !(is.character(value) || is.numeric(value) || (is.logical(value) && all(is.na(value)))) ||
         (is.numeric(value) && any(!is.finite(value) & !is.na(value)))) {
       cli::cli_abort("{.arg {arg}} must be NULL or a non-empty vector of valid R colours.")

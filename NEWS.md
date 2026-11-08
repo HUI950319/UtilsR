@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* fmt_strip2() validates active strip colour vectors before processing plot grids.
+
 * fmt_bg() diagnoses matrix colour specifications before evaluating plots and retains named colour mappings.
 
 * fmt_legend() rejects dimensional collection flags, positions and titles before traversing plot containers.
