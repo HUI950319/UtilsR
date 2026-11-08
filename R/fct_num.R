@@ -125,6 +125,8 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
   }
 
   type <- match.arg(type)
+  if (!is.null(dim(labels)))
+    cli::cli_abort("{.arg labels} must be a vector without dimensions.")
   if (is.logical(labels)) {
     cli::cli_abort("{.arg labels} must not be logical. Use {.code NULL} for automatic labels or supply group names.")
   }

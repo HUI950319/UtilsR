@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* fct_num() rejects dimensional replacement labels instead of silently flattening them into factor levels.
+
 * stat_ci_parse() rejects dimensional logical scale flags before interpreting confidence intervals.
 
 * stat_ci_parse() rescales extreme difference intervals before level-adjustment intermediates can overflow.

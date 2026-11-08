@@ -187,3 +187,10 @@ test_that("numeric binning preserves custom labels and unused groups", {
   expect_identical(fct_num(setNames(1:4, letters[1:4]), breaks = 2),
                    fct_num(1:4, breaks = 2))
 })
+
+test_that("numeric bins reject complex data and dimensional labels before cutting", {
+  expect_error(fct_num(1:3 + 1i, breaks = stop("breaks evaluated")), "x.*numeric")
+  expect_error(fct_num(1:3, breaks = 2, labels = matrix(c("L", "H"))), "labels")
+  expect_identical(fct_num(1:3, breaks = 2, labels = c("L", "H")),
+                   factor(c("L", "L", "H"), levels = c("L", "H")))
+})
