@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* .cat_line() diagnoses repeated or dimensional labels before constructing a console rule.
+
 * pr_table() validates alignment choices before restoring or formatting cells, retaining native partial matching.
 
 * pr_badge() rejects dimensional inputs while retaining scalar-to-vector recycling and typed labels.

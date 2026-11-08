@@ -19,6 +19,12 @@ test_that("table style selectors and captions fail before forcing input tables",
     "highlight_color")
 })
 
+test_that("console separator labels diagnose dimensional and repeated text", {
+  for (bad in list(c("a", "b"), character(), matrix("a")))
+    expect_error(.cat_line(bad), "text")
+  expect_no_error(suppressMessages(.cat_line(42)))
+})
+
 test_that(".cat_line validates width and rule patterns before evaluating text", {
   for (bad in list(NULL, NA_real_, Inf, 0, -1, 1.5, matrix(40))) {
     expect_error(.cat_line(stop("text evaluated"), width = bad), "width")

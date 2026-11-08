@@ -96,6 +96,8 @@ console_width <- function() {
   if (!is.character(line_char) || !is.null(dim(line_char)) || length(line_char) != 1L ||
       is.na(line_char) || !nzchar(line_char) || cli::ansi_nchar(line_char, type = "width") < 1L)
     cli::cli_abort("{.arg line_char} must be a single non-empty visible string.")
+  if (length(text) != 1L || !is.null(dim(text)))
+    cli::cli_abort("{.arg text} must contain one label without dimensions.")
   cfg <- ._type_cfg(match.arg(type))
   label <- paste(cfg$symbol, text, cfg$symbol)
 
