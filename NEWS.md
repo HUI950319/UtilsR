@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_com()` no longer mistakes negative integer64 paired IDs for duplicate or missing identifiers.
+
 * `PlotRank()` retains explicit NA factor categories, distinguishes literal <NA> labels, and continues excluding missing grouping codes.
 
 * `PlotScatter3()` places automatic annotations using stable interpolation when the finite axis span overflows.

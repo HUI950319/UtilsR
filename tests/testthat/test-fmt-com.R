@@ -735,3 +735,18 @@ test_that("comparison layout controls reject encoded numeric storage", {
     expect_error(do.call(fmt_com, args), arg)
   }
 })
+
+test_that("paired comparisons retain negative integer64 identity", {
+  skip_if_not_installed("bit64")
+  skip_if_not_installed("ggpubr")
+  d <- data.frame(g = rep(c("a", "b"), each = 4L), y = c(1, 3, 2, 4, 5, 7, 6, 9))
+  d[["id"]] <- bit64::as.integer64(rep(c("-1", "-2", "-3", "-4"), 2L))
+  draw <- function(d) fmt_com(ggplot2::ggplot(d, ggplot2::aes(g, y)) + ggplot2::geom_point(), method = "t_test", method.args = list(paired = TRUE, id = "id"))
+  actual <- ggplot2::ggplot_build(draw(d))$data[[2L]]$p
+  d[["id"]] <- as.character(d[["id"]])
+  expected <- ggplot2::ggplot_build(draw(d))$data[[2L]]$p
+  expect_identical(actual, expected)
+  expect_gt(length(actual), 0L)
+  d[["id"]][2L] <- d[["id"]][1L]
+  expect_error(draw(d), "unique")
+})

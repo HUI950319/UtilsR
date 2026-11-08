@@ -4375,9 +4375,12 @@ fmt_com <- function(plot,
       } else {
         if (!pair_id %in% names(source_data)) cli::cli_abort("method.args$id column is absent from statistical data.")
         ids <- source_data[[pair_id]]
-        if (anyNA(ids) || anyDuplicated(data.frame(stratum = strata_key, comparison = comparison_values, id = ids)))
-          cli::cli_abort("method.args$id must be non-missing and unique within each comparison group/subset.")
+        if (inherits(ids, "integer64") && !requireNamespace("bit64", quietly = TRUE))
+          cli::cli_abort("Interpreting integer64 paired IDs requires package {.pkg bit64}.")
+        missing_id <- anyNA(ids)
         ids <- match(ids, unique(ids))
+        if (missing_id || anyDuplicated(data.frame(stratum = strata_key, comparison = comparison_values, id = ids)))
+          cli::cli_abort("method.args$id must be non-missing and unique within each comparison group/subset.")
       }
       id_column <- utils::tail(make.unique(c(names(source_data), ".fmt_com_pair_id")), 1L)
       source_data[[id_column]] <- as.numeric(ids)
