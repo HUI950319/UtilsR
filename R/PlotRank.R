@@ -174,6 +174,13 @@ PlotRank <- function(
     }
   }
 
+  for (arg in c("groups", "group_levels")) {
+    value <- get(arg)
+    if (!is.null(value) && (!is.atomic(value) || !is.null(dim(value)) ||
+        anyNA(value) || anyDuplicated(as.character(value))))
+      stop("'", arg, "' must contain unique, non-missing values in a one-dimensional vector.", call. = FALSE)
+  }
+
   # ---- Parse input into named list of named numeric vectors ----
   score_list <- .pr_parse(data, group_col, name_col, value_col, groups)
 

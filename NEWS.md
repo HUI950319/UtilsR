@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* PlotRank() rejects dimensional, missing or repeated group selectors before selecting and ordering score panels.
+
 * PlotButterfly2() validates point sizes and opacities in both drawing paths without forcing disabled point overlays.
 
 * plt_alluvial() validates dimensions on scalar style selectors, colours and label switches before theme resolution.

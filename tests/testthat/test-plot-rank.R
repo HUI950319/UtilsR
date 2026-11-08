@@ -414,3 +414,15 @@ test_that("rank data returns avoid constructing unused plots", {
     expect_equal(result$Label, rep(c("a", "c", "b"), length.out = nrow(result)))
   }
 })
+
+test_that("rank group selections reject dimensional and duplicated identifiers", {
+  d <- matrix(1:6, 3, dimnames = list(letters[1:3], c("A", "B")))
+  for (arg in c("groups", "group_levels"))
+    for (bad in list(matrix(c("A", "B")), list("A", "B"), c("A", "A"), c("A", NA))) {
+      args <- c(list(data = d, return_type = "data"), stats::setNames(list(bad), arg))
+      expect_error(do.call("PlotRank", args), arg)
+    }
+  out <- PlotRank(d, group_levels = c("B", "A"), return_type = "data")
+  expect_identical(levels(out[["Group"]]), c("B", "A"))
+  expect_equal(nrow(out), 6L)
+})
