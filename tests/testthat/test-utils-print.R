@@ -1,3 +1,13 @@
+test_that("sparklines diagnose selectors and ambiguous source names", {
+  d <- data.frame(x = 1:3)
+  for (bad in list(1, NA_character_, matrix("x")))
+    expect_error(pr_spark(d, vars = bad), "vars")
+  d <- data.frame(x = 1:3, x = 4:6, check.names = FALSE)
+  expect_error(pr_spark(d, vars = "x"), "unique.*column names")
+  d$y <- 7:9
+  expect_length(utils::capture.output(pr_spark(d, vars = "y")), 1L)
+})
+
 test_that("pr_head() prints a class chip and a grey summary line", {
   withr::local_options(cli.num_colors = 256)
   out <- utils::capture.output(

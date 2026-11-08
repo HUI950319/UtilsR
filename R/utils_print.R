@@ -1161,6 +1161,10 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
   if (!is.data.frame(data)) {
     cli::cli_abort("{.arg data} must be a data frame, not {.obj_type_friendly {data}}.")
   }
+  if (!is.null(vars) && (!is.character(vars) || !is.null(dim(vars)) || anyNA(vars)))
+    cli::cli_abort("{.arg vars} must be NULL or a character vector without missing values.")
+  if (!is.null(vars) && anyDuplicated(names(data)[names(data) %in% vars]))
+    cli::cli_abort("Selected columns in {.arg data} must have unique column names.")
   ._pr_count(bins, "bins", lower = 1L)
   ._pr_count(indent, "indent")
   columns <- if (is.null(vars)) seq_along(data) else match(vars, names(data))

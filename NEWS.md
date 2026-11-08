@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* pr_spark() validates column selectors and ambiguous source names before printing distributions.
+
 * check_na() rejects dimensional report flags and regular-expression controls before inspecting selected columns.
 
 * check_packages() requires a scalar refresh flag before reading installed-package metadata.
