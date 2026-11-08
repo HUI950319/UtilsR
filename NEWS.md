@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* fmt_flatten() validates grid counts and character design strings before assembling the output layout.
+
 * pr_spark() validates column selectors and ambiguous source names before printing distributions.
 
 * check_na() rejects dimensional report flags and regular-expression controls before inspecting selected columns.

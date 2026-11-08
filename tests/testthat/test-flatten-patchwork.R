@@ -381,3 +381,13 @@ test_that("flattening keeps plot data and accepts standalone grobs", {
   expect_s3_class(output, "patchwork")
   expect_equal(sum(flatten_test_labels(patchwork::patchworkGrob(output)) == "Standalone"), 1L)
 })
+
+test_that("flattening validates layout controls without silent truncation", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  for (arg in c("nrow", "ncol")) for (bad in list(matrix(1), structure(1, class = "encoded_count"), 1.5)) {
+    args <- list(plots = list(p, p))
+    args[[arg]] <- bad
+    expect_error(do.call("fmt_flatten", args), arg)
+  }
+  expect_error(fmt_flatten(list(p, p), design = c("AB", "BA")), "design")
+})
