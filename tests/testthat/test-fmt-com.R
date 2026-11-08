@@ -750,3 +750,20 @@ test_that("paired comparisons retain negative integer64 identity", {
   d[["id"]][2L] <- d[["id"]][1L]
   expect_error(draw(d), "unique")
 })
+
+test_that("paired comparison subsets keep distinct facet tuples", {
+  skip_if_not_installed("ggpubr")
+  d <- expand.grid(g = c("a", "b"), id = 1:4, panel = 1:2)
+  d[["a"]] <- rep(c("a.b", "a"), each = 8L)
+  d[["b"]] <- rep(c("c", "b.c"), each = 8L)
+  d[["y"]] <- rep(c(0, 2), 8L) + d[["id"]] + c(0, .1, .3, .2)
+  base <- function(d) ggplot2::ggplot(d, ggplot2::aes(g, y)) + ggplot2::geom_point() + ggplot2::facet_wrap(~a + b)
+  draw <- function(d) fmt_com(base(d), method = "t_test", method.args = list(paired = TRUE, id = "id"))
+  expect_equal(nrow(ggplot2::ggplot_build(base(d))$layout$layout), 2L)
+  actual <- ggplot2::ggplot_build(draw(d))$data[[2L]]
+  d[["a"]] <- rep(c("first", "second"), each = 8L)
+  d[["b"]] <- "panel"
+  expected <- ggplot2::ggplot_build(draw(d))$data[[2L]]
+  expect_length(unique(actual[["PANEL"]]), 2L)
+  expect_identical(actual[["p"]], expected[["p"]])
+})

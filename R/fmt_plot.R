@@ -4334,7 +4334,7 @@ fmt_com <- function(plot,
         facet_values <- lapply(c(p$facet$params$facets, p$facet$params$rows, p$facet$params$cols),
                                rlang::eval_tidy, data = source_data)
         panels <- if (length(facet_values)) do.call(interaction,
-          c(lapply(facet_values, function(value) factor(rep(value, length.out = n), exclude = NULL)), list(drop = TRUE))) else rep(1L, n)
+          c(lapply(facet_values, function(value) factor(vctrs::vec_group_id(rep(value, length.out = n)), exclude = NULL)), list(drop = TRUE))) else rep(1L, n)
         for (subset in contexts) {
           rows <- which(finite & !is.na(context) & context == subset)
           if (!length(rows)) next
@@ -4359,7 +4359,7 @@ fmt_com <- function(plot,
       if (grouped) strata <- c(strata, list(rlang::eval_tidy(
         if (compare_group) source_mapping$x else group_quo, data = source_data)))
       strata_key <- if (length(strata)) do.call(interaction,
-        c(lapply(strata, function(value) factor(rep(value, length.out = nrow(source_data)), exclude = NULL)),
+        c(lapply(strata, function(value) factor(vctrs::vec_group_id(rep(value, length.out = nrow(source_data))), exclude = NULL)),
           list(drop = TRUE))) else factor(rep(1L, nrow(source_data)))
       if (is.null(pair_id)) {
         counts <- table(as.character(comparison_values), strata_key)
