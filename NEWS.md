@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* fmt_expand() validates axis selector dimensions before evaluating or changing the plot.
+
 * PlotDumbbell() validates scalar endpoint labels before legend construction and retains numeric-label conversion.
 
 * lv() dataset hints skip bindings that fail to load instead of masking the original diagnostic.

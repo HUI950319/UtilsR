@@ -1,3 +1,11 @@
+test_that("expansion axes reject dimensional selectors before evaluating plots", {
+  expect_error(fmt_expand(stop("plot evaluated"), axis = matrix("x")), "axis")
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  q <- fmt_expand(p, mult = .1, axis = "x")
+  expect_equal(q$scales$get_scales("x")$expand, ggplot2::expansion(mult = .1))
+  expect_null(q$scales$get_scales("y"))
+})
+
 test_that("expansion preserves continuous scale controls and transformed data", {
   p <- ggplot2::ggplot(data.frame(x = c(1, 10, 100), y = 1:3),
                        ggplot2::aes(x, y)) + ggplot2::geom_point() +

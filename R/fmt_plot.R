@@ -5504,7 +5504,7 @@ fmt_scale <- function(plot, x = NULL, y = NULL) {
 #' @export
 #' @family plot formatting
 fmt_expand <- function(plot, mult = 0, add = c(0, 0), axis = NULL) {
-  if (!is.null(axis) && (!is.character(axis) || length(axis) != 1L ||
+  if (!is.null(axis) && (!is.character(axis) || !is.null(dim(axis)) || length(axis) != 1L ||
       is.na(axis) || !axis %in% c("x", "y")))
     cli::cli_abort("`axis` must be 'x', 'y', or NULL.")
 
