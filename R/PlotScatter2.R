@@ -359,13 +359,7 @@ PlotScatter2 <- function(
 
   # Auto-compute correlation
   if (show_cor && is.null(annot_text)) {
-    cor_res <- stats::cor.test(df[[x]], df[[y]], method = cor_method)
-    annot_text <- sprintf(
-      "%s:\nr = %.3f\np = %s",
-      tools::toTitleCase(cor_method),
-      cor_res$estimate,
-      format(cor_res$p.value, digits = 3, scientific = TRUE)
-    )
+    annot_text <- .scatter_cor_label(df[[x]], df[[y]], cor_method)
   }
 
   # Annotation text

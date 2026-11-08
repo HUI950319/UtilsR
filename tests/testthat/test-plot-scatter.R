@@ -1,3 +1,21 @@
+test_that("marginal scatter annotations expand native correlation method names", {
+  d <- data.frame(x = 1:6, y = c(1, 3, 2, 4, 6, 5), g = rep(c("a", "b"), 3))
+  text_labels <- function(g) {
+    if (inherits(g, "text")) return(as.character(g$label))
+    unlist(lapply(c(g$grobs, as.list(g$children)), text_labels), use.names = FALSE)
+  }
+  for (fun in list(PlotScatter1, PlotScatter2)) for (method in c("pearson", "spea", "kendall")) {
+    canonical <- if (method == "spea") "spearman" else method
+    ref <- stats::cor.test(d$x, d$y, method = canonical)
+    expected <- sprintf("%s:\nr = %.3f\np = %s", tools::toTitleCase(canonical),
+      ref$estimate, format(ref$p.value, digits = 3, scientific = TRUE))
+    p <- fun(d, "x", "y", "g", show_ellipse = FALSE, show_cor = TRUE, cor_method = method)
+    grob <- if (inherits(p, "wrapped_patch")) attr(p, "grobs")$full else patchwork::patchworkGrob(p)
+    labels <- text_labels(grob)
+    expect_identical(labels[grepl("\np = ", labels, fixed = TRUE)], expected)
+  }
+})
+
 test_that("paired scatter correlation labels match canonical native methods", {
   d <- data.frame(Control = 1:6, Treat = c(1, 3, 2, 4, 6, 5), group = rep(c("a", "b"), 3))
   for (method in c("spea", "kendall")) {

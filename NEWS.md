@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* PlotScatter1() and PlotScatter2() share canonical correlation annotation formatting without changing computed estimates or p-values.
+
 * PlotScatter3() normalizes native correlation method names so partial Spearman and Kendall calls receive rho and tau annotations.
 
 * fmt_ref() checks active style vectors and colour values before traversing plots and retains native missing-style behavior.

@@ -323,14 +323,7 @@ PlotScatter1 <- function(
 
   # Correlation annotation — only assigned to annot_text (rendered in p_annot)
   if (show_cor && is.null(annot_text)) {
-    cor_res <- stats::cor.test(df[[x]], df[[y]], method = cor_method)
-    cor_label <- sprintf(
-      "%s:\nr = %.3f\np = %s",
-      tools::toTitleCase(cor_method),
-      cor_res$estimate,
-      format(cor_res$p.value, digits = 3, scientific = TRUE)
-    )
-    if (is.null(annot_text)) annot_text <- cor_label
+    annot_text <- .scatter_cor_label(df[[x]], df[[y]], cor_method)
   }
 
   # ---- Helper: add marginal geom ----
@@ -524,4 +517,14 @@ PlotScatter1 <- function(
   }
 
   p_combined
+}
+
+# Format the two marginal-scatter annotations with the native method name.
+.scatter_cor_label <- function(x, y, method) {
+  if (!is.character(method) || !is.null(dim(method)) || length(method) != 1L || is.na(method))
+    stop("'cor_method' must be a single correlation method name.", call. = FALSE)
+  method <- match.arg(method, c("pearson", "kendall", "spearman"))
+  result <- stats::cor.test(x, y, method = method)
+  sprintf("%s:\nr = %.3f\np = %s", tools::toTitleCase(method), result$estimate,
+          format(result$p.value, digits = 3, scientific = TRUE))
 }
