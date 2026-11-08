@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* PlotDumbbell() rejects dimensional and encoded ranking counts while retaining signed whole-number selection.
+
 * PlotDumbbell() validates active layer dimensions before data work while keeping hidden-layer styles lazy.
 
 * PlotScatter2() validates active annotation coordinates and sizes while leaving unused annotation settings lazy.

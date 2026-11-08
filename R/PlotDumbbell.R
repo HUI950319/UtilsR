@@ -228,7 +228,8 @@ PlotDumbbell <- function(
     }
   }
   if (!is.null(top_n) &&
-      (!is.numeric(top_n) || is.complex(top_n) || length(top_n) != 1L ||
+      (!is.numeric(top_n) || is.object(top_n) || !is.null(dim(top_n)) ||
+       is.complex(top_n) || length(top_n) != 1L ||
        !is.finite(top_n) || top_n != trunc(top_n))) {
     stop("'top_n' must be NULL or a single finite integer-valued number.",
          call. = FALSE)

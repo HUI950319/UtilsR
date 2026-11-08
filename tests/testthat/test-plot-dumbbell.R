@@ -229,6 +229,12 @@ test_that("PlotDumbbell accepts selected columns named after aesthetic constants
   }
 })
 
+test_that("dumbbell top counts reject arrays and encoded numbers before themes", {
+  d <- data.frame(start = 1:3, end = 2:4, category = letters[1:3])
+  for (bad in list(matrix(1), structure(1, class = "encoded")))
+    expect_error(PlotDumbbell(d, top_n = bad, theme_use = function() stop("theme evaluated")), "top_n")
+})
+
 test_that("PlotDumbbell rejects invalid top_n values", {
   data <- data.frame(start = 1:4, end = 2:5, category = letters[1:4])
   invalid <- list(
