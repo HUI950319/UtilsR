@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* fmt_ref() checks active style vectors and colour values before traversing plots and retains native missing-style behavior.
+
 * fmt_text() rejects dimensional style inputs and invalid colours before traversing plots while retaining native numeric colours and font faces.
 
 * fmt_expand() validates axis selector dimensions before evaluating or changing the plot.

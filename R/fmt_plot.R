@@ -1416,9 +1416,6 @@ fmt_ref <- function(plot,
   batch_dots <- length(names(dots)) == length(dots) &&
     !anyDuplicated(names(dots)) && all(names(dots) %in% c("na.rm", "lineend")) &&
     all(lengths(dots) == 1L) && all(vapply(dots, is.atomic, logical(1)))
-  info <- .to_plot_list(plot, recurse = TRUE)
-  plots <- info$plots
-
   if (length(x) || length(y)) {
     styles <- list(linetype = linetype, linewidth = linewidth, color = color, alpha = alpha)
     for (name in names(styles)) {
@@ -1428,7 +1425,12 @@ fmt_ref <- function(plot,
       }
     }
     if (is.factor(color)) color <- as.character(color)
+    if (!tryCatch({ grDevices::col2rgb(color, alpha = TRUE); TRUE },
+                  error = function(e) FALSE, warning = function(w) FALSE))
+      cli::cli_abort("{.arg color} must contain valid R colours.")
   }
+  info <- .to_plot_list(plot, recurse = TRUE)
+  plots <- info$plots
 
   .ref_layers <- function(values, axis, native = FALSE) {
     if (!length(values)) return(list())

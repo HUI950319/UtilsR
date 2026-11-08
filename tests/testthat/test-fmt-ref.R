@@ -1,3 +1,11 @@
+test_that("active reference styles validate before plot traversal", {
+  for (arg in c("linetype", "linewidth", "color", "alpha")) {
+    args <- c(list(plot = quote(stop("plot evaluated")), x = 1), stats::setNames(list(matrix(1)), arg))
+    expect_error(do.call("fmt_ref", args), arg)
+  }
+  expect_error(fmt_ref(stop("plot evaluated"), x = 1, color = "invalid-colour"), "color")
+})
+
 test_that("reference positions reject geom intercept argument names", {
   p <- ggplot2::ggplot(data.frame(x = 1:3, y = 3:1), ggplot2::aes(x, y)) +
     ggplot2::geom_point()
