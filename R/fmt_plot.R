@@ -2639,7 +2639,7 @@ fmt_panel <- function(plot,
                       ...) {
   grid <- match.arg(grid)
   if (!is.null(border) &&
-      (!(is.logical(border) || is.character(border)) || length(border) != 1L || anyNA(border))) {
+      (!(is.logical(border) || is.character(border)) || !is.null(dim(border)) || length(border) != 1L || anyNA(border))) {
     cli::cli_abort("{.arg border} must be NULL, TRUE, FALSE, or a single colour string.")
   }
   colours <- list(grid_color = grid_color, bg = bg,
@@ -2647,7 +2647,7 @@ fmt_panel <- function(plot,
   for (nm in names(colours)) {
     value <- colours[[nm]]
     if (is.null(value)) next
-    if (length(value) != 1L ||
+    if (length(value) != 1L || !is.null(dim(value)) ||
         !(is.character(value) || (is.logical(value) && is.na(value))) ||
         !tryCatch({ grDevices::col2rgb(value); TRUE }, error = function(e) FALSE)) {
       cli::cli_abort("{.arg {nm}} must be a single valid colour string or NA.")
@@ -2663,7 +2663,8 @@ fmt_panel <- function(plot,
     }
   }
   if (!is.null(grid_linetype)) {
-    valid <- length(grid_linetype) == 1L && !anyNA(grid_linetype) &&
+    valid <- length(grid_linetype) == 1L && !is.object(grid_linetype) &&
+      is.null(dim(grid_linetype)) && !anyNA(grid_linetype) &&
       ((is.numeric(grid_linetype) && !is.complex(grid_linetype) && grid_linetype %in% 0:6) ||
        (is.character(grid_linetype) &&
         (grid_linetype %in% c("blank", "solid", "dashed", "dotted", "dotdash", "longdash", "twodash") ||

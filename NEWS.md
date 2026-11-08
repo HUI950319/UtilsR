@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* fmt_panel() rejects dimensional colours, borders and line types before plot traversal.
+
 * fmt_text() checks font sizes and title alignment before plot traversal while retaining relative font sizes.
 
 * fmt_flatten() validates grid counts and character design strings before assembling the output layout.

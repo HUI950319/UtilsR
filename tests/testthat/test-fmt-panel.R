@@ -687,3 +687,11 @@ test_that("grid = 'keep' changes the background and border but not the grid", {
                    quote(c("none", "major", "minor", "both", "x", "y", "keep")))
   expect_null(panel_test_grids(fmt_panel(styled, bg = "white")))
 })
+
+test_that("panel styling rejects dimensional colour and line-type controls", {
+  for (arg in c("border", "bg", "grid_color", "grid_linetype")) {
+    args <- list(plot = quote(stop("plot evaluated")))
+    args[[arg]] <- matrix(if (arg == "grid_linetype") "solid" else "red")
+    expect_error(do.call("fmt_panel", args), arg)
+  }
+})
