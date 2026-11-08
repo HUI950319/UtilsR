@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* fmt_raster() rejects non-scalar device selectors on rasterized layers while leaving non-target layers unchanged.
+
 * grob_add() rejects non-graphics before building the main plot while retaining native grob-list additions and disabled-addition laziness.
 
 * fmt_strip2() validates palette selector vectors before traversing the plot grid.

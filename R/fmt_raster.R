@@ -226,6 +226,8 @@ fmt_raster <- function(
       cli::cli_warn("Plots with clipping disabled are kept as vectors to preserve geometry outside the panel.")
       return(p)
     }
+    if (!is.character(dev) || !is.null(dim(dev)) || length(dev) != 1L || is.na(dev))
+      cli::cli_abort("{.arg dev} must be a single graphics device name.")
     p$layers[targets] <- lapply(p$layers[targets], .opaque_raster_layer,
                                 dpi = dpi, dev = dev)
     p

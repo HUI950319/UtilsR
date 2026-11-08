@@ -4,6 +4,16 @@ raster_find_grobs <- function(g, cls) {
     unlist(lapply(kids, raster_find_grobs, cls = cls), recursive = FALSE))
 }
 
+test_that("layer raster devices require scalar selectors only for active targets", {
+  skip_if_not_installed("ggrastr")
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x))
+  for (bad in list(matrix("ragg"), NA_character_, character(), list("ragg")))
+    expect_error(fmt_raster(p + ggplot2::geom_point(), dev = bad), "dev")
+  lines <- p + ggplot2::geom_line()
+  expect_identical(fmt_raster(lines, dev = stop("inactive")), lines)
+  expect_s3_class(fmt_raster(p + ggplot2::geom_point(), dev = "ragg"), "ggplot")
+})
+
 test_that("image renders the whole plot, text included, into one raster", {
   skip_if_not_installed("ragg")
   grDevices::pdf(NULL, width = 10, height = 6)
