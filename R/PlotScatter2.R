@@ -177,6 +177,14 @@ PlotScatter2 <- function(
         (layout && (value != trunc(value) || value > .Machine$integer.max)))
       stop("'", arg, "' must be a finite scalar in its allowed range.", call. = FALSE)
   }
+  if (show_cor || !is.null(annot_text)) {
+    if (!is.numeric(annot_size) || is.object(annot_size) || !is.null(dim(annot_size)) ||
+        length(annot_size) != 1L || !is.finite(annot_size) || annot_size < 0)
+      stop("'annot_size' must be a single finite non-negative number.", call. = FALSE)
+    if (!is.null(annot_pos) && (!is.numeric(annot_pos) || is.object(annot_pos) ||
+        !is.null(dim(annot_pos)) || length(annot_pos) != 2L || any(!is.finite(annot_pos))))
+      stop("'annot_pos' must contain two finite numbers.", call. = FALSE)
+  }
   if (!is.data.frame(data)) stop("'data' must be a data.frame.", call. = FALSE)
   if (anyNA(names(data)) || any(!nzchar(names(data))) || anyDuplicated(names(data)))
     stop("'data' must have unique, non-missing, non-empty column names.", call. = FALSE)

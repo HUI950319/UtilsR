@@ -91,6 +91,21 @@ test_that("PlotScatter1 validates selectors and logical controls before reading 
   }
 })
 
+test_that("dual-group scatter validates active annotation coordinates and sizes", {
+  for (bad in list(1, c(1, NA), c(1, Inf), matrix(c(1, 2)), structure(c(1, 2), class = "encoded")))
+    expect_error(PlotScatter2(stop("data evaluated"), "x", "y", "g",
+      annot_text = "note", annot_pos = bad), "annot_pos")
+  for (bad in list(-1, NA_real_, Inf, matrix(2)))
+    expect_error(PlotScatter2(stop("data evaluated"), "x", "y", "g",
+      annot_text = "note", annot_size = bad), "annot_size")
+  d <- data.frame(x = 1:6, y = 6:1, g = rep(c("A", "B"), 3))
+  withr::local_options(lifecycle_verbosity = "quiet")
+  p <- PlotScatter2(d, "x", "y", "g", annot_text = "note", annot_pos = c(2, 4))
+  expect_true("note" %in% scatter_grob_labels(patchwork::patchworkGrob(p)))
+  expect_s3_class(PlotScatter2(d, "x", "y", "g", annot_pos = stop("unused"),
+    annot_size = stop("unused")), "patchwork")
+})
+
 test_that("dual-group scatter styles reject invalid scalar and layout controls", {
   for (arg in c("point_size", "point_alpha", "box_width", "base_size", "layout_main", "layout_margin"))
     for (bad in list(NA_real_, Inf, matrix(1))) {
