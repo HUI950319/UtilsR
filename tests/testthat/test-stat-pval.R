@@ -555,3 +555,11 @@ test_that("serialized SPSS display text keeps user-missing values missing", {
   expect_identical(result$value, c(a = "HR**", b = NA_character_, c = NA_character_, d = "RR"))
   expect_identical(result$unchanged, TRUE)
 })
+
+test_that("textual P significance respects exact decimal boundaries", {
+  x <- c("0.050000000000000000001", "0.010000000000000000001", "0.001000000000000000001")
+  expect_identical(stat_pval(x), c("0.050.", "0.010*", "0.001**"))
+  expect_identical(stat_pval(c("0.05", "0.01", "0.001")), c("0.050*", "0.010**", "0.001***"))
+  expect_identical(stat_pval(c("1e-999", "0"), map_signif = c(Z = 0, S = .05)), c("<0.001S", "<0.001Z"))
+  expect_identical(stat_pval(c("0.050000000000000005", "0.05000000000000002"), map_signif = c(S = .05000000000000001)), c("0.050S", "0.050"))
+})

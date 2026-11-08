@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_pval()` compares decimal text at significance thresholds without losing digits or positive underflow values.
+
 * CI string parsing ignores significance stars followed by a terminal period without a spurious trailing-text warning.
 
 * `stat_ci_parse(level = 0.95)` preserves original interval bounds without log-exp round-trip drift.

@@ -119,13 +119,32 @@ stat_pval <- function(x,
   }
 
   # --- Stars helper (shared) ---
-  .add_stars <- function(pvals, map) {
+  .add_stars <- function(pvals, map, endpoints = NULL) {
     .validate_signif_map(map)
     map <- sort(map)
     out <- rep("", length(pvals))
     observed <- !is.na(pvals)
+    decimal <- function(text) {
+      mantissa <- sub("[eE].*$", "", text)
+      exponent <- as.numeric(ifelse(grepl("[eE]", text), sub("^.*[eE]", "", text), "0"))
+      places <- ifelse(grepl(".", mantissa, fixed = TRUE), nchar(sub("^.*[.]", "", mantissa)), 0L)
+      coefficient <- sub("^0+", "", gsub("[.+-]", "", mantissa))
+      list(power = ifelse(coefficient == "", -Inf, exponent - places + nchar(coefficient) - 1L),
+           digits = sub("0+$", "", coefficient))
+    }
     for (i in rev(seq_along(map))) {
-      out[observed & pvals <= map[[i]]] <- names(map)[[i]]
+      below <- pvals <= map[[i]]
+      tied <- which(observed & pvals == map[[i]])
+      if (!is.null(endpoints) && length(tied)) {
+        candidates <- sprintf("%.*g", 1:17, map[[i]])
+        cutoff <- decimal(candidates[which(as.numeric(candidates) == map[[i]])[1L]])
+        input <- decimal(endpoints[tied])
+        width <- pmax(nchar(input$digits), nchar(cutoff$digits))
+        a <- paste0(input$digits, strrep("0", width - nchar(input$digits)))
+        b <- paste0(cutoff$digits, strrep("0", width - nchar(cutoff$digits)))
+        below[tied] <- input$power < cutoff$power | (input$power == cutoff$power & a <= b)
+      }
+      out[observed & below] <- names(map)[[i]]
     }
     out
   }
@@ -238,7 +257,10 @@ stat_pval <- function(x,
     out[grepl("^-?0\\.0*$", out)] <- threshold
   }
   if (mode == "stars") {
-    out <- paste0(out, .add_stars(format_x, map_signif))
+    endpoints <- if (is.character(x)) {
+      if (selective) values[format_at] else values
+    } else NULL
+    out <- paste0(out, .add_stars(format_x, map_signif, endpoints))
   }
   if (selective) {
     formatted <- rep(NA_character_, length(x_num))
