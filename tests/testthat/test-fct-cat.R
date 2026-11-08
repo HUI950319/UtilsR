@@ -1,3 +1,13 @@
+test_that("factor modes reject dimensional switches references and labels", {
+  x <- factor(c("a", "b", "c"))
+  for (flag in c(TRUE, FALSE)) expect_error(fct_cat(x, reverse = matrix(flag)), "reverse")
+  for (reference in list(matrix(0), matrix("a")))
+    expect_error(fct_cat(x, ref_idx = reference), "ref_idx")
+  expect_error(fct_cat(x, new_labels = matrix(LETTERS[1:3])), "new_labels")
+  expect_identical(fct_cat(x, ref_idx = 0), x)
+  expect_identical(levels(fct_cat(x, reverse = TRUE)), c("c", "b", "a"))
+})
+
 test_that("recoding into an unmatched level keeps every observation", {
   x <- factor(c("a", "b", "c", NA), levels = letters[1:4])
   expected <- factor(c("b", "b", "c", NA), levels = c("b", "c"))

@@ -100,7 +100,7 @@ fct_cat <- function(x, ...,
                     new_labels = NULL,
                     binary_ref = NULL) {
 
-  if (!is.logical(reverse) || length(reverse) != 1L || is.na(reverse)) {
+  if (!is.logical(reverse) || !is.null(dim(reverse)) || length(reverse) != 1L || is.na(reverse)) {
     cli::cli_abort("{.arg reverse} must be a single non-missing logical value.")
   }
 
@@ -113,6 +113,8 @@ fct_cat <- function(x, ...,
     ref_idx <- binary_ref
   }
   # A single 0 is the same as NULL (no binary collapse), not an active mode.
+  if (!is.null(dim(ref_idx)))
+    cli::cli_abort("{.arg ref_idx} must be a vector without dimensions.")
   .register_integer64(ref_idx)
   if (is.numeric(ref_idx) && length(ref_idx) == 1L && !is.na(ref_idx) &&
       ref_idx == 0) {
@@ -158,7 +160,7 @@ fct_cat <- function(x, ...,
 
   # 3. new_labels
   if (!is.null(new_labels)) {
-    if (!is.atomic(new_labels)) {
+    if (!is.atomic(new_labels) || !is.null(dim(new_labels))) {
       cli::cli_abort("{.arg new_labels} must be an atomic vector of labels, not a list or another non-atomic object.")
     }
     old_levels <- levels(x)

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* fct_cat() rejects dimensional mode switches, references and replacement labels without changing ordinary factor operations.
+
 * PlotHeatmapJaccard() diagnoses dimensional column selectors before data-frame matrix indexing can fail.
 
 * PlotScatter1() rejects empty or malformed manual mappings before empty palettes can silently remove points.
