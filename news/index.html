@@ -50,7 +50,57 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.23" id="utilsr-0623">UtilsR 0.6.23<a class="anchor" aria-label="anchor" href="#utilsr-0623"></a></h2>
-<ul><li><p><code><a href="../reference/PlotButterfly2.html">PlotButterfly2()</a></code> validates applicable point-overlay switches early and leaves unused overlay controls unevaluated in beeswarm modes.</p></li>
+<ul><li><p>PlotHeatmapJaccard() diagnoses dimensional column selectors before data-frame matrix indexing can fail.</p></li>
+<li><p>PlotScatter1() rejects empty or malformed manual mappings before empty palettes can silently remove points.</p></li>
+<li><p>PlotDumbbell() rejects dimensional and encoded ranking counts while retaining signed whole-number selection.</p></li>
+<li><p>PlotDumbbell() validates active layer dimensions before data work while keeping hidden-layer styles lazy.</p></li>
+<li><p>PlotScatter2() validates active annotation coordinates and sizes while leaving unused annotation settings lazy.</p></li>
+<li><p>PlotScatter1() validates active raster resolution, including whole-pixel limits for scattermore, while keeping disabled raster settings lazy.</p></li>
+<li><p>fmt_his() rejects dimensional colours and column selectors while retaining native bin counts.</p></li>
+<li><p>pr_head() validates class labels before evaluating optional summary expressions.</p></li>
+<li><p>pr_section() diagnoses malformed titles before constructing a console rule.</p></li>
+<li><p>check_size() rejects dimensional patterns before invoking selected active bindings.</p></li>
+<li><p>PlotCircleLollipop() rejects dimensional and encoded ranking counts before graphics initialization.</p></li>
+<li><p>pr_box() reports malformed border labels clearly and keeps labels unused when the body is empty.</p></li>
+<li><p>theme_my() diagnoses malformed or non-finite panel spacing and preserves explicit grid units.</p></li>
+<li><p>fmt_com() rejects malformed pairing and aesthetic-inheritance flags before selecting statistical data.</p></li>
+<li><p>fmt_axisTile() rejects dimensional colours and encoded numeric font faces before storing guide settings.</p></li>
+<li><p>PlotHeatmapJaccard() diagnoses empty or malformed active palettes and retains short-palette repetition.</p></li>
+<li><p>PlotRank() validates name-cleaning flags and active rendering dimensions while keeping data-only styles lazy.</p></li>
+<li><p>set_wd() rejects dimensional paths before creating directories or changing the working directory.</p></li>
+<li><p>fmt_axis() prevents logical arrays from bypassing validation through the no-edit shortcut.</p></li>
+<li><p>fmt_tag() diagnoses dimensional colours and encoded font faces while retaining valid per-panel colours.</p></li>
+<li><p>fmt_strip2() validates active strip colour vectors before processing plot grids.</p></li>
+<li><p>fmt_bg() diagnoses matrix colour specifications before evaluating plots and retains named colour mappings.</p></li>
+<li><p>fmt_legend() rejects dimensional collection flags, positions and titles before traversing plot containers.</p></li>
+<li><p>fmt_panel() rejects dimensional colours, borders and line types before plot traversal.</p></li>
+<li><p>fmt_text() checks font sizes and title alignment before plot traversal while retaining relative font sizes.</p></li>
+<li><p>fmt_flatten() validates grid counts and character design strings before assembling the output layout.</p></li>
+<li><p>pr_spark() validates column selectors and ambiguous source names before printing distributions.</p></li>
+<li><p>check_na() rejects dimensional report flags and regular-expression controls before inspecting selected columns.</p></li>
+<li><p>check_packages() requires a scalar refresh flag before reading installed-package metadata.</p></li>
+<li><p>fmt_axisText() rejects class-encoded angles and adjustments while retaining relative font sizes.</p></li>
+<li><p>grob_add() checks active clipping and margin-unit controls before converting plots.</p></li>
+<li><p>Table display validates numeric column selectors, caption vector shapes and active highlight colours before collecting inputs.</p></li>
+<li><p>PlotCircleLollipop() computes full-range scaling by group instead of invoking the scaler once per observation.</p></li>
+<li><p>PlotCircleLollipop() checks applicable track, gap, point, link and label dimensions before graphics initialization.</p></li>
+<li><p>PlotButterfly2() checks applicable opacity, width and swarm-size controls before accessing data.</p></li>
+<li><p>PlotButterfly() rejects complex, nested and matrix bar scores before scaling or category completion.</p></li>
+<li><p>PlotScatter3() checks rendered dimensions and supported histogram bin counts before statistics and device allocation.</p></li>
+<li><p>PlotScatter2() validates point styles and supported whole-number panel layout sizes before processing data.</p></li>
+<li><p>PlotScatter1() validates point styles, ellipse confidence and panel ratios before reading data.</p></li>
+<li><p>PlotDumbbell() validates display switches before data processing while keeping inactive inset settings lazy.</p></li>
+<li><p>PlotRank() validates data-frame selectors and unique matrix group names instead of silently reusing the first match.</p></li>
+<li><p>PlotHeatmapJaccard() validates input containers and source names even for matrix-only returns.</p></li>
+<li><p>PlotButterfly2() diagnoses ambiguous source names before projecting its plotting columns.</p></li>
+<li><p>PlotButterfly() validates bar-mode input containers and column names before completing category combinations.</p></li>
+<li><p>PlotCircleLollipop() validates selectors and unique data-frame column names before graphics setup.</p></li>
+<li><p>PlotDumbbell() diagnoses repeated or missing column names before selecting endpoints.</p></li>
+<li><p>PlotScatter3() rejects ambiguous input names before paired tests or graphics setup.</p></li>
+<li><p>PlotScatter2() validates data-frame containers and unique input names before constructing panels.</p></li>
+<li><p>PlotScatter1() rejects unsupported containers and ambiguous data-frame column names before plotting.</p></li>
+<li><p><code><a href="../reference/PlotScatter1.html">PlotScatter1()</a></code> skips correlation computation when custom annotation text already supplies the result.</p></li>
+<li><p><code><a href="../reference/PlotButterfly2.html">PlotButterfly2()</a></code> validates applicable point-overlay switches early and leaves unused overlay controls unevaluated in beeswarm modes.</p></li>
 <li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> diagnoses dimensional grouping selectors and invalid facet counts before statistics or theme evaluation.</p></li>
 <li><p><code><a href="../reference/plt_cat.html">plt_cat()</a></code> validates selector shapes, scalar switches and supported plain facet counts before constructing panels.</p></li>
 <li><p><code><a href="../reference/fmt_boxplot.html">fmt_boxplot()</a></code> rejects dimensional inheritance flags and option arrays before inspecting plot data or mappings.</p></li>

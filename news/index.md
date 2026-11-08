@@ -2,6 +2,158 @@
 
 ## UtilsR 0.6.23
 
+- PlotHeatmapJaccard() diagnoses dimensional column selectors before
+  data-frame matrix indexing can fail.
+
+- PlotScatter1() rejects empty or malformed manual mappings before empty
+  palettes can silently remove points.
+
+- PlotDumbbell() rejects dimensional and encoded ranking counts while
+  retaining signed whole-number selection.
+
+- PlotDumbbell() validates active layer dimensions before data work
+  while keeping hidden-layer styles lazy.
+
+- PlotScatter2() validates active annotation coordinates and sizes while
+  leaving unused annotation settings lazy.
+
+- PlotScatter1() validates active raster resolution, including
+  whole-pixel limits for scattermore, while keeping disabled raster
+  settings lazy.
+
+- fmt_his() rejects dimensional colours and column selectors while
+  retaining native bin counts.
+
+- pr_head() validates class labels before evaluating optional summary
+  expressions.
+
+- pr_section() diagnoses malformed titles before constructing a console
+  rule.
+
+- check_size() rejects dimensional patterns before invoking selected
+  active bindings.
+
+- PlotCircleLollipop() rejects dimensional and encoded ranking counts
+  before graphics initialization.
+
+- pr_box() reports malformed border labels clearly and keeps labels
+  unused when the body is empty.
+
+- theme_my() diagnoses malformed or non-finite panel spacing and
+  preserves explicit grid units.
+
+- fmt_com() rejects malformed pairing and aesthetic-inheritance flags
+  before selecting statistical data.
+
+- fmt_axisTile() rejects dimensional colours and encoded numeric font
+  faces before storing guide settings.
+
+- PlotHeatmapJaccard() diagnoses empty or malformed active palettes and
+  retains short-palette repetition.
+
+- PlotRank() validates name-cleaning flags and active rendering
+  dimensions while keeping data-only styles lazy.
+
+- set_wd() rejects dimensional paths before creating directories or
+  changing the working directory.
+
+- fmt_axis() prevents logical arrays from bypassing validation through
+  the no-edit shortcut.
+
+- fmt_tag() diagnoses dimensional colours and encoded font faces while
+  retaining valid per-panel colours.
+
+- fmt_strip2() validates active strip colour vectors before processing
+  plot grids.
+
+- fmt_bg() diagnoses matrix colour specifications before evaluating
+  plots and retains named colour mappings.
+
+- fmt_legend() rejects dimensional collection flags, positions and
+  titles before traversing plot containers.
+
+- fmt_panel() rejects dimensional colours, borders and line types before
+  plot traversal.
+
+- fmt_text() checks font sizes and title alignment before plot traversal
+  while retaining relative font sizes.
+
+- fmt_flatten() validates grid counts and character design strings
+  before assembling the output layout.
+
+- pr_spark() validates column selectors and ambiguous source names
+  before printing distributions.
+
+- check_na() rejects dimensional report flags and regular-expression
+  controls before inspecting selected columns.
+
+- check_packages() requires a scalar refresh flag before reading
+  installed-package metadata.
+
+- fmt_axisText() rejects class-encoded angles and adjustments while
+  retaining relative font sizes.
+
+- grob_add() checks active clipping and margin-unit controls before
+  converting plots.
+
+- Table display validates numeric column selectors, caption vector
+  shapes and active highlight colours before collecting inputs.
+
+- PlotCircleLollipop() computes full-range scaling by group instead of
+  invoking the scaler once per observation.
+
+- PlotCircleLollipop() checks applicable track, gap, point, link and
+  label dimensions before graphics initialization.
+
+- PlotButterfly2() checks applicable opacity, width and swarm-size
+  controls before accessing data.
+
+- PlotButterfly() rejects complex, nested and matrix bar scores before
+  scaling or category completion.
+
+- PlotScatter3() checks rendered dimensions and supported histogram bin
+  counts before statistics and device allocation.
+
+- PlotScatter2() validates point styles and supported whole-number panel
+  layout sizes before processing data.
+
+- PlotScatter1() validates point styles, ellipse confidence and panel
+  ratios before reading data.
+
+- PlotDumbbell() validates display switches before data processing while
+  keeping inactive inset settings lazy.
+
+- PlotRank() validates data-frame selectors and unique matrix group
+  names instead of silently reusing the first match.
+
+- PlotHeatmapJaccard() validates input containers and source names even
+  for matrix-only returns.
+
+- PlotButterfly2() diagnoses ambiguous source names before projecting
+  its plotting columns.
+
+- PlotButterfly() validates bar-mode input containers and column names
+  before completing category combinations.
+
+- PlotCircleLollipop() validates selectors and unique data-frame column
+  names before graphics setup.
+
+- PlotDumbbell() diagnoses repeated or missing column names before
+  selecting endpoints.
+
+- PlotScatter3() rejects ambiguous input names before paired tests or
+  graphics setup.
+
+- PlotScatter2() validates data-frame containers and unique input names
+  before constructing panels.
+
+- PlotScatter1() rejects unsupported containers and ambiguous data-frame
+  column names before plotting.
+
+- [`PlotScatter1()`](https://hui950319.github.io/UtilsR/reference/PlotScatter1.md)
+  skips correlation computation when custom annotation text already
+  supplies the result.
+
 - [`PlotButterfly2()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly2.md)
   validates applicable point-overlay switches early and leaves unused
   overlay controls unevaluated in beeswarm modes.
