@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* .cat_saved() diagnoses repeated and dimensional fields before constructing a single saved-file notice.
+
 * Plot formatters diagnose array containers instead of silently discarding their dimensions during list traversal.
 
 * fmt_com() validates plain method option lists and scalar label, subject and grouping selectors before statistical mapping.

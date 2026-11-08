@@ -19,6 +19,16 @@ test_that("table style selectors and captions fail before forcing input tables",
     "highlight_color")
 })
 
+test_that("saved-file notices diagnose non-scalar fields before printing", {
+  for (arg in c("subject", "path", "size", "kind")) {
+    args <- list(subject = "saved", path = "figure.pdf", size = "4x3 in", existed = FALSE, kind = "PDF")
+    args[[arg]] <- c("one", "two")
+    expect_error(do.call(".cat_saved", args), arg)
+    args[[arg]] <- matrix("one")
+    expect_error(do.call(".cat_saved", args), arg)
+  }
+})
+
 test_that("console separator labels diagnose dimensional and repeated text", {
   for (bad in list(c("a", "b"), character(), matrix("a")))
     expect_error(.cat_line(bad), "text")

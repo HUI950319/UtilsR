@@ -277,6 +277,11 @@ console_width <- function() {
 .cat_saved <- function(subject, path, size, existed, kind) {
   if (!is.logical(existed) || !is.null(dim(existed)) || length(existed) != 1L || is.na(existed))
     cli::cli_abort("{.arg existed} must be TRUE or FALSE.")
+  for (arg in c("subject", "path", "size", "kind")) {
+    value <- get(arg)
+    if (length(value) != 1L || !is.null(dim(value)))
+      cli::cli_abort("{.arg {arg}} must contain one value without dimensions.")
+  }
   # col_br_red() degrades to plain text when the console has no colour, so
   # the marker stays readable in logs and in captured output
   status <- if (isTRUE(existed)) {
