@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* PlotCircleLollipop() validates optional colour column selectors before reading data while retaining its absent-column fallback.
+
 * PlotScatter3() rejects ambiguous group level mappings before constructing scales.
 
 * theme_ROC() validates non-negative sizes, legend positions and margin units while retaining relative sizes and negative margins.

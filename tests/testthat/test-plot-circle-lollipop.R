@@ -1,3 +1,12 @@
+test_that("circular optional colour selectors validate before reading data", {
+  for (bad in list(NA_character_, character(), c("a", "b"), matrix("colour")))
+    expect_error(PlotCircleLollipop(stop("data evaluated"), color_col = bad), "color_col")
+  testthat::local_mocked_bindings(circos.initialize = function(...) stop("drawing started"), .package = "circlize")
+  d <- data.frame(group = rep(c("A", "B"), each = 2), name = letters[1:4], value = 1:4, colour = "red")
+  expect_error(PlotCircleLollipop(d, color_col = "colour", show_labels = FALSE), "drawing started")
+  expect_error(PlotCircleLollipop(d, color_col = "absent", show_labels = FALSE), "drawing started")
+})
+
 test_that("circular sector gaps are checked before output devices are opened", {
   d <- data.frame(group = rep(c("A", "B", "C"), each = 2), name = letters[1:6], value = 1:6)
   before <- grDevices::dev.cur()

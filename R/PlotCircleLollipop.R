@@ -179,7 +179,7 @@ PlotCircleLollipop <- function(
   }
 
   # ---- Validate columns ----
-  for (arg in c("group_col", "name_col", "value_col")) {
+  for (arg in c("group_col", "name_col", "value_col", if (!is.null(color_col)) "color_col")) {
     value <- get(arg)
     if (!is.character(value) || !is.null(dim(value)) || length(value) != 1L ||
         is.na(value) || !nzchar(value))
