@@ -466,7 +466,7 @@ fmt_flatten <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) 
   all_subplots <- flatten_recursive(plots)
 
   if (!is.null(select_inds)) {
-    if (!is.numeric(select_inds) || is.complex(select_inds) ||
+    if (!is.numeric(select_inds) || is.object(select_inds) || is.complex(select_inds) ||
         !is.null(dim(select_inds)) || any(!is.finite(select_inds)) ||
         any(select_inds != trunc(select_inds)) ||
         any(abs(select_inds) > length(all_subplots)) ||
@@ -480,7 +480,7 @@ fmt_flatten <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) 
   }
 
   if (!is.null(nrow_inds_order)) {
-    if (!is.numeric(nrow_inds_order) || is.complex(nrow_inds_order) ||
+    if (!is.numeric(nrow_inds_order) || is.object(nrow_inds_order) || is.complex(nrow_inds_order) ||
         !is.null(dim(nrow_inds_order)) || length(nrow_inds_order) != 1L ||
         !is.finite(nrow_inds_order) || nrow_inds_order != trunc(nrow_inds_order) ||
         nrow_inds_order < 1 || nrow_inds_order > length(all_subplots)) {

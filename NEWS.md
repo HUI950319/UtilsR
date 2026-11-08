@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* fmt_flatten() rejects encoded selection and row-order indices instead of treating class storage as plot positions.
+
 * .cat_line() diagnoses repeated or dimensional labels before constructing a console rule.
 
 * pr_table() validates alignment choices before restoring or formatting cells, retaining native partial matching.

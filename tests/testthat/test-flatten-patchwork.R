@@ -391,3 +391,10 @@ test_that("flattening validates layout controls without silent truncation", {
   }
   expect_error(fmt_flatten(list(p, p), design = c("AB", "BA")), "design")
 })
+
+test_that("flattened plot selectors reject encoded numeric indices", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  expect_error(fmt_flatten(list(p, p), select_inds = structure(1, class = "encoded")), "select_inds")
+  expect_error(fmt_flatten(list(p, p), nrow_inds_order = structure(1, class = "encoded")), "nrow_inds_order")
+  expect_s3_class(fmt_flatten(list(p, p), select_inds = c(2, 1), nrow_inds_order = 1), "patchwork")
+})
