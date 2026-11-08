@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* pr_head() validates class labels before evaluating optional summary expressions.
+
 * pr_section() diagnoses malformed titles before constructing a console rule.
 
 * check_size() rejects dimensional patterns before invoking selected active bindings.

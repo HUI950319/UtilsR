@@ -220,6 +220,8 @@
 #' @export
 #' @family print helpers
 pr_head <- function(class, ..., bg = "blue", fg = "br_white") {
+  if (!is.character(class) || !is.null(dim(class)) || length(class) != 1L || is.na(class))
+    cli::cli_abort("{.arg class} must be a single non-missing character string.")
   # piece by piece: unlist() would turn a factor into its codes and a date
   # into a day count
   parts <- unlist(lapply(list(...), ._as_text), use.names = FALSE)

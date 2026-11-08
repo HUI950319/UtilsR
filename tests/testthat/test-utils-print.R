@@ -8,6 +8,11 @@ test_that("sparklines diagnose selectors and ambiguous source names", {
   expect_length(utils::capture.output(pr_spark(d, vars = "y")), 1L)
 })
 
+test_that("class headers reject malformed labels before evaluating summaries", {
+  for (bad in list(NULL, NA_character_, c("a", "b"), matrix("a"), 1))
+    expect_error(pr_head(bad, stop("summary evaluated")), "class")
+})
+
 test_that("pr_head() prints a class chip and a grey summary line", {
   withr::local_options(cli.num_colors = 256)
   out <- utils::capture.output(
