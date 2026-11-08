@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* plt_sankey() checks dimensions on logical switches and fixed colours before data preparation.
+
 * plt_sankey() rejects positional or repeated variable selectors and ambiguous data names while retaining repeated display labels.
 
 * fct_cat() rejects dimensional recode and reorder arguments instead of silently flattening character arrays.

@@ -26,6 +26,18 @@ sankey_plot <- function(data = sankey_data(), vars = names(data), ...) {
   )
 }
 
+test_that("sankey flags and fixed colours reject dimensional scalar storage", {
+  skip_if_not_installed("ggsankey")
+  expect_error(plt_sankey(stop("data evaluated"), c("a", "b"), reverse_levels = matrix(TRUE)), "reverse_levels")
+  expect_error(plt_sankey(stop("data evaluated"), c("a", "b"), label_args = list(box = matrix(FALSE))), "box")
+  for (arg in c("flow_args", "node_args", "label_args")) {
+    args <- c(list(data = quote(stop("data evaluated")), vars = c("a", "b")),
+              stats::setNames(list(list(color = matrix("red"))), arg))
+    expect_error(do.call("plt_sankey", args), arg)
+  }
+  expect_s3_class(sankey_plot(reverse_levels = FALSE, label_args = list(box = FALSE, color = NA)), "ggplot")
+})
+
 test_that("sankey selections reject positional selectors and ambiguous columns", {
   skip_if_not_installed("ggsankey")
   d <- data.frame("1" = c("a", "b"), "2" = c("x", "y"), check.names = FALSE)

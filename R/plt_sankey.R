@@ -184,21 +184,22 @@ plt_sankey <- function(data,
   if (!is_number(label_args$alpha, 0, 1)) cli::cli_abort("{.arg label_args$alpha} must be in [0, 1].")
   if (!is_number(label_args$min_pct, 0, 1)) cli::cli_abort("{.arg label_args$min_pct} must be in [0, 1].")
   if (!is_number(label_args$pct_accuracy, positive = TRUE)) cli::cli_abort("{.arg label_args$pct_accuracy} must be positive and finite.")
-  if (!is.logical(label_args$box) || length(label_args$box) != 1L || is.na(label_args$box)) {
+  if (!is.logical(label_args$box) || !is.null(dim(label_args$box)) ||
+      length(label_args$box) != 1L || is.na(label_args$box)) {
     cli::cli_abort("{.arg label_args$box} must be TRUE or FALSE.")
   }
   styles <- list(flow_args = flow_args, node_args = node_args, label_args = label_args)
   for (arg in names(styles)) {
     for (field in intersect(c("color", "fill"), names(styles[[arg]]))) {
       value <- styles[[arg]][[field]]
-      if (length(value) != 1L || !(is.character(value) || identical(value, NA)) ||
+      if (length(value) != 1L || !is.null(dim(value)) || !(is.character(value) || identical(value, NA)) ||
           inherits(try(grDevices::col2rgb(value), silent = TRUE), "try-error")) {
         cli::cli_abort("{.arg {arg}} field {.val {field}} must be one colour or NA.")
       }
     }
   }
   if (!is_number(base_size, positive = TRUE)) cli::cli_abort("{.arg base_size} must be positive and finite.")
-  if (!is.logical(reverse_levels) || length(reverse_levels) != 1L || is.na(reverse_levels)) {
+  if (!is.logical(reverse_levels) || !is.null(dim(reverse_levels)) || length(reverse_levels) != 1L || is.na(reverse_levels)) {
     cli::cli_abort("{.arg reverse_levels} must be TRUE or FALSE.")
   }
   if (!is.null(save)) {
