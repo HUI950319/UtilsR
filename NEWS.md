@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* PlotButterfly2() validates active fill palette structure, mapping names and colour literals before rendering.
+
 * PlotHeatmapJaccard() rejects matrix-valued membership columns and dimensional group orders before computing feature sets.
 
 * PlotCircleLollipop() rejects non-vector group-order containers while retaining unused-level removal.

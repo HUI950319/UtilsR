@@ -13,6 +13,17 @@ butterfly_without_text_warning <- function(expr) {
   })
 }
 
+test_that("split butterfly fill mappings reject ambiguous keys and invalid colours", {
+  d <- data.frame(stat = "A", value = 1:12, group = rep(c("L", "R"), each = 6), fill = rep(c("X", "Y"), 6))
+  draw <- function(palette) butterfly_without_text_warning(PlotButterfly2(d,
+    stat.by = "stat", value.by = "value", group.by = "group", fill.by = "fill", type = "box", palette = palette))
+  for (bad in list(matrix(c("red", "blue")), c(X = "red", X = "blue", Y = "green"), "invalid-colour"))
+    expect_error(draw(bad), "palette")
+  colours <- c(Y = "#33669980", X = "red")
+  p <- draw(colours)
+  expect_setequal(ggplot2::ggplot_build(p[[1]])$data[[1]]$fill, unname(colours))
+})
+
 test_that("split butterfly point sizes and opacities validate only when drawn", {
   for (type in c("violin_box", "beeswarm_quasirandom"))
     for (arg in c("pt.size", "pt.alpha"))

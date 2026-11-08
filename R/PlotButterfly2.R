@@ -311,6 +311,12 @@ PlotButterfly2 <- function(
   # ---- Resolve palette ----
   has_fill <- !is.null(fill.by)
   if (has_fill) {
+    if (!is.null(palette) && (!is.atomic(palette) || !is.null(dim(palette))))
+      cli::cli_abort("{.arg palette} must be a one-dimensional vector.")
+    palette_names <- names(palette)
+    if (!is.null(palette_names) && (anyNA(palette_names) || anyDuplicated(palette_names) ||
+        (any(!nzchar(palette_names)) && !"" %in% levels(data[[fill.by]]))))
+      cli::cli_abort("Named {.arg palette} must have unique, non-missing category names.")
     n_fill <- nlevels(data[[fill.by]])
     if (is.null(palette)) {
       cols <- as.character(pal_lancet[seq_len(min(n_fill, length(pal_lancet)))])
@@ -323,6 +329,9 @@ PlotButterfly2 <- function(
       if (length(cols) < n_fill) cols <- rep_len(cols, n_fill)
       cols <- stats::setNames(cols[seq_len(n_fill)], levels(data[[fill.by]]))
     }
+    if (!tryCatch({ grDevices::col2rgb(cols, alpha = TRUE); TRUE },
+                  error = function(e) FALSE, warning = function(w) FALSE))
+      cli::cli_abort("{.arg palette} must contain valid R colours.")
   } else {
     cols <- NULL
   }
