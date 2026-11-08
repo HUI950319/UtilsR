@@ -35,6 +35,7 @@ scatter3_integer_pairs <- function() {
 }
 
 test_that("grouped scatter diagnoses empty and dimensional manual mappings", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   d <- data.frame(x = 1:6, y = c(2, 1, 4, 3, 6, 5), g = rep(c("A", "B"), 3))
   for (bad in list(character(), matrix("red"), "not-a-colour"))
     expect_error(PlotScatter1(d, "x", "y", "g", show_ellipse = FALSE, colors = bad), "colors")
@@ -46,6 +47,7 @@ test_that("grouped scatter diagnoses empty and dimensional manual mappings", {
 })
 
 test_that("grouped scatter validates active raster resolution before reading data", {
+  withr::local_options(lifecycle_verbosity = "quiet")
   for (bad in list(0, Inf, NA_real_, matrix(100), structure(100, class = "encoded"), 1.5))
     expect_error(PlotScatter1(stop("data evaluated"), "x", "y", "g",
       raster = TRUE, raster.dpi = bad), "raster.dpi")
@@ -131,7 +133,7 @@ test_that("dual-group scatter styles reject invalid scalar and layout controls",
 
 test_that("PlotScatter2 rejects ambiguous data-frame column names", {
   d <- data.frame(x = 1:4, y = 4:1, g = rep(c("a", "b"), 2), x = 5:8, check.names = FALSE)
-  expect_error(PlotScatter2(d, "x", "y", "g", base_size = stop("theme evaluated")),
+  expect_error(PlotScatter2(d, "x", "y", "g", legend_color_pos = stop("theme evaluated")),
     "unique.*column names")
   expect_error(PlotScatter2(list(x = 1:4, y = 4:1, g = letters[1:4]), "x", "y", "g"), "data.frame")
 })
@@ -140,7 +142,7 @@ test_that("PlotScatter2 rejects non-vector axes before theme evaluation", {
   for (col in c("x", "y")) for (bad in list(1:4 + 1i, as.list(1:4), matrix(1:4, 4))) {
     d <- data.frame(x = 1:4, y = 4:1, g = rep(c("a", "b"), 2))
     d[[col]] <- bad
-    expect_error(PlotScatter2(d, "x", "y", "g", base_size = stop("theme evaluated")),
+    expect_error(PlotScatter2(d, "x", "y", "g", legend_color_pos = stop("theme evaluated")),
       "must contain a real vector")
   }
 })

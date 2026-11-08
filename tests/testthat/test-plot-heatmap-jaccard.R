@@ -53,6 +53,18 @@ test_that("Jaccard strips reject empty and malformed active palettes", {
     strip_colors = stop("unused")), "double")
 })
 
+test_that("Jaccard column selectors reject dimensional storage on matrix returns", {
+  d <- data.frame(cell_type = c("A", "B"), gene = c("x", "y"))
+  for (arg in c("group_col", "name_col")) {
+    args <- list(data = d, return_type = "data")
+    args[[arg]] <- matrix(if (arg == "group_col") "cell_type" else "gene")
+    expect_error(do.call("PlotHeatmapJaccard", args), arg)
+  }
+  expected <- diag(2)
+  dimnames(expected) <- list(c("A", "B"), c("A", "B"))
+  expect_identical(PlotHeatmapJaccard(d, return_type = "data"), expected)
+})
+
 test_that("Jaccard matrices reject ambiguous source columns", {
   d <- data.frame(cell_type = c("A", "B"), gene = c("x", "y"),
     gene = c("y", "z"), check.names = FALSE)

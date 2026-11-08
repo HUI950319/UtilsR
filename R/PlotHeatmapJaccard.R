@@ -107,19 +107,19 @@ PlotHeatmapJaccard <- function(
     stop("Package 'ggplot2' is required.", call. = FALSE)
   return_type <- match.arg(return_type)
   if (!is.data.frame(data)) stop("'data' must be a data.frame.", call. = FALSE)
-  if (anyNA(names(data)) || any(!nzchar(names(data))) || anyDuplicated(names(data)))
-    stop("'data' must have unique, non-missing, non-empty column names.", call. = FALSE)
 
   # ---- Validate columns ----
   column_selectors <- list(group_col = group_col, name_col = name_col)
   for (argument in names(column_selectors)) {
     selector <- column_selectors[[argument]]
-    if (!is.atomic(selector) || length(selector) != 1L || anyNA(selector) ||
+    if (!is.atomic(selector) || !is.null(dim(selector)) || length(selector) != 1L || anyNA(selector) ||
         (is.character(selector) && !nzchar(selector))) {
       stop(sprintf("'%s' must be a single non-missing, non-empty column selector.", argument),
            call. = FALSE)
     }
   }
+  if (anyNA(names(data)) || any(!nzchar(names(data))) || anyDuplicated(names(data)))
+    stop("'data' must have unique, non-missing, non-empty column names.", call. = FALSE)
   for (col in c(group_col, name_col)) {
     if (!col %in% colnames(data))
       stop(sprintf("Column '%s' not found in data.", col), call. = FALSE)
