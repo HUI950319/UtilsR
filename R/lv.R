@@ -234,7 +234,7 @@ lv <- function(data, ...) {
 .lv_dataset_hint <- function() {
   ge <- globalenv()
   found <- Filter(function(nm) {
-    obj <- get(nm, envir = ge, inherits = FALSE)
+    obj <- tryCatch(get(nm, envir = ge, inherits = FALSE), error = function(e) NULL)
     is.data.frame(obj) || inherits(obj, "Seurat")
   }, ls(ge))
   if (!length(found)) return(character())

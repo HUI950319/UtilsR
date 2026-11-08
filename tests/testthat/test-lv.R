@@ -1182,3 +1182,13 @@ test_that("standard deviations stay finite across finite numeric scales", {
     expect_identical(data, before)
   }
 })
+
+test_that("dataset hints survive unreadable global bindings", {
+  good <- "utilsr_hint_dataset_fixture"
+  bad <- "utilsr_hint_unreadable_fixture"
+  rlang::local_bindings(!!!stats::setNames(list(data.frame(x = 1:2)), good), .env = .GlobalEnv)
+  makeActiveBinding(bad, function(value) stop("binding unavailable"), .GlobalEnv)
+  withr::defer(rm(list = bad, envir = .GlobalEnv))
+  expect_no_error(hint <- .lv_dataset_hint())
+  expect_true(any(grepl(good, hint, fixed = TRUE)))
+})
