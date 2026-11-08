@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* stat_ci_parse() rescales extreme difference intervals before level-adjustment intermediates can overflow.
+
 * fct_cat() rejects dimensional mode switches, references and replacement labels without changing ordinary factor operations.
 
 * PlotHeatmapJaccard() diagnoses dimensional column selectors before data-frame matrix indexing can fail.

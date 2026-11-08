@@ -211,7 +211,15 @@ stat_ci_parse <- function(x,
   }
   se <- se_of(l_s, h_s)
   work_scale <- rep(1, length(est))
-  rescale <- valid & !is_exp & !is.finite(se) & is.finite(e_s) & is.finite(l_s) & is.finite(h_s)
+  unstable <- !is.finite(se)
+  if (!is.null(level)) {
+    z_new <- qnorm((1 - level) / 2, lower.tail = FALSE)
+    ratio <- z_new / z95
+    unstable <- unstable |
+      !is.finite(e_s - ifelse(asym, (e_s - l_s) * ratio, z_new * se)) |
+      !is.finite(e_s + ifelse(asym, (h_s - e_s) * ratio, z_new * se))
+  }
+  rescale <- valid & !is_exp & unstable & is.finite(e_s) & is.finite(l_s) & is.finite(h_s)
   if (any(rescale)) {
     work_scale[rescale] <- pmax(abs(e_s[rescale]), abs(l_s[rescale]), abs(h_s[rescale]))
     e_s[rescale] <- e_s[rescale] / work_scale[rescale]
@@ -223,9 +231,8 @@ stat_ci_parse <- function(x,
   # --- Adjust CI level; p is then read off the adjusted CI as a 95% CI ---
   if (!is.null(level)) {
     if (is.null(digits)) d <- pmax(d, 1L)   # "2 (1, 3)" -> "2.0 (1.2, 2.8)"
-    z_new <- qnorm((1 - level) / 2, lower.tail = FALSE)
-    l_s <- ifelse(asym, e_s - (e_s - l_s) * z_new / z95, e_s - z_new * se)
-    h_s <- ifelse(asym, e_s + (h_s - e_s) * z_new / z95, e_s + z_new * se)
+    l_s <- ifelse(asym, e_s - (e_s - l_s) * ratio, e_s - z_new * se)
+    h_s <- ifelse(asym, e_s + (h_s - e_s) * ratio, e_s + z_new * se)
     lo <- ifelse(valid, ifelse(is_exp, exp(l_s), l_s * work_scale), lo)
     hi <- ifelse(valid, ifelse(is_exp, exp(h_s), h_s * work_scale), hi)
     se <- se_of(l_s, h_s)

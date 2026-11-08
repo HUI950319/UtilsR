@@ -1,6 +1,18 @@
 z95 <- qnorm(0.975)
 p_of <- function(z) 2 * (1 - pnorm(abs(z)))
 
+test_that("relevelled extreme difference intervals avoid intermediate overflow", {
+  x <- c("1.0e308 (-1.0e308, 1.5e308)", "1.0e308 (0.0e308, 1.5e308)")
+  control <- c("1.0 (-1.0, 1.5)", "1.0 (0.0, 1.5)")
+  for (level in c(.5, .8, .9, .95, .99)) {
+    expect_warning(actual <- stat_ci_parse(x, output = "p", level = level, exp = FALSE), "not symmetric")
+    expect_warning(expected <- stat_ci_parse(control, output = "p", level = level, exp = FALSE), "not symmetric")
+    expect_equal(actual, expected)
+  }
+  expect_warning(ci <- stat_ci_parse(x, level = .8, exp = FALSE), "not symmetric")
+  expect_identical(grepl("Inf", ci, fixed = TRUE), c(FALSE, FALSE))
+})
+
 test_that("overflowing CI tokens remain unparsed without aborting other intervals", {
   x <- c(estimate = "1e309 (1e308, 1e310)",
          lower = "0 (-1e999, 1)", upper = "0 (-1, 1e999)",
