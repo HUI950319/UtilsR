@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* set_wd() rejects dimensional paths before creating directories or changing the working directory.
+
 * fmt_axis() prevents logical arrays from bypassing validation through the no-edit shortcut.
 
 * fmt_tag() diagnoses dimensional colours and encoded font faces while retaining valid per-panel colours.

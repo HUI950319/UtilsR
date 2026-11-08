@@ -59,7 +59,8 @@
 #' @family file system
 set_wd <- function(path, create = TRUE, verbose = TRUE) {
 
-  if (!is.character(path) || length(path) != 1L || is.na(path) || !nzchar(path)) {
+  if (!is.character(path) || !is.null(dim(path)) ||
+      length(path) != 1L || is.na(path) || !nzchar(path)) {
     stop("`path` must be a single non-empty character string.", call. = FALSE)
   }
   flags <- list(create = create, verbose = verbose)

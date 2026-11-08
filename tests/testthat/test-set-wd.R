@@ -69,6 +69,15 @@ test_that("set_wd reports an existing but empty directory as empty", {
   expect_match(out, "[empty, existing directory]", fixed = TRUE)
 })
 
+test_that("set_wd rejects dimensional paths without creating directories", {
+  target <- tempfile("set_wd_matrix_")
+  old <- getwd()
+  on.exit({ setwd(old); unlink(target, recursive = TRUE) }, add = TRUE)
+  expect_error(set_wd(matrix(target), verbose = FALSE), "path")
+  expect_identical(getwd(), old)
+  expect_false(dir.exists(target))
+})
+
 test_that("set_wd stays silent and returns the previous directory", {
   target <- tempfile("set_wd_quiet_")
   old <- getwd()
