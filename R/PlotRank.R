@@ -152,6 +152,9 @@ PlotRank <- function(
   }
   return_type  <- match.arg(return_type)
   value_scale  <- match.arg(value_scale)
+  if (!is.logical(clean_names) || !is.null(dim(clean_names)) ||
+      length(clean_names) != 1L || is.na(clean_names))
+    stop("'clean_names' must be TRUE or FALSE.", call. = FALSE)
 
   validate_count <- function(value, name, minimum) {
     if (length(value) != 1L || !is.numeric(value) || is.object(value) ||
@@ -270,6 +273,12 @@ PlotRank <- function(
   if (return_type == "data" && is.null(filename)) return(plot_df)
 
   # ---- Build plot ----
+  for (arg in c("label_size", "point_size", "base_size")) {
+    value <- get(arg)
+    if (!is.numeric(value) || is.object(value) || !is.null(dim(value)) ||
+        length(value) != 1L || !is.finite(value) || value < 0)
+      stop("'", arg, "' must be a single finite non-negative number.", call. = FALSE)
+  }
   is_single <- length(score_list) == 1L
 
   if (is_single) {

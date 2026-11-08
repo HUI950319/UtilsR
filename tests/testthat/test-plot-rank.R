@@ -1,3 +1,19 @@
+test_that("rank rendering controls validate only when a plot is requested", {
+  scores <- stats::setNames(c(3, 1, 2), letters[1:3])
+  for (arg in c("label_size", "point_size", "base_size")) {
+    for (bad in list(-1, NA_real_, Inf, matrix(2), structure(2, class = "encoded"))) {
+      args <- list(data = scores)
+      args[[arg]] <- bad
+      expect_error(do.call("PlotRank", args), arg)
+    }
+  }
+  expect_s3_class(PlotRank(scores, return_type = "data",
+                          point_size = stop("unused")), "data.frame")
+  expect_s3_class(ggplot2::ggplotGrob(PlotRank(scores, label_size = 0, point_size = 0)), "gtable")
+  for (bad in list(matrix(TRUE), NA, c(TRUE, FALSE), 1))
+    expect_error(PlotRank(scores, clean_names = bad, return_type = "data"), "clean_names")
+})
+
 test_that("rank inputs reject ambiguous source and matrix group names", {
   d <- data.frame(gene = letters[1:3], importance = 1:3, importance = 4:6, check.names = FALSE)
   expect_error(PlotRank(d, return_type = "data"), "unique.*column names")
