@@ -1,6 +1,13 @@
 z95 <- qnorm(0.975)
 p_of <- function(z) 2 * (1 - pnorm(abs(z)))
 
+test_that("CI scale switches reject dimensional logical flags", {
+  for (flag in c(TRUE, FALSE))
+    expect_error(stat_ci_parse("2 (1, 4)", exp = matrix(flag)), "exp")
+  expect_equal(stat_ci_parse("2 (1, 4)", output = "p", exp = TRUE),
+               .05)
+})
+
 test_that("relevelled extreme difference intervals avoid intermediate overflow", {
   x <- c("1.0e308 (-1.0e308, 1.5e308)", "1.0e308 (0.0e308, 1.5e308)")
   control <- c("1.0 (-1.0, 1.5)", "1.0 (0.0, 1.5)")

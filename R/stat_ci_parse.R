@@ -130,7 +130,7 @@ stat_ci_parse <- function(x,
   output <- match.arg(output)
   if (!is.character(x)) cli::cli_abort("{.arg x} must be a character vector.")
   if (!is.null(dim(x))) cli::cli_abort("{.arg x} must be a vector without dimensions.")
-  if (!(identical(exp, "auto") || isTRUE(exp) || isFALSE(exp))) {
+  if (!is.null(dim(exp)) || !(identical(exp, "auto") || isTRUE(exp) || isFALSE(exp))) {
     cli::cli_abort("{.arg exp} must be {.val auto}, {.code TRUE} or {.code FALSE}.")
   }
   if (!is.null(level) && !(is.numeric(level) && !is.object(level) &&
