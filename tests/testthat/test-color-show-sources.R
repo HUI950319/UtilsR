@@ -1,3 +1,11 @@
+test_that("palette viewer label switches reject dimensional logical storage", {
+  for (flag in c(TRUE, FALSE)) {
+    expect_error(pal_show(c("red", "blue"), label = matrix(flag), output = "gg"), "label")
+    expect_error(pal_show("lancet", label = matrix(flag), output = "gg"), "label")
+  }
+  expect_s3_class(pal_show(c("red", "blue"), label = FALSE, output = "gg"), "ggplot")
+})
+
 test_that("pal_show_brewer displays selected Brewer palettes", {
   p <- pal_show_brewer(
     palette = c("Set1", "Blues"),

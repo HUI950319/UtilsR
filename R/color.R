@@ -1025,7 +1025,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
   if (!size_ok(ncol, nullable = TRUE)) {
     cli::cli_abort("{.arg ncol} must be a positive whole number or {.code NULL}.")
   }
-  if (!isTRUE(label) && !isFALSE(label)) {
+  if ((!isTRUE(label) && !isFALSE(label)) || !is.null(dim(label))) {
     cli::cli_abort("{.arg label} must be {.code TRUE} or {.code FALSE}.")
   }
   if (!(is.numeric(label_size) && !is.complex(label_size) &&

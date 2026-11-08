@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* pal_show() rejects dimensional label switches through its shared viewer validator.
+
 * PlotScatter1() and PlotScatter2() share canonical correlation annotation formatting without changing computed estimates or p-values.
 
 * PlotScatter3() normalizes native correlation method names so partial Spearman and Kendall calls receive rho and tau annotations.
