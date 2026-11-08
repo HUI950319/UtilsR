@@ -2978,6 +2978,7 @@ fmt_text <- function(plot,
     if (endsWith(arg, "_color") && !tryCatch({ grDevices::col2rgb(value); TRUE },
         error = function(e) FALSE, warning = function(w) FALSE))
       cli::cli_abort("{.arg {arg}} must contain valid R colours.")
+    if (endsWith(arg, "_color") && is.factor(value)) assign(arg, as.character(value))
   }
   info <- .to_plot_list(plot, recurse = TRUE)
   n <- length(info$plots)

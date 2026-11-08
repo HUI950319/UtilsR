@@ -214,3 +214,22 @@ test_that("text styles reject arrays and invalid colours before evaluating plots
   q <- fmt_text(p, title = "Title", title_face = 2, title_color = 1, title_size = ggplot2::rel(.9))
   expect_s3_class(ggplot2::ggplotGrob(q), "gtable")
 })
+
+test_that("plot text factor colours draw their labels", {
+  p <- ggplot2::ggplot(data.frame(x = 1:2), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  color <- factor("red", levels = c("blue", "red"))
+  fields <- c(title_color = "plot.title", subtitle_color = "plot.subtitle", caption_color = "plot.caption", axis_title_color = "axis.title")
+  for (arg in names(fields)) {
+    plot <- do.call(fmt_text, c(list(plot = p), stats::setNames(list(color), arg)))
+    expect_identical(plot$theme[[fields[[arg]]]]$colour, "red")
+  }
+  expect_identical(fmt_text(p, title_color = 1)$theme$plot.title$colour, 1)
+  skip_if_not_installed("ragg")
+  draw <- function(color) {
+    capture <- ragg::agg_capture(width = 180, height = 100, units = "px", background = "white")
+    on.exit(grDevices::dev.off())
+    grid::grid.draw(ggplot2::ggplotGrob(fmt_text(p, title = "Header", title_color = color)))
+    capture()
+  }
+  expect_equal(sum(draw(color) != draw("red")), 0L)
+})
