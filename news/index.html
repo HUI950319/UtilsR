@@ -50,7 +50,57 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.23" id="utilsr-0623">UtilsR 0.6.23<a class="anchor" aria-label="anchor" href="#utilsr-0623"></a></h2>
-<ul><li><p>PlotHeatmapJaccard() diagnoses dimensional column selectors before data-frame matrix indexing can fail.</p></li>
+<ul><li><p>Legacy Plot functions validate filename scalars before data processing or device creation while retaining NULL no-save behavior.</p></li>
+<li><p>PlotButterfly2() validates active fill palette structure, mapping names and colour literals before rendering.</p></li>
+<li><p>PlotHeatmapJaccard() rejects matrix-valued membership columns and dimensional group orders before computing feature sets.</p></li>
+<li><p>PlotCircleLollipop() rejects non-vector group-order containers while retaining unused-level removal.</p></li>
+<li><p>grob_insert() diagnoses unsupported inset objects before building the main plot.</p></li>
+<li><p>PlotScatter1() rejects dimensional and list-valued group orders before reading the data.</p></li>
+<li><p>fmt_raster() rejects non-scalar device selectors on rasterized layers while leaving non-target layers unchanged.</p></li>
+<li><p>grob_add() rejects non-graphics before building the main plot while retaining native grob-list additions and disabled-addition laziness.</p></li>
+<li><p>fmt_strip2() validates palette selector vectors before traversing the plot grid.</p></li>
+<li><p>pal_show() rejects dimensional label switches through its shared viewer validator.</p></li>
+<li><p>PlotScatter1() and PlotScatter2() share canonical correlation annotation formatting without changing computed estimates or p-values.</p></li>
+<li><p>PlotScatter3() normalizes native correlation method names so partial Spearman and Kendall calls receive rho and tau annotations.</p></li>
+<li><p>fmt_ref() checks active style vectors and colour values before traversing plots and retains native missing-style behavior.</p></li>
+<li><p>fmt_text() rejects dimensional style inputs and invalid colours before traversing plots while retaining native numeric colours and font faces.</p></li>
+<li><p>fmt_expand() validates axis selector dimensions before evaluating or changing the plot.</p></li>
+<li><p>PlotDumbbell() validates scalar endpoint labels before legend construction and retains numeric-label conversion.</p></li>
+<li><p>lv() dataset hints skip bindings that fail to load instead of masking the original diagnostic.</p></li>
+<li><p>PlotRank() rejects dimensional, missing or repeated group selectors before selecting and ordering score panels.</p></li>
+<li><p>PlotButterfly2() validates point sizes and opacities in both drawing paths without forcing disabled point overlays.</p></li>
+<li><p>plt_alluvial() validates dimensions on scalar style selectors, colours and label switches before theme resolution.</p></li>
+<li><p>plt_alluvial() rejects dimensional column selectors and duplicated input column names before factor preparation.</p></li>
+<li><p>plt_upset() validates active Venn dimensions and opacities before invoking the plotting backend and leaves inactive labels lazy.</p></li>
+<li><p>plt_sankey() checks dimensions on logical switches and fixed colours before data preparation.</p></li>
+<li><p>plt_sankey() rejects positional or repeated variable selectors and ambiguous data names while retaining repeated display labels.</p></li>
+<li><p>fct_cat() rejects dimensional recode and reorder arguments instead of silently flattening character arrays.</p></li>
+<li><p>PlotScatter2() rejects duplicated mapping keys and dimensional mapping containers while keeping unused shape settings lazy.</p></li>
+<li><p>theme_sc() and theme_blank() diagnose unnamed or repeated dynamic theme elements instead of silently ignoring them.</p></li>
+<li><p>Base theme constructors reject negative font and line sizes while retaining zero sizes and reversed coordinate arrows.</p></li>
+<li><p>PlotCircleLollipop() validates optional colour column selectors before reading data while retaining its absent-column fallback.</p></li>
+<li><p>PlotScatter3() rejects ambiguous group level mappings before constructing scales.</p></li>
+<li><p>theme_ROC() validates non-negative sizes, legend positions and margin units while retaining relative sizes and negative margins.</p></li>
+<li><p>theme_legend() diagnoses invalid active colours, font-face arrays and negative text or key sizes while retaining inherited values and hidden-title laziness.</p></li>
+<li><p>theme_my() rejects factor-coded and dimensional palette selectors before looking up theme colours.</p></li>
+<li><p>.cat_saved() diagnoses repeated and dimensional fields before constructing a single saved-file notice.</p></li>
+<li><p>Plot formatters diagnose array containers instead of silently discarding their dimensions during list traversal.</p></li>
+<li><p>fmt_com() validates plain method option lists and scalar label, subject and grouping selectors before statistical mapping.</p></li>
+<li><p>fmt_point() requires plain named lists for active jitter and beeswarm options while leaving unused options lazy.</p></li>
+<li><p>fmt_scale() rejects table and array option containers before inspecting plot inputs.</p></li>
+<li><p>Shared plot option merging rejects table and array containers before combining partial settings.</p></li>
+<li><p>Plot text options must use a plain named list rather than a table or array container.</p></li>
+<li><p>fmt_flatten() rejects encoded selection and row-order indices instead of treating class storage as plot positions.</p></li>
+<li><p>.cat_line() diagnoses repeated or dimensional labels before constructing a console rule.</p></li>
+<li><p>pr_table() validates alignment choices before restoring or formatting cells, retaining native partial matching.</p></li>
+<li><p>pr_badge() rejects dimensional inputs while retaining scalar-to-vector recycling and typed labels.</p></li>
+<li><p>PlotHeatmapJaccard() uses the required prefix of longer strip palettes instead of failing on unequal annotation lengths.</p></li>
+<li><p>PlotCircleLollipop() diagnoses excessive total sector gaps before creating an output file or opening a graphics device.</p></li>
+<li><p>fct_num() rejects dimensional replacement labels instead of silently flattening them into factor levels.</p></li>
+<li><p>stat_ci_parse() rejects dimensional logical scale flags before interpreting confidence intervals.</p></li>
+<li><p>stat_ci_parse() rescales extreme difference intervals before level-adjustment intermediates can overflow.</p></li>
+<li><p>fct_cat() rejects dimensional mode switches, references and replacement labels without changing ordinary factor operations.</p></li>
+<li><p>PlotHeatmapJaccard() diagnoses dimensional column selectors before data-frame matrix indexing can fail.</p></li>
 <li><p>PlotScatter1() rejects empty or malformed manual mappings before empty palettes can silently remove points.</p></li>
 <li><p>PlotDumbbell() rejects dimensional and encoded ranking counts while retaining signed whole-number selection.</p></li>
 <li><p>PlotDumbbell() validates active layer dimensions before data work while keeping hidden-layer styles lazy.</p></li>
