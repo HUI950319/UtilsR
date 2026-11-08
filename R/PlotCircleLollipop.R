@@ -232,7 +232,8 @@ PlotCircleLollipop <- function(
 
   # ---- top_n: keep top-N rows per group by value (descending) ----
   if (!is.null(top_n)) {
-    if (length(top_n) != 1L || !is.numeric(top_n) || is.complex(top_n) ||
+    if (length(top_n) != 1L || !is.numeric(top_n) || is.object(top_n) ||
+        !is.null(dim(top_n)) || is.complex(top_n) ||
         !is.finite(top_n) || top_n < 0 || top_n > .Machine$integer.max ||
         top_n != floor(top_n)) {
       stop("'top_n' must be NULL or a single non-negative integer no greater than .Machine$integer.max.",

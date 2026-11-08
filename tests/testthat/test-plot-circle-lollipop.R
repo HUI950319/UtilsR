@@ -1,3 +1,11 @@
+test_that("circular top counts reject dimensional and encoded storage before drawing", {
+  testthat::local_mocked_bindings(circos.initialize = function(...) stop("drawing started"),
+                                  .package = "circlize")
+  d <- data.frame(group = rep(c("A", "B"), each = 2), name = letters[1:4], value = 1:4)
+  for (bad in list(matrix(1), structure(1, class = "encoded")))
+    expect_error(PlotCircleLollipop(d, top_n = bad, show_labels = FALSE), "top_n")
+})
+
 test_that("circular geometry controls fail before graphics initialization", {
   for (arg in c("track_height", "gap_after", "gap_between", "start_degree", "point_cex",
                 "line_lwd", "sector_cex", "link_lwd", "link_h", "label_cex", "label_height")) {

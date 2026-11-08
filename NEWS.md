@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* PlotCircleLollipop() rejects dimensional and encoded ranking counts before graphics initialization.
+
 * pr_box() reports malformed border labels clearly and keeps labels unused when the body is empty.
 
 * theme_my() diagnoses malformed or non-finite panel spacing and preserves explicit grid units.
