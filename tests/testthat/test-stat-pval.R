@@ -563,3 +563,11 @@ test_that("textual P significance respects exact decimal boundaries", {
   expect_identical(stat_pval(c("1e-999", "0"), map_signif = c(Z = 0, S = .05)), c("<0.001S", "<0.001Z"))
   expect_identical(stat_pval(c("0.050000000000000005", "0.05000000000000002"), map_signif = c(S = .05000000000000001)), c("0.050S", "0.050"))
 })
+
+test_that("oversized decimal mantissas preserve finite P values", {
+  zeros <- strrep("0", 5000L)
+  x <- c(a = paste0("2", zeros, "e-5001"), b = paste0("123456", zeros, "e-5006"))
+  expect_identical(stat_pval(x), c(a = "0.200", b = "0.123"))
+  expect_identical(stat_pval(paste0("-2", zeros, "e-5001"), mode = "plain"), "-0.20")
+  expect_identical(stat_pval(paste0("<2", zeros, "e-5001")), paste0("<2", zeros, "e-5001"))
+})

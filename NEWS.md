@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_pval()` normalizes oversized decimal mantissas instead of returning NA for finite P-values.
+
 * `stat_pval()` compares decimal text at significance thresholds without losing digits or positive underflow values.
 
 * CI string parsing ignores significance stars followed by a terminal period without a spurious trailing-text warning.

@@ -227,6 +227,18 @@ stat_pval <- function(x,
       }
       # Long mantissas can parse as NaN even when the decimal value is exactly one.
       x_num[edge[one & !negative]] <- 1
+      recover <- which(is.na(x_num[edge]) & !is.na(endpoint))
+      if (length(recover)) {
+        # Bound the mantissa before native conversion, retaining more than
+        # double precision and carrying its decimal magnitude in the exponent.
+        significant <- substr(coefficient[recover], 1L, 32L)
+        power <- exponent[recover] - decimals[recover] + nchar(coefficient[recover]) - 1L
+        normalized <- paste0(ifelse(negative[recover], "-", ""),
+                             substr(significant, 1L, 1L), ".", substring(significant, 2L), "e", power)
+        restored <- as.numeric(normalized)
+        restored[zero[recover]] <- 0
+        x_num[edge[recover]] <- restored
+      }
     }
   }
   if (mode != "plain") .validate_p(x_num, "x")
