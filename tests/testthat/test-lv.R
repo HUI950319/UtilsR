@@ -1192,3 +1192,15 @@ test_that("dataset hints survive unreadable global bindings", {
   expect_no_error(hint <- .lv_dataset_hint())
   expect_true(any(grepl(good, hint, fixed = TRUE)))
 })
+
+test_that("time filter suggestions distinguish values with identical printed labels", {
+  inputs <- list(as.difftime(1 + (0:10) * .Machine$double.eps, units = "days"), as.Date(1 + (0:10) / 100, origin = "1970-01-01"))
+  for (x in inputs) {
+    d <- data.frame(x = x)
+    summary <- capture_reports(lv(d))[[1L]][["_data"]]
+    expect_equal(summary$n_unique, 11L)
+    expression <- parse(text = as.character(summary$unique))[[1L]]
+    expect_identical(eval(expression[[2L]], envir = d), c(rep(TRUE, 8L), rep(FALSE, 3L)))
+    expect_identical(d[["x"]], x)
+  }
+})

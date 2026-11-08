@@ -385,13 +385,15 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     explicit_na <- is.factor(col_data) && anyNA(display_values)
     matching_values <- if (explicit_na) display_values[!is.na(display_values)] else display_values
     date_time <- inherits(col_data, "POSIXt")
+    numeric_time <- inherits(col_data, c("Date", "difftime")) &&
+      anyDuplicated(as.character(unique_values)) > 0L
     instants <- if (date_time) as.POSIXct(matching_values) else NULL
     values <- if (date_time) {
       as.list(as.numeric(instants))
     } else if (is.logical(matching_values)) {
       as.list(matching_values)
-    } else if (is.numeric(matching_values) &&
-               (!is.object(matching_values) || inherits(matching_values, "haven_labelled"))) {
+    } else if (numeric_time || (is.numeric(matching_values) &&
+               (!is.object(matching_values) || inherits(matching_values, "haven_labelled")))) {
       as.list(as.numeric(matching_values))
     } else {
       as.list(as.character(matching_values))
@@ -399,7 +401,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     values_expr <- as.call(c(list(quote(c)), values))
     filter_var <- as.name(var)
     # match() otherwise compares labelled vectors through rounded text.
-    if (is.numeric(display_values) && inherits(display_values, "haven_labelled")) {
+    if (numeric_time || (is.numeric(display_values) && inherits(display_values, "haven_labelled"))) {
       filter_var <- as.call(list(quote(as.numeric), filter_var))
     }
     if (date_time) {

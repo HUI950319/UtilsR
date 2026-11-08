@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `lv()` generates exact numeric filters when Date or difftime text would merge distinct stored values.
+
 * `impute_na_knn()` rescales overflowing finite numeric ranges for distance calculation and restores original units and observations.
 
 * `impute_na_knn()` preserves subnormal numeric donor means instead of underflowing weighted products to zero.
