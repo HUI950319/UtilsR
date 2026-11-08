@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Scatter plots normalize SPSS user-missing axis values before ranges, marginal summaries and statistical annotations.
+
 * `PlotScatter1()`, `PlotScatter3()` and `PlotRank()` preserve serialized integer64 grouping labels in fresh R sessions.
 
 * `PlotRank()` selects numeric group labels by matrix column name consistently with character selectors.

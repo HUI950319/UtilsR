@@ -180,6 +180,7 @@ PlotScatter1 <- function(
     value <- data[[col]]
     if (is.complex(value) || is.list(value) || !is.null(dim(value)))
       stop("Column '", col, "' must contain a real vector.", call. = FALSE)
+    if (inherits(value, "haven_labelled_spss")) data[[col]] <- .scatter_axis_values(value)
   }
 
   # Preserve public labels before assigning private plotting columns.
@@ -527,11 +528,21 @@ PlotScatter1 <- function(
   p_combined
 }
 
+# Normalize encoded user-missing values before numeric scatter operations.
+.scatter_axis_values <- function(x) {
+  if (!inherits(x, "haven_labelled_spss")) return(x)
+  if (!requireNamespace("haven", quietly = TRUE))
+    stop("Interpreting SPSS user-missing axes requires package 'haven'.", call. = FALSE)
+  vctrs::vec_data(haven::zap_missing(x))
+}
+
 # Format the two marginal-scatter annotations with the native method name.
 .scatter_cor_label <- function(x, y, method) {
   if (!is.character(method) || !is.null(dim(method)) || length(method) != 1L || is.na(method))
     stop("'cor_method' must be a single correlation method name.", call. = FALSE)
   method <- match.arg(method, c("pearson", "kendall", "spearman"))
+  x <- .scatter_axis_values(x)
+  y <- .scatter_axis_values(y)
   result <- stats::cor.test(x, y, method = method)
   sprintf("%s:\nr = %.3f\np = %s", tools::toTitleCase(method), result$estimate,
           format(result$p.value, digits = 3, scientific = TRUE))

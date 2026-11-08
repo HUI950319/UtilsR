@@ -1195,3 +1195,27 @@ test_that("scatter and rank groups decode integer64 storage in cold processes", 
     expect_identical(tail(output, 1L), 'COLD_GROUPS_OK')
   }
 })
+
+test_that("scatter statistics exclude SPSS user missing axis values", {
+  skip_if_not_installed("haven")
+  d <- data.frame(Control = 1:8, Treat = c(2, 4, 3, 5, 7, 6, 9, 99), group = rep(c("a", "b"), 4L))
+  d[["Treat"]] <- haven::labelled_spss(d[["Treat"]], na_values = 99)
+  normalized <- haven::zap_missing(d)
+  before <- serialize(d, NULL)
+  expect_identical(.scatter_cor_label(d[["Control"]], d[["Treat"]], "pearson"),
+                   .scatter_cor_label(normalized[["Control"]], normalized[["Treat"]], "pearson"))
+  draw <- function(data) withCallingHandlers(
+    PlotScatter3(data, test_method = "t.test", cor_method = "none", theme_use = ggplot2::theme_classic),
+    warning = function(w) {
+      if (grepl("^Removed 1 row containing non-finite", conditionMessage(w)) &&
+          grepl("stat_bin", conditionMessage(w), fixed = TRUE)) invokeRestart("muffleWarning")
+    })
+  p <- draw(d)
+  q <- draw(normalized)
+  labels <- function(plot) lapply(plot[[1L]]$layers, function(layer) layer$aes_params$label)
+  expect_identical(labels(p), labels(q))
+  expect_identical(is.na(as.double(p[[1L]]$data$Treat)), c(rep(FALSE, 7L), TRUE))
+  p2 <- PlotScatter2(d, "Control", "Treat", "group")
+  expect_identical(is.na(as.double(p2[[1L]]$data$Treat)), c(rep(FALSE, 7L), TRUE))
+  expect_identical(serialize(d, NULL), before)
+})
