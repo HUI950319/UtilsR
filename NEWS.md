@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `grob_insert(clip = TRUE)` clips oversized content to the requested inset rectangle.
+
 * `fmt_com()` keeps facet tuples distinct when category labels contain separator characters.
 
 * `fmt_com()` no longer mistakes negative integer64 paired IDs for duplicate or missing identifiers.

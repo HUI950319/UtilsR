@@ -235,3 +235,20 @@ test_that("grob_insert() preserves inset coordinates and drawing controls", {
   expect_equal(grid::convertHeight(viewport$height, "mm", valueOnly = TRUE), 10)
   expect_no_error(grid::grid.draw(result))
 })
+
+test_that("inset clipping limits pixels to the requested rectangle", {
+  skip_if_not_installed("ragg")
+  table <- gtable::gtable(widths = grid::unit(1, "npc"), heights = grid::unit(1, "npc"))
+  table <- gtable::gtable_add_grob(table, grid::rectGrob(gp = grid::gpar(fill = "white", col = NA)), t = 1, l = 1, name = "panel")
+  inset <- grid::rectGrob(width = grid::unit(3, "npc"), height = grid::unit(3, "npc"), gp = grid::gpar(fill = "red", col = NA))
+  red_width <- function(clip) {
+    capture <- ragg::agg_capture(width = 100, height = 100, units = "px", res = 96, background = "white")
+    on.exit(grDevices::dev.off())
+    grid::grid.draw(grob_insert(table, inset, left = .4, bottom = .4, right = .6, top = .6, clip = clip))
+    img <- capture()
+    at <- which(matrix(as.vector(img) %in% c("#FF0000", "#FF0000FF", "red"), nrow = 100L), arr.ind = TRUE)
+    diff(range(at[, 2L])) + 1L
+  }
+  expect_equal(red_width(TRUE), 20L)
+  expect_equal(red_width(FALSE), 60L)
+})

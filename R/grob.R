@@ -423,7 +423,8 @@ grob_insert <- function(
     y = bottom,
     width = right - left,
     height = top - bottom,
-    just = c("left", "bottom")
+    just = c("left", "bottom"),
+    clip = clip_mode
   )
 
   # Wrap the inset grob in the viewport
