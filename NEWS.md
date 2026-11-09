@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Shared category labels preserve distinct time, complex, and AsIs identities for butterfly, dumbbell, circular, and Sankey plots.
+
 * Circular lollipop plots restore integer64 methods before interpreting grouping values or numeric scores.
 
 * Inspection, sparklines, and continuous bars recompute tiny nonzero standard deviations after scaling, including data with a nonzero offset.

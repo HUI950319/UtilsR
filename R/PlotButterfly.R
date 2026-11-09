@@ -579,11 +579,24 @@ PlotButterfly <- function(
 # Keep numeric category identities before character-based matching or pivoting.
 .butterfly_category_labels <- function(value) {
   .register_integer64(value)
-  if (!(is.integer(value) || is.double(value)) || is.object(value)) return(value)
-  values <- unique(value)
+  key <- .cat_time_key(value)
+  if (!is.null(key)) {
+    distinct <- unique(key)
+    labels <- as.character(value)[match(distinct, key)]
+    collision <- duplicated(labels) | duplicated(labels, fromLast = TRUE)
+    if (!any(collision)) return(value)
+    labels[collision] <- paste0(labels[collision], " [", distinct[collision], "]")
+    return(labels[match(key, distinct)])
+  }
+  if (!(is.integer(value) || is.double(value) || is.complex(value)) ||
+      (is.object(value) && !identical(class(value), "AsIs"))) return(value)
+  raw <- unclass(value)
+  values <- unique(raw)
   labels <- as.character(values)
   if (!anyDuplicated(labels)) return(value)
-  labels <- sprintf("%.17g", values)
+  labels <- if (is.complex(values)) {
+    sprintf("%.17g%+.17gi", Re(values), Im(values))
+  } else sprintf("%.17g", values)
   labels[is.na(values)] <- NA_character_
-  labels[match(value, values)]
+  labels[match(raw, values)]
 }

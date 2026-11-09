@@ -546,3 +546,26 @@ test_that("Sankey nodes retain nearby numeric identities and numeric order", {
     expect_identical(sub(" [(].*", "", as.character(labels)), sprintf("%.17g", sort(values)))
   }
 })
+
+test_that("shared plotting labels distinguish typed category identities", {
+  values <- list(as.Date(c(1, 1.5), origin = "1970-01-01"),
+    as.difftime(c(1, 1 + .Machine$double.eps), units = "secs"),
+    as.POSIXct(c(1636263000, 1636266600), origin = "1970-01-01", tz = "America/New_York"),
+    complex(real = 1, imaginary = c(1, 1 + .Machine$double.eps)),
+    I(c(1, 1 + .Machine$double.eps)))
+  for (value in values) {
+    d <- data.frame(a = value, b = c("x", "y"))
+    p <- suppressMessages(sankey_plot(d, vars = c("a", "b"), show_text = "none", reverse_levels = FALSE))
+    nodes <- unique(p$data[as.character(p$data$x) == "a_label", c("node", "label")])
+    expect_equal(nrow(nodes), 2L)
+    expect_true(all(grepl(" [(]1, 50(?:[.]0)?%[)]$", as.character(nodes$label), perl = TRUE)))
+    dumbbell <- PlotDumbbell(data.frame(start = 1:2, end = 3:4, category = value), sort_by = "none", legend_pos = "none")
+    expect_identical(as.integer(dumbbell$data$category), 1:2)
+    expect_equal(as.numeric(ggplot2::layer_data(dumbbell)$y), 1:2)
+    expect_identical(d$a, value)
+  }
+  ordinary <- as.Date(c(1, 2), origin = "1970-01-01")
+  expect_identical(.butterfly_category_labels(ordinary), ordinary)
+  ordinary <- I(c(1, 2))
+  expect_identical(.butterfly_category_labels(ordinary), ordinary)
+})
