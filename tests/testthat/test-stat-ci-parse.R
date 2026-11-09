@@ -489,3 +489,16 @@ test_that("narrow ratio intervals retain their widths around extreme estimates",
     }
   }
 })
+
+test_that("long scientific CI mantissas retain finite estimates and bounds", {
+  long <- function(value) paste0(value, strrep("0", 5000L), "e-5000")
+  short <- c("1 (0, 2)", "-1 (-2, 0)", "2 (1, 3)")
+  input <- c(paste0(long(1), " (", long(0), ", ", long(2), ")"),
+             paste0(long(-1), " (", long(-2), ", ", long(0), ")"),
+             paste0(long(2), " (", long(1), ", ", long(3), ")"))
+  expect_no_warning(actual <- stat_ci_parse(input, exp = FALSE, output = "p"))
+  expect_equal(actual, stat_ci_parse(short, exp = FALSE, output = "p"))
+  expect_no_warning(formatted <- stat_ci(input, digits = 2))
+  expect_identical(formatted, stat_ci(short, digits = 2))
+  expect_true(all(.ci_extract(input)$valid))
+})

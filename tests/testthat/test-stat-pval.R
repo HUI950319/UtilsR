@@ -481,6 +481,7 @@ stat_pval_in_fresh_r <- function(args) {
   isolated <- new.env(parent = baseenv())
   isolated$stat_pval <- stat_pval
   isolated$.validate_signif_map <- get(".validate_signif_map", envir = environment(stat_pval))
+  isolated$.parse_decimal_tokens <- get(".parse_decimal_tokens", envir = environment(stat_pval))
   isolated$`%||%` <- function(x, y) if (is.null(x)) y else x
   for (name in ls(isolated, all.names = TRUE)) environment(isolated[[name]]) <- isolated
   saveRDS(list(fn = isolated$stat_pval, args = args, libs = .libPaths()), files[["input"]])
@@ -568,6 +569,9 @@ test_that("oversized decimal mantissas preserve finite P values", {
   zeros <- strrep("0", 5000L)
   x <- c(a = paste0("2", zeros, "e-5001"), b = paste0("123456", zeros, "e-5006"))
   expect_identical(stat_pval(x), c(a = "0.200", b = "0.123"))
+  cold <- stat_pval_in_fresh_r(list(x = x))
+  expect_null(cold$error)
+  expect_identical(cold$value, stat_pval(x))
   expect_identical(stat_pval(paste0("-2", zeros, "e-5001"), mode = "plain"), "-0.20")
   expect_identical(stat_pval(paste0("<2", zeros, "e-5001")), paste0("<2", zeros, "e-5001"))
 })

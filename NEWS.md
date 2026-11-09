@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* CI parsing shares the bounded decimal converter with P-value formatting, accepting long scientific mantissas whose numeric value remains finite.
+
 * Margin additions accept grob lists without an explicit space by allocating the largest child dimension while preserving their overlay placement.
 
 * Jaccard gradient endpoints use validated factor colour labels while retaining native numeric palette indices and transparency.

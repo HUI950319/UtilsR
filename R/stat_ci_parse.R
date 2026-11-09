@@ -341,7 +341,7 @@ stat_ci_parse <- function(x,
     sub(paste0("(?s)", re, "(.*)$"), paste0("\\", k), xs[hit], perl = TRUE)
   }
   g <- lapply(1:7, grab)
-  values <- lapply(g[c(1, 3, 5)], as.numeric)
+  values <- lapply(g[c(1, 3, 5)], .parse_decimal_tokens)
   ok <- paste0(g[[2]], g[[6]]) %in% c("()", "[]") &
     Reduce(`&`, lapply(values, is.finite))
   hit <- hit[ok]

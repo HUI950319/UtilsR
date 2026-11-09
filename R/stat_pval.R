@@ -190,7 +190,7 @@ stat_pval <- function(x,
     }
     values <- sub(paste0("^", prefix), "", text, perl = TRUE)
     values[values %in% c("NA", "NaN")] <- NA_character_
-    as.numeric(values)
+    .parse_decimal_tokens(values)
   } else if (is.numeric(x)) {
     x
   } else if (is.logical(x) && all(is.na(x))) {
@@ -227,18 +227,6 @@ stat_pval <- function(x,
       }
       # Long mantissas can parse as NaN even when the decimal value is exactly one.
       x_num[edge[one & !negative]] <- 1
-      recover <- which(is.na(x_num[edge]) & !is.na(endpoint))
-      if (length(recover)) {
-        # Bound the mantissa before native conversion, retaining more than
-        # double precision and carrying its decimal magnitude in the exponent.
-        significant <- substr(coefficient[recover], 1L, 32L)
-        power <- exponent[recover] - decimals[recover] + nchar(coefficient[recover]) - 1L
-        normalized <- paste0(ifelse(negative[recover], "-", ""),
-                             substr(significant, 1L, 1L), ".", substring(significant, 2L), "e", power)
-        restored <- as.numeric(normalized)
-        restored[zero[recover]] <- 0
-        x_num[edge[recover]] <- restored
-      }
     }
   }
   if (mode != "plain") .validate_p(x_num, "x")
@@ -282,6 +270,30 @@ stat_pval <- function(x,
   }
   names(out) <- input_names
   out
+}
+
+#' @noRd
+.parse_decimal_tokens <- function(text) {
+  value <- as.numeric(text)
+  at <- which(is.nan(value) & !is.na(text))
+  if (!length(at)) return(value)
+  endpoint <- text[at]
+  mantissa <- sub("[eE].*$", "", endpoint)
+  exponent <- as.numeric(ifelse(grepl("[eE]", endpoint), sub("^.*[eE]", "", endpoint), "0"))
+  decimals <- nchar(sub("^[^.]*[.]?", "", mantissa))
+  coefficient <- sub("^0+", "", gsub("[.+-]", "", mantissa))
+  power <- exponent - decimals + nchar(coefficient) - 1L
+  significant <- substr(coefficient, 1L, 32L)
+  negative <- startsWith(mantissa, "-")
+  restored <- ifelse(power < 0, 0, Inf) * ifelse(negative, -1, 1)
+  finite <- which(is.finite(power) & nzchar(coefficient))
+  normalized <- paste0(ifelse(negative[finite], "-", ""),
+    substr(significant[finite], 1L, 1L), ".", substring(significant[finite], 2L),
+    "e", format(power[finite], scientific = FALSE, trim = TRUE))
+  restored[finite] <- as.numeric(normalized)
+  restored[coefficient == ""] <- 0
+  value[at] <- restored
+  value
 }
 
 #' @noRd
