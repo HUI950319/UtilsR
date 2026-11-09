@@ -484,6 +484,11 @@ fmt_point <- function(plot,
   }
   if (!is.null(group_values)) {
     strata <- lapply(group_values, function(x) {
+      if (inherits(x, "haven_labelled") && is.numeric(x)) {
+        missing <- is.na(x)
+        x <- vctrs::vec_data(x)
+        x[missing] <- NA
+      }
       if (is.factor(x) && anyNA(levels(x))) {
         x <- structure(as.integer(x), levels = as.character(seq_along(levels(x))), class = "factor")
       }

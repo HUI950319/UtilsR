@@ -882,3 +882,16 @@ test_that("point sampling separates explicit NA factor levels from missing codes
     }
   }
 })
+
+test_that("point sampling keeps exact labelled numeric strata", {
+  skip_if_not_installed("haven")
+  step <- .Machine$double.eps
+  values <- rep(c(1, 1 + step), c(9L, 1L))
+  d <- data.frame(x = 1:10, y = 11:20, g = haven::labelled(values, label = "Group"))
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, group = g))
+  out <- fmt_point(p, sample_n = 2L, seed = 1L)$layers[[1L]]$data
+  expect_identical(sort(unique(as.double(out$g))), c(1, 1 + step))
+  expect_equal(nrow(out), 3L)
+  expect_s3_class(out$g, "haven_labelled")
+  expect_identical(d$g, haven::labelled(values, label = "Group"))
+})
