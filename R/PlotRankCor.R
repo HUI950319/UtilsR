@@ -398,17 +398,19 @@ PlotRankCor <- function(
     )
   }
 
+  wide_rows <- vctrs::vec_group_loc(rank_wide[group.by_internal])
+  wide_groups <- as.character(wide_rows[["key"]][[1L]])
   if (!use_rank) {
     if (scale_x != "none") {
-      for (g in unique(as.character(rank_wide[[group.by_internal]]))) {
-        idx <- rank_wide[[group.by_internal]] == g
+      for (g in wide_groups) {
+        idx <- wide_rows[["loc"]][[match(g, wide_groups)]]
         rank_wide[[method_cols[1]]][idx] <- .scale_vec(
           rank_wide[[method_cols[1]]][idx], scale_x)
       }
     }
     if (scale_y != "none") {
-      for (g in unique(as.character(rank_wide[[group.by_internal]]))) {
-        idx <- rank_wide[[group.by_internal]] == g
+      for (g in wide_groups) {
+        idx <- wide_rows[["loc"]][[match(g, wide_groups)]]
         rank_wide[[method_cols[2]]][idx] <- .scale_vec(
           rank_wide[[method_cols[2]]][idx], scale_y)
       }
@@ -416,9 +418,10 @@ PlotRankCor <- function(
   }
 
   # ---- Spearman correlation per group ----
-  groups <- unique(as.character(rank_wide[[group.by_internal]]))
+  groups <- wide_groups
   cor_results <- do.call(rbind, lapply(groups, function(g) {
-    sub <- rank_wide[rank_wide[[group.by_internal]] == g, ]
+    idx <- wide_rows[["loc"]][[match(g, wide_groups)]]
+    sub <- rank_wide[idx, ]
     x <- sub[[method_cols[1]]]
     y <- sub[[method_cols[2]]]
     ok <- is.finite(x) & is.finite(y)

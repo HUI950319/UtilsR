@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Rank correlation plots reuse one set of group row locations for both coordinate scaling and per-group correlations instead of rescanning the complete plot table for each group.
+
 * Rank plots address group score vectors and scaling ranges by position, allowing an observed empty-string category to retain its rows and values in every scaling mode.
 
 * Rank plot parsing caches row locations for automatic plain or factor groups, avoiding a full-column comparison per group while retaining explicit group selection and classed-vector fallbacks.

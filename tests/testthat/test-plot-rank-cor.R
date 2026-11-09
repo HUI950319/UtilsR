@@ -785,3 +785,32 @@ test_that("many-group subtitles wrap without changing individual summaries", {
   short <- quiet_rank_cor(data[data$group %in% c("G01", "G02"), ], group.by = "group")
   expect_identical(short$labels$subtitle, paste(parts[1:2], collapse = "    "))
 })
+
+test_that("rank correlations cache group rows for scaling and testing", {
+  fn <- PlotRankCor
+  e <- new.env(parent = environment(fn))
+  examined <- 0L
+  e$`==` <- function(x, y) {
+    if (length(x) == 200L && is.character(x)) examined <<- examined + length(x)
+    base::`==`(x, y)
+  }
+  environment(fn) <- e
+  d <- data.frame(item = rep(letters[1:10], 40), score = (seq_len(400) %% 17) + 1,
+    group = rep(sprintf("g%02d", 1:20), each = 20),
+    method = rep(rep(c("A", "B"), each = 10), 20))
+  before <- d
+  p <- NULL
+  utils::capture.output(p <- fn(d, "item", "score", "group", "method", use_rank = FALSE,
+    scale_x = "minmax", scale_y = "zscore", show.label = FALSE))
+  expect_identical(examined, 0L)
+  expect_equal(nrow(attr(p, "cor_results")), 20)
+  for (i in seq_len(20)) {
+    sub <- d[d$group == sprintf("g%02d", i), ]
+    ref <- NULL
+    utils::capture.output(ref <- PlotRankCor(sub, "item", "score", "group", "method", use_rank = FALSE,
+      scale_x = "minmax", scale_y = "zscore", show.label = FALSE))
+    expect_equal(p$data[p$data$group == sub$group[1], c("A", "B")], ref$data[c("A", "B")], ignore_attr = TRUE)
+    expect_equal(attr(p, "cor_results")[i, c("rho", "p.value")], attr(ref, "cor_results")[c("rho", "p.value")], ignore_attr = TRUE)
+  }
+  expect_identical(d, before)
+})
