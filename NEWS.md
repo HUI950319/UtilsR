@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Preserve factor colour labels in rank points, dumbbell endpoints and insets, and circular lollipops without changing numeric palette indices or unused colour promises.
+
 * Plot duration endpoints and mean lines in the start column's units when dumbbell columns use different units, retaining original delta values and units.
 
 * Run automatic dumbbell inset tests on numeric time buffers, using common seconds for durations while retaining typed plotting data.

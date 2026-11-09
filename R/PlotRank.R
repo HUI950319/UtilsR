@@ -449,7 +449,9 @@ PlotRank <- function(
                        ylab, base_size) {
 
   label_df <- df[df$IsTop, ]
-  point_colors <- ifelse(df$IsTop, hi_col, base_col)
+  point_colors <- ifelse(df$IsTop,
+    if (is.factor(hi_col)) as.character(hi_col) else hi_col,
+    if (is.factor(base_col)) as.character(base_col) else base_col)
   # A dormant color promise would retain the caller and its full input.
   hi_col <- base_col <- NULL
 
@@ -501,7 +503,8 @@ PlotRank <- function(
   ) +
     ggplot2::geom_point(size = pt_size) +
     ggplot2::scale_color_manual(
-      values = c("top" = hi_col, "other" = base_col),
+      values = c("top" = if (is.factor(hi_col)) as.character(hi_col) else hi_col,
+                 "other" = if (is.factor(base_col)) as.character(base_col) else base_col),
       guide  = "none"
     ) +
     ggrepel::geom_text_repel(

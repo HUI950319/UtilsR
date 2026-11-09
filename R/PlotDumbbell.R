@@ -339,6 +339,8 @@ PlotDumbbell <- function(
     )
 
   # Colour scale for legend
+  if (is.factor(color_x)) color_x <- as.character(color_x)
+  if (is.factor(color_xend)) color_xend <- as.character(color_xend)
   color_vals <- stats::setNames(c(color_x, color_xend), label_keys)
   p <- p +
     ggplot2::scale_color_manual(

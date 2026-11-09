@@ -529,3 +529,15 @@ test_that("rank plots retain observed empty group labels in all scales", {
     }
   }
 })
+
+test_that("rank factor point colours retain labels in every panel mode", {
+  inputs <- list(stats::setNames(3:1, letters[1:3]),
+    data.frame(cell_type = rep(c("A", "B"), each = 3), gene = rep(letters[1:3], 2), importance = 6:1))
+  for (d in inputs) for (factor_arg in c("highlight_color", "base_color")) {
+    args <- list(data = d, top_n = 1, highlight_color = "red", base_color = "blue")
+    reference <- ggplot2::ggplot_build(do.call(PlotRank, args))$data[[1L]]$colour
+    value <- args[[factor_arg]]
+    args[[factor_arg]] <- factor(value, levels = c("unused", value))
+    expect_identical(ggplot2::ggplot_build(do.call(PlotRank, args))$data[[1L]]$colour, reference)
+  }
+})

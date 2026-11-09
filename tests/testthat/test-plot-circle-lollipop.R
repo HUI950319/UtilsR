@@ -630,3 +630,19 @@ test_that("circular scores exclude SPSS user missing codes before ranking", {
   }
   expect_identical(serialize(d, NULL), before)
 })
+
+test_that("circular factor point colours retain their labels", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  d <- data.frame(group = c("A", "A", "B", "B"), name = c("shared", "a", "shared", "b"),
+    value = c(.2, .4, .6, .8))
+  colours <- character()
+  original <- circlize::circos.points
+  local_mocked_bindings(circos.points = function(x, y, ...) {
+    colours <<- c(colours, list(...)$col)
+    original(x, y, ...)
+  }, .package = "circlize")
+  PlotCircleLollipop(d, common_color = factor("red", levels = c("blue", "red")),
+    unique_color = "blue", show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
+  expect_identical(colours, c("red", "blue", "red", "blue"))
+})

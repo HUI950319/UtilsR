@@ -351,7 +351,9 @@ PlotCircleLollipop <- function(
       dplyr::summarise(n_groups = dplyr::n_distinct(group), .groups = "drop") |>
       dplyr::filter(n_groups > 1) |>
       dplyr::pull(name)
-    df$color <- ifelse(df$name %in% common_names, common_color, unique_color)
+    df$color <- ifelse(df$name %in% common_names,
+      if (is.factor(common_color)) as.character(common_color) else common_color,
+      if (is.factor(unique_color)) as.character(unique_color) else unique_color)
   }
 
   # ---- Shared-feature data for inner arcs ----

@@ -497,3 +497,23 @@ test_that("dumbbell duration coordinates share the start unit", {
     expect_identical(serialize(d, NULL), before)
   }
 })
+
+test_that("dumbbell factor endpoint colours retain their labels", {
+  d <- data.frame(start = 1:3, end = 2:4, category = letters[1:3])
+  red <- factor("red", levels = c("blue", "red"))
+  inset <- NULL
+  original <- .build_dumbbell_inset
+  local_mocked_bindings(.build_dumbbell_inset = function(...) {
+    inset <<- original(...)
+    inset
+  }, .package = "UtilsR")
+  for (auto in c(FALSE, TRUE)) {
+    p <- dumbbell_plot(d, color_x = red, color_xend = "blue", legend_pos = "none",
+      inset_plot = if (auto) "auto" else NULL, inset_test = "none")
+    main <- if (auto) p[[1L]] else p
+    layers <- ggplot2::ggplot_build(main)$data
+    expect_identical(layers[[2L]]$colour, rep("red", 3))
+    expect_identical(layers[[3L]]$colour, rep("blue", 3))
+    if (auto) expect_identical(unname(inset$scales$get_scales("fill")$palette(2)), c("red", "blue"))
+  }
+})
