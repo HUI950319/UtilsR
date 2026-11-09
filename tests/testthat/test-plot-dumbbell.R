@@ -476,3 +476,24 @@ test_that("dumbbell inset tests accept typed time endpoints", {
     expect_identical(serialize(d, NULL), before)
   }
 })
+
+test_that("dumbbell duration coordinates share the start unit", {
+  for (end_unit in c("secs", "hours")) {
+    d <- data.frame(start = as.difftime(1:3, units = "mins"),
+      end = as.difftime(2:4, units = "mins"), category = letters[1:3])
+    units(d$end) <- end_unit
+    before <- serialize(d, NULL)
+    expected_delta <- d$end - d$start
+    p <- suppressMessages(dumbbell_plot(d, sort_by = "none", legend_pos = "none",
+      show_zero_line = FALSE, show_mean_lines = TRUE, dot_guide = TRUE))
+    built <- suppressMessages(ggplot2::ggplot_build(p))$data
+    expect_equal(built[[2L]]$x, as.numeric(1:3))
+    expect_equal(built[[2L]]$xend, as.numeric(2:4))
+    means <- unlist(lapply(Filter(function(layer) "xintercept" %in% names(layer), built),
+                           `[[`, "xintercept"), use.names = FALSE)
+    expect_equal(means, c(2, 3))
+    expect_identical(p$data$.delta, expected_delta)
+    expect_identical(attr(p$data$end, "units"), "mins")
+    expect_identical(serialize(d, NULL), before)
+  }
+})

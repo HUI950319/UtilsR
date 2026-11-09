@@ -285,6 +285,12 @@ PlotDumbbell <- function(
     data <- utils::tail(data, top_n)
   }
 
+  # Continuous scales strip duration units, so align plotting coordinates
+  # after computing deltas in the original units.
+  if (inherits(data[[x_col]], "difftime") && inherits(data[[xend_col]], "difftime")) {
+    units(data[[xend_col]]) <- units(data[[x_col]])
+  }
+
   # ---- Factor Y axis (preserving sorted order) ----
   categories <- .butterfly_category_labels(data[[y_col]])
   data[[y_col]] <- factor(categories, levels = unique(categories))

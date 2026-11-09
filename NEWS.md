@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Plot duration endpoints and mean lines in the start column's units when dumbbell columns use different units, retaining original delta values and units.
+
 * Run automatic dumbbell inset tests on numeric time buffers, using common seconds for durations while retaining typed plotting data.
 
 * Adapt level-less all-missing factors only at the `lv()` summary-table boundary, preserving the inspected data and factor class.
