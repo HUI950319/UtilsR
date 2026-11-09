@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* KNN reuses a verified complete standardized column to establish that all rows are observed, avoiding an unnecessary whole-data missingness matrix.
+
 * CI and SD formatting reuse repeated complete formatting tuples, including per-row precision, and normalize signed zeros before expanding the result.
 
 * Grouped inspection skips a complete character uniqueness scan when a short prefix already proves that a plain column exceeds the unchanged 100-category limit.

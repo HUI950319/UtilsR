@@ -454,3 +454,29 @@ test_that("KNN distances preserve large common numeric offsets", {
   result <- impute_na_knn(d, k = 2, verbose = FALSE)
   expect_identical(result[["value"]], c(0, 6, 2) + 1e16)
 })
+
+test_that("KNN complete columns avoid a whole data missingness mask", {
+  skip_if_not_installed("VIM")
+  fn <- impute_na_knn
+  e <- new.env(parent = environment(fn))
+  examined <- 0L
+  e$is.na <- function(x) {
+    if (is.data.frame(x)) examined <<- examined + nrow(x) * ncol(x)
+    base::is.na(x)
+  }
+  environment(fn) <- e
+  d <- data.frame(value = c(1, NA_real_, 3, 4), id = c(0, .9, 1, 2),
+                  row.names = paste0("patient_", 1:4))
+  actual <- fn(d, k = 1, verbose = FALSE)
+  expect_identical(examined, 0L)
+  expect_identical(actual$value, c(1, 3, 3, 4))
+  expect_identical(rownames(actual), rownames(d))
+  expect_identical(actual$id, d$id)
+  d$id[3L] <- NA_real_
+  examined <- 0L
+  expect_no_warning(fn(d, k = 1, verbose = FALSE))
+  expect_gte(examined, nrow(d) * ncol(d))
+  d$id[2L] <- NA_real_
+  expect_warning(actual <- fn(d, k = 1, verbose = FALSE), "KNN left")
+  expect_true(all(is.na(actual[2L, ])))
+})

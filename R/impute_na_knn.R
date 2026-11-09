@@ -244,7 +244,11 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
   }
 
   backend_names <- paste0(".knn_", seq_along(data_for_impute))
-  observed_rows <- rowSums(is.na(data_for_impute)) < ncol(data_for_impute)
+  complete_columns <- setdiff(names(data_for_impute), vars_with_missing)
+  observed_rows <- if (length(complete_columns) &&
+                       !anyNA(data_for_impute[[complete_columns[[1L]]]])) {
+    rep(TRUE, nrow(data_for_impute))
+  } else rowSums(is.na(data_for_impute)) < ncol(data_for_impute)
   backend_data <- data_for_impute[observed_rows, , drop = FALSE]
   names(backend_data) <- backend_names
   backend_scales <- rep(1, ncol(backend_data))
