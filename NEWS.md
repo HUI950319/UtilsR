@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotButterfly2()` filters missing category labels without creating placeholder rows or spurious groups.
+
 * Butterfly plots apply a scalar axis text style for uniform label colours and preserve distinct per-label colours.
 
 * `fmt_text()` preserves plotmath expressions when applying titles or axis labels to one or several plots.

@@ -777,3 +777,19 @@ test_that("uniform butterfly label colours use a scalar theme style", {
     expect_identical(p[[2L]]$theme$axis.text.y$colour, color)
   }
 })
+
+test_that("missing butterfly category codes do not create placeholder rows", {
+  d <- data.frame(category = factor(rep(c("A", "B", NA), 4L), exclude = NULL),
+    value = 1:12, side = rep(c("left", "right"), each = 6L), fill = "F")
+  ordinary <- d[!is.na(as.character(d$category)), , drop = FALSE]
+  ordinary$category <- droplevels(ordinary$category)
+  for (fill in list(NULL, "fill")) {
+    draw <- function(x) PlotButterfly2(x, "category", "value", "side", fill.by = fill, type = "box")
+    control <- draw(ordinary)
+    actual <- draw(d)
+    for (i in 1:2) {
+      expect_equal(ggplot2::ggplot_build(actual[[i]])$data,
+                   ggplot2::ggplot_build(control[[i]])$data)
+    }
+  }
+})

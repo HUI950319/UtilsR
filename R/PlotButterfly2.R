@@ -210,7 +210,8 @@ PlotButterfly2 <- function(
 
   # ---- Filter NA / "Mixed" ----
   .register_integer64(data[[stat.by]])
-  keep <- !is.na(data[[stat.by]]) & as.character(data[[stat.by]]) != "Mixed"
+  categories <- as.character(data[[stat.by]])
+  keep <- !is.na(data[[stat.by]]) & !is.na(categories) & categories != "Mixed"
   data <- data[keep, ]
 
   for (col in unique(c(stat.by, fill.by, group.by))) {
