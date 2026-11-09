@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Avoid PCRE match-limit warnings when P-value and confidence-interval parsers reject long malformed decimal tokens.
+
 * Retain exact narrow integer64 differences when `lv()` computes distribution bins and standard deviations.
 
 * Keep `lv()` distribution summaries usable for subnormal numeric measurements without changing their statistical values.

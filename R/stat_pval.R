@@ -186,7 +186,7 @@ stat_pval <- function(x,
   bounded <- rep(FALSE, length(x))
   x_num <- if (is.character(x)) {
     text <- trimws(x, whitespace = "[\\h\\v]")
-    number <- "[+-]?(?:[0-9]+\\.?[0-9]*|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?"
+    number <- "[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?"
     prefix <- "(?:[<>]=?|[\u2264\u2265])[\\h\\v]*"
     bounded <- !is.na(text) & grepl(paste0("^", prefix, number, "$"), text, perl = TRUE)
     exact <- grepl(paste0("^(?:", number, "|[+-]?Inf(?:inity)?|NaN|NA)$"),

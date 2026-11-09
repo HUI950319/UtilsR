@@ -548,3 +548,27 @@ test_that("parsed interval formatting reuses repeated value precision pairs", {
   expect_identical(result[invalid %in% "bad"], rep("bad", 300))
   expect_identical(is.na(result), is.na(invalid))
 })
+
+test_that("long malformed decimal tokens retain parser diagnostics", {
+  bad <- paste0(strrep("9", 5000L), "x")
+  warnings <- character()
+  withCallingHandlers(expect_error(stat_pval(bad), "numeric strings"),
+    warning = function(w) {
+      warnings <<- c(warnings, conditionMessage(w))
+      invokeRestart("muffleWarning")
+    })
+  expect_identical(warnings, character())
+  for (input in c(bad, paste0("1 (", bad, ", 2)"), paste0("1 (0, ", bad, ")"))) {
+    for (fn in list(stat_ci, stat_ci_parse)) {
+      warnings <- character()
+      actual <- withCallingHandlers(fn(input), warning = function(w) {
+        warnings <<- c(warnings, conditionMessage(w))
+        invokeRestart("muffleWarning")
+      })
+      expect_identical(actual, input)
+      expect_length(warnings, 1L)
+      expect_match(warnings, "1 element could not be parsed")
+    }
+  }
+  expect_true(all(.ci_extract(c("+1. (0, 2.)", ".1 [.0; .2]", "1e-1 (0e0, 2e-1)"))$valid))
+})

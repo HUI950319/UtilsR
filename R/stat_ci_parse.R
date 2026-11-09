@@ -358,7 +358,7 @@ stat_ci_parse <- function(x,
 
   # est (lower sep upper) -- one pattern for every bracket and separator;
   # groups: 1 est, 2 open, 3 lower, 4 sep, 5 upper, 6 close, 7 trailing text
-  num <- "([-+]?(?:\\d+\\.?\\d*|\\.\\d+)(?:[eE][-+]?\\d+)?)"
+  num <- "([-+]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][-+]?\\d+)?)"
   re <- paste0("^", num, space, "*([[(])", space, "*", num,
                "(", space, "*[,;~\u2013\u2014-]", space, "*|",
                space, "+to", space, "+)", num, space, "*([])])")
