@@ -713,6 +713,10 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   # cannot tabulate, stay in the variable summary only.
   .tbl_vars <- function(vars) {
     many <- vapply(analysis_data[vars], function(x) {
+      if (is.character(x) && !is.object(x) && length(x) > 1024L) {
+        prefix <- x[seq_len(101L)]
+        if (!anyNA(prefix) && !anyDuplicated(prefix)) return(TRUE)
+      }
       if (is.factor(x)) nlevels(x) > 100L
       else is.character(x) && length(unique(x[!is.na(x)])) > 100L
     }, logical(1))

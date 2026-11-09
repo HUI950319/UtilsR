@@ -1306,3 +1306,30 @@ test_that("inspection reports distinguish typed category labels", {
     expect_identical(serialize(d, NULL), before)
   }
 })
+
+test_that("inspection column limits use a bounded cardinality proof", {
+  fn <- lv.data.frame
+  e <- new.env(parent = environment(fn))
+  examined <- 0L
+  reports <- list()
+  e$unique <- function(x, ...) {
+    if (is.character(x) && length(x) && all(startsWith(x[!is.na(x)], "PATIENT_"))) {
+      examined <<- examined + length(x)
+    }
+    base::unique(x, ...)
+  }
+  e$.lv_print_report <- function(x) reports[[length(reports) + 1L]] <<- x
+  environment(fn) <- e
+  d <- data.frame(g = rep(c("A", "B"), each = 1000), id = sprintf("PATIENT_%04d", 1:2000), y = 1:2000)
+  invisible(utils::capture.output(suppressMessages(fn(d, group = "g"))))
+  expect_lte(examined, 101L)
+  expect_false("id" %in% reports[[1L]]$table_body$variable)
+  for (prefix in list(rep("PATIENT_repeat", 101), c(NA_character_, sprintf("PATIENT_%04d", 2:101)))) {
+    d$id[1:101] <- prefix
+    examined <- 0L
+    reports <- list()
+    invisible(utils::capture.output(suppressMessages(fn(d, group = "g"))))
+    expect_gte(examined, nrow(d) - 1L)
+    expect_false("id" %in% reports[[1L]]$table_body$variable)
+  }
+})

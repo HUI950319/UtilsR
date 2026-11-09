@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Grouped inspection skips a complete character uniqueness scan when a short prefix already proves that a plain column exceeds the unchanged 100-category limit.
+
 * Inspection count tables, grouped headers, and console frequencies disambiguate rounded typed categories before display while preserving counts and native ordering.
 
 * Inspection count mode skips ignored selection, pattern, and grouping promises in data frames and forwarding methods, retaining its existing warning.
