@@ -325,12 +325,12 @@ PlotRankCor <- function(
   # Aggregate duplicates before pivot (mean per stat.by x group x method)
   pivot_keys <- unique(c(stat.by, group.by_internal, method.by_internal))
   pivot_data <- rank_long[, unique(c(pivot_keys, plot_value)), drop = FALSE]
-  key_order <- do.call(order, unname(lapply(pivot_data[pivot_keys], as.character)))
-  pivot_data <- pivot_data[key_order, , drop = FALSE]
   pivot_groups <- vctrs::vec_group_loc(pivot_data[pivot_keys])
   values <- pivot_data[[plot_value]]
   pivot_data <- pivot_groups$key
   pivot_data[[plot_value]] <- vapply(pivot_groups$loc, function(idx) mean(values[idx], na.rm = TRUE), numeric(1))
+  key_order <- do.call(order, unname(lapply(pivot_data[pivot_keys], as.character)))
+  pivot_data <- pivot_data[key_order, , drop = FALSE]
 
   # Pivot to wide: one column per method
   method_names <- methods

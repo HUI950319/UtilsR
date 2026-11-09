@@ -814,3 +814,25 @@ test_that("rank correlations cache group rows for scaling and testing", {
   }
   expect_identical(d, before)
 })
+
+test_that("rank correlation orders only aggregated pivot keys", {
+  fn <- PlotRankCor
+  e <- new.env(parent = environment(fn))
+  examined <- 0L
+  e$order <- function(...) {
+    examined <<- examined + max(lengths(list(...)), 0L)
+    base::order(...)
+  }
+  environment(fn) <- e
+  keys <- expand.grid(item = letters[1:8], method = c("a", "b"), stringsAsFactors = FALSE)
+  d <- keys[rep(seq_len(nrow(keys)), 100L), ]
+  d$score <- rep(seq_len(nrow(keys)), 100L) + rep(seq_len(100L), each = nrow(keys))
+  aggregate <- dplyr::summarise(dplyr::group_by(d, item, method), score = mean(score), .groups = "drop")
+  invisible(capture.output(p <- fn(d, "item", "score", method.by = "method",
+    use_rank = FALSE, show.label = FALSE)))
+  invisible(capture.output(reference <- PlotRankCor(aggregate, "item", "score", method.by = "method",
+    use_rank = FALSE, show.label = FALSE)))
+  expect_identical(p$data, reference$data)
+  expect_identical(attr(p, "cor_results"), attr(reference, "cor_results"))
+  expect_lt(examined, nrow(d))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Aggregate repeated feature, group and method keys before ordering them for the rank-correlation pivot.
+
 * Compute automatic cut points in shifted coordinates when a normal numeric offset hides a subnormal spread.
 
 * Pass plain node keys to the Sankey reshaper and restore ordered node factors afterward, avoiding the backend's incompatible-factor warning.
