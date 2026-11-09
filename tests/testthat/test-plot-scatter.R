@@ -1367,3 +1367,40 @@ test_that("paired histogram keeps every subnormal difference", {
     expect_no_warning(ggplot2::ggplotGrob(p$inset))
   }
 })
+
+test_that("scatter axes decode integer64 in fresh R processes", {
+  skip_if_not_installed("bit64")
+  scratch <- withr::local_tempdir()
+  script <- file.path(scratch, "verify.R")
+  input <- file.path(scratch, "scatter.rds")
+  d <- data.frame(x = bit64::as.integer64(1:6), y = bit64::as.integer64(c(1, 3, 3, 5, 5, 8)),
+    group = rep(c("A", "B"), 3L))
+  plots <- lapply(list(PlotScatter1, PlotScatter2, PlotScatter3), function(fn) {
+    env <- new.env(parent = environment(fn))
+    env$.scatter_axis_values <- .scatter_axis_values
+    environment(fn) <- env
+    fn
+  })
+  saveRDS(list(data = d, plots = plots, libs = .libPaths()), input)
+  writeLines(c(sprintf("payload <- readRDS(%s)", deparse(input)),
+    '.libPaths(payload[["libs"]])',
+    'options(device = function(...) grDevices::pdf(NULL, ...), lifecycle_verbosity = "quiet")',
+    'stopifnot(!("bit64" %in% loadedNamespaces()))',
+    'i <- as.integer(commandArgs(TRUE)[[1L]])',
+    'coords <- NULL',
+    'original <- ggplot2::ggplot',
+    'testthat::local_mocked_bindings(ggplot = function(data = NULL, ...) {',
+    '  if (is.null(coords) && is.data.frame(data) && all(c("x", "y") %in% names(data))) coords <<- data[["x"]]',
+    '  original(data, ...)',
+    '}, .package = "ggplot2")',
+    'extra <- switch(i, list(show_ellipse = FALSE), list(), list(test_method = "none", cor_method = "none"))',
+    'invisible(do.call(payload[["plots"]][[i]], c(list(payload[["data"]], "x", "y", "group"), extra)))',
+    'stopifnot("bit64" %in% loadedNamespaces(), identical(coords, as.double(1:6)))',
+    'cat("COLD_AXES_OK\n")'), script)
+  for (i in seq_along(plots)) {
+    output <- suppressWarnings(system2(file.path(R.home("bin"), "Rscript"),
+      c("--vanilla", shQuote(script), i), stdout = TRUE, stderr = TRUE))
+    expect_null(attr(output, "status"), info = paste(output, collapse = "\n"))
+    expect_true("COLD_AXES_OK" %in% output)
+  }
+})

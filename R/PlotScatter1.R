@@ -180,7 +180,9 @@ PlotScatter1 <- function(
     value <- data[[col]]
     if (is.complex(value) || is.list(value) || !is.null(dim(value)))
       stop("Column '", col, "' must contain a real vector.", call. = FALSE)
-    if (inherits(value, "haven_labelled_spss")) data[[col]] <- .scatter_axis_values(value)
+    if (inherits(value, c("haven_labelled_spss", "integer64"))) {
+      data[[col]] <- .scatter_axis_values(value)
+    }
   }
 
   # Preserve public labels before assigning private plotting columns.
@@ -546,8 +548,12 @@ PlotScatter1 <- function(
   factor(labels, levels = level_labels)
 }
 
-# Normalize encoded user-missing values before numeric scatter operations.
+# Normalize encoded values before numeric scatter operations.
 .scatter_axis_values <- function(x) {
+  if (inherits(x, "integer64")) {
+    .register_integer64(x)
+    return(as.double(x))
+  }
   if (!inherits(x, "haven_labelled_spss")) return(x)
   if (!requireNamespace("haven", quietly = TRUE))
     stop("Interpreting SPSS user-missing axes requires package 'haven'.", call. = FALSE)

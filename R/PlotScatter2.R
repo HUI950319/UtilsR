@@ -199,7 +199,9 @@ PlotScatter2 <- function(
     value <- data[[col]]
     if (is.complex(value) || is.list(value) || !is.null(dim(value)))
       stop("Column '", col, "' must contain a real vector.", call. = FALSE)
-    if (inherits(value, "haven_labelled_spss")) data[[col]] <- .scatter_axis_values(value)
+    if (inherits(value, c("haven_labelled_spss", "integer64"))) {
+      data[[col]] <- .scatter_axis_values(value)
+    }
   }
 
   integer64_groups <- vapply(unique(c(group, group2)), function(col) {

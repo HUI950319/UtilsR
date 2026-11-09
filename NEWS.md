@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* The three scatter plot helpers decode serialized `integer64` axes before calculating limits, statistics and positions.
+
 * `PlotScatter3()` preserves histogram counts and tick positions for representable subnormal differences.
 
 * `PlotRankCor()` iterates existing row indexes directly when scaling and testing groups.
