@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Keep points with missing feature names without treating missing names as a common feature or attempting to link them.
+
 * Use the input appearance order for circular sectors even when top-N filtering groups the rows before plotting.
 
 * Apply rank label cleaning after selecting the displayed rows, keeping score order, labels, and returned row names for truncated panels.

@@ -795,3 +795,27 @@ test_that("circular top counts preserve input sector order", {
     show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
   expect_identical(sectors, c("A", "B"))
 })
+
+test_that("missing circular names do not create shared features", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  original_points <- circlize::circos.points
+  original_link <- circlize::circos.link
+  local_mocked_bindings(circos.points = function(x, y, col, ...) {
+    colours <<- c(colours, col)
+    original_points(x, y, col = col, ...)
+  }, circos.link = function(...) {
+    links <<- links + 1L
+    original_link(...)
+  }, .package = "circlize")
+  d <- data.frame(group = rep(c("A", "B"), each = 2),
+    name = c(NA, "real", NA, "real"), value = c(.2, .4, .6, .8))
+  for (draw_links in c(FALSE, TRUE)) {
+    colours <- character()
+    links <- 0L
+    PlotCircleLollipop(d, common_color = "blue", unique_color = "orange",
+      show_labels = FALSE, show_links = draw_links, show_yaxis = FALSE)
+    expect_identical(colours, rep(c("orange", "blue"), 2))
+    expect_identical(links, as.integer(draw_links))
+  }
+})

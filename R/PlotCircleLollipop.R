@@ -385,10 +385,11 @@ PlotCircleLollipop <- function(
   }
 
   # ---- Assign colours ----
+  named_features <- df[!is.na(df$name), , drop = FALSE]
   if (!is.null(color_col) && color_col %in% colnames(data)) {
     df$color <- as.character(data[[color_col]])
   } else {
-    common_names <- df |>
+    common_names <- named_features |>
       dplyr::group_by(name) |>
       dplyr::summarise(n_groups = dplyr::n_distinct(group), .groups = "drop") |>
       dplyr::filter(n_groups > 1) |>
@@ -399,7 +400,7 @@ PlotCircleLollipop <- function(
   }
 
   # ---- Shared-feature data for inner arcs ----
-  common_genes <- df |>
+  common_genes <- named_features |>
     dplyr::group_by(name) |>
     dplyr::filter(dplyr::n_distinct(group) > 1) |>
     dplyr::ungroup()
