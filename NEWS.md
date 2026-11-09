@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Use internal aliases for plotted columns named .data in dumbbell and rank-correlation plots while keeping the source columns and displayed labels.
+
 * Reuse singleton scores directly in the rank-correlation pivot, preserving the existing missing and signed-zero results.
 
 * Aggregate repeated feature, group and method keys before ordering them for the rank-correlation pivot.

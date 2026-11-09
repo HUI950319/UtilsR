@@ -545,6 +545,16 @@ PlotRankCor <- function(
   force(columns)
   force(style)
   force(labels)
+  size_label <- columns$size
+  alpha_label <- columns$alpha
+  if (".data" %in% unlist(columns, use.names = FALSE)) {
+    alias <- utils::tail(make.unique(c(names(data), ".plot_data")), 1L)
+    data[[alias]] <- data[[".data"]]
+    columns <- lapply(columns, function(x) {
+      if (".data" %in% x) x[x == ".data"] <- alias
+      x
+    })
+  }
   p <- ggplot2::ggplot(data, ggplot2::aes(
     x = .data[[columns$methods[1]]], y = .data[[columns$methods[2]]]))
   point_aes <- ggplot2::aes(color = .data[[columns$group]])
@@ -568,9 +578,9 @@ PlotRankCor <- function(
 
   p <- p + ggplot2::scale_color_manual(values = style$colors)
   if (!is.null(columns$size))
-    p <- p + ggplot2::scale_size_continuous(range = style$size_range, name = columns$size)
+    p <- p + ggplot2::scale_size_continuous(range = style$size_range, name = size_label)
   if (!is.null(columns$alpha))
-    p <- p + ggplot2::scale_alpha_continuous(range = style$alpha_range, name = columns$alpha)
+    p <- p + ggplot2::scale_alpha_continuous(range = style$alpha_range, name = alpha_label)
   p <- p + ggplot2::labs(title = labels$title, subtitle = labels$subtitle,
                         x = labels$x, y = labels$y) +
     theme_my(base_size = style$base_size, legend.position = style$legend_position)

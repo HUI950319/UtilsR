@@ -302,6 +302,15 @@ PlotDumbbell <- function(
   }
   data[[y_col]] <- factor(categories, levels = unique(categories))
 
+  # Keep a literal .data column separate from ggplot2's data pronoun.
+  if (".data" %in% c(x_col, xend_col, y_col)) {
+    alias <- utils::tail(make.unique(c(names(data), delta_fields, ".plot_data")), 1L)
+    data[[alias]] <- data[[".data"]]
+    if (x_col == ".data") x_col <- alias
+    if (xend_col == ".data") xend_col <- alias
+    if (y_col == ".data") y_col <- alias
+  }
+
   # ---- Build plot ----
   p <- ggplot2::ggplot(data)
 

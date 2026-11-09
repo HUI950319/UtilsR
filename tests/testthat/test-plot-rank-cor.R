@@ -858,3 +858,36 @@ test_that("unique rank correlation scores bypass singleton means", {
   expect_identical(attr(p, "cor_results"), attr(reference, "cor_results"))
   expect_lt(singleton_means, 10L)
 })
+
+test_that("paired and rank correlation mappings accept a literal data pronoun column", {
+  score <- data.frame(item = rep(letters[1:4], 2), method = rep(c("m1", "m2"), each = 4),
+    score = c(1, 4, 2, 3, 4, 6, 5, 7))
+  build <- function(d, stat = "item") {
+    invisible(capture.output(p <- PlotRankCor(d, stat, "score", method.by = "method",
+      use_rank = FALSE, show.label = TRUE)))
+    p
+  }
+  control <- ggplot2::ggplot_build(build(score))$data
+  names(score)[1L] <- ".data"
+  p <- build(score, ".data")
+  expect_true(".data" %in% names(p$data))
+  expect_equal(ggplot2::ggplot_build(p)$data, control)
+  score$method[score$method == "m1"] <- ".data"
+  names(score)[1L] <- "item"
+  expect_equal(ggplot2::ggplot_build(build(score))$data, control)
+  d <- data.frame(start = 1:4, end = 2:5, category = letters[1:4])
+  plot <- function(d, selectors = names(d)) {
+    invisible(capture.output(p <- PlotDumbbell(d, x_col = selectors[1], xend_col = selectors[2],
+      y_col = selectors[3], legend_pos = "none", sort_by = "none", show_delta = TRUE,
+      label_x = "start", label_xend = "end")))
+    p
+  }
+  expected <- ggplot2::ggplot_build(plot(d))$data
+  for (j in seq_along(d)) {
+    alias <- d
+    names(alias)[j] <- ".data"
+    p <- plot(alias)
+    expect_true(".data" %in% names(p$data))
+    expect_equal(ggplot2::ggplot_build(p)$data, expected)
+  }
+})
