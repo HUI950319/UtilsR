@@ -364,11 +364,16 @@ stat_ci_parse <- function(x,
   re <- paste0("^", num, space, "*([[(])", space, "*", num,
                "(", space, "*[,;~\u2013\u2014-]", space, "*|",
                space, "+to", space, "+)", num, space, "*([])])")
-  hit <- which(grepl(re, xs, perl = TRUE))
-  grab <- function(k) {
-    sub(paste0("(?s)", re, "(.*)$"), paste0("\\", k), xs[hit], perl = TRUE)
-  }
-  g <- lapply(1:7, grab)
+  matched <- regexpr(re, xs, perl = TRUE)
+  hit <- which(matched > 0L)
+  starts <- attr(matched, "capture.start")
+  lengths <- attr(matched, "capture.length")
+  text <- xs[hit]
+  g <- lapply(seq_len(6L), function(k) {
+    first <- starts[hit, k]
+    substring(text, first, first + lengths[hit, k] - 1L)
+  })
+  g[[7L]] <- substring(text, matched[hit] + attr(matched, "match.length")[hit])
   values <- lapply(g[c(1, 3, 5)], .parse_decimal_tokens)
   ok <- paste0(g[[2]], g[[6]]) %in% c("()", "[]") &
     Reduce(`&`, lapply(values, is.finite))

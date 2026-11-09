@@ -585,3 +585,25 @@ test_that("parsed confidence intervals preserve subnormal two sided probabilitie
   expect_equal(result[2L] / expected[2L], 1, tolerance = 1e-7)
   expect_identical(result[1L], 2 * stats::pnorm(-z[1L] / (((z + half) - (z - half))[1L] / (2 * half))))
 })
+
+test_that("confidence interval extraction matches each full pattern once", {
+  fn <- .ci_extract
+  env <- new.env(parent = environment(fn))
+  matches <- 0L
+  count <- function(pattern) {
+    if (grepl("([[(])", pattern, fixed = TRUE)) matches <<- matches + 1L
+  }
+  env$grepl <- function(pattern, ...) { count(pattern); base::grepl(pattern, ...) }
+  env$sub <- function(pattern, ...) { count(pattern); base::sub(pattern, ...) }
+  env$regexpr <- function(pattern, ...) { count(pattern); base::regexpr(pattern, ...) }
+  environment(fn) <- env
+  d <- c("2 (1, 3)", "4 [3 to 5] notes\nmore", "1 (0, 2]", NA_character_,
+    "\u22122\uff08\u22123\uff0c\u22121\uff09")
+  result <- fn(d)
+  expect_identical(matches, 1L)
+  expect_equal(result$estimate, c(2, 4, NA, NA, -2))
+  expect_identical(result$valid, c(TRUE, TRUE, FALSE, FALSE, TRUE))
+  expect_identical(result$trailing, c(FALSE, TRUE, FALSE, FALSE, FALSE))
+  expect_identical(result$sep, c(", ", " to ", NA, NA, ", "))
+  expect_length(fn(character())$estimate, 0L)
+})

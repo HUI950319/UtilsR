@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci_parse()` extracts bracketed interval components with one match, preserving separators and trailing-text diagnostics.
+
 * Paired t tests used by continuous and endpoint plots retain small differences between extreme finite values.
 
 * `plt_con()` collects pairwise-test samples by one group index, preserving row order and requested comparisons.
