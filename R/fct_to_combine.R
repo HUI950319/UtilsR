@@ -221,8 +221,8 @@ fct_to_combine.default <- function(..., sep = " & ") {
     ))
   }
 
-  if (!any(vapply(args, is.object, logical(1L))) &&
-      any(vapply(args, function(v) anyNA(v) && all(is.na(v)), logical(1L)))) {
+  plain <- !any(vapply(args, is.object, logical(1L)))
+  if (plain && any(vapply(args, function(v) anyNA(v) && all(is.na(v)), logical(1L)))) {
     return(structure(rep.int(NA_integer_, lens[[1L]]), levels = character(), class = "factor"))
   }
 
@@ -246,11 +246,13 @@ fct_to_combine.default <- function(..., sep = " & ") {
     list(codes = vctrs::vec_match(v, values), labels = as.character(values))
   }
   inputs <- unname(lapply(args, encode_input))
-  missing_rows <- Reduce(`|`, lapply(args, is.na))
+  missing_rows <- if (!plain || any(vapply(args, anyNA, logical(1L)))) {
+    Reduce(`|`, lapply(args, is.na))
+  }
 
   complete_rows <- NULL
   n <- lens[[1L]]
-  if (any(missing_rows)) {
+  if (length(missing_rows) && any(missing_rows)) {
     complete_rows <- which(!missing_rows)
     if (!length(complete_rows)) {
       return(structure(rep.int(NA_integer_, n), levels = character(), class = "factor"))

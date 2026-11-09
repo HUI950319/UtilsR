@@ -425,3 +425,21 @@ test_that("all missing plain combinations skip unrelated value encoding", {
   expect_error(fct_to_combine(as.raw(1:2), c(NA, NA)), "Raw vectors")
   expect_error(fct_to_combine(matrix(1:2), c(NA, NA)), "one-dimensional")
 })
+
+test_that("complete factor combinations avoid full missing masks", {
+  a <- rep(c("x", "y"), 1000L)
+  b <- rep(c(1L, 1L, 2L, 2L), 500L)
+  fn <- fct_to_combine.default
+  env <- new.env(parent = environment(fn))
+  examined <- 0L
+  env$is.na <- function(x) {
+    if (length(x) == length(a)) examined <<- examined + 1L
+    base::is.na(x)
+  }
+  environment(fn) <- env
+  combined <- fn(a, b)
+  expect_identical(examined, 0L)
+  expect_identical(as.character(combined), paste(a, b, sep = " & "))
+  b[2L] <- NA_integer_
+  expect_identical(is.na(fn(a, b)), is.na(b))
+})
