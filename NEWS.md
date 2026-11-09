@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `check_system()` reads the standard Linux release fallback and preserves quoted distribution names.
+
 * Console wrapping splits long plain Han text at display-column boundaries in one pass.
 
 * `grob_insert(on_top = FALSE)` places the inset between the background and foreground of custom layouts.

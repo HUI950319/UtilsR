@@ -296,12 +296,18 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
         sys_info <- tryCatch({
           if (os_name == "Linux") {
             distro <- "Unknown Linux"
-            if (file.exists("/etc/os-release")) {
-              os_release_info <- readLines("/etc/os-release")
-              pretty_name_line <- grep("PRETTY_NAME=",
-                                       os_release_info, value = TRUE)
-              if (length(pretty_name_line) > 0) {
-                distro <- gsub("PRETTY_NAME=|\"", "", pretty_name_line[1])
+            release_file <- if (file.exists("/etc/os-release")) "/etc/os-release" else
+              if (file.exists("/usr/lib/os-release")) "/usr/lib/os-release"
+            if (!is.null(release_file)) {
+              line <- grep("^PRETTY_NAME=", readLines(release_file), value = TRUE)
+              if (length(line)) {
+                value <- sub("^PRETTY_NAME=", "", line[1L])
+                delimiter <- substr(value, 1L, 1L)
+                if (delimiter %in% c("\"", "'") && endsWith(value, delimiter)) {
+                  value <- substring(value, 2L, nchar(value) - 1L)
+                  if (delimiter == "\"") value <- gsub("\\\\([\"\\\\$\\x60])", "\\1", value, perl = TRUE)
+                }
+                if (.valid_text(value)) distro <- value
               }
             } else if (file.exists("/etc/redhat-release")) {
               distro <- readLines("/etc/redhat-release")[1]

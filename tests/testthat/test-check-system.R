@@ -399,3 +399,26 @@ test_that("Linux free fallback recognizes available and cached memory columns", 
       list(total_gb = 8, used_gb = 3, free_gb = 5, usage_percent = 37.5))
   }
 })
+
+test_that("Linux distribution metadata handles fallback and quoted values", {
+  for (primary in c(FALSE, TRUE)) {
+    query <- .check_system_fixture(meminfo = c("MemTotal: 8388608 kB", "MemAvailable: 4194304 kB"))
+    env <- environment(query)
+    old_exists <- env$file.exists
+    old_read <- env$readLines
+    env$file.exists <- function(path) {
+      if (path == "/etc/os-release") return(primary)
+      if (path == "/usr/lib/os-release") return(TRUE)
+      old_exists(path)
+    }
+    env$readLines <- function(con, ...) {
+      if (con == "/etc/os-release") return('PRETTY_NAME="Primary"')
+      if (con == "/usr/lib/os-release") return(c('OTHER="PRETTY_NAME=ignored"',
+        'PRETTY_NAME="Acme \\"Stable\\" PRETTY_NAME=Lab"'))
+      old_read(con, ...)
+    }
+    invisible(capture.output(result <- query(return_result = TRUE)))
+    expect_identical(result$system_info$os_full_name,
+      if (primary) "Primary" else 'Acme "Stable" PRETTY_NAME=Lab')
+  }
+})
