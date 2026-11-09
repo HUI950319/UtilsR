@@ -384,26 +384,26 @@ PlotCircleLollipop <- function(
     df$y_pos <- df$value
   }
 
-  # ---- Assign colours ----
-  named_features <- df[!is.na(df$name), , drop = FALSE]
-  if (!is.null(color_col) && color_col %in% colnames(data)) {
-    df$color <- as.character(data[[color_col]])
-  } else {
-    common_names <- named_features |>
+  # ---- Shared features for automatic colours and inner arcs ----
+  custom_colors <- !is.null(color_col) && color_col %in% colnames(data)
+  if (!custom_colors || show_links) {
+    common_names <- df |>
+      dplyr::filter(!is.na(name)) |>
       dplyr::group_by(name) |>
       dplyr::summarise(n_groups = dplyr::n_distinct(group), .groups = "drop") |>
       dplyr::filter(n_groups > 1) |>
       dplyr::pull(name)
-    df$color <- ifelse(df$name %in% common_names,
+    shared <- df$name %in% common_names
+  }
+
+  if (custom_colors) {
+    df$color <- as.character(data[[color_col]])
+  } else {
+    df$color <- ifelse(shared,
       if (is.factor(common_color)) as.character(common_color) else common_color,
       if (is.factor(unique_color)) as.character(unique_color) else unique_color)
   }
-
-  # ---- Shared-feature data for inner arcs ----
-  common_genes <- named_features |>
-    dplyr::group_by(name) |>
-    dplyr::filter(dplyr::n_distinct(group) > 1) |>
-    dplyr::ungroup()
+  if (show_links) common_genes <- df[shared, , drop = FALSE]
 
   # ---- Label data for circos.genomicLabels ----
   label_data <- data.frame(

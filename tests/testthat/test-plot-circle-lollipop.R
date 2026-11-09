@@ -819,3 +819,21 @@ test_that("missing circular names do not create shared features", {
     expect_identical(links, as.integer(draw_links))
   }
 })
+
+test_that("circular feature sharing is computed once for colours and links", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  d <- data.frame(group = c("A", "A", "B", "B"), name = c("shared", "a", "shared", "b"),
+    value = c(.2, .4, .6, .8), col = "black")
+  original <- dplyr::n_distinct
+  checks <- 0L
+  local_mocked_bindings(n_distinct = function(...) {
+    checks <<- checks + 1L
+    original(...)
+  }, .package = "dplyr")
+  PlotCircleLollipop(d, show_labels = FALSE, show_links = TRUE, show_yaxis = FALSE)
+  expect_equal(checks, 3L)
+  checks <- 0L
+  PlotCircleLollipop(d, color_col = "col", show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
+  expect_equal(checks, 0L)
+})
