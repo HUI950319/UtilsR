@@ -171,6 +171,7 @@
     mapping <- as.list(plot$mapping)
     data <- plot$data
     if (!is.null(layer)) {
+      if (axis %in% names(layer$aes_params)) next
       mapping <- if (isTRUE(layer$inherit.aes)) {
         utils::modifyList(mapping, as.list(layer$mapping))
       } else as.list(layer$mapping)

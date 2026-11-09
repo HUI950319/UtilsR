@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_scale()` and `fmt_expand()` skip inherited mappings that a layer overrides with fixed coordinates.
+
 * `PlotRank()` scales displayed groups in a separate vector and assigns the result once.
 
 * `PlotCircleLollipop()` builds its label frame only when labels are requested.

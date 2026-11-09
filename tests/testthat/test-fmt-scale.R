@@ -431,3 +431,14 @@ test_that("axis scale options reject table and array containers before plots", {
   built <- ggplot2::ggplot_build(fmt_scale(p, x = list(limits = c(0, 4))))
   expect_equal(built$layout$panel_scales_x[[1]]$get_limits(), c(0, 4))
 })
+
+test_that("scale inference ignores mappings replaced by fixed positions", {
+  d <- data.frame(y = 1:3)
+  p <- ggplot2::ggplot(d, ggplot2::aes(absent, y)) + ggplot2::geom_point(x = 3)
+  expected <- ggplot2::ggplot_build(p + ggplot2::scale_x_log10(breaks = c(1, 3, 9)))
+  result <- fmt_scale(p, x = list(transform = "log10", breaks = c(1, 3, 9)))
+  actual <- ggplot2::ggplot_build(result)
+  expect_equal(actual$data[[1L]]$x, expected$data[[1L]]$x)
+  expect_identical(actual$layout$panel_scales_x[[1L]]$get_transformation()$name, "log-10")
+  expect_no_error(ggplot2::ggplot_build(fmt_expand(p, axis = "x", mult = .1)))
+})
