@@ -453,3 +453,26 @@ test_that("rank groups retain explicit NA levels without label collisions", {
   expect_identical(as.character(out[["Group"]][out[["Label"]] == "b"]), "<NA>.1")
   expect_identical(as.character(out[["Group"]][out[["Label"]] == "c"]), "<NA>")
 })
+
+test_that("single rank plots release input retained by unused colors", {
+  skip_if_not_installed("lobstr")
+  make_plot <- function(bytes, top) {
+    d <- data.frame(gene = letters[1:5], importance = 5:1)
+    attr(d, "unrelated_payload") <- raw(bytes)
+    UtilsR::PlotRank(d, max_show = 3, top_n = top)
+  }
+  environment(make_plot) <- globalenv()
+  invisible(make_plot(0L, 0L))
+  invisible(make_plot(0L, 1L))
+  invisible(make_plot(0L, 20L))
+  for (top in c(0L, 1L, 20L)) {
+    small <- make_plot(0L, top)
+    large <- make_plot(1000000L, top)
+    expect_lt(as.numeric(lobstr::obj_size(large)) - as.numeric(lobstr::obj_size(small)), 100000)
+    expect_identical(large$data, small$data)
+    expect_identical(ggplot2::ggplot_build(large)$data, ggplot2::ggplot_build(small)$data)
+  }
+  d <- data.frame(gene = letters[1:3], importance = 3:1)
+  expect_no_error(PlotRank(d, top_n = 20, base_color = stop("unused base color")))
+  expect_no_error(PlotRank(d, top_n = 0, highlight_color = stop("unused highlight color")))
+})

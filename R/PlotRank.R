@@ -439,13 +439,16 @@ PlotRank <- function(
                        ylab, base_size) {
 
   label_df <- df[df$IsTop, ]
+  point_colors <- ifelse(df$IsTop, hi_col, base_col)
+  # A dormant color promise would retain the caller and its full input.
+  hi_col <- base_col <- NULL
 
   ggplot2::ggplot(df, ggplot2::aes(
     x = .data[["Rank"]], y = .data[["Score"]]
   )) +
     ggplot2::geom_point(
       size  = pt_size,
-      color = ifelse(df$IsTop, hi_col, base_col)
+      color = point_colors
     ) +
     ggrepel::geom_text_repel(
       data = label_df,
