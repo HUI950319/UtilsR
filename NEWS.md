@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotDumbbell()` uses arithmetic means for integer64 reference lines, including fractional and cancellation-sensitive results.
+
 * `PlotDumbbell()` retains differences beyond the `integer64` range as doubles and preserves ordinary `integer64` deltas.
 
 * The three scatter plot helpers decode serialized `integer64` axes before calculating limits, statistics and positions.

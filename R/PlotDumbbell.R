@@ -389,8 +389,16 @@ PlotDumbbell <- function(
   }
 
   if (show_mean_lines) {
-    mean_x    <- mean(data[[x_col]], na.rm = TRUE)
-    mean_xend <- mean(data[[xend_col]], na.rm = TRUE)
+    endpoint_mean <- function(value) {
+      if (!inherits(value, "integer64")) return(mean(value, na.rm = TRUE))
+      # Add the two limbs before dividing, retaining cancellation and fractions.
+      step <- bit64::as.integer64("4294967296")
+      high <- sum(as.double(value %/% step), na.rm = TRUE)
+      low <- sum(as.double(value %% step), na.rm = TRUE)
+      (high * 2^32 + low) / sum(!is.na(value))
+    }
+    mean_x    <- endpoint_mean(data[[x_col]])
+    mean_xend <- endpoint_mean(data[[xend_col]])
     p <- p +
       ggplot2::geom_vline(
         xintercept = mean_x, linetype = "dashed",

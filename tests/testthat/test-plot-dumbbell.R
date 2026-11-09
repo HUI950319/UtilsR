@@ -664,3 +664,18 @@ test_that("dumbbell integer64 differences survive arithmetic overflow", {
   regular <- fn(d[3:4, ], sort_by = "none", legend_pos = "none")
   expect_identical(regular$data$.delta, bit64::as.integer64(c("3", NA)))
 })
+
+test_that("integer64 dumbbell mean lines preserve fractions and cancellation", {
+  skip_if_not_installed("bit64")
+  fn <- PlotDumbbell
+  env <- new.env(parent = environment(fn))
+  env$print <- function(x, ...) invisible(x)
+  environment(fn) <- env
+  d <- data.frame(start = bit64::as.integer64(c("9223372036854775807", "-9223372036854775806")),
+    end = bit64::as.integer64(c("2", "3")), category = c("a", "b"))
+  p <- fn(d, sort_by = "none", show_zero_line = FALSE,
+    show_mean_lines = TRUE, legend_pos = "none")
+  expect_identical(p$layers[[4L]]$data$xintercept, 0.5)
+  expect_identical(p$layers[[5L]]$data$xintercept, 2.5)
+  expect_identical(p$data$start, d$start)
+})
