@@ -931,12 +931,10 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
     if (length(a) > 3L) c(a[1:3], cli::symbol$ellipsis) else a
   }
   rows <- new.env(parent = emptyenv())
-  rows$id <- character(); rows$children <- list(); rows$label <- character()
+  rows$records <- new.env(hash = TRUE, parent = emptyenv())
   rows$n  <- 0L
   add <- function(id, label, children = character()) {
-    rows$id       <- c(rows$id, id)
-    rows$children <- c(rows$children, list(children))
-    rows$label    <- c(rows$label, label)
+    rows$records[[id]] <- list(label = label, children = children)
     id
   }
   # Lines are counted in the order the tree prints them. Within max_lines a
@@ -1042,10 +1040,11 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
     root_desc <- paste(._pr_label(class(x)[1], cli::bg_blue, cli::col_br_white), root_desc)
   }
   root <- node(x, "x", root_desc, 0, slot(TRUE))
-  tree <- as.character(cli::tree(data.frame(id = rows$id, children = I(rows$children),
-                                            label = rows$label,
-                                            stringsAsFactors = FALSE),
-                                 root = root))
+  records <- as.list(rows$records, all.names = TRUE)
+  tree <- as.character(cli::tree(data.frame(
+    id = names(records), children = I(lapply(records, `[[`, "children")),
+    label = vapply(records, `[[`, character(1), "label"), stringsAsFactors = FALSE
+  ), root = root))
   if (rows$n > max_lines) {
     # the argument that cut them, as rlang names what shows hidden frames
     tree <- c(tree[seq_len(max_lines)], ._pr_wrap(cli::col_grey(sprintf(

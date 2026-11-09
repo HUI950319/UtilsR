@@ -1348,3 +1348,20 @@ test_that("ordinary console text avoids repeated escaping passes", {
                    c("a\\nb\\rc\\td\\be\\ff\\vg", NA_character_))
   expect_identical(fn(c(1, NA_real_)), c("1", NA_character_))
 })
+
+test_that("visible console tree records avoid quadratic vector copying", {
+  skip_if_not(capabilities("profmem"))
+  skip_if(.Machine$sizeof.pointer != 8L)
+  withr::local_options(cli.num_colors = 1, cli.width = 100, width = 100)
+  local_mocked_bindings(tree = function(data, ...) rep("node", nrow(data)), .package = "cli")
+  n <- 2500L
+  x <- stats::setNames(as.list(seq_len(n)), paste0("entry_", seq_len(n)))
+  profile <- withr::local_tempfile()
+  withr::defer(utils::Rprofmem(NULL))
+  utils::Rprofmem(profile)
+  output <- utils::capture.output(pr_tree(x, max_items = Inf, max_lines = Inf))
+  utils::Rprofmem(NULL)
+  allocated <- sum(suppressWarnings(as.numeric(sub(" .*", "", readLines(profile)))), na.rm = TRUE)
+  expect_length(output, n + 1L)
+  expect_lt(allocated, 2 * n^2 * .Machine$sizeof.pointer)
+})

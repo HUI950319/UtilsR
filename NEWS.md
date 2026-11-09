@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console trees store visible records in a local keyed environment, reducing allocations when many nodes are printed while preserving branch order and truncation.
+
 * Large repeated CI vectors reuse parsed strings and then restore every row, retaining original formatting, missing values, and warning counts.
 
 * Paired scatter t tests reuse the stable t-test adapter and choose its scale from complete pairs, preserving valid p-values at extreme finite scales.
