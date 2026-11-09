@@ -566,8 +566,18 @@ PlotDumbbell <- function(
     )
     test_x <- data[[x_col]]
     test_xend <- data[[xend_col]]
-    if (is.integer(test_x) && !is.object(test_x)) test_x <- as.double(test_x)
-    if (is.integer(test_xend) && !is.object(test_xend)) test_xend <- as.double(test_xend)
+    if (inherits(test_x, "difftime")) {
+      test_x <- as.numeric(test_x, units = "secs")
+    } else if (inherits(test_x, c("Date", "POSIXt")) ||
+               (is.integer(test_x) && !is.object(test_x))) {
+      test_x <- as.double(test_x)
+    }
+    if (inherits(test_xend, "difftime")) {
+      test_xend <- as.numeric(test_xend, units = "secs")
+    } else if (inherits(test_xend, c("Date", "POSIXt")) ||
+               (is.integer(test_xend) && !is.object(test_xend))) {
+      test_xend <- as.double(test_xend)
+    }
     test_res <- test_fn(test_x, test_xend,
                         paired = TRUE, alternative = "two.sided")
     p_val <- test_res$p.value

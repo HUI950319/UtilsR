@@ -446,3 +446,33 @@ test_that("dumbbell inset paired t tests preserve extreme scale p values", {
     expect_identical(p[[1L]]$data$end, d$end)
   }
 })
+
+test_that("dumbbell inset tests accept typed time endpoints", {
+  inset <- NULL
+  original <- .build_dumbbell_inset
+  local_mocked_bindings(.build_dumbbell_inset = function(...) {
+    inset <<- original(...)
+    inset
+  }, .package = "UtilsR")
+  x <- c(1, 3, 2, 5, 8, 6)
+  y <- c(2, 5, 3, 6, 9, 8)
+  converters <- list(function(z) as.Date(z, origin = "2020-01-01"),
+    function(z) as.POSIXct(z, origin = "2020-01-01", tz = "UTC"),
+    function(z) as.POSIXlt(z, origin = "2020-01-01", tz = "UTC"),
+    function(z) as.difftime(z, units = "mins"))
+  for (convert in converters) {
+    d <- data.frame(start = convert(x), end = convert(y), category = letters[1:6])
+    before <- serialize(d, NULL)
+    for (method in c("t.test", "wilcox")) {
+      pval <- suppressWarnings(if (method == "t.test") stats::t.test(x, y, paired = TRUE)$p.value else
+        stats::wilcox.test(x, y, paired = TRUE)$p.value)
+      expected <- if (pval < .001) sprintf("p = %.1e", pval) else sprintf("p = %.3f", pval)
+      suppressWarnings(dumbbell_plot(d, inset_plot = "auto", inset_test = method,
+        legend_pos = "none", inset_jitter = FALSE, sort_by = "none"))
+      text <- Filter(function(layer) "label" %in% names(layer), ggplot2::ggplot_build(inset)$data)
+      expect_identical(unlist(lapply(text, `[[`, "label"), use.names = FALSE), expected)
+      expect_true(inherits(inset$data$.value, class(d$start)[1L]))
+    }
+    expect_identical(serialize(d, NULL), before)
+  }
+})

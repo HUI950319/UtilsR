@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Run automatic dumbbell inset tests on numeric time buffers, using common seconds for durations while retaining typed plotting data.
+
 * Adapt level-less all-missing factors only at the `lv()` summary-table boundary, preserving the inspected data and factor class.
 
 * Avoid PCRE match-limit warnings when P-value and confidence-interval parsers reject long malformed decimal tokens.
