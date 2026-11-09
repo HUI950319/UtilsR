@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Jaccard gradient endpoints use validated factor colour labels while retaining native numeric palette indices and transparency.
+
 * Automatic numeric bins rescale subnormal values before quantile interpolation or equal-width cutting, preserving bin membership across changes of units.
 
 * Jaccard heatmaps compare POSIXlt features through equality proxies, preventing nearby instants from merging during list coercion.

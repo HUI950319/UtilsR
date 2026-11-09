@@ -622,3 +622,17 @@ test_that("Jaccard sets retain precise POSIXlt feature identities", {
   expect_identical(actual["A", "C"], .5)
   expect_identical(serialize(d, NULL), before)
 })
+
+test_that("Jaccard gradients preserve factor colour labels", {
+  d <- data.frame(cell_type = c("A", "B"), gene = c("x", "y"))
+  colours <- function(low, high) {
+    ggplot2::layer_data(PlotHeatmapJaccard(d, show_diag = TRUE, midpoint = .5,
+      low_color = low, high_color = high, text_size = 0))$fill
+  }
+  for (value in c("red", "#FF000080")) {
+    encoded <- factor(value, levels = c("blue", value))
+    expect_identical(colours(encoded, "navy"), colours(value, "navy"))
+    expect_identical(colours("white", encoded), colours("white", value))
+  }
+  expect_identical(colours(2, 4), colours(palette()[2], palette()[4]))
+})

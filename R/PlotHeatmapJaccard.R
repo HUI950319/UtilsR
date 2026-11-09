@@ -279,6 +279,9 @@ PlotHeatmapJaccard <- function(
     })
   }
 
+  if (is.factor(low_color)) low_color <- as.character(low_color)
+  if (is.factor(high_color)) high_color <- as.character(high_color)
+
   # ---- 4. Prepare long data.frame ----
   plot_mat <- jmat
   if (!show_diag) diag(plot_mat) <- NA
