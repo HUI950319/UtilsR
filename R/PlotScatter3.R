@@ -275,7 +275,7 @@ PlotScatter3 <- function(
   if (test_method != "none") {
     test_fn <- switch(test_method,
       "wilcox" = stats::wilcox.test,
-      "t.test" = stats::t.test,
+      "t.test" = .con_pairwise_test("t.test"),
       stop("test_method must be 'wilcox', 't.test', or 'none'.", call. = FALSE)
     )
     test_res <- test_fn(x_values, y_values,

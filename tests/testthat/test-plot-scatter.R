@@ -1248,3 +1248,22 @@ test_that("Pearson scatter annotations retain finite scale invariant statistics"
     expect_identical(labels(unit), control)
   }
 })
+
+test_that("paired scatter t tests retain p values at extreme scales", {
+  x <- 1:8
+  y <- c(2, 4, 3, 5, 7, 6, 9, 8)
+  labels <- function(unit) {
+    d <- data.frame(Control = x * unit, Treat = y * unit, group = rep(c("a", "b"), 4))
+    p <- PlotScatter3(d, test_method = "t.test", cor_method = "none",
+      axis_limits = c(0, 10) * unit, axis_breaks = c(0, 5, 10) * unit,
+      hist_x_limits = c(-5, 5) * unit, hist_x_breaks = c(-5, 0, 5) * unit,
+      median_line_yend = 1, theme_use = ggplot2::theme_classic)
+    expect_identical(p[[1L]]$data$Control, d$Control)
+    unlist(lapply(p[[1L]]$layers, function(layer) layer$aes_params$label), use.names = FALSE)
+  }
+  control <- labels(1)
+  for (unit in c(1e-200, 1e200)) expect_identical(labels(unit), control)
+  test <- .con_pairwise_test("t.test")
+  expect_equal(test(c(1, 2, 3, 1e308), c(2, 4, 5, NA), paired = TRUE)$p.value,
+               stats::t.test(1:3, c(2, 4, 5), paired = TRUE)$p.value)
+})

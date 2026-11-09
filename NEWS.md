@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Paired scatter t tests reuse the stable t-test adapter and choose its scale from complete pairs, preserving valid p-values at extreme finite scales.
+
 * Scatter Pearson annotations use stable working coordinates at extreme numeric scales while retaining original plot data and rank-correlation methods.
 
 * CI parsing shares the bounded decimal converter with P-value formatting, accepting long scientific mantissas whose numeric value remains finite.

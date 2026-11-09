@@ -834,7 +834,8 @@ plt_con <- function(data,
   if (identical(test, "t.test")) {
     return(function(x, y, ...) {
       args <- list(...)
-      finite <- abs(c(x, y))
+      complete <- if (isTRUE(args$paired)) stats::complete.cases(x, y) else NULL
+      finite <- abs(if (is.null(complete)) c(x, y) else c(x[complete], y[complete]))
       finite <- finite[is.finite(finite)]
       unit <- if (length(finite)) max(finite) else 0
       if (unit > 0 && (unit < sqrt(.Machine$double.xmin) ||
