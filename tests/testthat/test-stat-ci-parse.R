@@ -607,3 +607,13 @@ test_that("confidence interval extraction matches each full pattern once", {
   expect_identical(result$sep, c(", ", " to ", NA, NA, ", "))
   expect_length(fn(character())$estimate, 0L)
 })
+
+test_that("interval suffix trimming handles long malformed annotation runs", {
+  text <- paste0("2 (1, 3)", strrep("*", 25000L), "annotation")
+  elapsed <- system.time(parsed <- .ci_extract(text))[["elapsed"]]
+  expect_lt(elapsed, 2)
+  expect_identical(parsed$valid, TRUE)
+  expect_identical(parsed$trailing, TRUE)
+  good <- .ci_extract(c("2 (1, 3) **. *", "2 (1, 3) **. suffix", "2 (1, 3)\u3000**"))
+  expect_identical(good$trailing, c(FALSE, TRUE, FALSE))
+})

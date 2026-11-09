@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci_parse()` trims trailing annotations in bounded passes even when malformed text follows a long punctuation run.
+
 * `plt_con()` computes subnormal dot-bin midpoints without rounding both endpoints before addition.
 
 * `plt_alluvial()` checks ordinary columns for missing values without first allocating their character labels.

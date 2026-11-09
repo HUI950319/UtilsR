@@ -354,9 +354,10 @@ stat_ci_parse <- function(x,
   xs <- gsub(paste0("(^|[[(,;~\u2013\u2014-]", space, "*|", space,
                     "to", space, "+)[\u2013\u2014](?=\\.?\\d)"),
              "\\1-", xs, perl = TRUE)
-  xs <- gsub("[*\\h\\v]+$", "", xs, perl = TRUE) # strip trailing stars/spaces
-  xs <- gsub("\\.$", "", xs)          # strip single trailing dot
-  xs <- gsub("[*\\h\\v]+$", "", xs, perl = TRUE)
+  suffix <- "(?<![*\\h\\v])[*\\h\\v]++$"
+  xs <- sub(suffix, "", xs, perl = TRUE) # strip trailing stars/spaces
+  xs <- sub("\\.$", "", xs)            # strip single trailing dot
+  xs <- sub(suffix, "", xs, perl = TRUE)
 
   # est (lower sep upper) -- one pattern for every bracket and separator;
   # groups: 1 est, 2 open, 3 lower, 4 sep, 5 upper, 6 close, 7 trailing text
