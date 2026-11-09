@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci_parse()` recovers representable two-sided probabilities when the ordinary normal-tail computation underflows.
+
 * `fct_num()` applies its subnormal binning safeguard to ordinary numeric `AsIs` and labelled inputs.
 
 * `PlotRank(value_scale = "top_n")` indexes displayed groups once before normalizing scores.

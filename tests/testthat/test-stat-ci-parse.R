@@ -572,3 +572,16 @@ test_that("long malformed decimal tokens retain parser diagnostics", {
   }
   expect_true(all(.ci_extract(c("+1. (0, 2.)", ".1 [.0; .2]", "1e-1 (0e0, 2e-1)"))$valid))
 })
+
+test_that("parsed confidence intervals preserve subnormal two sided probabilities", {
+  z <- c(37, 38, 38.5, 39)
+  half <- stats::qnorm(.975)
+  ci <- sprintf("%.17g (%.17g, %.17g)", z, z - half, z + half)
+  result <- stat_ci_parse(ci, exp = FALSE, output = "p")
+  derived_z <- z * (2 * half) / ((z + half) - (z - half))
+  expected <- exp(log(2) + stats::pnorm(-derived_z, log.p = TRUE))
+  expect_gt(result[2L], 0)
+  expect_identical(result[3:4], expected[3:4])
+  expect_equal(result[2L] / expected[2L], 1, tolerance = 1e-7)
+  expect_identical(result[1L], 2 * stats::pnorm(-z[1L] / (((z + half) - (z - half))[1L] / (2 * half))))
+})
