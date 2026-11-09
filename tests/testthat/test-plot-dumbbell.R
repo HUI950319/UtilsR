@@ -696,3 +696,19 @@ test_that("automatic dumbbell insets test exact integer64 paired differences", {
     expect_type(inset$data$.value, "double")
   }
 })
+
+test_that("dumbbell Date and datetime endpoints share one scale", {
+  date <- as.Date("2026-01-01") + 1:4
+  seconds <- c(30, 60, 90, 120)
+  when <- as.POSIXct(date) + seconds
+  d <- data.frame(date = date, instant = when)
+  for (start in c("date", "instant")) {
+    end <- setdiff(names(d), start)
+    expect_no_warning(p <- PlotDumbbell(d, x_col = start, xend_col = end, y_col = "date",
+      sort_by = "none", show_delta = TRUE, show_mean_lines = TRUE, legend_pos = "none"))
+    expect_equal(as.numeric(p$data$.delta, units = "secs"), if (start == "date") seconds else -seconds)
+    coords <- ggplot2::ggplot_build(p)$data[[1L]]
+    expect_equal(coords$x, if (start == "date") as.numeric(as.POSIXct(date)) else as.numeric(when))
+    expect_identical(p$data$date, date)
+  }
+})

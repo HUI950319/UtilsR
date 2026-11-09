@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotDumbbell()` uses a common datetime scale for Date and POSIX endpoints and keeps their original category labels.
+
 * `PlotScatter3()` uses factor colour labels consistently for highlights, borders and histogram layers.
 
 * `fmt_point()` keeps nearby labelled numeric groups distinct while respecting declared missing values.

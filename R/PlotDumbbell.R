@@ -253,6 +253,18 @@ PlotDumbbell <- function(
   display_labels <- as.character(c(label_x, label_xend))
   label_keys <- make.unique(display_labels)
 
+  # Match the time scale when one endpoint is a Date and the other an instant.
+  endpoint_cols <- c(x_col, xend_col)
+  dates <- vapply(data[endpoint_cols], inherits, logical(1), "Date")
+  instants <- vapply(data[endpoint_cols], inherits, logical(1), "POSIXt")
+  if (any(dates) && any(instants)) {
+    date_col <- endpoint_cols[dates]
+    alias <- utils::tail(make.unique(c(names(data), ".datetime")), 1L)
+    template <- as.POSIXct(data[[endpoint_cols[instants]]])
+    data[[alias]] <- vctrs::vec_restore(as.double(as.POSIXct(data[[date_col]])), template)
+    if (dates[1L]) x_col <- alias else xend_col <- alias
+  }
+
   # ---- Compute delta ----
   delta_fields <- utils::tail(make.unique(c(names(data), ".delta", ".delta_label", ".delta_x")), 3L)
   delta_var <- delta_fields[1L]
@@ -303,7 +315,7 @@ PlotDumbbell <- function(
     labels[is.na(labels)] <- utils::tail(make.unique(c(labels[!is.na(labels)], "<NA>")), 1L)
     levels(categories) <- labels
   }
-  if (y_col %in% c(x_col, xend_col)) {
+  if (y_col %in% endpoint_cols) {
     y_col <- utils::tail(make.unique(c(names(data), ".category")), 1L)
   }
   data[[y_col]] <- factor(categories, levels = unique(categories))
