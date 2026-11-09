@@ -50,7 +50,12 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.23" id="utilsr-0623">UtilsR 0.6.23<a class="anchor" aria-label="anchor" href="#utilsr-0623"></a></h2>
-<ul><li><p>Calculate finite dumbbell inset annotation offsets without overflowing the intermediate range width when endpoints span extreme numeric values.</p></li>
+<ul><li><p>Retain exact integer64 ordering and narrow score differences in circular lollipops, with overflow-safe scaling in each existing domain and unchanged missing-value and minimum-height behavior.</p></li>
+<li><p>Keep the Label column for rank matrices without row names when clean_names is FALSE, matching the existing default missing-label behavior.</p></li>
+<li><p>Format repeated ordinary numeric P-values once after complete validation, preserving names, missing values, significance maps, and the separate plain-text and exact-decimal paths.</p></li>
+<li><p>Preserve missing scores when circular lollipop groups have a constant observed value instead of turning the missing observations into zero-height points.</p></li>
+<li><p>Keep factor endpoint labels as text in dumbbell legends and automatic insets, including standalone inset construction.</p></li>
+<li><p>Calculate finite dumbbell inset annotation offsets without overflowing the intermediate range width when endpoints span extreme numeric values.</p></li>
 <li><p>Keep the native Wilcoxon warning and undefined P-value label when every paired difference is zero, avoiding a subsequent formatting error.</p></li>
 <li><p>Skip same-group circular links when a shared feature appears repeatedly within a group, retaining every cross-group row pair.</p></li>
 <li><p>Preserve factor colour labels in rank points, dumbbell endpoints and insets, and circular lollipops without changing numeric palette indices or unused colour promises.</p></li>

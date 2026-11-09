@@ -2,6 +2,25 @@
 
 ## UtilsR 0.6.23
 
+- Retain exact integer64 ordering and narrow score differences in
+  circular lollipops, with overflow-safe scaling in each existing domain
+  and unchanged missing-value and minimum-height behavior.
+
+- Keep the Label column for rank matrices without row names when
+  clean_names is FALSE, matching the existing default missing-label
+  behavior.
+
+- Format repeated ordinary numeric P-values once after complete
+  validation, preserving names, missing values, significance maps, and
+  the separate plain-text and exact-decimal paths.
+
+- Preserve missing scores when circular lollipop groups have a constant
+  observed value instead of turning the missing observations into
+  zero-height points.
+
+- Keep factor endpoint labels as text in dumbbell legends and automatic
+  insets, including standalone inset construction.
+
 - Calculate finite dumbbell inset annotation offsets without overflowing
   the intermediate range width when endpoints span extreme numeric
   values.
