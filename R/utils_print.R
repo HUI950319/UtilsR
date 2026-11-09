@@ -682,27 +682,25 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
     keep <- c(keep, j)
   }
   keep <- sort(keep)
-  row <- function(x) {
-    paste(vapply(keep, function(j) {
-      s <- x[[j]]
-      # only a cell that is too wide: below the ellipsis's width,
-      # ansi_strtrim() gives a cut ellipsis even for text that fits ("A" -> ".")
-      s <- ._pr_trim(s, col_w[j])
-      cli::ansi_align(s, col_w[j], align[j])
-    }, character(1)), collapse = strrep(" ", gap))
-  }
+  aligned_cells <- lapply(keep, function(j) {
+    cli::ansi_align(._pr_trim(c(headers[j], cells[[j]]), col_w[j]),
+                    col_w[j], align[j])
+  })
+  aligned_rows <- do.call(paste, c(aligned_cells, sep = strrep(" ", gap)))
 
   pad    <- strrep(" ", indent)
-  header <- paste0(pad, cli::style_bold(row(headers)))
+  header <- paste0(pad, cli::style_bold(aligned_rows[1L]))
   rule   <- paste0(pad, cli::col_grey(strrep(cli::symbol$line,
                                              sum(col_w[keep]) + gap * (length(keep) - 1))))
   hl_bg  <- cli::make_ansi_style("#FFFF99", bg = TRUE)
-  body   <- vapply(seq_len(nrow(data)), function(i) {
-    r <- row(lapply(cells, `[`, i))
-    if (!(i %in% hl)) return(paste0(pad, r))
-    if (colour) return(paste0(pad, hl_bg(cli::col_black(cli::ansi_strip(r)))))
-    paste0(">", strrep(" ", max(indent - 1L, 1L)), r)
-  }, character(1))
+  r <- aligned_rows[-1L]
+  body <- if (length(r)) paste0(pad, r) else character()
+  at <- which(seq_along(r) %in% hl)
+  if (length(at)) {
+    body[at] <- if (colour) {
+      paste0(pad, hl_bg(cli::col_black(cli::ansi_strip(r[at]))))
+    } else paste0(">", strrep(" ", max(indent - 1L, 1L)), r[at])
+  }
 
   more <- function(k, what) {
     sprintf("%s %d more %s%s", cli::symbol$ellipsis, k, what, if (k == 1L) "" else "s")

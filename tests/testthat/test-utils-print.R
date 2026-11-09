@@ -1294,3 +1294,22 @@ test_that("sparklines preserve histograms across subnormal numeric ranges", {
   for (sign in c(1, -1))
     expect_identical(shape(sign * (1:20) * unit), shape(sign * (1:20)))
 })
+
+test_that("console table alignment scales with columns", {
+  withr::local_options(cli.num_colors = 1, cli.width = 100, width = 100)
+  original <- cli::ansi_align
+  calls <- 0L
+  local_mocked_bindings(ansi_align = function(...) {
+    calls <<- calls + 1L
+    original(...)
+  }, .package = "cli")
+  d <- data.frame(id = sprintf("patient_%04d", 1:1000),
+    group = rep(c("Control", "Treatment"), 500),
+    P = rep(c(.0499, .3, .0002, NA), 250))
+  out <- utils::capture.output(pr_table(d, n = NULL, width = 100, highlight = 3))
+  expect_lte(calls, 2L * ncol(d))
+  expect_length(out, nrow(d) + 2L)
+  expect_match(out[[3L]], "patient_0001", fixed = TRUE)
+  expect_match(out[[5L]], "^>")
+  expect_true(all(cli::ansi_nchar(out, type = "width") <= 100))
+})
