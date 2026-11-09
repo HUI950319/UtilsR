@@ -233,3 +233,19 @@ test_that("plot text factor colours draw their labels", {
   }
   expect_equal(sum(draw(color) != draw("red")), 0L)
 })
+
+test_that("plot text broadcasts expressions as plotmath labels", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 2:4), ggplot2::aes(x, y)) +
+    ggplot2::geom_point()
+  titles <- expression(alpha^2, beta + gamma)
+  plots <- fmt_text(list(p, p), title = titles, xlab = expression(sqrt(theta)))
+  label <- function(plot, name) {
+    gt <- ggplot2::ggplotGrob(plot)
+    gt$grobs[[match(name, gt$layout$name)]]$children[[1L]]$label
+  }
+  for (i in seq_along(plots)) {
+    expected <- p + ggplot2::labs(title = titles[i], x = expression(sqrt(theta)))
+    expect_identical(label(plots[[i]], "title"), label(expected, "title"))
+    expect_identical(label(plots[[i]], "xlab-b"), label(expected, "xlab-b"))
+  }
+})

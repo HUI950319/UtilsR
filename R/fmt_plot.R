@@ -2995,7 +2995,11 @@ fmt_text <- function(plot,
   # ---- Vectorize label params (recycle to n plots) ----
   vec_or_null <- function(x) {
     if (is.null(x)) return(rep(list(NULL), n))
-    as.list(rep_len(x, n))
+    values <- rep_len(x, n)
+    if (is.expression(values)) {
+      return(lapply(seq_along(values), function(i) values[i]))
+    }
+    as.list(values)
   }
   xlab_vec     <- vec_or_null(xlab)
   ylab_vec     <- vec_or_null(ylab)

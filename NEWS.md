@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_text()` preserves plotmath expressions when applying titles or axis labels to one or several plots.
+
 * `stat_ci_parse()` extracts bracketed interval components with one match, preserving separators and trailing-text diagnostics.
 
 * Paired t tests used by continuous and endpoint plots retain small differences between extreme finite values.
