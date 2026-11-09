@@ -225,11 +225,14 @@ PlotRank <- function(
     grp <- names(score_list)[i]
     scores <- sort(score_list[[i]], decreasing = TRUE)
     n      <- min(length(scores), max_show)
+    shown  <- scores[seq_len(n)]
+    labels <- if (is.null(names(shown))) rep(NA_character_, n) else names(shown)
+    if (anyNA(names(shown))) names(shown) <- NULL
     data.frame(
       Group = grp,
       Rank  = seq_len(n),
-      Score = scores[seq_len(n)],
-      Label = if (is.null(names(scores))) rep(NA_character_, n) else names(scores)[seq_len(n)],
+      Score = shown,
+      Label = labels,
       IsTop = c(rep(TRUE,  min(top_n, n)),
                 rep(FALSE, max(0L, n - top_n))),
       stringsAsFactors = FALSE

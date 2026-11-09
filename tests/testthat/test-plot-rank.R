@@ -558,3 +558,18 @@ test_that("rank matrices without row names retain labels with cleaning disabled"
     expect_identical(m, before)
   }
 })
+
+test_that("rank outputs retain missing feature labels without invalid row names", {
+  score <- stats::setNames(c(3, 2, 1), c("high", NA, "low"))
+  for (clean in c(TRUE, FALSE)) {
+    result <- PlotRank(score, clean_names = clean, return_type = "both")
+    expect_identical(result$data$Label, names(score))
+    expect_identical(rownames(result$data), as.character(1:3))
+    expect_equal(ggplot2::ggplot_build(result$plot)$data[[1L]]$y, unname(score))
+  }
+  matrix <- matrix(1:6, 3L, dimnames = list(NULL, c("A", "B")))
+  result <- PlotRank(matrix, max_show = 1, return_type = "data")
+  expect_identical(result$Label, rep(NA_character_, 2))
+  named <- PlotRank(stats::setNames(3:1, c("a", "b", "c")), return_type = "data")
+  expect_identical(rownames(named), c("a", "b", "c"))
+})
