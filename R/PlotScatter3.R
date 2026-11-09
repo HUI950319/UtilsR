@@ -326,7 +326,8 @@ PlotScatter3 <- function(
     r_val <- round(cor_res$estimate, 3)
     r_prefix <- switch(cor_method, spearman = "rho", kendall = "tau", "r")
     cor_p <- cor_res$p.value
-    cor_p_fmt <- if (cor_p < 0.001) "p < 0.001" else paste0("p = ", signif(cor_p, 2))
+    cor_p_fmt <- if (is.na(cor_p)) "p = NA" else
+      if (cor_p < 0.001) "p < 0.001" else paste0("p = ", signif(cor_p, 2))
     cor_label <- paste0(r_prefix, " = ", r_val, ", ", cor_p_fmt)
 
     if (is.null(cor_x)) cor_x <- annotation_at(2L, -0.05)

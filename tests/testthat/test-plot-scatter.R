@@ -1417,3 +1417,20 @@ test_that("paired scatter factor colours use their labels in both panels", {
     expect_equal(got, want)
   }
 })
+
+test_that("paired scatter renders an undefined correlation annotation", {
+  d <- data.frame(Control = rep(1, 6L), Treat = c(2, 3, 5, 6, 9, 9),
+    group = rep(c("A", "B"), 3L))
+  result <- withCallingHandlers(
+    scatter3_capture_inset(d, test_method = "none", cor_method = "pearson", show_refline = FALSE),
+    warning = function(w) {
+      if (grepl("standard deviation is zero", conditionMessage(w), fixed = TRUE)) {
+        invokeRestart("muffleWarning")
+      }
+    }
+  )
+  built <- ggplot2::ggplot_build(result$main)
+  labels <- unlist(lapply(built$data, function(layer) layer[["label"]]), use.names = FALSE)
+  expect_true(any(grepl("^r = (NA|NaN), p = NA$", labels)))
+  expect_s3_class(ggplot2::ggplotGrob(result$main), "gtable")
+})

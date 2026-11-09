@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotScatter3()` shows an unavailable P value when correlation is undefined for a constant axis.
+
 * `fmt_axisTile()` draws an empty guide when the viewport clips every tile.
 
 * `fmt_strip2()` preserves existing facet-specific scales and transformations when replacing a single-panel header.
