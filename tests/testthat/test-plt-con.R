@@ -1686,3 +1686,10 @@ test_that("unpaired tests retain finite differences around extreme offsets", {
     }
   }
 })
+
+test_that("continuous dot bin midpoints retain subnormal endpoints", {
+  step <- .Machine$double.xmin * .Machine$double.eps
+  expect_identical(.con_dot_bins(step * c(1, 2), step * c(1, 2)) / step, c(2, 2))
+  expect_identical(.con_dot_bins(step * c(-2, -1), step * c(-2, -1)) / step, c(-2, -2))
+  expect_equal(.con_dot_bins(c(1.5e308, 1.7e308), c(1.5e308, 1.7e308)), rep(1.6e308, 2L))
+})

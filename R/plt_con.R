@@ -795,7 +795,11 @@ plt_con <- function(data,
 .con_dot_bins <- function(values, breaks = .con_dot_breaks(values)) {
   if (length(breaks) == 1L) return(rep(breaks[1L], length(values)))
   ids <- cut(values, breaks = breaks, include.lowest = TRUE, labels = FALSE)
-  midpoints <- breaks[-length(breaks)] / 2 + breaks[-1L] / 2
+  lower <- breaks[-length(breaks)]
+  upper <- breaks[-1L]
+  midpoints <- lower / 2 + upper / 2
+  tiny <- pmax(abs(lower), abs(upper)) < 2 * .Machine$double.xmin
+  midpoints[tiny] <- (lower[tiny] + upper[tiny]) / 2
   midpoints[ids]
 }
 

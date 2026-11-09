@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_con()` computes subnormal dot-bin midpoints without rounding both endpoints before addition.
+
 * `plt_alluvial()` checks ordinary columns for missing values without first allocating their character labels.
 
 * `plt_sankey()` avoids formatting percentage strings for count-only and name-only labels.
