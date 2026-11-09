@@ -1404,3 +1404,16 @@ test_that("scatter axes decode integer64 in fresh R processes", {
     expect_true("COLD_AXES_OK" %in% output)
   }
 })
+
+test_that("paired scatter factor colours use their labels in both panels", {
+  d <- data.frame(Control = 1:6, Treat = c(2, 3, 5, 6, 9, 9), group = rep(c("A", "B"), 3L))
+  draw <- function(convert) scatter3_capture_inset(d, test_method = "none", cor_method = "none",
+    highlight_color = convert("tomato"), insig_border = convert("navy"), hist_border = convert("grey60"))
+  expected <- draw(identity)
+  expect_no_warning(actual <- draw(factor))
+  for (part in names(expected)) {
+    want <- ggplot2::ggplot_build(expected[[part]])$data
+    expect_no_warning(got <- ggplot2::ggplot_build(actual[[part]])$data)
+    expect_equal(got, want)
+  }
+})

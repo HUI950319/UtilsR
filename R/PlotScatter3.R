@@ -235,6 +235,9 @@ PlotScatter3 <- function(
   group_levels <- levels(data[[group]])
 
   # Colour scheme
+  if (is.factor(highlight_color)) highlight_color <- as.character(highlight_color)
+  if (is.factor(insig_border)) insig_border <- as.character(insig_border)
+  if (is.factor(hist_border)) hist_border <- as.character(hist_border)
   if (is.null(insig_border)) insig_border <- highlight_color
   fill_vals   <- stats::setNames(c("#FFFFFF10", highlight_color), group_levels)
   border_vals <- stats::setNames(c(insig_border, highlight_color), group_levels)

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotScatter3()` uses factor colour labels consistently for highlights, borders and histogram layers.
+
 * `fmt_point()` keeps nearby labelled numeric groups distinct while respecting declared missing values.
 
 * `plt_cat()` filters missing categories with one row mask and preserves its reported removal count.
