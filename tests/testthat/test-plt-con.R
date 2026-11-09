@@ -1555,3 +1555,17 @@ test_that("con single plot size is independent of sibling feature plots", {
     expect_identical(reference_data, actual_data)
   }
 })
+
+test_that("continuous bar error bars retain extreme finite numeric scales", {
+  control <- c(1.5 - stats::sd(c(1, 2)), 1.5 + stats::sd(c(1, 2)))
+  for (unit in c(1, 1e-160, 1e-200, 1e200)) {
+    d <- data.frame(x = c(1, 2) * unit, g = "A")
+    p <- suppressMessages(plt_con(d, "x", "g", type = "bar", combine = FALSE))[[1L]]
+    built <- ggplot2::ggplot_build(p)
+    index <- which(vapply(p$layers, function(layer) inherits(layer$geom, "GeomErrorbar"), logical(1)))
+    expect_length(index, 1L)
+    bounds <- unlist(built$data[[index]][c("ymin", "ymax")], use.names = FALSE) / unit
+    expect_equal(bounds, control, tolerance = 1e-12)
+    expect_gte(max(built$layout$panel_params[[1L]]$y.range) / unit, control[[2L]])
+  }
+})

@@ -1106,12 +1106,26 @@ plt_con <- function(data,
   )
 }
 
+.con_mean_sd <- function(x, mult = 1) {
+  x <- x[!is.na(x)]
+  centre <- mean(x)
+  spread <- if (length(x) > 1L) stats::sd(x) else NaN
+  if (length(x) > 1L && all(is.finite(x)) &&
+      (!is.finite(spread) || (spread == 0 && any(x != x[1L])) ||
+       (max(abs(x)) > 0 && max(abs(x)) < sqrt(.Machine$double.xmin)))) {
+    midpoint <- min(x) / 2 + max(x) / 2
+    shifted <- x - midpoint
+    scale <- max(abs(shifted))
+    if (scale > 0) spread <- stats::sd(shifted / scale) * scale
+  }
+  data.frame(y = centre, ymin = centre - mult * spread, ymax = centre + mult * spread)
+}
+
 .con_bar_range <- function(values, groups) {
   ids <- match(groups, unique(groups))
   intervals <- unlist(lapply(split(values, ids), function(v) {
-    centre <- mean(v)
-    spread <- stats::sd(v)
-    c(centre - spread, centre + spread)
+    interval <- .con_mean_sd(v)
+    c(interval$ymin, interval$ymax)
   }), use.names = FALSE)
   range(c(0, values, intervals), finite = TRUE)
 }
@@ -1237,7 +1251,7 @@ plt_con <- function(data,
         width = 0.8, color = "black", alpha = alpha
       ) +
       .con_component(ggplot2::stat_summary,
-        fun.data = ggplot2::mean_sdl, fun.args = list(mult = 1),
+        fun.data = .con_mean_sd, fun.args = list(mult = 1),
         geom = "errorbar",
         position = .con_component(ggplot2::position_dodge, width = 0.9),
         width = 0.2, color = "black"
@@ -1489,7 +1503,7 @@ plt_con <- function(data,
         width = 0.8, color = "black", alpha = alpha
       ) +
       .con_component(ggplot2::stat_summary,
-        fun.data = ggplot2::mean_sdl, fun.args = list(mult = 1),
+        fun.data = .con_mean_sd, fun.args = list(mult = 1),
         geom = "errorbar",
         position = .con_component(ggplot2::position_dodge, width = 0.9),
         width = 0.2, color = "black"
