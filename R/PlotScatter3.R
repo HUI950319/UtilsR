@@ -356,15 +356,21 @@ PlotScatter3 <- function(
     hist_extent <- min(hist_extent, .Machine$double.xmax / 1.2)
     hist_x_limits <- c(-hist_extent, hist_extent) * 1.2
   }
+  hist_scale <- max(abs(hist_x_limits))
+  if (!is.finite(hist_scale) || hist_scale == 0 || hist_scale >= .Machine$double.xmin) hist_scale <- 1
   if (is.null(hist_x_breaks)) {
-    hist_x_breaks <- pretty(hist_x_limits, n = 4)
+    hist_x_breaks <- unique(pretty(hist_x_limits / hist_scale, n = 4) * hist_scale)
     hist_x_breaks <- hist_x_breaks[hist_x_breaks != 0]
   }
-  hist_bin_breaks <- seq(min(hist_x_limits), max(hist_x_limits),
-                         length.out = hist_bins + 1)
+  hist_bin_breaks <- unique(seq(min(hist_x_limits) / hist_scale, max(hist_x_limits) / hist_scale,
+                                length.out = hist_bins + 1) * hist_scale)
 
   if (is.null(median_line_yend)) {
-    hdata <- graphics::hist(diff_values, breaks = hist_bins, plot = FALSE)
+    hist_values <- diff_values
+    if (hist_scale != 1 && all(!is.finite(hist_values) | abs(hist_values) < .Machine$double.xmin)) {
+      hist_values <- hist_values / hist_scale
+    }
+    hdata <- graphics::hist(hist_values, breaks = hist_bins, plot = FALSE)
     median_line_yend <- max(max(hdata$counts) * 0.8, 1)
   }
 

@@ -1353,3 +1353,17 @@ test_that("dual scatter mappings retain observed empty category names", {
   expect_error(PlotScatter2(d, "x", "y", "h", colors = bad), "mapping names")
   expect_identical(d, before)
 })
+
+test_that("paired histogram keeps every subnormal difference", {
+  step <- .Machine$double.xmin * .Machine$double.eps
+  d <- data.frame(Control = step * (1:10), Treat = step * (2 * (1:10)),
+    group = rep(c("NS", "S"), 5L))
+  for (bins in c(2L, 30L)) {
+    expect_no_warning(p <- scatter3_capture_inset(d, test_method = "none",
+      cor_method = "none", hist_bins = bins))
+    expect_no_warning(built <- ggplot2::ggplot_build(p$inset))
+    expect_equal(sum(built$data[[1L]]$count), nrow(d))
+    expect_equal(as.vector(tapply(built$data[[1L]]$count, built$data[[1L]]$group, sum)), c(5, 5))
+    expect_no_warning(ggplot2::ggplotGrob(p$inset))
+  }
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotScatter3()` preserves histogram counts and tick positions for representable subnormal differences.
+
 * `PlotRankCor()` iterates existing row indexes directly when scaling and testing groups.
 
 * `stat_ci_parse()` trims trailing annotations in bounded passes even when malformed text follows a long punctuation run.
