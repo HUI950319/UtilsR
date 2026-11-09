@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Unpaired tests used by `plt_con()` preserve finite sample differences at extreme common offsets.
+
 * `plt_con()` preserves within-group variation when ANOVA measurements share an extreme finite offset.
 
 * Factor relabelling and regrouping keep distinct double values whose default factor labels would coincide.

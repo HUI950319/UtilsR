@@ -862,6 +862,15 @@ plt_con <- function(data,
             x <- difference
             y <- numeric(length(difference))
           }
+        } else {
+          bounds <- range(x, y, finite = TRUE)
+          origin <- bounds[1L] / 2 + bounds[2L] / 2
+          spread <- max(abs(bounds - origin))
+          if (spread > 0) {
+            unit <- spread
+            x <- x - origin
+            y <- y - origin
+          }
         }
         x <- x / unit
         y <- y / unit

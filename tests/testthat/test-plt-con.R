@@ -1670,3 +1670,19 @@ test_that("continuous ANOVA preserves variation around extreme offsets", {
     expect_equal(actual, expected, tolerance = 1e-13)
   }
 })
+
+test_that("unpaired tests retain finite differences around extreme offsets", {
+  test <- .con_pairwise_test("t.test")
+  x <- c(2, 5, 8, 11, 20)
+  y <- c(12, 14, 15, 16, 21)
+  for (power in c(-700, 900)) {
+    offset <- 1.5 * 2^power
+    step <- 2^(power - 52)
+    for (equal in c(FALSE, TRUE)) {
+      expected <- stats::t.test(x, y, var.equal = equal, mu = 1)$p.value
+      actual <- test(offset + x * step, offset + y * step,
+        var.equal = equal, mu = step)$p.value
+      expect_equal(actual, expected, tolerance = 1e-13)
+    }
+  }
+})
