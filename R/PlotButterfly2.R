@@ -214,6 +214,11 @@ PlotButterfly2 <- function(
   keep <- !is.na(data[[stat.by]]) & !is.na(categories) & categories != "Mixed"
   data <- data[keep, ]
 
+  value_name <- value.by
+  if (value.by %in% c(stat.by, fill.by, group.by)) {
+    value.by <- utils::tail(make.unique(c(names(data), ".score")), 1L)
+    data[[value.by]] <- data[[value_name]]
+  }
   for (col in unique(c(stat.by, fill.by, group.by))) {
     data[[col]] <- .butterfly_category_labels(data[[col]])
   }
@@ -368,7 +373,7 @@ PlotButterfly2 <- function(
     text.colors <- text.colors[1L]
   }
 
-  if (is.null(xlab)) xlab <- value.by
+  if (is.null(xlab)) xlab <- value_name
 
   # ---- Shared theme ----
   side_theme <- theme_my(base_size = base_size, border = FALSE,

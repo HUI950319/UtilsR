@@ -793,3 +793,17 @@ test_that("missing butterfly category codes do not create placeholder rows", {
     }
   }
 })
+
+test_that("butterfly measurements can also supply categorical labels", {
+  d <- data.frame(category = rep(1:3, 4L), side = rep(c("L", "R"), each = 6L), fill = "F")
+  control <- transform(d, score = category)
+  expected <- PlotButterfly2(control, "category", "score", "side",
+    fill.by = "fill", type = "box")
+  actual <- PlotButterfly2(d, "category", "category", "side",
+    fill.by = "fill", type = "box")
+  for (i in 1:2) {
+    expect_no_warning(built <- ggplot2::ggplot_build(actual[[i]]))
+    expect_equal(built$data, ggplot2::ggplot_build(expected[[i]])$data)
+  }
+  expect_identical(actual[[2L]]$labels$x, "category")
+})
