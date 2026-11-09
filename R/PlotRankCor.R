@@ -410,15 +410,13 @@ PlotRankCor <- function(
   wide_groups <- as.character(wide_rows[["key"]][[1L]])
   if (!use_rank) {
     if (scale_x != "none") {
-      for (g in wide_groups) {
-        idx <- wide_rows[["loc"]][[match(g, wide_groups)]]
+      for (idx in wide_rows[["loc"]]) {
         rank_wide[[method_cols[1]]][idx] <- .scale_vec(
           rank_wide[[method_cols[1]]][idx], scale_x)
       }
     }
     if (scale_y != "none") {
-      for (g in wide_groups) {
-        idx <- wide_rows[["loc"]][[match(g, wide_groups)]]
+      for (idx in wide_rows[["loc"]]) {
         rank_wide[[method_cols[2]]][idx] <- .scale_vec(
           rank_wide[[method_cols[2]]][idx], scale_y)
       }
@@ -427,27 +425,24 @@ PlotRankCor <- function(
 
   # ---- Spearman correlation per group ----
   groups <- wide_groups
-  cor_results <- do.call(rbind, lapply(groups, function(g) {
-    idx <- wide_rows[["loc"]][[match(g, wide_groups)]]
-    sub <- rank_wide[idx, ]
-    x <- sub[[method_cols[1]]]
-    y <- sub[[method_cols[2]]]
+  cor_method <- if (use_rank) "spearman" else "pearson"
+  cor_values <- vapply(wide_rows[["loc"]], function(idx) {
+    x <- rank_wide[[method_cols[1]]][idx]
+    y <- rank_wide[[method_cols[2]]][idx]
     ok <- is.finite(x) & is.finite(y)
     if (sum(ok) < 3 || length(unique(x[ok])) < 2L || length(unique(y[ok])) < 2L) {
-      return(data.frame(group = g, rho = NA_real_, p.value = NA_real_,
-                        stringsAsFactors = FALSE))
+      return(c(NA_real_, NA_real_))
     }
-    cor_method <- if (use_rank) "spearman" else "pearson"
     x <- x[ok]; y <- y[ok]
     if (!use_rank) {
       x <- .center_scale_vec(x)
       y <- .center_scale_vec(y)
     }
     ct <- stats::cor.test(x, y, method = cor_method, exact = FALSE)
-    data.frame(group = g, rho = ct$estimate, p.value = ct$p.value,
-               stringsAsFactors = FALSE)
-  }))
-  rownames(cor_results) <- NULL
+    c(ct$estimate, ct$p.value)
+  }, numeric(2L))
+  cor_results <- data.frame(group = groups, rho = unname(cor_values[1L, ]),
+                            p.value = unname(cor_values[2L, ]), stringsAsFactors = FALSE)
 
   # Print correlation results, the coefficient named as in the subtitle
   cor_label <- if (use_rank) "rho" else "r"

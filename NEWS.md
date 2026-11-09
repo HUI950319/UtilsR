@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRankCor()` iterates existing row indexes directly when scaling and testing groups.
+
 * `stat_ci_parse()` trims trailing annotations in bounded passes even when malformed text follows a long punctuation run.
 
 * `plt_con()` computes subnormal dot-bin midpoints without rounding both endpoints before addition.

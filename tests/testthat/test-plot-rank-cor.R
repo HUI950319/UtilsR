@@ -891,3 +891,28 @@ test_that("paired and rank correlation mappings accept a literal data pronoun co
     expect_equal(ggplot2::ggplot_build(p)$data, expected)
   }
 })
+
+test_that("rank correlation statistics use existing positional group indexes", {
+  groups <- paste0("group", seq_len(24L))
+  d <- data.frame(feature = rep(letters[1:4], 48L),
+    group = rep(groups, each = 8L), method = rep(rep(c("x", "y"), each = 4L), 24L),
+    score = rep(c(1, 2, 3, 4, 2, 1, 4, 3), 24L))
+  fn <- PlotRankCor
+  env <- new.env(parent = environment(fn))
+  lookups <- 0L
+  env$match <- function(x, table, ...) {
+    if (length(x) == 1L && length(table) == length(groups) &&
+        is.character(table) && setequal(table, groups)) lookups <<- lookups + 1L
+    base::match(x, table, ...)
+  }
+  environment(fn) <- env
+  invisible(capture.output(p <- fn(d, stat.by = "feature", value.by = "score",
+    group.by = "group", method.by = "method", use_rank = FALSE,
+    scale_x = "minmax", scale_y = "minmax")))
+  expect_identical(lookups, 0L)
+  expect_equal(range(p$data$x), c(0, 1))
+  expect_equal(range(p$data$y), c(0, 1))
+  expect_identical(nrow(p$data), 4L * length(groups))
+  expected <- stats::cor.test(1:4, c(2, 1, 4, 3))
+  expect_equal(attr(p, "cor_results")$p.value, rep(expected$p.value, length(groups)))
+})
