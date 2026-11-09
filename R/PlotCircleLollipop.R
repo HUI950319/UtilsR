@@ -410,7 +410,7 @@ PlotCircleLollipop <- function(
   if (show_links) common_genes <- df[shared, , drop = FALSE]
 
   # ---- Label data for circos.genomicLabels ----
-  label_data <- data.frame(
+  label_data <- if (show_labels) data.frame(
     chr   = as.character(df$group),
     start = df$x_pos - 0.001,
     end   = df$x_pos + 0.001,

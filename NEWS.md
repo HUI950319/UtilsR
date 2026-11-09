@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotCircleLollipop()` builds its label frame only when labels are requested.
+
 * `check_system()` recognizes modern and older Linux `free` output when `/proc/meminfo` is unavailable.
 
 * `plt_upset()` keeps distinct nearby labelled values separate when matching data-frame membership.

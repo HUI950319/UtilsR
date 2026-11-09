@@ -935,3 +935,21 @@ test_that("circular arcs skip individual comparisons for same sector pairs", {
   expect_identical(comparisons, 0L)
   expect_identical(links, c(rep(c("AB", "AC"), 40L), "BC"))
 })
+
+test_that("circular label frames are built only for visible labels", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  d <- data.frame(group = rep(c("A", "B"), each = 3L), name = letters[1:6], value = 1:6)
+  fn <- PlotCircleLollipop
+  env <- new.env(parent = environment(fn))
+  labels <- 0L
+  env$data.frame <- function(...) {
+    if (all(c("chr", "start", "end", "label") %in% names(list(...)))) labels <<- labels + 1L
+    base::data.frame(...)
+  }
+  environment(fn) <- env
+  fn(d, show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
+  expect_identical(labels, 0L)
+  fn(d, show_labels = TRUE, show_links = FALSE, show_yaxis = FALSE)
+  expect_identical(labels, 1L)
+})
