@@ -398,3 +398,24 @@ test_that("flattened plot selectors reject encoded numeric indices", {
   expect_error(fmt_flatten(list(p, p), nrow_inds_order = structure(1, class = "encoded")), "nrow_inds_order")
   expect_s3_class(fmt_flatten(list(p, p), select_inds = c(2, 1), nrow_inds_order = 1), "patchwork")
 })
+
+test_that("flattening large plot lists does not copy accumulated cells", {
+  fn <- fmt_flatten
+  e <- new.env(parent = environment(fn))
+  copied <- 0L
+  e$c <- function(...) {
+    args <- list(...)
+    if (length(args) && is.list(args[[1L]]) && length(args[[1L]]) &&
+        identical(names(args[[1L]][[1L]]), c("plot", "insets")))
+      copied <<- copied + length(args[[1L]])
+    base::c(...)
+  }
+  environment(fn) <- e
+  p <- ggplot2::ggplot(data.frame(x = 1:2), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  q <- p + ggplot2::labs(title = "last")
+  n <- 160L
+  result <- fn(c(rep(list(p), n - 1L), list(q)))
+  expect_lt(copied, n)
+  expect_length(result, n)
+  expect_identical(result[[n]]$labels$title, "last")
+})

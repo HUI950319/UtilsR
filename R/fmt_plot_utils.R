@@ -438,7 +438,7 @@ fmt_flatten <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) 
       }
     }
     n <- length(children)
-    cells <- list()
+    cells <- vector("list", n)
     i <- 1L
     while (i <= n) {
       child <- children[[i]]
@@ -446,11 +446,10 @@ fmt_flatten <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) 
         cli::cli_abort("An inset must follow its main plot.", call = error_call)
       }
       next_i <- i + 1L
-      insets <- list()
       while (next_i <= n && is_inset(children[[next_i]])) {
-        insets <- c(insets, children[next_i])
         next_i <- next_i + 1L
       }
+      insets <- if (next_i > i + 1L) children[seq.int(i + 1L, next_i - 1L)] else list()
       child_cells <- if (length(insets)) {
         list(list(plot = child, insets = insets))
       } else flatten_recursive(child)
@@ -458,10 +457,10 @@ fmt_flatten <- function(plots, ..., select_inds = NULL, nrow_inds_order = NULL) 
           !is.null(names(children)) && nzchar(names(children)[i])) {
         names(child_cells) <- names(children)[i]
       }
-      cells <- c(cells, child_cells)
+      cells[[i]] <- child_cells
       i <- next_i
     }
-    cells
+    unlist(cells, recursive = FALSE)
   }
 
   all_subplots <- flatten_recursive(plots)
