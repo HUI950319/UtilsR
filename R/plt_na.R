@@ -115,13 +115,19 @@ plt_na <- function(
     if (!is.null(pkg) && !requireNamespace(pkg, quietly = TRUE)) {
       cli::cli_abort("Inspecting {.cls {class(x)[1]}} columns requires package {.pkg {pkg}}.")
     }
-    if (!keep_masks && !is.object(x) && is.atomic(x) && !anyNA(x)) return(0L)
+    if (!is.object(x) && is.atomic(x) && !anyNA(x)) {
+      return(if (keep_masks) NULL else 0L)
+    }
     mask <- is.na(if (is.expression(x)) as.list(x) else x)
-    if (keep_masks) mask else sum(mask)
+    if (keep_masks) {
+      if (any(mask)) mask else NULL
+    } else sum(mask)
   })
-  missing_counts <- if (keep_masks) unlist(lapply(missing_data, sum), use.names = TRUE) else
+  missing_counts <- if (keep_masks) {
+    unlist(lapply(missing_data, sum), use.names = TRUE)
+  } else {
     unlist(missing_data, use.names = TRUE)
-  if (keep_masks) missing_data <- vctrs::new_data_frame(missing_data, n = nrow(df))
+  }
 
   if (!is.null(name.map) &&
       (!is.character(name.map) || !is.null(dim(name.map)) ||
@@ -176,7 +182,7 @@ plt_na <- function(
   )
 
   .plt_na_plot(
-    missing_data = if (output == "percentage") NULL else missing_data[missing_vars],
+    missing_data = if (keep_masks) vctrs::new_data_frame(missing_data[missing_vars], n = nrow(df)),
     missing_summary = missing_summary,
     missing_vars = missing_vars,
     variable_levels = variable_levels,

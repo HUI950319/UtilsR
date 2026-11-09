@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_na()` skips complete-column masks in matrix and combined outputs as well as percentage plots.
+
 * `lv()`, `check_na()` and `plt_na()` inspect expression-column missingness without evaluating stored calls.
 
 * `PlotCircleLollipop()` parses numeric scores once and ranks a narrow row index with exact integer64 ordering.

@@ -382,7 +382,7 @@ test_that("plt_na percentage labels fit inside their panel at both endpoints", {
   }
 })
 
-test_that("percentage missingness skips masks for complete plain columns", {
+test_that("missingness plots skip masks for complete plain columns", {
   fn <- plt_na
   e <- new.env(parent = environment(fn))
   examined <- 0L
@@ -402,7 +402,7 @@ test_that("percentage missingness skips masks for complete plain columns", {
   expect_equal(result$missing_summary$num, c(1999, 1))
   examined <- 0L
   matrix <- fn(d, output = "matrix")
-  expect_identical(examined, nrow(d) * ncol(d))
+  expect_identical(examined, nrow(d))
   expect_identical(matrix$missing_data$partial, is.na(d$partial))
   expect_identical(result$missing_summary, matrix$missing_summary)
   expect_identical(d, before)
