@@ -224,8 +224,11 @@ PlotHeatmapJaccard <- function(
   # ---- 3. Compute pairwise Jaccard similarity ----
   jmat <- matrix(0, nrow = n_ct, ncol = n_ct,
                  dimnames = list(ct_labels, ct_labels))
-  for (i in seq_len(n_ct)) {
-    for (j in seq_len(i)) {
+  diag(jmat) <- as.double(set_sizes > 0L)
+  occupied <- which(set_sizes > 0L)
+  for (pos in seq_along(occupied)) {
+    i <- occupied[pos]
+    for (j in occupied[seq_len(pos - 1L)]) {
       gi <- top_sets[[i]]
       gj <- top_sets[[j]]
       n_intersect <- if (typed_features) sum(vctrs::vec_in(gi, gj)) else sum(gi %in% gj)

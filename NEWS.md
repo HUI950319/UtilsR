@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotHeatmapJaccard()` derives diagonal values and empty-group cells from set sizes without scanning their members.
+
 * `PlotHeatmapJaccard()` indexes ordinary numeric groups once and retains duplicate display-label validation.
 
 * `PlotHeatmapJaccard()` indexes factor groups once while retaining explicit order and unused groups.

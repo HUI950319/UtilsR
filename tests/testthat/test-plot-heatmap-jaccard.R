@@ -677,3 +677,18 @@ test_that("Jaccard numeric group membership uses one exact index", {
   d$group[1L] <- .25 + .Machine$double.eps / 4
   expect_error(fn(d, group_col = "group", return_type = "data"), "duplicate")
 })
+
+test_that("Jaccard diagonals and empty groups bypass membership scans", {
+  d <- data.frame(group = c("A", "A", "B", "B"), gene = c("a", "b", "a", "c"))
+  fn <- PlotHeatmapJaccard
+  env <- new.env(parent = environment(fn))
+  membership_scans <- 0L
+  env[["%in%"]] <- function(x, table) {
+    if (is.character(x) && all(x %in% c("a", "b", "c"))) membership_scans <<- membership_scans + 1L
+    base::`%in%`(x, table)
+  }
+  environment(fn) <- env
+  actual <- fn(d, group_col = "group", group_levels = c("A", "Z", "B"), return_type = "data")
+  expect_identical(membership_scans, 1L)
+  expect_equal(unname(actual), matrix(c(1, 0, 1/3, 0, 0, 0, 1/3, 0, 1), 3L))
+})
