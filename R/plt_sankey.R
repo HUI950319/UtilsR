@@ -267,6 +267,7 @@ plt_sankey <- function(data,
     var_labels <- stats::setNames(paste0(vars, "_label"), label_vars)
   }
   node_labels <- node_pct <- vector("list", length(vars))
+  observed_levels <- integer(length(vars))
   total <- nrow(data)
   for (i in seq_along(vars)) {
     value <- data[[vars[i]]]
@@ -281,6 +282,7 @@ plt_sankey <- function(data,
     }
     # Work with codes so an explicit NA level remains separate from missing rows.
     names_at <- levels(value)[observed]
+    observed_levels[i] <- sum(!is.na(names_at))
     proportion <- counts / total
     pct <- scales::percent(proportion, accuracy = label_args$pct_accuracy)
     labels <- switch(if (show_text == "none") "all" else show_text,
@@ -373,8 +375,7 @@ plt_sankey <- function(data,
       plot <- plot + do.call(label_geom, label_params)
     }
   }
-  n_level <- max(vapply(vars, function(v) nlevels(factor(data[[v]])),
-                        integer(1)))
+  n_level <- max(observed_levels)
   .save_sized(plot, save, c(max(4, 2 * length(vars)), max(4, 0.5 * n_level)),
               lead = "Sankey diagram laid out for",
               filename = "Figure X. Sankey diagram.pdf")

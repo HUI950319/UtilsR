@@ -600,3 +600,26 @@ test_that("Sankey stages reshape without incompatible factor attribute warnings"
   expect_no_warning(cat <- suppressMessages(plt_cat(d, names(d), type = "sankey")))
   expect_equal(sum(cat$data$value[cat$data$x == "sex"]), nrow(d))
 })
+
+test_that("Sankey sizing reuses counted levels including unused and missing codes", {
+  skip_if_not_installed("ggsankey")
+  withr::local_options(lifecycle_verbosity = "quiet")
+  d <- data.frame(first = factor(c(letters[1:12], NA), levels = c(letters[1:13], NA), exclude = NULL),
+    second = factor(rep(c("A", "B"), length.out = 13L)))
+  fn <- plt_sankey
+  env <- new.env(parent = environment(fn))
+  extra <- 0L
+  dimensions <- NULL
+  env$factor <- function(x, ...) {
+    if (is.factor(x) && length(x) == nrow(d)) extra <<- extra + 1L
+    base::factor(x, ...)
+  }
+  env$.save_sized <- function(plot, save, size, ...) {
+    dimensions <<- size
+    plot
+  }
+  environment(fn) <- env
+  fn(d, c("first", "second"), show_text = "none")
+  expect_identical(extra, 0L)
+  expect_identical(dimensions, c(4, 6))
+})

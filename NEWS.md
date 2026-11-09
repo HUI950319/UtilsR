@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_sankey()` derives the default figure height from already-counted observed levels.
+
 * `PlotCircleLollipop()` skips same-sector link pairs before entering the per-link drawing loop.
 
 * `PlotRank()` keeps complete ordinary scores intact during missing-value filtering.
