@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console wrapping splits long plain Han text at display-column boundaries in one pass.
+
 * `grob_insert(on_top = FALSE)` places the inset between the background and foreground of custom layouts.
 
 * `grob_add()` returns the existing layout when asked to add an empty list of graphics.

@@ -105,6 +105,12 @@
       first <- seq.int(1L, nchar(s), by = width)
       return(substring(s, first, first + (width - 1)))
     }
+    # Plain BMP Han ideographs occupy two columns and have no ANSI state.
+    if (width >= 2L && grepl("^[\u4e00-\u9fff]+$", s, perl = TRUE)) {
+      stride <- width %/% 2L
+      first <- seq.int(1L, nchar(s), by = stride)
+      return(substring(s, first, first + (stride - 1L)))
+    }
     out <- character()
     while (cli::ansi_nchar(s, type = "width") > width) {
       part <- cli::ansi_strtrim(s, width, ellipsis = "")

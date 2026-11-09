@@ -1058,3 +1058,18 @@ test_that("console message wrapping preserves uninterrupted text", {
     }
   }
 })
+
+test_that("long plain Han runs wrap without repeatedly trimming their suffixes", {
+  trim <- cli::ansi_strtrim
+  trims <- 0L
+  local_mocked_bindings(ansi_strtrim = function(x, ...) {
+    if (length(x) == 1L && startsWith(x, "\u4e2d")) trims <<- trims + 1L
+    trim(x, ...)
+  }, .package = "cli")
+  token <- strrep("\u4e2d\u6587", 1000L)
+  lines <- ._pr_wrap(token, 31L)
+  expect_identical(trims, 0L)
+  expect_true(all(cli::ansi_nchar(lines, type = "width") <= 31L))
+  expect_identical(paste0(lines, collapse = ""), token)
+  expect_true(all(nchar(head(lines, -1L)) == 15L))
+})
