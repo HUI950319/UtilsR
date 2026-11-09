@@ -651,3 +651,24 @@ test_that("group wrappers reject dimensional list containers", {
   expect_error(fct_to_group(x, groups), "g_lis.*list")
   expect_identical(levels(fct_to_group(x, list(1:2, 3L))), c("g1/2", "g3"))
 })
+
+test_that("plain integer selectors avoid redundant numeric conversion scans", {
+  fn <- .check_integer_index
+  e <- new.env(parent = environment(fn))
+  examined <- 0L
+  e$is.finite <- function(x) {
+    examined <<- examined + length(x)
+    base::is.finite(x)
+  }
+  e$trunc <- function(x) {
+    examined <<- examined + length(x)
+    base::trunc(x)
+  }
+  environment(fn) <- e
+  x <- seq_len(100000)
+  expect_identical(fn(x, "indices", length(x)), x)
+  expect_identical(examined, 0L)
+  expect_error(fn(c(1L, NA_integer_), "indices", 2), "finite integer")
+  expect_error(fn(c(0L, 2L), "indices", 2), "between 1")
+  expect_error(fn(c(1, 1.5), "indices", 2), "finite integer")
+})

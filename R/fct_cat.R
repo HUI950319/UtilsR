@@ -326,7 +326,8 @@ fct_cat <- function(x, ...,
 .check_integer_index <- function(x, arg_name, n_levels) {
   .register_integer64(x)
   if (!is.numeric(x) || is.complex(x) || !is.null(dim(x)) || anyNA(x) ||
-      any(!is.finite(x)) || any(x != trunc(x))) {
+      ((!is.integer(x) || is.object(x)) &&
+       (any(!is.finite(x)) || any(x != trunc(x))))) {
     cli::cli_abort("{.arg {arg_name}} must contain finite integer values, got: {.val {x}}.")
   }
   oob <- x < 1 | x > n_levels
