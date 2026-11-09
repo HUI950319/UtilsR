@@ -602,3 +602,29 @@ test_that("ragg panel runs avoid copying geometry prefixes", {
   expect_identical(result$children[[2L]]$label, "middle")
   expect_length(raster_find_grobs(result$children[[3L]], "rastergrob"), 1L)
 })
+
+test_that("ragg discovers each nested gtable panel once", {
+  skip_if_not_installed("ragg")
+  withr::local_pdf(NULL, width = 2, height = 2)
+  p <- ggplot2::ggplot(data.frame(x = 1:2, y = 2:1), ggplot2::aes(x, y)) +
+    ggplot2::geom_point() + ggplot2::theme_void()
+  deep <- ggplot2::ggplotGrob(p)
+  depth <- 8L
+  for (i in seq_len(depth)) {
+    table <- gtable::gtable(widths = grid::unit(1, "null"), heights = grid::unit(1, "null"))
+    deep <- gtable::gtable_add_grob(table, deep, t = 1L, l = 1L, name = paste0("nested", i))
+  }
+  fn <- .fmt_raster_ragg
+  env <- new.env(parent = environment(fn))
+  scans <- 0L
+  env$grepl <- function(pattern, x, ...) {
+    if (identical(pattern, "^panel(-[0-9]+)*$") && length(x) && !all(grepl("^guide", x))) {
+      if (any(startsWith(x, "nested")) || "panel" %in% x) scans <<- scans + 1L
+    }
+    base::grepl(pattern, x, ...)
+  }
+  environment(fn) <- env
+  result <- fn(deep, dpi = 36, width = NULL, height = NULL, units = "in", bg = "transparent")
+  expect_identical(scans, depth + 1L)
+  expect_length(raster_find_grobs(attr(result, "grobs")$full, "rastergrob"), 1L)
+})

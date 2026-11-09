@@ -293,11 +293,16 @@ fmt_raster <- function(
     which(grepl("^panel(-[0-9]+)*$", gt$layout$name) &
             !vapply(gt$grobs, inherits, logical(1), "zeroGrob"))
   }
-  count_panels <- function(gt) {
-    nested <- Filter(function(g) inherits(g, "gtable"), gt$grobs)
-    length(panel_indices(gt)) + sum(vapply(nested, count_panels, integer(1)))
+  plan_panels <- function(gt) {
+    indices <- panel_indices(gt)
+    nested <- which(vapply(gt$grobs, inherits, logical(1), "gtable"))
+    children <- lapply(gt$grobs[nested], plan_panels)
+    counts <- vapply(children, `[[`, integer(1), "count")
+    list(indices = indices, nested = nested[counts > 0L],
+         children = children[counts > 0L], count = length(indices) + sum(counts))
   }
-  panel_total <- count_panels(gtable)
+  plan <- plan_panels(gtable)
+  panel_total <- plan$count
   for (arg in c("width", "height")) {
     value <- if (arg == "width") width else height
     if (!is.null(value) && !length(value) %in% c(1L, panel_total)) {
@@ -305,7 +310,7 @@ fmt_raster <- function(
     }
   }
   panel_cursor <- 0L
-  raster_table <- function(gtable) {
+  raster_table <- function(gtable, plan) {
     grid::pushViewport(grid::viewport(layout = grid::grid.layout(
       nrow = length(gtable$heights), ncol = length(gtable$widths),
       widths = gtable$widths, heights = gtable$heights, respect = gtable$respect
@@ -327,17 +332,16 @@ fmt_raster <- function(
       cell_sizes[[dim]] <- sizes
       gtable[[paste0(dim, "s")]] <- grid::unit(sizes, units)
     }
-    nested <- which(vapply(gtable$grobs, function(g) {
-      inherits(g, "gtable") && count_panels(g) > 0L
-    }, logical(1)))
-    for (idx in nested) {
+    nested <- plan$nested
+    for (i in seq_along(nested)) {
+      idx <- nested[i]
       grid::pushViewport(grid::viewport(layout.pos.row = gtable$layout$t[idx]:gtable$layout$b[idx],
                                         layout.pos.col = gtable$layout$l[idx]:gtable$layout$r[idx]))
-      gtable$grobs[[idx]] <- raster_table(gtable$grobs[[idx]])
+      gtable$grobs[[idx]] <- raster_table(gtable$grobs[[idx]], plan$children[[i]])
       grid::popViewport()
     }
 
-    indices <- panel_indices(gtable)
+    indices <- plan$indices
     if (length(indices)) {
       positions <- panel_cursor + seq_along(indices)
       panel_cursor <<- panel_cursor + length(indices)
@@ -401,7 +405,7 @@ fmt_raster <- function(
     }
     gtable
   }
-  gtable <- raster_table(gtable)
+  gtable <- raster_table(gtable, plan)
   if (unclipped_panels) {
     cli::cli_warn("Panels with clipping disabled are kept as vectors to preserve geometry outside the panel.")
   }

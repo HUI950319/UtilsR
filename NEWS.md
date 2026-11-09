@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_raster(method = "ragg")` resolves nested panel locations once before rasterizing them.
+
 * `fmt_raster(method = "ragg")` accumulates panel children without repeatedly copying growing geometry runs.
 
 * `stat_ci_parse()` recovers representable two-sided probabilities when the ordinary normal-tail computation underflows.
