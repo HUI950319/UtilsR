@@ -1601,3 +1601,20 @@ test_that("continuous t tests retain p values at extreme finite scales", {
     expect_identical(unique(ggplot2::layer_data(p, index)$annotation), "ns")
   }
 })
+
+test_that("continuous ANOVA comparisons preserve p values across finite scales", {
+  x <- c(1:3, 3:5, 6:8)
+  g <- rep(c("A", "B", "C"), each = 3)
+  expected <- summary(stats::aov(x ~ g))[[1L]][["Pr(>F)"]][1L]
+  pair <- .con_pairwise_test("anova")(x[1:3], x[4:6])$p.value
+  for (unit in c(1, 1e-160, 1e-200, 1e200)) {
+    expect_equal(.con_pairwise_test("anova")(x[1:3] * unit, x[4:6] * unit)$p.value, pair)
+    d <- data.frame(x = x * unit, g = g)
+    p <- suppressMessages(plt_con(d, "x", "g", type = "box", combine = FALSE,
+      multiplegroup_comparisons = TRUE, multiple_method = "anova"))[[1L]]
+    expect_no_warning(built <- ggplot2::ggplot_build(p))
+    global <- tail(built$data, 1L)[[1L]]
+    expect_equal(global$p, expected)
+    expect_equal(global$y / unit, max(x))
+  }
+})

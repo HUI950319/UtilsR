@@ -830,6 +830,13 @@ plt_con <- function(data,
   .from_plot_list(changed, info$is_patchwork, info$is_single, info$pw_orig, recurse = TRUE)
 }
 
+.con_anova_values <- function(x) {
+  finite <- abs(x[is.finite(x)])
+  unit <- if (length(finite)) max(finite) else 0
+  if (unit > 0 && (unit < sqrt(.Machine$double.xmin) ||
+                   unit > sqrt(.Machine$double.xmax))) x / unit else x
+}
+
 .con_pairwise_test <- function(test) {
   if (identical(test, "t.test")) {
     return(function(x, y, ...) {
@@ -854,6 +861,7 @@ plt_con <- function(data,
     if (test == "kruskal.test") return(stats::kruskal.test(list(x, y), ...))
     dat <- data.frame(value = c(x, y), group = factor(rep(c("x", "y"), c(length(x), length(y)))))
     if (length(unique(dat[["value"]])) < 2L) stop("Data are constant.", call. = FALSE)
+    dat[["value"]] <- .con_anova_values(dat[["value"]])
     fit <- stats::aov(value ~ group, data = dat, ...)
     list(p.value = summary(fit)[[1L]][["Pr(>F)"]][1L])
   }
@@ -1038,7 +1046,15 @@ plt_con <- function(data,
 .con_global_layer <- function(features, .annotation, ...) {
   force(features)
   layer <- .con_component(ggpubr::stat_compare_means, ...)
-  original <- .con_stat_layer(layer$stat, .annotation)
+  native <- layer$stat
+  stable <- ggplot2::ggproto(NULL, native,
+    parameters = function(extra = FALSE) native$parameters(extra),
+    compute_panel = function(data, scales, ...) {
+      params <- list(...)
+      if (identical(params[["method"]], "anova")) data$y <- .con_anova_values(data$y)
+      do.call(native$compute_panel, c(list(data = data, scales = scales), params))
+    })
+  original <- .con_stat_layer(stable, .annotation)
   layer$stat <- ggplot2::ggproto(NULL, original,
     parameters = function(extra = FALSE) original$parameters(extra),
     compute_panel = function(data, scales, ...) {

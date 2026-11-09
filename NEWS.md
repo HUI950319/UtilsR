@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous ANOVA comparisons rescale extreme working values for both pairwise and global tests while retaining annotation coordinates.
+
 * Point sampling keeps an explicit NA factor level separate from missing factor codes in grouping and facet strata.
 
 * Validated plain integer selectors skip finite-value and fractional-part scans while retaining bounds checks and classed-number validation.
