@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Scatter Pearson annotations use stable working coordinates at extreme numeric scales while retaining original plot data and rank-correlation methods.
+
 * CI parsing shares the bounded decimal converter with P-value formatting, accepting long scientific mantissas whose numeric value remains finite.
 
 * Margin additions accept grob lists without an explicit space by allocating the largest child dimension while preserving their overlay placement.

@@ -316,8 +316,7 @@ PlotScatter3 <- function(
 
   # ---- Correlation ----
   if (cor_method != "none") {
-    cor_res <- stats::cor.test(data[[x]], data[[y]],
-                               method = cor_method)
+    cor_res <- .scatter_cor_test(data[[x]], data[[y]], method = cor_method)
     r_val <- round(cor_res$estimate, 3)
     r_prefix <- switch(cor_method, spearman = "rho", kendall = "tau", "r")
     cor_p <- cor_res$p.value

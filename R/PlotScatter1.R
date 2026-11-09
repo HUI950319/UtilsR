@@ -536,6 +536,25 @@ PlotScatter1 <- function(
   vctrs::vec_data(haven::zap_missing(x))
 }
 
+.scatter_cor_test <- function(x, y, method) {
+  if (identical(method, "pearson")) {
+    complete <- stats::complete.cases(x, y)
+    x <- x[complete]
+    y <- y[complete]
+    normalize <- function(value) {
+      if (!length(value) || !all(is.finite(value))) return(value)
+      center <- min(value) / 2 + max(value) / 2
+      shifted <- value - center
+      scale <- max(abs(shifted))
+      if (scale > 0 && (scale < sqrt(.Machine$double.xmin) ||
+                        scale > sqrt(.Machine$double.xmax))) shifted / scale else value
+    }
+    x <- normalize(x)
+    y <- normalize(y)
+  }
+  stats::cor.test(x, y, method = method)
+}
+
 # Format the two marginal-scatter annotations with the native method name.
 .scatter_cor_label <- function(x, y, method) {
   if (!is.character(method) || !is.null(dim(method)) || length(method) != 1L || is.na(method))
@@ -543,7 +562,7 @@ PlotScatter1 <- function(
   method <- match.arg(method, c("pearson", "kendall", "spearman"))
   x <- .scatter_axis_values(x)
   y <- .scatter_axis_values(y)
-  result <- stats::cor.test(x, y, method = method)
+  result <- .scatter_cor_test(x, y, method = method)
   sprintf("%s:\nr = %.3f\np = %s", tools::toTitleCase(method), result$estimate,
           format(result$p.value, digits = 3, scientific = TRUE))
 }

@@ -1228,3 +1228,23 @@ test_that("paired scatter annotation coordinates remain finite on wide axes", {
   expect_equal(vapply(layers, function(layer) layer$data$x / 1e308, numeric(1)), c(-.9, .9), ignore_attr = TRUE)
   expect_equal(vapply(layers, function(layer) layer$data$y / 1e308, numeric(1)), c(.96, -.84), ignore_attr = TRUE)
 })
+
+test_that("Pearson scatter annotations retain finite scale invariant statistics", {
+  x <- 1:8
+  y <- c(2, 4, 3, 5, 7, 6, 9, 8)
+  expected <- .scatter_cor_label(x, y, "pearson")
+  labels <- function(unit) {
+    d <- data.frame(Control = x * unit, Treat = y * unit, group = rep(c("a", "b"), 4))
+    p <- PlotScatter3(d, test_method = "none", cor_method = "pearson",
+      axis_limits = c(0, 10) * unit, axis_breaks = c(0, 5, 10) * unit,
+      hist_x_limits = c(-5, 5) * unit, hist_x_breaks = c(-5, 0, 5) * unit,
+      median_line_yend = 1, theme_use = ggplot2::theme_classic)
+    expect_identical(p[[1L]]$data$Control, d$Control)
+    unlist(lapply(p[[1L]]$layers, function(layer) layer$aes_params$label), use.names = FALSE)
+  }
+  control <- labels(1)
+  for (unit in c(1e-200, 1e200)) {
+    expect_identical(.scatter_cor_label(x * unit, y * unit, "pearson"), expected)
+    expect_identical(labels(unit), control)
+  }
+})
