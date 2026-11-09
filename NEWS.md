@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_cat()` filters missing categories with one row mask and preserves its reported removal count.
+
 * `plt_alluvial(y_type = "count")` resolves facet gap sizes by factor position, including empty facet labels.
 
 * `plt_upset(output = "data")` assigns group factor codes without allocating a character label per input row.

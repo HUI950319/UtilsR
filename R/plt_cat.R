@@ -511,10 +511,12 @@ plt_cat <- function(data,
   if (!NA_stat) {
     cols_check <- unique(c(stat.by, group.by, split.by))
     n_before <- nrow(data)
+    keep <- rep(TRUE, n_before)
     for (col in cols_check) {
-      data <- data[!is.na(as.character(data[[col]])), , drop = FALSE]
+      keep <- keep & !is.na(as.character(data[[col]]))
     }
-    n_after <- nrow(data)
+    n_after <- sum(keep)
+    if (n_after < n_before) data <- data[keep, , drop = FALSE]
     if (n_after < n_before) {
       cli::cli_inform(
         "Removed {n_before - n_after} row{?s} containing NA values."

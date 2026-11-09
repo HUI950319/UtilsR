@@ -1211,3 +1211,24 @@ test_that("cold integer64 categories respect the cardinality guard", {
   expect_null(attr(output, 'status'), info = paste(output, collapse = '\n'))
   expect_identical(tail(output, 1L), 'COLD_LIMIT_OK')
 })
+
+test_that("categorical plots combine missing checks before subsetting", {
+  d <- data.frame(a = factor(c("A", NA, "B", "A", "B", "A")),
+    b = factor(c("X", "X", NA, "Y", "Y", "X"), exclude = NULL),
+    g = rep(c("G1", "G2"), 3L))
+  fn <- plt_cat
+  env <- new.env(parent = environment(fn))
+  subsets <- 0L
+  env[["["]] <- function(x, ...) {
+    result <- base::`[`(x, ...)
+    if (is.data.frame(x) && is.data.frame(result) && all(c("a", "b") %in% names(x)) &&
+        nrow(result) < nrow(x)) subsets <<- subsets + 1L
+    result
+  }
+  environment(fn) <- env
+  actual <- fn(d, stat.by = "a", group.by = "b", NA_stat = FALSE)
+  keep <- !is.na(as.character(d$a)) & !is.na(as.character(d$b))
+  reference <- plt_cat(d[keep, ], stat.by = "a", group.by = "b", NA_stat = FALSE)
+  expect_identical(subsets, 1L)
+  expect_equal(actual$data, reference$data)
+})
