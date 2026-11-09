@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_con()` preserves within-group variation when ANOVA measurements share an extreme finite offset.
+
 * Factor relabelling and regrouping keep distinct double values whose default factor labels would coincide.
 
 * `PlotButterfly2()` supports a literal `.data` column in the score, category, fill or side role.

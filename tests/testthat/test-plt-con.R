@@ -1657,3 +1657,16 @@ test_that("paired tests preserve exact differences at extreme offsets", {
     }
   }
 })
+
+test_that("continuous ANOVA preserves variation around extreme offsets", {
+  x <- c(2, 5, 8, 11, 20)
+  y <- c(12, 14, 15, 16, 21)
+  test <- .con_pairwise_test("anova")
+  expected <- test(x, y)$p.value
+  for (power in c(-700, 900)) {
+    offset <- 1.5 * 2^power
+    step <- 2^(power - 52)
+    actual <- test(offset + x * step, offset + y * step)$p.value
+    expect_equal(actual, expected, tolerance = 1e-13)
+  }
+})

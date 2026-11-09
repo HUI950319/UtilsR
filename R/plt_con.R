@@ -831,10 +831,18 @@ plt_con <- function(data,
 }
 
 .con_anova_values <- function(x) {
-  finite <- abs(x[is.finite(x)])
-  unit <- if (length(finite)) max(finite) else 0
+  finite <- is.finite(x)
+  if (!any(finite)) return(x)
+  bounds <- range(x[finite])
+  unit <- max(abs(bounds))
   if (unit > 0 && (unit < sqrt(.Machine$double.xmin) ||
-                   unit > sqrt(.Machine$double.xmax))) x / unit else x
+                   unit > sqrt(.Machine$double.xmax))) {
+    origin <- bounds[1L] / 2 + bounds[2L] / 2
+    spread <- max(abs(bounds - origin))
+    if (spread > 0) return((x - origin) / spread)
+    return(x / unit)
+  }
+  x
 }
 
 .con_pairwise_test <- function(test) {
