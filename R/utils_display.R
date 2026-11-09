@@ -563,12 +563,22 @@ console_width <- function() {
         finite <- if (is.numeric(v)) is.finite(v) else FALSE
         if (any(finite)) {
           domain <- range(v[finite])
+          encoded <- inherits(v, "integer64")
+          origin <- NULL
+          if (encoded) {
+            approximate <- suppressWarnings(as.numeric(domain))
+            if (diff(approximate) <= 2^53) origin <- domain[1L]
+            domain <- if (is.null(origin)) approximate else as.numeric(domain - origin)
+          }
           magnitude <- if (is.finite(diff(domain))) 1 else max(abs(domain))
           colour_fn <- scales::col_numeric(palette = palette, domain = domain / magnitude)
           tb <- gt::data_color(tb,
             columns = col,
             rows = which(!is.infinite(v)),
-            fn = function(x) colour_fn(x / magnitude)
+            fn = function(x) {
+              if (encoded) x <- if (is.null(origin)) suppressWarnings(as.numeric(x)) else as.numeric(x - origin)
+              colour_fn(x / magnitude)
+            }
           )
         }
       }

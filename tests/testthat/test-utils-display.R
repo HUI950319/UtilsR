@@ -967,3 +967,16 @@ test_that("console tables restore cold integer64 numeric columns", {
   expect_null(attr(output, 'status'), info = paste(output, collapse = '\n'))
   expect_identical(tail(output, 1L), 'COLD_TABLE_OK')
 })
+
+test_that("console table gradients retain exact integer64 offsets", {
+  skip_if_not_installed("bit64")
+  fills <- function(table) unlist(lapply(table[["_styles"]][["styles"]], function(s) s[["cell_fill"]][["color"]]), use.names = FALSE)
+  d <- data.frame(x = bit64::as.integer64(c("9007199254740993", "9007199254740994", "9007199254740995")))
+  reference <- .cat_tb(data.frame(x = 1:3), numeric_columns = "x", theme = "none")
+  expect_warning(actual <- .cat_tb(d, numeric_columns = "x", theme = "none"), NA)
+  expect_identical(fills(actual), fills(reference))
+  expect_identical(actual[["_data"]]$x, d$x)
+  wide <- data.frame(x = bit64::as.integer64(c("-9223372036854775807", "0", "9223372036854775807")))
+  expect_warning(actual <- .cat_tb(wide, numeric_columns = "x", theme = "none"), NA)
+  expect_identical(fills(actual), fills(reference))
+})

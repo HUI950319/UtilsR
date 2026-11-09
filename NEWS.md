@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `.cat_tb()` preserves nearby integer64 values when mapping numeric gradients.
+
 * `.cat_tb()` restores serialized class methods before numeric formatting and colour mapping.
 
 * `pr_spark()` bins subnormal numeric ranges without generating invalid interval breaks.
