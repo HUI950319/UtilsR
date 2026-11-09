@@ -208,3 +208,15 @@ test_that("automatic numeric bins retain membership on subnormal coordinates", {
   expect_identical(fct_num(x * unit, nbins = 2, labels = c("L", "H")),
                    fct_num(x, nbins = 2, labels = c("L", "H")))
 })
+
+test_that("automatic bins retain subnormal spread above a normal offset", {
+  tiny <- .Machine$double.xmin * .Machine$double.eps
+  for (sign in c(-1, 1)) {
+    x <- sign * (.Machine$double.xmin + (0:19) * tiny)
+    for (type in c("equal", "quantile")) {
+      actual <- fct_num(c(x, NA_real_), nbins = 4L, type = type)
+      reference <- fct_num(c(sign * (0:19), NA_real_), nbins = 4L, type = type)
+      expect_identical(actual, reference)
+    }
+  }
+})

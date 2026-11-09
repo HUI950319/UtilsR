@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Compute automatic cut points in shifted coordinates when a normal numeric offset hides a subnormal spread.
+
 * Pass plain node keys to the Sankey reshaper and restore ordered node factors afterward, avoiding the backend's incompatible-factor warning.
 
 * Build Sankey node counts and labels once per observed category, keeping explicit NA levels separate from missing observations.

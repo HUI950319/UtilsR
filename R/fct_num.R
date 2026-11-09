@@ -180,10 +180,14 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
   }
   nbins <- as.integer(nbins)
   if (plain_x) {
-    magnitude <- max(abs(x), na.rm = has_na)
+    bounds <- as.double(range(x, na.rm = has_na))
+    magnitude <- max(abs(bounds))
+    span <- bounds[2L] - bounds[1L]
     if (is.finite(magnitude) && magnitude > 0 && magnitude < .Machine$double.xmin) {
       # Keep unrepresentable fractional cut points in the scaled coordinates.
       x <- x / magnitude
+    } else if (is.finite(span) && span > 0 && span < .Machine$double.xmin) {
+      x <- (x - bounds[1L]) / span
     }
   }
 
