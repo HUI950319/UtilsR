@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotHeatmapJaccard()` indexes factor groups once while retaining explicit order and unused groups.
+
 * `PlotButterfly2()` groups long-form values in one pass before building delegated violin and box plots.
 
 * `PlotCircleLollipop()` indexes shared-feature rows once when drawing arcs, preserving their drawing order.

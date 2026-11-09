@@ -636,3 +636,22 @@ test_that("Jaccard gradients preserve factor colour labels", {
   }
   expect_identical(colours(2, 4), colours(palette()[2], palette()[4]))
 })
+
+test_that("Jaccard factor groups use one membership index", {
+  d <- data.frame(group = factor(rep(c("A", "B", "C"), each = 50L), levels = c("C", "A", "B", "D")),
+    gene = rep(paste0("gene", 1:50), 3L))
+  d$gene[100L] <- NA_character_
+  fn <- PlotHeatmapJaccard
+  env <- new.env(parent = environment(fn))
+  scans <- 0L
+  env[["=="]] <- function(x, y) {
+    if (is.factor(x) && length(x) == nrow(d)) scans <<- scans + 1L
+    base::`==`(x, y)
+  }
+  environment(fn) <- env
+  result <- fn(d, group_col = "group", return_type = "data")
+  expect_identical(scans, 0L)
+  expect_identical(rownames(result), c("C", "A", "B", "D"))
+  expect_equal(result["B", c("C", "A", "D")], c(C = .98, A = .98, D = 0))
+  expect_identical(unname(diag(result)), c(1, 1, 1, 0))
+})

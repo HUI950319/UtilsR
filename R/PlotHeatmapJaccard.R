@@ -182,9 +182,12 @@ PlotHeatmapJaccard <- function(
   } else {
     NULL
   }
-  group_rows <- if (is.character(group_values) && !is.object(group_values) &&
-                    is.character(ct_names) && !is.object(ct_names)) {
-    split(which(non_missing), match(group_values[non_missing], ct_names))
+  indexable_groups <- identical(class(group_values), "factor") ||
+    identical(class(group_values), c("ordered", "factor")) ||
+    (is.character(group_values) && !is.object(group_values))
+  group_rows <- if (indexable_groups && is.character(ct_names) && !is.object(ct_names)) {
+    rows <- which(non_missing)
+    split(rows, match(as.character(group_values[rows]), ct_names))
   } else NULL
   top_sets <- lapply(
     stats::setNames(ct_keys, ct_labels),
