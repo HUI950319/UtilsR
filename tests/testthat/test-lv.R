@@ -1367,3 +1367,17 @@ test_that("suggested complex filters select exact literals after truncation", {
   expect_match(as.character(summary$unique), "# +3 more", fixed = TRUE)
   expect_identical(data, before)
 })
+
+test_that("inspection histograms retain subnormal measurement shapes", {
+  tiny <- .Machine$double.xmin * .Machine$double.eps
+  for (sign in c(-1, 1)) {
+    ordinary <- data.frame(x = c(sign * seq_len(20), NA_real_))
+    data <- data.frame(x = ordinary$x * tiny)
+    before <- data
+    reference <- cli::ansi_strip(capture_lv(lv(ordinary))$output)
+    actual <- cli::ansi_strip(capture_lv(lv(data))$output)
+    expect_identical(grep("^  Distribution  ", actual, value = TRUE),
+                     grep("^  Distribution  ", reference, value = TRUE))
+    expect_identical(data, before)
+  }
+})

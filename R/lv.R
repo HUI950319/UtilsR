@@ -521,7 +521,12 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       # (integer64, labelled) as plain doubles.
       x <- suppressWarnings(as.numeric(col_data[!is.na(col_data)]))
       x <- x[is.finite(x)]
-      bins <- tabulate(findInterval(x, seq(min(x), max(x), length.out = 13L),
+      shape <- x
+      span <- max(x) - min(x)
+      if (is.finite(span) && span > 0 && span < .Machine$double.xmin) {
+        shape <- (x - min(x)) / span
+      }
+      bins <- tabulate(findInterval(shape, seq(min(shape), max(shape), length.out = 13L),
                                     rightmost.closed = TRUE), nbins = 12L)
       # three significant digits, as pr_spark() gives the mean and SD
       num <- function(v) {
