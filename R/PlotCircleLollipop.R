@@ -236,6 +236,7 @@ PlotCircleLollipop <- function(
 
   # ---- Keep original data for group-level scaling (before top_n) ----
   data_orig <- data
+  selected <- seq_len(nrow(data))
 
   # ---- top_n: keep top-N rows per group by value (descending) ----
   if (!is.null(top_n)) {
@@ -247,20 +248,23 @@ PlotCircleLollipop <- function(
            call. = FALSE)
     }
     top_n <- as.integer(top_n)
-    data <- data |>
-      dplyr::group_by(.data[[group_col]]) |>
-      dplyr::slice_max(order_by = if (integer64_scores) .data[[value_col]] else
-                         parse_scores(.data[[value_col]]), n = top_n,
-                       with_ties = FALSE) |>
-      dplyr::ungroup() |>
-      as.data.frame()
+    ranking <- tibble::tibble(
+      group = data[[group_col]],
+      score = if (integer64_scores) data[[value_col]] else numeric_values,
+      row_id = selected
+    )
+    selected <- ranking |>
+      dplyr::group_by(.data[["group"]]) |>
+      dplyr::slice_max(order_by = .data[["score"]], n = top_n, with_ties = FALSE) |>
+      dplyr::pull("row_id")
+    data <- as.data.frame(data)[selected, , drop = FALSE]
   }
 
   # ---- Normalise to standard column names ----
   df <- data.frame(
     group = group_labels[vctrs::vec_match(data[[group_col]], group_values)],
     name  = as.character(.butterfly_category_labels(data[[name_col]])),
-    value = parse_scores(data[[value_col]]),
+    value = numeric_values[selected],
     stringsAsFactors = FALSE
   )
   if (!nrow(df)) stop("No observations to plot.", call. = FALSE)

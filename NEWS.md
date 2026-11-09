@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotCircleLollipop()` parses numeric scores once and ranks a narrow row index with exact integer64 ordering.
+
 * `.cat_message()` wraps long uninterrupted ASCII and CJK text within the console width.
 
 * Circular lollipop and butterfly category handling preserves distinct real labelled values whose default text is identical.

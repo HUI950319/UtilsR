@@ -859,3 +859,28 @@ test_that("close labelled feature names do not share circular arcs", {
   draw()
   expect_identical(links, 1L)
 })
+
+test_that("circular top counts parse character scores once", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  fn <- PlotCircleLollipop
+  e <- new.env(parent = environment(fn))
+  seen <- 0L
+  e$as.numeric <- function(x, ...) {
+    if (is.character(x) && length(x) && all(grepl("^0[.][0-9]+$", x))) seen <<- seen + length(x)
+    base::as.numeric(x, ...)
+  }
+  environment(fn) <- e
+  values <- c(.4, .2, .1, .9, .6, .3)
+  d <- data.frame(group = rep(c("B", "A"), each = 3), name = letters[1:6],
+    value = as.character(values))
+  observed <- numeric()
+  original <- circlize::circos.points
+  local_mocked_bindings(circos.points = function(x, y, ...) {
+    observed <<- c(observed, y)
+    original(x, y, ...)
+  }, .package = "circlize")
+  fn(d, top_n = 2L, show_labels = FALSE, show_yaxis = FALSE, show_links = FALSE)
+  expect_identical(seen, nrow(d))
+  expect_equal(sort(observed), c(.2, .4, .6, .9))
+})
