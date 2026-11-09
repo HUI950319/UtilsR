@@ -213,6 +213,8 @@ plt_upset <- function(data,
   # ── Dispatch: list vs data.frame ─────────────────────────────────────────
   is_list_input <- is.list(data) && !is.data.frame(data)
   member_in <- function(values, query) {
+    if (inherits(values, "haven_labelled")) values <- vctrs::vec_data(values)
+    if (inherits(query, "haven_labelled")) query <- vctrs::vec_data(query)
     if (is.factor(values) && is.factor(query)) {
       pool <- unique(c(base::levels(values), base::levels(query)))
       values <- match(base::levels(values), pool)[as.integer(values)]

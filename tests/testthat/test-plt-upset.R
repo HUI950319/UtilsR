@@ -689,3 +689,18 @@ test_that("UpSet data does not require the plotting backend", {
   expect_false("ggVennDiagram" %in% requested)
   expect_error(fn(list(A = "a", B = "b"), output = "venn"), "ggVennDiagram")
 })
+
+test_that("UpSet labelled membership retains exact numeric values", {
+  skip_if_not_installed("haven")
+  step <- .Machine$double.eps
+  d <- data.frame(a = haven::labelled(c(1, 1 + step), label = "Measure"),
+    b = haven::labelled(c(1 + step, 1), label = "Measure"))
+  before <- d
+  for (value in list(1, haven::labelled(1, label = "Query"))) {
+    out <- plt_upset(d, vars = c("a", "b"), levels = value, output = "data")
+    expect_identical(as.character(out$intersect_group), c("a", "b"))
+  }
+  out <- plt_upset(d, vars = c("a", "b"), levels = 1 + step, output = "data")
+  expect_identical(as.character(out$intersect_group), c("b", "a"))
+  expect_identical(d, before)
+})

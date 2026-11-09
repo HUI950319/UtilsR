@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_upset()` keeps distinct nearby labelled values separate when matching data-frame membership.
+
 * Automatic dumbbell insets draw integer64 endpoints and test their paired differences without integer coercion errors.
 
 * `PlotDumbbell()` uses arithmetic means for integer64 reference lines, including fractional and cancellation-sensitive results.
