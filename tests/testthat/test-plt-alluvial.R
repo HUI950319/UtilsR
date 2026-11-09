@@ -850,3 +850,19 @@ test_that("flow plots retain integer64 categories in cold processes", {
     expect_identical(tail(output, 1L), 'COLD_FLOW_OK')
   }
 })
+
+test_that("alluvial missing checks avoid extra text conversions of ordinary columns", {
+  d <- data.frame(stage = rep(c(1, 2), 100L), group = rep(c("A", "B"), each = 100L))
+  fn <- plt_alluvial
+  env <- new.env(parent = environment(fn))
+  conversions <- 0L
+  env$as.character <- function(x, ...) {
+    if (is.double(x) && length(x) == nrow(d)) conversions <<- conversions + 1L
+    base::as.character(x, ...)
+  }
+  environment(fn) <- env
+  p <- fn(d, cat_var = "stage", group = "group")
+  expect_identical(conversions, 1L)
+  expect_equal(sum(p$data$count), nrow(d))
+  expect_identical(levels(p$data$.cat_var), c("1", "2"))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_alluvial()` checks ordinary columns for missing values without first allocating their character labels.
+
 * `plt_sankey()` avoids formatting percentage strings for count-only and name-only labels.
 
 * `plt_sankey()` derives the default figure height from already-counted observed levels.
