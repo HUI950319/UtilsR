@@ -619,3 +619,32 @@ test_that("dumbbell zero lines use date and datetime coordinates", {
     expect_equal(as.numeric(built$data[[1L]]$x), as.numeric(d$start))
   }
 })
+
+test_that("dumbbell endpoints restore cold integer64 arithmetic", {
+  skip_if_not_installed("bit64")
+  scratch <- withr::local_tempdir()
+  input <- file.path(scratch, "input.rds")
+  script <- file.path(scratch, "verify.R")
+  d <- data.frame(start = bit64::as.integer64(1:3), end = bit64::as.integer64(3:5),
+    category = letters[1:3])
+  path <- getNamespaceInfo(asNamespace("UtilsR"), "path")
+  saveRDS(list(data = d, libs = .libPaths(), path = path), input)
+  writeLines(c(sprintf("payload <- readRDS(%s)", deparse(input)),
+    '.libPaths(payload[["libs"]])',
+    'path <- payload[["path"]]',
+    'if (file.exists(file.path(path, "Meta", "package.rds"))) {',
+    '  library("UtilsR", lib.loc = dirname(path))',
+    '} else {',
+    '  pkgload::load_all(path, quiet = TRUE)',
+    '}',
+    'stopifnot(!("bit64" %in% loadedNamespaces()))',
+    'p <- UtilsR::PlotDumbbell(payload[["data"]], sort_by = "none", legend_pos = "none")',
+    'stopifnot("bit64" %in% loadedNamespaces(), identical(as.character(p[["data"]][[".delta"]]), rep("2", 3)))',
+    'built <- ggplot2::ggplot_build(p)[["data"]][[1L]]',
+    'stopifnot(all(built[["x"]] == 1:3), all(built[["xend"]] == 3:5))',
+    'cat("COLD_DUMBBELL_OK\n")'), script)
+  output <- suppressWarnings(system2(file.path(R.home("bin"), "Rscript"),
+    c("--vanilla", shQuote(script)), stdout = TRUE, stderr = TRUE))
+  expect_null(attr(output, "status"), info = paste(output, collapse = "\n"))
+  expect_true("COLD_DUMBBELL_OK" %in% output)
+})

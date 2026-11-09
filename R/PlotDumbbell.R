@@ -230,6 +230,7 @@ PlotDumbbell <- function(
     stop("Column '", y_col, "' must contain a category vector without dimensions.", call. = FALSE)
   for (col in c(x_col, xend_col)) {
     value <- data[[col]]
+    .register_integer64(value)
     if (is.complex(value) || !is.null(dim(value)) ||
         !(is.numeric(value) || inherits(value, c("Date", "POSIXt", "difftime")))) {
       stop("Column '", col, "' must contain a numeric or time vector.", call. = FALSE)
