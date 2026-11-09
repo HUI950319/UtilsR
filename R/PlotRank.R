@@ -229,7 +229,7 @@ PlotRank <- function(
       Group = grp,
       Rank  = seq_len(n),
       Score = scores[seq_len(n)],
-      Label = names(scores)[seq_len(n)],
+      Label = if (is.null(names(scores))) rep(NA_character_, n) else names(scores)[seq_len(n)],
       IsTop = c(rep(TRUE,  min(top_n, n)),
                 rep(FALSE, max(0L, n - top_n))),
       stringsAsFactors = FALSE

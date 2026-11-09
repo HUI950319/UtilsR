@@ -541,3 +541,20 @@ test_that("rank factor point colours retain labels in every panel mode", {
     expect_identical(ggplot2::ggplot_build(do.call(PlotRank, args))$data[[1L]]$colour, reference)
   }
 })
+
+test_that("rank matrices without row names retain labels with cleaning disabled", {
+  matrix <- matrix(c(1, 3, 2, 4, 6, 5), nrow = 3,
+    dimnames = list(NULL, c("A", "B")))
+  for (m in list(matrix[, "A", drop = FALSE], matrix)) {
+    before <- m
+    reference <- PlotRank(m, clean_names = TRUE, return_type = "both")
+    actual <- PlotRank(m, clean_names = FALSE, return_type = "both")
+    expect_identical(actual$data, reference$data)
+    expect_equal(nrow(actual$data), length(m))
+    expect_identical(actual$data$Label, rep(NA_character_, length(m)))
+    expect_identical(ggplot2::ggplot_build(actual$plot)$data[[1L]],
+                     ggplot2::ggplot_build(reference$plot)$data[[1L]])
+    expect_identical(PlotRank(m, clean_names = FALSE, return_type = "data"), actual$data)
+    expect_identical(m, before)
+  }
+})

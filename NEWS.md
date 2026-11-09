@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Keep the Label column for rank matrices without row names when clean_names is FALSE, matching the existing default missing-label behavior.
+
 * Format repeated ordinary numeric P-values once after complete validation, preserving names, missing values, significance maps, and the separate plain-text and exact-decimal paths.
 
 * Preserve missing scores when circular lollipop groups have a constant observed value instead of turning the missing observations into zero-height points.
