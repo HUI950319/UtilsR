@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Distribution bars and heatmaps keep typed categories distinct when their printed labels coincide.
+
 * `plt_con(type = 'bar')` uses stable standard deviations for both error bars and automatic ranges at extreme numeric scales.
 
 * `.cat_box()` lays out embedded newlines as complete framed rows while retaining its message channel.

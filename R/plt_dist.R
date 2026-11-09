@@ -383,6 +383,24 @@ plt_dist <- function(data,
       # Match numeric values before factor() can round them to character labels.
       data[[v]] <- factor(match(data[[v]], values), levels = seq_along(values),
                            labels = value_labels)
+    } else {
+      value <- data[[v]]
+      key <- .cat_time_key(value)
+      if (is.complex(value)) {
+        key <- paste(sprintf("%.17g", Re(value) + 0),
+                     sprintf("%.17g", Im(value) + 0), sep = "/")
+      } else if (is.numeric(value) && identical(class(value), "AsIs")) {
+        key <- sprintf("%.17g", as.numeric(value) + 0)
+      }
+      if (!is.null(key)) {
+        distinct <- unique(key)
+        labels <- as.character(value)[match(distinct, key)]
+        collision <- duplicated(labels) | duplicated(labels, fromLast = TRUE)
+        if (any(collision)) {
+          labels[collision] <- paste0(labels[collision], " [", distinct[collision], "]")
+          data[[v]] <- factor(key, levels = distinct, labels = labels)
+        }
+      }
     }
   }
 

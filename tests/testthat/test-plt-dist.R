@@ -692,3 +692,22 @@ test_that("distribution labels use registered default text settings", {
     expect_equal(unique(ggplot2::layer_data(p, 2L)$size) * ggplot2::.pt, expected)
   }
 })
+
+test_that("typed distribution categories keep exact identities", {
+  values <- list(as.Date(c(0, 0.25), origin = "1970-01-01"),
+    as.difftime(c(1, 1 + .Machine$double.eps), units = "secs"),
+    as.POSIXct(c(1636263000, 1636266600), origin = "1970-01-01", tz = "America/New_York"),
+    complex(real = 1, imaginary = c(1, 1 + .Machine$double.eps)),
+    I(c(1, 1 + .Machine$double.eps)))
+  for (value in values) {
+    d <- data.frame(x = value, cell = "Y", g = c("A", "B"))
+    original <- d
+    bar <- dist_test_plot(d, c("x", "g"), type = "bar")
+    expect_length(unique(bar$data$x), 2L)
+    expect_equal(bar$data$prop, c(1, 1))
+    heat <- dist_test_plot(d, c("x", "cell", "g"))
+    expect_length(unique(heat$data$x), 2L)
+    expect_equal(sum(heat$data$n), 2)
+    expect_identical(d, original)
+  }
+})
