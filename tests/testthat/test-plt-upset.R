@@ -655,3 +655,22 @@ test_that("plt_upset plot counts retain mixed factor members", {
   expect_equal(sort(plot$plotlist[[2]]$data$size), rep(1, 3))
   expect_no_warning(render_upset(plot))
 })
+
+test_that("UpSet preserves explicit NA factor member identities", {
+  for (class in list("factor", c("ordered", "factor"))) {
+    f <- structure(c(1L, NA_integer_), levels = NA_character_, class = class)
+    d <- data.frame(B = c(NA_character_, "No"))
+    d$A <- f
+    actual <- plt_upset(d, c("A", "B"), levels = f[1L], output = "data")
+    expect_identical(as.character(actual$intersect_group), c("A", "None"))
+    d$B <- "No"
+    missing <- plt_upset(d, c("A", "B"), levels = NA, output = "data")
+    expect_identical(as.character(missing$intersect_group), c("None", "A"))
+    sets <- list(A = f[1L], B = f[2L])
+    actual <- plt_upset(sets, output = "data")
+    expect_identical(as.character(actual$intersect_group), c("A", "B"))
+    expect_identical(is.na(actual$.element), c(FALSE, TRUE))
+    expect_identical(class(actual$.element), class(unique(unlist(sets))))
+    expect_identical(levels(actual$.element), levels(unique(unlist(sets))))
+  }
+})

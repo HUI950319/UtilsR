@@ -212,6 +212,14 @@ plt_upset <- function(data,
 
   # ── Dispatch: list vs data.frame ─────────────────────────────────────────
   is_list_input <- is.list(data) && !is.data.frame(data)
+  member_in <- function(values, query) {
+    if (is.factor(values) && is.factor(query)) {
+      pool <- unique(c(base::levels(values), base::levels(query)))
+      values <- match(base::levels(values), pool)[as.integer(values)]
+      query <- match(base::levels(query), pool)[as.integer(query)]
+    }
+    values %in% query
+  }
 
   if (is_list_input) {
     # --- List of element vectors (gene names, etc.) ---
@@ -233,13 +241,22 @@ plt_upset <- function(data,
       data[factor_members] <- lapply(data[factor_members], as.character)
     }
     # Use row indices as shared member identities for both input formats.
-    all_elements <- unique(unlist(data))
-    set_list <- lapply(data, function(x) which(all_elements %in% x))
+    prototype <- unlist(data)
+    if (all(factor_members) && any(vapply(data, function(x) anyNA(base::levels(x)), logical(1)))) {
+      codes <- lapply(data, function(x) {
+        value <- match(base::levels(x), base::levels(prototype))[as.integer(x)]
+        names(value) <- names(x)
+        value
+      })
+      all_elements <- structure(unique(unlist(codes)), levels = base::levels(prototype),
+                                class = class(prototype))
+    } else all_elements <- unique(prototype)
+    set_list <- lapply(data, function(x) which(member_in(all_elements, x)))
     if (output %in% c("data", "all")) {
       df_bin <- data.frame(.element = all_elements, stringsAsFactors = FALSE)
       names(df_bin) <- tail(make.unique(c(names(data), ".element")), 1L)
       for (nm in names(data)) {
-        df_bin[[nm]] <- ifelse(all_elements %in% data[[nm]], "Yes", "No")
+        df_bin[[nm]] <- ifelse(member_in(all_elements, data[[nm]]), "Yes", "No")
       }
       data <- df_bin
     }
@@ -291,8 +308,8 @@ plt_upset <- function(data,
                                 logical(1)))
         selected <- if (same_time) {
           .cat_time_key(values, units = "secs") %in% .cat_time_key(value_levels, units = "secs")
-        } else values %in% value_levels
-        member <- member | selected
+        } else member_in(values, value_levels)
+        member <- member | (selected & !is.na(values))
       }
       which(member)
     })
