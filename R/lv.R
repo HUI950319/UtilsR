@@ -703,7 +703,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   .tbl_input <- function(df) {
     df[] <- lapply(df, function(x) .label_na_level(.spss_missing_to_na(x)))
     empty_values <- vapply(df, function(x) {
-      (is.character(x) || is.complex(x) || inherits(x, "POSIXt")) && all(is.na(x))
+      (is.character(x) || is.complex(x) || inherits(x, "POSIXt") ||
+       (is.factor(x) && nlevels(x) == 0L)) && all(is.na(x))
     }, logical(1))
     df[empty_values] <- lapply(df[empty_values], function(x) rep(NA, length(x)))
     spans <- vapply(df, inherits, logical(1), what = "difftime")

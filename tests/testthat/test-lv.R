@@ -1396,3 +1396,21 @@ test_that("inspection summaries preserve narrow integer64 spreads", {
     expect_identical(serialize(data, NULL), before)
   }
 })
+
+test_that("inspection accepts missing factors without declared levels", {
+  for (x in list(factor(rep(NA_character_, 3)), ordered(rep(NA_character_, 3)))) {
+    data <- data.frame(x = x, g = c("a", "b", "b"))
+    for (grouped in c(FALSE, TRUE)) {
+      result <- if (grouped) capture_lv(lv(data, x, group = g)) else capture_lv(lv(data, x))
+      expect_identical(result$value$value, data)
+      expect_false(result$value$visible)
+      expect_true(any(vapply(result$tables, function(t) "variable" %in% names(t) &&
+        any(t$variable == "x"), logical(1))))
+      if (!grouped) {
+        expect_identical(result$tables[[1L]]$class, class(x)[1L])
+        expect_identical(result$tables[[1L]]$n_na, 3L)
+        expect_identical(result$tables[[1L]]$n_unique, 0L)
+      }
+    }
+  }
+})
