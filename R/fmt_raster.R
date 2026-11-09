@@ -531,11 +531,11 @@ fmt_raster <- function(
   # Empty grobs draw nothing: they neither become nor split a raster run.
   ordered <- ordered[!vapply(g$children[ordered], inherits, logical(1),
                              c("zeroGrob", "null"))]
-  output <- list()
   # A panel background belongs below every run, including vector text.
-  if (!is.na(bg) && bg != "transparent") {
-    output <- list(grid::rectGrob(gp = grid::gpar(fill = bg, col = NA)))
-  }
+  background <- !is.na(bg) && bg != "transparent"
+  output <- vector("list", length(ordered) + background)
+  used <- as.integer(background)
+  if (background) output[[1L]] <- grid::rectGrob(gp = grid::gpar(fill = bg, col = NA))
   capture_run <- function(indices) {
     inches <- switch(units, "in" = 1, "cm" = 1 / 2.54, "mm" = 1 / 25.4)
     if (w * inches * dpi < 1 || h * inches * dpi < 1) {
@@ -561,22 +561,26 @@ fmt_raster <- function(
 
   # Capture contiguous geometry runs without moving them across vector text;
   # the background grid and the border stay vector too.
-  pending <- integer()
-  for (j in ordered) {
+  start <- 1L
+  for (i in seq_along(ordered)) {
+    j <- ordered[i]
     child <- g$children[[j]]
     name <- names(g$children)[j]
     if (grepl("^(grill|panel\\.border)", name) || .is_text_grob(child, name)) {
-      if (length(pending)) {
-        output <- c(output, list(capture_run(pending)))
-        pending <- integer()
+      if (i > start) {
+        used <- used + 1L
+        output[[used]] <- capture_run(ordered[seq.int(start, i - 1L)])
       }
-      output <- c(output, list(child))
-    } else {
-      pending <- c(pending, j)
+      used <- used + 1L
+      output[[used]] <- child
+      start <- i + 1L
     }
   }
-  if (length(pending)) output <- c(output, list(capture_run(pending)))
-  g <- grid::setChildren(g, do.call(grid::gList, output))
+  if (start <= length(ordered)) {
+    used <- used + 1L
+    output[[used]] <- capture_run(ordered[seq.int(start, length(ordered))])
+  }
+  g <- grid::setChildren(g, do.call(grid::gList, output[seq_len(used)]))
   g
 }
 

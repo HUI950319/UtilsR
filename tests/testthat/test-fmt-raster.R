@@ -575,3 +575,30 @@ test_that("the ggrastr backend keeps fmt_com() brackets drawable", {
   expect_no_error(g <- ggplot2::ggplotGrob(fmt_raster(p, dpi = 72)))
   expect_length(raster_find_grobs(g, "rasteriser"), 1L)
 })
+
+test_that("ragg panel runs avoid copying geometry prefixes", {
+  skip_if_not_installed("ragg")
+  withr::local_pdf(NULL)
+  geometry <- lapply(seq_len(70L), function(i) {
+    grid::pointsGrob(x = i / 80, y = .5, name = paste0("points", i))
+  })
+  children <- do.call(grid::gList, c(geometry[1:35], list(grid::textGrob("middle", name = "middle")),
+    geometry[36:70]))
+  panel <- grid::gTree(children = children)
+  fn <- .rasterize_panel_grob
+  env <- new.env(parent = environment(fn))
+  copied <- 0L
+  env$c <- function(...) {
+    args <- list(...)
+    if (length(args) == 2L && is.integer(args[[1L]]) && is.integer(args[[2L]]) &&
+        length(args[[2L]]) == 1L) copied <<- copied + length(args[[1L]])
+    base::c(...)
+  }
+  environment(fn) <- env
+  result <- fn(panel, w = 1, h = 1, dpi = 36, units = "in", bg = "transparent")
+  expect_identical(copied, 0L)
+  expect_length(result$children, 3L)
+  expect_length(raster_find_grobs(result$children[[1L]], "rastergrob"), 1L)
+  expect_identical(result$children[[2L]]$label, "middle")
+  expect_length(raster_find_grobs(result$children[[3L]], "rastergrob"), 1L)
+})
