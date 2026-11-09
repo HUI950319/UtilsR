@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Suggested inspection filters now carry complex literals at full precision, so truncated lists of nearby complex categories select exactly the displayed values.
+
 * KNN temporarily encodes factors with an explicit NA level before the backend and restores their original codes, levels, ordering, and metadata after imputation.
 
 * Variable inspection adapts complex categories to distinct labels before tabulation, preserves missing counts, and applies the existing 100-category table limit.

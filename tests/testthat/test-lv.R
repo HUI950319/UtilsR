@@ -1354,3 +1354,16 @@ test_that("complex columns retain exact categories through summary tables", {
   expect_message(result <- capture_lv(lv(large)), NA)
   expect_identical(result$value$value, large)
 })
+
+test_that("suggested complex filters select exact literals after truncation", {
+  data <- data.frame(z = c(1 + 2i + seq(0, 1e-14, length.out = 11), NA_complex_))
+  before <- data
+  summary <- capture_reports(lv(data))[[1L]][["_data"]]
+  call <- parse(text = as.character(summary$unique))[[1L]]
+  expected <- head(unique(data$z[!is.na(data$z)]), 8)
+  expect_identical(eval(call[[2L]][[3L]]), expected)
+  expect_identical(eval(call[[2L]], envir = data), data$z %in% expected)
+  expect_equal(sum(eval(call[[2L]], envir = data)), 8)
+  expect_match(as.character(summary$unique), "# +3 more", fixed = TRUE)
+  expect_identical(data, before)
+})

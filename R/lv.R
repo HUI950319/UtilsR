@@ -396,7 +396,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     instants <- if (date_time) as.POSIXct(matching_values) else NULL
     values <- if (date_time) {
       as.list(as.numeric(instants))
-    } else if (is.logical(matching_values)) {
+    } else if (is.logical(matching_values) || is.complex(matching_values)) {
       as.list(matching_values)
     } else if (numeric_time || (is.numeric(matching_values) &&
                (!is.object(matching_values) || inherits(matching_values, "haven_labelled")))) {
