@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Apply pattern highlights to the rendered gtsummary columns, preserving hidden metadata columns and formatted display values.
+
 * Read localized number text with its decimal mark when checking scientific notation and P-value threshold rounding.
 
 * Keep long malformed text in console P-value columns without spurious PCRE match-limit warnings.

@@ -544,7 +544,7 @@ console_width <- function() {
       if (any(matched)) {
         tb <- gt::tab_style(tb,
           style     = gt::cell_fill(color = color),
-          locations = gt::cells_body(columns = j, rows = which(matched))
+          locations = gt::cells_body(columns = dplyr::all_of(names(df)[j]), rows = which(matched))
         )
       }
     }
@@ -604,7 +604,11 @@ console_width <- function() {
 
   .process <- function(data, title, subtitle, caption, footnote) {
     # Restore encoded columns before gt captures formatting and colour data.
-    df <- if (inherits(data, "gt_tbl")) as.data.frame(data[["_data"]]) else as.data.frame(data)
+    df <- if (inherits(data, "gt_tbl")) {
+      as.data.frame(data[["_data"]])
+    } else if (inherits(data, "gtsummary")) {
+      as.data.frame(data, col_labels = FALSE)
+    } else as.data.frame(data)
     invisible(lapply(df, ._pr_restore))
     spss <- vapply(df, inherits, logical(1), what = "haven_labelled_spss")
     df[spss] <- lapply(df[spss], function(x) vctrs::vec_data(haven::zap_missing(x)))

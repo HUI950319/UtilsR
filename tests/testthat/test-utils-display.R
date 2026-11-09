@@ -1031,3 +1031,17 @@ test_that("labelled table values share native numeric formatting", {
   expect_identical(cells(.cat_tb(text, numeric_columns = "x", theme = "none")), c("A", "B"))
   expect_identical(serialize(d, NULL), before)
 })
+
+test_that("gtsummary pattern highlighting targets the displayed column", {
+  d <- data.frame(x = c("search_here", "other", "other"))
+  summary <- gtsummary::tbl_summary(d, type = list(x ~ "categorical"))
+  result <- .cat_tb(summary, highlight_pattern = "^search_here$", theme = "none")
+  at <- which(result[["_data"]][["label"]] == "search_here")
+  expect_length(at, 1L)
+  styles <- result[["_styles"]]
+  fill <- styles[!is.na(styles[["rownum"]]) &
+    vapply(styles[["styles"]], function(x) "cell_fill" %in% names(x), logical(1)), , drop = FALSE]
+  expect_identical(fill[["colname"]], "label")
+  expect_equal(fill[["rownum"]], at)
+  expect_match(gt::as_raw_html(result), "search_here", fixed = TRUE)
+})
