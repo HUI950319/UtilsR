@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotCircleLollipop()` preserves nearby numeric feature identities when finding shared features and drawing links.
+
 * `PlotDumbbell()` retains distinct nearby numeric categories using precise labels when their ordinary text collides.
 
 * `PlotHeatmapJaccard()` distinguishes negative integer64 feature identifiers instead of merging their encoded storage.

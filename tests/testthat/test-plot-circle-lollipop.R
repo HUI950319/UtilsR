@@ -558,3 +558,23 @@ test_that("PlotCircleLollipop links and colours shared features across close gro
   expect_length(circlize::get.all.sector.index(), 0L)
   expect_identical(data, before)
 })
+
+test_that("circular sharing distinguishes nearby numeric feature identifiers", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  links <- 0L
+  colours <- character()
+  original_link <- circlize::circos.link
+  original_points <- circlize::circos.points
+  testthat::local_mocked_bindings(circos.link = function(...) {
+    links <<- links + 1L
+    original_link(...)
+  }, circos.points = function(x, y, col, ...) {
+    colours <<- c(colours, col)
+    original_points(x, y, col = col, ...)
+  }, .package = "circlize")
+  d <- data.frame(group = c("A", "B"), name = c(1, 1 + .Machine$double.eps), value = c(.2, .8))
+  PlotCircleLollipop(d, show_labels = FALSE, show_yaxis = FALSE)
+  expect_identical(links, 0L)
+  expect_identical(colours, rep("#FF7F50", 2L))
+})

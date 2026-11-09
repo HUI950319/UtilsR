@@ -255,7 +255,7 @@ PlotCircleLollipop <- function(
   # ---- Normalise to standard column names ----
   df <- data.frame(
     group = group_labels[vctrs::vec_match(data[[group_col]], group_values)],
-    name  = as.character(data[[name_col]]),
+    name  = as.character(.butterfly_category_labels(data[[name_col]])),
     value = parse_scores(data[[value_col]]),
     stringsAsFactors = FALSE
   )
