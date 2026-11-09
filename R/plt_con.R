@@ -454,12 +454,16 @@ plt_con <- function(data,
         value <- labels[match(time_key, distinct)]
         value[missing_value] <- NA_character_
       }
-      if (is.double(value) && !is.object(value)) {
+      if ((is.double(value) || is.complex(value)) &&
+          (!is.object(value) || identical(class(value), "AsIs"))) {
+        value <- unclass(value)
         distinct <- unique(value)
         labels <- as.character(distinct)
         collision <- duplicated(labels) | duplicated(labels, fromLast = TRUE)
         if (any(collision)) {
-          labels[collision] <- sprintf("%.17g", distinct[collision])
+          labels[collision] <- if (is.complex(distinct)) {
+            sprintf("%.17g%+.17gi", Re(distinct[collision]), Im(distinct[collision]))
+          } else sprintf("%.17g", distinct[collision])
           value <- labels[match(value, distinct)]
         }
       }

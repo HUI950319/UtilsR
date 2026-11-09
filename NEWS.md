@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous plots distinguish close complex and AsIs numeric grouping values before formatting their labels.
+
 * Distribution bars and heatmaps keep typed categories distinct when their printed labels coincide.
 
 * `plt_con(type = 'bar')` uses stable standard deviations for both error bars and automatic ranges at extreme numeric scales.

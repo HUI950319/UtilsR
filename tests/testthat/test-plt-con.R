@@ -1569,3 +1569,17 @@ test_that("continuous bar error bars retain extreme finite numeric scales", {
     expect_gte(max(built$layout$panel_params[[1L]]$y.range) / unit, control[[2L]])
   }
 })
+
+test_that("continuous groups retain complex and AsIs identities", {
+  groups <- list(complex(real = 1, imaginary = c(1, 1 + .Machine$double.eps)),
+                 I(c(1, 1 + .Machine$double.eps)))
+  for (group in groups) {
+    d <- data.frame(x = 1:6, g = group[rep(1:2, each = 3)])
+    original <- d
+    p <- suppressMessages(plt_con(d, "x", "g", type = "box", combine = FALSE))[[1L]]
+    expect_length(levels(p$data$g), 2L)
+    expect_equal(as.integer(table(p$data$g)), c(3L, 3L))
+    expect_equal(sort(ggplot2::layer_data(p)$middle), c(2, 5))
+    expect_identical(d, original)
+  }
+})
