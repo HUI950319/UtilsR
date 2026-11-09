@@ -1007,3 +1007,27 @@ test_that("boxed notices retain complete borders for embedded newlines", {
   expect_identical(box(42), box("42"))
   expect_identical(utils::capture.output(suppressMessages(.cat_box("a\nb"))), character())
 })
+
+test_that("labelled table values share native numeric formatting", {
+  skip_if_not_installed("haven")
+  cells <- function(table) {
+    html <- gt::as_raw_html(table)
+    values <- regmatches(html, gregexpr("<td[^>]*>[^<]*</td>", html))[[1L]]
+    gsub("<[^>]*>", "", values)
+  }
+  plain <- data.frame(x = c(1234.5678, -2.34567, NA_real_, Inf))
+  d <- data.frame(x = haven::labelled(plain$x, label = "measurement"))
+  before <- serialize(d, NULL)
+  for (locale in c("en", "de")) {
+    for (cols in list(NULL, "x")) {
+      input <- gt::gt(d, locale = locale)
+      reference <- .cat_tb(gt::gt(plain, locale = locale), numeric_columns = cols, theme = "none")
+      actual <- .cat_tb(input, numeric_columns = cols, theme = "none")
+      expect_identical(cells(actual), cells(reference))
+      expect_identical(actual[["_data"]]$x, d$x)
+    }
+  }
+  text <- data.frame(x = haven::labelled(c("A", "B")))
+  expect_identical(cells(.cat_tb(text, numeric_columns = "x", theme = "none")), c("A", "B"))
+  expect_identical(serialize(d, NULL), before)
+})

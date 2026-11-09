@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console tables apply the selected two-decimal number formatter to haven labelled numeric columns while preserving their original data and locale.
+
 * Shared category labels preserve distinct time, complex, and AsIs identities for butterfly, dumbbell, circular, and Sankey plots.
 
 * Circular lollipop plots restore integer64 methods before interpreting grouping values or numeric scores.

@@ -557,6 +557,18 @@ console_width <- function() {
     fmt_cols <- if (!is.null(cols)) intersect(cols, names(df)) else num_cols
     if (length(fmt_cols) > 0L) {
       tb <- gt::fmt_number(tb, columns = fmt_cols, decimals = 2)
+      labelled <- intersect(fmt_cols, num_cols)
+      labelled <- labelled[vapply(df[labelled], inherits, logical(1), what = "haven_labelled")]
+      if (length(labelled)) {
+        # Keep gt's locale and output-specific formatters while adapting storage.
+        formatters <- tail(tb[["_formats"]], 1L)[[1L]][["func"]]
+        formatters <- lapply(formatters, function(fn) {
+          callback <- function(x) fn(vctrs::vec_data(x))
+          environment(callback) <- list2env(list(fn = fn), parent = baseenv())
+          callback
+        })
+        tb <- gt::fmt(tb, columns = labelled, fns = formatters)
+      }
     }
     # Colour-map only when user explicitly passed numeric_columns
     if (!is.null(cols)) {
