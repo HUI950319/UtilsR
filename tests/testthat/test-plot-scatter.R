@@ -1267,3 +1267,25 @@ test_that("paired scatter t tests retain p values at extreme scales", {
   expect_equal(test(c(1, 2, 3, 1e308), c(2, 4, 5, NA), paired = TRUE)$p.value,
                stats::t.test(1:3, c(2, 4, 5), paired = TRUE)$p.value)
 })
+
+test_that("paired scatter automatic histogram padding stays finite", {
+  histogram <- NULL
+  original <- ggplot2::ggplotGrob
+  local_mocked_bindings(ggplotGrob = function(x, ...) {
+    histogram <<- x
+    original(x, ...)
+  }, .package = "ggplot2")
+  for (unit in c(1, 1e307)) {
+    d <- data.frame(Control = rep(0, 6), Treat = c(1, 2, 3, 4, 5, 16) * unit,
+                    group = rep(c("a", "b"), 3))
+    expect_no_warning(p <- PlotScatter3(d, test_method = "none", cor_method = "none",
+      axis_limits = c(0, 17) * unit, axis_breaks = 0, theme_use = ggplot2::theme_classic))
+    limits <- histogram$scales$get_scales("x")$limits
+    expect_true(all(is.finite(limits)))
+    expect_gte(limits[[2]], max(d$Treat))
+    expect_identical(limits[[1]], -limits[[2]])
+    expect_identical(p[[1L]]$data$Treat, d$Treat)
+    expect_equal(sum(ggplot2::ggplot_build(histogram)$data[[1L]]$count), nrow(d))
+    if (unit == 1) expect_identical(limits, c(-16, 16) * 1.2)
+  }
+})

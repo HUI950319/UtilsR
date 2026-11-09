@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Paired scatter histograms cap only an overflowing automatic 20-percent range expansion at the largest representable finite value; explicit limits and ordinary ranges are retained.
+
 * Suggested inspection filters now carry complex literals at full precision, so truncated lists of nearby complex categories select exactly the displayed values.
 
 * KNN temporarily encodes factors with an explicit NA level before the backend and restores their original codes, levels, ordering, and metadata after imputation.

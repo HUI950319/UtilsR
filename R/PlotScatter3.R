@@ -352,6 +352,7 @@ PlotScatter3 <- function(
     if (!length(finite_diff)) stop("No finite paired differences to plot.", call. = FALSE)
     hist_extent <- max(abs(finite_diff))
     if (hist_extent == 0) hist_extent <- 1
+    hist_extent <- min(hist_extent, .Machine$double.xmax / 1.2)
     hist_x_limits <- c(-hist_extent, hist_extent) * 1.2
   }
   if (is.null(hist_x_breaks)) {
