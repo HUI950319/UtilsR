@@ -358,3 +358,24 @@ test_that("a failed memory backend emits only one acquisition warning", {
   expect_length(warnings, 1L)
   expect_true(all(is.na(unlist(result$system_memory))))
 })
+
+test_that("failed system commands honor the diagnostic warning switch", {
+  for (os in c("Windows", "Linux")) for (flag in c(FALSE, TRUE)) {
+    query <- .check_system_fixture(os = os)
+    environment(query)$file.exists <- function(...) FALSE
+    environment(query)$system <- function(...) {
+      warning("native command exited with status 1", call. = FALSE)
+      structure(character(), status = 1L)
+    }
+    warnings <- character()
+    utils::capture.output(result <- withCallingHandlers(
+      query(return_result = TRUE, show_warnings = flag),
+      warning = function(w) {
+        warnings <<- c(warnings, conditionMessage(w))
+        invokeRestart("muffleWarning")
+      }))
+    expect_length(warnings, as.integer(flag))
+    expect_false(any(grepl("native command", warnings, fixed = TRUE)))
+    expect_true(all(is.na(unlist(result$system_memory))))
+  }
+})

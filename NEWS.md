@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* System diagnostics suppress raw collection warnings and retain their single controlled memory-failure warning on Windows and Linux fallbacks.
+
 * Console text without layout control characters returns directly, preserving attributes and avoiding six unnecessary string scans.
 
 * Jaccard heatmaps cache row indices for plain character groups, avoiding repeated whole-column scans without changing typed group matching.

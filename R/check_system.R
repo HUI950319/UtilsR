@@ -223,7 +223,7 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
     })
   }
 
-  sys_mem <- .get_system_memory()
+  sys_mem <- suppressWarnings(.get_system_memory())
   if (!.valid_memory(sys_mem)) {
     if (show_warnings) {
       warning(if (is.null(memory_error)) "Unavailable or invalid system memory query result."
@@ -384,7 +384,7 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
     })
   }
 
-  sys_info <- .get_system_info()
+  sys_info <- suppressWarnings(.get_system_info())
 
   memory_warnings <- character(0)
   if (!is.na(sys_mem$usage_pct)) {
