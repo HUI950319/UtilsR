@@ -865,3 +865,20 @@ test_that("point sampling preserves typed time strata and their source columns",
     }
   }
 })
+
+test_that("point sampling separates explicit NA factor levels from missing codes", {
+  for (class in list("factor", c("ordered", "factor"))) {
+    d <- data.frame(x = 1:8, y = 8:1)
+    d$g <- structure(rep(c(1L, NA_integer_), each = 4), levels = NA_character_, class = class)
+    for (facet in c(FALSE, TRUE)) for (k in c(0, 1, 3)) {
+      p <- if (facet) ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::facet_wrap(~g) else
+        ggplot2::ggplot(d, ggplot2::aes(x, y, group = g))
+      sampled <- fmt_point(p, sample_n = k)$layers[[1L]]$data
+      expect_equal(nrow(sampled), 2L * k)
+      expect_equal(sum(is.na(sampled$g)), k)
+      expect_equal(sum(!is.na(sampled$g)), k)
+      expect_identical(levels(sampled$g), levels(d$g))
+      expect_identical(class(sampled$g), class(d$g))
+    }
+  }
+})

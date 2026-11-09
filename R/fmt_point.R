@@ -484,6 +484,9 @@ fmt_point <- function(plot,
   }
   if (!is.null(group_values)) {
     strata <- lapply(group_values, function(x) {
+      if (is.factor(x) && anyNA(levels(x))) {
+        x <- structure(as.integer(x), levels = as.character(seq_along(levels(x))), class = "factor")
+      }
       if (is.numeric(x)) {
         # Keep exact values in legacy factor order, including NaN and NA.
         values <- sort(unique(x), na.last = TRUE)

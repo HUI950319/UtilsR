@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Point sampling keeps an explicit NA factor level separate from missing factor codes in grouping and facet strata.
+
 * Validated plain integer selectors skip finite-value and fractional-part scans while retaining bounds checks and classed-number validation.
 
 * Factor combinations return their all-missing result before encoding other plain vectors when one validated input is entirely missing.
