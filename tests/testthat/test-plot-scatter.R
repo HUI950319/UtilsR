@@ -1324,3 +1324,32 @@ test_that("scatter factors preserve nearby typed group identities", {
   control <- c(1, 2, NA_real_, NaN)
   expect_identical(is.na(.scatter_group_factor(x)), is.na(factor(control, levels = unique(control))))
 })
+
+test_that("dual scatter mappings retain observed empty category names", {
+  d <- data.frame(x = 1:8, y = c(2, 4, 3, 5, 6, 9, 7, 8),
+    g = rep(c("", "B"), each = 4), h = rep(c("a", "b"), 4))
+  before <- d
+  for (cols in list(c("g", NA), c("h", "g"), c("g", "h"))) {
+    args <- list(data = d, x = "x", y = "y", group = cols[1], legend_shape_pos = "none")
+    if (!is.na(cols[2])) args$group2 <- cols[2]
+    for (explicit in c(FALSE, TRUE)) {
+      if (explicit) {
+        args$colors <- stats::setNames(c("#112233", "#445566"), unique(d[[cols[1]]]))
+        if (!is.na(cols[2])) {
+          args$shapes <- stats::setNames(c(16, 17), unique(d[[cols[2]]]))
+          args$fill_colors_shape <- stats::setNames(c("#3377AA", "#AA7733"), unique(d[[cols[2]]]))
+        }
+      }
+      p <- do.call(PlotScatter2, args)
+      points <- ggplot2::ggplot_build(p[[1L]])$data[[1L]]
+      expect_equal(nrow(points), nrow(d))
+      expect_length(unique(points$colour), 2L)
+      if (!is.na(cols[2])) expect_length(unique(points$shape), 2L)
+      expect_true("" %in% levels(p[[1L]]$data$g))
+      expect_no_warning(grid::grid.draw(patchwork::patchworkGrob(p)))
+    }
+  }
+  bad <- stats::setNames(c("red", "blue"), c("", "a"))
+  expect_error(PlotScatter2(d, "x", "y", "h", colors = bad), "mapping names")
+  expect_identical(d, before)
+})

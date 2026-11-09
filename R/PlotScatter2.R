@@ -239,7 +239,8 @@ PlotScatter2 <- function(
     if (!is.atomic(values) || !is.null(dim(values)))
       stop("'", arg, "' must be a one-dimensional vector.", call. = FALSE)
     if (!is.null(names(values)) &&
-        (anyNA(names(values)) || any(!nzchar(names(values))) || anyDuplicated(names(values))))
+        (anyNA(names(values)) || (any(!nzchar(names(values))) && !"" %in% lvls) ||
+         anyDuplicated(names(values))))
       stop("'", arg, "' must have unique, non-missing, non-empty mapping names.", call. = FALSE)
     if (is.null(names(values))) {
       if (length(values) < length(lvls)) {

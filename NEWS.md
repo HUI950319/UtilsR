@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Dual-group scatter mappings accept an empty name only when it is an observed category, so generated or explicit color, shape, and marginal-fill mappings work for that category while invalid names remain rejected.
+
 * Scatter group preparation keeps exact numeric and time category identities before factor conversion, including explicit typed group orders and both dual-group roles.
 
 * Percentage-only missingness plots count verified complete plain columns without allocating their missingness masks; classed columns and matrix outputs retain the original path.
