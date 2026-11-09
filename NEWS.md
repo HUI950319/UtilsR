@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* KNN temporarily encodes factors with an explicit NA level before the backend and restores their original codes, levels, ordering, and metadata after imputation.
+
 * Variable inspection adapts complex categories to distinct labels before tabulation, preserves missing counts, and applies the existing 100-category table limit.
 
 * KNN reuses a verified complete standardized column to establish that all rows are observed, avoiding an unnecessary whole-data missingness matrix.

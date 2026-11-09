@@ -243,6 +243,16 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     ))
   }
 
+  factor_na <- vapply(data_for_impute, function(x) {
+    is.factor(x) && anyNA(levels(x))
+  }, logical(1))
+  factor_na_original <- data_for_impute[factor_na]
+  for (var_name in names(factor_na_original)) {
+    x <- factor_na_original[[var_name]]
+    attr(x, "levels") <- paste0(".knn_level_", seq_len(nlevels(x)))
+    data_for_impute[[var_name]] <- x
+  }
+
   backend_names <- paste0(".knn_", seq_along(data_for_impute))
   complete_columns <- setdiff(names(data_for_impute), vars_with_missing)
   observed_rows <- if (length(complete_columns) &&
@@ -295,6 +305,15 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     result <- expanded
   }
 
+  for (var_name in names(factor_na_original)) {
+    original <- factor_na_original[[var_name]]
+    missing <- is.na(original)
+    codes <- match(as.character(result[[var_name]]), levels(data_for_impute[[var_name]]))
+    restored <- as.integer(original)
+    restored[missing] <- codes[missing]
+    attributes(restored) <- attributes(original)
+    result[[var_name]] <- restored
+  }
   for (var_name in names(labelled_original)) {
     values <- result[[var_name]]
     codes <- if (is.factor(values)) as.integer(values) else

@@ -480,3 +480,21 @@ test_that("KNN complete columns avoid a whole data missingness mask", {
   expect_warning(actual <- fn(d, k = 1, verbose = FALSE), "KNN left")
   expect_true(all(is.na(actual[2L, ])))
 })
+
+test_that("KNN keeps explicit NA levels distinct from missing factor codes", {
+  skip_if_not_installed("VIM")
+  for (ordered in c(FALSE, TRUE)) {
+    x <- structure(c(2L, 1L, 3L, 4L, NA_integer_, NA_integer_),
+                   levels = c("b", NA_character_, ".knn_level_1", "NA's", "unused"),
+                   class = if (ordered) c("ordered", "factor") else "factor",
+                   label = "Original categories")
+    data <- data.frame(target = x, predictor = c(0, 10, 20, 30, .1, 19.9))
+    before <- data
+    expect_no_warning(result <- impute_na_knn(data, k = 1, verbose = FALSE))
+    expect_identical(as.integer(result$target), c(2L, 1L, 3L, 4L, 2L, 3L))
+    expect_identical(attributes(result$target), attributes(x))
+    expect_false(anyNA(result$target))
+    expect_identical(result$predictor, data$predictor)
+    expect_identical(data, before)
+  }
+})
