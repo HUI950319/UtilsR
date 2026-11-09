@@ -721,3 +721,15 @@ test_that("UpSet list indicators reuse existing member row indexes", {
   expect_identical(out$b, c("No", "Yes", "No", "Yes"))
   expect_identical(as.character(out$intersect_group), c("a", "a/b", "a", "b"))
 })
+
+test_that("UpSet integral doubles match integer64 without scientific notation", {
+  skip_if_not_installed("bit64")
+  big <- bit64::as.integer64(c("1000000000000000000", "1000000000000000001"))
+  d <- data.frame(a = big, b = c(1e18, 1e18 + 128))
+  for (query in list(1e18, big[1L])) {
+    result <- plt_upset(d, c("a", "b"), levels = query, output = "data")
+    expect_identical(as.character(result$intersect_group), c("a/b", "None"))
+  }
+  result <- plt_upset(d, c("a", "b"), levels = c(1.5, Inf, 2^63), output = "data")
+  expect_identical(as.character(result$intersect_group), rep("None", 2L))
+})

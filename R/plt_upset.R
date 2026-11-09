@@ -215,6 +215,16 @@ plt_upset <- function(data,
   member_in <- function(values, query) {
     if (inherits(values, "haven_labelled")) values <- vctrs::vec_data(values)
     if (inherits(query, "haven_labelled")) query <- vctrs::vec_data(query)
+    plain_numeric <- function(x) is.numeric(x) && !is.object(x) && !is.complex(x)
+    representable <- function(x) is.finite(x) & x == trunc(x) & x > -2^63 & x < 2^63
+    if (inherits(values, "integer64") && plain_numeric(query)) {
+      query <- bit64::as.integer64(query[representable(query)])
+    } else if (inherits(query, "integer64") && plain_numeric(values)) {
+      usable <- representable(values)
+      selected <- rep(FALSE, length(values))
+      selected[usable] <- bit64::as.integer64(values[usable]) %in% query
+      return(selected)
+    }
     if (is.factor(values) && is.factor(query)) {
       pool <- unique(c(base::levels(values), base::levels(query)))
       values <- match(base::levels(values), pool)[as.integer(values)]
