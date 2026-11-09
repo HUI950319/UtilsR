@@ -683,3 +683,13 @@ test_that("butterfly numeric identities survive magnitude and display options", 
     expect_identical(data, original)
   }
 })
+
+test_that("butterfly minmax scaling keeps category tuples distinct", {
+  d <- data.frame(s = c("u", "v", "u", "v"), g = c("a.b", "a.b", "a", "a"), f = c("c", "c", "b.c", "b.c"), v = c(0, 10, 100, 200))
+  p <- PlotButterfly(d, stat.by = "s", fill.by = "f", value.by = "v", group.by = "g", minmax = TRUE)
+  for (i in seq_len(length(p))) {
+    data <- p[[i]]$data
+    fill <- if (as.character(data$g[[1L]]) == "a.b") "c" else "b.c"
+    expect_identical(sort(data$v[as.character(data$f) == fill]), c(0, 1))
+  }
+})

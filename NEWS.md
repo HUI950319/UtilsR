@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotButterfly(minmax = TRUE)` scales distinct group/fill tuples independently when labels contain separator characters.
+
 * `pr_box()` and `pr_kv()` retain explicit trailing newline rows in displayed values.
 
 * `stat_ci_parse()` uses relative log widths when narrow ratio intervals would lose precision around extreme estimates.

@@ -263,7 +263,8 @@ PlotButterfly <- function(
     # Min-max scaling per group.by x fill.by
     if (isTRUE(minmax)) {
       data <- do.call(rbind, lapply(
-        split(data, interaction(data[[group.by]], data[[fill.by]], drop = TRUE)),
+        split(data, interaction(as.integer(as.factor(data[[group.by]])),
+                                as.integer(as.factor(data[[fill.by]])), drop = TRUE)),
         function(d) {
           if (all(is.na(d[[value.by]]))) return(d)
           rng <- range(d[[value.by]], na.rm = TRUE)
