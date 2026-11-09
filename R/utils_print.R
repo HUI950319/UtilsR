@@ -74,6 +74,8 @@
 
 # Escape layout controls without changing literal backslashes or ANSI styles.
 ._pr_escape <- function(text) {
+  if (is.character(text) &&
+      !any(grepl("[\n\r\t\b\f\v]", text, perl = TRUE, useBytes = TRUE))) return(text)
   from <- c("\n", "\r", "\t", "\b", "\f", "\v")
   to <- c("\\n", "\\r", "\\t", "\\b", "\\f", "\\v")
   for (i in seq_along(from)) text <- gsub(from[i], to[i], text, fixed = TRUE)

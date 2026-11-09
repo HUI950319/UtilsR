@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console text without layout control characters returns directly, preserving attributes and avoiding six unnecessary string scans.
+
 * Jaccard heatmaps cache row indices for plain character groups, avoiding repeated whole-column scans without changing typed group matching.
 
 * Console tables apply the selected two-decimal number formatter to haven labelled numeric columns while preserving their original data and locale.

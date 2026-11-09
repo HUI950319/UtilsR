@@ -1329,3 +1329,22 @@ test_that("wide console trees retain only required hidden branch markers", {
   expect_match(out[[200L]], "entry_199", fixed = TRUE)
   expect_match(out[[201L]], "2,801 more lines", fixed = TRUE)
 })
+
+test_that("ordinary console text avoids repeated escaping passes", {
+  fn <- ._pr_escape
+  e <- new.env(parent = environment(fn))
+  scanned <- 0L
+  e$gsub <- function(...) {
+    scanned <<- scanned + 1L
+    base::gsub(...)
+  }
+  environment(fn) <- e
+  text <- stats::setNames(rep(c("normal", "\u4e2d\u6587", NA_character_), 1000), seq_len(3000))
+  expect_identical(fn(text), text)
+  expect_identical(scanned, 0L)
+  matrix <- matrix(c("normal", NA_character_), nrow = 1, dimnames = list("row", c("a", "b")))
+  expect_identical(fn(matrix), matrix)
+  expect_identical(fn(c("a\nb\rc\td\be\ff\vg", NA_character_)),
+                   c("a\\nb\\rc\\td\\be\\ff\\vg", NA_character_))
+  expect_identical(fn(c(1, NA_real_)), c("1", NA_character_))
+})
