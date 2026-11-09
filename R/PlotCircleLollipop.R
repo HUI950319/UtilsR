@@ -271,7 +271,7 @@ PlotCircleLollipop <- function(
   } else if (is.factor(data[[group_col]])) {
     df$group <- factor(df$group, levels = levels(data[[group_col]]))
   } else {
-    df$group <- factor(df$group, levels = unique(df$group))
+    df$group <- factor(df$group, levels = group_labels[!is.na(group_labels)])
   }
   if (anyNA(df$group))
     stop("Group labels must not be missing or excluded by group_levels.", call. = FALSE)

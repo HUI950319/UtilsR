@@ -776,3 +776,22 @@ test_that("circular integer64 scaling avoids signed range overflow", {
     expect_identical(serialize(d, NULL), before)
   }
 })
+
+test_that("circular top counts preserve input sector order", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  initialize <- circlize::circos.initialize
+  sectors <- NULL
+  local_mocked_bindings(circos.initialize = function(factors, ...) {
+    sectors <<- levels(factors)
+    initialize(factors, ...)
+  }, .package = "circlize")
+  data <- data.frame(group = rep(c("B", "A"), each = 3), name = letters[1:6], value = 1:6)
+  for (n in list(NULL, 1L, 2L)) {
+    PlotCircleLollipop(data, top_n = n, show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
+    expect_identical(sectors, c("B", "A"))
+  }
+  PlotCircleLollipop(data, top_n = 1L, group_levels = c("A", "B"),
+    show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
+  expect_identical(sectors, c("A", "B"))
+})

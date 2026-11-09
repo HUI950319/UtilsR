@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Use the input appearance order for circular sectors even when top-N filtering groups the rows before plotting.
+
 * Apply rank label cleaning after selecting the displayed rows, keeping score order, labels, and returned row names for truncated panels.
 
 * Use a representable range for wide integer rank scores and preserve haven labels when a scaled integer column needs fractional storage.
