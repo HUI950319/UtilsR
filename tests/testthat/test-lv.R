@@ -1381,3 +1381,18 @@ test_that("inspection histograms retain subnormal measurement shapes", {
     expect_identical(data, before)
   }
 })
+
+test_that("inspection summaries preserve narrow integer64 spreads", {
+  skip_if_not_installed("bit64")
+  reference <- cli::ansi_strip(capture_lv(lv(data.frame(x = c(1:20, NA))))$output)
+  for (origin in c("9007199254740993", "-9007199254740993")) {
+    x <- bit64::as.integer64(origin) + bit64::as.integer64(c(1:20, NA))
+    data <- data.frame(x = x)
+    before <- serialize(data, NULL)
+    actual <- cli::ansi_strip(capture_lv(lv(data))$output)
+    expect_identical(grep("^  Distribution  ", actual, value = TRUE),
+                     grep("^  Distribution  ", reference, value = TRUE))
+    expect_match(grep("^  Mean [(]SD[)]", actual, value = TRUE), "(5.92)", fixed = TRUE)
+    expect_identical(serialize(data, NULL), before)
+  }
+})

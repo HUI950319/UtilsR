@@ -347,10 +347,23 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     ifelse(n == 0, "0", paste0(.fmt_int(n), " (", .fmt_pct(n / of * 100), ")"))
   }
 
+  # Center narrow integer64 ranges before converting their differences to
+  # doubles, so histogram bins and SD retain values beyond double precision.
+  .spread_values <- function(x) {
+    values <- suppressWarnings(as.numeric(x))
+    if (inherits(x, "integer64")) {
+      observed <- x[!is.na(x)]
+      if (length(observed) && diff(range(values, na.rm = TRUE)) <= 2^53) {
+        values <- suppressWarnings(as.numeric(x - min(observed)))
+      }
+    }
+    values
+  }
+
   # tbl_summary() resolves statistic functions in the formula's environment,
   # so its table and the console listing share this overflow-safe SD.
   sd <- function(x, na.rm = FALSE) {
-    x <- as.numeric(x)
+    x <- .spread_values(x)
     if (na.rm) x <- x[!is.na(x)]
     spread <- stats::sd(x)
     if (length(x) > 1L && all(is.finite(x)) &&
@@ -521,10 +534,12 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       # (integer64, labelled) as plain doubles.
       x <- suppressWarnings(as.numeric(col_data[!is.na(col_data)]))
       x <- x[is.finite(x)]
-      shape <- x
-      span <- max(x) - min(x)
+      shape <- .spread_values(col_data[!is.na(col_data)])
+      shape <- shape[is.finite(shape)]
+      spread <- sd(shape)
+      span <- max(shape) - min(shape)
       if (is.finite(span) && span > 0 && span < .Machine$double.xmin) {
-        shape <- (x - min(x)) / span
+        shape <- (shape - min(shape)) / span
       }
       bins <- tabulate(findInterval(shape, seq(min(shape), max(shape), length.out = 13L),
                                     rightmost.closed = TRUE), nbins = 12L)
@@ -537,7 +552,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
         Distribution = format(cli::spark_bar(bins / max(bins))),
         Range = paste(q[[1]], "to", q[[5]]),
         `Median [Q1, Q3]` = sprintf("%s [%s, %s]", q[[3]], q[[2]], q[[4]]),
-        `Mean (SD)` = sprintf("%s (%s)", num(mean(x)), num(sd(x)))
+        `Mean (SD)` = sprintf("%s (%s)", num(mean(x)), num(spread))
       ))
     } else {
       pr_table(.lv_frequencies(col_data, var), n = NULL,

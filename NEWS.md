@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Retain exact narrow integer64 differences when `lv()` computes distribution bins and standard deviations.
+
 * Keep `lv()` distribution summaries usable for subnormal numeric measurements without changing their statistical values.
 
 * Parsed confidence intervals format repeated value-and-precision pairs once after validation, preserving per-row precision, negative-zero handling, and high-precision byte-limit errors.
