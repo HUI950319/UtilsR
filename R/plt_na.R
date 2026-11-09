@@ -116,7 +116,7 @@ plt_na <- function(
       cli::cli_abort("Inspecting {.cls {class(x)[1]}} columns requires package {.pkg {pkg}}.")
     }
     if (!keep_masks && !is.object(x) && is.atomic(x) && !anyNA(x)) return(0L)
-    mask <- is.na(x)
+    mask <- is.na(if (is.expression(x)) as.list(x) else x)
     if (keep_masks) mask else sum(mask)
   })
   missing_counts <- if (keep_masks) unlist(lapply(missing_data, sum), use.names = TRUE) else

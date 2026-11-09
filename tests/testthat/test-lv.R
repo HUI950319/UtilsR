@@ -1429,3 +1429,24 @@ test_that("two way inspection distinguishes missing and literal NA headers", {
     expect_identical(result$value$value, before)
   }
 })
+
+test_that("expression column inspection counts stored values without evaluation", {
+  d <- data.frame(score = 1:4)
+  d$expr <- expression(stop("Stored call was evaluated"), NA,
+    stop("Stored call was evaluated"), 2L)
+  before <- d
+  expect_no_warning(report <- capture_lv(lv(d)))
+  summary <- report$tables[[1L]]
+  row <- which(summary$vars == "expr")
+  expect_identical(summary$class[row], "expression")
+  expect_equal(summary$n_unique[row], 2)
+  expect_equal(summary$n_na[row], 1)
+  expect_identical(report$value$value, before)
+  expect_match(paste(report$output, collapse = "\n"), "expression column", fixed = TRUE)
+
+  invisible(capture.output(expect_no_warning(quality <- check_na(d))))
+  expect_identical(quality[["_data"]]$missing_combined, "1 (25.0%)")
+  expect_no_warning(plot <- plt_na(d, output = "matrix"))
+  expect_identical(as.logical(plot$data$value), c(FALSE, TRUE, FALSE, FALSE))
+  expect_identical(d, before)
+})

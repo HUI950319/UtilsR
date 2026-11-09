@@ -379,6 +379,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
 
   # Observed values; a factor keeps its level order without unused levels.
   .get_levels <- function(x) {
+    if (is.expression(x)) x <- as.list(x)
     if (is.factor(x)) {
       levels(x)[tabulate(as.integer(x), nlevels(x)) > 0L]
     } else {
@@ -396,6 +397,15 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
 
     unique_values <- .get_levels(col_data)
     n_unique <- length(unique_values)
+    summary <- tibble::tibble(
+      vars = var,
+      class = var_class,
+      n_unique = n_unique,
+      n_na = n_na,
+      n_special = .count_special_values(col_data),
+      unique = noquote("")
+    )
+    if (is.expression(col_data)) return(summary)
 
     display_values <- if (n_unique > 10) head(unique_values, 8) else unique_values
 
@@ -447,16 +457,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     if (n_unique > 10) {
       .get_flt_formula <- sprintf("%s  # +%d more", .get_flt_formula, n_unique - 8L)
     }
-    .get_flt_formula <- noquote(.get_flt_formula)
-
-    tibble::tibble(
-      vars = var,
-      class = var_class,
-      n_unique = n_unique,
-      n_na = n_na,
-      n_special = .count_special_values(col_data),
-      unique = .get_flt_formula
-    )
+    summary$unique <- noquote(.get_flt_formula)
+    summary
   }
 
   # Shade the shares of rare categories, one hue darkening as they shrink;
@@ -526,6 +528,10 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
                if (stats$n_na > 0) paste("NA", .fmt_n_pct(stats$n_na, n_all)),
                if (stats$n_special > 0) paste("special", .fmt_n_pct(stats$n_special, n_all)))
     pr_section(paste(facts, collapse = " \u00b7 "))
+    if (is.expression(col_data)) {
+      pr_note("An expression column: its values are not tabulated.")
+      return(invisible(NULL))
+    }
     if (is.list(col_data) && !inherits(col_data, "POSIXlt")) {
       pr_note("A list column: its values are not tabulated.")
     } else if (is.numeric(col_data) && !is.factor(col_data) && stats$n_unique > 10L) {
@@ -761,7 +767,11 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
         "{?is/are} left out of the summary table."
       )))
     }
-    vars[!many & !lists]
+    expressions <- vapply(analysis_data[vars], is.expression, logical(1))
+    if (any(expressions)) {
+      cli::cli_inform("Expression columns {.var {vars[expressions]}} are left out of the summary table.")
+    }
+    vars[!many & !lists & !expressions]
   }
 
   # Optional RegR::get_gt_cat hook (called once at end of each mode)
@@ -1050,7 +1060,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       pr_kv(list(Groups = n_groups))
     }
 
-    grouped_data <- .tbl_input(tibble::as_tibble(analysis_data)[, vars, drop = FALSE])
+    grouped_data <- .tbl_input(tibble::as_tibble(analysis_data[, vars, drop = FALSE]))
     # Missing group values form their own last group, so the groups match the
     # count above and the overall column covers every row; tbl_summary()
     # would otherwise drop those rows.
@@ -1126,7 +1136,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
 
   table_vars <- .tbl_vars(vars)
   res_count <- if (length(table_vars)) {
-    .tbl_input(tibble::as_tibble(analysis_data)[, table_vars, drop = FALSE]) %>%
+    .tbl_input(tibble::as_tibble(analysis_data[, table_vars, drop = FALSE])) %>%
     labelled::set_variable_labels(
       .labels = setNames(
         paste0(
@@ -1164,7 +1174,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     # cells carried its markdown (`**Vars**`, `__Age__`) and NA headers.
     if (length(table_vars)) {
       pr_section(sprintf("Variable distributions (%d variables)", length(table_vars)))
-      pr_spark(.tbl_input(tibble::as_tibble(analysis_data)[, table_vars, drop = FALSE]))
+      pr_spark(.tbl_input(tibble::as_tibble(analysis_data[, table_vars, drop = FALSE])))
     }
 
     pr_section(sprintf("Variable summary (%d variables)", length(vars)))

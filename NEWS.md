@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `lv()`, `check_na()` and `plt_na()` inspect expression-column missingness without evaluating stored calls.
+
 * `PlotCircleLollipop()` parses numeric scores once and ranks a narrow row index with exact integer64 ordering.
 
 * `.cat_message()` wraps long uninterrupted ASCII and CJK text within the console width.
