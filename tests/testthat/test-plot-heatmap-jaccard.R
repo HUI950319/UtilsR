@@ -587,3 +587,25 @@ test_that("Jaccard feature sets retain negative integer64 identities", {
   expect_equal(actual["A", "B"], 0)
   expect_equal(actual["A", "C"], .5)
 })
+
+test_that("character Jaccard groups avoid repeated full column scans", {
+  fn <- PlotHeatmapJaccard
+  e <- new.env(parent = environment(fn))
+  examined <- 0L
+  e$which <- function(x) {
+    examined <<- examined + length(x)
+    base::which(x)
+  }
+  environment(fn) <- e
+  d <- data.frame(cell_type = rep(sprintf("G%03d", 1:100), each = 50),
+                  gene = rep(letters[1:10], 500))
+  groups <- c(rev(unique(d$cell_type)), "absent")
+  actual <- fn(d, group_levels = groups, return_type = "data")
+  expect_lte(examined, 2L * nrow(d))
+  expected <- matrix(1, 101, 101, dimnames = list(groups, groups))
+  expected[101, ] <- 0
+  expected[, 101] <- 0
+  expect_identical(actual, expected)
+  d$cell_type <- factor(d$cell_type)
+  expect_identical(PlotHeatmapJaccard(d, group_levels = groups, return_type = "data"), expected)
+})

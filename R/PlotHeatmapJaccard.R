@@ -182,19 +182,27 @@ PlotHeatmapJaccard <- function(
   } else {
     NULL
   }
+  group_rows <- if (is.character(group_values) && !is.object(group_values) &&
+                    is.character(ct_names) && !is.object(ct_names)) {
+    split(which(non_missing), match(group_values[non_missing], ct_names))
+  } else NULL
   top_sets <- lapply(
     stats::setNames(ct_keys, ct_labels),
     function(ct) {
-      group_match <- if (timespan[1L] && is.character(ct)) {
-        group_labels == ct
-      } else if (is.character(group_values) && inherits(ct, time_classes)) {
-        group_values == as.character(ct)
-      } else if (timespan[1L] && inherits(ct, time_classes)) {
-        vctrs::vec_equal(group_values, ct, na_equal = FALSE)
+      if (!is.null(group_rows)) {
+        rows <- group_rows[[as.character(match(ct, ct_names))]]
       } else {
-        group_values == ct
+        group_match <- if (timespan[1L] && is.character(ct)) {
+          group_labels == ct
+        } else if (is.character(group_values) && inherits(ct, time_classes)) {
+          group_values == as.character(ct)
+        } else if (timespan[1L] && inherits(ct, time_classes)) {
+          vctrs::vec_equal(group_values, ct, na_equal = FALSE)
+        } else {
+          group_values == ct
+        }
+        rows <- which(group_match & non_missing)
       }
-      rows <- which(group_match & non_missing)
       values <- if (typed_features) vctrs::vec_slice(feature_values, rows) else feature_values[rows]
       if (typed_features) vctrs::vec_unique(values) else unique(as.vector(values))
     }
