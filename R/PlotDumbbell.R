@@ -557,18 +557,21 @@ PlotDumbbell <- function(
   group_keys <- make.unique(group_labels)
   group_labels <- stats::setNames(group_labels, group_keys)
 
-  # Reshape to long format
+  # Reshape to long format in the plotting coordinates.
+  x_values <- data[[x_col]]
+  xend_values <- data[[xend_col]]
+  integer64_pair <- inherits(x_values, "integer64") && inherits(xend_values, "integer64")
   df_long <- rbind(
     data.frame(
       .id    = seq_len(nrow(data)),
       .group = group_keys[1L],
-      .value = data[[x_col]],
+      .value = if (integer64_pair) suppressWarnings(as.double(x_values)) else x_values,
       stringsAsFactors = FALSE
     ),
     data.frame(
       .id    = seq_len(nrow(data)),
       .group = group_keys[2L],
-      .value = data[[xend_col]],
+      .value = if (integer64_pair) suppressWarnings(as.double(xend_values)) else xend_values,
       stringsAsFactors = FALSE
     )
   )
@@ -624,8 +627,13 @@ PlotDumbbell <- function(
       "wilcox" = stats::wilcox.test,
       stop("inset_test must be 't.test', 'wilcox', or 'none'.", call. = FALSE)
     )
-    test_x <- data[[x_col]]
-    test_xend <- data[[xend_col]]
+    test_x <- x_values
+    test_xend <- xend_values
+    if (integer64_pair) {
+      difference <- .dumbbell_integer64_difference(test_x, test_xend)
+      test_x <- suppressWarnings(as.double(difference))
+      test_xend <- numeric(length(test_x))
+    }
     if (inherits(test_x, "difftime")) {
       test_x <- as.numeric(test_x, units = "secs")
     } else if (inherits(test_x, c("Date", "POSIXt")) ||

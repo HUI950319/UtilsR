@@ -679,3 +679,20 @@ test_that("integer64 dumbbell mean lines preserve fractions and cancellation", {
   expect_identical(p$layers[[5L]]$data$xintercept, 2.5)
   expect_identical(p$data$start, d$start)
 })
+
+test_that("automatic dumbbell insets test exact integer64 paired differences", {
+  skip_if_not_installed("bit64")
+  offsets <- bit64::as.integer64(c("0", "9007199254740992"))
+  differences <- c(1, 2, 3, 7, -5)
+  expected <- stats::t.test(differences, numeric(length(differences)), paired = TRUE)$p.value
+  for (i in seq_along(offsets)) {
+    d <- data.frame(start = offsets[i] + bit64::as.integer64(1:5))
+    d$end <- d$start + bit64::as.integer64(differences)
+    expect_no_warning(inset <- .build_dumbbell_inset(d, "start", "end",
+      "Start", "End", "blue", "red", "boxplot", "t.test", FALSE, FALSE,
+      ggplot2::theme_classic()))
+    label <- ggplot2::ggplot_build(inset)$data[[3L]]$label
+    expect_identical(label, sprintf("p = %.3f", expected))
+    expect_type(inset$data$.value, "double")
+  }
+})
