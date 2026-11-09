@@ -733,3 +733,19 @@ test_that("UpSet integral doubles match integer64 without scientific notation", 
   result <- plt_upset(d, c("a", "b"), levels = c(1.5, Inf, 2^63), output = "data")
   expect_identical(as.character(result$intersect_group), rep("None", 2L))
 })
+
+test_that("UpSet data groups keep factor order from integer codes", {
+  d <- data.frame(a = c(1, 0, 1, 0, 1, 1), b = c(0, 1, 1, 0, 1, 1))
+  fn <- plt_upset
+  env <- new.env(parent = environment(fn))
+  materialized <- 0L
+  env$factor <- function(x, ...) {
+    if (is.character(x) && length(x) == nrow(d)) materialized <<- materialized + 1L
+    base::factor(x, ...)
+  }
+  environment(fn) <- env
+  out <- fn(d, names(d), levels = 1, output = "data")
+  expect_identical(materialized, 0L)
+  expect_identical(out$intersect_group, factor(c("a", "b", "a/b", "None", "a/b", "a/b"),
+    levels = c("a/b", "a", "b", "None")))
+})

@@ -388,9 +388,12 @@ plt_upset <- function(data,
     counts <- tabulate(row_codes + 1L, nbins = bitwShiftL(1L, n_sets))
     region_order <- order(-counts[codes + 1L])
     row_ids <- match(row_codes, codes, nomatch = length(group_names))
+    ordered <- c(region_order, length(group_names))
+    level_codes <- integer(length(group_names))
+    level_codes[ordered] <- seq_along(ordered)
     grp_data <- data
-    grp_data$intersect_group <- factor(group_names[row_ids],
-                                       levels = c(group_names[region_order], tail(group_names, 1L)))
+    grp_data$intersect_group <- structure(level_codes[row_ids],
+                                          levels = group_names[ordered], class = "factor")
     return(grp_data)
   }
 

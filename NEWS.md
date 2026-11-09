@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_upset(output = "data")` assigns group factor codes without allocating a character label per input row.
+
 * `fct_to_combine()` avoids full missingness masks when every ordinary input is complete.
 
 * `plt_upset()` matches finite integral numeric queries against exact integer64 values in either direction.
