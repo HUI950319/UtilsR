@@ -1313,3 +1313,19 @@ test_that("console table alignment scales with columns", {
   expect_match(out[[5L]], "^>")
   expect_true(all(cli::ansi_nchar(out, type = "width") <= 100))
 })
+
+test_that("wide console trees retain only required hidden branch markers", {
+  withr::local_options(cli.num_colors = 1, cli.width = 80, width = 80)
+  original <- cli::tree
+  retained <- 0L
+  local_mocked_bindings(tree = function(data, ...) {
+    retained <<- nrow(data)
+    original(data, ...)
+  }, .package = "cli")
+  x <- stats::setNames(as.list(seq_len(3000)), paste0("entry_", seq_len(3000)))
+  out <- utils::capture.output(pr_tree(x, max_items = Inf, max_lines = 200))
+  expect_lte(retained, 202L)
+  expect_length(out, 201L)
+  expect_match(out[[200L]], "entry_199", fixed = TRUE)
+  expect_match(out[[201L]], "2,801 more lines", fixed = TRUE)
+})

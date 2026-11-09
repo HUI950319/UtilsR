@@ -958,9 +958,13 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
       # sibling names padded into a column, as str() lines them up, up to 18
       wid <- cli::ansi_nchar(nm, type = "width")
       pad <- min(max(c(0L, wid[seq_len(min(length(p), max_items))])), 18L)
+      had_stub <- FALSE
       for (k in seq_len(min(length(p), max_items))) {
         child <- p[[k]]
         h <- slot(shown)
+        if (h == "stub") {
+          if (had_stub) h <- "count" else had_stub <- TRUE
+        }
         child_label <- ""
         if (h == "show") {
           closed <- !(descend(child) && depth + 1 < max_depth)
