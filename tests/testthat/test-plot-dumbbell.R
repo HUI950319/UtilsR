@@ -536,3 +536,28 @@ test_that("dumbbell insets retain undefined Wilcoxon results", {
   expect_s3_class(p, "patchwork")
   expect_identical(d, before)
 })
+
+test_that("dumbbell inset annotations avoid intermediate range overflow", {
+  inset <- NULL
+  original <- .build_dumbbell_inset
+  local_mocked_bindings(.build_dumbbell_inset = function(...) {
+    inset <<- original(...)
+    inset
+  }, .package = "UtilsR")
+  for (unit in c(1, 1e308)) {
+    d <- data.frame(start = c(-1, -.7, .7, 1) * unit,
+      end = c(-.9, -.5, .6, .9) * unit, category = letters[1:4])
+    before <- d
+    suppressWarnings(dumbbell_plot(d, inset_plot = "auto", inset_test = "wilcox",
+      legend_pos = "none", inset_jitter = FALSE, inset_paired_line = FALSE))
+    built <- ggplot2::ggplot_build(inset)$data
+    bracket <- Filter(function(layer) "xend" %in% names(layer), built)[[1L]]
+    label <- Filter(function(layer) "label" %in% names(layer), built)[[1L]]
+    expect_true(all(is.finite(c(bracket$y, bracket$yend, label$y))))
+    expect_equal(bracket$y / unit, 1.1)
+    expect_equal(bracket$yend / unit, 1.1)
+    expect_equal(label$y / unit, 1.18)
+    expect_s3_class(ggplot2::ggplotGrob(inset), "gtable")
+    expect_identical(d, before)
+  }
+})

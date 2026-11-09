@@ -599,13 +599,19 @@ PlotDumbbell <- function(
     y_range <- range(df_long$.value, na.rm = TRUE)
     if (is.integer(y_range) && !is.object(y_range)) y_range <- as.double(y_range)
     y_span <- diff(y_range)
-    bracket_y <- y_max + y_span * 0.05
+    bracket_offset <- y_span * 0.05
+    text_offset <- y_span * 0.04
+    if (!is.finite(y_span) && !is.object(y_range) && all(is.finite(y_range))) {
+      bracket_offset <- y_range[2L] * 0.05 - y_range[1L] * 0.05
+      text_offset <- y_range[2L] * 0.04 - y_range[1L] * 0.04
+    }
+    bracket_y <- y_max + bracket_offset
 
     pi <- pi +
       ggplot2::annotate("segment", x = 1, xend = 2,
                         y = bracket_y, yend = bracket_y,
                         color = "black", linewidth = 0.4) +
-      ggplot2::annotate("text", x = 1.5, y = bracket_y + y_span * 0.04,
+      ggplot2::annotate("text", x = 1.5, y = bracket_y + text_offset,
                         label = p_fmt, size = 2.5, color = "black")
   }
 
