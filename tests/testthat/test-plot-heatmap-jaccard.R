@@ -655,3 +655,25 @@ test_that("Jaccard factor groups use one membership index", {
   expect_equal(result["B", c("C", "A", "D")], c(C = .98, A = .98, D = 0))
   expect_identical(unname(diag(result)), c(1, 1, 1, 0))
 })
+
+test_that("Jaccard numeric group membership uses one exact index", {
+  d <- data.frame(group = rep(c(.25, 2.5, 30), each = 4L),
+    gene = c("a", "b", "b", NA, "a", "c", "c", "a", "a", "d", "d", "a"))
+  fn <- PlotHeatmapJaccard
+  env <- new.env(parent = environment(fn))
+  scans <- 0L
+  env[["=="]] <- function(x, y) {
+    if (is.double(x) && length(x) == nrow(d) && length(y) == 1L) scans <<- scans + 1L
+    base::`==`(x, y)
+  }
+  environment(fn) <- env
+  m <- fn(d, group_col = "group", group_levels = c(30, .25, 2.5, 99), return_type = "data")
+  expected <- matrix(0, 4L, 4L)
+  expected[1:3, 1:3] <- 1/3
+  diag(expected) <- c(1, 1, 1, 0)
+  expect_identical(scans, 0L)
+  expect_identical(rownames(m), c("30", "0.25", "2.5", "99"))
+  expect_equal(unname(m), expected)
+  d$group[1L] <- .25 + .Machine$double.eps / 4
+  expect_error(fn(d, group_col = "group", return_type = "data"), "duplicate")
+})
