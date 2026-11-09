@@ -285,7 +285,8 @@ PlotDumbbell <- function(
   }
 
   # ---- Factor Y axis (preserving sorted order) ----
-  data[[y_col]] <- factor(data[[y_col]], levels = unique(data[[y_col]]))
+  categories <- .butterfly_category_labels(data[[y_col]])
+  data[[y_col]] <- factor(categories, levels = unique(categories))
 
   # ---- Build plot ----
   p <- ggplot2::ggplot(data)

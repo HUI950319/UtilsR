@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotDumbbell()` retains distinct nearby numeric categories using precise labels when their ordinary text collides.
+
 * `PlotHeatmapJaccard()` distinguishes negative integer64 feature identifiers instead of merging their encoded storage.
 
 * `PlotButterfly()` completes unique category columns when stat, fill or group roles share a source column.

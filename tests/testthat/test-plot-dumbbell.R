@@ -390,3 +390,13 @@ test_that("dumbbell category columns retain vector boundaries", {
   d[["category"]] <- c("a", "b")
   expect_s3_class(PlotDumbbell(d, legend_pos = "none"), "ggplot")
 })
+
+test_that("dumbbell numeric categories retain exact identity", {
+  d <- data.frame(start = c(1, 3), end = c(2, 4), category = c(1, 1 + .Machine$double.eps))
+  p <- PlotDumbbell(d, sort_by = "none", legend_pos = "none")
+  expect_identical(as.integer(p$data$category), 1:2)
+  expect_identical(levels(p$data$category), sprintf("%.17g", d$category))
+  expect_equal(as.numeric(ggplot2::ggplot_build(p)$data[[1L]]$y), 1:2)
+  d$category <- c(1, 2)
+  expect_identical(levels(PlotDumbbell(d, legend_pos = "none")$data$category), c("1", "2"))
+})
