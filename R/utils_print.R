@@ -181,7 +181,7 @@
   avail <- max(1L, width - kw - 2L)
   lead  <- strrep(" ", kw + 2)
   unlist(lapply(seq_along(keys), function(i) {
-    segs <- cli::ansi_strsplit(vals[[i]], "\n", fixed = TRUE)[[1]]
+    segs <- cli::ansi_strsplit(paste0(vals[[i]], "\n"), "\n", fixed = TRUE)[[1]]
     body <- unlist(lapply(if (length(segs)) segs else "", function(s) {
       if (nzchar(cli::ansi_strip(s))) ._pr_wrap(s, width = avail) else ""
     }))
@@ -1089,7 +1089,7 @@ pr_box <- function(x, header = NULL, footer = NULL, col = "cyan") {
   lines <- if (is.character(x) && is.null(names(x))) {
     unlist(lapply(x, function(s) {
       if (is.na(s) || !grepl("\n", s, fixed = TRUE)) return(._pr_wrap(s, width = avail))
-      segs <- cli::ansi_strsplit(s, "\n", fixed = TRUE)[[1]]
+      segs <- cli::ansi_strsplit(paste0(s, "\n"), "\n", fixed = TRUE)[[1]]
       unlist(lapply(segs, function(part) {
         if (nzchar(cli::ansi_strip(part))) ._pr_wrap(part, width = avail) else part
       }))

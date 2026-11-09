@@ -1208,7 +1208,7 @@ test_that("plain boxed text keeps embedded newlines and their ANSI styles", {
   expect_length(out, 4L)
   expect_match(out[2], "first", fixed = TRUE)
   expect_match(out[3], "second", fixed = TRUE)
-  expect_length(utils::capture.output(pr_box("first\n\nsecond\n")), 5L)
+  expect_length(utils::capture.output(pr_box("first\n\nsecond\n")), 6L)
   expect_length(utils::capture.output(pr_box("")), 3L)
   withr::local_options(cli.num_colors = 256)
   out <- utils::capture.output(pr_box(cli::col_red("first\nsecond")))
@@ -1271,5 +1271,18 @@ test_that("stored S4 values restore methods without attaching their package", {
     out <- system2(file.path(R.home("bin"), "Rscript"),
       c("--vanilla", shQuote(script), shQuote(value_file), input), stdout = TRUE, stderr = TRUE)
     expect_identical(out, "messages=0;attached=")
+  }
+})
+
+test_that("boxed and key value output retain trailing blank rows", {
+  withr::local_options(cli.num_colors = 1L, width = 60L)
+  plain <- utils::capture.output(pr_box("value"))
+  for (n in 1:2) {
+    text <- paste0("value", strrep("\n", n))
+    box <- utils::capture.output(pr_box(text))
+    key <- utils::capture.output(pr_kv(list(key = text)))
+    expect_length(box, length(plain) + n)
+    expect_length(key, 1L + n)
+    expect_identical(trimws(tail(key, n)), rep("", n))
   }
 })
