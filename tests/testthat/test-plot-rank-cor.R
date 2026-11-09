@@ -836,3 +836,25 @@ test_that("rank correlation orders only aggregated pivot keys", {
   expect_identical(attr(p, "cor_results"), attr(reference, "cor_results"))
   expect_lt(examined, nrow(d))
 })
+
+test_that("unique rank correlation scores bypass singleton means", {
+  fn <- PlotRankCor
+  e <- new.env(parent = environment(fn))
+  singleton_means <- 0L
+  e$mean <- function(x, ...) {
+    if (length(x) == 1L) singleton_means <<- singleton_means + 1L
+    base::mean(x, ...)
+  }
+  environment(fn) <- e
+  n <- 1500L
+  d <- data.frame(item = rep(seq_len(n), 2), method = rep(c("a", "b"), each = n),
+                  score = rep(seq_len(n), 2) + rep(c(0, .25), each = n))
+  d$score[1:4] <- c(NA_real_, -0, NaN, Inf)
+  invisible(capture.output(p <- fn(d, "item", "score", method.by = "method",
+    use_rank = FALSE, show.label = FALSE)))
+  invisible(capture.output(reference <- PlotRankCor(d, "item", "score", method.by = "method",
+    use_rank = FALSE, show.label = FALSE)))
+  expect_true(identical(p$data, reference$data, num.eq = FALSE, single.NA = FALSE))
+  expect_identical(attr(p, "cor_results"), attr(reference, "cor_results"))
+  expect_lt(singleton_means, 10L)
+})

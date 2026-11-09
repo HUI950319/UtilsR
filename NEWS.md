@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Reuse singleton scores directly in the rank-correlation pivot, preserving the existing missing and signed-zero results.
+
 * Aggregate repeated feature, group and method keys before ordering them for the rank-correlation pivot.
 
 * Compute automatic cut points in shifted coordinates when a normal numeric offset hides a subnormal spread.
