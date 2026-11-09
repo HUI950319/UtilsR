@@ -217,3 +217,21 @@ test_that("margin additions reject non-graphics before building the main plot", 
   additions <- list(grid::rectGrob(), grid::textGrob("Note"))
   expect_s3_class(grob_add(p, additions, space = grid::unit(1, "cm")), "gtable")
 })
+
+test_that("grob lists receive automatic margin dimensions", {
+  withr::local_pdf(NULL)
+  p <- gtable::gtable(widths = grid::unit(1, "in"), heights = grid::unit(1, "in"))
+  p <- gtable::gtable_add_grob(p, grid::rectGrob(), t = 1, l = 1, name = "panel")
+  additions <- list(grid::rectGrob(width = grid::unit(3, "cm"), height = grid::unit(1, "cm")),
+                    grid::rectGrob(width = grid::unit(4, "cm"), height = grid::unit(2, "cm")))
+  for (position in c("top", "bottom", "left", "right")) {
+    actual <- grob_add(p, additions, position = position)
+    vertical <- position %in% c("top", "bottom")
+    expected <- grob_add(p, additions, position = position, space = grid::unit(if (vertical) 2 else 4, "cm"))
+    expect_equal(actual$layout, expected$layout)
+    size <- if (vertical) actual$heights else actual$widths
+    reference <- if (vertical) expected$heights else expected$widths
+    expect_equal(grid::convertUnit(size, "cm", valueOnly = TRUE), grid::convertUnit(reference, "cm", valueOnly = TRUE))
+    expect_no_error(grid::grid.draw(actual))
+  }
+})

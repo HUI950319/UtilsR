@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Margin additions accept grob lists without an explicit space by allocating the largest child dimension while preserving their overlay placement.
+
 * Jaccard gradient endpoints use validated factor colour labels while retaining native numeric palette indices and transparency.
 
 * Automatic numeric bins rescale subnormal values before quantile interpolation or equal-width cutting, preserving bin membership across changes of units.
