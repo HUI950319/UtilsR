@@ -531,3 +531,14 @@ test_that("tile mode returns the input container type", {
   # Formatted plots still combine with their own strips.
   expect_equal(nrow(axis_tile_rects(patchwork::patchworkGrob(q | q))), 6L)
 })
+
+test_that("axis tiles render when zoom clips every category", {
+  d <- data.frame(x = letters[1:3], y = 1:3)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  colors <- c(a = "red", b = "blue", c = "green")
+  for (flip in c(FALSE, TRUE)) {
+    view <- if (flip) ggplot2::coord_flip(xlim = c(10, 11)) else ggplot2::coord_cartesian(xlim = c(10, 11))
+    plot <- fmt_axisTile(p + view, colors = colors, axis = if (flip) "y" else "x")
+    expect_s3_class(ggplot2::ggplotGrob(plot), "gtable")
+  }
+})

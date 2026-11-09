@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_axisTile()` draws an empty guide when the viewport clips every tile.
+
 * `fmt_strip2()` preserves existing facet-specific scales and transformations when replacing a single-panel header.
 
 * `plt_upset()` returns a zero-row membership frame for NULL sets and preserves empty indicator column types.

@@ -3736,6 +3736,7 @@ fmt_axisTile <- function(plot,
       low <- pmax(0, pmin(key$.fmt_lower, key$.fmt_upper))
       high <- pmin(1, pmax(key$.fmt_lower, key$.fmt_upper))
       keep <- is.finite(low) & is.finite(high) & high > low
+      if (!any(keep)) return(grid::nullGrob())
       fill <- unname(settings$colors[as.character(key$.value[keep])])
       fill[is.na(fill)] <- "grey70"
       position <- (low[keep] + high[keep]) / 2
