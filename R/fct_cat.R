@@ -314,7 +314,14 @@ fct_cat <- function(x, ...,
 
 .as_factor <- function(x) {
   .register_integer64(x)
-  if (is.factor(x)) x else factor(x)
+  if (is.factor(x)) return(x)
+  if (is.double(x) && !is.object(x) && is.null(dim(x))) {
+    distinct <- sort(unique(x), na.last = NA)
+    labels <- as.character(distinct)
+    if (anyDuplicated(labels)) labels <- sprintf("%.17g", distinct)
+    return(structure(match(x, distinct), names = names(x), levels = labels, class = "factor"))
+  }
+  factor(x)
 }
 
 .register_integer64 <- function(x) {

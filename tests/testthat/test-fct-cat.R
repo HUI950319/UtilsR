@@ -672,3 +672,15 @@ test_that("plain integer selectors avoid redundant numeric conversion scans", {
   expect_error(fn(c(0L, 2L), "indices", 2), "between 1")
   expect_error(fn(c(1, 1.5), "indices", 2), "finite integer")
 })
+
+test_that("factor helpers preserve close numeric identities and numeric ordering", {
+  x <- c(high = 10, near = 1 + .Machine$double.eps, low = 1, missing = NA_real_)
+  actual <- fct_cat(x)
+  expect_identical(as.integer(actual), c(3L, 2L, 1L, NA_integer_))
+  expect_identical(as.numeric(levels(actual)), sort(unname(x), na.last = NA))
+  expect_identical(names(actual), names(x))
+  expect_identical(as.character(fct_to_group(x, list(small = 1:2))),
+    c("10", "small", "small", NA_character_))
+  ordinary <- c(y = 12.5, x = 2.5, z = NA_real_)
+  expect_identical(fct_cat(ordinary), factor(ordinary))
+})
