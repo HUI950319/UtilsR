@@ -166,7 +166,7 @@ PlotHeatmapJaccard <- function(
   if (inherits(group_values, "haven_labelled"))
     group_values <- as.vector(group_values)
   # Cache equality proxies without repeatedly restoring S4 time span objects.
-  typed_features <- timespan[2L] || integer64[2L]
+  typed_features <- timespan[2L] || integer64[2L] || inherits(data[[name_col]], "POSIXlt")
   feature_values <- if (typed_features) {
     vctrs::vec_proxy_equal(data[[name_col]])
   } else {

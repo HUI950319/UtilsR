@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Jaccard heatmaps compare POSIXlt features through equality proxies, preventing nearby instants from merging during list coercion.
+
 * UpSet membership distinguishes explicit NA factor levels from missing codes, including ordered factors and all-factor member lists.
 
 * System diagnostics suppress raw collection warnings and retain their single controlled memory-failure warning on Windows and Linux fallbacks.

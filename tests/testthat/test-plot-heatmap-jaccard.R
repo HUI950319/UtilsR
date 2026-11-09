@@ -609,3 +609,16 @@ test_that("character Jaccard groups avoid repeated full column scans", {
   d$cell_type <- factor(d$cell_type)
   expect_identical(PlotHeatmapJaccard(d, group_levels = groups, return_type = "data"), expected)
 })
+
+test_that("Jaccard sets retain precise POSIXlt feature identities", {
+  d <- data.frame(cell_type = c("A", "B", "C", "C", "C"))
+  d$gene <- as.POSIXct(c(1, 1 + .Machine$double.eps, 1, 1 + .Machine$double.eps, NA), origin = "1970-01-01", tz = "UTC")
+  expected <- PlotHeatmapJaccard(d, return_type = "data")
+  d$gene <- as.POSIXlt(d$gene)
+  before <- serialize(d, NULL)
+  actual <- PlotHeatmapJaccard(d, return_type = "data")
+  expect_identical(actual, expected)
+  expect_identical(actual["A", "B"], 0)
+  expect_identical(actual["A", "C"], .5)
+  expect_identical(serialize(d, NULL), before)
+})
