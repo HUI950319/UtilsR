@@ -122,6 +122,12 @@ stat_pval <- function(x,
   .add_stars <- function(pvals, map, endpoints = NULL) {
     .validate_signif_map(map)
     map <- sort(map)
+    if (is.null(endpoints) && !is.object(pvals)) {
+      index <- findInterval(pvals, map, left.open = TRUE) + 1L
+      stars <- c(names(map), "")[index]
+      stars[is.na(pvals)] <- ""
+      return(stars)
+    }
     out <- rep("", length(pvals))
     observed <- !is.na(pvals)
     decimal <- function(text) {

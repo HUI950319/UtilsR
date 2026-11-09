@@ -575,3 +575,19 @@ test_that("oversized decimal mantissas preserve finite P values", {
   expect_identical(stat_pval(paste0("-2", zeros, "e-5001"), mode = "plain"), "-0.20")
   expect_identical(stat_pval(paste0("<2", zeros, "e-5001")), paste0("<2", zeros, "e-5001"))
 })
+
+test_that("numeric significance lookup avoids repeated full vector comparisons", {
+  fn <- stat_pval
+  e <- new.env(parent = environment(fn))
+  examined <- 0L
+  e$`<=` <- function(x, y) {
+    examined <<- examined + length(x)
+    base::`<=`(x, y)
+  }
+  environment(fn) <- e
+  p <- rep(c(0, .05, .5, 1, NA_real_), 2000)
+  map <- stats::setNames(seq(0, 1, length.out = 30), sprintf("S%02d", 1:30))
+  actual <- fn(p, map_signif = map)
+  expect_lte(examined, 2L * length(p))
+  expect_identical(actual, rep(c("<0.001S01", "0.050S03", "0.500S16", "1.000S30", NA_character_), 2000))
+})
