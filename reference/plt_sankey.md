@@ -234,7 +234,6 @@ df <- data.frame(
 
 # Basic sankey
 plt_sankey(df, vars = c("sex", "stage", "grade"))
-#> Warning: attributes are not identical across measure variables; they will be dropped
 #> Warning: The `size` argument of `element_rect()` is deprecated as of ggplot2 3.4.0.
 #> ℹ Please use the `linewidth` argument instead.
 #> ℹ The deprecated feature was likely used in the ggsankey package.
@@ -243,33 +242,27 @@ plt_sankey(df, vars = c("sex", "stage", "grade"))
 
 # Two variables
 plt_sankey(df, vars = c("sex", "stage"))
-#> Warning: attributes are not identical across measure variables; they will be dropped
 
 
 # Map column names to axis labels
 plt_sankey(df, vars = c(sex = "Sex", stage = "Disease\nstage"))
-#> Warning: attributes are not identical across measure variables; they will be dropped
 
 
 # Custom palette
 plt_sankey(df, vars = c("sex", "stage"), palette = "Paired")
-#> Warning: attributes are not identical across measure variables; they will be dropped
 
 
 # Without counts in labels
 plt_sankey(df, vars = c("sex", "stage", "grade"), show_text = "pct")
-#> Warning: attributes are not identical across measure variables; they will be dropped
 
 
 # Count and percentage on the second line, with compact line spacing
 plt_sankey(df, vars = c("sex", "stage", "grade"), show_text = "all_wrap",
            label_args = list(lineheight = 1))
-#> Warning: attributes are not identical across measure variables; they will be dropped
 
 
 # Adjust appearance
 plt_sankey(df, vars = c("sex", "stage"),
            flow_args = list(alpha = 0.4), node_args = list(width = 0.3),
            label_args = list(size = 4, box = FALSE, min_pct = 0.05))
-#> Warning: attributes are not identical across measure variables; they will be dropped
 ```

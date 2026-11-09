@@ -302,8 +302,6 @@ dl <- data.frame(A = rnorm(40, 0.7, 0.2), B = rnorm(40, 0.3, 0.1))
 dr <- data.frame(A = rnorm(40, 0.3, 0.15), B = rnorm(40, 0.7, 0.2))
 PlotButterfly(type = "violin", data.left = dl, data.right = dr,
               left.title = "Condition A", right.title = "Condition B")
-#> Warning: Vectorized input to `element_text()` is not officially supported.
-#> ℹ Results may be unexpected or may change in future versions of ggplot2.
 
 
 # Violin with reference line and custom colours
@@ -311,7 +309,5 @@ PlotButterfly(type = "violin", data.left = dl, data.right = dr,
               left.title = "Group A", right.title = "Group B",
               palette = c("#66a686", "#5292c4"),
               ref.line = 0.25, add_point = TRUE)
-#> Warning: Vectorized input to `element_text()` is not officially supported.
-#> ℹ Results may be unexpected or may change in future versions of ggplot2.
 
 ```

@@ -407,10 +407,8 @@ plt_cat(df, "Type", "Group", type = "bar", aspect.ratio = 0.5)
 
 # ===== 8. Sankey =====
 plt_cat(df, c("Type", "Group"), type = "sankey")
-#> Warning: attributes are not identical across measure variables; they will be dropped
 
 plt_cat(df, c("Type", "Group", "Batch"), type = "sankey")
-#> Warning: attributes are not identical across measure variables; they will be dropped
 
 
 # ===== 9. Chord =====

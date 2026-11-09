@@ -239,16 +239,12 @@ df <- data.frame(
 PlotButterfly2(df, stat.by = "celltype", value.by = "logFC",
                group.by = "method", fill.by = "comparison",
                ref.line = 0)
-#> Warning: Vectorized input to `element_text()` is not officially supported.
-#> ℹ Results may be unexpected or may change in future versions of ggplot2.
 
 
 # Beeswarm with dodge
 PlotButterfly2(df, stat.by = "celltype", value.by = "logFC",
                group.by = "method", fill.by = "comparison",
                type = "beeswarm_quasirandom", ref.line = 0)
-#> Warning: Vectorized input to `element_text()` is not officially supported.
-#> ℹ Results may be unexpected or may change in future versions of ggplot2.
 #> Orientation inferred to be along y-axis; override with
 #> `position_quasirandom(orientation = 'x')`
 #> Orientation inferred to be along y-axis; override with
@@ -260,8 +256,6 @@ PlotButterfly2(df[df$comparison == "PHPT", ],
                stat.by = "celltype", value.by = "logFC",
                group.by = "method", type = "beeswarm",
                color_by = "logFC", ref.line = 0)
-#> Warning: Vectorized input to `element_text()` is not officially supported.
-#> ℹ Results may be unexpected or may change in future versions of ggplot2.
 #> Orientation inferred to be along y-axis; override with
 #> `position_beeswarm(orientation = 'x')`
 #> Orientation inferred to be along y-axis; override with

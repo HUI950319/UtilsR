@@ -210,8 +210,8 @@ its `combined` element.
 
 ## Note
 
-Requires ggVennDiagram; UpSet and combined layouts use aplot. Install
-with `pak::pak(c("ggVennDiagram", "aplot"))`.
+Plot outputs require ggVennDiagram; UpSet and combined layouts use
+aplot. Install with `pak::pak(c("ggVennDiagram", "aplot"))`.
 
 ## See also
 
