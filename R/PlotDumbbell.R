@@ -295,6 +295,11 @@ PlotDumbbell <- function(
 
   # ---- Factor Y axis (preserving sorted order) ----
   categories <- .butterfly_category_labels(data[[y_col]])
+  if (is.factor(categories) && anyNA(levels(categories))) {
+    labels <- levels(categories)
+    labels[is.na(labels)] <- utils::tail(make.unique(c(labels[!is.na(labels)], "<NA>")), 1L)
+    levels(categories) <- labels
+  }
   data[[y_col]] <- factor(categories, levels = unique(categories))
 
   # ---- Build plot ----

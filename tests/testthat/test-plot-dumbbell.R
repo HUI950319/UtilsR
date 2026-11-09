@@ -584,3 +584,15 @@ test_that("dumbbell factor endpoint labels retain displayed text", {
   expect_identical(as.character(ggplot2::ggplot_build(direct)$layout$panel_params[[1L]]$x$get_labels()),
                    c("Before", "After"))
 })
+
+test_that("dumbbell category axes distinguish explicit factor missing levels", {
+  d <- data.frame(start = 1:4, end = 2:5,
+    category = structure(c(2L, NA_integer_, 1L, 3L),
+      levels = c("ordinary", NA_character_, "<NA>"), class = "factor"))
+  before <- d
+  p <- dumbbell_plot(d, sort_by = "none", legend_pos = "none")
+  expect_identical(as.character(p$data$category), c("<NA>.1", NA, "ordinary", "<NA>"))
+  segment <- ggplot2::ggplot_build(p)$data[[1L]]
+  expect_length(unique(segment$y), 4L)
+  expect_identical(d, before)
+})

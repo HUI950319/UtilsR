@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Give an explicit NA factor level a distinct label on dumbbell category axes, retaining genuine missing rows and literal labels.
+
 * Return UpSet intersection data without loading ggVennDiagram, which is needed only when drawing a Venn or UpSet plot.
 
 * Keep points with missing feature names without treating missing names as a common feature or attempting to link them.
