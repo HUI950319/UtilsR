@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Percentage-only missingness plots count verified complete plain columns without allocating their missingness masks; classed columns and matrix outputs retain the original path.
+
 * Circular lollipop scores and dumbbell endpoints normalize SPSS user-missing codes before ranking, scaling, differences, and means, consistently with scatter plots.
 
 * Rank correlation plots reuse one set of group row locations for both coordinate scaling and per-group correlations instead of rescanning the complete plot table for each group.

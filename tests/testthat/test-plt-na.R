@@ -381,3 +381,29 @@ test_that("plt_na percentage labels fit inside their panel at both endpoints", {
     grid::popViewport()
   }
 })
+
+test_that("percentage missingness skips masks for complete plain columns", {
+  fn <- plt_na
+  e <- new.env(parent = environment(fn))
+  examined <- 0L
+  e$is.na <- function(x) {
+    if (length(x) == 2000L) examined <<- examined + length(x)
+    base::is.na(x)
+  }
+  e$.plt_na_plot <- function(...) list(...)
+  environment(fn) <- e
+  d <- as.data.frame(stats::setNames(rep(list(seq_len(2000L)), 10), paste0("v", 1:10)))
+  d$partial <- replace(seq_len(2000L), 2L, NA_integer_)
+  before <- d
+  result <- fn(d, output = "percentage")
+  expect_identical(examined, nrow(d))
+  expect_null(result$missing_data)
+  expect_identical(result$missing_vars, "partial")
+  expect_equal(result$missing_summary$num, c(1999, 1))
+  examined <- 0L
+  matrix <- fn(d, output = "matrix")
+  expect_identical(examined, nrow(d) * ncol(d))
+  expect_identical(matrix$missing_data$partial, is.na(d$partial))
+  expect_identical(result$missing_summary, matrix$missing_summary)
+  expect_identical(d, before)
+})

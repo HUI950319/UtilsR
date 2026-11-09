@@ -115,6 +115,7 @@ plt_na <- function(
     if (!is.null(pkg) && !requireNamespace(pkg, quietly = TRUE)) {
       cli::cli_abort("Inspecting {.cls {class(x)[1]}} columns requires package {.pkg {pkg}}.")
     }
+    if (!keep_masks && !is.object(x) && is.atomic(x) && !anyNA(x)) return(0L)
     mask <- is.na(x)
     if (keep_masks) mask else sum(mask)
   })
