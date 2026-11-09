@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Scatter group preparation keeps exact numeric and time category identities before factor conversion, including explicit typed group orders and both dual-group roles.
+
 * Percentage-only missingness plots count verified complete plain columns without allocating their missingness masks; classed columns and matrix outputs retain the original path.
 
 * Circular lollipop scores and dumbbell endpoints normalize SPSS user-missing codes before ranking, scaling, differences, and means, consistently with scatter plots.

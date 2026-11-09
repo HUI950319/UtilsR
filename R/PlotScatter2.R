@@ -6,6 +6,7 @@
 #
 #   L1  PlotScatter2(data, x, y, group, ...)        -- public API
 #         +-- L2  .make_scatter2_legend()   bottom-right legend panel
+#         +-- L2  .scatter_group_factor()   exact typed group labels (shared)
 # =============================================================================
 
 #' Dual-Group Scatter Plot with Multi-Variable Marginal Boxplots
@@ -228,9 +229,9 @@ PlotScatter2 <- function(
     if (x == col) x <- axis_col
     if (y == col) y <- axis_col
   }
-  df[[group]] <- factor(df[[group]], levels = unique(df[[group]]))
+  df[[group]] <- .scatter_group_factor(df[[group]])
   if (!is.null(group2)) {
-    df[[group2]] <- factor(df[[group2]], levels = unique(df[[group2]]))
+    df[[group2]] <- .scatter_group_factor(df[[group2]])
   }
 
   # ---- Colours / shapes ----

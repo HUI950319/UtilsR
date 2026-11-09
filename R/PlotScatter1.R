@@ -207,9 +207,9 @@ PlotScatter1 <- function(
       stop("Package 'bit64' is required for integer64 grouping columns.", call. = FALSE)
   }
   if (!is.null(group_levels)) {
-    df[[group_col]] <- factor(df[[group_col]], levels = group_levels)
+    df[[group_col]] <- .scatter_group_factor(df[[group_col]], levels = group_levels)
   } else if (!is.factor(df[[group_col]])) {
-    df[[group_col]] <- factor(df[[group_col]], levels = unique(df[[group_col]]))
+    df[[group_col]] <- .scatter_group_factor(df[[group_col]])
   }
 
   grp_lvls <- levels(df[[group_col]])
@@ -526,6 +526,24 @@ PlotScatter1 <- function(
   }
 
   p_combined
+}
+
+# Keep exact typed categories separate from their potentially rounded labels.
+.scatter_group_factor <- function(value, levels = vctrs::vec_unique(value)) {
+  if (is.factor(value)) return(factor(value, levels = levels))
+  combined <- if (is.character(levels)) value else tryCatch(
+    vctrs::vec_c(value, levels), error = function(e) NULL)
+  if (is.null(combined)) return(factor(value, levels = levels))
+  label_values <- if (inherits(combined, "haven_labelled")) vctrs::vec_data(combined) else combined
+  labels <- as.character(.butterfly_category_labels(label_values))
+  labels[is.na(combined)] <- as.character(combined)[is.na(combined)]
+  level_labels <- if (is.character(levels)) levels else labels[length(value) + seq_along(levels)]
+  labels <- labels[seq_along(value)]
+  if (identical(labels, as.character(value)) && identical(level_labels, as.character(levels))) {
+    return(factor(value, levels = levels))
+  }
+  names(labels) <- names(value)
+  factor(labels, levels = level_labels)
 }
 
 # Normalize encoded user-missing values before numeric scatter operations.

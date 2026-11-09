@@ -1067,7 +1067,8 @@ test_that("PlotScatter2 preserves integer64 group identifiers in a fresh process
   source_file <- file.path(scratch, "scatter2.R")
   input_file <- file.path(scratch, "groups.rds")
   script_file <- file.path(scratch, "verify.R")
-  dump(c("PlotScatter2", ".make_scatter2_legend"), file = source_file,
+  dump(c("PlotScatter2", ".make_scatter2_legend", ".scatter_group_factor",
+         ".butterfly_category_labels", ".cat_time_key", ".register_integer64"), file = source_file,
        envir = environment(PlotScatter2))
   data <- data.frame(x = 1:12, y = 12:1)
   data$g <- bit64::as.integer64(rep(c("9007199254740993", "9007199254740995"), 6))
@@ -1172,7 +1173,9 @@ test_that("scatter and rank groups decode integer64 storage in cold processes", 
   source_file <- file.path(scratch, "functions.R")
   input_file <- file.path(scratch, "input.rds")
   script_file <- file.path(scratch, "verify.R")
-  dump(c("PlotScatter1", "PlotScatter3", "PlotRank", ".pr_parse", ".resolve_theme"), source_file, envir = environment(PlotScatter1))
+  dump(c("PlotScatter1", "PlotScatter3", "PlotRank", ".pr_parse", ".resolve_theme",
+         ".scatter_group_factor", ".butterfly_category_labels", ".cat_time_key",
+         ".register_integer64"), source_file, envir = environment(PlotScatter1))
   labels <- c("9007199254740993", "9007199254740995")
   d <- data.frame(x = 1:8, y = c(2, 4, 3, 5, 7, 6, 9, 8), gene = letters[1:8])
   d[["g"]] <- bit64::as.integer64(rep(labels, 4L))
@@ -1288,4 +1291,36 @@ test_that("paired scatter automatic histogram padding stays finite", {
     expect_equal(sum(ggplot2::ggplot_build(histogram)$data[[1L]]$count), nrow(d))
     if (unit == 1) expect_identical(limits, c(-16, 16) * 1.2)
   }
+})
+
+test_that("scatter factors preserve nearby typed group identities", {
+  values <- list(c(1, 1 + .Machine$double.eps), as.Date(c(1, 1.5), origin = "1970-01-01"),
+                 as.difftime(c(1, 1 + .Machine$double.eps), units = "secs"))
+  for (value in values) {
+    d <- data.frame(x = 1:8, y = c(2, 4, 3, 5, 6, 9, 7, 8), g = value[rep(1:2, each = 4)])
+    before <- serialize(d, NULL)
+    p1 <- PlotScatter1(d, "x", "y", "g", group_levels = rev(value), show_ellipse = FALSE,
+                       box_jitter = FALSE, legend_pos = "none")
+    expect_equal(scatter_main_points(attr(p1, "grobs")$full), nrow(d))
+    p2 <- PlotScatter2(d, "x", "y", "g", group2 = "g", legend_shape_pos = "none")
+    expect_identical(as.integer(p2[[1L]]$data$g), rep(1:2, each = 4))
+    expect_identical(anyDuplicated(levels(p2[[1L]]$data$g)), 0L)
+    p3 <- PlotScatter3(d, "x", "y", "g", group_levels = rev(value),
+      test_method = "none", cor_method = "none", theme_use = ggplot2::theme_classic)
+    expect_identical(as.integer(p3[[1L]]$data$g), rep(2:1, each = 4))
+    expect_identical(serialize(d, NULL), before)
+    expect_identical(as.integer(.scatter_group_factor(d$g, levels = value[2L])),
+                     c(rep(NA_integer_, 4), rep(1L, 4)))
+  }
+  for (value in values) {
+    out <- .scatter_group_factor(value[2L], levels = value)
+    expect_identical(as.integer(out), 2L)
+    expect_identical(anyDuplicated(levels(out)), 0L)
+  }
+  skip_if_not_installed("haven")
+  x <- haven::labelled(c(1, 1 + .Machine$double.eps))
+  expect_identical(as.integer(.scatter_group_factor(x)), 1:2)
+  x <- c(1, 1 + .Machine$double.eps, NA_real_, NaN)
+  control <- c(1, 2, NA_real_, NaN)
+  expect_identical(is.na(.scatter_group_factor(x)), is.na(factor(control, levels = unique(control))))
 })

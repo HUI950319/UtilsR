@@ -219,7 +219,7 @@ PlotScatter3 <- function(
       stop("Package 'bit64' is required for integer64 grouping columns.", call. = FALSE)
   }
   if (is.null(group_levels)) {
-    group_levels <- unique(data[[group]])
+    group_levels <- vctrs::vec_unique(data[[group]])
     if (length(group_levels) != 2) {
       stop("group must have exactly 2 levels (insignificant and significant).",
            call. = FALSE)
@@ -227,9 +227,10 @@ PlotScatter3 <- function(
   }
   if (!is.atomic(group_levels) || is.complex(group_levels) ||
       !is.null(dim(group_levels)) || length(group_levels) != 2L ||
-      anyNA(group_levels) || anyDuplicated(as.character(group_levels)))
+      anyNA(group_levels) || anyDuplicated(group_levels))
     stop("'group_levels' must contain two distinct, non-missing values.", call. = FALSE)
-  data[[group]] <- factor(data[[group]], levels = group_levels)
+  data[[group]] <- .scatter_group_factor(data[[group]], levels = group_levels)
+  group_levels <- levels(data[[group]])
 
   # Colour scheme
   if (is.null(insig_border)) insig_border <- highlight_color
