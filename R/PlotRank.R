@@ -189,7 +189,10 @@ PlotRank <- function(
   if (!is.null(group_levels)) {
     score_list <- score_list[intersect(group_levels, names(score_list))]
   }
-  score_list <- lapply(score_list, function(v) v[!is.na(v)])
+  score_list <- lapply(score_list, function(v) {
+    if (!is.object(v) && !anyNA(v)) return(v)
+    v[!is.na(v)]
+  })
   score_list <- score_list[lengths(score_list) > 0L]
   if (!length(score_list)) stop("No valid scores remain after group selection.", call. = FALSE)
 

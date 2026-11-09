@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRank()` keeps complete ordinary scores intact during missing-value filtering.
+
 * `PlotRank()` avoids copying sorted scores and names beyond `max_show` for ordinary numeric vectors.
 
 * Unpaired tests used by `plt_con()` preserve finite sample differences at extreme common offsets.

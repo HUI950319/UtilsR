@@ -645,3 +645,22 @@ test_that("rank capping materializes only displayed ordinary scores", {
   expect_identical(actual$Score, unname(expected))
   expect_identical(actual$Label, names(expected))
 })
+
+test_that("complete ranked scores avoid allocating missing value masks", {
+  values <- stats::setNames(seq_len(2000L), paste0("score", 1:2000))
+  fn <- PlotRank
+  env <- new.env(parent = environment(fn))
+  scanned <- 0L
+  env$is.na <- function(x) {
+    if (is.integer(x) && length(x) == length(values)) scanned <<- scanned + 1L
+    base::is.na(x)
+  }
+  environment(fn) <- env
+  shown <- fn(values, max_show = 5L, return_type = "data")
+  expect_identical(scanned, 0L)
+  expect_identical(shown$Score, 2000:1996)
+  values[1999L] <- NA_integer_
+  shown <- fn(values, max_show = 5L, return_type = "data")
+  expect_identical(scanned, 1L)
+  expect_identical(shown$Score, c(2000L, 1998:1995))
+})
