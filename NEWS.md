@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Skip same-group circular links when a shared feature appears repeatedly within a group, retaining every cross-group row pair.
+
 * Preserve factor colour labels in rank points, dumbbell endpoints and insets, and circular lollipops without changing numeric palette indices or unused colour promises.
 
 * Plot duration endpoints and mean lines in the start column's units when dumbbell columns use different units, retaining original delta values and units.

@@ -510,6 +510,7 @@ PlotCircleLollipop <- function(
         if (nrow(gd) > 1) {
           for (i in seq_len(nrow(gd) - 1)) {
             for (j in seq(i + 1, nrow(gd))) {
+              if (gd$group[i] == gd$group[j]) next
               circlize::circos.link(
                 as.character(gd$group[i]), gd$x_pos[i],
                 as.character(gd$group[j]), gd$x_pos[j],

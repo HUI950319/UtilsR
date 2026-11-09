@@ -646,3 +646,25 @@ test_that("circular factor point colours retain their labels", {
     unique_color = "blue", show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
   expect_identical(colours, c("red", "blue", "red", "blue"))
 })
+
+test_that("circular shared feature links connect distinct groups only", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  d <- data.frame(group = c("A", "A", "B"), name = rep("shared", 3), value = c(.2, .4, .8))
+  before <- d
+  links <- list()
+  original <- circlize::circos.link
+  local_mocked_bindings(circos.link = function(sector.index1, point1, sector.index2, point2, ...) {
+    links[[length(links) + 1L]] <<- c(sector.index1, sector.index2)
+    original(sector.index1, point1, sector.index2, point2, ...)
+  }, .package = "circlize")
+  PlotCircleLollipop(d, show_labels = FALSE, show_yaxis = FALSE)
+  expect_identical(links, rep(list(c("A", "B")), 2))
+  expect_identical(d, before)
+  links <- list()
+  PlotCircleLollipop(d, show_links = FALSE, show_labels = FALSE, show_yaxis = FALSE)
+  expect_identical(links, list())
+  links <- list()
+  PlotCircleLollipop(d[c(1, 3), ], show_labels = FALSE, show_yaxis = FALSE)
+  expect_identical(links, list(c("A", "B")))
+})
