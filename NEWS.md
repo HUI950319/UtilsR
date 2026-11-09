@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Inspection count tables, grouped headers, and console frequencies disambiguate rounded typed categories before display while preserving counts and native ordering.
+
 * Inspection count mode skips ignored selection, pattern, and grouping promises in data frames and forwarding methods, retaining its existing warning.
 
 * Palette previews skip unused graphical preparation for console output and reuse computed contrast colours when constructing table swatches.

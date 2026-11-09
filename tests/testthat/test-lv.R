@@ -1270,3 +1270,39 @@ test_that("Seurat count priority does not evaluate ignored inspection controls",
     group = stop("UNUSED GROUP"), pattern = stop("UNUSED PATTERN"), add_cell_stats = FALSE)), "count")
   expect_identical(actual[[1L]][["_data"]], reference)
 })
+
+test_that("inspection reports distinguish typed category labels", {
+  inputs <- list(c(1, 1 + .Machine$double.eps),
+    as.Date(c(1, 1.5), origin = "1970-01-01"),
+    complex(real = 1, imaginary = c(1, 1 + .Machine$double.eps)))
+  for (value in inputs) {
+    d <- data.frame(g = c("A", "A", "B", "B"))
+    d$x <- value[c(1, 2, 1, 2)]
+    before <- serialize(d, NULL)
+    count <- capture_reports(lv(d, count = c(g, x)))[[1L]][["_data"]]
+    expect_equal(ncol(count), 4L)
+    expect_identical(unname(unlist(count[1L, 2:3])), c("1 (50.0%)", "1 (50.0%)"))
+    expect_length(unique(names(count)[2:3]), 2L)
+    by <- data.frame(y = c("a", "a", "b", "b"))
+    by$g <- rep(value, each = 2)
+    grouped <- capture_reports(lv(by, y, group = g))[[1L]]
+    header <- grouped$table_styling$header
+    labels <- header$label[header$column %in% c("stat_1", "stat_2")]
+    expect_length(unique(labels), 2L)
+    if (inherits(value, "Date")) expect_true(all(grepl("1970-01-02", labels, fixed = TRUE)))
+    if (!is.complex(value)) {
+      shown <- list()
+      local({
+        local_mocked_bindings(pr_table = function(data, ...) {
+          if (all(c("pct", "cum") %in% names(data))) shown[[length(shown) + 1L]] <<- data
+          invisible(character())
+        })
+        withr::local_options(knitr.in.progress = FALSE)
+        invisible(utils::capture.output(suppressMessages(lv(d, x))))
+      })
+      expect_length(shown, 1L)
+      expect_length(unique(shown[[1L]]$x), 2L)
+    }
+    expect_identical(serialize(d, NULL), before)
+  }
+})

@@ -451,6 +451,25 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   # Values with their counts and shares of all rows, sorted as the summary
   # sorts them; beyond 15 values the rest are summed in one row, as
   # summarytools' "[k others]", and missing values come last.
+  .distinct_labels <- function(x, labels = as.character(x)) {
+    if (!(is.numeric(x) || is.complex(x) ||
+          inherits(x, c("Date", "POSIXt", "difftime", "Duration", "Period", "Interval")))) return(labels)
+    observed <- !is.na(x)
+    values <- vctrs::vec_unique(x[observed])
+    index <- vctrs::vec_match(x, values)
+    distinct <- labels[match(seq_along(values), index)]
+    collision <- duplicated(distinct) | duplicated(distinct, fromLast = TRUE)
+    if (any(collision)) {
+      key <- .cat_time_key(values)
+      precise <- if (!is.null(key)) paste0(distinct, " [", key, "]") else
+        as.character(.butterfly_category_labels(values))
+      distinct[collision] <- precise[collision]
+      distinct <- make.unique(distinct)
+      labels[observed] <- distinct[index[observed]]
+    }
+    labels
+  }
+
   .lv_frequencies <- function(x, var) {
     x <- .label_na_level(x)
     tab <- dplyr::count(tibble::tibble(value = x), .data$value)
@@ -463,6 +482,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       else if (inherits(valid, c("POSIXct", "POSIXlt"))) format(valid)
       else valid
     ))
+    labels <- .distinct_labels(valid, labels)
     n <- tab$n[!missing]
     if (length(n) > 15L) {
       labels <- c(labels[1:14], sprintf("(%s others)", .fmt_int(length(n) - 14L)))
@@ -834,6 +854,13 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     })
     count_base <- count_data %>%
       dplyr::count(dplyr::across(dplyr::all_of(count_vars)), name = n_name)
+    for (var in count_vars) {
+      value <- count_base[[var]]
+      labels <- .distinct_labels(value)
+      if (!identical(labels, as.character(value))) {
+        count_base[[var]] <- factor(labels, levels = .distinct_labels(.get_levels(value)))
+      }
+    }
 
     cross_count <- count_base %>%
       dplyr::mutate(
@@ -989,6 +1016,11 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     # count above and the overall column covers every row; tbl_summary()
     # would otherwise drop those rows.
     by <- by_values
+    labels <- .distinct_labels(by)
+    if (!identical(labels, as.character(by)) ||
+        inherits(by, c("Date", "POSIXt", "difftime", "Duration", "Period", "Interval"))) {
+      by <- factor(labels, levels = .distinct_labels(.get_levels(by)))
+    }
     if (anyNA(by)) {
       by <- as.factor(by)
       missing_labels <- c("\u7f3a\u5931",
