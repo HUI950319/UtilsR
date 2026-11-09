@@ -629,3 +629,19 @@ test_that("missing-value report controls reject arrays before column inspection"
   expect_error(check_na(d, pattern = matrix("x")), "pattern")
   expect_error(check_na(d, special = matrix("unknown")), "special")
 })
+
+test_that("complete inspection columns avoid allocating missing masks", {
+  fn <- .count_missing_values
+  e <- new.env(parent = environment(fn))
+  examined <- 0L
+  e$is.na <- function(x) {
+    examined <<- examined + length(x)
+    base::is.na(x)
+  }
+  environment(fn) <- e
+  expect_identical(fn(seq_len(20000L)), 0L)
+  expect_identical(fn(rep(c("yes", "no"), 10000L)), 0L)
+  expect_equal(examined, 0L)
+  expect_identical(fn(c(1, NaN, NA_real_, 3)), 2L)
+  expect_identical(fn(factor(c("a", NA))), 1L)
+})

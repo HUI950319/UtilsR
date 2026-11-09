@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Use a cheap completeness check before allocating a missing-value mask for complete unclassed columns in `lv()` and `check_na()`.
+
 * Keep missing and literal NA categories in separate columns of `lv()` two-way tables, using a distinct missing header only when needed.
 
 * Apply pattern highlights to the rendered gtsummary columns, preserving hidden metadata columns and formatted display values.

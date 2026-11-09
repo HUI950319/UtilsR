@@ -338,6 +338,7 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
   if (inherits(x, "integer64") && !requireNamespace("bit64", quietly = TRUE)) {
     cli::cli_abort("Inspecting integer64 columns requires the {.pkg bit64} package.")
   }
+  if (!is.object(x) && !is.expression(x) && !anyNA(x)) return(0L)
   sum(is.na(x))
 }
 
