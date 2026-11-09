@@ -247,3 +247,13 @@ test_that("margin grobs span all cells in explicit vector units", {
     expect_equal(span, if (pos %in% c("top", "left")) c(1, 2) else c(2, 3))
   }
 })
+
+test_that("empty margin graphic collections keep the existing layout", {
+  base <- gtable::gtable(widths = grid::unit(1, "null"), heights = grid::unit(1, "null"))
+  base <- gtable::gtable_add_grob(base, grid::rectGrob(), 1, 1, name = "panel")
+  for (g in list(list(), grid::gList())) {
+    for (pos in c("top", "bottom", "left", "right")) {
+      expect_identical(grob_add(base, g, position = pos), base)
+    }
+  }
+})

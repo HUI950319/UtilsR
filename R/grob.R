@@ -175,7 +175,7 @@ grob_add <- function(
     stop("Failed to convert 'plot' to a gtable.", call. = FALSE)
   }
 
-  if (position == "none" || is.null(grob)) {
+  if (position == "none" || is.null(grob) || (is.list(grob) && !grid::is.grob(grob) && !length(grob))) {
     return(gt)
   }
 
