@@ -221,8 +221,9 @@ PlotRank <- function(
   }
 
   # ---- Build ranked data.frame ----
-  all_df <- lapply(names(score_list), function(grp) {
-    scores <- sort(score_list[[grp]], decreasing = TRUE)
+  all_df <- lapply(seq_along(score_list), function(i) {
+    grp <- names(score_list)[i]
+    scores <- sort(score_list[[i]], decreasing = TRUE)
     n      <- min(length(scores), max_show)
     data.frame(
       Group = grp,
@@ -251,14 +252,15 @@ PlotRank <- function(
     # Scale using the FULL group range from original data (before max_show)
     if (is.object(plot_df$Score)) {
       plot_df$Score <- mapply(function(s, g) {
-        scale_scores(s, orig_ranges[[as.character(g)]])
+        scale_scores(s, orig_ranges[[match(as.character(g), names(orig_ranges))]])
       }, plot_df$Score, as.character(plot_df$Group))
     } else {
       scaled <- numeric(nrow(plot_df))
       indices <- split(seq_len(nrow(plot_df)), plot_df$Group)
-      for (grp in names(indices)) {
-        idx <- indices[[grp]]
-        scaled[idx] <- scale_scores(plot_df$Score[idx], orig_ranges[[as.character(grp)]])
+      for (i in seq_along(indices)) {
+        idx <- indices[[i]]
+        bounds <- orig_ranges[[match(names(indices)[i], names(orig_ranges))]]
+        scaled[idx] <- scale_scores(plot_df$Score[idx], bounds)
       }
       plot_df$Score <- scaled
     }

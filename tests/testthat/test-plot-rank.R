@@ -508,3 +508,24 @@ test_that("rank parsing indexes automatic groups without repeated full scans", {
                      fn(d, "cell_type", "gene", "importance", expected_groups))
   }
 })
+
+test_that("rank plots retain observed empty group labels in all scales", {
+  for (factor_group in c(FALSE, TRUE)) {
+    g <- rep(c("", "B"), each = 3)
+    if (factor_group) g <- factor(g, levels = c("B", ""))
+    d <- data.frame(cell_type = g, gene = rep(letters[1:3], 2), importance = c(3, 1, 2, 5, 2, 1))
+    control <- d
+    if (factor_group) levels(control$cell_type)[levels(control$cell_type) == ""] <- "A"
+    else control$cell_type[control$cell_type == ""] <- "A"
+    for (scale in c("none", "group", "top_n")) {
+      result <- PlotRank(d, value_scale = scale, return_type = "data", max_show = 2)
+      expected <- PlotRank(control, value_scale = scale, return_type = "data", max_show = 2)
+      expected$Group <- factor(ifelse(expected$Group == "A", "", "B"),
+        levels = if (factor_group) c("B", "") else c("", "B"))
+      expect_identical(result, expected)
+      expect_equal(sum(as.character(result$Group) == ""), 2)
+      p <- PlotRank(d, value_scale = scale, max_show = 2)
+      expect_equal(nrow(ggplot2::ggplot_build(p)$data[[1L]]), 4)
+    }
+  }
+})
