@@ -221,6 +221,11 @@ fct_to_combine.default <- function(..., sep = " & ") {
     ))
   }
 
+  if (!any(vapply(args, is.object, logical(1L))) &&
+      any(vapply(args, function(v) anyNA(v) && all(is.na(v)), logical(1L)))) {
+    return(structure(rep.int(NA_integer_, lens[[1L]]), levels = character(), class = "factor"))
+  }
+
   encode_input <- function(v) {
     if (inherits(v, c("Duration", "Period"))) {
       cli::cli_abort("Duration and Period vectors are not supported; convert them explicitly to the intended time unit before combining.")

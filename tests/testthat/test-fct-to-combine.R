@@ -410,3 +410,18 @@ test_that("explicit missing levels remain distinct from missing codes", {
   expect_error(fct_to_combine(factor(c(NA, "NA"), exclude = NULL), rep("X", 2)),
                "Distinct combinations.*same label")
 })
+
+test_that("all missing plain combinations skip unrelated value encoding", {
+  original <- vctrs::vec_unique
+  calls <- 0L
+  local_mocked_bindings(vec_unique = function(...) {
+    calls <<- calls + 1L
+    original(...)
+  }, .package = "vctrs")
+  n <- 10000L
+  actual <- fct_to_combine(rep(NA_real_, n), seq_len(n))
+  expect_identical(calls, 0L)
+  expect_identical(actual, structure(rep(NA_integer_, n), levels = character(), class = "factor"))
+  expect_error(fct_to_combine(as.raw(1:2), c(NA, NA)), "Raw vectors")
+  expect_error(fct_to_combine(matrix(1:2), c(NA, NA)), "one-dimensional")
+})

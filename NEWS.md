@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Factor combinations return their all-missing result before encoding other plain vectors when one validated input is entirely missing.
+
 * Point sampling retains precise date and time strata and normalizes S4 time-span working keys before repetition, preserving original data columns and random state.
 
 * Numeric P-value significance maps use interval lookup instead of repeated threshold scans, preserving threshold ties and the exact-decimal text path.
