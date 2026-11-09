@@ -219,6 +219,7 @@ PlotCircleLollipop <- function(
     numeric_values
   }
   numeric_values <- parse_scores(data[[value_col]])
+  integer64_scores <- inherits(data[[value_col]], "integer64")
   if (nrow(data) > 0L && !any(is.finite(numeric_values))) {
     stop(sprintf("Column '%s' must contain at least one finite score.", value_col),
          call. = FALSE)
@@ -248,7 +249,8 @@ PlotCircleLollipop <- function(
     top_n <- as.integer(top_n)
     data <- data |>
       dplyr::group_by(.data[[group_col]]) |>
-      dplyr::slice_max(order_by = parse_scores(.data[[value_col]]), n = top_n,
+      dplyr::slice_max(order_by = if (integer64_scores) .data[[value_col]] else
+                         parse_scores(.data[[value_col]]), n = top_n,
                        with_ties = FALSE) |>
       dplyr::ungroup() |>
       as.data.frame()
@@ -302,7 +304,44 @@ PlotCircleLollipop <- function(
   score_extreme <- function(x, fun) {
     if (all(is.na(x))) NA_real_ else fun(x, na.rm = TRUE)
   }
-  if (value_scale == "group") {
+  scale_integer64 <- function(x, reference = x) {
+    if (all(is.na(reference))) return(rep(NA_real_, length(x)))
+    lo <- min(reference, na.rm = TRUE)
+    hi <- max(reference, na.rm = TRUE)
+    if (hi == lo) return(as.numeric(x - lo))
+    maximum <- bit64::as.integer64("9223372036854775807")
+    if (lo >= 0 || hi <= 0 || hi <= maximum + lo) {
+      shifted <- x - lo
+      span <- hi - lo
+      return(suppressWarnings(as.numeric(shifted) / as.numeric(span)))
+    }
+    # A range wider than integer64 is scaled in halves. Subtract negative
+    # endpoints before conversion to retain small differences near the minimum.
+    negative <- !is.na(x) & x < 0
+    positive <- !is.na(x) & !negative
+    shifted <- x[negative] - lo
+    out <- rep(NA_real_, length(x))
+    out[negative] <- suppressWarnings(as.numeric(shifted)) / 2
+    out[positive] <- suppressWarnings(as.numeric(x[positive])) / 2 -
+      suppressWarnings(as.numeric(lo)) / 2
+    out / (suppressWarnings(as.numeric(hi)) / 2 - suppressWarnings(as.numeric(lo)) / 2)
+  }
+  if (integer64_scores && value_scale %in% c("group", "top_n")) {
+    scores <- data[[value_col]]
+    original_rows <- if (value_scale == "group") {
+      split(seq_len(nrow(data_orig)),
+            group_labels[vctrs::vec_match(data_orig[[group_col]], group_values)])
+    }
+    indices <- split(seq_len(nrow(df)), df$group)
+    for (i in seq_along(indices)) {
+      idx <- indices[[i]]
+      reference <- if (value_scale == "group") {
+        data_orig[[value_col]][original_rows[[match(names(indices)[i], names(original_rows))]]]
+      } else scores[idx]
+      df$value[idx] <- scale_integer64(scores[idx], reference)
+    }
+    if (value_scale == "top_n") df <- as.data.frame(df)
+  } else if (value_scale == "group") {
     # Scale using the FULL group range from original data (before top_n)
     orig_grp <- group_labels[vctrs::vec_match(data_orig[[group_col]], group_values)]
     orig_val <- numeric_values
@@ -331,7 +370,10 @@ PlotCircleLollipop <- function(
 
   # ---- Normalise values to [0, 1] if still outside range ----
   val_range <- range(df$value, na.rm = TRUE)
-  if (val_range[1] < 0 || val_range[2] > 1) {
+  if (integer64_scores && value_scale == "none" &&
+      any(data[[value_col]] < 0 | data[[value_col]] > 1, na.rm = TRUE)) {
+    df$y_pos <- pmax(0.05, scale_integer64(data[[value_col]]))
+  } else if (val_range[1] < 0 || val_range[2] > 1) {
     df$y_pos <- if (is.finite(val_range[1]) && val_range[1] == val_range[2]) {
       df$value - val_range[1]
     } else {

@@ -691,3 +691,88 @@ test_that("constant circular groups preserve missing score positions", {
     expect_identical(d, before)
   }
 })
+
+test_that("circular integer64 scores retain narrow ranks and scaling domains", {
+  skip_if_not_installed("bit64")
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  original_points <- circlize::circos.points
+  original_initialize <- circlize::circos.initialize
+  local_mocked_bindings(circos.points = function(x, y, ...) {
+    observed <<- c(observed, y)
+    original_points(x, y, ...)
+  }, circos.initialize = function(...) {
+    displayed <<- get("df", parent.frame(), inherits = TRUE)
+    original_initialize(...)
+  }, .package = "circlize")
+  d <- data.frame(group = "A", name = c("low", "mid", "high", "missing"),
+    value = bit64::as.integer64(c("9007199254740992", "9007199254740993", "9007199254740994", NA)))
+  before <- serialize(d, NULL)
+  for (mode in c("none", "group", "top_n")) {
+    observed <- numeric()
+    PlotCircleLollipop(d, value_scale = mode, show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
+    expect_equal(observed, c(if (mode == "none") .05 else 0, .5, 1, NA_real_))
+    expect_identical(class(displayed), if (mode == "top_n") "data.frame" else c("tbl_df", "tbl", "data.frame"))
+    observed <- numeric()
+    PlotCircleLollipop(d, top_n = 2, value_scale = mode, show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
+    expect_identical(displayed$name, c("high", "mid"))
+    expect_equal(observed, switch(mode, none = c(1, .05), group = c(1, .5), top_n = c(1, 0)))
+  }
+  observed <- numeric()
+  PlotCircleLollipop(d[1:2, ], top_n = 1, show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
+  expect_identical(displayed$name, "mid")
+  expect_identical(serialize(d, NULL), before)
+  both <- rbind(d, d)
+  both$group <- rep(c("A", "B"), each = 4)
+  both$value[5:8] <- c(-rev(d$value[1:3]), bit64::as.integer64(NA))
+  both <- rbind(both, data.frame(group = "C", name = "missing_only", value = bit64::as.integer64(NA)))
+  before_both <- serialize(both, NULL)
+  for (mode in c("group", "top_n")) {
+    observed <- numeric()
+    PlotCircleLollipop(both, value_scale = mode, show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
+    expect_equal(observed, c(rep(c(0, .5, 1, NA_real_), 2), NA_real_))
+  }
+  expect_identical(serialize(both, NULL), before_both)
+  d$value[c(1, 3)] <- d$value[2]
+  before_constant <- serialize(d, NULL)
+  for (mode in c("none", "group", "top_n")) {
+    observed <- numeric()
+    PlotCircleLollipop(d, value_scale = mode, show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
+    expect_identical(is.na(observed), is.na(d$value))
+    expect_equal(observed[!is.na(observed)], rep(if (mode == "none") .05 else 0, 3))
+  }
+  expect_identical(serialize(d, NULL), before_constant)
+})
+
+test_that("circular integer64 scaling avoids signed range overflow", {
+  skip_if_not_installed("bit64")
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  original <- circlize::circos.points
+  local_mocked_bindings(circos.points = function(x, y, ...) {
+    observed <<- c(observed, y)
+    original(x, y, ...)
+  }, .package = "circlize")
+  ranges <- list(c("-9223372036854775807", "9223372036854775807"),
+    c("-1", "9223372036854775806"), c("-1", "9223372036854775807"))
+  for (bounds in ranges) {
+    lo <- bit64::as.integer64(bounds[1L])
+    hi <- bit64::as.integer64(bounds[2L])
+    d <- data.frame(group = "A", name = letters[1:4],
+      value = c(lo, lo + bit64::as.integer64(1), hi, bit64::as.integer64(NA)))
+    before <- serialize(d, NULL)
+    expected_step <- suppressWarnings(.5 / (as.numeric(hi) / 2 - as.numeric(lo) / 2))
+    for (mode in c("none", "group", "top_n")) {
+      observed <- numeric()
+      expect_no_warning(PlotCircleLollipop(d, value_scale = mode,
+        show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE))
+      expect_identical(is.na(observed), c(FALSE, FALSE, FALSE, TRUE))
+      if (mode != "none") {
+        expect_gt(observed[2L], 0)
+        expect_equal(observed[2L] / expected_step, 1, tolerance = 1e-14)
+      } else expect_equal(observed[2L], .05)
+      expect_equal(observed[c(1, 3)], c(if (mode == "none") .05 else 0, 1))
+    }
+    expect_identical(serialize(d, NULL), before)
+  }
+})
