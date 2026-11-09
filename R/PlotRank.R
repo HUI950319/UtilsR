@@ -198,26 +198,21 @@ PlotRank <- function(
     orig_ranges <- lapply(score_list, function(v) range(v, na.rm = TRUE))
   }
 
-  # ---- Clean feature names ----
-  if (clean_names) {
-    score_list <- lapply(score_list, function(v) {
-      nm <- names(v)
-      nm <- sub("\\(\\+\\)$", "", nm)
-      nm <- sub("\\(\\-\\)$", "", nm)
-      nm <- sub("\\(\\d+g\\)$", "", nm)
-      nm <- trimws(nm)
-      nm <- sub("^HALLMARK_", "", nm)
-      nm <- sub("^KEGG_",     "", nm)
-      nm <- sub("^REACTOME_", "", nm)
-      nm <- sub("^GOBP_",     "", nm)
-      nm <- sub("^PROGENY_",  "", nm)
-      nm <- sub("^WP_",       "", nm)
-      nm <- sub("^PID_",      "", nm)
-      nm <- sub("^BIOCARTA_", "", nm)
-      nm <- gsub("_", " ", nm)
-      names(v) <- nm
-      v
-    })
+  # Clean the labels of displayed scores only.
+  clean_labels <- function(nm) {
+    nm <- sub("\\(\\+\\)$", "", nm)
+    nm <- sub("\\(\\-\\)$", "", nm)
+    nm <- sub("\\(\\d+g\\)$", "", nm)
+    nm <- trimws(nm)
+    nm <- sub("^HALLMARK_", "", nm)
+    nm <- sub("^KEGG_",     "", nm)
+    nm <- sub("^REACTOME_", "", nm)
+    nm <- sub("^GOBP_",     "", nm)
+    nm <- sub("^PROGENY_",  "", nm)
+    nm <- sub("^WP_",       "", nm)
+    nm <- sub("^PID_",      "", nm)
+    nm <- sub("^BIOCARTA_", "", nm)
+    gsub("_", " ", nm)
   }
 
   # ---- Build ranked data.frame ----
@@ -227,6 +222,10 @@ PlotRank <- function(
     n      <- min(length(scores), max_show)
     shown  <- scores[seq_len(n)]
     labels <- if (is.null(names(shown))) rep(NA_character_, n) else names(shown)
+    if (clean_names) {
+      labels <- clean_labels(labels)
+      names(shown) <- labels
+    }
     if (anyNA(names(shown))) names(shown) <- NULL
     data.frame(
       Group = grp,

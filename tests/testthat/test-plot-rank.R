@@ -589,3 +589,23 @@ test_that("rank scaling preserves integer range and labelled fractions", {
   integral <- PlotRank(score, max_show = 2, value_scale = "top_n", return_type = "data")
   expect_type(integral$Score, "integer")
 })
+
+test_that("rank label cleaning visits displayed rows only", {
+  fn <- PlotRank
+  e <- new.env(parent = environment(fn))
+  examined <- 0L
+  e$sub <- function(pattern, replacement, x, ...) {
+    examined <<- examined + length(x)
+    base::sub(pattern, replacement, x, ...)
+  }
+  environment(fn) <- e
+  n <- 2000L
+  d <- data.frame(cell_type = rep(c("B", "A"), each = n / 2L),
+    gene = paste0("HALLMARK_GENE_", seq_len(n), "(+)"),
+    importance = seq_len(n))
+  reference <- PlotRank(d, return_type = "data")
+  keep <- reference$Rank <= 4L
+  actual <- fn(d, max_show = 4L, return_type = "data")
+  expect_identical(actual, reference[keep, ])
+  expect_lt(examined, n)
+})
