@@ -379,3 +379,23 @@ test_that("failed system commands honor the diagnostic warning switch", {
     expect_true(all(is.na(unlist(result$system_memory))))
   }
 })
+
+test_that("Linux free fallback recognizes available and cached memory columns", {
+  b <- 1024^3
+  modern <- c("total used free shared buff/cache available",
+    sprintf("Mem: %.0f %.0f %.0f 0 %.0f %.0f", 8*b, 3*b, b, 4*b, 5*b),
+    "Swap: 0 0 0")
+  legacy <- c("total used free shared buffers cached",
+    sprintf("Mem: %.0f %.0f %.0f 0 %.0f %.0f", 8*b, 7*b, b, b, 3*b),
+    "-/+ buffers/cache: 0 0")
+  for (table in list(modern, legacy)) {
+    query <- .check_system_fixture(legacy = list("free -b" = table,
+      "free -b | grep Mem" = table[2L]))
+    env <- environment(query)
+    file_exists <- env$file.exists
+    env$file.exists <- function(path) path != "/proc/meminfo" && file_exists(path)
+    invisible(capture.output(result <- query(return_result = TRUE)))
+    expect_identical(result$system_memory,
+      list(total_gb = 8, used_gb = 3, free_gb = 5, usage_percent = 37.5))
+  }
+})

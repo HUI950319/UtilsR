@@ -200,11 +200,17 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
             usage_pct = ((total_gb - available_gb) / total_gb) * 100
           )
         } else {
-          mem_info <- system("free -b | grep Mem", intern = TRUE)
-          if (length(mem_info) > 0) {
-            mem_split <- strsplit(trimws(mem_info), "\\s+")[[1]]
-            total_gb <- as.numeric(mem_split[2]) / 1024^3
-            available_gb <- as.numeric(mem_split[7]) / 1024^3
+          mem_info <- system("free -b", intern = TRUE)
+          row <- grep("^\\s*Mem:", mem_info)
+          if (length(row) == 1L && row > 1L) {
+            fields <- strsplit(trimws(mem_info[row - 1L]), "\\s+")[[1L]]
+            values <- strsplit(trimws(mem_info[row]), "\\s+")[[1L]][-1L]
+            if (length(fields) != length(values)) stop("Unrecognized free output.")
+            bytes <- stats::setNames(as.numeric(values), fields)
+            available <- if ("available" %in% fields) bytes["available"] else
+              sum(bytes[c("free", intersect(c("buff/cache", "buffers", "cached"), fields))])
+            total_gb <- unname(bytes["total"]) / 1024^3
+            available_gb <- unname(available) / 1024^3
 
             list(
               total_gb = total_gb,
