@@ -132,6 +132,8 @@ console_width <- function() {
 .cat_box <- function(cat_text,
                      type = c("info", "success", "warning", "error")) {
   cfg <- ._type_cfg(match.arg(type))
+  cat_text <- unlist(cli::ansi_strsplit(paste0(as.character(cat_text), "\n"), "\n", fixed = TRUE),
+                     use.names = FALSE)
   label <- paste(cfg$symbol, cat_text, cfg$symbol)
 
   bg <- ._cli_bg(cfg$type)

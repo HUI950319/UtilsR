@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `.cat_box()` lays out embedded newlines as complete framed rows while retaining its message channel.
+
 * `.cat_tb()` treats SPSS user-missing codes as missing in displayed numbers, highlighting and numeric gradients.
 
 * `.cat_tb()` preserves nearby integer64 values when mapping numeric gradients.

@@ -998,3 +998,12 @@ test_that("console tables exclude SPSS user missing codes from display and gradi
   }
   expect_identical(serialize(d, NULL), before)
 })
+
+test_that("boxed notices retain complete borders for embedded newlines", {
+  withr::local_options(cli.num_colors = 1L, cli.width = 60L)
+  box <- function(text) cli::ansi_strip(cli::cli_fmt(.cat_box(text)))
+  expect_identical(box("a\nb"), box(c("a", "b")))
+  expect_identical(box("a\nb\n"), box(c("a", "b", "")))
+  expect_identical(box(42), box("42"))
+  expect_identical(utils::capture.output(suppressMessages(.cat_box("a\nb"))), character())
+})
