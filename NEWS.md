@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRank()` scales displayed groups in a separate vector and assigns the result once.
+
 * `PlotCircleLollipop()` builds its label frame only when labels are requested.
 
 * `check_system()` recognizes modern and older Linux `free` output when `/proc/meminfo` is unavailable.

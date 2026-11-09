@@ -277,15 +277,17 @@ PlotRank <- function(
   } else if (value_scale == "top_n") {
     # Scale using only the displayed values within each group
     indices <- split(seq_len(nrow(plot_df)), plot_df$Group)
+    scores <- plot_df$Score
     for (idx in indices) {
-      vals <- plot_df$Score[idx]
+      vals <- scores[idx]
       scaled <- scale_scores(vals, range(vals, na.rm = TRUE))
-      if (inherits(plot_df$Score, "haven_labelled") && is.integer(plot_df$Score) &&
+      if (inherits(scores, "haven_labelled") && is.integer(scores) &&
           any(scaled != trunc(scaled), na.rm = TRUE)) {
-        plot_df$Score <- vctrs::vec_cast(plot_df$Score, vctrs::vec_ptype2(plot_df$Score, double()))
+        scores <- vctrs::vec_cast(scores, vctrs::vec_ptype2(scores, double()))
       }
-      plot_df$Score[idx] <- scaled
+      scores[idx] <- scaled
     }
+    plot_df$Score <- scores
   }
 
   # Enforce group order as factor

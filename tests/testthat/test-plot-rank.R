@@ -664,3 +664,21 @@ test_that("complete ranked scores avoid allocating missing value masks", {
   expect_identical(scanned, 1L)
   expect_identical(shown$Score, c(2000L, 1998:1995))
 })
+
+test_that("rank top scaling assigns the score column once", {
+  groups <- paste0("group", 1:30)
+  d <- data.frame(cell_type = rep(groups, each = 3L), gene = rep(letters[1:3], 30L),
+    importance = rep(c(6, 3, 2), 30L))
+  fn <- PlotRank
+  env <- new.env(parent = environment(fn))
+  writes <- 0L
+  env[["$<-"]] <- function(x, name, value) {
+    key <- as.character(substitute(name))
+    if (is.data.frame(x) && identical(key, "Score")) writes <<- writes + 1L
+    base::`[[<-`(x, key, value = value)
+  }
+  environment(fn) <- env
+  out <- fn(d, value_scale = "top_n", return_type = "data")
+  expect_identical(writes, 1L)
+  expect_equal(out$Score, rep(c(1, .25, 0), 30L))
+})
