@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Pass plain node keys to the Sankey reshaper and restore ordered node factors afterward, avoiding the backend's incompatible-factor warning.
+
 * Build Sankey node counts and labels once per observed category, keeping explicit NA levels separate from missing observations.
 
 * Give an explicit NA factor level a distinct label on dumbbell category axes, retaining genuine missing rows and literal labels.

@@ -584,3 +584,19 @@ test_that("Sankey node counts distinguish observed missing labels and true missi
                    c("yes (1", "NA (2", "NA (1"))
   expect_identical(d, before)
 })
+
+test_that("Sankey stages reshape without incompatible factor attribute warnings", {
+  skip_if_not_installed("ggsankey")
+  d <- sankey_data()
+  withr::local_options(lifecycle_verbosity = "quiet")
+  expect_no_warning(p <- suppressMessages(plt_sankey(d, vars = names(d),
+    theme_use = ggplot2::theme_minimal(), show_text = "none")))
+  expect_identical(levels(p$data$x), paste0(names(d), "_label"))
+  expect_true(is.factor(p$data$node))
+  expect_type(p$data$next_node, "character")
+  expect_equal(nrow(p$data), nrow(d) * ncol(d))
+  expect_true(all(as.character(p$data$next_node[p$data$x == "sex_label"]) ==
+    as.character(p$data$node[p$data$x == "stage_label"])))
+  expect_no_warning(cat <- suppressMessages(plt_cat(d, names(d), type = "sankey")))
+  expect_equal(sum(cat$data$value[cat$data$x == "sex"]), nrow(d))
+})

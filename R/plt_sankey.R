@@ -298,16 +298,14 @@ plt_sankey <- function(data,
   node_labels <- unlist(node_labels)
   node_pct <- unlist(node_pct)
 
-  # Strip palette class from label columns before make_long (tidyr compatibility)
-  for (lv in label_vars) {
-    class(data[[lv]]) <- "factor"
-  }
-
-  # Build sankey data
-  plot_data <- ggsankey::make_long(data[, label_vars, drop = FALSE], dplyr::all_of(label_vars))
+  # Each stage has different node levels. Reshape plain keys, then restore
+  # their order once the stages share a single column.
+  all_levels <- unlist(lapply(label_vars, function(lv) levels(data[[lv]])))
+  reshape_data <- data[, label_vars, drop = FALSE]
+  reshape_data[] <- lapply(reshape_data, as.character)
+  plot_data <- ggsankey::make_long(reshape_data, dplyr::all_of(label_vars))
 
   # Set node factor levels
-  all_levels <- unlist(lapply(label_vars, function(lv) levels(data[[lv]])))
   plot_data$node <- factor(plot_data$node, levels = all_levels)
   plot_data$label <- factor(unname(node_labels[as.character(plot_data$node)]),
                             levels = unique(unname(node_labels)))

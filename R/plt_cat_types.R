@@ -255,6 +255,10 @@
   stage_names <- paste0(".stage", seq_along(stat.by))
   names(data) <- stage_names
   data <- dplyr::count(data, dplyr::across(dplyr::all_of(stage_names)), name = ".count")
+  stage_attrs <- lapply(data[stage_names], attributes)
+  if (!all(vapply(stage_attrs, identical, logical(1), stage_attrs[[1L]]))) {
+    data[stage_names] <- lapply(data[stage_names], as.character)
+  }
   dat_long <- ggsankey::make_long(data, dplyr::all_of(stage_names),
                                  value = dplyr::all_of(".count"))
   for (axis in c("x", "next_x")) {
