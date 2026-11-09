@@ -569,3 +569,18 @@ test_that("shared plotting labels distinguish typed category identities", {
   ordinary <- I(c(1, 2))
   expect_identical(.butterfly_category_labels(ordinary), ordinary)
 })
+
+test_that("Sankey node counts distinguish observed missing labels and true missing rows", {
+  skip_if_not_installed("ggsankey")
+  value <- structure(c(1L, 2L, 2L, NA_integer_),
+    levels = c("yes", NA_character_), class = "factor")
+  d <- data.frame(A = value, B = c("x", "x", "y", "z"))
+  before <- d
+  p <- suppressMessages(sankey_plot(d, vars = c("A", "B"), show_text = "none", reverse_levels = FALSE))
+  rows <- p$data[as.character(p$data$x) == "A_label", ]
+  expect_length(unique(rows$node), 3L)
+  expect_identical(as.integer(rows$node), c(1L, 2L, 2L, 3L))
+  expect_identical(sub(",.*", "", as.character(rows$label[c(1L, 2L, 4L)])),
+                   c("yes (1", "NA (2", "NA (1"))
+  expect_identical(d, before)
+})

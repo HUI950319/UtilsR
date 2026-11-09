@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Build Sankey node counts and labels once per observed category, keeping explicit NA levels separate from missing observations.
+
 * Give an explicit NA factor level a distinct label on dumbbell category axes, retaining genuine missing rows and literal labels.
 
 * Return UpSet intersection data without loading ggVennDiagram, which is needed only when drawing a Venn or UpSet plot.

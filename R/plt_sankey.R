@@ -266,44 +266,37 @@ plt_sankey <- function(data,
   } else if (any(label_vars != paste0(vars, "_label"))) {
     var_labels <- stats::setNames(paste0(vars, "_label"), label_vars)
   }
-  temporary <- utils::tail(make.unique(c(names(data), label_vars, ".n", ".pct")), 2L)
-  count_name <- temporary[1L]
-  pct_name <- temporary[2L]
-  node_labels <- character()
-  node_pct <- numeric()
+  node_labels <- node_pct <- vector("list", length(vars))
+  total <- nrow(data)
   for (i in seq_along(vars)) {
-    v <- vars[i]
-    lv <- label_vars[i]
-    total <- nrow(data)
-    data <- data %>%
-      dplyr::group_by(.data[[v]]) %>%
-      dplyr::mutate(
-        !!count_name := dplyr::n(),
-        !!pct_name := scales::percent(.data[[count_name]] / total, accuracy = label_args$pct_accuracy)
-      ) %>%
-      dplyr::ungroup()
-    data[[lv]] <- switch(if (show_text == "none") "all" else show_text,
-      "all"  = sprintf("%s (%s, %s)", data[[v]], data[[count_name]], data[[pct_name]]),
-      "all_wrap" = sprintf("%s\n(%s, %s)", data[[v]], data[[count_name]], data[[pct_name]]),
-      "n"    = sprintf("%s (%s)", data[[v]], data[[count_name]]),
-      "pct"  = sprintf("%s (%s)", data[[v]], data[[pct_name]]),
-      "name" = sprintf("%s", data[[v]])
+    value <- data[[vars[i]]]
+    codes <- as.integer(value)
+    counts <- tabulate(codes, nbins = nlevels(value))
+    observed <- which(counts > 0L)
+    counts <- counts[observed]
+    missing <- sum(is.na(codes))
+    if (missing) {
+      observed <- c(observed, NA_integer_)
+      counts <- c(counts, missing)
+    }
+    # Work with codes so an explicit NA level remains separate from missing rows.
+    names_at <- levels(value)[observed]
+    proportion <- counts / total
+    pct <- scales::percent(proportion, accuracy = label_args$pct_accuracy)
+    labels <- switch(if (show_text == "none") "all" else show_text,
+      "all"  = sprintf("%s (%s, %s)", names_at, counts, pct),
+      "all_wrap" = sprintf("%s\n(%s, %s)", names_at, counts, pct),
+      "n"    = sprintf("%s (%s)", names_at, counts),
+      "pct"  = sprintf("%s (%s)", names_at, pct),
+      "name" = sprintf("%s", names_at)
     )
-    # Preserve factor order
-    lvl_df <- dplyr::distinct(data[, c(v, lv, count_name)])
-    lvl_df <- lvl_df[order(lvl_df[[v]]), ]
-    node_levels <- paste0(".sankey_", i, "_", seq_len(nrow(lvl_df)))
-    keep_label <- !is.na(lvl_df[[lv]])
-    node_labels <- c(node_labels, stats::setNames(
-      as.character(lvl_df[[lv]][keep_label]), node_levels[keep_label]
-    ))
-    node_pct <- c(node_pct, stats::setNames(lvl_df[[count_name]][keep_label] / total,
-                                           node_levels[keep_label]))
-    data[[lv]] <- factor(node_levels[match(data[[v]], lvl_df[[v]])],
-                         levels = node_levels[keep_label])
-    data[[count_name]] <- NULL
-    data[[pct_name]] <- NULL
+    node_levels <- if (length(observed)) paste0(".sankey_", i, "_", seq_along(observed)) else character()
+    node_labels[[i]] <- stats::setNames(labels, node_levels)
+    node_pct[[i]] <- stats::setNames(proportion, node_levels)
+    data[[label_vars[i]]] <- factor(node_levels[match(codes, observed)], levels = node_levels)
   }
+  node_labels <- unlist(node_labels)
+  node_pct <- unlist(node_pct)
 
   # Strip palette class from label columns before make_long (tidyr compatibility)
   for (lv in label_vars) {
