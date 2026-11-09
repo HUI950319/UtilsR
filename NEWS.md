@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotCircleLollipop()` indexes shared-feature rows once when drawing arcs, preserving their drawing order.
+
 * `plt_na()` skips complete-column masks in matrix and combined outputs as well as percentage plots.
 
 * `lv()`, `check_na()` and `plt_na()` inspect expression-column missingness without evaluating stored calls.

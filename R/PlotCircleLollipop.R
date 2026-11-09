@@ -552,8 +552,10 @@ PlotCircleLollipop <- function(
 
     # ---- Inner arcs for shared features ----
     if (show_links && nrow(common_genes) > 0) {
-      for (gene_name in unique(common_genes$name)) {
-        gd <- common_genes[common_genes$name == gene_name, ]
+      feature_rows <- split(seq_len(nrow(common_genes)),
+                            match(common_genes$name, unique(common_genes$name)))
+      for (rows in feature_rows) {
+        gd <- common_genes[rows, , drop = FALSE]
         if (nrow(gd) > 1) {
           for (i in seq_len(nrow(gd) - 1)) {
             for (j in seq(i + 1, nrow(gd))) {

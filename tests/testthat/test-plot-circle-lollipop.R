@@ -884,3 +884,31 @@ test_that("circular top counts parse character scores once", {
   expect_identical(seen, nrow(d))
   expect_equal(sort(observed), c(.2, .4, .6, .9))
 })
+
+test_that("circular arcs reuse indexed shared feature rows", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  ids <- paste0("feature", seq_len(24L))
+  d <- data.frame(group = rep(c("A", "B"), each = length(ids)),
+    name = rep(ids, 2L), value = rep(seq_along(ids) / length(ids), 2L))
+  fn <- PlotCircleLollipop
+  env <- new.env(parent = environment(fn))
+  full_scans <- 0L
+  env[["=="]] <- function(x, y) {
+    if (is.character(x) && length(x) == nrow(d) && length(y) == 1L) {
+      full_scans <<- full_scans + 1L
+    }
+    base::`==`(x, y)
+  }
+  environment(fn) <- env
+  links <- list()
+  local_mocked_bindings(circos.link = function(sector.index1, point1, sector.index2, point2, ...) {
+    links[[length(links) + 1L]] <<- list(sector.index1, point1, sector.index2, point2)
+    invisible(NULL)
+  }, .package = "circlize")
+  fn(d, show_labels = FALSE, show_yaxis = FALSE)
+  expect_identical(full_scans, 0L)
+  expect_length(links, length(ids))
+  expect_true(all(vapply(links, function(x) x[[1L]] == "A" &&
+    x[[3L]] == "B" && x[[2L]] == x[[4L]], logical(1))))
+})
