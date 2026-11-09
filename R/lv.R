@@ -927,7 +927,17 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       # One table, as janitor's adorn_totals() + adorn_percentages("row") +
       # adorn_ns() lay it out: each cell gives its count and its share of the
       # row, the Total row each column's count and its share of all rows.
-      cross_wide <- count_base %>%
+      # pivot_wider() prints a missing key as "NA", which can also be a value.
+      wide_data <- count_base
+      key <- wide_data[[count_vars[2L]]]
+      if (anyNA(key) && "NA" %in% as.character(key)) {
+        observed <- unique(as.character(key[!is.na(key)]))
+        missing_key <- tail(make.unique(c(observed, "<NA>"), sep = "_"), 1L)
+        if (is.factor(key)) levels(key) <- c(levels(key), missing_key)
+        key[is.na(key)] <- missing_key
+        wide_data[[count_vars[2L]]] <- key
+      }
+      cross_wide <- wide_data %>%
         tidyr::pivot_wider(
           names_from = dplyr::all_of(count_vars[2]),
           values_from = dplyr::all_of(n_name),

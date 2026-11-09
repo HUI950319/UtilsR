@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Keep missing and literal NA categories in separate columns of `lv()` two-way tables, using a distinct missing header only when needed.
+
 * Apply pattern highlights to the rendered gtsummary columns, preserving hidden metadata columns and formatted display values.
 
 * Read localized number text with its decimal mark when checking scientific notation and P-value threshold rounding.

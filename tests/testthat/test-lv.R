@@ -1414,3 +1414,18 @@ test_that("inspection accepts missing factors without declared levels", {
     }
   }
 })
+
+test_that("two way inspection distinguishes missing and literal NA headers", {
+  d <- data.frame(a = rep(c("a", "b"), each = 3), b = rep(c("NA", NA, "<NA>"), 2))
+  for (categorical in c(FALSE, TRUE)) {
+    if (categorical) d$b <- factor(d$b)
+    before <- d
+    result <- capture_lv(lv(d, count = c(a, b)))
+    wide <- result$tables[[1L]]
+    expect_identical(wide[["NA"]], rep("1 (33.3%)", 2) |> c("2 (33.3%)"))
+    expect_identical(wide[["<NA>_1"]], wide[["NA"]])
+    expect_identical(wide[["<NA>"]], wide[["NA"]])
+    expect_identical(wide[["Total"]], c("3", "3", "6"))
+    expect_identical(result$value$value, before)
+  }
+})
