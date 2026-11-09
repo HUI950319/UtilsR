@@ -179,15 +179,16 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
     cli::cli_abort("{.arg nbins} must be a single finite integer >= 2 and < {(.Machine$integer.max)}.")
   }
   nbins <- as.integer(nbins)
-  if (plain_x) {
-    bounds <- as.double(range(x, na.rm = has_na))
+  if (plain_x || identical(class(x), "AsIs") || inherits(x, "haven_labelled")) {
+    numeric_x <- if (plain_x) x else as.double(x)
+    bounds <- as.double(range(numeric_x, na.rm = has_na))
     magnitude <- max(abs(bounds))
     span <- bounds[2L] - bounds[1L]
     if (is.finite(magnitude) && magnitude > 0 && magnitude < .Machine$double.xmin) {
       # Keep unrepresentable fractional cut points in the scaled coordinates.
-      x <- x / magnitude
+      x <- numeric_x / magnitude
     } else if (is.finite(span) && span > 0 && span < .Machine$double.xmin) {
-      x <- (x - bounds[1L]) / span
+      x <- (numeric_x - bounds[1L]) / span
     }
   }
 

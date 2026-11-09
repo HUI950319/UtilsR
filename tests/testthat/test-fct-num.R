@@ -220,3 +220,17 @@ test_that("automatic bins retain subnormal spread above a normal offset", {
     }
   }
 })
+
+test_that("wrapped numeric values retain subnormal bin membership", {
+  skip_if_not_installed("haven")
+  u <- .Machine$double.xmin * .Machine$double.eps
+  for (offset in c(0, .Machine$double.xmin)) {
+    x <- c(offset, offset + u, NA_real_)
+    for (values in list(I(x), haven::labelled(x, label = "Measure"))) {
+      for (type in c("equal", "quantile")) {
+        expect_no_warning(result <- fct_num(values, nbins = 2L, type = type))
+        expect_identical(result, factor(c("low", "high", NA), levels = c("low", "high")))
+      }
+    }
+  }
+})

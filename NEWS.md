@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fct_num()` applies its subnormal binning safeguard to ordinary numeric `AsIs` and labelled inputs.
+
 * `PlotRank(value_scale = "top_n")` indexes displayed groups once before normalizing scores.
 
 * `PlotHeatmapJaccard()` derives diagonal values and empty-group cells from set sizes without scanning their members.
