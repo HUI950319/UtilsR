@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotCircleLollipop()` skips same-sector link pairs before entering the per-link drawing loop.
+
 * `PlotRank()` keeps complete ordinary scores intact during missing-value filtering.
 
 * `PlotRank()` avoids copying sorted scores and names beyond `max_show` for ordinary numeric vectors.

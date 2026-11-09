@@ -912,3 +912,26 @@ test_that("circular arcs reuse indexed shared feature rows", {
   expect_true(all(vapply(links, function(x) x[[1L]] == "A" &&
     x[[3L]] == "B" && x[[2L]] == x[[4L]], logical(1))))
 })
+
+test_that("circular arcs skip individual comparisons for same sector pairs", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  d <- data.frame(group = c(rep("A", 40L), "B", "C"), name = "shared",
+    value = seq_len(42L) / 42)
+  fn <- PlotCircleLollipop
+  env <- new.env(parent = environment(fn))
+  comparisons <- 0L
+  env[["=="]] <- function(x, y) {
+    if (is.factor(x) && is.factor(y) && length(x) == 1L) comparisons <<- comparisons + 1L
+    base::`==`(x, y)
+  }
+  environment(fn) <- env
+  links <- character()
+  local_mocked_bindings(circos.link = function(sector.index1, point1, sector.index2, point2, ...) {
+    links <<- c(links, paste0(sector.index1, sector.index2))
+    invisible(NULL)
+  }, .package = "circlize")
+  fn(d, show_labels = FALSE, show_yaxis = FALSE)
+  expect_identical(comparisons, 0L)
+  expect_identical(links, c(rep(c("AB", "AC"), 40L), "BC"))
+})

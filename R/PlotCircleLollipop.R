@@ -556,13 +556,14 @@ PlotCircleLollipop <- function(
                             match(common_genes$name, unique(common_genes$name)))
       for (rows in feature_rows) {
         gd <- common_genes[rows, , drop = FALSE]
-        if (nrow(gd) > 1) {
-          for (i in seq_len(nrow(gd) - 1)) {
-            for (j in seq(i + 1, nrow(gd))) {
-              if (gd$group[i] == gd$group[j]) next
+        if (nrow(gd) > 1L) {
+          sectors <- as.character(gd$group)
+          for (i in seq_len(nrow(gd) - 1L)) {
+            later <- seq.int(i + 1L, nrow(gd))
+            for (j in later[sectors[later] != sectors[i]]) {
               circlize::circos.link(
-                as.character(gd$group[i]), gd$x_pos[i],
-                as.character(gd$group[j]), gd$x_pos[j],
+                sectors[i], gd$x_pos[i],
+                sectors[j], gd$x_pos[j],
                 col = link_color, lwd = link_lwd, h = link_h
               )
             }
