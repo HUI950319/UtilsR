@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Keep factor endpoint labels as text in dumbbell legends and automatic insets, including standalone inset construction.
+
 * Calculate finite dumbbell inset annotation offsets without overflowing the intermediate range width when endpoints span extreme numeric values.
 
 * Keep the native Wilcoxon warning and undefined P-value label when every paired difference is zero, avoiding a subsequent formatting error.

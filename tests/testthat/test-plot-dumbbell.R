@@ -561,3 +561,26 @@ test_that("dumbbell inset annotations avoid intermediate range overflow", {
     expect_identical(d, before)
   }
 })
+
+test_that("dumbbell factor endpoint labels retain displayed text", {
+  d <- data.frame(start = c(1, 3, 2, 5), end = c(2, 5, 3, 6), category = letters[1:4])
+  inset <- NULL
+  original <- .build_dumbbell_inset
+  local_mocked_bindings(.build_dumbbell_inset = function(...) {
+    inset <<- original(...)
+    inset
+  }, .package = "UtilsR")
+  for (label in c("label_x", "label_xend")) {
+    args <- list(data = d, label_x = "Before", label_xend = "After", legend_pos = "none",
+      inset_plot = "auto", inset_test = "none", inset_jitter = FALSE)
+    args[[label]] <- factor(args[[label]], levels = c("unused", args[[label]]))
+    p <- do.call(dumbbell_plot, args)
+    expect_identical(unname(p[[1L]]$scales$get_scales("colour")$labels), c("Before", "After"))
+    actual <- ggplot2::ggplot_build(inset)$layout$panel_params[[1L]]$x$get_labels()
+    expect_identical(as.character(actual), c("Before", "After"))
+  }
+  direct <- original(d, "start", "end", factor("Before", levels = c("unused", "Before")),
+    "After", "red", "blue", "boxplot", "none", FALSE, FALSE, ggplot2::theme_classic())
+  expect_identical(as.character(ggplot2::ggplot_build(direct)$layout$panel_params[[1L]]$x$get_labels()),
+                   c("Before", "After"))
+})

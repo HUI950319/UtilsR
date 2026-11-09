@@ -247,6 +247,8 @@ PlotDumbbell <- function(
   # ---- Labels ----
   if (is.null(label_x))    label_x    <- x_col
   if (is.null(label_xend)) label_xend <- xend_col
+  if (is.factor(label_x)) label_x <- as.character(label_x)
+  if (is.factor(label_xend)) label_xend <- as.character(label_xend)
   display_labels <- as.character(c(label_x, label_xend))
   label_keys <- make.unique(display_labels)
 
@@ -501,6 +503,8 @@ PlotDumbbell <- function(
       is.na(inset_type) || !inset_type %in% c("boxplot", "violin")) {
     stop("inset_type must be 'boxplot' or 'violin'.", call. = FALSE)
   }
+  if (is.factor(label_x)) label_x <- as.character(label_x)
+  if (is.factor(label_xend)) label_xend <- as.character(label_xend)
   group_labels <- as.character(c(label_x, label_xend))
   group_keys <- make.unique(group_labels)
   group_labels <- stats::setNames(group_labels, group_keys)
