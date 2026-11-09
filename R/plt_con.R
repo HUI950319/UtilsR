@@ -883,7 +883,8 @@ plt_con <- function(data,
     test <- .con_pairwise_test(test_params[["test"]])
     pairs <- lapply(comparisons, function(pair) if (is.numeric(pair)) levels(groups)[pair] else pair)
     used_groups <- unique(unlist(pairs[keep], use.names = FALSE))
-    group_data <- lapply(used_groups, function(group) values[which(groups == group)])
+    locations <- split(seq_along(groups), match(groups, used_groups))
+    group_data <- lapply(locations, function(rows) values[rows])
     # Shared group environments avoid serializing the same vector for every pair.
     cache_data <- lapply(group_data, function(x) list2env(list(
       value = if (is.object(x)) x else as.double(unname(x))

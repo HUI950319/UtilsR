@@ -1618,3 +1618,23 @@ test_that("continuous ANOVA comparisons preserve p values across finite scales",
     expect_equal(global$y / unit, max(x))
   }
 })
+
+test_that("continuous comparisons index samples without scanning groups per pair", {
+  groups <- factor(rep(c("A", "B", "C"), 5L), levels = c("C", "B", "A", "unused"))
+  values <- c(1, 4, 8, 3, 5, 7, 2, 6, 9, 4, 3, 9, 5, 8, 6)
+  comparisons <- list(c("A", "B"), c(1L, 2L), c("B", "A"))
+  fn <- .con_comparisons
+  env <- new.env(parent = environment(fn))
+  scans <- 0L
+  env[["=="]] <- function(x, y) {
+    if (is.factor(x) && length(x) == length(groups)) scans <<- scans + 1L
+    base::`==`(x, y)
+  }
+  environment(fn) <- env
+  kept <- fn(comparisons, groups, "value", values, "t.test")
+  cache <- attr(kept, ".con_test_cache")
+  expect_identical(scans, 0L)
+  expect_identical(cache[[1L]]$x$value, values[groups == "A"])
+  expect_identical(cache[[2L]]$x$value, values[groups == "C"])
+  expect_equal(cache[[3L]]$p.value, stats::t.test(values[groups == "B"], values[groups == "A"])$p.value)
+})
