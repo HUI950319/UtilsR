@@ -674,3 +674,18 @@ test_that("UpSet preserves explicit NA factor member identities", {
     expect_identical(levels(actual$.element), levels(unique(unlist(sets))))
   }
 })
+
+test_that("UpSet data does not require the plotting backend", {
+  fn <- plt_upset
+  e <- new.env(parent = environment(fn))
+  requested <- character()
+  e$requireNamespace <- function(package, ...) {
+    requested <<- c(requested, package)
+    if (package == "ggVennDiagram") FALSE else base::requireNamespace(package, ...)
+  }
+  environment(fn) <- e
+  result <- fn(list(A = c("a", "b"), B = c("b", "c")), output = "data")
+  expect_identical(as.character(result$intersect_group), c("A", "A/B", "B"))
+  expect_false("ggVennDiagram" %in% requested)
+  expect_error(fn(list(A = "a", B = "b"), output = "venn"), "ggVennDiagram")
+})

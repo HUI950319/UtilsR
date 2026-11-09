@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Return UpSet intersection data without loading ggVennDiagram, which is needed only when drawing a Venn or UpSet plot.
+
 * Keep points with missing feature names without treating missing names as a common feature or attempting to link them.
 
 * Use the input appearance order for circular sectors even when top-N filtering groups the rows before plotting.

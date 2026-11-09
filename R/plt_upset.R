@@ -111,7 +111,7 @@
 #'   \code{attr(p, "plot_size")}, the list of \code{"all"} on its
 #'   \code{combined} element.
 #'
-#' @note Requires \pkg{ggVennDiagram}; UpSet and combined layouts use
+#' @note Plot outputs require \pkg{ggVennDiagram}; UpSet and combined layouts use
 #'   \pkg{aplot}. Install with \code{pak::pak(c("ggVennDiagram", "aplot"))}.
 #'
 #' @examples
@@ -186,11 +186,11 @@ plt_upset <- function(data,
                       set.labels    = NULL,
                       save          = list()) {
 
-  if (!requireNamespace("ggVennDiagram", quietly = TRUE)) {
+  output <- match.arg(output)
+  if (output != "data" && !requireNamespace("ggVennDiagram", quietly = TRUE)) {
     cli::cli_abort("Package {.pkg ggVennDiagram} is required. Install with: {.code pak::pak('ggVennDiagram')}")
   }
 
-  output     <- match.arg(output)
   label      <- match.arg(label)
   label_geom <- match.arg(label_geom)
   venn.fill  <- match.arg(venn.fill)

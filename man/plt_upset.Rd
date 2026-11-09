@@ -150,7 +150,7 @@ For data frames, set \code{levels = NA} to visualise missing-value patterns
 without modifying the input data.
 }
 \note{
-Requires \pkg{ggVennDiagram}; UpSet and combined layouts use
+Plot outputs require \pkg{ggVennDiagram}; UpSet and combined layouts use
   \pkg{aplot}. Install with \code{pak::pak(c("ggVennDiagram", "aplot"))}.
 }
 \examples{
