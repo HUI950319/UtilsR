@@ -205,6 +205,7 @@ PlotCircleLollipop <- function(
       stop(sprintf("Column '%s' must contain one-dimensional real numeric scores.", value_col),
            call. = FALSE)
     }
+    if (inherits(values, "haven_labelled_spss")) values <- .scatter_axis_values(values)
     if (is.factor(values)) values <- as.character(values)
     numeric_values <- suppressWarnings(as.numeric(values))
     if (any(!is.na(values) & is.na(numeric_values))) {

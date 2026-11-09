@@ -602,3 +602,31 @@ test_that("circular plots decode cold integer64 groups and scores", {
     expect_true('COLD_CIRCLE_OK' %in% output)
   }
 })
+
+test_that("circular scores exclude SPSS user missing codes before ranking", {
+  skip_if_not_installed("haven")
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  observed <- numeric()
+  original <- circlize::circos.points
+  local_mocked_bindings(circos.points = function(x, y, ...) {
+    observed <<- c(observed, y)
+    original(x, y, ...)
+  }, .package = "circlize")
+  d <- data.frame(group = rep(c("A", "B"), each = 4), name = letters[1:8])
+  d$value <- haven::labelled_spss(c(99, 2, 4, 6, 97, 3, 5, 7),
+                                 na_values = 97, na_range = c(98, 100))
+  before <- serialize(d, NULL)
+  control <- haven::zap_missing(d)
+  for (mode in c("none", "group", "top_n")) for (top in list(NULL, 2)) {
+    observed <- numeric()
+    expect_no_warning(PlotCircleLollipop(control, value_scale = mode, top_n = top,
+      show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE))
+    expected <- observed
+    observed <- numeric()
+    expect_no_warning(PlotCircleLollipop(d, value_scale = mode, top_n = top,
+      show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE))
+    expect_identical(observed, expected)
+  }
+  expect_identical(serialize(d, NULL), before)
+})

@@ -400,3 +400,28 @@ test_that("dumbbell numeric categories retain exact identity", {
   d$category <- c(1, 2)
   expect_identical(levels(PlotDumbbell(d, legend_pos = "none")$data$category), c("1", "2"))
 })
+
+test_that("dumbbell endpoints normalize SPSS missing codes before arithmetic", {
+  skip_if_not_installed("haven")
+  d <- data.frame(category = letters[1:5], start = c(1, 99, 3, 4, 97), end = c(2, 6, 99, 8, 9))
+  d$start <- haven::labelled_spss(d$start, na_values = 97, na_range = c(98, 100))
+  d$end <- haven::labelled_spss(d$end, na_values = 99)
+  before <- serialize(d, NULL)
+  control <- haven::zap_missing(d)
+  control$start <- vctrs::vec_data(control$start)
+  control$end <- vctrs::vec_data(control$end)
+  draw <- PlotDumbbell
+  e <- new.env(parent = environment(draw))
+  e$print <- function(x, ...) invisible(x)
+  environment(draw) <- e
+  for (sort in c("none", "delta", "start", "end")) {
+    p <- draw(d, sort_by = sort, show_mean_lines = TRUE, show_delta = TRUE, legend_pos = "none")
+    q <- draw(control, sort_by = sort, show_mean_lines = TRUE, show_delta = TRUE, legend_pos = "none")
+    expect_identical(p$data$category, q$data$category)
+    expect_equal(as.numeric(p$data$start), as.numeric(q$data$start))
+    expect_equal(as.numeric(p$data$end), as.numeric(q$data$end))
+    expect_equal(as.numeric(p$data$.delta), as.numeric(q$data$.delta))
+    expect_equal(ggplot2::ggplot_build(p)$data, ggplot2::ggplot_build(q)$data)
+  }
+  expect_identical(serialize(d, NULL), before)
+})

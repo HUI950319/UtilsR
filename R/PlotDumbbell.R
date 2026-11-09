@@ -234,6 +234,7 @@ PlotDumbbell <- function(
         !(is.numeric(value) || inherits(value, c("Date", "POSIXt", "difftime")))) {
       stop("Column '", col, "' must contain a numeric or time vector.", call. = FALSE)
     }
+    if (inherits(value, "haven_labelled_spss")) data[[col]] <- .scatter_axis_values(value)
   }
   if (!is.null(top_n) &&
       (!is.numeric(top_n) || is.object(top_n) || !is.null(dim(top_n)) ||

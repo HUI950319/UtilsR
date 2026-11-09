@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Circular lollipop scores and dumbbell endpoints normalize SPSS user-missing codes before ranking, scaling, differences, and means, consistently with scatter plots.
+
 * Rank correlation plots reuse one set of group row locations for both coordinate scaling and per-group correlations instead of rescanning the complete plot table for each group.
 
 * Rank plots address group score vectors and scaling ranges by position, allowing an observed empty-string category to retain its rows and values in every scaling mode.
