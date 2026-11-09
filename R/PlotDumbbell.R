@@ -260,8 +260,10 @@ PlotDumbbell <- function(
   delta_x_var <- delta_fields[3L]
   start_values <- data[[x_col]]
   end_values <- data[[xend_col]]
-  if (is.integer(start_values) && is.integer(end_values) &&
-      !is.object(start_values) && !is.object(end_values)) {
+  if (inherits(start_values, "integer64") && inherits(end_values, "integer64")) {
+    delta_values <- .dumbbell_integer64_difference(end_values, start_values)
+  } else if (is.integer(start_values) && is.integer(end_values) &&
+             !is.object(start_values) && !is.object(end_values)) {
     delta_values <- as.double(end_values) - as.double(start_values)
     if (all(abs(delta_values) <= .Machine$integer.max, na.rm = TRUE)) {
       delta_values <- as.integer(delta_values)
@@ -512,6 +514,21 @@ PlotDumbbell <- function(
   invisible(p)
 }
 
+
+# Retain native integer64 differences whenever the full result fits.
+.dumbbell_integer64_difference <- function(x, y) {
+  difference <- suppressWarnings(x - y)
+  overflow <- is.na(difference) & !is.na(x) & !is.na(y)
+  if (!any(overflow)) return(difference)
+  step <- bit64::as.integer64("4294967296")
+  x <- x[overflow]
+  y <- y[overflow]
+  high <- as.double(x %/% step - y %/% step)
+  low <- as.double(x %% step - y %% step)
+  difference <- suppressWarnings(as.double(difference))
+  difference[overflow] <- high * 2^32 + low
+  difference
+}
 
 # ---- Internal: build auto inset paired boxplot/violin ----
 .build_dumbbell_inset <- function(

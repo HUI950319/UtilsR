@@ -648,3 +648,19 @@ test_that("dumbbell endpoints restore cold integer64 arithmetic", {
   expect_null(attr(output, "status"), info = paste(output, collapse = "\n"))
   expect_true("COLD_DUMBBELL_OK" %in% output)
 })
+
+test_that("dumbbell integer64 differences survive arithmetic overflow", {
+  skip_if_not_installed("bit64")
+  fn <- PlotDumbbell
+  env <- new.env(parent = environment(fn))
+  env$print <- function(x, ...) invisible(x)
+  environment(fn) <- env
+  d <- data.frame(start = bit64::as.integer64(c("9223372036854775807", "-9223372036854775807", "1", NA)),
+    end = bit64::as.integer64(c("-9223372036854775807", "9223372036854775807", "4", "0")),
+    category = letters[1:4])
+  expect_no_warning(p <- fn(d, sort_by = "none", show_delta = TRUE, legend_pos = "none"))
+  expect_identical(p$data$.delta, c(-2^64, 2^64, 3, NA_real_))
+  expect_identical(p$data$start, d$start)
+  regular <- fn(d[3:4, ], sort_by = "none", legend_pos = "none")
+  expect_identical(regular$data$.delta, bit64::as.integer64(c("3", NA)))
+})
