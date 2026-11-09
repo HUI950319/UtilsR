@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* CI and SD formatting reuse repeated complete formatting tuples, including per-row precision, and normalize signed zeros before expanding the result.
+
 * Grouped inspection skips a complete character uniqueness scan when a short prefix already proves that a plain column exceeds the unchanged 100-category limit.
 
 * Inspection count tables, grouped headers, and console frequencies disambiguate rounded typed categories before display while preserving counts and native ordering.

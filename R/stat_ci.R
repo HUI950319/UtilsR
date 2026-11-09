@@ -97,6 +97,27 @@ stat_ci <- function(x, y = NULL, z = NULL,
   .drop_signed_zero <- function(text) {
     gsub("-0(?=(?:\\.0+)?(?:[^0-9.]|$))", "0", text, perl = TRUE)
   }
+  .format_values <- function(fmt, ...) {
+    args <- list(...)
+    lens <- lengths(args)
+    n <- max(lens, 0L)
+    varying <- which(lens == n)
+    if (n > 1024L && !any(vapply(args, is.object, logical(1))) &&
+        all(lens %in% c(1L, n))) {
+      keys <- stats::setNames(args[varying], paste0("v", seq_along(varying)))
+      probe <- lapply(keys, `[`, seq.int(1L, n, length.out = 1024L))
+      if (anyDuplicated(vctrs::vec_group_id(vctrs::new_data_frame(probe)))) {
+        ids <- vctrs::vec_group_id(vctrs::new_data_frame(keys))
+        count <- attr(ids, "n")
+        if (count < n / 2) {
+          first <- match(seq_len(count), ids)
+          args[varying] <- lapply(args[varying], `[`, first)
+          return(.drop_signed_zero(do.call(sprintf, c(list(fmt), args)))[ids])
+        }
+      }
+    }
+    .drop_signed_zero(do.call(sprintf, c(list(fmt), args)))
+  }
   if (!is.null(dim(x))) cli::cli_abort("{.arg x} must be a vector, not a matrix or array.")
   if (!is.character(x)) {
     inputs <- list(x = x, y = y, z = z)
@@ -143,9 +164,8 @@ stat_ci <- function(x, y = NULL, z = NULL,
 
     # Format mixed precisions in one vectorized call.
     out <- ifelse(valid,
-      sprintf("%.*f %s%.*f%s%.*f%s", d, est, bp[1], d, lo, sep, d, hi, bp[2]),
+      .format_values("%.*f %s%.*f%s%.*f%s", d, est, bp[1], d, lo, sep, d, hi, bp[2]),
       x)
-    out[valid] <- .drop_signed_zero(out[valid])
     names(out) <- input_names
     return(out)
   }
@@ -164,8 +184,7 @@ stat_ci <- function(x, y = NULL, z = NULL,
     out <- rep(NA_character_, n)
     .check_precision(d, x[observed], y[observed], z[observed])
     fmt <- sprintf("%%.%df %s%%.%df%s%%.%df%s", d, bp[1], d, sep, d, bp[2])
-    out[observed] <- sprintf(fmt, x[observed], y[observed], z[observed])
-    out[observed] <- .drop_signed_zero(out[observed])
+    out[observed] <- .format_values(fmt, x[observed], y[observed], z[observed])
     names(out) <- input_names
     return(out)
   }
@@ -183,8 +202,7 @@ stat_ci <- function(x, y = NULL, z = NULL,
   out <- rep(NA_character_, length(x))
   .check_precision(d, x[observed], y[observed])
   fmt <- sprintf("%%.%df%s%%.%df%s", d, bp[1], d, bp[2])
-  out[observed] <- sprintf(fmt, x[observed], y[observed])
-  out[observed] <- .drop_signed_zero(out[observed])
+  out[observed] <- .format_values(fmt, x[observed], y[observed])
   names(out) <- input_names
   out
 }

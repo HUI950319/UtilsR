@@ -194,3 +194,27 @@ test_that("character vectors retain independently detected precision", {
                    c(integer = "12 [10 to 15]", precise = "1.200 [0.950 to 1.590]",
                      scientific = "0.0012 [0.0008 to 0.0017]", missing = NA_character_))
 })
+
+test_that("repeated CI and SD formats avoid formatting every occurrence", {
+  fn <- stat_ci
+  e <- new.env(parent = environment(fn))
+  formatted <- 0L
+  e$sprintf <- function(fmt, ...) {
+    formatted <<- formatted + max(c(length(fmt), lengths(list(...))))
+    base::sprintf(fmt, ...)
+  }
+  environment(fn) <- e
+  x <- c(-1e-9, (1:99) / 100)
+  y <- x - .2
+  z <- x + .2
+  formatted <- 0L
+  expect_identical(fn(rep(x, 100), rep(y, 100), rep(z, 100)), rep(stat_ci(x, y, z), 100))
+  expect_lte(formatted, 2L * length(x))
+  formatted <- 0L
+  expect_identical(fn(rep(x, 100), rep(abs(y), 100)), rep(stat_ci(x, abs(y)), 100))
+  expect_lte(formatted, 2L * length(x))
+  text <- stat_ci(x, y, z)
+  formatted <- 0L
+  expect_identical(fn(rep(text, 100)), rep(stat_ci(text), 100))
+  expect_lte(formatted, 2L * length(x))
+})
