@@ -269,7 +269,7 @@ stat_ci_parse <- function(x,
     names(pval) <- names(x)
     return(pval)
   }
-  fmt <- function(v) {
+  .format_once <- function(v, d) {
     v <- round(v, d)
     v[which(v == 0)] <- 0             # -0 would print as "-0.00"
     if (any(d > 7881L)) {
@@ -280,6 +280,22 @@ stat_ci_parse <- function(x,
       }
     }
     sprintf("%.*f", d, v)
+  }
+  fmt <- function(v) {
+    n <- length(v)
+    if (n > 1024L) {
+      probe <- seq.int(1L, n, length.out = 1024L)
+      keys <- vctrs::new_data_frame(list(v = v[probe], d = d[probe]))
+      if (attr(vctrs::vec_group_id(keys), "n") < length(probe) / 2) {
+        ids <- vctrs::vec_group_id(vctrs::new_data_frame(list(v = v, d = d)))
+        count <- attr(ids, "n")
+        if (count < n / 2) {
+          first <- match(seq_len(count), ids)
+          return(.format_once(v[first], d[first])[ids])
+        }
+      }
+    }
+    .format_once(v, d)
   }
   ci_str <- ifelse(valid,
     paste0(fmt(est), " ", parsed$open, fmt(lo), parsed$sep, fmt(hi),

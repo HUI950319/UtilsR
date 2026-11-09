@@ -525,3 +525,26 @@ test_that("repeated CI vectors avoid rescanning every occurrence", {
   expect_identical(actual, expected)
   expect_warning(stat_ci(rep("bad", 2000)), "2000.*could not be parsed")
 })
+
+test_that("parsed interval formatting reuses repeated value precision pairs", {
+  fn <- stat_ci_parse
+  e <- new.env(parent = environment(fn))
+  formatted <- 0L
+  e$sprintf <- function(fmt, ...) {
+    if (identical(fmt, "%.*f")) formatted <<- formatted + max(lengths(list(...)))
+    base::sprintf(fmt, ...)
+  }
+  environment(fn) <- e
+  keys <- c("1.00 (0.90, 1.10)", "2.000 [1.900; 2.100]", "0.000 (-0.005, 0.005)")
+  x <- stats::setNames(rep(keys, 1500), paste0("row", seq_len(4500)))
+  for (output in c("ci", "ci_p", "ci_star", "p_star")) for (digits in list(NULL, 0L, 8L)) {
+    expected <- stats::setNames(rep(stat_ci_parse(keys, output = output, digits = digits, exp = FALSE), 1500), names(x))
+    formatted <- 0L
+    expect_identical(fn(x, output = output, digits = digits, exp = FALSE), expected)
+    expect_lt(formatted, 2L * length(x))
+  }
+  invalid <- rep(c(keys, "bad", NA_character_), 300)
+  expect_warning(result <- fn(invalid, exp = FALSE), "300 elements could not be parsed")
+  expect_identical(result[invalid %in% "bad"], rep("bad", 300))
+  expect_identical(is.na(result), is.na(invalid))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Parsed confidence intervals format repeated value-and-precision pairs once after validation, preserving per-row precision, negative-zero handling, and high-precision byte-limit errors.
+
 * Automatic dumbbell insets use the existing scale-stable paired t-test adapter, preserving P-values for finite measurements at very small and very large magnitudes without rescaling plotted values.
 
 * Dual-group scatter mappings accept an empty name only when it is an observed category, so generated or explicit color, shape, and marginal-fill mappings work for that category while invalid names remain rejected.
