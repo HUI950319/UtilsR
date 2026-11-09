@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Large repeated CI vectors reuse parsed strings and then restore every row, retaining original formatting, missing values, and warning counts.
+
 * Paired scatter t tests reuse the stable t-test adapter and choose its scale from complete pairs, preserving valid p-values at extreme finite scales.
 
 * Scatter Pearson annotations use stable working coordinates at extreme numeric scales while retaining original plot data and rank-correlation methods.

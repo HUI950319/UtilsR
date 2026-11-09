@@ -311,6 +311,16 @@ stat_ci_parse <- function(x,
 #' @noRd
 .ci_extract <- function(x) {
   n <- length(x)
+  if (n > 1024L && anyDuplicated(x[seq.int(1L, n, length.out = 1024L)])) {
+    keys <- unique(x)
+    if (length(keys) < n / 2) {
+      parsed <- .ci_extract(keys)
+      index <- match(x, keys)
+      return(lapply(parsed, function(value) {
+        if (is.matrix(value)) value[index, , drop = FALSE] else value[index]
+      }))
+    }
+  }
   est <- lo <- hi <- rep(NA_real_, n)
   d <- rep(2L, n)
   open <- close <- sep <- rep(NA_character_, n)

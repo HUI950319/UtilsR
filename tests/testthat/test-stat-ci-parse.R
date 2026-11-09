@@ -502,3 +502,26 @@ test_that("long scientific CI mantissas retain finite estimates and bounds", {
   expect_identical(formatted, stat_ci(short, digits = 2))
   expect_true(all(.ci_extract(input)$valid))
 })
+
+test_that("repeated CI vectors avoid rescanning every occurrence", {
+  fn <- .ci_extract
+  e <- new.env(parent = environment(fn))
+  examined <- 0L
+  e$grepl <- function(pattern, x, ...) {
+    examined <<- examined + length(x)
+    base::grepl(pattern, x, ...)
+  }
+  environment(fn) <- e
+  e$.ci_extract <- fn
+  catalog <- c("1.2 (0.8, 1.6)", "-1 [-2;0]", "bad", NA_character_, "1 (0, 2) note")
+  x <- rep(catalog, 2000)
+  actual <- fn(x)
+  expect_lt(examined, length(x))
+  reference <- .ci_extract(catalog)
+  index <- rep(seq_along(catalog), 2000)
+  expected <- lapply(reference, function(value) {
+    if (is.matrix(value)) value[index, , drop = FALSE] else value[index]
+  })
+  expect_identical(actual, expected)
+  expect_warning(stat_ci(rep("bad", 2000)), "2000.*could not be parsed")
+})
