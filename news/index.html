@@ -50,7 +50,17 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.23" id="utilsr-0623">UtilsR 0.6.23<a class="anchor" aria-label="anchor" href="#utilsr-0623"></a></h2>
-<ul><li><p>Parsed confidence intervals format repeated value-and-precision pairs once after validation, preserving per-row precision, negative-zero handling, and high-precision byte-limit errors.</p></li>
+<ul><li><p>Calculate finite dumbbell inset annotation offsets without overflowing the intermediate range width when endpoints span extreme numeric values.</p></li>
+<li><p>Keep the native Wilcoxon warning and undefined P-value label when every paired difference is zero, avoiding a subsequent formatting error.</p></li>
+<li><p>Skip same-group circular links when a shared feature appears repeatedly within a group, retaining every cross-group row pair.</p></li>
+<li><p>Preserve factor colour labels in rank points, dumbbell endpoints and insets, and circular lollipops without changing numeric palette indices or unused colour promises.</p></li>
+<li><p>Plot duration endpoints and mean lines in the start column’s units when dumbbell columns use different units, retaining original delta values and units.</p></li>
+<li><p>Run automatic dumbbell inset tests on numeric time buffers, using common seconds for durations while retaining typed plotting data.</p></li>
+<li><p>Adapt level-less all-missing factors only at the <code><a href="../reference/lv.html">lv()</a></code> summary-table boundary, preserving the inspected data and factor class.</p></li>
+<li><p>Avoid PCRE match-limit warnings when P-value and confidence-interval parsers reject long malformed decimal tokens.</p></li>
+<li><p>Retain exact narrow integer64 differences when <code><a href="../reference/lv.html">lv()</a></code> computes distribution bins and standard deviations.</p></li>
+<li><p>Keep <code><a href="../reference/lv.html">lv()</a></code> distribution summaries usable for subnormal numeric measurements without changing their statistical values.</p></li>
+<li><p>Parsed confidence intervals format repeated value-and-precision pairs once after validation, preserving per-row precision, negative-zero handling, and high-precision byte-limit errors.</p></li>
 <li><p>Automatic dumbbell insets use the existing scale-stable paired t-test adapter, preserving P-values for finite measurements at very small and very large magnitudes without rescaling plotted values.</p></li>
 <li><p>Dual-group scatter mappings accept an empty name only when it is an observed category, so generated or explicit color, shape, and marginal-fill mappings work for that category while invalid names remain rejected.</p></li>
 <li><p>Scatter group preparation keeps exact numeric and time category identities before factor conversion, including explicit typed group orders and both dual-group roles.</p></li>

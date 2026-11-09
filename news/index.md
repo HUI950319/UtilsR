@@ -2,6 +2,44 @@
 
 ## UtilsR 0.6.23
 
+- Calculate finite dumbbell inset annotation offsets without overflowing
+  the intermediate range width when endpoints span extreme numeric
+  values.
+
+- Keep the native Wilcoxon warning and undefined P-value label when
+  every paired difference is zero, avoiding a subsequent formatting
+  error.
+
+- Skip same-group circular links when a shared feature appears
+  repeatedly within a group, retaining every cross-group row pair.
+
+- Preserve factor colour labels in rank points, dumbbell endpoints and
+  insets, and circular lollipops without changing numeric palette
+  indices or unused colour promises.
+
+- Plot duration endpoints and mean lines in the start column’s units
+  when dumbbell columns use different units, retaining original delta
+  values and units.
+
+- Run automatic dumbbell inset tests on numeric time buffers, using
+  common seconds for durations while retaining typed plotting data.
+
+- Adapt level-less all-missing factors only at the
+  [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
+  summary-table boundary, preserving the inspected data and factor
+  class.
+
+- Avoid PCRE match-limit warnings when P-value and confidence-interval
+  parsers reject long malformed decimal tokens.
+
+- Retain exact narrow integer64 differences when
+  [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) computes
+  distribution bins and standard deviations.
+
+- Keep [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
+  distribution summaries usable for subnormal numeric measurements
+  without changing their statistical values.
+
 - Parsed confidence intervals format repeated value-and-precision pairs
   once after validation, preserving per-row precision, negative-zero
   handling, and high-precision byte-limit errors.
