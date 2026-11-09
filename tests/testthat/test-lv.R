@@ -1227,3 +1227,19 @@ test_that("grouped inspection restores cold integer64 grouping labels", {
   expect_null(attr(output, 'status'), info = paste(output, collapse = '\n'))
   expect_identical(tail(output, 1L), 'COLD_INSPECTION_OK')
 })
+
+test_that('tiny nonzero standard deviations survive partial variance underflow', {
+  for (offset in c(0, 1e-150)) {
+    x <- offset + c(0, 2.5e-162)
+    text <- cli::ansi_strip(utils::capture.output(pr_spark(data.frame(x = x))))
+    expect_match(paste(text, collapse = ' '), 'sd 1.77e-162', fixed = TRUE)
+    interval <- .con_mean_sd(x)
+    expect_equal((interval$ymax - interval$ymin) / diff(x), sqrt(2), tolerance = 0.001)
+  }
+  d <- data.frame(x = (0:11) * 5e-163)
+  output <- cli::ansi_strip(utils::capture.output(suppressMessages(lv(d))))
+  line <- grep('^  Mean [(]SD[)]', output, value = TRUE)
+  expect_length(line, 1L)
+  spread <- as.numeric(sub('[)]$', '', tail(strsplit(trimws(line), '(', fixed = TRUE)[[1L]], 1L)))
+  expect_equal(spread / 5e-163, stats::sd(0:11), tolerance = .003)
+})

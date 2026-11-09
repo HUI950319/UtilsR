@@ -349,7 +349,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     if (na.rm) x <- x[!is.na(x)]
     spread <- stats::sd(x)
     if (length(x) > 1L && all(is.finite(x)) &&
-        (!is.finite(spread) || (spread == 0 && any(x != x[1L])))) {
+        (!is.finite(spread) || (spread > 0 && spread < sqrt(.Machine$double.xmin)) ||
+         (spread == 0 && any(x != x[1L])))) {
       center <- min(x) / 2 + max(x) / 2
       shifted <- x - center
       scale <- max(abs(shifted))

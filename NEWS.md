@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Inspection, sparklines, and continuous bars recompute tiny nonzero standard deviations after scaling, including data with a nonzero offset.
+
 * Console trees retain one hidden sibling marker per parent while continuing to count all omitted lines, reducing memory for wide trees.
 
 * Console tables align cells by column, reducing repeated ANSI work while preserving row formatting and highlights.
