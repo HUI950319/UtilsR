@@ -2747,3 +2747,29 @@ test_that("HCL palette viewers normalize backslash separators like base R", {
   expect_identical(tbl[["_data"]]$palette, "Dark 3")
   expect_error(pal_show_hcl("D\\a", n = 3), "ambiguous HCL names")
 })
+
+test_that("palette previews avoid unused and duplicate contrast calculations", {
+  withr::local_options(cli.num_colors = 1)
+  fn <- .pal_show_colors
+  e <- new.env(parent = environment(fn))
+  conversions <- lookups <- 0L
+  e$.pal_hex <- function(...) {
+    conversions <<- conversions + 1L
+    .pal_hex(...)
+  }
+  e$strtoi <- function(x, ...) {
+    lookups <<- lookups + length(x)
+    base::strtoi(x, ...)
+  }
+  environment(fn) <- e
+  colors <- grDevices::rainbow(32, alpha = .5)
+  invisible(utils::capture.output(result <- fn(colors, output = "console", max_colors = Inf)))
+  expect_identical(result, colors)
+  expect_identical(conversions, 0L)
+  expect_identical(lookups, 0L)
+  lookups <- 0L
+  table <- fn(colors, output = "gt", max_colors = Inf)
+  expect_lte(lookups, 4L * length(colors))
+  expect_equal(nrow(table[["_data"]]), length(colors))
+  expect_true(all(grepl("<span style=", table[["_data"]]$preview, fixed = TRUE)))
+})

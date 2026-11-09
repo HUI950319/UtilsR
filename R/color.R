@@ -1904,6 +1904,14 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
   }
   colors <- .pal_resize(colors, n, total = n_total)
 
+  # --- Console output ---
+  if (output == "console") {
+    cat("\n")
+    pr_section(sprintf("%d colours", n))
+    show_color(colors)
+    return(invisible(colors))
+  }
+
   # Get labels: use names if available, otherwise hex codes
   color_names <- names(colors)
   hex <- .pal_hex(colors)
@@ -1993,24 +2001,13 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
     return(p)
   }
 
-  # --- Console output ---
-  if (output == "console") {
-    cat("\n")
-    pr_section(sprintf("%d colours", n))
-    show_color(colors)
-    return(invisible(colors))
-  }
-
   # --- gt table output ---
   tbl_data <- data.frame(
     index = seq_len(n),
     name = labels,
     hex = hex,
-    preview = vapply(hex, function(h) {
-      fg <- if (.luminance(h) > 0.179) "#000000" else "#FFFFFF"
-      sprintf('<span style="background:%s;color:%s;padding:2px 10px;border-radius:3px;font-weight:bold;">%s</span>',
-              h, fg, h)
-    }, character(1), USE.NAMES = FALSE),
+    preview = sprintf('<span style="background:%s;color:%s;padding:2px 10px;border-radius:3px;font-weight:bold;">%s</span>',
+                      hex, fg_colors, hex),
     stringsAsFactors = FALSE
   )
 

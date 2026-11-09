@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Palette previews skip unused graphical preparation for console output and reuse computed contrast colours when constructing table swatches.
+
 * Continuous ANOVA comparisons rescale extreme working values for both pairwise and global tests while retaining annotation coordinates.
 
 * Point sampling keeps an explicit NA factor level separate from missing factor codes in grouping and facet strata.
