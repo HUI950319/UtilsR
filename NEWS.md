@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `.cat_message()` wraps long uninterrupted ASCII and CJK text within the console width.
+
 * Circular lollipop and butterfly category handling preserves distinct real labelled values whose default text is identical.
 
 * `PlotDumbbell()` restores `integer64` endpoint arithmetic and plotting in a fresh R process.

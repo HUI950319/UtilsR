@@ -1045,3 +1045,16 @@ test_that("gtsummary pattern highlighting targets the displayed column", {
   expect_equal(fill[["rownum"]], at)
   expect_match(gt::as_raw_html(result), "search_here", fixed = TRUE)
 })
+
+test_that("console message wrapping preserves uninterrupted text", {
+  withr::local_options(cli.width = 24L, cli.num_colors = 1L)
+  for (style in c("full", "chip")) {
+    for (token in c(strrep("A", 55), strrep("\u4e2d", 28))) {
+      out <- cli::ansi_strip(cli::cli_fmt(.cat_message(token, timestamp_format = NULL, style = style)))
+      expect_true(all(cli::ansi_nchar(out, type = "width") <= 24L))
+      pieces <- if (style == "chip") sub("^ *INFO +", "", out) else sub("^ *[^ ]+ +", "", out[1L])
+      if (style == "full") pieces <- c(pieces, out[-1L])
+      expect_identical(paste0(trimws(pieces), collapse = ""), token)
+    }
+  }
+})
