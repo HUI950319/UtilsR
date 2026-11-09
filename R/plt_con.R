@@ -847,6 +847,14 @@ plt_con <- function(data,
       unit <- if (length(finite)) max(finite) else 0
       if (unit > 0 && (unit < sqrt(.Machine$double.xmin) ||
                        unit > sqrt(.Machine$double.xmax))) {
+        if (!is.null(complete)) {
+          difference <- x[complete] - y[complete]
+          if (length(difference) && all(is.finite(difference)) && any(difference != 0)) {
+            unit <- max(abs(difference))
+            x <- difference
+            y <- numeric(length(difference))
+          }
+        }
         x <- x / unit
         y <- y / unit
         if (!is.null(args$mu)) args$mu <- args$mu / unit

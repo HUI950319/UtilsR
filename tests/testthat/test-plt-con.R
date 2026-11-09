@@ -1638,3 +1638,22 @@ test_that("continuous comparisons index samples without scanning groups per pair
   expect_identical(cache[[2L]]$x$value, values[groups == "C"])
   expect_equal(cache[[3L]]$p.value, stats::t.test(values[groups == "B"], values[groups == "A"])$p.value)
 })
+
+test_that("paired tests preserve exact differences at extreme offsets", {
+  test <- .con_pairwise_test("t.test")
+  for (power in c(-700, 900)) {
+    centre <- 1.5 * 2^power
+    step <- 2^(power - 52)
+    x <- centre + c(3, 5, 8, 9, 20) * step
+    y <- centre + c(2, 3, 4, 7, 18) * step
+    difference <- (x - y) / step
+    for (mu in c(0, 1)) {
+      reference <- stats::t.test(difference, numeric(length(x)), paired = TRUE, mu = mu,
+        alternative = "greater")
+      actual <- test(c(NA_real_, x), c(centre, y), paired = TRUE, mu = mu * step,
+        alternative = "greater")
+      expect_equal(actual$p.value, reference$p.value, tolerance = 1e-14)
+      expect_equal(actual$statistic, reference$statistic, tolerance = 1e-14)
+    }
+  }
+})

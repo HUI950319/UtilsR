@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Paired t tests used by continuous and endpoint plots retain small differences between extreme finite values.
+
 * `plt_con()` collects pairwise-test samples by one group index, preserving row order and requested comparisons.
 
 * `set_wd()` reports an existing directory and its contents when another process creates it first.
