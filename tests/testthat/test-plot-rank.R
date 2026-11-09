@@ -573,3 +573,19 @@ test_that("rank outputs retain missing feature labels without invalid row names"
   named <- PlotRank(stats::setNames(3:1, c("a", "b", "c")), return_type = "data")
   expect_identical(rownames(named), c("a", "b", "c"))
 })
+
+test_that("rank scaling preserves integer range and labelled fractions", {
+  skip_if_not_installed("haven")
+  plain <- stats::setNames(c(-.Machine$integer.max, 0L, .Machine$integer.max), letters[1:3])
+  for (scale in c("group", "top_n")) {
+    expect_no_warning(wide <- PlotRank(plain, value_scale = scale, return_type = "data"))
+    expect_equal(wide$Score, c(1, .5, 0))
+  }
+  score <- stats::setNames(haven::labelled(1:3, label = "score"), letters[1:3])
+  result <- PlotRank(score, value_scale = "top_n", return_type = "data")
+  expect_equal(as.numeric(result$Score), c(1, .5, 0))
+  expect_s3_class(result$Score, "haven_labelled")
+  expect_identical(attr(result$Score, "label"), "score")
+  integral <- PlotRank(score, max_show = 2, value_scale = "top_n", return_type = "data")
+  expect_type(integral$Score, "integer")
+})

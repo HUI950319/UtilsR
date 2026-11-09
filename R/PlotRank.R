@@ -242,6 +242,7 @@ PlotRank <- function(
 
   # ---- Per-group value scaling (value_scale) ----
   scale_scores <- function(x, rng) {
+    if (is.integer(rng)) rng <- as.double(rng)
     if (rng[2] == rng[1]) return(rep(0, length(x)))
     span <- rng[2] - rng[1]
     if (!is.finite(span) && all(is.finite(rng))) {
@@ -272,7 +273,12 @@ PlotRank <- function(
     for (grp in unique(plot_df$Group)) {
       idx <- plot_df$Group == grp
       vals <- plot_df$Score[idx]
-      plot_df$Score[idx] <- scale_scores(vals, range(vals, na.rm = TRUE))
+      scaled <- scale_scores(vals, range(vals, na.rm = TRUE))
+      if (inherits(plot_df$Score, "haven_labelled") && is.integer(plot_df$Score) &&
+          any(scaled != trunc(scaled), na.rm = TRUE)) {
+        plot_df$Score <- vctrs::vec_cast(plot_df$Score, vctrs::vec_ptype2(plot_df$Score, double()))
+      }
+      plot_df$Score[idx] <- scaled
     }
   }
 

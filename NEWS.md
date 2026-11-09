@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Use a representable range for wide integer rank scores and preserve haven labels when a scaled integer column needs fractional storage.
+
 * Keep missing feature labels in ranked data while using automatic row names where a displayed score has no valid row name.
 
 * Use a cheap completeness check before allocating a missing-value mask for complete unclassed columns in `lv()` and `check_na()`.
