@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Read localized number text with its decimal mark when checking scientific notation and P-value threshold rounding.
+
 * Keep long malformed text in console P-value columns without spurious PCRE match-limit warnings.
 
 * Collect flattened cells in indexed chunks, preserving plot order, design names, and inset attachments while avoiding repeated list growth.

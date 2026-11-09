@@ -408,6 +408,13 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
 
 # ------------- pr_table -----------------------------------------------------
 
+# Read formatted numbers back using the decimal mark chosen by formatC().
+._pr_decimal_number <- function(text) {
+  mark <- getOption("OutDec", ".")
+  if (!identical(mark, ".")) text <- sub(mark, ".", text, fixed = TRUE)
+  suppressWarnings(as.numeric(text))
+}
+
 # P values -> cells: numbers take stat_pval()'s "<0.001" wording, with more
 # decimals where it would round up to 0.05 or 0.01, text keeps its own; bold
 # red below 0.001, red below 0.05, grey otherwise. A text bound is significant
@@ -420,7 +427,7 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
     # a value just under 0.05 or 0.01 rounds up to it (0.0499 -> "0.050"):
     # more decimals, so the text agrees with its colour and stars
     for (d in 4:18) {
-      shown <- suppressWarnings(as.numeric(txt))
+      shown <- ._pr_decimal_number(txt)
       up <- which(!is.na(shown) & ((v < 0.05 & shown >= 0.05) |
                                      (v < 0.01 & shown >= 0.01)))
       if (!length(up)) break
@@ -629,7 +636,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
         d <- min(6L, as.integer(ceiling(-log10(min(tiny)))) + 1L)
       }
       txt <- formatC(v, format = "f", digits = d)
-      rounded <- suppressWarnings(as.numeric(txt))
+      rounded <- ._pr_decimal_number(txt)
       scientific <- which(is.finite(v) &
         ((v != 0 & rounded == 0) | nchar(txt) > max(10L, (width %||% console_width()) - indent)))
       if (length(scientific)) {

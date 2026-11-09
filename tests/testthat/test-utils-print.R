@@ -1373,3 +1373,11 @@ test_that("console P columns accept malformed long text without regex warnings",
   expect_true(any(grepl("999999", out, fixed = TRUE)))
   expect_identical(._p_cells(c("1.", "+.01", "1e-4", "<.05", long)), c("1.", "+.01*", "1e-4***", "<.05*", long))
 })
+
+test_that("console numeric checks understand the current decimal mark", {
+  withr::local_options(OutDec = ",", cli.num_colors = 1, width = 100, cli.width = 100)
+  out <- trimws(utils::capture.output(pr_table(data.frame(x = c(.3, 1e-10, -1e-10)))))
+  expect_identical(out[3:5], c("0,300000", "1,00e-10", "-1,00e-10"))
+  out <- trimws(utils::capture.output(pr_table(data.frame(P = c(.0499999, .00999999, .05, .01)), p_col = "P")))
+  expect_identical(out[3:6], c("0,0499999*", "0,00999999**", "0.050", "0.010*"))
+})
