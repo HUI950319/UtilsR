@@ -947,3 +947,23 @@ test_that("messages retain explicit trailing blank lines", {
     expect_match(out[[3L]], "second", fixed = TRUE)
   }
 })
+
+test_that("console tables restore cold integer64 numeric columns", {
+  skip_if_not_installed("bit64")
+  directory <- withr::local_tempdir()
+  fixture <- file.path(directory, "input.rds")
+  script <- file.path(directory, "verify.R")
+  d <- data.frame(x = bit64::as.integer64(c(-1, -2, -3)))
+  saveRDS(list(fn = .cat_tb, data = d), fixture)
+  writeLines(c(sprintf("payload <- readRDS(%s)", deparse(fixture)),
+    "stopifnot(!('bit64' %in% loadedNamespaces()))",
+    "tb <- payload$fn(payload$data, numeric_columns = 'x', theme = 'none')",
+    "html <- gt::as_raw_html(tb)",
+    "stopifnot(!grepl('NaN', html, fixed = TRUE), all(vapply(c('1.00', '2.00', '3.00'), grepl, logical(1), x = html, fixed = TRUE)))",
+    "fills <- unlist(lapply(tb[['_styles']][['styles']], function(s) s[['cell_fill']][['color']]), use.names = FALSE)",
+    "stopifnot(length(unique(fills)) == 3L)",
+    "cat('COLD_TABLE_OK\n')"), script)
+  output <- suppressWarnings(system2(file.path(R.home('bin'), 'Rscript'), c('--vanilla', shQuote(script)), stdout = TRUE, stderr = TRUE))
+  expect_null(attr(output, 'status'), info = paste(output, collapse = '\n'))
+  expect_identical(tail(output, 1L), 'COLD_TABLE_OK')
+})

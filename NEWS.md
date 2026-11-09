@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `.cat_tb()` restores serialized class methods before numeric formatting and colour mapping.
+
 * `pr_spark()` bins subnormal numeric ranges without generating invalid interval breaks.
 
 * `plt_alluvial()` retains valid serialized integer64 categories when filtering incomplete rows.

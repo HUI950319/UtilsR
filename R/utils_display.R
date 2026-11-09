@@ -579,15 +579,14 @@ console_width <- function() {
   # --- process each data object ---------------------------------------------
 
   .process <- function(data, title, subtitle, caption, footnote) {
-    # Convert to gt
+    # Restore encoded columns before gt captures formatting and colour data.
+    df <- if (inherits(data, "gt_tbl")) as.data.frame(data[["_data"]]) else as.data.frame(data)
+    invisible(lapply(df, ._pr_restore))
     if (inherits(data, "gtsummary")) {
-      df <- as.data.frame(data)
       tb <- gtsummary::as_gt(data)
     } else if (inherits(data, "gt_tbl")) {
-      df <- as.data.frame(data[["_data"]])
       tb <- data
     } else {
-      df <- as.data.frame(data)
       tb <- gt::gt(df)
     }
 
