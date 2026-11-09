@@ -398,9 +398,6 @@ plt_con(df, "value1", "group")
 plt_con(df, "value1", "group", type = "box")
 
 plt_con(df, "value1", "group", type = "bar")
-#> Warning: Computation failed in `stat_summary()`.
-#> Caused by error in `fun.data()`:
-#> ! The package "Hmisc" is required.
 
 plt_con(df, "value1", "group", type = "dot")
 
@@ -411,9 +408,6 @@ plt_con(df, "value1", "group", add_box = TRUE)
 plt_con(df, "value1", "group", type = "box", add_point = TRUE)
 
 plt_con(df, "value1", "group", type = "bar", add_trend = TRUE)
-#> Warning: Computation failed in `stat_summary()`.
-#> Caused by error in `fun.data()`:
-#> ! The package "Hmisc" is required.
 
 plt_con(df, "value1", "group", add_point = TRUE, add_box = TRUE)
 

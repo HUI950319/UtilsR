@@ -2,6 +2,340 @@
 
 ## UtilsR 0.6.23
 
+- Parsed confidence intervals format repeated value-and-precision pairs
+  once after validation, preserving per-row precision, negative-zero
+  handling, and high-precision byte-limit errors.
+
+- Automatic dumbbell insets use the existing scale-stable paired t-test
+  adapter, preserving P-values for finite measurements at very small and
+  very large magnitudes without rescaling plotted values.
+
+- Dual-group scatter mappings accept an empty name only when it is an
+  observed category, so generated or explicit color, shape, and
+  marginal-fill mappings work for that category while invalid names
+  remain rejected.
+
+- Scatter group preparation keeps exact numeric and time category
+  identities before factor conversion, including explicit typed group
+  orders and both dual-group roles.
+
+- Percentage-only missingness plots count verified complete plain
+  columns without allocating their missingness masks; classed columns
+  and matrix outputs retain the original path.
+
+- Circular lollipop scores and dumbbell endpoints normalize SPSS
+  user-missing codes before ranking, scaling, differences, and means,
+  consistently with scatter plots.
+
+- Rank correlation plots reuse one set of group row locations for both
+  coordinate scaling and per-group correlations instead of rescanning
+  the complete plot table for each group.
+
+- Rank plots address group score vectors and scaling ranges by position,
+  allowing an observed empty-string category to retain its rows and
+  values in every scaling mode.
+
+- Rank plot parsing caches row locations for automatic plain or factor
+  groups, avoiding a full-column comparison per group while retaining
+  explicit group selection and classed-vector fallbacks.
+
+- Single-panel rank plots prepare the actual point colors and release
+  unused color promises, preventing the returned mapping environment
+  from retaining the full analysis input while preserving lazy unused
+  colors.
+
+- Paired scatter histograms cap only an overflowing automatic 20-percent
+  range expansion at the largest representable finite value; explicit
+  limits and ordinary ranges are retained.
+
+- Suggested inspection filters now carry complex literals at full
+  precision, so truncated lists of nearby complex categories select
+  exactly the displayed values.
+
+- KNN temporarily encodes factors with an explicit NA level before the
+  backend and restores their original codes, levels, ordering, and
+  metadata after imputation.
+
+- Variable inspection adapts complex categories to distinct labels
+  before tabulation, preserves missing counts, and applies the existing
+  100-category table limit.
+
+- KNN reuses a verified complete standardized column to establish that
+  all rows are observed, avoiding an unnecessary whole-data missingness
+  matrix.
+
+- CI and SD formatting reuse repeated complete formatting tuples,
+  including per-row precision, and normalize signed zeros before
+  expanding the result.
+
+- Grouped inspection skips a complete character uniqueness scan when a
+  short prefix already proves that a plain column exceeds the unchanged
+  100-category limit.
+
+- Inspection count tables, grouped headers, and console frequencies
+  disambiguate rounded typed categories before display while preserving
+  counts and native ordering.
+
+- Inspection count mode skips ignored selection, pattern, and grouping
+  promises in data frames and forwarding methods, retaining its existing
+  warning.
+
+- Palette previews skip unused graphical preparation for console output
+  and reuse computed contrast colours when constructing table swatches.
+
+- Continuous ANOVA comparisons rescale extreme working values for both
+  pairwise and global tests while retaining annotation coordinates.
+
+- Point sampling keeps an explicit NA factor level separate from missing
+  factor codes in grouping and facet strata.
+
+- Validated plain integer selectors skip finite-value and
+  fractional-part scans while retaining bounds checks and classed-number
+  validation.
+
+- Factor combinations return their all-missing result before encoding
+  other plain vectors when one validated input is entirely missing.
+
+- Point sampling retains precise date and time strata and normalizes S4
+  time-span working keys before repetition, preserving original data
+  columns and random state.
+
+- Numeric P-value significance maps use interval lookup instead of
+  repeated threshold scans, preserving threshold ties and the
+  exact-decimal text path.
+
+- Console trees store visible records in a local keyed environment,
+  reducing allocations when many nodes are printed while preserving
+  branch order and truncation.
+
+- Large repeated CI vectors reuse parsed strings and then restore every
+  row, retaining original formatting, missing values, and warning
+  counts.
+
+- Paired scatter t tests reuse the stable t-test adapter and choose its
+  scale from complete pairs, preserving valid p-values at extreme finite
+  scales.
+
+- Scatter Pearson annotations use stable working coordinates at extreme
+  numeric scales while retaining original plot data and rank-correlation
+  methods.
+
+- CI parsing shares the bounded decimal converter with P-value
+  formatting, accepting long scientific mantissas whose numeric value
+  remains finite.
+
+- Margin additions accept grob lists without an explicit space by
+  allocating the largest child dimension while preserving their overlay
+  placement.
+
+- Jaccard gradient endpoints use validated factor colour labels while
+  retaining native numeric palette indices and transparency.
+
+- Automatic numeric bins rescale subnormal values before quantile
+  interpolation or equal-width cutting, preserving bin membership across
+  changes of units.
+
+- Jaccard heatmaps compare POSIXlt features through equality proxies,
+  preventing nearby instants from merging during list coercion.
+
+- UpSet membership distinguishes explicit NA factor levels from missing
+  codes, including ordered factors and all-factor member lists.
+
+- System diagnostics suppress raw collection warnings and retain their
+  single controlled memory-failure warning on Windows and Linux
+  fallbacks.
+
+- Console text without layout control characters returns directly,
+  preserving attributes and avoiding six unnecessary string scans.
+
+- Jaccard heatmaps cache row indices for plain character groups,
+  avoiding repeated whole-column scans without changing typed group
+  matching.
+
+- Console tables apply the selected two-decimal number formatter to
+  haven labelled numeric columns while preserving their original data
+  and locale.
+
+- Shared category labels preserve distinct time, complex, and AsIs
+  identities for butterfly, dumbbell, circular, and Sankey plots.
+
+- Circular lollipop plots restore integer64 methods before interpreting
+  grouping values or numeric scores.
+
+- Inspection, sparklines, and continuous bars recompute tiny nonzero
+  standard deviations after scaling, including data with a nonzero
+  offset.
+
+- Console trees retain one hidden sibling marker per parent while
+  continuing to count all omitted lines, reducing memory for wide trees.
+
+- Console tables align cells by column, reducing repeated ANSI work
+  while preserving row formatting and highlights.
+
+- Continuous pairwise t tests rescale extreme finite measurements and
+  the null difference together, retaining scale-invariant p-values.
+
+- Categorical plotting restores integer64 methods before enforcing the
+  100-category limit in a fresh R process.
+
+- Continuous plots distinguish close complex and AsIs numeric grouping
+  values before formatting their labels.
+
+- Distribution bars and heatmaps keep typed categories distinct when
+  their printed labels coincide.
+
+- `plt_con(type = 'bar')` uses stable standard deviations for both error
+  bars and automatic ranges at extreme numeric scales.
+
+- [`.cat_box()`](https://hui950319.github.io/UtilsR/reference/dot-cat_box.md)
+  lays out embedded newlines as complete framed rows while retaining its
+  message channel.
+
+- [`.cat_tb()`](https://hui950319.github.io/UtilsR/reference/dot-cat_tb.md)
+  treats SPSS user-missing codes as missing in displayed numbers,
+  highlighting and numeric gradients.
+
+- [`.cat_tb()`](https://hui950319.github.io/UtilsR/reference/dot-cat_tb.md)
+  preserves nearby integer64 values when mapping numeric gradients.
+
+- [`.cat_tb()`](https://hui950319.github.io/UtilsR/reference/dot-cat_tb.md)
+  restores serialized class methods before numeric formatting and colour
+  mapping.
+
+- [`pr_spark()`](https://hui950319.github.io/UtilsR/reference/pr_spark.md)
+  bins subnormal numeric ranges without generating invalid interval
+  breaks.
+
+- [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
+  retains valid serialized integer64 categories when filtering
+  incomplete rows.
+
+- Butterfly plots restore integer64 category methods before
+  missing-value filtering and grouping in fresh R sessions.
+
+- [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md)
+  keeps nearby numeric node values distinct and retains numeric node
+  ordering.
+
+- [`PlotCircleLollipop()`](https://hui950319.github.io/UtilsR/reference/PlotCircleLollipop.md)
+  preserves nearby numeric feature identities when finding shared
+  features and drawing links.
+
+- [`PlotDumbbell()`](https://hui950319.github.io/UtilsR/reference/PlotDumbbell.md)
+  retains distinct nearby numeric categories using precise labels when
+  their ordinary text collides.
+
+- [`PlotHeatmapJaccard()`](https://hui950319.github.io/UtilsR/reference/PlotHeatmapJaccard.md)
+  distinguishes negative integer64 feature identifiers instead of
+  merging their encoded storage.
+
+- [`PlotButterfly()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly.md)
+  completes unique category columns when stat, fill or group roles share
+  a source column.
+
+- `PlotButterfly(minmax = TRUE)` scales distinct group/fill tuples
+  independently when labels contain separator characters.
+
+- [`pr_box()`](https://hui950319.github.io/UtilsR/reference/pr_box.md)
+  and [`pr_kv()`](https://hui950319.github.io/UtilsR/reference/pr_kv.md)
+  retain explicit trailing newline rows in displayed values.
+
+- [`stat_ci_parse()`](https://hui950319.github.io/UtilsR/reference/stat_ci_parse.md)
+  uses relative log widths when narrow ratio intervals would lose
+  precision around extreme estimates.
+
+- [`fmt_text()`](https://hui950319.github.io/UtilsR/reference/fmt_text.md)
+  applies factor colour labels correctly to titles, subtitles, captions
+  and axis titles.
+
+- [`theme_legend()`](https://hui950319.github.io/UtilsR/reference/theme_legend.md)
+  draws factor colour labels correctly while preserving numeric palette
+  indices.
+
+- [`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md)
+  preserves donor distances under large common numeric offsets and
+  restores imputed values to their original origin.
+
+- `lv(group = ...)` decodes serialized integer64 groups before
+  calculating levels and missing-group counts.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) generates
+  exact numeric filters when Date or difftime text would merge distinct
+  stored values.
+
+- [`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md)
+  rescales overflowing finite numeric ranges for distance calculation
+  and restores original units and observations.
+
+- [`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md)
+  preserves subnormal numeric donor means instead of underflowing
+  weighted products to zero.
+
+- `fmt_point(sample_n = ...)` preserves serialized integer64 strata in
+  fresh R sessions.
+
+- [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
+  keeps overlay positions finite when automatic or explicit finite y
+  ranges span extreme values.
+
+- `grob_insert(clip = TRUE)` clips oversized content to the requested
+  inset rectangle.
+
+- [`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md)
+  keeps facet tuples distinct when category labels contain separator
+  characters.
+
+- [`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md)
+  no longer mistakes negative integer64 paired IDs for duplicate or
+  missing identifiers.
+
+- [`PlotRank()`](https://hui950319.github.io/UtilsR/reference/PlotRank.md)
+  retains explicit NA factor categories, distinguishes literal labels,
+  and continues excluding missing grouping codes.
+
+- [`PlotScatter3()`](https://hui950319.github.io/UtilsR/reference/PlotScatter3.md)
+  places automatic annotations using stable interpolation when the
+  finite axis span overflows.
+
+- Scatter plots normalize SPSS user-missing axis values before ranges,
+  marginal summaries and statistical annotations.
+
+- [`PlotScatter1()`](https://hui950319.github.io/UtilsR/reference/PlotScatter1.md),
+  [`PlotScatter3()`](https://hui950319.github.io/UtilsR/reference/PlotScatter3.md)
+  and
+  [`PlotRank()`](https://hui950319.github.io/UtilsR/reference/PlotRank.md)
+  preserve serialized integer64 grouping labels in fresh R sessions.
+
+- [`PlotRank()`](https://hui950319.github.io/UtilsR/reference/PlotRank.md)
+  selects numeric group labels by matrix column name consistently with
+  character selectors.
+
+- [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
+  normalizes oversized decimal mantissas instead of returning NA for
+  finite P-values.
+
+- [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
+  compares decimal text at significance thresholds without losing digits
+  or positive underflow values.
+
+- CI string parsing ignores significance stars followed by a terminal
+  period without a spurious trailing-text warning.
+
+- `stat_ci_parse(level = 0.95)` preserves original interval bounds
+  without log-exp round-trip drift.
+
+- [`stat_ci_parse()`](https://hui950319.github.io/UtilsR/reference/stat_ci_parse.md)
+  rescales subnormal difference intervals to retain P-value precision.
+
+- [`PlotDumbbell()`](https://hui950319.github.io/UtilsR/reference/PlotDumbbell.md)
+  rejects matrix-shaped category columns instead of flattening labels.
+
+- [`.cat_message()`](https://hui950319.github.io/UtilsR/reference/dot-cat_message.md)
+  retains trailing empty lines in each message element.
+
+- [`fct_to_group()`](https://hui950319.github.io/UtilsR/reference/fct_to_group.md)
+  diagnoses matrix-shaped group lists before regrouping levels.
+
 - Legacy Plot functions validate filename scalars before data processing
   or device creation while retaining NULL no-save behavior.
 
