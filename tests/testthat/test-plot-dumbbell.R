@@ -425,3 +425,24 @@ test_that("dumbbell endpoints normalize SPSS missing codes before arithmetic", {
   }
   expect_identical(serialize(d, NULL), before)
 })
+
+test_that("dumbbell inset paired t tests preserve extreme scale p values", {
+  inset <- NULL
+  original <- .build_dumbbell_inset
+  local_mocked_bindings(.build_dumbbell_inset = function(...) {
+    inset <<- original(...)
+    inset
+  })
+  x <- 1:8
+  y <- c(2, 4, 3, 5, 7, 6, 9, 8)
+  expected <- sprintf("p = %.3f", stats::t.test(x, y, paired = TRUE)$p.value)
+  for (unit in c(1, 1e200, 1e-200)) {
+    d <- data.frame(start = x * unit, end = y * unit, category = letters[1:8])
+    expect_no_warning(p <- dumbbell_plot(d, inset_plot = "auto", inset_test = "t.test",
+      legend_pos = "none", inset_jitter = FALSE, sort_by = "none"))
+    text <- Filter(function(layer) "label" %in% names(layer), ggplot2::ggplot_build(inset)$data)
+    expect_identical(unlist(lapply(text, `[[`, "label"), use.names = FALSE), expected)
+    expect_identical(p[[1L]]$data$start, d$start)
+    expect_identical(p[[1L]]$data$end, d$end)
+  }
+})

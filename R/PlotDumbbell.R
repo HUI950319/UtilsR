@@ -560,7 +560,7 @@ PlotDumbbell <- function(
   # Significance bracket
   if (inset_test != "none") {
     test_fn <- switch(inset_test,
-      "t.test" = stats::t.test,
+      "t.test" = .con_pairwise_test("t.test"),
       "wilcox" = stats::wilcox.test,
       stop("inset_test must be 't.test', 'wilcox', or 'none'.", call. = FALSE)
     )
