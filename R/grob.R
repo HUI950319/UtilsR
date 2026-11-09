@@ -215,11 +215,13 @@ grob_add <- function(
   panel_rows <- range(panel_layout$t, panel_layout$b)
   panel_cols <- range(panel_layout$l, panel_layout$r)
 
+  cells <- length(space)
   if (position == "top") {
     gt <- gtable::gtable_add_rows(gt, space, 0)
     gt <- gtable::gtable_add_grob(
       gt, grob,
       t = 1,
+      b = cells,
       l = panel_cols[1],
       r = panel_cols[2],
       clip = clip,
@@ -230,7 +232,8 @@ grob_add <- function(
     gt <- gtable::gtable_add_rows(gt, space, -1)
     gt <- gtable::gtable_add_grob(
       gt, grob,
-      t = dim(gt)[1],
+      t = nrow(gt) - cells + 1L,
+      b = nrow(gt),
       l = panel_cols[1],
       r = panel_cols[2],
       clip = clip,
@@ -244,6 +247,7 @@ grob_add <- function(
       t = panel_rows[1],
       b = panel_rows[2],
       l = 1,
+      r = cells,
       clip = clip,
       name = "grob_add_left"
     )
@@ -254,7 +258,8 @@ grob_add <- function(
       gt, grob,
       t = panel_rows[1],
       b = panel_rows[2],
-      l = dim(gt)[2],
+      l = ncol(gt) - cells + 1L,
+      r = ncol(gt),
       clip = clip,
       name = "grob_add_right"
     )

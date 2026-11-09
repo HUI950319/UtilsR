@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `grob_add()` gives margin graphics the full reserved space when supplied a vector of grid units.
+
 * `PlotRankCor()` scales groups in local axis vectors and replaces each data-frame column once.
 
 * `fmt_scale()` and `fmt_expand()` skip inherited mappings that a layer overrides with fixed coordinates.

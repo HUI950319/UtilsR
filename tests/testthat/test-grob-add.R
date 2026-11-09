@@ -235,3 +235,15 @@ test_that("grob lists receive automatic margin dimensions", {
     expect_no_error(grid::grid.draw(actual))
   }
 })
+
+test_that("margin grobs span all cells in explicit vector units", {
+  base <- gtable::gtable(widths = grid::unit(1, "null"), heights = grid::unit(1, "null"))
+  base <- gtable::gtable_add_grob(base, grid::rectGrob(), 1, 1, name = "panel")
+  space <- grid::unit(c(1, 2), "cm")
+  for (pos in c("top", "bottom", "left", "right")) {
+    result <- grob_add(base, grid::textGrob("Margin"), position = pos, space = space)
+    row <- result$layout[result$layout$name == paste0("grob_add_", pos), ]
+    span <- if (pos %in% c("top", "bottom")) c(row$t, row$b) else c(row$l, row$r)
+    expect_equal(span, if (pos %in% c("top", "left")) c(1, 2) else c(2, 3))
+  }
+})
