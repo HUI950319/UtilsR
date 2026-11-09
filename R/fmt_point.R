@@ -439,6 +439,16 @@ fmt_point <- function(plot,
     if (external_vector(expr, rlang::get_env(aesthetic, default = baseenv())))
       cli::cli_abort("Sampling cannot align external row vectors; put them in {.arg data} and map its columns.")
   }
+  stratum_values <- function(values) {
+    timespan <- inherits(values, c("Duration", "Period", "Interval"))
+    if (timespan && !requireNamespace("lubridate", quietly = TRUE))
+      cli::cli_abort("Interpreting time-span sampling strata requires package {.pkg lubridate}.")
+    if (timespan || inherits(values, c("Date", "POSIXt", "difftime"))) {
+      values <- .butterfly_category_labels(values)
+      if (inherits(values, c("Duration", "Period", "Interval"))) values <- as.character(values)
+    }
+    values
+  }
   for (aes_name in c("group", "colour", "fill")) {
     aesthetic <- mapping[[aes_name]]
     if (is.null(aesthetic)) next
@@ -458,7 +468,7 @@ fmt_point <- function(plot,
       if (!length(values) %in% c(1L, nrow(data))) {
         cli::cli_abort("Sampling {.arg {aes_name}} must have length 1 or nrow(data).")
       }
-      group_values <- c(group_values, list(rep_len(values, nrow(data))))
+      group_values <- c(group_values, list(rep_len(stratum_values(values), nrow(data))))
       if (aes_name == "group") break
     }
   }
@@ -470,7 +480,7 @@ fmt_point <- function(plot,
       cli::cli_abort("Interpreting integer64 sampling strata requires package {.pkg bit64}.")
     if (!length(values) %in% c(1L, nrow(data)))
       cli::cli_abort("Sampling facet values must have length 1 or nrow(data).")
-    group_values <- c(group_values, list(rep_len(values, nrow(data))))
+    group_values <- c(group_values, list(rep_len(stratum_values(values), nrow(data))))
   }
   if (!is.null(group_values)) {
     strata <- lapply(group_values, function(x) {

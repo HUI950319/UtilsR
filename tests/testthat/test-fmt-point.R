@@ -839,3 +839,29 @@ test_that("point sampling retains cold integer64 strata", {
   p <- fmt_point(ggplot2::ggplot(d, ggplot2::aes(x, y, group = id)), sample_n = 1)
   expect_equal(nrow(p$layers[[1L]]$data), 4L)
 })
+
+test_that("point sampling preserves typed time strata and their source columns", {
+  skip_if_not_installed("lubridate")
+  values <- list(as.Date(c(1, 1.5), origin = "1970-01-01"),
+    as.POSIXct(c(1, 1 + .Machine$double.eps), origin = "1970-01-01", tz = "UTC"),
+    as.difftime(c(1, 1 + .Machine$double.eps), units = "secs"),
+    lubridate::seconds(c(1, 1 + .Machine$double.eps)),
+    lubridate::dseconds(c(1, 1 + .Machine$double.eps)))
+  withr::local_seed(321)
+  before_seed <- .Random.seed
+  for (value in values) {
+    d <- data.frame(x = 1:8, y = 8:1)
+    d$g <- rep(value, each = 4)
+    before <- serialize(d, NULL)
+    for (facet in c(FALSE, TRUE)) {
+      p <- if (facet) ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::facet_wrap(~g) else
+        ggplot2::ggplot(d, ggplot2::aes(x, y, group = g))
+      sampled <- fmt_point(p, sample_n = 1)$layers[[1L]]$data
+      expect_equal(nrow(sampled), 2L)
+      expect_length(vctrs::vec_unique(sampled$g), 2L)
+      expect_identical(class(sampled$g), class(d$g))
+      expect_identical(serialize(d, NULL), before)
+      expect_identical(.Random.seed, before_seed)
+    }
+  }
+})

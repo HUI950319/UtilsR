@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Point sampling retains precise date and time strata and normalizes S4 time-span working keys before repetition, preserving original data columns and random state.
+
 * Numeric P-value significance maps use interval lookup instead of repeated threshold scans, preserving threshold ties and the exact-decimal text path.
 
 * Console trees store visible records in a local keyed environment, reducing allocations when many nodes are printed while preserving branch order and truncation.
