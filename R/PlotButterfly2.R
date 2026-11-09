@@ -215,9 +215,18 @@ PlotButterfly2 <- function(
   data <- data[keep, ]
 
   value_name <- value.by
+  if (".data" %in% names(data)) {
+    alias <- utils::tail(make.unique(c(names(data), ".butterfly_data")), 1L)
+    data[[alias]] <- data[[".data"]]
+    if (stat.by == ".data") stat.by <- alias
+    if (value.by == ".data") value.by <- alias
+    if (group.by == ".data") group.by <- alias
+    if (identical(fill.by, ".data")) fill.by <- alias
+  }
   if (value.by %in% c(stat.by, fill.by, group.by)) {
-    value.by <- utils::tail(make.unique(c(names(data), ".score")), 1L)
-    data[[value.by]] <- data[[value_name]]
+    alias <- utils::tail(make.unique(c(names(data), ".score")), 1L)
+    data[[alias]] <- data[[value.by]]
+    value.by <- alias
   }
   for (col in unique(c(stat.by, fill.by, group.by))) {
     data[[col]] <- .butterfly_category_labels(data[[col]])

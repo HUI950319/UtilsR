@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotButterfly2()` supports a literal `.data` column in the score, category, fill or side role.
+
 * `PlotButterfly2()` preserves measurement values when the score column also supplies category or fill labels.
 
 * `PlotButterfly2()` filters missing category labels without creating placeholder rows or spurious groups.

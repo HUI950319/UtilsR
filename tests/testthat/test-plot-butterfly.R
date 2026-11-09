@@ -807,3 +807,20 @@ test_that("butterfly measurements can also supply categorical labels", {
   }
   expect_identical(actual[[2L]]$labels$x, "category")
 })
+
+test_that("butterfly aesthetics handle a literal data column name", {
+  control <- data.frame(category = rep(letters[1:3], 4L), score = 1:12,
+    side = rep(c("L", "R"), each = 6L), fill = "F")
+  draw <- function(d, cols) PlotButterfly2(d, cols[1L], cols[2L], cols[3L],
+    fill.by = cols[4L], type = "box")
+  expected <- draw(control, names(control))
+  for (j in seq_along(control)) {
+    d <- control
+    names(d)[j] <- ".data"
+    actual <- draw(d, names(d))
+    for (i in 1:2) {
+      expect_equal(ggplot2::ggplot_build(actual[[i]])$data,
+                   ggplot2::ggplot_build(expected[[i]])$data)
+    }
+  }
+})
