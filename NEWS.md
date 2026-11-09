@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Automatic numeric bins rescale subnormal values before quantile interpolation or equal-width cutting, preserving bin membership across changes of units.
+
 * Jaccard heatmaps compare POSIXlt features through equality proxies, preventing nearby instants from merging during list coercion.
 
 * UpSet membership distinguishes explicit NA factor levels from missing codes, including ordered factors and all-factor member lists.

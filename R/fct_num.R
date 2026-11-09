@@ -179,6 +179,13 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
     cli::cli_abort("{.arg nbins} must be a single finite integer >= 2 and < {(.Machine$integer.max)}.")
   }
   nbins <- as.integer(nbins)
+  if (plain_x) {
+    magnitude <- max(abs(x), na.rm = has_na)
+    if (is.finite(magnitude) && magnitude > 0 && magnitude < .Machine$double.xmin) {
+      # Keep unrepresentable fractional cut points in the scaled coordinates.
+      x <- x / magnitude
+    }
+  }
 
   if (type == "quantile") {
     probs <- seq(0, 1, length.out = nbins + 1L)

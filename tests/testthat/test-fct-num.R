@@ -194,3 +194,17 @@ test_that("numeric bins reject complex data and dimensional labels before cuttin
   expect_identical(fct_num(1:3, breaks = 2, labels = c("L", "H")),
                    factor(c("L", "L", "H"), levels = c("L", "H")))
 })
+
+test_that("automatic numeric bins retain membership on subnormal coordinates", {
+  unit <- .Machine$double.xmin * .Machine$double.eps
+  for (n in c(4, 12, 20)) for (sign in c(-1, 1)) {
+    x <- c(sign * seq_len(n), NA_real_)
+    for (type in c("quantile", "equal")) {
+      expected <- fct_num(x, nbins = 2, type = type)
+      expect_identical(fct_num(x * unit, nbins = 2, type = type), expected)
+    }
+  }
+  x <- c(1, 2, 2, 3, 4, NA_real_)
+  expect_identical(fct_num(x * unit, nbins = 2, labels = c("L", "H")),
+                   fct_num(x, nbins = 2, labels = c("L", "H")))
+})
