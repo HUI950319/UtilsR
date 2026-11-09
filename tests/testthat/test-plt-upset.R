@@ -704,3 +704,20 @@ test_that("UpSet labelled membership retains exact numeric values", {
   expect_identical(as.character(out$intersect_group), c("b", "a"))
   expect_identical(d, before)
 })
+
+test_that("UpSet list indicators reuse existing member row indexes", {
+  sets <- list(a = c("one", "two", NA_character_), b = c("two", "three"))
+  fn <- plt_upset
+  env <- new.env(parent = environment(fn))
+  scans <- 0L
+  env[["%in%"]] <- function(x, table) {
+    if (identical(x, c("one", "two", NA_character_, "three"))) scans <<- scans + 1L
+    base::`%in%`(x, table)
+  }
+  environment(fn) <- env
+  out <- fn(sets, output = "data")
+  expect_identical(scans, 2L)
+  expect_identical(out$a, c("Yes", "Yes", "Yes", "No"))
+  expect_identical(out$b, c("No", "Yes", "No", "Yes"))
+  expect_identical(as.character(out$intersect_group), c("a", "a/b", "a", "b"))
+})

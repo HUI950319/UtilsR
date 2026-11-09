@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_upset()` reuses list membership indexes when constructing Yes/No columns.
+
 * `check_system()` reads the standard Linux release fallback and preserves quoted distribution names.
 
 * Console wrapping splits long plain Han text at display-column boundaries in one pass.
