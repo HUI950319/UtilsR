@@ -195,6 +195,7 @@ PlotCircleLollipop <- function(
   for (col in c(group_col, name_col, value_col)) {
     if (!col %in% colnames(data))
       stop(sprintf("Column '%s' not found in data.", col), call. = FALSE)
+    .register_integer64(data[[col]])
   }
 
   # ---- Parse scores before ranking or scaling ----

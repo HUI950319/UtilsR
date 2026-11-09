@@ -578,3 +578,27 @@ test_that("circular sharing distinguishes nearby numeric feature identifiers", {
   expect_identical(links, 0L)
   expect_identical(colours, rep("#FF7F50", 2L))
 })
+
+test_that("circular plots decode cold integer64 groups and scores", {
+  skip_if_not_installed("bit64")
+  skip_if_not_installed("circlize")
+  scratch <- withr::local_tempdir()
+  input <- file.path(scratch, "input.rds")
+  script <- file.path(scratch, "verify.R")
+  groups <- data.frame(group = bit64::as.integer64(c(-1, -1, -2, -2)), name = c("a", "b", "a", "c"), value = 1:4)
+  scores <- data.frame(group = rep(c("A", "B"), each = 2), name = c("a", "b", "a", "c"), value = bit64::as.integer64(-1:-4))
+  for (d in list(groups, scores)) {
+    labels <- unique(as.character(d$group))
+    saveRDS(list(fn = PlotCircleLollipop, data = d, labels = labels, libs = .libPaths()), input)
+    writeLines(c(sprintf("payload <- readRDS(%s)", deparse(input)),
+      '.libPaths(payload[["libs"]])',
+      'stopifnot(!("bit64" %in% loadedNamespaces()))',
+      'testthat::local_mocked_bindings(circos.initialize = function(factors, ...) {stopifnot(identical(levels(factors), payload[["labels"]])); stop("REACHED_DRAW")}, .package = "circlize")',
+      'error <- tryCatch(payload[["fn"]](payload[["data"]]), error = conditionMessage)',
+      'stopifnot(identical(error, "REACHED_DRAW"))',
+      'cat("COLD_CIRCLE_OK\n")'), script)
+    output <- suppressWarnings(system2(file.path(R.home('bin'), 'Rscript'), c('--vanilla', shQuote(script)), stdout = TRUE, stderr = TRUE))
+    expect_null(attr(output, 'status'), info = paste(output, collapse = '\n'))
+    expect_true('COLD_CIRCLE_OK' %in% output)
+  }
+})
