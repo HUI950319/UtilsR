@@ -166,7 +166,8 @@ PlotHeatmapJaccard <- function(
   if (inherits(group_values, "haven_labelled"))
     group_values <- as.vector(group_values)
   # Cache equality proxies without repeatedly restoring S4 time span objects.
-  feature_values <- if (timespan[2L]) {
+  typed_features <- timespan[2L] || integer64[2L]
+  feature_values <- if (typed_features) {
     vctrs::vec_proxy_equal(data[[name_col]])
   } else {
     data[[name_col]]
@@ -194,11 +195,11 @@ PlotHeatmapJaccard <- function(
         group_values == ct
       }
       rows <- which(group_match & non_missing)
-      values <- if (timespan[2L]) vctrs::vec_slice(feature_values, rows) else feature_values[rows]
-      if (timespan[2L]) vctrs::vec_unique(values) else unique(as.vector(values))
+      values <- if (typed_features) vctrs::vec_slice(feature_values, rows) else feature_values[rows]
+      if (typed_features) vctrs::vec_unique(values) else unique(as.vector(values))
     }
   )
-  set_sizes <- if (timespan[2L]) {
+  set_sizes <- if (typed_features) {
     as.double(vapply(top_sets, vctrs::vec_size, numeric(1)))
   } else {
     as.double(lengths(top_sets))
@@ -211,7 +212,7 @@ PlotHeatmapJaccard <- function(
     for (j in seq_len(i)) {
       gi <- top_sets[[i]]
       gj <- top_sets[[j]]
-      n_intersect <- if (timespan[2L]) sum(vctrs::vec_in(gi, gj)) else sum(gi %in% gj)
+      n_intersect <- if (typed_features) sum(vctrs::vec_in(gi, gj)) else sum(gi %in% gj)
       n_union <- set_sizes[i] + set_sizes[j] - n_intersect
       jmat[i, j] <- if (n_union > 0) n_intersect / n_union else 0
       jmat[j, i] <- jmat[i, j]

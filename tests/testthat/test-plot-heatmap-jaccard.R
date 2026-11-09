@@ -575,3 +575,15 @@ test_that("axis strips keep valid colours beyond the default palette length", {
   expect_identical(ggplot2::ggplot_build(custom)$data[[2L]]$fill,
                    rep_len(c("red", "blue"), 17))
 })
+
+test_that("Jaccard feature sets retain negative integer64 identities", {
+  skip_if_not_installed("bit64")
+  d <- data.frame(cell_type = c("A", "B", "C", "C"))
+  d[["gene"]] <- bit64::as.integer64(c("-1", "-2", "-1", "-2"))
+  actual <- PlotHeatmapJaccard(d, return_type = "data")
+  d[["gene"]] <- as.character(d[["gene"]])
+  expected <- PlotHeatmapJaccard(d, return_type = "data")
+  expect_identical(actual, expected)
+  expect_equal(actual["A", "B"], 0)
+  expect_equal(actual["A", "C"], .5)
+})

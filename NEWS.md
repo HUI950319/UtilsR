@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotHeatmapJaccard()` distinguishes negative integer64 feature identifiers instead of merging their encoded storage.
+
 * `PlotButterfly()` completes unique category columns when stat, fill or group roles share a source column.
 
 * `PlotButterfly(minmax = TRUE)` scales distinct group/fill tuples independently when labels contain separator characters.
