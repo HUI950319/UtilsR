@@ -578,6 +578,7 @@ PlotButterfly <- function(
 
 # Keep numeric category identities before character-based matching or pivoting.
 .butterfly_category_labels <- function(value) {
+  .register_integer64(value)
   if (!(is.integer(value) || is.double(value)) || is.object(value)) return(value)
   values <- unique(value)
   labels <- as.character(values)

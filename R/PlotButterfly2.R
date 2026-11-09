@@ -209,7 +209,8 @@ PlotButterfly2 <- function(
     cli::cli_abort("Package {.pkg ggbeeswarm} is required for beeswarm types.")
 
   # ---- Filter NA / "Mixed" ----
-  keep <- !is.na(data[[stat.by]]) & data[[stat.by]] != "Mixed"
+  .register_integer64(data[[stat.by]])
+  keep <- !is.na(data[[stat.by]]) & as.character(data[[stat.by]]) != "Mixed"
   data <- data[keep, ]
 
   for (col in unique(c(stat.by, fill.by, group.by))) {
@@ -229,10 +230,11 @@ PlotButterfly2 <- function(
   # ==================================================================
   if (is.null(fill.by) && !is_beeswarm) {
     .to_wide <- function(df) {
-      cts   <- unique(as.character(df[[stat.by]]))
+      categories <- as.character(df[[stat.by]])
+      cts   <- unique(categories)
       max_n <- max(table(df[[stat.by]]))
       mat <- lapply(cts, function(ct) {
-        vals <- df[[value.by]][df[[stat.by]] == ct]
+        vals <- df[[value.by]][categories == ct]
         length(vals) <- max_n
         vals
       })
@@ -241,8 +243,8 @@ PlotButterfly2 <- function(
       out
     }
 
-    wide_left  <- .to_wide(data[data[[group.by]] == groups[1], ])
-    wide_right <- .to_wide(data[data[[group.by]] == groups[2], ])
+    wide_left  <- .to_wide(data[as.character(data[[group.by]]) == groups[1], ])
+    wide_right <- .to_wide(data[as.character(data[[group.by]]) == groups[2], ])
     common_ct  <- intersect(colnames(wide_left), colnames(wide_right))
     if (length(common_ct) == 0L)
       cli::cli_abort("No common {.arg stat.by} categories.")

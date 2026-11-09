@@ -711,3 +711,27 @@ test_that("butterfly bars allow shared category columns", {
     }
   }
 })
+
+test_that("butterfly grouping restores integer64 categories in cold processes", {
+  skip_if_not_installed("bit64")
+  directory <- withr::local_tempdir()
+  fixture <- file.path(directory, "input.rds")
+  script <- file.path(directory, "verify.R")
+  d <- data.frame(cat = rep(c("u", "v"), 2L), fill = "x", value = 1:4)
+  d$group <- bit64::as.integer64(rep(c("-1", "-2"), each = 2L))
+  d2 <- d
+  d2$cat <- bit64::as.integer64(rep(c("-1", "-2"), 2L))
+  d2$group <- rep(c("A", "B"), each = 2L)
+  saveRDS(list(data = d, data2 = d2, functions = list(PlotButterfly = PlotButterfly, PlotButterfly2 = PlotButterfly2, .butterfly_category_labels = .butterfly_category_labels)), fixture)
+  for (i in 1:2) {
+    writeLines(c(sprintf("payload <- readRDS(%s)", deparse(fixture)),
+      "stopifnot(!('bit64' %in% loadedNamespaces()))",
+      "e <- new.env(parent = asNamespace('UtilsR')); for (name in names(payload$functions)) {fn <- payload$functions[[name]]; environment(fn) <- e; e[[name]] <- fn}",
+      if (i == 1L) "p <- e$PlotButterfly(payload$data, stat.by = 'cat', fill.by = 'fill', value.by = 'value', group.by = 'group'); expected <- c('-1', '-2'); field <- 'subtitle'" else "p <- e$PlotButterfly2(payload$data2, stat.by = 'cat', value.by = 'value', group.by = 'group', text.colors = 'black'); expected <- c('A', 'B'); field <- 'title'",
+      "stopifnot(length(p) == 2L, identical(vapply(seq_along(p), function(i) as.character(p[[i]]$labels[[field]]), character(1)), expected))",
+      "cat('COLD_BUTTERFLY_OK\n')"), script)
+    output <- suppressWarnings(system2(file.path(R.home('bin'), 'Rscript'), c('--vanilla', shQuote(script)), stdout = TRUE, stderr = TRUE))
+    expect_null(attr(output, 'status'), info = paste(output, collapse = '\n'))
+    expect_identical(tail(output, 1L), 'COLD_BUTTERFLY_OK')
+  }
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Butterfly plots restore integer64 category methods before missing-value filtering and grouping in fresh R sessions.
+
 * `plt_sankey()` keeps nearby numeric node values distinct and retains numeric node ordering.
 
 * `PlotCircleLollipop()` preserves nearby numeric feature identities when finding shared features and drawing links.
