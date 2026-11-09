@@ -522,7 +522,7 @@ plt_alluvial <- function(
         .y = if (y_type == "percent") {
           stratum_args$gap
         } else {
-          stratum_args$gap * unname(max_total[as.character(observed$.facet)])
+          stratum_args$gap * unname(max_total[as.integer(observed$.facet)])
         },
         .label = NA_character_
       )

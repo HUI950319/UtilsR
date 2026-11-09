@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_alluvial(y_type = "count")` resolves facet gap sizes by factor position, including empty facet labels.
+
 * `plt_upset(output = "data")` assigns group factor codes without allocating a character label per input row.
 
 * `fct_to_combine()` avoids full missingness masks when every ordinary input is complete.

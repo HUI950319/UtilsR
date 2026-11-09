@@ -866,3 +866,15 @@ test_that("alluvial missing checks avoid extra text conversions of ordinary colu
   expect_equal(sum(p$data$count), nrow(d))
   expect_identical(levels(p$data$.cat_var), c("1", "2"))
 })
+
+test_that("alluvial count gaps retain empty facet labels", {
+  d <- data.frame(stage = rep(c("a", "b"), each = 4L), group = rep(c("g1", "g2"), 4L),
+    facet = rep(c("", "Other"), each = 4L))
+  p <- plt_alluvial(d, cat_var = "stage", group = "group", facet = "facet",
+    y_type = "count", stratum_args = list(gap = .05))
+  gap <- p$data[p$data$.is_gap, , drop = FALSE]
+  expect_length(gap$.y, 2L)
+  expect_equal(gap$.y, c(.2, .2))
+  expect_true("" %in% as.character(gap$.facet))
+  expect_no_warning(ggplot2::ggplot_build(p))
+})
