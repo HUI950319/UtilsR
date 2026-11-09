@@ -596,3 +596,16 @@ test_that("dumbbell category axes distinguish explicit factor missing levels", {
   expect_length(unique(segment$y), 4L)
   expect_identical(d, before)
 })
+
+test_that("dumbbell category roles preserve endpoint values", {
+  d <- data.frame(start = c(3, 1, 2), end = c(4, 2, 5), .category = "occupied")
+  for (role in c("start", "end")) {
+    control <- d
+    control$category <- as.character(d[[role]])
+    expected <- ggplot2::ggplot_build(PlotDumbbell(control, sort_by = "none",
+      show_delta = TRUE, show_mean_lines = TRUE, legend_pos = "none"))$data
+    actual <- ggplot2::ggplot_build(PlotDumbbell(d, y_col = role, sort_by = "none",
+      show_delta = TRUE, show_mean_lines = TRUE, legend_pos = "none"))$data
+    expect_equal(actual, expected)
+  }
+})

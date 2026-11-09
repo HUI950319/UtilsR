@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotDumbbell()` keeps numeric endpoints and deltas when an endpoint column is also selected for category labels.
+
 * Compute shared circular feature names once for colours and links, and skip that work when both are supplied or disabled.
 
 * Use internal aliases for plotted columns named .data in dumbbell and rank-correlation plots while keeping the source columns and displayed labels.

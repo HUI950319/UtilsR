@@ -300,6 +300,9 @@ PlotDumbbell <- function(
     labels[is.na(labels)] <- utils::tail(make.unique(c(labels[!is.na(labels)], "<NA>")), 1L)
     levels(categories) <- labels
   }
+  if (y_col %in% c(x_col, xend_col)) {
+    y_col <- utils::tail(make.unique(c(names(data), ".category")), 1L)
+  }
   data[[y_col]] <- factor(categories, levels = unique(categories))
 
   # Keep a literal .data column separate from ggplot2's data pronoun.
