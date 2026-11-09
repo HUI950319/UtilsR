@@ -212,7 +212,7 @@ PlotButterfly <- function(
   .resolve_fill <- function(categories) {
     palette_names <- names(palette)
     if (is.null(palette_names) || !length(palette)) {
-      return(list(values = .resolve_color(palette, n = length(categories)), limits = NULL))
+      return(list(values = stats::setNames(.resolve_color(palette, n = length(categories)), categories), limits = NULL))
     }
     if (anyNA(palette_names) || (any(!nzchar(palette_names)) && !"" %in% categories)) {
       cli::cli_abort("Named {.arg palette} must use non-missing category names.")
@@ -289,10 +289,11 @@ PlotButterfly <- function(
     # Complete missing stat.by x fill.by x group.by combinations with 0
     all_stats  <- unique(as.character(data[[stat.by]]))
     all_fills  <- unique(as.character(data[[fill.by]]))
-    full_grid  <- expand.grid(.stat = all_stats, .fill = all_fills,
-                              .group = groups, stringsAsFactors = FALSE)
-    colnames(full_grid) <- c(stat.by, fill.by, group.by)
-    data <- merge(full_grid, data, by = c(stat.by, fill.by, group.by),
+    grid_keys <- unique(c(stat.by, fill.by, group.by))
+    grid_values <- list(all_stats, all_fills, groups)[match(grid_keys, c(stat.by, fill.by, group.by))]
+    full_grid <- do.call(expand.grid, c(grid_values, list(stringsAsFactors = FALSE)))
+    colnames(full_grid) <- grid_keys
+    data <- merge(full_grid, data, by = grid_keys,
                   all.x = TRUE)
     data[[value.by]][is.na(data[[value.by]])] <- 0
 

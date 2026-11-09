@@ -693,3 +693,21 @@ test_that("butterfly minmax scaling keeps category tuples distinct", {
     expect_identical(sort(data$v[as.character(data$f) == fill]), c(0, 1))
   }
 })
+
+test_that("butterfly bars allow shared category columns", {
+  d <- data.frame(s = c("u", "v", "u", "v"), g = rep(c("a", "b"), each = 2L), v = 1:4)
+  for (fill in c("s", "g")) {
+    d[["f"]] <- d[[fill]]
+    actual <- PlotButterfly(d, stat.by = "s", fill.by = fill, value.by = "v", group.by = "g")
+    expected <- PlotButterfly(d, stat.by = "s", fill.by = "f", value.by = "v", group.by = "g")
+    for (i in seq_len(length(actual))) {
+      active <- function(p) {
+        layer <- ggplot2::ggplot_build(p)$data[[1L]]
+        layer$length <- abs(layer$xmax - layer$xmin)
+        layer <- layer[layer$length > 0, , drop = FALSE]
+        list(length = sort(layer$length), fill = layer$fill[order(layer$length)])
+      }
+      expect_identical(active(actual[[i]]), active(expected[[i]]))
+    }
+  }
+})
