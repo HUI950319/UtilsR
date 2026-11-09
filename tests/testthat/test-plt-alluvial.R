@@ -829,3 +829,24 @@ test_that("alluvial option merging rejects table and array containers", {
     expect_error(plt_alluvial(d, cat_var = "cat", group = "group", flow_args = bad), "flow_args")
   expect_identical(UtilsR:::.merge_args(list(alpha = .5), list(alpha = 1), "flow_args"), list(alpha = .5))
 })
+
+test_that("flow plots retain integer64 categories in cold processes", {
+  skip_if_not_installed("bit64")
+  directory <- withr::local_tempdir()
+  fixture <- file.path(directory, "input.rds")
+  script <- file.path(directory, "verify.R")
+  d <- data.frame(cat = rep(c("u", "v"), 2L))
+  d$g <- bit64::as.integer64(rep(c("-1", "-2"), each = 2L))
+  saveRDS(list(data = d, functions = list(plt_alluvial = plt_alluvial, plt_sankey = plt_sankey, .butterfly_category_labels = .butterfly_category_labels)), fixture)
+  for (mode in c("alluvial", "sankey")) {
+    writeLines(c("options(device = function(...) grDevices::pdf(NULL, ...), lifecycle_verbosity = 'quiet')",
+      sprintf("payload <- readRDS(%s)", deparse(fixture)),
+      "stopifnot(!('bit64' %in% loadedNamespaces()))",
+      "e <- new.env(parent = asNamespace('UtilsR')); for (name in names(payload$functions)) {fn <- payload$functions[[name]]; environment(fn) <- e; e[[name]] <- fn}",
+      if (mode == "alluvial") "p <- suppressMessages(e$plt_alluvial(payload$data, 'cat', 'g')); counts <- tapply(p$data$count, p$data$.group, sum); stopifnot(all(counts[c('-1', '-2')] == 2))" else "p <- withCallingHandlers(suppressMessages(e$plt_sankey(payload$data, c('g', 'cat'), show_text = 'none')), warning = function(w) {if (identical(conditionMessage(w), 'attributes are not identical across measure variables; they will be dropped')) invokeRestart('muffleWarning') else stop(w)}); nodes <- unique(as.character(p$data$label[as.character(p$data$x) == 'g_label'])); stopifnot(length(nodes) == 2L, any(startsWith(nodes, '-1 ')), any(startsWith(nodes, '-2 ')))",
+      "cat('COLD_FLOW_OK\n')"), script)
+    output <- suppressWarnings(system2(file.path(R.home('bin'), 'Rscript'), c('--vanilla', shQuote(script)), stdout = TRUE, stderr = TRUE))
+    expect_null(attr(output, 'status'), info = paste(output, collapse = '\n'))
+    expect_identical(tail(output, 1L), 'COLD_FLOW_OK')
+  }
+})

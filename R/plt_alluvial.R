@@ -409,6 +409,7 @@ plt_alluvial <- function(
   keep <- rep(TRUE, nrow(data))
   for (column in required) {
     value <- data[[column]]
+    .register_integer64(value)
     keep <- keep & !is.na(value) & !is.na(as.character(value))
   }
   removed <- sum(!keep)
