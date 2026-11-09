@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_sankey()` keeps nearby numeric node values distinct and retains numeric node ordering.
+
 * `PlotCircleLollipop()` preserves nearby numeric feature identities when finding shared features and drawing links.
 
 * `PlotDumbbell()` retains distinct nearby numeric categories using precise labels when their ordinary text collides.

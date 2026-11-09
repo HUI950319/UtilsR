@@ -246,7 +246,12 @@ plt_sankey <- function(data,
       }
       data[[v]] <- haven::zap_missing(data[[v]])
     }
-    if (!is.factor(data[[v]])) data[[v]] <- factor(data[[v]])
+    if (!is.factor(data[[v]])) {
+      values <- data[[v]]
+      labels <- .butterfly_category_labels(values)
+      data[[v]] <- if (identical(values, labels)) factor(values) else
+        factor(labels, levels = unique(labels[order(values, na.last = NA)]))
+    }
   }
 
   # Reverse levels if requested

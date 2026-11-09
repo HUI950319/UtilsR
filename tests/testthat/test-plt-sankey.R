@@ -534,3 +534,15 @@ test_that("plt_sankey saves at the page its variables and levels are laid out fo
   expect_true(file.exists(f))
   expect_gt(file.info(f)$size, 0)
 })
+
+test_that("Sankey nodes retain nearby numeric identities and numeric order", {
+  for (values in list(c(1, 1 + .Machine$double.eps), c(-1, -1 - .Machine$double.eps))) {
+    d <- data.frame(a = values, b = c("x", "y"))
+    p <- suppressMessages(sankey_plot(d, vars = c("a", "b"), show_text = "none", reverse_levels = FALSE))
+    nodes <- unique(p$data[as.character(p$data$x) == "a_label", c("node", "label")])
+    expect_equal(nrow(nodes), 2L)
+    expect_identical(grepl(" [(]1, 50(?:[.]0)?%[)]$", as.character(nodes$label), perl = TRUE), c(TRUE, TRUE))
+    labels <- nodes$label[order(as.character(nodes$node))]
+    expect_identical(sub(" [(].*", "", as.character(labels)), sprintf("%.17g", sort(values)))
+  }
+})
