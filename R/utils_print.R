@@ -430,7 +430,7 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
     valid <- !is.na(num)
   } else {
     txt <- trimws(as.character(v), whitespace = "[\\h\\v]")
-    number <- "[+-]?(?:[0-9]+\\.?[0-9]*|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?"
+    number <- "[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?"
     bound <- "(?:[<>]=?|[\u2264\u2265])"
     valid <- grepl(paste0("^(?:", bound, "[\\h\\v]*)?", number, "$"), txt, perl = TRUE)
     op <- ifelse(grepl(paste0("^", bound), txt, perl = TRUE),

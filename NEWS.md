@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Keep long malformed text in console P-value columns without spurious PCRE match-limit warnings.
+
 * Collect flattened cells in indexed chunks, preserving plot order, design names, and inset attachments while avoiding repeated list growth.
 
 * Collect explicit object-name and index selectors once in `check_size()` so large repeated selections avoid growing a character vector on every argument.

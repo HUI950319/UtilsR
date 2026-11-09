@@ -1365,3 +1365,11 @@ test_that("visible console tree records avoid quadratic vector copying", {
   expect_length(output, n + 1L)
   expect_lt(allocated, 2 * n^2 * .Machine$sizeof.pointer)
 })
+
+test_that("console P columns accept malformed long text without regex warnings", {
+  withr::local_options(cli.num_colors = 1, width = 80, cli.width = 80)
+  long <- paste0(strrep("9", 50000L), "x")
+  expect_no_warning(out <- utils::capture.output(pr_table(data.frame(P = c(long, ".05", "<.05")), p_col = "P")))
+  expect_true(any(grepl("999999", out, fixed = TRUE)))
+  expect_identical(._p_cells(c("1.", "+.01", "1e-4", "<.05", long)), c("1.", "+.01*", "1e-4***", "<.05*", long))
+})
