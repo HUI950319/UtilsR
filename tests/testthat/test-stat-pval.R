@@ -591,3 +591,28 @@ test_that("numeric significance lookup avoids repeated full vector comparisons",
   expect_lte(examined, 2L * length(p))
   expect_identical(actual, rep(c("<0.001S01", "0.050S03", "0.500S16", "1.000S30", NA_character_), 2000))
 })
+
+test_that("repeated numeric P values reuse validated formatting work", {
+  fn <- stat_pval
+  e <- new.env(parent = environment(fn))
+  formatted <- 0L
+  e$sprintf <- function(fmt, ...) {
+    if (length(fmt) == 1L && grepl("^%\\.[0-9]+f$", fmt))
+      formatted <<- formatted + max(lengths(list(...)))
+    base::sprintf(fmt, ...)
+  }
+  environment(fn) <- e
+  catalog <- c(0, -0, .0002, .05, .1, 1, NA_real_, NaN)
+  p <- stats::setNames(rep(catalog, 600), paste0("row", seq_len(4800)))
+  for (mode in c("stars", "pvalue")) for (map in list(c(S = .05, Z = 0, N = 1), numeric())) {
+    expected <- stats::setNames(rep(stat_pval(catalog, mode = mode, map_signif = map), 600), names(p))
+    formatted <- 0L
+    expect_identical(fn(p, mode = mode, map_signif = map), expected)
+    expect_lte(formatted, length(catalog))
+  }
+  expected <- stats::setNames(rep(stat_pval(catalog, mode = "plain"), 600), names(p))
+  expect_identical(fn(p, mode = "plain", map_signif = stop("unused map")), expected)
+  text <- rep(c("0.05", "0.050000000000000000001"), 1200)
+  expect_identical(fn(text), rep(c("0.050*", "0.050."), 1200))
+  expect_error(fn(c(rep(.05, 4800), 1.1)), "finite P-values")
+})

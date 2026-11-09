@@ -248,6 +248,18 @@ stat_pval <- function(x,
     }
   }
 
+  # Reuse formatting work only for repeated ordinary numeric P-values.
+  expand <- NULL
+  if (mode != "plain" && is.numeric(x) && !is.object(x) && length(x_num) > 1024L &&
+      length(unique(x_num[seq.int(1L, length(x_num), length.out = 1024L)])) < 512L) {
+    keys <- unique(x_num)
+    if (length(keys) < length(x_num) / 2) {
+      expand <- match(x_num, keys)
+      x_num <- keys
+      bounded <- rep(FALSE, length(keys))
+    }
+  }
+
   # Only subset when some values do not need numeric formatting.
   selective <- anyNA(x_num) || any(bounded)
   if (selective) {
@@ -274,6 +286,7 @@ stat_pval <- function(x,
     if (any(bounded)) formatted[bounded] <- text[bounded]
     out <- formatted
   }
+  if (!is.null(expand)) out <- out[expand]
   names(out) <- input_names
   out
 }
