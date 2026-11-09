@@ -1799,20 +1799,32 @@ fmt_plot_base <- function(plot, ggtheme = NULL, labs_list = NULL,
   if (inherits(original, "FacetNull") || isTRUE(original$.fmt_strip_generated)) {
     return(replacement)
   }
+  native_scales <- !is.null(original$new_x_scales) || !is.null(original$new_y_scales)
   guarded <- ggplot2::ggproto(NULL, replacement,
     compute_layout = function(self, data, params) {
       native_params <- original$params
       native_params$plot_env <- params$plot_env
       native_params <- original$setup_params(data, native_params)
       native_data <- original$setup_data(data, native_params)
-      if (nrow(original$compute_layout(native_data, native_params)) != 1L) {
+      native_layout <- original$compute_layout(native_data, native_params)
+      if (nrow(native_layout) != 1L) {
         cli::cli_abort(
           "`fmt_strip2()` cannot replace a native facet with multiple panels."
         )
       }
-      ggplot2::ggproto_parent(replacement, self)$compute_layout(data, params)
+      layout <- ggplot2::ggproto_parent(replacement, self)$compute_layout(data, params)
+      if (native_scales) attr(layout, ".fmt_strip2_native_layout") <- native_layout
+      layout
     }
   )
+  if (native_scales) {
+    guarded$init_scales <- function(layout, x_scale = NULL, y_scale = NULL, params) {
+      original$init_scales(attr(layout, ".fmt_strip2_native_layout", exact = TRUE),
+                           x_scale, y_scale, original$params)
+    }
+    guarded$train_scales <- original$train_scales
+    guarded$finish_data <- original$finish_data
+  }
   guarded$.fmt_strip2_original_facet <- original
   guarded
 }

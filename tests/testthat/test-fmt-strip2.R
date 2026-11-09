@@ -1039,3 +1039,26 @@ test_that("strip grids reject shaped and encoded dimensions before plots", {
     expect_error(do.call(fmt_strip2, args), arg)
   }
 })
+
+test_that("replacement headers retain original facet specific scales", {
+  skip_if_not_installed("ggh4x")
+  d <- data.frame(x = 1:4, y = 1:4, g = "all")
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y)) + ggplot2::geom_point() +
+    ggplot2::facet_wrap(~g, scales = "free")
+  for (formula in c(FALSE, TRUE)) {
+    x <- if (formula) list(g == "all" ~ ggplot2::scale_x_log10(limits = c(1, 10))) else
+      list(ggplot2::scale_x_log10(limits = c(1, 10)))
+    y <- if (formula) list(g == "all" ~ ggplot2::scale_y_reverse(limits = c(10, 0))) else
+      list(ggplot2::scale_y_reverse(limits = c(10, 0)))
+    native <- p + ggh4x::facetted_pos_scales(x = x, y = y) + ggplot2::coord_flip()
+    replacement <- fmt_strip2(native, top_label = "Header", right_label = "Side")
+    want <- ggplot2::ggplot_build(native)
+    got <- ggplot2::ggplot_build(replacement)
+    expect_equal(got$data, want$data)
+    for (axis in c("panel_scales_x", "panel_scales_y")) {
+      expect_identical(got$layout[[axis]][[1L]]$get_limits(),
+                       want$layout[[axis]][[1L]]$get_limits())
+    }
+    expect_s3_class(ggplot2::ggplotGrob(replacement), "gtable")
+  }
+})
