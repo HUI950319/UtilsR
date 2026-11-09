@@ -589,7 +589,8 @@ PlotButterfly <- function(
     return(labels[match(key, distinct)])
   }
   if (!(is.integer(value) || is.double(value) || is.complex(value)) ||
-      (is.object(value) && !identical(class(value), "AsIs"))) return(value)
+      (is.object(value) && !identical(class(value), "AsIs") &&
+       !inherits(value, "haven_labelled"))) return(value)
   raw <- unclass(value)
   values <- unique(raw)
   labels <- as.character(values)

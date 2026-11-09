@@ -837,3 +837,25 @@ test_that("circular feature sharing is computed once for colours and links", {
   PlotCircleLollipop(d, color_col = "col", show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
   expect_equal(checks, 0L)
 })
+
+test_that("close labelled feature names do not share circular arcs", {
+  skip_if_not_installed("circlize")
+  skip_if_not_installed("haven")
+  withr::local_pdf(NULL)
+  links <- 0L
+  original <- circlize::circos.link
+  local_mocked_bindings(circos.link = function(...) {
+    links <<- links + 1L
+    original(...)
+  }, .package = "circlize")
+  d <- data.frame(group = rep(c("A", "B"), 2), value = c(.2, .4, .6, .8))
+  draw <- function() PlotCircleLollipop(d, show_labels = FALSE, show_yaxis = FALSE)
+  d$name <- haven::labelled(c(1, 1 + .Machine$double.eps, 2, 3), label = "Feature")
+  before <- d
+  draw()
+  expect_identical(links, 0L)
+  expect_identical(d, before)
+  d$name <- haven::labelled(c(1, 1, 2, 3), label = "Feature")
+  draw()
+  expect_identical(links, 1L)
+})
