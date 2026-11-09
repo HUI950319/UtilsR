@@ -589,7 +589,7 @@ PlotDumbbell <- function(
     test_res <- test_fn(test_x, test_xend,
                         paired = TRUE, alternative = "two.sided")
     p_val <- test_res$p.value
-    p_fmt <- if (p_val < 0.001) {
+    p_fmt <- if (!is.na(p_val) && p_val < 0.001) {
       sprintf("p = %.1e", p_val)
     } else {
       sprintf("p = %.3f", p_val)

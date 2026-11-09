@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Keep the native Wilcoxon warning and undefined P-value label when every paired difference is zero, avoiding a subsequent formatting error.
+
 * Skip same-group circular links when a shared feature appears repeatedly within a group, retaining every cross-group row pair.
 
 * Preserve factor colour labels in rank points, dumbbell endpoints and insets, and circular lollipops without changing numeric palette indices or unused colour promises.

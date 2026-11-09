@@ -517,3 +517,22 @@ test_that("dumbbell factor endpoint colours retain their labels", {
     if (auto) expect_identical(unname(inset$scales$get_scales("fill")$palette(2)), c("red", "blue"))
   }
 })
+
+test_that("dumbbell insets retain undefined Wilcoxon results", {
+  d <- data.frame(start = 1:6, end = 1:6, category = letters[1:6])
+  before <- d
+  inset <- NULL
+  original <- .build_dumbbell_inset
+  local_mocked_bindings(.build_dumbbell_inset = function(...) {
+    inset <<- original(...)
+    inset
+  }, .package = "UtilsR")
+  expect_warning(native <- stats::wilcox.test(d$start, d$end, paired = TRUE), "zeroes")
+  expect_true(is.nan(native$p.value))
+  expect_warning(p <- dumbbell_plot(d, inset_plot = "auto", inset_test = "wilcox",
+    legend_pos = "none", inset_jitter = FALSE), "zeroes")
+  text <- Filter(function(layer) "label" %in% names(layer), ggplot2::ggplot_build(inset)$data)
+  expect_identical(unlist(lapply(text, `[[`, "label"), use.names = FALSE), "p = NaN")
+  expect_s3_class(p, "patchwork")
+  expect_identical(d, before)
+})
