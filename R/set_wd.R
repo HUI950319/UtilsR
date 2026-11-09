@@ -77,11 +77,10 @@ set_wd <- function(path, create = TRUE, verbose = TRUE) {
     if (!isTRUE(create)) {
       stop("Directory does not exist and `create = FALSE`: ", path, call. = FALSE)
     }
-    dir.create(path, recursive = TRUE, showWarnings = FALSE)
+    created <- dir.create(path, recursive = TRUE, showWarnings = FALSE)
     if (!dir.exists(path)) {
       stop("Failed to create directory: ", path, call. = FALSE)
     }
-    created <- TRUE
   }
 
   # Measured here rather than after `setwd()`: a relative `path` no longer

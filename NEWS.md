@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `set_wd()` reports an existing directory and its contents when another process creates it first.
+
 * `fmt_raster(method = "ragg")` resolves nested panel locations once before rasterizing them.
 
 * `fmt_raster(method = "ragg")` accumulates panel children without repeatedly copying growing geometry runs.

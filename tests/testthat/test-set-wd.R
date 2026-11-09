@@ -89,3 +89,22 @@ test_that("set_wd stays silent and returns the previous directory", {
   expect_silent(previous <- set_wd(target, verbose = FALSE))
   expect_identical(previous, old)
 })
+
+test_that("directory creation races report actual existing contents", {
+  root <- withr::local_tempdir()
+  withr::local_dir(root)
+  fn <- set_wd
+  env <- new.env(parent = environment(fn))
+  env$dir.create <- function(path, ...) {
+    base::dir.create(path, ...)
+    writeBin(as.raw(1:4), file.path(path, "earlier.bin"))
+    FALSE
+  }
+  note <- NULL
+  env$.cat_message <- function(message, ...) note <<- cli::ansi_strip(message)
+  environment(fn) <- env
+  previous <- fn("results")
+  expect_identical(previous, normalizePath(root, winslash = "/"))
+  expect_true(file.exists("earlier.bin"))
+  expect_match(note, "1 file, 4 B, existing directory", fixed = TRUE)
+})
