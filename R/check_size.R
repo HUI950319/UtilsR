@@ -111,7 +111,7 @@ check_size <- function(..., pattern = NULL, envir = .GlobalEnv,
     if (length(selected_objects) == 0) {
       objects <- ls(envir = envir, all.names = TRUE, sorted = FALSE)
     } else {
-      objects <- character(0)
+      selections <- vector("list", length(selected_objects))
       # A bare symbol evaluated in `envir` is most likely the object the user
       # meant to inspect.
       selected_exprs <- as.list(substitute(list(...)))[-1L]
@@ -125,7 +125,7 @@ check_size <- function(..., pattern = NULL, envir = .GlobalEnv,
           if (anyNA(obj) || any(!nzchar(obj))) {
             stop("Object names must be non-missing, non-empty strings.", call. = FALSE)
           }
-          objects <- c(objects, obj)
+          selections[[i]] <- obj
         } else if (typeof(obj) %in% c("integer", "double")) {
           if (is.null(all_objects)) {
             all_objects <- ls(envir = envir, all.names = TRUE)
@@ -141,11 +141,12 @@ check_size <- function(..., pattern = NULL, envir = .GlobalEnv,
                                    "variable itself, quote its name: check_size(\"%s\")."),
                             var_name, var_name), call. = FALSE)
           }
-          objects <- c(objects, all_objects[as.integer(obj)])
+          selections[[i]] <- all_objects[as.integer(obj)]
         } else {
           stop("Object names must be character vectors or numeric indices.", call. = FALSE)
         }
       }
+      objects <- unlist(selections, use.names = FALSE)
     }
   }
 

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Collect explicit object-name and index selectors once in `check_size()` so large repeated selections avoid growing a character vector on every argument.
+
 * Insert an overlay into an empty gtable without emitting a range warning or assigning a non-finite drawing order.
 
 * Retain exact integer64 ordering and narrow score differences in circular lollipops, with overflow-safe scaling in each existing domain and unchanged missing-value and minimum-height behavior.

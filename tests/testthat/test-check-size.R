@@ -450,3 +450,22 @@ test_that("check_size reports each read failure cause without reading again", {
     expect_equal(nrow(empty[["_data"]]), 0L)
   })
 })
+
+test_that("size selector collection avoids copying earlier arguments", {
+  fn <- check_size
+  e <- new.env(parent = environment(fn))
+  copied <- 0L
+  e$c <- function(...) {
+    args <- list(...)
+    if (length(args) && is.character(args[[1L]]) && all(args[[1L]] == "target"))
+      copied <<- copied + length(args[[1L]])
+    base::c(...)
+  }
+  environment(fn) <- e
+  target_env <- list2env(list(target = 1:5))
+  n <- 2000L
+  args <- c(rep(list("target", 1L), n / 2L), list(envir = target_env))
+  actual <- do.call(fn, args)
+  expect_lt(copied, n)
+  expect_identical(actual[["_data"]], check_size("target", envir = target_env)[["_data"]])
+})
