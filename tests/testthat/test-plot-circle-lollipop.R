@@ -668,3 +668,26 @@ test_that("circular shared feature links connect distinct groups only", {
   PlotCircleLollipop(d[c(1, 3), ], show_labels = FALSE, show_yaxis = FALSE)
   expect_identical(links, list(c("A", "B")))
 })
+
+test_that("constant circular groups preserve missing score positions", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  original <- circlize::circos.points
+  local_mocked_bindings(circos.points = function(x, y, ...) {
+    observed <<- c(observed, y)
+    original(x, y, ...)
+  }, .package = "circlize")
+  for (value in c(-2, .2, 2)) {
+    d <- data.frame(group = "A", name = letters[1:3], value = c(value, NA, value))
+    before <- d
+    for (mode in c("none", "group", "top_n")) {
+      observed <- numeric()
+      PlotCircleLollipop(d, value_scale = mode, show_labels = FALSE,
+        show_links = FALSE, show_yaxis = FALSE)
+      expect_identical(is.na(observed), is.na(d$value))
+      expected <- if (mode != "none") 0 else if (value < 0 || value > 1) .05 else value
+      expect_equal(observed[!is.na(observed)], rep(expected, 2))
+    }
+    expect_identical(d, before)
+  }
+})

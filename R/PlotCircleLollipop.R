@@ -291,7 +291,7 @@ PlotCircleLollipop <- function(
   # ---- Per-group value scaling (value_scale) ----
   scale_values <- function(x, mn, mx) {
     if (anyNA(c(mn, mx))) return(rep(NA_real_, length(x)))
-    if (mx == mn) return(rep(0, length(x)))
+    if (mx == mn) return(x - mn)
     span <- mx - mn
     if (!is.finite(span) && all(is.finite(c(mn, mx)))) {
       magnitude <- max(abs(c(mn, mx)))

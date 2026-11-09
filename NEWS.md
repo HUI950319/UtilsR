@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Preserve missing scores when circular lollipop groups have a constant observed value instead of turning the missing observations into zero-height points.
+
 * Keep factor endpoint labels as text in dumbbell legends and automatic insets, including standalone inset construction.
 
 * Calculate finite dumbbell inset annotation offsets without overflowing the intermediate range width when endpoints span extreme numeric values.
