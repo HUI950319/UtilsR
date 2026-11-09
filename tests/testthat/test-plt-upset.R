@@ -749,3 +749,12 @@ test_that("UpSet data groups keep factor order from integer codes", {
   expect_identical(out$intersect_group, factor(c("a", "b", "a/b", "None", "a/b", "a/b"),
     levels = c("a/b", "a", "b", "None")))
 })
+
+test_that("UpSet NULL sets return an empty membership frame", {
+  expected <- data.frame(.element = character(), A = logical(), B = logical())
+  expected$intersect_group <- factor(character(), levels = c("A", "B", "A/B", "None"))
+  expect_identical(plt_upset(list(A = NULL, B = NULL), output = "data"), expected)
+  expect_identical(plt_upset(list(A = character(), B = character()), output = "data"), expected)
+  expected$.element <- integer()
+  expect_identical(plt_upset(list(A = integer(), B = integer()), output = "data"), expected)
+})

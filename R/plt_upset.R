@@ -262,14 +262,15 @@ plt_upset <- function(data,
       })
       all_elements <- structure(unique(unlist(codes)), levels = base::levels(prototype),
                                 class = class(prototype))
-    } else all_elements <- unique(prototype)
+    } else all_elements <- unique(prototype %||% character())
     set_list <- lapply(data, function(x) which(member_in(all_elements, x)))
     if (output %in% c("data", "all")) {
       df_bin <- data.frame(.element = all_elements, stringsAsFactors = FALSE)
       names(df_bin) <- tail(make.unique(c(names(data), ".element")), 1L)
       for (nm in names(data)) {
-        membership <- rep.int("No", length(all_elements))
-        membership[set_list[[nm]]] <- "Yes"
+        membership <- if (length(all_elements)) rep.int("No", length(all_elements)) else logical()
+        rows <- set_list[[nm]]
+        if (length(rows)) membership[rows] <- "Yes"
         df_bin[[nm]] <- membership
       }
       data <- df_bin
