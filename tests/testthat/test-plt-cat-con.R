@@ -1192,3 +1192,22 @@ test_that("plt_cat checks retained levels and impossible frequency grids early",
   expect_error(plt_cat(huge, "A", "g", keep_empty = TRUE, force = TRUE, palette = "red"),
                "frequency table.*2\\^31")
 })
+
+test_that("cold integer64 categories respect the cardinality guard", {
+  skip_if_not_installed("bit64")
+  scratch <- withr::local_tempdir()
+  functions <- file.path(scratch, "functions.R")
+  input <- file.path(scratch, "input.rds")
+  script <- file.path(scratch, "verify.R")
+  dump(c("plt_cat", ".register_integer64", ".cat_time_key"), functions, envir = environment(plt_cat))
+  saveRDS(data.frame(x = bit64::as.integer64(-seq_len(101))), input)
+  writeLines(c(sprintf("source(%s)", deparse(functions)),
+    sprintf("d <- readRDS(%s)", deparse(input)),
+    "stopifnot(!('bit64' %in% loadedNamespaces()))",
+    "error <- tryCatch(plt_cat(d, 'x', palette = stop('PALETTE_EVALUATED')), error = conditionMessage)",
+    "stopifnot(grepl('100 levels', error, fixed = TRUE))",
+    "cat('COLD_LIMIT_OK\n')"), script)
+  output <- suppressWarnings(system2(file.path(R.home('bin'), 'Rscript'), c('--vanilla', shQuote(script)), stdout = TRUE, stderr = TRUE))
+  expect_null(attr(output, 'status'), info = paste(output, collapse = '\n'))
+  expect_identical(tail(output, 1L), 'COLD_LIMIT_OK')
+})

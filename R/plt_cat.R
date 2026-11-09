@@ -419,6 +419,7 @@ plt_cat <- function(data,
     if (!is.null(dim(x)) || (is.list(x) && !inherits(x, "POSIXlt"))) {
       cli::cli_abort("Column {.val {col}} must be a one-dimensional vector, not a list or matrix column.")
     }
+    .register_integer64(x)
   }
   if (!force) {
     all_cols <- unique(c(stat.by, if (!type %in% set_types) group.by, split.by))

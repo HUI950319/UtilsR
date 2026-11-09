@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Categorical plotting restores integer64 methods before enforcing the 100-category limit in a fresh R process.
+
 * Continuous plots distinguish close complex and AsIs numeric grouping values before formatting their labels.
 
 * Distribution bars and heatmaps keep typed categories distinct when their printed labels coincide.
