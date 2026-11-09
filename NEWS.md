@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous pairwise t tests rescale extreme finite measurements and the null difference together, retaining scale-invariant p-values.
+
 * Categorical plotting restores integer64 methods before enforcing the 100-category limit in a fresh R process.
 
 * Continuous plots distinguish close complex and AsIs numeric grouping values before formatting their labels.

@@ -831,6 +831,21 @@ plt_con <- function(data,
 }
 
 .con_pairwise_test <- function(test) {
+  if (identical(test, "t.test")) {
+    return(function(x, y, ...) {
+      args <- list(...)
+      finite <- abs(c(x, y))
+      finite <- finite[is.finite(finite)]
+      unit <- if (length(finite)) max(finite) else 0
+      if (unit > 0 && (unit < sqrt(.Machine$double.xmin) ||
+                       unit > sqrt(.Machine$double.xmax))) {
+        x <- x / unit
+        y <- y / unit
+        if (!is.null(args$mu)) args$mu <- args$mu / unit
+      }
+      do.call(stats::t.test, c(list(x = x, y = y), args))
+    })
+  }
   if (!identical(test, "kruskal.test") && !identical(test, "anova")) return(match.fun(test))
   force(test)
   function(x, y, paired = FALSE, ...) {

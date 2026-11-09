@@ -1583,3 +1583,21 @@ test_that("continuous groups retain complex and AsIs identities", {
     expect_identical(d, original)
   }
 })
+
+test_that("continuous t tests retain p values at extreme finite scales", {
+  x <- 1:3
+  y <- 3:5
+  reference <- stats::t.test(x, y)$p.value
+  for (unit in c(1, 1e-200, 1e200)) {
+    d <- data.frame(x = c(x, y) * unit, g = rep(c("A", "B"), each = 3))
+    expect_no_warning(p <- suppressMessages(plt_con(d, "x", "g", type = "box", combine = FALSE,
+      comparisons = list(c("A", "B")), pairwise_method = "t.test"))[[1L]])
+    index <- which(vapply(p$layers, function(layer) inherits(layer$geom, "GeomSignif"), logical(1)))
+    expect_length(index, 1L)
+    if (length(index) != 1L) next
+    callback <- p$layers[[index]]$stat_params$test
+    expect_equal(callback(x * unit, y * unit, paired = FALSE)$p.value, reference)
+    expect_equal(callback(x * unit, y * unit, mu = unit)$p.value, stats::t.test(x, y, mu = 1)$p.value)
+    expect_identical(unique(ggplot2::layer_data(p, index)$annotation), "ns")
+  }
+})
