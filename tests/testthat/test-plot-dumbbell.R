@@ -609,3 +609,13 @@ test_that("dumbbell category roles preserve endpoint values", {
     expect_equal(actual, expected)
   }
 })
+
+test_that("dumbbell zero lines use date and datetime coordinates", {
+  for (origin in list(as.Date("2026-01-01"), as.POSIXct("2026-01-01", tz = "UTC"))) {
+    d <- data.frame(start = origin + 1:3, end = origin + 3:5, category = letters[1:3])
+    p <- PlotDumbbell(d, show_delta = TRUE, show_mean_lines = TRUE, legend_pos = "none")
+    expect_no_warning(built <- ggplot2::ggplot_build(p))
+    expect_identical(as.numeric(built$data[[4L]]$xintercept), 0)
+    expect_equal(as.numeric(built$data[[1L]]$x), as.numeric(d$start))
+  }
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotDumbbell()` draws its default zero line for date and datetime endpoints without numeric coercion warnings.
+
 * `PlotDumbbell()` keeps numeric endpoints and deltas when an endpoint column is also selected for category labels.
 
 * Compute shared circular feature names once for colours and links, and skip that work when both are supplied or disabled.

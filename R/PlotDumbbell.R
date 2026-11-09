@@ -374,9 +374,14 @@ PlotDumbbell <- function(
 
   # ---- Reference lines ----
   if (show_zero_line) {
+    zero <- 0
+    if (inherits(data[[x_col]], "Date")) zero <- .Date(0)
+    if (inherits(data[[x_col]], "POSIXt")) {
+      zero <- vctrs::vec_restore(0, as.POSIXct(data[[x_col]]))
+    }
     p <- p +
       ggplot2::geom_vline(
-        xintercept = 0, linewidth = zero_line_width, color = zero_line_color
+        xintercept = zero, linewidth = zero_line_width, color = zero_line_color
       )
   }
 
