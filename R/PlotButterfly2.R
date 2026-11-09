@@ -359,8 +359,13 @@ PlotButterfly2 <- function(
 
   # ---- Per-variable y-axis label colours ----
   nvar <- length(var_order)
-  if (is.null(text.colors)) text.colors <- rep("black", nvar)
-  if (length(text.colors) < nvar) text.colors <- rep_len(text.colors, nvar)
+  if (is.null(text.colors)) text.colors <- "black"
+  if (length(text.colors) != 1L && length(text.colors) < nvar) {
+    text.colors <- rep_len(text.colors, nvar)
+  }
+  if (length(text.colors) > 1L && length(unique(text.colors)) == 1L) {
+    text.colors <- text.colors[1L]
+  }
 
   if (is.null(xlab)) xlab <- value.by
 

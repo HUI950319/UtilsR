@@ -462,8 +462,13 @@ PlotButterfly <- function(
     fill_args <- .resolve_fill(var_order)
 
     # Per-variable y-axis label colours
-    if (is.null(text.colors)) text.colors <- rep("black", nvar)
-    if (length(text.colors) < nvar) text.colors <- rep_len(text.colors, nvar)
+    if (is.null(text.colors)) text.colors <- "black"
+    if (length(text.colors) != 1L && length(text.colors) < nvar) {
+      text.colors <- rep_len(text.colors, nvar)
+    }
+    if (length(text.colors) > 1L && length(unique(text.colors)) == 1L) {
+      text.colors <- text.colors[1L]
+    }
 
     # Titles
     if (is.null(left.title))  left.title  <- "Left"

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Butterfly plots apply a scalar axis text style for uniform label colours and preserve distinct per-label colours.
+
 * `fmt_text()` preserves plotmath expressions when applying titles or axis labels to one or several plots.
 
 * `stat_ci_parse()` extracts bracketed interval components with one match, preserving separators and trailing-text diagnostics.

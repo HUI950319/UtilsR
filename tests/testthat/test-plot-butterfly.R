@@ -760,3 +760,20 @@ test_that("butterfly wide conversion groups each side in one pass", {
   expect_identical(original[[1L]][[levels[1L]]], c(30L, 31L))
   expect_identical(original[[2L]][[levels[30L]]], c(32L, NA_integer_))
 })
+
+test_that("uniform butterfly label colours use a scalar theme style", {
+  left <- data.frame(A = c(1, 2, 3), B = c(2, 4, 6))
+  right <- data.frame(A = c(2, 3, 5), B = c(1, 3, 5))
+  for (cols in list(NULL, "purple", rep("purple", 2L))) {
+    color <- if (is.null(cols)) "black" else "purple"
+    expect_no_warning(p <- PlotButterfly(type = "violin", data.left = left,
+      data.right = right, text.colors = cols))
+    expect_identical(p[[2L]]$theme$axis.text.y$colour, color)
+    d <- data.frame(category = rep(c("A", "B"), each = 3L, times = 2L),
+      value = c(unlist(left, use.names = FALSE), unlist(right, use.names = FALSE)),
+      side = rep(c("left", "right"), each = 6L), fill = "Group")
+    expect_no_warning(p <- PlotButterfly2(d, "category", "value", "side",
+      fill.by = "fill", type = "box", text.colors = cols))
+    expect_identical(p[[2L]]$theme$axis.text.y$colour, color)
+  }
+})
