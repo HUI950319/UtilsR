@@ -409,17 +409,13 @@ PlotRankCor <- function(
   wide_rows <- vctrs::vec_group_loc(rank_wide[group.by_internal])
   wide_groups <- as.character(wide_rows[["key"]][[1L]])
   if (!use_rank) {
-    if (scale_x != "none") {
+    axis_scales <- c(scale_x, scale_y)
+    for (i in which(axis_scales != "none")) {
+      values <- rank_wide[[method_cols[i]]]
       for (idx in wide_rows[["loc"]]) {
-        rank_wide[[method_cols[1]]][idx] <- .scale_vec(
-          rank_wide[[method_cols[1]]][idx], scale_x)
+        values[idx] <- .scale_vec(values[idx], axis_scales[i])
       }
-    }
-    if (scale_y != "none") {
-      for (idx in wide_rows[["loc"]]) {
-        rank_wide[[method_cols[2]]][idx] <- .scale_vec(
-          rank_wide[[method_cols[2]]][idx], scale_y)
-      }
+      rank_wide[[method_cols[i]]] <- values
     }
   }
 

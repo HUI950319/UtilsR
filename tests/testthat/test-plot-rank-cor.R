@@ -916,3 +916,22 @@ test_that("rank correlation statistics use existing positional group indexes", {
   expected <- stats::cor.test(1:4, c(2, 1, 4, 3))
   expect_equal(attr(p, "cor_results")$p.value, rep(expected$p.value, length(groups)))
 })
+
+test_that("rank correlation scaling assigns each axis column once", {
+  d <- data.frame(feature = rep(letters[1:4], 40L), group = rep(paste0("g", 1:20), each = 8L),
+    method = rep(rep(c("x", "y"), each = 4L), 20L), score = rep(c(1, 2, 4, 5, 8, 4, 6, 2), 20L))
+  fn <- PlotRankCor
+  env <- new.env(parent = environment(fn))
+  writes <- 0L
+  env[["[[<-"]] <- function(x, i, ..., value) {
+    if (is.data.frame(x) && is.character(i) && length(i) == 1L &&
+        i %in% c("x", "y") && all(c("feature", "group") %in% names(x))) writes <<- writes + 1L
+    base::`[[<-`(x, i, ..., value = value)
+  }
+  environment(fn) <- env
+  invisible(capture.output(p <- fn(d, stat.by = "feature", value.by = "score",
+    group.by = "group", method.by = "method", use_rank = FALSE, scale_x = "minmax", scale_y = "zscore")))
+  expect_identical(writes, 4L)
+  expect_equal(range(p$data$x), c(0, 1))
+  expect_equal(stats::sd(p$data$y[p$data$group == "g1"]), 1)
+})
