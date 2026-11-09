@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Rank plot parsing caches row locations for automatic plain or factor groups, avoiding a full-column comparison per group while retaining explicit group selection and classed-vector fallbacks.
+
 * Single-panel rank plots prepare the actual point colors and release unused color promises, preventing the returned mapping environment from retaining the full analysis input while preserving lazy unused colors.
 
 * Paired scatter histograms cap only an overflowing automatic 20-percent range expansion at the largest representable finite value; explicit limits and ordinary ranges are retained.

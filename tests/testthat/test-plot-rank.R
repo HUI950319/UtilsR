@@ -476,3 +476,35 @@ test_that("single rank plots release input retained by unused colors", {
   expect_no_error(PlotRank(d, top_n = 20, base_color = stop("unused base color")))
   expect_no_error(PlotRank(d, top_n = 0, highlight_color = stop("unused highlight color")))
 })
+
+test_that("rank parsing indexes automatic groups without repeated full scans", {
+  fn <- .pr_parse
+  e <- new.env(parent = environment(fn))
+  examined <- 0L
+  e$`==` <- function(x, y) {
+    if (length(x) == 5000L) examined <<- examined + length(x)
+    base::`==`(x, y)
+  }
+  environment(fn) <- e
+  d <- data.frame(cell_type = rep(sprintf("g%02d", 1:50), 100),
+                  gene = paste0("gene", 1:5000), importance = seq_len(5000))
+  actual <- fn(d, "cell_type", "gene", "importance", NULL)
+  expect_identical(examined, 0L)
+  expected <- fn(d, "cell_type", "gene", "importance", unique(d$cell_type))
+  expect_identical(actual, expected)
+  expect_gte(examined, nrow(d))
+  cases <- list(c("b", "a", NA, "b", "a"), c(2L, 1L, NA, 2L, 1L),
+    c(TRUE, FALSE, NA, TRUE, FALSE), c(2, 1, NaN, NA, 1),
+    factor(c("b", "a", NA, "b", "a"), levels = c("a", "b", "unused")),
+    structure(c(2L, 1L, NA_integer_, 2L, 1L), levels = c("a", NA_character_, "unused"), class = "factor"))
+  for (g in cases) {
+    d <- data.frame(cell_type = g, gene = factor(letters[1:5]), importance = c(5, 3, NA, 1, 2))
+    expected_groups <- if (is.factor(g)) {
+      lev <- levels(g)
+      lev[is.na(lev)] <- "<NA>"
+      lev
+    } else unique(g)
+    expect_identical(fn(d, "cell_type", "gene", "importance", NULL),
+                     fn(d, "cell_type", "gene", "importance", expected_groups))
+  }
+})
