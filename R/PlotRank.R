@@ -269,8 +269,8 @@ PlotRank <- function(
     }
   } else if (value_scale == "top_n") {
     # Scale using only the displayed values within each group
-    for (grp in unique(plot_df$Group)) {
-      idx <- plot_df$Group == grp
+    indices <- split(seq_len(nrow(plot_df)), plot_df$Group)
+    for (idx in indices) {
       vals <- plot_df$Score[idx]
       scaled <- scale_scores(vals, range(vals, na.rm = TRUE))
       if (inherits(plot_df$Score, "haven_labelled") && is.integer(plot_df$Score) &&

@@ -609,3 +609,22 @@ test_that("rank label cleaning visits displayed rows only", {
   expect_identical(actual, reference[keep, ])
   expect_lt(examined, n)
 })
+
+test_that("rank top scaling avoids repeated full group comparisons", {
+  n_groups <- 40L
+  d <- data.frame(cell_type = rep(paste0("G", seq_len(n_groups)), each = 4L),
+    gene = rep(letters[1:4], n_groups), importance = rep(c(9, 5, 3, 1), n_groups))
+  fn <- PlotRank
+  env <- new.env(parent = environment(fn))
+  scans <- 0L
+  env[["=="]] <- function(x, y) {
+    if ((is.character(x) || is.factor(x)) && length(x) == 3L * n_groups && length(y) == 1L) {
+      scans <<- scans + 1L
+    }
+    base::`==`(x, y)
+  }
+  environment(fn) <- env
+  out <- fn(d, top_n = 3L, max_show = 3L, value_scale = "top_n", return_type = "data")
+  expect_identical(scans, 0L)
+  expect_equal(as.numeric(out$Score), rep(c(1, 1/3, 0), n_groups))
+})

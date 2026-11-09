@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRank(value_scale = "top_n")` indexes displayed groups once before normalizing scores.
+
 * `PlotHeatmapJaccard()` derives diagonal values and empty-group cells from set sizes without scanning their members.
 
 * `PlotHeatmapJaccard()` indexes ordinary numeric groups once and retains duplicate display-label validation.
