@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `grob_insert(on_top = FALSE)` places the inset between the background and foreground of custom layouts.
+
 * `grob_add()` returns the existing layout when asked to add an empty list of graphics.
 
 * `grob_add()` gives margin graphics the full reserved space when supplied a vector of grid units.

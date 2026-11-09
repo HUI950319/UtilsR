@@ -263,3 +263,16 @@ test_that("inserting into an empty gtable assigns a finite drawing order", {
     expect_no_error(grid::grid.draw(result))
   }
 })
+
+test_that("behind-panel insets respect custom gtable drawing orders", {
+  for (orders in list(c(-6, -5), c(5, 6))) {
+    base <- gtable::gtable(widths = grid::unit(1, "null"), heights = grid::unit(1, "null"))
+    base <- gtable::gtable_add_grob(base, list(grid::rectGrob(), grid::pointsGrob()),
+      t = 1, l = 1, name = c("background", "panel"), z = orders)
+    result <- grob_insert(base, grid::textGrob("Behind"), on_top = FALSE)
+    z <- stats::setNames(result$layout$z, result$layout$name)
+    expect_gte(unname(z["inset"]), unname(z["background"]))
+    expect_lt(unname(z["inset"]), unname(z["panel"]))
+    expect_no_error(grid::grid.draw(result))
+  }
+})

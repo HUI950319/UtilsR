@@ -440,7 +440,16 @@ grob_insert <- function(
   inset_wrapped <- grid::grobTree(inset_grob, vp = inset_vp)
 
   # Add to gtable: z-order depends on on_top
-  z_val <- if (isTRUE(on_top)) Inf else 0L
+  z_val <- Inf
+  if (!on_top) {
+    layout <- gt$layout
+    overlaps <- layout$t <= ref_b & layout$b >= ref_t &
+      layout$l <= ref_r & layout$r >= ref_l
+    background <- layout$name == "background"
+    lowest <- min(Inf, layout$z[overlaps & !background], na.rm = TRUE)
+    backgrounds <- layout$z[overlaps & background & layout$z < lowest]
+    z_val <- max(min(0, lowest - 1), backgrounds, na.rm = TRUE)
+  }
 
   gt <- gtable::gtable_add_grob(
     gt, inset_wrapped,
