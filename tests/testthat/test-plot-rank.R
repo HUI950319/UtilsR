@@ -628,3 +628,20 @@ test_that("rank top scaling avoids repeated full group comparisons", {
   expect_identical(scans, 0L)
   expect_equal(as.numeric(out$Score), rep(c(1, 1/3, 0), n_groups))
 })
+
+test_that("rank capping materializes only displayed ordinary scores", {
+  scores <- stats::setNames(rep(c(3, 1, 2, 3), 1000L), paste0("id", 1:4000))
+  fn <- PlotRank
+  env <- new.env(parent = environment(fn))
+  full_sorts <- 0L
+  env$sort <- function(x, ...) {
+    if (length(x) == length(scores)) full_sorts <<- full_sorts + 1L
+    base::sort(x, ...)
+  }
+  environment(fn) <- env
+  actual <- fn(scores, max_show = 6L, clean_names = FALSE, return_type = "data")
+  expected <- head(sort(scores, decreasing = TRUE), 6L)
+  expect_identical(full_sorts, 0L)
+  expect_identical(actual$Score, unname(expected))
+  expect_identical(actual$Label, names(expected))
+})

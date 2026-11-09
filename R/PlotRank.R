@@ -218,9 +218,13 @@ PlotRank <- function(
   # ---- Build ranked data.frame ----
   all_df <- lapply(seq_along(score_list), function(i) {
     grp <- names(score_list)[i]
-    scores <- sort(score_list[[i]], decreasing = TRUE)
-    n      <- min(length(scores), max_show)
-    shown  <- scores[seq_len(n)]
+    scores <- score_list[[i]]
+    n <- min(length(scores), max_show)
+    shown <- if (!is.object(scores) && n < length(scores)) {
+      scores[order(scores, decreasing = TRUE, method = "radix")[seq_len(n)]]
+    } else {
+      sort(scores, decreasing = TRUE)[seq_len(n)]
+    }
     labels <- if (is.null(names(shown))) rep(NA_character_, n) else names(shown)
     if (clean_names) {
       labels <- clean_labels(labels)

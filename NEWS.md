@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRank()` avoids copying sorted scores and names beyond `max_show` for ordinary numeric vectors.
+
 * Unpaired tests used by `plt_con()` preserve finite sample differences at extreme common offsets.
 
 * `plt_con()` preserves within-group variation when ANOVA measurements share an extreme finite offset.
