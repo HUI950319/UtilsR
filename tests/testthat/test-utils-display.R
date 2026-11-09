@@ -980,3 +980,21 @@ test_that("console table gradients retain exact integer64 offsets", {
   expect_warning(actual <- .cat_tb(wide, numeric_columns = "x", theme = "none"), NA)
   expect_identical(fills(actual), fills(reference))
 })
+
+test_that("console tables exclude SPSS user missing codes from display and gradients", {
+  skip_if_not_installed("haven")
+  d <- data.frame(x = haven::labelled_spss(c(1, 2, 97, 99), na_values = 99, na_range = c(97, 98)))
+  before <- serialize(d, NULL)
+  fills <- function(table) unlist(lapply(table[["_styles"]][["styles"]], function(s) s[["cell_fill"]][["color"]]), use.names = FALSE)
+  reference <- .cat_tb(data.frame(x = c(1, 2, NA_real_, NA_real_)), numeric_columns = "x", theme = "none")
+  for (input in list(d, gt::gt(d))) {
+    plain <- .cat_tb(input, theme = "none")
+    expect_identical(as.numeric(plain[["_data"]]$x), c(1, 2, NA_real_, NA_real_))
+    expect_false(grepl("99.00", gt::as_raw_html(plain), fixed = TRUE))
+    actual <- .cat_tb(input, numeric_columns = "x", theme = "none")
+    expect_identical(fills(actual), fills(reference))
+    expect_identical(as.numeric(actual[["_data"]]$x), c(1, 2, NA_real_, NA_real_))
+    expect_false(grepl("99.00", gt::as_raw_html(actual), fixed = TRUE))
+  }
+  expect_identical(serialize(d, NULL), before)
+})

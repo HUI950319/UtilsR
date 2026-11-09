@@ -592,10 +592,13 @@ console_width <- function() {
     # Restore encoded columns before gt captures formatting and colour data.
     df <- if (inherits(data, "gt_tbl")) as.data.frame(data[["_data"]]) else as.data.frame(data)
     invisible(lapply(df, ._pr_restore))
+    spss <- vapply(df, inherits, logical(1), what = "haven_labelled_spss")
+    df[spss] <- lapply(df[spss], function(x) vctrs::vec_data(haven::zap_missing(x)))
     if (inherits(data, "gtsummary")) {
       tb <- gtsummary::as_gt(data)
     } else if (inherits(data, "gt_tbl")) {
       tb <- data
+      if (any(spss)) tb[["_data"]][names(df)[spss]] <- df[spss]
     } else {
       tb <- gt::gt(df)
     }
