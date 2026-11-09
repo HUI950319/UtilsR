@@ -1243,3 +1243,30 @@ test_that('tiny nonzero standard deviations survive partial variance underflow',
   spread <- as.numeric(sub('[)]$', '', tail(strsplit(trimws(line), '(', fixed = TRUE)[[1L]], 1L)))
   expect_equal(spread / 5e-163, stats::sd(0:11), tolerance = .003)
 })
+
+test_that("count priority does not evaluate ignored inspection controls", {
+  d <- data.frame(g = c("A", "A", "B"), x = 1:3)
+  for (data in list(d, as.matrix(d))) {
+    reference <- capture_reports(lv(data, count = g))[[1L]][["_data"]]
+    calls <- list(quote(lv(data, stop("UNUSED SELECTION"), count = g)),
+      quote(lv(data, count = g, group = stop("UNUSED GROUP"))),
+      quote(lv(data, count = g, pattern = stop("UNUSED PATTERN"))),
+      quote(lv(data, count = g, pattern = "[")))
+    for (call in calls) {
+      expect_warning(actual <- capture_reports(eval(call)), "count")
+      expect_identical(actual[[1L]][["_data"]], reference)
+    }
+  }
+})
+
+test_that("Seurat count priority does not evaluate ignored inspection controls", {
+  skip_if_not_installed("SeuratObject")
+  counts <- matrix(rep(1:5, 4), nrow = 5,
+    dimnames = list(paste0("gene", 1:5), paste0("cell", 1:4)))
+  object <- SeuratObject::CreateSeuratObject(Matrix::Matrix(counts, sparse = TRUE))
+  object$g <- c("A", "A", "B", "B")
+  reference <- capture_reports(lv(object, count = g, add_cell_stats = FALSE))[[1L]][["_data"]]
+  expect_warning(actual <- capture_reports(lv(object, stop("UNUSED SELECTION"), count = g,
+    group = stop("UNUSED GROUP"), pattern = stop("UNUSED PATTERN"), add_cell_stats = FALSE)), "count")
+  expect_identical(actual[[1L]][["_data"]], reference)
+})

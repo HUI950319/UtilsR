@@ -305,10 +305,14 @@ lv <- function(data, ...) {
 lv.default <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
                        cat_args = list()) {
   input <- as.data.frame(data)
-  group_var <- .lv_resolve_vars(rlang::enquo(group), names(input), "group")
   count_vars <- .lv_resolve_vars(rlang::enquo(count), names(input), "count",
                                   multiple = TRUE)
-  rlang::inject(lv.data.frame(input, ..., pattern = pattern,
+  group_var <- if (is.null(count_vars)) {
+    .lv_resolve_vars(rlang::enquo(group), names(input), "group")
+  } else rlang::enquo(group)
+  pattern_arg <- if (is.null(count_vars)) quote(pattern) else
+    rlang::quo_get_expr(rlang::enquo(pattern))
+  rlang::inject(lv.data.frame(input, ..., pattern = !!pattern_arg,
                              group = !!group_var, count = !!count_vars,
                              cat_args = cat_args))
   invisible(data)
@@ -319,9 +323,10 @@ lv.default <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
 lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
                           cat_args = list()) {
 
-  group_var <- .lv_resolve_vars(rlang::enquo(group), names(data), "group")
   count_vars <- .lv_resolve_vars(rlang::enquo(count), names(data), "count",
                                   multiple = TRUE)
+  group_quo <- rlang::enquo(group)
+  group_var <- if (is.null(count_vars)) .lv_resolve_vars(group_quo, names(data), "group") else NULL
   knitting <- isTRUE(getOption("knitr.in.progress")) &&
     requireNamespace("knitr", quietly = TRUE)
 
@@ -747,7 +752,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   analysis_data <- dplyr::ungroup(data)
   selections <- rlang::enquos(...)
   n_selections <- length(selections)
-  if (!is.null(pattern)) {
+  if (is.null(count_vars) && !is.null(pattern)) {
     if (!is.character(pattern) || !is.null(dim(pattern)) ||
         length(pattern) != 1L || is.na(pattern)) {
       cli::cli_abort("{.arg pattern} must be NULL or a single regular expression.")
@@ -761,7 +766,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       cli::cli_warn("{.arg pattern} overrides selections in {.code ...}; they were not evaluated.")
     }
     analysis_data <- analysis_data[, matched, drop = FALSE]
-  } else if (n_selections) {
+  } else if (is.null(count_vars) && n_selections) {
     # A caller's vector of names or positions, `lv(data, vars)`, is wrapped in
     # all_of(): tidyselect 1.1.0 deprecated bare external vectors. Column
     # names still win over caller objects of the same name.
@@ -799,7 +804,8 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   # Count mode
   # ==========================================================================
   if (!is.null(count_vars)) {
-    if (n_selections || !is.null(pattern) || !is.null(group_var)) {
+    if (n_selections || !rlang::quo_is_null(rlang::enquo(pattern)) ||
+        !rlang::quo_is_null(group_quo)) {
       cli::cli_warn(paste(
         "{.arg count} tabulates only its own variables; selections in",
         "{.code ...}, {.arg pattern} and {.arg group} were ignored."
@@ -1225,13 +1231,14 @@ lv.Seurat <- function(data, ...,
   }
 
   meta_data <- data@meta.data
-  group_var <- .lv_resolve_vars(rlang::enquo(group), c(names(meta_data), ".ident"),
-                                 "group", ident = TRUE)
+  count_vars <- .lv_resolve_vars(rlang::enquo(count), names(meta_data), "count",
+                                  multiple = TRUE)
+  group_var <- if (is.null(count_vars)) {
+    .lv_resolve_vars(rlang::enquo(group), c(names(meta_data), ".ident"), "group", ident = TRUE)
+  } else rlang::enquo(group)
   if (identical(group_var, ".ident")) {
     meta_data[[".ident"]] <- SeuratObject::Idents(data)
   }
-  count_vars <- .lv_resolve_vars(rlang::enquo(count), names(meta_data), "count",
-                                  multiple = TRUE)
 
   # Print Seurat object basic info: to stdout at the console, as cli
   # messages while knitting (see lv.data.frame())
@@ -1296,7 +1303,9 @@ lv.Seurat <- function(data, ...,
 
   if (knitting) cli::cli_rule()
 
-  rlang::inject(lv.data.frame(meta_data, ..., pattern = pattern,
+  pattern_arg <- if (is.null(count_vars)) quote(pattern) else
+    rlang::quo_get_expr(rlang::enquo(pattern))
+  rlang::inject(lv.data.frame(meta_data, ..., pattern = !!pattern_arg,
                              group = !!group_var, count = !!count_vars,
                              cat_args = cat_args))
 
