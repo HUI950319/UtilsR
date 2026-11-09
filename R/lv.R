@@ -683,13 +683,17 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   .tbl_input <- function(df) {
     df[] <- lapply(df, function(x) .label_na_level(.spss_missing_to_na(x)))
     empty_values <- vapply(df, function(x) {
-      (is.character(x) || inherits(x, "POSIXt")) && all(is.na(x))
+      (is.character(x) || is.complex(x) || inherits(x, "POSIXt")) && all(is.na(x))
     }, logical(1))
     df[empty_values] <- lapply(df[empty_values], function(x) rep(NA, length(x)))
     spans <- vapply(df, inherits, logical(1), what = "difftime")
     df[spans] <- lapply(df[spans], as.numeric)
     lt <- vapply(df, inherits, logical(1), what = "POSIXlt")
     df[lt] <- lapply(df[lt], as.POSIXct)
+    complex <- vapply(df, is.complex, logical(1))
+    df[complex] <- lapply(df[complex], function(x) {
+      factor(.distinct_labels(x), levels = .distinct_labels(.get_levels(x)))
+    })
     df[] <- lapply(df, .label_blank)
     df
   }
@@ -718,7 +722,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
         if (!anyNA(prefix) && !anyDuplicated(prefix)) return(TRUE)
       }
       if (is.factor(x)) nlevels(x) > 100L
-      else is.character(x) && length(unique(x[!is.na(x)])) > 100L
+      else (is.character(x) || is.complex(x)) && length(unique(x[!is.na(x)])) > 100L
     }, logical(1))
     # POSIXlt is stored as a list but summarized as a date-time.
     lists <- vapply(analysis_data[vars], function(x) {

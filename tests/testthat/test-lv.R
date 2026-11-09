@@ -1333,3 +1333,24 @@ test_that("inspection column limits use a bounded cardinality proof", {
     expect_false("id" %in% reports[[1L]]$table_body$variable)
   }
 })
+
+test_that("complex columns retain exact categories through summary tables", {
+  x <- c(1 + 2i, 1 + 2i + 1e-14, 1 + 2i, NA_complex_)
+  data <- data.frame(x = x, g = c("a", "b", "b", "a"))
+  for (grouped in c(FALSE, TRUE)) {
+    result <- if (grouped) capture_lv(lv(data, x, group = g)) else capture_lv(lv(data, x))
+    expect_identical(result$value$value, data)
+    tables <- Filter(function(t) all(c("row_type", "label") %in% names(t)), result$tables)
+    expect_true(length(tables) > 0L)
+    levels <- tables[[1L]]$label[tables[[1L]]$row_type == "level"]
+    expect_length(levels, 2L)
+    expect_identical(anyDuplicated(levels), 0L)
+    expect_true(any(tables[[1L]]$row_type == "missing"))
+  }
+  missing <- data.frame(x = rep(NA_complex_, 3))
+  result <- capture_lv(lv(missing))
+  expect_identical(result$value$value, missing)
+  large <- data.frame(x = as.complex(seq_len(101)))
+  expect_message(result <- capture_lv(lv(large)), NA)
+  expect_identical(result$value$value, large)
+})
