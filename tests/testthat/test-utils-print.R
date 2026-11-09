@@ -1286,3 +1286,11 @@ test_that("boxed and key value output retain trailing blank rows", {
     expect_identical(trimws(tail(key, n)), rep("", n))
   }
 })
+
+test_that("sparklines preserve histograms across subnormal numeric ranges", {
+  withr::local_options(cli.num_colors = 1L, cli.width = 160L, width = 160L)
+  unit <- .Machine$double.xmin * .Machine$double.eps
+  shape <- function(x) sub("mean .*", "", utils::capture.output(pr_spark(data.frame(v = x))))
+  for (sign in c(1, -1))
+    expect_identical(shape(sign * (1:20) * unit), shape(sign * (1:20)))
+})

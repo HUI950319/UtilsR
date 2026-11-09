@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_spark()` bins subnormal numeric ranges without generating invalid interval breaks.
+
 * `plt_alluvial()` retains valid serialized integer64 categories when filtering incomplete rows.
 
 * Butterfly plots restore integer64 category methods before missing-value filtering and grouping in fresh R sessions.

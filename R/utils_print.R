@@ -1205,6 +1205,11 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
     }
     rng <- range(x)
     if (rng[1] == rng[2]) return(length(x))
+    span <- rng[2L] - rng[1L]
+    if (is.finite(span) && span > 0 && span < .Machine$double.xmin) {
+      x <- (x - rng[1L]) / span
+      rng <- c(0, 1)
+    }
     tabulate(findInterval(x, seq(rng[1], rng[2], length.out = bins + 1),
                           rightmost.closed = TRUE), nbins = bins)
   }
