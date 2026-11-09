@@ -269,6 +269,7 @@ plt_sankey <- function(data,
   node_labels <- node_pct <- vector("list", length(vars))
   observed_levels <- integer(length(vars))
   total <- nrow(data)
+  label_style <- if (show_text == "none") "all" else show_text
   for (i in seq_along(vars)) {
     value <- data[[vars[i]]]
     codes <- as.integer(value)
@@ -284,8 +285,10 @@ plt_sankey <- function(data,
     names_at <- levels(value)[observed]
     observed_levels[i] <- sum(!is.na(names_at))
     proportion <- counts / total
-    pct <- scales::percent(proportion, accuracy = label_args$pct_accuracy)
-    labels <- switch(if (show_text == "none") "all" else show_text,
+    pct <- if (label_style %in% c("all", "all_wrap", "pct")) {
+      scales::percent(proportion, accuracy = label_args$pct_accuracy)
+    }
+    labels <- switch(label_style,
       "all"  = sprintf("%s (%s, %s)", names_at, counts, pct),
       "all_wrap" = sprintf("%s\n(%s, %s)", names_at, counts, pct),
       "n"    = sprintf("%s (%s)", names_at, counts),

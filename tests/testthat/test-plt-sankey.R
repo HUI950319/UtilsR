@@ -623,3 +623,23 @@ test_that("Sankey sizing reuses counted levels including unused and missing code
   expect_identical(extra, 0L)
   expect_identical(dimensions, c(4, 6))
 })
+
+test_that("Sankey count and name labels do not format percentages", {
+  skip_if_not_installed("ggsankey")
+  withr::local_options(lifecycle_verbosity = "quiet")
+  count <- 0L
+  original <- scales::percent
+  local_mocked_bindings(percent = function(...) {
+    count <<- count + 1L
+    original(...)
+  }, .package = "scales")
+  d <- data.frame(first = c("a", "a", "b"), second = c("x", "y", "x"))
+  for (mode in c("n", "name")) {
+    p <- plt_sankey(d, names(d), show_text = mode)
+    expect_identical(count, 0L)
+    expect_true((if (mode == "n") "a (2)" else "a") %in% levels(p$data$label))
+  }
+  p <- plt_sankey(d, names(d), show_text = "pct")
+  expect_identical(count, 2L)
+  expect_true("a (66.7%)" %in% levels(p$data$label))
+})
