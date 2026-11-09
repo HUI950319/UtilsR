@@ -252,3 +252,14 @@ test_that("inset clipping limits pixels to the requested rectangle", {
   expect_equal(red_width(TRUE), 20L)
   expect_equal(red_width(FALSE), 60L)
 })
+
+test_that("inserting into an empty gtable assigns a finite drawing order", {
+  gt <- gtable::gtable(grid::unit(1, "null"), grid::unit(1, "null"))
+  for (alignment in c("plot", "full")) {
+    expect_no_warning(result <- grob_insert(gt, grid::rectGrob(), align_to = alignment))
+    expect_identical(result$layout$name, "inset")
+    expect_equal(result$layout$z, 1)
+    expect_length(gt$grobs, 0L)
+    expect_no_error(grid::grid.draw(result))
+  }
+})

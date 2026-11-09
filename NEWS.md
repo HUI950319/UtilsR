@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Insert an overlay into an empty gtable without emitting a range warning or assigning a non-finite drawing order.
+
 * Retain exact integer64 ordering and narrow score differences in circular lollipops, with overflow-safe scaling in each existing domain and unchanged missing-value and minimum-height behavior.
 
 * Keep the Label column for rank matrices without row names when clean_names is FALSE, matching the existing default missing-label behavior.

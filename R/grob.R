@@ -435,7 +435,7 @@ grob_insert <- function(
   inset_wrapped <- grid::grobTree(inset_grob, vp = inset_vp)
 
   # Add to gtable: z-order depends on on_top
-  z_val <- if (isTRUE(on_top)) max(gt$layout$z) + 1L else 0L
+  z_val <- if (isTRUE(on_top)) Inf else 0L
 
   gt <- gtable::gtable_add_grob(
     gt, inset_wrapped,
