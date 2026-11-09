@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotButterfly2()` groups long-form values in one pass before building delegated violin and box plots.
+
 * `PlotCircleLollipop()` indexes shared-feature rows once when drawing arcs, preserving their drawing order.
 
 * `plt_na()` skips complete-column masks in matrix and combined outputs as well as percentage plots.

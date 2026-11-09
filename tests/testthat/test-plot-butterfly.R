@@ -735,3 +735,28 @@ test_that("butterfly grouping restores integer64 categories in cold processes", 
     expect_identical(tail(output, 1L), 'COLD_BUTTERFLY_OK')
   }
 })
+
+test_that("butterfly wide conversion groups each side in one pass", {
+  levels <- paste0("kind", seq_len(30L))
+  cats <- c(rev(levels), levels[1L])
+  d <- data.frame(kind = factor(rep(cats, 2L), levels = levels),
+    value = seq_len(2L * length(cats)), side = rep(c("L", "R"), each = length(cats)))
+  fn <- PlotButterfly2
+  env <- new.env(parent = environment(fn))
+  scans <- 0L
+  env[["=="]] <- function(x, y) {
+    if (is.character(x) && length(x) == length(cats) && length(y) == 1L) scans <<- scans + 1L
+    base::`==`(x, y)
+  }
+  original <- NULL
+  env$PlotButterfly <- function(data.left, data.right, ...) {
+    original <<- list(data.left, data.right)
+    list()
+  }
+  environment(fn) <- env
+  fn(d, stat.by = "kind", value.by = "value", group.by = "side", type = "box")
+  expect_identical(scans, 0L)
+  expect_identical(names(original[[1L]]), rev(levels))
+  expect_identical(original[[1L]][[levels[1L]]], c(30L, 31L))
+  expect_identical(original[[2L]][[levels[30L]]], c(32L, NA_integer_))
+})

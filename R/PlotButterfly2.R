@@ -231,13 +231,16 @@ PlotButterfly2 <- function(
   if (is.null(fill.by) && !is_beeswarm) {
     .to_wide <- function(df) {
       categories <- as.character(df[[stat.by]])
-      cts   <- unique(categories)
-      max_n <- max(table(df[[stat.by]]))
-      mat <- lapply(cts, function(ct) {
-        vals <- df[[value.by]][categories == ct]
+      cts <- unique(categories)
+      rows <- split(seq_along(categories), match(categories, cts))
+      max_n <- max(lengths(rows))
+      values <- df[[value.by]]
+      mat <- lapply(rows, function(idx) {
+        vals <- values[idx]
         length(vals) <- max_n
         vals
       })
+      names(mat) <- NULL
       out <- as.data.frame(mat)
       colnames(out) <- cts
       out
