@@ -724,3 +724,13 @@ test_that("Jaccard heatmaps keep the factors created by matrix conversion", {
   diag(mat) <- NA_real_
   expect_identical(p$data$Jaccard, as.vector(mat))
 })
+
+test_that("Jaccard duration keys match across integer and double storage", {
+  skip_if_not_installed("lubridate")
+  keys <- lubridate::dseconds(1:3)
+  data <- tibble::tibble(group = rep(keys, each = 2L), feature = c("a", "b", "b", "c", "d", "e"))
+  expected <- PlotHeatmapJaccard(data, "group", "feature", return_type = "data")
+  result <- PlotHeatmapJaccard(data, "group", "feature", group_levels = rev(keys), return_type = "data")
+  expect_identical(result, expected[3:1, 3:1])
+  expect_equal(result[2L, 3L], 1/3)
+})

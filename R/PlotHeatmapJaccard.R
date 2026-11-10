@@ -190,19 +190,27 @@ PlotHeatmapJaccard <- function(
     (is.character(group_values) && !is.object(group_values))
   numeric_groups <- is.numeric(group_values) && !is.object(group_values) &&
     is.numeric(ct_names) && !is.object(ct_names)
-  group_rows <- if (numeric_groups ||
+  duration_groups <- inherits(group_values, "Duration") && inherits(ct_names, "Duration")
+  group_rows <- if (numeric_groups || duration_groups ||
                     (indexable_groups && is.character(ct_names) && !is.object(ct_names))) {
     rows <- which(non_missing)
     keys <- group_values[rows]
-    if (!numeric_groups) keys <- as.character(keys)
-    split(rows, match(keys, ct_names))
+    labels <- ct_names
+    if (duration_groups) {
+      keys <- vctrs::vec_proxy_equal(keys)
+      labels <- vctrs::vec_proxy_equal(labels)
+    } else if (!numeric_groups) {
+      keys <- as.character(keys)
+    }
+    split(rows, factor(match(keys, labels), levels = seq_along(ct_names)))
   } else NULL
   top_sets <- lapply(
-    stats::setNames(ct_keys, ct_labels),
-    function(ct) {
+    stats::setNames(seq_along(ct_keys), ct_labels),
+    function(i) {
       if (!is.null(group_rows)) {
-        rows <- group_rows[[as.character(match(ct, ct_names))]]
+        rows <- group_rows[[i]]
       } else {
+        ct <- ct_keys[[i]]
         group_match <- if (timespan[1L] && is.character(ct)) {
           group_labels == ct
         } else if (is.character(group_values) && inherits(ct, time_classes)) {

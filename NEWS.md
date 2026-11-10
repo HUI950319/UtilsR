@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotHeatmapJaccard()` matches duration groups with integer or double storage by their exact numeric seconds.
+
 * `PlotCircleLollipop()` keeps blank sector labels while providing nonempty internal IDs for drawing, scaling and links.
 
 * Continuous t-test adapters obtain magnitudes from finite bounds and reuse those bounds for extreme-scale centering.
