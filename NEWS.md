@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_sankey()` skips the label-position build when no node meets the minimum proportion.
+
 * `fct_cat()` validates `groups` as a named one-dimensional list before converting the input.
 
 * `fct_cat()` and `fct_to_group()` pass validated level names to the shared recoder.

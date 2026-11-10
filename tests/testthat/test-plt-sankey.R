@@ -709,3 +709,16 @@ test_that("Sankey stage reshaping keeps exact successor rows", {
     expect_identical(long$next_node, reference$next_node)
   }
 })
+
+test_that("filtered Sankey labels skip the position build", {
+  skip_if_not_installed("ggsankey")
+  data <- data.frame(a = c("A", "A", "B", "B"), b = c("X", "Y", "X", "Y"))
+  build <- ggplot2::ggplot_build
+  testthat::local_mocked_bindings(.save_sized = function(p, ...) p, .package = "UtilsR")
+  testthat::local_mocked_bindings(ggplot_build = function(...) stop("built positions for filtered labels"),
+                                .package = "ggplot2")
+  p <- suppressMessages(sankey_plot(data, label_args = list(min_pct = 1)))
+  expect_length(p$layers, 2L)
+  expect_true(all(grepl("50", as.character(p$data$label), fixed = TRUE)))
+  expect_equal(nrow(build(p)$data[[2L]]), 4L)
+})

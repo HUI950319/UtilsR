@@ -366,7 +366,7 @@ plt_sankey <- function(data,
     plot <- plot + ggplot2::scale_x_discrete(labels = var_labels)
   }
 
-  if (show_text != "none") {
+  if (show_text != "none" && any(node_pct >= label_args$min_pct)) {
     # Filter labels only after node positions have been computed from all rows.
     nodes <- plot
     nodes$layers <- plot$layers[2L]
