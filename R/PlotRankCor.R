@@ -357,7 +357,6 @@ PlotRankCor <- function(
   if (length(extra_cols) > 0) {
     rows <- vctrs::vec_match(rank_wide[id_cols], agg_groups$key[id_cols])
     for (ec in setdiff(extra_cols, id_cols)) rank_wide[[ec]] <- agg_values[[ec]][rows]
-    rank_wide <- rank_wide[do.call(order, unname(lapply(rank_wide[id_cols], as.character))), , drop = FALSE]
   }
   rownames(rank_wide) <- NULL
 

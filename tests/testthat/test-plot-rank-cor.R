@@ -973,3 +973,23 @@ test_that("rank correlation subtitle lines avoid copying completed lines", {
   parts <- sprintf("%s: rho = %.3f (p = %.3g)", results$group, results$rho, results$p.value)
   expect_identical(gsub("\n", "    ", p$labels$subtitle, fixed = TRUE), paste(parts, collapse = "    "))
 })
+
+test_that("rank correlation joins aesthetics without sorting its ordered pairs again", {
+  data <- rank_cor_group_data()
+  data$weight <- seq_len(nrow(data))
+  data <- data[rev(seq_len(nrow(data))), ]
+  fn <- PlotRankCor
+  environment(fn) <- list2env(list(order = function(...) {
+    args <- list(...)
+    if (length(args) == 2L && all(vapply(args, is.character, logical(1)))) {
+      stop("second pair sort")
+    }
+    base::order(...)
+  }), parent = environment(fn))
+  invisible(capture.output(plot <- fn(data, stat.by = "item", value.by = "score",
+                                      method.by = "method", group.by = "group", size_by = "weight",
+                                      show.label = FALSE)))
+  expect_identical(as.character(plot$data$item), rep(letters[1:4], each = 2L))
+  expect_identical(as.character(plot$data$group), rep(c("1", "2"), 4L))
+  expect_equal(plot$data$weight, c(5, 9, 6, 10, 7, 11, 8, 12))
+})

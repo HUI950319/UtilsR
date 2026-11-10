@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRankCor()` reuses the ordered rank-pair rows when attaching size and alpha summaries.
+
 * `fmt_raster(method = "image")` draws `gList` children on the capture device.
 
 * `fmt_com()` accepts an observed empty-string group as a named reference.
