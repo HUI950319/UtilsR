@@ -414,13 +414,13 @@ PlotCircleLollipop <- function(
   # ---- Shared features for automatic colours and inner arcs ----
   custom_colors <- !is.null(color_col) && color_col %in% colnames(data)
   if (!custom_colors || show_links) {
-    common_names <- df |>
-      dplyr::filter(!is.na(name)) |>
-      dplyr::group_by(name) |>
-      dplyr::summarise(n_groups = dplyr::n_distinct(group), .groups = "drop") |>
-      dplyr::filter(n_groups > 1) |>
-      dplyr::pull(name)
-    shared <- df$name %in% common_names
+    features <- unique(df$name)
+    feature_ids <- match(df$name, features)
+    observed <- !is.na(df$name)
+    pairs <- vctrs::vec_unique(data.frame(
+      feature = feature_ids[observed], sector = as.integer(df$group[observed])
+    ))
+    shared <- observed & tabulate(pairs$feature, length(features))[feature_ids] > 1L
   }
 
   if (custom_colors) {

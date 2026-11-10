@@ -825,14 +825,14 @@ test_that("circular feature sharing is computed once for colours and links", {
   withr::local_pdf(NULL)
   d <- data.frame(group = c("A", "A", "B", "B"), name = c("shared", "a", "shared", "b"),
     value = c(.2, .4, .6, .8), col = "black")
-  original <- dplyr::n_distinct
+  original <- vctrs::vec_unique
   checks <- 0L
-  local_mocked_bindings(n_distinct = function(...) {
-    checks <<- checks + 1L
-    original(...)
-  }, .package = "dplyr")
+  local_mocked_bindings(vec_unique = function(x, ...) {
+    if (is.data.frame(x) && identical(names(x), c("feature", "sector"))) checks <<- checks + 1L
+    original(x, ...)
+  }, .package = "vctrs")
   PlotCircleLollipop(d, show_labels = FALSE, show_links = TRUE, show_yaxis = FALSE)
-  expect_equal(checks, 3L)
+  expect_equal(checks, 1L)
   checks <- 0L
   PlotCircleLollipop(d, color_col = "col", show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
   expect_equal(checks, 0L)
@@ -1097,4 +1097,30 @@ test_that("circular sector drawing avoids full group scans", {
   fn(d, color_col = "colour", show_labels = FALSE, show_yaxis = FALSE, show_links = FALSE)
   expect_identical(scans, 0L)
   expect_identical(observed, d$value)
+})
+
+test_that("circular sharing counts distinct feature-sector pairs", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  d <- data.frame(group = rep(c("A", "B"), each = 3L),
+    name = c("solo", "solo", "shared", "shared", NA, "other"),
+    value = seq_len(6L) / 6)
+  calls <- 0L
+  count <- dplyr::n_distinct
+  local_mocked_bindings(n_distinct = function(...) {
+    calls <<- calls + 1L
+    count(...)
+  }, .package = "dplyr")
+  colours <- character()
+  links <- 0L
+  points <- circlize::circos.points
+  local_mocked_bindings(circos.points = function(x, y, col, ...) {
+    colours <<- c(colours, col)
+    points(x, y, col = col, ...)
+  }, circos.link = function(...) { links <<- links + 1L }, .package = "circlize")
+  PlotCircleLollipop(d, unique_color = "red", common_color = "blue",
+    show_labels = FALSE, show_yaxis = FALSE)
+  expect_identical(calls, 0L)
+  expect_identical(colours, c("red", "red", "blue", "blue", "red", "red"))
+  expect_identical(links, 1L)
 })
