@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotHeatmapJaccard()` excludes fractional or unrepresentable numeric keys when matching against integer64 groups.
+
 * Circular link and colour selection counts distinct feature-sector pairs in one pass.
 
 * Circular sector drawing reuses one row index instead of scanning all observations for every sector.

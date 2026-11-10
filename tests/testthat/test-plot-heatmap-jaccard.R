@@ -734,3 +734,16 @@ test_that("Jaccard duration keys match across integer and double storage", {
   expect_identical(result, expected[3:1, 3:1])
   expect_equal(result[2L, 3L], 1/3)
 })
+
+test_that("Jaccard mixed integer64 group keys do not truncate fractions", {
+  skip_if_not_installed("bit64")
+  i64 <- bit64::as.integer64(c(1, 1, 2, 2))
+  d <- data.frame(group = i64, feature = c("a", "b", "b", "c"))
+  compare <- function(data, keys) {
+    PlotHeatmapJaccard(data, "group", "feature", group_levels = keys, return_type = "data")
+  }
+  expect_equal(as.vector(compare(d, c(1.5, 2.5, Inf, 2^63))), rep(0, 16L))
+  expect_equal(as.vector(compare(d, c(1, 2))), c(1, 1/3, 1/3, 1))
+  d$group <- c(1.5, 1, 2.5, 2)
+  expect_equal(as.vector(compare(d, bit64::as.integer64(1:2))), c(1, 0, 0, 1))
+})

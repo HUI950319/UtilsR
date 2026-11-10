@@ -191,7 +191,11 @@ PlotHeatmapJaccard <- function(
   numeric_groups <- is.numeric(group_values) && !is.object(group_values) &&
     is.numeric(ct_names) && !is.object(ct_names)
   duration_groups <- inherits(group_values, "Duration") && inherits(ct_names, "Duration")
-  group_rows <- if (numeric_groups || duration_groups ||
+  integer64_groups <- (integer64[1L] && !is.object(ct_names) && is.numeric(ct_names) &&
+                       !is.complex(ct_names)) ||
+    (integer64[3L] && !is.object(group_values) && is.numeric(group_values) &&
+       !is.complex(group_values))
+  group_rows <- if (numeric_groups || duration_groups || integer64_groups ||
                     (indexable_groups && is.character(ct_names) && !is.object(ct_names))) {
     rows <- which(non_missing)
     keys <- group_values[rows]
@@ -199,10 +203,18 @@ PlotHeatmapJaccard <- function(
     if (duration_groups) {
       keys <- vctrs::vec_proxy_equal(keys)
       labels <- vctrs::vec_proxy_equal(labels)
+    } else if (integer64_groups) {
+      as_group_key <- function(value) {
+        valid <- is.finite(value) & value > -2^63 & value < 2^63 & value == trunc(value)
+        value[!valid] <- NA_real_
+        bit64::as.integer64(value)
+      }
+      if (integer64[1L]) labels <- as_group_key(labels) else keys <- as_group_key(keys)
     } else if (!numeric_groups) {
       keys <- as.character(keys)
     }
-    split(rows, factor(match(keys, labels), levels = seq_along(ct_names)))
+    ids <- if (integer64_groups) vctrs::vec_match(keys, labels) else match(keys, labels)
+    split(rows, factor(ids, levels = seq_along(ct_names)))
   } else NULL
   top_sets <- lapply(
     stats::setNames(seq_along(ct_keys), ct_labels),
