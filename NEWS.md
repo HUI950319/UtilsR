@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_ref()` loads integer64 methods before adding reference lines from serialized values.
+
 * `stat_ci_parse()` trims interval edges and detects trailing text without repeatedly searching long interior whitespace runs.
 
 * `PlotScatter3()` draws its reference lines without missing-row warnings when the axis limits exclude zero.

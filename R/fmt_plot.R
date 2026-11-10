@@ -1412,6 +1412,7 @@ fmt_ref <- function(plot,
     if (!is.null(dim(value)) || is.expression(value) ||
         !(is.atomic(value) || inherits(value, "POSIXlt")))
       cli::cli_abort("{.arg {axis}} must contain one-dimensional reference positions.")
+    .register_integer64(value)
   }
   batch_dots <- length(names(dots)) == length(dots) &&
     !anyDuplicated(names(dots)) && all(names(dots) %in% c("na.rm", "lineend")) &&

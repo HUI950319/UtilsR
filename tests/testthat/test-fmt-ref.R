@@ -436,3 +436,32 @@ test_that("reference positions reject multidimensional and nested inputs before 
     }
   }
 })
+
+test_that("reference lines decode serialized integer64 positions", {
+  skip_if_not_installed("bit64")
+  scratch <- withr::local_tempdir()
+  input <- file.path(scratch, "input.rds")
+  script <- file.path(scratch, "verify.R")
+  path <- getNamespaceInfo(asNamespace("UtilsR"), "path")
+  saveRDS(list(path = path, libs = .libPaths(), x = bit64::as.integer64(c(2L, 5L)),
+    y = bit64::as.integer64(c(3L, 6L))), input)
+  writeLines(c(sprintf("payload <- readRDS(%s)", deparse(input)),
+    '.libPaths(payload[["libs"]])',
+    'path <- payload[["path"]]',
+    'if (file.exists(file.path(path, "Meta", "package.rds"))) {',
+    '  library("UtilsR", lib.loc = dirname(path))',
+    '} else {',
+    '  pkgload::load_all(path, quiet = TRUE)',
+    '}',
+    'stopifnot(!("bit64" %in% loadedNamespaces()))',
+    'p <- ggplot2::ggplot(data.frame(x = 1:8, y = 1:8), ggplot2::aes(x, y)) + ggplot2::geom_point()',
+    'built <- ggplot2::ggplot_build(UtilsR::fmt_ref(p, x = payload[["x"]], y = payload[["y"]]))[["data"]]',
+    'stopifnot("bit64" %in% loadedNamespaces())',
+    'stopifnot(identical(as.numeric(built[[2L]][["xintercept"]]), c(2, 5)),',
+    '          identical(as.numeric(built[[3L]][["yintercept"]]), c(3, 6)))',
+    'cat("COLD_REFERENCE_OK\n")'), script)
+  output <- suppressWarnings(system2(file.path(R.home("bin"), "Rscript"),
+    c("--vanilla", shQuote(script)), stdout = TRUE, stderr = TRUE))
+  expect_null(attr(output, "status"), info = paste(output, collapse = "\n"))
+  expect_true("COLD_REFERENCE_OK" %in% output)
+})
