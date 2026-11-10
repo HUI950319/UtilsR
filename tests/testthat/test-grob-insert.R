@@ -276,3 +276,32 @@ test_that("behind-panel insets respect custom gtable drawing orders", {
     expect_no_error(grid::grid.draw(result))
   }
 })
+
+test_that("inset coordinates decode serialized integer64 values", {
+  skip_if_not_installed("bit64")
+  scratch <- withr::local_tempdir()
+  input <- file.path(scratch, "input.rds")
+  script <- file.path(scratch, "verify.R")
+  path <- getNamespaceInfo(asNamespace("UtilsR"), "path")
+  bounds <- stats::setNames(lapply(c(1, 2, 3, 5), bit64::as.integer64),
+                            c("left", "bottom", "right", "top"))
+  saveRDS(list(path = path, libs = .libPaths(), bounds = bounds), input)
+  writeLines(c(sprintf("payload <- readRDS(%s)", deparse(input)),
+    '.libPaths(payload[["libs"]])',
+    'path <- payload[["path"]]',
+    'if (file.exists(file.path(path, "Meta", "package.rds"))) {',
+    '  library("UtilsR", lib.loc = dirname(path))',
+    '} else pkgload::load_all(path, quiet = TRUE)',
+    'stopifnot(!("bit64" %in% loadedNamespaces()))',
+    'base <- gtable::gtable(widths = grid::unit(1, "cm"), heights = grid::unit(1, "cm"))',
+    'out <- do.call(UtilsR::grob_insert, c(list(base, grid::rectGrob(), align_to = "full"), payload[["bounds"]]))',
+    'stopifnot("bit64" %in% loadedNamespaces())',
+    'vp <- out[["grobs"]][[1L]][["vp"]]',
+    'stopifnot(identical(vapply(vp[c("x", "y", "width", "height")], as.numeric, 0),',
+    '                    c(x = 1, y = 2, width = 2, height = 3)))',
+    'cat("COLD_INSET_OK\\n")'), script)
+  output <- suppressWarnings(system2(file.path(R.home("bin"), "Rscript"),
+    c("--vanilla", shQuote(script)), stdout = TRUE, stderr = TRUE))
+  expect_null(attr(output, "status"), info = paste(output, collapse = "\n"))
+  expect_true("COLD_INSET_OK" %in% output)
+})

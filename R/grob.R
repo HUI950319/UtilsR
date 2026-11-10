@@ -350,6 +350,7 @@ grob_insert <- function(
   coordinates <- list(left = left, bottom = bottom, right = right, top = top)
   for (arg in names(coordinates)) {
     value <- coordinates[[arg]]
+    .register_integer64(value)
     if (!(is.numeric(value) || inherits(value, "unit")) ||
         length(value) != 1L || !is.null(dim(value)) ||
         !is.finite(as.numeric(value))) {
