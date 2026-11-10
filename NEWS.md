@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_raster(method = "ragg")` rasterizes bare geometry panel grobs, preserves bare panel text, and skips null panels.
+
 * `pal_get()` uses finite-value detection directly on plain numbers and retains class-specific missingness for encoded values.
 
 * `fmt_panel()` and recursive plot formatting require plot lists to be one-dimensional.

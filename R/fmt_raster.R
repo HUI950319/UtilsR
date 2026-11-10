@@ -290,7 +290,7 @@ fmt_raster <- function(
   unclipped_panels <- FALSE
   panel_indices <- function(gt) {
     which(grepl("^panel(-[0-9]+)*$", gt$layout$name) &
-            !vapply(gt$grobs, inherits, logical(1), "zeroGrob"))
+            !vapply(gt$grobs, inherits, logical(1), c("zeroGrob", "null")))
   }
   plan_panels <- function(gt) {
     indices <- panel_indices(gt)
@@ -528,6 +528,10 @@ fmt_raster <- function(
 # --- Core: rasterize a single panel grob, preserving text ---
 #' @noRd
 .rasterize_panel_grob <- function(g, w, h, dpi, units, bg) {
+  if (!inherits(g, "gTree")) {
+    if (.is_text_grob(g, g$name)) return(g)
+    g <- grid::grobTree(g)
+  }
   ordered <- match(g$childrenOrder, names(g$children))
   # Empty grobs draw nothing: they neither become nor split a raster run.
   ordered <- ordered[!vapply(g$children[ordered], inherits, logical(1),

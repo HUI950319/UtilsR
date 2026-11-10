@@ -658,3 +658,19 @@ test_that("ragg skips measuring tables without panels", {
   expect_identical(result, table)
   expect_error(fmt_raster(table, method = "ragg", dpi = 20, width = c(1, 2)), "number of panels")
 })
+
+test_that("ragg accepts bare panel grobs in custom tables", {
+  skip_if_not_installed("ragg")
+  withr::local_pdf(NULL, width = 2, height = 2)
+  panel <- function(grob) {
+    table <- gtable::gtable(widths = grid::unit(1, "in"), heights = grid::unit(1, "in"))
+    gtable::gtable_add_grob(table, grob, t = 1L, l = 1L, clip = "on", name = "panel")
+  }
+  point <- fmt_raster(panel(grid::pointsGrob(.5, .5)), method = "ragg", dpi = 20)
+  expect_length(raster_find_grobs(patchwork::patchworkGrob(point), "rastergrob"), 1L)
+  text <- fmt_raster(panel(grid::textGrob("Keep this text")), method = "ragg", dpi = 20)
+  expect_length(raster_find_grobs(patchwork::patchworkGrob(text), "text"), 1L)
+  empty <- panel(grid::nullGrob())
+  expect_warning(result <- fmt_raster(empty, method = "ragg", dpi = 20), "No panels detected")
+  expect_identical(result, empty)
+})
