@@ -179,6 +179,7 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
     cli::cli_abort("{.arg nbins} must be a single finite integer >= 2 and < {(.Machine$integer.max)}.")
   }
   nbins <- as.integer(nbins)
+  plain_range <- NULL
   if (plain_x || identical(class(x), "AsIs") || inherits(x, "haven_labelled")) {
     numeric_x <- if (plain_x) x else as.double(x)
     bounds <- as.double(range(numeric_x, na.rm = has_na))
@@ -189,6 +190,8 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
       x <- numeric_x / magnitude
     } else if (is.finite(span) && span > 0 && span < .Machine$double.xmin) {
       x <- (numeric_x - bounds[1L]) / span
+    } else if (plain_x) {
+      plain_range <- bounds
     }
   }
 
@@ -209,11 +212,7 @@ fct_num <- function(x, breaks = NULL, labels = NULL,
       cli::cli_warn("Ties in quantiles reduced {nbins} bins to {n_groups}.")
     }
   } else {
-    rng <- if (plain_x) {
-      c(min(x, na.rm = has_na), max(x, na.rm = has_na))
-    } else {
-      range(x, na.rm = TRUE)
-    }
+    rng <- if (is.null(plain_range)) range(x, na.rm = TRUE) else plain_range
     if (rng[1] == rng[2]) {
       cli::cli_abort("Cannot split constant {.arg x} into multiple groups.")
     }

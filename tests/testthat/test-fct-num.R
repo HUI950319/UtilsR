@@ -234,3 +234,18 @@ test_that("wrapped numeric values retain subnormal bin membership", {
     }
   }
 })
+
+test_that("equal-width bins reuse the validated plain range", {
+  fn <- fct_num
+  env <- new.env(parent = environment(fn))
+  env$min <- function(x, ...) {
+    if (length(x) == 500L) stop("rescanned the numeric range")
+    base::min(x, ...)
+  }
+  environment(fn) <- env
+  values <- seq(0, 5, length.out = 500)
+  expected <- fct_num(values, nbins = 5, type = "equal")
+  expect_identical(fn(values, nbins = 5, type = "equal"), expected)
+  expect_identical(fn(c(values[-1L], NA), nbins = 5, type = "equal"),
+                   fct_num(c(values[-1L], NA), nbins = 5, type = "equal"))
+})

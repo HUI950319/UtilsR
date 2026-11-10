@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fct_num()` uses the range already checked for underflow to create equal-width breaks on plain vectors.
+
 * Continuous dot panels tally observed group IDs directly while retaining displayed bin and group order.
 
 * `plt_upset(output = "data")` builds names and codes for each combination size in batches.
