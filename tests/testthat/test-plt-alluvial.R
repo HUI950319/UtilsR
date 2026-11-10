@@ -948,3 +948,26 @@ test_that("alluvial gaps reuse one row for each observed pair", {
   expect_identical(p$data, reference$data)
   expect_equal(sort(p$data$.y[p$data$.is_gap]), c(.2, .2, .3, .3))
 })
+
+test_that("alluvial gap rows avoid per-gap data frames", {
+  skip_if_not_installed("ggalluvial")
+  fn <- plt_alluvial
+  environment(fn) <- list2env(list(data.frame = function(...) {
+    args <- list(...)
+    if (length(args[[".is_gap"]]) && isTRUE(args[[".is_gap"]]) &&
+        length(args[[".group"]]) == 1L) stop("allocated one data frame per gap")
+    base::data.frame(...)
+  }), parent = environment(fn))
+  data <- expand.grid(category = c("A", "B"), group = c("G1", "G2", "G3"),
+                      facet = c("P1", "P2"))
+  for (y_type in c("percent", "count")) {
+    args <- list(data = data, cat_var = "category", group = "group", facet = "facet",
+                 y_type = y_type, stratum_args = list(gap = .1))
+    result <- suppressMessages(do.call(fn, args))$data
+    plain <- suppressMessages(do.call(plt_alluvial, args))$data
+    expect_identical(result, plain)
+    rows <- result[result$.is_gap, ]
+    expect_identical(as.character(rows$.group), rep(c(".gap_1", ".gap_2"), each = 4L))
+    expect_equal(rows$.y, rep(if (y_type == "percent") .1 else .3, 8L))
+  }
+})

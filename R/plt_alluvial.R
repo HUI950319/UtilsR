@@ -516,25 +516,24 @@ plt_alluvial <- function(
     )), length(group_levels) - 1L)
     # The first group contains one row for every observed facet/category pair.
     observed <- stat[seq_len(n_pairs), c(".facet", ".cat_var", "group_total"), drop = FALSE]
-    max_total <- tapply(observed$group_total, observed$.facet, max)
-    gap_rows <- lapply(gap_names, function(gap_name) {
-      data.frame(
-        .facet = observed$.facet,
-        .cat_var = observed$.cat_var,
-        .group = gap_name,
-        count = 0,
-        group_total = observed$group_total,
-        percent = 0,
-        .is_gap = TRUE,
-        .y = if (y_type == "percent") {
-          stratum_args$gap
-        } else {
-          stratum_args$gap * unname(max_total[as.integer(observed$.facet)])
-        },
-        .label = NA_character_
-      )
-    })
-    stat <- rbind(stat, do.call(rbind, gap_rows))
+    gap_height <- stratum_args$gap
+    if (y_type == "count") {
+      max_total <- tapply(observed$group_total, observed$.facet, max)
+      gap_height <- gap_height * unname(max_total[as.integer(observed$.facet)])
+    }
+    n_gaps <- length(gap_names)
+    gap_rows <- data.frame(
+      .facet = rep.int(observed$.facet, n_gaps),
+      .cat_var = rep.int(observed$.cat_var, n_gaps),
+      .group = rep(gap_names, each = n_pairs),
+      count = 0,
+      group_total = rep.int(observed$group_total, n_gaps),
+      percent = 0,
+      .is_gap = TRUE,
+      .y = rep_len(gap_height, n_pairs * n_gaps),
+      .label = NA_character_
+    )
+    stat <- rbind(stat, gap_rows)
   }
 
   all_group_levels <- unlist(lapply(seq_along(group_levels), function(index) {
