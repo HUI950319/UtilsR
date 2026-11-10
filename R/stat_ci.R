@@ -181,10 +181,14 @@ stat_ci <- function(x, y = NULL, z = NULL,
     }
     d <- digits %||% 2L
     observed <- !(is.na(x) | is.na(y) | is.na(z))
-    out <- rep(NA_character_, n)
     .check_precision(d, x[observed], y[observed], z[observed])
     fmt <- sprintf("%%.%df %s%%.%df%s%%.%df%s", d, bp[1], d, sep, d, bp[2])
-    out[observed] <- .format_values(fmt, x[observed], y[observed], z[observed])
+    if (all(observed)) {
+      out <- .format_values(fmt, x, y, z)
+    } else {
+      out <- rep(NA_character_, n)
+      out[observed] <- .format_values(fmt, x[observed], y[observed], z[observed])
+    }
     names(out) <- input_names
     return(out)
   }
@@ -199,10 +203,14 @@ stat_ci <- function(x, y = NULL, z = NULL,
   }
   d <- digits %||% 1L
   observed <- !(is.na(x) | is.na(y))
-  out <- rep(NA_character_, length(x))
   .check_precision(d, x[observed], y[observed])
   fmt <- sprintf("%%.%df%s%%.%df%s", d, bp[1], d, bp[2])
-  out[observed] <- .format_values(fmt, x[observed], y[observed])
+  if (all(observed)) {
+    out <- .format_values(fmt, x, y)
+  } else {
+    out <- rep(NA_character_, length(x))
+    out[observed] <- .format_values(fmt, x[observed], y[observed])
+  }
   names(out) <- input_names
   out
 }

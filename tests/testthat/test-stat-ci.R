@@ -237,3 +237,19 @@ test_that("CI formatting skips hashing large nearly unique inputs", {
   expect_identical(scans, c(1024L, 2000L))
   expect_identical(result, rep("2 (1, 3)", 2000))
 })
+
+test_that("numeric interval formatting retains complete input storage", {
+  fn <- stat_ci
+  environment(fn) <- list2env(list(`[` = function(x, i, ...) {
+    if (is.double(x) && length(x) == 400L && is.logical(i) && all(i))
+      stop("copied complete numeric formatting inputs")
+    base::`[`(x, i, ...)
+  }), parent = environment(fn))
+  x <- as.double(1:400)
+  y <- x - .5
+  z <- x + .5
+  expect_identical(fn(x, y, z), stat_ci(x, y, z))
+  expect_identical(fn(x, y), stat_ci(x, y))
+  x[20L] <- NA
+  expect_identical(fn(x, y, z), stat_ci(x, y, z))
+})

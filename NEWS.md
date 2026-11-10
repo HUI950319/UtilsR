@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci()` formats complete numeric vectors directly and subsets only mixed-missing inputs.
+
 * `fmt_his(con_var = ".data")` uses a private numeric mapping for the literal column name.
 
 * `PlotDumbbell()` preserves fractional and exact large-integer differences when paired endpoints mix ordinary numeric and integer64 storage.
