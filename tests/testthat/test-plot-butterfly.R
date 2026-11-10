@@ -873,3 +873,15 @@ test_that("butterfly bars decode serialized integer64 scores", {
   expect_null(attr(output, "status"), info = paste(output, collapse = "\n"))
   expect_true("COLD_BAR_OK" %in% output)
 })
+
+test_that("unequal butterfly samples preserve integer64 missing padding", {
+  skip_if_not_installed("bit64")
+  data <- data.frame(item = rep(c("A", "A", "B"), 2L), side = rep(c("L", "R"), each = 3L),
+                     score = bit64::as.integer64(c(1, 2, 10, 3, 4, 20)))
+  plot <- PlotButterfly2(data, stat.by = "item", value.by = "score", group.by = "side", type = "box")
+  values <- lapply(seq_along(plot), function(i) plot[[i]]$data$Value)
+  expect_identical(vapply(values, function(x) sum(is.na(x)), 1L), c(1L, 1L))
+  expect_false(any(vapply(values, function(x) any(x == 0, na.rm = TRUE), logical(1))))
+  expect_equal(sort(suppressWarnings(as.double(values[[1L]]))), c(1, 2, 10))
+  expect_equal(sort(suppressWarnings(as.double(values[[2L]]))), c(3, 4, 20))
+})

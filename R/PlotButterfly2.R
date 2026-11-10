@@ -250,11 +250,7 @@ PlotButterfly2 <- function(
       rows <- split(seq_along(categories), match(categories, cts))
       max_n <- max(lengths(rows))
       values <- df[[value.by]]
-      mat <- lapply(rows, function(idx) {
-        vals <- values[idx]
-        length(vals) <- max_n
-        vals
-      })
+      mat <- lapply(rows, function(idx) values[idx[seq_len(max_n)]])
       names(mat) <- NULL
       out <- as.data.frame(mat)
       colnames(out) <- cts

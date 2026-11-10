@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotButterfly2()` pads unequal sample counts through class-aware indexing, preserving integer64 missing values.
+
 * `PlotScatter3(test_method = "none")` leaves P-label coordinates unevaluated.
 
 * `PlotHeatmapJaccard()` reuses the factors and numeric scores created by the matrix-to-table conversion.
