@@ -317,7 +317,7 @@ PlotButterfly <- function(
     if (is.character(levels) && length(levels) == 1L && levels %in% c("up", "down")) {
       ct_order <- stats::aggregate(
         data[[value.by]], by = list(.cat = data[[stat.by]]),
-        FUN = mean, na.rm = TRUE
+        FUN = .mean_plot_values, na.rm = TRUE
       )
       ct_order <- ct_order[order(ct_order$x, decreasing = (levels == "down")), ]
       data[[stat.by]] <- factor(data[[stat.by]], levels = ct_order$.cat)
@@ -462,7 +462,7 @@ PlotButterfly <- function(
         data.frame(Variable = long_right$Variable, Value = long_right$Value)
       )
       mean_vals <- stats::aggregate(Value ~ Variable, data = all_long,
-                                    FUN = mean, na.rm = TRUE)
+                                    FUN = .mean_plot_values, na.rm = TRUE)
       mean_vals <- mean_vals[order(mean_vals$Value,
                                    decreasing = (levels == "down")), ]
       var_order <- as.character(mean_vals$Variable)

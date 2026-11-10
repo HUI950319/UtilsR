@@ -414,16 +414,8 @@ PlotDumbbell <- function(
   }
 
   if (show_mean_lines) {
-    endpoint_mean <- function(value) {
-      if (!inherits(value, "integer64")) return(mean(value, na.rm = TRUE))
-      # Add the two limbs before dividing, retaining cancellation and fractions.
-      step <- bit64::as.integer64("4294967296")
-      high <- sum(as.double(value %/% step), na.rm = TRUE)
-      low <- sum(as.double(value %% step), na.rm = TRUE)
-      (high * 2^32 + low) / sum(!is.na(value))
-    }
-    mean_x    <- endpoint_mean(data[[mean_cols[1L]]])
-    mean_xend <- endpoint_mean(data[[mean_cols[2L]]])
+    mean_x    <- .mean_plot_values(data[[mean_cols[1L]]])
+    mean_xend <- .mean_plot_values(data[[mean_cols[2L]]])
     p <- p +
       ggplot2::geom_vline(
         xintercept = mean_x, linetype = "dashed",
@@ -548,6 +540,17 @@ PlotDumbbell <- function(
   invisible(p)
 }
 
+
+.mean_plot_values <- function(value, na.rm = TRUE) {
+  if (!inherits(value, "integer64")) return(mean(value, na.rm = na.rm))
+  .register_integer64(value)
+  if (!na.rm && anyNA(value)) return(NA_real_)
+  # Add the two limbs before dividing, retaining cancellation and fractions.
+  step <- bit64::as.integer64("4294967296")
+  high <- sum(as.double(value %/% step), na.rm = TRUE)
+  low <- sum(as.double(value %% step), na.rm = TRUE)
+  (high * 2^32 + low) / sum(!is.na(value))
+}
 
 # Retain native integer64 differences whenever the full result fits.
 .dumbbell_integer64_difference <- function(x, y) {

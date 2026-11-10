@@ -314,7 +314,7 @@ PlotButterfly2 <- function(
     agg <- stats::aggregate(
       data[[value.by]],
       by = list(.cat = data[[stat.by]]),
-      FUN = function(x) mean(abs(x), na.rm = TRUE)
+      FUN = function(x) .mean_plot_values(abs(x))
     )
     agg <- agg[order(agg$x, decreasing = (levels == "down")), ]
     var_order <- as.character(agg$.cat)

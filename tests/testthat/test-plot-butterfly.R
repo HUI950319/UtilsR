@@ -885,3 +885,18 @@ test_that("unequal butterfly samples preserve integer64 missing padding", {
   expect_equal(sort(suppressWarnings(as.double(values[[1L]]))), c(1, 2, 10))
   expect_equal(sort(suppressWarnings(as.double(values[[2L]]))), c(3, 4, 20))
 })
+
+test_that("butterfly integer64 mean ordering preserves fractions", {
+  skip_if_not_installed("bit64")
+  d <- data.frame(item = rep(c("A", "B"), 2L), fill = "one", side = rep(c("L", "R"), each = 2L),
+    score = bit64::as.integer64(c(1, 1, 2, 1)))
+  bar <- PlotButterfly(d, stat.by = "item", fill.by = "fill", value.by = "score",
+    group.by = "side", levels = "up")
+  expect_identical(levels(bar[[1L]]$data$item), c("B", "A"))
+  filled <- PlotButterfly2(d, stat.by = "item", fill.by = "fill", value.by = "score",
+    group.by = "side", levels = "up", type = "box")
+  expect_identical(levels(filled[[1L]]$data$item), c("B", "A"))
+  unfilled <- PlotButterfly2(d, stat.by = "item", value.by = "score",
+    group.by = "side", levels = "up", type = "box")
+  expect_identical(levels(unfilled[[1L]]$data$Variable), c("B", "A"))
+})

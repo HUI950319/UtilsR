@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Butterfly mean-based ordering now retains fractional means for integer64 scores.
+
 * `plt_sankey()` locates label stages directly from node IDs without scanning the long plotting data.
 
 * Circular top-N scaling now reuses the sector row index and updates the score column directly.
