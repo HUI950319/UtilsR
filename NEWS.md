@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_his()` searches plot layers when the requested `con_var` is absent from the default plot data.
+
 * `PlotButterfly2()` pads unequal sample counts through class-aware indexing, preserving integer64 missing values.
 
 * `PlotScatter3(test_method = "none")` leaves P-label coordinates unevaluated.

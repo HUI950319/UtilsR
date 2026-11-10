@@ -5104,7 +5104,9 @@ fmt_his <- function(plot,
     # Resolve data and variable
     d <- data %||% p$data
     x_mapping <- if (is.null(con_var)) p$mapping$x else rlang::new_quosure(rlang::sym(con_var))
-    if (is.null(x_mapping) || is.null(d) || inherits(d, "waiver")) {
+    missing_column <- is.null(data) && !is.null(con_var) &&
+      is.data.frame(d) && !con_var %in% names(d)
+    if (is.null(x_mapping) || is.null(d) || inherits(d, "waiver") || missing_column) {
       for (layer in p$layers) {
         candidate <- layer$mapping$x %||% if (isTRUE(layer$inherit.aes)) p$mapping$x
         layer_data <- data %||% if (is.null(layer$data) || inherits(layer$data, "waiver")) p$data else layer$data

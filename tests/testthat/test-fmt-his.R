@@ -784,3 +784,15 @@ test_that("distribution overlays interpolate extreme finite ranges", {
   expect_equal(automatic$y / 1e308, c(-.7, -.55, -.4))
   expect_equal(automatic$ymin / 1e308, rep(-1, 3L))
 })
+
+test_that("distribution overlays find explicit variables in their source layer", {
+  parent <- data.frame(x = 1:5, y = 1:5)
+  layer <- data.frame(score = c(1, 2, 4, 5), y = 1:4)
+  plot <- ggplot2::ggplot(parent, ggplot2::aes(x, y)) +
+    ggplot2::geom_point(data = layer, ggplot2::aes(x = score))
+  result <- ggplot2::ggplot_build(fmt_his(plot, con_var = "score", binwidth = 1))$data[[2L]]
+  reference <- ggplot2::ggplot_build(fmt_his(plot, data = layer, con_var = "score",
+                                           binwidth = 1))$data[[2L]]
+  expect_identical(result[c("x", "count")], reference[c("x", "count")])
+  expect_error(fmt_his(plot, data = parent, con_var = "score"), "not found")
+})
