@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_sankey()` builds stage and successor keys directly in row order, preserving node and flow identities.
+
 * `plt_alluvial()` constructs gap strata in one table and calculates facet heights only for count layouts.
 
 * `plt_alluvial()` derives gap sizes from the existing ordered facet/category rows without de-duplicating all groups.

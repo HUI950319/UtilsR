@@ -686,3 +686,26 @@ test_that("Sankey label positions build nodes without flow polygons", {
   actual <- build(plot)$data
   expect_equal(sort(actual[[3L]]$y), sort((actual[[2L]]$ymin + actual[[2L]]$ymax) / 2))
 })
+
+test_that("Sankey stage reshaping keeps exact successor rows", {
+  skip_if_not_installed("ggsankey")
+  withr::local_options(lifecycle_verbosity = "quiet")
+  vars <- c("sex", "stage", "grade")
+  data <- sankey_data()
+  data <- data[rep(seq_len(nrow(data)), 50L), ]
+  data$sex[2L] <- NA
+  original <- ggsankey::make_long
+  testthat::local_mocked_bindings(make_long = function(...) stop("grouped once per observation"),
+                                .package = "ggsankey")
+  for (order in list(vars, rev(vars))) {
+    plot <- suppressMessages(plt_sankey(data, order, show_text = "none"))
+    long <- plot$data
+    label_vars <- paste0(order, "_label")
+    wide <- setNames(lapply(label_vars, function(v) as.character(long$node[long$x == v])), label_vars)
+    reference <- original(as.data.frame(wide), dplyr::all_of(label_vars))
+    expect_identical(long$x, reference$x)
+    expect_identical(long$next_x, reference$next_x)
+    expect_identical(as.character(long$node), reference$node)
+    expect_identical(long$next_node, reference$next_node)
+  }
+})

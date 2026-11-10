@@ -310,7 +310,16 @@ plt_sankey <- function(data,
 
   # Reshape plain keys, then restore their order in the shared node column.
   all_levels <- names(node_labels)
-  plot_data <- ggsankey::make_long(data[, label_vars, drop = FALSE], dplyr::all_of(label_vars))
+  stage <- rep.int(seq_along(label_vars), nrow(data))
+  stage_levels <- if (nrow(data)) label_vars else character()
+  nodes <- as.character(do.call(rbind, unname(as.list(data[label_vars]))))
+  next_stage <- factor(label_vars[stage + 1L], levels = stage_levels)
+  next_node <- dplyr::lead(nodes)
+  next_node[is.na(next_stage)] <- NA_character_
+  plot_data <- tibble::tibble(
+    x = factor(label_vars[stage], levels = stage_levels), node = nodes,
+    next_x = next_stage, next_node = next_node
+  )
 
   # Set node factor levels
   plot_data$node <- factor(plot_data$node, levels = all_levels)
