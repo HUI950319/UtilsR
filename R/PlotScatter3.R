@@ -269,13 +269,6 @@ PlotScatter3 <- function(
     fraction <- if (anchor == 1L) offset else 1 + offset
     (1 - fraction) * axis_limits[1] + fraction * axis_limits[2]
   }
-  if (is.null(p_x)) {
-    p_x <- annotation_at(1L, 0.05)
-  }
-  if (is.null(p_y)) {
-    p_y <- annotation_at(2L, -0.02)
-  }
-
   # ---- Difference statistics ----
   x_values <- as.double(data[[x]])
   y_values <- as.double(data[[y]])
@@ -285,6 +278,8 @@ PlotScatter3 <- function(
   # ---- Paired test ----
   p_label <- NULL
   if (test_method != "none") {
+    if (is.null(p_x)) p_x <- annotation_at(1L, 0.05)
+    if (is.null(p_y)) p_y <- annotation_at(2L, -0.02)
     test_fn <- switch(test_method,
       "wilcox" = stats::wilcox.test,
       "t.test" = .con_pairwise_test("t.test")

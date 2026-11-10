@@ -1468,3 +1468,13 @@ test_that("paired scatter selects tests by their method names", {
     expect_error(PlotScatter3(stop("data evaluated"), test_method = invalid), "test_method")
   }
 })
+
+test_that("paired scatter leaves disabled P-label positions lazy", {
+  data <- scatter3_integer_pairs()
+  expect_no_error(scatter3_capture_inset(data, test_method = "none", cor_method = "pearson",
+    p_x = stop("inactive P-label coordinates"), p_y = stop("inactive P-label coordinates")))
+  p <- scatter3_capture_inset(data, test_method = "t.test", cor_method = "none",
+                              show_refline = FALSE, p_x = 3, p_y = 4)
+  text <- ggplot2::layer_data(p$main, 2L)
+  expect_equal(c(text$x, text$y), c(3, 4))
+})
