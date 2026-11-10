@@ -162,6 +162,7 @@ stat_pval <- function(x,
     }
     if (!is.numeric(add_star_p)) cli::cli_abort("{.arg add_star_p} must be numeric.")
     .validate_p(add_star_p, "add_star_p")
+    .register_integer64(x)
     missing_x <- is.na(x)
     x <- as.character(x)
     if (length(add_star_p) != length(x)) {

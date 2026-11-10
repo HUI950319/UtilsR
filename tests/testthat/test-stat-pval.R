@@ -480,6 +480,7 @@ stat_pval_in_fresh_r <- function(args) {
   on.exit(unlink(files), add = TRUE)
   isolated <- new.env(parent = baseenv())
   isolated$stat_pval <- stat_pval
+  isolated$.register_integer64 <- get(".register_integer64", envir = environment(stat_pval))
   isolated$.validate_signif_map <- get(".validate_signif_map", envir = environment(stat_pval))
   isolated$.parse_decimal_tokens <- get(".parse_decimal_tokens", envir = environment(stat_pval))
   isolated$.trim_pvalue_space <- get(".trim_pvalue_space", envir = environment(stat_pval))
@@ -633,4 +634,28 @@ test_that("P-value formatters trim only whitespace at the edges", {
   expect_true(identical(p(values), c(a = paste0("<", padding, "0.01"), b = "0.500")))
   expect_error(p(paste0("0.05", padding, "text")), "numeric strings or numeric bounds")
   expect_identical(cells(values), c(paste0("<", padding, "0.01**"), "0.5"))
+})
+
+test_that("external P-value stars preserve serialized integer64 labels", {
+  skip_if_not_installed("bit64")
+  scratch <- withr::local_tempdir()
+  script <- file.path(scratch, "check.R")
+  input <- file.path(scratch, "input.rds")
+  labels <- setNames(bit64::as.integer64(c("9007199254740993", NA_character_)), c("one", "two"))
+  saveRDS(list(labels = labels, libs = .libPaths(),
+               path = getNamespaceInfo(asNamespace("UtilsR"), "path")), input)
+  writeLines(c(sprintf("payload <- readRDS(%s)", deparse(input)),
+    '.libPaths(payload[["libs"]])',
+    'path <- payload[["path"]]',
+    'if (file.exists(file.path(path, "Meta", "package.rds"))) {',
+    '  library("UtilsR", lib.loc = dirname(path))',
+    '} else pkgload::load_all(path, quiet = TRUE)',
+    'stopifnot(!("bit64" %in% loadedNamespaces()))',
+    'value <- UtilsR::stat_pval(payload[["labels"]], add_star_p = c(.001, .2))',
+    'stopifnot(identical(value, c(one = "9007199254740993***", two = NA_character_)))',
+    'cat("COLD_INTEGER_LABEL_OK\\n")'), script)
+  output <- suppressWarnings(system2(file.path(R.home("bin"), "Rscript"),
+    c("--vanilla", shQuote(script)), stdout = TRUE, stderr = TRUE))
+  expect_null(attr(output, "status"), info = paste(output, collapse = "\n"))
+  expect_true("COLD_INTEGER_LABEL_OK" %in% output)
 })
