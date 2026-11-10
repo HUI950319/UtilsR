@@ -50,7 +50,17 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.23" id="utilsr-0623">UtilsR 0.6.23<a class="anchor" aria-label="anchor" href="#utilsr-0623"></a></h2>
-<ul><li><p><code><a href="../reference/PlotScatter3.html">PlotScatter3()</a></code> shows an unavailable P value when correlation is undefined for a constant axis.</p></li>
+<ul><li><p><code><a href="../reference/lv.html">lv()</a></code> reuses the summary’s observed cardinality when choosing character and complex columns for an ungrouped table.</p></li>
+<li><p><code><a href="../reference/plt_alluvial.html">plt_alluvial()</a></code> counts observed facet and category pairs without splitting the input into one table per panel.</p></li>
+<li><p><code><a href="../reference/plt_alluvial.html">plt_alluvial()</a></code> formats counts and percentages only for label styles that display them.</p></li>
+<li><p><code><a href="../reference/grob_add.html">grob_add()</a></code> measures the children of a <code>gList</code> when reserving automatic margin space.</p></li>
+<li><p><code><a href="../reference/fmt_ref.html">fmt_ref()</a></code> loads integer64 methods before adding reference lines from serialized values.</p></li>
+<li><p><code><a href="../reference/stat_ci_parse.html">stat_ci_parse()</a></code> trims interval edges and detects trailing text without repeatedly searching long interior whitespace runs.</p></li>
+<li><p><code><a href="../reference/PlotScatter3.html">PlotScatter3()</a></code> draws its reference lines without missing-row warnings when the axis limits exclude zero.</p></li>
+<li><p><code><a href="../reference/plt_upset.html">plt_upset()</a></code> checks data-frame members for missingness once per selected column and avoids creating an unused empty membership mask.</p></li>
+<li><p><code>stat_ci_parse(output = "p_star")</code> skips interval reconstruction when formatted numbers fit within the normal precision range.</p></li>
+<li><p><code><a href="../reference/fct_to_combine.html">fct_to_combine()</a></code> skips complete columns when building sparse missingness masks and avoids encoding combinations when every row is incomplete.</p></li>
+<li><p><code><a href="../reference/PlotScatter3.html">PlotScatter3()</a></code> shows an unavailable P value when correlation is undefined for a constant axis.</p></li>
 <li><p><code><a href="../reference/fmt_axisTile.html">fmt_axisTile()</a></code> draws an empty guide when the viewport clips every tile.</p></li>
 <li><p><code><a href="../reference/fmt_strip2.html">fmt_strip2()</a></code> preserves existing facet-specific scales and transformations when replacing a single-panel header.</p></li>
 <li><p><code><a href="../reference/plt_upset.html">plt_upset()</a></code> returns a zero-row membership frame for NULL sets and preserves empty indicator column types.</p></li>

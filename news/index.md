@@ -2,6 +2,45 @@
 
 ## UtilsR 0.6.23
 
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) reuses
+  the summary’s observed cardinality when choosing character and complex
+  columns for an ungrouped table.
+
+- [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
+  counts observed facet and category pairs without splitting the input
+  into one table per panel.
+
+- [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
+  formats counts and percentages only for label styles that display
+  them.
+
+- [`grob_add()`](https://hui950319.github.io/UtilsR/reference/grob_add.md)
+  measures the children of a `gList` when reserving automatic margin
+  space.
+
+- [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md)
+  loads integer64 methods before adding reference lines from serialized
+  values.
+
+- [`stat_ci_parse()`](https://hui950319.github.io/UtilsR/reference/stat_ci_parse.md)
+  trims interval edges and detects trailing text without repeatedly
+  searching long interior whitespace runs.
+
+- [`PlotScatter3()`](https://hui950319.github.io/UtilsR/reference/PlotScatter3.md)
+  draws its reference lines without missing-row warnings when the axis
+  limits exclude zero.
+
+- [`plt_upset()`](https://hui950319.github.io/UtilsR/reference/plt_upset.md)
+  checks data-frame members for missingness once per selected column and
+  avoids creating an unused empty membership mask.
+
+- `stat_ci_parse(output = "p_star")` skips interval reconstruction when
+  formatted numbers fit within the normal precision range.
+
+- [`fct_to_combine()`](https://hui950319.github.io/UtilsR/reference/fct_to_combine.md)
+  skips complete columns when building sparse missingness masks and
+  avoids encoding combinations when every row is incomplete.
+
 - [`PlotScatter3()`](https://hui950319.github.io/UtilsR/reference/PlotScatter3.md)
   shows an unavailable P value when correlation is undefined for a
   constant axis.
