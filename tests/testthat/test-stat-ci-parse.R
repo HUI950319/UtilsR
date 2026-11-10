@@ -636,3 +636,23 @@ test_that("significance output skips rebuilding parsed confidence intervals", {
   expect_error(fn("-1 (-2, 0)", digits = 8190L, exp = FALSE, output = "p_star"),
     "digits.*8192-byte")
 })
+
+test_that("interval whitespace preprocessing handles long interior runs", {
+  fn <- .ci_extract
+  env <- new.env(parent = environment(fn))
+  trims <- 0L
+  env$trimws <- function(x, ...) {
+    if (any(nchar(x) > 4000L, na.rm = TRUE)) trims <<- trims + 1L
+    base::trimws(x, ...)
+  }
+  environment(fn) <- env
+  padding <- strrep(" ", 12000L)
+  x <- c(paste0("invalid", padding, "suffix"),
+    paste0("2 (1, 3)", padding, "annotation"), "\u00a0\u2003 2 [1 to 3]\u00a0",
+    "2 (1, 3) **. \n", "2 (1, 3)\n continuation", NA_character_)
+  parsed <- fn(x)
+  expect_identical(trims, 0L)
+  expect_identical(parsed$valid, c(FALSE, TRUE, TRUE, TRUE, TRUE, FALSE))
+  expect_identical(parsed$trailing, c(FALSE, TRUE, FALSE, FALSE, TRUE, FALSE))
+  expect_equal(parsed$estimate, c(NA, 2, 2, 2, 2, NA))
+})

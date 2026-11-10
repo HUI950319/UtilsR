@@ -349,7 +349,7 @@ stat_ci_parse <- function(x,
   # Full-width punctuation and Unicode spacing/minus (pasted from Word/PDF)
   space <- "[\\h\\v]"
   xs <- chartr("\u2212\uff08\uff09\uff0c\uff1b\uff5e", "-(),;~",
-                trimws(x, whitespace = space))
+               sub(paste0("^", space, "+"), "", x, perl = TRUE))
   # An en or em dash right before a number is a minus sign, as Word and PDF
   # tables print negatives, when it opens the string or follows the bracket
   # or a separator; between two numbers it stays the separator
@@ -397,10 +397,11 @@ stat_ci_parse <- function(x,
   d[hit] <- pmax(dec[[1]], dec[[2]], dec[[3]], 0L)   # most precise number
   unit[hit, ] <- 10^-do.call(cbind, dec)
 
+  trailing <- logical(n)
+  trailing[hit] <- grepl("[^\\h\\v]", g[[7L]], perl = TRUE)
   list(estimate = est, lower = lo, upper = hi, digits = d,
        open = open, sep = sep, close = close, valid = !is.na(open),
-       unit = unit, trailing = !is.na(open) & nzchar(trimws(
-         replace(rep("", n), hit, g[[7]]), whitespace = space)))
+       unit = unit, trailing = trailing)
 }
 
 #' @noRd

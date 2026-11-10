@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci_parse()` trims interval edges and detects trailing text without repeatedly searching long interior whitespace runs.
+
 * `PlotScatter3()` draws its reference lines without missing-row warnings when the axis limits exclude zero.
 
 * `plt_upset()` checks data-frame members for missingness once per selected column and avoids creating an unused empty membership mask.
