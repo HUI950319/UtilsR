@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_raster(method = "ragg")` honors a clipped table cell when the panel viewport inherits clipping.
+
 * `fmt_point()` defers `stat()` and `..name..` aesthetics until the statistic runs, including when sampling rows.
 
 * `stat_pval()` and console P-value cells strip Unicode outer whitespace without repeatedly scanning long interior spaces.

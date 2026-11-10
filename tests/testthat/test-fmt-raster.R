@@ -628,3 +628,21 @@ test_that("ragg discovers each nested gtable panel once", {
   expect_identical(scans, depth + 1L)
   expect_length(raster_find_grobs(attr(result, "grobs")$full, "rastergrob"), 1L)
 })
+
+test_that("ragg respects inherited panel viewport clipping", {
+  skip_if_not_installed("ragg")
+  withr::local_pdf(NULL, width = 2, height = 2)
+  table <- gtable::gtable(widths = grid::unit(1, "in"), heights = grid::unit(1, "in"))
+  for (spec in list(c("on", "on"), c("inherit", "on"), c("off", "on"), c("inherit", "off"))) {
+    panel <- grid::grobTree(grid::pointsGrob(0.5, 0.5), vp = grid::viewport(clip = spec[1L]))
+    input <- gtable::gtable_add_grob(table, panel, t = 1, l = 1, clip = spec[2L], name = "panel")
+    clipped <- spec[1L] != "off" && spec[2L] == "on"
+    if (clipped) {
+      expect_no_warning(plot <- fmt_raster(input, method = "ragg", dpi = 20))
+    } else {
+      expect_warning(plot <- fmt_raster(input, method = "ragg", dpi = 20), "clipping disabled")
+    }
+    rasters <- raster_find_grobs(patchwork::patchworkGrob(plot), "rastergrob")
+    expect_length(rasters, as.integer(clipped))
+  }
+})

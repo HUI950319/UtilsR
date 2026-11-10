@@ -389,7 +389,7 @@ fmt_raster <- function(
     for (i in seq_along(indices)) {
       idx <- indices[i]
       panel <- gtable$grobs[[idx]]
-      clip_on <- if (inherits(panel$vp, "viewport")) {
+      clip_on <- if (inherits(panel$vp, "viewport") && !identical(panel$vp$clip, FALSE)) {
         isTRUE(panel$vp$clip)
       } else {
         identical(gtable$layout$clip[idx], "on")
