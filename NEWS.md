@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pal_get()` retains the numeric coordinate vector directly when every value is finite.
+
 * `grob_insert(align_to = "plot")` excludes the outer margin cells of a standard ggplot.
 
 * `fmt_boxplot(inherit.aes = FALSE)` treats a data waiver as the default source while resolving layer data.

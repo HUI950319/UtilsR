@@ -2807,3 +2807,18 @@ test_that("single-colour ramps bypass interpolation and retain alpha bytes", {
     expect_identical(pal_get(args$colour[i], x = x, alpha = args$alpha[i]), reference[[i]])
   }
 })
+
+test_that("finite palette placement keeps its original coordinate storage", {
+  skip_if_not_installed("lobstr")
+  fn <- .pal_numeric_positions
+  address <- NULL
+  environment(fn) <- list2env(list(range = function(x, ...) {
+    address <<- lobstr::obj_addr(x)
+    base::range(x, ...)
+  }), parent = environment(fn))
+  values <- as.double(seq_len(400L))
+  result <- fn(values, FALSE)
+  expect_identical(address, lobstr::obj_addr(values))
+  expect_identical(result, .pal_numeric_positions(values, FALSE))
+  expect_identical(fn(c(values, NA_real_), TRUE), .pal_numeric_positions(c(values, NA_real_), TRUE))
+})

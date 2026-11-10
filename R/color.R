@@ -668,7 +668,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 .pal_numeric_positions <- function(x, reverse) {
   values <- .pal_numeric_values(x)
   placed <- is.finite(values)
-  values <- values[placed]
+  if (!all(placed)) values <- values[placed]
   if (!length(values)) {
     return(list(placed = placed, at = numeric(), index = NULL))
   }
