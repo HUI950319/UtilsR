@@ -111,3 +111,14 @@ test_that("plot containers reject arrays before flattening away dimensions", {
   expect_error(fmt_scale(plots), "one-dimensional")
   expect_identical(fmt_text(list(a = p, b = p)), list(a = p, b = p))
 })
+
+test_that("base plot formatting preserves quoted lab values", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  label <- quote(alpha + beta)
+  plots <- fmt_plot_base(list(p, p), labs_list = list(title = label, x = quote(gamma)))
+  for (plot in plots) {
+    expect_identical(plot$labels$title, label)
+    expect_identical(plot$labels$x, quote(gamma))
+    expect_s3_class(ggplot2::ggplotGrob(plot), "gtable")
+  }
+})

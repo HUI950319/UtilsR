@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_plot_base()` passes quoted labels from `labs_list` to ggplot2 without evaluating their expressions.
+
 * `fmt_raster(method = "image")` reports dimensions that would allocate a zero-pixel raster.
 
 * `pal_get()` encodes single-colour ramps directly while retaining the existing alpha bytes and colour spelling.

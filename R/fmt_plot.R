@@ -1688,7 +1688,7 @@ fmt_plot_base <- function(plot, ggtheme = NULL, labs_list = NULL,
       cli::cli_abort("{.arg {arg}} must be a list with unique, non-empty argument names.")
   }
   if (!is.null(ggtheme))      plot <- .broadcast_plot(plot, .resolve_theme(ggtheme))
-  if (length(labs_list))     plot <- .broadcast_plot(plot, do.call(ggplot2::labs, labs_list))
+  if (length(labs_list))     plot <- .broadcast_plot(plot, do.call(ggplot2::labs, labs_list, quote = TRUE))
   if (!is.null(scale_y_list) || !is.null(scale_x_list))
     plot <- fmt_scale(plot, x = scale_x_list, y = scale_y_list)
   plot
