@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console P-value cells keep their significance for numeric bounds containing a line break before the endpoint.
+
 * `stat_ci()` and `stat_ci_parse()` inspect only failed inputs when counting unparseable nonblank intervals.
 
 * `fmt_raster(method = "ragg")` returns panel-free tables before resolving cell sizes.

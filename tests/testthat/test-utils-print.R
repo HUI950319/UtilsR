@@ -1381,3 +1381,14 @@ test_that("console numeric checks understand the current decimal mark", {
   out <- trimws(utils::capture.output(pr_table(data.frame(P = c(.0499999, .00999999, .05, .01)), p_col = "P")))
   expect_identical(out[3:6], c("0,0499999*", "0,00999999**", "0.050", "0.010*"))
 })
+
+test_that("console P-value bounds keep significance across line breaks", {
+  format_cells <- ._p_cells
+  environment(format_cells) <- list2env(list(._pr_colour = function() FALSE),
+                                       parent = environment(format_cells))
+  result <- format_cells(c("<\n0.01", "\u2264\n0.004", ">\n0.004", "<=\n0.05"))
+  expect_true(endsWith(result[1L], "0.01**"))
+  expect_true(endsWith(result[2L], "0.004**"))
+  expect_true(endsWith(result[3L], "0.004"))
+  expect_true(endsWith(result[4L], "0.05"))
+})

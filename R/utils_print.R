@@ -447,7 +447,7 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
     bound <- "(?:[<>]=?|[\u2264\u2265])"
     valid <- grepl(paste0("^(?:", bound, "[\\h\\v]*)?", number, "$"), txt, perl = TRUE)
     op <- ifelse(grepl(paste0("^", bound), txt, perl = TRUE),
-                 sub(paste0("^(", bound, ").*$"), "\\1", txt, perl = TRUE), "")
+                 sub(paste0("(?s)^(", bound, ").*$"), "\\1", txt, perl = TRUE), "")
     decimal <- sub(paste0("^", bound, "[\\h\\v]*"), "", txt, perl = TRUE)
     exponent <- suppressWarnings(as.numeric(ifelse(grepl("[eE]", decimal),
       sub("^.*[eE]", "", decimal), "0")))
