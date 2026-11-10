@@ -660,3 +660,11 @@ test_that("Sankey reshaping does not round-trip stage node factors", {
   expect_identical(result$data, original$data)
   expect_identical(levels(result$data$node), levels(original$data$node))
 })
+
+test_that("Sankey categories diagnose packed matrices by column name", {
+  skip_if_not_installed("ggsankey")
+  data <- data.frame(stage = letters[1:4], unused = seq_len(4))
+  data$matrix_stage <- matrix(seq_len(8), nrow = 4L)
+  expect_error(plt_sankey(data, c("stage", "matrix_stage")), "matrix_stage.*one-dimensional")
+  expect_no_error(suppressMessages(sankey_plot(data, c("stage", "unused"), show_text = "none")))
+})

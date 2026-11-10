@@ -237,6 +237,10 @@ plt_sankey <- function(data,
   missing_vars <- vars[!vars %in% names(data)]
   if (length(missing_vars) > 0) cli::cli_abort("Variable{?s} not found: {.val {missing_vars}}")
   data <- as.data.frame(data)[vars]
+  dimensional <- vapply(data, function(x) !is.null(dim(x)), logical(1))
+  if (any(dimensional)) {
+    cli::cli_abort("Selected columns {.val {vars[dimensional]}} must be one-dimensional.")
+  }
 
   # Ensure factors
   for (v in vars) {
