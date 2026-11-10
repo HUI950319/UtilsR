@@ -87,6 +87,13 @@ plt_na <- function(
     cli::cli_abort("{.arg miss_palette} must contain valid R colours.", parent = e)
   })
 
+  if (!is.null(name.map) &&
+      (!is.character(name.map) || !is.null(dim(name.map)) ||
+       is.null(names(name.map)) || anyNA(names(name.map)) ||
+       any(!nzchar(names(name.map))) || anyDuplicated(names(name.map)))) {
+    cli::cli_abort("{.arg name.map} must have unique, non-missing, non-empty names and be a character vector.")
+  }
+
   if (inherits(data, "Task")) {
     df <- data$data()
   } else if (is.data.frame(data)) {
@@ -127,13 +134,6 @@ plt_na <- function(
     unlist(lapply(missing_data, sum), use.names = TRUE)
   } else {
     unlist(missing_data, use.names = TRUE)
-  }
-
-  if (!is.null(name.map) &&
-      (!is.character(name.map) || !is.null(dim(name.map)) ||
-       is.null(names(name.map)) || anyNA(names(name.map)) ||
-       any(!nzchar(names(name.map))) || anyDuplicated(names(name.map)))) {
-    cli::cli_abort("{.arg name.map} must have unique, non-missing, non-empty names and be a character vector.")
   }
 
   map_name <- function(x) {

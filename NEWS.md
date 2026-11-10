@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_na()` diagnoses malformed `name.map` values before inspecting the data's missingness.
+
 * `stat_pval(add_star_p = ...)` preserves serialized integer64 labels and their missing values in a fresh R process.
 
 * Console P-value cells keep their significance for numeric bounds containing a line break before the endpoint.

@@ -407,3 +407,13 @@ test_that("missingness plots skip masks for complete plain columns", {
   expect_identical(result$missing_summary, matrix$missing_summary)
   expect_identical(d, before)
 })
+
+test_that("missingness name maps validate before reading data", {
+  for (map in list("unnamed", c(a = "first", a = "second"),
+                   structure("label", names = NA_character_))) {
+    expect_error(plt_na(stop("data inspected"), name.map = map), "name.map")
+  }
+  plot <- suppressMessages(plt_na(data.frame(a = c(NA, 2)), name.map = c(a = NA_character_),
+                                 output = "percentage"))
+  expect_identical(as.character(plot$data$label), rep("a", 2L))
+})
