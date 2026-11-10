@@ -796,3 +796,16 @@ test_that("UpSet combination enumeration batches the full set limit", {
   expect_identical(sizes, seq_len(n))
   expect_length(levels(result$intersect_group), 65536L)
 })
+
+test_that("empty UpSet peers keep explicit factor-missing identities", {
+  values <- structure(c(1L, 2L, NA_integer_), levels = c("A", NA_character_), class = "factor")
+  reference <- plt_upset(list(one = values, two = values[FALSE]), output = "data")
+  for (empty in list(NULL, character(), integer())) {
+    result <- plt_upset(list(one = values, two = empty), output = "data")
+    expect_identical(result, reference)
+    expect_identical(is.na(result$.element), c(FALSE, FALSE, TRUE))
+    expect_equal(nrow(result), 3L)
+  }
+  ordinary <- plt_upset(list(one = factor("A"), two = character()), output = "data")
+  expect_type(ordinary$.element, "character")
+})

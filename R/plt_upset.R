@@ -250,7 +250,14 @@ plt_upset <- function(data,
     }
     factor_members <- vapply(data, is.factor, logical(1))
     if (any(factor_members) && !all(factor_members)) {
-      data[factor_members] <- lapply(data[factor_members], as.character)
+      if (all(factor_members | lengths(data) == 0L) &&
+          any(vapply(data[factor_members], function(x) anyNA(base::levels(x)), logical(1)))) {
+        empty_factor <- data[[which(factor_members)[1L]]][FALSE]
+        data[!factor_members] <- rep(list(empty_factor), sum(!factor_members))
+        factor_members[] <- TRUE
+      } else {
+        data[factor_members] <- lapply(data[factor_members], as.character)
+      }
     }
     # Use row indices as shared member identities for both input formats.
     prototype <- unlist(data)
