@@ -1478,3 +1478,16 @@ test_that("paired scatter leaves disabled P-label positions lazy", {
   text <- ggplot2::layer_data(p$main, 2L)
   expect_equal(c(text$x, text$y), c(3, 4))
 })
+
+test_that("paired scatter validates active P-value digits", {
+  for (bad in list(0, 23, 1.5, NA, matrix(2), c(2, 3))) {
+    expect_error(PlotScatter3(stop("data inspected"), p_digits = bad), "p_digits")
+  }
+  data <- scatter3_integer_pairs()
+  expect_no_error(scatter3_capture_inset(data, test_method = "none", cor_method = "none",
+                                        p_digits = stop("inactive digits")))
+  p <- scatter3_capture_inset(data, test_method = "t.test", cor_method = "none",
+                              show_refline = FALSE, p_digits = 4)
+  expected <- stats::t.test(as.double(data$Control), as.double(data$Treat), paired = TRUE)$p.value
+  expect_identical(ggplot2::layer_data(p$main, 2L)$label, paste0("p = ", format.pval(expected, digits = 4)))
+})

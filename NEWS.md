@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotScatter3()` validates `p_digits` for active paired tests and leaves it lazy when tests are disabled.
+
 * `plt_upset()` retains explicit missing factor levels when every nonempty set is a factor and other sets are empty.
 
 * `pal_get()` retains the numeric coordinate vector directly when every value is finite.

@@ -163,6 +163,12 @@ PlotScatter3 <- function(
   if (!is.character(test_method) || !is.null(dim(test_method)) ||
       length(test_method) != 1L || !test_method %in% c("wilcox", "t.test", "none"))
     stop("'test_method' must be 'wilcox', 't.test', or 'none'.", call. = FALSE)
+  if (test_method != "none" &&
+      (!is.numeric(p_digits) || is.object(p_digits) || !is.null(dim(p_digits)) ||
+       length(p_digits) != 1L || !is.finite(p_digits) || p_digits != trunc(p_digits) ||
+       p_digits < 1 || p_digits > 22)) {
+    stop("'p_digits' must be a single integer between 1 and 22.", call. = FALSE)
+  }
   if (!is.character(cor_method) || !is.null(dim(cor_method)) ||
       length(cor_method) != 1L || is.na(cor_method))
     stop("'cor_method' must be a single correlation method or 'none'.", call. = FALSE)
