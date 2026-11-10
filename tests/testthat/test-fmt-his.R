@@ -823,3 +823,14 @@ test_that("distribution overlays map a literal data-pronoun column", {
                                           binwidth = 1))$data[[2L]]
   expect_identical(deferred[c("x", "count")], expected[c("x", "count")])
 })
+
+test_that("distribution overlays map a literal environment-pronoun column", {
+  plot <- ggplot2::ggplot(data.frame(x = 1:5, y = 1:5), ggplot2::aes(x, y)) + ggplot2::geom_point()
+  values <- data.frame(.env = c(1, 2, 4, 5), .fmt_his_x = 11:14)
+  expected <- ggplot2::layer_data(fmt_his(plot, data = setNames(values, c("score", "other")),
+    con_var = "score", binwidth = 1), 2L)
+  for (input in list(values, function(...) values)) {
+    result <- ggplot2::layer_data(fmt_his(plot, data = input, con_var = ".env", binwidth = 1), 2L)
+    expect_identical(result[c("x", "count")], expected[c("x", "count")])
+  }
+})

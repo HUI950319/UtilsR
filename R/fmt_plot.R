@@ -5103,9 +5103,9 @@ fmt_his <- function(plot,
   fmt_his_one <- function(p) {
     # Resolve data and variable
     d <- data %||% p$data
-    literal_data_column <- identical(con_var, ".data")
+    pronoun_column <- if (!is.null(con_var) && con_var %in% c(".data", ".env")) con_var
     x_mapping <- if (is.null(con_var)) p$mapping$x else {
-      rlang::new_quosure(rlang::sym(if (literal_data_column) ".fmt_his_x" else con_var))
+      rlang::new_quosure(rlang::sym(if (!is.null(pronoun_column)) ".fmt_his_x" else con_var))
     }
     missing_column <- is.null(data) && !is.null(con_var) &&
       is.data.frame(d) && !con_var %in% names(d)
@@ -5178,14 +5178,14 @@ fmt_his <- function(plot,
     layer$his_id <- id
     layer$his_spec <- specs[[id]]
     layer$his_wrap <- wrap_facet
-    layer_env <- list2env(list(parent_layer = layer$super(), literal_data_column = literal_data_column),
+    layer_env <- list2env(list(parent_layer = layer$super(), pronoun_column = pronoun_column),
                           parent = environment(fmt_his))
     layer$setup_layer <- eval(quote(function(self, data, plot) {
       plot$facet$his_coord <- plot$coordinates
       ggplot2::ggproto_parent(parent_layer, self)$setup_layer(data, plot)
     }), layer_env)
     layer$compute_aesthetics <- eval(quote(function(self, data, plot) {
-      if (literal_data_column) data[[".fmt_his_x"]] <- data[[".data"]]
+      if (!is.null(pronoun_column)) data[[".fmt_his_x"]] <- data[[pronoun_column]]
       data <- ggplot2::ggproto_parent(parent_layer, self)$compute_aesthetics(data, plot)
       if (inherits(data$x, "integer64")) {
         .register_integer64(data$x)
