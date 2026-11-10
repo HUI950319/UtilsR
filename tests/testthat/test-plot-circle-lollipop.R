@@ -1149,3 +1149,20 @@ test_that("circular displayed score scaling reuses sector rows", {
   expect_identical(regroups, 0L)
   expect_identical(observed, c(0, .5, 1, 0, .25, 1))
 })
+
+test_that("circular positions reuse precomputed sector rows", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  d <- data.frame(group = c("B", "A", "B", "A", "B"), name = letters[1:5],
+    value = seq_len(5L) / 5, colour = "black")
+  local_mocked_bindings(group_by = function(...) stop("regrouped circular positions"), .package = "dplyr")
+  observed <- numeric()
+  original <- circlize::circos.points
+  local_mocked_bindings(circos.points = function(x, y, ...) {
+    observed <<- c(observed, x)
+    original(x, y, ...)
+  }, .package = "circlize")
+  PlotCircleLollipop(d, color_col = "colour", show_labels = FALSE,
+    show_yaxis = FALSE, show_links = FALSE)
+  expect_identical(observed, c(1/6, .5, 5/6, .25, .75))
+})

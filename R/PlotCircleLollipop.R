@@ -308,14 +308,12 @@ PlotCircleLollipop <- function(
     stop("'gap_after' and 'gap_between' must leave a positive angular span for sectors.", call. = FALSE)
 
   # ---- Per-group x positions (uniform spacing within each sector) ----
-  df <- df |>
-    dplyr::group_by(group) |>
-    dplyr::mutate(
-      n_in_group = dplyr::n(),
-      idx        = dplyr::row_number(),
-      x_pos      = (idx - 0.5) / n_in_group
-    ) |>
-    dplyr::ungroup()
+  positions <- numeric(nrow(df))
+  for (rows in sector_rows) {
+    positions[rows] <- (seq_along(rows) - 0.5) / length(rows)
+  }
+  df$x_pos <- positions
+  if (value_scale != "top_n") df <- tibble::as_tibble(df)
 
   # ---- Per-group value scaling (value_scale) ----
   scale_values <- function(x, mn, mx) {
