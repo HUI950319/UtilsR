@@ -301,7 +301,7 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
             if (!is.null(release_file)) {
               line <- grep("^PRETTY_NAME=", readLines(release_file), value = TRUE)
               if (length(line)) {
-                value <- sub("^PRETTY_NAME=", "", line[1L])
+                value <- sub("^PRETTY_NAME=", "", line[length(line)])
                 delimiter <- substr(value, 1L, 1L)
                 if (delimiter %in% c("\"", "'") && endsWith(value, delimiter)) {
                   value <- substring(value, 2L, nchar(value) - 1L)

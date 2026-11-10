@@ -422,3 +422,16 @@ test_that("Linux distribution metadata handles fallback and quoted values", {
       if (primary) "Primary" else 'Acme "Stable" PRETTY_NAME=Lab')
   }
 })
+
+test_that("Linux release names follow the final assignment", {
+  query <- .check_system_fixture(meminfo = c("MemTotal: 8388608 kB", "MemAvailable: 4194304 kB"))
+  env <- environment(query)
+  read <- env$readLines
+  env$readLines <- function(con, ...) {
+    if (con == "/etc/os-release") return(c('PRETTY_NAME="Early release"',
+                                           '# PRETTY_NAME="Ignore"', 'PRETTY_NAME="Final release"'))
+    read(con, ...)
+  }
+  invisible(capture.output(result <- query(return_result = TRUE)))
+  expect_identical(result$system_info$os_full_name, "Final release")
+})
