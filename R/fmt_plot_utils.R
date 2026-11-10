@@ -107,13 +107,11 @@
     if (!is.null(pw_orig)) {
       free_settings <- attr(pw_orig, "patchwork_free_settings")
       # Map modified gg plots back to the correct positions in the patchwork
-      gg_idx <- which(vapply(
-        seq_along(pw_orig), function(i) inherits(pw_orig[[i]], "gg"), logical(1)
-      ))
-      for (j in seq_along(plot_list)) {
-        if (j <= length(gg_idx)) {
-          pw_orig[[gg_idx[j]]] <- plot_list[[j]]
-        }
+      current <- lapply(seq_along(pw_orig), function(i) pw_orig[[i]])
+      gg_idx <- which(vapply(current, inherits, logical(1), "gg"))
+      for (j in seq_len(min(length(plot_list), length(gg_idx)))) {
+        i <- gg_idx[j]
+        if (!identical(current[[i]], plot_list[[j]])) pw_orig[[i]] <- plot_list[[j]]
       }
       if (!is.null(free_settings)) {
         attr(pw_orig, "patchwork_free_settings") <- free_settings

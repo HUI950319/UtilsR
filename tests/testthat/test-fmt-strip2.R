@@ -1073,3 +1073,26 @@ test_that("facet-free strip removal returns the original layout", {
     list(first = p, second = combined))
   expect_error(fmt_strip(patchwork::wrap_elements(p), strip = FALSE), "wrap_elements")
 })
+
+test_that("patchwork restoration replaces only changed children", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg)) + ggplot2::geom_point()
+  combined <- patchwork::wrap_plots(p, patchwork::plot_spacer(), p, p, ncol = 2L)
+  combined <- combined + patchwork::plot_annotation(title = "Original")
+  info <- .to_plot_list(combined)
+  plots <- info$plots
+  plots[[3L]] <- plots[[3L]] + ggplot2::labs(title = "Changed")
+  fn <- .from_plot_list
+  env <- new.env(parent = environment(fn))
+  replacements <- 0L
+  env[["[[<-"]] <- function(x, i, value) {
+    if (inherits(x, "patchwork")) replacements <<- replacements + 1L
+    base::`[[<-`(x, i, value = value)
+  }
+  environment(fn) <- env
+  result <- fn(plots, info$is_patchwork, info$is_single, pw_orig = info$pw_orig)
+  expect_identical(replacements, 1L)
+  expect_identical(result[[1L]], combined[[1L]])
+  expect_identical(result[[2L]], combined[[2L]])
+  expect_identical(result[[3L]]$labels$title, "Changed")
+  expect_identical(result$patches$annotation$title, "Original")
+})
