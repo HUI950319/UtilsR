@@ -250,6 +250,7 @@ PlotButterfly <- function(
     }
 
     values <- data[[value.by]]
+    .register_integer64(values)
     if (is.complex(values) || is.list(values) || !is.null(dim(values)))
       cli::cli_abort("Column {.val {value.by}} must contain a real vector.")
     category_cols <- unique(c(stat.by, fill.by, group.by))

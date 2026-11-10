@@ -846,3 +846,30 @@ test_that("butterfly integer bar ranges scale without overflow", {
   expect_equal(sort(ggplot2::layer_data(plot[[1L]])$xmin), c(-1, 0))
   expect_equal(sort(ggplot2::layer_data(plot[[2L]])$xmax), c(0, 1))
 })
+
+test_that("butterfly bars decode serialized integer64 scores", {
+  skip_if_not_installed("bit64")
+  temp <- withr::local_tempdir()
+  input <- file.path(temp, "input.rds")
+  script <- file.path(temp, "check.R")
+  data <- data.frame(item = rep(c("A", "B"), 2L), fill = "one",
+    score = bit64::as.integer64(rep(1:2, 2L)), group = rep(c("L", "R"), each = 2L))
+  saveRDS(list(data = data, libs = .libPaths(),
+    path = getNamespaceInfo(asNamespace("UtilsR"), "path")), input)
+  writeLines(c(sprintf("payload <- readRDS(%s)", deparse(input)),
+    '.libPaths(payload[["libs"]])',
+    'path <- payload[["path"]]',
+    'options(device = function(...) grDevices::pdf(NULL, ...))',
+    'if (file.exists(file.path(path, "Meta", "package.rds"))) {',
+    '  library("UtilsR", lib.loc = dirname(path))',
+    '} else pkgload::load_all(path, quiet = TRUE)',
+    'stopifnot(!("bit64" %in% loadedNamespaces()))',
+    'p <- UtilsR::PlotButterfly(payload[["data"]], stat.by = "item", fill.by = "fill",',
+    '                          value.by = "score", group.by = "group")',
+    'stopifnot(identical(sort(as.numeric(ggplot2::layer_data(p[[2L]])[["x"]])), c(1, 2)))',
+    'cat("COLD_BAR_OK\\n")'), script)
+  output <- suppressWarnings(system2(file.path(R.home("bin"), "Rscript"),
+    c("--vanilla", shQuote(script)), stdout = TRUE, stderr = TRUE))
+  expect_null(attr(output, "status"), info = paste(output, collapse = "\n"))
+  expect_true("COLD_BAR_OK" %in% output)
+})

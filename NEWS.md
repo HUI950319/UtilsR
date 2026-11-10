@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotButterfly()` restores integer64 methods before plotting a serialized numeric bar column.
+
 * `PlotButterfly(minmax = TRUE)` promotes ordinary integer bounds before subtracting them.
 
 * `PlotButterfly()` keeps the numeric score and alpha mappings when a column also supplies a category.
