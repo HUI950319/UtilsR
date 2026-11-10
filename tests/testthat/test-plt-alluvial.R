@@ -908,3 +908,26 @@ test_that("alluvial labels call only their formatters", {
     expect_identical(plot$data$.label[[1L]], labels[[style]])
   }
 })
+
+test_that("alluvial stratum counts keep observed pairs and empty groups", {
+  skip_if_not_installed("ggalluvial")
+  data <- alluvial_data()
+  data <- data[!(data$panel == "P2" & data$category == "B"), ]
+  data$panel <- ordered(data$panel, levels = c("P2", "P1", "unused"))
+  data$category <- ordered(data$category, levels = c("A", "B", "unused"))
+  plot_without_split <- plt_alluvial
+  environment(plot_without_split) <- list2env(
+    list(split = function(...) stop("unexpected panel split")),
+    parent = environment(plt_alluvial)
+  )
+
+  plot <- plot_without_split(data, "category", "group", facet = "panel",
+                             stratum_args = list(gap = 0))
+  expect_identical(as.character(plot$data$.facet), rep(c("P2", "P1", "P1"), 2L))
+  expect_identical(as.character(plot$data$.cat_var), rep(c("A", "A", "B"), 2L))
+  expect_identical(as.character(plot$data$.group), rep(c("G2", "G1"), each = 3L))
+  expect_identical(plot$data$count, c(2L, 1L, 2L, 1L, 1L, 0L))
+  expect_identical(plot$data$group_total, rep(c(3L, 2L, 2L), 2L))
+  expect_false(is.ordered(plot$data$.facet))
+  expect_false(is.ordered(plot$data$.cat_var))
+})

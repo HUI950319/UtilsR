@@ -451,18 +451,19 @@ plt_alluvial <- function(
   facet_levels <- levels(plot_input$.facet)
 
   # Count only observed facet/category pairs, keeping zero-count group strata.
-  panels <- split(plot_input, plot_input$.facet, drop = TRUE)
-  stat <- do.call(rbind, lapply(panels, function(panel) {
-    frequency <- table(droplevels(panel$.cat_var), panel$.group)
-    cells <- as.data.frame(frequency, responseName = "count")
-    names(cells)[1:2] <- c(".cat_var", ".group")
-    cells$.facet <- factor(as.character(panel$.facet[1L]), levels = facet_levels)
-    cells$.cat_var <- factor(cells$.cat_var, levels = cat_levels)
-    cells$group_total <- rep.int(
-      as.integer(rowSums(frequency)), length(group_levels)
-    )
-    cells[c(".facet", ".cat_var", ".group", "count", "group_total")]
-  }))
+  pair_columns <- c(".facet", ".cat_var")
+  pair_id <- vctrs::vec_group_id(plot_input[pair_columns])
+  n_pairs <- attr(pair_id, "n")
+  n_groups <- length(group_levels)
+  pairs <- plot_input[!duplicated(pair_id), pair_columns]
+  count_id <- pair_id + (as.integer(plot_input$.group) - 1) * n_pairs
+  stat <- data.frame(
+    .facet = rep.int(factor(pairs$.facet, levels = facet_levels, ordered = FALSE), n_groups),
+    .cat_var = rep.int(factor(pairs$.cat_var, levels = cat_levels, ordered = FALSE), n_groups),
+    .group = factor(rep(group_levels, each = n_pairs), levels = group_levels),
+    count = tabulate(count_id, n_pairs * n_groups),
+    group_total = rep.int(tabulate(pair_id, n_pairs), n_groups)
+  )
   stat <- stat[order(stat$.group, stat$.cat_var, stat$.facet), , drop = FALSE]
   rownames(stat) <- NULL
   stat$percent <- stat$count / stat$group_total
