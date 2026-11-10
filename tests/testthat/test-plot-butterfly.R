@@ -900,3 +900,13 @@ test_that("butterfly integer64 mean ordering preserves fractions", {
     group.by = "side", levels = "up", type = "box")
   expect_identical(levels(unfilled[[1L]]$data$Variable), c("B", "A"))
 })
+
+test_that("butterfly minmax retains fractions after missing integer64 blocks", {
+  skip_if_not_installed("bit64")
+  d <- data.frame(item = rep(letters[1:3], 2L), fill = "one", side = rep(c("L", "R"), each = 3L),
+    score = bit64::as.integer64(c(NA, NA, NA, 1, 2, 3)))
+  p <- PlotButterfly(d, stat.by = "item", fill.by = "fill", value.by = "score",
+    group.by = "side", minmax = TRUE)
+  expect_identical(p[[1L]]$data$score, rep(0, 3L))
+  expect_equal(p[[2L]]$data$score, c(0, .5, 1))
+})

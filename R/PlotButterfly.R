@@ -281,7 +281,10 @@ PlotButterfly <- function(
         split(data, interaction(as.integer(as.factor(data[[group.by]])),
                                 as.integer(as.factor(data[[fill.by]])), drop = TRUE)),
         function(d) {
-          if (all(is.na(d[[value.by]]))) return(d)
+          if (all(is.na(d[[value.by]]))) {
+            d[[value.by]] <- rep(NA_real_, nrow(d))
+            return(d)
+          }
           rng <- range(d[[value.by]], na.rm = TRUE)
           if (is.integer(rng) && !is.object(rng)) rng <- as.double(rng)
           if (rng[1] == rng[2]) {

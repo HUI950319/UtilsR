@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Butterfly min-max scaling retains fractional results when the first group contains only missing integer64 scores.
+
 * Butterfly mean-based ordering now retains fractional means for integer64 scores.
 
 * `plt_sankey()` locates label stages directly from node IDs without scanning the long plotting data.
