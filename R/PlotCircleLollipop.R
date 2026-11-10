@@ -367,16 +367,13 @@ PlotCircleLollipop <- function(
     if (value_scale == "top_n") df <- as.data.frame(df)
   } else if (value_scale == "group") {
     # Scale using the FULL group range from original data (before top_n)
-    orig_grp <- group_labels[group_ids]
-    orig_val <- numeric_values
-    grp_min  <- tapply(orig_val, orig_grp, score_extreme, fun = min)
-    grp_max  <- tapply(orig_val, orig_grp, score_extreme, fun = max)
+    original_rows <- split(seq_along(numeric_values), group_labels[group_ids])
     scaled <- numeric(nrow(df))
-    indices <- sector_rows
-    bounds <- match(names(indices), names(grp_min))
-    for (i in seq_along(indices)) {
-      idx <- indices[[i]]
-      scaled[idx] <- scale_values(df$value[idx], grp_min[[bounds[i]]], grp_max[[bounds[i]]])
+    group_indices <- match(names(sector_rows), names(original_rows))
+    for (i in seq_along(sector_rows)) {
+      rows <- sector_rows[[i]]
+      reference <- numeric_values[original_rows[[group_indices[i]]]]
+      scaled[rows] <- scale_values(df$value[rows], score_extreme(reference, min), score_extreme(reference, max))
     }
     df$value <- scaled
 
