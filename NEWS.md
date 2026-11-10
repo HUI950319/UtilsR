@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_boxplot(inherit.aes = FALSE)` treats a data waiver as the default source while resolving layer data.
+
 * `fmt_his()` converts integer64 sample positions to numeric values before applying histogram or density statistics.
 
 * `fmt_his()` searches plot layers when the requested `con_var` is absent from the default plot data.

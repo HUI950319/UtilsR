@@ -5780,6 +5780,7 @@ fmt_boxplot <- function(plot,
       cli::cli_abort("Input must be a ggplot, patchwork, or list of ggplots.")
     }
     args <- boxplot.args
+    if (resolve_source && inherits(args[["data"]], "waiver")) args["data"] <- list(NULL)
     if (resolve_source) {
       resolved <- NULL
       layers <- Filter(function(layer) !inherits(layer$geom, c("GeomText", "GeomLabel",

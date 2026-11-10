@@ -1151,3 +1151,12 @@ test_that("serialized boxplot callbacks and formulas retain their environments",
   expect_equal(ggplot2::ggplot_build(restored)$data[[2L]]$middle, c(105.5, 115.5))
   expect_s3_class(ggplot2::ggplotGrob(restored), "gtable")
 })
+
+test_that("boxplot source resolution retains data under an explicit waiver", {
+  data <- data.frame(g = rep(c("A", "B"), each = 4L), y = 1:8)
+  p <- ggplot2::ggplot() + ggplot2::geom_point(data = data, ggplot2::aes(g, y))
+  expected <- ggplot2::ggplot_build(fmt_boxplot(p, inherit.aes = FALSE))$data[[2L]]
+  actual <- ggplot2::ggplot_build(fmt_boxplot(p, inherit.aes = FALSE,
+                                            boxplot.args = list(data = ggplot2::waiver())))$data[[2L]]
+  expect_identical(actual, expected)
+})
