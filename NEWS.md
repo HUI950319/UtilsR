@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_sankey()` measures the node layer for label placement without constructing flow polygons twice.
+
 * `fmt_raster()` checks the one-dimensional plot-list contract before dispatching to any renderer.
 
 * `PlotHeatmapJaccard()` formats colliding group labels precisely before checking for duplicate group keys.

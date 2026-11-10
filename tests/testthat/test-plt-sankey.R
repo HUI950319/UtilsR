@@ -668,3 +668,21 @@ test_that("Sankey categories diagnose packed matrices by column name", {
   expect_error(plt_sankey(data, c("stage", "matrix_stage")), "matrix_stage.*one-dimensional")
   expect_no_error(suppressMessages(sankey_plot(data, c("stage", "unused"), show_text = "none")))
 })
+
+test_that("Sankey label positions build nodes without flow polygons", {
+  skip_if_not_installed("ggsankey")
+  build <- ggplot2::ggplot_build
+  layer_counts <- integer()
+  testthat::local_mocked_bindings(.save_sized = function(p, ...) p, .package = "UtilsR")
+  testthat::local_mocked_bindings(ggplot_build = function(plot, ...) {
+    layer_counts <<- c(layer_counts, length(plot$layers))
+    build(plot, ...)
+  }, .package = "ggplot2")
+  data <- sankey_data()
+  data$sex[1L] <- NA
+  plot <- suppressMessages(sankey_plot(data))
+  expect_identical(layer_counts, 1L)
+  expect_length(plot$layers, 3L)
+  actual <- build(plot)$data
+  expect_equal(sort(actual[[3L]]$y), sort((actual[[2L]]$ymin + actual[[2L]]$ymax) / 2))
+})

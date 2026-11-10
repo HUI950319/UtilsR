@@ -359,7 +359,9 @@ plt_sankey <- function(data,
 
   if (show_text != "none") {
     # Filter labels only after node positions have been computed from all rows.
-    label_data <- ggplot2::ggplot_build(plot)$data[[2L]]
+    nodes <- plot
+    nodes$layers <- plot$layers[2L]
+    label_data <- ggplot2::ggplot_build(nodes)$data[[1L]]
     ids <- as.character(label_data$node)
     label_data$x <- plot_data$x[match(ids, as.character(plot_data$node))]
     label_data$label <- unname(node_labels[ids])
