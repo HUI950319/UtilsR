@@ -767,3 +767,13 @@ test_that("paired comparison subsets keep distinct facet tuples", {
   expect_length(unique(actual[["PANEL"]]), 2L)
   expect_identical(actual[["p"]], expected[["p"]])
 })
+
+test_that("empty displayed groups can serve as comparison references", {
+  data <- data.frame(g = factor(rep(c("", "B", "C"), each = 5L), levels = c("", "B", "C")),
+                     y = c(1:5, 6:10, 10:14))
+  p <- ggplot2::ggplot(data, ggplot2::aes(g, y)) + ggplot2::geom_boxplot()
+  actual <- com_stat(fmt_com(p, ref.group = ""))
+  expected <- com_stat(fmt_com(p, ref.group = 1))
+  expect_equal(actual, expected)
+  expect_setequal(as.numeric(actual$xmax), c(2, 3))
+})

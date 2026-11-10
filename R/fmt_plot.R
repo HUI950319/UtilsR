@@ -4065,7 +4065,7 @@ fmt_com <- function(plot,
     cli::cli_abort("Set ref.group only once, in ... or method.args.")
   if (!is.null(ref_group)) {
     valid_ref <- length(ref_group) == 1L && is.null(dim(ref_group)) && !anyNA(ref_group) &&
-      ((is.character(ref_group) && nzchar(ref_group)) ||
+      (is.character(ref_group) ||
        (is.numeric(ref_group) && !is.object(ref_group) && is.finite(ref_group) &&
         ref_group >= 1 && ref_group == floor(ref_group)))
     if (!valid_ref) cli::cli_abort("ref.group must be a group name, a positive integer rank, or 'all'.")

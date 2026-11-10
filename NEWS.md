@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_com()` accepts an observed empty-string group as a named reference.
+
 * `check_system()` uses one `Sys.info()` snapshot for its platform checks and report.
 
 * `check_system()` uses the last `PRETTY_NAME` assignment within the selected Linux release file.
