@@ -282,6 +282,7 @@ PlotButterfly <- function(
         function(d) {
           if (all(is.na(d[[value.by]]))) return(d)
           rng <- range(d[[value.by]], na.rm = TRUE)
+          if (is.integer(rng) && !is.object(rng)) rng <- as.double(rng)
           if (rng[1] == rng[2]) {
             d[[value.by]] <- ifelse(is.na(d[[value.by]]), NA_real_, 0)
           } else {

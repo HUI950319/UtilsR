@@ -836,3 +836,13 @@ test_that("butterfly bars preserve numeric roles on shared category columns", {
     expect_no_error(patchwork::patchworkGrob(plot))
   }
 })
+
+test_that("butterfly integer bar ranges scale without overflow", {
+  data <- data.frame(item = rep(c("small", "large"), 2L), fill = "one",
+                     score = rep(c(-.Machine$integer.max, .Machine$integer.max), 2L),
+                     group = rep(c("Left", "Right"), each = 2L))
+  expect_no_warning(plot <- PlotButterfly(data, stat.by = "item", fill.by = "fill",
+                                           value.by = "score", group.by = "group", minmax = TRUE))
+  expect_equal(sort(ggplot2::layer_data(plot[[1L]])$xmin), c(-1, 0))
+  expect_equal(sort(ggplot2::layer_data(plot[[2L]])$xmax), c(0, 1))
+})
