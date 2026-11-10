@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `lv()` reuses the summary's observed cardinality when choosing character and complex columns for an ungrouped table.
+
 * `plt_alluvial()` counts observed facet and category pairs without splitting the input into one table per panel.
 
 * `plt_alluvial()` formats counts and percentages only for label styles that display them.

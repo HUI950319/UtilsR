@@ -742,17 +742,21 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   # identifier, free text) adds a table row per value, and tbl_summary() and
   # gt then take minutes; such columns, like list columns that gtsummary
   # cannot tabulate, stay in the variable summary only.
-  .tbl_vars <- function(vars) {
-    many <- vapply(analysis_data[vars], function(x) {
+  .tbl_vars <- function(vars, n_unique = NULL) {
+    selected <- analysis_data[vars]
+    many <- vapply(seq_along(vars), function(i) {
+      x <- selected[[i]]
+      if (is.factor(x)) return(nlevels(x) > 100L)
+      if (!is.character(x) && !is.complex(x)) return(FALSE)
+      if (!is.object(x) && !is.null(n_unique)) return(n_unique[i] > 100L)
       if (is.character(x) && !is.object(x) && length(x) > 1024L) {
         prefix <- x[seq_len(101L)]
         if (!anyNA(prefix) && !anyDuplicated(prefix)) return(TRUE)
       }
-      if (is.factor(x)) nlevels(x) > 100L
-      else (is.character(x) || is.complex(x)) && length(unique(x[!is.na(x)])) > 100L
+      length(unique(x[!is.na(x)])) > 100L
     }, logical(1))
     # POSIXlt is stored as a list but summarized as a date-time.
-    lists <- vapply(analysis_data[vars], function(x) {
+    lists <- vapply(selected, function(x) {
       is.list(x) && !inherits(x, "POSIXlt")
     }, logical(1))
     if (any(many)) {
@@ -767,7 +771,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
         "{?is/are} left out of the summary table."
       )))
     }
-    expressions <- vapply(analysis_data[vars], is.expression, logical(1))
+    expressions <- vapply(selected, is.expression, logical(1))
     if (any(expressions)) {
       cli::cli_inform("Expression columns {.var {vars[expressions]}} are left out of the summary table.")
     }
@@ -1134,7 +1138,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     }
   }
 
-  table_vars <- .tbl_vars(vars)
+  table_vars <- .tbl_vars(vars, result$n_unique)
   res_count <- if (length(table_vars)) {
     .tbl_input(tibble::as_tibble(analysis_data[, table_vars, drop = FALSE])) %>%
     labelled::set_variable_labels(

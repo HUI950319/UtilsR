@@ -1450,3 +1450,23 @@ test_that("expression column inspection counts stored values without evaluation"
   expect_identical(as.logical(plot$data$value), c(FALSE, TRUE, FALSE, FALSE))
   expect_identical(d, before)
 })
+
+test_that("ungrouped inspection reuses observed cardinality for table selection", {
+  fn <- lv.data.frame
+  examined <- 0L
+  environment(fn) <- list2env(list(unique = function(x, ...) {
+    if (is.character(x) && length(x) && all(startsWith(x, "SAMPLE_"))) {
+      examined <<- examined + length(x)
+    }
+    base::unique(x, ...)
+  }), parent = environment(fn))
+
+  data <- data.frame(
+    label = rep(c("SAMPLE_a", "SAMPLE_b", "SAMPLE_c", NA_character_), 240L),
+    factor = factor(rep("used", 960L), levels = c("used", as.character(1:100)))
+  )
+  reports <- capture_reports(fn(data))
+  expect_identical(examined, 720L)
+  expect_equal(reports[[1L]][["_data"]]$n_unique, c(3, 1))
+  expect_identical(unique(reports[[2L]][["_data"]]$variable), "label")
+})
