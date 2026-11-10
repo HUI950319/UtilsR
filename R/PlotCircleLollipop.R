@@ -286,6 +286,14 @@ PlotCircleLollipop <- function(
   if (anyNA(df$group))
     stop("Group labels must not be missing or excluded by group_levels.", call. = FALSE)
   df$group <- droplevels(df$group)
+  sector_labels <- levels(df$group)
+  sector_factors <- df$group
+  if ("" %in% sector_labels) {
+    keys <- sector_labels
+    keys[!nzchar(keys)] <- utils::tail(make.unique(c(keys, ".circle_group")), 1L)
+    levels(sector_factors) <- keys
+  }
+  sector_keys <- levels(sector_factors)
   total_gap <- (nlevels(df$group) - 1L) * gap_between + gap_after
   if (!is.finite(total_gap) || total_gap >= 360)
     stop("'gap_after' and 'gap_between' must leave a positive angular span for sectors.", call. = FALSE)
@@ -359,9 +367,10 @@ PlotCircleLollipop <- function(
     grp_max  <- tapply(orig_val, orig_grp, score_extreme, fun = max)
     scaled <- numeric(nrow(df))
     indices <- split(seq_len(nrow(df)), df$group)
-    for (g in names(indices)) {
-      idx <- indices[[g]]
-      scaled[idx] <- scale_values(df$value[idx], grp_min[[g]], grp_max[[g]])
+    bounds <- match(names(indices), names(grp_min))
+    for (i in seq_along(indices)) {
+      idx <- indices[[i]]
+      scaled[idx] <- scale_values(df$value[idx], grp_min[[bounds[i]]], grp_max[[bounds[i]]])
     }
     df$value <- scaled
 
@@ -417,7 +426,7 @@ PlotCircleLollipop <- function(
 
   # ---- Label data for circos.genomicLabels ----
   label_data <- if (show_labels) data.frame(
-    chr   = as.character(df$group),
+    chr   = as.character(sector_factors),
     start = df$x_pos - 0.001,
     end   = df$x_pos + 0.001,
     label = df$name,
@@ -444,17 +453,17 @@ PlotCircleLollipop <- function(
       cell.padding = c(0, 0, 0, 0)
     )
 
-    circlize::circos.initialize(factors = df$group, xlim = c(0, 1))
+    circlize::circos.initialize(factors = sector_factors, xlim = c(0, 1))
 
     # When values are scaled to [0,1], extend ylim slightly so top dots are
     # not clipped at the track boundary
     ylim_max  <- if (value_scale != "none") 1.02 else 1
-    grp_levels <- levels(df$group)
+    grp_levels <- sector_keys
 
     # ---- Track builder: sector label ring ----
     .draw_sector_track <- function() {
       circlize::circos.track(
-        factors      = df$group,
+        factors      = sector_factors,
         ylim         = c(0, 1),
         track.height = 0.08,
         bg.col       = sector_bg,
@@ -462,7 +471,7 @@ PlotCircleLollipop <- function(
           circlize::circos.text(
             circlize::CELL_META$xcenter,
             circlize::CELL_META$ylim[2] - 0.7,
-            circlize::CELL_META$sector.index,
+            sector_labels[match(circlize::CELL_META$sector.index, sector_keys)],
             facing = "bending.inside",
             cex    = sector_cex,
             adj    = c(0.5, 0)
@@ -474,11 +483,12 @@ PlotCircleLollipop <- function(
     # ---- Track builder: lollipop data track ----
     .draw_lollipop_track <- function() {
       circlize::circos.trackPlotRegion(
-        factors      = df$group,
+        factors      = sector_factors,
         ylim         = c(0, ylim_max),
         track.height = track_height,
         panel.fun = function(x, y) {
-          sector_data <- df[df$group == circlize::CELL_META$sector.index, ]
+          sector_id <- match(circlize::CELL_META$sector.index, sector_keys)
+          sector_data <- df[as.integer(df$group) == sector_id, ]
 
           for (i in seq_len(nrow(sector_data))) {
             xp <- sector_data$x_pos[i]
@@ -563,7 +573,7 @@ PlotCircleLollipop <- function(
       for (rows in feature_rows) {
         gd <- common_genes[rows, , drop = FALSE]
         if (nrow(gd) > 1L) {
-          sectors <- as.character(gd$group)
+          sectors <- sector_keys[as.integer(gd$group)]
           for (i in seq_len(nrow(gd) - 1L)) {
             later <- seq.int(i + 1L, nrow(gd))
             for (j in later[sectors[later] != sectors[i]]) {

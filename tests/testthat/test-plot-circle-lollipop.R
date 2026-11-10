@@ -974,3 +974,36 @@ test_that("circular group orders match close typed identities", {
                                        show_labels = FALSE, show_links = FALSE))
   expect_identical(sector_order, expected)
 })
+
+test_that("circular sectors draw blank labels with safe working identifiers", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  data <- data.frame(group = rep(c("", ".circle_group"), each = 2L),
+                     name = c("shared", "A", "shared", "B"), value = c(.2, .4, .6, .8))
+  texts <- character()
+  positions <- numeric()
+  links <- character()
+  text <- circlize::circos.text
+  points <- circlize::circos.points
+  link <- circlize::circos.link
+  testthat::local_mocked_bindings(
+    circos.text = function(x, y, labels, ..., facing = "inside") {
+      if (identical(facing, "bending.inside")) texts <<- c(texts, labels)
+      text(x, y, labels, ..., facing = facing)
+    },
+    circos.points = function(x, y, ...) {
+      positions <<- c(positions, y)
+      points(x, y, ...)
+    },
+    circos.link = function(sector.index1, point1, sector.index2, point2, ...) {
+      links <<- c(links, sector.index1, sector.index2)
+      link(sector.index1, point1, sector.index2, point2, ...)
+    },
+    .package = "circlize"
+  )
+  expect_no_warning(PlotCircleLollipop(data, value_scale = "group", show_yaxis = FALSE,
+    show_labels = FALSE, show_links = TRUE, group_levels = c(".circle_group", "")))
+  expect_identical(texts, c(".circle_group", ""))
+  expect_equal(sort(positions), c(0, 0, 1, 1))
+  expect_setequal(links, c(".circle_group", ".circle_group.1"))
+})
