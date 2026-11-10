@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fct_to_combine()` skips complete columns when building sparse missingness masks and avoids encoding combinations when every row is incomplete.
+
 * `PlotScatter3()` shows an unavailable P value when correlation is undefined for a constant axis.
 
 * `fmt_axisTile()` draws an empty guide when the viewport clips every tile.

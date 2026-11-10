@@ -443,3 +443,24 @@ test_that("complete factor combinations avoid full missing masks", {
   b[2L] <- NA_integer_
   expect_identical(is.na(fn(a, b)), is.na(b))
 })
+
+test_that("sparse factor combinations inspect only incomplete inputs", {
+  a <- rep(c("east", "west"), 1000L)
+  b <- rep(1:4, 500L)
+  b[c(3L, 127L)] <- NA_integer_
+  flag <- rep(c(TRUE, FALSE, FALSE, TRUE), 500L)
+  fn <- fct_to_combine.default
+  env <- new.env(parent = environment(fn))
+  scanned <- 0L
+  env$is.na <- function(x) {
+    if (length(x) == length(a)) scanned <<- scanned + 1L
+    base::is.na(x)
+  }
+  environment(fn) <- env
+  actual <- fn(a, b, flag)
+  expected <- paste(a, b, flag, sep = " & ")
+  expected[is.na(b)] <- NA_character_
+  expect_identical(scanned, 1L)
+  expect_identical(as.character(actual), expected)
+  expect_identical(fn(c(NA, 1), c(2, NA)), factor(rep(NA_character_, 2L)))
+})
