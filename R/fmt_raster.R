@@ -429,6 +429,7 @@ fmt_raster <- function(
   if (!requireNamespace("ragg", quietly = TRUE)) {
     cli::cli_abort("Package {.pkg ragg} is required for {.code method = \"image\"}.")
   }
+  if (inherits(plot, "gList")) plot <- grob_as(plot)
   # Only a plain list holds several plots; a classed list such as a forestplot
   # is one figure that its print method draws.
   if (is.list(plot) && !is.object(plot)) {

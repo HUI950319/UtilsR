@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_raster(method = "image")` draws `gList` children on the capture device.
+
 * `fmt_com()` accepts an observed empty-string group as a named reference.
 
 * `check_system()` uses one `Sys.info()` snapshot for its platform checks and report.

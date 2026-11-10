@@ -708,3 +708,15 @@ test_that("ragg panel viewport size is applied once", {
   expect_lt(abs(red_pixels(result) - red_pixels(panel)), 80)
   expect_identical(result$vp, panel$vp)
 })
+
+test_that("image rasterization draws grid graphic collections", {
+  skip_if_not_installed("ragg")
+  grob <- grid::gList(grid::rectGrob(gp = grid::gpar(fill = "red", col = NA)))
+  invisible(capture.output(p <- fmt_raster(grob, method = "image", width = 1, height = 1, dpi = 10)))
+  rasters <- raster_find_grobs(patchwork::patchworkGrob(p), "rastergrob")
+  expect_length(rasters, 1L)
+  reference <- fmt_raster(grid::grobTree(children = grob), method = "image",
+                          width = 1, height = 1, dpi = 10)
+  expected <- raster_find_grobs(patchwork::patchworkGrob(reference), "rastergrob")
+  expect_identical(rasters[[1L]]$raster, expected[[1L]]$raster)
+})
