@@ -492,7 +492,7 @@ test_that("rank parsing indexes automatic groups without repeated full scans", {
   expect_identical(examined, 0L)
   expected <- fn(d, "cell_type", "gene", "importance", unique(d$cell_type))
   expect_identical(actual, expected)
-  expect_gte(examined, nrow(d))
+  expect_identical(examined, 0L)
   cases <- list(c("b", "a", NA, "b", "a"), c(2L, 1L, NA, 2L, 1L),
     c(TRUE, FALSE, NA, TRUE, FALSE), c(2, 1, NaN, NA, 1),
     factor(c("b", "a", NA, "b", "a"), levels = c("a", "b", "unused")),
@@ -681,4 +681,19 @@ test_that("rank top scaling assigns the score column once", {
   out <- fn(d, value_scale = "top_n", return_type = "data")
   expect_identical(writes, 1L)
   expect_equal(out$Score, rep(c(1, .25, 0), 30L))
+})
+
+test_that("rank plots index requested plain groups in one pass", {
+  parser <- .pr_parse
+  environment(parser) <- list2env(list(`==` = function(x, y) {
+    if (length(x) == 100L) stop("repeated group lookup")
+    base::`==`(x, y)
+  }), parent = environment(parser))
+  data <- data.frame(group = rep(letters[1:5], each = 20L), name = paste0("F", 1:100),
+                     value = 1:100)
+  expected <- list(e = setNames(81:100, data$name[81:100]), absent = setNames(integer(), character()),
+                   b = setNames(21:40, data$name[21:40]))
+  expect_identical(parser(data, "group", "name", "value", c("e", "absent", "b")), expected)
+  data$group <- factor(data$group, levels = rev(letters[1:5]))
+  expect_identical(parser(data, "group", "name", "value", c("e", "absent", "b")), expected)
 })

@@ -429,12 +429,11 @@ PlotRank <- function(
              "Convert the grouping column to unique character labels before plotting.",
              call. = FALSE)
       }
-      group_rows <- if (is.null(groups) &&
-                        (!is.object(data[[group_col]]) || is.factor(data[[group_col]]))) {
+      if (!is.null(groups)) grps <- groups
+      group_rows <- if (!is.object(data[[group_col]]) || is.factor(data[[group_col]])) {
         locations <- vctrs::vec_group_loc(data[[group_col]])
         locations[["loc"]][match(grps, locations[["key"]])]
       }
-      if (!is.null(groups)) grps <- groups
       return(lapply(setNames(seq_along(grps), grps), function(i) {
         g <- grps[[i]]
         index <- if (is.null(group_rows) || is.na(g)) {
