@@ -63,6 +63,8 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
     }
   }
 
+  host <- Sys.info()
+
   # Get R memory usage
   r_mem_used_bytes <- if (requireNamespace("lobstr", quietly = TRUE)) {
     lobstr::mem_used()
@@ -84,7 +86,7 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
   }
 
   native_memory <- NULL
-  if ((.Platform[["OS.type"]] == "windows" || Sys.info()[["sysname"]] == "Darwin") &&
+  if ((.Platform[["OS.type"]] == "windows" || host[["sysname"]] == "Darwin") &&
       requireNamespace("ps", quietly = TRUE)) {
     native_memory <- tryCatch({
       memory <- ps::ps_system_memory()
@@ -169,7 +171,7 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
           used_gb = (total_mem_kb - free_mem_kb) / 1024^2,
           usage_pct = ((total_mem_kb - free_mem_kb) / total_mem_kb) * 100
         )
-      } else if (Sys.info()[["sysname"]] == "Darwin") {
+      } else if (host[["sysname"]] == "Darwin") {
         stop("macOS memory is unavailable; check the optional 'ps' package.")
       } else {
         if (file.exists("/proc/meminfo")) {
@@ -242,7 +244,7 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
 
   cores_logical <- parallel::detectCores(logical = TRUE)
   cores_physical <- if (.Platform[["OS.type"]] != "windows" &&
-                         Sys.info()[["sysname"]] == "Linux") {
+                         host[["sysname"]] == "Linux") {
     if (requireNamespace("ps", quietly = TRUE)) {
       tryCatch(ps::ps_cpu_count(logical = FALSE), error = function(e) NA_integer_)
     } else NA_integer_
@@ -252,10 +254,10 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
   .get_system_info <- function() {
     tryCatch({
       os_type <- .Platform$OS.type
-      os_name <- Sys.info()[["sysname"]]
-      os_release <- Sys.info()[["release"]]
-      os_version <- Sys.info()[["version"]]
-      machine <- Sys.info()[["machine"]]
+      os_name <- host[["sysname"]]
+      os_release <- host[["release"]]
+      os_version <- host[["version"]]
+      machine <- host[["machine"]]
 
       if (os_type == "windows") {
         sys_info <- if (!is.null(windows_info)) {
@@ -385,10 +387,10 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
     }, error = function(e) {
       list(
         os_type = .Platform$OS.type,
-        os_name = Sys.info()[["sysname"]],
+        os_name = host[["sysname"]],
         os_full_name = "Unknown",
         os_version = "Unknown",
-        architecture = Sys.info()[["machine"]],
+        architecture = host[["machine"]],
         cpu_name = "Unknown",
         r_version = paste(R.version$major, R.version$minor, sep = "."),
         r_platform = R.version$platform

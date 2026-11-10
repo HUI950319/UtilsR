@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `check_system()` uses one `Sys.info()` snapshot for its platform checks and report.
+
 * `check_system()` uses the last `PRETTY_NAME` assignment within the selected Linux release file.
 
 * `impute_na_knn()` converts only filled entries back to time classes and keeps observed values directly.

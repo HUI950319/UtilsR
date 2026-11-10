@@ -435,3 +435,18 @@ test_that("Linux release names follow the final assignment", {
   invisible(capture.output(result <- query(return_result = TRUE)))
   expect_identical(result$system_info$os_full_name, "Final release")
 })
+
+test_that("system diagnostics reuse a single host metadata lookup", {
+  query <- .check_system_fixture(meminfo = c("MemTotal: 8388608 kB", "MemAvailable: 4194304 kB"))
+  env <- environment(query)
+  lookup <- env$Sys.info
+  calls <- 0L
+  env$Sys.info <- function() {
+    calls <<- calls + 1L
+    lookup()
+  }
+  invisible(capture.output(result <- query(return_result = TRUE)))
+  expect_identical(calls, 1L)
+  expect_identical(result$system_info$os_name, "Linux")
+  expect_identical(result$system_info$architecture, "x86_64")
+})
