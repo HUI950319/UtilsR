@@ -429,14 +429,17 @@ PlotCircleLollipop <- function(
 
   # ---- Label data for circos.genomicLabels ----
   show_labels <- show_labels && any(!is.na(df$name))
-  label_data <- if (show_labels) data.frame(
-    chr   = as.character(sector_factors),
-    start = df$x_pos - 0.001,
-    end   = df$x_pos + 0.001,
-    label = df$name,
-    color = df$color,
-    stringsAsFactors = FALSE
-  )
+  label_data <- if (show_labels) {
+    half_width <- pmin(0.001, df$x_pos, 1 - df$x_pos)
+    data.frame(
+      chr   = as.character(sector_factors),
+      start = df$x_pos - half_width,
+      end   = df$x_pos + half_width,
+      label = df$name,
+      color = df$color,
+      stringsAsFactors = FALSE
+    )
+  }
 
   # ---- Core drawing function ----
   .draw <- function() {

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Circular labels at crowded sector edges keep their intervals inside the sector while retaining their anchor positions.
+
 * Circular plots with all feature labels missing still draw their sectors and points.
 
 * `PlotButterfly2()` decodes serialized integer64 scores before computing distribution statistics in a fresh R process.

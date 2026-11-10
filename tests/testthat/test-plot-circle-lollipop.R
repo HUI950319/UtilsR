@@ -1181,3 +1181,20 @@ test_that("circular plots draw when all feature labels are missing", {
   expect_no_error(PlotCircleLollipop(d, show_yaxis = FALSE))
   expect_identical(observed, d$value)
 })
+
+test_that("crowded circular label intervals stay within their sector", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  d <- data.frame(group = "A", name = paste0("feature", seq_len(501L)),
+    value = seq(0, 1, length.out = 501L))
+  intervals <- NULL
+  original <- circlize::circos.genomicLabels
+  local_mocked_bindings(circos.genomicLabels = function(bed, ...) {
+    intervals <<- bed
+    original(bed, ...)
+  }, .package = "circlize")
+  invisible(capture.output(PlotCircleLollipop(d, label_cex = .3,
+    show_yaxis = FALSE, show_links = FALSE), type = "message"))
+  expect_true(all(intervals$start >= 0 & intervals$end <= 1))
+  expect_equal((intervals$start + intervals$end) / 2, (seq_len(501L) - .5) / 501L)
+})
