@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci()` and `stat_ci_parse()` inspect only failed inputs when counting unparseable nonblank intervals.
+
 * `fmt_raster(method = "ragg")` returns panel-free tables before resolving cell sizes.
 
 * `fmt_raster(method = "ragg")` honors a clipped table cell when the panel viewport inherits clipping.

@@ -656,3 +656,21 @@ test_that("interval whitespace preprocessing handles long interior runs", {
   expect_identical(parsed$trailing, c(FALSE, TRUE, FALSE, FALSE, TRUE, FALSE))
   expect_equal(parsed$estimate, c(NA, 2, 2, 2, 2, NA))
 })
+
+test_that("CI diagnostics skip trimming full strings", {
+  forbid_full_trim <- function(x, ...) {
+    if (any(nchar(x) > 1000L, na.rm = TRUE)) stop("CI diagnostics trimmed a full input")
+    base::trimws(x, ...)
+  }
+  parser <- stat_ci_parse
+  formatter <- stat_ci
+  environment(parser) <- list2env(list(trimws = forbid_full_trim), parent = environment(parser))
+  environment(formatter) <- list2env(list(trimws = forbid_full_trim), parent = environment(formatter))
+  padding <- strrep(" ", 12000L)
+  input <- c(ok = paste0("2", padding, "(1, 3)"), blank = "\u00a0\n", absent = NA,
+             malformed = paste0("no", padding, "interval"))
+  expect_warning(parsed <- parser(input, output = "ci", exp = FALSE), "1 element could not be parsed")
+  expect_warning(formatted <- formatter(input, sep = ", "), "1 element could not be parsed")
+  expect_identical(parsed[1L], c(ok = "2 (1, 3)"))
+  expect_identical(formatted, parsed)
+})

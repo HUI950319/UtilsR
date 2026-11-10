@@ -152,8 +152,7 @@ stat_ci <- function(x, y = NULL, z = NULL,
     .check_precision(d, est, lo, hi)
 
     # Warn about unparseable elements
-    n_fail <- sum(!valid & !is.na(x) &
-                    nzchar(trimws(x, whitespace = "[\\h\\v]")))
+    n_fail <- sum(grepl("[^\\h\\v]", x[!valid], perl = TRUE))
     if (n_fail > 0L) {
       cli::cli_warn("{n_fail} element{?s} could not be parsed as CI string{?s} and {?was/were} returned as-is.")
     }

@@ -163,8 +163,7 @@ stat_ci_parse <- function(x,
   if (!is.null(digits)) d[] <- as.integer(digits)
 
   # Warn about unparseable elements (NA and "" pass through silently)
-  n_fail <- sum(!valid & !is.na(x) &
-                  nzchar(trimws(x, whitespace = "[\\h\\v]")))
+  n_fail <- sum(grepl("[^\\h\\v]", x[!valid], perl = TRUE))
   if (n_fail > 0L) {
     cli::cli_warn("{n_fail} element{?s} could not be parsed as CI string{?s} and {?was/were} returned as-is.")
   }
