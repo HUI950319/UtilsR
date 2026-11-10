@@ -1055,3 +1055,22 @@ test_that("circular durations preserve group membership through ranking and scal
     expect_identical(draw(d, order, top_n), draw(reference, as.character(order), top_n))
   }
 })
+
+test_that("circular rankings leave unused columns unsliced", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  rlang::local_bindings(`[.circle_unused_column` = function(...) stop("unused column was sliced"),
+    .env = .GlobalEnv)
+  d <- data.frame(group = rep(c("A", "B"), each = 2L), name = letters[1:4],
+    value = c(.2, .4, .1, .8), colour = c("red", "blue", "green", "black"))
+  d$unused <- structure(seq_len(nrow(d)), class = "circle_unused_column")
+  observed <- character()
+  original <- circlize::circos.points
+  local_mocked_bindings(circos.points = function(x, y, col, ...) {
+    observed <<- c(observed, col)
+    original(x, y, col = col, ...)
+  }, .package = "circlize")
+  PlotCircleLollipop(d, top_n = 1L, color_col = "colour",
+    show_labels = FALSE, show_yaxis = FALSE, show_links = FALSE)
+  expect_identical(observed, c("blue", "black"))
+})

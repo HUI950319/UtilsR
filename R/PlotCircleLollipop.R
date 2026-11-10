@@ -263,7 +263,8 @@ PlotCircleLollipop <- function(
       dplyr::group_by(.data[["group"]]) |>
       dplyr::slice_max(order_by = .data[["score"]], n = top_n, with_ties = FALSE) |>
       dplyr::pull("row_id")
-    data <- as.data.frame(data)[selected, , drop = FALSE]
+    columns <- unique(c(group_col, name_col, value_col, intersect(color_col, names(data))))
+    data <- as.data.frame(data)[selected, columns, drop = FALSE]
   }
 
   # ---- Normalise to standard column names ----
