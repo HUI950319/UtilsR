@@ -442,7 +442,7 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
     op <- rep("", length(v))
     valid <- !is.na(num)
   } else {
-    txt <- trimws(as.character(v), whitespace = "[\\h\\v]")
+    txt <- .trim_pvalue_space(as.character(v))
     number <- "[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?"
     bound <- "(?:[<>]=?|[\u2264\u2265])"
     valid <- grepl(paste0("^(?:", bound, "[\\h\\v]*)?", number, "$"), txt, perl = TRUE)

@@ -185,7 +185,7 @@ stat_pval <- function(x,
 
   bounded <- rep(FALSE, length(x))
   x_num <- if (is.character(x)) {
-    text <- trimws(x, whitespace = "[\\h\\v]")
+    text <- .trim_pvalue_space(x)
     number <- "[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?"
     prefix <- "(?:[<>]=?|[\u2264\u2265])[\\h\\v]*"
     bounded <- !is.na(text) & grepl(paste0("^", prefix, number, "$"), text, perl = TRUE)
@@ -289,6 +289,12 @@ stat_pval <- function(x,
   if (!is.null(expand)) out <- out[expand]
   names(out) <- input_names
   out
+}
+
+# Only try the final whitespace run from its first character.
+.trim_pvalue_space <- function(text) {
+  text <- sub("^[\\h\\v]+", "", text, perl = TRUE)
+  sub("(?<![\\h\\v])[\\h\\v]++\\z", "", text, perl = TRUE)
 }
 
 #' @noRd

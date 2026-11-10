@@ -482,6 +482,7 @@ stat_pval_in_fresh_r <- function(args) {
   isolated$stat_pval <- stat_pval
   isolated$.validate_signif_map <- get(".validate_signif_map", envir = environment(stat_pval))
   isolated$.parse_decimal_tokens <- get(".parse_decimal_tokens", envir = environment(stat_pval))
+  isolated$.trim_pvalue_space <- get(".trim_pvalue_space", envir = environment(stat_pval))
   isolated$`%||%` <- function(x, y) if (is.null(x)) y else x
   for (name in ls(isolated, all.names = TRUE)) environment(isolated[[name]]) <- isolated
   saveRDS(list(fn = isolated$stat_pval, args = args, libs = .libPaths()), files[["input"]])
@@ -615,4 +616,21 @@ test_that("repeated numeric P values reuse validated formatting work", {
   text <- rep(c("0.05", "0.050000000000000000001"), 1200)
   expect_identical(fn(text), rep(c("0.050*", "0.050."), 1200))
   expect_error(fn(c(rep(.05, 4800), 1.1)), "finite P-values")
+})
+
+test_that("P-value formatters trim only whitespace at the edges", {
+  slow_trim <- function(x, ...) {
+    if (any(nchar(x) > 1000L, na.rm = TRUE)) stop("repeated interior whitespace")
+    base::trimws(x, ...)
+  }
+  p <- stat_pval
+  cells <- UtilsR:::._p_cells
+  environment(p) <- list2env(list(trimws = slow_trim), parent = environment(p))
+  environment(cells) <- list2env(list(trimws = slow_trim, ._pr_colour = function() FALSE),
+                                parent = environment(cells))
+  padding <- strrep(" ", 12000L)
+  values <- c(a = paste0("\u00a0<", padding, "0.01\u202f"), b = "\u20030.5\n")
+  expect_true(identical(p(values), c(a = paste0("<", padding, "0.01"), b = "0.500")))
+  expect_error(p(paste0("0.05", padding, "text")), "numeric strings or numeric bounds")
+  expect_identical(cells(values), c(paste0("<", padding, "0.01**"), "0.5"))
 })
