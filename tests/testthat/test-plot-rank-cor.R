@@ -993,3 +993,17 @@ test_that("rank correlation joins aesthetics without sorting its ordered pairs a
   expect_identical(as.character(plot$data$group), rep(c("1", "2"), 4L))
   expect_equal(plot$data$weight, c(5, 9, 6, 10, 7, 11, 8, 12))
 })
+
+test_that("rank correlations write the completed rank column once", {
+  fn <- PlotRankCor
+  partial <- logical()
+  environment(fn) <- list2env(list(rank = function(...) {
+    partial <<- c(partial, ".plot_val" %in% names(parent.frame()$rank_long))
+    base::rank(...)
+  }), parent = environment(fn))
+  data <- rank_cor_group_data()
+  invisible(capture.output(actual <- fn(data, stat.by = "item", value.by = "score",
+                                        method.by = "method", group.by = "group", show.label = FALSE)))
+  expect_identical(partial, rep(FALSE, 4L))
+  expect_identical(actual$data, quiet_rank_cor(data, group.by = "group")$data)
+})

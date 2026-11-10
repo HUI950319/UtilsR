@@ -296,11 +296,11 @@ PlotRankCor <- function(
   rank_long <- data
   if (use_rank) {
     rank_rows <- vctrs::vec_group_loc(data[unique(c(group.by_internal, method.by_internal))])$loc
-    rank_long[[plot_value]] <- NA_real_
+    ranks <- rep(NA_real_, nrow(data))
     for (idx in rank_rows) {
-      rank_long[[plot_value]][idx] <- rank(-data[[value.by]][idx],
-        ties.method = "average", na.last = "keep")
+      ranks[idx] <- rank(-data[[value.by]][idx], ties.method = "average", na.last = "keep")
     }
+    rank_long[[plot_value]] <- ranks
   } else {
     rank_long[[plot_value]] <- rank_long[[value.by]]
   }

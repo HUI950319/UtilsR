@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRankCor()` computes ranks in a standalone vector before adding it to the plot data.
+
 * `plt_sankey()` skips the label-position build when no node meets the minimum proportion.
 
 * `fct_cat()` validates `groups` as a named one-dimensional list before converting the input.
