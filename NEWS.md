@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Circular plots with all feature labels missing still draw their sectors and points.
+
 * `PlotButterfly2()` decodes serialized integer64 scores before computing distribution statistics in a fresh R process.
 
 * `plt_alluvial()` keeps observed ordinary factor levels in order without re-encoding all factor labels.

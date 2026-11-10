@@ -1166,3 +1166,18 @@ test_that("circular positions reuse precomputed sector rows", {
     show_yaxis = FALSE, show_links = FALSE)
   expect_identical(observed, c(1/6, .5, 5/6, .25, .75))
 })
+
+test_that("circular plots draw when all feature labels are missing", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  d <- data.frame(group = rep(c("A", "B"), each = 2L), name = NA_character_,
+    value = c(.2, .4, .6, .8))
+  observed <- numeric()
+  original <- circlize::circos.points
+  local_mocked_bindings(circos.points = function(x, y, ...) {
+    observed <<- c(observed, y)
+    original(x, y, ...)
+  }, .package = "circlize")
+  expect_no_error(PlotCircleLollipop(d, show_yaxis = FALSE))
+  expect_identical(observed, d$value)
+})
