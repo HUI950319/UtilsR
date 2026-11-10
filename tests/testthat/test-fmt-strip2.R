@@ -1062,3 +1062,14 @@ test_that("replacement headers retain original facet specific scales", {
     expect_s3_class(ggplot2::ggplotGrob(replacement), "gtable")
   }
 })
+
+test_that("facet-free strip removal returns the original layout", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg)) + ggplot2::geom_point()
+  combined <- (p | patchwork::plot_spacer()) / (p | p)
+  combined <- combined + patchwork::plot_annotation(title = "Original")
+  local_mocked_bindings(.from_plot_list = function(...) stop("rebuilt the strip layout"), .package = "UtilsR")
+  expect_identical(fmt_strip(combined, strip = FALSE), combined)
+  expect_identical(fmt_strip(list(first = p, second = combined), strip = FALSE),
+    list(first = p, second = combined))
+  expect_error(fmt_strip(patchwork::wrap_elements(p), strip = FALSE), "wrap_elements")
+})

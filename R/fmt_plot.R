@@ -1944,6 +1944,7 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
                        "strip.background.x", "strip.background.y")
 
   if (!strip) {
+    if (all(vapply(plots, function(p) inherits(p$facet, "FacetNull"), logical(1)))) return(plot)
     # Only remove synthetic facets owned by this function. Native facets keep
     # their structure without evaluating data or statistics. Blank leaf elements,
     # since a user-set `strip.text.x` ignores a blank parent. ggh4x themed / nested
