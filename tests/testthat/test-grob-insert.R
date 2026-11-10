@@ -305,3 +305,16 @@ test_that("inset coordinates decode serialized integer64 values", {
   expect_null(attr(output, "status"), info = paste(output, collapse = "\n"))
   expect_true("COLD_INSET_OK" %in% output)
 })
+
+test_that("plot-aligned ggplot insets exclude outer margin cells", {
+  withr::local_pdf(NULL)
+  plot <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) +
+    ggplot2::geom_point() + ggplot2::theme(plot.margin = ggplot2::margin(20, 30, 40, 50))
+  full <- grob_insert(plot, grid::rectGrob(), align_to = "full")
+  inner <- grob_insert(plot, grid::rectGrob(), align_to = "plot")
+  row <- inner$layout[nrow(inner$layout), ]
+  expect_equal(c(row$t, row$l, row$b, row$r), c(2, 2, nrow(inner) - 1, ncol(inner) - 1))
+  outer <- full$layout[nrow(full$layout), ]
+  expect_equal(c(outer$t, outer$l, outer$b, outer$r), c(1, 1, nrow(full), ncol(full)))
+  expect_no_error(grid::grid.draw(inner))
+})

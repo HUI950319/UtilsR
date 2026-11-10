@@ -415,6 +415,13 @@ grob_insert <- function(
       ref_b <- bg_layout$b[1]
       ref_l <- bg_layout$l[1]
       ref_r <- bg_layout$r[1]
+      if (inherits(plot, "ggplot") && !inherits(plot, "patchwork") &&
+          ref_t == 1L && ref_b == nrow(gt) && ref_l == 1L && ref_r == ncol(gt)) {
+        ref_t <- ref_t + 1L
+        ref_b <- ref_b - 1L
+        ref_l <- ref_l + 1L
+        ref_r <- ref_r - 1L
+      }
     } else {
       ref_t <- 1
       ref_b <- nrow(gt)
