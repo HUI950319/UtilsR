@@ -302,15 +302,20 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
             release_file <- if (file.exists("/etc/os-release")) "/etc/os-release" else
               if (file.exists("/usr/lib/os-release")) "/usr/lib/os-release"
             if (!is.null(release_file)) {
-              line <- grep("^PRETTY_NAME=", readLines(release_file), value = TRUE)
-              if (length(line)) {
-                value <- sub("^PRETTY_NAME=", "", line[length(line)])
+              release <- readLines(release_file)
+              for (key in c("PRETTY_NAME=", "NAME=")) {
+                line <- release[startsWith(release, key)]
+                if (!length(line)) next
+                value <- substring(line[length(line)], nchar(key) + 1L)
                 delimiter <- substr(value, 1L, 1L)
                 if (delimiter %in% c("\"", "'") && endsWith(value, delimiter)) {
                   value <- substring(value, 2L, nchar(value) - 1L)
                   if (delimiter == "\"") value <- gsub("\\\\([\"\\\\$\\x60])", "\\1", value, perl = TRUE)
                 }
-                if (.valid_text(value)) distro <- value
+                if (.valid_text(value)) {
+                  distro <- value
+                  break
+                }
               }
             } else if (file.exists("/etc/redhat-release")) {
               distro <- readLines("/etc/redhat-release")[1]

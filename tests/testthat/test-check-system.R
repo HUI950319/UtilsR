@@ -486,3 +486,18 @@ test_that("Linux CPU diagnostics recognize model and hardware fields", {
   invisible(capture.output(result <- query(return_result = TRUE)))
   expect_identical(result$cpu$name, "ARM system")
 })
+
+test_that("Linux release names fall back to NAME", {
+  query <- .check_system_fixture(meminfo = c("MemTotal: 8388608 kB", "MemAvailable: 4194304 kB"))
+  env <- environment(query)
+  read <- env$readLines
+  for (pretty in list(character(), 'PRETTY_NAME=""', 'PRETTY_NAME="Named edition"')) {
+    env$readLines <- function(con, ...) {
+      if (con == "/etc/os-release") return(c('NAME="Early"', 'NAME="Acme Linux"', pretty))
+      read(con, ...)
+    }
+    invisible(capture.output(result <- query(return_result = TRUE)))
+    expected <- if (identical(pretty, 'PRETTY_NAME="Named edition"')) "Named edition" else "Acme Linux"
+    expect_identical(result$system_info$os_full_name, expected)
+  }
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `check_system()` uses the Linux distribution `NAME` when `PRETTY_NAME` is absent or empty.
+
 * `PlotHeatmapJaccard()` excludes fractional or unrepresentable numeric keys when matching against integer64 groups.
 
 * Circular link and colour selection counts distinct feature-sector pairs in one pass.
