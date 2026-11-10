@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_alluvial()` formats counts and percentages only for label styles that display them.
+
 * `grob_add()` measures the children of a `gList` when reserving automatic margin space.
 
 * `fmt_ref()` loads integer64 methods before adding reference lines from serialized values.

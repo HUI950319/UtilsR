@@ -485,13 +485,18 @@ plt_alluvial <- function(
     stat$percent >= label_args$min_pct &
     label_args$style != "none"
   if (any(show_label)) {
+    style <- label_args$style
     group_name <- as.character(stat$.group[show_label])
-    count_text <- scales::comma(stat$count[show_label], accuracy = 1)
-    pct_text <- scales::percent(
-      stat$percent[show_label], accuracy = label_args$pct_accuracy
-    )
+    if (style %in% c("count_percent", "count_percent_wrap", "count")) {
+      count_text <- scales::comma(stat$count[show_label], accuracy = 1)
+    }
+    if (style %in% c("count_percent", "count_percent_wrap", "percent")) {
+      pct_text <- scales::percent(
+        stat$percent[show_label], accuracy = label_args$pct_accuracy
+      )
+    }
     stat$.label[show_label] <- switch(
-      label_args$style,
+      style,
       count_percent = sprintf("%s (%s, %s)", group_name, count_text, pct_text),
       count_percent_wrap = sprintf(
         "%s\n%s (%s)", group_name, count_text, pct_text

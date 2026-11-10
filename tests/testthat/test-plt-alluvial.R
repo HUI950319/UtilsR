@@ -878,3 +878,33 @@ test_that("alluvial count gaps retain empty facet labels", {
   expect_true("" %in% as.character(gap$.facet))
   expect_no_warning(ggplot2::ggplot_build(p))
 })
+
+test_that("alluvial labels call only their formatters", {
+  skip_if_not_installed("ggalluvial")
+  comma <- scales::comma
+  percent <- scales::percent
+  calls <- character()
+  testthat::local_mocked_bindings(
+    comma = function(...) {
+      calls <<- c(calls, "comma")
+      comma(...)
+    },
+    percent = function(...) {
+      calls <<- c(calls, "percent")
+      percent(...)
+    },
+    .package = "scales"
+  )
+
+  expected <- list(name = character(), count = "comma", percent = "percent",
+                   count_percent = c("comma", "percent"))
+  labels <- c(name = "G2", count = "G2 (2)", percent = "G2 66.7%",
+              count_percent = "G2 (2, 66.7%)")
+  for (style in names(expected)) {
+    calls <- character()
+    plot <- plt_alluvial(alluvial_data(), "category", "group",
+                         stratum_args = list(gap = 0), label_args = list(style = style))
+    expect_identical(calls, expected[[style]])
+    expect_identical(plot$data$.label[[1L]], labels[[style]])
+  }
+})
