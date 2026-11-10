@@ -1074,3 +1074,27 @@ test_that("circular rankings leave unused columns unsliced", {
     show_labels = FALSE, show_yaxis = FALSE, show_links = FALSE)
   expect_identical(observed, c("blue", "black"))
 })
+
+test_that("circular sector drawing avoids full group scans", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  d <- data.frame(group = rep(LETTERS[1:5], each = 3L), name = letters[1:15],
+    value = seq_len(15L) / 15, colour = "black")
+  fn <- PlotCircleLollipop
+  env <- new.env(parent = environment(fn))
+  scans <- 0L
+  env$as.integer <- function(x, ...) {
+    if (is.factor(x) && length(x) == nrow(d)) scans <<- scans + 1L
+    base::as.integer(x, ...)
+  }
+  environment(fn) <- env
+  observed <- numeric()
+  original <- circlize::circos.points
+  local_mocked_bindings(circos.points = function(x, y, ...) {
+    observed <<- c(observed, y)
+    original(x, y, ...)
+  }, .package = "circlize")
+  fn(d, color_col = "colour", show_labels = FALSE, show_yaxis = FALSE, show_links = FALSE)
+  expect_identical(scans, 0L)
+  expect_identical(observed, d$value)
+})

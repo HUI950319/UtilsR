@@ -302,6 +302,7 @@ PlotCircleLollipop <- function(
     levels(sector_factors) <- keys
   }
   sector_keys <- levels(sector_factors)
+  sector_rows <- split(seq_len(nrow(df)), df$group)
   total_gap <- (nlevels(df$group) - 1L) * gap_between + gap_after
   if (!is.finite(total_gap) || total_gap >= 360)
     stop("'gap_after' and 'gap_between' must leave a positive angular span for sectors.", call. = FALSE)
@@ -357,7 +358,7 @@ PlotCircleLollipop <- function(
     original_rows <- if (value_scale == "group") {
       split(seq_len(nrow(data_orig)), group_labels[group_ids])
     }
-    indices <- split(seq_len(nrow(df)), df$group)
+    indices <- sector_rows
     for (i in seq_along(indices)) {
       idx <- indices[[i]]
       reference <- if (value_scale == "group") {
@@ -373,7 +374,7 @@ PlotCircleLollipop <- function(
     grp_min  <- tapply(orig_val, orig_grp, score_extreme, fun = min)
     grp_max  <- tapply(orig_val, orig_grp, score_extreme, fun = max)
     scaled <- numeric(nrow(df))
-    indices <- split(seq_len(nrow(df)), df$group)
+    indices <- sector_rows
     bounds <- match(names(indices), names(grp_min))
     for (i in seq_along(indices)) {
       idx <- indices[[i]]
@@ -495,7 +496,7 @@ PlotCircleLollipop <- function(
         track.height = track_height,
         panel.fun = function(x, y) {
           sector_id <- match(circlize::CELL_META$sector.index, sector_keys)
-          sector_data <- df[as.integer(df$group) == sector_id, ]
+          sector_data <- df[sector_rows[[sector_id]], , drop = FALSE]
 
           for (i in seq_len(nrow(sector_data))) {
             xp <- sector_data$x_pos[i]
