@@ -450,18 +450,21 @@ PlotRankCor <- function(
             cor_results$group[i], cor_label, cor_results$rho[i],
             cor_results$p.value[i])
   }, character(1))
-  subtitle_lines <- character()
+  subtitle_lines <- character(length(sub_parts) + 1L)
+  line_index <- 1L
   subtitle_line <- ""
   for (sub_part in sub_parts) {
     combined <- if (nzchar(subtitle_line)) paste(subtitle_line, sub_part, sep = "    ") else sub_part
     if (nzchar(subtitle_line) && nchar(combined, type = "width") > 80L) {
-      subtitle_lines <- c(subtitle_lines, subtitle_line)
+      subtitle_lines[line_index] <- subtitle_line
+      line_index <- line_index + 1L
       subtitle_line <- sub_part
     } else {
       subtitle_line <- combined
     }
   }
-  subtitle <- paste(c(subtitle_lines, subtitle_line), collapse = "\n")
+  subtitle_lines[line_index] <- subtitle_line
+  subtitle <- paste(subtitle_lines[seq_len(line_index)], collapse = "\n")
 
   # ---- Resolve palette ----
   n_groups <- length(groups)

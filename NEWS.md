@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRankCor()` fills its subtitle lines in place for plots with many groups.
+
 * `PlotRankCor()` avoids materializing unique vectors when checking whether finite paired scores vary.
 
 * The `ragg` backend captures panel contents using their native scales and applies viewport placement when drawing the raster.

@@ -953,3 +953,23 @@ test_that("rank correlations check finite variation without a unique vector", {
   data$score[121:240] <- 2
   expect_identical(run(data), NA_real_)
 })
+
+test_that("rank correlation subtitle lines avoid copying completed lines", {
+  fn <- PlotRankCor
+  environment(fn) <- list2env(list(c = function(...) {
+    args <- list(...)
+    if (length(args) == 2L && is.character(args[[1L]]) &&
+        is.character(args[[2L]]) && any(grepl(": rho =", args[[2L]], fixed = TRUE))) {
+      stop("copied a completed subtitle")
+    }
+    base::c(...)
+  }), parent = environment(fn))
+  data <- expand.grid(item = letters[1:4], group = sprintf("Group %02d", 1:24),
+                      method = c("A", "B"))
+  data$score <- rep(c(4, 1, 3, 2), 48L)
+  invisible(capture.output(p <- fn(data, stat.by = "item", value.by = "score", method.by = "method",
+                                   group.by = "group", show.label = FALSE)))
+  results <- attr(p, "cor_results")
+  parts <- sprintf("%s: rho = %.3f (p = %.3g)", results$group, results$rho, results$p.value)
+  expect_identical(gsub("\n", "    ", p$labels$subtitle, fixed = TRUE), paste(parts, collapse = "    "))
+})
