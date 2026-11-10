@@ -450,3 +450,23 @@ test_that("system diagnostics reuse a single host metadata lookup", {
   expect_identical(result$system_info$os_name, "Linux")
   expect_identical(result$system_info$architecture, "x86_64")
 })
+
+test_that("Linux memory falls back after unreadable or invalid proc data", {
+  free <- c("total used free shared buff/cache available",
+            "Mem: 8589934592 3221225472 1073741824 0 4294967296 5368709120")
+  for (unreadable in c(FALSE, TRUE)) {
+    query <- .check_system_fixture(meminfo = c("MemTotal: 0 kB", "MemAvailable: 0 kB"),
+                                  legacy = list("free -b" = free))
+    if (unreadable) {
+      env <- environment(query)
+      read <- env$readLines
+      env$readLines <- function(con, ...) {
+        if (con == "/proc/meminfo") stop("Unreadable proc fixture")
+        read(con, ...)
+      }
+    }
+    invisible(capture.output(result <- query(return_result = TRUE)))
+    expect_identical(result$system_memory,
+      list(total_gb = 8, used_gb = 3, free_gb = 5, usage_percent = 37.5))
+  }
+})

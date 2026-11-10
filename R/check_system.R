@@ -174,8 +174,10 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
       } else if (host[["sysname"]] == "Darwin") {
         stop("macOS memory is unavailable; check the optional 'ps' package.")
       } else {
-        if (file.exists("/proc/meminfo")) {
-          meminfo <- readLines("/proc/meminfo")
+        meminfo <- if (file.exists("/proc/meminfo")) {
+          tryCatch(readLines("/proc/meminfo"), error = function(e) character())
+        }
+        if (length(meminfo)) {
           get_mem_value <- function(pat) {
             line <- grep(paste0("^", pat), meminfo, value = TRUE)
             if (length(line) == 1L) {
@@ -195,35 +197,34 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
             available_gb <- free_gb + cached_gb
           }
 
-          list(
+          memory <- list(
             total_gb = total_gb,
             free_gb = available_gb,
             used_gb = total_gb - available_gb,
             usage_pct = ((total_gb - available_gb) / total_gb) * 100
           )
-        } else {
-          mem_info <- system("free -b", intern = TRUE)
-          row <- grep("^\\s*Mem:", mem_info)
-          if (length(row) == 1L && row > 1L) {
-            fields <- strsplit(trimws(mem_info[row - 1L]), "\\s+")[[1L]]
-            values <- strsplit(trimws(mem_info[row]), "\\s+")[[1L]][-1L]
-            if (length(fields) != length(values)) stop("Unrecognized free output.")
-            bytes <- stats::setNames(as.numeric(values), fields)
-            available <- if ("available" %in% fields) bytes["available"] else
-              sum(bytes[c("free", intersect(c("buff/cache", "buffers", "cached"), fields))])
-            total_gb <- unname(bytes["total"]) / 1024^3
-            available_gb <- unname(available) / 1024^3
-
-            list(
-              total_gb = total_gb,
-              free_gb = available_gb,
-              used_gb = total_gb - available_gb,
-              usage_pct = ((total_gb - available_gb) / total_gb) * 100
-            )
-          } else {
-            stop("\u65e0\u6cd5\u83b7\u53d6\u5185\u5b58\u4fe1\u606f")
-          }
+          if (.valid_memory(memory)) return(memory)
         }
+
+        mem_info <- system("free -b", intern = TRUE)
+        row <- grep("^\\s*Mem:", mem_info)
+        if (length(row) != 1L || row <= 1L) {
+          stop("\u65e0\u6cd5\u83b7\u53d6\u5185\u5b58\u4fe1\u606f")
+        }
+        fields <- strsplit(trimws(mem_info[row - 1L]), "\\s+")[[1L]]
+        values <- strsplit(trimws(mem_info[row]), "\\s+")[[1L]][-1L]
+        if (length(fields) != length(values)) stop("Unrecognized free output.")
+        bytes <- stats::setNames(as.numeric(values), fields)
+        available <- if ("available" %in% fields) bytes["available"] else
+          sum(bytes[c("free", intersect(c("buff/cache", "buffers", "cached"), fields))])
+        total_gb <- unname(bytes["total"]) / 1024^3
+        available_gb <- unname(available) / 1024^3
+        list(
+          total_gb = total_gb,
+          free_gb = available_gb,
+          used_gb = total_gb - available_gb,
+          usage_pct = ((total_gb - available_gb) / total_gb) * 100
+        )
       }
     }, error = function(e) {
       memory_error <<- conditionMessage(e)

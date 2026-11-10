@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `check_system()` tries the existing `free -b` backend when `/proc/meminfo` cannot supply valid memory figures.
+
 * `PlotRankCor()` reuses the ordered rank-pair rows when attaching size and alpha summaries.
 
 * `fmt_raster(method = "image")` draws `gList` children on the capture device.
