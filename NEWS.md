@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_text()` and plot text adapters keep quoted math calls intact when applying plot, axis, or legend labels.
+
 * Automatic `PlotDumbbell()` insets select factor-valued test methods by label and validate both selectors before reshaping.
 
 * `plt_na()` builds its matrix layer directly from the missingness masks and reuses the variable keys.

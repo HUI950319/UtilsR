@@ -795,12 +795,12 @@ fmt_tag <- function(plot,
   if (length(mapped)) {
     p <- p + do.call(ggplot2::labs, stats::setNames(
       rep(list(label), length(mapped)), mapped
-    ))
+    ), quote = TRUE)
   }
   scales <- lapply(p$scales$scales, function(sc) {
     if (!any(.is_legend_aes(sc$aesthetics))) return(sc)
     do.call(ggplot2::ggproto, list(NULL, sc, name = label,
-      guide = rename_guide(sc$guide)), envir = baseenv())
+      guide = rename_guide(sc$guide)), quote = TRUE, envir = baseenv())
   })
   if (!identical(scales, p$scales$scales)) {
     p$scales <- do.call(ggplot2::ggproto, list(NULL, p$scales, scales = scales),
@@ -3007,7 +3007,7 @@ fmt_text <- function(plot,
 
   # ---- Vectorize label params (recycle to n plots) ----
   vec_or_null <- function(x) {
-    if (is.null(x)) return(rep(list(NULL), n))
+    if (is.null(x) || is.call(x) || is.symbol(x)) return(rep(list(x), n))
     values <- rep_len(x, n)
     if (is.expression(values)) {
       return(lapply(seq_along(values), function(i) values[i]))
@@ -3074,7 +3074,7 @@ fmt_text <- function(plot,
   # ---- Extra labs via ... ----
   extra_labs <- list(...)
   extra_layer <- if (length(extra_labs) > 0L) {
-    do.call(ggplot2::labs, extra_labs)
+    do.call(ggplot2::labs, extra_labs, quote = TRUE)
   } else {
     NULL
   }
@@ -3090,7 +3090,7 @@ fmt_text <- function(plot,
     if (!is.null(caption_vec[[i]]))  labs_i$caption  <- caption_vec[[i]]
     # ggplot2 leaves no space only for NULL labels; "" keeps an empty row.
     labs_i[vapply(labs_i, identical, logical(1), "")] <- list(NULL)
-    if (length(labs_i) > 0L) p <- p + do.call(ggplot2::labs, labs_i)
+    if (length(labs_i) > 0L) p <- p + do.call(ggplot2::labs, labs_i, quote = TRUE)
     if (!is.null(extra_layer))  p <- p + extra_layer
     if (length(styles))         p <- p + style_theme_for(p)
     legend_i <- legend_vec[[i]]

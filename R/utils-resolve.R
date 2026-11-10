@@ -384,7 +384,7 @@
                          "of {.fn fmt_text} arguments other than {.arg plot}."),
                    call = call)
   }
-  do.call(fmt_text, c(list(p), value))
+  do.call(fmt_text, c(list(p), value), quote = TRUE)
 }
 
 # Merge a partial named-list argument (e.g. `label_args`) into its documented

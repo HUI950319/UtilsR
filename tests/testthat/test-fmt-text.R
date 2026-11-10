@@ -249,3 +249,23 @@ test_that("plot text broadcasts expressions as plotmath labels", {
     expect_identical(label(plots[[i]], "xlab-b"), label(expected, "xlab-b"))
   }
 })
+
+test_that("quoted mathematical labels remain values through plot text adapters", {
+  plot <- ggplot2::ggplot(data.frame(x = 1:3, y = 2:4, g = letters[1:3]),
+                          ggplot2::aes(x, y, colour = g)) +
+    ggplot2::geom_point() + ggplot2::scale_colour_manual(values = c("red", "blue", "black"))
+  label <- quote(alpha + beta)
+  titles <- list(quote(alpha), label)
+  plots <- fmt_text(list(plot, plot), xlab = label, title = titles, colour = label)
+  for (i in seq_along(plots)) {
+    expect_identical(plots[[i]]$labels$title, titles[[i]])
+    expect_identical(plots[[i]]$labels$x, label)
+    expect_identical(plots[[i]]$labels$colour, label)
+    expect_s3_class(ggplot2::ggplotGrob(plots[[i]]), "gtable")
+  }
+
+  adapted <- UtilsR:::.apply_fmt_text(plot, list(title = label, legend_title = label))
+  expect_identical(adapted$labels$title, label)
+  expect_identical(adapted$scales$get_scales("colour")$name, label)
+  expect_s3_class(ggplot2::ggplotGrob(adapted), "gtable")
+})
