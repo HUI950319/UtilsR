@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_na()` builds its matrix layer directly from the missingness masks and reuses the variable keys.
+
 * `stat_ci()` checks sampled key density before grouping a full vector for formatting reuse.
 
 * `check_size()` checks selected names against the environment inventory when it has already enumerated the bindings.

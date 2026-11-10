@@ -417,3 +417,16 @@ test_that("missingness name maps validate before reading data", {
                                  output = "percentage"))
   expect_identical(as.character(plot$data$label), rep("a", 2L))
 })
+
+test_that("missingness matrices reuse masks in original row order", {
+  testthat::local_mocked_bindings(pivot_longer = function(...) stop("pivoted existing masks"),
+                                .package = "tidyr")
+  data <- data.frame(z = c(NA, 1, NA), a = c(0, NA, 1), complete = 1:3)
+  plot <- suppressMessages(plt_na(data, output = "matrix", name.map = c(z = "Z", a = "A")))
+  expect_identical(plot$data$id, rep(1:3, each = 2L))
+  expect_identical(plot$data$name, rep(c("z", "a"), 3L))
+  expect_identical(plot$data$value, c(TRUE, FALSE, FALSE, TRUE, TRUE, FALSE))
+  expect_identical(plot$data$isna, plot$data$value)
+  expect_identical(as.character(plot$data$label), rep(c("Z", "A"), 3L))
+  expect_identical(levels(plot$data$label), c("Z", "A"))
+})

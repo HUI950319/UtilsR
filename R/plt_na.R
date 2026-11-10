@@ -312,23 +312,16 @@ plt_na <- function(
       show_legend = FALSE,
       show_y_labels = TRUE,
       gap_side = NULL) {
-    matrix_data <- missing_data |>
-      dplyr::select(dplyr::all_of(missing_vars)) |>
-      tidyr::pivot_longer(
-        dplyr::everything(),
-        names_to = "name",
-        values_to = "value",
-        values_transform = list(value = as.logical)
-      ) |>
-      tibble::add_column(
-        id = rep(seq_len(nrow(missing_data)), each = length(missing_vars)),
-        .before = 1L
-      ) |>
-      dplyr::mutate(
-        isna = .data[["value"]],
-        label = unname(variable_keys[.data[["name"]]]),
-        label = factor(.data[["label"]], levels = variable_levels)
-      )
+    n <- nrow(missing_data)
+    value <- as.vector(do.call(rbind, unname(lapply(missing_data, as.logical))))
+    labels <- factor(unname(variable_keys[missing_vars]), levels = variable_levels)
+    matrix_data <- tibble::tibble(
+      id = rep(seq_len(n), each = length(missing_vars)),
+      name = rep.int(missing_vars, n),
+      value = value,
+      isna = value,
+      label = rep.int(labels, n)
+    )
 
     plot_margin <- ggplot2::margin(0, 0, 0, 0, "pt")
     if (identical(gap_side, "left")) {
