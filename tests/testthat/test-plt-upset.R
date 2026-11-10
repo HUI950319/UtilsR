@@ -827,3 +827,20 @@ test_that("UpSet factor codes use direct bit lookups", {
     c("None", "A", "B", "A/B", "C", "A/C", "B/C", "A/B/C", "A/B", "A/B", "A/B/C"))
   expect_identical(levels(result$intersect_group), c("A/B", "A/B/C", "A", "B", "C", "A/C", "B/C", "None"))
 })
+
+test_that("UpSet time selectors reuse their encoded levels", {
+  days <- as.Date("2020-01-01") + c(1L, 3L)
+  d <- data.frame(A = days[c(1L, 2L, NA, 1L)], B = days[c(2L, NA, 1L, 2L)],
+    C = days[c(NA, 1L, 2L, 2L)])
+  fn <- plt_upset
+  env <- new.env(parent = environment(fn))
+  encodings <- 0L
+  env$.cat_time_key <- function(x, ...) {
+    if (identical(x, days)) encodings <<- encodings + 1L
+    .cat_time_key(x, ...)
+  }
+  environment(fn) <- env
+  result <- fn(d, vars = names(d), levels = days, output = "data")
+  expect_identical(encodings, 1L)
+  expect_identical(as.character(result$intersect_group), c("A/B", "A/C", "B/C", "A/B/C"))
+})

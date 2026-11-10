@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* UpSet time-based membership computes the selection keys once for all compatible columns.
+
 * `plt_upset(output = "data")` decodes row memberships by direct bit-code lookup.
 
 * Patchwork restoration preserves unchanged panels without repeatedly replacing them.

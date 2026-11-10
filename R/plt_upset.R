@@ -321,6 +321,7 @@ plt_upset <- function(data,
     }
     missing_levels <- anyNA(levels)
     value_levels <- levels[!is.na(levels)]
+    time_level_keys <- NULL
     set_list <- lapply(stats::setNames(vars, vars), function(v) {
       values <- data[[v]]
       if (!length(value_levels)) {
@@ -330,7 +331,8 @@ plt_upset <- function(data,
                               function(cls) inherits(values, cls) && inherits(value_levels, cls),
                               logical(1)))
       selected <- if (same_time) {
-        .cat_time_key(values, units = "secs") %in% .cat_time_key(value_levels, units = "secs")
+        if (is.null(time_level_keys)) time_level_keys <<- .cat_time_key(value_levels, units = "secs")
+        .cat_time_key(values, units = "secs") %in% time_level_keys
       } else member_in(values, value_levels)
       missing <- is.na(values)
       member <- selected & !missing
