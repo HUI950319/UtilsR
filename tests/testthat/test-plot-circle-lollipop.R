@@ -1028,3 +1028,30 @@ test_that("circular explicit integer64 group order works in a fresh session", {
     c("--vanilla", shQuote(script)), stdout = TRUE, stderr = TRUE))
   expect_true("COLD_CIRCLE_LEVELS_OK" %in% output, info = paste(output, collapse = "\n"))
 })
+
+test_that("circular durations preserve group membership through ranking and scaling", {
+  skip_if_not_installed("lubridate")
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  durations <- lubridate::dseconds(rep(1:2, each = 3L))
+  d <- tibble::tibble(group = durations, name = letters[1:6],
+    value = c(0, .25, 1, 0, .5, 1))
+  reference <- d
+  reference$group <- as.character(durations)
+  positions <- numeric()
+  original <- circlize::circos.points
+  local_mocked_bindings(circos.points = function(x, y, ...) {
+    positions <<- c(positions, y)
+    original(x, y, ...)
+  }, .package = "circlize")
+  draw <- function(data, groups, top_n) {
+    positions <<- numeric()
+    PlotCircleLollipop(data, group_levels = groups, value_scale = "group", top_n = top_n,
+      show_labels = FALSE, show_yaxis = FALSE, show_links = FALSE)
+    positions
+  }
+  order <- lubridate::dseconds(2:1)
+  for (top_n in list(NULL, 2L)) {
+    expect_identical(draw(d, order, top_n), draw(reference, as.character(order), top_n))
+  }
+})

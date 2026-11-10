@@ -227,7 +227,12 @@ PlotCircleLollipop <- function(
   }
 
   # ---- Preserve group identity when character labels coincide ----
-  group_values <- vctrs::vec_unique(data[[group_col]])
+  group_input <- data[[group_col]]
+  duration_groups <- inherits(group_input, "Duration")
+  group_values <- vctrs::vec_unique(group_input)
+  group_keys <- if (duration_groups) vctrs::vec_proxy_equal(group_values) else group_values
+  if (duration_groups) group_input <- vctrs::vec_proxy_equal(group_input)
+  group_ids <- vctrs::vec_match(group_input, group_keys)
   group_labels <- as.character(group_values)
   collision <- duplicated(group_labels) | duplicated(group_labels, fromLast = TRUE)
   if (any(collision)) {
@@ -250,7 +255,7 @@ PlotCircleLollipop <- function(
     }
     top_n <- as.integer(top_n)
     ranking <- tibble::tibble(
-      group = data[[group_col]],
+      group = group_input,
       score = if (integer64_scores) data[[value_col]] else numeric_values,
       row_id = selected
     )
@@ -263,7 +268,7 @@ PlotCircleLollipop <- function(
 
   # ---- Normalise to standard column names ----
   df <- data.frame(
-    group = group_labels[vctrs::vec_match(data[[group_col]], group_values)],
+    group = group_labels[group_ids[selected]],
     name  = as.character(.butterfly_category_labels(data[[name_col]])),
     value = numeric_values[selected],
     stringsAsFactors = FALSE
@@ -274,7 +279,8 @@ PlotCircleLollipop <- function(
   if (!is.null(group_levels)) {
     if (any(collision) && !is.character(group_levels) &&
         identical(class(group_levels), class(group_values))) {
-      ids <- vctrs::vec_match(group_levels, group_values)
+      level_keys <- if (duration_groups) vctrs::vec_proxy_equal(group_levels) else group_levels
+      ids <- vctrs::vec_match(level_keys, group_keys)
       group_levels <- as.character(group_levels)
       group_levels[!is.na(ids)] <- group_labels[ids[!is.na(ids)]]
     }
@@ -348,8 +354,7 @@ PlotCircleLollipop <- function(
   if (integer64_scores && value_scale %in% c("group", "top_n")) {
     scores <- data[[value_col]]
     original_rows <- if (value_scale == "group") {
-      split(seq_len(nrow(data_orig)),
-            group_labels[vctrs::vec_match(data_orig[[group_col]], group_values)])
+      split(seq_len(nrow(data_orig)), group_labels[group_ids])
     }
     indices <- split(seq_len(nrow(df)), df$group)
     for (i in seq_along(indices)) {
@@ -362,7 +367,7 @@ PlotCircleLollipop <- function(
     if (value_scale == "top_n") df <- as.data.frame(df)
   } else if (value_scale == "group") {
     # Scale using the FULL group range from original data (before top_n)
-    orig_grp <- group_labels[vctrs::vec_match(data_orig[[group_col]], group_values)]
+    orig_grp <- group_labels[group_ids]
     orig_val <- numeric_values
     grp_min  <- tapply(orig_val, orig_grp, score_extreme, fun = min)
     grp_max  <- tapply(orig_val, orig_grp, score_extreme, fun = max)

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotCircleLollipop()` keeps duration group identity through ranking and scaling, including duration inputs backed by integer values.
+
 * `PlotCircleLollipop()` now interprets serialized integer64 group levels when bit64 has not been loaded.
 
 * Console P-value cells keep malformed text visible without sending it through the decimal parser.
