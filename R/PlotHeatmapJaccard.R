@@ -154,8 +154,11 @@ PlotHeatmapJaccard <- function(
   ct_names <- ct_names[!is.na(ct_names)]
   # Keep typed group keys separate from their display labels.
   ct_labels <- as.character(ct_names)
-  if (anyDuplicated(ct_labels))
-    stop("'group_levels' must not contain duplicate non-missing groups.", call. = FALSE)
+  if (anyDuplicated(ct_labels)) {
+    ct_labels <- as.character(.butterfly_category_labels(ct_names))
+    if (anyDuplicated(ct_labels))
+      stop("'group_levels' must not contain duplicate non-missing groups.", call. = FALSE)
+  }
   n_ct <- length(ct_names)
   if (n_ct == 0L)
     stop("No non-missing groups available.", call. = FALSE)

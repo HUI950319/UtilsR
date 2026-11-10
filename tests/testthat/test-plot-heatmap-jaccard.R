@@ -257,10 +257,11 @@ test_that("classed group labels preserve matrix names and tile positions", {
   }
 })
 
-test_that("group labels that become duplicates fail before every return path", {
-  dat <- data.frame(cell_type = c(1, 1 + 1e-15), gene = c("a", "b"))
+test_that("repeated explicit group levels fail before every return path", {
+  dat <- data.frame(cell_type = 1:2, gene = c("a", "b"))
   for (type in c("data", "plot", "both")) {
-    expect_error(PlotHeatmapJaccard(dat, return_type = type), "group_levels.*duplicate")
+    expect_error(PlotHeatmapJaccard(dat, group_levels = c(1, 1), return_type = type),
+      "group_levels.*duplicate")
   }
 })
 
@@ -674,8 +675,8 @@ test_that("Jaccard numeric group membership uses one exact index", {
   expect_identical(scans, 0L)
   expect_identical(rownames(m), c("30", "0.25", "2.5", "99"))
   expect_equal(unname(m), expected)
-  d$group[1L] <- .25 + .Machine$double.eps / 4
-  expect_error(fn(d, group_col = "group", return_type = "data"), "duplicate")
+  expect_error(fn(d, group_col = "group", group_levels = c(.25, .25, 2.5, 30),
+    return_type = "data"), "duplicate")
 })
 
 test_that("Jaccard diagonals and empty groups bypass membership scans", {
@@ -691,4 +692,17 @@ test_that("Jaccard diagonals and empty groups bypass membership scans", {
   actual <- fn(d, group_col = "group", group_levels = c("A", "Z", "B"), return_type = "data")
   expect_identical(membership_scans, 1L)
   expect_equal(unname(actual), matrix(c(1, 0, 1/3, 0, 0, 0, 1/3, 0, 1), 3L))
+})
+
+test_that("Jaccard heatmaps keep exact close numeric group keys", {
+  keys <- c(1, 1 + .Machine$double.eps)
+  data <- data.frame(group = rep(keys, each = 2), feature = c("g1", "g2", "g2", "g3"))
+  result <- PlotHeatmapJaccard(data, "group", "feature", return_type = "data")
+  expect_equal(unname(result), matrix(c(1, 1/3, 1/3, 1), nrow = 2))
+  expect_length(unique(rownames(result)), 2L)
+  explicit <- PlotHeatmapJaccard(data, "group", "feature", group_levels = rev(keys),
+                                return_type = "data")
+  expect_identical(rownames(explicit), rev(rownames(result)))
+  expect_error(PlotHeatmapJaccard(data, "group", "feature", group_levels = c(1, 1),
+                                 return_type = "data"), "duplicate")
 })

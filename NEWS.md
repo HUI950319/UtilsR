@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotHeatmapJaccard()` formats colliding group labels precisely before checking for duplicate group keys.
+
 * `plt_sankey()` reports selected columns with dimensions before converting stage categories.
 
 * `plt_sankey()` reshapes character node keys directly and restores the shared factor ordering once.
