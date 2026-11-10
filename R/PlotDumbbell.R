@@ -272,7 +272,11 @@ PlotDumbbell <- function(
   delta_x_var <- delta_fields[3L]
   start_values <- data[[x_col]]
   end_values <- data[[xend_col]]
-  if (inherits(start_values, "integer64") && inherits(end_values, "integer64")) {
+  start_integer64 <- inherits(start_values, "integer64")
+  end_integer64 <- inherits(end_values, "integer64")
+  mixed_integer64 <- (start_integer64 && is.numeric(end_values) && !is.object(end_values)) ||
+    (end_integer64 && is.numeric(start_values) && !is.object(start_values))
+  if ((start_integer64 && end_integer64) || mixed_integer64) {
     delta_values <- .dumbbell_integer64_difference(end_values, start_values)
   } else if (is.integer(start_values) && is.integer(end_values) &&
              !is.object(start_values) && !is.object(end_values)) {
@@ -319,6 +323,15 @@ PlotDumbbell <- function(
     y_col <- utils::tail(make.unique(c(names(data), ".category")), 1L)
   }
   data[[y_col]] <- factor(categories, levels = unique(categories))
+
+  # Draw mixed endpoints on one numeric scale while retaining the input and exact deltas.
+  mean_cols <- c(x_col, xend_col)
+  if (mixed_integer64) {
+    integer_col <- if (start_integer64) x_col else xend_col
+    alias <- utils::tail(make.unique(c(names(data), delta_fields, ".numeric_endpoint")), 1L)
+    data[[alias]] <- suppressWarnings(as.double(data[[integer_col]]))
+    if (start_integer64) x_col <- alias else xend_col <- alias
+  }
 
   # Keep a literal .data column separate from ggplot2's data pronoun.
   if (".data" %in% c(x_col, xend_col, y_col)) {
@@ -409,8 +422,8 @@ PlotDumbbell <- function(
       low <- sum(as.double(value %% step), na.rm = TRUE)
       (high * 2^32 + low) / sum(!is.na(value))
     }
-    mean_x    <- endpoint_mean(data[[x_col]])
-    mean_xend <- endpoint_mean(data[[xend_col]])
+    mean_x    <- endpoint_mean(data[[mean_cols[1L]]])
+    mean_xend <- endpoint_mean(data[[mean_cols[2L]]])
     p <- p +
       ggplot2::geom_vline(
         xintercept = mean_x, linetype = "dashed",
@@ -494,7 +507,8 @@ PlotDumbbell <- function(
       inset_test = inset_test,
       paired_line = inset_paired_line,
       jitter     = inset_jitter,
-      theme_obj  = if (is.null(inset_theme_use)) thm else .resolve_theme(inset_theme_use)
+      theme_obj  = if (is.null(inset_theme_use)) thm else .resolve_theme(inset_theme_use),
+      paired_difference = if (mixed_integer64) data[[delta_var]]
     )
   } else if (inherits(inset_plot, "ggplot") || inherits(inset_plot, "grob") ||
              inherits(inset_plot, "gList") || inherits(inset_plot, "gtable")) {
@@ -537,6 +551,23 @@ PlotDumbbell <- function(
 
 # Retain native integer64 differences whenever the full result fits.
 .dumbbell_integer64_difference <- function(x, y) {
+  if (!inherits(x, "integer64")) return(-.dumbbell_integer64_difference(y, x))
+  if (!inherits(y, "integer64")) {
+    if (all(is.na(y) | (abs(y) < 2^63 & y == trunc(y)))) {
+      y <- bit64::as.integer64(y)
+    } else {
+      step <- 2^32
+      step64 <- bit64::as.integer64(step)
+      difference <- suppressWarnings(as.double(x)) - y
+      finite <- which(!is.na(x) & is.finite(y))
+      whole <- trunc(y[finite] / step)
+      fraction <- y[finite] - whole * step
+      high <- as.double(x[finite] %/% step64) - whole
+      low <- as.double(x[finite] %% step64) - fraction
+      difference[finite] <- high * step + low
+      return(difference)
+    }
+  }
   difference <- suppressWarnings(x - y)
   overflow <- is.na(difference) & !is.na(x) & !is.na(y)
   if (!any(overflow)) return(difference)
@@ -557,7 +588,7 @@ PlotDumbbell <- function(
     color_x, color_xend,
     inset_type, inset_test,
     paired_line, jitter,
-    theme_obj
+    theme_obj, paired_difference = NULL
 ) {
   if (!is.character(inset_type) || !is.null(dim(inset_type)) ||
       length(inset_type) != 1L || !inset_type %in% c("boxplot", "violin")) {
@@ -647,8 +678,9 @@ PlotDumbbell <- function(
     )
     test_x <- x_values
     test_xend <- xend_values
-    if (integer64_pair) {
-      difference <- .dumbbell_integer64_difference(test_x, test_xend)
+    if (integer64_pair || !is.null(paired_difference)) {
+      difference <- if (integer64_pair) .dumbbell_integer64_difference(test_x, test_xend) else
+        -paired_difference
       test_x <- suppressWarnings(as.double(difference))
       test_xend <- numeric(length(test_x))
     }

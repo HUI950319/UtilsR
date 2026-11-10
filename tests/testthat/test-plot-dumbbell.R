@@ -730,3 +730,31 @@ test_that("dumbbell inset methods select names independently of factor order", {
   expect_error(build("none", matrix("boxplot")), "inset_type")
   expect_length(build(factor("none"))$layers, 1L)
 })
+
+test_that("mixed integer64 dumbbells preserve fractional and large paired differences", {
+  skip_if_not_installed("bit64")
+  data <- data.frame(start = bit64::as.integer64(c("9007199254740993", "1", "2", "6")),
+                     end = c(2^53, 1.5, 2.25, 8.5), category = letters[1:4])
+  inset <- NULL
+  build <- .build_dumbbell_inset
+  testthat::local_mocked_bindings(.build_dumbbell_inset = function(...) {
+    inset <<- build(...)
+    inset
+  }, .package = "UtilsR")
+  expected <- c(-1, .5, .25, 2.5)
+  label <- sprintf("p = %.3f", stats::t.test(expected, numeric(4), paired = TRUE)$p.value)
+  for (start in c("start", "end")) {
+    end <- if (start == "start") "end" else "start"
+    sign <- if (start == "start") 1 else -1
+    expect_no_warning(plot <- dumbbell_plot(data, x_col = start, xend_col = end,
+      sort_by = "none", dot_guide = TRUE, show_delta = TRUE, show_mean_lines = TRUE,
+      inset_plot = "auto", inset_paired_line = FALSE, inset_jitter = FALSE, legend_pos = "none"))
+    main <- plot[[1L]]
+    expect_equal(main$data$.delta, sign * expected)
+    expect_identical(main$data$start, data$start)
+    delta_layer <- Filter(function(layer) ".delta_x" %in% names(layer$data), main$layers)
+    expect_length(delta_layer, 1L)
+    expect_equal(delta_layer[[1L]]$data$.delta_x, pmax(suppressWarnings(as.double(data$start)), data$end))
+    expect_identical(ggplot2::layer_data(inset, length(inset$layers))$label, label)
+  }
+})
