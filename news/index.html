@@ -50,7 +50,106 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.23" id="utilsr-0623">UtilsR 0.6.23<a class="anchor" aria-label="anchor" href="#utilsr-0623"></a></h2>
-<ul><li><p><code><a href="../reference/lv.html">lv()</a></code> reuses the summary’s observed cardinality when choosing character and complex columns for an ungrouped table.</p></li>
+<ul><li><p><code><a href="../reference/fmt_his.html">fmt_his()</a></code> treats SPSS user-defined missing values as missing before computing histogram counts or densities.</p></li>
+<li><p>Circular group scaling finds both bounds from one set of original row indices, including rows omitted by <code>top_n</code>.</p></li>
+<li><p>When selecting overlay samples from layers, <code><a href="../reference/fmt_his.html">fmt_his()</a></code> prefers data layers and still supports guide-only plots.</p></li>
+<li><p>Circular y-axis ticks and titles can extend outside the first sector without emitting spurious overflow messages.</p></li>
+<li><p>Circular labels at crowded sector edges keep their intervals inside the sector while retaining their anchor positions.</p></li>
+<li><p>Circular plots with all feature labels missing still draw their sectors and points.</p></li>
+<li><p><code><a href="../reference/PlotButterfly2.html">PlotButterfly2()</a></code> decodes serialized integer64 scores before computing distribution statistics in a fresh R process.</p></li>
+<li><p><code><a href="../reference/plt_alluvial.html">plt_alluvial()</a></code> keeps observed ordinary factor levels in order without re-encoding all factor labels.</p></li>
+<li><p>Circular point positions reuse the sector row index and avoid grouping the plotting data again.</p></li>
+<li><p>UpSet time-based membership computes the selection keys once for all compatible columns.</p></li>
+<li><p><code>plt_upset(output = "data")</code> decodes row memberships by direct bit-code lookup.</p></li>
+<li><p>Patchwork restoration preserves unchanged panels without repeatedly replacing them.</p></li>
+<li><p><code>fmt_strip(strip = FALSE)</code> returns facet-free plot containers after validation without rebuilding their panels.</p></li>
+<li><p><code><a href="../reference/fmt_ref.html">fmt_ref()</a></code> validates the plot container and returns immediately when both reference vectors are empty.</p></li>
+<li><p>An independent boxplot layer can resolve explicit position columns from the parent data when an earlier layer has separate data.</p></li>
+<li><p><code><a href="../reference/fmt_his.html">fmt_his()</a></code> can compute distribution overlays from a column literally named <code>.env</code>.</p></li>
+<li><p><code><a href="../reference/PlotButterfly.html">PlotButterfly()</a></code> bar aesthetics accept columns literally named <code>.data</code> or <code>.env</code>, preserving the score and alpha labels.</p></li>
+<li><p>Butterfly min-max scaling preserves differences near the lower integer64 endpoint without overflowing the group range.</p></li>
+<li><p>Butterfly min-max scaling retains fractional results when the first group contains only missing integer64 scores.</p></li>
+<li><p>Butterfly mean-based ordering now retains fractional means for integer64 scores.</p></li>
+<li><p><code><a href="../reference/plt_sankey.html">plt_sankey()</a></code> locates label stages directly from node IDs without scanning the long plotting data.</p></li>
+<li><p>Circular top-N scaling now reuses the sector row index and updates the score column directly.</p></li>
+<li><p><code><a href="../reference/check_system.html">check_system()</a></code> uses the Linux distribution <code>NAME</code> when <code>PRETTY_NAME</code> is absent or empty.</p></li>
+<li><p><code><a href="../reference/PlotHeatmapJaccard.html">PlotHeatmapJaccard()</a></code> excludes fractional or unrepresentable numeric keys when matching against integer64 groups.</p></li>
+<li><p>Circular link and colour selection counts distinct feature-sector pairs in one pass.</p></li>
+<li><p>Circular sector drawing reuses one row index instead of scanning all observations for every sector.</p></li>
+<li><p>Circular top-N selection now subsets only the columns used by the plot.</p></li>
+<li><p><code><a href="../reference/PlotCircleLollipop.html">PlotCircleLollipop()</a></code> keeps duration group identity through ranking and scaling, including duration inputs backed by integer values.</p></li>
+<li><p><code><a href="../reference/PlotCircleLollipop.html">PlotCircleLollipop()</a></code> now interprets serialized integer64 group levels when bit64 has not been loaded.</p></li>
+<li><p>Console P-value cells keep malformed text visible without sending it through the decimal parser.</p></li>
+<li><p><code><a href="../reference/PlotHeatmapJaccard.html">PlotHeatmapJaccard()</a></code> matches duration groups with integer or double storage by their exact numeric seconds.</p></li>
+<li><p><code><a href="../reference/PlotCircleLollipop.html">PlotCircleLollipop()</a></code> keeps blank sector labels while providing nonempty internal IDs for drawing, scaling and links.</p></li>
+<li><p>Continuous t-test adapters obtain magnitudes from finite bounds and reuse those bounds for extreme-scale centering.</p></li>
+<li><p><code><a href="../reference/stat_ci.html">stat_ci()</a></code> formats complete numeric vectors directly and subsets only mixed-missing inputs.</p></li>
+<li><p><code>fmt_his(con_var = ".data")</code> uses a private numeric mapping for the literal column name.</p></li>
+<li><p><code><a href="../reference/PlotDumbbell.html">PlotDumbbell()</a></code> preserves fractional and exact large-integer differences when paired endpoints mix ordinary numeric and integer64 storage.</p></li>
+<li><p><code><a href="../reference/PlotScatter3.html">PlotScatter3()</a></code> validates <code>p_digits</code> for active paired tests and leaves it lazy when tests are disabled.</p></li>
+<li><p><code><a href="../reference/plt_upset.html">plt_upset()</a></code> retains explicit missing factor levels when every nonempty set is a factor and other sets are empty.</p></li>
+<li><p><code><a href="../reference/pal_get.html">pal_get()</a></code> retains the numeric coordinate vector directly when every value is finite.</p></li>
+<li><p><code>grob_insert(align_to = "plot")</code> excludes the outer margin cells of a standard ggplot.</p></li>
+<li><p><code>fmt_boxplot(inherit.aes = FALSE)</code> treats a data waiver as the default source while resolving layer data.</p></li>
+<li><p><code><a href="../reference/fmt_his.html">fmt_his()</a></code> converts integer64 sample positions to numeric values before applying histogram or density statistics.</p></li>
+<li><p><code><a href="../reference/fmt_his.html">fmt_his()</a></code> searches plot layers when the requested <code>con_var</code> is absent from the default plot data.</p></li>
+<li><p><code><a href="../reference/PlotButterfly2.html">PlotButterfly2()</a></code> pads unequal sample counts through class-aware indexing, preserving integer64 missing values.</p></li>
+<li><p><code>PlotScatter3(test_method = "none")</code> leaves P-label coordinates unevaluated.</p></li>
+<li><p><code><a href="../reference/PlotHeatmapJaccard.html">PlotHeatmapJaccard()</a></code> reuses the factors and numeric scores created by the matrix-to-table conversion.</p></li>
+<li><p><code><a href="../reference/PlotCircleLollipop.html">PlotCircleLollipop()</a></code> matches colliding display groups by typed identity when applying an explicit group order.</p></li>
+<li><p><code><a href="../reference/PlotButterfly.html">PlotButterfly()</a></code> restores integer64 methods before plotting a serialized numeric bar column.</p></li>
+<li><p><code>PlotButterfly(minmax = TRUE)</code> promotes ordinary integer bounds before subtracting them.</p></li>
+<li><p><code><a href="../reference/PlotButterfly.html">PlotButterfly()</a></code> keeps the numeric score and alpha mappings when a column also supplies a category.</p></li>
+<li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> computes ranks in a standalone vector before adding it to the plot data.</p></li>
+<li><p><code><a href="../reference/plt_sankey.html">plt_sankey()</a></code> skips the label-position build when no node meets the minimum proportion.</p></li>
+<li><p><code><a href="../reference/fct_cat.html">fct_cat()</a></code> validates <code>groups</code> as a named one-dimensional list before converting the input.</p></li>
+<li><p><code><a href="../reference/fct_cat.html">fct_cat()</a></code> and <code><a href="../reference/fct_to_group.html">fct_to_group()</a></code> pass validated level names to the shared recoder.</p></li>
+<li><p><code><a href="../reference/fct_num.html">fct_num()</a></code> uses the range already checked for underflow to create equal-width breaks on plain vectors.</p></li>
+<li><p>Continuous dot panels tally observed group IDs directly while retaining displayed bin and group order.</p></li>
+<li><p><code>plt_upset(output = "data")</code> builds names and codes for each combination size in batches.</p></li>
+<li><p><code><a href="../reference/plt_sankey.html">plt_sankey()</a></code> builds stage and successor keys directly in row order, preserving node and flow identities.</p></li>
+<li><p><code><a href="../reference/plt_alluvial.html">plt_alluvial()</a></code> constructs gap strata in one table and calculates facet heights only for count layouts.</p></li>
+<li><p><code><a href="../reference/plt_alluvial.html">plt_alluvial()</a></code> derives gap sizes from the existing ordered facet/category rows without de-duplicating all groups.</p></li>
+<li><p><code><a href="../reference/plt_sankey.html">plt_sankey()</a></code> measures the node layer for label placement without constructing flow polygons twice.</p></li>
+<li><p><code><a href="../reference/fmt_raster.html">fmt_raster()</a></code> checks the one-dimensional plot-list contract before dispatching to any renderer.</p></li>
+<li><p><code><a href="../reference/PlotHeatmapJaccard.html">PlotHeatmapJaccard()</a></code> formats colliding group labels precisely before checking for duplicate group keys.</p></li>
+<li><p><code><a href="../reference/plt_sankey.html">plt_sankey()</a></code> reports selected columns with dimensions before converting stage categories.</p></li>
+<li><p><code><a href="../reference/plt_sankey.html">plt_sankey()</a></code> reshapes character node keys directly and restores the shared factor ordering once.</p></li>
+<li><p><code><a href="../reference/check_system.html">check_system()</a></code> reports <code>Model</code> or <code>Hardware</code> from Linux CPU metadata when a processor model name is unavailable.</p></li>
+<li><p><code><a href="../reference/check_system.html">check_system()</a></code> tries the existing <code>free -b</code> backend when <code>/proc/meminfo</code> cannot supply valid memory figures.</p></li>
+<li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> reuses the ordered rank-pair rows when attaching size and alpha summaries.</p></li>
+<li><p><code>fmt_raster(method = "image")</code> draws <code>gList</code> children on the capture device.</p></li>
+<li><p><code><a href="../reference/fmt_com.html">fmt_com()</a></code> accepts an observed empty-string group as a named reference.</p></li>
+<li><p><code><a href="../reference/check_system.html">check_system()</a></code> uses one <code><a href="https://rdrr.io/r/base/Sys.info.html" class="external-link">Sys.info()</a></code> snapshot for its platform checks and report.</p></li>
+<li><p><code><a href="../reference/check_system.html">check_system()</a></code> uses the last <code>PRETTY_NAME</code> assignment within the selected Linux release file.</p></li>
+<li><p><code><a href="../reference/impute_na_knn.html">impute_na_knn()</a></code> converts only filled entries back to time classes and keeps observed values directly.</p></li>
+<li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> fills its subtitle lines in place for plots with many groups.</p></li>
+<li><p><code><a href="../reference/PlotRankCor.html">PlotRankCor()</a></code> avoids materializing unique vectors when checking whether finite paired scores vary.</p></li>
+<li><p>The <code>ragg</code> backend captures panel contents using their native scales and applies viewport placement when drawing the raster.</p></li>
+<li><p><code><a href="../reference/fmt_plot_base.html">fmt_plot_base()</a></code> passes quoted labels from <code>labs_list</code> to ggplot2 without evaluating their expressions.</p></li>
+<li><p><code>fmt_raster(method = "image")</code> reports dimensions that would allocate a zero-pixel raster.</p></li>
+<li><p><code><a href="../reference/pal_get.html">pal_get()</a></code> encodes single-colour ramps directly while retaining the existing alpha bytes and colour spelling.</p></li>
+<li><p><code><a href="../reference/impute_na_knn.html">impute_na_knn()</a></code> preserves the existing column vectors when all rows can enter the backend.</p></li>
+<li><p><code><a href="../reference/PlotRank.html">PlotRank()</a></code> reuses group row indices for explicit selections on plain and factor grouping columns.</p></li>
+<li><p><code>fmt_raster(method = "ragg")</code> rasterizes bare geometry panel grobs, preserves bare panel text, and skips null panels.</p></li>
+<li><p><code><a href="../reference/pal_get.html">pal_get()</a></code> uses finite-value detection directly on plain numbers and retains class-specific missingness for encoded values.</p></li>
+<li><p><code><a href="../reference/fmt_panel.html">fmt_panel()</a></code> and recursive plot formatting require plot lists to be one-dimensional.</p></li>
+<li><p><code><a href="../reference/fmt_text.html">fmt_text()</a></code> and plot text adapters keep quoted math calls intact when applying plot, axis, or legend labels.</p></li>
+<li><p>Automatic <code><a href="../reference/PlotDumbbell.html">PlotDumbbell()</a></code> insets select factor-valued test methods by label and validate both selectors before reshaping.</p></li>
+<li><p><code><a href="../reference/plt_na.html">plt_na()</a></code> builds its matrix layer directly from the missingness masks and reuses the variable keys.</p></li>
+<li><p><code><a href="../reference/stat_ci.html">stat_ci()</a></code> checks sampled key density before grouping a full vector for formatting reuse.</p></li>
+<li><p><code><a href="../reference/check_size.html">check_size()</a></code> checks selected names against the environment inventory when it has already enumerated the bindings.</p></li>
+<li><p><code><a href="../reference/plt_na.html">plt_na()</a></code> diagnoses malformed <code>name.map</code> values before inspecting the data’s missingness.</p></li>
+<li><p><code>stat_pval(add_star_p = ...)</code> preserves serialized integer64 labels and their missing values in a fresh R process.</p></li>
+<li><p>Console P-value cells keep their significance for numeric bounds containing a line break before the endpoint.</p></li>
+<li><p><code><a href="../reference/stat_ci.html">stat_ci()</a></code> and <code><a href="../reference/stat_ci_parse.html">stat_ci_parse()</a></code> inspect only failed inputs when counting unparseable nonblank intervals.</p></li>
+<li><p><code>fmt_raster(method = "ragg")</code> returns panel-free tables before resolving cell sizes.</p></li>
+<li><p><code>fmt_raster(method = "ragg")</code> honors a clipped table cell when the panel viewport inherits clipping.</p></li>
+<li><p><code><a href="../reference/fmt_point.html">fmt_point()</a></code> defers <code><a href="https://ggplot2.tidyverse.org/reference/aes_eval.html" class="external-link">stat()</a></code> and <code>..name..</code> aesthetics until the statistic runs, including when sampling rows.</p></li>
+<li><p><code><a href="../reference/stat_pval.html">stat_pval()</a></code> and console P-value cells strip Unicode outer whitespace without repeatedly scanning long interior spaces.</p></li>
+<li><p><code><a href="../reference/PlotScatter3.html">PlotScatter3()</a></code> selects a factor-valued test method by its label and rejects invalid selectors before building the plot.</p></li>
+<li><p><code><a href="../reference/grob_insert.html">grob_insert()</a></code> loads integer64 methods before checking and converting inset coordinates.</p></li>
+<li><p><code><a href="../reference/lv.html">lv()</a></code> reuses the summary’s observed cardinality when choosing character and complex columns for an ungrouped table.</p></li>
 <li><p><code><a href="../reference/plt_alluvial.html">plt_alluvial()</a></code> counts observed facet and category pairs without splitting the input into one table per panel.</p></li>
 <li><p><code><a href="../reference/plt_alluvial.html">plt_alluvial()</a></code> formats counts and percentages only for label styles that display them.</p></li>
 <li><p><code><a href="../reference/grob_add.html">grob_add()</a></code> measures the children of a <code>gList</code> when reserving automatic margin space.</p></li>

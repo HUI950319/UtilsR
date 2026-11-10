@@ -2,6 +2,372 @@
 
 ## UtilsR 0.6.23
 
+- [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
+  treats SPSS user-defined missing values as missing before computing
+  histogram counts or densities.
+
+- Circular group scaling finds both bounds from one set of original row
+  indices, including rows omitted by `top_n`.
+
+- When selecting overlay samples from layers,
+  [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
+  prefers data layers and still supports guide-only plots.
+
+- Circular y-axis ticks and titles can extend outside the first sector
+  without emitting spurious overflow messages.
+
+- Circular labels at crowded sector edges keep their intervals inside
+  the sector while retaining their anchor positions.
+
+- Circular plots with all feature labels missing still draw their
+  sectors and points.
+
+- [`PlotButterfly2()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly2.md)
+  decodes serialized integer64 scores before computing distribution
+  statistics in a fresh R process.
+
+- [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
+  keeps observed ordinary factor levels in order without re-encoding all
+  factor labels.
+
+- Circular point positions reuse the sector row index and avoid grouping
+  the plotting data again.
+
+- UpSet time-based membership computes the selection keys once for all
+  compatible columns.
+
+- `plt_upset(output = "data")` decodes row memberships by direct
+  bit-code lookup.
+
+- Patchwork restoration preserves unchanged panels without repeatedly
+  replacing them.
+
+- `fmt_strip(strip = FALSE)` returns facet-free plot containers after
+  validation without rebuilding their panels.
+
+- [`fmt_ref()`](https://hui950319.github.io/UtilsR/reference/fmt_ref.md)
+  validates the plot container and returns immediately when both
+  reference vectors are empty.
+
+- An independent boxplot layer can resolve explicit position columns
+  from the parent data when an earlier layer has separate data.
+
+- [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
+  can compute distribution overlays from a column literally named
+  `.env`.
+
+- [`PlotButterfly()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly.md)
+  bar aesthetics accept columns literally named `.data` or `.env`,
+  preserving the score and alpha labels.
+
+- Butterfly min-max scaling preserves differences near the lower
+  integer64 endpoint without overflowing the group range.
+
+- Butterfly min-max scaling retains fractional results when the first
+  group contains only missing integer64 scores.
+
+- Butterfly mean-based ordering now retains fractional means for
+  integer64 scores.
+
+- [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md)
+  locates label stages directly from node IDs without scanning the long
+  plotting data.
+
+- Circular top-N scaling now reuses the sector row index and updates the
+  score column directly.
+
+- [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md)
+  uses the Linux distribution `NAME` when `PRETTY_NAME` is absent or
+  empty.
+
+- [`PlotHeatmapJaccard()`](https://hui950319.github.io/UtilsR/reference/PlotHeatmapJaccard.md)
+  excludes fractional or unrepresentable numeric keys when matching
+  against integer64 groups.
+
+- Circular link and colour selection counts distinct feature-sector
+  pairs in one pass.
+
+- Circular sector drawing reuses one row index instead of scanning all
+  observations for every sector.
+
+- Circular top-N selection now subsets only the columns used by the
+  plot.
+
+- [`PlotCircleLollipop()`](https://hui950319.github.io/UtilsR/reference/PlotCircleLollipop.md)
+  keeps duration group identity through ranking and scaling, including
+  duration inputs backed by integer values.
+
+- [`PlotCircleLollipop()`](https://hui950319.github.io/UtilsR/reference/PlotCircleLollipop.md)
+  now interprets serialized integer64 group levels when bit64 has not
+  been loaded.
+
+- Console P-value cells keep malformed text visible without sending it
+  through the decimal parser.
+
+- [`PlotHeatmapJaccard()`](https://hui950319.github.io/UtilsR/reference/PlotHeatmapJaccard.md)
+  matches duration groups with integer or double storage by their exact
+  numeric seconds.
+
+- [`PlotCircleLollipop()`](https://hui950319.github.io/UtilsR/reference/PlotCircleLollipop.md)
+  keeps blank sector labels while providing nonempty internal IDs for
+  drawing, scaling and links.
+
+- Continuous t-test adapters obtain magnitudes from finite bounds and
+  reuse those bounds for extreme-scale centering.
+
+- [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
+  formats complete numeric vectors directly and subsets only
+  mixed-missing inputs.
+
+- `fmt_his(con_var = ".data")` uses a private numeric mapping for the
+  literal column name.
+
+- [`PlotDumbbell()`](https://hui950319.github.io/UtilsR/reference/PlotDumbbell.md)
+  preserves fractional and exact large-integer differences when paired
+  endpoints mix ordinary numeric and integer64 storage.
+
+- [`PlotScatter3()`](https://hui950319.github.io/UtilsR/reference/PlotScatter3.md)
+  validates `p_digits` for active paired tests and leaves it lazy when
+  tests are disabled.
+
+- [`plt_upset()`](https://hui950319.github.io/UtilsR/reference/plt_upset.md)
+  retains explicit missing factor levels when every nonempty set is a
+  factor and other sets are empty.
+
+- [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md)
+  retains the numeric coordinate vector directly when every value is
+  finite.
+
+- `grob_insert(align_to = "plot")` excludes the outer margin cells of a
+  standard ggplot.
+
+- `fmt_boxplot(inherit.aes = FALSE)` treats a data waiver as the default
+  source while resolving layer data.
+
+- [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
+  converts integer64 sample positions to numeric values before applying
+  histogram or density statistics.
+
+- [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
+  searches plot layers when the requested `con_var` is absent from the
+  default plot data.
+
+- [`PlotButterfly2()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly2.md)
+  pads unequal sample counts through class-aware indexing, preserving
+  integer64 missing values.
+
+- `PlotScatter3(test_method = "none")` leaves P-label coordinates
+  unevaluated.
+
+- [`PlotHeatmapJaccard()`](https://hui950319.github.io/UtilsR/reference/PlotHeatmapJaccard.md)
+  reuses the factors and numeric scores created by the matrix-to-table
+  conversion.
+
+- [`PlotCircleLollipop()`](https://hui950319.github.io/UtilsR/reference/PlotCircleLollipop.md)
+  matches colliding display groups by typed identity when applying an
+  explicit group order.
+
+- [`PlotButterfly()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly.md)
+  restores integer64 methods before plotting a serialized numeric bar
+  column.
+
+- `PlotButterfly(minmax = TRUE)` promotes ordinary integer bounds before
+  subtracting them.
+
+- [`PlotButterfly()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly.md)
+  keeps the numeric score and alpha mappings when a column also supplies
+  a category.
+
+- [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+  computes ranks in a standalone vector before adding it to the plot
+  data.
+
+- [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md)
+  skips the label-position build when no node meets the minimum
+  proportion.
+
+- [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md)
+  validates `groups` as a named one-dimensional list before converting
+  the input.
+
+- [`fct_cat()`](https://hui950319.github.io/UtilsR/reference/fct_cat.md)
+  and
+  [`fct_to_group()`](https://hui950319.github.io/UtilsR/reference/fct_to_group.md)
+  pass validated level names to the shared recoder.
+
+- [`fct_num()`](https://hui950319.github.io/UtilsR/reference/fct_num.md)
+  uses the range already checked for underflow to create equal-width
+  breaks on plain vectors.
+
+- Continuous dot panels tally observed group IDs directly while
+  retaining displayed bin and group order.
+
+- `plt_upset(output = "data")` builds names and codes for each
+  combination size in batches.
+
+- [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md)
+  builds stage and successor keys directly in row order, preserving node
+  and flow identities.
+
+- [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
+  constructs gap strata in one table and calculates facet heights only
+  for count layouts.
+
+- [`plt_alluvial()`](https://hui950319.github.io/UtilsR/reference/plt_alluvial.md)
+  derives gap sizes from the existing ordered facet/category rows
+  without de-duplicating all groups.
+
+- [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md)
+  measures the node layer for label placement without constructing flow
+  polygons twice.
+
+- [`fmt_raster()`](https://hui950319.github.io/UtilsR/reference/fmt_raster.md)
+  checks the one-dimensional plot-list contract before dispatching to
+  any renderer.
+
+- [`PlotHeatmapJaccard()`](https://hui950319.github.io/UtilsR/reference/PlotHeatmapJaccard.md)
+  formats colliding group labels precisely before checking for duplicate
+  group keys.
+
+- [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md)
+  reports selected columns with dimensions before converting stage
+  categories.
+
+- [`plt_sankey()`](https://hui950319.github.io/UtilsR/reference/plt_sankey.md)
+  reshapes character node keys directly and restores the shared factor
+  ordering once.
+
+- [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md)
+  reports `Model` or `Hardware` from Linux CPU metadata when a processor
+  model name is unavailable.
+
+- [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md)
+  tries the existing `free -b` backend when `/proc/meminfo` cannot
+  supply valid memory figures.
+
+- [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+  reuses the ordered rank-pair rows when attaching size and alpha
+  summaries.
+
+- `fmt_raster(method = "image")` draws `gList` children on the capture
+  device.
+
+- [`fmt_com()`](https://hui950319.github.io/UtilsR/reference/fmt_com.md)
+  accepts an observed empty-string group as a named reference.
+
+- [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md)
+  uses one [`Sys.info()`](https://rdrr.io/r/base/Sys.info.html) snapshot
+  for its platform checks and report.
+
+- [`check_system()`](https://hui950319.github.io/UtilsR/reference/check_system.md)
+  uses the last `PRETTY_NAME` assignment within the selected Linux
+  release file.
+
+- [`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md)
+  converts only filled entries back to time classes and keeps observed
+  values directly.
+
+- [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+  fills its subtitle lines in place for plots with many groups.
+
+- [`PlotRankCor()`](https://hui950319.github.io/UtilsR/reference/PlotRankCor.md)
+  avoids materializing unique vectors when checking whether finite
+  paired scores vary.
+
+- The `ragg` backend captures panel contents using their native scales
+  and applies viewport placement when drawing the raster.
+
+- [`fmt_plot_base()`](https://hui950319.github.io/UtilsR/reference/fmt_plot_base.md)
+  passes quoted labels from `labs_list` to ggplot2 without evaluating
+  their expressions.
+
+- `fmt_raster(method = "image")` reports dimensions that would allocate
+  a zero-pixel raster.
+
+- [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md)
+  encodes single-colour ramps directly while retaining the existing
+  alpha bytes and colour spelling.
+
+- [`impute_na_knn()`](https://hui950319.github.io/UtilsR/reference/impute_na_knn.md)
+  preserves the existing column vectors when all rows can enter the
+  backend.
+
+- [`PlotRank()`](https://hui950319.github.io/UtilsR/reference/PlotRank.md)
+  reuses group row indices for explicit selections on plain and factor
+  grouping columns.
+
+- `fmt_raster(method = "ragg")` rasterizes bare geometry panel grobs,
+  preserves bare panel text, and skips null panels.
+
+- [`pal_get()`](https://hui950319.github.io/UtilsR/reference/pal_get.md)
+  uses finite-value detection directly on plain numbers and retains
+  class-specific missingness for encoded values.
+
+- [`fmt_panel()`](https://hui950319.github.io/UtilsR/reference/fmt_panel.md)
+  and recursive plot formatting require plot lists to be
+  one-dimensional.
+
+- [`fmt_text()`](https://hui950319.github.io/UtilsR/reference/fmt_text.md)
+  and plot text adapters keep quoted math calls intact when applying
+  plot, axis, or legend labels.
+
+- Automatic
+  [`PlotDumbbell()`](https://hui950319.github.io/UtilsR/reference/PlotDumbbell.md)
+  insets select factor-valued test methods by label and validate both
+  selectors before reshaping.
+
+- [`plt_na()`](https://hui950319.github.io/UtilsR/reference/plt_na.md)
+  builds its matrix layer directly from the missingness masks and reuses
+  the variable keys.
+
+- [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
+  checks sampled key density before grouping a full vector for
+  formatting reuse.
+
+- [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
+  checks selected names against the environment inventory when it has
+  already enumerated the bindings.
+
+- [`plt_na()`](https://hui950319.github.io/UtilsR/reference/plt_na.md)
+  diagnoses malformed `name.map` values before inspecting the data’s
+  missingness.
+
+- `stat_pval(add_star_p = ...)` preserves serialized integer64 labels
+  and their missing values in a fresh R process.
+
+- Console P-value cells keep their significance for numeric bounds
+  containing a line break before the endpoint.
+
+- [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
+  and
+  [`stat_ci_parse()`](https://hui950319.github.io/UtilsR/reference/stat_ci_parse.md)
+  inspect only failed inputs when counting unparseable nonblank
+  intervals.
+
+- `fmt_raster(method = "ragg")` returns panel-free tables before
+  resolving cell sizes.
+
+- `fmt_raster(method = "ragg")` honors a clipped table cell when the
+  panel viewport inherits clipping.
+
+- [`fmt_point()`](https://hui950319.github.io/UtilsR/reference/fmt_point.md)
+  defers
+  [`stat()`](https://ggplot2.tidyverse.org/reference/aes_eval.html) and
+  `..name..` aesthetics until the statistic runs, including when
+  sampling rows.
+
+- [`stat_pval()`](https://hui950319.github.io/UtilsR/reference/stat_pval.md)
+  and console P-value cells strip Unicode outer whitespace without
+  repeatedly scanning long interior spaces.
+
+- [`PlotScatter3()`](https://hui950319.github.io/UtilsR/reference/PlotScatter3.md)
+  selects a factor-valued test method by its label and rejects invalid
+  selectors before building the plot.
+
+- [`grob_insert()`](https://hui950319.github.io/UtilsR/reference/grob_insert.md)
+  loads integer64 methods before checking and converting inset
+  coordinates.
+
 - [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) reuses
   the summary’s observed cardinality when choosing character and complex
   columns for an ungrouped table.
