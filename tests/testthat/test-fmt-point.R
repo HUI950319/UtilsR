@@ -895,3 +895,22 @@ test_that("point sampling keeps exact labelled numeric strata", {
   expect_s3_class(out$g, "haven_labelled")
   expect_identical(d$g, haven::labelled(values, label = "Group"))
 })
+
+test_that("point sampling defers legacy computed aesthetics", {
+  withr::local_options(lifecycle_verbosity = "quiet")
+  data <- data.frame(x = rep(1:3, each = 4L))
+  mappings <- list(
+    ggplot2::aes(x, colour = ..count..),
+    ggplot2::aes(x, colour = stat(count)),
+    ggplot2::aes(x, colour = ggplot2::after_stat(count))
+  )
+  counts <- lapply(mappings, function(mapping) {
+    plot <- fmt_point(ggplot2::ggplot(data, mapping), sample_n = 5,
+                      stat = "count", dodge.width = 0)
+    expect_equal(nrow(plot$layers[[1L]]$data), 5L)
+    ggplot2::layer_data(plot)$count
+  })
+  expect_identical(counts[[1L]], counts[[3L]])
+  expect_identical(counts[[2L]], counts[[3L]])
+  expect_equal(sum(counts[[3L]]), 5)
+})

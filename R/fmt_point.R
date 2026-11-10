@@ -400,8 +400,9 @@ fmt_point <- function(plot,
   group_values <- NULL
   is_late <- function(expr) {
     if (rlang::is_missing(expr)) return(FALSE)
+    if (is.symbol(expr)) return(grepl("^\\.\\..+\\.\\.$", as.character(expr)))
     if (!is.call(expr)) return(FALSE)
-    if (isTRUE(rlang::call_name(expr) %in% c("after_stat", "after_scale", "stage", "from_theme")))
+    if (isTRUE(rlang::call_name(expr) %in% c("after_stat", "stat", "after_scale", "stage", "from_theme")))
       return(TRUE)
     any(vapply(as.list(expr)[-1L], is_late, logical(1)))
   }
