@@ -259,7 +259,8 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
                        !anyNA(data_for_impute[[complete_columns[[1L]]]])) {
     rep(TRUE, nrow(data_for_impute))
   } else rowSums(is.na(data_for_impute)) < ncol(data_for_impute)
-  backend_data <- data_for_impute[observed_rows, , drop = FALSE]
+  backend_data <- if (all(observed_rows)) data_for_impute else
+    data_for_impute[observed_rows, , drop = FALSE]
   names(backend_data) <- backend_names
   backend_scales <- rep(1, ncol(backend_data))
   backend_centers <- rep(0, ncol(backend_data))

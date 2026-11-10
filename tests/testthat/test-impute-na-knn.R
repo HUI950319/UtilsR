@@ -498,3 +498,19 @@ test_that("KNN keeps explicit NA levels distinct from missing factor codes", {
     expect_identical(data, before)
   }
 })
+
+test_that("KNN backend reuses columns when every row has a predictor", {
+  skip_if_not_installed("VIM")
+  skip_if_not_installed("lobstr")
+  data <- data.frame(observed = as.double(seq_len(40L)), target = c(NA_real_, 2:40))
+  original <- VIM::kNN
+  backend_address <- NULL
+  testthat::local_mocked_bindings(kNN = function(data, ...) {
+    backend_address <<- lobstr::obj_addr(data[[1L]])
+    original(data, ...)
+  }, .package = "VIM")
+  result <- impute_na_knn(data, k = 1L, verbose = FALSE)
+  expect_identical(backend_address, lobstr::obj_addr(data$observed))
+  expect_identical(result$observed, data$observed)
+  expect_equal(result$target[1L], 2)
+})
