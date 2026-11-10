@@ -778,3 +778,21 @@ test_that("UpSet mixed queries reuse one missing mask per column", {
   expect_identical(as.character(fn(d, names(d), levels = NA, output = "data")$intersect_group),
     rep(c("A", "None", "B", "None"), 125L))
 })
+
+test_that("UpSet combination enumeration batches the full set limit", {
+  n <- 16L
+  original <- utils::combn
+  sets <- setNames(lapply(seq_len(n), function(i) c("shared", paste0("id", i))),
+                   c("A/B", "\u03b2", sprintf("C%02d", 3:n)))
+  expected <- plt_upset(sets, output = "data")
+  sizes <- integer()
+  testthat::local_mocked_bindings(combn = function(x, m, ..., simplify = TRUE) {
+    if (!simplify) stop("enumerated one combination per list element")
+    sizes <<- c(sizes, as.integer(m))
+    original(x, m, ..., simplify = simplify)
+  }, .package = "utils")
+  result <- plt_upset(sets, output = "data")
+  expect_identical(result, expected)
+  expect_identical(sizes, seq_len(n))
+  expect_length(levels(result$intersect_group), 65536L)
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_upset(output = "data")` builds names and codes for each combination size in batches.
+
 * `plt_sankey()` builds stage and successor keys directly in row order, preserving node and flow identities.
 
 * `plt_alluvial()` constructs gap strata in one table and calculates facet heights only for count layouts.

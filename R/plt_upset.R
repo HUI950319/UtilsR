@@ -375,13 +375,16 @@ plt_upset <- function(data,
     # Preserve every combination label while counting only observed row patterns.
     n_sets <- length(set_list)
     bits <- bitwShiftL(1L, seq_len(n_sets) - 1L)
-    combinations <- unlist(lapply(seq_len(n_sets), function(size) {
-      utils::combn(seq_len(n_sets), size, simplify = FALSE)
-    }), recursive = FALSE)
-    codes <- vapply(combinations, function(i) sum(bits[i]), integer(1))
-    region_names <- vapply(combinations, function(i) {
-      paste(display_names[i], collapse = "/")
-    }, character(1))
+    combinations <- lapply(seq_len(n_sets), function(size) {
+      indices <- utils::combn(n_sets, size)
+      labels <- lapply(seq_len(size), function(i) display_names[indices[i, ]])
+      list(
+        codes = as.integer(colSums(matrix(bits[indices], nrow = size))),
+        labels = do.call(paste, c(labels, sep = "/"))
+      )
+    })
+    codes <- unlist(lapply(combinations, `[[`, "codes"), use.names = FALSE)
+    region_names <- unlist(lapply(combinations, `[[`, "labels"), use.names = FALSE)
     group_names <- make.unique(c(region_names, "None"))
     row_codes <- integer(nrow(data))
     for (i in seq_len(n_sets)) {
