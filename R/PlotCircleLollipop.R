@@ -384,15 +384,12 @@ PlotCircleLollipop <- function(
 
   } else if (value_scale == "top_n") {
     # Scale using only the displayed (post-top_n) values within each group
-    df <- df |>
-      dplyr::group_by(group) |>
-      dplyr::mutate(value = {
-        mn <- score_extreme(value, min)
-        mx <- score_extreme(value, max)
-        scale_values(value, mn, mx)
-      }) |>
-      dplyr::ungroup() |>
-      as.data.frame()
+    scaled <- numeric(nrow(df))
+    for (rows in sector_rows) {
+      values <- df$value[rows]
+      scaled[rows] <- scale_values(values, score_extreme(values, min), score_extreme(values, max))
+    }
+    df$value <- scaled
   }
 
   # ---- Normalise values to [0, 1] if still outside range ----

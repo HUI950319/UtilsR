@@ -1124,3 +1124,28 @@ test_that("circular sharing counts distinct feature-sector pairs", {
   expect_identical(colours, c("red", "red", "blue", "blue", "red", "red"))
   expect_identical(links, 1L)
 })
+
+test_that("circular displayed score scaling reuses sector rows", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  d <- data.frame(group = rep(c("B", "A"), each = 3L), name = letters[1:6],
+    value = c(1, 3, 5, 2, 3, 6))
+  regroups <- 0L
+  fn <- PlotCircleLollipop
+  env <- new.env(parent = environment(fn))
+  env$as.data.frame <- function(x, ...) {
+    if ("x_pos" %in% names(x)) regroups <<- regroups + 1L
+    base::as.data.frame(x, ...)
+  }
+  environment(fn) <- env
+  observed <- numeric()
+  original_points <- circlize::circos.points
+  local_mocked_bindings(circos.points = function(x, y, ...) {
+    observed <<- c(observed, y)
+    original_points(x, y, ...)
+  }, .package = "circlize")
+  fn(d, value_scale = "top_n", color_col = "colour",
+    show_labels = FALSE, show_yaxis = FALSE, show_links = FALSE)
+  expect_identical(regroups, 0L)
+  expect_identical(observed, c(0, .5, 1, 0, .25, 1))
+})
