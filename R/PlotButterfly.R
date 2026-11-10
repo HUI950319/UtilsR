@@ -253,8 +253,21 @@ PlotButterfly <- function(
     .register_integer64(values)
     if (is.complex(values) || is.list(values) || !is.null(dim(values)))
       cli::cli_abort("Column {.val {value.by}} must contain a real vector.")
-    category_cols <- unique(c(stat.by, fill.by, group.by))
     alpha_title <- alpha.by
+    pronouns <- intersect(c(".data", ".env"), c(stat.by, fill.by, group.by, value.by, alpha.by))
+    for (column in pronouns) {
+      alias <- utils::tail(make.unique(c(names(data), ".butterfly_data")), 1L)
+      data[[alias]] <- data[[column]]
+      if (identical(stat.by, column)) stat.by <- alias
+      if (identical(fill.by, column)) fill.by <- alias
+      if (identical(group.by, column)) group.by <- alias
+      if (identical(value.by, column)) {
+        if (is.null(xlab)) xlab <- value.by
+        value.by <- alias
+      }
+      if (identical(alpha.by, column)) alpha.by <- alias
+    }
+    category_cols <- unique(c(stat.by, fill.by, group.by))
     if (value.by %in% category_cols) {
       if (is.null(xlab)) xlab <- value.by
       score_col <- utils::tail(make.unique(c(names(data), ".score")), 1L)

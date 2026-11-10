@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotButterfly()` bar aesthetics accept columns literally named `.data` or `.env`, preserving the score and alpha labels.
+
 * Butterfly min-max scaling preserves differences near the lower integer64 endpoint without overflowing the group range.
 
 * Butterfly min-max scaling retains fractional results when the first group contains only missing integer64 scores.

@@ -924,3 +924,19 @@ test_that("butterfly minmax retains unit differences across integer64 ranges", {
     expect_equal(values * 2^64, c(0, 1, 2^64))
   }
 })
+
+test_that("butterfly bar aesthetics accept literal pronoun columns", {
+  d <- data.frame(item = rep(c("A", "B"), 2L), fill = "one", side = rep(c("L", "R"), each = 2L),
+    score = 1:4, opacity = c(.25, .5, .75, 1))
+  draw <- function(data, columns) PlotButterfly(data, stat.by = columns[1L],
+    fill.by = columns[2L], group.by = columns[3L], value.by = columns[4L],
+    alpha.by = columns[5L])
+  expected <- draw(d, names(d))
+  for (name in c(".data", ".env")) for (column in c(1L, 2L, 4L, 5L)) {
+    renamed <- d
+    names(renamed)[column] <- name
+    result <- draw(renamed, names(renamed))
+    expect_equal(ggplot2::layer_data(result[[2L]]), ggplot2::layer_data(expected[[2L]]))
+    expect_identical(result$patches$annotation$caption, names(renamed)[4L])
+  }
+})
