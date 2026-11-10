@@ -722,3 +722,25 @@ test_that("filtered Sankey labels skip the position build", {
   expect_true(all(grepl("50", as.character(p$data$label), fixed = TRUE)))
   expect_equal(nrow(build(p)$data[[2L]]), 4L)
 })
+
+test_that("Sankey label stages use the node index", {
+  skip_if_not_installed("ggsankey")
+  withr::local_options(lifecycle_verbosity = "quiet")
+  d <- data.frame(first = rep(c("a", "b"), 60L), second = rep(c("a", "c"), 60L),
+    third = rep(c("b", "c"), 60L))
+  fn <- plt_sankey
+  env <- new.env(parent = environment(fn))
+  long_scan <- 0L
+  env$match <- function(x, table, ...) {
+    if (length(table) == nrow(d) * 3L && all(grepl("^\\.sankey_", table))) {
+      long_scan <<- long_scan + 1L
+    }
+    base::match(x, table, ...)
+  }
+  environment(fn) <- env
+  p <- fn(d, vars = names(d), show_text = "name")
+  labels <- p$layers[[3L]]$data
+  expect_identical(long_scan, 0L)
+  expect_identical(as.character(labels$x), rep(levels(p$data$x), each = 2L))
+  expect_setequal(labels$label, c("a", "b", "c"))
+})

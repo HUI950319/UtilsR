@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_sankey()` locates label stages directly from node IDs without scanning the long plotting data.
+
 * Circular top-N scaling now reuses the sector row index and updates the score column directly.
 
 * `check_system()` uses the Linux distribution `NAME` when `PRETTY_NAME` is absent or empty.

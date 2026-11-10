@@ -372,11 +372,12 @@ plt_sankey <- function(data,
     nodes$layers <- plot$layers[2L]
     label_data <- ggplot2::ggplot_build(nodes)$data[[1L]]
     ids <- as.character(label_data$node)
-    label_data$x <- plot_data$x[match(ids, as.character(plot_data$node))]
+    node_stages <- stats::setNames(rep(label_vars, node_counts), all_levels)
+    label_data$x <- factor(unname(node_stages[ids]), levels = stage_levels)
     label_data$label <- unname(node_labels[ids])
     label_data$y <- (label_data$ymin + label_data$ymax) / 2
-    keep <- !is.na(label_data$label) & !is.na(node_pct[ids]) &
-      node_pct[ids] >= label_args$min_pct
+    proportion <- unname(node_pct[ids])
+    keep <- !is.na(label_data$label) & !is.na(proportion) & proportion >= label_args$min_pct
     label_data <- label_data[keep, , drop = FALSE]
     if (nrow(label_data)) {
       label_geom <- if (label_args$box) ggplot2::geom_label else ggplot2::geom_text
