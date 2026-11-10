@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_alluvial()` keeps observed ordinary factor levels in order without re-encoding all factor labels.
+
 * Circular point positions reuse the sector row index and avoid grouping the plotting data again.
 
 * UpSet time-based membership computes the selection keys once for all compatible columns.

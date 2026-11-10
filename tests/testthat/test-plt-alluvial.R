@@ -971,3 +971,25 @@ test_that("alluvial gap rows avoid per-gap data frames", {
     expect_equal(rows$.y, rep(if (y_type == "percent") .1 else .3, 8L))
   }
 })
+
+test_that("alluvial observed factor levels reuse integer codes", {
+  skip_if_not_installed("ggalluvial")
+  d <- data.frame(category = ordered(rep(c("later", "first"), 100L),
+    levels = c("first", "unused", "later")),
+    group = factor(rep(c("B", "A"), each = 100L), levels = c("A", "unused", "B")))
+  fn <- plt_alluvial
+  env <- new.env(parent = environment(fn))
+  conversions <- 0L
+  env$as.character <- function(x, ...) {
+    if (is.factor(x) && length(x) == nrow(d)) conversions <<- conversions + 1L
+    base::as.character(x, ...)
+  }
+  environment(fn) <- env
+  expected <- plt_alluvial(d, "category", "group")
+  result <- fn(d, "category", "group")
+  expect_identical(conversions, 2L)
+  expect_identical(result$data, expected$data)
+  observed <- result$data[!result$data$.is_gap, ]
+  expect_identical(levels(droplevels(observed$.cat_var)), c("first", "later"))
+  expect_identical(levels(droplevels(observed$.group)), c("A", "B"))
+})

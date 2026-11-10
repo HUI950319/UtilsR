@@ -425,6 +425,13 @@ plt_alluvial <- function(
   }
 
   observed_factor <- function(value) {
+    if (identical(class(value), "factor") || identical(class(value), c("ordered", "factor"))) {
+      codes <- as.integer(value)
+      value_levels <- levels(value)
+      observed <- tabulate(codes, length(value_levels)) > 0L
+      new_codes <- cumsum(observed)
+      return(structure(new_codes[codes], levels = value_levels[observed], class = class(value)))
+    }
     value_chr <- as.character(value)
     if (is.factor(value)) {
       value_levels <- levels(value)
