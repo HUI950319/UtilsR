@@ -553,7 +553,13 @@ fmt_raster <- function(
     g_geom <- g
     g_geom$children <- do.call(grid::gList, g$children[indices])
     g_geom$childrenOrder <- names(g_geom$children)
-    if (is.null(g_geom$vp)) g_geom$vp <- grid::viewport()
+    if (inherits(g$vp, "viewport")) {
+      # Placement is applied by the returned gTree when the raster is drawn.
+      g_geom$vp <- grid::viewport(gp = g$vp$gp, xscale = g$vp$xscale,
+                                  yscale = g$vp$yscale, layout = g$vp$layout)
+    } else if (is.null(g_geom$vp)) {
+      g_geom$vp <- grid::viewport()
+    }
     previous_device <- grDevices::dev.cur()
     capture <- .agg_capture(width = w, height = h, background = "transparent",
                             res = dpi, units = units)

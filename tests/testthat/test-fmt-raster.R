@@ -688,3 +688,23 @@ test_that("image rasters require a pixel in each dimension", {
                               width = per_inch / 10, height = per_inch / 10))
   }
 })
+
+test_that("ragg panel viewport size is applied once", {
+  skip_if_not_installed("ragg")
+  panel <- grid::grobTree(grid::rectGrob(
+    width = grid::unit(4, "native"), height = grid::unit(6, "native"),
+    gp = grid::gpar(fill = "red", col = NA)),
+    vp = grid::viewport(width = .5, height = .5, clip = "on", xscale = c(0, 8), yscale = c(0, 10)))
+  red_pixels <- function(grob) {
+    capture <- ragg::agg_capture(width = 100, height = 100, units = "px", res = 100,
+                                 background = "transparent")
+    on.exit(grDevices::dev.off())
+    grid::grid.draw(grob)
+    colors <- grDevices::col2rgb(as.vector(capture()), alpha = TRUE)
+    sum(colors[1L, ] > 200 & colors[2L, ] < 50 & colors[3L, ] < 50 & colors[4L, ] >= 128)
+  }
+  result <- .rasterize_panel_grob(panel, w = 1, h = 1, dpi = 100, units = "in", bg = "transparent")
+  expect_equal(red_pixels(panel), 750)
+  expect_lt(abs(red_pixels(result) - red_pixels(panel)), 80)
+  expect_identical(result$vp, panel$vp)
+})
