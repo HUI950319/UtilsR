@@ -910,3 +910,17 @@ test_that("butterfly minmax retains fractions after missing integer64 blocks", {
   expect_identical(p[[1L]]$data$score, rep(0, 3L))
   expect_equal(p[[2L]]$data$score, c(0, .5, 1))
 })
+
+test_that("butterfly minmax retains unit differences across integer64 ranges", {
+  skip_if_not_installed("bit64")
+  scores <- bit64::as.integer64(c("-9223372036854775807", "-9223372036854775806", "9223372036854775807"))
+  d <- data.frame(item = rep(letters[1:3], 2L), fill = "one", side = rep(c("L", "R"), each = 3L),
+    score = rep(scores, 2L))
+  p <- PlotButterfly(d, stat.by = "item", fill.by = "fill", value.by = "score",
+    group.by = "side", minmax = TRUE)
+  for (i in 1:2) {
+    values <- p[[i]]$data$score
+    expect_true(values[2L] > 0)
+    expect_equal(values * 2^64, c(0, 1, 2^64))
+  }
+})

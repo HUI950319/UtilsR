@@ -289,6 +289,11 @@ PlotButterfly <- function(
           if (is.integer(rng) && !is.object(rng)) rng <- as.double(rng)
           if (rng[1] == rng[2]) {
             d[[value.by]] <- ifelse(is.na(d[[value.by]]), NA_real_, 0)
+          } else if (inherits(rng, "integer64")) {
+            values <- d[[value.by]]
+            shift <- .dumbbell_integer64_difference(values, rep(rng[1L], length(values)))
+            span <- .dumbbell_integer64_difference(rng[2L], rng[1L])
+            d[[value.by]] <- suppressWarnings(as.double(shift) / as.double(span))
           } else {
             span <- rng[2] - rng[1]
             if (is.finite(span)) {
