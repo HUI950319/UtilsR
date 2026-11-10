@@ -653,7 +653,7 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
 #' @noRd
 .pal_numeric_values <- function(x) {
   values <- as.numeric(x)
-  values[is.na(x)] <- NA_real_
+  if (is.object(x)) values[is.na(x)] <- NA_real_
   values
 }
 

@@ -2773,3 +2773,22 @@ test_that("palette previews avoid unused and duplicate contrast calculations", {
   expect_equal(nrow(table[["_data"]]), length(colors))
   expect_true(all(grepl("<span style=", table[["_data"]]$preview, fixed = TRUE)))
 })
+
+test_that("numeric palette placement skips plain missing masks", {
+  numeric_values <- .pal_numeric_values
+  calls <- 0L
+  environment(numeric_values) <- list2env(list(is.na = function(x) {
+    calls <<- calls + 1L
+    base::is.na(x)
+  }), parent = environment(numeric_values))
+  x <- c(-1, 1, NA_real_, NaN, -Inf, Inf)
+  expect_identical(is.finite(numeric_values(x)), c(TRUE, TRUE, rep(FALSE, 4L)))
+  expect_identical(calls, 0L)
+  expect_identical(pal_get(c("red", "blue"), x = x)[1:2],
+                   pal_get(c("red", "blue"), x = x[1:2]))
+  expect_true(all(is.na(pal_get(c("red", "blue"), x = x)[3:6])))
+  if (requireNamespace("haven", quietly = TRUE)) {
+    labelled <- haven::labelled_spss(c(1, 99), na_values = 99)
+    expect_identical(numeric_values(labelled), c(1, NA_real_))
+  }
+})

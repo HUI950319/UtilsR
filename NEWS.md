@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pal_get()` uses finite-value detection directly on plain numbers and retains class-specific missingness for encoded values.
+
 * `fmt_panel()` and recursive plot formatting require plot lists to be one-dimensional.
 
 * `fmt_text()` and plot text adapters keep quoted math calls intact when applying plot, axis, or legend labels.
