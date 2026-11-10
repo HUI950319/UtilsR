@@ -128,6 +128,11 @@ fct_cat <- function(x, ...,
     cli::cli_abort("Only one mode at a time: {.arg ...}, {.arg ref_idx}, {.arg groups}, {.arg new_labels}, or {.arg reverse}.")
   }
 
+  if (!is.null(groups) &&
+      (!is.list(groups) || !is.null(dim(groups)) || is.null(names(groups)) ||
+       anyNA(names(groups)) || any(!nzchar(names(groups))))) {
+    cli::cli_abort("{.arg groups} must be a named list with non-empty names, e.g. {.code list(early = 1:2, late = 3:4)}.")
+  }
   x <- .as_factor(x)
 
   # 1. binary -- reference levels by index or by name
@@ -146,10 +151,6 @@ fct_cat <- function(x, ...,
 
   # 2. groups
   if (!is.null(groups)) {
-    if (!is.list(groups) || is.null(names(groups)) ||
-        anyNA(names(groups)) || any(!nzchar(names(groups)))) {
-      cli::cli_abort("{.arg groups} must be a named list with non-empty names, e.g. {.code list(early = 1:2, late = 3:4)}.")
-    }
     original_levels <- levels(x)
     for (i in seq_along(groups)) {
       indices <- .check_integer_index(groups[[i]], paste0("groups$", names(groups)[i]),

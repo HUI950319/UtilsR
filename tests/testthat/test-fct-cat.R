@@ -703,3 +703,12 @@ test_that("factor grouping recodes each checked index once", {
   expect_identical(as.character(direct), c("early", "late", "early", "d"))
   expect_true(is.ordered(direct))
 })
+
+test_that("factor grouping rejects shaped lists before inspecting values", {
+  shaped <- structure(list(early = 1L, late = 2L), dim = c(1L, 2L))
+  for (bad in list(shaped, data.frame(early = 1L, late = 2L))) {
+    expect_error(fct_cat(stop("input inspected"), groups = bad), "groups.*named list")
+  }
+  expect_identical(as.character(fct_cat(factor(c("a", "b")), groups = list(first = 1L))),
+                   c("first", "b"))
+})
