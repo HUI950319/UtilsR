@@ -1160,3 +1160,16 @@ test_that("boxplot source resolution retains data under an explicit waiver", {
                                             boxplot.args = list(data = ggplot2::waiver())))$data[[2L]]
   expect_identical(actual, expected)
 })
+
+test_that("explicit boxplot position columns resolve from parent data", {
+  parent <- data.frame(a = rep(letters[1:2], each = 5L), b = 1:10)
+  points <- data.frame(g = "other", y = 1:5)
+  p <- ggplot2::ggplot(parent) +
+    ggplot2::geom_point(ggplot2::aes(g, y), data = points, inherit.aes = FALSE)
+  mapping <- ggplot2::aes(.data[["a"]], b)
+  reference <- ggplot2::layer_data(p + ggplot2::geom_boxplot(mapping, inherit.aes = FALSE), 2L)
+  result <- ggplot2::layer_data(fmt_boxplot(p, boxplot.args = list(mapping = mapping),
+    inherit.aes = FALSE), 2L)
+  columns <- c("lower", "middle", "upper", "ymin", "ymax")
+  expect_identical(result[columns], reference[columns])
+})

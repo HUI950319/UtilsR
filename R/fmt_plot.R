@@ -5788,6 +5788,19 @@ fmt_boxplot <- function(plot,
     if (resolve_source && inherits(args[["data"]], "waiver")) args["data"] <- list(NULL)
     if (resolve_source) {
       resolved <- NULL
+      requested_columns <- character()
+      if (is.null(args[["data"]]) && is.data.frame(p$data)) {
+        for (axis in intersect(positions, names(mapping))) {
+          expr <- rlang::get_expr(mapping[[axis]])
+          column <- if (is.symbol(expr)) as.character(expr) else if (
+            is.call(expr) && length(expr) == 3L && identical(expr[[2L]], quote(.data))
+          ) {
+            if (identical(expr[[1L]], quote(`[[`)) && is.character(expr[[3L]])) expr[[3L]] else
+              if (identical(expr[[1L]], quote(`$`)) && is.symbol(expr[[3L]])) as.character(expr[[3L]])
+          }
+          requested_columns <- c(requested_columns, intersect(column, names(p$data)))
+        }
+      }
       layers <- Filter(function(layer) !inherits(layer$geom, c("GeomText", "GeomLabel",
         "GeomSegment", "GeomCurve", "GeomAbline", "GeomHline", "GeomVline")), p$layers)
       blank <- vapply(layers, function(layer) inherits(layer$geom, "GeomBlank"), logical(1))
@@ -5818,7 +5831,8 @@ fmt_boxplot <- function(plot,
         pd <- args[["data"]] %||% pd
         if (is.function(pd)) pd <- unclass(pd)
         if (is.null(pd) || inherits(pd, "waiver")) pd <- NULL
-        if (is.null(args[["data"]]) && is.data.frame(pd) && nrow(pd) == 0L) next
+        if (is.null(args[["data"]]) && is.data.frame(pd) &&
+            (nrow(pd) == 0L || !all(requested_columns %in% names(pd)))) next
         mapping <- args[["mapping"]] %||% ggplot2::aes()
         if (!keep_mapping) {
           for (axis in positions) {
