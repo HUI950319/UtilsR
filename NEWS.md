@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotCircleLollipop()` now interprets serialized integer64 group levels when bit64 has not been loaded.
+
 * Console P-value cells keep malformed text visible without sending it through the decimal parser.
 
 * `PlotHeatmapJaccard()` matches duration groups with integer or double storage by their exact numeric seconds.

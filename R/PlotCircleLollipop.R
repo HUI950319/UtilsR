@@ -189,6 +189,7 @@ PlotCircleLollipop <- function(
   if (!is.null(group_levels) && (!is.null(dim(group_levels)) ||
       (!is.atomic(group_levels) && !inherits(group_levels, "POSIXlt"))))
     stop("'group_levels' must be a one-dimensional vector.", call. = FALSE)
+  .register_integer64(group_levels)
   if (!is.data.frame(data)) stop("'data' must be a data.frame.", call. = FALSE)
   if (anyNA(names(data)) || any(!nzchar(names(data))) || anyDuplicated(names(data)))
     stop("'data' must have unique, non-missing, non-empty column names.", call. = FALSE)

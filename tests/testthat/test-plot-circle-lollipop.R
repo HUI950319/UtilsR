@@ -1007,3 +1007,24 @@ test_that("circular sectors draw blank labels with safe working identifiers", {
   expect_equal(sort(positions), c(0, 0, 1, 1))
   expect_setequal(links, c(".circle_group", ".circle_group.1"))
 })
+
+test_that("circular explicit integer64 group order works in a fresh session", {
+  skip_if_not_installed("bit64")
+  skip_if_not_installed("circlize")
+  scratch <- withr::local_tempdir()
+  input <- file.path(scratch, "input.rds")
+  script <- file.path(scratch, "verify.R")
+  d <- data.frame(group = rep(c("1", "2"), each = 2L), name = letters[1:4], value = 1:4)
+  saveRDS(list(fn = PlotCircleLollipop, data = d, levels = bit64::as.integer64(c(2, 1)),
+    libs = .libPaths()), input)
+  writeLines(c(sprintf("payload <- readRDS(%s)", deparse(input)),
+    '.libPaths(payload[["libs"]])',
+    'stopifnot(!("bit64" %in% loadedNamespaces()))',
+    'testthat::local_mocked_bindings(circos.initialize = function(factors, ...) {stopifnot(identical(levels(factors), c("2", "1"))); stop("REACHED_DRAW")}, .package = "circlize")',
+    'error <- tryCatch(payload[["fn"]](payload[["data"]], group_levels = payload[["levels"]]), error = conditionMessage)',
+    'if (!identical(error, "REACHED_DRAW")) stop(error)',
+    'cat("COLD_CIRCLE_LEVELS_OK\\n")'), script)
+  output <- suppressWarnings(system2(file.path(R.home("bin"), "Rscript"),
+    c("--vanilla", shQuote(script)), stdout = TRUE, stderr = TRUE))
+  expect_true("COLD_CIRCLE_LEVELS_OK" %in% output, info = paste(output, collapse = "\n"))
+})
