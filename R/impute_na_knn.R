@@ -335,7 +335,12 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
   }
   for (var_name in names(time_original)) {
     original <- time_original[[var_name]]
-    values <- result[[var_name]]
+    missing <- is.na(original)
+    if (!any(missing)) {
+      result[[var_name]] <- original
+      next
+    }
+    values <- result[[var_name]][missing]
     if (inherits(original, "Date")) {
       values <- as.Date(values, origin = "1970-01-01")
     } else if (inherits(original, "POSIXt")) {
@@ -348,8 +353,7 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     } else {
       values <- lubridate::duration(values)
     }
-    missing <- is.na(original)
-    original[missing] <- values[missing]
+    original[missing] <- values
     attributes(original) <- attributes(time_original[[var_name]])
     result[[var_name]] <- original
   }

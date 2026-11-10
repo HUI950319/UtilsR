@@ -514,3 +514,20 @@ test_that("KNN backend reuses columns when every row has a predictor", {
   expect_identical(result$observed, data$observed)
   expect_equal(result$target[1L], 2)
 })
+
+test_that("KNN time restoration converts only imputed dates", {
+  skip_if_not_installed("VIM")
+  fn <- impute_na_knn
+  converted <- integer()
+  environment(fn) <- list2env(list(as.Date = function(x, ...) {
+    converted <<- c(converted, length(x))
+    base::as.Date(x, ...)
+  }), parent = environment(fn))
+  dates <- as.Date("2026-01-01") + seq_len(400)
+  data <- data.frame(predictor = c(1:399, 399.25), date = dates, complete_date = dates)
+  data$date[400L] <- NA
+  result <- fn(data, k = 1L, verbose = FALSE)
+  expect_identical(converted, 1L)
+  expect_identical(result$date, c(dates[1:399], dates[399L]))
+  expect_identical(result$complete_date, dates)
+})

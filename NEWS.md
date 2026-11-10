@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `impute_na_knn()` converts only filled entries back to time classes and keeps observed values directly.
+
 * `PlotRankCor()` fills its subtitle lines in place for plots with many groups.
 
 * `PlotRankCor()` avoids materializing unique vectors when checking whether finite paired scores vary.
