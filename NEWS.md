@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotHeatmapJaccard()` reuses the factors and numeric scores created by the matrix-to-table conversion.
+
 * `PlotCircleLollipop()` matches colliding display groups by typed identity when applying an explicit group order.
 
 * `PlotButterfly()` restores integer64 methods before plotting a serialized numeric bar column.

@@ -706,3 +706,21 @@ test_that("Jaccard heatmaps keep exact close numeric group keys", {
   expect_error(PlotHeatmapJaccard(data, "group", "feature", group_levels = c(1, 1),
                                  return_type = "data"), "duplicate")
 })
+
+test_that("Jaccard heatmaps keep the factors created by matrix conversion", {
+  build <- .build_jaccard_plot
+  environment(build) <- list2env(list(factor = function(x, ...) {
+    if (is.factor(x) && length(x) == 9L) stop("refactored the long table")
+    base::factor(x, ...)
+  }), parent = environment(build))
+  groups <- c("Z", "", "A")
+  mat <- matrix(c(1, .25, 0, .25, 1, 0, 0, 0, 0), 3L,
+                dimnames = list(groups, groups))
+  style <- list(show_diag = FALSE, show_strip = FALSE, midpoint = .5, text_size = 2,
+                low_color = "white", high_color = "red")
+  p <- build(mat, groups, style)
+  expect_identical(levels(p$data$Group1), groups)
+  expect_identical(levels(p$data$Group2), groups)
+  diag(mat) <- NA_real_
+  expect_identical(p$data$Jaccard, as.vector(mat))
+})

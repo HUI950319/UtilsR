@@ -303,11 +303,6 @@ PlotHeatmapJaccard <- function(
   # Wide matrix → long (base R, no reshape2)
   df_long         <- as.data.frame(as.table(plot_mat))
   names(df_long)  <- c("Group1", "Group2", "Jaccard")
-  df_long$Jaccard <- as.numeric(df_long$Jaccard)
-
-  # Enforce axis order via factor levels
-  df_long$Group1  <- factor(df_long$Group1, levels = ct_names)
-  df_long$Group2  <- factor(df_long$Group2, levels = ct_names)
 
   # ---- 5. Default strip colours ----
   if (show_strip && is.null(strip_colors)) {
