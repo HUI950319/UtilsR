@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fct_cat()` and `fct_to_group()` pass validated level names to the shared recoder.
+
 * `fct_num()` uses the range already checked for underflow to create equal-width breaks on plain vectors.
 
 * Continuous dot panels tally observed group IDs directly while retaining displayed bin and group order.

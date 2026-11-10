@@ -150,10 +150,11 @@ fct_cat <- function(x, ...,
         anyNA(names(groups)) || any(!nzchar(names(groups)))) {
       cli::cli_abort("{.arg groups} must be a named list with non-empty names, e.g. {.code list(early = 1:2, late = 3:4)}.")
     }
+    original_levels <- levels(x)
     for (i in seq_along(groups)) {
-      groups[[i]] <- .check_integer_index(groups[[i]],
-                                          paste0("groups$", names(groups)[i]),
-                                          nlevels(x))
+      indices <- .check_integer_index(groups[[i]], paste0("groups$", names(groups)[i]),
+                                      length(original_levels))
+      groups[[i]] <- original_levels[indices]
     }
     return(.recode_factor(x, groups))
   }

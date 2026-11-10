@@ -684,3 +684,22 @@ test_that("factor helpers preserve close numeric identities and numeric ordering
   ordinary <- c(y = 12.5, x = 2.5, z = NA_real_)
   expect_identical(fct_cat(ordinary), factor(ordinary))
 })
+
+test_that("factor grouping recodes each checked index once", {
+  check <- .check_integer_index
+  checks <- 0L
+  testthat::local_mocked_bindings(.check_integer_index = function(...) {
+    checks <<- checks + 1L
+    check(...)
+  }, .package = "UtilsR")
+  values <- ordered(letters[1:4], levels = letters[1:5])
+  groups <- list(early = c(1L, 3L), late = 2L)
+  direct <- fct_cat(values, groups = groups)
+  expect_identical(checks, 2L)
+  checks <- 0L
+  wrapped <- fct_to_group(values, groups)
+  expect_identical(checks, 2L)
+  expect_identical(direct, wrapped)
+  expect_identical(as.character(direct), c("early", "late", "early", "d"))
+  expect_true(is.ordered(direct))
+})
