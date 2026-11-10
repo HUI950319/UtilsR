@@ -442,15 +442,19 @@ fmt_raster <- function(
   # A missing dimension takes the open device's size (pdf.options() without
   # one), converted from inches to `units`.
   original_device <- grDevices::dev.cur()
+  per_inch <- c("in" = 1, "cm" = 2.54, "mm" = 25.4)[[units]]
   if (is.null(width) || is.null(height)) {
     device_size <- if (original_device == 1L) {
       unlist(grDevices::pdf.options()[c("width", "height")], use.names = FALSE)
     } else {
       grDevices::dev.size("in")
     }
-    per_inch <- c("in" = 1, "cm" = 2.54, "mm" = 25.4)[[units]]
     if (is.null(width))  width  <- device_size[1] * per_inch
     if (is.null(height)) height <- device_size[2] * per_inch
+  }
+
+  if (width * dpi / per_inch < 1 || height * dpi / per_inch < 1) {
+    cli::cli_abort("Image dimensions and {.arg dpi} must produce at least one pixel per dimension.")
   }
 
   capture <- .agg_capture(width = width, height = height, units = units,

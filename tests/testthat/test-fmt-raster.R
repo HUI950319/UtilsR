@@ -674,3 +674,17 @@ test_that("ragg accepts bare panel grobs in custom tables", {
   expect_warning(result <- fmt_raster(empty, method = "ragg", dpi = 20), "No panels detected")
   expect_identical(result, empty)
 })
+
+test_that("image rasters require a pixel in each dimension", {
+  skip_if_not_installed("ragg")
+  grob <- grid::rectGrob(gp = grid::gpar(fill = "red", col = NA))
+  for (unit in c("in", "cm", "mm")) {
+    per_inch <- c(inch = 1, cm = 2.54, mm = 25.4)[[if (unit == "in") "inch" else unit]]
+    expect_error(fmt_raster(grob, method = "image", dpi = 10, units = unit,
+                            width = per_inch / 20, height = per_inch), "one pixel")
+    expect_error(fmt_raster(grob, method = "image", dpi = 10, units = unit,
+                            width = per_inch, height = per_inch / 20), "one pixel")
+    expect_no_error(fmt_raster(grob, method = "image", dpi = 10, units = unit,
+                              width = per_inch / 10, height = per_inch / 10))
+  }
+})
