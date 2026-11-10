@@ -157,6 +157,12 @@ PlotScatter3 <- function(
   if (!is.null(filename)) .check_plot_filename(filename)
 
   # ---- Validate inputs ----
+  if (is.factor(test_method) && is.null(dim(test_method))) {
+    test_method <- as.character(test_method)
+  }
+  if (!is.character(test_method) || !is.null(dim(test_method)) ||
+      length(test_method) != 1L || !test_method %in% c("wilcox", "t.test", "none"))
+    stop("'test_method' must be 'wilcox', 't.test', or 'none'.", call. = FALSE)
   if (!is.character(cor_method) || !is.null(dim(cor_method)) ||
       length(cor_method) != 1L || is.na(cor_method))
     stop("'cor_method' must be a single correlation method or 'none'.", call. = FALSE)
@@ -281,8 +287,7 @@ PlotScatter3 <- function(
   if (test_method != "none") {
     test_fn <- switch(test_method,
       "wilcox" = stats::wilcox.test,
-      "t.test" = .con_pairwise_test("t.test"),
-      stop("test_method must be 'wilcox', 't.test', or 'none'.", call. = FALSE)
+      "t.test" = .con_pairwise_test("t.test")
     )
     test_res <- test_fn(x_values, y_values,
                         paired = TRUE, alternative = "two.sided")

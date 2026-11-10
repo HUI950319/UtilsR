@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotScatter3()` selects a factor-valued test method by its label and rejects invalid selectors before building the plot.
+
 * `grob_insert()` loads integer64 methods before checking and converting inset coordinates.
 
 * `lv()` reuses the summary's observed cardinality when choosing character and complex columns for an ungrouped table.

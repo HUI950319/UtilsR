@@ -1450,3 +1450,21 @@ test_that("paired scatter reference lines render quietly when zero is outside th
     }
   }
 })
+
+test_that("paired scatter selects tests by their method names", {
+  data <- scatter3_integer_pairs()
+  methods <- c("t.test", "wilcox")
+  for (method in methods) {
+    plot <- scatter3_capture_inset(data, test_method = factor(method, levels = methods),
+                                   cor_method = "none", show_refline = FALSE)
+    direct <- scatter3_capture_inset(data, test_method = method, cor_method = "none",
+                                     show_refline = FALSE)
+    expect_identical(ggplot2::layer_data(plot$main, 2L)$label,
+                     ggplot2::layer_data(direct$main, 2L)$label)
+  }
+  expect_no_error(scatter3_capture_inset(data, test_method = factor("none"),
+                                        cor_method = "none", p_size = stop("inactive size")))
+  for (invalid in list(NULL, NA_character_, c("wilcox", "t.test"), matrix("wilcox"), 1, "W")) {
+    expect_error(PlotScatter3(stop("data evaluated"), test_method = invalid), "test_method")
+  }
+})
