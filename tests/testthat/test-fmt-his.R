@@ -810,3 +810,16 @@ test_that("distribution overlays decode integer64 samples before counting", {
                                          con_var = "score", type = "density"))$data[[2L]]
   expect_true(any(density$density > 0))
 })
+
+test_that("distribution overlays map a literal data-pronoun column", {
+  plot <- ggplot2::ggplot(data.frame(x = 1:5, y = 1:5), ggplot2::aes(x, y)) + ggplot2::geom_point()
+  values <- data.frame(.data = c(1, 2, 4, 5))
+  expected <- ggplot2::ggplot_build(fmt_his(plot, data = setNames(values, "score"),
+                                          con_var = "score", binwidth = 1))$data[[2L]]
+  result <- ggplot2::ggplot_build(fmt_his(plot, data = values, con_var = ".data",
+                                        binwidth = 1))$data[[2L]]
+  expect_identical(result[c("x", "count", "y")], expected[c("x", "count", "y")])
+  deferred <- ggplot2::ggplot_build(fmt_his(plot, data = function(...) values, con_var = ".data",
+                                          binwidth = 1))$data[[2L]]
+  expect_identical(deferred[c("x", "count")], expected[c("x", "count")])
+})

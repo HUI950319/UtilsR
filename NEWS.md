@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_his(con_var = ".data")` uses a private numeric mapping for the literal column name.
+
 * `PlotDumbbell()` preserves fractional and exact large-integer differences when paired endpoints mix ordinary numeric and integer64 storage.
 
 * `PlotScatter3()` validates `p_digits` for active paired tests and leaves it lazy when tests are disabled.
