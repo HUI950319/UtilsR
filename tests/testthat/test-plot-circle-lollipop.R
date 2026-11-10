@@ -953,3 +953,24 @@ test_that("circular label frames are built only for visible labels", {
   fn(d, show_labels = TRUE, show_links = FALSE, show_yaxis = FALSE)
   expect_identical(labels, 1L)
 })
+
+test_that("circular group orders match close typed identities", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  keys <- c(1, 1 + .Machine$double.eps)
+  data <- data.frame(group = rep(keys, each = 2L), name = letters[1:4], value = c(.2, .4, .6, .8))
+  sector_order <- NULL
+  initialize <- circlize::circos.initialize
+  testthat::local_mocked_bindings(circos.initialize = function(factors, ...) {
+    sector_order <<- levels(factors)
+    initialize(factors, ...)
+  }, .package = "circlize")
+  PlotCircleLollipop(data, show_labels = FALSE, show_links = FALSE)
+  expected <- rev(sector_order)
+  expect_no_warning(PlotCircleLollipop(data, group_levels = rev(keys),
+                                       show_labels = FALSE, show_links = FALSE))
+  expect_identical(sector_order, expected)
+  expect_no_warning(PlotCircleLollipop(data, group_levels = expected,
+                                       show_labels = FALSE, show_links = FALSE))
+  expect_identical(sector_order, expected)
+})

@@ -271,6 +271,12 @@ PlotCircleLollipop <- function(
 
   # ---- Group order ----
   if (!is.null(group_levels)) {
+    if (any(collision) && !is.character(group_levels) &&
+        identical(class(group_levels), class(group_values))) {
+      ids <- vctrs::vec_match(group_levels, group_values)
+      group_levels <- as.character(group_levels)
+      group_levels[!is.na(ids)] <- group_labels[ids[!is.na(ids)]]
+    }
     df$group <- factor(df$group, levels = group_levels)
   } else if (is.factor(data[[group_col]])) {
     df$group <- factor(df$group, levels = levels(data[[group_col]]))

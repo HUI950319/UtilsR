@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotCircleLollipop()` matches colliding display groups by typed identity when applying an explicit group order.
+
 * `PlotButterfly()` restores integer64 methods before plotting a serialized numeric bar column.
 
 * `PlotButterfly(minmax = TRUE)` promotes ordinary integer bounds before subtracting them.
