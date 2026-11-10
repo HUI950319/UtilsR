@@ -646,3 +646,15 @@ test_that("ragg respects inherited panel viewport clipping", {
     expect_length(rasters, as.integer(clipped))
   }
 })
+
+test_that("ragg skips measuring tables without panels", {
+  skip_if_not_installed("ragg")
+  table <- gtable::gtable(widths = grid::unit(rep(1, 500), "pt"), heights = grid::unit(1, "in"))
+  testthat::local_mocked_bindings(
+    grid.layout = function(...) stop("layout measured for panel-free table"),
+    .package = "grid"
+  )
+  expect_warning(result <- fmt_raster(table, method = "ragg", dpi = 20), "No panels detected")
+  expect_identical(result, table)
+  expect_error(fmt_raster(table, method = "ragg", dpi = 20, width = c(1, 2)), "number of panels")
+})

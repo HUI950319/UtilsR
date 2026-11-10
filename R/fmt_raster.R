@@ -287,7 +287,6 @@ fmt_raster <- function(
     cli::cli_abort("Cannot convert input to a gtable.")
   }
 
-  panels_found <- 0L
   unclipped_panels <- FALSE
   panel_indices <- function(gt) {
     which(grepl("^panel(-[0-9]+)*$", gt$layout$name) &
@@ -308,6 +307,10 @@ fmt_raster <- function(
     if (!is.null(value) && !length(value) %in% c(1L, panel_total)) {
       cli::cli_abort("Length of {.arg {arg}} must be 1 or {panel_total} (number of panels).")
     }
+  }
+  if (panel_total == 0L) {
+    cli::cli_warn("No panels detected. Returning plot as-is.")
+    return(plot)
   }
   panel_cursor <- 0L
   raster_table <- function(gtable, plan) {
@@ -345,7 +348,6 @@ fmt_raster <- function(
     if (length(indices)) {
       positions <- panel_cursor + seq_along(indices)
       panel_cursor <<- panel_cursor + length(indices)
-      panels_found <<- panels_found + length(indices)
       widths <- if (length(width) > 1L) width[positions] else width
       heights <- if (length(height) > 1L) height[positions] else height
       panel_w <- .resolve_panel_size(gtable, indices, "width", widths, units,
@@ -409,11 +411,6 @@ fmt_raster <- function(
   if (unclipped_panels) {
     cli::cli_warn("Panels with clipping disabled are kept as vectors to preserve geometry outside the panel.")
   }
-  if (panels_found == 0) {
-    cli::cli_warn("No panels detected. Returning plot as-is.")
-    return(plot)
-  }
-
   # Wrap and return
   p <- patchwork::wrap_plots(gtable)
   plot_w <- grid::convertWidth(sum(gtable[["widths"]]), units, valueOnly = TRUE)
