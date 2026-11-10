@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_panel()` and recursive plot formatting require plot lists to be one-dimensional.
+
 * `fmt_text()` and plot text adapters keep quoted math calls intact when applying plot, axis, or legend labels.
 
 * Automatic `PlotDumbbell()` insets select factor-valued test methods by label and validate both selectors before reshaping.

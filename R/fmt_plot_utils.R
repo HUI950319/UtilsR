@@ -42,6 +42,7 @@
   }
   if (inherits(plot, c("spacer", "guide_area", "inset_patch", "wrapped_patch"))) return(plot)
   if (is.list(plot) && !inherits(plot, "gg")) {
+    if (!is.null(dim(plot))) cli::cli_abort("Plot lists must be one-dimensional.")
     return(lapply(plot, .map_plot_leaves, fun = fun))
   }
   fun(plot)

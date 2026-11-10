@@ -695,3 +695,13 @@ test_that("panel styling rejects dimensional colour and line-type controls", {
     expect_error(do.call("fmt_panel", args), arg)
   }
 })
+
+test_that("panel traversal preserves one-dimensional list boundaries", {
+  p <- ggplot2::ggplot(data.frame(x = 1), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  plots <- list(first = p, second = p)
+  expect_error(fmt_panel(array(plots, dim = c(1L, 2L)), bg = "red"), "one-dimensional")
+  expect_error(fmt_panel(list(nested = array(plots, dim = c(2L, 1L))), bg = "red"), "one-dimensional")
+  result <- fmt_panel(plots, bg = "red")
+  expect_identical(names(result), names(plots))
+  expect_identical(result[[2L]]$theme$panel.background$fill, "red")
+})
