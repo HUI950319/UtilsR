@@ -470,3 +470,19 @@ test_that("Linux memory falls back after unreadable or invalid proc data", {
       list(total_gb = 8, used_gb = 3, free_gb = 5, usage_percent = 37.5))
   }
 })
+
+test_that("Linux CPU diagnostics recognize model and hardware fields", {
+  query <- .check_system_fixture(meminfo = c("MemTotal: 8388608 kB", "MemAvailable: 4194304 kB"))
+  env <- environment(query)
+  read <- env$readLines
+  fields <- c("processor : 0", "Hardware : ARM system", "Model : ARM board")
+  env$readLines <- function(con, ...) if (con == "/proc/cpuinfo") fields else read(con, ...)
+  invisible(capture.output(result <- query(return_result = TRUE)))
+  expect_identical(result$cpu$name, "ARM board")
+  fields <- c(fields[1:2], "model name : ARM core")
+  invisible(capture.output(result <- query(return_result = TRUE)))
+  expect_identical(result$cpu$name, "ARM core")
+  fields <- fields[1:2]
+  invisible(capture.output(result <- query(return_result = TRUE)))
+  expect_identical(result$cpu$name, "ARM system")
+})

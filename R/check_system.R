@@ -322,10 +322,14 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
             cpu_name <- "Unknown"
             if (file.exists("/proc/cpuinfo")) {
               cpuinfo <- readLines("/proc/cpuinfo")
-              model_line <- grep("model name", cpuinfo, value = TRUE)[1]
-              if (!is.na(model_line)) {
-                cpu_name <- trimws(gsub("model name\\s*:\\s*", "",
-                                        model_line))
+              for (field in c("model name", "Model", "Hardware")) {
+                lines <- grep(paste0("^", field, "[[:space:]]*:"), cpuinfo, value = TRUE)
+                values <- trimws(sub("^[^:]+:", "", lines))
+                values <- values[nzchar(values)]
+                if (length(values)) {
+                  cpu_name <- values[1L]
+                  break
+                }
               }
             }
 
