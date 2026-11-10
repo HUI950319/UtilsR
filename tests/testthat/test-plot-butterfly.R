@@ -940,3 +940,35 @@ test_that("butterfly bar aesthetics accept literal pronoun columns", {
     expect_identical(result$patches$annotation$caption, names(renamed)[4L])
   }
 })
+
+test_that("butterfly distributions decode cold integer64 scores", {
+  skip_if_not_installed("bit64")
+  temp <- withr::local_tempdir()
+  input <- file.path(temp, "data.rds")
+  script <- file.path(temp, "verify.R")
+  scores <- rep(c(1, 2, 4, 5, 1, 3, 5, 7), 2L)
+  d <- data.frame(item = rep(rep(c("A", "B"), each = 4L), 2L),
+    side = rep(c("L", "R"), each = 8L), fill = "one", score = bit64::as.integer64(scores))
+  saveRDS(list(d = d, scores = scores, libs = .libPaths(),
+    path = getNamespaceInfo(asNamespace("UtilsR"), "path")), input)
+  writeLines(c(sprintf("payload <- readRDS(%s)", deparse(input)),
+    '.libPaths(payload[["libs"]])',
+    'path <- payload[["path"]]',
+    'options(device = function(...) grDevices::pdf(NULL, ...))',
+    'if (file.exists(file.path(path, "Meta", "package.rds"))) library("UtilsR", lib.loc = dirname(path)) else pkgload::load_all(path, quiet = TRUE)',
+    'stopifnot(!("bit64" %in% loadedNamespaces()))',
+    'fill <- if (identical(commandArgs(TRUE), "filled")) "fill" else NULL',
+    'quartiles <- function(data) {',
+    '  p <- UtilsR::PlotButterfly2(data, "item", "score", "side", fill.by = fill, type = "box")',
+    '  ggplot2::layer_data(p[[2L]])[c("xlower", "xmiddle", "xupper")]',
+    '}',
+    'observed <- quartiles(payload[["d"]])',
+    'ref <- payload[["d"]]; ref[["score"]] <- payload[["scores"]]',
+    'if (!isTRUE(all.equal(observed, quartiles(ref)))) stop("WRONG_QUARTILES")',
+    'cat("COLD_DISTRIBUTION_OK\\n")'), script)
+  for (mode in c("filled", "unfilled")) {
+    output <- suppressWarnings(system2(file.path(R.home("bin"), "Rscript"),
+      c("--vanilla", shQuote(script), mode), stdout = TRUE, stderr = TRUE))
+    expect_true("COLD_DISTRIBUTION_OK" %in% output, info = paste(output, collapse = "\n"))
+  }
+})
