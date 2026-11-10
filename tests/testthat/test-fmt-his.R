@@ -851,3 +851,19 @@ test_that("distribution overlays prefer sample layers over guides", {
     expect_equal(sum(ggplot2::layer_data(fmt_his(scaffold, binwidth = 1), 2L)$count), nrow(guide))
   }
 })
+
+test_that("distribution overlays exclude SPSS user-missing samples", {
+  skip_if_not_installed("haven")
+  p <- ggplot2::ggplot(data.frame(x = 1:5, y = 1:5), ggplot2::aes(x, y)) + ggplot2::geom_point()
+  values <- haven::labelled_spss(c(1, 2, 4, 5, 97, 98, 99), na_values = 99,
+    na_range = c(97, 98), label = "Score")
+  stat <- function(samples, type) {
+    ggplot2::layer_data(fmt_his(p, data = data.frame(score = samples),
+      con_var = "score", type = type, binwidth = 1), 2L)
+  }
+  for (type in c("histogram", "density")) {
+    columns <- if (type == "histogram") c("x", "count") else c("x", "density")
+    expect_warning(observed <- stat(values, type), "Removed 3 rows")
+    expect_identical(observed[columns], stat(c(1, 2, 4, 5), type)[columns])
+  }
+})

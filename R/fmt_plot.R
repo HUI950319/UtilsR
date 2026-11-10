@@ -5195,9 +5195,8 @@ fmt_his <- function(plot,
     layer$compute_aesthetics <- eval(quote(function(self, data, plot) {
       if (!is.null(pronoun_column)) data[[".fmt_his_x"]] <- data[[pronoun_column]]
       data <- ggplot2::ggproto_parent(parent_layer, self)$compute_aesthetics(data, plot)
-      if (inherits(data$x, "integer64")) {
-        .register_integer64(data$x)
-        data$x <- as.double(data$x)
+      if (inherits(data$x, c("integer64", "haven_labelled_spss"))) {
+        data$x <- .scatter_axis_values(data$x)
       }
       data$.fmt_his_input <- data$x
       # Continuous samples are transformed once, using their final panel scale.

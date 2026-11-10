@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_his()` treats SPSS user-defined missing values as missing before computing histogram counts or densities.
+
 * Circular group scaling finds both bounds from one set of original row indices, including rows omitted by `top_n`.
 
 * When selecting overlay samples from layers, `fmt_his()` prefers data layers and still supports guide-only plots.
