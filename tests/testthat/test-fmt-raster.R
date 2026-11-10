@@ -720,3 +720,13 @@ test_that("image rasterization draws grid graphic collections", {
   expected <- raster_find_grobs(patchwork::patchworkGrob(reference), "rastergrob")
   expect_identical(rasters[[1L]]$raster, expected[[1L]]$raster)
 })
+
+test_that("raster backends require one-dimensional plot lists", {
+  skip_if_not_installed("ragg")
+  skip_if_not_installed("ggrastr")
+  plot <- ggplot2::ggplot(data.frame(x = 1:2), ggplot2::aes(x, x)) + ggplot2::geom_point()
+  dimensional <- array(list(plot, plot), dim = c(1, 2))
+  for (method in c("ggrastr", "ragg", "image")) {
+    expect_error(fmt_raster(dimensional, method = method, dpi = 20), "one-dimensional")
+  }
+})

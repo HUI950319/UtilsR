@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_raster()` checks the one-dimensional plot-list contract before dispatching to any renderer.
+
 * `PlotHeatmapJaccard()` formats colliding group labels precisely before checking for duplicate group keys.
 
 * `plt_sankey()` reports selected columns with dimensions before converting stage categories.

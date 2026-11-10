@@ -187,6 +187,9 @@ fmt_raster <- function(
     }
   }
 
+  if (is.list(plot) && !is.object(plot) && !is.null(dim(plot))) {
+    cli::cli_abort("Plot lists must be one-dimensional.")
+  }
   if (method == "ggrastr") {
     return(.fmt_raster_ggrastr(plot, dpi = dpi, dev = dev))
   }
