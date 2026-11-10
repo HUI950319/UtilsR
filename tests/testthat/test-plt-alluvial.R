@@ -931,3 +931,20 @@ test_that("alluvial stratum counts keep observed pairs and empty groups", {
   expect_false(is.ordered(plot$data$.facet))
   expect_false(is.ordered(plot$data$.cat_var))
 })
+
+test_that("alluvial gaps reuse one row for each observed pair", {
+  skip_if_not_installed("ggalluvial")
+  format <- plt_alluvial
+  environment(format) <- list2env(list(unique = function(x, ...) {
+    if (is.data.frame(x) && identical(names(x), c(".facet", ".cat_var", "group_total"))) {
+      stop("recounted the observed facet pairs")
+    }
+    base::unique(x, ...)
+  }), parent = environment(format))
+  args <- list(data = alluvial_data(), cat_var = "category", group = "group",
+               facet = "panel", y_type = "count", stratum_args = list(gap = .1))
+  p <- suppressMessages(do.call(format, args))
+  reference <- suppressMessages(do.call(plt_alluvial, args))
+  expect_identical(p$data, reference$data)
+  expect_equal(sort(p$data$.y[p$data$.is_gap]), c(.2, .2, .3, .3))
+})

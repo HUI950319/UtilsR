@@ -514,8 +514,9 @@ plt_alluvial <- function(
     gap_names <- utils::tail(make.unique(c(
       group_levels, paste0(".gap_", seq_len(length(group_levels) - 1L))
     )), length(group_levels) - 1L)
-    observed <- unique(stat[, c(".facet", ".cat_var", "group_total")])
-    max_total <- tapply(stat$group_total, stat$.facet, max)
+    # The first group contains one row for every observed facet/category pair.
+    observed <- stat[seq_len(n_pairs), c(".facet", ".cat_var", "group_total"), drop = FALSE]
+    max_total <- tapply(observed$group_total, observed$.facet, max)
     gap_rows <- lapply(gap_names, function(gap_name) {
       data.frame(
         .facet = observed$.facet,
