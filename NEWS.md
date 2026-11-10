@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pal_get()` encodes single-colour ramps directly while retaining the existing alpha bytes and colour spelling.
+
 * `impute_na_knn()` preserves the existing column vectors when all rows can enter the backend.
 
 * `PlotRank()` reuses group row indices for explicit selections on plain and factor grouping columns.

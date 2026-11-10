@@ -632,8 +632,13 @@ pal_get <- function(palette = "Paired", n = NULL, x = NULL,
     return(rep.int(colour, length(at)))
   }
   # Keep the RGB spelling for opaque ramps and the source alpha when requested.
-  has_alpha <- alpha == 1 && any(grDevices::col2rgb(cols, alpha = TRUE)["alpha", ] < 255)
-  rgba <- grDevices::colorRamp(cols, alpha = has_alpha)(at)
+  if (length(cols) == 1L && length(at) == 1L && is.finite(at) && at >= 0 && at <= 1) {
+    rgba <- t(grDevices::col2rgb(cols, alpha = TRUE))
+    has_alpha <- alpha == 1 && rgba[1L, 4L] < 255
+  } else {
+    has_alpha <- alpha == 1 && any(grDevices::col2rgb(cols, alpha = TRUE)["alpha", ] < 255)
+    rgba <- grDevices::colorRamp(cols, alpha = has_alpha)(at)
+  }
   opacity <- if (has_alpha) {
     rgba[, 4L]
   } else if (alpha < 1) {

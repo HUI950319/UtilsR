@@ -2792,3 +2792,18 @@ test_that("numeric palette placement skips plain missing masks", {
     expect_identical(numeric_values(labelled), c(1, NA_real_))
   }
 })
+
+test_that("single-colour ramps bypass interpolation and retain alpha bytes", {
+  colors <- c("red", "transparent", "#12345680", "#ABCDEF00", "#112233FF")
+  args <- expand.grid(colour = colors, alpha = c(0, 0.4, .9999, 1),
+                      stringsAsFactors = FALSE)
+  x <- c(1, 2, NA, 4)
+  reference <- lapply(seq_len(nrow(args)), function(i) {
+    pal_get(args$colour[i], x = x, alpha = args$alpha[i])
+  })
+  testthat::local_mocked_bindings(colorRamp = function(...) stop("constructed an interpolator"),
+                                .package = "grDevices")
+  for (i in seq_len(nrow(args))) {
+    expect_identical(pal_get(args$colour[i], x = x, alpha = args$alpha[i]), reference[[i]])
+  }
+})
