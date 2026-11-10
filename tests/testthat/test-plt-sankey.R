@@ -643,3 +643,20 @@ test_that("Sankey count and name labels do not format percentages", {
   expect_identical(count, 2L)
   expect_true("a (66.7%)" %in% levels(p$data$label))
 })
+
+test_that("Sankey reshaping does not round-trip stage node factors", {
+  skip_if_not_installed("ggsankey")
+  withr::local_options(lifecycle_verbosity = "quiet")
+  format <- plt_sankey
+  environment(format) <- list2env(list(lapply = function(X, FUN, ...) {
+    if (is.data.frame(X) && ncol(X) == 3L && all(vapply(X, is.factor, logical(1)))) {
+      stop("converted stage node factors")
+    }
+    base::lapply(X, FUN, ...)
+  }), parent = environment(format))
+  data <- sankey_data()
+  original <- suppressMessages(plt_sankey(data, names(data), show_text = "none"))
+  result <- suppressMessages(format(data, names(data), show_text = "none"))
+  expect_identical(result$data, original$data)
+  expect_identical(levels(result$data$node), levels(original$data$node))
+})

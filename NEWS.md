@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_sankey()` reshapes character node keys directly and restores the shared factor ordering once.
+
 * `check_system()` reports `Model` or `Hardware` from Linux CPU metadata when a processor model name is unavailable.
 
 * `check_system()` tries the existing `free -b` backend when `/proc/meminfo` cannot supply valid memory figures.

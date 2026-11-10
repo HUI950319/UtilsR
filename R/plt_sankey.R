@@ -298,17 +298,15 @@ plt_sankey <- function(data,
     node_levels <- if (length(observed)) paste0(".sankey_", i, "_", seq_along(observed)) else character()
     node_labels[[i]] <- stats::setNames(labels, node_levels)
     node_pct[[i]] <- stats::setNames(proportion, node_levels)
-    data[[label_vars[i]]] <- factor(node_levels[match(codes, observed)], levels = node_levels)
+    data[[label_vars[i]]] <- node_levels[match(codes, observed)]
   }
+  node_counts <- lengths(node_labels)
   node_labels <- unlist(node_labels)
   node_pct <- unlist(node_pct)
 
-  # Each stage has different node levels. Reshape plain keys, then restore
-  # their order once the stages share a single column.
-  all_levels <- unlist(lapply(label_vars, function(lv) levels(data[[lv]])))
-  reshape_data <- data[, label_vars, drop = FALSE]
-  reshape_data[] <- lapply(reshape_data, as.character)
-  plot_data <- ggsankey::make_long(reshape_data, dplyr::all_of(label_vars))
+  # Reshape plain keys, then restore their order in the shared node column.
+  all_levels <- names(node_labels)
+  plot_data <- ggsankey::make_long(data[, label_vars, drop = FALSE], dplyr::all_of(label_vars))
 
   # Set node factor levels
   plot_data$node <- factor(plot_data$node, levels = all_levels)
@@ -320,7 +318,7 @@ plt_sankey <- function(data,
     hcl_pals <- c("Blues", "Oranges", "Greens", "Purples", "Reds", "Grays")
     col_list <- lapply(seq_along(vars), function(i) {
       pal_name <- hcl_pals[((i - 1) %% length(hcl_pals)) + 1]
-      n_lvs <- nlevels(data[[label_vars[i]]])
+      n_lvs <- node_counts[i]
       grDevices::colorRampPalette(
         as.character(pal_get(paste0("hcl_", pal_name), n = 5))[2:4]
       )(n_lvs)
