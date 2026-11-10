@@ -179,8 +179,7 @@ grob_add <- function(
     return(gt)
   }
 
-  # Normalize plot and grob-list inputs to one margin graphic.
-  if (inherits(grob, c("ggplot", "patchwork", "gList"))) {
+  if (inherits(grob, c("ggplot", "patchwork"))) {
     grob <- grob_as(grob)
   }
 
@@ -204,6 +203,9 @@ grob_add <- function(
       space <- if (length(sizes)) do.call(grid::unit.pmax, sizes) else grid::unit(0, "cm")
     }
   }
+
+  # Keep the measured children together in one layout cell.
+  if (inherits(grob, "gList")) grob <- grob_as(grob)
 
   panel_index <- grepl("^panel(-[0-9]+)*$", gt$layout$name) |
     gt$layout$name %in% "panel-area"

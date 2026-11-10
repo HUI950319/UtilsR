@@ -257,3 +257,23 @@ test_that("empty margin graphic collections keep the existing layout", {
     }
   }
 })
+
+test_that("gList margins measure their children before grouping", {
+  withr::local_pdf(NULL)
+  base <- gtable::gtable(widths = grid::unit(1, "null"), heights = grid::unit(1, "null"))
+  base <- gtable::gtable_add_grob(base, grid::rectGrob(), 1, 1, name = "panel")
+  margin <- grid::gList(
+    grid::rectGrob(width = grid::unit(4, "cm"), height = grid::unit(2, "cm")),
+    grid::circleGrob(r = grid::unit(0.5, "cm"))
+  )
+
+  for (position in c("top", "bottom", "left", "right")) {
+    result <- grob_add(base, margin, position = position)
+    vertical <- position %in% c("top", "bottom")
+    added <- result$layout[nrow(result$layout), ]
+    size <- if (vertical) result$heights[added$t] else result$widths[added$l]
+    expect_equal(grid::convertUnit(size, "cm", valueOnly = TRUE), if (vertical) 2 else 4)
+    expect_length(result$grobs, 2L)
+    expect_length(result$grobs[[2L]]$children, 2L)
+  }
+})
