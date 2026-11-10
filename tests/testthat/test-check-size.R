@@ -469,3 +469,19 @@ test_that("size selector collection avoids copying earlier arguments", {
   expect_lt(copied, n)
   expect_identical(actual[["_data"]], check_size("target", envir = target_env)[["_data"]])
 })
+
+test_that("object size inspection reuses an enumerated binding inventory", {
+  calls <- 0L
+  measure <- check_size
+  environment(measure) <- list2env(list(exists = function(...) {
+    calls <<- calls + 1L
+    base::exists(...)
+  }), parent = environment(measure))
+  bindings <- list2env(setNames(as.list(rep(1L, 30)), sprintf("sample_%02d", 1:30)))
+  report <- measure(pattern = "^sample_", envir = bindings)
+  expect_identical(calls, 0L)
+  expect_identical(report[["_data"]]$Object[-1L], sprintf("sample_%02d", 1:30))
+  expect_warning(explicit <- measure("sample_01", "unknown", envir = bindings), "not found")
+  expect_identical(calls, 2L)
+  expect_identical(explicit[["_data"]]$Object[-1L], "sample_01")
+})

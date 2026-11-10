@@ -109,7 +109,8 @@ check_size <- function(..., pattern = NULL, envir = .GlobalEnv,
   } else {
     selected_objects <- list(...)
     if (length(selected_objects) == 0) {
-      objects <- ls(envir = envir, all.names = TRUE, sorted = FALSE)
+      all_objects <- ls(envir = envir, all.names = TRUE, sorted = FALSE)
+      objects <- all_objects
     } else {
       selections <- vector("list", length(selected_objects))
       # A bare symbol evaluated in `envir` is most likely the object the user
@@ -152,7 +153,9 @@ check_size <- function(..., pattern = NULL, envir = .GlobalEnv,
 
   # Sort once so equally sized objects keep alphabetical order for every selector.
   objects <- sort(unique(objects))
-  found <- vapply(objects, exists, logical(1), envir = envir, inherits = FALSE)
+  found <- if (is.null(all_objects)) {
+    vapply(objects, exists, logical(1), envir = envir, inherits = FALSE)
+  } else objects %in% all_objects
   if (any(!found)) {
     warning("Objects not found in `envir`: ", paste(objects[!found], collapse = ", "),
             call. = FALSE)
