@@ -809,3 +809,21 @@ test_that("empty UpSet peers keep explicit factor-missing identities", {
   ordinary <- plt_upset(list(one = factor("A"), two = character()), output = "data")
   expect_type(ordinary$.element, "character")
 })
+
+test_that("UpSet factor codes use direct bit lookups", {
+  d <- expand.grid(A = c(FALSE, TRUE), B = c(FALSE, TRUE), C = c(FALSE, TRUE))
+  d <- d[c(1:8, 4L, 4L, 8L), ]
+  fn <- plt_upset
+  env <- new.env(parent = environment(fn))
+  env$match <- function(x, table, ...) {
+    if (is.integer(x) && length(x) == nrow(d) && all(x >= 0L & x <= 7L)) {
+      stop("full membership match")
+    }
+    base::match(x, table, ...)
+  }
+  environment(fn) <- env
+  result <- fn(d, vars = names(d), levels = TRUE, output = "data")
+  expect_identical(as.character(result$intersect_group),
+    c("None", "A", "B", "A/B", "C", "A/C", "B/C", "A/B/C", "A/B", "A/B", "A/B/C"))
+  expect_identical(levels(result$intersect_group), c("A/B", "A/B/C", "A", "B", "C", "A/C", "B/C", "None"))
+})

@@ -398,14 +398,14 @@ plt_upset <- function(data,
       rows <- set_list[[i]]
       row_codes[rows] <- bitwOr(row_codes[rows], bits[i])
     }
-    counts <- tabulate(row_codes + 1L, nbins = bitwShiftL(1L, n_sets))
+    row_keys <- row_codes + 1L
+    counts <- tabulate(row_keys, nbins = length(group_names))
     region_order <- order(-counts[codes + 1L])
-    row_ids <- match(row_codes, codes, nomatch = length(group_names))
     ordered <- c(region_order, length(group_names))
     level_codes <- integer(length(group_names))
-    level_codes[ordered] <- seq_along(ordered)
+    level_codes[c(codes[region_order] + 1L, 1L)] <- seq_along(ordered)
     grp_data <- data
-    grp_data$intersect_group <- structure(level_codes[row_ids],
+    grp_data$intersect_group <- structure(level_codes[row_keys],
                                           levels = group_names[ordered], class = "factor")
     return(grp_data)
   }

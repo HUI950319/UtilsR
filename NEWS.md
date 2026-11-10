@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_upset(output = "data")` decodes row memberships by direct bit-code lookup.
+
 * Patchwork restoration preserves unchanged panels without repeatedly replacing them.
 
 * `fmt_strip(strip = FALSE)` returns facet-free plot containers after validation without rebuilding their panels.
