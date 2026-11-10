@@ -252,7 +252,21 @@ PlotButterfly <- function(
     values <- data[[value.by]]
     if (is.complex(values) || is.list(values) || !is.null(dim(values)))
       cli::cli_abort("Column {.val {value.by}} must contain a real vector.")
-    for (col in unique(c(stat.by, fill.by, group.by))) {
+    category_cols <- unique(c(stat.by, fill.by, group.by))
+    alpha_title <- alpha.by
+    if (value.by %in% category_cols) {
+      if (is.null(xlab)) xlab <- value.by
+      score_col <- utils::tail(make.unique(c(names(data), ".score")), 1L)
+      data[[score_col]] <- values
+      if (identical(alpha.by, value.by)) alpha.by <- score_col
+      value.by <- score_col
+    }
+    if (!is.null(alpha.by) && alpha.by %in% category_cols) {
+      alpha_col <- utils::tail(make.unique(c(names(data), ".alpha")), 1L)
+      data[[alpha_col]] <- data[[alpha.by]]
+      alpha.by <- alpha_col
+    }
+    for (col in category_cols) {
       data[[col]] <- .butterfly_category_labels(data[[col]])
     }
 
@@ -379,7 +393,7 @@ PlotButterfly <- function(
                  position = bar_pos,
                  color = bar.border, width = bar.width) +
         ggplot2::scale_alpha_continuous(range = alpha.range,
-                                        guide = ggplot2::guide_legend(title = alpha.by))
+                                        guide = ggplot2::guide_legend(title = alpha_title))
     } else {
       p_left <- p_left +
         geom_col(aes(fill = .data[[fill.by]]),

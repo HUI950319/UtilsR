@@ -824,3 +824,15 @@ test_that("butterfly aesthetics handle a literal data column name", {
     }
   }
 })
+
+test_that("butterfly bars preserve numeric roles on shared category columns", {
+  data <- data.frame(v = rep(1:2, 2), fill = "one", side = rep(c("L", "R"), each = 2))
+  for (type in c("bar", "bar_dodge")) {
+    plot <- PlotButterfly(data, type = type, stat.by = "v", fill.by = "fill", value.by = "v",
+                           group.by = "side", alpha.by = "v")
+    expect_equal(sort(ggplot2::layer_data(plot[[1L]])$xmin), c(-2, -1))
+    expect_equal(sort(ggplot2::layer_data(plot[[2L]])$xmax), c(1, 2))
+    expect_identical(plot$patches$annotation$caption, "v")
+    expect_no_error(patchwork::patchworkGrob(plot))
+  }
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotButterfly()` keeps the numeric score and alpha mappings when a column also supplies a category.
+
 * `PlotRankCor()` computes ranks in a standalone vector before adding it to the plot data.
 
 * `plt_sankey()` skips the label-position build when no node meets the minimum proportion.
