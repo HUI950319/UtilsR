@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRankCor()` avoids materializing unique vectors when checking whether finite paired scores vary.
+
 * The `ragg` backend captures panel contents using their native scales and applies viewport placement when drawing the raster.
 
 * `fmt_plot_base()` passes quoted labels from `labs_list` to ggplot2 without evaluating their expressions.

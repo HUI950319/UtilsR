@@ -935,3 +935,21 @@ test_that("rank correlation scaling assigns each axis column once", {
   expect_equal(range(p$data$x), c(0, 1))
   expect_equal(stats::sd(p$data$y[p$data$group == "g1"]), 1)
 })
+
+test_that("rank correlations check finite variation without a unique vector", {
+  fn <- PlotRankCor
+  environment(fn) <- list2env(list(unique = function(x, ...) {
+    if (is.double(x) && length(x) > 100L) stop("allocated distinct paired scores")
+    base::unique(x, ...)
+  }), parent = environment(fn))
+  data <- data.frame(item = rep(sprintf("F%03d", 1:120), 2L),
+                     method = rep(c("A", "B"), each = 120L), score = rep(seq(1, 60.5, .5), 2L))
+  run <- function(d) {
+    invisible(capture.output(result <- fn(d, stat.by = "item", value.by = "score",
+                                          method.by = "method", use_rank = FALSE, show.label = FALSE)))
+    attr(result, "cor_results")$rho
+  }
+  expect_equal(run(data), 1)
+  data$score[121:240] <- 2
+  expect_identical(run(data), NA_real_)
+})
