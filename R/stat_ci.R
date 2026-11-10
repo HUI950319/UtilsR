@@ -106,7 +106,8 @@ stat_ci <- function(x, y = NULL, z = NULL,
         all(lens %in% c(1L, n))) {
       keys <- stats::setNames(args[varying], paste0("v", seq_along(varying)))
       probe <- lapply(keys, `[`, seq.int(1L, n, length.out = 1024L))
-      if (anyDuplicated(vctrs::vec_group_id(vctrs::new_data_frame(probe)))) {
+      probe_ids <- vctrs::vec_group_id(vctrs::new_data_frame(probe))
+      if (attr(probe_ids, "n") < length(probe_ids) / 2) {
         ids <- vctrs::vec_group_id(vctrs::new_data_frame(keys))
         count <- attr(ids, "n")
         if (count < n / 2) {

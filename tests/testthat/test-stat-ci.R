@@ -218,3 +218,22 @@ test_that("repeated CI and SD formats avoid formatting every occurrence", {
   expect_identical(fn(rep(text, 100)), rep(stat_ci(text), 100))
   expect_lte(formatted, 2L * length(x))
 })
+
+test_that("CI formatting skips hashing large nearly unique inputs", {
+  group_id <- vctrs::vec_group_id
+  scans <- integer()
+  testthat::local_mocked_bindings(vec_group_id = function(x) {
+    scans <<- c(scans, nrow(x))
+    group_id(x)
+  }, .package = "vctrs")
+  values <- seq_len(2000L)
+  values[2L] <- values[1L]
+  result <- stat_ci(values, values - 1L, values + 1L, digits = 0, sep = ", ")
+  expect_identical(scans, 1024L)
+  expect_identical(result, sprintf("%d (%d, %d)", values, values - 1L, values + 1L))
+
+  scans <- integer()
+  result <- stat_ci(rep(2, 2000), rep(1, 2000), rep(3, 2000), digits = 0, sep = ", ")
+  expect_identical(scans, c(1024L, 2000L))
+  expect_identical(result, rep("2 (1, 3)", 2000))
+})

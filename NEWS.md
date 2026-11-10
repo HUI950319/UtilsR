@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci()` checks sampled key density before grouping a full vector for formatting reuse.
+
 * `check_size()` checks selected names against the environment inventory when it has already enumerated the bindings.
 
 * `plt_na()` diagnoses malformed `name.map` values before inspecting the data's missingness.
