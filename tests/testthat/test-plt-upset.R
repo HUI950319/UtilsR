@@ -758,3 +758,23 @@ test_that("UpSet NULL sets return an empty membership frame", {
   expected$.element <- integer()
   expect_identical(plt_upset(list(A = integer(), B = integer()), output = "data"), expected)
 })
+
+test_that("UpSet mixed queries reuse one missing mask per column", {
+  d <- data.frame(A = rep(c(NA, "hit", "miss", "miss"), 125L),
+    B = rep(c("hit", "miss", NA, "miss"), 125L))
+  fn <- plt_upset
+  env <- new.env(parent = environment(fn))
+  examined <- 0L
+  env$is.na <- function(x) {
+    if (is.character(x) && length(x) == nrow(d)) examined <<- examined + 1L
+    base::is.na(x)
+  }
+  environment(fn) <- env
+  mixed <- fn(d, vars = names(d), levels = c(NA, "hit"), output = "data")
+  expect_identical(examined, 2L)
+  expect_identical(as.character(mixed$intersect_group), rep(c("A/B", "A", "B", "None"), 125L))
+  expect_identical(as.character(fn(d, names(d), levels = character(), output = "data")$intersect_group),
+    rep("None", nrow(d)))
+  expect_identical(as.character(fn(d, names(d), levels = NA, output = "data")$intersect_group),
+    rep(c("A", "None", "B", "None"), 125L))
+})

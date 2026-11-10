@@ -316,16 +316,18 @@ plt_upset <- function(data,
     value_levels <- levels[!is.na(levels)]
     set_list <- lapply(stats::setNames(vars, vars), function(v) {
       values <- data[[v]]
-      member <- if (missing_levels) is.na(values) else rep(FALSE, nrow(data))
-      if (length(value_levels)) {
-        same_time <- any(vapply(c("Date", "POSIXt", "difftime", "Duration", "Period", "Interval"),
-                                function(cls) inherits(values, cls) && inherits(value_levels, cls),
-                                logical(1)))
-        selected <- if (same_time) {
-          .cat_time_key(values, units = "secs") %in% .cat_time_key(value_levels, units = "secs")
-        } else member_in(values, value_levels)
-        member <- member | (selected & !is.na(values))
+      if (!length(value_levels)) {
+        return(if (missing_levels) which(is.na(values)) else integer())
       }
+      same_time <- any(vapply(c("Date", "POSIXt", "difftime", "Duration", "Period", "Interval"),
+                              function(cls) inherits(values, cls) && inherits(value_levels, cls),
+                              logical(1)))
+      selected <- if (same_time) {
+        .cat_time_key(values, units = "secs") %in% .cat_time_key(value_levels, units = "secs")
+      } else member_in(values, value_levels)
+      missing <- is.na(values)
+      member <- selected & !missing
+      if (missing_levels) member <- member | missing
       which(member)
     })
 

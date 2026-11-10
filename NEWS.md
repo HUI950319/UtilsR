@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_upset()` checks data-frame members for missingness once per selected column and avoids creating an unused empty membership mask.
+
 * `stat_ci_parse(output = "p_star")` skips interval reconstruction when formatted numbers fit within the normal precision range.
 
 * `fct_to_combine()` skips complete columns when building sparse missingness masks and avoids encoding combinations when every row is incomplete.
