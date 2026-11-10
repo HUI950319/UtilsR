@@ -854,20 +854,19 @@ plt_con <- function(data,
     return(function(x, y, ...) {
       args <- list(...)
       complete <- if (isTRUE(args$paired)) stats::complete.cases(x, y) else NULL
-      finite <- abs(if (is.null(complete)) c(x, y) else c(x[complete], y[complete]))
-      finite <- finite[is.finite(finite)]
-      unit <- if (length(finite)) max(finite) else 0
+      bounds <- suppressWarnings(if (is.null(complete)) range(x, y, finite = TRUE) else
+        range(x[complete], y[complete], finite = TRUE))
+      unit <- if (all(is.finite(bounds))) max(abs(bounds)) else 0
       if (unit > 0 && (unit < sqrt(.Machine$double.xmin) ||
                        unit > sqrt(.Machine$double.xmax))) {
         if (!is.null(complete)) {
           difference <- x[complete] - y[complete]
           if (length(difference) && all(is.finite(difference)) && any(difference != 0)) {
-            unit <- max(abs(difference))
+            unit <- max(abs(range(difference)))
             x <- difference
             y <- numeric(length(difference))
           }
         } else {
-          bounds <- range(x, y, finite = TRUE)
           origin <- bounds[1L] / 2 + bounds[2L] / 2
           spread <- max(abs(bounds - origin))
           if (spread > 0) {

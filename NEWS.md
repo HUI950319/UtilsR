@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous t-test adapters obtain magnitudes from finite bounds and reuse those bounds for extreme-scale centering.
+
 * `stat_ci()` formats complete numeric vectors directly and subsets only mixed-missing inputs.
 
 * `fmt_his(con_var = ".data")` uses a private numeric mapping for the literal column name.

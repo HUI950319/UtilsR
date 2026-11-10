@@ -1705,3 +1705,18 @@ test_that("continuous dot counts do not retain group member rows", {
   expect_equal(sum(actual$n), nrow(data))
   expect_identical(levels(actual$group), levels(data$group))
 })
+
+test_that("continuous t tests inspect only finite magnitude bounds", {
+  x <- seq(.01, 4, length.out = 2000)
+  y <- seq(.02, 4.1, length.out = 2000)
+  fn <- .con_pairwise_test("t.test")
+  environment(fn) <- list2env(list(abs = function(x) {
+    if (length(x) > 100L) stop("copied every test value for its magnitude")
+    base::abs(x)
+  }), parent = environment(fn))
+  for (paired in c(FALSE, TRUE)) {
+    expect_equal(fn(x, y, paired = paired)$p.value, stats::t.test(x, y, paired = paired)$p.value)
+    expect_equal(fn(x * 1e200, y * 1e200, paired = paired)$p.value,
+                 .con_pairwise_test("t.test")(x * 1e200, y * 1e200, paired = paired)$p.value)
+  }
+})
