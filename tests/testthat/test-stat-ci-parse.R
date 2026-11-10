@@ -617,3 +617,22 @@ test_that("interval suffix trimming handles long malformed annotation runs", {
   good <- .ci_extract(c("2 (1, 3) **. *", "2 (1, 3) **. suffix", "2 (1, 3)\u3000**"))
   expect_identical(good$trailing, c(FALSE, TRUE, FALSE))
 })
+
+test_that("significance output skips rebuilding parsed confidence intervals", {
+  x <- c(null = "0 (-1, 1)", nonnull = "2 (1, 3)", missing = NA_character_)
+  fn <- stat_ci_parse
+  env <- new.env(parent = environment(fn))
+  rebuilt <- 0L
+  env$sprintf <- function(fmt, ...) {
+    if (identical(fmt, "%.*f")) rebuilt <<- rebuilt + 1L
+    base::sprintf(fmt, ...)
+  }
+  environment(fn) <- env
+  expected <- stat_pval(stat_ci_parse(x, exp = FALSE, output = "p"))
+  actual <- fn(x, exp = FALSE, output = "p_star")
+  expect_identical(rebuilt, 0L)
+  expect_identical(actual, expected)
+  expect_identical(names(actual), names(x))
+  expect_error(fn("-1 (-2, 0)", digits = 8190L, exp = FALSE, output = "p_star"),
+    "digits.*8192-byte")
+})

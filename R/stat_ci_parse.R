@@ -267,9 +267,11 @@ stat_ci_parse <- function(x,
     cli::cli_abort("The detected {.arg digits} must be between 0 and 8190.")
   }
   # Only very high precision can require the formatted-number byte checks below.
-  if (output == "p" && !any(d > 7881L)) {
-    names(pval) <- names(x)
-    return(pval)
+  if (output %in% c("p", "p_star") && !any(d > 7881L)) {
+    out <- if (output == "p") pval else
+      ifelse(valid, stat_pval(pval, map_signif = map_signif), NA_character_)
+    names(out) <- names(x)
+    return(out)
   }
   .format_once <- function(v, d) {
     v <- round(v, d)
