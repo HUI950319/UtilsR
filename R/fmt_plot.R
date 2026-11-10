@@ -5182,6 +5182,10 @@ fmt_his <- function(plot,
     }), layer_env)
     layer$compute_aesthetics <- eval(quote(function(self, data, plot) {
       data <- ggplot2::ggproto_parent(parent_layer, self)$compute_aesthetics(data, plot)
+      if (inherits(data$x, "integer64")) {
+        .register_integer64(data$x)
+        data$x <- as.double(data$x)
+      }
       data$.fmt_his_input <- data$x
       # Continuous samples are transformed once, using their final panel scale.
       if (!inherits(plot$scales$get_scales("x"), "ScaleDiscrete")) data$x <- NULL

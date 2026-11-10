@@ -796,3 +796,17 @@ test_that("distribution overlays find explicit variables in their source layer",
   expect_identical(result[c("x", "count")], reference[c("x", "count")])
   expect_error(fmt_his(plot, data = parent, con_var = "score"), "not found")
 })
+
+test_that("distribution overlays decode integer64 samples before counting", {
+  skip_if_not_installed("bit64")
+  plot <- ggplot2::ggplot(data.frame(x = 1:5, y = 1:5), ggplot2::aes(x, y)) + ggplot2::geom_point()
+  values <- c(1, 2, 4, 5)
+  expected <- ggplot2::ggplot_build(fmt_his(plot, data = data.frame(score = values),
+                                          con_var = "score", binwidth = 1))$data[[2L]]
+  result <- ggplot2::ggplot_build(fmt_his(plot, data = data.frame(score = bit64::as.integer64(values)),
+                                        con_var = "score", binwidth = 1))$data[[2L]]
+  expect_identical(result[c("x", "count")], expected[c("x", "count")])
+  density <- ggplot2::ggplot_build(fmt_his(plot, data = data.frame(score = bit64::as.integer64(values)),
+                                         con_var = "score", type = "density"))$data[[2L]]
+  expect_true(any(density$density > 0))
+})
