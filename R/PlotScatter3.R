@@ -307,7 +307,7 @@ PlotScatter3 <- function(
     ggplot2::scale_color_manual(values = border_vals)
 
   if (show_refline) {
-    ref <- list(linetype = "dashed", color = "black", linewidth = 0.75)
+    ref <- list(linetype = "dashed", color = "black", linewidth = 0.75, na.rm = TRUE)
     p1 <- p1 +
       do.call(ggplot2::geom_vline, c(list(xintercept = 0), ref)) +
       do.call(ggplot2::geom_hline, c(list(yintercept = 0), ref)) +

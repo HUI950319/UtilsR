@@ -1434,3 +1434,19 @@ test_that("paired scatter renders an undefined correlation annotation", {
   expect_true(any(grepl("^r = (NA|NaN), p = NA$", labels)))
   expect_s3_class(ggplot2::ggplotGrob(result$main), "gtable")
 })
+
+test_that("paired scatter reference lines render quietly when zero is outside the axes", {
+  d <- data.frame(Control = 1:6, Treat = c(2, 3, 5, 6, 9, 9),
+    group = rep(c("A", "B"), 3L))
+  for (limits in list(NULL, c(-1, 10))) {
+    plot <- scatter3_capture_inset(d, test_method = "none", cor_method = "none",
+      axis_limits = limits)$main
+    expect_no_warning(ggplot2::ggplotGrob(plot))
+    built <- ggplot2::ggplot_build(plot)$data
+    expect_identical(built[[4L]]$slope, 1)
+    if (!is.null(limits)) {
+      expect_equal(built[[2L]]$xintercept, 0)
+      expect_equal(built[[3L]]$yintercept, 0)
+    }
+  }
+})
