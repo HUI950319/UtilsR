@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Automatic `PlotDumbbell()` insets select factor-valued test methods by label and validate both selectors before reshaping.
+
 * `plt_na()` builds its matrix layer directly from the missingness masks and reuses the variable keys.
 
 * `stat_ci()` checks sampled key density before grouping a full vector for formatting reuse.

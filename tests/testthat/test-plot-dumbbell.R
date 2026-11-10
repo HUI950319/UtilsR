@@ -712,3 +712,21 @@ test_that("dumbbell Date and datetime endpoints share one scale", {
     expect_identical(p$data$date, date)
   }
 })
+
+test_that("dumbbell inset methods select names independently of factor order", {
+  data <- data.frame(start = 1:6, end = 1:6 + c(1, 2, 3, 4, 5, 7))
+  build <- function(method, type = "boxplot") {
+    .build_dumbbell_inset(data, "start", "end", "Start", "End", "blue", "red",
+                          type, method, FALSE, FALSE, ggplot2::theme_minimal())
+  }
+  label <- function(p) ggplot2::layer_data(p, length(p$layers))$label
+  choices <- c("wilcox", "t.test")
+  for (method in choices) {
+    expect_identical(label(build(factor(method, levels = choices))), label(build(method)))
+  }
+  for (bad in list(NULL, 2L, c("wilcox", "none"), NA_character_, matrix("t.test"))) {
+    expect_error(build(bad), "inset_test")
+  }
+  expect_error(build("none", matrix("boxplot")), "inset_type")
+  expect_length(build(factor("none"))$layers, 1L)
+})

@@ -559,9 +559,16 @@ PlotDumbbell <- function(
     paired_line, jitter,
     theme_obj
 ) {
-  if (!is.character(inset_type) || length(inset_type) != 1L ||
-      is.na(inset_type) || !inset_type %in% c("boxplot", "violin")) {
+  if (!is.character(inset_type) || !is.null(dim(inset_type)) ||
+      length(inset_type) != 1L || !inset_type %in% c("boxplot", "violin")) {
     stop("inset_type must be 'boxplot' or 'violin'.", call. = FALSE)
+  }
+  if (is.factor(inset_test) && is.null(dim(inset_test))) {
+    inset_test <- as.character(inset_test)
+  }
+  if (!is.character(inset_test) || !is.null(dim(inset_test)) ||
+      length(inset_test) != 1L || !inset_test %in% c("t.test", "wilcox", "none")) {
+    stop("inset_test must be 't.test', 'wilcox', or 'none'.", call. = FALSE)
   }
   if (is.factor(label_x)) label_x <- as.character(label_x)
   if (is.factor(label_xend)) label_xend <- as.character(label_xend)
@@ -636,8 +643,7 @@ PlotDumbbell <- function(
   if (inset_test != "none") {
     test_fn <- switch(inset_test,
       "t.test" = .con_pairwise_test("t.test"),
-      "wilcox" = stats::wilcox.test,
-      stop("inset_test must be 't.test', 'wilcox', or 'none'.", call. = FALSE)
+      "wilcox" = stats::wilcox.test
     )
     test_x <- x_values
     test_xend <- xend_values
