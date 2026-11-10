@@ -1414,6 +1414,10 @@ fmt_ref <- function(plot,
       cli::cli_abort("{.arg {axis}} must contain one-dimensional reference positions.")
     .register_integer64(value)
   }
+  if (!length(x) && !length(y)) {
+    .to_plot_list(plot)
+    return(plot)
+  }
   batch_dots <- length(names(dots)) == length(dots) &&
     !anyDuplicated(names(dots)) && all(names(dots) %in% c("na.rm", "lineend")) &&
     all(lengths(dots) == 1L) && all(vapply(dots, is.atomic, logical(1)))
@@ -1466,7 +1470,6 @@ fmt_ref <- function(plot,
     list(do.call(geom, args, envir = baseenv()))
   }
 
-  if (!length(x) && !length(y)) return(plot)
   for (i in seq_along(plots)) {
     facets <- c(plots[[i]]$facet$params$facets, plots[[i]]$facet$params$rows,
                 plots[[i]]$facet$params$cols)

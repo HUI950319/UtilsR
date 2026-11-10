@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_ref()` validates the plot container and returns immediately when both reference vectors are empty.
+
 * An independent boxplot layer can resolve explicit position columns from the parent data when an earlier layer has separate data.
 
 * `fmt_his()` can compute distribution overlays from a column literally named `.env`.

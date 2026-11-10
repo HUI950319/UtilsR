@@ -465,3 +465,12 @@ test_that("reference lines decode serialized integer64 positions", {
   expect_null(attr(output, "status"), info = paste(output, collapse = "\n"))
   expect_true("COLD_REFERENCE_OK" %in% output)
 })
+
+test_that("empty references avoid visiting nested plot leaves", {
+  p <- ggplot2::ggplot(data.frame(x = 1:3, y = 3:1), ggplot2::aes(x, y)) + ggplot2::geom_point()
+  combined <- patchwork::wrap_plots(p, patchwork::wrap_plots(p, p), patchwork::plot_spacer())
+  local_mocked_bindings(.map_plot_leaves = function(...) stop("visited a reference leaf"), .package = "UtilsR")
+  expect_identical(fmt_ref(combined, x = numeric(), y = NULL), combined)
+  expect_error(fmt_ref(list(combined, 1)), "All elements")
+  expect_error(fmt_ref(combined, xintercept = 1), "instead of")
+})
