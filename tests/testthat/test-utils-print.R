@@ -1392,3 +1392,15 @@ test_that("console P-value bounds keep significance across line breaks", {
   expect_true(endsWith(result[3L], "0.004"))
   expect_true(endsWith(result[4L], "0.05"))
 })
+
+test_that("console P-value parsing skips invalid decimal strings", {
+  fn <- ._p_cells
+  environment(fn) <- list2env(list(sub = function(pattern, replacement, x, ...) {
+    if (identical(pattern, "^0+") && any(nchar(x) > 1000L, na.rm = TRUE))
+      stop("parsed invalid decimal text")
+    base::sub(pattern, replacement, x, ...)
+  }, ._pr_colour = function() FALSE), parent = environment(fn))
+  malformed <- paste0("bad", strrep("0", 3000L), "text")
+  result <- fn(c(malformed, NA, "<0.001", ">0.05", "0.049"))
+  expect_true(identical(result, c(malformed, "NA", "<0.001***", ">0.05", "0.049*")))
+})

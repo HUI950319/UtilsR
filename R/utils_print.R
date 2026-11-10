@@ -446,9 +446,10 @@ pr_badge <- function(key, value, bg = "blue", fg = "br_white") {
     number <- "[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?"
     bound <- "(?:[<>]=?|[\u2264\u2265])"
     valid <- grepl(paste0("^(?:", bound, "[\\h\\v]*)?", number, "$"), txt, perl = TRUE)
-    op <- ifelse(grepl(paste0("^", bound), txt, perl = TRUE),
-                 sub(paste0("(?s)^(", bound, ").*$"), "\\1", txt, perl = TRUE), "")
-    decimal <- sub(paste0("^", bound, "[\\h\\v]*"), "", txt, perl = TRUE)
+    parsed <- replace(txt, !valid, NA_character_)
+    op <- ifelse(grepl(paste0("^", bound), parsed, perl = TRUE),
+                 sub(paste0("(?s)^(", bound, ").*$"), "\\1", parsed, perl = TRUE), "")
+    decimal <- sub(paste0("^", bound, "[\\h\\v]*"), "", parsed, perl = TRUE)
     exponent <- suppressWarnings(as.numeric(ifelse(grepl("[eE]", decimal),
       sub("^.*[eE]", "", decimal), "0")))
     mantissa <- sub("[eE].*$", "", decimal)

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console P-value cells keep malformed text visible without sending it through the decimal parser.
+
 * `PlotHeatmapJaccard()` matches duration groups with integer or double storage by their exact numeric seconds.
 
 * `PlotCircleLollipop()` keeps blank sector labels while providing nonempty internal IDs for drawing, scaling and links.
