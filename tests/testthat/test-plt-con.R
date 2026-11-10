@@ -1693,3 +1693,15 @@ test_that("continuous dot bin midpoints retain subnormal endpoints", {
   expect_identical(.con_dot_bins(step * c(-2, -1), step * c(-2, -1)) / step, c(-2, -2))
   expect_equal(.con_dot_bins(c(1.5e308, 1.7e308), c(1.5e308, 1.7e308)), rep(1.6e308, 2L))
 })
+
+test_that("continuous dot counts do not retain group member rows", {
+  data <- data.frame(group = factor(c("B", "B", "A", "B", "A"), levels = c("A", "B", "C")),
+                     value = c(2, 1, 1, 2, 2))
+  reference <- .con_dot_counts(data, c("group", "value"))
+  testthat::local_mocked_bindings(vec_group_loc = function(...) stop("allocated all dot member rows"),
+                                .package = "vctrs")
+  actual <- .con_dot_counts(data, c("group", "value"))
+  expect_identical(actual, reference)
+  expect_equal(sum(actual$n), nrow(data))
+  expect_identical(levels(actual$group), levels(data$group))
+})

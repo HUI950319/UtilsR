@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous dot panels tally observed group IDs directly while retaining displayed bin and group order.
+
 * `plt_upset(output = "data")` builds names and codes for each combination size in batches.
 
 * `plt_sankey()` builds stage and successor keys directly in row order, preserving node and flow identities.
