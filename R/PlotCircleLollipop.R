@@ -508,6 +508,9 @@ PlotCircleLollipop <- function(
           # Y-axis on the first sector only
           if (show_yaxis &&
               circlize::CELL_META$sector.index == grp_levels[1]) {
+            overflow <- circlize::circos.par("points.overflow.warning")
+            on.exit(circlize::circos.par(points.overflow.warning = overflow), add = TRUE)
+            circlize::circos.par(points.overflow.warning = FALSE)
             circlize::circos.yaxis(
               side         = "left",
               at           = seq(0, 1, by = 0.2),

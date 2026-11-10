@@ -1198,3 +1198,20 @@ test_that("crowded circular label intervals stay within their sector", {
   expect_true(all(intervals$start >= 0 & intervals$end <= 1))
   expect_equal((intervals$start + intervals$end) / 2, (seq_len(501L) - .5) / 501L)
 })
+
+test_that("intentional circular axis offsets are quiet", {
+  skip_if_not_installed("circlize")
+  withr::local_pdf(NULL)
+  d <- data.frame(group = rep(c("A", "B"), each = 2L),
+    name = letters[1:4], value = c(.2, .3, .4, .5))
+  states <- logical()
+  original <- circlize::circos.points
+  local_mocked_bindings(circos.points = function(x, y, ...) {
+    states <<- c(states, circlize::circos.par("points.overflow.warning"))
+    original(x, y, ...)
+  }, .package = "circlize")
+  diagnostics <- capture.output(PlotCircleLollipop(d, show_labels = FALSE, show_links = FALSE),
+    type = "message")
+  expect_false(any(grepl("out of plotting region|out of the sector", diagnostics)))
+  expect_identical(states, rep(TRUE, nrow(d)))
+})
