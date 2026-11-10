@@ -834,3 +834,20 @@ test_that("distribution overlays map a literal environment-pronoun column", {
     expect_identical(result[c("x", "count")], expected[c("x", "count")])
   }
 })
+
+test_that("distribution overlays prefer sample layers over guides", {
+  samples <- data.frame(x = rep(1:3, each = 4L), y = 1:12)
+  guide <- data.frame(x = c(1, 3), y = c(1, 12))
+  annotations <- list(
+    ggplot2::geom_blank(ggplot2::aes(x, y), data = guide),
+    ggplot2::geom_text(ggplot2::aes(x, y), data = guide, label = "guide")
+  )
+  for (annotation in annotations) {
+    scaffold <- ggplot2::ggplot() + annotation
+    p <- scaffold + ggplot2::geom_point(ggplot2::aes(x, y), data = samples)
+    result <- ggplot2::layer_data(fmt_his(p, binwidth = 1), 3L)
+    expected <- ggplot2::layer_data(fmt_his(p, data = samples, con_var = "x", binwidth = 1), 3L)
+    expect_identical(result[c("x", "count")], expected[c("x", "count")])
+    expect_equal(sum(ggplot2::layer_data(fmt_his(scaffold, binwidth = 1), 2L)$count), nrow(guide))
+  }
+})

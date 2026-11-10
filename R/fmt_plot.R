@@ -5114,7 +5114,11 @@ fmt_his <- function(plot,
     missing_column <- is.null(data) && !is.null(con_var) &&
       is.data.frame(d) && !con_var %in% names(d)
     if (is.null(x_mapping) || is.null(d) || inherits(d, "waiver") || missing_column) {
-      for (layer in p$layers) {
+      layers <- p$layers
+      guides <- vapply(layers, function(layer) {
+        inherits(layer$geom, c("GeomBlank", "GeomText", "GeomLabel"))
+      }, logical(1))
+      for (layer in c(layers[!guides], layers[guides])) {
         candidate <- layer$mapping$x %||% if (isTRUE(layer$inherit.aes)) p$mapping$x
         layer_data <- data %||% if (is.null(layer$data) || inherits(layer$data, "waiver")) p$data else layer$data
         if (!is.null(con_var) && is.data.frame(layer_data) && !con_var %in% names(layer_data)) next

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* When selecting overlay samples from layers, `fmt_his()` prefers data layers and still supports guide-only plots.
+
 * Circular y-axis ticks and titles can extend outside the first sector without emitting spurious overflow messages.
 
 * Circular labels at crowded sector edges keep their intervals inside the sector while retaining their anchor positions.
