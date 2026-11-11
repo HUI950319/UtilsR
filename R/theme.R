@@ -162,6 +162,9 @@ theme_my <- function(palette = "black_and_white", base_size = 14,
     }
   }
 
+  inside <- if (is.numeric(legend.position) && !is.object(legend.position) &&
+    is.null(dim(legend.position)) && length(legend.position) == 2L &&
+    all(is.finite(legend.position))) legend.position
   thm <- theme(
     # Base elements
     line = element_line(colour = colours["axisColor"],
@@ -235,7 +238,7 @@ theme_my <- function(palette = "black_and_white", base_size = 14,
     legend.text.align =  NULL,
     legend.title =       element_blank(),
     legend.title.align = NULL,
-    legend.position =    legend.position,
+    legend.position =    if (is.null(inside)) legend.position else "inside",
     legend.direction =   NULL,
     legend.justification = "center",
     legend.box =         NULL,
@@ -296,6 +299,8 @@ theme_my <- function(palette = "black_and_white", base_size = 14,
     plot.margin =        plot.margin,
     complete = TRUE
   )
+
+  if (!is.null(inside)) thm$legend.position.inside <- inside
 
   # Remove deprecated legend alignment elements if not supported
   if (!"legend.text.align" %in% rlang::fn_fmls_names(theme)) {
@@ -991,7 +996,8 @@ theme_ROC <- function(
   if (!is.null(plot_margin) && (!grid::is.unit(plot_margin) || !is.null(dim(plot_margin)) ||
       any(is.infinite(as.numeric(plot_margin)))))
     stop("'plot_margin' must be NULL or finite grid units.", call. = FALSE)
-  ggplot2::theme_classic(base_size = base_size) +
+  inside <- if (is.numeric(legend.position)) legend.position
+  thm <- ggplot2::theme_classic(base_size = base_size) +
     ggplot2::theme(
       # Axis
       axis.text   = ggplot2::element_text(
@@ -1010,11 +1016,13 @@ theme_ROC <- function(
       # Legend
       legend.text  = ggplot2::element_text(size = legend_text_size),
       legend.title = ggplot2::element_text(size = legend_title_size),
-      legend.position = legend.position,
+      legend.position = if (is.null(inside)) legend.position else "inside",
       # Strip (facet labels)
       strip.text = ggplot2::element_text(
         size = strip_size, face = "bold"),
       # Margin
       plot.margin = plot_margin
     )
+  if (!is.null(inside)) thm$legend.position.inside <- inside
+  thm
 }

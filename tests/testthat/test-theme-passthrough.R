@@ -296,3 +296,14 @@ test_that("legend factor colours draw their labels rather than palette indices",
   }
   expect_identical(draw(color), draw("red"))
 })
+
+test_that("theme constructors use native inside legend coordinates", {
+  withr::local_options(lifecycle_verbosity = "error")
+  at <- c(.25, .75)
+  for (constructor in list(theme_my, theme_ROC)) {
+    expect_no_warning(theme <- constructor(legend.position = at))
+    expect_identical(theme$legend.position, "inside")
+    expect_identical(theme$legend.position.inside, at)
+    expect_identical(constructor(legend.position = "bottom")$legend.position, "bottom")
+  }
+})

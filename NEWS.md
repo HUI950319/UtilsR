@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `theme_my()` and `theme_ROC()` keep numeric legend coordinates without using the deprecated theme setting.
+
 * Jaccard heatmaps build one exact membership index for matching Duration, Period and Interval group vectors.
 
 * Jaccard heatmaps reuse one membership index for integer64 group columns and group levels.
