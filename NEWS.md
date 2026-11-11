@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Rank correlation plots group SPSS user-missing values with ordinary missing observations.
+
 * Dumbbell insets retain their points and show an unavailable p-value for constant differences or too few paired observations.
 
 * Circular lollipop plots apply the existing missing-group validation to SPSS user-missing codes.

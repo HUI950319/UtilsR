@@ -275,6 +275,7 @@ PlotRankCor <- function(
   } else {
     group.by_internal <- group.by
     group_values <- data[[group.by]]
+    if (inherits(group_values, "haven_labelled_spss")) group_values <- .scatter_axis_values(group_values)
     group_id <- vctrs::vec_group_id(group_values)
     group_keys <- group_values[!duplicated(group_id)]
     group_labels <- as.character(group_keys)

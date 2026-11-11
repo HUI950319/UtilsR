@@ -1023,3 +1023,17 @@ test_that("rank reshaping only averages duplicate method keys", {
   expect_identical(result$data, reference$data)
   expect_identical(attr(result, "cor_results"), attr(reference, "cor_results"))
 })
+
+test_that("rank correlations use one group for all SPSS missing codes", {
+  skip_if_not_installed("haven")
+  d <- rank_cor_data()
+  d$score <- rep(4:1, 2L)
+  d <- do.call(rbind, lapply(c(1, 98, 99, NA), function(group) transform(d, g = group)))
+  reference <- d
+  reference$g[reference$g %in% c(98, 99)] <- NA_real_
+  d$g <- haven::labelled_spss(d$g, na_range = c(98, 99))
+  actual <- quiet_rank_cor(d, group.by = "g")
+  expected <- quiet_rank_cor(reference, group.by = "g")
+  expect_identical(actual$data, expected$data)
+  expect_identical(attr(actual, "cor_results"), attr(expected, "cor_results"))
+})
