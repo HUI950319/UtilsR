@@ -697,3 +697,30 @@ test_that("rank plots index requested plain groups in one pass", {
   data$group <- factor(data$group, levels = rev(letters[1:5]))
   expect_identical(parser(data, "group", "name", "value", c("e", "absent", "b")), expected)
 })
+
+test_that("rank feature labels decode integer64 in a fresh process", {
+  skip_if_not_installed("bit64")
+  dir <- withr::local_tempdir()
+  f <- file.path(dir, "functions.R")
+  input <- file.path(dir, "input.rds")
+  output <- file.path(dir, "output.rds")
+  script <- file.path(dir, "check.R")
+  expected <- c("9007199254740992", "9007199254740993")
+  d <- data.frame(cell_type = "A", gene = bit64::as.integer64(expected), importance = 1:2)
+  saveRDS(list(data = d, libs = .libPaths()), input)
+  dump(c(".pr_parse", ".register_integer64"), f, envir = environment(PlotRank))
+  writeLines(c(
+    "args <- commandArgs(TRUE)",
+    "fixture <- readRDS(args[[1L]])",
+    ".libPaths(fixture[['libs']])",
+    "source(args[[2L]])",
+    "stopifnot(!'bit64' %in% loadedNamespaces())",
+    "d <- fixture[['data']]",
+    "result <- lapply(list(d, d[-1L]), function(x) names(.pr_parse(x, 'cell_type', 'gene', 'importance', NULL)[[1L]]))",
+    "saveRDS(result, args[[3L]])"
+  ), script)
+  status <- system2(file.path(R.home("bin"), "Rscript"),
+    c("--vanilla", shQuote(c(script, input, f, output))), stdout = TRUE, stderr = TRUE)
+  expect_null(attr(status, "status"), info = paste(status, collapse = "\n"))
+  if (file.exists(output)) expect_identical(readRDS(output), list(expected, expected))
+})

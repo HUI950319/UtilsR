@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRank()` registers integer64 feature name methods before using stored values as labels.
+
 * Weighted KNN skips the extra donor magnitude scan for finite means in the normal range.
 
 * `lv()` builds ordinary factor frequency tables directly from level codes while preserving displayed missing categories.

@@ -410,6 +410,7 @@ PlotRank <- function(
         stop(sprintf("Column '%s' not found in data.", col), call. = FALSE)
     }
     scores <- score_values(data[[value_col]])
+    .register_integer64(data[[name_col]])
 
     # Has group column -> faceted
     if (group_col %in% colnames(data)) {
