@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console notices and boxes interpret CRLF as a single line break and keep empty lines.
+
 * Full-style notices apply their ANSI styles to the entire line vector in one pass.
 
 * `PlotScatter3()` infers its two groups from observed labels while retaining points with missing group values.

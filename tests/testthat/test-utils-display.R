@@ -1116,3 +1116,13 @@ test_that("full notices style all message lines in one batch", {
   expect_identical(sort(style_calls), c(1L, 12L))
   expect_identical(actual, expected)
 })
+
+test_that("styled notices handle CRLF line breaks", {
+  for (style in c("full", "chip")) {
+    lines <- function(x) cli::ansi_strip(cli::cli_fmt(.cat_message(x,
+      style = style, timestamp_format = NULL, wrap = FALSE)))
+    expect_identical(lines("first\r\nsecond\r\n"), lines("first\nsecond\n"))
+  }
+  box <- function(x) cli::ansi_strip(cli::cli_fmt(.cat_box(x)))
+  expect_identical(box("first\r\nsecond"), box("first\nsecond"))
+})

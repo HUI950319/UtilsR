@@ -132,7 +132,8 @@ console_width <- function() {
 .cat_box <- function(cat_text,
                      type = c("info", "success", "warning", "error")) {
   cfg <- ._type_cfg(match.arg(type))
-  cat_text <- unlist(cli::ansi_strsplit(paste0(as.character(cat_text), "\n"), "\n", fixed = TRUE),
+  cat_text <- gsub("\r\n", "\n", as.character(cat_text), fixed = TRUE)
+  cat_text <- unlist(cli::ansi_strsplit(paste0(cat_text, "\n"), "\n", fixed = TRUE),
                      use.names = FALSE)
   label <- paste(cfg$symbol, cat_text, cfg$symbol)
 
@@ -203,7 +204,7 @@ console_width <- function() {
   cfg   <- ._type_cfg(match.arg(type))
   style <- match.arg(style)
   # every element on its own lines; "" is one empty line
-  message <- as.character(message)
+  message <- gsub("\r\n", "\n", as.character(message), fixed = TRUE)
   message[is.na(message)] <- "NA"
   lines <- unlist(lapply(strsplit(paste0(message, "\n"), "\n", fixed = TRUE),
                          function(l) if (length(l)) l else ""))
