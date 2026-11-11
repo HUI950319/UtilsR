@@ -2,6 +2,368 @@
 
 ## UtilsR 0.6.23
 
+- Butterfly bar plots use distinct calendar period labels for grouping
+  and grid completion.
+
+- [`PlotRank()`](https://hui950319.github.io/UtilsR/reference/PlotRank.md)
+  uses exact display keys for calendar period groups instead of
+  comparing their raw seconds storage.
+
+- Dumbbell plots preserve each distinct calendar period as a separate
+  category position.
+
+- Sankey stages retain distinct calendar-period categories, including
+  periods with the same seconds slot.
+
+- Jaccard plots reshape matrix cells without an intermediate table or
+  matrix clone for hidden diagonals.
+
+- Jaccard group membership reuses exact numeric keys for Date, POSIX
+  time and difftime groups.
+
+- Rank correlation plots group SPSS user-missing values with ordinary
+  missing observations.
+
+- Dumbbell insets retain their points and show an unavailable p-value
+  for constant differences or too few paired observations.
+
+- Circular lollipop plots apply the existing missing-group validation to
+  SPSS user-missing codes.
+
+- Circular lollipop PDF exports start on the page created by circlize
+  and contain a single drawing page.
+
+- Alluvial layouts reuse their already ordered facet and category
+  factors after inserting gaps.
+
+- Plain progress notices avoid redundant inline formatting before the
+  CLI step starts.
+
+- Butterfly wide inputs and delegated box plots retain observed empty
+  category names through reshaping.
+
+- Mirrored butterfly distributions build only shared category columns
+  and retain their original padding and order.
+
+- Min-max butterfly bars scale only the score vector before applying one
+  row permutation to the plot data.
+
+- UpSet membership compares exact numeric dates, instants and elapsed
+  durations without formatting every value as a string.
+
+- `output = "all"` builds grouped data directly from the same membership
+  codes used by the data-only result.
+
+- UpSet-only output avoids enumerating a complete region table to count
+  visible intersections.
+
+- Butterfly bars exclude SPSS user-missing score codes from min-max
+  bounds and retain their existing zero-fill rule.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) reports
+  entirely missing Date columns with their missing count in grouped and
+  ungrouped summaries.
+
+- Alluvial plots sort observed facet-category pairs once before filling
+  each group stratum.
+
+- Jaccard pairwise comparisons skip globally unique features while still
+  counting them in union sizes.
+
+- Dumbbell delta labels and dot guides position correctly when the two
+  endpoint columns carry different value labels.
+
+- Circular lollipop top-N selection projects only the required
+  data.table columns before taking rows.
+
+- [`PlotButterfly2()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly2.md)
+  avoids copying unrelated data.table payload before computing the
+  mirrored distributions.
+
+- [`PlotButterfly2()`](https://hui950319.github.io/UtilsR/reference/PlotButterfly2.md)
+  converts SPSS user-missing score codes before both box and violin
+  paths.
+
+- Sankey level reversal retains the distinct explicit NA level and truly
+  missing rows.
+
+- All-missing or unparseable CI input keeps its warnings and output
+  types without running interval calculations.
+
+- Plain factor combinations exclude incomplete rows before allocating
+  per-column value codes.
+
+- Windows diagnostics retain valid CIM operating-system and CPU fields
+  when native memory statistics are available.
+
+- Stacked distribution plots format counts or percentages only for the
+  selected label style and visible segments.
+
+- Console key-value layouts split only values that actually contain line
+  breaks.
+
+- Background stripes retrieve each shared axis scale once, keeping
+  separate scales for free facets.
+
+- Strip formatting reads the global theme once when coloring borders
+  across several panels.
+
+- Sankey plots avoid copying unrelated data.table columns during input
+  normalization.
+
+- Rank correlation reshaping uses existing singleton scores and averages
+  only repeated method keys.
+
+- [`check_size()`](https://hui950319.github.io/UtilsR/reference/check_size.md)
+  formats each measured object once in the display unit it will use.
+
+- Palette previews calculate alpha-composited text contrast in batches.
+
+- Legend formatting reuses one global theme for subplot styling and
+  patchwork collection checks.
+
+- Alluvial plots avoid copying unrelated data.table columns during input
+  normalization.
+
+- [`PlotRank()`](https://hui950319.github.io/UtilsR/reference/PlotRank.md)
+  registers integer64 feature name methods before using stored values as
+  labels.
+
+- Weighted KNN skips the extra donor magnitude scan for finite means in
+  the normal range.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) builds
+  ordinary factor frequency tables directly from level codes while
+  preserving displayed missing categories.
+
+- Factor combinations assign final codes through a group permutation
+  without rehashing each observation.
+
+- KNN builds one row mask and stops scanning columns once all rows
+  contain observations.
+
+- [`stat_ci_parse()`](https://hui950319.github.io/UtilsR/reference/stat_ci_parse.md)
+  only formats valid interval endpoints in mixed table output.
+
+- [`stat_ci_parse()`](https://hui950319.github.io/UtilsR/reference/stat_ci_parse.md)
+  avoids calculating p-values when the caller requests only confidence
+  intervals.
+
+- [`stat_ci()`](https://hui950319.github.io/UtilsR/reference/stat_ci.md)
+  sends only parsed confidence intervals to numeric formatting when
+  other table cells contain text or missing values.
+
+- Repeated p-value strings reuse one parse and format while preserving
+  exact decimal threshold comparisons.
+
+- Axis hiding calculates nested layout coordinates without allocating
+  one data frame per plot.
+
+- Pearson scatter annotations retain the small differences between large
+  integer64 coordinates.
+
+- The package inventory skips ANSI truncation for paths that already fit
+  the display.
+
+- Numeric [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md)
+  listings calculate integer64 means before converting values for
+  display.
+
+- Survival formula notices report a missing outcome column before
+  selecting a model label.
+
+- Axis tile formatting reads the global theme once across multiple
+  active panels.
+
+- Marginal scatter correlations rank original integer64 axes before
+  plotting coordinates are converted to doubles.
+
+- Categorical Sankey plots expand counted paths in one pass while
+  retaining the backend node and weight order.
+
+- Stacked continuous plots construct their long data from finite
+  observations while preserving row and feature order.
+
+- Scatter grouping skips display-label reconstruction for matching plain
+  character, integer, and logical keys.
+
+- Independent continuous panels keep partial zoom limits on the
+  requested data side after reversing the value axis.
+
+- Stacked continuous plots respect partial quantile limits on reversed
+  value scales.
+
+- Indexed Jaccard groups avoid materializing one fallback key per level.
+
+- Jaccard heatmaps index plain labelled group keys while excluding SPSS
+  user-missing observations.
+
+- Jaccard heatmaps reuse one row index for logical group columns.
+
+- [`theme_my()`](https://hui950319.github.io/UtilsR/reference/theme_my.md)
+  and
+  [`theme_ROC()`](https://hui950319.github.io/UtilsR/reference/theme_ROC.md)
+  keep numeric legend coordinates without using the deprecated theme
+  setting.
+
+- Jaccard heatmaps build one exact membership index for matching
+  Duration, Period and Interval group vectors.
+
+- Jaccard heatmaps reuse one membership index for integer64 group
+  columns and group levels.
+
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  counts an S4 root’s slot names before extracting the slots for
+  display.
+
+- Console notices and boxes interpret CRLF as a single line break and
+  keep empty lines.
+
+- Full-style notices apply their ANSI styles to the entire line vector
+  in one pass.
+
+- [`PlotScatter3()`](https://hui950319.github.io/UtilsR/reference/PlotScatter3.md)
+  infers its two groups from observed labels while retaining points with
+  missing group values.
+
+- Scatter groups treat SPSS user-missing values as missing instead of
+  adding extra colour and shape levels.
+
+- [`PlotScatter2()`](https://hui950319.github.io/UtilsR/reference/PlotScatter2.md)
+  computes automatic annotation positions without overflowing the axis
+  span.
+
+- Shared limits in
+  [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  retain the observations needed to compute their range under a scale
+  added later.
+
+- [`fmt_axisText()`](https://hui950319.github.io/UtilsR/reference/fmt_axisText.md)
+  applies theme-only overrides without reading the global axis theme or
+  visiting scales.
+
+- [`fmt_text()`](https://hui950319.github.io/UtilsR/reference/fmt_text.md)
+  validates an empty request and returns the plot container without
+  traversing its editable leaves.
+
+- [`fmt_axis()`](https://hui950319.github.io/UtilsR/reference/fmt_axis.md)
+  applies guide-local hiding to the scale drawn on the selected axis
+  after
+  [`coord_flip()`](https://ggplot2.tidyverse.org/reference/coord_flip.html).
+
+- Paired scatter rank correlations retain the order of integer64
+  coordinates beyond double precision.
+
+- Explicit numeric group levels match their exact integer64 values
+  without merging nearby integers or truncating fractions.
+
+- [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
+  avoids converting complete factor labels to character just to check
+  for missing values.
+
+- Categorical plots with `keep_empty = FALSE` count observed pairs
+  directly when neither factor has missing levels or values.
+
+- Continuous dot plots group original keys directly and compute sort
+  indices only for distinct strata.
+
+- `plt_con(split.by = ...)` indexes split groups once, including blank
+  labels and observed explicit missing levels.
+
+- Scatter correlation annotations report an unavailable estimate when
+  there are too few complete pairs.
+
+- [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
+  counts distinct lubridate Period components before preparing
+  categories.
+
+- [`plt_cat()`](https://hui950319.github.io/UtilsR/reference/plt_cat.md)
+  excludes SPSS user-missing codes from its category limit and counts a
+  displayed missing category once.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) reuses
+  the computed missing count when finding distinct values in complete
+  columns.
+
+- `lv(count = ...)` reuses the overall total in every column of a
+  two-way table.
+
+- [`lv()`](https://hui950319.github.io/UtilsR/reference/lv.md) prepares
+  the selected values once for the detailed table and the console
+  sparklines.
+
+- Stacked violins in
+  [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  omit undefined feature-by-group densities and retain observations in
+  their other layers.
+
+- [`plt_con()`](https://hui950319.github.io/UtilsR/reference/plt_con.md)
+  keeps singleton points from missing groups while omitting their
+  undefined violin densities.
+
+- Categorical UpSet plots build each observed set combination once and
+  reuse it across matching rows.
+
+- `plt_cat(type = "upset")` keeps a selected source column named
+  `intersection` alongside the plotted membership list.
+
+- [`PlotScatter3()`](https://hui950319.github.io/UtilsR/reference/PlotScatter3.md)
+  bases the automatic median-line height on the histogram’s displayed
+  bin boundaries and range.
+
+- [`pr_spark()`](https://hui950319.github.io/UtilsR/reference/pr_spark.md)
+  reuses the available width for checking and shortening each row.
+
+- [`pr_spark()`](https://hui950319.github.io/UtilsR/reference/pr_spark.md)
+  keeps exact cancellation when averaging large integer64 values with
+  opposite signs.
+
+- [`pr_tree()`](https://hui950319.github.io/UtilsR/reference/pr_tree.md)
+  uses one console-width lookup for its labels, attributes and line
+  budget.
+
+- [`pr_table()`](https://hui950319.github.io/UtilsR/reference/pr_table.md)
+  reuses the same available width for numeric formatting and column
+  placement.
+
+- Print helpers skip ANSI truncation for labels that already fit.
+
+- Table highlighting matches factor labels once and uses their row codes
+  to locate styled cells.
+
+- [`PlotScatter3()`](https://hui950319.github.io/UtilsR/reference/PlotScatter3.md)
+  computes paired differences before rounding integer64 axis coordinates
+  for display.
+
+- Scatter plots preserve integer64 group identity when the grouping
+  column also supplies a plotted coordinate.
+
+- Missingness inspection avoids copying labels when none contain
+  whitespace.
+
+- `.cat_message(wrap = FALSE)` writes verbatim lines without computing a
+  wrapping width.
+
+- [`set_wd()`](https://hui950319.github.io/UtilsR/reference/set_wd.md)
+  reads file sizes from the paths returned by its directory scan.
+
+- [`fct_label()`](https://hui950319.github.io/UtilsR/reference/fct_label.md)
+  checks a data-frame column’s presence and uniqueness with one name
+  scan.
+
+- Missingness inspection avoids retesting values already matched by a
+  custom marker.
+
+- Missingness inspection skips the full character membership scan when
+  no distinct value is a special marker.
+
+- [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
+  styles only severity ranges present in the displayed rows.
+
+- [`check_na()`](https://hui950319.github.io/UtilsR/reference/check_na.md)
+  formats missing and special-value counts after filtering rows for
+  display.
+
 - [`fmt_his()`](https://hui950319.github.io/UtilsR/reference/fmt_his.md)
   treats SPSS user-defined missing values as missing before computing
   histogram counts or densities.

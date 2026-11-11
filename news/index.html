@@ -50,7 +50,117 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.23" id="utilsr-0623">UtilsR 0.6.23<a class="anchor" aria-label="anchor" href="#utilsr-0623"></a></h2>
-<ul><li><p><code><a href="../reference/fmt_his.html">fmt_his()</a></code> treats SPSS user-defined missing values as missing before computing histogram counts or densities.</p></li>
+<ul><li><p>Butterfly bar plots use distinct calendar period labels for grouping and grid completion.</p></li>
+<li><p><code><a href="../reference/PlotRank.html">PlotRank()</a></code> uses exact display keys for calendar period groups instead of comparing their raw seconds storage.</p></li>
+<li><p>Dumbbell plots preserve each distinct calendar period as a separate category position.</p></li>
+<li><p>Sankey stages retain distinct calendar-period categories, including periods with the same seconds slot.</p></li>
+<li><p>Jaccard plots reshape matrix cells without an intermediate table or matrix clone for hidden diagonals.</p></li>
+<li><p>Jaccard group membership reuses exact numeric keys for Date, POSIX time and difftime groups.</p></li>
+<li><p>Rank correlation plots group SPSS user-missing values with ordinary missing observations.</p></li>
+<li><p>Dumbbell insets retain their points and show an unavailable p-value for constant differences or too few paired observations.</p></li>
+<li><p>Circular lollipop plots apply the existing missing-group validation to SPSS user-missing codes.</p></li>
+<li><p>Circular lollipop PDF exports start on the page created by circlize and contain a single drawing page.</p></li>
+<li><p>Alluvial layouts reuse their already ordered facet and category factors after inserting gaps.</p></li>
+<li><p>Plain progress notices avoid redundant inline formatting before the CLI step starts.</p></li>
+<li><p>Butterfly wide inputs and delegated box plots retain observed empty category names through reshaping.</p></li>
+<li><p>Mirrored butterfly distributions build only shared category columns and retain their original padding and order.</p></li>
+<li><p>Min-max butterfly bars scale only the score vector before applying one row permutation to the plot data.</p></li>
+<li><p>UpSet membership compares exact numeric dates, instants and elapsed durations without formatting every value as a string.</p></li>
+<li><p><code>output = "all"</code> builds grouped data directly from the same membership codes used by the data-only result.</p></li>
+<li><p>UpSet-only output avoids enumerating a complete region table to count visible intersections.</p></li>
+<li><p>Butterfly bars exclude SPSS user-missing score codes from min-max bounds and retain their existing zero-fill rule.</p></li>
+<li><p><code><a href="../reference/lv.html">lv()</a></code> reports entirely missing Date columns with their missing count in grouped and ungrouped summaries.</p></li>
+<li><p>Alluvial plots sort observed facet-category pairs once before filling each group stratum.</p></li>
+<li><p>Jaccard pairwise comparisons skip globally unique features while still counting them in union sizes.</p></li>
+<li><p>Dumbbell delta labels and dot guides position correctly when the two endpoint columns carry different value labels.</p></li>
+<li><p>Circular lollipop top-N selection projects only the required data.table columns before taking rows.</p></li>
+<li><p><code><a href="../reference/PlotButterfly2.html">PlotButterfly2()</a></code> avoids copying unrelated data.table payload before computing the mirrored distributions.</p></li>
+<li><p><code><a href="../reference/PlotButterfly2.html">PlotButterfly2()</a></code> converts SPSS user-missing score codes before both box and violin paths.</p></li>
+<li><p>Sankey level reversal retains the distinct explicit NA level and truly missing rows.</p></li>
+<li><p>All-missing or unparseable CI input keeps its warnings and output types without running interval calculations.</p></li>
+<li><p>Plain factor combinations exclude incomplete rows before allocating per-column value codes.</p></li>
+<li><p>Windows diagnostics retain valid CIM operating-system and CPU fields when native memory statistics are available.</p></li>
+<li><p>Stacked distribution plots format counts or percentages only for the selected label style and visible segments.</p></li>
+<li><p>Console key-value layouts split only values that actually contain line breaks.</p></li>
+<li><p>Background stripes retrieve each shared axis scale once, keeping separate scales for free facets.</p></li>
+<li><p>Strip formatting reads the global theme once when coloring borders across several panels.</p></li>
+<li><p>Sankey plots avoid copying unrelated data.table columns during input normalization.</p></li>
+<li><p>Rank correlation reshaping uses existing singleton scores and averages only repeated method keys.</p></li>
+<li><p><code><a href="../reference/check_size.html">check_size()</a></code> formats each measured object once in the display unit it will use.</p></li>
+<li><p>Palette previews calculate alpha-composited text contrast in batches.</p></li>
+<li><p>Legend formatting reuses one global theme for subplot styling and patchwork collection checks.</p></li>
+<li><p>Alluvial plots avoid copying unrelated data.table columns during input normalization.</p></li>
+<li><p><code><a href="../reference/PlotRank.html">PlotRank()</a></code> registers integer64 feature name methods before using stored values as labels.</p></li>
+<li><p>Weighted KNN skips the extra donor magnitude scan for finite means in the normal range.</p></li>
+<li><p><code><a href="../reference/lv.html">lv()</a></code> builds ordinary factor frequency tables directly from level codes while preserving displayed missing categories.</p></li>
+<li><p>Factor combinations assign final codes through a group permutation without rehashing each observation.</p></li>
+<li><p>KNN builds one row mask and stops scanning columns once all rows contain observations.</p></li>
+<li><p><code><a href="../reference/stat_ci_parse.html">stat_ci_parse()</a></code> only formats valid interval endpoints in mixed table output.</p></li>
+<li><p><code><a href="../reference/stat_ci_parse.html">stat_ci_parse()</a></code> avoids calculating p-values when the caller requests only confidence intervals.</p></li>
+<li><p><code><a href="../reference/stat_ci.html">stat_ci()</a></code> sends only parsed confidence intervals to numeric formatting when other table cells contain text or missing values.</p></li>
+<li><p>Repeated p-value strings reuse one parse and format while preserving exact decimal threshold comparisons.</p></li>
+<li><p>Axis hiding calculates nested layout coordinates without allocating one data frame per plot.</p></li>
+<li><p>Pearson scatter annotations retain the small differences between large integer64 coordinates.</p></li>
+<li><p>The package inventory skips ANSI truncation for paths that already fit the display.</p></li>
+<li><p>Numeric <code><a href="../reference/lv.html">lv()</a></code> listings calculate integer64 means before converting values for display.</p></li>
+<li><p>Survival formula notices report a missing outcome column before selecting a model label.</p></li>
+<li><p>Axis tile formatting reads the global theme once across multiple active panels.</p></li>
+<li><p>Marginal scatter correlations rank original integer64 axes before plotting coordinates are converted to doubles.</p></li>
+<li><p>Categorical Sankey plots expand counted paths in one pass while retaining the backend node and weight order.</p></li>
+<li><p>Stacked continuous plots construct their long data from finite observations while preserving row and feature order.</p></li>
+<li><p>Scatter grouping skips display-label reconstruction for matching plain character, integer, and logical keys.</p></li>
+<li><p>Independent continuous panels keep partial zoom limits on the requested data side after reversing the value axis.</p></li>
+<li><p>Stacked continuous plots respect partial quantile limits on reversed value scales.</p></li>
+<li><p>Indexed Jaccard groups avoid materializing one fallback key per level.</p></li>
+<li><p>Jaccard heatmaps index plain labelled group keys while excluding SPSS user-missing observations.</p></li>
+<li><p>Jaccard heatmaps reuse one row index for logical group columns.</p></li>
+<li><p><code><a href="../reference/theme_my.html">theme_my()</a></code> and <code><a href="../reference/theme_ROC.html">theme_ROC()</a></code> keep numeric legend coordinates without using the deprecated theme setting.</p></li>
+<li><p>Jaccard heatmaps build one exact membership index for matching Duration, Period and Interval group vectors.</p></li>
+<li><p>Jaccard heatmaps reuse one membership index for integer64 group columns and group levels.</p></li>
+<li><p><code><a href="../reference/pr_tree.html">pr_tree()</a></code> counts an S4 root’s slot names before extracting the slots for display.</p></li>
+<li><p>Console notices and boxes interpret CRLF as a single line break and keep empty lines.</p></li>
+<li><p>Full-style notices apply their ANSI styles to the entire line vector in one pass.</p></li>
+<li><p><code><a href="../reference/PlotScatter3.html">PlotScatter3()</a></code> infers its two groups from observed labels while retaining points with missing group values.</p></li>
+<li><p>Scatter groups treat SPSS user-missing values as missing instead of adding extra colour and shape levels.</p></li>
+<li><p><code><a href="../reference/PlotScatter2.html">PlotScatter2()</a></code> computes automatic annotation positions without overflowing the axis span.</p></li>
+<li><p>Shared limits in <code><a href="../reference/plt_con.html">plt_con()</a></code> retain the observations needed to compute their range under a scale added later.</p></li>
+<li><p><code><a href="../reference/fmt_axisText.html">fmt_axisText()</a></code> applies theme-only overrides without reading the global axis theme or visiting scales.</p></li>
+<li><p><code><a href="../reference/fmt_text.html">fmt_text()</a></code> validates an empty request and returns the plot container without traversing its editable leaves.</p></li>
+<li><p><code><a href="../reference/fmt_axis.html">fmt_axis()</a></code> applies guide-local hiding to the scale drawn on the selected axis after <code><a href="https://ggplot2.tidyverse.org/reference/coord_flip.html" class="external-link">coord_flip()</a></code>.</p></li>
+<li><p>Paired scatter rank correlations retain the order of integer64 coordinates beyond double precision.</p></li>
+<li><p>Explicit numeric group levels match their exact integer64 values without merging nearby integers or truncating fractions.</p></li>
+<li><p><code><a href="../reference/plt_cat.html">plt_cat()</a></code> avoids converting complete factor labels to character just to check for missing values.</p></li>
+<li><p>Categorical plots with <code>keep_empty = FALSE</code> count observed pairs directly when neither factor has missing levels or values.</p></li>
+<li><p>Continuous dot plots group original keys directly and compute sort indices only for distinct strata.</p></li>
+<li><p><code>plt_con(split.by = ...)</code> indexes split groups once, including blank labels and observed explicit missing levels.</p></li>
+<li><p>Scatter correlation annotations report an unavailable estimate when there are too few complete pairs.</p></li>
+<li><p><code><a href="../reference/plt_cat.html">plt_cat()</a></code> counts distinct lubridate Period components before preparing categories.</p></li>
+<li><p><code><a href="../reference/plt_cat.html">plt_cat()</a></code> excludes SPSS user-missing codes from its category limit and counts a displayed missing category once.</p></li>
+<li><p><code><a href="../reference/lv.html">lv()</a></code> reuses the computed missing count when finding distinct values in complete columns.</p></li>
+<li><p><code>lv(count = ...)</code> reuses the overall total in every column of a two-way table.</p></li>
+<li><p><code><a href="../reference/lv.html">lv()</a></code> prepares the selected values once for the detailed table and the console sparklines.</p></li>
+<li><p>Stacked violins in <code><a href="../reference/plt_con.html">plt_con()</a></code> omit undefined feature-by-group densities and retain observations in their other layers.</p></li>
+<li><p><code><a href="../reference/plt_con.html">plt_con()</a></code> keeps singleton points from missing groups while omitting their undefined violin densities.</p></li>
+<li><p>Categorical UpSet plots build each observed set combination once and reuse it across matching rows.</p></li>
+<li><p><code>plt_cat(type = "upset")</code> keeps a selected source column named <code>intersection</code> alongside the plotted membership list.</p></li>
+<li><p><code><a href="../reference/PlotScatter3.html">PlotScatter3()</a></code> bases the automatic median-line height on the histogram’s displayed bin boundaries and range.</p></li>
+<li><p><code><a href="../reference/pr_spark.html">pr_spark()</a></code> reuses the available width for checking and shortening each row.</p></li>
+<li><p><code><a href="../reference/pr_spark.html">pr_spark()</a></code> keeps exact cancellation when averaging large integer64 values with opposite signs.</p></li>
+<li><p><code><a href="../reference/pr_tree.html">pr_tree()</a></code> uses one console-width lookup for its labels, attributes and line budget.</p></li>
+<li><p><code><a href="../reference/pr_table.html">pr_table()</a></code> reuses the same available width for numeric formatting and column placement.</p></li>
+<li><p>Print helpers skip ANSI truncation for labels that already fit.</p></li>
+<li><p>Table highlighting matches factor labels once and uses their row codes to locate styled cells.</p></li>
+<li><p><code><a href="../reference/PlotScatter3.html">PlotScatter3()</a></code> computes paired differences before rounding integer64 axis coordinates for display.</p></li>
+<li><p>Scatter plots preserve integer64 group identity when the grouping column also supplies a plotted coordinate.</p></li>
+<li><p>Missingness inspection avoids copying labels when none contain whitespace.</p></li>
+<li><p><code>.cat_message(wrap = FALSE)</code> writes verbatim lines without computing a wrapping width.</p></li>
+<li><p><code><a href="../reference/set_wd.html">set_wd()</a></code> reads file sizes from the paths returned by its directory scan.</p></li>
+<li><p><code><a href="../reference/fct_label.html">fct_label()</a></code> checks a data-frame column’s presence and uniqueness with one name scan.</p></li>
+<li><p>Missingness inspection avoids retesting values already matched by a custom marker.</p></li>
+<li><p>Missingness inspection skips the full character membership scan when no distinct value is a special marker.</p></li>
+<li><p><code><a href="../reference/check_na.html">check_na()</a></code> styles only severity ranges present in the displayed rows.</p></li>
+<li><p><code><a href="../reference/check_na.html">check_na()</a></code> formats missing and special-value counts after filtering rows for display.</p></li>
+<li><p><code><a href="../reference/fmt_his.html">fmt_his()</a></code> treats SPSS user-defined missing values as missing before computing histogram counts or densities.</p></li>
 <li><p>Circular group scaling finds both bounds from one set of original row indices, including rows omitted by <code>top_n</code>.</p></li>
 <li><p>When selecting overlay samples from layers, <code><a href="../reference/fmt_his.html">fmt_his()</a></code> prefers data layers and still supports guide-only plots.</p></li>
 <li><p>Circular y-axis ticks and titles can extend outside the first sector without emitting spurious overflow messages.</p></li>
