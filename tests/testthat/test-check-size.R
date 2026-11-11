@@ -485,3 +485,17 @@ test_that("object size inspection reuses an enumerated binding inventory", {
   expect_identical(calls, 2L)
   expect_identical(explicit[["_data"]]$Object[-1L], "sample_01")
 })
+
+test_that("object sizes are formatted in only their chosen units", {
+  local_mocked_bindings(object.size = function(x) x, .package = "utils")
+  fn <- check_size
+  env <- new.env(parent = environment(fn))
+  env$sprintf <- function(fmt, ...) {
+    if (identical(fmt, "%.2f GB")) stop("formatted sizes in an unused unit")
+    base::sprintf(fmt, ...)
+  }
+  environment(fn) <- env
+  data <- list2env(list(byte = 1, kilo = 2048, mega = 2 * 1024^2), parent = emptyenv())
+  expected <- check_size(envir = data)[["_data"]]
+  expect_identical(fn(envir = data)[["_data"]], expected)
+})

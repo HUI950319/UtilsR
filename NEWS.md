@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `check_size()` formats each measured object once in the display unit it will use.
+
 * Palette previews calculate alpha-composited text contrast in batches.
 
 * Legend formatting reuses one global theme for subplot styling and patchwork collection checks.
