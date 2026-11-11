@@ -428,6 +428,7 @@ console_width <- function() {
   } else {
     # a missing outcome is not a level: 0/1 with NA is still a Cox model
     values <- data[[outcome]]
+    if (is.null(values)) cli::cli_abort("Outcome column {.val {outcome}} was not found in {.arg data}.")
     if (inherits(values, "haven_labelled_spss")) {
       if (!requireNamespace("haven", quietly = TRUE)) {
         cli::cli_abort("Interpreting SPSS user-missing values requires package {.pkg haven}.")

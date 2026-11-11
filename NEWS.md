@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Survival formula notices report a missing outcome column before selecting a model label.
+
 * Axis tile formatting reads the global theme once across multiple active panels.
 
 * Marginal scatter correlations rank original integer64 axes before plotting coordinates are converted to doubles.

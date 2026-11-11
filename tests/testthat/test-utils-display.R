@@ -1126,3 +1126,12 @@ test_that("styled notices handle CRLF line breaks", {
   box <- function(x) cli::ansi_strip(cli::cli_fmt(.cat_box(x)))
   expect_identical(box("first\r\nsecond"), box("first\nsecond"))
 })
+
+test_that("survival formula notices require the named outcome column", {
+  d <- data.frame(age = 1:3, time = 1:3, status = c(0, 1, 0))
+  expect_error(.cat_formula(d, "age", outcome = "missing status"), "missing status")
+  expect_match(paste(cli::cli_fmt(.cat_formula(d, "age", outcome = "status")), collapse = " "),
+               "Cox model", fixed = TRUE)
+  expect_match(paste(cli::cli_fmt(.cat_formula(NULL, "age", time = NULL)), collapse = " "),
+               "Logistic model", fixed = TRUE)
+})
