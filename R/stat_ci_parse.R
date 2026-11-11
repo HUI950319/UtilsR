@@ -286,7 +286,7 @@ stat_ci_parse <- function(x,
     }
     sprintf("%.*f", d, v)
   }
-  fmt <- function(v) {
+  fmt <- function(v, d) {
     n <- length(v)
     if (n > 1024L) {
       probe <- seq.int(1L, n, length.out = 1024L)
@@ -302,10 +302,16 @@ stat_ci_parse <- function(x,
     }
     .format_once(v, d)
   }
-  ci_str <- ifelse(valid,
-    paste0(fmt(est), " ", parsed$open, fmt(lo), parsed$sep, fmt(hi),
-           parsed$close),
-    x)
+  ci_str <- x
+  if (all(valid)) {
+    ci_str <- paste0(fmt(est, d), " ", parsed$open, fmt(lo, d), parsed$sep,
+                     fmt(hi, d), parsed$close)
+  } else if (any(valid)) {
+    precision <- d[valid]
+    ci_str[valid] <- paste0(fmt(est[valid], precision), " ", parsed$open[valid],
+                           fmt(lo[valid], precision), parsed$sep[valid],
+                           fmt(hi[valid], precision), parsed$close[valid])
+  }
 
   # --- Return based on output ---
   out <- switch(output,

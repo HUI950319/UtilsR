@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci_parse()` only formats valid interval endpoints in mixed table output.
+
 * `stat_ci_parse()` avoids calculating p-values when the caller requests only confidence intervals.
 
 * `stat_ci()` sends only parsed confidence intervals to numeric formatting when other table cells contain text or missing values.

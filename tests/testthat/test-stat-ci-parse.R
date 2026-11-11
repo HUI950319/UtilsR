@@ -684,3 +684,17 @@ test_that("interval-only output skips normal tail probabilities", {
   expect_identical(fn(x, output = "ci", exp = FALSE, level = .9),
                    stat_ci_parse(x, output = "ci", exp = FALSE, level = .9))
 })
+
+test_that("mixed parsed intervals format only valid endpoints", {
+  fn <- stat_ci_parse
+  env <- new.env(parent = environment(fn))
+  env$sprintf <- function(fmt, ...) {
+    if (identical(fmt, "%.*f") && length(list(...)[[2L]]) > 2L) stop("formatted invalid endpoints")
+    base::sprintf(fmt, ...)
+  }
+  environment(fn) <- env
+  x <- c("2.00 (1.00, 3.00)", rep(NA_character_, 25L), "", "1.00 [0.50, 1.50]")
+  for (output in c("ci", "ci_p", "ci_star", "p", "p_star")) {
+    expect_identical(fn(x, output, exp = FALSE), stat_ci_parse(x, output, exp = FALSE))
+  }
+})
