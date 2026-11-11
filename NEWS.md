@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_table()` reuses the same available width for numeric formatting and column placement.
+
 * Print helpers skip ANSI truncation for labels that already fit.
 
 * Table highlighting matches factor labels once and uses their row codes to locate styled cells.

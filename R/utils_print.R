@@ -618,6 +618,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   colour <- ._pr_colour()
   hl <- if (is.logical(highlight)) which(highlight) else highlight
   if (!colour && any(seq_len(nrow(data)) %in% hl)) indent <- max(indent, 2L)
+  avail <- (width %||% console_width()) - indent
   is_num <- vapply(data, is.numeric, logical(1)) | is_p
   cells  <- lapply(seq_along(data), function(j) {
     v <- ._pr_restore(data[[j]])
@@ -645,7 +646,7 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
       txt <- formatC(v, format = "f", digits = d)
       rounded <- ._pr_decimal_number(txt)
       scientific <- which(is.finite(v) &
-        ((v != 0 & rounded == 0) | nchar(txt) > max(10L, (width %||% console_width()) - indent)))
+        ((v != 0 & rounded == 0) | nchar(txt) > max(10L, avail)))
       if (length(scientific)) {
         txt[scientific] <- formatC(v[scientific], format = "e", digits = max(1L, min(digits, 15L)))
       }
@@ -672,7 +673,6 @@ pr_table <- function(data, p_col = NULL, highlight = NULL, rownames = FALSE,
   }, numeric(1))
   # the first and the P-value columns always show; the others follow in
   # order until one no longer fits the line
-  avail <- (width %||% console_width()) - indent
   keep  <- unique(c(1L, which(is_p)))
   gap <- 2L
   if (avail < length(keep)) {

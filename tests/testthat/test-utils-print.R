@@ -1418,3 +1418,18 @@ test_that("short console labels bypass ANSI truncation", {
     c("fits", as.character(native("shortened label", 8L))))
   expect_identical(trimmed, 1L)
 })
+
+test_that("console tables reuse one width lookup", {
+  fn <- pr_table
+  env <- new.env(parent = environment(fn))
+  lookups <- 0L
+  env$console_width <- function() {
+    lookups <<- lookups + 1L
+    80L
+  }
+  environment(fn) <- env
+  d <- data.frame(a = c(1e-19, 12.34), b = c(10000, 2.34), c = 1:2)
+  observed <- utils::capture.output(fn(d, highlight = 2))
+  expect_identical(lookups, 1L)
+  expect_identical(observed, utils::capture.output(fn(d, width = 80L, highlight = 2)))
+})
