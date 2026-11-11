@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Scatter groups treat SPSS user-missing values as missing instead of adding extra colour and shape levels.
+
 * `PlotScatter2()` computes automatic annotation positions without overflowing the axis span.
 
 * Shared limits in `plt_con()` retain the observations needed to compute their range under a scale added later.

@@ -1581,3 +1581,12 @@ test_that("marginal scatter annotation positions survive an overflowing span", {
   manual <- PlotScatter2(d, "x", "y", "g", annot_text = "Label", annot_pos = c(0, 2))
   expect_identical(ggplot2::layer_data(manual[[1L]], 2L)$x, 0)
 })
+
+test_that("scatter group levels omit SPSS user-missing codes", {
+  skip_if_not_installed("haven")
+  d <- data.frame(x = 1:6, y = 6:1,
+    g = haven::labelled_spss(c(1, 1, 2, 2, 99, 99), na_values = 99))
+  p <- PlotScatter2(d, "x", "y", "g")[[1L]]
+  expect_identical(levels(p$data$g), c("1", "2"))
+  expect_identical(is.na(p$data$g), c(FALSE, FALSE, FALSE, FALSE, TRUE, TRUE))
+})
