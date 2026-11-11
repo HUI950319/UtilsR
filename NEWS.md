@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Console key-value layouts split only values that actually contain line breaks.
+
 * Background stripes retrieve each shared axis scale once, keeping separate scales for free facets.
 
 * Strip formatting reads the global theme once when coloring borders across several panels.

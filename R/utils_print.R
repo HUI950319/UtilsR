@@ -189,7 +189,10 @@
   avail <- max(1L, width - kw - 2L)
   lead  <- strrep(" ", kw + 2)
   unlist(lapply(seq_along(keys), function(i) {
-    segs <- cli::ansi_strsplit(paste0(vals[[i]], "\n"), "\n", fixed = TRUE)[[1]]
+    value <- vals[[i]]
+    segs <- if (grepl("\n", value, fixed = TRUE)) {
+      cli::ansi_strsplit(paste0(value, "\n"), "\n", fixed = TRUE)[[1L]]
+    } else value
     body <- unlist(lapply(if (length(segs)) segs else "", function(s) {
       if (nzchar(cli::ansi_strip(s))) ._pr_wrap(s, width = avail) else ""
     }))

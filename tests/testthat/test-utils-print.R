@@ -1487,3 +1487,17 @@ test_that("object trees extract root S4 slots once", {
   expect_identical(sort(extractions), sort(methods::slotNames(x)))
   expect_match(lines[1L], "<S4 2>", fixed = TRUE)
 })
+
+test_that("single-line console values bypass ANSI line splitting", {
+  withr::local_options(cli.num_colors = 0)
+  x <- list(age = "44", settings = "first\nsecond", count = 5)
+  reference <- ._kv_lines(x, width = 50)
+  split <- cli::ansi_strsplit
+  local_mocked_bindings(ansi_strsplit = function(x, pattern, ...) {
+    if (identical(pattern, "\n") && length(x) == 1L && identical(x, "44\n")) {
+      stop("split a single-line value")
+    }
+    split(x, pattern, ...)
+  }, .package = "cli")
+  expect_identical(._kv_lines(x, width = 50), reference)
+})
