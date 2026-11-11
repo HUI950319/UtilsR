@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `lv()` reports entirely missing Date columns with their missing count in grouped and ungrouped summaries.
+
 * Alluvial plots sort observed facet-category pairs once before filling each group stratum.
 
 * Jaccard pairwise comparisons skip globally unique features while still counting them in union sizes.

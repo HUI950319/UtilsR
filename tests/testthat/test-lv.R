@@ -1538,3 +1538,10 @@ test_that("inspection factor frequencies count codes without grouping the data",
   }, .package = "dplyr")
   expect_identical(capture.output(suppressMessages(lv(data))), reference)
 })
+
+test_that("all-missing Date columns retain a missing-count summary", {
+  d <- data.frame(visit = as.Date(rep(NA_real_, 3L)), group = c("a", "a", "b"))
+  invisible(capture.output(expect_no_warning(expect_no_error(lv(d)))))
+  invisible(capture.output(expect_no_warning(expect_no_error(lv(d, group = group)))))
+  expect_s3_class(d$visit, "Date")
+})

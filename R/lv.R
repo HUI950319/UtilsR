@@ -714,13 +714,13 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     x
   }
 
-  # gtsummary cannot format an entirely missing character or date-time column
+  # gtsummary cannot format an entirely missing character, date or date-time column
   # (and rejects a level-less factor); a missing logical reports the same
   # missing count. Time spans are summarized as numbers in their own units.
   .tbl_input <- function(df) {
     df[] <- lapply(df, function(x) .label_na_level(.spss_missing_to_na(x)))
     empty_values <- vapply(df, function(x) {
-      (is.character(x) || is.complex(x) || inherits(x, "POSIXt") ||
+      (is.character(x) || is.complex(x) || inherits(x, c("Date", "POSIXt")) ||
        (is.factor(x) && nlevels(x) == 0L)) && all(is.na(x))
     }, logical(1))
     df[empty_values] <- lapply(df[empty_values], function(x) rep(NA, length(x)))
