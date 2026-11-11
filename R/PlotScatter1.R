@@ -190,6 +190,8 @@ PlotScatter1 <- function(
   if (is.null(ylab)) ylab <- y
 
   df <- data
+  raw_x <- df[[x]]
+  raw_y <- df[[y]]
   group_col <- group
   # The .data column name is reserved by the ggplot2 data mask.
   if (".data" %in% c(x, y, group)) {
@@ -337,7 +339,7 @@ PlotScatter1 <- function(
 
   # Correlation annotation — only assigned to annot_text (rendered in p_annot)
   if (show_cor && is.null(annot_text)) {
-    annot_text <- .scatter_cor_label(df[[x]], df[[y]], cor_method)
+    annot_text <- .scatter_cor_label(raw_x, raw_y, cor_method)
   }
 
   # ---- Helper: add marginal geom ----
@@ -580,8 +582,17 @@ PlotScatter1 <- function(
 }
 
 .scatter_cor_test <- function(x, y, method) {
-  complete <- stats::complete.cases(x, y)
   pearson <- identical(method, "pearson")
+  rank_axis <- function(value) {
+    if (!pearson && inherits(value, "integer64")) {
+      .register_integer64(value)
+      return(vctrs::vec_rank(value, ties = "min", incomplete = "na"))
+    }
+    .scatter_axis_values(value)
+  }
+  x <- rank_axis(x)
+  y <- rank_axis(y)
+  complete <- stats::complete.cases(x, y)
   if (sum(complete) < if (pearson) 3L else 2L) {
     return(list(estimate = NA_real_, p.value = NA_real_))
   }
@@ -607,8 +618,6 @@ PlotScatter1 <- function(
   if (!is.character(method) || !is.null(dim(method)) || length(method) != 1L || is.na(method))
     stop("'cor_method' must be a single correlation method name.", call. = FALSE)
   method <- match.arg(method, c("pearson", "kendall", "spearman"))
-  x <- .scatter_axis_values(x)
-  y <- .scatter_axis_values(y)
   result <- .scatter_cor_test(x, y, method = method)
   sprintf("%s:\nr = %.3f\np = %s", tools::toTitleCase(method), result$estimate,
           format(result$p.value, digits = 3, scientific = TRUE))

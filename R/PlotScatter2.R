@@ -217,6 +217,8 @@ PlotScatter2 <- function(
   group2_label <- group2
 
   df <- data
+  raw_x <- df[[x]]
+  raw_y <- df[[y]]
   if (".data" %in% c(x, y, group, group2)) {
     data_col <- make.unique(c(names(df), ".scatter2_data"))[ncol(df) + 1L]
     df[[data_col]] <- df[[".data"]]
@@ -368,7 +370,7 @@ PlotScatter2 <- function(
 
   # Auto-compute correlation
   if (show_cor && is.null(annot_text)) {
-    annot_text <- .scatter_cor_label(df[[x]], df[[y]], cor_method)
+    annot_text <- .scatter_cor_label(raw_x, raw_y, cor_method)
   }
 
   # Annotation text

@@ -1614,3 +1614,31 @@ test_that("plain scatter group types use native factor levels", {
     expect_identical(fn(x), factor(x, levels = vctrs::vec_unique(x)))
   }
 })
+
+test_that("marginal scatter rank annotations retain exact integer64 order", {
+  skip_if_not_installed("bit64")
+  d <- data.frame(x = bit64::as.integer64("9007199254740992") + bit64::as.integer64(0:5),
+                  y = c(1, 3, 2, 4, 6, 5), g = rep(c("a", "b"), 3L))
+  labels <- function(g) {
+    if (inherits(g, "text")) return(as.character(g$label))
+    unlist(lapply(c(g$grobs, as.list(g$children)), labels), use.names = FALSE)
+  }
+  for (method in c("spearman", "kendall")) for (fn in list(PlotScatter1, PlotScatter2)) {
+    p <- withCallingHandlers(fn(d, "x", "y", "g", show_ellipse = FALSE,
+      show_cor = TRUE, cor_method = method), warning = function(w) {
+        if (grepl("integer precision lost|Ties", conditionMessage(w), ignore.case = TRUE)) {
+          invokeRestart("muffleWarning")
+        }
+      })
+    grob <- if (inherits(p, "wrapped_patch")) attr(p, "grobs")$full else patchwork::patchworkGrob(p)
+    text <- labels(grob)
+    expect_identical(text[grepl("\np = ", text, fixed = TRUE)],
+                     .scatter_cor_label(seq_len(nrow(d)), d$y, method))
+  }
+  paired <- scatter3_capture_inset(transform(d, x = seq_len(nrow(d))), "x", "y", "g",
+    test_method = "none", cor_method = "spearman", show_refline = FALSE,
+    cor_x = 2, cor_y = 3)
+  label <- ggplot2::layer_data(paired$main, 2L)
+  expect_equal(label$x, 2)
+  expect_equal(label$y, 3)
+})
