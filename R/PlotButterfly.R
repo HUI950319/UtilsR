@@ -293,36 +293,28 @@ PlotButterfly <- function(
 
     # Min-max scaling per group.by x fill.by
     if (isTRUE(minmax)) {
-      data <- do.call(rbind, lapply(
-        split(data, interaction(as.integer(as.factor(data[[group.by]])),
-                                as.integer(as.factor(data[[fill.by]])), drop = TRUE)),
-        function(d) {
-          if (all(is.na(d[[value.by]]))) {
-            d[[value.by]] <- rep(NA_real_, nrow(d))
-            return(d)
-          }
-          rng <- range(d[[value.by]], na.rm = TRUE)
-          if (is.integer(rng) && !is.object(rng)) rng <- as.double(rng)
-          if (rng[1] == rng[2]) {
-            d[[value.by]] <- ifelse(is.na(d[[value.by]]), NA_real_, 0)
-          } else if (inherits(rng, "integer64")) {
-            values <- d[[value.by]]
-            shift <- .dumbbell_integer64_difference(values, rep(rng[1L], length(values)))
-            span <- .dumbbell_integer64_difference(rng[2L], rng[1L])
-            d[[value.by]] <- suppressWarnings(as.double(shift) / as.double(span))
-          } else {
-            span <- rng[2] - rng[1]
-            if (is.finite(span)) {
-              d[[value.by]] <- (d[[value.by]] - rng[1]) / span
-            } else {
-              scale <- max(abs(rng))
-              d[[value.by]] <- (d[[value.by]] / scale - rng[1] / scale) /
-                (rng[2] / scale - rng[1] / scale)
-            }
-          }
-          d
+      rows <- split(seq_len(nrow(data)),
+        interaction(as.integer(as.factor(data[[group.by]])),
+                    as.integer(as.factor(data[[fill.by]])), drop = TRUE))
+      scores <- data[[value.by]]
+      scaled <- lapply(rows, function(index) {
+        values <- scores[index]
+        if (all(is.na(values))) return(rep(NA_real_, length(values)))
+        rng <- range(values, na.rm = TRUE)
+        if (is.integer(rng) && !is.object(rng)) rng <- as.double(rng)
+        if (rng[1] == rng[2]) return(ifelse(is.na(values), NA_real_, 0))
+        if (inherits(rng, "integer64")) {
+          shift <- .dumbbell_integer64_difference(values, rep(rng[1L], length(values)))
+          span <- .dumbbell_integer64_difference(rng[2L], rng[1L])
+          return(suppressWarnings(as.double(shift) / as.double(span)))
         }
-      ))
+        span <- rng[2] - rng[1]
+        if (is.finite(span)) return((values - rng[1]) / span)
+        scale <- max(abs(rng))
+        (values / scale - rng[1] / scale) / (rng[2] / scale - rng[1] / scale)
+      })
+      data <- data[unlist(rows, use.names = FALSE), , drop = FALSE]
+      data[[value.by]] <- do.call(c, unname(scaled))
       rownames(data) <- NULL
     }
 

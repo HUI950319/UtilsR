@@ -1028,3 +1028,22 @@ test_that("butterfly bar scaling ignores SPSS missing scores", {
                  lapply(seq_along(expected), function(i) ggplot2::ggplot_build(expected[[i]])$data))
   }
 })
+
+test_that("butterfly minmax scales scores without splitting complete frames", {
+  d <- data.frame(stat = rep(letters[1:3], 4L), fill = rep(c("b", "a"), each = 3L, times = 2L),
+    group = rep(c("L", "R"), each = 6L), score = c(1, 2, 3, NA, NA, NA, 8, 4, 1, 7, 7, 7),
+    payload = rep("keep", 12L))
+  fn <- PlotButterfly
+  env <- new.env(parent = environment(fn))
+  env$split <- function(x, ...) {
+    if (is.data.frame(x)) stop("split the complete butterfly frame")
+    base::split(x, ...)
+  }
+  environment(fn) <- env
+  draw <- function(f) f(d, stat.by = "stat", fill.by = "fill", value.by = "score",
+                        group.by = "group", type = "bar", minmax = TRUE)
+  p <- draw(fn)
+  q <- draw(PlotButterfly)
+  expect_identical(lapply(seq_along(p), function(i) p[[i]]$data),
+                   lapply(seq_along(q), function(i) q[[i]]$data))
+})
