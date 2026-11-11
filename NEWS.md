@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* UpSet membership compares exact numeric dates, instants and elapsed durations without formatting every value as a string.
+
 * `output = "all"` builds grouped data directly from the same membership codes used by the data-only result.
 
 * UpSet-only output avoids enumerating a complete region table to count visible intersections.

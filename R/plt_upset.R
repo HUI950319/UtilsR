@@ -331,8 +331,16 @@ plt_upset <- function(data,
                               function(cls) inherits(values, cls) && inherits(value_levels, cls),
                               logical(1)))
       selected <- if (same_time) {
-        if (is.null(time_level_keys)) time_level_keys <<- .cat_time_key(value_levels, units = "secs")
-        .cat_time_key(values, units = "secs") %in% time_level_keys
+        if (inherits(values, c("Period", "Interval"))) {
+          if (is.null(time_level_keys)) time_level_keys <<- .cat_time_key(value_levels, units = "secs")
+          .cat_time_key(values, units = "secs") %in% time_level_keys
+        } else {
+          time_numeric <- function(x) {
+            if (inherits(x, "difftime")) as.numeric(x, units = "secs") else as.numeric(x)
+          }
+          if (is.null(time_level_keys)) time_level_keys <<- time_numeric(value_levels)
+          time_numeric(values) %in% time_level_keys
+        }
       } else member_in(values, value_levels)
       missing <- is.na(values)
       member <- selected & !missing

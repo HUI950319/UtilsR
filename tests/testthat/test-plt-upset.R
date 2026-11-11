@@ -829,8 +829,9 @@ test_that("UpSet factor codes use direct bit lookups", {
 })
 
 test_that("UpSet time selectors reuse their encoded levels", {
-  days <- as.Date("2020-01-01") + c(1L, 3L)
-  d <- data.frame(A = days[c(1L, 2L, NA, 1L)], B = days[c(2L, NA, 1L, 2L)],
+  skip_if_not_installed("lubridate")
+  days <- lubridate::days(c(1L, 3L))
+  d <- tibble::tibble(A = days[c(1L, 2L, NA, 1L)], B = days[c(2L, NA, 1L, 2L)],
     C = days[c(NA, 1L, 2L, 2L)])
   fn <- plt_upset
   env <- new.env(parent = environment(fn))
@@ -872,4 +873,19 @@ test_that("combined UpSet output reuses its data-only intersection grouping", {
   result <- suppressMessages(plt_upset(sets, set.labels = labels, output = "all"))
   expect_identical(result$data, expected)
   expect_s3_class(result$upset, "ggplot")
+})
+
+test_that("UpSet matches scalar time storage without formatting row keys", {
+  time <- as.POSIXct(c(1636263000, 1636266600), origin = "1970-01-01", tz = "America/New_York")
+  fn <- plt_upset
+  env <- new.env(parent = environment(fn))
+  env$.cat_time_key <- function(...) stop("formatted scalar time keys")
+  environment(fn) <- env
+  d <- data.frame(A = time[c(1L, 2L, NA)], B = time[c(2L, 1L, 1L)])
+  expect_identical(as.character(fn(d, vars = names(d), levels = time[1L],
+                                  output = "data")$intersect_group), c("A", "B", "B"))
+  d <- data.frame(A = as.difftime(c(1, 2, NA), units = "hours"),
+                  B = as.difftime(c(60, 30, 60), units = "mins"))
+  expect_identical(as.character(fn(d, vars = names(d), levels = as.difftime(3600, units = "secs"),
+                                  output = "data")$intersect_group), c("A/B", "None", "B"))
 })
