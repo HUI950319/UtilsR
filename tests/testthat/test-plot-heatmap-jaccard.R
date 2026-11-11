@@ -783,3 +783,17 @@ test_that("Jaccard period membership uses one exact index", {
   expect_equal(m[2L, 3L], 1 / 3)
   expect_equal(m[1L, 2L], 0)
 })
+
+test_that("logical Jaccard groups share one row index", {
+  d <- data.frame(cell_type = c(FALSE, TRUE, NA, FALSE, TRUE), gene = c("x", "x", "z", "y", "w"))
+  fn <- PlotHeatmapJaccard
+  env <- new.env(parent = environment(fn))
+  env[["=="]] <- function(x, y) {
+    if (is.logical(x) && length(x) == nrow(d)) stop("rescanned logical groups")
+    base::`==`(x, y)
+  }
+  environment(fn) <- env
+  m <- fn(d, group_levels = c(TRUE, FALSE), return_type = "data")
+  expect_identical(rownames(m), c("TRUE", "FALSE"))
+  expect_equal(m[1L, 2L], 1 / 3)
+})

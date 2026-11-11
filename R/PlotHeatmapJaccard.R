@@ -188,8 +188,9 @@ PlotHeatmapJaccard <- function(
   indexable_groups <- identical(class(group_values), "factor") ||
     identical(class(group_values), c("ordered", "factor")) ||
     (is.character(group_values) && !is.object(group_values))
-  numeric_groups <- is.numeric(group_values) && !is.object(group_values) &&
-    is.numeric(ct_names) && !is.object(ct_names)
+  base_groups <- !is.object(group_values) && !is.object(ct_names) &&
+    ((is.numeric(group_values) && is.numeric(ct_names)) ||
+     (is.logical(group_values) && is.logical(ct_names)))
   time_groups <- timespan[1L] && identical(class(group_values), class(ct_names))
   integer64_levels <- inherits(ct_names, "integer64")
   integer64_groups <- (integer64[1L] && integer64_levels) ||
@@ -197,7 +198,7 @@ PlotHeatmapJaccard <- function(
                        !is.complex(ct_names)) ||
     (integer64[3L] && !is.object(group_values) && is.numeric(group_values) &&
        !is.complex(group_values))
-  group_rows <- if (numeric_groups || time_groups || integer64_groups ||
+  group_rows <- if (base_groups || time_groups || integer64_groups ||
                     (indexable_groups && is.character(ct_names) && !is.object(ct_names))) {
     rows <- which(non_missing)
     keys <- group_values[rows]
@@ -213,7 +214,7 @@ PlotHeatmapJaccard <- function(
       }
       if (!integer64[1L]) keys <- as_group_key(keys)
       if (!integer64_levels) labels <- as_group_key(labels)
-    } else if (!numeric_groups) {
+    } else if (!base_groups) {
       keys <- as.character(keys)
     }
     ids <- if (integer64_groups || time_groups) vctrs::vec_match(keys, labels) else match(keys, labels)
