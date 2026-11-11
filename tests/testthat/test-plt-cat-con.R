@@ -1290,3 +1290,16 @@ test_that("sparse categorical counts avoid building an empty grid", {
     expect_identical(fn(d, "s", "g", stat), expected)
   }
 })
+
+test_that("categorical missingness checks use ordinary factor codes", {
+  d <- data.frame(s = ordered(rep(c("a", NA, "b"), 20L)))
+  fn <- plt_cat
+  env <- new.env(parent = environment(fn))
+  env$as.character <- function(x, ...) {
+    if (identical(x, d$s)) stop("converted every factor row")
+    base::as.character(x, ...)
+  }
+  environment(fn) <- env
+  invisible(utils::capture.output(p <- suppressMessages(fn(d, "s", stat = "count"))))
+  expect_identical(p$data$n, c(20L, 20L))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_cat()` avoids converting complete factor labels to character just to check for missing values.
+
 * Categorical plots with `keep_empty = FALSE` count observed pairs directly when neither factor has missing levels or values.
 
 * Continuous dot plots group original keys directly and compute sort indices only for distinct strata.

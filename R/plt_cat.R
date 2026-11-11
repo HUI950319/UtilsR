@@ -525,7 +525,10 @@ plt_cat <- function(data,
     n_before <- nrow(data)
     keep <- rep(TRUE, n_before)
     for (col in cols_check) {
-      keep <- keep & !is.na(as.character(data[[col]]))
+      x <- data[[col]]
+      ordinary_factor <- identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))
+      missing <- if (ordinary_factor && !anyNA(levels(x))) is.na(x) else is.na(as.character(x))
+      keep <- keep & !missing
     }
     n_after <- sum(keep)
     if (n_after < n_before) data <- data[keep, , drop = FALSE]
