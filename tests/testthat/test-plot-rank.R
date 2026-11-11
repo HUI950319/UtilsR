@@ -724,3 +724,13 @@ test_that("rank feature labels decode integer64 in a fresh process", {
   expect_null(attr(status, "status"), info = paste(status, collapse = "\n"))
   if (file.exists(output)) expect_identical(readRDS(output), list(expected, expected))
 })
+
+test_that("rank panels keep separate calendar period groups", {
+  skip_if_not_installed("lubridate")
+  months <- lubridate::period(months = c(1L, 2L, 3L))
+  d <- tibble::tibble(cell_type = months, gene = letters[1:3], importance = 1:3)
+  reference <- d
+  reference$cell_type <- as.character(months)
+  result <- PlotRank(d, return_type = "data")
+  expect_identical(result, PlotRank(reference, return_type = "data"))
+})

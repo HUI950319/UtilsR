@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotRank()` uses exact display keys for calendar period groups instead of comparing their raw seconds storage.
+
 * Dumbbell plots preserve each distinct calendar period as a separate category position.
 
 * Sankey stages retain distinct calendar-period categories, including periods with the same seconds slot.

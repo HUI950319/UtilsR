@@ -415,6 +415,10 @@ PlotRank <- function(
     # Has group column -> faceted
     if (group_col %in% colnames(data)) {
       grouping <- data[[group_col]]
+      if (inherits(grouping, "Period")) {
+        grouping <- as.character(.butterfly_category_labels(grouping))
+        data[[group_col]] <- grouping
+      }
       if (is.factor(grouping) && anyNA(levels(grouping))) {
         labels <- levels(grouping)
         labels[is.na(labels)] <- tail(make.unique(c(labels[!is.na(labels)], "<NA>")), 1L)
