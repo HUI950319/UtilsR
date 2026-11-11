@@ -1548,3 +1548,14 @@ test_that("small scatter samples retain an unavailable correlation annotation", 
   expect_equal(unname(.scatter_cor_test(d$x, d$y, "kendall")$estimate), 1)
   expect_true(is.na(.scatter_cor_test(c(1, NA), d$y, "kendall")$estimate))
 })
+
+test_that("scatter numeric levels match only exact integer64 keys", {
+  skip_if_not_installed("bit64")
+  labels <- c("1000000000000000000", "1000000000000000001", "2000000000000000000")
+  d <- data.frame(x = 1:3, y = c(3, 5, 7), g = bit64::as.integer64(labels))
+  p <- scatter3_capture_inset(d, "x", "y", "g", group_levels = c(1e18, 2e18),
+    cor_method = "none", test_method = "none")$main
+  expect_identical(as.character(p$data$g), c(labels[1L], NA_character_, labels[3L]))
+  fractional <- .scatter_group_factor(bit64::as.integer64(1:3), c(1.5, 2))
+  expect_identical(as.character(fractional), c(NA_character_, "2", NA_character_))
+})

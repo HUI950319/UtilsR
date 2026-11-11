@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Explicit numeric group levels match their exact integer64 values without merging nearby integers or truncating fractions.
+
 * `plt_cat()` avoids converting complete factor labels to character just to check for missing values.
 
 * Categorical plots with `keep_empty = FALSE` count observed pairs directly when neither factor has missing levels or values.

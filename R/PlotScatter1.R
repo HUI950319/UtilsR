@@ -536,6 +536,15 @@ PlotScatter1 <- function(
 # Keep exact typed categories separate from their potentially rounded labels.
 .scatter_group_factor <- function(value, levels = vctrs::vec_unique(value)) {
   if (is.factor(value)) return(factor(value, levels = levels))
+  if (inherits(value, "integer64") && is.numeric(levels) && !is.object(levels) && !is.complex(levels)) {
+    valid <- is.finite(levels) & levels == trunc(levels) & levels > -2^63 & levels < 2^63
+    keys <- bit64::as.integer64(replace(levels, !valid, NA_real_))
+    labels <- as.character(levels)
+    labels[valid] <- as.character(keys[valid])
+    observed <- labels[vctrs::vec_match(value, keys, na_equal = FALSE)]
+    names(observed) <- names(value)
+    return(factor(observed, levels = labels))
+  }
   combined <- if (is.character(levels)) value else tryCatch(
     vctrs::vec_c(value, levels), error = function(e) NULL)
   if (is.null(combined)) return(factor(value, levels = levels))
