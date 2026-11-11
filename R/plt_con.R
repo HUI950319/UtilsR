@@ -1118,8 +1118,11 @@ plt_con <- function(data,
       result <- facet$init_scales(layout, x_scale, y_scale, params)
       for (i in seq_along(result$y)) {
         feature <- as.character(layout$feature[match(i, layout$SCALE_Y)])
-        result$y[[i]]$limits <- result$y[[i]]$transform(limits[[feature]])
-        result$y[[i]]$oob <- scales::oob_keep
+        scale <- result$y[[i]]
+        bounds <- scale$transform(limits[[feature]])
+        if (identical(scale$get_transformation()$name, "reverse")) bounds <- rev(bounds)
+        scale$limits <- bounds
+        scale$oob <- scales::oob_keep
       }
       result
     }

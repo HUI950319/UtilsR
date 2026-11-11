@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Stacked continuous plots respect partial quantile limits on reversed value scales.
+
 * Indexed Jaccard groups avoid materializing one fallback key per level.
 
 * Jaccard heatmaps index plain labelled group keys while excluding SPSS user-missing observations.
