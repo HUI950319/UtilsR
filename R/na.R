@@ -330,8 +330,10 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
   # Normalize only values holding whitespace and match caselessly, so values
   # such as identifiers are not copied, lowercased or trimmed with TRE.
   ws <- grepl("[\\h\\v]", u, perl = TRUE)
-  u[ws] <- gsub("^ | $", "", gsub("[\\h\\v]+", " ", u[ws], perl = TRUE),
-                perl = TRUE)
+  if (any(ws)) {
+    u[ws] <- gsub("^ | $", "", gsub("[\\h\\v]+", " ", u[ws], perl = TRUE),
+                  perl = TRUE)
+  }
   if (is.null(special)) {
     grepl(paste0("(*UCP)\\b(unknowns?|blanks?|n/a|na|missing|unspecified|",
                  "not (available|applicable|stated|reported)|null)\\b|^[?.-]+$"),

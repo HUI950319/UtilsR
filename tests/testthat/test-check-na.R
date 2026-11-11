@@ -706,3 +706,19 @@ test_that("quality marker patterns skip matched values", {
   expect_identical(hits, c(rep(TRUE, 42L), FALSE))
   expect_identical(scanned, c(42L, 2L, 1L))
 })
+
+test_that("special marker checks rewrite only whitespace labels", {
+  fn <- .is_special_value
+  env <- new.env(parent = environment(fn))
+  normalizations <- integer()
+  env$gsub <- function(pattern, replacement, x, ...) {
+    n <- length(x)
+    normalizations <<- c(normalizations, n)
+    base::gsub(pattern, replacement, x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(c("Unknown", "USA", "", NA_character_)), c(TRUE, FALSE, TRUE, FALSE))
+  expect_identical(normalizations, integer())
+  expect_identical(fn(c("not   available", "ok", "  ")), c(TRUE, FALSE, TRUE))
+  expect_identical(normalizations, c(2L, 2L))
+})
