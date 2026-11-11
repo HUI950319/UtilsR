@@ -1047,3 +1047,20 @@ test_that("butterfly minmax scales scores without splitting complete frames", {
   expect_identical(lapply(seq_along(p), function(i) p[[i]]$data),
                    lapply(seq_along(q), function(i) q[[i]]$data))
 })
+
+test_that("butterfly wide conversion materializes only shared categories", {
+  d <- data.frame(category = rep(c("A", "B", "left", "B", "A", "right"), each = 3L),
+                  group = rep(c("L", "R"), each = 9L), score = 1:18)
+  draw <- function(fn) fn(d, stat.by = "category", value.by = "score", group.by = "group", type = "box")
+  expected <- draw(PlotButterfly2)
+  fn <- PlotButterfly2
+  env <- new.env(parent = environment(fn))
+  env$as.data.frame <- function(x, ...) {
+    if (is.list(x) && !is.object(x) && length(x) > 2L) stop("materialized an exclusive butterfly category")
+    base::as.data.frame(x, ...)
+  }
+  environment(fn) <- env
+  result <- draw(fn)
+  expect_identical(lapply(seq_along(result), function(i) result[[i]]$data),
+                   lapply(seq_along(expected), function(i) expected[[i]]$data))
+})

@@ -254,29 +254,29 @@ PlotButterfly2 <- function(
   # Path A: fill.by = NULL AND non-beeswarm → delegate to PlotButterfly
   # ==================================================================
   if (is.null(fill.by) && !is_beeswarm) {
-    .to_wide <- function(df) {
-      categories <- as.character(df[[stat.by]])
+    category <- as.character(data[[stat.by]])
+    group <- as.character(data[[group.by]])
+    left <- which(group == groups[1L])
+    right <- which(group == groups[2L])
+    common_ct <- intersect(category[left], category[right])
+    if (!length(common_ct)) cli::cli_abort("No common {.arg stat.by} categories.")
+    .to_wide <- function(index) {
+      categories <- category[index]
       cts <- unique(categories)
-      rows <- split(seq_along(categories), match(categories, cts))
+      rows <- split(index, match(categories, cts))
       max_n <- max(lengths(rows))
-      values <- df[[value.by]]
-      mat <- lapply(rows, function(idx) values[idx[seq_len(max_n)]])
-      names(mat) <- NULL
-      out <- as.data.frame(mat)
-      colnames(out) <- cts
+      mat <- lapply(rows[match(common_ct, cts)], function(idx) {
+        data[[value.by]][idx[seq_len(max_n)]]
+      })
+      out <- as.data.frame(unname(mat))
+      names(out) <- common_ct
       out
     }
 
-    wide_left  <- .to_wide(data[as.character(data[[group.by]]) == groups[1], ])
-    wide_right <- .to_wide(data[as.character(data[[group.by]]) == groups[2], ])
-    common_ct  <- intersect(colnames(wide_left), colnames(wide_right))
-    if (length(common_ct) == 0L)
-      cli::cli_abort("No common {.arg stat.by} categories.")
-
     combined <- PlotButterfly(
       type = "violin",
-      data.left  = wide_left[,  common_ct, drop = FALSE],
-      data.right = wide_right[, common_ct, drop = FALSE],
+      data.left  = .to_wide(left),
+      data.right = .to_wide(right),
       left.title = left.title, right.title = right.title,
       levels = levels, palette = palette, alpha = alpha,
       add_box = (type %in% c("violin_box", "box")), box.width = box.width,

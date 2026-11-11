@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Mirrored butterfly distributions build only shared category columns and retain their original padding and order.
+
 * Min-max butterfly bars scale only the score vector before applying one row permutation to the plot data.
 
 * UpSet membership compares exact numeric dates, instants and elapsed durations without formatting every value as a string.
