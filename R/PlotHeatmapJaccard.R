@@ -188,9 +188,10 @@ PlotHeatmapJaccard <- function(
   indexable_groups <- identical(class(group_values), "factor") ||
     identical(class(group_values), c("ordered", "factor")) ||
     (is.character(group_values) && !is.object(group_values))
-  base_groups <- !is.object(group_values) && !is.object(ct_names) &&
-    ((is.numeric(group_values) && is.numeric(ct_names)) ||
-     (is.logical(group_values) && is.logical(ct_names)))
+  lookup_levels <- if (inherits(ct_names, "haven_labelled")) as.vector(ct_names) else ct_names
+  base_groups <- !is.object(group_values) && !is.object(lookup_levels) &&
+    ((is.numeric(group_values) && is.numeric(lookup_levels)) ||
+     (is.logical(group_values) && is.logical(lookup_levels)))
   time_groups <- timespan[1L] && identical(class(group_values), class(ct_names))
   integer64_levels <- inherits(ct_names, "integer64")
   integer64_groups <- (integer64[1L] && integer64_levels) ||
@@ -199,10 +200,10 @@ PlotHeatmapJaccard <- function(
     (integer64[3L] && !is.object(group_values) && is.numeric(group_values) &&
        !is.complex(group_values))
   group_rows <- if (base_groups || time_groups || integer64_groups ||
-                    (indexable_groups && is.character(ct_names) && !is.object(ct_names))) {
+                    (indexable_groups && is.character(lookup_levels) && !is.object(lookup_levels))) {
     rows <- which(non_missing)
     keys <- group_values[rows]
-    labels <- ct_names
+    labels <- lookup_levels
     if (time_groups) {
       keys <- vctrs::vec_proxy_equal(keys)
       labels <- vctrs::vec_proxy_equal(labels)

@@ -797,3 +797,20 @@ test_that("logical Jaccard groups share one row index", {
   expect_identical(rownames(m), c("TRUE", "FALSE"))
   expect_equal(m[1L, 2L], 1 / 3)
 })
+
+test_that("labelled Jaccard groups use their underlying codes", {
+  skip_if_not_installed("haven")
+  d <- data.frame(cell_type = haven::labelled_spss(c(4, 9, 99, 4, 9),
+    labels = c(A = 4, B = 9, Missing = 99), na_values = 99),
+    gene = c("x", "x", "z", "y", "w"))
+  fn <- PlotHeatmapJaccard
+  env <- new.env(parent = environment(fn))
+  env[["=="]] <- function(x, y) {
+    if (is.double(x) && length(x) == nrow(d)) stop("rescanned labelled groups")
+    base::`==`(x, y)
+  }
+  environment(fn) <- env
+  m <- fn(d, return_type = "data")
+  expect_identical(rownames(m), c("4", "9"))
+  expect_equal(m[1L, 2L], 1 / 3)
+})
