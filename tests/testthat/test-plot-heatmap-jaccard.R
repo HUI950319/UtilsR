@@ -827,3 +827,21 @@ test_that("indexed Jaccard groups avoid expanding scalar keys", {
   expect_identical(fn(d, return_type = "data"),
     matrix(c(1, 1 / 3, 1 / 3, 1), 2L, dimnames = list(c("5", "9"), c("5", "9"))))
 })
+
+test_that("sparse Jaccard intersections compare only shared features", {
+  d <- data.frame(cell_type = rep(letters[1:8], each = 100L), gene = seq_len(800L))
+  d$gene[seq.int(1L, 800L, by = 100L)] <- 0L
+  d$gene[c(2L, 102L)] <- -1L
+  expected <- PlotHeatmapJaccard(d, return_type = "data")
+  fn <- PlotHeatmapJaccard
+  env <- new.env(parent = environment(fn))
+  env[["%in%"]] <- function(x, table) {
+    if (is.integer(x) && length(x) > 2L) stop("compared globally unique features")
+    base::`%in%`(x, table)
+  }
+  environment(fn) <- env
+  result <- fn(d, return_type = "data")
+  expect_identical(result, expected)
+  expect_equal(result["a", "b"], 2 / 198)
+  expect_equal(result["a", "c"], 1 / 199)
+})

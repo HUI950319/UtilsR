@@ -256,6 +256,18 @@ PlotHeatmapJaccard <- function(
                  dimnames = list(ct_labels, ct_labels))
   diag(jmat) <- as.double(set_sizes > 0L)
   occupied <- which(set_sizes > 0L)
+  if (!typed_features && length(occupied) > 4L) {
+    membership <- unlist(top_sets, use.names = FALSE)
+    shared <- duplicated(membership) | duplicated(membership, fromLast = TRUE)
+    if (!all(shared)) {
+      end <- cumsum(set_sizes)
+      for (i in occupied) {
+        rows <- seq.int(end[i] - set_sizes[i] + 1, end[i])
+        top_sets[[i]] <- top_sets[[i]][shared[rows]]
+      }
+      occupied <- which(lengths(top_sets) > 0L)
+    }
+  }
   for (pos in seq_along(occupied)) {
     i <- occupied[pos]
     for (j in occupied[seq_len(pos - 1L)]) {

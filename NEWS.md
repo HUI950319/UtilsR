@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Jaccard pairwise comparisons skip globally unique features while still counting them in union sizes.
+
 * Dumbbell delta labels and dot guides position correctly when the two endpoint columns carry different value labels.
 
 * Circular lollipop top-N selection projects only the required data.table columns before taking rows.
