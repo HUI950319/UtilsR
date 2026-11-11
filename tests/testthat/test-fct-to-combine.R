@@ -464,3 +464,18 @@ test_that("sparse factor combinations inspect only incomplete inputs", {
   expect_identical(as.character(actual), expected)
   expect_identical(fn(c(NA, 1), c(2, NA)), factor(rep(NA_character_, 2L)))
 })
+
+test_that("combined factor codes use a direct group permutation", {
+  a <- factor(rep(c("B", "A", NA, "B"), 200L), levels = c("A", "B"))
+  b <- rep(c(1L, 3L, 4L, 2L), 200L)
+  fn <- fct_to_combine.default
+  env <- new.env(parent = environment(fn))
+  env$match <- function(x, table, ...) {
+    if (is.integer(x) && length(x) > 500L) stop("rehashed all row codes")
+    base::match(x, table, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(a, b), fct_to_combine(a, b))
+  expect_identical(fn(droplevels(a[!is.na(a)]), b[!is.na(a)]),
+                   fct_to_combine(droplevels(a[!is.na(a)]), b[!is.na(a)]))
+})

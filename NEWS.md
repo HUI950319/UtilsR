@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Factor combinations assign final codes through a group permutation without rehashing each observation.
+
 * KNN builds one row mask and stops scanning columns once all rows contain observations.
 
 * `stat_ci_parse()` only formats valid interval endpoints in mixed table output.

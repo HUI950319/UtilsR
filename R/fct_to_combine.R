@@ -282,10 +282,13 @@ fct_to_combine.default <- function(..., sep = " & ") {
     ))
   }
 
+  positions <- integer(length(ord))
+  positions[ord] <- seq_along(ord)
+  result <- positions[ids]
   if (!is.null(complete_rows)) {
-    result <- rep.int(NA_integer_, n)
-    result[complete_rows] <- match(ids, ids[first])
-    return(structure(result, levels = lvls, class = "factor"))
+    full <- rep.int(NA_integer_, n)
+    full[complete_rows] <- result
+    result <- full
   }
-  structure(match(ids, ids[first]), levels = lvls, class = "factor")
+  structure(result, levels = lvls, class = "factor")
 }
