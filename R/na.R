@@ -161,16 +161,9 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
     text[x > 0 & x < 10^(-digits)] <- paste0("<", sprintf(fmt, 10^(-digits)))
     text
   }
-  res_na <- res_na %>%
-    dplyr::mutate(
-      missing_combined = sprintf("%.0f (%s)", missing_count, format_pct(missing_percentage, 1L)),
-      special_combined = sprintf("%.0f (%s)", special_count, format_pct(special_percentage, 1L)),
-      total_issues = missing_count + special_count
-    )
-
   if (!show_all) {
     res_na <- res_na %>%
-      dplyr::filter(total_issues > 0)
+      dplyr::filter(missing_count + special_count > 0)
   }
 
   res_na <- res_na %>%
@@ -185,6 +178,10 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
   total_special_vars <- sum(res_na$special_count > 0)
 
   gt_table <- res_na %>%
+    dplyr::mutate(
+      missing_combined = sprintf("%.0f (%s)", missing_count, format_pct(missing_percentage, 1L)),
+      special_combined = sprintf("%.0f (%s)", special_count, format_pct(special_percentage, 1L))
+    ) %>%
     dplyr::select(variable, missing_combined, special_combined, data_type) %>%
     gt::gt() %>%
     gt::tab_header(

@@ -645,3 +645,19 @@ test_that("complete inspection columns avoid allocating missing masks", {
   expect_identical(fn(c(1, NaN, NA_real_, 3)), 2L)
   expect_identical(fn(factor(c("a", NA))), 1L)
 })
+
+test_that("quality reports format only displayed variables", {
+  d <- as.data.frame(setNames(rep(list(1:4), 64L), paste0("complete", seq_len(64L))))
+  d$missing <- c(1, 2, NA, 4)
+  fn <- check_na
+  env <- new.env(parent = environment(fn))
+  formatted <- integer()
+  env$sprintf <- function(fmt, ...) {
+    if (identical(fmt, "%.0f (%s)")) formatted <<- c(formatted, length(list(...)[[1L]]))
+    base::sprintf(fmt, ...)
+  }
+  environment(fn) <- env
+  seen <- capture_gt_data(fn(d))
+  expect_identical(formatted, c(1L, 1L))
+  expect_identical(seen[[1L]]$missing_combined, "1 (25.0%)")
+})
