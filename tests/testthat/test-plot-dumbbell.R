@@ -758,3 +758,17 @@ test_that("mixed integer64 dumbbells preserve fractional and large paired differ
     expect_identical(ggplot2::layer_data(inset, length(inset$layers))$label, label)
   }
 })
+
+test_that("dumbbell endpoint positions ignore incompatible value labels", {
+  skip_if_not_installed("haven")
+  d <- data.frame(start = haven::labelled(1:3, c(low = 1)),
+    end = haven::labelled(2:4, c(medium = 2)), category = letters[1:3])
+  reference <- data.frame(start = 1:3, end = 2:4, category = letters[1:3])
+  actual <- dumbbell_plot(d, show_delta = TRUE, dot_guide = TRUE)
+  expected <- dumbbell_plot(reference, show_delta = TRUE, dot_guide = TRUE)
+  a <- suppressWarnings(ggplot2::ggplot_build(actual)$data)
+  b <- ggplot2::ggplot_build(expected)$data
+  expect_equal(as.double(a[[1L]]$xend), as.double(b[[1L]]$xend))
+  expect_equal(as.double(tail(a, 1L)[[1L]]$x), as.double(tail(b, 1L)[[1L]]$x))
+  expect_identical(actual$data$start, d$start)
+})

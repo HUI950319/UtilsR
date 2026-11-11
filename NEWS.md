@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Dumbbell delta labels and dot guides position correctly when the two endpoint columns carry different value labels.
+
 * Circular lollipop top-N selection projects only the required data.table columns before taking rows.
 
 * `PlotButterfly2()` avoids copying unrelated data.table payload before computing the mirrored distributions.

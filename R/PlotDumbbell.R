@@ -351,7 +351,7 @@ PlotDumbbell <- function(
     p <- p +
       ggplot2::geom_segment(
         ggplot2::aes(
-          x = !!x_min, xend = pmax(.data[[x_col]], .data[[xend_col]]),
+          x = !!x_min, xend = .dumbbell_endpoint_max(.data[[x_col]], .data[[xend_col]]),
           y = .data[[y_col]], yend = .data[[y_col]]
         ),
         color = dot_guide_color, linewidth = dot_guide_size,
@@ -430,7 +430,7 @@ PlotDumbbell <- function(
   # ---- Delta labels ----
   if (show_delta) {
     data[[delta_label_var]] <- round(data[[delta_var]], delta_digits)
-    data[[delta_x_var]] <- pmax(data[[x_col]], data[[xend_col]])
+    data[[delta_x_var]] <- .dumbbell_endpoint_max(data[[x_col]], data[[xend_col]])
     p <- p +
       ggplot2::geom_text(
         data = data,
@@ -540,6 +540,12 @@ PlotDumbbell <- function(
   invisible(p)
 }
 
+
+.dumbbell_endpoint_max <- function(x, y) {
+  if (inherits(x, "haven_labelled")) x <- vctrs::vec_data(x)
+  if (inherits(y, "haven_labelled")) y <- vctrs::vec_data(y)
+  pmax(x, y)
+}
 
 .mean_plot_values <- function(value, na.rm = TRUE) {
   if (!inherits(value, "integer64")) return(mean(value, na.rm = na.rm))
