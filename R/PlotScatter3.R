@@ -346,8 +346,8 @@ PlotScatter3 <- function(
 
   # ---- Correlation ----
   if (cor_method != "none") {
-    correlation_x <- if (cor_method != "pearson" && inherits(raw_x, "integer64")) raw_x else x_values
-    correlation_y <- if (cor_method != "pearson" && inherits(raw_y, "integer64")) raw_y else y_values
+    correlation_x <- if (inherits(raw_x, "integer64")) raw_x else x_values
+    correlation_y <- if (inherits(raw_y, "integer64")) raw_y else y_values
     cor_res <- .scatter_cor_test(correlation_x, correlation_y, method = cor_method)
     r_val <- round(cor_res$estimate, 3)
     r_prefix <- switch(cor_method, spearman = "rho", kendall = "tau", "r")

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Pearson scatter annotations retain the small differences between large integer64 coordinates.
+
 * The package inventory skips ANSI truncation for paths that already fit the display.
 
 * Numeric `lv()` listings calculate integer64 means before converting values for display.

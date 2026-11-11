@@ -584,11 +584,15 @@ PlotScatter1 <- function(
 .scatter_cor_test <- function(x, y, method) {
   pearson <- identical(method, "pearson")
   rank_axis <- function(value) {
-    if (!pearson && inherits(value, "integer64")) {
-      .register_integer64(value)
-      return(vctrs::vec_rank(value, ties = "min", incomplete = "na"))
+    if (!inherits(value, "integer64")) return(.scatter_axis_values(value))
+    .register_integer64(value)
+    if (!pearson) return(vctrs::vec_rank(value, ties = "min", incomplete = "na"))
+    if (any(!is.na(value))) {
+      bounds <- range(value, na.rm = TRUE)
+      span <- suppressWarnings(as.double(bounds[2L] - bounds[1L]))
+      if (is.finite(span) && span <= 2^53) return(as.double(value - bounds[1L]))
     }
-    .scatter_axis_values(value)
+    suppressWarnings(as.double(value))
   }
   x <- rank_axis(x)
   y <- rank_axis(y)

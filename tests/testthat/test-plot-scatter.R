@@ -1642,3 +1642,19 @@ test_that("marginal scatter rank annotations retain exact integer64 order", {
   expect_equal(label$x, 2)
   expect_equal(label$y, 3)
 })
+
+test_that("Pearson scatter correlations use exact centered integer64 differences", {
+  skip_if_not_installed("bit64")
+  d <- data.frame(Control = bit64::as.integer64("9007199254740992") + bit64::as.integer64(0:5),
+                  Treat = 1:6, group = rep(c("a", "b"), 3L))
+  expected <- .scatter_cor_test(1:6, d$Treat, "pearson")
+  quiet <- function(expr) withCallingHandlers(expr, warning = function(w) {
+    if (grepl("integer precision lost", conditionMessage(w), fixed = TRUE)) invokeRestart("muffleWarning")
+  })
+  actual <- quiet(.scatter_cor_test(d$Control, d$Treat, "pearson"))
+  expect_equal(actual$estimate, expected$estimate)
+  expect_equal(actual$p.value, expected$p.value)
+  p <- quiet(scatter3_capture_inset(d, cor_method = "pearson", test_method = "none",
+                                    show_refline = FALSE))
+  expect_match(quiet(ggplot2::layer_data(p$main, 2L))$label, "^r = 1,")
+})
