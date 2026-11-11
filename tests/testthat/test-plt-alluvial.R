@@ -993,3 +993,24 @@ test_that("alluvial observed factor levels reuse integer codes", {
   expect_identical(levels(droplevels(observed$.cat_var)), c("first", "later"))
   expect_identical(levels(droplevels(observed$.group)), c("A", "B"))
 })
+
+test_that("Alluvial projects selected data.table columns without copying unused data", {
+  skip_if_not_installed("data.table")
+  skip_if_not_installed("ggalluvial")
+  withr::local_options(lifecycle_verbosity = "quiet")
+  d <- alluvial_data()
+  x <- data.table::as.data.table(d)
+  x$payload <- lapply(seq_len(nrow(x)), function(i) raw(1000L))
+  fn <- plt_alluvial
+  env <- new.env(parent = environment(fn))
+  env$as.data.frame <- function(x, ...) {
+    if (inherits(x, "data.table") && "payload" %in% names(x)) stop("copied unused table columns")
+    base::as.data.frame(x, ...)
+  }
+  environment(fn) <- env
+  before <- data.table::copy(x)
+  reference <- suppressMessages(plt_alluvial(d, "category", "group", facet = "panel"))
+  result <- suppressMessages(fn(x, "category", "group", facet = "panel"))
+  expect_identical(result$data, reference$data)
+  expect_identical(x, before)
+})

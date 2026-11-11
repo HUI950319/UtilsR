@@ -220,7 +220,12 @@ plt_alluvial <- function(
       "{.arg cat_var}, {.arg group}, and {.arg facet} must name different columns."
     )
   }
-  data <- as.data.frame(data)[required]
+  data <- if (inherits(data, "data.table")) {
+    vctrs::new_data_frame(stats::setNames(lapply(required, function(nm) data[[nm]]), required),
+                          n = nrow(data))
+  } else {
+    as.data.frame(data)[required]
+  }
 
   flow_args <- .merge_args(
     flow_args,
