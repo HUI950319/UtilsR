@@ -972,3 +972,21 @@ test_that("butterfly distributions decode cold integer64 scores", {
     expect_true("COLD_DISTRIBUTION_OK" %in% output, info = paste(output, collapse = "\n"))
   }
 })
+
+test_that("butterfly distribution layers exclude SPSS missing scores", {
+  skip_if_not_installed("haven")
+  d <- data.frame(category = rep("A", 8L), fill = "one", group = rep(c("L", "R"), each = 4L),
+    score = haven::labelled_spss(c(1, 99, 3, 4, 2, 4, 6, 8), na_values = 99))
+  reference <- d
+  reference$score <- c(1, NA, 3, 4, 2, 4, 6, 8)
+  for (fill in list(NULL, "fill")) {
+    draw <- function(x) PlotButterfly2(x, stat.by = "category", fill.by = fill,
+      value.by = "score", group.by = "group", type = "box")
+    result <- draw(d)
+    expected <- draw(reference)
+    layers <- function(plot) lapply(seq_along(plot), function(i) {
+      suppressWarnings(ggplot2::ggplot_build(plot[[i]])$data)
+    })
+    expect_equal(layers(result), layers(expected))
+  }
+})

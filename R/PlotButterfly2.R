@@ -232,6 +232,9 @@ PlotButterfly2 <- function(
   for (col in unique(c(stat.by, fill.by, group.by))) {
     data[[col]] <- .butterfly_category_labels(data[[col]])
   }
+  if (inherits(data[[value.by]], "haven_labelled_spss")) {
+    data[[value.by]] <- .scatter_axis_values(data[[value.by]])
+  }
 
   # ---- Two groups ----
   groups <- unique(as.character(data[[group.by]]))

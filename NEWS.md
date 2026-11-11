@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotButterfly2()` converts SPSS user-missing score codes before both box and violin paths.
+
 * Sankey level reversal retains the distinct explicit NA level and truly missing rows.
 
 * All-missing or unparseable CI input keeps its warnings and output types without running interval calculations.
