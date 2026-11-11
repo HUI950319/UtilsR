@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `check_na()` styles only severity ranges present in the displayed rows.
+
 * `check_na()` formats missing and special-value counts after filtering rows for display.
 
 * `fmt_his()` treats SPSS user-defined missing values as missing before computing histogram counts or densities.

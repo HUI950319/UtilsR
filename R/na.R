@@ -231,70 +231,25 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
     res_na$special_percentage > 0 & res_na$special_percentage <= 10
   )
 
-  gt_table <- gt_table %>%
-    gt::tab_style(
-      style = gt::cell_fill(color = "#ffebee"),
-      locations = gt::cells_body(
-        columns = c("variable", "data_type"),
-        rows = high_missing_rows
-      )
-    ) %>%
-    gt::tab_style(
-      style = gt::cell_fill(color = "#ffcdd2"),
-      locations = gt::cells_body(
-        columns = "missing_combined",
-        rows = high_missing_rows
-      )
-    ) %>%
-    gt::tab_style(
-      style = gt::cell_fill(color = "#fff3e0"),
-      locations = gt::cells_body(
-        columns = c("variable", "data_type"),
-        rows = medium_missing_rows
-      )
-    ) %>%
-    gt::tab_style(
-      style = gt::cell_fill(color = "#ffcc80"),
-      locations = gt::cells_body(
-        columns = "missing_combined",
-        rows = medium_missing_rows
-      )
-    ) %>%
-    gt::tab_style(
-      style = gt::cell_fill(color = "#fef9e7"),
-      locations = gt::cells_body(
-        columns = c("variable", "data_type"),
-        rows = low_missing_rows
-      )
-    ) %>%
-    gt::tab_style(
-      style = gt::cell_fill(color = "#fff176"),
-      locations = gt::cells_body(
-        columns = "missing_combined",
-        rows = low_missing_rows
-      )
-    ) %>%
-    gt::tab_style(
-      style = gt::cell_fill(color = "#90caf9"),
-      locations = gt::cells_body(
-        columns = "special_combined",
-        rows = high_special_rows
-      )
-    ) %>%
-    gt::tab_style(
-      style = gt::cell_fill(color = "#bbdefb"),
-      locations = gt::cells_body(
-        columns = "special_combined",
-        rows = medium_special_rows
-      )
-    ) %>%
-    gt::tab_style(
-      style = gt::cell_fill(color = "#e3f2fd"),
-      locations = gt::cells_body(
-        columns = "special_combined",
-        rows = low_special_rows
-      )
+  fill_cells <- function(table, rows, columns, color) {
+    gt::tab_style(table,
+      style = gt::cell_fill(color = color),
+      locations = gt::cells_body(columns = dplyr::all_of(columns), rows = rows)
     )
+  }
+  missing_rows <- list(high_missing_rows, medium_missing_rows, low_missing_rows)
+  missing_fills <- c("#ffebee", "#fff3e0", "#fef9e7")
+  count_fills <- c("#ffcdd2", "#ffcc80", "#fff176")
+  for (i in which(lengths(missing_rows) > 0L)) {
+    rows <- missing_rows[[i]]
+    gt_table <- fill_cells(gt_table, rows, c("variable", "data_type"), missing_fills[i])
+    gt_table <- fill_cells(gt_table, rows, "missing_combined", count_fills[i])
+  }
+  special_rows <- list(high_special_rows, medium_special_rows, low_special_rows)
+  special_fills <- c("#90caf9", "#bbdefb", "#e3f2fd")
+  for (i in which(lengths(special_rows) > 0L)) {
+    gt_table <- fill_cells(gt_table, special_rows[[i]], "special_combined", special_fills[i])
+  }
 
   total_missing <- sum(res_na$missing_count)
   total_special <- sum(res_na$special_count)

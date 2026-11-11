@@ -661,3 +661,18 @@ test_that("quality reports format only displayed variables", {
   expect_identical(formatted, c(1L, 1L))
   expect_identical(seen[[1L]]$missing_combined, "1 (25.0%)")
 })
+
+test_that("quality reports style only occupied severity ranges", {
+  style_calls <- 0L
+  native <- gt::tab_style
+  local_mocked_bindings(tab_style = function(data, style, locations) {
+    style_calls <<- style_calls + 1L
+    native(data, style, locations)
+  }, .package = "gt")
+  quiet <- function(d) invisible(utils::capture.output(check_na(d, show_all = TRUE)))
+  quiet(data.frame(a = 1:4))
+  expect_identical(style_calls, 2L)
+  style_calls <- 0L
+  quiet(data.frame(a = c(1, 2, 3, NA)))
+  expect_identical(style_calls, 4L)
+})
