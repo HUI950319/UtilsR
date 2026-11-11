@@ -1260,3 +1260,12 @@ test_that("circular lollipop PDF export draws one page", {
   bytes <- readBin(path, "raw", n = file.info(path)$size)
   expect_length(grepRaw("/Type /Page[[:space:]/]", bytes, all = TRUE), 1L)
 })
+
+test_that("circular lollipop groups reject SPSS user-missing codes", {
+  skip_if_not_installed("haven")
+  d <- data.frame(group = haven::labelled_spss(c(1, 99, 2), na_values = 99),
+                  name = letters[1:3], value = 1:3)
+  local_mocked_bindings(circos.initialize = function(...) stop("drawing started"), .package = "circlize")
+  expect_error(PlotCircleLollipop(d, show_labels = FALSE), "Group labels must not be missing")
+  expect_error(PlotCircleLollipop(d[c(1L, 3L), ], show_labels = FALSE), "drawing started")
+})

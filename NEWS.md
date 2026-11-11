@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Circular lollipop plots apply the existing missing-group validation to SPSS user-missing codes.
+
 * Circular lollipop PDF exports start on the page created by circlize and contain a single drawing page.
 
 * Alluvial layouts reuse their already ordered facet and category factors after inserting gaps.

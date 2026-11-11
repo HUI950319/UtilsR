@@ -228,6 +228,7 @@ PlotCircleLollipop <- function(
 
   # ---- Preserve group identity when character labels coincide ----
   group_input <- data[[group_col]]
+  if (inherits(group_input, "haven_labelled_spss")) group_input <- .scatter_axis_values(group_input)
   duration_groups <- inherits(group_input, "Duration")
   group_values <- vctrs::vec_unique(group_input)
   group_keys <- if (duration_groups) vctrs::vec_proxy_equal(group_values) else group_values
