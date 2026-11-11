@@ -258,7 +258,14 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
   observed_rows <- if (length(complete_columns) &&
                        !anyNA(data_for_impute[[complete_columns[[1L]]]])) {
     rep(TRUE, nrow(data_for_impute))
-  } else rowSums(is.na(data_for_impute)) < ncol(data_for_impute)
+  } else {
+    observed <- rep(FALSE, nrow(data_for_impute))
+    for (column in data_for_impute) {
+      observed <- observed | !is.na(column)
+      if (all(observed)) break
+    }
+    observed
+  }
   backend_data <- if (all(observed_rows)) data_for_impute else
     data_for_impute[observed_rows, , drop = FALSE]
   names(backend_data) <- backend_names

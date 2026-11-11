@@ -475,7 +475,7 @@ test_that("KNN complete columns avoid a whole data missingness mask", {
   d$id[3L] <- NA_real_
   examined <- 0L
   expect_no_warning(fn(d, k = 1, verbose = FALSE))
-  expect_gte(examined, nrow(d) * ncol(d))
+  expect_identical(examined, 0L)
   d$id[2L] <- NA_real_
   expect_warning(actual <- fn(d, k = 1, verbose = FALSE), "KNN left")
   expect_true(all(is.na(actual[2L, ])))
@@ -530,4 +530,21 @@ test_that("KNN time restoration converts only imputed dates", {
   expect_identical(converted, 1L)
   expect_identical(result$date, c(dates[1:399], dates[399L]))
   expect_identical(result$complete_date, dates)
+})
+
+test_that("KNN observes rows without allocating a frame-wide missing mask", {
+  skip_if_not_installed("VIM")
+  d <- data.frame(x = c(1, 2, NA, 4, NA), y = c(NA, 2, 3, 4, NA),
+                  z = c(1, NA, 3, 4, NA))
+  reference <- suppressWarnings(impute_na_knn(d, k = 1, verbose = FALSE))
+  fn <- impute_na_knn
+  env <- new.env(parent = environment(fn))
+  env$is.na <- function(x) {
+    if (is.data.frame(x)) stop("constructed a full missingness matrix")
+    base::is.na(x)
+  }
+  environment(fn) <- env
+  expect_warning(result <- fn(d, k = 1, verbose = FALSE), "KNN left")
+  expect_identical(result, reference)
+  expect_true(all(is.na(result[5L, ])))
 })
