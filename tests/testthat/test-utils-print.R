@@ -1404,3 +1404,17 @@ test_that("console P-value parsing skips invalid decimal strings", {
   result <- fn(c(malformed, NA, "<0.001", ">0.05", "0.049"))
   expect_true(identical(result, c(malformed, "NA", "<0.001***", ">0.05", "0.049*")))
 })
+
+test_that("short console labels bypass ANSI truncation", {
+  trimmed <- integer()
+  native <- cli::ansi_strtrim
+  local_mocked_bindings(ansi_strtrim = function(x, ...) {
+    trimmed <<- c(trimmed, length(x))
+    native(x, ...)
+  }, .package = "cli")
+  expect_identical(._pr_trim(c("fits", "small"), 8L), c("fits", "small"))
+  expect_identical(trimmed, integer())
+  expect_identical(._pr_trim(c("fits", "shortened label"), 8L),
+    c("fits", as.character(native("shortened label", 8L))))
+  expect_identical(trimmed, 1L)
+})

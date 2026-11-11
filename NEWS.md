@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Print helpers skip ANSI truncation for labels that already fit.
+
 * Table highlighting matches factor labels once and uses their row codes to locate styled cells.
 
 * `PlotScatter3()` computes paired differences before rounding integer64 axis coordinates for display.

@@ -84,7 +84,7 @@
 
 ._pr_trim <- function(text, width) {
   over <- which(cli::ansi_nchar(text, type = "width") > width)
-  text[over] <- cli::ansi_strtrim(text[over], width)
+  if (length(over)) text[over] <- cli::ansi_strtrim(text[over], width)
   text
 }
 
