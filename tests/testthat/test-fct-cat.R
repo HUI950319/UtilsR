@@ -712,3 +712,18 @@ test_that("factor grouping rejects shaped lists before inspecting values", {
   expect_identical(as.character(fct_cat(factor(c("a", "b")), groups = list(first = 1L))),
                    c("first", "b"))
 })
+
+test_that("factor relabelling checks column names once", {
+  d <- as.data.frame(setNames(rep(list(1:3), 128L), paste0("column", seq_len(128L))))
+  d$grade <- factor(c("a", "b", "a"))
+  fn <- fct_label.data.frame
+  env <- new.env(parent = environment(fn))
+  env[["%in%"]] <- function(x, table) {
+    if (identical(table, names(d))) stop("searched column names twice")
+    base::`%in%`(x, table)
+  }
+  environment(fn) <- env
+  result <- fn(d, grade, c("A", "B"))
+  expect_identical(levels(result$grade), c("A", "B"))
+  expect_identical(result[names(d)[1:128]], d[names(d)[1:128]])
+})

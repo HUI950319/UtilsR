@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fct_label()` checks a data-frame column's presence and uniqueness with one name scan.
+
 * Missingness inspection avoids retesting values already matched by a custom marker.
 
 * Missingness inspection skips the full character membership scan when no distinct value is a special marker.

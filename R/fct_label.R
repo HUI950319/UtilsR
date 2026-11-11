@@ -84,10 +84,11 @@ fct_label.data.frame <- function(x, var, labels, ...) {
       is.na(v) || !nzchar(v)) {
     cli::cli_abort("{.arg var} must be a bare column name or a single non-empty string.")
   }
-  if (!v %in% names(x)) {
+  occurrences <- sum(names(x) == v, na.rm = TRUE)
+  if (occurrences == 0L) {
     cli::cli_abort("Column {.val {v}} not found in the data frame.")
   }
-  if (sum(names(x) == v, na.rm = TRUE) > 1L) {
+  if (occurrences > 1L) {
     cli::cli_abort("Column {.val {v}} occurs more than once in the data frame.")
   }
   relabelled <- fct_cat(x[[v]], new_labels = labels)
