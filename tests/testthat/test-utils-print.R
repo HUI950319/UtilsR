@@ -1472,3 +1472,18 @@ test_that("sparklines check console width once", {
   expect_true(all(nchar(result, type = "width") <= 30L))
   expect_true(all(grepl("NA 33.3%", result, fixed = TRUE)))
 })
+
+test_that("object trees extract root S4 slots once", {
+  generator <- methods::setClass("PrTreeSlotProbe", contains = "numeric",
+    slots = c(label = "character"), where = new.env())
+  x <- generator(c(1, 2), label = "measure")
+  extractions <- character()
+  slot <- methods::slot
+  local_mocked_bindings(slot = function(object, name) {
+    if (identical(object, x)) extractions <<- c(extractions, name)
+    slot(object, name)
+  }, .package = "methods")
+  lines <- utils::capture.output(pr_tree(x))
+  expect_identical(sort(extractions), sort(methods::slotNames(x)))
+  expect_match(lines[1L], "<S4 2>", fixed = TRUE)
+})

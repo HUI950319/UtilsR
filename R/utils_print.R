@@ -1043,7 +1043,8 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
     cli::col_grey(sprintf("<%s %s x %s>", if (inherits(x, "tbl_df")) "tibble" else
       ._pr_escape(class(x)[1]), big(nrow(x)), big(ncol(x))))
   } else if (opens(x, 0)) {
-    cli::col_grey(sprintf("<%s %s>", if (is.list(x)) "list" else "S4", big(length(parts(x)))))
+    part_count <- if (is.list(x)) length(x) else length(methods::slotNames(x))
+    cli::col_grey(sprintf("<%s %s>", if (is.list(x)) "list" else "S4", big(part_count)))
   } else {
     ._obj_desc(x, width - cli::ansi_nchar(class(x)[1], type = "width") - 3L,
                colour = TRUE)
