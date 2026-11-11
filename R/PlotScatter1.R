@@ -536,6 +536,11 @@ PlotScatter1 <- function(
 # Keep exact typed categories separate from their potentially rounded labels.
 .scatter_group_factor <- function(value, levels = vctrs::vec_unique(value)) {
   if (is.factor(value)) return(factor(value, levels = levels))
+  if (!is.object(value) && !is.object(levels) &&
+      typeof(value) %in% c("character", "integer", "logical") &&
+      identical(typeof(value), typeof(levels))) {
+    return(factor(value, levels = levels))
+  }
   if (inherits(value, "haven_labelled_spss")) value <- .scatter_axis_values(value)
   if (inherits(levels, "haven_labelled_spss")) levels <- .scatter_axis_values(levels)
   if (inherits(value, "integer64") && is.numeric(levels) && !is.object(levels) && !is.complex(levels)) {

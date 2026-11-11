@@ -1601,3 +1601,16 @@ test_that("paired scatter infers groups without treating missing labels as a thi
   d$group[5L] <- "C"
   expect_error(scatter3_capture_inset(d, test_method = "none", cor_method = "none"), "exactly 2 levels")
 })
+
+test_that("plain scatter group types use native factor levels", {
+  fn <- .scatter_group_factor
+  env <- new.env(parent = environment(fn))
+  env$.butterfly_category_labels <- function(...) stop("reconstructed ordinary labels")
+  environment(fn) <- env
+  for (x in list(c("two", "", "one", NA), c(2L, 5L, 1L, NA), c(TRUE, FALSE, NA))) {
+    names(x) <- letters[seq_along(x)]
+    levels <- rev(unique(unname(x)))
+    expect_identical(fn(x, levels), factor(x, levels = levels))
+    expect_identical(fn(x), factor(x, levels = vctrs::vec_unique(x)))
+  }
+})

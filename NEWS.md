@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Scatter grouping skips display-label reconstruction for matching plain character, integer, and logical keys.
+
 * Independent continuous panels keep partial zoom limits on the requested data side after reversing the value axis.
 
 * Stacked continuous plots respect partial quantile limits on reversed value scales.
