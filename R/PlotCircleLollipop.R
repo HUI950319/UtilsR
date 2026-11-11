@@ -264,7 +264,12 @@ PlotCircleLollipop <- function(
       dplyr::slice_max(order_by = .data[["score"]], n = top_n, with_ties = FALSE) |>
       dplyr::pull("row_id")
     columns <- unique(c(group_col, name_col, value_col, intersect(color_col, names(data))))
-    data <- as.data.frame(data)[selected, columns, drop = FALSE]
+    if (inherits(data, "data.table")) {
+      data <- vctrs::new_data_frame(stats::setNames(lapply(columns, function(nm) data[[nm]][selected]),
+                                                   columns), n = length(selected))
+    } else {
+      data <- as.data.frame(data)[selected, columns, drop = FALSE]
+    }
   }
 
   # ---- Normalise to standard column names ----

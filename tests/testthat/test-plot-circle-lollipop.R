@@ -1235,3 +1235,19 @@ test_that("circular full group bounds reuse the original rows", {
     show_labels = FALSE, show_links = FALSE, show_yaxis = FALSE)
   expect_identical(observed, c(1, .25, 1, .2))
 })
+
+test_that("circular top rows avoid copying unselected data.table columns", {
+  skip_if_not_installed("data.table")
+  d <- data.frame(group = rep(c("A", "B"), each = 3L), name = letters[1:6], value = 1:6)
+  x <- data.table::as.data.table(d)
+  x$unused <- lapply(seq_len(nrow(x)), function(i) raw(3000L))
+  fn <- PlotCircleLollipop
+  env <- new.env(parent = environment(fn))
+  env$as.data.frame <- function(x, ...) {
+    if (inherits(x, "data.table") && "unused" %in% names(x)) stop("copied unused circular plot columns")
+    base::as.data.frame(x, ...)
+  }
+  environment(fn) <- env
+  local_mocked_bindings(circos.initialize = function(...) stop("drawing started"), .package = "circlize")
+  expect_error(fn(x, top_n = 2, show_labels = FALSE), "drawing started")
+})

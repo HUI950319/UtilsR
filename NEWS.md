@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Circular lollipop top-N selection projects only the required data.table columns before taking rows.
+
 * `PlotButterfly2()` avoids copying unrelated data.table payload before computing the mirrored distributions.
 
 * `PlotButterfly2()` converts SPSS user-missing score codes before both box and violin paths.
