@@ -817,6 +817,34 @@ plt_cat <- function(data,
     if (!is.factor(data[[group.by]])) data[[group.by]] <- factor(data[[group.by]])
     dimensions <- c(dimensions, nlevels(data[[group.by]]))
   }
+  if (!keep_empty && !is.null(group.by) &&
+      !anyNA(levels(data[[stat.by]])) && !anyNA(levels(data[[group.by]])) &&
+      !anyNA(data[[stat.by]]) && !anyNA(data[[group.by]])) {
+    stat_code <- as.integer(data[[stat.by]])
+    group_code <- as.integer(data[[group.by]])
+    ids <- vctrs::vec_group_id(data.frame(stat_code, group_code))
+    first <- !duplicated(ids)
+    order_at <- order(group_code[first], stat_code[first])
+    i <- stat_code[first][order_at]
+    j <- group_code[first][order_at]
+    df <- data.frame(
+      stat_var = factor(levels(data[[stat.by]])[i], levels = levels(data[[stat.by]])),
+      group_var = factor(levels(data[[group.by]])[j], levels = levels(data[[group.by]])),
+      n = tabulate(ids, attr(ids, "n"))[order_at]
+    )
+    if (stat == "percent") {
+      total <- ave(df$n, df$group_var, FUN = sum)
+      df$value <- ifelse(total > 0, df$n / total * 100, 0)
+      df$label_text <- sprintf("%.1f%%", df$value)
+      return(dplyr::as_tibble(df))
+    }
+    row_id <- (as.double(j) - 1L) * dimensions[1L] + i
+    rownames(df) <- if (all(row_id <= .Machine$integer.max)) as.integer(row_id) else
+      format(row_id, scientific = FALSE, trim = TRUE)
+    df$value <- df$n
+    df$label_text <- as.character(df$n)
+    return(df)
+  }
   if (prod(as.double(dimensions)) >= 2^31) {
     cli::cli_abort("A categorical frequency table must contain fewer than 2^31 cells. Reduce factor levels or use {.arg keep_empty = FALSE}.")
   }

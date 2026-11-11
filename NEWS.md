@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Categorical plots with `keep_empty = FALSE` count observed pairs directly when neither factor has missing levels or values.
+
 * Continuous dot plots group original keys directly and compute sort indices only for distinct strata.
 
 * `plt_con(split.by = ...)` indexes split groups once, including blank labels and observed explicit missing levels.

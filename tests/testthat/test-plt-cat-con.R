@@ -1276,3 +1276,17 @@ test_that("categorical limits count distinct period components", {
   small <- cat_test_plot(d[c(2L, 1L, 2L), , drop = FALSE], "s", stat = "count")
   expect_equal(sort(small$data$n), c(1L, 2L))
 })
+
+test_that("sparse categorical counts avoid building an empty grid", {
+  d <- data.frame(s = ordered(c("b", "", "b", "c"), levels = c("c", "b", "a", "")),
+    g = factor(c("z", "z", "z", "y"), levels = c("z", "unused", "y")))
+  fn <- .prepare_cat_data
+  env <- new.env(parent = environment(fn))
+  env$table <- function(...) stop("built the full categorical grid")
+  environment(fn) <- env
+  for (stat in c("count", "percent")) {
+    original <- .prepare_cat_data(d, "s", "g", stat, keep_empty = TRUE)
+    expected <- original[original$n > 0L, , drop = FALSE]
+    expect_identical(fn(d, "s", "g", stat), expected)
+  }
+})
