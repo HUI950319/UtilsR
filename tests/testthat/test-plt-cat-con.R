@@ -1259,3 +1259,12 @@ test_that("categorical UpSet reuses repeated membership patterns", {
   expect_identical(p$data$intersection, rep(list("A", "B", c("A", "B")), 20L))
   expect_equal(sum(ggplot2::layer_data(p)$count), 60)
 })
+
+test_that("categorical limits count SPSS missing values as one display group", {
+  skip_if_not_installed("haven")
+  d <- data.frame(s = haven::labelled_spss(c(1, 2, 101:201), na_range = c(101, 201)))
+  p <- cat_test_plot(d, "s", stat = "count")
+  expect_equal(p$data$n, c(1L, 1L))
+  with_missing <- cat_test_plot(d, "s", stat = "count", NA_stat = TRUE)
+  expect_equal(sort(with_missing$data$n), c(1L, 1L, 101L))
+})

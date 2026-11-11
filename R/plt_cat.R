@@ -427,6 +427,12 @@ plt_cat <- function(data,
       x <- data[[col]]
       if (type %in% std_types && keep_empty && col %in% c(stat.by, group.by) && is.factor(x)) {
         nlevels(x)
+      } else if (inherits(x, "haven_labelled_spss")) {
+        if (!requireNamespace("haven", quietly = TRUE)) {
+          cli::cli_abort("Inspecting {.cls {class(x)[1]}} columns requires package {.pkg haven}.")
+        }
+        missing <- is.na(x)
+        length(unique(vctrs::vec_data(x)[!missing])) + as.integer(NA_stat && any(missing))
       } else {
         length(unique(x))
       }
