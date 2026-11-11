@@ -676,3 +676,18 @@ test_that("quality reports style only occupied severity ranges", {
   quiet(data.frame(a = c(1, 2, 3, NA)))
   expect_identical(style_calls, 4L)
 })
+
+test_that("clean character values avoid building special membership", {
+  x <- rep(paste0("identifier", seq_len(500L)), 2L)
+  fn <- .count_special_values
+  env <- new.env(parent = environment(fn))
+  env$match <- function(x, table, ...) {
+    if (length(x) == 1000L) stop("full character membership")
+    base::match(x, table, ...)
+  }
+  environment(fn) <- env
+  expect_equal(fn(x), 0)
+  with_markers <- c(x, "missing", "unknown", NA_character_, "n/a", "unknown")
+  expect_equal(fn(with_markers), 4)
+  expect_equal(fn(with_markers, c("^unknown$", "^missing$")), 3)
+})

@@ -315,7 +315,9 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
     n <- n[observed]
   } else {
     u <- unique(x)
-    n <- tabulate(match(x, u), nbins = length(u))
+    markers <- u[.is_special_value(u, special) & !is.na(u)]
+    if (!length(markers)) return(0)
+    return(sum(x %in% markers) + 0)
   }
   missing <- is.na(u)
   hit <- .is_special_value(u, special)

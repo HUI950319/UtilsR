@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Missingness inspection skips the full character membership scan when no distinct value is a special marker.
+
 * `check_na()` styles only severity ranges present in the displayed rows.
 
 * `check_na()` formats missing and special-value counts after filtering rows for display.
