@@ -479,3 +479,17 @@ test_that("combined factor codes use a direct group permutation", {
   expect_identical(fn(droplevels(a[!is.na(a)]), b[!is.na(a)]),
                    fct_to_combine(droplevels(a[!is.na(a)]), b[!is.na(a)]))
 })
+
+test_that("plain combination encodes only the complete observations", {
+  a <- c(10, 20, 10, NA, NA, 30, NA, NA)
+  b <- c("one", "one", "two", "unused", "extra", NA, "extra", "never")
+  reference <- fct_to_combine(a, b)
+  unique <- vctrs::vec_unique
+  local_mocked_bindings(vec_unique = function(x, ...) {
+    if (is.double(x) && length(x) == length(a)) stop("encoded discarded observations")
+    unique(x, ...)
+  }, .package = "vctrs")
+  result <- fct_to_combine(a, b)
+  expect_identical(result, reference)
+  expect_identical(levels(result), c("10 & one", "10 & two", "20 & one"))
+})

@@ -250,8 +250,10 @@ fct_to_combine.default <- function(..., sep = " & ") {
     values <- values[ord]
     list(codes = vctrs::vec_match(v, values), labels = as.character(values))
   }
-  inputs <- unname(lapply(args, encode_input))
-  if (!plain) missing_rows <- Reduce(`|`, lapply(args, is.na))
+  if (!plain) {
+    inputs <- unname(lapply(args, encode_input))
+    missing_rows <- Reduce(`|`, lapply(args, is.na))
+  }
 
   complete_rows <- NULL
   if (length(missing_rows) && any(missing_rows)) {
@@ -261,9 +263,13 @@ fct_to_combine.default <- function(..., sep = " & ") {
     }
   }
 
+  if (plain) {
+    if (!is.null(complete_rows)) args <- lapply(args, function(v) v[complete_rows])
+    inputs <- unname(lapply(args, encode_input))
+  }
   # Group integer codes before building labels; repeated rows need no strings.
   codes <- lapply(inputs, `[[`, "codes")
-  if (!is.null(complete_rows)) {
+  if (!plain && !is.null(complete_rows)) {
     codes <- lapply(codes, function(v) v[complete_rows])
   }
   names(codes) <- paste0("v", seq_along(codes))
