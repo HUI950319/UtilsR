@@ -1096,3 +1096,22 @@ test_that("patchwork restoration replaces only changed children", {
   expect_identical(result[[3L]]$labels$title, "Changed")
   expect_identical(result$patches$annotation$title, "Original")
 })
+
+test_that("filled strip borders reuse the global theme across plots", {
+  skip_if_not_installed("ggh4x")
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg)) + ggplot2::geom_point() +
+    ggplot2::facet_wrap(ggplot2::vars(cyl))
+  reference <- fmt_strip(list(p, p), label_fill = "pink")
+  getter <- ggplot2::theme_get
+  calls <- 0L
+  local_mocked_bindings(theme_get = function() {
+    calls <<- calls + 1L
+    getter()
+  }, .package = "ggplot2")
+  result <- fmt_strip(list(p, p), label_fill = "pink")
+  expect_identical(calls, 1L)
+  for (i in seq_along(result)) {
+    expect_identical(lapply(.fmt_strip_text(result[[i]], "rect"), `[[`, "gp"),
+                     lapply(.fmt_strip_text(reference[[i]], "rect"), `[[`, "gp"))
+  }
+})

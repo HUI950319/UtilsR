@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Strip formatting reads the global theme once when coloring borders across several panels.
+
 * Sankey plots avoid copying unrelated data.table columns during input normalization.
 
 * Rank correlation reshaping uses existing singleton scores and averages only repeated method keys.

@@ -2040,8 +2040,10 @@ fmt_strip <- function(plot, label = NULL, label_color = "black", label_fill = NU
   # A fill on a theme without strip backgrounds would otherwise take its border
   # from an unrelated parent element. ggh4x reads NA as "inherit", so the
   # border is made transparent instead.
+  base_theme <- NULL
   border_colour <- function(p) {
-    background <- ggplot2::calc_element("strip.background", ggplot2::theme_get() + p$theme)
+    if (is.null(base_theme)) base_theme <<- ggplot2::theme_get()
+    background <- ggplot2::calc_element("strip.background", base_theme + p$theme)
     if (inherits(background, "element_blank")) "transparent" else NULL
   }
 
