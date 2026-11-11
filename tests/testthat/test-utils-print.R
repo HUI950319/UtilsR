@@ -1448,3 +1448,11 @@ test_that("object trees share a single console width lookup", {
   expect_identical(width_reads, 1L)
   expect_match(paste(lines, collapse = " "), "numbers", fixed = TRUE)
 })
+
+test_that("sparkline means retain cancellation across integer64 extrema", {
+  skip_if_not_installed("bit64")
+  withr::local_options(width = 120L)
+  x <- bit64::as.integer64(c("9223372036854775807", "-9223372036854775806"))
+  lines <- cli::ansi_strip(utils::capture.output(pr_spark(data.frame(score = x))))
+  expect_match(paste(lines, collapse = " "), "mean 0.500", fixed = TRUE)
+})

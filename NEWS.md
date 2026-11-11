@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_spark()` keeps exact cancellation when averaging large integer64 values with opposite signs.
+
 * `pr_tree()` uses one console-width lookup for its labels, attributes and line budget.
 
 * `pr_table()` reuses the same available width for numeric formatting and column placement.

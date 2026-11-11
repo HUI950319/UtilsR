@@ -1279,8 +1279,9 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
         scale <- max(abs(shifted))
         if (scale > 0) spread <- stats::sd(shifted / scale) * scale
       }
+      average <- if (inherits(v, "integer64")) .mean_plot_values(v) else mean(fin)
       return(c(spark(counts),
-               sprintf("mean %s  sd %s", sig3(mean(fin)), sig3(spread)), na))
+               sprintf("mean %s  sd %s", sig3(average), sig3(spread)), na))
     }
     if (is.factor(v) || is.character(v) || is.logical(v)) {
       # an identifier, every value different: count it rather than table() it
