@@ -3301,7 +3301,8 @@ fmt_axisText <- function(plot,
 
   # ---- Combine + extra ... ----
   extra <- if (length(dots)) do.call(ggplot2::theme, dots) else NULL
-  element_names <- names(ggplot2::get_element_tree())
+  axes <- c(if (length(x_args)) "x", if (length(y_args)) "y")
+  element_names <- if (length(axes)) names(ggplot2::get_element_tree())
   text_theme_for <- function(theme, axes = c("x", "y"), guide_angle = NULL) {
     if (!is.null(extra)) theme <- theme + extra
     args <- list()
@@ -3370,9 +3371,9 @@ fmt_axisText <- function(plot,
 
   # ---- Apply to plots ----
   info <- .to_plot_list(plot, recurse = TRUE)
-  axes <- c(if (length(x_args)) "x", if (length(y_args)) "y")
-  global_theme <- ggplot2::theme_get()
+  global_theme <- if (length(axes)) ggplot2::theme_get()
   info$plots <- lapply(info$plots, function(p) {
+    if (!length(axes)) return(p + extra)
     p <- p + text_theme_for(global_theme + p$theme)
     radial <- inherits(p$coordinates, "CoordRadial")
     guide_axes <- if (radial) c(x = "theta", y = "r")[axes] else

@@ -426,3 +426,13 @@ test_that("axis text controls reject encoded numbers while retaining relative si
   p <- ggplot2::ggplot(data.frame(x = 1:3), ggplot2::aes(x, x)) + ggplot2::geom_point()
   expect_s3_class(ggplot2::ggplotGrob(fmt_axisText(p, size = ggplot2::rel(1.2))), "gtable")
 })
+
+test_that("axis text theme overrides skip guide inspection", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg)) + ggplot2::geom_point()
+  margins <- ggplot2::margin(5, 6, 7, 8)
+  expected <- p + ggplot2::theme(plot.margin = margins)
+  local_mocked_bindings(theme_get = function() stop("read the global axis theme"), .package = "ggplot2")
+  result <- fmt_axisText(p, plot.margin = margins)
+  expect_identical(result$theme, expected$theme)
+  expect_identical(result$scales$scales, expected$scales$scales)
+})

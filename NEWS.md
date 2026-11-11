@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_axisText()` applies theme-only overrides without reading the global axis theme or visiting scales.
+
 * `fmt_text()` validates an empty request and returns the plot container without traversing its editable leaves.
 
 * `fmt_axis()` applies guide-local hiding to the scale drawn on the selected axis after `coord_flip()`.
