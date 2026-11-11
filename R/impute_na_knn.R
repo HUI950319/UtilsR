@@ -218,14 +218,16 @@ impute_na_knn <- function(data, k = 5, verbose = TRUE) {
     weights <- distance_weights(weights)
     value <- if (is.null(weights)) mean(x, na.rm = TRUE) else
       stats::weighted.mean(x, w = weights, na.rm = TRUE)
-    scale <- if (length(x)) max(abs(x)) else 0
-    if (length(x) > 0L && all(is.finite(x)) &&
-        (!is.finite(value) || (scale > 0 && scale < .Machine$double.xmin))) {
-      # Preserve ordinary means and integer truncation outside extreme scales.
-      scaled <- if (is.null(weights)) mean(x / scale, na.rm = TRUE) else
-        stats::weighted.mean(x / scale, w = weights, na.rm = TRUE)
-      # Roundoff must not push the scaled mean beyond the finite donor bound.
-      value <- max(-1, min(1, scaled)) * scale
+    if ((!is.finite(value) || abs(value) <= .Machine$double.xmin) &&
+        length(x) && all(is.finite(x))) {
+      scale <- max(abs(x))
+      if (!is.finite(value) || (scale > 0 && scale < .Machine$double.xmin)) {
+        # Preserve ordinary means and integer truncation outside extreme scales.
+        scaled <- if (is.null(weights)) mean(x / scale, na.rm = TRUE) else
+          stats::weighted.mean(x / scale, w = weights, na.rm = TRUE)
+        # Roundoff must not push the scaled mean beyond the finite donor bound.
+        value <- max(-1, min(1, scaled)) * scale
+      }
     }
     if (is.integer(x)) as.integer(value) else value
   }

@@ -548,3 +548,23 @@ test_that("KNN observes rows without allocating a frame-wide missing mask", {
   expect_identical(result, reference)
   expect_true(all(is.na(result[5L, ])))
 })
+
+test_that("ordinary KNN donor means skip the magnitude pass", {
+  skip_if_not_installed("VIM")
+  d <- data.frame(x = c(11, 19, NA, 25), y = c(1, 3, 2, 4))
+  fn <- impute_na_knn
+  env <- new.env(parent = environment(fn))
+  env$max <- function(..., na.rm = FALSE) {
+    values <- list(...)
+    if (length(values) == 1L && identical(sort(values[[1L]]), c(11, 19))) {
+      stop("rescanned ordinary donors")
+    }
+    base::max(..., na.rm = na.rm)
+  }
+  environment(fn) <- env
+  local_mocked_bindings(kNN = function(data, variable, k, numFun, ...) {
+    data[[variable]][3L] <- numFun(c(11, 19), weights = c(.25, .75))
+    data
+  }, .package = "VIM")
+  expect_identical(fn(d, k = 2, verbose = FALSE)$x, c(11, 19, 17, 25))
+})
