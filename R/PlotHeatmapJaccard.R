@@ -191,7 +191,9 @@ PlotHeatmapJaccard <- function(
   numeric_groups <- is.numeric(group_values) && !is.object(group_values) &&
     is.numeric(ct_names) && !is.object(ct_names)
   duration_groups <- inherits(group_values, "Duration") && inherits(ct_names, "Duration")
-  integer64_groups <- (integer64[1L] && !is.object(ct_names) && is.numeric(ct_names) &&
+  integer64_levels <- inherits(ct_names, "integer64")
+  integer64_groups <- (integer64[1L] && integer64_levels) ||
+    (integer64[1L] && !is.object(ct_names) && is.numeric(ct_names) &&
                        !is.complex(ct_names)) ||
     (integer64[3L] && !is.object(group_values) && is.numeric(group_values) &&
        !is.complex(group_values))
@@ -209,7 +211,8 @@ PlotHeatmapJaccard <- function(
         value[!valid] <- NA_real_
         bit64::as.integer64(value)
       }
-      if (integer64[1L]) labels <- as_group_key(labels) else keys <- as_group_key(keys)
+      if (!integer64[1L]) keys <- as_group_key(keys)
+      if (!integer64_levels) labels <- as_group_key(labels)
     } else if (!numeric_groups) {
       keys <- as.character(keys)
     }

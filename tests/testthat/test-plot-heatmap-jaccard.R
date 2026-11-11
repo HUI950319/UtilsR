@@ -747,3 +747,21 @@ test_that("Jaccard mixed integer64 group keys do not truncate fractions", {
   d$group <- c(1.5, 1, 2.5, 2)
   expect_equal(as.vector(compare(d, bit64::as.integer64(1:2))), c(1, 0, 0, 1))
 })
+
+test_that("integer64 Jaccard groups are indexed without repeated equality scans", {
+  skip_if_not_installed("bit64")
+  keys <- bit64::as.integer64(c("-9007199254740993", "-9007199254740992", "9007199254740993"))
+  d <- data.frame(cell_type = rep(keys, each = 2L), gene = c("a", "b", "b", "c", "d", "e"))
+  fn <- PlotHeatmapJaccard
+  env <- new.env(parent = environment(fn))
+  env[["=="]] <- function(x, y) {
+    if (inherits(x, "integer64") && length(x) == nrow(d)) stop("rescanned integer64 groups")
+    base::`==`(x, y)
+  }
+  environment(fn) <- env
+  m <- fn(d, group_levels = rev(keys), return_type = "data")
+  expect_identical(rownames(m), as.character(rev(keys)))
+  expect_equal(m[2L, 3L], 1 / 3)
+  expect_identical(unname(diag(m)), rep(1, 3L))
+  expect_equal(fn(d, return_type = "data"), m[3:1, 3:1])
+})
