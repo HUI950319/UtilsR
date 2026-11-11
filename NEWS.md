@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* All-missing or unparseable CI input keeps its warnings and output types without running interval calculations.
+
 * Plain factor combinations exclude incomplete rows before allocating per-column value codes.
 
 * Windows diagnostics retain valid CIM operating-system and CPU fields when native memory statistics are available.

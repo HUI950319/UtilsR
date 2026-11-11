@@ -190,6 +190,13 @@ stat_ci_parse <- function(x,
     cli::cli_warn("{n_asym} interval{?s} {?is/are} not symmetric on {?its/their} scale; p uses the half facing the null and {.arg level} rescales each half.")
   }
 
+  if (!any(valid)) {
+    out <- switch(output, p = rep(NA_real_, length(x)),
+                  p_star = rep(NA_character_, length(x)), x)
+    names(out) <- names(x)
+    return(out)
+  }
+
   # --- Compute SE and p-value on the working scale ---
   z95 <- qnorm(0.975)
   e_s <- est; l_s <- lo; h_s <- hi

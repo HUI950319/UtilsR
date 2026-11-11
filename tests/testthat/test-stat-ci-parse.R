@@ -698,3 +698,16 @@ test_that("mixed parsed intervals format only valid endpoints", {
     expect_identical(fn(x, output, exp = FALSE), stat_ci_parse(x, output, exp = FALSE))
   }
 })
+
+test_that("empty interval sets skip normal quantile calculations", {
+  fn <- stat_ci_parse
+  env <- new.env(parent = environment(fn))
+  env$qnorm <- function(...) stop("computed a quantile with no valid intervals")
+  environment(fn) <- env
+  x <- c(blank = "", missing = NA_character_)
+  for (output in c("ci", "ci_p", "ci_star", "p", "p_star")) {
+    expect_identical(fn(x, output, exp = FALSE), stat_ci_parse(x, output, exp = FALSE))
+  }
+  expect_warning(out <- fn(c("Reference", ""), "p", exp = FALSE), "could not be parsed")
+  expect_identical(out, c(NA_real_, NA_real_))
+})
