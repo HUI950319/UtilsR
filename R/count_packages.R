@@ -71,7 +71,7 @@ check_packages <- function(refresh = FALSE) {
   display[["Packages"]] <- format(display[["Packages"]], big.mark = ",",
                                     scientific = FALSE, trim = TRUE)
   count_width <- max(nchar(c("Packages", display[["Packages"]]), type = "width"))
-  display[["Library"]] <- as.character(cli::ansi_strtrim(
+  display[["Library"]] <- as.character(._pr_trim(
     display[["Library"]], max(8L, console_width() - count_width - 4L)))
   pr_table(display, highlight = nrow(display), n = NULL, align = c("right", "left"))
   pr_note("Counts are installed copies; the same package in multiple libraries is counted more than once.")

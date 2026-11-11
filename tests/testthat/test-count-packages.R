@@ -169,3 +169,15 @@ test_that("check_packages groups table counts without changing numeric results",
   expect_type(result[["Package_Count"]], "integer")
   expect_equal(result[["Package_Count"]], c(rep(1234L, length(.libPaths())), total))
 })
+
+test_that("wide library inventory skips unnecessary ANSI truncation", {
+  withr::local_options(cli.width = 200, cli.num_colors = 0)
+  trim <- cli::ansi_strtrim
+  local_mocked_bindings(ansi_strtrim = function(x, ...) {
+    if (identical(x, c(.libPaths(), "Total"))) stop("truncated paths that fit")
+    trim(x, ...)
+  }, .package = "cli")
+  out <- capture.output(result <- check_packages())
+  expect_identical(result$Library_Path, c(.libPaths(), "Total"))
+  expect_false(any(grepl("Full paths", out, fixed = TRUE)))
+})
