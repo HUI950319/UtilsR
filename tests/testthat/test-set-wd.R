@@ -108,3 +108,19 @@ test_that("directory creation races report actual existing contents", {
   expect_true(file.exists("earlier.bin"))
   expect_match(note, "1 file, 4 B, existing directory", fixed = TRUE)
 })
+
+test_that("directory scans return paths ready for size lookup", {
+  root <- withr::local_tempdir()
+  withr::local_dir(root)
+  dir.create("results")
+  writeBin(raw(64L), file.path("results", ".hidden"))
+  fn <- set_wd
+  env <- new.env(parent = environment(fn))
+  env$file.path <- function(...) stop("rebuilt file paths")
+  output <- NULL
+  env$.cat_message <- function(message, ...) output <<- cli::ansi_strip(message)
+  environment(fn) <- env
+  previous <- fn("results")
+  expect_identical(previous, normalizePath(root, winslash = "/"))
+  expect_match(output, "[1 file, 64 B, existing directory]", fixed = TRUE)
+})

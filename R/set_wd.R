@@ -94,13 +94,13 @@ set_wd <- function(path, create = TRUE, verbose = TRUE) {
       else if (b >= 1024)   sprintf("%.2f KB", b / 1024)
       else                  sprintf("%.0f B",  b)
     }
-    files <- list.files(path, all.files = TRUE, recursive = TRUE)
+    files <- list.files(path, all.files = TRUE, recursive = TRUE, full.names = TRUE)
     if (length(files) > 0L) {
       contents <- sprintf(
         "%d file%s, %s",
         length(files),
         if (length(files) == 1L) "" else "s",
-        fmt_bytes(sum(file.size(file.path(path, files)), na.rm = TRUE))
+        fmt_bytes(sum(file.size(files), na.rm = TRUE))
       )
     }
   }
