@@ -691,3 +691,18 @@ test_that("clean character values avoid building special membership", {
   expect_equal(fn(with_markers), 4)
   expect_equal(fn(with_markers, c("^unknown$", "^missing$")), 3)
 })
+
+test_that("quality marker patterns skip matched values", {
+  fn <- .is_special_value
+  env <- new.env(parent = environment(fn))
+  scanned <- integer()
+  env$grepl <- function(pattern, x, ...) {
+    if (startsWith(pattern, "(*UCP)")) scanned <<- c(scanned, length(x))
+    base::grepl(pattern, x, ...)
+  }
+  environment(fn) <- env
+  x <- c(paste0("missing", seq_len(40L)), "not available", "normal", NA_character_)
+  hits <- fn(x, c("^missing[0-9]+$", "^not available$", "^normal$", "anything"))
+  expect_identical(hits, c(rep(TRUE, 42L), FALSE))
+  expect_identical(scanned, c(42L, 2L, 1L))
+})

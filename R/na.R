@@ -339,9 +339,12 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
   } else {
     # Keep capture groups, leading directives and comments local to each pattern.
     hit <- rep(FALSE, length(u))
+    remaining <- which(!is.na(u))
     for (p in special) {
-      hit <- hit | grepl(paste0("(*UCP)", p), u,
-                         ignore.case = TRUE, perl = TRUE)
+      if (!length(remaining)) break
+      matched <- grepl(paste0("(*UCP)", p), u[remaining], ignore.case = TRUE, perl = TRUE)
+      hit[remaining[matched]] <- TRUE
+      remaining <- remaining[!matched]
     }
     hit
   }

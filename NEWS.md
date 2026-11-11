@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Missingness inspection avoids retesting values already matched by a custom marker.
+
 * Missingness inspection skips the full character membership scan when no distinct value is a special marker.
 
 * `check_na()` styles only severity ranges present in the displayed rows.
