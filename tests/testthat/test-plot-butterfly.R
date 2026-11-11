@@ -990,3 +990,24 @@ test_that("butterfly distribution layers exclude SPSS missing scores", {
     expect_equal(layers(result), layers(expected))
   }
 })
+
+test_that("butterfly distributions select data.table columns before copying", {
+  skip_if_not_installed("data.table")
+  d <- data.frame(category = rep(c("A", "B"), each = 2L, times = 2L),
+    group = rep(c("L", "R"), each = 4L), score = 1:8, fill = "one")
+  x <- data.table::as.data.table(d)
+  x$unused <- lapply(seq_len(nrow(x)), function(i) raw(3000L))
+  fn <- PlotButterfly2
+  env <- new.env(parent = environment(fn))
+  env$as.data.frame <- function(x, ...) {
+    if (inherits(x, "data.table") && "unused" %in% names(x)) stop("copied unused butterfly columns")
+    base::as.data.frame(x, ...)
+  }
+  environment(fn) <- env
+  before <- data.table::copy(x)
+  args <- list(stat.by = "category", value.by = "score", group.by = "group", fill.by = "fill", type = "box")
+  p <- do.call(fn, c(list(x), args))
+  q <- do.call(PlotButterfly2, c(list(d), args))
+  expect_identical(p[[1L]]$data, q[[1L]]$data)
+  expect_identical(x, before)
+})

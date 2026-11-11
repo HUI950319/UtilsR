@@ -198,7 +198,13 @@ PlotButterfly2 <- function(
   }
   if (anyNA(names(data)) || any(!nzchar(names(data))) || anyDuplicated(names(data)))
     cli::cli_abort("{.arg data} must have unique, non-missing, non-empty column names.")
-  data <- as.data.frame(data)[, unique(c(stat.by, value.by, group.by, fill.by)), drop = FALSE]
+  columns <- unique(c(stat.by, value.by, group.by, fill.by))
+  data <- if (inherits(data, "data.table")) {
+    vctrs::new_data_frame(stats::setNames(lapply(columns, function(nm) data[[nm]]), columns),
+                          n = nrow(data))
+  } else {
+    as.data.frame(data)[, columns, drop = FALSE]
+  }
   unsupported <- vapply(data, function(value) !is.null(dim(value)), logical(1))
   if (any(unsupported))
     cli::cli_abort("Columns must be one-dimensional: {.val {names(data)[unsupported]}}.")
