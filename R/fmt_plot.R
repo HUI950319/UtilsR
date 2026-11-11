@@ -3578,6 +3578,7 @@ fmt_axisTile <- function(plot,
   }
 
   info <- .to_plot_list(plot, recurse = TRUE)
+  base_theme <- NULL
   format_one <- function(p) {
     if (!inherits(p$coordinates, "CoordCartesian")) {
       cli::cli_abort("fmt_axisTile() supports Cartesian coordinates only, including coord_flip().")
@@ -3603,12 +3604,13 @@ fmt_axisTile <- function(plot,
         original <- ggplot2::guide_axis()
       } else return(p)
     }
+    if (is.null(base_theme)) base_theme <<- ggplot2::theme_get()
     guide <- .axis_tile_guide(original, list(
       colors = colors, mode = mode, tile_height = tile_height, tile_width = tile_width,
       tile_border = tile_border, tile_border_width = tile_border_width,
       text_size = text_size, text_face = text_face, text_angle = text_angle,
       text_color = text_color, show_text = show_text,
-      theme = ggplot2::theme_get() + p$theme, axis = axis,
+      theme = base_theme + p$theme, axis = axis,
       # A free-scale panel may hold none of the colored values.
       check_names = !isTRUE(p$facet$params$free[[scale_axis]])
     ))

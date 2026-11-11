@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Axis tile formatting reads the global theme once across multiple active panels.
+
 * Marginal scatter correlations rank original integer64 axes before plotting coordinates are converted to doubles.
 
 * Categorical Sankey plots expand counted paths in one pass while retaining the backend node and weight order.

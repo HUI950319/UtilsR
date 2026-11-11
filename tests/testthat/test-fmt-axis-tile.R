@@ -542,3 +542,16 @@ test_that("axis tiles render when zoom clips every category", {
     expect_s3_class(ggplot2::ggplotGrob(plot), "gtable")
   }
 })
+
+test_that("axis tile panels share one global theme lookup", {
+  p <- axis_tile_plot()
+  original <- ggplot2::theme_get
+  calls <- 0L
+  local_mocked_bindings(theme_get = function() {
+    calls <<- calls + 1L
+    original()
+  }, .package = "ggplot2")
+  q <- fmt_axisTile(list(p, p), colors = axis_tile_colors)
+  expect_identical(calls, 1L)
+  expect_true(all(vapply(q, function(plot) inherits(plot$guides$guides$x, "AxisTileGuide"), logical(1L))))
+})
