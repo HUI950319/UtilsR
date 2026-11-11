@@ -452,7 +452,6 @@ PlotCircleLollipop <- function(
     }, add = TRUE)
     circlize::circos.clear()
     graphics::par(mar = c(1, 1, 1, 1))
-    graphics::plot.new()
 
     n_groups <- nlevels(df$group)
     circlize::circos.par(

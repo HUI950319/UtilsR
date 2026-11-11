@@ -1251,3 +1251,12 @@ test_that("circular top rows avoid copying unselected data.table columns", {
   local_mocked_bindings(circos.initialize = function(...) stop("drawing started"), .package = "circlize")
   expect_error(fn(x, top_n = 2, show_labels = FALSE), "drawing started")
 })
+
+test_that("circular lollipop PDF export draws one page", {
+  d <- data.frame(group = c("A", "B", "B"), name = letters[1:3], value = 1:3)
+  path <- withr::local_tempfile(fileext = ".pdf")
+  invisible(capture.output(PlotCircleLollipop(d, show_labels = FALSE, show_links = FALSE,
+                                               filename = path)))
+  bytes <- readBin(path, "raw", n = file.info(path)$size)
+  expect_length(grepRaw("/Type /Page[[:space:]/]", bytes, all = TRUE), 1L)
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Circular lollipop PDF exports start on the page created by circlize and contain a single drawing page.
+
 * Alluvial layouts reuse their already ordered facet and category factors after inserting gaps.
 
 * Plain progress notices avoid redundant inline formatting before the CLI step starts.
