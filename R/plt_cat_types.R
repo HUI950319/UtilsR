@@ -373,11 +373,12 @@
   }, logical(nrow(data)))
   dim(bool_mat) <- c(nrow(data), length(stat.by))
 
-  data[["intersection"]] <- apply(bool_mat, 1, function(row) {
+  intersection_col <- utils::tail(make.unique(c(names(data), "intersection")), 1L)
+  data[[intersection_col]] <- apply(bool_mat, 1, function(row) {
     stat.by[row]
   }, simplify = FALSE)
 
-  data <- data[vapply(data[["intersection"]], length, integer(1)) > 0, ,
+  data <- data[vapply(data[[intersection_col]], length, integer(1)) > 0, ,
                drop = FALSE]
 
   if (nrow(data) == 0) {
@@ -392,7 +393,7 @@
     cli::cli_abort("No rows match {.arg stat_level}. Cannot create UpSet plot.")
   }
 
-  n_intersections <- length(unique(data[["intersection"]]))
+  n_intersections <- length(unique(data[[intersection_col]]))
   if (n_intersections > 20L) {
     cli::cli_warn("Only the 20 most frequent of {n_intersections} UpSet intersections are shown; {n_intersections - 20L} are omitted.")
   }
@@ -401,7 +402,7 @@
   if (any(grepl(separator, stat.by, fixed = TRUE))) {
     # Use the public merge-list adapter with a separator absent from set names.
     while (any(grepl(separator, stat.by, fixed = TRUE))) separator <- paste0(separator, "_")
-    keys <- vapply(data[["intersection"]], function(x) {
+    keys <- vapply(data[[intersection_col]], function(x) {
       paste(sort(x), collapse = separator)
     }, character(1))
     limits <- utils::head(names(sort(table(keys), decreasing = TRUE)), 20L)
@@ -417,7 +418,7 @@
   fill_low  <- if (length(cols) > 0) cols[1] else "steelblue"
   fill_high <- if (length(cols) > 1) cols[2] else "darkblue"
 
-  p <- ggplot2::ggplot(data, ggplot2::aes(x = .data[["intersection"]])) +
+  p <- ggplot2::ggplot(data, ggplot2::aes(x = .data[[intersection_col]])) +
     ggplot2::geom_bar(
       ggplot2::aes(fill = ggplot2::after_stat(.data[["count"]])),
       color = "black", alpha = alpha, width = 0.5, show.legend = FALSE, na.rm = TRUE

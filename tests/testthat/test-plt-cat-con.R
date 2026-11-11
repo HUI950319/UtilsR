@@ -1232,3 +1232,15 @@ test_that("categorical plots combine missing checks before subsetting", {
   expect_identical(subsets, 1L)
   expect_equal(actual$data, reference$data)
 })
+
+test_that("categorical UpSet retains a source named intersection", {
+  skip_if_not_installed("ggupset")
+  withr::local_options(lifecycle_verbosity = "quiet")
+  d <- data.frame(intersection = c(TRUE, FALSE, TRUE), B = c(TRUE, TRUE, FALSE))
+  p <- cat_test_plot(d, names(d), type = "upset")
+  expect_identical(as.character(p$data$intersection), c("TRUE", "FALSE", "TRUE"))
+  lists <- Filter(is.list, as.list(p$data))
+  expect_length(lists, 1L)
+  expect_identical(lists[[1L]], list(c("intersection", "B"), "B", "intersection"))
+  expect_equal(sum(ggplot2::layer_data(p)$count), nrow(d))
+})

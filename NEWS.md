@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_cat(type = "upset")` keeps a selected source column named `intersection` alongside the plotted membership list.
+
 * `PlotScatter3()` bases the automatic median-line height on the histogram's displayed bin boundaries and range.
 
 * `pr_spark()` reuses the available width for checking and shortening each row.
