@@ -228,6 +228,9 @@ PlotScatter3 <- function(
     group <- group_col
   }
 
+  raw_x <- data[[x]]
+  raw_y <- data[[y]]
+  encoded_pairs <- inherits(raw_x, "integer64") || inherits(raw_y, "integer64")
   for (col in unique(c(x, y))) {
     if (inherits(data[[col]], "integer64")) data[[col]] <- .scatter_axis_values(data[[col]])
   }
@@ -281,7 +284,13 @@ PlotScatter3 <- function(
   # ---- Difference statistics ----
   x_values <- as.double(data[[x]])
   y_values <- as.double(data[[y]])
-  diff_values <- y_values - x_values
+  diff_values <- if (encoded_pairs) {
+    original_x <- if (inherits(raw_x, "integer64")) raw_x else x_values
+    original_y <- if (inherits(raw_y, "integer64")) raw_y else y_values
+    suppressWarnings(as.double(.dumbbell_integer64_difference(original_y, original_x)))
+  } else {
+    y_values - x_values
+  }
   median_diff <- stats::median(diff_values, na.rm = TRUE)
 
   # ---- Paired test ----
@@ -293,8 +302,12 @@ PlotScatter3 <- function(
       "wilcox" = stats::wilcox.test,
       "t.test" = .con_pairwise_test("t.test")
     )
-    test_res <- test_fn(x_values, y_values,
-                        paired = TRUE, alternative = "two.sided")
+    test_res <- if (encoded_pairs) {
+      test_fn(rep(0, length(diff_values)), diff_values,
+              paired = TRUE, alternative = "two.sided")
+    } else {
+      test_fn(x_values, y_values, paired = TRUE, alternative = "two.sided")
+    }
     p_label <- paste0("p = ", format.pval(test_res$p.value, digits = p_digits))
   }
 

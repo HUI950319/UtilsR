@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotScatter3()` computes paired differences before rounding integer64 axis coordinates for display.
+
 * Scatter plots preserve integer64 group identity when the grouping column also supplies a plotted coordinate.
 
 * Missingness inspection avoids copying labels when none contain whitespace.

@@ -1510,3 +1510,19 @@ test_that("shared integer64 scatter columns keep both groups", {
   }
   expect_identical(as.character(d$x), rep(labels, 3L))
 })
+
+test_that("paired scatter statistics use exact integer64 differences", {
+  skip_if_not_installed("bit64")
+  expected <- c(1, 2, 1, 3, 2, 5)
+  x <- bit64::as.integer64("9007199254740992") + bit64::as.integer64(0:5)
+  data <- data.frame(Control = x, Treat = x + bit64::as.integer64(expected),
+    group = rep(c("A", "B"), 3L))
+  result <- withCallingHandlers(scatter3_capture_inset(data, test_method = "t.test",
+    cor_method = "none", show_refline = FALSE), warning = function(w) {
+      if (grepl("integer precision lost", conditionMessage(w), fixed = TRUE)) invokeRestart("muffleWarning")
+    })
+  expect_equal(ggplot2::layer_data(result$inset, 2L)$x, stats::median(expected))
+  p <- stats::t.test(rep(0, length(expected)), expected, paired = TRUE)$p.value
+  expect_identical(ggplot2::layer_data(result$main, 2L)$label,
+    paste0("p = ", format.pval(p, digits = formals(PlotScatter3)$p_digits)))
+})
