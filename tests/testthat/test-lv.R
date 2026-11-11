@@ -1470,3 +1470,19 @@ test_that("ungrouped inspection reuses observed cardinality for table selection"
   expect_equal(reports[[1L]][["_data"]]$n_unique, c(3, 1))
   expect_identical(unique(reports[[2L]][["_data"]]$variable), "label")
 })
+
+test_that("inspection reuses normalized time spans across reports", {
+  d <- data.frame(span = as.difftime(c(1, 2, 3, NA), units = "hours"))
+  fn <- lv.data.frame
+  env <- new.env(parent = environment(fn))
+  conversions <- 0L
+  env$as.numeric <- function(x, ...) {
+    if (inherits(x, "difftime") && length(x) == nrow(d)) conversions <<- conversions + 1L
+    base::as.numeric(x, ...)
+  }
+  environment(fn) <- env
+  result <- capture_lv(fn(d))
+  expect_identical(conversions, 1L)
+  expect_identical(result$value$value, d)
+  expect_match(paste(result$output, collapse = "\n"), "Variable distributions", fixed = TRUE)
+})

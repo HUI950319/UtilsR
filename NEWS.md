@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `lv()` prepares the selected values once for the detailed table and the console sparklines.
+
 * Stacked violins in `plt_con()` omit undefined feature-by-group densities and retain observations in their other layers.
 
 * `plt_con()` keeps singleton points from missing groups while omitting their undefined violin densities.

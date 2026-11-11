@@ -1139,8 +1139,11 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   }
 
   table_vars <- .tbl_vars(vars, result$n_unique)
+  table_data <- if (length(table_vars)) {
+    .tbl_input(tibble::as_tibble(analysis_data[, table_vars, drop = FALSE]))
+  }
   res_count <- if (length(table_vars)) {
-    .tbl_input(tibble::as_tibble(analysis_data[, table_vars, drop = FALSE])) %>%
+    table_data %>%
     labelled::set_variable_labels(
       .labels = setNames(
         paste0(
@@ -1178,7 +1181,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     # cells carried its markdown (`**Vars**`, `__Age__`) and NA headers.
     if (length(table_vars)) {
       pr_section(sprintf("Variable distributions (%d variables)", length(table_vars)))
-      pr_spark(.tbl_input(tibble::as_tibble(analysis_data[, table_vars, drop = FALSE])))
+      pr_spark(table_data)
     }
 
     pr_section(sprintf("Variable summary (%d variables)", length(vars)))
