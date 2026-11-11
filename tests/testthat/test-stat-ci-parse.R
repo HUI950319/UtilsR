@@ -674,3 +674,13 @@ test_that("CI diagnostics skip trimming full strings", {
   expect_identical(parsed[1L], c(ok = "2 (1, 3)"))
   expect_identical(formatted, parsed)
 })
+
+test_that("interval-only output skips normal tail probabilities", {
+  fn <- stat_ci_parse
+  env <- new.env(parent = environment(fn))
+  env$pnorm <- function(...) stop("calculated an unused p-value")
+  environment(fn) <- env
+  x <- c(first = "2.00 (1.00, 3.00)", second = "1.00 [0.50, 1.50]")
+  expect_identical(fn(x, output = "ci", exp = FALSE, level = .9),
+                   stat_ci_parse(x, output = "ci", exp = FALSE, level = .9))
+})
