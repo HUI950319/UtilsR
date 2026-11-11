@@ -1802,3 +1802,16 @@ test_that("stacked quantile bounds swap sides on reversed scales", {
     }
   }
 })
+
+test_that("independent continuous zooms reverse along with their data", {
+  d <- data.frame(x = 1:10, z = seq(100, 190, by = 10), g = rep(c("A", "B"), each = 5L))
+  for (flip in c(FALSE, TRUE)) {
+    for (bound in list(list(y.max = "q90"), list(y.min = "q10"))) {
+      p <- do.call(con_plot, c(list(d, "x", type = "box", stack = FALSE, flip = flip), bound))
+      a <- ggplot2::ggplot_build(p)$layout$panel_params
+      b <- ggplot2::ggplot_build(suppressMessages(p + ggplot2::scale_y_reverse()))$layout$panel_params
+      axis <- if (flip) "x.range" else "y.range"
+      for (i in seq_along(a)) expect_equal(b[[i]][[axis]], -rev(a[[i]][[axis]]))
+    }
+  }
+})

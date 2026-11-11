@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Independent continuous panels keep partial zoom limits on the requested data side after reversing the value axis.
+
 * Stacked continuous plots respect partial quantile limits on reversed value scales.
 
 * Indexed Jaccard groups avoid materializing one fallback key per level.

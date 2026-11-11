@@ -1159,9 +1159,11 @@ plt_con <- function(data,
   ggplot2::ggproto(NULL, coord,
     setup_panel_params = function(self, scale_x, scale_y, ...) {
       bounds <- self$limits
-      if (!is.null(bounds[["y"]]) && !identical(scale_y$get_transformation()$name, "identity")) {
+      transformation <- scale_y$get_transformation()
+      if (!is.null(bounds[["y"]]) && !identical(transformation$name, "identity")) {
         if (is.null(shared)) {
           bounds[["y"]][automatic] <- NA_real_
+          if (identical(transformation$name, "reverse")) bounds[["y"]] <- rev(bounds[["y"]])
         } else {
           inverse <- scale_y$get_transformation()$inverse(shared(scale_y)[["limits"]])
           bounds[["y"]][automatic] <- sort(inverse)[automatic]
