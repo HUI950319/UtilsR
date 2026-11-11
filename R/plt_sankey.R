@@ -258,6 +258,7 @@ plt_sankey <- function(data,
     if (!is.factor(data[[v]])) {
       values <- data[[v]]
       labels <- .butterfly_category_labels(values)
+      if (inherits(labels, "Period")) labels <- as.character(labels)
       data[[v]] <- if (identical(values, labels)) factor(values) else
         factor(labels, levels = unique(labels[order(values, na.last = NA)]))
     }

@@ -778,3 +778,14 @@ test_that("Sankey reversal preserves explicit NA and missing rows", {
     expect_true(all(c("a (2)", "NA (2)", "NA (1)") %in% labels))
   }
 })
+
+test_that("Sankey stages retain distinct month components in Period vectors", {
+  skip_if_not_installed("lubridate")
+  skip_if_not_installed("ggsankey")
+  months <- lubridate::period(months = c(1L, 2L, 3L))
+  d <- tibble::tibble(period = months, stage = c("A", "B", "C"))
+  result <- sankey_plot(d, reverse_levels = FALSE, show_text = "name")
+  rows <- result$data[result$data$x == "period_label", ]
+  expect_identical(as.character(rows$label), as.character(months))
+  expect_length(unique(rows$node), 3L)
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Sankey stages retain distinct calendar-period categories, including periods with the same seconds slot.
+
 * Jaccard plots reshape matrix cells without an intermediate table or matrix clone for hidden diagonals.
 
 * Jaccard group membership reuses exact numeric keys for Date, POSIX time and difftime groups.
