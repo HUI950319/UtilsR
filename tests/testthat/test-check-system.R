@@ -501,3 +501,19 @@ test_that("Linux release names fall back to NAME", {
     expect_identical(result$system_info$os_full_name, expected)
   }
 })
+
+test_that("native Windows memory permits independent CIM metadata", {
+  skip_if_not_installed("ps")
+  local_mocked_bindings(ps_system_memory = function() list(total = 8 * 1024^3, avail = 2 * 1024^3),
+                        .package = "ps")
+  cim <- c('"TotalVisibleMemorySize","FreePhysicalMemory","Caption","Version","CpuName"',
+           '"invalid","","Windows fresh","10.2","CIM CPU"')
+  legacy <- list("wmic os get Caption,Version /format:list" = c("Caption=Legacy", "Version=9"),
+                 "wmic cpu get Name /format:list" = "Name=Legacy CPU")
+  query <- .check_system_fixture(os = "Windows", cim = cim, legacy = legacy, use_ps = TRUE)
+  invisible(capture.output(result <- query(return_result = TRUE)))
+  expect_identical(result$system_info$os_full_name, "Windows fresh")
+  expect_identical(result$system_info$os_version, "10.2")
+  expect_identical(result$cpu$name, "CIM CPU")
+  expect_identical(result$system_memory$free_gb, 2)
+})

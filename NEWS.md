@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Windows diagnostics retain valid CIM operating-system and CPU fields when native memory statistics are available.
+
 * Stacked distribution plots format counts or percentages only for the selected label style and visible segments.
 
 * Console key-value layouts split only values that actually contain line breaks.

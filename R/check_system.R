@@ -131,9 +131,11 @@ check_system <- function(return_result = FALSE, show_warnings = FALSE) {
         stop("Incomplete Windows CIM result.")
       for (field in setdiff(fields, names(info))) info[[field]] <- NA_character_
       memory <- suppressWarnings(as.numeric(info[1L, fields[1:2]]))
-      if (any(!is.finite(memory)) || memory[1L] <= 0 ||
-          memory[2L] < 0 || memory[2L] > memory[1L])
+      if (is.null(native_memory) &&
+          (any(!is.finite(memory)) || memory[1L] <= 0 ||
+           memory[2L] < 0 || memory[2L] > memory[1L])) {
         stop("Invalid Windows CIM memory result.")
+      }
       info
     }, error = function(e) NULL)
   }
