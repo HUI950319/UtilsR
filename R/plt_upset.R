@@ -395,11 +395,7 @@ plt_upset <- function(data,
     codes <- unlist(lapply(combinations, `[[`, "codes"), use.names = FALSE)
     region_names <- unlist(lapply(combinations, `[[`, "labels"), use.names = FALSE)
     group_names <- make.unique(c(region_names, "None"))
-    row_codes <- integer(nrow(data))
-    for (i in seq_len(n_sets)) {
-      rows <- set_list[[i]]
-      row_codes[rows] <- bitwOr(row_codes[rows], bits[i])
-    }
+    row_codes <- .upset_row_codes(set_list, nrow(data))
     row_keys <- row_codes + 1L
     counts <- tabulate(row_keys, nbins = length(group_names))
     region_order <- order(-counts[codes + 1L])
@@ -414,7 +410,7 @@ plt_upset <- function(data,
 
   # Statistics do not depend on the structure or success of a rendered plot.
   grp_info <- NULL
-  if (output != "venn") {
+  if (output == "all") {
     grp_info <- ggVennDiagram::process_region_data(ggVennDiagram::Venn(set_list))
     region_names <- vapply(strsplit(as.character(grp_info$id), "/", fixed = TRUE),
                            function(i) paste(display_names[as.integer(i)], collapse = "/"),
@@ -493,7 +489,13 @@ plt_upset <- function(data,
 
   p_upset <- NULL
   if (output %in% c("upset", "both", "all")) {
-    p_upset <- .safe_upset(set_list, sum(grp_info$count > 0), upset_colors)
+    nintersects <- if (output == "all") {
+      sum(grp_info$count > 0)
+    } else {
+      codes <- .upset_row_codes(set_list)
+      length(unique(codes[codes != 0L]))
+    }
+    p_upset <- .safe_upset(set_list, nintersects, upset_colors)
   }
 
   # ── Combined ─────────────────────────────────────────────────────────────
@@ -528,6 +530,20 @@ plt_upset <- function(data,
     all = list(venn = p_venn, upset = p_upset,
                combined = finish(p_combined), data = grp_data)
   )
+}
+
+.upset_row_codes <- function(sets, n = NULL) {
+  if (is.null(n)) {
+    last <- vapply(sets, function(rows) if (length(rows)) tail(rows, 1L) else 0L, integer(1L))
+    n <- max(last)
+  }
+  bits <- bitwShiftL(1L, seq_along(sets) - 1L)
+  codes <- integer(n)
+  for (i in seq_along(sets)) {
+    rows <- sets[[i]]
+    codes[rows] <- bitwOr(codes[rows], bits[i])
+  }
+  codes
 }
 
 # Adapt upstream plot labels without retaining the caller's input data.

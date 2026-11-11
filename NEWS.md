@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* UpSet-only output avoids enumerating a complete region table to count visible intersections.
+
 * Butterfly bars exclude SPSS user-missing score codes from min-max bounds and retain their existing zero-fill rule.
 
 * `lv()` reports entirely missing Date columns with their missing count in grouped and ungrouped summaries.

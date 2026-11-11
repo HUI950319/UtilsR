@@ -844,3 +844,18 @@ test_that("UpSet time selectors reuse their encoded levels", {
   expect_identical(encodings, 1L)
   expect_identical(as.character(result$intersect_group), c("A/B", "A/C", "B/C", "A/B/C"))
 })
+
+test_that("UpSet plots count observed combinations without building a region table", {
+  skip_if_not_installed("ggVennDiagram")
+  d <- data.frame(A = c(TRUE, TRUE, TRUE, FALSE, FALSE),
+    B = c(TRUE, TRUE, FALSE, TRUE, FALSE), C = c(FALSE, FALSE, TRUE, TRUE, FALSE))
+  captured <- NULL
+  local_mocked_bindings(ggVennDiagram = function(x, nintersects, ...) {
+    captured <<- nintersects
+    ggplot2::ggplot()
+  }, process_region_data = function(...) stop("enumerated regions for a plot"),
+  .package = "ggVennDiagram")
+  local_mocked_bindings(.plt_upset_labels = function(p, ...) p, .package = "UtilsR")
+  expect_s3_class(suppressMessages(plt_upset(d, vars = names(d), levels = TRUE, output = "upset")), "ggplot")
+  expect_identical(captured, 3L)
+})
