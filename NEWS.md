@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Indexed Jaccard groups avoid materializing one fallback key per level.
+
 * Jaccard heatmaps index plain labelled group keys while excluding SPSS user-missing observations.
 
 * Jaccard heatmaps reuse one row index for logical group columns.

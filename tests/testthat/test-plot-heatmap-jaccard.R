@@ -814,3 +814,16 @@ test_that("labelled Jaccard groups use their underlying codes", {
   expect_identical(rownames(m), c("4", "9"))
   expect_equal(m[1L, 2L], 1 / 3)
 })
+
+test_that("indexed Jaccard groups avoid expanding scalar keys", {
+  d <- data.frame(cell_type = c(5L, 9L, 9L, 5L), gene = c("x", "x", "z", "y"))
+  fn <- PlotHeatmapJaccard
+  env <- new.env(parent = environment(fn))
+  env$as.list <- function(x, ...) {
+    if (identical(x, c(5L, 9L))) stop("expanded all indexed keys")
+    base::as.list(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(d, return_type = "data"),
+    matrix(c(1, 1 / 3, 1 / 3, 1), 2L, dimnames = list(c("5", "9"), c("5", "9"))))
+})

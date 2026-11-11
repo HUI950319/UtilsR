@@ -175,16 +175,6 @@ PlotHeatmapJaccard <- function(
   } else {
     data[[name_col]]
   }
-  ct_keys <- if (inherits(ct_names, time_classes)) {
-    lapply(seq_len(n_ct), function(i) ct_names[i])
-  } else {
-    as.list(ct_names)
-  }
-  group_labels <- if (timespan[1L] && any(vapply(ct_keys, is.character, logical(1)))) {
-    as.character(group_values)
-  } else {
-    NULL
-  }
   indexable_groups <- identical(class(group_values), "factor") ||
     identical(class(group_values), c("ordered", "factor")) ||
     (is.character(group_values) && !is.object(group_values))
@@ -221,8 +211,20 @@ PlotHeatmapJaccard <- function(
     ids <- if (integer64_groups || time_groups) vctrs::vec_match(keys, labels) else match(keys, labels)
     split(rows, factor(ids, levels = seq_along(ct_names)))
   } else NULL
+  if (is.null(group_rows)) {
+    ct_keys <- if (inherits(ct_names, time_classes)) {
+      lapply(seq_len(n_ct), function(i) ct_names[i])
+    } else {
+      as.list(ct_names)
+    }
+    group_labels <- if (timespan[1L] && any(vapply(ct_keys, is.character, logical(1)))) {
+      as.character(group_values)
+    } else {
+      NULL
+    }
+  }
   top_sets <- lapply(
-    stats::setNames(seq_along(ct_keys), ct_labels),
+    stats::setNames(seq_len(n_ct), ct_labels),
     function(i) {
       if (!is.null(group_rows)) {
         rows <- group_rows[[i]]
