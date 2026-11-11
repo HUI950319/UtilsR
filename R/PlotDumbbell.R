@@ -705,9 +705,15 @@ PlotDumbbell <- function(
                (is.integer(test_xend) && !is.object(test_xend))) {
       test_xend <- as.double(test_xend)
     }
-    test_res <- test_fn(test_x, test_xend,
-                        paired = TRUE, alternative = "two.sided")
-    p_val <- test_res$p.value
+    p_val <- tryCatch(
+      test_fn(test_x, test_xend, paired = TRUE, alternative = "two.sided")$p.value,
+      error = function(e) {
+        unavailable <- gettext(c("not enough 'x' observations", "data are essentially constant"),
+                               domain = "R-stats")
+        if (inset_test == "t.test" && conditionMessage(e) %in% unavailable) return(NA_real_)
+        stop(e)
+      }
+    )
     p_fmt <- if (!is.na(p_val) && p_val < 0.001) {
       sprintf("p = %.1e", p_val)
     } else {

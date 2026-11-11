@@ -772,3 +772,19 @@ test_that("dumbbell endpoint positions ignore incompatible value labels", {
   expect_equal(as.double(tail(a, 1L)[[1L]]$x), as.double(tail(b, 1L)[[1L]]$x))
   expect_identical(actual$data$start, d$start)
 })
+
+test_that("dumbbell insets keep a label for an undefined paired t test", {
+  d <- data.frame(start = 1:3, end = 2:4, category = letters[1:3])
+  inset <- NULL
+  original <- .build_dumbbell_inset
+  local_mocked_bindings(.build_dumbbell_inset = function(...) {
+    inset <<- original(...)
+    inset
+  })
+  for (top in c(1L, 3L)) {
+    expect_no_error(dumbbell_plot(d, top_n = top, inset_plot = "auto", inset_test = "t.test",
+                                  inset_jitter = FALSE, legend_pos = "none"))
+    text <- Filter(function(layer) "label" %in% names(layer), ggplot2::ggplot_build(inset)$data)
+    expect_identical(unlist(lapply(text, `[[`, "label"), use.names = FALSE), "p = NA")
+  }
+})

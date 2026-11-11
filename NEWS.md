@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Dumbbell insets retain their points and show an unavailable p-value for constant differences or too few paired observations.
+
 * Circular lollipop plots apply the existing missing-group validation to SPSS user-missing codes.
 
 * Circular lollipop PDF exports start on the page created by circlize and contain a single drawing page.
