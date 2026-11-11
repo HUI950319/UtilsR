@@ -1084,3 +1084,20 @@ test_that("unwrapped notices leave console width unused", {
     timestamp_format = NULL)), collapse = "\n"))
   expect_match(message, text, fixed = TRUE)
 })
+
+test_that("table highlights check repeated factor labels once", {
+  data <- data.frame(a = factor(rep(c("hit", "other", NA, "HIT"), 25L)))
+  fn <- .cat_tb
+  env <- new.env(parent = environment(fn))
+  scanned <- integer()
+  env$grepl <- function(pattern, x, ...) {
+    if (identical(pattern, "^hit$") && length(x) > 1L) scanned <<- c(scanned, length(x))
+    base::grepl(pattern, x, ...)
+  }
+  environment(fn) <- env
+  result <- fn(data, highlight_pattern = "^hit$", theme = "none")
+  cells <- result[["_styles"]]
+  expect_identical(scanned, nlevels(data$a))
+  expect_identical(sort(cells$rownum[!is.na(cells$rownum)]),
+    which(grepl("^hit$", as.character(data$a), ignore.case = TRUE)))
+})

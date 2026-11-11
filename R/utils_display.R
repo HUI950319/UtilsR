@@ -540,13 +540,19 @@ console_width <- function() {
   .highlight_cells <- function(tb, df, pattern, color) {
     if (is.null(pattern) || !nzchar(pattern)) return(tb)
     for (j in seq_len(ncol(df))) {
-      values <- df[[j]][seq_len(nrow(df))]
+      values <- df[[j]]
       if (!is.character(values) && !is.factor(values)) next
-      matched <- grepl(pattern, as.character(values), ignore.case = TRUE)
-      if (any(matched)) {
+      if (!is.null(dim(values))) values <- values[seq_len(nrow(df))]
+      rows <- if (is.factor(values)) {
+        hit <- grepl(pattern, levels(values), ignore.case = TRUE)
+        which(hit[as.integer(values)])
+      } else {
+        which(grepl(pattern, values, ignore.case = TRUE))
+      }
+      if (length(rows)) {
         tb <- gt::tab_style(tb,
           style     = gt::cell_fill(color = color),
-          locations = gt::cells_body(columns = dplyr::all_of(names(df)[j]), rows = which(matched))
+          locations = gt::cells_body(columns = dplyr::all_of(names(df)[j]), rows = rows)
         )
       }
     }
