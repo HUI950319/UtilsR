@@ -765,3 +765,16 @@ test_that("Sankey projects selected data.table columns without copying unused da
   expect_identical(result$data, reference$data)
   expect_identical(x, before)
 })
+
+test_that("Sankey reversal preserves explicit NA and missing rows", {
+  skip_if_not_installed("ggsankey")
+  d <- data.frame(s = structure(c(1L, 2L, NA_integer_, 1L, 2L),
+    levels = c("a", NA_character_), class = "factor"), t = letters[1:5])
+  for (reverse in c(FALSE, TRUE)) {
+    p <- sankey_plot(d, reverse_levels = reverse, show_text = "n")
+    rows <- p$data[p$data$x == levels(p$data$x)[1L], ]
+    expect_identical(sort(as.integer(table(rows$node)[table(rows$node) > 0L])), c(1L, 2L, 2L))
+    labels <- as.character(rows$label[!duplicated(rows$node)])
+    expect_true(all(c("a (2)", "NA (2)", "NA (1)") %in% labels))
+  }
+})

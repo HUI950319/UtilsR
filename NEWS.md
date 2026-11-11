@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Sankey level reversal retains the distinct explicit NA level and truly missing rows.
+
 * All-missing or unparseable CI input keeps its warnings and output types without running interval calculations.
 
 * Plain factor combinations exclude incomplete rows before allocating per-column value codes.

@@ -263,11 +263,6 @@ plt_sankey <- function(data,
     }
   }
 
-  # Reverse levels if requested
-  if (reverse_levels) {
-    for (v in vars) data[[v]] <- forcats::fct_rev(data[[v]])
-  }
-
   # Add count + percentage labels to each variable
   label_vars <- utils::tail(make.unique(c(names(data), paste0(vars, "_label"))), length(vars))
   if (!is.null(var_labels)) {
@@ -284,6 +279,7 @@ plt_sankey <- function(data,
     codes <- as.integer(value)
     counts <- tabulate(codes, nbins = nlevels(value))
     observed <- which(counts > 0L)
+    if (reverse_levels) observed <- rev(observed)
     counts <- counts[observed]
     missing <- sum(is.na(codes))
     if (missing) {
