@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Butterfly wide inputs and delegated box plots retain observed empty category names through reshaping.
+
 * Mirrored butterfly distributions build only shared category columns and retain their original padding and order.
 
 * Min-max butterfly bars scale only the score vector before applying one row permutation to the plot data.

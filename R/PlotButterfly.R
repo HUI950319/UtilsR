@@ -465,11 +465,21 @@ PlotButterfly <- function(
     if (is.null(data.left) || is.null(data.right))
       cli::cli_abort("Violin mode requires both {.arg data.left} and {.arg data.right}.")
 
-    # Pivot to long format
-    long_left  <- tidyr::pivot_longer(data.left,  cols = tidyr::everything(),
-                                      names_to = "Variable", values_to = "Value")
-    long_right <- tidyr::pivot_longer(data.right, cols = tidyr::everything(),
-                                      names_to = "Variable", values_to = "Value")
+    # Pivot by temporary names when a category is the empty string.
+    pivot_scores <- function(wide) {
+      labels <- names(wide)
+      blank <- which(!is.na(labels) & labels == "")
+      if (length(blank)) {
+        keys <- tail(make.unique(c(labels, rep(".blank", length(blank)))), length(blank))
+        names(wide)[blank] <- keys
+      }
+      long <- tidyr::pivot_longer(wide, cols = tidyr::everything(),
+                                 names_to = "Variable", values_to = "Value")
+      if (length(blank)) long$Variable[long$Variable %in% keys] <- ""
+      long
+    }
+    long_left <- pivot_scores(data.left)
+    long_right <- pivot_scores(data.right)
 
     # Variable order: support "up" / "down" auto-sort by mean value
     if (is.character(levels) && length(levels) == 1L && levels %in% c("up", "down")) {

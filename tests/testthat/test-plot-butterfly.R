@@ -1064,3 +1064,15 @@ test_that("butterfly wide conversion materializes only shared categories", {
   expect_identical(lapply(seq_along(result), function(i) result[[i]]$data),
                    lapply(seq_along(expected), function(i) expected[[i]]$data))
 })
+
+test_that("butterfly wide pivots preserve blank category names", {
+  left <- stats::setNames(data.frame(a = 1:3, b = 4:6), c("", "B"))
+  right <- stats::setNames(data.frame(a = 2:4, b = 5:7), c("", "B"))
+  p <- PlotButterfly(type = "violin", data.left = left, data.right = right)
+  expect_identical(levels(p[[1L]]$data$Variable), c("", "B"))
+  expect_equal(sum(p[[1L]]$data$Variable == ""), 3L)
+  d <- data.frame(category = rep(c("", "", "B", "B"), 2L), score = 1:8,
+                  group = rep(c("L", "R"), each = 4L))
+  q <- PlotButterfly2(d, stat.by = "category", value.by = "score", group.by = "group", type = "box")
+  expect_identical(levels(q[[1L]]$data$Variable), c("", "B"))
+})
