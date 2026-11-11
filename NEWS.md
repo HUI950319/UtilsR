@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_con()` keeps singleton points from missing groups while omitting their undefined violin densities.
+
 * Categorical UpSet plots build each observed set combination once and reuse it across matching rows.
 
 * `plt_cat(type = "upset")` keeps a selected source column named `intersection` alongside the plotted membership list.

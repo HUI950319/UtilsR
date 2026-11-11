@@ -1720,3 +1720,13 @@ test_that("continuous t tests inspect only finite magnitude bounds", {
                  .con_pairwise_test("t.test")(x * 1e200, y * 1e200, paired = paired)$p.value)
   }
 })
+
+test_that("single violin retains a missing group singleton as a point", {
+  d <- data.frame(group = factor(c("A", "A", "B", "B", NA)), value = c(1, 2, 4, 5, 9))
+  expect_warning(p <- suppressMessages(plt_con(d, "value", "group", type = "violin",
+    add_point = TRUE)), "Omitted violin density")
+  layer <- Filter(function(x) inherits(x$geom, "GeomViolin"), p$layers)[[1L]]
+  expect_equal(layer$data$value, d$value[1:4])
+  expect_identical(nrow(p$data), 5L)
+  expect_no_warning(ggplot2::ggplot_build(p))
+})
