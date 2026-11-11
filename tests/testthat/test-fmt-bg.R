@@ -528,3 +528,21 @@ test_that("background colours reject arrays before inspecting plots", {
   p <- ggplot2::ggplot(data.frame(x = c("A", "B"), y = 1:2), ggplot2::aes(x, y)) + ggplot2::geom_point()
   expect_s3_class(ggplot2::ggplotGrob(fmt_bg(p, palcolor = c(A = "red", B = "blue"))), "gtable")
 })
+
+test_that("background stripes share trained scales across fixed facets", {
+  d <- data.frame(category = rep(LETTERS[1:3], 4L), value = 1:12, panel = rep(1:4, each = 3L))
+  p <- ggplot2::ggplot(d, ggplot2::aes(category, value)) + ggplot2::geom_point() +
+    ggplot2::facet_wrap(ggplot2::vars(panel))
+  q <- fmt_bg(p, palcolor = bg_colors)
+  expected <- bg_rects(ggplot2::ggplotGrob(q))
+  b <- ggplot2::ggplot_build(q)
+  getter <- b$layout$get_scales
+  calls <- 0L
+  b$layout$get_scales <- function(i) {
+    calls <<- calls + 1L
+    if (calls > 1L) stop("looked up a fixed axis scale twice")
+    getter(i)
+  }
+  expect_equal(bg_rects(ggplot2::ggplot_gtable(b)), expected)
+  expect_identical(calls, 1L)
+})

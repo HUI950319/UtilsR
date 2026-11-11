@@ -4774,13 +4774,14 @@ fmt_bg <- function(plot,
       required_aes = character(),
       setup_data = function(data, params) data,
       draw_layer = function(self, data, params, layout, coord) {
-        params$bg_scales <- lapply(seq_len(nrow(layout$layout)), function(i) {
-          layout$get_scales(i)[[bg_axis]]
-        })
-        if (!any(vapply(params$bg_scales, function(scale) scale$is_discrete(), logical(1)))) {
+        scale_ids <- layout$layout[[if (bg_axis == "x") "SCALE_X" else "SCALE_Y"]]
+        distinct <- unique(scale_ids)
+        scales <- lapply(match(distinct, scale_ids), function(i) layout$get_scales(i)[[bg_axis]])
+        params$bg_scales <- scales[match(scale_ids, distinct)]
+        if (!any(vapply(scales, function(scale) scale$is_discrete(), logical(1)))) {
           cli::cli_warn("The {bg_axis}-axis must be categorical; skipping background.")
         }
-        trained_limits <- unlist(lapply(params$bg_scales, function(scale) {
+        trained_limits <- unlist(lapply(scales, function(scale) {
           if (scale$is_discrete()) scale$get_limits() else character()
         }), use.names = FALSE)
         params$bg_has_categories <- any(!is.na(trained_limits))

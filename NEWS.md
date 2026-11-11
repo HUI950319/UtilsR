@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Background stripes retrieve each shared axis scale once, keeping separate scales for free facets.
+
 * Strip formatting reads the global theme once when coloring borders across several panels.
 
 * Sankey plots avoid copying unrelated data.table columns during input normalization.
