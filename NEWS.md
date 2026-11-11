@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Jaccard heatmaps build one exact membership index for matching Duration, Period and Interval group vectors.
+
 * Jaccard heatmaps reuse one membership index for integer64 group columns and group levels.
 
 * `pr_tree()` counts an S4 root's slot names before extracting the slots for display.

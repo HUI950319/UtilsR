@@ -765,3 +765,21 @@ test_that("integer64 Jaccard groups are indexed without repeated equality scans"
   expect_identical(unname(diag(m)), rep(1, 3L))
   expect_equal(fn(d, return_type = "data"), m[3:1, 3:1])
 })
+
+test_that("Jaccard period membership uses one exact index", {
+  skip_if_not_installed("lubridate")
+  keys <- lubridate::period(months = c(1, 3, 5), days = c(0, 2, 1))
+  d <- tibble::tibble(cell_type = rep(keys, each = 2L), gene = c("a", "b", "b", "c", "d", "e"))
+  fn <- PlotHeatmapJaccard
+  equal <- vctrs::vec_equal
+  local_mocked_bindings(vec_equal = function(x, y, ...) {
+    if (inherits(x, "Period") && length(x) == nrow(d) && length(y) == 1L) {
+      stop("matched each time span group separately")
+    }
+    equal(x, y, ...)
+  }, .package = "vctrs")
+  m <- fn(d, group_levels = rev(keys), return_type = "data")
+  expect_identical(rownames(m), as.character(rev(keys)))
+  expect_equal(m[2L, 3L], 1 / 3)
+  expect_equal(m[1L, 2L], 0)
+})
