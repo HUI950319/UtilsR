@@ -325,17 +325,29 @@ PlotRankCor <- function(
   # Aggregate duplicates before pivot (mean per stat.by x group x method)
   pivot_keys <- unique(c(stat.by, group.by_internal, method.by_internal))
   pivot_data <- rank_long[, unique(c(pivot_keys, plot_value)), drop = FALSE]
-  pivot_groups <- vctrs::vec_group_loc(pivot_data[pivot_keys])
   values <- pivot_data[[plot_value]]
-  pivot_data <- pivot_groups$key
-  pivot_data[[plot_value]] <- if (is.numeric(values) && !is.object(values) &&
-                                  all(lengths(pivot_groups$loc) == 1L)) {
-    values <- as.double(values)
-    values[is.na(values)] <- mean(numeric())
-    values[which(values == 0)] <- 0
-    values
+  if (is.numeric(values) && !is.object(values)) {
+    ids <- vctrs::vec_group_id(pivot_data[pivot_keys])
+    first <- !duplicated(ids)
+    pivot_data <- pivot_data[first, pivot_keys, drop = FALSE]
+    scores <- as.double(values[first])
+    scores[is.na(scores)] <- NaN
+    scores[which(scores == 0)] <- 0
+    repeated <- tabulate(ids, nbins = attr(ids, "n")) > 1L
+    if (any(repeated)) {
+      rows <- which(repeated[ids])
+      groups <- split(rows, ids[rows])
+      scores[as.integer(names(groups))] <- vapply(groups, function(idx) {
+        mean(values[idx], na.rm = TRUE)
+      }, numeric(1L))
+    }
+    pivot_data[[plot_value]] <- scores
   } else {
-    vapply(pivot_groups$loc, function(idx) mean(values[idx], na.rm = TRUE), numeric(1))
+    groups <- vctrs::vec_group_loc(pivot_data[pivot_keys])
+    pivot_data <- groups$key
+    pivot_data[[plot_value]] <- vapply(groups$loc, function(idx) {
+      mean(values[idx], na.rm = TRUE)
+    }, numeric(1L))
   }
   key_order <- do.call(order, unname(lapply(pivot_data[pivot_keys], as.character)))
   pivot_data <- pivot_data[key_order, , drop = FALSE]

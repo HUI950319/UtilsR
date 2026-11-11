@@ -1007,3 +1007,19 @@ test_that("rank correlations write the completed rank column once", {
   expect_identical(partial, rep(FALSE, 4L))
   expect_identical(actual$data, quiet_rank_cor(data, group.by = "group")$data)
 })
+
+test_that("rank reshaping only averages duplicate method keys", {
+  d <- rank_cor_data()
+  d <- rbind(d, transform(d[1L, ], score = 10))
+  fn <- PlotRankCor
+  env <- new.env(parent = environment(fn))
+  env$mean <- function(x, ...) {
+    if (length(x) == 1L) stop("averaged a singleton score")
+    base::mean(x, ...)
+  }
+  environment(fn) <- env
+  result <- fn(d, "item", "score", method.by = "method", use_rank = FALSE, show.label = FALSE)
+  reference <- PlotRankCor(d, "item", "score", method.by = "method", use_rank = FALSE, show.label = FALSE)
+  expect_identical(result$data, reference$data)
+  expect_identical(attr(result, "cor_results"), attr(reference, "cor_results"))
+})
