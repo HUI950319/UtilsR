@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `stat_ci()` sends only parsed confidence intervals to numeric formatting when other table cells contain text or missing values.
+
 * Repeated p-value strings reuse one parse and format while preserving exact decimal threshold comparisons.
 
 * Axis hiding calculates nested layout coordinates without allocating one data frame per plot.

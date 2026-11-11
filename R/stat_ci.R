@@ -163,9 +163,17 @@ stat_ci <- function(x, y = NULL, z = NULL,
     }
 
     # Format mixed precisions in one vectorized call.
-    out <- ifelse(valid,
-      .format_values("%.*f %s%.*f%s%.*f%s", d, est, bp[1], d, lo, sep, d, hi, bp[2]),
-      x)
+    template <- "%.*f %s%.*f%s%.*f%s"
+    if (all(valid)) {
+      out <- .format_values(template, d, est, bp[1], d, lo, sep, d, hi, bp[2])
+    } else {
+      out <- x
+      if (any(valid)) {
+        precision <- d[valid]
+        out[valid] <- .format_values(template, precision, est[valid], bp[1], precision,
+                                     lo[valid], sep, precision, hi[valid], bp[2])
+      }
+    }
     names(out) <- input_names
     return(out)
   }

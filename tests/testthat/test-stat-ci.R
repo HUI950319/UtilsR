@@ -253,3 +253,15 @@ test_that("numeric interval formatting retains complete input storage", {
   x[20L] <- NA
   expect_identical(fn(x, y, z), stat_ci(x, y, z))
 })
+
+test_that("mixed confidence interval text formats only parsed rows", {
+  fn <- stat_ci
+  env <- new.env(parent = environment(fn))
+  env$sprintf <- function(fmt, ...) {
+    if (startsWith(fmt, "%.*f") && length(list(...)[[1L]]) > 2L) stop("formatted unparsed rows")
+    base::sprintf(fmt, ...)
+  }
+  environment(fn) <- env
+  x <- c("1.20 (0.90, 1.50)", rep(NA_character_, 40), "2.00 [1.00; 3.00]", "")
+  expect_identical(fn(x), stat_ci(x))
+})
