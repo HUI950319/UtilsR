@@ -1543,10 +1543,20 @@ plt_con <- function(data,
 
   # --- Type-specific geom ---
   if (type == "violin") {
-    p <- p + .con_component(ggplot2::geom_violin,
-      scale = "width", trim = TRUE, alpha = alpha,
-      position = .con_component(ggplot2::position_dodge)
-    )
+    groups <- vctrs::vec_group_id(dat_long[c("feature", "group.by")])
+    counts <- tabulate(groups, nbins = attr(groups, "n"))
+    keep <- counts[groups] >= 2L
+    if (any(!keep)) {
+      omitted <- sum(counts == 1L)
+      cli::cli_warn("Omitted violin density for {omitted} feature-group combination{?s} with < 2 obs.")
+    }
+    if (any(keep)) {
+      p <- p + .con_component(ggplot2::geom_violin,
+        data = dat_long[keep, , drop = FALSE],
+        scale = "width", trim = TRUE, alpha = alpha,
+        position = .con_component(ggplot2::position_dodge)
+      )
+    }
   } else if (type == "box") {
     p <- p +
       .con_component(ggplot2::geom_boxplot,

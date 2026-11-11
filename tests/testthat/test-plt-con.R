@@ -1730,3 +1730,14 @@ test_that("single violin retains a missing group singleton as a point", {
   expect_identical(nrow(p$data), 5L)
   expect_no_warning(ggplot2::ggplot_build(p))
 })
+
+test_that("stacked violin densities require two finite feature observations", {
+  d <- data.frame(g = rep(c("A", "B"), each = 3L),
+    left = c(1, 2, 3, 5, NA, NA), right = c(8, NA, NA, 4, 5, 6))
+  expect_warning(p <- suppressMessages(plt_con(d, c("left", "right"), "g", type = "violin",
+    stack = TRUE, add_point = TRUE)), "Omitted violin density")
+  layer <- Filter(function(x) inherits(x$geom, "GeomViolin"), p$layers)[[1L]]
+  expect_equal(layer$data$value, c(1, 2, 3, 4, 5, 6))
+  expect_identical(nrow(p$data), 8L)
+  expect_no_warning(ggplot2::ggplot_build(p))
+})

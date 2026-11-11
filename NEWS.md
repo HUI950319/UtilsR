@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Stacked violins in `plt_con()` omit undefined feature-by-group densities and retain observations in their other layers.
+
 * `plt_con()` keeps singleton points from missing groups while omitting their undefined violin densities.
 
 * Categorical UpSet plots build each observed set combination once and reuse it across matching rows.
