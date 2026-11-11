@@ -1526,3 +1526,15 @@ test_that("inspection listings preserve a small integer64 mean", {
   expect_length(row, 1L)
   expect_match(row, "^ +Mean \\(SD\\) +0\\.0833 ")
 })
+
+test_that("inspection factor frequencies count codes without grouping the data", {
+  data <- data.frame(stage = structure(c(3L, 1L, NA_integer_, 1L, 2L),
+    levels = c("I", NA_character_, "III", "unused"), class = c("ordered", "factor")))
+  reference <- capture.output(suppressMessages(lv(data)))
+  count <- dplyr::count
+  local_mocked_bindings(count = function(x, ...) {
+    if (identical(names(x), "value") && is.factor(x$value)) stop("grouped a factor frequency table")
+    count(x, ...)
+  }, .package = "dplyr")
+  expect_identical(capture.output(suppressMessages(lv(data))), reference)
+})

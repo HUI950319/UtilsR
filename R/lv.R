@@ -487,9 +487,19 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
 
   .lv_frequencies <- function(x, var) {
     x <- .label_na_level(x)
-    tab <- dplyr::count(tibble::tibble(value = x), .data$value)
-    missing <- is.na(tab$value)
-    valid <- tab$value[!missing]
+    if (identical(class(x), "factor") || identical(class(x), c("ordered", "factor"))) {
+      counts <- tabulate(x, nbins = nlevels(x))
+      used <- which(counts > 0L)
+      valid <- levels(x)[used]
+      n <- counts[used]
+      missing_n <- length(x) - sum(n)
+    } else {
+      tab <- dplyr::count(tibble::tibble(value = x), .data$value)
+      missing <- is.na(tab$value)
+      valid <- tab$value[!missing]
+      n <- tab$n[!missing]
+      missing_n <- sum(tab$n[missing])
+    }
     # spans with their units, unpadded; date-times keep the time at midnight,
     # which as.character() drops ("2020-01-01" beside "2020-01-01 01:00:00")
     labels <- as.character(.label_blank(
@@ -498,15 +508,14 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       else valid
     ))
     labels <- .distinct_labels(valid, labels)
-    n <- tab$n[!missing]
     if (length(n) > 15L) {
       labels <- c(labels[1:14], sprintf("(%s others)", .fmt_int(length(n) - 14L)))
       n <- c(n[1:14], sum(n[-(1:14)]))
     }
     cum <- .fmt_pct(cumsum(n) / length(x) * 100)
-    if (any(missing)) {
+    if (missing_n > 0L) {
       labels <- c(labels, NA)
-      n <- c(n, sum(tab$n[missing]))
+      n <- c(n, missing_n)
       cum <- c(cum, "")
     }
     stats::setNames(

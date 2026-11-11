@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `lv()` builds ordinary factor frequency tables directly from level codes while preserving displayed missing categories.
+
 * Factor combinations assign final codes through a group permutation without rehashing each observation.
 
 * KNN builds one row mask and stops scanning columns once all rows contain observations.
