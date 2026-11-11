@@ -314,6 +314,8 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
     } else axes
     scale_axes <- if (radial) {
       c(if (hide_x[i]) p$coordinates$theta, if (hide_y[i]) p$coordinates$r)
+    } else if (inherits(p$coordinates, "CoordFlip")) {
+      unname(c(x = "y", y = "x")[axes])
     } else axes
     guide_names <- c(guide_axes, paste0(guide_axes, ".sec"))
     if (inherits(p$guides, "Guides")) {

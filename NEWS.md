@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fmt_axis()` applies guide-local hiding to the scale drawn on the selected axis after `coord_flip()`.
+
 * Paired scatter rank correlations retain the order of integer64 coordinates beyond double precision.
 
 * Explicit numeric group levels match their exact integer64 values without merging nearby integers or truncating fractions.

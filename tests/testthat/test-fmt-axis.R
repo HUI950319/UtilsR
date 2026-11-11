@@ -450,3 +450,16 @@ test_that("axis grids reject dimensional counts and index arrays", {
     expect_error(do.call(fmt_axis, args), axis)
   }
 })
+
+test_that("flipped axis hiding follows the physical guide scale", {
+  guide <- ggplot2::guide_axis(theme = ggplot2::theme(
+    axis.text.x.bottom = ggplot2::element_text(colour = "red"),
+    axis.text.y.left = ggplot2::element_text(colour = "blue")))
+  p <- ggplot2::ggplot(data.frame(x = 1:4, y = 4:1), ggplot2::aes(x, y)) +
+    ggplot2::geom_point() + ggplot2::scale_x_continuous(guide = guide) +
+    ggplot2::scale_y_continuous(guide = guide) + ggplot2::coord_flip()
+  q <- fmt_axis(p, x.axis = TRUE)
+  expect_s3_class(q$scales$get_scales("y")$guide$params$theme$axis.text.x.bottom, "element_blank")
+  expect_identical(q$scales$get_scales("x")$guide, guide)
+  expect_identical(p$scales$get_scales("y")$guide, guide)
+})
