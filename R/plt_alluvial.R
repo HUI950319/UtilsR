@@ -556,8 +556,6 @@ plt_alluvial <- function(
       group_levels[index]
     }
   }))
-  stat$.facet <- factor(stat$.facet, levels = facet_levels)
-  stat$.cat_var <- factor(stat$.cat_var, levels = cat_levels)
   stat$.group <- factor(stat$.group, levels = all_group_levels)
 
   real_colors <- if (!is.null(names(color))) {

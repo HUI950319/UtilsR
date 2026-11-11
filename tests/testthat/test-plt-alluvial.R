@@ -1034,3 +1034,23 @@ test_that("alluvial zero strata are created in their final order", {
   environment(fn) <- env
   expect_identical(draw(fn)$data, expected$data)
 })
+
+test_that("alluvial facets and categories keep their existing factor codes", {
+  skip_if_not_installed("ggalluvial")
+  d <- alluvial_data()
+  fn <- plt_alluvial
+  env <- new.env(parent = environment(fn))
+  env$factor <- function(x, ...) {
+    expr <- substitute(x)
+    if (identical(expr, quote(stat$.facet)) || identical(expr, quote(stat$.cat_var))) {
+      stop("re-encoded alluvial factor levels")
+    }
+    base::factor(x, ...)
+  }
+  environment(fn) <- env
+  for (gap in c(0, .02)) {
+    draw <- function(f) suppressMessages(f(d, "category", "group", facet = "panel",
+                                            stratum_args = list(gap = gap), save = NULL))
+    expect_identical(draw(fn)$data, draw(plt_alluvial)$data)
+  }
+})
