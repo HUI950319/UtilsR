@@ -1433,3 +1433,18 @@ test_that("console tables reuse one width lookup", {
   expect_identical(lookups, 1L)
   expect_identical(observed, utils::capture.output(fn(d, width = 80L, highlight = 2)))
 })
+
+test_that("object trees share a single console width lookup", {
+  fn <- pr_tree
+  env <- new.env(parent = environment(fn))
+  width_reads <- 0L
+  env$console_width <- function() {
+    width_reads <<- width_reads + 1L
+    80L
+  }
+  environment(fn) <- env
+  x <- list(numbers = 1:3, nested = list(a = "word", b = structure(3L, unit = "mm")), tail = "end")
+  lines <- utils::capture.output(fn(x, max_lines = 7L))
+  expect_identical(width_reads, 1L)
+  expect_match(paste(lines, collapse = " "), "numbers", fixed = TRUE)
+})

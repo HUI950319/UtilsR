@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `pr_tree()` uses one console-width lookup for its labels, attributes and line budget.
+
 * `pr_table()` reuses the same available width for numeric formatting and column placement.
 
 * Print helpers skip ANSI truncation for labels that already fit.

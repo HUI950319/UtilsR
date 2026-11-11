@@ -916,6 +916,7 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
   ._pr_count(max_depth, "max_depth", infinite = TRUE)
   ._pr_count(max_items, "max_items", infinite = TRUE)
   ._pr_count(max_lines, "max_lines", infinite = TRUE)
+  width <- console_width()
   x <- ._pr_restore(x)
   if (inherits(x, "POSIXlt")) x <- as.POSIXct(x)
   drop_attr <- c("names", "class", "dim", "dimnames", "row.names", "srcref")
@@ -987,7 +988,7 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
           tag  <- if (length(more)) {
             cli::col_cyan(sprintf("[attr: %s]", paste(._pr_escape(more), collapse = ", ")))
           } else ""
-          room <- console_width() - 2L * (depth + 1L) - max(wid[k], pad) - 1L -
+          room <- width - 2L * (depth + 1L) - max(wid[k], pad) - 1L -
             (if (nzchar(tag)) cli::ansi_nchar(tag, type = "width") + 1L else 0L)
           name <- if (descend(child) && length(child)) cli::style_bold(nm[k]) else nm[k]
           name <- paste0(name, strrep(" ", max(pad - wid[k], 0L)))
@@ -1001,7 +1002,7 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
           # what still overflows a narrow console (a type and an attribute tag
           # wider than the line) ends in an ellipsis; cli::tree() cut it bare
           child_label <- cli::ansi_strtrim(child_label,
-                                           max(console_width() - 2L * (depth + 1L), 10L))
+                                           max(width - 2L * (depth + 1L), 10L))
         }
         kid <- node(child, paste0(id, "/", k), child_label, depth + 1, h)
         if (h != "count") kids <- c(kids, kid)
@@ -1015,7 +1016,7 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
           if (!is.null(names(p))) {
             rest <- cli::ansi_strtrim(paste0(rest, ": ", paste(
                 utils::head(nm[seq.int(max_items + 1L, length(nm))], 50L), collapse = ", ")),
-              console_width() - 2L * (depth + 1L))
+              width - 2L * (depth + 1L))
           }
           cli::col_grey(rest)
         } else ""))
@@ -1028,7 +1029,7 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
             name <- ._pr_escape(a)
             paste(cli::col_cyan("attr"), name, ._obj_desc(
               attr(v, a, exact = TRUE),
-              console_width() - 2L * (depth + 1L) - 6L - cli::ansi_nchar(name, type = "width"),
+              width - 2L * (depth + 1L) - 6L - cli::ansi_nchar(name, type = "width"),
               colour = TRUE, inside = TRUE))
           } else ""))
         }
@@ -1044,7 +1045,7 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
   } else if (opens(x, 0)) {
     cli::col_grey(sprintf("<%s %s>", if (is.list(x)) "list" else "S4", big(length(parts(x)))))
   } else {
-    ._obj_desc(x, console_width() - cli::ansi_nchar(class(x)[1], type = "width") - 3L,
+    ._obj_desc(x, width - cli::ansi_nchar(class(x)[1], type = "width") - 3L,
                colour = TRUE)
   }
   # the class as a chip for a classed list, a model fit or an S4 object; a
@@ -1063,7 +1064,7 @@ pr_tree <- function(x, max_depth = 3, max_items = 20, max_lines = 200,
     # the argument that cut them, as rlang names what shows hidden frames
     tree <- c(tree[seq_len(max_lines)], ._pr_wrap(cli::col_grey(sprintf(
       "# %s %s more lines (max_lines = %d)", cli::symbol$ellipsis,
-      format(rows$n - max_lines, big.mark = ","), max_lines)), console_width()))
+      format(rows$n - max_lines, big.mark = ","), max_lines)), width))
   }
   ._pr_out(tree)
 }
