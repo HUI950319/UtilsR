@@ -269,3 +269,13 @@ test_that("quoted mathematical labels remain values through plot text adapters",
   expect_identical(adapted$scales$get_scales("colour")$name, label)
   expect_s3_class(ggplot2::ggplotGrob(adapted), "gtable")
 })
+
+test_that("empty text formatting avoids walking plot leaves", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg)) + ggplot2::geom_point()
+  layout <- (p | p) / (p | patchwork::plot_spacer())
+  local_mocked_bindings(.map_plot_leaves = function(...) stop("visited an unchanged text leaf"),
+    .package = "UtilsR")
+  expect_identical(fmt_text(layout), layout)
+  expect_error(fmt_text(layout, axis_titles = "invalid"), "axis_titles")
+  expect_error(fmt_text(list(layout, 1)), "All elements")
+})
