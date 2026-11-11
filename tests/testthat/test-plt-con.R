@@ -1815,3 +1815,23 @@ test_that("independent continuous zooms reverse along with their data", {
     }
   }
 })
+
+test_that("stacked continuous long data bind only finite rows", {
+  d <- data.frame(x = c(1L, NA, 5L, 8L), z = c(Inf, 1.5, 3, NA),
+                  g = factor(c("b", "a", "b", "a"), levels = c("b", "a")))
+  fn <- .plt_con_stacked
+  env <- new.env(parent = environment(fn))
+  env$do.call <- function(what, args, ...) {
+    if (identical(what, base::rbind) && length(args) &&
+        all(c("value", "feature") %in% names(args[[1L]])) &&
+        sum(vapply(args, nrow, integer(1L))) > 5L) stop("bound discarded rows")
+    base::do.call(what, args, ...)
+  }
+  environment(fn) <- env
+  local_mocked_bindings(.plt_con_stacked = fn, .package = "UtilsR")
+  p <- con_plot(d, c("x", "z"), group.by = "g", stack = TRUE, type = "box")
+  expect_identical(p$data$value, c(1, 5, 8, 1.5, 3))
+  expect_identical(rownames(p$data), c("1", "3", "4", "6", "7"))
+  expect_identical(levels(p$data$feature), c("x", "z"))
+  expect_identical(levels(p$data$group.by), c("b", "a"))
+})

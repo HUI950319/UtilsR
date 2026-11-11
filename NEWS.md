@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Stacked continuous plots construct their long data from finite observations while preserving row and feature order.
+
 * Scatter grouping skips display-label reconstruction for matching plain character, integer, and logical keys.
 
 * Independent continuous panels keep partial zoom limits on the requested data side after reversing the value axis.

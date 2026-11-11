@@ -1488,16 +1488,23 @@ plt_con <- function(data,
                               aspect.ratio, base_size,
                               bg_palette, bg_alpha, seed) {
 
-  # Pivot to long format
-  dat_long <- do.call(rbind, lapply(stat.by, function(f) {
-    d <- data.frame(
-      value    = data[[f]],
-      group.by = data[[group.by]],
-      feature  = f,
-      stringsAsFactors = FALSE
-    )
-    d
+  # Reshape only the rows used by the continuous layers.
+  n <- nrow(data)
+  rows <- lapply(data[stat.by], function(value) which(is.finite(value)))
+  selected <- lengths(rows)
+  dat_long <- do.call(rbind, lapply(seq_along(stat.by), function(i) {
+    value <- data[[stat.by[i]]]
+    group <- data[[group.by]]
+    if (selected[i] < n) {
+      value <- value[rows[[i]]]
+      group <- group[rows[[i]]]
+    }
+    data.frame(value = value, group.by = group,
+               feature = rep_len(stat.by[i], length(value)), stringsAsFactors = FALSE)
   }))
+  if (any(selected < n)) {
+    rownames(dat_long) <- unlist(lapply(seq_along(rows), function(i) (i - 1L) * n + rows[[i]]))
+  }
   dat_long[["feature"]] <- factor(dat_long[["feature"]], levels = stat.by)
   dat_long[["group.by"]] <- factor(
     dat_long[["group.by"]], levels = levels(data[[group.by]])
@@ -1508,10 +1515,6 @@ plt_con <- function(data,
   } else {
     dat_long[["fill.by"]] <- dat_long[["feature"]]
   }
-
-  # Remove non-finite
-
-  dat_long <- dat_long[is.finite(dat_long[["value"]]), , drop = FALSE]
 
   # Resolve quantile bounds once, for both scales and annotations.
   values <- dat_long[["value"]]
