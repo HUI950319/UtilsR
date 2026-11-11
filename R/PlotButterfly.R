@@ -281,7 +281,8 @@ PlotButterfly <- function(
       alpha.by <- alpha_col
     }
     for (col in category_cols) {
-      data[[col]] <- .butterfly_category_labels(data[[col]])
+      labels <- .butterfly_category_labels(data[[col]])
+      data[[col]] <- if (inherits(labels, "Period")) as.character(labels) else labels
     }
     if (inherits(values, "haven_labelled_spss")) {
       data[[value.by]] <- .scatter_axis_values(values)

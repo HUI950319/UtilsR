@@ -1076,3 +1076,16 @@ test_that("butterfly wide pivots preserve blank category names", {
   q <- PlotButterfly2(d, stat.by = "category", value.by = "score", group.by = "group", type = "box")
   expect_identical(levels(q[[1L]]$data$Variable), c("", "B"))
 })
+
+test_that("butterfly bar grids keep distinct calendar period groups", {
+  skip_if_not_installed("lubridate")
+  months <- lubridate::period(months = rep(1:2, each = 2L))
+  d <- tibble::tibble(stat = rep(c("A", "B"), 2L), group = months, score = 1:4, fill = "one")
+  reference <- d
+  reference$group <- as.character(months)
+  draw <- function(x) PlotButterfly(x, stat.by = "stat", fill.by = "fill", group.by = "group",
+                                    value.by = "score", type = "bar", minmax = TRUE)
+  actual <- draw(d)
+  expected <- draw(reference)
+  for (i in seq_along(actual)) expect_identical(actual[[i]]$data, expected[[i]]$data)
+})
