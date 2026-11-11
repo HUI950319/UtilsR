@@ -1008,6 +1008,7 @@ fmt_legend <- function(plot,
   }
   if (n == 0L) return(plot)
 
+  base_theme <- ggplot2::theme_get()
   is_legend_aes <- .is_legend_aes
   # ---- Rename legend titles per subplot ----
   if (!is.null(title)) {
@@ -1125,7 +1126,7 @@ fmt_legend <- function(plot,
   for (i in seq_len(n)) {
     p <- plots[[i]]
     if (length(leg_theme) || isTRUE(attr(leg_theme, "complete"))) p <- p + leg_theme
-    th <- ggplot2::theme_get() + p$theme
+    th <- base_theme + p$theme
     if (inherits(p$guides, "Guides")) {
       guides <- p$guides$guides
       selected <- names(guides)[is_legend_aes(names(guides))]
@@ -1269,7 +1270,7 @@ fmt_legend <- function(plot,
         match("inset_patch", class(p)) < match("patchwork", class(p)))) return(FALSE)
     if (inherits(p, "patchwork")) {
       annotation_inside <- annotation_inside || is_inside(
-        (ggplot2::theme_get() + p$patches$annotation$theme)$legend.position)
+        (base_theme + p$patches$annotation$theme)$legend.position)
       return(any(vapply(seq_along(p), function(i) {
         child <- p[[i]]
         if (inherits(child, "patchwork") &&
@@ -1308,7 +1309,7 @@ fmt_legend <- function(plot,
       }
       if (identical(guide, "none") || identical(guide, FALSE) || inherits(guide, "GuideNone")) next
       position <- if (inherits(guide, "Guide")) guide$params$position else NULL
-      position <- position %||% (ggplot2::theme_get() + p$theme)$legend.position
+      position <- position %||% (base_theme + p$theme)$legend.position
       if (annotation_inside || is_inside(position)) return(TRUE)
     }
     FALSE
@@ -1324,7 +1325,7 @@ fmt_legend <- function(plot,
       if (identical(p$patches$layout$guides, "collect")) {
         if (length(leg_theme)) p <- p + patchwork::plot_annotation(theme = leg_theme)
         if (scaling) {
-          th <- ggplot2::theme_get() + p$patches$annotation$theme
+          th <- base_theme + p$patches$annotation$theme
           args <- list()
           for (nm in c("legend.spacing", "legend.spacing.x", "legend.spacing.y",
                        "legend.box.spacing", "legend.box.margin")) {

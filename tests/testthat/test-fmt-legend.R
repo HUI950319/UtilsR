@@ -996,3 +996,17 @@ test_that("legend controls reject shaped switches and positions before plots", {
   }
   expect_error(fmt_legend(stop("plot evaluated"), title = matrix("Title")), "title")
 })
+
+test_that("legend formatting reads the base theme once across panels", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg, colour = factor(cyl))) + ggplot2::geom_point()
+  reference <- fmt_legend(list(p, p), legend.position = "bottom", scale = 1.2)
+  getter <- ggplot2::theme_get
+  calls <- 0L
+  local_mocked_bindings(theme_get = function() {
+    calls <<- calls + 1L
+    getter()
+  }, .package = "ggplot2")
+  result <- fmt_legend(list(p, p), legend.position = "bottom", scale = 1.2)
+  expect_identical(calls, 1L)
+  expect_equal(lapply(result, function(q) q$theme), lapply(reference, function(q) q$theme))
+})
