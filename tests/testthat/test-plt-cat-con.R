@@ -1268,3 +1268,11 @@ test_that("categorical limits count SPSS missing values as one display group", {
   with_missing <- cat_test_plot(d, "s", stat = "count", NA_stat = TRUE)
   expect_equal(sort(with_missing$data$n), c(1L, 1L, 101L))
 })
+
+test_that("categorical limits count distinct period components", {
+  skip_if_not_installed("lubridate")
+  d <- data.frame(s = lubridate::period(months = seq_len(101L)))
+  expect_error(plt_cat(d, "s", palette = "steelblue"), "100 levels")
+  small <- cat_test_plot(d[c(2L, 1L, 2L), , drop = FALSE], "s", stat = "count")
+  expect_equal(sort(small$data$n), c(1L, 2L))
+})

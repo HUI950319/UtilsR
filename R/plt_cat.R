@@ -433,6 +433,12 @@ plt_cat <- function(data,
         }
         missing <- is.na(x)
         length(unique(vctrs::vec_data(x)[!missing])) + as.integer(NA_stat && any(missing))
+      } else if (inherits(x, "Period")) {
+        if (!requireNamespace("lubridate", quietly = TRUE)) {
+          cli::cli_abort("Inspecting {.cls Period} columns requires package {.pkg lubridate}.")
+        }
+        missing <- is.na(x)
+        length(unique(.cat_time_key(x[!missing]))) + as.integer(NA_stat && any(missing))
       } else {
         length(unique(x))
       }

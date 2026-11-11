@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_cat()` counts distinct lubridate Period components before preparing categories.
+
 * `plt_cat()` excludes SPSS user-missing codes from its category limit and counts a displayed missing category once.
 
 * `lv()` reuses the computed missing count when finding distinct values in complete columns.
