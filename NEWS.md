@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Jaccard group membership reuses exact numeric keys for Date, POSIX time and difftime groups.
+
 * Rank correlation plots group SPSS user-missing values with ordinary missing observations.
 
 * Dumbbell insets retain their points and show an unavailable p-value for constant differences or too few paired observations.

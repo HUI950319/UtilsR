@@ -845,3 +845,23 @@ test_that("sparse Jaccard intersections compare only shared features", {
   expect_equal(result["a", "b"], 2 / 198)
   expect_equal(result["a", "c"], 1 / 199)
 })
+
+test_that("Jaccard scalar time groups use one exact row index", {
+  fn <- PlotHeatmapJaccard
+  env <- new.env(parent = environment(fn))
+  env[["=="]] <- function(x, y) {
+    if (inherits(x, c("Date", "POSIXt", "difftime")) && length(x) > 1L) {
+      stop("rescanned a scalar time column")
+    }
+    base::`==`(x, y)
+  }
+  environment(fn) <- env
+  for (keys in list(as.Date(c(1, 2), origin = "1970-01-01"),
+                    as.POSIXct(c(1, 2), origin = "1970-01-01", tz = "UTC"),
+                    as.difftime(c(1, 2), units = "hours"))) {
+    d <- data.frame(cell_type = keys[c(1L, 1L, 2L, 2L, NA)], gene = c("a", "b", "b", "c", "b"))
+    labels <- if (inherits(keys, "difftime")) as.difftime(c(120, 60), units = "mins") else rev(keys)
+    expect_identical(fn(d, group_levels = labels, return_type = "data"),
+      matrix(c(1, 1 / 3, 1 / 3, 1), 2L, dimnames = list(as.character(labels), as.character(labels))))
+  }
+})

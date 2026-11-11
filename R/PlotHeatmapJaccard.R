@@ -183,13 +183,15 @@ PlotHeatmapJaccard <- function(
     ((is.numeric(group_values) && is.numeric(lookup_levels)) ||
      (is.logical(group_values) && is.logical(lookup_levels)))
   time_groups <- timespan[1L] && identical(class(group_values), class(ct_names))
+  scalar_time_groups <- inherits(group_values, c("Date", "POSIXt", "difftime")) &&
+    identical(class(group_values), class(ct_names))
   integer64_levels <- inherits(ct_names, "integer64")
   integer64_groups <- (integer64[1L] && integer64_levels) ||
     (integer64[1L] && !is.object(ct_names) && is.numeric(ct_names) &&
                        !is.complex(ct_names)) ||
     (integer64[3L] && !is.object(group_values) && is.numeric(group_values) &&
        !is.complex(group_values))
-  group_rows <- if (base_groups || time_groups || integer64_groups ||
+  group_rows <- if (base_groups || time_groups || scalar_time_groups || integer64_groups ||
                     (indexable_groups && is.character(lookup_levels) && !is.object(lookup_levels))) {
     rows <- which(non_missing)
     keys <- group_values[rows]
@@ -197,6 +199,14 @@ PlotHeatmapJaccard <- function(
     if (time_groups) {
       keys <- vctrs::vec_proxy_equal(keys)
       labels <- vctrs::vec_proxy_equal(labels)
+    } else if (scalar_time_groups) {
+      if (inherits(keys, "difftime")) {
+        keys <- as.numeric(keys, units = "secs")
+        labels <- as.numeric(labels, units = "secs")
+      } else {
+        keys <- as.numeric(keys)
+        labels <- as.numeric(labels)
+      }
     } else if (integer64_groups) {
       as_group_key <- function(value) {
         valid <- is.finite(value) & value > -2^63 & value < 2^63 & value == trunc(value)
