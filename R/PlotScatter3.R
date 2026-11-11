@@ -344,7 +344,15 @@ PlotScatter3 <- function(
 
   # ---- Correlation ----
   if (cor_method != "none") {
-    cor_res <- .scatter_cor_test(data[[x]], data[[y]], method = cor_method)
+    rank_axis <- function(raw, value) {
+      if (cor_method != "pearson" && inherits(raw, "integer64")) {
+        vctrs::vec_rank(raw, ties = "min", incomplete = "na")
+      } else {
+        value
+      }
+    }
+    cor_res <- .scatter_cor_test(rank_axis(raw_x, x_values), rank_axis(raw_y, y_values),
+                                method = cor_method)
     r_val <- round(cor_res$estimate, 3)
     r_prefix <- switch(cor_method, spearman = "rho", kendall = "tau", "r")
     cor_p <- cor_res$p.value

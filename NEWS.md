@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Paired scatter rank correlations retain the order of integer64 coordinates beyond double precision.
+
 * Explicit numeric group levels match their exact integer64 values without merging nearby integers or truncating fractions.
 
 * `plt_cat()` avoids converting complete factor labels to character just to check for missing values.

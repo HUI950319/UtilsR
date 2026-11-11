@@ -1559,3 +1559,14 @@ test_that("scatter numeric levels match only exact integer64 keys", {
   fractional <- .scatter_group_factor(bit64::as.integer64(1:3), c(1.5, 2))
   expect_identical(as.character(fractional), c(NA_character_, "2", NA_character_))
 })
+
+test_that("paired scatter rank correlation retains exact integer64 order", {
+  skip_if_not_installed("bit64")
+  x <- bit64::as.integer64("9007199254740992") + bit64::as.integer64(0:3)
+  d <- data.frame(Control = x, Treat = 1:4, group = rep(c("A", "B"), each = 2L))
+  p <- withCallingHandlers(scatter3_capture_inset(d, cor_method = "spearman",
+    test_method = "none", show_refline = FALSE), warning = function(w) {
+      if (grepl("integer precision lost", conditionMessage(w), fixed = TRUE)) invokeRestart("muffleWarning")
+    })
+  expect_match(ggplot2::layer_data(p$main, 2L)$label, "^rho = 1,")
+})
