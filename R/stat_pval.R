@@ -184,6 +184,15 @@ stat_pval <- function(x,
   }
   d <- as.integer(d)
 
+  if (is.character(x) && !is.object(x) && length(x) > 1024L &&
+      anyDuplicated(x[seq.int(1L, length(x), length.out = 1024L)])) {
+    keys <- unique(x)
+    if (length(keys) < length(x) / 2) {
+      formatted <- stat_pval(keys, digits = d, mode = mode, map_signif = map_signif)
+      return(stats::setNames(formatted[match(x, keys)], input_names))
+    }
+  }
+
   bounded <- rep(FALSE, length(x))
   x_num <- if (is.character(x)) {
     text <- .trim_pvalue_space(x)

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Repeated p-value strings reuse one parse and format while preserving exact decimal threshold comparisons.
+
 * Axis hiding calculates nested layout coordinates without allocating one data frame per plot.
 
 * Pearson scatter annotations retain the small differences between large integer64 coordinates.

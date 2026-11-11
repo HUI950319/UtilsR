@@ -659,3 +659,22 @@ test_that("external P-value stars preserve serialized integer64 labels", {
   expect_null(attr(output, "status"), info = paste(output, collapse = "\n"))
   expect_true("COLD_INTEGER_LABEL_OK" %in% output)
 })
+
+test_that("repeated p-value strings parse only distinct text", {
+  values <- c("0.001", "0.0010000000000000001", "0.005", "< 1e-5", "NaN", NA, " 0.50 ")
+  x <- rep(values, length.out = 5000L)
+  names(x) <- paste0("n", seq_along(x))
+  fn <- stat_pval
+  env <- new.env(parent = environment(fn))
+  env$stat_pval <- fn
+  env$.parse_decimal_tokens <- function(text) {
+    if (length(text) > length(values)) stop("parsed the repeated strings")
+    .parse_decimal_tokens(text)
+  }
+  environment(fn) <- env
+  env$stat_pval <- fn
+  for (mode in c("stars", "pvalue", "plain")) {
+    expected <- stats::setNames(rep(stat_pval(values, mode = mode), length.out = length(x)), names(x))
+    expect_identical(fn(x, mode = mode), expected)
+  }
+})
