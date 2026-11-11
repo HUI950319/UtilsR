@@ -1014,3 +1014,23 @@ test_that("Alluvial projects selected data.table columns without copying unused 
   expect_identical(result$data, reference$data)
   expect_identical(x, before)
 })
+
+test_that("alluvial zero strata are created in their final order", {
+  skip_if_not_installed("ggalluvial")
+  d <- alluvial_data()
+  d$category <- ordered(d$category, levels = c("B", "A"))
+  d$panel <- factor(d$panel, levels = c("P2", "P1"))
+  draw <- function(fn) suppressMessages(fn(d, "category", "group", facet = "panel", save = NULL))
+  expected <- draw(plt_alluvial)
+  fn <- plt_alluvial
+  env <- new.env(parent = environment(fn))
+  env$order <- function(...) {
+    args <- list(...)
+    if (length(args) == 3L && all(vapply(args, is.factor, logical(1L)))) {
+      stop("sorted the expanded stratum grid")
+    }
+    base::order(...)
+  }
+  environment(fn) <- env
+  expect_identical(draw(fn)$data, expected$data)
+})

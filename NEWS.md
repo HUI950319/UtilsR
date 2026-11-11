@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Alluvial plots sort observed facet-category pairs once before filling each group stratum.
+
 * Jaccard pairwise comparisons skip globally unique features while still counting them in union sizes.
 
 * Dumbbell delta labels and dot guides position correctly when the two endpoint columns carry different value labels.
