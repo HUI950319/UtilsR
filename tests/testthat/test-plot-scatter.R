@@ -1536,3 +1536,15 @@ test_that("paired histogram height follows visible bin counts", {
   expect_equal(rlang::quo_get_env(layer$mapping$yend)$median_line_yend, 1.6)
   expect_identical(layer$data$median_diff, stats::median(changes))
 })
+
+test_that("small scatter samples retain an unavailable correlation annotation", {
+  d <- data.frame(x = 1:2, y = c(2, 4), group = c("A", "B"))
+  expect_no_error(PlotScatter1(d, "x", "y", "group", show_cor = TRUE,
+    show_ellipse = FALSE, box_jitter = FALSE))
+  expect_no_error(PlotScatter2(d, "x", "y", "group", show_cor = TRUE))
+  p <- scatter3_capture_inset(d, "x", "y", "group", test_method = "none",
+    cor_method = "pearson", show_refline = FALSE)$main
+  expect_identical(ggplot2::layer_data(p, 2L)$label, "r = NA, p = NA")
+  expect_equal(unname(.scatter_cor_test(d$x, d$y, "kendall")$estimate), 1)
+  expect_true(is.na(.scatter_cor_test(c(1, NA), d$y, "kendall")$estimate))
+})

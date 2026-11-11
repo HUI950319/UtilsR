@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Scatter correlation annotations report an unavailable estimate when there are too few complete pairs.
+
 * `plt_cat()` counts distinct lubridate Period components before preparing categories.
 
 * `plt_cat()` excludes SPSS user-missing codes from its category limit and counts a displayed missing category once.

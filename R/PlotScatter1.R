@@ -564,10 +564,14 @@ PlotScatter1 <- function(
 }
 
 .scatter_cor_test <- function(x, y, method) {
-  if (identical(method, "pearson")) {
-    complete <- stats::complete.cases(x, y)
-    x <- x[complete]
-    y <- y[complete]
+  complete <- stats::complete.cases(x, y)
+  pearson <- identical(method, "pearson")
+  if (sum(complete) < if (pearson) 3L else 2L) {
+    return(list(estimate = NA_real_, p.value = NA_real_))
+  }
+  x <- x[complete]
+  y <- y[complete]
+  if (pearson) {
     normalize <- function(value) {
       if (!length(value) || !all(is.finite(value))) return(value)
       center <- min(value) / 2 + max(value) / 2
