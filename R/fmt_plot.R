@@ -222,11 +222,14 @@ fmt_axis <- function(plot, x.axis = FALSE, y.axis = FALSE, plot_dims = NULL) {
         top_dims <<- c(rows, cols)
         top_nested <<- any(vapply(children, inherits, logical(1), "patchwork"))
       }
+      height <- bounds[3L] - bounds[1L]
+      width <- bounds[4L] - bounds[2L]
+      top <- bounds[1L] + (areas$t - 1) / rows * height
+      left <- bounds[2L] + (areas$l - 1) / cols * width
+      bottom <- bounds[1L] + areas$b / rows * height
+      right <- bounds[2L] + areas$r / cols * width
       for (i in seq_len(count)) {
-        area <- unlist(areas[i, c("t", "l", "b", "r")], use.names = FALSE)
-        cell <- (area - c(1, 1, 0, 0)) / c(rows, cols, rows, cols)
-        cell <- bounds[c(1, 2, 1, 2)] + cell *
-          (bounds[c(3, 4, 3, 4)] - bounds[c(1, 2, 1, 2)])
+        cell <- c(top[i], left[i], bottom[i], right[i])
         p <- children[[i]]
         if (inherits(p, "patchwork")) {
           collect_positions(lapply(seq_along(p), function(j) p[[j]]),

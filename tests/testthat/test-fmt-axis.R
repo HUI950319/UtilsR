@@ -463,3 +463,19 @@ test_that("flipped axis hiding follows the physical guide scale", {
   expect_identical(q$scales$get_scales("x")$guide, guide)
   expect_identical(p$scales$get_scales("y")$guide, guide)
 })
+
+test_that("axis layout computes cell bounds without slicing individual frames", {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg)) + ggplot2::geom_point()
+  layout <- patchwork::wrap_plots(p, p, p, design = "AA\nBC")
+  reference <- axis_hidden_indices(fmt_axis(layout, plot_dims = c(2, 2)))
+  fn <- fmt_axis
+  env <- new.env(parent = environment(fn))
+  env$unlist <- function(x, ...) {
+    if (is.data.frame(x) && identical(names(x), c("t", "l", "b", "r"))) {
+      stop("unlisted a single area")
+    }
+    base::unlist(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(axis_hidden_indices(fn(layout, plot_dims = c(2, 2))), reference)
+})

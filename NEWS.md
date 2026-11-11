@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Axis hiding calculates nested layout coordinates without allocating one data frame per plot.
+
 * Pearson scatter annotations retain the small differences between large integer64 coordinates.
 
 * The package inventory skips ANSI truncation for paths that already fit the display.
