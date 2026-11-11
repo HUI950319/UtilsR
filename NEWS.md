@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotScatter3()` infers its two groups from observed labels while retaining points with missing group values.
+
 * Scatter groups treat SPSS user-missing values as missing instead of adding extra colour and shape levels.
 
 * `PlotScatter2()` computes automatic annotation positions without overflowing the axis span.

@@ -239,7 +239,9 @@ PlotScatter3 <- function(
       stop("Package 'bit64' is required for integer64 grouping columns.", call. = FALSE)
   }
   if (is.null(group_levels)) {
-    group_levels <- vctrs::vec_unique(data[[group]])
+    group_values <- data[[group]]
+    if (inherits(group_values, "haven_labelled_spss")) group_values <- .scatter_axis_values(group_values)
+    group_levels <- vctrs::vec_unique(group_values[!is.na(group_values)])
     if (length(group_levels) != 2) {
       stop("group must have exactly 2 levels (insignificant and significant).",
            call. = FALSE)

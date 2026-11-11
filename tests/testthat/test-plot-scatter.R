@@ -1590,3 +1590,14 @@ test_that("scatter group levels omit SPSS user-missing codes", {
   expect_identical(levels(p$data$g), c("1", "2"))
   expect_identical(is.na(p$data$g), c(FALSE, FALSE, FALSE, FALSE, TRUE, TRUE))
 })
+
+test_that("paired scatter infers groups without treating missing labels as a third group", {
+  d <- data.frame(Control = 1:6, Treat = c(2, 4, 5, 6, 7, 9),
+    group = c("A", "A", "B", "B", NA, NA))
+  p <- scatter3_capture_inset(d, test_method = "none", cor_method = "none")$main
+  expect_identical(levels(p$data$group), c("A", "B"))
+  expect_identical(nrow(p$data), 6L)
+  expect_equal(sum(is.na(p$data$group)), 2L)
+  d$group[5L] <- "C"
+  expect_error(scatter3_capture_inset(d, test_method = "none", cor_method = "none"), "exactly 2 levels")
+})
