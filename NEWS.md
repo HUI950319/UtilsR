@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Continuous dot plots group original keys directly and compute sort indices only for distinct strata.
+
 * `plt_con(split.by = ...)` indexes split groups once, including blank labels and observed explicit missing levels.
 
 * Scatter correlation annotations report an unavailable estimate when there are too few complete pairs.

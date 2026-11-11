@@ -805,14 +805,13 @@ plt_con <- function(data,
 }
 
 .con_dot_counts <- function(data, by) {
-  values <- lapply(data[by], unique)
-  groups <- as.data.frame(Map(match, data[by], values))
+  groups <- as.data.frame(data[by])
   ids <- vctrs::vec_group_id(groups)
   counts <- groups[!duplicated(ids), , drop = FALSE]
   counts$n <- tabulate(ids, attr(ids, "n"))
-  counts <- counts[do.call(order, rev(counts[by])), , drop = FALSE]
+  order_keys <- lapply(counts[by], function(x) match(x, unique(x)))
+  counts <- counts[do.call(order, rev(order_keys)), , drop = FALSE]
   rownames(counts) <- NULL
-  for (name in by) counts[[name]] <- values[[name]][counts[[name]]]
   counts
 }
 

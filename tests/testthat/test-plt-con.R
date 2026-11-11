@@ -1757,3 +1757,19 @@ test_that("continuous split panels reuse rows for observed factor codes", {
   expect_equal(lapply(plots, function(p) p$data$value), list(B = c(2, 3), c(1, 4), c(5, 6)) |>
     stats::setNames(names(plots)))
 })
+
+test_that("continuous dot ordering uses only representative rows", {
+  d <- data.frame(g = ordered(rep(c("B", "A", "B", NA), 50L), levels = c("A", "B", "unused")),
+    x = rep(c(1L, 1L, 2L, 3L), 50L))
+  fn <- .con_dot_counts
+  env <- new.env(parent = environment(fn))
+  env$match <- function(x, table, ...) {
+    if (length(x) == nrow(d)) stop("matched all original rows")
+    base::match(x, table, ...)
+  }
+  environment(fn) <- env
+  result <- fn(d, c("g", "x"))
+  expect_identical(result$g, d$g[1:4])
+  expect_identical(result$x, c(1L, 1L, 2L, 3L))
+  expect_identical(result$n, rep(50L, 4L))
+})
