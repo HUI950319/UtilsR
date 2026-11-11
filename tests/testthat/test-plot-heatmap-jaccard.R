@@ -865,3 +865,21 @@ test_that("Jaccard scalar time groups use one exact row index", {
       matrix(c(1, 1 / 3, 1 / 3, 1), 2L, dimnames = list(as.character(labels), as.character(labels))))
   }
 })
+
+test_that("Jaccard plot cells retain the factor order without converting a table", {
+  d <- data.frame(cell_type = c("", "", "B", "C"), gene = c("a", "b", "b", "a"))
+  fn <- .build_jaccard_plot
+  env <- new.env(parent = environment(fn))
+  env$as.table <- function(...) stop("converted the matrix to a table")
+  environment(fn) <- env
+  local_mocked_bindings(.build_jaccard_plot = fn, .package = "UtilsR")
+  for (show in c(TRUE, FALSE)) {
+    result <- PlotHeatmapJaccard(d, return_type = "both", show_diag = show)
+    m <- result$matrix
+    if (!show) diag(m) <- NA_real_
+    expected <- as.data.frame(as.table(m))
+    names(expected) <- c("Group1", "Group2", "Jaccard")
+    expect_identical(result$plot$data, expected)
+    expect_identical(unname(diag(result$matrix)), rep(1, 3L))
+  }
+})

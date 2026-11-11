@@ -346,12 +346,14 @@ PlotHeatmapJaccard <- function(
   if (is.factor(high_color)) high_color <- as.character(high_color)
 
   # ---- 4. Prepare long data.frame ----
-  plot_mat <- jmat
-  if (!show_diag) diag(plot_mat) <- NA
-
-  # Wide matrix → long (base R, no reshape2)
-  df_long         <- as.data.frame(as.table(plot_mat))
-  names(df_long)  <- c("Group1", "Group2", "Jaccard")
+  values <- as.vector(jmat)
+  if (!show_diag) values[seq.int(1L, length(values), by = n_ct + 1L)] <- NA_real_
+  codes <- seq_len(n_ct)
+  df_long <- data.frame(
+    Group1 = structure(rep.int(codes, n_ct), levels = ct_names, class = "factor"),
+    Group2 = structure(rep(codes, each = n_ct), levels = ct_names, class = "factor"),
+    Jaccard = values
+  )
 
   # ---- 5. Default strip colours ----
   if (show_strip && is.null(strip_colors)) {
