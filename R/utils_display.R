@@ -225,7 +225,6 @@ console_width <- function() {
   fg    <- ._cli_fg(cfg$type)
   ts_col <- if (nzchar(ts)) paste0(cli::col_magenta(ts), " ") else ""
 
-  out <- character(length(lines))
   if (style == "chip") {
     label <- c(info = "INFO", success = "DONE",
                warning = "WARN", error = "FAIL")[[cfg$type]]
@@ -234,15 +233,11 @@ console_width <- function() {
     # continuation lines start under the text: timestamp, space, chip, space
     out   <- paste0(c(lead, rep(strrep(" ", ts_w + nchar(label) + 3),
                                 length(lines) - 1L)), lines)
-  } else for (i in seq_along(lines)) {
-    body <- if (i == 1L) {
-      paste0(" ", cli::style_bold(fg(cfg$symbol)), " ",
-             cli::style_bold(fg(lines[i])), " ")
-    } else {
-      paste0(" ", cli::style_bold(fg(lines[i])), " ")
-    }
-    prefix <- if (i == 1L) ts_col else strrep(" ", ts_w + 2)
-    out[i] <- paste0(prefix, bg(body))
+  } else {
+    body <- paste0(" ", cli::style_bold(fg(lines)), " ")
+    body[1L] <- paste0(" ", cli::style_bold(fg(cfg$symbol)), body[1L])
+    prefix <- c(ts_col, rep(strrep(" ", ts_w + 2L), length(lines) - 1L))
+    out <- paste0(prefix, bg(body))
   }
   # A cli message rather than cat(), so suppressMessages() silences it;
   # cli_verbatim() keeps the text as is, without glue interpolation.

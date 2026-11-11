@@ -1101,3 +1101,18 @@ test_that("table highlights check repeated factor labels once", {
   expect_identical(sort(cells$rownum[!is.na(cells$rownum)]),
     which(grepl("^hit$", as.character(data$a), ignore.case = TRUE)))
 })
+
+test_that("full notices style all message lines in one batch", {
+  lines <- paste("line", seq_len(12L))
+  expected <- cli::ansi_strip(cli::cli_fmt(.cat_message(lines, timestamp_format = NULL, wrap = FALSE)))
+  style_calls <- integer()
+  bold <- cli::style_bold
+  local_mocked_bindings(style_bold = function(x, ...) {
+    n <- length(x)
+    style_calls <<- c(style_calls, n)
+    bold(x, ...)
+  }, .package = "cli")
+  actual <- cli::ansi_strip(cli::cli_fmt(.cat_message(lines, timestamp_format = NULL, wrap = FALSE)))
+  expect_identical(sort(style_calls), c(1L, 12L))
+  expect_identical(actual, expected)
+})
