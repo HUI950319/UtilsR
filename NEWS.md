@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `PlotScatter2()` computes automatic annotation positions without overflowing the axis span.
+
 * Shared limits in `plt_con()` retain the observations needed to compute their range under a scale added later.
 
 * `fmt_axisText()` applies theme-only overrides without reading the global axis theme or visiting scales.

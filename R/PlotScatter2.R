@@ -380,8 +380,12 @@ PlotScatter2 <- function(
       }
       x_rng <- finite_range(df[[x]])
       y_rng <- finite_range(df[[y]])
-      annot_pos <- c(x_rng[1] + diff(x_rng) * 0.02,
-                     y_rng[2] - diff(y_rng) * 0.02)
+      x_span <- diff(x_rng)
+      y_span <- diff(y_rng)
+      annot_pos <- c(
+        if (is.finite(x_span)) x_rng[1L] + x_span * 0.02 else 0.98 * x_rng[1L] + 0.02 * x_rng[2L],
+        if (is.finite(y_span)) y_rng[2L] - y_span * 0.02 else 0.02 * y_rng[1L] + 0.98 * y_rng[2L]
+      )
     }
     p_main <- p_main +
       ggplot2::annotate("text", x = annot_pos[1], y = annot_pos[2],

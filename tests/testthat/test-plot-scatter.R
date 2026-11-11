@@ -1570,3 +1570,14 @@ test_that("paired scatter rank correlation retains exact integer64 order", {
     })
   expect_match(ggplot2::layer_data(p$main, 2L)$label, "^rho = 1,")
 })
+
+test_that("marginal scatter annotation positions survive an overflowing span", {
+  d <- data.frame(x = c(-1e308, -.5e308, .5e308, 1e308), y = 1:4, g = rep(c("A", "B"), each = 2L))
+  p <- PlotScatter2(d, "x", "y", "g", annot_text = "Label")
+  text <- ggplot2::layer_data(p[[1L]], 2L)
+  expect_true(is.finite(text$x))
+  expect_equal(text$x / 1e308, -.96)
+  expect_equal(text$y, 3.94)
+  manual <- PlotScatter2(d, "x", "y", "g", annot_text = "Label", annot_pos = c(0, 2))
+  expect_identical(ggplot2::layer_data(manual[[1L]], 2L)$x, 0)
+})
