@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Palette previews calculate alpha-composited text contrast in batches.
+
 * Legend formatting reuses one global theme for subplot styling and patchwork collection checks.
 
 * Alluvial plots avoid copying unrelated data.table columns during input normalization.

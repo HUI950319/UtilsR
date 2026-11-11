@@ -1930,22 +1930,16 @@ pal_show_viridis <- function(palette = NULL, n = 8, begin = 0, end = 1,
   labels[has_name] <- color_names[has_name]
 
   # Compute luminance for text contrast
-  .luminance <- function(hex_col) {
-    r <- strtoi(substr(hex_col, 2, 3), 16L) / 255
-    g <- strtoi(substr(hex_col, 4, 5), 16L) / 255
-    b <- strtoi(substr(hex_col, 6, 7), 16L) / 255
+  translucent <- nchar(hex) == 9L
+  alpha <- strtoi(substr(hex[translucent], 8L, 9L), 16L) / 255
+  channel <- function(first, last) {
+    v <- strtoi(substr(hex, first, last), 16L) / 255
     # Preview tiles are drawn on white; contrast uses the composited colour.
-    if (nchar(hex_col) == 9L) {
-      a <- strtoi(substr(hex_col, 8, 9), 16L) / 255
-      r <- r * a + 1 - a
-      g <- g * a + 1 - a
-      b <- b * a + 1 - a
-    }
-    lin <- function(v) ifelse(v <= 0.03928, v / 12.92, ((v + 0.055) / 1.055)^2.4)
-    0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b)
+    v[translucent] <- v[translucent] * alpha + 1 - alpha
+    ifelse(v <= 0.03928, v / 12.92, ((v + 0.055) / 1.055)^2.4)
   }
-  fg_colors <- ifelse(vapply(hex, .luminance, numeric(1)) > 0.179,
-                       "#000000", "#FFFFFF")
+  luminance <- 0.2126 * channel(2L, 3L) + 0.7152 * channel(4L, 5L) + 0.0722 * channel(6L, 7L)
+  fg_colors <- ifelse(luminance > 0.179, "#000000", "#FFFFFF")
 
   # --- ggplot output ---
   if (output == "gg") {

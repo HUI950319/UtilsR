@@ -2822,3 +2822,20 @@ test_that("finite palette placement keeps its original coordinate storage", {
   expect_identical(result, .pal_numeric_positions(values, FALSE))
   expect_identical(fn(c(values, NA_real_), TRUE), .pal_numeric_positions(c(values, NA_real_), TRUE))
 })
+
+test_that("palette previews calculate contrast in bounded channel passes", {
+  colors <- c(grDevices::rainbow(32L, alpha = .5), grDevices::grey(seq(0, 1, length.out = 32L)))
+  expected <- .pal_show_colors(colors, max_colors = Inf)$data
+  fn <- .pal_show_colors
+  env <- new.env(parent = environment(fn))
+  calls <- 0L
+  env$strtoi <- function(...) {
+    calls <<- calls + 1L
+    if (calls > 4L) stop("too many scalar channel conversions")
+    base::strtoi(...)
+  }
+  environment(fn) <- env
+  result <- fn(colors, max_colors = Inf)$data
+  expect_identical(result$fg, expected$fg)
+  expect_identical(result$hex, expected$hex)
+})
