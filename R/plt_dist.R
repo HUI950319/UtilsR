@@ -499,16 +499,24 @@ plt_dist <- function(data,
 
     # Label text per `label_args$style`; segments below `min_pct` get NA
     # labels, which are dropped when drawn without changing the stacking.
-    counts <- scales::comma(plotdata[[count_name]], accuracy = 1)
-    pct <- scales::percent(plotdata[[prop_name]], accuracy = label_args$pct_accuracy)
-    plotdata[[label_name]] <- switch(label_args$style,
-      count              = counts,
-      percent            = pct,
-      count_percent      = sprintf("%s (%s)", counts, pct),
-      count_percent_wrap = sprintf("%s\n%s", counts, pct),
-      none               = NA_character_
-    )
-    plotdata[[label_name]][plotdata[[prop_name]] < label_args$min_pct] <- NA_character_
+    plotdata[[label_name]] <- rep(NA_character_, nrow(plotdata))
+    if (label_args$style != "none") {
+      visible <- which(plotdata[[prop_name]] >= label_args$min_pct)
+      if (length(visible)) {
+        if (label_args$style != "percent") {
+          counts <- scales::comma(plotdata[[count_name]][visible], accuracy = 1)
+        }
+        if (label_args$style != "count") {
+          pct <- scales::percent(plotdata[[prop_name]][visible], accuracy = label_args$pct_accuracy)
+        }
+        plotdata[[label_name]][visible] <- switch(label_args$style,
+          count              = counts,
+          percent            = pct,
+          count_percent      = sprintf("%s (%s)", counts, pct),
+          count_percent_wrap = sprintf("%s\n%s", counts, pct)
+        )
+      }
+    }
 
     p <- ggplot2::ggplot(plotdata, ggplot2::aes(
       x = .data[[x_var]], y = .data[[prop_name]], fill = .data[[fill_var]])) +

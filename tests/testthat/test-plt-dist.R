@@ -711,3 +711,17 @@ test_that("typed distribution categories keep exact identities", {
     expect_identical(d, original)
   }
 })
+
+test_that("stacked distribution label styles skip unused formatters", {
+  d <- data.frame(a = rep("A", 6L), b = c(rep("common", 5L), "rare"))
+  labels <- list(style = "count", min_pct = .25)
+  reference <- plt_dist(d, c("a", "b"), type = "bar", label_args = labels, save = NULL)$data
+  format <- scales::comma
+  local_mocked_bindings(comma = function(x, ...) {
+    if (length(x) > 1L) stop("formatted hidden counts")
+    format(x, ...)
+  }, percent = function(...) stop("formatted unused percentages"), .package = "scales")
+  result <- plt_dist(d, c("a", "b"), type = "bar", label_args = labels, save = NULL)$data
+  expect_identical(result, reference)
+  expect_identical(result$.lab, c("5", NA_character_))
+})

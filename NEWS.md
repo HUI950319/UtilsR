@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Stacked distribution plots format counts or percentages only for the selected label style and visible segments.
+
 * Console key-value layouts split only values that actually contain line breaks.
 
 * Background stripes retrieve each shared axis scale once, keeping separate scales for free facets.
