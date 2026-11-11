@@ -1244,3 +1244,18 @@ test_that("categorical UpSet retains a source named intersection", {
   expect_identical(lists[[1L]], list(c("intersection", "B"), "B", "intersection"))
   expect_equal(sum(ggplot2::layer_data(p)$count), nrow(d))
 })
+
+test_that("categorical UpSet reuses repeated membership patterns", {
+  skip_if_not_installed("ggupset")
+  withr::local_options(lifecycle_verbosity = "quiet")
+  d <- data.frame(A = rep(c(TRUE, FALSE, FALSE, TRUE), 20L),
+    B = rep(c(FALSE, TRUE, FALSE, TRUE), 20L))
+  fn <- .plt_cat_upset
+  env <- new.env(parent = environment(fn))
+  env$apply <- function(...) stop("rebuilt every membership row")
+  environment(fn) <- env
+  local_mocked_bindings(.plt_cat_upset = fn, .package = "UtilsR")
+  p <- cat_test_plot(d, names(d), type = "upset")
+  expect_identical(p$data$intersection, rep(list("A", "B", c("A", "B")), 20L))
+  expect_equal(sum(ggplot2::layer_data(p)$count), 60)
+})

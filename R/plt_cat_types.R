@@ -374,12 +374,11 @@
   dim(bool_mat) <- c(nrow(data), length(stat.by))
 
   intersection_col <- utils::tail(make.unique(c(names(data), "intersection")), 1L)
-  data[[intersection_col]] <- apply(bool_mat, 1, function(row) {
-    stat.by[row]
-  }, simplify = FALSE)
-
-  data <- data[vapply(data[[intersection_col]], length, integer(1)) > 0, ,
-               drop = FALSE]
+  groups <- vctrs::vec_group_id(as.data.frame(bool_mat))
+  combinations <- lapply(which(!duplicated(groups)), function(i) stat.by[bool_mat[i, ]])
+  nonempty <- lengths(combinations) > 0L
+  data[[intersection_col]] <- combinations[groups]
+  data <- data[nonempty[groups], , drop = FALSE]
 
   if (nrow(data) == 0) {
     if (allow_empty) {
@@ -393,7 +392,7 @@
     cli::cli_abort("No rows match {.arg stat_level}. Cannot create UpSet plot.")
   }
 
-  n_intersections <- length(unique(data[[intersection_col]]))
+  n_intersections <- sum(nonempty)
   if (n_intersections > 20L) {
     cli::cli_warn("Only the 20 most frequent of {n_intersections} UpSet intersections are shown; {n_intersections - 20L} are omitted.")
   }

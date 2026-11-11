@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Categorical UpSet plots build each observed set combination once and reuse it across matching rows.
+
 * `plt_cat(type = "upset")` keeps a selected source column named `intersection` alongside the plotted membership list.
 
 * `PlotScatter3()` bases the automatic median-line height on the histogram's displayed bin boundaries and range.
