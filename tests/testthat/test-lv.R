@@ -1486,3 +1486,19 @@ test_that("inspection reuses normalized time spans across reports", {
   expect_identical(result$value$value, d)
   expect_match(paste(result$output, collapse = "\n"), "Variable distributions", fixed = TRUE)
 })
+
+test_that("inspection cross tabulations sum their count matrix once", {
+  d <- data.frame(a = c("A", "A", "B", "B", "B"), b = c("one", "two", "two", "three", "three"))
+  fn <- lv.data.frame
+  env <- new.env(parent = environment(fn))
+  full_sums <- 0L
+  env$sum <- function(x, ...) {
+    if (identical(dim(x), c(2L, 3L))) full_sums <<- full_sums + 1L
+    base::sum(x, ...)
+  }
+  environment(fn) <- env
+  result <- capture_reports(fn(d, count = c(a, b)))[[1L]][["_data"]]
+  expected <- capture_reports(lv(d, count = c(a, b)))[[1L]][["_data"]]
+  expect_identical(full_sums, 1L)
+  expect_identical(result, expected)
+})

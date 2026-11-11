@@ -969,15 +969,16 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
       counts <- as.matrix(cross_wide[categories])
       row_n <- rowSums(counts)
       col_n <- colSums(counts)
+      total_n <- sum(counts)
       cross_tab <- tibble::tibble(.rows = nrow(cross_wide) + 1L)
       cross_tab[[count_vars[1]]] <- c(as.character(.label_blank(cross_wide[[1L]])),
                                       "Total")
       for (j in seq_along(categories)) {
         # a one-row matrix names the cell it drops to
         cross_tab[[categories[j]]] <- unname(c(.fmt_n_pct(counts[, j], row_n),
-                                               .fmt_n_pct(col_n[[j]], sum(counts))))
+                                               .fmt_n_pct(col_n[[j]], total_n)))
       }
-      cross_tab[[total_name]] <- unname(.fmt_int(c(row_n, sum(counts))))
+      cross_tab[[total_name]] <- unname(.fmt_int(c(row_n, total_n)))
       layout <- "Cells give n (row %); the Total row gives each column's n (share of all rows)."
 
       if (!knitting) {
