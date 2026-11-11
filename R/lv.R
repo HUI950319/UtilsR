@@ -378,13 +378,13 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
   }
 
   # Observed values; a factor keeps its level order without unused levels.
-  .get_levels <- function(x) {
+  .get_levels <- function(x, complete = FALSE) {
     if (is.expression(x)) x <- as.list(x)
     if (is.factor(x)) {
       levels(x)[tabulate(as.integer(x), nlevels(x)) > 0L]
     } else {
       # sorted as the count listing sorts them (C locale), not as they occur
-      values <- unique(x[!is.na(x)])
+      values <- unique(if (complete) x else x[!is.na(x)])
       tryCatch(sort(values, method = "radix"), error = function(e) values)
     }
   }
@@ -395,7 +395,7 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
     n_na <- .count_missing_values(col_data)
     var_class <- class(col_data)[1]
 
-    unique_values <- .get_levels(col_data)
+    unique_values <- .get_levels(col_data, complete = n_na == 0L)
     n_unique <- length(unique_values)
     summary <- tibble::tibble(
       vars = var,

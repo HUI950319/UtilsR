@@ -1502,3 +1502,17 @@ test_that("inspection cross tabulations sum their count matrix once", {
   expect_identical(full_sums, 1L)
   expect_identical(result, expected)
 })
+
+test_that("complete inspection columns reuse their missingness count", {
+  skip_if_not_installed("knitr")
+  d <- data.frame(x = rep(1:5, 1000L))
+  fn <- lv.data.frame
+  env <- new.env(parent = environment(fn))
+  env$is.na <- function(x) {
+    if (identical(x, d$x)) stop("rescanned complete inspection values")
+    base::is.na(x)
+  }
+  environment(fn) <- env
+  reports <- capture_reports(fn(d))
+  expect_identical(reports[[1L]][["_data"]]$n_unique, 5L)
+})

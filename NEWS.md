@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `lv()` reuses the computed missing count when finding distinct values in complete columns.
+
 * `lv(count = ...)` reuses the overall total in every column of a two-way table.
 
 * `lv()` prepares the selected values once for the detailed table and the console sparklines.
