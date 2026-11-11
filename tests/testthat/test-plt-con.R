@@ -1773,3 +1773,19 @@ test_that("continuous dot ordering uses only representative rows", {
   expect_identical(result$x, c(1L, 1L, 2L, 3L))
   expect_identical(result$n, rep(50L, 4L))
 })
+
+test_that("shared continuous limits retain finite interior values on log scales", {
+  d <- data.frame(a = c(-1, 1, 5, 10), b = c(2, 10, 100, 200), g = rep(c("A", "B"), each = 2L))
+  plots <- suppressMessages(plt_con(d, c("a", "b"), "g", type = "box", same.y.lims = TRUE,
+    combine = FALSE))
+  build <- function(p) withCallingHandlers(ggplot2::ggplot_build(p + ggplot2::scale_y_log10()),
+    warning = function(w) {
+      if (grepl("NaNs produced|log-10 transformation|Removed 1 row", conditionMessage(w))) {
+        invokeRestart("muffleWarning")
+      }
+    })
+  ranges <- lapply(plots, function(p) build(p)$layout$panel_params[[1L]]$y.range)
+  expect_identical(ranges[[1L]], ranges[[2L]])
+  expect_true(ranges[[1L]][1L] <= 0)
+  expect_true(ranges[[1L]][2L] >= log10(200))
+})

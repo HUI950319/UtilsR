@@ -672,7 +672,7 @@ plt_con <- function(data,
     global_y_max <- .resolve_y_limit(y.max, if (is.null(y.max)) auto_values else all_values, side = "max")
     global_y_min <- .resolve_y_limit(y.min, if (is.null(y.min)) auto_values else all_values, side = "min")
     if (is.null(y.min) || is.null(y.max)) {
-      shared_values <- range(auto_values)
+      shared_values <- auto_values
       shared_groups <- NULL
       if (type == "bar") {
         shared_values <- all_values
