@@ -1741,3 +1741,19 @@ test_that("stacked violin densities require two finite feature observations", {
   expect_identical(nrow(p$data), 8L)
   expect_no_warning(ggplot2::ggplot_build(p))
 })
+
+test_that("continuous split panels reuse rows for observed factor codes", {
+  d <- data.frame(x = c(1, 2, 3, 4, 5, 6), g = rep(c("A", "B"), 3L),
+    site = factor(c("", "B", "B", "", NA, NA), levels = c("B", "", NA), exclude = NULL))
+  fn <- plt_con
+  env <- new.env(parent = environment(fn))
+  env[["=="]] <- function(x, y) {
+    if (identical(x, as.integer(d$site)) && length(y) == 1L) stop("rescanned continuous split codes")
+    base::`==`(x, y)
+  }
+  environment(fn) <- env
+  plots <- suppressMessages(fn(d, "x", "g", split.by = "site", combine = FALSE, type = "box"))
+  expect_identical(names(plots), c("B", "", "<NA>"))
+  expect_equal(lapply(plots, function(p) p$data$value), list(B = c(2, 3), c(1, 4), c(5, 6)) |>
+    stats::setNames(names(plots)))
+})

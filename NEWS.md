@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `plt_con(split.by = ...)` indexes split groups once, including blank labels and observed explicit missing levels.
+
 * Scatter correlation annotations report an unavailable estimate when there are too few complete pairs.
 
 * `plt_cat()` counts distinct lubridate Period components before preparing categories.
