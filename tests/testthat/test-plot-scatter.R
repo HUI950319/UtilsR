@@ -1526,3 +1526,13 @@ test_that("paired scatter statistics use exact integer64 differences", {
   expect_identical(ggplot2::layer_data(result$main, 2L)$label,
     paste0("p = ", format.pval(p, digits = formals(PlotScatter3)$p_digits)))
 })
+
+test_that("paired histogram height follows visible bin counts", {
+  changes <- c(-.8, -.4, .4, .8, rep(100, 36L))
+  d <- data.frame(Control = 0, Treat = changes, group = rep(c("A", "B"), 20L))
+  p <- scatter3_capture_inset(d, test_method = "none", cor_method = "none",
+    hist_bins = 2L, hist_x_limits = c(-1, 1))$inset
+  layer <- p$layers[[2L]]
+  expect_equal(rlang::quo_get_env(layer$mapping$yend)$median_line_yend, 1.6)
+  expect_identical(layer$data$median_diff, stats::median(changes))
+})
