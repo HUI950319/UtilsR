@@ -1516,3 +1516,13 @@ test_that("complete inspection columns reuse their missingness count", {
   reports <- capture_reports(fn(d))
   expect_identical(reports[[1L]][["_data"]]$n_unique, 5L)
 })
+
+test_that("inspection listings preserve a small integer64 mean", {
+  skip_if_not_installed("bit64")
+  large <- bit64::as.integer64("9007199254740992") + bit64::as.integer64(0:5)
+  data <- data.frame(measure = c(large, -large[-1L], -large[1L] + 1L))
+  out <- cli::ansi_strip(capture.output(suppressMessages(lv(data))))
+  row <- grep("^ +Mean \\(SD\\)", out, value = TRUE)
+  expect_length(row, 1L)
+  expect_match(row, "^ +Mean \\(SD\\) +0\\.0833 ")
+})

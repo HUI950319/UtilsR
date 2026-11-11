@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Numeric `lv()` listings calculate integer64 means before converting values for display.
+
 * Survival formula notices report a missing outcome column before selecting a model label.
 
 * Axis tile formatting reads the global theme once across multiple active panels.

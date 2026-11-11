@@ -558,7 +558,9 @@ lv.data.frame <- function(data, ..., pattern = NULL, group = NULL, count = NULL,
         Distribution = format(cli::spark_bar(bins / max(bins))),
         Range = paste(q[[1]], "to", q[[5]]),
         `Median [Q1, Q3]` = sprintf("%s [%s, %s]", q[[3]], q[[2]], q[[4]]),
-        `Mean (SD)` = sprintf("%s (%s)", num(mean(x)), num(spread))
+        `Mean (SD)` = sprintf("%s (%s)",
+                               num(if (inherits(col_data, "integer64")) .mean_plot_values(col_data) else mean(x)),
+                               num(spread))
       ))
     } else {
       pr_table(.lv_frequencies(col_data, var), n = NULL,
