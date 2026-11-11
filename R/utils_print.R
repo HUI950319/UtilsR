@@ -1207,7 +1207,8 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
     cli::cli_abort("{.arg vars} names column{?s} absent from {.arg data}: {.val {miss}}.")
   }
   if (!length(columns)) return(._pr_out(character()))
-  if (console_width() - indent < 12L) {
+  width <- console_width()
+  if (width - indent < 12L) {
     cli::cli_abort("{.arg indent} must leave at least twelve columns for the name and missing share.")
   }
   vars <- names(data)[columns]
@@ -1317,10 +1318,10 @@ pr_spark <- function(data, vars = NULL, bins = 12, indent = 2) {
   lines <- paste0(strrep(" ", indent), cli::style_bold(name), "  ",
                   cli::col_cyan(col(1)), "  ", col(2), "  ",
                   cli::col_grey(vapply(parts, `[`, "", 3)))
-  wide <- which(cli::ansi_nchar(lines, type = "width") > console_width())
+  wide <- which(cli::ansi_nchar(lines, type = "width") > width)
   for (i in wide) {
     tail <- parts[[i]][3]
-    room <- max(1L, console_width() - indent - cli::ansi_nchar(tail, type = "width") - 2L)
+    room <- max(1L, width - indent - cli::ansi_nchar(tail, type = "width") - 2L)
     key <- ._pr_trim(escaped[i], max(1L, floor((room - 2L) / 3L)))
     prefix <- ._pr_trim(paste(cli::style_bold(key), parts[[i]][2]), room)
     lines[i] <- paste0(strrep(" ", indent), prefix, "  ", cli::col_grey(tail))

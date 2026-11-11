@@ -1456,3 +1456,19 @@ test_that("sparkline means retain cancellation across integer64 extrema", {
   lines <- cli::ansi_strip(utils::capture.output(pr_spark(data.frame(score = x))))
   expect_match(paste(lines, collapse = " "), "mean 0.500", fixed = TRUE)
 })
+
+test_that("sparklines check console width once", {
+  fn <- pr_spark
+  env <- new.env(parent = environment(fn))
+  width_reads <- 0L
+  env$console_width <- function() {
+    width_reads <<- width_reads + 1L
+    30L
+  }
+  environment(fn) <- env
+  x <- data.frame(long_column_name = c(1, NA, 3), another_long_column_name = c("long label", "b", NA))
+  result <- cli::ansi_strip(utils::capture.output(fn(x)))
+  expect_identical(width_reads, 1L)
+  expect_true(all(nchar(result, type = "width") <= 30L))
+  expect_true(all(grepl("NA 33.3%", result, fixed = TRUE)))
+})
