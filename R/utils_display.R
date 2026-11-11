@@ -345,6 +345,7 @@ console_width <- function() {
   # text cli cannot parse (data with braces) is shown as written; cli would
   # otherwise fail inside the deferred on.exit() that closes the step
   as_written <- function(s) {
+    if (is.character(s) && !any(grepl("[{}]", s))) return(s)
     ok <- tryCatch({ cli::format_inline(s, .envir = .envir); TRUE },
                    error = function(e) FALSE)
     if (ok) s else gsub("([{}])", "\\1\\1", s)

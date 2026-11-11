@@ -1135,3 +1135,17 @@ test_that("survival formula notices require the named outcome column", {
   expect_match(paste(cli::cli_fmt(.cat_formula(NULL, "age", time = NULL)), collapse = " "),
                "Logistic model", fixed = TRUE)
 })
+
+test_that("literal progress steps skip inline markup preflight", {
+  format <- cli::format_inline
+  seen <- 0L
+  local_mocked_bindings(format_inline = function(text, ...) {
+    if (identical(text, "Literal work") || identical(text, "Literal done")) seen <<- seen + 1L
+    format(text, ...)
+  }, .package = "cli")
+  run <- function() .cat_step("Literal work", msg_done = "Literal done", i = 2L)
+  out <- paste(cli::cli_fmt(run()), collapse = " ")
+  expect_identical(seen, 0L)
+  expect_match(out, "Literal work", fixed = TRUE)
+  expect_match(out, "Literal done", fixed = TRUE)
+})

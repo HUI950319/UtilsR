@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Plain progress notices avoid redundant inline formatting before the CLI step starts.
+
 * Butterfly wide inputs and delegated box plots retain observed empty category names through reshaping.
 
 * Mirrored butterfly distributions build only shared category columns and retain their original padding and order.
