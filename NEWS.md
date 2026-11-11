@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Categorical Sankey plots expand counted paths in one pass while retaining the backend node and weight order.
+
 * Stacked continuous plots construct their long data from finite observations while preserving row and feature order.
 
 * Scatter grouping skips display-label reconstruction for matching plain character, integer, and logical keys.

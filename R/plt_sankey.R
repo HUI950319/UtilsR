@@ -310,16 +310,7 @@ plt_sankey <- function(data,
 
   # Reshape plain keys, then restore their order in the shared node column.
   all_levels <- names(node_labels)
-  stage <- rep.int(seq_along(label_vars), nrow(data))
-  stage_levels <- if (nrow(data)) label_vars else character()
-  nodes <- as.character(do.call(rbind, unname(as.list(data[label_vars]))))
-  next_stage <- factor(label_vars[stage + 1L], levels = stage_levels)
-  next_node <- dplyr::lead(nodes)
-  next_node[is.na(next_stage)] <- NA_character_
-  plot_data <- tibble::tibble(
-    x = factor(label_vars[stage], levels = stage_levels), node = nodes,
-    next_x = next_stage, next_node = next_node
-  )
+  plot_data <- .sankey_path_rows(data, label_vars)
 
   # Set node factor levels
   plot_data$node <- factor(plot_data$node, levels = all_levels)
@@ -373,7 +364,7 @@ plt_sankey <- function(data,
     label_data <- ggplot2::ggplot_build(nodes)$data[[1L]]
     ids <- as.character(label_data$node)
     node_stages <- stats::setNames(rep(label_vars, node_counts), all_levels)
-    label_data$x <- factor(unname(node_stages[ids]), levels = stage_levels)
+    label_data$x <- factor(unname(node_stages[ids]), levels = levels(plot_data[["x"]]))
     label_data$label <- unname(node_labels[ids])
     label_data$y <- (label_data$ymin + label_data$ymax) / 2
     proportion <- unname(node_pct[ids])
@@ -396,4 +387,17 @@ plt_sankey <- function(data,
   .save_sized(plot, save, c(max(4, 2 * length(vars)), max(4, 0.5 * n_level)),
               lead = "Sankey diagram laid out for",
               filename = "Figure X. Sankey diagram.pdf")
+}
+
+.sankey_path_rows <- function(data, stages) {
+  stage <- rep.int(seq_along(stages), nrow(data))
+  stage_levels <- if (nrow(data)) stages else character()
+  nodes <- as.character(do.call(rbind, unname(lapply(data[stages], as.character))))
+  next_stage <- factor(stages[stage + 1L], levels = stage_levels)
+  next_node <- dplyr::lead(nodes)
+  next_node[is.na(next_stage)] <- NA_character_
+  tibble::tibble(
+    x = factor(stages[stage], levels = stage_levels), node = nodes,
+    next_x = next_stage, next_node = next_node
+  )
 }

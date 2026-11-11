@@ -1303,3 +1303,16 @@ test_that("categorical missingness checks use ordinary factor codes", {
   invisible(utils::capture.output(p <- suppressMessages(fn(d, "s", stat = "count"))))
   expect_identical(p$data$n, c(20L, 20L))
 })
+
+test_that("categorical Sankey paths reshape their weights without backend grouping", {
+  skip_if_not_installed("ggsankey")
+  d <- data.frame(A = c("a", "b", "a", "a"), B = c("x", "y", "x", "x"),
+                  C = c("u", "v", "u", "u"))
+  expected <- cat_test_plot(d, names(d), type = "sankey")$data
+  local_mocked_bindings(make_long = function(...) stop("re-expanded weighted paths"),
+                        .package = "ggsankey")
+  result <- cat_test_plot(d, names(d), type = "sankey")$data
+  expect_identical(result, expected)
+  expect_identical(result$next_node, c("x", "u", NA, "y", "v", NA))
+  expect_identical(result$value, c(3L, 3L, 3L, 1L, 1L, 1L))
+})
