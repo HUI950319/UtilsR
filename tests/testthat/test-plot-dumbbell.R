@@ -788,3 +788,12 @@ test_that("dumbbell insets keep a label for an undefined paired t test", {
     expect_identical(unlist(lapply(text, `[[`, "label"), use.names = FALSE), "p = NA")
   }
 })
+
+test_that("dumbbell categories keep calendar periods with identical seconds slots", {
+  skip_if_not_installed("lubridate")
+  months <- lubridate::period(months = c(1L, 3L, 2L))
+  d <- tibble::tibble(category = months, start = 1:3, end = 2:4)
+  p <- suppressWarnings(dumbbell_plot(d, sort_by = "none", legend_pos = "none"))
+  expect_identical(levels(p$data$category), as.character(months))
+  expect_identical(as.character(p$data$category), as.character(months))
+})

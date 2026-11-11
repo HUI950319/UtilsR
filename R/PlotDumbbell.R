@@ -314,6 +314,7 @@ PlotDumbbell <- function(
 
   # ---- Factor Y axis (preserving sorted order) ----
   categories <- .butterfly_category_labels(data[[y_col]])
+  if (inherits(categories, "Period")) categories <- as.character(categories)
   if (is.factor(categories) && anyNA(levels(categories))) {
     labels <- levels(categories)
     labels[is.na(labels)] <- utils::tail(make.unique(c(labels[!is.na(labels)], "<NA>")), 1L)

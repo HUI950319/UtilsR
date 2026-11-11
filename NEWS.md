@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Dumbbell plots preserve each distinct calendar period as a separate category position.
+
 * Sankey stages retain distinct calendar-period categories, including periods with the same seconds slot.
 
 * Jaccard plots reshape matrix cells without an intermediate table or matrix clone for hidden diagonals.
