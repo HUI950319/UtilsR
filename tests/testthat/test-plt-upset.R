@@ -859,3 +859,17 @@ test_that("UpSet plots count observed combinations without building a region tab
   expect_s3_class(suppressMessages(plt_upset(d, vars = names(d), levels = TRUE, output = "upset")), "ggplot")
   expect_identical(captured, 3L)
 })
+
+test_that("combined UpSet output reuses its data-only intersection grouping", {
+  skip_if_not_installed("ggVennDiagram")
+  sets <- stats::setNames(lapply(1:8, function(i) seq_len(i + 1L)), c("None", "A/B", LETTERS[3:8]))
+  labels <- c(C = "A/B", D = "None")
+  expected <- plt_upset(sets, set.labels = labels, output = "data")
+  local_mocked_bindings(ggVennDiagram = function(...) ggplot2::ggplot(),
+    process_region_data = function(...) stop("enumerated regions for grouped output"),
+    .package = "ggVennDiagram")
+  local_mocked_bindings(.plt_upset_labels = function(p, ...) p, .package = "UtilsR")
+  result <- suppressMessages(plt_upset(sets, set.labels = labels, output = "all"))
+  expect_identical(result$data, expected)
+  expect_s3_class(result$upset, "ggplot")
+})

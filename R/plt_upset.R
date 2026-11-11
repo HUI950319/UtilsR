@@ -378,8 +378,9 @@ plt_upset <- function(data,
   names(set_list) <- set_keys
   set_labels <- stats::setNames(display_names, set_keys)
 
-  if (output == "data") {
-    if (length(save)) cli::cli_abort("{.code output = \"data\"} draws no plot to save.")
+  grp_data <- row_codes <- NULL
+  if (output %in% c("data", "all")) {
+    if (output == "data" && length(save)) cli::cli_abort("{.code output = \"data\"} draws no plot to save.")
 
     # Preserve every combination label while counting only observed row patterns.
     n_sets <- length(set_list)
@@ -405,29 +406,7 @@ plt_upset <- function(data,
     grp_data <- data
     grp_data$intersect_group <- structure(level_codes[row_keys],
                                           levels = group_names[ordered], class = "factor")
-    return(grp_data)
-  }
-
-  # Statistics do not depend on the structure or success of a rendered plot.
-  grp_info <- NULL
-  if (output == "all") {
-    grp_info <- ggVennDiagram::process_region_data(ggVennDiagram::Venn(set_list))
-    region_names <- vapply(strsplit(as.character(grp_info$id), "/", fixed = TRUE),
-                           function(i) paste(display_names[as.integer(i)], collapse = "/"),
-                           character(1))
-    group_names <- make.unique(c(region_names, "None"))
-    grp_info$name <- head(group_names, -1L)
-    none_group <- tail(group_names, 1L)
-    grp_info <- grp_info[order(-grp_info$count), ]
-  }
-  grp_data <- NULL
-  if (output == "all") {
-    row_groups <- rep(none_group, nrow(data))
-    for (i in which(grp_info$count > 0)) {
-      row_groups[grp_info$item[[i]]] <- grp_info$name[[i]]
-    }
-    grp_data <- data
-    grp_data$intersect_group <- factor(row_groups, levels = c(grp_info$name, none_group))
+    if (output == "data") return(grp_data)
   }
 
   # ── Venn ─────────────────────────────────────────────────────────────────
@@ -489,12 +468,8 @@ plt_upset <- function(data,
 
   p_upset <- NULL
   if (output %in% c("upset", "both", "all")) {
-    nintersects <- if (output == "all") {
-      sum(grp_info$count > 0)
-    } else {
-      codes <- .upset_row_codes(set_list)
-      length(unique(codes[codes != 0L]))
-    }
+    codes <- row_codes %||% .upset_row_codes(set_list)
+    nintersects <- length(unique(codes[codes != 0L]))
     p_upset <- .safe_upset(set_list, nintersects, upset_colors)
   }
 

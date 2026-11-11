@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `output = "all"` builds grouped data directly from the same membership codes used by the data-only result.
+
 * UpSet-only output avoids enumerating a complete region table to count visible intersections.
 
 * Butterfly bars exclude SPSS user-missing score codes from min-max bounds and retain their existing zero-fill rule.
