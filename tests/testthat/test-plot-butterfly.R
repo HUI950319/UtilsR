@@ -1011,3 +1011,20 @@ test_that("butterfly distributions select data.table columns before copying", {
   expect_identical(p[[1L]]$data, q[[1L]]$data)
   expect_identical(x, before)
 })
+
+test_that("butterfly bar scaling ignores SPSS missing scores", {
+  skip_if_not_installed("haven")
+  d <- data.frame(category = rep(letters[1:4], 2L), fill = "one",
+    group = rep(c("L", "R"), each = 4L),
+    score = haven::labelled_spss(c(1, 99, 3, 4, 2, 4, 6, 8), na_values = 99))
+  reference <- d
+  reference$score <- c(1, NA, 3, 4, 2, 4, 6, 8)
+  for (scale in c(FALSE, TRUE)) {
+    draw <- function(x) PlotButterfly(x, stat.by = "category", fill.by = "fill",
+      value.by = "score", group.by = "group", type = "bar", minmax = scale)
+    result <- draw(d)
+    expected <- draw(reference)
+    expect_equal(lapply(seq_along(result), function(i) ggplot2::ggplot_build(result[[i]])$data),
+                 lapply(seq_along(expected), function(i) ggplot2::ggplot_build(expected[[i]])$data))
+  }
+})

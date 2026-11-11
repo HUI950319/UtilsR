@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Butterfly bars exclude SPSS user-missing score codes from min-max bounds and retain their existing zero-fill rule.
+
 * `lv()` reports entirely missing Date columns with their missing count in grouped and ungrouped summaries.
 
 * Alluvial plots sort observed facet-category pairs once before filling each group stratum.

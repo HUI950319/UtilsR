@@ -283,6 +283,9 @@ PlotButterfly <- function(
     for (col in category_cols) {
       data[[col]] <- .butterfly_category_labels(data[[col]])
     }
+    if (inherits(values, "haven_labelled_spss")) {
+      data[[value.by]] <- .scatter_axis_values(values)
+    }
 
     groups <- unique(as.character(data[[group.by]]))
     if (length(groups) != 2L)
