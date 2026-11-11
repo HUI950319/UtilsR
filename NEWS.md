@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Sankey plots avoid copying unrelated data.table columns during input normalization.
+
 * Rank correlation reshaping uses existing singleton scores and averages only repeated method keys.
 
 * `check_size()` formats each measured object once in the display unit it will use.

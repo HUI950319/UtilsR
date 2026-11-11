@@ -744,3 +744,24 @@ test_that("Sankey label stages use the node index", {
   expect_identical(as.character(labels$x), rep(levels(p$data$x), each = 2L))
   expect_setequal(labels$label, c("a", "b", "c"))
 })
+
+test_that("Sankey projects selected data.table columns without copying unused data", {
+  skip_if_not_installed("data.table")
+  skip_if_not_installed("ggsankey")
+  withr::local_options(lifecycle_verbosity = "quiet")
+  d <- sankey_data()
+  x <- data.table::as.data.table(d)
+  x$payload <- lapply(seq_len(nrow(x)), function(i) raw(1000L))
+  fn <- plt_sankey
+  env <- new.env(parent = environment(fn))
+  env$as.data.frame <- function(x, ...) {
+    if (inherits(x, "data.table") && "payload" %in% names(x)) stop("copied unused table columns")
+    base::as.data.frame(x, ...)
+  }
+  environment(fn) <- env
+  before <- data.table::copy(x)
+  reference <- suppressMessages(plt_sankey(d, vars = names(d), show_text = "name"))
+  result <- suppressMessages(fn(x, vars = names(d), show_text = "name"))
+  expect_identical(result$data, reference$data)
+  expect_identical(x, before)
+})
