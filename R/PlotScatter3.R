@@ -208,7 +208,7 @@ PlotScatter3 <- function(
     value <- data[[col]]
     if (is.complex(value) || is.list(value) || !is.null(dim(value)))
       stop("Column '", col, "' must contain a real vector.", call. = FALSE)
-    if (inherits(value, c("haven_labelled_spss", "integer64"))) {
+    if (inherits(value, "haven_labelled_spss")) {
       data[[col]] <- .scatter_axis_values(value)
     }
   }
@@ -228,6 +228,9 @@ PlotScatter3 <- function(
     group <- group_col
   }
 
+  for (col in unique(c(x, y))) {
+    if (inherits(data[[col]], "integer64")) data[[col]] <- .scatter_axis_values(data[[col]])
+  }
   for (value in list(data[[group]], group_levels)) {
     if (inherits(value, "integer64") && !requireNamespace("bit64", quietly = TRUE))
       stop("Package 'bit64' is required for integer64 grouping columns.", call. = FALSE)

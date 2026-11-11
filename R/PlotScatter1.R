@@ -180,7 +180,7 @@ PlotScatter1 <- function(
     value <- data[[col]]
     if (is.complex(value) || is.list(value) || !is.null(dim(value)))
       stop("Column '", col, "' must contain a real vector.", call. = FALSE)
-    if (inherits(value, c("haven_labelled_spss", "integer64"))) {
+    if (inherits(value, "haven_labelled_spss")) {
       data[[col]] <- .scatter_axis_values(value)
     }
   }
@@ -203,6 +203,9 @@ PlotScatter1 <- function(
   if (group_col %in% c(x, y)) {
     group_col <- make.unique(c(names(df), ".scatter1_group"))[ncol(df) + 1L]
     df[[group_col]] <- df[[group]]
+  }
+  for (col in unique(c(x, y))) {
+    if (inherits(df[[col]], "integer64")) df[[col]] <- .scatter_axis_values(df[[col]])
   }
   for (value in list(df[[group_col]], group_levels)) {
     if (inherits(value, "integer64") && !requireNamespace("bit64", quietly = TRUE))

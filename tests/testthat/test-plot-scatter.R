@@ -1491,3 +1491,22 @@ test_that("paired scatter validates active P-value digits", {
   expected <- stats::t.test(as.double(data$Control), as.double(data$Treat), paired = TRUE)$p.value
   expect_identical(ggplot2::layer_data(p$main, 2L)$label, paste0("p = ", format.pval(expected, digits = 4)))
 })
+
+test_that("shared integer64 scatter columns keep both groups", {
+  skip_if_not_installed("bit64")
+  labels <- c("9007199254740992", "9007199254740993")
+  d <- data.frame(x = bit64::as.integer64(rep(labels, 3L)), y = seq_len(6L))
+  quiet <- function(expr) withCallingHandlers(expr, warning = function(w) {
+    if (grepl("integer precision lost", conditionMessage(w), fixed = TRUE)) invokeRestart("muffleWarning")
+  })
+  first <- quiet(scatter1_capture_panels(d, "x", "y", "x", show_ellipse = FALSE,
+    show_refline = FALSE, box_jitter = FALSE)$panels$main)
+  second <- quiet(PlotScatter2(d, "x", "y", "x"))[[1L]]
+  third <- quiet(PlotScatter3(d, "x", "y", "x", test_method = "none", cor_method = "none",
+    show_refline = FALSE))[[1L]]
+  for (plot in list(first, second, third)) {
+    groups <- Filter(is.factor, as.list(plot$data))
+    expect_true(any(vapply(groups, function(x) identical(levels(x), labels), logical(1))))
+  }
+  expect_identical(as.character(d$x), rep(labels, 3L))
+})

@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Scatter plots preserve integer64 group identity when the grouping column also supplies a plotted coordinate.
+
 * Missingness inspection avoids copying labels when none contain whitespace.
 
 * `.cat_message(wrap = FALSE)` writes verbatim lines without computing a wrapping width.
