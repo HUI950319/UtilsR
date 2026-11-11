@@ -214,10 +214,12 @@ console_width <- function() {
   ts_width <- cli::ansi_nchar(ts, type = "width")
   ts_w  <- if (nzchar(ts)) ts_width + 1L else 0L
   # wrap at the console width, less the timestamp and the label or symbol
-  avail <- max(1, console_width() - ts_width - if (style == "chip") 10 else 6)
-  lines <- unlist(lapply(lines, function(l) {
-    if (wrap && nzchar(l)) ._pr_wrap(l, avail) else l
-  }))
+  if (wrap) {
+    avail <- max(1, console_width() - ts_width - if (style == "chip") 10 else 6)
+    lines <- unlist(lapply(lines, function(l) {
+      if (nzchar(l)) ._pr_wrap(l, avail) else l
+    }))
+  }
 
   bg    <- ._cli_bg(cfg$type)
   fg    <- ._cli_fg(cfg$type)

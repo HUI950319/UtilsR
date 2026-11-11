@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `.cat_message(wrap = FALSE)` writes verbatim lines without computing a wrapping width.
+
 * `set_wd()` reads file sizes from the paths returned by its directory scan.
 
 * `fct_label()` checks a data-frame column's presence and uniqueness with one name scan.

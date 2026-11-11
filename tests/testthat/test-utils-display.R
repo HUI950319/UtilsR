@@ -1073,3 +1073,14 @@ test_that("long plain Han runs wrap without repeatedly trimming their suffixes",
   expect_identical(paste0(lines, collapse = ""), token)
   expect_true(all(nchar(head(lines, -1L)) == 15L))
 })
+
+test_that("unwrapped notices leave console width unused", {
+  fn <- .cat_message
+  env <- new.env(parent = environment(fn))
+  env$console_width <- function() stop("measured unwrapped console")
+  environment(fn) <- env
+  text <- paste(rep("unchanged {literal}", 8L), collapse = " ")
+  message <- cli::ansi_strip(paste(cli::cli_fmt(fn(text, wrap = FALSE,
+    timestamp_format = NULL)), collapse = "\n"))
+  expect_match(message, text, fixed = TRUE)
+})
