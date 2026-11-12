@@ -722,3 +722,19 @@ test_that("special marker checks rewrite only whitespace labels", {
   expect_identical(fn(c("not   available", "ok", "  ")), c(TRUE, FALSE, TRUE))
   expect_identical(normalizations, c(2L, 2L))
 })
+
+test_that("quality reports skip constructing clean variable rows", {
+  d <- data.frame(clean = c(12, 13, 14), issue = c("A", "Unknown", NA))
+  fn <- check_na
+  env <- new.env(parent = environment(fn))
+  env$class <- function(x) {
+    if (identical(x, d$clean)) stop("classified a clean variable for display")
+    base::class(x)
+  }
+  environment(fn) <- env
+  expected <- check_na(d)
+  result <- fn(d)
+  expect_identical(result[["_data"]], expected[["_data"]])
+  expect_identical(result[["_data"]]$variable, "issue")
+  expect_identical(check_na(d, show_all = TRUE)[["_data"]]$variable, c("issue", "clean"))
+})

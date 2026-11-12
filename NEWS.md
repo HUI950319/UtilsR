@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `check_na()` orders and describes only the report rows it will display.
+
 * Factor conversion keeps distinct calendar period values and their missing codes.
 
 * Factor regrouping compacts observed levels using integer positions from a single target lookup.

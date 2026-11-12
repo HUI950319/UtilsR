@@ -144,13 +144,21 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
                           use.names = FALSE)
   special_count <- unlist(lapply(data, .count_special_values, special = special),
                           use.names = FALSE)
+  rows <- if (show_all) seq_along(missing_count) else which(missing_count + special_count > 0)
+  if (!length(rows)) {
+    pr_head("check_na", "no missing or special values found", bg = "green")
+    return(invisible(NULL))
+  }
+  rows <- rows[order(missing_count[rows], special_count[rows], decreasing = TRUE)]
+  missing_count <- missing_count[rows]
+  special_count <- special_count[rows]
   res_na <- data.frame(
-    variable = names(data),
+    variable = names(data)[rows],
     missing_count = missing_count,
     missing_percentage = (missing_count / n_total) * 100,
     special_count = special_count,
     special_percentage = (special_count / n_total) * 100,
-    data_type = vapply(data, function(x) class(x)[1L], character(1)),
+    data_type = vapply(rows, function(i) class(data[[i]])[1L], character(1)),
     stringsAsFactors = FALSE,
     row.names = NULL
   )
@@ -161,19 +169,6 @@ check_na <- function(data, ..., pattern = NULL, special = NULL,
     text[x > 0 & x < 10^(-digits)] <- paste0("<", sprintf(fmt, 10^(-digits)))
     text
   }
-  if (!show_all) {
-    res_na <- res_na %>%
-      dplyr::filter(missing_count + special_count > 0)
-  }
-
-  res_na <- res_na %>%
-    dplyr::arrange(dplyr::desc(missing_count), dplyr::desc(special_count))
-
-  if (nrow(res_na) == 0) {
-    pr_head("check_na", "no missing or special values found", bg = "green")
-    return(invisible(NULL))
-  }
-
   total_missing_vars <- sum(res_na$missing_count > 0)
   total_special_vars <- sum(res_na$special_count > 0)
 
