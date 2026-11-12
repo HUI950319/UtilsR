@@ -167,16 +167,15 @@
 
   layers <- if (length(plot$layers)) plot$layers else list(NULL)
   for (layer in layers) {
-    mapping <- as.list(plot$mapping)
+    var_quo <- plot$mapping[[axis]]
     data <- plot$data
     if (!is.null(layer)) {
       if (axis %in% names(layer$aes_params)) next
-      mapping <- if (isTRUE(layer$inherit.aes)) {
-        utils::modifyList(mapping, as.list(layer$mapping))
-      } else as.list(layer$mapping)
+      if (!isTRUE(layer$inherit.aes) || axis %in% names(layer$mapping)) {
+        var_quo <- layer$mapping[[axis]]
+      }
       if (!is.null(layer$data) && !inherits(layer$data, "waiver")) data <- layer$data
     }
-    var_quo <- mapping[[axis]]
     if (is.null(var_quo) || is.function(data)) next
     expr <- rlang::get_expr(var_quo)
     if (mapping_is_late(expr)) {

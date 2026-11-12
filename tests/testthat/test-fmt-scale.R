@@ -442,3 +442,18 @@ test_that("scale inference ignores mappings replaced by fixed positions", {
   expect_identical(actual$layout$panel_scales_x[[1L]]$get_transformation()$name, "log-10")
   expect_no_error(ggplot2::ggplot_build(fmt_expand(p, axis = "x", mult = .1)))
 })
+
+test_that("scale inference reads only the requested mapped axis", {
+  d <- data.frame(x = 1:3, when = as.Date("2026-01-01") + 1:3, y = 4:6)
+  p <- ggplot2::ggplot(d, ggplot2::aes(x, y, colour = y, shape = factor(y))) +
+    ggplot2::geom_point(ggplot2::aes(x = when))
+  merge <- utils::modifyList
+  local_mocked_bindings(modifyList = function(x, val, ...) {
+    if ("x" %in% names(x) && "colour" %in% names(x) && "x" %in% names(val)) {
+      stop("merged all aesthetic mappings")
+    }
+    merge(x, val, ...)
+  }, .package = "utils")
+  expect_identical(.detect_scale_type(p, "x", defer = TRUE), "scale_x_date")
+  expect_identical(.detect_scale_type(p, "y", defer = TRUE), "scale_y_continuous")
+})
