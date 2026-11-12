@@ -730,3 +730,17 @@ test_that("raster backends require one-dimensional plot lists", {
     expect_error(fmt_raster(dimensional, method = method, dpi = 20), "one-dimensional")
   }
 })
+
+test_that("raster panel dimensions reuse measured single cells", {
+  table <- gtable::gtable(widths = grid::unit(c(1, 2, 3), "cm"), heights = grid::unit(1, "cm"))
+  table <- gtable::gtable_add_grob(table, list(grid::rectGrob(), grid::rectGrob()),
+    t = 1, l = c(2, 1), r = c(2, 3), name = c("panel-1", "panel-2"))
+  fn <- .resolve_panel_size
+  env <- new.env(parent = environment(fn))
+  env$sum <- function(x, ...) {
+    if (length(x) == 1L) stop("summed a single measured cell")
+    base::sum(x, ...)
+  }
+  environment(fn) <- env
+  expect_identical(fn(table, c(2L, 1L), "width", NULL, "cm", c(1, 2, 3)), c(6, 2))
+})

@@ -506,11 +506,13 @@ fmt_raster <- function(
   layout <- gtable[["layout"]]
   if (!is.null(cell_sizes)) {
     # Each cell was measured in the parent layout, including aspect constraints.
-    from <- if (dim == "width") layout[["l"]] else layout[["t"]]
-    to <- if (dim == "width") layout[["r"]] else layout[["b"]]
-    sizes <- vapply(panel_index, function(idx) {
-      sum(cell_sizes[from[idx]:to[idx]])
-    }, numeric(1))
+    from <- layout[[if (dim == "width") "l" else "t"]][panel_index]
+    to <- layout[[if (dim == "width") "r" else "b"]][panel_index]
+    sizes <- cell_sizes[from]
+    spanning <- which(from != to)
+    sizes[spanning] <- vapply(spanning, function(i) {
+      sum(cell_sizes[from[i]:to[i]])
+    }, numeric(1L))
   } else {
     grid::pushViewport(grid::viewport(layout = grid::grid.layout(
       nrow = length(gtable$heights), ncol = length(gtable$widths),

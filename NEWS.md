@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* Raster panel sizing indexes measured single cells directly and sums only spanning panels.
+
 * `check_na()` orders and describes only the report rows it will display.
 
 * Factor conversion keeps distinct calendar period values and their missing codes.
