@@ -1,5 +1,7 @@
 # UtilsR 0.6.23
 
+* `fct_num()` reports that the observations must be real-valued before calling numeric binning backends.
+
 * `fct_num()` skips re-sorting strictly increasing plain cut points.
 
 * Butterfly bar plots use distinct calendar period labels for grouping and grid completion.

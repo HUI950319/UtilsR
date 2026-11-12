@@ -96,8 +96,8 @@
 fct_num <- function(x, breaks = NULL, labels = NULL,
                     nbins = NULL, type = c("quantile", "equal")) {
 
-  if (!is.numeric(x)) {
-    cli::cli_abort("{.arg x} must be numeric, got {.cls {class(x)}}.")
+  if (!is.numeric(x) || is.complex(x)) {
+    cli::cli_abort("{.arg x} must be real numeric, got {.cls {class(x)}}.")
   }
   if (!is.null(dim(x))) {
     cli::cli_abort("{.arg x} must be a numeric vector without dimensions.")

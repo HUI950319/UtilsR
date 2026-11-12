@@ -265,3 +265,10 @@ test_that("ordered fixed cut points skip the extra sort", {
   expect_identical(fn(input, rev(breaks)), expected)
   expect_error(fn(input, c(1L, 2L, 1L)), "distinct values")
 })
+
+test_that("complex observations fail before numeric bins are constructed", {
+  for (x in list(1 + 2i, c(NA_complex_, 1 + 0i))) {
+    expect_error(fct_num(x, breaks = stop("breaks evaluated")), "real numeric")
+    expect_error(fct_num(x, nbins = 2), "real numeric")
+  }
+})
